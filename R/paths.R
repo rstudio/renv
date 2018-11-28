@@ -4,12 +4,12 @@ renv_paths_root <- function(...) {
 }
 
 renv_paths_lib <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_LIB", renv_paths_root("lib", renv_platform_prefix()))
-  file.path(root, ...)
+  root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root("lib"))
+  file.path(root, renv_platform_prefix(), ...)
 }
 
 renv_paths_conf <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_CONF", renv_paths_root("conf"))
+  root <- Sys.getenv("RENV_PATHS_CONFIG", renv_paths_root("conf"))
   file.path(root, ...)
 }
 
