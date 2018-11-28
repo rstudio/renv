@@ -4,7 +4,8 @@
 \alias{renv_config}
 \title{Define an renv}
 \usage{
-renv_config(r_version = getRversion(), r_libs = NULL)
+renv_config(r_version = getRversion(), r_libs = character(),
+  r_libs_overlay = FALSE)
 }
 \description{
 Define an `renv`.
@@ -12,8 +13,9 @@ Define an `renv`.
 \details{
 The fields currently supported are:
 
-\tabular{ll}{
-\strong{r_version} \tab The \R version to be used for this project.    \cr
-\strong{r_libs}    \tab The \R libraries to activate for this project. \cr
+\tabular{lll}{
+\strong{r_version}      \tab \code{character[1]} \tab The \R version to be used for this project.    \cr
+\strong{r_libs}         \tab \code{character[n]} \tab The \R libraries to activate for this project. \cr
+\strong{r_libs_overlay} \tab \code{logical[1]}   \tab Overlay requested libraries on top of the default R libraries. \cr
 }
 }

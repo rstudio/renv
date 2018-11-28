@@ -64,9 +64,15 @@ renv_write_active <- function(project = ".", name) {
 
 renv_write_entry_impl <- function(line, file, force) {
 
-  # if the file doesn't exist, write it if requested
-  if (force && !file.exists(file)) {
-    writeLines(line, con = file)
+  # check to see if file doesn't exist
+  if (!file.exists(file)) {
+
+    # if we're not forcing file creation, just bail
+    if (!force)
+      return(TRUE)
+
+    # otherwise, write the file
+    writeLines(line, file)
     return(TRUE)
   }
 

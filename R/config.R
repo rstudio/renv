@@ -4,56 +4,99 @@
 #'
 #' The fields currently supported are:
 #'
-#' \tabular{ll}{
-#' \strong{r_version} \tab The \R version to be used for this project.    \cr
-#' \strong{r_libs}    \tab The \R libraries to activate for this project. \cr
+#' \tabular{lll}{
+#' \strong{r_version}      \tab \code{character[1]} \tab The \R version to be used for this project.    \cr
+#' \strong{r_libs}         \tab \code{character[n]} \tab The \R libraries to activate for this project. \cr
+#' \strong{r_libs_overlay} \tab \code{logical[1]}   \tab Overlay requested libraries on top of the default R libraries. \cr
 #' }
 #'
 #' @export
-renv_config <- function(r_version = getRversion(),
-                        r_libs    = NULL)
+renv_config <- function(r_version      = getRversion(),
+                        r_libs         = character(),
+                        r_libs_overlay = FALSE)
 {
+  args <- mget(ls(envir = environment()), envir = environment())
+  args <- args[names(formals())]
+
+  defns <- renv_config_definitions()
+  enumerate(args, function(key, val) {
+    validate <- defns[[key]]$validate
+    if (!validate(val)) {
+      fmt <- "'%s' is not a valid setting for '%s'"
+      stopf(fmt, deparse(val), key)
+    }
+  })
+
+  args
+}
+
+renv_ved_version <- function() {
   list(
-    r_version = r_version,
-    r_libs    = r_libs
+    validate = function(x) inherits(x, "numeric_version"),
+    encode   = function(x) format(x),
+    decode   = function(x) numeric_version("3.5"),
+    comment  = "The requested R version."
+  )
+}
+
+renv_ved_character <- function() {
+  list(
+    validate = function(x) is.character(x),
+    encode   = function(x) paste(x, collapse = ", "),
+    decode   = function(x) strsplit(x, "\\s*,\\s*")[[1]],
+    comment = "The requested R libraries."
+  )
+}
+
+renv_ved_logical <- function() {
+  list(
+    validate = is.logical,
+    encode   = format,
+    decode   = as.logical,
+    comment  = "Overlay the requested R libraries over the default R library paths?"
+  )
+}
+
+renv_config_definitions <- function() {
+
+  list(
+    r_version      = renv_ved_version(),
+    r_libs         = renv_ved_character(),
+    r_libs_overlay = renv_ved_logical()
   )
 }
 
 renv_config_read <- function(path) {
 
   contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
+  lines <- grep("^\\w", contents, perl = TRUE, value = TRUE)
 
-  idx <- regexpr(":", contents, fixed = TRUE)
+  idx <- regexpr(":", lines, fixed = TRUE)
 
-  keys <- trimws(substring(contents, 1, idx - 1))
-  vals <- trimws(substring(contents, idx + 2))
+  keys <- trimws(substring(lines, 1, idx - 1))
+  vals <- trimws(substring(lines, idx + 2))
+  names(vals) <- keys
 
-  config <- lapply(vals, function(val) {
-    strsplit(val, "\\s*,\\s*")[[1]]
+  defns <- renv_config_definitions()
+  config <- enumerate(vals, function(key, val) {
+    defns[[key]]$decode(val)
   })
-  names(config) <- renv_config_translate(keys)
+
   config
 
 }
 
 renv_config_write <- function(config, path) {
 
-  keys <- pad_right(renv_config_translate(names(config)))
-  vals <- lapply(config, paste, collapse = ", ")
-  contents <- paste(keys, vals, sep = " : ")
+  defns <- renv_config_definitions()
+  contents <- enumerate(config, function(key, val) {
+    comment <- paste("#", defns[[key]]$comment)
+    encoded <- defns[[key]]$encode(val)
+    entry <- paste(key, encoded, sep = ": ")
+    paste(comment, entry, sep = "\n")
+  })
 
+  contents <- paste(contents, collapse = "\n\n")
   writeLines(enc2utf8(contents), con = path, useBytes = TRUE)
-
-}
-
-renv_config_translate <- function(entries) {
-
-  aliases <- bimap(
-    "R Version"   = "r_version",
-    "R Libraries" = "r_libs"
-
-  )
-
-  as.character(aliases[entries])
 
 }

@@ -84,16 +84,20 @@ renv_load <- function(name, project = ".") {
 
   # check R version (note that it is the responsibility of the user,
   # or the front-end, to ensure that R versions match)
-  vers <- config$r_version
-  if (vers != getRversion()) {
+  version <- config$r_version
+  if (!is_compatible_version(version, getRversion())) {
     fmt <- "renv '%s' requested R version '%s' but '%s' is currently being used"
-    warningf(fmt, name, vers, getRversion())
+    warningf(fmt, name, version, getRversion())
   }
 
   # check the R library paths
   libs <- config$r_libs
+  overlay <- config$r_libs_overlay
   if (length(libs)) {
-    libpaths <- renv_paths_lib(libs)
+    libpaths <- rev(renv_paths_lib(libs))
+    lapply(libpaths, ensure_directory)
+    if (overlay)
+      libpaths <- c(libpaths, .libPaths())
     .libPaths(libpaths)
   }
 

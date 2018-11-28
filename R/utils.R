@@ -6,8 +6,8 @@ messagef <- function(fmt, ...) {
   message(sprintf(fmt, ...))
 }
 
-warningf <- function(fmt, ...) {
-  warning(sprintf(fmt, ...))
+warningf <- function(fmt, ..., call. = FALSE) {
+  warning(sprintf(fmt, ...), call. = call.)
 }
 
 aliased_path <- function(path) {
@@ -60,4 +60,22 @@ pad_right <- function(text) {
   }, character(1))
 
   paste(text, spaces, sep = "")
+}
+
+enumerate <- function(x, f, ...) {
+  n <- names(x)
+  result <- lapply(seq_along(x), function(i) {
+    f(n[[i]], x[[i]], ...)
+  })
+  names(result) <- names(x)
+  result
+}
+
+is_compatible_version <- function(lhs, rhs) {
+  lhs <- unclass(lhs)[[1]]; rhs <- unclass(rhs)[[1]]
+  n <- min(length(lhs), length(rhs))
+  for (i in seq_len(n))
+    if (lhs[[i]] != rhs[[i]])
+      return(FALSE)
+  return(TRUE)
 }
