@@ -23,3 +23,27 @@ workflows:
 
 More general project-specific configuration is still being sketched out.
 
+## Usage
+
+Sample API sketched out.
+
+``` r
+library(renv)
+
+# define a virtual environment
+config <- renv_config(r_version = "3.5.1", r_libs = c("dev", "base"))
+
+# create a virtual environment with this configuration
+renv_create("my-renv", config = config)
+
+# edit the configuration by hand if desired
+renv_edit("my-renv")
+
+# activate this virtual environment in the active project
+renv_activate("my-renv")
+
+# session restarts; new library paths are loaded; work as usual ...
+
+# deactivate when we're done
+renv_deactivate("my-renv")
+```
