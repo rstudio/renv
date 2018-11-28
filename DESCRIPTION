@@ -1,0 +1,11 @@
+Package: renv
+Type: Package
+Title: Project-specific R Environments
+Version: 0.0.1
+Author: Kevin Ushey
+Maintainer: Kevin Ushey <kevinushey@gmail.com>
+Description: Project-specific R environments.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
