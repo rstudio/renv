@@ -9,15 +9,15 @@ renv_config(renv_version = packageVersion("renv"),
   r_libs_overlay = FALSE)
 }
 \description{
-Define an `renv`.
+Define an \code{renv}. \code{wat}. \code{wat}.
 }
 \details{
 The fields currently supported are:
 
 \tabular{lll}{
-\strong{renv_version}   \tab \code{character[1]} \tab The version of the `renv` package to be used with this project. \cr
+\strong{renv_version}   \tab \code{character[1]} \tab The version of the \code{renv} package to be used with this project. \cr
 \strong{r_version}      \tab \code{character[1]} \tab The \R version to be used for this project.    \cr
-\strong{r_libs}         \tab \code{character[n]} \tab The \R libraries to activate for this project. \cr
+\strong{r_libs}         \tab \code{character[*]} \tab The \R libraries to activate for this project. \cr
 \strong{r_libs_overlay} \tab \code{logical[1]}   \tab Overlay requested libraries on top of the default R libraries. \cr
 }
 }

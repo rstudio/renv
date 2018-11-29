@@ -6,9 +6,9 @@
 \alias{renv-package}
 \title{renv}
 \description{
-Use `renv` to define custom \R environments, which can then be bound to
+Use \code{renv} to define custom \R environments, which can then be bound to
 different projects.
 }
 \details{
-Inspired by the Python `virtualenv` module.
+Inspired by the Python \code{virtualenv} module.
 }

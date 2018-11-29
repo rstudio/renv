@@ -12,7 +12,7 @@ renv_activate(name, project = ".")
 \item{project}{The project directory.}
 }
 \description{
-Activate an `renv`. This binds a project to an existing `renv`
+Activate an \code{renv}. This binds a project to an existing \code{renv}
 environment definition. Newly-launched \R sessions in this project will
-use the `renv` as specified by `name`.
+use the \code{renv} as specified by \code{name}.
 }

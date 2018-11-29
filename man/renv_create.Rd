@@ -9,9 +9,9 @@ renv_create(name, config = renv_config())
 \arguments{
 \item{name}{The name of the environment to be created.}
 
-\item{config}{The configuration for this `renv`. See [config]
+\item{config}{The configuration for this \code{renv}. See \link{config}
 for more details.}
 }
 \description{
-Create an `renv` environment.
+Create an \code{renv} environment.
 }

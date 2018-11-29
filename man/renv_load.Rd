@@ -10,7 +10,7 @@ renv_load(name, project = ".")
 \item{name}{The name of the environment you'd like to activate.}
 }
 \description{
-Load the `renv` environment called `name`. Normally this is done
-automatically when \R sessions are launched, after calling [activate]
-to bind a project to a particular `renv` environment.
+Load the \code{renv} environment called \code{name}. Normally this is done
+automatically when \R sessions are launched, after calling \link{activate}
+to bind a project to a particular \code{renv} environment.
 }

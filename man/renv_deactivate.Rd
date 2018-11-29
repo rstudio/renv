@@ -10,5 +10,5 @@ renv_deactivate(project = ".")
 \item{project}{The project directory.}
 }
 \description{
-Deactivate the active `renv`.
+Deactivate the active \code{renv}.
 }

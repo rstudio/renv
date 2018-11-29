@@ -7,7 +7,7 @@
 #' \tabular{lll}{
 #' \strong{renv_version}   \tab \code{character[1]} \tab The version of the `renv` package to be used with this project. \cr
 #' \strong{r_version}      \tab \code{character[1]} \tab The \R version to be used for this project.    \cr
-#' \strong{r_libs}         \tab \code{character[n]} \tab The \R libraries to activate for this project. \cr
+#' \strong{r_libs}         \tab \code{character[*]} \tab The \R libraries to activate for this project. \cr
 #' \strong{r_libs_overlay} \tab \code{logical[1]}   \tab Overlay requested libraries on top of the default R libraries. \cr
 #' }
 #'
