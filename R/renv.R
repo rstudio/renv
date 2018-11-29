@@ -11,6 +11,7 @@ renv_create <- function(name, config = renv_config()) {
 
   path <- ensure_no_renv(name)
   ensure_directory(dirname(path))
+  renv_bootstrap()
   renv_config_write(config, path)
 
   if (renv_verbose()) {
@@ -90,16 +91,13 @@ renv_load <- function(name, project = ".") {
     warningf(fmt, name, version, getRversion())
   }
 
-  # check the R library paths
-  libs <- config$r_libs
-  overlay <- config$r_libs_overlay
-  if (length(libs)) {
-    libpaths <- rev(renv_paths_lib(libs))
-    lapply(libpaths, ensure_directory)
-    if (overlay)
-      libpaths <- c(libpaths, .libPaths())
-    .libPaths(libpaths)
-  }
+  # prepare the library paths
+  renv <- file.path(renv_paths_renv(), sprintf("renv-%s", config$renv_version))
+  libs <- rev(renv_paths_lib(config$r_libs))
+  lapply(libs, ensure_directory)
+
+  libpaths <- c(libs, renv, if (config$r_libs_overlay) .libPaths())
+  .libPaths(libpaths)
 
   # report environment changes to the user
   if (renv_verbose()) {
@@ -115,7 +113,6 @@ renv_load <- function(name, project = ".") {
   invisible(name)
 }
 
-#' Edit an
 #' @export
 renv_edit <- function(name) {
   path <- ensure_existing_renv(name)

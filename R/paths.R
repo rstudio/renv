@@ -13,6 +13,11 @@ renv_paths_conf <- function(...) {
   file.path(root, ...)
 }
 
+renv_paths_renv <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_RENV", renv_paths_root("renv"))
+  file.path(root, renv_platform_prefix(), ...)
+}
+
 
 
 renv_platform_prefix <- function(...) {

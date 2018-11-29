@@ -5,13 +5,15 @@
 #' The fields currently supported are:
 #'
 #' \tabular{lll}{
+#' \strong{renv_version}   \tab \code{character[1]} \tab The version of the `renv` package to be used with this project. \cr
 #' \strong{r_version}      \tab \code{character[1]} \tab The \R version to be used for this project.    \cr
 #' \strong{r_libs}         \tab \code{character[n]} \tab The \R libraries to activate for this project. \cr
 #' \strong{r_libs_overlay} \tab \code{logical[1]}   \tab Overlay requested libraries on top of the default R libraries. \cr
 #' }
 #'
 #' @export
-renv_config <- function(r_version      = getRversion(),
+renv_config <- function(renv_version   = packageVersion("renv"),
+                        r_version      = getRversion(),
                         r_libs         = character(),
                         r_libs_overlay = FALSE)
 {
@@ -30,39 +32,40 @@ renv_config <- function(r_version      = getRversion(),
   args
 }
 
-renv_ved_version <- function() {
+renv_ved_version <- function(comment) {
   list(
     validate = function(x) inherits(x, "numeric_version"),
     encode   = function(x) format(x),
-    decode   = function(x) numeric_version("3.5"),
-    comment  = "The requested R version."
+    decode   = function(x) numeric_version(x),
+    comment  = comment
   )
 }
 
-renv_ved_character <- function() {
+renv_ved_character <- function(comment) {
   list(
     validate = function(x) is.character(x),
     encode   = function(x) paste(x, collapse = ", "),
     decode   = function(x) strsplit(x, "\\s*,\\s*")[[1]],
-    comment = "The requested R libraries."
+    comment  = comment
   )
 }
 
-renv_ved_logical <- function() {
+renv_ved_logical <- function(comment) {
   list(
     validate = is.logical,
     encode   = format,
     decode   = as.logical,
-    comment  = "Overlay the requested R libraries over the default R library paths?"
+    comment  = comment
   )
 }
 
 renv_config_definitions <- function() {
 
   list(
-    r_version      = renv_ved_version(),
-    r_libs         = renv_ved_character(),
-    r_libs_overlay = renv_ved_logical()
+    renv_version   = renv_ved_version("The requested 'renv' version."),
+    r_version      = renv_ved_version("The requested R version."),
+    r_libs         = renv_ved_character("The requested R libraries"),
+    r_libs_overlay = renv_ved_logical("Overlay requested libraries over the default R libraries?")
   )
 }
 
