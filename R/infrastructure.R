@@ -1,62 +1,68 @@
-renv_write_infrastructure <- function(project = ".", name) {
+renv_write_infrastructure <- function(project = NULL, renv) {
+  project <- renv_active_project(project)
+
   renv_write_rprofile(project)
   renv_write_rbuildignore(project)
-  renv_write_activate(project, name)
-  renv_write_active(project, name)
+  renv_write_activate(project, renv)
+  renv_write_active(project, renv)
 }
 
 
-renv_write_rprofile <- function(project = ".") {
+renv_write_rprofile <- function(project) {
 
   renv_write_entry_impl(
-    "source('.renv/activate.R')",
+    sprintf("source(\"%s\")", renv_paths_local_activate()),
     file.path(project, ".Rprofile"),
     TRUE
   )
-
 }
 
-renv_write_rbuildignore <- function(project = ".") {
+renv_write_rbuildignore <- function(project) {
 
   renv_write_entry_impl(
-    "^\\.renv/",
+    renv_paths_local_rbuildignore(),
     file.path(project, ".Rbuildignore"),
     FALSE
   )
 
 }
 
-renv_write_activate <- function(project = ".", name) {
+renv_write_activate <- function(project = NULL, renv) {
+  project <- renv_active_project(project)
 
   source <- system.file("resources/activate.R", package = "renv")
-  target <- file.path(project, ".renv/activate.R")
+  target <- renv_paths_local(project, "activate.R")
+
+  template <- readLines(source, warn = FALSE)
+  rendered <- sprintf(template, renv_paths_subdir())
 
   if (file.exists(target)) {
-    sc <- readLines(source, warn = FALSE)
-    rc <- readLines(target, warn = FALSE)
-    if (identical(sc, rc))
+    current <- readLines(source, warn = FALSE)
+    if (identical(current, rendered))
       return(TRUE)
   }
 
   ensure_parent_directory(target)
-  file.copy(source, target, overwrite = TRUE)
+  writeLines(rendered, target)
 
 }
 
-renv_write_active <- function(project = ".", name) {
-  active <- file.path(project, ".renv/active")
+renv_write_active <- function(project = NULL, renv) {
+  project <- renv_active_project(project)
+
+  active <- renv_paths_local(project, "active")
   ensure_parent_directory(active)
 
   if (!file.exists(active)) {
-    writeLines(name, con = active)
+    writeLines(renv, con = active)
     return(TRUE)
   }
 
   contents <- readLines(active)
-  if (identical(contents, name))
+  if (identical(contents, renv))
     return(TRUE)
 
-  writeLines(name, con = active)
+  writeLines(renv, con = active)
   TRUE
 
 }
@@ -91,28 +97,29 @@ renv_write_entry_impl <- function(line, file, force) {
 
 
 
-renv_remove_infrastructure <- function(project = ".", name) {
+renv_remove_infrastructure <- function(project = NULL) {
+  project <- renv_active_project(project)
+
   renv_remove_rprofile(project)
   renv_remove_rbuildignore(project)
 
-  renv <- file.path(project, ".renv")
-  unlink(renv, recursive = TRUE)
+  unlink(renv_paths_local(project), recursive = TRUE)
 }
 
 
-renv_remove_rprofile <- function(project = ".") {
+renv_remove_rprofile <- function(project) {
 
   renv_remove_entry_impl(
-    "source('.renv/activate.R')",
+    sprintf("source(\"%s\")", renv_paths_local_activate()),
     file.path(project, ".Rprofile")
   )
 
 }
 
-renv_remove_rbuildignore <- function(project = ".") {
+renv_remove_rbuildignore <- function(project) {
 
   renv_remove_entry_impl(
-    "^\\.renv/",
+    renv_paths_local_rbuildignore(),
     file.path(project, ".Rbuildignore")
   )
 
@@ -143,6 +150,5 @@ renv_remove_entry_impl <- function(line, file) {
   TRUE
 
 }
-
 
 

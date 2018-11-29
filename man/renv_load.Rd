@@ -2,15 +2,21 @@
 % Please edit documentation in R/renv.R
 \name{renv_load}
 \alias{renv_load}
-\title{Load an renv}
+\title{Load an R Virtual Environment.}
 \usage{
-renv_load(name, project = ".")
+renv_load(renv, project = NULL)
 }
 \arguments{
-\item{name}{The name of the environment you'd like to activate.}
+\item{renv}{The name of an \code{renv} environment.}
+
+\item{project}{The project directory. If an \code{renv} is already active, the
+active project is used; otherwise, the current working directory is used.}
 }
 \description{
-Load the \code{renv} environment called \code{name}. Normally this is done
-automatically when \R sessions are launched, after calling \link{activate}
-to bind a project to a particular \code{renv} environment.
+Load the \R virtual environment called \code{renv}.
+}
+\details{
+Normally, this is done automatically on session startup by the infrastructure
+initialized by \code{\link[=renv_activate]{renv_activate()}} -- users should not need to call this
+function directly.
 }

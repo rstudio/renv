@@ -1,2 +1,2 @@
-active <- readLines(".renv/active", warn = FALSE)
+active <- readLines("%s/active", warn = FALSE)
 renv::renv_load(active)

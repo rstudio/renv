@@ -2,22 +2,29 @@
 % Please edit documentation in R/config.R
 \name{renv_config}
 \alias{renv_config}
-\title{Define an renv}
+\title{Define an R Virtual Environment.}
 \usage{
 renv_config(renv_version = packageVersion("renv"),
   r_version = getRversion(), r_libs = character(),
   r_libs_overlay = FALSE)
 }
-\description{
-Define an \code{renv}. \code{wat}. \code{wat}.
-}
-\details{
-The fields currently supported are:
+\arguments{
+\item{renv_version}{\code{character[1]}: The version of the \code{renv} package to be used.}
 
-\tabular{lll}{
-\strong{renv_version}   \tab \code{character[1]} \tab The version of the \code{renv} package to be used with this project. \cr
-\strong{r_version}      \tab \code{character[1]} \tab The \R version to be used for this project.    \cr
-\strong{r_libs}         \tab \code{character[*]} \tab The \R libraries to activate for this project. \cr
-\strong{r_libs_overlay} \tab \code{logical[1]}   \tab Overlay requested libraries on top of the default R libraries. \cr
+\item{r_version}{\code{character[1]}: The version of \R to be used.}
+
+\item{r_libs}{\code{character[*]}: The \R libraries associated with this environment.}
+
+\item{r_libs_overlay}{\code{logical[1]}:   Overlay \code{r_libs} on top of the default \R libraries?}
 }
+\description{
+Provide the definition of a new \R virtual environment. Configurations created
+with this function are then passed to \code{\link[=renv_create]{renv_create()}} to create a virtual
+environment associated with this configuration.
 }
+\seealso{
+Other renv: \code{\link{renv_activate}},
+  \code{\link{renv_create}}, \code{\link{renv_deactivate}},
+  \code{\link{renv_edit}}
+}
+\concept{renv}

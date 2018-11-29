@@ -6,9 +6,16 @@
 \alias{renv-package}
 \title{renv}
 \description{
-Use \code{renv} to define custom \R environments, which can then be bound to
-different projects.
+Virtual environments for \R, inspired by the Python \href{https://virtualenv.pypa.io/en/latest/}{virtualenv} module.
 }
 \details{
-Inspired by the Python \code{virtualenv} module.
+Use \code{renv} to provide project-specific configuration to your \R projects.
+Using \code{renv}, you can associate projects with:
+\enumerate{
+\item A particular version of \R,
+\item A set of library paths,
+}
+
+These environments can be shared by multiple projects, and multiple projects
+can bind to the same \code{renv}.
 }

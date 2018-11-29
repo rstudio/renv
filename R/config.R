@@ -1,15 +1,15 @@
-#' Define an renv
+#' Define an R Virtual Environment.
 #'
-#' Define an `renv`.
+#' Provide the definition of a new \R virtual environment. Configurations created
+#' with this function are then passed to [renv_create()] to create a virtual
+#' environment associated with this configuration.
 #'
-#' The fields currently supported are:
+#' @param renv_version   `character[1]`: The version of the `renv` package to be used.
+#' @param r_version      `character[1]`: The version of \R to be used.
+#' @param r_libs         `character[*]`: The \R libraries associated with this environment.
+#' @param r_libs_overlay `logical[1]`:   Overlay `r_libs` on top of the default \R libraries?
 #'
-#' \tabular{lll}{
-#' \strong{renv_version}   \tab \code{character[1]} \tab The version of the `renv` package to be used with this project. \cr
-#' \strong{r_version}      \tab \code{character[1]} \tab The \R version to be used for this project.    \cr
-#' \strong{r_libs}         \tab \code{character[*]} \tab The \R libraries to activate for this project. \cr
-#' \strong{r_libs_overlay} \tab \code{logical[1]}   \tab Overlay requested libraries on top of the default R libraries. \cr
-#' }
+#' @family renv
 #'
 #' @export
 renv_config <- function(renv_version   = packageVersion("renv"),

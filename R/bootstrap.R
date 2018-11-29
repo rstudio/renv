@@ -13,8 +13,10 @@ renv_bootstrap <- function(version = package_version("renv"), force = FALSE) {
 
   # check to see if we already have an installation of 'renv' available
   target <- file.path(path, sprintf("renv-%s", packageVersion("renv")))
-  if (file.exists(file.path(target, "renv")) && !force)
-    return(TRUE)
+
+  # TODO: later
+  # if (file.exists(file.path(target, "renv")) && !force)
+  #   return(TRUE)
 
   # copy the directory
   unlink(file.path(target, "renv"), recursive = TRUE)

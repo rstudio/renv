@@ -2,17 +2,24 @@
 % Please edit documentation in R/renv.R
 \name{renv_activate}
 \alias{renv_activate}
-\title{Activate an renv}
+\title{Activate an R Virtual Environment}
 \usage{
-renv_activate(name, project = ".")
+renv_activate(renv, project = NULL)
 }
 \arguments{
-\item{name}{The name of the environment you'd like to activate.}
+\item{renv}{The name of an \code{renv} environment.}
 
-\item{project}{The project directory.}
+\item{project}{The project directory. If an \code{renv} is already active, the
+active project is used; otherwise, the current working directory is used.}
 }
 \description{
-Activate an \code{renv}. This binds a project to an existing \code{renv}
-environment definition. Newly-launched \R sessions in this project will
-use the \code{renv} as specified by \code{name}.
+Activate an \R virtual environment. This binds the requested project to the
+virtual environment called \code{name}. Newly-launched \R sessions in this project
+will use this virtual environment.
 }
+\seealso{
+Other renv: \code{\link{renv_config}},
+  \code{\link{renv_create}}, \code{\link{renv_deactivate}},
+  \code{\link{renv_edit}}
+}
+\concept{renv}

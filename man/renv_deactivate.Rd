@@ -2,13 +2,20 @@
 % Please edit documentation in R/renv.R
 \name{renv_deactivate}
 \alias{renv_deactivate}
-\title{Deactivate an renv}
+\title{Deactivate an R Virtual Environment}
 \usage{
-renv_deactivate(project = ".")
+renv_deactivate(project = NULL)
 }
 \arguments{
-\item{project}{The project directory.}
+\item{project}{The project directory. If an \code{renv} is already active, the
+active project is used; otherwise, the current working directory is used.}
 }
 \description{
-Deactivate the active \code{renv}.
+Deactivate the active virtual environment.
 }
+\seealso{
+Other renv: \code{\link{renv_activate}},
+  \code{\link{renv_config}}, \code{\link{renv_create}},
+  \code{\link{renv_edit}}
+}
+\concept{renv}
