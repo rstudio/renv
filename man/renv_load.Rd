@@ -4,7 +4,7 @@
 \alias{renv_load}
 \title{Load an R Virtual Environment.}
 \usage{
-renv_load(renv, project = NULL)
+renv_load(renv = NULL, project = NULL)
 }
 \arguments{
 \item{renv}{The name of an \code{renv} environment.}

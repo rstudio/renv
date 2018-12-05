@@ -1,6 +1,8 @@
 .Rproj.user
+.Rprofile
 .Rhistory
 .RData
 .Ruserdata
 
 internal/
+renv/

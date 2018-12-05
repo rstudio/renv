@@ -96,8 +96,16 @@ renv_deactivate <- function(project = NULL) {
 #' @inheritParams renv-params
 #'
 #' @export
-renv_load <- function(renv, project = NULL) {
+renv_load <- function(renv = NULL, project = NULL) {
   project <- renv_active_project(project)
+
+  # when 'renv' is not specified, use the active virtual environment associated
+  # with the project (if any)
+  if (is.null(renv)) {
+    active <- file.path(project, renv_paths_local_active())
+    if (file.exists(active))
+      renv <- readLines(active, warn = FALSE)
+  }
 
   path <- ensure_existing_renv(renv)
   config <- renv_config_read(path)
