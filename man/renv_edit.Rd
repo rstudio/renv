@@ -4,7 +4,7 @@
 \alias{renv_edit}
 \title{Edit an R Virtual Environment}
 \usage{
-renv_edit(renv = NULL, local = FALSE)
+renv_edit(renv = NULL, local = NULL)
 }
 \arguments{
 \item{renv}{The name of an \code{renv} environment.}

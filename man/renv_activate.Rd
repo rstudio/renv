@@ -4,7 +4,7 @@
 \alias{renv_activate}
 \title{Activate an R Virtual Environment}
 \usage{
-renv_activate(renv, project = NULL, local = FALSE)
+renv_activate(renv, project = NULL, local = NULL)
 }
 \arguments{
 \item{renv}{The name of an \code{renv} environment.}

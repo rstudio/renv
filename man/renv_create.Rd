@@ -4,7 +4,7 @@
 \alias{renv_create}
 \title{Create an R Virtual Environment}
 \usage{
-renv_create(renv, config = renv_config(), local = FALSE)
+renv_create(renv, config = renv_config(), local = NULL)
 }
 \arguments{
 \item{renv}{The name of an \code{renv} environment.}

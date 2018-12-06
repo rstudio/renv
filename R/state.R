@@ -6,7 +6,8 @@ renv_active_state <- function(name, override, default) {
 }
 
 renv_active_project <- function(project = NULL) {
-  renv_active_state("RENV_ACTIVE_PROJECT", project, getwd())
+  state <- renv_active_state("RENV_ACTIVE_PROJECT", project, getwd())
+  as.character(state)
 }
 
 renv_set_active_project <- function(project) {
@@ -14,10 +15,19 @@ renv_set_active_project <- function(project) {
 }
 
 renv_active_renv <- function(renv = NULL) {
-  renv_active_state("RENV_ACTIVE_RENV", renv, NULL)
+  state <- renv_active_state("RENV_ACTIVE_RENV", renv, "")
+  as.character(state)
 }
 
 renv_set_active_renv <- function(renv) {
   Sys.setenv(RENV_ACTIVE_RENV = renv)
 }
 
+renv_local <- function(local = NULL) {
+  state <- renv_active_state("RENV_LOCAL", local, FALSE)
+  as.logical(state)
+}
+
+renv_set_local <- function(local) {
+  Sys.setenv(RENV_LOCAL = local)
+}

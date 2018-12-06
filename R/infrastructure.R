@@ -3,6 +3,7 @@ renv_write_infrastructure <- function(project = NULL, renv, local) {
 
   renv_write_rprofile(project)
   renv_write_rbuildignore(project)
+  renv_write_gitignore(project, local)
   renv_write_activate(project, renv)
   renv_write_active(project, renv, local)
 }
@@ -11,17 +12,28 @@ renv_write_infrastructure <- function(project = NULL, renv, local) {
 renv_write_rprofile <- function(project) {
 
   renv_write_entry_impl(
-    sprintf("source(\"%s\")", renv_paths_local_activate()),
+    "source(\"renv/activate.R\")",
     file.path(project, ".Rprofile"),
     TRUE
   )
+
 }
 
 renv_write_rbuildignore <- function(project) {
 
   renv_write_entry_impl(
-    renv_paths_local_rbuildignore(),
+    "^renv/",
     file.path(project, ".Rbuildignore"),
+    FALSE
+  )
+
+}
+
+renv_write_gitignore <- function(project, local) {
+
+  renv_write_entry_impl(
+    ".renv/library/",
+    file.path(project, ".gitignore"),
     FALSE
   )
 
@@ -31,26 +43,25 @@ renv_write_activate <- function(project = NULL, renv) {
   project <- renv_active_project(project)
 
   source <- system.file("resources/activate.R", package = "renv")
-  target <- renv_paths_local(project, "activate.R")
+  target <- file.path(project, "renv/activate.R")
 
-  template <- readLines(source, warn = FALSE)
-  rendered <- sprintf(template, renv_paths_subdir())
+  new <- readLines(source, warn = FALSE)
 
   if (file.exists(target)) {
-    current <- readLines(source, warn = FALSE)
-    if (identical(current, rendered))
+    old <- readLines(source, warn = FALSE)
+    if (identical(old, new))
       return(TRUE)
   }
 
   ensure_parent_directory(target)
-  writeLines(rendered, target)
+  writeLines(new, con = target)
 
 }
 
 renv_write_active <- function(project = NULL, renv, local) {
   project <- renv_active_project(project)
 
-  active <- renv_paths_local(project, "active")
+  active <- file.path(project, "renv/active")
   ensure_parent_directory(active)
 
   new <- paste(c("name", "local"), c(renv, local), sep = ": ", collapse = "\n")
@@ -103,15 +114,16 @@ renv_remove_infrastructure <- function(project = NULL) {
 
   renv_remove_rprofile(project)
   renv_remove_rbuildignore(project)
+  renv_remove_gitignore(project)
 
-  unlink(renv_paths_local(project), recursive = TRUE)
+  unlink(file.path(project, "renv"), recursive = TRUE)
 }
 
 
 renv_remove_rprofile <- function(project) {
 
   renv_remove_entry_impl(
-    sprintf("source(\"%s\")", renv_paths_local_activate()),
+    "source(\"renv/activate.R\")",
     file.path(project, ".Rprofile")
   )
 
@@ -120,8 +132,17 @@ renv_remove_rprofile <- function(project) {
 renv_remove_rbuildignore <- function(project) {
 
   renv_remove_entry_impl(
-    renv_paths_local_rbuildignore(),
+    "^renv/",
     file.path(project, ".Rbuildignore")
+  )
+
+}
+
+renv_remove_gitignore <- function(project) {
+
+  renv_remove_entry_impl(
+    ".renv/library/",
+    file.path(project, ".gitignore")
   )
 
 }

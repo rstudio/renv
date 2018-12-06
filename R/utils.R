@@ -88,3 +88,7 @@ is_compatible_version <- function(lhs, rhs) {
       return(FALSE)
   return(TRUE)
 }
+
+`%||%` <- function(x, y) {
+  if (is.null(x)) y else x
+}

@@ -4,12 +4,12 @@ renv_paths_root <- function(..., local) {
 }
 
 renv_paths_lib <- function(..., local) {
-  root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root("lib", local = local))
+  root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root("library", local = local))
   file.path(root, renv_platform_prefix(), ...)
 }
 
 renv_paths_conf <- function(..., local) {
-  root <- Sys.getenv("RENV_PATHS_CONFIG", renv_paths_root("conf", local = local))
+  root <- Sys.getenv("RENV_PATHS_CONFIG", renv_paths_root("config", local = local))
   file.path(root, ...)
 }
 
@@ -24,28 +24,6 @@ renv_paths_root_default <- function(local) {
   else
     path.expand("~/.renv")
 }
-
-renv_paths_subdir <- function() {
-  "renv"
-}
-
-renv_paths_local <- function(project = NULL, ...) {
-  root <- renv_active_project(project)
-  file.path(root, renv_paths_subdir(), ...)
-}
-
-renv_paths_local_activate <- function() {
-  file.path(renv_paths_subdir(), "activate.R")
-}
-
-renv_paths_local_active <- function() {
-  file.path(renv_paths_subdir(), "active")
-}
-
-renv_paths_local_rbuildignore <- function() {
-  sprintf("^%s/", renv_paths_subdir())
-}
-
 
 
 
