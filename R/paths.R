@@ -1,21 +1,28 @@
-renv_paths_root <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_ROOT", path.expand("~/.renv"))
+renv_paths_root <- function(..., local) {
+  root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default(local = local))
   file.path(root, ...)
 }
 
-renv_paths_lib <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root("lib"))
+renv_paths_lib <- function(..., local) {
+  root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root("lib", local = local))
   file.path(root, renv_platform_prefix(), ...)
 }
 
-renv_paths_conf <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_CONFIG", renv_paths_root("conf"))
+renv_paths_conf <- function(..., local) {
+  root <- Sys.getenv("RENV_PATHS_CONFIG", renv_paths_root("conf", local = local))
   file.path(root, ...)
 }
 
-renv_paths_renv <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_RENV", renv_paths_root("renv"))
+renv_paths_renv <- function(..., local) {
+  root <- Sys.getenv("RENV_PATHS_RENV", renv_paths_root("renv", local = local))
   file.path(root, renv_platform_prefix(), ...)
+}
+
+renv_paths_root_default <- function(local) {
+  if (local)
+    file.path(renv_active_project(), ".renv")
+  else
+    path.expand("~/.renv")
 }
 
 renv_paths_subdir <- function() {

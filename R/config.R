@@ -41,7 +41,7 @@ renv_ved_version <- function(comment) {
   )
 }
 
-renv_ved_character <- function(comment) {
+renv_ved_libpaths <- function(comment) {
   list(
     validate = function(x) is.character(x),
     encode   = function(x) paste(x, collapse = ", "),
@@ -73,7 +73,7 @@ renv_config_definitions <- function() {
   list(
     r_version      = renv_ved_version("The R version."),
     r_repos        = renv_ved_repos("The R repositories."),
-    r_libs         = renv_ved_character("The R libraries"),
+    r_libs         = renv_ved_libpaths("The R libraries"),
     r_libs_overlay = renv_ved_logical("Overlay requested libraries over the default R libraries?")
   )
 }

@@ -6,10 +6,10 @@ renv_load_r_version <- function(config) {
   }
 }
 
-renv_load_libpaths <- function(config) {
+renv_load_libpaths <- function(config, local) {
 
-  renv <- file.path(renv_paths_renv(), sprintf("renv-%s", config$renv_version))
-  libs <- rev(renv_paths_lib(config$r_libs))
+  renv <- file.path(renv_paths_renv(local = local), sprintf("renv-%s", config$renv_version))
+  libs <- rev(renv_paths_lib(config$r_libs, local = local))
   lapply(libs, ensure_directory)
 
   libpaths <- c(libs, renv, if (config$r_libs_overlay) .libPaths())

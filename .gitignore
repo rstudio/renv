@@ -3,6 +3,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.renv
 
 internal/
 renv/

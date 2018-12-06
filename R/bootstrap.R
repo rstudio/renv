@@ -2,9 +2,11 @@
 # possible to install and use a particular version of 'renv' if so desired;
 # right now we just use whatever version the user happened to have in their
 # library
-renv_bootstrap <- function(version = package_version("renv"), force = FALSE) {
-
-  path <- renv_paths_renv()
+renv_bootstrap <- function(version = package_version("renv"),
+                           local = FALSE,
+                           force = FALSE)
+{
+  path <- renv_paths_renv(local = local)
 
   # check for existing 'renv' source
   source <- find.package("renv", quiet = TRUE)

@@ -4,6 +4,7 @@
 #' @param config The `renv` configuration. See [renv_config()] for more details.
 #' @param project The project directory. If an `renv` is already active, the
 #'   active project is used; otherwise, the current working directory is used.
+#' @param local Boolean; is this a project-local virtual environment?
 #'
 #' @name renv-params
 NULL
@@ -18,16 +19,16 @@ NULL
 #' @family renv
 #'
 #' @export
-renv_create <- function(renv, config = renv_config()) {
+renv_create <- function(renv, config = renv_config(), local = FALSE) {
 
-  path <- ensure_no_renv(renv)
+  path <- ensure_no_renv(renv, local = local)
   ensure_directory(dirname(path))
-  renv_bootstrap()
+  renv_bootstrap(local = local)
   renv_config_write(config, path)
 
   if (renv_verbose()) {
-    fmt <- "* Created R virtual environment at path '%s'."
-    messagef(fmt, aliased_path(path))
+    fmt <- "* Created %s virtual environment '%s'."
+    messagef(fmt, if (local) "local" else "", renv)
   }
 
   invisible(renv)
@@ -45,11 +46,11 @@ renv_create <- function(renv, config = renv_config()) {
 #' @family renv
 #'
 #' @export
-renv_activate <- function(renv, project = NULL) {
+renv_activate <- function(renv, project = NULL, local = FALSE) {
   project <- renv_active_project(project)
-  ensure_existing_renv(renv)
+  ensure_existing_renv(renv, local)
 
-  renv_write_infrastructure(project, renv)
+  renv_write_infrastructure(project, renv, local)
 
   if (renv_verbose()) {
     fmt <- "* Activating R virtual environment '%s' ..."
@@ -96,31 +97,38 @@ renv_deactivate <- function(project = NULL) {
 #' @inheritParams renv-params
 #'
 #' @export
-renv_load <- function(renv = NULL, project = NULL) {
+renv_load <- function(renv = NULL, project = NULL, local = FALSE) {
   project <- renv_active_project(project)
 
   # when 'renv' is not specified, use the active virtual environment associated
   # with the project (if any)
   if (is.null(renv)) {
     active <- file.path(project, renv_paths_local_active())
-    if (file.exists(active))
-      renv <- readLines(active, warn = FALSE)
+    if (file.exists(active)) {
+      dcf <- read.dcf(active, all = TRUE)
+      renv <- dcf$name
+      local <- as.logical(dcf$local)
+    }
   }
 
-  path <- ensure_existing_renv(renv)
+  path <- ensure_existing_renv(renv, local = local)
   config <- renv_config_read(path)
 
   renv_set_active_project(project)
   renv_set_active_renv(renv)
 
   renv_load_r_version(config)
-  renv_load_libpaths(config)
   renv_load_repos(config)
+  renv_load_libpaths(config, local)
 
   # report environment changes to the user
   if (renv_verbose()) {
 
-    fmt <- "* R virtual environment '%s' loaded."
+    fmt <- if (local)
+      "* Local virtual environment '%s' loaded."
+    else
+      "* Virtual environment '%s' loaded."
+
     messagef(fmt, basename(renv))
     message()
 
@@ -144,9 +152,9 @@ renv_load <- function(renv = NULL, project = NULL) {
 #' @family renv
 #'
 #' @export
-renv_edit <- function(renv = NULL) {
+renv_edit <- function(renv = NULL, local = FALSE) {
   renv <- renv_active_renv(renv)
-  path <- ensure_existing_renv(renv)
+  path <- ensure_existing_renv(renv, local)
   file.edit(path)
 }
 

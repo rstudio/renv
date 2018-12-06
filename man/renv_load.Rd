@@ -4,13 +4,15 @@
 \alias{renv_load}
 \title{Load an R Virtual Environment.}
 \usage{
-renv_load(renv = NULL, project = NULL)
+renv_load(renv = NULL, project = NULL, local = FALSE)
 }
 \arguments{
 \item{renv}{The name of an \code{renv} environment.}
 
 \item{project}{The project directory. If an \code{renv} is already active, the
 active project is used; otherwise, the current working directory is used.}
+
+\item{local}{Boolean; is this a project-local virtual environment?}
 }
 \description{
 Load the \R virtual environment called \code{renv}.

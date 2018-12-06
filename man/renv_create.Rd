@@ -4,12 +4,14 @@
 \alias{renv_create}
 \title{Create an R Virtual Environment}
 \usage{
-renv_create(renv, config = renv_config())
+renv_create(renv, config = renv_config(), local = FALSE)
 }
 \arguments{
 \item{renv}{The name of an \code{renv} environment.}
 
 \item{config}{The \code{renv} configuration. See \code{\link[=renv_config]{renv_config()}} for more details.}
+
+\item{local}{Boolean; is this a project-local virtual environment?}
 }
 \description{
 Create a new \R virtual environment, associated with a configuration as

@@ -4,10 +4,12 @@
 \alias{renv_edit}
 \title{Edit an R Virtual Environment}
 \usage{
-renv_edit(renv = NULL)
+renv_edit(renv = NULL, local = FALSE)
 }
 \arguments{
 \item{renv}{The name of an \code{renv} environment.}
+
+\item{local}{Boolean; is this a project-local virtual environment?}
 }
 \description{
 Edit the configuration file associated with an \R virtual environment. This

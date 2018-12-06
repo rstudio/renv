@@ -1,10 +1,10 @@
-renv_write_infrastructure <- function(project = NULL, renv) {
+renv_write_infrastructure <- function(project = NULL, renv, local) {
   project <- renv_active_project(project)
 
   renv_write_rprofile(project)
   renv_write_rbuildignore(project)
   renv_write_activate(project, renv)
-  renv_write_active(project, renv)
+  renv_write_active(project, renv, local)
 }
 
 
@@ -47,22 +47,23 @@ renv_write_activate <- function(project = NULL, renv) {
 
 }
 
-renv_write_active <- function(project = NULL, renv) {
+renv_write_active <- function(project = NULL, renv, local) {
   project <- renv_active_project(project)
 
   active <- renv_paths_local(project, "active")
   ensure_parent_directory(active)
 
+  new <- paste(c("name", "local"), c(renv, local), sep = ": ", collapse = "\n")
   if (!file.exists(active)) {
-    writeLines(renv, con = active)
+    writeLines(new, con = active)
     return(TRUE)
   }
 
-  contents <- readLines(active)
-  if (identical(contents, renv))
+  old <- readLines(active, warn = FALSE)
+  if (identical(old, new))
     return(TRUE)
 
-  writeLines(renv, con = active)
+  writeLines(new, con = active)
   TRUE
 
 }
