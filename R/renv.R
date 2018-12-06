@@ -115,6 +115,7 @@ renv_load <- function(renv = NULL, project = NULL) {
 
   renv_load_r_version(config)
   renv_load_libpaths(config)
+  renv_load_repos(config)
 
   # report environment changes to the user
   if (renv_verbose()) {

@@ -4,16 +4,16 @@
 #' with this function are then passed to [renv_create()] to create a virtual
 #' environment associated with this configuration.
 #'
-#' @param renv_version   `character[1]`: The version of the `renv` package to be used.
 #' @param r_version      `character[1]`: The version of \R to be used.
+#' @param r_repos        `character[*]`: The \R repositories to use with this project.
 #' @param r_libs         `character[*]`: The \R libraries associated with this environment.
 #' @param r_libs_overlay `logical[1]`:   Overlay `r_libs` on top of the default \R libraries?
 #'
 #' @family renv
 #'
 #' @export
-renv_config <- function(renv_version   = packageVersion("renv"),
-                        r_version      = getRversion(),
+renv_config <- function(r_version      = getRversion(),
+                        r_repos        = getOption("repos"),
                         r_libs         = character(),
                         r_libs_overlay = FALSE)
 {
@@ -50,6 +50,15 @@ renv_ved_character <- function(comment) {
   )
 }
 
+renv_ved_repos <- function(comment) {
+  list(
+    validate = function(x) !is.null(names(x)),
+    encode   = function(x) renv_repos_encode(x),
+    decode   = function(x) renv_repos_decode(x),
+    comment  = comment
+  )
+}
+
 renv_ved_logical <- function(comment) {
   list(
     validate = is.logical,
@@ -62,9 +71,9 @@ renv_ved_logical <- function(comment) {
 renv_config_definitions <- function() {
 
   list(
-    renv_version   = renv_ved_version("The requested 'renv' version."),
-    r_version      = renv_ved_version("The requested R version."),
-    r_libs         = renv_ved_character("The requested R libraries"),
+    r_version      = renv_ved_version("The R version."),
+    r_repos        = renv_ved_repos("The R repositories."),
+    r_libs         = renv_ved_character("The R libraries"),
     r_libs_overlay = renv_ved_logical("Overlay requested libraries over the default R libraries?")
   )
 }
@@ -72,7 +81,9 @@ renv_config_definitions <- function() {
 renv_config_read <- function(path) {
 
   contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
-  lines <- grep("^\\w", contents, perl = TRUE, value = TRUE)
+  extracted <- grep("^\\s*\\w", contents, perl = TRUE, value = TRUE)
+  joined <- paste(extracted, collapse = "\n")
+  lines <- strsplit(joined, "\n(?!\\s)", perl = TRUE)[[1]]
 
   idx <- regexpr(":", lines, fixed = TRUE)
 

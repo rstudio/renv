@@ -10,6 +10,15 @@ warningf <- function(fmt, ..., call. = FALSE) {
   warning(sprintf(fmt, ...), call. = call.)
 }
 
+named <- function(object, names) {
+  names(object) <- names
+  object
+}
+
+empty <- function(x) {
+  length(x) == 0
+}
+
 aliased_path <- function(path) {
   home <- path.expand("~/")
   match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)

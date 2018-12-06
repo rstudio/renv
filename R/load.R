@@ -16,3 +16,8 @@ renv_load_libpaths <- function(config) {
   .libPaths(libpaths)
 
 }
+
+renv_load_repos <- function(config) {
+  if (!empty(config$r_repos))
+    options(repos = config$r_repos)
+}

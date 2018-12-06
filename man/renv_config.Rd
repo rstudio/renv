@@ -4,14 +4,13 @@
 \alias{renv_config}
 \title{Define an R Virtual Environment.}
 \usage{
-renv_config(renv_version = packageVersion("renv"),
-  r_version = getRversion(), r_libs = character(),
-  r_libs_overlay = FALSE)
+renv_config(r_version = getRversion(), r_repos = getOption("repos"),
+  r_libs = character(), r_libs_overlay = FALSE)
 }
 \arguments{
-\item{renv_version}{\code{character[1]}: The version of the \code{renv} package to be used.}
-
 \item{r_version}{\code{character[1]}: The version of \R to be used.}
+
+\item{r_repos}{\code{character[*]}: The \R repositories to use with this project.}
 
 \item{r_libs}{\code{character[*]}: The \R libraries associated with this environment.}
 
