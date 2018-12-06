@@ -26,7 +26,7 @@ renv_create <- function(renv, config = renv_config()) {
   renv_config_write(config, path)
 
   if (renv_verbose()) {
-    fmt <- "* Created renv at path '%s'."
+    fmt <- "* Created R virtual environment at path '%s'."
     messagef(fmt, aliased_path(path))
   }
 
@@ -52,7 +52,7 @@ renv_activate <- function(renv, project = NULL) {
   renv_write_infrastructure(project, renv)
 
   if (renv_verbose()) {
-    fmt <- "* Activating renv '%s' ..."
+    fmt <- "* Activating R virtual environment '%s' ..."
     messagef(fmt, renv)
   }
 
@@ -111,30 +111,20 @@ renv_load <- function(renv = NULL, project = NULL) {
   config <- renv_config_read(path)
 
   renv_set_active_project(project)
+  renv_set_active_renv(renv)
 
-  # check R version (note that it is the responsibility of the user,
-  # or the front-end, to ensure that R versions match)
-  version <- config$r_version
-  if (!is_compatible_version(version, getRversion())) {
-    fmt <- "renv '%s' requested R version '%s' but '%s' is currently being used"
-    warningf(fmt, renv, version, getRversion())
-  }
-
-  # prepare the library paths
-  renv <- file.path(renv_paths_renv(), sprintf("renv-%s", config$renv_version))
-  libs <- rev(renv_paths_lib(config$r_libs))
-  lapply(libs, ensure_directory)
-
-  libpaths <- c(libs, renv, if (config$r_libs_overlay) .libPaths())
-  .libPaths(libpaths)
+  renv_load_r_version(config)
+  renv_load_libpaths(config)
 
   # report environment changes to the user
   if (renv_verbose()) {
 
-    fmt <- "* renv '%s' loaded. Using library paths:"
-    messagef(fmt, renv)
+    fmt <- "* R virtual environment '%s' loaded."
+    messagef(fmt, basename(renv))
+    message()
 
     paths <- paste("-", shQuote(.libPaths()), collapse = "\n")
+    message("* Using library paths:")
     message(paths)
 
   }
