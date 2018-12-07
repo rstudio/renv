@@ -3,10 +3,9 @@
 # right now we just use whatever version the user happened to have in their
 # library
 renv_bootstrap <- function(version = package_version("renv"),
-                           local = FALSE,
                            force = FALSE)
 {
-  path <- renv_paths_renv(local = local)
+  path <- renv_paths_renv()
 
   # check for existing 'renv' source
   source <- find.package("renv", quiet = TRUE)

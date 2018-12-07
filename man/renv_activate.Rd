@@ -4,15 +4,14 @@
 \alias{renv_activate}
 \title{Activate an R Virtual Environment}
 \usage{
-renv_activate(renv, project = NULL, local = NULL)
+renv_activate(renv, project = NULL)
 }
 \arguments{
-\item{renv}{The name of an \code{renv} environment.}
+\item{renv}{The name of a virtual environment. If \code{NULL}, then the active
+virtual environment (if any) will be used.}
 
-\item{project}{The project directory. If an \code{renv} is already active, the
-active project is used; otherwise, the current working directory is used.}
-
-\item{local}{Boolean; is this a project-local virtual environment?}
+\item{project}{The project directory. If \code{NULL}, then the project associated
+with the active virtual environment (if any) will be used.}
 }
 \description{
 Activate an \R virtual environment. This binds the requested project to the

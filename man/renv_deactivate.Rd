@@ -7,8 +7,8 @@
 renv_deactivate(project = NULL)
 }
 \arguments{
-\item{project}{The project directory. If an \code{renv} is already active, the
-active project is used; otherwise, the current working directory is used.}
+\item{project}{The project directory. If \code{NULL}, then the project associated
+with the active virtual environment (if any) will be used.}
 }
 \description{
 Deactivate the active virtual environment.

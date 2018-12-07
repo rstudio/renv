@@ -10,6 +10,10 @@ warningf <- function(fmt, ..., call. = FALSE) {
   warning(sprintf(fmt, ...), call. = call.)
 }
 
+attempt <- function(expr) {
+  tryCatch(expr, error = identity)
+}
+
 named <- function(object, names) {
   names(object) <- names
   object
@@ -17,6 +21,10 @@ named <- function(object, names) {
 
 empty <- function(x) {
   length(x) == 0
+}
+
+read <- function(file) {
+  readChar(file, file.info(file)$size, TRUE)
 }
 
 aliased_path <- function(path) {
@@ -91,4 +99,12 @@ is_compatible_version <- function(lhs, rhs) {
 
 `%||%` <- function(x, y) {
   if (is.null(x)) y else x
+}
+
+dcf_fields_read <- function(text) {
+  idx <- regexpr(":", text, fixed = TRUE)
+  named(
+    trimws(substring(text, idx + 1)),
+    trimws(substring(text, 1, idx - 1))
+  )
 }

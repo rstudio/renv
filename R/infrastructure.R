@@ -1,11 +1,11 @@
-renv_write_infrastructure <- function(project = NULL, renv, local) {
+renv_write_infrastructure <- function(project = NULL, renv) {
   project <- renv_active_project(project)
 
   renv_write_rprofile(project)
   renv_write_rbuildignore(project)
-  renv_write_gitignore(project, local)
+  renv_write_gitignore(project)
   renv_write_activate(project, renv)
-  renv_write_active(project, renv, local)
+  renv_write_active(project, renv)
 }
 
 
@@ -29,7 +29,7 @@ renv_write_rbuildignore <- function(project) {
 
 }
 
-renv_write_gitignore <- function(project, local) {
+renv_write_gitignore <- function(project) {
 
   renv_write_entry_impl(
     ".renv/library/",
@@ -58,12 +58,13 @@ renv_write_activate <- function(project = NULL, renv) {
 
 }
 
-renv_write_active <- function(project = NULL, renv, local) {
+renv_write_active <- function(project = NULL, renv) {
   project <- renv_active_project(project)
 
   active <- file.path(project, "renv/active")
   ensure_parent_directory(active)
 
+  local <- renv_local()
   new <- paste(c("name", "local"), c(renv, local), sep = ": ", collapse = "\n")
   if (!file.exists(active)) {
     writeLines(new, con = active)
