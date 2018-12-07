@@ -28,8 +28,8 @@ renv_create <- function(renv, config = renv_config(), local = NULL) {
   renv_config_write(config, path)
 
   if (renv_verbose()) {
-    fmt <- "* Created %s virtual environment '%s'."
-    messagef(fmt, if (local) "local" else "", renv)
+    fmt <- "* Created %s environment '%s'."
+    messagef(fmt, if (local) "local virtual" else "virtual", renv)
   }
 
   invisible(renv)
