@@ -8,7 +8,7 @@ renv_paths_library <- function(...) {
   file.path(root, renv_platform_prefix(), ...)
 }
 
-renv_paths_conf <- function(...) {
+renv_paths_config <- function(...) {
   root <- Sys.getenv("RENV_PATHS_CONFIG", renv_paths_root("config"))
   file.path(root, ...)
 }

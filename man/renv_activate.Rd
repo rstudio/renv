@@ -7,9 +7,6 @@
 renv_activate(renv, project = NULL)
 }
 \arguments{
-\item{renv}{The name of a virtual environment. If \code{NULL}, then the active
-virtual environment (if any) will be used.}
-
 \item{project}{The project directory. If \code{NULL}, then the project associated
 with the active virtual environment (if any) will be used.}
 }
@@ -19,8 +16,7 @@ virtual environment called \code{name}. Newly-launched \R sessions in this proje
 will use this virtual environment.
 }
 \seealso{
-Other renv: \code{\link{renv_config}},
-  \code{\link{renv_create}}, \code{\link{renv_deactivate}},
-  \code{\link{renv_edit}}
+Other renv: \code{\link{renv_create}},
+  \code{\link{renv_deactivate}}, \code{\link{renv_edit}}
 }
 \concept{renv}

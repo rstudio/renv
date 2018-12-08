@@ -15,7 +15,6 @@ Deactivate the active virtual environment.
 }
 \seealso{
 Other renv: \code{\link{renv_activate}},
-  \code{\link{renv_config}}, \code{\link{renv_create}},
-  \code{\link{renv_edit}}
+  \code{\link{renv_create}}, \code{\link{renv_edit}}
 }
 \concept{renv}

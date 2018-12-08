@@ -6,10 +6,6 @@
 \usage{
 renv_edit(renv = NULL)
 }
-\arguments{
-\item{renv}{The name of a virtual environment. If \code{NULL}, then the active
-virtual environment (if any) will be used.}
-}
 \description{
 Edit the configuration file associated with an \R virtual environment. This
 can be useful if you need to manually tweak or edit values in a pre-existing
@@ -17,7 +13,6 @@ environment.
 }
 \seealso{
 Other renv: \code{\link{renv_activate}},
-  \code{\link{renv_config}}, \code{\link{renv_create}},
-  \code{\link{renv_deactivate}}
+  \code{\link{renv_create}}, \code{\link{renv_deactivate}}
 }
 \concept{renv}

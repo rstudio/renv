@@ -10,6 +10,17 @@ warningf <- function(fmt, ..., call. = FALSE) {
   warning(sprintf(fmt, ...), call. = call.)
 }
 
+is_scalar_character <- function(x) {
+  is.character(x) && length(x) == 1
+}
+
+is_named <- function(x) {
+  nm <- names(x)
+  if (is.null(nm) || "" %in% nm)
+    return(FALSE)
+  TRUE
+}
+
 attempt <- function(expr) {
   tryCatch(expr, error = identity)
 }
@@ -57,12 +68,6 @@ ensure_parent_directory <- function(path) {
   ensure_directory(dirname(path))
 }
 
-bimap <- function(...) {
-  map <- list(...)
-  map[as.character(map)] <- names(map)
-  map
-}
-
 trimws <- function(x) {
   gsub("^\\s+|\\s+$", "", x)
 }
@@ -88,7 +93,7 @@ enumerate <- function(x, f, ...) {
   result
 }
 
-is_compatible_version <- function(lhs, rhs) {
+version_compatible <- function(lhs, rhs) {
   lhs <- unclass(lhs)[[1]]; rhs <- unclass(rhs)[[1]]
   n <- min(length(lhs), length(rhs))
   for (i in seq_len(n))
@@ -101,10 +106,8 @@ is_compatible_version <- function(lhs, rhs) {
   if (is.null(x)) y else x
 }
 
-dcf_fields_read <- function(text) {
-  idx <- regexpr(":", text, fixed = TRUE)
-  named(
-    trimws(substring(text, idx + 1)),
-    trimws(substring(text, 1, idx - 1))
-  )
+write_lines <- function(text, con) {
+  if (is.null(con))
+    return(text)
+  writeLines(text, con = con, useBytes = TRUE)
 }

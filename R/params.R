@@ -1,4 +1,4 @@
-#' @param renv The name of a virtual environment. If `NULL`, then the active
+#' @param name The name of a virtual environment. If `NULL`, then the active
 #'   virtual environment (if any) will be used.
 #' @param config The virtual environment's configuration. See [renv_config()]
 #'   for more details.

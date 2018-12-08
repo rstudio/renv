@@ -2,7 +2,6 @@
 #' @export
 renv_restore <- function(manifest, confirm = interactive())
 {
-
   if (is.character(manifest))
     manifest <- renv_manifest_read(manifest)
 
@@ -15,6 +14,9 @@ renv_restore <- function(manifest, confirm = interactive())
 
   # TODO: 'diff' the manifest against the current state of
   # the environment installed on the system
+
+
+  actions <- manifest_diff()
   actions <- lapply(manifest, renv_restore_actions_create)
   if (confirm)
     renv_restore_actions_report(actions)
@@ -34,7 +36,7 @@ renv_restore_package_cran <- function(entry) {
   # TODO: Allow installation of binary rather than source package.
   # TODO: 'pkgType' should be a project-local option.
   # TODO: Cache 'available.packages' state since it's expensive to query.
-  ap <- available.packages()
+  ap <- utils::available.packages()
 
 
 }

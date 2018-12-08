@@ -1,9 +1,9 @@
 ensure_existing_renv <- function(name) {
 
-  path <- renv_paths_conf(name)
+  path <- renv_paths_config(name)
   if (!file.exists(path)) {
-    fmt <- "no renv definition found at path '%s'"
-    stopf(fmt, aliased_path(path))
+    fmt <- "Virtual environment '%s' does not exist."
+    stopf(fmt, name)
   }
 
   invisible(path)
@@ -11,10 +11,10 @@ ensure_existing_renv <- function(name) {
 
 ensure_no_renv <- function(name, path) {
 
-  path <- renv_paths_conf(name)
+  path <- renv_paths_config(name)
   if (file.exists(path)) {
-    fmt <- "renv already exists at path '%s'"
-    stopf(fmt, name, aliased_path(path))
+    fmt <- "Virtual environment '%s' already exists."
+    stopf(fmt, name)
   }
 
   invisible(path)

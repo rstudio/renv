@@ -1,6 +1,6 @@
 renv_load_r_version <- function(config) {
   version <- config$r_version
-  if (!is_compatible_version(version, getRversion())) {
+  if (!version_compatible(version, getRversion())) {
     fmt <- "renv '%s' requested R version '%s' but '%s' is currently being used"
     warningf(fmt, renv_active_renv(), version, getRversion())
   }

@@ -1,24 +1,8 @@
-#' Define an R Virtual Environment.
-#'
-#' Provide the definition of a new \R virtual environment. Configurations created
-#' with this function are then passed to [renv_create()] to create a virtual
-#' environment associated with this configuration.
-#'
-#' @param r_version      `character[1]`: The version of \R to be used.
-#' @param r_repos        `character[*]`: The \R repositories to use with this project.
-#' @param r_libs         `character[*]`: The \R libraries associated with this environment.
-#' @param r_libs_overlay `logical[1]`:   Overlay `r_libs` on top of the default \R libraries?
-#'
-#' @family renv
-#'
-#' @export
-renv_config <- function(r_version      = getRversion(),
-                        r_repos        = getOption("repos"),
-                        r_libs         = character(),
-                        r_libs_overlay = FALSE)
-{
-  args <- mget(ls(envir = environment()), envir = environment())
-  args <- args[names(formals())]
+
+renv_config_create <- function(envir, formals) {
+
+  args <- mget(ls(envir = envir), envir = envir)
+  args <- args[names(formals)]
 
   defns <- renv_config_definitions()
   enumerate(args, function(key, val) {
@@ -30,58 +14,69 @@ renv_config <- function(r_version      = getRversion(),
   })
 
   args
+
 }
 
-renv_ved_version <- function(comment) {
+renv_ved_name <- function() {
   list(
-    validate = function(x) inherits(x, "numeric_version"),
-    encode   = function(x) format(x),
-    decode   = function(x) numeric_version(x),
-    comment  = comment
+    validate = is_scalar_character,
+    encode   = identity,
+    decode   = identity,
+    comment  = "The name of the virtual environment."
   )
 }
 
-renv_ved_libpaths <- function(comment) {
+renv_ved_r_version <- function() {
+  list(
+    validate = function(x) inherits(x, "numeric_version"),
+    encode   = format,
+    decode   = numeric_version,
+    comment  = "The R version."
+  )
+}
+
+
+renv_ved_r_repos <- function() {
+  list(
+    validate = is_named,
+    encode   = renv_repos_encode,
+    decode   = renv_repos_decode,
+    comment  = "The R repositories."
+  )
+}
+
+renv_ved_r_libs <- function() {
   list(
     validate = function(x) is.character(x),
     encode   = function(x) paste(x, collapse = ", "),
     decode   = function(x) strsplit(x, "\\s*,\\s*")[[1]],
-    comment  = comment
+    comment  = "The R libraries."
   )
 }
 
-renv_ved_repos <- function(comment) {
-  list(
-    validate = function(x) !is.null(names(x)),
-    encode   = function(x) renv_repos_encode(x),
-    decode   = function(x) renv_repos_decode(x),
-    comment  = comment
-  )
-}
-
-renv_ved_logical <- function(comment) {
+renv_ved_r_libs_overlay <- function() {
   list(
     validate = is.logical,
     encode   = format,
     decode   = as.logical,
-    comment  = comment
+    comment  = "Overlay requested libraries over the default R libraries?"
   )
 }
 
 renv_config_definitions <- function() {
-
   list(
-    r_version      = renv_ved_version("The R version."),
-    r_repos        = renv_ved_repos("The R repositories."),
-    r_libs         = renv_ved_libpaths("The R libraries"),
-    r_libs_overlay = renv_ved_logical("Overlay requested libraries over the default R libraries?")
+    name           = renv_ved_name(),
+    r_version      = renv_ved_r_version(),
+    r_repos        = renv_ved_r_repos(),
+    r_libs         = renv_ved_r_libs(),
+    r_libs_overlay = renv_ved_r_libs_overlay()
   )
 }
 
-renv_config_read <- function(path) {
+renv_config_read <- function(path, text = NULL) {
 
-  contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
-  extracted <- grep("^\\s*\\w", contents, perl = TRUE, value = TRUE)
+  text <- text %||% readLines(path, warn = FALSE, encoding = "UTF-8")
+  extracted <- grep("^\\s*\\w", text, perl = TRUE, value = TRUE)
   joined <- paste(extracted, collapse = "\n")
   lines <- strsplit(joined, "\n(?!\\s)", perl = TRUE)[[1]]
 
@@ -100,17 +95,20 @@ renv_config_read <- function(path) {
 
 }
 
-renv_config_write <- function(config, path) {
+renv_config_write <- function(config, path, comment = TRUE) {
 
   defns <- renv_config_definitions()
   contents <- enumerate(config, function(key, val) {
-    comment <- paste("#", defns[[key]]$comment)
+    header <- if (comment) paste("#", defns[[key]]$comment) else NULL
     encoded <- defns[[key]]$encode(val)
     entry <- paste(key, encoded, sep = ": ")
-    paste(comment, entry, sep = "\n")
+    if (comment) paste(header, entry, sep = "\n") else entry
   })
 
-  contents <- paste(contents, collapse = "\n\n")
-  writeLines(enc2utf8(contents), con = path, useBytes = TRUE)
+  contents <- paste(contents, collapse = if (comment) "\n\n" else "\n")
+  if (is.null(path))
+    return(contents)
+
+  write_lines(enc2utf8(contents), con = path)
 
 }

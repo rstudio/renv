@@ -2,50 +2,45 @@ renv_manifest_read <- function(file) {
 
   contents <- read(file)
   parts <- strsplit(contents, "\n{2,}")[[1]]
-  manifest <- lapply(parts, function(part) {
+
+  config <- renv_config_read(text = parts[[1]])
+  parts <- utils::tail(parts, n = -1L)
+
+  library <- lapply(parts, function(part) {
     pieces <- strsplit(part, "\n", fixed = TRUE)[[1]]
-    dcf_fields_read(pieces)
+    idx <- regexpr(":", pieces, fixed = TRUE)
+    named(
+      trimws(substring(pieces, idx + 1)),
+      trimws(substring(pieces, 1, idx - 1))
+    )
   })
-  manifest
+
+  list(config = config, library = library)
 
 }
 
 renv_manifest_write <- function(manifest, file) {
 
-  serialized <- paste(vapply(manifest, function(item) {
-    paste(names(item), item, sep = ": ", collapse = "\n")
+  header <- renv_manifest_serialize_config(manifest)
+  body <- renv_manifest_serialize_library(manifest)
+  contents <- paste(header, body, sep = "\n\n")
+  write_lines(contents, con = file)
+
+}
+
+renv_manifest_serialize_config <- function(manifest) {
+  renv_config_write(manifest$config, path = NULL, comment = FALSE)
+}
+
+renv_manifest_serialize_library <- function(manifest) {
+  body <- enumerate(manifest$library, renv_manifest_serialize_library_one)
+  paste(body, collapse = "\n\n")
+}
+
+renv_manifest_serialize_library_one <- function(library, entries) {
+  paste(vapply(entries, function(entry) {
+    entry[["Library"]] <- library
+    paste(names(entry), entry, sep = ": ", collapse = "\n")
   }, character(1)), collapse = "\n\n")
-
-  writeLines(serialized, con = file)
-
 }
 
-renv_manifest_create_entry <- function(path) {
-
-  if (!file.exists(path)) {
-    fmt <- "No DESCRIPTION at path '%s'"
-    msg <- sprintf(fmt, path)
-    return(simpleError(msg))
-  }
-
-  # TODO: Check for tempfiles that sneak into library path, e.g. 'file<abcd>'
-  # Report and skip?
-  dcf <- tryCatch(read.dcf(path, all = TRUE), error = identity)
-  if (inherits(dcf, "error"))
-    return(dcf)
-
-  if (is.null(dcf[["Repository"]]))
-    dcf[["Repository"]] <- "<unknown>"
-
-  fields <- c("Package", "Version", "Repository")
-  missing <- setdiff(fields, names(dcf))
-  if (length(missing)) {
-    fmt <- "Required fields %s missing from DESCRIPTION at path '%s'"
-    msg <- sprintf(fmt, paste(shQuote(missing), collapse = ", "), path)
-    return(simpleError(msg))
-  }
-
-  fields <- c(fields, grep("^Remote", names(dcf)))
-  dcf[fields]
-
-}
