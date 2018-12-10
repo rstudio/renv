@@ -1,13 +1,10 @@
-stopf <- function(fmt, ..., call. = FALSE) {
-  stop(sprintf(fmt, ...), call. = call.)
+
+`%||%` <- function(x, y) {
+  if (is.null(x)) y else x
 }
 
-messagef <- function(fmt, ...) {
-  message(sprintf(fmt, ...))
-}
-
-warningf <- function(fmt, ..., call. = FALSE) {
-  warning(sprintf(fmt, ...), call. = call.)
+lines <- function(...) {
+  paste(..., sep = "\n")
 }
 
 is_scalar_character <- function(x) {
@@ -21,11 +18,7 @@ is_named <- function(x) {
   TRUE
 }
 
-attempt <- function(expr) {
-  tryCatch(expr, error = identity)
-}
-
-named <- function(object, names) {
+named <- function(object, names = object) {
   names(object) <- names
   object
 }
@@ -77,37 +70,70 @@ pad_right <- function(text) {
   n <- nchar(text)
   diff <- max(n) - n
 
-  spaces <- vapply(diff, function(d) {
+  spaces <- map_chr(diff, function(d) {
     paste(rep.int(" ", d), collapse = "")
-  }, character(1))
+  })
 
   paste(text, spaces, sep = "")
 }
 
-enumerate <- function(x, f, ...) {
-  n <- names(x)
-  result <- lapply(seq_along(x), function(i) {
-    f(n[[i]], x[[i]], ...)
-  })
-  names(result) <- names(x)
-  result
-}
-
-version_compatible <- function(lhs, rhs) {
-  lhs <- unclass(lhs)[[1]]; rhs <- unclass(rhs)[[1]]
-  n <- min(length(lhs), length(rhs))
-  for (i in seq_len(n))
-    if (lhs[[i]] != rhs[[i]])
-      return(FALSE)
-  return(TRUE)
-}
-
-`%||%` <- function(x, y) {
-  if (is.null(x)) y else x
-}
-
 write_lines <- function(text, con) {
-  if (is.null(con))
-    return(text)
+  if (is.null(con)) return(text)
   writeLines(text, con = con, useBytes = TRUE)
+}
+
+bind_list <- function(data) {
+  result <- do.call(mapply, c(c, data, USE.NAMES = FALSE, SIMPLIFY = FALSE))
+  names(result) <- names(data[[1]])
+  as.data.frame(result, stringsAsFactors = FALSE)
+}
+
+case <- function(...) {
+
+  dots <- list(...)
+  for (dot in dots) {
+
+    if (!inherits(dot, "formula"))
+      return(dot)
+
+    if (length(dot) == 2) {
+      expr <- dot[[2]]
+      return(eval(expr, envir = environment(dot)))
+    }
+
+    cond <- dot[[2]]
+    expr <- dot[[3]]
+    if (eval(cond, envir = environment(dot)))
+      return(eval(expr, envir = environment(dot)))
+  }
+
+  NULL
+
+}
+
+fromString <- function(x) {
+  strsplit(x, "\\s*,\\s*")[[1]]
+}
+
+version_compare <- function(lhs, rhs) {
+
+  lhs <- unclass(numeric_version(lhs))[[1]]
+  rhs <- unclass(numeric_version(rhs))[[1]]
+
+  diff <- length(lhs) - length(rhs)
+  if (diff < 0)
+    lhs <- c(lhs, rep(0, abs(diff)))
+  else if (diff > 0)
+    rhs <- c(rhs, rep(0, abs(diff)))
+
+  zip <- Map(c, lhs, rhs)
+  for (pair in zip) {
+    if (pair[[1]] < pair[[2]])
+      return(-1)
+    else if (pair[[1]] > pair[[2]])
+      return(1)
+  }
+
+  0
+
 }

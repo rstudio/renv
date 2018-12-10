@@ -1,14 +1,15 @@
+
 renv_load_r_version <- function(config) {
   version <- config$r_version
-  if (!version_compatible(version, getRversion())) {
-    fmt <- "renv '%s' requested R version '%s' but '%s' is currently being used"
+  if (version_compare(version, getRversion()) != 0) {
+    fmt <- "Environment '%s' requested R version '%s' but '%s' is currently being used"
     warningf(fmt, renv_active_renv(), version, getRversion())
   }
 }
 
 renv_load_libpaths <- function(config) {
 
-  renv <- file.path(renv_paths_renv(), sprintf("renv-%s", config$renv_version))
+  renv <- renv_paths_renv(sprintf("renv-%s", config$renv_version))
   libs <- rev(renv_paths_library(config$r_libs))
   lapply(libs, ensure_directory)
 
@@ -18,11 +19,11 @@ renv_load_libpaths <- function(config) {
 }
 
 renv_load_repos <- function(config) {
-  if (!empty(config$r_repos))
-    options(repos = config$r_repos)
+  options(repos = config$r_repos)
 }
 
 renv_load_report <- function() {
+
   if (!renv_verbose())
     return()
 
@@ -53,11 +54,11 @@ renv_load_project <- function(project) {
     stop(msg, call. = FALSE)
   }
 
-  dcf <- attempt(read.dcf(active, all = TRUE))
-  renv <- dcf$name
-  local <- as.logical(dcf$local)
+  dcf <- tryCatch(read.dcf(active, all = TRUE), error = identity)
+  if (inherits(dcf, "error"))
+    return(dcf)
 
-  renv_set_local(local)
-  renv
+  renv_set_local(as.logical(dcf$local))
+  dcf$name
 
 }

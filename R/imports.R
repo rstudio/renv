@@ -1,2 +1,3 @@
-#' @importFrom utils file.edit packageVersion
+
+#' @import utils
 NULL

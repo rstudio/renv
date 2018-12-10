@@ -4,11 +4,11 @@
 ## Overview
 
 Create and bind projects to R virtual environments. With `renv`, you can bind
-particular R projects to different R libraries. This enables a variety of
-workflows:
+particular R projects to different virtual environments, each containing its own
+set of R libraries. This enables a variety of workflows:
 
 1. Projects under active development can use a 'development' set of R packages,
-   while projects used more widely in production will use a 'production' set of
+   while projects used more widely in production can use a 'production' set of
    R packages. This way, changes made in the 'development' library won't affect
    other projects.
 
@@ -21,8 +21,6 @@ workflows:
    user libraries, but this package normalizes and standardizes the model
    across different platforms.
 
-More general project-specific configuration is still being sketched out.
-
 ## Usage
 
 Sample API sketched out.
@@ -30,14 +28,8 @@ Sample API sketched out.
 ``` r
 library(renv)
 
-# define a virtual environment
-config <- renv_config(r_version = "3.5.1", r_libs = c("dev", "base"))
-
 # create a virtual environment with this configuration
-renv_create("my-renv", config = config)
-
-# edit the configuration by hand if desired
-renv_edit("my-renv")
+renv_create("my-renv", r_libs = c("base", "dev"))
 
 # activate this virtual environment in the active project
 renv_activate("my-renv")

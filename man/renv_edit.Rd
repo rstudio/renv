@@ -4,7 +4,11 @@
 \alias{renv_edit}
 \title{Edit an R Virtual Environment}
 \usage{
-renv_edit(renv = NULL)
+renv_edit(name = NULL)
+}
+\arguments{
+\item{name}{The name of a virtual environment. If \code{NULL}, then the active
+virtual environment (if any) will be used.}
 }
 \description{
 Edit the configuration file associated with an \R virtual environment. This

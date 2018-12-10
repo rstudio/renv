@@ -47,9 +47,9 @@ renv_ved_r_repos <- function() {
 
 renv_ved_r_libs <- function() {
   list(
-    validate = function(x) is.character(x),
-    encode   = function(x) paste(x, collapse = ", "),
-    decode   = function(x) strsplit(x, "\\s*,\\s*")[[1]],
+    validate = is.character,
+    encode   = toString,
+    decode   = fromString,
     comment  = "The R libraries."
   )
 }
@@ -73,7 +73,7 @@ renv_config_definitions <- function() {
   )
 }
 
-renv_config_read <- function(path, text = NULL) {
+renv_config_read <- function(path = NULL, text = NULL) {
 
   text <- text %||% readLines(path, warn = FALSE, encoding = "UTF-8")
   extracted <- grep("^\\s*\\w", text, perl = TRUE, value = TRUE)

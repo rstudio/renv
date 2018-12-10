@@ -1,3 +1,4 @@
+
 renv_request_restart <- function(reason) {
 
   # use 'restart' helper defined by front-end (if any)

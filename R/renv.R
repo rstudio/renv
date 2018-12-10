@@ -1,3 +1,4 @@
+
 #' Create an R Virtual Environment.
 #'
 #' Create a new virtual environment.
@@ -23,7 +24,6 @@ renv_create <- function(name,
   ensure_directory(dirname(path))
   renv_bootstrap()
 
-  config <- c(name = name, config)
   renv_config_write(config, path)
 
   if (renv_verbose()) {
@@ -32,7 +32,7 @@ renv_create <- function(name,
     messagef(fmt, if (local) "local virtual" else "virtual", name)
   }
 
-  invisible(name)
+  invisible(config)
 }
 
 
@@ -47,18 +47,18 @@ renv_create <- function(name,
 #' @family renv
 #'
 #' @export
-renv_activate <- function(renv, project = NULL) {
+renv_activate <- function(name, project = NULL) {
   project <- renv_active_project(project)
 
-  ensure_existing_renv(renv)
-  renv_write_infrastructure(project, renv)
+  ensure_existing_renv(name)
+  renv_write_infrastructure(project, name)
 
   if (renv_verbose()) {
     fmt <- "* Activating %s environment '%s' ..."
-    messagef(fmt, if (renv_local()) "local virtual" else "virtual", renv)
+    messagef(fmt, if (renv_local()) "local virtual" else "virtual", name)
   }
 
-  reason <- sprintf("renv '%s' activated", renv)
+  reason <- sprintf("renv '%s' activated", name)
   renv_request_restart(reason)
 }
 
@@ -129,9 +129,24 @@ renv_load <- function(project = NULL) {
 #' @family renv
 #'
 #' @export
-renv_edit <- function(renv = NULL) {
-  renv <- renv_active_renv(renv)
-  path <- ensure_existing_renv(renv)
+renv_edit <- function(name = NULL) {
+  name <- renv_active_renv(name)
+  path <- ensure_existing_renv(name)
   file.edit(path)
 }
 
+#' Remove a Virtual Environment
+#'
+#' Remove an existing virtual environment.
+#'
+#' @inheritParams renv-params
+#'
+#' @export
+renv_remove <- function(name = NULL) {
+  name <- renv_active_renv(name)
+  path <- ensure_existing_renv(name)
+  unlink(path, recursive = TRUE)
+  fmt <- "* %s environment '%s' successfully removed."
+  messagef(fmt, if (renv_local()) "Local virtual" else "Virtual", name)
+  invisible(name)
+}

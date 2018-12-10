@@ -1,3 +1,4 @@
+
 renv_paths_root <- function(...) {
   root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
   file.path(root, ...)
@@ -10,6 +11,11 @@ renv_paths_library <- function(...) {
 
 renv_paths_config <- function(...) {
   root <- Sys.getenv("RENV_PATHS_CONFIG", renv_paths_root("config"))
+  file.path(root, ...)
+}
+
+renv_paths_cache <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_CACHE", renv_paths_root("cache"))
   file.path(root, ...)
 }
 

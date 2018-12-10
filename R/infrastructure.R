@@ -1,3 +1,4 @@
+
 renv_write_infrastructure <- function(project = NULL, renv) {
   project <- renv_active_project(project)
 

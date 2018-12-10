@@ -4,12 +4,17 @@
 \alias{renv_snapshot}
 \title{Snapshot a Virtual Environment}
 \usage{
-renv_snapshot(renv = NULL, file = NULL)
+renv_snapshot(name = NULL, file = "", confirm = interactive())
 }
 \arguments{
-\item{file}{The location where the library manifest should be written.
-If \code{NULL}, the manifest (as an \R list, with each entry representing
-an installed package in the library) is returned instead.}
+\item{name}{The name of a virtual environment. If \code{NULL}, then the active
+virtual environment (if any) will be used.}
+
+\item{file}{The location where the library manifest should be written. If
+\code{NULL}, the manifest is returned as an \R object. If \code{""} (the empty
+string), a project-local manifest is written to file.}
+
+\item{confirm}{Boolean; prompt the user before taking any action?}
 }
 \description{
 Snapshot a virtual environment, creating a manifest file that can be used
