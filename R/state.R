@@ -32,3 +32,7 @@ renv_local <- function(local = NULL) {
 renv_set_local <- function(local) {
   Sys.setenv(RENV_LOCAL = local)
 }
+
+renv_active_manifest <- function(project = NULL) {
+  file.path(renv_active_project(project), "renv/manifest")
+}

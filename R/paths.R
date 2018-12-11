@@ -9,8 +9,8 @@ renv_paths_library <- function(...) {
   file.path(root, renv_platform_prefix(), ...)
 }
 
-renv_paths_config <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_CONFIG", renv_paths_root("config"))
+renv_paths_environments <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_CENVIRONMENTS", renv_paths_root("environments"))
   file.path(root, ...)
 }
 
@@ -19,10 +19,7 @@ renv_paths_cache <- function(...) {
   file.path(root, ...)
 }
 
-renv_paths_renv <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_RENV", renv_paths_root("renv"))
-  file.path(root, renv_platform_prefix(), ...)
-}
+
 
 renv_paths_root_default <- function() {
   if (renv_local())

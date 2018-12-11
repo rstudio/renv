@@ -18,13 +18,24 @@ renv_create <- function(name,
                         r_libs         = character(),
                         r_libs_overlay = FALSE)
 {
-  config <- renv_config_create(environment(), formals())
+  blueprint <- list(
+
+    Environment = list(
+      Name = name
+    ),
+
+    R = list(
+      Version      = r_version,
+      Libraries    = r_libs,
+      Overlay      = r_libs_overlay,
+      Repositories = r_repos
+    )
+
+  )
 
   path <- ensure_no_renv(name)
-  ensure_directory(dirname(path))
-  renv_bootstrap()
-
-  renv_config_write(config, path)
+  ensure_parent_directory(path)
+  renv_manifest_write(blueprint, path)
 
   if (renv_verbose()) {
     fmt <- "* Created %s environment '%s'."
@@ -32,7 +43,7 @@ renv_create <- function(name,
     messagef(fmt, if (local) "local virtual" else "virtual", name)
   }
 
-  invisible(config)
+  invisible(blueprint)
 }
 
 
@@ -103,14 +114,14 @@ renv_load <- function(project = NULL) {
   renv <- renv_load_project(project)
 
   path <- ensure_existing_renv(renv)
-  config <- renv_config_read(path)
+  spec <- renv_manifest_read(path)
 
   renv_set_active_project(project)
   renv_set_active_renv(renv)
 
-  renv_load_r_version(config)
-  renv_load_repos(config)
-  renv_load_libpaths(config)
+  renv_load_r_version(spec)
+  renv_load_repos(spec)
+  renv_load_libpaths(spec)
 
   # report environment changes to the user
   renv_load_report()

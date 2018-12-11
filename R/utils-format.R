@@ -11,3 +11,6 @@ warningf <- function(fmt, ..., call. = FALSE) {
   warning(sprintf(fmt, ...), call. = call.)
 }
 
+printf <- function(fmt, ..., con = stdout()) {
+  writeLines(sprintf(fmt, ...), con = con)
+}

@@ -1,25 +1,24 @@
 
-renv_load_r_version <- function(config) {
-  version <- config$r_version
+renv_load_r_version <- function(spec) {
+  version <- spec$R$Version
   if (version_compare(version, getRversion()) != 0) {
     fmt <- "Environment '%s' requested R version '%s' but '%s' is currently being used"
     warningf(fmt, renv_active_renv(), version, getRversion())
   }
 }
 
-renv_load_libpaths <- function(config) {
+renv_load_libpaths <- function(spec) {
 
-  renv <- renv_paths_renv(sprintf("renv-%s", config$renv_version))
-  libs <- rev(renv_paths_library(config$r_libs))
+  libs <- rev(renv_paths_library(spec$R$Libraries))
   lapply(libs, ensure_directory)
 
-  libpaths <- c(libs, renv, if (config$r_libs_overlay) .libPaths())
+  libpaths <- c(libs, if (spec$R$Overlay) .libPaths())
   .libPaths(libpaths)
 
 }
 
-renv_load_repos <- function(config) {
-  options(repos = config$r_repos)
+renv_load_repos <- function(spec) {
+  options(repos = spec$R$Repositories)
 }
 
 renv_load_report <- function() {

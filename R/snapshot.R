@@ -17,24 +17,27 @@ renv_snapshot <- function(name = NULL,
                           file = "",
                           confirm = interactive())
 {
-  name <- renv_active_renv(name)
-
-  config <- renv_config_read(renv_paths_config(name))
-  library <- renv_snapshot_library(name)
-  new <- list(config = config, library = library)
-
   if (identical(file, ""))
     file <- file.path(renv_active_project(), "renv/manifest")
 
+  name <- renv_active_renv(name)
+
+  # generate a new manifest
+  new <- renv_manifest_read(renv_paths_environments(name))
+  new$R$Packages <- uapply(new$R$Libraries, renv_snapshot_r_library)
+
+  # return it directly when 'file' is NULL
   if (is.null(file))
     return(new)
 
-  path <- file.path(renv_active_project(), "renv/manifest")
-  old <- list(config = list(), library = list())
-  if (file.exists(path))
-    old <- renv_manifest_read(path)
+  # attempt to read the old manifest (if it exists)
+  old <- if (file.exists(renv_active_manifest()))
+    renv_manifest_read(renv_active_manifest())
+  else
+    list()
 
-  actions <- renv_manifest_diff(old, new)
+  # diff manifest packages to get set of actions
+  actions <- renv_manifest_diff_packages(old, new)
   if (empty(actions)) {
     message("* The manifest is already up-to-date.")
     return(invisible(new))
@@ -42,7 +45,7 @@ renv_snapshot <- function(name = NULL,
 
   if (confirm || renv_verbose()) {
     renv_snapshot_report_actions(actions, old, new)
-    messagef("* The manifest will be written to '%s'.", file)
+    printf("The manifest will be written to '%s'.", aliased_path(file))
   }
 
   if (confirm) {
@@ -59,14 +62,7 @@ renv_snapshot <- function(name = NULL,
   invisible(new)
 }
 
-renv_snapshot_library <- function(name) {
-  # TODO: do we ever want to include the user library, or system library,
-  # in the lockfile?
-  config <- renv_config_read(renv_paths_config(name))
-  uapply(config$r_libs, renv_snapshot_library_one)
-}
-
-renv_snapshot_library_one <- function(library) {
+renv_snapshot_r_library <- function(library) {
 
   path <- renv_paths_library(library)
   if (!file.exists(path))

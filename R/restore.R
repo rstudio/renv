@@ -18,12 +18,12 @@ renv_restore <- function(manifest = NULL,
     manifest
   )
 
-  name <- manifest$config$name
+  name <- manifest$Environment$Name
 
   old <- renv_snapshot(name, file = NULL)
   new <- manifest
 
-  actions <- renv_manifest_diff(old, new)
+  actions <- renv_manifest_diff_packages(old, new)
   if (!length(actions)) {
     messagef("* Virtual environment '%s' is up to date.", name)
     return(invisible(actions))
@@ -62,7 +62,7 @@ renv_restore_run_actions <- function(actions, old, new) {
 }
 
 renv_restore_install <- function(package, manifest) {
-  record <- manifest$library[[package]]
+  record <- manifest$R$Packages[[package]]
 
   delegate <- getOption("renv.restore.delegate")
   if (is.function(delegate)) {
@@ -198,7 +198,7 @@ renv_restore_install_cran_entry <- function(record, type, repo) {
 }
 
 renv_restore_remove <- function(package, manifest) {
-  entry <- manifest$library[[package]]
+  entry <- manifest$R$Packages[[package]]
   messagef("Removing %s (%s) ...", package, entry$Version)
   remove.packages(package, renv_paths_library(entry$Library))
   message("\tOK (removed from library)")

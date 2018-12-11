@@ -13,7 +13,7 @@ is_scalar_character <- function(x) {
 
 is_named <- function(x) {
   nm <- names(x)
-  if (is.null(nm) || "" %in% nm)
+  if (is.null(nm) || !all(nzchar(nm)))
     return(FALSE)
   TRUE
 }

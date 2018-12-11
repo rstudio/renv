@@ -5,10 +5,10 @@ renv_pretty_print <- function(message, manifest, actions, action) {
   if (empty(matches))
     return()
 
-  entries <- manifest$library[names(matches)]
+  entries <- manifest$R$Packages[names(matches)]
   formatted <- named(
-    sprintf("  [%s]", extract(entries, "Version")),
-    sprintf("  %s",   extract(entries, "Package"))
+    sprintf("  [%s]", map_chr(extract(entries, "Version"), format)),
+    sprintf("  %s",   map_chr(extract(entries, "Package"), format))
   )
 
   writeLines(message)
@@ -23,13 +23,13 @@ renv_pretty_print_pair <- function(message, old, new, actions, action) {
   if (empty(matches))
     return()
 
-  before <- old$library[names(matches)]
-  after  <- new$library[names(matches)]
+  before <- old$R$Packages[names(matches)]
+  after  <- new$R$Packages[names(matches)]
 
   formatted <- sprintf(
     "[%s -> %s]",
-    extract(before, "Version"),
-    extract(after, "Version")
+    map_chr(extract(before, "Version"), format),
+    map_chr(extract(after, "Version"), format)
   )
 
   names(formatted) <- sprintf("  %s", extract_chr(before, "Package"))

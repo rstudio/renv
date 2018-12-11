@@ -24,9 +24,13 @@ map_int <- function(x, f, ...) {
   vapply(x, f, ..., FUN.VALUE = integer(1))
 }
 
+map_lgl <- function(x, f, ...) {
+  vapply(x, f, ..., FUN.VALUE = logical(1))
+}
+
 
 extract <- function(x, ...) {
-  uapply(x, `[[`, ...)
+  lapply(x, `[[`, ...)
 }
 
 extract_chr <- function(x, ...) {
@@ -39,4 +43,8 @@ extract_dbl <- function(x, ...) {
 
 extract_int <- function(x, ...) {
   vapply(x, `[[`, ..., FUN.VALUE = integer(1))
+}
+
+extract_lgl <- function(x, ...) {
+  vapply(x, `[[`, ..., FUN.VALUE = logical(1))
 }
