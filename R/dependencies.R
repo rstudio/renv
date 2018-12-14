@@ -1,8 +1,12 @@
 
-# TODO: allow for blacklist / whitelist of files when searching dependencies
-# in a directory? where should this be set (project option? sensible default?)
-# e.g. control whether we recurse into hidden folders?
-
+#' Discover R Package Dependencies
+#'
+#' Discover \R packages used within files and directories.
+#'
+#' @param path The path to a (possibly multi-mode) \R file, or a directory
+#'   containing such files.
+#'
+#' @export
 discover_dependencies <- function(path) {
 
   info <- file.info(path)
@@ -22,7 +26,8 @@ discover_dependencies <- function(path) {
 
     # generic extension-based lookup
     ext == "r"   ~ renv_dependencies_discover_r(path),
-    ext == "rmd" ~ renv_dependencies_discover_rmd(path)
+    ext == "rmd" ~ renv_dependencies_discover_multimode(path, "rmd"),
+    ext == "rnw" ~ renv_dependencies_discover_multimode(path, "rnw")
 
   )
 
@@ -30,9 +35,24 @@ discover_dependencies <- function(path) {
 
 renv_dependencies_discover_dir <- function(path) {
 
+  # TODO: make this user-configurable?
+  # TODO: maximum recursion depth?
+  exclude <- c("node_modules", "packrat", "revdep")
+
+  # list files in the folder
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-  children <- list.files(path, full.names = TRUE, recursive = TRUE, include.dirs = FALSE)
+  files <- list.files(path)
+
+  # filter children based on pattern
+  pattern <- sprintf("^(?:%s)$", paste(exclude, collapse = "|"))
+  matches <- grep(pattern, files, perl = TRUE, value = TRUE, invert = TRUE)
+
+  # construct new file paths
+  children <- file.path(path, matches)
+
+  # recurse for dependencies
   deps <- lapply(children, discover_dependencies)
+
   bind_list(deps)
 
 }
@@ -70,18 +90,17 @@ renv_dependencies_discover_description <- function(path) {
 
 }
 
-renv_dependencies_discover_rmd <- function(path) {
+renv_dependencies_discover_multimode <- function(path, mode) {
 
-  # TODO: dependencies from YAML
-  # TODO: extract R code (skip non-evaled chunks?)
   # TODO: find in-line R code?
+  deps <- stack()
 
-  deps <- c(
-    renv_dependencies_discover_rmd_yaml_header(path),
-    renv_dependencies_discover_chunks(path)
-  )
+  if (identical(mode, "rmd"))
+    deps$push(renv_dependencies_discover_rmd_yaml_header(path))
 
-  bind_list(Filter(NROW, deps))
+  deps$push(renv_dependencies_discover_chunks(path))
+
+  bind_list(Filter(NROW, deps$data()))
 
 }
 
@@ -101,12 +120,13 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
   }
 
+  deps <- c("rmarkdown")
   yaml <- rmarkdown::yaml_front_matter(path)
   runtime <- yaml$runtime %||% ""
   if (grepl("shiny", runtime, fixed = TRUE))
-    return("shiny")
+    deps <- c(deps, "shiny")
 
-  character()
+  renv_dependencies_list(path, deps)
 
 }
 
@@ -150,7 +170,7 @@ renv_dependencies_discover_chunks <- function(path) {
 
   chunks <- .mapply(function(lhs, rhs) {
     header <- contents[[lhs]]
-    params <- renv_dependencies_discover_parse_params(header, type, patterns)
+    params <- renv_dependencies_discover_parse_params(header, type)
     list(params = params, contents = contents[(lhs + 1):(rhs - 1)])
   }, list(starts, ends), NULL)
 
@@ -169,7 +189,12 @@ renv_dependencies_discover_chunks <- function(path) {
   # write to file and parse dependencies
   rfile <- tempfile(fileext = ".R")
   writeLines(enc2utf8(code), con = rfile, useBytes = TRUE)
-  renv_dependencies_discover_r(rfile)
+  deps <- renv_dependencies_discover_r(rfile)
+  if (is.null(deps))
+    return(NULL)
+
+  deps$Source <- path
+  deps
 
 }
 
@@ -287,7 +312,7 @@ renv_dependencies_discover_r_colon <- function(node, envir) {
 renv_dependencies_list <- function(source, packages) {
 
   data.frame(
-    Source  = path,
+    Source  = source,
     Package = packages,
     Require = "",
     Version = "",
@@ -296,36 +321,43 @@ renv_dependencies_list <- function(source, packages) {
 
 }
 
-renv_dependencies_discover_parse_params <- function(header, type, patterns) {
+renv_dependencies_discover_parse_params <- function(header, type) {
 
   engine <- "r"
-  rest <- sub(patterns$chunk.begin, "\\1", header)
+  rest <- sub(knitr::all_patterns[[type]]$chunk.begin, "\\1", header)
 
   # if this is an R Markdown document, parse the initial engine chunk
   if (type == "md") {
-    idx <- regexpr("[ ,]", rest)
+    idx <- regexpr("(?:[ ,]|$)", rest)
     engine <- substring(rest, 1, idx - 1)
-    rest <- substring(rest, idx + 1)
+    rest <- sub("^,*\\s*", "", substring(rest, idx + 1))
+  }
+
+  # try to guess where the label is
+  label <- ""
+  idx <- regexpr("(?:[ ,=]|$)", rest)
+  if (idx != -1) {
+    ch <- substring(rest, idx, idx)
+    if (ch != '=') {
+      label <- substring(rest, 1, idx - 1)
+      rest <- sub("^,*\\s*", "", substring(rest, idx + 1))
+    }
   }
 
   params <- tryCatch(
-    parse(text = sprintf("list(%s)", rest))[[1]],
+    parse(text = sprintf("alist(%s)", rest))[[1]],
     error = identity
   )
 
   if (inherits(params, "error"))
     return(list(engine = engine))
 
-  # if the first entry is not named, it's the label
-  if (is.null(names(params)) || names(params)[[2]] == "") {
-    idx <- regexpr("[ ,]", rest)
-    params[["label"]] <- substring(rest, 1, idx - 1)
-    params[[2L]] <- NULL
-  }
+  if (is.null(params[["label"]]) && nzchar(label))
+    params[["label"]] <- label
 
   if (is.null(params[["engine"]]))
     params[["engine"]] <- engine
 
-  params
+  eval(params, envir = parent.frame())
 
 }

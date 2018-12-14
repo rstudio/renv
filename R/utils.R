@@ -85,6 +85,8 @@ write_lines <- function(text, con) {
 bind_list <- function(data, name = "Index") {
 
   filtered <- Filter(NROW, data)
+  if (!length(filtered))
+    return(NULL)
 
   rhs <- .mapply(c, filtered, list(use.names = FALSE))
   names(rhs) <- names(filtered[[1]])
