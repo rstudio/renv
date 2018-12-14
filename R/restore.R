@@ -9,9 +9,8 @@
 #'
 #' @inheritParams renv-params
 #' @export
-renv_restore <- function(manifest = NULL,
-                         confirm = interactive())
-{
+renv_restore <- function(manifest = NULL, confirm = interactive()) {
+
   manifest <- case(
     is.null(manifest)      ~ renv_manifest_load(),
     is.character(manifest) ~ renv_manifest_read(manifest),

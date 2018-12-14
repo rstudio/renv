@@ -2,7 +2,8 @@
 `_renv_globals` <- new.env(parent = emptyenv())
 
 renv_global_get <- function(name) {
-  get(name, envir = `_renv_globals`, inherits = FALSE)
+  if (exists(name, envir = `_renv_globals`, inherits = FALSE))
+    get(name, envir = `_renv_globals`, inherits = FALSE)
 }
 
 renv_global_set <- function(name, value) {
@@ -10,6 +11,13 @@ renv_global_set <- function(name, value) {
 }
 
 renv_global_clear <- function(name) {
-  rm(list = name, envir = `_renv_globals`)
+  if (exists(name, envir = `_renv_globals`, inherits = FALSE))
+    rm(list = name, envir = `_renv_globals`, inherits = FALSE)
 }
 
+renv_global_once <- function(name) {
+  if (exists(name, envir = `_renv_globals`, inherits = FALSE))
+    return(FALSE)
+  assign(name, TRUE, envir = `_renv_globals`, inherits = FALSE)
+  TRUE
+}

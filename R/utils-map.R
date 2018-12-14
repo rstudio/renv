@@ -8,6 +8,13 @@ enumerate <- function(x, f, ...) {
   result
 }
 
+recurse <- function(x, f, ...) {
+  f(x, ...)
+  if (is.recursive(x))
+    for (i in seq_along(x))
+      recurse(x[[i]], f, ...)
+}
+
 uapply <- function(x, f, ...) {
   unlist(lapply(x, f, ...), recursive = FALSE)
 }

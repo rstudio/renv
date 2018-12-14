@@ -17,10 +17,14 @@ renv_snapshot <- function(name = NULL,
                           file = "",
                           confirm = interactive())
 {
-  if (identical(file, ""))
-    file <- file.path(renv_active_project(), "renv/manifest")
-
   name <- renv_active_renv(name)
+  if (!nzchar(name)) {
+    msg <- paste(
+      "This project has no active virtual environment.",
+      "Have you called `renv::renv_active()` yet?"
+    )
+    stop(msg)
+  }
 
   # generate a new manifest
   new <- renv_manifest_read(renv_paths_environments(name))
@@ -30,8 +34,12 @@ renv_snapshot <- function(name = NULL,
   if (is.null(file))
     return(new)
 
+  # interpret empty file path
+  if (!nzchar(file) || !length(file))
+    file <- renv_snapshot_manifest_path()
+
   # attempt to read the old manifest (if it exists)
-  old <- if (file.exists(renv_active_manifest()))
+  old <- if (nzchar(renv_active_manifest()))
     renv_manifest_read(renv_active_manifest())
   else
     list()
@@ -39,15 +47,18 @@ renv_snapshot <- function(name = NULL,
   # diff manifest packages to get set of actions
   actions <- renv_manifest_diff_packages(old, new)
   if (empty(actions)) {
-    message("* The manifest is already up-to-date.")
+    if (renv_verbose())
+      message("* The manifest is already up-to-date.")
     return(invisible(new))
   }
 
+  # report actions to the user
   if (confirm || renv_verbose()) {
     renv_snapshot_report_actions(actions, old, new)
     printf("The manifest will be written to '%s'.", aliased_path(file))
   }
 
+  # request user confirmation
   if (confirm) {
     response <- readline("Do you want to proceed? [Y/n]: ")
     if (response != "y") {
@@ -56,8 +67,11 @@ renv_snapshot <- function(name = NULL,
     }
   }
 
+  # write it out
+  ensure_parent_directory(file)
   renv_manifest_write(new, file = file)
-  messagef("* Manifest written to '%s'.", aliased_path(file))
+  if (renv_verbose())
+    messagef("* Manifest written to '%s'.", aliased_path(file))
 
   invisible(new)
 }
@@ -69,6 +83,8 @@ renv_snapshot_r_library <- function(library) {
     stopf("Library '%s' does not exist.", library)
 
   pkgs <- list.files(path, full.names = TRUE)
+  pkgs <- renv_snapshot_r_library_diagnose(library, pkgs)
+
   descriptions <- file.path(pkgs, "DESCRIPTION")
   packages <- lapply(descriptions, renv_snapshot_description, library = library)
 
@@ -83,6 +99,26 @@ renv_snapshot_r_library <- function(library) {
 
   names(packages) <- map_chr(packages, `[[`, "Package")
   packages
+
+}
+
+renv_snapshot_r_library_diagnose <- function(library, pkgs) {
+
+  desc <- file.path(pkgs, "DESCRIPTION")
+  missing <- !file.exists(desc)
+  if (!any(missing))
+    return(pkgs)
+
+  fmt <- lines(
+    "The following package(s) in library '%s' are missing DESCRIPTION files:",
+    "",
+    paste("-", pkgs[missing], collapse = "\n"),
+    "",
+    "Consider removing these folders from your R library."
+  )
+
+  warningf(fmt, library, immediate. = TRUE)
+  pkgs[!missing]
 
 }
 
@@ -102,7 +138,7 @@ renv_snapshot_description <- function(path, library) {
 
   dcf[["Library"]] <- library
   # TODO: Mark e.g. GitHub sources and friends
-  dcf[["Source"]] <- dcf[["Repository"]] %||% "<unknown>"
+  dcf[["Source"]] <- dcf[["Repository"]] %||% "Unknown"
 
   fields <- c("Package", "Version", "Library", "Source")
   missing <- setdiff(fields, names(dcf))
@@ -147,4 +183,10 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     renv_pretty_print_pair(msg, old, new, actions, "crossgrade")
   }
 
+}
+
+renv_snapshot_manifest_path <- function(project = NULL) {
+  project <- renv_active_project(project)
+  timestamp <- strftime(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
+  file.path(project, "renv/manifest", sprintf("%s.manifest", timestamp))
 }

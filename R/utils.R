@@ -82,10 +82,29 @@ write_lines <- function(text, con) {
   writeLines(text, con = con, useBytes = TRUE)
 }
 
-bind_list <- function(data) {
-  result <- do.call(mapply, c(c, data, USE.NAMES = FALSE, SIMPLIFY = FALSE))
-  names(result) <- names(data[[1]])
-  as.data.frame(result, stringsAsFactors = FALSE)
+bind_list <- function(data, name = "Index") {
+
+  filtered <- Filter(NROW, data)
+
+  rhs <- .mapply(c, filtered, list(use.names = FALSE))
+  names(rhs) <- names(filtered[[1]])
+
+  if (name %in% names(rhs)) {
+    fmt <- "Name collision: bound list already contains column called '%s'."
+    stopf(fmt, name)
+  }
+
+  if (is.null(names(data)))
+    return(as.data.frame(rhs, stringsAsFactors = FALSE))
+
+  lhs <- list()
+  lhs[[names]] <- rep.int(names(data), times = map_dbl(filtered, NROW))
+
+  cbind(
+    as.data.frame(lhs, stringsAsFactors = FALSE),
+    as.data.frame(rhs, stringsAsFactors = FALSE)
+  )
+
 }
 
 case <- function(...) {

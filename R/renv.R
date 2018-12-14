@@ -63,6 +63,9 @@ renv_activate <- function(name, project = NULL) {
 
   ensure_existing_renv(name)
   renv_write_infrastructure(project, name)
+  renv_bootstrap()
+
+  renv_verbose_with(FALSE, renv_snapshot(name, confirm = FALSE))
 
   if (renv_verbose()) {
     fmt <- "* Activating %s environment '%s' ..."
@@ -85,16 +88,22 @@ renv_activate <- function(name, project = NULL) {
 renv_deactivate <- function(project = NULL) {
   project <- renv_active_project(project)
 
-  active <- file.path(project, "renv/active")
-  if (file.exists(active)) {
-    dcf <- read.dcf(active, all = TRUE)
-    if (renv_verbose()) {
-      fmt <- "* Deactivating %s environment '%s' ..."
-      messagef(fmt, if (renv_local()) "local virtual" else "virtual", dcf$name)
-    }
+  renv_remove_rprofile(project)
+
+  state <- file.path(project, "renv/renv.dcf")
+  if (!file.exists(state)) {
+    fmt <- "Project '%s' has no active virtual environment."
+    stopf(fmt, aliased_path(project))
   }
 
-  renv_remove_infrastructure()
+  name <- read.dcf(state, fields = "Environment")
+  if (renv_verbose()) {
+    fmt <- "* Deactivating %s environment '%s' ..."
+    messagef(fmt, if (renv_local()) "local virtual" else "virtual", name)
+  }
+
+  unlink(state)
+
   renv_request_restart("renv deactivated")
 }
 
@@ -123,8 +132,8 @@ renv_load <- function(project = NULL) {
   renv_load_repos(spec)
   renv_load_libpaths(spec)
 
-  # report environment changes to the user
   renv_load_report()
+
 
   invisible(renv)
 }

@@ -6,7 +6,7 @@ renv_write_infrastructure <- function(project = NULL, renv) {
   renv_write_rbuildignore(project)
   renv_write_gitignore(project)
   renv_write_activate(project, renv)
-  renv_write_active(project, renv)
+  renv_write_project_state(project, renv)
 }
 
 
@@ -33,7 +33,7 @@ renv_write_rbuildignore <- function(project) {
 renv_write_gitignore <- function(project) {
 
   renv_write_entry_impl(
-    ".renv/library/",
+    "renv/library/",
     file.path(project, ".gitignore"),
     FALSE
   )
@@ -46,7 +46,8 @@ renv_write_activate <- function(project = NULL, renv) {
   source <- system.file("resources/activate.R", package = "renv")
   target <- file.path(project, "renv/activate.R")
 
-  new <- readLines(source, warn = FALSE)
+  template <- read(source)
+  new <- sprintf(template, packageVersion("renv"))
 
   if (file.exists(target)) {
     old <- readLines(source, warn = FALSE)
@@ -59,24 +60,27 @@ renv_write_activate <- function(project = NULL, renv) {
 
 }
 
-renv_write_active <- function(project = NULL, renv) {
+renv_write_project_state <- function(project = NULL, renv) {
   project <- renv_active_project(project)
 
-  active <- file.path(project, "renv/active")
-  ensure_parent_directory(active)
+  state <- file.path(project, "renv/renv.dcf")
+  ensure_parent_directory(state)
 
   local <- renv_local()
-  new <- paste(c("name", "local"), c(renv, local), sep = ": ", collapse = "\n")
-  if (!file.exists(active)) {
-    writeLines(new, con = active)
+
+  keys <- c("Environment", "Version", "Local")
+  vals <- c(renv, format(packageVersion("renv")), local)
+  new <- paste(keys, vals, sep = ": ", collapse = "\n")
+  if (!file.exists(state)) {
+    writeLines(new, con = state)
     return(TRUE)
   }
 
-  old <- readLines(active, warn = FALSE)
+  old <- readLines(state, warn = FALSE)
   if (identical(old, new))
     return(TRUE)
 
-  writeLines(new, con = active)
+  writeLines(new, con = state)
   TRUE
 
 }
@@ -143,7 +147,7 @@ renv_remove_rbuildignore <- function(project) {
 renv_remove_gitignore <- function(project) {
 
   renv_remove_entry_impl(
-    ".renv/library/",
+    "renv/library/",
     file.path(project, ".gitignore")
   )
 

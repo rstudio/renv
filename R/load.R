@@ -17,6 +17,18 @@ renv_load_libpaths <- function(spec) {
 
 }
 
+remv_load_callbacks <- function(spec) {
+
+  addTaskCallback(function(...) {
+    if (identical(.libPaths(), spec))
+      return(FALSE)
+
+    renv_load_libpaths(spec)
+    return(FALSE)
+  })
+
+}
+
 renv_load_repos <- function(spec) {
   options(repos = spec$R$Repositories)
 }
@@ -46,18 +58,18 @@ renv_load_project <- function(project) {
 
   # when 'renv' is not specified, use the active virtual environment associated
   # with the project (if any)
-  active <- file.path(project, "renv/active")
-  if (!file.exists(active)) {
-    fmt <- "Project '%s' does not have an active virtual environment"
+  state <- file.path(project, "renv/renv.dcf")
+  if (!file.exists(state)) {
+    fmt <- "Project '%s' does not have an active virtual environment."
     msg <- sprintf(fmt, aliased_path(project))
     stop(msg, call. = FALSE)
   }
 
-  dcf <- tryCatch(read.dcf(active, all = TRUE), error = identity)
+  dcf <- tryCatch(read.dcf(state, all = TRUE), error = identity)
   if (inherits(dcf, "error"))
     return(dcf)
 
-  renv_set_local(as.logical(dcf$local))
-  dcf$name
+  renv_set_local(as.logical(dcf$Local))
+  dcf$Environment
 
 }

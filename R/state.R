@@ -34,5 +34,7 @@ renv_set_local <- function(local) {
 }
 
 renv_active_manifest <- function(project = NULL) {
-  file.path(renv_active_project(project), "renv/manifest")
+  path <- file.path(renv_active_project(project), "renv/manifest")
+  manifests <- list.files(path, full.names = TRUE)
+  if (empty(manifests)) "" else tail(sort(manifests), n = 1L)
 }
