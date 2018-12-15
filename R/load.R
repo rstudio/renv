@@ -1,36 +1,26 @@
 
-renv_load_r_version <- function(spec) {
-  version <- spec$R$Version
+renv_load_r_version <- function(manifest) {
+  version <- manifest$R$Version
   if (version_compare(version, getRversion()) != 0) {
     fmt <- "Environment '%s' requested R version '%s' but '%s' is currently being used"
-    warningf(fmt, renv_active_renv(), version, getRversion())
+    warningf(fmt, renv_active_environment(), version, getRversion())
   }
 }
 
-renv_load_libpaths <- function(spec) {
+renv_load_libpaths <- function(manifest) {
 
-  libs <- rev(renv_paths_library(spec$R$Libraries))
+  libs <- rev(renv_paths_library(manifest$R$Libraries))
   lapply(libs, ensure_directory)
 
-  libpaths <- c(libs, if (spec$R$Overlay) .libPaths())
+  libpaths <- c(libs, if (manifest$R$Overlay) .libPaths())
+
+  Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
   .libPaths(libpaths)
 
 }
 
-remv_load_callbacks <- function(spec) {
-
-  addTaskCallback(function(...) {
-    if (identical(.libPaths(), spec))
-      return(FALSE)
-
-    renv_load_libpaths(spec)
-    return(FALSE)
-  })
-
-}
-
-renv_load_repos <- function(spec) {
-  options(repos = spec$R$Repositories)
+renv_load_repos <- function(manifest) {
+  options(repos = manifest$R$Repositories)
 }
 
 renv_load_report <- function() {
@@ -38,7 +28,7 @@ renv_load_report <- function() {
   if (!renv_verbose())
     return()
 
-  renv <- renv_active_renv()
+  renv <- renv_active_environment()
   local <- renv_local()
   fmt <- if (local)
     "* Local virtual environment '%s' loaded."

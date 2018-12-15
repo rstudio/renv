@@ -12,11 +12,11 @@
 #' @family renv
 #'
 #' @export
-renv_create <- function(name,
-                        r_version      = getRversion(),
-                        r_repos        = getOption("repos"),
-                        r_libs         = character(),
-                        r_libs_overlay = FALSE)
+create <- function(name,
+                   r_version      = getRversion(),
+                   r_repos        = getOption("repos"),
+                   r_libs         = character(),
+                   r_libs_overlay = FALSE)
 {
   blueprint <- list(
 
@@ -58,21 +58,25 @@ renv_create <- function(name,
 #' @family renv
 #'
 #' @export
-renv_activate <- function(name, project = NULL) {
+activate <- function(name, project = NULL) {
   project <- renv_active_project(project)
 
   ensure_existing_renv(name)
   renv_write_infrastructure(project, name)
   renv_bootstrap()
 
-  renv_verbose_with(FALSE, renv_snapshot(name, confirm = FALSE))
+  renv_verbose_with(FALSE, snapshot(name, confirm = FALSE))
 
   if (renv_verbose()) {
     fmt <- "* Activating %s environment '%s' ..."
     messagef(fmt, if (renv_local()) "local virtual" else "virtual", name)
   }
 
-  reason <- sprintf("renv '%s' activated", name)
+  # set library paths now so that they're properly restored in new sessions
+  manifest <- renv_manifest_load(project)
+  renv_load_libpaths(manifest)
+
+  reason <- sprintf("Virtual environment '%s' activated.", name)
   renv_request_restart(reason)
 }
 
@@ -85,7 +89,7 @@ renv_activate <- function(name, project = NULL) {
 #' @family renv
 #'
 #' @export
-renv_deactivate <- function(project = NULL) {
+deactivate <- function(project = NULL) {
   project <- renv_active_project(project)
 
   renv_remove_rprofile(project)
@@ -104,6 +108,19 @@ renv_deactivate <- function(project = NULL) {
 
   unlink(state)
 
+  Sys.setenv(
+    R_LIBS_USER = Sys.getenv("RENV_DEFAULT_R_LIBS_USER"),
+    R_LIBS_SITE = Sys.getenv("RENV_DEFAULT_R_LIBS_SITE"),
+    R_LIBS      = Sys.getenv("RENV_DEFAULT_R_LIBS")
+  )
+
+  libpaths <- Sys.getenv("RENV_DEFAULT_LIBPATHS")
+  .libPaths(strsplit(libpaths, .Platform$path.sep, fixed = TRUE)[[1]])
+
+  env <- Sys.getenv()
+  stale <- grep("^RENV_", names(env), value = TRUE)
+  Sys.unsetenv(stale)
+
   renv_request_restart("renv deactivated")
 }
 
@@ -112,13 +129,14 @@ renv_deactivate <- function(project = NULL) {
 #' Load the \R virtual environment currently associated with a project.
 #'
 #' Normally, this is done automatically on session startup by the infrastructure
-#' initialized by [renv_activate()] -- users should not need to call this
+#' loadd by [activate()] -- users should not need to call this
 #' function directly.
 #'
 #' @inheritParams renv-params
 #'
 #' @export
-renv_load <- function(project = NULL) {
+load <- function(project = NULL) {
+
   project <- renv_active_project(project)
   renv <- renv_load_project(project)
 
@@ -126,7 +144,7 @@ renv_load <- function(project = NULL) {
   spec <- renv_manifest_read(path)
 
   renv_set_active_project(project)
-  renv_set_active_renv(renv)
+  renv_set_active_environment(renv)
 
   renv_load_r_version(spec)
   renv_load_repos(spec)
@@ -136,11 +154,12 @@ renv_load <- function(project = NULL) {
 
 
   invisible(renv)
+
 }
 
-#' Edit an R Virtual Environment
+#' Modify an R Virtual Environment
 #'
-#' Edit the configuration file associated with an \R virtual environment. This
+#' Modify the configuration file associated with an \R virtual environment. This
 #' can be useful if you need to manually tweak or edit values in a pre-existing
 #' environment.
 #'
@@ -149,24 +168,25 @@ renv_load <- function(project = NULL) {
 #' @family renv
 #'
 #' @export
-renv_edit <- function(name = NULL) {
-  name <- renv_active_renv(name)
+modify <- function(name = NULL) {
+  name <- renv_active_environment(name)
   path <- ensure_existing_renv(name)
   file.edit(path)
 }
 
-#' Remove a Virtual Environment
-#'
-#' Remove an existing virtual environment.
-#'
-#' @inheritParams renv-params
-#'
-#' @export
-renv_remove <- function(name = NULL) {
-  name <- renv_active_renv(name)
-  path <- ensure_existing_renv(name)
-  unlink(path, recursive = TRUE)
-  fmt <- "* %s environment '%s' successfully removed."
-  messagef(fmt, if (renv_local()) "Local virtual" else "Virtual", name)
-  invisible(name)
-}
+# TODO
+# #' Remove a Virtual Environment
+# #'
+# #' Remove an existing virtual environment.
+# #'
+# #' @inheritParams renv-params
+# #'
+# #' @export
+# remove <- function(name = NULL) {
+#   name <- renv_active_environment(name)
+#   path <- ensure_existing_renv(name)
+#   unlink(path, recursive = TRUE)
+#   fmt <- "* %s environment '%s' successfully removed."
+#   messagef(fmt, if (renv_local()) "Local virtual" else "Virtual", name)
+#   invisible(name)
+# }

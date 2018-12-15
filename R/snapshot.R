@@ -13,11 +13,9 @@
 #' @family reproducibility
 #'
 #' @export
-renv_snapshot <- function(name = NULL,
-                          file = "",
-                          confirm = interactive())
-{
-  name <- renv_active_renv(name)
+snapshot <- function(name = NULL, file = "", confirm = interactive()) {
+
+  name <- renv_active_environment(name)
   if (!nzchar(name)) {
     msg <- paste(
       "This project has no active virtual environment.",
@@ -74,13 +72,13 @@ renv_snapshot <- function(name = NULL,
     messagef("* Manifest written to '%s'.", aliased_path(file))
 
   invisible(new)
+
 }
 
 renv_snapshot_r_library <- function(library) {
 
   path <- renv_paths_library(library)
-  if (!file.exists(path))
-    stopf("Library '%s' does not exist.", library)
+  ensure_directory(path)
 
   pkgs <- list.files(path, full.names = TRUE)
   pkgs <- renv_snapshot_r_library_diagnose(library, pkgs)

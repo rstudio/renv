@@ -1,9 +1,4 @@
 
-renv_paths_root <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
-  file.path(root, ...)
-}
-
 renv_paths_bootstrap <- function(...) {
   root <- Sys.getenv("RENV_PATHS_BOOTSTRAP", renv_paths_root("bootstrap"))
   file.path(root, renv_platform_prefix(), ...)
@@ -26,13 +21,18 @@ renv_paths_cache <- function(...) {
 
 
 
+renv_paths_root <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
+  file.path(root, ...)
+}
+
+
 renv_paths_root_default <- function() {
   if (renv_local())
     file.path(renv_active_project(), "renv")
   else
     path.expand("~/.renv")
 }
-
 
 
 renv_platform_prefix <- function(...) {

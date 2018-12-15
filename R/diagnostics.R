@@ -5,7 +5,7 @@ renv_diagnose <- function(project) {
 
     fmt <- lines(
       "Project '%s' has no associated virtual environment.",
-      "Call `renv_activate(<environment>)` to activate a virtual environment."
+      "Call `renv::activate(<environment>)` to activate a virtual environment."
     )
 
     msg <- sprintf(fmt, aliased_path(project))
@@ -17,7 +17,7 @@ renv_diagnose <- function(project) {
 
     fmt <- lines(
       "Project '%s' has no manifest.",
-      "Have you called `renv_snapshot()` yet?"
+      "Have you called `renv::snapshot()` yet?"
     )
 
     msg <- sprintf(fmt, aliased_path(project))

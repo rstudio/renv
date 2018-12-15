@@ -15,13 +15,13 @@ renv_set_active_project <- function(project) {
   Sys.setenv(RENV_ACTIVE_PROJECT = normalizePath(project, winslash = "/"))
 }
 
-renv_active_renv <- function(renv = NULL) {
-  state <- renv_active_state("RENV_ACTIVE_RENV", renv, "")
+renv_active_environment <- function(renv = NULL) {
+  state <- renv_active_state("RENV_ACTIVE_ENVIRONMENT", renv, "")
   as.character(state)
 }
 
-renv_set_active_renv <- function(renv) {
-  Sys.setenv(RENV_ACTIVE_RENV = renv)
+renv_set_active_environment <- function(renv) {
+  Sys.setenv(RENV_ACTIVE_ENVIRONMENT = renv)
 }
 
 renv_local <- function(local = NULL) {

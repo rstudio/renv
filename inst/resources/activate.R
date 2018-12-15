@@ -11,7 +11,7 @@ local({
   # try to load renv from one of these paths
   for (path in paths) {
     if (requireNamespace("renv", lib.loc = path, quietly = TRUE)) {
-      renv::renv_load()
+      renv::load()
       return(invisible())
     }
   }
