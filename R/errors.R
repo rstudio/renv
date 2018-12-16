@@ -1,7 +1,7 @@
 
 ensure_existing_renv <- function(name) {
 
-  path <- renv_paths_environments(name)
+  path <- renv_paths_environment(name)
   if (!file.exists(path)) {
     fmt <- "%s environment '%s' does not exist."
     stopf(fmt, if (renv_local()) "Local virtual" else "Virtual", name)
@@ -12,7 +12,7 @@ ensure_existing_renv <- function(name) {
 
 ensure_no_renv <- function(name) {
 
-  path <- renv_paths_environments(name)
+  path <- renv_paths_environment(name)
   if (file.exists(path)) {
     fmt <- "%s environment '%s' already exists."
     stopf(fmt, if (renv_local()) "Local virtual" else "Virtual", name)

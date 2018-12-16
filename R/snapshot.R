@@ -25,7 +25,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   }
 
   # generate a new manifest
-  new <- renv_manifest_read(renv_paths_environments(name))
+  new <- renv_manifest_read(renv_paths_environment(name))
   new$R$Packages <- uapply(new$R$Libraries, renv_snapshot_r_library)
 
   # return it directly when 'file' is NULL
@@ -135,8 +135,7 @@ renv_snapshot_description <- function(path, library) {
     return(dcf)
 
   dcf[["Library"]] <- library
-  # TODO: Mark e.g. GitHub sources and friends
-  dcf[["Source"]] <- dcf[["Repository"]] %||% "Unknown"
+  dcf[["Source"]] <- renv_snapshot_description_source(dcf)
 
   fields <- c("Package", "Version", "Library", "Source")
   missing <- setdiff(fields, names(dcf))
@@ -146,8 +145,20 @@ renv_snapshot_description <- function(path, library) {
     return(simpleError(msg))
   }
 
-  fields <- c(fields, grep("^Remote", names(dcf)))
+  fields <- c(fields, grep("^Remote", names(dcf), value = TRUE))
   as.list(dcf[fields])
+
+}
+
+renv_snapshot_description_source <- function(dcf) {
+
+  if (!is.null(dcf[["Repository"]]))
+    return("cran")
+
+  if (!is.null(dcf[["RemoteType"]]))
+    return(dcf[["RemoteType"]])
+
+  "[unknown]"
 
 }
 

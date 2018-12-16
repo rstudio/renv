@@ -158,3 +158,7 @@ version_compare <- function(lhs, rhs) {
   0
 
 }
+
+catch <- function(expr) {
+  tryCatch(expr, error = identity)
+}

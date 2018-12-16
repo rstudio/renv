@@ -58,8 +58,14 @@ create <- function(name,
 #' @family renv
 #'
 #' @export
-activate <- function(name, project = NULL) {
+activate <- function(name = NULL, project = NULL) {
   project <- renv_active_project(project)
+
+  if (is.null(name)) {
+    state <- file.path(project, "renv/renv.dcf")
+    if (file.exists(state))
+      name <- read.dcf(state, fields = "Environment")
+  }
 
   ensure_existing_renv(name)
   renv_write_infrastructure(project, name)
@@ -105,8 +111,6 @@ deactivate <- function(project = NULL) {
     fmt <- "* Deactivating %s environment '%s' ..."
     messagef(fmt, if (renv_local()) "local virtual" else "virtual", name)
   }
-
-  unlink(state)
 
   Sys.setenv(
     R_LIBS_USER = Sys.getenv("RENV_DEFAULT_R_LIBS_USER"),

@@ -9,7 +9,7 @@ renv_paths_library <- function(...) {
   file.path(root, renv_platform_prefix(), ...)
 }
 
-renv_paths_environments <- function(...) {
+renv_paths_environment <- function(...) {
   root <- Sys.getenv("RENV_PATHS_ENVIRONMENT", renv_paths_root("environment"))
   file.path(root, ...)
 }
