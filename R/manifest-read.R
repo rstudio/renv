@@ -1,7 +1,7 @@
 
 renv_manifest_read <- function(file) {
 
-  contents <- trimws(read(file))
+  contents <- trimws(paste(readLines(file, encoding = "UTF-8"), collapse = "\n"))
   splat <- strsplit(contents, "\\n+(?=\\[)", perl = TRUE)[[1]]
 
   idx <- regexpr("\n", splat, fixed = TRUE)

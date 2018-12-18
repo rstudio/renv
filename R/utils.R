@@ -33,10 +33,6 @@ empty <- function(x) {
   length(x) == 0
 }
 
-read <- function(file) {
-  readChar(file, file.info(file)$size, TRUE)
-}
-
 aliased_path <- function(path) {
   home <- path.expand("~/")
   match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
