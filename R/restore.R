@@ -30,6 +30,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
     blueprint$R$Packages <- NULL
 
     # write the blueprint
+    ensure_parent_directory(envir)
     renv_manifest_write(blueprint, file = envir)
 
   }

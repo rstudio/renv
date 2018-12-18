@@ -44,7 +44,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
   # diff manifest packages to get set of actions
   actions <- renv_manifest_diff_packages(old, new)
-  if (empty(actions)) {
+  if (empty(actions) && file.exists(file)) {
     if (renv_verbose())
       message("* The manifest is already up-to-date.")
     return(invisible(new))
