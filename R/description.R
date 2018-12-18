@@ -1,6 +1,7 @@
 
-description_read <- function(path) {
+renv_description_read <- function(path) {
 
+  # if given a tarball, attempt to extract inner DESCRIPTION file
   ext <- tools::file_ext(path)
   if (ext %in% c("tar", "gz", "tgz")) {
 
@@ -21,6 +22,7 @@ description_read <- function(path) {
     path <- file.path(exdir, file)
   }
 
+  # read it
   read.dcf(path, all = TRUE)
 
 }

@@ -1,7 +1,8 @@
 `_renv_aliases` <- list(
-  github = "GitHub",
-  gitlab = "GitLab",
-  bitbucket = "Bitbucket",
+  cran         = "CRAN",
+  github       = "GitHub",
+  gitlab       = "GitLab",
+  bitbucket    = "Bitbucket",
   bioconductor = "Bioconductor"
 )
 

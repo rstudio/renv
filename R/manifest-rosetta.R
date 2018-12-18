@@ -7,7 +7,7 @@ renv_manifest_serializer_list <- function() {
 
       Version = list(
         encode = format,
-        decode = numeric_version
+        decode = identity
       ),
 
       Libraries = list(

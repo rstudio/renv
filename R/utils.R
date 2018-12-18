@@ -1,6 +1,6 @@
 
 `%||%` <- function(x, y) {
-  if (is.null(x)) y else x
+  if (length(x)) x else y
 }
 
 `%NA%` <- function(x, y) {

@@ -61,11 +61,15 @@ restore <- function(manifest = NULL, confirm = interactive()) {
 
 renv_restore_run_actions <- function(actions, old, new) {
 
-  renv_restore_begin()
+  renv_restore_begin(actions, new)
   on.exit(renv_restore_end(), add = TRUE)
 
+  # TODO: process the packages in stages
+  #
+  # 1. download package sources (binary / source)
+  # 2. install packages one-by-one (respecting dependency graph)
+  #
   enumerate(actions, function(package, action) {
-
     if (action %in% c("install", "upgrade", "downgrade", "crossgrade"))
       renv_restore_install(package, new)
     else if (action %in% c("remove"))
@@ -76,14 +80,35 @@ renv_restore_run_actions <- function(actions, old, new) {
 
 }
 
-renv_restore_install <- function(package, manifest) {
-  record <- manifest$R$Packages[[package]]
+renv_restore_install <- function(package, manifest = NULL) {
 
-  delegate <- getOption("renv.restore.delegate")
-  if (is.function(delegate)) {
-    status <- tryCatch(delegate(record), error = identity)
-    if (identical(status, TRUE))
-      return(status)
+  # skip 'R' package that might be passed in here
+  if (package == "R")
+    return(TRUE)
+
+  # if we've already attempted installation of this package, skip
+  state <- renv_restore_state()
+  if (exists(package, envir = state$packages))
+    return(TRUE)
+
+  # mark package as installing
+  state$packages[[package]] <- TRUE
+
+  # extract manifest if none provided
+  manifest <- manifest %||% state$manifest
+
+  # extract the package record (attempt to construct one if missing)
+  record <- manifest$R$Packages[[package]]
+  if (is.null(record)) {
+
+    # if this package is already installed, nothing to do
+    installed <- as.data.frame(installed.packages(), stringsAsFactors = FALSE)
+    if (package %in% installed$Package)
+      return(TRUE)
+
+    # otherwise, infer a record and install it
+    record <- renv_restore_install_missing_record(package)
+
   }
 
   source <- record[["Source"]]
@@ -94,6 +119,39 @@ renv_restore_install <- function(package, manifest) {
     bitbucket    = renv_restore_install_bitbucket(record),
     renv_restore_install_unknown_source(record)
   )
+
+}
+
+renv_restore_install_missing_record <- function(package) {
+
+  # TODO: allow users to configure the action to take here, e.g.
+  #
+  #   1. install latest from CRAN (the default),
+  #   2. request a package + version to be installed,
+  #   3. hard error
+  #
+
+  entry <- NULL
+  for (type in c("binary", "source")) {
+
+    ap <- available_packages(type = type)
+    if (!package %in% ap$Package)
+      next
+
+    entry <- ap[package, ]
+    break
+
+  }
+
+  # TODO: explicit API for constructing a package record
+  # TODO: infer correct source for package
+  list(
+    Package = package,
+    Version = entry$Version,
+    Library = NULL,
+    Source  = "cran"
+  )
+
 }
 
 renv_restore_install_bioconductor <- function(record) {
@@ -128,13 +186,7 @@ renv_restore_install_github_remotes <- function(record) {
     )
   )
 
-  if (inherits(status, "error")) {
-    message("\tFAILED")
-    return(status)
-  }
-
-  message("\tOK (built from source)")
-  return(TRUE)
+  renv_restore_install_report_status(status, "source")
 
 }
 
@@ -234,6 +286,11 @@ renv_restore_install_package <- function(record, url, path, type) {
       return(status)
   }
 
+  # ensure its dependencies are installed first
+  deps <- renv_dependencies_discover_description(path)
+  for (package in deps$Package)
+    renv_restore_install(package)
+
   # install package from local copy
   fmt <- "Installing %s [%s] from %s ..."
   with(record, messagef(fmt, Package, Version, renv_alias(Source)))
@@ -242,24 +299,7 @@ renv_restore_install_package <- function(record, url, path, type) {
     condition = identity
   )
 
-  # check for success / failure
-  if (inherits(status, "condition")) {
-    message("\tFAILED")
-    return(status)
-  }
-
-  # notify user of status
-  feedback <- case(
-
-    !is.null(record$RemoteType)
-      ~ paste("installed from", renv_alias(record$RemoteType)),
-
-    type == "source" ~ "built from source",
-    type == "binary" ~ "installed binary"
-  )
-
-  message(feedback)
-  TRUE
+  renv_restore_install_report_status(status, type)
 
 }
 
@@ -291,19 +331,26 @@ renv_restore_install_package_local <- function(package, path, type) {
 }
 
 renv_restore_remove <- function(package, manifest) {
-  entry <- manifest$R$Packages[[package]]
-  messagef("Removing %s [%s] ...", package, entry$Version)
-  remove.packages(package, renv_paths_library(entry$Library))
+  record <- manifest$R$Packages[[package]]
+  messagef("Removing %s [%s] ...", package, record$Version)
+  remove.packages(package, renv_paths_library(record$Library) %||% NULL)
   message("\tOK (removed from library)")
   TRUE
 }
 
-renv_restore_begin <- function() {
+renv_restore_state <- function() {
+  renv_global_get("restore.state")
+}
 
+renv_restore_begin <- function(actions, manifest) {
+  envir <- new.env(parent = emptyenv())
+  envir$packages <- new.env(parent = emptyenv())
+  envir$manifest <- manifest
+  renv_global_set("restore.state", envir)
 }
 
 renv_restore_end <- function() {
-
+  renv_global_clear("restore.state")
 }
 
 renv_restore_report_actions <- function(actions, old, new) {
@@ -343,4 +390,21 @@ renv_restore_install_package_options <- function(package) {
 renv_restore_install_unknown_source <- function(record) {
   fmt <- "Can't restore package '%s': '%s' is an unrecognized source."
   stopf(fmt, record$Package, record$Source, call. = FALSE)
+}
+
+renv_restore_install_report_status <- function(status, type) {
+
+  if (inherits(status, "error")) {
+    message("\tFAILED")
+    return(status)
+  }
+
+  feedback <- case(
+    type == "source" ~ "built from source",
+    type == "binary" ~ "downloaded binary"
+  )
+
+  messagef("\tOK (%s)", feedback)
+  return(TRUE)
+
 }

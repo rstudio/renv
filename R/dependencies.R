@@ -61,12 +61,12 @@ renv_dependencies_discover_dir <- function(path) {
 
 renv_dependencies_discover_description <- function(path) {
 
-  dcf <- catch(read.dcf(path, all = TRUE))
+  dcf <- catch(renv_description_read(path))
   if (inherits(dcf, "error"))
     return(list())
 
   # TODO: make this user-configurable
-  fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
+  fields <- c("Depends", "Imports", "LinkingTo")
   pattern <- "([a-zA-Z0-9._]+)(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"
 
   data <- lapply(fields, function(field) {
@@ -83,6 +83,7 @@ renv_dependencies_discover_description <- function(path) {
       Package = extract_chr(matches, 2L),
       Require = extract_chr(matches, 3L),
       Version = extract_chr(matches, 4L),
+      Type    = field,
       stringsAsFactors = FALSE
     )
 
