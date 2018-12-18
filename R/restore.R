@@ -116,7 +116,8 @@ renv_restore_install_github <- function(record) {
 
 renv_restore_install_github_remotes <- function(record) {
 
-  messagef("Installing %s [%s] ...", record$Package, record$Version)
+  fmt <- "Installing %s [%s] from %s ..."
+  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
   status <- catch(
     remotes::install_github(
       repo = file.path(record$RemoteUsername, record$RemoteRepo),
@@ -132,7 +133,7 @@ renv_restore_install_github_remotes <- function(record) {
     return(status)
   }
 
-  message("\tOK (installed from GitHub)")
+  message("\tOK (built from source)")
   return(TRUE)
 
 }
@@ -234,7 +235,8 @@ renv_restore_install_package <- function(record, url, path, type) {
   }
 
   # install package from local copy
-  messagef("Installing %s [%s] ...", record$Package, record$Version)
+  fmt <- "Installing %s [%s] from %s ..."
+  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
   status <- tryCatch(
     renv_restore_install_package_local(record$Package, path, type = type),
     condition = identity
@@ -273,7 +275,7 @@ renv_restore_install_package_local <- function(package, path, type) {
   before(package)
   on.exit(after(package), add = TRUE)
 
-  utils::install.packages(
+  install.packages(
 
     pkgs = path,
     repos = NULL,

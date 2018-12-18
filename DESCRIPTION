@@ -11,4 +11,4 @@ LazyData: true
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Imports: utils
-Suggests: knitr, rmarkdown, testthat
+Suggests: knitr, remotes, rmarkdown, testthat

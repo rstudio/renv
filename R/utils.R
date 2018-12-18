@@ -3,6 +3,12 @@
   if (is.null(x)) y else x
 }
 
+`%NA%` <- function(x, y) {
+  if (is.na(x)) y else x
+}
+
+
+
 lines <- function(...) {
   paste(..., sep = "\n")
 }
@@ -141,18 +147,11 @@ version_compare <- function(lhs, rhs) {
   lhs <- unclass(numeric_version(lhs))[[1]]
   rhs <- unclass(numeric_version(rhs))[[1]]
 
-  diff <- length(lhs) - length(rhs)
-  if (diff < 0)
-    lhs <- c(lhs, rep(0, abs(diff)))
-  else if (diff > 0)
-    rhs <- c(rhs, rep(0, abs(diff)))
-
-  zip <- Map(c, lhs, rhs)
-  for (pair in zip) {
-    if (pair[[1]] < pair[[2]])
-      return(-1)
-    else if (pair[[1]] > pair[[2]])
-      return(1)
+  n <- max(length(lhs), length(rhs))
+  for (i in seq_len(n)) {
+    l <- lhs[i] %NA% 0; r <- rhs[i] %NA% 0
+    if (l < r) return(-1)
+    if (l > r) return(+1)
   }
 
   0

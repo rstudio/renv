@@ -82,7 +82,7 @@ activate <- function(name = NULL, project = NULL) {
   manifest <- renv_manifest_load(project)
   renv_load_libpaths(manifest)
 
-  reason <- sprintf("Virtual environment '%s' activated.", name)
+  reason <- sprintf("Virtual environment '%s' activated", name)
   renv_request_restart(reason)
 }
 
@@ -125,7 +125,7 @@ deactivate <- function(project = NULL) {
   stale <- grep("^RENV_", names(env), value = TRUE)
   Sys.unsetenv(stale)
 
-  renv_request_restart("renv deactivated")
+  renv_request_restart("Virtual environment deactivated")
 }
 
 #' Load an R Virtual Environment.
@@ -154,7 +154,7 @@ load <- function(project = NULL) {
   renv_load_repos(spec)
   renv_load_libpaths(spec)
 
-  renv_load_report()
+  renv_load_finish()
 
 
   invisible(renv)

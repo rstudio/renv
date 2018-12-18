@@ -22,7 +22,9 @@ discover_dependencies <- function(path) {
   case(
 
     # special cases for special filenames
-    name == "DESCRIPTION" ~ renv_dependencies_discover_description(path),
+    name == "DESCRIPTION"  ~ renv_dependencies_discover_description(path),
+    name == "_pkgdown.yml" ~ renv_dependencies_discover_pkgdown(path),
+    name == "_bookdown.yml" ~ renv_dependencies_discover_bookdown(path),
 
     # generic extension-based lookup
     ext == "r"   ~ renv_dependencies_discover_r(path),
@@ -59,7 +61,7 @@ renv_dependencies_discover_dir <- function(path) {
 
 renv_dependencies_discover_description <- function(path) {
 
-  dcf <- tryCatch(read.dcf(path, all = TRUE), error = identity)
+  dcf <- catch(read.dcf(path, all = TRUE))
   if (inherits(dcf, "error"))
     return(list())
 
@@ -90,6 +92,18 @@ renv_dependencies_discover_description <- function(path) {
 
 }
 
+renv_dependencies_discover_pkgdown <- function(path) {
+
+  # TODO: other dependencies to parse from pkgdown?
+  renv_dependencies_list(path, "pkgdown")
+}
+
+renv_dependencies_discover_bookdown <- function(path) {
+
+  # TODO: other dependencies to parse from bookdown?
+  renv_dependencies_list(path, "bookdown")
+}
+
 renv_dependencies_discover_multimode <- function(path, mode) {
 
   # TODO: find in-line R code?
@@ -113,20 +127,30 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
       "Consider installing it with `install.packages(\"rmarkdown\")`."
     )
 
-    if (renv_global_once("rmarkdown.yaml.header"))
+    if (renv_once())
       warning(msg, call. = FALSE)
 
     return(character())
 
   }
 
-  deps <- c("rmarkdown")
+  deps <- stack()
+  deps$push("rmarkdown")
+
   yaml <- rmarkdown::yaml_front_matter(path)
+
+  # check for Shiny runtime
   runtime <- yaml$runtime %||% ""
   if (grepl("shiny", runtime, fixed = TRUE))
-    deps <- c(deps, "shiny")
+    deps$push("shiny")
 
-  renv_dependencies_list(path, deps)
+  # check for custom output function from another package
+  output <- yaml$output
+  splat <- strsplit(output, ":{2,3}")[[1]]
+  if (length(splat) == 2)
+    deps$push(splat[[1]])
+
+  renv_dependencies_list(path, deps$data())
 
 }
 
@@ -140,7 +164,7 @@ renv_dependencies_discover_chunks <- function(path) {
       "Consider installing it with `install.packages(\"knitr\")`."
     )
 
-    if (renv_global_once("knitr.chunks"))
+    if (renv_once())
       warning(msg, call. = FALSE)
 
     return(character())
@@ -200,8 +224,10 @@ renv_dependencies_discover_chunks <- function(path) {
 
 renv_dependencies_discover_r <- function(path) {
 
-  parsed <- tryCatch(parse(path, encoding = "UTF-8"), error = identity)
+  parsed <- catch(parse(path, encoding = "UTF-8"))
   if (inherits(parsed, "error")) {
+    # workaround for an R bug where parse-related state could be
+    # leaked if an error occurred
     Sys.setlocale()
     return(character())
   }
@@ -237,7 +263,7 @@ renv_dependencies_discover_r_library_require <- function(node, envir) {
     return(FALSE)
 
   # attempt to match the call
-  matched <- tryCatch(match.call(base::library, node), error = identity)
+  matched <- catch(match.call(base::library, node))
   if (inherits(matched, "error"))
     return(FALSE)
 
@@ -271,7 +297,8 @@ renv_dependencies_discover_r_require_namespace <- function(node, envir) {
   if (!ok)
     return(FALSE)
 
-  matched <- tryCatch(match.call(base::requireNamespace, node), error = identity)
+  f <- get(as.character(node[[1]]), envir = .BaseNamespaceEnv, inherits = FALSE)
+  matched <- catch(match.call(f, node))
   if (inherits(matched, "error"))
     return(FALSE)
 
@@ -344,10 +371,7 @@ renv_dependencies_discover_parse_params <- function(header, type) {
     }
   }
 
-  params <- tryCatch(
-    parse(text = sprintf("alist(%s)", rest))[[1]],
-    error = identity
-  )
+  params <- catch(parse(text = sprintf("alist(%s)", rest))[[1]])
 
   if (inherits(params, "error"))
     return(list(engine = engine))

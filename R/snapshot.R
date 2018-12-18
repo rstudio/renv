@@ -130,7 +130,7 @@ renv_snapshot_description <- function(path, library) {
 
   # TODO: Check for tempfiles that sneak into library path, e.g. 'file<abcd>'
   # Report and skip?
-  dcf <- tryCatch(read.dcf(path, all = TRUE), error = identity)
+  dcf <- catch(read.dcf(path, all = TRUE))
   if (inherits(dcf, "error"))
     return(dcf)
 

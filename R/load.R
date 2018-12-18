@@ -23,7 +23,7 @@ renv_load_repos <- function(manifest) {
   options(repos = manifest$R$Repositories)
 }
 
-renv_load_report <- function() {
+renv_load_finish <- function() {
 
   if (!renv_verbose())
     return()
@@ -55,7 +55,7 @@ renv_load_project <- function(project) {
     stop(msg, call. = FALSE)
   }
 
-  dcf <- tryCatch(read.dcf(state, all = TRUE), error = identity)
+  dcf <- catch(read.dcf(state, all = TRUE))
   if (inherits(dcf, "error"))
     return(dcf)
 

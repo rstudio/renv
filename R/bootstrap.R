@@ -1,4 +1,7 @@
 
+# installs 'renv' into a special bootstrap directory, which is then
+# used by projects on startup so that they can load and use 'renv'
+# without requiring a local install
 renv_bootstrap <- function(force = FALSE) {
 
   # check for existing 'renv' source

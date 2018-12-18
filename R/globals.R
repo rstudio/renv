@@ -15,9 +15,3 @@ renv_global_clear <- function(name) {
     rm(list = name, envir = `_renv_globals`, inherits = FALSE)
 }
 
-renv_global_once <- function(name) {
-  if (exists(name, envir = `_renv_globals`, inherits = FALSE))
-    return(FALSE)
-  assign(name, TRUE, envir = `_renv_globals`, inherits = FALSE)
-  TRUE
-}

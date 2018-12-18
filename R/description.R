@@ -4,19 +4,21 @@ description_read <- function(path) {
   ext <- tools::file_ext(path)
   if (ext %in% c("tar", "gz", "tgz")) {
 
-    # figure out package name from file name
-    filename <- basename(path)
-    parts <- strsplit(filename, "_", fixed = TRUE)[[1]]
-    name <- parts[[1]]
+    # list files within the archive
+    files <- untar(path, list = TRUE)
 
-    # construct path to inner DESCRIPTION
-    inner <- file.path(name, "DESCRIPTION")
+    # find the DESCRIPTION file
+    file <- grep("^[a-zA-Z0-9._]+/DESCRIPTION$", files, value = TRUE)
+    if (length(file) != 1)
+      stopf("Failed to infer path to DESCRIPTION within file '%s'", path)
 
     # unpack into tempdir location
-    untar(path, files = inner, exdir = tempdir())
+    exdir <- tempfile("description-")
+    on.exit(unlink(exdir, recursive = TRUE), add = TRUE)
+    untar(path, files = file, exdir = exdir)
 
     # update path to extracted DESCRIPTION
-    path <- file.path(tempdir(), inner)
+    path <- file.path(exdir, file)
   }
 
   read.dcf(path, all = TRUE)

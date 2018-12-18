@@ -1,11 +1,7 @@
 
 enumerate <- function(x, f, ...) {
-  n <- names(x)
-  result <- lapply(seq_along(x), function(i) {
-    f(n[[i]], x[[i]], ...)
-  })
-  names(result) <- names(x)
-  result
+  n <- names(x); idx <- named(seq_along(x), n)
+  lapply(idx, function(i) f(n[[i]], x[[i]], ...))
 }
 
 recurse <- function(x, f, ...) {
@@ -14,6 +10,7 @@ recurse <- function(x, f, ...) {
     for (i in seq_along(x))
       recurse(x[[i]], f, ...)
 }
+
 
 uapply <- function(x, f, ...) {
   unlist(lapply(x, f, ...), recursive = FALSE)

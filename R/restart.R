@@ -1,5 +1,5 @@
 
-renv_request_restart <- function(reason) {
+renv_request_restart <- function(reason, ...) {
 
   # use 'restart' helper defined by front-end (if any)
   restart <- getOption("restart")
@@ -8,7 +8,7 @@ renv_request_restart <- function(reason) {
 
   # otherwise, ask the user to restart
   fmt <- "* %s -- please restart the R session."
-  messagef(fmt, reason)
+  messagef(fmt, sprintf(reason, ...))
 
   invisible()
 }
