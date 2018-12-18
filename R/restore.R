@@ -255,7 +255,7 @@ renv_restore_install_cran_impl <- function(record, type, name, repo = NULL) {
     return(FALSE)
 
   url <- file.path(entry$Repository, name)
-  path <- renv_paths_cache("source", record$Package, name)
+  path <- renv_paths_cache(type, record$Package, name)
 
   renv_restore_install_package(record, url, path, type)
 
