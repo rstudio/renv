@@ -111,6 +111,15 @@ renv_restore_install <- function(package, manifest = NULL) {
 
   }
 
+  # check for an entry in the cache we can use
+  cache <- renv_cache_entry(record)
+  if (file.exists(cache)) {
+    status <- renv_restore_install_package_cache(record, cache)
+    if (identical(status, TRUE))
+      return(TRUE)
+  }
+
+  # otherwise, try and restore from external source
   source <- record[["Source"]]
   switch(source,
     cran         = renv_restore_install_cran(record),
@@ -186,7 +195,7 @@ renv_restore_install_github_remotes <- function(record) {
     )
   )
 
-  renv_restore_install_report_status(status, "source")
+  renv_restore_install_report_status(record, status, "source")
 
 }
 
@@ -277,6 +286,10 @@ renv_restore_install_cran_entry <- function(record, type, repo) {
 
 renv_restore_install_package <- function(record, url, path, type) {
 
+  # install package from local copy
+  fmt <- "Installing %s [%s] from %s ..."
+  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
+
   # download the package
   # TODO: toggle path based on whether package cache is enabled?
   if (!file.exists(path)) {
@@ -291,19 +304,30 @@ renv_restore_install_package <- function(record, url, path, type) {
   for (package in deps$Package)
     renv_restore_install(package)
 
-  # install package from local copy
-  fmt <- "Installing %s [%s] from %s ..."
-  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
   status <- tryCatch(
-    renv_restore_install_package_local(record$Package, path, type = type),
+    renv_restore_install_package_local(record, path, type = type),
     condition = identity
   )
 
-  renv_restore_install_report_status(status, type)
+  renv_restore_install_report_status(record, status, type)
 
 }
 
-renv_restore_install_package_local <- function(package, path, type) {
+renv_restore_install_package_cache <- function(record, cache) {
+  target <- renv_paths_library(record$Library, record$Package)
+  status <- catch(renv_file_link(cache, target))
+  if (identical(status, TRUE)) {
+    fmt <- "Installing %s [%s] from %s ..."
+    with(record, messagef(fmt, Package, Version, renv_alias(Source)))
+    messagef("\tOK (linked cache)")
+    return(TRUE)
+  }
+}
+
+renv_restore_install_package_local <- function(record, path, type) {
+
+  package <- record$Package
+  library <- renv_paths_library(record$Library) %||% .libPaths()[1]
 
   # get user-defined options to apply during installation
   options <- renv_restore_install_package_options(package)
@@ -317,9 +341,10 @@ renv_restore_install_package_local <- function(package, path, type) {
 
   install.packages(
 
-    pkgs = path,
+    pkgs  = path,
+    lib   = library,
     repos = NULL,
-    type = type,
+    type  = type,
     quiet = TRUE,
 
     configure.args = options$configure.args,
@@ -392,7 +417,7 @@ renv_restore_install_unknown_source <- function(record) {
   stopf(fmt, record$Package, record$Source, call. = FALSE)
 }
 
-renv_restore_install_report_status <- function(status, type) {
+renv_restore_install_report_status <- function(record, status, type) {
 
   if (inherits(status, "error")) {
     message("\tFAILED")
@@ -401,10 +426,13 @@ renv_restore_install_report_status <- function(status, type) {
 
   feedback <- case(
     type == "source" ~ "built from source",
-    type == "binary" ~ "downloaded binary"
+    type == "binary" ~ "installed binary"
   )
 
   messagef("\tOK (%s)", feedback)
+  renv_cache_synchronize(record)
+
   return(TRUE)
 
 }
+

@@ -84,9 +84,9 @@ renv_snapshot_r_library <- function(library) {
   pkgs <- renv_snapshot_r_library_diagnose(library, pkgs)
 
   descriptions <- file.path(pkgs, "DESCRIPTION")
-  packages <- lapply(descriptions, renv_snapshot_description, library = library)
+  records <- lapply(descriptions, renv_snapshot_description, library = library)
 
-  broken <- Filter(function(record) inherits(record, "error"), packages)
+  broken <- Filter(function(record) inherits(record, "error"), records)
   if (length(broken)) {
     messages <- map_chr(broken, conditionMessage)
     header <- sprintf("Error(s) snapshotting library '%s':", library)
@@ -95,8 +95,10 @@ renv_snapshot_r_library <- function(library) {
     stop(message, call. = FALSE)
   }
 
-  names(packages) <- map_chr(packages, `[[`, "Package")
-  packages
+  lapply(records, renv_cache_synchronize)
+
+  names(records) <- map_chr(records, `[[`, "Package")
+  records
 
 }
 
@@ -136,8 +138,9 @@ renv_snapshot_description <- function(path, library) {
 
   dcf[["Library"]] <- library
   dcf[["Source"]] <- renv_snapshot_description_source(dcf)
+  dcf[["Hash"]] <- renv_hash_description(path)
 
-  fields <- c("Package", "Version", "Library", "Source")
+  fields <- c("Package", "Version", "Library", "Source", "Hash")
   missing <- setdiff(fields, names(dcf))
   if (length(missing)) {
     fmt <- "Required fields %s missing from DESCRIPTION at path '%s'."
