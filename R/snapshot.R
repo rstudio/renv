@@ -197,8 +197,12 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 }
 
+# NOTE: would like to use ISO 8601 timestamps but ':' is not supported
+# in Windows filenames
 renv_snapshot_manifest_path <- function(project = NULL) {
   project <- renv_active_project(project)
-  timestamp <- strftime(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
-  file.path(project, "renv/manifest", sprintf("%s.manifest", timestamp))
+  time <- Sys.time()
+  ymd <- strftime(time, "%Y-%m-%d", tz = "UTC")
+  timestamp <- strftime(time, "%Y-%m-%dT%H-%M-%SZ", tz = "UTC")
+  file.path(project, "renv/manifest", ymd, timestamp)
 }
