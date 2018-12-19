@@ -36,3 +36,47 @@ test_that("directories can be moved", {
   expect_setequal(files, list.files(target))
 
 })
+
+test_that("attempts to link files work", {
+
+  source <- tempfile("renv-source-")
+  target <- tempfile("renv-target-")
+
+  file.create(source)
+  renv_file_link(source, target)
+  expect_true(renv_file_same(source, target))
+
+})
+
+test_that("scoped backups are cleared as necessary", {
+
+  source <- tempfile("renv-source-")
+  target <- tempfile("renv-target-")
+
+  writeLines("source", source)
+  writeLines("target", target)
+
+  local({
+    callback <- renv_file_scoped_backup(target)
+    on.exit(callback(), add = TRUE)
+    expect_true(!file.exists(target))
+  })
+
+  expect_true(file.exists(target))
+  expect_equal(readLines(target), "target")
+
+  local({
+    callback <- renv_file_scoped_backup(target)
+    on.exit(callback(), add = TRUE)
+    writeLines("mutate", target)
+  })
+
+  expect_true(file.exists(target))
+  expect_equal(readLines(target), "mutate")
+  list.files(tempdir())
+
+  files <- list.files(tempdir())
+  backup <- grep("^renv-backup-", files)
+  expect_length(backup, 0)
+
+})

@@ -1,6 +1,10 @@
 
 renv_description_read <- function(path) {
 
+  # accept package directories
+  if (file.exists(file.path(path, "DESCRIPTION")))
+    path <- file.path(path, "DESCRIPTION")
+
   # if given a tarball, attempt to extract inner DESCRIPTION file
   ext <- tools::file_ext(path)
   if (ext %in% c("tar", "gz", "tgz")) {

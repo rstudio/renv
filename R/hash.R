@@ -35,9 +35,7 @@ renv_hash_description <- function(path) {
   on.exit(close(con), add = TRUE)
   writeLines(enc2utf8(contents), con = con, useBytes = TRUE)
 
-
-
   # ready for hasing
-  tools::md5sum(file)
+  tools::md5sum(tempfile)
 
 }
