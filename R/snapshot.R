@@ -203,7 +203,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 renv_snapshot_manifest_path <- function(project = NULL) {
   project <- renv_active_project(project)
   time <- Sys.time()
-  ymd <- strftime(time, "%Y-%m-%d", tz = "UTC")
-  timestamp <- strftime(time, "%Y-%m-%dT%H-%M-%SZ", tz = "UTC")
+  ymd <- strftime(time, "%Y-%m-%d")
+  timestamp <- strftime(time, "%Y-%m-%dT%H-%M-%S%Z")
   file.path(project, "renv/manifest", ymd, timestamp)
 }
