@@ -61,17 +61,25 @@ create <- function(name,
 activate <- function(name = NULL, project = NULL) {
   project <- renv_active_project(project)
 
+  # when not supplied a name, use the last active name (if any)
   if (is.null(name)) {
     state <- file.path(project, "renv/renv.dcf")
     if (file.exists(state))
       name <- read.dcf(state, fields = "Environment")
   }
 
+  # prepare renv infrastructure
   ensure_existing_renv(name)
   renv_write_infrastructure(project, name)
   renv_bootstrap()
 
-  renv_verbose_with(FALSE, snapshot(name, confirm = FALSE))
+  # generate a manifest (so that activating an environment implies
+  # using the current state of the environment)
+  # TODO: or should we skip this and use the last-generated manifest?
+  manifest <- snapshot(name, file = NULL)
+  file <- renv_active_manifest(project)
+  ensure_parent_directory(file)
+  renv_manifest_write(manifest, file = renv_active_manifest(project))
 
   if (renv_verbose()) {
     fmt <- "* Activating %s environment '%s' ..."

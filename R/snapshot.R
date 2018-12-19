@@ -43,14 +43,15 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
     list()
 
   # diff manifest packages to get set of actions
-  actions <- renv_manifest_diff_packages(old, new)
-  if (empty(actions) && file.exists(file)) {
+  diff <- renv_manifest_diff(old, new)
+  if (empty(diff)) {
     if (renv_verbose())
       message("* The manifest is already up-to-date.")
     return(invisible(new))
   }
 
   # report actions to the user
+  actions <- renv_manifest_diff_packages(old, new)
   if (confirm || renv_verbose()) {
     renv_snapshot_report_actions(actions, old, new)
     printf("The manifest will be written to '%s'.", aliased_path(file))
