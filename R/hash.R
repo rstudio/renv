@@ -25,11 +25,17 @@ renv_hash_description <- function(path) {
   ordered <- subsetted[sort(names(subsetted))]
   Sys.setlocale(category = "LC_COLLATE", locale = collate)
 
-  # write to tempfile
-  file <- tempfile("renv-description-hash-")
-  on.exit(unlink(file), add = TRUE)
+  # write to tempfile (use binary connection to ensure unix-style
+  # newlines for cross-platform hash stability)
+  tempfile <- tempfile("renv-description-hash-")
+  on.exit(unlink(tempfile), add = TRUE)
   contents <- paste(names(ordered), ordered, sep = ": ", collapse = "\n")
-  writeLines(enc2utf8(contents), con = file, useBytes = TRUE)
+
+  con <- file(tempfile, open = "wb")
+  on.exit(close(con), add = TRUE)
+  writeLines(enc2utf8(contents), con = con, useBytes = TRUE)
+
+
 
   # ready for hasing
   tools::md5sum(file)
