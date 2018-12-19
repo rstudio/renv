@@ -91,14 +91,16 @@ renv_file_link <- function(source, target) {
 
   # first, try to symlink (note that this is supported on certain versions of
   # Windows as well when such permissions are enabled)
-  status <- catch(file.symlink(source, target))
+  status <- catchall(file.symlink(source, target))
   if (identical(status, TRUE) && file.exists(target))
     return(TRUE)
 
-  # next, try creating a hardlink
-  status <- catch(file.link(source, target))
-  if (identical(status, TRUE) && file.exists(target))
-    return(TRUE)
+  # on Windows, try creating a junction point
+  if (Sys.info()[["sysname"]] == "Windows") {
+    status <- catchall(Sys.junction(source, target))
+    if (identical(status, TRUE) && file.exists(target))
+      return(TRUE)
+  }
 
   # all else fails, just perform a copy
   info <- file.info(source)
@@ -115,12 +117,16 @@ renv_file_link <- function(source, target) {
 
 renv_file_same <- function(source, target) {
 
-  source <- normalizePath(source, winslash = "/", mustWork = FALSE)
-  target <- normalizePath(target, winslash = "/", mustWork = FALSE)
+  source <- normalizePath(source, mustWork = FALSE)
+  target <- normalizePath(target, mustWork = FALSE)
 
   # if the paths are the same, we can return early
   if (identical(source, target))
     return(TRUE)
+
+  # if one of the files don't exist, bail
+  if (!file.exists(source) || !file.exists(target))
+    return(FALSE)
 
   # otherwise, check and see if they're hardlinks to the same file
   test <- Sys.which("test")
