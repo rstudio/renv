@@ -167,6 +167,13 @@ renv_file_scoped_backup <- function(path) {
     return(function() {})
 
   # return callback that will restore if needed
-  function() { if (!file.exists(path)) file.rename(tempfile, path) }
+  function() {
+
+    if (!file.exists(path))
+      file.rename(tempfile, path)
+
+    unlink(tempfile, recursive = TRUE)
+
+  }
 
 }
