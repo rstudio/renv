@@ -318,8 +318,8 @@ renv_restore_install_package_cache <- function(record, cache) {
   target <- renv_paths_library(record$Library, record$Package)
   status <- catch(renv_file_link(cache, target))
   if (identical(status, TRUE)) {
-    fmt <- "Installing %s [%s] from %s ..."
-    with(record, messagef(fmt, Package, Version, renv_alias(Source)))
+    fmt <- "Installing %s [%s] ..."
+    with(record, messagef(fmt, Package, Version))
     messagef("\tOK (linked cache)")
     return(TRUE)
   }
