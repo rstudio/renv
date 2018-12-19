@@ -37,7 +37,7 @@ renv_file_copy <- function(source, target) {
   if (inherits(status, "condition"))
     stop(status)
 
-  temptarget <- file.path(tempfile, basename(target))
+  temptarget <- file.path(tempfile, basename(source))
   status <- catchall(file.rename(temptarget, target))
   if (inherits(status, "condition"))
     stop(status)
