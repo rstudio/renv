@@ -161,3 +161,9 @@ catch <- function(expr) {
 catchall <- function(expr) {
   tryCatch(expr, condition = identity)
 }
+
+is_rcmd_check <- function() {
+  renv_global("is.rcmd.check", {
+    identical(sys.call(1), quote(tools:::.install_packages()))
+  })
+}
