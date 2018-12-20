@@ -164,6 +164,18 @@ catchall <- function(expr) {
 
 is_rcmd_check <- function() {
   renv_global("is.rcmd.check", {
-    identical(sys.call(1), quote(tools:::.install_packages()))
+
+    call <- sys.call(1)
+    expected <- substitute(
+      f(a, b)(),
+      list(
+        f = as.name(":::"),
+        a = as.name("tools"),
+        b = as.name(".install_packages")
+      )
+    )
+
+    identical(call, expected)
+
   })
 }
