@@ -27,6 +27,6 @@ renv_description_read <- function(path) {
   }
 
   # read it
-  renv_dcf_read(path, all = TRUE)
+  renv_dcf_read(path)
 
 }

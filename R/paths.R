@@ -30,18 +30,18 @@
 NULL
 
 renv_paths_bootstrap <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_BOOTSTRAP", renv_paths_root("bootstrap"))
-  file.path(root, renv_platform_prefix(), ...) %||% ""
-}
-
-renv_paths_library <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root("library"))
+  root <- Sys.getenv("RENV_PATHS_BOOTSTRAP", renv_paths_root_local("bootstrap"))
   file.path(root, renv_platform_prefix(), ...) %||% ""
 }
 
 renv_paths_environment <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_ENVIRONMENT", renv_paths_root("environment"))
+  root <- Sys.getenv("RENV_PATHS_ENVIRONMENT", renv_paths_root_local("environment"))
   file.path(root, ...) %||% ""
+}
+
+renv_paths_library <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root_local("library"))
+  file.path(root, renv_platform_prefix(), ...) %||% ""
 }
 
 renv_paths_cache <- function(...) {
@@ -56,12 +56,16 @@ renv_paths_root <- function(...) {
   file.path(root, ...) %||% ""
 }
 
+renv_paths_root_local <- function(...) {
+  if (renv_local())
+    file.path(renv_active_project(), "renv", ...)
+  else
+    renv_paths_root(...)
+}
 
 renv_paths_root_default <- function() {
   if (is_rcmd_check())
     renv_global("r.cmd.check.root", tempfile("renv-root-"))
-  else if (renv_local())
-    file.path(renv_active_project(), "renv")
   else
     path.expand("~/.renv")
 }

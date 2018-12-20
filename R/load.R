@@ -9,8 +9,13 @@ renv_load_r_version <- function(manifest) {
 
 renv_load_libpaths <- function(manifest) {
 
-  libs <- rev(renv_paths_library(manifest$R$Libraries))
-  lapply(libs, ensure_directory)
+  libraries <- manifest$R$Libraries
+
+  libs <- NULL
+  if (length(libraries)) {
+    libs <- rev(renv_paths_library(manifest$R$Libraries))
+    lapply(libs, ensure_directory)
+  }
 
   libpaths <- c(libs, if (manifest$R$Overlay) .libPaths())
 
@@ -55,7 +60,7 @@ renv_load_project <- function(project) {
     stop(msg, call. = FALSE)
   }
 
-  dcf <- catch(renv_dcf_read(state, all = TRUE))
+  dcf <- catch(renv_dcf_read(state))
   if (inherits(dcf, "error"))
     return(dcf)
 

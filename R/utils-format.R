@@ -14,3 +14,14 @@ messagef <- function(fmt, ..., appendLF = TRUE) {
 printf <- function(fmt, ..., con = stdout()) {
   writeLines(sprintf(fmt, ...), con = con)
 }
+
+vmessagef <- function(fmt, ..., appendLF = TRUE) {
+  if (renv_verbose())
+    message(sprintf(fmt, ...), appendLF = appendLF)
+}
+
+vprintf <- function(fmt, ..., con = stdout()) {
+  if (renv_verbose())
+    writeLines(sprintf(fmt, ...), con = con)
+}
+

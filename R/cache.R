@@ -1,6 +1,6 @@
 
 renv_cache_package_path <- function(record) {
-  renv_paths_cache("install", record$Package, record$Hash, record$Package)
+  renv_paths_cache("install", record$Package, record$Version, record$Hash, record$Package)
 }
 
 # 'prime' the cache with the set of packages found in the user library
@@ -27,7 +27,7 @@ renv_cache_prime <- function(library) {
     return(0)
   }
 
-  messagef("Copying files into the cache ...")
+  messagef("Copying packages into the cache ...")
   updates <- 0
   for (i in seq_along(packages)) {
 

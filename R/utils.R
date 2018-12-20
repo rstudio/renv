@@ -13,10 +13,6 @@ lines <- function(...) {
   paste(..., sep = "\n")
 }
 
-is_scalar_character <- function(x) {
-  is.character(x) && length(x) == 1
-}
-
 is_named <- function(x) {
   nm <- names(x)
   !is.null(nm) && all(nzchar(nm))

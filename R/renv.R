@@ -9,6 +9,9 @@
 #' @param r_libs         `character[*]`: The \R libraries associated with this environment.
 #' @param r_libs_overlay `logical[1]`:   Overlay `r_libs` on top of the default \R libraries?
 #'
+#' @param overwrite Boolean; overwrite a pre-existing virtual environment with
+#'   the new definition?
+#'
 #' @family renv
 #'
 #' @export
@@ -16,7 +19,9 @@ create <- function(name,
                    r_version      = getRversion(),
                    r_repos        = getOption("repos"),
                    r_libs         = character(),
-                   r_libs_overlay = FALSE)
+                   r_libs_overlay = FALSE,
+                   local          = FALSE,
+                   overwrite      = FALSE)
 {
   blueprint <- list(
 
@@ -33,7 +38,12 @@ create <- function(name,
 
   )
 
-  path <- ensure_no_renv(name)
+  path <- renv_paths_environment(name)
+  if (!overwrite && file.exists(path)) {
+    fmt <- "%s environment '%s' already exists."
+    stopf(fmt, if (renv_local()) "Local virtual" else "Virtual", name)
+  }
+
   ensure_parent_directory(path)
   renv_manifest_write(blueprint, path)
 

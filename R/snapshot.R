@@ -125,6 +125,10 @@ renv_snapshot_r_library_diagnose <- function(library, pkgs) {
 
 renv_snapshot_description <- function(path, library) {
 
+  info <- file.info(path)
+  if (identical(info$isdir, TRUE))
+    path <- file.path(path, "DESCRIPTION")
+
   if (!file.exists(path)) {
     fmt <- "No DESCRIPTION at path '%s'."
     msg <- sprintf(fmt, path)
@@ -133,7 +137,7 @@ renv_snapshot_description <- function(path, library) {
 
   # TODO: Check for tempfiles that sneak into library path, e.g. 'file<abcd>'
   # Report and skip?
-  dcf <- catch(renv_dcf_read(path, all = TRUE))
+  dcf <- catch(renv_dcf_read(path))
   if (inherits(dcf, "error"))
     return(dcf)
 

@@ -1,7 +1,12 @@
 local({
 
   # read project state
-  version <- renv_dcf_read("renv/renv.dcf", fields = "Version")
+  if (!file.exists("renv/renv.dcf"))
+    return()
+
+  version <- tryCatch(read.dcf("renv/renv.dcf", fields = "Version"), error = identity)
+  if (inherits(version, "error"))
+    return(warning(version))
 
   # try to find a path where 'renv' might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])

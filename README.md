@@ -5,37 +5,43 @@
 
 Create and bind projects to R virtual environments. With `renv`, you can bind
 particular R projects to different virtual environments, each containing its own
-set of R libraries. This enables a variety of workflows:
+set of R libraries.
 
-1. Projects under active development can use a 'development' set of R packages,
-   while projects used more widely in production can use a 'production' set of
-   R packages. This way, changes made in the 'development' library won't affect
-   other projects.
+## Workflows
 
-2. Projects can use their own private library, similar to the
-   [Packrat](https://rstudio.github.io/packrat/) model.
+`renv` allows for a number of different workflows:
 
-3. Projects can more easily share and overlay libraries, so that users can
-   build their own R library of packages on top of a 'base' set of packages.
-   This is similar to the model already available in R with site libraries and
-   user libraries, but this package normalizes and standardizes the model
-   across different platforms.
+1. Similar to [Packrat](https://rstudio.github.io/packrat/), a project can be
+   initialized from scratch by inferring the packages used within a project,
+   and then preparing a project-local R library. The `renv` approach is much
+   faster, as we avoid downloading and building packages from source whenever
+   possible.
+   
+``` r
+renv::init()
+```
+   
+2. Projects can share a global set of R libraries. For example, projects under
+   active development could use a 'develop' library, while projects used in
+   production could use a 'production' library. This is similar to the model
+   already available in R with site libraries and user libraries, but this
+   package normalizes and standardizes the model across different platforms.
+   
+``` r
+renv::create("develop")
+renv::activate("develop")
+```
+
+3. Projects can opt-in to using the user library, with their own overlay of
+   development packages. This can be useful when working on the development
+   version of a package, which itself has dev-version package dependencies,
+   but you want to avoid clobbering other packages available in the user
+   library.
+
+``` r
+renv::create(r_libs_overlay = TRUE, local = TRUE)
+renv::activate(local = TRUE)
+```
 
 ## Usage
 
-Sample API sketched out.
-
-``` r
-library(renv)
-
-# create a virtual environment with this configuration
-renv_create("my-renv", r_libs = c("base", "dev"))
-
-# activate this virtual environment in the active project
-renv_activate("my-renv")
-
-# session restarts; new library paths are loaded; work as usual ...
-
-# deactivate when we're done
-renv_deactivate("my-renv")
-```

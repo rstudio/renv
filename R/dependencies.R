@@ -37,23 +37,21 @@ discover_dependencies <- function(path) {
 
 renv_dependencies_discover_dir <- function(path) {
 
-  # TODO: make this user-configurable?
+  # TODO: make this user-configurable? (project options?)
   # TODO: maximum recursion depth?
-  exclude <- c("node_modules", "packrat", "revdep")
+  exclude <- c("node_modules", "packrat", "revdep",
+               "renv/library", "renv/boostrap")
 
   # list files in the folder
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-  files <- list.files(path)
+  children <- list.files(path, full.names = TRUE)
 
   # filter children based on pattern
-  pattern <- sprintf("^(?:%s)$", paste(exclude, collapse = "|"))
-  matches <- grep(pattern, files, perl = TRUE, value = TRUE, invert = TRUE)
-
-  # construct new file paths
-  children <- file.path(path, matches)
+  pattern <- sprintf("(?:%s)$", paste(exclude, collapse = "|"))
+  matches <- grep(pattern, children, perl = TRUE, value = TRUE, invert = TRUE)
 
   # recurse for dependencies
-  deps <- lapply(children, discover_dependencies)
+  deps <- lapply(matches, discover_dependencies)
 
   bind_list(deps)
 
@@ -88,7 +86,11 @@ renv_dependencies_discover_description <- function(path) {
 
   })
 
-  cbind(Source = path, bind_list(data), stringsAsFactors = FALSE)
+  bound <- bind_list(data)
+  if (is.null(bound))
+    return(NULL)
+
+  cbind(Source = path, bound, stringsAsFactors = FALSE)
 
 }
 
@@ -141,16 +143,22 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
   # check for Shiny runtime
   runtime <- yaml$runtime %||% ""
-  if (grepl("shiny", runtime, fixed = TRUE))
+  if (is_string(runtime) && grepl("shiny", runtime, fixed = TRUE))
     deps$push("shiny")
 
   # check for custom output function from another package
-  output <- yaml$output
-  splat <- strsplit(output, ":{2,3}")[[1]]
-  if (length(splat) == 2)
-    deps$push(splat[[1]])
+  output <- yaml$output %||% ""
+  if (is.list(output) && length(output) == 1)
+    output <- names(output)
 
-  renv_dependencies_list(path, deps$data())
+  if (is_string(output)) {
+    splat <- strsplit(output, ":{2,3}")[[1]]
+    if (length(splat) == 2)
+      deps$push(splat[[1]])
+  }
+
+  packages <- as.character(deps$data())
+  renv_dependencies_list(path, packages)
 
 }
 
@@ -183,20 +191,19 @@ renv_dependencies_discover_chunks <- function(path) {
   }
 
   # parse the chunks within
+  # NOTE: we need to proceed line-by-line since the chunk end pattern might
+  # end chunks not started by the chunk begin pattern (sad face)
   encoding <- if (type == "md") "UTF-8" else "unknown"
   contents <- readLines(path, warn = FALSE, encoding = encoding)
-  starts <- grep(patterns$chunk.begin, contents)
-  ends <- grep(patterns$chunk.end, contents)
-  if (length(starts) != length(ends)) {
-    warningf("Failed to extract chunks from file '%s'.", path)
-    return(character())
-  }
+  ranges <- renv_dependencies_discover_chunks_ranges(file, contents, patterns)
+  if (NROW(ranges) == 0)
+    return(NULL)
 
   chunks <- .mapply(function(lhs, rhs) {
     header <- contents[[lhs]]
     params <- renv_dependencies_discover_parse_params(header, type)
     list(params = params, contents = contents[(lhs + 1):(rhs - 1)])
-  }, list(starts, ends), NULL)
+  }, ranges, NULL)
 
   # extract R code
   code <- uapply(chunks, function(chunk) {
@@ -214,11 +221,42 @@ renv_dependencies_discover_chunks <- function(path) {
   rfile <- tempfile(fileext = ".R")
   writeLines(enc2utf8(code), con = rfile, useBytes = TRUE)
   deps <- renv_dependencies_discover_r(rfile)
-  if (is.null(deps))
+  if (empty(deps))
     return(NULL)
 
   deps$Source <- path
   deps
+
+}
+
+renv_dependencies_discover_chunks_ranges <- function(file, contents, patterns) {
+
+  output <- list()
+
+  chunk <- FALSE
+  start <- 1; end <- 1
+  for (i in seq_along(contents)) {
+
+    line <- contents[[i]]
+
+    if (chunk == FALSE && grepl(patterns$chunk.begin, line)) {
+      chunk <- TRUE
+      start <- i
+      next
+    }
+
+    if (chunk == TRUE && grepl(patterns$chunk.end, line)) {
+      chunk <- FALSE
+      end <- i
+      output[[length(output) + 1]] <- list(lhs = start, rhs = end)
+    }
+
+  }
+
+  if (chunk)
+    warningf("[Line %i]: detected unclosed chunk in file '%s'", file, start)
+
+  bind_list(output)
 
 }
 
@@ -339,8 +377,8 @@ renv_dependencies_discover_r_colon <- function(node, envir) {
 renv_dependencies_list <- function(source, packages) {
 
   data.frame(
-    Source  = source,
-    Package = packages,
+    Source  = as.character(source),
+    Package = as.character(packages),
     Require = "",
     Version = "",
     stringsAsFactors = FALSE
@@ -383,5 +421,46 @@ renv_dependencies_discover_parse_params <- function(header, type) {
     params[["engine"]] <- engine
 
   eval(params, envir = parent.frame())
+
+}
+
+renv_dependencies <- function(packages) {
+
+  # TODO: build a dependency tree rather than just a flat set of packages?
+  # TODO: dependency resolution? (can we depend on a different package for this)
+  visited <- new.env(parent = emptyenv())
+  for (package in packages)
+    renv_dependencies_enumerate(package, visited)
+
+  as.list(visited)
+
+}
+
+renv_dependencies_enumerate <- function(package, visited) {
+
+  # skip the 'R' package
+  if (package == "R")
+    return()
+
+  # if we've already visited this package, bail
+  if (exists(package, envir = visited, inherits = FALSE))
+    return()
+
+  # default to unknown path for visited packages
+  assign(package, NA, envir = visited, inherits = FALSE)
+
+  # find the package
+  location <- renv_package_find(package)
+  if (!file.exists(location))
+    return(location)
+
+  # we know the path, so set it now
+  assign(package, location, envir = visited, inherits = FALSE)
+
+  # find its dependencies from the DESCRIPTION file
+  deps <- renv_dependencies_discover_description(location)
+  subpackages <- deps$Package
+  for (subpackage in subpackages)
+    renv_dependencies_enumerate(subpackage, visited)
 
 }

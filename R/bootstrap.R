@@ -4,8 +4,9 @@
 # without requiring a local install
 renv_bootstrap <- function(force = FALSE) {
 
-  # check for existing 'renv' source
-  source <- find.package("renv", quiet = TRUE)
+  # check for existing 'renv' source (explicitly specify lib.loc to avoid
+  # using a currently-loaded package)
+  source <- find.package("renv", quiet = TRUE, lib.loc = .libPaths())
   if (!file.exists(source))
     stop("no installation of 'renv' detected locally")
 

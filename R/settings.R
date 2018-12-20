@@ -36,7 +36,7 @@ renv_settings_read <- function() {
   if (!file.exists(path))
     return(renv_settings_defaults())
 
-  dcf <- catch(renv_dcf_read(path, all = TRUE))
+  dcf <- catch(renv_dcf_read(path))
   if (inherits(dcf, "error"))
     return(renv_settings_defaults())
 
