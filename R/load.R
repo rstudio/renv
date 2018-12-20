@@ -37,7 +37,7 @@ renv_load_finish <- function() {
   local <- renv_active_local_get()
   paths <- paste("-", shQuote(.libPaths()), collapse = "\n")
 
-  fmt <- sprintf("%s environment '%s' loaded. Using library paths:")
+  fmt <- "%s environment '%s' loaded. Using library paths:"
   messagef(fmt, if (local) "Local virtual" else "Virtual", basename(renv))
   message(paths)
 

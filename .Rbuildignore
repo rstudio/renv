@@ -1,6 +1,8 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^TODO\.md$
+^configure$
+^configure\.R$
 
 ^internal/
 ^renv/
