@@ -77,9 +77,9 @@ activate <- function(name = NULL, project = NULL) {
   # using the current state of the environment)
   # TODO: or should we skip this and use the last-generated manifest?
   manifest <- snapshot(name, file = NULL)
-  file <- renv_active_manifest(project)
+  file <- renv_snapshot_manifest_path(project)
   ensure_parent_directory(file)
-  renv_manifest_write(manifest, file = renv_active_manifest(project))
+  renv_manifest_write(manifest, file = file)
 
   if (renv_verbose()) {
     fmt <- "* Activating %s environment '%s' ..."
