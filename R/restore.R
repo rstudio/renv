@@ -113,7 +113,7 @@ renv_restore_install <- function(package, manifest = NULL) {
   }
 
   # check for an entry in the cache we can use
-  cache <- renv_cache_entry(record)
+  cache <- renv_cache_package_path(record)
   if (file.exists(cache)) {
     status <- renv_restore_install_package_cache(record, cache)
     if (identical(status, TRUE))
@@ -121,7 +121,8 @@ renv_restore_install <- function(package, manifest = NULL) {
   }
 
   # otherwise, try and restore from external source
-  source <- record[["Source"]]
+  # TODO: what to assume if no source provided? just use CRAN?
+  source <- record[["Source"]] %||% "cran"
   switch(source,
     cran         = renv_restore_install_cran(record),
     bioconductor = renv_restore_install_bioconductor(record),

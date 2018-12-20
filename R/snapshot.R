@@ -52,7 +52,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
   # report actions to the user
   actions <- renv_manifest_diff_packages(old, new)
-  if (confirm || renv_verbose()) {
+  if (confirm && renv_verbose()) {
     renv_snapshot_report_actions(actions, old, new)
     printf("The manifest will be written to '%s'.", aliased_path(file))
   }
