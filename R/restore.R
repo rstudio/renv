@@ -38,8 +38,12 @@ restore <- function(manifest = NULL, confirm = interactive()) {
   # detect changes in R packages in the manifest
   old <- snapshot(name, file = NULL)
   new <- manifest
-
   actions <- renv_manifest_diff_packages(old, new)
+
+  # detect missing dependencies -- e.g. if an installed package depends on
+  # one or more packages that are no longer available
+  browser()
+
   if (!length(actions)) {
     messagef("* Virtual environment '%s' is up to date.", name)
     return(invisible(actions))

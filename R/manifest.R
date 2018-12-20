@@ -1,7 +1,7 @@
 
 renv_manifest_load <- function(project = NULL) {
 
-  project <- renv_active_project(project)
+  project <- project %||% renv_active_project_get()
   manifest <- renv_active_manifest(project)
   if (file.exists(manifest))
     return(renv_manifest_read(manifest))

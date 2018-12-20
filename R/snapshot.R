@@ -15,7 +15,7 @@
 #' @export
 snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
-  name <- renv_active_environment(name)
+  name <- name %||% renv_active_environment_get()
   if (!nzchar(name)) {
     msg <- paste(
       "This project has no active virtual environment.",
@@ -27,7 +27,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   # generate a new manifest
   new <- renv_manifest_read(renv_paths_environment(name))
   new$R$Packages <- uapply(new$R$Libraries, function(library) {
-    renv_snapshot_r_library(renv_paths_library(library))
+    renv_snapshot_r_library(library, renv_paths_library(library))
   })
 
   # return it directly when 'file' is NULL
@@ -78,13 +78,13 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
 }
 
-renv_snapshot_r_library <- function(library, synchronize = TRUE) {
+renv_snapshot_r_library <- function(name, library, synchronize = TRUE) {
 
   pkgs <- list.files(library, full.names = TRUE)
   pkgs <- renv_snapshot_r_library_diagnose(library, pkgs)
 
   descriptions <- file.path(pkgs, "DESCRIPTION")
-  records <- lapply(descriptions, renv_snapshot_description, library = library)
+  records <- lapply(descriptions, renv_snapshot_description, name = name, library = library)
 
   broken <- Filter(function(record) inherits(record, "error"), records)
   if (length(broken)) {
@@ -123,7 +123,7 @@ renv_snapshot_r_library_diagnose <- function(library, pkgs) {
 
 }
 
-renv_snapshot_description <- function(path, library) {
+renv_snapshot_description <- function(path, name, library) {
 
   info <- file.info(path)
   if (identical(info$isdir, TRUE))
@@ -141,7 +141,7 @@ renv_snapshot_description <- function(path, library) {
   if (inherits(dcf, "error"))
     return(dcf)
 
-  dcf[["Library"]] <- library
+  dcf[["Library"]] <- name
   dcf[["Source"]] <- renv_snapshot_description_source(dcf)
   dcf[["Hash"]] <- renv_hash_description(path)
 
@@ -166,7 +166,7 @@ renv_snapshot_description_source <- function(dcf) {
   if (!is.null(dcf[["RemoteType"]]))
     return(dcf[["RemoteType"]])
 
-  "[unknown]"
+  "unknown"
 
 }
 
@@ -205,7 +205,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 # NOTE: would like to use ISO 8601 timestamps but ':' is not supported
 # in Windows filenames
 renv_snapshot_manifest_path <- function(project = NULL) {
-  project <- renv_active_project(project)
+  project <- project %||% renv_active_project_get()
   time <- Sys.time()
   ymd <- strftime(time, "%Y-%m-%d")
   timestamp <- strftime(time, "%Y-%m-%dT%H-%M-%S%Z")

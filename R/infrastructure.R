@@ -1,6 +1,6 @@
 
 renv_write_infrastructure <- function(project = NULL, renv) {
-  project <- renv_active_project(project)
+  project <- project %||% renv_active_project_get()
 
   renv_write_rprofile(project)
   renv_write_rbuildignore(project)
@@ -41,7 +41,7 @@ renv_write_gitignore <- function(project) {
 }
 
 renv_write_activate <- function(project = NULL, renv) {
-  project <- renv_active_project(project)
+  project <- project %||% renv_active_project_get()
 
   source <- system.file("resources/activate.R", package = "renv")
   target <- file.path(project, "renv/activate.R")
@@ -61,12 +61,12 @@ renv_write_activate <- function(project = NULL, renv) {
 }
 
 renv_write_project_state <- function(project = NULL, renv) {
-  project <- renv_active_project(project)
+  project <- project %||% renv_active_project_get()
 
   state <- file.path(project, "renv/renv.dcf")
   ensure_parent_directory(state)
 
-  local <- renv_local()
+  local <- renv_active_local_get()
 
   keys <- c("Environment", "Version", "Local")
   vals <- c(renv, format(packageVersion("renv")), local)
@@ -116,7 +116,7 @@ renv_write_entry_impl <- function(line, file, force) {
 
 
 renv_remove_infrastructure <- function(project = NULL) {
-  project <- renv_active_project(project)
+  project <- project %||% renv_active_project_get()
 
   renv_remove_rprofile(project)
   renv_remove_rbuildignore(project)

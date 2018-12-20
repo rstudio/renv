@@ -3,7 +3,7 @@ renv_load_r_version <- function(manifest) {
   version <- manifest$R$Version
   if (version_compare(version, getRversion()) != 0) {
     fmt <- "Environment '%s' requested R version '%s' but '%s' is currently being used"
-    warningf(fmt, renv_active_environment(), version, getRversion())
+    warningf(fmt, renv_active_environment_get(), version, getRversion())
   }
 }
 
@@ -33,18 +33,12 @@ renv_load_finish <- function() {
   if (!renv_verbose())
     return()
 
-  renv <- renv_active_environment()
-  local <- renv_local()
-  fmt <- if (local)
-    "* Local virtual environment '%s' loaded."
-  else
-    "* Virtual environment '%s' loaded."
-
-  messagef(fmt, basename(renv))
-  message()
-
+  renv <- renv_active_environment_get()
+  local <- renv_active_local_get()
   paths <- paste("-", shQuote(.libPaths()), collapse = "\n")
-  message("* Using library paths:")
+
+  fmt <- sprintf("%s environment '%s' loaded. Using library paths:")
+  messagef(fmt, if (local) "Local virtual" else "Virtual", basename(renv))
   message(paths)
 
 }
@@ -64,7 +58,7 @@ renv_load_project <- function(project) {
   if (inherits(dcf, "error"))
     return(dcf)
 
-  renv_set_local(as.logical(dcf$Local))
+  renv_active_local_set(as.logical(dcf$Local))
   dcf$Environment
 
 }

@@ -1,40 +1,33 @@
 
-renv_active_state <- function(name, override, default) {
-  if (!is.null(override))
-    override
-  else
-    Sys.getenv(name, unset = default)
+renv_active_project_get <- function() {
+  getOption("renv.active.project", default = getwd())
 }
 
-renv_active_project <- function(project = NULL) {
-  state <- renv_active_state("RENV_ACTIVE_PROJECT", project, getwd())
-  as.character(state)
+renv_active_project_set <- function(project) {
+  options("renv.active.project" = normalizePath(project, winslash = "/"))
 }
 
-renv_set_active_project <- function(project) {
-  Sys.setenv(RENV_ACTIVE_PROJECT = normalizePath(project, winslash = "/"))
+renv_active_environment_get <- function() {
+  getOption("renv.active.environment", default = "")
 }
 
-renv_active_environment <- function(renv = NULL) {
-  state <- renv_active_state("RENV_ACTIVE_ENVIRONMENT", renv, "")
-  as.character(state)
+renv_active_environment_set <- function(environment) {
+  options("renv.active.environment" = environment)
 }
 
-renv_set_active_environment <- function(renv) {
-  Sys.setenv(RENV_ACTIVE_ENVIRONMENT = renv)
+renv_active_local_get <- function() {
+  getOption("renv.active.local", FALSE)
 }
 
-renv_local <- function(local = NULL) {
-  state <- renv_active_state("RENV_LOCAL", local, FALSE)
-  as.logical(state)
+renv_active_local_set <- function(local) {
+  options("renv.active.local" = local)
 }
 
-renv_set_local <- function(local) {
-  Sys.setenv(RENV_LOCAL = local)
-}
+
 
 renv_active_manifest <- function(project = NULL) {
-  path <- file.path(renv_active_project(project), "renv/manifest")
+  project <- project %||% renv_active_project_get()
+  path <- file.path(project, "renv/manifest")
   manifests <- list.files(path, full.names = TRUE, recursive = TRUE)
   if (empty(manifests)) "" else tail(sort(manifests), n = 1L)
 }

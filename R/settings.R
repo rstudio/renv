@@ -31,7 +31,7 @@ renv_settings_defaults <- function() {
 
 renv_settings_read <- function() {
 
-  project <- renv_active_project()
+  project <- renv_active_project_get()
   path <- file.path(project, "renv/renv.opts")
   if (!file.exists(path))
     return(renv_settings_defaults())
@@ -58,7 +58,7 @@ renv_settings_read <- function() {
 }
 
 renv_settings_get <- function(name) {
-  project <- renv_active_project()
+  project <- renv_active_project_get()
 
   path <- file.path(project, "renv/renv.opts")
   cache <- renv_filebacked_get(path)
@@ -71,7 +71,7 @@ renv_settings_get <- function(name) {
 
 renv_settings_set <- function(name, value, persist = TRUE) {
 
-  project <- renv_active_project()
+  project <- renv_active_project_get()
   path <- file.path(project, "renv/renv.opts")
 
   settings <- renv_filebacked_get(path) %||% renv_settings_read()
@@ -84,7 +84,7 @@ renv_settings_set <- function(name, value, persist = TRUE) {
 
 renv_settings_persist <- function(settings) {
 
-  project <- renv_active_project()
+  project <- renv_active_project_get()
   path <- file.path(project, "renv/renv.opts")
 
   # TODO: use explicit encoder here?

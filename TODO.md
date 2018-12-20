@@ -8,6 +8,11 @@
   project-local instead. (So that the user can mutate the library without
   affecting other projects using that global library)
   
+- Properly handle broken links in the project library (e.g. if the cache
+  moved or was mutated for some reason)
+  
+- Tools for validating package hashes + their install location?
+  
 - `clean()` function to remove ununsed packages from the library. (If the
   cache is enabled, they will remain in the cache)
 

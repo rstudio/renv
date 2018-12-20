@@ -12,9 +12,9 @@ init <- function(project = NULL, ...) {
   project <- project %||% getwd()
 
   # switch to local mode
-  local <- renv_local()
-  renv_set_local(TRUE)
-  on.exit(renv_set_local(local), add = TRUE)
+  local <- renv_active_local_get()
+  renv_active_local_set(TRUE)
+  on.exit(renv_active_local_set(local), add = TRUE)
 
   # create the virtual environment
   # TODO: what action to take if environment already exists?
@@ -22,7 +22,7 @@ init <- function(project = NULL, ...) {
   create(name = name, r_libs = name, ..., overwrite = TRUE)
 
   # find packages used in this project
-  vmessagef("Discovering package dependencies ... ", appendLF = FALSE)
+  vmessagef("* Discovering package dependencies ... ", appendLF = FALSE)
   deps <- discover_dependencies(project)
   vmessagef("Done!")
 
@@ -36,7 +36,7 @@ init <- function(project = NULL, ...) {
   packages <- all[setdiff(names(all), base)]
 
   # copy these packages into the cache (if they aren't already cached packages)
-  vmessagef("Copying packages into the cache  ... ", appendLF = FALSE)
+  vmessagef("* Copying packages into the cache  ... ", appendLF = FALSE)
   cached <- enumerate(packages, function(package, location) {
 
     record <- renv_snapshot_description(location, name)

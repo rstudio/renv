@@ -7,7 +7,7 @@
 #'   containing such files.
 #'
 #' @export
-discover_dependencies <- function(path) {
+discover_dependencies <- function(path = getwd()) {
 
   info <- file.info(path)
   if (is.na(info$isdir))

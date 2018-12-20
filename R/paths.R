@@ -57,8 +57,8 @@ renv_paths_root <- function(...) {
 }
 
 renv_paths_root_local <- function(...) {
-  if (renv_local())
-    file.path(renv_active_project(), "renv", ...)
+  if (renv_active_local_get())
+    file.path(renv_active_project_get(), "renv", ...)
   else
     renv_paths_root(...)
 }

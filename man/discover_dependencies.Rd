@@ -4,7 +4,7 @@
 \alias{discover_dependencies}
 \title{Discover R Package Dependencies}
 \usage{
-discover_dependencies(path)
+discover_dependencies(path = getwd())
 }
 \arguments{
 \item{path}{The path to a (possibly multi-mode) \R file, or a directory
