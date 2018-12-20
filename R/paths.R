@@ -14,13 +14,16 @@
 #' enumerated below:
 #'
 #' \tabular{ll}{
-#' \strong{Description}          \tab \strong{Environment Variable} \cr
+#' \strong{Environment Variable} \tab \strong{Description} \cr
 #' \code{RENV_PATHS_ROOT}        \tab The root path used for global state storage. \cr
 #' \code{RENV_PATHS_BOOTSTRAP}   \tab The library path containing bootstrapped `renv` installations. \cr
 #' \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
 #' \code{RENV_PATHS_ENVIRONMENT} \tab The path containing \R virtual environment definitions. \cr
 #' \code{RENV_PATHS_CACHE}       \tab The path containing cached package sources, binaries, and installs. \cr
 #' }
+#'
+#' If you want these settings to persist in your project, it is recommended
+#' that you add these to a project-local `.Renviron`.
 #'
 #' @rdname paths
 #' @name paths
