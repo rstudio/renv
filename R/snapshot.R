@@ -26,7 +26,9 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
   # generate a new manifest
   new <- renv_manifest_read(renv_paths_environment(name))
-  new$R$Packages <- uapply(new$R$Libraries, renv_snapshot_r_library)
+  new$R$Packages <- uapply(new$R$Libraries, function(library) {
+    renv_snapshot_r_library(renv_paths_library(library))
+  })
 
   # return it directly when 'file' is NULL
   if (is.null(file))
@@ -76,12 +78,9 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
 }
 
-renv_snapshot_r_library <- function(library) {
+renv_snapshot_r_library <- function(library, synchronize = TRUE) {
 
-  path <- renv_paths_library(library)
-  ensure_directory(path)
-
-  pkgs <- list.files(path, full.names = TRUE)
+  pkgs <- list.files(library, full.names = TRUE)
   pkgs <- renv_snapshot_r_library_diagnose(library, pkgs)
 
   descriptions <- file.path(pkgs, "DESCRIPTION")
@@ -96,7 +95,8 @@ renv_snapshot_r_library <- function(library) {
     stop(message, call. = FALSE)
   }
 
-  lapply(records, renv_cache_synchronize)
+  if (synchronize)
+    lapply(records, renv_cache_synchronize)
 
   names(records) <- map_chr(records, `[[`, "Package")
   records
@@ -133,7 +133,7 @@ renv_snapshot_description <- function(path, library) {
 
   # TODO: Check for tempfiles that sneak into library path, e.g. 'file<abcd>'
   # Report and skip?
-  dcf <- catch(read.dcf(path, all = TRUE))
+  dcf <- catch(renv_dcf_read(path, all = TRUE))
   if (inherits(dcf, "error"))
     return(dcf)
 

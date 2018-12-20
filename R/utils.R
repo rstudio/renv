@@ -19,9 +19,7 @@ is_scalar_character <- function(x) {
 
 is_named <- function(x) {
   nm <- names(x)
-  if (is.null(nm) || !all(nzchar(nm)))
-    return(FALSE)
-  TRUE
+  !is.null(nm) && all(nzchar(nm))
 }
 
 named <- function(object, names = object) {
@@ -178,4 +176,13 @@ is_rcmd_check <- function() {
     identical(call, expected)
 
   })
+}
+
+ask <- function(question) {
+  response <- readline(sprintf("%s [Y/n]: "))
+  tolower(response) %in% c("y", "yes")
+}
+
+R <- function() {
+  file.path(R.home("bin"), "R")
 }

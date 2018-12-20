@@ -55,7 +55,7 @@ renv_load_project <- function(project) {
     stop(msg, call. = FALSE)
   }
 
-  dcf <- catch(read.dcf(state, all = TRUE))
+  dcf <- catch(renv_dcf_read(state, all = TRUE))
   if (inherits(dcf, "error"))
     return(dcf)
 

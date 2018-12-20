@@ -65,7 +65,7 @@ activate <- function(name = NULL, project = NULL) {
   if (is.null(name)) {
     state <- file.path(project, "renv/renv.dcf")
     if (file.exists(state))
-      name <- read.dcf(state, fields = "Environment")
+      name <- renv_dcf_read(state, fields = "Environment")
   }
 
   # prepare renv infrastructure
@@ -114,7 +114,7 @@ deactivate <- function(project = NULL) {
     stopf(fmt, aliased_path(project))
   }
 
-  name <- read.dcf(state, fields = "Environment")
+  name <- renv_dcf_read(state, fields = "Environment")
   if (renv_verbose()) {
     fmt <- "* Deactivating %s environment '%s' ..."
     messagef(fmt, if (renv_local()) "local virtual" else "virtual", name)

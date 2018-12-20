@@ -83,7 +83,6 @@ renv_dependencies_discover_description <- function(path) {
       Package = extract_chr(matches, 2L),
       Require = extract_chr(matches, 3L),
       Version = extract_chr(matches, 4L),
-      Type    = field,
       stringsAsFactors = FALSE
     )
 
