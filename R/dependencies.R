@@ -63,9 +63,14 @@ renv_dependencies_discover_description <- function(path) {
   if (inherits(dcf, "error"))
     return(list())
 
-  # TODO: make this user-configurable
+  # TODO: make this user-configurable?
   fields <- c("Depends", "Imports", "LinkingTo")
   pattern <- "([a-zA-Z0-9._]+)(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"
+
+  # if this is the DESCRIPTION file for the active project, include
+  # Suggests since they're often needed as well
+  if (identical(renv_active_project_get(), dirname(path)))
+    fields <- c(fields, "Suggests")
 
   data <- lapply(fields, function(field) {
 

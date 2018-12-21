@@ -149,11 +149,17 @@ version_compare <- function(lhs, rhs) {
 }
 
 catch <- function(expr) {
-  tryCatch(expr, error = identity)
+  if (renv_debug())
+    expr
+  else
+    tryCatch(expr, error = identity)
 }
 
 catchall <- function(expr) {
-  tryCatch(expr, condition = identity)
+  if (renv_debug())
+    expr
+  else
+    tryCatch(expr, condition = identity)
 }
 
 is_rcmd_check <- function() {

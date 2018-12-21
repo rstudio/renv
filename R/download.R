@@ -1,8 +1,7 @@
 
 download <- function(url, destfile = tempfile()) {
 
-  if (renv_verbose())
-    messagef("Retrieving '%s' ...", url)
+  vmessagef("Retrieving '%s' ...", url)
 
   before <- Sys.time()
   status <- download.file(url, destfile, quiet = TRUE, mode = "wb")

@@ -47,8 +47,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   # diff manifest packages to get set of actions
   diff <- renv_manifest_diff(old, new)
   if (empty(diff)) {
-    if (renv_verbose())
-      message("* The manifest is already up-to-date.")
+    vmessagef("* The manifest is already up-to-date.")
     return(invisible(new))
   }
 
@@ -71,8 +70,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   # write it out
   ensure_parent_directory(file)
   renv_manifest_write(new, file = file)
-  if (renv_verbose())
-    messagef("* Manifest written to '%s'.", aliased_path(file))
+  vmessagef("* Manifest written to '%s'.", aliased_path(file))
 
   invisible(new)
 
@@ -84,7 +82,7 @@ renv_snapshot_r_library <- function(name, library, synchronize = TRUE) {
   pkgs <- renv_snapshot_r_library_diagnose(library, pkgs)
 
   descriptions <- file.path(pkgs, "DESCRIPTION")
-  records <- lapply(descriptions, renv_snapshot_description, name = name, library = library)
+  records <- lapply(descriptions, renv_snapshot_description, name)
 
   broken <- Filter(function(record) inherits(record, "error"), records)
   if (length(broken)) {
@@ -123,7 +121,7 @@ renv_snapshot_r_library_diagnose <- function(library, pkgs) {
 
 }
 
-renv_snapshot_description <- function(path, name, library) {
+renv_snapshot_description <- function(path, library) {
 
   info <- file.info(path)
   if (identical(info$isdir, TRUE))
@@ -141,7 +139,7 @@ renv_snapshot_description <- function(path, name, library) {
   if (inherits(dcf, "error"))
     return(dcf)
 
-  dcf[["Library"]] <- name
+  dcf[["Library"]] <- library
   dcf[["Source"]] <- renv_snapshot_description_source(dcf)
   dcf[["Hash"]] <- renv_hash_description(path)
 

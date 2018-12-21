@@ -55,11 +55,9 @@ create <- function(name,
   ensure_parent_directory(path)
   renv_manifest_write(blueprint, path)
 
-  if (renv_verbose()) {
-    fmt <- "* Created %s environment '%s'."
-    local <- renv_active_local_get()
-    messagef(fmt, if (local) "local virtual" else "virtual", name)
-  }
+  fmt <- "* Created %s environment '%s'."
+  local <- renv_active_local_get()
+  vmessagef(fmt, if (local) "local virtual" else "virtual", name)
 
   invisible(blueprint)
 }
@@ -82,8 +80,12 @@ activate <- function(name = NULL, project = NULL) {
   # when not supplied a name, use the last active name (if any)
   if (is.null(name)) {
     state <- file.path(project, "renv/renv.dcf")
-    if (file.exists(state))
-      name <- renv_dcf_read(state, fields = "Environment")
+    if (file.exists(state)) {
+      fields <- renv_dcf_read(state)
+      name <- fields$Environment
+      local <- as.logical(fields$Local)
+      renv_active_local_set(local)
+    }
   }
 
   # prepare renv infrastructure
@@ -99,10 +101,8 @@ activate <- function(name = NULL, project = NULL) {
   ensure_parent_directory(file)
   renv_manifest_write(manifest, file = file)
 
-  if (renv_verbose()) {
-    fmt <- "* Activating %s environment '%s' ..."
-    messagef(fmt, if (renv_active_local_get()) "local virtual" else "virtual", name)
-  }
+  fmt <- "* Activating %s environment '%s' ..."
+  vmessagef(fmt, if (renv_active_local_get()) "local virtual" else "virtual", name)
 
   # set library paths now so that they're properly restored in new sessions
   manifest <- renv_manifest_load(project)
@@ -133,10 +133,8 @@ deactivate <- function(project = NULL) {
   }
 
   name <- renv_dcf_read(state, fields = "Environment")
-  if (renv_verbose()) {
-    fmt <- "* Deactivating %s environment '%s' ..."
-    messagef(fmt, if (renv_active_local_get()) "local virtual" else "virtual", name)
-  }
+  fmt <- "* Deactivating %s environment '%s' ..."
+  vmessagef(fmt, if (renv_active_local_get()) "local virtual" else "virtual", name)
 
   Sys.setenv(
     R_LIBS_USER = Sys.getenv("RENV_DEFAULT_R_LIBS_USER"),

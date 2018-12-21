@@ -42,10 +42,9 @@ restore <- function(manifest = NULL, confirm = interactive()) {
 
   # detect missing dependencies -- e.g. if an installed package depends on
   # one or more packages that are no longer available
-  browser()
-
   if (!length(actions)) {
-    messagef("* Virtual environment '%s' is up to date.", name)
+    fmt <- "%s envirnoment '%s' is up to date."
+    messagef(fmt, if (renv_active_local_get()) "Local virtual" else "Virtual", name)
     return(invisible(actions))
   }
 
@@ -66,7 +65,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
 
 renv_restore_run_actions <- function(actions, old, new) {
 
-  renv_restore_begin(actions, new)
+  renv_restore_begin(new)
   on.exit(renv_restore_end(), add = TRUE)
 
   # TODO: process the packages in stages
@@ -373,7 +372,7 @@ renv_restore_state <- function() {
   renv_global_get("restore.state")
 }
 
-renv_restore_begin <- function(actions, manifest) {
+renv_restore_begin <- function(manifest) {
   envir <- new.env(parent = emptyenv())
   envir$packages <- new.env(parent = emptyenv())
   envir$manifest <- manifest

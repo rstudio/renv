@@ -21,19 +21,16 @@ init <- function(project = NULL, ...) {
   name <- basename(project)
   create(name = name, r_libs = name, ..., overwrite = TRUE)
 
-  # find packages used in this project
+  # find packages used in this project, and the dependencies of those packages
   vmessagef("* Discovering package dependencies ... ", appendLF = FALSE)
   deps <- discover_dependencies(project)
+  all <- renv_dependencies(unique(deps$Package))
   vmessagef("Done!")
 
-  # discover recursive dependencies of these packages
-  # TODO: since we parse DESCRIPTION files to get these, makes these bits
-  # user-configurable (e.g. should we include Suggets?)
-  all <- renv_dependencies(unique(deps$Package))
-
-  # keep only non-base packages
+  # remove base + missing packages
   base <- installed.packages(lib.loc = .Library, priority = "base")
-  packages <- all[setdiff(names(all), base)]
+  na <- all[is.na(all)]
+  packages <- all[setdiff(names(all), c(names(na), rownames(base)))]
 
   # copy these packages into the cache (if they aren't already cached packages)
   vmessagef("* Copying packages into the cache  ... ", appendLF = FALSE)
@@ -61,6 +58,18 @@ init <- function(project = NULL, ...) {
     unlink(target, recursive = TRUE)
     ensure_parent_directory(target)
     renv_file_link(cache, target)
+  })
+
+  # attempt to install missing packages (if any)
+  # TODO: request user confirmation? (since we're about to mutate the user lib)
+  if (length(na)) local({
+    vmessagef("* Resolving missing dependencies   ... ")
+    # TODO: if we have a manifest, should we use it?
+    renv_restore_begin(NULL)
+    on.exit(renv_restore_end(), add = TRUE)
+    for (package in names(na))
+      renv_restore_install(package)
+    vmessagef("* Missing dependencies successfully resolved.")
   })
 
   # update the library paths so that we're using the newly-established library

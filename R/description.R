@@ -5,6 +5,13 @@ renv_description_read <- function(path) {
   if (file.exists(file.path(path, "DESCRIPTION")))
     path <- file.path(path, "DESCRIPTION")
 
+  # ensure that we have a real file
+  info <- file.info(path, extra_cols = FALSE)
+  case(
+    is.na(info$isdir)  ~ stopf("file '%s' does not exist.", path),
+    isTRUE(info$isdir) ~ stopf("file '%s' is a directory.", path)
+  )
+
   # if given a tarball, attempt to extract inner DESCRIPTION file
   ext <- tools::file_ext(path)
   if (ext %in% c("tar", "gz", "tgz")) {
