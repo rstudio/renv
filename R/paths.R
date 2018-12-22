@@ -19,11 +19,14 @@
 #' \code{RENV_PATHS_BOOTSTRAP}   \tab The library path containing bootstrapped `renv` installations. \cr
 #' \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
 #' \code{RENV_PATHS_ENVIRONMENT} \tab The path containing \R virtual environment definitions. \cr
-#' \code{RENV_PATHS_CACHE}       \tab The path containing cached package sources, binaries, and installs. \cr
+#' \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr
+#' \code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr
+#' \code{RENV_PATHS_CACHE}       \tab The path containing cached package installations. \cr
 #' }
 #'
 #' If you want these settings to persist in your project, it is recommended
-#' that you add these to a project-local `.Renviron`.
+#' that you add these to an appropriate startup- file -- e.g. a project-local
+#' `.Renviron`.
 #'
 #' @rdname paths
 #' @name paths
@@ -42,6 +45,16 @@ renv_paths_environment <- function(...) {
 renv_paths_library <- function(...) {
   root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root_local("library"))
   file.path(root, renv_platform_prefix(), ...) %||% ""
+}
+
+renv_paths_source <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_SOURCE", renv_paths_root("source"))
+  file.path(root, ...) %||% ""
+}
+
+renv_paths_binary <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_BINARY", renv_paths_root("binary"))
+  file.path(root, ...) %||% ""
 }
 
 renv_paths_cache <- function(...) {

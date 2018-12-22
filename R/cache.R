@@ -1,6 +1,6 @@
 
 renv_cache_package_path <- function(record) {
-  renv_paths_cache("install", record$Package, record$Version, record$Hash, record$Package)
+  renv_paths_cache(record$Package, record$Version, record$Hash, record$Package)
 }
 
 # 'prime' the cache with the set of packages found in the user library

@@ -180,7 +180,7 @@ renv_restore_install_github <- function(record) {
   fmt <- "https://%s/repos/%s/%s/tarball/%s"
 
   url <- with(record, sprintf(fmt, RemoteHost, RemoteUsername, RemoteRepo, RemoteSha))
-  path <- renv_paths_cache("source", record$Package, record$RemoteSha)
+  path <- renv_paths_source(record$Package, record$RemoteSha)
 
   renv_restore_install_package(record, url, path, "source")
 
@@ -269,7 +269,10 @@ renv_restore_install_cran_impl <- function(record, type, name, repo = NULL) {
     return(FALSE)
 
   url <- file.path(entry$Repository, name)
-  path <- renv_paths_cache(type, record$Package, name)
+  path <- case(
+    type == "binary" ~ renv_paths_binary(record$Package, name),
+    type == "source" ~ renv_paths_source(record$Package, name)
+  )
 
   renv_restore_install_package(record, url, path, type)
 
@@ -291,10 +294,6 @@ renv_restore_install_cran_entry <- function(record, type, repo) {
 
 renv_restore_install_package <- function(record, url, path, type) {
 
-  # install package from local copy
-  fmt <- "Installing %s [%s] from %s ..."
-  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
-
   # download the package
   # TODO: toggle path based on whether package cache is enabled?
   if (!file.exists(path)) {
@@ -308,6 +307,10 @@ renv_restore_install_package <- function(record, url, path, type) {
   deps <- renv_dependencies_discover_description(path)
   for (package in deps$Package)
     renv_restore_install(package)
+
+  # install the package now
+  fmt <- "Installing %s [%s] from %s ..."
+  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
 
   status <- tryCatch(
     renv_restore_install_package_local(record, path, type = type),

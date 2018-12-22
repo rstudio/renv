@@ -26,6 +26,8 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
   # generate a new manifest
   new <- renv_manifest_read(renv_paths_environment(name))
+
+  # update state-related fields
   new$R$Packages <- uapply(new$R$Libraries, function(library) {
     renv_snapshot_r_library(library, renv_paths_library(library))
   })

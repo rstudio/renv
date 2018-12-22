@@ -9,7 +9,7 @@ renv_package_find <- function(package) {
 
   # if that failed, try looking in the cache for the latest
   # version of the package
-  location <- renv_paths_cache("install", package)
+  location <- renv_paths_cache(package)
   versions <- list.files(location)
   if (!length(versions))
     return("")
@@ -25,6 +25,14 @@ renv_package_find <- function(package) {
     return("")
 
   # TODO: how to select if we have multiple hashed copies for this version?
-  file.path(location, version, hashes[[1]])
+  if (length(hashes) != 1) {
+    fmt <- lines(
+      "Multiple hashed copies of %s [%s] detected.",
+      "The version with hash '%s' will be used."
+    )
+    warningf(fmt, package, version, hashes[[1]])
+  }
+
+  file.path(location, version, hashes[[1]], package)
 
 }

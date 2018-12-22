@@ -23,9 +23,12 @@ enumerated below:
 \code{RENV_PATHS_BOOTSTRAP}   \tab The library path containing bootstrapped \code{renv} installations. \cr
 \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
 \code{RENV_PATHS_ENVIRONMENT} \tab The path containing \R virtual environment definitions. \cr
-\code{RENV_PATHS_CACHE}       \tab The path containing cached package sources, binaries, and installs. \cr
+\code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr
+\code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr
+\code{RENV_PATHS_CACHE}       \tab The path containing cached package installations. \cr
 }
 
 If you want these settings to persist in your project, it is recommended
-that you add these to a project-local \code{.Renviron}.
+that you add these to an appropriate startup- file -- e.g. a project-local
+\code{.Renviron}.
 }
