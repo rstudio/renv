@@ -39,8 +39,7 @@ renv_dependencies_discover_dir <- function(path) {
 
   # TODO: make this user-configurable? (project options?)
   # TODO: maximum recursion depth?
-  exclude <- c("node_modules", "packrat", "revdep",
-               "renv/library", "renv/boostrap")
+  exclude <- c("node_modules", "packrat", "revdep", "renv/library", "renv/boostrap")
 
   # list files in the folder
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)

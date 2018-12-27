@@ -35,9 +35,7 @@ init <- function(project = NULL, overwrite = FALSE, ...) {
   project <- project %||% getwd()
 
   # switch to local mode
-  local <- renv_active_local_get()
   renv_active_local_set(TRUE)
-  on.exit(renv_active_local_set(local), add = TRUE)
 
   # create the virtual environment
   # TODO: what action to take if environment already exists?

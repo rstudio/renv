@@ -8,7 +8,12 @@ renv_setting_definition_logical <- function(default) {
 }
 
 `_renv_setting_definitions` <- list(
-  # TODO: what kinds of settings are appropriate?
+  # TODO: what kinds of settings are appropriate? Some candidates:
+  #
+  # Use the global cache?
+  # On restore, allow version mismatches? (always download latest)
+  # Whitelist / blacklist for dependency discovery?
+
 )
 
 renv_settings_decode <- function(name, encoded) {

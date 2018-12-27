@@ -68,11 +68,6 @@ renv_restore_run_actions <- function(actions, old, new) {
   renv_restore_begin(new)
   on.exit(renv_restore_end(), add = TRUE)
 
-  # TODO: process the packages in stages
-  #
-  # 1. download package sources (binary / source)
-  # 2. install packages one-by-one (respecting dependency graph)
-  #
   enumerate(actions, function(package, action) {
     if (action %in% c("install", "upgrade", "downgrade", "crossgrade"))
       renv_restore_install(package, new)

@@ -107,6 +107,34 @@ renv_snapshot_r_library <- function(name, library, synchronize = TRUE) {
 
 renv_snapshot_r_library_diagnose <- function(library, pkgs) {
 
+  pkgs <- renv_snapshot_r_library_diagnose_tempfile(library, pkgs)
+  pkgs <- renv_snapshot_r_library_diagnose_missing_description(library, pkgs)
+  pkgs
+
+}
+
+renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
+
+  names <- basename(pkgs)
+  missing <- grepl("^file(?:\\w){12}", names)
+  if (!any(missing))
+    return(pkgs)
+
+  fmt <- lines(
+    "The following folder(s) in library '%s' appear to be left-over temporary directories:",
+    "",
+    paste("-", basename(pkgs)[missing], collapse = "\n"),
+    "",
+    "Consider removing these folders from your library."
+  )
+
+  warningf(fmt, library, immediate. = TRUE)
+  pkgs[!missing]
+
+}
+
+renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) {
+
   desc <- file.path(pkgs, "DESCRIPTION")
   missing <- !file.exists(desc)
   if (!any(missing))
@@ -115,9 +143,9 @@ renv_snapshot_r_library_diagnose <- function(library, pkgs) {
   fmt <- lines(
     "The following package(s) in library '%s' are missing DESCRIPTION files:",
     "",
-    paste("-", pkgs[missing], collapse = "\n"),
+    paste("-", basename(pkgs)[missing], collapse = "\n"),
     "",
-    "Consider removing these folders from your R library."
+    "Consider removing or re-installing these packages."
   )
 
   warningf(fmt, library, immediate. = TRUE)
