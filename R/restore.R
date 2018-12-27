@@ -21,7 +21,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
 
   # check to see if the virtual environment used to generate
   # this manifest already exists -- if not, create it
-  name <- manifest$Environment$Name
+  name <- manifest$Environment$Environment
   envir <- renv_paths_environment(name)
   if (!file.exists(envir)) {
 

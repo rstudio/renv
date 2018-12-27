@@ -34,7 +34,7 @@ create <- function(name,
   blueprint <- list(
 
     Environment = list(
-      Name = name
+      Environment = name
     ),
 
     R = list(
@@ -79,13 +79,10 @@ activate <- function(name = NULL, project = NULL) {
 
   # when not supplied a name, use the last active name (if any)
   if (is.null(name)) {
-    state <- file.path(project, "renv/renv.dcf")
-    if (file.exists(state)) {
-      fields <- renv_dcf_read(state)
-      name <- fields$Environment
-      local <- as.logical(fields$Local)
-      renv_active_local_set(local)
-    }
+    activate <- renv_activate_read(project)
+    name <- activate$Environment
+    local <- activate$Local
+    renv_active_local_set(local)
   }
 
   # prepare renv infrastructure
@@ -126,13 +123,8 @@ deactivate <- function(project = NULL) {
 
   renv_remove_rprofile(project)
 
-  state <- file.path(project, "renv/renv.dcf")
-  if (!file.exists(state)) {
-    fmt <- "Project '%s' has no active virtual environment."
-    stopf(fmt, aliased_path(project))
-  }
-
-  name <- renv_dcf_read(state, fields = "Environment")
+  activate <- renv_activate_read(project)
+  name <- activate$Environment
   fmt <- "* Deactivating %s environment '%s' ..."
   vmessagef(fmt, if (renv_active_local_get()) "local virtual" else "virtual", name)
 
@@ -171,11 +163,11 @@ load <- function(project = NULL) {
   path <- ensure_existing_renv(renv)
   spec <- renv_manifest_read(path)
 
-  local <- read.dcf(file.path(project, "renv/renv.dcf"), fields = "Local")
+  local <- renv_activate_read(project, field = "Local")
 
   renv_active_project_set(project)
   renv_active_environment_set(renv)
-  renv_active_local_set(as.logical(local))
+  renv_active_local_set(local)
 
   renv_load_r_version(spec)
   renv_load_repos(spec)

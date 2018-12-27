@@ -44,21 +44,7 @@ renv_load_finish <- function() {
 }
 
 renv_load_project <- function(project) {
-
-  # when 'renv' is not specified, use the active virtual environment associated
-  # with the project (if any)
-  state <- file.path(project, "renv/renv.dcf")
-  if (!file.exists(state)) {
-    fmt <- "Project '%s' does not have an active virtual environment."
-    msg <- sprintf(fmt, aliased_path(project))
-    stop(msg, call. = FALSE)
-  }
-
-  dcf <- catch(renv_dcf_read(state))
-  if (inherits(dcf, "error"))
-    return(dcf)
-
-  renv_active_local_set(as.logical(dcf$Local))
-  dcf$Environment
-
+  activate <- renv_activate_read(project)
+  renv_active_local_set(as.logical(activate$Local))
+  activate$Environment
 }

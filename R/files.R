@@ -177,3 +177,8 @@ renv_file_scoped_backup <- function(path) {
   }
 
 }
+
+renv_file_alt <- function(path, alternate) {
+  subpath <- file.path(path, alternate)
+  if (file.exists(subpath)) subpath else path
+}

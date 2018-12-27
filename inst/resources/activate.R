@@ -1,10 +1,10 @@
 local({
 
   # read project state
-  if (!file.exists("renv/renv.dcf"))
+  if (!file.exists("renv/activate.dcf"))
     return()
 
-  version <- tryCatch(read.dcf("renv/renv.dcf", fields = "Version"), error = identity)
+  version <- tryCatch(read.dcf("renv/activate.dcf", fields = "Version"), error = identity)
   if (inherits(version, "error"))
     return(warning(version))
 

@@ -1,14 +1,37 @@
 
 #' Initialize a Project-local Virtual Environment
 #'
-#' Discover packages used within the current project, and then initialize
-#' a virtual environment with those packages.
+#' Discover packages used within the current project, and then initialize a
+#' virtual environment with those packages. The currently-installed versions of
+#' any packages in use (as detected within the user library) are then added to
+#' the project manifest, effectively 'forking' the state of your user library
+#' into a private project library.
+#'
+#' The primary steps taken when initializing a new virtual environment are:
+#'
+#' 1. \R package dependencies are discovered within the \R files used within
+#'    the project;
+#'
+#' 2. Discovered packages are copied into the `renv` global package cache (so
+#'    these packages can be re-used across multiple projects as necessary),
+#'
+#' 3. Any missing \R package dependencies discovered are then installed into
+#'    a private project library,
+#'
+#' 4. The [activate()] function is called to activate the newly-created
+#'    virtual environment.
+#'
+#' This mimics the workflow provided by `packrat::init()`, but with more
+#' reasonable default behavior (we no longer attempt to download and install
+#' from source when
 #'
 #' @param project The project directory.
+#' @param overwrite Boolean; overwrite a pre-existing project-local virtual
+#'   environment if one already exists?
 #' @param ... Optional arguments passed to [create()].
 #'
 #' @export
-init <- function(project = NULL, ...) {
+init <- function(project = NULL, overwrite = FALSE, ...) {
   project <- project %||% getwd()
 
   # switch to local mode
@@ -19,7 +42,7 @@ init <- function(project = NULL, ...) {
   # create the virtual environment
   # TODO: what action to take if environment already exists?
   name <- basename(project)
-  create(name = name, r_libs = name, ..., overwrite = TRUE)
+  create(name = name, r_libs = name, ..., overwrite = overwrite)
 
   # find packages used in this project, and the dependencies of those packages
   vmessagef("* Discovering package dependencies ... ", appendLF = FALSE)

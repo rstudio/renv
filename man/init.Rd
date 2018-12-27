@@ -4,14 +4,37 @@
 \alias{init}
 \title{Initialize a Project-local Virtual Environment}
 \usage{
-init(project = NULL, ...)
+init(project = NULL, overwrite = FALSE, ...)
 }
 \arguments{
 \item{project}{The project directory.}
 
+\item{overwrite}{Boolean; overwrite a pre-existing project-local virtual
+environment if one already exists?}
+
 \item{...}{Optional arguments passed to \code{\link[=create]{create()}}.}
 }
 \description{
-Discover packages used within the current project, and then initialize
-a virtual environment with those packages.
+Discover packages used within the current project, and then initialize a
+virtual environment with those packages. The currently-installed versions of
+any packages in use (as detected within the user library) are then added to
+the project manifest, effectively 'forking' the state of your user library
+into a private project library.
+}
+\details{
+The primary steps taken when initializing a new virtual environment are:
+\enumerate{
+\item \R package dependencies are discovered within the \R files used within
+the project;
+\item Discovered packages are copied into the \code{renv} global package cache (so
+these packages can be re-used across multiple projects as necessary),
+\item Any missing \R package dependencies discovered are then installed into
+a private project library,
+\item The \code{\link[=activate]{activate()}} function is called to activate the newly-created
+virtual environment.
+}
+
+This mimics the workflow provided by \code{packrat::init()}, but with more
+reasonable default behavior (we no longer attempt to download and install
+from source when
 }

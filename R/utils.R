@@ -35,28 +35,6 @@ aliased_path <- function(path) {
   path
 }
 
-ensure_directory <- function(path) {
-
-  if (file.exists(path)) {
-
-    info <- file.info(path)
-    if (isTRUE(info$isdir))
-      return(path)
-
-    stopf("path '%s' exists but is not a directory", path)
-  }
-
-  if (!dir.create(path, recursive = TRUE))
-    stopf("failed to create directory at path '%s'", path)
-
-  invisible(path)
-
-}
-
-ensure_parent_directory <- function(path) {
-  ensure_directory(dirname(path))
-}
-
 trimws <- function(x) {
   gsub("^\\s+|\\s+$", "", x)
 }

@@ -63,24 +63,24 @@ renv_write_activate <- function(project = NULL, renv) {
 renv_write_project_state <- function(project = NULL, renv) {
   project <- project %||% renv_active_project_get()
 
-  state <- file.path(project, "renv/renv.dcf")
-  ensure_parent_directory(state)
+  activate <- file.path(project, "renv/activate.dcf")
+  ensure_parent_directory(activate)
 
   local <- renv_active_local_get()
 
   keys <- c("Environment", "Version", "Local")
   vals <- c(renv, format(packageVersion("renv")), local)
   new <- paste(keys, vals, sep = ": ", collapse = "\n")
-  if (!file.exists(state)) {
-    writeLines(new, con = state)
+  if (!file.exists(activate)) {
+    writeLines(new, con = activate)
     return(TRUE)
   }
 
-  old <- readLines(state, warn = FALSE)
+  old <- readLines(activate, warn = FALSE)
   if (identical(old, new))
     return(TRUE)
 
-  writeLines(new, con = state)
+  writeLines(new, con = activate)
   TRUE
 
 }
