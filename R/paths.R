@@ -3,13 +3,13 @@
 #'
 #' Customize the paths that `renv` uses for global state storage.
 #'
-#' By default, all state is collected into a directory at `~/.renv`. This
-#' directory can be adjusted by setting the `RENV_PATHS_ROOT` environment
-#' variable. If desired, this path can be adjusted -- this can be useful if
-#' you want to share a set of environments with multiple users.
+#' By default, all state is collected into a directory at `~/.renv`. If desired,
+#' this path can be adjusted by setting the `RENV_PATHS_ROOT` environment
+#' variable. This can be useful if you want to share a set of virtual environments
+#' (along with the cache of installed packages) with multiple users.
 #'
 #' The various state sub-directories can also be individually adjusted, if so
-#' desired (e.g. you'd prefer to keep the larger 'library' directory on a
+#' desired (e.g. you'd prefer to keep the cache of package installations on a
 #' separate volume). The various environment variables that can be set are
 #' enumerated below:
 #'
@@ -24,9 +24,20 @@
 #' \code{RENV_PATHS_CACHE}       \tab The path containing cached package installations. \cr
 #' }
 #'
-#' If you want these settings to persist in your project, it is recommended
-#' that you add these to an appropriate startup- file -- e.g. a project-local
-#' `.Renviron`.
+#' If reproducibility of a project is desired on a particular machine, it is
+#' highly recommended that the `renv` cache of installed packages + binary
+#' packages is stored, so that packages can be easily restored in the future --
+#' installation of packages from source can often be arduous.
+#'
+#' If you want these settings to persist in your project, it is recommended that
+#' you add these to an appropriate \R startup file. For example, these could be
+#' set in:
+#'
+#' - A project-local `.Renviron`;
+#' - The user-level `.Renviron`;
+#' - A file at `etc/Renviron.site`.
+#'
+#' Please see ?[Startup] for more details.
 #'
 #' @rdname paths
 #' @name paths

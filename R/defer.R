@@ -1,5 +1,4 @@
 
-# like on.exit(), but for arbitrary parent frames
 defer <- function(expr, envir = parent.frame()) {
 
   call <- substitute(
@@ -7,8 +6,7 @@ defer <- function(expr, envir = parent.frame()) {
     list(expr = substitute(expr), envir = parent.frame())
   )
 
-  force(envir)
-  do.call(base::on.exit, list(substitute(call), add = TRUE), envir = envir)
+  do.call(base::on.exit, list(call, add = TRUE), envir = envir)
 
 }
 

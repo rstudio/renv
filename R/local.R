@@ -21,7 +21,7 @@
 #' @param local Boolean; should project-local virtual environments be used?
 #'
 #' @export
-local <- function(local) {
+use_local <- function(local) {
 
   if (missing(local))
     return(renv_state$local())
