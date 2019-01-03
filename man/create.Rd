@@ -5,8 +5,7 @@
 \title{Create an R Virtual Environment.}
 \usage{
 create(name, r_version = getRversion(), r_repos = getOption("repos"),
-  r_libs = character(), r_libs_overlay = FALSE, local = FALSE,
-  overwrite = FALSE)
+  r_libs = character(), r_libs_overlay = FALSE, overwrite = FALSE)
 }
 \arguments{
 \item{name}{\code{character[1]}: The name of the virtual environment.}
@@ -19,10 +18,7 @@ create(name, r_version = getRversion(), r_repos = getOption("repos"),
 
 \item{r_libs_overlay}{\code{logical[1]}:   Overlay \code{r_libs} on top of the default \R libraries?}
 
-\item{local}{Boolean; create a project-local virtual environment?}
-
-\item{overwrite}{Boolean; overwrite a pre-existing virtual environment with
-the new definition?}
+\item{overwrite}{Boolean; overwrite a pre-existing virtual environment?}
 }
 \description{
 Create a new virtual environment.

@@ -15,7 +15,7 @@
 #' @export
 snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
-  name <- name %||% renv_active_environment_get()
+  name <- name %||% renv_state$environment()
   if (!nzchar(name)) {
     msg <- paste(
       "This project has no active virtual environment.",
@@ -235,7 +235,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 # NOTE: would like to use ISO 8601 timestamps but ':' is not supported
 # in Windows filenames
 renv_snapshot_manifest_path <- function(project = NULL) {
-  project <- project %||% renv_active_project_get()
+  project <- project %||% renv_state$project()
   time <- Sys.time()
   ymd <- strftime(time, "%Y-%m-%d")
   timestamp <- strftime(time, "%Y-%m-%dT%H-%M-%S%Z")

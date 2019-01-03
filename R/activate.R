@@ -1,8 +1,11 @@
 
-renv_activate_read <- function(project = NULL, field = NULL) {
-  project <- project %||% renv_active_project_get()
+renv_activate_path <- function(project = NULL) {
+  project <- project %||% renv_state$project()
+  file.path(project, "renv/activate.dcf")
+}
 
-  path <- file.path(project, "renv/activate.dcf")
+renv_activate_read <- function(project = NULL, field = NULL) {
+  path <- renv_activate_path(project)
   ensure_existing_file(path)
 
   dcf <- lapply(renv_dcf_read(path), function(item) {

@@ -12,6 +12,8 @@ virtual environment (if any) will be used.}
 
 \item{project}{The project directory. If \code{NULL}, then the project associated
 with the active virtual environment (if any) will be used.}
+
+\item{local}{Boolean; activate a project-local environment?}
 }
 \description{
 Activate an \R virtual environment. This binds the requested project to the

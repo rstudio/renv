@@ -68,7 +68,7 @@ renv_dependencies_discover_description <- function(path) {
 
   # if this is the DESCRIPTION file for the active project, include
   # Suggests since they're often needed as well
-  if (identical(renv_active_project_get(), dirname(path)))
+  if (identical(renv_state$project(), dirname(path)))
     fields <- c(fields, "Suggests")
 
   data <- lapply(fields, function(field) {

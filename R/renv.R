@@ -9,10 +9,7 @@
 #' @param r_libs         `character[*]`: The \R libraries associated with this environment.
 #' @param r_libs_overlay `logical[1]`:   Overlay `r_libs` on top of the default \R libraries?
 #'
-#' @param overwrite Boolean; overwrite a pre-existing virtual environment with
-#'   the new definition?
-#'
-#' @param local Boolean; create a project-local virtual environment?
+#' @param overwrite Boolean; overwrite a pre-existing virtual environment?
 #'
 #' @family renv
 #'
@@ -22,14 +19,8 @@ create <- function(name,
                    r_repos        = getOption("repos"),
                    r_libs         = character(),
                    r_libs_overlay = FALSE,
-                   local          = FALSE,
                    overwrite      = FALSE)
 {
-  # be local in this context
-  local <- renv_active_local_get()
-  renv_active_local_set(local)
-  on.exit(renv_active_local_set(local), add = TRUE)
-
   # construct blueprint for environment
   blueprint <- list(
 
@@ -49,14 +40,14 @@ create <- function(name,
   path <- renv_paths_environment(name)
   if (!overwrite && file.exists(path)) {
     fmt <- "%s environment '%s' already exists."
-    stopf(fmt, if (renv_active_local_get()) "Local virtual" else "Virtual", name)
+    stopf(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
   }
 
   ensure_parent_directory(path)
   renv_manifest_write(blueprint, path)
 
   fmt <- "* Created %s environment '%s'."
-  local <- renv_active_local_get()
+  local <- renv_state$local()
   vmessagef(fmt, if (local) "local virtual" else "virtual", name)
 
   invisible(blueprint)
@@ -71,18 +62,20 @@ create <- function(name,
 #'
 #' @inheritParams renv-params
 #'
+#' @param local Boolean; activate a project-local environment?
+#'
 #' @family renv
 #'
 #' @export
 activate <- function(name = NULL, project = NULL) {
-  project <- project %||% renv_active_project_get()
+  project <- project %||% renv_state$project()
 
   # when not supplied a name, use the last active name (if any)
   if (is.null(name)) {
     activate <- renv_activate_read(project)
     name <- activate$Environment
     local <- activate$Local
-    renv_active_local_set(local)
+    renv_state$local(local)
   }
 
   # prepare renv infrastructure
@@ -99,7 +92,7 @@ activate <- function(name = NULL, project = NULL) {
   renv_manifest_write(manifest, file = file)
 
   fmt <- "* Activating %s environment '%s' ..."
-  vmessagef(fmt, if (renv_active_local_get()) "local virtual" else "virtual", name)
+  vmessagef(fmt, if (renv_state$local()) "local virtual" else "virtual", name)
 
   # set library paths now so that they're properly restored in new sessions
   manifest <- renv_manifest_load(project)
@@ -119,14 +112,14 @@ activate <- function(name = NULL, project = NULL) {
 #'
 #' @export
 deactivate <- function(project = NULL) {
-  project <- project %||% renv_active_project_get()
+  project <- project %||% renv_state$project()
 
   renv_remove_rprofile(project)
 
   activate <- renv_activate_read(project)
   name <- activate$Environment
   fmt <- "* Deactivating %s environment '%s' ..."
-  vmessagef(fmt, if (renv_active_local_get()) "local virtual" else "virtual", name)
+  vmessagef(fmt, if (renv_state$local()) "local virtual" else "virtual", name)
 
   Sys.setenv(
     R_LIBS_USER = Sys.getenv("RENV_DEFAULT_R_LIBS_USER"),
@@ -157,7 +150,7 @@ deactivate <- function(project = NULL) {
 #' @export
 load <- function(project = NULL) {
 
-  project <- project %||% renv_active_project_get()
+  project <- project %||% renv_state$project()
   renv <- renv_load_project(project)
 
   path <- ensure_existing_renv(renv)
@@ -165,9 +158,9 @@ load <- function(project = NULL) {
 
   local <- renv_activate_read(project, field = "Local")
 
-  renv_active_project_set(project)
-  renv_active_environment_set(renv)
-  renv_active_local_set(local)
+  renv_state$project(project)
+  renv_state$environment(renv)
+  renv_state$local(local)
 
   renv_load_r_version(spec)
   renv_load_repos(spec)
@@ -191,7 +184,7 @@ load <- function(project = NULL) {
 #'
 #' @export
 modify <- function(name = NULL) {
-  name <- name %||% renv_active_environment_get()
+  name <- name %||% renv_state$environment()
   path <- ensure_existing_renv(name)
   file.edit(path)
 }

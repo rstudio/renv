@@ -44,7 +44,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
   # one or more packages that are no longer available
   if (!length(actions)) {
     fmt <- "%s envirnoment '%s' is up to date."
-    messagef(fmt, if (renv_active_local_get()) "Local virtual" else "Virtual", name)
+    messagef(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
     return(invisible(actions))
   }
 
