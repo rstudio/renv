@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project-specific R Environments
-Version: 0.0.1-70
+Version: 0.0.1-97
 Author: Kevin Ushey
 Maintainer: Kevin Ushey <kevinushey@gmail.com>
 Description: Project-specific R environments.

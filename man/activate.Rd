@@ -4,7 +4,7 @@
 \alias{activate}
 \title{Activate an R Virtual Environment}
 \usage{
-activate(name = NULL, project = NULL)
+activate(name = NULL, project = NULL, local = FALSE)
 }
 \arguments{
 \item{name}{The name of a virtual environment. If \code{NULL}, then the active

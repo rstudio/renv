@@ -47,7 +47,7 @@ renv_write_activate <- function(project = NULL, renv) {
   target <- file.path(project, "renv/activate.R")
 
   template <- paste(readLines(source, encoding = "UTF-8"), collapse = "\n")
-  new <- sprintf(template, packageVersion("renv"))
+  new <- sprintf(template, renv_package_version("renv"))
 
   if (file.exists(target)) {
     old <- readLines(source, warn = FALSE)
@@ -69,7 +69,7 @@ renv_write_project_state <- function(project = NULL, renv) {
   local <- renv_state$local()
 
   keys <- c("Environment", "Version", "Local")
-  vals <- c(renv, format(packageVersion("renv")), local)
+  vals <- c(renv, renv_package_version("renv"), local)
   new <- paste(keys, vals, sep = ": ", collapse = "\n")
   if (!file.exists(activate)) {
     writeLines(new, con = activate)

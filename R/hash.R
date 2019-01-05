@@ -31,9 +31,15 @@ renv_hash_description <- function(path) {
   on.exit(unlink(tempfile), add = TRUE)
   contents <- paste(names(ordered), ordered, sep = ": ", collapse = "\n")
 
+  # create the file connection (use binary so that unix newlines are used
+  # across platforms, for more stable hashing)
   con <- file(tempfile, open = "wb")
   on.exit(close(con), add = TRUE)
+
+  # write to the file (be sure to flush since we don't close the connection
+  # until exit)
   writeLines(enc2utf8(contents), con = con, useBytes = TRUE)
+  flush(con)
 
   # ready for hasing
   tools::md5sum(tempfile)

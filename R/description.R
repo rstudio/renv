@@ -1,5 +1,9 @@
 
-renv_description_read <- function(path) {
+renv_description_read <- function(path, package = NULL) {
+
+  # if given a package name, construct path to that package
+  if (!is.null(package))
+    path <- find.package(package)
 
   # accept package directories
   if (file.exists(file.path(path, "DESCRIPTION")))
@@ -11,6 +15,12 @@ renv_description_read <- function(path) {
     is.na(info$isdir)  ~ stopf("file '%s' does not exist.", path),
     isTRUE(info$isdir) ~ stopf("file '%s' is a directory.", path)
   )
+
+  # check for a cache entry
+  key <- path
+  entry <- renv_filebacked_get(key)
+  if (!is.null(entry))
+    return(entry)
 
   # if given a tarball, attempt to extract inner DESCRIPTION file
   ext <- tools::file_ext(path)
@@ -33,7 +43,8 @@ renv_description_read <- function(path) {
     path <- file.path(exdir, file)
   }
 
-  # read it
-  renv_dcf_read(path)
+  dcf <- renv_dcf_read(path)
+  renv_filebacked_set(key, dcf)
+  dcf
 
 }

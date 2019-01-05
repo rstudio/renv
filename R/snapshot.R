@@ -28,8 +28,9 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   new <- renv_manifest_read(renv_paths_environment(name))
 
   # update state-related fields
-  activate <- renv_activate_read()
-  new$Environment <- activate
+  if (file.exists(renv_activate_path()))
+    new$Environment <- renv_activate_read()
+
   new$R$Packages <- uapply(new$R$Libraries, function(library) {
     renv_snapshot_r_library(library, renv_paths_library(library))
   })

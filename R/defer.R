@@ -2,7 +2,7 @@
 defer <- function(expr, envir = parent.frame()) {
 
   call <- substitute(
-    evalq(expr, envir = envir),
+    base::evalq(expr, envir = envir),
     list(expr = substitute(expr), envir = parent.frame())
   )
 

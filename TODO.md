@@ -3,8 +3,19 @@
       the project, and then initialize a new environment / library with those
       packages. Speed up the process by re-using installed packages in the user
       library if possible.
+      
+- [ ] Warn (error?) when attempting to snapshot a library with missing
+      dependencies -- e.g. the library contains 'markdown' but not its
+      dependency 'mime'.
+      
+- [ ] Think about what it really means to 'restore' a virtual environment. Is
+      it clear to the user what this action will do? The Packrat model here is
+      actually simpler since 'restore()' always means 'restore my local project
+      library', whereas in renv it means 'restore some virtual environment with
+      some name to some state'. It will take some extra communication to make
+      this clear.
   
-- [ ] Make it possible to 'fork' a global virtual environment and make it
+- [x] Make it possible to 'fork' a global virtual environment and make it
       project-local instead. (So that the user can mutate the library without
       affecting other projects using that global library)
   

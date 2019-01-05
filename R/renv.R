@@ -10,6 +10,7 @@
 #' @param r_libs_overlay `logical[1]`:   Overlay `r_libs` on top of the default \R libraries?
 #'
 #' @param overwrite Boolean; overwrite a pre-existing virtual environment?
+#' @param local Boolean; use a project-local virtual environment?
 #'
 #' @family renv
 #'
@@ -19,8 +20,11 @@ create <- function(name,
                    r_repos        = getOption("repos"),
                    r_libs         = character(),
                    r_libs_overlay = FALSE,
-                   overwrite      = FALSE)
+                   overwrite      = FALSE,
+                   local          = FALSE)
 {
+  renv_state$local(local, scoped = TRUE)
+
   # construct blueprint for environment
   blueprint <- list(
 
@@ -67,15 +71,19 @@ create <- function(name,
 #' @family renv
 #'
 #' @export
-activate <- function(name = NULL, project = NULL) {
+activate <- function(name = NULL,
+                     project = NULL,
+                     local = FALSE)
+{
   project <- project %||% renv_state$project()
 
-  # when not supplied a name, use the last active name (if any)
   if (is.null(name)) {
     activate <- renv_activate_read(project)
     name <- activate$Environment
     local <- activate$Local
     renv_state$local(local)
+  } else {
+    renv_state$local(local, scoped = TRUE)
   }
 
   # prepare renv infrastructure

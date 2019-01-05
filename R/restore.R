@@ -85,6 +85,11 @@ renv_restore_install <- function(package, manifest = NULL) {
   if (package == "R")
     return(TRUE)
 
+  # skip 'base' packages
+  base <- renv_installed_packages_base()
+  if (identical(base[package, "Priority"], "base"))
+      return(TRUE)
+
   # if we've already attempted installation of this package, skip
   state <- renv_restore_state()
   if (exists(package, envir = state$packages))
@@ -101,8 +106,12 @@ renv_restore_install <- function(package, manifest = NULL) {
   if (is.null(record)) {
 
     # if this package is already installed, nothing to do
-    installed <- as.data.frame(installed.packages(), stringsAsFactors = FALSE)
-    if (package %in% installed$Package)
+    # TODO: but normally, packages have a notion of which library they were
+    # installed in... how do we recover this information? can we make an
+    # educated guess somehow?
+    libpaths <- renv_paths_library(manifest$R$Libraries)
+    packages <- list.files(libpaths)
+    if (package %in% packages)
       return(TRUE)
 
     # otherwise, infer a record and install it
@@ -151,6 +160,9 @@ renv_restore_install_missing_record <- function(package) {
     break
 
   }
+
+  if (is.null(entry))
+    stopf("Failed to install package '%s' (missing record and failed to discover on CRAN)")
 
   # TODO: explicit API for constructing a package record
   # TODO: infer correct source for package
@@ -259,8 +271,8 @@ renv_restore_install_cran_impl <- function(record, type, name, repo = NULL) {
   if (empty(entry))
     return(FALSE)
 
-  # TODO: allow version mismatches? (e.g. restore latest instead of requested)
-  if (entry$Version != record$Version)
+  # TODO: allow version mismatches? (e.g. restore latest instead of requested)reco
+  if (!identical(entry$Version, record$Version))
     return(FALSE)
 
   url <- file.path(entry$Repository, name)
@@ -317,14 +329,24 @@ renv_restore_install_package <- function(record, url, path, type) {
 }
 
 renv_restore_install_package_cache <- function(record, cache) {
+
+  # ensure its dependencies are installed first
+  deps <- renv_dependencies_discover_description(cache)
+  for (package in deps$Package)
+    renv_restore_install(package)
+
+  # now, try to link from cache
   target <- renv_paths_library(record$Library, record$Package)
   status <- catch(renv_file_link(cache, target))
-  if (identical(status, TRUE)) {
-    fmt <- "Installing %s [%s] ..."
-    with(record, messagef(fmt, Package, Version))
-    messagef("\tOK (linked cache)")
-    return(TRUE)
-  }
+  if (!identical(status, TRUE))
+    return(status)
+
+  # report status to the user
+  fmt <- "Installing %s [%s] ..."
+  with(record, messagef(fmt, Package, Version))
+  messagef("\tOK (linked cache)")
+
+  return(TRUE)
 }
 
 renv_restore_install_package_local <- function(record, path, type) {
