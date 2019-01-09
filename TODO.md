@@ -36,3 +36,8 @@
       - Use development library on top of user library.
       - Isolate project (Packrat style).
       - Fork an existing environment to use locally.
+
+- [ ] Use custom `Makevars` file and set some variables that certain packages
+      need but don't properly declare? (E.g. older versions of the `maps` package
+      need `awk` installed)
+      

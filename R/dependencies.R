@@ -27,9 +27,10 @@ discover_dependencies <- function(path = getwd()) {
     name == "_bookdown.yml" ~ renv_dependencies_discover_bookdown(path),
 
     # generic extension-based lookup
-    ext == "r"   ~ renv_dependencies_discover_r(path),
-    ext == "rmd" ~ renv_dependencies_discover_multimode(path, "rmd"),
-    ext == "rnw" ~ renv_dependencies_discover_multimode(path, "rnw")
+    ext == "rproj" ~ renv_dependencies_discover_rproj(path),
+    ext == "r"     ~ renv_dependencies_discover_r(path),
+    ext == "rmd"   ~ renv_dependencies_discover_multimode(path, "rmd"),
+    ext == "rnw"   ~ renv_dependencies_discover_multimode(path, "rnw")
 
   )
 
@@ -261,6 +262,18 @@ renv_dependencies_discover_chunks_ranges <- function(file, contents, patterns) {
     warningf("[Line %i]: detected unclosed chunk in file '%s'", file, start)
 
   bind_list(output)
+
+}
+
+renv_dependencies_discover_rproj <- function(path) {
+
+  props <- renv_read_properties(path)
+
+  deps <- stack()
+  if (identical(props$PackageUseDevtools, "Yes"))
+    deps$push("devtools")
+
+  renv_dependencies_list(path, deps$data())
 
 }
 

@@ -12,7 +12,7 @@ virtual environment (if any) will be used.}
 }
 \description{
 Fork a (global) virtual environment into a project-local one. This is useful
-for isolating a project -- e.g. you need to preserve the current state of
-a global environment locally, and make your own (persistent) modifications
-to that environment without affecting the original environment.
+for isolating a project -- for example, if you need to preserve the current
+state of a global environment locally, and make your own (persistent)
+modifications to that environment without affecting the original environment.
 }
