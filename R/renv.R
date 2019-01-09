@@ -34,7 +34,7 @@ create <- function(name,
 
     R = list(
       Version      = r_version,
-      Libraries    = r_libs,
+      Library      = r_libs,
       Overlay      = r_libs_overlay,
       Repositories = r_repos
     )

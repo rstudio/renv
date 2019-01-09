@@ -55,7 +55,7 @@ renv_preflight_compiler <- function(problems) {
 renv_preflight_java <- function(manifest, problems) {
 
   # no need to check if we're not using rJava
-  packages <- manifest$R$Packages
+  packages <- manifest$R$Package
   if (is.null(packages[["rJava"]]))
     return(TRUE)
 

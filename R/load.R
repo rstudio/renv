@@ -9,11 +9,11 @@ renv_load_r_version <- function(manifest) {
 
 renv_load_libpaths <- function(manifest) {
 
-  libraries <- manifest$R$Libraries
+  libraries <- manifest$R$Library
 
   libs <- character()
   if (length(libraries)) {
-    libs <- rev(renv_paths_library(manifest$R$Libraries))
+    libs <- rev(renv_paths_library(manifest$R$Library))
     lapply(libs, ensure_directory)
   }
 

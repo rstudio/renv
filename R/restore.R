@@ -9,6 +9,9 @@
 #'   for this project is used.
 #'
 #' @inheritParams renv-params
+#'
+#' @family reproducibility
+#'
 #' @export
 restore <- function(manifest = NULL, confirm = interactive()) {
 
@@ -27,7 +30,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
 
     # remove state-related entries from the manifest
     blueprint <- manifest
-    blueprint$R$Packages <- NULL
+    blueprint$R$Package <- NULL
 
     # write the blueprint
     ensure_parent_directory(envir)
@@ -102,14 +105,14 @@ renv_restore_install <- function(package, manifest = NULL) {
   manifest <- manifest %||% state$manifest
 
   # extract the package record (attempt to construct one if missing)
-  record <- manifest$R$Packages[[package]]
+  record <- manifest$R$Package[[package]]
   if (is.null(record)) {
 
     # if this package is already installed, nothing to do
     # TODO: but normally, packages have a notion of which library they were
     # installed in... how do we recover this information? can we make an
     # educated guess somehow?
-    libpaths <- renv_paths_library(manifest$R$Libraries)
+    libpaths <- renv_paths_library(manifest$R$Library)
     packages <- list.files(libpaths)
     if (package %in% packages)
       return(TRUE)
@@ -381,7 +384,7 @@ renv_restore_install_package_local <- function(record, path, type) {
 }
 
 renv_restore_remove <- function(package, manifest) {
-  record <- manifest$R$Packages[[package]]
+  record <- manifest$R$Package[[package]]
   messagef("Removing %s [%s] ...", package, record$Version)
   remove.packages(package, renv_paths_library(record$Library) %||% NULL)
   message("\tOK (removed from library)")

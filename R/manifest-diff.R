@@ -35,7 +35,7 @@ renv_manifest_diff_impl <- function(lhs, rhs) {
 
 renv_manifest_diff_packages <- function(old, new) {
 
-  old <- old$R$Packages; new <- new$R$Packages
+  old <- old$R$Package; new <- new$R$Package
   packages <- named(union(names(old), names(new)))
   actions <- lapply(packages, function(package) {
 

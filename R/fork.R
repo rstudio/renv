@@ -34,7 +34,7 @@ fork <- function(name) {
 
   # copy over the renv R libraries (if any)
   blueprint <- renv_manifest_read(source)
-  for (library in blueprint$R$Libraries) {
+  for (library in blueprint$R$Library) {
     renv_state$local(FALSE)
     libsource <- renv_paths_library(library)
 

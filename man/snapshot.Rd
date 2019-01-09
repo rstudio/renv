@@ -17,7 +17,12 @@ string), a project-local manifest is written to file.}
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
 \description{
-Snapshot a virtual environment, creating a manifest file that can be used
-to later restore the virtual environment.
+Snapshot a virtual environment, creating a \strong{manifest} file that can be used
+to later restore the virtual environment. See the \link{manifest} documentation
+for more details on the structure of a manifest.
+}
+\seealso{
+Other reproducibility: \code{\link{manifest}},
+  \code{\link{restore}}
 }
 \concept{reproducibility}

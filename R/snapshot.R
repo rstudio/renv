@@ -1,8 +1,9 @@
 
 #' Snapshot a Virtual Environment
 #'
-#' Snapshot a virtual environment, creating a manifest file that can be used
-#' to later restore the virtual environment.
+#' Snapshot a virtual environment, creating a **manifest** file that can be used
+#' to later restore the virtual environment. See the [manifest] documentation
+#' for more details on the structure of a manifest.
 #'
 #' @inheritParams renv-params
 #'
@@ -31,7 +32,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   if (file.exists(renv_activate_path()))
     new$Environment <- renv_activate_read()
 
-  new$R$Packages <- uapply(new$R$Libraries, function(library) {
+  new$R$Package <- uapply(new$R$Library, function(library) {
     renv_snapshot_r_library(library, renv_paths_library(library))
   })
 

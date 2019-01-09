@@ -10,7 +10,7 @@ renv_manifest_serializer_list <- function() {
         decode = identity
       ),
 
-      Libraries = list(
+      Library = list(
         encode = toString,
         decode = fromString
       ),

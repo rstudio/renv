@@ -5,7 +5,7 @@ renv_pretty_print <- function(message, manifest, actions, action) {
   if (empty(matches))
     return()
 
-  entries <- manifest$R$Packages[names(matches)]
+  entries <- manifest$R$Package[names(matches)]
   formatted <- named(
     sprintf("  [%s]", map_chr(extract(entries, "Version"), format)),
     sprintf("  %s",   map_chr(extract(entries, "Package"), format))
@@ -23,8 +23,8 @@ renv_pretty_print_pair <- function(message, old, new, actions, action) {
   if (empty(matches))
     return()
 
-  before <- old$R$Packages[names(matches)]
-  after  <- new$R$Packages[names(matches)]
+  before <- old$R$Package[names(matches)]
+  after  <- new$R$Package[names(matches)]
 
   formatted <- sprintf(
     "[%s -> %s]",
