@@ -4,11 +4,13 @@ test_that("manifests can be read from file", {
 
   text <- '
 [Section1]
+# This is a comment.
 Key1=Value1
 Key2=Value2
 
 [Section2]
 Key1=Value1
+
 Key2=Value2
 '
 
