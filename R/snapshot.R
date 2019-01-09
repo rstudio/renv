@@ -20,7 +20,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   if (!nzchar(name)) {
     msg <- paste(
       "This project has no active virtual environment.",
-      "Have you called `renv::renv_active()` yet?"
+      "Have you called `renv::activate()` yet?"
     )
     stop(msg)
   }
@@ -192,13 +192,12 @@ renv_snapshot_description <- function(path, library) {
 
 renv_snapshot_description_source <- function(dcf) {
 
+  # TODO: record repository name explicitly?
   if (!is.null(dcf[["Repository"]]))
-    return("cran")
+    return("CRAN")
 
-  if (!is.null(dcf[["RemoteType"]]))
-    return(dcf[["RemoteType"]])
-
-  "unknown"
+  remote <- dcf[["RemoteType"]] %||% "unknown"
+  renv_alias(remote)
 
 }
 

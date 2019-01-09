@@ -132,7 +132,7 @@ renv_restore_install <- function(package, manifest = NULL) {
 
   # otherwise, try and restore from external source
   # TODO: what to assume if no source provided? just use CRAN?
-  source <- record[["Source"]] %||% "cran"
+  source <- tolower(record[["Source"]] %||% "cran")
   switch(source,
     cran         = renv_restore_install_cran(record),
     bioconductor = renv_restore_install_bioconductor(record),
