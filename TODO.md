@@ -4,7 +4,7 @@
       packages. Speed up the process by re-using installed packages in the user
       library if possible.
       
-- [ ] Warn (error?) when attempting to snapshot a library with missing
+- [x] Warn (error?) when attempting to snapshot a library with missing
       dependencies -- e.g. the library contains 'markdown' but not its
       dependency 'mime'.
       
@@ -40,4 +40,9 @@
 - [ ] Use custom `Makevars` file and set some variables that certain packages
       need but don't properly declare? (E.g. older versions of the `maps` package
       need `awk` installed)
+      
+- [ ] `restore()` will attempt to repair the dependency tree during restore;
+      e.g. dependent packages in the manifest will be downloaded and installed
+      as required. Should we prompt the user to `snapshot()` afterwards so that
+      the newly-reinstalled dependencies can be captured in the manifest?
       

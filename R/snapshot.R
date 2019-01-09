@@ -106,7 +106,7 @@ renv_snapshot_validate_dependencies <- function(manifest, confirm) {
     text <- lines(
       "The following package(s) depend on packages which are not currently installed:",
       "",
-      sprintf("\t%s: %s", names(bad), map_chr(bad, toString)),
+      paste(sprintf("\t%s: %s", names(bad), map_chr(bad, toString)), collapse = "\n"),
       "",
       "Consider re-installing these packages before snapshotting the manifest."
     )
