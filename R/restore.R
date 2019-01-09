@@ -112,7 +112,7 @@ renv_restore_install <- function(package, manifest = NULL) {
     # TODO: but normally, packages have a notion of which library they were
     # installed in... how do we recover this information? can we make an
     # educated guess somehow?
-    libpaths <- renv_paths_library(manifest$R$Library)
+    libpaths <- renv_paths_library(manifest$R$Library[[1]])
     packages <- list.files(libpaths)
     if (package %in% packages)
       return(TRUE)
@@ -132,7 +132,7 @@ renv_restore_install <- function(package, manifest = NULL) {
 
   # otherwise, try and restore from external source
   # TODO: what to assume if no source provided? just use CRAN?
-  source <- tolower(record[["Source"]] %||% "cran")
+  source <- tolower(record[["Source"]] %||% "CRAN")
   switch(source,
     cran         = renv_restore_install_cran(record),
     bioconductor = renv_restore_install_bioconductor(record),
@@ -173,7 +173,7 @@ renv_restore_install_missing_record <- function(package) {
     Package = package,
     Version = entry$Version,
     Library = NULL,
-    Source  = "cran"
+    Source  = "CRAN"
   )
 
 }
@@ -355,7 +355,8 @@ renv_restore_install_package_cache <- function(record, cache) {
 renv_restore_install_package_local <- function(record, path, type) {
 
   package <- record$Package
-  library <- renv_paths_library(record$Library) %||% .libPaths()[1]
+  library <- if (!is.null(record$Library))
+    renv_paths_library(record$Library)
 
   # get user-defined options to apply during installation
   options <- renv_restore_install_package_options(package)
@@ -370,7 +371,7 @@ renv_restore_install_package_local <- function(record, path, type) {
   install.packages(
 
     pkgs  = path,
-    lib   = library,
+    lib   = library %||% .libPaths()[1],
     repos = NULL,
     type  = type,
     quiet = TRUE,

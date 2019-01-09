@@ -57,6 +57,10 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
     return(invisible(new))
   }
 
+  # check for missing dependencies and warn if any are discovered
+  if (!renv_snapshot_validate_dependencies(new, confirm))
+    return(invisible(new))
+
   # report actions to the user
   actions <- renv_manifest_diff_packages(old, new)
   if (confirm && renv_verbose()) {
@@ -79,6 +83,43 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   vmessagef("* Manifest written to '%s'.", aliased_path(file))
 
   invisible(new)
+
+}
+
+renv_snapshot_validate_dependencies <- function(manifest, confirm) {
+
+  packages <- manifest$R$Package
+
+  installed <- as.data.frame(installed.packages(), stringsAsFactors = FALSE)
+  missing <- lapply(packages, function(package) {
+    path <- renv_paths_library(package$Library, package$Package)
+    deps <- renv_dependencies_discover_description(path)
+    setdiff(deps$Package, c("R", installed$Package))
+  })
+
+  bad <- Filter(length, missing)
+  if (!length(bad))
+    return(TRUE)
+
+  if (confirm) {
+
+    text <- lines(
+      "The following package(s) depend on packages which are not currently installed:",
+      "",
+      sprintf("\t%s: %s", names(bad), map_chr(bad, toString)),
+      "",
+      "Consider re-installing these packages before snapshotting the manifest."
+    )
+    message(text)
+
+    response <- readline("Do you want to proceed? [Y/n]: ")
+    if (!identical(tolower(response), "y")) {
+      messagef("Operation aborted.")
+      return(FALSE)
+    }
+  }
+
+  TRUE
 
 }
 

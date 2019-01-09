@@ -74,7 +74,7 @@ bind_list <- function(data, name = "Index") {
     return(as.data.frame(rhs, stringsAsFactors = FALSE))
 
   lhs <- list()
-  lhs[[names]] <- rep.int(names(data), times = map_dbl(filtered, NROW))
+  lhs[[name]] <- rep.int(names(data), times = map_dbl(filtered, NROW))
 
   cbind(
     as.data.frame(lhs, stringsAsFactors = FALSE),
