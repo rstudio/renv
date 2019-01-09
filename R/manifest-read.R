@@ -1,10 +1,14 @@
 
 renv_manifest_read <- function(file) {
 
-  contents <- trimws(paste(readLines(file, encoding = "UTF-8"), collapse = "\n"))
+  contents <- readLines(file, encoding = "UTF-8")
+  contents <- grep("^\\s*[#]", contents, value = TRUE, invert = TRUE)
+  contents <- contents[nzchar(contents)]
+  contents <- paste(contents, collapse = "\n")
+
   splat <- strsplit(contents, "\\n+(?=\\[)", perl = TRUE)[[1]]
 
-  idx <- regexpr("\n", splat, fixed = TRUE)
+  idx <- regexpr("(?:\\n|$)", splat)
   section <- substring(splat, 1, idx - 1)
   body <- substring(splat, idx + 1)
   names(body) <- substring(section, 2, nchar(section) - 1)
