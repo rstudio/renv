@@ -1,6 +1,23 @@
 
 renv_cache_package_path <- function(record) {
-  renv_paths_cache(record$Package, record$Version, record$Hash, record$Package)
+
+  # if we have a hash, use it directly
+  if (!is.null(record$Hash)) {
+    path <- with(record, renv_paths_cache(Package, Version, Hash, Package))
+    return(path)
+  }
+
+  # if we don't have a hash, check to see if we have a cache entry
+  # for this version anyway, and use it if so
+  hashes <- list.files(renv_paths_cache(record$Package, record$Version))
+  if (length(hashes)) {
+    path <- with(record, renv_paths_cache(Package, Version, hashes[[1]], Package))
+    return(path)
+  }
+
+  # failed; return "" as proxy for missing file
+  ""
+
 }
 
 # 'prime' the cache with the set of packages found in the user library

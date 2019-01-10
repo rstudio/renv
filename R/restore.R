@@ -338,16 +338,33 @@ renv_restore_install_package_cache <- function(record, cache) {
   for (package in deps$Package)
     renv_restore_install(package)
 
+  # construct path for package installation
+  if (is.null(record$Library))
+  {
+    target <- file.path(.libPaths()[1], record$Package)
+    linker <- renv_file_copy
+    success <- "\tOK (copied cache)"
+  }
+  else
+  {
+    target <- renv_paths_library(record$Library, record$Package)
+    linker <- renv_file_link
+    success <- "\tOK (linked cache)"
+  }
+
+  # back up the previous installation if needed
+  callback <- renv_file_scoped_backup(target)
+  on.exit(callback(), add = TRUE)
+
   # now, try to link from cache
-  target <- renv_paths_library(record$Library, record$Package)
-  status <- catch(renv_file_link(cache, target))
+  status <- catch(linker(cache, target))
   if (!identical(status, TRUE))
     return(status)
 
   # report status to the user
   fmt <- "Installing %s [%s] ..."
   with(record, messagef(fmt, Package, Version))
-  messagef("\tOK (linked cache)")
+  message(success)
 
   return(TRUE)
 }
