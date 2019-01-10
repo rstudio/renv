@@ -3,7 +3,7 @@
 
   Sys.setenv(
 
-    RENV_DEFAULT_LIBPATHS       = paste(.libPaths(), collapse = .Platform$path.sep),
+    RENV_DEFAULT_LIBPATHS       = paste(renv_libpaths_all(), collapse = .Platform$path.sep),
 
     RENV_DEFAULT_R_PROFILE      = Sys.getenv("R_PROFILE"),
     RENV_DEFAULT_R_PROFILE_USER = Sys.getenv("R_PROFILE_USER"),

@@ -17,7 +17,7 @@ renv_load_libpaths <- function(manifest) {
     lapply(libs, ensure_directory)
   }
 
-  libpaths <- c(libs, if (manifest$R$Overlay) .libPaths())
+  libpaths <- c(libs, if (manifest$R$Overlay) renv_libpaths_all())
 
   # TODO: if libpaths is empty, should we always use a temporary library?
   # or just use none? or some 'default' library path?
@@ -45,7 +45,7 @@ renv_load_finish <- function() {
 
   renv <- renv_state$environment()
   local <- renv_state$local()
-  paths <- paste("-", shQuote(.libPaths()), collapse = "\n")
+  paths <- paste("-", shQuote(renv_libpaths_all()), collapse = "\n")
 
   fmt <- "%s environment '%s' loaded. Using library paths:"
   messagef(fmt, if (local) "Local virtual" else "Virtual", basename(renv))

@@ -95,11 +95,11 @@ renv_restore_install <- function(package, manifest = NULL) {
 
   # if we've already attempted installation of this package, skip
   state <- renv_restore_state()
-  if (exists(package, envir = state$packages))
+  if (exists(package, envir = state$visited))
     return(TRUE)
 
   # mark package as installing
-  state$packages[[package]] <- TRUE
+  state$visited[[package]] <- TRUE
 
   # extract manifest if none provided
   manifest <- manifest %||% state$manifest
@@ -112,7 +112,7 @@ renv_restore_install <- function(package, manifest = NULL) {
     # TODO: but normally, packages have a notion of which library they were
     # installed in... how do we recover this information? can we make an
     # educated guess somehow?
-    libpaths <- renv_paths_library(manifest$R$Library[[1]])
+    libpaths <- renv_libpaths_all()
     packages <- list.files(libpaths)
     if (package %in% packages)
       return(TRUE)
@@ -333,38 +333,52 @@ renv_restore_install_package <- function(record, url, path, type) {
 
 renv_restore_install_package_cache <- function(record, cache) {
 
-  # ensure its dependencies are installed first
+  # ensure dependencies are installed first
   deps <- renv_dependencies_discover_description(cache)
   for (package in deps$Package)
     renv_restore_install(package)
 
-  # construct path for package installation
-  if (is.null(record$Library))
-  {
-    target <- file.path(.libPaths()[1], record$Package)
-    linker <- renv_file_copy
-    success <- "\tOK (copied cache)"
-  }
+  # now do the restore
+  renv_restore_install_package_cache_impl(record, cache)
+
+}
+
+renv_restore_install_package_cache_impl <- function(record, cache) {
+
+  # construct target install path
+  library <- case(
+    is.null(record$Library)       ~ renv_libpaths_default(),
+    path_absolute(record$Library) ~ record$Library,
+    TRUE                          ~ renv_paths_library(record$Library)
+  )
+  target <- file.path(library, record$Package)
+
+  # determine if we should copy or link from the cache
+  # (prefer copying if we're writing to a non-renv path)
+  link <- if (path_within(target, renv_paths_library()))
+    renv_file_link
   else
-  {
-    target <- renv_paths_library(record$Library, record$Package)
-    linker <- renv_file_link
-    success <- "\tOK (linked cache)"
-  }
+    renv_file_copy
 
   # back up the previous installation if needed
   callback <- renv_file_scoped_backup(target)
   on.exit(callback(), add = TRUE)
 
-  # now, try to link from cache
-  status <- catch(linker(cache, target))
+  # now, try to hydrate from cache
+  status <- catch(link(cache, target))
   if (!identical(status, TRUE))
     return(status)
 
-  # report status to the user
+  # report successful link to user
   fmt <- "Installing %s [%s] ..."
   with(record, messagef(fmt, Package, Version))
-  message(success)
+
+  type <- case(
+    identical(linker, renv_file_copy) ~ "copied",
+    identical(linker, renv_file_link) ~ "linked"
+  )
+
+  messagef("\tOK (%s cache)", type)
 
   return(TRUE)
 }
@@ -388,7 +402,7 @@ renv_restore_install_package_local <- function(record, path, type) {
   install.packages(
 
     pkgs  = path,
-    lib   = library %||% .libPaths()[1],
+    lib   = library %||% renv_libpaths_default(),
     repos = NULL,
     type  = type,
     quiet = TRUE,
@@ -415,7 +429,7 @@ renv_restore_state <- function() {
 
 renv_restore_begin <- function(manifest) {
   envir <- new.env(parent = emptyenv())
-  envir$packages <- new.env(parent = emptyenv())
+  envir$visited <- new.env(parent = emptyenv())
   envir$manifest <- manifest
   renv_global_set("restore.state", envir)
 }

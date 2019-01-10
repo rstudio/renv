@@ -32,8 +32,9 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   if (file.exists(renv_activate_path()))
     new$Environment <- renv_activate_read()
 
-  new$R$Package <- uapply(new$R$Library, function(library) {
-    renv_snapshot_r_library(library, renv_paths_library(library))
+  new$R$Package <- uapply(new$R$Library, function(name) {
+    library <- renv_paths_library(name)
+    renv_snapshot_r_library(library, name)
   })
 
   # return it directly when 'file' is NULL
@@ -123,8 +124,9 @@ renv_snapshot_validate_dependencies <- function(manifest, confirm) {
 
 }
 
-renv_snapshot_r_library <- function(name, library, synchronize = TRUE) {
+renv_snapshot_r_library <- function(library, name = NULL, synchronize = TRUE) {
 
+  name <- name %||% library
   pkgs <- list.files(library, full.names = TRUE)
   pkgs <- renv_snapshot_r_library_diagnose(library, pkgs)
 

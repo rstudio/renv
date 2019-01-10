@@ -95,9 +95,7 @@ init <- function(project = NULL, ...) {
   })
 
   # update the library paths so that we're using the newly-established library
-  # (ensure the upcoming snapshot captures its state)
-  renv <- find.package("renv", quiet = TRUE)
-  .libPaths(c(library, dirname(renv)))
+  renv_libpaths_set(library)
 
   # now we can activate the local environment
   activate(name, project)

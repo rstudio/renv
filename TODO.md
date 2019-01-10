@@ -54,3 +54,7 @@
       is handling the library name / path, since we almost always assume the
       library path must resolve to an 'renv' library path. Inspect usages
       of '$Library'.
+
+- [ ] `hydrate()` as a general function to discover dependencies and then
+      install any missing packages into the active library. (Companion function
+      to `init()`)

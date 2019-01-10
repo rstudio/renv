@@ -135,8 +135,13 @@ deactivate <- function(project = NULL) {
     R_LIBS      = Sys.getenv("RENV_DEFAULT_R_LIBS")
   )
 
-  libpaths <- Sys.getenv("RENV_DEFAULT_LIBPATHS")
-  .libPaths(strsplit(libpaths, .Platform$path.sep, fixed = TRUE)[[1]])
+  libpaths <- strsplit(
+    Sys.getenv("RENV_DEFAULT_LIBPATHS"),
+    .Platform$path.sep,
+    fixed = TRUE
+  )[[1]]
+
+  renv_libpaths_set(libpaths)
 
   env <- Sys.getenv()
   stale <- grep("^RENV_", names(env), value = TRUE)
