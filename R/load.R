@@ -31,6 +31,13 @@ renv_load_repos <- function(manifest) {
   options(repos = manifest$R$Repositories)
 }
 
+renv_load_envvars <- function(manifest) {
+  Sys.setenv(
+    R_PROFILE_USER = file.path(renv_state$project(), ".Rprofile"),
+    R_ENVIRON_USER = file.path(renv_state$project(), ".Renviron")
+  )
+}
+
 renv_load_finish <- function() {
 
   if (!renv_verbose())

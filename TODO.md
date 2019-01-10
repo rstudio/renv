@@ -46,3 +46,6 @@
       as required. Should we prompt the user to `snapshot()` afterwards so that
       the newly-reinstalled dependencies can be captured in the manifest?
       
+- [x] Take over the `R_PROFILE`, `R_PROFILE_USER`, `R_ENVIRON` and
+      `R_ENVIRON_USER` environment variables? Needed for cases like
+      https://github.com/rstudio/packrat/issues/526.

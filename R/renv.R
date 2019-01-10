@@ -171,8 +171,9 @@ load <- function(project = NULL) {
   renv_state$local(local)
 
   renv_load_r_version(spec)
-  renv_load_repos(spec)
   renv_load_libpaths(spec)
+  renv_load_repos(spec)
+  renv_load_envvars(spec)
 
   renv_load_finish()
 

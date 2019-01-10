@@ -5,6 +5,12 @@
 
     RENV_DEFAULT_LIBPATHS       = paste(.libPaths(), collapse = .Platform$path.sep),
 
+    RENV_DEFAULT_R_PROFILE      = Sys.getenv("R_PROFILE"),
+    RENV_DEFAULT_R_PROFILE_USER = Sys.getenv("R_PROFILE_USER"),
+
+    RENV_DEFAULT_R_ENVIRON      = Sys.getenv("R_ENVIRON"),
+    RENV_DEFAULT_R_ENVIRON_USER = Sys.getenv("R_ENVIRON_USER"),
+
     RENV_DEFAULT_R_LIBS_USER    = Sys.getenv("R_LIBS_USER"),
     RENV_DEFAULT_R_LIBS_SITE    = Sys.getenv("R_LIBS_SITE"),
     RENV_DEFAULT_R_LIBS         = Sys.getenv("R_LIBS"),
