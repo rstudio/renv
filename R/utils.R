@@ -140,24 +140,6 @@ catchall <- function(expr) {
     tryCatch(expr, condition = identity)
 }
 
-is_rcmd_check <- function() {
-  renv_global("is.rcmd.check", {
-
-    call <- sys.call(1)
-    expected <- substitute(
-      f(a, b)(),
-      list(
-        f = as.name(":::"),
-        a = as.name("tools"),
-        b = as.name(".install_packages")
-      )
-    )
-
-    identical(call, expected)
-
-  })
-}
-
 ask <- function(question) {
   response <- readline(sprintf("%s [Y/n]: "))
   tolower(response) %in% c("y", "yes")

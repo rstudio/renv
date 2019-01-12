@@ -43,41 +43,60 @@
 #' @name paths
 NULL
 
-renv_paths_bootstrap <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_BOOTSTRAP", renv_paths_root_local("bootstrap"))
-  file.path(root, renv_platform_prefix(), ...) %||% ""
+renv_paths_common <- function(name, root, prefix, ...) {
+
+  # allow explicit absolute paths from the user
+  suffix <- file.path(...)
+  if (length(suffix) && path_absolute(suffix))
+    return(suffix)
+
+  # prepend prefix (if any)
+  if (prefix)
+    suffix <- renv_platform_prefix(suffix)
+
+  # get root path
+  envvar <- sprintf("RENV_PATHS_%s", toupper(name))
+  root <- Sys.getenv(envvar, unset = root(name))
+
+  if (empty(suffix))
+    root
+  else
+    file.path(root, suffix) %||% ""
+
 }
 
 renv_paths_environment <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_ENVIRONMENT", renv_paths_root_local("environment"))
-  file.path(root, ...) %||% ""
+  renv_paths_common("environment", renv_paths_root_local, FALSE, ...)
 }
 
 renv_paths_library <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_LIBRARY", renv_paths_root_local("library"))
-  file.path(root, renv_platform_prefix(), ...) %||% ""
+  renv_paths_common("library", renv_paths_root_local, TRUE, ...)
+}
+
+renv_paths_library <- function(...) {
+  renv_paths_common("bootstrap", renv_paths_root_local, TRUE, ...)
 }
 
 renv_paths_source <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_SOURCE", renv_paths_root("source"))
-  file.path(root, ...) %||% ""
+  renv_paths_common("source", renv_paths_root, FALSE, ...)
 }
 
 renv_paths_binary <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_BINARY", renv_paths_root("binary"))
-  file.path(root, ...) %||% ""
+  renv_paths_common("binary", renv_paths_root, FALSE, ...)
 }
 
 renv_paths_cache <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_CACHE", renv_paths_root("cache"))
-  file.path(root, ...) %||% ""
+  renv_paths_common("cache", renv_paths_root, FALSE, ...)
 }
-
 
 
 renv_paths_root <- function(...) {
   root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
   file.path(root, ...) %||% ""
+}
+
+renv_paths_root_default <- function() {
+  "~/.renv"
 }
 
 renv_paths_root_local <- function(...) {
@@ -86,14 +105,6 @@ renv_paths_root_local <- function(...) {
   else
     renv_paths_root(...)
 }
-
-renv_paths_root_default <- function() {
-  if (is_rcmd_check())
-    renv_global("r.cmd.check.root", tempfile("renv-root-"))
-  else
-    path.expand("~/.renv")
-}
-
 
 renv_platform_prefix <- function(...) {
   file.path(R.version$platform, getRversion()[1, 1:2])

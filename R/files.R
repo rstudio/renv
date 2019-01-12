@@ -117,14 +117,17 @@ renv_file_link <- function(source, target) {
 
 renv_file_same <- function(source, target) {
 
-  source <- normalizePath(source, mustWork = FALSE)
-  target <- normalizePath(target, mustWork = FALSE)
-
   # if the paths are the same, we can return early
   if (identical(source, target))
     return(TRUE)
 
-  # if one of the files don't exist, bail
+  # check to see if they're equal after normalization
+  source <- normalizePath(source, mustWork = FALSE)
+  target <- normalizePath(target, mustWork = FALSE)
+  if (identical(source, target))
+    return(TRUE)
+
+  # if either file doesn't exist, bail
   if (!file.exists(source) || !file.exists(target))
     return(FALSE)
 

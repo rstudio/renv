@@ -1,6 +1,6 @@
 
 path_absolute <- function(path) {
-  is.character(path) && grepl("^(?:~|/|\\\\|[a-zA-Z]:[/\\])", path)
+  grepl("^(?:[~/\\]|[a-zA-Z]:)", path)
 }
 
 path_within <- function(path, parent) {
