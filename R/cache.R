@@ -1,4 +1,5 @@
 
+# tools for interacting with the renv global package cache
 renv_cache_package_path <- function(record) {
 
   # if we have a hash, use it directly
@@ -83,7 +84,6 @@ renv_cache_prime <- function(library) {
 }
 
 # TODO: allow users to enable / disable caching of packages
-# find our newly-installed package
 renv_cache_synchronize <- function(record) {
 
   # get path to library (bail if none recorded for this package)

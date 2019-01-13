@@ -1,6 +1,5 @@
 
-# A container for global variables that correspond to some project-specific
-# state.
+# global variables corresponding to some project-specific state
 `_renv_state` <- new.env(parent = emptyenv())
 
 renv_state_impl <- function(name, default) {

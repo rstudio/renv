@@ -1,4 +1,5 @@
 
+# on.exit() for arbitrary parent frames
 defer <- function(expr, envir = parent.frame()) {
 
   call <- substitute(

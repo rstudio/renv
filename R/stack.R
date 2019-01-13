@@ -1,3 +1,4 @@
+
 stack <- function() {
 
   .data <- list()

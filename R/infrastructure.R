@@ -1,4 +1,5 @@
 
+# tools for writing / removing renv-related infrastructure
 renv_write_infrastructure <- function(project = NULL, renv) {
   project <- project %||% renv_state$project()
 

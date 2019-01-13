@@ -1,7 +1,6 @@
 
-# NOTE: All methods here should either return TRUE if they were able to
-# operate successfully, or throw an error if not.
-
+# NOTE: all methods here should either return TRUE if they were able to
+# operate successfully, or throw an error if not
 renv_file_copy <- function(source, target) {
 
   if (!file.exists(source))

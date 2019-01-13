@@ -11,10 +11,10 @@ renv_description_read <- function(path, package = NULL) {
 
   # ensure that we have a real file
   info <- file.info(path, extra_cols = FALSE)
-  case(
-    is.na(info$isdir)  ~ stopf("file '%s' does not exist.", path),
-    isTRUE(info$isdir) ~ stopf("file '%s' is a directory.", path)
-  )
+  if (is.na(info$isdir))
+    stopf("file '%s' does not exist.", path)
+  else if (info$isdir)
+    stopf("file '%s' is a directory.", path)
 
   # check for a cache entry
   key <- path

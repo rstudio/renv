@@ -1,7 +1,8 @@
 
 #' renv
 #'
-#' Virtual environments for \R, inspired by the Python [virtualenv](https://virtualenv.pypa.io/en/latest/) module.
+#' Virtual environments for \R, inspired by the Python
+#' [virtualenv](https://virtualenv.pypa.io/en/latest/) module.
 #'
 #' Use `renv` to provide project-specific configuration to your \R projects.
 #' Using `renv`, you can associate projects with:

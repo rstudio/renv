@@ -1,4 +1,5 @@
 
+# tools for loading an renv (typically done at R session init)
 renv_load_r_version <- function(manifest) {
   version <- manifest$R$Version
   if (version_compare(version, getRversion()) != 0) {

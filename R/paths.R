@@ -90,13 +90,10 @@ renv_paths_cache <- function(...) {
 }
 
 
-renv_paths_root <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
-  file.path(root, ...) %||% ""
-}
 
-renv_paths_root_default <- function() {
-  "~/.renv"
+renv_paths_root <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_ROOT", "~/.renv")
+  file.path(root, ...) %||% ""
 }
 
 renv_paths_root_local <- function(...) {

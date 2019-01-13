@@ -30,7 +30,7 @@
       cache is enabled, they will remain in the cache)
   
 - [ ] Allow users to override the repository used during restore of a
-      particular package?
+      particular package? (Setting `options(repos)` would suffice here I believe)
 
 - [ ] Document common use cases and how to accomplish:
       - Use development library on top of user library.
@@ -58,3 +58,6 @@
 - [ ] `hydrate()` as a general function to discover dependencies and then
       install any missing packages into the active library. (Companion function
       to `init()`)
+
+- [ ] Should we provide for project-specific options? What about download method
+      management?

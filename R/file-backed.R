@@ -1,6 +1,6 @@
 
 # tools for caching values read from a file, and invalidating those
-# values if the file mtime changes
+# values if the file mtime changes.
 `_renv_filebacked_cache` <- new.env(parent = emptyenv())
 
 renv_filebacked_set <- function(path, value) {

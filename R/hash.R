@@ -1,3 +1,4 @@
+
 renv_hash_description <- function(path) {
 
   # accept package directory as well as DESCRIPTION file itself

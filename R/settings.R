@@ -1,4 +1,5 @@
 
+# TODO: project-local settings / options
 renv_setting_definition_logical <- function(default) {
   list(
     decode   = as.logical,

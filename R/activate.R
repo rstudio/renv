@@ -1,4 +1,6 @@
 
+# helpers for interacting with 'activate.dcf', which contains the base
+# set of information to load the active virtual environment for a project.
 renv_activate_path <- function(project = NULL) {
   project <- project %||% renv_state$project()
   file.path(project, "renv/activate.dcf")

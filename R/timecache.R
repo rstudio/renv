@@ -1,4 +1,6 @@
 
+# tools for caching a value that should expire after
+# some period of time
 `_renv_timecache` <- new.env(parent = emptyenv())
 
 renv_timecache <- function(key, value) {
