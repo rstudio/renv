@@ -15,10 +15,6 @@ renv_tests_scope <- function(packages) {
 
 }
 
-renv_tests_init_verbose <- function() {
-  Sys.setenv(RENV_VERBOSE = "TRUE")
-}
-
 renv_tests_init_envvars <- function() {
   root <- tempfile("renv-root-")
   dir.create(root, showWarnings = TRUE, mode = "755")
@@ -64,16 +60,18 @@ renv_tests_init_repos <- function() {
 }
 
 renv_tests_init_packages <- function() {
-  requireNamespace("renv", quietly = TRUE)
-  location <- find.package("renv")
-  desc <- renv_description_read(location)
+
+  # require the namespaces of all used packages (we need to load 'cli' eagerly
+  # as otherwise it won't be available later when we mutate the library paths)
+  renv <- find.package("renv")
+  desc <- renv_description_read(renv)
   suggests <- strsplit(desc$Suggests, "\\s*,\\s*")[[1]]
-  for (package in suggests)
+  for (package in c(suggests, "cli"))
     requireNamespace(package, quietly = TRUE)
+
 }
 
 renv_tests_init <- function() {
-  renv_tests_init_verbose()
   renv_tests_init_envvars()
   renv_tests_init_repos()
   renv_tests_init_packages()
