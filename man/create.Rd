@@ -6,7 +6,7 @@
 \usage{
 create(name, r_version = getRversion(), r_repos = getOption("repos"),
   r_libs = character(), r_libs_overlay = FALSE, overwrite = FALSE,
-  local = FALSE)
+  local = NULL)
 }
 \arguments{
 \item{name}{\code{character[1]}: The name of the virtual environment.}

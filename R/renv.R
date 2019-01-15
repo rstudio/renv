@@ -21,8 +21,9 @@ create <- function(name,
                    r_libs         = character(),
                    r_libs_overlay = FALSE,
                    overwrite      = FALSE,
-                   local          = FALSE)
+                   local          = NULL)
 {
+  local <- local %||% renv_state$local()
   renv_state$local(local, scoped = TRUE)
 
   # construct blueprint for environment
@@ -73,17 +74,26 @@ create <- function(name,
 #' @export
 activate <- function(name = NULL,
                      project = NULL,
-                     local = FALSE)
+                     local = NULL)
 {
+  local <- local %||% renv_state$local()
   project <- project %||% renv_state$project()
 
   if (is.null(name)) {
+
+    # if we weren't provided with an environment name, take this as a request
+    # to re-activate a previously-activated virtual environment (if any)
     activate <- renv_activate_read(project)
     name <- activate$Environment
     local <- activate$Local
     renv_state$local(local)
+
   } else {
+
+    # we were provided with an environment name; respect user's request for
+    # local vs. non-local environment
     renv_state$local(local, scoped = TRUE)
+
   }
 
   # prepare renv infrastructure
