@@ -70,12 +70,9 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   }
 
   # request user confirmation
-  if (confirm) {
-    response <- readline("Do you want to proceed? [Y/n]: ")
-    if (response != "y") {
-      message("Operation aborted.")
-      return(invisible(new))
-    }
+  if (confirm && !proceed()) {
+    message("Operation aborted.")
+    return(invisible(new))
   }
 
   # write it out
@@ -113,11 +110,11 @@ renv_snapshot_validate_dependencies <- function(manifest, confirm) {
     )
     message(text)
 
-    response <- readline("Do you want to proceed? [Y/n]: ")
-    if (!identical(tolower(response), "y")) {
-      messagef("Operation aborted.")
+    if (!proceed()) {
+      message("Operation aborted.")
       return(FALSE)
     }
+
   }
 
   TRUE

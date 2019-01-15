@@ -6,7 +6,8 @@
 \alias{renv-package}
 \title{renv}
 \description{
-Virtual environments for \R, inspired by the Python \href{https://virtualenv.pypa.io/en/latest/}{virtualenv} module.
+Virtual environments for \R, inspired by the Python
+\href{https://virtualenv.pypa.io/en/latest/}{virtualenv} module.
 }
 \details{
 Use \code{renv} to provide project-specific configuration to your \R projects.

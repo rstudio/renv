@@ -39,9 +39,8 @@ renv_cache_prime <- function(library) {
 
   n <- length(packages)
   messagef("* There are %i packages to synchronize with the cache.", n)
-  response <- readline("Do you want to proceed? [Y/n]: ")
-  if (!identical(tolower(response), "y")) {
-    messagef("Operation aborted.")
+  if (!proceed()) {
+    message("Operation aborted.")
     return(0)
   }
 

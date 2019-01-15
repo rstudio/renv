@@ -141,8 +141,12 @@ catchall <- function(expr) {
 }
 
 ask <- function(question) {
-  response <- readline(sprintf("%s [Y/n]: "))
+  response <- readline(sprintf("%s [Y/n]: ", question))
   tolower(response) %in% c("y", "yes")
+}
+
+proceed <- function() {
+  ask("Do you want to proceed?")
 }
 
 R <- function() {

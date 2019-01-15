@@ -54,15 +54,31 @@ restore <- function(manifest = NULL, confirm = interactive()) {
   if (confirm || renv_verbose())
     renv_restore_report_actions(actions, old, new)
 
-  if (confirm) {
-    response <- readline("Do you want to proceed? [Y/n]: ")
-    if (response != "y") {
-      message("Operation aborted.")
-      return(invisible(actions))
-    }
+  if (confirm && !proceed()) {
+    message("Operation aborted.")
+    return(invisible(actions))
   }
 
+  # perform the restore
   status <- renv_restore_run_actions(actions, old, new)
+
+  # check to see if the manifest is now up-to-date; if it's not,
+  # then the restore might've repaired the dependency tree and
+  # this should now be snapshotted
+  after <- snapshot(name, file = NULL)
+  if (!identical(after, new)) {
+
+    msg <- lines(
+      "",
+      "The dependency tree was repaired during package restoration.",
+      "You will be prompted to snapshot the newly-installed packages."
+    )
+
+    writeLines(msg)
+    snapshot(name)
+
+  }
+
   invisible(status)
 }
 
@@ -289,8 +305,11 @@ renv_restore_install_cran_impl <- function(record, type, name, repo = NULL) {
 }
 
 
-renv_restore_install_cran_entry <- function(record, type, repo) {
+renv_restore_install_cran_entry <- function(record, type, repo = NULL) {
 
+  # if a repository was explicitly supplied, use it (this is the case
+  # when e.g. installing a package from the archive; repo is used so
+  # that we form a link to the appropriate spot in the CRAN archive)
   if (!is.null(repo))
     return(c(record, Repository = repo))
 
@@ -374,8 +393,8 @@ renv_restore_install_package_cache_impl <- function(record, cache) {
   with(record, messagef(fmt, Package, Version))
 
   type <- case(
-    identical(linker, renv_file_copy) ~ "copied",
-    identical(linker, renv_file_link) ~ "linked"
+    identical(link, renv_file_copy) ~ "copied",
+    identical(link, renv_file_link) ~ "linked"
   )
 
   messagef("\tOK (%s cache)", type)

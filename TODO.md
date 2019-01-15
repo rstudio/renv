@@ -13,7 +13,10 @@
       actually simpler since 'restore()' always means 'restore my local project
       library', whereas in renv it means 'restore some virtual environment with
       some name to some state'. It will take some extra communication to make
-      this clear.
+      this clear. In particular, it is perhaps not obvious that one virtual
+      environment can have multiple libraries, and different packages can
+      and will be installed into the library they were originally in at
+      snapshot time.
   
 - [x] Make it possible to 'fork' a global virtual environment and make it
       project-local instead. (So that the user can mutate the library without
@@ -26,8 +29,11 @@
       `rehash()` would look at packages in the cache and update their cache
       location if the caching scheme changed.
   
-- [ ] `clean()` function to remove ununsed packages from the library. (If the
-      cache is enabled, they will remain in the cache)
+- [x] `clean()` function to remove ununsed packages from the library. (If the
+      cache is enabled, they will remain in the cache). [WONTFIX: because
+      R libraries are no longer private to a particular project, except in the
+      case of local environments, one cannot safely remove packages as this
+      action could affect other projects bound to that environment]
   
 - [ ] Allow users to override the repository used during restore of a
       particular package? (Setting `options(repos)` would suffice here I believe)

@@ -73,7 +73,7 @@ renv_paths_library <- function(...) {
   renv_paths_common("library", renv_paths_root_local, TRUE, ...)
 }
 
-renv_paths_library <- function(...) {
+renv_paths_bootstrap <- function(...) {
   renv_paths_common("bootstrap", renv_paths_root_local, TRUE, ...)
 }
 
@@ -104,6 +104,6 @@ renv_paths_root_local <- function(...) {
 }
 
 renv_platform_prefix <- function(...) {
-  file.path(R.version$platform, getRversion()[1, 1:2])
+  file.path(R.version$platform, getRversion()[1, 1:2], ...)
 }
 
