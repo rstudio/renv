@@ -11,13 +11,13 @@ renv_timecache <- function(key, value) {
 }
 
 renv_timecache_get <- function(key) {
-  id <- paste(deparse(key), collapse = " ")
+  id <- renv_deparse(key)
   if (exists(id, envir = `_renv_timecache`))
     get(id, envir = `_renv_timecache`, inherits = FALSE)
 }
 
 renv_timecache_set <- function(key, value) {
-  id <- paste(deparse(key), collapse = " ")
+  id <- renv_deparse(key)
   entry <- renv_timecache_entry(value)
   assign(id, entry, envir = `_renv_timecache`, inherits = FALSE)
   entry

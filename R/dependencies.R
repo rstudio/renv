@@ -279,7 +279,7 @@ renv_dependencies_discover_rproj <- function(path) {
 
 renv_dependencies_discover_r <- function(path) {
 
-  parsed <- catch(parse(path, encoding = "UTF-8"))
+  parsed <- catch(renv_parse(path))
   if (inherits(parsed, "error")) {
     # workaround for an R bug where parse-related state could be
     # leaked if an error occurred
@@ -392,6 +392,9 @@ renv_dependencies_discover_r_colon <- function(node, envir) {
 }
 
 renv_dependencies_list <- function(source, packages) {
+
+  if (empty(packages))
+    return(NULL)
 
   data.frame(
     Source  = as.character(source),

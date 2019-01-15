@@ -58,7 +58,7 @@ renv_manifest_serializer_encode_default <- function(value) {
 }
 
 renv_manifest_serializer_decode_default <- function(value) {
-  parsed <- catch(parse(text = value)[[1]])
+  parsed <- catch(renv_parse(text = value)[[1]])
   if (inherits(parsed, "error"))
     return(value)
 

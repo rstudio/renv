@@ -254,7 +254,7 @@ renv_restore_install_cran <- function(record) {
 
   # only attempt to install binaries when explicitly requested by user
   # TODO: what about binaries on Linux?
-  if (!identical(getOption("pkgType", "source")))
+  if (!identical(getOption("pkgType"), "source"))
     methods <- c(renv_restore_install_cran_binary, methods)
 
   for (method in methods) {
