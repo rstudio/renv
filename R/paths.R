@@ -52,7 +52,7 @@ renv_paths_common <- function(name, root, prefix, ...) {
 
   # prepend prefix (if any)
   if (prefix)
-    suffix <- renv_platform_prefix(suffix)
+    suffix <- renv_platform_prefix(...)
 
   # get root path
   envvar <- sprintf("RENV_PATHS_%s", toupper(name))

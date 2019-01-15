@@ -19,7 +19,7 @@ renv_available_packages_impl <- function(type) {
   options(repos = repos)
 
   # request packages
-  ap <- available.packages(type = type)
+  ap <- tryCatch(available.packages(type = type), error = function(e) NULL)
   as.data.frame(ap, stringsAsFactors = FALSE)
 
 }

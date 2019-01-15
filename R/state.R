@@ -16,15 +16,12 @@ renv_state_impl <- function(name, default) {
 }
 
 renv_state_impl_get <- function(name, default) {
-  if (exists(name, envir = `_renv_state`, inherits = FALSE))
-    get(name, envir = `_renv_state`, inherits = FALSE)
-  else
-    invoke(default)
+  `_renv_state`[[name]] %||% invoke(default)
 }
 
 renv_state_impl_set <- function(name, value, default) {
   state <- renv_state_impl_get(name, default)
-  assign(name, value, envir = `_renv_state`, inherits = FALSE)
+  `_renv_state`[[name]] <- value
   state
 }
 
@@ -32,6 +29,10 @@ renv_state_impl_scoped <- function(name, value, default, envir) {
   state <- renv_state_impl_set(name, value, default)
   defer(renv_state_impl_set(name, state, default), envir = envir)
   state
+}
+
+renv_state_clear <- function() {
+  rm(list = ls(`_renv_state`), envir = `_renv_state`)
 }
 
 renv_state <- list(

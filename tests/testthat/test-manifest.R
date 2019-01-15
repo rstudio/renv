@@ -1,3 +1,4 @@
+
 context("Manifest")
 
 test_that("manifests can be read from file", {

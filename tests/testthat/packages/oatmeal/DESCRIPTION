@@ -1,0 +1,11 @@
+Package: oatmeal
+Type: Package
+Version: 1.0.0
+Repository: CRAN
+License: GPL
+Description: Packrat test package
+Title: Packrat test package
+Author: Anonymous Person <Anonymous@rstudio.org>
+Maintainer: Anonymous Person <Anonymous@rstudio.org>
+
+

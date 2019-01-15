@@ -246,11 +246,16 @@ renv_restore_install_bitbucket <- function(record) {
 
 renv_restore_install_cran <- function(record) {
 
+  # always attempt to install from source + archive
   methods <- c(
-    renv_restore_install_cran_binary,
     renv_restore_install_cran_source,
     renv_restore_install_cran_archive
   )
+
+  # only attempt to install binaries when explicitly requested by user
+  # TODO: what about binaries on Linux?
+  if (!identical(getOption("pkgType", "source")))
+    methods <- c(renv_restore_install_cran_binary, methods)
 
   for (method in methods) {
     status <- method(record)
