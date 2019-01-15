@@ -87,7 +87,7 @@ init <- function(project = NULL, ...) {
   if (length(na)) local({
     vmessagef("* Resolving missing dependencies   ... ")
     # TODO: if we have a manifest, should we use it?
-    renv_restore_begin(NULL)
+    renv_restore_begin()
     on.exit(renv_restore_end(), add = TRUE)
     for (package in names(na))
       renv_restore_install(package)

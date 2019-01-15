@@ -84,7 +84,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
 
 renv_restore_run_actions <- function(actions, old, new) {
 
-  renv_restore_begin(new)
+  renv_restore_begin(new, names(actions))
   on.exit(renv_restore_end(), add = TRUE)
 
   enumerate(actions, function(package, action) {
@@ -122,6 +122,14 @@ renv_restore_install <- function(package, manifest = NULL) {
 
   # extract the package record (attempt to construct one if missing)
   record <- manifest$R$Package[[package]]
+
+  # if we have a package record (ie: this package is already installed), but
+  # the user did not explicitly request installation of this package, then we
+  # can just skip
+  if (!is.null(record) && !package %in% state$packages)
+    return(TRUE)
+
+  # if we don't have a package record, try to infer one for installation
   if (is.null(record)) {
 
     # if this package is already installed, nothing to do
@@ -180,8 +188,10 @@ renv_restore_install_missing_record <- function(package) {
 
   }
 
-  if (is.null(entry))
-    stopf("Failed to install package '%s' (missing record and failed to discover on CRAN)")
+  if (is.null(entry)) {
+    fmt <- "Failed to install package '%s' (missing record and failed to discover on CRAN)"
+    stopf(fmt, package)
+  }
 
   # TODO: explicit API for constructing a package record
   # TODO: infer correct source for package
@@ -446,10 +456,11 @@ renv_restore_state <- function() {
   renv_global_get("restore.state")
 }
 
-renv_restore_begin <- function(manifest) {
+renv_restore_begin <- function(manifest = NULL, packages = NULL) {
   envir <- new.env(parent = emptyenv())
-  envir$visited <- new.env(parent = emptyenv())
   envir$manifest <- manifest
+  envir$packages <- packages
+  envir$visited <- new.env(parent = emptyenv())
   renv_global_set("restore.state", envir)
 }
 
