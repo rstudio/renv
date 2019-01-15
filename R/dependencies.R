@@ -57,14 +57,14 @@ renv_dependencies_discover_dir <- function(path) {
 
 }
 
-renv_dependencies_discover_description <- function(path) {
+renv_dependencies_discover_description <- function(path, fields = NULL) {
 
   dcf <- catch(renv_description_read(path))
   if (inherits(dcf, "error"))
     return(list())
 
   # TODO: make this user-configurable?
-  fields <- c("Depends", "Imports", "LinkingTo")
+  fields <- fields %||% c("Depends", "Imports", "LinkingTo")
   pattern <- "([a-zA-Z0-9._]+)(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"
 
   # if this is the DESCRIPTION file for the active project, include
@@ -441,19 +441,20 @@ renv_dependencies_discover_parse_params <- function(header, type) {
 
 }
 
-renv_dependencies <- function(packages) {
+renv_dependencies <- function(packages, fields = NULL) {
 
   # TODO: build a dependency tree rather than just a flat set of packages?
   # TODO: dependency resolution? (can we depend on a different package for this)
+  # TODO: recursive and non-recursive dependencies?
   visited <- new.env(parent = emptyenv())
   for (package in packages)
-    renv_dependencies_enumerate(package, visited)
+    renv_dependencies_enumerate(package, visited, fields)
 
   as.list(visited)
 
 }
 
-renv_dependencies_enumerate <- function(package, visited) {
+renv_dependencies_enumerate <- function(package, visited, fields = NULL) {
 
   # skip the 'R' package
   if (package == "R")
@@ -475,7 +476,7 @@ renv_dependencies_enumerate <- function(package, visited) {
   assign(package, location, envir = visited, inherits = FALSE)
 
   # find its dependencies from the DESCRIPTION file
-  deps <- renv_dependencies_discover_description(location)
+  deps <- renv_dependencies_discover_description(location, fields)
   subpackages <- deps$Package
   for (subpackage in subpackages)
     renv_dependencies_enumerate(subpackage, visited)

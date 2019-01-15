@@ -61,13 +61,10 @@ renv_tests_init_repos <- function() {
 
 renv_tests_init_packages <- function() {
 
-  # require the namespaces of all used packages (we need to load 'cli' eagerly
-  # as otherwise it won't be available later when we mutate the library paths)
-  renv <- find.package("renv")
-  desc <- renv_description_read(renv)
-  suggests <- strsplit(desc$Suggests, "\\s*,\\s*")[[1]]
-  for (package in c(suggests, "cli"))
-    requireNamespace(package, quietly = TRUE)
+  fields <- c("Depends", "Imports", "Suggests")
+  dependencies <- renv_dependencies("renv", fields = fields)
+  for (dependency in names(dependencies))
+    requireNamespace(dependency, quietly = TRUE)
 
 }
 
