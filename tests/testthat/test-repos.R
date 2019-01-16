@@ -2,7 +2,7 @@
 context("Repositories")
 
 test_that("we can query our local repository during tests", {
-  ap <- available_packages(type = "source")
+  ap <- renv_available_packages(type = "source")[[1]]
   expect_setequal(ap$Package, c("bread", "breakfast", "egg", "oatmeal", "toast"))
 })
 

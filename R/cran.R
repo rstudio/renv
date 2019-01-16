@@ -1,6 +1,8 @@
 
-# tools for querying information about packages available on CRAN
-available_packages <- function(type) {
+# tools for querying information about packages available on CRAN.
+# note that this does _not_ merge package entries from multiple repositories;
+# rather, a list of databases is returned (one for each repository)
+renv_available_packages <- function(type) {
   renv_timecache(
     list(repos = getOption("repos"), type = type),
     renv_available_packages_impl(type)
@@ -9,17 +11,65 @@ available_packages <- function(type) {
 
 renv_available_packages_impl <- function(type) {
 
-  # notify user since this can take some time
-  fmt <- "* Querying repositories for available %s packages -- please wait a moment ..."
-  messagef(fmt, type)
-
   # force a CRAN mirror when needed
   repos <- getOption("repos") %||% character()
   repos[repos == "@CRAN@"] <- "https://cran.rstudio.com"
   options(repos = repos)
 
-  # request packages
-  ap <- tryCatch(available.packages(type = type), error = function(e) NULL)
-  as.data.frame(ap, stringsAsFactors = FALSE)
+  # request available packages
+  urls <- contrib.url(repos, type)
+  lapply(urls, renv_available_packages_query, type = type)
+
+}
+
+renv_available_packages_query <- function(url, type) {
+
+  # check for cached value
+  name <- sprintf("%s.rds", URLencode(url, reserved = TRUE))
+  cache <- renv_paths_repos(name)
+  if (!file.exists(cache))
+    return(renv_available_packages_query_impl(url, cache, type))
+
+  # make sure the cache hasn't expired
+  info <- file.info(cache, extra_cols = FALSE)
+  diff <- difftime(Sys.time(), info$mtime, units = "secs")
+  if (diff > 3600)
+    return(renv_available_packages_query_impl(url, cache, type))
+
+  # we have a live cache; use it
+  db <- catch(readRDS(cache))
+  if (inherits(db, "error"))
+    return(renv_available_packages_query_impl(url, cache, type))
+
+  db
+
+}
+
+renv_available_packages_query_impl <- function(url, cache, type) {
+
+  # notify user since this can take some time
+  fmt <- "* Querying repositories for available %s packages -- please wait a moment ..."
+  messagef(fmt, type)
+
+  # make the query
+  db <- as.data.frame(available.packages(url), stringsAsFactors = FALSE)
+
+  # save to our cache
+  ensure_parent_directory(cache)
+  saveRDS(db, file = cache)
+
+  # return the db
+  db
+
+}
+
+renv_available_packages_entry <- function(package, type) {
+
+  dbs <- renv_available_packages(type = type)
+  for (db in dbs)
+    if (package %in% db$Package)
+      return(db[package, ])
+
+  NULL
 
 }

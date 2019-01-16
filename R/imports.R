@@ -1,5 +1,5 @@
 
-#' @importFrom utils available.packages download.file file.edit
+#' @importFrom utils available.packages contrib.url download.file file.edit
 #'   install.packages installed.packages packageDescription remove.packages tail
-#'   tar untar
+#'   tar untar URLencode
 NULL

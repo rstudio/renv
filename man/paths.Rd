@@ -26,6 +26,7 @@ enumerated below:
 \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr
 \code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr
 \code{RENV_PATHS_CACHE}       \tab The path containing cached package installations. \cr
+\code{RENV_PATHS_REPOS}       \tab The path containing cached available package information. \cr
 }
 
 If reproducibility of a project is desired on a particular machine, it is

@@ -178,14 +178,9 @@ renv_restore_install_missing_record <- function(package) {
 
   entry <- NULL
   for (type in c("binary", "source")) {
-
-    ap <- available_packages(type = type)
-    if (!package %in% ap$Package)
-      next
-
-    entry <- ap[package, ]
-    break
-
+    entry <- renv_available_packages_entry(package, type)
+    if (!is.null(entry))
+      break
   }
 
   if (is.null(entry)) {
@@ -328,11 +323,8 @@ renv_restore_install_cran_entry <- function(record, type, repo = NULL) {
   if (!is.null(repo))
     return(c(record, Repository = repo))
 
-  db <- available_packages(type = type)
-  if (!record$Package %in% rownames(db))
-    return(list())
-
-  db[record$Package, ]
+  # otherwise, get the associated entry from CRAN's available packages
+  renv_available_packages_entry(record$Package, type) %||% list()
 
 }
 
