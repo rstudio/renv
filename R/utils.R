@@ -106,10 +106,6 @@ case <- function(...) {
 
 }
 
-fromString <- function(x) {
-  strsplit(x, "\\s*,\\s*")[[1]]
-}
-
 version_compare <- function(lhs, rhs) {
 
   lhs <- unclass(numeric_version(lhs))[[1]]

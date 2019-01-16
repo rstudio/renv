@@ -13,7 +13,7 @@ renv_manifest_write_list <- function(entry, section) {
 
 renv_manifest_write_atoms <- function(key, value, section) {
 
-  sublists <- map_lgl(value, is.list)
+  sublists <- map_lgl(value, function(x) identical(class(x), "list"))
   if (all(sublists))
     return()
 
@@ -40,7 +40,7 @@ renv_manifest_write_atom <- function(key, value) {
 }
 
 renv_manifest_write_lists <- function(key, value, section) {
-  sublists <- map_lgl(value, is.list)
+  sublists <- map_lgl(value, function(x) identical(class(x), "list"))
   renv_manifest_write_list(value[sublists], section = c(section, key))
 }
 

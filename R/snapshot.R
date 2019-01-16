@@ -48,6 +48,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   # attempt to read the old manifest (if it exists)
   old <- list()
   if (nzchar(renv_active_manifest())) {
+    old <- renv_manifest_read(renv_active_manifest())
     diff <- renv_manifest_diff(old, new)
     if (empty(diff)) {
       vmessagef("* The manifest is already up-to-date.")
