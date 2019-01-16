@@ -13,6 +13,9 @@ Key2=Value2
 Key1=Value1
 
 Key2=Value2
+
+[Nested::Section]
+Key=Value
 '
 
   file <- tempfile()
@@ -28,6 +31,12 @@ Key2=Value2
     Section2 = list(
       Key1 = "Value1",
       Key2 = "Value2"
+    ),
+
+    Nested = list(
+      Section = list(
+        Key = "Value"
+      )
     )
 
   )
