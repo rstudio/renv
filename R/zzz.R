@@ -1,6 +1,8 @@
 
 .onLoad <- function(libname, pkgname) {
 
+  # save the default values seen for environment variables that we mutate
+  # when activating / deactivating a virtual environment
   Sys.setenv(
 
     RENV_DEFAULT_LIBPATHS       = paste(renv_libpaths_all(), collapse = .Platform$path.sep),
@@ -19,5 +21,12 @@
     RENV_DEFAULT_SITE_LIBRARY   = paste(.Library.site, collapse = .Platform$path.sep)
 
   )
+
+  # copy our cached repositories to the R tempdir so that they might be
+  # re-used without forcing extra queries to CRAN
+  cache <- renv_paths_repos()
+  sources <- list.files(cache, full.names = TRUE)
+  targets <- file.path(tempdir(), sprintf("repos_%s", basename(sources)))
+  file.copy(sources, targets)
 
 }
