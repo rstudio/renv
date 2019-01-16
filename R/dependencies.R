@@ -22,8 +22,8 @@ discover_dependencies <- function(path = getwd()) {
   case(
 
     # special cases for special filenames
-    name == "DESCRIPTION"  ~ renv_dependencies_discover_description(path),
-    name == "_pkgdown.yml" ~ renv_dependencies_discover_pkgdown(path),
+    name == "DESCRIPTION"   ~ renv_dependencies_discover_description(path),
+    name == "_pkgdown.yml"  ~ renv_dependencies_discover_pkgdown(path),
     name == "_bookdown.yml" ~ renv_dependencies_discover_bookdown(path),
 
     # generic extension-based lookup
@@ -40,10 +40,18 @@ renv_dependencies_discover_dir <- function(path) {
 
   # TODO: make this user-configurable? (project options?)
   # TODO: maximum recursion depth?
-  exclude <- c("node_modules", "packrat", "revdep", "renv/library", "renv/boostrap")
+  exclude <- c("node_modules", "packrat", "revdep",
+               "renv/library", "renv/bootstrap")
+
+  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+
+  # ignore directories containing a '.renvignore'
+  # TODO: allow this to be a set of patterns for inclusion / exclusion?
+  ignore <- file.path(path, ".renvignore")
+  if (file.exists(ignore))
+    return(NULL)
 
   # list files in the folder
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   children <- list.files(path, full.names = TRUE)
 
   # filter children based on pattern

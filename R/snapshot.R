@@ -46,16 +46,13 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
     file <- renv_snapshot_manifest_path()
 
   # attempt to read the old manifest (if it exists)
-  old <- if (nzchar(renv_active_manifest()))
-    renv_manifest_read(renv_active_manifest())
-  else
-    list()
-
-  # diff manifest packages to get set of actions
-  diff <- renv_manifest_diff(old, new)
-  if (empty(diff)) {
-    vmessagef("* The manifest is already up-to-date.")
-    return(invisible(new))
+  old <- list()
+  if (nzchar(renv_active_manifest())) {
+    diff <- renv_manifest_diff(old, new)
+    if (empty(diff)) {
+      vmessagef("* The manifest is already up-to-date.")
+      return(invisible(new))
+    }
   }
 
   # check for missing dependencies and warn if any are discovered

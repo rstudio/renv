@@ -67,3 +67,9 @@
 
 - [ ] Should we provide for project-specific options? What about download method
       management?
+
+- [ ] Allow users to ignore certain packages in a project (e.g. those that are
+      not on CRAN)
+      
+- [ ] Consider `.renvignore` or similar for controlling what files / directories
+      `renv` will crawl when discovering dependencies.

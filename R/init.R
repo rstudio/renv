@@ -28,10 +28,15 @@
 #'
 #' @param project The project directory.
 #' @param ... Optional arguments passed to [create()].
+#' @param force Boolean; force initialization? By default, `renv` will refuse
+#'   to initialize the home directory, or parents of the home directory.
 #'
 #' @export
-init <- function(project = NULL, ...) {
+init <- function(project = NULL, ..., force = FALSE) {
   project <- project %||% getwd()
+
+  # ensure this is a valid project directory
+  renv_init_validate_project(project, force)
 
   # switch to local mode
   renv_state$local(TRUE)
@@ -82,22 +87,66 @@ init <- function(project = NULL, ...) {
     renv_file_link(cache, target)
   })
 
-  # attempt to install missing packages (if any)
-  # TODO: request user confirmation? (since we're about to mutate the user lib)
-  if (length(na)) local({
-    vmessagef("* Resolving missing dependencies   ... ")
-    # TODO: if we have a manifest, should we use it?
-    renv_restore_begin()
-    on.exit(renv_restore_end(), add = TRUE)
-    for (package in names(na))
-      renv_restore_install(package)
-    vmessagef("* Missing dependencies successfully resolved.")
-  })
-
   # update the library paths so that we're using the newly-established library
   renv_libpaths_set(library)
 
+  # attempt to install missing packages (if any)
+  if (length(na)) local({
+    vmessagef("* Resolving missing dependencies  ... ")
+
+    # TODO: if we have a manifest, should we use it?
+    renv_restore_begin()
+    on.exit(renv_restore_end(), add = TRUE)
+
+    packages <- names(na)
+    status <- lapply(packages, function(package) {
+      catch(renv_restore_install(package))
+    })
+
+    renv_init_report_restore_failure(packages, status)
+  })
+
   # now we can activate the local environment
   activate(name, project)
+
+}
+
+renv_init_validate_project <- function(project, force) {
+
+  # allow all project directories when force = TRUE
+  if (force) return(TRUE)
+
+  # disallow attempts to initialize renv in the home directory
+  home <- path.expand("~/")
+  msg <- if (renv_file_same(project, home))
+    "refusing to initialize project in home directory"
+  else if (path_within(home, project))
+    sprintf("refusing to initialize project in directory '%s'", project)
+
+  if (!is.null(msg)) {
+    msg <- paste(msg, "(use 'force = TRUE' to override)")
+    stopf(msg)
+  }
+
+}
+
+renv_init_report_restore_failure <- function(packages, status) {
+
+  bad <- map_lgl(status, inherits, "error")
+  if (!any(bad)) {
+    vmessagef("* Missing dependencies successfully resolved.")
+    return(status)
+  }
+
+  msg <- lines(
+    "The following inferred package(s) could not be resolved:",
+    "",
+    paste("-", paste(shQuote(packages[bad]), collapse = ", ")),
+    "",
+    "Please install these packages manually, or ignore them in your project."
+  )
+  vmessagef(msg)
+
+  status
 
 }

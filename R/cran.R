@@ -10,8 +10,8 @@ available_packages <- function(type) {
 renv_available_packages_impl <- function(type) {
 
   # notify user since this can take some time
-  msg <- "* Querying repositories for available packages -- please wait a moment ..."
-  message(msg)
+  fmt <- "* Querying repositories for available %s packages -- please wait a moment ..."
+  messagef(fmt, type)
 
   # force a CRAN mirror when needed
   repos <- getOption("repos") %||% character()

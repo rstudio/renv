@@ -4,12 +4,15 @@
 \alias{init}
 \title{Initialize a Project-local Virtual Environment}
 \usage{
-init(project = NULL, ...)
+init(project = NULL, ..., force = FALSE)
 }
 \arguments{
 \item{project}{The project directory.}
 
 \item{...}{Optional arguments passed to \code{\link[=create]{create()}}.}
+
+\item{force}{Boolean; force initialization? By default, \code{renv} will refuse
+to initialize the home directory, or parents of the home directory.}
 }
 \description{
 Discover packages used within the current project, and then initialize a
