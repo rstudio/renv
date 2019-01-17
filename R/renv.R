@@ -8,6 +8,8 @@
 #' @param r_repos        `character[*]`: The \R repositories to use with this project.
 #' @param r_libs         `character[*]`: The \R libraries associated with this environment.
 #' @param r_libs_overlay `logical[1]`:   Overlay `r_libs` on top of the default \R libraries?
+#' @param python         `character[1]`: The (optional) path to a Python binary, or virtual environment.
+#' @param ... Optional arguments; currently unused.
 #'
 #' @param overwrite Boolean; overwrite a pre-existing virtual environment?
 #' @param local Boolean; use a project-local virtual environment?
@@ -20,6 +22,8 @@ create <- function(name,
                    r_repos        = getOption("repos"),
                    r_libs         = character(),
                    r_libs_overlay = FALSE,
+                   python         = NULL,
+                   ...,
                    overwrite      = FALSE,
                    local          = NULL)
 {
@@ -27,20 +31,20 @@ create <- function(name,
   renv_state$local(local, scoped = TRUE)
 
   # construct blueprint for environment
-  blueprint <- list(
+  blueprint <- list()
 
-    Environment = list(
-      Environment = name
-    ),
-
-    R = list(
-      Version      = r_version,
-      Library      = r_libs,
-      Overlay      = r_libs_overlay,
-      Repositories = r_repos
-    )
-
+  blueprint$Environment <- list(
+    Environment = name
   )
+
+  blueprint$R <- list(
+    Version      = r_version,
+    Library      = r_libs,
+    Overlay      = r_libs_overlay,
+    Repositories = r_repos
+  )
+
+  blueprint$Python <- renv_python_blueprint_resolve(python)
 
   path <- renv_paths_environment(name)
   if (!overwrite && file.exists(path)) {
@@ -189,6 +193,7 @@ load <- function(project = NULL) {
   renv_load_libpaths(spec)
   renv_load_repos(spec)
   renv_load_envvars(spec)
+  renv_load_python(spec)
 
   renv_load_finish()
 

@@ -1,4 +1,5 @@
 
+# TODO: allow for e.g. `~/.renvignore`?
 renv_renvignore_get <- function(project = NULL) {
 
   # read defaults
