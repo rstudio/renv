@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project-specific R Environments
-Version: 0.0.1-365
+Version: 0.0.1-376
 Author: Kevin Ushey
 Maintainer: Kevin Ushey <kevinushey@gmail.com>
 Description: Project-specific R environments.
@@ -11,4 +11,4 @@ LazyData: true
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Imports: utils
-Suggests: knitr, remotes, rmarkdown, testthat
+Suggests: knitr, remotes, reticulate, rmarkdown, testthat
