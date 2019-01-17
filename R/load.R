@@ -34,7 +34,7 @@ renv_load_repos <- function(manifest) {
 
 renv_load_envvars <- function(manifest) {
   Sys.setenv(
-    R_PROFILE_USER = file.path(renv_state$project(), ".Rprofile"),
+    R_PROFILE_USER = "",
     R_ENVIRON_USER = file.path(renv_state$project(), ".Renviron")
   )
 }
