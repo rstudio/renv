@@ -88,6 +88,7 @@ init <- function(project = NULL, ..., force = FALSE) {
   })
 
   # update the library paths so that we're using the newly-established library
+  ensure_directory(library)
   renv_libpaths_set(library)
 
   # attempt to install missing packages (if any)

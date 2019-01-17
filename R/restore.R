@@ -178,7 +178,7 @@ renv_restore_install_missing_record <- function(package) {
 
   entry <- NULL
   for (type in c("binary", "source")) {
-    entry <- catchall(renv_available_packages_entry(package, type))
+    entry <- catch(renv_available_packages_entry(package, type))
     if (is.data.frame(entry))
       break
   }

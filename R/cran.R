@@ -51,8 +51,14 @@ renv_available_packages_query_impl <- function(url, cache, type) {
   fmt <- "* Querying repositories for available %s packages -- please wait a moment ..."
   messagef(fmt, type)
 
-  # make the query
-  db <- as.data.frame(available.packages(url), stringsAsFactors = FALSE)
+  # make the query (suppress warnings in case this is a local repository
+  # whose PACKAGES files do not exist; note that an error is thrown in that
+  # case anyhow)
+  db <- withCallingHandlers(
+    as.data.frame(available.packages(url), stringsAsFactors = FALSE),
+    warning = function(w) invokeRestart("muffleWarning"),
+    message = function(m) invokeRestart("muffleMessage")
+  )
 
   # save to our cache
   ensure_parent_directory(cache)
