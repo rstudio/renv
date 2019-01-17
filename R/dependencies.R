@@ -267,8 +267,10 @@ renv_dependencies_discover_rproj <- function(path) {
   props <- renv_read_properties(path)
 
   deps <- stack()
-  if (identical(props$PackageUseDevtools, "Yes"))
+  if (identical(props$PackageUseDevtools, "Yes")) {
     deps$push("devtools")
+    deps$push("roxygen2")
+  }
 
   renv_dependencies_list(path, deps$data())
 

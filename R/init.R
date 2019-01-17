@@ -49,66 +49,83 @@ init <- function(project = NULL, ..., force = FALSE) {
   create(name = name, r_libs = name, ..., overwrite = TRUE)
 
   # find packages used in this project, and the dependencies of those packages
+  deps <- renv_init_discover_dependencies(project)
+
+  # remove base + missing packages
+  base <- installed.packages(lib.loc = .Library, priority = "base")
+  na <- deps[is.na(deps)]
+  packages <- deps[setdiff(names(deps), c(names(na), rownames(base)))]
+
+  # copy packages from user library to cache
+  library <- renv_paths_library(name)
+  ensure_directory(library)
+  renv_init_cache_packages(packages, library, name)
+
+  # update the library paths so that we're using the newly-established library
+  renv_libpaths_set(library)
+
+  # attempt to install missing packages (if any)
+  renv_init_resolve_missing(na)
+
+  # now we can activate the local environment
+  activate(name, project)
+
+}
+
+renv_init_discover_dependencies <- function(project) {
   vmessagef("* Discovering package dependencies ... ", appendLF = FALSE)
   deps <- discover_dependencies(project)
   all <- renv_dependencies(unique(deps$Package))
   vmessagef("Done!")
+  all
+}
 
-  # remove base + missing packages
-  base <- installed.packages(lib.loc = .Library, priority = "base")
-  na <- all[is.na(all)]
-  packages <- all[setdiff(names(all), c(names(na), rownames(base)))]
+renv_init_cache_package <- function(package, location, name) {
 
-  # copy these packages into the cache (if they aren't already cached packages)
+  record <- renv_snapshot_description(location, name)
+  cache <- renv_cache_package_path(record)
+  if (file.exists(cache))
+    return(cache)
+
+  if (!file.exists(cache)) {
+    ensure_parent_directory(cache)
+    renv_file_copy(location, cache)
+  }
+
+  cache
+
+}
+
+renv_init_cache_packages <- function(packages, library, name) {
   vmessagef("* Copying packages into the cache  ... ", appendLF = FALSE)
-  cached <- enumerate(packages, function(package, location) {
-
-    record <- renv_snapshot_description(location, name)
-    cache <- renv_cache_package_path(record)
-    if (file.exists(cache))
-      return(cache)
-
-    if (!file.exists(cache)) {
-      ensure_parent_directory(cache)
-      renv_file_copy(location, cache)
-    }
-
-    cache
-
-  })
-  vmessagef("Done!")
-
-  # link these packages into the private library
-  library <- renv_paths_library(name)
+  cached <- enumerate(packages, renv_init_cache_package, name = name)
   enumerate(cached, function(package, cache) {
     target <- file.path(library, package)
     unlink(target, recursive = TRUE)
     ensure_parent_directory(target)
     renv_file_link(cache, target)
   })
+  vmessagef("Done!")
+  cached
+}
 
-  # update the library paths so that we're using the newly-established library
-  ensure_directory(library)
-  renv_libpaths_set(library)
+renv_init_resolve_missing <- function(na) {
 
-  # attempt to install missing packages (if any)
-  if (length(na)) local({
-    vmessagef("* Resolving missing dependencies  ... ")
+  if (!length(na))
+    return()
 
-    # TODO: if we have a manifest, should we use it?
-    renv_restore_begin()
-    on.exit(renv_restore_end(), add = TRUE)
+  vmessagef("* Resolving missing dependencies  ... ")
 
-    packages <- names(na)
-    status <- lapply(packages, function(package) {
-      catch(renv_restore_install(package))
-    })
+  # TODO: if we have a manifest, should we use it?
+  renv_restore_begin()
+  on.exit(renv_restore_end(), add = TRUE)
 
-    renv_init_report_restore_failure(packages, status)
+  packages <- names(na)
+  status <- lapply(packages, function(package) {
+    catch(renv_restore_install(package))
   })
 
-  # now we can activate the local environment
-  activate(name, project)
+  renv_init_report_restore_failure(packages, status)
 
 }
 
