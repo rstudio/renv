@@ -1,19 +1,20 @@
 
-renv_read_properties <- function(path, delimiter = ":", trim = TRUE) {
+renv_read_properties <- function(path = NULL, text = NULL, delimiter = ":", trim = TRUE) {
 
-  # read lines and drop empty lines, commented values
-  contents <- readLines(path, warn = FALSE)
-  contents <- contents[nzchar(contents)]
-  contents <- grep("^\\s*[#;]", contents, value = TRUE, invert = TRUE)
+  text <- text %||% readLines(path, warn = FALSE)
+
+  # drop empty lines, commented values
+  text <- text[nzchar(text)]
+  text <- grep("^\\s*[#;]", text, value = TRUE, invert = TRUE)
 
   # find the delimiter for each line
-  contents <- grep(delimiter, contents, fixed = TRUE, value = TRUE)
-  index <- regexpr(delimiter, contents, fixed = TRUE)
+  text <- grep(delimiter, text, fixed = TRUE, value = TRUE)
+  index <- regexpr(delimiter, text, fixed = TRUE)
   index <- index[index != -1]
 
   # separate into keys, values
-  keys <- substring(contents, 1, index - 1)
-  vals <- substring(contents, index + 1)
+  keys <- substring(text, 1, index - 1)
+  vals <- substring(text, index + nchar(delimiter))
 
   # trim whitespace when requested
   if (trim) {

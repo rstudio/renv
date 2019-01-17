@@ -5,8 +5,13 @@
 renv_bootstrap <- function(force = FALSE) {
 
   # check for existing 'renv' source
+  #
   # TODO: use presently-loaded renv or not? or look up a version based
   # on a particular requested version?
+  #
+  # TODO: after deactivating a virtual environment, RStudio might still
+  # load renv from the bootstrap directory (and this version might be old).
+  # how to better handle?
   source <- find.package("renv", quiet = TRUE) %||% ""
   if (!file.exists(source))
     stop("no installation of 'renv' detected locally")

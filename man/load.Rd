@@ -7,8 +7,9 @@
 load(project = NULL)
 }
 \arguments{
-\item{project}{The project directory. If \code{NULL}, then the project associated
-with the active virtual environment (if any) will be used.}
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
 }
 \description{
 Load the \R virtual environment currently associated with a project.

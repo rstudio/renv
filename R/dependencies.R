@@ -124,19 +124,9 @@ renv_dependencies_discover_multimode <- function(path, mode) {
 
 renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
-  if (!requireNamespace("rmarkdown", quietly = TRUE)) {
-
-    msg <- lines(
-      "The 'rmarkdown' package is required to parse dependencies within .Rmd files.",
-      "Consider installing it with `install.packages(\"rmarkdown\")`."
-    )
-
-    if (renv_once())
-      warning(msg, call. = FALSE)
-
-    return(character())
-
-  }
+  for (package in c("rmarkdown", "yaml"))
+    if (!renv_dependencies_require(package, "R Markdown"))
+      return(NULL)
 
   deps <- stack()
   deps$push("rmarkdown")
@@ -167,19 +157,8 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 renv_dependencies_discover_chunks <- function(path) {
 
   # ensure 'knitr' is installed / available
-  if (!requireNamespace("knitr", quietly = TRUE)) {
-
-    msg <- lines(
-      "The 'knitr' package is required to parse dependencies within multi-mode files.",
-      "Consider installing it with `install.packages(\"knitr\")`."
-    )
-
-    if (renv_once())
-      warning(msg, call. = FALSE)
-
-    return(character())
-
-  }
+  if (!renv_dependencies_require("knitr", "multi-mode files"))
+    return(NULL)
 
   # figure out the appropriate begin, end patterns
   type <- tolower(tools::file_ext(path))
@@ -482,5 +461,23 @@ renv_dependencies_enumerate <- function(package, visited, fields = NULL) {
   subpackages <- deps$Package
   for (subpackage in subpackages)
     renv_dependencies_enumerate(subpackage, visited)
+
+}
+
+renv_dependencies_require <- function(package, type) {
+
+  if (requireNamespace(package, quietly = TRUE))
+    return(TRUE)
+
+  fmt <- lines(
+    "The '%1$s' package is required to parse dependencies within %2$s files.",
+    "Consider installing it with `install.packages(\"%1$s\")`."
+  )
+  msg <- sprintf(fmt, package, type)
+
+  if (renv_once())
+    warning(msg, call. = FALSE)
+
+  return(FALSE)
 
 }

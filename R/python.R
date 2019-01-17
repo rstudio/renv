@@ -13,7 +13,7 @@ renv_python_blueprint_resolve <- function(python) {
 }
 
 renv_python_virtualenv_root <- function() {
-  Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+  Sys.getenv("WORKON_HOME", unset = path.expand("~/.virtualenvs"))
 }
 
 renv_python_resolve <- function(python) {
@@ -43,4 +43,11 @@ renv_python_resolve <- function(python) {
   else
     file.path(python, "bin/python")
 
+}
+
+renv_python_pip_freeze <- function(python = NULL) {
+  python <- python %||% renv_state$python()
+  args <- c("-m", "pip", "freeze")
+  output <- system2(python, args, stdout = TRUE)
+  renv_read_properties(text = output, delimiter = "==")
 }

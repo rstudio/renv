@@ -1,13 +1,26 @@
 
 # NOTE: all methods here should either return TRUE if they were able to
 # operate successfully, or throw an error if not
-renv_file_copy <- function(source, target) {
+renv_file_preface <- function(source, target, overwrite) {
 
+  callback <- function() {}
   if (!file.exists(source))
     stopf("source file '%s' does not exist", source)
 
+  if (overwrite)
+    callback <- renv_file_scoped_backup(target)
+
   if (file.exists(target))
     stopf("target file '%s' already exists", target)
+
+  callback
+
+}
+
+renv_file_copy <- function(source, target, overwrite = FALSE) {
+
+  callback <- renv_file_preface(source, target, overwrite)
+  on.exit(callback(), add = TRUE)
 
   # check to see if we're copying a plain file -- if so, things are simpler
   info <- file.info(source)
@@ -50,13 +63,10 @@ renv_file_copy <- function(source, target) {
 
 }
 
-renv_file_move <- function(source, target) {
+renv_file_move <- function(source, target, overwrite = FALSE) {
 
-  if (!file.exists(source))
-    stopf("source file '%s' does not exist", source)
-
-  if (file.exists(target))
-    stopf("target file '%s' already exists", target)
+  callback <- renv_file_preface(source, target, overwrite)
+  on.exit(callback(), add = TRUE)
 
   # now, attempt to rename (catchall since this might quietly fail for
   # cross-device links)
@@ -80,13 +90,10 @@ renv_file_move <- function(source, target) {
 
 }
 
-renv_file_link <- function(source, target) {
+renv_file_link <- function(source, target, overwrite = FALSE) {
 
-  if (!file.exists(source))
-    stopf("source file '%s' does not exist", source)
-
-  if (file.exists(target))
-    stopf("target file '%s' already exists", target)
+  callback <- renv_file_preface(source, target, overwrite)
+  on.exit(callback(), add = TRUE)
 
   # first, try to symlink (note that this is supported on certain versions of
   # Windows as well when such permissions are enabled)
@@ -161,6 +168,10 @@ renv_file_scoped_backup <- function(path) {
   # if no file exists then nothing to backup
   if (!file.exists(path))
     return(function() {})
+
+  # normalize the path (since the working directory could change
+  # by the time the callback is invoked)
+  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
 
   # attempt to rename the file
   pattern <- sprintf("renv-backup-%s", basename(path))

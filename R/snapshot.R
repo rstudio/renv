@@ -16,14 +16,9 @@
 #' @export
 snapshot <- function(name = NULL, file = "", confirm = interactive()) {
 
+  # make sure we have an active virtual environment
   name <- name %||% renv_state$environment()
-  if (!nzchar(name)) {
-    msg <- paste(
-      "This project has no active virtual environment.",
-      "Have you called `renv::activate()` yet?"
-    )
-    stop(msg)
-  }
+  ensure_existing_renv(name)
 
   # generate a new manifest
   new <- renv_manifest_read(renv_paths_environment(name))
@@ -36,6 +31,8 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
     library <- renv_paths_library(name)
     renv_snapshot_r_library(library, name)
   })
+
+  new$Python$Requirements <- renv_snapshot_python()
 
   # return it directly when 'file' is NULL
   if (is.null(file))
@@ -279,4 +276,14 @@ renv_snapshot_manifest_path <- function(project = NULL) {
   ymd <- strftime(time, "%Y-%m-%d")
   timestamp <- strftime(time, "%Y-%m-%dT%H-%M-%S%Z")
   file.path(project, "renv/manifest", ymd, timestamp)
+}
+
+renv_snapshot_python <- function() {
+
+  python <- renv_state$python()
+  if (is.null(python))
+    return(NULL)
+
+  renv_python_pip_freeze()
+
 }

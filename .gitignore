@@ -7,3 +7,4 @@
 inst/doc
 internal
 renv
+renv/library/

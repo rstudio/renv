@@ -76,10 +76,8 @@ create <- function(name,
 #' @family renv
 #'
 #' @export
-activate <- function(name = NULL,
-                     project = NULL,
-                     local = NULL)
-{
+activate <- function(name = NULL, project = NULL, local = NULL) {
+
   local <- local %||% renv_state$local()
   project <- project %||% renv_state$project()
 
@@ -122,6 +120,7 @@ activate <- function(name = NULL,
 
   reason <- sprintf("Virtual environment '%s' activated", name)
   renv_request_restart(reason)
+
 }
 
 #' Deactivate an R Virtual Environment

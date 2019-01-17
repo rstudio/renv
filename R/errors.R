@@ -17,23 +17,22 @@ ensure_existing_file <- function(path) {
 ensure_existing_renv <- function(name) {
 
   path <- renv_paths_environment(name)
-  if (!file.exists(path)) {
-    fmt <- "%s environment '%s' does not exist."
-    stopf(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
-  }
+  if (file.exists(path))
+    return(invisible(path))
 
-  invisible(path)
+  fmt <- "%s environment '%s' does not exist."
+  stopf(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
+
 }
 
 ensure_no_renv <- function(name) {
 
   path <- renv_paths_environment(name)
-  if (file.exists(path)) {
-    fmt <- "%s environment '%s' already exists."
-    stopf(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
-  }
+  if (!file.exists(path))
+    return(invisible(path))
 
-  invisible(path)
+  fmt <- "%s environment '%s' already exists."
+  stopf(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
 
 }
 

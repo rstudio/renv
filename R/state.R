@@ -38,7 +38,8 @@ renv_state_clear <- function() {
 renv_state <- list(
   project     = renv_state_impl("project",     function() getwd()),
   environment = renv_state_impl("environment", ""),
-  local       = renv_state_impl("local",       FALSE)
+  local       = renv_state_impl("local",       FALSE),
+  python      = renv_state_impl("python",      NULL)
 )
 
 renv_active_manifest <- function(project = NULL) {

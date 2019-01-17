@@ -73,6 +73,7 @@ renv_load_python <- function(manifest) {
     return(FALSE)
   }
 
+  renv_state$python(python)
   return(TRUE)
 
 }

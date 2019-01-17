@@ -10,8 +10,9 @@ activate(name = NULL, project = NULL, local = NULL)
 \item{name}{The name of a virtual environment. If \code{NULL}, then the active
 virtual environment (if any) will be used.}
 
-\item{project}{The project directory. If \code{NULL}, then the project associated
-with the active virtual environment (if any) will be used.}
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
 
 \item{local}{Boolean; activate a project-local environment?}
 }
