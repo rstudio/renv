@@ -1,6 +1,8 @@
 
 renv_tests_scope <- function(packages) {
 
+  renv_tests_init()
+
   # move to own test directory
   dir <- tempfile("renv-test-")
   ensure_directory(dir)
@@ -39,7 +41,7 @@ renv_tests_root <- function(path = getwd()) {
 renv_tests_init_envvars <- function() {
   root <- tempfile("renv-root-")
   dir.create(root, showWarnings = TRUE, mode = "755")
-  Sys.setenv(RENV_PATHS_ROOT = root)
+  Sys.setenv(RENV_PATHS_ROOT = root, RENV_TESTS_INITIALIZED = "TRUE")
 }
 
 renv_tests_init_options <- function() {
@@ -97,8 +99,13 @@ renv_tests_init_packages <- function() {
 }
 
 renv_tests_init <- function() {
+
+  if (identical(Sys.getenv("RENV_TESTS_INITIALIZED"), "TRUE"))
+    return()
+
   renv_tests_init_envvars()
   renv_tests_init_options()
   renv_tests_init_repos()
   renv_tests_init_packages()
+
 }
