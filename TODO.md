@@ -74,6 +74,8 @@
 - [ ] Consider `.renvignore` or similar for controlling what files / directories
       `renv` will crawl when discovering dependencies.
 
-- [ ] Properly handle `RENV_DEFAULTS` case (they get lost if the user attempts
+- [x] Properly handle `RENV_DEFAULTS` case (they get lost if the user attempts
       to build and reload a package managed by `renv`, which screws up RStudio's
       notion of the library paths if the project is later deactivated)
+
+- [ ] What if I want to overlay a private (local) library on top of a global library?

@@ -1,10 +1,12 @@
 Package: renv
 Type: Package
-Title: Project-specific R Environments
-Version: 0.0.1-376
+Title: Virtual Environments for R
+Version: 0.0.1-380
 Author: Kevin Ushey
 Maintainer: Kevin Ushey <kevinushey@gmail.com>
-Description: Project-specific R environments.
+Description: Create and manage R virtual environments.
+    Virtual environments can be used to share and isolate R package dependencies
+    between different projects.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -12,3 +14,4 @@ RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Imports: utils
 Suggests: knitr, remotes, reticulate, rmarkdown, testthat
+VignetteBuilder: knitr

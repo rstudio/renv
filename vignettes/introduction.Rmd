@@ -1,0 +1,116 @@
+---
+title: "Introduction to renv"
+author: "Kevin Ushey"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+The `renv` project brings
+[virtual environments](https://docs.python.org/3/tutorial/venv.html) to R.
+Using virtual environments, one can isolate and share project dependencies
+from and between different packages.
+
+If you're familiar with [Packrat](https://rstudio.github.io/packrat/), the model
+is similar. With Packrat, each project gets its own private project library;
+with `renv`, projects can share and overlay R libraries as appropriate for the
+task at hand. In addition, one can encode other environment-specific information
+with `renv` -- for example, you can bind a particular version of
+[Python](https://www.python.org/) if Python is required and used in your project.
+
+`renv` works by writing some project-specific infrastructure to the project.
+In particular, an `.Rprofile` is written to the project root, and this file
+is sourced by R when new R sessions are started in the project directory.
+The startup machinery then ensures that all relevant state (R repositories,
+library paths, et al.) is set as required.
+
+## Workflows
+
+To further illustrate, we'll discuss `renv`'s APIs and the workflows available
+through those APIs.
+
+### Private Virtual Environments
+
+One can use `renv` to create a project-local virtual environment, and with
+that an R library that is isolated from the rest of the system. The API is
+the same as Packrat.
+
+```{r}
+# initialize a private virtual environment
+renv::init()
+```
+
+Calling `renv::init()` will:
+
+1. Initialize a project-local virtual environment,
+   
+2. Discover R package dependencies used within the project, and
+
+3. Install those dependencies into the newly-created virtual environment.
+
+After calling `renv::init()`, you should be able to continue working in your
+project as before, but now with your project's own private R library. Any new
+packages installed will be installed into the project's own library, without
+affecting your user library or other globally-accessible R packages.
+
+### Library Sharing
+
+You might have multiple projects which need to share some set of dependencies.
+In such a case, you could create a virtual environment, and bind each project
+to that virtual environment. For example:
+
+```{r}
+# create the virtual environment
+renv::create("shared", r_libs = "sharedlib")
+
+# activate the virtual environment
+renv::activate("shared", project = "/path/to/project/A")
+renv::activate("shared", project = "/path/to/project/B")
+```
+
+In this case, projects `A` and `B` would be bound to the same virtual
+environment `shared`, and could then share the same library. If a user working
+within project `A` requested installation of a package, that package would then
+also be available in project `B` by virtue of the shared library `sharedlib`.
+
+## Caching
+
+By default, `renv` will cache the package binaries, sources, and installs for
+sharing across projects. This greatly increases the speed of `renv::init()` and
+`renv::restore()` -- when `renv` attempts to install a package, if it discovers
+a compatible version of that package available in its package cache, the package
+will be copied or installed from the cache rather than through an attempt to
+download and install from CRAN.
+
+## Reproducibility
+
+With Packrat, one can save and restore the state of the private library with
+`snapshot()` and `restore()`. The same model is used here:
+
+- Call `renv::snapshot()` to save the state of your virtual environment to
+  a manifest file; and
+  
+- Call `renv::restore()` to restore the state of a virtual environment as
+  encoded in the associated manifest.
+
+Be aware that `renv::restore()` may fail if a package was originally installed
+through a CRAN-available binary, but that binary is no longer available. `renv`
+will attempt to install the package from sources in this situation, but attempts
+to install from source can (and often do) fail due to missing system
+prerequisites for compilation of a package.
+
+By default, `renv` will maintain and use a global cache of packages during
+`renv::restore()`, so (at least on the same machine) if that cache is maintained
+old projects will be restored by copying or linking from an installation
+discovered in the cache.

@@ -3,8 +3,7 @@
 .Rhistory
 .RData
 .Ruserdata
-.renv
 
-internal/
-renv/
-renv/library/
+inst/doc
+internal
+renv
