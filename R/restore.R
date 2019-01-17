@@ -178,12 +178,12 @@ renv_restore_install_missing_record <- function(package) {
 
   entry <- NULL
   for (type in c("binary", "source")) {
-    entry <- renv_available_packages_entry(package, type)
-    if (!is.null(entry))
+    entry <- catchall(renv_available_packages_entry(package, type))
+    if (is.data.frame(entry))
       break
   }
 
-  if (is.null(entry)) {
+  if (!is.data.frame(entry)) {
     fmt <- "Failed to install package '%s' (missing record and failed to discover on CRAN)"
     stopf(fmt, package)
   }

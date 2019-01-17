@@ -15,16 +15,37 @@ renv_tests_scope <- function(packages) {
 
 }
 
+renv_tests_root <- function(path = getwd()) {
+
+  slashes <- gregexpr("(?:/|$)", path)[[1]]
+  parts <- substring(path, 1, slashes - 1)
+  for (part in rev(parts)) {
+    gitdir <- file.path(part, ".git")
+    if (file.exists(gitdir))
+      return(part)
+  }
+
+  stop("failed to find test root")
+
+}
+
 renv_tests_init_envvars <- function() {
   root <- tempfile("renv-root-")
   dir.create(root, showWarnings = TRUE, mode = "755")
   Sys.setenv(RENV_PATHS_ROOT = root)
 }
 
+renv_tests_init_options <- function() {
+  options(warn = 2, restart = NULL)
+}
+
 renv_tests_init_repos <- function() {
 
+  # find root directory
+  root <- renv_tests_root()
+
   # move to packages directory
-  owd <- setwd("packages")
+  owd <- setwd(file.path(root, "tests/testthat/packages"))
   on.exit(setwd(owd), add = TRUE)
 
   # generate our dummy repository
@@ -70,6 +91,7 @@ renv_tests_init_packages <- function() {
 
 renv_tests_init <- function() {
   renv_tests_init_envvars()
+  renv_tests_init_options()
   renv_tests_init_repos()
   renv_tests_init_packages()
 }

@@ -10,5 +10,5 @@ renv_request_restart <- function(reason, ...) {
   fmt <- "* %s -- please restart the R session."
   messagef(fmt, sprintf(reason, ...))
 
-  renv::load()
+  load()
 }

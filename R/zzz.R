@@ -27,6 +27,9 @@
   cache <- renv_paths_repos()
   sources <- list.files(cache, full.names = TRUE)
   targets <- file.path(tempdir(), sprintf("repos_%s", basename(sources)))
-  file.copy(sources, targets)
+  mapply(function(source, target) {
+    if (!file.exists(target))
+      renv_file_link(source, target)
+  }, sources, targets)
 
 }

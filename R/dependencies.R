@@ -38,24 +38,13 @@ discover_dependencies <- function(path = getwd()) {
 
 renv_dependencies_discover_dir <- function(path) {
 
-  # TODO: make this user-configurable? (project options?)
-  # TODO: maximum recursion depth?
-  exclude <- c("node_modules", "packrat", "revdep",
-               "renv/library", "renv/bootstrap")
-
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-
-  # ignore directories containing a '.renvignore'
-  # TODO: allow this to be a set of patterns for inclusion / exclusion?
-  ignore <- file.path(path, ".renvignore")
-  if (file.exists(ignore))
-    return(NULL)
 
   # list files in the folder
   children <- list.files(path, full.names = TRUE)
 
   # filter children based on pattern
-  pattern <- sprintf("(?:%s)$", paste(exclude, collapse = "|"))
+  pattern <- sprintf("(?:%s)$", paste(renv_renvignore_get(), collapse = "|"))
   matches <- grep(pattern, children, perl = TRUE, value = TRUE, invert = TRUE)
 
   # recurse for dependencies
