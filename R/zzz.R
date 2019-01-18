@@ -22,6 +22,9 @@
 
   )
 
+  # cache the path to the actually-installed 'renv'
+  renv_global_set("renv", renv_package_find("renv"))
+
   # copy our cached repositories to the R tempdir so that they might be
   # re-used without forcing extra queries to CRAN
   cache <- renv_paths_repos()

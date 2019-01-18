@@ -4,15 +4,7 @@
 # without requiring a local install
 renv_bootstrap <- function(force = FALSE) {
 
-  # check for existing 'renv' source
-  #
-  # TODO: use presently-loaded renv or not? or look up a version based
-  # on a particular requested version?
-  #
-  # TODO: after deactivating a virtual environment, RStudio might still
-  # load renv from the bootstrap directory (and this version might be old).
-  # how to better handle?
-  source <- find.package("renv", quiet = TRUE) %||% ""
+  source <- renv_global_get("renv")
   if (!file.exists(source))
     stop("no installation of 'renv' detected locally")
 
@@ -24,8 +16,7 @@ renv_bootstrap <- function(force = FALSE) {
     return(TRUE)
 
   # copy the directory
-  unlink(target, recursive = TRUE)
   ensure_parent_directory(target)
-  renv_file_copy(source, target)
+  renv_file_copy(source, target, overwrite = TRUE)
 
 }
