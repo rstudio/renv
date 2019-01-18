@@ -1,5 +1,5 @@
 
-#' Create an R Virtual Environment.
+#' Create an R Virtual Environment
 #'
 #' Create a new virtual environment.
 #'
@@ -163,7 +163,7 @@ deactivate <- function(project = NULL) {
   renv_request_restart("Virtual environment deactivated")
 }
 
-#' Load an R Virtual Environment.
+#' Load an R Virtual Environment
 #'
 #' Load the \R virtual environment currently associated with a project.
 #'

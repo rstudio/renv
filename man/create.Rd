@@ -2,7 +2,7 @@
 % Please edit documentation in R/renv.R
 \name{create}
 \alias{create}
-\title{Create an R Virtual Environment.}
+\title{Create an R Virtual Environment}
 \usage{
 create(name, r_version = getRversion(), r_repos = getOption("repos"),
   r_libs = character(), r_libs_overlay = FALSE, python = NULL, ...,

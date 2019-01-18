@@ -4,19 +4,16 @@
 \name{renv-package}
 \alias{renv}
 \alias{renv-package}
-\title{renv}
+\title{Virtual Environments for R}
 \description{
 Virtual environments for \R, inspired by the Python
-\href{https://virtualenv.pypa.io/en/latest/}{virtualenv} module.
+\href{https://virtualenv.pypa.io/en/latest/}{virtualenv} and
+\href{https://docs.python.org/3/library/venv.html}{venv} modules.
 }
 \details{
-Use \code{renv} to provide project-specific configuration to your \R projects.
-Using \code{renv}, you can associate projects with:
-\enumerate{
-\item A particular version of \R,
-\item A set of library paths,
-}
-
-These environments can be shared by multiple projects, and multiple projects
-can bind to the same \code{renv}.
+By binding a project to a virtual environment, new \R sessions launched in
+that project will use the set of \R libraries as defined within that virtual
+environment. This allows projects to both isolate and share their \R package
+dependencies, ensuring that updates to the packages used in one virtual
+environment will not affect other virtual environments.
 }

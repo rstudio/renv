@@ -54,6 +54,7 @@ renv_load_python <- function(manifest) {
 
   # check to see if we've been given the path to a Python executable,
   # or a directory containing a virtual environment.
+  # TODO: what if no virtual environment exists? should auto-create it?
   # TODO: what about auto-creating / auto-using project-local virtualenvs?
   info <- file.info(python, extra_cols = FALSE)
 

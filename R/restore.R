@@ -38,6 +38,9 @@ restore <- function(manifest = NULL, confirm = interactive()) {
 
   }
 
+  # handle Python when all is said and done
+  on.exit(renv_restore_python(new), add = TRUE)
+
   # detect changes in R packages in the manifest
   old <- snapshot(name, file = NULL)
   new <- manifest

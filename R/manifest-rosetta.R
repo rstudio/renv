@@ -17,7 +17,7 @@ renv_manifest_serializer_list <- function() {
 
 renv_manifest_serializer <- function(section, key) {
 
-  delim <- gregexpr("::", section, fixed = TRUE)[[1]]
+  delim <- gregexpr("/", section, fixed = TRUE)[[1]]
 
   labels <- section
   if (!identical(c(delim), -1L))

@@ -17,7 +17,7 @@ renv_manifest_read <- function(file) {
 
   data <- list()
   enumerate(fields, function(section, entries) {
-    splat <- strsplit(section, "::", fixed = TRUE)[[1]]
+    splat <- strsplit(section, "/", fixed = TRUE)[[1]]
 
     for (i in seq_len(length(splat) - 1)) {
       k <- splat[1:i]

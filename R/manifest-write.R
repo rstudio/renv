@@ -18,7 +18,7 @@ renv_manifest_write_atoms <- function(key, value, section) {
     return()
 
   subsection <- c(section, key)
-  label <- sprintf("[%s]", paste(subsection, collapse = "::"))
+  label <- sprintf("[%s]", paste(subsection, collapse = "/"))
   renv_manifest_write_emit(label)
 
   enumerate(value[!sublists], renv_manifest_write_atom)

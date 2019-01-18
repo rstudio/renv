@@ -1,4 +1,25 @@
 
+renv_python_snapshot <- function() {
+
+  python <- renv_state$python()
+  if (is.null(python))
+    return(NULL)
+
+  renv_python_pip_freeze()
+
+}
+
+renv_python_restore <- function(manifest) {
+
+  python <- renv_state$python()
+  if (is.null(python))
+    return(NULL)
+
+  requirements <- manifest$Python$Requirements
+  renv_python_pip_restore(requirements = requirements)
+
+}
+
 renv_python_blueprint_resolve <- function(python) {
 
   python <- case(
@@ -50,4 +71,18 @@ renv_python_pip_freeze <- function(python = NULL) {
   args <- c("-m", "pip", "freeze")
   output <- system2(python, args, stdout = TRUE)
   renv_read_properties(text = output, delimiter = "==")
+}
+
+renv_python_pip_restore <- function(python = NULL, requirements) {
+
+  # write requirements out to file
+  text <- paste(names(requirements), requirements, sep = "==")
+  file <- tempfile("requirements-", fileext = ".txt")
+  writeLines(text, con = file)
+  on.exit(unlink(file), add = TRUE)
+
+  python <- python %||% renv_state$python()
+  args <- c("-m", "pip", "install", "-r", shQuote(file))
+  system2(python, args)
+
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/renv.R
 \name{load}
 \alias{load}
-\title{Load an R Virtual Environment.}
+\title{Load an R Virtual Environment}
 \usage{
 load(project = NULL)
 }

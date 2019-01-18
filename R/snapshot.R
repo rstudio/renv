@@ -32,7 +32,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
     renv_snapshot_r_library(library, name)
   })
 
-  new$Python$Requirements <- renv_snapshot_python()
+  new$Python$Requirements <- renv_python_snapshot()
 
   # return it directly when 'file' is NULL
   if (is.null(file))
@@ -276,14 +276,4 @@ renv_snapshot_manifest_path <- function(project = NULL) {
   ymd <- strftime(time, "%Y-%m-%d")
   timestamp <- strftime(time, "%Y-%m-%dT%H-%M-%S%Z")
   file.path(project, "renv/manifest", ymd, timestamp)
-}
-
-renv_snapshot_python <- function() {
-
-  python <- renv_state$python()
-  if (is.null(python))
-    return(NULL)
-
-  renv_python_pip_freeze()
-
 }
