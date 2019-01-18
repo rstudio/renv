@@ -4,14 +4,10 @@
 # without requiring a local install
 renv_bootstrap <- function(force = FALSE) {
 
+  # construct paths to currently-loaded 'renv' + destination
+  # path in the bootstrap library
   source <- renv_global_get("renv")
-  if (!file.exists(source))
-    stop("no installation of 'renv' detected locally")
-
-  # check to see if we already have an installation of 'renv' available
   target <- renv_paths_bootstrap("renv", renv_package_version("renv"), "renv")
-
-  # handle attempts to re-bootstrap renv
   if (renv_file_same(source, target))
     return(TRUE)
 
