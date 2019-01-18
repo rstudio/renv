@@ -1,6 +1,8 @@
 
 # NOTE: all methods here should either return TRUE if they were able to
 # operate successfully, or throw an error if not
+#
+# TODO: some of these operations are a bit racy
 renv_file_preface <- function(source, target, overwrite) {
 
   callback <- function() {}

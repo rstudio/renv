@@ -66,7 +66,7 @@ renv_hydrate_cache_package <- function(package, location, name) {
 }
 
 renv_hydrate_cache_packages <- function(packages, library, name) {
-  vmessagef("* Copying packages into the cache  ... ", appendLF = FALSE)
+  vmessagef("* Copying packages into the cache ... ", appendLF = FALSE)
   cached <- enumerate(packages, renv_hydrate_cache_package, name = name)
   enumerate(cached, function(package, cache) {
     target <- file.path(library, package)

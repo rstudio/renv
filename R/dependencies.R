@@ -422,6 +422,11 @@ renv_dependencies_discover_parse_params <- function(header, type) {
 
 }
 
+# find recursive dependencies of a package. note that this routine
+# doesn't farm out to CRAN; it relies on the package and its dependencies
+# all being installed locally. returns a named vector mapping package names
+# to the path where they were discovered, or NA if those packages are not
+# installed
 renv_dependencies <- function(packages, fields = NULL) {
 
   # TODO: build a dependency tree rather than just a flat set of packages?

@@ -4,7 +4,7 @@
 \alias{hydrate}
 \title{Hydrate a Virtual Environment}
 \usage{
-hydrate(name = NULL, project = NULL)
+hydrate(name = NULL, project = NULL, packages = NULL)
 }
 \arguments{
 \item{name}{The name of a virtual environment. If \code{NULL}, then the active
