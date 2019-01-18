@@ -35,6 +35,10 @@ is sourced by R when new R sessions are started in the project directory.
 The startup machinery then ensures that all relevant state (R repositories,
 library paths, et al.) is set as required.
 
+Underlying the philosophy of `renv` is that any existing workflows should
+just work as they did before -- `renv` helps manage library paths (and other
+project-specific state) to help share and isolate project dependencies.
+
 ## Workflows
 
 To further illustrate, we'll discuss `renv`'s APIs and the workflows available

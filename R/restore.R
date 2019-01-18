@@ -39,7 +39,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
   }
 
   # handle Python when all is said and done
-  on.exit(renv_restore_python(new), add = TRUE)
+  on.exit(renv_python_restore(new), add = TRUE)
 
   # detect changes in R packages in the manifest
   old <- snapshot(name, file = NULL)
@@ -49,7 +49,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
   # detect missing dependencies -- e.g. if an installed package depends on
   # one or more packages that are no longer available
   if (!length(actions)) {
-    fmt <- "%s envirnoment '%s' is up to date."
+    fmt <- "%s environment '%s' is up to date."
     messagef(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
     return(invisible(actions))
   }
@@ -110,7 +110,7 @@ renv_restore_install <- function(package, manifest = NULL) {
   # skip 'base' packages
   base <- renv_installed_packages_base()
   if (identical(base[package, "Priority"], "base"))
-      return(TRUE)
+    return(TRUE)
 
   # if we've already attempted installation of this package, skip
   state <- renv_restore_state()

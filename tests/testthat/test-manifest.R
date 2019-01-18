@@ -14,7 +14,7 @@ Key1=Value1
 
 Key2=Value2
 
-[Nested::Section]
+[Nested/Section]
 Key=Value
 '
 
