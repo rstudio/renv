@@ -19,28 +19,39 @@ renv_file_preface <- function(source, target, overwrite) {
 
 renv_file_copy <- function(source, target, overwrite = FALSE) {
 
+  if (renv_file_same(source, target))
+    return(TRUE)
+
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
 
   # check to see if we're copying a plain file -- if so, things are simpler
   info <- file.info(source)
-  if (identical(info$isdir, FALSE)) {
+  case(
+    identical(info$isdir, FALSE) ~ renv_file_copy_file(source, target),
+    identical(info$isdir, TRUE)  ~ renv_file_copy_dir(source, target)
+  )
 
-    status <- catchall(file.copy(source, target))
-    if (inherits(status, "condition"))
-      stop(status)
+}
 
-    if (!file.exists(target)) {
-      fmt <- "attempt to copy file '%s' to '%s' failed (unknown reason)"
-      stopf(fmt, source, target)
-    }
+renv_file_copy_file <- function(source, target) {
 
+  status <- catchall(file.copy(source, target))
+  if (inherits(status, "condition"))
+    stop(status)
+
+  if (file.exists(target))
     return(TRUE)
 
-  }
+  fmt <- "attempt to copy file '%s' to '%s' failed (unknown reason)"
+  stopf(fmt, source, target)
 
-  # otherwise, attempt to copy as directory. first, copy into a unique
-  # sub-directory, and then attempt to move back into the requested location
+}
+
+renv_file_copy_dir <- function(source, target) {
+
+  # first, copy into a unique sub-directory
+  # then attempt to move back into the requested location
   tempfile <- tempfile("renv-copy-", tmpdir = dirname(target))
   ensure_directory(tempfile)
   on.exit(unlink(tempfile, recursive = TRUE), add = TRUE)
@@ -54,16 +65,18 @@ renv_file_copy <- function(source, target, overwrite = FALSE) {
   if (inherits(status, "condition"))
     stop(status)
 
-  if (!file.exists(target)) {
-    fmt <- "attempt to copy file '%s' to '%s' failed (unknown reason)"
-    stopf(fmt, source, target)
-  }
+  if (file.exists(target))
+    return(TRUE)
 
-  TRUE
+  fmt <- "attempt to copy file '%s' to '%s' failed (unknown reason)"
+  stopf(fmt, source, target)
 
 }
 
 renv_file_move <- function(source, target, overwrite = FALSE) {
+
+  if (renv_file_same(source, target))
+    return(TRUE)
 
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
@@ -91,6 +104,9 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
 }
 
 renv_file_link <- function(source, target, overwrite = FALSE) {
+
+  if (renv_file_same(source, target))
+    return(TRUE)
 
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
