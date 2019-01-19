@@ -212,6 +212,11 @@ renv_file_scoped_backup <- function(path) {
 
 }
 
+renv_file_normalize <- function(path, winslash = "\\", mustWork = NA) {
+  parent <- normalizePath(dirname(path), winslash = winslash, mustWork = mustWork)
+  file.path(parent, basename(path))
+}
+
 renv_file_alt <- function(path, alternate) {
   subpath <- file.path(path, alternate)
   if (renv_file_exists(subpath)) subpath else path

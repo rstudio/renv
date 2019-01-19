@@ -20,7 +20,7 @@
 create <- function(name,
                    r_version      = getRversion(),
                    r_repos        = getOption("repos"),
-                   r_libs         = character(),
+                   r_libs         = NULL,
                    r_libs_overlay = FALSE,
                    python         = NULL,
                    ...,
@@ -29,6 +29,22 @@ create <- function(name,
 {
   local <- local %||% renv_state$local()
   renv_state$local(local, scoped = TRUE)
+
+  # generate path to renv
+  path <- renv_paths_environment(name)
+  if (!overwrite && renv_file_exists(path)) {
+    fmt <- "%s environment '%s' already exists."
+    stopf(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
+  }
+
+  # normalize name as path if it was given as such
+  ensure_parent_directory(path)
+  if (grepl("[/\\]", name))
+    name <- renv_file_normalize(name, winslash = "/", mustWork = TRUE)
+
+  # generate library path if none provided
+  r_libs <- r_libs %||%
+    basename(tempfile("renv-library-", tmpdir = renv_paths_library()))
 
   # construct blueprint for environment
   blueprint <- list()
@@ -45,12 +61,6 @@ create <- function(name,
   )
 
   blueprint$Python <- renv_python_blueprint_resolve(python)
-
-  path <- renv_paths_environment(name)
-  if (!overwrite && renv_file_exists(path)) {
-    fmt <- "%s environment '%s' already exists."
-    stopf(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
-  }
 
   ensure_parent_directory(path)
   renv_manifest_write(blueprint, path)

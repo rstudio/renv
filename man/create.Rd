@@ -5,7 +5,7 @@
 \title{Create an R Virtual Environment}
 \usage{
 create(name, r_version = getRversion(), r_repos = getOption("repos"),
-  r_libs = character(), r_libs_overlay = FALSE, python = NULL, ...,
+  r_libs = NULL, r_libs_overlay = FALSE, python = NULL, ...,
   overwrite = FALSE, local = NULL)
 }
 \arguments{
