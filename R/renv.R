@@ -47,7 +47,7 @@ create <- function(name,
   blueprint$Python <- renv_python_blueprint_resolve(python)
 
   path <- renv_paths_environment(name)
-  if (!overwrite && file.exists(path)) {
+  if (!overwrite && renv_file_exists(path)) {
     fmt <- "%s environment '%s' already exists."
     stopf(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
   }

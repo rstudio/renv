@@ -27,7 +27,7 @@ renv_available_packages_query <- function(url, type) {
   # check for cached value
   name <- sprintf("%s.rds", URLencode(url, reserved = TRUE))
   cache <- renv_paths_repos(name)
-  if (!file.exists(cache))
+  if (!renv_file_exists(cache))
     return(renv_available_packages_query_impl(url, cache, type))
 
   # make sure the cache hasn't expired

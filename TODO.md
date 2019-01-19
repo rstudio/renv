@@ -79,3 +79,7 @@
       notion of the library paths if the project is later deactivated)
 
 - [ ] What if I want to overlay a private (local) library on top of a global library?
+
+- [ ] Audit usages of `renv_file_exists()`. When do we care about broken symlinks?
+      `file.exists()` returns FALSE for broken symlinks; `renv_file_exists()`
+      returns TRUE.

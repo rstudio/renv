@@ -6,7 +6,7 @@ renv_description_read <- function(path, package = NULL) {
     path <- find.package(package)
 
   # accept package directories
-  if (file.exists(file.path(path, "DESCRIPTION")))
+  if (renv_file_exists(file.path(path, "DESCRIPTION")))
     path <- file.path(path, "DESCRIPTION")
 
   # ensure that we have a real file

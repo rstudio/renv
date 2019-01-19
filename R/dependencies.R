@@ -455,7 +455,7 @@ renv_dependencies_enumerate <- function(package, visited, fields = NULL) {
 
   # find the package
   location <- renv_package_find(package)
-  if (!file.exists(location))
+  if (!renv_file_exists(location))
     return(location)
 
   # we know the path, so set it now

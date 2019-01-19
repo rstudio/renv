@@ -78,7 +78,7 @@ renv_preflight_java_windows <- function(problems) {
       "  Please ensure you have a Java Development Kit (JDK) installed."
     ),
 
-    !file.exists(home) ~ lines(
+    !renv_file_exists(home) ~ lines(
       "- JAVA_HOME is set to a non-existent directory.",
       "  Please ensure you have a Java Development Kit (JDK) installed."
     )

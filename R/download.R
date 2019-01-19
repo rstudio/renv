@@ -9,7 +9,7 @@ download <- function(url, destfile = tempfile()) {
   if (status != 0)
     stopf("Download failed [error code %i]", status)
 
-  if (!file.exists(destfile))
+  if (!renv_file_exists(destfile))
     stopf("Download failed [unknown reason]")
 
   if (renv_verbose()) {

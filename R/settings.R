@@ -39,7 +39,7 @@ renv_settings_read <- function() {
 
   project <- renv_state$project()
   path <- file.path(project, "renv/renv.opts")
-  if (!file.exists(path))
+  if (!renv_file_exists(path))
     return(renv_settings_defaults())
 
   dcf <- catch(renv_dcf_read(path))

@@ -29,7 +29,7 @@ renv_cache_prime <- function(library) {
   all <- list.files(library, full.names = TRUE)
 
   # remove packages with no DESCRIPTION file
-  packages <- all[file.exists(file.path(all, "DESCRIPTION"))]
+  packages <- all[renv_file_exists(file.path(all, "DESCRIPTION"))]
 
   if (length(packages) == 0) {
     fmt <- "There are no packages within library '%s' to be copied."
@@ -60,7 +60,7 @@ renv_cache_prime <- function(library) {
     cache <- renv_cache_package_path(record)
 
     # if we already have a cache entry, skip (assume up-to-date)
-    if (file.exists(cache))
+    if (renv_file_exists(cache))
       next
 
     # if we already have a cache entry, back it up
@@ -87,12 +87,12 @@ renv_cache_synchronize <- function(record) {
 
   # get path to library (bail if none recorded for this package)
   library <- renv_paths_library(record$Library) %||% ""
-  if (!file.exists(library))
+  if (!renv_file_exists(library))
     return(FALSE)
 
   # get path to package in library (bail if doesn't exist)
   path <- file.path(library, record$Package)
-  if (!file.exists(path))
+  if (!renv_file_exists(path))
     return(FALSE)
 
   # construct cache entry

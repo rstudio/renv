@@ -50,7 +50,7 @@ renv_write_activate <- function(project = NULL, renv) {
   template <- paste(readLines(source, encoding = "UTF-8"), collapse = "\n")
   new <- sprintf(template, renv_package_version("renv"))
 
-  if (file.exists(target)) {
+  if (renv_file_exists(target)) {
     old <- readLines(source, warn = FALSE)
     if (identical(old, new))
       return(TRUE)
@@ -72,7 +72,7 @@ renv_write_project_state <- function(project = NULL, renv) {
   keys <- c("Environment", "Version", "Local")
   vals <- c(renv, renv_package_version("renv"), local)
   new <- paste(keys, vals, sep = ": ", collapse = "\n")
-  if (!file.exists(activate)) {
+  if (!renv_file_exists(activate)) {
     writeLines(new, con = activate)
     return(TRUE)
   }
@@ -90,7 +90,7 @@ renv_write_project_state <- function(project = NULL, renv) {
 renv_write_entry_impl <- function(line, file, force) {
 
   # check to see if file doesn't exist
-  if (!file.exists(file)) {
+  if (!renv_file_exists(file)) {
 
     # if we're not forcing file creation, just bail
     if (!force)
@@ -157,7 +157,7 @@ renv_remove_gitignore <- function(project) {
 renv_remove_entry_impl <- function(line, file) {
 
   # if the file doesn't exist, nothing to do
-  if (!file.exists(file))
+  if (!renv_file_exists(file))
     return(TRUE)
 
   # if the file doesn't have the line, nothing to do

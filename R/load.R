@@ -86,11 +86,11 @@ renv_load_finish <- function() {
 
   renv <- renv_state$environment()
   local <- renv_state$local()
-  paths <- paste("-", shQuote(renv_libpaths_all()), collapse = "\n")
+  paths <- aliased_path(renv_libpaths_all())
 
   fmt <- "%s environment '%s' loaded. Using library paths:"
   messagef(fmt, if (local) "Local virtual" else "Virtual", basename(renv))
-  message(paths)
+  message(paste("-", shQuote(paths), collapse = "\n"))
 
 }
 

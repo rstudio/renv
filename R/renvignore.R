@@ -8,7 +8,7 @@ renv_renvignore_get <- function(project = NULL) {
   # construct path to '.renvignore'
   project <- project %||% renv_state$project()
   path <- file.path(project, ".renvignore")
-  if (!file.exists(path))
+  if (!renv_file_exists(path))
     return(defaults)
 
   # return ignores

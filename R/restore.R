@@ -26,7 +26,7 @@ restore <- function(manifest = NULL, confirm = interactive()) {
   # this manifest already exists -- if not, create it
   name <- manifest$Environment$Environment
   envir <- renv_paths_environment(name)
-  if (!file.exists(envir)) {
+  if (!renv_file_exists(envir)) {
 
     # remove state-related entries from the manifest
     blueprint <- manifest
@@ -151,7 +151,7 @@ renv_restore_install <- function(package, manifest = NULL) {
 
   # check for an entry in the cache we can use
   cache <- renv_cache_package_path(record)
-  if (file.exists(cache)) {
+  if (renv_file_exists(cache)) {
     status <- renv_restore_install_package_cache(record, cache)
     if (identical(status, TRUE))
       return(TRUE)
@@ -335,7 +335,7 @@ renv_restore_install_package <- function(record, url, path, type) {
 
   # download the package
   # TODO: toggle path based on whether package cache is enabled?
-  if (!file.exists(path)) {
+  if (!renv_file_exists(path)) {
     ensure_parent_directory(path)
     status <- catch(download(url, destfile = path))
     if (inherits(status, "error") || identical(status, FALSE))

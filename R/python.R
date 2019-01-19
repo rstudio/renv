@@ -42,7 +42,7 @@ renv_python_resolve <- function(python) {
   # if the user has requested a virtual environment by name, provide it
   if (!grepl("[/\\]", python)) {
     virtualenv <- file.path(renv_python_virtualenv_root(), python)
-    if (file.exists(virtualenv))
+    if (renv_file_exists(virtualenv))
       python <- virtualenv
   }
 

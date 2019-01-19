@@ -25,9 +25,12 @@ hydrate <- function(name = NULL, project = NULL) {
   na <- deps[is.na(deps)]
   packages <- deps[setdiff(names(deps), c(names(na), rownames(base)))]
 
-  # copy packages from user library to cache
+  # prune broken symlinks from the user library
   library <- renv_paths_library(name)
   ensure_directory(library)
+  renv_library_prune(library)
+
+  # copy packages from user library to cache
   renv_hydrate_cache_packages(packages, library, name)
 
   # update the library paths so that we're using the newly-established library
@@ -53,10 +56,10 @@ renv_hydrate_cache_package <- function(package, location, name) {
 
   record <- renv_snapshot_description(location, name)
   cache <- renv_cache_package_path(record)
-  if (file.exists(cache))
+  if (renv_file_exists(cache))
     return(cache)
 
-  if (!file.exists(cache)) {
+  if (!renv_file_exists(cache)) {
     ensure_parent_directory(cache)
     renv_file_copy(location, cache)
   }

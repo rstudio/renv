@@ -6,13 +6,13 @@
 renv_file_preface <- function(source, target, overwrite) {
 
   callback <- function() {}
-  if (!file.exists(source))
+  if (!renv_file_exists(source))
     stopf("source file '%s' does not exist", source)
 
   if (overwrite)
     callback <- renv_file_scoped_backup(target)
 
-  if (file.exists(target))
+  if (renv_file_exists(target))
     stopf("target file '%s' already exists", target)
 
   callback
@@ -42,7 +42,7 @@ renv_file_copy_file <- function(source, target) {
   if (inherits(status, "condition"))
     stop(status)
 
-  if (file.exists(target))
+  if (renv_file_exists(target))
     return(TRUE)
 
   fmt <- "attempt to copy file '%s' to '%s' failed (unknown reason)"
@@ -67,7 +67,7 @@ renv_file_copy_dir <- function(source, target) {
   if (inherits(status, "condition"))
     stop(status)
 
-  if (file.exists(target))
+  if (renv_file_exists(target))
     return(TRUE)
 
   fmt <- "attempt to copy file '%s' to '%s' failed (unknown reason)"
@@ -86,7 +86,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   # now, attempt to rename (catchall since this might quietly fail for
   # cross-device links)
   move <- catchall(file.rename(source, target))
-  if (file.exists(target))
+  if (renv_file_exists(target))
     return(TRUE)
 
   copy <- catchall(renv_file_copy(source, target))
@@ -116,13 +116,13 @@ renv_file_link <- function(source, target, overwrite = FALSE) {
   # first, try to symlink (note that this is supported on certain versions of
   # Windows as well when such permissions are enabled)
   status <- catchall(file.symlink(source, target))
-  if (identical(status, TRUE) && file.exists(target))
+  if (identical(status, TRUE) && renv_file_exists(target))
     return(TRUE)
 
   # on Windows, try creating a junction point
   if (Sys.info()[["sysname"]] == "Windows") {
     status <- catchall(Sys.junction(source, target))
-    if (identical(status, TRUE) && file.exists(target))
+    if (identical(status, TRUE) && renv_file_exists(target))
       return(TRUE)
   }
 
@@ -135,7 +135,7 @@ renv_file_link <- function(source, target, overwrite = FALSE) {
     file.copy(source, target)
   }
 
-  file.exists(target)
+  renv_file_exists(target)
 
 }
 
@@ -152,7 +152,7 @@ renv_file_same <- function(source, target) {
     return(TRUE)
 
   # if either file doesn't exist, bail
-  if (!file.exists(source) || !file.exists(target))
+  if (!renv_file_exists(source) || !renv_file_exists(target))
     return(FALSE)
 
   # otherwise, check and see if they're hardlinks to the same file
@@ -184,12 +184,15 @@ renv_file_scoped_backup <- function(path) {
   force(path)
 
   # if no file exists then nothing to backup
-  if (!file.exists(path))
+  if (!renv_file_exists(path))
     return(function() {})
 
   # normalize the path (since the working directory could change
-  # by the time the callback is invoked)
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  # by the time the callback is invoked). note that the file may
+  # be a broken symlink so construct the path by normalizing the
+  # parent directory and building path relative to that
+  parent <- normalizePath(dirname(path), winslash = "/", mustWork = TRUE)
+  path <- file.path(parent, basename(path))
 
   # attempt to rename the file
   pattern <- sprintf("renv-backup-%s", basename(path))
@@ -200,7 +203,7 @@ renv_file_scoped_backup <- function(path) {
   # return callback that will restore if needed
   function() {
 
-    if (!file.exists(path))
+    if (!renv_file_exists(path))
       file.rename(tempfile, path)
     else
       unlink(tempfile, recursive = TRUE)
@@ -211,5 +214,9 @@ renv_file_scoped_backup <- function(path) {
 
 renv_file_alt <- function(path, alternate) {
   subpath <- file.path(path, alternate)
-  if (file.exists(subpath)) subpath else path
+  if (renv_file_exists(subpath)) subpath else path
+}
+
+renv_file_exists <- function(path) {
+  !is.na(Sys.readlink(path)) | file.exists(path)
 }

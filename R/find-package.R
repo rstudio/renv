@@ -5,7 +5,7 @@ renv_package_find <- function(package) {
   # using the path to loaded namespaces)
   libpaths <- renv_libpaths_all()
   location <- find.package(package, quiet = TRUE, lib.loc = libpaths) %||% ""
-  if (file.exists(location))
+  if (renv_file_exists(location))
     return(location)
 
   # if that failed, try looking in the cache for the latest

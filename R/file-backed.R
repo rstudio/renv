@@ -5,7 +5,7 @@
 
 renv_filebacked_set <- function(path, value) {
 
-  if (!file.exists(path))
+  if (!renv_file_exists(path))
     return(FALSE)
 
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
@@ -19,7 +19,7 @@ renv_filebacked_set <- function(path, value) {
 
 renv_filebacked_get <- function(path) {
 
-  if (!file.exists(path))
+  if (!renv_file_exists(path))
     return(NULL)
 
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)

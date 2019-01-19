@@ -24,7 +24,7 @@ snapshot <- function(name = NULL, file = "", confirm = interactive()) {
   new <- renv_manifest_read(renv_paths_environment(name))
 
   # update state-related fields
-  if (file.exists(renv_activate_path()))
+  if (renv_file_exists(renv_activate_path()))
     new$Environment <- renv_activate_read()
 
   new$R$Package <- uapply(new$R$Library, function(name) {
@@ -173,7 +173,7 @@ renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
 renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) {
 
   desc <- file.path(pkgs, "DESCRIPTION")
-  missing <- !file.exists(desc)
+  missing <- !renv_file_exists(desc)
   if (!any(missing))
     return(pkgs)
 
@@ -196,7 +196,7 @@ renv_snapshot_description <- function(path, library) {
   if (identical(info$isdir, TRUE))
     path <- file.path(path, "DESCRIPTION")
 
-  if (!file.exists(path)) {
+  if (!renv_file_exists(path)) {
     fmt <- "No DESCRIPTION at path '%s'."
     msg <- sprintf(fmt, path)
     return(simpleError(msg))

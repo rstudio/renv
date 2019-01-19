@@ -1,6 +1,6 @@
 
 ensure_existing_path <- function(path) {
-  if (!file.exists(path))
+  if (!renv_file_exists(path))
     stopf("no file at path '%s'", path)
   invisible(path)
 }
@@ -17,7 +17,7 @@ ensure_existing_file <- function(path) {
 ensure_existing_renv <- function(name) {
 
   path <- renv_paths_environment(name)
-  if (file.exists(path))
+  if (renv_file_exists(path))
     return(invisible(path))
 
   fmt <- "%s environment '%s' does not exist."
@@ -28,7 +28,7 @@ ensure_existing_renv <- function(name) {
 ensure_no_renv <- function(name) {
 
   path <- renv_paths_environment(name)
-  if (!file.exists(path))
+  if (!renv_file_exists(path))
     return(invisible(path))
 
   fmt <- "%s environment '%s' already exists."
