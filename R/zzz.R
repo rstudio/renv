@@ -1,27 +1,6 @@
 
 .onLoad <- function(libname, pkgname) {
 
-  # save the default values seen for environment variables that we mutate
-  # when activating / deactivating a virtual environment
-  Sys.setenv(
-
-    RENV_DEFAULT_LIBPATHS       = paste(renv_libpaths_all(), collapse = .Platform$path.sep),
-
-    RENV_DEFAULT_R_PROFILE      = Sys.getenv("R_PROFILE",      unset = "<NA>"),
-    RENV_DEFAULT_R_PROFILE_USER = Sys.getenv("R_PROFILE_USER", unset = "<NA>"),
-
-    RENV_DEFAULT_R_ENVIRON      = Sys.getenv("R_ENVIRON",      unset = "<NA>"),
-    RENV_DEFAULT_R_ENVIRON_USER = Sys.getenv("R_ENVIRON_USER", unset = "<NA>"),
-
-    RENV_DEFAULT_R_LIBS_USER    = Sys.getenv("R_LIBS_USER",    unset = "<NA>"),
-    RENV_DEFAULT_R_LIBS_SITE    = Sys.getenv("R_LIBS_SITE",    unset = "<NA>"),
-    RENV_DEFAULT_R_LIBS         = Sys.getenv("R_LIBS",         unset = "<NA>"),
-
-    RENV_DEFAULT_SYSTEM_LIBRARY = paste(.Library, collapse = .Platform$path.sep),
-    RENV_DEFAULT_SITE_LIBRARY   = paste(.Library.site, collapse = .Platform$path.sep)
-
-  )
-
   # cache the path to the actually-installed 'renv'
   renv_global_set("renv", renv_package_find("renv"))
 

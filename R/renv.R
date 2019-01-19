@@ -136,29 +136,12 @@ deactivate <- function(project = NULL) {
   project <- project %||% renv_state$project()
 
   renv_remove_rprofile(project)
+  renv_envvars_restore()
 
   activate <- renv_activate_read(project)
   name <- activate$Environment
   fmt <- "* Deactivating %s environment '%s' ..."
   vmessagef(fmt, if (renv_state$local()) "local virtual" else "virtual", name)
-
-  Sys.setenv(
-    R_LIBS_USER = Sys.getenv("RENV_DEFAULT_R_LIBS_USER"),
-    R_LIBS_SITE = Sys.getenv("RENV_DEFAULT_R_LIBS_SITE"),
-    R_LIBS      = Sys.getenv("RENV_DEFAULT_R_LIBS")
-  )
-
-  libpaths <- strsplit(
-    Sys.getenv("RENV_DEFAULT_LIBPATHS"),
-    .Platform$path.sep,
-    fixed = TRUE
-  )[[1]]
-
-  renv_libpaths_set(libpaths)
-
-  env <- Sys.getenv()
-  stale <- grep("^RENV_", names(env), value = TRUE)
-  Sys.unsetenv(stale)
 
   renv_request_restart("Virtual environment deactivated")
 }
@@ -188,10 +171,12 @@ load <- function(project = NULL) {
   renv_state$environment(renv)
   renv_state$local(local)
 
+  renv_envvars_save()
+
   renv_load_r_version(spec)
+  renv_load_envvars(spec)
   renv_load_libpaths(spec)
   renv_load_repos(spec)
-  renv_load_envvars(spec)
   renv_load_python(spec)
 
   renv_load_finish()
