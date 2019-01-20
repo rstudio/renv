@@ -41,7 +41,7 @@ renv_available_packages_query <- function(url, type) {
   if (inherits(db, "error"))
     return(renv_available_packages_query_impl(url, cache, type))
 
-  db
+  as.data.frame(db, stringsAsFactors = FALSE)
 
 }
 

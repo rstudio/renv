@@ -268,20 +268,30 @@ renv_restore_install_cran <- function(record) {
 
 }
 
-renv_restore_install_cran_binary <- function(record) {
-
+renv_restore_install_cran_archive_name_binary <- function(record) {
   sysname <- Sys.info()[["sysname"]]
   suffix <- switch(sysname, Darwin = "tgz", Windows = "zip", "tar.gz")
-  name <- sprintf("%s_%s.%s", record$Package, record$Version, suffix)
-  renv_restore_install_cran_impl(record, "binary", name)
+  sprintf("%s_%s.%s", record$Package, record$Version, suffix)
+}
+
+renv_restore_install_cran_archive_name_source <- function(record) {
+  sprintf("%s_%s.tar.gz", record$Package, record$Version)
+}
+
+renv_restore_install_cran_archive_name <- function(record, type) {
+  case(
+    type == "binary" ~ renv_restore_install_cran_archive_name_binary(record),
+    type == "source" ~ renv_restore_install_cran_archive_name_source(record)
+  )
+}
+
+renv_restore_install_cran_binary <- function(record) {
+  renv_restore_install_cran_impl(record, "binary")
 
 }
 
 renv_restore_install_cran_source <- function(record) {
-
-  name <- sprintf("%s_%s.tar.gz", record$Package, record$Version)
-  renv_restore_install_cran_impl(record, "source", name)
-
+  renv_restore_install_cran_impl(record, "source")
 }
 
 renv_restore_install_cran_archive <- function(record) {

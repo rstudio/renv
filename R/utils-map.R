@@ -1,4 +1,9 @@
 
+bapply <- function(x, f, ...) {
+  result <- lapply(x, f, ...)
+  bind_list(result)
+}
+
 enumerate <- function(x, f, ...) {
   n <- names(x); idx <- named(seq_along(x), n)
   lapply(idx, function(i) f(n[[i]], x[[i]], ...))
