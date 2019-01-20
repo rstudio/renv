@@ -190,7 +190,7 @@ renv_restore_install_missing_record <- function(package) {
     Version    = entry$Version,
     Library    = NULL,
     Source     = "CRAN",
-    Type       = if (grepl("src/contrib$", entry$Repository)) "source" else "binary",
+    Type       = if (grepl("src/contrib", entry$Repository)) "source" else "binary",
     Repository = entry$Repository
   )
 
@@ -436,7 +436,7 @@ renv_restore_install_package_local <- function(record, path, type) {
     lib   = library %||% renv_libpaths_default(),
     repos = NULL,
     type  = type,
-    quiet = FALSE,
+    quiet = !renv_verbose(),
 
     configure.args = options$configure.args,
     configure.vars = options$configure.vars,
