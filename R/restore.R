@@ -178,26 +178,20 @@ renv_restore_install_missing_record <- function(package) {
   #   2. request a package + version to be installed,
   #   3. hard error
   #
-
-  entry <- NULL
-  for (type in c("binary", "source")) {
-    entry <- catch(renv_available_packages_entry(package, type))
-    if (is.data.frame(entry))
-      break
-  }
-
+  type <- if (Sys.info()[["sysname"]] == "Linux") "source" else "both"
+  entry <- catch(renv_available_packages_entry(package, type))
   if (!is.data.frame(entry)) {
     fmt <- "Failed to install package '%s' (missing record and failed to discover on CRAN)"
     stopf(fmt, package)
   }
 
-  # TODO: explicit API for constructing a package record
-  # TODO: infer correct source for package
   list(
-    Package = package,
-    Version = entry$Version,
-    Library = NULL,
-    Source  = "CRAN"
+    Package    = package,
+    Version    = entry$Version,
+    Library    = NULL,
+    Source     = "CRAN",
+    Type       = if (grepl("src/contrib$", entry$Repository)) "source" else "binary",
+    Repository = entry$Repository
   )
 
 }
@@ -243,6 +237,10 @@ renv_restore_install_bitbucket <- function(record) {
 }
 
 renv_restore_install_cran <- function(record) {
+
+  # if we already have a type + repository, no need to find it
+  if (!is.null(record$Type) && !is.null(record$Repository))
+    return(renv_restore_install_cran_impl(record))
 
   # always attempt to install from source + archive
   methods <- c(
@@ -307,17 +305,24 @@ renv_restore_install_cran_archive <- function(record) {
 
 }
 
-renv_restore_install_cran_impl <- function(record, type, name, repo = NULL) {
+renv_restore_install_cran_impl <- function(record,
+                                           type = NULL,
+                                           name = NULL,
+                                           repo = NULL)
+{
+  type <- type %||% record$Type
+  name <- name %||% renv_restore_install_cran_archive_name(record, type)
 
-  entry <- renv_restore_install_cran_entry(record, type, repo)
-  if (empty(entry))
-    return(FALSE)
+  # if we weren't provided a repository for this package, try to find it
+  if (is.null(repo)) {
+    filter <- function(entry) identical(record$Version, entry$Version)
+    entry <- renv_available_packages_entry(record$Package, type, filter)
+    if (empty(entry))
+      return(FALSE)
+    repo <- entry$Repository
+  }
 
-  # TODO: allow version mismatches? (e.g. restore latest instead of requested)reco
-  if (!identical(entry$Version, record$Version))
-    return(FALSE)
-
-  url <- file.path(entry$Repository, name)
+  url <- file.path(repo, name)
   path <- case(
     type == "binary" ~ renv_paths_binary(record$Package, name),
     type == "source" ~ renv_paths_source(record$Package, name)
@@ -327,19 +332,6 @@ renv_restore_install_cran_impl <- function(record, type, name, repo = NULL) {
 
 }
 
-
-renv_restore_install_cran_entry <- function(record, type, repo = NULL) {
-
-  # if a repository was explicitly supplied, use it (this is the case
-  # when e.g. installing a package from the archive; repo is used so
-  # that we form a link to the appropriate spot in the CRAN archive)
-  if (!is.null(repo))
-    return(c(record, Repository = repo))
-
-  # otherwise, get the associated entry from CRAN's available packages
-  renv_available_packages_entry(record$Package, type) %||% list()
-
-}
 
 renv_restore_install_package <- function(record, url, path, type) {
 

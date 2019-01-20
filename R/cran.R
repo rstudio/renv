@@ -71,12 +71,18 @@ renv_available_packages_query_impl <- function(url, cache, type) {
 
 }
 
-renv_available_packages_entry <- function(package, type) {
+renv_available_packages_entry <- function(package, type, filter = NULL) {
 
+  filter <- filter %||% function(entry) TRUE
   dbs <- renv_available_packages(type = type)
-  for (db in dbs)
-    if (package %in% db$Package)
-      return(db[package, ])
+  for (db in dbs) {
+    if (!package %in% db$Package)
+      next
+
+    entry <- db[package, ]
+    if (filter(entry))
+      return(entry)
+  }
 
   NULL
 
