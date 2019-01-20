@@ -434,7 +434,7 @@ renv_restore_install_package_local <- function(record, path, type) {
     lib   = library %||% renv_libpaths_default(),
     repos = NULL,
     type  = type,
-    quiet = TRUE,
+    quiet = FALSE,
 
     configure.args = options$configure.args,
     configure.vars = options$configure.vars,

@@ -1,4 +1,14 @@
 
+renv_repos_import <- function() {
+  cache <- renv_paths_repos()
+  sources <- list.files(cache, full.names = TRUE)
+  targets <- file.path(tempdir(), sprintf("repos_%s", basename(sources)))
+  mapply(function(source, target) {
+    if (!renv_file_exists(target))
+      renv_file_link(source, target)
+  }, sources, targets)
+}
+
 renv_repos_encode <- function(x) {
   if (length(x) == 1)
     paste(names(x), as.character(x), sep = "=")

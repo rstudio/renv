@@ -57,7 +57,7 @@ renv_available_packages_query_impl <- function(url, cache, type) {
   # whose PACKAGES files do not exist; note that an error is thrown in that
   # case anyhow)
   db <- withCallingHandlers(
-    as.data.frame(available.packages(url), stringsAsFactors = FALSE),
+    available.packages(contriburl = url),
     warning = function(w) invokeRestart("muffleWarning"),
     message = function(m) invokeRestart("muffleMessage")
   )
@@ -67,7 +67,7 @@ renv_available_packages_query_impl <- function(url, cache, type) {
   saveRDS(db, file = cache)
 
   # return the db
-  db
+  as.data.frame(db, stringsAsFactors = FALSE)
 
 }
 
