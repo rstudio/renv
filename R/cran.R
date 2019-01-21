@@ -84,6 +84,6 @@ renv_available_packages_entry <- function(package, type, filter = NULL) {
       return(entry)
   }
 
-  NULL
+  stopf("package '%s' [%s] is not available", package, type)
 
 }

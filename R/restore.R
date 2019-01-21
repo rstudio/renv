@@ -329,8 +329,8 @@ renv_restore_install_cran_impl <- function(record,
   # if we weren't provided a repository for this package, try to find it
   if (is.null(repo)) {
     filter <- function(entry) identical(record$Version, entry$Version)
-    entry <- renv_available_packages_entry(record$Package, type, filter)
-    if (empty(entry))
+    entry <- catch(renv_available_packages_entry(record$Package, type, filter))
+    if (inherits(entry, "error"))
       return(FALSE)
     repo <- entry$Repository
   }
