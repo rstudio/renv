@@ -83,3 +83,5 @@
 - [ ] Audit usages of `renv_file_exists()`. When do we care about broken symlinks?
       `file.exists()` returns FALSE for broken symlinks; `renv_file_exists()`
       returns TRUE.
+
+- [ ] De-couple the 'retrieve' + 'install' steps during restore.

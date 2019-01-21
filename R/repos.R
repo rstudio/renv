@@ -5,7 +5,7 @@ renv_repos_import <- function() {
   targets <- file.path(tempdir(), sprintf("repos_%s", basename(sources)))
   mapply(function(source, target) {
     if (!renv_file_exists(target))
-      renv_file_link(source, target)
+      renv_file_link(source, target, link = file.link)
   }, sources, targets)
 }
 

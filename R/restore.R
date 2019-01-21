@@ -178,19 +178,31 @@ renv_restore_install_missing_record <- function(package) {
   #   2. request a package + version to be installed,
   #   3. hard error
   #
-  type <- if (Sys.info()[["sysname"]] == "Linux") "source" else "both"
-  entry <- catch(renv_available_packages_entry(package, type))
-  if (!is.data.frame(entry)) {
+  types <- if (Sys.info()[["sysname"]] == "Linux") "source" else c("binary", "source")
+  entries <- bapply(types, function(type) {
+
+    entry <- catch(renv_available_packages_entry(package, type))
+    if (inherits(entry, "error"))
+      return(NULL)
+
+    c(entry[c("Package", "Version", "Repository")], Type = type)
+
+  })
+
+  if (!is.data.frame(entries)) {
     fmt <- "Failed to install package '%s' (missing record and failed to discover on CRAN)"
     stopf(fmt, package)
   }
+
+  idx <- with(entries, order(Version, factor(Type, c("source", "binary"))))
+  entry <- entries[tail(idx, n = 1), ]
 
   list(
     Package    = package,
     Version    = entry$Version,
     Library    = NULL,
     Source     = "CRAN",
-    Type       = if (grepl("src/contrib", entry$Repository)) "source" else "binary",
+    Type       = entry$Type,
     Repository = entry$Repository
   )
 
@@ -312,6 +324,7 @@ renv_restore_install_cran_impl <- function(record,
 {
   type <- type %||% record$Type
   name <- name %||% renv_restore_install_cran_archive_name(record, type)
+  repo <- repo %||% record$Repository
 
   # if we weren't provided a repository for this package, try to find it
   if (is.null(repo)) {

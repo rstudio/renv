@@ -105,7 +105,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
 
 }
 
-renv_file_link <- function(source, target, overwrite = FALSE) {
+renv_file_link <- function(source, target, overwrite = FALSE, link = file.symlink) {
 
   if (renv_file_same(source, target))
     return(TRUE)
@@ -115,7 +115,7 @@ renv_file_link <- function(source, target, overwrite = FALSE) {
 
   # first, try to symlink (note that this is supported on certain versions of
   # Windows as well when such permissions are enabled)
-  status <- catchall(file.symlink(source, target))
+  status <- catchall(link(source, target))
   if (identical(status, TRUE) && renv_file_exists(target))
     return(TRUE)
 
