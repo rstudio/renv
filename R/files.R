@@ -144,7 +144,7 @@ renv_file_junction <- function(source, target, info = NULL) {
     return(FALSE)
 
   # attempt the junction
-  Sys.junction(source)
+  Sys.junction(source, target)
 
 }
 
