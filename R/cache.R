@@ -10,6 +10,7 @@ renv_cache_package_path <- function(record) {
 
   # if we don't have a hash, check to see if we have a cache entry
   # for this version anyway, and use it if so
+  # TODO: how to select between multiple hashes for same version?
   hashes <- list.files(renv_paths_cache(record$Package, record$Version))
   if (length(hashes)) {
     path <- with(record, renv_paths_cache(Package, Version, hashes[[1]], Package))

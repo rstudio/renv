@@ -89,6 +89,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   if (renv_file_exists(target))
     return(TRUE)
 
+  # rename failed; fall back to copying
   copy <- catchall(renv_file_copy(source, target))
   if (identical(copy, TRUE))
     return(TRUE)
@@ -113,29 +114,37 @@ renv_file_link <- function(source, target, overwrite = FALSE, link = file.symlin
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
 
-  # first, try to symlink (note that this is supported on certain versions of
+  # first, try to link (note that this is supported on certain versions of
   # Windows as well when such permissions are enabled)
   status <- catchall(link(source, target))
   if (identical(status, TRUE) && renv_file_exists(target))
     return(TRUE)
 
   # on Windows, try creating a junction point
-  if (Sys.info()[["sysname"]] == "Windows") {
-    status <- catchall(Sys.junction(source, target))
-    if (identical(status, TRUE) && renv_file_exists(target))
-      return(TRUE)
-  }
+  info <- file.info(source, extra_cols = FALSE)
+  status <- catchall(renv_file_junction(source, target, info))
+  if (identical(status, TRUE) && renv_file_exists(target))
+    return(TRUE)
 
   # all else fails, just perform a copy
-  info <- file.info(source)
-  if (info$isdir) {
-    ensure_parent_directory(target)
-    file.copy(source, dirname(target), recursive = TRUE)
-  } else {
-    file.copy(source, target)
-  }
+  renv_file_copy(source, target, overwrite = overwrite)
 
-  renv_file_exists(target)
+}
+
+renv_file_junction <- function(source, target, info = NULL) {
+
+  info <- info %||% file.info(source, extra_cols = FALSE)
+
+  # can only make junctions on Windows
+  if (Sys.info()[["sysname"]] != "Windows")
+    return(FALSE)
+
+  # can only create junctions between directories
+  if (!identical(info$isdir, TRUE))
+    return(FALSE)
+
+  # attempt the junction
+  Sys.junction(source)
 
 }
 
@@ -222,6 +231,12 @@ renv_file_alt <- function(path, alternate) {
   if (renv_file_exists(subpath)) subpath else path
 }
 
+# NOTE: returns true for files that are broken symlinks
 renv_file_exists <- function(path) {
+
+  if (Sys.info()[["sysname"]] == "Windows")
+    return(file.exists(path))
+
   !is.na(Sys.readlink(path)) | file.exists(path)
+
 }
