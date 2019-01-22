@@ -3,7 +3,7 @@ download <- function(url, destfile = tempfile()) {
 
   # handle local files by just copying the file
   if (grepl("file:", url)) {
-    source <- sub("^file:[/\\]*", "", url)
+    source <- sub("^file:(?://)?", "", url)
     renv_file_copy(source, destfile, overwrite = TRUE)
     return(destfile)
   }
