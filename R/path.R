@@ -8,3 +8,12 @@ path_within <- function(path, parent) {
   parent <- path.expand(parent)
   identical(parent, substring(path, 1, nchar(parent)))
 }
+
+
+path_canonicalize <- function(path) {
+  file.path(normalizePath(dirname(path), mustWork = TRUE), basename(path))
+}
+
+path_same <- function(lhs, rhs) {
+  path_canonicalize(lhs) == path_canonicalize(rhs)
+}
