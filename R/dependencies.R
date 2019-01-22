@@ -43,7 +43,10 @@ renv_dependencies_discover_dir <- function(path) {
   # list files in the folder
   # TODO: on Windows, 'list.files()' can fail to return files
   # whose names are not representable in the current locale
-  children <- list.files(path, full.names = TRUE)
+  children <- renv_file_list(path, full.names = TRUE)
+
+  # remove files which are broken symlinks
+  children <- children[file.exists(children)]
 
   # filter children based on pattern
   pattern <- sprintf("(?:%s)$", paste(renv_renvignore_get(), collapse = "|"))
@@ -80,21 +83,19 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
     x <- strsplit(dcf[[field]], "\\s*,\\s*")[[1]]
     m <- regexec(pattern, x)
     matches <- regmatches(x, m)
+    if (empty(matches))
+      return(list())
 
-    data.frame(
-      Package = extract_chr(matches, 2L),
-      Require = extract_chr(matches, 3L),
-      Version = extract_chr(matches, 4L),
-      stringsAsFactors = FALSE
+    renv_dependencies_list(
+      path,
+      extract_chr(matches, 2L),
+      extract_chr(matches, 3L),
+      extract_chr(matches, 4L)
     )
 
   })
 
-  bound <- bind_list(data)
-  if (is.null(bound))
-    return(NULL)
-
-  cbind(Source = path, bound, stringsAsFactors = FALSE)
+  bind_list(data)
 
 }
 
@@ -371,7 +372,7 @@ renv_dependencies_discover_r_colon <- function(node, envir) {
 
 }
 
-renv_dependencies_list <- function(source, packages) {
+renv_dependencies_list <- function(source, packages, require = "", version = "") {
 
   if (empty(packages))
     return(NULL)
@@ -379,8 +380,8 @@ renv_dependencies_list <- function(source, packages) {
   data.frame(
     Source  = as.character(source),
     Package = as.character(packages),
-    Require = "",
-    Version = "",
+    Require = require,
+    Version = version,
     stringsAsFactors = FALSE
   )
 
