@@ -160,29 +160,19 @@ renv_file_same <- function(source, target) {
   if (identical(source, target))
     return(TRUE)
 
-  # if either file doesn't exist, bail
+  # if either file is missing, return false
   if (!renv_file_exists(source) || !renv_file_exists(target))
     return(FALSE)
 
-  # otherwise, check and see if they're hardlinks to the same file
-  test <- Sys.which("test")
-  if (nzchar(test)) {
-    command <- paste(test, shQuote(source), "-ef", shQuote(target))
-    status <- catch(system(command))
-    return(identical(status, 0L))
-  }
+  # for hard links + junction points, it's difficult to detect
+  # whether the two files point to the same object; use some
+  # heuristics to guess (note that these aren't perfect)
+  sinfo <- file.info(source, extra_cols = FALSE)
+  tinfo <- file.info(target, extra_cols = FALSE)
+  if (!identical(c(sinfo), c(tinfo)))
+    return(FALSE)
 
-  # try using fsutil (primarily for Windows + hardlinks)
-  fsutil <- Sys.which("fsutil")
-  if (nzchar(fsutil)) {
-    prefix <- paste(shQuote(fsutil), "file queryFileID")
-    sid    <- catch(system(paste(prefix, shQuote(source)), intern = TRUE))
-    tid    <- catch(system(paste(prefix, shQuote(target)), intern = TRUE))
-    return(identical(sid, tid))
-  }
-
-  # assume FALSE when all else fails
-  FALSE
+  TRUE
 
 }
 
