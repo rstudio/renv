@@ -41,6 +41,8 @@ renv_dependencies_discover_dir <- function(path) {
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
 
   # list files in the folder
+  # TODO: on Windows, 'list.files()' can fail to return files
+  # whose names are not representable in the current locale
   children <- list.files(path, full.names = TRUE)
 
   # filter children based on pattern

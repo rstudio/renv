@@ -43,7 +43,7 @@ test_that("attempts to link files work", {
   source <- tempfile("renv-source-")
   target <- tempfile("renv-target-")
 
-  file.create(source)
+  dir.create(source)
   renv_file_link(source, target)
   expect_true(renv_file_same(source, target))
 

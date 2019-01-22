@@ -230,3 +230,31 @@ renv_file_exists <- function(path) {
   !is.na(Sys.readlink(path)) | file.exists(path)
 
 }
+
+renv_file_list <- function(path, full.names = TRUE) {
+  files <- renv_file_list_impl(path)
+  if (full.names) file.path(path, files) else files
+}
+
+renv_file_list_impl <- function(path) {
+
+  # ensure we have a directory
+  info <- file.info(path, extra_cols = FALSE)
+  if (!identical(info$isdir, TRUE))
+    return(FALSE)
+
+  # on Windows, list.files mangles encoding
+  if (renv_platform_windows()) {
+    path <- normalizePath(path)
+    command <- paste("cmd.exe /c chcp 65001 && dir /B", path)
+    output <- system(command, intern = TRUE)
+    Encoding(output) <- "UTF-8"
+    return(output)
+  }
+
+  # otherwise, a plain old list.files will suffice
+  list.files(path)
+
+}
+
+

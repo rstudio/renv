@@ -79,12 +79,13 @@ renv_tests_init_repos <- function() {
   }
 
   # update PACKAGES metadata
-  tools::write_PACKAGES(contrib, subdirs = TRUE)
+  tools::write_PACKAGES(contrib, subdirs = TRUE, type = "source")
 
   # and update our repos option
+  fmt <- if (renv_platform_windows()) "file:%s" else "file://%s"
   options(
     pkgType = "source",
-    repos = c(CRAN = sprintf("file://%s", repos))
+    repos = c(CRAN = sprintf(fmt, repos))
   )
 
 }

@@ -1,6 +1,13 @@
 
 download <- function(url, destfile = tempfile()) {
 
+  # handle local files by just copying the file
+  if (grepl("file:", url)) {
+    source <- sub("^file:[/\\]*", "", url)
+    renv_file_copy(source, destfile, overwrite = TRUE)
+    return(destfile)
+  }
+
   vmessagef("Retrieving '%s' ...", url)
 
   before <- Sys.time()
@@ -18,4 +25,7 @@ download <- function(url, destfile = tempfile()) {
     fmt <- "\tOK [downloaded %s in %s]"
     messagef(fmt, format(size, units = "auto"), format(time, units = "auto"))
   }
+
+  destfile
+
 }
