@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Virtual Environments for R
-Version: 0.0.1-595
+Version: 0.0.1-597
 Author: Kevin Ushey
 Maintainer: Kevin Ushey <kevinushey@gmail.com>
 Description: Create and manage R virtual environments.
