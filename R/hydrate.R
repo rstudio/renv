@@ -52,30 +52,25 @@ renv_hydrate_discover_dependencies <- function(project) {
   all
 }
 
-renv_hydrate_cache_package <- function(package, location, name) {
+renv_hydrate_cache_package <- function(package, location, library, name) {
 
   record <- renv_snapshot_description(location, name)
   cache <- renv_cache_package_path(record)
-  if (renv_file_exists(cache))
-    return(cache)
 
   if (!renv_file_exists(cache)) {
     ensure_parent_directory(cache)
     renv_file_copy(location, cache)
   }
 
-  cache
+  target <- file.path(library, package)
+  ensure_parent_directory(target)
+  renv_file_link(cache, target, overwrite = TRUE)
 
 }
 
 renv_hydrate_cache_packages <- function(packages, library, name) {
   vmessagef("* Copying packages into the cache ... ", appendLF = FALSE)
-  cached <- enumerate(packages, renv_hydrate_cache_package, name = name)
-  enumerate(cached, function(package, cache) {
-    target <- file.path(library, package)
-    ensure_parent_directory(target)
-    renv_file_link(cache, target, overwrite = TRUE)
-  })
+  cached <- enumerate(packages, renv_hydrate_cache_package, library = library, name = name)
   vmessagef("Done!")
   cached
 }

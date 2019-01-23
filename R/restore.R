@@ -400,6 +400,7 @@ renv_restore_install_package_cache_impl <- function(record, cache) {
 
   # determine if we should copy or link from the cache
   # (prefer copying if we're writing to a non-renv path)
+  ensure_directory(renv_paths_library())
   link <- if (path_within(target, renv_paths_library()))
     renv_file_link
   else
