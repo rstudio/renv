@@ -443,10 +443,11 @@ renv_restore_install_package_local <- function(record, path, type) {
   before(package)
   on.exit(after(package), add = TRUE)
 
+  lib <- library %||% renv_libpaths_default()
   install.packages(
 
     pkgs  = path,
-    lib   = library %||% renv_libpaths_default(),
+    lib   = lib,
     repos = NULL,
     type  = type,
     quiet = !renv_verbose(),
@@ -456,6 +457,10 @@ renv_restore_install_package_local <- function(record, path, type) {
     INSTALL_opts   = options$install.options
 
   )
+
+  # check to see if installation succeeded
+  if (!file.exists(file.path(lib, package)))
+    stopf("installation of package '%s' failed", package)
 
 }
 
