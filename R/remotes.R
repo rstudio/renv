@@ -2,7 +2,9 @@
 renv_remotes_read <- function(remotes = NULL) {
   remotes <- remotes %||% renv_remotes_path()
   contents <- readLines(remotes, warn = FALSE)
-  lapply(contents, renv_remotes_parse)
+  parsed <- lapply(contents, renv_remotes_parse)
+  names(parsed) <- map_chr(parsed, `[[`, "Package")
+  parsed
 }
 
 renv_remotes_parse <- function(entry) {
@@ -29,14 +31,14 @@ renv_remotes_parse <- function(entry) {
 
 renv_remotes_parse_cran <- function(entry) {
   parts <- strsplit(entry, "@", fixed = TRUE)[[1]]
-  list(Package = parts[[1]], Version = parts[[2]], Type = "CRAN")
+  list(Package = parts[[1]], Version = parts[[2]], Source = "CRAN")
 }
 
 renv_remotes_parse_github <- function(entry) {
   parts <- strsplit(entry, "[@/]")[[1]]
   list(
     Package        = parts[[2]],
-    Type           = "GitHub",
+    Source         = "GitHub",
     RemoteUsername = parts[[1]],
     RemoteRepo     = parts[[2]],
     RemoteSha      = parts[[3]]

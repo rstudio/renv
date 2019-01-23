@@ -308,8 +308,9 @@ renv_restore_install_cran_archive <- function(record) {
 
   name <- sprintf("%s_%s.tar.gz", record$Package, record$Version)
   for (repo in getOption("repos")) {
-    repo <- file.path(repo, "src/contrib/Archive")
-    if (renv_restore_install_cran_impl(record, "source", name, repo))
+    repo <- file.path(repo, "src/contrib/Archive", record$Package)
+    status <- catch(renv_restore_install_cran_impl(record, "source", name, repo))
+    if (identical(status, TRUE))
       return(TRUE)
   }
 
