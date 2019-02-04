@@ -26,6 +26,7 @@ renv_load_libpaths <- function(manifest) {
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
   .libPaths(libpaths)
 
+
 }
 
 renv_load_repos <- function(manifest) {
@@ -91,7 +92,15 @@ renv_load_finish <- function() {
   fmt <- "%s environment '%s' loaded. Using library paths:"
   messagef(fmt, if (local) "Local virtual" else "Virtual", basename(renv))
   message(paste("-", shQuote(paths), collapse = "\n"))
+}
 
+renv_load_prompt <- function(manifest) {
+  renv <- manifest$Environment$Environment
+  options(prompt = sprintf("%s > ", basename(renv)))
+}
+
+renv_reset_prompt <- function() {
+  options(prompt = "> ")
 }
 
 renv_load_project <- function(project) {
@@ -99,3 +108,5 @@ renv_load_project <- function(project) {
   renv_state$local(as.logical(activate$Local))
   activate$Environment
 }
+
+

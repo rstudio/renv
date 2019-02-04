@@ -127,6 +127,7 @@ activate <- function(name = NULL, project = NULL, local = NULL) {
   # set library paths now so that they're properly restored in new sessions
   manifest <- renv_manifest_load(project)
   renv_load_libpaths(manifest)
+  renv_load_prompt(manifest)
 
   reason <- sprintf("Virtual environment '%s' activated", name)
   renv_request_restart(reason)
@@ -152,7 +153,7 @@ deactivate <- function(project = NULL) {
   name <- activate$Environment
   fmt <- "* Deactivating %s environment '%s' ..."
   vmessagef(fmt, if (renv_state$local()) "local virtual" else "virtual", name)
-
+  renv_reset_prompt()
   renv_request_restart("Virtual environment deactivated")
 }
 
@@ -188,7 +189,7 @@ load <- function(project = NULL) {
   renv_load_libpaths(spec)
   renv_load_repos(spec)
   renv_load_python(spec)
-
+  renv_load_prompt(spec)
   renv_load_finish()
 
   invisible(renv)
