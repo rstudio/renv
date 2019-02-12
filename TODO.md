@@ -85,3 +85,11 @@
       returns TRUE.
 
 - [ ] De-couple the 'retrieve' + 'install' steps during restore.
+
+- [ ] Include recommended packages in the manifest? (Since R installations on
+      Linux may not have these packages available). Or at least confirm that
+      packages which depend on recommended packages enter the manifest.
+
+- [ ] Use a single manifest file, but provide a `history()` function to dig out
+      old versions of the manifest. (Make it clearer to users what needs to be
+      committed)
