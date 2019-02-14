@@ -93,3 +93,6 @@
 - [ ] Use a single manifest file, but provide a `history()` function to dig out
       old versions of the manifest. (Make it clearer to users what needs to be
       committed)
+
+- [ ] Handle NA mtime in filecached APIs.
+
