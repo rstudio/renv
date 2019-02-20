@@ -27,7 +27,7 @@ renv_pretty_print_pair <- function(message, old, new, actions, action) {
   after  <- new$R$Package[names(matches)]
 
   formatted <- sprintf(
-    "[%s -> %s]",
+    "  [%s -> %s]",
     map_chr(extract(before, "Version"), format),
     map_chr(extract(after, "Version"), format)
   )

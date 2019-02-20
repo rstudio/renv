@@ -1,24 +1,26 @@
 
-#' Initialize a Project-local Virtual Environment
+#' Initialize a Project
 #'
 #' Discover packages used within the current project, and then initialize a
-#' project-local virtual environment with those packages. The
-#' currently-installed versions of any packages in use (as detected within the
-#' user library) are then added to the project manifest, effectively forking
-#' the state of your user library into a private project library.
+#' project-local private \R library with those packages. The currently-installed
+#' versions of any packages in use (as detected within the default R libraries)
+#' are then installed to the project's private library.
 #'
 #' The primary steps taken when initializing a new virtual environment are:
 #'
 #' 1. \R package dependencies are discovered within the \R files used within
-#'    the project;
+#'    the project with [discover_dependencies()];
 #'
-#' 2. Discovered packages are copied into the `renv` global package cache (so
-#'    these packages can be re-used across multiple projects as necessary),
+#' 2. Discovered packages are copied into the `renv` global package cache, so
+#'    these packages can be re-used across future projects as necessary;
 #'
 #' 3. Any missing \R package dependencies discovered are then installed into
-#'    a private project library,
+#'    the project's private library;
 #'
-#' 4. The project is activated.
+#' 4. A lockfile capturing the state of the project's library is created
+#'    with [snapshot()];
+#'
+#' 5. The project is activated with [activate()].
 #'
 #' This mimics the workflow provided by `packrat::init()`, but with more
 #' reasonable default behaviors -- in particular, `renv` does not attempt

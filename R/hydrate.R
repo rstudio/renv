@@ -17,16 +17,13 @@ hydrate <- function(project = NULL) {
   deps$renv <- NULL
 
   # remove base + missing packages
-  base <- installed.packages(lib.loc = .Library, priority = "base")
+  base <- renv_installed_packages_base()
   na <- deps[is.na(deps)]
   packages <- deps[setdiff(names(deps), c(names(na), rownames(base)))]
 
   # get and construct path to library
   library <- renv_paths_library(project = project)
   ensure_directory(library)
-
-  # prune broken symlinks
-  renv_library_prune(library)
 
   # copy packages from user library to cache
   renv_hydrate_cache_packages(packages, library)
@@ -50,6 +47,9 @@ renv_hydrate_discover_dependencies <- function(project) {
   all
 }
 
+# takes a package called 'package' installed at location 'location',
+# copies that package into the cache, and then links from the cache
+# to the (private) library 'library'
 renv_hydrate_cache_package <- function(package, location, library) {
 
   record <- renv_snapshot_description(location)

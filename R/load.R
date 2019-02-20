@@ -67,5 +67,5 @@ renv_load_python <- function(manifest) {
 }
 
 renv_load_finish <- function() {
-  vmessagef("- Virtual environment loaded. Using project-local R library.")
+  # TODO: report to user?
 }

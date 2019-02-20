@@ -2,7 +2,7 @@
 % Please edit documentation in R/init.R
 \name{init}
 \alias{init}
-\title{Initialize a Project-local Virtual Environment}
+\title{Initialize a Project}
 \usage{
 init(project = NULL, force = FALSE)
 }
@@ -15,21 +15,22 @@ against accidental usages of \code{init()}.}
 }
 \description{
 Discover packages used within the current project, and then initialize a
-project-local virtual environment with those packages. The
-currently-installed versions of any packages in use (as detected within the
-user library) are then added to the project manifest, effectively forking
-the state of your user library into a private project library.
+project-local private \R library with those packages. The currently-installed
+versions of any packages in use (as detected within the default R libraries)
+are then installed to the project's private library.
 }
 \details{
 The primary steps taken when initializing a new virtual environment are:
 \enumerate{
 \item \R package dependencies are discovered within the \R files used within
-the project;
-\item Discovered packages are copied into the \code{renv} global package cache (so
-these packages can be re-used across multiple projects as necessary),
+the project with \code{\link[=discover_dependencies]{discover_dependencies()}};
+\item Discovered packages are copied into the \code{renv} global package cache, so
+these packages can be re-used across future projects as necessary;
 \item Any missing \R package dependencies discovered are then installed into
-a private project library,
-\item The project is activated.
+the project's private library;
+\item A lockfile capturing the state of the project's library is created
+with \code{\link[=snapshot]{snapshot()}};
+\item The project is activated with \code{\link[=activate]{activate()}}.
 }
 
 This mimics the workflow provided by \code{packrat::init()}, but with more
