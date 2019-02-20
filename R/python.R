@@ -9,13 +9,13 @@ renv_python_snapshot <- function() {
 
 }
 
-renv_python_restore <- function(manifest) {
+renv_python_restore <- function(lockfile) {
 
   python <- renv_state$python()
   if (is.null(python))
     return(NULL)
 
-  requirements <- manifest$Python$Requirements
+  requirements <- lockfile$Python$Requirements
   renv_python_pip_restore(requirements = requirements)
 
 }

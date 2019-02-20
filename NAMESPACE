@@ -2,7 +2,7 @@
 
 export(activate)
 export(deactivate)
-export(discover_dependencies)
+export(dependencies)
 export(hydrate)
 export(init)
 export(install)

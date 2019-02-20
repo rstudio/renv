@@ -42,9 +42,9 @@ renv_state <- list(
   python      = renv_state_impl("python",      NULL)
 )
 
-renv_active_manifest <- function(project = NULL) {
+renv_active_lockfile <- function(project = NULL) {
   project <- project %||% renv_state$project()
-  path <- file.path(project, "renv/manifest")
-  manifests <- list.files(path, full.names = TRUE, recursive = TRUE)
-  if (empty(manifests)) "" else tail(sort(manifests), n = 1L)
+  path <- file.path(project, "renv/lockfile")
+  lockfiles <- list.files(path, full.names = TRUE, recursive = TRUE)
+  if (empty(lockfiles)) "" else tail(sort(lockfiles), n = 1L)
 }

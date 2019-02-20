@@ -1,6 +1,6 @@
 
 # returns TRUE if problems detected
-renv_preflight <- function(manifest) {
+renv_preflight <- function(lockfile) {
 
   problems <- stack()
 
@@ -8,7 +8,7 @@ renv_preflight <- function(manifest) {
   renv_preflight_compiler(problems)
 
   # if rJava is being used, ensure that Java is properly configured
-  renv_preflight_java(manifest, problems)
+  renv_preflight_java(lockfile, problems)
 
   data <- problems$data()
   if (length(data)) {
@@ -52,10 +52,10 @@ renv_preflight_compiler <- function(problems) {
 
 }
 
-renv_preflight_java <- function(manifest, problems) {
+renv_preflight_java <- function(lockfile, problems) {
 
   # no need to check if we're not using rJava
-  packages <- manifest$R$Package
+  packages <- lockfile$R$Package
   if (is.null(packages[["rJava"]]))
     return(TRUE)
 

@@ -26,10 +26,10 @@ renv_load_envvars <- function(project = NULL) {
   )
 }
 
-renv_load_python <- function(manifest) {
+renv_load_python <- function(lockfile) {
 
   # get path to Python
-  python <- manifest$Python$Path
+  python <- lockfile$Python$Path
   if (is.null(python))
     return(FALSE)
 

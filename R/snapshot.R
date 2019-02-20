@@ -1,14 +1,14 @@
 
 #' Snapshot a Virtual Environment
 #'
-#' Snapshot a virtual environment, creating a **manifest** file that can be used
-#' to later restore the virtual environment. See the [manifest] documentation
-#' for more details on the structure of a manifest.
+#' Snapshot a virtual environment, creating a **lockfile** file that can be used
+#' to later restore the virtual environment. See the [lockfile] documentation
+#' for more details on the structure of a lockfile.
 #'
 #' @inheritParams renv-params
 #'
-#' @param file The location to where the generated manifest should be written.
-#'   When `NULL`, the manifest (as an \R object) is returned directly instead.
+#' @param file The location to where the generated lockfile should be written.
+#'   When `NULL`, the lockfile (as an \R object) is returned directly instead.
 #'
 #' @family reproducibility
 #'
@@ -19,7 +19,7 @@ snapshot <- function(project = NULL,
 {
   project <- project %||% renv_state$project()
 
-  new <- renv_manifest_init()
+  new <- renv_lockfile_init()
   new$R$Package <- renv_snapshot_r_packages()
 
   if (is.null(file))
@@ -27,10 +27,10 @@ snapshot <- function(project = NULL,
 
   old <- list()
   if (file.exists(file)) {
-    old <- renv_manifest_read(file)
-    diff <- renv_manifest_diff(old, new)
+    old <- renv_lockfile_read(file)
+    diff <- renv_lockfile_diff(old, new)
     if (empty(diff)) {
-      vmessagef("* The manifest is already up-to-date.")
+      vmessagef("* The lockfile is already up-to-date.")
       return(invisible(new))
     }
   }
@@ -40,10 +40,10 @@ snapshot <- function(project = NULL,
     return(invisible(new))
 
   # report actions to the user
-  actions <- renv_manifest_diff_packages(old, new)
+  actions <- renv_lockfile_diff_packages(old, new)
   if (confirm && renv_verbose()) {
     renv_snapshot_report_actions(actions, old, new)
-    printf("The manifest will be written to '%s'.", aliased_path(file))
+    printf("The lockfile will be written to '%s'.", aliased_path(file))
   }
 
   # request user confirmation
@@ -54,16 +54,16 @@ snapshot <- function(project = NULL,
 
   # write it out
   ensure_parent_directory(file)
-  renv_manifest_write(new, file = file)
-  vmessagef("* Manifest written to '%s'.", aliased_path(file))
+  renv_lockfile_write(new, file = file)
+  vmessagef("* Lockfile written to '%s'.", aliased_path(file))
 
   invisible(new)
 
 }
 
-renv_snapshot_validate_dependencies <- function(manifest, confirm) {
+renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
 
-  packages <- manifest$R$Package
+  packages <- lockfile$R$Package
 
   installed <- as.data.frame(installed.packages(), stringsAsFactors = FALSE)
   missing <- lapply(packages, function(package) {
@@ -83,7 +83,7 @@ renv_snapshot_validate_dependencies <- function(manifest, confirm) {
       "",
       paste(sprintf("\t%s: %s", names(bad), map_chr(bad, toString)), collapse = "\n"),
       "",
-      "Consider re-installing these packages before snapshotting the manifest."
+      "Consider re-installing these packages before snapshotting the lockfile."
     )
     message(text)
 
@@ -238,27 +238,27 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     return(invisible())
 
   if ("install" %in% actions) {
-    msg <- "The following package(s) will be added to the manifest:"
+    msg <- "The following package(s) will be added to the lockfile:"
     renv_pretty_print(msg, new, actions, "install")
   }
 
   if ("remove" %in% actions) {
-    msg <- "The following package(s) will be removed from the manifest:"
+    msg <- "The following package(s) will be removed from the lockfile:"
     renv_pretty_print(msg, old, actions, "remove")
   }
 
   if ("upgrade" %in% actions) {
-    msg <- "The following package(s) will be upgraded in the manifest:"
+    msg <- "The following package(s) will be upgraded in the lockfile:"
     renv_pretty_print_pair(msg, old, new, actions, "upgrade")
   }
 
   if ("downgrade" %in% actions) {
-    msg <- "The following package(s) will be downgraded in the manifest:"
+    msg <- "The following package(s) will be downgraded in the lockfile:"
     renv_pretty_print_pair(msg, old, new, actions, "downgrade")
   }
 
   if ("crossgrade" %in% actions) {
-    msg <- "The following package(s) will be modified in the manifest:"
+    msg <- "The following package(s) will be modified in the lockfile:"
     renv_pretty_print_pair(msg, old, new, actions, "crossgrade")
   }
 

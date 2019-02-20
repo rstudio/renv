@@ -19,12 +19,12 @@
 #' @export
 install <- function(packages) {
 
-  # create manifest based on state of R libraries
-  manifest <- renv_manifest_init()
-  manifest$R$Package <- renv_snapshot_r_packages()
+  # create lockfile based on state of R libraries
+  lockfile <- renv_lockfile_init()
+  lockfile$R$Package <- renv_snapshot_r_packages()
 
   # initialize restore state
-  renv_restore_begin(manifest, packages)
+  renv_restore_begin(lockfile, packages)
   on.exit(renv_restore_end(), add = TRUE)
 
   # attempt to install each package

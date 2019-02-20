@@ -8,20 +8,6 @@
       dependencies -- e.g. the library contains 'markdown' but not its
       dependency 'mime'.
       
-- [ ] Think about what it really means to 'restore' a virtual environment. Is
-      it clear to the user what this action will do? The Packrat model here is
-      actually simpler since 'restore()' always means 'restore my local project
-      library', whereas in renv it means 'restore some virtual environment with
-      some name to some state'. It will take some extra communication to make
-      this clear. In particular, it is perhaps not obvious that one virtual
-      environment can have multiple libraries, and different packages can
-      and will be installed into the library they were originally in at
-      snapshot time.
-  
-- [x] Make it possible to 'fork' a global virtual environment and make it
-      project-local instead. (So that the user can mutate the library without
-      affecting other projects using that global library)
-  
 - [ ] Properly handle broken links in the project library (e.g. if the cache
       moved or was mutated for some reason)
   
@@ -29,44 +15,35 @@
       `rehash()` would look at packages in the cache and update their cache
       location if the caching scheme changed.
   
-- [x] `clean()` function to remove ununsed packages from the library. (If the
-      cache is enabled, they will remain in the cache). [WONTFIX: because
-      R libraries are no longer private to a particular project, except in the
-      case of local environments, one cannot safely remove packages as this
-      action could affect other projects bound to that environment]
+- [ ] `clean()` function to remove ununsed packages from the library. (If the
+      cache is enabled, they will remain in the cache).
   
 - [ ] Allow users to override the repository used during restore of a
       particular package? (Setting `options(repos)` would suffice here I believe)
-
-- [ ] Document common use cases and how to accomplish:
-      - Use development library on top of user library.
-      - Isolate project (Packrat style).
-      - Fork an existing environment to use locally.
 
 - [ ] Use custom `Makevars` file and set some variables that certain packages
       need but don't properly declare? (E.g. older versions of the `maps` package
       need `awk` installed)
       
 - [ ] `restore()` will attempt to repair the dependency tree during restore;
-      e.g. dependent packages in the manifest will be downloaded and installed
+      e.g. dependent packages in the lockfile will be downloaded and installed
       as required. Should we prompt the user to `snapshot()` afterwards so that
-      the newly-reinstalled dependencies can be captured in the manifest?
+      the newly-reinstalled dependencies can be captured in the lockfile?
       
 - [x] Take over the `R_PROFILE`, `R_PROFILE_USER`, `R_ENVIRON` and
       `R_ENVIRON_USER` environment variables? Needed for cases like
       https://github.com/rstudio/packrat/issues/526.
 
-- [ ] Make it possible to snapshot arbitrary libraries. The main challenge
-      is handling the library name / path, since we almost always assume the
-      library path must resolve to an 'renv' library path. Inspect usages
-      of '$Library'.
+- [x] Make it possible to snapshot arbitrary libraries. [DONE: call `snapshot()`
+      on any project to generate a manifest for that project's state]
 
 - [ ] `hydrate()` as a general function to discover dependencies and then
       install any missing packages into the active library. (Companion function
       to `init()`)
 
 - [ ] Should we provide for project-specific options? What about download method
-      management?
+      management? [Motivation: users might require `curl` + `http_proxy` settings
+      to download packages from CRAN]
 
 - [ ] Allow users to ignore certain packages in a project (e.g. those that are
       not on CRAN)
@@ -78,22 +55,22 @@
       to build and reload a package managed by `renv`, which screws up RStudio's
       notion of the library paths if the project is later deactivated)
 
-- [ ] What if I want to overlay a private (local) library on top of a global library?
-
 - [ ] Audit usages of `renv_file_exists()`. When do we care about broken symlinks?
       `file.exists()` returns FALSE for broken symlinks; `renv_file_exists()`
       returns TRUE.
 
 - [ ] De-couple the 'retrieve' + 'install' steps during restore.
 
-- [ ] Include recommended packages in the manifest? (Since R installations on
+- [ ] Include recommended packages in the lockfile? (Since R installations on
       Linux may not have these packages available). Or at least confirm that
-      packages which depend on recommended packages enter the manifest.
+      packages which depend on recommended packages enter the lockfile.
 
-- [ ] Use a single manifest file, but provide a `history()` function to dig out
-      old versions of the manifest. (Make it clearer to users what needs to be
+- [ ] Use a single lockfile file, but provide a `history()` function to dig out
+      old versions of the lockfile. (Make it clearer to users what needs to be
       committed)
 
-- [ ] Handle NA mtime in filecached APIs.
+- [ ] Handle `NA` mtime in filecached APIs.
 
-- [ ] Provide tools for recovering old manifest files from the Git history (or similar)
+- [ ] Implement `bundle()` for packaging up a project, potentially with package
+      sources, binaries, or even the library itself for restoration on a new
+      machine (potentially lacking internet access).

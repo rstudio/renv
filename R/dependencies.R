@@ -1,13 +1,13 @@
 
-#' Discover R Package Dependencies
+#' Find R Package Dependencies in a Project
 #'
-#' Discover \R packages used within files and directories.
+#' Find \R packages used within a project.
 #'
 #' @param path The path to a (possibly multi-mode) \R file, or a directory
 #'   containing such files.
 #'
 #' @export
-discover_dependencies <- function(path = getwd()) {
+dependencies <- function(path = getwd()) {
 
   info <- file.info(path)
   if (is.na(info$isdir))
