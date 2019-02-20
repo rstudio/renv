@@ -20,10 +20,8 @@
 install <- function(packages) {
 
   # create manifest based on state of R libraries
-  manifest <- list()
-  manifest$R$Package <- uapply(renv_libpaths_all(), function(libpath) {
-    renv_snapshot_r_library(libpath, synchronize = FALSE)
-  })
+  manifest <- renv_manifest_init()
+  manifest$R$Package <- renv_snapshot_r_packages()
 
   # initialize restore state
   renv_restore_begin(manifest, packages)

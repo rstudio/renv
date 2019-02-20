@@ -4,9 +4,13 @@
 \alias{restore}
 \title{Restore a Virtual Environment}
 \usage{
-restore(manifest = NULL, confirm = interactive())
+restore(project = NULL, manifest = NULL, confirm = interactive())
 }
 \arguments{
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
+
 \item{manifest}{The manifest to be used for restoration of the associated
 virtual environment. When \code{NULL}, the most recently-generated manifest
 for this project is used.}

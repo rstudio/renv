@@ -1,41 +1,28 @@
 
 # tools for loading an renv (typically done at R session init)
-renv_load_r_version <- function(manifest) {
-  version <- manifest$R$Version
+renv_load_r_version <- function(version) {
   if (version_compare(version, getRversion()) != 0) {
     fmt <- "Environment '%s' requested R version '%s' but '%s' is currently being used"
     warningf(fmt, renv_state$environment(), version, getRversion())
   }
 }
 
-renv_load_libpaths <- function(manifest) {
-
-  libraries <- manifest$R$Library
-
-  libs <- character()
-  if (length(libraries)) {
-    libs <- rev(renv_paths_library(manifest$R$Library))
-    lapply(libs, ensure_directory)
-  }
-
-  libpaths <- c(libs, if (manifest$R$Overlay) renv_libpaths_all())
-
-  # TODO: if libpaths is empty, should we always use a temporary library?
-  # or just use none? or some 'default' library path?
-
+renv_load_libpaths <- function(project = NULL) {
+  project <- project %||% renv_state$project()
+  libpaths <- renv_paths_library(project)
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
   .libPaths(libpaths)
-
 }
 
-renv_load_repos <- function(manifest) {
-  options(repos = manifest$R$Repositories)
+renv_load_repos <- function(repos) {
+  options(repos = repos)
 }
 
-renv_load_envvars <- function(manifest) {
+renv_load_envvars <- function(project = NULL) {
+  project <- project %||% renv_state$project()
   Sys.setenv(
     R_PROFILE_USER = "",
-    R_ENVIRON_USER = file.path(renv_state$project(), ".Renviron")
+    R_ENVIRON_USER = file.path(project, ".Renviron")
   )
 }
 
@@ -80,22 +67,5 @@ renv_load_python <- function(manifest) {
 }
 
 renv_load_finish <- function() {
-
-  if (!renv_verbose())
-    return()
-
-  renv <- renv_state$environment()
-  local <- renv_state$local()
-  paths <- aliased_path(renv_libpaths_all())
-
-  fmt <- "%s environment '%s' loaded. Using library paths:"
-  messagef(fmt, if (local) "Local virtual" else "Virtual", basename(renv))
-  message(paste("-", shQuote(paths), collapse = "\n"))
-
-}
-
-renv_load_project <- function(project) {
-  activate <- renv_activate_read(project)
-  renv_state$local(as.logical(activate$Local))
-  activate$Environment
+  vmessagef("- Virtual environment loaded. Using project-local R library.")
 }

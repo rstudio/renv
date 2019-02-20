@@ -18,8 +18,7 @@
 #' 3. Any missing \R package dependencies discovered are then installed into
 #'    a private project library,
 #'
-#' 4. The [activate()] function is called to activate the newly-created
-#'    virtual environment.
+#' 4. The project is activated.
 #'
 #' This mimics the workflow provided by `packrat::init()`, but with more
 #' reasonable default behaviors -- in particular, `renv` does not attempt
@@ -27,33 +26,18 @@
 #' that have already been installed whenever possible.
 #'
 #' @param project The project directory.
-#' @param ... Optional arguments passed to [create()].
 #' @param force Boolean; force initialization? By default, `renv` will refuse
-#'   to initialize the home directory, or parents of the home directory.
+#'   to initialize a virtual environment with the home directory, to defend
+#'   against accidental usages of `init()`.
 #'
 #' @export
-init <- function(project = NULL, ..., force = FALSE) {
+init <- function(project = NULL, force = FALSE) {
   project <- project %||% getwd()
-
-  # ensure this is a valid project directory
   renv_init_validate_project(project, force)
-
-  # switch to local mode
-  renv_state$local(TRUE)
-
-  # create the virtual environment
-  # TODO: what action to take if environment already exists?
-  # - re-create the environment and re-run the dependency discovery + caching?
-  # - skip those steps and just re-use the existing environment?
-  name <- basename(project)
-  create(name = name, r_libs = name, ..., overwrite = TRUE)
-
-  # hydrate the newly-created environment
-  hydrate(name, project)
-
-  # now we can activate the local environment
-  activate(name, project)
-
+  setwd(project)
+  hydrate(project)
+  snapshot(project, confirm = FALSE)
+  activate(project)
 }
 
 renv_init_validate_project <- function(project, force) {
