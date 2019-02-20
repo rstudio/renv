@@ -4,7 +4,7 @@
 ^TODO\.md$
 ^configure$
 ^configure\.R$
-^renv\.manifest$
+^renv\.lock$
 
 ^internal/
 ^renv/

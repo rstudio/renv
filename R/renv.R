@@ -20,7 +20,7 @@ activate <- function(project = NULL) {
   # set library paths now so that they're properly restored in new sessions
   renv_load_libpaths(project)
 
-  renv_request_restart(reason = "Virtual environment activated")
+  renv_request_restart(project, reason = "Virtual environment activated")
 }
 
 #' Deactivate an R Virtual Environment
@@ -38,7 +38,7 @@ deactivate <- function(project = NULL) {
   renv_remove_rprofile(project)
   renv_envvars_restore()
 
-  renv_request_restart(reason = "Virtual environment deactivated")
+  renv_request_restart(project, reason = "Virtual environment deactivated")
 }
 
 #' Load an R Virtual Environment
