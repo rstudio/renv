@@ -34,7 +34,7 @@ restore <- function(project = NULL,
   # detect missing dependencies -- e.g. if an installed package depends on
   # one or more packages that are no longer available
   if (!length(actions)) {
-    message("Virtual environment is up to date.")
+    message("Project library is already synchronized with renv.lock.")
     return(invisible(actions))
   }
 
