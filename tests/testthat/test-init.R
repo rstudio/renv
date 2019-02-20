@@ -6,8 +6,8 @@ test_that("we can initialize a project using 'breakfast'", {
   renv::init()
 
   expected <- c("bread", "breakfast", "oatmeal", "toast")
-  manifest <- renv::snapshot(file = NULL)
-  expect_setequal(names(manifest$R$Package), expected)
+  lockfile <- renv::snapshot(file = NULL)
+  expect_setequal(names(lockfile$R$Package), expected)
 
 })
 
@@ -17,7 +17,7 @@ test_that("we can initialize a project using 'toast'", {
   renv::init()
 
   expected <- c("bread", "toast")
-  manifest <- renv::snapshot(file = NULL)
-  expect_setequal(names(manifest$R$Package), expected)
+  lockfile <- renv::snapshot(file = NULL)
+  expect_setequal(names(lockfile$R$Package), expected)
 
 })

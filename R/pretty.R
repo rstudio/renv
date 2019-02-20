@@ -1,11 +1,11 @@
 
-renv_pretty_print <- function(message, manifest, actions, action) {
+renv_pretty_print <- function(message, lockfile, actions, action) {
 
   matches <- actions[actions == action]
   if (empty(matches))
     return()
 
-  entries <- manifest$R$Package[names(matches)]
+  entries <- lockfile$R$Package[names(matches)]
   formatted <- named(
     sprintf("  [%s]", map_chr(extract(entries, "Version"), format)),
     sprintf("  %s",   map_chr(extract(entries, "Package"), format))

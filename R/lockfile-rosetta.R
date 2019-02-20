@@ -1,21 +1,21 @@
 
-renv_manifest_encoder_repos <- function() {
+renv_lockfile_encoder_repos <- function() {
   list(encode = renv_repos_encode, decode = renv_repos_decode)
 }
 
 # special encode / decode definitions for certain fields
 # which need special treatment
-renv_manifest_serializer_list <- function() {
+renv_lockfile_serializer_list <- function() {
 
   list(
     R = list(
-      Repositories = renv_manifest_encoder_repos()
+      Repositories = renv_lockfile_encoder_repos()
     )
   )
 
 }
 
-renv_manifest_serializer <- function(section, key) {
+renv_lockfile_serializer <- function(section, key) {
 
   delim <- gregexpr("/", section, fixed = TRUE)[[1]]
 
@@ -23,7 +23,7 @@ renv_manifest_serializer <- function(section, key) {
   if (!identical(c(delim), -1L))
     labels <- substring(section, 1, c(delim - 1, nchar(section)))
 
-  entries <- renv_manifest_serializer_list()
+  entries <- renv_lockfile_serializer_list()
   for (label in rev(labels)) {
     entry <- entries[[label]]
     if (!is.null(entry) && !is.null(entry[[key]]))
@@ -31,17 +31,17 @@ renv_manifest_serializer <- function(section, key) {
   }
 
   list(
-    encode = renv_manifest_serializer_encode_default,
-    decode = renv_manifest_serializer_decode_default
+    encode = renv_lockfile_serializer_encode_default,
+    decode = renv_lockfile_serializer_decode_default
   )
 
 }
 
-renv_manifest_serializer_encode_default <- function(value) {
+renv_lockfile_serializer_encode_default <- function(value) {
   toString(value)
 }
 
-renv_manifest_serializer_decode_default <- function(value) {
+renv_lockfile_serializer_decode_default <- function(value) {
 
   if (value %in% c("TRUE", "FALSE"))
     return(as.logical(value))

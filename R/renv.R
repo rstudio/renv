@@ -61,10 +61,10 @@ load <- function(project = NULL) {
   renv_load_envvars(project)
   renv_load_libpaths(project)
 
-  manifest <- renv_manifest_load(project)
-  if (!is.null(manifest)) {
-    renv_load_r_version(manifest$R$Version)
-    renv_load_repos(manifest$R$Repositories)
+  lockfile <- renv_lockfile_load(project)
+  if (!is.null(lockfile)) {
+    renv_load_r_version(lockfile$R$Version)
+    renv_load_repos(lockfile$R$Repositories)
   }
 
   renv_load_finish()

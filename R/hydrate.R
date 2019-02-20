@@ -80,7 +80,7 @@ renv_hydrate_resolve_missing <- function(na) {
 
   vmessagef("* Resolving missing dependencies  ... ")
 
-  # TODO: if we have a manifest, should we use it?
+  # TODO: if we have a lockfile, should we use it?
   renv_restore_begin()
   on.exit(renv_restore_end(), add = TRUE)
 

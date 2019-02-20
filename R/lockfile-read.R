@@ -1,5 +1,5 @@
 
-renv_manifest_read <- function(file) {
+renv_lockfile_read <- function(file) {
 
   contents <- readLines(file, encoding = "UTF-8")
   contents <- grep("^\\s*[#]", contents, value = TRUE, invert = TRUE)
@@ -13,7 +13,7 @@ renv_manifest_read <- function(file) {
   body <- substring(splat, idx + 1)
   names(body) <- substring(section, 2, nchar(section) - 1)
 
-  fields <- enumerate(body, renv_manifest_read_fields)
+  fields <- enumerate(body, renv_lockfile_read_fields)
 
   data <- list()
   enumerate(fields, function(section, entries) {
@@ -32,7 +32,7 @@ renv_manifest_read <- function(file) {
 
 }
 
-renv_manifest_read_fields <- function(section, fields) {
+renv_lockfile_read_fields <- function(section, fields) {
   parts <- strsplit(fields, "\\n(?!\\s)", perl = TRUE)[[1]]
 
   idx <- regexpr("=", parts, fixed = TRUE)
@@ -40,10 +40,10 @@ renv_manifest_read_fields <- function(section, fields) {
   vals <- trimws(substring(parts, idx + 1))
   names(vals) <- keys
 
-  enumerate(vals, renv_manifest_read_field, section = section)
+  enumerate(vals, renv_lockfile_read_field, section = section)
 }
 
-renv_manifest_read_field <- function(key, value, section) {
-  serializer <- renv_manifest_serializer(section, key)
+renv_lockfile_read_field <- function(key, value, section) {
+  serializer <- renv_lockfile_serializer(section, key)
   serializer$decode(value)
 }

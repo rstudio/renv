@@ -12,18 +12,18 @@ snapshot(project = NULL, file = file.path(project, "renv.lock"),
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
 
-\item{file}{The location to where the generated manifest should be written.
-When \code{NULL}, the manifest (as an \R object) is returned directly instead.}
+\item{file}{The location to where the generated lockfile should be written.
+When \code{NULL}, the lockfile (as an \R object) is returned directly instead.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
 \description{
-Snapshot a virtual environment, creating a \strong{manifest} file that can be used
-to later restore the virtual environment. See the \link{manifest} documentation
-for more details on the structure of a manifest.
+Snapshot a virtual environment, creating a \strong{lockfile} file that can be used
+to later restore the virtual environment. See the \link{lockfile} documentation
+for more details on the structure of a lockfile.
 }
 \seealso{
-Other reproducibility: \code{\link{manifest}},
+Other reproducibility: \code{\link{lockfile}},
   \code{\link{restore}}
 }
 \concept{reproducibility}
