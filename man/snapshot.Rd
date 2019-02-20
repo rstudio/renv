@@ -4,15 +4,16 @@
 \alias{snapshot}
 \title{Snapshot a Virtual Environment}
 \usage{
-snapshot(name = NULL, file = "", confirm = interactive())
+snapshot(project = NULL, file = file.path(project, "renv.lock"),
+  confirm = interactive())
 }
 \arguments{
-\item{name}{The name of a virtual environment. If \code{NULL}, then the active
-virtual environment (if any) will be used.}
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
 
-\item{file}{The location where the library manifest should be written. If
-\code{NULL}, the manifest is returned as an \R object. If \code{""} (the empty
-string), a project-local manifest is written to file.}
+\item{file}{The location to where the generated manifest should be written.
+When \code{NULL}, the manifest (as an \R object) is returned directly instead.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }

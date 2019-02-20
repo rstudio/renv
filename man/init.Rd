@@ -4,15 +4,14 @@
 \alias{init}
 \title{Initialize a Project-local Virtual Environment}
 \usage{
-init(project = NULL, ..., force = FALSE)
+init(project = NULL, force = FALSE)
 }
 \arguments{
 \item{project}{The project directory.}
 
-\item{...}{Optional arguments passed to \code{\link[=create]{create()}}.}
-
 \item{force}{Boolean; force initialization? By default, \code{renv} will refuse
-to initialize the home directory, or parents of the home directory.}
+to initialize a virtual environment with the home directory, to defend
+against accidental usages of \code{init()}.}
 }
 \description{
 Discover packages used within the current project, and then initialize a
@@ -30,8 +29,7 @@ the project;
 these packages can be re-used across multiple projects as necessary),
 \item Any missing \R package dependencies discovered are then installed into
 a private project library,
-\item The \code{\link[=activate]{activate()}} function is called to activate the newly-created
-virtual environment.
+\item The project is activated.
 }
 
 This mimics the workflow provided by \code{packrat::init()}, but with more

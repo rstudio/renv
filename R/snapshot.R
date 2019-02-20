@@ -7,45 +7,27 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param file The location where the library manifest should be written. If
-#'   `NULL`, the manifest is returned as an \R object. If `""` (the empty
-#'   string), a project-local manifest is written to file.
+#' @param file The location to where the generated manifest should be written.
+#'   When `NULL`, the manifest (as an \R object) is returned directly instead.
 #'
 #' @family reproducibility
 #'
 #' @export
-snapshot <- function(name = NULL, file = "", confirm = interactive()) {
+snapshot <- function(project = NULL,
+                     file = file.path(project, "renv.lock"),
+                     confirm = interactive())
+{
+  project <- project %||% renv_state$project()
 
-  # make sure we have an active virtual environment
-  name <- name %||% renv_state$environment()
-  ensure_existing_renv(name)
+  new <- renv_manifest_init()
+  new$R$Package <- renv_snapshot_r_packages()
 
-  # generate a new manifest
-  new <- renv_manifest_read(renv_paths_environment(name))
-
-  # update state-related fields
-  if (renv_file_exists(renv_activate_path()))
-    new$Environment <- renv_activate_read()
-
-  new$R$Package <- uapply(new$R$Library, function(name) {
-    library <- renv_paths_library(name)
-    renv_snapshot_r_library(library, name)
-  })
-
-  new$Python$Requirements <- renv_python_snapshot()
-
-  # return it directly when 'file' is NULL
   if (is.null(file))
     return(new)
 
-  # interpret empty file path
-  if (!nzchar(file) || !length(file))
-    file <- renv_snapshot_manifest_path()
-
-  # attempt to read the old manifest (if it exists)
   old <- list()
-  if (nzchar(renv_active_manifest())) {
-    old <- renv_manifest_read(renv_active_manifest())
+  if (file.exists(file)) {
+    old <- renv_manifest_read(file)
     diff <- renv_manifest_diff(old, new)
     if (empty(diff)) {
       vmessagef("* The manifest is already up-to-date.")
@@ -116,15 +98,28 @@ renv_snapshot_validate_dependencies <- function(manifest, confirm) {
 
 }
 
-renv_snapshot_r_library <- function(library, name = NULL, synchronize = TRUE) {
+renv_snapshot_r_packages <- function(synchronize = FALSE) {
 
-  name <- name %||% library
-  pkgs <- list.files(library, full.names = TRUE)
-  pkgs <- renv_snapshot_r_library_diagnose(library, pkgs)
+  # list packages in the library
+  library <- renv_libpaths_default()
+  paths <- list.files(library, full.names = TRUE)
 
-  descriptions <- file.path(pkgs, "DESCRIPTION")
-  records <- lapply(descriptions, renv_snapshot_description, name)
+  # remove 'base' packages
+  ip <- renv_installed_packages_base()
+  paths <- paths[!basename(paths) %in% c(ip$Package, "translations")]
 
+  # validate the remaining set of packages
+  valid <- renv_snapshot_r_library_diagnose(library, paths)
+
+  # remove duplicates (so only first package entry discovered in library wins)
+  duplicated <- duplicated(basename(valid))
+  packages <- valid[!duplicated]
+
+  # snapshot description files
+  descriptions <- file.path(packages, "DESCRIPTION")
+  records <- lapply(descriptions, renv_snapshot_description)
+
+  # report any snapshot failures
   broken <- Filter(function(record) inherits(record, "error"), records)
   if (length(broken)) {
     messages <- map_chr(broken, conditionMessage)
@@ -134,9 +129,11 @@ renv_snapshot_r_library <- function(library, name = NULL, synchronize = TRUE) {
     stop(message, call. = FALSE)
   }
 
+  # copy packages into the cache during snapshot if requested
   if (synchronize)
     lapply(records, renv_cache_synchronize)
 
+  # name results and return
   names(records) <- map_chr(records, `[[`, "Package")
   records
 
@@ -190,7 +187,7 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
 
 }
 
-renv_snapshot_description <- function(path, library) {
+renv_snapshot_description <- function(path) {
 
   info <- file.info(path)
   if (identical(info$isdir, TRUE))
@@ -208,11 +205,10 @@ renv_snapshot_description <- function(path, library) {
   if (inherits(dcf, "error"))
     return(dcf)
 
-  dcf[["Library"]] <- library
   dcf[["Source"]] <- renv_snapshot_description_source(dcf)
   dcf[["Hash"]] <- renv_hash_description(path)
 
-  fields <- c("Package", "Version", "Library", "Source", "Hash")
+  fields <- c("Package", "Version", "Source", "Hash")
   missing <- setdiff(fields, names(dcf))
   if (length(missing)) {
     fmt <- "Required fields %s missing from DESCRIPTION at path '%s'."
@@ -268,12 +264,3 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 }
 
-# NOTE: would like to use ISO 8601 timestamps but ':' is not supported
-# in Windows filenames
-renv_snapshot_manifest_path <- function(project = NULL) {
-  project <- project %||% renv_state$project()
-  time <- Sys.time()
-  ymd <- strftime(time, "%Y-%m-%d")
-  timestamp <- strftime(time, "%Y-%m-%dT%H-%M-%S%Z")
-  file.path(project, "renv/manifest", ymd, timestamp)
-}

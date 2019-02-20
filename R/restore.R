@@ -13,7 +13,11 @@
 #' @family reproducibility
 #'
 #' @export
-restore <- function(manifest = NULL, confirm = interactive()) {
+restore <- function(project = NULL,
+                    manifest = NULL,
+                    confirm = interactive())
+{
+  project <- project %||% renv_state$project()
 
   # resolve the manifest
   manifest <- case(
@@ -22,35 +26,15 @@ restore <- function(manifest = NULL, confirm = interactive()) {
     manifest
   )
 
-  # check to see if the virtual environment used to generate
-  # this manifest already exists -- if not, create it
-  name <- manifest$Environment$Environment
-  envir <- renv_paths_environment(name)
-  if (!renv_file_exists(envir)) {
-
-    # remove state-related entries from the manifest
-    blueprint <- manifest
-    blueprint$R$Package <- NULL
-
-    # write the blueprint
-    ensure_parent_directory(envir)
-    renv_manifest_write(blueprint, file = envir)
-
-  }
-
-  # handle Python when all is said and done
-  on.exit(renv_python_restore(new), add = TRUE)
-
   # detect changes in R packages in the manifest
-  old <- snapshot(name, file = NULL)
+  old <- snapshot(file = NULL)
   new <- manifest
   actions <- renv_manifest_diff_packages(old, new)
 
   # detect missing dependencies -- e.g. if an installed package depends on
   # one or more packages that are no longer available
   if (!length(actions)) {
-    fmt <- "%s environment '%s' is up to date."
-    messagef(fmt, if (renv_state$local()) "Local virtual" else "Virtual", name)
+    message("Virtual environment is up to date.")
     return(invisible(actions))
   }
 
@@ -68,17 +52,18 @@ restore <- function(manifest = NULL, confirm = interactive()) {
   # check to see if the manifest is now up-to-date; if it's not,
   # then the restore might've repaired the dependency tree and
   # this should now be snapshotted
-  after <- snapshot(name, file = NULL)
+  after <- snapshot(file = NULL)
   if (!identical(after, new)) {
 
-    msg <- lines(
-      "",
-      "The dependency tree was repaired during package restoration.",
-      "You will be prompted to snapshot the newly-installed packages."
-    )
+    msg <- stack()
+    msg$push("The dependency tree was repaired during package restoration.")
+    if (confirm)
+      msg$push("You will be prompted to snapshot the newly-installed packages.")
+    else
+      msg$push("The manifest will be updated with the newly-installed packages.")
 
-    writeLines(msg)
-    snapshot(name)
+    writeLines(as.character(msg$data()))
+    snapshot(project = project, confirm = confirm)
 
   }
 
@@ -200,7 +185,6 @@ renv_restore_install_missing_record <- function(package) {
   list(
     Package    = package,
     Version    = entry$Version,
-    Library    = NULL,
     Source     = "CRAN",
     Type       = entry$Type,
     Repository = entry$Repository
@@ -432,8 +416,6 @@ renv_restore_install_package_cache_impl <- function(record, cache) {
 renv_restore_install_package_local <- function(record, path, type) {
 
   package <- record$Package
-  library <- if (!is.null(record$Library))
-    renv_paths_library(record$Library)
 
   # get user-defined options to apply during installation
   options <- renv_restore_install_package_options(package)
@@ -445,14 +427,14 @@ renv_restore_install_package_local <- function(record, path, type) {
   before(package)
   on.exit(after(package), add = TRUE)
 
-  lib <- library %||% renv_libpaths_default()
+  lib <- renv_libpaths_default()
   install.packages(
 
     pkgs  = path,
     lib   = lib,
     repos = NULL,
     type  = type,
-    quiet = !renv_verbose(),
+    quiet = TRUE,
 
     configure.args = options$configure.args,
     configure.vars = options$configure.vars,

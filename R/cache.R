@@ -86,15 +86,14 @@ renv_cache_prime <- function(library) {
 # TODO: allow users to enable / disable caching of packages
 renv_cache_synchronize <- function(record) {
 
-  # get path to library (bail if none recorded for this package)
-  library <- renv_paths_library(record$Library) %||% ""
-  if (!renv_file_exists(library))
-    return(FALSE)
-
-  # get path to package in library (bail if doesn't exist)
+  # construct path to package in library
+  library <- renv_libpaths_default()
   path <- file.path(library, record$Package)
   if (!renv_file_exists(path))
     return(FALSE)
+
+  # if we don't have a hash, compute it now
+  record$Hash <- record$Hash %||% renv_hash_description(path)
 
   # construct cache entry
   cache <- renv_cache_package_path(record)
