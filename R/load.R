@@ -2,8 +2,8 @@
 # tools for loading an renv (typically done at R session init)
 renv_load_r_version <- function(version) {
   if (version_compare(version, getRversion()) != 0) {
-    fmt <- "Environment '%s' requested R version '%s' but '%s' is currently being used"
-    warningf(fmt, renv_state$environment(), version, getRversion())
+    fmt <- "Project requested R version '%s' but '%s' is currently being used"
+    warningf(fmt, version, getRversion())
   }
 }
 

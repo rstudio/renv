@@ -113,7 +113,7 @@ renv_settings_impl <- function(name) {
 
 #' Project-local Settings
 #'
-#' Define project-local settings, for fine-tuning the interaction between
-#' your project and its associated virtual environment.
+#' Define project-local settings that can be used to adjust the behavior of
+#' `renv` with your particular project.
 #'
 settings <- list()

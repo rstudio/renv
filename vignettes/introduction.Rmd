@@ -22,20 +22,15 @@ to your projects. The goal is for `renv` to be a robust, stable replacement for
 the [Packrat](https://rstudio.github.io/packrat/) package, with fewer surprises
 and better default behaviors.
 
-`renv` works by writing some project-specific infrastructure to the project.
-In particular, an `.Rprofile` is written to the project root, and this file
-is sourced by R when new R sessions are started in the project directory.
-The startup machinery then ensures that all relevant state (R repositories,
-library paths, et al.) is set as required.
-
-Underlying the philosophy of `renv` is that any existing workflows should
-just work as they did before -- `renv` helps manage library paths (and other
-project-specific state) to help share and isolate project dependencies, and
-the existing tools you've used for managing R packages should work as before.
+Underlying the philosophy of `renv` is that any of your existing workflows
+should just work as they did before -- `renv` helps manage library paths (and
+other project-specific state) to help isolate your project's R dependencies,
+and the existing tools you've used for managing R packages (e.g.
+`install.packages()`, `remove.packages()`) should work as before.
 
 ## Workflow
 
-The general workflow when working with `renv` is as thus:
+The general workflow when working with `renv` is:
 
 1. Call `renv::init()` to initialize a new project-local environment, with a
    private R library;
@@ -52,8 +47,13 @@ The general workflow when working with `renv` is as thus:
 The `renv::init()` function attempts to ensure the newly-created project
 library includes all R packages currently used by the project. It does this
 by crawling any R files within the project for dependencies with the
-`renv::dependencies()` function, which records any discovered R packages
-used in the project, and the file from which that package was used / declared.
+`renv::dependencies()` function.
+
+Calling `renv::init()` will also write out the infrastructure necessary to
+automatically load and use the private library for new R sessions launched
+from the project root directory. This is accomplished by creating (or amending)
+a project-local `.Rprofile` with the necessary code to load the project when
+the session is started.
 
 ## Reproducibility
 

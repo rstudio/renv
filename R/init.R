@@ -9,7 +9,7 @@
 #' The primary steps taken when initializing a new virtual environment are:
 #'
 #' 1. \R package dependencies are discovered within the \R files used within
-#'    the project with [discover_dependencies()];
+#'    the project with [dependencies()];
 #'
 #' 2. Discovered packages are copied into the `renv` global package cache, so
 #'    these packages can be re-used across future projects as necessary;
@@ -55,7 +55,7 @@ renv_init_validate_project <- function(project, force) {
     sprintf("refusing to initialize project in directory '%s'", project)
 
   if (!is.null(msg)) {
-    msg <- paste(msg, "(use 'force = TRUE' to override)")
+    msg <- paste(msg, "(use renv::init(force = TRUE) to override)")
     stopf(msg)
   }
 
