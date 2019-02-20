@@ -4,17 +4,12 @@
 \alias{activate}
 \title{Activate an R Virtual Environment}
 \usage{
-activate(name = NULL, project = NULL, local = NULL)
+activate(project = NULL)
 }
 \arguments{
-\item{name}{The name of a virtual environment. If \code{NULL}, then the active
-virtual environment (if any) will be used.}
-
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
-
-\item{local}{Boolean; activate a project-local environment?}
 }
 \description{
 Activate an \R virtual environment. This binds the requested project to the
@@ -22,7 +17,6 @@ virtual environment called \code{name}. Newly-launched \R sessions in this proje
 will use this virtual environment.
 }
 \seealso{
-Other renv: \code{\link{create}}, \code{\link{deactivate}},
-  \code{\link{modify}}
+Other renv: \code{\link{deactivate}}
 }
 \concept{renv}

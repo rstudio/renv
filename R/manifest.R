@@ -99,12 +99,21 @@
 #' @rdname manifest
 NULL
 
+renv_manifest_init <- function() {
+
+  manifest <- list()
+  manifest$renv <- list(Version = renv_package_version("renv"))
+  manifest$R <- list(Version = format(getRversion()), Repositories = getOption("repos"))
+  manifest
+
+}
+
 renv_manifest_load <- function(project = NULL) {
 
   project <- project %||% renv_state$project()
-  manifest <- renv_active_manifest(project)
-  if (renv_file_exists(manifest))
-    return(renv_manifest_read(manifest))
+  path <- file.path(project, "renv.lock")
+  if (renv_file_exists(path))
+    return(renv_manifest_read(path))
 
   renv_diagnose(project)
 

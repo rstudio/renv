@@ -29,7 +29,10 @@ renv_envvars_restore <- function() {
   names(env) <- sub("^RENV_DEFAULT_", "", names(env))
   missing <- env == "<NA>"
   Sys.unsetenv(names(env[missing]))
-  do.call(Sys.setenv, as.list(env[!missing]))
+
+  existing <- as.list(env[!missing])
+  if (length(existing))
+    do.call(Sys.setenv, existing)
 
   # restore old library paths
   libpaths <- Sys.getenv("RENV_DEFAULT_LIBPATHS", unset = NA)

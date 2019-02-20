@@ -7,14 +7,10 @@
 #' @inheritParams renv-params
 #'
 #' @export
-hydrate <- function(name = NULL, project = NULL) {
-
-  # make sure we have an active virtual environment
-  name <- name %||% renv_state$environment()
-  ensure_existing_renv(name)
+hydrate <- function(project = NULL) {
+  project <- project %||% renv_state$project()
 
   # find packages used in this project, and the dependencies of those packages
-  project <- project %||% renv_state$project()
   deps <- renv_hydrate_discover_dependencies(project)
 
   # remove 'renv' since it's managed separately
@@ -25,13 +21,15 @@ hydrate <- function(name = NULL, project = NULL) {
   na <- deps[is.na(deps)]
   packages <- deps[setdiff(names(deps), c(names(na), rownames(base)))]
 
-  # prune broken symlinks from the user library
-  library <- renv_paths_library(name)
+  # get and construct path to library
+  library <- renv_paths_library(project = project)
   ensure_directory(library)
+
+  # prune broken symlinks
   renv_library_prune(library)
 
   # copy packages from user library to cache
-  renv_hydrate_cache_packages(packages, library, name)
+  renv_hydrate_cache_packages(packages, library)
 
   # update the library paths so that we're using the newly-established library
   renv_libpaths_set(library)
@@ -52,9 +50,9 @@ renv_hydrate_discover_dependencies <- function(project) {
   all
 }
 
-renv_hydrate_cache_package <- function(package, location, library, name) {
+renv_hydrate_cache_package <- function(package, location, library) {
 
-  record <- renv_snapshot_description(location, name)
+  record <- renv_snapshot_description(location)
   cache <- renv_cache_package_path(record)
 
   if (!renv_file_exists(cache)) {
@@ -68,9 +66,9 @@ renv_hydrate_cache_package <- function(package, location, library, name) {
 
 }
 
-renv_hydrate_cache_packages <- function(packages, library, name) {
+renv_hydrate_cache_packages <- function(packages, library) {
   vmessagef("* Copying packages into the cache ... ", appendLF = FALSE)
-  cached <- enumerate(packages, renv_hydrate_cache_package, library = library, name = name)
+  cached <- enumerate(packages, renv_hydrate_cache_package, library = library)
   vmessagef("Done!")
   cached
 }

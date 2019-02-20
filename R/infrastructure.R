@@ -1,13 +1,13 @@
 
 # tools for writing / removing renv-related infrastructure
-renv_write_infrastructure <- function(project = NULL, renv) {
+renv_write_infrastructure <- function(project = NULL) {
   project <- project %||% renv_state$project()
 
   renv_write_rprofile(project)
   renv_write_rbuildignore(project)
   renv_write_gitignore(project)
-  renv_write_activate(project, renv)
-  renv_write_project_state(project, renv)
+  renv_write_activate(project)
+  renv_write_project_state(project)
 }
 
 
@@ -41,7 +41,7 @@ renv_write_gitignore <- function(project) {
 
 }
 
-renv_write_activate <- function(project = NULL, renv) {
+renv_write_activate <- function(project = NULL) {
   project <- project %||% renv_state$project()
 
   source <- system.file("resources/activate.R", package = "renv")
@@ -58,20 +58,15 @@ renv_write_activate <- function(project = NULL, renv) {
 
   ensure_parent_directory(target)
   writeLines(new, con = target)
-
 }
 
-renv_write_project_state <- function(project = NULL, renv) {
+renv_write_project_state <- function(project = NULL) {
   project <- project %||% renv_state$project()
 
   activate <- file.path(project, "renv/activate.dcf")
   ensure_parent_directory(activate)
 
-  local <- renv_state$local()
-
-  keys <- c("Environment", "Version", "Local")
-  vals <- c(renv, renv_package_version("renv"), local)
-  new <- paste(keys, vals, sep = ": ", collapse = "\n")
+  new <- paste("Version:", renv_package_version("renv"))
   if (!renv_file_exists(activate)) {
     writeLines(new, con = activate)
     return(TRUE)
@@ -83,7 +78,6 @@ renv_write_project_state <- function(project = NULL, renv) {
 
   writeLines(new, con = activate)
   TRUE
-
 }
 
 

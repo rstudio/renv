@@ -66,16 +66,18 @@ renv_paths_common <- function(name, root, prefix, ...) {
 
 }
 
-renv_paths_environment <- function(...) {
-  renv_paths_common("environment", renv_paths_root_local, FALSE, ...)
+renv_paths_common_local <- function(project = NULL, name, prefix, ...) {
+  project <- project %||% renv_state$project()
+  root <- function(...) file.path(project, "renv", ...) %||% ""
+  renv_paths_common(name, root, prefix, ...)
 }
 
-renv_paths_library <- function(...) {
-  renv_paths_common("library", renv_paths_root_local, TRUE, ...)
+renv_paths_library <- function(project = NULL, ...) {
+  renv_paths_common_local(project, "library", TRUE, ...)
 }
 
 renv_paths_bootstrap <- function(...) {
-  renv_paths_common("bootstrap", renv_paths_root_local, TRUE, ...)
+  renv_paths_common("bootstrap", renv_paths_root, TRUE, ...)
 }
 
 renv_paths_source <- function(...) {
@@ -98,13 +100,6 @@ renv_paths_repos <- function(...) {
 renv_paths_root <- function(...) {
   root <- Sys.getenv("RENV_PATHS_ROOT", "~/.renv")
   file.path(root, ...) %||% ""
-}
-
-renv_paths_root_local <- function(...) {
-  if (renv_state$local())
-    file.path(renv_state$project(), "renv", ...)
-  else
-    renv_paths_root(...)
 }
 
 renv_platform_prefix <- function(...) {

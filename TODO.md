@@ -96,3 +96,4 @@
 
 - [ ] Handle NA mtime in filecached APIs.
 
+- [ ] Provide tools for recovering old manifest files from the Git history (or similar)

@@ -15,7 +15,6 @@ the current working directory is used.}
 Deactivate the active virtual environment.
 }
 \seealso{
-Other renv: \code{\link{activate}}, \code{\link{create}},
-  \code{\link{modify}}
+Other renv: \code{\link{activate}}
 }
 \concept{renv}
