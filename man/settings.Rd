@@ -9,7 +9,7 @@
 settings
 }
 \description{
-Define project-local settings, for fine-tuning the interaction between
-your project and its associated virtual environment.
+Define project-local settings that can be used to adjust the behavior of
+\code{renv} with your particular project.
 }
 \keyword{datasets}

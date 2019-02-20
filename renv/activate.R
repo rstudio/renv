@@ -13,7 +13,7 @@ local({
 
   # try to find a path where renv might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
-  base <- c(Sys.getenv("RENV_PATHS_ROOT", unset = "~/.renv"), "renv")
+  base <- c("renv", Sys.getenv("RENV_PATHS_ROOT", unset = "~/.renv"))
   paths <- file.path(base, "bootstrap", prefix, "renv", version)
 
   # try to load renv from one of these paths

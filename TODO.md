@@ -74,3 +74,5 @@
 - [ ] Implement `bundle()` for packaging up a project, potentially with package
       sources, binaries, or even the library itself for restoration on a new
       machine (potentially lacking internet access).
+
+- [ ] Provide tools for upgrading version of `renv` used to manage a project.

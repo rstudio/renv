@@ -11,7 +11,7 @@ hydrate <- function(project = NULL) {
   project <- project %||% renv_state$project()
 
   # find packages used in this project, and the dependencies of those packages
-  deps <- renv_hydrate_discover_dependencies(project)
+  deps <- renv_hydrate_dependencies(project)
 
   # remove 'renv' since it's managed separately
   deps$renv <- NULL
@@ -39,9 +39,9 @@ hydrate <- function(project = NULL) {
 
 }
 
-renv_hydrate_discover_dependencies <- function(project) {
+renv_hydrate_dependencies <- function(project) {
   vmessagef("* Discovering package dependencies ... ", appendLF = FALSE)
-  deps <- discover_dependencies(project)
+  deps <- dependencies(project)
   all <- renv_dependencies(unique(deps$Package))
   vmessagef("Done!")
   all

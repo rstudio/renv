@@ -53,7 +53,7 @@ renv_dependencies_discover_dir <- function(path) {
   matches <- grep(pattern, children, perl = TRUE, value = TRUE, invert = TRUE)
 
   # recurse for dependencies
-  deps <- lapply(matches, discover_dependencies)
+  deps <- lapply(matches, dependencies)
 
   bind_list(deps)
 

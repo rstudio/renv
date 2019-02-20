@@ -23,7 +23,7 @@ are then installed to the project's private library.
 The primary steps taken when initializing a new virtual environment are:
 \enumerate{
 \item \R package dependencies are discovered within the \R files used within
-the project with \code{\link[=discover_dependencies]{discover_dependencies()}};
+the project with \code{\link[=dependencies]{dependencies()}};
 \item Discovered packages are copied into the \code{renv} global package cache, so
 these packages can be re-used across future projects as necessary;
 \item Any missing \R package dependencies discovered are then installed into
