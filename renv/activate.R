@@ -13,7 +13,7 @@ local({
 
   # try to find a path where renv might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
-  base <- c("renv", Sys.getenv("RENV_PATHS_ROOT", unset = "~/.renv"))
+  base <- c(Sys.getenv("RENV_PATHS_ROOT", unset = "~/.renv"), "renv")
   paths <- file.path(base, "bootstrap", prefix, "renv", version)
 
   # try to load renv from one of these paths
@@ -25,11 +25,7 @@ local({
   }
 
   # failed to load renv; warn the user
-  msg <- paste(
-    "Unable to find a local renv installation;",
-    "the active virtual environment will not be loaded."
-  )
-
+  msg <- "Failed to find an renv installation: the project will not be loaded."
   warning(msg, call. = FALSE)
 
 })

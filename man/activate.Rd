@@ -2,7 +2,7 @@
 % Please edit documentation in R/renv.R
 \name{activate}
 \alias{activate}
-\title{Activate an R Virtual Environment}
+\title{Activate a Project}
 \usage{
 activate(project = NULL)
 }
@@ -12,9 +12,9 @@ project will be used. If no project has been specifically activated,
 the current working directory is used.}
 }
 \description{
-Activate an \R virtual environment. This binds the requested project to the
-virtual environment called \code{name}. Newly-launched \R sessions in this project
-will use this virtual environment.
+Use \code{activate()} to write the infrastructure needed to ensure that
+newly-launched \R projects will load the project's private library on launch,
+alongside any other project-specific state recorded for the project.
 }
 \seealso{
 Other renv: \code{\link{deactivate}}

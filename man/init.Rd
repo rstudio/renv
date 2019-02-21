@@ -10,8 +10,8 @@ init(project = NULL, force = FALSE)
 \item{project}{The project directory.}
 
 \item{force}{Boolean; force initialization? By default, \code{renv} will refuse
-to initialize a virtual environment with the home directory, to defend
-against accidental usages of \code{init()}.}
+to initialize the home directory as a project, to defend against accidental
+misusages of \code{init()}.}
 }
 \description{
 Discover packages used within the current project, and then initialize a
@@ -20,7 +20,7 @@ versions of any packages in use (as detected within the default R libraries)
 are then installed to the project's private library.
 }
 \details{
-The primary steps taken when initializing a new virtual environment are:
+The primary steps taken when initializing a new project are:
 \enumerate{
 \item \R package dependencies are discovered within the \R files used within
 the project with \code{\link[=dependencies]{dependencies()}};

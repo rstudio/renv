@@ -2,7 +2,7 @@
 % Please edit documentation in R/snapshot.R
 \name{snapshot}
 \alias{snapshot}
-\title{Snapshot a Virtual Environment}
+\title{Snapshot a Project}
 \usage{
 snapshot(project = NULL, file = file.path(project, "renv.lock"),
   confirm = interactive())
@@ -12,14 +12,15 @@ snapshot(project = NULL, file = file.path(project, "renv.lock"),
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
 
-\item{file}{The location to where the generated lockfile should be written.
+\item{file}{The location where the generated lockfile should be written.
 When \code{NULL}, the lockfile (as an \R object) is returned directly instead.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
 \description{
-Snapshot a virtual environment, creating a \strong{lockfile} file that can be used
-to later restore the virtual environment. See the \link{lockfile} documentation
+Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a project's
+\R package dependencies. The lockfile can be used to later restore the project's
+dependencies as required. See the \link{lockfile} documentation
 for more details on the structure of a lockfile.
 }
 \seealso{

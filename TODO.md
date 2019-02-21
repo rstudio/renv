@@ -76,3 +76,5 @@
       machine (potentially lacking internet access).
 
 - [ ] Provide tools for upgrading version of `renv` used to manage a project.
+
+- [ ] Think about how we might discover 'stale' entries in the cache.
