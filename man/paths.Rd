@@ -9,8 +9,8 @@ Customize the paths that \code{renv} uses for global state storage.
 \details{
 By default, all state is collected into a directory at \code{~/.renv}. If desired,
 this path can be adjusted by setting the \code{RENV_PATHS_ROOT} environment
-variable. This can be useful if you want to share a set of virtual environments
-(along with the cache of installed packages) with multiple users.
+variable. This can be useful if you'd like multiple users to be able to
+share a single global cache of installed packages.
 
 The various state sub-directories can also be individually adjusted, if so
 desired (e.g. you'd prefer to keep the cache of package installations on a
@@ -22,7 +22,6 @@ enumerated below:
 \code{RENV_PATHS_ROOT}        \tab The root path used for global state storage. \cr
 \code{RENV_PATHS_BOOTSTRAP}   \tab The library path containing bootstrapped \code{renv} installations. \cr
 \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
-\code{RENV_PATHS_ENVIRONMENT} \tab The path containing \R virtual environment definitions. \cr
 \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr
 \code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr
 \code{RENV_PATHS_CACHE}       \tab The path containing cached package installations. \cr

@@ -6,7 +6,7 @@
 #' versions of any packages in use (as detected within the default R libraries)
 #' are then installed to the project's private library.
 #'
-#' The primary steps taken when initializing a new virtual environment are:
+#' The primary steps taken when initializing a new project are:
 #'
 #' 1. \R package dependencies are discovered within the \R files used within
 #'    the project with [dependencies()];
@@ -29,8 +29,8 @@
 #'
 #' @param project The project directory.
 #' @param force Boolean; force initialization? By default, `renv` will refuse
-#'   to initialize a virtual environment with the home directory, to defend
-#'   against accidental usages of `init()`.
+#'   to initialize the home directory as a project, to defend against accidental
+#'   misusages of `init()`.
 #'
 #' @export
 init <- function(project = NULL, force = FALSE) {
@@ -55,7 +55,7 @@ renv_init_validate_project <- function(project, force) {
     sprintf("refusing to initialize project in directory '%s'", project)
 
   if (!is.null(msg)) {
-    msg <- paste(msg, "(use renv::init(force = TRUE) to override)")
+    msg <- paste(msg, "-- use renv::init(force = TRUE) to override")
     stopf(msg)
   }
 

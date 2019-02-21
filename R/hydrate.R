@@ -1,8 +1,13 @@
 
-#' Hydrate a Virtual Environment
+#' Hydrate a Project
 #'
-#' Discover package dependencies within a project, and then ensure those
-#' dependencies are all installed in the requested virtual environment.
+#' Discover the \R packages used within a project, and then install those
+#' packages into the active library.
+#'
+#' While this function is normally called as part of [init()], it may be useful
+#' to call this function explicitly when working with a new project, as it
+#' can take care of finding and installing \R packages available on CRAN that
+#' have not yet been installed on your machine.
 #'
 #' @inheritParams renv-params
 #'

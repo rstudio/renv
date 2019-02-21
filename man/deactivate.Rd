@@ -2,7 +2,7 @@
 % Please edit documentation in R/renv.R
 \name{deactivate}
 \alias{deactivate}
-\title{Deactivate an R Virtual Environment}
+\title{Deactivate a Project}
 \usage{
 deactivate(project = NULL)
 }
@@ -12,7 +12,8 @@ project will be used. If no project has been specifically activated,
 the current working directory is used.}
 }
 \description{
-Deactivate the active virtual environment.
+Use \code{deactivate()} to remove the infrastructure used by \code{renv} to activate
+projects for newly-launched \R sessions.
 }
 \seealso{
 Other renv: \code{\link{activate}}

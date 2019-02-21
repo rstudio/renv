@@ -25,11 +25,7 @@ local({
   }
 
   # failed to load renv; warn the user
-  msg <- paste(
-    "Unable to find a local renv installation;",
-    "the active virtual environment will not be loaded."
-  )
-
+  msg <- "Failed to find an renv installation: the project will not be loaded."
   warning(msg, call. = FALSE)
 
 })

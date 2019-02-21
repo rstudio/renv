@@ -1,13 +1,14 @@
 
-#' Snapshot a Virtual Environment
+#' Snapshot a Project
 #'
-#' Snapshot a virtual environment, creating a **lockfile** file that can be used
-#' to later restore the virtual environment. See the [lockfile] documentation
+#' Call `snapshot()` to create a **lockfile** capturing the state of a project's
+#' \R package dependencies. The lockfile can be used to later restore the project's
+#' dependencies as required. See the [lockfile] documentation
 #' for more details on the structure of a lockfile.
 #'
 #' @inheritParams renv-params
 #'
-#' @param file The location to where the generated lockfile should be written.
+#' @param file The location where the generated lockfile should be written.
 #'   When `NULL`, the lockfile (as an \R object) is returned directly instead.
 #'
 #' @family reproducibility

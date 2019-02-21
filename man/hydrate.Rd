@@ -2,7 +2,7 @@
 % Please edit documentation in R/hydrate.R
 \name{hydrate}
 \alias{hydrate}
-\title{Hydrate a Virtual Environment}
+\title{Hydrate a Project}
 \usage{
 hydrate(project = NULL)
 }
@@ -12,6 +12,12 @@ project will be used. If no project has been specifically activated,
 the current working directory is used.}
 }
 \description{
-Discover package dependencies within a project, and then ensure those
-dependencies are all installed in the requested virtual environment.
+Discover the \R packages used within a project, and then install those
+packages into the active library.
+}
+\details{
+While this function is normally called as part of \code{\link[=init]{init()}}, it may be useful
+to call this function explicitly when working with a new project, as it
+can take care of finding and installing \R packages available on CRAN that
+have not yet been installed on your machine.
 }
