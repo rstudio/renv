@@ -19,7 +19,7 @@ renv_libpaths_user <- function() {
   for (envvar in envvars) {
 
     value <- Sys.getenv(envvar, unset = NA)
-    if (is.na(value) || value == "<NA>")
+    if (is.na(value) || value == "<NA>" || !nzchar(value))
       next
 
     parts <- strsplit(value, .Platform$path.sep, fixed = TRUE)[[1]]
