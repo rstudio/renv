@@ -78,3 +78,9 @@
 - [ ] Provide tools for upgrading version of `renv` used to manage a project.
 
 - [ ] Think about how we might discover 'stale' entries in the cache.
+
+- [ ] Handle `renv::init()` case when another project already active (want
+      to make sure we use the user library rather than active library)
+
+- [ ] `renv::status()` function reporting differences between lockfile + library?
+      What about cache status reporting?

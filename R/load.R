@@ -10,6 +10,7 @@ renv_load_r_version <- function(version) {
 renv_load_libpaths <- function(project = NULL) {
   project <- project %||% renv_state$project()
   libpaths <- renv_paths_library(project)
+  renv_library_diagnose(project, libpaths)
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
   .libPaths(libpaths)
 }

@@ -51,23 +51,29 @@ restore <- function(project = NULL,
 
   # check to see if the lockfile is now up-to-date; if it's not,
   # then the restore might've repaired the dependency tree and
-  # this should now be snapshotted
-  after <- snapshot(file = NULL)
-  if (!identical(after, new)) {
-
-    msg <- stack()
-    msg$push("The dependency tree was repaired during package restoration.")
-    if (confirm)
-      msg$push("You will be prompted to snapshot the newly-installed packages.")
-    else
-      msg$push("The lockfile will be updated with the newly-installed packages.")
-
-    writeLines(as.character(msg$data()))
-    snapshot(project = project, confirm = confirm)
-
-  }
+  # we should snapshot to capture the new changes
+  renv_restore_postamble(project, new, confirm)
 
   invisible(status)
+}
+
+renv_restore_postamble <- function(project,
+                                   lockfile,
+                                   confirm)
+{
+  actions <- renv_lockfile_diff_packages(lockfile, snapshot(file = NULL))
+  if (empty(actions))
+    return(NULL)
+
+  msg <- stack()
+  msg$push("The dependency tree was repaired during package restoration.")
+  if (confirm)
+    msg$push("You will be prompted to snapshot the newly-installed packages.")
+  else
+    msg$push("The lockfile will be updated with the newly-installed packages.")
+
+  writeLines(as.character(msg$data()))
+  snapshot(project = project, confirm = confirm)
 }
 
 renv_restore_run_actions <- function(actions, old, new) {
