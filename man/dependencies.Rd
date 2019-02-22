@@ -20,9 +20,19 @@ By default, \code{renv} will read your project's \code{.gitignore}s (if any) to
 determine whether certain files or folders should be included when traversing
 directories. If preferred, you can also create a \code{.renvignore} file (with
 entries of the same format as a standard \code{.gitignore} file) to tell \code{renv}
-which files to ignore within a directory.
+which files to ignore within a directory. If both \code{.renvignore} and
+\code{.gitignore} exist within a folder, the \code{.renvignore} will be used in lieu of
+the \code{.gitignore}.
 
 See \url{https://git-scm.com/docs/gitignore} for documentation on the
-\code{.gitignore} format.
+\code{.gitignore} format. Some simple examples here:\preformatted{# ignore all R Markdown files
+*.Rmd
+
+# ignore all data folders
+data/
+
+# ignore only data folders from the root of the project
+/data/
+}
 }
 

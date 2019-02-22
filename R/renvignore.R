@@ -9,10 +9,6 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
   # prepare ignores
   ignores <- stack()
 
-  # push in default ignore entries
-  defaults <- getOption("renv.renvignore", default = renv_renvignore_defaults())
-  ignores$push(renv_renvignore_parse(defaults, root))
-
   # read ignore files
   parent <- path
   while (parent != dirname(parent)) {
@@ -37,6 +33,8 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
 
   # collect patterns read
   patterns <- unlist(ignores$data())
+  if (empty(patterns))
+    return(patterns)
 
   # clean up empty quotes
   patterns <- gsub("\\Q\\E", "", patterns, fixed = TRUE)
@@ -63,17 +61,20 @@ renv_renvignore_parse <- function(contents, prefix) {
   noslash <- grep("/", entries, fixed = TRUE, invert = TRUE)
   entries[noslash] <- paste("**", entries[noslash], sep = "/")
 
+  # remove a leading slash (avoid double-slashing)
+  entries <- gsub("^/+", "", entries)
+
   # save any '**' entries seen
-  entries <- gsub("/**",  "\001", entries, fixed = TRUE)
-  entries <- gsub("**/",  "\002", entries, fixed = TRUE)
+  entries <- gsub("**/",  "\001", entries, fixed = TRUE)
+  entries <- gsub("/**",  "\002", entries, fixed = TRUE)
 
   # transform '*' and '?'
   entries <- gsub("*", "\\E[^/]*\\Q", entries, fixed = TRUE)
   entries <- gsub("?", "\\E[^/]\\Q",  entries, fixed = TRUE)
 
   # restore '**' entries
-  entries <- gsub("\001", "/\\E.*\\Q",      entries, fixed = TRUE)
-  entries <- gsub("\002", "\\E(?:.*/)?\\Q", entries, fixed = TRUE)
+  entries <- gsub("\001", "\\E(?:.*/)?\\Q", entries, fixed = TRUE)
+  entries <- gsub("\002", "/\\E.*\\Q",      entries, fixed = TRUE)
 
   # enclose in \\Q \\E to ensure e.g. plain '.' are not treated
   # as regex characters
@@ -85,33 +86,4 @@ renv_renvignore_parse <- function(contents, prefix) {
   # prepend prefix
   sprintf("^\\Q%s/\\E%s", prefix, pattern)
 
-}
-
-# TODO: allow for e.g. `~/.renvignore`?
-renv_renvignore_get <- function(project = NULL) {
-  project <- project %||% renv_state$project()
-
-  # read defaults
-  defaults <- renv_renvignore_defaults()
-
-  # construct path to '.renvignore'
-  path <- file.path(project, ".renvignore")
-  if (!renv_file_exists(path))
-    return(defaults)
-
-  # return ignores
-  ignores <- renv_filebacked_get(path) %||% renv_renvignore_read(path)
-  c(ignores, defaults)
-
-}
-
-# TODO: parse things like '**' and so on
-renv_renvignore_read <- function(path) {
-  contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
-  matches <- grep("^\\s*(?:#|\\s*$)", contents, value = TRUE, invert = TRUE)
-  renv_filebacked_set(path, matches)
-}
-
-renv_renvignore_defaults <- function() {
-  c("node_modules", "packrat", "revdep", "renv")
 }

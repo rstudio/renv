@@ -9,10 +9,23 @@
 #' determine whether certain files or folders should be included when traversing
 #' directories. If preferred, you can also create a `.renvignore` file (with
 #' entries of the same format as a standard `.gitignore` file) to tell `renv`
-#' which files to ignore within a directory.
+#' which files to ignore within a directory. If both `.renvignore` and
+#' `.gitignore` exist within a folder, the `.renvignore` will be used in lieu of
+#' the `.gitignore`.
 #'
 #' See <https://git-scm.com/docs/gitignore> for documentation on the
-#' `.gitignore` format.
+#' `.gitignore` format. Some simple examples here:
+#'
+#' ```
+#' # ignore all R Markdown files
+#' *.Rmd
+#'
+#' # ignore all data folders
+#' data/
+#'
+#' # ignore only data folders from the root of the project
+#' /data/
+#' ```
 #'
 #' @param path The path to a (possibly multi-mode) \R file, or a directory
 #'   containing such files.
@@ -53,23 +66,36 @@ renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
 }
 
 renv_dependencies_discover_dir <- function(path, root) {
+  children <- renv_dependencies_discover_dir_children(path, root)
+  deps <- lapply(children, renv_dependencies_discover, root = root)
+  bind_list(deps)
+}
+
+# return the set of files /subdirectories within a directory that should be
+# crawled for dependencies
+renv_dependencies_discover_dir_children <- function(path, root) {
+
+  # for R packages, use a pre-defined set of files
+  # (TODO: should we still respect .renvignore etc. here?)
+  if (all(file.exists(file.path(path, c("DESCRIPTION", "NAMESPACE"))))) {
+    children <- file.path(path, c("DESCRIPTION", "R", "tests", "vignettes"))
+    return(children[file.exists(children)])
+  }
 
   # list files in the folder
-  # TODO: on Windows, 'list.files()' can fail to return files
-  # whose names are not representable in the current locale
   children <- renv_file_list(path, full.names = TRUE)
 
   # remove files which are broken symlinks
   children <- children[file.exists(children)]
 
-  # filter children based on pattern
+  # construct pattern for matching files in this path
+  # (return all files if no such pattern available)
   pattern <- renv_renvignore_pattern(path, root)
-  matched <- grep(pattern, children, perl = TRUE, invert = TRUE, value = TRUE)
+  if (empty(pattern))
+    return(children)
 
-  # recurse for dependencies
-  deps <- lapply(matched, renv_dependencies_discover, root = root)
-
-  bind_list(deps)
+  # we had a pattern; use it to match against file entries
+  grep(pattern, children, perl = TRUE, invert = TRUE, value = TRUE)
 
 }
 
