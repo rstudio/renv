@@ -13,3 +13,16 @@ containing such files.}
 \description{
 Find \R packages used within a project.
 }
+\section{Ignoring Files}{
+
+
+By default, \code{renv} will read your project's \code{.gitignore}s (if any) to
+determine whether certain files or folders should be included when traversing
+directories. If preferred, you can also create a \code{.renvignore} file (with
+entries of the same format as a standard \code{.gitignore} file) to tell \code{renv}
+which files to ignore within a directory.
+
+See \url{https://git-scm.com/docs/gitignore} for documentation on the
+\code{.gitignore} format.
+}
+
