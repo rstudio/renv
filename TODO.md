@@ -69,7 +69,7 @@
       old versions of the lockfile. (Make it clearer to users what needs to be
       committed)
 
-- [ ] Handle `NA` mtime in filecached APIs.
+- [x] Handle `NA` mtime in filecached APIs.
 
 - [ ] Implement `bundle()` for packaging up a project, potentially with package
       sources, binaries, or even the library itself for restoration on a new

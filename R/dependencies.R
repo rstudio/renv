@@ -3,18 +3,34 @@
 #'
 #' Find \R packages used within a project.
 #'
+#' @section Ignoring Files:
+#'
+#' By default, `renv` will read your project's `.gitignore`s (if any) to
+#' determine whether certain files or folders should be included when traversing
+#' directories. If preferred, you can also create a `.renvignore` file (with
+#' entries of the same format as a standard `.gitignore` file) to tell `renv`
+#' which files to ignore within a directory.
+#'
+#' See <https://git-scm.com/docs/gitignore> for documentation on the
+#' `.gitignore` format.
+#'
 #' @param path The path to a (possibly multi-mode) \R file, or a directory
 #'   containing such files.
 #'
 #' @export
 dependencies <- function(path = getwd()) {
+  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  renv_dependencies_discover(path, path)
+}
+
+renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
 
   info <- file.info(path)
   if (is.na(info$isdir))
     stopf("File '%s' does not exist.", path)
 
   if (info$isdir)
-    return(renv_dependencies_discover_dir(path))
+    return(renv_dependencies_discover_dir(path, root))
 
   name <- basename(path)
   ext <- tolower(tools::file_ext(path))
@@ -36,9 +52,7 @@ dependencies <- function(path = getwd()) {
 
 }
 
-renv_dependencies_discover_dir <- function(path) {
-
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+renv_dependencies_discover_dir <- function(path, root) {
 
   # list files in the folder
   # TODO: on Windows, 'list.files()' can fail to return files
@@ -49,11 +63,11 @@ renv_dependencies_discover_dir <- function(path) {
   children <- children[file.exists(children)]
 
   # filter children based on pattern
-  pattern <- sprintf("(?:%s)$", paste(renv_renvignore_get(), collapse = "|"))
-  matches <- grep(pattern, children, perl = TRUE, value = TRUE, invert = TRUE)
+  pattern <- renv_renvignore_pattern(path, root)
+  matched <- grep(pattern, children, perl = TRUE, invert = TRUE, value = TRUE)
 
   # recurse for dependencies
-  deps <- lapply(matches, dependencies)
+  deps <- lapply(matched, renv_dependencies_discover, root = root)
 
   bind_list(deps)
 
