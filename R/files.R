@@ -238,12 +238,8 @@ renv_file_list <- function(path, full.names = TRUE) {
 
 renv_file_list_impl <- function(path) {
 
-  # ensure we have a directory
-  info <- file.info(path, extra_cols = FALSE)
-  if (!identical(info$isdir, TRUE))
-    return(FALSE)
-
-  # on Windows, list.files mangles encoding
+  # on Windows, list.files mangles encoding; avoid this by making a call to
+  # 'dir' with the code page set to request UTF-8 encoded paths
   if (renv_platform_windows()) {
     path <- normalizePath(path)
     command <- paste("cmd.exe /c chcp 65001 && dir /B", path)
