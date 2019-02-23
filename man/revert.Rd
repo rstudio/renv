@@ -7,6 +7,10 @@
 revert(project = NULL, commit = "HEAD")
 }
 \arguments{
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
+
 \item{commit}{The commit associated with a prior version of the lockfile.}
 }
 \description{
