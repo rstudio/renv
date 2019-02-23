@@ -8,14 +8,58 @@
 #'   project. When `NULL`, the most recently generated lockfile for this project
 #'   is used.
 #'
+#' @param actions The restore actions to take. By default, all actions are
+#'   taken, thereby synchronizing the state of the project library with that of
+#'   the lockfile. See **Actions** for more details.
+#'
+#' @section Actions:
+#'
+#' `renv` classifies the different actions that will be taken during restore
+#' into five fundamental types:
+#'
+#' \tabular{ll}{
+#'
+#' \code{install} \tab
+#'   Install a package recorded in the lockfile,
+#'   but not currently installed in the project library. \cr
+#'
+#' \code{remove} \tab
+#'   Remove a package installed in the project library,
+#'   but not currently recorded in the lockfile. \cr
+#'
+#' \code{upgrade} \tab
+#'   Upgrade a package by replacing the (older) version of the package
+#'   available in the project library with a newer version as defined
+#'   in the lockfile. \cr
+#'
+#' \code{downgrade} \tab
+#'   Downgrade a package by replacing the (newer) version of the package
+#'   available in the project library with an older version as defined
+#'   in the lockfile. \cr
+#'
+#' \code{crossgrade} \tab
+#'   Install a package whose lockfile record differs from the inferred
+#'   record associated with the currently-installed version. This could
+#'   happen if, for example, the source of a particular package was changed
+#'   (e.g. a package originally installed from GitHub was later installed
+#'   from CRAN). \cr
+#'
+#' }
+#'
+#' This can be useful if you want to perform only non-destructive changes during
+#' restore -- for example, you can invoke `renv::restore(actions = "install")`
+#' to avoid modifying or removing packages that have already been installed into
+#' your project's private library.
+#'
 #' @inheritParams renv-params
 #'
 #' @family reproducibility
 #'
 #' @export
-restore <- function(project = NULL,
+restore <- function(project  = NULL,
                     lockfile = NULL,
-                    confirm = interactive())
+                    actions  = c("install", "remove", "upgrade", "downgrade", "crossgrade"),
+                    confirm  = interactive())
 {
   project <- project %||% renv_state$project()
 
@@ -29,25 +73,26 @@ restore <- function(project = NULL,
   # detect changes in R packages in the lockfile
   old <- snapshot(file = NULL)
   new <- lockfile
-  actions <- renv_lockfile_diff_packages(old, new)
+  diff <- renv_lockfile_diff_packages(old, new)
 
-  # detect missing dependencies -- e.g. if an installed package depends on
-  # one or more packages that are no longer available
-  if (!length(actions)) {
-    message("Project library is already synchronized with renv.lock.")
-    return(invisible(actions))
+  # only keep requested actions
+  diff <- diff[diff %in% actions]
+
+  if (!length(diff)) {
+    vmessagef("* The project is already synchronized with the lockfile.")
+    return(invisible(diff))
   }
 
   if (confirm || renv_verbose())
-    renv_restore_report_actions(actions, old, new)
+    renv_restore_report_actions(diff, old, new)
 
   if (confirm && !proceed()) {
     message("Operation aborted.")
-    return(invisible(actions))
+    return(invisible(diff))
   }
 
   # perform the restore
-  status <- renv_restore_run_actions(actions, old, new)
+  status <- renv_restore_run_actions(diff, old, new)
 
   # check to see if the lockfile is now up-to-date; if it's not,
   # then the restore might've repaired the dependency tree and

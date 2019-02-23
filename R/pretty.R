@@ -19,7 +19,7 @@ renv_pretty_print <- function(message, lockfile, actions, action) {
 
 renv_pretty_print_pair <- function(message, old, new, actions, action) {
 
-  matches <- actions[actions == action]
+  matches <- actions[actions %in% action]
   if (empty(matches))
     return()
 
