@@ -31,7 +31,7 @@ snapshot <- function(project = NULL,
     old <- renv_lockfile_read(file)
     diff <- renv_lockfile_diff(old, new)
     if (empty(diff)) {
-      vmessagef("* The lockfile is already up-to-date.")
+      vmessagef("* The lockfile is already up to date.")
       return(invisible(new))
     }
   }

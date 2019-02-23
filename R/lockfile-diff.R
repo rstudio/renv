@@ -3,15 +3,14 @@ renv_lockfile_diff <- function(old, new) {
 
   # ensure both lists have the same names, inserting missing
   # entries for those without any value
-  nms <- union(names(old), names(new))
+  nms <- sort(union(names(old), names(new)))
   if (length(nms)) {
 
     old[setdiff(nms, names(old))] <- list(NULL)
     new[setdiff(nms, names(new))] <- list(NULL)
 
-    ord <- order(nms)
-    old <- old[ord]
-    new <- new[ord]
+    old <- old[nms]
+    new <- new[nms]
 
   }
 

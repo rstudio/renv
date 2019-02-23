@@ -8,7 +8,7 @@
       dependencies -- e.g. the library contains 'markdown' but not its
       dependency 'mime'.
       
-- [ ] Properly handle broken links in the project library (e.g. if the cache
+- [x] Properly handle broken links in the project library (e.g. if the cache
       moved or was mutated for some reason)
   
 - [ ] `rehash()` -- tools for validating package hashes + their install location?
