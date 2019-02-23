@@ -1,12 +1,10 @@
 Package: renv
 Type: Package
-Title: Virtual Environments for R
-Version: 0.0.1-756
+Title: Embedded Virtual Environments for R
+Version: 0.0.1-757
 Author: Kevin Ushey
-Maintainer: Kevin Ushey <kevinushey@gmail.com>
-Description: Create and manage R virtual environments.
-    Virtual environments can be used to share and isolate R package dependencies
-    between different projects.
+Maintainer: Kevin Ushey <kevin@rstudio.com>
+Description: Use 'renv' to create and manage project-local R dependencies.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

@@ -17,16 +17,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `renv` package is a new effort to bring private project-local R libraries
-to your projects. The goal is for `renv` to be a robust, stable replacement for
-the [Packrat](https://rstudio.github.io/packrat/) package, with fewer surprises
-and better default behaviors.
+The `renv` package is a new effort to bring project-local R dependency
+management to your projects. The goal is for `renv` to be a robust, stable
+replacement for the [Packrat](https://rstudio.github.io/packrat/) package, with
+fewer surprises and better default behaviors.
 
 Underlying the philosophy of `renv` is that any of your existing workflows
 should just work as they did before -- `renv` helps manage library paths (and
 other project-specific state) to help isolate your project's R dependencies,
 and the existing tools you've used for managing R packages (e.g.
 `install.packages()`, `remove.packages()`) should work as before.
+
 
 ## Workflow
 
@@ -55,6 +56,7 @@ from the project root directory. This is accomplished by creating (or amending)
 a project-local `.Rprofile` with the necessary code to load the project when
 the session is started.
 
+
 ## Reproducibility
 
 With Packrat, one can save and restore the state of the private library with
@@ -74,6 +76,19 @@ By default, `renv` will maintain and use a global cache of packages during
 `renv::restore()`, so (at least on the same machine) if that cache is maintained
 old projects will be restored by copying or linking from an installation
 discovered in the cache.
+
+
+## History
+
+If you're using a version control system with your project, then as you call
+`renv::snapshot()` and later commit new lockfiles to your repository, you may
+find it necessary later to recover older versions of your lockfiles. `renv`
+provides the functions `renv::history()` to list previous revisions of your
+lockfile, and `renv::revert()` to recover these older lockfiles.
+
+Currently, only Git repositories are supported by `renv::history()` and
+`renv::revert()`.
+
 
 ## Comparison with Packrat
 
