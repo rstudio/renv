@@ -37,6 +37,8 @@ history <- function(project = NULL) {
 #' The `revert()` function is currently only implemented for projects using
 #' `git` for version control.
 #'
+#' @inheritParams renv-params
+#'
 #' @param commit The commit associated with a prior version of the lockfile.
 #'
 #' @export
