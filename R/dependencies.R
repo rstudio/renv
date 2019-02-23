@@ -135,6 +135,12 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
 
   })
 
+  # attempt to infer dependency on devtools
+  if (any(c("Roxygen", "RoxygenNote", "Remotes") %in% names(dcf))) {
+    devdeps <- renv_dependencies_list(path, c("roxygen2", "devtools"))
+    data[[length(data) + 1]] <- devdeps
+  }
+
   bind_list(data)
 
 }
