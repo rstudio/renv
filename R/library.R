@@ -25,7 +25,7 @@ renv_library_diagnose <- function(project = NULL, libpath) {
   if (any(missing)) {
 
     text <- paste(basename(children[missing]), collapse = ", ")
-    wrapped <- paste(strwrap(text, width = 60), collapse = "\n")
+    wrapped <- strwrap(text, width = 60)
 
     msg <- lines(
       "The following package(s) are missing entries in the cache:",
@@ -33,7 +33,7 @@ renv_library_diagnose <- function(project = NULL, libpath) {
       paste("\t", wrapped, sep = "", collapse = "\n"),
       "",
       if (file.exists(file.path(project, "renv.lock")))
-        "Try using `renv::restore()` to reinstall these packages."
+        "Use `renv::restore()` to reinstall these packages."
       else
         "These packages will need to be reinstalled."
     )
