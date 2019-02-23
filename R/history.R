@@ -48,5 +48,5 @@ revert <- function(project = NULL, commit = "HEAD") {
   renv_git_preflight()
   system2("git", c("checkout", commit, "--", shQuote(lockpath)))
   system2("git", c("reset", "HEAD", shQuote(lockpath)), stdout = FALSE, stderr = FALSE)
-  system2("git", c("diff", "--cached", "--", shQuote(lockpath)))
+  system2("git", c("diff", "--", shQuote(lockpath)))
 }
