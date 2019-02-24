@@ -62,7 +62,7 @@ load <- function(project = NULL) {
   renv_load_libpaths(project)
 
   lockfile <- renv_lockfile_load(project)
-  if (!is.null(lockfile)) {
+  if (length(lockfile)) {
     renv_load_r_version(lockfile$R$Version)
     renv_load_repos(lockfile$R$Repositories)
   }
