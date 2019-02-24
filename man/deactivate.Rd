@@ -13,7 +13,9 @@ the current working directory is used.}
 }
 \description{
 Use \code{deactivate()} to remove the infrastructure used by \code{renv} to activate
-projects for newly-launched \R sessions.
+projects for newly-launched \R sessions. In particular, this implies removing
+the requisite code from the project \code{.Rprofile} that automatically activates
+the project when new \R sessions are launched in the project directory.
 }
 \seealso{
 Other renv: \code{\link{activate}}

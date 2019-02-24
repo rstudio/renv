@@ -23,6 +23,11 @@ Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a pr
 dependencies as required. See the \link{lockfile} documentation
 for more details on the structure of a lockfile.
 }
+\details{
+In particular, \code{snapshot()} captures all \R packages currently installed
+within the project's private library. Dependencies within any other libraries
+(currently active on the library paths or not) are not captured.
+}
 \seealso{
 Other reproducibility: \code{\link{lockfile}},
   \code{\link{restore}}
