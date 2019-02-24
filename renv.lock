@@ -1,5 +1,5 @@
 [renv]
-Version=0.0.1-767
+Version=0.0.1-768
 
 [R]
 Version=3.5.2
@@ -308,9 +308,9 @@ RemoteSha=8397195187f953fe23ab06043aa118191392eee1
 
 [R/Package/renv]
 Package=renv
-Version=0.0.1-767
+Version=0.0.1-768
 Source=unknown
-Hash=7c0d83b627596b3899e61942bee4fa07
+Hash=ae1e8ddcdd1b6e7ed9b61ac791e49d56
 
 [R/Package/reticulate]
 Package=reticulate

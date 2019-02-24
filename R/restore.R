@@ -309,7 +309,7 @@ renv_restore_install_cran <- function(record) {
       return(TRUE)
   }
 
-  stopf("Failed to restore package '%s' from CRAN", record$Package)
+  stopf("failed to restore package '%s' from CRAN", record$Package)
 
 }
 
@@ -558,7 +558,7 @@ renv_restore_install_package_options <- function(package) {
 }
 
 renv_restore_install_unknown_source <- function(record) {
-  fmt <- "Can't restore package '%s': '%s' is an unrecognized source."
+  fmt <- "can't restore package '%s': '%s' is an unrecognized source."
   stopf(fmt, record$Package, record$Source, call. = FALSE)
 }
 

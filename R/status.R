@@ -34,9 +34,8 @@ renv_status <- function(project) {
 renv_status_report <- function(old, new) {
 
   actions <- renv_lockfile_diff_packages(old, new)
-  if (empty(actions)) {
-    writeLines("Your library and lockfile are synchronized.")
-  }
+  if (empty(actions))
+    vmessagef("* The project is already synchronized with the lockfile.")
 
   if ("install" %in% actions) {
     msg <- "The following package(s) are installed but not recorded in the lockfile:"
