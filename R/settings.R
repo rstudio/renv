@@ -1,43 +1,16 @@
 
-# TODO: project-local settings / options
-renv_setting_definition_logical <- function(default) {
-  list(
-    decode   = as.logical,
-    validate = is.logical,
-    default  = default
-  )
-}
+`_renv_settings_defaults` <- new.env(parent = emptyenv())
 
-`_renv_setting_definitions` <- list(
-  # TODO: what kinds of settings are appropriate? Some candidates:
-  #
-  # Use the global cache?
-  # On restore, allow version mismatches? (always download latest)
-  # Whitelist / blacklist for dependency discovery?
-
-)
-
-renv_settings_decode <- function(name, encoded) {
-  decode <- `_renv_setting_definitions`[[name]]$decode
-  catch(decode(encoded))
-}
-
-renv_settings_validate <- function(name, value) {
-  validate <- `_renv_setting_definitions`[[name]]$validate
-  catch(validate(value))
+renv_settings_defaults <- function() {
+  `_renv_settings_defaults`
 }
 
 renv_settings_default <- function(name) {
-  `_renv_setting_definitions`[[name]]$default
+  `_renv_settings_defaults`[[name]]
 }
 
-renv_settings_defaults <- function() {
-  extract(`_renv_setting_definitions`, "default")
-}
+renv_settings_read <- function(project) {
 
-renv_settings_read <- function() {
-
-  project <- renv_state$project()
   path <- file.path(project, "renv/renv.opts")
   if (!renv_file_exists(path))
     return(renv_settings_defaults())
@@ -46,16 +19,14 @@ renv_settings_read <- function() {
   if (inherits(dcf, "error"))
     return(renv_settings_defaults())
 
-  settings <- enumerate(dcf, function(name, encoded) {
+  settings <- enumerate(dcf, function(name, value) {
 
-    decoded <- catch(renv_settings_decode(name, encoded))
-    if (inherits(decoded, "error"))
-      return(renv_settings_default(name))
-
-    if (!renv_settings_validate(name, decoded))
-      return(renv_settings_default(name))
-
-    decoded
+    case(
+      value == "NULL"  ~ NULL,
+      value == "TRUE"  ~ TRUE,
+      value == "FALSE" ~ FALSE,
+      ~ strsplit(value, "\\s*,\\s*")[[1]]
+    )
 
   })
 
@@ -63,57 +34,82 @@ renv_settings_read <- function() {
 
 }
 
-renv_settings_get <- function(name) {
-  project <- renv_state$project()
+renv_settings_get <- function(project, name) {
 
   path <- file.path(project, "renv/renv.opts")
   cache <- renv_filebacked_get(path)
   if (!is.null(cache))
     return(cache[[name]] %||% renv_settings_default(name))
 
-  settings <- renv_settings_read()
+  settings <- renv_settings_read(project)
   settings[[name]] %||% renv_settings_default(name)
+
 }
 
-renv_settings_set <- function(name, value, persist = TRUE) {
+renv_settings_set <- function(project, name, value, persist = TRUE) {
 
-  project <- renv_state$project()
   path <- file.path(project, "renv/renv.opts")
 
-  settings <- renv_filebacked_get(path) %||% renv_settings_read()
+  settings <- renv_filebacked_get(path) %||% renv_settings_read(project)
   settings[[name]] <- value
   renv_filebacked_set(path, settings)
 
   if (persist)
-    renv_settings_persist(settings)
+    renv_settings_persist(project, settings)
+
 }
 
-renv_settings_persist <- function(settings) {
-
-  project <- renv_state$project()
+renv_settings_persist <- function(project, settings) {
   path <- file.path(project, "renv/renv.opts")
-
-  # TODO: use explicit encoder here?
-  lines <- paste(names(settings), settings, sep = ": ")
-  writeLines(lines, con = path)
-
+  settings <- lapply(settings, paste, collapse = ", ")
+  write.dcf(as.data.frame(settings, stringsAsFactors = FALSE), path)
 }
 
-renv_settings_impl <- function(name) {
+renv_settings_impl <- function(name, default) {
 
   force(name)
-  function(value, persist = TRUE) {
+  `_renv_settings_defaults`[[name]] <- default
+
+  function(value, project = NULL, persist = TRUE) {
+    project <- project %||% renv_state$project()
     if (missing(value))
-      renv_settings_get(name)
+      renv_settings_get(project, name)
     else
-      renv_settings_set(name, value, persist)
+      renv_settings_set(project, name, value, persist)
   }
 
 }
 
-#' Project-local Settings
+#' Settings
 #'
 #' Define project-local settings that can be used to adjust the behavior of
 #' `renv` with your particular project.
 #'
-settings <- list()
+#' @section Settings:
+#'
+#' \describe{
+#'
+#' \item{\code{ignored.packages}}{
+#'
+#'   A vector of packages, which should be ignored when attempting to snapshot
+#'   the project's private library. Note that if a package has already been
+#'   added to the lockfile, that entry in the lockfile will not be ignored. \cr
+#'
+#' }
+#'
+#' }
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#'
+#' # check the 'ignored.packages' option
+#' renv::settings$ignored.packages()
+#'
+#' # ignore the 'tidyverse' package in this project
+#' renv::settings$ignored.packages("tidyverse")
+#'
+#' }
+settings <- list(
+  ignored.packages = renv_settings_impl("ignored.packages", character())
+)

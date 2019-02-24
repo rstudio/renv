@@ -19,9 +19,10 @@ snapshot <- function(project = NULL,
                      confirm = interactive())
 {
   project <- project %||% renv_state$project()
+  library <- renv_paths_library(project)
 
   new <- renv_lockfile_init()
-  new$R$Package <- renv_snapshot_r_packages()
+  new$R$Package <- renv_snapshot_r_packages(library)
 
   if (is.null(file))
     return(new)
@@ -99,15 +100,18 @@ renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
 
 }
 
-renv_snapshot_r_packages <- function(synchronize = FALSE) {
+renv_snapshot_r_packages <- function(library = NULL, synchronize = FALSE) {
 
   # list packages in the library
-  library <- renv_libpaths_default()
+  library <- library %||% renv_libpaths_default()
   paths <- list.files(library, full.names = TRUE)
 
   # remove 'base' packages
   ip <- renv_installed_packages_base()
   paths <- paths[!basename(paths) %in% c(ip$Package, "translations")]
+
+  # remove ignored packages
+  paths <- paths[!basename(paths) %in% settings$ignored.packages()]
 
   # validate the remaining set of packages
   valid <- renv_snapshot_r_library_diagnose(library, paths)

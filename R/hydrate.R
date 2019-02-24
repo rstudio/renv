@@ -47,7 +47,8 @@ hydrate <- function(project = NULL) {
 renv_hydrate_dependencies <- function(project) {
   vmessagef("* Discovering package dependencies ... ", appendLF = FALSE)
   deps <- dependencies(project)
-  all <- renv_dependencies(unique(deps$Package))
+  packages <- setdiff(unique(deps$Package), settings$ignored.packages())
+  all <- renv_dependencies(packages)
   vmessagef("Done!")
   all
 }

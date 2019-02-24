@@ -3,13 +3,40 @@
 \docType{data}
 \name{settings}
 \alias{settings}
-\title{Project-local Settings}
-\format{An object of class \code{list} of length 0.}
+\title{Settings}
+\format{An object of class \code{list} of length 1.}
 \usage{
 settings
 }
 \description{
 Define project-local settings that can be used to adjust the behavior of
 \code{renv} with your particular project.
+}
+\section{Settings}{
+
+
+\describe{
+
+\item{\code{ignored.packages}}{
+
+A vector of packages, which should be ignored when attempting to snapshot
+the project's private library. Note that if a package has already been
+added to the lockfile, that entry in the lockfile will not be ignored. \cr
+
+}
+
+}
+}
+
+\examples{
+\dontrun{
+
+# check the 'ignored.packages' option
+renv::settings$ignored.packages()
+
+# ignore the 'tidyverse' package in this project
+renv::settings$ignored.packages("tidyverse")
+
+}
 }
 \keyword{datasets}

@@ -482,6 +482,7 @@ renv_dependencies <- function(packages, fields = NULL) {
   # TODO: dependency resolution? (can we depend on a different package for this)
   # TODO: recursive and non-recursive dependencies?
   visited <- new.env(parent = emptyenv())
+  packages <- setdiff(packages, settings$ignored.packages())
   for (package in packages)
     renv_dependencies_enumerate(package, visited, fields)
 
