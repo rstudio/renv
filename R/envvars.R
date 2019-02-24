@@ -36,7 +36,9 @@ renv_envvars_restore <- function() {
 
   # restore old library paths
   libpaths <- Sys.getenv("RENV_DEFAULT_LIBPATHS", unset = NA)
-  libpaths <- strsplit(libpaths, .Platform$path.sep, fixed = TRUE)[[1]]
-  renv_libpaths_set(libpaths)
+  if (!is.na(libpaths)) {
+    libpaths <- strsplit(libpaths, .Platform$path.sep, fixed = TRUE)[[1]]
+    renv_libpaths_set(libpaths)
+  }
 
 }
