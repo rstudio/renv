@@ -2,6 +2,7 @@
 renv_lockfile_write <- function(lockfile, file = stdout()) {
   renv_lockfile_write_begin(file)
   on.exit(renv_lockfile_write_end(), add = TRUE)
+  lockfile <- renv_lockfile_sort(lockfile)
   renv_lockfile_write_list(lockfile, section = character())
   invisible(lockfile)
 }
@@ -46,16 +47,16 @@ renv_lockfile_write_lists <- function(key, value, section) {
 
 renv_lockfile_write_begin <- function(file) {
   file <- if (is.character(file)) textfile(file) else file
-  renv_global_set("lockfile.file", file)
+  renv_global_set("lockfile", file)
 }
 
 renv_lockfile_write_end <- function() {
-  file <- renv_global_get("lockfile.file")
+  file <- renv_global_get("lockfile")
   if (inherits(file, "file"))
     close(file)
-  renv_global_clear("lockfile.file")
+  renv_global_clear("lockfile")
 }
 
 renv_lockfile_write_emit <- function(text = "") {
-  writeLines(text, con = renv_global_get("lockfile.file"))
+  writeLines(text, con = renv_global_get("lockfile"))
 }

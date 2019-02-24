@@ -111,3 +111,19 @@ renv_lockfile_load <- function(project = NULL) {
 
 }
 
+renv_lockfile_sort <- function(lockfile) {
+
+  # ensure C locale for consistent sorting
+  locale <- Sys.getlocale("LC_COLLATE")
+  Sys.setlocale("LC_COLLATE", locale = "C")
+  on.exit(Sys.setlocale("LC_COLLATE", locale = locale), add = TRUE)
+
+  # sort R packages (if any)
+  packages <- lockfile$R$Package
+  packages <- packages[sort(names(packages))]
+  lockfile$R$Package <- packages
+
+  # return post-sort
+  lockfile
+
+}

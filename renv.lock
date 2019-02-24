@@ -1,10 +1,33 @@
 [renv]
-Version=0.0.1-768
+Version=0.0.1-801
 
 [R]
 Version=3.5.2
 Repositories=
 	CRAN=https://cran.rstudio.com
+
+[R/Package/Matrix]
+Package=Matrix
+Version=1.2-15
+Source=CRAN
+Hash=95b3602ea10e8c592a5e5d0ae080405f
+RemoteType=standard
+RemoteRef=Matrix
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=1.2-15
+
+[R/Package/R6]
+Package=R6
+Version=2.4.0
+Source=CRAN
+Hash=f12bb7f48fdb217e0631686d58e4db8c
+
+[R/Package/Rcpp]
+Package=Rcpp
+Version=1.0.0.1
+Source=unknown
+Hash=3568c45c56bc54a510d8e114feeea091
 
 [R/Package/askpass]
 Package=askpass
@@ -200,17 +223,6 @@ RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=0.9
 
-[R/Package/Matrix]
-Package=Matrix
-Version=1.2-15
-Source=CRAN
-Hash=95b3602ea10e8c592a5e5d0ae080405f
-RemoteType=standard
-RemoteRef=Matrix
-RemoteRepos=https://cloud.r-project.org
-RemotePkgType=macos
-RemoteSha=1.2-15
-
 [R/Package/memoise]
 Package=memoise
 Version=1.1.0
@@ -276,23 +288,11 @@ Version=0.3.0
 Source=CRAN
 Hash=6a03c113c1a390ddfdf7a18df114a2c9
 
-[R/Package/R6]
-Package=R6
-Version=2.4.0
-Source=CRAN
-Hash=f12bb7f48fdb217e0631686d58e4db8c
-
 [R/Package/rcmdcheck]
 Package=rcmdcheck
 Version=1.3.2
 Source=CRAN
 Hash=37075e78300db1c0c9b1e0b4b30341eb
-
-[R/Package/Rcpp]
-Package=Rcpp
-Version=1.0.0.1
-Source=unknown
-Hash=3568c45c56bc54a510d8e114feeea091
 
 [R/Package/remotes]
 Package=remotes
@@ -308,9 +308,9 @@ RemoteSha=8397195187f953fe23ab06043aa118191392eee1
 
 [R/Package/renv]
 Package=renv
-Version=0.0.1-768
+Version=0.0.1-801
 Source=unknown
-Hash=ae1e8ddcdd1b6e7ed9b61ac791e49d56
+Hash=24da453ea11831a987f085e04a594ca6
 
 [R/Package/reticulate]
 Package=reticulate
