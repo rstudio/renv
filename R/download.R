@@ -14,10 +14,10 @@ download <- function(url, destfile = tempfile()) {
   status <- download.file(url, destfile, quiet = TRUE, mode = "wb")
   after <- Sys.time()
   if (status != 0)
-    stopf("Download failed [error code %i]", status)
+    stopf("download failed [error code %i]", status)
 
   if (!renv_file_exists(destfile))
-    stopf("Download failed [unknown reason]")
+    stopf("download failed [unknown reason]")
 
   if (renv_verbose()) {
     size <- structure(file.info(destfile)$size, class = "object_size")

@@ -32,7 +32,7 @@ renv_description_read <- function(path, package = NULL) {
     # find the DESCRIPTION file
     file <- grep("^[a-zA-Z0-9._]+/DESCRIPTION$", files, value = TRUE)
     if (length(file) != 1)
-      stopf("Failed to infer path to DESCRIPTION within file '%s'", path)
+      stopf("failed to infer path to DESCRIPTION within file '%s'", path)
 
     # unpack into tempdir location
     exdir <- tempfile("description-")
