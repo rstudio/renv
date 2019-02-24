@@ -107,14 +107,12 @@ renv_hydrate_report_restore_failure <- function(packages, status) {
     return(status)
   }
 
-  msg <- lines(
+  renv_pretty_print_packages(
+    packages[bad],
     "The following inferred package(s) could not be resolved:",
-    "",
-    paste("-", paste(shQuote(packages[bad]), collapse = ", ")),
-    "",
-    "Please install these packages manually, or ignore them in your project."
+    "Please install these packages manually, or ignore them in your project.",
+    vmessagef
   )
-  vmessagef(msg)
 
   status
 

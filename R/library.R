@@ -24,26 +24,19 @@ renv_library_diagnose <- function(project = NULL, libpath) {
   # if only some symlinks are broken, report to user
   if (any(missing)) {
 
-    text <- paste(basename(children[missing]), collapse = ", ")
-    wrapped <- strwrap(text, width = 60)
-
-    msg <- lines(
+    renv_pretty_print_packages(
+      basename(children[missing]),
       "The following package(s) are missing entries in the cache:",
-      "",
-      paste("\t", wrapped, sep = "", collapse = "\n"),
-      "",
       if (file.exists(file.path(project, "renv.lock")))
         "Use `renv::restore()` to reinstall these packages."
       else
-        "These packages will need to be reinstalled."
+        "These packages will need to be reinstalled.",
+      warningf
     )
 
-    warning(msg, call. = FALSE)
     return(FALSE)
 
   }
 
   TRUE
-
-
 }

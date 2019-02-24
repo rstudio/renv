@@ -6,6 +6,10 @@
 #' dependencies as required. See the [lockfile] documentation
 #' for more details on the structure of a lockfile.
 #'
+#' In particular, `snapshot()` captures all \R packages currently installed
+#' within the project's private library. Dependencies within any other libraries
+#' (currently active on the library paths or not) are not captured.
+#'
 #' @inheritParams renv-params
 #'
 #' @param file The location where the generated lockfile should be written.
@@ -80,14 +84,12 @@ renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
 
   if (confirm) {
 
-    text <- lines(
+    renv_pretty_print_packages(
+      names(bad),
       "The following package(s) depend on packages which are not currently installed:",
-      "",
-      paste(sprintf("\t%s: %s", names(bad), map_chr(bad, toString)), collapse = "\n"),
-      "",
-      "Consider re-installing these packages before snapshotting the lockfile."
+      "Consider re-installing these packages before snapshotting the lockfile.",
+      vmessagef
     )
-    message(text)
 
     if (!proceed()) {
       message("Operation aborted.")
@@ -179,15 +181,13 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
   if (!any(missing))
     return(pkgs)
 
-  fmt <- lines(
-    "The following package(s) in library '%s' are missing DESCRIPTION files:",
-    "",
-    paste("-", basename(pkgs)[missing], collapse = "\n"),
-    "",
-    "Consider removing or re-installing these packages."
+  renv_pretty_print_packages(
+    basename(pkgs[missing]),
+    "The following package(s) are missing DESCRIPTION files:",
+    "Consider removing or re-installing these packages.",
+    warningf
   )
 
-  warningf(fmt, library, immediate. = TRUE)
   pkgs[!missing]
 
 }

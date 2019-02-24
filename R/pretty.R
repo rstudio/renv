@@ -39,3 +39,30 @@ renv_pretty_print_pair <- function(message, old, new, actions, action) {
   writeLines("")
 
 }
+
+renv_pretty_print_packages <- function(packages,
+                                       preamble = NULL,
+                                       postamble = NULL,
+                                       emitter = NULL)
+{
+  msg <- stack()
+
+  if (!is.null(preamble)) {
+    msg$push(paste(preamble, collapse = "\n"))
+    msg$push("")
+  }
+
+  text <- paste(packages, collapse = ", ")
+  wrapped <- strwrap(text, width = 60)
+  msg$push(paste("\t", wrapped, sep = "", collapse = "\n"))
+
+  if (!is.null(postamble)) {
+    msg$push("")
+    msg$push(paste(postamble, collapse = "\n"))
+  }
+
+  text <- as.character(msg$data())
+
+  emitter <- emitter %||% writeLines
+  emitter(text)
+}
