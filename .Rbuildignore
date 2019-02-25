@@ -3,6 +3,7 @@
 
 ^TODO\.md$
 ^configure$
+^configure\.win$
 ^configure\.R$
 ^renv\.lock$
 

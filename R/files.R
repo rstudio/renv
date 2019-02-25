@@ -106,7 +106,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
 
 }
 
-renv_file_link <- function(source, target, overwrite = FALSE, link = file.symlink) {
+renv_file_link <- function(source, target, overwrite = FALSE, link = NULL) {
 
   if (renv_file_same(source, target))
     return(TRUE)
@@ -114,15 +114,14 @@ renv_file_link <- function(source, target, overwrite = FALSE, link = file.symlin
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
 
-  # first, try to link (note that this is supported on certain versions of
-  # Windows as well when such permissions are enabled)
-  status <- catchall(link(source, target))
-  if (identical(status, TRUE) && renv_file_exists(target))
-    return(TRUE)
+  # use junction points on Windows by default as symlinks
+  # are unreliable / un-deletable in some circumstances
+  link <- link %||% if (Sys.info()[["sysname"]] == "Windows")
+    Sys.junction
+  else
+    file.symlink
 
-  # on Windows, try creating a junction point
-  info <- file.info(source, extra_cols = FALSE)
-  status <- catchall(renv_file_junction(source, target, info))
+  status <- catchall(link(source, target))
   if (identical(status, TRUE) && renv_file_exists(target))
     return(TRUE)
 
