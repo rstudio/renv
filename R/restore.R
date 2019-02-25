@@ -169,21 +169,7 @@ renv_restore_install <- function(package, lockfile = NULL) {
     return(TRUE)
 
   # if we don't have a package record, try to infer one for installation
-  if (is.null(record)) {
-
-    # if this package is already installed, nothing to do
-    # TODO: but normally, packages have a notion of which library they were
-    # installed in... how do we recover this information? can we make an
-    # educated guess somehow?
-    libpaths <- renv_libpaths_all()
-    packages <- list.files(libpaths)
-    if (package %in% packages)
-      return(TRUE)
-
-    # otherwise, infer a record and install it
-    record <- renv_restore_install_missing_record(package)
-
-  }
+  record <- record %||% renv_restore_install_missing_record(package)
 
   # check for an entry in the cache we can use
   cache <- renv_cache_package_path(record)

@@ -39,7 +39,7 @@ set in:
 \itemize{
 \item A project-local \code{.Renviron};
 \item The user-level \code{.Renviron};
-\item A file at \code{etc/Renviron.site}.
+\item A file at \code{$(R RHOME)/etc/Renviron.site}.
 }
 
 Please see ?\link{Startup} for more details.

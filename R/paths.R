@@ -35,7 +35,7 @@
 #'
 #' - A project-local `.Renviron`;
 #' - The user-level `.Renviron`;
-#' - A file at `etc/Renviron.site`.
+#' - A file at `$(R RHOME)/etc/Renviron.site`.
 #'
 #' Please see ?[Startup] for more details.
 #'
