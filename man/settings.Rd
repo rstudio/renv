@@ -25,6 +25,17 @@ added to the lockfile, that entry in the lockfile will not be ignored. \cr
 
 }
 
+\item{\code{external.libraries}}{
+
+A vector of library paths, to be used in addition to the project's own
+private library. This can be useful if you have a package available for use
+in some global library, but for some reason \code{renv} is not able to install
+that package (e.g. sources or binaries for that package are not publicly
+available, or you have been unable to orchestrate the pre-requisites for
+installing some packages from source on your machine).
+
+}
+
 }
 }
 
