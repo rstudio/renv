@@ -4,7 +4,7 @@
 \name{settings}
 \alias{settings}
 \title{Settings}
-\format{An object of class \code{list} of length 1.}
+\format{An object of class \code{list} of length 2.}
 \usage{
 settings
 }

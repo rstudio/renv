@@ -111,5 +111,6 @@ renv_settings_impl <- function(name, default) {
 #'
 #' }
 settings <- list(
-  ignored.packages = renv_settings_impl("ignored.packages", character())
+  ignored.packages   = renv_settings_impl("ignored.packages", character()),
+  external.libraries = renv_settings_impl("external.libraries", character())
 )

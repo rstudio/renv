@@ -308,9 +308,9 @@ RemoteSha=8397195187f953fe23ab06043aa118191392eee1
 
 [R/Package/renv]
 Package=renv
-Version=0.0.1-801
+Version=0.0.1-802
 Source=unknown
-Hash=24da453ea11831a987f085e04a594ca6
+Hash=3fc21313840b7b6bc2c5467c42663e43
 
 [R/Package/reticulate]
 Package=reticulate
