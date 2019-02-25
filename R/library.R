@@ -8,7 +8,6 @@ renv_library_diagnose <- function(project = NULL, libpath) {
   if (empty(children))
     return(TRUE)
 
-
   # if all symlinks are broken, assume the cache is missing or has been moved
   missing <- !file.exists(children)
   if (all(missing)) {
