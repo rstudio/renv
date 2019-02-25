@@ -37,7 +37,7 @@
 - [x] Make it possible to snapshot arbitrary libraries. [DONE: call `snapshot()`
       on any project to generate a manifest for that project's state]
 
-- [ ] `hydrate()` as a general function to discover dependencies and then
+- [x] `hydrate()` as a general function to discover dependencies and then
       install any missing packages into the active library. (Companion function
       to `init()`)
 
@@ -45,10 +45,10 @@
       management? [Motivation: users might require `curl` + `http_proxy` settings
       to download packages from CRAN]
 
-- [ ] Allow users to ignore certain packages in a project (e.g. those that are
+- [x] Allow users to ignore certain packages in a project (e.g. those that are
       not on CRAN)
       
-- [ ] Consider `.renvignore` or similar for controlling what files / directories
+- [x] Consider `.renvignore` or similar for controlling what files / directories
       `renv` will crawl when discovering dependencies.
 
 - [x] Properly handle `RENV_DEFAULTS` case (they get lost if the user attempts
@@ -61,11 +61,11 @@
 
 - [ ] De-couple the 'retrieve' + 'install' steps during restore.
 
-- [ ] Include recommended packages in the lockfile? (Since R installations on
+- [x] Include recommended packages in the lockfile? (Since R installations on
       Linux may not have these packages available). Or at least confirm that
       packages which depend on recommended packages enter the lockfile.
 
-- [ ] Use a single lockfile file, but provide a `history()` function to dig out
+- [x] Use a single lockfile file, but provide a `history()` function to dig out
       old versions of the lockfile. (Make it clearer to users what needs to be
       committed)
 
@@ -82,5 +82,6 @@
 - [ ] Handle `renv::init()` case when another project already active (want
       to make sure we use the user library rather than active library)
 
-- [ ] `renv::status()` function reporting differences between lockfile + library?
-      What about cache status reporting?
+- [x] `renv::status()` function reporting differences between lockfile + library.
+
+- [ ] Tools for analyizing the cache?

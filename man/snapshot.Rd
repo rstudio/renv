@@ -19,9 +19,9 @@ When \code{NULL}, the lockfile (as an \R object) is returned directly instead.}
 }
 \description{
 Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a project's
-\R package dependencies. The lockfile can be used to later restore the project's
-dependencies as required. See the \link{lockfile} documentation
-for more details on the structure of a lockfile.
+\R package dependencies. The lockfile can be used to later restore these
+project's dependencies as required. See the \link{lockfile} documentation for more
+details on the structure of a lockfile.
 }
 \details{
 In particular, \code{snapshot()} captures all \R packages currently installed

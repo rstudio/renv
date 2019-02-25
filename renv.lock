@@ -1,5 +1,5 @@
 [renv]
-Version=0.0.1-801
+Version=0.0.1-806
 
 [R]
 Version=3.5.2
@@ -10,12 +10,12 @@ Repositories=
 Package=Matrix
 Version=1.2-15
 Source=CRAN
-Hash=95b3602ea10e8c592a5e5d0ae080405f
 RemoteType=standard
 RemoteRef=Matrix
 RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=1.2-15
+Hash=95b3602ea10e8c592a5e5d0ae080405f
 
 [R/Package/R6]
 Package=R6
@@ -153,23 +153,23 @@ Hash=564f85fafe6f048f88740b8ce371e37d
 Package=highr
 Version=0.7
 Source=CRAN
-Hash=9b0331d483824a8db6160c78b4531eaf
 RemoteType=standard
 RemoteRef=highr
 RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=0.7
+Hash=9b0331d483824a8db6160c78b4531eaf
 
 [R/Package/htmltools]
 Package=htmltools
 Version=0.3.6
 Source=CRAN
-Hash=647eafedd4ee6c82842e3fa826df8b71
 RemoteType=standard
 RemoteRef=htmltools
 RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=0.3.6
+Hash=647eafedd4ee6c82842e3fa826df8b71
 
 [R/Package/httr]
 Package=httr
@@ -199,12 +199,12 @@ Hash=a5eddad39ec0b49f72bd71dce5f88cb4
 Package=lattice
 Version=0.20-38
 Source=CRAN
-Hash=c6daa2f973336a0f5020bde41a5323f6
 RemoteType=standard
 RemoteRef=lattice
 RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=0.20-38
+Hash=c6daa2f973336a0f5020bde41a5323f6
 
 [R/Package/magrittr]
 Package=magrittr
@@ -216,12 +216,12 @@ Hash=d6790aa638f865dde38afb4a0b1d596d
 Package=markdown
 Version=0.9
 Source=CRAN
-Hash=3e074d20540b56fe2831e553e746ff97
 RemoteType=standard
 RemoteRef=markdown
 RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=0.9
+Hash=3e074d20540b56fe2831e553e746ff97
 
 [R/Package/memoise]
 Package=memoise
@@ -257,12 +257,12 @@ Hash=74c3911306c5a723ab303749ad8be868
 Package=praise
 Version=1.0.0
 Source=CRAN
-Hash=be0eedea8a2debab2aab7eac4a80c75c
 RemoteType=standard
 RemoteRef=praise
 RemoteRepos=https://cran.rstudio.com
 RemotePkgType=macos
 RemoteSha=1.0.0
+Hash=be0eedea8a2debab2aab7eac4a80c75c
 
 [R/Package/prettyunits]
 Package=prettyunits
@@ -298,19 +298,19 @@ Hash=37075e78300db1c0c9b1e0b4b30341eb
 Package=remotes
 Version=2.0.2.9000
 Source=GitHub
-Hash=dc75097a951360223487d4ed7496e51d
 RemoteType=github
 RemoteHost=api.github.com
 RemoteRepo=remotes
 RemoteUsername=r-lib
 RemoteRef=master
 RemoteSha=8397195187f953fe23ab06043aa118191392eee1
+Hash=dc75097a951360223487d4ed7496e51d
 
 [R/Package/renv]
 Package=renv
-Version=0.0.1-802
+Version=0.0.1-804
 Source=unknown
-Hash=3fc21313840b7b6bc2c5467c42663e43
+Hash=8584ac38c9124b0e20ce0c70971edc56
 
 [R/Package/reticulate]
 Package=reticulate
@@ -328,23 +328,23 @@ Hash=0f4850e1da309794b90a11104c9c7864
 Package=rmarkdown
 Version=1.11
 Source=CRAN
-Hash=45b47a96aeaa703afff4bc2be7010cb3
 RemoteType=standard
 RemoteRef=rmarkdown
 RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=1.11
+Hash=45b47a96aeaa703afff4bc2be7010cb3
 
 [R/Package/roxygen2]
 Package=roxygen2
 Version=6.1.1
 Source=CRAN
-Hash=8bf53becdc33e576cfa41007f690b79d
 RemoteType=standard
 RemoteRef=roxygen2
 RemoteRepos=https://cran.rstudio.com
 RemotePkgType=macos
 RemoteSha=6.1.1
+Hash=8bf53becdc33e576cfa41007f690b79d
 
 [R/Package/rprojroot]
 Package=rprojroot
@@ -386,23 +386,23 @@ Hash=04099ec14b78dbd42030b2c787a5298a
 Package=testthat
 Version=2.0.1
 Source=CRAN
-Hash=842201174d778b1a88444fc05afef1cf
 RemoteType=standard
 RemoteRef=testthat
 RemoteRepos=https://cran.rstudio.com
 RemotePkgType=macos
 RemoteSha=2.0.1
+Hash=842201174d778b1a88444fc05afef1cf
 
 [R/Package/tinytex]
 Package=tinytex
 Version=0.10
 Source=CRAN
-Hash=9267f86244901d6e2379553aec2c5a0d
 RemoteType=standard
 RemoteRef=tinytex
 RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=0.10
+Hash=9267f86244901d6e2379553aec2c5a0d
 
 [R/Package/usethis]
 Package=usethis
@@ -444,10 +444,10 @@ Hash=206e2e3f2a410e2c61dd8a41e05e2dce
 Package=yaml
 Version=2.2.0
 Source=CRAN
-Hash=732ccdb684028967e3be6c1c2114460f
 RemoteType=standard
 RemoteRef=yaml
 RemoteRepos=https://cloud.r-project.org
 RemotePkgType=macos
 RemoteSha=2.2.0
+Hash=732ccdb684028967e3be6c1c2114460f
 

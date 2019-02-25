@@ -2,9 +2,9 @@
 #' Snapshot a Project
 #'
 #' Call `snapshot()` to create a **lockfile** capturing the state of a project's
-#' \R package dependencies. The lockfile can be used to later restore the project's
-#' dependencies as required. See the [lockfile] documentation
-#' for more details on the structure of a lockfile.
+#' \R package dependencies. The lockfile can be used to later restore these
+#' project's dependencies as required. See the [lockfile] documentation for more
+#' details on the structure of a lockfile.
 #'
 #' In particular, `snapshot()` captures all \R packages currently installed
 #' within the project's private library. Dependencies within any other libraries
@@ -199,7 +199,7 @@ renv_snapshot_description <- function(path) {
     path <- file.path(path, "DESCRIPTION")
 
   if (!renv_file_exists(path)) {
-    fmt <- "No DESCRIPTION at path '%s'."
+    fmt <- "no DESCRIPTION at path '%s'"
     msg <- sprintf(fmt, path)
     return(simpleError(msg))
   }
@@ -213,15 +213,15 @@ renv_snapshot_description <- function(path) {
   dcf[["Source"]] <- renv_snapshot_description_source(dcf)
   dcf[["Hash"]] <- renv_hash_description(path)
 
-  fields <- c("Package", "Version", "Source", "Hash")
+  fields <- c("Package", "Version", "Source")
   missing <- setdiff(fields, names(dcf))
   if (length(missing)) {
-    fmt <- "Required fields %s missing from DESCRIPTION at path '%s'."
+    fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
     msg <- sprintf(fmt, paste(shQuote(missing), collapse = ", "), path)
     return(simpleError(msg))
   }
 
-  fields <- c(fields, grep("^Remote", names(dcf), value = TRUE))
+  fields <- c(fields, grep("^Remote", names(dcf), value = TRUE), "Hash")
   as.list(dcf[fields])
 
 }
