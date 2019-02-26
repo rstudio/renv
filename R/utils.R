@@ -152,3 +152,30 @@ proceed <- function() {
 R <- function() {
   file.path(R.home("bin"), "R")
 }
+
+inject <- function(contents,
+                   pattern,
+                   replacement,
+                   anchor)
+{
+  # first, check to see if the pattern matches a line
+  index <- grep(pattern, contents)
+  if (length(index)) {
+    contents[index] <- replacement
+    return(contents)
+  }
+
+  # otherwise, check for the anchor, and insert after
+  index <- grep(anchor, contents)
+  if (length(index)) {
+    contents <- c(
+      head(contents, n = index),
+      replacement,
+      tail(contents, n = -index)
+    )
+    return(contents)
+  }
+
+  stopf("edit failed")
+}
+

@@ -22,6 +22,7 @@
 #' \code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr
 #' \code{RENV_PATHS_CACHE}       \tab The path containing cached package installations. \cr
 #' \code{RENV_PATHS_REPOS}       \tab The path containing cached available package information. \cr
+#' \code{RENV_PATHS_EXTSOFT}     \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
 #' }
 #'
 #' If reproducibility of a project is desired on a particular machine, it is
@@ -93,6 +94,11 @@ renv_paths_cache <- function(...) {
 
 renv_paths_repos <- function(...) {
   renv_paths_common("repos", renv_paths_root, FALSE, ...)
+}
+
+renv_paths_extsoft <- function(...) {
+  root <- file.path(Sys.getenv("SYSTEMDRIVE"), "RBuildTools/extsoft")
+  file.path(root, ...) %||% ""
 }
 
 
