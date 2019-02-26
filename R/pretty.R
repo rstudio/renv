@@ -43,7 +43,8 @@ renv_pretty_print_pair <- function(message, old, new, actions, action) {
 renv_pretty_print_packages <- function(packages,
                                        preamble = NULL,
                                        postamble = NULL,
-                                       emitter = NULL)
+                                       emitter = NULL,
+                                       wrap = TRUE)
 {
   msg <- stack()
 
@@ -52,9 +53,12 @@ renv_pretty_print_packages <- function(packages,
     msg$push("")
   }
 
-  text <- paste(packages, collapse = ", ")
-  wrapped <- strwrap(text, width = 60)
-  msg$push(paste("\t", wrapped, sep = "", collapse = "\n"))
+  formatted <- if (wrap)
+    strwrap(paste(packages, collapse = ", "), width = 60)
+  else
+    packages
+
+  msg$push(paste("\t", formatted, sep = "", collapse = "\n"))
 
   if (!is.null(postamble)) {
     msg$push("")

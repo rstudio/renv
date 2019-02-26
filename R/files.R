@@ -251,5 +251,3 @@ renv_file_list_impl <- function(path) {
   list.files(path)
 
 }
-
-
