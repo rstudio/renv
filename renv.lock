@@ -1,5 +1,5 @@
 [renv]
-Version=0.0.1-806
+Version=0.0.1-817
 
 [R]
 Version=3.5.2
@@ -308,9 +308,9 @@ Hash=dc75097a951360223487d4ed7496e51d
 
 [R/Package/renv]
 Package=renv
-Version=0.0.1-804
+Version=0.0.1-817
 Source=unknown
-Hash=8584ac38c9124b0e20ce0c70971edc56
+Hash=c77518e5d010822fddeda79d7aeec5cf
 
 [R/Package/reticulate]
 Package=reticulate
@@ -378,9 +378,9 @@ Hash=41cbaa684a517d5382f4571fff00d4a9
 
 [R/Package/sys]
 Package=sys
-Version=2.1
+Version=3.0
 Source=CRAN
-Hash=04099ec14b78dbd42030b2c787a5298a
+Hash=f4e41eeacc631af4fe79d8b1ffa5af01
 
 [R/Package/testthat]
 Package=testthat
