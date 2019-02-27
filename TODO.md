@@ -85,3 +85,11 @@
 - [x] `renv::status()` function reporting differences between lockfile + library.
 
 - [ ] Tools for analyizing the cache?
+
+- [ ] Python: allow e.g. 'python = TRUE' for initializating a Python project.
+
+- [ ] Python: properly handle conda environments vs. pip.
+
+- [ ] Python: teach reticulate how to load virtual environments within renv dir
+      https://github.com/rstudio/reticulate/blob/826418f765e9d34b2e746f94c0b919e5fef61a22/R/config.R#L126
+      Sketch it out first.
