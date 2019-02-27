@@ -58,6 +58,7 @@ load <- function(project = NULL) {
   renv_state$project(project)
 
   renv_envvars_save()
+  renv_load_profile(project)
   renv_load_envvars(project)
   renv_load_libpaths(project)
 
