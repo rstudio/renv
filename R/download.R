@@ -10,17 +10,17 @@ download <- function(url, destfile = tempfile()) {
 
   vmessagef("Retrieving '%s' ...", url)
 
-  # if the file already exists, compare its size with
-  # the server's reported size for that file
-  headers <- renv_download_headers(url)
-  if (renv_file_exists(destfile)) {
-    size <- file.size(destfile)
-    reported <- as.numeric(headers$`Content-Length`)
-    if (size == reported) {
-      messagef("\tOK [file is up-to-date]")
-      return(destfile)
-    }
-  }
+  # # if the file already exists, compare its size with
+  # # the server's reported size for that file
+  # headers <- renv_download_headers(url)
+  # if (renv_file_exists(destfile)) {
+  #   size <- file.size(destfile)
+  #   reported <- as.numeric(headers$`Content-Length`)
+  #   if (size == reported) {
+  #     messagef("\tOK [file is up-to-date]")
+  #     return(destfile)
+  #   }
+  # }
 
   # back up a pre-existing file if necessary
   callback <- renv_file_scoped_backup(destfile)
@@ -45,11 +45,11 @@ download <- function(url, destfile = tempfile()) {
   if (!renv_file_exists(destfile))
     stopf("download failed [unknown reason]")
 
-  # double-check that the reported size is correct
-  size <- file.size(destfile)
-  reported <- as.numeric(headers$`Content-Length`)
-  if (size != reported)
-    stopf("download failed [file was truncated]")
+  # # double-check that the reported size is correct
+  # size <- file.size(destfile)
+  # reported <- as.numeric(headers$`Content-Length`)
+  # if (size != reported)
+  #   stopf("download failed [file was truncated]")
 
   # everything looks ok: report success
   if (renv_verbose()) {
