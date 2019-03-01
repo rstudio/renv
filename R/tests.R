@@ -17,7 +17,7 @@ renv_tests_scope <- function(packages) {
   writeLines(code, "dependencies.R")
 
   # clean up when finished in parent scope
-  defer(setwd(owd), envir = parent.frame())
+  defer({Sys.unsetenv("RENV_PROJECT"); setwd(owd)}, envir = parent.frame())
 
 }
 

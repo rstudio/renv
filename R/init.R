@@ -71,7 +71,8 @@ renv_init_settings <- function(project, settings) {
     return(NULL)
 
   defaults <- renv_settings_defaults()
-  renv_settings_merge(defaults, settings)
-  renv_settings_persist(project, defaults)
+  merged <- renv_settings_merge(defaults, settings)
+  renv_settings_persist(project, merged)
+  invisible(merged)
 
 }

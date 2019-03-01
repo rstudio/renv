@@ -2,7 +2,7 @@
 `_renv_settings_defaults` <- new.env(parent = emptyenv())
 
 renv_settings_defaults <- function() {
-  `_renv_settings_defaults`
+  as.list(`_renv_settings_defaults`)
 }
 
 renv_settings_default <- function(name) {
@@ -23,6 +23,8 @@ renv_settings_read <- function(project) {
 
     case(
       value == "NULL"  ~ NULL,
+      value == "NA"    ~ NA,
+      value == "NaN"   ~ NaN,
       value == "TRUE"  ~ TRUE,
       value == "FALSE" ~ FALSE,
       ~ strsplit(value, "\\s*,\\s*")[[1]]
@@ -63,6 +65,11 @@ renv_settings_persist <- function(project, settings) {
   path <- file.path(project, "renv/renv.opts")
   settings <- lapply(settings, paste, collapse = ", ")
   write.dcf(as.data.frame(settings, stringsAsFactors = FALSE), path)
+}
+
+renv_settings_merge <- function(settings, merge) {
+  settings[names(merge)] <- merge
+  settings
 }
 
 renv_settings_impl <- function(name, default) {
