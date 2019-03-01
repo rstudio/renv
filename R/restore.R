@@ -230,7 +230,14 @@ renv_restore_install_missing_record <- function(package) {
 }
 
 renv_restore_install_bioconductor <- function(record) {
-  # TODO
+  repos <- renv_bioconductor_repos()
+
+  # activate bioconductor repositories in this context
+  repos <- getOption("repos")
+  options(repos = unique(c(renv_bioconductor_repos(), repos)))
+  on.exit(options(repos = repos), add = TRUE)
+
+  renv_restore_install_cran(record)
 }
 
 renv_restore_install_github <- function(record) {

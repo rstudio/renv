@@ -228,6 +228,9 @@ renv_snapshot_description <- function(path) {
 
 renv_snapshot_description_source <- function(dcf) {
 
+  if (!is.null(dcf[["biocViews"]]))
+    return("Bioconductor")
+
   # TODO: record repository name explicitly?
   if (!is.null(dcf[["Repository"]]))
     return("CRAN")
