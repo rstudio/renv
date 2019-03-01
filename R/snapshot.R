@@ -22,7 +22,7 @@ snapshot <- function(project = NULL,
                      file = file.path(project, "renv.lock"),
                      confirm = interactive())
 {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
   library <- renv_paths_library(project)
 
   new <- renv_lockfile_init()

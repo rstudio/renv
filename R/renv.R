@@ -11,7 +11,7 @@
 #'
 #' @export
 activate <- function(project = NULL) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
 
   # prepare renv infrastructure
   renv_write_infrastructure(project)
@@ -36,7 +36,7 @@ activate <- function(project = NULL) {
 #'
 #' @export
 deactivate <- function(project = NULL) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
 
   renv_remove_rprofile(project)
   renv_envvars_restore()
@@ -54,10 +54,10 @@ deactivate <- function(project = NULL) {
 #'
 #' @export
 load <- function(project = NULL) {
-  project <- project %||% renv_state$project()
-  renv_state$project(project)
+  project <- project %||% renv_project()
 
   renv_envvars_save()
+  renv_load_project(project)
   renv_load_profile(project)
   renv_load_envvars(project)
   renv_load_libpaths(project)

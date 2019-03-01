@@ -102,7 +102,7 @@ renv_lockfile_init <- function() {
 
 renv_lockfile_load <- function(project = NULL) {
 
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
   path <- file.path(project, "renv.lock")
   if (renv_file_exists(path))
     return(renv_lockfile_read(path))

@@ -71,7 +71,7 @@ renv_settings_impl <- function(name, default) {
   `_renv_settings_defaults`[[name]] <- default
 
   function(value, project = NULL, persist = TRUE) {
-    project <- project %||% renv_state$project()
+    project <- project %||% renv_project()
     if (missing(value))
       renv_settings_get(project, name)
     else

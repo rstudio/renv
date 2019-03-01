@@ -28,14 +28,17 @@
 #' that have already been installed whenever possible.
 #'
 #' @param project The project directory.
+#' @param settings A list of [settings] to be used with the newly-initialized
+#'   project.
 #' @param force Boolean; force initialization? By default, `renv` will refuse
 #'   to initialize the home directory as a project, to defend against accidental
 #'   misusages of `init()`.
 #'
 #' @export
-init <- function(project = NULL, force = FALSE) {
+init <- function(project = NULL, settings = NULL, force = FALSE) {
   project <- project %||% getwd()
   renv_init_validate_project(project, force)
+  renv_init_settings(project, settings)
   setwd(project)
   hydrate(project)
   snapshot(project, confirm = FALSE)
@@ -45,7 +48,8 @@ init <- function(project = NULL, force = FALSE) {
 renv_init_validate_project <- function(project, force) {
 
   # allow all project directories when force = TRUE
-  if (force) return(TRUE)
+  if (force)
+    return(TRUE)
 
   # disallow attempts to initialize renv in the home directory
   home <- path.expand("~/")
@@ -61,3 +65,13 @@ renv_init_validate_project <- function(project, force) {
 
 }
 
+renv_init_settings <- function(project, settings) {
+
+  if (is.null(settings))
+    return(NULL)
+
+  defaults <- renv_settings_defaults()
+  renv_settings_merge(defaults, settings)
+  renv_settings_persist(project, defaults)
+
+}

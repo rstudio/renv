@@ -67,7 +67,7 @@ renv_paths_common <- function(name, root, prefix, ...) {
 }
 
 renv_paths_common_local <- function(project = NULL, name, prefix, ...) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
   root <- function(...) file.path(project, "renv", ...) %||% ""
   renv_paths_common(name, root, prefix, ...)
 }

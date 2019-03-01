@@ -9,7 +9,7 @@
 #'
 #' @export
 clean <- function(project = NULL, confirm = interactive()) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
   renv_clean_library_tempdirs(project, confirm)
 }
 

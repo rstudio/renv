@@ -13,7 +13,7 @@
 #'
 #' @export
 hydrate <- function(project = NULL) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
 
   # find packages used in this project, and the dependencies of those packages
   deps <- renv_hydrate_dependencies(project)

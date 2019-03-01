@@ -8,7 +8,7 @@
 #'
 #' @export
 status <- function(project = NULL) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
   invisible(renv_status(project))
 }
 
