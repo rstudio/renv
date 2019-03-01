@@ -1,11 +1,6 @@
 
 renv_hash_description <- function(path) {
 
-  # accept package directory as well as DESCRIPTION file itself
-  if (renv_file_exists(file.path(path, "DESCRIPTION")))
-    path <- file.path(path, "DESCRIPTION")
-
-  # read DESCRIPTION and keep only pertitent fields for hashing
   dcf <- renv_description_read(path)
 
   # include default fields
