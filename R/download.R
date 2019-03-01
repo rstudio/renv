@@ -10,13 +10,21 @@ download <- function(url, destfile = tempfile()) {
 
   vmessagef("Retrieving '%s' ...", url)
 
+  # if the file already exists, compare its size with
+  # the server's reported size for that file
+  headers <- renv_download_headers(url)
+  if (renv_file_exists(destfile)) {
+    size <- file.size(destfile)
+    reported <- as.numeric(headers$`Content-Length`)
+    if (size == reported) {
+      messagef("\tOK [file is up-to-date]")
+      return(destfile)
+    }
+  }
+
   # back up a pre-existing file if necessary
   callback <- renv_file_scoped_backup(destfile)
   on.exit(callback(), add = TRUE)
-
-  # TODO: if we already have a file on-disk, perhaps we can
-  # check if the file size matches the reported file size
-  # from the server and skip the download in that case?
 
   # request the download
   before <- Sys.time()
@@ -37,6 +45,12 @@ download <- function(url, destfile = tempfile()) {
   if (!renv_file_exists(destfile))
     stopf("download failed [unknown reason]")
 
+  # double-check that the reported size is correct
+  size <- file.size(destfile)
+  reported <- as.numeric(headers$`Content-Length`)
+  if (size != reported)
+    stopf("download failed [file was truncated]")
+
   # everything looks ok: report success
   if (renv_verbose()) {
     size <- structure(file.info(destfile)$size, class = "object_size")
@@ -47,4 +61,25 @@ download <- function(url, destfile = tempfile()) {
 
   destfile
 
+}
+
+renv_download_headers <- function(url) {
+  case(
+    nzchar(Sys.which("curl")) ~ renv_download_headers_curl(url),
+    nzchar(Sys.which("wget")) ~ renv_download_headers_wget(url)
+  )
+}
+
+renv_download_headers_curl <- function(url) {
+  fmt <- "%s --silent --location --head %s 2>&1"
+  cmd <- sprintf(fmt, shQuote(Sys.which("curl")), shQuote(url))
+  output <- trimws(system(cmd, intern = TRUE))
+  renv_dcf_read(textConnection(output[-1L]))
+}
+
+renv_download_headers_wget <- function(url) {
+  fmt <- "%s --quiet --server-response --spider %s 2>&1"
+  cmd <- sprintf(fmt, shQuote(Sys.which("wget")), shQuote(url))
+  output <- trimws(system(cmd, intern = TRUE))
+  renv_dcf_read(textConnection(output[-1L]))
 }
