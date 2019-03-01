@@ -11,7 +11,7 @@
 #'
 #' @export
 history <- function(project = NULL) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
 
   lockpath <- file.path(project, "renv.lock")
   if (!file.exists(lockpath))
@@ -43,7 +43,7 @@ history <- function(project = NULL) {
 #'
 #' @export
 revert <- function(project = NULL, commit = "HEAD") {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
   lockpath <- file.path(project, "renv.lock")
   renv_git_preflight()
   system2("git", c("checkout", commit, "--", shQuote(lockpath)))

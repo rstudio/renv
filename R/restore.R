@@ -61,7 +61,7 @@ restore <- function(project  = NULL,
                     actions  = c("install", "remove", "upgrade", "downgrade", "crossgrade"),
                     confirm  = interactive())
 {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
 
   # resolve the lockfile
   lockfile <- case(

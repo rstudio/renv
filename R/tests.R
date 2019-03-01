@@ -6,14 +6,18 @@ renv_tests_scope <- function(packages) {
   # move to own test directory
   dir <- tempfile("renv-test-")
   ensure_directory(dir)
+  dir <- normalizePath(dir, winslash = "/")
   owd <- setwd(dir)
+
+  # set as active project
+  Sys.setenv(RENV_PROJECT = dir)
 
   # create file with dependencies
   code <- sprintf("library(%s)", packages)
   writeLines(code, "dependencies.R")
 
   # clean up when finished in parent scope
-  defer({setwd(owd); renv_state_clear()}, envir = parent.frame())
+  defer(setwd(owd), envir = parent.frame())
 
 }
 

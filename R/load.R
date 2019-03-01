@@ -7,8 +7,12 @@ renv_load_r_version <- function(version) {
   }
 }
 
+renv_load_project <- function(project) {
+  Sys.setenv(RENV_PROJECT = normalizePath(project, winslash = "/"))
+}
+
 renv_load_profile <- function(project = NULL) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
 
   profile <- renv_paths_root(".Rprofile")
   if (!file.exists(profile))
@@ -25,7 +29,7 @@ renv_load_profile <- function(project = NULL) {
 }
 
 renv_load_envvars <- function(project = NULL) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
   Sys.setenv(
     R_PROFILE_USER = "",
     R_ENVIRON_USER = file.path(project, ".Renviron")
@@ -33,7 +37,7 @@ renv_load_envvars <- function(project = NULL) {
 }
 
 renv_load_libpaths <- function(project = NULL) {
-  project <- project %||% renv_state$project()
+  project <- project %||% renv_project()
   libpaths <- c(renv_paths_library(project), settings$external.libraries())
   lapply(libpaths, ensure_directory)
   lapply(libpaths, renv_library_diagnose, project = project)
@@ -80,7 +84,6 @@ renv_load_python <- function(lockfile) {
     return(FALSE)
   }
 
-  renv_state$python(python)
   return(TRUE)
 
 }
