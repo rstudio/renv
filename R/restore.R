@@ -91,6 +91,13 @@ restore <- function(project  = NULL,
     return(invisible(diff))
   }
 
+  # ensure that the private project library is available and active
+  oldlibpaths <- .libPaths()
+  newlibpaths <- c(renv_paths_library(project), oldlibpaths)
+  lapply(newlibpaths, ensure_directory)
+  .libPaths(newlibpaths)
+  on.exit(.libPaths(oldlibpaths), add = TRUE)
+
   # perform the restore
   status <- renv_restore_run_actions(diff, old, new)
 
@@ -182,6 +189,9 @@ renv_restore_install <- function(package, lockfile = NULL) {
   # otherwise, try and restore from external source
   # TODO: what to assume if no source provided? just use CRAN?
   source <- tolower(record[["Source"]] %||% "CRAN")
+
+  # TODO: how should packages from an unknown source be handled?
+
   switch(source,
     cran         = renv_restore_install_cran(record),
     bioconductor = renv_restore_install_bioconductor(record),

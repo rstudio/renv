@@ -88,7 +88,6 @@ renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
       names(bad),
       "The following package(s) depend on packages which are not currently installed:",
       "Consider re-installing these packages before snapshotting the lockfile.",
-      vmessagef
     )
 
     if (!proceed()) {
@@ -161,15 +160,12 @@ renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
   if (!any(missing))
     return(pkgs)
 
-  fmt <- lines(
-    "The following folder(s) in library '%s' appear to be left-over temporary directories:",
-    "",
-    paste("-", basename(pkgs)[missing], collapse = "\n"),
-    "",
+  renv_pretty_print_packages(
+    basename(pkgs)[missing],
+    "The following folder(s) appear to be left-over temporary directories:",
     "Consider removing these folders from your library."
   )
 
-  warningf(fmt, library, immediate. = TRUE)
   pkgs[!missing]
 
 }

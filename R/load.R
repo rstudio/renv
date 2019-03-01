@@ -35,6 +35,7 @@ renv_load_envvars <- function(project = NULL) {
 renv_load_libpaths <- function(project = NULL) {
   project <- project %||% renv_state$project()
   libpaths <- c(renv_paths_library(project), settings$external.libraries())
+  lapply(libpaths, ensure_directory)
   lapply(libpaths, renv_library_diagnose, project = project)
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
   .libPaths(libpaths)
