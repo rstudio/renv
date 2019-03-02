@@ -70,6 +70,8 @@ restore <- function(project  = NULL,
     lockfile
   )
 
+  on.exit(renv_python_restore(project), add = TRUE)
+
   # detect changes in R packages in the lockfile
   old <- snapshot(file = NULL)
   new <- lockfile

@@ -115,6 +115,16 @@ renv_settings_impl <- function(name, default) {
 #'
 #' }
 #'
+#' \item{\code{python}}{
+#'
+#'   The path to a Python binary, to be used by e.g. `reticulate` for projects
+#'   requiring the use of Python. Alternatively, if set to `TRUE`, then `renv`
+#'   will create a project-local Python virtual environment and use that.
+#'   In that scenario, the Python binary pointed at by the `RETICULATE_PYTHON`
+#'   environment variable will be used.
+#'
+#' }
+#'
 #' }
 #'
 #' @export
@@ -130,5 +140,6 @@ renv_settings_impl <- function(name, default) {
 #' }
 settings <- list(
   ignored.packages   = renv_settings_impl("ignored.packages", character()),
-  external.libraries = renv_settings_impl("external.libraries", character())
+  external.libraries = renv_settings_impl("external.libraries", character()),
+  python             = renv_settings_impl("python", NULL)
 )

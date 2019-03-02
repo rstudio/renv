@@ -1,10 +1,14 @@
 [renv]
-Version=0.0.1-847
+Version=0.0.1-883
 
 [R]
 Version=3.5.2
 Repositories=
 	CRAN=https://cran.rstudio.com
+
+[Python]
+Path=/Users/kevin/.virtualenvs/test/bin/python
+Version=2.7.15
 
 [R/Package/BiocGenerics]
 Package=BiocGenerics
@@ -306,9 +310,9 @@ Hash=d83ac67270058dc5b09ee2fcf4332f3f
 
 [R/Package/renv]
 Package=renv
-Version=0.0.1-846
+Version=0.0.1-883
 Source=unknown
-Hash=97b811a8aeecc1bcd0d231eed8186fee
+Hash=95cca1bfc14107bd7343032b2585bdca
 
 [R/Package/reticulate]
 Package=reticulate
