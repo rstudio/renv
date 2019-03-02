@@ -1,35 +1,30 @@
 
-renv_python_snapshot <- function() {
+renv_python_version <- function(python) {
+  cmd <- paste(shQuote(python), "--version 2>&1")
+  output <- catch(system(cmd, intern = TRUE))
+  space <- regexpr(" ", output, fixed = TRUE)
+  substring(output, space + 1)
+}
 
-  python <- renv_state$python()
+renv_python_snapshot <- function(project) {
+
+  python <- settings$python()
   if (is.null(python))
     return(NULL)
 
-  renv_python_pip_freeze()
+  python <- renv_python_resolve(python)
+  renv_python_pip_freeze(project, python)
 
 }
 
-renv_python_restore <- function(lockfile) {
+renv_python_restore <- function(project) {
 
-  python <- renv_state$python()
+  python <- settings$python()
   if (is.null(python))
     return(NULL)
 
-  requirements <- lockfile$Python$Requirements
-  renv_python_pip_restore(requirements = requirements)
-
-}
-
-renv_python_blueprint_resolve <- function(python) {
-
-  python <- case(
-    is.null(python)          ~ NULL,
-    identical(python, FALSE) ~ NULL,
-    identical(python, TRUE)  ~ Sys.which("python"),
-    as.character(python)
-  )
-
-  python %&&% list(Path = python)
+  python <- renv_python_resolve(python)
+  renv_python_pip_restore(project, python)
 
 }
 
@@ -38,6 +33,20 @@ renv_python_virtualenv_root <- function() {
 }
 
 renv_python_resolve <- function(python) {
+
+  # when set to TRUE, we should try to auto-resolve a version of Python to use
+  if (identical(python, TRUE)) {
+
+    if (!requireNamespace("reticulate", quietly = TRUE))
+      install("reticulate")
+
+    config <- catch(reticulate::py_config())
+    if (inherits(config, "error"))
+      return(NULL)
+
+    return(config$python)
+
+  }
 
   # if the user has requested a virtual environment by name, provide it
   if (!grepl("[/\\]", python)) {
@@ -66,23 +75,47 @@ renv_python_resolve <- function(python) {
 
 }
 
-renv_python_pip_freeze <- function(python = NULL) {
-  python <- python %||% renv_state$python()
-  args <- c("-m", "pip", "freeze")
-  output <- system2(python, args, stdout = TRUE)
-  renv_read_properties(text = output, delimiter = "==")
+renv_python_pip_freeze <- function(project, python) {
+  owd <- setwd(project)
+  on.exit(setwd(owd), add = TRUE)
+
+  path <- file.path(project, "requirements.txt")
+  before <- character()
+  if (file.exists(path))
+    before <- readLines(path, warn = FALSE)
+
+  suffix <- "-m pip freeze 2> /dev/null"
+  command <- paste(shQuote(python), suffix)
+  after <- system(command, intern = TRUE)
+
+  if (setequal(before, after))
+    return(FALSE)
+
+  writeLines(after, con = path)
+  messagef("* Wrote Python packages to '%s'.", path)
+  return(TRUE)
 }
 
-renv_python_pip_restore <- function(python = NULL, requirements) {
+renv_python_pip_restore <- function(project, python) {
+  owd <- setwd(project)
+  on.exit(setwd(owd), add = TRUE)
 
-  # write requirements out to file
-  text <- paste(names(requirements), requirements, sep = "==")
-  file <- tempfile("requirements-", fileext = ".txt")
-  writeLines(text, con = file)
-  on.exit(unlink(file), add = TRUE)
+  path <- file.path(project, "requirements.txt")
+  before <- character()
+  if (file.exists(path))
+    before <- readLines(path, warn = FALSE)
 
-  python <- python %||% renv_state$python()
-  args <- c("-m", "pip", "install", "-r", shQuote(file))
-  system2(python, args)
+  suffix <- "-m pip freeze 2> /dev/null"
+  command <- paste(shQuote(python), suffix)
+  after <- system(command, intern = TRUE)
 
+  if (setequal(before, after))
+    return(FALSE)
+
+  suffix <- "-m pip install --upgrade -r requirements.txt"
+  command <- paste(shQuote(python), suffix)
+  system(command)
+
+  path <- aliased_path(file.path(project, "requirements.txt"))
+  messagef("* Restored Python packages from '%s'.", path)
 }

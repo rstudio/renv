@@ -95,8 +95,28 @@ renv_lockfile_init <- function() {
 
   lockfile <- list()
   lockfile$renv <- list(Version = renv_package_version("renv"))
-  lockfile$R <- list(Version = format(getRversion()), Repositories = getOption("repos"))
+  lockfile$R      <- renv_lockfile_init_r()
+  lockfile$Python <- renv_lockfile_init_python()
   lockfile
+
+}
+
+renv_lockfile_init_r <- function() {
+  list(
+    Version = format(getRversion()),
+    Repositories = getOption("repos")
+  )
+}
+
+renv_lockfile_init_python <- function() {
+
+  python <- settings$python()
+  if (is.null(python))
+    return(NULL)
+
+  python <- renv_python_resolve(python)
+  version <- renv_python_version(python)
+  list(Path = python, Version = version)
 
 }
 

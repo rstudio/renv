@@ -66,6 +66,7 @@ load <- function(project = NULL) {
   if (length(lockfile)) {
     renv_load_r_version(lockfile$R$Version)
     renv_load_repos(lockfile$R$Repositories)
+    renv_load_python(lockfile$Python$Path)
   }
 
   renv_load_finish()

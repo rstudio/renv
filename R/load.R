@@ -49,10 +49,9 @@ renv_load_repos <- function(repos) {
   options(repos = repos)
 }
 
-renv_load_python <- function(lockfile) {
+renv_load_python <- function(python) {
 
   # get path to Python
-  python <- lockfile$Python$Path
   if (is.null(python))
     return(FALSE)
 

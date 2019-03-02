@@ -31,6 +31,8 @@ snapshot <- function(project = NULL,
   if (is.null(file))
     return(new)
 
+  on.exit(renv_python_snapshot(project), add = TRUE)
+
   old <- list()
   if (file.exists(file)) {
     old <- renv_lockfile_read(file)
