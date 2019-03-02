@@ -112,10 +112,14 @@ renv_python_pip_restore <- function(project, python) {
   if (setequal(before, after))
     return(FALSE)
 
-  suffix <- "-m pip install --upgrade -r requirements.txt"
+  diff <- setdiff(before, after)
+  file <- tempfile("renv-requirements-", fileext = ".txt")
+  on.exit(unlink(file), add = TRUE)
+  writeLines(diff, con = file)
+  suffix <- paste("-m pip install --upgrade -r", shQuote(file))
   command <- paste(shQuote(python), suffix)
   system(command)
 
   path <- aliased_path(file.path(project, "requirements.txt"))
-  messagef("* Restored Python packages from '%s'.", path)
+  messagef("* Restored Python packages from '%s'.", aliased_path(path))
 }
