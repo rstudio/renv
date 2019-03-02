@@ -43,23 +43,6 @@ trimws <- function(x) {
   gsub("^\\s+|\\s+$", "", x)
 }
 
-pad_right <- function(text) {
-
-  n <- nchar(text)
-  diff <- max(n) - n
-
-  spaces <- map_chr(diff, function(d) {
-    paste(rep.int(" ", d), collapse = "")
-  })
-
-  paste(text, spaces, sep = "")
-}
-
-write_lines <- function(text, con) {
-  if (is.null(con)) return(text)
-  writeLines(text, con = con, useBytes = TRUE)
-}
-
 bind_list <- function(data, name = "Index") {
 
   filtered <- Filter(NROW, data)
@@ -70,7 +53,7 @@ bind_list <- function(data, name = "Index") {
   names(rhs) <- names(filtered[[1]])
 
   if (name %in% names(rhs)) {
-    fmt <- "Name collision: bound list already contains column called '%s'."
+    fmt <- "name collision: bound list already contains column called '%s'"
     stopf(fmt, name)
   }
 

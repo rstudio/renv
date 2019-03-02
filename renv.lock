@@ -1,5 +1,5 @@
 [renv]
-Version=0.0.1-888
+Version=0.0.1-893
 
 [R]
 Version=3.5.2
@@ -310,9 +310,9 @@ Hash=d83ac67270058dc5b09ee2fcf4332f3f
 
 [R/Package/renv]
 Package=renv
-Version=0.0.1-888
+Version=0.0.1-893
 Source=unknown
-Hash=b1ae6557e9e0ba19829ad161bd3f4d24
+Hash=ab9ae8931f75fed3fd39b62943464baa
 
 [R/Package/reticulate]
 Package=reticulate
