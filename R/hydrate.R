@@ -91,29 +91,7 @@ renv_hydrate_resolve_missing <- function(na) {
   on.exit(renv_restore_end(), add = TRUE)
 
   packages <- names(na)
-  status <- lapply(packages, function(package) {
-    catch(renv_restore_install(package))
-  })
-
-  renv_hydrate_report_restore_failure(packages, status)
-
-}
-
-renv_hydrate_report_restore_failure <- function(packages, status) {
-
-  bad <- map_lgl(status, inherits, "error")
-  if (!any(bad)) {
-    vmessagef("* Missing dependencies successfully resolved.")
-    return(status)
-  }
-
-  renv_pretty_print_packages(
-    packages[bad],
-    "The following inferred package(s) could not be resolved:",
-    "Please install these packages manually, or ignore them in your project.",
-    vmessagef
-  )
-
-  status
+  records <- renv_restore_retrieve(packages)
+  renv_restore_install(records)
 
 }
