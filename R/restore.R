@@ -135,381 +135,26 @@ renv_restore_run_actions <- function(actions, old, new) {
   renv_restore_begin(new, names(actions))
   on.exit(renv_restore_end(), add = TRUE)
 
-  enumerate(actions, function(package, action) {
-    if (action %in% c("install", "upgrade", "downgrade", "crossgrade"))
-      renv_restore_install(package, new)
-    else if (action %in% c("remove"))
-      renv_restore_remove(package, old)
-    else
-      warningf("Unrecognized action '%s' for package '%s'", action, package)
+  # first, handle package removals
+  removes <- actions[actions == "remove"]
+  enumerate(removes, function(package, action) {
+    renv_restore_remove(package, old)
   })
 
-}
+  # next, handle installs
+  installs <- actions[actions != "remove"]
 
-renv_restore_install <- function(package, lockfile = NULL) {
+  # retrieve packages
+  enumerate(installs, function(package, action) {
+    renv_restore_retrieve(package, new)
+  })
 
-  # skip 'R' package that might be passed in here
-  if (package == "R")
-    return(TRUE)
-
-  # skip 'base' packages
-  base <- renv_installed_packages_base()
-  if (identical(base[package, "Priority"], "base"))
-    return(TRUE)
-
-  # if we've already attempted installation of this package, skip
+  # install packages
   state <- renv_restore_state()
-  if (exists(package, envir = state$visited))
-    return(TRUE)
+  records <- state$records$data()
+  for (record in records)
+    renv_restore_install(record)
 
-  # mark package as installing
-  state$visited[[package]] <- TRUE
-
-  # extract lockfile if none provided
-  lockfile <- lockfile %||% state$lockfile
-
-  # extract the package record (attempt to construct one if missing)
-  record <- lockfile$R$Package[[package]]
-
-  # if we have a package record (ie: this package is already installed), but
-  # the user did not explicitly request installation of this package, then we
-  # can just skip
-  if (!is.null(record) && !package %in% state$packages)
-    return(TRUE)
-
-  # if we don't have a package record, try to infer one for installation
-  record <- record %||% renv_restore_install_missing_record(package)
-
-  # check for an entry in the cache we can use
-  cache <- renv_cache_package_path(record)
-  if (renv_file_exists(cache)) {
-    status <- renv_restore_install_package_cache(record, cache)
-    if (identical(status, TRUE))
-      return(TRUE)
-  }
-
-  # otherwise, try and restore from external source
-  # TODO: what to assume if no source provided? just use CRAN?
-  source <- tolower(record[["Source"]] %||% "CRAN")
-
-  # TODO: how should packages from an unknown source be handled?
-
-  switch(source,
-    cran         = renv_restore_install_cran(record),
-    bioconductor = renv_restore_install_bioconductor(record),
-    github       = renv_restore_install_github(record),
-    bitbucket    = renv_restore_install_bitbucket(record),
-    renv_restore_install_unknown_source(record)
-  )
-
-}
-
-renv_restore_install_missing_record <- function(package) {
-
-  # TODO: allow users to configure the action to take here, e.g.
-  #
-  #   1. install latest from CRAN (the default),
-  #   2. request a package + version to be installed,
-  #   3. hard error
-  #
-  types <- if (Sys.info()[["sysname"]] == "Linux") "source" else c("binary", "source")
-  entries <- bapply(types, function(type) {
-
-    entry <- catch(renv_available_packages_entry(package, type))
-    if (inherits(entry, "error"))
-      return(NULL)
-
-    c(entry[c("Package", "Version", "Repository")], Type = type)
-
-  })
-
-  if (!is.data.frame(entries)) {
-    fmt <- "Failed to install package '%s' (missing record and failed to discover on CRAN)"
-    stopf(fmt, package)
-  }
-
-  idx <- with(entries, order(Version, factor(Type, c("source", "binary"))))
-  entry <- entries[tail(idx, n = 1), ]
-
-  list(
-    Package    = package,
-    Version    = entry$Version,
-    Source     = "CRAN",
-    Type       = entry$Type,
-    Repository = entry$Repository
-  )
-
-}
-
-renv_restore_install_bioconductor <- function(record) {
-  repos <- renv_bioconductor_repos()
-
-  # activate bioconductor repositories in this context
-  repos <- getOption("repos")
-  options(repos = unique(c(renv_bioconductor_repos(), repos)))
-  on.exit(options(repos = repos), add = TRUE)
-
-  renv_restore_install_cran(record)
-}
-
-renv_restore_install_github <- function(record) {
-
-  if (requireNamespace("remotes", quietly = TRUE))
-    return(renv_restore_install_github_remotes(record))
-
-  fmt <- "https://%s/repos/%s/%s/tarball/%s"
-
-  url <- with(record, sprintf(fmt, RemoteHost, RemoteUsername, RemoteRepo, RemoteSha))
-  path <- renv_paths_source(record$Package, record$RemoteSha)
-
-  renv_restore_install_package(record, url, path, "source")
-
-}
-
-renv_restore_install_github_remotes <- function(record) {
-
-  fmt <- "Installing %s [%s] from %s ..."
-  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
-  status <- catch(
-    remotes::install_github(
-      repo = file.path(record$RemoteUsername, record$RemoteRepo),
-      ref = record$RemoteRef,
-      host = record$RemoteHost,
-      upgrade = FALSE,
-      quiet = TRUE
-    )
-  )
-
-  renv_restore_install_report_status(record, status, "source")
-
-}
-
-renv_restore_install_bitbucket <- function(record) {
-  # TODO
-}
-
-renv_restore_install_cran <- function(record) {
-
-  # if we already have a type + repository, no need to find it
-  if (!is.null(record$Type) && !is.null(record$Repository))
-    return(renv_restore_install_cran_impl(record))
-
-  # always attempt to install from source + archive
-  methods <- c(
-    renv_restore_install_cran_source,
-    renv_restore_install_cran_archive
-  )
-
-  # only attempt to install binaries when explicitly requested by user
-  # TODO: what about binaries on Linux?
-  if (!identical(getOption("pkgType"), "source"))
-    methods <- c(renv_restore_install_cran_binary, methods)
-
-  for (method in methods) {
-    status <- method(record)
-    if (inherits(status, "error"))
-      stop(status)
-
-    if (identical(status, TRUE))
-      return(TRUE)
-  }
-
-  stopf("failed to restore package '%s' from CRAN", record$Package)
-
-}
-
-renv_restore_install_cran_archive_name_binary <- function(record) {
-  sysname <- Sys.info()[["sysname"]]
-  suffix <- switch(sysname, Darwin = "tgz", Windows = "zip", "tar.gz")
-  sprintf("%s_%s.%s", record$Package, record$Version, suffix)
-}
-
-renv_restore_install_cran_archive_name_source <- function(record) {
-  sprintf("%s_%s.tar.gz", record$Package, record$Version)
-}
-
-renv_restore_install_cran_archive_name <- function(record, type) {
-  case(
-    type == "binary" ~ renv_restore_install_cran_archive_name_binary(record),
-    type == "source" ~ renv_restore_install_cran_archive_name_source(record)
-  )
-}
-
-renv_restore_install_cran_binary <- function(record) {
-  renv_restore_install_cran_impl(record, "binary")
-
-}
-
-renv_restore_install_cran_source <- function(record) {
-  renv_restore_install_cran_impl(record, "source")
-}
-
-renv_restore_install_cran_archive <- function(record) {
-
-  name <- sprintf("%s_%s.tar.gz", record$Package, record$Version)
-  for (repo in getOption("repos")) {
-    repo <- file.path(repo, "src/contrib/Archive", record$Package)
-    status <- catch(renv_restore_install_cran_impl(record, "source", name, repo))
-    if (identical(status, TRUE))
-      return(TRUE)
-  }
-
-  return(FALSE)
-
-}
-
-renv_restore_install_cran_impl <- function(record,
-                                           type = NULL,
-                                           name = NULL,
-                                           repo = NULL)
-{
-  type <- type %||% record$Type
-  name <- name %||% renv_restore_install_cran_archive_name(record, type)
-  repo <- repo %||% record$Repository
-
-  # if we weren't provided a repository for this package, try to find it
-  if (is.null(repo)) {
-    filter <- function(entry) identical(record$Version, entry$Version)
-    entry <- catch(renv_available_packages_entry(record$Package, type, filter))
-    if (inherits(entry, "error"))
-      return(FALSE)
-    repo <- entry$Repository
-  }
-
-  url <- file.path(repo, name)
-  path <- case(
-    type == "binary" ~ renv_paths_binary(record$Package, name),
-    type == "source" ~ renv_paths_source(record$Package, name)
-  )
-
-  renv_restore_install_package(record, url, path, type)
-
-}
-
-
-renv_restore_install_package <- function(record, url, path, type) {
-
-  # download the package
-  # TODO: toggle path based on whether package cache is enabled?
-  if (!renv_file_exists(path)) {
-    ensure_parent_directory(path)
-    status <- catch(download(url, destfile = path))
-    if (inherits(status, "error") || identical(status, FALSE))
-      return(status)
-  }
-
-  # ensure its dependencies are installed first
-  deps <- renv_dependencies_discover_description(path)
-  for (package in deps$Package)
-    renv_restore_install(package)
-
-  # install the package now
-  fmt <- "Installing %s [%s] from %s ..."
-  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
-
-  status <- tryCatch(
-    renv_restore_install_package_local(record, path, type = type),
-    condition = identity
-  )
-
-  renv_restore_install_report_status(record, status, type)
-
-}
-
-renv_restore_install_package_cache <- function(record, cache) {
-
-  # ensure dependencies are installed first
-  deps <- renv_dependencies_discover_description(cache)
-  for (package in deps$Package)
-    renv_restore_install(package)
-
-  # now do the restore
-  renv_restore_install_package_cache_impl(record, cache)
-
-}
-
-renv_restore_install_package_cache_impl <- function(record, cache) {
-
-  # construct target install path
-  library <- case(
-    is.null(record$Library)       ~ renv_libpaths_default(),
-    path_absolute(record$Library) ~ record$Library,
-    TRUE                          ~ renv_paths_library(record$Library)
-  )
-  target <- file.path(library, record$Package)
-
-  # determine if we should copy or link from the cache
-  # (prefer copying if we're writing to a non-renv path)
-  ensure_directory(renv_paths_library())
-  link <- if (path_within(target, renv_paths_library()))
-    renv_file_link
-  else
-    renv_file_copy
-
-  # back up the previous installation if needed
-  callback <- renv_file_scoped_backup(target)
-  on.exit(callback(), add = TRUE)
-
-  # now, try to hydrate from cache
-  status <- catch(link(cache, target))
-  if (!identical(status, TRUE))
-    return(status)
-
-  # report successful link to user
-  fmt <- "Installing %s [%s] ..."
-  with(record, messagef(fmt, Package, Version))
-
-  type <- case(
-    identical(link, renv_file_copy) ~ "copied",
-    identical(link, renv_file_link) ~ "linked"
-  )
-
-  messagef("\tOK (%s cache)", type)
-
-  return(TRUE)
-}
-
-renv_restore_install_package_local <- function(record, path, type) {
-
-  package <- record$Package
-
-  # get user-defined options to apply during installation
-  options <- renv_restore_install_package_options(package)
-
-  # run user-defined hooks before, after install
-  before <- options$before.install %||% identity
-  after  <- options$after.install %||% identity
-
-  before(package)
-  on.exit(after(package), add = TRUE)
-
-  lib <- renv_libpaths_default()
-  install.packages(
-
-    pkgs  = path,
-    lib   = lib,
-    repos = NULL,
-    type  = type,
-    quiet = TRUE,
-
-    configure.args = options$configure.args,
-    configure.vars = options$configure.vars,
-    INSTALL_opts   = options$install.options
-
-  )
-
-  # check to see if installation succeeded
-  if (!file.exists(file.path(lib, package)))
-    stopf("installation of package '%s' failed", package)
-
-}
-
-renv_restore_remove <- function(package, lockfile) {
-  record <- lockfile$R$Package[[package]]
-  messagef("Removing %s [%s] ...", package, record$Version)
-  remove.packages(package, renv_paths_library(record$Library) %||% NULL)
-  message("\tOK (removed from library)")
-  TRUE
 }
 
 renv_restore_state <- function() {
@@ -518,9 +163,10 @@ renv_restore_state <- function() {
 
 renv_restore_begin <- function(lockfile = NULL, packages = NULL) {
   envir <- new.env(parent = emptyenv())
-  envir$lockfile <- lockfile
-  envir$packages <- packages
-  envir$visited <- new.env(parent = emptyenv())
+  envir$lockfile  <- lockfile
+  envir$packages  <- packages
+  envir$retrieved <- new.env(parent = emptyenv())
+  envir$records   <- stack()
   renv_global_set("restore.state", envir)
 }
 
@@ -557,32 +203,10 @@ renv_restore_report_actions <- function(actions, old, new) {
 
 }
 
-renv_restore_install_package_options <- function(package) {
-  options <- getOption("renv.install.package.options")
-  options[[package]]
+renv_restore_remove <- function(package, lockfile) {
+  record <- lockfile$R$Package[[package]]
+  messagef("Removing %s [%s] ...", package, record$Version)
+  remove.packages(package, renv_paths_library(record$Library) %||% NULL)
+  message("\tOK (removed from library)")
+  TRUE
 }
-
-renv_restore_install_unknown_source <- function(record) {
-  fmt <- "can't restore package '%s': '%s' is an unrecognized source."
-  stopf(fmt, record$Package, record$Source, call. = FALSE)
-}
-
-renv_restore_install_report_status <- function(record, status, type) {
-
-  if (inherits(status, "error")) {
-    message("\tFAILED")
-    return(status)
-  }
-
-  feedback <- case(
-    type == "source" ~ "built from source",
-    type == "binary" ~ "installed binary"
-  )
-
-  messagef("\tOK (%s)", feedback)
-  renv_cache_synchronize(record)
-
-  return(TRUE)
-
-}
-
