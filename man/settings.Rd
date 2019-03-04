@@ -4,7 +4,7 @@
 \name{settings}
 \alias{settings}
 \title{Settings}
-\format{An object of class \code{list} of length 2.}
+\format{An object of class \code{list} of length 3.}
 \usage{
 settings
 }
@@ -33,6 +33,16 @@ in some global library, but for some reason \code{renv} is not able to install
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).
+
+}
+
+\item{\code{python}}{
+
+The path to a Python binary, to be used by e.g. \code{reticulate} for projects
+requiring the use of Python. Alternatively, if set to \code{TRUE}, then \code{renv}
+will create a project-local Python virtual environment and use that.
+In that scenario, the Python binary pointed at by the \code{RETICULATE_PYTHON}
+environment variable will be used.
 
 }
 

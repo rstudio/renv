@@ -9,7 +9,7 @@ install(packages)
 \arguments{
 \item{packages}{A character vector of \R packages to install. Required
 package dependencies (\code{Depends}, \code{Imports}, \code{LinkingTo}) will be installed
-as well.}
+as required.}
 }
 \description{
 Install one or more \R packages.
