@@ -2,7 +2,18 @@
 # this routine retrieves a package + its dependencies, and as a side
 # effect populates the restore state's `retrieved` member with a
 # list of package records which can later be used for install
-renv_restore_retrieve <- function(package, lockfile = NULL) {
+renv_restore_retrieve <- function(packages, lockfile = NULL) {
+
+  # TODO: parallel?
+  for (package in packages)
+    renv_restore_retrieve_impl(package, lockfile)
+
+  state <- renv_restore_state()
+  return(state$records$data())
+
+}
+
+renv_restore_retrieve_impl <- function(package, lockfile) {
 
   # skip 'R' package that might be passed in here
   if (package == "R")
@@ -42,6 +53,8 @@ renv_restore_retrieve <- function(package, lockfile = NULL) {
     bitbucket    = renv_restore_retrieve_bitbucket(record),
     renv_restore_retrieve_unknown_source(record)
   )
+
+  return(state$records$data())
 
 }
 
@@ -244,32 +257,24 @@ renv_restore_retrieve_package <- function(record, url, path, type) {
   state <- renv_restore_state()
   state$records$push(record)
 
+  # store requirement information
+  if (!empty(deps)) {
+    requirements <- state$requirements
+    for (i in seq_len(nrow(deps))) {
+      row <- deps[i, ]
+      package <- row$Package
+      if (is.null(requirements[[package]]))
+        requirements[[package]] <- stack()
+      requirements[[package]]$push(row)
+    }
+  }
+
   # return TRUE to indicate successful retrieval
   return(TRUE)
 
 }
 
 renv_restore_retrieve_unknown_source <- function(record) {
-  fmt <- "can't restore package '%s': '%s' is an unrecognized source."
+  fmt <- "can't retrieve package '%s': '%s' is an unrecognized source"
   stopf(fmt, record$Package, record$Source, call. = FALSE)
 }
-
-renv_restore_retrieve_report_status <- function(record, status, type) {
-
-  if (inherits(status, "error")) {
-    message("\tFAILED")
-    return(status)
-  }
-
-  feedback <- case(
-    type == "source" ~ "built from source",
-    type == "binary" ~ "retrieveed binary"
-  )
-
-  messagef("\tOK (%s)", feedback)
-  renv_cache_synchronize(record)
-
-  return(TRUE)
-
-}
-
