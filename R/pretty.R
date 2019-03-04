@@ -65,7 +65,7 @@ renv_pretty_print_packages <- function(packages,
     msg$push(paste(postamble, collapse = "\n"))
   }
 
-  text <- as.character(msg$data())
+  text <- paste(as.character(msg$data()), collapse = "\n")
 
   emitter <- emitter %||% writeLines
   emitter(text)

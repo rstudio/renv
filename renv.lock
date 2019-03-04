@@ -1,5 +1,5 @@
 [renv]
-Version=0.0.1-903
+Version=0.0.1-926
 
 [R]
 Version=3.5.2
@@ -10,7 +10,12 @@ Repositories=
 Package=Matrix
 Version=1.2-15
 Source=CRAN
-Hash=1e1aa2c2ee120e00710249ded74595e2
+RemoteType=standard
+RemoteRef=Matrix
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=1.2-15
+Hash=95b3602ea10e8c592a5e5d0ae080405f
 
 [R/Package/R6]
 Package=R6
@@ -158,13 +163,23 @@ Hash=564f85fafe6f048f88740b8ce371e37d
 Package=highr
 Version=0.7
 Source=CRAN
-Hash=793d0807f1bc65c89bea7a5317fc23b6
+RemoteType=standard
+RemoteRef=highr
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=0.7
+Hash=9b0331d483824a8db6160c78b4531eaf
 
 [R/Package/htmltools]
 Package=htmltools
 Version=0.3.6
 Source=CRAN
-Hash=edb9789e8be67d354871e2210e140d1d
+RemoteType=standard
+RemoteRef=htmltools
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=0.3.6
+Hash=647eafedd4ee6c82842e3fa826df8b71
 
 [R/Package/httr]
 Package=httr
@@ -194,7 +209,12 @@ Hash=a5eddad39ec0b49f72bd71dce5f88cb4
 Package=lattice
 Version=0.20-38
 Source=CRAN
-Hash=649972fd0830485eb1ec2d222834cb7b
+RemoteType=standard
+RemoteRef=lattice
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=0.20-38
+Hash=c6daa2f973336a0f5020bde41a5323f6
 
 [R/Package/magrittr]
 Package=magrittr
@@ -206,7 +226,12 @@ Hash=d6790aa638f865dde38afb4a0b1d596d
 Package=markdown
 Version=0.9
 Source=CRAN
-Hash=8515151150d7372bc76e0af15ef5dee0
+RemoteType=standard
+RemoteRef=markdown
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=0.9
+Hash=3e074d20540b56fe2831e553e746ff97
 
 [R/Package/memoise]
 Package=memoise
@@ -242,7 +267,12 @@ Hash=74c3911306c5a723ab303749ad8be868
 Package=praise
 Version=1.0.0
 Source=CRAN
-Hash=b2f966bfa5784c5ce5d1fcfd1b689c55
+RemoteType=standard
+RemoteRef=praise
+RemoteRepos=https://cran.rstudio.com
+RemotePkgType=macos
+RemoteSha=1.0.0
+Hash=be0eedea8a2debab2aab7eac4a80c75c
 
 [R/Package/prettyunits]
 Package=prettyunits
@@ -296,7 +326,12 @@ Hash=0f4850e1da309794b90a11104c9c7864
 Package=rmarkdown
 Version=1.11
 Source=CRAN
-Hash=ed53dfd24d55597ae47c5d4423309b8b
+RemoteType=standard
+RemoteRef=rmarkdown
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=1.11
+Hash=45b47a96aeaa703afff4bc2be7010cb3
 
 [R/Package/roxygen2]
 Package=roxygen2
@@ -344,13 +379,23 @@ Hash=f4e41eeacc631af4fe79d8b1ffa5af01
 Package=testthat
 Version=2.0.1
 Source=CRAN
-Hash=371ad6be4398d66efcf8ad660acad7fa
+RemoteType=standard
+RemoteRef=testthat
+RemoteRepos=https://cran.rstudio.com
+RemotePkgType=macos
+RemoteSha=2.0.1
+Hash=842201174d778b1a88444fc05afef1cf
 
 [R/Package/tinytex]
 Package=tinytex
 Version=0.10
 Source=CRAN
-Hash=11f1f08d6b1fd7b8c408c13381b0dc5a
+RemoteType=standard
+RemoteRef=tinytex
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=0.10
+Hash=9267f86244901d6e2379553aec2c5a0d
 
 [R/Package/usethis]
 Package=usethis
@@ -392,5 +437,10 @@ Hash=206e2e3f2a410e2c61dd8a41e05e2dce
 Package=yaml
 Version=2.2.0
 Source=CRAN
-Hash=ec0778c7e1e747e26c4fd866d5097788
+RemoteType=standard
+RemoteRef=yaml
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=2.2.0
+Hash=732ccdb684028967e3be6c1c2114460f
 

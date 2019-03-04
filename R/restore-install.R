@@ -1,5 +1,12 @@
 
-renv_restore_install <- function(record) {
+renv_restore_install <- function(records) {
+
+  for (record in records)
+    renv_restore_install_impl(record)
+
+}
+
+renv_restore_install_impl <- function(record) {
 
   # check for cache entry and install if there
   cache <- renv_cache_package_path(record)
@@ -78,6 +85,11 @@ renv_restore_install_package_local <- function(record) {
   lib <- renv_libpaths_default()
   path <- record$Path
   type <- record$Type
+
+  destination <- file.path(lib, package)
+  callback <- renv_file_scoped_backup(destination)
+  on.exit(callback(), add = TRUE)
+
   install.packages(
 
     pkgs  = path,

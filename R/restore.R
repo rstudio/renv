@@ -143,17 +143,10 @@ renv_restore_run_actions <- function(actions, old, new) {
 
   # next, handle installs
   installs <- actions[actions != "remove"]
+  packages <- names(installs)
 
-  # retrieve packages
-  enumerate(installs, function(package, action) {
-    renv_restore_retrieve(package, new)
-  })
-
-  # install packages
-  state <- renv_restore_state()
-  records <- state$records$data()
-  for (record in records)
-    renv_restore_install(record)
+  records <- renv_restore_retrieve(packages, new)
+  renv_restore_install(records)
 
 }
 
@@ -163,10 +156,26 @@ renv_restore_state <- function() {
 
 renv_restore_begin <- function(lockfile = NULL, packages = NULL) {
   envir <- new.env(parent = emptyenv())
-  envir$lockfile  <- lockfile
-  envir$packages  <- packages
+
+  # the lockfile used for restore, providing information on
+  # the packages to be installed (their version, source, etc)
+  envir$lockfile <- lockfile
+
+  # the set of packages to be installed in this restore session
+  envir$packages <- packages
+
+  # packages which we have attempted to retrieve during restore
   envir$retrieved <- new.env(parent = emptyenv())
-  envir$records   <- stack()
+
+  # package records we've obtained after the successful retrieval
+  # of a package. note that child dependencies will come first
+  # so that packages can be installed one-by-one successfully
+  envir$records <- stack()
+
+  # a collection of the requirements imposed on dependent packages
+  # as they are discovered
+  envir$requirements <- new.env(parent = emptyenv())
+
   renv_global_set("restore.state", envir)
 }
 
