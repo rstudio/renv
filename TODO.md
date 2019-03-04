@@ -93,3 +93,5 @@
 - [ ] Python: teach reticulate how to load virtual environments within renv dir
       https://github.com/rstudio/reticulate/blob/826418f765e9d34b2e746f94c0b919e5fef61a22/R/config.R#L126
       Sketch it out first.
+
+- [ ] Warn when lockfile contains packages from unknown source?

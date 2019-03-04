@@ -1,32 +1,10 @@
 [renv]
-Version=0.0.1-893
+Version=0.0.1-903
 
 [R]
 Version=3.5.2
 Repositories=
 	CRAN=https://cran.rstudio.com
-
-[Python]
-Path=/Users/kevin/.virtualenvs/test/bin/python
-Version=2.7.15
-
-[R/Package/BiocGenerics]
-Package=BiocGenerics
-Version=0.28.0
-Source=Bioconductor
-Hash=250a396597a3cd2c959586496e115dbb
-
-[R/Package/BiocManager]
-Package=BiocManager
-Version=1.30.4
-Source=CRAN
-Hash=8e5af512736dba32ec7fd2a2a64fde85
-
-[R/Package/BiocVersion]
-Package=BiocVersion
-Version=3.8.0
-Source=Bioconductor
-Hash=ab1c7b3bd2ccc4582389e567567a765d
 
 [R/Package/Matrix]
 Package=Matrix
@@ -45,12 +23,6 @@ Package=Rcpp
 Version=1.0.0
 Source=CRAN
 Hash=b876ac20d34cb5de2b717e291fc3e791
-
-[R/Package/S4Vectors]
-Package=S4Vectors
-Version=0.20.1
-Source=Bioconductor
-Hash=c0b72ba3da611235e2fe53ff53b3f859
 
 [R/Package/askpass]
 Package=askpass
@@ -292,9 +264,9 @@ Hash=b79661958c24d6acb44121cb2526840c
 
 [R/Package/purrr]
 Package=purrr
-Version=0.3.0
+Version=0.3.1
 Source=CRAN
-Hash=6a03c113c1a390ddfdf7a18df114a2c9
+Hash=2ac007f8d589e03aea3d9a0c742a3fd5
 
 [R/Package/rcmdcheck]
 Package=rcmdcheck
@@ -304,15 +276,9 @@ Hash=37075e78300db1c0c9b1e0b4b30341eb
 
 [R/Package/remotes]
 Package=remotes
-Version=2.0.2.9000
-Source=unknown
-Hash=d83ac67270058dc5b09ee2fcf4332f3f
-
-[R/Package/renv]
-Package=renv
-Version=0.0.1-893
-Source=unknown
-Hash=ab9ae8931f75fed3fd39b62943464baa
+Version=2.0.2
+Source=CRAN
+Hash=7fc75fd2365f64a2688bf58c6edb1f28
 
 [R/Package/reticulate]
 Package=reticulate

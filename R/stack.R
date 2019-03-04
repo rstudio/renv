@@ -18,6 +18,10 @@ stack <- function() {
       .data[[length(.data)]]
     },
 
+    contains = function(data) {
+      data %in% .data
+    },
+
     data = function() {
       .data
     }
