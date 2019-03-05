@@ -17,17 +17,17 @@ renv_restore_retrieve_impl <- function(package, lockfile) {
 
   # skip 'R' package that might be passed in here
   if (package == "R")
-    return(TRUE)
+    return()
 
   # skip 'base' packages
   base <- renv_installed_packages_base()
   if (identical(base[package, "Priority"], "base"))
-    return(TRUE)
+    return()
 
   # if we've already attempted retrieval of this package, skip
   state <- renv_restore_state()
   if (exists(package, envir = state$retrieved))
-    return(TRUE)
+    return()
 
   assign(package, TRUE, envir = state$retrieved)
 
@@ -54,8 +54,6 @@ renv_restore_retrieve_impl <- function(package, lockfile) {
     renv_restore_retrieve_unknown_source(record)
   )
 
-  return(state$records$data())
-
 }
 
 renv_restore_missing_record <- function(package) {
@@ -63,7 +61,7 @@ renv_restore_missing_record <- function(package) {
   # TODO: allow users to configure the action to take here, e.g.
   #
   #   1. retrieve latest from CRAN (the default),
-  #   2. request a package + version to be retrieveed,
+  #   2. request a package + version to be retrieved,
   #   3. hard error
   #
   types <- if (Sys.info()[["sysname"]] == "Linux")

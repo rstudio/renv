@@ -4,15 +4,15 @@
 \alias{modify}
 \title{Open the Lockfile for Editing}
 \usage{
-modify(project = NULL, load = TRUE)
+modify(project = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
-
-\item{load}{Boolean; load lockfile-related state after edit?}
 }
 \description{
-Open the Lockfile for Editing
+Open a project's lockfile (if any) for editing. After edit, if the lockfile
+edited is associated with the active project, any state-related changes
+(e.g. to \R repositories) will be updated in the current session.
 }

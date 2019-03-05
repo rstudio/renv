@@ -65,7 +65,7 @@ restore <- function(project  = NULL,
 
   # resolve the lockfile
   lockfile <- case(
-    is.null(lockfile)      ~ renv_lockfile_load(),
+    is.null(lockfile)      ~ renv_lockfile_load(project),
     is.character(lockfile) ~ renv_lockfile_read(lockfile),
     lockfile
   )
@@ -73,9 +73,9 @@ restore <- function(project  = NULL,
   on.exit(renv_python_restore(project), add = TRUE)
 
   # detect changes in R packages in the lockfile
-  old <- snapshot(file = NULL)
-  new <- lockfile
-  diff <- renv_lockfile_diff_packages(old, new)
+  current <- snapshot(file = NULL)
+  lockfile <- lockfile
+  diff <- renv_lockfile_diff_packages(current, lockfile)
 
   # only keep requested actions
   diff <- diff[diff %in% actions]
@@ -86,7 +86,7 @@ restore <- function(project  = NULL,
   }
 
   if (confirm || renv_verbose())
-    renv_restore_report_actions(diff, old, new)
+    renv_restore_report_actions(diff, current, lockfile)
 
   if (confirm && !proceed()) {
     message("Operation aborted.")
@@ -101,20 +101,17 @@ restore <- function(project  = NULL,
   on.exit(.libPaths(oldlibpaths), add = TRUE)
 
   # perform the restore
-  status <- renv_restore_run_actions(diff, old, new)
+  status <- renv_restore_run_actions(diff, current, lockfile)
 
   # check to see if the lockfile is now up-to-date; if it's not,
   # then the restore might've repaired the dependency tree and
   # we should snapshot to capture the new changes
-  renv_restore_postamble(project, new, confirm)
+  renv_restore_postamble(project, lockfile, confirm)
 
   invisible(status)
 }
 
-renv_restore_postamble <- function(project,
-                                   lockfile,
-                                   confirm)
-{
+renv_restore_postamble <- function(project, lockfile, confirm) {
   actions <- renv_lockfile_diff_packages(lockfile, snapshot(file = NULL))
   if (empty(actions))
     return(NULL)
@@ -130,22 +127,22 @@ renv_restore_postamble <- function(project,
   snapshot(project = project, confirm = confirm)
 }
 
-renv_restore_run_actions <- function(actions, old, new) {
+renv_restore_run_actions <- function(actions, current, lockfile) {
 
-  renv_restore_begin(new, names(actions))
+  renv_restore_begin(lockfile, names(actions))
   on.exit(renv_restore_end(), add = TRUE)
 
   # first, handle package removals
   removes <- actions[actions == "remove"]
   enumerate(removes, function(package, action) {
-    renv_restore_remove(package, old)
+    renv_restore_remove(package, current)
   })
 
   # next, handle installs
   installs <- actions[actions != "remove"]
   packages <- names(installs)
 
-  records <- renv_restore_retrieve(packages, new)
+  records <- renv_restore_retrieve(packages, lockfile)
   renv_restore_install(records)
 
 }
@@ -155,59 +152,63 @@ renv_restore_state <- function() {
 }
 
 renv_restore_begin <- function(lockfile = NULL, packages = NULL) {
-  envir <- new.env(parent = emptyenv())
 
-  # the lockfile used for restore, providing information on
-  # the packages to be installed (their version, source, etc)
-  envir$lockfile <- lockfile
+  envir <- env(
 
-  # the set of packages to be installed in this restore session
-  envir$packages <- packages
+    # the lockfile used for restore, providing information on
+    # the packages to be installed (their version, source, etc)
+    lockfile = lockfile,
 
-  # packages which we have attempted to retrieve during restore
-  envir$retrieved <- new.env(parent = emptyenv())
+    # the set of packages to be installed in this restore session
+    packages = packages,
 
-  # package records we've obtained after the successful retrieval
-  # of a package. note that child dependencies will come first
-  # so that packages can be installed one-by-one successfully
-  envir$records <- stack()
+    # packages which we have attempted to retrieve during restore
+    retrieved = new.env(parent = emptyenv()),
 
-  # a collection of the requirements imposed on dependent packages
-  # as they are discovered
-  envir$requirements <- new.env(parent = emptyenv())
+    # package records we've obtained after the successful retrieval
+    # of a package. note that child dependencies will come first
+    # so that packages can be installed one-by-one successfully
+    records = stack(),
+
+    # a collection of the requirements imposed on dependent packages
+    # as they are discovered
+    requirements = new.env(parent = emptyenv())
+
+  )
 
   renv_global_set("restore.state", envir)
+
 }
 
 renv_restore_end <- function() {
   renv_global_clear("restore.state")
 }
 
-renv_restore_report_actions <- function(actions, old, new) {
+renv_restore_report_actions <- function(actions, current, lockfile) {
 
   if ("install" %in% actions) {
     msg <- "The following package(s) will be installed:"
-    renv_pretty_print(msg, new, actions, "install")
+    renv_pretty_print(msg, lockfile, actions, "install")
   }
 
   if ("remove" %in% actions) {
     msg <- "The following package(s) will be removed:"
-    renv_pretty_print(msg, old, actions, "remove")
+    renv_pretty_print(msg, current, actions, "remove")
   }
 
   if ("upgrade" %in% actions) {
     msg <- "The following package(s) will be upgraded:"
-    renv_pretty_print_pair(msg, old, new, actions, "upgrade")
+    renv_pretty_print_pair(msg, current, lockfile, actions, "upgrade")
   }
 
   if ("downgrade" %in% actions) {
     msg <- "The following package(s) will be downgraded:"
-    renv_pretty_print_pair(msg, old, new, actions, "downgrade")
+    renv_pretty_print_pair(msg, current, lockfile, actions, "downgrade")
   }
 
   if ("crossgrade" %in% actions) {
     msg <- "The following package(s) will be modified:"
-    renv_pretty_print_pair(msg, old, new, actions, "crossgrade")
+    renv_pretty_print_pair(msg, current, lockfile, actions, "crossgrade")
   }
 
 }

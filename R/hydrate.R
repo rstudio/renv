@@ -92,6 +92,7 @@ renv_hydrate_resolve_missing <- function(na) {
 
   packages <- names(na)
   records <- renv_restore_retrieve(packages)
+  records <- Filter(renv_install_required, records)
   renv_restore_install(records)
 
 }
