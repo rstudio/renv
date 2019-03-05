@@ -162,3 +162,6 @@ inject <- function(contents,
   stopf("edit failed")
 }
 
+env <- function(...) {
+  list2env(list(...), envir = new.env(parent = emptyenv()))
+}

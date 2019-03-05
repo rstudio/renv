@@ -6,6 +6,7 @@
 ^configure\.win$
 ^configure\.R$
 ^renv\.lock$
+^requirements\.txt$
 
 ^internal/
 ^renv/

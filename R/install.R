@@ -29,12 +29,7 @@ install <- function(packages) {
 
   # retrieve packages
   records <- renv_restore_retrieve(packages, lockfile)
-
-  # if an already-installed package satisfies its known requirements,
-  # then no need to install it
   records <- Filter(renv_install_required, records)
-
-  # install from records
   renv_restore_install(records)
 
 }
