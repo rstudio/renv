@@ -114,7 +114,7 @@ renv_snapshot_r_packages <- function(library = NULL, synchronize = FALSE) {
   paths <- paths[!basename(paths) %in% c(ip$Package, "translations")]
 
   # remove ignored packages
-  paths <- paths[!basename(paths) %in% settings$ignored.packages()]
+  paths <- paths[!basename(paths) %in% c("renv", settings$ignored.packages())]
 
   # validate the remaining set of packages
   valid <- renv_snapshot_r_library_diagnose(library, paths)
