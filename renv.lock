@@ -1,10 +1,16 @@
 [renv]
-Version=0.0.1-926
+Version=0.0.1-943
 
 [R]
 Version=3.5.2
 Repositories=
 	CRAN=https://cran.rstudio.com
+
+[R/Package/BH]
+Package=BH
+Version=1.69.0-1
+Source=CRAN
+Hash=b2d3014b0d74afeb854aa3555a40b665
 
 [R/Package/Matrix]
 Package=Matrix
@@ -52,6 +58,12 @@ Package=base64enc
 Version=0.1-3
 Source=CRAN
 Hash=a84dea3921f9f4e36e3d01d6fda4308e
+
+[R/Package/bench]
+Package=bench
+Version=1.0.1
+Source=CRAN
+Hash=35d35c84af376f4f51694fe2c7338c7c
 
 [R/Package/brew]
 Package=brew
@@ -129,11 +141,23 @@ Version=0.6.18
 Source=CRAN
 Hash=e0e4d82751507cc23575221c2b659441
 
+[R/Package/dplyr]
+Package=dplyr
+Version=0.8.0.1
+Source=CRAN
+Hash=b893d590cfcc2c39e47d33584f2079e7
+
 [R/Package/evaluate]
 Package=evaluate
 Version=0.13
 Source=CRAN
 Hash=a36d8a2787145da392dc0855b9b79ab2
+
+[R/Package/fansi]
+Package=fansi
+Version=0.4.0
+Source=CRAN
+Hash=a5053372201529a0575fddfefd3d0584
 
 [R/Package/fs]
 Package=fs
@@ -251,17 +275,35 @@ Version=1.2.2
 Source=CRAN
 Hash=39354367cf4792862bd460c152a5379c
 
+[R/Package/pillar]
+Package=pillar
+Version=1.3.1
+Source=CRAN
+Hash=67089e994f5aa84c0d6d620e8b8b0533
+
 [R/Package/pkgbuild]
 Package=pkgbuild
 Version=1.0.2
 Source=CRAN
 Hash=11b21fdd008a1113bb23ce9339fbe0e9
 
+[R/Package/pkgconfig]
+Package=pkgconfig
+Version=2.0.2
+Source=CRAN
+Hash=fa0b30dc85de29c145ad11f396bcd69d
+
 [R/Package/pkgload]
 Package=pkgload
 Version=1.0.2
 Source=CRAN
 Hash=74c3911306c5a723ab303749ad8be868
+
+[R/Package/plogr]
+Package=plogr
+Version=0.2.0
+Source=CRAN
+Hash=8f8a91691be10bd59a003f493b924129
 
 [R/Package/praise]
 Package=praise
@@ -285,6 +327,12 @@ Package=processx
 Version=3.2.1
 Source=CRAN
 Hash=29ad1d7602f9244925e36c93c39c35ad
+
+[R/Package/profmem]
+Package=profmem
+Version=0.5.0
+Source=CRAN
+Hash=b7b733d3f5e6a23e04fcab5c1c82b243
 
 [R/Package/ps]
 Package=ps
@@ -386,6 +434,18 @@ RemotePkgType=macos
 RemoteSha=2.0.1
 Hash=842201174d778b1a88444fc05afef1cf
 
+[R/Package/tibble]
+Package=tibble
+Version=2.0.1
+Source=CRAN
+Hash=39abe0582868a4bc861e417ab97672d4
+
+[R/Package/tidyselect]
+Package=tidyselect
+Version=0.2.5
+Source=CRAN
+Hash=216f2a14a8ad8ccb796c8f5511fecea5
+
 [R/Package/tinytex]
 Package=tinytex
 Version=0.10
@@ -402,6 +462,12 @@ Package=usethis
 Version=1.4.0
 Source=CRAN
 Hash=fa8e09f504b2dc3308c4204673e36114
+
+[R/Package/utf8]
+Package=utf8
+Version=1.1.4
+Source=CRAN
+Hash=8489c78a1c9d31e5d7d159ce633e56be
 
 [R/Package/whisker]
 Package=whisker

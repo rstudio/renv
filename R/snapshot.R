@@ -44,7 +44,7 @@ snapshot <- function(project = NULL,
   }
 
   # check for missing dependencies and warn if any are discovered
-  if (!renv_snapshot_validate_dependencies(new, confirm))
+  if (!renv_snapshot_validate(new, confirm))
     return(invisible(new))
 
   # report actions to the user
@@ -69,13 +69,17 @@ snapshot <- function(project = NULL,
 
 }
 
+renv_snapshot_validate <- function(lockfile, confirm) {
+  renv_snapshot_validate_dependencies(lockfile, confirm) &&
+  renv_snapshot_validate_sources(lockfile, confirm)
+}
+
 renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
 
-  packages <- lockfile$R$Package
-
+  records <- lockfile$R$Package
   installed <- as.data.frame(installed.packages(), stringsAsFactors = FALSE)
-  missing <- lapply(packages, function(package) {
-    path <- renv_paths_library(package$Library, package$Package)
+  missing <- lapply(records, function(record) {
+    path <- renv_paths_library(record$Library, record$Package)
     deps <- renv_dependencies_discover_description(path)
     setdiff(deps$Package, c("R", installed$Package))
   })
@@ -84,19 +88,41 @@ renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
   if (!length(bad))
     return(TRUE)
 
-  if (confirm) {
+  renv_pretty_print_packages(
+    names(bad),
+    "The following package(s) depend on packages which are not currently installed:",
+    "Consider re-installing these packages before snapshotting the lockfile.",
+  )
 
-    renv_pretty_print_packages(
-      names(bad),
-      "The following package(s) depend on packages which are not currently installed:",
-      "Consider re-installing these packages before snapshotting the lockfile.",
-    )
+  if (confirm && !proceed()) {
+    message("Operation aborted.")
+    return(FALSE)
+  }
 
-    if (!proceed()) {
-      message("Operation aborted.")
-      return(FALSE)
-    }
+  TRUE
 
+}
+
+renv_snapshot_validate_sources <- function(lockfile, confirm) {
+
+  records <- lockfile$R$Package
+  unknown <- Filter(
+    function(record) (record$Source %||% "") == "unknown",
+    records
+  )
+
+  if (empty(unknown))
+    return(TRUE)
+
+  renv_pretty_print_packages(
+    names(unknown),
+    "The following package(s) were installed from an unknown source:",
+    "Consider re-installing these packages from a known source (e.g. CRAN)."
+  )
+
+  if (confirm && !proceed()) {
+    message("Operation aborted.")
+    return(FALSE)
   }
 
   TRUE
