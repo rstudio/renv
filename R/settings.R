@@ -115,6 +115,16 @@ renv_settings_impl <- function(name, default) {
 #'
 #' }
 #'
+#' \item{\code{use.cache}}{
+#'
+#'   Use a global cache of \R packages. When active, `renv` will install
+#'   packages into a global cache, and link packages from the cache into your
+#'   `renv` projects as appropriate. This can greatly save on disk space
+#'   and install time when for \R packages which are used across multiple
+#'   projects in the same environment.
+#'
+#' }
+#'
 #' \item{\code{python}}{
 #'
 #'   The path to a Python binary, to be used by e.g. `reticulate` for projects
@@ -142,5 +152,6 @@ renv_settings_impl <- function(name, default) {
 settings <- list(
   ignored.packages   = renv_settings_impl("ignored.packages", character()),
   external.libraries = renv_settings_impl("external.libraries", character()),
+  use.cache          = renv_settings_impl("use.cache", TRUE),
   python             = renv_settings_impl("python", NULL)
 )

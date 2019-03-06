@@ -83,7 +83,6 @@ renv_cache_prime <- function(library) {
 
 }
 
-# TODO: allow users to enable / disable caching of packages
 renv_cache_synchronize <- function(record) {
 
   # construct path to package in library

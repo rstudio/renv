@@ -12,7 +12,6 @@
 }
 
 
-
 lines <- function(...) {
   paste(..., sep = "\n")
 }
