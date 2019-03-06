@@ -2,7 +2,9 @@ context("Init")
 
 test_that("we can initialize a project using 'breakfast'", {
 
-  renv_tests_scope("breakfast")
+  callback <- renv_tests_scope("breakfast")
+  on.exit(callback(), add = TRUE)
+
   renv::init()
 
   expected <- c("bread", "breakfast", "oatmeal", "toast")
@@ -13,7 +15,9 @@ test_that("we can initialize a project using 'breakfast'", {
 
 test_that("we can initialize a project using 'toast'", {
 
-  renv_tests_scope("toast")
+  callback <- renv_tests_scope("toast")
+  on.exit(callback(), add = TRUE)
+
   renv::init()
 
   expected <- c("bread", "toast")

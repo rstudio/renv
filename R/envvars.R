@@ -23,6 +23,8 @@ renv_envvars_save <- function() {
 
 renv_envvars_restore <- function() {
 
+  Sys.unsetenv("RENV_PROJECT")
+
   # restore old environment variables
   sources <- paste("RENV_DEFAULT", renv_envvars(), sep = "_")
   env <- Sys.getenv(sources, unset = "<NA>")
