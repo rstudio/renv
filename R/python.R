@@ -1,4 +1,52 @@
 
+renv_python <- function() {
+
+  python <- settings$python()
+  if (is.null(python))
+    return(NULL)
+
+  if (identical(python, TRUE))
+    return(renv_python_local_binary())
+
+  python
+
+}
+
+renv_python_local_binary <- function() {
+
+  path <- file.path(renv_project(), "renv/r-reticulate")
+  if (!file.exists(path))
+    renv_python_virtualenv_create(path)
+
+  if (Sys.info()[["sysname"]] == "Windows")
+    file.path(path, "Scripts/python.exe")
+  else
+    file.path(path, "bin/python")
+
+}
+
+renv_python_active_binary <- function() {
+
+  if ("reticulate" %in% loadedNamespaces() &&
+      reticulate::py_available())
+  {
+    config <- reticulate::py_config()
+    return(config$python)
+  }
+
+  python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+  if (!is.na(python))
+    return(python)
+
+  if (requireNamespace("reticulate", quietly = TRUE)) {
+    config <- reticulate::py_discover_config()
+    return(config$python)
+  }
+
+  Sys.which("python")
+
+}
+
 renv_python_version <- function(python) {
   cmd <- paste(shQuote(python), "--version 2>&1")
   output <- catch(system(cmd, intern = TRUE))
@@ -8,70 +56,21 @@ renv_python_version <- function(python) {
 
 renv_python_snapshot <- function(project) {
 
-  python <- settings$python()
-  if (is.null(python))
+  python <- renv_python()
+  if (is.null(python) || !renv_python_is_virtualenv(python))
     return(NULL)
 
-  python <- renv_python_resolve(python)
   renv_python_pip_freeze(project, python)
 
 }
 
 renv_python_restore <- function(project) {
 
-  python <- settings$python()
-  if (is.null(python))
+  python <- renv_python()
+  if (is.null(python) || !renv_python_is_virtualenv(python))
     return(NULL)
 
-  python <- renv_python_resolve(python)
   renv_python_pip_restore(project, python)
-
-}
-
-renv_python_virtualenv_root <- function() {
-  Sys.getenv("WORKON_HOME", unset = path.expand("~/.virtualenvs"))
-}
-
-renv_python_resolve <- function(python) {
-
-  # when set to TRUE, we should try to auto-resolve a version of Python to use
-  if (identical(python, TRUE)) {
-
-    if (!requireNamespace("reticulate", quietly = TRUE))
-      install("reticulate")
-
-    config <- catch(reticulate::py_config())
-    if (inherits(config, "error"))
-      return(NULL)
-
-    return(config$python)
-
-  }
-
-  # if the user has requested a virtual environment by name, provide it
-  if (!grepl("[/\\]", python)) {
-    virtualenv <- file.path(renv_python_virtualenv_root(), python)
-    if (renv_file_exists(virtualenv))
-      python <- virtualenv
-  }
-
-  # if the requested path doesn't exist, just return it (upstream
-  # will warn appropriately)
-  info <- file.info(python, extra_cols = FALSE)
-  if (is.na(info$isdir))
-    return(python)
-
-  # if python points to a plain file, then assume we received the
-  # path to a Python binary
-  if (identical(info$isdir, FALSE))
-    return(python)
-
-  # otherwise, we received a directory; assume this is the root
-  # for a virtualenv and provide the associated Python
-  if (Sys.info()[["sysname"]] == "Windows")
-    file.path(python, "Scripts/python.exe")
-  else
-    file.path(python, "bin/python")
 
 }
 
@@ -122,4 +121,22 @@ renv_python_pip_restore <- function(project, python) {
 
   path <- aliased_path(file.path(project, "requirements.txt"))
   messagef("* Restored Python packages from '%s'.", aliased_path(path))
+}
+
+renv_python_virtualenv_root <- function() {
+  Sys.getenv("WORKON_HOME", unset = path.expand("~/.virtualenvs"))
+}
+
+renv_python_virtualenv_create <- function(path) {
+  python <- renv_python_active_binary()
+  version <- renv_python_version(python)
+  module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
+  cmd <- paste(shQuote(python), "-m", module, shQuote(path))
+  system(cmd)
+  file.exists(path)
+}
+
+renv_python_is_virtualenv <- function(python) {
+  paths <- c("activate_this.py", "pyvenv.cfg", "../pyvenv.cfg")
+  any(file.exists(file.path(dirname(python), paths)))
 }

@@ -78,15 +78,19 @@ case <- function(...) {
     if (!inherits(dot, "formula"))
       return(dot)
 
-    if (length(dot) == 2) {
+    else if (length(dot) == 2) {
       expr <- dot[[2]]
       return(eval(expr, envir = environment(dot)))
     }
 
-    cond <- dot[[2]]
-    expr <- dot[[3]]
-    if (eval(cond, envir = environment(dot)))
-      return(eval(expr, envir = environment(dot)))
+    else {
+
+      cond <- dot[[2]]
+      expr <- dot[[3]]
+      if (eval(cond, envir = environment(dot)))
+        return(eval(expr, envir = environment(dot)))
+
+    }
   }
 
   NULL

@@ -1,2 +1,3 @@
 ignored.packages:
 external.libraries:
+python: TRUE

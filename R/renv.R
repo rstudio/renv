@@ -61,12 +61,12 @@ load <- function(project = NULL) {
   renv_load_profile(project)
   renv_load_envvars(project)
   renv_load_libpaths(project)
+  renv_load_python(project)
 
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {
     renv_load_r_version(lockfile$R$Version)
     renv_load_repos(lockfile$R$Repositories)
-    renv_load_python(lockfile$Python$Path)
   }
 
   renv_load_finish()
