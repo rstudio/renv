@@ -69,6 +69,7 @@ load <- function(project = NULL) {
     renv_load_repos(lockfile$R$Repositories)
   }
 
+  renv_write_infrastructure(project)
   renv_load_finish()
 
   invisible(project)

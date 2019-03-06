@@ -1,15 +1,8 @@
 
 local({
 
-  # read project state
-  activate <- "renv/activate.dcf"
-  if (!file.exists(activate))
-    return()
-
-  # attempt to determine requested renv version
-  version <- tryCatch(read.dcf(activate, fields = "Version"), error = identity)
-  if (inherits(version, "error"))
-    return(warning(version))
+  # requested version of renv
+  version <- "%s"
 
   # try to find a path where renv might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
