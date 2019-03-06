@@ -120,8 +120,9 @@ renv_settings_impl <- function(name, default) {
 #'   The path to a Python binary, to be used by e.g. `reticulate` for projects
 #'   requiring the use of Python. Alternatively, if set to `TRUE`, then `renv`
 #'   will create a project-local Python virtual environment and use that.
-#'   In that scenario, the Python binary pointed at by the `RETICULATE_PYTHON`
-#'   environment variable will be used.
+#'   In that case, `renv` will use whichever version of Python is currently
+#'   in use by `reticulate` (if any), or the version of Python requested by
+#'   `RETICULATE_PYTHON` otherwise.
 #'
 #' }
 #'

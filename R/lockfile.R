@@ -110,13 +110,11 @@ renv_lockfile_init_r <- function() {
 
 renv_lockfile_init_python <- function() {
 
-  python <- settings$python()
+  python <- renv_python()
   if (is.null(python))
     return(NULL)
 
-  python <- renv_python_resolve(python)
-  version <- renv_python_version(python)
-  list(Path = python, Version = version)
+  list(Version = renv_python_version(python))
 
 }
 
