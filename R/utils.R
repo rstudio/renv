@@ -168,3 +168,7 @@ inject <- function(contents,
 env <- function(...) {
   list2env(list(...), envir = new.env(parent = emptyenv()))
 }
+
+deparsed <- function(value, width = 60L) {
+  paste(deparse(value, width.cutoff = width), collapse = "\n")
+}

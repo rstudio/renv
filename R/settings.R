@@ -1,12 +1,28 @@
 
-`_renv_settings_defaults` <- new.env(parent = emptyenv())
+`_renv_settings` <- new.env(parent = emptyenv())
 
 renv_settings_defaults <- function() {
-  as.list(`_renv_settings_defaults`)
+  as.list(extract(`_renv_settings`, "defaults"))
 }
 
 renv_settings_default <- function(name) {
-  `_renv_settings_defaults`[[name]]
+  `_renv_settings`[[name]]$default
+}
+
+renv_settings_validate <- function(name, value) {
+
+  if (empty(value))
+    return(renv_settings_default(name))
+
+  validate <- `_renv_settings`[[name]]$validate
+  if (validate(value))
+    return(value)
+
+  fmt <- "%s is an invalid value for setting '%s'; using default %s instead"
+  default <- renv_settings_default(name)
+  warningf(fmt, deparsed(value), name, deparsed(default))
+  default
+
 }
 
 renv_settings_read <- function(project) {
@@ -21,7 +37,8 @@ renv_settings_read <- function(project) {
 
   settings <- enumerate(dcf, function(name, value) {
 
-    case(
+    # TODO: consider custom decoders per-setting
+    decoded <- case(
       value == "NULL"  ~ NULL,
       value == "NA"    ~ NA,
       value == "NaN"   ~ NaN,
@@ -29,6 +46,8 @@ renv_settings_read <- function(project) {
       value == "FALSE" ~ FALSE,
       ~ strsplit(value, "\\s*,\\s*")[[1]]
     )
+
+    renv_settings_validate(name, decoded)
 
   })
 
@@ -53,7 +72,7 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
   path <- file.path(project, "renv/renv.opts")
 
   settings <- renv_filebacked_get(path) %||% renv_settings_read(project)
-  settings[[name]] <- value
+  settings[[name]] <- renv_settings_validate(name, value)
   renv_filebacked_set(path, settings)
 
   if (persist)
@@ -72,10 +91,10 @@ renv_settings_merge <- function(settings, merge) {
   settings
 }
 
-renv_settings_impl <- function(name, default) {
+renv_settings_impl <- function(name, validate, default) {
 
   force(name)
-  `_renv_settings_defaults`[[name]] <- default
+  `_renv_settings`[[name]] <- list(validate = validate, default = default)
 
   function(value, project = NULL, persist = TRUE) {
     project <- project %||% renv_project()
@@ -150,8 +169,29 @@ renv_settings_impl <- function(name, default) {
 #'
 #' }
 settings <- list(
-  ignored.packages   = renv_settings_impl("ignored.packages", character()),
-  external.libraries = renv_settings_impl("external.libraries", character()),
-  use.cache          = renv_settings_impl("use.cache", TRUE),
-  python             = renv_settings_impl("python", NULL)
+
+  ignored.packages   = renv_settings_impl(
+    name     = "ignored.packages",
+    validate = is.character,
+    default  = character()
+  ),
+
+  external.libraries = renv_settings_impl(
+    name     = "external.libraries",
+    validate = is.character,
+    default  = character()
+  ),
+
+  use.cache = renv_settings_impl(
+    name     = "use.cache",
+    validate = function(x) length(x) == 1 && is.logical(x),
+    default  = TRUE
+  ),
+
+  python = renv_settings_impl(
+    name     = "python",
+    validate = function(x) is.character(x) || is.logical(x),
+    default  = NULL
+  )
+
 )
