@@ -4,7 +4,7 @@
 \name{settings}
 \alias{settings}
 \title{Settings}
-\format{An object of class \code{list} of length 3.}
+\format{An object of class \code{list} of length 4.}
 \usage{
 settings
 }
@@ -36,13 +36,24 @@ installing some packages from source on your machine).
 
 }
 
+\item{\code{use.cache}}{
+
+Use a global cache of \R packages. When active, \code{renv} will install
+packages into a global cache, and link packages from the cache into your
+\code{renv} projects as appropriate. This can greatly save on disk space
+and install time when for \R packages which are used across multiple
+projects in the same environment.
+
+}
+
 \item{\code{python}}{
 
 The path to a Python binary, to be used by e.g. \code{reticulate} for projects
 requiring the use of Python. Alternatively, if set to \code{TRUE}, then \code{renv}
 will create a project-local Python virtual environment and use that.
-In that scenario, the Python binary pointed at by the \code{RETICULATE_PYTHON}
-environment variable will be used.
+In that case, \code{renv} will use whichever version of Python is currently
+in use by \code{reticulate} (if any), or the version of Python requested by
+\code{RETICULATE_PYTHON} otherwise.
 
 }
 

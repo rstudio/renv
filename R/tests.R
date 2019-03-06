@@ -3,6 +3,10 @@ renv_tests_scope <- function(packages) {
 
   renv_tests_init()
 
+  # ensure that attempts to restart are a no-op
+  restart <- getOption("restart")
+  options(restart = function(...) TRUE)
+
   # move to own test directory
   dir <- tempfile("renv-test-")
   ensure_directory(dir)
@@ -16,8 +20,10 @@ renv_tests_scope <- function(packages) {
   code <- sprintf("library(%s)", packages)
   writeLines(code, "dependencies.R")
 
-  # clean up when finished in parent scope
-  defer({Sys.unsetenv("RENV_PROJECT"); setwd(owd)}, envir = parent.frame())
+  function() {
+    deactivate(project = dir)
+    setwd(owd)
+  }
 
 }
 
