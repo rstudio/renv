@@ -129,7 +129,7 @@ renv_snapshot_validate_sources <- function(lockfile, confirm) {
 
 }
 
-renv_snapshot_r_packages <- function(library = NULL, synchronize = FALSE) {
+renv_snapshot_r_packages <- function(library = NULL) {
 
   # list packages in the library
   library <- library %||% renv_libpaths_default()
@@ -162,10 +162,6 @@ renv_snapshot_r_packages <- function(library = NULL, synchronize = FALSE) {
     message <- paste(header, body, sep = "\n")
     stop(message, call. = FALSE)
   }
-
-  # copy packages into the cache during snapshot if requested
-  if (synchronize)
-    lapply(records, renv_cache_synchronize)
 
   # name results and return
   names(records) <- map_chr(records, `[[`, "Package")

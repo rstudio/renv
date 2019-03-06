@@ -31,7 +31,10 @@ hydrate <- function(project = NULL) {
   ensure_directory(library)
 
   # copy packages from user library to cache
-  renv_hydrate_cache_packages(packages, library)
+  if (settings$use.cache())
+    renv_hydrate_cache_packages(packages, library)
+  else
+    renv_hydrate_copy_packages(packages, library)
 
   # update the library paths so that we're using the newly-established library
   renv_libpaths_set(library)
@@ -77,6 +80,20 @@ renv_hydrate_cache_packages <- function(packages, library) {
   cached <- enumerate(packages, renv_hydrate_cache_package, library = library)
   vmessagef("Done!")
   cached
+}
+
+# takes a package called 'package' installed at location 'location',
+# and copies it to the library 'library'
+renv_hydrate_copy_package <- function(package, location, library) {
+  target <- file.path(library, package)
+  renv_file_copy(location, target, overwrite = TRUE)
+}
+
+renv_hydrate_copy_packages <- function(packages, library) {
+  vmessagef("* Copying packages into the library ... ", appendLF = FALSE)
+  copied <- enumerate(packages, renv_hydrate_copy_package, library = library)
+  vmessagef("Done!")
+  copied
 }
 
 renv_hydrate_resolve_missing <- function(na) {
