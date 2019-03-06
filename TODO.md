@@ -97,3 +97,6 @@
 - [ ] Warn when lockfile contains packages from unknown source?
 
 - [ ] `renv::update()` to update the verison of `renv` used within a project.
+
+- [ ] Automatically bootstrap an `renv` installation when loading a project
+      if none is available locally?
