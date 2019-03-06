@@ -20,9 +20,13 @@ renv_tests_scope <- function(packages) {
   code <- sprintf("library(%s)", packages)
   writeLines(code, "dependencies.R")
 
+  # save libpaths
+  libpaths <- .libPaths()
+
   function() {
     deactivate(project = dir)
     setwd(owd)
+    .libPaths(libpaths)
   }
 
 }
