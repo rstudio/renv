@@ -74,11 +74,13 @@ restore <- function(project  = NULL,
 
   # detect changes in R packages in the lockfile
   current <- snapshot(file = NULL)
-  lockfile <- lockfile
   diff <- renv_lockfile_diff_packages(current, lockfile)
 
   # only keep requested actions
   diff <- diff[diff %in% actions]
+
+  # don't take any actions with ignored packages
+  diff <- diff[setdiff(names(diff), settings$ignored.packages())]
 
   if (!length(diff)) {
     vmessagef("* The project is already synchronized with the lockfile.")
