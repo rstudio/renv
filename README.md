@@ -1,5 +1,7 @@
 # renv (UNDER DEVELOPMENT)
 
+`renv` is currently under active development and is not yet considered stable
+enough for production use. We appreciate your taking the time to test `renv`!
 
 ## Overview
 
