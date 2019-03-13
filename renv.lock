@@ -1,5 +1,5 @@
 [renv]
-Version=0.0.1-1064
+Version=0.0.1-1065
 
 [R]
 Version=3.5.2
@@ -140,9 +140,9 @@ Hash=23c39882896fd59757e07f6938a13289
 
 [R/Package/glue]
 Package=glue
-Version=1.3.0
+Version=1.3.1
 Source=CRAN
-Hash=564f85fafe6f048f88740b8ce371e37d
+Hash=eee22be06b5959d425a42c6eab162db0
 
 [R/Package/highr]
 Package=highr
@@ -203,6 +203,12 @@ Package=memoise
 Version=1.1.0
 Source=CRAN
 Hash=7a2d27a40e0db21db40225515fa672e5
+
+[R/Package/microbenchmark]
+Package=microbenchmark
+Version=1.4-6
+Source=CRAN
+Hash=efa728acc42eec89df8bb65b0adc50ad
 
 [R/Package/mime]
 Package=mime
@@ -314,9 +320,9 @@ Hash=3ed8be6e4adff35515f2bc17377c280e
 
 [R/Package/stringi]
 Package=stringi
-Version=1.3.1
+Version=1.4.3
 Source=CRAN
-Hash=279961bd7ec0ff2f22c81a18c3175ac8
+Hash=8b30c6bf2535f976b9ae6f3355913981
 
 [R/Package/stringr]
 Package=stringr
@@ -338,9 +344,9 @@ Hash=371ad6be4398d66efcf8ad660acad7fa
 
 [R/Package/tinytex]
 Package=tinytex
-Version=0.10
+Version=0.11
 Source=CRAN
-Hash=11f1f08d6b1fd7b8c408c13381b0dc5a
+Hash=e3772a24a634bc0b27497265efa76305
 
 [R/Package/usethis]
 Package=usethis

@@ -2,7 +2,7 @@
 local({
 
   # requested version of renv
-  version <- "0.0.1-1064"
+  version <- "0.0.1-1066"
 
   # try to find a path where renv might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
@@ -10,15 +10,16 @@ local({
   paths <- file.path(base, "bootstrap", prefix, "renv", version)
 
   # try to load renv from one of these paths
-  for (path in paths) {
-    if (requireNamespace("renv", lib.loc = path, quietly = TRUE)) {
-      renv::load()
-      return(invisible())
-    }
-  }
+  for (path in paths)
+    if (requireNamespace("renv", lib.loc = path, quietly = TRUE))
+      return(renv::load())
 
   # failed to load renv; warn the user
-  msg <- "Failed to find an renv installation: the project will not be loaded."
-  warning(msg, call. = FALSE)
+  msg <- c(
+    "Failed to find an renv installation: the project will not be loaded.",
+    "Use `renv::activate()` to re-initialize the project."
+  )
+
+  warning(paste(msg, collapse = "\n"), call. = FALSE)
 
 })

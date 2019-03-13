@@ -18,7 +18,7 @@ renv_python_local_binary <- function() {
   if (!file.exists(path))
     renv_python_virtualenv_create(path)
 
-  if (Sys.info()[["sysname"]] == "Windows")
+  if (renv_platform_windows())
     file.path(path, "Scripts/python.exe")
   else
     file.path(path, "bin/python")

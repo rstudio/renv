@@ -116,7 +116,7 @@ renv_file_link <- function(source, target, overwrite = FALSE, link = NULL) {
 
   # use junction points on Windows by default as symlinks
   # are unreliable / un-deletable in some circumstances
-  link <- link %||% if (Sys.info()[["sysname"]] == "Windows")
+  link <- link %||% if (renv_platform_windows())
     Sys.junction
   else
     file.symlink
@@ -135,7 +135,7 @@ renv_file_junction <- function(source, target, info = NULL) {
   info <- info %||% file.info(source, extra_cols = FALSE)
 
   # can only make junctions on Windows
-  if (Sys.info()[["sysname"]] != "Windows")
+  if (!renv_platform_windows())
     return(FALSE)
 
   # can only create junctions between directories
@@ -223,7 +223,7 @@ renv_file_alt <- function(path, alternate) {
 # NOTE: returns true for files that are broken symlinks
 renv_file_exists <- function(path) {
 
-  if (Sys.info()[["sysname"]] == "Windows")
+  if (renv_platform_windows())
     return(file.exists(path))
 
   !is.na(Sys.readlink(path)) | file.exists(path)
