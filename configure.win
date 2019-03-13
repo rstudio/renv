@@ -1,2 +1,0 @@
-#!/usr/bin/env sh
-"${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" configure.R
