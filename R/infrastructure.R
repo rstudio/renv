@@ -33,7 +33,7 @@ renv_write_rbuildignore <- function(project) {
 renv_write_gitignore <- function(project) {
 
   renv_write_entry_impl(
-    lines  = c("library/", "r-reticulate/"),
+    lines  = c("library/", "python/"),
     file   = file.path(project, "renv/.gitignore"),
     create = file.exists(file.path(project, ".git"))
   )

@@ -14,9 +14,12 @@ renv_python <- function() {
 
 renv_python_local_binary <- function() {
 
-  path <- file.path(renv_project(), "renv/r-reticulate")
-  if (!file.exists(path))
+  path <- file.path(renv_project(), "renv/python/r-reticulate")
+  if (!file.exists(path)) {
+    messagef("* Creating Python virtual environment ... ", appendLF = FALSE)
     renv_python_virtualenv_create(path)
+    messagef("Done!")
+  }
 
   if (renv_platform_windows())
     file.path(path, "Scripts/python.exe")
@@ -34,8 +37,8 @@ renv_python_active_binary <- function() {
     return(config$python)
   }
 
-  python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-  if (!is.na(python))
+  python <- Sys.getenv("RETICULATE_PYTHON")
+  if (file.exists(python))
     return(python)
 
   if (requireNamespace("reticulate", quietly = TRUE)) {
@@ -91,7 +94,7 @@ renv_python_pip_freeze <- function(project, python) {
     return(FALSE)
 
   writeLines(after, con = path)
-  messagef("* Wrote Python packages to '%s'.", path)
+  messagef("* Wrote Python packages to '%s'.", aliased_path(path))
   return(TRUE)
 }
 
@@ -128,11 +131,18 @@ renv_python_virtualenv_root <- function() {
 }
 
 renv_python_virtualenv_create <- function(path) {
+  ensure_parent_directory(path)
   python <- renv_python_active_binary()
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
-  cmd <- paste(shQuote(python), "-m", module, shQuote(path))
-  system(cmd)
+  fmt <- "%s -m %s %s 2>&1"
+  cmd <- sprintf(fmt, shQuote(python), module, shQuote(path))
+  output <- system(cmd, intern = TRUE)
+  status <- attr(output, "status") %||% 0L
+  if (status != 0L || !file.exists(path)) {
+    msg <- c("failed to create virtual environment", output)
+    stop(paste(msg, collapse = "\n"), call. = FALSE)
+  }
   file.exists(path)
 }
 

@@ -111,7 +111,7 @@ renv_lockfile_init_r <- function() {
 renv_lockfile_init_python <- function() {
 
   python <- renv_python()
-  if (is.null(python))
+  if (is.null(python) || !file.exists(python))
     return(NULL)
 
   list(Version = renv_python_version(python))
