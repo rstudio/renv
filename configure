@@ -1,2 +1,3 @@
 #!/usr/bin/env sh
-R --vanilla --slave -f configure.R
+: "${R_HOME=`R RHOME`}"
+"${R_HOME}/bin/Rscript" configure.R
