@@ -5,7 +5,8 @@
 #'
 #' @inheritParams renv-params
 #' @param remote A 'remote' specification, as understood by the
-#'   [remotes](https://cran.r-project.org/package=remotes) package. See
+#'   [remotes](https://cran.r-project.org/package=remotes) package. (Note that
+#'   not all remote specifications are yet supported by `renv`.) See
 #'   <https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html>
 #'    for more details. When `NULL` (the default), the latest version of `renv`
 #'   available on GitHub is retrieved instead.
