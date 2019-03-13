@@ -131,7 +131,7 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
 
 renv_restore_run_actions <- function(actions, current, lockfile) {
 
-  records <- lockfile$R$Packages
+  records <- lockfile$R$Package
   renv_restore_begin(records, names(actions))
   on.exit(renv_restore_end(), add = TRUE)
 
@@ -144,7 +144,7 @@ renv_restore_run_actions <- function(actions, current, lockfile) {
   # next, handle installs
   installs <- actions[actions != "remove"]
   packages <- names(installs)
-  records <- lockfile$R$Packages
+  records <- lockfile$R$Package
 
   records <- renv_restore_retrieve(packages, records)
   renv_restore_install(records)

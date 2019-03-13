@@ -46,7 +46,7 @@ renv_install_required <- function(record) {
   # check to see if this package is already installed; if it's not
   # installed then we need to install it
   records <- state$records
-  if (is.null(records[[record$package]]))
+  if (is.null(records[[record$Package]]))
     return(TRUE)
 
   # check and see if the installed version satisfies all requirements
