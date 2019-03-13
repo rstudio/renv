@@ -18,6 +18,18 @@ upgrade <- function(project = NULL, remote = "rstudio/renv") {
   # conduct a mini-restore for renv itself
   record <- renv_remotes_parse(remote)
   records <- list(renv = record)
+
+  renv_pretty_print_packages(
+    sprintf("[%s] -> [%s]", renv_package_version("renv"), record$Version),
+    "A new version of the renv package will be installed:",
+    "This project will use the newly-installed version of renv."
+  )
+
+  if (!proceed()) {
+    writeLines("Operation aborted.")
+    return(FALSE)
+  }
+
   renv_restore_begin(records = records, packages = "renv", recursive = FALSE)
   on.exit(renv_restore_end(), add = TRUE)
 
