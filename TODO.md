@@ -97,3 +97,4 @@
 
 - [ ] Automatically bootstrap an `renv` installation when loading a project
       if none is available locally?
+

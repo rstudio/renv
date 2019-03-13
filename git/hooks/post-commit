@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+VERSION="$(grep "^Version:" DESCRIPTION | cut -d' ' -f2)"
+if [ -n "${VERSION}" ]; then
+	git tag "${VERSION}"
+fi
+
