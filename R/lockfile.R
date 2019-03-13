@@ -102,9 +102,13 @@ renv_lockfile_init <- function() {
 }
 
 renv_lockfile_init_r <- function() {
+
+  repos <- getOption("repos")
+  repos[repos == "@CRAN@"] <- "https://cran.rstudio.com"
+
   list(
     Version = format(getRversion()),
-    Repositories = getOption("repos")
+    Repositories = repos
   )
 }
 

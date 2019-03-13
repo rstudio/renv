@@ -23,8 +23,6 @@ renv_request_restart_default <- function(project, reason, ...) {
   fmt <- "* %s -- please restart the R session."
   messagef(fmt, sprintf(reason, ...))
 
-  load()
-
 }
 
 renv_request_restart_rstudio <- function(project, reason, ...) {
