@@ -1,10 +1,12 @@
 
 local({
 
+  version <- "${VERSION}"
+
   # try to find a path where renv might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
   base <- c(Sys.getenv("RENV_PATHS_ROOT", unset = "~/.renv"), "renv")
-  paths <- file.path(base, "bootstrap", prefix, "renv/${VERSION}")
+  paths <- file.path(base, "bootstrap", prefix, "renv", version)
 
   # try to load renv from one of these paths
   for (path in paths)
@@ -30,8 +32,9 @@ local({
     }
 
     # try to download renv
-    message("Downloading renv ${VERSION} ... ", appendLF = FALSE)
-    url <- "https://api.github.com/repos/rstudio/renv/tarball/${VERSION}"
+    message("Downloading renv ", version, " ... ", appendLF = FALSE)
+    prefix <- "https://api.github.com"
+    url <- file.path(prefix, "repos/rstudio/renv/tarball", version)
     destfile <- tempfile("renv-", fileext = ".tar.gz")
     on.exit(unlink(destfile), add = TRUE)
     utils::download.file(url, destfile = destfile, mode = "wb", quiet = TRUE)
