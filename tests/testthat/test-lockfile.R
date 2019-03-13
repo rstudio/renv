@@ -61,3 +61,19 @@ test_that("lockfiles can be diffed", {
   expect_identical(diff, expected)
 
 })
+
+test_that("named characters are serialized as expected", {
+
+  text <- '
+[Section]
+Entry=
+\tKey1=Value1
+\tKey2=Value2
+'
+
+  data <- list(Section = list(Entry = c(Key1 = "Value1", Key2 = "Value2")))
+  file <- tempfile()
+  renv_lockfile_write(data, file)
+  expect_equal(trimws(text), trimws(read(file)))
+
+})
