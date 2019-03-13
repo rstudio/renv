@@ -86,7 +86,7 @@ renv_restore_install_package_local <- function(record) {
   before(package)
   on.exit(after(package), add = TRUE)
 
-  lib <- renv_libpaths_default()
+  lib <- record$Library %||% renv_libpaths_default()
   path <- record$Path
   type <- record$Type
 
