@@ -32,7 +32,7 @@ local({
     }
 
     # try to download renv
-    message("Downloading renv ", version, " ... ", appendLF = FALSE)
+    message("* Downloading renv ", version, " ... ", appendLF = FALSE)
     prefix <- "https://api.github.com"
     url <- file.path(prefix, "repos/rstudio/renv/tarball", version)
     destfile <- tempfile("renv-", fileext = ".tar.gz")
@@ -40,9 +40,14 @@ local({
     utils::download.file(url, destfile = destfile, mode = "wb", quiet = TRUE)
     message("Done!")
 
+    # avoid running user .Rprofile here
+    Sys.setenv(R_PROFILE_USER = "")
+
     # attempt to install it into bootstrap library
+    message("* Installing renv ", version, " ... ", appendLF = FALSE)
     dir.create(path, showWarnings = FALSE, recursive = TRUE)
-    install.packages(destfile, repos = NULL, type = "source", lib = path, quiet = TRUE)
+    utils::install.packages(destfile, repos = NULL, type = "source", lib = path, quiet = TRUE)
+    message("Done!")
 
   })
 
