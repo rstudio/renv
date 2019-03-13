@@ -281,6 +281,8 @@ renv_restore_retrieve_package <- function(record, url, path, type) {
 }
 
 renv_restore_retrieve_unknown_source <- function(record) {
-  fmt <- "can't retrieve package '%s': '%s' is an unrecognized source"
-  stopf(fmt, record$Package, record$Source, call. = FALSE)
+  fmt <- "package '%s' was installed from an unknown source: installing latest version from CRAN instead"
+  warningf(fmt, record$Package)
+  record <- renv_restore_missing_record(record$Package)
+  renv_restore_retrieve_cran(record)
 }

@@ -28,6 +28,7 @@ renv_restore_install_impl <- function(record) {
 }
 
 renv_restore_install_package_cache <- function(record, cache) {
+  state <- renv_restore_state()
 
   # construct target install path
   library <- case(
@@ -44,10 +45,17 @@ renv_restore_install_package_cache <- function(record, cache) {
     settings$use.cache() &&
     path_within(target, renv_paths_library())
 
-  link <- if (cacheable)
-    renv_file_link
-  else
-    renv_file_copy
+  # check to see if we already have an up-to-date symlink
+  # into the cache (nothing to do if that's the case)
+  skip <-
+    cacheable &&
+    !record$Package %in% state$packages &&
+    renv_file_same(cache, target)
+  if (skip)
+    return(TRUE)
+
+  # choose appropriate copier / linker
+  link <- if (cacheable) renv_file_link else renv_file_copy
 
   # back up the previous installation if needed
   callback <- renv_file_scoped_backup(target)
