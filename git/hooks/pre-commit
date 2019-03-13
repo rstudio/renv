@@ -5,6 +5,10 @@ local({
   if (!file.exists(".git"))
     return()
 
+  ref <- system("git rev-parse --abbrev-ref HEAD", intern = TRUE)
+  if (ref != "master")
+    return()
+
   lines <- readLines("DESCRIPTION")
   idx <- grep("^Version:", lines)
   line <- lines[[idx]]
