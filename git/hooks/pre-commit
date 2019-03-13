@@ -1,6 +1,5 @@
+#!/usr/bin/env Rscript
 
-# used to bump the DESCRIPTION verison every time the package is rebuilt,
-# just so that the renv cache entry is invalidated eagerly
 local({
 
   if (!file.exists(".git"))
@@ -23,4 +22,7 @@ local({
   lines[[idx]] <- paste("Version:", new)
   writeLines(lines, "DESCRIPTION")
 
+  system("git add DESCRIPTION")
+
 })
+
