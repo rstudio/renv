@@ -115,8 +115,14 @@ renv_lockfile_init_r <- function() {
 
 renv_lockfile_init_bioconductor <- function() {
 
+  # if BiocManager / BiocInstaller is available, ask for the
+  # current repositories; otherwise preserve the last-used
+  # repositories (if any)
   repos <- catch(renv_bioconductor_repos())
   if (inherits(repos, "error"))
+    repos <- getOption("bioconductor.repos")
+
+  if (is.null(repos))
     return(NULL)
 
   list(Repositories = repos)

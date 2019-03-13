@@ -102,7 +102,6 @@ renv_restore_missing_record <- function(package) {
 }
 
 renv_restore_retrieve_bioconductor <- function(record) {
-  repos <- renv_bioconductor_repos()
 
   # activate bioconductor repositories in this context
   repos <- getOption("repos")
