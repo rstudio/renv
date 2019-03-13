@@ -8,7 +8,10 @@ renv_load_r_version <- function(version) {
 }
 
 renv_load_project <- function(project) {
-  Sys.setenv(RENV_PROJECT = normalizePath(project, winslash = "/"))
+  Sys.setenv(
+    RENV_PROJECT = normalizePath(project, winslash = "/"),
+    RENV_HOME    = renv_home()
+  )
 }
 
 renv_load_profile <- function(project = NULL) {
@@ -62,4 +65,8 @@ renv_load_python <- function(project) {
 
 renv_load_finish <- function() {
   # TODO: report to user?
+}
+
+renv_home <- function() {
+  .getNamespaceInfo(.getNamespace("renv"), "path")
 }
