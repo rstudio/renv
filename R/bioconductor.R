@@ -1,6 +1,11 @@
 
 renv_bioconductor_repos <- function() {
 
+  # if the repositories have already been set, use them
+  repos <- getOption("bioconductor.repos")
+  if (!is.null(repos))
+    return(repos)
+
   # try both BiocManager, BiocInstaller to get Bioc repositories
   getters <- list(
 
