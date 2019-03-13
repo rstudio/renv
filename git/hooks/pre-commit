@@ -1,32 +1,34 @@
-#!/usr/bin/env Rscript
+#!/usr/bin/env sh
 
-local({
+set -e
 
-  if (!file.exists(".git"))
-    return()
+# Only tag commits made to master.
+REF="$(git rev-parse --abbrev-ref HEAD)"
+if [ ! "${REF}" = "master" ]; then
+	exit 0
+fi
 
-  ref <- system("git rev-parse --abbrev-ref HEAD", intern = TRUE)
-  if (ref != "master")
-    return()
+# Get version line
+LINE="$(grep "^Version:" DESCRIPTION)"
+VERSION="$(echo "${LINE}" | cut -d' ' -f2)"
+if [ -z "${VERSION}" ]; then
+	exit 0
+fi
 
-  lines <- readLines("DESCRIPTION")
-  idx <- grep("^Version:", lines)
-  line <- lines[[idx]]
+# Construct new version
+LHS="$(echo "${VERSION}" | cut -d'-' -f1)"
+RHS="$(echo "${VERSION}" | cut -d'-' -f2)"
+if [ -z "${RHS}" ]; then
+  RHS="0"
+fi
 
-  old <- numeric_version(sub("^Version:\\s+", "", line))
+# Bump the patch number
+: $((RHS+=1))
 
-  parts <- unclass(old)[[1]]
-  if (length(parts) < 4) {
-    parts <- c(parts, rep(0, 4 - length(parts)))
-  }
+# Replace the line in the DESCRIPTION
+REPLACEMENT="Version: ${LHS}-${RHS}"
+sed -i.backup "s/${LINE}/${REPLACEMENT}/g" DESCRIPTION
+rm DESCRIPTION.backup
 
-  parts[[4]] <- parts[[4]] + 1
-
-  new <- paste(paste(parts[1:3], collapse = "."), parts[4], sep = "-")
-  lines[[idx]] <- paste("Version:", new)
-  writeLines(lines, "DESCRIPTION")
-
-  system("git add DESCRIPTION")
-
-})
+git add DESCRIPTION
 
