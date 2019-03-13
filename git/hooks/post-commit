@@ -1,7 +1,16 @@
 #!/usr/bin/env sh
 
-VERSION="$(grep "^Version:" DESCRIPTION | cut -d' ' -f2)"
-if [ -n "${VERSION}" ]; then
-	git tag "${VERSION}"
+# Only tag commits made to master.
+REF="$(git rev-parse --abbrev-ref HEAD)"
+if [ ! "${REF}" = "master" ]; then
+	exit 0
 fi
+
+# Attempt to extract version from DESCRIPTION.
+VERSION="$(grep "^Version:" DESCRIPTION | cut -d' ' -f2)"
+if [ -z "${VERSION}" ]; then
+	exit 0
+fi
+
+git tag "${VERSION}"
 
