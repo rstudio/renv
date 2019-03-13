@@ -51,8 +51,8 @@ renv_write_activate <- function(project = NULL, version = NULL) {
   new <- renv_template_replace(template, list(VERSION = version))
 
   if (renv_file_exists(target)) {
-    old <- readLines(target, warn = FALSE)
-    if (identical(old, new))
+    old <- paste(readLines(target, warn = FALSE), collapse = "\n")
+    if (old == new)
       return(TRUE)
   }
 
