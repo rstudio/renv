@@ -172,3 +172,7 @@ env <- function(...) {
 deparsed <- function(value, width = 60L) {
   paste(deparse(value, width.cutoff = width), collapse = "\n")
 }
+
+read <- function(file) {
+  readChar(file, file.info(file)$size, useBytes = TRUE)
+}

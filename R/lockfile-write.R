@@ -31,7 +31,7 @@ renv_lockfile_write_atom <- function(key, value) {
 
   lhs <- key
   rhs <- if (is_named(value))
-    sprintf("\n\t%s=%s", names(value), value)
+    paste(sprintf("\n\t%s=%s", names(value), value), collapse = "")
   else
     paste(value, collapse = ", ")
 
