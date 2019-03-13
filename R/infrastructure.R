@@ -1,12 +1,12 @@
 
 # tools for writing / removing renv-related infrastructure
-renv_write_infrastructure <- function(project = NULL) {
+renv_write_infrastructure <- function(project = NULL, version = NULL) {
   project <- project %||% renv_project()
 
   renv_write_rprofile(project)
   renv_write_rbuildignore(project)
   renv_write_gitignore(project)
-  renv_write_activate(project)
+  renv_write_activate(project, version = version)
 }
 
 
@@ -40,17 +40,18 @@ renv_write_gitignore <- function(project) {
 
 }
 
-renv_write_activate <- function(project = NULL) {
+renv_write_activate <- function(project = NULL, version = NULL) {
   project <- project %||% renv_project()
+  version <- version %||% renv_package_version("renv")
 
   source <- system.file("resources/activate.R", package = "renv")
   target <- file.path(project, "renv/activate.R")
 
   template <- paste(readLines(source, encoding = "UTF-8"), collapse = "\n")
-  new <- sprintf(template, renv_package_version("renv"))
+  new <- sprintf(template, version)
 
   if (renv_file_exists(target)) {
-    old <- readLines(source, warn = FALSE)
+    old <- readLines(target, warn = FALSE)
     if (identical(old, new))
       return(TRUE)
   }

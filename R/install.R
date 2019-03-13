@@ -20,15 +20,12 @@
 install <- function(packages) {
 
   # create lockfile based on state of R libraries
-  lockfile <- renv_lockfile_init()
-  lockfile$R$Package <- renv_snapshot_r_packages()
-
-  # initialize restore state
-  renv_restore_begin(lockfile, packages)
+  records <- renv_snapshot_r_packages()
+  renv_restore_begin(records, packages)
   on.exit(renv_restore_end(), add = TRUE)
 
   # retrieve packages
-  records <- renv_restore_retrieve(packages, lockfile)
+  records <- renv_restore_retrieve(packages, records)
   records <- Filter(renv_install_required, records)
   renv_restore_install(records)
 
@@ -40,9 +37,6 @@ install <- function(packages) {
 # is installed, then this routine marks pkgB as requiring install
 renv_install_required <- function(record) {
 
-  state <- renv_restore_state()
-  lockfile <- state$lockfile
-
   # if installation of this package was explicitly requested, keep it
   package <- record$Package
   if (package %in% state$packages)
@@ -50,9 +44,9 @@ renv_install_required <- function(record) {
 
   # check to see if this package is already installed; if it's not
   # installed then we need to install it
-  package <- record$Package
-  record <- lockfile$R$Package[[package]]
-  if (is.null(record))
+  state <- renv_restore_state()
+  records <- state$records
+  if (is.null(records[[record$package]]))
     return(TRUE)
 
   # check and see if the installed version satisfies all requirements

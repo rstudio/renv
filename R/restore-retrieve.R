@@ -2,18 +2,18 @@
 # this routine retrieves a package + its dependencies, and as a side
 # effect populates the restore state's `retrieved` member with a
 # list of package records which can later be used for install
-renv_restore_retrieve <- function(packages, lockfile = NULL) {
+renv_restore_retrieve <- function(packages, records = NULL) {
 
   # TODO: parallel?
   for (package in packages)
-    renv_restore_retrieve_impl(package, lockfile)
+    renv_restore_retrieve_impl(package, records)
 
   state <- renv_restore_state()
-  return(state$records$data())
+  return(state$retrieved$data())
 
 }
 
-renv_restore_retrieve_impl <- function(package, lockfile) {
+renv_restore_retrieve_impl <- function(package, records) {
 
   # skip 'R' package that might be passed in here
   if (package == "R")
@@ -26,16 +26,16 @@ renv_restore_retrieve_impl <- function(package, lockfile) {
 
   # if we've already attempted retrieval of this package, skip
   state <- renv_restore_state()
-  if (exists(package, envir = state$retrieved))
+  if (exists(package, envir = state$retrieved.env))
     return()
 
-  assign(package, TRUE, envir = state$retrieved)
+  assign(package, TRUE, envir = state$retrieved.env)
 
   # extract lockfile if none provided
-  lockfile <- lockfile %||% state$lockfile
+  records <- records %||% state$records
 
   # extract the package record (attempt to construct one if missing)
-  record <- lockfile$R$Package[[package]]
+  record <- records[[package]]
 
   # if we don't have a package record, try to infer one for retrieval
   record <- record %||% renv_restore_missing_record(package)
@@ -114,12 +114,12 @@ renv_restore_retrieve_bioconductor <- function(record) {
 
 renv_restore_retrieve_github <- function(record) {
 
-  # TODO: use remotes? or use httr (so we can auth)?
   fmt <- "https://%s/repos/%s/%s/tarball/%s"
 
+  # download the tarball
   url <- with(record, sprintf(fmt, RemoteHost, RemoteUsername, RemoteRepo, RemoteSha))
-  path <- renv_paths_source(record$Package, record$RemoteSha)
-
+  suffix <- with(record, sprintf("%s/%s.tar.gz", Package, RemoteSha))
+  path <- renv_paths_source(suffix)
   renv_restore_retrieve_package(record, url, path, "source")
 
 }
@@ -229,6 +229,8 @@ renv_restore_retrieve_cran_impl <- function(record,
 
 renv_restore_retrieve_package <- function(record, url, path, type) {
 
+  state <- renv_restore_state()
+
   # if we have a cache entry, we can skip retrieval and just use that later
   cache <- renv_cache_package_path(record)
   if (file.exists(cache))
@@ -243,17 +245,23 @@ renv_restore_retrieve_package <- function(record, url, path, type) {
   }
 
   # ensure its dependencies are retrieved as well
-  deps <- renv_dependencies_discover_description(path)
-  for (package in deps$Package)
-    renv_restore_retrieve(package)
+  deps <- NULL
+  if (state$recursive) {
+    deps <- renv_dependencies_discover_description(path)
+    for (package in deps$Package)
+      renv_restore_retrieve(package)
+  }
 
-  # augment record with path, type information
+  # augment record with information from DESCRIPTION file
+  desc <- renv_description_read(path)
+  record$Package <- desc$Package
+  record$Version <- desc$Version
   record$Path <- path
   record$Type <- type
 
   # store the record for later use
   state <- renv_restore_state()
-  state$records$push(record)
+  state$retrieved$push(record)
 
   # store requirement information
   if (!empty(deps)) {
