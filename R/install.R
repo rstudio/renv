@@ -36,6 +36,7 @@ install <- function(packages) {
 # if that's the case. e.g. if pkg A requires pkgB >= 1.1, but pkgB 1.0
 # is installed, then this routine marks pkgB as requiring install
 renv_install_required <- function(record) {
+  state <- renv_restore_state()
 
   # if installation of this package was explicitly requested, keep it
   package <- record$Package
@@ -44,7 +45,6 @@ renv_install_required <- function(record) {
 
   # check to see if this package is already installed; if it's not
   # installed then we need to install it
-  state <- renv_restore_state()
   records <- state$records
   if (is.null(records[[record$package]]))
     return(TRUE)
