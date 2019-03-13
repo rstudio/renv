@@ -70,12 +70,12 @@ download <- function(url, destfile = tempfile(), quiet = FALSE) {
 
 renv_download_prepare <- function(url) {
 
-  result <- case(
-    grepl("api.github.com", url, fixed = TRUE)
-      ~ renv_download_prepare_github(url)
-  )
+  github_patterns <- c("api.github.com", "raw.githubusercontent.com")
+  for (pattern in github_patterns)
+    if (grepl(pattern, url, fixed = TRUE))
+      return(renv_download_prepare_github(url))
 
-  result %||% function() {}
+  function() {}
 
 }
 
@@ -99,7 +99,8 @@ renv_download_prepare_github <- function(url) {
   if (is.na(user))
     return(NULL)
 
-  extra <- sprintf("-L -f -u %s:%s", user, pat)
+  fmt <- "-L -f -u %s:%s -H \"Authorization: token %s\""
+  extra <- sprintf(fmt, user, pat, pat)
   saved <- options("download.file.method", "download.file.extra")
   options(download.file.method = "curl", download.file.extra = extra)
   function() { do.call(base::options, saved) }

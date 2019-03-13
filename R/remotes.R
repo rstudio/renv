@@ -53,8 +53,16 @@ renv_remotes_parse_github <- function(entry) {
   json <- renv_json_read(file)[[1]]
   sha <- json$object$sha
 
+  # now, get the DESCRIPTION contents
+  fmt <- "https://raw.githubusercontent.com/%s/%s/%s/DESCRIPTION"
+  url <- sprintf(fmt, user, repo, sha)
+  file <- tempfile()
+  download(url, destfile = file, quiet = TRUE)
+  desc <- renv_description_read(file)
+
   list(
-    Package        = repo,
+    Package        = desc$Package,
+    Version        = desc$Version,
     Source         = "GitHub",
     RemoteUsername = user,
     RemoteRepo     = repo,
