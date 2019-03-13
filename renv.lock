@@ -1,5 +1,5 @@
 [renv]
-Version=0.0.1-1016
+Version=0.0.1-1019
 
 [R]
 Version=3.5.2
@@ -82,7 +82,12 @@ Hash=efd108f5d25c72321604cc820dc08187
 Package=commonmark
 Version=1.7
 Source=CRAN
-Hash=0f9b18799791a94e0d29167469e81bcf
+RemoteType=standard
+RemoteRef=commonmark
+RemoteRepos=https://cran.rstudio.com
+RemotePkgType=macos
+RemoteSha=1.7
+Hash=06762a8501d1b1e72cafb80248cb409b
 
 [R/Package/crayon]
 Package=crayon
@@ -154,7 +159,12 @@ Hash=793d0807f1bc65c89bea7a5317fc23b6
 Package=htmltools
 Version=0.3.6
 Source=CRAN
-Hash=edb9789e8be67d354871e2210e140d1d
+RemoteType=standard
+RemoteRef=htmltools
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=0.3.6
+Hash=647eafedd4ee6c82842e3fa826df8b71
 
 [R/Package/httr]
 Package=httr
@@ -196,7 +206,12 @@ Hash=d6790aa638f865dde38afb4a0b1d596d
 Package=markdown
 Version=0.9
 Source=CRAN
-Hash=8515151150d7372bc76e0af15ef5dee0
+RemoteType=standard
+RemoteRef=markdown
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=0.9
+Hash=3e074d20540b56fe2831e553e746ff97
 
 [R/Package/memoise]
 Package=memoise
@@ -272,9 +287,9 @@ Hash=7fc75fd2365f64a2688bf58c6edb1f28
 
 [R/Package/reticulate]
 Package=reticulate
-Version=1.11.1-9000
-Source=unknown
-Hash=d96c9732bc51ceb87c38cff06094e5c8
+Version=1.11.1
+Source=CRAN
+Hash=436f2d0f8e575fc8cbec223d36019d8b
 
 [R/Package/rlang]
 Package=rlang
@@ -286,7 +301,12 @@ Hash=0f4850e1da309794b90a11104c9c7864
 Package=rmarkdown
 Version=1.11
 Source=CRAN
-Hash=ed53dfd24d55597ae47c5d4423309b8b
+RemoteType=standard
+RemoteRef=rmarkdown
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=1.11
+Hash=45b47a96aeaa703afff4bc2be7010cb3
 
 [R/Package/roxygen2]
 Package=roxygen2
@@ -338,9 +358,9 @@ Hash=371ad6be4398d66efcf8ad660acad7fa
 
 [R/Package/tinytex]
 Package=tinytex
-Version=0.10
+Version=0.11
 Source=CRAN
-Hash=11f1f08d6b1fd7b8c408c13381b0dc5a
+Hash=e3772a24a634bc0b27497265efa76305
 
 [R/Package/usethis]
 Package=usethis
@@ -382,5 +402,10 @@ Hash=206e2e3f2a410e2c61dd8a41e05e2dce
 Package=yaml
 Version=2.2.0
 Source=CRAN
-Hash=ec0778c7e1e747e26c4fd866d5097788
+RemoteType=standard
+RemoteRef=yaml
+RemoteRepos=https://cloud.r-project.org
+RemotePkgType=macos
+RemoteSha=2.2.0
+Hash=732ccdb684028967e3be6c1c2114460f
 

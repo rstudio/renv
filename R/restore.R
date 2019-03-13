@@ -131,7 +131,8 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
 
 renv_restore_run_actions <- function(actions, current, lockfile) {
 
-  renv_restore_begin(lockfile, names(actions))
+  records <- lockfile$R$Packages
+  renv_restore_begin(records, names(actions))
   on.exit(renv_restore_end(), add = TRUE)
 
   # first, handle package removals
@@ -143,8 +144,9 @@ renv_restore_run_actions <- function(actions, current, lockfile) {
   # next, handle installs
   installs <- actions[actions != "remove"]
   packages <- names(installs)
+  records <- lockfile$R$Packages
 
-  records <- renv_restore_retrieve(packages, lockfile)
+  records <- renv_restore_retrieve(packages, records)
   renv_restore_install(records)
 
 }
@@ -153,24 +155,25 @@ renv_restore_state <- function() {
   renv_global_get("restore.state")
 }
 
-renv_restore_begin <- function(lockfile = NULL, packages = NULL) {
+renv_restore_begin <- function(records = NULL, packages = NULL, recursive = TRUE) {
 
   envir <- env(
 
-    # the lockfile used for restore, providing information on
-    # the packages to be installed (their version, source, etc)
-    lockfile = lockfile,
+    # the package records used for restore, providing information
+    # on the packages to be installed (their version, source, etc)
+    records = records,
 
     # the set of packages to be installed in this restore session
     packages = packages,
 
-    # packages which we have attempted to retrieve during restore
-    retrieved = new.env(parent = emptyenv()),
+    # should package dependencies be crawled recursively? this is useful if
+    # the records list is incomplete and needs to be built as packages are
+    # downloaded
+    recursive = recursive,
 
-    # package records we've obtained after the successful retrieval
-    # of a package. note that child dependencies will come first
-    # so that packages can be installed one-by-one successfully
-    records = stack(),
+    # packages which we have attempted to retrieve during restore
+    retrieved = stack(),
+    retrieved.env = new.env(parent = emptyenv()),
 
     # a collection of the requirements imposed on dependent packages
     # as they are discovered

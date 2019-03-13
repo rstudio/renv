@@ -1,5 +1,5 @@
 
-download <- function(url, destfile = tempfile()) {
+download <- function(url, destfile = tempfile(), quiet = FALSE) {
 
   # handle local files by just copying the file
   if (grepl("file:", url)) {
@@ -8,7 +8,12 @@ download <- function(url, destfile = tempfile()) {
     return(destfile)
   }
 
-  vmessagef("Retrieving '%s' ...", url)
+  # if we're downloading a file from GitHub, make sure we're passing
+  # our username + access token (if any)
+  prepare_callback <- renv_download_prepare(url)
+  on.exit(prepare_callback(), add = TRUE)
+
+  if (!quiet) vmessagef("Retrieving '%s' ...", url)
 
   # # if the file already exists, compare its size with
   # # the server's reported size for that file
@@ -23,8 +28,8 @@ download <- function(url, destfile = tempfile()) {
   # }
 
   # back up a pre-existing file if necessary
-  callback <- renv_file_scoped_backup(destfile)
-  on.exit(callback(), add = TRUE)
+  backup_callback <- renv_file_scoped_backup(destfile)
+  on.exit(backup_callback(), add = TRUE)
 
   # request the download
   before <- Sys.time()
@@ -56,10 +61,48 @@ download <- function(url, destfile = tempfile()) {
     size <- structure(file.info(destfile)$size, class = "object_size")
     time <- round(after - before, 1)
     fmt <- "\tOK [downloaded %s in %s]"
-    messagef(fmt, format(size, units = "auto"), format(time, units = "auto"))
+    if (!quiet) vmessagef(fmt, format(size, units = "auto"), format(time, units = "auto"))
   }
 
   destfile
+
+}
+
+renv_download_prepare <- function(url) {
+
+  result <- case(
+    grepl("api.github.com", url, fixed = TRUE)
+      ~ renv_download_prepare_github(url)
+  )
+
+  result %||% function() {}
+
+}
+
+renv_download_prepare_github <- function(url) {
+
+  # do we have curl? if not, bail
+  curl <- Sys.which("curl")
+  if (!nzchar(curl))
+    return(NULL)
+
+  # do we have a GITHUB_PAT? if not, bail
+  pat <- Sys.getenv("GITHUB_PAT", unset = NA)
+  if (is.na(pat))
+    return(NULL)
+
+  # figure out the user
+  user <-
+    Sys.getenv("GITHUB_USER", unset = NA) %NA%
+    Sys.getenv("USER", unset = NA)
+
+  if (is.na(user))
+    return(NULL)
+
+  extra <- sprintf("-L -f -u %s:%s", user, pat)
+  saved <- options("download.file.method", "download.file.extra")
+  options(download.file.method = "curl", download.file.extra = extra)
+  function() { do.call(base::options, saved) }
 
 }
 

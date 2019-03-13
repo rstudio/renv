@@ -2,6 +2,12 @@
 # tools for interacting with the renv global package cache
 renv_cache_package_path <- function(record) {
 
+  # validate required fields -- if any are missing, we can't use the cache
+  required <- c("Package", "Version")
+  missing <- setdiff(required, names(record))
+  if (length(missing))
+    return("")
+
   # if we have a hash, use it directly
   if (!is.null(record$Hash)) {
     path <- with(record, renv_paths_cache(Package, Version, Hash, Package))

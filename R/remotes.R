@@ -35,14 +35,34 @@ renv_remotes_parse_cran <- function(entry) {
 }
 
 renv_remotes_parse_github <- function(entry) {
+
   parts <- strsplit(entry, "[@/]")[[1]]
+  if (length(parts) < 2)
+    stopf("invalid github remotes specification '%s'", entry)
+
+  user <- parts[1]
+  repo <- parts[2]
+  ref  <- parts[3] %NA% "master"
+
+  # first, resolve a sha that's just a reference
+  fmt <- "https://api.github.com/repos/%s/%s/git/refs/heads/%s"
+  url <- sprintf(fmt, user, repo, ref)
+  file <- tempfile()
+  download(url, destfile = file, quiet = TRUE)
+
+  json <- renv_json_read(file)[[1]]
+  sha <- json$object$sha
+
   list(
-    Package        = parts[[2]],
+    Package        = repo,
     Source         = "GitHub",
-    RemoteUsername = parts[[1]],
-    RemoteRepo     = parts[[2]],
-    RemoteSha      = parts[[3]]
+    RemoteUsername = user,
+    RemoteRepo     = repo,
+    RemoteRef      = ref,
+    RemoteSha      = sha,
+    RemoteHost     = "api.github.com"
   )
+
 }
 
 renv_remotes_snapshot <- function(project = NULL, libpaths = NULL) {

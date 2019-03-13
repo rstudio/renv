@@ -29,8 +29,10 @@ renv_description_read <- function(path, package = NULL) {
     # list files within the archive
     files <- untar(path, list = TRUE)
 
-    # find the DESCRIPTION file
-    file <- grep("^[a-zA-Z0-9._]+/DESCRIPTION$", files, value = TRUE)
+    # find the DESCRIPTION file. note that for some source tarballs (e.g.
+    # those from GitHub) the first entry may not be the package name, so
+    # just consume everything up to the first slash
+    file <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
     if (length(file) != 1)
       stopf("failed to infer path to DESCRIPTION within file '%s'", path)
 
