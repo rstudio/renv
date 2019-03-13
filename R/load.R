@@ -1,10 +1,39 @@
 
 # tools for loading an renv (typically done at R session init)
-renv_load_r_version <- function(version) {
-  if (version_compare(version, getRversion()) != 0) {
-    fmt <- "Project requested R version '%s' but '%s' is currently being used"
-    warningf(fmt, version, getRversion())
+renv_load_r <- function(fields) {
+
+  # check for missing fields
+  if (is.null(fields)) {
+    warning("missing required [R] section in lockfile")
+    return(NULL)
   }
+
+  # load repositories
+  repos <- fields$repos
+  if (!is.null(repos))
+    options(repos = repos)
+
+  # load (check) version
+  version <- fields$Version
+  if (!is.null(version)) {
+    if (version_compare(version, getRversion()) != 0) {
+      fmt <- "Project requested R version '%s' but '%s' is currently being used"
+      warningf(fmt, version, getRversion())
+    }
+  }
+
+}
+
+renv_load_bioconductor <- function(fields) {
+
+  # check for missing field
+  if (is.null(fields))
+    return(NULL)
+
+  repos <- fields$Repositories
+  if (!is.null(repos))
+    options(bioconductor.repos = repos)
+
 }
 
 renv_load_project <- function(project) {
@@ -43,10 +72,6 @@ renv_load_libpaths <- function(project = NULL) {
   lapply(libpaths, renv_library_diagnose, project = project)
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
   .libPaths(libpaths)
-}
-
-renv_load_repos <- function(repos) {
-  options(repos = repos)
 }
 
 renv_load_python <- function(project) {

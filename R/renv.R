@@ -65,8 +65,8 @@ load <- function(project = NULL) {
 
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {
-    renv_load_r_version(lockfile$R$Version)
-    renv_load_repos(lockfile$R$Repositories)
+    renv_load_r(lockfile$R)
+    renv_load_bioconductor(lockfile$Bioconductor)
   }
 
   renv_write_infrastructure(project)
