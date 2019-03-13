@@ -24,6 +24,7 @@ renv_request_restart_default <- function(project, reason, ...) {
   messagef(fmt, sprintf(reason, ...))
 
   load()
+
 }
 
 renv_request_restart_rstudio <- function(project, reason, ...) {

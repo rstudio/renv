@@ -6,7 +6,10 @@ renv_bootstrap <- function(force = FALSE) {
 
   # construct paths to currently-loaded 'renv' + destination
   # path in the bootstrap library
-  source <- renv_global_get("renv")
+  source <- Sys.getenv("RENV_HOME", unset = NA)
+  if (is.na(source))
+    stopf("internal error: RENV_HOME is not set")
+
   target <- renv_paths_bootstrap("renv", renv_package_version("renv"), "renv")
   if (renv_file_same(source, target))
     return(TRUE)
