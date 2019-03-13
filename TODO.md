@@ -25,7 +25,7 @@
       need but don't properly declare? (E.g. older versions of the `maps` package
       need `awk` installed)
       
-- [ ] `restore()` will attempt to repair the dependency tree during restore;
+- [x] `restore()` will attempt to repair the dependency tree during restore;
       e.g. dependent packages in the lockfile will be downloaded and installed
       as required. Should we prompt the user to `snapshot()` afterwards so that
       the newly-reinstalled dependencies can be captured in the lockfile?
@@ -43,7 +43,7 @@
 
 - [ ] Should we provide for project-specific options? What about download method
       management? [Motivation: users might require `curl` + `http_proxy` settings
-      to download packages from CRAN]
+      to download packages from CRAN; authentication for GitHub]
 
 - [x] Allow users to ignore certain packages in a project (e.g. those that are
       not on CRAN)
@@ -59,7 +59,7 @@
       `file.exists()` returns FALSE for broken symlinks; `renv_file_exists()`
       returns TRUE.
 
-- [ ] De-couple the 'retrieve' + 'install' steps during restore.
+- [x] De-couple the 'retrieve' + 'install' steps during restore.
 
 - [x] Include recommended packages in the lockfile? (Since R installations on
       Linux may not have these packages available). Or at least confirm that
@@ -75,28 +75,25 @@
       sources, binaries, or even the library itself for restoration on a new
       machine (potentially lacking internet access).
 
-- [ ] Provide tools for upgrading version of `renv` used to manage a project.
+- [x] Provide tools for upgrading version of `renv` used to manage a project.
+      [`renv::upgrade()`]
 
 - [ ] Think about how we might discover 'stale' entries in the cache.
 
-- [ ] Handle `renv::init()` case when another project already active (want
+- [x] Handle `renv::init()` case when another project already active (want
       to make sure we use the user library rather than active library)
 
 - [x] `renv::status()` function reporting differences between lockfile + library.
 
 - [ ] Tools for analyizing the cache?
 
-- [ ] Python: allow e.g. 'python = TRUE' for initializating a Python project.
+- [x] Python: allow e.g. 'python = TRUE' for initializating a Python project.
 
 - [ ] Python: properly handle conda environments vs. pip.
 
-- [ ] Python: teach reticulate how to load virtual environments within renv dir
-      https://github.com/rstudio/reticulate/blob/826418f765e9d34b2e746f94c0b919e5fef61a22/R/config.R#L126
-      Sketch it out first.
+- [x] Python: teach reticulate how to load virtual environments within renv dir.
 
-- [ ] Warn when lockfile contains packages from unknown source?
-
-- [ ] `renv::update()` to update the verison of `renv` used within a project.
+- [x] Warn when lockfile contains packages from unknown source?
 
 - [ ] Automatically bootstrap an `renv` installation when loading a project
       if none is available locally?

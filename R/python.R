@@ -126,10 +126,6 @@ renv_python_pip_restore <- function(project, python) {
   messagef("* Restored Python packages from '%s'.", aliased_path(path))
 }
 
-renv_python_virtualenv_root <- function() {
-  Sys.getenv("WORKON_HOME", unset = path.expand("~/.virtualenvs"))
-}
-
 renv_python_virtualenv_create <- function(path) {
   ensure_parent_directory(path)
   python <- renv_python_active_binary()
