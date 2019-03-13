@@ -48,7 +48,7 @@ renv_write_activate <- function(project = NULL, version = NULL) {
   target <- file.path(project, "renv/activate.R")
 
   template <- paste(readLines(source, encoding = "UTF-8"), collapse = "\n")
-  new <- sprintf(template, version)
+  new <- renv_template_replace(template, list(VERSION = version))
 
   if (renv_file_exists(target)) {
     old <- readLines(target, warn = FALSE)
