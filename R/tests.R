@@ -52,6 +52,13 @@ renv_tests_root <- function(path = getwd()) {
   }
 }
 
+renv_tests_init_working_dir <- function() {
+  if (exists(".rs.getProjectDirectory")) {
+    home <- get(".rs.getProjectDirectory")
+    setwd(home())
+  }
+}
+
 renv_tests_init_envvars <- function() {
   root <- tempfile("renv-root-")
   dir.create(root, showWarnings = TRUE, mode = "755")
@@ -118,9 +125,14 @@ renv_tests_init <- function() {
   if (identical(Sys.getenv("RENV_TESTS_INITIALIZED"), "TRUE"))
     return()
 
+  renv_tests_init_working_dir()
   renv_tests_init_envvars()
   renv_tests_init_options()
   renv_tests_init_repos()
   renv_tests_init_packages()
 
+}
+
+renv_testing <- function() {
+  Sys.getenv("RENV_TESTS_INITIALIZED") == "TRUE"
 }
