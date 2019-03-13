@@ -18,6 +18,11 @@ local({
   path <- paths[[1]]
   try({
 
+    message("Failed to find installation of renv -- attempting to bootstrap...")
+
+    owd <- setwd(tempdir())
+    on.exit(setwd(owd), add = TRUE)
+
     pat <- Sys.getenv("GITHUB_PAT")
     if (nzchar(Sys.which("curl")) && nzchar(pat)) {
       extra <- sprintf("-L -f -H \"Authorization: token %s\"", pat)
@@ -40,9 +45,6 @@ local({
     utils::download.file(url, destfile = destfile, mode = "wb", quiet = TRUE)
     message("Done!")
 
-    # avoid running user .Rprofile here
-    Sys.setenv(R_PROFILE_USER = "")
-
     # attempt to install it into bootstrap library
     message("* Installing renv ", version, " ... ", appendLF = FALSE)
     dir.create(path, showWarnings = FALSE, recursive = TRUE)
@@ -52,8 +54,10 @@ local({
   })
 
   # try again to load
-  if (requireNamespace("renv", lib.loc = path, quietly = TRUE))
+  if (requireNamespace("renv", lib.loc = path, quietly = TRUE)) {
+    message("Successfully installed and loaded renv ", version, ".")
     return(renv::load())
+  }
 
   # failed to download or load renv; warn the user
   msg <- c(
