@@ -1,4 +1,5 @@
 
+# TODO: get rid of all of this once the requisite APIs become part of remotes
 renv_remotes_read <- function(remotes = NULL) {
   remotes <- remotes %||% renv_remotes_path()
   contents <- readLines(remotes, warn = FALSE)
@@ -47,18 +48,21 @@ renv_remotes_parse_github <- function(entry) {
   # first, resolve a sha that's just a reference
   fmt <- "https://api.github.com/repos/%s/%s/git/refs/heads/%s"
   url <- sprintf(fmt, user, repo, ref)
-  file <- tempfile()
-  download(url, destfile = file, quiet = TRUE)
+  jsonfile <- tempfile(pattern = "renv-github-ref-", fileext = ".json")
+  on.exit(unlink(jsonfile), add = TRUE)
+  download(url, destfile = jsonfile, quiet = TRUE)
 
-  json <- renv_json_read(file)[[1]]
+  json <- renv_json_read(jsonfile)[[1]]
   sha <- json$object$sha
 
   # now, get the DESCRIPTION contents
   fmt <- "https://raw.githubusercontent.com/%s/%s/%s/DESCRIPTION"
   url <- sprintf(fmt, user, repo, sha)
-  file <- tempfile()
-  download(url, destfile = file, quiet = TRUE)
-  desc <- renv_description_read(file)
+  descfile <- tempfile()
+  download(url, destfile = descfile, quiet = TRUE)
+  on.exit(unlink(descfile), add = TRUE)
+
+  desc <- renv_description_read(descfile)
 
   list(
     Package        = desc$Package,

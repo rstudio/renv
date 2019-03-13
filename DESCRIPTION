@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Embedded Virtual Environments for R
-Version: 0.0.1-1036
+Version: 0.0.1-1038
 Author: Kevin Ushey
 Maintainer: Kevin Ushey <kevin@rstudio.com>
 Description: Use 'renv' to create and manage project-local R dependencies.
