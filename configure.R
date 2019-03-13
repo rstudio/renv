@@ -3,7 +3,7 @@
 # just so that the renv cache entry is invalidated eagerly
 local({
 
-  if (!file.exists("internal"))
+  if (!file.exists(".git"))
     return()
 
   lines <- readLines("DESCRIPTION")
