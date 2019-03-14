@@ -2,9 +2,6 @@
 ^\.Rproj\.user$
 
 ^TODO\.md$
-^configure$
-^configure\.win$
-^configure\.R$
 ^renv\.lock$
 ^requirements\.txt$
 
