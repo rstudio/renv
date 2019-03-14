@@ -2,68 +2,68 @@
 download <- function(url, destfile = tempfile(), quiet = FALSE) {
 
   # handle local files by just copying the file
-  if (grepl("file:", url)) {
+  if (grepl("^file:", url)) {
     source <- sub("^file:(?://)?", "", url)
     renv_file_copy(source, destfile, overwrite = TRUE)
     return(destfile)
   }
 
-  # if we're downloading a file from GitHub, make sure we're passing
-  # our username + access token (if any)
+  # prepare for the download (doing things like setting download.file.method,
+  # download.file.extra as needed for the download source)
   prepare_callback <- renv_download_prepare(url)
   on.exit(prepare_callback(), add = TRUE)
 
   if (!quiet) vmessagef("Retrieving '%s' ...", url)
 
-  # # if the file already exists, compare its size with
-  # # the server's reported size for that file
-  # headers <- renv_download_headers(url)
-  # if (renv_file_exists(destfile)) {
-  #   size <- file.size(destfile)
-  #   reported <- as.numeric(headers$`Content-Length`)
-  #   if (size == reported) {
-  #     messagef("\tOK [file is up-to-date]")
-  #     return(destfile)
-  #   }
-  # }
+  # if the file already exists, compare its size with
+  # the server's reported size for that file
+  reported_size <- renv_download_size(url)
+  if (reported_size != -1 && renv_file_exists(destfile)) {
+    if (file.size(destfile) == reported_size) {
+      messagef("\tOK [file is up-to-date]")
+      return(destfile)
+    }
+  }
 
   # back up a pre-existing file if necessary
   backup_callback <- renv_file_scoped_backup(destfile)
   on.exit(backup_callback(), add = TRUE)
 
+  # form path to temporary file
+  tempfile <- tempfile("renv-download-", tmpdir = dirname(destfile))
+  on.exit(unlink(tempfile), add = TRUE)
+
   # request the download
   before <- Sys.time()
-  status <- catch(download.file(url, destfile, quiet = TRUE, mode = "wb"))
+  status <- catch(download.file(url, tempfile, quiet = TRUE, mode = "wb"))
   after <- Sys.time()
 
   # check for failure
-  if (inherits(status, "error")) {
-    unlink(destfile, recursive = TRUE)
+  if (inherits(status, "error"))
     stopf("download failed [%s]", conditionMessage(status))
-  }
 
-  if (status != 0L) {
-    unlink(destfile, recursive = TRUE)
+  if (status != 0L)
     stopf("download failed [error code %i]", status)
-  }
 
-  if (!renv_file_exists(destfile))
+  if (!renv_file_exists(tempfile))
     stopf("download failed [unknown reason]")
 
-  # # double-check that the reported size is correct
-  # size <- file.size(destfile)
-  # reported <- as.numeric(headers$`Content-Length`)
-  # if (size != reported)
-  #   stopf("download failed [file was truncated]")
+  # double-check that the reported size is correct
+  if (reported_size != -1 && file.size(tempfile) != reported_size)
+    stopf("download failed [file was truncated]")
 
   # everything looks ok: report success
   if (renv_verbose()) {
-    size <- structure(file.info(destfile)$size, class = "object_size")
+    size <- structure(file.info(tempfile)$size, class = "object_size")
     time <- round(after - before, 1)
     fmt <- "\tOK [downloaded %s in %s]"
     if (!quiet) vmessagef(fmt, format(size, units = "auto"), format(time, units = "auto"))
   }
 
+  # move the file to the requested location
+  renv_file_move(tempfile, destfile)
+
+  # and return path to successfully retrieved file
   destfile
 
 }
@@ -109,12 +109,30 @@ renv_download_headers_curl <- function(url) {
   fmt <- "%s --silent --location --head %s 2>&1"
   cmd <- sprintf(fmt, shQuote(Sys.which("curl")), shQuote(url))
   output <- trimws(system(cmd, intern = TRUE))
-  renv_dcf_read(textConnection(output[-1L]))
+  dcf <- renv_dcf_read(textConnection(output[-1L]))
+  names(dcf) <- tolower(names(dcf))
+  dcf
 }
 
 renv_download_headers_wget <- function(url) {
   fmt <- "%s --quiet --server-response --spider %s 2>&1"
   cmd <- sprintf(fmt, shQuote(Sys.which("wget")), shQuote(url))
   output <- trimws(system(cmd, intern = TRUE))
-  renv_dcf_read(textConnection(output[-1L]))
+  dcf <- renv_dcf_read(textConnection(output[-1L]))
+  names(dcf) <- tolower(names(dcf))
+  dcf
+}
+
+renv_download_size <- function(url) {
+
+  headers <- catch(renv_download_headers(url))
+  if (inherits(headers, "error"))
+    return(-1)
+
+  size <- headers[["content-length"]]
+  if (is.null(size))
+    return(-1)
+
+  as.numeric(size)
+
 }
