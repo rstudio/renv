@@ -113,14 +113,14 @@ version_compare <- function(lhs, rhs) {
 }
 
 catch <- function(expr, ...) {
-  if (renv_debug())
+  if (renv_debugging())
     expr
   else
     tryCatch(expr, error = identity, ...)
 }
 
 catchall <- function(expr) {
-  if (renv_debug())
+  if (renv_debugging())
     expr
   else
     tryCatch(expr, condition = identity)
