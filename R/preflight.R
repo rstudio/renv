@@ -55,8 +55,8 @@ renv_preflight_compiler <- function(problems) {
 renv_preflight_java <- function(lockfile, problems) {
 
   # no need to check if we're not using rJava
-  packages <- lockfile$R$Package
-  if (is.null(packages[["rJava"]]))
+  records <- renv_records(lockfile)
+  if (is.null(records[["rJava"]]))
     return(TRUE)
 
   # TODO: no need to do anything if we're only installing binaries?

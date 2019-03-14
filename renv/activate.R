@@ -1,7 +1,7 @@
 
 local({
 
-  version <- "0.1.0-25"
+  version <- "0.1.0-38"
 
   # try to find a path where renv might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
@@ -20,9 +20,17 @@ local({
 
     message("Failed to find installation of renv -- attempting to bootstrap...")
 
-    owd <- setwd(tempdir())
-    on.exit(setwd(owd), add = TRUE)
+    # ensure .Rprofile doesn't get executed
+    rpu <- Sys.getenv("R_PROFILE_USER", unset = NA)
+    Sys.setenv(R_PROFILE_USER = "<NA>")
+    on.exit({
+      if (is.na(rpu))
+        Sys.unsetenv("R_PROFILE_USER")
+      else
+        Sys.setenv(R_PROFILE_USER = rpu)
+    }, add = TRUE)
 
+    # prepare download options
     pat <- Sys.getenv("GITHUB_PAT")
     if (nzchar(Sys.which("curl")) && nzchar(pat)) {
       extra <- sprintf("-L -f -H \"Authorization: token %s\"", pat)

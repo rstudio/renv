@@ -38,27 +38,34 @@ renv_status_report <- function(lock, curr) {
     vmessagef("* The project is already synchronized with the lockfile.")
 
   if ("install" %in% actions) {
-    msg <- "The following package(s) are installed but not recorded in the lockfile:"
-    renv_pretty_print(msg, curr, actions, "install")
-    writeLines("Use `renv::snapshot()` to add these packages to your lockfile.")
+    renv_pretty_print(
+      renv_records_select(curr, actions, "install"),
+      "The following package(s) are installed but not recorded in the lockfile:",
+      "Use `renv::snapshot()` to add these packages to your lockfile."
+    )
     writeLines("")
   }
 
   if ("remove" %in% actions) {
-    msg <- "The following package(s) are recorded in the lockfile but not installed:"
-    renv_pretty_print(msg, lock, actions, "remove")
-    writeLines("Use `renv::restore(actions = \"install\")` to install these packages.")
+    renv_pretty_print(
+      renv_records_select(lock, actions, "remove"),
+      "The following package(s) are recorded in the lockfile but not installed:",
+      "Use `renv::restore(actions = \"install\")` to install these packages."
+    )
     writeLines("")
   }
 
   rest <- c("upgrade", "downgrade", "crossgrade")
   if (any(rest %in% actions)) {
 
+    rlock <- renv_records(lock)
+    rcurr <- renv_records(curr)
+
     matches <- actions[actions %in% rest]
     data <- data.frame(
       "  Package"          = names(matches),
-      "  Lockfile Version" = extract_chr(lock$R$Package[names(matches)], "Version"),
-      "  Library Version"  = extract_chr(curr$R$Package[names(matches)], "Version"),
+      "  Lockfile Version" = extract_chr(rlock[names(matches)], "Version"),
+      "  Library Version"  = extract_chr(rcurr[names(matches)], "Version"),
       row.names            = NULL,
       stringsAsFactors     = FALSE,
       check.names          = FALSE

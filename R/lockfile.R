@@ -158,9 +158,9 @@ renv_lockfile_sort <- function(lockfile) {
   on.exit(Sys.setlocale("LC_COLLATE", locale = locale), add = TRUE)
 
   # sort R packages (if any)
-  packages <- lockfile$R$Package
-  packages <- packages[sort(names(packages))]
-  lockfile$R$Package <- packages
+  records <- lockfile$R$Package
+  sorted <- records[sort(names(records))]
+  lockfile$R$Package <- sorted
 
   # return post-sort
   lockfile

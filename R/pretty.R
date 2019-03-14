@@ -1,30 +1,27 @@
 
-renv_pretty_print <- function(message, lockfile, actions, action) {
+renv_pretty_print <- function(records, preamble = NULL, postamble = NULL) {
 
-  matches <- actions[actions == action]
-  if (empty(matches))
-    return()
-
-  entries <- lockfile$R$Package[names(matches)]
   formatted <- named(
-    sprintf("  [%s]", map_chr(extract(entries, "Version"), format)),
-    sprintf("  %s",   map_chr(extract(entries, "Package"), format))
+    sprintf("  [%s]", map_chr(extract(records, "Version"), format)),
+    sprintf("  %s",   map_chr(extract(records, "Package"), format))
   )
 
-  writeLines(message)
+  preamble %&&% writeLines(preamble)
   print.simple.list(formatted)
   writeLines("")
+  postamble %&&% writeLines(postamble)
+
+  invisible(NULL)
 
 }
 
-renv_pretty_print_pair <- function(message, old, new, actions, action) {
+renv_pretty_print_pair <- function(before, after, preamble = NULL, postamble = NULL) {
 
-  matches <- actions[actions %in% action]
-  if (empty(matches))
-    return()
+  if (!setequal(names(before), names(after)))
+    stopf("internal error: names mismatch", call. = TRUE)
 
-  before <- old$R$Package[names(matches)]
-  after  <- new$R$Package[names(matches)]
+  nm <- intersect(names(before), names(after))
+  before <- before[nm]; after <- after[nm]
 
   formatted <- sprintf(
     "  [%s -> %s]",
@@ -34,9 +31,12 @@ renv_pretty_print_pair <- function(message, old, new, actions, action) {
 
   names(formatted) <- sprintf("  %s", extract_chr(before, "Package"))
 
-  writeLines(message)
+  preamble %&&% writeLines(preamble)
   print.simple.list(formatted)
   writeLines("")
+  postamble %&&% writeLines(postamble)
+
+  invisible(NULL)
 
 }
 

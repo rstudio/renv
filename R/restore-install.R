@@ -127,11 +127,6 @@ renv_restore_install_package_options <- function(package) {
   options[[package]]
 }
 
-renv_restore_install_unknown_source <- function(record) {
-  fmt <- "can't restore package '%s': '%s' is an unrecognized source."
-  stopf(fmt, record$Package, record$Source, call. = FALSE)
-}
-
 renv_restore_install_report_status <- function(record, status) {
 
   if (inherits(status, "error")) {

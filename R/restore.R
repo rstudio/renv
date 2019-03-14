@@ -87,6 +87,14 @@ restore <- function(project  = NULL,
     return(invisible(diff))
   }
 
+  # check for packages installed from an unknown source
+  if (renv_restore_report_unknown_source(diff, lockfile)) {
+    if (confirm && !proceed()) {
+      message("Operation aborted.")
+      return(invisible(diff))
+    }
+  }
+
   if (confirm || renv_verbose())
     renv_restore_report_actions(diff, current, lockfile)
 
@@ -131,7 +139,7 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
 
 renv_restore_run_actions <- function(actions, current, lockfile) {
 
-  records <- lockfile$R$Package
+  records <- renv_records(lockfile)
   renv_restore_begin(records, names(actions))
   on.exit(renv_restore_end(), add = TRUE)
 
@@ -144,7 +152,7 @@ renv_restore_run_actions <- function(actions, current, lockfile) {
   # next, handle installs
   installs <- actions[actions != "remove"]
   packages <- names(installs)
-  records <- lockfile$R$Package
+  records <- renv_records(lockfile)
 
   records <- renv_restore_retrieve(packages, records)
   renv_restore_install(records)
@@ -189,37 +197,70 @@ renv_restore_end <- function() {
   renv_global_clear("restore.state")
 }
 
+renv_restore_report_unknown_source <- function(actions, lockfile) {
+
+  records <- renv_records(lockfile)
+  matching <- records[names(actions)]
+  unknown <- Filter(
+    function(record) record$Source %in% "unknown",
+    matching
+  )
+
+  if (empty(unknown))
+    return(FALSE)
+
+  renv_pretty_print(
+    unknown,
+    "The following package(s) were installed from an unknown source:",
+    "renv will attempt to install the latest version(s) from CRAN instead."
+  )
+
+  TRUE
+
+}
+
 renv_restore_report_actions <- function(actions, current, lockfile) {
 
   if ("install" %in% actions) {
-    msg <- "The following package(s) will be installed:"
-    renv_pretty_print(msg, lockfile, actions, "install")
+    renv_pretty_print(
+      renv_records_select(lockfile, actions, "install"),
+      "The following package(s) will be installed:"
+    )
   }
 
   if ("remove" %in% actions) {
-    msg <- "The following package(s) will be removed:"
-    renv_pretty_print(msg, current, actions, "remove")
+    renv_pretty_print(
+      renv_records_select(current, actions, "remove"),
+      "The following package(s) will be removed:"
+    )
   }
 
   if ("upgrade" %in% actions) {
-    msg <- "The following package(s) will be upgraded:"
-    renv_pretty_print_pair(msg, current, lockfile, actions, "upgrade")
+    renv_pretty_print(
+      renv_records_select(lockfile, actions, "upgrade"),
+      "The following package(s) will be upgraded:"
+    )
   }
 
   if ("downgrade" %in% actions) {
-    msg <- "The following package(s) will be downgraded:"
-    renv_pretty_print_pair(msg, current, lockfile, actions, "downgrade")
+    renv_pretty_print(
+      renv_records_select(lockfile, actions, "downgrade"),
+      "The following package(s) will be downgraded:"
+    )
   }
 
   if ("crossgrade" %in% actions) {
-    msg <- "The following package(s) will be modified:"
-    renv_pretty_print_pair(msg, current, lockfile, actions, "crossgrade")
+    renv_pretty_print(
+      renv_records_select(lockfile, actions, "crossgrade"),
+      "The following package(s) will be modified:"
+    )
   }
 
 }
 
 renv_restore_remove <- function(package, lockfile) {
-  record <- lockfile$R$Package[[package]]
+  records <- renv_records(lockfile)
+  record <- records[[package]]
   messagef("Removing %s [%s] ...", package, record$Version)
   remove.packages(package, renv_paths_library(record$Library) %||% NULL)
   message("\tOK (removed from library)")
