@@ -1,14 +1,16 @@
 
-renv_envvars_save <- function() {
-
-  # define the envvars we need to keep track of
-  sources <- c(
+renv_envvars <- function() {
+  c(
     "R_PROFILE", "R_PROFILE_USER",
     "R_ENVIRON", "R_ENVIRON_USER",
     "R_LIBS_USER", "R_LIBS_SITE", "R_LIBS"
   )
+}
+
+renv_envvars_save <- function() {
 
   # save the common set of environment variables
+  sources <- renv_envvars()
   env <- Sys.getenv(sources, unset = "<NA>")
   names(env) <- paste("RENV_DEFAULT", names(env), sep = "_")
   do.call(Sys.setenv, as.list(env))
