@@ -91,8 +91,7 @@ renv_download_prepare_github <- function(url) {
   if (is.na(pat))
     return(NULL)
 
-  fmt <- "-L -f -H \"Authorization: token %s\""
-  extra <- sprintf(fmt, user, pat, pat)
+  extra <- sprintf("-L -f -H \"Authorization: token %s\"", pat)
   saved <- options("download.file.method", "download.file.extra")
   options(download.file.method = "curl", download.file.extra = extra)
   function() { do.call(base::options, saved) }
