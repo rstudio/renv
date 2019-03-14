@@ -50,7 +50,7 @@ dependencies <- function(path = getwd()) {
 
 renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
 
-  info <- file.info(path)
+  info <- file.info(path, extra_cols = FALSE)
   if (is.na(info$isdir))
     stopf("file '%s' does not exist", path)
 

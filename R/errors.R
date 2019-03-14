@@ -16,7 +16,7 @@ ensure_existing_file <- function(path) {
 
 ensure_directory <- function(path) {
 
-  info <- file.info(path)
+  info <- file.info(path, extra_cols = FALSE)
   if (identical(info$isdir, FALSE))
     stopf("path '%s' exists but is not a directory", path)
 
