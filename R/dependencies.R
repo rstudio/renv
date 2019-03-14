@@ -1,7 +1,19 @@
 
 #' Find R Package Dependencies in a Project
 #'
-#' Find \R packages used within a project.
+#' Find \R packages used within a project. `dependencies()` will crawl files
+#' within your project, looking for \R files and the packages used within those
+#' \R files. This is done primarily by parsing the code and looking for calls of
+#' the form:
+#'
+#' - `library(package)`
+#' - `require(package)`
+#' - `requireNamespace("package")`
+#' - `package::method()`
+#'
+#' For \R package projects, dependencies expressed in the `DESCRIPTION` file
+#' will also be discovered. Note that the `rmarkdown` package is required in
+#' order to crawl dependencies in R Markdown files.
 #'
 #' @section Ignoring Files:
 #'
