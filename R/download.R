@@ -54,7 +54,7 @@ download <- function(url, destfile = tempfile(), quiet = FALSE) {
 
   # everything looks ok: report success
   if (renv_verbose()) {
-    size <- structure(file.info(tempfile)$size, class = "object_size")
+    size <- structure(file.size(tempfile), class = "object_size")
     time <- round(after - before, 1)
     fmt <- "\tOK [downloaded %s in %s]"
     if (!quiet) vmessagef(fmt, format(size, units = "auto"), format(time, units = "auto"))

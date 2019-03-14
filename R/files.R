@@ -28,7 +28,7 @@ renv_file_copy <- function(source, target, overwrite = FALSE) {
   on.exit(callback(), add = TRUE)
 
   # check to see if we're copying a plain file -- if so, things are simpler
-  info <- file.info(source)
+  info <- file.info(source, extra_cols = FALSE)
   case(
     identical(info$isdir, FALSE) ~ renv_file_copy_file(source, target),
     identical(info$isdir, TRUE)  ~ renv_file_copy_dir(source, target)

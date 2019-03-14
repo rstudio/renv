@@ -174,5 +174,5 @@ deparsed <- function(value, width = 60L) {
 }
 
 read <- function(file) {
-  readChar(file, file.info(file)$size, useBytes = TRUE)
+  readChar(file, file.size(file), useBytes = TRUE)
 }
