@@ -34,7 +34,9 @@ renv_lockfile_diff_impl <- function(lhs, rhs) {
 
 renv_lockfile_diff_packages <- function(old, new) {
 
-  old <- old$R$Package; new <- new$R$Package
+  old <- renv_records(old)
+  new <- renv_records(new)
+
   packages <- named(union(names(old), names(new)))
   actions <- lapply(packages, function(package) {
 

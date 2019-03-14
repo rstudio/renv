@@ -76,7 +76,7 @@ renv_snapshot_validate <- function(lockfile, confirm) {
 
 renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
 
-  records <- lockfile$R$Package
+  records <- renv_records(lockfile)
   installed <- as.data.frame(installed.packages(), stringsAsFactors = FALSE)
   missing <- lapply(records, function(record) {
     path <- renv_paths_library(record$Library, record$Package)
@@ -105,7 +105,7 @@ renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
 
 renv_snapshot_validate_sources <- function(lockfile, confirm) {
 
-  records <- lockfile$R$Package
+  records <- renv_records(lockfile)
   unknown <- Filter(
     function(record) (record$Source %||% "") == "unknown",
     records
@@ -254,28 +254,41 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     return(invisible())
 
   if ("install" %in% actions) {
-    msg <- "The following package(s) will be added to the lockfile:"
-    renv_pretty_print(msg, new, actions, "install")
+    renv_pretty_print(
+      renv_records_select(new, actions, "install"),
+      "The following package(s) will be added to the lockfile:"
+    )
   }
 
   if ("remove" %in% actions) {
-    msg <- "The following package(s) will be removed from the lockfile:"
-    renv_pretty_print(msg, old, actions, "remove")
+    renv_pretty_print(
+      renv_records_select(old, actions, "remove"),
+      "The following package(s) will be removed from the lockfile:"
+    )
   }
 
   if ("upgrade" %in% actions) {
-    msg <- "The following package(s) will be upgraded in the lockfile:"
-    renv_pretty_print_pair(msg, old, new, actions, "upgrade")
+    renv_pretty_print_pair(
+      renv_records_select(old, actions, "upgrade"),
+      renv_records_select(new, actions, "upgrade"),
+      "The following package(s) will be upgraded in the lockfile:"
+    )
   }
 
   if ("downgrade" %in% actions) {
-    msg <- "The following package(s) will be downgraded in the lockfile:"
-    renv_pretty_print_pair(msg, old, new, actions, "downgrade")
+    renv_pretty_print_pair(
+      renv_records_select(old, actions, "downgrade"),
+      renv_records_select(new, actions, "downgrade"),
+      "The following package(s) will be downgraded in the lockfile:"
+    )
   }
 
   if ("crossgrade" %in% actions) {
-    msg <- "The following package(s) will be modified in the lockfile:"
-    renv_pretty_print_pair(msg, old, new, actions, "crossgrade")
+    renv_pretty_print_pair(
+      renv_records_select(old, actions, "crossgrade"),
+      renv_records_select(new, actions, "crossgrade"),
+      "The following package(s) will be modified in the lockfile:"
+    )
   }
 
 }

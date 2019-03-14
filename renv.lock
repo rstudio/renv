@@ -1,5 +1,5 @@
 [renv]
-Version=0.1.0-25
+Version=0.1.0-38
 
 [R]
 Version=3.5.2
@@ -317,6 +317,12 @@ Package=sessioninfo
 Version=1.1.1
 Source=CRAN
 Hash=3ed8be6e4adff35515f2bc17377c280e
+
+[R/Package/sourcetools]
+Package=sourcetools
+Version=0.1.7
+Source=CRAN
+Hash=5b6c41bd364b1a3cdc3825c7b5aa8776
 
 [R/Package/stringi]
 Package=stringi
