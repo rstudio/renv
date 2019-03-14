@@ -91,15 +91,7 @@ renv_download_prepare_github <- function(url) {
   if (is.na(pat))
     return(NULL)
 
-  # figure out the user
-  user <-
-    Sys.getenv("GITHUB_USER", unset = NA) %NA%
-    Sys.getenv("USER", unset = NA)
-
-  if (is.na(user))
-    return(NULL)
-
-  fmt <- "-L -f -u %s:%s -H \"Authorization: token %s\""
+  fmt <- "-L -f -H \"Authorization: token %s\""
   extra <- sprintf(fmt, user, pat, pat)
   saved <- options("download.file.method", "download.file.extra")
   options(download.file.method = "curl", download.file.extra = extra)
