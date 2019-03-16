@@ -88,12 +88,13 @@ renv_paths_binary <- function(...) {
   renv_paths_common("binary", renv_paths_root, FALSE, ...)
 }
 
-renv_paths_cache <- function(...) {
-  renv_paths_common("cache", renv_paths_root, FALSE, ...)
-}
-
 renv_paths_repos <- function(...) {
   renv_paths_common("repos", renv_paths_root, FALSE, ...)
+}
+
+renv_paths_cache <- function(...) {
+  cacheroot <- file.path("cache", renv_cache_version())
+  renv_paths_common(cacheroot, renv_paths_root, FALSE, ...)
 }
 
 renv_paths_extsoft <- function(...) {

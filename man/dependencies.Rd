@@ -11,7 +11,22 @@ dependencies(path = getwd())
 containing such files.}
 }
 \description{
-Find \R packages used within a project.
+Find \R packages used within a project. \code{dependencies()} will crawl files
+within your project, looking for \R files and the packages used within those
+\R files. This is done primarily by parsing the code and looking for calls of
+the form:
+}
+\details{
+\itemize{
+\item \code{library(package)}
+\item \code{require(package)}
+\item \code{requireNamespace("package")}
+\item \code{package::method()}
+}
+
+For \R package projects, dependencies expressed in the \code{DESCRIPTION} file
+will also be discovered. Note that the \code{rmarkdown} package is required in
+order to crawl dependencies in R Markdown files.
 }
 \section{Ignoring Files}{
 

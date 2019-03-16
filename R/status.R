@@ -24,6 +24,10 @@ renv_status <- function(project) {
     return(NULL)
   }
 
+  # report status of cache
+  if (settings$use.cache())
+    renv_cache_diagnose()
+
   # compare the lockfile with current state of library
   lock <- renv_lockfile_read(lockpath)
   curr <- snapshot(file = NULL)
@@ -43,7 +47,6 @@ renv_status_report <- function(lock, curr) {
       "The following package(s) are installed but not recorded in the lockfile:",
       "Use `renv::snapshot()` to add these packages to your lockfile."
     )
-    writeLines("")
   }
 
   if ("remove" %in% actions) {
@@ -52,7 +55,6 @@ renv_status_report <- function(lock, curr) {
       "The following package(s) are recorded in the lockfile but not installed:",
       "Use `renv::restore(actions = \"install\")` to install these packages."
     )
-    writeLines("")
   }
 
   rest <- c("upgrade", "downgrade", "crossgrade")

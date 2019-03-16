@@ -1,5 +1,5 @@
 [renv]
-Version=0.1.0-38
+Version=0.1.0-41
 
 [R]
 Version=3.5.2
@@ -204,12 +204,6 @@ Version=1.1.0
 Source=CRAN
 Hash=7a2d27a40e0db21db40225515fa672e5
 
-[R/Package/microbenchmark]
-Package=microbenchmark
-Version=1.4-6
-Source=CRAN
-Hash=efa728acc42eec89df8bb65b0adc50ad
-
 [R/Package/mime]
 Package=mime
 Version=0.6
@@ -278,9 +272,9 @@ Hash=7fc75fd2365f64a2688bf58c6edb1f28
 
 [R/Package/reticulate]
 Package=reticulate
-Version=1.11.1
-Source=CRAN
-Hash=436f2d0f8e575fc8cbec223d36019d8b
+Version=1.9.0.9001
+Source=unknown
+Hash=4db951be6063ca09a8d8691ce27694db
 
 [R/Package/rlang]
 Package=rlang
@@ -318,12 +312,6 @@ Version=1.1.1
 Source=CRAN
 Hash=3ed8be6e4adff35515f2bc17377c280e
 
-[R/Package/sourcetools]
-Package=sourcetools
-Version=0.1.7
-Source=CRAN
-Hash=5b6c41bd364b1a3cdc3825c7b5aa8776
-
 [R/Package/stringi]
 Package=stringi
 Version=1.4.3
@@ -360,12 +348,6 @@ Version=1.4.0
 Source=CRAN
 Hash=fa8e09f504b2dc3308c4204673e36114
 
-[R/Package/whisker]
-Package=whisker
-Version=0.3-2
-Source=CRAN
-Hash=ec2ea5d58af9c9088004c49d4276a227
-
 [R/Package/withr]
 Package=withr
 Version=2.1.2
@@ -376,7 +358,7 @@ Hash=9774aa39d5b69c80d070c28cb5d5e250
 Package=xfun
 Version=0.5
 Source=CRAN
-Hash=5f3c37851b3373f624946fc8964d5500
+Hash=ed1fb06fe91c4f57610bb66dc7d00f1d
 
 [R/Package/xml2]
 Package=xml2

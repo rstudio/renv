@@ -5,11 +5,12 @@ renv_verbose <- function() {
   if (!is.null(verbose))
     return(verbose)
 
-  verbose <- Sys.getenv("RENV_VERBOSE", interactive())
-  if (verbose)
+  verbose <- Sys.getenv("RENV_VERBOSE", unset = NA)
+  if (!is.na(verbose))
     return(TRUE)
 
-  FALSE
+  interactive()
+
 }
 
 renv_verbose_with <- function(verbose, expr) {

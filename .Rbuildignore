@@ -5,8 +5,8 @@
 ^renv\.lock$
 ^requirements\.txt$
 
-^git/
-^internal/
-^renv/
+^git$
+^internal$
+^renv$
 
 \.renvignore$

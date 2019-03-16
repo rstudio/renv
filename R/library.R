@@ -26,10 +26,7 @@ renv_library_diagnose <- function(project = NULL, libpath) {
     renv_pretty_print_packages(
       basename(children[missing]),
       "The following package(s) are missing entries in the cache:",
-      if (file.exists(file.path(project, "renv.lock")))
-        "Use `renv::restore()` to reinstall these packages."
-      else
-        "These packages will need to be reinstalled.",
+      "These packages will need to be reinstalled.",
       warningf
     )
 

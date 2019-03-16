@@ -9,10 +9,10 @@ renv_shim_install_packages <- function(pkgs, ...) {
 
   # currently we only handle the case where only 'pkgs' was specified
   if (missing(pkgs) || nargs() != 1)
-    return(renv_delegate(utils::install.packages))
+    return(renv_delegate(install.packages))
 
   # otherwise, we get to handle it
-  renv::install(pkgs)
+  install(pkgs)
 
 }
 
@@ -20,11 +20,21 @@ renv_shim_update_packages <- function(lib.loc, ...) {
 
   # handle only 0-argument case
   if (nargs() != 0)
-    return(renv_delegate(utils::update.packages))
+    return(renv_delegate(update.packages))
 
   # otherwise, check to see what packages require updates, and then install
   old <- as.data.frame(old.packages(), stringsAsFactors = FALSE)
-  renv::install(old$Package)
+  install(old$Package)
+
+}
+
+renv_shim_remove_packages <- function(pkgs, lib) {
+
+  # handle single-argument case
+  if (nargs() != 1)
+    return(renv_delegate(remove.packages))
+
+  remove(pkgs)
 
 }
 
@@ -35,9 +45,6 @@ renv_shim <- function(shim, sham) {
 
 renv_shims_init <- function() {
 
-  if (!interactive())
-    return()
-
   while ("renv:shims" %in% search())
     detach("renv:shims")
 
@@ -45,12 +52,17 @@ renv_shims_init <- function() {
 
   envir$install.packages <- renv_shim(
     renv_shim_install_packages,
-    utils::install.packages
+    install.packages
   )
 
   envir$update.packages <- renv_shim(
     renv_shim_update_packages,
-    utils::update.packages
+    update.packages
+  )
+
+  envir$remove.packages <- renv_shim(
+    renv_shim_remove_packages,
+    remove.packages
   )
 
 }

@@ -29,8 +29,6 @@ renv_extsoft_install <- function() {
       wrap = FALSE
     )
 
-    writeLines("")
-
     renv_pretty_print_packages(
       normalizePath(paths, winslash = "/"),
       "R Makeconf files are located at:",

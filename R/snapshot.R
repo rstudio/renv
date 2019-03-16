@@ -171,9 +171,26 @@ renv_snapshot_r_packages <- function(library = NULL) {
 
 renv_snapshot_r_library_diagnose <- function(library, pkgs) {
 
+  pkgs <- renv_snapshot_r_library_diagnose_broken_link(library, pkgs)
   pkgs <- renv_snapshot_r_library_diagnose_tempfile(library, pkgs)
   pkgs <- renv_snapshot_r_library_diagnose_missing_description(library, pkgs)
   pkgs
+
+}
+
+renv_snapshot_r_library_diagnose_broken_link <- function(library, pkgs) {
+
+  broken <- !file.exists(pkgs)
+  if (!any(broken))
+    return(pkgs)
+
+  renv_pretty_print_packages(
+    basename(pkgs)[broken],
+    "The following package(s) have broken symlinks into the cache:",
+    "Consider re-installing these packages."
+  )
+
+  pkgs[!broken]
 
 }
 
