@@ -1,5 +1,9 @@
 
 # tools for interacting with the renv global package cache
+renv_cache_version <- function() {
+  "v1"
+}
+
 renv_cache_package_path <- function(record) {
 
   # validate required fields -- if any are missing, we can't use the cache
@@ -117,5 +121,99 @@ renv_cache_synchronize <- function(record) {
   renv_file_link(cache, path)
 
   TRUE
+
+}
+
+renv_cache_list <- function() {
+  cache <- renv_paths_cache()
+  names <- list.files(cache, full.names = TRUE)
+  versions <- list.files(names, full.names = TRUE)
+  hashes <- list.files(versions, full.names = TRUE)
+  paths <- list.files(hashes, full.names = TRUE)
+  file.path(paths, "DESCRIPTION")
+}
+
+renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
+
+  info <- file.info(paths, extra_cols = FALSE)
+  missing <- is.na(info$isdir)
+  bad <- rownames(info)[missing]
+  if (empty(bad))
+    return(paths)
+
+  fmt <- "%s %s\t[%s]"
+  package <- path_component(bad, 2)
+  version <- path_component(bad, 4)
+  entries <- sprintf(fmt, package, version, aliased_path(dirname(bad)))
+
+  if (verbose) {
+    renv_pretty_print_packages(
+      entries,
+      "The following packages are missing DESCRIPTION files in the cache:",
+      "These packages should be purged and re-installed.",
+      wrap = FALSE
+    )
+  }
+
+  data <- data.frame(
+    Package = package,
+    Version = version,
+    Path    = dirname(bad),
+    Reason  = "missing",
+    stringsAsFactors = FALSE
+  )
+
+  problems$push(data)
+  paths[!missing]
+
+}
+
+renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
+
+  hash <- path_component(paths, 3)
+  computed <- map_chr(paths, renv_hash_description)
+  diff <- hash != computed
+
+  bad <- names(computed)[diff]
+  if (empty(bad))
+    return(paths)
+
+  fmt <- "%s %s\t[%s != %s]"
+  package <- path_component(bad, 2)
+  version <- path_component(bad, 4)
+  entries <- sprintf(fmt, package, version, hash[diff], computed[diff])
+
+  if (verbose) {
+    renv_pretty_print_packages(
+      entries,
+      "The following packages have incorrect hashes:",
+      "These packages should be purged and re-installed.",
+      wrap = FALSE
+    )
+  }
+
+  data <- data.frame(
+    Package = package,
+    Version = version,
+    Path    = dirname(bad),
+    Reason  = "badhash",
+    stringsAsFactors = FALSE
+  )
+
+  problems$push(data)
+  paths
+
+}
+
+renv_cache_diagnose <- function(verbose = NULL) {
+
+  verbose <- verbose %||% renv_verbose()
+
+  problems <- stack()
+  paths <- renv_cache_list()
+  paths <- renv_cache_diagnose_missing_descriptions(paths, problems, verbose)
+  paths <- renv_cache_diagnose_bad_hash(paths, problems, verbose)
+
+  invisible(bind_list(problems$data()))
 
 }

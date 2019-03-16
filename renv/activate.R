@@ -1,7 +1,7 @@
 
 local({
 
-  version <- "0.1.0-38"
+  version <- "0.1.0-41"
 
   # try to find a path where renv might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])

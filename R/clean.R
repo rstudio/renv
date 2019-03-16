@@ -28,7 +28,6 @@ renv_clean_library_tempdirs <- function(project, confirm) {
       bad,
       "The following directories will be removed:",
     )
-    writeLines("")
 
     if (!proceed()) {
       writeLines("Operation aborted.")

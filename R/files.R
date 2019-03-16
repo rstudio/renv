@@ -215,11 +215,6 @@ renv_file_normalize <- function(path, winslash = "\\", mustWork = NA) {
   file.path(parent, basename(path))
 }
 
-renv_file_alt <- function(path, alternate) {
-  subpath <- file.path(path, alternate)
-  if (renv_file_exists(subpath)) subpath else path
-}
-
 # NOTE: returns true for files that are broken symlinks
 renv_file_exists <- function(path) {
 
@@ -249,5 +244,22 @@ renv_file_list_impl <- function(path) {
 
   # otherwise, a plain old list.files will suffice
   list.files(path)
+
+}
+
+renv_file_type <- function(paths) {
+
+  info <- file.info(paths, extra_cols = FALSE)
+
+  types <- character(length(paths))
+  types[info$isdir %in% FALSE] <- "file"
+  types[info$isdir %in% TRUE ] <- "directory"
+
+  if (!renv_platform_windows()) {
+    links <- Sys.readlink(paths)
+    types[!is.na(links) & nzchar(links)] <- "symlink"
+  }
+
+  types
 
 }

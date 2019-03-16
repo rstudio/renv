@@ -10,6 +10,7 @@ renv_pretty_print <- function(records, preamble = NULL, postamble = NULL) {
   print.simple.list(formatted)
   writeLines("")
   postamble %&&% writeLines(postamble)
+  postamble %&&% writeLines("")
 
   invisible(NULL)
 
@@ -35,6 +36,7 @@ renv_pretty_print_pair <- function(before, after, preamble = NULL, postamble = N
   print.simple.list(formatted)
   writeLines("")
   postamble %&&% writeLines(postamble)
+  postamble %&&% writeLines("")
 
   invisible(NULL)
 
@@ -65,6 +67,7 @@ renv_pretty_print_packages <- function(packages,
     msg$push(paste(postamble, collapse = "\n"))
   }
 
+  msg$push("")
   text <- paste(as.character(msg$data()), collapse = "\n")
 
   emitter <- emitter %||% writeLines

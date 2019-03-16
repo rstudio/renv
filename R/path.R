@@ -23,3 +23,9 @@ path_canonicalize <- function(path) {
 path_same <- function(lhs, rhs) {
   path_canonicalize(lhs) == path_canonicalize(rhs)
 }
+
+# get the nth path component from the end of the path
+path_component <- function(path, index = 1) {
+  splat <- strsplit(path, "[/\\]+")
+  map_chr(splat, function(parts) parts[length(parts) - index + 1])
+}

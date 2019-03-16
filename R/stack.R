@@ -22,6 +22,10 @@ stack <- function() {
       data %in% .data
     },
 
+    empty = function() {
+      length(.data) == 0
+    },
+
     data = function() {
       .data
     }

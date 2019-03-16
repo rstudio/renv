@@ -11,6 +11,10 @@
   if (is.na(x)) y else x
 }
 
+`%NULL%` <- function(x, y) {
+  if (is.null(x)) y else x
+}
+
 
 lines <- function(...) {
   paste(..., sep = "\n")
@@ -33,8 +37,7 @@ empty <- function(x) {
 aliased_path <- function(path) {
   home <- path.expand("~/")
   match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
-  if (identical(c(match), 1L))
-    path <- paste("~", substring(path, nchar(home) + 1), sep = "/")
+  path[match == 1] <- paste("~", substring(path[match == 1], nchar(home) + 1), sep = "/")
   path
 }
 
@@ -175,4 +178,8 @@ deparsed <- function(value, width = 60L) {
 
 read <- function(file) {
   readChar(file, file.size(file), useBytes = TRUE)
+}
+
+plural <- function(word, n) {
+  if (n == 1) word else paste(word, "s", sep = "")
 }
