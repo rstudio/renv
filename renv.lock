@@ -56,9 +56,9 @@ Hash=48ac6480f28adb9596f531296670e1eb
 
 [R/Package/callr]
 Package=callr
-Version=3.1.1
+Version=3.2.0
 Source=CRAN
-Hash=323a540044287022893c4d50283ba6ec
+Hash=642700eca0036ea7cf3f20fb24397a0f
 
 [R/Package/cli]
 Package=cli
@@ -254,9 +254,9 @@ Hash=b79661958c24d6acb44121cb2526840c
 
 [R/Package/purrr]
 Package=purrr
-Version=0.3.1
+Version=0.3.2
 Source=CRAN
-Hash=2ac007f8d589e03aea3d9a0c742a3fd5
+Hash=6819f807c9b471d64473e106ab3a5a07
 
 [R/Package/rcmdcheck]
 Package=rcmdcheck
@@ -272,9 +272,9 @@ Hash=7fc75fd2365f64a2688bf58c6edb1f28
 
 [R/Package/reticulate]
 Package=reticulate
-Version=1.9.0.9001
-Source=unknown
-Hash=4db951be6063ca09a8d8691ce27694db
+Version=1.11.1
+Source=CRAN
+Hash=436f2d0f8e575fc8cbec223d36019d8b
 
 [R/Package/rlang]
 Package=rlang
@@ -284,9 +284,9 @@ Hash=0f4850e1da309794b90a11104c9c7864
 
 [R/Package/rmarkdown]
 Package=rmarkdown
-Version=1.11
+Version=1.12
 Source=CRAN
-Hash=ed53dfd24d55597ae47c5d4423309b8b
+Hash=0bc0c972d14eb2f546a3600e9bb49dbd
 
 [R/Package/roxygen2]
 Package=roxygen2
@@ -348,6 +348,12 @@ Version=1.4.0
 Source=CRAN
 Hash=fa8e09f504b2dc3308c4204673e36114
 
+[R/Package/whisker]
+Package=whisker
+Version=0.3-2
+Source=CRAN
+Hash=ec2ea5d58af9c9088004c49d4276a227
+
 [R/Package/withr]
 Package=withr
 Version=2.1.2
@@ -358,7 +364,7 @@ Hash=9774aa39d5b69c80d070c28cb5d5e250
 Package=xfun
 Version=0.5
 Source=CRAN
-Hash=ed1fb06fe91c4f57610bb66dc7d00f1d
+Hash=5f3c37851b3373f624946fc8964d5500
 
 [R/Package/xml2]
 Package=xml2
