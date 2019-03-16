@@ -61,17 +61,22 @@ renv_hydrate_dependencies <- function(project) {
 # to the (private) library 'library'
 renv_hydrate_cache_package <- function(package, location, library) {
 
+  # construct path to cache
   record <- renv_snapshot_description(location)
   cache <- renv_cache_package_path(record)
 
+  # copy package into the cache
   if (!renv_file_exists(cache)) {
     ensure_parent_directory(cache)
     renv_file_copy(location, cache)
   }
 
+  # link package back from cache to library
+  # (only for private libraries)
   target <- file.path(library, package)
   ensure_parent_directory(target)
-  renv_file_link(cache, target, overwrite = TRUE)
+  if (path_within(target, renv_paths_library()))
+    renv_file_link(cache, target, overwrite = TRUE)
 
 }
 
