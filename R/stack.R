@@ -6,12 +6,16 @@ stack <- function() {
   object <- list(
 
     push = function(data) {
-      .data[[length(.data) + 1]] <<- data
+      if (is.null(data))
+        .data[length(.data) + 1] <<- list(NULL)
+      else
+        .data[[length(.data) + 1]] <<- data
     },
 
     pop = function() {
       item <- .data[[length(.data)]]
-      .data[[length(.data)]] <<- NULL
+      length(.data) <<- length(.data) - 1
+      item
     },
 
     peek = function() {
@@ -24,6 +28,10 @@ stack <- function() {
 
     empty = function() {
       length(.data) == 0
+    },
+
+    clear <- function() {
+      .data <<- list()
     },
 
     data = function() {

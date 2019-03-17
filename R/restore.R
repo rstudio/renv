@@ -73,14 +73,15 @@ restore <- function(project  = NULL,
   on.exit(renv_python_restore(project), add = TRUE)
 
   # detect changes in R packages in the lockfile
-  current <- snapshot(file = NULL)
+  current <- snapshot(project = project, file = NULL)
   diff <- renv_lockfile_diff_packages(current, lockfile)
 
   # only keep requested actions
   diff <- diff[diff %in% actions]
 
   # don't take any actions with ignored packages
-  diff <- diff[setdiff(names(diff), settings$ignored.packages())]
+  ignored <- settings$ignored.packages(project = project)
+  diff <- diff[setdiff(names(diff), ignored)]
 
   if (!length(diff)) {
     vmessagef("* The project is already synchronized with the lockfile.")
@@ -102,13 +103,6 @@ restore <- function(project  = NULL,
     message("Operation aborted.")
     return(invisible(diff))
   }
-
-  # ensure that the private project library is available and active
-  oldlibpaths <- .libPaths()
-  newlibpaths <- c(renv_paths_library(project), oldlibpaths)
-  lapply(newlibpaths, ensure_directory)
-  .libPaths(newlibpaths)
-  on.exit(.libPaths(oldlibpaths), add = TRUE)
 
   # perform the restore
   status <- renv_restore_run_actions(diff, current, lockfile)

@@ -142,7 +142,7 @@ renv_restore_install_report_status <- function(record, status) {
 
   messagef("\tOK (%s)", feedback)
 
-  if (identical(settings$use.cache(), TRUE))
+  if (settings$use.cache())
     renv_cache_synchronize(record)
 
   return(TRUE)
