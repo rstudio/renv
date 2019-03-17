@@ -2,11 +2,12 @@
 `_renv_lockfile_state` <- new.env(parent = emptyenv())
 
 renv_lockfile_state_get <- function(key) {
-  `_renv_lockfile_state`[[key]]
+  if (exists(key, envir = `_renv_lockfile_state`))
+    get(key, envir = `_renv_lockfile_state`, inherits = FALSE)
 }
 
 renv_lockfile_state_set <- function(key, value) {
-  `_renv_lockfile_state`[[key]] <<- value
+  assign(key, value, envir = `_renv_lockfile_state`, inherits = FALSE)
 }
 
 renv_lockfile_state_clear <- function() {

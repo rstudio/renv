@@ -1,10 +1,10 @@
 [renv]
-Version=0.1.0-41
+Version=0.1.0-50
 
 [R]
 Version=3.5.2
 Repositories=
-	CRAN=https://cran.rstudio.com/
+	CRAN=https://cran.rstudio.com
 
 [R/Package/Matrix]
 Package=Matrix
