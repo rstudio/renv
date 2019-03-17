@@ -1,7 +1,31 @@
 
-renv_lockfile_write <- function(lockfile, file = stdout()) {
-  renv_lockfile_write_begin(file)
-  on.exit(renv_lockfile_write_end(), add = TRUE)
+`_renv_lockfile_state` <- new.env(parent = emptyenv())
+
+renv_lockfile_state_get <- function(key) {
+  `_renv_lockfile_state`[[key]]
+}
+
+renv_lockfile_state_set <- function(key, value) {
+  `_renv_lockfile_state`[[key]] <<- value
+}
+
+renv_lockfile_state_clear <- function() {
+  rm(list = ls(`_renv_lockfile_state`), envir = `_renv_lockfile_state`)
+}
+
+renv_lockfile_write <- function(lockfile, file = stdout(), delim = "=", emitter = NULL) {
+
+  if (is.character(file)) {
+    file <- textfile(file)
+    on.exit(close(file), add = TRUE)
+  }
+
+  emitter <- emitter %||% function(text) writeLines(text, con = file)
+
+  renv_lockfile_state_set("delim", delim)
+  renv_lockfile_state_set("emitter", emitter)
+  on.exit(renv_lockfile_state_clear(), add = TRUE)
+
   lockfile <- renv_lockfile_sort(lockfile)
   renv_lockfile_write_list(lockfile, section = character())
   invisible(lockfile)
@@ -35,7 +59,8 @@ renv_lockfile_write_atom <- function(key, value) {
   else
     paste(value, collapse = ", ")
 
-  text <- paste(lhs, rhs, sep = "=")
+  delim <- renv_lockfile_state_get("delim")
+  text <- paste(lhs, rhs, sep = delim)
   renv_lockfile_write_emit(text)
 
 }
@@ -45,18 +70,7 @@ renv_lockfile_write_lists <- function(key, value, section) {
   renv_lockfile_write_list(value[sublists], section = c(section, key))
 }
 
-renv_lockfile_write_begin <- function(file) {
-  file <- if (is.character(file)) textfile(file) else file
-  renv_global_set("lockfile", file)
-}
-
-renv_lockfile_write_end <- function() {
-  file <- renv_global_get("lockfile")
-  if (inherits(file, "file"))
-    close(file)
-  renv_global_clear("lockfile")
-}
-
 renv_lockfile_write_emit <- function(text = "") {
-  writeLines(text, con = renv_global_get("lockfile"))
+  emitter <- renv_lockfile_state_get("emitter")
+  emitter(text)
 }
