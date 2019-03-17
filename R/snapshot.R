@@ -88,10 +88,25 @@ renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
   if (!length(bad))
     return(TRUE)
 
+  keys <- names(bad)
+  vals <- lapply(bad, function(packages) {
+
+    n <- length(packages)
+    if (n > 3) {
+      fmt <- "and %i %s"
+      other <- sprintf(fmt, n - 3, plural("other", n - 3))
+      packages <- c(packages[1:3], other)
+    }
+
+    paste(packages, collapse = ", ")
+
+  })
+
   renv_pretty_print_packages(
-    names(bad),
+    sprintf("%s: [%s]", keys, vals),
     "The following package(s) depend on packages which are not currently installed:",
     "Consider re-installing these packages before snapshotting the lockfile.",
+    wrap = FALSE
   )
 
   if (confirm && !proceed()) {
