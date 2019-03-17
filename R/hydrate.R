@@ -31,7 +31,7 @@ hydrate <- function(project = NULL) {
   ensure_directory(library)
 
   # copy packages from user library to cache
-  if (settings$use.cache())
+  if (settings$use.cache(project = project))
     renv_hydrate_cache_packages(packages, library)
   else
     renv_hydrate_copy_packages(packages, library)
@@ -50,8 +50,9 @@ hydrate <- function(project = NULL) {
 renv_hydrate_dependencies <- function(project) {
   vmessagef("* Discovering package dependencies ... ", appendLF = FALSE)
   deps <- dependencies(project)
-  packages <- setdiff(unique(deps$Package), c("renv", settings$ignored.packages()))
-  all <- renv_dependencies(packages)
+  ignored <- c("renv", settings$ignored.packages(project = project))
+  packages <- setdiff(unique(deps$Package), ignored)
+  all <- renv_dependencies(project, packages)
   vmessagef("Done!")
   all
 }

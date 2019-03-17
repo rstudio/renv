@@ -492,13 +492,14 @@ renv_dependencies_discover_parse_params <- function(header, type) {
 # all being installed locally. returns a named vector mapping package names
 # to the path where they were discovered, or NA if those packages are not
 # installed
-renv_dependencies <- function(packages, fields = NULL) {
+renv_dependencies <- function(project, packages, fields = NULL) {
 
   # TODO: build a dependency tree rather than just a flat set of packages?
   # TODO: dependency resolution? (can we depend on a different package for this)
   # TODO: recursive and non-recursive dependencies?
   visited <- new.env(parent = emptyenv())
-  packages <- setdiff(packages, c("renv", settings$ignored.packages()))
+  ignored <- c("renv", settings$ignored.packages(project = project))
+  packages <- setdiff(packages, ignored)
   for (package in packages)
     renv_dependencies_enumerate(package, visited, fields)
 
