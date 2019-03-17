@@ -7,15 +7,15 @@ test_that("we avoid downloading files twice", {
   url <- "https://cran.rstudio.com/src/contrib/Archive/sourcetools/sourcetools_0.1.0.tar.gz"
   destfile <- tempfile()
 
-  output <- character()
+  output <- stack()
   withCallingHandlers({
     download(url, destfile)
     download(url, destfile)
   }, message = function(m) {
-    output <<- c(output, conditionMessage(m))
+    output$push(conditionMessage(m))
     invokeRestart("muffleMessage")
   })
 
-  expect_true(any(grepl("file is up-to-date", output)))
+  expect_true(any(grepl("file is up-to-date", output$data())))
 
 })
