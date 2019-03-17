@@ -112,7 +112,7 @@ renv_remove_rprofile <- function(project) {
 renv_remove_rbuildignore <- function(project) {
 
   renv_remove_entry_impl(
-    "^renv/",
+    "^renv$",
     file.path(project, ".Rbuildignore")
   )
 

@@ -308,5 +308,31 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     )
   }
 
+  # report changes to other fields
+  squish <- function(item) {
+
+    squished <- case(
+      empty(item)     ~ "",
+      !is_named(item) ~ paste(item, collapse = ", "),
+      paste(names(item), item, sep = "=", collapse = ", ")
+    )
+
+    if (!nzchar(squished))
+      return("<empty>")
+
+    sprintf("[%s]", trunc(squished, 24))
+
+  }
+
+  old$R$Packages <- new$R$Packages <- list()
+  diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
+    paste(squish(lhs), squish(rhs), sep = " => ")
+  })
+
+  writeLines("The following lockfile fields will be updated:\n")
+  output <- stack()
+  renv_lockfile_write(diff, delim = ": ", emitter = output$push)
+  writeLines(paste("  ", output$data(), sep = ""))
+
 }
 

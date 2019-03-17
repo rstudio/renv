@@ -3,7 +3,7 @@ stack <- function() {
 
   .data <- list()
 
-  list(
+  object <- list(
 
     push = function(data) {
       .data[[length(.data) + 1]] <<- data
@@ -31,5 +31,8 @@ stack <- function() {
     }
 
   )
+
+  class(object) <- "renv::stack"
+  object
 
 }

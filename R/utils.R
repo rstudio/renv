@@ -183,3 +183,9 @@ read <- function(file) {
 plural <- function(word, n) {
   if (n == 1) word else paste(word, "s", sep = "")
 }
+
+trunc <- function(text, n = 78) {
+  long <- nchar(text) > n
+  text[long] <- sprintf("%s <...>", substring(text[long], 1, n - 6))
+  text
+}
