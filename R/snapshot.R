@@ -44,7 +44,7 @@ snapshot <- function(project = NULL,
   }
 
   # check for missing dependencies and warn if any are discovered
-  if (!renv_snapshot_validate(new, confirm))
+  if (!renv_snapshot_validate(new, library, confirm))
     return(invisible(new))
 
   # report actions to the user
@@ -69,17 +69,17 @@ snapshot <- function(project = NULL,
 
 }
 
-renv_snapshot_validate <- function(lockfile, confirm) {
-  renv_snapshot_validate_dependencies(lockfile, confirm) &&
+renv_snapshot_validate <- function(lockfile, library, confirm) {
+  renv_snapshot_validate_dependencies(lockfile, library, confirm) &&
   renv_snapshot_validate_sources(lockfile, confirm)
 }
 
-renv_snapshot_validate_dependencies <- function(lockfile, confirm) {
+renv_snapshot_validate_dependencies <- function(lockfile, library, confirm) {
 
   records <- renv_records(lockfile)
-  installed <- as.data.frame(installed.packages(), stringsAsFactors = FALSE)
+  installed <- renv_installed_packages(lib.loc = library)
   missing <- lapply(records, function(record) {
-    path <- renv_paths_library(record$Library, record$Package)
+    path <- renv_paths_library(project = renv_project(), record$Package)
     deps <- renv_dependencies_discover_description(path)
     setdiff(deps$Package, c("R", installed$Package))
   })
