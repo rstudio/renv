@@ -116,8 +116,7 @@ renv_cache_synchronize <- function(record) {
   on.exit(callback(), add = TRUE)
 
   # copy into cache and link back into requested directory
-  ensure_parent_directory(cache)
-  if (path_within(path, renv_paths_library())) {
+  if (library == renv_paths_library()) {
     renv_file_move(path, cache)
     renv_file_link(cache, path)
   } else {
