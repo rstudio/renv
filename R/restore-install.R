@@ -31,11 +31,7 @@ renv_restore_install_package_cache <- function(record, cache) {
   state <- renv_restore_state()
 
   # construct target install path
-  library <- case(
-    is.null(record$Library)       ~ renv_libpaths_default(),
-    path_absolute(record$Library) ~ record$Library,
-    TRUE                          ~ renv_paths_library(record$Library)
-  )
+  library <- renv_libpaths_default()
   target <- file.path(library, record$Package)
 
   # determine if we should copy or link from the cache
@@ -93,7 +89,7 @@ renv_restore_install_package_local <- function(record) {
   before(package)
   on.exit(after(package), add = TRUE)
 
-  lib <- record$Library %||% renv_libpaths_default()
+  lib <- renv_libpaths_default()
   path <- record$Path
   type <- record$Type
 
