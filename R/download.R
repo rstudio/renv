@@ -1,10 +1,6 @@
 
-download <- function(url,
-                     destfile,
-                     quiet    = FALSE,
-                     method   = getOption("download.file.method"),
-                     extra    = getOption("download.file.extra"))
-{
+download <- function(url, destfile, quiet = FALSE) {
+
   # handle local files by just copying the file
   if (grepl("^file:", url)) {
     source <- sub("^file:(?://)?", "", url)
@@ -21,7 +17,7 @@ download <- function(url,
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
-  size <- renv_download_size(url, method, extra)
+  size <- renv_download_size(url)
   if (size != -1 && renv_file_exists(destfile)) {
     if (file.size(destfile) == size) {
       messagef("\tOK [file is up-to-date]")
@@ -39,7 +35,17 @@ download <- function(url,
 
   # request the download
   before <- Sys.time()
-  status <- catch(download.file(url, tempfile, quiet = TRUE, mode = "wb"))
+
+  status <-
+    catch(download.file(
+      url,
+      destfile = tempfile,
+      quiet    = TRUE,
+      mode     = "wb",
+      method   = renv_download_file_method(),
+      extra    = renv_download_file_extra()
+    ))
+
   after <- Sys.time()
 
   # check for failure
@@ -85,38 +91,46 @@ renv_download_prepare <- function(url) {
 
 renv_download_prepare_github <- function(url) {
 
-  # do we have curl? if not, bail
-  curl <- Sys.which("curl")
-  if (!nzchar(curl))
-    return(NULL)
-
   # do we have a GITHUB_PAT? if not, bail
   pat <- Sys.getenv("GITHUB_PAT", unset = NA)
   if (is.na(pat))
     return(NULL)
 
+  # prepare download file method, options
   auth <- paste("Authorization: token", pat)
-  extra <- c("--location", "--fail", "--header", shQuote(auth))
+
+  # infer an appropriate download method
+  if (nzchar(Sys.which("curl"))) {
+    method <- "curl"
+    extra <- c("--location", "--fail", "--header", shQuote(auth))
+  } else if (nzchar(Sys.which("wget"))) {
+    method <- "wget"
+    extra <- c("--header", shQuote(auth))
+  } else {
+    return(NULL)
+  }
+
   saved <- options("download.file.method", "download.file.extra")
-  options(download.file.method = "curl", download.file.extra = extra)
+  options(download.file.method = method, download.file.extra = extra)
   function() { do.call(base::options, saved) }
 
 }
 
-renv_download_headers <- function(url, method, extra) {
+renv_download_headers <- function(url) {
 
   file <- tempfile("renv-headers-")
   on.exit(unlink(file), add = TRUE)
 
   # don't know how to download headers without curl / wget
+  method <- renv_download_file_method()
   if (!method %in% c("curl", "wget"))
     return(list())
 
   # add extra arguments to request headers
   extra <- c(
-    extra,
-    if (method == "curl") c("--silent", "--head"),
-    if (method == "wget") c("--quiet", "--server-response", "--spider")
+    renv_download_file_extra(),
+    if (method == "curl") c("--head"),
+    if (method == "wget") c("--server-response", "--spider")
   )
 
   # perform the download
@@ -129,17 +143,19 @@ renv_download_headers <- function(url, method, extra) {
     extra = extra
   )
 
-  dcf <- catch(renv_dcf_read(file))
-  if (inherits(dcf, "error"))
+  contents <- readLines(file, warn = FALSE)
+  text <- grep(":", contents, fixed = TRUE, value = TRUE)
+  headers <- catch(renv_read_properties(text = text))
+  if (inherits(headers, "error"))
     return(list())
 
-  dcf
+  headers
 
 }
 
-renv_download_size <- function(url, method, extra) {
+renv_download_size <- function(url) {
 
-  headers <- catch(renv_download_headers(url, method, extra))
+  headers <- catch(renv_download_headers(url))
   if (inherits(headers, "error"))
     return(-1)
 
@@ -149,4 +165,30 @@ renv_download_size <- function(url, method, extra) {
 
   as.numeric(size)
 
+}
+
+renv_download_file_method <- function() {
+
+  # respect user preference for curl / wget as we support these
+  method <- getOption("download.file.method", default = "auto")
+  if (method %in% c("curl", "wget"))
+    return(method)
+
+  # otherwise, try and find a method that exists
+  if (nzchar(Sys.which("curl")))
+    return("curl")
+
+  if (nzchar(Sys.which("wget")))
+    return("wget")
+
+  # fall back to default method
+  method
+
+}
+
+renv_download_file_extra <- function() {
+  method <- renv_download_file_method()
+  if (method == "curl")
+    return(c("--location", "--fail"))
+  character()
 }

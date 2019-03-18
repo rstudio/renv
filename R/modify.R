@@ -30,7 +30,7 @@ renv_modify_impl <- function(project) {
     return(NULL)
   }
 
-  renv_load_repos(lockfile$R$Repositories)
+  options(repos = lockfile$R$Repositories)
   NULL
 
 }
