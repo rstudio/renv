@@ -22,3 +22,11 @@ Purge packages from the cache. This can be useful if a package which had
 previously been installed in the cache has become corrupted or unusable,
 and needs to be reinstalled.
 }
+\details{
+\code{purge()} is an inherently destructive option. It removes packages from the
+cache, and so any project which had symlinked that package into its own
+project library would find that package now unavailable. These projects would
+hence need to reinstall any purged packages. Take heed of this in case you're
+looking to purge the cache of a package which is difficult to install, or
+if the original sources for that package are no longer available!
+}

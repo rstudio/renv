@@ -14,11 +14,12 @@ the current working directory is used.}
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
 \description{
-Clean up a project.
+Clean up a project and its associated \R libraries.
 }
 \details{
 The following actions will be performed:
 \itemize{
 \item Leftover temporary directories in the project library will be removed.
+\item Non-system packages installed in the system library will be removed.
 }
 }
