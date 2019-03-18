@@ -21,11 +21,10 @@ history <- function(project = NULL) {
 
   arguments <- c("log", "--pretty=format:'%H\031%at\031%ct\031%s'", shQuote(lockpath))
   data <- system2("git", arguments, stdout = TRUE)
-
-  tbl <- read.table(text = data, sep = "\031", row.names = NULL, header = FALSE, stringsAsFactors = FALSE)
-  names(tbl) <- c("commit", "author_date", "committer_date", "subject")
-  tbl$author_date <- as.POSIXct(tbl$author_date, origin = "1970-01-01")
-  tbl$committer_date <- as.POSIXct(tbl$committer_date, origin = "1970-01-01")
+  parts <- strsplit(data, "\031", fixed = TRUE)
+  tbl <- bind_list(parts, names = c("commit", "author_date", "committer_date", "subject"))
+  tbl$author_date <- as.POSIXct(as.numeric(tbl$author_date), origin = "1970-01-01")
+  tbl$committer_date <- as.POSIXct(as.numeric(tbl$committer_date), origin = "1970-01-01")
 
   tbl
 }

@@ -4,15 +4,18 @@
 \alias{snapshot}
 \title{Snapshot a Project}
 \usage{
-snapshot(project = NULL, file = file.path(project, "renv.lock"),
-  confirm = interactive())
+snapshot(project = NULL, library = NULL,
+  lockfile = file.path(project, "renv.lock"), confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
 
-\item{file}{The location where the generated lockfile should be written.
+\item{library}{The \R library to be snapshotted. When \code{NULL}, the project
+library associated with the requested project is used.}
+
+\item{lockfile}{The location where the generated lockfile should be written.
 When \code{NULL}, the lockfile (as an \R object) is returned directly instead.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}

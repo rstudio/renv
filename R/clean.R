@@ -1,7 +1,9 @@
 
 #' Clean a Project
 #'
-#' Clean up a project. The following actions will be performed:
+#' Clean up a project.
+#'
+#' The following actions will be performed:
 #'
 #' - Leftover temporary directories in the project library will be removed.
 #'
@@ -29,7 +31,7 @@ renv_clean_library_tempdirs <- function(project, confirm) {
       "The following directories will be removed:",
     )
 
-    if (!proceed()) {
+    if (confirm && !proceed()) {
       writeLines("Operation aborted.")
       return(character())
     }
@@ -43,6 +45,12 @@ renv_clean_library_tempdirs <- function(project, confirm) {
 
 # remove user packages in system library
 renv_clean_system_library <- function() {
+
   db <- renv_installed_packages(lib.loc = .Library, priority = "NA")
-  remove(db$Package, library = .Library)
+  packages <- db$Package
+  if (empty(packages))
+    return()
+
+  remove(packages, library = .Library)
+
 }

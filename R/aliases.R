@@ -1,5 +1,5 @@
 
-# aliases used primarily for nicer / normalized text outpu.
+# aliases used primarily for nicer / normalized text output
 `_renv_aliases` <- list(
   cran         = "CRAN",
   github       = "GitHub",

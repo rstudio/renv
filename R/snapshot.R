@@ -12,30 +12,34 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param file The location where the generated lockfile should be written.
+#' @param library The \R library to be snapshotted. When `NULL`, the project
+#'   library associated with the requested project is used.
+#'
+#' @param lockfile The location where the generated lockfile should be written.
 #'   When `NULL`, the lockfile (as an \R object) is returned directly instead.
 #'
 #' @family reproducibility
 #'
 #' @export
-snapshot <- function(project = NULL,
-                     file = file.path(project, "renv.lock"),
-                     confirm = interactive())
+snapshot <- function(project  = NULL,
+                     library  = NULL,
+                     lockfile = file.path(project, "renv.lock"),
+                     confirm  = interactive())
 {
   project <- project %||% renv_project()
-  library <- renv_paths_library(project)
+  library <- library %||% renv_paths_library(project = project)
 
   new <- renv_lockfile_init()
   new$R$Package <- renv_snapshot_r_packages(library)
 
-  if (is.null(file))
+  if (is.null(lockfile))
     return(new)
 
   on.exit(renv_python_snapshot(project), add = TRUE)
 
   old <- list()
-  if (file.exists(file)) {
-    old <- renv_lockfile_read(file)
+  if (file.exists(lockfile)) {
+    old <- renv_lockfile_read(lockfile)
     diff <- renv_lockfile_diff(old, new)
     if (empty(diff)) {
       vmessagef("* The lockfile is already up to date.")
@@ -51,7 +55,7 @@ snapshot <- function(project = NULL,
   actions <- renv_lockfile_diff_packages(old, new)
   if (confirm && renv_verbose()) {
     renv_snapshot_report_actions(actions, old, new)
-    printf("The lockfile will be written to '%s'.", aliased_path(file))
+    printf("The lockfile will be written to '%s'.", aliased_path(lockfile))
   }
 
   # request user confirmation
@@ -61,9 +65,9 @@ snapshot <- function(project = NULL,
   }
 
   # write it out
-  ensure_parent_directory(file)
-  renv_lockfile_write(new, file = file)
-  vmessagef("* Lockfile written to '%s'.", aliased_path(file))
+  ensure_parent_directory(lockfile)
+  renv_lockfile_write(new, file = lockfile)
+  vmessagef("* Lockfile written to '%s'.", aliased_path(lockfile))
 
   invisible(new)
 
@@ -341,15 +345,17 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
   }
 
-  old$R$Packages <- new$R$Packages <- list()
-  diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
-    paste(squish(lhs), squish(rhs), sep = " => ")
-  })
+  if (!empty(old)) {
+    old$R$Packages <- new$R$Packages <- list()
+    diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
+      paste(squish(lhs), squish(rhs), sep = " => ")
+    })
 
-  writeLines("The following lockfile fields will be updated:\n")
-  output <- stack()
-  renv_lockfile_write(diff, delim = ": ", emitter = output$push)
-  writeLines(paste("  ", output$data(), sep = ""))
+    writeLines("The following lockfile fields will be updated:\n")
+    output <- stack()
+    renv_lockfile_write(diff, delim = ": ", emitter = output$push)
+    writeLines(paste("  ", output$data(), sep = ""))
+  }
 
 }
 

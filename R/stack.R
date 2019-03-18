@@ -30,7 +30,7 @@ stack <- function() {
       length(.data) == 0
     },
 
-    clear <- function() {
+    clear = function() {
       .data <<- list()
     },
 

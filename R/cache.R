@@ -18,13 +18,30 @@ renv_cache_package_path <- function(record) {
     return(path)
   }
 
-  # if we don't have a hash, check to see if we have a cache entry
-  # for this version anyway, and use it if so
-  # TODO: how to select between multiple hashes for same version?
-  hashes <- list.files(renv_paths_cache(record$Package, record$Version))
-  if (length(hashes)) {
-    path <- with(record, renv_paths_cache(Package, Version, hashes[[1]], Package))
-    return(path)
+  # if the record doesn't have a hash, check to see if we can still locate a
+  # compatible package version within the cache
+  root <- with(record, renv_paths_cache(Package, Version))
+  hashes <- list.files(root, full.names = TRUE)
+  packages <- list.files(hashes, full.names = TRUE)
+
+  # iterate over package paths, read DESCRIPTION, and look
+  # for something compatible with the requested record
+  for (package in packages) {
+
+    dcf <- catch(renv_description_read(package))
+    if (inherits(dcf, "error"))
+      next
+
+    # if we're requesting an install from CRAN,
+    # and the cached package has a "Repository" field,
+    # then use it
+    cran <-
+      identical(record$Source, "CRAN") &&
+      "Repository" %in% names(dcf)
+
+    if (cran)
+      return(package)
+
   }
 
   # failed; return "" as proxy for missing file
@@ -128,9 +145,9 @@ renv_cache_synchronize <- function(record) {
 
 }
 
-renv_cache_list <- function() {
+renv_cache_list <- function(packages = NULL) {
   cache <- renv_paths_cache()
-  names <- list.files(cache, full.names = TRUE)
+  names <- file.path(cache, packages %||% list.files(cache))
   versions <- list.files(names, full.names = TRUE)
   hashes <- list.files(versions, full.names = TRUE)
   paths <- list.files(hashes, full.names = TRUE)

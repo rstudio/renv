@@ -8,6 +8,9 @@
 #'   project. When `NULL`, the most recently generated lockfile for this project
 #'   is used.
 #'
+#' @param library The path to the library in which packages will be restored.
+#'   When `NULL`, the project library is used.
+#'
 #' @param actions The restore actions to take. By default, all actions are
 #'   taken, thereby synchronizing the state of the project library with that of
 #'   the lockfile. See **Actions** for more details.
@@ -58,10 +61,15 @@
 #' @export
 restore <- function(project  = NULL,
                     lockfile = NULL,
+                    library  = NULL,
                     actions  = c("install", "remove", "upgrade", "downgrade", "crossgrade"),
                     confirm  = interactive())
 {
   project <- project %||% renv_project()
+  library <- library %||% renv_paths_library(project = project)
+
+  # activate the requested library
+  renv_scope_libpaths(library)
 
   # resolve the lockfile
   lockfile <- case(
@@ -73,7 +81,7 @@ restore <- function(project  = NULL,
   on.exit(renv_python_restore(project), add = TRUE)
 
   # detect changes in R packages in the lockfile
-  current <- snapshot(project = project, file = NULL)
+  current <- snapshot(project = project, library = library, lockfile = NULL)
   diff <- renv_lockfile_diff_packages(current, lockfile)
 
   # only keep requested actions
@@ -119,7 +127,7 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
 
   actions <- renv_lockfile_diff_packages(
     lockfile,
-    snapshot(project = project, file = NULL)
+    snapshot(project = project, lockfile = NULL)
   )
 
   if (empty(actions))
