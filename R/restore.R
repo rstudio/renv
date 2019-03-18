@@ -105,7 +105,7 @@ restore <- function(project  = NULL,
   }
 
   # perform the restore
-  status <- renv_restore_run_actions(diff, current, lockfile)
+  status <- renv_restore_run_actions(project, diff, current, lockfile)
 
   # check to see if the lockfile is now up-to-date; if it's not,
   # then the restore might've repaired the dependency tree and
@@ -116,7 +116,12 @@ restore <- function(project  = NULL,
 }
 
 renv_restore_postamble <- function(project, lockfile, confirm) {
-  actions <- renv_lockfile_diff_packages(lockfile, snapshot(file = NULL))
+
+  actions <- renv_lockfile_diff_packages(
+    lockfile,
+    snapshot(project = project, file = NULL)
+  )
+
   if (empty(actions))
     return(NULL)
 
@@ -131,7 +136,7 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
   snapshot(project = project, confirm = confirm)
 }
 
-renv_restore_run_actions <- function(actions, current, lockfile) {
+renv_restore_run_actions <- function(project, actions, current, lockfile) {
 
   records <- renv_records(lockfile)
   renv_restore_begin(records, names(actions))
@@ -140,7 +145,7 @@ renv_restore_run_actions <- function(actions, current, lockfile) {
   # first, handle package removals
   removes <- actions[actions == "remove"]
   enumerate(removes, function(package, action) {
-    renv_restore_remove(package, current)
+    renv_restore_remove(project, package, current)
   })
 
   # next, handle installs
@@ -252,11 +257,13 @@ renv_restore_report_actions <- function(actions, current, lockfile) {
 
 }
 
-renv_restore_remove <- function(package, lockfile) {
+renv_restore_remove <- function(project, package, lockfile) {
   records <- renv_records(lockfile)
   record <- records[[package]]
   messagef("Removing %s [%s] ...", package, record$Version)
-  remove.packages(package, renv_paths_library(record$Library) %||% NULL)
+  paths <- renv_paths_library(project = project, packages)
+  recursive <- renv_file_type(paths) == "directory"
+  unlink(paths, recursive = recursive)
   message("\tOK (removed from library)")
   TRUE
 }

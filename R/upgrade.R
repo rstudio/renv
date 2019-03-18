@@ -37,12 +37,11 @@ upgrade <- function(project = NULL, remote = "rstudio/renv") {
   records <- renv_restore_retrieve("renv", records)
   record <- records[[1]]
 
-  # update record to enforce installation into bootstrap library
+  # set library paths temporarily to install into bootstrap library
   library <- renv_paths_bootstrap("renv", record$Version)
   ensure_directory(library)
-  record$Library <- library
 
-  # request the install
+  renv_scope_libpaths(library)
   renv_restore_install_impl(record)
 
   # now update the infrastructure to use this version of renv

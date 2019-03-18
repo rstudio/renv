@@ -17,3 +17,27 @@ renv_project <- function(default = getwd()) {
     return(default)
   project
 }
+
+renv_project_type <- function(path) {
+
+  # check for R package projects
+  descpath <- file.path(path, "DESCRIPTION")
+  if (file.exists(descpath)) {
+
+    desc <- renv_description_read(descpath)
+
+    # check for explicitly recorded type
+    type <- desc$Type
+    if (!is.null(type))
+      return(tolower(type))
+
+    # infer otherwise from 'Package' field otherwise
+    package <- desc$Package
+    if (!is.null(package))
+      return("package")
+
+  }
+
+  "unknown"
+
+}
