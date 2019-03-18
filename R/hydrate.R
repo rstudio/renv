@@ -11,8 +11,8 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param library The \R library to be hydrated. When `NULL`, the currently
-#'   active library (as set in the `.libPaths()`) is used.
+#' @param library The \R library to be hydrated. When `NULL`, the active
+#'   library as reported by `.libPaths()` is used.
 #'
 #' @export
 hydrate <- function(project = NULL, library = NULL) {
