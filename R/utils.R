@@ -179,7 +179,8 @@ deparsed <- function(value, width = 60L) {
 }
 
 read <- function(file) {
-  readChar(file, file.size(file), useBytes = TRUE)
+  contents <- readLines(file, warn = FALSE)
+  paste(contents, collapse = "\n")
 }
 
 plural <- function(word, n) {

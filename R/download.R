@@ -146,6 +146,7 @@ renv_download_headers <- function(url) {
   contents <- readLines(file, warn = FALSE)
   text <- grep(":", contents, fixed = TRUE, value = TRUE)
   headers <- catch(renv_read_properties(text = text))
+  names(headers) <- tolower(names(headers))
   if (inherits(headers, "error"))
     return(list())
 
