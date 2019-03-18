@@ -36,13 +36,24 @@
 #'
 #' @export
 init <- function(project = NULL, settings = NULL, force = FALSE) {
+
+  # prepare and move into project directory
   project <- project %||% getwd()
   renv_init_validate_project(project, force)
   renv_init_settings(project, settings)
   setwd(project)
-  hydrate(project)
-  snapshot(project, confirm = FALSE)
+
+  # prepare project library
+  library <- renv_paths_library(project = project)
+  ensure_directory(library)
+
+  # install packages into project library and save state
+  hydrate(project, library)
+  snapshot(project, library, confirm = FALSE)
+
+  # activate the newly-hydrated project
   activate(project)
+
 }
 
 renv_init_validate_project <- function(project, force) {

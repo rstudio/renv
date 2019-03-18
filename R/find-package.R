@@ -15,7 +15,7 @@ renv_package_find <- function(package, libpaths = renv_libpaths_all()) {
     return("")
 
   # take the most recent version
-  sorted <- sort(numeric_version(versions))
+  sorted <- versions[order(numeric_version(versions))]
   version <- tail(sorted, n = 1)
 
   # now, check and see how many installations are associated with

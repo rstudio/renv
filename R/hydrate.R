@@ -11,9 +11,13 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param library The \R library to be hydrated. When `NULL`, the currently
+#'   active library (as set in the `.libPaths()`) is used.
+#'
 #' @export
-hydrate <- function(project = NULL) {
+hydrate <- function(project = NULL, library = NULL) {
   project <- project %||% renv_project()
+  library <- library %||% renv_libpaths_default()
 
   # find packages used in this project, and the dependencies of those packages
   deps <- renv_hydrate_dependencies(project)
@@ -27,11 +31,14 @@ hydrate <- function(project = NULL) {
   packages <- deps[setdiff(names(deps), c(names(na), rownames(base)))]
 
   # get and construct path to library
-  library <- renv_paths_library(project = project)
   ensure_directory(library)
 
   # copy packages from user library to cache
-  if (settings$use.cache(project = project))
+  cacheable <-
+    library == renv_paths_library(project = project) &&
+    settings$use.cache(project = project)
+
+  if (cacheable)
     renv_hydrate_cache_packages(packages, library)
   else
     renv_hydrate_copy_packages(packages, library)

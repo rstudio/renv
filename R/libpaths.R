@@ -8,7 +8,9 @@ renv_libpaths_all <- function() {
 }
 
 renv_libpaths_set <- function(libpaths) {
+  oldlibpaths <- .libPaths()
   .libPaths(libpaths)
+  oldlibpaths
 }
 
 # NOTE: may return more than one library path!

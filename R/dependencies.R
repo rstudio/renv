@@ -222,7 +222,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 renv_dependencies_discover_chunks <- function(path) {
 
   # ensure 'knitr' is installed / available
-  if (!renv_dependencies_require("knitr", "multi-mode files"))
+  if (!renv_dependencies_require("knitr", "multi-mode"))
     return(NULL)
 
   # figure out the appropriate begin, end patterns
@@ -523,7 +523,7 @@ renv_dependencies_enumerate <- function(package, visited, fields = NULL) {
   # find the package
   libpaths <- c(renv_libpaths_user(), .Library.site, .Library)
   location <- renv_package_find(package, libpaths = libpaths)
-  if (!renv_file_exists(location))
+  if (!file.exists(location))
     return(location)
 
   # we know the path, so set it now

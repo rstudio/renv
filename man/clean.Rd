@@ -14,9 +14,10 @@ the current working directory is used.}
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
 \description{
-Clean up a project. The following actions will be performed:
+Clean up a project.
 }
 \details{
+The following actions will be performed:
 \itemize{
 \item Leftover temporary directories in the project library will be removed.
 }

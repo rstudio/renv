@@ -4,12 +4,15 @@
 \alias{hydrate}
 \title{Hydrate a Project}
 \usage{
-hydrate(project = NULL)
+hydrate(project = NULL, library = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
+
+\item{library}{The \R library to be hydrated. When \code{NULL}, the currently
+active library (as set in the \code{.libPaths()}) is used.}
 }
 \description{
 Discover the \R packages used within a project, and then install those

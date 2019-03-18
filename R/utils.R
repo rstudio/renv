@@ -45,7 +45,7 @@ trimws <- function(x) {
   gsub("^\\s+|\\s+$", "", x)
 }
 
-bind_list <- function(data, name = "Index") {
+bind_list <- function(data, names = NULL, name = "Index") {
 
   filtered <- Filter(NROW, data)
   if (!length(filtered))
@@ -59,8 +59,10 @@ bind_list <- function(data, name = "Index") {
     stopf(fmt, name)
   }
 
-  if (is.null(names(data)))
+  if (is.null(names(data))) {
+    names(rhs) <- names(rhs) %||% names
     return(as.data.frame(rhs, stringsAsFactors = FALSE))
+  }
 
   lhs <- list()
   lhs[[name]] <- rep.int(names(data), times = map_dbl(filtered, NROW))
