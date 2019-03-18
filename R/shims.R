@@ -59,6 +59,7 @@ renv_shims_init <- function() {
   while ("renv:shims" %in% search())
     detach("renv:shims")
 
-  do.call(base::attach, list(`_renv_shims`, name = "renv:shims"))
+  args <- list(`_renv_shims`, name = "renv:shims", warn.conflicts = FALSE)
+  do.call(base::attach, args)
 
 }

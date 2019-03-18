@@ -98,3 +98,4 @@
 - [ ] Automatically bootstrap an `renv` installation when loading a project
       if none is available locally?
 
+- [ ] Should `renv::install()` auto-update packages?
