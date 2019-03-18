@@ -3,16 +3,16 @@
   if (length(x)) x else y
 }
 
-`%&&%` <- function(x, y) {
-  if (length(x)) y else NULL
-}
-
 `%NA%` <- function(x, y) {
   if (is.na(x)) y else x
 }
 
 `%NULL%` <- function(x, y) {
   if (is.null(x)) y else x
+}
+
+`%&&%` <- function(x, y) {
+  if (length(x)) y
 }
 
 
