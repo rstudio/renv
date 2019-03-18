@@ -44,5 +44,5 @@ renv_clean_library_tempdirs <- function(project, confirm) {
 # remove user packages in system library
 renv_clean_system_library <- function() {
   db <- renv_installed_packages(lib.loc = .Library, priority = "NA")
-  remove(db$Package, lib = .Library)
+  remove(db$Package, library = .Library)
 }

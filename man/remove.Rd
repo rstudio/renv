@@ -4,10 +4,13 @@
 \alias{remove}
 \title{Remove Packages}
 \usage{
-remove(packages)
+remove(packages, library = NULL)
 }
 \arguments{
 \item{packages}{A character vector of R packages to remove.}
+
+\item{library}{The library from which packages should be removed. When
+\code{NULL}, the active library is used instead.}
 }
 \description{
 Remove packages currently installed within a project's private library.

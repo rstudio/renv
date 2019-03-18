@@ -126,6 +126,8 @@ renv_tests_init <- function() {
   if (identical(Sys.getenv("RENV_TESTS_INITIALIZED"), "TRUE"))
     return()
 
+  Sys.setenv(RENV_DEBUGGING = "1")
+
   renv_tests_init_working_dir()
   renv_tests_init_envvars()
   renv_tests_init_options()
