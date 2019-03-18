@@ -70,6 +70,7 @@ restore <- function(project  = NULL,
   lockfile <- lockfile %||% renv_lockfile_load(project = project)
 
   # activate the requested library
+  ensure_directory(library)
   renv_scope_libpaths(library)
 
   # perform Python actions on exit
