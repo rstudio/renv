@@ -28,7 +28,7 @@ remove <- function(packages, library = NULL) {
       count <- count + 1
   }
 
-  messagef("* Removed %i %s.", count, plural("package", count))
+  messagef("* Done! Removed %i %s.", count, plural("package", count))
   invisible(count)
 
 }
@@ -42,8 +42,10 @@ renv_remove_package <- function(package, library) {
   }
 
   recursive <- renv_file_type(path) == "directory"
+  vmessagef("Removing package '%s' ... ", package, appendLF = FALSE)
   unlink(path, recursive = recursive)
-  vmessagef("* Removed package '%s'.", package)
+  vmessagef("Done!")
+
   TRUE
 
 }
