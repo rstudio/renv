@@ -7,11 +7,12 @@
 remove(packages, library = NULL)
 }
 \arguments{
-\item{packages}{A character vector of R packages to remove.}
+\item{packages}{A character vector of \R packages to remove.}
 
 \item{library}{The library from which packages should be removed. When
-\code{NULL}, the active library is used instead.}
+\code{NULL}, the active library (that is, the first entry reported in
+\code{.libPaths()}) is used instead.}
 }
 \description{
-Remove packages currently installed within a project's private library.
+Remove (uninstall) \R packages.
 }
