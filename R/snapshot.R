@@ -337,7 +337,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     if (!nzchar(squished))
       return("<empty>")
 
-    sprintf("[%s]", trunc(squished, 24))
+    sprintf("[%s]", trunc(squished, 32))
 
   }
 

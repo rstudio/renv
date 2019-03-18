@@ -1,10 +1,10 @@
 [renv]
-Version=0.1.0-51
+Version=0.1.0-60
 
 [R]
 Version=3.5.2
 Repositories=
-	CRAN=https://cran.rstudio.com
+	CRAN=https://cran.rstudio.com/
 
 [R/Package/Matrix]
 Package=Matrix
@@ -20,9 +20,9 @@ Hash=f12bb7f48fdb217e0631686d58e4db8c
 
 [R/Package/Rcpp]
 Package=Rcpp
-Version=1.0.0
+Version=1.0.1
 Source=CRAN
-Hash=b876ac20d34cb5de2b717e291fc3e791
+Hash=98be89eb84c8acd9827bca4ec85275da
 
 [R/Package/askpass]
 Package=askpass
@@ -134,9 +134,9 @@ Hash=caa2281cfac35e5ad0ef829c35b7ac6d
 
 [R/Package/git2r]
 Package=git2r
-Version=0.24.0
+Version=0.25.1
 Source=CRAN
-Hash=23c39882896fd59757e07f6938a13289
+Hash=7af84c90854e987ea3301c866079b174
 
 [R/Package/glue]
 Package=glue
@@ -272,9 +272,9 @@ Hash=7fc75fd2365f64a2688bf58c6edb1f28
 
 [R/Package/reticulate]
 Package=reticulate
-Version=1.11.1-9000
-Source=unknown
-Hash=d96c9732bc51ceb87c38cff06094e5c8
+Version=1.11.1
+Source=CRAN
+Hash=436f2d0f8e575fc8cbec223d36019d8b
 
 [R/Package/rlang]
 Package=rlang
