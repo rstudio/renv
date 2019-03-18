@@ -77,10 +77,9 @@ renv_remotes_parse_github <- function(entry) {
 
 }
 
-renv_remotes_snapshot <- function(project = NULL, libpaths = NULL) {
+renv_remotes_snapshot <- function(project, libpaths = NULL) {
 
   # resolve variables
-  project <- project %||% renv_project()
   libpaths <- libpaths %||% renv_remotes_libpaths()
 
   # serialize DESCRIPTIONs for installed packages

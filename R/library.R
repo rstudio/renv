@@ -1,8 +1,7 @@
 
 # check for problems in the project's private library (e.g. broken symlinks
 # to the cache or similar)
-renv_library_diagnose <- function(project = NULL, libpath) {
-  project <- project %||% renv_project()
+renv_library_diagnose <- function(project, libpath) {
 
   children <- list.files(libpath, full.names = TRUE)
   if (empty(children))
@@ -35,4 +34,5 @@ renv_library_diagnose <- function(project = NULL, libpath) {
   }
 
   TRUE
+
 }
