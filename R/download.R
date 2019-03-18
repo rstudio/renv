@@ -1,6 +1,10 @@
 
-download <- function(url, destfile = tempfile(), quiet = FALSE) {
-
+download <- function(url,
+                     destfile,
+                     quiet    = FALSE,
+                     method   = getOption("download.file.method"),
+                     extra    = getOption("download.file.extra"))
+{
   # handle local files by just copying the file
   if (grepl("^file:", url)) {
     source <- sub("^file:(?://)?", "", url)
@@ -17,9 +21,9 @@ download <- function(url, destfile = tempfile(), quiet = FALSE) {
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
-  reported_size <- renv_download_size(url)
-  if (reported_size != -1 && renv_file_exists(destfile)) {
-    if (file.size(destfile) == reported_size) {
+  size <- renv_download_size(url, method, extra)
+  if (size != -1 && renv_file_exists(destfile)) {
+    if (file.size(destfile) == size) {
       messagef("\tOK [file is up-to-date]")
       return(destfile)
     }
@@ -49,7 +53,7 @@ download <- function(url, destfile = tempfile(), quiet = FALSE) {
     stopf("download failed [unknown reason]")
 
   # double-check that the reported size is correct
-  if (reported_size != -1 && file.size(tempfile) != reported_size)
+  if (size != -1 && file.size(tempfile) != size)
     stopf("download failed [file was truncated]")
 
   # everything looks ok: report success
@@ -91,41 +95,51 @@ renv_download_prepare_github <- function(url) {
   if (is.na(pat))
     return(NULL)
 
-  extra <- sprintf("-L -f -H \"Authorization: token %s\"", pat)
+  auth <- paste("Authorization: token", pat)
+  extra <- c("--location", "--fail", "--header", shQuote(auth))
   saved <- options("download.file.method", "download.file.extra")
   options(download.file.method = "curl", download.file.extra = extra)
   function() { do.call(base::options, saved) }
 
 }
 
-renv_download_headers <- function(url) {
-  case(
-    nzchar(Sys.which("curl")) ~ renv_download_headers_curl(url),
-    nzchar(Sys.which("wget")) ~ renv_download_headers_wget(url)
+renv_download_headers <- function(url, method, extra) {
+
+  file <- tempfile("renv-headers-")
+  on.exit(unlink(file), add = TRUE)
+
+  # don't know how to download headers without curl / wget
+  if (!method %in% c("curl", "wget"))
+    return(list())
+
+  # add extra arguments to request headers
+  extra <- c(
+    extra,
+    if (method == "curl") c("--silent", "--head"),
+    if (method == "wget") c("--quiet", "--server-response", "--spider")
   )
-}
 
-renv_download_headers_curl <- function(url) {
-  fmt <- "%s --silent --location --head %s 2>&1"
-  cmd <- sprintf(fmt, shQuote(Sys.which("curl")), shQuote(url))
-  output <- trimws(system(cmd, intern = TRUE))
-  dcf <- renv_dcf_read(textConnection(output[-1L]))
-  names(dcf) <- tolower(names(dcf))
+  # perform the download
+  status <- download.file(
+    url = url,
+    destfile = file,
+    quiet = TRUE,
+    mode = "wb",
+    method = method,
+    extra = extra
+  )
+
+  dcf <- catch(renv_dcf_read(file))
+  if (inherits(dcf, "error"))
+    return(list())
+
   dcf
+
 }
 
-renv_download_headers_wget <- function(url) {
-  fmt <- "%s --quiet --server-response --spider %s 2>&1"
-  cmd <- sprintf(fmt, shQuote(Sys.which("wget")), shQuote(url))
-  output <- trimws(system(cmd, intern = TRUE))
-  dcf <- renv_dcf_read(textConnection(output[-1L]))
-  names(dcf) <- tolower(names(dcf))
-  dcf
-}
+renv_download_size <- function(url, method, extra) {
 
-renv_download_size <- function(url) {
-
-  headers <- catch(renv_download_headers(url))
+  headers <- catch(renv_download_headers(url, method, extra))
   if (inherits(headers, "error"))
     return(-1)
 
