@@ -37,12 +37,35 @@ renv_description_read <- function(path, package = NULL) {
       stopf("failed to infer path to DESCRIPTION within file '%s'", path)
 
     # unpack into tempdir location
-    exdir <- tempfile("description-")
+    exdir <- tempfile("renv-description-")
     on.exit(unlink(exdir, recursive = TRUE), add = TRUE)
     untar(path, files = file, exdir = exdir)
 
     # update path to extracted DESCRIPTION
     path <- file.path(exdir, file)
+  }
+
+  # if given a zip, attempt to extract inner DESCRIPTION file
+  if (ext %in% c("zip")) {
+
+    meta <- unzip(path, list = TRUE)
+    files <- meta$Name
+
+    # find the DESCRIPTION file. note that for some source tarballs (e.g.
+    # those from GitHub) the first entry may not be the package name, so
+    # just consume everything up to the first slash
+    file <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
+    if (length(file) != 1)
+      stopf("failed to infer path to DESCRIPTION within file '%s'", path)
+
+    # unpack into tempdir location
+    exdir <- tempfile("renv-description-")
+    on.exit(unlink(exdir, recursive = TRUE), add = TRUE)
+    unzip(path, files = file, exdir = exdir)
+
+    # update path to extracted DESCRIPTION
+    path <- file.path(exdir, file)
+
   }
 
   dcf <- renv_dcf_read(path)
