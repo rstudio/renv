@@ -40,10 +40,9 @@ renv_restore_install_package_cache <- function(record, cache) {
 
   # determine if we should copy or link from the cache
   # (prefer copying if we're writing to a non-renv path)
-  ensure_directory(renv_paths_library())
-  cacheable <-
-    settings$use.cache() &&
-    path_within(target, renv_paths_library())
+  projlib <- renv_paths_library()
+  ensure_directory(projlib)
+  cacheable <- settings$use.cache() && path_within(target, projlib)
 
   # check to see if we already have an up-to-date symlink
   # into the cache (nothing to do if that's the case)
