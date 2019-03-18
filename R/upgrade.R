@@ -40,7 +40,6 @@ upgrade <- function(project = NULL, remote = "rstudio/renv") {
   # set library paths temporarily to install into bootstrap library
   library <- renv_paths_bootstrap("renv", record$Version)
   ensure_directory(library)
-
   renv_scope_libpaths(library)
   renv_restore_install_impl(record)
 
