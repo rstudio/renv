@@ -60,25 +60,24 @@
 #'
 #' @export
 restore <- function(project  = NULL,
-                    lockfile = NULL,
                     library  = NULL,
+                    lockfile = NULL,
                     actions  = c("install", "remove", "upgrade", "downgrade", "crossgrade"),
                     confirm  = interactive())
 {
-  project <- project %||% renv_project()
-  library <- library %||% renv_paths_library(project = project)
+  project  <- project %||% renv_project()
+  library  <- library %||% renv_paths_library(project = project)
+  lockfile <- lockfile %||% renv_lockfile_load(project = project)
 
   # activate the requested library
   renv_scope_libpaths(library)
 
-  # resolve the lockfile
-  lockfile <- case(
-    is.null(lockfile)      ~ renv_lockfile_load(project),
-    is.character(lockfile) ~ renv_lockfile_read(lockfile),
-    lockfile
-  )
-
+  # perform Python actions on exit
   on.exit(renv_python_restore(project), add = TRUE)
+
+  # resolve the lockfile
+  if (is.character(lockfile))
+    lockfile <- renv_lockfile_read(lockfile)
 
   # detect changes in R packages in the lockfile
   current <- snapshot(project = project, library = library, lockfile = NULL)
