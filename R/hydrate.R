@@ -104,16 +104,15 @@ renv_hydrate_copy_packages <- function(packages, library) {
 
 renv_hydrate_resolve_missing <- function(na) {
 
-  if (!length(na))
+  packages <- names(na)
+  installed <- renv_installed_packages(lib.loc = renv_paths_library())
+  if (all(packages %in% installed$Package))
     return()
 
   vmessagef("* Resolving missing dependencies  ... ")
 
-  # TODO: if we have a lockfile, should we use it?
-  renv_restore_begin()
+  renv_restore_begin(packages = packages)
   on.exit(renv_restore_end(), add = TRUE)
-
-  packages <- names(na)
   records <- renv_restore_retrieve(packages)
   records <- Filter(renv_install_required, records)
   renv_restore_install(records)
