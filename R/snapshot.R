@@ -29,6 +29,8 @@ snapshot <- function(project  = NULL,
   project <- project %||% renv_project()
   library <- library %||% renv_paths_library(project = project)
 
+  renv_snapshot_preflight(project, library)
+
   new <- renv_lockfile_init()
   new$R$Package <- renv_snapshot_r_packages(library)
 
@@ -70,6 +72,41 @@ snapshot <- function(project  = NULL,
   vmessagef("* Lockfile written to '%s'.", aliased_path(lockfile))
 
   invisible(new)
+
+}
+
+renv_snapshot_preflight <- function(project, library) {
+  renv_snapshot_preflight_library_exists(project, library)
+  renv_snapshot_preflight_library_real(project, library)
+}
+
+renv_snapshot_preflight_library_exists <- function(project, library) {
+
+  if (file.exists(library))
+    return(TRUE)
+
+  if (identical(library, renv_paths_library(project = project))) {
+    fmt <- "project '%s' has no private library -- have you called `renv::init()`?"
+    stopf(fmt, aliased_path(project))
+  }
+
+  fmt <- "library '%s' does not exist; cannot proceed"
+  stopf(fmt, aliased_path(library))
+
+}
+
+renv_snapshot_preflight_library_real <- function(project, library) {
+
+  packages <- list.files(library, full.names = TRUE)
+  if (empty(packages))
+    return(TRUE)
+
+  paths <- file.path(packages, "DESCRIPTION")
+  if (any(file.exists(paths)))
+    return(TRUE)
+
+  fmt <- "'%s' does not appear to be an R library (no R packages were found)"
+  stopf(fmt, aliased_path(library))
 
 }
 

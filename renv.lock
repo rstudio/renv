@@ -1,8 +1,8 @@
 [renv]
-Version=0.1.0-71
+Version=0.1.0-76
 
 [R]
-Version=3.5.2
+Version=3.5.3
 Repositories=
 	CRAN=https://cran.rstudio.com/
 
@@ -191,6 +191,12 @@ Version=0.3.6
 Source=CRAN
 Hash=edb9789e8be67d354871e2210e140d1d
 
+[R/Package/htmlwidgets]
+Package=htmlwidgets
+Version=1.3
+Source=CRAN
+Hash=0c44679cdf0f565c74fb60c3fa4bed72
+
 [R/Package/httr]
 Package=httr
 Version=1.4.0
@@ -304,6 +310,12 @@ Package=processx
 Version=3.3.0
 Source=CRAN
 Hash=baf4ae83fc1662c7ac66a8fcb557e2c2
+
+[R/Package/profvis]
+Package=profvis
+Version=0.3.5
+Source=CRAN
+Hash=45e83d5b16cc62a34d8691199ac98e11
 
 [R/Package/ps]
 Package=ps
