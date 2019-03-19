@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.69</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.72</span>
       </span>
     </div>
 
@@ -73,7 +73,7 @@
       <h1>Introduction to renv</h1>
                         <h4 class="author">Kevin Ushey</h4>
             
-            <h4 class="date">2019-03-18</h4>
+            <h4 class="date">2019-03-19</h4>
       
       
       <div class="hidden name"><code>introduction.Rmd</code></div>
@@ -127,6 +127,17 @@
 </ul>
 <p>While we recommend enabling the cache by default, if you’re having trouble with <code>renv</code> when the cache is enabled, it can be disabled on a project-specific basis with <code>renv::settings$use.cache(FALSE)</code>. Doing this will ensure that packages are then installed into your project library directly, without attempting to link and use packages from the <code>renv</code> cache.</p>
 <p>If you find a problematic package has entered the cache (for example, an installed package became corrupted), that package can be removed with the <code><a href="../reference/purge.html">renv::purge()</a></code> function.</p>
+</div>
+<div id="installation-from-source" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation-from-source" class="anchor"></a>Installation from Source</h2>
+<p>In the end, <code>renv</code> still needs to install R packages, either from binaries available from CRAN, or from sources when binaries are not available. Installation from source can be challenging for a few reasons:</p>
+<ol style="list-style-type: decimal">
+<li><p>Your system will need to have a compatible compiler toolchain available. In some cases, R packages may depend on C / C++ features that aren’t available in an older system toolchain, especially in some older Linux exterprise environments.</p></li>
+<li><p>Your system will need requisite system libraries, as many R packages contain compiled C / C++ code that depend on and link to these packages.</p></li>
+</ol>
+<p>The <code><a href="../reference/equip.html">renv::equip()</a></code> function will seek to help with this problem by attempting to discover and install (or request the installation of) any system libraries that are required by the dependencies discovered in a project.</p>
+<p>Note that currently, <code><a href="../reference/equip.html">renv::equip()</a></code> only downloads the requisite libraries for compilation on Windows; support for other platforms will come in the future (likely through separate projects like <a href="https://github.com/r-hub/sysreqsdb">sysreqsdb</a>).</p>
 </div>
 <div id="shims" class="section level2">
 <h2 class="hasAnchor">
@@ -182,6 +193,7 @@
 <li><a href="#workflow">Workflow</a></li>
       <li><a href="#reproducibility">Reproducibility</a></li>
       <li><a href="#cache">Cache</a></li>
+      <li><a href="#installation-from-source">Installation from Source</a></li>
       <li><a href="#shims">Shims</a></li>
       <li><a href="#history">History</a></li>
       <li><a href="#comparison-with-packrat">Comparison with Packrat</a></li>
