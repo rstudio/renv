@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.72</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.73</span>
       </span>
     </div>
 
@@ -108,6 +108,18 @@
 </ul>
 <p>Be aware that <code><a href="../reference/restore.html">renv::restore()</a></code> may fail if a package was originally installed through a CRAN-available binary, but that binary is no longer available. <code>renv</code> will attempt to install the package from sources in this situation, but attempts to install from source can (and often do) fail due to missing system prerequisites for compilation of a package.</p>
 <p>By default, <code>renv</code> will maintain and use a global cache of packages during <code><a href="../reference/restore.html">renv::restore()</a></code>, so (at least on the same machine) if that cache is maintained old projects will be restored by copying or linking from an installation discovered in the cache.</p>
+</div>
+<div id="infrastructure" class="section level2">
+<h2 class="hasAnchor">
+<a href="#infrastructure" class="anchor"></a>Infrastructure</h2>
+<p>The following files are written to and used by projects using <code>renv</code>:</p>
+<ul>
+<li><p><code>.Rprofile</code>: Used to activate <code>renv</code> for new R sessions launched in the project.</p></li>
+<li><p><code>renv.lock</code>: The lockfile, describing the state of your project’s library at some point in time.</p></li>
+<li><p><code>renv/activate.R</code>: The activation script run by the project <code>.Rprofile</code>. It ensures that the project library is made active for newly launched R sessions.</p></li>
+<li><p><code>renv/library</code>: The private project library, normally as a collection of symlinks into the global cache.</p></li>
+</ul>
+<p>For development and collaboration, the <code>.Rprofile</code>, <code>renv.lock</code> and <code>renv/activate.R</code> files should be committed to your VCS; the <code>renv/library</code> directory should normally be ignored. Note that <code><a href="../reference/init.html">renv::init()</a></code> will attempt to write the requisite ignore statements to the project <code>.gitignore</code>.</p>
 </div>
 <div id="cache" class="section level2">
 <h2 class="hasAnchor">
@@ -192,6 +204,7 @@
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#workflow">Workflow</a></li>
       <li><a href="#reproducibility">Reproducibility</a></li>
+      <li><a href="#infrastructure">Infrastructure</a></li>
       <li><a href="#cache">Cache</a></li>
       <li><a href="#installation-from-source">Installation from Source</a></li>
       <li><a href="#shims">Shims</a></li>
