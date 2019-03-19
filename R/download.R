@@ -80,9 +80,15 @@ download <- function(url, destfile, quiet = FALSE) {
 
 renv_download_prepare <- function(url) {
 
-  github_patterns <- c("api.github.com", "raw.githubusercontent.com")
-  for (pattern in github_patterns)
-    if (grepl(pattern, url, fixed = TRUE))
+  # TODO: do we want to support plain http?
+  # don't see a good reason to in 2019
+  github_hosts <- c(
+    "https://api.github.com/",
+    "https://raw.githubusercontent.com/"
+  )
+
+  for (host in github_hosts)
+    if (startswith(url, host))
       return(renv_download_prepare_github(url))
 
   function() {}
