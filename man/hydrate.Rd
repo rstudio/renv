@@ -11,8 +11,8 @@ hydrate(project = NULL, library = NULL)
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
 
-\item{library}{The \R library to be hydrated. When \code{NULL}, the currently
-active library (as set in the \code{.libPaths()}) is used.}
+\item{library}{The \R library to be hydrated. When \code{NULL}, the active
+library as reported by \code{.libPaths()} is used.}
 }
 \description{
 Discover the \R packages used within a project, and then install those

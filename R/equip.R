@@ -24,5 +24,5 @@ renv_equip_macos <- function() {
 }
 
 renv_equip_linux <- function() {
-  stopf("renv::equip() not yet implemetned for Linux")
+  stopf("renv::equip() not yet implemented for Linux")
 }

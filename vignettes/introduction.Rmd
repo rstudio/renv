@@ -62,7 +62,7 @@ Calling `renv::init()` will also write out the infrastructure necessary to
 automatically load and use the private library for new R sessions launched
 from the project root directory. This is accomplished by creating (or amending)
 a project-local `.Rprofile` with the necessary code to load the project when
-the session is started.
+the R session is started.
 
 
 ## Reproducibility
@@ -95,9 +95,8 @@ is shared across all projects using `renv`. The cache works as follows:
 2. These dependencies are then installed into the `renv` cache.
 3. These packages are then linked into the project library.
 
-In effect, this means that even if multiple projects need to re-use the same
-R package dependencies in their own project library, the same underlying
-installation of that package can be re-used in each project. And, because
+This allows a single package installation to be shared across multiple projects,
+while allowing these projects to still remain isolated from one another. Because
 each project uses its own project library, packages can be upgraded as needed
 without risk of affecting any other projects still using the previous version
 of the package.
@@ -117,6 +116,29 @@ with `renv` when the cache is enabled, it can be disabled on a project-specific
 basis with `renv::settings$use.cache(FALSE)`. Doing this will ensure that
 packages are then installed into your project library directly, without
 attempting to link and use packages from the `renv` cache.
+
+If you find a problematic package has entered the cache (for example, an
+installed package became corrupted), that package can be removed with the
+`renv::purge()` function.
+
+
+## Shims
+
+To help you take advantage of the package cache, `renv` places a couple of
+shims on the search path:
+
+- `install.packages()` -> `renv::install()`
+- `remove.packages()`  -> `renv::remove()`
+- `update.packages()`  -> `renv::update()`
+
+This can be useful when installing packages which have already been cached.
+For example, if you use `renv::install("dplyr")`, and `renv` detects that
+the latest version on CRAN has already been cached, then `renv` will just
+install using the copy available in the cache -- thereby skipping some of
+the installation overhead.
+
+If you'd prefer not to use the `renv` shims, they can be disabled by setting
+the option `options(renv.shims = FALSE)`.
 
 
 ## History
@@ -138,15 +160,15 @@ Currently, only Git repositories are supported by `renv::history()` and
 1. `renv` no longer attempts to explicitly download and track R package sources
    within your project. This was a frustrating default that operated under the
    assumption that you might later want to be able to restore a project's private
-   library without internet access; in practice this is almost never the case, and
-   the time spent downloading + storing the package sources outweighed any
-   potential reproducibility benefit.
+   library without access to a CRAN repository; in practice this is almost never
+   the case, and the time spent downloading + storing the package sources
+   seemed to outweigh the potential reproducibility benefits.
 
 2. Packrat tried to maintain the distinction between so-called 'stale' packages;
    those being R packages which were installed by Packrat but are not recorded
    in the lockfile for some reason. This distinction was (1) overall not useful,
    and (2) confusing. `renv` no longer makes this distinction:
-   `snapshot()` saves the state of your project library to `renv.lock`, and
+   `snapshot()` saves the state of your project library to `renv.lock`,
    `restore()` loads the state of your project library from `renv.lock`, and
    that's all.
 
@@ -157,7 +179,7 @@ Currently, only Git repositories are supported by `renv::history()` and
 
 ## Future Work
 
-`renv`, like `packrat`, is designed to work standalone without the need to
+`renv`, like Packrat, is designed to work standalone without the need to
 depend on any non-base R packages. However, the following (future) integrations
 are planned:
 
