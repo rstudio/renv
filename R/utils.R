@@ -192,3 +192,7 @@ trunc <- function(text, n = 78) {
   text[long] <- sprintf("%s <...>", substring(text[long], 1, n - 6))
   text
 }
+
+startswith <- function(string, prefix) {
+  substring(string, 1, nchar(prefix)) == prefix
+}

@@ -1,10 +1,16 @@
 [renv]
-Version=0.1.0-67
+Version=0.1.0-71
 
 [R]
 Version=3.5.2
 Repositories=
 	CRAN=https://cran.rstudio.com/
+
+[R/Package/MASS]
+Package=MASS
+Version=7.3-51.1
+Source=CRAN
+Hash=3a1997f81779e9858ef3678136d2b0eb
 
 [R/Package/Matrix]
 Package=Matrix
@@ -17,6 +23,12 @@ Package=R6
 Version=2.4.0
 Source=CRAN
 Hash=f12bb7f48fdb217e0631686d58e4db8c
+
+[R/Package/RCurl]
+Package=RCurl
+Version=1.95-4.12
+Source=CRAN
+Hash=6f09f3effa77f7c0a77b80fa4ca4307f
 
 [R/Package/Rcpp]
 Package=Rcpp
@@ -47,6 +59,12 @@ Package=base64enc
 Version=0.1-3
 Source=CRAN
 Hash=a84dea3921f9f4e36e3d01d6fda4308e
+
+[R/Package/bitops]
+Package=bitops
+Version=1.0-6
+Source=CRAN
+Hash=cff47ecc774690e75f4efc8e89e0dbab
 
 [R/Package/brew]
 Package=brew
@@ -125,6 +143,12 @@ Version=0.13
 Source=CRAN
 Hash=a36d8a2787145da392dc0855b9b79ab2
 
+[R/Package/fansi]
+Package=fansi
+Version=0.4.0
+Source=CRAN
+Hash=a5053372201529a0575fddfefd3d0584
+
 [R/Package/fs]
 Package=fs
 Version=1.2.6
@@ -148,6 +172,12 @@ Package=glue
 Version=1.3.1
 Source=CRAN
 Hash=eee22be06b5959d425a42c6eab162db0
+
+[R/Package/highlight]
+Package=highlight
+Version=0.4.7.2
+Source=CRAN
+Hash=c637a91095d60b2ad5b8e4b92228b30b
 
 [R/Package/highr]
 Package=highr
@@ -221,11 +251,35 @@ Version=1.2.2
 Source=CRAN
 Hash=39354367cf4792862bd460c152a5379c
 
+[R/Package/packrat]
+Package=packrat
+Version=0.5.0
+Source=CRAN
+Hash=eee4ee6d8ab8ec9cafe1eba06ff530f5
+
+[R/Package/pillar]
+Package=pillar
+Version=1.3.1
+Source=CRAN
+Hash=67089e994f5aa84c0d6d620e8b8b0533
+
 [R/Package/pkgbuild]
 Package=pkgbuild
 Version=1.0.2
 Source=CRAN
 Hash=11b21fdd008a1113bb23ce9339fbe0e9
+
+[R/Package/pkgconfig]
+Package=pkgconfig
+Version=2.0.2
+Source=CRAN
+Hash=fa0b30dc85de29c145ad11f396bcd69d
+
+[R/Package/pkgdown]
+Package=pkgdown
+Version=1.3.0
+Source=CRAN
+Hash=9cbaa0086748d1559ef002709b60ebb7
 
 [R/Package/pkgload]
 Package=pkgload
@@ -269,6 +323,12 @@ Version=1.3.2
 Source=CRAN
 Hash=37075e78300db1c0c9b1e0b4b30341eb
 
+[R/Package/rematch2]
+Package=rematch2
+Version=2.0.1
+Source=CRAN
+Hash=3961b480bfa06b97eb49cb66c85422dd
+
 [R/Package/remotes]
 Package=remotes
 Version=2.0.2
@@ -304,6 +364,12 @@ Package=rprojroot
 Version=1.3-2
 Source=CRAN
 Hash=c94036e0d39d778fd90718f232135125
+
+[R/Package/rsconnect]
+Package=rsconnect
+Version=0.8.13
+Source=CRAN
+Hash=c43253ff8c9b0c08c4ebbec620379c0d
 
 [R/Package/rstudioapi]
 Package=rstudioapi
@@ -341,6 +407,12 @@ Version=2.0.1
 Source=CRAN
 Hash=371ad6be4398d66efcf8ad660acad7fa
 
+[R/Package/tibble]
+Package=tibble
+Version=2.1.1
+Source=CRAN
+Hash=51ea5b60da5bd41dc8350425de457b72
+
 [R/Package/tinytex]
 Package=tinytex
 Version=0.11
@@ -352,6 +424,12 @@ Package=usethis
 Version=1.4.0
 Source=CRAN
 Hash=fa8e09f504b2dc3308c4204673e36114
+
+[R/Package/utf8]
+Package=utf8
+Version=1.1.4
+Source=CRAN
+Hash=8489c78a1c9d31e5d7d159ce633e56be
 
 [R/Package/whisker]
 Package=whisker
