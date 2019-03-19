@@ -1,5 +1,5 @@
 [renv]
-Version=0.1.0-63
+Version=0.1.0-67
 
 [R]
 Version=3.5.2
@@ -82,7 +82,12 @@ Hash=efd108f5d25c72321604cc820dc08187
 Package=commonmark
 Version=1.7
 Source=CRAN
-Hash=0f9b18799791a94e0d29167469e81bcf
+RemoteType=standard
+RemoteRef=commonmark
+RemoteRepos=https://cran.rstudio.com
+RemotePkgType=macos
+RemoteSha=1.7
+Hash=06762a8501d1b1e72cafb80248cb409b
 
 [R/Package/crayon]
 Package=crayon
