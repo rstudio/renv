@@ -77,35 +77,29 @@ snapshot <- function(project  = NULL,
 
 renv_snapshot_preflight <- function(project, library) {
   renv_snapshot_preflight_library_exists(project, library)
-  renv_snapshot_preflight_library_real(project, library)
 }
 
 renv_snapshot_preflight_library_exists <- function(project, library) {
 
-  if (file.exists(library))
+  # check that we have a directory
+  type <- renv_file_type(library, symlinks = FALSE)
+  if (type == "directory")
     return(TRUE)
 
+  # if the file exists but isn't a directory, fail
+  if (nzchar(type)) {
+    fmt <- "library '%s' exists but is not a directory"
+    stopf(fmt, aliased_path(library))
+  }
+
+  # the directory doesn't exist; perhaps the user hasn't called init
   if (identical(library, renv_paths_library(project = project))) {
     fmt <- "project '%s' has no private library -- have you called `renv::init()`?"
     stopf(fmt, aliased_path(project))
   }
 
+  # user tried to snapshot arbitrary but missing path
   fmt <- "library '%s' does not exist; cannot proceed"
-  stopf(fmt, aliased_path(library))
-
-}
-
-renv_snapshot_preflight_library_real <- function(project, library) {
-
-  packages <- list.files(library, full.names = TRUE)
-  if (empty(packages))
-    return(TRUE)
-
-  paths <- file.path(packages, "DESCRIPTION")
-  if (any(file.exists(paths)))
-    return(TRUE)
-
-  fmt <- "'%s' does not appear to be an R library (no R packages were found)"
   stopf(fmt, aliased_path(library))
 
 }
