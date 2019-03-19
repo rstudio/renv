@@ -17,6 +17,7 @@ equip <- function() {
 
 renv_equip_windows <- function() {
   renv_extsoft_install()
+  renv_extsoft_use()
 }
 
 renv_equip_macos <- function() {
