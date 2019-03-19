@@ -108,6 +108,22 @@ directory should normally be ignored. Note that `renv::init()` will attempt
 to write the requisite ignore statements to the project `.gitignore`.
 
 
+## Upgrading renv
+
+After initializing a project with `renv`, that project will then be 'bound'
+to the particular version of `renv` that was used to initialize the project.
+If you need to upgrade (or otherwise change) the version of `renv` associated
+with a project, you can use `renv::upgrade()`. Currently, this will (by default)
+install the latest version of `renv` available from GitHub; once CRAN releases
+of `renv` are available, we will likely prefer installation of the latest CRAN
+release.
+
+With each commit of `renv`, we bump the package version and also tag the
+commit with the associated package version. This implies that you can call
+(for example) `renv::upgrade(remote = "0.1.0-75)` to request the installation
+of that particular version of `renv` if so required.
+
+
 ## Cache
 
 One of `renv`'s primary features is the use of a global package cache, which
