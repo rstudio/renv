@@ -122,6 +122,29 @@ installed package became corrupted), that package can be removed with the
 `renv::purge()` function.
 
 
+## Installation from Source
+
+In the end, `renv` still needs to install R packages, either from binaries
+available from CRAN, or from sources when binaries are not available.
+Installation from source can be challenging for a few reasons:
+
+1. Your system will need to have a compatible compiler toolchain available.
+   In some cases, R packages may depend on C / C++ features that aren't
+   available in an older system toolchain, especially in some older Linux
+   exterprise environments.
+
+2. Your system will need requisite system libraries, as many R packages contain
+   compiled C / C++ code that depend on and link to these packages.
+
+The `renv::equip()` function will seek to help with this problem by attempting
+to discover and install (or request the installation of) any system libraries
+that are required by the dependencies discovered in a project.
+
+Note that currently, `renv::equip()` only downloads the requisite libraries
+for compilation on Windows; support for other platforms will come in the future
+(likely through separate projects like [sysreqsdb](https://github.com/r-hub/sysreqsdb)).
+
+
 ## Shims
 
 To help you take advantage of the package cache, `renv` places a couple of
