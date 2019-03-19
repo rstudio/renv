@@ -247,7 +247,7 @@ renv_file_list_impl <- function(path) {
 
 }
 
-renv_file_type <- function(paths) {
+renv_file_type <- function(paths, symlinks = TRUE) {
 
   info <- file.info(paths, extra_cols = FALSE)
 
@@ -255,7 +255,7 @@ renv_file_type <- function(paths) {
   types[info$isdir %in% FALSE] <- "file"
   types[info$isdir %in% TRUE ] <- "directory"
 
-  if (!renv_platform_windows()) {
+  if (symlinks && !renv_platform_windows()) {
     links <- Sys.readlink(paths)
     types[!is.na(links) & nzchar(links)] <- "symlink"
   }
