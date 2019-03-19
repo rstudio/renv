@@ -47,6 +47,10 @@ renv_shim <- function(shim, sham) {
 
 renv_shims_init <- function() {
 
+  shims <- getOption("renv.shims", default = TRUE)
+  if (!identical(shims, TRUE))
+    return(FALSE)
+
   install_shim <- renv_shim(renv_shim_install_packages, utils::install.packages)
   assign("install.packages", install_shim, envir = `_renv_shims`)
 
