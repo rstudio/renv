@@ -100,5 +100,5 @@
 
 - [ ] Should `renv::install()` auto-update packages?
 
-- [ ] Only report R package entries that have changed if they exist both before
+- [x] Only report R package entries that have changed if they exist both before
       and after (ie: only report upgrades / downgrades / crossgrades)
