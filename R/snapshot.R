@@ -346,11 +346,18 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   }
 
   if (!empty(old)) {
-    old$R$Packages <- new$R$Packages <- list()
+
+    # only report packages which are being modified; not added / removed
+    keep <- names(actions)[actions %in% c("upgrade", "downgrade", "crossgrade")]
+    old$R$Package <- old$R$Package[keep]
+    new$R$Package <- new$R$Package[keep]
+
+    # perform the diff
     diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
       paste(squish(lhs), squish(rhs), sep = " => ")
     })
 
+    # report it
     writeLines("The following lockfile fields will be updated:\n")
     output <- stack()
     renv_lockfile_write(diff, delim = ": ", emitter = output$push)
