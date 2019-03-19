@@ -86,6 +86,28 @@ old projects will be restored by copying or linking from an installation
 discovered in the cache.
 
 
+## Infrastructure
+
+The following files are written to and used by projects using `renv`:
+
+- `.Rprofile`: Used to activate `renv` for new R sessions launched in the project.
+
+- `renv.lock`: The lockfile, describing the state of your project's library
+  at some point in time.
+
+- `renv/activate.R`: The activation script run by the project `.Rprofile`.
+  It ensures that the project library is made active for newly launched R
+  sessions.
+
+- `renv/library`: The private project library, normally as a collection of
+  symlinks into the global cache.
+
+For development and collaboration, the `.Rprofile`, `renv.lock` and
+`renv/activate.R` files should be committed to your VCS; the `renv/library`
+directory should normally be ignored. Note that `renv::init()` will attempt
+to write the requisite ignore statements to the project `.gitignore`.
+
+
 ## Cache
 
 One of `renv`'s primary features is the use of a global package cache, which
