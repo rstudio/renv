@@ -27,6 +27,14 @@
 #' to download and store package sources, and `renv` will re-use packages
 #' that have already been installed whenever possible.
 #'
+#' If `renv` sees that the associated project has already been initialized and
+#' has a lockfile, then it will attempt to infer the appropriate action to take
+#' based on the presence of a private library. If no library is available,
+#' `renv` will restore the private library from the lockfile; if one is
+#' available, `renv` will ask if you want to perform a 'standard' init,
+#' restore from the lockfile, or activate the project without taking any
+#' further action.
+#'
 #' @section Infrastructure:
 #'
 #' `renv` will write or amend the following files in the project:
