@@ -39,7 +39,7 @@ renv_status_report <- function(lock, curr) {
 
   actions <- renv_lockfile_diff_packages(lock, curr)
   if (empty(actions))
-    vmessagef("* The project is already synchronized with the lockfile.")
+    vwritef("* The project is already synchronized with the lockfile.")
 
   if ("install" %in% actions) {
     renv_pretty_print(

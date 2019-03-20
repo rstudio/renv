@@ -38,7 +38,7 @@ renv_purge_impl <- function(package,
     stop("argument 'package' is not of length one", call. = FALSE)
 
   bail <- function() {
-    vmessagef("* The requested package is not installed in the cache -- nothing to do.")
+    vwritef("* The requested package is not installed in the cache -- nothing to do.")
     character()
   }
 

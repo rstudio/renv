@@ -15,7 +15,7 @@ remove <- function(packages, library = NULL) {
 
   library <- library %||% renv_libpaths_default()
 
-  vmessagef("* Removing package(s) from library '%s' ...", library)
+  vwritef("* Removing package(s) from library '%s' ...", library)
 
   if (length(packages) == 1) {
     count <- as.numeric(renv_remove_package(packages, library))
@@ -28,7 +28,7 @@ remove <- function(packages, library = NULL) {
       count <- count + 1
   }
 
-  messagef("* Done! Removed %i %s.", count, plural("package", count))
+  vwritef("* Done! Removed %i %s.", count, plural("package", count))
   invisible(count)
 
 }
@@ -37,14 +37,14 @@ renv_remove_package <- function(package, library) {
 
   path <- file.path(library, package)
   if (!renv_file_exists(path)) {
-    vmessagef("* Package '%s' is not installed -- nothing to do.", package)
+    vwritef("* Package '%s' is not installed -- nothing to do.", package)
     return(FALSE)
   }
 
   recursive <- renv_file_type(path) == "directory"
-  vmessagef("Removing package '%s' ... ", package, appendLF = FALSE)
+  vprintf("Removing package '%s' ... ", package)
   unlink(path, recursive = recursive)
-  vmessagef("Done!")
+  vwritef("Done!")
 
   TRUE
 

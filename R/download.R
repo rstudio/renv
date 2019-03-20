@@ -13,7 +13,7 @@ download <- function(url, destfile, quiet = FALSE) {
   prepare_callback <- renv_download_prepare(url)
   on.exit(prepare_callback(), add = TRUE)
 
-  if (!quiet) vmessagef("Retrieving '%s' ...", url)
+  if (!quiet) vwritef("Retrieving '%s' ...", url)
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
@@ -67,7 +67,7 @@ download <- function(url, destfile, quiet = FALSE) {
     size <- structure(file.size(tempfile), class = "object_size")
     time <- round(after - before, 1)
     fmt <- "\tOK [downloaded %s in %s]"
-    if (!quiet) vmessagef(fmt, format(size, units = "auto"), format(time, units = "auto"))
+    if (!quiet) vwritef(fmt, format(size, units = "auto"), format(time, units = "auto"))
   }
 
   # move the file to the requested location

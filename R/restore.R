@@ -92,7 +92,7 @@ restore <- function(project  = NULL,
   diff <- diff[setdiff(names(diff), ignored)]
 
   if (!length(diff)) {
-    vmessagef("* The project is already synchronized with the lockfile.")
+    vwritef("* The project is already synchronized with the lockfile.")
     return(invisible(diff))
   }
 
