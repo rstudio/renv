@@ -21,9 +21,6 @@ renv_file_preface <- function(source, target, overwrite) {
 
 renv_file_copy <- function(source, target, overwrite = FALSE) {
 
-  if (renv_file_same(source, target))
-    return(TRUE)
-
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
 
@@ -90,7 +87,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
     return(TRUE)
 
   # rename failed; fall back to copying
-  copy <- catchall(renv_file_copy(source, target))
+  copy <- catchall(renv_file_copy(source, target, overwrite = overwrite))
   if (identical(copy, TRUE))
     return(TRUE)
 
