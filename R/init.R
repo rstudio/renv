@@ -111,8 +111,8 @@ renv_init_action <- function(project, library, lockfile) {
 
     title <- "This project has already been initialized. What would you like to do?"
     choices <- c(
-      init    = "Discover and install R package dependencies.",
-      restore = "Restore project from lockfile.",
+      restore = "Restore the project from the lockfile.",
+      init    = "Re-initialize the project, discovering and installing R package dependencies as required.",
       nothing = "Activate the project without installing or snapshotting any packages."
     )
     selection <- utils::select.list(choices, title = title)
