@@ -73,7 +73,7 @@ load <- function(project = NULL) {
   renv_load_finish()
 
   fmt <- "* Project '%s' loaded. [renv %s]"
-  vmessagef(fmt, aliased_path(project), renv_package_version("renv"))
+  vwritef(fmt, aliased_path(project), renv_package_version("renv"))
 
   invisible(project)
 }

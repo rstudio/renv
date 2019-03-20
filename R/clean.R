@@ -19,7 +19,7 @@ clean <- function(project = NULL, confirm = interactive()) {
     renv_clean_system_library(project, confirm)
 
   if (status)
-    vmessagef("* The project is now clean.")
+    vwritef("* The project is now clean.")
 }
 
 renv_clean_library_tempdirs <- function(project, confirm) {

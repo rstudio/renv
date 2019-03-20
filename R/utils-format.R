@@ -11,7 +11,11 @@ messagef <- function(fmt, ..., appendLF = TRUE) {
   message(sprintf(fmt, ...), appendLF = appendLF)
 }
 
-printf <- function(fmt, ..., con = stdout()) {
+printf <- function(fmt, ..., file = stdout()) {
+  cat(sprintf(fmt, ...), file = file, sep = "")
+}
+
+writef <- function(fmt, ..., con = stdout()) {
   writeLines(sprintf(fmt, ...), con = con)
 }
 
@@ -20,8 +24,12 @@ vmessagef <- function(fmt, ..., appendLF = TRUE) {
     message(sprintf(fmt, ...), appendLF = appendLF)
 }
 
-vprintf <- function(fmt, ..., con = stdout()) {
+vprintf <- function(fmt, ..., file = stdout()) {
+  if (renv_verbose())
+    cat(sprintf(fmt, ...), file = file, sep = "")
+}
+
+vwritef <- function(fmt, ..., con = stdout()) {
   if (renv_verbose())
     writeLines(sprintf(fmt, ...), con = con)
 }
-

@@ -55,12 +55,12 @@ hydrate <- function(project = NULL, library = NULL) {
 }
 
 renv_hydrate_dependencies <- function(project) {
-  vmessagef("* Discovering package dependencies ... ", appendLF = FALSE)
+  vprintf("* Discovering package dependencies ... ")
   deps <- dependencies(project)
   ignored <- c("renv", settings$ignored.packages(project = project))
   packages <- setdiff(unique(deps$Package), ignored)
   all <- renv_dependencies(project, packages)
-  vmessagef("Done!")
+  vwritef("Done!")
   all
 }
 
@@ -89,9 +89,10 @@ renv_hydrate_cache_package <- function(package, location, library) {
 }
 
 renv_hydrate_cache_packages <- function(packages, library) {
-  vmessagef("* Copying packages into the cache ... ", appendLF = FALSE)
-  cached <- enumerate(packages, renv_hydrate_cache_package, library = library)
-  vmessagef("Done!")
+  vprintf("* Copying packages into the cache ... ", appendLF = FALSE)
+  cache <- renv_progress(renv_hydrate_cache_package, length(packages))
+  cached <- enumerate(packages, cache, library = library)
+  vwritef("Done!")
   cached
 }
 
@@ -103,9 +104,10 @@ renv_hydrate_copy_package <- function(package, location, library) {
 }
 
 renv_hydrate_copy_packages <- function(packages, library) {
-  vmessagef("* Copying packages into the library ... ", appendLF = FALSE)
-  copied <- enumerate(packages, renv_hydrate_copy_package, library = library)
-  vmessagef("Done!")
+  vprintf("* Copying packages into the library ... ", appendLF = FALSE)
+  copy <- renv_progress(renv_hydrate_copy_package, length(packages))
+  copied <- enumerate(packages, copy, library = library)
+  vwritef("Done!")
   copied
 }
 
@@ -116,7 +118,7 @@ renv_hydrate_resolve_missing <- function(na) {
   if (all(packages %in% installed$Package))
     return()
 
-  vmessagef("* Resolving missing dependencies  ... ")
+  vwritef("* Resolving missing dependencies  ... ")
 
   renv_restore_begin(packages = packages)
   on.exit(renv_restore_end(), add = TRUE)

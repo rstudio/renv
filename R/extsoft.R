@@ -10,7 +10,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
   # check for missing installs
   files <- Filter(renv_extsoft_install_required, files)
   if (empty(files)) {
-    if (!quiet) vmessagef("* External software is up-to-date.")
+    if (!quiet) vwritef("* External software is up-to-date.")
     return(FALSE)
   }
 
@@ -96,7 +96,7 @@ renv_extsoft_use <- function(quiet = FALSE) {
     contents <- inject(contents, "^#?LIB_XML", libxml, "^#?LOCAL_SOFT")
 
     if (!identical(original, contents)) {
-      if (!quiet) vmessagef("* Updating '%s'.", path)
+      if (!quiet) vwritef("* Updating '%s'.", path)
       writeLines(contents, path)
     }
 

@@ -44,7 +44,7 @@ snapshot <- function(project  = NULL,
     old <- renv_lockfile_read(lockfile)
     diff <- renv_lockfile_diff(old, new)
     if (empty(diff)) {
-      vmessagef("* The lockfile is already up to date.")
+      vwritef("* The lockfile is already up to date.")
       return(invisible(new))
     }
   }
@@ -57,7 +57,7 @@ snapshot <- function(project  = NULL,
   actions <- renv_lockfile_diff_packages(old, new)
   if (confirm && renv_verbose()) {
     renv_snapshot_report_actions(actions, old, new)
-    printf("The lockfile will be written to '%s'.", aliased_path(lockfile))
+    vwritef("The lockfile will be written to '%s'.", aliased_path(lockfile))
   }
 
   # request user confirmation
@@ -69,7 +69,7 @@ snapshot <- function(project  = NULL,
   # write it out
   ensure_parent_directory(lockfile)
   renv_lockfile_write(new, file = lockfile)
-  vmessagef("* Lockfile written to '%s'.", aliased_path(lockfile))
+  vwritef("* Lockfile written to '%s'.", aliased_path(lockfile))
 
   invisible(new)
 
