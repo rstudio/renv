@@ -40,6 +40,14 @@ This mimics the workflow provided by \code{packrat::init()}, but with more
 reasonable default behaviors -- in particular, \code{renv} does not attempt
 to download and store package sources, and \code{renv} will re-use packages
 that have already been installed whenever possible.
+
+If \code{renv} sees that the associated project has already been initialized and
+has a lockfile, then it will attempt to infer the appropriate action to take
+based on the presence of a private library. If no library is available,
+\code{renv} will restore the private library from the lockfile; if one is
+available, \code{renv} will ask if you want to perform a 'standard' init,
+restore from the lockfile, or activate the project without taking any
+further action.
 }
 \section{Infrastructure}{
 
