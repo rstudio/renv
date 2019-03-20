@@ -132,7 +132,7 @@ catchall <- function(expr) {
 }
 
 ask <- function(question) {
-  response <- readline(sprintf("%s [Y/n]: ", question))
+  response <- readline(sprintf("%s [y/N]: ", question))
   tolower(response) %in% c("y", "yes")
 }
 
