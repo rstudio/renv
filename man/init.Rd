@@ -41,3 +41,20 @@ reasonable default behaviors -- in particular, \code{renv} does not attempt
 to download and store package sources, and \code{renv} will re-use packages
 that have already been installed whenever possible.
 }
+\section{Infrastructure}{
+
+
+\code{renv} will write or amend the following files in the project:
+\itemize{
+\item \code{.Rprofile}: An auto-loader will be installed, so that new R sessions
+launched within the project are automatically loaded.
+\item \code{renv/activate.R}: This script is run by the previously-mentioned
+\code{.Rprofile} to load the project.
+\item \code{renv/.gitignore}: This is used to instruct Git to ignore the project's
+private library, as it does not need to be
+\item \code{.Rbuildignore}: to ensure that the \code{renv} directory is ignored during
+package development; e.g. when attempting to build or install a package
+using \code{renv}.
+}
+}
+

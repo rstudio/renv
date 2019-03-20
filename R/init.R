@@ -27,6 +27,23 @@
 #' to download and store package sources, and `renv` will re-use packages
 #' that have already been installed whenever possible.
 #'
+#' @section Infrastructure:
+#'
+#' `renv` will write or amend the following files in the project:
+#'
+#' - `.Rprofile`: An auto-loader will be installed, so that new R sessions
+#'   launched within the project are automatically loaded.
+#'
+#' - `renv/activate.R`: This script is run by the previously-mentioned
+#'   `.Rprofile` to load the project.
+#'
+#' - `renv/.gitignore`: This is used to instruct Git to ignore the project's
+#'   private library, as it does not need to be
+#'
+#' - `.Rbuildignore`: to ensure that the `renv` directory is ignored during
+#'   package development; e.g. when attempting to build or install a package
+#'   using `renv`.
+#'
 #' @param project The project directory.
 #' @param settings A list of [settings] to be used with the newly-initialized
 #'   project.
