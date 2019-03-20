@@ -100,7 +100,8 @@ renv_hydrate_cache_packages <- function(packages, library) {
 # and copies it to the library 'library'
 renv_hydrate_copy_package <- function(package, location, library) {
   target <- file.path(library, package)
-  renv_file_copy(location, target, overwrite = TRUE)
+  if (!renv_file_same(location, target))
+    renv_file_copy(location, target, overwrite = TRUE)
 }
 
 renv_hydrate_copy_packages <- function(packages, library) {

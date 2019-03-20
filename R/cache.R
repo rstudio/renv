@@ -238,3 +238,8 @@ renv_cache_diagnose <- function(verbose = NULL) {
   invisible(bind_list(problems$data()))
 
 }
+
+renv_cache_move <- function(source, target, overwrite = FALSE) {
+  file.exists(source) || renv_file_move(target, source)
+  renv_file_link(source, target, overwrite = TRUE)
+}

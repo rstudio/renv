@@ -28,6 +28,7 @@ renv_restore_install_impl <- function(record) {
 }
 
 renv_restore_install_package_cache <- function(record, cache) {
+
   state <- renv_restore_state()
 
   # construct target install path
@@ -73,6 +74,7 @@ renv_restore_install_package_cache <- function(record, cache) {
   messagef("\tOK (%s cache)", type)
 
   return(TRUE)
+
 }
 
 renv_restore_install_package_local <- function(record, quiet = TRUE) {

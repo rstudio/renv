@@ -203,3 +203,7 @@ fileext <- function(path, default = "") {
   indices <- regexpr("[.]((?:tar[.])?[[:alnum:]]+)$", path)
   ifelse(indices > -1L, substring(path, indices), default)
 }
+
+flip <- function(vector) {
+  named(names(vector), vector)
+}

@@ -54,6 +54,7 @@ renv_extsoft_install_required <- function(file) {
 # TODO: is there something more appropriate than modifying the installed Makeconf?
 renv_extsoft_use <- function(quiet = FALSE) {
 
+  extsoft <- renv_paths_extsoft()
   paths <- file.path(R.home("etc"), c("i386", "x64"), "Makeconf")
 
   status <- file.access(paths, 2)

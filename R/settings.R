@@ -27,7 +27,7 @@ renv_settings_validate <- function(name, value) {
 
 renv_settings_read <- function(project) {
 
-  path <- file.path(project, "renv/renv.opts")
+  path <- file.path(project, "renv/settings.dcf")
   if (!renv_file_exists(path))
     return(renv_settings_defaults())
 
@@ -57,7 +57,7 @@ renv_settings_read <- function(project) {
 
 renv_settings_get <- function(project, name) {
 
-  path <- file.path(project, "renv/renv.opts")
+  path <- file.path(project, "renv/settings.dcf")
   cache <- renv_filebacked_get(path)
   if (!is.null(cache))
     return(cache[[name]] %||% renv_settings_default(name))
@@ -69,10 +69,17 @@ renv_settings_get <- function(project, name) {
 
 renv_settings_set <- function(project, name, value, persist = TRUE) {
 
-  path <- file.path(project, "renv/renv.opts")
+  path <- file.path(project, "renv/settings.dcf")
 
   settings <- renv_filebacked_get(path) %||% renv_settings_read(project)
-  settings[[name]] <- renv_settings_validate(name, value)
+
+  old <- settings[[name]] %||% renv_settings_default(name)
+  new <- renv_settings_validate(name, value)
+  settings[[name]] <- new
+
+  if (!identical(old, new))
+    renv_settings_updated(project, name, old, new)
+
   renv_filebacked_set(path, settings)
 
   if (persist)
@@ -80,8 +87,13 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
 
 }
 
+renv_settings_updated <- function(project, name, old, new) {
+  update <- `_renv_settings`[[name]]$update %||% function(...) {}
+  update(project, old, new)
+}
+
 renv_settings_persist <- function(project, settings) {
-  path <- file.path(project, "renv/renv.opts")
+  path <- file.path(project, "renv/settings.dcf")
   settings <- lapply(settings, paste, collapse = ", ")
   write.dcf(as.data.frame(settings, stringsAsFactors = FALSE), path)
 }
@@ -91,10 +103,66 @@ renv_settings_merge <- function(settings, merge) {
   settings
 }
 
-renv_settings_impl <- function(name, validate, default) {
+
+
+
+
+renv_settings_updated_cache <- function(project, old, new) {
+
+  # if the cache is being disabled, then copy packages from their
+  # symlinks back into the library. note that we don't use symlinks
+  # on windows (we use hard links) so in that case there's nothing
+  # to be done
+  if (renv_platform_windows())
+    return(FALSE)
+
+  library <- renv_paths_library(project = project)
+  targets <- list.files(library, full.names = TRUE)
+
+  sources <- map_chr(targets, function(target) {
+    record <- renv_description_read(target)
+    record$Hash <- renv_hash_description(target)
+    renv_cache_package_path(record)
+  })
+
+  names(targets) <- sources
+
+  if (empty(targets)) {
+    fmt <- "* The cache has been %s for this project."
+    vwritef(fmt, if (new) "enabled" else "disabled")
+    return(TRUE)
+  }
+
+  if (new) {
+    vprintf("* Copying packages into the cache ... ")
+    copy <- renv_progress(renv_cache_move, length(targets))
+    enumerate(targets, copy, overwrite = TRUE)
+    vwritef("Done!")
+  } else {
+    vprintf("* Copying packages into the private library ... ")
+    copy <- renv_progress(renv_file_copy, length(targets))
+    enumerate(targets, copy, overwrite = TRUE)
+    vwritef("Done!")
+  }
+
+  fmt <- "* The cache has been %s for this project."
+  vwritef(fmt, if (new) "enabled" else "disabled")
+
+}
+
+
+
+
+
+renv_settings_impl <- function(name, validate, default, update) {
 
   force(name)
-  `_renv_settings`[[name]] <- list(validate = validate, default = default)
+
+  `_renv_settings`[[name]] <- list(
+    validate = validate,
+    default = default,
+    update = update
+  )
 
   function(value, project = NULL, persist = TRUE) {
     project <- project %||% renv_project()
@@ -173,25 +241,29 @@ settings <- list(
   ignored.packages   = renv_settings_impl(
     name     = "ignored.packages",
     validate = is.character,
-    default  = character()
+    default  = character(),
+    update   = NULL
   ),
 
   external.libraries = renv_settings_impl(
     name     = "external.libraries",
     validate = is.character,
-    default  = character()
+    default  = character(),
+    update   = NULL
   ),
 
   use.cache = renv_settings_impl(
     name     = "use.cache",
     validate = function(x) length(x) == 1 && is.logical(x),
-    default  = TRUE
+    default  = TRUE,
+    update   = renv_settings_updated_cache
   ),
 
   python = renv_settings_impl(
     name     = "python",
     validate = function(x) is.character(x) || is.logical(x),
-    default  = NULL
+    default  = NULL,
+    update   = NULL
   )
 
 )
