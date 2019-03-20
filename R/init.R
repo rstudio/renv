@@ -60,16 +60,59 @@ init <- function(project = NULL, settings = NULL, force = FALSE) {
   renv_init_settings(project, settings)
   setwd(project)
 
-  # prepare project library
-  library <- renv_paths_library(project = project)
-  ensure_directory(library)
+  # form path to lockfile, library
+  library  <- renv_paths_library(project = project)
+  lockfile <- file.path(project, "renv.lock")
 
-  # install packages into project library and save state
-  hydrate(project, library)
-  snapshot(project, library, confirm = FALSE)
+  # determine appropriate action
+  action <- renv_init_action(project, library, lockfile)
+
+  # perform the action
+  if (action == "init") {
+    ensure_directory(library)
+    hydrate(project, library)
+    snapshot(project, library, confirm = FALSE)
+  } else if (action == "restore") {
+    ensure_directory(library)
+    restore(project, confirm = FALSE)
+  }
 
   # activate the newly-hydrated project
   activate(project)
+
+}
+
+renv_init_action <- function(project, library, lockfile) {
+
+  has_library  <- file.exists(library)
+  has_lockfile <- file.exists(lockfile)
+
+  # figure out appropriate action
+  action <- case(
+
+    has_lockfile && has_library  ~ "ask",
+    has_lockfile && !has_library ~ "restore",
+
+    !has_lockfile && has_library  ~ "ask",
+    !has_lockfile && !has_library ~ "init"
+
+  )
+
+  # ask the user for an action to take when required
+  if (interactive() && action == "ask") {
+
+    title <- "This project has already been initialized. What would you like to do?"
+    choices <- c(
+      init    = "Discover and install R package dependencies.",
+      restore = "Restore project from lockfile.",
+      nothing = "Activate the project without installing or snapshotting any packages."
+    )
+    selection <- utils::select.list(choices, title = title)
+    action <- names(selection)
+
+  }
+
+  action
 
 }
 
