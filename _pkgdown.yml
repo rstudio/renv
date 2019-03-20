@@ -1,0 +1,47 @@
+
+url: https://rstudio.github.io/renv/
+
+reference:
+
+- title: Basic Workflows
+  contents:
+  - init
+  - status
+  - snapshot
+  - restore
+
+- title: Library Management
+  contents:
+  - hydrate
+  - clean
+
+- title: Lockfile Management
+  contents:
+  - lockfile
+  - modify
+  - history
+  - revert
+
+- title: Cache
+  contents:
+  - purge
+
+- title: Package Installation
+  contents:
+  - install
+  - remove
+
+- title: Dependency Discovery
+  contents:
+  - dependencies
+
+- title: Project Management
+  contents:
+  - project
+  - activate
+  - deactivate
+  - load
+  - upgrade
+  - paths
+  - equip
+  - settings
