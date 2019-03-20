@@ -75,7 +75,7 @@ renv_restore_install_package_cache <- function(record, cache) {
   return(TRUE)
 }
 
-renv_restore_install_package_local <- function(record) {
+renv_restore_install_package_local <- function(record, quiet = TRUE) {
 
   package <- record$Package
 
@@ -91,7 +91,7 @@ renv_restore_install_package_local <- function(record) {
 
   lib <- renv_libpaths_default()
   path <- record$Path
-  type <- record$Type
+  type <- record$Type %||% renv_package_type(path)
 
   destination <- file.path(lib, package)
   callback <- renv_file_scoped_backup(destination)
@@ -103,7 +103,7 @@ renv_restore_install_package_local <- function(record) {
     lib   = lib,
     repos = NULL,
     type  = type,
-    quiet = TRUE,
+    quiet = quiet,
 
     configure.args = options$configure.args,
     configure.vars = options$configure.vars,

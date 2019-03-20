@@ -196,3 +196,10 @@ trunc <- function(text, n = 78) {
 startswith <- function(string, prefix) {
   substring(string, 1, nchar(prefix)) == prefix
 }
+
+# like tools::file_ext, but includes leading '.', and preserves
+# '.tar.gz', '.tar.bz' and so on
+fileext <- function(path, default = "") {
+  indices <- regexpr("[.]((?:tar[.])?[[:alnum:]]+)$", path)
+  ifelse(indices > -1L, substring(path, indices), default)
+}

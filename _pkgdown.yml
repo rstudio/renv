@@ -45,3 +45,11 @@ reference:
   - paths
   - equip
   - settings
+
+navbar:
+  type: default
+  left:
+  - text: Introduction
+    href: articles/introduction.html
+  - text: Reference
+    href: reference/index.html

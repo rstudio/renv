@@ -135,7 +135,7 @@ renv_download_headers <- function(url) {
   # add extra arguments to request headers
   extra <- c(
     renv_download_file_extra(),
-    if (method == "curl") c("--head"),
+    if (method == "curl") c("--head", "--include"),
     if (method == "wget") c("--server-response", "--spider")
   )
 
@@ -149,8 +149,17 @@ renv_download_headers <- function(url) {
     extra = extra
   )
 
-  contents <- readLines(file, warn = FALSE)
-  text <- grep(":", contents, fixed = TRUE, value = TRUE)
+  # read the downloaded headers
+  contents <- read(file)
+
+  # if redirects were required, each set of headers will
+  # be reported separately, so just report the final set
+  # of headers (ie: ignore redirects)
+  splat <- strsplit(contents, "\n\n", fixed = TRUE)[[1]]
+  text <- strsplit(splat[[length(splat)]], "\n", fixed = TRUE)[[1]]
+
+  # keep only header lines
+  lines <- grep(":", text, fixed = TRUE, value = TRUE)
   headers <- catch(renv_read_properties(text = text))
   names(headers) <- tolower(names(headers))
   if (inherits(headers, "error"))
