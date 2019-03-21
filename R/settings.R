@@ -51,6 +51,10 @@ renv_settings_read <- function(project) {
 
   })
 
+  defaults <- renv_settings_defaults()
+  missing <- setdiff(names(defaults), names(settings))
+  settings[missing] <- defaults[missing]
+
   renv_filebacked_set(path, settings)
 
 }
