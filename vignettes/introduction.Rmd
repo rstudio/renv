@@ -169,7 +169,7 @@ Installation from source can be challenging for a few reasons:
 1. Your system will need to have a compatible compiler toolchain available.
    In some cases, R packages may depend on C / C++ features that aren't
    available in an older system toolchain, especially in some older Linux
-   exterprise environments.
+   enterprise environments.
 
 2. Your system will need requisite system libraries, as many R packages contain
    compiled C / C++ code that depend on and link to these packages.
