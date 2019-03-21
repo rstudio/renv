@@ -87,7 +87,7 @@ renv_cache_prime <- function(library) {
     # construct cache entry
     cache <- renv_cache_package_path(record)
 
-    # if we already have a cache entry, skip (assume up-to-date)
+    # if we already have a cache entry, skip (assume up to date)
     if (renv_file_exists(cache))
       next
 
@@ -124,7 +124,7 @@ renv_cache_synchronize <- function(record) {
   # construct cache entry
   cache <- renv_cache_package_path(record)
 
-  # if our cache -> path link is already up-to-date, then nothing to do
+  # if our cache -> path link is already up to date, then nothing to do
   if (renv_file_same(cache, path))
     return(TRUE)
 

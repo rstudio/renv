@@ -115,7 +115,7 @@ restore <- function(project  = NULL,
   # perform the restore
   status <- renv_restore_run_actions(project, diff, current, lockfile)
 
-  # check to see if the lockfile is now up-to-date; if it's not,
+  # check to see if the lockfile is now up to date; if it's not,
   # then the restore might've repaired the dependency tree and
   # we should snapshot to capture the new changes
   renv_restore_postamble(project, lockfile, confirm)

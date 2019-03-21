@@ -406,9 +406,6 @@ renv_snapshot_auto <- function(project) {
   if (!file.exists(library))
     return(FALSE)
 
-  renv_scope_options(renv.verbose = FALSE)
   snapshot(project = project, confirm = FALSE)
-
-  TRUE
 
 }
