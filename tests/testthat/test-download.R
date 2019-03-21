@@ -16,6 +16,6 @@ test_that("we avoid downloading files twice", {
     invokeRestart("muffleMessage")
   })
 
-  expect_true(any(grepl("file is up-to-date", output$data())))
+  expect_true(any(grepl("file is up to date", output$data())))
 
 })

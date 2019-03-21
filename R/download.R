@@ -20,7 +20,7 @@ download <- function(url, destfile, quiet = FALSE) {
   size <- renv_download_size(url)
   if (size != -1 && renv_file_exists(destfile)) {
     if (file.size(destfile) == size) {
-      messagef("\tOK [file is up-to-date]")
+      messagef("\tOK [file is up to date]")
       return(destfile)
     }
   }
