@@ -266,6 +266,13 @@ settings <- list(
     update   = renv_settings_updated_cache
   ),
 
+  auto.snapshot = renv_settings_impl(
+    name     = "auto.snapshot",
+    validate = function(x) length(x) == 1 && is.logical(x),
+    default  = TRUE,
+    update   = NULL
+  ),
+
   python = renv_settings_impl(
     name     = "python",
     validate = function(x) is.character(x) || is.logical(x),

@@ -23,7 +23,7 @@ test_that("options() scoping works as expected", {
 
   old <- options("download.file.method", "download.file.extra")
   local({
-    renv_scope_options(opts)
+    do.call(renv_scope_options, opts)
     expect_equal(opts, options("download.file.method", "download.file.extra"))
   })
 
