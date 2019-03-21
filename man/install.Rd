@@ -4,12 +4,16 @@
 \alias{install}
 \title{Install Packages}
 \usage{
-install(packages)
+install(packages, project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to install. Required
 package dependencies (\code{Depends}, \code{Imports}, \code{LinkingTo}) will be installed
 as required.}
+
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
 }
 \description{
 Install one or more \R packages.

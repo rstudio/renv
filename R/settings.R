@@ -212,6 +212,13 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 #'
+#' \item{\code{auto.snapshot}}{
+#'
+#'   Automatically snapshot changes to a project's private library after
+#'   installing a package with [install()].
+#'
+#' }
+#'
 #' \item{\code{python}}{
 #'
 #'   The path to a Python binary, to be used by e.g. `reticulate` for projects

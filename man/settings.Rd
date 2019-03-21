@@ -46,6 +46,13 @@ projects in the same environment.
 
 }
 
+\item{\code{auto.snapshot}}{
+
+Automatically snapshot changes to a project's private library after
+installing a package with \code{\link[=install]{install()}}.
+
+}
+
 \item{\code{python}}{
 
 The path to a Python binary, to be used by e.g. \code{reticulate} for projects

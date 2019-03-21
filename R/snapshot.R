@@ -397,3 +397,18 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 }
 
+renv_snapshot_auto <- function(project) {
+
+  if (!settings$auto.snapshot(project = project))
+    return(FALSE)
+
+  library <- renv_paths_library(project = project)
+  if (!file.exists(library))
+    return(FALSE)
+
+  renv_scope_options(renv.verbose = FALSE)
+  snapshot(project = project, confirm = FALSE)
+
+  TRUE
+
+}
