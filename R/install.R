@@ -12,12 +12,15 @@
 #' Note that this interface is subject to change -- the goal is to hook into
 #' separate package installation backends in the future.
 #'
+#' @inheritParams renv-params
+#'
 #' @param packages A character vector of \R packages to install. Required
 #'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed
 #'   as required.
 #'
 #' @export
-install <- function(packages) {
+install <- function(packages, project = NULL) {
+  project <- project %||% renv_project()
 
   # create lockfile based on state of R libraries
   records <- renv_snapshot_r_packages()
@@ -29,6 +32,7 @@ install <- function(packages) {
   records <- Filter(renv_install_required, records)
   renv_restore_install(records)
 
+  renv_snapshot_auto(project = project)
 }
 
 # NOTE: this routine does a very primitive sort of dependency validation;

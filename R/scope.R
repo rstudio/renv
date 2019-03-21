@@ -4,8 +4,9 @@ renv_scope_libpaths <- function(new) {
   defer(renv_libpaths_set(old), envir = parent.frame())
 }
 
-renv_scope_options <- function(new) {
+renv_scope_options <- function(...) {
 
+  new <- list(...)
   old <- lapply(names(new), getOption)
   names(old) <- names(new)
 
