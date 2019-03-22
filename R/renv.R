@@ -7,14 +7,20 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param version The version of `renv` to associate with this project. When
+#'   `NULL`, the version recorded in the project's lockfile will be used
+#'   (if any); otherwise, the version of `renv` currently loaded in the \R
+#'   session will be used instead.
+#'
 #' @family renv
 #'
 #' @export
-activate <- function(project = NULL) {
+activate <- function(project = NULL, version = NULL) {
   project <- project %||% renv_project()
+  version <- version %||% renv_activate_version(project)
 
   # prepare renv infrastructure
-  renv_write_infrastructure(project)
+  renv_write_infrastructure(project, version)
   renv_bootstrap()
 
   # set library paths now so that they're properly restored in new sessions
@@ -78,3 +84,19 @@ load <- function(project = NULL) {
   invisible(project)
 }
 
+renv_activate_version <- function(project) {
+
+  # if the project has a lockfile, use the associated version
+  lockpath <- file.path(project, "renv.lock")
+  if (file.exists(lockpath)) {
+    lockfile <- renv_lockfile_read(lockpath)
+    version <- lockfile$renv$Version
+    if (!is.null(version))
+      return(version)
+  }
+
+  # otherwise, use version of currently loaded renv
+  renv <- .getNamespaceInfo(.getNamespace("renv"), "spec")
+  renv[["version"]]
+
+}
