@@ -12,8 +12,8 @@ snapshot(project = NULL, library = NULL,
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
 
-\item{library}{The \R library to be snapshotted. When \code{NULL}, the project
-library associated with the requested project is used.}
+\item{library}{The \R library to snapshot. When \code{NULL}, the project library
+associated with the requested project is used.}
 
 \item{lockfile}{The location where the generated lockfile should be written.
 When \code{NULL}, the lockfile (as an \R object) is returned directly instead.}
@@ -27,9 +27,8 @@ project's dependencies as required. See the \link{lockfile} documentation for mo
 details on the structure of a lockfile.
 }
 \details{
-In particular, \code{snapshot()} captures all \R packages currently installed
-within the project's private library. Dependencies within any other libraries
-(currently active on the library paths or not) are not captured.
+When no project library is active, \code{snapshot()} will capture only the
+packages within use (as detected by \code{dependencies()}) within a project.
 }
 \seealso{
 Other reproducibility: \code{\link{lockfile}},

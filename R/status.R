@@ -14,14 +14,10 @@ status <- function(project = NULL) {
 
 renv_status <- function(project) {
 
-  # ensure the project-local library is activated
-  renv_scope_libpaths(renv_paths_library(project))
-
-  # notify the user if there's no lockfile
-  lockpath <- file.path(project, "renv.lock")
-  if (!file.exists(lockpath)) {
-    writeLines("This project has not been snapshotted yet.")
-    return(NULL)
+  # check to see if we've initialized this project
+  if (!renv_project_initialized(project)) {
+    writeLines("This project has not yet been initialized.")
+    return(FALSE)
   }
 
   # report status of cache
@@ -29,8 +25,9 @@ renv_status <- function(project) {
     renv_cache_diagnose()
 
   # compare the lockfile with current state of library
-  lock <- renv_lockfile_read(lockpath)
-  curr <- snapshot(project = project, lockfile = NULL)
+  library <- renv_paths_library(project)
+  lock <- renv_lockfile_read(lockfile)
+  curr <- snapshot(project = project, library = library, lockfile = NULL)
   renv_status_report(lock, curr)
 
 }
