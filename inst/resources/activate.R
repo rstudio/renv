@@ -1,7 +1,17 @@
 
 local({
 
+  # the requested version of renv
   version <- "${VERSION}"
+
+  # source the user profile if any, respecting R_PROFILE_USER
+  rpu <- Sys.getenv("R_PROFILE_USER", unset = NA)
+  if (!is.na(rpu)) {
+    if (file.exists(rpu))
+      source(rpu)
+  } else if (file.exists("~/.Rprofile")) {
+    source("~/.Rprofile")
+  }
 
   # try to find a path where renv might be installed
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
