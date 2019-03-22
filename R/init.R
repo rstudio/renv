@@ -115,7 +115,7 @@ renv_init_action <- function(project, library, lockfile) {
       init    = "Re-initialize the project, discovering and installing R package dependencies as required.",
       nothing = "Activate the project without installing or snapshotting any packages."
     )
-    selection <- utils::select.list(choices, title = title)
+    selection <- utils::select.list(choices, title = title, graphics = FALSE)
     action <- names(selection)
 
   }
