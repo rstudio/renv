@@ -24,15 +24,6 @@ renv_package_find <- function(package, libpaths = renv_libpaths_all()) {
   if (length(hashes) == 0)
     return("")
 
-  # TODO: how to select if we have multiple hashed copies for this version?
-  if (length(hashes) != 1) {
-    fmt <- lines(
-      "Multiple hashed copies of %s [%s] detected.",
-      "The version with hash '%s' will be used."
-    )
-    warningf(fmt, package, version, hashes[[1]])
-  }
-
   file.path(location, version, hashes[[1]], package)
 
 }
