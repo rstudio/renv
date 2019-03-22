@@ -15,11 +15,17 @@ renv_load_r <- function(fields) {
 
   # load (check) version
   version <- fields$Version
-  if (!is.null(version)) {
-    if (version_compare(version, getRversion()) != 0) {
-      fmt <- "Project requested R version '%s' but '%s' is currently being used"
-      warningf(fmt, version, getRversion())
-    }
+  if (is.null(version))
+    return(NULL)
+
+  # normalize versions as plain old vectors
+  requested <- unclass(numeric_version(version))[[1]]
+  current <- unclass(numeric_version(getRversion()))[[1]]
+
+  # only compare major, minor versions
+  if (!identical(requested[1:2], current[1:2])) {
+    fmt <- "Project requested R version '%s' but '%s' is currently being used"
+    warningf(fmt, version, getRversion())
   }
 
 }
