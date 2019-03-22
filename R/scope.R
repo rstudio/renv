@@ -17,5 +17,6 @@ renv_scope_options <- function(...) {
 
 renv_scope_locale <- function(category = "LC_ALL", locale = "") {
   saved <- Sys.getlocale(category)
+  Sys.setlocale(category, locale)
   defer(Sys.setlocale(category, saved), envir = parent.frame())
 }
