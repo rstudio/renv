@@ -7,6 +7,7 @@
 #'
 #' - Leftover temporary directories in the project library will be removed.
 #' - Non-system packages installed in the system library will be removed.
+#' - Unused packages within the project will be removed.
 #'
 #' @inheritParams renv-params
 #'
@@ -16,7 +17,8 @@ clean <- function(project = NULL, confirm = interactive()) {
 
   status <-
     renv_clean_library_tempdirs(project, confirm) &&
-    renv_clean_system_library(project, confirm)
+    renv_clean_system_library(project, confirm) &&
+    renv_clean_unused_packages(project, confirm)
 
   if (status)
     vwritef("* The project is now clean.")
@@ -80,5 +82,44 @@ renv_clean_system_library <- function(project, confirm) {
 
   remove(packages, library = .Library)
   TRUE
+
+}
+
+renv_clean_unused_packages <- function(project, confirm) {
+
+  # find packages used in a project and their dependencies
+  deps <- dependencies(project)
+  paths <- renv_dependencies(project, deps$Package)
+  packages <- names(paths)
+
+  # find packages installed in the project library
+  library <- renv_paths_library(project = project)
+  installed <- list.files(library)
+
+  # figure out which packages aren't needed
+  removable <- setdiff(installed, packages)
+  if (empty(removable))
+    return(TRUE)
+
+  if (confirm || renv_verbose()) {
+
+    renv_pretty_print(
+      removable,
+      c(
+        "The following packages are installed in the project library,",
+        "but appear to be no longer used in your project."
+      ),
+      postamble = "These packages will be removed."
+    )
+
+    if (confirm && !proceed()) {
+      writeLines("Operation aborted.")
+      return(FALSE)
+    }
+
+  }
+
+  remove(removable, library = library)
+  return(TRUE)
 
 }
