@@ -86,17 +86,14 @@ load <- function(project = NULL) {
 
 renv_activate_version <- function(project) {
 
-  # if the project has a lockfile, use the associated version
-  lockpath <- file.path(project, "renv.lock")
-  if (file.exists(lockpath)) {
-    lockfile <- renv_lockfile_read(lockpath)
-    version <- lockfile$renv$Version
-    if (!is.null(version))
-      return(version)
-  }
+  spec <- .getNamespaceInfo(.getNamespace("renv"), "spec")
+  default <- spec[["version"]]
 
-  # otherwise, use version of currently loaded renv
-  renv <- .getNamespaceInfo(.getNamespace("renv"), "spec")
-  renv[["version"]]
+  lockpath <- file.path(project, "renv.lock")
+  if (!file.exists(lockpath))
+    return(default)
+
+  lockfile <- renv_lockfile_read(lockpath)
+  lockfile$renv$Version %||% default
 
 }
