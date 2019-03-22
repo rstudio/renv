@@ -6,14 +6,13 @@
 #' project's dependencies as required. See the [lockfile] documentation for more
 #' details on the structure of a lockfile.
 #'
-#' In particular, `snapshot()` captures all \R packages currently installed
-#' within the project's private library. Dependencies within any other libraries
-#' (currently active on the library paths or not) are not captured.
+#' When no project library is active, `snapshot()` will capture only the
+#' packages within use (as detected by `dependencies()`) within a project.
 #'
 #' @inheritParams renv-params
 #'
-#' @param library The \R library to be snapshotted. When `NULL`, the project
-#'   library associated with the requested project is used.
+#' @param library The \R library to snapshot. When `NULL`, the project library
+#'   associated with the requested project is used.
 #'
 #' @param lockfile The location where the generated lockfile should be written.
 #'   When `NULL`, the lockfile (as an \R object) is returned directly instead.
@@ -27,12 +26,23 @@ snapshot <- function(project  = NULL,
                      confirm  = interactive())
 {
   project <- project %||% renv_project()
-  library <- library %||% renv_paths_library(project = project)
+
+  # if the user calls snapshot without an active renv project,
+  # then take this as a request to snapshot the active library
+  if (renv_project_initialized(project)) {
+    library <- library %||% renv_paths_library(project = project)
+    filter  <- NULL
+  } else {
+    library <- library %||% renv_libpaths_default()
+    filter  <- filter %NULL% renv_snapshot_filter(project = project)
+  }
 
   renv_snapshot_preflight(project, library)
 
   new <- renv_lockfile_init()
-  new$R$Package <- renv_snapshot_r_packages(library)
+
+  records <- renv_snapshot_r_packages(library = library)
+  new$R$Package <- renv_snapshot_filter_apply(records, filter)
 
   if (is.null(lockfile))
     return(new)
@@ -407,5 +417,28 @@ renv_snapshot_auto <- function(project) {
     return(FALSE)
 
   snapshot(project = project, confirm = FALSE)
+
+}
+
+renv_snapshot_filter <- function(project) {
+  deps <- dependencies(project)
+  ignored <- c("renv", settings$ignored.packages(project = project))
+  packages <- setdiff(unique(deps$Package), ignored)
+  paths <- renv_dependencies(project, packages)
+  as.character(names(paths))
+}
+
+renv_snapshot_filter_apply <- function(records, filter) {
+
+  if (is.null(filter))
+    return(records)
+
+  if (is.function(filter))
+    return(Filter(filter, records))
+
+  if (is.character(filter))
+    return(records[intersect(filter, names(records))])
+
+  stopf("invalid filter in call to snapshot")
 
 }

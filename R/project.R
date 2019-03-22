@@ -18,6 +18,20 @@ renv_project <- function(default = getwd()) {
   project
 }
 
+renv_project_initialized <- function(project) {
+
+  lockfile <- file.path(project, "renv.lock")
+  if (file.exists(lockfile))
+    return(TRUE)
+
+  library <- renv_paths_library(project = project)
+  if (file.exists(library))
+    return(TRUE)
+
+  FALSE
+
+}
+
 renv_project_type <- function(path) {
 
   # check for R package projects
