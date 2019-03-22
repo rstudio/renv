@@ -179,15 +179,19 @@ renv_snapshot_validate_sources <- function(project, lockfile, confirm) {
   if (empty(unknown))
     return(TRUE)
 
-  renv_pretty_print(
-    names(unknown),
-    "The following package(s) were installed from an unknown source:",
-    "Consider re-installing these packages from a known source (e.g. CRAN)."
-  )
+  if (confirm) {
 
-  if (confirm && !proceed()) {
-    message("Operation aborted.")
-    return(FALSE)
+    renv_pretty_print(
+      names(unknown),
+      "The following package(s) were installed from an unknown source:",
+      "Consider re-installing these packages from a known source (e.g. CRAN)."
+    )
+
+    if (!proceed()) {
+      message("Operation aborted.")
+      return(FALSE)
+    }
+
   }
 
   TRUE
