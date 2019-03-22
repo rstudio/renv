@@ -100,6 +100,10 @@ renv_dependencies_discover_dir_children <- function(path, root) {
   # remove files which are broken symlinks
   children <- children[file.exists(children)]
 
+  # remove hard-coded ignores
+  ignored <- c("renv")
+  children <- children[!basename(children) %in% ignored]
+
   # construct pattern for matching files in this path
   # (return all files if no such pattern available)
   pattern <- renv_renvignore_pattern(path, root)
