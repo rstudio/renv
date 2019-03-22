@@ -65,13 +65,13 @@ renv_extsoft_use <- function(quiet = FALSE) {
       paste("LIB_XML", extsoft, sep = " = ")
     )
 
-    renv_pretty_print_packages(
+    renv_pretty_print(
       lines,
       "Please add the following lines to your Makeconf files to complete installation:",
       wrap = FALSE
     )
 
-    renv_pretty_print_packages(
+    renv_pretty_print(
       normalizePath(paths, winslash = "/"),
       "R Makeconf files are located at:",
       wrap = FALSE

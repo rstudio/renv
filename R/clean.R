@@ -33,7 +33,7 @@ renv_clean_library_tempdirs <- function(project, confirm) {
 
   if (confirm || renv_verbose()) {
 
-    renv_pretty_print_packages(
+    renv_pretty_print(
       bad,
       "The following directories will be removed:",
       wrap = FALSE
@@ -62,7 +62,7 @@ renv_clean_system_library <- function(project, confirm) {
 
   if (confirm || renv_verbose()) {
 
-    renv_pretty_print_packages(
+    renv_pretty_print(
       packages,
       "The following non-system packages are installed in the system library:",
       c(

@@ -149,7 +149,7 @@ renv_snapshot_validate_dependencies <- function(project, lockfile, confirm) {
 
   })
 
-  renv_pretty_print_packages(
+  renv_pretty_print(
     sprintf("%s: [%s]", keys, vals),
     "The following package(s) depend on packages which are not currently installed:",
     "Consider re-installing these packages before snapshotting the lockfile.",
@@ -176,7 +176,7 @@ renv_snapshot_validate_sources <- function(project, lockfile, confirm) {
   if (empty(unknown))
     return(TRUE)
 
-  renv_pretty_print_packages(
+  renv_pretty_print(
     names(unknown),
     "The following package(s) were installed from an unknown source:",
     "Consider re-installing these packages from a known source (e.g. CRAN)."
@@ -246,7 +246,7 @@ renv_snapshot_r_library_diagnose_broken_link <- function(library, pkgs) {
   if (!any(broken))
     return(pkgs)
 
-  renv_pretty_print_packages(
+  renv_pretty_print(
     basename(pkgs)[broken],
     "The following package(s) have broken symlinks into the cache:",
     "Consider re-installing these packages."
@@ -263,7 +263,7 @@ renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
   if (!any(missing))
     return(pkgs)
 
-  renv_pretty_print_packages(
+  renv_pretty_print(
     basename(pkgs)[missing],
     "The following folder(s) appear to be left-over temporary directories:",
     "Consider removing these folders from your library."
@@ -280,7 +280,7 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
   if (!any(missing))
     return(pkgs)
 
-  renv_pretty_print_packages(
+  renv_pretty_print(
     basename(pkgs[missing]),
     "The following package(s) are missing DESCRIPTION files:",
     "Consider removing or re-installing these packages.",
@@ -333,21 +333,21 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     return(invisible())
 
   if ("install" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(new, actions, "install"),
       "The following package(s) will be added to the lockfile:"
     )
   }
 
   if ("remove" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(old, actions, "remove"),
       "The following package(s) will be removed from the lockfile:"
     )
   }
 
   if ("upgrade" %in% actions) {
-    renv_pretty_print_pair(
+    renv_pretty_print_pair_records(
       renv_records_select(old, actions, "upgrade"),
       renv_records_select(new, actions, "upgrade"),
       "The following package(s) will be upgraded in the lockfile:"
@@ -355,7 +355,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   }
 
   if ("downgrade" %in% actions) {
-    renv_pretty_print_pair(
+    renv_pretty_print_pair_records(
       renv_records_select(old, actions, "downgrade"),
       renv_records_select(new, actions, "downgrade"),
       "The following package(s) will be downgraded in the lockfile:"
@@ -363,7 +363,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   }
 
   if ("crossgrade" %in% actions) {
-    renv_pretty_print_pair(
+    renv_pretty_print_pair_records(
       renv_records_select(old, actions, "crossgrade"),
       renv_records_select(new, actions, "crossgrade"),
       "The following package(s) will be modified in the lockfile:"

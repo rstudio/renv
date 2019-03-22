@@ -39,7 +39,7 @@ renv_upgrade_impl <- function(project, remote, confirm) {
     return(TRUE)
   }
 
-  renv_pretty_print_packages(
+  renv_pretty_print(
     sprintf("[%s] -> [%s]", renv_package_version("renv"), record$Version),
     "A new version of the renv package will be installed:",
     "This project will use the newly-installed version of renv."

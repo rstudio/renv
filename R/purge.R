@@ -67,7 +67,7 @@ renv_purge_impl <- function(package,
   missing <- !file.exists(paths)
   if (any(missing)) {
 
-    renv_pretty_print_packages(
+    renv_pretty_print(
       paths[missing],
       "The following entries were not found in the cache:",
       "They will be ignored.",
@@ -85,7 +85,7 @@ renv_purge_impl <- function(package,
     version <- path_component(paths, 2)
     entries <- sprintf(fmt, package, version, aliased_path(paths))
 
-    renv_pretty_print_packages(
+    renv_pretty_print(
       entries,
       "The following packages will be purged from the cache:",
       wrap = FALSE
