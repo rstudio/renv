@@ -92,7 +92,7 @@ renv_purge_impl <- function(package,
     )
 
     if (confirm && !proceed()) {
-      message("* Operation aborted.")
+      message("Operation aborted.")
       return(paths)
     }
 
