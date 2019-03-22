@@ -1,52 +1,9 @@
 
-renv_pretty_print <- function(records, preamble = NULL, postamble = NULL) {
-
-  formatted <- named(
-    sprintf("  [%s]", map_chr(extract(records, "Version"), format)),
-    sprintf("  %s",   map_chr(extract(records, "Package"), format))
-  )
-
-  preamble %&&% writeLines(preamble)
-  print.simple.list(formatted)
-  writeLines("")
-  postamble %&&% writeLines(postamble)
-  postamble %&&% writeLines("")
-
-  invisible(NULL)
-
-}
-
-renv_pretty_print_pair <- function(before, after, preamble = NULL, postamble = NULL) {
-
-  if (!setequal(names(before), names(after)))
-    stopf("internal error: names mismatch", call. = TRUE)
-
-  nm <- intersect(names(before), names(after))
-  before <- before[nm]; after <- after[nm]
-
-  formatted <- sprintf(
-    "  [%s -> %s]",
-    map_chr(extract(before, "Version"), format),
-    map_chr(extract(after, "Version"), format)
-  )
-
-  names(formatted) <- sprintf("  %s", extract_chr(before, "Package"))
-
-  preamble %&&% writeLines(preamble)
-  print.simple.list(formatted)
-  writeLines("")
-  postamble %&&% writeLines(postamble)
-  postamble %&&% writeLines("")
-
-  invisible(NULL)
-
-}
-
-renv_pretty_print_packages <- function(packages,
-                                       preamble = NULL,
-                                       postamble = NULL,
-                                       emitter = NULL,
-                                       wrap = TRUE)
+renv_pretty_print <- function(packages,
+                              preamble = NULL,
+                              postamble = NULL,
+                              emitter = NULL,
+                              wrap = TRUE)
 {
   msg <- stack()
 
@@ -72,4 +29,50 @@ renv_pretty_print_packages <- function(packages,
 
   emitter <- emitter %||% writeLines
   emitter(text)
+}
+
+renv_pretty_print_records <- function(records,
+                                      preamble = NULL,
+                                      postamble = NULL)
+{
+  formatted <- named(
+    sprintf("  [%s]", map_chr(extract(records, "Version"), format)),
+    sprintf("  %s",   map_chr(extract(records, "Package"), format))
+  )
+
+  preamble %&&% writeLines(preamble)
+  print.simple.list(formatted)
+  writeLines("")
+  postamble %&&% writeLines(postamble)
+  postamble %&&% writeLines("")
+
+  invisible(NULL)
+}
+
+renv_pretty_print_pair_records <- function(before,
+                                           after,
+                                           preamble = NULL,
+                                           postamble = NULL)
+{
+  if (!setequal(names(before), names(after)))
+    stopf("internal error: names mismatch", call. = TRUE)
+
+  nm <- intersect(names(before), names(after))
+  before <- before[nm]; after <- after[nm]
+
+  formatted <- sprintf(
+    "  [%s -> %s]",
+    map_chr(extract(before, "Version"), format),
+    map_chr(extract(after, "Version"), format)
+  )
+
+  names(formatted) <- sprintf("  %s", extract_chr(before, "Package"))
+
+  preamble %&&% writeLines(preamble)
+  print.simple.list(formatted)
+  writeLines("")
+  postamble %&&% writeLines(postamble)
+  postamble %&&% writeLines("")
+
+  invisible(NULL)
 }

@@ -168,7 +168,7 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
   entries <- sprintf(fmt, package, version, aliased_path(dirname(bad)))
 
   if (verbose) {
-    renv_pretty_print_packages(
+    renv_pretty_print(
       entries,
       "The following packages are missing DESCRIPTION files in the cache:",
       "These packages should be purged and re-installed.",
@@ -205,7 +205,7 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
   entries <- sprintf(fmt, package, version, hash[diff], computed[diff])
 
   if (verbose) {
-    renv_pretty_print_packages(
+    renv_pretty_print(
       entries,
       "The following packages have incorrect hashes:",
       "These packages should be purged and re-installed.",

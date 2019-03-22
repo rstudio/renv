@@ -216,7 +216,7 @@ renv_restore_report_unknown_source <- function(actions, lockfile) {
   if (empty(unknown))
     return(FALSE)
 
-  renv_pretty_print(
+  renv_pretty_print_records(
     unknown,
     "The following package(s) were installed from an unknown source:",
     "renv will attempt to install the latest version(s) from CRAN instead."
@@ -229,35 +229,35 @@ renv_restore_report_unknown_source <- function(actions, lockfile) {
 renv_restore_report_actions <- function(actions, current, lockfile) {
 
   if ("install" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(lockfile, actions, "install"),
       "The following package(s) will be installed:"
     )
   }
 
   if ("remove" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(current, actions, "remove"),
       "The following package(s) will be removed:"
     )
   }
 
   if ("upgrade" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(lockfile, actions, "upgrade"),
       "The following package(s) will be upgraded:"
     )
   }
 
   if ("downgrade" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(lockfile, actions, "downgrade"),
       "The following package(s) will be downgraded:"
     )
   }
 
   if ("crossgrade" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(lockfile, actions, "crossgrade"),
       "The following package(s) will be modified:"
     )

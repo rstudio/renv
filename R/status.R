@@ -39,7 +39,7 @@ renv_status_report <- function(lock, curr) {
     vwritef("* The project is already synchronized with the lockfile.")
 
   if ("install" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(curr, actions, "install"),
       "The following package(s) are installed but not recorded in the lockfile:",
       "Use `renv::snapshot()` to add these packages to your lockfile."
@@ -47,7 +47,7 @@ renv_status_report <- function(lock, curr) {
   }
 
   if ("remove" %in% actions) {
-    renv_pretty_print(
+    renv_pretty_print_records(
       renv_records_select(lock, actions, "remove"),
       "The following package(s) are recorded in the lockfile but not installed:",
       "Use `renv::restore(actions = \"install\")` to install these packages."
