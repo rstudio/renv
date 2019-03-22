@@ -81,6 +81,9 @@ snapshot <- function(project  = NULL,
   renv_lockfile_write(new, file = lockfile)
   vwritef("* Lockfile written to '%s'.", aliased_path(lockfile))
 
+  # ensure the lockfile is .Rbuildignore-d
+  renv_write_rbuildignore(project)
+
   invisible(new)
 
 }

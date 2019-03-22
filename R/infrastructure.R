@@ -25,7 +25,7 @@ renv_write_rbuildignore <- function(project) {
   renv_write_entry_impl(
     lines  = "^renv$",
     file   = file.path(project, ".Rbuildignore"),
-    create = file.exists(file.path(project, "DESCRIPTION"))
+    create = renv_project_type(project) == "package"
   )
 
 }
