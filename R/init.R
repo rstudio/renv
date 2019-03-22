@@ -74,6 +74,10 @@ init <- function(project = NULL, settings = NULL, force = FALSE) {
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile)
+  if (empty(action)) {
+    message("Operation aborted.")
+    return(invisible(FALSE))
+  }
 
   # perform the action
   if (action == "init") {
@@ -115,7 +119,12 @@ renv_init_action <- function(project, library, lockfile) {
       init    = "Re-initialize the project, discovering and installing R package dependencies as required.",
       nothing = "Activate the project without installing or snapshotting any packages."
     )
-    selection <- utils::select.list(choices, title = title, graphics = FALSE)
+
+    selection <- tryCatch(
+      utils::select.list(choices, title = title, graphics = FALSE),
+      interrupt = function(e) ""
+    )
+
     action <- names(selection)
 
   }
