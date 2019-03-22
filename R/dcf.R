@@ -13,6 +13,8 @@ renv_dcf_read <- function(file, ...) {
   # when reading DCF files, so be sure to manage that here
   ctype <- Sys.getlocale("LC_CTYPE")
   on.exit(Sys.setlocale("LC_CTYPE", ctype), add = TRUE)
+
+  # read the file
   as.data.frame(read.dcf(file, ...), stringsAsFactors = FALSE)
 
 }

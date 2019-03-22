@@ -4,12 +4,18 @@
 \alias{status}
 \title{Status}
 \usage{
-status(project = NULL)
+status(project = NULL, library = NULL, lockfile = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
+
+\item{library}{The path to a library. By default, the project library
+associated with the requested project \code{project} is used.}
+
+\item{lockfile}{The path to a lockfile. By default, the project lockfile
+(called \code{renv.lock}) is used.}
 }
 \description{
 Report differences between the project's lockfile and the current state of
