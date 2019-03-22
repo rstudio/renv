@@ -4,7 +4,8 @@
 \alias{upgrade}
 \title{Upgrade renv}
 \usage{
-upgrade(project = NULL, remote = "rstudio/renv")
+upgrade(project = NULL, remote = "rstudio/renv",
+  confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active
@@ -17,6 +18,8 @@ not all remote specifications are yet supported by \code{renv}.) See
 \url{https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html}
 for more details. When \code{NULL} (the default), the latest version of \code{renv}
 available on GitHub is retrieved instead.}
+
+\item{confirm}{Boolean; confirm upgrade before proceeding?}
 }
 \description{
 Upgrade the version of \code{renv} associated with a project.
