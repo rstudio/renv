@@ -16,10 +16,10 @@ renv_hash_description <- function(path) {
   subsetted <- dcf[intersect(c(fields, remotes), names(dcf))]
 
   # sort names (use C locale to ensure consistent ordering)
-  collate <- Sys.getlocale(category = "LC_COLLATE")
-  Sys.setlocale(category = "LC_COLLATE", locale = "C")
-  ordered <- subsetted[sort(names(subsetted))]
-  Sys.setlocale(category = "LC_COLLATE", locale = collate)
+  ordered <- local({
+    renv_scope_locale("LC_COLLATE", "C")
+    subsetted[sort(names(subsetted))]
+  })
 
   # write to tempfile (use binary connection to ensure unix-style
   # newlines for cross-platform hash stability)

@@ -6,17 +6,39 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param library The path to a library. By default, the project library
+#'   associated with the requested project `project` is used.
+#'
+#' @param lockfile The path to a lockfile. By default, the project lockfile
+#'   (called `renv.lock`) is used.
+#'
 #' @export
-status <- function(project = NULL) {
+status <- function(project = NULL,
+                   library = NULL,
+                   lockfile = NULL)
+{
   project <- project %||% renv_project()
-  invisible(renv_status(project))
+  library <- library %||% renv_paths_library(project = project)
+  lockfile <- lockfile %||% file.path(project, "renv.lock")
+
+  invisible(renv_status(project, library, lockfile))
 }
 
-renv_status <- function(project) {
+renv_status <- function(project, library, lockfile) {
 
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
-    writeLines("This project has not yet been initialized.")
+    writef("* This project has not yet been initialized.")
+    return(FALSE)
+  }
+
+  # report missing lockfile
+  if (!file.exists(lockfile)) {
+    text <- if (identical(lockfile, file.path(project, "renv.lock")))
+      "* This project has not yet been snapshotted -- 'renv.lock' does not exist."
+    else
+      sprintf("* Lockfile '%s' does not exist.", aliased_path(lockfile))
+    writef(text)
     return(FALSE)
   }
 
@@ -25,7 +47,6 @@ renv_status <- function(project) {
     renv_cache_diagnose()
 
   # compare the lockfile with current state of library
-  library <- renv_paths_library(project)
   lock <- renv_lockfile_read(lockfile)
   curr <- snapshot(project = project, library = library, lockfile = NULL)
   renv_status_report(lock, curr)
