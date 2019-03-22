@@ -64,14 +64,20 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.89</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.101</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/introduction.html">Introduction</a>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -103,7 +109,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>install</span>(<span class='no'>packages</span>)</pre>
+    <pre class="usage"><span class='fu'>install</span>(<span class='no'>packages</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -113,6 +119,12 @@
       <td><p>A character vector of <span style="R">R</span> packages to install. Required
 package dependencies (<code>Depends</code>, <code>Imports</code>, <code>LinkingTo</code>) will be installed
 as required.</p></td>
+    </tr>
+    <tr>
+      <th>project</th>
+      <td><p>The project directory. If <code>NULL</code>, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.</p></td>
     </tr>
     </table>
     

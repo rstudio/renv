@@ -67,14 +67,20 @@ details on the structure of a lockfile." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.89</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.101</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/introduction.html">Introduction</a>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -123,8 +129,8 @@ the current working directory is used.</p></td>
     </tr>
     <tr>
       <th>library</th>
-      <td><p>The <span style="R">R</span> library to be snapshotted. When <code>NULL</code>, the project
-library associated with the requested project is used.</p></td>
+      <td><p>The <span style="R">R</span> library to snapshot. When <code>NULL</code>, the project library
+associated with the requested project is used.</p></td>
     </tr>
     <tr>
       <th>lockfile</th>
@@ -139,9 +145,8 @@ When <code>NULL</code>, the lockfile (as an <span style="R">R</span> object) is 
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>In particular, <code>snapshot()</code> captures all <span style="R">R</span> packages currently installed
-within the project's private library. Dependencies within any other libraries
-(currently active on the library paths or not) are not captured.</p>
+    <p>When no project library is active, <code>snapshot()</code> will capture only the
+packages within use (as detected by <code><a href='dependencies.html'>dependencies()</a></code>) within a project.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 

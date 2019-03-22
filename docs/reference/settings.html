@@ -65,14 +65,20 @@ renv with your particular project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.89</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.101</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../articles/introduction.html">Introduction</a>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -109,7 +115,7 @@ renv with your particular project." />
         
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>An object of class <code>list</code> of length 4.</p>
+    <p>An object of class <code>list</code> of length 5.</p>
     
     <h2 class="hasAnchor" id="settings"><a class="anchor" href="#settings"></a>Settings</h2>
 
@@ -129,6 +135,8 @@ packages into a global cache, and link packages from the cache into your
 <code>renv</code> projects as appropriate. This can greatly save on disk space
 and install time when for <span style="R">R</span> packages which are used across multiple
 projects in the same environment.</p></dd>
+    <dt><code>auto.snapshot</code></dt><dd><p>Automatically snapshot changes to a project's private library after
+installing a package with <code><a href='install.html'>install()</a></code>.</p></dd>
     <dt><code>python</code></dt><dd><p>The path to a Python binary, to be used by e.g. <code>reticulate</code> for projects
 requiring the use of Python. Alternatively, if set to <code>TRUE</code>, then <code>renv</code>
 will create a project-local Python virtual environment and use that.
