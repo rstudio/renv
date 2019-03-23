@@ -16,7 +16,7 @@ renv_hash_description <- function(path) {
   subsetted <- dcf[intersect(c(fields, remotes), names(dcf))]
 
   # include R version in hash
-  subsetted[["RVersion"]] <- getRversion()
+  subsetted[["RVersion"]] <- getRversion()[1, 1:2]
 
   # sort names (use C locale to ensure consistent ordering)
   ordered <- local({
