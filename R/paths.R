@@ -93,7 +93,9 @@ renv_paths_repos <- function(...) {
 }
 
 renv_paths_cache <- function(...) {
-  cacheroot <- file.path("cache", renv_cache_version())
+  rversion <- getRversion()[1, 1:2]
+  cacheversion <- renv_cache_version()
+  cacheroot <- file.path("cache", cacheversion, rversion)
   renv_paths_common(cacheroot, renv_paths_root, FALSE, ...)
 }
 
