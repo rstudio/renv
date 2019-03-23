@@ -102,3 +102,5 @@
 
 - [x] Only report R package entries that have changed if they exist both before
       and after (ie: only report upgrades / downgrades / crossgrades)
+
+- [ ] Include current session's R version when computing hash for DESCRIPTION
