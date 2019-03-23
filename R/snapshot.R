@@ -416,6 +416,12 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 renv_snapshot_auto <- function(project) {
 
+  if (!renv_project_initialized(project = project))
+    return(FALSE)
+
+  if (!identical(project, renv_project(default = NULL)))
+    return(FALSE)
+
   if (!settings$auto.snapshot(project = project))
     return(FALSE)
 

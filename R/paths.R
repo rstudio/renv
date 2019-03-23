@@ -93,9 +93,7 @@ renv_paths_repos <- function(...) {
 }
 
 renv_paths_cache <- function(...) {
-  rversion <- getRversion()[1, 1:2]
-  cacheversion <- renv_cache_version()
-  cacheroot <- file.path("cache", cacheversion, rversion)
+  cacheroot <- file.path("cache", renv_cache_version())
   renv_paths_common(cacheroot, renv_paths_root, FALSE, ...)
 }
 
@@ -107,7 +105,7 @@ renv_paths_extsoft <- function(...) {
 
 renv_paths_root <- function(...) {
   root <- Sys.getenv("RENV_PATHS_ROOT", "~/.renv")
-  file.path(root, ...) %||% ""
+  file.path(root, getRversion()[1, 1:2], ...) %||% ""
 }
 
 renv_platform_prefix <- function(...) {
