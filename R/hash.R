@@ -10,10 +10,13 @@ renv_hash_description <- function(path) {
   )
 
   # add remotes fields
-  remotes <- grep("^Remote", names(dcf), value = TRUE)
+  remotes <- renv_hash_description_remotes(dcf)
 
   # retrieve these fields
   subsetted <- dcf[intersect(c(fields, remotes), names(dcf))]
+
+  # include R version in hash
+  subsetted[["RVersion"]] <- getRversion()
 
   # sort names (use C locale to ensure consistent ordering)
   ordered <- local({
@@ -42,3 +45,15 @@ renv_hash_description <- function(path) {
 
 }
 
+renv_hash_description_remotes <- function(dcf) {
+
+  type <- dcf[["RemoteType"]]
+  if (is.null(type))
+    return(character())
+
+  if (type == "standard")
+    return(character())
+
+  grep("^Remote", names(dcf), value = TRUE)
+
+}
