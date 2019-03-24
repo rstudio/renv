@@ -18,7 +18,7 @@ fi
 # Construct new version
 LHS="$(echo "${VERSION}" | cut -d'-' -f1)"
 RHS="$(echo "${VERSION}" | cut -d'-' -f2)"
-if [ -z "${RHS}" ]; then
+if [ "${LHS}" = "${RHS}" ]; then
   RHS="0"
 fi
 

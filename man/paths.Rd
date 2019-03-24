@@ -7,10 +7,18 @@
 Customize the paths that \code{renv} uses for global state storage.
 }
 \details{
-By default, all state is collected into a directory at \code{~/.renv}. If desired,
-this path can be adjusted by setting the \code{RENV_PATHS_ROOT} environment
-variable. This can be useful if you'd like multiple users to be able to
-share a single global cache of installed packages.
+By default, \code{renv} collects state into these folders:
+
+\tabular{ll}{
+\strong{Platform} \tab \strong{Location} \cr
+Linux        \tab \code{~/.local/share/renv} \cr
+macOS        \tab \code{~/Library/Application Support/renv} \cr
+Windows      \tab \code{\%APPDATA\%/renv} \cr
+}
+
+If desired, this path can be adjusted by setting the \code{RENV_PATHS_ROOT}
+environment variable. This can be useful if you'd like, for example, multiple
+users to be able to share a single global cache.
 
 The various state sub-directories can also be individually adjusted, if so
 desired (e.g. you'd prefer to keep the cache of package installations on a

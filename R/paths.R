@@ -3,10 +3,18 @@
 #'
 #' Customize the paths that `renv` uses for global state storage.
 #'
-#' By default, all state is collected into a directory at `~/.renv`. If desired,
-#' this path can be adjusted by setting the `RENV_PATHS_ROOT` environment
-#' variable. This can be useful if you'd like multiple users to be able to
-#' share a single global cache of installed packages.
+#' By default, `renv` collects state into these folders:
+#'
+#' \tabular{ll}{
+#' **Platform** \tab **Location** \cr
+#' Linux        \tab `~/.local/share/renv` \cr
+#' macOS        \tab `~/Library/Application Support/renv` \cr
+#' Windows      \tab `%APPDATA%/renv` \cr
+#' }
+#'
+#' If desired, this path can be adjusted by setting the `RENV_PATHS_ROOT`
+#' environment variable. This can be useful if you'd like, for example, multiple
+#' users to be able to share a single global cache.
 #'
 #' The various state sub-directories can also be individually adjusted, if so
 #' desired (e.g. you'd prefer to keep the cache of package installations on a
@@ -76,36 +84,59 @@ renv_paths_library <- function(project = NULL, ...) {
   renv_paths_common_local(project, "library", TRUE, ...)
 }
 
-renv_paths_bootstrap <- function(...) {
-  renv_paths_common("bootstrap", renv_paths_root, TRUE, ...)
-}
-
 renv_paths_source <- function(...) {
   renv_paths_common("source", renv_paths_root, FALSE, ...)
 }
 
+renv_paths_bootstrap <- function(...) {
+  renv_paths_common("bootstrap", renv_paths_root_versioned, TRUE, ...)
+}
+
 renv_paths_binary <- function(...) {
-  renv_paths_common("binary", renv_paths_root, FALSE, ...)
+  renv_paths_common("binary", renv_paths_root_versioned, FALSE, ...)
 }
 
 renv_paths_repos <- function(...) {
-  renv_paths_common("repos", renv_paths_root, FALSE, ...)
+  renv_paths_common("repos", renv_paths_root_versioned, FALSE, ...)
 }
 
 renv_paths_cache <- function(...) {
   cacheroot <- file.path("cache", renv_cache_version())
-  renv_paths_common(cacheroot, renv_paths_root, FALSE, ...)
+  renv_paths_common(cacheroot, renv_paths_root_versioned, FALSE, ...)
 }
 
 renv_paths_extsoft <- function(...) {
-  root <- file.path(Sys.getenv("SYSTEMDRIVE"), "RBuildTools/extsoft")
+  drive <- Sys.getenv("SYSTEMDRIVE", unset = "C:")
+  root <- file.path(drive, "RBuildTools/extsoft")
   file.path(root, ...) %||% ""
 }
 
 
 renv_paths_root <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_ROOT", "~/.renv")
-  file.path(root, getRversion()[1, 1:2], ...) %||% ""
+  root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
+  file.path(root, ...) %||% ""
+}
+
+renv_paths_root_versioned <- function(...) {
+  version <- paste("R", getRversion()[1, 1:2], sep = "-")
+  renv_paths_root(version, ...) %||% ""
+}
+
+renv_paths_root_default <- function() {
+  renv_global("root", renv_paths_root_default_impl())
+}
+
+renv_paths_root_default_impl <- function() {
+
+  root <- switch(
+    Sys.info()[["sysname"]],
+    Darwin  = Sys.getenv("XDG_DATA_HOME", "~/Library/Application Support"),
+    Windows = Sys.getenv("LOCALAPPDATA", "~/.renv"),
+    Sys.getenv("XDG_DATA_HOME", "~/.local/share")
+  )
+
+  file.path(root, "renv")
+
 }
 
 renv_platform_prefix <- function(...) {
