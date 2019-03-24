@@ -64,7 +64,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.101</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.3</span>
       </span>
     </div>
 
@@ -109,7 +109,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>upgrade</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remote</span> <span class='kw'>=</span> <span class='st'>"rstudio/renv"</span>)</pre>
+    <pre class="usage"><span class='fu'>upgrade</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remote</span> <span class='kw'>=</span> <span class='st'>"rstudio/renv"</span>,
+  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -128,6 +129,10 @@ not all remote specifications are yet supported by <code>renv</code>.) See
 <a href='https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html'>https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html</a>
 for more details. When <code>NULL</code> (the default), the latest version of <code>renv</code>
 available on GitHub is retrieved instead.</p></td>
+    </tr>
+    <tr>
+      <th>confirm</th>
+      <td><p>Boolean; confirm upgrade before proceeding?</p></td>
     </tr>
     </table>
     

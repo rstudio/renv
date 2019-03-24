@@ -21,5 +21,6 @@ The following actions will be performed:
 \itemize{
 \item Leftover temporary directories in the project library will be removed.
 \item Non-system packages installed in the system library will be removed.
+\item Unused packages within the project will be removed.
 }
 }

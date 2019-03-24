@@ -65,7 +65,7 @@ the private library (if any)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.101</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.3</span>
       </span>
     </div>
 
@@ -111,7 +111,7 @@ the private library (if any).</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>status</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>status</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -121,6 +121,16 @@ the private library (if any).</p>
       <td><p>The project directory. If <code>NULL</code>, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.</p></td>
+    </tr>
+    <tr>
+      <th>library</th>
+      <td><p>The path to a library. By default, the project library
+associated with the requested project <code>project</code> is used.</p></td>
+    </tr>
+    <tr>
+      <th>lockfile</th>
+      <td><p>The path to a lockfile. By default, the project lockfile
+(called <code>renv.lock</code>) is used.</p></td>
     </tr>
     </table>
     

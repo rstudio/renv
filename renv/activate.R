@@ -2,30 +2,32 @@
 local({
 
   # the requested version of renv
-  version <- "0.1.0-99"
+  version <- "0.2.0"
 
   # source the user profile if any, respecting R_PROFILE_USER
-  rpu <- Sys.getenv("R_PROFILE_USER", unset = NA)
-  if (!is.na(rpu)) {
-    if (file.exists(rpu))
-      source(rpu)
-  } else if (file.exists("~/.Rprofile")) {
-    source("~/.Rprofile")
-  }
+  profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
+  if (file.exists(profile))
+    source(profile)
 
-  # try to find a path where renv might be installed
+  # figure out root for renv installation
+  default <- switch(
+    Sys.info()[["sysname"]],
+    Darwin  = Sys.getenv("XDG_DATA_HOME", "~/Library/Application Support"),
+    Windows = Sys.getenv("LOCALAPPDATA", "~/.renv"),
+    Sys.getenv("XDG_DATA_HOME", "~/.local/share")
+  )
+
   prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
-  base <- c(Sys.getenv("RENV_PATHS_ROOT", unset = "~/.renv"), "renv")
-  paths <- file.path(base, "bootstrap", prefix, "renv", version)
+  base <- Sys.getenv("RENV_PATHS_ROOT", unset = file.path(default, "renv"))
+  rversion <- paste("R", getRversion()[1, 1:2], sep = "-")
+  path <- file.path(base, rversion, "bootstrap", prefix, "renv", version)
 
   # try to load renv from one of these paths
-  for (path in paths)
-    if (requireNamespace("renv", lib.loc = path, quietly = TRUE))
-      return(renv::load())
+  if (requireNamespace("renv", lib.loc = path, quietly = TRUE))
+    return(renv::load())
 
   # failed to find renv locally; we'll try to install from GitHub.
   # first, set up download options as appropriate (try to use GITHUB_PAT)
-  path <- paths[[1]]
   try({
 
     message("Failed to find installation of renv -- attempting to bootstrap...")

@@ -66,7 +66,7 @@ alongside any other project-specific state recorded for the project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.101</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.3</span>
       </span>
     </div>
 
@@ -113,7 +113,7 @@ alongside any other project-specific state recorded for the project.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>activate</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>activate</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -123,6 +123,13 @@ alongside any other project-specific state recorded for the project.</p>
       <td><p>The project directory. If <code>NULL</code>, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.</p></td>
+    </tr>
+    <tr>
+      <th>version</th>
+      <td><p>The version of <code>renv</code> to associate with this project. When
+<code>NULL</code>, the version recorded in the project's lockfile will be used
+(if any); otherwise, the version of <code>renv</code> currently loaded in the <span style="R">R</span>
+session will be used instead.</p></td>
     </tr>
     </table>
     

@@ -64,7 +64,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.101</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.3</span>
       </span>
     </div>
 
@@ -112,10 +112,16 @@
         
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>By default, all state is collected into a directory at <code>~/.renv</code>. If desired,
-this path can be adjusted by setting the <code>RENV_PATHS_ROOT</code> environment
-variable. This can be useful if you'd like multiple users to be able to
-share a single global cache of installed packages.</p>
+    <p>By default, <code>renv</code> collects state into these folders:</p>
+<table class='table'>
+<tr><td><strong>Platform</strong></td><td><strong>Location</strong></td></tr>
+<tr><td>Linux</td><td><code>~/.local/share/renv</code></td></tr>
+<tr><td>macOS</td><td><code>~/Library/Application Support/renv</code></td></tr>
+<tr><td>Windows</td><td><code>%APPDATA%/renv</code></td></tr>
+</table>
+    <p>If desired, this path can be adjusted by setting the <code>RENV_PATHS_ROOT</code>
+environment variable. This can be useful if you'd like, for example, multiple
+users to be able to share a single global cache.</p>
 <p>The various state sub-directories can also be individually adjusted, if so
 desired (e.g. you'd prefer to keep the cache of package installations on a
 separate volume). The various environment variables that can be set are
