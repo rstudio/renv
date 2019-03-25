@@ -14,18 +14,29 @@ ensure_existing_file <- function(path) {
   invisible(path)
 }
 
-ensure_directory <- function(path) {
+ensure_directory <- function(paths) {
 
-  info <- file.info(path, extra_cols = FALSE)
-  if (identical(info$isdir, FALSE))
-    stopf("path '%s' exists but is not a directory", path)
+  # handle zero-path case
+  if (empty(paths))
+    return(invisible(paths))
 
-  if (is.na(info$isdir)) {
-    if (!dir.create(path, recursive = TRUE))
-      stopf("failed to create directory at path '%s'", path)
-  }
+  # collect file info as list
+  fileinfo <- file.info(paths, extra_cols = FALSE)
+  infos <- lapply(1:nrow(fileinfo), function(i) fileinfo[i, ])
 
-  invisible(path)
+  # check for existing files that aren't directories
+  for (info in infos)
+    if (identical(info$isdir, FALSE))
+      stopf("path '%s' exists but is not a directory", rownames(info))
+
+  # create missing directories
+  for (info in infos)
+    if (is.na(info$isdir))
+      if (!dir.create(rownames(info), recursive = TRUE))
+        stopf("failed to create directory at path '%s'", rownames(info))
+
+  # return the paths
+  invisible(paths)
 
 }
 
