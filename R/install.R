@@ -30,7 +30,7 @@ install <- function(packages, project = NULL) {
   # retrieve packages
   records <- renv_restore_retrieve(packages, records)
   records <- Filter(renv_install_required, records)
-  status <- renv_restore_install(records)
+  status <- renv_restore_install(project, records)
 
   renv_snapshot_auto(project = project)
   invisible(records)

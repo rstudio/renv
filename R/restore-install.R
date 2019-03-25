@@ -1,17 +1,40 @@
 
-renv_restore_install <- function(records) {
+renv_restore_install <- function(project, records) {
 
+  # save active library
+  library <- renv_libpaths_default()
+
+  # set up a dummy library path for installation
+  templib <- tempfile("renv-templib-")
+  ensure_directory(templib)
+  on.exit(unlink(templib), add = TRUE)
+  renv_scope_libpaths(c(templib, .libPaths()))
+
+  # figure out whether we can use the cache during install
+  linkable <-
+    settings$use.cache() &&
+    identical(library, renv_paths_library(project = project))
+
+  linker <- if (linkable) renv_file_link else renv_file_copy
+
+  # iterate through records and install
   for (record in records)
-    renv_restore_install_impl(record)
+    renv_restore_install_impl(record, linker)
+
+  # migrate packages into true library
+  sources <- list.files(templib, full.names = TRUE)
+  targets <- file.path(library, basename(sources))
+  names(targets) <- sources
+  enumerate(targets, renv_file_move, overwrite = TRUE)
 
 }
 
-renv_restore_install_impl <- function(record) {
+renv_restore_install_impl <- function(record, linker = renv_file_copy) {
 
   # check for cache entry and install if there
   cache <- renv_cache_package_path(record)
   if (file.exists(cache))
-    return(renv_restore_install_package_cache(record, cache))
+    return(renv_restore_install_package_cache(record, cache, linker))
 
   # report that we're about to start installation
   fmt <- "Installing %s [%s] from %s ..."
@@ -27,7 +50,7 @@ renv_restore_install_impl <- function(record) {
 
 }
 
-renv_restore_install_package_cache <- function(record, cache) {
+renv_restore_install_package_cache <- function(record, cache, linker) {
 
   state <- renv_restore_state()
 
@@ -35,40 +58,30 @@ renv_restore_install_package_cache <- function(record, cache) {
   library <- renv_libpaths_default()
   target <- file.path(library, record$Package)
 
-  # determine if we should copy or link from the cache
-  # (prefer copying if we're writing to a non-renv path)
-  projlib <- renv_paths_library()
-  ensure_directory(projlib)
-  cacheable <- settings$use.cache() && path_within(target, projlib)
-
-  # check to see if we already have an up-to-date symlink
-  # into the cache (nothing to do if that's the case)
+  # check to see if we already have an up-to-date symlink into the cache
+  # (nothing to do if that's the case)
   skip <-
-    cacheable &&
     !record$Package %in% state$packages &&
     renv_file_same(cache, target)
+
   if (skip)
     return(TRUE)
-
-  # choose appropriate copier / linker
-  link <- if (cacheable) renv_file_link else renv_file_copy
 
   # back up the previous installation if needed
   callback <- renv_file_scoped_backup(target)
   on.exit(callback(), add = TRUE)
 
-  # now, try to hydrate from cache
-  status <- catch(link(cache, target))
-  if (!identical(status, TRUE))
-    return(status)
-
   # report successful link to user
   fmt <- "Installing %s [%s] ..."
   with(record, messagef(fmt, Package, Version))
 
+  status <- catch(linker(cache, target))
+  if (inherits(status, "error"))
+    return(status)
+
   type <- case(
-    identical(link, renv_file_copy) ~ "copied",
-    identical(link, renv_file_link) ~ "linked"
+    identical(linker, renv_file_copy) ~ "copied",
+    identical(linker, renv_file_link) ~ "linked"
   )
 
   messagef("\tOK (%s cache)", type)

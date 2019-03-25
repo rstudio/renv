@@ -151,6 +151,7 @@ renv_file_same <- function(source, target) {
     return(TRUE)
 
   # check to see if they're equal after normalization
+  # (e.g. for symlinks pointing to same file)
   source <- normalizePath(source, mustWork = FALSE)
   target <- normalizePath(target, mustWork = FALSE)
   if (identical(source, target))
