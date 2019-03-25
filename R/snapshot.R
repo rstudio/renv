@@ -416,20 +416,25 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 renv_snapshot_auto <- function(project) {
 
-  if (!renv_project_initialized(project = project))
-    return(FALSE)
-
+  # only automatically snapshot the current project
   if (!identical(project, renv_project(default = NULL)))
     return(FALSE)
 
+  # don't auto-snapshot if the project hasn't been initialized
+  if (!renv_project_initialized(project = project))
+    return(FALSE)
+
+  # don't auto-snapshot if the user has explicitly disabled it
   if (!settings$auto.snapshot(project = project))
     return(FALSE)
 
+  # don't auto-snapshot if we don't have a library
   library <- renv_paths_library(project = project)
   if (!file.exists(library))
     return(FALSE)
 
-  snapshot(project = project, confirm = FALSE)
+  # passed pre-flight checks; snapshot the library
+  snapshot(project = project, library = library, confirm = FALSE)
 
 }
 
