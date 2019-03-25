@@ -141,7 +141,9 @@ proceed <- function() {
 }
 
 R <- function() {
-  file.path(R.home("bin"), "R")
+  bin <- R.home("bin")
+  exe <- if (renv_platform_windows()) "R.exe" else "R"
+  file.path(bin, exe)
 }
 
 inject <- function(contents,
