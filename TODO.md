@@ -15,7 +15,7 @@
       `rehash()` would look at packages in the cache and update their cache
       location if the caching scheme changed.
   
-- [ ] `clean()` function to remove ununsed packages from the library. (If the
+- [x] `clean()` function to remove ununsed packages from the library. (If the
       cache is enabled, they will remain in the cache).
   
 - [ ] Allow users to override the repository used during restore of a
@@ -41,7 +41,7 @@
       install any missing packages into the active library. (Companion function
       to `init()`)
 
-- [ ] Should we provide for project-specific options? What about download method
+- [x] Should we provide for project-specific options? What about download method
       management? [Motivation: users might require `curl` + `http_proxy` settings
       to download packages from CRAN; authentication for GitHub]
 
@@ -85,7 +85,7 @@
 
 - [x] `renv::status()` function reporting differences between lockfile + library.
 
-- [ ] Tools for analyizing the cache?
+- [ ] Tools for analyzing the cache?
 
 - [x] Python: allow e.g. 'python = TRUE' for initializating a Python project.
 
@@ -95,7 +95,7 @@
 
 - [x] Warn when lockfile contains packages from unknown source?
 
-- [ ] Automatically bootstrap an `renv` installation when loading a project
+- [x] Automatically bootstrap an `renv` installation when loading a project
       if none is available locally?
 
 - [ ] Should `renv::install()` auto-update packages?
@@ -103,4 +103,4 @@
 - [x] Only report R package entries that have changed if they exist both before
       and after (ie: only report upgrades / downgrades / crossgrades)
 
-- [ ] Include current session's R version when computing hash for DESCRIPTION
+- [x] Include current session's R version when computing hash for DESCRIPTION
