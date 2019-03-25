@@ -162,7 +162,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile) {
   records <- renv_records(lockfile)
 
   records <- renv_restore_retrieve(packages, records)
-  renv_restore_install(records)
+  renv_restore_install(project, records)
 
 }
 
@@ -178,7 +178,8 @@ renv_restore_begin <- function(records = NULL, packages = NULL, recursive = TRUE
     # on the packages to be installed (their version, source, etc)
     records = records,
 
-    # the set of packages to be installed in this restore session
+    # the set of packages to be installed in this restore session;
+    # as requested by the user / front-end API call
     packages = packages,
 
     # should package dependencies be crawled recursively? this is useful if
