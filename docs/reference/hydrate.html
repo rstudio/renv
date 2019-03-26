@@ -34,7 +34,8 @@
 <meta property="og:title" content="Hydrate a Project — hydrate" />
 
 <meta property="og:description" content="Discover the R packages used within a project, and then install those
-packages into the active library." />
+packages into the active library. This effectively allows you to clone the
+state of your system R libraries for use within a project library." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -65,7 +66,7 @@ packages into the active library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.15</span>
       </span>
     </div>
 
@@ -107,15 +108,21 @@ packages into the active library." />
     <div class="ref-description">
     
     <p>Discover the <span style="R">R</span> packages used within a project, and then install those
-packages into the active library.</p>
+packages into the active library. This effectively allows you to clone the
+state of your system R libraries for use within a project library.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>hydrate</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>hydrate</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>packages</th>
+      <td><p>The set of <span style="R">R</span> packages to install. When <code>NULL</code>, the
+set of packages as reported by <code><a href='dependencies.html'>dependencies()</a></code> is used.</p></td>
+    </tr>
     <tr>
       <th>project</th>
       <td><p>The project directory. If <code>NULL</code>, then the active
@@ -131,10 +138,17 @@ library as reported by <code><a href='https://www.rdocumentation.org/packages/ba
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>While this function is normally called as part of <code><a href='init.html'>init()</a></code>, it may be useful
-to call this function explicitly when working with a new project, as it
-can take care of finding and installing <span style="R">R</span> packages available on CRAN that
-have not yet been installed on your machine.</p>
+    <p><code>hydrate()</code> attempts to re-use packages already installed on your system, to
+avoid unnecessary attempts to download and install packages from CRAN.
+<code>hydrate()</code> will attempt to discover <span style="R">R</span> packages from the following sources
+(in order):</p><ul>
+<li><p>The user library,</p></li>
+<li><p>The site library,</p></li>
+<li><p>The system library,</p></li>
+<li><p>The <code>renv</code> cache.</p></li>
+</ul>
+    <p>If package is discovered in one of these locations, <code>renv</code> will attempt to
+copy or link that package into the requested library as appropriate.</p>
     
 
   </div>

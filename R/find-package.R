@@ -7,8 +7,7 @@ renv_package_find <- function(package, libpaths = renv_libpaths_all()) {
   if (renv_file_exists(location))
     return(location)
 
-  # if that failed, try looking in the cache for the latest
-  # version of the package
+  # try looking in the cache for the package
   location <- renv_paths_cache(package)
   versions <- list.files(location)
   if (!length(versions))
@@ -24,6 +23,8 @@ renv_package_find <- function(package, libpaths = renv_libpaths_all()) {
   if (length(hashes) == 0)
     return("")
 
+  # TODO: if we have multiple versions of the package hashed,
+  # is there a way we can have the user request one or the other?
   file.path(location, version, hashes[[1]], package)
 
 }
