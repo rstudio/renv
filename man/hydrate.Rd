@@ -4,9 +4,12 @@
 \alias{hydrate}
 \title{Hydrate a Project}
 \usage{
-hydrate(project = NULL, library = NULL)
+hydrate(packages = NULL, project = NULL, library = NULL)
 }
 \arguments{
+\item{packages}{The set of \R packages to install. When \code{NULL}, the
+set of packages as reported by \code{\link[=dependencies]{dependencies()}} is used.}
+
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
@@ -16,11 +19,21 @@ library as reported by \code{.libPaths()} is used.}
 }
 \description{
 Discover the \R packages used within a project, and then install those
-packages into the active library.
+packages into the active library. This effectively allows you to clone the
+state of your system R libraries for use within a project library.
 }
 \details{
-While this function is normally called as part of \code{\link[=init]{init()}}, it may be useful
-to call this function explicitly when working with a new project, as it
-can take care of finding and installing \R packages available on CRAN that
-have not yet been installed on your machine.
+\code{hydrate()} attempts to re-use packages already installed on your system, to
+avoid unnecessary attempts to download and install packages from CRAN.
+\code{hydrate()} will attempt to discover \R packages from the following sources
+(in order):
+\itemize{
+\item The user library,
+\item The site library,
+\item The system library,
+\item The \code{renv} cache.
+}
+
+If package is discovered in one of these locations, \code{renv} will attempt to
+copy or link that package into the requested library as appropriate.
 }

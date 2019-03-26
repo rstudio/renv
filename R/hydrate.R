@@ -2,25 +2,39 @@
 #' Hydrate a Project
 #'
 #' Discover the \R packages used within a project, and then install those
-#' packages into the active library.
+#' packages into the active library. This effectively allows you to clone the
+#' state of your system R libraries for use within a project library.
 #'
-#' While this function is normally called as part of [init()], it may be useful
-#' to call this function explicitly when working with a new project, as it
-#' can take care of finding and installing \R packages available on CRAN that
-#' have not yet been installed on your machine.
+#' `hydrate()` attempts to re-use packages already installed on your system, to
+#' avoid unnecessary attempts to download and install packages from CRAN.
+#' `hydrate()` will attempt to discover \R packages from the following sources
+#' (in order):
+#'
+#' - The user library,
+#' - The site library,
+#' - The system library,
+#' - The `renv` cache.
+#'
+#' If package is discovered in one of these locations, `renv` will attempt to
+#' copy or link that package into the requested library as appropriate.
 #'
 #' @inheritParams renv-params
+#'
+#' @param packages The set of \R packages to install. When `NULL`, the
+#'   set of packages as reported by [dependencies()] is used.
 #'
 #' @param library The \R library to be hydrated. When `NULL`, the active
 #'   library as reported by `.libPaths()` is used.
 #'
 #' @export
-hydrate <- function(project = NULL, library = NULL) {
-  project <- project %||% renv_project()
-  library <- library %||% renv_libpaths_default()
+hydrate <- function(packages = NULL, project = NULL, library = NULL) {
+
+  project  <- project  %||% renv_project()
+  library  <- library  %||% renv_libpaths_default()
+  packages <- packages %||% unique(dependencies(project)$Package)
 
   # find packages used in this project, and the dependencies of those packages
-  deps <- renv_hydrate_dependencies(project)
+  deps <- renv_hydrate_dependencies(project, packages)
 
   # remove 'renv' since it's managed separately
   deps$renv <- NULL
@@ -54,11 +68,10 @@ hydrate <- function(project = NULL, library = NULL) {
 
 }
 
-renv_hydrate_dependencies <- function(project) {
+renv_hydrate_dependencies <- function(project, packages) {
   vprintf("* Discovering package dependencies ... ")
-  deps <- dependencies(project)
   ignored <- c("renv", settings$ignored.packages(project = project))
-  packages <- setdiff(unique(deps$Package), ignored)
+  packages <- setdiff(packages, ignored)
   all <- renv_dependencies(project, packages)
   vwritef("Done!")
   all

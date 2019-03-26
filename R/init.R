@@ -82,11 +82,11 @@ init <- function(project = NULL, settings = NULL, force = FALSE) {
   # perform the action
   if (action == "init") {
     ensure_directory(library)
-    hydrate(project, library)
-    snapshot(project, library, confirm = FALSE)
+    hydrate(project = project, library = library)
+    snapshot(project = project, library = library, confirm = FALSE)
   } else if (action == "restore") {
     ensure_directory(library)
-    restore(project, confirm = FALSE)
+    restore(project = project, confirm = FALSE)
   }
 
   # activate the newly-hydrated project
