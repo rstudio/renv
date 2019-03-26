@@ -2,6 +2,7 @@ pandoc: 2.7.1
 pkgdown: 1.3.0.9000
 pkgdown_sha: 0b2c27d41b869ac31b6a46815940f55b12f6171f
 articles:
+  lockfile: lockfile.html
   renv: renv.html
 urls:
   reference: https://rstudio.github.io/renv//reference

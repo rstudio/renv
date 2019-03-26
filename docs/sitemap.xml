@@ -73,6 +73,9 @@
     <loc>https://rstudio.github.io/renv//reference/upgrade.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/renv//articles/lockfile.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/renv//articles/renv.html</loc>
   </url>
 </urlset>

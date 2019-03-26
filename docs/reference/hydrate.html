@@ -66,7 +66,7 @@ state of your system R libraries for use within a project library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.18</span>
       </span>
     </div>
 
@@ -83,6 +83,18 @@ state of your system R libraries for use within a project library." />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/lockfile.html">Lockfiles</a>
+    </li>
+  </ul>
 </li>
       </ul>
       
@@ -113,7 +125,8 @@ state of your system R libraries for use within a project library.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>hydrate</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>hydrate</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>missing</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -134,6 +147,12 @@ the current working directory is used.</p></td>
       <td><p>The <span style="R">R</span> library to be hydrated. When <code>NULL</code>, the active
 library as reported by <code><a href='https://www.rdocumentation.org/packages/base/topics/libPaths'>.libPaths()</a></code> is used.</p></td>
     </tr>
+    <tr>
+      <th>missing</th>
+      <td><p>The behavior to choose when one or more of the requested
+packages are not available on the system. See <strong>Missing Packages</strong>
+for more details.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
@@ -150,6 +169,20 @@ avoid unnecessary attempts to download and install packages from CRAN.
     <p>If package is discovered in one of these locations, <code>renv</code> will attempt to
 copy or link that package into the requested library as appropriate.</p>
     
+    <h2 class="hasAnchor" id="missing-packages"><a class="anchor" href="#missing-packages"></a>Missing Packages</h2>
+
+    
+    <p>The <code>missing</code> argument controls what happens when your project requests the
+hydration of packages which are not currently installed on your system. The
+possible values are:</p>
+<table class='table'>
+<tr><td><strong>Option</strong></td><td><strong>Action</strong></td></tr>
+<tr><td><code>"install"</code></td><td>Install the latest version of missing packages from CRAN.</td></tr>
+<tr><td><code>"ignore"</code></td><td>Do nothing; missing packages will not be installed.</td></tr>
+</table>
+    <p>The <span style="R">R</span> option <code>renv.hydrate.missing</code> can be used to control the default behavior
+of <code>renv::hydrate()</code>.</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -158,6 +191,8 @@ copy or link that package into the requested library as appropriate.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#missing-packages">Missing Packages</a></li>
           </ul>
 
   </div>
