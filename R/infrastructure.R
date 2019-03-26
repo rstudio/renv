@@ -42,7 +42,7 @@ renv_write_gitignore <- function(project) {
 
 renv_write_activate <- function(project = NULL, version = NULL) {
   project <- project %||% renv_project()
-  version <- version %||% renv_package_version("renv")
+  version <- version %||% renv_activate_version(project)
 
   source <- system.file("resources/activate.R", package = "renv")
   target <- file.path(project, "renv/activate.R")
