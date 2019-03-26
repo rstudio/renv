@@ -18,6 +18,21 @@
 #' If package is discovered in one of these locations, `renv` will attempt to
 #' copy or link that package into the requested library as appropriate.
 #'
+#' @section Missing Packages:
+#'
+#' The `missing` argument controls what happens when your project requests the
+#' hydration of packages which are not currently installed on your system. The
+#' possible values are:
+#'
+#' \tabular{ll}{
+#' **Option**   \tab **Action** \cr
+#' `"install"`  \tab Install the latest version of missing packages from CRAN. \cr
+#' `"ignore"`   \tab Do nothing; missing packages will not be installed. \cr
+#' }
+#'
+#' The \R option `renv.hydrate.missing` can be used to control the default behavior
+#' of `renv::hydrate()`.
+#'
 #' @inheritParams renv-params
 #'
 #' @param packages The set of \R packages to install. When `NULL`, the
@@ -26,12 +41,22 @@
 #' @param library The \R library to be hydrated. When `NULL`, the active
 #'   library as reported by `.libPaths()` is used.
 #'
+#' @param missing The behavior to choose when one or more of the requested
+#'   packages are not available on the system. See **Missing Packages**
+#'   for more details.
+#'
 #' @export
-hydrate <- function(packages = NULL, project = NULL, library = NULL) {
-
+hydrate <- function(packages = NULL,
+                    project = NULL,
+                    library = NULL,
+                    missing = NULL)
+{
   project  <- project  %||% renv_project()
   library  <- library  %||% renv_libpaths_default()
   packages <- packages %||% unique(dependencies(project)$Package)
+
+  missing <- missing %||% getOption("renv.hydrate.missing", default = "install")
+  missing <- match.arg(missing, c("install", "ignore"))
 
   # find packages used in this project, and the dependencies of those packages
   deps <- renv_hydrate_dependencies(project, packages)
@@ -61,7 +86,8 @@ hydrate <- function(packages = NULL, project = NULL, library = NULL) {
   renv_libpaths_set(library)
 
   # attempt to install missing packages (if any)
-  renv_hydrate_resolve_missing(project, na)
+  if (missing == "install")
+    renv_hydrate_resolve_missing(project, na)
 
   # we're done!
   invisible(packages)
