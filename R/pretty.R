@@ -49,7 +49,7 @@ renv_pretty_print_records <- function(records,
   invisible(NULL)
 }
 
-renv_pretty_print_pair_records <- function(before,
+renv_pretty_print_records_pair <- function(before,
                                            after,
                                            preamble = NULL,
                                            postamble = NULL)

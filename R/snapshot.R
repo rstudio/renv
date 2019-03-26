@@ -354,7 +354,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   }
 
   if ("upgrade" %in% actions) {
-    renv_pretty_print_pair_records(
+    renv_pretty_print_records_pair(
       renv_records_select(old, actions, "upgrade"),
       renv_records_select(new, actions, "upgrade"),
       "The following package(s) will be upgraded in the lockfile:"
@@ -362,7 +362,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   }
 
   if ("downgrade" %in% actions) {
-    renv_pretty_print_pair_records(
+    renv_pretty_print_records_pair(
       renv_records_select(old, actions, "downgrade"),
       renv_records_select(new, actions, "downgrade"),
       "The following package(s) will be downgraded in the lockfile:"
@@ -370,7 +370,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   }
 
   if ("crossgrade" %in% actions) {
-    renv_pretty_print_pair_records(
+    renv_pretty_print_records_pair(
       renv_records_select(old, actions, "crossgrade"),
       renv_records_select(new, actions, "crossgrade"),
       "The following package(s) will be modified in the lockfile:"
