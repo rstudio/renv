@@ -21,6 +21,9 @@ renv_file_preface <- function(source, target, overwrite) {
 
 renv_file_copy <- function(source, target, overwrite = FALSE) {
 
+  if (renv_file_same(source, target))
+    return(TRUE)
+
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
 
