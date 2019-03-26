@@ -9,6 +9,10 @@ local({
   if (file.exists(profile))
     source(profile)
 
+  # load the 'utils' package eagerly -- this ensures that renv shims, which
+  # mask 'utils' packages, will come first on the search path
+  library(utils, lib.loc = .Library)
+
   # figure out root for renv installation
   default <- switch(
     Sys.info()[["sysname"]],
