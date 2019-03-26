@@ -34,12 +34,12 @@ hydrate <- function(project = NULL, library = NULL) {
   ensure_directory(library)
 
   # copy packages from user library to cache
-  cacheable <-
+  linkable <-
     library == renv_paths_library(project = project) &&
     settings$use.cache(project = project)
 
-  if (cacheable)
-    renv_hydrate_cache_packages(packages, library)
+  if (linkable)
+    renv_hydrate_link_packages(packages, library)
   else
     renv_hydrate_copy_packages(packages, library)
 
@@ -67,7 +67,7 @@ renv_hydrate_dependencies <- function(project) {
 # takes a package called 'package' installed at location 'location',
 # copies that package into the cache, and then links from the cache
 # to the (private) library 'library'
-renv_hydrate_cache_package <- function(package, location, library) {
+renv_hydrate_link_package <- function(package, location, library) {
 
   # construct path to cache
   record <- renv_snapshot_description(location)
@@ -80,17 +80,15 @@ renv_hydrate_cache_package <- function(package, location, library) {
   }
 
   # link package back from cache to library
-  # (only for private libraries)
   target <- file.path(library, package)
   ensure_parent_directory(target)
-  if (path_within(target, renv_paths_library()))
-    renv_file_link(cache, target, overwrite = TRUE)
+  renv_file_link(cache, target, overwrite = TRUE)
 
 }
 
-renv_hydrate_cache_packages <- function(packages, library) {
+renv_hydrate_link_packages <- function(packages, library) {
   vprintf("* Copying packages into the cache ... ", appendLF = FALSE)
-  cache <- renv_progress(renv_hydrate_cache_package, length(packages))
+  cache <- renv_progress(renv_hydrate_link_package, length(packages))
   cached <- enumerate(packages, cache, library = library)
   vwritef("Done!")
   cached
@@ -100,8 +98,7 @@ renv_hydrate_cache_packages <- function(packages, library) {
 # and copies it to the library 'library'
 renv_hydrate_copy_package <- function(package, location, library) {
   target <- file.path(library, package)
-  if (!renv_file_same(location, target))
-    renv_file_copy(location, target, overwrite = TRUE)
+  renv_file_copy(location, target, overwrite = TRUE)
 }
 
 renv_hydrate_copy_packages <- function(packages, library) {
