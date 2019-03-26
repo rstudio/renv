@@ -41,11 +41,7 @@ renv_restore_install_impl <- function(record, linker = renv_file_copy) {
   with(record, messagef(fmt, Package, Version, renv_alias(Source)))
 
   # otherwise, install
-  status <- tryCatch(
-    renv_restore_install_package_local(record),
-    condition = identity
-  )
-
+  status <- catch(renv_restore_install_package_local(record))
   renv_restore_install_report_status(record, status)
 
 }
@@ -104,31 +100,46 @@ renv_restore_install_package_local <- function(record, quiet = TRUE) {
   before(package)
   on.exit(after(package), add = TRUE)
 
-  lib <- renv_libpaths_default()
+  library <- renv_libpaths_default()
   path <- record$Path
-  type <- record$Type %||% renv_package_type(path)
 
-  destination <- file.path(lib, package)
+  destination <- file.path(library, package)
   callback <- renv_file_scoped_backup(destination)
   on.exit(callback(), add = TRUE)
 
-  install.packages(
+  renv_install_package_local_impl(package, path, library)
 
-    pkgs  = path,
-    lib   = lib,
-    repos = NULL,
-    type  = type,
-    quiet = quiet,
+}
 
-    configure.args = options$configure.args,
-    configure.vars = options$configure.vars,
-    INSTALL_opts   = options$install.options
+renv_install_package_local_impl <- function(package, path, library) {
 
+  # prepare library, package paths
+  library <- normalizePath(library, winslash = "/", mustWork = TRUE)
+  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+
+  # set up arguments
+  args <- c("CMD", "INSTALL", "-l", shQuote(library), shQuote(path))
+  rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
+  env <- paste("R_LIBS", shQuote(rlibs), sep = "=")
+
+  # do the install
+  output <- suppressWarnings(
+    system2(R(), args, stdout = TRUE, stderr = TRUE, env = env)
   )
 
-  # check to see if installation succeeded
-  if (!file.exists(file.path(lib, package)))
-    stopf("installation of package '%s' failed", package)
+  # check for successful install
+  status <- attr(output, "status") %||% 0L
+  if (identical(status, 0L))
+    return(TRUE)
+
+  # installation failed; write output for user
+  header <- sprintf("Error installing package '%s':", package)
+  lines <- paste(rep("=", nchar(header)), collapse = "")
+  all <- c(header, lines, "", output)
+  vwritef(paste(all, collapse = "\n"), con = stderr())
+
+  # stop with an error
+  stopf("installation of package '%s' failed", package)
 
 }
 
@@ -141,7 +152,7 @@ renv_restore_install_report_status <- function(record, status) {
 
   if (inherits(status, "error")) {
     message("\tFAILED")
-    return(status)
+    stop(status)
   }
 
   type <- record$Type
