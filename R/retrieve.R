@@ -48,8 +48,22 @@ renv_retrieve_impl <- function(package, records = NULL) {
          git          = renv_retrieve_git(record),
          git2r        = renv_retrieve_git(record),
          github       = renv_retrieve_github(record),
+         gitlab       = renv_retrieve_gitlab(record),
          renv_retrieve_unknown_source(record)
   )
+
+}
+
+renv_retrieve_path <- function(record) {
+
+  package <- record$Package
+  source <- record$Source %||% record$RemoteType %||% ""
+
+  fields <- c("Package", "Version", "RemoteSha")
+  matches <- record[intersect(names(record), fields)]
+  name <- sprintf("%s.tar.gz", paste(matches, collapse = "_"))
+
+  renv_paths_source(package, source, name)
 
 }
 
@@ -65,13 +79,30 @@ renv_retrieve_bioconductor <- function(record) {
 
 renv_retrieve_github <- function(record) {
 
-  fmt <- "https://%s/repos/%s/%s/tarball/%s"
+  record$RemoteHost <- record$RemoteHost %||% "api.github.com"
 
-  # download the tarball
+  fmt <- "https://%s/repos/%s/%s/tarball/%s"
   url <- with(record, sprintf(fmt, RemoteHost, RemoteUsername, RemoteRepo, RemoteSha))
-  suffix <- with(record, sprintf("%s/%s.tar.gz", Package, RemoteSha))
-  path <- renv_paths_source(suffix)
-  renv_retrieve_package(record, url, path)
+  path <- renv_retrieve_path(record)
+  renv_retrieve_package(record, url, path, overwrite = TRUE)
+
+}
+
+renv_retrieve_gitlab <- function(record) {
+
+  # TODO: remotes doesn't appear to understand how to interact with GitLab API?
+  host <- record$RemoteHost %||% "gitlab.com"
+  id <- paste(record$RemoteUsername, record$RemoteRepo, sep = "%2F")
+
+  fmt <- "https://%s/api/v4/projects/%s/repository/archive.tar.gz"
+  url <- sprintf(fmt, host, id)
+  path <- renv_retrieve_path(record)
+
+  sha <- record$RemoteSha
+  if (!is.null(sha))
+    url <- paste(url, paste("sha", sha, sep = "="), sep = "?")
+
+  renv_retrieve_package(record, url, path, overwrite = TRUE)
 
 }
 
@@ -221,6 +252,9 @@ renv_retrieve_package <- function(record, url, path, overwrite = FALSE) {
 
 renv_retrieve_successful <- function(record, path) {
 
+  # augment DESCRIPTION with remote information
+  renv_retrieve_augment(record, path)
+
   # augment record with information from DESCRIPTION file
   desc <- renv_description_read(path)
   record$Package <- desc$Package
@@ -247,6 +281,53 @@ renv_retrieve_successful <- function(record, path) {
   })
 
   TRUE
+
+}
+
+renv_retrieve_augment <- function(record, path) {
+
+  descpath <- file.path(path, "DESCRIPTION")
+
+  # handle packed archives
+  info <- file.info(path)
+  if (!info$isdir) {
+
+    temppath <- tempfile("renv-package-", tmpdir = dirname(path))
+    on.exit(unlink(temppath, recursive = TRUE), add = TRUE)
+
+    files <- untar(tarfile = path, list = TRUE)
+    descpath <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
+    if (empty(descpath))
+      stopf("archive '%s' does not appear to be an R package (no DESCRIPTION file)", path)
+
+    untar(tarfile = path, exdir = temppath)
+    descpath <- file.path(temppath, descpath)
+
+  }
+
+  # add remotes fields
+  desc <- renv_description_read(descpath)
+
+  # add in our remote fields
+  record$RemoteType <- record$RemoteType %||% record$Source
+  fields <- unique(c("RemoteType", grep("^Remote", names(record), value = TRUE)))
+  desc[fields] <- record[fields]
+
+  # write it back out
+  write.dcf(desc, file = descpath, useBytes = TRUE)
+
+  # re-pack the archive
+  if (!info$isdir) {
+    owd <- setwd(temppath)
+    on.exit(setwd(owd), add = TRUE)
+
+    # rename the archive (avoid tar warnings from R)
+    source <- basename(dirname(descpath))
+    target <- desc$Package
+    renv_file_move(source, target, overwrite = TRUE)
+
+    tar(tarfile = path, files = target)
+  }
 
 }
 

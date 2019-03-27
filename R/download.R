@@ -85,31 +85,58 @@ renv_download_prepare <- function(url) {
 
   for (host in github_hosts)
     if (startswith(url, host))
-      return(renv_download_prepare_github(url))
+      return(renv_download_prepare_github())
+
+  gitlab_hosts <- c(
+    "https://gitlab.com/"
+  )
+
+  for (host in gitlab_hosts)
+    if (startswith(url, host))
+      return(renv_download_prepare_gitlab())
 
   function() {}
 
 }
 
-renv_download_prepare_github <- function(url) {
+renv_download_prepare_github <- function() {
 
-  # do we have a GITHUB_PAT? if not, bail
   pat <- Sys.getenv("GITHUB_PAT", unset = NA)
   if (is.na(pat))
-    return(NULL)
+    return(function() {})
 
-  # prepare download file method, options
-  auth <- paste("Authorization: token", pat)
+  headers <- list("Authorization" = paste("token", pat))
+  renv_download_prepare_headers(headers)
+
+}
+
+renv_download_prepare_gitlab <- function() {
+
+  pat <- Sys.getenv("GITLAB_PAT", unset = NA)
+  if (is.na(pat))
+    return(function() {})
+
+  headers <- list("Private-Token" = pat)
+  renv_download_prepare_headers(headers)
+
+}
+
+renv_download_prepare_headers <- function(headers) {
+
+  headertext <- paste(
+    "--header",
+    shQuote(paste(names(headers), headers, sep = ": "))
+  )
 
   # infer an appropriate download method
   if (nzchar(Sys.which("curl"))) {
     method <- "curl"
-    extra <- c("--location", "--fail", "--header", shQuote(auth))
+    extra <- c("--location", "--fail", headertext)
   } else if (nzchar(Sys.which("wget"))) {
     method <- "wget"
-    extra <- c("--header", shQuote(auth))
+    extra <- headertext
   } else {
-    return(NULL)
+    return(function() {})
   }
 
   saved <- options("download.file.method", "download.file.extra")
@@ -156,7 +183,7 @@ renv_download_headers <- function(url) {
 
   # keep only header lines
   lines <- grep(":", text, fixed = TRUE, value = TRUE)
-  headers <- catch(renv_read_properties(text = text))
+  headers <- catch(renv_read_properties(text = lines))
   names(headers) <- tolower(names(headers))
   if (inherits(headers, "error"))
     return(list())
@@ -199,10 +226,15 @@ renv_download_file_method <- function() {
 }
 
 renv_download_file_extra <- function() {
+
   method <- renv_download_file_method()
+  extra <- getOption("download.file.extra", default = character())
+
   if (method == "curl")
-    return(c("--location", "--fail"))
-  character()
+    extra <- unique(c("--location", "--fail", extra))
+
+  extra
+
 }
 
 renv_download_report <- function(elapsed, size) {
