@@ -20,8 +20,8 @@ renv_package_type <- function(path) {
 
   # otherwise, guess based on contents of package
   methods <- list(
-    untar = function(path) untar(tarfile = path, list = TRUE),
-    unzip = function(path) unzip(zipfile = path, list = TRUE)$Name
+    function(path) untar(tarfile = path, list = TRUE),
+    function(path) unzip(zipfile = path, list = TRUE)$Name
   )
 
   for (method in methods) {
@@ -43,4 +43,10 @@ renv_package_type <- function(path) {
 
   "source"
 
+}
+
+renv_package_priority <- function(package) {
+  db <- renv_global_get("installed.packages") %||% renv_installed_packages()
+  entry <- db[package, ]
+  entry$Priority %NA% ""
 }
