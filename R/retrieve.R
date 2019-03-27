@@ -46,6 +46,7 @@ renv_retrieve_impl <- function(package, records = NULL) {
          bioconductor = renv_retrieve_bioconductor(record),
          bitbucket    = renv_retrieve_bitbucket(record),
          git          = renv_retrieve_git(record),
+         git2r        = renv_retrieve_git(record),
          github       = renv_retrieve_github(record),
          renv_retrieve_unknown_source(record)
   )
@@ -75,60 +76,33 @@ renv_retrieve_github <- function(record) {
 }
 
 renv_retrieve_bitbucket <- function(record) {
-  call <- deparse(sys.call()[[1]])
-  stopf("'%s()' is not yet implemented", call)
+
+  remotes <- renv_retrieve_require("remotes", "Bitbucket")
+
+  remote <- remotes$bitbucket_remote(
+    repo      = file.path(record$RemoteUsername, record$RemoteRepo),
+    ref       = record$RemoteRef,
+    sha       = record$RemoteSha,
+    host      = record$RemoteHost %||% "api.bitbucket.org/2.0",
+    subdir    = record$RemoteSubdir,
+    auth_user = Sys.getenv("BITBUCKET_USER", unset = NA) %NA% NULL,
+    password  = Sys.getenv("BITBUCKET_PASSWORD", unset = NA) %NA% NULL
+  )
+
+  renv_retrieve_remote(record, remote, remotes)
+
 }
 
-# TODO: is there a better way to check out a single
-# particular commit, without cloning the whole repo?
 renv_retrieve_git <- function(record) {
 
-  time <- Sys.time()
-  vwritef("Retrieving '%s' ...", record$Package)
+  remotes <- renv_retrieve_require("remotes", "Git")
 
-  # move to temporary folder
-  dir <- tempfile("renv-retrieve-git-")
-  ensure_directory(dir)
-  owd <- setwd(dir)
-  on.exit(setwd(owd), add = TRUE)
+  remote <- remotes$git_remote(
+    url = record$RemoteUrl,
+    ref = record$RemoteSha %||% record$RemoteRef
+  )
 
-  # clone the repository
-  name <- tools::file_path_sans_ext(basename(record$RemoteUrl))
-  args <- c("clone", shQuote(record$RemoteUrl), shQuote(name))
-  system2(git(), args, stdout = TRUE, stderr = TRUE)
-
-  # check out the requested commit and add remotes fields
-  setwd(name)
-
-  # check out the requested commit
-  args <- c("checkout", shQuote(record$RemoteSha))
-  system2(git(), args, stdout = TRUE, stderr = TRUE)
-
-  # get sha for this commit (in case the user specified a ref
-  # other than the commit hash)
-  args <- c("rev-parse", "HEAD")
-  sha <- system2(git(), args, stdout = TRUE, stderr = TRUE)
-  record[["RemoteSha"]] <- sha
-
-  # add remote fields
-  renv_description_augment("DESCRIPTION", record, "git")
-
-  setwd("..")
-
-  # use file URL for path to package sources
-  pkgpath <- file.path(dir, name)
-  url <- paste("file://", pkgpath, sep = "")
-
-  # use sha for path in source tree
-  srcpath <- renv_paths_source(record$Package, record$RemoteSha)
-
-  # retrieve the package
-  renv_retrieve_package(record, url, srcpath, overwrite = TRUE)
-
-  elapsed <- round(Sys.time() - time, 1)
-  vwritef("\tOK [cloned from git in %s]", format(elapsed, units = "auto"))
-
-  TRUE
+  renv_retrieve_remote(record, remote, remotes)
 
 }
 
@@ -323,5 +297,52 @@ renv_retrieve_missing_record <- function(package) {
     Type       = entry$Type,
     Repository = entry$Repository
   )
+
+}
+
+renv_retrieve_require <- function(package, source) {
+
+  if (requireNamespace(package, quietly = TRUE))
+    return(.getNamespace(package))
+
+  fmt <- "package '%s' is required to retrieve packages from %s"
+  stopf(fmt, package, source)
+
+}
+
+renv_retrieve_remote <- function(record, remote, remotes) {
+
+  # download the remote
+  start <- Sys.time()
+  vwritef("Retrieving '%s' ...", record$Package)
+  bundle <- remotes$remote_download(remote, quiet = TRUE)
+  on.exit(unlink(bundle), add = TRUE)
+  renv_download_report(Sys.time() - start, file.size(bundle))
+
+  # augment with remote information
+  source <- remotes$source_pkg(bundle, subdir = remote$subdir)
+  on.exit(unlink(source, recursive = TRUE), add = TRUE)
+
+  remotes$update_submodules(source, TRUE)
+  remotes$add_metadata(source, remotes$remote_metadata(remote, bundle, source, record$RemoteSha))
+  remotes$clear_description_md5(source)
+
+  # re-pack the package
+  owd <- setwd(dirname(source))
+  on.exit(setwd(owd), add = TRUE)
+  tarfile <- sprintf("%s.tar.gz", source)
+  tar(tarfile = tarfile, files = basename(source), compression = "gzip")
+  setwd(owd)
+
+  # construct path to package
+  url <- paste("file://", tarfile, sep = "")
+
+  # construct nice name for cache
+  fields <- c(record$Package, record$Version, record$RemoteSha)
+  name <- sprintf("%s.tar.gz", paste(fields, collapse = "_"))
+  path <- renv_paths_source(record$Package, record$Source, name)
+  ensure_parent_directory(path)
+
+  renv_retrieve_package(record, url, path, overwrite = TRUE)
 
 }
