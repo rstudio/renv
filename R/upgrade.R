@@ -54,14 +54,14 @@ renv_upgrade_impl <- function(project, remote, confirm) {
   on.exit(renv_restore_end(), add = TRUE)
 
   # retrieve renv
-  records <- renv_restore_retrieve("renv", records)
+  records <- renv_retrieve("renv", records)
   record <- records[[1]]
 
   # set library paths temporarily to install into bootstrap library
   library <- renv_paths_bootstrap("renv", record$Version)
   ensure_directory(library)
   renv_scope_libpaths(library)
-  renv_restore_install_impl(record)
+  renv_install_impl(record)
 
   # now update the infrastructure to use this version of renv
   renv_write_infrastructure(project, version = record$Version)

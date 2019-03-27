@@ -199,6 +199,10 @@ startswith <- function(string, prefix) {
   substring(string, 1, nchar(prefix)) == prefix
 }
 
+endswith <- function(string, suffix) {
+  substring(string, nchar(string) - nchar(suffix) + 1) == suffix
+}
+
 # like tools::file_ext, but includes leading '.', and preserves
 # '.tar.gz', '.tar.bz' and so on
 fileext <- function(path, default = "") {
@@ -208,4 +212,30 @@ fileext <- function(path, default = "") {
 
 flip <- function(vector) {
   named(names(vector), vector)
+}
+
+git <- function() {
+
+  gitpath <- Sys.which("git")
+  if (!nzchar(gitpath))
+    stop("failed to find git executable on the PATH")
+
+  gitpath
+
+}
+
+visited <- function(name, envir) {
+
+  if (exists(name, envir = envir))
+    return(TRUE)
+
+  envir[[name]] <- TRUE
+  FALSE
+
+}
+
+rowapply <- function(X, FUN, ...) {
+  lapply(seq_len(NROW(X)), function(I) {
+    FUN(X[I, ], ...)
+  })
 }

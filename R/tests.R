@@ -4,7 +4,6 @@ renv_tests_scope <- function(packages) {
   renv_tests_init()
 
   # ensure that attempts to restart are a no-op
-  restart <- getOption("restart")
   options(restart = function(...) TRUE)
 
   # move to own test directory
