@@ -40,6 +40,8 @@ renv_install <- function(project, records) {
 
   # save active library
   library <- renv_libpaths_default()
+  renv_global_set("install.library", library)
+  on.exit(renv_global_clear("install.library"), add = TRUE)
 
   # set up a dummy library path for installation
   templib <- tempfile("renv-templib-")
@@ -85,20 +87,11 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
 
 renv_install_package_cache <- function(record, cache, linker) {
 
-  state <- renv_restore_state()
+  if (renv_install_package_cache_skip(record, cache))
+    return(TRUE)
 
-  # construct target install path
   library <- renv_libpaths_default()
   target <- file.path(library, record$Package)
-
-  # check to see if we already have an up-to-date symlink into the cache
-  # (nothing to do if that's the case)
-  skip <-
-    !record$Package %in% state$packages &&
-    renv_file_same(cache, target)
-
-  if (skip)
-    return(TRUE)
 
   # back up the previous installation if needed
   callback <- renv_file_scoped_backup(target)
@@ -120,6 +113,22 @@ renv_install_package_cache <- function(record, cache, linker) {
   messagef("\tOK (%s cache)", type)
 
   return(TRUE)
+
+}
+
+renv_install_package_cache_skip <- function(record, cache) {
+
+  state <- renv_restore_state()
+
+  # don't skip if installation was explicitly requested
+  if (record$Package %in% state$packages)
+    return(FALSE)
+
+  # check for matching cache + target paths
+  library <- renv_global_get("install.library")
+  target <- file.path(library, record$Package)
+
+  renv_file_same(cache, target)
 
 }
 
