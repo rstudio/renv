@@ -15,7 +15,12 @@ remove <- function(packages, library = NULL) {
 
   library <- library %||% renv_libpaths_default()
 
-  vwritef("* Removing package(s) from library '%s' ...", library)
+  if (library == renv_paths_library(project = project)) {
+    vwritef("* Removing package(s) from project library ...")
+  } else {
+    fmt <- "* Removing package(s) from library '%s' ..."
+    vwritef(fmt, aliased_path(library))
+  }
 
   if (length(packages) == 1) {
     count <- as.numeric(renv_remove_package(packages, library))

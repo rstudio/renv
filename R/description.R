@@ -1,5 +1,5 @@
 
-renv_description_read <- function(path, package = NULL) {
+renv_description_read <- function(path = NULL, package = NULL) {
 
   # if given a package name, construct path to that package
   if (!is.null(package))

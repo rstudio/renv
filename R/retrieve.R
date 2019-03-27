@@ -4,6 +4,10 @@
 # list of package records which can later be used for install
 renv_retrieve <- function(packages, records = NULL) {
 
+  # cache set of installed packages (avoid re-querying on each retrieval)
+  renv_global_set("installed.packages", renv_installed_packages())
+  on.exit(renv_global_clear("installed.packages"), add = TRUE)
+
   # TODO: parallel?
   for (package in packages)
     renv_retrieve_impl(package, records)
@@ -13,15 +17,10 @@ renv_retrieve <- function(packages, records = NULL) {
 
 }
 
-renv_retrieve_impl <- function(package, records) {
+renv_retrieve_impl <- function(package, records = NULL) {
 
-  # skip 'R' package that might be passed in here
-  if (package == "R")
-    return()
-
-  # skip 'base' packages
-  base <- renv_installed_packages_base()
-  if (identical(base[package, "Priority"], "base"))
+  # skip packages with 'base' priority
+  if (renv_package_priority(package) == "base")
     return()
 
   # if we've already attempted retrieval of this package, skip
@@ -31,7 +30,7 @@ renv_retrieve_impl <- function(package, records) {
 
   # extract record for package
   records <- records %||% state$records
-  record <- records[[package]] %||% renv_restore_missing_record(package)
+  record <- records[[package]] %||% renv_retrieve_missing_record(package)
 
   # if the requested record already exists in the cache, we can finish early
   path <- renv_cache_package_path(record)
@@ -47,51 +46,6 @@ renv_retrieve_impl <- function(package, records) {
          git          = renv_retrieve_git(record),
          github       = renv_retrieve_github(record),
          renv_retrieve_unknown_source(record)
-  )
-
-}
-
-renv_restore_missing_record <- function(package) {
-
-  # TODO: allow users to configure the action to take here, e.g.
-  #
-  #   1. retrieve latest from CRAN (the default),
-  #   2. request a package + version to be retrieved,
-  #   3. hard error
-  #
-  types <- if (Sys.info()[["sysname"]] == "Linux")
-    "source"
-  else
-    c("binary", "source")
-
-  # iterate through available packages reported by all repositories
-  # and look for a matching entry
-  entries <- bapply(types, function(type) {
-
-    entry <- catch(renv_available_packages_entry(package, type))
-    if (inherits(entry, "error"))
-      return(NULL)
-
-    c(entry[c("Package", "Version", "Repository")], Type = type)
-
-  })
-
-  if (!is.data.frame(entries)) {
-    fmt <- "failed to retrieve package '%s' (missing record)"
-    stopf(fmt, package)
-  }
-
-  # since multiple entries could match, take the newest version by default
-  # TODO: could also allow older binary version here
-  idx <- with(entries, order(Version, factor(Type, c("source", "binary"))))
-  entry <- entries[tail(idx, n = 1), ]
-
-  list(
-    Package    = package,
-    Version    = entry$Version,
-    Source     = "CRAN",
-    Type       = entry$Type,
-    Repository = entry$Repository
   )
 
 }
@@ -296,8 +250,51 @@ renv_retrieve_successful <- function(record, path) {
 }
 
 renv_retrieve_unknown_source <- function(record) {
-  fmt <- "package '%s' was installed from an unknown source: installing latest version from CRAN instead"
-  warningf(fmt, record$Package)
-  record <- renv_restore_missing_record(record$Package)
+  record <- renv_retrieve_missing_record(record$Package)
   renv_retrieve_cran(record)
+}
+
+renv_retrieve_missing_record <- function(package) {
+
+  # TODO: allow users to configure the action to take here, e.g.
+  #
+  #   1. retrieve latest from CRAN (the default),
+  #   2. request a package + version to be retrieved,
+  #   3. hard error
+  #
+  types <- if (Sys.info()[["sysname"]] == "Linux")
+    "source"
+  else
+    c("binary", "source")
+
+  # iterate through available packages reported by all repositories
+  # and look for a matching entry
+  entries <- bapply(types, function(type) {
+
+    entry <- catch(renv_available_packages_entry(package, type))
+    if (inherits(entry, "error"))
+      return(NULL)
+
+    c(entry[c("Package", "Version", "Repository")], Type = type)
+
+  })
+
+  if (!is.data.frame(entries)) {
+    fmt <- "failed to retrieve package '%s' (missing record)"
+    stopf(fmt, package)
+  }
+
+  # since multiple entries could match, take the newest version by default
+  # TODO: could also allow older binary version here
+  idx <- with(entries, order(Version, factor(Type, c("source", "binary"))))
+  entry <- entries[tail(idx, n = 1), ]
+
+  list(
+    Package    = package,
+    Version    = entry$Version,
+    Source     = "CRAN",
+    Type       = entry$Type,
+    Repository = entry$Repository
+  )
+
 }
