@@ -283,7 +283,7 @@ renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
 renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) {
 
   desc <- file.path(pkgs, "DESCRIPTION")
-  missing <- !renv_file_exists(desc)
+  missing <- !file.exists(desc)
   if (!any(missing))
     return(pkgs)
 

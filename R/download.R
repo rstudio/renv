@@ -63,12 +63,8 @@ download <- function(url, destfile, quiet = FALSE) {
     stopf("download failed [file was truncated]")
 
   # everything looks ok: report success
-  if (renv_verbose()) {
-    size <- structure(file.size(tempfile), class = "object_size")
-    time <- round(after - before, 1)
-    fmt <- "\tOK [downloaded %s in %s]"
-    if (!quiet) vwritef(fmt, format(size, units = "auto"), format(time, units = "auto"))
-  }
+  if (!quiet)
+    renv_download_report(after - before, file.size(tempfile))
 
   # move the file to the requested location
   renv_file_move(tempfile, destfile)
@@ -207,4 +203,17 @@ renv_download_file_extra <- function() {
   if (method == "curl")
     return(c("--location", "--fail"))
   character()
+}
+
+renv_download_report <- function(elapsed, size) {
+
+  if (!renv_verbose())
+    return()
+
+  time <- round(elapsed, 1)
+  size <- structure(size, class = "object_size")
+
+  fmt <- "\tOK [downloaded %s in %s]"
+  vwritef(fmt, format(size, units = "auto"), format(time, units = "auto"))
+
 }

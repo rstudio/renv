@@ -57,3 +57,8 @@ renv_package_priority <- function(package) {
   entry$Priority %NA% ""
 
 }
+
+renv_package_tarball_name <- function(path) {
+  desc <- renv_description_read(path)
+  with(desc, sprintf("%s_%s.tar.gz", Package, Version))
+}

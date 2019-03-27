@@ -158,35 +158,9 @@ renv_install_package_local <- function(record, quiet = TRUE) {
 }
 
 renv_install_package_local_impl <- function(package, path, library) {
-
-  # prepare library, package paths
   library <- normalizePath(library, winslash = "/", mustWork = TRUE)
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-
-  # set up arguments
-  args <- c("CMD", "INSTALL", "-l", shQuote(library), shQuote(path))
-  rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
-  env <- paste("R_LIBS", shQuote(rlibs), sep = "=")
-
-  # do the install
-  output <- suppressWarnings(
-    system2(R(), args, stdout = TRUE, stderr = TRUE, env = env)
-  )
-
-  # check for successful install
-  status <- attr(output, "status") %||% 0L
-  if (identical(status, 0L))
-    return(TRUE)
-
-  # installation failed; write output for user
-  header <- sprintf("Error installing package '%s':", package)
-  lines <- paste(rep("=", nchar(header)), collapse = "")
-  all <- c(header, lines, "", output)
-  vwritef(paste(all, collapse = "\n"), con = stderr())
-
-  # stop with an error
-  stopf("installation of package '%s' failed", package)
-
+  r_cmd_install(package, path, library)
 }
 
 renv_install_package_options <- function(package) {
