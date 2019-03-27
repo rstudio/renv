@@ -7,10 +7,15 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param version The version of `renv` to associate with this project.
+#'   When `NULL`, the existing version of `renv` associated with the
+#'   project (if any) is used; otherwise, the version of `renv` currently
+#'   loaded is used instead.
+#'
 #' @family renv
 #'
 #' @export
-activate <- function(project = NULL) {
+activate <- function(project = NULL, version = NULL) {
   project <- project %||% renv_project()
 
   # prepare renv infrastructure
