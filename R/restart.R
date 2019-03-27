@@ -29,6 +29,10 @@ renv_request_restart_rstudio <- function(project, reason, ...) {
 
   tools <- as.environment("tools:rstudio")
 
+  # if we're running tests, don't restart
+  if (renv_testing())
+    return(renv_request_restart_default(project, reason, ...))
+
   # if RStudio is too old, use default restart impl
   if (is.null(tools$.rs.getProjectDirectory) ||
       is.null(tools$.rs.api.openProject))

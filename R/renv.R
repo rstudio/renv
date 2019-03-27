@@ -81,29 +81,48 @@ load <- function(project = NULL) {
 renv_activate_version <- function(project) {
 
   # try to get version from activate.R
-  version <- catch({
-    activate <- file.path(project, "renv/activate.R")
-    contents <- readLines(activate, warn = FALSE)
-    line <- grep("^\\s*version", contents, value = TRUE)
-    parsed <- parse(text = line)[[1]]
-    parsed[[3]]
-  })
+  methods <- list(
+    renv_activate_version_activate,
+    renv_activate_version_lockfile,
+    renv_activate_version_default
+  )
 
-  if (is.character(version))
-    return(version)
+  for (method in methods) {
+    version <- catch(method(project))
+    if (is.character(version))
+      return(version)
+  }
 
-  # try to get version from lockfile
-  version <- catch({
-    path <- file.path(project, "renv.lock")
-    lockfile <- renv_lockfile_read(path)
-    lockfile$renv$Version
-  })
+  fmt <- "failed to determine renv version for project '%s'"
+  stopf(fmt, aliased_path(project))
 
-  if (is.character(version))
-    return(version)
+}
 
-  # all else fails, use current renv version
+renv_activate_version_activate <- function(project) {
+
+  activate <- file.path(project, "renv/activate.R")
+  if (!file.exists(activate))
+    return(NULL)
+
+  contents <- readLines(activate, warn = FALSE)
+  line <- grep("^\\s*version", contents, value = TRUE)
+  parsed <- parse(text = line)[[1]]
+  parsed[[3]]
+
+}
+
+renv_activate_version_lockfile <- function(project) {
+
+  path <- file.path(project, "renv.lock")
+  if (!file.exists(path))
+    return(NULL)
+
+  lockfile <- renv_lockfile_read(path)
+  lockfile$renv$Version
+
+}
+
+renv_activate_version_default <- function(project) {
   spec <- .getNamespaceInfo(.getNamespace("renv"), "spec")
   spec[["version"]]
-
 }

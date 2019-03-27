@@ -161,8 +161,8 @@ renv_restore_run_actions <- function(project, actions, current, lockfile) {
   packages <- names(installs)
   records <- renv_records(lockfile)
 
-  records <- renv_restore_retrieve(packages, records)
-  renv_restore_install(project, records)
+  records <- renv_retrieve(packages, records)
+  renv_install(project, records)
 
 }
 
