@@ -6,8 +6,7 @@ renv_description_read <- function(path = NULL, package = NULL) {
     path <- find.package(package)
 
   # accept package directories
-  if (renv_file_exists(file.path(path, "DESCRIPTION")))
-    path <- file.path(path, "DESCRIPTION")
+  path <- renv_description_path(path)
 
   # ensure that we have a real file
   info <- file.info(path, extra_cols = FALSE)
@@ -72,4 +71,39 @@ renv_description_read <- function(path = NULL, package = NULL) {
   renv_filebacked_set(key, dcf)
   dcf
 
+}
+
+renv_description_augment <- function(path, record, type = NULL) {
+
+  path <- renv_description_path(path)
+
+  # read remote fields
+  fields <- c(
+    RemoteType = type,
+    record[grep("^Remote", names(record))]
+  )
+
+  # read DESCRIPTION contents
+  contents <- readLines(path, warn = FALSE)
+
+  # remove empty lines
+  contents <- contents[nzchar(contents)]
+
+  # remove old remote fields
+  contents <- grep("^Remote", contents, invert = TRUE, value = TRUE)
+
+  # add in new remote fields
+  text <- paste(names(fields), fields, sep = ": ")
+  contents <- c(contents, text)
+
+  # write it back out
+  writeLines(contents, con = path, useBytes = TRUE)
+
+}
+
+renv_description_path <- function(path) {
+  childpath <- file.path(path, "DESCRIPTION")
+  indirect <- file.exists(childpath)
+  path[indirect] <- childpath[indirect]
+  path
 }

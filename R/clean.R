@@ -128,4 +128,5 @@ renv_clean_unused_packages <- function(project, confirm) {
 renv_clean_stale_lockfiles <- function(project, confirm) {
   # TODO: find files with 00LOCK prefix in project library,
   # and detect if they appear to be 'old', and prompt to remove
+  TRUE
 }

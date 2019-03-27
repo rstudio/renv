@@ -140,12 +140,6 @@ proceed <- function() {
   ask("Do you want to proceed?")
 }
 
-R <- function() {
-  bin <- R.home("bin")
-  exe <- if (renv_platform_windows()) "R.exe" else "R"
-  file.path(bin, exe)
-}
-
 inject <- function(contents,
                    pattern,
                    replacement,

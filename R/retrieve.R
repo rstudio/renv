@@ -13,7 +13,9 @@ renv_retrieve <- function(packages, records = NULL) {
     renv_retrieve_impl(package, records)
 
   state <- renv_restore_state()
-  return(state$retrieved$data())
+  data <- state$retrieved$data()
+  names(data) <- extract_chr(data, "Package")
+  data
 
 }
 
@@ -38,7 +40,7 @@ renv_retrieve_impl <- function(package, records = NULL) {
     return(renv_retrieve_successful(record, path))
 
   # otherwise, try and restore from external source
-  source <- tolower(record[["Source"]] %||% "CRAN")
+  source <- tolower(record[["Source"]] %||% record[["RemoteType"]] %||% "CRAN")
   switch(source,
          cran         = renv_retrieve_cran(record),
          bioconductor = renv_retrieve_bioconductor(record),
@@ -81,27 +83,52 @@ renv_retrieve_bitbucket <- function(record) {
 # particular commit, without cloning the whole repo?
 renv_retrieve_git <- function(record) {
 
-  # clone the repository
-  dir <- tempfile("renv-git-")
-  args <- c("clone", shQuote(record$RemoteUrl), shQuote(dir))
-  system2(git(), args, stdout = TRUE, stderr = TRUE)
+  time <- Sys.time()
+  vwritef("Retrieving '%s' ...", record$Package)
 
-  # enter the directory and check out the required commit
+  # move to temporary folder
+  dir <- tempfile("renv-retrieve-git-")
+  ensure_directory(dir)
   owd <- setwd(dir)
   on.exit(setwd(owd), add = TRUE)
+
+  # clone the repository
+  name <- tools::file_path_sans_ext(basename(record$RemoteUrl))
+  args <- c("clone", shQuote(record$RemoteUrl), shQuote(name))
+  system2(git(), args, stdout = TRUE, stderr = TRUE)
+
+  # check out the requested commit and add remotes fields
+  setwd(name)
+
+  # check out the requested commit
   args <- c("checkout", shQuote(record$RemoteSha))
   system2(git(), args, stdout = TRUE, stderr = TRUE)
 
-  # construct appropriate path for package
-  desc <- renv_description_read(dir)
-  name <- sprintf("%s_%s.tar.gz", desc$Package, desc$Version)
-  path <- renv_paths_source(record$Package, name)
+  # get sha for this commit (in case the user specified a ref
+  # other than the commit hash)
+  args <- c("rev-parse", "HEAD")
+  sha <- system2(git(), args, stdout = TRUE, stderr = TRUE)
+  record[["RemoteSha"]] <- sha
 
-  # use 'file' URL for retrieval
-  url  <- paste("file://", dir, sep = "")
+  # add remote fields
+  renv_description_augment("DESCRIPTION", record, "git")
+
+  setwd("..")
+
+  # use file URL for path to package sources
+  pkgpath <- file.path(dir, name)
+  url <- paste("file://", pkgpath, sep = "")
+
+  # use sha for path in source tree
+  srcpath <- renv_paths_source(record$Package, record$RemoteSha)
 
   # retrieve the package
-  renv_retrieve_package(record, url, path)
+  renv_retrieve_package(record, url, srcpath, overwrite = TRUE)
+
+  elapsed <- round(Sys.time() - time, 1)
+  vwritef("\tOK [cloned from git in %s]", format(elapsed, units = "auto"))
+
+  TRUE
 
 }
 
@@ -204,10 +231,10 @@ renv_retrieve_cran_impl <- function(record,
 }
 
 
-renv_retrieve_package <- function(record, url, path) {
+renv_retrieve_package <- function(record, url, path, overwrite = FALSE) {
 
   # download the package
-  if (!renv_file_exists(path)) {
+  if (overwrite || !renv_file_exists(path)) {
     ensure_parent_directory(path)
     status <- catch(download(url, destfile = path))
     if (inherits(status, "error") || identical(status, FALSE))

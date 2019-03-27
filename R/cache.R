@@ -82,7 +82,6 @@ renv_cache_prime <- function(library) {
     package <- packages[[i]]
 
     record <- renv_description_read(package)
-    record[["Hash"]] <- renv_hash_description(package)
 
     # construct cache entry
     cache <- renv_cache_package_path(record)
