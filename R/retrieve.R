@@ -81,7 +81,7 @@ renv_retrieve_bitbucket <- function(record) {
 
   remote <- remotes$bitbucket_remote(
     repo      = file.path(record$RemoteUsername, record$RemoteRepo),
-    ref       = record$RemoteRef,
+    ref       = record$RemoteSha %||% record$RemoteRef,
     sha       = record$RemoteSha,
     host      = record$RemoteHost %||% "api.bitbucket.org/2.0",
     subdir    = record$RemoteSubdir,
