@@ -46,7 +46,14 @@ renv_package_type <- function(path) {
 }
 
 renv_package_priority <- function(package) {
+
+  # treat 'R' as pseudo base package
+  if (package == "R")
+    return("base")
+
+  # read priority from db
   db <- renv_global_get("installed.packages") %||% renv_installed_packages()
   entry <- db[package, ]
   entry$Priority %NA% ""
+
 }
