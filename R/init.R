@@ -90,7 +90,7 @@ init <- function(project = NULL, settings = NULL, force = FALSE) {
   }
 
   # activate the newly-hydrated project
-  activate(project, version = renv_package_version("renv"))
+  renv_activate_impl(project, renv_package_version("renv"))
 
 }
 

@@ -4,17 +4,12 @@
 \alias{activate}
 \title{Activate a Project}
 \usage{
-activate(project = NULL, version = NULL)
+activate(project = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
-
-\item{version}{The version of \code{renv} to associate with this project.
-When \code{NULL}, the existing version of \code{renv} associated with the
-project (if any) is used; otherwise, the version of \code{renv} currently
-loaded is used instead.}
 }
 \description{
 Use \code{activate()} to write the infrastructure needed to ensure that

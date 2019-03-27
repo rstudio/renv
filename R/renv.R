@@ -7,25 +7,26 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param version The version of `renv` to associate with this project.
-#'   When `NULL`, the existing version of `renv` associated with the
-#'   project (if any) is used; otherwise, the version of `renv` currently
-#'   loaded is used instead.
-#'
 #' @family renv
 #'
 #' @export
-activate <- function(project = NULL, version = NULL) {
+activate <- function(project = NULL) {
   project <- project %||% renv_project()
+  renv_activate_impl(project, NULL)
+}
+
+renv_activate_impl <- function(project, version) {
 
   # prepare renv infrastructure
-  renv_write_infrastructure(project)
+  renv_write_infrastructure(project, version)
   renv_bootstrap()
 
   # set library paths now so that they're properly restored in new sessions
   renv_load_libpaths(project)
 
+  # restart session
   renv_request_restart(project, reason = "renv activated")
+
 }
 
 #' Deactivate a Project
