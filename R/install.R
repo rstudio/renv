@@ -153,7 +153,15 @@ renv_install_package_local <- function(record, quiet = TRUE) {
   callback <- renv_file_scoped_backup(destination)
   on.exit(callback(), add = TRUE)
 
+  # install the package
   renv_install_package_local_impl(package, path, library)
+
+  # augment the DESCRIPTION after install
+  installpath <- file.path(library, package)
+  renv_description_augment(installpath, record)
+
+  # return the path to the package
+  invisible(installpath)
 
 }
 
