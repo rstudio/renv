@@ -252,13 +252,12 @@ renv_retrieve_package <- function(record, url, path, overwrite = FALSE) {
 
 renv_retrieve_successful <- function(record, path) {
 
-  # augment DESCRIPTION with remote information
-  renv_retrieve_augment(record, path)
-
   # augment record with information from DESCRIPTION file
   desc <- renv_description_read(path)
   record$Package <- desc$Package
   record$Version <- desc$Version
+
+  # add in path information to record (used during install)
   record$Path <- path
 
   # ensure its dependencies are retrieved as well
@@ -281,57 +280,6 @@ renv_retrieve_successful <- function(record, path) {
   })
 
   TRUE
-
-}
-
-renv_retrieve_augment <- function(record, path) {
-
-  descpath <- file.path(path, "DESCRIPTION")
-
-  # try to guess appropriate archiving tool from path
-  compress <- renv_file_compressor(path)
-  decompress <- renv_file_decompressor(path)
-
-  # handle packed archives
-  info <- file.info(path)
-  if (!info$isdir) {
-
-    temppath <- tempfile("renv-package-", tmpdir = dirname(path))
-    on.exit(unlink(temppath, recursive = TRUE), add = TRUE)
-
-    files <- renv_archive_list(path)
-    descpath <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
-    if (empty(descpath))
-      stopf("archive '%s' does not appear to be an R package (no DESCRIPTION file)", path)
-
-    decompress(path, exdir = temppath)
-    descpath <- file.path(temppath, descpath)
-
-  }
-
-  # add remotes fields
-  desc <- renv_description_read(descpath)
-
-  # add in our remote fields
-  record$RemoteType <- record$RemoteType %||% record$Source
-  fields <- unique(c("RemoteType", grep("^Remote", names(record), value = TRUE)))
-  desc[fields] <- record[fields]
-
-  # write it back out
-  write.dcf(desc, file = descpath, useBytes = TRUE)
-
-  # re-pack the archive
-  if (!info$isdir) {
-    owd <- setwd(temppath)
-    on.exit(setwd(owd), add = TRUE)
-
-    # rename the archive (avoid tar warnings from R)
-    source <- basename(dirname(descpath))
-    target <- desc$Package
-    renv_file_move(source, target, overwrite = TRUE)
-
-    compress(path, files = target)
-  }
 
 }
 

@@ -136,3 +136,29 @@ renv_tests_init <- function() {
 renv_testing <- function() {
   Sys.getenv("RENV_TESTS_INITIALIZED") == "TRUE"
 }
+
+renv_test_retrieve <- function(record) {
+
+  # construct records
+  package <- record$Package
+  records <- list(record)
+  names(records) <- package
+
+  # prepare dummy library
+  templib <- renv_file_temp("renv-library-")
+  ensure_directory(templib)
+  renv_scope_libpaths(c(templib, .libPaths()))
+
+  # attempt a restore into that library
+  renv_restore_begin(records = records, packages = package, recursive = FALSE)
+  on.exit(renv_restore_end(), add = TRUE)
+
+  records <- renv_retrieve("skeleton", records)
+  paths <- renv_install(getwd(), records)
+
+  desc <- renv_description_read(file.path(templib, package))
+
+  fields <- grep("^Remote", names(record), value = TRUE)
+  expect_identical(as.list(desc[fields]), as.list(record[fields]))
+
+}
