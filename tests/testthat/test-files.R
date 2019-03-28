@@ -81,3 +81,19 @@ test_that("scoped backups are cleared as necessary", {
   expect_length(backup, 0)
 
 })
+
+test_that("renv tempfiles are deleted at end of scope", {
+
+  path <- NULL
+  path2 <- NULL
+  local({
+    path <<- renv_file_temp()
+    path2 <<- renv_file_temp()
+    file.create(path, path2)
+    expect_true(file.exists(path))
+    expect_true(file.exists(path2))
+  })
+  expect_false(file.exists(path))
+  expect_false(file.exists(path2))
+
+})
