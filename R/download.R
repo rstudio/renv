@@ -1,5 +1,9 @@
 
-download <- function(url, destfile, quiet = FALSE) {
+# download a file from 'url' to file 'destfile'. the 'type'
+# argument tells us the remote type, which is used to motivate
+# what form of authentication is appropriate; the 'quiet'
+# argument is used to display / suppress output
+download <- function(url, destfile, type = NULL, quiet = FALSE) {
 
   # handle local files by just copying the file
   if (grepl("^file:", url)) {
@@ -12,7 +16,7 @@ download <- function(url, destfile, quiet = FALSE) {
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
-  size <- renv_download_size(url)
+  size <- renv_download_size(url, type)
   if (size != -1 && renv_file_exists(destfile)) {
     if (file.size(destfile) == size) {
       messagef("\tOK [file is up to date]")
@@ -29,7 +33,7 @@ download <- function(url, destfile, quiet = FALSE) {
 
   # request the download
   before <- Sys.time()
-  status <- renv_download_impl(url, destfile = tempfile, headers = FALSE)
+  status <- renv_download_impl(url, destfile = tempfile, type = type, headers = FALSE)
   after <- Sys.time()
 
   # check for failure
@@ -58,24 +62,24 @@ download <- function(url, destfile, quiet = FALSE) {
 
 }
 
-renv_download_impl <- function(url, destfile, headers = FALSE) {
+renv_download_impl <- function(url, destfile, type = NULL, headers = FALSE) {
 
   downloader <- switch(
     renv_download_file_method(),
     curl = renv_download_curl,
-    wget = renv_download_wget,
+    wget = renv_download_wget
   )
 
-  catch(downloader(url, destfile, headers))
+  catch(downloader(url, destfile, type, headers))
 
 }
 
-renv_download_curl <- function(url, destfile, headers) {
+renv_download_curl <- function(url, destfile, type, headers) {
 
   config <- renv_file_temp("renv-download-config-")
 
   fields <- c(url = url, output = destfile)
-  fields <- c(fields, renv_download_auth(url))
+  fields <- c(fields, renv_download_auth(url, type))
 
   keys <- names(fields)
   vals <- shQuote(fields, type = "cmd")
@@ -95,12 +99,12 @@ renv_download_curl <- function(url, destfile, headers) {
 
 }
 
-renv_download_wget <- function(url, destfile, headers) {
+renv_download_wget <- function(url, destfile, type, headers) {
 
   config <- renv_file_temp("renv-download-config-")
 
   fields <- c(quiet = "on")
-  fields <- c(fields, renv_download_auth(url))
+  fields <- c(fields, renv_download_auth(url, type))
 
   keys <- names(fields)
   vals <- unlist(fields)
@@ -117,7 +121,7 @@ renv_download_wget <- function(url, destfile, headers) {
 
 }
 
-renv_download_auth <- function(url) {
+renv_download_auth_type <- function(url) {
 
   github_hosts <- c(
     "https://api.github.com/",
@@ -126,7 +130,7 @@ renv_download_auth <- function(url) {
 
   for (host in github_hosts)
     if (startswith(url, host))
-      return(renv_download_auth_github())
+      return("github")
 
   gitlab_hosts <- c(
     "https://gitlab.com/"
@@ -134,9 +138,44 @@ renv_download_auth <- function(url) {
 
   for (host in gitlab_hosts)
     if (startswith(url, host))
-      return(renv_download_auth_gitlab())
+      return("gitlab")
 
-  character()
+  bitbucket_hosts <- c(
+    "https://api.bitbucket.org/",
+    "https://bitbucket.org/"
+  )
+
+  for (host in bitbucket_hosts)
+    if (startswith(url, host))
+      return("bitbucket")
+
+  "unknown"
+
+}
+
+renv_download_auth <- function(url, type) {
+
+  type <- type %||% renv_download_auth_type(url)
+  switch(
+    type,
+    bitbucket = renv_download_auth_bitbucket(),
+    github = renv_download_auth_github(),
+    gitlab = renv_download_auth_gitlab(),
+    character()
+  )
+
+}
+
+renv_download_auth_bitbucket <- function() {
+
+  user <- Sys.getenv("BITBUCKET_USER", unset = NA)
+  pass <- Sys.getenv("BITBUCKET_PASSWORD", unset = NA)
+  if (is.na(user) || is.na(pass))
+    return(character())
+
+  userpass <- paste(user, pass, sep = ":")
+  auth <- paste("Basic", renv_base64_encode(userpass))
+  c(header = paste("Authorization", auth, sep = ": "))
 
 }
 
@@ -161,12 +200,17 @@ renv_download_auth_gitlab <- function() {
 
 }
 
-renv_download_headers <- function(url) {
+renv_download_headers <- function(url, type) {
+
+  # can't download without curl or wget
+  method <- renv_download_file_method()
+  if (!method %in% c("curl", "wget"))
+    return(list())
 
   file <- renv_file_temp("renv-headers-")
 
   # perform the download
-  renv_download_impl(url, file, headers = TRUE)
+  renv_download_impl(url, file, type, headers = TRUE)
 
   # read the downloaded headers
   contents <- read(file)
@@ -188,9 +232,9 @@ renv_download_headers <- function(url) {
 
 }
 
-renv_download_size <- function(url) {
+renv_download_size <- function(url, type) {
 
-  headers <- catch(renv_download_headers(url))
+  headers <- catch(renv_download_headers(url, type))
   if (inherits(headers, "error"))
     return(-1)
 
