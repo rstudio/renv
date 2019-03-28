@@ -8,11 +8,6 @@ download <- function(url, destfile, quiet = FALSE) {
     return(destfile)
   }
 
-  # prepare for the download (doing things like setting download.file.method,
-  # download.file.extra as needed for the download source)
-  prepare_callback <- renv_download_prepare(url)
-  on.exit(prepare_callback(), add = TRUE)
-
   if (!quiet) vwritef("Retrieving '%s' ...", url)
 
   # if the file already exists, compare its size with
@@ -35,17 +30,7 @@ download <- function(url, destfile, quiet = FALSE) {
 
   # request the download
   before <- Sys.time()
-
-  status <-
-    catch(download.file(
-      url,
-      destfile = tempfile,
-      quiet    = TRUE,
-      mode     = "wb",
-      method   = renv_download_file_method(),
-      extra    = renv_download_file_extra()
-    ))
-
+  status <- renv_download_impl(url, destfile = tempfile, headers = FALSE)
   after <- Sys.time()
 
   # check for failure
@@ -74,10 +59,69 @@ download <- function(url, destfile, quiet = FALSE) {
 
 }
 
-renv_download_prepare <- function(url) {
+renv_download_impl <- function(url, destfile, headers = FALSE) {
 
-  # TODO: do we want to support plain http?
-  # don't see a good reason to in 2019
+  downloader <- switch(
+    renv_download_file_method(),
+    curl = renv_download_curl,
+    wget = renv_download_wget,
+  )
+
+  catch(downloader(url, destfile, headers))
+
+}
+
+renv_download_curl <- function(url, destfile, headers) {
+
+  config <- tempfile("renv-download-")
+  on.exit(unlink(config), add = TRUE)
+
+  fields <- c(url = url, output = destfile)
+  fields <- c(fields, renv_download_auth(url))
+
+  keys <- names(fields)
+  vals <- shQuote(fields, type = "cmd")
+  text <- paste(keys, vals, sep = " = ")
+
+  flags <- c("location", "fail", "silent", "show-error")
+  if (headers)
+    flags <- c(flags, "head", "include")
+
+  text <- c(text, flags)
+
+  umask <- Sys.umask("077")
+  on.exit(Sys.umask(umask), add = TRUE)
+
+  writeLines(text, con = config)
+  system2("curl", c("--config", shQuote(config)))
+
+}
+
+renv_download_wget <- function(url, destfile, headers) {
+
+  config <- tempfile("renv-download-")
+  on.exit(unlink(config), add = TRUE)
+
+  fields <- c(quiet = "on")
+  fields <- c(fields, renv_download_auth(url))
+
+  keys <- names(fields)
+  vals <- unlist(fields)
+  text <- paste(keys, vals, sep = " = ")
+
+  umask <- Sys.umask("077")
+  on.exit(Sys.umask(umask), add = TRUE)
+
+  writeLines(text, con = config)
+
+  args <- c("--config", shQuote(config))
+  args <- c(args, shQuote(url), "-O", shQuote(destfile))
+  system2("wget", args)
+
+}
+
+renv_download_auth <- function(url) {
+
   github_hosts <- c(
     "https://api.github.com/",
     "https://raw.githubusercontent.com/"
@@ -85,7 +129,7 @@ renv_download_prepare <- function(url) {
 
   for (host in github_hosts)
     if (startswith(url, host))
-      return(renv_download_prepare_github())
+      return(renv_download_auth_github())
 
   gitlab_hosts <- c(
     "https://gitlab.com/"
@@ -93,55 +137,30 @@ renv_download_prepare <- function(url) {
 
   for (host in gitlab_hosts)
     if (startswith(url, host))
-      return(renv_download_prepare_gitlab())
+      return(renv_download_auth_gitlab())
 
-  function() {}
+  character()
 
 }
 
-renv_download_prepare_github <- function() {
+renv_download_auth_github <- function() {
 
   pat <- Sys.getenv("GITHUB_PAT", unset = NA)
   if (is.na(pat))
-    return(function() {})
+    return(character())
 
-  headers <- list("Authorization" = paste("token", pat))
-  renv_download_prepare_headers(headers)
+  token <- paste("token", pat)
+  c(header = paste("Authorization", token, sep = ": "))
 
 }
 
-renv_download_prepare_gitlab <- function() {
+renv_download_auth_gitlab <- function() {
 
   pat <- Sys.getenv("GITLAB_PAT", unset = NA)
   if (is.na(pat))
-    return(function() {})
+    return(character())
 
-  headers <- list("Private-Token" = pat)
-  renv_download_prepare_headers(headers)
-
-}
-
-renv_download_prepare_headers <- function(headers) {
-
-  headertext <- paste(
-    "--header",
-    shQuote(paste(names(headers), headers, sep = ": "))
-  )
-
-  # infer an appropriate download method
-  if (nzchar(Sys.which("curl"))) {
-    method <- "curl"
-    extra <- c("--location", "--fail", headertext)
-  } else if (nzchar(Sys.which("wget"))) {
-    method <- "wget"
-    extra <- headertext
-  } else {
-    return(function() {})
-  }
-
-  saved <- options("download.file.method", "download.file.extra")
-  options(download.file.method = method, download.file.extra = extra)
-  function() { do.call(base::options, saved) }
+  c(header = paste("Private-Token", pat, sep = ": "))
 
 }
 
@@ -150,27 +169,8 @@ renv_download_headers <- function(url) {
   file <- tempfile("renv-headers-")
   on.exit(unlink(file), add = TRUE)
 
-  # don't know how to download headers without curl / wget
-  method <- renv_download_file_method()
-  if (!method %in% c("curl", "wget"))
-    return(list())
-
-  # add extra arguments to request headers
-  extra <- c(
-    renv_download_file_extra(),
-    if (method == "curl") c("--head", "--include"),
-    if (method == "wget") c("--server-response", "--spider")
-  )
-
   # perform the download
-  status <- download.file(
-    url = url,
-    destfile = file,
-    quiet = TRUE,
-    mode = "wb",
-    method = method,
-    extra = extra
-  )
+  renv_download_impl(url, file, headers = TRUE)
 
   # read the downloaded headers
   contents <- read(file)
@@ -208,12 +208,10 @@ renv_download_size <- function(url) {
 
 renv_download_file_method <- function() {
 
-  # respect user preference for curl / wget as we support these
   method <- getOption("download.file.method", default = "auto")
   if (method %in% c("curl", "wget"))
     return(method)
 
-  # otherwise, try and find a method that exists
   if (nzchar(Sys.which("curl")))
     return("curl")
 
@@ -222,18 +220,6 @@ renv_download_file_method <- function() {
 
   # fall back to default method
   method
-
-}
-
-renv_download_file_extra <- function() {
-
-  method <- renv_download_file_method()
-  extra <- getOption("download.file.extra", default = character())
-
-  if (method == "curl")
-    extra <- unique(c("--location", "--fail", extra))
-
-  extra
 
 }
 
