@@ -271,7 +271,7 @@ renv_file_temp <- function(pattern = "renv-",
 {
   path <- tempfile(pattern, tmpdir, fileext)
   norm <- renv_file_normalize(path, winslash = "/")
-  defer(unlink(norm), envir = parent.frame())
+  defer(unlink(norm, recursive = TRUE), envir = parent.frame())
   norm
 }
 

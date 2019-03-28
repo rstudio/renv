@@ -21,12 +21,12 @@ renv_description_read <- function(path = NULL, package = NULL) {
   if (!is.null(entry))
     return(entry)
 
-  # if given a tarball, attempt to extract inner DESCRIPTION file
-  ext <- tools::file_ext(path)
-  if (ext %in% c("tar", "gz", "tgz")) {
+  # if we have an archive, attempt to unpack the DESCRIPTION
+  type <- renv_archive_type(path)
+  if (type != "unknown") {
 
     # list files within the archive
-    files <- untar(path, list = TRUE)
+    files <- renv_archive_list(path)
 
     # find the DESCRIPTION file. note that for some source tarballs (e.g.
     # those from GitHub) the first entry may not be the package name, so
@@ -36,31 +36,10 @@ renv_description_read <- function(path = NULL, package = NULL) {
       stopf("failed to infer path to DESCRIPTION within file '%s'", path)
 
     # unpack into tempdir location
-    exdir <- tempfile("renv-description-")
-    on.exit(unlink(exdir, recursive = TRUE), add = TRUE)
-    untar(path, files = file, exdir = exdir)
+    exdir <- renv_file_temp("renv-description-")
 
-    # update path to extracted DESCRIPTION
-    path <- file.path(exdir, file)
-  }
-
-  # if given a zip, attempt to extract inner DESCRIPTION file
-  if (ext %in% c("zip")) {
-
-    meta <- unzip(path, list = TRUE)
-    files <- meta$Name
-
-    # find the DESCRIPTION file. note that for some source tarballs (e.g.
-    # those from GitHub) the first entry may not be the package name, so
-    # just consume everything up to the first slash
-    file <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
-    if (length(file) != 1)
-      stopf("failed to infer path to DESCRIPTION within file '%s'", path)
-
-    # unpack into tempdir location
-    exdir <- tempfile("renv-description-")
-    on.exit(unlink(exdir, recursive = TRUE), add = TRUE)
-    unzip(path, files = file, exdir = exdir)
+    decompress <- renv_archive_decompressor(path)
+    decompress(path, files = file, exdir = exdir)
 
     # update path to extracted DESCRIPTION
     path <- file.path(exdir, file)
