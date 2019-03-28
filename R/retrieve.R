@@ -299,7 +299,7 @@ renv_retrieve_augment <- function(record, path) {
     temppath <- tempfile("renv-package-", tmpdir = dirname(path))
     on.exit(unlink(temppath, recursive = TRUE), add = TRUE)
 
-    files <- decompress(path, list = TRUE)
+    files <- renv_archive_list(path)
     descpath <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
     if (empty(descpath))
       stopf("archive '%s' does not appear to be an R package (no DESCRIPTION file)", path)
