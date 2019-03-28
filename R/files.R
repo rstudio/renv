@@ -264,3 +264,13 @@ renv_file_type <- function(paths, symlinks = TRUE) {
   types
 
 }
+
+renv_file_temp <- function(pattern = "renv-",
+                           tmpdir = tempdir(),
+                           fileext = "")
+{
+  path <- tempfile(pattern, tmpdir, fileext)
+  norm <- renv_file_normalize(path, winslash = "/")
+  defer(unlink(norm), envir = parent.frame())
+  norm
+}

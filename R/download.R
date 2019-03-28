@@ -25,8 +25,7 @@ download <- function(url, destfile, quiet = FALSE) {
   on.exit(backup_callback(), add = TRUE)
 
   # form path to temporary file
-  tempfile <- tempfile("renv-download-", tmpdir = dirname(destfile))
-  on.exit(unlink(tempfile), add = TRUE)
+  tempfile <- renv_file_temp(tmpdir = dirname(destfile))
 
   # request the download
   before <- Sys.time()
@@ -73,8 +72,7 @@ renv_download_impl <- function(url, destfile, headers = FALSE) {
 
 renv_download_curl <- function(url, destfile, headers) {
 
-  config <- tempfile("renv-download-")
-  on.exit(unlink(config), add = TRUE)
+  config <- renv_file_temp("renv-download-config-")
 
   fields <- c(url = url, output = destfile)
   fields <- c(fields, renv_download_auth(url))
@@ -99,8 +97,7 @@ renv_download_curl <- function(url, destfile, headers) {
 
 renv_download_wget <- function(url, destfile, headers) {
 
-  config <- tempfile("renv-download-")
-  on.exit(unlink(config), add = TRUE)
+  config <- renv_file_temp("renv-download-config-")
 
   fields <- c(quiet = "on")
   fields <- c(fields, renv_download_auth(url))
@@ -166,8 +163,7 @@ renv_download_auth_gitlab <- function() {
 
 renv_download_headers <- function(url) {
 
-  file <- tempfile("renv-headers-")
-  on.exit(unlink(file), add = TRUE)
+  file <- renv_file_temp("renv-headers-")
 
   # perform the download
   renv_download_impl(url, file, headers = TRUE)
