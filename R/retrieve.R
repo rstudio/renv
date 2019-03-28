@@ -288,6 +288,10 @@ renv_retrieve_augment <- function(record, path) {
 
   descpath <- file.path(path, "DESCRIPTION")
 
+  # try to guess appropriate archiving tool from path
+  compress <- renv_file_compressor(path)
+  decompress <- renv_file_decompressor(path)
+
   # handle packed archives
   info <- file.info(path)
   if (!info$isdir) {
@@ -295,12 +299,12 @@ renv_retrieve_augment <- function(record, path) {
     temppath <- tempfile("renv-package-", tmpdir = dirname(path))
     on.exit(unlink(temppath, recursive = TRUE), add = TRUE)
 
-    files <- untar(tarfile = path, list = TRUE)
+    files <- decompress(path, list = TRUE)
     descpath <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
     if (empty(descpath))
       stopf("archive '%s' does not appear to be an R package (no DESCRIPTION file)", path)
 
-    untar(tarfile = path, exdir = temppath)
+    decompress(path, exdir = temppath)
     descpath <- file.path(temppath, descpath)
 
   }
@@ -326,7 +330,7 @@ renv_retrieve_augment <- function(record, path) {
     target <- desc$Package
     renv_file_move(source, target, overwrite = TRUE)
 
-    tar(tarfile = path, files = target)
+    compress(path, files = target)
   }
 
 }

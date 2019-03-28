@@ -274,3 +274,21 @@ renv_file_temp <- function(pattern = "renv-",
   defer(unlink(norm), envir = parent.frame())
   norm
 }
+
+renv_file_compressor <- function(path) {
+
+  ext <- fileext(path)
+  if (ext == ".zip")
+    return(zip)
+  tar
+
+}
+
+renv_file_decompressor <- function(path) {
+
+  ext <- fileext(path)
+  if (ext == ".zip")
+    return(unzip)
+  untar
+
+}
