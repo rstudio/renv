@@ -54,14 +54,14 @@ renv_retrieve_impl <- function(package, records = NULL) {
 
 }
 
-renv_retrieve_path <- function(record) {
+renv_retrieve_path <- function(record, ext = ".tar.gz") {
 
   package <- record$Package
   source <- record$Source %||% record$RemoteType %||% ""
 
   fields <- c("Package", "Version", "RemoteSha")
   matches <- record[intersect(names(record), fields)]
-  name <- sprintf("%s.tar.gz", paste(matches, collapse = "_"))
+  name <- sprintf("%s%s", paste(matches, collapse = "_"), ext)
 
   renv_paths_source(package, source, name)
 
@@ -108,19 +108,14 @@ renv_retrieve_gitlab <- function(record) {
 
 renv_retrieve_bitbucket <- function(record) {
 
-  remotes <- renv_retrieve_require("remotes", "Bitbucket")
+  host <- record$RemoteHost %||% "bitbucket.org"
+  sha <- record$RemoteSha %||% record$RemoteRef %||% "master"
 
-  remote <- remotes$bitbucket_remote(
-    repo      = file.path(record$RemoteUsername, record$RemoteRepo),
-    ref       = record$RemoteSha %||% record$RemoteRef,
-    sha       = record$RemoteSha,
-    host      = record$RemoteHost %||% "api.bitbucket.org/2.0",
-    subdir    = record$RemoteSubdir,
-    auth_user = Sys.getenv("BITBUCKET_USER", unset = NA) %NA% NULL,
-    password  = Sys.getenv("BITBUCKET_PASSWORD", unset = NA) %NA% NULL
-  )
+  fmt <- "https://%s/%s/%s/get/%s.tar.gz"
+  url <- sprintf(fmt, host, record$RemoteUsername, record$RemoteRepo, sha)
+  path <- renv_retrieve_path(record)
 
-  renv_retrieve_remote(record, remote, remotes)
+  renv_retrieve_package(record, url, path, overwrite = TRUE)
 
 }
 
@@ -241,7 +236,8 @@ renv_retrieve_package <- function(record, url, path, overwrite = FALSE) {
   # download the package
   if (overwrite || !renv_file_exists(path)) {
     ensure_parent_directory(path)
-    status <- catch(download(url, destfile = path))
+    type <- record$RemoteType %||% record$Source
+    status <- catch(download(url, destfile = path, type = type))
     if (inherits(status, "error") || identical(status, FALSE))
       return(status)
   }

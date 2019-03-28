@@ -179,14 +179,14 @@ renv_install_package_options <- function(package) {
 renv_install_report_status <- function(record, status) {
 
   if (inherits(status, "error")) {
-    message("\tFAILED")
+    message("\tFAILED\n")
     stop(status)
   }
 
-  feedback <- case(
-    endswith(".tar.gz", record$Path) ~ "built from source",
+  feedback <- if (endswith(record$Path, ".tar.gz"))
+    "built from source"
+  else
     "installed binary"
-  )
 
   messagef("\tOK (%s)", feedback)
 
