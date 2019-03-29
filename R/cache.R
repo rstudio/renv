@@ -61,23 +61,23 @@ renv_cache_prime <- function(library) {
 
   if (length(packages) == 0) {
     fmt <- "There are no packages within library '%s' to be copied."
-    messagef(fmt, aliased_path(library))
+    vwritef(fmt, aliased_path(library))
     return(0)
   }
 
   n <- length(packages)
-  messagef("* There are %i packages to synchronize with the cache.", n)
+  vwritef("* There are %i packages to synchronize with the cache.", n)
   if (!proceed()) {
     message("Operation aborted.")
     return(0)
   }
 
-  messagef("Copying packages into the cache ...")
+  vwritef("Copying packages into the cache ...")
   updates <- 0
   for (i in seq_along(packages)) {
 
     if (i %% 100 == 0)
-      messagef("... updating package %i of %i ...", i, n)
+      vwritef("... updating package %i of %i ...", i, n)
 
     package <- packages[[i]]
 
@@ -103,7 +103,7 @@ renv_cache_prime <- function(library) {
   }
 
   fmt <- "%i package(s) were copied into the cache."
-  messagef(fmt, updates)
+  vwritef(fmt, updates)
 
   updates
 

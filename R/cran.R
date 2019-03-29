@@ -50,7 +50,7 @@ renv_available_packages_query_impl <- function(url, cache, type) {
   # notify user since this can take some time for non-local CRAN
   if (!grepl("^file:", url)) {
     fmt <- "* Querying repositories for available %s packages -- please wait a moment ..."
-    messagef(fmt, type)
+    vwritef(fmt, type, con = stderr())
   }
 
   # make the query (suppress warnings in case this is a local repository

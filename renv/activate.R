@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.2.0.15"
+  version <- "0.2.0-42"
 
   # source the user profile if any, respecting R_PROFILE_USER
   profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")

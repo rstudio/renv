@@ -21,7 +21,7 @@ renv_request_restart_default <- function(project, reason, ...) {
 
   # otherwise, ask the user to restart
   fmt <- "* %s -- please restart the R session."
-  messagef(fmt, sprintf(reason, ...))
+  vwritef(fmt, sprintf(reason, ...), con = stderr())
 
 }
 

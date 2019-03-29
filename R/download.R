@@ -19,7 +19,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE) {
   size <- renv_download_size(url, type)
   if (size != -1 && renv_file_exists(destfile)) {
     if (file.size(destfile) == size) {
-      messagef("\tOK [file is up to date]")
+      vwritef("\tOK [file is up to date]")
       return(destfile)
     }
   }
@@ -207,10 +207,11 @@ renv_download_headers <- function(url, type) {
   if (!method %in% c("curl", "wget"))
     return(list())
 
-  file <- renv_tempfile("renv-headers-")
-
   # perform the download
+  file <- renv_tempfile("renv-headers-")
   renv_download_impl(url, file, type, headers = TRUE)
+  if (!file.exists(file))
+    return(list())
 
   # read the downloaded headers
   contents <- read(file)

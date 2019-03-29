@@ -22,9 +22,13 @@
 install <- function(packages, project = NULL) {
   project <- project %||% renv_project()
 
-  records <- lapply(packages, renv_remotes_parse)
-  packages <- extract_chr(records, "Package")
-  names(records) <- extract_chr(records, "Package")
+  library <- renv_paths_library(project = project)
+  records <- renv_snapshot_r_packages(library = library)
+
+  remotes <- lapply(packages, renv_remotes_parse)
+  packages <- extract_chr(remotes, "Package")
+  names(remotes) <- packages
+  records[names(remotes)] <- remotes
 
   renv_restore_begin(records, packages)
   on.exit(renv_restore_end(), add = TRUE)
@@ -84,7 +88,7 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
 
   # report that we're about to start installation
   fmt <- "Installing %s [%s] from %s ..."
-  with(record, messagef(fmt, Package, Version, renv_alias(Source)))
+  with(record, vwritef(fmt, Package, Version, renv_alias(Source)))
 
   # otherwise, install
   status <- catch(renv_install_package_local(record))
@@ -145,7 +149,7 @@ renv_install_package_cache <- function(record, cache, linker) {
 
   # report successful link to user
   fmt <- "Installing %s [%s] ..."
-  with(record, messagef(fmt, Package, Version))
+  with(record, vwritef(fmt, Package, Version))
 
   status <- catch(linker(cache, target))
   if (inherits(status, "error"))
@@ -156,7 +160,7 @@ renv_install_package_cache <- function(record, cache, linker) {
     identical(linker, renv_file_link) ~ "linked"
   )
 
-  messagef("\tOK (%s cache)", type)
+  vwritef("\tOK (%s cache)", type)
 
   return(TRUE)
 
@@ -225,7 +229,7 @@ renv_install_package_options <- function(package) {
 renv_install_report_status <- function(record, status) {
 
   if (inherits(status, "error")) {
-    message("\tFAILED\n")
+    vwritef("\tFAILED\n")
     stop(status)
   }
 
@@ -234,7 +238,7 @@ renv_install_report_status <- function(record, status) {
   else
     "installed binary"
 
-  messagef("\tOK (%s)", feedback)
+  vwritef("\tOK (%s)", feedback)
 
   if (settings$use.cache())
     renv_cache_synchronize(record)
