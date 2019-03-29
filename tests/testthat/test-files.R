@@ -87,8 +87,8 @@ test_that("renv tempfiles are deleted at end of scope", {
   path <- NULL
   path2 <- NULL
   local({
-    path <<- renv_file_temp()
-    path2 <<- renv_file_temp()
+    path <<- renv_tempfile()
+    path2 <<- renv_tempfile()
     file.create(path, path2)
     expect_true(file.exists(path))
     expect_true(file.exists(path2))

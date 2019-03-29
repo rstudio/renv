@@ -54,16 +54,22 @@ renv_retrieve_impl <- function(package, records = NULL) {
 
 }
 
-renv_retrieve_path <- function(record, ext = ".tar.gz") {
+renv_retrieve_path <- function(record, type = "source", ext = NULL) {
 
+  # form a name for the downloaded tarball
   package <- record$Package
-  source <- record$Source %||% record$RemoteType %||% ""
+  version <- record$RemoteSha %||% record$Version
+  ext <- ext %||% renv_package_ext(type)
+  name <- sprintf("%s_%s%s", package, version, ext)
 
-  fields <- c("Package", "Version", "RemoteSha")
-  matches <- record[intersect(names(record), fields)]
-  name <- sprintf("%s%s", paste(matches, collapse = "_"), ext)
-
-  renv_paths_source(package, source, name)
+  # form path within cache
+  source <- tolower(record$Source %||% record$RemoteType %||% "")
+  if (type == "source")
+    renv_paths_source(package, source, name)
+  else if (type == "binary")
+    renv_paths_binary(package, source, name)
+  else
+    stopf("unrecognized type '%s'", type)
 
 }
 
@@ -84,7 +90,7 @@ renv_retrieve_github <- function(record) {
   fmt <- "https://%s/repos/%s/%s/tarball/%s"
   url <- with(record, sprintf(fmt, RemoteHost, RemoteUsername, RemoteRepo, RemoteSha))
   path <- renv_retrieve_path(record)
-  renv_retrieve_package(record, url, path, overwrite = TRUE)
+  renv_retrieve_package(record, url, path)
 
 }
 
@@ -102,7 +108,7 @@ renv_retrieve_gitlab <- function(record) {
   if (!is.null(sha))
     url <- paste(url, paste("sha", sha, sep = "="), sep = "?")
 
-  renv_retrieve_package(record, url, path, overwrite = TRUE)
+  renv_retrieve_package(record, url, path)
 
 }
 
@@ -115,7 +121,7 @@ renv_retrieve_bitbucket <- function(record) {
   url <- sprintf(fmt, host, record$RemoteUsername, record$RemoteRepo, sha)
   path <- renv_retrieve_path(record)
 
-  renv_retrieve_package(record, url, path, overwrite = TRUE)
+  renv_retrieve_package(record, url, path)
 
 }
 
@@ -137,6 +143,12 @@ renv_retrieve_cran <- function(record) {
   # if we already have a type + repository, no need to find it
   if (!is.null(record$Type) && !is.null(record$Repository))
     return(renv_retrieve_cran_impl(record))
+
+  # if the record doesn't declare the package version,
+  # treat it as a request for the latest version on CRAN
+  # TODO: should make this behavior configurable
+  if (is.null(record$Version))
+    record <- renv_retrieve_missing_record(record$Package)
 
   # always attempt to retrieve from source + archive
   methods <- c(
@@ -162,21 +174,9 @@ renv_retrieve_cran <- function(record) {
 
 }
 
-renv_retrieve_cran_archive_name_binary <- function(record) {
-  sysname <- Sys.info()[["sysname"]]
-  suffix <- switch(sysname, Darwin = "tgz", Windows = "zip", "tar.gz")
-  sprintf("%s_%s.%s", record$Package, record$Version, suffix)
-}
-
-renv_retrieve_cran_archive_name_source <- function(record) {
-  sprintf("%s_%s.tar.gz", record$Package, record$Version)
-}
-
 renv_retrieve_cran_archive_name <- function(record, type) {
-  case(
-    type == "binary" ~ renv_retrieve_cran_archive_name_binary(record),
-    type == "source" ~ renv_retrieve_cran_archive_name_source(record)
-  )
+  fmt <- "%s_%s%s"
+  sprintf(fmt, record$Package, record$Version, renv_package_ext(type))
 }
 
 renv_retrieve_cran_binary <- function(record) {
@@ -221,26 +221,22 @@ renv_retrieve_cran_impl <- function(record,
   }
 
   url <- file.path(repo, name)
-  path <- case(
-    type == "binary" ~ renv_paths_binary(record$Package, name),
-    type == "source" ~ renv_paths_source(record$Package, name)
-  )
+  path <- renv_retrieve_path(record, type)
 
   renv_retrieve_package(record, url, path)
 
 }
 
 
-renv_retrieve_package <- function(record, url, path, overwrite = FALSE) {
+renv_retrieve_package <- function(record, url, path) {
 
   # download the package
-  if (overwrite || !renv_file_exists(path)) {
-    ensure_parent_directory(path)
-    type <- record$RemoteType %||% record$Source
-    status <- catch(download(url, destfile = path, type = type))
-    if (inherits(status, "error") || identical(status, FALSE))
-      return(status)
-  }
+  # TODO: validate that the existing tarball / zipball is not damaged
+  ensure_parent_directory(path)
+  type <- record$RemoteType %||% record$Source
+  status <- catch(download(url, destfile = path, type = type))
+  if (inherits(status, "error") || identical(status, FALSE))
+    return(status)
 
   renv_retrieve_successful(record, path)
 
@@ -367,11 +363,9 @@ renv_retrieve_remote <- function(record, remote, remotes) {
   url <- paste("file://", tarfile, sep = "")
 
   # construct nice name for cache
-  fields <- c(record$Package, record$Version, record$RemoteSha)
-  name <- sprintf("%s.tar.gz", paste(fields, collapse = "_"))
-  path <- renv_paths_source(record$Package, record$Source, name)
+  path <- renv_retrieve_path(record)
   ensure_parent_directory(path)
 
-  renv_retrieve_package(record, url, path, overwrite = TRUE)
+  renv_retrieve_package(record, url, path)
 
 }

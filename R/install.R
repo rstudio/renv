@@ -22,8 +22,10 @@
 install <- function(packages, project = NULL) {
   project <- project %||% renv_project()
 
-  # create lockfile based on state of R libraries
-  records <- renv_snapshot_r_packages()
+  records <- lapply(packages, renv_remotes_parse)
+  packages <- extract_chr(records, "Package")
+  names(records) <- extract_chr(records, "Package")
+
   renv_restore_begin(records, packages)
   on.exit(renv_restore_end(), add = TRUE)
 
@@ -70,6 +72,11 @@ renv_install <- function(project, records) {
 
 renv_install_impl <- function(record, linker = renv_file_copy) {
 
+  # skip installation if the requested record matches
+  # the already-installed record
+  if (renv_install_package_skip(record))
+    return(TRUE)
+
   # check for cache entry and install if there
   cache <- renv_cache_package_path(record)
   if (file.exists(cache))
@@ -82,6 +89,45 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
   # otherwise, install
   status <- catch(renv_install_package_local(record))
   renv_install_report_status(record, status)
+
+}
+
+renv_install_package_skip <- function(record) {
+
+  # don't skip if installation was explicitly requested
+  state <- renv_restore_state()
+  if (record$Package %in% state$packages)
+    return(FALSE)
+
+  # check for existing package install
+  library <- renv_global_get("install.library")
+  target <- file.path(library, record$Package)
+  if (!file.exists(target))
+    return(FALSE)
+
+  # attempt to read DESCRIPTION
+  current <- catch(as.list(renv_description_read(target)))
+  if (inherits(current, "error"))
+    return(FALSE)
+
+  # check for matching records
+  source <- tolower(record$Source %||% record$RemoteType)
+  if (empty(source))
+    return(FALSE)
+
+  # check for an up-to-date version from CRAN
+  if (identical(source, "cran")) {
+    fields <- c("Package", "Version")
+    if (identical(record[fields], current[fields]))
+      return(TRUE)
+  }
+
+  # otherwise, match on remote fields
+  fields <- c("Package", "Version", grep("^Remote", names(record), value = TRUE))
+  if (identical(record[fields], current[fields]))
+    return(TRUE)
+
+  FALSE
 
 }
 

@@ -265,16 +265,6 @@ renv_file_type <- function(paths, symlinks = TRUE) {
 
 }
 
-renv_file_temp <- function(pattern = "renv-",
-                           tmpdir = tempdir(),
-                           fileext = "")
-{
-  path <- tempfile(pattern, tmpdir, fileext)
-  norm <- renv_file_normalize(path, winslash = "/")
-  defer(unlink(norm, recursive = TRUE), envir = parent.frame())
-  norm
-}
-
 renv_file_compressor <- function(path) {
 
   ext <- fileext(path)

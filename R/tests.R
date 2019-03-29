@@ -145,7 +145,7 @@ renv_test_retrieve <- function(record) {
   names(records) <- package
 
   # prepare dummy library
-  templib <- renv_file_temp("renv-library-")
+  templib <- renv_tempfile("renv-library-")
   ensure_directory(templib)
   renv_scope_libpaths(c(templib, .libPaths()))
 

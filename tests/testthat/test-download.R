@@ -5,7 +5,7 @@ test_that("we avoid downloading files twice", {
   skip_on_cran()
 
   url <- "https://cran.rstudio.com/src/contrib/Archive/sourcetools/sourcetools_0.1.0.tar.gz"
-  destfile <- renv_file_temp()
+  destfile <- renv_tempfile()
 
   output <- stack()
   withCallingHandlers({

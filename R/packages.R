@@ -62,3 +62,18 @@ renv_package_tarball_name <- function(path) {
   desc <- renv_description_read(path)
   with(desc, sprintf("%s_%s.tar.gz", Package, Version))
 }
+
+renv_package_ext <- function(type) {
+
+  type <- match.arg(type, c("binary", "source"))
+  if (type == "source")
+    return(".tar.gz")
+
+  switch(
+    Sys.info()[["sysname"]],
+    Darwin  = ".tgz",
+    Windows = ".zip",
+    ".tar.gz"
+  )
+
+}
