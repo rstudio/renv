@@ -36,7 +36,7 @@ renv_description_read <- function(path = NULL, package = NULL) {
       stopf("failed to infer path to DESCRIPTION within file '%s'", path)
 
     # unpack into tempdir location
-    exdir <- renv_file_temp("renv-description-")
+    exdir <- renv_tempfile("renv-description-")
 
     decompress <- renv_archive_decompressor(path)
     decompress(path, files = file, exdir = exdir)

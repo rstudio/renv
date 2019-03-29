@@ -25,14 +25,16 @@ renv_remotes_parse <- function(entry) {
   switch(type,
     cran   = renv_remotes_parse_cran(entry),
     github = renv_remotes_parse_github(entry),
-    stopf("unhandled type '%s'", type %||% "unknown")
+    stopf("unknown remote type '%s'", type %||% "<NA>")
   )
 
 }
 
 renv_remotes_parse_cran <- function(entry) {
   parts <- strsplit(entry, "@", fixed = TRUE)[[1]]
-  list(Package = parts[[1]], Version = parts[[2]], Source = "CRAN")
+  package <- parts[1]
+  version <- parts[2] %NA% NULL
+  list(Package = package, Version = version, Source = "CRAN")
 }
 
 renv_remotes_parse_github <- function(entry) {
