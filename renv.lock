@@ -1,10 +1,10 @@
 [renv]
-Version=0.2.0
+Version=0.2.0-42
 
 [R]
 Version=3.5.3
 Repositories=
-	CRAN=https://cran.rstudio.com/
+	CRAN=https://cran.rstudio.com
 
 [R/Package/Matrix]
 Package=Matrix
@@ -82,11 +82,6 @@ Hash=7d795ad90c9503c6d0e35c8ff2511a21
 Package=commonmark
 Version=1.7
 Source=CRAN
-RemoteType=standard
-RemoteRef=commonmark
-RemoteRepos=https://cran.rstudio.com
-RemotePkgType=macos
-RemoteSha=1.7
 Hash=1292628dbd656fd28597cc9c8050333f
 
 [R/Package/crayon]
@@ -271,21 +266,21 @@ Hash=b7ee0181833b9c190c4f4d90f04ea984
 
 [R/Package/remotes]
 Package=remotes
-Version=2.0.2.9000
-Source=unknown
-Hash=ad39cf35bc0950aad160992b43482c0b
+Version=2.0.2
+Source=CRAN
+Hash=2aee1809bae6de308df57bf3b5699f40
 
 [R/Package/reticulate]
 Package=reticulate
-Version=1.11.1-9000
-Source=unknown
-Hash=ba6e71a5f9b1e46b6f7212ef02b73277
+Version=1.11.1
+Source=CRAN
+Hash=f82ee18540f1f7bd5d7fd6d556a9641b
 
 [R/Package/rlang]
 Package=rlang
-Version=0.3.2
+Version=0.3.3
 Source=CRAN
-Hash=c43afeec6b29b8f9769bf883f0922808
+Hash=f3ccc231a9765e983ed67e6ed563b414
 
 [R/Package/rmarkdown]
 Package=rmarkdown
@@ -307,9 +302,9 @@ Hash=e6c60a758ed15027bf9ba44701d2e01d
 
 [R/Package/rstudioapi]
 Package=rstudioapi
-Version=0.10
+Version=0.9.0
 Source=CRAN
-Hash=7017924bdb0eb5bc313f4dae2352e65a
+Hash=74473ceca963239a9ff9b15bb302a40c
 
 [R/Package/sessioninfo]
 Package=sessioninfo

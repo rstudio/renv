@@ -61,17 +61,21 @@ renv_description_path <- function(path) {
 
 renv_description_augment <- function(path, record) {
 
-  names(record)[names(record) == "Source"] <- "RemoteType"
+  remotes <- record[grep("^Remote", names(record))]
+  if (empty(remotes))
+    return(FALSE)
+
   old <- renv_description_read(path)
-  missing <- setdiff(names(record), names(old))
+  missing <- setdiff(names(remotes), names(old))
   if (empty(missing))
-    return(old)
+    return(FALSE)
 
   new <- old
-  new[names(record)] <- record
+  new[names(remotes)] <- remotes
   if (identical(old, new))
-    return(old)
+    return(FALSE)
 
   write.dcf(new, file = renv_description_path(path))
+  TRUE
 
 }

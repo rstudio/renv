@@ -16,9 +16,9 @@ renv_python_local_binary <- function() {
 
   path <- file.path(renv_project(), "renv/python/r-reticulate")
   if (!file.exists(path)) {
-    messagef("* Creating Python virtual environment ... ", appendLF = FALSE)
+    vwritef("* Creating Python virtual environment ... ", appendLF = FALSE)
     renv_python_virtualenv_create(path)
-    messagef("Done!")
+    vwritef("Done!")
   }
 
   if (renv_platform_windows())
@@ -94,7 +94,7 @@ renv_python_pip_freeze <- function(project, python) {
     return(FALSE)
 
   writeLines(after, con = path)
-  messagef("* Wrote Python packages to '%s'.", aliased_path(path))
+  vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
   return(TRUE)
 }
 
@@ -123,7 +123,7 @@ renv_python_pip_restore <- function(project, python) {
   system(command)
 
   path <- aliased_path(file.path(project, "requirements.txt"))
-  messagef("* Restored Python packages from '%s'.", aliased_path(path))
+  vwritef("* Restored Python packages from '%s'.", aliased_path(path))
 }
 
 renv_python_virtualenv_create <- function(path) {
