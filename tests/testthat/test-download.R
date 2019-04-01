@@ -7,11 +7,12 @@ test_that("we avoid downloading files twice", {
   url <- "https://cran.rstudio.com/src/contrib/Archive/sourcetools/sourcetools_0.1.0.tar.gz"
   destfile <- renv_tempfile()
 
-  output <- capture.output({
-    download(url, destfile)
-    download(url, destfile)
-  })
+  # download once and check file metadata
+  download(url, destfile)
+  info <- file.info(destfile, extra_cols = FALSE)
 
-  expect_true(any(grepl("file is up to date", output)))
+  # download again and check the file info hasn't changed
+  download(url, destfile)
+  expect_identical(c(info), c(file.info(destfile, extra_cols = FALSE)))
 
 })
