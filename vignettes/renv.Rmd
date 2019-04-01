@@ -2,7 +2,11 @@
 title: "Introduction to renv"
 author: "Kevin Ushey"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+   rmarkdown::html_vignette:
+      keep_md: true
+      pandoc_args:
+         - --columns=1000
 vignette: >
   %\VignetteIndexEntry{Introduction}
   %\VignetteEngine{knitr::rmarkdown}
@@ -90,22 +94,21 @@ discovered in the cache.
 
 The following files are written to and used by projects using `renv`:
 
-- `.Rprofile`: Used to activate `renv` for new R sessions launched in the project.
+| **File**          | **Usage**                                                                           |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| `.Rprofile`       | Used to activate `renv` for new R sessions launched in the project.                 |
+| `renv.lock`       | The lockfile, describing the state of your project's library at some point in time. |
+| `renv/activate.R` | The activation script run by the project `.Rprofile`.                               |
+| `renv/library`    | The private project library.                                                        |
 
-- `renv.lock`: The lockfile, describing the state of your project's library
-  at some point in time.
-
-- `renv/activate.R`: The activation script run by the project `.Rprofile`.
-  It ensures that the project library is made active for newly launched R
-  sessions.
-
-- `renv/library`: The private project library, normally as a collection of
-  symlinks into the global cache.
-
+In particular, `renv/activate.R` ensures that the project library is made
+active for newly launched R sessions.
+ 
 For development and collaboration, the `.Rprofile`, `renv.lock` and
-`renv/activate.R` files should be committed to your VCS; the `renv/library`
-directory should normally be ignored. Note that `renv::init()` will attempt
-to write the requisite ignore statements to the project `.gitignore`.
+`renv/activate.R` files should be committed to your version control system; the
+`renv/library` directory should normally be ignored. Note that `renv::init()`
+will attempt to write the requisite ignore statements to the project
+`.gitignore`.
 
 
 ## Upgrading renv
@@ -188,9 +191,11 @@ for compilation on Windows; support for other platforms will come in the future
 To help you take advantage of the package cache, `renv` places a couple of
 shims on the search path:
 
-- `install.packages()` -> `renv::install()`
-- `remove.packages()`  -> `renv::remove()`
-- `update.packages()`  -> `renv::update()`
+| **Function**         | **Shim**          |
+| -------------------- | ----------------- |
+| `install.packages()` | `renv::install()` |
+| `remove.packages()`  | `renv::remove()`  |
+| `update.packages()`  | `renv::update()`  |
 
 This can be useful when installing packages which have already been cached.
 For example, if you use `renv::install("dplyr")`, and `renv` detects that
