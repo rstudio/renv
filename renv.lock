@@ -1,5 +1,5 @@
 [renv]
-Version=0.2.0-42
+Version=0.2.0-52
 
 [R]
 Version=3.5.3
@@ -266,9 +266,15 @@ Hash=b7ee0181833b9c190c4f4d90f04ea984
 
 [R/Package/remotes]
 Package=remotes
-Version=2.0.2
-Source=CRAN
-Hash=2aee1809bae6de308df57bf3b5699f40
+Version=2.0.2.9000
+Source=GitHub
+RemoteType=github
+RemoteHost=api.github.com
+RemoteRepo=remotes
+RemoteUsername=r-lib
+RemoteRef=master
+RemoteSha=bc902816f7319ce85160362586ae481844d2c680
+Hash=dca9e2b42b808c1aa17075c403030aae
 
 [R/Package/reticulate]
 Package=reticulate
@@ -302,15 +308,27 @@ Hash=e6c60a758ed15027bf9ba44701d2e01d
 
 [R/Package/rstudioapi]
 Package=rstudioapi
-Version=0.9.0
+Version=0.10
 Source=CRAN
-Hash=74473ceca963239a9ff9b15bb302a40c
+Hash=7017924bdb0eb5bc313f4dae2352e65a
 
 [R/Package/sessioninfo]
 Package=sessioninfo
 Version=1.1.1
 Source=CRAN
 Hash=c756eca9ff3fa1036cda98ac151e8387
+
+[R/Package/skeleton]
+Package=skeleton
+Version=1.0.1
+Source=Bitbucket
+RemoteType=bitbucket
+RemoteHost=api.bitbucket.org/2.0
+RemoteRepo=skeleton
+RemoteUsername=kevinushey
+RemoteRef=master
+RemoteSha=6584e2eb5c58bbd50fd83c90fe8a73fcabdfa347
+Hash=6886512903c4c2e32c9cf5271b22d64b
 
 [R/Package/stringi]
 Package=stringi
@@ -362,9 +380,9 @@ Hash=844aae4b78fac8f6ed2541cde1facdb3
 
 [R/Package/xfun]
 Package=xfun
-Version=0.5
+Version=0.6
 Source=CRAN
-Hash=cb84ebd810607f5ee5bc721ccfaf71d9
+Hash=f17f03efce059c8d17afa3b6787cffa5
 
 [R/Package/xml2]
 Package=xml2

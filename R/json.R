@@ -2,7 +2,7 @@
 # a very hacky, yet 100% R, JSON parser
 renv_json_read <- function(file = NULL, text = NULL) {
 
-  text <- text %||% readLines(file, warn = FALSE)
+  text <- paste(text %||% read(file), collapse = "\n")
 
   # find strings in the JSON
   pattern <- '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
