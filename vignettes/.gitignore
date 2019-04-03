@@ -1,3 +1,4 @@
-*.html
 *.R
+*.html
+*.md
 renv/library/
