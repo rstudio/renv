@@ -54,7 +54,7 @@ renv_remotes_parse_github <- function(entry) {
   on.exit(unlink(jsonfile), add = TRUE)
   download(url, destfile = jsonfile, quiet = TRUE)
 
-  json <- renv_json_read(jsonfile)[[1]]
+  json <- renv_json_read(jsonfile)
   sha <- json$object$sha
 
   # now, get the DESCRIPTION contents
