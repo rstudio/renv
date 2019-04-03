@@ -264,11 +264,13 @@ renv_restore_preflight_unknown_source <- function(actions, lockfile) {
   if (empty(unknown))
     return(FALSE)
 
-  renv_verbose() && renv_pretty_print_records(
-    unknown,
-    "The following package(s) were installed from an unknown source:",
-    "renv will attempt to install the latest version(s) from CRAN instead."
-  )
+  if (renv_verbose()) {
+    renv_pretty_print_records(
+      unknown,
+      "The following package(s) were installed from an unknown source:",
+      "renv will attempt to install the latest version(s) from CRAN instead."
+    )
+  }
 
   TRUE
 
@@ -281,11 +283,13 @@ renv_restore_preflight_permissions <- function(library) {
   if (access == 0L)
     return(TRUE)
 
-  renv_verbose() && renv_pretty_print(
-    library,
-    "You do not have permissions to read / write into the requested library:",
-    "renv may be unable to restore packages."
-  )
+  if (renv_verbose()) {
+    renv_pretty_print(
+      library,
+      "You do not have permissions to read / write into the requested library:",
+      "renv may be unable to restore packages."
+    )
+  }
 
   FALSE
 
