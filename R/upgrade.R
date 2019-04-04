@@ -31,7 +31,7 @@ renv_upgrade_impl <- function(project, remote, confirm) {
   records <- list(renv = record)
 
   # produce nice messages based on package versions
-  current <- renv_package_version("renv")
+  current <- renv_activate_version(project)
   request <- record$Version
   if (version_compare(current, request) == 0) {
     fmt <- "renv [%s] is already installed and active for this project."

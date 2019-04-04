@@ -4,23 +4,14 @@ local({
   # the requested version of renv
   version <- "${VERSION}"
 
+  # early exit for source-erers who just want the renv version
+  envir <- parent.env(environment())
+  if (exists("_renv_version_only", envir = envir, inherits = FALSE))
+    return(version)
+
   # load the 'utils' package eagerly -- this ensures that renv shims, which
   # mask 'utils' packages, will come first on the search path
   library(utils, lib.loc = .Library)
-
-  # check to see if renv has already been loaded
-  if ("renv" %in% loadedNamespaces()) {
-
-    # if renv has already been loaded, and it's the requested version of renv,
-    # nothing to do
-    spec <- .getNamespaceInfo(.getNamespace("renv"), "spec")
-    if (identical(spec$version, version))
-      return(invisible(TRUE))
-
-    # otherwise, unload and attempt to load the correct version of renv
-    unloadNamespace("renv")
-
-  }
 
   # source the user profile if any, respecting R_PROFILE_USER
   profile <- Sys.getenv("R_PROFILE_USER", unset = path.expand("~/.Rprofile"))
