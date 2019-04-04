@@ -2,26 +2,16 @@
 local({
 
   # the requested version of renv
-  version <- "0.2.0-56"
+  version <- "0.2.0-54"
 
-  # bail if the source-erer is requesting only the version
-  envir <- parent.frame()
-  if (exists("_renv_version_only", envir = envir)) {
-    envir$version <- version
-    return(invisible(TRUE))
-  }
+  # source the user profile if any, respecting R_PROFILE_USER
+  profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
+  if (file.exists(profile))
+    source(profile)
 
   # load the 'utils' package eagerly -- this ensures that renv shims, which
   # mask 'utils' packages, will come first on the search path
   library(utils, lib.loc = .Library)
-
-  # source the user profile if any, respecting R_PROFILE_USER
-  profile <- Sys.getenv("R_PROFILE_USER", unset = path.expand("~/.Rprofile"))
-  if (file.exists(profile)) {
-    current <- normalizePath(".Rprofile", winslash = "/", mustWork = FALSE)
-    if (!identical(profile, current))
-      source(profile)
-  }
 
   # figure out root for renv installation
   default <- switch(
