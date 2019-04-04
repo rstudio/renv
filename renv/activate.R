@@ -2,16 +2,33 @@
 local({
 
   # the requested version of renv
-  version <- "0.2.0-54"
-
-  # source the user profile if any, respecting R_PROFILE_USER
-  profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
-  if (file.exists(profile))
-    source(profile)
+  version <- "0.2.0-58"
 
   # load the 'utils' package eagerly -- this ensures that renv shims, which
   # mask 'utils' packages, will come first on the search path
   library(utils, lib.loc = .Library)
+
+  # check to see if renv has already been loaded
+  if ("renv" %in% loadedNamespaces()) {
+
+    # if renv has already been loaded, and it's the requested version of renv,
+    # nothing to do
+    spec <- .getNamespaceInfo(.getNamespace("renv"), "spec")
+    if (identical(spec$version, version))
+      return(invisible(TRUE))
+
+    # otherwise, unload and attempt to load the correct version of renv
+    unloadNamespace("renv")
+
+  }
+
+  # source the user profile if any, respecting R_PROFILE_USER
+  profile <- Sys.getenv("R_PROFILE_USER", unset = path.expand("~/.Rprofile"))
+  if (file.exists(profile)) {
+    current <- normalizePath(".Rprofile", winslash = "/", mustWork = FALSE)
+    if (!identical(profile, current))
+      source(profile)
+  }
 
   # figure out root for renv installation
   default <- switch(
