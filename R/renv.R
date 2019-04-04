@@ -110,10 +110,10 @@ renv_activate_version_activate <- function(project) {
   if (!file.exists(activate))
     return(NULL)
 
-  # source activate script
-  envir <- new.env(parent = baseenv())
-  envir[["_renv_version_only"]] <- TRUE
-  eval(parse(activate), envir = envir)
+  contents <- readLines(activate, warn = FALSE)
+  line <- grep("^\\s*version", contents, value = TRUE)
+  parsed <- parse(text = line)[[1]]
+  parsed[[3]]
 
 }
 
