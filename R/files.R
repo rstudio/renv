@@ -282,3 +282,19 @@ renv_file_decompressor <- function(path) {
   untar
 
 }
+
+renv_file_edit <- function(path) {
+
+  # https://github.com/rstudio/renv/issues/44
+  dlls <- getLoadedDLLs()
+  if (is.null(dlls[["(embedding)"]]))
+    return(utils::file.edit(path))
+
+  routines <- getDLLRegisteredRoutines("(embedding)")
+  routine <- routines[[".Call"]][["rs_editFile"]]
+  if (is.null(routine))
+    return(utils::file.edit(path))
+
+  do.call(.Call, list(routine, path, PACKAGE = "(embedding)"))
+
+}
