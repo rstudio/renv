@@ -32,7 +32,8 @@ renv_scope_envvars <- function(...) {
   defer({
     na <- is.na(old)
     Sys.unsetenv(names(old[na]))
-    do.call(Sys.setenv, old[!na])
+    if (length(old[!na]))
+      do.call(Sys.setenv, old[!na])
   }, envir = parent.frame())
 
 }
