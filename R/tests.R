@@ -154,11 +154,11 @@ renv_test_retrieve <- function(record) {
   on.exit(renv_restore_end(), add = TRUE)
 
   records <- renv_retrieve("skeleton", records)
-  paths <- renv_install(getwd(), records)
+  renv_install(getwd(), records)
 
   desc <- renv_description_read(file.path(templib, package))
 
   fields <- grep("^Remote", names(record), value = TRUE)
-  expect_identical(as.list(desc[fields]), as.list(record[fields]))
+  testthat::expect_identical(as.list(desc[fields]), as.list(record[fields]))
 
 }
