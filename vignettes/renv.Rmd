@@ -142,10 +142,17 @@ each project uses its own project library, packages can be upgraded as needed
 without risk of affecting any other projects still using the previous version
 of the package.
 
-By default, the cache is installed at a path `~/.renv/cache`. If you'd like
-to share the package cache across multiple users, you can do so by setting
-the `RENV_PATHS_CACHE` environment variable as required. This variable can
-be set in an R startup file to make it apply to all R sessions. For example,
+By default, `renv` generates its cache in the following folders:
+
+| **Platform** | **Location**                         |
+| ------------ | ------------------------------------ |
+| Linux        | `~/.local/share/renv`                |
+| macOS        | `~/Library/Application Support/renv` |
+| Windows      | `%APPDATA%/renv`                     |
+
+If you'd like to share the package cache across multiple users, you can do so by
+setting the `RENV_PATHS_CACHE` environment variable as required. This variable
+can be set in an R startup file to make it apply to all R sessions. For example,
 it could be set within:
 
 - A project-local `.Renviron`;

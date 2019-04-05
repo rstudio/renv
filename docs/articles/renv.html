@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.51</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.61</span>
       </span>
     </div>
 
@@ -76,7 +76,7 @@
       <h1>Introduction to renv</h1>
                         <h4 class="author">Kevin Ushey</h4>
             
-            <h4 class="date">2019-04-01</h4>
+            <h4 class="date">2019-04-05</h4>
       
       
       <div class="hidden name"><code>renv.Rmd</code></div>
@@ -163,7 +163,28 @@
 <li>These packages are then linked into the project library.</li>
 </ol>
 <p>This allows a single package installation to be shared across multiple projects, while allowing these projects to still remain isolated from one another. Because each project uses its own project library, packages can be upgraded as needed without risk of affecting any other projects still using the previous version of the package.</p>
-<p>By default, the cache is installed at a path <code>~/.renv/cache</code>. If you’d like to share the package cache across multiple users, you can do so by setting the <code>RENV_PATHS_CACHE</code> environment variable as required. This variable can be set in an R startup file to make it apply to all R sessions. For example, it could be set within:</p>
+<p>By default, <code>renv</code> generates its cache in the following folders:</p>
+<table class="table">
+<thead><tr class="header">
+<th><strong>Platform</strong></th>
+<th><strong>Location</strong></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Linux</td>
+<td><code>~/.local/share/renv</code></td>
+</tr>
+<tr class="even">
+<td>macOS</td>
+<td><code>~/Library/Application Support/renv</code></td>
+</tr>
+<tr class="odd">
+<td>Windows</td>
+<td><code>%APPDATA%/renv</code></td>
+</tr>
+</tbody>
+</table>
+<p>If you’d like to share the package cache across multiple users, you can do so by setting the <code>RENV_PATHS_CACHE</code> environment variable as required. This variable can be set in an R startup file to make it apply to all R sessions. For example, it could be set within:</p>
 <ul>
 <li>A project-local <code>.Renviron</code>;</li>
 <li>The user-level <code>.Renviron</code>;</li>
