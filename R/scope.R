@@ -20,3 +20,19 @@ renv_scope_locale <- function(category = "LC_ALL", locale = "") {
   Sys.setlocale(category, locale)
   defer(Sys.setlocale(category, saved), envir = parent.frame())
 }
+
+renv_scope_envvars <- function(...) {
+
+  dots <- list(...)
+  old <- as.list(Sys.getenv(names(dots), unset = NA))
+  names(old) <- names(dots)
+
+  Sys.setenv(...)
+
+  defer({
+    na <- is.na(old)
+    Sys.unsetenv(names(old[na]))
+    do.call(Sys.setenv, old[!na])
+  }, envir = parent.frame())
+
+}
