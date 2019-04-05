@@ -15,7 +15,7 @@ remove <- function(packages, library = NULL) {
 
   library <- library %||% renv_libpaths_default()
 
-  if (library == renv_paths_library(project = renv_project())) {
+  if (library == renv_paths_library()) {
     vwritef("* Removing package(s) from project library ...")
   } else {
     fmt <- "* Removing package(s) from library '%s' ..."
