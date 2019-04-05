@@ -27,7 +27,7 @@ clean <- function(project = NULL, confirm = interactive()) {
 
 renv_clean_library_tempdirs <- function(project, confirm) {
 
-  library <- renv_paths_library(project)
+  library <- renv_paths_library(project = project)
   children <- list.files(library, full.names = TRUE)
 
   bad <- grep("/file\\w{12}$", children, value = TRUE)

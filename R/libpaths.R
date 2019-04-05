@@ -37,7 +37,7 @@ renv_libpaths_user <- function() {
 renv_libpaths_activate <- function(project) {
 
   libpaths <- c(
-    renv_paths_library(project),
+    renv_paths_library(project = project),
     settings$external.libraries(project = project)
   )
 
