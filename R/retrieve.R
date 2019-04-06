@@ -305,6 +305,11 @@ renv_retrieve_successful <- function(record, path) {
 }
 
 renv_retrieve_unknown_source <- function(record) {
+
+  status <- renv_retrieve_local(record)
+  if (!inherits(status, "error"))
+    return(status)
+
   record <- renv_retrieve_missing_record(record$Package)
   renv_retrieve_cran(record)
 }
