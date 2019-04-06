@@ -37,6 +37,20 @@ enumerated below:
 \code{RENV_PATHS_EXTSOFT}     \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
 }
 
+Note that \code{renv} will append platform-specific and version-specific entries
+to the set paths as required. For example, if you have set:
+
+Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
+
+then the directory used for the cache will still depend on the \R version
+and also cache
+
+/mnt/shared/renv/cache/R-3.5/v2
+
+This ensures that you can set a single \code{RENV_PATHS_CACHE} environment variable
+globally without worry that it may cause collisions or errors if multiple
+versions of \R needed to interact with the same cache.
+
 If reproducibility of a project is desired on a particular machine, it is
 highly recommended that the \code{renv} cache of installed packages + binary
 packages is stored, so that packages can be easily restored in the future --

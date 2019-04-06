@@ -33,6 +33,20 @@
 #' \code{RENV_PATHS_EXTSOFT}     \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
 #' }
 #'
+#' Note that `renv` will append platform-specific and version-specific entries
+#' to the set paths as required. For example, if you have set:
+#'
+#'     Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
+#'
+#' then the directory used for the cache will still depend on the \R version
+#' and also cache
+#'
+#'     /mnt/shared/renv/cache/R-3.5/v2
+#'
+#' This ensures that you can set a single `RENV_PATHS_CACHE` environment variable
+#' globally without worry that it may cause collisions or errors if multiple
+#' versions of \R needed to interact with the same cache.
+#'
 #' If reproducibility of a project is desired on a particular machine, it is
 #' highly recommended that the `renv` cache of installed packages + binary
 #' packages is stored, so that packages can be easily restored in the future --
@@ -52,56 +66,55 @@
 #' @name paths
 NULL
 
-renv_paths_common <- function(name, root, prefix, ...) {
+renv_prefix_platform <- function() {
+  file.path(R.version$platform, getRversion()[1, 1:2])
+}
 
-  # allow explicit absolute paths from the user
+renv_prefix_version <- function() {
+  paste("R", getRversion()[1, 1:2], sep = "-")
+}
+
+renv_paths_common <- function(name, prefixes = NULL, ...) {
+
+  # check for absolute path
   suffix <- file.path(...)
   if (length(suffix) && path_absolute(suffix))
     return(suffix)
 
-  # prepend prefix (if any)
-  if (prefix)
-    suffix <- renv_platform_prefix(...)
+  # compute root path
+  envvar <- paste("RENV_PATHS", toupper(name), sep = "_")
+  root <- Sys.getenv(envvar, unset = renv_paths_root(name))
 
-  # get root path
-  envvar <- sprintf("RENV_PATHS_%s", toupper(name))
-  root <- Sys.getenv(envvar, unset = root(name))
-
-  if (empty(suffix))
-    root
-  else
-    file.path(root, suffix) %||% ""
+  # form rest of path
+  components <- as.list(c(root, prefixes, ...))
+  do.call(file.path, components)
 
 }
 
-renv_paths_common_local <- function(project = NULL, name, prefix, ...) {
+renv_paths_library <- function(..., project = NULL) {
   project <- project %||% renv_project()
-  root <- function(...) file.path(project, "renv", ...) %||% ""
-  renv_paths_common(name, root, prefix, ...)
-}
-
-renv_paths_library <- function(project = NULL, ...) {
-  renv_paths_common_local(project, "library", TRUE, ...)
+  root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = file.path(project, "renv/library"))
+  file.path(root, renv_prefix_platform(), ...)
 }
 
 renv_paths_source <- function(...) {
-  renv_paths_common("source", renv_paths_root, FALSE, ...)
+  renv_paths_common("source", ...)
 }
 
 renv_paths_bootstrap <- function(...) {
-  renv_paths_common("bootstrap", renv_paths_root_versioned, TRUE, ...)
+  renv_paths_common("bootstrap", c(renv_prefix_version(), renv_prefix_platform()), ...)
 }
 
 renv_paths_binary <- function(...) {
-  renv_paths_common("binary", renv_paths_root_versioned, FALSE, ...)
+  renv_paths_common("binary", renv_prefix_version(), ...)
 }
 
 renv_paths_repos <- function(...) {
-  renv_paths_common("repos", renv_paths_root_versioned, FALSE, ...)
+  renv_paths_common("repos", renv_prefix_version(), ...)
 }
 
 renv_paths_cache <- function(...) {
-  renv_paths_common("cache", renv_paths_root_versioned, FALSE, renv_cache_version(), ...)
+  renv_paths_common("cache", c(renv_prefix_version(), renv_cache_version()), ...)
 }
 
 renv_paths_extsoft <- function(...) {
@@ -111,14 +124,10 @@ renv_paths_extsoft <- function(...) {
 }
 
 
+
 renv_paths_root <- function(...) {
   root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
   file.path(root, ...) %||% ""
-}
-
-renv_paths_root_versioned <- function(...) {
-  version <- paste("R", getRversion()[1, 1:2], sep = "-")
-  renv_paths_root(version, ...) %||% ""
 }
 
 renv_paths_root_default <- function() {
@@ -137,8 +146,3 @@ renv_paths_root_default_impl <- function() {
   file.path(root, "renv")
 
 }
-
-renv_platform_prefix <- function(...) {
-  file.path(R.version$platform, getRversion()[1, 1:2], ...)
-}
-
