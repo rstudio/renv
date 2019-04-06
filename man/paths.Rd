@@ -30,6 +30,7 @@ enumerated below:
 \code{RENV_PATHS_ROOT}        \tab The root path used for global state storage. \cr
 \code{RENV_PATHS_BOOTSTRAP}   \tab The library path containing bootstrapped \code{renv} installations. \cr
 \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
+\code{RENV_PATHS_LOCAL}       \tab The path containing local package sources. \cr
 \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr
 \code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr
 \code{RENV_PATHS_CACHE}       \tab The path containing cached package installations. \cr
@@ -38,14 +39,12 @@ enumerated below:
 }
 
 Note that \code{renv} will append platform-specific and version-specific entries
-to the set paths as required. For example, if you have set:
-
-Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
+to the set paths as appropriate. For example, if you have set:\preformatted{Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
+}
 
 then the directory used for the cache will still depend on the \R version
-and also cache
-
-/mnt/shared/renv/cache/R-3.5/v2
+(e.g. \code{3.5}) and the \code{renv} cache version (e.g. \code{v2}). For example:\preformatted{/mnt/shared/renv/cache/R-3.5/v2
+}
 
 This ensures that you can set a single \code{RENV_PATHS_CACHE} environment variable
 globally without worry that it may cause collisions or errors if multiple
@@ -67,3 +66,21 @@ set in:
 
 Please see ?\link{Startup} for more details.
 }
+\section{Local Sources}{
+
+
+If your project depends on one or \R packages that are not available in any
+remote location, you can still provide a locally-available tarball for \code{renv}
+to use during restore. By default, these packages should be made available in
+the folder as specified by the \code{RENV_PATHS_LOCAL} environment variable. The
+package sources should be placed in a file at one of these locations:
+\itemize{
+\item \code{${RENV_PATHS_LOCAL}/<package>/<package>_<version>.<ext>}
+\item \code{<project>/renv/local/<package>/<package>_<version>.<ext>}
+}
+
+where \code{.<ext>} is \code{.tar.gz} for source packages, or \code{.tgz} for binaries on
+macOS and \code{.zip} on Windows. During a \code{restore()}, packages installed from
+an unknown source will be searched for in this location.
+}
+

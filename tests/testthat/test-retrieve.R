@@ -71,4 +71,16 @@ test_that("we can retrieve packages from GitLab", {
 
 })
 
+test_that("we can retrieve packages from local sources", {
 
+  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
+
+  record <- list(
+    Package = "skeleton",
+    Version = "1.0.1",
+    Source  = "local"
+  )
+
+  renv_test_retrieve(record)
+
+})

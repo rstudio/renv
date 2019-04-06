@@ -49,20 +49,22 @@ renv_retrieve_impl <- function(package, records = NULL) {
          git2r        = renv_retrieve_git(record),
          github       = renv_retrieve_github(record),
          gitlab       = renv_retrieve_gitlab(record),
+         local        = renv_retrieve_local(record),
          renv_retrieve_unknown_source(record)
   )
 
 }
 
-renv_retrieve_path <- function(record, type = "source", ext = NULL) {
-
-  # form a name for the downloaded tarball
+renv_retrieve_name <- function(record, type = "source", ext = NULL) {
   package <- record$Package
   version <- record$RemoteSha %||% record$Version
   ext <- ext %||% renv_package_ext(type)
-  name <- sprintf("%s_%s%s", package, version, ext)
+  sprintf("%s_%s%s", package, version, ext)
+}
 
-  # form path within cache
+renv_retrieve_path <- function(record, type = "source", ext = NULL) {
+  package <- record$Package
+  name <- renv_retrieve_name(record, type, ext)
   source <- tolower(record$Source %||% record$RemoteType %||% "")
   if (type == "source")
     renv_paths_source(package, source, name)
@@ -70,7 +72,6 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
     renv_paths_binary(package, source, name)
   else
     stopf("unrecognized type '%s'", type)
-
 }
 
 renv_retrieve_bioconductor <- function(record) {
@@ -81,6 +82,19 @@ renv_retrieve_bioconductor <- function(record) {
   on.exit(options(repos = repos), add = TRUE)
 
   renv_retrieve_cran(record)
+}
+
+renv_retrieve_bitbucket <- function(record) {
+
+  host <- record$RemoteHost %||% "bitbucket.org"
+  sha <- record$RemoteSha %||% record$RemoteRef %||% "master"
+
+  fmt <- "https://%s/%s/%s/get/%s.tar.gz"
+  url <- sprintf(fmt, host, record$RemoteUsername, record$RemoteRepo, sha)
+  path <- renv_retrieve_path(record)
+
+  renv_retrieve_package(record, url, path)
+
 }
 
 renv_retrieve_github <- function(record) {
@@ -112,19 +126,6 @@ renv_retrieve_gitlab <- function(record) {
 
 }
 
-renv_retrieve_bitbucket <- function(record) {
-
-  host <- record$RemoteHost %||% "bitbucket.org"
-  sha <- record$RemoteSha %||% record$RemoteRef %||% "master"
-
-  fmt <- "https://%s/%s/%s/get/%s.tar.gz"
-  url <- sprintf(fmt, host, record$RemoteUsername, record$RemoteRepo, sha)
-  path <- renv_retrieve_path(record)
-
-  renv_retrieve_package(record, url, path)
-
-}
-
 renv_retrieve_git <- function(record) {
 
   remotes <- renv_retrieve_require("remotes", "Git")
@@ -136,6 +137,34 @@ renv_retrieve_git <- function(record) {
 
   renv_retrieve_remote(record, remote, remotes)
 
+}
+
+renv_retrieve_local_find <- function(record) {
+
+  roots <- c(
+    renv_paths_project("renv/local"),
+    renv_paths_local()
+  )
+
+  for (type in c("binary", "source")) {
+    name <- renv_retrieve_name(record, type = type)
+    for (root in roots) {
+      path <- file.path(root, record$Package, name)
+      if (file.exists(path))
+        return(named(path, type))
+    }
+  }
+
+  fmt <- "%s [%s] is not available locally"
+  stopf(fmt, record$Package, record$Version)
+
+}
+
+renv_retrieve_local <- function(record) {
+  source <- renv_retrieve_local_find(record)
+  url <- paste("file://", source, sep = "")
+  path <- renv_retrieve_path(record, type = names(source))
+  renv_retrieve_package(record, url, path)
 }
 
 renv_retrieve_cran <- function(record) {
