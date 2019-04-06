@@ -98,7 +98,7 @@ renv_paths_library <- function(..., project = NULL) {
 }
 
 renv_paths_source <- function(...) {
-  renv_paths_common("source", ...)
+  renv_paths_common("source", c(), ...)
 }
 
 renv_paths_bootstrap <- function(...) {
@@ -106,11 +106,11 @@ renv_paths_bootstrap <- function(...) {
 }
 
 renv_paths_binary <- function(...) {
-  renv_paths_common("binary", renv_prefix_version(), ...)
+  renv_paths_common("binary", c(renv_prefix_version()), ...)
 }
 
 renv_paths_repos <- function(...) {
-  renv_paths_common("repos", renv_prefix_version(), ...)
+  renv_paths_common("repos", c(renv_prefix_version()), ...)
 }
 
 renv_paths_cache <- function(...) {
