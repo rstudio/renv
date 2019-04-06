@@ -9,5 +9,5 @@ test_that("all renv paths live within tempdir() during tests", {
 test_that("the cache path can be set through an environment variable", {
   cachepath <- tempfile()
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  expect_identical(cachepath, dirname(renv_paths_cache()))
+  expect_true(startswith(renv_paths_cache(), cachepath))
 })
