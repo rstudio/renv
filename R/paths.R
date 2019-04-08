@@ -94,26 +94,19 @@ renv_prefix_version <- function() {
   paste("R", getRversion()[1, 1:2], sep = "-")
 }
 
-renv_paths_common <- function(name,
-                              prefixes = NULL,
-                              suffixes = NULL,
-                              ...)
+renv_paths_common <- function(name, prefixes = NULL, ...)
 {
-  # check for absolute path
+  # check for absolute path supplied by user
   end <- file.path(...)
   if (length(end) && path_absolute(end))
     return(end)
 
   # compute root path
   envvar <- paste("RENV_PATHS", toupper(name), sep = "_")
-  root <- Sys.getenv(envvar, unset = NA)
-  if (!is.na(root)) {
-    components <- as.list(c(root, prefixes, suffixes, ...))
-    return(do.call(file.path, components) %||% "")
-  }
+  root <- Sys.getenv(envvar, unset = renv_paths_root(name))
 
   # form rest of path
-  components <- as.list(c(renv_paths_root(), prefixes, name, suffixes, ...))
+  components <- as.list(c(root, prefixes, ...))
   do.call(file.path, components) %||% ""
 }
 
@@ -129,57 +122,27 @@ renv_paths_library <- function(..., project = NULL) {
 }
 
 renv_paths_local <- function(...) {
-  renv_paths_common(
-    name = "local",
-    prefixes = c(),
-    suffixes = c(),
-    ...
-  )
+  renv_paths_common("local", c(), ...)
 }
 
 renv_paths_source <- function(...) {
-  renv_paths_common(
-    name = "source",
-    prefixes = c(),
-    suffixes = c(),
-    ...
-  )
+  renv_paths_common("source", c(), ...)
 }
 
 renv_paths_bootstrap <- function(...) {
-  renv_paths_common(
-    name = "bootstrap",
-    prefixes = c(renv_prefix_version()),
-    suffixes = c(renv_prefix_platform()),
-    ...
-  )
+  renv_paths_common("bootstrap", c(renv_prefix_version(), renv_prefix_platform()), ...)
 }
 
 renv_paths_binary <- function(...) {
-  renv_paths_common(
-    name = "binary",
-    prefixes = c(renv_prefix_version()),
-    suffixes = c(),
-    ...
-  )
+  renv_paths_common("binary", c(renv_prefix_version()), ...)
 }
 
 renv_paths_repos <- function(...) {
-  renv_paths_common(
-    "repos",
-    prefixes = c(renv_prefix_version()),
-    suffixes = c(),
-    ...
-  )
+  renv_paths_common("repos", c(renv_prefix_version()), ...)
 }
 
 renv_paths_cache <- function(...) {
-  renv_paths_common(
-    "cache",
-    prefixes = c(renv_prefix_version()),
-    suffixes = c(renv_cache_version()),
-    ...
-  )
+  renv_paths_common("cache", c(renv_prefix_version(), renv_cache_version()), ...)
 }
 
 renv_paths_extsoft <- function(...) {
