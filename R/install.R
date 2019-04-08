@@ -18,11 +18,18 @@
 #'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed
 #'   as required.
 #'
+#' @param library The library from which packages should be installed. When
+#'   `NULL`, the active library (that is, the first entry reported in
+#'   `.libPaths()`) is used instead.
+#'
 #' @export
-install <- function(packages, project = NULL) {
+install <- function(packages,
+                    project = NULL,
+                    library = NULL)
+{
   project <- project %||% renv_project()
+  library <- library %||% renv_libpaths_default()
 
-  library <- renv_paths_library(project = project)
   records <- renv_snapshot_r_packages(library = library)
 
   remotes <- lapply(packages, renv_remotes_parse)

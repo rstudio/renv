@@ -4,7 +4,7 @@
 \alias{remove}
 \title{Remove Packages}
 \usage{
-remove(packages, library = NULL)
+remove(packages, library = NULL, project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to remove.}
@@ -12,6 +12,10 @@ remove(packages, library = NULL)
 \item{library}{The library from which packages should be removed. When
 \code{NULL}, the active library (that is, the first entry reported in
 \code{.libPaths()}) is used instead.}
+
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
 }
 \description{
 Remove (uninstall) \R packages.
