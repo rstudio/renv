@@ -102,7 +102,14 @@ renv_retrieve_github <- function(record) {
   record$RemoteHost <- record$RemoteHost %||% "api.github.com"
 
   fmt <- "https://%s/repos/%s/%s/tarball/%s"
-  url <- with(record, sprintf(fmt, RemoteHost, RemoteUsername, RemoteRepo, RemoteSha))
+
+  ref <- record$RemoteSha %||% record$RemoteRef
+  if (is.null(ref)) {
+    fmt <- "GitHub record for package '%s' has no recorded 'RemoteSha' / 'RemoteRef'"
+    stopf(fmt, record$Package)
+  }
+
+  url <- with(record, sprintf(fmt, RemoteHost, RemoteUsername, RemoteRepo, ref))
   path <- renv_retrieve_path(record)
   renv_retrieve_package(record, url, path)
 
