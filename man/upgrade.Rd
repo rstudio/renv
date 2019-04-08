@@ -4,20 +4,15 @@
 \alias{upgrade}
 \title{Upgrade renv}
 \usage{
-upgrade(project = NULL, remote = "rstudio/renv",
-  confirm = interactive())
+upgrade(project = NULL, version = NULL, confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
 
-\item{remote}{A 'remote' specification, as understood by the
-\href{https://cran.r-project.org/package=remotes}{remotes} package. (Note that
-not all remote specifications are yet supported by \code{renv}.) See
-\url{https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html}
-for more details. When \code{NULL} (the default), the latest version of \code{renv}
-available on GitHub is retrieved instead.}
+\item{version}{The version of \code{renv} to be installed. When \code{NULL}, the latest
+version of \code{renv} as available on GitHub will be installed.}
 
 \item{confirm}{Boolean; confirm upgrade before proceeding?}
 }

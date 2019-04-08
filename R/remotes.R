@@ -47,19 +47,9 @@ renv_remotes_parse_github <- function(entry) {
   repo <- parts[2]
   ref  <- parts[3] %NA% "master"
 
-  # first, resolve a sha that's just a reference
-  fmt <- "https://api.github.com/repos/%s/%s/git/refs/heads/%s"
-  url <- sprintf(fmt, user, repo, ref)
-  jsonfile <- tempfile(pattern = "renv-github-ref-", fileext = ".json")
-  on.exit(unlink(jsonfile), add = TRUE)
-  download(url, destfile = jsonfile, quiet = TRUE)
-
-  json <- renv_json_read(jsonfile)
-  sha <- json$object$sha
-
-  # now, get the DESCRIPTION contents
+  # get the DESCRIPTION contents
   fmt <- "https://raw.githubusercontent.com/%s/%s/%s/DESCRIPTION"
-  url <- sprintf(fmt, user, repo, sha)
+  url <- sprintf(fmt, user, repo, ref)
   descfile <- tempfile()
   download(url, destfile = descfile, quiet = TRUE)
   on.exit(unlink(descfile), add = TRUE)
@@ -73,7 +63,6 @@ renv_remotes_parse_github <- function(entry) {
     RemoteUsername = user,
     RemoteRepo     = repo,
     RemoteRef      = ref,
-    RemoteSha      = sha,
     RemoteHost     = "api.github.com"
   )
 
@@ -84,11 +73,11 @@ renv_remotes_snapshot <- function(project, libpaths = NULL) {
   # resolve variables
   libpaths <- libpaths %||% renv_remotes_libpaths()
 
-  # serialize DESCRIPTIONs for installed packages
+  # serialize descs for installed packages
   entries <- uapply(libpaths, function(libpath) {
     packages <- list.files(libpath, full.names = TRUE)
-    descriptions <- file.path(packages, "DESCRIPTION")
-    map_chr(descriptions, renv_remotes_serialize)
+    descs <- file.path(packages, "desc")
+    map_chr(descs, renv_remotes_serialize)
   })
 
   # write to remotes.txt
@@ -105,59 +94,56 @@ renv_remotes_libpaths <- function(libpaths = NULL) {
   setdiff(renv_libpaths_all(), normalizePath(.Library, winslash = "/"))
 }
 
-renv_remotes_serialize <- function(description) {
+renv_remotes_serialize <- function(desc) {
 
-  if (!file.exists(description))
+  if (!file.exists(desc))
     return(NULL)
 
-  if (is.character(description))
-    description <- renv_description_read(description)
+  if (is.character(desc))
+    desc <- renv_description_read(desc)
 
   # infer the remote type
-  type <- tolower(description$RemoteType) %||% ""
+  type <- tolower(desc$RemoteType) %||% ""
   switch(type,
-    cran     = renv_remotes_serialize_cran(description),
-    github   = renv_remotes_serialize_github(description),
-    standard = renv_remotes_serialize_standard(description),
-    url      = renv_remotes_serialize_url(description),
-    renv_remotes_serialize_unknown(description, type)
+    cran     = renv_remotes_serialize_cran(desc),
+    github   = renv_remotes_serialize_github(desc),
+    standard = renv_remotes_serialize_standard(desc),
+    url      = renv_remotes_serialize_url(desc),
+    renv_remotes_serialize_unknown(desc, type)
   )
 
 }
 
-renv_remotes_serialize_cran <- function(description) {
-  with(description, {
-    sprintf("%s@%s", Package, Version)
-  })
+renv_remotes_serialize_cran <- function(desc) {
+  package <- desc$Package
+  version <- desc$Version
+  sprintf("%s@%s", package, version)
 }
 
-renv_remotes_serialize_github <- function(description) {
-  with(description, {
-    sprintf("%s/%s@%s", RemoteUsername, RemoteRepo, RemoteSha)
-  })
+renv_remotes_serialize_github <- function(desc) {
+  user <- desc$RemoteUsername
+  repo <- desc$RemoteRepo
+  ref  <- desc$RemoteSha %||% desc$RemoteRef
+  sprintf("%s/%s@%s", user, repo, ref)
 }
 
-renv_remotes_serialize_standard <- function(description) {
-  with(description, {
-    sprintf("%s@%s", Package, Version)
-  })
+renv_remotes_serialize_standard <- function(desc) {
+  package <- desc$Package
+  version <- desc$Version
+  sprintf("%s@%s", package, version)
 }
 
-renv_remotes_serialize_url <- function(description) {
-  with(description, {
-    sprintf("%s", RemoteUrl)
-  })
+renv_remotes_serialize_url <- function(desc) {
+  desc$RemoteUrl
 }
 
-renv_remotes_serialize_unknown <- function(description, type) {
+renv_remotes_serialize_unknown <- function(desc, type) {
 
   # if we have a repository field, assume CRAN
-  if (!is.null(description$Repository))
-    return(renv_remotes_serialize_cran(description))
+  if (!is.null(desc$Repository))
+    return(renv_remotes_serialize_cran(desc))
 
-  # otherwise, write as unknown
-  with(description, {
-    sprintf("%s@%s", Package, Version)
-  })
+  # TODO: alternate form?
+  renv_remotes_serialize_standard(desc)
 
 }

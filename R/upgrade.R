@@ -5,26 +5,25 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param remote A 'remote' specification, as understood by the
-#'   [remotes](https://cran.r-project.org/package=remotes) package. (Note that
-#'   not all remote specifications are yet supported by `renv`.) See
-#'   <https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html>
-#'    for more details. When `NULL` (the default), the latest version of `renv`
-#'   available on GitHub is retrieved instead.
+#' @param version The version of `renv` to be installed. When `NULL`, the latest
+#'   version of `renv` as available on GitHub will be installed.
 #'
 #' @param confirm Boolean; confirm upgrade before proceeding?
 #'
 #' @export
 upgrade <- function(project = NULL,
-                    remote = "rstudio/renv",
+                    version = NULL,
                     confirm = interactive())
 {
-  invisible(renv_upgrade_impl(project, remote, confirm))
+  invisible(renv_upgrade_impl(project, version, confirm))
 }
 
-renv_upgrade_impl <- function(project, remote, confirm) {
+renv_upgrade_impl <- function(project, version, confirm) {
 
   project <- project %||% renv_project()
+
+  # generate a github remote for renv
+  remote <- paste("rstudio/renv", version %||% "master", sep = "@")
 
   # conduct a mini-restore for renv itself
   record <- renv_remotes_parse(remote)

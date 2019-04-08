@@ -104,3 +104,5 @@
       and after (ie: only report upgrades / downgrades / crossgrades)
 
 - [x] Include current session's R version when computing hash for DESCRIPTION
+
+- [ ] Install of `keras` failed to install `reticulate`?
