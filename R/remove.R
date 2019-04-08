@@ -11,12 +11,16 @@
 #'   `.libPaths()`) is used instead.
 #'
 #' @export
-remove <- function(packages, library = NULL) {
-
+remove <- function(packages,
+                   library = NULL,
+                   project = NULL)
+{
+  project <- project %||% renv_project()
   library <- library %||% renv_libpaths_default()
 
-  if (library == renv_paths_library()) {
+  if (library == renv_paths_library(project = project)) {
     vwritef("* Removing package(s) from project library ...")
+    on.exit(renv_snapshot_auto(project = project), add = TRUE)
   } else {
     fmt <- "* Removing package(s) from library '%s' ..."
     vwritef(fmt, aliased_path(library))
@@ -34,8 +38,8 @@ remove <- function(packages, library = NULL) {
   }
 
   vwritef("* Done! Removed %i %s.", count, plural("package", count))
-  invisible(count)
 
+  invisible(count)
 }
 
 renv_remove_package <- function(package, library) {
