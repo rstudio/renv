@@ -103,6 +103,10 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
   status <- catch(renv_install_package_local(record))
   renv_install_report_status(record, status)
 
+  # link into cache
+  if (settings$use.cache())
+    renv_cache_synchronize(record, link = identical(linker, renv_file_link))
+
 }
 
 renv_install_package_skip <- function(record) {
@@ -248,9 +252,6 @@ renv_install_report_status <- function(record, status) {
     "installed binary"
 
   vwritef("\tOK (%s)", feedback)
-
-  if (settings$use.cache())
-    renv_cache_synchronize(record)
 
   return(TRUE)
 
