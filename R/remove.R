@@ -38,7 +38,6 @@ remove <- function(packages,
   }
 
   vwritef("* Done! Removed %i %s.", count, plural("package", count))
-
   invisible(count)
 }
 
