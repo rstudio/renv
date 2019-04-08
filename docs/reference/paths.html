@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.61</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.74</span>
       </span>
     </div>
 
@@ -96,7 +96,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/rstudio/renv">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -110,7 +115,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Path Customization</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/paths.R'><code>R/paths.R</code></a></small>
     <div class="hidden name"><code>paths.Rd</code></div>
     </div>
 
@@ -156,6 +161,8 @@ enumerated below:</p>
 <tr><td></td><td><code>RENV_PATHS_LIBRARY</code></td></tr>
 <tr><td></td><td>The root path containing different</td></tr>
 <tr><td><span style="R">R</span></td><td>libraries.</td></tr>
+<tr><td></td><td><code>RENV_PATHS_LOCAL</code></td></tr>
+<tr><td></td><td>The path containing local package sources.</td></tr>
 <tr><td></td><td><code>RENV_PATHS_SOURCE</code></td></tr>
 <tr><td></td><td>The path containing downloaded package sources.</td></tr>
 <tr><td></td><td><code>RENV_PATHS_BINARY</code></td></tr>
@@ -168,7 +175,16 @@ enumerated below:</p>
 <tr><td></td><td>(Windows only) The path containing external software needed for compilation of Windows source packages.</td></tr>
 <tr><td></td><td></td></tr>
 </table>
-    <p>If reproducibility of a project is desired on a particular machine, it is
+    <p>Note that <code>renv</code> will append platform-specific and version-specific entries
+to the set paths as appropriate. For example, if you have set:</p><pre>Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
+</pre>
+    <p>then the directory used for the cache will still depend on the <span style="R">R</span> version
+(e.g. <code>3.5</code>) and the <code>renv</code> cache version (e.g. <code>v2</code>). For example:</p><pre>/mnt/shared/renv/cache/R-3.5/v2
+</pre>
+    <p>This ensures that you can set a single <code>RENV_PATHS_CACHE</code> environment variable
+globally without worry that it may cause collisions or errors if multiple
+versions of <span style="R">R</span> needed to interact with the same cache.</p>
+<p>If reproducibility of a project is desired on a particular machine, it is
 highly recommended that the <code>renv</code> cache of installed packages + binary
 packages is stored, so that packages can be easily restored in the future --
 installation of packages from source can often be arduous.</p>
@@ -181,6 +197,21 @@ set in:</p><ul>
 </ul>
     <p>Please see ?<a href='https://www.rdocumentation.org/packages/base/topics/Startup'>Startup</a> for more details.</p>
     
+    <h2 class="hasAnchor" id="local-sources"><a class="anchor" href="#local-sources"></a>Local Sources</h2>
+
+    
+    <p>If your project depends on one or <span style="R">R</span> packages that are not available in any
+remote location, you can still provide a locally-available tarball for <code>renv</code>
+to use during restore. By default, these packages should be made available in
+the folder as specified by the <code>RENV_PATHS_LOCAL</code> environment variable. The
+package sources should be placed in a file at one of these locations:</p><ul>
+<li><p><code>${RENV_PATHS_LOCAL}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
+<li><p><code>&lt;project&gt;/renv/local/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
+</ul>
+    <p>where <code>.&lt;ext&gt;</code> is <code>.tar.gz</code> for source packages, or <code>.tgz</code> for binaries on
+macOS and <code>.zip</code> on Windows. During a <code><a href='restore.html'>restore()</a></code>, packages installed from
+an unknown source will be searched for in this location.</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -188,6 +219,8 @@ set in:</p><ul>
     <ul class="nav nav-pills nav-stacked">
       
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#local-sources">Local Sources</a></li>
           </ul>
 
   </div>

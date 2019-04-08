@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.61</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.74</span>
       </span>
     </div>
 
@@ -96,7 +96,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/rstudio/renv">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -110,7 +115,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Upgrade renv</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/upgrade.R'><code>R/upgrade.R</code></a></small>
     <div class="hidden name"><code>upgrade.Rd</code></div>
     </div>
 
@@ -120,8 +125,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>upgrade</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>remote</span> <span class='kw'>=</span> <span class='st'>"rstudio/renv"</span>,
-  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
+    <pre class="usage"><span class='fu'>upgrade</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -133,13 +137,9 @@ project will be used. If no project has been specifically activated,
 the current working directory is used.</p></td>
     </tr>
     <tr>
-      <th>remote</th>
-      <td><p>A 'remote' specification, as understood by the
-<a href='https://cran.r-project.org/package=remotes'>remotes</a> package. (Note that
-not all remote specifications are yet supported by <code>renv</code>.) See
-<a href='https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html'>https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html</a>
-for more details. When <code>NULL</code> (the default), the latest version of <code>renv</code>
-available on GitHub is retrieved instead.</p></td>
+      <th>version</th>
+      <td><p>The version of <code>renv</code> to be installed. When <code>NULL</code>, the latest
+version of <code>renv</code> as available on GitHub will be installed.</p></td>
     </tr>
     <tr>
       <th>confirm</th>

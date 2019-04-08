@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.61</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.74</span>
       </span>
     </div>
 
@@ -96,7 +96,12 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/rstudio/renv">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -110,7 +115,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Remove Packages</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/remove.R'><code>R/remove.R</code></a></small>
     <div class="hidden name"><code>remove.Rd</code></div>
     </div>
 
@@ -120,7 +125,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>remove</span>(<span class='no'>packages</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>remove</span>(<span class='no'>packages</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -134,6 +139,12 @@
       <td><p>The library from which packages should be removed. When
 <code>NULL</code>, the active library (that is, the first entry reported in
 <code><a href='https://www.rdocumentation.org/packages/base/topics/libPaths'>.libPaths()</a></code>) is used instead.</p></td>
+    </tr>
+    <tr>
+      <th>project</th>
+      <td><p>The project directory. If <code>NULL</code>, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.</p></td>
     </tr>
     </table>
     
