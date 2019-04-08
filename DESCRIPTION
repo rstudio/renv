@@ -1,15 +1,17 @@
 Package: renv
 Type: Package
 Title: Project Environments for R
-Version: 0.2.0-72
+Version: 0.2.0-73
 Author: Kevin Ushey
 Maintainer: Kevin Ushey <kevin@rstudio.com>
 Description: Use 'renv' to create and manage project-local R dependencies.
 License: MIT + file LICENSE
+URL: https://github.com/rstudio/renv
+BugReports: https://github.com/rstudio/renv/issues
+Imports: utils
+Suggests: knitr, remotes, reticulate, rmarkdown, testthat
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
-Imports: utils
-Suggests: knitr, remotes, reticulate, rmarkdown, testthat
 VignetteBuilder: knitr
