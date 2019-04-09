@@ -1,7 +1,11 @@
 
-renv_lockfile_read <- function(file) {
+renv_lockfile_read <- function(file = NULL, text = NULL) {
 
-  contents <- readLines(file, encoding = "UTF-8")
+  contents <- if (is.null(file))
+    unlist(strsplit(text, "\n", fixed = TRUE))
+  else
+    readLines(file, encoding = "UTF-8")
+
   contents <- grep("^\\s*[#]", contents, value = TRUE, invert = TRUE)
   contents <- contents[nzchar(contents)]
   contents <- paste(contents, collapse = "\n")
