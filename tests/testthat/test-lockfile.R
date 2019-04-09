@@ -18,9 +18,7 @@ Key2=Value2
 Key=Value
 '
 
-  file <- tempfile()
-  writeLines(text, con = file)
-  output <- renv_lockfile_read(file)
+  output <- renv_lockfile_read(text = text)
   expected <- list(
 
     Section1 = list(
@@ -40,6 +38,8 @@ Key=Value
     )
 
   )
+  class(expected) <- "renv_lockfile"
+
   expect_identical(output, expected)
 
 })
