@@ -1,0 +1,55 @@
+---
+title: "Python Integration with renv"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{python}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+If you're using `renv` with an R project that also depends on some Python
+packages (say, through the [reticulate](https://rstudio.github.io/reticulate/)
+package), then you may find `renv`'s Python integration useful.
+
+## Activating Python Integration
+
+Python integration can be activated on a project-by-project basis. Use
+`renv::settings$python(TRUE)` to tell `renv` to create and use a project-local
+Python virtual environment with your project. If the `reticulate` package is
+installed and active, then `renv` will use the same version of Python that
+`reticulate` normally would when generating the virtual environment.
+Alternatively, you can set the `RETICULATE_PYTHON` environment variable to
+instruct `renv` to use a different version of Python.
+
+If you'd rather tell `renv` to use an existing Python virtual environment, you
+can do so by passing the path of that virtual environment instead -- use
+`renv::settings$python("/path/to/python/virtualenv")` and `renv` will record and
+use that Python virtual environment in the project.
+
+You can also pass the name of a virtual environment (e.g.
+`renv::settings$python("tensorflow")`) to use the virtual environment called
+"tensorflow" located at `~/.virtualenvs/tensorflow`.
+
+## Understanding Python Integration
+
+Once Python integration is active, `renv` will attempt to manage the state of
+your Python virtual environment when `snapshot()` / `restore()` is called. In
+particular, `renv` does the following:
+
+- `renv::snapshot()` calls `pip freeze > requirements.txt` to save the
+  set of installed Python packages;
+
+- `renv::restore()` calls `pip install -r requirements.txt` to install
+  the previously-recorded set of Python packages.
+
+With this, projects that use `renv` and Python can ensure that Python
+dependencies are tracked in addition to R package dependencies. Note that
+future restores will require both `renv.lock` (for R package dependencies)
+and `requirements.txt` (for Python package dependencies).
