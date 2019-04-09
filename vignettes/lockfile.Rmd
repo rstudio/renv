@@ -1,10 +1,8 @@
 ---
 title: "Lockfiles"
-author: "Kevin Ushey"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Lockfiles}
+  %\VignetteIndexEntry{lockfiles}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
