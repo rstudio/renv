@@ -84,12 +84,9 @@ renv_load_python <- function(project) {
   if (is.null(python))
     return(FALSE)
 
-  if (utils::file_test("-f", python))
-    Sys.setenv(RETICULATE_PYTHON = python)
-  else if (utils::file_test("-d", python))
-    Sys.setenv(RETICULATE_PYTHON_ENV = python)
-  else
-    return(FALSE)
+  Sys.setenv(RETICULATE_PYTHON = python)
+  if (renv_python_is_virtualenv(python))
+    Sys.setenv(RETICULATE_PYTHON_ENV = dirname(dirname(python)))
 
   return(TRUE)
 
