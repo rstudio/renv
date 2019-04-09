@@ -262,7 +262,7 @@ renv_restore_preflight_unknown_source <- function(actions, lockfile) {
   )
 
   if (empty(unknown))
-    return(FALSE)
+    return(TRUE)
 
   if (renv_verbose()) {
     renv_pretty_print_records(
@@ -272,7 +272,7 @@ renv_restore_preflight_unknown_source <- function(actions, lockfile) {
     )
   }
 
-  TRUE
+  FALSE
 
 }
 
