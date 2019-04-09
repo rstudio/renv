@@ -1,7 +1,7 @@
 Package: breakfast
 Type: Package
 Version: 1.0.0
-Depends: oatmeal, toast
+Depends: oatmeal, toast (>= 1.0.0)
 Repository: CRAN
 License: GPL
 Description: Packrat test package

@@ -15,7 +15,7 @@ renv_retrieve <- function(packages, records = NULL) {
   state <- renv_restore_state()
   data <- state$retrieved$data()
   names(data) <- extract_chr(data, "Package")
-  data
+  rev(data)
 
 }
 
@@ -33,6 +33,17 @@ renv_retrieve_impl <- function(package, records = NULL) {
   # extract record for package
   records <- records %||% state$records
   record <- records[[package]] %||% renv_retrieve_missing_record(package)
+
+  # if the requested record is incompatible with the set
+  # of requested package versions thus far, request the
+  # latest version on CRAN
+  # TODO: handle more explicit dependency requirements
+  if (renv_retrieve_incompatible(record))
+    record <- renv_retrieve_missing_record(package)
+
+  # if the package is otherwise skippable, skip it
+  if (renv_restore_skip(record))
+    return()
 
   # if the requested record already exists in the cache, we can finish early
   path <- renv_cache_package_path(record)
@@ -288,24 +299,23 @@ renv_retrieve_successful <- function(record, path) {
   # add in path information to record (used during install)
   record$Path <- path
 
-  # ensure its dependencies are retrieved as well
-  state <- renv_restore_state()
-  deps <- renv_dependencies_discover_description(path)
-  if (state$recursive)
-    for (package in unique(deps$Package))
-      renv_retrieve(package)
-
-  # record package as retrieved
-  state$retrieved$push(record)
-
   # record this package's requirements
+  state <- renv_restore_state()
   requirements <- state$requirements
-
+  deps <- renv_dependencies_discover_description(path)
   rowapply(deps, function(dep) {
     package <- dep$Package
     requirements[[package]] <<- requirements[[package]] %||% stack()
     requirements[[package]]$push(dep)
   })
+
+  # record package as retrieved
+  state$retrieved$push(record)
+
+  # ensure its dependencies are retrieved as well
+  if (state$recursive)
+    for (package in unique(deps$Package))
+      renv_retrieve(package)
 
   TRUE
 
@@ -408,5 +418,38 @@ renv_retrieve_remote <- function(record, remote, remotes) {
   ensure_parent_directory(path)
 
   renv_retrieve_package(record, url, path)
+
+}
+
+# check to see if this requested record is incompatible
+# with the set of required dependencies recorded thus far
+# during the package retrieval process
+renv_retrieve_incompatible <- function(record) {
+  state <- renv_restore_state()
+
+  # check and see if the installed version satisfies all requirements
+  requirements <- state$requirements[[record$Package]]
+  if (is.null(requirements))
+    return(FALSE)
+
+  data <- bind_list(requirements$data())
+  explicit <- data[nzchar(data$Require) & nzchar(data$Version), ]
+  if (nrow(explicit) == 0)
+    return(FALSE)
+
+  exprs <- sprintf(
+    "numeric_version('%s') %s '%s'",
+    record$Version,
+    explicit$Require,
+    explicit$Version
+  )
+
+  expr <- paste(exprs, collapse = " && ")
+  envir <- new.env(parent = baseenv())
+  satisfied <- catch(eval(parse(text = expr), envir = envir))
+  if (inherits(satisfied, "error"))
+    warning(satisfied)
+
+  !identical(satisfied, TRUE)
 
 }

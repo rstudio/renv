@@ -40,7 +40,6 @@ stack <- function() {
 
   )
 
-  class(object) <- "renv::stack"
   object
 
 }
