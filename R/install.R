@@ -45,7 +45,6 @@ install <- function(packages,
 
   # retrieve packages
   records <- renv_retrieve(packages, records)
-  records <- Filter(renv_install_required, records)
   renv_install(project, records)
 
   invisible(records)
@@ -87,7 +86,7 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
 
   # skip installation if the requested record matches
   # the already-installed record
-  if (renv_install_package_skip(record))
+  if (renv_restore_skip(record))
     return(TRUE)
 
   # check for cache entry and install if there
@@ -106,45 +105,6 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
   # link into cache
   if (settings$use.cache())
     renv_cache_synchronize(record, link = identical(linker, renv_file_link))
-
-}
-
-renv_install_package_skip <- function(record) {
-
-  # don't skip if installation was explicitly requested
-  state <- renv_restore_state()
-  if (record$Package %in% state$packages)
-    return(FALSE)
-
-  # check for existing package install
-  library <- renv_global_get("install.library")
-  target <- file.path(library, record$Package)
-  if (!file.exists(target))
-    return(FALSE)
-
-  # attempt to read DESCRIPTION
-  current <- catch(as.list(renv_description_read(target)))
-  if (inherits(current, "error"))
-    return(FALSE)
-
-  # check for matching records
-  source <- tolower(record$Source %||% record$RemoteType)
-  if (empty(source))
-    return(FALSE)
-
-  # check for an up-to-date version from CRAN
-  if (identical(source, "cran")) {
-    fields <- c("Package", "Version")
-    if (identical(record[fields], current[fields]))
-      return(TRUE)
-  }
-
-  # otherwise, match on remote fields
-  fields <- c("Package", "Version", grep("^Remote", names(record), value = TRUE))
-  if (identical(record[fields], current[fields]))
-    return(TRUE)
-
-  FALSE
 
 }
 
@@ -254,49 +214,5 @@ renv_install_report_status <- function(record, status) {
   vwritef("\tOK (%s)", feedback)
 
   return(TRUE)
-
-}
-
-# NOTE: this routine does a very primitive sort of dependency validation;
-# it simply checks if the package is too old and requests an install
-# if that's the case. e.g. if pkg A requires pkgB >= 1.1, but pkgB 1.0
-# is installed, then this routine marks pkgB as requiring install
-renv_install_required <- function(record) {
-  state <- renv_restore_state()
-
-  # if installation of this package was explicitly requested, keep it
-  package <- record$Package
-  if (package %in% state$packages)
-    return(TRUE)
-
-  # check to see if this package is already installed; if it's not
-  # installed then we need to install it
-  records <- state$records
-  if (is.null(records[[record$Package]]))
-    return(TRUE)
-
-  # check and see if the installed version satisfies all requirements
-  requirements <- state$requirements[[package]]
-  if (is.null(requirements))
-    return(FALSE)
-
-  data <- bind_list(requirements$data())
-  explicit <- data[nzchar(data$Require) & nzchar(data$Version), ]
-  if (nrow(explicit) == 0)
-    return(FALSE)
-
-  exprs <- sprintf(
-    "numeric_version('%s') %s '%s'",
-    record$Version,
-    explicit$Require,
-    explicit$Version
-  )
-
-  expr <- paste(exprs, collapse = " && ")
-  satisfied <- catch(eval(parse(text = expr)), envir = baseenv())
-  if (inherits(satisfied, "error"))
-    warning(satisfied)
-
-  !identical(satisfied, TRUE)
 
 }

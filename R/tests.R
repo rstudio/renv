@@ -19,12 +19,16 @@ renv_tests_scope <- function(packages) {
   code <- sprintf("library(%s)", packages)
   writeLines(code, "dependencies.R")
 
-  # save libpaths
+  # use temporary library
+  lib <- tempfile("renv-library-")
+  ensure_directory(lib)
   libpaths <- .libPaths()
+  .libPaths(c(lib, .libPaths()))
 
   function() {
     deactivate(project = dir)
     setwd(owd)
+    unlink(lib, recursive = TRUE)
     .libPaths(libpaths)
   }
 

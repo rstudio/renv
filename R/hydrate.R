@@ -161,7 +161,6 @@ renv_hydrate_resolve_missing <- function(project, na) {
   renv_restore_begin(packages = packages)
   on.exit(renv_restore_end(), add = TRUE)
   records <- renv_retrieve(packages)
-  records <- Filter(renv_install_required, records)
   renv_install(project, records)
 
 }
