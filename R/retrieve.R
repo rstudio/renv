@@ -37,7 +37,10 @@ renv_retrieve_impl <- function(package, records = NULL) {
   # if the requested record is incompatible with the set
   # of requested package versions thus far, request the
   # latest version on CRAN
+  #
   # TODO: handle more explicit dependency requirements
+  # TODO: report to the user if they have explicitly requested
+  # installation of this package version despite it being incompatible
   if (renv_retrieve_incompatible(record))
     record <- renv_retrieve_missing_record(package)
 
@@ -210,9 +213,6 @@ renv_retrieve_cran <- function(record) {
 
   for (method in methods) {
     status <- method(record)
-    if (inherits(status, "error"))
-      next
-
     if (identical(status, TRUE))
       return(TRUE)
   }
