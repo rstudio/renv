@@ -32,6 +32,7 @@ renv_lockfile_read <- function(file = NULL, text = NULL) {
     data[[splat]] <<- entries
   })
 
+  class(data) <- "renv_lockfile"
   data
 
 }

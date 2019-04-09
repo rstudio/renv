@@ -2,7 +2,9 @@
 # tools for interacting with the R package records encoded
 # within a lockfile
 renv_records <- function(records) {
-  records$R$Package %NULL% records
+  if (inherits(records, "renv_lockfile"))
+    return(records$R$Package)
+  records
 }
 
 renv_records_select <- function(records, actions, action) {

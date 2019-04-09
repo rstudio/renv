@@ -98,6 +98,7 @@ renv_lockfile_init <- function() {
   lockfile$R            <- renv_lockfile_init_r()
   lockfile$Bioconductor <- renv_lockfile_init_bioconductor()
   lockfile$Python       <- renv_lockfile_init_python()
+  class(lockfile) <- "renv_lockfile"
   lockfile
 
 }
