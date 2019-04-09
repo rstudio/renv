@@ -1,0 +1,45 @@
+---
+title: "Local Sources"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{local-sources}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+
+If your project depends on R packages not available in any external source, you
+can set up an ad-hoc local source to use during restore. This allows you to
+provide package tarballs that can be used to restore packages otherwise not
+available elsewhere.
+
+The environment variable `RENV_PATHS_LOCAL` can be used to customize where this
+local source of packages should live. It should point to a directory containing
+package binaries and sources, with a structure of the form:
+
+- `${RENV_PATHS_LOCAL}/<package>/<package>_<version>.tar.gz`
+
+For example, if your project depended on a package `skeleton [1.0.0]`, you could
+place the tarball for this package at:
+
+- `${RENV_PATHS_LOCAL}/skeleton/skeleton_1.0.0.tar.gz`
+
+Once this is done, `renv` will consult this directory during future attempts to
+restore packages installed from unknown sources.
+
+If you want to see what directory is being used by `renv` for local package
+sources, you can execute:
+
+```{r}
+renv:::renv_paths_local()
+```
+
+See `?paths` for more details.
