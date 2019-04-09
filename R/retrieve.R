@@ -187,15 +187,15 @@ renv_retrieve_local <- function(record) {
 
 renv_retrieve_cran <- function(record) {
 
-  # if we already have a type + repository, no need to find it
-  if (!is.null(record$Type) && !is.null(record$Repository))
-    return(renv_retrieve_cran_impl(record))
-
   # if the record doesn't declare the package version,
   # treat it as a request for the latest version on CRAN
   # TODO: should make this behavior configurable
   if (is.null(record$Version))
     record <- renv_retrieve_missing_record(record$Package)
+
+  # if we already have a type + repository, no need to find it
+  if (!is.null(record$Type) && !is.null(record$Repository))
+    return(renv_retrieve_cran_impl(record))
 
   # always attempt to retrieve from source + archive
   methods <- c(
@@ -211,7 +211,7 @@ renv_retrieve_cran <- function(record) {
   for (method in methods) {
     status <- method(record)
     if (inherits(status, "error"))
-      stop(status)
+      next
 
     if (identical(status, TRUE))
       return(TRUE)
