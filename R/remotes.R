@@ -47,9 +47,19 @@ renv_remotes_parse_github <- function(entry) {
   repo <- parts[2]
   ref  <- parts[3] %NA% "master"
 
+  # get the sha associated with this ref
+  fmt <- "https://api.github.com/repos/%s/%s/commits/%s"
+  url <- sprintf(fmt, user, repo, ref)
+  shafile <- tempfile("renv-sha-")
+  on.exit(unlink(shafile), add = TRUE)
+
+  headers <- c(Accept = "application/vnd.github.v2.sha")
+  download(url, destfile = shafile, quiet = TRUE, headers = headers)
+  sha <- readChar(shafile, file.info(shafile)$size, TRUE)
+
   # get the DESCRIPTION contents
   fmt <- "https://raw.githubusercontent.com/%s/%s/%s/DESCRIPTION"
-  url <- sprintf(fmt, user, repo, ref)
+  url <- sprintf(fmt, user, repo, sha)
   descfile <- tempfile()
   download(url, destfile = descfile, quiet = TRUE)
   on.exit(unlink(descfile), add = TRUE)
@@ -63,6 +73,7 @@ renv_remotes_parse_github <- function(entry) {
     RemoteUsername = user,
     RemoteRepo     = repo,
     RemoteRef      = ref,
+    RemoteSha      = sha,
     RemoteHost     = "api.github.com"
   )
 
