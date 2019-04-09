@@ -2,8 +2,9 @@
 # download a file from 'url' to file 'destfile'. the 'type'
 # argument tells us the remote type, which is used to motivate
 # what form of authentication is appropriate; the 'quiet'
-# argument is used to display / suppress output
-download <- function(url, destfile, type = NULL, quiet = FALSE) {
+# argument is used to display / suppress output. use 'headers'
+# (as a named character vector) to supply additional headers
+download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) {
 
   # handle local files by just copying the file
   if (grepl("^file:", url)) {
@@ -16,7 +17,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE) {
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
-  size <- renv_download_size(url, type)
+  size <- renv_download_size(url, type, headers)
   if (size != -1 && renv_file_exists(destfile)) {
     if (file.size(destfile) == size) {
       vwritef("\tOK [file is up to date]")
@@ -33,7 +34,15 @@ download <- function(url, destfile, type = NULL, quiet = FALSE) {
 
   # request the download
   before <- Sys.time()
-  status <- renv_download_impl(url, destfile = tempfile, type = type, headers = FALSE)
+
+  status <- renv_download_impl(
+    url = url,
+    destfile = tempfile,
+    type = type,
+    request = "GET",
+    headers = headers
+  )
+
   after <- Sys.time()
 
   # check for failure
@@ -62,7 +71,8 @@ download <- function(url, destfile, type = NULL, quiet = FALSE) {
 
 }
 
-renv_download_impl <- function(url, destfile, type = NULL, headers = FALSE) {
+# NOTE: only 'GET' and 'HEAD' are supported
+renv_download_impl <- function(url, destfile, type = NULL, request = "GET", headers = NULL) {
 
   downloader <- switch(
     renv_download_file_method(),
@@ -70,52 +80,62 @@ renv_download_impl <- function(url, destfile, type = NULL, headers = FALSE) {
     wget = renv_download_wget
   )
 
-  catch(downloader(url, destfile, type, headers))
+  catch(downloader(url, destfile, type, request, headers))
 
 }
 
-renv_download_curl <- function(url, destfile, type, headers) {
+renv_download_curl <- function(url, destfile, type, request, headers) {
 
   config <- renv_tempfile("renv-download-config-")
 
   fields <- c(url = url, output = destfile)
   fields <- c(fields, renv_download_auth(url, type))
 
+  if (length(headers)) {
+    lines <- paste(names(headers), headers, sep = ": ")
+    names(lines) <- "header"
+    fields <- c(fields, lines)
+  }
+
   keys <- names(fields)
   vals <- shQuote(fields, type = "cmd")
   text <- paste(keys, vals, sep = " = ")
 
   flags <- c("location", "fail", "silent", "show-error")
-  if (headers)
+  if (request == "HEAD")
     flags <- c(flags, "head", "include")
 
   text <- c(text, flags)
 
-  umask <- Sys.umask("077")
-  on.exit(Sys.umask(umask), add = TRUE)
-
   writeLines(text, con = config)
-  system2("curl", c("--config", shQuote(config)))
+
+  args <- c("--config", shQuote(config))
+  system2("curl", args)
 
 }
 
-renv_download_wget <- function(url, destfile, type, headers) {
+renv_download_wget <- function(url, destfile, type, request, headers) {
 
   config <- renv_tempfile("renv-download-config-")
 
   fields <- c(quiet = "on")
   fields <- c(fields, renv_download_auth(url, type))
 
+  if (length(headers)) {
+    lines <- paste(names(headers), headers, sep = ": ")
+    names(lines) <- "header"
+    fields <- c(fields, lines)
+  }
+
   keys <- names(fields)
   vals <- unlist(fields)
   text <- paste(keys, vals, sep = " = ")
 
-  umask <- Sys.umask("077")
-  on.exit(Sys.umask(umask), add = TRUE)
-
   writeLines(text, con = config)
 
   args <- c("--config", shQuote(config))
+  if (request == "HEAD")
+    args <- c("--server-response", "--spider", args)
   args <- c(args, shQuote(url), "-O", shQuote(destfile))
   system2("wget", args)
 
@@ -200,7 +220,7 @@ renv_download_auth_gitlab <- function() {
 
 }
 
-renv_download_headers <- function(url, type) {
+renv_download_headers <- function(url, type, headers) {
 
   # can't download without curl or wget
   method <- renv_download_file_method()
@@ -209,7 +229,14 @@ renv_download_headers <- function(url, type) {
 
   # perform the download
   file <- renv_tempfile("renv-headers-")
-  renv_download_impl(url, file, type, headers = TRUE)
+  renv_download_impl(
+    url = url,
+    destfile = file,
+    type = type,
+    request = "HEAD",
+    headers = headers
+  )
+
   if (!file.exists(file))
     return(list())
 
@@ -233,9 +260,9 @@ renv_download_headers <- function(url, type) {
 
 }
 
-renv_download_size <- function(url, type) {
+renv_download_size <- function(url, type, headers = NULL) {
 
-  headers <- catch(renv_download_headers(url, type))
+  headers <- catch(renv_download_headers(url, type, headers))
   if (inherits(headers, "error"))
     return(-1)
 
