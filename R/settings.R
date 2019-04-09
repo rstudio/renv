@@ -99,6 +99,7 @@ renv_settings_updated <- function(project, name, old, new) {
 renv_settings_persist <- function(project, settings) {
   path <- file.path(project, "renv/settings.dcf")
   settings <- lapply(settings, paste, collapse = ", ")
+  ensure_parent_directory(path)
   write.dcf(as.data.frame(settings, stringsAsFactors = FALSE), path)
 }
 
@@ -154,6 +155,25 @@ renv_settings_updated_cache <- function(project, old, new) {
 
 }
 
+renv_settings_updated_python <- function(project, old, new) {
+
+  if (is.null(new)) {
+    vwritef("* Python integration deactivated.")
+    return(new)
+  }
+
+  # if TRUE, we're activating a project-local virtual environment
+  # create that environment on demand
+  if (identical(new, TRUE))
+    renv_python_local_init()
+
+  python <- renv_python(new)
+  fmt <- "* Using Python %s [%s]"
+  vwritef(fmt, renv_python_version(python), aliased_path(python))
+
+  new
+
+}
 
 
 
@@ -281,7 +301,7 @@ settings <- list(
     name     = "python",
     validate = function(x) is.character(x) || is.logical(x),
     default  = NULL,
-    update   = NULL
+    update   = renv_settings_updated_python
   )
 
 )
