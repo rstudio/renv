@@ -18,7 +18,11 @@ While lockfiles are normally generated and used with \code{\link[=snapshot]{snap
 similar to that of the Windows-style \code{.ini} file, with some provisioning for
 nested sections.
 
-An example lockfile follows:\preformatted{[renv]
+An example lockfile follows:
+
+\preformatted{
+
+[renv]
 Version=0.1.0
 
 [R]
@@ -29,19 +33,20 @@ Repositories=
 [R/Package/markdown]
 Package=markdown
 Version=0.9
-Source=cran
+Source=CRAN
 Hash=8515151150d7372bc76e0af15ef5dee0
 
 [R/Package/mime]
 Package=mime
 Version=0.6
-Source=cran
+Source=CRAN
 Hash=b1e49df8aef896bc8c0b749ef1da5a48
+
 }
 
 The sections used within a lockfile are described next.
 }
-\section{renv}{
+\section{[renv]}{
 
 
 Information about the version of \code{renv} used to manage this project.
@@ -51,7 +56,7 @@ Information about the version of \code{renv} used to manage this project.
 }
 }
 
-\section{R}{
+\section{[R]}{
 
 
 Properties related to the version of \R associated with this project.
@@ -62,7 +67,7 @@ Properties related to the version of \R associated with this project.
 }
 }
 
-\section{R/Packages}{
+\section{[R/Package/*]}{
 
 
 Package records, related to the version of an \R package that was installed
@@ -75,6 +80,10 @@ at the time the lockfile was generated.
 \strong{Source}       \tab The location from which this package was retrieved. \cr
 \strong{Hash}         \tab (Optional) A unique hash for this package, used for package caching. \cr
 }
+
+Additional remote fields, further describing how the package can be
+retrieved from its corresponding source, will also be included as
+appropriate (e.g. for packages installed from GitHub).
 }
 
 \seealso{
