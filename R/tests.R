@@ -157,7 +157,7 @@ renv_test_retrieve <- function(record) {
   renv_restore_begin(records = records, packages = package, recursive = FALSE)
   on.exit(renv_restore_end(), add = TRUE)
 
-  records <- renv_retrieve("skeleton", records)
+  records <- renv_retrieve("skeleton")
   renv_install(getwd(), records)
 
   desc <- renv_description_read(file.path(templib, package))

@@ -44,7 +44,7 @@ install <- function(packages,
   on.exit(renv_restore_end(), add = TRUE)
 
   # retrieve packages
-  records <- renv_retrieve(packages, records)
+  records <- renv_retrieve(packages)
   renv_install(project, records)
 
   invisible(records)
