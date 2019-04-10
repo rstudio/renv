@@ -1,13 +1,8 @@
 
 context("Retrieve")
 
-# TODO: all these tests rely on having private access tokens
-# set up for authentication with some private repositories;
-# should see if i can provide scoped keys for use here
-
 test_that("we can retrieve packages from Bitbucket", {
   skip_on_cran()
-  skip_if_not_installed("remotes")
 
   record <- list(
     Package        = "skeleton",
@@ -40,7 +35,6 @@ test_that("we can retrieve packages from git", {
 
 test_that("we can retrieve packages from GitHub", {
   skip_on_cran()
-  skip_if_not_installed("remotes")
 
   record <- list(
     Package        = "skeleton",
@@ -57,7 +51,6 @@ test_that("we can retrieve packages from GitHub", {
 
 test_that("we can retrieve packages from GitLab", {
   skip_on_cran()
-  skip_if_not_installed("remotes")
 
   record <- list(
     Package        = "skeleton",
