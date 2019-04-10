@@ -53,7 +53,7 @@ renv_upgrade_impl <- function(project, version, confirm) {
   on.exit(renv_restore_end(), add = TRUE)
 
   # retrieve renv
-  records <- renv_retrieve("renv", records)
+  records <- renv_retrieve("renv")
   record <- records[[1]]
 
   # set library paths temporarily to install into bootstrap library

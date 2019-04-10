@@ -2,7 +2,12 @@
 # this routine retrieves a package + its dependencies, and as a side
 # effect populates the restore state's `retrieved` member with a
 # list of package records which can later be used for install
-renv_retrieve <- function(packages, records = NULL) {
+renv_retrieve <- function(packages) {
+
+  # confirm that we have restore state set up
+  state <- renv_restore_state()
+  if (is.null(state))
+    stopf("renv_restore_begin() must be called first")
 
   # cache set of installed packages (avoid re-querying on each retrieval)
   renv_global_set("installed.packages", renv_installed_packages())
@@ -10,7 +15,7 @@ renv_retrieve <- function(packages, records = NULL) {
 
   # TODO: parallel?
   for (package in packages)
-    renv_retrieve_impl(package, records)
+    renv_retrieve_impl(package)
 
   state <- renv_restore_state()
   data <- state$retrieved$data()
@@ -19,7 +24,7 @@ renv_retrieve <- function(packages, records = NULL) {
 
 }
 
-renv_retrieve_impl <- function(package, records = NULL) {
+renv_retrieve_impl <- function(package) {
 
   # skip packages with 'base' priority
   if (renv_package_priority(package) == "base")
@@ -31,7 +36,7 @@ renv_retrieve_impl <- function(package, records = NULL) {
     return()
 
   # extract record for package
-  records <- records %||% state$records
+  records <- state$records
   record <- records[[package]] %||% renv_retrieve_missing_record(package)
 
   # if the requested record is incompatible with the set
