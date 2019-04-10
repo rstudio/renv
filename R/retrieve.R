@@ -15,7 +15,7 @@ renv_retrieve <- function(packages, records = NULL) {
   state <- renv_restore_state()
   data <- state$retrieved$data()
   names(data) <- extract_chr(data, "Package")
-  rev(data)
+  data
 
 }
 
@@ -309,13 +309,13 @@ renv_retrieve_successful <- function(record, path) {
     requirements[[package]]$push(dep)
   })
 
-  # record package as retrieved
-  state$retrieved$push(record)
-
   # ensure its dependencies are retrieved as well
   if (state$recursive)
     for (package in unique(deps$Package))
       renv_retrieve(package)
+
+  # record package as retrieved
+  state$retrieved$push(record)
 
   TRUE
 
