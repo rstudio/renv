@@ -301,7 +301,7 @@ renv_retrieve_successful <- function(record, path) {
   record$Package <- desc$Package
   record$Version <- desc$Version
 
-  # add in path information to record (used during install)
+  # add in path information to record (used later during install)
   record$Path <- path
 
   # record this package's requirements
@@ -313,6 +313,9 @@ renv_retrieve_successful <- function(record, path) {
     requirements[[package]] <<- requirements[[package]] %||% stack()
     requirements[[package]]$push(dep)
   })
+
+  # read and handle remotes declared by this package
+  renv_retrieve_handle_remotes(record)
 
   # ensure its dependencies are retrieved as well
   if (state$recursive)
@@ -334,6 +337,47 @@ renv_retrieve_unknown_source <- function(record) {
 
   record <- renv_retrieve_missing_record(record$Package)
   renv_retrieve_cran(record)
+}
+
+renv_retrieve_handle_remotes <- function(record) {
+
+  # TODO: what should we do if we detect incompatible remotes?
+  # e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
+  # 'r-lib/rlang@0.2'.
+
+  # check and see if this package declares Remotes -- if so,
+  # use those to fill in any missing records
+  desc <- renv_description_read(record$Path)
+  if (is.null(desc$Remotes))
+    return(NULL)
+
+  fields <- strsplit(desc$Remotes, "\\s*,\\s*")[[1]]
+  for (field in fields) {
+
+    # TODO: allow customization of behavior when remote parsing fails?
+    remote <- catch(renv_remotes_parse(field))
+    if (inherits(remote, "error")) {
+      fmt <- "failed to parse remote '%s' declared by package '%s'; skipping"
+      warningf(fmt, field, record$Package)
+      next
+    }
+
+
+    # if installation of this package was not specifically requested by
+    # the user (ie: it's been requested as it's a dependency of this package)
+    # then update the record. note that we don't want to update in explicit
+    # installs as we don't want to override what was reported / requested
+    # in e.g. `renv::restore()`
+    state <- renv_restore_state()
+    if (remote$Package %in% state$packages)
+      next
+
+    records <- state$records
+    records[[remote$Package]] <- remote
+    state$records <- records
+
+  }
+
 }
 
 renv_retrieve_missing_record <- function(package) {
