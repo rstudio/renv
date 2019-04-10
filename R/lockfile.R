@@ -16,8 +16,7 @@
 #'
 #' An example lockfile follows:
 #'
-#' \preformatted{
-#'
+#' ```
 #' [renv]
 #' Version=0.1.0
 #'
@@ -40,8 +39,7 @@
 #' Version=0.6
 #' Source=CRAN
 #' Hash=b1e49df8aef896bc8c0b749ef1da5a48
-#'
-#' }
+#' ```
 #'
 #' The sections used within a lockfile are described next.
 #'
