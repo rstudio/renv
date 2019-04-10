@@ -65,7 +65,7 @@ snapshot()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
       </span>
     </div>
 
@@ -173,9 +173,16 @@ the lockfile. See <strong>Actions</strong> for more details.</p></td>
     <h2 class="hasAnchor" id="actions"><a class="anchor" href="#actions"></a>Actions</h2>
 
     
+
+    
+
+    
+
     <p><code>renv</code> classifies the different actions that will be taken during restore
 into five fundamental types:</p>
-<table class='table'>
+    
+
+    <table class='table'>
 <tr><td><code>install</code></td><td>Install a package recorded in the lockfile,
 but not currently installed in the project library.</td></tr>
 <tr><td><code>remove</code></td><td>Remove a package installed in the project library,
@@ -192,6 +199,11 @@ happen if, for example, the source of a particular package was changed
 (e.g. a package originally installed from GitHub was later installed
 from CRAN).</td></tr>
 </table>
+
+    
+
+    
+
     <p>This can be useful if you want to perform only non-destructive changes during
 restore -- for example, you can invoke <code>renv::restore(actions = "install")</code>
 to avoid modifying or removing packages that have already been installed into

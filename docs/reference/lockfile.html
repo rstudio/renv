@@ -66,7 +66,7 @@ their versions) within the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
       </span>
     </div>
 
@@ -142,60 +142,102 @@ their versions) within the project's private library.</p>
     <p>Projects can be restored from a lockfile using the <code><a href='restore.html'>restore()</a></code> function.
 This implies re-installing packages into the project's private library,
 as encoded within the lockfile.</p>
-<p>While lockfiles are normally generated and used with <code><a href='snapshot.html'>snapshot()</a></code> /
+    
+
+    <p>While lockfiles are normally generated and used with <code><a href='snapshot.html'>snapshot()</a></code> /
 <code><a href='restore.html'>restore()</a></code>, they can also hand-edited if so desired. The structure is
 similar to that of the Windows-style <code>.ini</code> file, with some provisioning for
 nested sections.</p>
-<p>An example lockfile follows:</p>
-<pre>
-    [renv]
+    
+
+    <p>An example lockfile follows:</p>
+    <pre>[renv]
 Version=0.1.0
-    [R]
+
+[R]
 Version=3.5.1
 Repositories=
   CRAN=https://cran.rstudio.com
-    [R/Package/markdown]
+
+[R/Package/markdown]
 Package=markdown
 Version=0.9
 Source=CRAN
 Hash=8515151150d7372bc76e0af15ef5dee0
-    [R/Package/mime]
+
+[R/Package/mime]
 Package=mime
 Version=0.6
 Source=CRAN
 Hash=b1e49df8aef896bc8c0b749ef1da5a48
-    </pre>
+</pre>
+    
+
+    
+
     <p>The sections used within a lockfile are described next.</p>
     
     <h2 class="hasAnchor" id="-renv-"><a class="anchor" href="#-renv-"></a>[renv]</h2>
 
     
+
+    
+
+    
+
     <p>Information about the version of <code>renv</code> used to manage this project.</p>
-<table class='table'>
+    
+
+    <table class='table'>
 <tr><td><strong>Version</strong></td><td>The version of the <code>renv</code> package used with this project.</td></tr>
 </table>
+
+    
+
     
     <h2 class="hasAnchor" id="-r-"><a class="anchor" href="#-r-"></a>[R]</h2>
 
     
+
+    
+
+    
+
     <p>Properties related to the version of <span style="R">R</span> associated with this project.</p>
-<table class='table'>
+    
+
+    <table class='table'>
 <tr><td><strong>Version</strong></td><td>The version of <span style="R">R</span> used.</td></tr>
 <tr><td><strong>Repositories</strong></td><td>The <span style="R">R</span> repositories used in this project.</td></tr>
 </table>
+
+    
+
     
     <h2 class="hasAnchor" id="-r-package-"><a class="anchor" href="#-r-package-"></a>[R/Package/*]</h2>
 
     
+
+    
+
+    
+
     <p>Package records, related to the version of an <span style="R">R</span> package that was installed
 at the time the lockfile was generated.</p>
-<table class='table'>
+    
+
+    <table class='table'>
 <tr><td><strong>Package</strong></td><td>The package name.</td></tr>
 <tr><td><strong>Version</strong></td><td>The package version.</td></tr>
 <tr><td><strong>Library</strong></td><td>The library this package was installed in.</td></tr>
 <tr><td><strong>Source</strong></td><td>The location from which this package was retrieved.</td></tr>
 <tr><td><strong>Hash</strong></td><td>(Optional) A unique hash for this package, used for package caching.</td></tr>
 </table>
+
+    
+
+    
+
     <p>Additional remote fields, further describing how the package can be
 retrieved from its corresponding source, will also be included as
 appropriate (e.g. for packages installed from GitHub).</p>

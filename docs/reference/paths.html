@@ -64,7 +64,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
       </span>
     </div>
 
@@ -136,20 +136,31 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>By default, <code>renv</code> collects state into these folders:</p>
-<table class='table'>
+    
+
+    <table class='table'>
 <tr><td><strong>Platform</strong></td><td><strong>Location</strong></td></tr>
 <tr><td>Linux</td><td><code>~/.local/share/renv</code></td></tr>
 <tr><td>macOS</td><td><code>~/Library/Application Support/renv</code></td></tr>
 <tr><td>Windows</td><td><code>%APPDATA%/renv</code></td></tr>
 </table>
+
+    
+
+    
+
     <p>If desired, this path can be adjusted by setting the <code>RENV_PATHS_ROOT</code>
 environment variable. This can be useful if you'd like, for example, multiple
 users to be able to share a single global cache.</p>
-<p>The various state sub-directories can also be individually adjusted, if so
+    
+
+    <p>The various state sub-directories can also be individually adjusted, if so
 desired (e.g. you'd prefer to keep the cache of package installations on a
 separate volume). The various environment variables that can be set are
 enumerated below:</p>
-<table class='table'>
+    
+
+    <table class='table'>
 <tr><td><strong>Environment Variable</strong></td><td><strong>Description</strong></td></tr>
 <tr><td><code>RENV_PATHS_ROOT</code></td><td>The root path used for global state storage.</td></tr>
 <tr><td><code>RENV_PATHS_BOOTSTRAP</code></td><td>The library path containing bootstrapped <code>renv</code> installations.</td></tr>
@@ -161,39 +172,73 @@ enumerated below:</p>
 <tr><td><code>RENV_PATHS_REPOS</code></td><td>The path containing cached available package information.</td></tr>
 <tr><td><code>RENV_PATHS_EXTSOFT</code></td><td>(Windows only) The path containing external software needed for compilation of Windows source packages.</td></tr>
 </table>
+
+    
+
+    
+
     <p>Note that <code>renv</code> will append platform-specific and version-specific entries
-to the set paths as appropriate. For example, if you have set:</p><pre>Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
+to the set paths as appropriate. For example, if you have set:</p>
+    <pre>Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
 </pre>
+    
+
+    
+
     <p>then the directory used for the cache will still depend on the <span style="R">R</span> version
-(e.g. <code>3.5</code>) and the <code>renv</code> cache version (e.g. <code>v2</code>). For example:</p><pre>/mnt/shared/renv/cache/R-3.5/v2
+(e.g. <code>3.5</code>) and the <code>renv</code> cache version (e.g. <code>v2</code>). For example:</p>
+    <pre>/mnt/shared/renv/cache/R-3.5/v2
 </pre>
+    
+
+    
+
     <p>This ensures that you can set a single <code>RENV_PATHS_CACHE</code> environment variable
 globally without worry that it may cause collisions or errors if multiple
 versions of <span style="R">R</span> needed to interact with the same cache.</p>
-<p>If reproducibility of a project is desired on a particular machine, it is
+    
+
+    <p>If reproducibility of a project is desired on a particular machine, it is
 highly recommended that the <code>renv</code> cache of installed packages + binary
 packages is stored, so that packages can be easily restored in the future --
 installation of packages from source can often be arduous.</p>
-<p>If you want these settings to persist in your project, it is recommended that
+    
+
+    <p>If you want these settings to persist in your project, it is recommended that
 you add these to an appropriate <span style="R">R</span> startup file. For example, these could be
-set in:</p><ul>
+set in:</p>
+    <ul>
 <li><p>A project-local <code>.Renviron</code>;</p></li>
 <li><p>The user-level <code>.Renviron</code>;</p></li>
 <li><p>A file at <code>$(R RHOME)/etc/Renviron.site</code>.</p></li>
 </ul>
+    
+
+    
+
     <p>Please see ?<a href='https://www.rdocumentation.org/packages/base/topics/Startup'>Startup</a> for more details.</p>
     
     <h2 class="hasAnchor" id="local-sources"><a class="anchor" href="#local-sources"></a>Local Sources</h2>
 
     
+
+    
+
+    
+
     <p>If your project depends on one or <span style="R">R</span> packages that are not available in any
 remote location, you can still provide a locally-available tarball for <code>renv</code>
 to use during restore. By default, these packages should be made available in
 the folder as specified by the <code>RENV_PATHS_LOCAL</code> environment variable. The
-package sources should be placed in a file at one of these locations:</p><ul>
+package sources should be placed in a file at one of these locations:</p>
+    <ul>
 <li><p><code>${RENV_PATHS_LOCAL}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 <li><p><code>&lt;project&gt;/renv/local/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 </ul>
+    
+
+    
+
     <p>where <code>.&lt;ext&gt;</code> is <code>.tar.gz</code> for source packages, or <code>.tgz</code> for binaries on
 macOS and <code>.zip</code> on Windows. During a <code><a href='restore.html'>restore()</a></code>, packages installed from
 an unknown source will be searched for in this location.</p>

@@ -65,7 +65,7 @@ renv with your particular project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
       </span>
     </div>
 
@@ -143,30 +143,43 @@ renv with your particular project." />
     <h2 class="hasAnchor" id="settings"><a class="anchor" href="#settings"></a>Settings</h2>
 
     
+
+    
+
+    
+
     <dl class='dl-horizontal'>
-    <dt><code>ignored.packages</code></dt><dd><p>A vector of packages, which should be ignored when attempting to snapshot
+
+<dt><code>ignored.packages</code></dt><dd><p>A vector of packages, which should be ignored when attempting to snapshot
 the project's private library. Note that if a package has already been
 added to the lockfile, that entry in the lockfile will not be ignored. <br /></p></dd>
-    <dt><code>external.libraries</code></dt><dd><p>A vector of library paths, to be used in addition to the project's own
+
+<dt><code>external.libraries</code></dt><dd><p>A vector of library paths, to be used in addition to the project's own
 private library. This can be useful if you have a package available for use
 in some global library, but for some reason <code>renv</code> is not able to install
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).</p></dd>
-    <dt><code>use.cache</code></dt><dd><p>Use a global cache of <span style="R">R</span> packages. When active, <code>renv</code> will install
+
+<dt><code>use.cache</code></dt><dd><p>Use a global cache of <span style="R">R</span> packages. When active, <code>renv</code> will install
 packages into a global cache, and link packages from the cache into your
 <code>renv</code> projects as appropriate. This can greatly save on disk space
 and install time when for <span style="R">R</span> packages which are used across multiple
 projects in the same environment.</p></dd>
-    <dt><code>auto.snapshot</code></dt><dd><p>Automatically snapshot changes to a project's private library after
+
+<dt><code>auto.snapshot</code></dt><dd><p>Automatically snapshot changes to a project's private library after
 installing a package with <code><a href='install.html'>install()</a></code>.</p></dd>
-    <dt><code>python</code></dt><dd><p>The path to a Python binary, to be used by e.g. <code>reticulate</code> for projects
+
+<dt><code>python</code></dt><dd><p>The path to a Python binary, to be used by e.g. <code>reticulate</code> for projects
 requiring the use of Python. Alternatively, if set to <code>TRUE</code>, then <code>renv</code>
 will create a project-local Python virtual environment and use that.
 In that case, <code>renv</code> will use whichever version of Python is currently
 in use by <code>reticulate</code> (if any), or the version of Python requested by
 <code>RETICULATE_PYTHON</code> otherwise.</p></dd>
-    </dl>
+
+</dl>
+    
+
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
