@@ -10,6 +10,10 @@ renv_remotes_read <- function(remotes = NULL) {
 
 renv_remotes_parse <- function(entry) {
 
+  # check for URLs
+  if (grepl("^(?:file|https?)://", entry))
+    return(renv_remotes_parse_url(entry))
+
   # check for pre-supplied type
   type <- NULL
   parts <- strsplit(entry, "::", fixed = TRUE)[[1]]
@@ -72,6 +76,31 @@ renv_remotes_parse_github <- function(entry) {
     RemoteRef      = ref,
     RemoteSha      = sha,
     RemoteHost     = "api.github.com"
+  )
+
+}
+
+renv_remotes_parse_url <- function(entry) {
+
+  tempfile <- renv_tempfile("renv-url-")
+  writeLines(entry, con = tempfile)
+  hash <- tools::md5sum(tempfile)
+
+  ext <- fileext(entry, default = ".tar.gz")
+  name <- paste(hash, ext, sep = "")
+  path <- renv_paths_source("url", name)
+
+  ensure_parent_directory(path)
+  download(entry, path)
+
+  desc <- renv_description_read(path)
+
+  list(
+    Package   = desc$Package,
+    Version   = desc$Version,
+    Source    = "URL",
+    Path      = path,
+    RemoteUrl = entry
   )
 
 }

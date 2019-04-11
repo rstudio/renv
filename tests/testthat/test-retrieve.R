@@ -64,6 +64,12 @@ test_that("we can retrieve packages from GitLab", {
 
 })
 
+test_that("we can retrieve packages with URLs", {
+  skip_on_cran()
+  record <- renv_remotes_parse("https://api.github.com/repos/kevinushey/skeleton/tarball")
+  renv_test_retrieve(record)
+})
+
 test_that("we can retrieve packages from local sources", {
 
   renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
