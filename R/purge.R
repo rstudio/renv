@@ -26,6 +26,7 @@ purge <- function(package,
                   hash = NULL,
                   confirm = interactive())
 {
+  renv_scope_error_handler()
   invisible(renv_purge_impl(package, version, hash, confirm))
 }
 

@@ -11,6 +11,7 @@
 #'
 #' @export
 history <- function(project = NULL) {
+  renv_scope_error_handler()
   project <- project %||% renv_project()
 
   lockpath <- file.path(project, "renv.lock")
@@ -42,6 +43,7 @@ history <- function(project = NULL) {
 #'
 #' @export
 revert <- function(project = NULL, commit = "HEAD") {
+  renv_scope_error_handler()
   project <- project %||% renv_project()
   lockpath <- file.path(project, "renv.lock")
   renv_git_preflight()

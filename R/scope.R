@@ -37,3 +37,14 @@ renv_scope_envvars <- function(...) {
   }, envir = parent.frame())
 
 }
+
+renv_scope_error_handler <- function() {
+
+  error <- getOption("error")
+  if (!is.null(error))
+    return()
+
+  defer(options(error = error), envir = parent.frame())
+  options(error = renv_error_handler)
+
+}

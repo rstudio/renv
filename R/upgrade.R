@@ -15,6 +15,7 @@ upgrade <- function(project = NULL,
                     version = NULL,
                     confirm = interactive())
 {
+  renv_scope_error_handler()
   invisible(renv_upgrade_impl(project, version, confirm))
 }
 

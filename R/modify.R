@@ -9,6 +9,7 @@
 #'
 #' @export
 modify <- function(project = NULL) {
+  renv_scope_error_handler()
   project <- project %||% renv_project()
   invisible(renv_modify_impl(project))
 }

@@ -6,13 +6,13 @@
 #'
 #' @export
 equip <- function() {
+  renv_scope_error_handler()
 
   case(
     renv_platform_windows() ~ renv_equip_windows(),
     renv_platform_macos()   ~ renv_equip_macos(),
     renv_platform_linux()   ~ renv_equip_linux()
   )
-
 }
 
 renv_equip_windows <- function() {
