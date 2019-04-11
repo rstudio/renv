@@ -123,7 +123,7 @@ release.
 
 With each commit of `renv`, we bump the package version and also tag the
 commit with the associated package version. This implies that you can call
-(for example) `renv::upgrade(version = "0.3.0-17)` to request the installation
+(for example) `renv::upgrade(version = "0.3.0-17")` to request the installation
 of that particular version of `renv` if so required.
 
 
