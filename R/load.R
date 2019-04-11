@@ -78,18 +78,48 @@ renv_load_libpaths <- function(project = NULL) {
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
 }
 
-renv_load_python <- function(project) {
+renv_load_python <- function(fields) {
 
-  python <- renv_python()
+  # nothing to do if we have no fields
+  if (is.null(fields))
+    return(FALSE)
+
+  # delegate based on type appropriately
+  type <- fields$Type
+  python <- case(
+    is.null(type)        ~ renv_load_python_default(fields),
+    type == "virtualenv" ~ renv_load_python_env(fields, renv_use_python_virtualenv),
+    type == "conda"      ~ renv_load_python_env(fields, renv_use_python_conda),
+    TRUE                 ~ stopf("unrecognized type '%s'", type)
+  )
+
   if (is.null(python))
     return(FALSE)
 
+  Sys.setenv(RENV_PYTHON = python)
   Sys.setenv(RETICULATE_PYTHON = python)
-  if (renv_python_is_virtualenv(python))
-    Sys.setenv(RETICULATE_PYTHON_ENV = dirname(dirname(python)))
 
-  return(TRUE)
+  TRUE
 
+}
+
+renv_load_python_default <- function(fields) {
+  renv_python_find(fields$Version)
+}
+
+renv_load_python_virtualenv <- function(fields) {
+  renv_load_python_env(fields, renv_use_python_virtualenv)
+}
+
+renv_load_python_conda <- function(fields) {
+  renv_load_python_env(fields, renv_use_python_conda)
+}
+
+renv_load_python_env <- function(fields, loader) {
+  project <- renv_project()
+  version <- fields$Version
+  name <- fields$Name
+  loader(project, version = version, name = name)
 }
 
 renv_load_finish <- function() {

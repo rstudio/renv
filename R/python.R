@@ -1,99 +1,57 @@
 
-renv_python <- function(python = NULL) {
+renv_python_find <- function(version) {
 
-  python <- python %||% settings$python()
-  if (is.null(python))
-    return(NULL)
+  # if a python binary has been explicitly registered, use it
+  python <- settings$python()
+  if (!is.null(python))
+    return(python)
 
-  # TRUE implies use of a local virtual environment
-  if (identical(python, TRUE))
-    return(renv_python_local_binary())
-
-  # validate we have a string
-  if (!is.character(python)) {
-    warning("invalid python setting detected")
-    return(NULL)
+  # otherwise, try to find a copy of python on the PATH
+  idx <- gregexpr("(?:[.]|$)", version)[[1]]
+  strings <- substring(version, 1, idx - 1)
+  for (suffix in rev(strings)) {
+    binary <- paste("python", suffix, sep = "")
+    path <- Sys.which(binary)
+    if (nzchar(path))
+      return(path)
   }
 
-  path <- renv_python_resolve(python)
-  if (!file.exists(path)) {
-    fmt <- "requested Python path '%s' does not exist"
-    warningf(fmt, aliased_path(path))
-    return(NULL)
-  }
+  fmt <- "failed to find Python %s on the PATH"
+  warningf(fmt, version)
 
-  path
+  NULL
 
-}
-
-# figure out the appropriate path for the Python executable
-# given a virtual environment, conda environment, direct
-# path to Python, and so on
-renv_python_resolve <- function(python) {
-
-  # if we have slashes in the name, assume this
-  # is the full path to a Python virtualenv or similar
-  if (!grepl("[/\\\\]", python)) {
-    root <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
-    python <- file.path(root, python)
-  }
-
-  renv_python_exe(python)
-
-}
-
-
-renv_python_local_init <- function() {
-
-  path <- file.path(renv_project(), "renv/python/r-reticulate")
-  if (file.exists(path))
-    return(path)
-
-  vprintf("* Creating local Python virtual environment ... ", appendLF = FALSE)
-  renv_python_virtualenv_create(path)
-  vwritef("Done!")
-  return(path)
-
-}
-
-renv_python_local_binary <- function() {
-  path <- renv_python_local_init()
-  renv_python_exe(path)
 }
 
 renv_python_exe <- function(path) {
 
-  if (renv_python_is_virtualenv(path)) {
-    if (renv_platform_windows())
-      file.path(path, "Scripts/python.exe")
-    else
-      file.path(path, "bin/python")
-  } else {
-    # TODO: conda?
-    path
+  # if this already looks like a Python executable, use it directly
+  info <- file.info(path, extra_cols = FALSE)
+  if (identical(info$isdir, FALSE) && startswith(basename(path), "python"))
+    return(path)
+
+  # otherwise, attempt to infer the Python executable type
+  type <- renv_python_type(path)
+  if (is.null(type)) {
+    fmt <- "path '%s' does not appear to be associated with a Python environment"
+    stopf(fmt, aliased_path(path))
   }
 
-}
+  # use the root path inferred in the lookup
+  root <- attr(type, "path")
 
-renv_python_active_binary <- function() {
-
-  if ("reticulate" %in% loadedNamespaces() &&
-      reticulate::py_available())
-  {
-    config <- reticulate::py_config()
-    return(config$python)
+  if (type == "conda") {
+    suffix <- if (renv_platform_windows()) "python.exe" else "bin/python"
+    return(file.path(root, suffix))
   }
 
-  python <- Sys.getenv("RETICULATE_PYTHON")
-  if (file.exists(python))
-    return(python)
-
-  if (requireNamespace("reticulate", quietly = TRUE)) {
-    config <- reticulate::py_discover_config()
-    return(config$python)
+  if (type == "virtualenv") {
+    suffix <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"
+    return(file.path(root, suffix))
   }
 
-  Sys.which("python")
+  fmt <- "failed to find Python executable associated with path '%s'"
+  stopf(fmt, aliased_path(path))
 
 }
 
@@ -105,23 +63,63 @@ renv_python_version <- function(python) {
   substring(output, space + 1)
 }
 
-renv_python_snapshot <- function(project) {
+renv_python_type <- function(python) {
 
-  python <- renv_python()
-  if (is.null(python) || !renv_python_is_virtualenv(python))
+  renv_file_find(python, function(path) {
+
+    # check for virtual environment files
+    venv <- c("pyvenv.cfg", ".Python")
+    if (any(file.exists(file.path(path, venv))))
+      return("virtualenv")
+
+    # check for conda-meta
+    conda <- c("conda-meta")
+    if (any(file.exists(file.path(path, conda))))
+      return("conda")
+
+  })
+
+}
+
+renv_python_action <- function(action, project) {
+
+  python <- Sys.getenv("RENV_PYTHON", unset = NA)
+  if (is.na(python) || !file.exists(python))
     return(NULL)
 
-  renv_python_pip_freeze(project, python)
+  type <- renv_python_type(python)
+  if (is.null(type))
+    return(NULL)
+
+  action(python, type, project)
+
+}
+
+renv_python_snapshot <- function(project) {
+  renv_python_action(renv_python_snapshot_impl, project = project)
+}
+
+renv_python_snapshot_impl <- function(python, type, project) {
+
+  switch(
+    type,
+    virtualenv = renv_python_pip_freeze(project, python),
+    conda      = renv_python_conda_list(project, python)
+  )
 
 }
 
 renv_python_restore <- function(project) {
+  renv_python_action(renv_python_restore_impl, project = project)
+}
 
-  python <- renv_python()
-  if (is.null(python) || !renv_python_is_virtualenv(python))
-    return(NULL)
+renv_python_restore_impl <- function(python, type, project) {
 
-  renv_python_pip_restore(project, python)
+  switch(
+    type,
+    virtualenv = renv_python_pip_restore(project, python),
+    conda      = renv_python_conda_restore(project, python)
+  )
 
 }
 
@@ -176,35 +174,38 @@ renv_python_pip_restore <- function(project, python) {
   vwritef("* Restored Python packages from '%s'.", aliased_path(path))
 }
 
-renv_python_virtualenv_create <- function(path) {
+renv_python_conda_list <- function(project, python) {
+  stop("not yet implemented")
+}
+
+renv_python_conda_restore <- function(project, python) {
+  stop("not yet implemented")
+}
+
+renv_python_virtualenv_create <- function(python, path) {
   ensure_parent_directory(path)
-  python <- renv_python_active_binary()
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
   fmt <- "%s -m %s %s 2>&1"
   python <- normalizePath(python)
-  cmd <- sprintf(fmt, shQuote(python), module, shQuote(path))
+  cmd <- sprintf(fmt, shQuote(python), module, shQuote(path.expand(path)))
   output <- system(cmd, intern = TRUE)
   status <- attr(output, "status") %||% 0L
   if (status != 0L || !file.exists(path)) {
     msg <- c("failed to create virtual environment", output)
     stop(paste(msg, collapse = "\n"), call. = FALSE)
   }
-  file.exists(path)
+  invisible(file.exists(path))
 }
 
-renv_python_is_virtualenv <- function(python) {
+renv_python_virtualenv_path <- function(name) {
 
-  info <- file.info(python, extra_cols = FALSE)
-  if (identical(info$isdir, FALSE))
-    python <- dirname(python)
-
-  files <- c("pyvenv.cfg", ".Python")
-  for (root in c(python, dirname(python))) {
-    paths <- file.path(root, files)
-    if (any(file.exists(paths)))
-      return(TRUE)
+  path <- name
+  if (!grepl("[/\\\\]", name)) {
+    home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+    path <- file.path(home, name)
   }
 
-  FALSE
+  path
+
 }

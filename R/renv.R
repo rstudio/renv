@@ -67,12 +67,12 @@ load <- function(project = NULL) {
   renv_load_profile(project)
   renv_load_envvars(project)
   renv_load_libpaths(project)
-  renv_load_python(project)
 
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {
     renv_load_r(lockfile$R)
     renv_load_bioconductor(lockfile$Bioconductor)
+    renv_load_python(lockfile$Python)
   }
 
   renv_write_infrastructure(project)
