@@ -54,9 +54,8 @@ renv_file_copy_dir <- function(source, target) {
 
   # first, copy into a unique sub-directory
   # then attempt to move back into the requested location
-  tempfile <- tempfile("renv-copy-", tmpdir = dirname(target))
+  tempfile <- renv_tempfile("renv-copy-", tmpdir = dirname(target))
   ensure_directory(tempfile)
-  on.exit(unlink(tempfile, recursive = TRUE), add = TRUE)
 
   status <- catchall(file.copy(source, tempfile, recursive = TRUE))
   if (inherits(status, "condition"))

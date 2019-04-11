@@ -72,7 +72,7 @@ Entry=
 '
 
   data <- list(Section = list(Entry = c(Key1 = "Value1", Key2 = "Value2")))
-  file <- tempfile()
+  file <- renv_tempfile("renv-lockfile-")
   renv_lockfile_write(data, file)
   expect_equal(trimws(text), trimws(read(file)))
 
