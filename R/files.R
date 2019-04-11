@@ -298,3 +298,24 @@ renv_file_edit <- function(path) {
   do.call(.Call, list(routine, path, PACKAGE = "(embedding)"))
 
 }
+
+renv_file_find <- function(path, predicate) {
+
+  parent <- dirname(path)
+  while (path != parent) {
+
+    if (file.exists(path)) {
+      status <- predicate(path)
+      if (!is.null(status)) {
+        attr(status, "path") <- path
+        return(status)
+      }
+    }
+
+    path <- parent; parent <- dirname(path)
+
+  }
+
+  predicate(path)
+
+}
