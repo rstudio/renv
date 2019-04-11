@@ -335,6 +335,7 @@ renv_dependencies_discover_r <- function(path) {
   }
 
   methods <- c(
+    renv_dependencies_discover_r_xfun,
     renv_dependencies_discover_r_library_require,
     renv_dependencies_discover_r_require_namespace,
     renv_dependencies_discover_r_colon
@@ -354,14 +355,40 @@ renv_dependencies_discover_r <- function(path) {
 
 }
 
+renv_dependencies_discover_r_xfun <- function(node, envir) {
+
+  node <- renv_call_expect(node, c("pkg_attach", "pkg_attach2"))
+  if (is.null(node))
+    return(FALSE)
+
+  # attempt to match the call
+  prototype <- function(..., install = FALSE, message = TRUE) {}
+  matched <- catch(match.call(prototype, node, expand.dots = FALSE))
+  if (inherits(matched, "error"))
+    return(FALSE)
+
+  # extract character vectors from `...`
+  strings <- stack()
+  recurse(matched[["..."]], function(node) {
+    if (is.character(node))
+      strings$push(node)
+  })
+
+  # mark packages as known
+  packages <- strings$data()
+  if (empty(packages))
+    return(FALSE)
+
+  for (package in packages)
+    envir[[package]] <- TRUE
+
+  TRUE
+}
+
 renv_dependencies_discover_r_library_require <- function(node, envir) {
 
-  ok <-
-    is.call(node) &&
-    is.name(node[[1]]) &&
-    as.character(node[[1]]) %in% c("library", "require")
-
-  if (!ok)
+  node <- renv_call_expect(node, c("library", "require"))
+  if (is.null(node))
     return(FALSE)
 
   # attempt to match the call
@@ -391,12 +418,8 @@ renv_dependencies_discover_r_library_require <- function(node, envir) {
 
 renv_dependencies_discover_r_require_namespace <- function(node, envir) {
 
-  ok <-
-    is.call(node) &&
-    is.name(node[[1]]) &&
-    as.character(node[[1]]) %in% c("requireNamespace", "loadNamespace")
-
-  if (!ok)
+  node <- renv_call_expect(node, c("requireNamespace", "loadNamespace"))
+  if (is.null(node))
     return(FALSE)
 
   f <- get(as.character(node[[1]]), envir = .BaseNamespaceEnv, inherits = FALSE)

@@ -1,0 +1,16 @@
+
+# should be parsed as dependencies (use only lower-case letters for package names)
+library(a)
+library("b")
+base::library(c)
+base::library("d", character.only = TRUE)
+requireNamespace("e")
+base::requireNamespace("f", quietly = TRUE)
+xfun::pkg_attach(c("g", "h"))
+pkg_attach2("i", "j")
+k::foo()
+l:::bar()
+"m"::baz()
+
+# should NOT be parsed as dependencies (use only upper-case names for package names)
+library(A, character.only = TRUE)

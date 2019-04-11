@@ -1,0 +1,13 @@
+context("Dependencies")
+
+test_that("usages of library, etc. are properly handled", {
+
+  deps <- dependencies("resources/code.R")
+  pkgs <- deps$Package
+
+  expect_equal(pkgs, tolower(pkgs))
+
+  l <- pkgs[nchar(pkgs) == 1]
+  expect_equal(sort(l), letters[seq_along(l)])
+
+})
