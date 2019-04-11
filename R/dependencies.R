@@ -268,7 +268,7 @@ renv_dependencies_discover_chunks <- function(path) {
   })
 
   # write to file and parse dependencies
-  rfile <- tempfile(fileext = ".R")
+  rfile <- renv_tempfile("renv-deps-", fileext = ".R")
   writeLines(enc2utf8(code), con = rfile, useBytes = TRUE)
   deps <- renv_dependencies_discover_r(rfile)
   if (empty(deps))

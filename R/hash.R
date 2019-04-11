@@ -26,8 +26,7 @@ renv_hash_description <- function(path) {
 
   # write to tempfile (use binary connection to ensure unix-style
   # newlines for cross-platform hash stability)
-  tempfile <- tempfile("renv-description-hash-")
-  on.exit(unlink(tempfile), add = TRUE)
+  tempfile <- renv_tempfile("renv-description-hash-")
   contents <- paste(names(ordered), ordered, sep = ": ", collapse = "\n")
 
   # create the file connection (use binary so that unix newlines are used

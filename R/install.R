@@ -58,9 +58,8 @@ renv_install <- function(project, records) {
   on.exit(renv_global_clear("install.library"), add = TRUE)
 
   # set up a dummy library path for installation
-  templib <- tempfile("renv-templib-")
+  templib <- renv_tempfile("renv-templib-")
   ensure_directory(templib)
-  on.exit(unlink(templib), add = TRUE)
   renv_scope_libpaths(c(templib, .libPaths()))
 
   # figure out whether we can use the cache during install

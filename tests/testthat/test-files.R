@@ -3,8 +3,8 @@ context("Files")
 
 test_that("directories can be copied", {
 
-  source <- tempfile("renv-source-")
-  target <- tempfile("renv-target-")
+  source <- renv_tempfile("renv-source-")
+  target <- renv_tempfile("renv-target-")
 
   ensure_directory(source)
 
@@ -21,8 +21,8 @@ test_that("directories can be copied", {
 
 test_that("directories can be moved", {
 
-  source <- tempfile("renv-source-")
-  target <- tempfile("renv-target-")
+  source <- renv_tempfile("renv-source-")
+  target <- renv_tempfile("renv-target-")
 
   ensure_directory(source)
 
@@ -40,8 +40,8 @@ test_that("directories can be moved", {
 
 test_that("attempts to link files work", {
 
-  source <- tempfile("renv-source-")
-  target <- tempfile("renv-target-")
+  source <- renv_tempfile("renv-source-")
+  target <- renv_tempfile("renv-target-")
 
   dir.create(source)
   renv_file_link(source, target)
@@ -51,8 +51,8 @@ test_that("attempts to link files work", {
 
 test_that("scoped backups are cleared as necessary", {
 
-  source <- tempfile("renv-source-")
-  target <- tempfile("renv-target-")
+  source <- renv_tempfile("renv-source-")
+  target <- renv_tempfile("renv-target-")
 
   writeLines("source", source)
   writeLines("target", target)

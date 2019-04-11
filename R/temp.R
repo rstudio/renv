@@ -10,8 +10,8 @@ renv_tempfile <- function(pattern = "renv-",
 }
 
 renv_tempdir_impl <- function() {
-  dir <- tempfile("renv-tempdir-")
-  dir.create(dir)
+  dir <- Sys.getenv("RENV_TEMPDIR", unset = tempfile("renv-tempdir-"))
+  dir.create(dir, recursive = TRUE, showWarnings = FALSE)
   Sys.chmod(dir, mode = "0700")
   dir
 }
