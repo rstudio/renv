@@ -25,6 +25,8 @@ snapshot <- function(project  = NULL,
                      lockfile = file.path(project, "renv.lock"),
                      confirm  = interactive())
 {
+  renv_scope_error_handler()
+
   project <- project %||% renv_project()
 
   # if the user calls snapshot without an active renv project,

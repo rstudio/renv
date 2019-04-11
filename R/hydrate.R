@@ -51,6 +51,7 @@ hydrate <- function(packages = NULL,
                     library = NULL,
                     missing = NULL)
 {
+  renv_scope_error_handler()
   project  <- project  %||% renv_project()
   library  <- library  %||% renv_libpaths_default()
 

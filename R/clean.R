@@ -13,6 +13,7 @@
 #'
 #' @export
 clean <- function(project = NULL, confirm = interactive()) {
+  renv_scope_error_handler()
   project <- project %||% renv_project()
 
   status <-

@@ -17,10 +17,10 @@ status <- function(project = NULL,
                    library = NULL,
                    lockfile = NULL)
 {
+  renv_scope_error_handler()
   project <- project %||% renv_project()
   library <- library %||% renv_paths_library(project = project)
   lockfile <- lockfile %||% file.path(project, "renv.lock")
-
   invisible(renv_status(project, library, lockfile))
 }
 

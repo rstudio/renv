@@ -65,6 +65,8 @@ restore <- function(project  = NULL,
                     actions  = c("install", "remove", "upgrade", "downgrade", "crossgrade"),
                     confirm  = interactive())
 {
+  renv_scope_error_handler()
+
   project  <- project %||% renv_project()
   library  <- library %||% renv_paths_library(project = project)
   lockfile <- lockfile %||% renv_lockfile_load(project = project)

@@ -61,6 +61,7 @@
 #'
 #' @export
 init <- function(project = NULL, settings = NULL, force = FALSE) {
+  renv_scope_error_handler()
 
   # prepare and move into project directory
   project <- project %||% getwd()
@@ -91,7 +92,6 @@ init <- function(project = NULL, settings = NULL, force = FALSE) {
 
   # activate the newly-hydrated project
   renv_activate_impl(project, renv_package_version("renv"))
-
 }
 
 renv_init_action <- function(project, library, lockfile) {

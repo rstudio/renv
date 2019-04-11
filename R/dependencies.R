@@ -44,6 +44,7 @@
 #'
 #' @export
 dependencies <- function(path = getwd()) {
+  renv_scope_error_handler()
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   renv_dependencies_discover(path, path)
 }

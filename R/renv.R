@@ -11,6 +11,7 @@
 #'
 #' @export
 activate <- function(project = NULL) {
+  renv_scope_error_handler()
   project <- project %||% renv_project()
   renv_activate_impl(project, NULL)
 }
@@ -42,6 +43,7 @@ renv_activate_impl <- function(project, version) {
 #'
 #' @export
 deactivate <- function(project = NULL) {
+  renv_scope_error_handler()
   project <- project %||% renv_project()
 
   renv_remove_rprofile(project)
@@ -60,6 +62,7 @@ deactivate <- function(project = NULL) {
 #'
 #' @export
 load <- function(project = NULL) {
+  renv_scope_error_handler()
   project <- project %||% renv_project()
 
   renv_envvars_save()
