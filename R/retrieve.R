@@ -53,6 +53,11 @@ renv_retrieve_impl <- function(package) {
   if (renv_restore_skip(record))
     return()
 
+  # if this is a URL source, then it should already have a local path
+  path <- record$Path %||% ""
+  if (file.exists(path))
+    return(renv_retrieve_successful(record, path))
+
   # if the requested record already exists in the cache, we can finish early
   path <- renv_cache_package_path(record)
   if (file.exists(path))
@@ -86,9 +91,9 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
   name <- renv_retrieve_name(record, type, ext)
   source <- tolower(record$Source %||% record$RemoteType %||% "")
   if (type == "source")
-    renv_paths_source(package, source, name)
+    renv_paths_source(source, package, name)
   else if (type == "binary")
-    renv_paths_binary(package, source, name)
+    renv_paths_binary(source, package, name)
   else
     stopf("unrecognized type '%s'", type)
 }
