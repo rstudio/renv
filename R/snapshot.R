@@ -36,7 +36,7 @@ snapshot <- function(project  = NULL,
     filter  <- NULL
   } else {
     library <- library %||% renv_libpaths_default()
-    filter  <- filter %NULL% renv_snapshot_filter(project = project)
+    filter  <- renv_snapshot_filter(project = project)
   }
 
   renv_snapshot_preflight(project, library)
