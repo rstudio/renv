@@ -90,8 +90,10 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
 
   # rename failed; fall back to copying
   copy <- catchall(renv_file_copy(source, target, overwrite = overwrite))
-  if (identical(copy, TRUE))
+  if (identical(copy, TRUE) && file.exists(target)) {
+    unlink(source, recursive = TRUE)
     return(TRUE)
+  }
 
   # rename and copy both failed: inform the user
   fmt <- stack()
