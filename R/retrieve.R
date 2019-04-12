@@ -315,7 +315,7 @@ renv_retrieve_successful <- function(record, path) {
   deps <- renv_dependencies_discover_description(path)
   rowapply(deps, function(dep) {
     package <- dep$Package
-    requirements[[package]] <<- requirements[[package]] %||% stack()
+    requirements[[package]] <- requirements[[package]] %||% stack()
     requirements[[package]]$push(dep)
   })
 
@@ -393,7 +393,7 @@ renv_retrieve_missing_record <- function(package) {
   #   2. request a package + version to be retrieved,
   #   3. hard error
   #
-  types <- if (Sys.info()[["sysname"]] == "Linux")
+  types <- if (renv_platform_linux())
     "source"
   else
     c("binary", "source")
@@ -479,6 +479,7 @@ renv_retrieve_remote <- function(record, remote, remotes) {
 # with the set of required dependencies recorded thus far
 # during the package retrieval process
 renv_retrieve_incompatible <- function(record) {
+
   state <- renv_restore_state()
 
   # check and see if the installed version satisfies all requirements
@@ -491,14 +492,14 @@ renv_retrieve_incompatible <- function(record) {
   if (nrow(explicit) == 0)
     return(FALSE)
 
-  exprs <- sprintf(
-    "numeric_version('%s') %s '%s'",
-    record$Version,
-    explicit$Require,
-    explicit$Version
+  expr <- c(
+    sprintf("version <- numeric_version('%s')", record$Version),
+    paste(
+      sprintf("version %s '%s'", explicit$Require, explicit$Version),
+      collapse = " && "
+    )
   )
 
-  expr <- paste(exprs, collapse = " && ")
   envir <- new.env(parent = baseenv())
   satisfied <- catch(eval(parse(text = expr), envir = envir))
   if (inherits(satisfied, "error"))
