@@ -135,7 +135,7 @@ renv_cache_synchronize <- function(record, link) {
   ensure_parent_directory(cache)
   if (link) {
     renv_file_move(path, cache)
-    renv_file_link(cache, path)
+    renv_file_link(cache, path, overwrite = TRUE)
   } else {
     renv_file_copy(path, cache)
   }
