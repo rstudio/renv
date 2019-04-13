@@ -1,0 +1,15 @@
+
+## Parse Errors
+
+`renv` should still be able to recover dependencies from the chunks without
+parse errors.
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+this chunk has parse errors
+```
+
+

@@ -1,12 +1,15 @@
 
 renv_parse <- function(file = "", text = NULL, encoding = "UTF-8", ...) {
 
-  # handle NULL text specifically
-  if (!missing(text) && is.null(text))
-    return(NULL)
+  renv_scope_options(warn = -1L)
 
-  # suppress warnings during parse
-  suppressWarnings(parse(file = file, text = text, encoding = encoding, ...))
+  if (is.character(text))
+    return(parse(text = text, encoding = encoding, ...))
+
+  if (nzchar(file))
+    return(parse(file = file, encoding = encoding, ...))
+
+  NULL
 
 }
 

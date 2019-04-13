@@ -250,30 +250,31 @@ renv_dependencies_discover_chunks <- function(path) {
   if (NROW(ranges) == 0)
     return(NULL)
 
+  # extract chunk code from the used ranges
   chunks <- .mapply(function(lhs, rhs) {
     header <- contents[[lhs]]
     params <- renv_dependencies_discover_parse_params(header, type)
     list(params = params, contents = contents[(lhs + 1):(rhs - 1)])
   }, ranges, NULL)
 
-  # extract R code
-  code <- uapply(chunks, function(chunk) {
+  # iterate over chunks, and attempt to parse dependencies from each
+  deps <- bapply(chunks, function(chunk) {
 
     # skip non-R chunks
     engine <- chunk$params$engine
     if (!(identical(engine, "r") || identical(engine, "rscript")))
       return(character())
 
-    chunk$contents
+    rdeps <- catch(renv_dependencies_discover_r(file = path, text = chunk$contents))
+    if (inherits(rdeps, "error"))
+      return(NULL)
+
+    rdeps
 
   })
 
-  # write to file and parse dependencies
-  rfile <- renv_tempfile("renv-deps-", fileext = ".R")
-  writeLines(enc2utf8(code), con = rfile, useBytes = TRUE)
-  deps <- renv_dependencies_discover_r(rfile)
-  if (empty(deps))
-    return(NULL)
+  if (is.null(deps))
+    return(deps)
 
   deps$Source <- path
   deps
@@ -325,9 +326,9 @@ renv_dependencies_discover_rproj <- function(path) {
 
 }
 
-renv_dependencies_discover_r <- function(path) {
+renv_dependencies_discover_r <- function(file = NULL, text = NULL) {
 
-  parsed <- catch(renv_parse(path))
+  parsed <- catch(renv_parse(file = file, text = text))
   if (inherits(parsed, "error")) {
     # workaround for an R bug where parse-related state could be
     # leaked if an error occurred
@@ -352,7 +353,7 @@ renv_dependencies_discover_r <- function(path) {
   if (empty(packages))
     return(NULL)
 
-  renv_dependencies_list(path, packages)
+  renv_dependencies_list(file, packages)
 
 }
 

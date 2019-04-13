@@ -11,3 +11,9 @@ test_that("usages of library, etc. are properly handled", {
   expect_equal(sort(l), letters[seq_along(l)])
 
 })
+
+test_that("parse errors are okay in .Rmd documents", {
+  deps <- dependencies("resources/chunk-errors.Rmd")
+  pkgs <- deps$Package
+  expect_setequal(pkgs, c("rmarkdown", "dplyr"))
+})
