@@ -5,11 +5,14 @@ stack <- function() {
 
   object <- list(
 
-    push = function(data) {
-      if (is.null(data))
-        .data[length(.data) + 1] <<- list(NULL)
-      else
-        .data[[length(.data) + 1]] <<- data
+    push = function(...) {
+      dots <- list(...)
+      for (data in dots) {
+        if (is.null(data))
+          .data[length(.data) + 1] <<- list(NULL)
+        else
+          .data[[length(.data) + 1]] <<- data
+      }
     },
 
     pop = function() {

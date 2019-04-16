@@ -109,8 +109,46 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   writeLines(text, con = config)
 
-  args <- c("--config", shQuote(config))
-  system2("curl", args)
+  args <- stack()
+
+  userconfig <- getOption(
+    "renv.curl.config",
+    renv_download_curl_config()
+  )
+
+  for (entry in userconfig)
+    if (file.exists(entry))
+      args$push("--config", shQuote(entry))
+
+  args$push("--config", shQuote(config))
+
+  system2("curl", args$data())
+
+}
+
+renv_download_curl_config <- function() {
+
+  rc <- if (renv_platform_windows()) "_curlrc" else ".curlrc"
+
+  homes <- c(
+    Sys.getenv("CURL_HOME"),
+    Sys.getenv("HOME"),
+    Sys.getenv("R_USER"),
+    path.expand("~/")
+  )
+
+  if (renv_platform_windows())
+    homes <- c(homes, dirname(Sys.which("curl")))
+
+  homes <- Filter(nzchar, homes)
+
+  for (home in homes) {
+    path <- file.path(home, rc)
+    if (file.exists(path))
+      return(path)
+  }
+
+  NULL
 
 }
 
