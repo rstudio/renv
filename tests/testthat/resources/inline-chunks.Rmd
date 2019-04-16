@@ -1,0 +1,6 @@
+
+## Inline Chunks
+
+Users might request the use of packages with `r inline::chunks()`. Check that we handle `r multiple::calls()` on the same line.
+
+Also in `r separate::chunks()`.

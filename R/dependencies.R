@@ -247,8 +247,6 @@ renv_dependencies_discover_chunks <- function(path) {
   encoding <- if (type == "md") "UTF-8" else "unknown"
   contents <- readLines(path, warn = FALSE, encoding = encoding)
   ranges <- renv_dependencies_discover_chunks_ranges(file, contents, patterns)
-  if (NROW(ranges) == 0)
-    return(NULL)
 
   # extract chunk code from the used ranges
   chunks <- .mapply(function(lhs, rhs) {
@@ -258,26 +256,43 @@ renv_dependencies_discover_chunks <- function(path) {
   }, ranges, NULL)
 
   # iterate over chunks, and attempt to parse dependencies from each
-  deps <- bapply(chunks, function(chunk) {
+  cdeps <- bapply(chunks, function(chunk) {
 
     # skip non-R chunks
     engine <- chunk$params$engine
     if (!(identical(engine, "r") || identical(engine, "rscript")))
       return(character())
 
-    rdeps <- catch(renv_dependencies_discover_r(file = path, text = chunk$contents))
-    if (inherits(rdeps, "error"))
+    deps <- catch(renv_dependencies_discover_r(file = path, text = chunk$contents))
+    if (inherits(deps, "error"))
       return(NULL)
 
-    rdeps
+    deps
 
   })
 
+  # check for dependencies in inline chunks as well
+  ideps <- renv_dependencies_discover_chunks_inline(path, contents)
+
+  deps <- bind_list(list(cdeps, ideps))
   if (is.null(deps))
     return(deps)
 
   deps$Source <- path
   deps
+
+}
+
+renv_dependencies_discover_chunks_inline <- function(path, contents) {
+
+  pasted <- paste(contents, collapse = "\n")
+  matches <- gregexpr("`r ([^`]+)`", pasted)
+  if (identical(c(matches[[1L]]), -1L))
+    return(NULL)
+
+  text <- unlist(regmatches(pasted, matches), use.names = FALSE, recursive = FALSE)
+  code <- substring(text, 4L, nchar(text) - 1L)
+  renv_dependencies_discover_r(file = path, text = code)
 
 }
 
@@ -467,6 +482,8 @@ renv_dependencies_list <- function(source, packages, require = "", version = "")
 
   if (empty(packages))
     return(NULL)
+
+  source <- source %||% rep.int(NA_character_, length(packages))
 
   data.frame(
     Source  = as.character(source),

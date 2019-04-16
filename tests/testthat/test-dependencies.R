@@ -17,3 +17,9 @@ test_that("parse errors are okay in .Rmd documents", {
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "dplyr"))
 })
+
+test_that("inline chunks are parsed for dependencies", {
+  deps <- dependencies("resources/inline-chunks.Rmd")
+  pkgs <- deps$Package
+  expect_setequal(pkgs, c("rmarkdown", "inline", "multiple", "separate"))
+})
