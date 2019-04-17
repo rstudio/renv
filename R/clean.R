@@ -17,13 +17,13 @@ clean <- function(project = NULL, confirm = interactive()) {
   project <- project %||% renv_project()
 
   status <-
-    renv_clean_library_tempdirs(project, confirm) &&
-    renv_clean_system_library(project, confirm) &&
-    renv_clean_unused_packages(project, confirm) &&
+    renv_clean_library_tempdirs(project, confirm) ||
+    renv_clean_system_library(project, confirm) ||
+    renv_clean_unused_packages(project, confirm) ||
     renv_clean_stale_lockfiles(project, confirm)
 
   if (status)
-    vwritef("* The project is now clean.")
+    vwritef("* The project has been cleaned.")
 }
 
 renv_clean_library_tempdirs <- function(project, confirm) {
@@ -43,10 +43,8 @@ renv_clean_library_tempdirs <- function(project, confirm) {
       wrap = FALSE
     )
 
-    if (confirm && !proceed()) {
-      writeLines("Operation aborted.")
+    if (confirm && !proceed())
       return(FALSE)
-    }
 
   }
 
@@ -75,10 +73,8 @@ renv_clean_system_library <- function(project, confirm) {
       )
     )
 
-    if (confirm && !proceed()) {
-      writeLines("Operation aborted.")
+    if (confirm && !proceed())
       return(FALSE)
-    }
 
   }
 
@@ -111,13 +107,11 @@ renv_clean_unused_packages <- function(project, confirm) {
         "The following packages are installed in the project library,",
         "but appear to be no longer used in your project."
       ),
-      postamble = "These packages will be removed."
+      "These packages will be removed."
     )
 
-    if (confirm && !proceed()) {
-      writeLines("Operation aborted.")
+    if (confirm && !proceed())
       return(FALSE)
-    }
 
   }
 
