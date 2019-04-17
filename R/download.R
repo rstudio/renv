@@ -77,10 +77,60 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
   downloader <- switch(
     renv_download_file_method(),
     curl = renv_download_curl,
-    wget = renv_download_wget
+    wget = renv_download_wget,
+    renv_download_default
   )
 
   catch(downloader(url, destfile, type, request, headers))
+
+}
+
+renv_download_default <- function(url, destfile, type, request, headers) {
+
+  # custom request types are not supported with the default downloader
+  if (request != "GET")
+    stopf("the default downloader does not support %s requests", request)
+
+  renv_download_default_agent_scope(headers)
+  download.file(
+    url      = url,
+    destfile = destfile,
+    method   = "auto",
+    headers  = headers,
+    quiet    = TRUE
+  )
+
+}
+
+renv_download_default_agent_scope <- function(headers, force = FALSE) {
+
+  if (!force) {
+
+    if (is.null(headers))
+      return(FALSE)
+
+    if (getRversion() >= "3.6.0")
+      return(FALSE)
+
+  }
+
+  utils <- asNamespace("utils")
+  makeUserAgent <- utils$makeUserAgent
+  if (!compatible(makeUserAgent, function(format = TRUE) {}))
+    return(FALSE)
+
+  do.call("unlockBinding", list("makeUserAgent", utils))
+  defer(do.call("lockBinding", list("makeUserAgent", utils)), envir = parent.frame())
+
+  agent <- makeUserAgent(FALSE)
+  all <- c("User-Agent" = agent, headers)
+  headertext <- paste0(names(all), ": ", all, "\r\n", collapse = "")
+
+  assign("makeUserAgent", envir = utils, function(format = TRUE) {
+    if (format) headertext else agent
+  })
+
+  return(TRUE)
 
 }
 
@@ -89,7 +139,13 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   config <- renv_tempfile("renv-download-config-")
 
   fields <- c(url = url, output = destfile)
-  fields <- c(fields, renv_download_auth(url, type))
+
+  auth <- renv_download_auth(url, type)
+  if (length(auth)) {
+    authtext <- paste(names(auth), auth, sep = ": ")
+    names(authtext) <- "header"
+    fields <- c(fields, authtext)
+  }
 
   if (length(headers)) {
     lines <- paste(names(headers), headers, sep = ": ")
@@ -157,7 +213,13 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
   config <- renv_tempfile("renv-download-config-")
 
   fields <- c(quiet = "on")
-  fields <- c(fields, renv_download_auth(url, type))
+
+  auth <- renv_download_auth(url, type)
+  if (length(auth)) {
+    authtext <- paste(names(auth), auth, sep = ": ")
+    names(authtext) <- "header"
+    fields <- c(fields, authtext)
+  }
 
   if (length(headers)) {
     lines <- paste(names(headers), headers, sep = ": ")
@@ -232,8 +294,7 @@ renv_download_auth_bitbucket <- function() {
     return(character())
 
   userpass <- paste(user, pass, sep = ":")
-  auth <- paste("Basic", renv_base64_encode(userpass))
-  c(header = paste("Authorization", auth, sep = ": "))
+  c("Authorization" = paste("Basic", renv_base64_encode(userpass)))
 
 }
 
@@ -243,8 +304,7 @@ renv_download_auth_github <- function() {
   if (is.na(pat))
     return(character())
 
-  token <- paste("token", pat)
-  c(header = paste("Authorization", token, sep = ": "))
+  c("Authorization" = paste("token", pat))
 
 }
 
@@ -254,7 +314,7 @@ renv_download_auth_gitlab <- function() {
   if (is.na(pat))
     return(character())
 
-  c(header = paste("Private-Token", pat, sep = ": "))
+  c("Private-Token" = pat)
 
 }
 
@@ -313,6 +373,10 @@ renv_download_size <- function(url, type, headers = NULL) {
 }
 
 renv_download_file_method <- function() {
+
+  method <- Sys.getenv("RENV_DOWNLOAD_FILE_METHOD", unset = NA)
+  if (!is.na(method))
+    return(method)
 
   method <- getOption("download.file.method", default = "auto")
   if (method %in% c("curl", "wget"))
