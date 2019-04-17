@@ -372,6 +372,14 @@ renv_download_size <- function(url, type, headers = NULL) {
 
 }
 
+# select an appropriate download file method. we prefer curl
+# when available as it's the most user-customizable of all the
+# download methods; when not available, we fall back to libcurl
+# and wget (in that order). note that we don't want to use the
+# internal or wininet downloaders as we cannot set custom headers
+# with those methods. users can force a method with the
+# RENV_DOWNLOAD_FILE_METHOD environment variable but we generally
+# want to override a user-specified 'download.file.method'
 renv_download_file_method <- function() {
 
   method <- Sys.getenv("RENV_DOWNLOAD_FILE_METHOD", unset = NA)
@@ -384,6 +392,10 @@ renv_download_file_method <- function() {
 
   if (nzchar(Sys.which("curl")))
     return("curl")
+
+  libcurl <- capabilities("libcurl")
+  if (length(libcurl) && libcurl)
+    return("libcurl")
 
   if (nzchar(Sys.which("wget")))
     return("wget")
