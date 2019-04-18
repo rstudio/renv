@@ -35,6 +35,9 @@ renv_settings_read <- function(project) {
   if (inherits(dcf, "error"))
     return(renv_settings_defaults())
 
+  known <- ls(envir = `_renv_settings`)
+  dcf <- dcf[intersect(names(dcf), known)]
+
   settings <- enumerate(dcf, function(name, value) {
 
     # TODO: consider custom decoders per-setting
@@ -222,17 +225,6 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 #'
-#' \item{\code{python}}{
-#'
-#'   The path to a Python binary, to be used by e.g. `reticulate` for projects
-#'   requiring the use of Python. Alternatively, if set to `TRUE`, then `renv`
-#'   will create a project-local Python virtual environment and use that.
-#'   In that case, `renv` will use whichever version of Python is currently
-#'   in use by `reticulate` (if any), or the version of Python requested by
-#'   `RETICULATE_PYTHON` otherwise.
-#'
-#' }
-#'
 #' }
 #'
 #' @export
@@ -273,13 +265,6 @@ settings <- list(
     name     = "auto.snapshot",
     validate = function(x) length(x) == 1 && is.logical(x),
     default  = TRUE,
-    update   = NULL
-  ),
-
-  python = renv_settings_impl(
-    name     = "python",
-    validate = function(x) is.character(x),
-    default  = NULL,
     update   = NULL
   )
 

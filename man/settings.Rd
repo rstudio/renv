@@ -4,7 +4,7 @@
 \name{settings}
 \alias{settings}
 \title{Settings}
-\format{An object of class \code{list} of length 5.}
+\format{An object of class \code{list} of length 4.}
 \usage{
 settings
 }
@@ -50,17 +50,6 @@ projects in the same environment.
 
 Automatically snapshot changes to a project's private library after
 installing a package with \code{\link[=install]{install()}}.
-
-}
-
-\item{\code{python}}{
-
-The path to a Python binary, to be used by e.g. \code{reticulate} for projects
-requiring the use of Python. Alternatively, if set to \code{TRUE}, then \code{renv}
-will create a project-local Python virtual environment and use that.
-In that case, \code{renv} will use whichever version of Python is currently
-in use by \code{reticulate} (if any), or the version of Python requested by
-\code{RETICULATE_PYTHON} otherwise.
 
 }
 

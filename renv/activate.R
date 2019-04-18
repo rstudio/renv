@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.2.0-69"
+  version <- "0.3.0-40"
 
   # load the 'utils' package eagerly -- this ensures that renv shims, which
   # mask 'utils' packages, will come first on the search path
@@ -38,10 +38,10 @@ local({
     Sys.getenv("XDG_DATA_HOME", "~/.local/share")
   )
 
-  prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
   base <- Sys.getenv("RENV_PATHS_ROOT", unset = file.path(default, "renv"))
+  prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
   rversion <- paste("R", getRversion()[1, 1:2], sep = "-")
-  path <- file.path(base, rversion, "bootstrap", prefix, "renv", version)
+  path <- file.path(base, "bootstrap", rversion, prefix, "renv", version)
 
   # try to load renv from one of these paths
   if (requireNamespace("renv", lib.loc = path, quietly = TRUE))
