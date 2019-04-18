@@ -12,7 +12,7 @@ use_python(python = NULL, type = "virtualenv", name = NULL, ...,
 binary on the system, or the path to a Python binary within an
 already-existing Python environment. If \code{NULL}, the \code{RETICULATE_PYTHON}
 environment variable is checked; if that is not set, then the default
-version of Python on the \code{PATH} is used instead.}
+version of \code{python} on the \code{PATH} is used instead.}
 
 \item{type}{The type of Python environment to use. By default, a project-local
 virtual environment will be created with the requested version of Python,
@@ -33,5 +33,5 @@ the current working directory is used.}
 \description{
 Associate a version of Python with your project. When active, \code{renv} will
 take care of capturing your Python dependencies when \code{renv::snapshot()} is called,
-and installing your Python dependencies when \code{renv::restore()} is called.
+and re-installing your Python dependencies when \code{renv::restore()} is called.
 }

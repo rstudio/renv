@@ -307,10 +307,8 @@ renv_file_find <- function(path, predicate) {
 
     if (file.exists(path)) {
       status <- predicate(path)
-      if (!is.null(status)) {
-        attr(status, "path") <- path
+      if (!is.null(status))
         return(status)
-      }
     }
 
     path <- parent; parent <- dirname(path)

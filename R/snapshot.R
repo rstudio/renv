@@ -49,6 +49,8 @@ snapshot <- function(project  = NULL,
   if (is.null(lockfile))
     return(new)
 
+  # TODO: do we still want to snapshot if the user cancels
+  # the R-level snapshot?
   on.exit(renv_python_snapshot(project), add = TRUE)
 
   old <- list()

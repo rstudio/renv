@@ -85,9 +85,9 @@ renv_load_python <- function(fields) {
     return(FALSE)
 
   # delegate based on type appropriately
-  type <- fields$Type
+  type <- fields$Type %||% ""
   python <- case(
-    is.null(type)        ~ renv_load_python_default(fields),
+    type == ""           ~ renv_load_python_default(fields),
     type == "virtualenv" ~ renv_load_python_env(fields, renv_use_python_virtualenv),
     type == "conda"      ~ renv_load_python_env(fields, renv_use_python_conda),
     TRUE                 ~ stopf("unrecognized type '%s'", type)
@@ -98,6 +98,11 @@ renv_load_python <- function(fields) {
 
   Sys.setenv(RENV_PYTHON = python)
   Sys.setenv(RETICULATE_PYTHON = python)
+
+  if (type %in% c("virtualenv", "conda")) {
+    info <- renv_python_info(python)
+    Sys.setenv(RETICULATE_PYTHON_ENV = info$root)
+  }
 
   TRUE
 

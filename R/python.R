@@ -1,12 +1,16 @@
 
-renv_python_find <- function(version) {
+renv_python_find <- function(version, path = NULL) {
 
-  # if a python binary has been explicitly registered, use it
-  python <- settings$python()
-  if (!is.null(python))
-    return(python)
+  # if we've been given the name of an environment,
+  # check to see if it's already been initialized
+  # and use the associated copy of Python if possible
+  if (!is.null(path) && file.exists(path)) {
+    python <- catch(renv_python_exe(path))
+    if (!inherits(python, "error"))
+      return(python)
+  }
 
-  # otherwise, try to find a copy of python on the PATH
+  # try to find a copy of python on the PATH
   idx <- gregexpr("(?:[.]|$)", version)[[1]]
   strings <- substring(version, 1, idx - 1)
   for (suffix in rev(strings)) {
@@ -31,24 +35,9 @@ renv_python_exe <- function(path) {
     return(path)
 
   # otherwise, attempt to infer the Python executable type
-  type <- renv_python_type(path)
-  if (is.null(type)) {
-    fmt <- "path '%s' does not appear to be associated with a Python environment"
-    stopf(fmt, aliased_path(path))
-  }
-
-  # use the root path inferred in the lookup
-  root <- attr(type, "path")
-
-  if (type == "conda") {
-    suffix <- if (renv_platform_windows()) "python.exe" else "bin/python"
-    return(file.path(root, suffix))
-  }
-
-  if (type == "virtualenv") {
-    suffix <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"
-    return(file.path(root, suffix))
-  }
+  info <- renv_python_info(path)
+  if (!is.null(info$python))
+    return(info$python)
 
   fmt <- "failed to find Python executable associated with path '%s'"
   stopf(fmt, aliased_path(path))
@@ -63,22 +52,36 @@ renv_python_version <- function(python) {
   substring(output, space + 1)
 }
 
-renv_python_type <- function(python) {
+renv_python_info <- function(python) {
 
   renv_file_find(python, function(path) {
 
     # check for virtual environment files
-    venv <- c("pyvenv.cfg", ".Python")
-    if (any(file.exists(file.path(path, venv))))
-      return("virtualenv")
+    virtualenv <-
+      file.exists(file.path(path, "pyvenv.cfg")) ||
+      file.exists(file.path(path, ".Python"))
+
+    if (virtualenv) {
+      suffix <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"
+      return(list(python = file.path(path, suffix), type = "virtualenv", root = path))
+    }
 
     # check for conda-meta
-    conda <- c("conda-meta")
-    if (any(file.exists(file.path(path, conda))))
-      return("conda")
+    condaenv <-
+      file.exists(file.path(path, "conda-meta")) &&
+      !file.exists(file.path(path, "condabin"))
+
+    if (condaenv) {
+      suffix <- if (renv_platform_windows()) "python.exe" else "bin/python"
+      return(list(python = file.path(path, suffix), type = "conda", root = path))
+    }
 
   })
 
+}
+
+renv_python_type <- function(python) {
+  renv_python_info(python)$type
 }
 
 renv_python_action <- function(action, project) {
@@ -89,6 +92,9 @@ renv_python_action <- function(action, project) {
 
   type <- renv_python_type(python)
   if (is.null(type))
+    return(NULL)
+
+  if (type == "conda" && !requireNamespace("reticulate", quietly = TRUE))
     return(NULL)
 
   action(python, type, project)
@@ -169,16 +175,48 @@ renv_python_pip_restore <- function(project, python) {
   command <- paste(shQuote(python), suffix)
   system(command)
 
-  path <- aliased_path(file.path(project, "requirements.txt"))
   vwritef("* Restored Python packages from '%s'.", aliased_path(path))
 }
 
 renv_python_conda_list <- function(project, python) {
-  stop("not yet implemented")
+  owd <- setwd(project)
+  on.exit(setwd(owd), add = TRUE)
+
+  path <- file.path(project, "requirements.txt")
+
+  # find the root of the associated conda environment
+  lockfile <- renv_lockfile_load(project = project)
+  name <- lockfile$Python$Name %||% file.path(project, "renv/python/condaenvs/renv-condaenv")
+  python <- renv_python_conda_select(name)
+  info <- renv_python_info(python)
+  prefix <- info$root
+
+  conda <- reticulate::conda_binary()
+  args <- c("list", "--prefix", shQuote(prefix), "--export")
+  system2(conda, args, stdout = path)
+
+  vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
+  return(TRUE)
 }
 
 renv_python_conda_restore <- function(project, python) {
-  stop("not yet implemented")
+  owd <- setwd(project)
+  on.exit(setwd(owd), add = TRUE)
+
+  path <- file.path(project, "requirements.txt")
+
+  # find the root of the associated conda environment
+  lockfile <- renv_lockfile_load(project = project)
+  name <- lockfile$Python$Name %||% file.path(project, "renv/python/condaenvs/renv-condaenv")
+  python <- renv_python_conda_select(name)
+  info <- renv_python_info(python)
+  prefix <- info$root
+
+  conda <- reticulate::conda_binary()
+  args <- c("install", "--yes", "--prefix", shQuote(prefix), "--file", shQuote(path))
+  system2(conda, args)
+
+  return(TRUE)
 }
 
 renv_python_virtualenv_create <- function(python, path) {
@@ -206,5 +244,25 @@ renv_python_virtualenv_path <- function(name) {
   }
 
   path
+
+}
+
+renv_python_conda_select <- function(name) {
+
+  # handle paths (as opposed to environment names)
+  if (grepl("[/\\\\]", name)) {
+    if (!file.exists(name))
+      return(reticulate::conda_create(envname = name))
+    return(renv_python_exe(name))
+  }
+
+  # check for an existing conda environment
+  envs <- reticulate::conda_list()
+  idx <- which(name == envs$name)
+  if (length(idx))
+    return(envs$python[[idx]])
+
+  # no environment exists; create it
+  reticulate::conda_create(envname = name)
 
 }
