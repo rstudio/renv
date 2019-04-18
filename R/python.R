@@ -63,7 +63,12 @@ renv_python_info <- function(python) {
 
     if (virtualenv) {
       suffix <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"
-      return(list(python = file.path(path, suffix), type = "virtualenv", root = path))
+      python <- file.path(path, suffix)
+
+      # TODO: this is only really valid if the path lies within WORKON_HOME
+      name <- basename(path)
+
+      return(list(python = python, type = "virtualenv", root = path, name = name))
     }
 
     # check for conda-meta
@@ -73,7 +78,12 @@ renv_python_info <- function(python) {
 
     if (condaenv) {
       suffix <- if (renv_platform_windows()) "python.exe" else "bin/python"
-      return(list(python = file.path(path, suffix), type = "conda", root = path))
+      python <- file.path(path, suffix)
+
+      # TODO: this is only valid if the path truly is a named conda environment
+      name <- basename(path)
+
+      return(list(python = python, type = "conda", root = path, name = name))
     }
 
   })

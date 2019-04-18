@@ -4,7 +4,7 @@
 \alias{use_python}
 \title{Use Python}
 \usage{
-use_python(python = NULL, type = "virtualenv", name = NULL, ...,
+use_python(python = NULL, type = NULL, name = NULL, ...,
   project = NULL)
 }
 \arguments{
@@ -14,15 +14,16 @@ already-existing Python environment. If \code{NULL}, the \code{RETICULATE_PYTHON
 environment variable is checked; if that is not set, then the default
 version of \code{python} on the \code{PATH} is used instead.}
 
-\item{type}{The type of Python environment to use. By default, a project-local
-virtual environment will be created with the requested version of Python,
-as supplied by \code{python}. Ignored if the requested version of \code{python} lives
-within a pre-existing Python environment.}
+\item{type}{The type of Python environment to use. When \code{"auto"} (the
+default), a project-local environment (virtual environments on Linux /
+macOS; conda environments on Windows) will be created. Ignored if the
+requested version of \code{python} lives within a pre-existing Python
+environment.}
 
-\item{name}{When \code{type} is \code{"virtualenv"} or \code{"conda"}, this argument can be
-used to supply the name or path that should be used for the associated
-Python environment. Ignored if the requested version of \code{python} lives
-within a pre-existing Python environment.}
+\item{name}{The name or path that should be used for the associated Python
+environment. If \code{NULL} and \code{python} points to a Python executable living
+within a pre-existing virtual environment, that environment will be used.
+Otherwise, a project-local environment will be created instead.}
 
 \item{...}{Optional arguments; currently unused.}
 
