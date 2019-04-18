@@ -109,8 +109,8 @@ renv_python_snapshot_impl <- function(python, type, project) {
 
   switch(
     type,
-    virtualenv = renv_python_pip_freeze(project, python),
-    conda      = renv_python_conda_list(project, python)
+    virtualenv = renv_python_virtualenv_snapshot(project, python),
+    conda      = renv_python_conda_snapshot(project, python)
   )
 
 }
@@ -123,13 +123,14 @@ renv_python_restore_impl <- function(python, type, project) {
 
   switch(
     type,
-    virtualenv = renv_python_pip_restore(project, python),
+    virtualenv = renv_python_virtualenv_restore(project, python),
     conda      = renv_python_conda_restore(project, python)
   )
 
 }
 
-renv_python_pip_freeze <- function(project, python) {
+renv_python_virtualenv_snapshot <- function(project, python) {
+
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
@@ -149,9 +150,11 @@ renv_python_pip_freeze <- function(project, python) {
   writeLines(after, con = path)
   vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
   return(TRUE)
+
 }
 
-renv_python_pip_restore <- function(project, python) {
+renv_python_virtualenv_restore <- function(project, python) {
+
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
@@ -176,13 +179,15 @@ renv_python_pip_restore <- function(project, python) {
   system(command)
 
   vwritef("* Restored Python packages from '%s'.", aliased_path(path))
+
 }
 
-renv_python_conda_list <- function(project, python) {
+renv_python_conda_snapshot <- function(project, python) {
+
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
-  path <- file.path(project, "requirements.txt")
+  path <- file.path(project, "environment.yml")
 
   # find the root of the associated conda environment
   lockfile <- renv_lockfile_load(project = project)
@@ -192,7 +197,7 @@ renv_python_conda_list <- function(project, python) {
   prefix <- info$root
 
   conda <- reticulate::conda_binary()
-  args <- c("list", "--prefix", shQuote(prefix), "--export")
+  args <- c("env", "export", "--prefix", shQuote(prefix))
   system2(conda, args, stdout = path)
 
   vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
@@ -200,6 +205,7 @@ renv_python_conda_list <- function(project, python) {
 }
 
 renv_python_conda_restore <- function(project, python) {
+
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
@@ -213,26 +219,34 @@ renv_python_conda_restore <- function(project, python) {
   prefix <- info$root
 
   conda <- reticulate::conda_binary()
-  args <- c("install", "--yes", "--prefix", shQuote(prefix), "--file", shQuote(path))
+  cmd <- if (file.exists(prefix)) "create" else "update"
+  args <- c(cmd, "--yes", "--prefix", shQuote(prefix), "--file", shQuote(path))
   system2(conda, args)
 
   return(TRUE)
+
 }
 
 renv_python_virtualenv_create <- function(python, path) {
+
   ensure_parent_directory(path)
+
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
+
   fmt <- "%s -m %s %s 2>&1"
   python <- normalizePath(python)
   cmd <- sprintf(fmt, shQuote(python), module, shQuote(path.expand(path)))
   output <- system(cmd, intern = TRUE)
   status <- attr(output, "status") %||% 0L
+
   if (status != 0L || !file.exists(path)) {
     msg <- c("failed to create virtual environment", output)
     stop(paste(msg, collapse = "\n"), call. = FALSE)
   }
+
   invisible(file.exists(path))
+
 }
 
 renv_python_virtualenv_path <- function(name) {
