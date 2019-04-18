@@ -138,3 +138,17 @@ renv_python_restore_impl <- function(python, type, project) {
   )
 
 }
+
+renv_python_envpath <- function(project, type, version) {
+
+  name <- case(
+    type == "virtualenv" ~ "virtualenvs",
+    type == "conda"      ~ "condaenvs",
+    TRUE                 ~ type
+  )
+
+  fmt <- "renv/python/%s/renv-%s-python-%s"
+  suffix <- sprintf(fmt, name, type, version)
+  file.path(project, suffix)
+
+}

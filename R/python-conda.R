@@ -28,7 +28,7 @@ renv_python_conda_snapshot <- function(project, python) {
 
   # find the root of the associated conda environment
   lockfile <- renv_lockfile_load(project = project)
-  name <- lockfile$Python$Name %||% file.path(project, "renv/python/condaenvs/renv-condaenv")
+  name <- lockfile$Python$Name %||% renv_python_envpath(project, "conda", version)
   python <- renv_python_conda_select(name)
   info <- renv_python_info(python)
   prefix <- info$root
@@ -50,7 +50,7 @@ renv_python_conda_restore <- function(project, python) {
 
   # find the root of the associated conda environment
   lockfile <- renv_lockfile_load(project = project)
-  name <- lockfile$Python$Name %||% file.path(project, "renv/python/condaenvs/renv-condaenv")
+  name <- lockfile$Python$Name %||% renv_python_envpath(project, "conda", version)
   python <- renv_python_conda_select(name)
   info <- renv_python_info(python)
   prefix <- info$root

@@ -124,7 +124,7 @@ renv_load_python_env <- function(fields, loader) {
   project <- renv_project()
   version <- fields$Version
   name <- fields$Name
-  loader(project, version = version, name = name)
+  loader(project = project, version = version, name = name)
 }
 
 renv_load_finish <- function() {
