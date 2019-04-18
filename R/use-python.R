@@ -53,12 +53,21 @@ use_python <- function(python = NULL,
 
   # construct path to Python executable
   python <- renv_python_exe(python) %||% python
+  version <- renv_python_version(python)
 
   # build information about the version of python requested
   info <- renv_python_info(python)
   type <- info$type %||% type %||% if (renv_platform_windows()) "conda" else "virtualenv"
-  name <- name %||% info$name
-  version <- renv_python_version(python)
+
+  # if a Python virtual environment or conda environment was requested,
+  # check for existence; if it doesn't exist create it now and update
+  # the Python binary path (since we need to save that locally)
+  name <- name %||% renv_python_envpath(project, type, version)
+  python <- case(
+    is.null(type)        ~ python,
+    type == "virtualenv" ~ renv_use_python_virtualenv(project, name, version, python),
+    type == "conda"      ~ renv_use_python_condaenv(project, name, version, python)
+  )
 
   # form the lockfile fields we'll want to write
   fields <- list()
@@ -77,15 +86,6 @@ use_python <- function(python = NULL,
     lockfile$Python <- fields
     renv_lockfile_write(lockfile, file = lockpath)
   }
-
-  # if a Python virtual environment or conda environment was requested,
-  # check for existence; if it doesn't exist create it now and update
-  # the Python binary path (since we need to save that locally)
-  python <- case(
-    is.null(type)        ~ python,
-    type == "virtualenv" ~ renv_use_python_virtualenv(project, python, version, name),
-    type == "conda"      ~ renv_use_python_conda(project, python, version, name)
-  )
 
   # re-initialize with these settings
   renv_load_python(fields)
@@ -113,49 +113,34 @@ use_python <- function(python = NULL,
 
 }
 
-renv_use_python_virtualenv <- function(project,
-                                       python = NULL,
-                                       version = NULL,
-                                       name = NULL)
-{
-  # when name is NULL, use a local path
-  # TODO: think about allowing multiple environments?
-  name <- name %||% file.path(project, "renv/python/virtualenvs/renv-virtualenv")
+renv_use_python_virtualenv <- function(project, name, version = NULL, python = NULL) {
+
   path <- renv_python_virtualenv_path(name)
+  python <- python %||% renv_python_find(version, path)
 
-  # create virtual environment if none exists
-  if (!file.exists(path)) {
-    vprintf("* Creating virtual environment '%s' ... ", basename(name))
-    python <- python %||% renv_python_find(version, path)
-    renv_python_virtualenv_create(python, path)
-    vwritef("Done!")
+  # if the environment already exists, but is associated with a different
+  # version of Python, prompt the user to re-create that environment
+  if (file.exists(path)) {
+    exe <- renv_python_virtualenv_validate(path, python, version)
+    if (file.exists(exe))
+      return(exe)
   }
 
-  # TODO: what if the environment already exists, but the Python version
-  # is incompatible with the requested version? do we prompt to re-initialize
-  # the environment? or something else?
-  exe <- renv_python_exe(path)
-  request <- version %||% renv_python_version(python)
-  current <- renv_python_version(exe)
-  if (request != current) {
-    fmt <- "Requested Python version '%s' does not match current Python version '%s'."
-    warningf(fmt, request, current)
-  }
+  # if no virtual environment exists, create it
+  vprintf("* Creating virtual environment '%s' ... ", basename(name))
+  renv_python_virtualenv_create(python, path)
+  vwritef("Done!")
+  renv_python_exe(path)
 
-  # use the version of Python in the virtual environment
-  exe
 }
 
-renv_use_python_conda <- function(project,
-                                  python = NULL,
-                                  version = NULL,
-                                  name = NULL)
-{
+renv_use_python_condaenv <- function(project, name, version = NULL, python = NULL) {
+
   if (!requireNamespace("reticulate", quietly = TRUE))
     stopf("use of conda environments requires the 'reticulate' package")
 
   # TODO: how to handle things like a requested Python version here?
-  name <- name %||% file.path(project, "renv/python/condaenvs/renv-condaenv")
+  name <- name %||% renv_python_envpath(project, "conda", version)
   renv_python_conda_select(name)
 
 }

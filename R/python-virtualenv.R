@@ -11,6 +11,38 @@ renv_python_virtualenv_path <- function(name) {
 
 }
 
+renv_python_virtualenv_validate <- function(path, python, version) {
+
+  # compare requested vs. actual versions of Python
+  exe <- renv_python_exe(path)
+  request <- version %||% renv_python_version(python)
+  current <- renv_python_version(exe)
+  if (request == current)
+    return(exe)
+
+  # err in automatic sessions
+  if (!interactive()) {
+    fmt <- "incompatible virtual environment already exists at path '%s'"
+    stopf(fmt, path)
+  }
+
+  renv_pretty_print(
+    sprintf("Requested version %s != %s", request, current),
+    "This virtual environment has already been initialized with a different copy of Python.",
+    "The old virtual environment will be overwritten."
+  )
+
+  if (!proceed()) {
+    renv_scope_options(show.error.messages = FALSE)
+    message("* Operation aborted.")
+    stop("operation aborted", call. = FALSE)
+  }
+
+  unlink(path, recursive = TRUE)
+  return("")
+
+}
+
 renv_python_virtualenv_create <- function(python, path) {
 
   ensure_parent_directory(path)
