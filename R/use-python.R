@@ -13,21 +13,22 @@
 #'   environment variable is checked; if that is not set, then the default
 #'   version of `python` on the `PATH` is used instead.
 #'
-#' @param type The type of Python environment to use. By default, a project-local
-#'   virtual environment will be created with the requested version of Python,
-#'   as supplied by `python`. Ignored if the requested version of `python` lives
-#'   within a pre-existing Python environment.
+#' @param type The type of Python environment to use. When `"auto"` (the
+#'   default), a project-local environment (virtual environments on Linux /
+#'   macOS; conda environments on Windows) will be created. Ignored if the
+#'   requested version of `python` lives within a pre-existing Python
+#'   environment.
 #'
-#' @param name When `type` is `"virtualenv"` or `"conda"`, this argument can be
-#'   used to supply the name or path that should be used for the associated
-#'   Python environment. Ignored if the requested version of `python` lives
-#'   within a pre-existing Python environment.
+#' @param name The name or path that should be used for the associated Python
+#'   environment. If `NULL` and `python` points to a Python executable living
+#'   within a pre-existing virtual environment, that environment will be used.
+#'   Otherwise, a project-local environment will be created instead.
 #'
 #' @param ... Optional arguments; currently unused.
 #'
 #' @export
 use_python <- function(python = NULL,
-                       type = "virtualenv",
+                       type = NULL,
                        name = NULL,
                        ...,
                        project = NULL)
@@ -35,7 +36,7 @@ use_python <- function(python = NULL,
   project <- project %||% renv_project()
 
   # resolve path to Python
-  python <- python %||%
+  python <- Sys.which(python) %||%
     Sys.getenv("RETICULATE_PYTHON", unset = NA) %NA%
     Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA) %NA%
     Sys.which("python")
@@ -53,8 +54,10 @@ use_python <- function(python = NULL,
   # construct path to Python executable
   python <- renv_python_exe(python) %||% python
 
-  # form the lockfile entry to be written
-  type <- renv_python_type(python) %||% type
+  # build information about the version of python requested
+  info <- renv_python_info(python)
+  type <- info$type %||% type %||% if (renv_platform_windows()) "conda" else "virtualenv"
+  name <- name %||% info$name
   version <- renv_python_version(python)
 
   # form the lockfile fields we'll want to write

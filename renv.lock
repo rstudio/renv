@@ -7,7 +7,7 @@ Repositories=
 	CRAN=https://cran.rstudio.com/
 
 [Python]
-Version=2.7.10
+Version=3.7.3
 Type=virtualenv
 
 [R/Package/Matrix]
