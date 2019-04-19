@@ -64,11 +64,7 @@ renv_python_info <- function(python) {
     if (virtualenv) {
       suffix <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"
       python <- file.path(path, suffix)
-
-      # TODO: this is only really valid if the path lies within WORKON_HOME
-      name <- basename(path)
-
-      return(list(python = python, type = "virtualenv", root = path, name = name))
+      return(list(python = python, type = "virtualenv", root = path))
     }
 
     # check for conda-meta
@@ -79,11 +75,7 @@ renv_python_info <- function(python) {
     if (condaenv) {
       suffix <- if (renv_platform_windows()) "python.exe" else "bin/python"
       python <- file.path(path, suffix)
-
-      # TODO: this is only valid if the path truly is a named conda environment
-      name <- basename(path)
-
-      return(list(python = python, type = "conda", root = path, name = name))
+      return(list(python = python, type = "conda", root = path))
     }
 
   })
@@ -117,8 +109,7 @@ renv_python_snapshot <- function(project) {
 
 renv_python_snapshot_impl <- function(python, type, project) {
 
-  switch(
-    type,
+  switch(type,
     system     = renv_python_virtualenv_snapshot(project, python),
     virtualenv = renv_python_virtualenv_snapshot(project, python),
     conda      = renv_python_conda_snapshot(project, python)
@@ -132,8 +123,7 @@ renv_python_restore <- function(project) {
 
 renv_python_restore_impl <- function(python, type, project) {
 
-  switch(
-    type,
+  switch(type,
     virtualenv = renv_python_virtualenv_restore(project, python),
     conda      = renv_python_conda_restore(project, python)
   )
@@ -143,13 +133,44 @@ renv_python_restore_impl <- function(python, type, project) {
 renv_python_envpath <- function(project, type, version) {
 
   name <- switch(type,
-    virtualenv ~ "virtualenvs",
-    conda      ~ "condaenvs",
+    virtualenv = "virtualenvs",
+    conda      = "condaenvs",
     stopf("unrecognized environment type '%s'", type)
   )
 
   fmt <- "renv/python/%s/renv-%s-python-%s"
   suffix <- sprintf(fmt, name, type, version)
   file.path(project, suffix)
+
+}
+
+renv_python_envname <- function(project, path, type) {
+
+  # we return NULL for environments within the project
+  # as these names get auto-constructed from other metadata
+  # related to the Python executable used
+  if (path_within(path, project))
+    return(NULL)
+
+  bn <- basename(path)
+
+  # check for file within virtualenv
+  ok <-
+    type == "virtualenv" &&
+    identical(renv_python_virtualenv_path(bn), path)
+
+  if (ok)
+    return(bn)
+
+  # check for named conda environment
+  ok <-
+    type == "conda" &&
+    bn %in% reticulate::conda_list()$name
+
+  if (ok)
+    return(bn)
+
+  # doesn't match any known named environments; return full path
+  path
 
 }

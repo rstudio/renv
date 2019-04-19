@@ -80,8 +80,10 @@ renv_python_virtualenv_snapshot <- function(project, python) {
   command <- paste(shQuote(python), suffix)
   after <- system(command, intern = TRUE)
 
-  if (setequal(before, after))
+  if (setequal(before, after)) {
+    vwritef("* '%s' is already up to date.", aliased_path(path))
     return(FALSE)
+  }
 
   writeLines(after, con = path)
   vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
@@ -104,8 +106,10 @@ renv_python_virtualenv_restore <- function(project, python) {
   command <- paste(shQuote(python), suffix)
   after <- system(command, intern = TRUE)
 
-  if (setequal(before, after))
+  if (setequal(before, after)) {
+    vwritef("* The Python library is already up to date.")
     return(FALSE)
+  }
 
   diff <- setdiff(before, after)
   file <- renv_tempfile("renv-requirements-", fileext = ".txt")

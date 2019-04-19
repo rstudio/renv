@@ -106,3 +106,6 @@
 - [x] Include current session's R version when computing hash for DESCRIPTION
 
 - [ ] Install of `keras` failed to install `reticulate`?
+
+- [ ] API for activating project and upgrading `renv`, rather than using
+      previously-recorded version of `renv`?
