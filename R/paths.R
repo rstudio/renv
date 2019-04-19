@@ -146,9 +146,7 @@ renv_paths_cache <- function(...) {
 }
 
 renv_paths_extsoft <- function(...) {
-  drive <- Sys.getenv("SYSTEMDRIVE", unset = "C:")
-  root <- file.path(drive, "RBuildTools/extsoft")
-  file.path(root, ...) %||% ""
+  renv_paths_common("extsoft", ...)
 }
 
 
