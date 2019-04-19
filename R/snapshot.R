@@ -46,22 +46,21 @@ snapshot <- function(project  = NULL,
   records <- renv_snapshot_r_packages(library = library)
   new$R$Package <- renv_snapshot_filter_apply(records, filter)
 
+  if (is.null(lockfile))
+    return(new)
+
   # TODO: do we still want to snapshot if the user cancels
   # the R-level snapshot?
   on.exit(renv_python_snapshot(project), add = TRUE)
 
-  old <- NULL
-  if (file.exists(lockfile))
+  old <- list()
+  if (file.exists(lockfile)) {
     old <- renv_lockfile_read(lockfile)
-
-  new$Python <- old$Python
-  if (is.null(lockfile))
-    return(new)
-
-  diff <- renv_lockfile_diff(old, new)
-  if (empty(diff)) {
-    vwritef("* The lockfile is already up to date.")
-    return(invisible(new))
+    diff <- renv_lockfile_diff(old, new)
+    if (empty(diff)) {
+      vwritef("* The lockfile is already up to date.")
+      return(invisible(new))
+    }
   }
 
   # check for missing dependencies and warn if any are discovered
@@ -398,26 +397,24 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
   }
 
-  if (empty(old))
-    return()
+  if (!empty(old)) {
 
-  # only report packages which are being modified; not added / removed
-  keep <- names(actions)[actions %in% c("upgrade", "downgrade", "crossgrade")]
-  old$R$Package <- old$R$Package[keep]
-  new$R$Package <- new$R$Package[keep]
+    # only report packages which are being modified; not added / removed
+    keep <- names(actions)[actions %in% c("upgrade", "downgrade", "crossgrade")]
+    old$R$Package <- old$R$Package[keep]
+    new$R$Package <- new$R$Package[keep]
 
-  # perform the diff
-  diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
-    paste(squish(lhs), squish(rhs), sep = " => ")
-  })
+    # perform the diff
+    diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
+      paste(squish(lhs), squish(rhs), sep = " => ")
+    })
 
-  if (empty(diff))
-    return()
-
-  writeLines("The following lockfile fields will be updated:\n")
-  output <- stack()
-  renv_lockfile_write(diff, delim = ": ", emitter = output$push)
-  writeLines(paste("  ", output$data(), sep = ""))
+    # report it
+    writeLines("The following lockfile fields will be updated:\n")
+    output <- stack()
+    renv_lockfile_write(diff, delim = ": ", emitter = output$push)
+    writeLines(paste("  ", output$data(), sep = ""))
+  }
 
 }
 
