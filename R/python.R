@@ -10,6 +10,17 @@ renv_python_find <- function(version, path = NULL) {
       return(python)
   }
 
+  # ensure some extra items are on the PATH (primarily
+  # working around an RStudio issue where the PATH does
+  # not get loaded on time)
+  if (!renv_platform_windows()) {
+    path <- Sys.getenv("PATH")
+    parts <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1]]
+    augmented <- union(c("/usr/local/bin", "/opt/local/bin"), parts)
+    path <- paste(augmented, collapse = .Platform$path.sep)
+    renv_scope_envvars(PATH = path)
+  }
+
   # try to find a copy of python on the PATH
   idx <- gregexpr("(?:[.]|$)", version)[[1]]
   strings <- substring(version, 1, idx - 1)
