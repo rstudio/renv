@@ -1,27 +1,33 @@
 
-renv_scope_libpaths <- function(new) {
+renv_scope_libpaths <- function(new, .envir = NULL) {
+  .envir <- .envir %||% parent.frame()
   old <- renv_libpaths_set(new)
-  defer(renv_libpaths_set(old), envir = parent.frame())
+  defer(renv_libpaths_set(old), envir = .envir)
 }
 
-renv_scope_options <- function(...) {
+renv_scope_options <- function(..., .envir = NULL) {
+
+  .envir <- .envir %||% parent.frame()
 
   new <- list(...)
   old <- lapply(names(new), getOption)
   names(old) <- names(new)
 
   do.call(base::options, new)
-  defer(do.call(base::options, old), envir = parent.frame())
+  defer(do.call(base::options, old), envir = .envir)
 
 }
 
-renv_scope_locale <- function(category = "LC_ALL", locale = "") {
+renv_scope_locale <- function(category = "LC_ALL", locale = "", .envir = NULL) {
+  .envir <- .envir %||% parent.frame()
   saved <- Sys.getlocale(category)
   Sys.setlocale(category, locale)
-  defer(Sys.setlocale(category, saved), envir = parent.frame())
+  defer(Sys.setlocale(category, saved), envir = .envir)
 }
 
-renv_scope_envvars <- function(...) {
+renv_scope_envvars <- function(..., .envir = NULL) {
+
+  .envir <- .envir %||% parent.frame()
 
   dots <- list(...)
   old <- as.list(Sys.getenv(names(dots), unset = NA))
@@ -34,17 +40,41 @@ renv_scope_envvars <- function(...) {
     Sys.unsetenv(names(old[na]))
     if (length(old[!na]))
       do.call(Sys.setenv, old[!na])
-  }, envir = parent.frame())
+  }, envir = .envir)
 
 }
 
-renv_scope_error_handler <- function() {
+renv_scope_error_handler <- function(.envir = NULL) {
 
   error <- getOption("error")
   if (!is.null(error))
     return()
 
-  defer(options(error = error), envir = parent.frame())
+  .envir <- .envir %||% parent.frame()
+  defer(options(error = error), envir = .envir)
   options(error = renv_error_handler)
+
+}
+
+renv_scope_downloader <- function(.envir = NULL) {
+
+  if (!renv_platform_windows())
+    return(FALSE)
+
+  if (nzchar(Sys.which("curl")))
+    return(FALSE)
+
+  curl <- renv_paths_extsoft("curl-7.64.1-win32-mingw/bin/curl.exe")
+  if (!file.exists(curl))
+    return(FALSE)
+
+  old <- Sys.getenv("PATH", unset = NA)
+  if (is.na(old))
+    return(FALSE)
+
+  new <- paste(normalizePath(dirname(curl)), path, sep = .Platform$path.sep)
+
+  envir = envir %||% parent.frame()
+  renv_scope_envvars(PATH = new, .envir = .envir)
 
 }
