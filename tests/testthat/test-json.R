@@ -21,8 +21,22 @@ test_that("sample JSON strings can be read", {
 })
 
 test_that("we can parse a GitHub remotes specification", {
+  skip_on_cran()
   data <- renv_remotes_parse_github("rstudio/renv")
   expect_true(data$Source == "GitHub")
   expect_true(data$RemoteUsername == "rstudio")
   expect_true(data$RemoteRepo == "renv")
+})
+
+test_that("we can parse a GitHub remotes specification with 'wininet'", {
+  skip_on_cran()
+  skip_if_not(renv_platform_windows())
+
+  renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wininet")
+  data <- renv_remotes_parse_github("rstudio/renv")
+  expect_true(data$Source == "GitHub")
+  expect_true(data$RemoteUsername == "rstudio")
+  expect_true(data$RemoteRepo == "renv")
+
+
 })

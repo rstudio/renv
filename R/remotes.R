@@ -60,6 +60,12 @@ renv_remotes_parse_github <- function(entry) {
   download(url, destfile = shafile, quiet = TRUE, headers = headers)
   sha <- readChar(shafile, file.info(shafile)$size, TRUE)
 
+  # check for JSON response (in case where our headers weren't sent)
+  if (nchar(sha) > 40) {
+    json <- renv_json_read(text = sha)
+    sha <- json$sha
+  }
+
   # get the DESCRIPTION contents
   fmt <- "https://raw.githubusercontent.com/%s/%s/%s/DESCRIPTION"
   url <- sprintf(fmt, user, repo, sha)
