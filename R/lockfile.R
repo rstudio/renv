@@ -143,7 +143,13 @@ renv_lockfile_init_python <- function(project) {
   if (is.na(python))
     return(NULL)
 
+  if (!file.exists(python))
+    return(NULL)
+
   info <- renv_python_info(python)
+  if (is.null(info))
+    return(NULL)
+
   version <- renv_python_version(python)
   type <- info$type
   root <- info$root

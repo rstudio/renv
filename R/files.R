@@ -300,10 +300,10 @@ renv_file_edit <- function(path) {
 
 }
 
-renv_file_find <- function(path, predicate) {
+renv_file_find <- function(path, predicate, limit = 3) {
 
   parent <- dirname(path)
-  while (path != parent) {
+  while (path != parent && limit > 0) {
 
     if (file.exists(path)) {
       status <- predicate(path)
@@ -312,6 +312,7 @@ renv_file_find <- function(path, predicate) {
     }
 
     path <- parent; parent <- dirname(path)
+    limit <- limit - 1
 
   }
 
