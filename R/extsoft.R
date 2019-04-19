@@ -5,7 +5,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
   ensure_directory(extsoft)
 
   root <- "https://s3.amazonaws.com/rstudio-buildtools/extsoft"
-  files <- c("local323.zip", "spatial324.zip")
+  files <- c("local323.zip", "spatial324.zip", "curl-7.64.1_1-win32-mingw.zip")
 
   # check for missing installs
   files <- Filter(renv_extsoft_install_required, files)

@@ -13,6 +13,9 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
     return(destfile)
   }
 
+  # on Windows, try using our local curl binary if available
+  renv_scope_downloader()
+
   if (!quiet) vwritef("Retrieving '%s' ...", url)
 
   # if the file already exists, compare its size with
@@ -97,6 +100,7 @@ renv_download_default <- function(url, destfile, type, request, headers) {
     destfile = destfile,
     method   = "auto",
     headers  = headers,
+    mode     = "wb",
     quiet    = TRUE
   )
 
