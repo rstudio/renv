@@ -119,6 +119,7 @@ renv_python_snapshot_impl <- function(python, type, project) {
 
   switch(
     type,
+    system     = renv_python_virtualenv_snapshot(project, python),
     virtualenv = renv_python_virtualenv_snapshot(project, python),
     conda      = renv_python_conda_snapshot(project, python)
   )
@@ -141,10 +142,10 @@ renv_python_restore_impl <- function(python, type, project) {
 
 renv_python_envpath <- function(project, type, version) {
 
-  name <- case(
-    type == "virtualenv" ~ "virtualenvs",
-    type == "conda"      ~ "condaenvs",
-    TRUE                 ~ type
+  name <- switch(type,
+    virtualenv ~ "virtualenvs",
+    conda      ~ "condaenvs",
+    stopf("unrecognized environment type '%s'", type)
   )
 
   fmt <- "renv/python/%s/renv-%s-python-%s"
