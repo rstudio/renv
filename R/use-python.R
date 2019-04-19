@@ -101,7 +101,7 @@ use_python <- function(python = NULL,
   lockfile <- if (file.exists(lockpath))
     renv_lockfile_read(lockpath)
   else
-    renv_lockfile_init()
+    renv_lockfile_init(project)
 
   if (!identical(fields, lockfile$Python)) {
     lockfile$Python <- fields

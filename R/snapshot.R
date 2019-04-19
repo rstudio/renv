@@ -41,7 +41,7 @@ snapshot <- function(project  = NULL,
 
   renv_snapshot_preflight(project, library)
 
-  new <- renv_lockfile_init()
+  new <- renv_lockfile_init(project)
 
   records <- renv_snapshot_r_packages(library = library)
   new$R$Package <- renv_snapshot_filter_apply(records, filter)

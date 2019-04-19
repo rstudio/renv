@@ -2,7 +2,9 @@
 renv_error_handler <- function() {
 
   calls <- head(sys.calls(), n = -1L)
-  formatted <- map_chr(calls, format)
+  formatted <- map_chr(calls, function(call) {
+    trunc(paste(format(call), collapse = " "))
+  })
 
   header <- "Traceback (most recent calls first):"
   numbers <- format(seq_along(formatted))
