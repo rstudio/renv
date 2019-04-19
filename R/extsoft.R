@@ -11,7 +11,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
   files <- Filter(renv_extsoft_install_required, files)
   if (empty(files)) {
     if (!quiet) vwritef("* External software is up to date.")
-    return(FALSE)
+    return(TRUE)
   }
 
   if (interactive()) {
@@ -81,6 +81,12 @@ renv_extsoft_use <- function(quiet = FALSE) {
   localsoft <- paste("LOCAL_SOFT", extsoft, sep = " = ")
   contents <- inject(contents, "^#?LOCAL_SOFT", localsoft)
 
+  localcpp <- "LOCAL_CPPFLAGS = -I\"$(LOCAL_SOFT)/include\""
+  contents <- inject(contents, "^#?LOCAL_CPPFLAGS", localcpp)
+
+  locallibs <- "LOCAL_LIBS = -L\"$(LOCAL_SOFT)/lib$(R_ARCH)\" -L\"$(LOCAL_SOFT)/lib\""
+  contents <- inject(contents, "^#?LOCAL_LIBS", locallibs)
+
   libxml <- paste("LIB_XML", extsoft, sep = " = ")
   contents <- inject(contents, "^#?LIB_XML", libxml)
 
@@ -90,7 +96,7 @@ renv_extsoft_use <- function(quiet = FALSE) {
   if (interactive()) {
 
     renv_pretty_print(
-      c(localsoft, libxml),
+      c(localsoft, libxml, localcpp, locallibs),
       "The following entries will be added to ~/.R/Makevars:",
       "These tools will be used when compiling R packages from source.",
       wrap = FALSE
