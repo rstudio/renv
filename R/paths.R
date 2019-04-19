@@ -108,8 +108,7 @@ renv_paths_common <- function(name, prefixes = NULL, ...)
 
   # form rest of path
   prefixed <- file.path(root, paste(prefixes, collapse = "/"))
-  components <- list(prefixed, ...)
-  do.call(file.path, components) %||% ""
+  file.path(prefixed, ...) %||% ""
 }
 
 renv_paths_project <- function(..., project = NULL) {
