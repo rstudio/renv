@@ -14,6 +14,19 @@ renv_extsoft_install <- function(quiet = FALSE) {
     return(FALSE)
   }
 
+  if (interactive()) {
+
+    renv_pretty_print(
+      files,
+      "The following external software tools will be installed:",
+      sprintf("Tools will be installed into '%s'.", aliased_path(extsoft))
+    )
+
+    if (!proceed())
+      return(FALSE)
+
+  }
+
   for (file in files) {
 
     # download the file
