@@ -104,6 +104,7 @@ renv_lockfile_init <- function(project) {
   lockfile$renv         <- list(Version = renv_package_version("renv"))
   lockfile$R            <- renv_lockfile_init_r(project)
   lockfile$Bioconductor <- renv_lockfile_init_bioconductor(project)
+  lockfile$Python       <- renv_lockfile_init_python(project)
   class(lockfile) <- "renv_lockfile"
   lockfile
 
@@ -134,6 +135,21 @@ renv_lockfile_init_bioconductor <- function(project) {
 
   list(Repositories = repos)
 
+}
+
+renv_lockfile_init_python <- function(project) {
+
+  python <- Sys.getenv("RENV_PYTHON", unset = NA)
+  if (is.na(python))
+    return(NULL)
+
+  info <- renv_python_info(python)
+  version <- renv_python_version(python)
+  type <- info$type
+  root <- info$root
+  name <- renv_python_envname(project, root, type)
+
+  list(Version = version, Type = type, Name = name)
 }
 
 renv_lockfile_load <- function(project = NULL) {
