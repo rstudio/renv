@@ -320,9 +320,9 @@ renv_download_auth_gitlab <- function() {
 
 renv_download_headers <- function(url, type, headers) {
 
-  # can't download without curl or wget
+  # check for compatible download method
   method <- renv_download_file_method()
-  if (!method %in% c("curl", "wget"))
+  if (!method %in% c("libcurl", "curl", "wget"))
     return(list())
 
   # perform the download
