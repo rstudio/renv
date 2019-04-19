@@ -96,9 +96,10 @@ renv_prefix_version <- function() {
 
 renv_paths_common <- function(name, prefixes = NULL, ...)
 {
-  # check for absolute path supplied by user
+  # check for single absolute path supplied by user
+  # TODO: handle multiple?
   end <- file.path(...)
-  if (length(end) && path_absolute(end))
+  if (length(end) == 1 && path_absolute(end))
     return(end)
 
   # compute root path
@@ -106,7 +107,8 @@ renv_paths_common <- function(name, prefixes = NULL, ...)
   root <- Sys.getenv(envvar, unset = renv_paths_root(name))
 
   # form rest of path
-  components <- as.list(c(root, prefixes, ...))
+  prefixed <- file.path(root, paste(prefixes, collapse = "/"))
+  components <- list(prefixed, ...)
   do.call(file.path, components) %||% ""
 }
 
@@ -146,7 +148,7 @@ renv_paths_cache <- function(...) {
 }
 
 renv_paths_extsoft <- function(...) {
-  renv_paths_common("extsoft", ...)
+  renv_paths_common("extsoft", c(), ...)
 }
 
 

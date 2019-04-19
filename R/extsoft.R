@@ -19,11 +19,14 @@ renv_extsoft_install <- function(quiet = FALSE) {
     renv_pretty_print(
       files,
       "The following external software tools will be installed:",
-      sprintf("Tools will be installed into '%s'.", aliased_path(extsoft))
+      sprintf("Tools will be installed into '%s'.", aliased_path(extsoft)),
+      wrap = FALSE
     )
 
-    if (!proceed())
+    if (!proceed()) {
+      message("* Operation aborted.")
       return(FALSE)
+    }
 
   }
 
@@ -35,7 +38,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
     download(url, destfile = destfile, quiet = quiet)
 
     # write manifest
-    manifest <- renv_paths_extsoft("manifest", file, "manifest.rds")
+    manifest <- renv_extsoft_manifest_path(file)
     ensure_parent_directory(manifest)
     listed <- unzip(destfile, list = TRUE)
     saveRDS(listed, file = manifest)
@@ -45,11 +48,14 @@ renv_extsoft_install <- function(quiet = FALSE) {
 
   }
 
+  vwritef("* External software successfully updated.")
+  TRUE
+
 }
 
 renv_extsoft_install_required <- function(file) {
 
-  manifest <- renv_paths_extsoft("manifest", file, "manifest.rds")
+  manifest <- renv_extsoft_manifest_path(file)
   if (!file.exists(manifest))
     return(TRUE)
 
@@ -64,59 +70,46 @@ renv_extsoft_install_required <- function(file) {
 
 }
 
-# TODO: is there something more appropriate than modifying the installed Makeconf?
 renv_extsoft_use <- function(quiet = FALSE) {
 
   extsoft <- renv_paths_extsoft()
-  paths <- file.path(R.home("etc"), c("i386", "x64"), "Makeconf")
+  path <- "~/.R/Makevars"
 
-  status <- file.access(paths, 2)
-  if (!all(status == 0)) {
+  ensure_parent_directory(path)
+  original <- contents <- if (file.exists(path)) readLines(path) else character()
 
-    lines <- c(
-      paste("LOCAL_SOFT", extsoft, sep = " = "),
-      paste("LIB_XML", extsoft, sep = " = ")
-    )
+  localsoft <- paste("LOCAL_SOFT", extsoft, sep = " = ")
+  contents <- inject(contents, "^#?LOCAL_SOFT", localsoft)
+
+  libxml <- paste("LIB_XML", extsoft, sep = " = ")
+  contents <- inject(contents, "^#?LIB_XML", libxml)
+
+  if (identical(original, contents))
+    return(TRUE)
+
+  if (interactive()) {
 
     renv_pretty_print(
-      lines,
-      "Please add the following lines to your Makeconf files to complete installation:",
+      c(localsoft, libxml),
+      "The following entries will be added to ~/.R/Makevars:",
+      "These tools will be used when compiling R packages from source.",
       wrap = FALSE
     )
 
-    renv_pretty_print(
-      normalizePath(paths, winslash = "/"),
-      "R Makeconf files are located at:",
-      wrap = FALSE
-    )
-
-    return(FALSE)
-
-  }
-
-  for (path in paths) {
-
-    # some installations may be 32-bit or 64-bit only; in that case we
-    # may not see the associated Makeconf file
-    if (!file.exists(path))
-      next
-
-    original <- contents <- readLines(path)
-
-    localsoft <- paste("LOCAL_SOFT", extsoft, sep = " = ")
-    contents <- inject(contents, "^#?LOCAL_SOFT", localsoft, "^#?NM_FILTER")
-
-    libxml <- paste("LIB_XML", extsoft, sep = " = ")
-    contents <- inject(contents, "^#?LIB_XML", libxml, "^#?LOCAL_SOFT")
-
-    if (!identical(original, contents)) {
-      if (!quiet) vwritef("* Updating '%s'.", path)
-      writeLines(contents, path)
+    if (!proceed()) {
+      message("* Operation aborted.")
+      return(FALSE)
     }
 
   }
 
-  invisible(TRUE)
+  if (!quiet) vwritef("* '%s' has been updated.", path)
+  writeLines(contents, path)
+  TRUE
 
 }
 
+renv_extsoft_manifest_path <- function(file) {
+  name <- paste(file, "manifest", sep = ".")
+  renv_paths_extsoft("manifest", name)
+}

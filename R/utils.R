@@ -143,7 +143,7 @@ proceed <- function() {
 inject <- function(contents,
                    pattern,
                    replacement,
-                   anchor)
+                   anchor = NULL)
 {
   # first, check to see if the pattern matches a line
   index <- grep(pattern, contents)
@@ -153,7 +153,7 @@ inject <- function(contents,
   }
 
   # otherwise, check for the anchor, and insert after
-  index <- grep(anchor, contents)
+  index <- if (!is.null(anchor)) grep(anchor, contents)
   if (length(index)) {
     contents <- c(
       head(contents, n = index),
@@ -163,7 +163,8 @@ inject <- function(contents,
     return(contents)
   }
 
-  stopf("edit failed")
+  # otherwise, just append the new line
+  c(contents, replacement)
 }
 
 env <- function(...) {
