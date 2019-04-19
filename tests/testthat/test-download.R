@@ -32,7 +32,7 @@ test_that("we can successfully tweak the user agent string", {
   headers <- c("Key" = "Value")
 
   before <- utils$makeUserAgent
-  expect_true(renv_download_default_agent_scope(headers = headers, force = TRUE))
+  expect_true(renv_download_default_agent_scope_impl(headers = headers))
   after <- utils$makeUserAgent
 
   expect_identical(
