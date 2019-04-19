@@ -94,11 +94,21 @@ renv_download_default <- function(url, destfile, type, request, headers) {
   if (request != "GET")
     stopf("the default downloader does not support %s requests", request)
 
+  # try and ensure headers are set for older versions of R
   renv_download_default_agent_scope(headers)
+
+  # prefer the 'libcurl' method if available, but fall back
+  # to 'auto' if not available
+  method <- "auto"
+  libcurl <- capabilities("libcurl")
+  if (length(libcurl) && libcurl)
+    method <- "libcurl"
+
+  # perform the download
   download.file(
     url      = url,
     destfile = destfile,
-    method   = "auto",
+    method   = method,
     headers  = headers,
     mode     = "wb",
     quiet    = TRUE
@@ -106,17 +116,22 @@ renv_download_default <- function(url, destfile, type, request, headers) {
 
 }
 
-renv_download_default_agent_scope <- function(headers, force = FALSE) {
+renv_download_default_agent_scope <- function(headers) {
 
-  if (!force) {
+  if (is.null(headers))
+    return(FALSE)
 
-    if (is.null(headers))
-      return(FALSE)
+  if (getRversion() >= "3.6.0")
+    return(FALSE)
 
-    if (getRversion() >= "3.6.0")
-      return(FALSE)
+  envir <- parent.frame()
+  renv_download_default_agent_scope_impl(headers, envir)
 
-  }
+}
+
+renv_download_default_agent_scope_impl <- function(headers, envir = NULL) {
+
+  envir <- envir %||% parent.frame()
 
   utils <- asNamespace("utils")
   makeUserAgent <- utils$makeUserAgent
@@ -124,7 +139,7 @@ renv_download_default_agent_scope <- function(headers, force = FALSE) {
     return(FALSE)
 
   do.call("unlockBinding", list("makeUserAgent", utils))
-  defer(do.call("lockBinding", list("makeUserAgent", utils)), envir = parent.frame())
+  defer(do.call("lockBinding", list("makeUserAgent", utils)), envir = envir)
 
   agent <- makeUserAgent(FALSE)
   all <- c("User-Agent" = agent, headers)
