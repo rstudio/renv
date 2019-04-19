@@ -1,9 +1,21 @@
 
 #' Use Python
 #'
-#' Associate a version of Python with your project. When active, `renv` will
-#' take care of capturing your Python dependencies when `renv::snapshot()` is called,
-#' and re-installing your Python dependencies when `renv::restore()` is called.
+#' Associate a version of Python with your project.
+#'
+#' When Python integration is active, `renv` will:
+#'
+#' - Save metadata about the requested version of Python in `renv.lock` -- in
+#'   particular, the Python version, and the Python type ("virtualenv", "conda",
+#'   "system"),
+#'
+#' - On load, set the `RETICULATE_PYTHON` environment variable, so that the
+#'   `reticulate` package can automatically use the requested copy of Python
+#'   as appropriate,
+#'
+#' - Capture the set of installed Python packages during `renv::snapshot()`,
+#'
+#' - Reinstall the set of recorded Python packages during `renv::restore()`.
 #'
 #' @inheritParams renv-params
 #'
@@ -11,7 +23,9 @@
 #'   binary on the system, or the path to a Python binary within an
 #'   already-existing Python environment. If `NULL`, the `RETICULATE_PYTHON`
 #'   environment variable is checked; if that is not set, then the default
-#'   version of `python` on the `PATH` is used instead.
+#'   version of `python` on the `PATH` is used instead. As a special case,
+#'   `use_python(FALSE)` can be used to deactivate Python integration with
+#'   a project.
 #'
 #' @param type The type of Python environment to use. When `"auto"` (the
 #'   default), a project-local environment (virtual environments on Linux /
@@ -28,12 +42,15 @@
 #'
 #' @export
 use_python <- function(python = NULL,
-                       type = NULL,
+                       type = c("auto", "virtualenv", "conda", "system"),
                        name = NULL,
                        ...,
                        project = NULL)
 {
   project <- project %||% renv_project()
+
+  if (identical(python, FALSE))
+    return(renv_python_deactivate(project))
 
   # resolve path to Python
   python <- Sys.which(python) %||%
@@ -57,23 +74,27 @@ use_python <- function(python = NULL,
 
   # build information about the version of python requested
   info <- renv_python_info(python)
-  type <- info$type %||% type %||% if (renv_platform_windows()) "conda" else "virtualenv"
+  type <- info$type %||% match.arg(type)
 
-  # if a Python virtual environment or conda environment was requested,
-  # check for existence; if it doesn't exist create it now and update
-  # the Python binary path (since we need to save that locally)
-  name <- name %||% renv_python_envpath(project, type, version)
-  python <- case(
-    is.null(type)        ~ python,
-    type == "virtualenv" ~ renv_use_python_virtualenv(project, name, version, python),
-    type == "conda"      ~ renv_use_python_condaenv(project, name, version, python)
-  )
+  # handle 'auto' type
+  if (identical(type, "auto"))
+    type <- ifelse(renv_platform_windows(), "conda", "virtualenv")
 
   # form the lockfile fields we'll want to write
   fields <- list()
   fields$Version <- version
   fields$Type    <- type
   fields$Name    <- name
+
+  # if a Python virtual environment or conda environment was requested,
+  # check for existence; if it doesn't exist create it now
+  if (type != "system") {
+    name <- name %||% renv_python_envpath(project, type, version)
+    python <- case(
+      type == "virtualenv" ~ renv_use_python_virtualenv(project, name, version, python),
+      type == "conda"      ~ renv_use_python_condaenv(project, name, version, python)
+    )
+  }
 
   # update the lockfile
   lockpath <- file.path(project, "renv.lock")
@@ -91,18 +112,12 @@ use_python <- function(python = NULL,
   renv_load_python(fields)
 
   # notify user
-  if (identical(type, "virtualenv")) {
-    if (is.null(name))
-      vwritef("* Python initialized. Using local virtual environment.")
-    else
-      vwritef("* Python initialized. Using virtual environment '%s'.", name)
-  } else if (identical(type, "conda")) {
-    if (is.null(name))
-      vwritef("* Python initialized. Using local conda environment.")
-    else
-      vwritef("* Python initialized. Using conda environment '%s'.", name)
+  if (is.null(type)) {
+    fmt <- "* Activated Python %s (%s)."
+    writef(fmt, version, aliased_path(python))
   } else {
-    vwritef("* Python initialized. Using Python '%s' [%s].", python, version)
+    fmt <- "* Activated Python %s [%s; %s]"
+    writef(fmt, version, type, aliased_path(name))
   }
 
   # report to user
@@ -115,6 +130,7 @@ use_python <- function(python = NULL,
 
 renv_use_python_virtualenv <- function(project, name, version = NULL, python = NULL) {
 
+  name <- name %||% renv_python_envpath(project, "virtualenv", version)
   path <- renv_python_virtualenv_path(name)
   python <- python %||% renv_python_find(version, path)
 
@@ -142,5 +158,22 @@ renv_use_python_condaenv <- function(project, name, version = NULL, python = NUL
   # TODO: how to handle things like a requested Python version here?
   name <- name %||% renv_python_envpath(project, "conda", version)
   renv_python_conda_select(name)
+
+}
+
+renv_python_deactivate <- function(project) {
+
+  file <- file.path(project, "renv.lock")
+  if (!file.exists(file))
+    return(TRUE)
+
+  lockfile <- renv_lockfile_read(file)
+  if (is.null(lockfile$Python))
+    return(TRUE)
+
+  lockfile$Python <- NULL
+  renv_lockfile_write(lockfile, file = file)
+  vwritef("* Deactived Python -- the lockfile has been updated.")
+  TRUE
 
 }

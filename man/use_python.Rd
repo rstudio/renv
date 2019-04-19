@@ -4,15 +4,17 @@
 \alias{use_python}
 \title{Use Python}
 \usage{
-use_python(python = NULL, type = NULL, name = NULL, ...,
-  project = NULL)
+use_python(python = NULL, type = c("auto", "virtualenv", "conda",
+  "system"), name = NULL, ..., project = NULL)
 }
 \arguments{
 \item{python}{The path to a Python binary. This can be the path to a Python
 binary on the system, or the path to a Python binary within an
 already-existing Python environment. If \code{NULL}, the \code{RETICULATE_PYTHON}
 environment variable is checked; if that is not set, then the default
-version of \code{python} on the \code{PATH} is used instead.}
+version of \code{python} on the \code{PATH} is used instead. As a special case,
+\code{use_python(FALSE)} can be used to deactivate Python integration with
+a project.}
 
 \item{type}{The type of Python environment to use. When \code{"auto"} (the
 default), a project-local environment (virtual environments on Linux /
@@ -32,7 +34,18 @@ project will be used. If no project has been specifically activated,
 the current working directory is used.}
 }
 \description{
-Associate a version of Python with your project. When active, \code{renv} will
-take care of capturing your Python dependencies when \code{renv::snapshot()} is called,
-and re-installing your Python dependencies when \code{renv::restore()} is called.
+Associate a version of Python with your project.
+}
+\details{
+When Python integration is active, \code{renv} will:
+\itemize{
+\item Save metadata about the requested version of Python in \code{renv.lock} -- in
+particular, the Python version, and the Python type ("virtualenv", "conda",
+"system"),
+\item On load, set the \code{RETICULATE_PYTHON} environment variable, so that the
+\code{reticulate} package can automatically use the requested copy of Python
+as appropriate,
+\item Capture the set of installed Python packages during \code{renv::snapshot()},
+\item Reinstall the set of recorded Python packages during \code{renv::restore()}.
+}
 }
