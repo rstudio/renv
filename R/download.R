@@ -95,6 +95,7 @@ renv_download_default <- function(url, destfile, type, request, headers) {
     stopf("the default downloader does not support %s requests", request)
 
   # try and ensure headers are set for older versions of R
+  headers <- c(headers, renv_download_auth(url, type))
   renv_download_default_agent_scope(headers)
 
   # prefer the 'libcurl' method if available, but fall back
