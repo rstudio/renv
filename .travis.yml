@@ -1,0 +1,12 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+cache: packages
+
+matrix:
+  include:
+  - r: devel
+  - r: release
+  - r: oldrel
+  - r: 3.3
+  - r: 3.2
