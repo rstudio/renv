@@ -180,7 +180,7 @@ renv_settings_impl <- function(name, validate, default, update) {
 
 }
 
-#' Settings
+#' Project Settings
 #'
 #' Define project-local settings that can be used to adjust the behavior of
 #' `renv` with your particular project.
@@ -205,23 +205,6 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'   that package (e.g. sources or binaries for that package are not publicly
 #'   available, or you have been unable to orchestrate the pre-requisites for
 #'   installing some packages from source on your machine).
-#'
-#' }
-#'
-#' \item{\code{use.cache}}{
-#'
-#'   Use a global cache of \R packages. When active, `renv` will install
-#'   packages into a global cache, and link packages from the cache into your
-#'   `renv` projects as appropriate. This can greatly save on disk space
-#'   and install time when for \R packages which are used across multiple
-#'   projects in the same environment.
-#'
-#' }
-#'
-#' \item{\code{auto.snapshot}}{
-#'
-#'   Automatically snapshot changes to a project's private library after
-#'   installing a package with [install()].
 #'
 #' }
 #'
@@ -251,20 +234,6 @@ settings <- list(
     name     = "external.libraries",
     validate = is.character,
     default  = character(),
-    update   = NULL
-  ),
-
-  use.cache = renv_settings_impl(
-    name     = "use.cache",
-    validate = function(x) length(x) == 1 && is.logical(x),
-    default  = TRUE,
-    update   = renv_settings_updated_cache
-  ),
-
-  auto.snapshot = renv_settings_impl(
-    name     = "auto.snapshot",
-    validate = function(x) length(x) == 1 && is.logical(x),
-    default  = TRUE,
     update   = NULL
   )
 

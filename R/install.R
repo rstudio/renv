@@ -65,7 +65,7 @@ renv_install <- function(project, records) {
 
   # figure out whether we can use the cache during install
   linkable <-
-    settings$use.cache() &&
+    renv_config_use_cache() &&
     identical(library, renv_paths_library(project = project))
 
   linker <- if (linkable) renv_file_link else renv_file_copy
@@ -103,7 +103,7 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
   renv_install_report_status(record, status)
 
   # link into cache
-  if (settings$use.cache())
+  if (renv_config_use_cache())
     renv_cache_synchronize(record, link = identical(linker, renv_file_link))
 
 }

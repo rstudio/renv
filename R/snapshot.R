@@ -420,16 +420,16 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 renv_snapshot_auto <- function(project) {
 
+  # don't auto-snapshot if disabled by user
+  if (!renv_config_auto_snapshot())
+    return(FALSE)
+
   # only automatically snapshot the current project
   if (!identical(project, renv_project(default = NULL)))
     return(FALSE)
 
   # don't auto-snapshot if the project hasn't been initialized
   if (!renv_project_initialized(project = project))
-    return(FALSE)
-
-  # don't auto-snapshot if the user has explicitly disabled it
-  if (!settings$auto.snapshot(project = project))
     return(FALSE)
 
   # don't auto-snapshot if we don't have a library
