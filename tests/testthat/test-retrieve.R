@@ -21,6 +21,9 @@ test_that("we can retrieve packages from git", {
   skip_on_cran()
   skip_if_not_installed("remotes")
 
+  # TODO
+  skip_on_travis()
+
   record <- list(
     Package   = "skeleton",
     Source    = "git",
