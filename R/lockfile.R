@@ -77,6 +77,19 @@
 #' retrieved from its corresponding source, will also be included as
 #' appropriate (e.g. for packages installed from GitHub).
 #'
+#' @section \[Python\]:
+#'
+#' Metadata related to the version of Python used with this project (if any).
+#'
+#' \tabular{ll}{
+#' \strong{Version} \tab The version of Python being used. \cr
+#' \strong{Type}    \tab The type of Python environment being used ("virtualenv", "conda", "system") \cr
+#' \strong{Name}    \tab The (optional) name of the environment being used.
+#' }
+#'
+#' Note that the `Name` field may be empty. In that case, a project-local Python
+#' environment will be used instead (when not directly using a system copy of Python).
+#'
 #' @family reproducibility
 #' @name lockfile
 #' @rdname lockfile
