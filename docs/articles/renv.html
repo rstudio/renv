@@ -204,7 +204,7 @@
 <li>The user-level <code>.Renviron</code>;</li>
 <li>A file at <code>$(R RHOME)/etc/Renviron.site</code>.</li>
 </ul>
-<p>While we recommend enabling the cache by default, if you’re having trouble with <code>renv</code> when the cache is enabled, it can be disabled on a project-specific basis with <code>renv::settings$use.cache(FALSE)</code>. Doing this will ensure that packages are then installed into your project library directly, without attempting to link and use packages from the <code>renv</code> cache.</p>
+<p>While we recommend enabling the cache by default, if you’re having trouble with <code>renv</code> when the cache is enabled, it can be disabled on a project-specific basis with <code>renv::renv_config_use_cache(FALSE)</code>. Doing this will ensure that packages are then installed into your project library directly, without attempting to link and use packages from the <code>renv</code> cache.</p>
 <p>If you find a problematic package has entered the cache (for example, an installed package became corrupted), that package can be removed with the <code><a href="../reference/purge.html">renv::purge()</a></code> function.</p>
 </div>
 <div id="installation-from-source" class="section level2">

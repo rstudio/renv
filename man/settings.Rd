@@ -3,8 +3,8 @@
 \docType{data}
 \name{settings}
 \alias{settings}
-\title{Settings}
-\format{An object of class \code{list} of length 4.}
+\title{Project Settings}
+\format{An object of class \code{list} of length 2.}
 \usage{
 settings
 }
@@ -33,23 +33,6 @@ in some global library, but for some reason \code{renv} is not able to install
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).
-
-}
-
-\item{\code{use.cache}}{
-
-Use a global cache of \R packages. When active, \code{renv} will install
-packages into a global cache, and link packages from the cache into your
-\code{renv} projects as appropriate. This can greatly save on disk space
-and install time when for \R packages which are used across multiple
-projects in the same environment.
-
-}
-
-\item{\code{auto.snapshot}}{
-
-Automatically snapshot changes to a project's private library after
-installing a package with \code{\link[=install]{install()}}.
 
 }
 

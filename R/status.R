@@ -43,7 +43,7 @@ renv_status <- function(project, library, lockfile) {
   }
 
   # report status of cache
-  if (settings$use.cache(project = project))
+  if (renv_config_use_cache())
     renv_cache_diagnose()
 
   # compare the lockfile with current state of library
