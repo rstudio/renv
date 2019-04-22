@@ -5,7 +5,7 @@
 \title{Snapshot a Project}
 \usage{
 snapshot(project = NULL, library = NULL,
-  lockfile = file.path(project, "renv.lock"), confirm = interactive())
+  lockfile = renv_lockfile_path(project), confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active

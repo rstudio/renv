@@ -20,7 +20,7 @@ status <- function(project = NULL,
   renv_scope_error_handler()
   project <- project %||% renv_project()
   library <- library %||% renv_paths_library(project = project)
-  lockfile <- lockfile %||% file.path(project, "renv.lock")
+  lockfile <- lockfile %||% renv_lockfile_path(project)
   invisible(renv_status(project, library, lockfile))
 }
 
@@ -34,7 +34,7 @@ renv_status <- function(project, library, lockfile) {
 
   # report missing lockfile
   if (!file.exists(lockfile)) {
-    text <- if (identical(lockfile, file.path(project, "renv.lock")))
+    text <- if (identical(lockfile, renv_lockfile_path(project)))
       "* This project has not yet been snapshotted -- 'renv.lock' does not exist."
     else
       sprintf("* Lockfile '%s' does not exist.", aliased_path(lockfile))

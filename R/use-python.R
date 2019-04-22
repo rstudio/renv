@@ -97,15 +97,10 @@ use_python <- function(python = NULL,
   }
 
   # update the lockfile
-  lockpath <- file.path(project, "renv.lock")
-  lockfile <- if (file.exists(lockpath))
-    renv_lockfile_read(lockpath)
-  else
-    renv_lockfile_init(project)
-
+  lockfile <- renv_lockfile_load(project)
   if (!identical(fields, lockfile$Python)) {
     lockfile$Python <- fields
-    renv_lockfile_write(lockfile, file = lockpath)
+    renv_lockfile_save(lockfile, project)
   }
 
   # re-initialize with these settings
@@ -163,7 +158,7 @@ renv_use_python_condaenv <- function(project, name, version = NULL, python = NUL
 
 renv_python_deactivate <- function(project) {
 
-  file <- file.path(project, "renv.lock")
+  file <- renv_lockfile_path(project)
   if (!file.exists(file))
     return(TRUE)
 

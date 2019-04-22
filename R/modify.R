@@ -16,7 +16,7 @@ modify <- function(project = NULL) {
 
 renv_modify_impl <- function(project) {
 
-  path <- file.path(project, "renv.lock")
+  path <- renv_lockfile_path(project)
   if (!file.exists(path))
     stopf("lockfile '%s' does not exist", aliased_path(path))
 
