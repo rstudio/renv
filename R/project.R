@@ -20,7 +20,7 @@ renv_project <- function(default = getwd()) {
 
 renv_project_initialized <- function(project) {
 
-  lockfile <- file.path(project, "renv.lock")
+  lockfile <- renv_lockfile_path(project)
   if (file.exists(lockfile))
     return(TRUE)
 

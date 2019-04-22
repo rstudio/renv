@@ -14,7 +14,7 @@ history <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
 
-  lockpath <- file.path(project, "renv.lock")
+  lockpath <- renv_lockfile_path(project)
   if (!file.exists(lockpath))
     return(data.frame())
 
@@ -45,7 +45,7 @@ history <- function(project = NULL) {
 revert <- function(project = NULL, commit = "HEAD") {
   renv_scope_error_handler()
   project <- project %||% renv_project()
-  lockpath <- file.path(project, "renv.lock")
+  lockpath <- renv_lockfile_path(project)
   renv_git_preflight()
   system2("git", c("checkout", commit, "--", shQuote(lockpath)))
   system2("git", c("reset", "HEAD", shQuote(lockpath)), stdout = FALSE, stderr = FALSE)

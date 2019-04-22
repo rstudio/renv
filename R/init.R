@@ -71,7 +71,7 @@ init <- function(project = NULL, settings = NULL, force = FALSE) {
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
-  lockfile <- file.path(project, "renv.lock")
+  lockfile <- renv_lockfile_path(project)
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile)

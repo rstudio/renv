@@ -122,7 +122,7 @@ renv_activate_version_activate <- function(project) {
 
 renv_activate_version_lockfile <- function(project) {
 
-  path <- file.path(project, "renv.lock")
+  path <- renv_lockfile_path(project)
   if (!file.exists(path))
     return(NULL)
 
