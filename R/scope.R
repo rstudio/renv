@@ -56,6 +56,8 @@ renv_scope_error_handler <- function(.envir = NULL) {
 
 }
 
+# used to enforce usage of curl 7.64.1 within the
+# renv_paths_extsoft folder when available on Windows
 renv_scope_downloader <- function(.envir = NULL) {
 
   if (!renv_platform_windows())
@@ -72,9 +74,9 @@ renv_scope_downloader <- function(.envir = NULL) {
   if (is.na(old))
     return(FALSE)
 
-  new <- paste(normalizePath(dirname(curl)), path, sep = .Platform$path.sep)
+  new <- paste(normalizePath(dirname(curl)), old, sep = .Platform$path.sep)
 
-  envir = envir %||% parent.frame()
+  .envir <- .envir %||% parent.frame()
   renv_scope_envvars(PATH = new, .envir = .envir)
 
 }
