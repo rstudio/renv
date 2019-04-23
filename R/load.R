@@ -43,7 +43,28 @@ renv_load_bioconductor <- function(fields) {
 }
 
 renv_load_project <- function(project) {
-  Sys.setenv(RENV_PROJECT = normalizePath(project, winslash = "/"))
+
+  # record the active project in this session
+  project <- normalizePath(project, winslash = "/")
+  Sys.setenv(RENV_PROJECT = project)
+
+  # read project list
+  projects <- renv_paths_root("projects")
+  projlist <- character()
+  if (file.exists(projects))
+    projlist <- readLines(projects, warn = FALSE, encoding = "UTF-8")
+
+  # if the project is already recorded, nothing to do
+  if (project %in% projlist)
+    return(TRUE)
+
+  # otherwise, update the project list
+  renv_scope_locale("LC_COLLATE", "C")
+  projlist <- sort(c(projlist, project))
+  writeLines(enc2utf8(projlist), projects, useBytes = TRUE)
+
+  TRUE
+
 }
 
 renv_load_profile <- function(project = NULL) {
