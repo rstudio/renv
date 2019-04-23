@@ -4,6 +4,9 @@ context("Retrieve")
 test_that("we can retrieve packages from Bitbucket", {
   skip_on_cran()
 
+  # TODO
+  skip_on_travis()
+
   record <- list(
     Package        = "skeleton",
     Source         = "bitbucket",
@@ -39,6 +42,9 @@ test_that("we can retrieve packages from git", {
 test_that("we can retrieve packages from GitHub", {
   skip_on_cran()
 
+  # TODO
+  skip_on_travis()
+
   record <- list(
     Package        = "skeleton",
     Source         = "github",
@@ -55,6 +61,9 @@ test_that("we can retrieve packages from GitHub", {
 test_that("we can retrieve packages from GitLab", {
   skip_on_cran()
 
+  # TODO
+  skip_on_travis()
+
   record <- list(
     Package        = "skeleton",
     Source         = "gitlab",
@@ -69,6 +78,7 @@ test_that("we can retrieve packages from GitLab", {
 
 test_that("we can retrieve packages with URLs", {
   skip_on_cran()
+  skip_on_travis()
   record <- renv_remotes_parse("https://api.github.com/repos/kevinushey/skeleton/tarball")
   renv_test_retrieve(record)
 })
