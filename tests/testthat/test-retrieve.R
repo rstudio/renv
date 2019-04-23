@@ -9,7 +9,7 @@ test_that("we can retrieve packages from Bitbucket", {
     Source         = "bitbucket",
     RemoteRepo     = "skeleton",
     RemoteUsername = "kevinushey",
-    RemoteSha      = "209c4e48e505e545ad7ab915904d983b5ab83b93"
+    RemoteSha      = "958296dbbbf7f1d82f7f5dd1b121c7558604809f"
   )
 
   renv_test_retrieve(record)
@@ -28,7 +28,7 @@ test_that("we can retrieve packages from git", {
     Package   = "skeleton",
     Source    = "git",
     RemoteUrl = "git://github.com/kevinushey/skeleton.git",
-    RemoteSha = "209c4e48e505e545ad7ab915904d983b5ab83b93"
+    RemoteSha = "958296dbbbf7f1d82f7f5dd1b121c7558604809f"
   )
 
   renv_test_retrieve(record)
@@ -44,7 +44,7 @@ test_that("we can retrieve packages from GitHub", {
     Source         = "github",
     RemoteUsername = "kevinushey",
     RemoteRepo     = "skeleton",
-    RemoteSha      = "209c4e48e505e545ad7ab915904d983b5ab83b93"
+    RemoteSha      = "958296dbbbf7f1d82f7f5dd1b121c7558604809f"
   )
 
   renv_test_retrieve(record)
@@ -60,7 +60,7 @@ test_that("we can retrieve packages from GitLab", {
     Source         = "gitlab",
     RemoteUsername = "kevinushey",
     RemoteRepo     = "skeleton",
-    RemoteSha      = "209c4e48e505e545ad7ab915904d983b5ab83b93"
+    RemoteSha      = "958296dbbbf7f1d82f7f5dd1b121c7558604809f"
   )
 
   renv_test_retrieve(record)
