@@ -181,7 +181,7 @@ renv_retrieve_git <- function(record) {
   commands <- renv_template_replace(template, data)
   command <- paste(commands, collapse = " && ")
   if (renv_platform_windows())
-    command <- paste("cmd.exe /C", command)
+    command <- paste(comspec(), "/C", command)
 
   status <- system(command)
   if (status != 0L) {
