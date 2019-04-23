@@ -150,12 +150,87 @@ renv_cache_list <- function(packages = NULL) {
   versions <- list.files(names, full.names = TRUE)
   hashes <- list.files(versions, full.names = TRUE)
   paths <- list.files(hashes, full.names = TRUE)
-  file.path(paths, "DESCRIPTION")
+  paths
+}
+
+renv_cache_prune <- function() {
+
+  # find projects monitored by renv
+  projects <- renv_paths_root("projects")
+  projlist <- readLines(projects, warn = FALSE, encoding = "UTF-8")
+
+  # inform user if any projects are missing
+  missing <- !file.exists(projlist)
+  if (any(missing)) {
+
+    renv_pretty_print(
+      projlist[missing],
+      "The following projects are monitored by renv, but no longer exist:",
+      "These project will no longer be monitored by renv.",
+      wrap = FALSE
+    )
+
+    if (!proceed()) {
+      message("* Operation aborted.")
+      return(FALSE)
+    }
+
+    writeLines(projlist[!missing], projects, useBytes = TRUE)
+
+  }
+
+  # for each project, find packages used in their renv private library,
+  # and look for entries in the cache
+  used <- uapply(projlist[!missing], function(project) {
+
+    library <- file.path(project, "renv/library")
+    platform <- list.files(library, full.names = TRUE)
+    version <- list.files(platform, full.names = TRUE)
+    packages <- list.files(version, full.names = TRUE)
+
+    map_chr(packages, function(package) {
+      record <- renv_description_read(package)
+      record$Hash <- renv_hash_description(package)
+      renv_cache_package_path(record)
+    }, USE.NAMES = FALSE)
+
+  })
+
+  # check what packages are actually available in the cache
+  available <- renv_cache_list()
+
+  diff <- setdiff(available, used)
+  if (empty(diff)) {
+    vwritef("* The cache is up to date.")
+    return(TRUE)
+  }
+
+  names    <- format(path_component(diff, 1))
+  hashes   <- format(path_component(diff, 2))
+  versions <- format(path_component(diff, 3))
+
+  renv_pretty_print(
+    sprintf("%s %s [Hash: %s]", names, versions, hashes),
+    "The following packages are installed in the cache but no longer used:",
+    "These packages will be removed.",
+    wrap = FALSE
+  )
+
+  if (!proceed()) {
+    message("* Operation aborted.")
+    return(FALSE)
+  }
+
+  unlink(diff, recursive = TRUE)
+  vwritef("* %i package(s) have been removed.", length(diff))
+  return(TRUE)
+
 }
 
 renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
-  info <- file.info(paths, extra_cols = FALSE)
+  descpaths <- file.path(paths, "DESCRIPTION")
+  info <- file.info(descpaths, extra_cols = FALSE)
   missing <- is.na(info$isdir)
   bad <- rownames(info)[missing]
   if (empty(bad))
@@ -190,7 +265,7 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
 renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
 
-  hash <- path_component(paths, 3)
+  hash <- path_component(paths, 2)
   computed <- map_chr(paths, renv_hash_description)
   diff <- hash != computed
 

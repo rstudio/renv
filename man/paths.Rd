@@ -80,7 +80,26 @@ package sources should be placed in a file at one of these locations:
 }
 
 where \code{.<ext>} is \code{.tar.gz} for source packages, or \code{.tgz} for binaries on
-macOS and \code{.zip} on Windows. During a \code{restore()}, packages installed from
-an unknown source will be searched for in this location.
+macOS and \code{.zip} for binaries on Windows. During a \code{restore()}, packages
+installed from an unknown source will be searched for in this location.
+}
+
+\section{Projects}{
+
+
+In order to determine whether a package can safely be removed from the cache,
+\code{renv} needs to know which projects are using packages from the cache. Since
+packages may be symlinked from the cache, and symlinks are by nature a one-way
+link, projects need to also report that they're using the \code{renv} cache.
+
+To accomplish this, whenever \code{renv} is used with a project, it will record
+itself as being used within a file located at:
+\itemize{
+\item \code{${RENV_PATHS_ROOT}/projects}
+}
+
+This file is list of projects currently using the \code{renv} cache. With this,
+\code{renv} can crawl projects registered with \code{renv} and use that to determine if
+any packages within the cache are no longer in use, and can be removed.
 }
 

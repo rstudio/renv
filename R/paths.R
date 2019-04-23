@@ -79,8 +79,24 @@
 #' - `<project>/renv/local/<package>/<package>_<version>.<ext>`
 #'
 #' where `.<ext>` is `.tar.gz` for source packages, or `.tgz` for binaries on
-#' macOS and `.zip` on Windows. During a `restore()`, packages installed from
-#' an unknown source will be searched for in this location.
+#' macOS and `.zip` for binaries on Windows. During a `restore()`, packages
+#' installed from an unknown source will be searched for in this location.
+#'
+#' @section Projects:
+#'
+#' In order to determine whether a package can safely be removed from the cache,
+#' `renv` needs to know which projects are using packages from the cache. Since
+#' packages may be symlinked from the cache, and symlinks are by nature a one-way
+#' link, projects need to also report that they're using the `renv` cache.
+#'
+#' To accomplish this, whenever `renv` is used with a project, it will record
+#' itself as being used within a file located at:
+#'
+#' - `${RENV_PATHS_ROOT}/projects`
+#'
+#' This file is list of projects currently using the `renv` cache. With this,
+#' `renv` can crawl projects registered with `renv` and use that to determine if
+#' any packages within the cache are no longer in use, and can be removed.
 #'
 #' @rdname paths
 #' @name paths
