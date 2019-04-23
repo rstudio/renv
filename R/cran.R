@@ -13,7 +13,7 @@ renv_available_packages_impl <- function(type) {
 
   # force a CRAN mirror when needed
   repos <- getOption("repos") %||% character()
-  repos[repos == "@CRAN@"] <- "https://cran.rstudio.com"
+  repos[repos == "@CRAN@"] <- "https://cran.rstudio.com/"
   options(repos = repos)
 
   # request available packages
