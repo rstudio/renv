@@ -178,8 +178,12 @@ renv_lockfile_sort <- function(lockfile) {
   # ensure C locale for consistent sorting
   renv_scope_locale("LC_COLLATE", "C")
 
-  # sort R packages (if any)
+  # extract R records (nothing to do if empty)
   records <- lockfile$R$Package
+  if (empty(records))
+    return(lockfile)
+
+  # sort the records
   sorted <- records[sort(names(records))]
   lockfile$R$Package <- sorted
 

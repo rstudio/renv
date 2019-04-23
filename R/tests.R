@@ -55,6 +55,17 @@ renv_tests_root <- function(path = getwd()) {
   }
 }
 
+renv_tests_init_workarounds <- function() {
+
+  if (renv_platform_macos()) {
+
+    if (!nzchar(Sys.getenv("TZ")))
+      Sys.setenv(TZ = "America/Los_Angeles")
+
+  }
+
+
+}
 renv_tests_init_working_dir <- function() {
   if (exists(".rs.getProjectDirectory")) {
     home <- get(".rs.getProjectDirectory")
@@ -129,6 +140,7 @@ renv_tests_init <- function() {
   if (identical(Sys.getenv("RENV_TESTS_INITIALIZED"), "TRUE"))
     return()
 
+  renv_tests_init_workarounds()
   renv_tests_init_working_dir()
   renv_tests_init_envvars()
   renv_tests_init_options()
