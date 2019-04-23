@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Clean a Project — clean • renv</title>
+<title>Use Python — use_python • renv</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -31,9 +31,9 @@
 
 
 
-<meta property="og:title" content="Clean a Project — clean" />
+<meta property="og:title" content="Use Python — use_python" />
 
-<meta property="og:description" content="Clean up a project and its associated R libraries." />
+<meta property="og:description" content="Associate a version of Python with your project." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,40 +121,71 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Clean a Project</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/clean.R'><code>R/clean.R</code></a></small>
-    <div class="hidden name"><code>clean.Rd</code></div>
+    <h1>Use Python</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/use-python.R'><code>R/use-python.R</code></a></small>
+    <div class="hidden name"><code>use_python.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Clean up a project and its associated <span style="R">R</span> libraries.</p>
+    <p>Associate a version of Python with your project.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>clean</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
+    <pre class="usage"><span class='fu'>use_python</span>(<span class='kw'>python</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"auto"</span>, <span class='st'>"virtualenv"</span>, <span class='st'>"conda"</span>,
+  <span class='st'>"system"</span>), <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>python</th>
+      <td><p>The path to a Python binary. This can be the path to a Python
+binary on the system, or the path to a Python binary within an
+already-existing Python environment. If <code>NULL</code>, the <code>RETICULATE_PYTHON</code>
+environment variable is checked; if that is not set, then the default
+version of <code>python</code> on the <code>PATH</code> is used instead. As a special case,
+<code>use_python(FALSE)</code> can be used to deactivate Python integration with
+a project.</p></td>
+    </tr>
+    <tr>
+      <th>type</th>
+      <td><p>The type of Python environment to use. When <code>"auto"</code> (the
+default), a project-local environment (virtual environments on Linux /
+macOS; conda environments on Windows) will be created. Ignored if the
+requested version of <code>python</code> lives within a pre-existing Python
+environment.</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>The name or path that should be used for the associated Python
+environment. If <code>NULL</code> and <code>python</code> points to a Python executable living
+within a pre-existing virtual environment, that environment will be used.
+Otherwise, a project-local environment will be created instead.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Optional arguments; currently unused.</p></td>
+    </tr>
     <tr>
       <th>project</th>
       <td><p>The project directory. If <code>NULL</code>, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.</p></td>
     </tr>
-    <tr>
-      <th>confirm</th>
-      <td><p>Boolean; prompt the user before taking any action?</p></td>
-    </tr>
     </table>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The following actions will be performed:</p><ul>
-<li><p>Leftover temporary directories in the project library will be removed.</p></li>
-<li><p>Non-system packages installed in the system library will be removed.</p></li>
-<li><p>Unused packages within the project will be removed.</p></li>
+    <p>When Python integration is active, <code>renv</code> will:</p><ul>
+<li><p>Save metadata about the requested version of Python in <code>renv.lock</code> -- in
+particular, the Python version, and the Python type ("virtualenv", "conda",
+"system"),</p></li>
+<li><p>On load, set the <code>RETICULATE_PYTHON</code> environment variable, so that the
+<code>reticulate</code> package can automatically use the requested copy of Python
+as appropriate,</p></li>
+<li><p>Capture the set of installed Python packages during <code><a href='snapshot.html'>renv::snapshot()</a></code>,</p></li>
+<li><p>Reinstall the set of recorded Python packages during <code><a href='restore.html'>renv::restore()</a></code>.</p></li>
 </ul>
     
 

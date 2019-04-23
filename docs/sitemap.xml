@@ -10,6 +10,9 @@
     <loc>https://rstudio.github.io/renv//reference/clean.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/renv//reference/config.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/renv//reference/deactivate.html</loc>
   </url>
   <url>
@@ -71,6 +74,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv//reference/upgrade.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/renv//reference/use_python.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv//articles/local-sources.html</loc>

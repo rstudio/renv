@@ -61,7 +61,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -131,7 +131,7 @@ Properly handle broken links in the project library (e.g. if the cache moved or
 <li><p><input type="checkbox" disabled><code>rehash()</code> – tools for validating package hashes + their install location? <code>rehash()</code> would look at packages in the cache and update their cache location if the caching scheme changed.</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/clean.html">clean()</a></code> function to remove ununsed packages from the library. (If the cache is enabled, they will remain in the cache).</p></li>
 <li><p><input type="checkbox" disabled>
-Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://www.rdocumentation.org/packages/base/topics/options">options(repos)</a></code> would suffice here I believe)</p></li>
+Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://rdrr.io/r/base/options.html">options(repos)</a></code> would suffice here I believe)</p></li>
 <li><p><input type="checkbox" disabled>
 Use custom <code>Makevars</code> file and set some variables that certain packages need but don’t properly declare? (E.g. older versions of the <code>maps</code> package need <code>awk</code> installed)</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/restore.html">restore()</a></code> will attempt to repair the dependency tree during restore; e.g. dependent packages in the lockfile will be downloaded and installed as required. Should we prompt the user to <code><a href="reference/snapshot.html">snapshot()</a></code> afterwards so that the newly-reinstalled dependencies can be captured in the lockfile?</p></li>
@@ -149,7 +149,7 @@ Consider <code>.renvignore</code> or similar for controlling what files / direct
 <li><p><input type="checkbox" disabled checked>
 Properly handle <code>RENV_DEFAULTS</code> case (they get lost if the user attempts to build and reload a package managed by <code>renv</code>, which screws up RStudio’s notion of the library paths if the project is later deactivated)</p></li>
 <li><p><input type="checkbox" disabled>
-Audit usages of <code>renv_file_exists()</code>. When do we care about broken symlinks? <code><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists()</a></code> returns FALSE for broken symlinks; <code>renv_file_exists()</code> returns TRUE.</p></li>
+Audit usages of <code>renv_file_exists()</code>. When do we care about broken symlinks? <code><a href="https://rdrr.io/r/base/files.html">file.exists()</a></code> returns FALSE for broken symlinks; <code>renv_file_exists()</code> returns TRUE.</p></li>
 <li><p><input type="checkbox" disabled checked>
 De-couple the ‘retrieve’ + ‘install’ steps during restore.</p></li>
 <li><p><input type="checkbox" disabled checked>
@@ -187,6 +187,10 @@ Only report R package entries that have changed if they exist both before and af
 Include current session’s R version when computing hash for DESCRIPTION</p></li>
 <li><p><input type="checkbox" disabled>
 Install of <code>keras</code> failed to install <code>reticulate</code>?</p></li>
+<li><p><input type="checkbox" disabled>
+API for activating project and upgrading <code>renv</code>, rather than using previously-recorded version of <code>renv</code>?</p></li>
+<li><p><input type="checkbox" disabled>
+Treat user library as a source when restoring projects?</p></li>
 </ul>
 
   </div>

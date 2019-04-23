@@ -64,7 +64,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -153,7 +153,7 @@ the current working directory is used.</p></td>
       <th>library</th>
       <td><p>The library from which packages should be installed. When
 <code>NULL</code>, the active library (that is, the first entry reported in
-<code><a href='https://www.rdocumentation.org/packages/base/topics/libPaths'>.libPaths()</a></code>) is used instead.</p></td>
+<code><a href='https://rdrr.io/r/base/libPaths.html'>.libPaths()</a></code>) is used instead.</p></td>
     </tr>
     </table>
     
@@ -164,9 +164,7 @@ In particular, this means that the local cache of package installations is
 used when possible. This helps to avoid re-downloading packages that have
 already been downloaded before, and re-compiling packages from source when
 a binary copy of that package is already available.</p>
-    
-
-    <p>Note that this interface is subject to change -- the goal is to hook into
+<p>Note that this interface is subject to change -- the goal is to hook into
 separate package installation backends in the future.</p>
     
 

@@ -65,7 +65,7 @@ snapshot()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -135,8 +135,8 @@ snapshot()." />
     </div>
 
     <pre class="usage"><span class='fu'>restore</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>actions</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"install"</span>, <span class='st'>"remove"</span>, <span class='st'>"upgrade"</span>, <span class='st'>"downgrade"</span>, <span class='st'>"crossgrade"</span>),
-  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
+  <span class='kw'>actions</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"install"</span>, <span class='st'>"remove"</span>, <span class='st'>"upgrade"</span>, <span class='st'>"downgrade"</span>, <span class='st'>"crossgrade"</span>),
+  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,16 +173,9 @@ the lockfile. See <strong>Actions</strong> for more details.</p></td>
     <h2 class="hasAnchor" id="actions"><a class="anchor" href="#actions"></a>Actions</h2>
 
     
-
-    
-
-    
-
     <p><code>renv</code> classifies the different actions that will be taken during restore
 into five fundamental types:</p>
-    
-
-    <table class='table'>
+<table class='table'>
 <tr><td><code>install</code></td><td>Install a package recorded in the lockfile,
 but not currently installed in the project library.</td></tr>
 <tr><td><code>remove</code></td><td>Remove a package installed in the project library,
@@ -199,11 +192,6 @@ happen if, for example, the source of a particular package was changed
 (e.g. a package originally installed from GitHub was later installed
 from CRAN).</td></tr>
 </table>
-
-    
-
-    
-
     <p>This can be useful if you want to perform only non-destructive changes during
 restore -- for example, you can invoke <code>renv::restore(actions = "install")</code>
 to avoid modifying or removing packages that have already been installed into

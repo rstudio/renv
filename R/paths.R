@@ -103,11 +103,8 @@
 NULL
 
 renv_prefix_platform <- function() {
-  file.path(R.version$platform, getRversion()[1, 1:2])
-}
-
-renv_prefix_version <- function() {
-  paste("R", getRversion()[1, 1:2], sep = "-")
+  version <- paste("R", getRversion()[1, 1:2], sep = "-")
+  file.path(version, R.version$platform)
 }
 
 renv_paths_common <- function(name, prefixes = NULL, ...)
@@ -147,19 +144,19 @@ renv_paths_source <- function(...) {
 }
 
 renv_paths_bootstrap <- function(...) {
-  renv_paths_common("bootstrap", c(renv_prefix_version(), renv_prefix_platform()), ...)
+  renv_paths_common("bootstrap", c(renv_prefix_platform()), ...)
 }
 
 renv_paths_binary <- function(...) {
-  renv_paths_common("binary", c(renv_prefix_version()), ...)
+  renv_paths_common("binary", c(renv_prefix_platform()), ...)
 }
 
 renv_paths_repos <- function(...) {
-  renv_paths_common("repos", c(renv_prefix_version()), ...)
+  renv_paths_common("repos", c(renv_prefix_platform()), ...)
 }
 
 renv_paths_cache <- function(...) {
-  renv_paths_common("cache", c(renv_prefix_version(), renv_cache_version()), ...)
+  renv_paths_common("cache", c(renv_cache_version(), renv_prefix_platform()), ...)
 }
 
 renv_paths_extsoft <- function(...) {

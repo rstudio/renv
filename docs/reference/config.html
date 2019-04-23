@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Clean a Project — clean • renv</title>
+<title>User-Level Configuration of renv — config • renv</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -31,9 +31,9 @@
 
 
 
-<meta property="og:title" content="Clean a Project — clean" />
+<meta property="og:title" content="User-Level Configuration of renv — config" />
 
-<meta property="og:description" content="Clean up a project and its associated R libraries." />
+<meta property="og:description" content="Configure different behaviors of renv." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,50 +121,61 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Clean a Project</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/clean.R'><code>R/clean.R</code></a></small>
-    <div class="hidden name"><code>clean.Rd</code></div>
+    <h1>User-Level Configuration of renv</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/config.R'><code>R/config.R</code></a></small>
+    <div class="hidden name"><code>config.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Clean up a project and its associated <span style="R">R</span> libraries.</p>
+    <p>Configure different behaviors of <code>renv</code>.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>clean</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
-    
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>project</th>
-      <td><p>The project directory. If <code>NULL</code>, then the active
-project will be used. If no project has been specifically activated,
-the current working directory is used.</p></td>
-    </tr>
-    <tr>
-      <th>confirm</th>
-      <td><p>Boolean; prompt the user before taking any action?</p></td>
-    </tr>
-    </table>
-    
+        
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The following actions will be performed:</p><ul>
-<li><p>Leftover temporary directories in the project library will be removed.</p></li>
-<li><p>Non-system packages installed in the system library will be removed.</p></li>
-<li><p>Unused packages within the project will be removed.</p></li>
+    <p>For a given configuration option:</p><ol>
+<li><p>If an <span style="R">R</span> option of the form <code>renv.config.&lt;name&gt;</code> is available,
+then that option's value will be used;</p></li>
+<li><p>If an environment variable of the form <code>RENV_CONFIG_&lt;NAME&gt;</code> is available,
+then that option's value will be used;</p></li>
+<li><p>Otherwise, the default for that particular configuration value is used.</p></li>
+</ol>
+    <p>Any periods (<code>.</code>)s in the option name are transformed into underscores (<code>_</code>)
+in the environment variable name, and vice versa. For example, the
+configuration option <code>auto.snapshot</code> could be configured as:</p><ul>
+<li><p><code>options(renv.config.auto.snapshot = &lt;...&gt;)</code></p></li>
+<li><p><code>Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = &lt;...&gt;)</code></p></li>
 </ul>
+    <p>Note that if both the R option and the environment variable are defined, the
+R option will be used instead. Environment variables can be more useful when
+you want a particular configuration to be automatically inherited by child
+processes; if that behavior is not desired, then the R option may be
+preferred.</p>
+<p>If you want to set and persist these options across multiple projects, it is
+recommended that you set them in your user startup files (e.g. in
+<code>~/.Rprofile</code>).</p>
+    
+    <h2 class="hasAnchor" id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h2>
+
+    
+    <p>The following <code>renv</code> configuration options are available:</p>
+<table class='table'>
+<tr><td><strong>Name</strong></td><td><strong>Type</strong></td><td><strong>Description</strong></td></tr>
+<tr><td><code>auto.snapshot</code></td><td><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code></td><td>Automatically snapshot changes to the project library after a call to <code><a href='install.html'>install()</a></code>.</td></tr>
+<tr><td><code>use.cache</code></td><td><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code></td><td>Use the global cache when installing packages?</td></tr>
+</table>
     
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#configuration">Configuration</a></li>
           </ul>
 
   </div>

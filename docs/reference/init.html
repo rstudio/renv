@@ -67,7 +67,7 @@ are then installed to the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -162,8 +162,7 @@ misusages of <code>init()</code>.</p></td>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The primary steps taken when initializing a new project are:</p>
-    <ol>
+    <p>The primary steps taken when initializing a new project are:</p><ol>
 <li><p><span style="R">R</span> package dependencies are discovered within the <span style="R">R</span> files used within
 the project with <code><a href='dependencies.html'>dependencies()</a></code>;</p></li>
 <li><p>Discovered packages are copied into the <code>renv</code> global package cache, so
@@ -174,17 +173,11 @@ the project's private library;</p></li>
 with <code><a href='snapshot.html'>snapshot()</a></code>;</p></li>
 <li><p>The project is activated with <code><a href='activate.html'>activate()</a></code>.</p></li>
 </ol>
-    
-
-    
-
-    <p>This mimics the workflow provided by <code><a href='https://www.rdocumentation.org/packages/packrat/topics/init'>packrat::init()</a></code>, but with more
+    <p>This mimics the workflow provided by <code><a href='https://rdrr.io/pkg/packrat/man/init.html'>packrat::init()</a></code>, but with more
 reasonable default behaviors -- in particular, <code>renv</code> does not attempt
 to download and store package sources, and <code>renv</code> will re-use packages
 that have already been installed whenever possible.</p>
-    
-
-    <p>If <code>renv</code> sees that the associated project has already been initialized and
+<p>If <code>renv</code> sees that the associated project has already been initialized and
 has a lockfile, then it will attempt to infer the appropriate action to take
 based on the presence of a private library. If no library is available,
 <code>renv</code> will restore the private library from the lockfile; if one is
@@ -195,13 +188,7 @@ further action.</p>
     <h2 class="hasAnchor" id="infrastructure"><a class="anchor" href="#infrastructure"></a>Infrastructure</h2>
 
     
-
-    
-
-    
-
-    <p><code>renv</code> will write or amend the following files in the project:</p>
-    <ul>
+    <p><code>renv</code> will write or amend the following files in the project:</p><ul>
 <li><p><code>.Rprofile</code>: An auto-loader will be installed, so that new R sessions
 launched within the project are automatically loaded.</p></li>
 <li><p><code>renv/activate.R</code>: This script is run by the previously-mentioned
@@ -212,8 +199,6 @@ private library, as it does not need to be</p></li>
 package development; e.g. when attempting to build or install a package
 using <code>renv</code>.</p></li>
 </ul>
-    
-
     
 
   </div>

@@ -66,7 +66,7 @@ state of your system R libraries for use within a project library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -156,7 +156,7 @@ the current working directory is used.</p></td>
     <tr>
       <th>library</th>
       <td><p>The <span style="R">R</span> library to be hydrated. When <code>NULL</code>, the active
-library as reported by <code><a href='https://www.rdocumentation.org/packages/base/topics/libPaths'>.libPaths()</a></code> is used.</p></td>
+library as reported by <code><a href='https://rdrr.io/r/base/libPaths.html'>.libPaths()</a></code> is used.</p></td>
     </tr>
     <tr>
       <th>missing</th>
@@ -171,43 +171,26 @@ for more details.</p></td>
     <p><code>hydrate()</code> attempts to re-use packages already installed on your system, to
 avoid unnecessary attempts to download and install packages from CRAN.
 <code>hydrate()</code> will attempt to discover <span style="R">R</span> packages from the following sources
-(in order):</p>
-    <ul>
+(in order):</p><ul>
 <li><p>The user library,</p></li>
 <li><p>The site library,</p></li>
 <li><p>The system library,</p></li>
 <li><p>The <code>renv</code> cache.</p></li>
 </ul>
-    
-
-    
-
     <p>If package is discovered in one of these locations, <code>renv</code> will attempt to
 copy or link that package into the requested library as appropriate.</p>
     
     <h2 class="hasAnchor" id="missing-packages"><a class="anchor" href="#missing-packages"></a>Missing Packages</h2>
 
     
-
-    
-
-    
-
     <p>The <code>missing</code> argument controls what happens when your project requests the
 hydration of packages which are not currently installed on your system. The
 possible values are:</p>
-    
-
-    <table class='table'>
+<table class='table'>
 <tr><td><strong>Option</strong></td><td><strong>Action</strong></td></tr>
 <tr><td><code>"install"</code></td><td>Install the latest version of missing packages from CRAN.</td></tr>
 <tr><td><code>"ignore"</code></td><td>Do nothing; missing packages will not be installed.</td></tr>
 </table>
-
-    
-
-    
-
     <p>The <span style="R">R</span> option <code>renv.hydrate.missing</code> can be used to control the default behavior
 of <code>renv::hydrate()</code>.</p>
     

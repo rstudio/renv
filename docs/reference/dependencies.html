@@ -67,7 +67,7 @@ the form:" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -138,7 +138,7 @@ the form:</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>dependencies</span>(<span class='kw'>path</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/getwd'>getwd</a></span>())</pre>
+    <pre class="usage"><span class='fu'>dependencies</span>(<span class='kw'>path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -152,18 +152,12 @@ containing such files.</p></td>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    
-
     <ul>
-<li><p><code><a href='https://www.rdocumentation.org/packages/base/topics/library'>library(package)</a></code></p></li>
-<li><p><code><a href='https://www.rdocumentation.org/packages/base/topics/library'>require(package)</a></code></p></li>
-<li><p><code><a href='https://www.rdocumentation.org/packages/base/topics/ns-load'>requireNamespace("package")</a></code></p></li>
+<li><p><code><a href='https://rdrr.io/r/base/library.html'>library(package)</a></code></p></li>
+<li><p><code><a href='https://rdrr.io/r/base/library.html'>require(package)</a></code></p></li>
+<li><p><code><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace("package")</a></code></p></li>
 <li><p><code>package::method()</code></p></li>
 </ul>
-    
-
-    
-
     <p>For <span style="R">R</span> package projects, dependencies expressed in the <code>DESCRIPTION</code> file
 will also be discovered. Note that the <code>rmarkdown</code> package is required in
 order to crawl dependencies in R Markdown files.</p>
@@ -171,11 +165,6 @@ order to crawl dependencies in R Markdown files.</p>
     <h2 class="hasAnchor" id="ignoring-files"><a class="anchor" href="#ignoring-files"></a>Ignoring Files</h2>
 
     
-
-    
-
-    
-
     <p>By default, <code>renv</code> will read your project's <code>.gitignore</code>s (if any) to
 determine whether certain files or folders should be included when traversing
 directories. If preferred, you can also create a <code>.renvignore</code> file (with
@@ -183,21 +172,14 @@ entries of the same format as a standard <code>.gitignore</code> file) to tell <
 which files to ignore within a directory. If both <code>.renvignore</code> and
 <code>.gitignore</code> exist within a folder, the <code>.renvignore</code> will be used in lieu of
 the <code>.gitignore</code>.</p>
-    
-
-    <p>See <a href='https://git-scm.com/docs/gitignore'>https://git-scm.com/docs/gitignore</a> for documentation on the
-<code>.gitignore</code> format. Some simple examples here:</p>
-    <pre># ignore all R Markdown files
+<p>See <a href='https://git-scm.com/docs/gitignore'>https://git-scm.com/docs/gitignore</a> for documentation on the
+<code>.gitignore</code> format. Some simple examples here:</p><pre># ignore all R Markdown files
 *.Rmd
-
-# ignore all data folders
+    # ignore all data folders
 data/
-
-# ignore only data folders from the root of the project
+    # ignore only data folders from the root of the project
 /data/
 </pre>
-    
-
     
 
   </div>
