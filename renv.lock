@@ -1,5 +1,5 @@
 [renv]
-Version=0.3.0-67
+Version=0.3.0-70
 
 [R]
 Version=3.5.3
@@ -112,6 +112,11 @@ Hash=8f5de6298ce595a8b08a2308d7ce16aa
 Package=digest
 Version=0.6.18
 Source=CRAN
+RemoteType=standard
+RemoteRef=digest
+RemoteRepos=https://cran.rstudio.com
+RemotePkgType=macos
+RemoteSha=0.6.18
 Hash=3a0646cd1e9116f7bf03ca88e1e562f8
 
 [R/Package/evaluate]

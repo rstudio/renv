@@ -39,9 +39,8 @@ local({
   )
 
   base <- Sys.getenv("RENV_PATHS_ROOT", unset = file.path(default, "renv"))
-  prefix <- file.path(R.version$platform, getRversion()[1, 1:2])
   rversion <- paste("R", getRversion()[1, 1:2], sep = "-")
-  path <- file.path(base, "bootstrap", rversion, prefix, "renv", version)
+  path <- file.path(base, "bootstrap", rversion, R.version$platform, "renv", version)
 
   # try to load renv from one of these paths
   if (requireNamespace("renv", lib.loc = path, quietly = TRUE))

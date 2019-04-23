@@ -1,7 +1,7 @@
 
 # tools for interacting with the renv global package cache
 renv_cache_version <- function() {
-  "v2"
+  "v3"
 }
 
 renv_cache_package_path <- function(record) {

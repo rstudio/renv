@@ -109,3 +109,5 @@
 
 - [ ] API for activating project and upgrading `renv`, rather than using
       previously-recorded version of `renv`?
+
+- [ ] Treat user library as a source when restoring projects?
