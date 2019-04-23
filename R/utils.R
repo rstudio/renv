@@ -246,3 +246,7 @@ compatible <- function(lhs, rhs) {
   TRUE
 
 }
+
+comspec <- function() {
+  Sys.getenv("COMSPEC", unset = "cmd.exe")
+}
