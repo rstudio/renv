@@ -82,9 +82,10 @@ renv_purge_impl <- function(package,
   if (confirm || renv_verbose()) {
 
     fmt <- "%s %s [%s]"
-    package <- path_component(paths, 3)
-    version <- path_component(paths, 2)
-    entries <- sprintf(fmt, package, version, aliased_path(paths))
+    hash    <- format(path_component(paths, 1))
+    version <- format(path_component(paths, 2))
+    package <- format(path_component(paths, 3))
+    entries <- sprintf(fmt, package, version, hash)
 
     renv_pretty_print(
       entries,
