@@ -22,7 +22,6 @@ test_that("we can retrieve packages from Bitbucket", {
 
 test_that("we can retrieve packages from git", {
   skip_on_cran()
-  skip_if_not_installed("remotes")
 
   # TODO
   skip_on_travis()
