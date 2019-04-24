@@ -64,6 +64,9 @@ renv_purge_impl <- function(package,
   if (all(!file.exists(paths)))
     return(bail())
 
+  # now add package name
+  paths <- file.path(paths, path_component(paths, 3))
+
   # check that these entries exist
   missing <- !file.exists(paths)
   if (any(missing)) {
@@ -81,14 +84,8 @@ renv_purge_impl <- function(package,
 
   if (confirm || renv_verbose()) {
 
-    fmt <- "%s %s [%s]"
-    hash    <- format(path_component(paths, 1))
-    version <- format(path_component(paths, 2))
-    package <- format(path_component(paths, 3))
-    entries <- sprintf(fmt, package, version, hash)
-
     renv_pretty_print(
-      entries,
+      renv_cache_format_path(paths),
       "The following packages will be purged from the cache:",
       wrap = FALSE
     )

@@ -206,21 +206,15 @@ renv_clean_cache <- function(project, confirm) {
     return(TRUE)
   }
 
-  names    <- format(path_component(diff, 1))
-  hashes   <- format(path_component(diff, 2))
-  versions <- format(path_component(diff, 3))
-
   renv_pretty_print(
-    sprintf("%s %s [Hash: %s]", names, versions, hashes),
+    renv_cache_format_path(diff),
     "The following packages are installed in the cache but no longer used:",
     "These packages will be removed.",
     wrap = FALSE
   )
 
-  if (confirm && !proceed()) {
-    message("* Operation aborted.")
+  if (confirm && !proceed())
     return(FALSE)
-  }
 
   # remove the directories
   unlink(diff, recursive = TRUE)
