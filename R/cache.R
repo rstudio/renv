@@ -153,10 +153,6 @@ renv_cache_list <- function(packages = NULL) {
   paths
 }
 
-renv_cache_prune <- function() {
-
-}
-
 renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
   descpaths <- file.path(paths, "DESCRIPTION")
@@ -166,24 +162,23 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
   if (empty(bad))
     return(paths)
 
-  fmt <- "%s %s\t[%s]"
-  package <- path_component(bad, 2)
-  version <- path_component(bad, 4)
-  entries <- sprintf(fmt, package, version, aliased_path(dirname(bad)))
-
   if (verbose) {
     renv_pretty_print(
-      entries,
+      renv_cache_format_path(dirname(bad)),
       "The following packages are missing DESCRIPTION files in the cache:",
       "These packages should be purged and re-installed.",
       wrap = FALSE
     )
   }
 
+  path    <- dirname(bad)
+  package <- path_component(bad, 1)
+  version <- path_component(bad, 3)
+
   data <- data.frame(
     Package = package,
     Version = version,
-    Path    = dirname(bad),
+    Path    = path,
     Reason  = "missing",
     stringsAsFactors = FALSE
   )
@@ -203,12 +198,20 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
   if (empty(bad))
     return(paths)
 
-  fmt <- "%s %s\t[%s != %s]"
-  package <- path_component(bad, 2)
-  version <- path_component(bad, 4)
-  entries <- sprintf(fmt, package, version, hash[diff], computed[diff])
+  package <- path_component(bad, 1)
+  version <- path_component(bad, 3)
 
   if (verbose) {
+
+    fmt <- "%s %s [Hash: %s != %s]"
+    entries <- sprintf(
+      fmt,
+      format(package),
+      format(version),
+      format(hash[diff]),
+      format(computed[diff])
+    )
+
     renv_pretty_print(
       entries,
       "The following packages have incorrect hashes:",
@@ -246,4 +249,15 @@ renv_cache_diagnose <- function(verbose = NULL) {
 renv_cache_move <- function(source, target, overwrite = FALSE) {
   file.exists(source) || renv_file_move(target, source)
   renv_file_link(source, target, overwrite = TRUE)
+}
+
+renv_cache_format_path <- function(paths) {
+
+  names    <- format(path_component(paths, 1))
+  hashes   <- format(path_component(paths, 2))
+  versions <- format(path_component(paths, 3))
+
+  fmt <- "%s %s [Hash: %s]"
+  sprintf(fmt, names, versions, hashes)
+
 }
