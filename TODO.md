@@ -111,3 +111,13 @@
       previously-recorded version of `renv`?
 
 - [ ] Treat user library as a source when restoring projects?
+
+- [ ] `renv` should build packages before install (especially for packages from GitHub)
+
+- [ ] Use `pkgcache` for package installation?
+
+- [ ] Use `pkgdepends` to validate dependency list before snapshot.
+
+- [ ] API to allow `pak` to use the cache?
+
+- [ ] Record usage time for packages (as alternate scheme for finding unused packages)
