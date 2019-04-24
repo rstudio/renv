@@ -215,6 +215,9 @@ renv_snapshot_r_packages <- function(library = NULL) {
   # remove ignored packages
   paths <- paths[!basename(paths) %in% c("renv", settings$ignored.packages())]
 
+  # ignore '_cache' folder explicitly (written by 'pak')
+  paths <- paths[!basename(paths) %in% "_cache"]
+
   # validate the remaining set of packages
   valid <- renv_snapshot_r_library_diagnose(library, paths)
 

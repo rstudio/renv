@@ -94,7 +94,8 @@ restore <- function(project  = NULL,
   diff <- diff[setdiff(names(diff), ignored)]
 
   if (!length(diff)) {
-    vwritef("* The project is already synchronized with the lockfile.")
+    name <- if (!missing(library)) "library" else "project"
+    vwritef("* The %s is already synchronized with the lockfile.", name)
     return(invisible(diff))
   }
 
