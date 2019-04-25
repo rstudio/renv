@@ -25,3 +25,13 @@ test_that("we can initialize a project using 'toast'", {
   expect_setequal(names(lockfile$R$Package), expected)
 
 })
+
+test_that("we cannot initialize a project using 'brunch'", {
+
+  callback <- renv_tests_scope("brunch")
+  on.exit(callback(), add = TRUE)
+
+  # should fail because 'toast' is too old
+  expect_error(renv::init())
+
+})

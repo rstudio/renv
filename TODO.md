@@ -121,3 +121,10 @@
 - [ ] API to allow `pak` to use the cache?
 
 - [ ] Record usage time for packages (as alternate scheme for finding unused packages)
+
+- [ ] `renv::revert()` should tell the user what it did.
+
+- [ ] `renv::revert()` should have project argument last.
+
+- [ ] Warn when installing a package currently loaded? (so that user
+      knows they must restart R to get newly-installed package)

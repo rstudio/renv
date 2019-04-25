@@ -9,10 +9,6 @@ renv_retrieve <- function(packages) {
   if (is.null(state))
     stopf("renv_restore_begin() must be called first")
 
-  # cache set of installed packages (avoid re-querying on each retrieval)
-  renv_global_set("installed.packages", renv_installed_packages())
-  on.exit(renv_global_clear("installed.packages"), add = TRUE)
-
   # TODO: parallel?
   for (package in packages)
     renv_retrieve_impl(package)
@@ -27,7 +23,7 @@ renv_retrieve <- function(packages) {
 renv_retrieve_impl <- function(package) {
 
   # skip packages with 'base' priority
-  if (renv_package_priority(package) == "base")
+  if (package %in% renv_packages_base())
     return()
 
   # if we've already attempted retrieval of this package, skip

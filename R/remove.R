@@ -28,13 +28,13 @@ remove <- function(packages,
   }
 
   if (length(packages) == 1) {
-    count <- as.numeric(renv_remove_package(packages, library))
+    count <- as.numeric(renv_remove_impl(packages, library))
     return(invisible(count))
   }
 
   count <- 0
   for (package in packages) {
-    if (renv_remove_package(package, library))
+    if (renv_remove_impl(package, library))
       count <- count + 1
   }
 
@@ -42,7 +42,7 @@ remove <- function(packages,
   invisible(count)
 }
 
-renv_remove_package <- function(package, library) {
+renv_remove_impl <- function(package, library) {
 
   path <- file.path(library, package)
   if (!renv_file_exists(path)) {

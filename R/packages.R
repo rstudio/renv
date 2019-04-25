@@ -52,7 +52,7 @@ renv_package_priority <- function(package) {
     return("base")
 
   # read priority from db
-  db <- renv_global_get("installed.packages") %||% renv_installed_packages()
+  db <- renv_installed_packages()
   entry <- db[package, ]
   entry$Priority %NA% ""
 
@@ -76,4 +76,9 @@ renv_package_ext <- function(type) {
     ".tar.gz"
   )
 
+}
+
+renv_packages_base <- function() {
+  db <- renv_installed_packages_base()
+  c("R", db$Package)
 }
