@@ -4,14 +4,16 @@
 \alias{revert}
 \title{Revert Lockfile}
 \usage{
-revert(project = NULL, commit = "HEAD")
+revert(commit = "HEAD", ..., project = NULL)
 }
 \arguments{
+\item{commit}{The commit associated with a prior version of the lockfile.}
+
+\item{...}{Optional arguments; currently unused.}
+
 \item{project}{The project directory. If \code{NULL}, then the active
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
-
-\item{commit}{The commit associated with a prior version of the lockfile.}
 }
 \description{
 Revert the lockfile to its contents at a prior commit.
