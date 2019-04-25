@@ -6,9 +6,14 @@
 renv_once <- function() {
 
   invoker <- sys.function(sys.parent())
-  call <- sys.call(sys.parent())
-  envir <- environment(invoker)
-  id <- paste(format(envir), format(call))
+  call    <- sys.call(sys.parent())
+  envir   <- environment(invoker)
+
+  id <- paste(
+    paste(format(envir), collapse = ""),
+    paste(format(call), collapse = ""),
+    sep = " :: "
+  )
 
   if (exists(id, envir = `_renv_once`, inherits = FALSE))
     return(FALSE)
