@@ -12,11 +12,13 @@ snapshot(project = NULL, library = NULL,
 project will be used. If no project has been specifically activated,
 the current working directory is used.}
 
-\item{library}{The \R library to snapshot. When \code{NULL}, the project library
-associated with the requested project is used.}
+\item{library}{The \R library to snapshot. When \code{NULL}, the active library
+(as reported by \code{.libPaths()}) is used.}
 
 \item{lockfile}{The location where the generated lockfile should be written.
-When \code{NULL}, the lockfile (as an \R object) is returned directly instead.}
+By default, the lockfile is written to a file called \code{renv.lock} in the
+project directory. When \code{NULL}, the lockfile (as an \R object) is returned
+directly instead.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }

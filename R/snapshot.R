@@ -11,11 +11,13 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param library The \R library to snapshot. When `NULL`, the project library
-#'   associated with the requested project is used.
+#' @param library The \R library to snapshot. When `NULL`, the active library
+#'   (as reported by `.libPaths()`) is used.
 #'
 #' @param lockfile The location where the generated lockfile should be written.
-#'   When `NULL`, the lockfile (as an \R object) is returned directly instead.
+#'   By default, the lockfile is written to a file called `renv.lock` in the
+#'   project directory. When `NULL`, the lockfile (as an \R object) is returned
+#'   directly instead.
 #'
 #' @family reproducibility
 #'
@@ -28,16 +30,12 @@ snapshot <- function(project  = NULL,
   renv_scope_error_handler()
 
   project <- project %||% renv_project()
+  library <- library %||% renv_libpaths_default()
 
-  # if the user calls snapshot without an active renv project,
-  # then take this as a request to snapshot the active library
-  if (renv_project_initialized(project)) {
-    library <- library %||% renv_paths_library(project = project)
-    filter  <- NULL
-  } else {
-    library <- library %||% renv_libpaths_default()
-    filter  <- renv_snapshot_filter(project = project)
-  }
+  # if we're snapshotting a non-project library, then filter the
+  # packages that will enter the lockfile based on what's in project
+  filter <- if (!identical(library, renv_paths_library(project = project)))
+    renv_snapshot_filter(project = project)
 
   renv_snapshot_preflight(project, library)
 
