@@ -40,9 +40,10 @@ history <- function(project = NULL) {
 #' @inheritParams renv-params
 #'
 #' @param commit The commit associated with a prior version of the lockfile.
+#' @param ... Optional arguments; currently unused.
 #'
 #' @export
-revert <- function(project = NULL, commit = "HEAD") {
+revert <- function(commit = "HEAD", ..., project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
   lockpath <- renv_lockfile_path(project)
