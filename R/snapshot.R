@@ -41,8 +41,10 @@ snapshot <- function(project  = NULL,
 
   new <- renv_lockfile_init(project)
 
-  records <- renv_snapshot_r_packages(library = library)
-  new$R$Package <- renv_snapshot_filter_apply(records, filter)
+  new$R$Package <- renv_snapshot_filter_apply(
+    renv_snapshot_r_packages(library = library),
+    filter
+  )
 
   if (is.null(lockfile))
     return(new)
@@ -62,7 +64,7 @@ snapshot <- function(project  = NULL,
   }
 
   # check for missing dependencies and warn if any are discovered
-  if (!renv_snapshot_validate(project, new, confirm)) {
+  if (!renv_snapshot_validate(project, new, library, confirm)) {
     message("* Operation aborted.")
     return(invisible(new))
   }
@@ -121,59 +123,108 @@ renv_snapshot_preflight_library_exists <- function(project, library) {
 
 }
 
-renv_snapshot_validate <- function(project, lockfile, confirm) {
+renv_snapshot_validate <- function(project, lockfile, library, confirm) {
 
-  renv_snapshot_validate_dependencies(project, lockfile, confirm) &&
-    renv_snapshot_validate_sources(project, lockfile, confirm)
-}
-
-renv_snapshot_validate_dependencies <- function(project, lockfile, confirm) {
-
-  records <- renv_records(lockfile)
-  installed <- renv_installed_packages()
-  missing <- lapply(records, function(record) {
-    path <- renv_paths_library(project = project, record$Package)
-    deps <- renv_dependencies_discover_description(path)
-    setdiff(deps$Package, c("R", installed$Package))
-  })
-
-  bad <- Filter(length, missing)
-  if (!length(bad))
+  # allow user to disable snapshot validation, just in case
+  enabled <- getOption("renv.snapshot.validate", default = TRUE)
+  if (!enabled)
     return(TRUE)
 
-  keys <- names(bad)
-  vals <- lapply(bad, function(packages) {
+  renv_snapshot_validate_dependencies(project, lockfile, library, confirm) &&
+    renv_snapshot_validate_sources(project, lockfile, library, confirm)
+}
 
-    n <- length(packages)
-    if (n > 3) {
-      fmt <- "and %i %s"
-      other <- sprintf(fmt, n - 3, plural("other", n - 3))
-      packages <- c(packages[1:3], other)
-    }
+renv_snapshot_validate_dependencies <- function(project, lockfile, library, confirm) {
 
-    paste(packages, collapse = ", ")
+  # use library to collect package dependency versions
+  records <- renv_records(lockfile)
+  packages <- extract_chr(records, "Package")
+  locs <- file.path(library, packages)
+  deps <- bapply(locs, renv_dependencies_discover_description)
+  splat <- split(deps, deps$Package)
+
+  # exclude base R packages
+  splat <- splat[setdiff(names(splat), renv_packages_base())]
+
+  # check for required packages not currently installed
+  requested <- names(splat)
+  missing <- setdiff(requested, packages)
+  if (length(missing)) {
+
+    usedby <- map_chr(missing, function(package) {
+
+      revdeps <- sort(unique(basename(deps$Source)[deps$Package == package]))
+
+      items <- revdeps; limit <- 3
+      if (length(revdeps) > limit) {
+        rest <- length(revdeps) - limit
+        suffix <- paste("and", length(revdeps) - 3, plural("other", rest))
+        items <- c(revdeps[seq_len(limit)], suffix)
+      }
+
+      paste(items, collapse = ", ")
+
+    })
+
+    renv_pretty_print(
+      sprintf("%s  [required by %s]", format(missing), usedby),
+      "The following required packages are not installed:",
+      "Consider re-installing these packages before snapshotting the lockfile.",
+      wrap = FALSE
+    )
+
+    if (confirm && !proceed())
+      return(FALSE)
+
+  }
+
+  # collapse requirements for each package
+  bad <- enumerate(splat, function(package, requirements) {
+
+    # skip NULL records (should be handled above)
+    record <- records[[package]]
+    if (is.null(record))
+      return(NULL)
+
+    version <- record$Version
+
+    # drop packages without explicit version requirement
+    requirements <- requirements[nzchar(requirements$Require), ]
+    if (nrow(requirements) == 0)
+      return(NULL)
+
+    # add in requested version
+    requirements$Requested <- version
+
+    # generate expressions to evaluate
+    fmt <- "package_version('%s') %s package_version('%s')"
+    code <- with(requirements, sprintf(fmt, Requested, Require, Version))
+    parsed <- parse(text = code)
+    ok <- map_lgl(parsed, eval, envir = baseenv())
+
+    # return requirements that weren't satisfied
+    requirements[!ok, ]
 
   })
 
-  renv_pretty_print(
-    sprintf("%s: [%s]", keys, vals),
-    "The following package(s) depend on packages which are not currently installed:",
-    "Consider re-installing these packages before snapshotting the lockfile.",
-    wrap = FALSE
-  )
+  bad <- bind_list(bad)
+  if (empty(bad))
+    return(TRUE)
 
-  if (confirm && !proceed())
-    return(FALSE)
+  package  <- basename(bad$Source)
+  requires <- sprintf("%s (%s %s)", bad$Package, bad$Require, bad$Version)
+  request  <- bad$Requested
 
-  TRUE
+  fmt <- "- %s requires %s, but %s will be snapshotted"
+  sprintf(fmt, format(package), format(requires), format(request))
 
 }
 
-renv_snapshot_validate_sources <- function(project, lockfile, confirm) {
+renv_snapshot_validate_sources <- function(project, lockfile, library, confirm) {
 
   records <- renv_records(lockfile)
   unknown <- Filter(
-    function(record) (record$Source %||% "") == "unknown",
+    function(record) (record$Source %||% "unknown") == "unknown",
     records
   )
 
@@ -379,6 +430,9 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     )
   }
 
+  if (empty(old))
+    return(invisible())
+
   # report changes to other fields
   squish <- function(item) {
 
@@ -395,24 +449,24 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
   }
 
-  if (!empty(old)) {
+  # only report packages which are being modified; not added / removed
+  keep <- names(actions)[actions %in% c("upgrade", "downgrade", "crossgrade")]
+  old$R$Package <- old$R$Package[keep]
+  new$R$Package <- new$R$Package[keep]
 
-    # only report packages which are being modified; not added / removed
-    keep <- names(actions)[actions %in% c("upgrade", "downgrade", "crossgrade")]
-    old$R$Package <- old$R$Package[keep]
-    new$R$Package <- new$R$Package[keep]
+  # perform the diff
+  diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
+    paste(squish(lhs), squish(rhs), sep = " => ")
+  })
 
-    # perform the diff
-    diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
-      paste(squish(lhs), squish(rhs), sep = " => ")
-    })
+  if (empty(diff))
+    return(invisible())
 
-    # report it
-    writeLines("The following lockfile fields will be updated:\n")
-    output <- stack()
-    renv_lockfile_write(diff, delim = ": ", emitter = output$push)
-    writeLines(paste("  ", output$data(), sep = ""))
-  }
+  # report it
+  writeLines("The following lockfile fields will be updated:\n")
+  output <- stack()
+  renv_lockfile_write(diff, delim = ": ", emitter = output$push)
+  writeLines(paste("  ", output$data(), sep = ""))
 
 }
 

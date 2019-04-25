@@ -1,5 +1,5 @@
 [renv]
-Version=0.4.0-2
+Version=0.4.0-14
 
 [R]
 Version=3.5.3
@@ -343,15 +343,15 @@ Hash=813b06afd70ca31c1071395d49346b89
 
 [R/Package/sys]
 Package=sys
-Version=3.1
+Version=3.2
 Source=CRAN
-Hash=4bbccf5d6cbaafdc1c5ef62e2241940f
+Hash=fbd1f0866d1755b814c741006ef39a44
 
 [R/Package/testthat]
 Package=testthat
-Version=2.1.0
+Version=2.1.1
 Source=CRAN
-Hash=46bc880d98ad7f12fc1fef077f40b06a
+Hash=1507af14e186fbff302183807dea4fd7
 
 [R/Package/tinytex]
 Package=tinytex

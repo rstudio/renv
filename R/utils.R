@@ -45,7 +45,7 @@ trimws <- function(x) {
   gsub("^\\s+|\\s+$", "", x)
 }
 
-bind_list <- function(data, names = NULL, name = "Index") {
+bind_list <- function(data, names = NULL, index = "Index") {
 
   filtered <- Filter(NROW, data)
   if (!length(filtered))
@@ -54,9 +54,9 @@ bind_list <- function(data, names = NULL, name = "Index") {
   rhs <- .mapply(c, filtered, list(use.names = FALSE))
   names(rhs) <- names(filtered[[1]])
 
-  if (name %in% names(rhs)) {
+  if (index %in% names(rhs)) {
     fmt <- "name collision: bound list already contains column called '%s'"
-    stopf(fmt, name)
+    stopf(fmt, index)
   }
 
   if (is.null(names(data))) {
@@ -65,7 +65,7 @@ bind_list <- function(data, names = NULL, name = "Index") {
   }
 
   lhs <- list()
-  lhs[[name]] <- rep.int(names(data), times = map_dbl(filtered, NROW))
+  lhs[[index]] <- rep.int(names(filtered), times = map_dbl(filtered, NROW))
 
   cbind(
     as.data.frame(lhs, stringsAsFactors = FALSE),
