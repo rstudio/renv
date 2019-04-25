@@ -6,7 +6,7 @@
 renv_file_preface <- function(source, target, overwrite) {
 
   callback <- function() {}
-  if (!renv_file_exists(source))
+  if (!file.exists(source))
     stopf("source file '%s' does not exist", source)
 
   if (overwrite)

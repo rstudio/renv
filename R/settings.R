@@ -28,7 +28,7 @@ renv_settings_validate <- function(name, value) {
 renv_settings_read <- function(project) {
 
   path <- file.path(project, "renv/settings.dcf")
-  if (!renv_file_exists(path))
+  if (!file.exists(path))
     return(renv_settings_defaults())
 
   dcf <- catch(renv_dcf_read(path))

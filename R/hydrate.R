@@ -114,7 +114,7 @@ renv_hydrate_link_package <- function(package, location, library) {
   cache <- renv_cache_package_path(record)
 
   # copy package into the cache
-  if (!renv_file_exists(cache)) {
+  if (!file.exists(cache)) {
     ensure_parent_directory(cache)
     renv_file_copy(location, cache)
   }

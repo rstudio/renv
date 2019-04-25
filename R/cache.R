@@ -57,7 +57,7 @@ renv_cache_prime <- function(library) {
   all <- list.files(library, full.names = TRUE)
 
   # remove packages with no DESCRIPTION file
-  packages <- all[renv_file_exists(file.path(all, "DESCRIPTION"))]
+  packages <- all[file.exists(file.path(all, "DESCRIPTION"))]
 
   if (length(packages) == 0) {
     fmt <- "There are no packages within library '%s' to be copied."

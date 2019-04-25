@@ -50,7 +50,7 @@ renv_write_activate <- function(project = NULL, version = NULL) {
   template <- paste(readLines(source, encoding = "UTF-8"), collapse = "\n")
   new <- renv_template_replace(template, list(VERSION = version))
 
-  if (renv_file_exists(target)) {
+  if (file.exists(target)) {
     old <- paste(readLines(target, warn = FALSE), collapse = "\n")
     if (old == new)
       return(TRUE)
@@ -64,7 +64,7 @@ renv_write_activate <- function(project = NULL, version = NULL) {
 renv_write_entry_impl <- function(lines, file, create) {
 
   # check to see if file doesn't exist
-  if (!renv_file_exists(file)) {
+  if (!file.exists(file)) {
 
     # if we're not forcing file creation, just bail
     if (!create)
@@ -121,7 +121,7 @@ renv_remove_rbuildignore <- function(project) {
 renv_remove_entry_impl <- function(line, file) {
 
   # if the file doesn't exist, nothing to do
-  if (!renv_file_exists(file))
+  if (!file.exists(file))
     return(TRUE)
 
   # if the file doesn't have the line, nothing to do
