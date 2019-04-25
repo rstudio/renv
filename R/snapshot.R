@@ -64,8 +64,10 @@ snapshot <- function(project  = NULL,
   }
 
   # check for missing dependencies and warn if any are discovered
-  if (!renv_snapshot_validate(project, new, confirm))
+  if (!renv_snapshot_validate(project, new, confirm)) {
+    message("* Operation aborted.")
     return(invisible(new))
+  }
 
   # report actions to the user
   actions <- renv_lockfile_diff_packages(old, new)
@@ -122,10 +124,9 @@ renv_snapshot_preflight_library_exists <- function(project, library) {
 }
 
 renv_snapshot_validate <- function(project, lockfile, confirm) {
-  all(
-    renv_snapshot_validate_dependencies(project, lockfile, confirm),
+
+  renv_snapshot_validate_dependencies(project, lockfile, confirm) &&
     renv_snapshot_validate_sources(project, lockfile, confirm)
-  )
 }
 
 renv_snapshot_validate_dependencies <- function(project, lockfile, confirm) {
@@ -163,10 +164,8 @@ renv_snapshot_validate_dependencies <- function(project, lockfile, confirm) {
     wrap = FALSE
   )
 
-  if (confirm && !proceed()) {
-    message("Operation aborted.")
+  if (confirm && !proceed())
     return(FALSE)
-  }
 
   TRUE
 
@@ -191,10 +190,8 @@ renv_snapshot_validate_sources <- function(project, lockfile, confirm) {
       "Consider re-installing these packages from a known source (e.g. CRAN)."
     )
 
-    if (!proceed()) {
-      message("Operation aborted.")
+    if (!proceed())
       return(FALSE)
-    }
 
   }
 
