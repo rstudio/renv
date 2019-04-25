@@ -21,7 +21,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   # if the file already exists, compare its size with
   # the server's reported size for that file
   size <- renv_download_size(url, type, headers)
-  if (size != -1 && renv_file_exists(destfile)) {
+  if (size != -1 && file.exists(destfile)) {
     if (file.size(destfile) == size) {
       vwritef("\tOK [file is up to date]")
       return(destfile)
@@ -55,7 +55,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   if (status != 0L)
     stopf("download failed [error code %i]", status)
 
-  if (!renv_file_exists(tempfile))
+  if (!file.exists(tempfile))
     stopf("download failed [unknown reason]")
 
   # double-check that the reported size is correct

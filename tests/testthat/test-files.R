@@ -32,8 +32,8 @@ test_that("directories can be moved", {
     file.create(file.path(source, sprintf("%02i.txt", i)))
 
   renv_file_move(source, target)
-  expect_true(!renv_file_exists(source))
-  expect_true(renv_file_exists(target))
+  expect_true(!file.exists(source))
+  expect_true(file.exists(target))
   expect_setequal(files, list.files(target))
 
 })
@@ -60,10 +60,10 @@ test_that("scoped backups are cleared as necessary", {
   local({
     callback <- renv_file_scoped_backup(target)
     on.exit(callback(), add = TRUE)
-    expect_true(!renv_file_exists(target))
+    expect_true(!file.exists(target))
   })
 
-  expect_true(renv_file_exists(target))
+  expect_true(file.exists(target))
   expect_equal(readLines(target), "target")
 
   local({
@@ -72,7 +72,7 @@ test_that("scoped backups are cleared as necessary", {
     writeLines("mutate", target)
   })
 
-  expect_true(renv_file_exists(target))
+  expect_true(file.exists(target))
   expect_equal(readLines(target), "mutate")
   list.files(tempdir())
 

@@ -4,7 +4,7 @@ renv_package_find <- function(package, libpaths = renv_libpaths_all()) {
   # first, look in the library paths (specifiy lib.loc so that we avoid
   # using the path to loaded namespaces)
   location <- find.package(package, quiet = TRUE, lib.loc = libpaths) %||% ""
-  if (renv_file_exists(location))
+  if (file.exists(location))
     return(location)
 
   # try looking in the cache for the package

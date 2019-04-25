@@ -1,6 +1,6 @@
 
 ensure_existing_path <- function(path) {
-  if (!renv_file_exists(path))
+  if (!file.exists(path))
     stopf("no file at path '%s'", path)
   invisible(path)
 }

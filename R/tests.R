@@ -44,12 +44,12 @@ renv_tests_root <- function(path = getwd()) {
   for (part in rev(parts)) {
 
     # required to find test directory during R CMD check
-    if (renv_file_exists(file.path(part, "testthat.R")))
+    if (file.exists(file.path(part, "testthat.R")))
       return(file.path(part, "testthat"))
 
     # required for other general testing
     anchor <- file.path(part, "DESCRIPTION")
-    if (renv_file_exists(anchor))
+    if (file.exists(anchor))
       return(file.path(part, "tests/testthat"))
 
   }
