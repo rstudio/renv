@@ -38,10 +38,18 @@ renv_file_copy <- function(source, target, overwrite = FALSE) {
 
 renv_file_copy_file <- function(source, target) {
 
-  status <- catchall(file.copy(source, target))
+  # copy to temporary path
+  temptarget <- renv_tempfile("renv-copy-", tmpdir = dirname(target))
+  status <- catchall(file.copy(source, temptarget))
   if (inherits(status, "condition"))
     stop(status)
 
+  # move from temporary path to final target
+  status <- catchall(file.rename(temptarget, target))
+  if (inherits(status, "condition"))
+    stop(status)
+
+  # validate that the target file exists
   if (renv_file_exists(target))
     return(TRUE)
 
@@ -52,24 +60,27 @@ renv_file_copy_file <- function(source, target) {
 
 renv_file_copy_dir <- function(source, target) {
 
-  # first, copy into a unique sub-directory
-  # then attempt to move back into the requested location
-  tempfile <- renv_tempfile("renv-copy-", tmpdir = dirname(target))
-  ensure_directory(tempfile)
+  # copy to temporary sub-directory
+  tempdir <- renv_tempfile("renv-copy-", tmpdir = dirname(target))
+  ensure_directory(tempdir)
 
-  status <- catchall(file.copy(source, tempfile, recursive = TRUE))
+  status <- catchall(file.copy(source, tempdir, recursive = TRUE))
   if (inherits(status, "condition"))
     stop(status)
 
-  temptarget <- file.path(tempfile, basename(source))
-  status <- catchall(file.rename(temptarget, target))
+  # R will copy the directory to a sub-directory in the
+  # requested folder with the same filename as the source
+  # folder, so peek into that folder to grab it and rename
+  tempfile <- file.path(tempdir, basename(source))
+  status <- catchall(file.rename(tempfile, target))
   if (inherits(status, "condition"))
     stop(status)
 
+  # validate target now exists
   if (renv_file_exists(target))
     return(TRUE)
 
-  fmt <- "attempt to copy file '%s' to '%s' failed (unknown reason)"
+  fmt <- "attempt to copy directory '%s' to '%s' failed (unknown reason)"
   stopf(fmt, source, target)
 
 }
@@ -82,13 +93,14 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
 
-  # now, attempt to rename (catchall since this might quietly fail for
-  # cross-device links)
+  # first, attempt to do a plain rename
+  # use catchall since this might fail for e.g. cross-device links
   move <- catchall(file.rename(source, target))
   if (renv_file_exists(target))
     return(TRUE)
 
-  # rename failed; fall back to copying
+  # rename failed; fall back to copying (and be sure to remove
+  # the source file / directory on success)
   copy <- catchall(renv_file_copy(source, target, overwrite = overwrite))
   if (identical(copy, TRUE) && file.exists(target)) {
     unlink(source, recursive = TRUE)
@@ -128,23 +140,6 @@ renv_file_link <- function(source, target, overwrite = FALSE, link = NULL) {
 
   # all else fails, just perform a copy
   renv_file_copy(source, target, overwrite = overwrite)
-
-}
-
-renv_file_junction <- function(source, target, info = NULL) {
-
-  info <- info %||% file.info(source, extra_cols = FALSE)
-
-  # can only make junctions on Windows
-  if (!renv_platform_windows())
-    return(FALSE)
-
-  # can only create junctions between directories
-  if (!identical(info$isdir, TRUE))
-    return(FALSE)
-
-  # attempt the junction
-  Sys.junction(source, target)
 
 }
 
