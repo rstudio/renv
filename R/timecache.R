@@ -5,8 +5,8 @@
 
 renv_timecache <- function(key, value, limit = 3600) {
   entry <- renv_timecache_get(key)
-  if (renv_timecache_expired(entry))
-    entry <- renv_timecache_set(key, value, limit)
+  if (renv_timecache_expired(entry, limit))
+    entry <- renv_timecache_set(key, value)
   entry$value
 }
 
@@ -16,24 +16,24 @@ renv_timecache_get <- function(key) {
     get(id, envir = `_renv_timecache`, inherits = FALSE)
 }
 
-renv_timecache_set <- function(key, value, limit) {
+renv_timecache_set <- function(key, value) {
   id <- renv_deparse(key)
-  entry <- renv_timecache_entry(value, limit)
+  entry <- renv_timecache_entry(value)
   assign(id, entry, envir = `_renv_timecache`, inherits = FALSE)
   entry
 }
 
-renv_timecache_entry <- function(value, limit) {
-  list(time = Sys.time(), value = value, limit = limit)
+renv_timecache_entry <- function(value) {
+  list(time = Sys.time(), value = value)
 }
 
-renv_timecache_expired <- function(entry) {
+renv_timecache_expired <- function(entry, limit) {
 
   if (is.null(entry))
     return(TRUE)
 
   diff <- difftime(Sys.time(), entry$time, units = "secs")
-  if (diff > entry$limit %||% 3600)
+  if (diff > limit)
     return(TRUE)
 
   FALSE

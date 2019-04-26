@@ -135,7 +135,7 @@ renv_remove_entry_impl <- function(line, file) {
 
   # if the file is now empty, remove it
   if (!length(contents) || all(contents == "")) {
-    file.remove(file)
+    unlink(file)
     return(TRUE)
   }
 

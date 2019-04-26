@@ -2,10 +2,12 @@
 # tools for querying information about packages available on CRAN.
 # note that this does _not_ merge package entries from multiple repositories;
 # rather, a list of databases is returned (one for each repository)
-renv_available_packages <- function(type) {
+renv_available_packages <- function(type, limit = NULL) {
+  limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
   renv_timecache(
     list(repos = getOption("repos"), type = type),
-    renv_available_packages_impl(type)
+    renv_available_packages_impl(type),
+    limit = as.integer(limit)
   )
 }
 
@@ -24,33 +26,15 @@ renv_available_packages_impl <- function(type) {
 
 renv_available_packages_query <- function(url, type) {
 
-  # check for cached value
-  name <- sprintf("%s.rds", URLencode(url, reserved = TRUE))
-  cache <- renv_paths_repos(name)
-  if (!file.exists(cache))
-    return(renv_available_packages_query_impl(url, cache, type))
-
-  # make sure the cache hasn't expired
-  info <- file.info(cache, extra_cols = FALSE)
-  diff <- difftime(Sys.time(), info$mtime, units = "secs")
-  if (diff > 3600)
-    return(renv_available_packages_query_impl(url, cache, type))
-
-  # we have a live cache; use it
-  db <- catch(readRDS(cache))
-  if (inherits(db, "error"))
-    return(renv_available_packages_query_impl(url, cache, type))
-
-  as.data.frame(db, stringsAsFactors = FALSE)
-
-}
-
-renv_available_packages_query_impl <- function(url, cache, type) {
+  # remove an old cached value
+  name <- sprintf("repos_%s.rds", URLencode(url, reserved = TRUE))
+  path <- file.path(tempdir(), name)
+  unlink(path)
 
   # notify user since this can take some time for non-local CRAN
   if (!grepl("^file:", url)) {
-    fmt <- "* Querying repositories for available %s packages -- please wait a moment ..."
-    vwritef(fmt, type, con = stderr())
+    fmt <- "* Querying repositories for available %s packages ... "
+    vprintf(fmt, type, file = stderr())
   }
 
   # make the query (suppress warnings in case this is a local repository
@@ -62,9 +46,11 @@ renv_available_packages_query_impl <- function(url, cache, type) {
     message = function(m) invokeRestart("muffleMessage")
   )
 
+  vwritef("Done!", con = stderr())
+
   # save to our cache
-  ensure_parent_directory(cache)
-  saveRDS(db, file = cache)
+  ensure_parent_directory(path)
+  saveRDS(db, file = path)
 
   # return the db
   as.data.frame(db, stringsAsFactors = FALSE)
