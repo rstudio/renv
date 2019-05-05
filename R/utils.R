@@ -235,18 +235,6 @@ rowapply <- function(X, FUN, ...) {
   })
 }
 
-compatible <- function(lhs, rhs) {
-
-  if (!(is.function(lhs) && is.function(rhs)))
-    return(FALSE)
-
-  if (!identical(formals(lhs), formals(rhs)))
-    return(FALSE)
-
-  TRUE
-
-}
-
 comspec <- function() {
   Sys.getenv("COMSPEC", unset = "cmd.exe")
 }

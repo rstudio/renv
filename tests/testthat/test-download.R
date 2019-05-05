@@ -3,6 +3,7 @@ context("Download")
 
 test_that("we avoid downloading files twice", {
   skip_on_cran()
+  skip_if_offline()
 
   if (!renv_download_file_method() %in% c("curl", "wget"))
     skip("required downloader not available")
@@ -26,7 +27,12 @@ test_that("we avoid downloading files twice", {
 test_that("we can successfully tweak the user agent string", {
 
   utils <- asNamespace("utils")
-  if (!compatible(utils$makeUserAgent, function(format = TRUE) {}))
+
+  ok <-
+    is.function(utils$makeUserAgent) &&
+    identical(formals(utils$makeUserAgent), pairlist(format = TRUE))
+
+  if (!ok)
     return(NULL)
 
   headers <- c("Key" = "Value")

@@ -3,9 +3,8 @@ context("Retrieve")
 
 test_that("we can retrieve packages from Bitbucket", {
   skip_on_cran()
-
-  # TODO
   skip_on_travis()
+  skip_if_offline(host = "bitbucket.org")
 
   record <- list(
     Package        = "skeleton",
@@ -22,9 +21,8 @@ test_that("we can retrieve packages from Bitbucket", {
 
 test_that("we can retrieve packages from git", {
   skip_on_cran()
-
-  # TODO
   skip_on_travis()
+  skip_if_offline(host = "github.com")
 
   record <- list(
     Package   = "skeleton",
@@ -40,9 +38,8 @@ test_that("we can retrieve packages from git", {
 
 test_that("we can retrieve packages from GitHub", {
   skip_on_cran()
-
-  # TODO
   skip_on_travis()
+  skip_if_offline(host = "github.com")
 
   record <- list(
     Package        = "skeleton",
@@ -59,9 +56,8 @@ test_that("we can retrieve packages from GitHub", {
 
 test_that("we can retrieve packages from GitLab", {
   skip_on_cran()
-
-  # TODO
   skip_on_travis()
+  skip_if_offline(host = "gitlab.com")
 
   record <- list(
     Package        = "skeleton",
@@ -78,7 +74,9 @@ test_that("we can retrieve packages from GitLab", {
 test_that("we can retrieve packages with URLs", {
   skip_on_cran()
   skip_on_travis()
-  record <- renv_remotes_parse("https://api.github.com/repos/kevinushey/skeleton/tarball")
+  skip_if_offline(host = "github.com")
+  url <- "https://api.github.com/repos/kevinushey/skeleton/tarball"
+  record <- renv_remotes_parse(url)
   renv_test_retrieve(record)
 })
 

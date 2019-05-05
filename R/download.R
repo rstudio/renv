@@ -136,7 +136,12 @@ renv_download_default_agent_scope_impl <- function(headers, envir = NULL) {
 
   utils <- asNamespace("utils")
   makeUserAgent <- utils$makeUserAgent
-  if (!compatible(makeUserAgent, function(format = TRUE) {}))
+
+  ok <-
+    is.function(makeUserAgent) &&
+    identical(formals(makeUserAgent), pairlist(format = TRUE))
+
+  if (!ok)
     return(FALSE)
 
   do.call("unlockBinding", list("makeUserAgent", utils))
