@@ -64,8 +64,8 @@ renv_tests_init_workarounds <- function() {
 
   }
 
-
 }
+
 renv_tests_init_working_dir <- function() {
   if (exists(".rs.getProjectDirectory")) {
     home <- get(".rs.getProjectDirectory")

@@ -1,3 +1,4 @@
+
 context("Dependencies")
 
 test_that("usages of library, etc. are properly handled", {
@@ -13,7 +14,7 @@ test_that("usages of library, etc. are properly handled", {
 })
 
 test_that("parse errors are okay in .Rmd documents", {
-  deps <- dependencies("resources/chunk-errors.Rmd")
+  expect_warning(deps <- dependencies("resources/chunk-errors.Rmd"))
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "dplyr"))
 })

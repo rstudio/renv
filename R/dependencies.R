@@ -120,7 +120,7 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
 
   dcf <- catch(renv_description_read(path))
   if (inherits(dcf, "error"))
-    return(list())
+    return(renv_dependencies_error(path, dcf))
 
   # TODO: make this user-configurable?
   fields <- fields %||% c("Depends", "Imports", "LinkingTo")
@@ -198,10 +198,12 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
     if (!renv_dependencies_require(package, "R Markdown"))
       return(NULL)
 
+  yaml <- catch(rmarkdown::yaml_front_matter(path))
+  if (inherits(yaml, "error"))
+    return(renv_dependencies_error(path, yaml, "rmarkdown"))
+
   deps <- stack()
   deps$push("rmarkdown")
-
-  yaml <- rmarkdown::yaml_front_matter(path)
 
   # check for Shiny runtime
   runtime <- yaml$runtime %||% ""
@@ -237,8 +239,8 @@ renv_dependencies_discover_chunks <- function(path) {
 
   patterns <- knitr::all_patterns[[type]]
   if (is.null(patterns)) {
-    warningf("'%s' is not a recognized multi-mode R document.", path)
-    return(character())
+    condition <- simpleCondition("not a recognized multi-mode R document")
+    return(renv_dependencies_error(path, condition))
   }
 
   # parse the chunks within
@@ -246,7 +248,7 @@ renv_dependencies_discover_chunks <- function(path) {
   # end chunks not started by the chunk begin pattern (sad face)
   encoding <- if (type == "md") "UTF-8" else "unknown"
   contents <- readLines(path, warn = FALSE, encoding = encoding)
-  ranges <- renv_dependencies_discover_chunks_ranges(file, contents, patterns)
+  ranges <- renv_dependencies_discover_chunks_ranges(path, contents, patterns)
 
   # extract chunk code from the used ranges
   chunks <- .mapply(function(lhs, rhs) {
@@ -263,9 +265,9 @@ renv_dependencies_discover_chunks <- function(path) {
     if (!(identical(engine, "r") || identical(engine, "rscript")))
       return(character())
 
-    deps <- catch(renv_dependencies_discover_r(file = path, text = chunk$contents))
+    deps <- catch(renv_dependencies_discover_r(path = path, text = chunk$contents))
     if (inherits(deps, "error"))
-      return(NULL)
+      return(renv_dependencies_error(path, deps))
 
     deps
 
@@ -292,11 +294,15 @@ renv_dependencies_discover_chunks_inline <- function(path, contents) {
 
   text <- unlist(regmatches(pasted, matches), use.names = FALSE, recursive = FALSE)
   code <- substring(text, 4L, nchar(text) - 1L)
-  renv_dependencies_discover_r(file = path, text = code)
+  deps <- renv_dependencies_discover_r(path = path, text = code)
+  if (inherits(deps, "error"))
+    return(renv_dependencies_error(path, deps))
+
+  deps
 
 }
 
-renv_dependencies_discover_chunks_ranges <- function(file, contents, patterns) {
+renv_dependencies_discover_chunks_ranges <- function(path, contents, patterns) {
 
   output <- list()
 
@@ -321,7 +327,7 @@ renv_dependencies_discover_chunks_ranges <- function(file, contents, patterns) {
   }
 
   if (chunk)
-    warningf("[Line %i]: detected unclosed chunk in file '%s'", file, start)
+    warningf("- '%s:%i': unclosed chunk detected", path, start)
 
   bind_list(output)
 
@@ -341,14 +347,14 @@ renv_dependencies_discover_rproj <- function(path) {
 
 }
 
-renv_dependencies_discover_r <- function(file = NULL, text = NULL) {
+renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
 
-  parsed <- catch(renv_parse(file = file, text = text))
+  parsed <- catch(renv_parse(file = path, text = text))
   if (inherits(parsed, "error")) {
     # workaround for an R bug where parse-related state could be
     # leaked if an error occurred
     Sys.setlocale()
-    return(character())
+    return(renv_dependencies_error(path, parsed))
   }
 
   methods <- c(
@@ -368,7 +374,7 @@ renv_dependencies_discover_r <- function(file = NULL, text = NULL) {
   if (empty(packages))
     return(NULL)
 
-  renv_dependencies_list(file, packages)
+  renv_dependencies_list(path, packages)
 
 }
 
@@ -598,5 +604,17 @@ renv_dependencies_require <- function(package, type) {
     warning(msg, call. = FALSE)
 
   return(FALSE)
+
+}
+
+renv_dependencies_error <- function(path, error, packages = NULL) {
+
+  # emit warning about failed dependency discovery
+  fmt <- "- '%s': %s"
+  message <- paste(conditionMessage(error), collapse = "\n")
+  warningf(fmt, aliased_path(path), message)
+
+  # return a default set of packages if available
+  renv_dependencies_list(path, packages)
 
 }
