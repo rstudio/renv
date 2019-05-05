@@ -8,7 +8,7 @@ refresh()
 }
 \description{
 Query the active CRAN repositories for available packages, and
-update the in-memory cache of these packages.
+update the in-memory cache of those packages.
 }
 \details{
 Note that \R also maintains its own on-disk cache of available packages,
