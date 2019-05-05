@@ -141,6 +141,9 @@ renv_snapshot_validate_dependencies <- function(project, lockfile, library, conf
   packages <- extract_chr(records, "Package")
   locs <- file.path(library, packages)
   deps <- bapply(locs, renv_dependencies_discover_description)
+  if (empty(deps))
+    return(TRUE)
+
   splat <- split(deps, deps$Package)
 
   # exclude base R packages
