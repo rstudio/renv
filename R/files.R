@@ -233,7 +233,7 @@ renv_file_list_impl <- function(path) {
   # 'dir' with the code page set to request UTF-8 encoded paths
   if (renv_platform_windows()) {
     path <- normalizePath(path)
-    command <- paste(comspec(), "/c chcp 65001 && dir /B", path)
+    command <- paste(comspec(), "/c chcp 65001 && dir /B", shQuote(path))
     output <- system(command, intern = TRUE)
     Encoding(output) <- "UTF-8"
     return(output)
