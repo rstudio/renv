@@ -18,9 +18,17 @@ renv_available_packages_impl <- function(type) {
   repos[repos == "@CRAN@"] <- "https://cran.rstudio.com/"
   options(repos = repos)
 
+  # notify user since this can take some time for non-local CRAN
+  fmt <- "* Querying repositories for available %s packages ... "
+  vprintf(fmt, type, file = stderr())
+
   # request available packages
   urls <- contrib.url(repos, type)
-  lapply(urls, renv_available_packages_query, type = type)
+  result <- lapply(urls, renv_available_packages_query, type = type)
+
+  # report success
+  vwritef("Done!", con = stderr())
+  result
 
 }
 
@@ -31,12 +39,6 @@ renv_available_packages_query <- function(url, type) {
   path <- file.path(tempdir(), name)
   unlink(path)
 
-  # notify user since this can take some time for non-local CRAN
-  if (!grepl("^file:", url)) {
-    fmt <- "* Querying repositories for available %s packages ... "
-    vprintf(fmt, type, file = stderr())
-  }
-
   # make the query (suppress warnings in case this is a local repository
   # whose PACKAGES files do not exist; note that an error is thrown in that
   # case anyhow)
@@ -45,8 +47,6 @@ renv_available_packages_query <- function(url, type) {
     warning = function(w) invokeRestart("muffleWarning"),
     message = function(m) invokeRestart("muffleMessage")
   )
-
-  vwritef("Done!", con = stderr())
 
   # save to our cache
   ensure_parent_directory(path)

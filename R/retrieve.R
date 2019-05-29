@@ -96,12 +96,17 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
 
 renv_retrieve_bioconductor <- function(record) {
 
+  # ensure bioconductor support infrastructure initialized
+  renv_bioconductor_init()
+
   # activate bioconductor repositories in this context
   repos <- getOption("repos")
   options(repos = unique(c(renv_bioconductor_repos(), repos)))
   on.exit(options(repos = repos), add = TRUE)
 
+  # retrieve package as though from CRAN
   renv_retrieve_cran(record)
+
 }
 
 renv_retrieve_bitbucket <- function(record) {

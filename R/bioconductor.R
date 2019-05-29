@@ -1,4 +1,34 @@
 
+renv_bioconductor_init <- function() {
+  if (getRversion() >= "3.5.0") {
+    renv_bioconductor_init_biocmanager()
+  } else {
+    renv_bioconductor_init_biocinstaller()
+  }
+}
+
+renv_bioconductor_init_biocmanager <- function() {
+
+  location <- find.package("BiocManager", quiet = TRUE)
+  if (!empty(location))
+    return(TRUE)
+
+  utils::install.packages("BiocManager", quiet = TRUE)
+  TRUE
+
+}
+
+renv_bioconductor_init_biocinstaller <- function() {
+
+  location <- find.package("BiocInstaller", quiet = TRUE)
+  if (!empty(location))
+    return(TRUE)
+
+  source("https://bioconductor.org/biocLite.R")
+  TRUE
+
+}
+
 renv_bioconductor_repos <- function() {
 
   # try both BiocManager, BiocInstaller to get Bioc repositories
