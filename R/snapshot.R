@@ -219,7 +219,7 @@ renv_snapshot_validate_dependencies <- function(project, lockfile, library, conf
   request  <- bad$Requested
 
   fmt <- "- %s requires %s, but %s will be snapshotted"
-  warning(sprintf(fmt, format(package), format(requires), format(request)))
+  warningf(fmt, format(package), format(requires), format(request))
 
   return(FALSE)
 }
