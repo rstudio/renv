@@ -221,6 +221,7 @@ renv_snapshot_validate_dependencies <- function(project, lockfile, library, conf
   fmt <- "- %s requires %s, but %s will be snapshotted"
   sprintf(fmt, format(package), format(requires), format(request))
 
+  return(FALSE)
 }
 
 renv_snapshot_validate_sources <- function(project, lockfile, library, confirm) {
