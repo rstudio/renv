@@ -1,4 +1,14 @@
 
+sprintf <- function(fmt, ...) {
+
+  dots <- eval(substitute(alist(...)))
+  if (length(dots) == 0)
+    return(fmt)
+
+  base::sprintf(fmt, ...)
+
+}
+
 stopf <- function(fmt, ..., call. = FALSE) {
   stop(sprintf(fmt, ...), call. = call.)
 }
