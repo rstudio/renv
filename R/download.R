@@ -105,15 +105,18 @@ renv_download_default <- function(url, destfile, type, request, headers) {
   if (length(libcurl) && libcurl)
     method <- "libcurl"
 
-  # perform the download
-  download.file(
-    url      = url,
-    destfile = destfile,
-    method   = method,
-    headers  = headers,
-    mode     = "wb",
-    quiet    = TRUE
-  )
+  # handle absence of 'headers' argument in older versions of R
+  args <- list(url      = url,
+               destfile = destfile,
+               method   = method,
+               headers  = headers,
+               mode     = "wb",
+               quiet    = TRUE)
+
+  fmls <- formals(download.file)
+  args <- args[intersect(names(fmls), names(args))]
+
+  do.call(download.file, args)
 
 }
 

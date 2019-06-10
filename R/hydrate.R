@@ -127,7 +127,7 @@ renv_hydrate_link_package <- function(package, location, library) {
 }
 
 renv_hydrate_link_packages <- function(packages, library) {
-  vprintf("* Copying packages into the cache ... ", appendLF = FALSE)
+  vprintf("* Copying packages into the cache ... ")
   cache <- renv_progress(renv_hydrate_link_package, length(packages))
   cached <- enumerate(packages, cache, library = library)
   vwritef("Done!")
@@ -142,7 +142,7 @@ renv_hydrate_copy_package <- function(package, location, library) {
 }
 
 renv_hydrate_copy_packages <- function(packages, library) {
-  vprintf("* Copying packages into the library ... ", appendLF = FALSE)
+  vprintf("* Copying packages into the library ... ")
   copy <- renv_progress(renv_hydrate_copy_package, length(packages))
   copied <- enumerate(packages, copy, library = library)
   vwritef("Done!")
