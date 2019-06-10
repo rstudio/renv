@@ -101,13 +101,13 @@
 #' @name paths
 NULL
 
-renv_prefix_platform <- function() {
-  version <- paste("R", getRversion()[1, 1:2], sep = "-")
-  file.path(version, R.version$platform)
+renv_prefix_platform <- function(version = NULL) {
+  version <- version %||% paste(R.version$major, R.version$minor, sep = ".")
+  prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
+  file.path(prefix, R.version$platform)
 }
 
-renv_paths_common <- function(name, prefixes = NULL, ...)
-{
+renv_paths_common <- function(name, prefixes = NULL, ...) {
   # check for single absolute path supplied by user
   # TODO: handle multiple?
   end <- file.path(...)
@@ -150,8 +150,9 @@ renv_paths_binary <- function(...) {
   renv_paths_common("binary", c(renv_prefix_platform()), ...)
 }
 
-renv_paths_cache <- function(...) {
-  renv_paths_common("cache", c(renv_cache_version(), renv_prefix_platform()), ...)
+renv_paths_cache <- function(..., version = NULL) {
+  platform <- renv_prefix_platform(version = version)
+  renv_paths_common("cache", c(renv_cache_version(), platform), ...)
 }
 
 renv_paths_extsoft <- function(...) {
