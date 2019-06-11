@@ -9,9 +9,14 @@ renv_migrate_packrat <- function(project = NULL) {
   renv_migrate_packrat_library(project)
   renv_migrate_packrat_options(project)
   renv_migrate_packrat_cache(project)
+  renv_migrate_packrat_infrastructure(project)
 
-  fmt <- "* The Packrat infrastructure for project '%s' has been migrated to renv."
+  renv_bootstrap()
+
+  fmt <- "* Project '%s' has been migrated from Packrat to renv."
   vwritef(fmt, aliased_path(project))
+
+  vprintf("* Consider deleting the 'packrat' folder if it is no longer needed.")
   invisible(TRUE)
 }
 
@@ -93,14 +98,10 @@ renv_migrate_packrat_options <- function(project) {
   packrat <- asNamespace("packrat")
   opts <- packrat$get_opts(project = project)
 
-  settings$ignored.packages(opts$ignored.packages)
+  settings$ignored.packages(opts$ignored.packages, project = project)
+
 }
 
-## TODO: this may not be safe since the Packrat cache
-## is not properly versioned by default; but perhaps
-## we can infer the appropriate R version from the
-## DESCRIPTION
-#
 renv_migrate_packrat_cache <- function(project) {
 
   # find packages in the packrat cache
@@ -110,7 +111,8 @@ renv_migrate_packrat_cache <- function(project) {
   hashes <- list.files(packages, full.names = TRUE)
   sources <- list.files(hashes, full.names = TRUE)
 
-  # read DESCRIPTIONs for each package
+  # read DESCRIPTIONs for each package (update the Hash
+  # as Packrat + renv hashes are not compatible)
   records <- lapply(sources, function(source) {
     record <- renv_description_read(source)
     record$Hash <- renv_hash_description(source)
@@ -135,4 +137,11 @@ renv_migrate_packrat_cache <- function(project) {
 
   TRUE
 
+}
+
+renv_migrate_packrat_infrastructure <- function(project) {
+  unlink(file.path(project, ".Rprofile"))
+  renv_infrastructure_write(project)
+  vwritef("* The renv support infrastructure has been written.")
+  TRUE
 }

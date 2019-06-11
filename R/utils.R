@@ -131,9 +131,19 @@ catchall <- function(expr) {
     tryCatch(expr, condition = identity)
 }
 
-ask <- function(question) {
-  response <- readline(sprintf("%s [y/N]: ", question))
-  tolower(response) %in% c("y", "yes")
+ask <- function(question, default = FALSE) {
+
+  if (!interactive())
+    return(default)
+
+  selection <- if (default) "[Y/n]" else "[y/N]"
+  prompt <- sprintf("%s %s: ", question, selection)
+  response <- tolower(trimws(readline(prompt)))
+  if (!nzchar(response))
+    return(default)
+
+  substring(response, 1, 1) == "y"
+
 }
 
 proceed <- function() {
