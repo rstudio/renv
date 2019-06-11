@@ -69,7 +69,7 @@ renv_upgrade_impl <- function(project, version, confirm) {
   renv_lockfile_save(lockfile, project = project)
 
   # now update the infrastructure to use this version of renv
-  renv_write_infrastructure(project, version = record$Version)
+  renv_infrastructure_write(project, version = record$Version)
 
   # and restart
   renv_request_restart(project, reason = "renv updated")
