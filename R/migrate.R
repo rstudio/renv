@@ -6,6 +6,7 @@ renv_migrate_packrat <- function(project = NULL) {
     stopf("migration requires the 'packrat' package to be installed")
 
   renv_migrate_packrat_lockfile(project)
+  renv_migrate_packrat_library(project)
   renv_migrate_packrat_options(project)
   renv_migrate_packrat_cache(project)
 
@@ -60,6 +61,30 @@ renv_migrate_packrat_lockfile <- function(project) {
   # write the lockfile
   lockpath <- file.path(project, "renv.lock")
   renv_lockfile_write(lockfile, file = lockpath)
+
+}
+
+renv_migrate_packrat_library <- function(project) {
+
+  packrat <- asNamespace("packrat")
+  sources <- list.files(packrat$libDir(project = project), full.names = TRUE)
+  targets <- renv_paths_library(basename(sources), project = project)
+
+  names(targets) <- sources
+  targets <- targets[!file.exists(targets)]
+  if (empty(targets)) {
+    vwritef("* The renv library is already synchronized with the Packrat library.")
+    return(TRUE)
+  }
+
+  # cache each installed package
+  vprintf("* Migrating library from Packrat to renv ... ")
+  ensure_parent_directory(targets)
+  copy <- renv_progress(renv_file_copy, length(targets))
+  enumerate(targets, copy)
+  vwritef("Done!")
+
+  TRUE
 
 }
 
