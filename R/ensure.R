@@ -41,6 +41,6 @@ ensure_directory <- function(paths) {
 }
 
 ensure_parent_directory <- function(path) {
-  ensure_directory(dirname(path))
+  ensure_directory(unique(dirname(path)))
 }
 

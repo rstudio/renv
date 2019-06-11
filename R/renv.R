@@ -19,7 +19,7 @@ activate <- function(project = NULL) {
 renv_activate_impl <- function(project, version) {
 
   # prepare renv infrastructure
-  renv_write_infrastructure(project, version)
+  renv_infrastructure_write(project, version)
   renv_bootstrap()
 
   # set library paths now so that they're properly restored in new sessions
@@ -46,7 +46,7 @@ deactivate <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
 
-  renv_remove_rprofile(project)
+  renv_infrastructure_remove_rprofile(project)
   renv_envvars_restore()
 
   renv_request_restart(project, reason = "renv deactivated")
@@ -79,7 +79,7 @@ load <- function(project = NULL) {
     renv_load_python(lockfile$Python)
   }
 
-  renv_write_infrastructure(project)
+  renv_infrastructure_write(project)
   renv_load_finish()
 
   fmt <- "* Project '%s' loaded. [renv %s]"

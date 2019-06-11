@@ -1,18 +1,18 @@
 
 # tools for writing / removing renv-related infrastructure
-renv_write_infrastructure <- function(project = NULL, version = NULL) {
+renv_infrastructure_write <- function(project = NULL, version = NULL) {
   project <- project %||% renv_project()
 
-  renv_write_rprofile(project)
-  renv_write_rbuildignore(project)
-  renv_write_gitignore(project)
-  renv_write_activate(project, version = version)
+  renv_infrastructure_write_rprofile(project)
+  renv_infrastructure_write_rbuildignore(project)
+  renv_infrastructure_write_gitignore(project)
+  renv_infrastructure_write_activate(project, version = version)
 }
 
 
-renv_write_rprofile <- function(project) {
+renv_infrastructure_write_rprofile <- function(project) {
 
-  renv_write_entry_impl(
+  renv_infrastructure_write_entry_impl(
     lines  = "source(\"renv/activate.R\")",
     file   = file.path(project, ".Rprofile"),
     create = TRUE
@@ -20,9 +20,9 @@ renv_write_rprofile <- function(project) {
 
 }
 
-renv_write_rbuildignore <- function(project) {
+renv_infrastructure_write_rbuildignore <- function(project) {
 
-  renv_write_entry_impl(
+  renv_infrastructure_write_entry_impl(
     lines  = "^renv$",
     file   = file.path(project, ".Rbuildignore"),
     create = renv_project_type(project) == "package"
@@ -30,9 +30,9 @@ renv_write_rbuildignore <- function(project) {
 
 }
 
-renv_write_gitignore <- function(project) {
+renv_infrastructure_write_gitignore <- function(project) {
 
-  renv_write_entry_impl(
+  renv_infrastructure_write_entry_impl(
     lines  = c("library/", "python/"),
     file   = file.path(project, "renv/.gitignore"),
     create = file.exists(file.path(project, ".git"))
@@ -40,7 +40,7 @@ renv_write_gitignore <- function(project) {
 
 }
 
-renv_write_activate <- function(project = NULL, version = NULL) {
+renv_infrastructure_write_activate <- function(project = NULL, version = NULL) {
   project <- project %||% renv_project()
   version <- version %||% renv_activate_version(project)
 
@@ -61,7 +61,7 @@ renv_write_activate <- function(project = NULL, version = NULL) {
 }
 
 
-renv_write_entry_impl <- function(lines, file, create) {
+renv_infrastructure_write_entry_impl <- function(lines, file, create) {
 
   # check to see if file doesn't exist
   if (!file.exists(file)) {
@@ -90,35 +90,35 @@ renv_write_entry_impl <- function(lines, file, create) {
 
 
 
-renv_remove_infrastructure <- function(project = NULL) {
+renv_infrastructure_remove <- function(project = NULL) {
   project <- project %||% renv_project()
 
-  renv_remove_rprofile(project)
-  renv_remove_rbuildignore(project)
+  renv_infrastructure_remove_rprofile(project)
+  renv_infrastructure_remove_rbuildignore(project)
 
   unlink(file.path(project, "renv"), recursive = TRUE)
 }
 
 
-renv_remove_rprofile <- function(project) {
+renv_infrastructure_remove_rprofile <- function(project) {
 
-  renv_remove_entry_impl(
+  renv_infrastructure_remove_entry_impl(
     "source(\"renv/activate.R\")",
     file.path(project, ".Rprofile")
   )
 
 }
 
-renv_remove_rbuildignore <- function(project) {
+renv_infrastructure_remove_rbuildignore <- function(project) {
 
-  renv_remove_entry_impl(
+  renv_infrastructure_remove_entry_impl(
     "^renv$",
     file.path(project, ".Rbuildignore")
   )
 
 }
 
-renv_remove_entry_impl <- function(line, file) {
+renv_infrastructure_remove_entry_impl <- function(line, file) {
 
   # if the file doesn't exist, nothing to do
   if (!file.exists(file))
