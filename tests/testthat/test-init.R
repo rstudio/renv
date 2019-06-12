@@ -31,7 +31,21 @@ test_that("we cannot initialize a project using 'brunch'", {
   callback <- renv_tests_scope("brunch")
   on.exit(callback(), add = TRUE)
 
-  # should fail because 'toast' is too old
-  expect_error(renv::init())
+  # 'brunch' will fail to install
+  renv::init()
+
+  expect_false(file.exists(renv_paths_library("brunch")))
+
+})
+
+test_that("attempts to initialize a project with a missing package is okay", {
+
+  callback <- renv_tests_scope("missing")
+  on.exit(callback(), add = TRUE)
+
+  # package 'missing' does not exist and so cannot be installed
+  renv::init()
+
+  expect_false(file.exists(renv_paths_library("missing")))
 
 })

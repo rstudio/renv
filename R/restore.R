@@ -170,9 +170,13 @@ renv_restore_state <- function() {
   renv_global_get("restore.state")
 }
 
-renv_restore_begin <- function(records = NULL, packages = NULL, recursive = TRUE) {
+renv_restore_begin <- function(records = NULL,
+                               packages = NULL,
+                               handler = NULL,
+                               recursive = TRUE)
+{
 
-  envir <- env(
+  renv_global_set("restore.state", env(
 
     # the package records used for restore, providing information
     # on the packages to be installed (their version, source, etc)
@@ -181,6 +185,9 @@ renv_restore_begin <- function(records = NULL, packages = NULL, recursive = TRUE
     # the set of packages to be installed in this restore session;
     # as requested by the user / front-end API call
     packages = packages,
+
+    # an optional custom error handler
+    handler = handler %||% function(package, action) action,
 
     # should package dependencies be crawled recursively? this is useful if
     # the records list is incomplete and needs to be built as packages are
@@ -195,9 +202,7 @@ renv_restore_begin <- function(records = NULL, packages = NULL, recursive = TRUE
     # as they are discovered
     requirements = new.env(parent = emptyenv())
 
-  )
-
-  renv_global_set("restore.state", envir)
+  ))
 
 }
 

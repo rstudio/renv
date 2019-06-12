@@ -12,6 +12,7 @@
 ^git$
 ^internal$
 ^renv$
+^tools$
 
 \.renvignore$
 

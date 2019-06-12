@@ -78,9 +78,13 @@ renv_install <- function(project, records) {
 
   linker <- if (linkable) renv_file_link else renv_file_copy
 
+  # get error handler
+  state <- renv_restore_state()
+  handler <- state$handler %||% function(...) {}
+
   # iterate through records and install
   for (record in records)
-    renv_install_impl(record, linker)
+    handler(record$Package, renv_install_impl(record, linker))
 
   # migrate packages into true library
   sources <- list.files(templib, full.names = TRUE)

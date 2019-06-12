@@ -12,10 +12,3 @@ renv_verbose <- function() {
   interactive()
 
 }
-
-renv_verbose_with <- function(verbose, expr) {
-  renv.verbose <- getOption("renv.verbose")
-  options(renv.verbose = verbose)
-  on.exit(options(renv.verbose = renv.verbose), add = TRUE)
-  expr
-}
