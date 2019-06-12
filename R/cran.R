@@ -20,14 +20,14 @@ renv_available_packages_impl <- function(type) {
 
   # notify user since this can take some time for non-local CRAN
   fmt <- "* Querying repositories for available %s packages ... "
-  vprintf(fmt, type, file = stderr())
+  vprintf(fmt, type)
 
   # request available packages
   urls <- contrib.url(repos, type)
   result <- lapply(urls, renv_available_packages_query, type = type)
 
   # report success
-  vwritef("Done!", con = stderr())
+  vwritef("Done!")
   result
 
 }
@@ -43,10 +43,13 @@ renv_available_packages_query <- function(url, type) {
   # whose PACKAGES files do not exist; note that an error is thrown in that
   # case anyhow)
   db <- withCallingHandlers(
-    available.packages(contriburl = url),
+    catch(available.packages(contriburl = url)),
     warning = function(w) invokeRestart("muffleWarning"),
     message = function(m) invokeRestart("muffleMessage")
   )
+
+  if (inherits(db, "error"))
+    return(data.frame())
 
   # save to our cache
   ensure_parent_directory(path)

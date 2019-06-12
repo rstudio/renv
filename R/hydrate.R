@@ -52,8 +52,8 @@ hydrate <- function(packages = NULL,
                     missing = NULL)
 {
   renv_scope_error_handler()
-  project  <- project  %||% renv_project()
-  library  <- library  %||% renv_libpaths_default()
+  project  <- project %||% renv_project()
+  library  <- library %||% renv_libpaths_default()
 
   missing <- missing %||% getOption("renv.hydrate.missing", default = "install")
   missing <- match.arg(missing, c("install", "ignore"))
@@ -151,6 +151,7 @@ renv_hydrate_copy_packages <- function(packages, library) {
 
 renv_hydrate_resolve_missing <- function(project, na) {
 
+  # figure out which packages are missing (if any)
   packages <- names(na)
   library <- renv_paths_library(project = project)
   installed <- renv_installed_packages(lib.loc = library)
@@ -159,9 +160,44 @@ renv_hydrate_resolve_missing <- function(project, na) {
 
   vwritef("* Resolving missing dependencies  ... ")
 
-  renv_restore_begin(packages = packages)
+  # define a custom error handler for packages which
+  # we failed to retrieve
+  errors <- stack()
+  handler <- function(package, action) {
+    error <- catch(action)
+    if (inherits(error, "error"))
+      errors$push(list(package = package, error = error))
+  }
+
+  # perform the restore
+  renv_restore_begin(packages = packages, handler = handler)
   on.exit(renv_restore_end(), add = TRUE)
   records <- renv_retrieve(packages)
   renv_install(project, records)
+
+  # if we failed to restore anything, warn the user
+  data <- errors$data()
+  if (empty(data))
+    return()
+
+  if (renv_verbose()) {
+
+    text <- map_chr(data, function(item) {
+      package <- item$package
+      message <- conditionMessage(item$error)
+      short <- trunc(paste(message, collapse = ";"), 60L)
+      sprintf("[%s]: %s", package, short)
+    })
+
+    renv_pretty_print(
+      text,
+      "The following package(s) were not installed successfully:",
+      "You may need to manually download and install these packages.",
+      wrap = FALSE
+    )
+
+  }
+
+  invisible(NULL)
 
 }

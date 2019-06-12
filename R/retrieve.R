@@ -10,8 +10,9 @@ renv_retrieve <- function(packages) {
     stopf("renv_restore_begin() must be called first")
 
   # TODO: parallel?
+  handler <- state$handler
   for (package in packages)
-    renv_retrieve_impl(package)
+    handler(package, renv_retrieve_impl(package))
 
   state <- renv_restore_state()
   data <- state$retrieved$data()
