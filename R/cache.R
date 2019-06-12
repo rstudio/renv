@@ -117,10 +117,10 @@ renv_cache_prime <- function(library) {
 
 }
 
-renv_cache_synchronize <- function(record, link) {
+renv_cache_synchronize <- function(record, library = NULL, link = FALSE) {
 
   # construct path to package in library
-  library <- renv_libpaths_default()
+  library <- library %||% renv_libpaths_default()
   path <- file.path(library, record$Package)
   if (!renv_file_exists(path))
     return(FALSE)
