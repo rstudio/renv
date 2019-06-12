@@ -111,8 +111,11 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
   renv_install_report_status(record, status)
 
   # link into cache
-  if (renv_config_use_cache())
-    renv_cache_synchronize(record, link = identical(linker, renv_file_link))
+  if (renv_config_use_cache()) {
+    library <- renv_libpaths_default()
+    link <- identical(linker, renv_file_link)
+    renv_cache_synchronize(record, library = library, link = link)
+  }
 
 }
 

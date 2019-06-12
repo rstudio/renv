@@ -16,7 +16,7 @@ renv_migrate_packrat <- function(project = NULL) {
   fmt <- "* Project '%s' has been migrated from Packrat to renv."
   vwritef(fmt, aliased_path(project))
 
-  vprintf("* Consider deleting the 'packrat' folder if it is no longer needed.")
+  vprintf("* Consider deleting the project 'packrat' folder if it is no longer needed.")
   invisible(TRUE)
 }
 
@@ -56,12 +56,14 @@ renv_migrate_packrat_lockfile <- function(project) {
   names(records) <- extract_chr(records, "Package")
 
   # generate a blank lockfile
-  lockfile <- renv_lockfile_init(project)
+  lockfile <- list()
+  lockfile$renv <- list(Version = renv_package_version("renv"))
+  lockfile$R    <- renv_lockfile_init_r(project)
 
   # update fields
   lockfile$R$Version <- header$RVersion
   lockfile$R$Repositories <- as.character(repos)
-  lockfile$R$Packages <- records
+  lockfile$R$Package <- records
 
   # write the lockfile
   lockpath <- file.path(project, "renv.lock")
@@ -82,12 +84,21 @@ renv_migrate_packrat_library <- function(project) {
     return(TRUE)
   }
 
-  # cache each installed package
+  # copy packages from Packrat to renv private library
   vprintf("* Migrating library from Packrat to renv ... ")
   ensure_parent_directory(targets)
   copy <- renv_progress(renv_file_copy, length(targets))
   enumerate(targets, copy)
   vwritef("Done!")
+
+  # move packages into the cache
+  if (renv_config_use_cache()) {
+    vprintf("* Moving packages into the renv cache ... ")
+    records <- lapply(targets, renv_description_read)
+    sync <- renv_progress(renv_cache_synchronize, length(targets))
+    lapply(records, sync, library = renv_paths_library(project = project), link = TRUE)
+    vwritef("Done!")
+  }
 
   TRUE
 
@@ -129,11 +140,13 @@ renv_migrate_packrat_cache <- function(project) {
   }
 
   # cache each installed package
-  vprintf("* Migrating cached packages from Packrat to renv ... ")
-  ensure_parent_directory(targets)
-  copy <- renv_progress(renv_file_copy, length(targets))
-  enumerate(targets, copy)
-  vwritef("Done!")
+  if (renv_config_use_cache()) {
+    vprintf("* Migrating Packrat cache to renv cache ... ")
+    ensure_parent_directory(targets)
+    copy <- renv_progress(renv_file_copy, length(targets))
+    enumerate(targets, copy)
+    vwritef("Done!")
+  }
 
   TRUE
 
