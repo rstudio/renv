@@ -35,9 +35,14 @@
 #' The following `renv` configuration options are available:
 #'
 #' \tabular{lll}{
-#' **Name**        \tab **Type**      \tab **Description** \cr
-#' `auto.snapshot` \tab `logical(1)`  \tab Automatically snapshot changes to the project library after a call to [install()]. \cr
-#' `use.cache`     \tab `logical(1)`  \tab Use the global cache when installing packages?
+#' **Name** \tab **Description** \cr
+#' `auto.snapshot` \tab `logical(1)` \tab
+#'   Automatically snapshot changes to the project library after a new package is installed?
+#'   Note that package upgrades or removals will not be automatically snapshotted.
+#'   (Boolean; defaults to `TRUE`) \cr
+#' `use.cache` \tab `logical(1)` \tab
+#'   Use the global cache when installing packages?
+#'   (Boolean; defaults to `TRUE`) \cr
 #' }
 #'
 #' @rdname config
