@@ -1,5 +1,5 @@
 
-renv_pretty_print <- function(packages,
+renv_pretty_print <- function(values,
                               preamble = NULL,
                               postamble = NULL,
                               emitter = NULL,
@@ -13,9 +13,9 @@ renv_pretty_print <- function(packages,
   }
 
   formatted <- if (wrap)
-    strwrap(paste(packages, collapse = ", "), width = 60)
+    strwrap(paste(values, collapse = ", "), width = 60)
   else
-    packages
+    values
 
   msg$push(paste("\t", formatted, sep = "", collapse = "\n"))
 
