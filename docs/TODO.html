@@ -22,8 +22,9 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="pkgdown.css" rel="stylesheet">
@@ -61,7 +62,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -191,6 +192,19 @@ Install of <code>keras</code> failed to install <code>reticulate</code>?</p></li
 API for activating project and upgrading <code>renv</code>, rather than using previously-recorded version of <code>renv</code>?</p></li>
 <li><p><input type="checkbox" disabled>
 Treat user library as a source when restoring projects?</p></li>
+<li><p><input type="checkbox" disabled><code>renv</code> should build packages before install (especially for packages from GitHub)</p></li>
+<li><p><input type="checkbox" disabled>
+Use <code>pkgcache</code> for package installation?</p></li>
+<li><p><input type="checkbox" disabled>
+Use <code>pkgdepends</code> to validate dependency list before snapshot.</p></li>
+<li><p><input type="checkbox" disabled>
+API to allow <code>pak</code> to use the cache?</p></li>
+<li><p><input type="checkbox" disabled>
+Record usage time for packages (as alternate scheme for finding unused packages)</p></li>
+<li><p><input type="checkbox" disabled><code><a href="reference/revert.html">renv::revert()</a></code> should tell the user what it did.</p></li>
+<li><p><input type="checkbox" disabled><code><a href="reference/revert.html">renv::revert()</a></code> should have project argument last.</p></li>
+<li><p><input type="checkbox" disabled>
+Warn when installing a package currently loaded? (so that user knows they must restart R to get newly-installed package)</p></li>
 </ul>
 
   </div>
@@ -204,7 +218,7 @@ Treat user library as a source when restoring projects?</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9100.</p>
 </div>
       </footer>
    </div>

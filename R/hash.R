@@ -29,6 +29,15 @@ renv_hash_description <- function(path) {
   tempfile <- renv_tempfile("renv-description-hash-")
   contents <- paste(names(ordered), ordered, sep = ": ", collapse = "\n")
 
+  # remove whitespace -- it's possible that tools (e.g. Packrat) that
+  # mutate a package's DESCRIPTION file may also inadvertently change
+  # the structure of whitespace within some fields; that whitespace is
+  # normally not semantically meaningful so we remove that so such
+  # DESCRIPTIONS can obtain the same hash value. (this ultimately
+  # arises as 'write.dcf()' allows both 'indent' and 'width' to be
+  # configured based on the 'width' option)
+  contents <- gsub("[[:space:]]", "", contents)
+
   # create the file connection (use binary so that unix newlines are used
   # across platforms, for more stable hashing)
   con <- file(tempfile, open = "wb")

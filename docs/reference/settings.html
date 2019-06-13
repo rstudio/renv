@@ -22,8 +22,9 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -65,7 +66,7 @@ renv with your particular project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0</span>
       </span>
     </div>
 
@@ -138,7 +139,7 @@ renv with your particular project." />
         
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>An object of class <code>list</code> of length 2.</p>
+    <p>An object of class <code>list</code> of length 3.</p>
     
     <h2 class="hasAnchor" id="settings"><a class="anchor" href="#settings"></a>Settings</h2>
 
@@ -153,18 +154,36 @@ in some global library, but for some reason <code>renv</code> is not able to ins
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).</p></dd>
+    <dt><code>use.cache</code></dt><dd><p>Use a global cache of <span style="R">R</span> packages. When active, <code>renv</code> will install
+packages into a global cache, and link packages from the cache into your
+<code>renv</code> projects as appropriate. This can greatly save on disk space
+and install time when for <span style="R">R</span> packages which are used across multiple
+projects in the same environment.</p></dd>
     </dl>
+    
+    <h2 class="hasAnchor" id="user-provided-defaults"><a class="anchor" href="#user-provided-defaults"></a>User-Provided Defaults</h2>
+
+    
+    <p>It is possible to provide your own global defaults for these options.
+See <a href='config.html'>config</a> for more details. This can be useful if you'd like to enforce
+certain project settings within new projects.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
+    <pre class="examples"><div class='input'>
 <span class='co'># check the 'ignored.packages' option</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/renv/man/settings.html'>settings</a></span>$<span class='fu'>ignored.packages</span>()
-
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/renv/man/settings.html'>settings</a></span>$<span class='fu'>ignored.packages</span>()</div><div class='output co'>#&gt; character(0)</div><div class='input'>
 <span class='co'># ignore the 'tidyverse' package in this project</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/renv/man/settings.html'>settings</a></span>$<span class='fu'>ignored.packages</span>(<span class='st'>"tidyverse"</span>)
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/renv/man/settings.html'>settings</a></span>$<span class='fu'>ignored.packages</span>(<span class='st'>"tidyverse"</span>, <span class='kw'>persist</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='co'># }</span></pre>
+<span class='co'># cache is turned on by default</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/renv/man/settings.html'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='co'># but we can disable it by default</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.config.use.cache</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/renv/man/settings.html'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='co'># enable for current project</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/renv/man/settings.html'>settings</a></span>$<span class='fu'>use.cache</span>(<span class='fl'>TRUE</span>, <span class='kw'>persist</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/renv/man/settings.html'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -173,6 +192,8 @@ installing some packages from source on your machine).</p></dd>
       <li><a href="#format">Format</a></li>
 
       <li><a href="#settings">Settings</a></li>
+
+      <li><a href="#user-provided-defaults">User-Provided Defaults</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -186,7 +207,7 @@ installing some packages from source on your machine).</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9100.</p>
 </div>
       </footer>
    </div>

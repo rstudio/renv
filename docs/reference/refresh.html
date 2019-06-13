@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • renv</title>
+<title>Refresh the Local Cache of Packages Available on CRAN — refresh • renv</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,7 +32,11 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Refresh the Local Cache of Packages Available on CRAN — refresh" />
+
+<meta property="og:description" content="Query the active CRAN repositories for available packages, and
+update the in-memory cache of those packages." />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -49,7 +53,7 @@
   </head>
 
   <body>
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -119,20 +123,37 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Refresh the Local Cache of Packages Available on CRAN</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/refresh.R'><code>R/refresh.R</code></a></small>
+    <div class="hidden name"><code>refresh.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="local-sources.html">Local Sources</a></li>
-        <li><a href="lockfile.html">Lockfiles</a></li>
-        <li><a href="python.html">Python Integration</a></li>
-        <li><a href="renv.html">Introduction to renv</a></li>
-      </ul>
+    <div class="ref-description">
+    
+    <p>Query the active CRAN repositories for available packages, and
+update the in-memory cache of those packages.</p>
+    
     </div>
+
+    <pre class="usage"><span class='fu'>refresh</span>()</pre>
+        
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Note that <span style="R">R</span> also maintains its own on-disk cache of available packages,
+which is used by <code><a href='https://rdrr.io/r/utils/available.packages.html'>available.packages()</a></code>. Calling <code>refresh()</code> will force
+an update of both types of caches. <code>renv</code> prefers using an in-memory
+cache as on occasion the temporary directory can be slow to access (e.g.
+when it is a mounted network filesystem).</p>
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      
+      <li><a href="#details">Details</a></li>
+          </ul>
+
   </div>
 </div>
 
