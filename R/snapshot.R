@@ -243,7 +243,16 @@ renv_snapshot_validate_sources <- function(project, lockfile, library, confirm) 
 
 }
 
+# NOTE: if packages are found in multiple libraries,
+# then the first package found in the library paths is
+# kept and others are discarded
 renv_snapshot_r_packages <- function(library = NULL) {
+  records <- uapply(library, renv_snapshot_r_packages_impl)
+  dupes <- duplicated(names(records))
+  records[!dupes]
+}
+
+renv_snapshot_r_packages_impl <- function(library = NULL) {
 
   # list packages in the library
   library <- library %||% renv_libpaths_default()
