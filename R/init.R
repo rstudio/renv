@@ -113,11 +113,11 @@ renv_init_action <- function(project, library, lockfile) {
   # ask the user for an action to take when required
   if (interactive() && action == "ask") {
 
-    title <- "This project has already been initialized. What would you like to do?"
+    title <- "This project already has a lockfile. What would you like to do?"
     choices <- c(
       restore = "Restore the project from the lockfile.",
-      init    = "Re-initialize the project, discovering and installing R package dependencies as required.",
-      nothing = "Activate the project without installing or snapshotting any packages."
+      init    = "Discard the lockfile and re-initialize the project.",
+      nothing = "Activate the project without snapshotting or installing any packages."
     )
 
     selection <- tryCatch(
