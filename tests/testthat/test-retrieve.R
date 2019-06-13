@@ -93,3 +93,24 @@ test_that("we can retrieve packages from local sources", {
   renv_test_retrieve(record)
 
 })
+
+test_that("compatible local sources are preferred when available", {
+
+  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
+
+  record <- list(
+    Package = "skeleton",
+    Version = "1.0.1",
+    Source  = "CRAN"
+  )
+
+  renv_test_retrieve(record)
+
+  record <- list(
+    Package = "skeleton",
+    Version = "1.0.1"
+  )
+
+  renv_test_retrieve(record)
+
+})

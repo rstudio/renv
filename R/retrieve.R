@@ -60,6 +60,16 @@ renv_retrieve_impl <- function(package) {
   if (file.exists(path))
     return(renv_retrieve_successful(record, path))
 
+  # if we find a suitable package tarball available locally,
+  # then we can just use that directly (this also acts as an escape
+  # hatch for cases where a package might have some known external source
+  # but the user is unable to access that source in some context).
+  #
+  # TODO: consider if this should be guarded by a user preference
+  retrieved <- catch(renv_retrieve_local(record))
+  if (identical(retrieved, TRUE))
+    return(TRUE)
+
   # otherwise, try and restore from external source
   source <- tolower(record[["Source"]] %||% record[["RemoteType"]] %||% "CRAN")
   switch(source,
@@ -218,8 +228,24 @@ renv_retrieve_local_find <- function(record) {
 
 }
 
+renv_retrieve_local_report <- function(record) {
+
+  source <- record$Source
+  if (identical(record$Source, "local"))
+    return(record)
+
+  record$Source <- "local"
+  rather <- if (is.null(source)) "" else paste(" rather than", renv_alias(source))
+  fmt <- "* Package %s [%s] will be installed from local sources%s."
+  with(record, vwritef(fmt, Package, Version, rather))
+
+  record
+
+}
+
 renv_retrieve_local <- function(record) {
   source <- renv_retrieve_local_find(record)
+  record <- renv_retrieve_local_report(record)
   url <- paste("file://", source, sep = "")
   path <- renv_retrieve_path(record, type = names(source))
   renv_retrieve_package(record, url, path)
