@@ -13,6 +13,7 @@ reference:
 - title: Library Management
   contents:
   - hydrate
+  - refresh
   - clean
 
 - title: Lockfile Management
@@ -22,7 +23,7 @@ reference:
   - history
   - revert
 
-- title: Cache
+- title: Package Cache
   contents:
   - purge
 
@@ -40,9 +41,15 @@ reference:
   - project
   - activate
   - deactivate
+  - migrate
   - load
   - upgrade
   - paths
   - equip
   - settings
+  - config
+
+- title: Python Integration
+  contents:
+  - use_python
 
