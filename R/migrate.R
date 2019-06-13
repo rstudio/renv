@@ -1,4 +1,23 @@
 
+#' Migrate a Project from Packrat to renv
+#'
+#' Migrate a project's infrastructure from Packrat to `renv`.
+#' The following actions are taken:
+#'
+#' - The Packrat lockfile is migrated to `renv.lock`;
+#' - Packages installed in the Packrat library are migrated to the `renv` library;
+#' - Relevant Packrat options (e.g. `ignored.packages`) are copied;
+#' - Packages in the Packrat cache are imported into the `renv` cache;
+#' - The project `.Rprofile` is updated to use `renv`.
+#'
+#' @inheritParams renv-params
+#' @export
+migrate <- function(project = NULL) {
+  project <- project %||% renv_project()
+  renv_scope_error_handler()
+  renv_migrate_packrat(project)
+}
+
 renv_migrate_packrat <- function(project = NULL) {
   project <- project %||% renv_project()
 
