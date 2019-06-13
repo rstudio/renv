@@ -2,7 +2,8 @@
 `_renv_settings` <- new.env(parent = emptyenv())
 
 renv_settings_defaults <- function() {
-  as.list(extract(`_renv_settings`, "defaults"))
+  defaults <- extract(`_renv_settings`, "default")
+  defaults[order(names(defaults))]
 }
 
 renv_settings_default <- function(name) {
@@ -11,17 +12,36 @@ renv_settings_default <- function(name) {
 
 renv_settings_validate <- function(name, value) {
 
-  if (empty(value))
+  # NULL implies restore default value
+  if (is.null(value))
     return(renv_settings_default(name))
 
+  # otherwise, validate the user-provided value
   validate <- `_renv_settings`[[name]]$validate
   if (validate(value))
     return(value)
 
+  # validation failed; warn the user and use default
   fmt <- "%s is an invalid value for setting '%s'; using default %s instead"
   default <- renv_settings_default(name)
   warningf(fmt, deparsed(value), name, deparsed(default))
   default
+
+}
+
+renv_settings_decode <- function(name, value) {
+
+  # TODO: consider custom decoders per-setting
+  decoded <- case(
+    value == "NULL"  ~ NULL,
+    value == "NA"    ~ NA,
+    value == "NaN"   ~ NaN,
+    value == "TRUE"  ~ TRUE,
+    value == "FALSE" ~ FALSE,
+    ~ strsplit(value, "\\s*,\\s*")[[1]]
+  )
+
+  renv_settings_validate(name, decoded)
 
 }
 
@@ -32,27 +52,15 @@ renv_settings_read <- function(project) {
     return(renv_settings_defaults())
 
   dcf <- catch(renv_dcf_read(path))
-  if (inherits(dcf, "error"))
+  if (inherits(dcf, "error")) {
+    warning(dcf)
     return(renv_settings_defaults())
+  }
 
   known <- ls(envir = `_renv_settings`)
   dcf <- dcf[intersect(names(dcf), known)]
 
-  settings <- enumerate(dcf, function(name, value) {
-
-    # TODO: consider custom decoders per-setting
-    decoded <- case(
-      value == "NULL"  ~ NULL,
-      value == "NA"    ~ NA,
-      value == "NaN"   ~ NaN,
-      value == "TRUE"  ~ TRUE,
-      value == "FALSE" ~ FALSE,
-      ~ strsplit(value, "\\s*,\\s*")[[1]]
-    )
-
-    renv_settings_validate(name, decoded)
-
-  })
+  settings <- enumerate(dcf, renv_settings_decode)
 
   defaults <- renv_settings_defaults()
   missing <- setdiff(names(defaults), names(settings))
@@ -62,15 +70,31 @@ renv_settings_read <- function(project) {
 
 }
 
-renv_settings_get <- function(project, name) {
+renv_settings_get <- function(project, name = NULL) {
 
+  # check for a cached settings value
   path <- file.path(project, "renv/settings.dcf")
   cache <- renv_filebacked_get(path)
   if (!is.null(cache))
-    return(cache[[name]] %||% renv_settings_default(name))
+    return(if (is.null(name)) cache else cache[[name]])
 
+  # no cache; read the settings file and check
   settings <- renv_settings_read(project)
-  settings[[name]] %||% renv_settings_default(name)
+  if (is.null(name))
+    return(settings)
+
+  # get requested setting
+  setting <- settings[[name]]
+  if (!is.null(setting))
+    return(setting)
+
+  # no value recorded; check for global user config
+  config <- renv_config_get(name)
+  if (!is.null(config))
+    return(config)
+
+  # no user-defined value available; use default
+  renv_settings_default(name)
 
 }
 
@@ -101,6 +125,7 @@ renv_settings_updated <- function(project, name, old, new) {
 
 renv_settings_persist <- function(project, settings) {
   path <- file.path(project, "renv/settings.dcf")
+  settings <- settings[order(names(settings))]
   settings <- lapply(settings, paste, collapse = ", ")
   ensure_parent_directory(path)
   write.dcf(as.data.frame(settings, stringsAsFactors = FALSE), path)
@@ -208,19 +233,26 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 #'
+#' \item{\code{use.cache}}{
+#'
+#'   Use a global cache of \R packages. When active, `renv` will install
+#'   packages into a global cache, and link packages from the cache into your
+#'   `renv` projects as appropriate. This can greatly save on disk space
+#'   and install time when for \R packages which are used across multiple
+#'   projects in the same environment.
+#'
 #' }
 #'
+#' }
+#'
+#' @section User-Provided Defaults:
+#'
+#' It is possible to provide your own global defaults for these options.
+#' See [config] for more details. This can be useful if you'd like to enforce
+#' certain project settings within new projects.
+#'
+#' @example examples/examples-settings.R
 #' @export
-#' @examples
-#' \dontrun{
-#'
-#' # check the 'ignored.packages' option
-#' renv::settings$ignored.packages()
-#'
-#' # ignore the 'tidyverse' package in this project
-#' renv::settings$ignored.packages("tidyverse")
-#'
-#' }
 settings <- list(
 
   ignored.packages   = renv_settings_impl(
@@ -235,6 +267,13 @@ settings <- list(
     validate = is.character,
     default  = character(),
     update   = NULL
+  ),
+
+  use.cache = renv_settings_impl(
+    name     = "use.cache",
+    validate = is.logical,
+    default  = TRUE,
+    update   = renv_settings_updated_cache
   )
 
 )

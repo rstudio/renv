@@ -155,11 +155,8 @@ renv_init_validate_project <- function(project, force) {
 
 renv_init_settings <- function(project, settings) {
 
-  if (is.null(settings))
-    return(NULL)
-
   ensure_directory(file.path(project, "renv"))
-  defaults <- renv_settings_defaults()
+  defaults <- renv_settings_read(project)
   merged <- renv_settings_merge(defaults, settings)
   renv_settings_persist(project, merged)
   invisible(merged)

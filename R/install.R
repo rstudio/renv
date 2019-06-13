@@ -14,18 +14,18 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param packages A character vector of \R packages to install. Required
-#'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed
-#'   as required.
-#'
 #' @param library The library from which packages should be installed. When
 #'   `NULL`, the active library (that is, the first entry reported in
 #'   `.libPaths()`) is used instead.
 #'
+#' @param packages A character vector of \R packages to install. Required
+#'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed
+#'   as required.
+#'
 #' @export
 install <- function(packages,
-                    project = NULL,
-                    library = NULL)
+                    library = NULL,
+                    project = NULL)
 {
   renv_scope_error_handler()
   project <- project %||% renv_project()
@@ -46,12 +46,12 @@ install <- function(packages,
 
   # retrieve packages
   records <- renv_retrieve(packages)
-  renv_install(project, records)
+  renv_install(records, library, project)
 
   invisible(records)
 }
 
-renv_install <- function(project, records) {
+renv_install <- function(records, library, project) {
 
   on.exit(renv_install_end(project, records), add = TRUE)
 
@@ -71,20 +71,13 @@ renv_install <- function(project, records) {
   ensure_directory(templib)
   renv_scope_libpaths(c(templib, renv_libpaths_all()))
 
-  # figure out whether we can use the cache during install
-  linkable <-
-    renv_config_use_cache() &&
-    identical(library, renv_paths_library(project = project))
-
-  linker <- if (linkable) renv_file_link else renv_file_copy
-
   # get error handler
   state <- renv_restore_state()
   handler <- state$handler %||% function(...) {}
 
   # iterate through records and install
   for (record in records)
-    handler(record$Package, renv_install_impl(record, linker))
+    handler(record$Package, renv_install_impl(record, library, project))
 
   # migrate packages into true library
   sources <- list.files(templib, full.names = TRUE)
@@ -94,12 +87,19 @@ renv_install <- function(project, records) {
 
 }
 
-renv_install_impl <- function(record, linker = renv_file_copy) {
+renv_install_impl <- function(record, library, project) {
 
   # skip installation if the requested record matches
   # the already-installed record
   if (renv_restore_skip(record))
     return(TRUE)
+
+  # figure out whether we can use the cache during install
+  linkable <-
+    settings$use.cache(project = project) &&
+    identical(library, renv_paths_library(project = project))
+
+  linker <- if (linkable) renv_file_link else renv_file_copy
 
   # check for cache entry and install if there
   cache <- renv_cache_package_path(record)
@@ -115,11 +115,8 @@ renv_install_impl <- function(record, linker = renv_file_copy) {
   renv_install_report_status(record, status)
 
   # link into cache
-  if (renv_config_use_cache()) {
-    library <- renv_libpaths_default()
-    link <- identical(linker, renv_file_link)
-    renv_cache_synchronize(record, library = library, link = link)
-  }
+  if (settings$use.cache(project = project))
+    renv_cache_synchronize(record, library = library, link = linkable)
 
 }
 

@@ -1,5 +1,5 @@
 
-renv_description_read <- function(path = NULL, package = NULL) {
+renv_description_read <- function(path = NULL, package = NULL, ...) {
 
   # if given a package name, construct path to that package
   if (!is.null(package))
@@ -46,7 +46,7 @@ renv_description_read <- function(path = NULL, package = NULL) {
 
   }
 
-  dcf <- renv_dcf_read(path)
+  dcf <- renv_dcf_read(path, ...)
   renv_filebacked_set(key, dcf)
   dcf
 

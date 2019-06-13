@@ -4,16 +4,12 @@
 \alias{hydrate}
 \title{Hydrate a Project}
 \usage{
-hydrate(packages = NULL, project = NULL, library = NULL,
-  missing = NULL)
+hydrate(packages = NULL, library = NULL, missing = NULL,
+  project = NULL)
 }
 \arguments{
 \item{packages}{The set of \R packages to install. When \code{NULL}, the
 set of packages as reported by \code{\link[=dependencies]{dependencies()}} is used.}
-
-\item{project}{The project directory. If \code{NULL}, then the active
-project will be used. If no project has been specifically activated,
-the current working directory is used.}
 
 \item{library}{The \R library to be hydrated. When \code{NULL}, the active
 library as reported by \code{.libPaths()} is used.}
@@ -21,6 +17,10 @@ library as reported by \code{.libPaths()} is used.}
 \item{missing}{The behavior to choose when one or more of the requested
 packages are not available on the system. See \strong{Missing Packages}
 for more details.}
+
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
 }
 \description{
 Discover the \R packages used within a project, and then install those

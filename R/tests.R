@@ -98,11 +98,12 @@ renv_tests_init_repos <- function() {
   ensure_directory(contrib)
 
   # copy in packages
-  packages <- list.files()
-  for (package in packages) {
+  paths <- list.files(getwd(), full.names = TRUE)
+  for (path in paths) {
 
     # create package tarball
-    desc <- renv_description_read(package)
+    desc <- renv_description_read(path)
+    package <- basename(path)
     tarball <- sprintf("%s_%s.tar.gz", package, desc$Version)
     tar(tarball, package, compression = "gzip", tar = "internal")
 
@@ -170,7 +171,8 @@ renv_test_retrieve <- function(record) {
   on.exit(renv_restore_end(), add = TRUE)
 
   records <- renv_retrieve(record$Package)
-  renv_install(getwd(), records)
+  library <- renv_libpaths_default()
+  renv_install(records, library, getwd())
 
   desc <- renv_description_read(file.path(templib, package))
 

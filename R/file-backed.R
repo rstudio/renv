@@ -7,25 +7,27 @@
 
 renv_filebacked_set <- function(path, value) {
 
-  if (!file.exists(path))
-    return(FALSE)
+  # validate the path
+  path <- path.expand(path)
+  stopifnot(path_absolute(path))
 
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  # create our cache entry
   info <- file.info(path, extra_cols = FALSE)
-  data <- list(value = value, mtime = info$mtime)
+  entry <- list(value = value, exists = file.exists(path), mtime = info$mtime)
 
-  assign(path, data, envir = `_renv_filebacked_cache`)
+  # store it
+  assign(path, entry, envir = `_renv_filebacked_cache`)
   invisible(value)
 
 }
 
 renv_filebacked_get <- function(path) {
 
-  if (!file.exists(path))
-    return(NULL)
+  # validate the path
+  path <- path.expand(path)
+  stopifnot(path_absolute(path))
 
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-
+  # check for entry in the cache
   if (!exists(path, envir = `_renv_filebacked_cache`))
     return(NULL)
 
@@ -33,10 +35,18 @@ renv_filebacked_get <- function(path) {
   if (is.null(entry))
     return(NULL)
 
+  # if the file didn't exist when we set the entry,
+  # check and see if it's still not there
+  if (!entry$exists && !file.exists(path))
+    return(entry$value)
+
+  # check the file mtime (guard against NA)
   info <- file.info(path, extra_cols = FALSE)
   if (is.na(entry$mtime) || is.na(info$mtime))
     return(NULL)
 
+  # if the file has been updated since, we have to
+  # discard our old cached value
   if (info$mtime > entry$mtime)
     return(NULL)
 
