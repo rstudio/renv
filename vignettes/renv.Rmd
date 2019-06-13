@@ -190,6 +190,7 @@ Installation from source can be challenging for a few reasons:
 
 <!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb -->
 
+
 ## Shims
 
 To help you take advantage of the package cache, `renv` places a couple of
@@ -245,6 +246,15 @@ Currently, only Git repositories are supported by `renv::history()` and
 3. In `renv`, the global package cache is enabled by default. This should
    reduce overall disk-space usage as packages can effectively be shared
    across each project using `renv`.
+
+
+## Migrating from Packrat
+
+The `renv::migrate()` function makes it possible to migrate projects from
+Packrat to `renv`. See the `?migrate` documentation for more details. In
+essence, calling `renv::migrate("<project path>")` will be enough to
+migrate the Packrat library and lockfile such that they can then be
+used by `renv`.
 
 
 ## Future Work
