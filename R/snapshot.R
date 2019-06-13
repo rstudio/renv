@@ -55,7 +55,12 @@ snapshot <- function(project  = NULL,
   }
 
   # check for missing dependencies and warn if any are discovered
-  if (!renv_snapshot_validate(project, new, library, confirm)) {
+  # TODO: enable this check for multi-library configurations
+  validated <-
+    length(library) > 1 ||
+    renv_snapshot_validate(project, new, library, confirm)
+
+  if (!validated) {
     message("* Operation aborted.")
     return(invisible(new))
   }
@@ -86,6 +91,10 @@ snapshot <- function(project  = NULL,
 }
 
 renv_snapshot_preflight <- function(project, library) {
+  lapply(library, renv_snapshot_preflight_impl, project = project)
+}
+
+renv_snapshot_preflight_impl <- function(project, library) {
   renv_snapshot_preflight_library_exists(project, library)
 }
 
