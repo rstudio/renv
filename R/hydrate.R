@@ -47,9 +47,9 @@
 #'
 #' @export
 hydrate <- function(packages = NULL,
-                    project = NULL,
                     library = NULL,
-                    missing = NULL)
+                    missing = NULL,
+                    project = NULL)
 {
   renv_scope_error_handler()
   project  <- project %||% renv_project()
@@ -74,7 +74,7 @@ hydrate <- function(packages = NULL,
 
   # copy packages from user library to cache
   linkable <-
-    renv_config_use_cache() &&
+    settings$use.cache(project = project) &&
     library == renv_paths_library(project = project)
 
   if (linkable)
@@ -173,7 +173,7 @@ renv_hydrate_resolve_missing <- function(project, na) {
   renv_restore_begin(packages = packages, handler = handler)
   on.exit(renv_restore_end(), add = TRUE)
   records <- renv_retrieve(packages)
-  renv_install(project, records)
+  renv_install(records, library, project)
 
   # if we failed to restore anything, warn the user
   data <- errors$data()

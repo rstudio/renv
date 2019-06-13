@@ -4,7 +4,7 @@
 \name{settings}
 \alias{settings}
 \title{Project Settings}
-\format{An object of class \code{list} of length 2.}
+\format{An object of class \code{list} of length 3.}
 \usage{
 settings
 }
@@ -36,18 +36,44 @@ installing some packages from source on your machine).
 
 }
 
+\item{\code{use.cache}}{
+
+Use a global cache of \R packages. When active, \code{renv} will install
+packages into a global cache, and link packages from the cache into your
+\code{renv} projects as appropriate. This can greatly save on disk space
+and install time when for \R packages which are used across multiple
+projects in the same environment.
+
+}
+
 }
 }
 
+\section{User-Provided Defaults}{
+
+
+It is possible to provide your own global defaults for these options.
+See \link{config} for more details. This can be useful if you'd like to enforce
+certain project settings within new projects.
+}
+
 \examples{
-\dontrun{
 
 # check the 'ignored.packages' option
 renv::settings$ignored.packages()
 
 # ignore the 'tidyverse' package in this project
-renv::settings$ignored.packages("tidyverse")
+renv::settings$ignored.packages("tidyverse", persist = FALSE)
 
-}
+# cache is turned on by default
+renv::settings$use.cache()
+
+# but we can disable it by default
+options(renv.config.use.cache = FALSE)
+renv::settings$use.cache()
+
+# enable for current project
+renv::settings$use.cache(TRUE, persist = FALSE)
+renv::settings$use.cache()
 }
 \keyword{datasets}

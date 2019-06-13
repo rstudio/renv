@@ -9,12 +9,11 @@
 ^renv\.lock$
 ^requirements\.txt$
 
+^examples$
 ^git$
 ^internal$
 ^renv$
 ^tools$
 
 \.renvignore$
-
-tags
 

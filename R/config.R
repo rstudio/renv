@@ -36,53 +36,39 @@
 #'
 #' \tabular{lll}{
 #' **Name** \tab **Description** \cr
+#'
 #' `auto.snapshot` \tab `logical(1)` \tab
 #'   Automatically snapshot changes to the project library after a new package is installed?
 #'   Note that package upgrades or removals will not be automatically snapshotted.
 #'   (Boolean; defaults to `TRUE`) \cr
+#'
 #' `use.cache` \tab `logical(1)` \tab
 #'   Use the global cache when installing packages?
 #'   (Boolean; defaults to `TRUE`) \cr
+#'
 #' }
 #'
 #' @rdname config
 #' @name config
 NULL
 
-renv_config <- function(name, default, coerce = identity) {
+renv_config_get <- function(name, default = NULL) {
 
-  result <- catch(renv_config_impl(name, default, coerce))
-  if (inherits(result, "error")) {
-    warning(result)
-    return(default)
-  }
-
-  result
-
-}
-
-renv_config_impl <- function(name, default, coerce) {
-
+  # check for R option of associated name
   optname <- tolower(name)
   optkey <- paste("renv.config", optname, sep = ".")
   optval <- getOption(optkey)
   if (!is.null(optval))
-    return(coerce(optval))
+    return(renv_settings_validate(name, optval))
 
+  # check for environment variable
   envname <- gsub(".", "_", toupper(name), fixed = TRUE)
   envkey <- paste("RENV_CONFIG", envname, sep = "_")
   envval <- Sys.getenv(envkey, unset = NA)
   if (!is.na(envval))
-    return(coerce(envval))
+    return(renv_settings_decode(name, envval))
 
+  # return default if nothing found
   default
 
-}
-
-renv_config_auto_snapshot <- function() {
-  renv_config("auto.snapshot", TRUE, as.logical)
-}
-
-renv_config_use_cache <- function() {
-  renv_config("use.cache", TRUE, as.logical)
 }

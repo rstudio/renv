@@ -41,13 +41,16 @@ The following \code{renv} configuration options are available:
 
 \tabular{lll}{
 \strong{Name} \tab \strong{Description} \cr
+
 \code{auto.snapshot} \tab \code{logical(1)} \tab
 Automatically snapshot changes to the project library after a new package is installed?
 Note that package upgrades or removals will not be automatically snapshotted.
 (Boolean; defaults to \code{TRUE}) \cr
+
 \code{use.cache} \tab \code{logical(1)} \tab
 Use the global cache when installing packages?
 (Boolean; defaults to \code{TRUE}) \cr
+
 }
 }
 

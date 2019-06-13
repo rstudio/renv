@@ -4,20 +4,20 @@
 \alias{install}
 \title{Install Packages}
 \usage{
-install(packages, project = NULL, library = NULL)
+install(packages, library = NULL, project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to install. Required
 package dependencies (\code{Depends}, \code{Imports}, \code{LinkingTo}) will be installed
 as required.}
 
-\item{project}{The project directory. If \code{NULL}, then the active
-project will be used. If no project has been specifically activated,
-the current working directory is used.}
-
 \item{library}{The library from which packages should be installed. When
 \code{NULL}, the active library (that is, the first entry reported in
 \code{.libPaths()}) is used instead.}
+
+\item{project}{The project directory. If \code{NULL}, then the active
+project will be used. If no project has been specifically activated,
+the current working directory is used.}
 }
 \description{
 Install one or more \R packages.
