@@ -464,7 +464,7 @@ renv_retrieve_missing_record <- function(package) {
   })
 
   if (!is.data.frame(entries)) {
-    fmt <- "failed to retrieve package '%s' (missing record)"
+    fmt <- "could not determine source for package '%s'"
     stopf(fmt, package)
   }
 
