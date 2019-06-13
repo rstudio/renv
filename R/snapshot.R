@@ -32,19 +32,10 @@ snapshot <- function(project  = NULL,
   project <- project %||% renv_project()
   library <- library %||% renv_libpaths_default()
 
-  # if we're snapshotting a non-project library, then filter the
-  # packages that will enter the lockfile based on what's in project
-  filter <- if (!identical(library, renv_paths_library(project = project)))
-    renv_snapshot_filter(project = project)
-
   renv_snapshot_preflight(project, library)
 
   new <- renv_lockfile_init(project)
-
-  new$R$Package <- renv_snapshot_filter_apply(
-    renv_snapshot_r_packages(library = library),
-    filter
-  )
+  new$R$Package <- renv_snapshot_r_packages(library = library)
 
   if (is.null(lockfile))
     return(new)
