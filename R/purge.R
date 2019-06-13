@@ -97,8 +97,9 @@ renv_purge_impl <- function(package,
 
   }
 
+  n <- length(paths)
   unlink(paths, recursive = TRUE)
-  printf("* Removed %i packages.", length(paths))
+  vwritef("* Removed %i %s.", n, plural("package", n))
   invisible(paths)
 
 }
