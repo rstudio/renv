@@ -389,7 +389,7 @@ renv_retrieve_successful <- function(record, path) {
 
 renv_retrieve_unknown_source <- function(record) {
 
-  status <- renv_retrieve_local(record)
+  status <- catch(renv_retrieve_local(record))
   if (!inherits(status, "error"))
     return(status)
 
