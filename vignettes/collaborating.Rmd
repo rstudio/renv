@@ -1,5 +1,5 @@
 ---
-title: "Collaboarting with renv"
+title: "Collaborating with renv"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{collaborating-with-renv}
