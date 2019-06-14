@@ -117,10 +117,10 @@ renv_cache_prime <- function(library) {
 
 }
 
-renv_cache_synchronize <- function(record, library = NULL, link = FALSE) {
+renv_cache_synchronize <- function(record, linkable = FALSE) {
 
   # construct path to package in library
-  library <- library %||% renv_libpaths_default()
+  library <- renv_libpaths_default()
   path <- file.path(library, record$Package)
   if (!file.exists(path))
     return(FALSE)
@@ -141,7 +141,7 @@ renv_cache_synchronize <- function(record, library = NULL, link = FALSE) {
 
   # copy into cache and link back into requested directory
   ensure_parent_directory(cache)
-  if (link) {
+  if (linkable) {
     renv_file_move(path, cache)
     renv_file_link(cache, path, overwrite = TRUE)
   } else {

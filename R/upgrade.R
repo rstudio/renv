@@ -61,7 +61,7 @@ renv_upgrade_impl <- function(project, version, confirm) {
   library <- renv_paths_bootstrap("renv", record$Version)
   ensure_directory(library)
   renv_scope_libpaths(library)
-  renv_install_impl(record, library, project)
+  renv_install_impl(record, project)
 
   # upgrade the lockfile
   lockfile <- renv_lockfile_load(project = project)

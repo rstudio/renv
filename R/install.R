@@ -77,7 +77,7 @@ renv_install <- function(records, library, project) {
 
   # iterate through records and install
   for (record in records)
-    handler(record$Package, renv_install_impl(record, library, project))
+    handler(record$Package, renv_install_impl(record, project))
 
   # migrate packages into true library
   sources <- list.files(templib, full.names = TRUE)
@@ -87,7 +87,7 @@ renv_install <- function(records, library, project) {
 
 }
 
-renv_install_impl <- function(record, library, project) {
+renv_install_impl <- function(record, project) {
 
   # skip installation if the requested record matches
   # the already-installed record
@@ -95,6 +95,7 @@ renv_install_impl <- function(record, library, project) {
     return(TRUE)
 
   # figure out whether we can use the cache during install
+  library <- renv_global("install.library") %||% renv_libpaths_default()
   linkable <-
     settings$use.cache(project = project) &&
     identical(library, renv_paths_library(project = project))
@@ -116,7 +117,7 @@ renv_install_impl <- function(record, library, project) {
 
   # link into cache
   if (settings$use.cache(project = project))
-    renv_cache_synchronize(record, library = library, link = linkable)
+    renv_cache_synchronize(record, linkable = linkable)
 
 }
 
