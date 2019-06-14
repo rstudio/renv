@@ -93,7 +93,7 @@ renv_status_report <- function(lock, curr) {
 
     writeLines("The following package(s) are out of sync:")
     writeLines("")
-    print(data, row.names = FALSE, indent = "  ")
+    print(data, row.names = FALSE)
     writeLines("")
     writeLines("Use `renv::snapshot()` to save the state of your library to the lockfile.")
     writeLines("Use `renv::restore()` to restore your library from the state of the lockfile.")
