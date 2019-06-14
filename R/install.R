@@ -95,7 +95,7 @@ renv_install_impl <- function(record, project) {
     return(TRUE)
 
   # figure out whether we can use the cache during install
-  library <- renv_global("install.library") %||% renv_libpaths_default()
+  library <- renv_global_get("install.library") %||% renv_libpaths_default()
   linkable <-
     settings$use.cache(project = project) &&
     identical(library, renv_paths_library(project = project))
