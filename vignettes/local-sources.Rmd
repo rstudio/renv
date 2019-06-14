@@ -43,3 +43,20 @@ renv:::renv_paths_local()
 ```
 
 See `?paths` for more details.
+
+
+## Explicit Sources
+
+You can also provide explicit source paths in the lockfile if desired. This is
+most useful if you are building an `renv` lockfile "by hand", or need to tweak
+an existing lockfile to point at a separate package for installation. For example,
+you could have a package record in `renv.lock` of the form:
+
+```
+Package=skeleton
+Version=1.0.1
+Source=/mnt/r/pkg/skeleton_1.0.1.tar.gz
+```
+
+The main requirement is that your source path exists, and the path has an extension
+of either `.tar.gz`, `.tgz` (for macOS binaries) or `.zip` (for Windows binaries).
