@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Local Sources • renv</title>
+<title>Collaboarting with renv • renv</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Local Sources">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Collaboarting with renv">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -93,37 +93,34 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Local Sources</h1>
+      <h1>Collaboarting with renv</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/local-sources.Rmd"><code>vignettes/local-sources.Rmd</code></a></small>
-      <div class="hidden name"><code>local-sources.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/collaborating.Rmd"><code>vignettes/collaborating.Rmd</code></a></small>
+      <div class="hidden name"><code>collaborating.Rmd</code></div>
 
     </div>
 
     
     
-<p>If your project depends on R packages not available in any external source, you can set up an ad-hoc local source to use during restore. This allows you to provide package tarballs that can be used to restore packages otherwise not available elsewhere.</p>
-<p>The environment variable <code>RENV_PATHS_LOCAL</code> can be used to customize where this local source of packages should live. It should point to a directory containing package binaries and sources, with a structure of the form:</p>
-<ul>
-<li><code>${RENV_PATHS_LOCAL}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
-</ul>
-<p>For example, if your project depended on a package <code>skeleton [1.0.0]</code>, you could place the tarball for this package at:</p>
-<ul>
-<li><code>${RENV_PATHS_LOCAL}/skeleton/skeleton_1.0.0.tar.gz</code></li>
-</ul>
-<p>Once this is done, <code>renv</code> will consult this directory during future attempts to restore packages installed from unknown sources.</p>
-<p>If you want to see what directory is being used by <code>renv</code> for local package sources, you can execute:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>renv<span class="op">:::</span><span class="kw">renv_paths_local</span>()</span></code></pre></div>
-<p>See <code><a href="../reference/paths.html">?paths</a></code> for more details.</p>
-<div id="explicit-sources" class="section level2">
+<p>When you want to work on a project with other collaborators, <code>renv</code> can be a useful tool for ensuring that everyone is working in the same R environment. This vignette discusses how you can use <code>renv</code> to ensure you and your collaborators are using the same R environment in your projects.</p>
+<div id="collaborating-with-renv" class="section level2">
 <h2 class="hasAnchor">
-<a href="#explicit-sources" class="anchor"></a>Explicit Sources</h2>
-<p>You can also provide explicit source paths in the lockfile if desired. This is most useful if you are building an <code>renv</code> lockfile “by hand”, or need to tweak an existing lockfile to point at a separate package for installation. For example, you could have a package record in <code>renv.lock</code> of the form:</p>
-<pre><code>Package=skeleton
-Version=1.0.1
-Source=/mnt/r/pkg/skeleton_1.0.1.tar.gz</code></pre>
-<p>The main requirement is that your source path exists, and the path has an extension of either <code>.tar.gz</code>, <code>.tgz</code> (for macOS binaries) or <code>.zip</code> (for Windows binaries).</p>
+<a href="#collaborating-with-renv" class="anchor"></a>Collaborating with renv</h2>
+<p>When using <code>renv</code>, the packages used in your project will be recorded into a lockfile, <code>renv.lock</code>. Because <code>renv.lock</code> records the exact versions of R packages used within a project, if you share that file with your collaborators, they will be able to use <code><a href="../reference/restore.html">renv::restore()</a></code> to install exactly the same R packages as recorded in the lockfile. This implies the following workflow for collaboration:</p>
+<ol style="list-style-type: decimal">
+<li><p>Select a way to share your project sources. The most common way nowadays is to use a version control system with a public repository; e.g. <a href="https://git-scm.com/">git</a> with <a href="https://github.com/">GitHub</a>, but many other options are available.</p></li>
+<li><p>Make sure your project is initialized with <code>renv</code> by calling <code><a href="../reference/init.html">renv::init()</a></code>.</p></li>
+<li><p>Share your project sources, alongside the generated lockfile <code>renv.lock</code>.</p></li>
+</ol>
+<p>After your collaborators have received your <code>renv.lock</code> lockfile, they can then also execute <code><a href="../reference/init.html">renv::init()</a></code> (or <code><a href="../reference/restore.html">renv::restore()</a></code>) to automatically install the packages declared in that lockfile into their own private project library. By doing this, they will now be able to work within your project using the exact same R packages that you were when <code>renv.lock</code> was generated.</p>
+</div>
+<div id="updating-the-lockfile" class="section level2">
+<h2 class="hasAnchor">
+<a href="#updating-the-lockfile" class="anchor"></a>Updating the Lockfile</h2>
+<p>While working on a project, you or your collaborators may need to update or install new packages in your project. The workflow remains the same as before – after installing these new packages, you can share the updated lockfile with your collaborators, and request that they execute <code><a href="../reference/restore.html">renv::restore()</a></code> to synchronize their library with the lockfile.</p>
+<p>A bit of care needs to be taken if your collaborators attempt to update packages independently. It is recommended that a single ‘source of truth’ is used for the package sources and <code>renv.lock</code>, to avoid different collaborators ending up with different lockfiles – or even, different versions of the project sources!</p>
+<p>The simplest way to guard against this it to use a version control system, and have all collaborators work off the same branch. This way, if someone needs to update <code>renv.lock</code> in the public repository, all collaborators will see that updated lockfile and will gain access to it next time they pull those changes.</p>
 </div>
   </div>
 
@@ -132,7 +129,8 @@ Source=/mnt/r/pkg/skeleton_1.0.1.tar.gz</code></pre>
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#explicit-sources">Explicit Sources</a></li>
+<li><a href="#collaborating-with-renv">Collaborating with renv</a></li>
+      <li><a href="#updating-the-lockfile">Updating the Lockfile</a></li>
       </ul>
 </div>
       </div>

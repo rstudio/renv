@@ -1,0 +1,95 @@
+---
+title: "Using renv with Docker"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{docker}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+While `renv` can help capture the state of your R library at some point in time,
+there are still other aspects of the system that can influence the output
+generated. In particular, the same code may produce different results depending
+on:
+
+- The operating system in use,
+- The compiler flags used when R and packages are built,
+- The LAPACK / BLAS system(s) in use,
+- The versions of system libraries installed and in use,
+
+And so on. [Docker](https://www.docker.com/) is a tool that helps solve this
+problem through the use of __containers__. Very roughly speaking, one can think
+of a container as a small, self-contained operating system within which
+different applications can be run. Using Docker, one can declaratively state how
+a container should be built (what operating system it should use, and what
+system software should be installed within), and use that system to run
+applications.
+
+Using Docker and `renv` together, one can then ensure that both the underlying
+system, alongside the required R packages, are fixed and constant for a
+particular application.
+
+The main challenges in using Docker with `renv` are:
+
+- Ensuring that the `renv` cache is visible to Docker containers, and
+- Ensuring that `renv` restores the R packages as required when the
+  container is run.
+
+This vignette will assume you are already familiar with Docker; if you are not
+yet familiar with Docker, the [Docker Documentation](https://docs.docker.com/)
+provides a thorough introduction.
+
+
+## Sharing the renv Cache
+
+One can control the `renv` cache directory with the environment variable
+`RENV_PATHS_CACHE`. For example,
+
+```{r}
+Sys.setenv(RENV_PATHS_CACHE = "~/path/to/cache")
+renv:::renv_paths_cache()
+```
+
+Note that the platform and R version in use are appended to the requested
+cache directory. This ensures that a single directory can ask a base of
+cached packages for multiple different platforms and R versions.
+
+Next, we need to figure out how to tell the Docker containers we create
+to use this cache. The most common option here is to mount a directory
+in the container that maps to persistent storage on the host system, and
+then set the aforementioned `RENV_PATHS_CACHE` environment variable to
+point to this mount. You can specify this when the container is launched.
+For example, if you had a container running a Shiny application:
+
+```
+RENV_PATHS_CACHE_HOST=/opt/local/renv/cache
+RENV_PATHS_CACHE_CONTAINER=/renv/cache
+docker run --rm \
+    -e "RENV_PATHS_CACHE=${RENV_PATHS_CACHE_CONTAINER}" \
+    -v "${RENV_PATHS_CACHE_HOST}:${RENV_PATHS_CACHE_CONTAINER}" \
+    -p 14619:14619 \
+    R --vanilla --slave -e 'renv::activate(); renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14619)'
+```
+
+With this, any calls to `renv` APIs within the created docker container will
+have access to the mounted cache. The first time you run a container, `renv`
+will likely need to populate the cache, and so some time will be spent
+downloading and installing the required packages. Subsequent runs should be much
+faster, as `renv` will be able to reuse the global package cache.
+
+In theory, it would be possible to create a Docker image (as opposed to a
+container) with the requisite packages installed. Unfortunately, there is
+currently no way to mount a directory when a Docker image is built. As an
+alternative, one can copy the `renv` cache into the image during build, but
+this can become expensive as the cache grows in size. For this reason,
+we currently recommend ensuring the `renv::restore()` step happens when
+the container is run.
+
+
