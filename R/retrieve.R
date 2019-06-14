@@ -70,6 +70,12 @@ renv_retrieve_impl <- function(package) {
   if (identical(retrieved, TRUE))
     return(TRUE)
 
+  # if the user has provided an explicit path to a tarball in the source,
+  # then just use that
+  retrieved <- catch(renv_retrieve_explicit(record))
+  if (identical(retrieved, TRUE))
+    return(TRUE)
+
   # otherwise, try and restore from external source
   source <- tolower(record[["Source"]] %||% record[["RemoteType"]] %||% "CRAN")
   switch(source,
@@ -249,6 +255,32 @@ renv_retrieve_local <- function(record) {
   url <- paste("file://", source, sep = "")
   path <- renv_retrieve_path(record, type = names(source))
   renv_retrieve_package(record, url, path)
+}
+
+renv_retrieve_explicit <- function(record) {
+
+  # check for something that looks like an explicit source
+  source <- record$Source %||% ""
+  ext <- fileext(source)
+  if (!ext %in% c(".tar.gz", ".tgz", ".zip"))
+    return(FALSE)
+
+  # validate that it exists (warn if it does not)
+  if (!file.exists(source)) {
+    warningf("requested source does not exist: '%s'", aliased_path(source))
+    return(FALSE)
+  }
+
+  # treat as 'local' source but extract path
+  source <- normalizePath(source, winslash = "/", mustWork = TRUE)
+  record$Source <- "local"
+
+  # perform dummy retrieval
+  url <- paste0("file://", source)
+  type <- if (ext == ".tar.gz") "source" else "binary"
+  path <- renv_retrieve_path(record, type = type)
+  renv_retrieve_package(record, url, path)
+
 }
 
 renv_retrieve_cran <- function(record) {
