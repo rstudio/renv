@@ -1,0 +1,65 @@
+---
+title: "Collaboarting with renv"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{collaborating-with-renv}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+When you want to work on a project with other collaborators, `renv` can be
+a useful tool for ensuring that everyone is working in the same R environment.
+This vignette discusses how you can use `renv` to ensure you and your
+collaborators are using the same R environment in your projects.
+
+
+## Collaborating with renv
+
+When using `renv`, the packages used in your project will be recorded into a
+lockfile, `renv.lock`. Because `renv.lock` records the exact versions of R
+packages used within a project, if you share that file with your collaborators,
+they will be able to use `renv::restore()` to install exactly the same R
+packages as recorded in the lockfile. This implies the following workflow for
+collaboration:
+
+1. Select a way to share your project sources. The most common way nowadays is
+   to use a version control system with a public repository; e.g.
+   [git](https://git-scm.com/) with [GitHub](https://github.com/), but
+   many other options are available.
+
+2. Make sure your project is initialized with `renv` by calling `renv::init()`.
+
+3. Share your project sources, alongside the generated lockfile `renv.lock`.
+
+After your collaborators have received your `renv.lock` lockfile, they can then
+also execute `renv::init()` (or `renv::restore()`) to automatically install
+the packages declared in that lockfile into their own private project library.
+By doing this, they will now be able to work within your project using the
+exact same R packages that you were when `renv.lock` was generated.
+
+
+## Updating the Lockfile
+
+While working on a project, you or your collaborators may need to update or
+install new packages in your project. The workflow remains the same as before --
+after installing these new packages, you can share the updated lockfile with
+your collaborators, and request that they execute `renv::restore()` to
+synchronize their library with the lockfile.
+
+A bit of care needs to be taken if your collaborators attempt to update packages
+independently. It is recommended that a single 'source of truth' is used for the
+package sources and `renv.lock`, to avoid different collaborators ending up with
+different lockfiles -- or even, different versions of the project sources!
+
+The simplest way to guard against this it to use a version control system, and
+have all collaborators work off the same branch. This way, if someone needs to
+update `renv.lock` in the public repository, all collaborators will see that
+updated lockfile and will gain access to it next time they pull those changes.
