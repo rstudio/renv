@@ -122,7 +122,7 @@ renv_cache_synchronize <- function(record, library = NULL, link = FALSE) {
   # construct path to package in library
   library <- library %||% renv_libpaths_default()
   path <- file.path(library, record$Package)
-  if (!renv_file_exists(path))
+  if (!file.exists(path))
     return(FALSE)
 
   # if we don't have a hash, compute it now

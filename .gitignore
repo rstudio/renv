@@ -5,3 +5,5 @@
 
 inst/doc
 internal
+
+vignettes/docker.Rmd
