@@ -145,7 +145,9 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
     renv_file_move(path, cache)
     renv_file_link(cache, path, overwrite = TRUE)
   } else {
+    vprintf("* Copying '%s' into the cache ... ", record$Package)
     renv_file_copy(path, cache)
+    vwritef("Done!")
   }
 
   TRUE
