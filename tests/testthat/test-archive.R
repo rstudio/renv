@@ -20,7 +20,7 @@ test_that("we can successfully compress / decompress some sample files", {
   on.exit(setwd(owd), add = TRUE)
 
   tarfile <- tempfile(fileext = ".tar.gz")
-  tar(tarfile)
+  tar(tarfile, files = ".")
   expect_setequal(list.files(etc), basename(renv_archive_list(tarfile)))
 
   exdir <- tempfile()
