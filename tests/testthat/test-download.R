@@ -13,14 +13,14 @@ test_that("we avoid downloading files twice", {
 
   # download once and check file metadata
   download(url, destfile)
-  before <- file.info(destfile, extra_cols = FALSE)
+  before <- file.info(destfile, extra_cols = FALSE)$mtime
 
   # download again and check the file info hasn't changed
   download(url, destfile)
-  after <- file.info(destfile, extra_cols = FALSE)
+  after <- file.info(destfile, extra_cols = FALSE)$mtime
 
   # check that they're the same.
-  expect_identical(c(before), c(after))
+  expect_identical(before, after)
 
 })
 

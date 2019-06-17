@@ -261,24 +261,6 @@ renv_file_type <- function(paths, symlinks = TRUE) {
 
 }
 
-renv_file_compressor <- function(path) {
-
-  ext <- fileext(path)
-  if (ext == ".zip")
-    return(zip)
-  tar
-
-}
-
-renv_file_decompressor <- function(path) {
-
-  ext <- fileext(path)
-  if (ext == ".zip")
-    return(unzip)
-  untar
-
-}
-
 renv_file_edit <- function(path) {
 
   # https://github.com/rstudio/renv/issues/44
