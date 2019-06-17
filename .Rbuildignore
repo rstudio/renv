@@ -13,6 +13,7 @@
 ^git$
 ^internal$
 ^renv$
+^tags$
 ^tools$
 
 \.renvignore$

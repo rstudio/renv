@@ -22,13 +22,34 @@ local({
 
   }
 
-  # source the user profile if any, respecting R_PROFILE_USER
-  profile <- Sys.getenv("R_PROFILE_USER", unset = path.expand("~/.Rprofile"))
-  if (file.exists(profile)) {
+  # helper for sourcing the user profile (if any)
+  source_user_profile <- function() {
+
+    # respect R_PROFILE_USER when sourcing user profile
+    profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
+    if (!file.exists(profile))
+      return(FALSE)
+
+    # avoid recursion, in case user has activated a project in home directory
+    # (may occur in some Docker deployment configurations)
     current <- normalizePath(".Rprofile", winslash = "/", mustWork = FALSE)
-    if (!identical(profile, current))
-      source(profile)
+    if (identical(normalizePath(profile, winslash = "/"), current))
+      return(FALSE)
+
+    # source with error handler
+    status <- tryCatch(source(profile), error = identity)
+    if (!inherits(status, "error"))
+      return(TRUE)
+
+    # report any errors to the user
+    prefix <- sprintf("Error sourcing %s:", profile)
+    message <- paste(prefix, conditionMessage(status))
+    warning(simpleWarning(message))
+
   }
+
+  # load user profile on exit
+  on.exit(source_user_profile(), add = TRUE)
 
   # figure out root for renv installation
   default <- switch(
