@@ -196,7 +196,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
   for (package in c("rmarkdown", "yaml"))
     if (!renv_dependencies_require(package, "R Markdown"))
-      return(NULL)
+      return("rmarkdown")
 
   yaml <- catch(rmarkdown::yaml_front_matter(path))
   if (inherits(yaml, "error"))
