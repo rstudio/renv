@@ -18,6 +18,15 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 
   if (!quiet) vwritef("Retrieving '%s' ...", url)
 
+  # if this file is a zipfile or tarball, rather than attempting
+  # to download headers etc. to validate the file is okay, just
+  # check that the archive appears not to be damaged
+  status <- renv_download_check_archive(destfile)
+  if (identical(status, TRUE)) {
+    vwritef("\tOK [file is up to date]")
+    return(destfile)
+  }
+
   # if the file already exists, compare its size with
   # the server's reported size for that file
   size <- renv_download_size(url, type, headers)
@@ -61,6 +70,11 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   # double-check that the reported size is correct
   if (size != -1 && file.size(tempfile) != size)
     stopf("download failed [file was truncated]")
+
+  # double-check archives are readable
+  status <- renv_download_check_archive(tempfile)
+  if (inherits(status, "error"))
+    stopf("download failed [archive cannot be read]")
 
   # everything looks ok: report success
   if (!quiet)
@@ -443,5 +457,21 @@ renv_download_report <- function(elapsed, size) {
 
   fmt <- "\tOK [downloaded %s in %s]"
   vwritef(fmt, format(size, units = "auto"), format(time, units = "auto"))
+
+}
+
+renv_download_check_archive <- function(destfile) {
+
+  # validate the file exists
+  if (!file.exists(destfile))
+    return(FALSE)
+
+  # validate that we have the path to an archive
+  ext <- fileext(destfile)
+  if (!ext %in% c(".tar.gz", ".tgz", ".zip"))
+    return(FALSE)
+
+  # try listing files in the archive
+  tryCatch({renv_archive_list(destfile); TRUE}, error = identity)
 
 }

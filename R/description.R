@@ -37,9 +37,7 @@ renv_description_read <- function(path = NULL, package = NULL, ...) {
 
     # unpack into tempdir location
     exdir <- renv_tempfile("renv-description-")
-
-    decompress <- renv_archive_decompressor(path)
-    decompress(path, files = file, exdir = exdir)
+    renv_archive_decompress(path, files = file, exdir = exdir)
 
     # update path to extracted DESCRIPTION
     path <- file.path(exdir, file)
