@@ -53,8 +53,6 @@ install <- function(packages,
 
 renv_install <- function(records, library, project) {
 
-  on.exit(renv_install_end(project, records), add = TRUE)
-
   # double-check packages for validity (TODO: not yet)
   # if (!renv_install_preflight(records)) {
   #   message("* Operation aborted.")
@@ -288,23 +286,5 @@ renv_install_preflight <- function(records) {
     return(FALSE)
 
   TRUE
-
-}
-
-renv_install_end <- function(project, records) {
-
-  # when running in RStudio, we'll want to notify of package updates
-  # TODO: should consider a more generic notification API?
-  if (!identical(.Platform$GUI, "RStudio"))
-    return()
-
-  # hide from R CMD check since we're playing inside baseball
-  call <- parse(text = '
-    .rs.updatePackageEvents()
-    .Call("rs_packageLibraryMutated", PACKAGE = "(embedding)")
-  ')
-
-  # note that this crashes unless run in an exit handler
-  on.exit(eval(call, envir = globalenv()), add = TRUE)
 
 }
