@@ -59,7 +59,7 @@ renv_config_get <- function(name, default = NULL) {
   optkey <- paste("renv.config", optname, sep = ".")
   optval <- getOption(optkey)
   if (!is.null(optval))
-    return(renv_settings_validate(name, optval))
+    return(optval)
 
   # check for environment variable
   envname <- gsub(".", "_", toupper(name), fixed = TRUE)
