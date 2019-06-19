@@ -4,7 +4,7 @@
   cran         = "CRAN",
   github       = "GitHub",
   gitlab       = "GitLab",
-  local        = "local sources",
+  local        = "Local",
   bitbucket    = "Bitbucket",
   bioconductor = "Bioconductor"
 )

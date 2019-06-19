@@ -106,8 +106,12 @@ renv_install_impl <- function(record, project) {
     return(renv_install_package_cache(record, cache, linker))
 
   # report that we're about to start installation
+  src <- record$Source
+  if (tolower(src) == "local")
+    src <- "local sources"
+
   fmt <- "Installing %s [%s] from %s ..."
-  with(record, vwritef(fmt, Package, Version, renv_alias(Source)))
+  with(record, vwritef(fmt, Package, Version, src))
 
   # otherwise, install
   status <- catch(renv_install_package_local(record))
