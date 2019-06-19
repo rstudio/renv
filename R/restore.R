@@ -339,7 +339,7 @@ renv_restore_skip <- function(record) {
     return(FALSE)
 
   # check for matching records
-  source <- tolower(record$Source %||% record$RemoteType)
+  source <- tolower(record$Source)
   if (empty(source))
     return(FALSE)
 

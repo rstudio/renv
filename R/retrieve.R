@@ -77,7 +77,7 @@ renv_retrieve_impl <- function(package) {
     return(TRUE)
 
   # otherwise, try and restore from external source
-  source <- tolower(record[["Source"]] %||% record[["RemoteType"]] %||% "CRAN")
+  source <- tolower(record$Source)
   switch(source,
          cran         = renv_retrieve_cran(record),
          bioconductor = renv_retrieve_bioconductor(record),
@@ -102,7 +102,7 @@ renv_retrieve_name <- function(record, type = "source", ext = NULL) {
 renv_retrieve_path <- function(record, type = "source", ext = NULL) {
   package <- record$Package
   name <- renv_retrieve_name(record, type, ext)
-  source <- tolower(record$Source %||% record$RemoteType %||% "")
+  source <- tolower(record$Source)
   if (type == "source")
     renv_paths_source(source, package, name)
   else if (type == "binary")
@@ -246,7 +246,7 @@ renv_retrieve_local_find <- function(record) {
 
 renv_retrieve_local_report <- function(record) {
 
-  source <- record$Source %||% record$RemoteType %||% "unknown"
+  source <- tolower(record$Source)
   if (tolower(source) == "local")
     return(record)
 
@@ -385,7 +385,7 @@ renv_retrieve_package <- function(record, url, path) {
   # download the package
   # TODO: validate that the existing tarball / zipball is not damaged
   ensure_parent_directory(path)
-  type <- record$RemoteType %||% record$Source
+  type <- record$Source
   status <- catch(download(url, destfile = path, type = type))
   if (inherits(status, "error") || identical(status, FALSE))
     return(status)

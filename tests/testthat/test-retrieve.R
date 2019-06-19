@@ -108,7 +108,8 @@ test_that("compatible local sources are preferred when available", {
 
   record <- list(
     Package = "skeleton",
-    Version = "1.0.1"
+    Version = "1.0.1",
+    Source  = "unknown"
   )
 
   renv_test_retrieve(record)
@@ -140,7 +141,7 @@ test_that("remotes::install_local() records are handled", {
   record <- list(
     Package    = "skeleton",
     Version    = "1.0.1",
-    RemoteType = "local",
+    Source     = "local",
     RemoteUrl  = "local/skeleton/skeleton_1.0.1.tar.gz"
   )
 
