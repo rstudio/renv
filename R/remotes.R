@@ -146,7 +146,7 @@ renv_remotes_serialize <- function(desc) {
     desc <- renv_description_read(desc)
 
   # infer the remote type
-  type <- tolower(desc$RemoteType) %||% ""
+  type <- tolower(desc$RemoteType %||% "")
   switch(type,
     cran     = renv_remotes_serialize_cran(desc),
     github   = renv_remotes_serialize_github(desc),
