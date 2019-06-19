@@ -215,6 +215,16 @@ renv_retrieve_git <- function(record) {
 
 renv_retrieve_local_find <- function(record) {
 
+  # packages installed with 'remotes::install_local()' will
+  # have a RemoteUrl entry that we can use
+  url <- record$RemoteUrl %||% ""
+  if (file.exists(url)) {
+    path <- normalizePath(url, winslash = "/", mustWork = TRUE)
+    type <- if (fileext(path) %in% c(".tgz", ".zip")) "binary" else "source"
+    return(named(path, type))
+  }
+
+  # otherwise, use our own local cache of packages
   roots <- c(
     renv_paths_project("renv/local"),
     renv_paths_local()
@@ -236,12 +246,12 @@ renv_retrieve_local_find <- function(record) {
 
 renv_retrieve_local_report <- function(record) {
 
-  source <- record$Source
-  if (identical(record$Source, "local"))
+  source <- record$Source %||% record$RemoteType %||% "unknown"
+  if (tolower(source) == "local")
     return(record)
 
   record$Source <- "local"
-  rather <- if (is.null(source)) "" else paste(" rather than", renv_alias(source))
+  rather <- if (source == "unknown") "" else paste(" rather than", renv_alias(source))
   fmt <- "* Package %s [%s] will be installed from local sources%s."
   with(record, vwritef(fmt, Package, Version, rather))
 
