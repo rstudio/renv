@@ -134,3 +134,16 @@ test_that("an explicitly-provided local source path can be used", {
   renv_test_retrieve(record)
 
 })
+
+test_that("remotes::install_local() records are handled", {
+
+  record <- list(
+    Package    = "skeleton",
+    Version    = "1.0.1",
+    RemoteType = "local",
+    RemoteUrl  = "local/skeleton/skeleton_1.0.1.tar.gz"
+  )
+
+  renv_test_retrieve(record)
+
+})

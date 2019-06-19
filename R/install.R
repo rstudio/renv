@@ -106,7 +106,7 @@ renv_install_impl <- function(record, project) {
     return(renv_install_package_cache(record, cache, linker))
 
   # report that we're about to start installation
-  src <- record$Source
+  src <- record$Source %||% record$RemoteType %||% "unknown"
   if (tolower(src) == "local")
     src <- "local sources"
 
