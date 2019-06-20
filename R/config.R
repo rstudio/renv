@@ -42,6 +42,11 @@
 #'   Note that package upgrades or removals will not be automatically snapshotted.
 #'   (Boolean; defaults to `TRUE`) \cr
 #'
+#' `sandbox.enabled` \tab `logical(1)` \tab
+#'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to sandbox
+#'   the system library, preventing user-installed packages from becoming available in
+#'   `renv` projects. (Boolean; defaults to `FALSE`) \cr
+#'
 #' `use.cache` \tab `logical(1)` \tab
 #'   Use the global cache when installing packages?
 #'   (Boolean; defaults to `TRUE`) \cr

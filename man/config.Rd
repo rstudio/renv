@@ -47,6 +47,11 @@ Automatically snapshot changes to the project library after a new package is ins
 Note that package upgrades or removals will not be automatically snapshotted.
 (Boolean; defaults to \code{TRUE}) \cr
 
+\code{sandbox.enabled} \tab \code{logical(1)} \tab
+Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to sandbox
+the system library, preventing user-installed packages from becoming available in
+\code{renv} projects. (Boolean; defaults to \code{FALSE}) \cr
+
 \code{use.cache} \tab \code{logical(1)} \tab
 Use the global cache when installing packages?
 (Boolean; defaults to \code{TRUE}) \cr

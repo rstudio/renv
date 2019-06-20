@@ -4,6 +4,10 @@ local({
   # the requested version of renv
   version <- "${VERSION}"
 
+  # signal that we're loading renv during R startup
+  Sys.setenv("RENV_R_INITIALIZING" = "true")
+  on.exit(Sys.unsetenv("RENV_R_INITIALIZING"), add = TRUE)
+
   # load the 'utils' package eagerly -- this ensures that renv shims, which
   # mask 'utils' packages, will come first on the search path
   library(utils, lib.loc = .Library)
@@ -48,8 +52,10 @@ local({
 
   }
 
-  # load user profile on exit
-  on.exit(source_user_profile(), add = TRUE)
+  # load user profile now -- needs to happen before renv is loaded,
+  # as otherwise the user profile could clobber the library paths
+  # that renv tries to set up for the project
+  source_user_profile()
 
   # figure out root for renv installation
   default <- switch(

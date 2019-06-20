@@ -78,7 +78,7 @@ renv_archive_decompress_zip <- function(path, ...) {
   status <- tryCatch(unzip(path, ...), condition = identity)
   if (inherits(status, "condition")) {
     fmt <- "failed to decompress '%s' [%s]"
-    message <- sprintf(fmt, basename(path), conditionMessage(condition))
+    message <- sprintf(fmt, basename(path), conditionMessage(status))
     stop(simpleError(message))
   }
 
