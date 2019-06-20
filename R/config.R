@@ -71,9 +71,28 @@ renv_config_get <- function(name, default = NULL) {
   envkey <- paste("RENV_CONFIG", envname, sep = "_")
   envval <- Sys.getenv(envkey, unset = NA)
   if (!is.na(envval))
-    return(renv_settings_decode(name, envval))
+    return(renv_config_decode_envvar(envname, envval))
 
   # return default if nothing found
   default
+
+}
+
+renv_config_decode_envvar <- function(envname, envval) {
+
+  map <- renv_global("config.map", env(
+    "NULL" = NULL,
+    "NA"   = NA,
+    "NaN"  = NaN,
+    "true" = TRUE,
+    "TRUE" = TRUE,
+    "false" = FALSE,
+    "FALSE" = FALSE
+  ))
+
+  if (exists(envval, envir = map, inherits = FALSE))
+    return(get(envval, envir = map, inherits = FALSE))
+
+  strsplit(envval, "\\s*,\\s*")[[1]]
 
 }
