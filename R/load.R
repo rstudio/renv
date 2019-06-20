@@ -113,6 +113,11 @@ renv_load_libpaths <- function(project = NULL) {
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
 }
 
+renv_load_sandbox <- function(project) {
+  if (renv_sandbox_enabled(project))
+    renv_sandbox_activate(project)
+}
+
 renv_load_python <- function(fields) {
 
   # nothing to do if we have no fields
