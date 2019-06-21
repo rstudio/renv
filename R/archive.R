@@ -37,19 +37,39 @@ renv_archive_decompress <- function(path, exdir = ".", ...) {
 
 }
 
+renv_archive_decompress_tar_find <- function() {
+
+  # check for tar in envvar
+  tar <- Sys.getenv("TAR", unset = NA)
+  if (!is.na(tar) && nzchar(Sys.which(tar)))
+    return(tar)
+
+  # check for tar on PATH
+  # TODO: is this safe on Windows? what if a 'bad'
+  # tar is on the PATH?
+  tar <- Sys.which("tar")
+  if (nzchar(tar))
+    return(tar)
+
+  # no tar found
+  NULL
+
+}
+
 renv_archive_decompress_tar <- function(path, exdir = ".", ...) {
+
 
   # when using internal TAR, we want to suppress warnings
   # (otherwise we get noise about global PAX headers)
-  if (Sys.getenv("TAR") == "internal") {
-    suppressWarnings(untar(path, exdir = exdir, ...))
+  tar <- renv_archive_decompress_tar_find()
+  if (is.null(tar)) {
+    suppressWarnings(untar(path, exdir = exdir, tar = "internal", ...))
     return(TRUE)
   }
 
-  # otherwise, we'll delegate to an external tar
-  # (use our own implementation to implement our own tar
-  # error handling)
-  tar <- Sys.getenv("TAR")
+  # TODO: is it safe to use an external tar on Windows?
+  # should we validate that the version of tar.exe found
+  # on the PATH is okay?
 
   # construct arguments for archive extraction
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
