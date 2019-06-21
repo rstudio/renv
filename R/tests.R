@@ -138,7 +138,11 @@ renv_tests_init_packages <- function() {
 
 renv_tests_init <- function() {
 
-  if (identical(Sys.getenv("RENV_TESTS_INITIALIZED"), "TRUE"))
+  # NOTE: we set both variables so we can distinguish between
+  # R CMD check and devtools::test(). we do this dance just in
+  # case RENV_TESTS_INITIALIZED gets set during interactive
+  # debugging of renv tests
+  if (renv_testing())
     return()
 
   renv_tests_init_workarounds()
@@ -150,8 +154,14 @@ renv_tests_init <- function() {
 
 }
 
+renv_tests_report <- function() {
+  Sys.getenv()
+}
+
 renv_testing <- function() {
-  Sys.getenv("RENV_TESTS_INITIALIZED") == "TRUE"
+  vars <- c("RENV_TESTS_INITIALIZED", "RENV_TESTS_INITIALIZED_TESTTHAT")
+  vals <- Sys.getenv(vars, unset = NA)
+  any(!is.na(vals))
 }
 
 renv_test_retrieve <- function(record) {
