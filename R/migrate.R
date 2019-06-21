@@ -30,7 +30,7 @@ renv_migrate_packrat <- function(project = NULL) {
   renv_migrate_packrat_cache(project)
   renv_migrate_packrat_infrastructure(project)
 
-  renv_bootstrap()
+  renv_bootstrap_impl()
 
   fmt <- "* Project '%s' has been migrated from Packrat to renv."
   vwritef(fmt, aliased_path(project))
