@@ -87,6 +87,7 @@ renv_retrieve_impl <- function(package) {
          github       = renv_retrieve_github(record),
          gitlab       = renv_retrieve_gitlab(record),
          local        = renv_retrieve_local(record),
+         xgit         = renv_retrieve_git(record),
          renv_retrieve_unknown_source(record)
   )
 

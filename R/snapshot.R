@@ -399,6 +399,9 @@ renv_snapshot_description_source <- function(dcf) {
     return("CRAN")
 
   remote <- dcf[["RemoteType"]] %||% "unknown"
+  if (remote %in% c("git2r", "xgit"))
+    return("Git")
+
   renv_alias(remote)
 
 }
