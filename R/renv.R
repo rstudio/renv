@@ -20,7 +20,7 @@ renv_activate_impl <- function(project, version) {
 
   # prepare renv infrastructure
   renv_infrastructure_write(project, version)
-  renv_bootstrap()
+  renv_bootstrap_impl()
 
   # set library paths now so that they're properly restored in new sessions
   renv_load_libpaths(project)
