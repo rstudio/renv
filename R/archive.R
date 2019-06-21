@@ -39,14 +39,18 @@ renv_archive_decompress <- function(path, exdir = ".", ...) {
 
 renv_archive_decompress_tar_find <- function() {
 
-  # check for tar in envvar
+  # check for tar in envvar -- allow for explicitly-requested
+  # internal tar as well
   tar <- Sys.getenv("TAR", unset = NA)
+  if (identical(tar, "internal"))
+    return(NULL)
+
+  # if the requested tar exists, use it
   if (!is.na(tar) && nzchar(Sys.which(tar)))
     return(tar)
 
-  # check for tar on PATH
-  # TODO: is this safe on Windows? what if a 'bad'
-  # tar is on the PATH?
+  # no TAR envvar set; try looking for tar on the PATH
+  # TODO: is this safe on Windows? what if a bad tar is on the PATH?
   tar <- Sys.which("tar")
   if (nzchar(tar))
     return(tar)
