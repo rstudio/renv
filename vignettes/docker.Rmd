@@ -55,14 +55,25 @@ We'll explore the pros and cons of each strategy.
 ## Creating Docker Images with renv
 
 With Docker, [Dockerfiles](https://docs.docker.com/engine/reference/builder/)
-are used to define new images. Dockerfiles give the user a declarative way to
-create Docker images. A Docker image captures the state of a machine at some
-point in time -- e.g., an Ubuntu operating system after downloading and
-installing R 3.5. Docker containers can be created using that image as a base,
-allowing isolated applications to run using the same pre-defined machine state.
+are used to define new images. Dockerfiles can be used to declaratively specify
+how a Docker image should be created. A Docker image captures the state of a
+machine at some point in time -- e.g., an Ubuntu operating system after
+downloading and installing R 3.5. Docker containers can be created using that
+image as a base, allowing isolated applications to run using the same
+pre-defined machine state.
 
-If you'd like the `renv.lock` lockfile to be used to install R packages when
-the Docker image is built, you can include something of the form:
+First, you'll need to get `renv` installed on your Docker image. The easiest
+way to accomplish this is with the `remotes` package. For example:
+
+```
+ENV RENV_VERSION 0.5.0-25
+RUN R -e 'install.packages("remotes", repos = c(CRAN = "https://cran.rstudio.com"))
+RUN R -e 'remotes::install_github("rstudio/renv@${RENV_VERSION}")'
+```
+
+Now, `renv` can be used to install packages on the image. If you'd like the
+`renv.lock` lockfile to be used to install R packages when the Docker image is
+built, you can include something of the form:
 
 ```
 WORKDIR /project
@@ -73,9 +84,19 @@ RUN R -e 'renv::restore()'
 With this, `renv` will download and install packages from CRAN and other
 external sources as appropriate when the image is created.
 
-The main downside to this approach is that the `renv` package cache will not be
-re-used -- this implies that package installation could be very slow, if a large
-number of packages need to be compiled from source.
+There are two main downsides to this approach:
+
+1. The set of R packages used is pre-baked into the image, so different
+   applications or containers built from this image will either have to
+   re-use the aforementioned set of packages, or reinstall the packages
+   they need to update as required.
+
+2. With this approach, the `renv` package cache will not be used. This
+   implies that package installation through `renv::restore()` may be
+   very slow, as all packages will have to be installed.
+
+Both of these issues can be solved if package installation can be
+deferred to container runtime.
 
 
 ## Running Docker Containers with renv
@@ -93,7 +114,7 @@ renv:::renv_paths_cache()
 ```
 
 Note that the platform and R version in use are appended to the requested
-cache directory. This ensures that a single directory can ask a base of
+cache directory. This ensures that a single directory can act a base of
 cached packages for multiple different platforms and R versions.
 
 Next, we need to figure out how to tell the Docker containers we create
@@ -119,15 +140,9 @@ will likely need to populate the cache, and so some time will be spent
 downloading and installing the required packages. Subsequent runs should be much
 faster, as `renv` will be able to reuse the global package cache.
 
-In theory, it would be possible to create a Docker image (as opposed to a
-container) with the requisite packages installed. Unfortunately, there is
-currently no way to mount a directory when a Docker image is built. As an
-alternative, one can copy the `renv` cache into the image during build, but
-this can become expensive as the cache grows in size. For this reason,
-we currently recommend ensuring the `renv::restore()` step happens when
-the container is run.
-
 The primary downside with this approach compared to the image-based approach
 is that it requires you to modify how containers are created, and requires
 a bit of extra orchestration in how containers are launched. However, once
-the `renv` cache is active, newly-created containers will launch very quickly.
+the `renv` cache is active, newly-created containers will launch very quickly,
+and a single image can then be used as a base for a myriad of different
+containers and applications, each with their own private R library.
