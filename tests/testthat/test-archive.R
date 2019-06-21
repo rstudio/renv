@@ -15,27 +15,37 @@ test_that("attempts to decompress invalid archives cause R errors to be reported
 
 test_that("we can successfully compress / decompress some sample files", {
 
-  etc <- file.path(R.home("etc"))
-  owd <- setwd(etc)
+  dir <- tempfile()
+  ensure_directory(dir)
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+
+  owd <- setwd(dir)
   on.exit(setwd(owd), add = TRUE)
+
+  for (letter in letters)
+    writeLines(letter, con = letter)
 
   tarfile <- tempfile(fileext = ".tar.gz")
   tar(tarfile, files = ".")
-  expect_setequal(list.files(etc), basename(renv_archive_list(tarfile)))
+
+  actual <- list.files(dir)
+  expected <- basename(renv_archive_list(tarfile))
+  expect_setequal(actual, expected)
 
   exdir <- tempfile()
   renv_archive_decompress(tarfile, exdir = exdir)
-
-  expect_setequal(list.files(exdir), list.files(etc))
+  expect_setequal(list.files(exdir), list.files(dir))
 
 
   zipfile <- tempfile(fileext = ".zip")
   zip(zipfile, files = ".", extras = "-q")
-  expect_setequal(list.files(etc), basename(renv_archive_list(zipfile)))
+
+  actual <- list.files(dir)
+  expected <- basename(renv_archive_list(zipfile))
+  expect_setequal(actual, expected)
 
   exdir <- tempfile()
   renv_archive_decompress(zipfile, exdir = exdir)
-
-  expect_setequal(list.files(exdir), list.files(etc))
+  expect_setequal(list.files(exdir), list.files(dir))
 
 })

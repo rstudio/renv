@@ -126,6 +126,12 @@ test_that("an explicitly-provided local source path can be used", {
 
   renv_test_retrieve(record)
 
+})
+
+test_that("explicit path to binary packages work", {
+
+  skip_if_not(renv_platform_macos())
+
   record <- list(
     Package = "skeleton",
     Version = "1.0.1",
