@@ -4,17 +4,18 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
-^TODO\.md$
+\.renvignore$
+
+^appveyor\.yml$
 ^docs$
 ^renv\.lock$
 ^requirements\.txt$
+^TODO\.md$
 
 ^examples$
 ^git$
 ^internal$
 ^renv$
-^tags$
 ^tools$
 
-\.renvignore$
 
