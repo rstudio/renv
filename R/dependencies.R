@@ -358,6 +358,7 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
   }
 
   methods <- c(
+    renv_dependencies_discover_r_methods,
     renv_dependencies_discover_r_xfun,
     renv_dependencies_discover_r_library_require,
     renv_dependencies_discover_r_require_namespace,
@@ -367,7 +368,8 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
   discoveries <- new.env(parent = emptyenv())
   recurse(parsed, function(node) {
     for (method in methods)
-      method(node, discoveries)
+      if (is.call(node))
+        method(node, discoveries)
   })
 
   packages <- ls(envir = discoveries)
@@ -378,9 +380,20 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
 
 }
 
+renv_dependencies_discover_r_methods <- function(node, envir) {
+
+  node <- renv_call_expect(node, "methods", c("setClass", "setGeneric"))
+  if (is.null(node))
+    return(FALSE)
+
+  envir[["methods"]] <- TRUE
+  TRUE
+
+}
+
 renv_dependencies_discover_r_xfun <- function(node, envir) {
 
-  node <- renv_call_expect(node, c("pkg_attach", "pkg_attach2"))
+  node <- renv_call_expect(node, "xfun", c("pkg_attach", "pkg_attach2"))
   if (is.null(node))
     return(FALSE)
 
@@ -410,7 +423,7 @@ renv_dependencies_discover_r_xfun <- function(node, envir) {
 
 renv_dependencies_discover_r_library_require <- function(node, envir) {
 
-  node <- renv_call_expect(node, c("library", "require"))
+  node <- renv_call_expect(node, "base", c("library", "require"))
   if (is.null(node))
     return(FALSE)
 
@@ -441,7 +454,7 @@ renv_dependencies_discover_r_library_require <- function(node, envir) {
 
 renv_dependencies_discover_r_require_namespace <- function(node, envir) {
 
-  node <- renv_call_expect(node, c("requireNamespace", "loadNamespace"))
+  node <- renv_call_expect(node, "base", c("requireNamespace", "loadNamespace"))
   if (is.null(node))
     return(FALSE)
 
