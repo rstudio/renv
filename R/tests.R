@@ -164,6 +164,14 @@ renv_testing <- function() {
   any(!is.na(vals))
 }
 
+renv_test_code <- function(code, fileext = ".R") {
+
+  file <- tempfile("renv-code-", fileext = fileext)
+  writeLines(deparse(substitute(code)), con = file)
+  file
+
+}
+
 renv_test_retrieve <- function(record) {
 
   # construct records

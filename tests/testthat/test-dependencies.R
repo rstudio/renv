@@ -24,3 +24,20 @@ test_that("inline chunks are parsed for dependencies", {
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "inline", "multiple", "separate"))
 })
+
+test_that("usages of S4 tools are discovered", {
+
+  file <- renv_test_code({setClass("ClassSet")})
+  deps <- dependencies(file)
+  expect_true(deps$Package == "methods")
+
+})
+
+test_that("the package name is validated when inferring dependencies", {
+
+  file <- renv_test_code({SomePackage::setClass("ClassSet")})
+  deps <- dependencies(file)
+  expect_true("SomePackage" %in% deps$Package)
+  expect_false("methods" %in% deps$Package)
+
+})
