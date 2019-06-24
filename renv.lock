@@ -4,7 +4,7 @@ Version=0.5.0-33
 [R]
 Version=3.6.0
 Repositories=
-	CRAN=https://cran.rstudio.com/
+	CRAN=https://cran.rstudio.com
 
 [R/Package/Matrix]
 Package=Matrix
@@ -216,12 +216,6 @@ Version=1.4
 Source=CRAN
 Hash=47db5d3cd9a56588a3140eb5716bd03e
 
-[R/Package/packrat]
-Package=packrat
-Version=0.5.0
-Source=CRAN
-Hash=aa1fbebb6ca276f933b9f77da6d02ef3
-
 [R/Package/pkgbuild]
 Package=pkgbuild
 Version=1.0.3
@@ -278,9 +272,9 @@ Hash=2356800bf0714f0daefddc6889508739
 
 [R/Package/reticulate]
 Package=reticulate
-Version=1.12.0-9001
+Version=1.12.0-9003
 Source=unknown
-Hash=e74a855ad62dd584e23d7356cf4c05a8
+Hash=7f5da24246b8457da902aeb0fc44a974
 
 [R/Package/rlang]
 Package=rlang
