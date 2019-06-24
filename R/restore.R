@@ -265,7 +265,7 @@ renv_restore_remove <- function(project, package, lockfile) {
 renv_restore_preflight_unknown_source <- function(actions, lockfile) {
 
   records <- renv_records(lockfile)
-  matching <- records[names(actions)]
+  matching <- records[intersect(names(records), names(actions))]
   unknown <- Filter(
     function(record) record$Source %in% "unknown",
     matching
