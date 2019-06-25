@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.39</span>
       </span>
     </div>
 
@@ -103,29 +103,55 @@
 
     
     
-<p>While <code>renv</code> can help capture the state of your R library at some point in time, there are still other aspects of the system that can influence the output generated. In particular, the same code may produce different results depending on:</p>
+<p>While <code>renv</code> can help capture the state of your R library at some point in time, there are still other aspects of the system that can influence the runtime behavior of your R application. In particular, the same R code can produce different results depending on:</p>
 <ul>
 <li>The operating system in use,</li>
 <li>The compiler flags used when R and packages are built,</li>
 <li>The LAPACK / BLAS system(s) in use,</li>
 <li>The versions of system libraries installed and in use,</li>
 </ul>
-<p>And so on. <a href="https://www.docker.com/">Docker</a> is a tool that helps solve this problem through the use of <strong>containers</strong>. Very roughly speaking, one can think of a container as a small, self-contained operating system within which different applications can be run. Using Docker, one can declaratively state how a container should be built (what operating system it should use, and what system software should be installed within), and use that system to run applications.</p>
+<p>And so on. <a href="https://www.docker.com/">Docker</a> is a tool that helps solve this problem through the use of <strong>containers</strong>. Very roughly speaking, one can think of a container as a small, self-contained system within which different applications can be run. Using Docker, one can declaratively state how a container should be built (what operating system it should use, and what system software should be installed within), and use that system to run applications. (For more details, please see <a href="https://environments.rstudio.com/docker" class="uri">https://environments.rstudio.com/docker</a>.)</p>
 <p>Using Docker and <code>renv</code> together, one can then ensure that both the underlying system, alongside the required R packages, are fixed and constant for a particular application.</p>
 <p>The main challenges in using Docker with <code>renv</code> are:</p>
 <ul>
 <li>Ensuring that the <code>renv</code> cache is visible to Docker containers, and</li>
 <li>Ensuring that <code>renv</code> restores the R packages as required when the container is run.</li>
 </ul>
-<p>This vignette will assume you are already familiar with Docker; if you are not yet familiar with Docker, the <a href="https://docs.docker.com/">Docker Documentation</a> provides a thorough introduction.</p>
-<div id="sharing-the-renv-cache" class="section level2">
+<p>This vignette will assume you are already familiar with Docker; if you are not yet familiar with Docker, the <a href="https://docs.docker.com/">Docker Documentation</a> provides a thorough introduction. We’ll discuss two strategies for using <code>renv</code> with Docker:</p>
+<ol style="list-style-type: decimal">
+<li>Using <code>renv</code> to install packages when the Docker image is generated;</li>
+<li>Using <code>renv</code> to install packages when Docker containers are run.</li>
+</ol>
+<p>We’ll explore the pros and cons of each strategy.</p>
+<div id="creating-docker-images-with-renv" class="section level2">
 <h2 class="hasAnchor">
-<a href="#sharing-the-renv-cache" class="anchor"></a>Sharing the renv Cache</h2>
-<p>One can control the <code>renv</code> cache directory with the environment variable <code>RENV_PATHS_CACHE</code>. For example,</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span>(<span class="dt">RENV_PATHS_CACHE =</span> <span class="st">"~/path/to/cache"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2"></a>renv<span class="op">:::</span><span class="kw">renv_paths_cache</span>()</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#&gt; [1] "~/path/to/cache/v4/R-3.6/x86_64-apple-darwin15.6.0"</span></span></code></pre></div>
-<p>Note that the platform and R version in use are appended to the requested cache directory. This ensures that a single directory can ask a base of cached packages for multiple different platforms and R versions.</p>
+<a href="#creating-docker-images-with-renv" class="anchor"></a>Creating Docker Images with renv</h2>
+<p>With Docker, <a href="https://docs.docker.com/engine/reference/builder/">Dockerfiles</a> are used to define new images. Dockerfiles can be used to declaratively specify how a Docker image should be created. A Docker image captures the state of a machine at some point in time – e.g., an Ubuntu operating system after downloading and installing R 3.5. Docker containers can be created using that image as a base, allowing isolated applications to run using the same pre-defined machine state.</p>
+<p>First, you’ll need to get <code>renv</code> installed on your Docker image. The easiest way to accomplish this is with the <code>remotes</code> package. For example:</p>
+<pre><code>ENV RENV_VERSION 0.5.0-25
+RUN R -e 'install.packages("remotes", repos = c(CRAN = "https://cran.rstudio.com"))
+RUN R -e 'remotes::install_github("rstudio/renv@${RENV_VERSION}")'</code></pre>
+<p>Now, <code>renv</code> can be used to install packages on the image. If you’d like the <code>renv.lock</code> lockfile to be used to install R packages when the Docker image is built, you can include something of the form:</p>
+<pre><code>WORKDIR /project
+COPY renv.lock ./
+RUN R -e 'renv::restore()'</code></pre>
+<p>With this, <code>renv</code> will download and install packages from CRAN and other external sources as appropriate when the image is created.</p>
+<p>There are two main downsides to this approach:</p>
+<ol style="list-style-type: decimal">
+<li><p>The set of R packages used is pre-baked into the image, so different applications or containers built from this image will either have to re-use the aforementioned set of packages, or reinstall the packages they need to update as required.</p></li>
+<li><p>With this approach, the <code>renv</code> package cache will not be used. This implies that package installation through <code><a href="../reference/restore.html">renv::restore()</a></code> may be very slow, as all packages will have to be installed.</p></li>
+</ol>
+<p>Both of these issues can be solved if package installation can be deferred to container runtime.</p>
+</div>
+<div id="running-docker-containers-with-renv" class="section level2">
+<h2 class="hasAnchor">
+<a href="#running-docker-containers-with-renv" class="anchor"></a>Running Docker Containers with renv</h2>
+<p>If you’d like to leverage the <code>renv</code> package cache alongside Docker, then you’ll need to alter how your containers are created so that <code>renv</code> can ensure the project library is initialized before your application is run.</p>
+<p>One can control the <code>renv</code> cache directory with the environment variable <code>RENV_PATHS_CACHE</code>. For example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span>(<span class="dt">RENV_PATHS_CACHE =</span> <span class="st">"~/path/to/cache"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>renv<span class="op">:::</span><span class="kw">renv_paths_cache</span>()</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#&gt; [1] "~/path/to/cache/v4/R-3.6/x86_64-apple-darwin15.6.0"</span></span></code></pre></div>
+<p>Note that the platform and R version in use are appended to the requested cache directory. This ensures that a single directory can act a base of cached packages for multiple different platforms and R versions.</p>
 <p>Next, we need to figure out how to tell the Docker containers we create to use this cache. The most common option here is to mount a directory in the container that maps to persistent storage on the host system, and then set the aforementioned <code>RENV_PATHS_CACHE</code> environment variable to point to this mount. You can specify this when the container is launched. For example, if you had a container running a Shiny application:</p>
 <pre><code>RENV_PATHS_CACHE_HOST=/opt/local/renv/cache
 RENV_PATHS_CACHE_CONTAINER=/renv/cache
@@ -135,7 +161,7 @@ docker run --rm \
     -p 14619:14619 \
     R --vanilla --slave -e 'renv::activate(); renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14619)'</code></pre>
 <p>With this, any calls to <code>renv</code> APIs within the created docker container will have access to the mounted cache. The first time you run a container, <code>renv</code> will likely need to populate the cache, and so some time will be spent downloading and installing the required packages. Subsequent runs should be much faster, as <code>renv</code> will be able to reuse the global package cache.</p>
-<p>In theory, it would be possible to create a Docker image (as opposed to a container) with the requisite packages installed. Unfortunately, there is currently no way to mount a directory when a Docker image is built. As an alternative, one can copy the <code>renv</code> cache into the image during build, but this can become expensive as the cache grows in size. For this reason, we currently recommend ensuring the <code><a href="../reference/restore.html">renv::restore()</a></code> step happens when the container is run.</p>
+<p>The primary downside with this approach compared to the image-based approach is that it requires you to modify how containers are created, and requires a bit of extra orchestration in how containers are launched. However, once the <code>renv</code> cache is active, newly-created containers will launch very quickly, and a single image can then be used as a base for a myriad of different containers and applications, each with their own private R library.</p>
 </div>
   </div>
 
@@ -144,7 +170,8 @@ docker run --rm \
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#sharing-the-renv-cache">Sharing the renv Cache</a></li>
+<li><a href="#creating-docker-images-with-renv">Creating Docker Images with renv</a></li>
+      <li><a href="#running-docker-containers-with-renv">Running Docker Containers with renv</a></li>
       </ul>
 </div>
       </div>

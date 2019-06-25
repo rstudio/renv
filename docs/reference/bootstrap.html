@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Snapshot a Project — snapshot • renv</title>
+<title>Bootstrap an renv Installation — bootstrap • renv</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,12 +32,10 @@
 
 
 
-<meta property="og:title" content="Snapshot a Project — snapshot" />
+<meta property="og:title" content="Bootstrap an renv Installation — bootstrap" />
 
-<meta property="og:description" content="Call snapshot() to create a lockfile capturing the state of a project's
-R package dependencies. The lockfile can be used to later restore these
-project's dependencies as required. See the lockfile documentation for more
-details on the structure of a lockfile." />
+<meta property="og:description" content="Bootstrap an renv installation, making the requested version of
+renv available for projects on the system." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -131,59 +129,36 @@ details on the structure of a lockfile." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Snapshot a Project</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/snapshot.R'><code>R/snapshot.R</code></a></small>
-    <div class="hidden name"><code>snapshot.Rd</code></div>
+    <h1>Bootstrap an renv Installation</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/bootstrap.R'><code>R/bootstrap.R</code></a></small>
+    <div class="hidden name"><code>bootstrap.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Call <code>snapshot()</code> to create a <strong>lockfile</strong> capturing the state of a project's
-<span style="R">R</span> package dependencies. The lockfile can be used to later restore these
-project's dependencies as required. See the <a href='lockfile.html'>lockfile</a> documentation for more
-details on the structure of a lockfile.</p>
+    <p>Bootstrap an <code>renv</code> installation, making the requested version of
+<code>renv</code> available for projects on the system.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>snapshot</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>), <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
+    <pre class="usage"><span class='fu'>bootstrap</span>(<span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>project</th>
-      <td><p>The project directory. If <code>NULL</code>, then the active
-project will be used. If no project has been specifically activated,
-the current working directory is used.</p></td>
-    </tr>
-    <tr>
-      <th>library</th>
-      <td><p>The <span style="R">R</span> library to snapshot. When <code>NULL</code>, the active library
-(as reported by <code><a href='https://rdrr.io/r/base/libPaths.html'>.libPaths()</a></code>) is used.</p></td>
-    </tr>
-    <tr>
-      <th>lockfile</th>
-      <td><p>The location where the generated lockfile should be written.
-By default, the lockfile is written to a file called <code>renv.lock</code> in the
-project directory. When <code>NULL</code>, the lockfile (as an <span style="R">R</span> object) is returned
-directly instead.</p></td>
-    </tr>
-    <tr>
-      <th>confirm</th>
-      <td><p>Boolean; prompt the user before taking any action?</p></td>
+      <th>version</th>
+      <td><p>The version of <code>renv</code> to install. If <code>NULL</code>, the version
+of <code>renv</code> currently installed will be used. The requested version of
+<code>renv</code> will be retrieved from the <code>renv</code> public GitHub repository,
+at <a href='https://github.com/rstudio/renv'>https://github.com/rstudio/renv</a>.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>When no project library is active, <code>snapshot()</code> will capture only the
-packages within use (as detected by <code><a href='dependencies.html'>dependencies()</a></code>) within a project.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Other reproducibility: <code><a href='lockfile.html'>lockfile</a></code>,
-  <code><a href='restore.html'>restore</a></code></p></div>
+    <p>Normally, this function does not need to be called directly by the user; it
+will be invoked as required by <code><a href='init.html'>init()</a></code> and <code><a href='activate.html'>activate()</a></code>.</p>
     
 
   </div>
@@ -193,8 +168,6 @@ packages within use (as detected by <code><a href='dependencies.html'>dependenci
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
-
-      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

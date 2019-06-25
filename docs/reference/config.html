@@ -65,7 +65,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.39</span>
       </span>
     </div>
 
@@ -172,7 +172,10 @@ recommended that you set them in your user startup files (e.g. in
 <tr><td><strong>Name</strong></td><td><strong>Description</strong></td><td><code>auto.snapshot</code></td></tr>
 <tr><td><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code></td><td>Automatically snapshot changes to the project library after a new package is installed?
 Note that package upgrades or removals will not be automatically snapshotted.
-(Boolean; defaults to <code>TRUE</code>)</td><td><code>use.cache</code></td></tr>
+(Boolean; defaults to <code>TRUE</code>)</td><td><code>sandbox.enabled</code></td></tr>
+<tr><td><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code></td><td>Enable sandboxing for <code>renv</code> projects? When active, <code>renv</code> will attempt to sandbox
+the system library, preventing user-installed packages from becoming available in
+<code>renv</code> projects. (Boolean; defaults to <code>FALSE</code>)</td><td><code>use.cache</code></td></tr>
 <tr><td><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code></td><td>Use the global cache when installing packages?
 (Boolean; defaults to <code>TRUE</code>)</td><td></td></tr>
 </table>
