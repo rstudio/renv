@@ -149,7 +149,7 @@ RUN R -e 'renv::restore()'</code></pre>
 <p>One can control the <code>renv</code> cache directory with the environment variable <code>RENV_PATHS_CACHE</code>. For example:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.setenv">Sys.setenv</a></span>(<span class="dt">RENV_PATHS_CACHE =</span> <span class="st">"~/path/to/cache"</span>)</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">renv<span class="op">:::</span><span class="kw">renv_paths_cache</span>()</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; [1] "~/path/to/cache/v4/R-3.7/x86_64-pc-linux-gnu"</span></a></code></pre></div>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; [1] "~/path/to/cache/v4/R-3.5/x86_64-pc-linux-gnu"</span></a></code></pre></div>
 <p>Note that the platform and R version in use are appended to the requested cache directory. This ensures that a single directory can act a base of cached packages for multiple different platforms and R versions.</p>
 <p>Next, we need to figure out how to tell the Docker containers we create to use this cache. The most common option here is to mount a directory in the container that maps to persistent storage on the host system, and then set the aforementioned <code>RENV_PATHS_CACHE</code> environment variable to point to this mount. You can specify this when the container is launched. For example, if you had a container running a Shiny application:</p>
 <pre><code>RENV_PATHS_CACHE_HOST=/opt/local/renv/cache
