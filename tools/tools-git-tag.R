@@ -1,4 +1,6 @@
 
+options(renv.verbose = TRUE)
+
 # iterate through old commits of renv, and update tags for each commit
 devtools::load_all()
 
@@ -25,6 +27,7 @@ repeat {
     break
 
   # attempt to tag this commit
+  vwritef("* Tagging version '%s'", version)
   system(paste("git tag", version))
 
   # go to the previous commit
@@ -34,5 +37,6 @@ repeat {
 
 }
 
-writeLines("* Execute 'git push --tags' to update tags on remote.")
+vwritef("* Updating tags")
+system("git push --tags")
 setwd(owd)
