@@ -3,6 +3,8 @@
 .RData
 .Ruserdata
 
-inst/doc
+docs
 internal
+
+inst/doc
 
