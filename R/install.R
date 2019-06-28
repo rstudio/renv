@@ -132,7 +132,7 @@ renv_install_package_cache <- function(record, cache, linker) {
   target <- file.path(library, record$Package)
 
   # back up the previous installation if needed
-  callback <- renv_file_scoped_backup(target)
+  callback <- renv_file_backup(target)
   on.exit(callback(), add = TRUE)
 
   # report successful link to user
@@ -188,7 +188,7 @@ renv_install_package_local <- function(record, quiet = TRUE) {
   path <- record$Path
 
   destination <- file.path(library, package)
-  callback <- renv_file_scoped_backup(destination)
+  callback <- renv_file_backup(destination)
   on.exit(callback(), add = TRUE)
 
   # install the package

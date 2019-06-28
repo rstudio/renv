@@ -25,12 +25,14 @@ renv_tests_scope <- function(packages) {
   libpaths <- .libPaths()
   .libPaths(c(lib, .libPaths()))
 
-  function() {
+  defer(envir = parent.frame(), {
     deactivate(project = dir)
     setwd(owd)
     unlink(lib, recursive = TRUE)
     .libPaths(libpaths)
-  }
+  })
+
+  invisible(dir)
 
 }
 

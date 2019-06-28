@@ -107,12 +107,14 @@ use_python <- function(python = NULL,
   renv_load_python(fields)
 
   # notify user
-  if (is.null(type)) {
-    fmt <- "* Activated Python %s (%s)."
-    writef(fmt, version, aliased_path(python))
-  } else {
-    fmt <- "* Activated Python %s [%s; %s]"
-    writef(fmt, version, type, aliased_path(name))
+  if (!renv_testing()) {
+    if (is.null(type)) {
+      fmt <- "* Activated Python %s (%s)."
+      writef(fmt, version, aliased_path(python))
+    } else {
+      fmt <- "* Activated Python %s [%s; %s]"
+      writef(fmt, version, type, aliased_path(name))
+    }
   }
 
   # report to user

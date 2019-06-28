@@ -5,18 +5,27 @@ test_that("sample JSON strings can be read", {
 
   expect_identical(
     renv_json_read(text = '[true, false, null]'),
-    quote(list(TRUE, FALSE, NA))
+    list(TRUE, FALSE, NA)
   )
 
   expect_identical(
     renv_json_read(text = '{"{}": "::"}'),
-    quote(list("{}" = "::"))
+    list("{}" = "::")
   )
 
   expect_identical(
     renv_json_read(text = '[{"a": 1.0}, {"b": -1e5}]'),
-    quote(list(list(a = 1.0), list(b = -1E5)))
+    list(list(a = 1.0), list(b = -1E5))
   )
+
+})
+
+test_that("sample R objects can be converted to JSON", {
+
+  before <- list(alpha = 1, beta = 2)
+  json <- renv_json_convert(before)
+  after <- renv_json_read(text = json)
+  expect_equal(before, after)
 
 })
 

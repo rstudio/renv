@@ -339,11 +339,13 @@ renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
   if (!any(missing))
     return(pkgs)
 
-  renv_pretty_print(
-    basename(pkgs)[missing],
-    "The following folder(s) appear to be left-over temporary directories:",
-    "Consider removing these folders from your library."
-  )
+  if (renv_verbose()) {
+    renv_pretty_print(
+      basename(pkgs)[missing],
+      "The following folder(s) appear to be left-over temporary directories:",
+      "Consider removing these folders from your library."
+    )
+  }
 
   pkgs[!missing]
 

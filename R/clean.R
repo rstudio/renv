@@ -140,15 +140,19 @@ renv_clean_stale_lockfiles <- function(project, confirm) {
   if (empty(old))
     return(TRUE)
 
-  renv_pretty_print(
-    basename(old),
-    "The following stale lockfiles were discovered in your library:",
-    "These lockfiles will be removed.",
-    wrap = FALSE
-  )
+  if (confirm || renv_verbose()) {
 
-  if (confirm && !proceed())
-    return(FALSE)
+    renv_pretty_print(
+      basename(old),
+      "The following stale lockfiles were discovered in your library:",
+      "These lockfiles will be removed.",
+      wrap = FALSE
+    )
+
+    if (confirm && !proceed())
+      return(FALSE)
+
+  }
 
   unlink(old, recursive = TRUE)
   TRUE
@@ -158,7 +162,9 @@ renv_clean_cache <- function(project, confirm) {
 
   # find projects monitored by renv
   projects <- renv_paths_root("projects")
-  projlist <- readLines(projects, warn = FALSE, encoding = "UTF-8")
+  projlist <- character()
+  if (file.exists(projects))
+    projlist <- readLines(projects, warn = FALSE, encoding = "UTF-8")
 
   # inform user if any projects are missing
   missing <- !file.exists(projlist)
@@ -206,15 +212,19 @@ renv_clean_cache <- function(project, confirm) {
     return(TRUE)
   }
 
-  renv_pretty_print(
-    renv_cache_format_path(diff),
-    "The following packages are installed in the cache but no longer used:",
-    "These packages will be removed.",
-    wrap = FALSE
-  )
+  if (confirm || renv_verbose()) {
 
-  if (confirm && !proceed())
-    return(FALSE)
+    renv_pretty_print(
+      renv_cache_format_path(diff),
+      "The following packages are installed in the cache but no longer used:",
+      "These packages will be removed.",
+      wrap = FALSE
+    )
+
+    if (confirm && !proceed())
+      return(FALSE)
+
+  }
 
   # remove the directories
   unlink(diff, recursive = TRUE)

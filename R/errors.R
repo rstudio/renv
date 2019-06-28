@@ -1,5 +1,5 @@
 
-renv_error_handler <- function() {
+renv_error_handler <- function(...) {
 
   calls <- head(sys.calls(), n = -1L)
   formatted <- map_chr(calls, function(call) {

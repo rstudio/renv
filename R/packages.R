@@ -30,7 +30,7 @@ renv_package_type <- function(path) {
     if (inherits(files, "error"))
       next
 
-    if (any(grepl("^[^/]+/INDEX$", files)))
+    if (any(grepl("^[^/]+/Meta/?$", files)))
       return("binary")
     else
       return("source")
