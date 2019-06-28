@@ -23,3 +23,7 @@ matrix:
   - r: 3.3
 
   - r: 3.2
+
+env:
+  global:
+    NOT_CRAN=true
