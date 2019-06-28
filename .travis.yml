@@ -26,4 +26,4 @@ matrix:
 
 env:
   global:
-    NOT_CRAN=true
+    - NOT_CRAN=true
