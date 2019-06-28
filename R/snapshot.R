@@ -408,6 +408,7 @@ renv_snapshot_description_source <- function(dcf) {
 
 }
 
+# nocov start
 renv_snapshot_report_actions <- function(actions, old, new) {
 
   if (!renv_verbose())
@@ -490,6 +491,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   writeLines(paste("  ", output$data(), sep = ""))
 
 }
+# nocov end
 
 renv_snapshot_auto <- function(project) {
 
@@ -515,6 +517,7 @@ renv_snapshot_auto <- function(project) {
 
 }
 
+# nocov start
 renv_snapshot_filter <- function(project) {
   deps <- dependencies(project)
   ignored <- c("renv", settings$ignored.packages(project = project))
@@ -537,3 +540,4 @@ renv_snapshot_filter_apply <- function(records, filter) {
   stopf("invalid filter in call to snapshot")
 
 }
+# nocov end

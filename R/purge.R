@@ -82,6 +82,7 @@ renv_purge_impl <- function(package,
 
   }
 
+  # nocov start
   if (confirm || renv_verbose()) {
 
     renv_pretty_print(
@@ -96,6 +97,7 @@ renv_purge_impl <- function(package,
     }
 
   }
+  # nocov end
 
   n <- length(paths)
   unlink(paths, recursive = TRUE)

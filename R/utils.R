@@ -248,3 +248,7 @@ rowapply <- function(X, FUN, ...) {
 comspec <- function() {
   Sys.getenv("COMSPEC", unset = "cmd.exe")
 }
+
+nullfile <- function() {
+  if (renv_platform_windows()) "NUL" else "/dev/null"
+}

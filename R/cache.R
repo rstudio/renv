@@ -57,66 +57,6 @@ renv_cache_package_path <- function(record) {
 
 }
 
-# 'prime' the cache with the set of packages found in the user library
-# (note: does not mutate input library)
-renv_cache_prime <- function(library) {
-
-  # list packages within the library
-  all <- list.files(library, full.names = TRUE)
-
-  # remove packages with no DESCRIPTION file
-  packages <- all[file.exists(file.path(all, "DESCRIPTION"))]
-
-  if (length(packages) == 0) {
-    fmt <- "There are no packages within library '%s' to be copied."
-    vwritef(fmt, aliased_path(library))
-    return(0)
-  }
-
-  n <- length(packages)
-  vwritef("* There are %i packages to synchronize with the cache.", n)
-  if (!proceed()) {
-    message("Operation aborted.")
-    return(0)
-  }
-
-  vwritef("Copying packages into the cache ...")
-  updates <- 0
-  for (i in seq_along(packages)) {
-
-    if (i %% 100 == 0)
-      vwritef("... updating package %i of %i ...", i, n)
-
-    package <- packages[[i]]
-
-    record <- renv_description_read(package)
-
-    # construct cache entry
-    cache <- renv_cache_package_path(record)
-
-    # if we already have a cache entry, skip (assume up to date)
-    if (renv_file_exists(cache))
-      next
-
-    # if we already have a cache entry, back it up
-    callback <- renv_file_backup(cache)
-    on.exit(callback(), add = TRUE)
-
-    # copy into cache and link back into requested directory
-    ensure_parent_directory(cache)
-    renv_file_copy(package, cache)
-
-    updates <- updates + 1
-
-  }
-
-  fmt <- "%i package(s) were copied into the cache."
-  vwritef(fmt, updates)
-
-  updates
-
-}
-
 renv_cache_synchronize <- function(record, linkable = FALSE) {
 
   # construct path to package in library

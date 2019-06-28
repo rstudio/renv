@@ -27,20 +27,43 @@ test_that("we can activate Python with a virtualenv in a project", {
 
 })
 
-test_that("the set of installed Python packages is snapshotted", {
+test_that("the set of installed Python packages is snapshotted / restored", {
 
   skip_if_no_virtualenv(python)
 
   renv_tests_scope("breakfast")
-  renv::use_python(type = "virtualenv")
 
+  # initialize python
+  renv::use_python(type = "virtualenv")
   python <- Sys.getenv("RETICULATE_PYTHON")
+
+  # install numpy
   cmd <- paste(shQuote(python), "-m pip install --quiet numpy")
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+
+  # snapshot changes
   renv::snapshot()
 
+  # check requirements.txt for install
   expect_true(file.exists("requirements.txt"))
   reqs <- renv_read_properties("requirements.txt", delimiter = "==")
   expect_true("numpy" %in% names(reqs))
+
+  # uninstall numpy
+  cmd <- paste(shQuote(python), "-m pip uninstall --quiet --yes numpy")
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+
+  # can no longer load numpy
+  cmd <- paste(shQuote(python), "-c 'import numpy'")
+  status <- system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  expect_false(status == 0L)
+
+  # try to restore
+  renv::restore()
+
+  # check that we can load numpy now
+  cmd <- paste(shQuote(python), "-c 'import numpy'")
+  status <- system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  expect_true(status == 0L)
 
 })

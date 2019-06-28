@@ -38,6 +38,7 @@ renv_clean_library_tempdirs <- function(project, confirm) {
   if (empty(bad))
     return(TRUE)
 
+  # nocov start
   if (confirm || renv_verbose()) {
 
     renv_pretty_print(
@@ -50,6 +51,7 @@ renv_clean_library_tempdirs <- function(project, confirm) {
       return(FALSE)
 
   }
+  # nocov end
 
   unlink(bad, recursive = TRUE)
   TRUE
@@ -65,6 +67,7 @@ renv_clean_system_library <- function(project, confirm) {
   if (empty(packages))
     return(TRUE)
 
+  # nocov start
   if (confirm || renv_verbose()) {
 
     renv_pretty_print(
@@ -80,6 +83,7 @@ renv_clean_system_library <- function(project, confirm) {
       return(FALSE)
 
   }
+  # nocov end
 
   remove(packages, library = .Library)
   TRUE
@@ -102,6 +106,7 @@ renv_clean_unused_packages <- function(project, confirm) {
   if (empty(removable))
     return(TRUE)
 
+  # nocov start
   if (confirm || renv_verbose()) {
 
     renv_pretty_print(
@@ -117,6 +122,7 @@ renv_clean_unused_packages <- function(project, confirm) {
       return(FALSE)
 
   }
+  # nocov end
 
   remove(removable, library = library)
   return(TRUE)
@@ -140,6 +146,7 @@ renv_clean_stale_lockfiles <- function(project, confirm) {
   if (empty(old))
     return(TRUE)
 
+  # nocov start
   if (confirm || renv_verbose()) {
 
     renv_pretty_print(
@@ -153,6 +160,7 @@ renv_clean_stale_lockfiles <- function(project, confirm) {
       return(FALSE)
 
   }
+  # nocov end
 
   unlink(old, recursive = TRUE)
   TRUE
@@ -212,6 +220,7 @@ renv_clean_cache <- function(project, confirm) {
     return(TRUE)
   }
 
+  # nocov start
   if (confirm || renv_verbose()) {
 
     renv_pretty_print(
@@ -225,6 +234,7 @@ renv_clean_cache <- function(project, confirm) {
       return(FALSE)
 
   }
+  # nocov end
 
   # remove the directories
   unlink(diff, recursive = TRUE)
