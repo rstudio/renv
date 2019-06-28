@@ -1,0 +1,6 @@
+R/bootstrap.R
+R/equip.R
+R/extsoft.R
+R/modify.R
+R/preflight.R
+R/shims.R
