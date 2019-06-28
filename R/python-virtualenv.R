@@ -76,7 +76,6 @@ renv_python_virtualenv_snapshot <- function(project, python) {
     before <- readLines(path, warn = FALSE)
 
   suffix <- "-m pip freeze 2> /dev/null"
-  python <- normalizePath(python)
   command <- paste(shQuote(python), suffix)
   after <- system(command, intern = TRUE)
 
@@ -102,7 +101,6 @@ renv_python_virtualenv_restore <- function(project, python) {
     before <- readLines(path, warn = FALSE)
 
   suffix <- "-m pip freeze 2> /dev/null"
-  python <- normalizePath(python)
   command <- paste(shQuote(python), suffix)
   after <- system(command, intern = TRUE)
 
@@ -116,7 +114,8 @@ renv_python_virtualenv_restore <- function(project, python) {
   writeLines(diff, con = file)
   suffix <- paste("-m pip install --upgrade -r", shQuote(file))
   command <- paste(shQuote(python), suffix)
-  system(command)
+  ignore <- renv_testing()
+  system(command, ignore.stdout = ignore, ignore.stderr = ignore)
 
   vwritef("* Restored Python packages from '%s'.", aliased_path(path))
 

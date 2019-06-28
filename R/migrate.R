@@ -115,7 +115,7 @@ renv_migrate_packrat_library <- function(project) {
     vprintf("* Moving packages into the renv cache ... ")
     records <- lapply(targets, renv_description_read)
     sync <- renv_progress(renv_cache_synchronize, length(targets))
-    lapply(records, sync, library = renv_paths_library(project = project), link = TRUE)
+    lapply(records, sync, linkable = TRUE)
     vwritef("Done!")
   }
 

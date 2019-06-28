@@ -536,41 +536,6 @@ renv_retrieve_require <- function(package, source) {
 
 }
 
-renv_retrieve_remote <- function(record, remote, remotes) {
-
-  # download the remote
-  start <- Sys.time()
-  vwritef("Retrieving '%s' ...", record$Package)
-  bundle <- remotes$remote_download(remote, quiet = TRUE)
-  on.exit(unlink(bundle), add = TRUE)
-  renv_download_report(Sys.time() - start, file.size(bundle))
-
-  # augment with remote information
-  source <- remotes$source_pkg(bundle, subdir = remote$subdir)
-  on.exit(unlink(source, recursive = TRUE), add = TRUE)
-
-  remotes$update_submodules(source, TRUE)
-  remotes$add_metadata(source, remotes$remote_metadata(remote, bundle, source, record$RemoteSha))
-  remotes$clear_description_md5(source)
-
-  # re-pack the package
-  owd <- setwd(dirname(source))
-  on.exit(setwd(owd), add = TRUE)
-  tarfile <- sprintf("%s.tar.gz", source)
-  tar(tarfile = tarfile, files = basename(source), compression = "gzip")
-  setwd(owd)
-
-  # construct path to package
-  url <- paste("file://", tarfile, sep = "")
-
-  # construct nice name for cache
-  path <- renv_retrieve_path(record)
-  ensure_parent_directory(path)
-
-  renv_retrieve_package(record, url, path)
-
-}
-
 # check to see if this requested record is incompatible
 # with the set of required dependencies recorded thus far
 # during the package retrieval process
