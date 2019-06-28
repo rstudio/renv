@@ -173,6 +173,7 @@ renv_settings_updated_cache <- function(project, old, new) {
     vwritef("Done!")
   } else {
     vprintf("* Copying packages into the private library ... ")
+    unlink(targets)
     copy <- renv_progress(renv_file_copy, length(targets))
     enumerate(targets, copy, overwrite = TRUE)
     vwritef("Done!")

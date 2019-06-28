@@ -35,17 +35,17 @@ r_exec <- function(package, args, label) {
 
 }
 
-r_cmd_install <- function(package, path, library) {
+r_cmd_install <- function(package, path, library, ...) {
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   library <- normalizePath(library, winslash = "/", mustWork = TRUE)
-  args <- c("CMD", "INSTALL", "--preclean", "-l", shQuote(library), shQuote(path))
+  args <- c("CMD", "INSTALL", "--preclean", "-l", shQuote(library), ..., shQuote(path))
   r_exec(package, args, "install")
   file.path(library, package)
 }
 
-r_cmd_build <- function(package, path) {
+r_cmd_build <- function(package, path, ...) {
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-  args <- c("CMD", "build", "--md5", shQuote(path))
+  args <- c("CMD", "build", "--md5", ..., shQuote(path))
   output <- r_exec(package, args, "build")
   pasted <- paste(output, collapse = "\n")
   pattern <- "[*] building .([a-zA-Z0-9_.-]+)."

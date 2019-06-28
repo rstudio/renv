@@ -10,7 +10,7 @@ renv_file_preface <- function(source, target, overwrite) {
     stopf("source file '%s' does not exist", source)
 
   if (overwrite)
-    callback <- renv_file_scoped_backup(target)
+    callback <- renv_file_backup(target)
 
   if (renv_file_exists(target))
     stopf("target file '%s' already exists", target)
@@ -174,7 +174,7 @@ renv_file_same <- function(source, target) {
 
 # NOTE: returns a callback which should be used in e.g. an on.exit handler
 # to restore the file if the attempt to update the file failed
-renv_file_scoped_backup <- function(path) {
+renv_file_backup <- function(path) {
 
   force(path)
 

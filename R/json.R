@@ -39,7 +39,11 @@ renv_json_read <- function(file = NULL, text = NULL) {
   map <- as.character(parse(text = strings))
   names(map) <- as.character(parse(text = replacements))
 
-  renv_json_remap(json, map)
+  # remap strings in object
+  remapped <- renv_json_remap(json, map)
+
+  # evaluate
+  eval(remapped, envir = baseenv())
 
 }
 

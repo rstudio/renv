@@ -99,7 +99,7 @@ renv_cache_prime <- function(library) {
       next
 
     # if we already have a cache entry, back it up
-    callback <- renv_file_scoped_backup(cache)
+    callback <- renv_file_backup(cache)
     on.exit(callback(), add = TRUE)
 
     # copy into cache and link back into requested directory
@@ -136,7 +136,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
     return(TRUE)
 
   # if we already have a cache entry, back it up
-  callback <- renv_file_scoped_backup(cache)
+  callback <- renv_file_backup(cache)
   on.exit(callback(), add = TRUE)
 
   # copy into cache and link back into requested directory

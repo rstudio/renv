@@ -58,7 +58,7 @@ test_that("scoped backups are cleared as necessary", {
   writeLines("target", target)
 
   local({
-    callback <- renv_file_scoped_backup(target)
+    callback <- renv_file_backup(target)
     on.exit(callback(), add = TRUE)
     expect_true(!file.exists(target))
   })
@@ -67,7 +67,7 @@ test_that("scoped backups are cleared as necessary", {
   expect_equal(readLines(target), "target")
 
   local({
-    callback <- renv_file_scoped_backup(target)
+    callback <- renv_file_backup(target)
     on.exit(callback(), add = TRUE)
     writeLines("mutate", target)
   })
@@ -95,5 +95,21 @@ test_that("renv tempfiles are deleted at end of scope", {
   })
   expect_false(file.exists(path))
   expect_false(file.exists(path2))
+
+})
+
+test_that("renv_file_find finds parent files", {
+
+  base <- tempfile("renv-files-")
+  rest <- c("alpha/beta/gamma")
+  tip <- file.path(base, rest)
+  ensure_directory(tip)
+
+  found <- renv_file_find(tip, function(path) {
+    if (basename(path) == "alpha")
+      return(path)
+  })
+
+  expect_equal(found, file.path(base, "alpha"))
 
 })
