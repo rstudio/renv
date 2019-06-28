@@ -7,6 +7,7 @@
 \.renvignore$
 
 ^appveyor\.yml$
+^codecov\.yml$
 ^docs$
 ^renv\.lock$
 ^requirements\.txt$
