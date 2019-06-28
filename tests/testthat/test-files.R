@@ -110,6 +110,6 @@ test_that("renv_file_find finds parent files", {
       return(path)
   })
 
-  expect_equal(found, file.path(base, "alpha"))
+  expect_true(renv_file_same(found, file.path(base, "alpha")))
 
 })
