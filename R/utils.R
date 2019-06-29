@@ -252,3 +252,9 @@ comspec <- function() {
 nullfile <- function() {
   if (renv_platform_windows()) "NUL" else "/dev/null"
 }
+
+quietly <- function(expr) {
+  sink(file = nullfile())
+  on.exit(sink(NULL), add = TRUE)
+  expr
+}
