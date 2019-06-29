@@ -17,6 +17,7 @@ skip_if_no_python <- function(python = NULL) {
 
 skip_if_no_virtualenv <- function(python = NULL) {
 
+  # TODO: need to check 'venv' for Python 3
   skip_if_no_python(python)
 
   key <- paste("tests", python, "virtualenv.installed", sep = ".")
