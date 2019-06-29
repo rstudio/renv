@@ -13,11 +13,11 @@ test_that("a sample Packrat project can be migrated", {
   Sys.setenv(R_PACKRAT_CACHE_DIR = cache)
 
   # initialize packrat
-  sink(file = nullfile())
-  suppressWarnings(
-    packrat::init(enter = FALSE, options = list(use.cache = TRUE))
+  quietly(
+    expect_warning(
+      packrat::init(enter = FALSE, options = list(use.cache = TRUE))
+    )
   )
-  sink(NULL)
 
   # try to migrate
   renv::migrate()

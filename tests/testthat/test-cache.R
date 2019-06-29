@@ -30,9 +30,7 @@ test_that("issues within the cache are reported", {
   write.dcf(desc, file = descpath)
 
   # check for warnings when calling status
-  sink(file = nullfile())
-  expect_warning(renv::status())
-  sink(NULL)
+  quietly(expect_warning(renv::status()))
 
   # check problems explicitly
   problems <- renv_cache_diagnose(verbose = FALSE)

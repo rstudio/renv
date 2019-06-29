@@ -8,9 +8,7 @@ test_that("the version of renv in a project can be changed (upgraded)", {
   renv::init()
   renv::load()
 
-  sink(file = nullfile())
-  renv::upgrade(version = "0.5.0")
-  sink(NULL)
+  quietly(renv::upgrade(version = "0.5.0"))
 
   project <- getwd()
   expect_equal(renv_activate_version(project), "0.5.0")
