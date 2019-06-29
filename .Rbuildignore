@@ -4,6 +4,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
+\.covrignore$
 \.renvignore$
 
 ^appveyor\.yml$
@@ -18,5 +19,4 @@
 ^internal$
 ^renv$
 ^tools$
-
 

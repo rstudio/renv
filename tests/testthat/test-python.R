@@ -1,7 +1,7 @@
 
 context("Python")
 
-python <- "python3"
+python <- ifelse(nzchar(Sys.which("python3")), "python3", "python")
 
 test_that("we can activate Python with a project", {
 
