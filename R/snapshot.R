@@ -235,7 +235,8 @@ renv_snapshot_validate_sources <- function(project, lockfile, library, confirm) 
   if (empty(unknown))
     return(TRUE)
 
-  if (confirm) {
+  # nocov start
+  if (confirm || renv_verbose()) {
 
     renv_pretty_print(
       names(unknown),
@@ -246,10 +247,11 @@ renv_snapshot_validate_sources <- function(project, lockfile, library, confirm) 
       )
     )
 
-    if (!proceed())
+    if (confirm && !proceed())
       return(FALSE)
 
   }
+  # nocov end
 
   TRUE
 
@@ -339,13 +341,11 @@ renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
   if (!any(missing))
     return(pkgs)
 
-  if (renv_verbose()) {
-    renv_pretty_print(
-      basename(pkgs)[missing],
-      "The following folder(s) appear to be left-over temporary directories:",
-      "Consider removing these folders from your library."
-    )
-  }
+  renv_pretty_print(
+    basename(pkgs)[missing],
+    "The following folder(s) appear to be left-over temporary directories:",
+    "Consider removing these folders from your library."
+  )
 
   pkgs[!missing]
 

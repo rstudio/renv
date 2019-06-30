@@ -276,8 +276,11 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
   writeLines(text, con = config)
 
   args <- c("--config", shQuote(config))
-  if (request == "HEAD")
-    args <- c("--server-response", "--spider", args)
+  if (request == "HEAD") {
+    args <- c("--server-response", "--spider", args, shQuote(url))
+    return(system2("wget", args, stdout = destfile, stderr = destfile))
+  }
+
   args <- c(args, shQuote(url), "-O", shQuote(destfile))
   system2("wget", args)
 

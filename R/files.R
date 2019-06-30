@@ -231,6 +231,8 @@ renv_file_list_impl <- function(path) {
 
   # on Windows, list.files mangles encoding; avoid this by making a call to
   # 'dir' with the code page set to request UTF-8 encoded paths
+
+  # nocov start
   if (renv_platform_windows()) {
     path <- normalizePath(path)
     command <- paste(comspec(), "/c chcp 65001 && dir /B", shQuote(path))
@@ -238,6 +240,7 @@ renv_file_list_impl <- function(path) {
     Encoding(output) <- "UTF-8"
     return(output)
   }
+  # nocov end
 
   # otherwise, a plain old list.files will suffice
   list.files(path)
@@ -261,6 +264,7 @@ renv_file_type <- function(paths, symlinks = TRUE) {
 
 }
 
+# nocov start
 renv_file_edit <- function(path) {
 
   # https://github.com/rstudio/renv/issues/44
@@ -276,6 +280,7 @@ renv_file_edit <- function(path) {
   do.call(.Call, list(routine, path, PACKAGE = "(embedding)"))
 
 }
+# nocov end
 
 renv_file_find <- function(path, predicate, limit = 3) {
 
