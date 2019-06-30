@@ -49,3 +49,34 @@ test_that("we can successfully tweak the user agent string", {
   expect_identical(before(format = FALSE), after(format = FALSE))
 
 })
+
+test_that("we can successfully download files with different downloaders", {
+
+  # download a small sample file
+  url <- "https://cran.rstudio.com/src/base/THANKS"
+  destfile <- tempfile("r-thanks-")
+  download.file(url, destfile = destfile, quiet = TRUE)
+  thanks <- readLines(destfile)
+
+  if (nzchar(Sys.which("curl"))) local({
+    renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "curl")
+    destfile <- tempfile("r-curl-thanks-")
+    download(url, destfile, quiet = TRUE)
+    expect_equal(readLines(destfile), thanks)
+  })
+
+  if (nzchar(Sys.which("wget"))) local({
+    renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wget")
+    destfile <- tempfile("r-wget-thanks-")
+    download(url, destfile, quiet = TRUE)
+    expect_equal(readLines(destfile), thanks)
+  })
+
+  local({
+    renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "internal")
+    destfile <- tempfile("r-internal-thanks-")
+    download(url, destfile, quiet = TRUE)
+    expect_equal(readLines(destfile), thanks)
+  })
+
+})

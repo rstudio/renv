@@ -232,6 +232,7 @@ renv_install_report_status <- function(record, status) {
 
 }
 
+# nocov start
 renv_install_preflight <- function(records) {
 
   deps <- bapply(records, function(record) {
@@ -292,3 +293,4 @@ renv_install_preflight <- function(records) {
   TRUE
 
 }
+# nocov end
