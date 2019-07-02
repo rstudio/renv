@@ -7,10 +7,19 @@ R <- function() {
 
 r_exec <- function(package, args, label) {
 
-  # ensure R_LIBS is set in case packages are needed during
-  # R CMD <...> actions
-  rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
-  env <- paste("R_LIBS", shQuote(rlibs), sep = "=")
+  # pass along environment variables to child process
+  keys <- c("R_ENVIRON", "R_ENVIRON_USER", "R_MAKEVARS", "R_MAKEVARS_USER")
+  vals <- Sys.getenv(keys, unset = NA)
+  envvars <- vals[!is.na(vals)]
+
+  # include R_LIBS
+  envvars <- c(
+    R_LIBS = paste(renv_libpaths_all(), collapse = .Platform$path.sep),
+    envvars
+  )
+
+  # generate env as used by system2
+  env <- paste(names(envvars), shQuote(envvars), sep = "=")
 
   # do the install
   output <- suppressWarnings(
