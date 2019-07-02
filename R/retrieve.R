@@ -489,10 +489,16 @@ renv_retrieve_missing_record <- function(package) {
   #   2. request a package + version to be retrieved,
   #   3. hard error
   #
-  types <- if (identical(.Platform$pkgType, "source"))
-    "source"
-  else
-    c("binary", "source")
+
+  # only use binaries if the user has specifically requested it
+  # and binaries are available for this installation of R
+  # (users may want to install from sources explicitly to take
+  # advantage of custom local compiler configurations)
+  binaries <-
+    !identical(.Platform$pkgType, "source") &&
+    !identical(getOption("pkgType"), "source")
+
+  types <- if (binaries) c("binary", "source") else "source"
 
   # iterate through available packages reported by all repositories
   # and look for a matching entry
