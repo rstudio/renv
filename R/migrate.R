@@ -15,6 +15,8 @@
 migrate <- function(project = NULL) {
   project <- project %||% renv_project()
   renv_scope_error_handler()
+
+  project <- normalizePath(project, winslash = "/", mustWork = TRUE)
   renv_migrate_packrat(project)
 }
 
@@ -35,7 +37,7 @@ renv_migrate_packrat <- function(project = NULL) {
   fmt <- "* Project '%s' has been migrated from Packrat to renv."
   vwritef(fmt, aliased_path(project))
 
-  vprintf("* Consider deleting the project 'packrat' folder if it is no longer needed.")
+  vwritef("* Consider deleting the project 'packrat' folder if it is no longer needed.")
   invisible(TRUE)
 }
 
