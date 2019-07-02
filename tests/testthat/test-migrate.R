@@ -5,12 +5,13 @@ test_that("a sample Packrat project can be migrated", {
   skip_on_cran()
   skip_if_not_installed("packrat")
 
-  renv_tests_scope("breakfast")
+  # use dummy caches for this test
+  renv_scope_envvars(
+    R_PACKRAT_CACHE_DIR = tempfile("packrat-cache-"),
+    RENV_PATHS_ROOT     = tempfile("renv-cache-")
+  )
 
-  # try setting up a dummy packrat cache
-  cache <- tempfile("packrat-cache-")
-  ensure_directory(cache)
-  Sys.setenv(R_PACKRAT_CACHE_DIR = cache)
+  renv_tests_scope("breakfast")
 
   # initialize packrat
   quietly(

@@ -71,3 +71,15 @@ test_that("use.cache project setting is honored", {
   expect_true(all(types == "symlink"))
 
 })
+
+test_that("the remotes field in a DESCRIPTION is honored", {
+  skip_on_cran()
+
+  renv_tests_scope("halloween")
+  renv::install("halloween")
+
+  ip <- renv_installed_packages(lib.loc = renv_libpaths_default())
+  expect_true("halloween" %in% rownames(ip))
+  expect_true("skeleton" %in% rownames(ip))
+
+})
