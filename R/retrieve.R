@@ -489,7 +489,7 @@ renv_retrieve_missing_record <- function(package) {
   #   2. request a package + version to be retrieved,
   #   3. hard error
   #
-  types <- if (renv_platform_linux())
+  types <- if (identical(.Platform$pkgType, "source"))
     "source"
   else
     c("binary", "source")
