@@ -17,8 +17,11 @@ test_that("clean removes stale lockfiles", {
   ensure_directory(lockpath)
   Sys.setFileTime(lockpath, Sys.time() - 36000)
 
-  # used package
-  suppressWarnings(renv::install("toast"))
+  # installed but unused package
+  local({
+    renv_scope_sink()
+    suppressWarnings(renv::install("toast"))
+  })
 
   # clean up the project
   renv::clean()

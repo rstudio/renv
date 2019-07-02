@@ -44,6 +44,12 @@ renv_scope_envvars <- function(..., .envir = NULL) {
 
 }
 
+renv_scope_sink <- function(file = nullfile(), ..., .envir = NULL) {
+  .envir <- .envir %||% parent.frame()
+  sink(file = file, ...)
+  defer(sink(NULL), envir = parent.frame())
+}
+
 renv_scope_error_handler <- function(.envir = NULL) {
 
   error <- getOption("error")
