@@ -1,5 +1,5 @@
 
-renv_tests_scope <- function(packages) {
+renv_tests_scope <- function(packages = character()) {
 
   renv_tests_init()
 
