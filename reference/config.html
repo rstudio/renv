@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.70</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.74</span>
       </span>
     </div>
 
@@ -168,25 +168,53 @@ recommended that you set them in your user startup files (e.g. in
     <p>The following <code>renv</code> configuration options are available:</p>
 <table class='table'>
 <tr><td></td><td><strong>Name</strong></td><td></td></tr>
+<tr><td></td><td><strong>Type</strong></td><td></td></tr>
 <tr><td></td><td><strong>Description</strong></td><td></td></tr>
 <tr><td></td><td></td><td><code>auto.snapshot</code></td></tr>
 <tr><td></td><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td></tr>
-<tr><td></td><td></td><td>Automatically snapshot changes to the project library after a new package is installed?</td></tr>
-<tr><td>Note that package upgrades or removals will not be automatically snapshotted.</td><td>(Boolean; defaults to</td><td><code>TRUE</code></td></tr>
+<tr><td></td><td></td><td>Automatically snapshot changes to the project library after a new package</td></tr>
+<tr><td>is installed? Note that package upgrades or removals will not be</td><td>automatically snapshotted.</td><td>(Boolean; defaults to</td></tr>
+<tr><td><code>TRUE</code></td><td>)</td><td></td></tr>
+<tr><td></td><td><code>sandbox.enabled</code></td><td></td></tr>
+<tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td><td></td></tr>
+<tr><td></td><td>Enable sandboxing for</td><td><code>renv</code></td></tr>
+<tr><td>projects? When active,</td><td><code>renv</code></td><td>will attempt to</td></tr>
+<tr><td>sandbox the system library, preventing user-installed packages in the</td><td>system library from becoming available in</td><td><code>renv</code></td></tr>
+<tr><td>projects.</td><td>(Boolean; defaults to</td><td><code>FALSE</code></td></tr>
 <tr><td>)</td><td></td><td></td></tr>
-<tr><td><code>sandbox.enabled</code></td><td></td><td></td></tr>
+<tr><td><code>shims.enabled</code></td><td></td><td></td></tr>
 <tr><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td><td></td><td></td></tr>
-<tr><td>Enable sandboxing for</td><td><code>renv</code></td><td>projects? When active,</td></tr>
-<tr><td><code>renv</code></td><td>will attempt to sandbox</td><td>the system library, preventing user-installed packages from becoming available in</td></tr>
-<tr><td><code>renv</code></td><td>projects. (Boolean; defaults to</td><td><code>FALSE</code></td></tr>
-<tr><td>)</td><td></td><td></td></tr>
-<tr><td><code>use.cache</code></td><td></td><td></td></tr>
-<tr><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td><td></td><td></td></tr>
-<tr><td>Use the global cache when installing packages?</td><td>(Boolean; defaults to</td><td><code>TRUE</code></td></tr>
-<tr><td>)</td><td></td><td></td></tr>
+<tr><td>Should</td><td><code>renv</code></td><td>shims be installed on package load? When enabled,</td></tr>
+<tr><td><code>renv</code></td><td></td><td>will install its own shims over the functions</td></tr>
+<tr><td><code><a href='https://www.rdocumentation.org/packages/utils/topics/install.packages'>install.packages()</a></code></td><td>,</td><td><code><a href='https://www.rdocumentation.org/packages/utils/topics/update.packages'>update.packages()</a></code></td></tr>
+<tr><td>and</td><td><code><a href='https://www.rdocumentation.org/packages/utils/topics/remove.packages'>remove.packages()</a></code></td><td>, delegating these functions</td></tr>
+<tr><td>to</td><td><code><a href='install.html'>renv::install()</a></code></td><td>and</td></tr>
+<tr><td><code><a href='remove.html'>renv::remove()</a></code></td><td>as appropriate.</td><td>(Boolean; defaults to</td></tr>
+<tr><td><code>TRUE</code></td><td>)</td><td></td></tr>
+<tr><td></td><td><code>snapshot.validate</code></td><td></td></tr>
+<tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td><td></td></tr>
+<tr><td></td><td>Validate</td><td><span style="R">R</span></td></tr>
+<tr><td>package dependencies when calling snapshot? When</td><td><code>TRUE</code></td><td>,</td></tr>
+<tr><td><code>renv</code></td><td>will attempt to diagnose potential issues in the project library</td><td>before creating</td></tr>
+<tr><td><code>renv.lock</code></td><td>-- for example, if a package installed in the</td><td>project library depends on a package which is not currently installed.</td></tr>
+<tr><td>(Boolean; defaults to</td><td><code>TRUE</code></td><td>)</td></tr>
+<tr><td></td><td></td><td></td></tr>
 </table>
     
+    <h2 class="hasAnchor" id="project-local-settings"><a class="anchor" href="#project-local-settings"></a>Project-Local Settings</h2>
 
+    
+    <p>For settings that should persist alongside a particular project, the
+various settings available in <a href='settings.html'>settings</a> can be used.</p>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='co'># disable automatic snapshots</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/options'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># disable with environment variable</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.setenv'>Sys.setenv</a></span>(<span class='kw'>RENV_CONFIG_AUTO_SNAPSHOT</span> <span class='kw'>=</span> <span class='st'>"FALSE"</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -195,7 +223,11 @@ recommended that you set them in your user startup files (e.g. in
       <li><a href="#details">Details</a></li>
 
       <li><a href="#configuration">Configuration</a></li>
-          </ul>
+
+      <li><a href="#project-local-settings">Project-Local Settings</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>
