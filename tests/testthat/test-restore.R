@@ -25,3 +25,34 @@ test_that("we can restore packages after init", {
   expect_setequal(before, after)
 
 })
+
+test_that("restore can recover when required packages are missing", {
+
+  renv_tests_scope("breakfast")
+  renv::init()
+
+  local({
+    renv_scope_sink()
+    renv::remove("oatmeal")
+    renv::snapshot()
+    unlink(renv_paths_library(), recursive = TRUE)
+    renv::restore()
+  })
+
+  expect_true(renv_package_installed("oatmeal"))
+
+})
+
+test_that("restore removes packages not in the lockfile", {
+
+  renv_tests_scope("oatmeal")
+  renv::init()
+
+  renv_scope_options(renv.config.auto.snapshot = FALSE)
+  renv::install("bread")
+  expect_true(renv_package_installed("bread"))
+
+  renv::restore()
+  expect_false(renv_package_installed("bread"))
+
+})

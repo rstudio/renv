@@ -78,3 +78,12 @@ For settings that should persist alongside a particular project, the
 various settings available in \link{settings} can be used.
 }
 
+\examples{
+
+# disable automatic snapshots
+options(renv.config.auto.snapshot = FALSE)
+
+# disable with environment variable
+Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = "FALSE")
+
+}

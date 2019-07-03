@@ -212,6 +212,8 @@ renv_restore_end <- function() {
   renv_global_clear("restore.state")
 }
 
+# nocov start
+
 renv_restore_report_actions <- function(actions, current, lockfile) {
 
   if ("install" %in% actions) {
@@ -250,6 +252,8 @@ renv_restore_report_actions <- function(actions, current, lockfile) {
   }
 
 }
+
+# nocov end
 
 renv_restore_remove <- function(project, package, lockfile) {
   records <- renv_records(lockfile)
