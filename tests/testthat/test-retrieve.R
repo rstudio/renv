@@ -1,6 +1,20 @@
 
 context("Retrieve")
 
+test_that("we can retrieve packages from CRAN", {
+
+  renv_tests_scope()
+
+  record <- list(
+    Package = "oatmeal",
+    Version = "1.0.0",
+    Source  = "CRAN"
+  )
+
+  renv_test_retrieve(record)
+
+})
+
 test_that("we can retrieve packages from Bitbucket", {
   skip_on_cran()
   skip_if_offline(host = "bitbucket.org")
