@@ -51,4 +51,6 @@ revert <- function(commit = "HEAD", ..., project = NULL) {
   system2("git", c("checkout", commit, "--", shQuote(lockpath)))
   system2("git", c("reset", "HEAD", shQuote(lockpath)), stdout = FALSE, stderr = FALSE)
   system2("git", c("diff", "--", shQuote(lockpath)))
+  vwritef("* renv.lock from commit %s has been checked out.", commit)
+  invisible(commit)
 }
