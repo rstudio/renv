@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.67</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.69</span>
       </span>
     </div>
 
@@ -144,14 +144,14 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>project</th>
-      <td><p>The project directory. If <code>NULL</code>, then the active
-project will be used. If no project has been specifically activated,
-the current working directory is used.</p></td>
+      <td><p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p></td>
     </tr>
     <tr>
       <th>version</th>
-      <td><p>The version of <code>renv</code> to be installed. When <code>NULL</code>, the latest
-version of <code>renv</code> as available on GitHub will be installed.</p></td>
+      <td><p>The version of <code>renv</code> to be installed. By default, the
+latest version of <code>renv</code> available on CRAN is used.</p></td>
     </tr>
     <tr>
       <th>confirm</th>
@@ -159,13 +159,29 @@ version of <code>renv</code> as available on GitHub will be installed.</p></td>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This function will attempt to install <code>renv</code> from two locations:</p><ol>
+<li><p>The active CRAN repositories (as specified in <code><a href='https://www.rdocumentation.org/packages/base/topics/options'>getOption("repos")</a></code>);</p></li>
+<li><p>From the <code>renv</code> project's <a href='https://github.com/rstudio/renv'>GitHub page</a>.</p></li>
+</ol>
+    <p>When <code>version = NULL</code> (the default), only the active CRAN repositories will
+be consulted. Hence, this can be used to upgrade a project to the latest
+released version of <code>renv</code> on CRAN.</p>
+<p>If you'd instead like to try out a development version of <code>renv</code>, you can
+explicitly request a different version of <code>renv</code> and that version of the
+package will be downloaded and installed from GitHub. Use
+<code>version = "master"</code> to install the latest development version of <code>renv</code>.</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>
