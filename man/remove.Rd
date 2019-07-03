@@ -13,9 +13,9 @@ remove(packages, library = NULL, project = NULL)
 \code{NULL}, the active library (that is, the first entry reported in
 \code{.libPaths()}) is used instead.}
 
-\item{project}{The project directory. If \code{NULL}, then the active
-project will be used. If no project has been specifically activated,
-the current working directory is used.}
+\item{project}{The project directory. If \code{NULL}, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.}
 }
 \description{
 Remove (uninstall) \R packages.

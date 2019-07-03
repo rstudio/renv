@@ -8,9 +8,9 @@ snapshot(project = NULL, library = NULL,
   lockfile = file.path(project, "renv.lock"), confirm = interactive())
 }
 \arguments{
-\item{project}{The project directory. If \code{NULL}, then the active
-project will be used. If no project has been specifically activated,
-the current working directory is used.}
+\item{project}{The project directory. If \code{NULL}, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.}
 
 \item{library}{The \R library to snapshot. When \code{NULL}, the active library
 (as reported by \code{.libPaths()}) is used.}

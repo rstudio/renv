@@ -29,9 +29,9 @@ Otherwise, a project-local environment will be created instead.}
 
 \item{...}{Optional arguments; currently unused.}
 
-\item{project}{The project directory. If \code{NULL}, then the active
-project will be used. If no project has been specifically activated,
-the current working directory is used.}
+\item{project}{The project directory. If \code{NULL}, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.}
 }
 \description{
 Associate a version of Python with your project.
