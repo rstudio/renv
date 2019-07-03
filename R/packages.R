@@ -82,3 +82,17 @@ renv_packages_base <- function() {
   db <- renv_installed_packages_base()
   c("R", db$Package)
 }
+
+renv_package_pkgtypes <- function() {
+
+  # only use binaries if the user has specifically requested it
+  # and binaries are available for this installation of R
+  # (users may want to install from sources explicitly to take
+  # advantage of custom local compiler configurations)
+  binaries <-
+    !identical(.Platform$pkgType, "source") &&
+    !identical(getOption("pkgType"), "source")
+
+  if (binaries) c("binary", "source") else "source"
+
+}
