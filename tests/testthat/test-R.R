@@ -33,3 +33,14 @@ test_that("we can use R CMD build to build a package", {
   expect_equal(renv_package_type(binball), "binary")
 
 })
+
+test_that("we can supply custom options to R CMD INSTALL", {
+
+  renv_tests_scope()
+
+  # this will suppress installation during R CMD INSTALL
+  renv_scope_options(install.opts = list(oatmeal = "--version"))
+  renv::install("oatmeal")
+  expect_false("oatmeal" %in% rownames(renv_installed_packages()))
+
+})

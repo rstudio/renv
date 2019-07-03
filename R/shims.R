@@ -54,7 +54,7 @@ renv_shim <- function(shim, sham) {
 
 renv_shims_init <- function() {
 
-  shims <- getOption("renv.shims", default = TRUE)
+  shims <- renv_config("shims.enabled", default = TRUE)
   if (!identical(shims, TRUE))
     return(FALSE)
 

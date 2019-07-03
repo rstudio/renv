@@ -40,22 +40,41 @@ recommended that you set them in your user startup files (e.g. in
 The following \code{renv} configuration options are available:
 
 \tabular{lll}{
-\strong{Name} \tab \strong{Description} \cr
+\strong{Name} \tab \strong{Type} \tab \strong{Description} \cr
 
 \code{auto.snapshot} \tab \code{logical(1)} \tab
-Automatically snapshot changes to the project library after a new package is installed?
-Note that package upgrades or removals will not be automatically snapshotted.
+Automatically snapshot changes to the project library after a new package
+is installed? Note that package upgrades or removals will not be
+automatically snapshotted.
 (Boolean; defaults to \code{TRUE}) \cr
 
 \code{sandbox.enabled} \tab \code{logical(1)} \tab
-Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to sandbox
-the system library, preventing user-installed packages from becoming available in
-\code{renv} projects. (Boolean; defaults to \code{FALSE}) \cr
+Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to
+sandbox the system library, preventing user-installed packages in the
+system library from becoming available in \code{renv} projects.
+(Boolean; defaults to \code{FALSE}) \cr
 
-\code{use.cache} \tab \code{logical(1)} \tab
-Use the global cache when installing packages?
+\code{shims.enabled} \tab \code{logical(1)} \tab
+Should \code{renv} shims be installed on package load? When enabled, \code{renv}
+will install its own shims over the functions \code{install.packages()},
+\code{update.packages()} and \code{remove.packages()}, delegating these functions
+to \code{renv::install()} and \code{renv::remove()} as appropriate.
+(Boolean; defaults to \code{TRUE}) \cr
+
+\code{snapshot.validate} \tab \code{logical(1)} \tab
+Validate \R package dependencies when calling snapshot? When \code{TRUE},
+\code{renv} will attempt to diagnose potential issues in the project library
+before creating \code{renv.lock} -- for example, if a package installed in the
+project library depends on a package which is not currently installed.
 (Boolean; defaults to \code{TRUE}) \cr
 
 }
+}
+
+\section{Project-Local Settings}{
+
+
+For settings that should persist alongside a particular project, the
+various settings available in \link{settings} can be used.
 }
 

@@ -45,11 +45,23 @@ r_exec <- function(package, args, label) {
 }
 
 r_cmd_install <- function(package, path, library, ...) {
+
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   library <- normalizePath(library, winslash = "/", mustWork = TRUE)
-  args <- c("CMD", "INSTALL", "--preclean", "-l", shQuote(library), ..., shQuote(path))
+
+  args <- c(
+    "CMD", "INSTALL", "--preclean",
+    r_cmd_install_option(package, "configure.args", TRUE),
+    r_cmd_install_option(package, "configure.vars", TRUE),
+    r_cmd_install_option(package, "install.opts", FALSE),
+    "-l", shQuote(library),
+    ...,
+    shQuote(path)
+  )
+
   r_exec(package, args, "install")
   file.path(library, package)
+
 }
 
 r_cmd_build <- function(package, path, ...) {
@@ -62,4 +74,30 @@ r_cmd_build <- function(package, path, ...) {
   text <- regmatches(pasted, matches)
   tarball <- text[[1]][[2]]
   file.path(getwd(), tarball)
+}
+
+r_cmd_install_option <- function(package, option, configure) {
+
+  # read option
+  value <- getOption(option)
+  if (is.null(value))
+    return(NULL)
+
+  # check for named values
+  if (package %in% names(value)) {
+    value <- value[[package]]
+    if (is.null(value))
+      return(value)
+  }
+
+  # if this is a configure option, format specially
+  if (configure) {
+    confkey <- sub(".", "-", option, fixed = TRUE)
+    confval <- shQuote(paste(value, collapse = " "))
+    return(sprintf("--%s=%s", confkey, confval))
+  }
+
+  # otherwise, just paste it
+  paste(value, collapse = " ")
+
 }
