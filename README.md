@@ -1,7 +1,7 @@
 # renv
 
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![Travis build status](https://travis-ci.org/rstudio/renv.svg?branch=master)](https://travis-ci.org/rstudio/renv)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/rstudio/renv?branch=master&svg=true)](https://ci.appveyor.com/project/rstudio/renv)
 [![Codecov test coverage](https://codecov.io/gh/rstudio/renv/branch/master/graph/badge.svg)](https://codecov.io/gh/rstudio/renv?branch=master)
