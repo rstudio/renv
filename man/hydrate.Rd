@@ -4,8 +4,7 @@
 \alias{hydrate}
 \title{Hydrate a Project}
 \usage{
-hydrate(packages = NULL, library = NULL, missing = NULL,
-  project = NULL)
+hydrate(packages = NULL, library = NULL, project = NULL)
 }
 \arguments{
 \item{packages}{The set of \R packages to install. When \code{NULL}, the
@@ -13,10 +12,6 @@ set of packages as reported by \code{\link[=dependencies]{dependencies()}} is us
 
 \item{library}{The \R library to be hydrated. When \code{NULL}, the active
 library as reported by \code{.libPaths()} is used.}
-
-\item{missing}{The behavior to choose when one or more of the requested
-packages are not available on the system. See \strong{Missing Packages}
-for more details.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
@@ -45,17 +40,8 @@ copy or link that package into the requested library as appropriate.
 \section{Missing Packages}{
 
 
-The \code{missing} argument controls what happens when your project requests the
-hydration of packages which are not currently installed on your system. The
-possible values are:
-
-\tabular{ll}{
-\strong{Option}   \tab \strong{Action} \cr
-\code{"install"}  \tab Install the latest version of missing packages from CRAN. \cr
-\code{"ignore"}   \tab Do nothing; missing packages will not be installed. \cr
-}
-
-The \R option \code{renv.hydrate.missing} can be used to control the default behavior
-of \code{renv::hydrate()}.
+If \code{renv} discovers that your project depends on \R packages not currently
+installed in your user library, then it will attempt to install those
+packages from CRAN.
 }
 

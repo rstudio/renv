@@ -2,7 +2,7 @@
 `_renv_sandbox` <- new.env(parent = emptyenv())
 
 renv_sandbox_enabled <- function(project) {
-  renv_config_get("sandbox.enabled", default = FALSE)
+  renv_config("sandbox.enabled", default = FALSE)
 }
 
 renv_sandbox_activate <- function(project = NULL) {

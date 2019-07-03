@@ -89,7 +89,7 @@ renv_settings_get <- function(project, name = NULL) {
     return(setting)
 
   # no value recorded; check for global user config
-  config <- renv_config_get(name)
+  config <- renv_config(name)
   if (!is.null(config))
     return(config)
 

@@ -35,29 +35,54 @@
 #' The following `renv` configuration options are available:
 #'
 #' \tabular{lll}{
-#' **Name** \tab **Description** \cr
+#' **Name** \tab **Type** \tab **Description** \cr
 #'
 #' `auto.snapshot` \tab `logical(1)` \tab
-#'   Automatically snapshot changes to the project library after a new package is installed?
-#'   Note that package upgrades or removals will not be automatically snapshotted.
+#'   Automatically snapshot changes to the project library after a new package
+#'   is installed? Note that package upgrades or removals will not be
+#'   automatically snapshotted.
 #'   (Boolean; defaults to `TRUE`) \cr
 #'
 #' `sandbox.enabled` \tab `logical(1)` \tab
-#'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to sandbox
-#'   the system library, preventing user-installed packages from becoming available in
-#'   `renv` projects. (Boolean; defaults to `FALSE`) \cr
+#'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
+#'   sandbox the system library, preventing user-installed packages in the
+#'   system library from becoming available in `renv` projects.
+#'   (Boolean; defaults to `FALSE`) \cr
 #'
-#' `use.cache` \tab `logical(1)` \tab
-#'   Use the global cache when installing packages?
+#' `shims.enabled` \tab `logical(1)` \tab
+#'   Should `renv` shims be installed on package load? When enabled, `renv`
+#'   will install its own shims over the functions `install.packages()`,
+#'   `update.packages()` and `remove.packages()`, delegating these functions
+#'   to `renv::install()` and `renv::remove()` as appropriate.
 #'   (Boolean; defaults to `TRUE`) \cr
 #'
+#' `snapshot.validate` \tab `logical(1)` \tab
+#'  Validate \R package dependencies when calling snapshot? When `TRUE`,
+#'  `renv` will attempt to diagnose potential issues in the project library
+#'  before creating `renv.lock` -- for example, if a package installed in the
+#'  project library depends on a package which is not currently installed.
+#'  (Boolean; defaults to `TRUE`) \cr
+#'
 #' }
+#'
+#' @section Project-Local Settings:
+#'
+#' For settings that should persist alongside a particular project, the
+#' various settings available in [settings] can be used.
+#'
+#' @examples
+#'
+#' # disable automatic snapshots
+#' options(renv.config.auto.snapshot = FALSE)
+#'
+#' # disable with environment variable
+#' Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = "FALSE")
 #'
 #' @rdname config
 #' @name config
 NULL
 
-renv_config_get <- function(name, default = NULL) {
+renv_config <- function(name, default = NULL) {
 
   # check for R option of associated name
   optname <- tolower(name)
@@ -85,8 +110,10 @@ renv_config_decode_envvar <- function(envname, envval) {
     "NA"   = NA,
     "NaN"  = NaN,
     "true" = TRUE,
+    "True" = TRUE,
     "TRUE" = TRUE,
     "false" = FALSE,
+    "False" = FALSE,
     "FALSE" = FALSE
   ))
 

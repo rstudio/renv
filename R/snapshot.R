@@ -126,7 +126,7 @@ renv_snapshot_preflight_library_exists <- function(project, library) {
 renv_snapshot_validate <- function(project, lockfile, library, confirm) {
 
   # allow user to disable snapshot validation, just in case
-  enabled <- getOption("renv.snapshot.validate", default = TRUE)
+  enabled <- renv_config("snapshot.validate", default = TRUE)
   if (!enabled)
     return(TRUE)
 
@@ -496,7 +496,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 renv_snapshot_auto <- function(project) {
 
   # don't auto-snapshot if disabled by user
-  if (!renv_config_get("auto.snapshot", default = TRUE))
+  if (!renv_config("auto.snapshot", default = TRUE))
     return(FALSE)
 
   # only automatically snapshot the current project
