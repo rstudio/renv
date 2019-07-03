@@ -63,6 +63,11 @@ renv_available_packages_query <- function(url, type) {
 renv_available_packages_entry <- function(package, type, filter = NULL) {
 
   filter <- filter %||% function(entry) TRUE
+  if (is.character(filter)) {
+    version <- filter
+    filter <- function(entry) entry$Version == version
+  }
+
   dbs <- renv_available_packages(type = type)
   for (db in dbs) {
     if (!package %in% db$Package)
@@ -73,6 +78,6 @@ renv_available_packages_entry <- function(package, type, filter = NULL) {
       return(entry)
   }
 
-  stopf("package '%s' [%s] is not available", package, type)
+  stopf("failed to find %s for package %s in active repositories", type, package)
 
 }
