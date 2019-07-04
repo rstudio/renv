@@ -99,6 +99,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   if (renv_file_exists(target))
     return(TRUE)
 
+  # nocov start
   # rename failed; fall back to copying (and be sure to remove
   # the source file / directory on success)
   copy <- catchall(renv_file_copy(source, target, overwrite = overwrite))
@@ -115,7 +116,9 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   if (inherits(copy, "condition"))
     fmt$push(paste("copy:", conditionMessage(copy)))
 
-  stopf(fmt$data(), source, target)
+  text <- paste(fmt$data(), collapse = "\n")
+  stopf(text, source, target)
+  # nocov end
 
 }
 

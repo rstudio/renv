@@ -113,3 +113,14 @@ test_that("renv_file_find finds parent files", {
   expect_true(renv_file_same(found, file.path(base, "alpha")))
 
 })
+
+test_that("attempts to overwrite existing files are handled appropriately", {
+
+  source <- renv_tempfile("renv-source-")
+  target <- renv_tempfile("renv-target-")
+
+  file.create(c(source, target))
+  expect_error(renv_file_copy(source, target))
+  expect_true(renv_file_copy(source, target, overwrite = TRUE))
+
+})
