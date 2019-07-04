@@ -22,6 +22,7 @@ test_that("snapshot failures are reported", {
 })
 
 test_that("broken symlinks are reported", {
+  skip_on_os("windows")
 
   renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
   renv_tests_scope("oatmeal")

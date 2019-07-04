@@ -119,7 +119,9 @@ test_that("attempts to overwrite existing files are handled appropriately", {
   source <- renv_tempfile("renv-source-")
   target <- renv_tempfile("renv-target-")
 
-  file.create(c(source, target))
+  writeLines("alpha", con = source)
+  writeLines("beta",  con = target)
+
   expect_error(renv_file_copy(source, target))
   expect_true(renv_file_copy(source, target, overwrite = TRUE))
 
