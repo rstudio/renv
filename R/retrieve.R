@@ -524,16 +524,6 @@ renv_retrieve_missing_record <- function(package) {
 
 }
 
-renv_retrieve_require <- function(package, source) {
-
-  if (requireNamespace(package, quietly = TRUE))
-    return(.getNamespace(package))
-
-  fmt <- "package '%s' is required to retrieve packages from %s"
-  stopf(fmt, package, source)
-
-}
-
 # check to see if this requested record is incompatible
 # with the set of required dependencies recorded thus far
 # during the package retrieval process

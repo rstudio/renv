@@ -139,6 +139,7 @@ renv_settings_merge <- function(settings, merge) {
 
 
 
+# nocov start
 
 renv_settings_updated_cache <- function(project, old, new) {
 
@@ -205,6 +206,8 @@ renv_settings_impl <- function(name, validate, default, update) {
   }
 
 }
+
+# nocov end
 
 #' Project Settings
 #'

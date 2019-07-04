@@ -47,31 +47,6 @@ test_that("attempts to initialize a project with a missing package is okay", {
 
 })
 
-test_that("use.cache project setting is honored", {
-  skip_on_os("windows")
-
-  renv_tests_scope("breakfast")
-
-  renv::init()
-
-  packages <- list.files(renv_paths_library(), full.names = TRUE)
-  types <- renv_file_type(packages)
-  expect_true(all(types == "symlink"))
-
-  renv::settings$use.cache(FALSE)
-
-  packages <- list.files(renv_paths_library(), full.names = TRUE)
-  types <- renv_file_type(packages)
-  expect_true(all(types == "directory"))
-
-  renv::settings$use.cache(TRUE)
-
-  packages <- list.files(renv_paths_library(), full.names = TRUE)
-  types <- renv_file_type(packages)
-  expect_true(all(types == "symlink"))
-
-})
-
 test_that("the remotes field in a DESCRIPTION is honored", {
   skip_on_cran()
 
