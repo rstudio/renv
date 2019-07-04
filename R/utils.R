@@ -131,6 +131,8 @@ catchall <- function(expr) {
     tryCatch(expr, condition = identity)
 }
 
+# nocov start
+
 ask <- function(question, default = FALSE) {
 
   if (!interactive())
@@ -149,6 +151,8 @@ ask <- function(question, default = FALSE) {
 proceed <- function() {
   ask("Do you want to proceed?")
 }
+
+# nocov end
 
 inject <- function(contents,
                    pattern,
@@ -213,10 +217,6 @@ endswith <- function(string, suffix) {
 fileext <- function(path, default = "") {
   indices <- regexpr("[.]((?:tar[.])?[[:alnum:]]+)$", path)
   ifelse(indices > -1L, substring(path, indices), default)
-}
-
-flip <- function(vector) {
-  named(names(vector), vector)
 }
 
 git <- function() {

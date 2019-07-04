@@ -45,6 +45,9 @@ renv_description_read <- function(path = NULL, package = NULL, ...) {
   }
 
   dcf <- renv_dcf_read(path, ...)
+  if (empty(dcf))
+    stopf("'%s' is empty")
+
   renv_filebacked_set(key, dcf)
   dcf
 
