@@ -44,8 +44,10 @@ The main challenges in using Docker with `renv` are:
 
 This vignette will assume you are already familiar with Docker; if you are not
 yet familiar with Docker, the [Docker Documentation](https://docs.docker.com/)
-provides a thorough introduction. We'll discuss two strategies for using `renv`
-with Docker:
+provides a thorough introduction. To learn more about using Docker to manage R
+environments, visit
+[environments.rstudio.com](https://environments.rstudio.com/docker.html). We'll
+discuss two strategies for using `renv` with Docker:
 
 1. Using `renv` to install packages when the Docker image is generated;
 2. Using `renv` to install packages when Docker containers are run.
