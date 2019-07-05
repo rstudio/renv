@@ -19,7 +19,7 @@ When you want to work on a project with other collaborators, `renv` can be
 a useful tool for ensuring that everyone is working in the same R environment.
 This vignette discusses how you can use `renv` to ensure you and your
 collaborators are using the same R environment in your projects.
-
+For more information on collaboration strategies, visit [environments.rstudio.com](https://environments.rstudio.com/).
 
 ## Collaborating with renv
 
