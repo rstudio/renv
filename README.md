@@ -25,6 +25,9 @@ ensures those exact versions are the ones that get installed wherever you go.
 
 See the [project page](https://rstudio.github.io/renv) for more information.
 
+
+## Installation
+
 Install the latest development version of `renv` with:
 
 ```r
