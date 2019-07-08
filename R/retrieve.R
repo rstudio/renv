@@ -46,9 +46,10 @@ renv_retrieve_impl <- function(package) {
   if (renv_retrieve_incompatible(record))
     record <- renv_retrieve_missing_record(package)
 
-  # if the package is otherwise skippable, skip it
-  if (renv_restore_skip(record))
-    return()
+  # if we have an installed package matching the requested record, finish early
+  path <- renv_restore_find(record)
+  if (file.exists(path))
+    return(renv_retrieve_successful(record, path))
 
   # if this is a URL source, then it should already have a local path
   path <- record$Path %||% ""

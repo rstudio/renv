@@ -89,7 +89,8 @@ renv_install_impl <- function(record, project) {
 
   # skip installation if the requested record matches
   # the already-installed record
-  if (renv_restore_skip(record))
+  path <- renv_restore_find(record)
+  if (file.exists(path))
     return(TRUE)
 
   # figure out whether we can use the cache during install

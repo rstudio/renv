@@ -14,12 +14,14 @@ test_that("usages of library, etc. are properly handled", {
 })
 
 test_that("parse errors are okay in .Rmd documents", {
+  skip_if_not_installed("knitr")
   expect_warning(deps <- dependencies("resources/chunk-errors.Rmd"))
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "dplyr"))
 })
 
 test_that("inline chunks are parsed for dependencies", {
+  skip_if_not_installed("knitr")
   deps <- dependencies("resources/inline-chunks.Rmd")
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "inline", "multiple", "separate"))
@@ -43,6 +45,7 @@ test_that("the package name is validated when inferring dependencies", {
 })
 
 test_that("empty chunks don't cause issues during dependency resolution", {
+  skip_if_not_installed("knitr")
   deps <- dependencies("resources/empty-chunk.Rmd")
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown"))

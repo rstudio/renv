@@ -324,41 +324,42 @@ renv_restore_preflight <- function(project, library, actions, current, lockfile,
 
 }
 
-renv_restore_skip <- function(record) {
+renv_restore_find <- function(record) {
 
   # don't skip if installation was explicitly requested
   state <- renv_restore_state()
   if (record$Package %in% state$packages)
-    return(FALSE)
+    return("")
 
   # need to restore if it's not yet installed
   library <- renv_global_get("install.library") %||% renv_libpaths_default()
-  target <- file.path(library, record$Package)
-  if (!file.exists(target))
-    return(FALSE)
+  path <- file.path(library, record$Package)
+  if (!file.exists(path))
+    return("")
 
   # attempt to read DESCRIPTION
-  current <- catch(as.list(renv_description_read(target)))
+  current <- catch(as.list(renv_description_read(path)))
   if (inherits(current, "error"))
-    return(FALSE)
+    return("")
 
   # check for matching records
   source <- tolower(record$Source)
   if (empty(source))
-    return(FALSE)
+    return("")
 
   # check for an up-to-date version from CRAN
   if (identical(source, "cran")) {
     fields <- c("Package", "Version")
     if (identical(record[fields], current[fields]))
-      return(TRUE)
+      return(path)
   }
 
   # otherwise, match on remote fields
   fields <- c("Package", "Version", grep("^Remote", names(record), value = TRUE))
   if (identical(record[fields], current[fields]))
-    return(TRUE)
+    return(path)
 
-  FALSE
+  # failed to match; return empty path
+  ""
 
 }
