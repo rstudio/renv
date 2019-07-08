@@ -25,6 +25,15 @@ ensures those exact versions are the ones that get installed wherever you go.
 
 See the [project page](https://rstudio.github.io/renv) for more information.
 
+Install the latest development version of `renv` with:
+
+```r
+if (!requireNamespace("remotes"))
+  install.packages("remotes")
+
+remotes::install_github("rstudio/renv")
+```
+
 
 ## Workflow
 
