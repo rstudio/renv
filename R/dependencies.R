@@ -254,7 +254,8 @@ renv_dependencies_discover_chunks <- function(path) {
   chunks <- .mapply(function(lhs, rhs) {
     header <- contents[[lhs]]
     params <- renv_dependencies_discover_parse_params(header, type)
-    list(params = params, contents = contents[(lhs + 1):(rhs - 1)])
+    range <- seq.int(lhs + 1, length.out = rhs - lhs - 1)
+    list(params = params, contents = contents[range])
   }, ranges, NULL)
 
   # iterate over chunks, and attempt to parse dependencies from each

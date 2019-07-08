@@ -41,3 +41,9 @@ test_that("the package name is validated when inferring dependencies", {
   expect_false("methods" %in% deps$Package)
 
 })
+
+test_that("empty chunks don't cause issues during dependency resolution", {
+  deps <- dependencies("resources/empty-chunk.Rmd")
+  pkgs <- deps$Package
+  expect_setequal(pkgs, c("rmarkdown"))
+})
