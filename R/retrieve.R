@@ -177,6 +177,19 @@ renv_retrieve_gitlab <- function(record) {
 
 }
 
+#' Attach a Personal Access Token specified by an env var to a git URL
+#'
+#' If, for a git record, the field `RemoteTokenEnvVar` is specified, try
+#'   to retrive the personal access token from that environment var, and append
+#'   that to the URL of the repo to fetch
+#'
+#' @param record the record for the given package.
+#'        If the field `RemoteTokenEnvVar` is given, a remote url conforming to
+#'        `https://url.git`, or to `https://<username>:<password>@url.git` will
+#'        be transformed to `https://username:<ACCESS_TOKEN>@url.git` .
+#' @return the input record, but with the PAT stored at the
+#'         specified environment variable appended to the RemoteURL, if given.
+#' @keywords internal
 renv_retrieve_git_attach_PAT <- function(record){
     pattern <- "^https://(\\w+:?\\w*@)?"
 
