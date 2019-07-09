@@ -180,13 +180,14 @@ renv_retrieve_gitlab <- function(record) {
 renv_retrieve_git_attach_PAT <- function(record){
     pattern <- "^https://(\\w+:?\\w*@)?"
 
-
     if (!is.null(record$RemoteTokenEnvVar)){
       token <- Sys.getenv(record$RemoteTokenEnvVar)
-      if (token != ""){
-        replacement <- paste0("https://username:", token, "@")
-        record$RemoteUrl <- sub(pattern, replacement, record$RemoteUrl)
+      if (token == ""){
+        fmt <- "Access Token Field Specified, but not found at env var %s"
+        stopf(fmt, record$RemoteTokenEnvVar)
       }
+      replacement <- paste0("https://username:", token, "@")
+      record$RemoteUrl <- sub(pattern, replacement, record$RemoteUrl)
     }
     return(record)
 }
@@ -204,7 +205,7 @@ renv_retrieve_git <- function(record) {
     "git fetch --quiet origin \"${REF}\"",
     "git reset --quiet --hard FETCH_HEAD"
   )
-  
+
   record <- renv_retrieve_git_attach_PAT(record)
 
   data <- list(
