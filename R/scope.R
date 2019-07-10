@@ -2,14 +2,24 @@
 renv_scope_auth <- function(record, .envir = NULL) {
 
   auth <- getOption("renv.auth")
-  if (!is.function(auth))
-    return(FALSE)
 
-  envvars <- catch(auth(record))
+  envvars <- catch(as.character({
+
+    if (is.function(auth))
+      return(auth(record))
+
+    package <- record$Package
+    auth[[package]]
+
+  }))
+
   if (inherits(envvars, "error")) {
     warning(envvars)
     return(FALSE)
   }
+
+  if (empty(envvars))
+    return(FALSE)
 
   .envir <- .envir %||% parent.frame()
   renv_scope_envvars(.list = envvars, .envir = .envir)
