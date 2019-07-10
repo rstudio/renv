@@ -34,7 +34,7 @@ renv_remotes_parse_cran <- function(entry) {
   # if no version was provided, take this as a request
   # to use the latest version available on CRAN
   if (is.na(version) || identical(version, "latest")) {
-    record <- catch(renv_retrieve_missing_record(package))
+    record <- catch(renv_records_cran_latest(package))
     if (!inherits(record, "error"))
       return(record)
   }
