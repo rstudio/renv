@@ -4,12 +4,14 @@
 \alias{install}
 \title{Install Packages}
 \usage{
-install(packages, library = NULL, project = NULL)
+install(packages, ..., library = NULL, project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to install. Required
 package dependencies (\code{Depends}, \code{Imports}, \code{LinkingTo}) will be installed
 as required.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{library}{The library from which packages should be installed. When
 \code{NULL}, the active library (that is, the first entry reported in

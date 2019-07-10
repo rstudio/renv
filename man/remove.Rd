@@ -4,10 +4,12 @@
 \alias{remove}
 \title{Remove Packages}
 \usage{
-remove(packages, library = NULL, project = NULL)
+remove(packages, ..., library = NULL, project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to remove.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{library}{The library from which packages should be removed. When
 \code{NULL}, the active library (that is, the first entry reported in

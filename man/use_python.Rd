@@ -4,8 +4,8 @@
 \alias{use_python}
 \title{Use Python}
 \usage{
-use_python(python = NULL, type = c("auto", "virtualenv", "conda",
-  "system"), name = NULL, ..., project = NULL)
+use_python(python = NULL, ..., type = c("auto", "virtualenv", "conda",
+  "system"), name = NULL, project = NULL)
 }
 \arguments{
 \item{python}{The path to a Python binary. This can be the path to a Python
@@ -15,6 +15,8 @@ environment variable is checked; if that is not set, then the default
 version of \code{python} on the \code{PATH} is used instead. As a special case,
 \code{use_python(FALSE)} can be used to deactivate Python integration with
 a project.}
+
+\item{...}{Optional arguments; currently unused.}
 
 \item{type}{The type of Python environment to use. When \code{"auto"} (the
 default), a project-local environment (virtual environments on Linux /
@@ -26,8 +28,6 @@ environment.}
 environment. If \code{NULL} and \code{python} points to a Python executable living
 within a pre-existing virtual environment, that environment will be used.
 Otherwise, a project-local environment will be created instead.}
-
-\item{...}{Optional arguments; currently unused.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working

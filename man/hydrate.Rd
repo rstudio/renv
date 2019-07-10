@@ -4,11 +4,13 @@
 \alias{hydrate}
 \title{Hydrate a Project}
 \usage{
-hydrate(packages = NULL, library = NULL, project = NULL)
+hydrate(packages = NULL, ..., library = NULL, project = NULL)
 }
 \arguments{
 \item{packages}{The set of \R packages to install. When \code{NULL}, the
 set of packages as reported by \code{\link[=dependencies]{dependencies()}} is used.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{library}{The \R library to be hydrated. When \code{NULL}, the active
 library as reported by \code{.libPaths()} is used.}

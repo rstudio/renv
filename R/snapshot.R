@@ -23,6 +23,7 @@
 #'
 #' @export
 snapshot <- function(project  = NULL,
+                     ...,
                      library  = NULL,
                      lockfile = file.path(project, "renv.lock"),
                      confirm  = interactive())

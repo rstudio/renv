@@ -4,7 +4,7 @@
 \alias{restore}
 \title{Restore a Project}
 \usage{
-restore(project = NULL, library = NULL, lockfile = NULL,
+restore(project = NULL, ..., library = NULL, lockfile = NULL,
   actions = c("install", "remove", "upgrade", "downgrade", "crossgrade"),
   confirm = interactive())
 }
@@ -12,6 +12,8 @@ restore(project = NULL, library = NULL, lockfile = NULL,
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{library}{The path to the library in which packages will be restored.
 When \code{NULL}, the project library is used.}

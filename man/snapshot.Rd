@@ -4,13 +4,15 @@
 \alias{snapshot}
 \title{Snapshot a Project}
 \usage{
-snapshot(project = NULL, library = NULL,
+snapshot(project = NULL, ..., library = NULL,
   lockfile = file.path(project, "renv.lock"), confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{library}{The \R library to snapshot. When \code{NULL}, the active library
 (as reported by \code{.libPaths()}) is used.}

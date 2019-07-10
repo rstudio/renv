@@ -60,6 +60,7 @@
 #'
 #' @export
 restore <- function(project  = NULL,
+                    ...,
                     library  = NULL,
                     lockfile = NULL,
                     actions  = c("install", "remove", "upgrade", "downgrade", "crossgrade"),

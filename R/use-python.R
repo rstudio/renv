@@ -19,6 +19,8 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param ... Optional arguments; currently unused.
+#'
 #' @param python The path to a Python binary. This can be the path to a Python
 #'   binary on the system, or the path to a Python binary within an
 #'   already-existing Python environment. If `NULL`, the `RETICULATE_PYTHON`
@@ -38,13 +40,11 @@
 #'   within a pre-existing virtual environment, that environment will be used.
 #'   Otherwise, a project-local environment will be created instead.
 #'
-#' @param ... Optional arguments; currently unused.
-#'
 #' @export
 use_python <- function(python = NULL,
+                       ...,
                        type = c("auto", "virtualenv", "conda", "system"),
                        name = NULL,
-                       ...,
                        project = NULL)
 {
   project <- project %||% renv_project()

@@ -5,5 +5,7 @@
 #'
 #' @param confirm Boolean; prompt the user before taking any action?
 #'
+#' @param ... Optional arguments; reserved for future expansion.
+#'
 #' @name renv-params
 NULL

@@ -33,8 +33,11 @@
 #'   library as reported by `.libPaths()` is used.
 #'
 #' @export
-hydrate <- function(packages = NULL, library = NULL, project = NULL) {
-
+hydrate <- function(packages = NULL,
+                    ...,
+                    library = NULL,
+                    project = NULL)
+{
   renv_scope_error_handler()
   project  <- project %||% renv_project()
   library  <- library %||% renv_libpaths_default()
@@ -72,7 +75,6 @@ hydrate <- function(packages = NULL, library = NULL, project = NULL) {
   # we're done!
   result <- list(packages = packages, missing = missing)
   invisible(result)
-
 }
 
 renv_hydrate_dependencies <- function(project, packages = NULL) {

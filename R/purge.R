@@ -22,6 +22,7 @@
 #'
 #' @export
 purge <- function(package,
+                  ...,
                   version = NULL,
                   hash = NULL,
                   confirm = interactive())

@@ -4,10 +4,13 @@
 \alias{init}
 \title{Initialize a Project}
 \usage{
-init(project = NULL, settings = NULL, bare = FALSE, force = FALSE)
+init(project = NULL, ..., settings = NULL, bare = FALSE,
+  force = FALSE)
 }
 \arguments{
 \item{project}{The project directory.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{settings}{A list of \link{settings} to be used with the newly-initialized
 project.}

@@ -4,12 +4,14 @@
 \alias{clean}
 \title{Clean a Project}
 \usage{
-clean(project = NULL, confirm = interactive())
+clean(project = NULL, ..., confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }

@@ -17,7 +17,8 @@ migrate <- function(project = NULL) {
   renv_scope_error_handler()
 
   project <- normalizePath(project, winslash = "/", mustWork = TRUE)
-  renv_migrate_packrat(project)
+  if (file.exists(file.path(project, "packrat/packrat.lock")))
+    renv_migrate_packrat(project)
 }
 
 renv_migrate_packrat <- function(project = NULL) {

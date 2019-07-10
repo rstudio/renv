@@ -52,6 +52,8 @@
 #'   package development; e.g. when attempting to build or install a package
 #'   using `renv`.
 #'
+#' @inheritParams renv-params
+#'
 #' @param project The project directory.
 #' @param settings A list of [settings] to be used with the newly-initialized
 #'   project.
@@ -63,6 +65,7 @@
 #'
 #' @export
 init <- function(project = NULL,
+                 ...,
                  settings = NULL,
                  bare = FALSE,
                  force = FALSE)

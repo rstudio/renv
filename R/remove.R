@@ -12,6 +12,7 @@
 #'
 #' @export
 remove <- function(packages,
+                   ...,
                    library = NULL,
                    project = NULL)
 {

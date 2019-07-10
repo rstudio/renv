@@ -24,6 +24,7 @@
 #'
 #' @export
 install <- function(packages,
+                    ...,
                     library = NULL,
                     project = NULL)
 {

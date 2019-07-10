@@ -14,6 +14,7 @@
 #'
 #' @export
 status <- function(project = NULL,
+                   ...,
                    library = NULL,
                    lockfile = NULL)
 {

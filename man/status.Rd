@@ -4,12 +4,14 @@
 \alias{status}
 \title{Status}
 \usage{
-status(project = NULL, library = NULL, lockfile = NULL)
+status(project = NULL, ..., library = NULL, lockfile = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{library}{The path to a library. By default, the project library
 associated with the requested project \code{project} is used.}

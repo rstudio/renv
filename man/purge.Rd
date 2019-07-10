@@ -4,10 +4,13 @@
 \alias{purge}
 \title{Purge Packages from the Cache}
 \usage{
-purge(package, version = NULL, hash = NULL, confirm = interactive())
+purge(package, ..., version = NULL, hash = NULL,
+  confirm = interactive())
 }
 \arguments{
 \item{package}{A single package to be removed from the cache.}
+
+\item{...}{Optional arguments; reserved for future expansion.}
 
 \item{version}{The package version to be removed. When \code{NULL}, all versions
 of the requested package will be removed.}
