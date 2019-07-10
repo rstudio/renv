@@ -142,13 +142,9 @@ renv_load_sandbox <- function(project) {
 
 renv_load_python <- function(project, fields) {
 
-  # ensure that reticulate will use a project environment
-  python <- catch(renv_python_resolve())
-  if (!inherits(python, "error")) {
-    version <- renv_python_version(python)
-    envpath <- renv_python_envpath(project, "virtualenv", version)
-    Sys.setenv(RETICULATE_PYTHON_ENV = envpath)
-  }
+  # set a default reticulate Python environment path
+  envpath <- file.path(project, "renv/python/r-reticulate")
+  Sys.setenv(RETICULATE_PYTHON_ENV = envpath)
 
   # nothing more to do if no lockfile fields set
   if (is.null(fields))
