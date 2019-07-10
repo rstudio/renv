@@ -191,6 +191,51 @@ Installation from source can be challenging for a few reasons:
 <!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb -->
 
 
+## Authentication
+
+Your project may make use of packages which are available from remote sources
+requiring some form of authentication to access -- for example, a GitHub
+enterprise server. Usually, either a personal access token (PAT) or username
++ password combination is required for authentication. `renv` is able to
+authenticate when downloading from such sources, using the same system as the
+[remotes](https://cran.r-project.org/web/packages/remotes/index.html) package.
+In particular, environment variables are used to record and transfer the
+required authentication information.
+
+| **Remote Source** | **Authentication**                      |
+| ----------------- | --------------------------------------- |
+| GitHub            | `GITHUB_PAT`                            |
+| Gitlab            | `GITLAB_PAT`                            |
+| Bitbucket         | `BITBUCKET_USER` + `BITBUCKET_PASSWORD` |
+
+These credentials can be stored in e.g. `.Renviron`, or can be set in your R
+session through other means as appropriate.
+
+If you require custom authentication for different packages (for example, your
+project makes use of packages available on different GitHub enterprise servers),
+you can use the `renv.auth` R option to provide package-specific authentication
+settings. `renv.auth` can either be a a named list associating package names
+with environment variables, or a function accepting a package name + record, and
+returning a list of environment variables. For example:
+
+```r
+# define a function providing authentication
+options(renv.auth = function(package, record) {
+  if (package == "MyPackage")
+    return(list(GITHUB_PAT = "<pat>"))
+})
+
+# use a named list directly
+options(renv.auth = list(
+  MyPackage = list(GITHUB_PAT = "<pat>")
+))
+```
+
+For packages installed from Git remotes, `renv` will attempt to use `git` from
+the command line to download and restore the associated package. Hence, it is
+recommended that authentication is done through SSH keys when possible.
+
+
 ## Shims
 
 To help you take advantage of the package cache, `renv` places a couple of

@@ -5,10 +5,10 @@ renv_scope_auth <- function(record, .envir = NULL) {
 
   envvars <- catch(as.character({
 
-    if (is.function(auth))
-      return(auth(record))
-
     package <- record$Package
+    if (is.function(auth))
+      return(auth(package, record))
+
     auth[[package]]
 
   }))
