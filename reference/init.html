@@ -66,7 +66,7 @@ are then installed to the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.94</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.95</span>
       </span>
     </div>
 
@@ -143,7 +143,7 @@ are then installed to the project's private library.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>init</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>settings</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>init</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>settings</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bare</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -156,6 +156,11 @@ are then installed to the project's private library.</p>
       <th>settings</th>
       <td><p>A list of <a href='settings.html'>settings</a> to be used with the newly-initialized
 project.</p></td>
+    </tr>
+    <tr>
+      <th>bare</th>
+      <td><p>Boolean; initialize the project without attempting to discover
+and install R package dependencies?</p></td>
     </tr>
     <tr>
       <th>force</th>
