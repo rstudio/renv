@@ -70,7 +70,8 @@ hydrate <- function(packages = NULL, library = NULL, project = NULL) {
   missing <- renv_hydrate_resolve_missing(project, na)
 
   # we're done!
-  list(packages = packages, missing = missing)
+  result <- list(packages = packages, missing = missing)
+  invisible(result)
 
 }
 

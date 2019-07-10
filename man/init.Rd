@@ -4,13 +4,16 @@
 \alias{init}
 \title{Initialize a Project}
 \usage{
-init(project = NULL, settings = NULL, force = FALSE)
+init(project = NULL, settings = NULL, bare = FALSE, force = FALSE)
 }
 \arguments{
 \item{project}{The project directory.}
 
 \item{settings}{A list of \link{settings} to be used with the newly-initialized
 project.}
+
+\item{bare}{Boolean; initialize the project without attempting to discover
+and install R package dependencies?}
 
 \item{force}{Boolean; force initialization? By default, \code{renv} will refuse
 to initialize the home directory as a project, to defend against accidental

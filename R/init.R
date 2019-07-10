@@ -55,12 +55,18 @@
 #' @param project The project directory.
 #' @param settings A list of [settings] to be used with the newly-initialized
 #'   project.
+#' @param bare Boolean; initialize the project without attempting to discover
+#'   and install R package dependencies?
 #' @param force Boolean; force initialization? By default, `renv` will refuse
 #'   to initialize the home directory as a project, to defend against accidental
 #'   misusages of `init()`.
 #'
 #' @export
-init <- function(project = NULL, settings = NULL, force = FALSE) {
+init <- function(project = NULL,
+                 settings = NULL,
+                 bare = FALSE,
+                 force = FALSE)
+{
   renv_scope_error_handler()
 
   # prepare and move into project directory
@@ -68,6 +74,10 @@ init <- function(project = NULL, settings = NULL, force = FALSE) {
   renv_init_validate_project(project, force)
   renv_init_settings(project, settings)
   setwd(project)
+
+  # for bare inits, just active the project
+  if (bare)
+    return(renv_activate_impl(project, renv_package_version("renv")))
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)

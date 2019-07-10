@@ -11,8 +11,8 @@ upgrade(project = NULL, version = NULL, confirm = interactive())
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{version}{The version of \code{renv} to be installed. By default, the
-latest version of \code{renv} available on CRAN is used.}
+\item{version}{The version of \code{renv} to be installed. By default, the latest
+version of \code{renv} as available on the active CRAN repositories is used.}
 
 \item{confirm}{Boolean; confirm upgrade before proceeding?}
 }
@@ -20,18 +20,10 @@ latest version of \code{renv} available on CRAN is used.}
 Upgrade the version of \code{renv} associated with a project.
 }
 \details{
-This function will attempt to install \code{renv} from two locations:
-\enumerate{
-\item The active CRAN repositories (as specified in \code{getOption("repos")});
-\item From the \code{renv} project's \href{https://github.com/rstudio/renv}{GitHub page}.
-}
-
-When \code{version = NULL} (the default), only the active CRAN repositories will
-be consulted. Hence, this can be used to upgrade a project to the latest
-released version of \code{renv} on CRAN.
-
-If you'd instead like to try out a development version of \code{renv}, you can
-explicitly request a different version of \code{renv} and that version of the
-package will be downloaded and installed from GitHub. Use
-\code{version = "master"} to install the latest development version of \code{renv}.
+By default, this function will attempt to install the latest version of
+\code{renv} as available on the active CRAN repositories. If you'd instead like to
+try out a development version of \code{renv}, you can explicitly request a
+different version of \code{renv} and that version of the package will be
+downloaded and installed from GitHub. Use \code{version = "master"} to install the
+latest development version of \code{renv}, as from the \code{renv} project's \href{https://github.com/rstudio/renv}{GitHub page}.
 }

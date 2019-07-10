@@ -58,3 +58,12 @@ test_that("the remotes field in a DESCRIPTION is honored", {
   expect_true("skeleton" %in% rownames(ip))
 
 })
+
+test_that("renv::init(bare = TRUE) can be used to initialize a project without installing packages", {
+
+  renv_tests_scope("brunch")
+  renv::init(bare = TRUE)
+  files <- list.files(renv_paths_library())
+  expect_length(files, 0)
+
+})
