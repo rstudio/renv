@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.86</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.87</span>
       </span>
     </div>
 
@@ -222,6 +222,46 @@
 </ol>
 <!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb -->
 </div>
+<div id="authentication" class="section level2">
+<h2 class="hasAnchor">
+<a href="#authentication" class="anchor"></a>Authentication</h2>
+<p>Your project may make use of packages which are available from remote sources requiring some form of authentication to access – for example, a GitHub enterprise server. Usually, either a personal access token (PAT) or username + password combination is required for authentication. <code>renv</code> is able to authenticate when downloading from such sources, using the same system as the <a href="https://cran.r-project.org/web/packages/remotes/index.html">remotes</a> package. In particular, environment variables are used to record and transfer the required authentication information.</p>
+<table class="table">
+<thead><tr class="header">
+<th><strong>Remote Source</strong></th>
+<th><strong>Authentication</strong></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>GitHub</td>
+<td><code>GITHUB_PAT</code></td>
+</tr>
+<tr class="even">
+<td>Gitlab</td>
+<td><code>GITLAB_PAT</code></td>
+</tr>
+<tr class="odd">
+<td>Bitbucket</td>
+<td>
+<code>BITBUCKET_USER</code> + <code>BITBUCKET_PASSWORD</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>These credentials can be stored in e.g. <code>.Renviron</code>, or can be set in your R session through other means as appropriate.</p>
+<p>If you require custom authentication for different packages (for example, your project makes use of packages available on different GitHub enterprise servers), you can use the <code>renv.auth</code> R option to provide package-specific authentication settings. <code>renv.auth</code> can either be a a named list associating package names with environment variables, or a function accepting a package name + record, and returning a list of environment variables. For example:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># define a function providing authentication</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">renv.auth =</span> <span class="cf">function</span>(package, record) {</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="cf">if</span> (package <span class="op">==</span><span class="st"> "MyPackage"</span>)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">})</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># use a named list directly</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">renv.auth =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="dt">MyPackage =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>)</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">))</a></code></pre></div>
+<p>For packages installed from Git remotes, <code>renv</code> will attempt to use <code>git</code> from the command line to download and restore the associated package. Hence, it is recommended that authentication is done through SSH keys when possible.</p>
+</div>
 <div id="shims" class="section level2">
 <h2 class="hasAnchor">
 <a href="#shims" class="anchor"></a>Shims</h2>
@@ -293,6 +333,7 @@
       <li><a href="#upgrading-renv">Upgrading renv</a></li>
       <li><a href="#cache">Cache</a></li>
       <li><a href="#installation-from-source">Installation from Source</a></li>
+      <li><a href="#authentication">Authentication</a></li>
       <li><a href="#shims">Shims</a></li>
       <li><a href="#history">History</a></li>
       <li><a href="#comparison-with-packrat">Comparison with Packrat</a></li>
