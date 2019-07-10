@@ -7,7 +7,8 @@ renv_available_packages <- function(type, limit = NULL) {
   renv_timecache(
     list(repos = getOption("repos"), type = type),
     renv_available_packages_impl(type),
-    limit = as.integer(limit)
+    limit = as.integer(limit),
+    timeout = renv_available_packages_timeout
   )
 }
 
@@ -18,26 +19,26 @@ renv_available_packages_impl <- function(type) {
   repos[repos == "@CRAN@"] <- "https://cran.rstudio.com/"
   options(repos = repos)
 
-  # notify user since this can take some time for non-local CRAN
-  fmt <- "* Querying repositories for available %s packages ... "
-  vprintf(fmt, type)
-
   # request available packages
   urls <- contrib.url(repos, type)
-  result <- lapply(urls, renv_available_packages_query, type = type)
-
-  # report success
-  vwritef("Done!")
-  result
+  lapply(urls, renv_available_packages_query, type = type)
 
 }
 
 renv_available_packages_query <- function(url, type) {
 
-  # remove an old cached value
-  name <- sprintf("repos_%s.rds", URLencode(url, reserved = TRUE))
+  # check for a cached value
+  name <- sprintf("repos_%s.rds.cache", URLencode(url, reserved = TRUE))
   path <- file.path(tempdir(), name)
-  unlink(path)
+  if (file.exists(path)) {
+    db <- readRDS(path)
+    unlink(path)
+    return(as.data.frame(db, stringsAsFactors = FALSE))
+  }
+
+  # notify user since this can take some time for non-local CRAN
+  fmt <- "* Querying repositories for available %s packages ... "
+  vprintf(fmt, type)
 
   # make the query (suppress warnings in case this is a local repository
   # whose PACKAGES files do not exist; note that an error is thrown in that
@@ -48,10 +49,14 @@ renv_available_packages_query <- function(url, type) {
     message = function(m) invokeRestart("muffleMessage")
   )
 
-  if (inherits(db, "error"))
+  # report errors
+  if (inherits(db, "error")) {
+    vwritef("FAILED")
     return(data.frame())
+  }
 
   # return the db
+  vwritef("Done!")
   as.data.frame(db, stringsAsFactors = FALSE)
 
 }
@@ -76,4 +81,13 @@ renv_available_packages_entry <- function(package, type, filter = NULL) {
 
   stopf("failed to find %s for package %s in active repositories", type, package)
 
+}
+
+renv_available_packages_timeout <- function(data) {
+  urls <- contrib.url(data$repos, data$type)
+  for (url in urls) {
+    name <- sprintf("repos_%s.rds", URLencode(url, reserved = TRUE))
+    path <- file.path(tempdir(), name)
+    unlink(path)
+  }
 }

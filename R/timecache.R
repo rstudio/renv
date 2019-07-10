@@ -3,11 +3,29 @@
 # some period of time
 `_renv_timecache` <- new.env(parent = emptyenv())
 
-renv_timecache <- function(key, value, limit = 3600) {
+renv_timecache <- function(key, value, limit = 3600, timeout = NULL) {
+
+  # read cached time entry
   entry <- renv_timecache_get(key)
-  if (renv_timecache_expired(entry, limit))
+
+  # if the entry is null, this is our first time setting the cache
+  if (is.null(entry)) {
     entry <- renv_timecache_set(key, value)
+    return(entry$value)
+  }
+
+  # if it hasn't yet expired, we'll re-use the cached value
+  if (!renv_timecache_expired(entry, limit))
+    return(entry$value)
+
+  # cache entry has expired -- run timeout hook if provided
+  if (is.function(timeout))
+    catch(timeout(key), error = warning)
+
+  # update the cache
+  entry <- renv_timecache_set(key, value)
   entry$value
+
 }
 
 renv_timecache_get <- function(key) {
@@ -29,11 +47,8 @@ renv_timecache_entry <- function(value) {
 
 renv_timecache_expired <- function(entry, limit) {
 
-  if (is.null(entry))
-    return(TRUE)
-
-  diff <- difftime(Sys.time(), entry$time, units = "secs")
-  if (diff > limit)
+  diff <- catch(difftime(Sys.time(), entry$time, units = "secs"))
+  if (inherits(diff, "error") || diff > limit)
     return(TRUE)
 
   FALSE
