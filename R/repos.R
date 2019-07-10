@@ -13,3 +13,28 @@ renv_repos_decode <- function(x) {
   vals <- substring(parts, idx + 1)
   named(trimws(vals), trimws(keys))
 }
+
+renv_repos_init_callback <- function(...) {
+
+  # bail unless opted in
+  config <- renv_config("eager.repos", default = FALSE)
+  if (!identical(config, TRUE))
+    return(FALSE)
+
+  # write required data to file
+  file <- tempfile("renv-repos-", fileext = ".rds")
+  data <- list(repos = getOption("repos"), type = renv_package_pkgtypes())
+  saveRDS(data, file = file, version = 2L)
+
+  # invoke helper script
+  script <- system.file("resources/scripts-repos-cache.R", package = "renv")
+  args <- c(
+    "--vanilla", "--slave",
+    "-f", shQuote(script),
+    "--args", shQuote(file), shQuote(tempdir())
+  )
+
+  system2(R(), args, stdout = FALSE, stderr = FALSE, wait = FALSE)
+  return(FALSE)
+
+}
