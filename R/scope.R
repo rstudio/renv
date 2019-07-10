@@ -1,4 +1,22 @@
 
+renv_scope_auth <- function(record, .envir = NULL) {
+
+  auth <- getOption("renv.auth")
+  if (!is.function(auth))
+    return(FALSE)
+
+  envvars <- catch(auth(record))
+  if (inherits(envvars, "error")) {
+    warning(envvars)
+    return(FALSE)
+  }
+
+  .envir <- .envir %||% parent.frame()
+  renv_scope_envvars(.list = envvars, .envir = .envir)
+  return(TRUE)
+
+}
+
 renv_scope_libpaths <- function(new, .envir = NULL) {
   .envir <- .envir %||% parent.frame()
   old <- renv_libpaths_set(new)
@@ -25,11 +43,11 @@ renv_scope_locale <- function(category = "LC_ALL", locale = "", .envir = NULL) {
   defer(Sys.setlocale(category, saved), envir = .envir)
 }
 
-renv_scope_envvars <- function(..., .envir = NULL) {
+renv_scope_envvars <- function(..., .list = NULL, .envir = NULL) {
 
   .envir <- .envir %||% parent.frame()
 
-  dots <- list(...)
+  dots <- .list %||% list(...)
   old <- as.list(Sys.getenv(names(dots), unset = NA))
   names(old) <- names(dots)
 

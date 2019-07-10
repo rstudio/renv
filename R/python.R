@@ -78,8 +78,7 @@ renv_python_exe <- function(path) {
 
 renv_python_version <- function(python) {
   python <- normalizePath(python)
-  cmd <- paste(shQuote(python), "--version 2>&1")
-  output <- catch(system(cmd, intern = TRUE))
+  output <- system2(python, "--version", stdout = TRUE, stderr = TRUE)
   space <- regexpr(" ", output, fixed = TRUE)
   substring(output, space + 1)
 }

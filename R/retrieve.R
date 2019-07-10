@@ -386,11 +386,12 @@ renv_retrieve_cran_impl <- function(record,
 
 renv_retrieve_package <- function(record, url, path) {
 
-  # download the package
-  # TODO: validate that the existing tarball / zipball is not damaged
   ensure_parent_directory(path)
-  type <- record$Source
-  status <- catch(download(url, destfile = path, type = type))
+  status <- local({
+    renv_scope_auth(record)
+    catch(download(url, destfile = path, type = record$Source))
+  })
+
   if (inherits(status, "error") || identical(status, FALSE))
     return(status)
 
