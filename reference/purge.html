@@ -65,7 +65,7 @@ and needs to be reinstalled." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.95</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.96</span>
       </span>
     </div>
 
@@ -141,7 +141,8 @@ and needs to be reinstalled.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>purge</span>(<span class='no'>package</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>hash</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
+    <pre class="usage"><span class='fu'>purge</span>(<span class='no'>package</span>, <span class='no'>...</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>hash</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,6 +150,10 @@ and needs to be reinstalled.</p>
     <tr>
       <th>package</th>
       <td><p>A single package to be removed from the cache.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Optional arguments; reserved for future expansion.</p></td>
     </tr>
     <tr>
       <th>version</th>

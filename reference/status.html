@@ -64,7 +64,7 @@ the private library (if any)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.95</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.96</span>
       </span>
     </div>
 
@@ -139,7 +139,7 @@ the private library (if any).</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>status</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>status</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,6 +149,10 @@ the private library (if any).</p>
       <td><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Optional arguments; reserved for future expansion.</p></td>
     </tr>
     <tr>
       <th>library</th>
