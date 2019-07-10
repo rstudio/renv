@@ -36,7 +36,7 @@ renv_cache_package_path <- function(record) {
   # for something compatible with the requested record
   for (package in packages) {
 
-    dcf <- catch(renv_description_read(package))
+    dcf <- catch(as.list(renv_description_read(package)))
     if (inherits(dcf, "error"))
       next
 
@@ -48,6 +48,11 @@ renv_cache_package_path <- function(record) {
       "Repository" %in% names(dcf)
 
     if (cran)
+      return(package)
+
+    # otherwise, match on other fields
+    fields <- c(required, grep("^Remote", names(record), value = TRUE))
+    if (identical(record[fields], dcf[fields]))
       return(package)
 
   }

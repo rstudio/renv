@@ -101,7 +101,7 @@ renv_purge_impl <- function(package,
 
   n <- length(paths)
   unlink(paths, recursive = TRUE)
-  vwritef("* Removed %i %s.", n, plural("package", n))
+  vwritef("* Removed %i %s from the cache.", n, plural("package", n))
   invisible(paths)
 
 }
