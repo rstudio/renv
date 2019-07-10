@@ -48,15 +48,13 @@ use_python <- function(python = NULL,
                        project = NULL)
 {
   project <- project %||% renv_project()
+  renv_scope_error_handler()
 
   if (identical(python, FALSE))
     return(renv_python_deactivate(project))
 
   # resolve path to Python
-  python <- Sys.which(python) %||%
-    Sys.getenv("RETICULATE_PYTHON", unset = NA) %NA%
-    Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA) %NA%
-    Sys.which("python")
+  python <- renv_python_resolve(python)
 
   # validate we have a real path to Python
   if (!file.exists(python)) local({
@@ -104,7 +102,7 @@ use_python <- function(python = NULL,
   }
 
   # re-initialize with these settings
-  renv_load_python(fields)
+  renv_load_python(project, fields)
 
   # notify user
   if (!renv_testing()) {

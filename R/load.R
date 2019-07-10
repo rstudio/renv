@@ -1,6 +1,6 @@
 
 # tools for loading an renv (typically done at R session init)
-renv_load_r <- function(fields) {
+renv_load_r <- function(project, fields) {
 
   # check for missing fields
   if (is.null(fields)) {
@@ -30,7 +30,7 @@ renv_load_r <- function(fields) {
 
 }
 
-renv_load_bioconductor <- function(fields) {
+renv_load_bioconductor <- function(project, fields) {
 
   # check for missing field
   if (is.null(fields))
@@ -118,9 +118,17 @@ renv_load_sandbox <- function(project) {
     renv_sandbox_activate(project)
 }
 
-renv_load_python <- function(fields) {
+renv_load_python <- function(project, fields) {
 
-  # nothing to do if we have no fields
+  # ensure that reticulate will use a project environment
+  python <- catch(renv_python_resolve())
+  if (!inherits(python, "error")) {
+    version <- renv_python_version(python)
+    envpath <- renv_python_envpath(project, "virtualenv", version)
+    Sys.setenv(RETICULATE_PYTHON_ENV = envpath)
+  }
+
+  # nothing more to do if no lockfile fields set
   if (is.null(fields))
     return(FALSE)
 

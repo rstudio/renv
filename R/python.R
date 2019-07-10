@@ -1,4 +1,36 @@
 
+renv_python_resolve <- function(python = NULL) {
+
+  # if Python was explicitly supplied, use it
+  if (!is.null(python)) {
+
+    python <- Sys.which(python)
+    if (nzchar(python))
+      return(python)
+
+    stopf("requested python '%s' is not available", python)
+
+  }
+
+  # check environment variables
+  envvars <- c("RETICULATE_PYTHON", "RETICULATE_PYTHON_ENV")
+  for (envvar in envvars) {
+    val <- Sys.getenv(envvar, unset = NA)
+    if (!is.na(val))
+      return(val)
+  }
+
+  # check on the PATH (prefer Python 3)
+  for (binary in c("python3", "python")) {
+    python <- Sys.which(binary)
+    if (nzchar(python))
+      return(python)
+  }
+
+  stopf("could not locate Python (not available on the PATH)")
+
+}
+
 renv_python_find <- function(version, path = NULL) {
 
   # if we've been given the name of an environment,
