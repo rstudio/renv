@@ -66,6 +66,7 @@ load <- function(project = NULL) {
   project <- project %||% renv_project()
 
   renv_envvars_save()
+  renv_load_path(project)
   renv_load_renviron(project)
   renv_load_project(project)
   renv_load_profile(project)

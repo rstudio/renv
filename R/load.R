@@ -42,6 +42,28 @@ renv_load_bioconductor <- function(project, fields) {
 
 }
 
+renv_load_path <- function(project) {
+
+  # only required when running in RStudio
+  if (identical(.Platform$GUI, "RStudio"))
+    return(FALSE)
+
+  # on macOS, read paths from /etc/paths and friends
+  if (renv_platform_macos()) {
+
+    files <- c(
+      "/etc/paths",
+      list.files("/etc/paths.d", full.names = TRUE)
+    )
+
+    PATH <- unique(uapply(files, readLines))
+    Sys.setenv(PATH = paste(PATH, collapse = .Platform$path.sep))
+    return(TRUE)
+
+  }
+
+}
+
 renv_load_renviron <- function(project) {
 
   environs <- c(
