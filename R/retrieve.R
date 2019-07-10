@@ -48,10 +48,8 @@ renv_retrieve_impl <- function(package) {
 
   # if we have an installed package matching the requested record, finish early
   path <- renv_restore_find(record)
-  if (file.exists(path)) {
-    install <- package %in% state$packages
-    return(renv_retrieve_successful(record, path, install = install))
-  }
+  if (file.exists(path))
+    return(renv_retrieve_successful(record, path, install = FALSE))
 
   # if this is a URL source, then it should already have a local path
   path <- record$Path %||% ""
@@ -427,7 +425,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
     for (package in unique(deps$Package))
       renv_retrieve(package)
 
-  # record package as retrieved
+  # mark package as requiring install if needed
   if (install)
     state$install$push(record)
 

@@ -328,6 +328,11 @@ renv_restore_preflight <- function(project, library, actions, current, lockfile,
 
 renv_restore_find <- function(record) {
 
+  # skip packages whose installation was explicitly requested
+  state <- renv_restore_state()
+  if (record$Package %in% state$packages)
+    return("")
+
   # need to restore if it's not yet installed
   library <- renv_global_get("install.library") %||% renv_libpaths_default()
   path <- file.path(library, record$Package)
