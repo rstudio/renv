@@ -51,10 +51,6 @@ renv_available_packages_query <- function(url, type) {
   if (inherits(db, "error"))
     return(data.frame())
 
-  # save to our cache
-  ensure_parent_directory(path)
-  saveRDS(db, file = path)
-
   # return the db
   as.data.frame(db, stringsAsFactors = FALSE)
 
