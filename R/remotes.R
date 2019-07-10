@@ -26,10 +26,26 @@ renv_remotes_parse <- function(entry) {
 }
 
 renv_remotes_parse_cran <- function(entry) {
+
   parts <- strsplit(entry, "@", fixed = TRUE)[[1]]
   package <- parts[1]
-  version <- parts[2] %NA% NULL
-  list(Package = package, Version = version, Source = "CRAN")
+  version <- parts[2]
+
+  # if no version was provided, take this as a request
+  # to use the latest version available on CRAN
+  if (is.na(version) || identical(version, "latest")) {
+    record <- catch(renv_retrieve_missing_record(package))
+    if (!inherits(record, "error"))
+      return(record)
+  }
+
+  # otherwise, honor the requested version
+  list(
+    Package = package,
+    Version = version %NA% NULL,
+    Source = "CRAN"
+  )
+
 }
 
 renv_remotes_parse_github <- function(entry) {

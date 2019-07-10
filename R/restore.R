@@ -185,7 +185,7 @@ renv_restore_begin <- function(records = NULL,
     records = records,
 
     # the set of packages to be installed in this restore session;
-    # as requested by the user / front-end API call
+    # as explicitly requested by the user / front-end API call
     packages = packages,
 
     # an optional custom error handler
@@ -196,9 +196,11 @@ renv_restore_begin <- function(records = NULL,
     # downloaded
     recursive = recursive,
 
-    # packages which we have attempted to retrieve during restore
-    retrieved = stack(),
-    retrieved.env = new.env(parent = emptyenv()),
+    # packages which we have attempted to retrieve
+    retrieved = new.env(parent = emptyenv()),
+
+    # packages which need to be installed
+    install = stack(),
 
     # a collection of the requirements imposed on dependent packages
     # as they are discovered
@@ -325,11 +327,6 @@ renv_restore_preflight <- function(project, library, actions, current, lockfile,
 }
 
 renv_restore_find <- function(record) {
-
-  # don't skip if installation was explicitly requested
-  state <- renv_restore_state()
-  if (record$Package %in% state$packages)
-    return("")
 
   # need to restore if it's not yet installed
   library <- renv_global_get("install.library") %||% renv_libpaths_default()

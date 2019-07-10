@@ -15,7 +15,7 @@ renv_retrieve <- function(packages) {
     handler(package, renv_retrieve_impl(package))
 
   state <- renv_restore_state()
-  data <- state$retrieved$data()
+  data <- state$install$data()
   names(data) <- extract_chr(data, "Package")
   data
 
@@ -29,7 +29,7 @@ renv_retrieve_impl <- function(package) {
 
   # if we've already attempted retrieval of this package, skip
   state <- renv_restore_state()
-  if (visited(package, envir = state$retrieved.env))
+  if (visited(package, envir = state$retrieved))
     return()
 
   # extract record for package
@@ -48,8 +48,10 @@ renv_retrieve_impl <- function(package) {
 
   # if we have an installed package matching the requested record, finish early
   path <- renv_restore_find(record)
-  if (file.exists(path))
-    return(renv_retrieve_successful(record, path))
+  if (file.exists(path)) {
+    install <- package %in% state$packages
+    return(renv_retrieve_successful(record, path, install = install))
+  }
 
   # if this is a URL source, then it should already have a local path
   path <- record$Path %||% ""
@@ -396,7 +398,7 @@ renv_retrieve_package <- function(record, url, path) {
 
 }
 
-renv_retrieve_successful <- function(record, path) {
+renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # augment record with information from DESCRIPTION file
   desc <- renv_description_read(path)
@@ -425,7 +427,8 @@ renv_retrieve_successful <- function(record, path) {
       renv_retrieve(package)
 
   # record package as retrieved
-  state$retrieved$push(record)
+  if (install)
+    state$install$push(record)
 
   TRUE
 

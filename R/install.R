@@ -87,12 +87,6 @@ renv_install <- function(records, library, project) {
 
 renv_install_impl <- function(record, project) {
 
-  # skip installation if the requested record matches
-  # the already-installed record
-  path <- renv_restore_find(record)
-  if (file.exists(path))
-    return(TRUE)
-
   # figure out whether we can use the cache during install
   library <- renv_global_get("install.library") %||% renv_libpaths_default()
   linkable <-
