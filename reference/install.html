@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.97</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.98</span>
       </span>
     </div>
 
@@ -137,7 +137,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>install</span>(<span class='no'>packages</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>install</span>(<span class='no'>packages</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rebuild</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,6 +158,13 @@ as required.</p></td>
       <td><p>The library from which packages should be installed. When
 <code>NULL</code>, the active library (that is, the first entry reported in
 <code><a href='https://www.rdocumentation.org/packages/base/topics/libPaths'>.libPaths()</a></code>) is used instead.</p></td>
+    </tr>
+    <tr>
+      <th>rebuild</th>
+      <td><p>Force packages to be rebuilt, thereby bypassing any installed
+versions of the package available in the cache? This can either be a
+boolean (indicating that the requested package(s) should be rebuilt), or a
+vector of package names indicating which packages should be rebuilt.</p></td>
     </tr>
     <tr>
       <th>project</th>
