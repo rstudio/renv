@@ -203,13 +203,13 @@ renv_retrieve_git_add_auth <- function(url) {
   # try adding a PAT
   pat <- Sys.getenv("GIT_PAT", unset = NA)
   if (!is.na(pat))
-    return(auth(url, "${GIT_PAT}", "x-oauth-basic"))
+    return(auth(url, pat, "x-oauth-basic"))
 
   # try adding user + password
   user <- Sys.getenv("GIT_USER", unset = NA)
   pass <- Sys.getenv("GIT_PASSWORD", unset = NA)
   if (!is.na(user) && !is.na(pass))
-    return(auth(url, "${GIT_USER}"))
+    return(auth(url, user))
 
   # no auth to add; use regular URL
   url
