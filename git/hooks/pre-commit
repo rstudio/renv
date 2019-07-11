@@ -2,6 +2,12 @@
 
 set -e
 
+# Skip amends.
+COMMAND="$(ps -o command= -p "${PPID}")"
+if echo "${COMMAND}" | grep -Fq -e '--amend'; then
+	exit 0
+fi
+
 # Skip hooks if requested.
 if [ -n "${GIT_NO_HOOKS}" ]; then
 	exit 0
