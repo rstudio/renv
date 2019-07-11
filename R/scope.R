@@ -1,18 +1,27 @@
 
 renv_scope_auth <- function(record, .envir = NULL) {
 
-  auth <- getOption("renv.auth")
+  # check for local 'renv.auth.<package>', or global 'renv.auth'
+  auth <- getOption(
+    paste("renv.auth", record$Package, sep = "."),
+    default = getOption("renv.auth")
+  )
+
+  if (is.null(auth))
+    return(FALSE)
 
   envvars <- catch(as.character({
 
-    package <- record$Package
+    # if auth is a function, invoke it with supplied record
     if (is.function(auth))
-      return(auth(package, record))
+      return(auth(record))
 
-    auth[[package]]
+    # otherwise, extract auth for package
+    auth[[package]] %||% auth
 
   }))
 
+  # warn user if auth appears invalid
   if (inherits(envvars, "error")) {
     warning(envvars)
     return(FALSE)
