@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.102</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.103</span>
       </span>
     </div>
 
@@ -246,6 +246,12 @@
 <code>BITBUCKET_USER</code> + <code>BITBUCKET_PASSWORD</code>
 </td>
 </tr>
+<tr class="even">
+<td>Git Remotes</td>
+<td>
+<code>GIT_PAT</code> / <code>GIT_USER</code> + <code>GIT_PASSWORD</code>
+</td>
+</tr>
 </tbody>
 </table>
 <p>These credentials can be stored in e.g. <code>.Renviron</code>, or can be set in your R session through other means as appropriate.</p>
@@ -259,7 +265,10 @@
 <a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># use a named list directly</span></a>
 <a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">renv.auth =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
 <a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="dt">MyPackage =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>)</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">))</a></code></pre></div>
+<a class="sourceLine" id="cb1-10" data-line-number="10">))</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># alternatively, set package-specific option</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">renv.auth.MyPackage =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a></code></pre></div>
 <p>For packages installed from Git remotes, <code>renv</code> will attempt to use <code>git</code> from the command line to download and restore the associated package. Hence, it is recommended that authentication is done through SSH keys when possible.</p>
 </div>
 <div id="shims" class="section level2">
