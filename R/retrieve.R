@@ -182,6 +182,32 @@ renv_retrieve_gitlab <- function(record) {
 
 }
 
+renv_retrieve_git_add_auth <- function(url) {
+
+  # local helper for adding auth to URL
+  auth <- function(url, user, pass = NULL) {
+    parts <- strsplit(url, "://", fixed = TRUE)[[1]]
+    auth <- paste(c(user, pass), collapse = ":")
+    parts[[2]] <- paste(auth, parts[[2]], sep = "@")
+    return(paste(parts, collapse = "://"))
+  }
+
+  # try adding a PAT
+  pat <- Sys.getenv("GIT_PAT", unset = NA)
+  if (!is.na(pat))
+    return(auth(url, "${GIT_PAT}", "x-oauth-basic"))
+
+  # try adding user + password
+  user <- Sys.getenv("GIT_USER", unset = NA)
+  pass <- Sys.getenv("GIT_PASSWORD", unset = NA)
+  if (!is.na(user) && !is.na(pass))
+    return(auth(url, "${GIT_USER}"))
+
+  # no auth to add; use regular URL
+  url
+
+}
+
 renv_retrieve_git <- function(record) {
 
   renv_git_preflight()
@@ -197,10 +223,19 @@ renv_retrieve_git <- function(record) {
     "git reset --quiet --hard FETCH_HEAD"
   )
 
+  # add authentication information
+  url <- renv_retrieve_git_add_auth(record$RemoteUrl)
+
+  # set askpass helper
+  if (!is.na(Sys.getenv("GIT_PASSWORD", unset = NA))) {
+    askpass <- system.file("resources/scripts-git-askpass.sh", package = "renv")
+    renv_scope_envvars(GIT_ASKPASS = askpass)
+  }
+
   data <- list(
-    DIR = normalizePath(package),
-    ORIGIN = record$RemoteUrl,
-    REF = record$RemoteSha %||% record$RemoteRef
+    DIR    = normalizePath(package),
+    ORIGIN = url,
+    REF    = record$RemoteSha %||% record$RemoteRef
   )
 
   commands <- renv_template_replace(template, data)
