@@ -207,6 +207,7 @@ required authentication information.
 | GitHub            | `GITHUB_PAT`                            |
 | Gitlab            | `GITLAB_PAT`                            |
 | Bitbucket         | `BITBUCKET_USER` + `BITBUCKET_PASSWORD` |
+| Git Remotes       | `GIT_PAT` / `GIT_USER` + `GIT_PASSWORD` |
 
 These credentials can be stored in e.g. `.Renviron`, or can be set in your R
 session through other means as appropriate.
@@ -229,6 +230,9 @@ options(renv.auth = function(package, record) {
 options(renv.auth = list(
   MyPackage = list(GITHUB_PAT = "<pat>")
 ))
+
+# alternatively, set package-specific option
+options(renv.auth.MyPackage = list(GITHUB_PAT = "<pat>"))
 ```
 
 For packages installed from Git remotes, `renv` will attempt to use `git` from
