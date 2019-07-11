@@ -4,7 +4,8 @@
 \alias{install}
 \title{Install Packages}
 \usage{
-install(packages, ..., library = NULL, project = NULL)
+install(packages, ..., library = NULL, rebuild = FALSE,
+  project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to install. Required
@@ -16,6 +17,11 @@ as required.}
 \item{library}{The library from which packages should be installed. When
 \code{NULL}, the active library (that is, the first entry reported in
 \code{.libPaths()}) is used instead.}
+
+\item{rebuild}{Force packages to be rebuilt, thereby bypassing any installed
+versions of the package available in the cache? This can either be a
+boolean (indicating that the requested package(s) should be rebuilt), or a
+vector of package names indicating which packages should be rebuilt.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working

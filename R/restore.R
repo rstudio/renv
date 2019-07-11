@@ -148,7 +148,9 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
 renv_restore_run_actions <- function(project, actions, current, lockfile) {
 
   records <- renv_records(lockfile)
-  renv_restore_begin(records, names(actions))
+  packages <- names(actions)
+
+  renv_restore_begin(records = records, packages = packages)
   on.exit(renv_restore_end(), add = TRUE)
 
   # first, handle package removals
@@ -176,6 +178,7 @@ renv_restore_state <- function() {
 renv_restore_begin <- function(records = NULL,
                                packages = NULL,
                                handler = NULL,
+                               rebuild = NULL,
                                recursive = TRUE)
 {
 
@@ -191,6 +194,9 @@ renv_restore_begin <- function(records = NULL,
 
     # an optional custom error handler
     handler = handler %||% function(package, action) action,
+
+    # packages which should be rebuilt (skipping the cache)
+    rebuild = rebuild,
 
     # should package dependencies be crawled recursively? this is useful if
     # the records list is incomplete and needs to be built as packages are
@@ -365,4 +371,9 @@ renv_restore_find <- function(record) {
   # failed to match; return empty path
   ""
 
+}
+
+renv_restore_rebuild_required <- function(record) {
+  state <- renv_restore_state()
+  any(c(NA_character_, record$Package) %in% state$rebuild)
 }

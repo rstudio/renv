@@ -46,18 +46,23 @@ renv_retrieve_impl <- function(package) {
   if (renv_retrieve_incompatible(record))
     record <- renv_records_cran_latest(package)
 
-  # if we have an installed package matching the requested record, finish early
-  path <- renv_restore_find(record)
-  if (file.exists(path))
-    return(renv_retrieve_successful(record, path, install = FALSE))
+  if (!renv_restore_rebuild_required(record)) {
+
+    # if we have an installed package matching the requested record, finish early
+    path <- renv_restore_find(record)
+    if (file.exists(path))
+      return(renv_retrieve_successful(record, path, install = FALSE))
+
+    # if the requested record already exists in the cache,
+    # we'll use that package for install
+    path <- renv_cache_package_path(record)
+    if (file.exists(path))
+      return(renv_retrieve_successful(record, path))
+
+  }
 
   # if this is a URL source, then it should already have a local path
   path <- record$Path %||% ""
-  if (file.exists(path))
-    return(renv_retrieve_successful(record, path))
-
-  # if the requested record already exists in the cache, we can finish early
-  path <- renv_cache_package_path(record)
   if (file.exists(path))
     return(renv_retrieve_successful(record, path))
 

@@ -18,6 +18,11 @@
 #'   `NULL`, the active library (that is, the first entry reported in
 #'   `.libPaths()`) is used instead.
 #'
+#' @param rebuild Force packages to be rebuilt, thereby bypassing any installed
+#'   versions of the package available in the cache? This can either be a
+#'   boolean (indicating that the requested package(s) should be rebuilt), or a
+#'   vector of package names indicating which packages should be rebuilt.
+#'
 #' @param packages A character vector of \R packages to install. Required
 #'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed
 #'   as required.
@@ -26,6 +31,7 @@
 install <- function(packages,
                     ...,
                     library = NULL,
+                    rebuild = FALSE,
                     project = NULL)
 {
   renv_scope_error_handler()
@@ -42,7 +48,13 @@ install <- function(packages,
   names(remotes) <- packages
   records[names(remotes)] <- remotes
 
-  renv_restore_begin(records, packages)
+  rebuild <- case(
+    identical(rebuild, TRUE)  ~ packages,
+    identical(rebuild, FALSE) ~ character(),
+    as.character(rebuild)
+  )
+
+  renv_restore_begin(records = records, packages = packages, rebuild = rebuild)
   on.exit(renv_restore_end(), add = TRUE)
 
   # retrieve packages
@@ -88,6 +100,8 @@ renv_install <- function(records, library, project) {
 
 renv_install_impl <- function(record, project) {
 
+  state <- renv_restore_state()
+
   # figure out whether we can use the cache during install
   library <- renv_global_get("install.library") %||% renv_libpaths_default()
   linkable <-
@@ -96,10 +110,14 @@ renv_install_impl <- function(record, project) {
 
   linker <- if (linkable) renv_file_link else renv_file_copy
 
-  # check for cache entry and install if there
-  cache <- renv_cache_package_path(record)
-  if (file.exists(cache))
-    return(renv_install_package_cache(record, cache, linker))
+  if (!renv_restore_rebuild_required(record)) {
+
+    # check for cache entry and install if there
+    cache <- renv_cache_package_path(record)
+    if (file.exists(cache))
+      return(renv_install_package_cache(record, cache, linker))
+
+  }
 
   # report that we're about to start installation
   src <- record$Source
