@@ -186,10 +186,18 @@ renv_retrieve_git_add_auth <- function(url) {
 
   # local helper for adding auth to URL
   auth <- function(url, user, pass = NULL) {
+
     parts <- strsplit(url, "://", fixed = TRUE)[[1]]
+    if (length(parts) == 1)
+      return(url)
+
+    user <- user %&&% URLencode(user, reserved = TRUE)
+    pass <- pass %&&% URLencode(pass, reserved = TRUE)
+
     auth <- paste(c(user, pass), collapse = ":")
     parts[[2]] <- paste(auth, parts[[2]], sep = "@")
-    return(paste(parts, collapse = "://"))
+    paste(parts, collapse = "://")
+
   }
 
   # try adding a PAT
