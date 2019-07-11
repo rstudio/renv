@@ -1,6 +1,6 @@
 
 `%||%` <- function(x, y) {
-  if (length(x)) x else y
+  if (length(x) || is.environment(x)) x else y
 }
 
 `%NA%` <- function(x, y) {

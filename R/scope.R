@@ -1,25 +1,19 @@
 
 renv_scope_auth <- function(record, .envir = NULL) {
 
-  # check for local 'renv.auth.<package>', or global 'renv.auth'
-  auth <- getOption(
-    paste("renv.auth", record$Package, sep = "."),
-    default = getOption("renv.auth")
-  )
+  auth <-
+    getOption(paste("renv.auth", record$Package, sep = ".")) %||%
+    getOption("renv.auth")
 
-  if (is.null(auth))
+  if (empty(auth))
     return(FALSE)
 
-  envvars <- catch(as.character({
-
-    # if auth is a function, invoke it with supplied record
+  envvars <- catch({
     if (is.function(auth))
-      return(auth(record))
-
-    # otherwise, extract auth for package
-    auth[[package]] %||% auth
-
-  }))
+      auth(record)
+    else
+      auth[[record$Package]] %||% auth
+  })
 
   # warn user if auth appears invalid
   if (inherits(envvars, "error")) {
@@ -31,7 +25,7 @@ renv_scope_auth <- function(record, .envir = NULL) {
     return(FALSE)
 
   .envir <- .envir %||% parent.frame()
-  renv_scope_envvars(.list = envvars, .envir = .envir)
+  renv_scope_envvars(.list = as.list(envvars), .envir = .envir)
   return(TRUE)
 
 }
@@ -70,7 +64,7 @@ renv_scope_envvars <- function(..., .list = NULL, .envir = NULL) {
   old <- as.list(Sys.getenv(names(dots), unset = NA))
   names(old) <- names(dots)
 
-  Sys.setenv(...)
+  do.call(Sys.setenv, dots)
 
   defer({
     na <- is.na(old)
