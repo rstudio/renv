@@ -1,2 +1,7 @@
 #!/usr/bin/env sh
-exec echo "${GIT_PASSWORD}"
+
+case "$1" in
+  Username*) echo "${GIT_USERNAME:-${GIT_USER}}" ;;
+  Password*) echo "${GIT_PASSWORD:-${GIT_PASS}}" ;;
+esac
+
