@@ -176,6 +176,8 @@ renv_test_code <- function(code, fileext = ".R") {
 
 renv_test_retrieve <- function(record) {
 
+  renv_scope_error_handler()
+
   # construct records
   package <- record$Package
   records <- list(record)
