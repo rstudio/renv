@@ -514,6 +514,8 @@ renv_snapshot_auto <- function(project) {
     return(FALSE)
 
   # passed pre-flight checks; snapshot the library
+  # validation messages can be noisy; turn off for auto snapshot
+  renv_scope_options(renv.config.snapshot.validate = FALSE)
   snapshot(project = project, library = library, confirm = FALSE)
 
 }

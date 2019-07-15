@@ -298,25 +298,19 @@ renv_retrieve_local <- function(record) {
 
 renv_retrieve_explicit <- function(record) {
 
-  # check for something that looks like an explicit source
+  # try parsing as a local remote
   source <- record$Source %||% ""
-  ext <- fileext(source)
-  if (!ext %in% c(".tar.gz", ".tgz", ".zip"))
+  record <- catch(renv_remotes_parse_local(source))
+  if (inherits(record, "error"))
     return(FALSE)
-
-  # validate that it exists (warn if it does not)
-  if (!file.exists(source)) {
-    warningf("requested source does not exist: '%s'", aliased_path(source))
-    return(FALSE)
-  }
 
   # treat as 'local' source but extract path
-  source <- normalizePath(source, winslash = "/", mustWork = TRUE)
+  normalized <- normalizePath(source, winslash = "/", mustWork = TRUE)
   record$Source <- "local"
 
   # perform dummy retrieval
-  url <- paste0("file://", source)
-  type <- if (ext == ".tar.gz") "source" else "binary"
+  url <- paste0("file://", normalized)
+  type <- if (fileext(source) == ".tar.gz") "source" else "binary"
   path <- renv_retrieve_path(record, type = type)
   renv_retrieve_package(record, url, path)
 

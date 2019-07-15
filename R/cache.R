@@ -70,6 +70,13 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   if (!file.exists(path))
     return(FALSE)
 
+  # bail if the package source is unknown (assume that packages with an
+  # unknown source are not cacheable)
+  desc <- renv_description_read(path)
+  source <- renv_snapshot_description_source(desc)
+  if (identical(source, "unknown"))
+    return(FALSE)
+
   # if we don't have a hash, compute it now
   record$Hash <- record$Hash %||% renv_hash_description(path)
 
