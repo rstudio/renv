@@ -37,7 +37,7 @@ r_exec <- function(package, args, label) {
 
   lines <- paste(rep("=", nchar(header)), collapse = "")
   all <- c(header, lines, "", output)
-  vwritef(all, con = stderr())
+  writef(all, con = stderr())
 
   # stop with an error
   stopf("%s of package '%s' failed", label, package)
