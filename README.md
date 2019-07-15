@@ -13,11 +13,11 @@ The `renv` package helps you create **r**eproducible **env**ironments for
 your R projects. Use `renv` to make your R projects more:
 
 **Isolated**: Installing a new or updated package for one project won't break
-your other projects, and vice versa. That's because packrat gives each project
+your other projects, and vice versa. That's because `renv` gives each project
 its own private package library.
 
 **Portable**: Easily transport your projects from one computer to another, even
-across different platforms. Packrat makes it easy to install the packages your
+across different platforms. `renv` makes it easy to install the packages your
 project depends on.
 
 **Reproducible**: `renv` records the exact package versions you depend on, and
