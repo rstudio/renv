@@ -132,8 +132,17 @@ renv_install_impl <- function(record, project) {
   with(record, vwritef(fmt, Package, Version, src))
 
   # otherwise, install
-  status <- catch(renv_install_package_local(record))
-  renv_install_report_status(record, status)
+  status <- withCallingHandlers(
+    renv_install_package_local(record),
+    error = function(e) vwritef("\tFAILED")
+  )
+
+  feedback <- if (endswith(record$Path, ".tar.gz"))
+    "built from source"
+  else
+    "installed binary"
+
+  vwritef("\tOK (%s)", feedback)
 
   # link into cache
   if (settings$use.cache(project = project))
@@ -230,24 +239,6 @@ renv_install_package_local_impl <- function(package, path, library) {
 renv_install_package_options <- function(package) {
   options <- getOption("renv.install.package.options")
   options[[package]]
-}
-
-renv_install_report_status <- function(record, status) {
-
-  if (inherits(status, "error")) {
-    vwritef("\tFAILED\n")
-    stop(status)
-  }
-
-  feedback <- if (endswith(record$Path, ".tar.gz"))
-    "built from source"
-  else
-    "installed binary"
-
-  vwritef("\tOK (%s)", feedback)
-
-  return(TRUE)
-
 }
 
 # nocov start
