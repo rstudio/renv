@@ -5,6 +5,11 @@ renv_remotes_parse <- function(entry) {
   if (grepl("^(?:file|https?)://", entry))
     return(renv_remotes_parse_url(entry))
 
+  # check for paths to existing local files
+  record <- catch(renv_remotes_parse_local(entry))
+  if (!inherits(record, "error"))
+    return(record)
+
   # check for pre-supplied type
   type <- NULL
   parts <- strsplit(entry, "::", fixed = TRUE)[[1]]
@@ -114,6 +119,35 @@ renv_remotes_parse_url <- function(entry) {
     Source    = "URL",
     Path      = path,
     RemoteUrl = entry
+  )
+
+}
+
+renv_remotes_parse_local <- function(entry) {
+
+  # check for existing path
+  path <- normalizePath(entry, winslash = "/", mustWork = TRUE)
+
+  # first, check for a common extension
+  ext <- fileext(entry)
+  if (ext %in% c(".tar.gz", ".tgz", ".zip"))
+    return(renv_remotes_parse_local_impl(path))
+
+  # otherwise, if this is the path to a package project, use the sources as-is
+  if (renv_project_type(path) == "package")
+    return(renv_remotes_parse_local_impl(path))
+
+  stopf("there is no package at path '%s'", entry)
+
+}
+
+renv_remotes_parse_local_impl <- function(path) {
+
+  desc <- renv_description_read(path)
+  list(
+    Package = desc$Package,
+    Version = desc$Version,
+    Source  = path
   )
 
 }

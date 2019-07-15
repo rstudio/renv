@@ -119,6 +119,9 @@ renv_tests_init_repos <- function() {
   # update PACKAGES metadata
   tools::write_PACKAGES(contrib, subdirs = TRUE, type = "source")
 
+  # set repository URL (for tests)
+  options(renv.tests.repos = c(CRAN = repos))
+
   # and update our repos option
   fmt <- if (renv_platform_windows()) "file:%s" else "file://%s"
   options(

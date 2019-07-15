@@ -61,3 +61,18 @@ test_that("install forces update of dependencies as needed", {
   expect_equal(desc$Version, "1.0.0")
 
 })
+
+test_that("packages can be installed from local sources", {
+
+  renv_tests_scope()
+
+  # get path to package sources in local repos
+  repos <- getOption("renv.tests.repos")
+  tarball <- file.path(repos, "src/contrib/bread/bread_1.0.0.tar.gz")
+
+  # try to install it
+  renv::install(tarball)
+
+  expect_true(renv_package_version("bread") == "1.0.0")
+
+})
