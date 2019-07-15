@@ -110,7 +110,11 @@ renv_install_impl <- function(record, project) {
 
   linker <- if (linkable) renv_file_link else renv_file_copy
 
-  if (!renv_restore_rebuild_required(record)) {
+  cacheable <-
+    renv_record_cacheable(record) &&
+    !renv_restore_rebuild_required(record)
+
+  if (cacheable) {
 
     # check for cache entry and install if there
     cache <- renv_cache_package_path(record)

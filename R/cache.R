@@ -77,11 +77,17 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   if (identical(source, "unknown"))
     return(FALSE)
 
+  # bail if record not cacheable
+  if (!renv_record_cacheable(record))
+    return(FALSE)
+
   # if we don't have a hash, compute it now
   record$Hash <- record$Hash %||% renv_hash_description(path)
 
   # construct cache entry
   cache <- renv_cache_package_path(record)
+  if (!nzchar(cache))
+    return(FALSE)
 
   # if our cache -> path link is already up to date, then nothing to do
   if (renv_file_same(cache, path))
@@ -229,3 +235,24 @@ renv_cache_format_path <- function(paths) {
 
 }
 # nocov end
+
+renv_cache_clean_empty <- function() {
+
+  # move to cache root
+  root <- renv_paths_cache()
+  owd <- setwd(root)
+  on.exit(setwd(owd), add = TRUE)
+
+  # try using find utility
+  command <- case(
+    nzchar(Sys.which("find"))     ~ "find . -type d -empty -delete",
+    nzchar(Sys.which("robocopy")) ~ "robocopy . . /S /MOVE"
+  )
+
+  if (is.null(command))
+    return(FALSE)
+
+  system(command, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  TRUE
+
+}

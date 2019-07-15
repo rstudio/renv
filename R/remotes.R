@@ -145,9 +145,10 @@ renv_remotes_parse_local_impl <- function(path) {
 
   desc <- renv_description_read(path)
   list(
-    Package = desc$Package,
-    Version = desc$Version,
-    Source  = path
+    Package   = desc$Package,
+    Version   = desc$Version,
+    Source    = path,
+    Cacheable = FALSE
   )
 
 }

@@ -95,6 +95,8 @@ renv_hydrate_link_package <- function(package, location, library) {
   # construct path to cache
   record <- renv_snapshot_description(location)
   cache <- renv_cache_package_path(record)
+  if (!nzchar(cache))
+    return(FALSE)
 
   # copy package into the cache
   if (!file.exists(cache)) {

@@ -52,3 +52,21 @@ renv_records_cran_latest <- function(package) {
   )
 
 }
+
+
+renv_record_cacheable <- function(record) {
+
+  # check if the record has been marked as cacheable
+  cacheable <- record$Cacheable %||% TRUE
+  if (identical(cacheable, FALSE))
+    return(FALSE)
+
+  # check for unknown source
+  source <- record$Source %||% "unknown"
+  if (source == "unknown")
+    return(FALSE)
+
+  # record is ok
+  TRUE
+
+}

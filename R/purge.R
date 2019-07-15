@@ -100,9 +100,12 @@ renv_purge_impl <- function(package,
   }
   # nocov end
 
-  n <- length(paths)
   unlink(paths, recursive = TRUE)
+  renv_cache_clean_empty()
+
+  n <- length(paths)
   vwritef("* Removed %i %s from the cache.", n, plural("package", n))
+
   invisible(paths)
 
 }

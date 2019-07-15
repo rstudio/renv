@@ -241,26 +241,8 @@ renv_clean_cache <- function(project, confirm) {
 
   # remove the directories
   unlink(diff, recursive = TRUE)
-
-  # remove parent directories if they're empty
-  parents <- dirname(diff)
-  for (i in 1:3) {
-
-    keep <- map_lgl(parents, function(x) {
-      files <- list.files(x, all.files = TRUE, no.. = TRUE)
-      length(files) == 0
-    }, USE.NAMES = FALSE)
-
-    parents <- parents[keep]
-    if (empty(parents))
-      break
-
-    unlink(parents, recursive = TRUE)
-    parents <- dirname(parents)
-
-  }
-
+  renv_cache_clean_empty()
   vwritef("* %i package(s) have been removed.", length(diff))
-  return(TRUE)
+  TRUE
 
 }
