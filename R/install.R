@@ -137,10 +137,14 @@ renv_install_impl <- function(record, project) {
     error = function(e) vwritef("\tFAILED")
   )
 
-  feedback <- if (endswith(record$Path, ".tar.gz"))
-    "built from source"
-  else
+  binary <-
+    endswith(record$Path, ".tgz") ||
+    endswith(record$Path, ".zip")
+
+  feedback <- if (binary)
     "installed binary"
+  else
+    "built from source"
 
   vwritef("\tOK (%s)", feedback)
 
