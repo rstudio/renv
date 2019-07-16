@@ -55,9 +55,11 @@ renv_retrieve_impl <- function(package) {
 
     # if the requested record already exists in the cache,
     # we'll use that package for install
-    path <- renv_cache_package_path(record)
-    if (file.exists(path))
-      return(renv_retrieve_successful(record, path))
+    if (renv_record_cacheable(record)) {
+      path <- renv_cache_package_path(record)
+      if (file.exists(path))
+        return(renv_retrieve_successful(record, path))
+    }
 
   }
 
