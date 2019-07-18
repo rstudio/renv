@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>View Lockfile History — history • renv</title>
+<title>Rebuild the Packages in your Project Library — rebuild • renv</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,10 +30,12 @@
 
 
 
-<meta property="og:title" content="View Lockfile History — history" />
+<meta property="og:title" content="Rebuild the Packages in your Project Library — rebuild" />
 
-<meta property="og:description" content="The history() function can be used to search for prior versions of the
-renv.lock file used within a project." />
+<meta property="og:description" content="Rebuild and reinstall all of the packages in your project library.
+This can be useful as a diagnostic tool -- for example, if you find that
+one or more of your packages fail to load, and you want to ensure that you
+are starting from a clean slate." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -127,23 +129,49 @@ renv.lock file used within a project." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>View Lockfile History</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/history.R'><code>R/history.R</code></a></small>
-    <div class="hidden name"><code>history.Rd</code></div>
+    <h1>Rebuild the Packages in your Project Library</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/rebuild.R'><code>R/rebuild.R</code></a></small>
+    <div class="hidden name"><code>rebuild.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>The <code>history()</code> function can be used to search for prior versions of the
-<code>renv.lock</code> file used within a project.</p>
+    <p>Rebuild and reinstall all of the packages in your project library.
+This can be useful as a diagnostic tool -- for example, if you find that
+one or more of your packages fail to load, and you want to ensure that you
+are starting from a clean slate.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>history</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>rebuild</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>recursive</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>,
+  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>(), <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>packages</th>
+      <td><p>The package(s) to be rebuilt. When <code>NULL</code>, all packages
+in the library will be installed.</p></td>
+    </tr>
+    <tr>
+      <th>recursive</th>
+      <td><p>Boolean; should dependencies of packages be rebuilt
+recursively? Defaults to <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Optional arguments; reserved for future expansion.</p></td>
+    </tr>
+    <tr>
+      <th>confirm</th>
+      <td><p>Boolean; prompt the user before taking any action?</p></td>
+    </tr>
+    <tr>
+      <th>library</th>
+      <td><p>The <span style="R">R</span> library to be used. When <code>NULL</code>, the active project
+library will be used instead.</p></td>
+    </tr>
     <tr>
       <th>project</th>
       <td><p>The project directory. If <code>NULL</code>, then the active project will
@@ -154,8 +182,9 @@ directory is used instead.</p></td>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The <code>history()</code> function is currently only implemented for projects using
-<code>git</code> for version control.</p>
+    <p>Note that binaries will be used when appropriate and available for your
+platform. If you'd like to force packages to be rebuilt from sources, you
+can set <code><a href='https://www.rdocumentation.org/packages/base/topics/options'>options(pkgType = "source")</a></code>.</p>
     
 
   </div>
