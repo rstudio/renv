@@ -3,11 +3,12 @@ context("Packages")
 
 test_that("remote field updates are written to both DESCRIPTION, packages.rds", {
 
+  url <- normalizePath("local/skeleton/skeleton_1.0.1.tar.gz")
   record <- list(
     Package    = "skeleton",
     Version    = "1.0.1",
     Source     = "local",
-    RemoteUrl  = normalizePath("local/skeleton/skeleton_1.0.1.tar.gz")
+    RemoteUrl  = url
   )
 
   renv_tests_scope()
@@ -19,9 +20,12 @@ test_that("remote field updates are written to both DESCRIPTION, packages.rds", 
   desc <- renv_description_read(descpath)
 
   metapath <- file.path(pkgpath, "Meta/package.rds")
-  meta <- readRDS(metapath)
+  meta <- readRDS(metapath)$DESCRIPTION
 
   expect_true(desc$RemoteType == "local")
-  expect_identical(as.list(desc), as.list(meta$DESCRIPTION))
+  expect_true(meta$RemoteType == "local")
+
+  expect_true(desc$RemoteUrl == url)
+  expect_true(meta$RemoteUrl == url)
 
 })
