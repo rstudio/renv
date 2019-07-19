@@ -20,7 +20,7 @@ test_that("remote field updates are written to both DESCRIPTION, packages.rds", 
   desc <- renv_description_read(descpath)
 
   metapath <- file.path(pkgpath, "Meta/package.rds")
-  meta <- readRDS(metapath)$DESCRIPTION
+  meta <- as.list(readRDS(metapath)$DESCRIPTION)
 
   expect_true(desc$RemoteType == "local")
   expect_true(meta$RemoteType == "local")
