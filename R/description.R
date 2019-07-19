@@ -59,32 +59,3 @@ renv_description_path <- function(path) {
   path[indirect] <- childpath[indirect]
   path
 }
-
-renv_description_augment <- function(path, record) {
-
-  # check for remotes fields
-  remotes <- record[grep("^Remote", names(record))]
-  if (empty(remotes))
-    return(FALSE)
-
-  # ensure RemoteType field is written out
-  remotes$RemoteType <- remotes$RemoteType %||% tolower(record$Source)
-  remotes <- remotes[c("RemoteType", setdiff(names(remotes), "RemoteType"))]
-
-  # read the description
-  old <- renv_description_read(path)
-  missing <- setdiff(names(remotes), names(old))
-  if (empty(missing))
-    return(FALSE)
-
-  # add in new fields
-  new <- old
-  new[names(remotes)] <- remotes
-  if (identical(old, new))
-    return(FALSE)
-
-  # write it back out
-  write.dcf(new, file = renv_description_path(path))
-  TRUE
-
-}

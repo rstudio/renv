@@ -101,3 +101,53 @@ renv_package_pkgtypes <- function() {
   if (binaries) c("binary", "source") else "source"
 
 }
+
+renv_package_augment <- function(installpath, record) {
+
+  # check for remotes fields
+  remotes <- record[grep("^Remote", names(record))]
+  if (empty(remotes))
+    return(FALSE)
+
+  # ensure RemoteType field is written out
+  remotes$RemoteType <- remotes$RemoteType %||% tolower(record$Source)
+  remotes <- remotes[c("RemoteType", setdiff(names(remotes), "RemoteType"))]
+
+  # update package items
+  renv_package_augment_description(installpath, remotes)
+  renv_package_augment_metadata(installpath, remotes)
+
+}
+
+renv_package_augment_impl <- function(data, remotes) {
+  nonremotes <- grep("^Remote", names(data), invert = TRUE)
+  c(data[nonremotes], remotes)
+}
+
+renv_package_augment_description <- function(path, remotes) {
+
+  descpath <- file.path(path, "DESCRIPTION")
+
+  before <- renv_description_read(descpath)
+  after <- renv_package_augment_impl(before, remotes)
+  if (identical(before, after))
+    return(FALSE)
+
+  write.dcf(after, file = descpath)
+
+}
+
+renv_package_augment_metadata <- function(path, remotes) {
+
+  metapath <- file.path(path, "Meta/package.rds")
+  meta <- readRDS(metapath)
+
+  before <- as.list(meta$DESCRIPTION)
+  after <- renv_package_augment_impl(before, remotes)
+  if (identical(before, after))
+    return(FALSE)
+
+  meta$DESCRIPTION <- map_chr(after, identity)
+  saveRDS(meta, file = metapath, version = 2L)
+
+}
