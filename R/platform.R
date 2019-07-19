@@ -1,4 +1,8 @@
 
+renv_platform_unix <- function() {
+  .Platform$OS.type == "unix"
+}
+
 renv_platform_windows <- function() {
   renv_global("platform", Sys.info()[["sysname"]]) == "Windows"
 }

@@ -2,7 +2,7 @@
 `_renv_sandbox` <- new.env(parent = emptyenv())
 
 renv_sandbox_enabled <- function(project) {
-  renv_config("sandbox.enabled", default = FALSE)
+  renv_config("sandbox.enabled", default = renv_platform_unix())
 }
 
 renv_sandbox_activate <- function(project = NULL) {
@@ -29,7 +29,7 @@ renv_sandbox_activate_impl <- function(project) {
   syslibs <- normalizePath(c(.Library, .Library.site), winslash = "/", mustWork = FALSE)
 
   # create a temporary library
-  syslib <- tempfile("renv-system-library-")
+  syslib <- file.path(tempdir(), "renv-system-library")
   ensure_directory(syslib)
 
   # find system packages in the system library
@@ -99,6 +99,11 @@ renv_sandbox_activate_check <- function(libs) {
 
 renv_sandbox_deactivate <- function() {
 
+  # check that the sandbox was indeed activated
+  bindings <- ls(envir = `_renv_sandbox`, all.names = TRUE)
+  if (empty(bindings))
+    return(FALSE)
+
   # get library paths sans .Library, .Library.site
   old <- .libPaths()
   sys <- normalizePath(c(.Library, .Library.site), winslash = "/", mustWork = FALSE)
@@ -116,7 +121,6 @@ renv_sandbox_deactivate <- function() {
   new <- setdiff(old, sys)
   .libPaths(new)
 
-  # return new library paths
-  .libPaths()
+  TRUE
 
 }

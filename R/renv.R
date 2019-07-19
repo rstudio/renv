@@ -46,6 +46,8 @@ deactivate <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
 
+  renv_sandbox_deactivate()
+
   renv_infrastructure_remove_rprofile(project)
   renv_envvars_restore()
 
