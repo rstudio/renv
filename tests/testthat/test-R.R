@@ -13,7 +13,7 @@ test_that("we can use R CMD build to build a package", {
   ensure_directory(pkgdir)
 
   data <- list(Package = package, Type = "Package", Version = "0.1.0")
-  write.dcf(data, file = file.path(pkgdir, "DESCRIPTION"))
+  renv_dcf_write(data, file = file.path(pkgdir, "DESCRIPTION"))
   expect_equal(renv_project_type(pkgdir), "package")
 
   tarball <- r_cmd_build(package, pkgdir)

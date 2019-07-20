@@ -56,7 +56,8 @@ test_that("we can successfully download files with different downloaders", {
   # download a small sample file
   url <- "https://cran.rstudio.com/src/base/THANKS"
   destfile <- tempfile("r-thanks-")
-  download.file(url, destfile = destfile, quiet = TRUE)
+  method <- renv_download_file_method()
+  download.file(url, destfile = destfile, quiet = TRUE, method = method)
   thanks <- readLines(destfile)
 
   if (nzchar(Sys.which("curl"))) local({
@@ -73,7 +74,7 @@ test_that("we can successfully download files with different downloaders", {
     expect_equal(readLines(destfile), thanks)
   })
 
-  local({
+  if (getRversion() >= "3.3.0") local({
     renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "internal")
     destfile <- tempfile("r-internal-thanks-")
     download(url, destfile, quiet = TRUE)

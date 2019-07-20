@@ -133,7 +133,7 @@ renv_package_augment_description <- function(path, remotes) {
   if (identical(before, after))
     return(FALSE)
 
-  write.dcf(after, file = descpath)
+  renv_dcf_write(after, file = descpath)
 
 }
 

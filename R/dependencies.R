@@ -196,7 +196,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
   for (package in c("rmarkdown", "yaml"))
     if (!renv_dependencies_require(package, "R Markdown"))
-      return("rmarkdown")
+      return(renv_dependencies_error(path, NULL, "rmarkdown"))
 
   yaml <- catch(rmarkdown::yaml_front_matter(path))
   if (inherits(yaml, "error"))
@@ -621,12 +621,14 @@ renv_dependencies_require <- function(package, type) {
 
 }
 
-renv_dependencies_error <- function(path, error, packages = NULL) {
+renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
 
   # emit warning about failed dependency discovery
-  fmt <- "- '%s': %s"
-  message <- paste(conditionMessage(error), collapse = "\n")
-  warningf(fmt, aliased_path(path), message)
+  if (!is.null(error)) {
+    fmt <- "- '%s': %s"
+    message <- paste(conditionMessage(error), collapse = "\n")
+    warningf(fmt, aliased_path(path), message)
+  }
 
   # return a default set of packages if available
   renv_dependencies_list(path, packages)

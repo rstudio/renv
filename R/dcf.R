@@ -15,6 +15,12 @@ renv_dcf_read <- function(file, ...) {
   on.exit(Sys.setlocale("LC_CTYPE", ctype), add = TRUE)
 
   # read the file
-  as.data.frame(read.dcf(file, ...), stringsAsFactors = FALSE)
+  dcf <- as.data.frame(read.dcf(file, ...), stringsAsFactors = FALSE)
+  lapply(dcf, trimws)
 
+}
+
+renv_dcf_write <- function(x, file = "") {
+  keep.white <- c("Description", "Authors@R", "Author", "Built", "Packaged")
+  write.dcf(x, file = file, indent = 4L, width = 80L, keep.white = keep.white)
 }

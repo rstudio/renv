@@ -11,7 +11,7 @@ test_that("snapshotting broken DESCRIPTION files is an error", {
 
   # missing Version field
   fields <- c(Type = "Package", Package = "test")
-  write.dcf(fields, file = file)
+  renv_dcf_write(fields, file = file)
   expect_s3_class(renv_snapshot_description(file), "error")
 
 })

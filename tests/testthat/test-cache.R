@@ -27,7 +27,7 @@ test_that("issues within the cache are reported", {
   descpath <- file.path(breakfast, "DESCRIPTION")
   desc <- renv_description_read(descpath)
   desc$Version <- "2.0.0"
-  write.dcf(desc, file = descpath)
+  renv_dcf_write(desc, file = descpath)
 
   # check problems explicitly
   problems <- renv_cache_diagnose(verbose = FALSE)

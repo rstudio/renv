@@ -51,7 +51,7 @@ test_that("install forces update of dependencies as needed", {
   descpath <- file.path(path, "DESCRIPTION")
   desc <- renv_description_read(descpath)
   desc$Version <- "0.1.0"
-  write.dcf(desc, file = descpath)
+  renv_dcf_write(desc, file = descpath)
 
   # try to install 'breakfast' again
   renv::install("breakfast")

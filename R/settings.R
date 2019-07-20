@@ -128,7 +128,7 @@ renv_settings_persist <- function(project, settings) {
   settings <- settings[order(names(settings))]
   settings <- lapply(settings, paste, collapse = ", ")
   ensure_parent_directory(path)
-  write.dcf(as.data.frame(settings, stringsAsFactors = FALSE), path)
+  renv_dcf_write(as.data.frame(settings, stringsAsFactors = FALSE), path)
 }
 
 renv_settings_merge <- function(settings, merge) {
