@@ -3,9 +3,11 @@
 set -e
 
 # Skip amends.
-COMMAND="$(ps -p "${PPID}")"
-if echo "${COMMAND}" | grep -Fq -e '--amend'; then
-	exit 0
+if [ -z "${WINDIR}" ]; then
+	COMMAND="$(ps -p "${PPID}")"
+	if echo "${COMMAND}" | grep -Fq -e '--amend'; then
+		exit 0
+	fi
 fi
 
 # Skip hooks if requested.
