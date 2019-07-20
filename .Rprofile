@@ -1,1 +1,1 @@
-system("git config core.hooksPath git/hooks")
+invisible(system("git config core.hooksPath git/hooks"))

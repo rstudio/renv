@@ -31,7 +31,25 @@ renv_python_resolve <- function(python = NULL) {
 
 }
 
+renv_python_compatible <- function(python, version) {
+
+  actual <- renv_python_version(python = python)
+  if (actual == version)
+    return(TRUE)
+
+  actual <- numeric_version(actual)
+  expected <- numeric_version(version)
+
+  if (actual[1, 1:2] == expected[1, 1:2])
+    return(TRUE)
+
+  FALSE
+
+}
+
 renv_python_find <- function(version, path = NULL) {
+
+  # TODO: use renv_python_compatible() throughout
 
   # if we've been given the name of an environment,
   # check to see if it's already been initialized
@@ -47,10 +65,15 @@ renv_python_find <- function(version, path = NULL) {
   strings <- substring(version, 1, idx - 1)
   for (suffix in rev(strings)) {
     binary <- paste("python", suffix, sep = "")
-    path <- Sys.which(binary)
-    if (nzchar(path))
-      return(path)
+    python <- Sys.which(binary)
+    if (nzchar(python))
+      return(python)
   }
+
+  # try to find a plain old python executable
+  python <- Sys.which("python")
+  if (nzchar(python) && renv_python_compatible(python, version))
+    return(python)
 
   fmt <- "failed to find Python %s on the PATH"
   warningf(fmt, version)

@@ -49,7 +49,7 @@ renv_hash_description <- function(path) {
   flush(con)
 
   # ready for hasing
-  tools::md5sum(tempfile)
+  unname(tools::md5sum(tempfile))
 
 }
 

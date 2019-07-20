@@ -3,7 +3,7 @@
 set -e
 
 # Skip amends.
-COMMAND="$(ps -o command= -p "${PPID}")"
+COMMAND="$(ps -p "${PPID}")"
 if echo "${COMMAND}" | grep -Fq -e '--amend'; then
 	exit 0
 fi

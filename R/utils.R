@@ -3,6 +3,10 @@
   if (length(x) || is.environment(x)) x else y
 }
 
+`%""%` <- function(x, y) {
+  if (nzchar(x)) x else y
+}
+
 `%NA%` <- function(x, y) {
   if (is.na(x)) y else x
 }
