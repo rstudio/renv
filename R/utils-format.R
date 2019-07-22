@@ -22,11 +22,13 @@ messagef <- function(fmt, ..., appendLF = TRUE) {
 }
 
 printf <- function(fmt, ..., file = stdout()) {
-  cat(sprintf(fmt, ...), file = file, sep = "")
+  if (!renv_testing())
+    cat(sprintf(fmt, ...), file = file, sep = "")
 }
 
 writef <- function(fmt, ..., con = stdout()) {
-  writeLines(sprintf(fmt, ...), con = con)
+  if (!renv_testing())
+    writeLines(sprintf(fmt, ...), con = con)
 }
 
 vmessagef <- function(fmt, ..., appendLF = TRUE) {
