@@ -186,14 +186,12 @@ renv_python_restore_impl <- function(python, type, project) {
 
 renv_python_envpath <- function(project, type, version) {
 
-  name <- switch(type,
-    virtualenv = "virtualenvs",
-    conda      = "condaenvs",
+  suffix <- switch(type,
+    virtualenv = sprintf("renv/python/virtualenvs/renv-python-%s", version),
+    conda      = "renv/python/condaenvs/renv-python",
     stopf("unrecognized environment type '%s'", type)
   )
 
-  fmt <- "renv/python/%s/renv-%s-python-%s"
-  suffix <- sprintf(fmt, name, type, version)
   file.path(project, suffix)
 
 }
