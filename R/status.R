@@ -40,7 +40,15 @@ renv_status <- function(project, library, lockfile) {
     else
       sprintf("* Lockfile '%s' does not exist.", aliased_path(lockfile))
     writef(text)
-    return(FALSE)
+  }
+
+  # report missing library
+  if (!file.exists(library)) {
+    text <- if (identical(library, renv_paths_library(project = project)))
+      "* This project's private library is empty or does not exist."
+    else
+      sprintf("* Library '%s' is empty or does not exist.", aliased_path(library))
+    writef(text)
   }
 
   # report status of cache
@@ -48,9 +56,11 @@ renv_status <- function(project, library, lockfile) {
     renv_cache_diagnose()
 
   # compare the lockfile with current state of library
-  lock <- renv_lockfile_read(lockfile)
   curr <- snapshot(project = project, library = library, lockfile = NULL)
+  lock <- renv_lockfile_read(lockfile)
   renv_status_report(lock, curr)
+
+  list(library = curr, lockfile = lock)
 
 }
 
@@ -58,7 +68,7 @@ renv_status_report <- function(lock, curr) {
 
   actions <- renv_lockfile_diff_packages(lock, curr)
   if (empty(actions))
-    vwritef("* The project is already synchronized with the lockfile.")
+    writef("* The project is already synchronized with the lockfile.")
 
   if ("install" %in% actions) {
     renv_pretty_print_records(

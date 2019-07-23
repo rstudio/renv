@@ -33,7 +33,8 @@ snapshot <- function(project  = NULL,
   project <- project %||% renv_project()
   library <- library %||% renv_libpaths_default()
 
-  renv_snapshot_preflight(project, library)
+  if (renv_config("snapshot.preflight", default = TRUE))
+    renv_snapshot_preflight(project, library)
 
   new <- renv_lockfile_init(project)
   new$R$Package <- renv_snapshot_r_packages(library = library)

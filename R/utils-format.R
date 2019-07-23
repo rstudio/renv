@@ -22,12 +22,12 @@ messagef <- function(fmt, ..., appendLF = TRUE) {
 }
 
 printf <- function(fmt, ..., file = stdout()) {
-  if (!renv_testing())
+  if (interactive() || !renv_testing())
     cat(sprintf(fmt, ...), file = file, sep = "")
 }
 
 writef <- function(fmt, ..., con = stdout()) {
-  if (!renv_testing())
+  if (interactive() || !renv_testing())
     writeLines(sprintf(fmt, ...), con = con)
 }
 
