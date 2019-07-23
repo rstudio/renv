@@ -90,18 +90,23 @@ renv_tests_init_repos <- function() {
   # find root directory
   root <- renv_tests_root()
 
-  # move to packages directory
-  owd <- setwd(file.path(root, "packages"))
-  on.exit(setwd(owd), add = TRUE)
-
   # generate our dummy repository
   repos <- tempfile("renv-repos-")
   contrib <- file.path(repos, "src/contrib")
   ensure_directory(contrib)
 
-  # copy in packages
-  paths <- list.files(getwd(), full.names = TRUE)
-  for (path in paths) {
+  # save current directory
+  owd <- getwd()
+  on.exit(setwd(owd), add = TRUE)
+
+  # copy package stuff to tempdir (because we'll mutate them a bit)
+  source <- file.path(root, "packages")
+  target <- tempfile("renv-packages-")
+  renv_file_copy(source, target)
+  setwd(target)
+
+  # helper function for 'uploading' a package to our test repo
+  upload <- function(path, root) {
 
     # create package tarball
     desc <- renv_description_read(path)
@@ -110,9 +115,27 @@ renv_tests_init_repos <- function() {
     tar(tarball, package, compression = "gzip", tar = "internal")
 
     # copy into repository tree
-    target <- file.path(contrib, package, tarball)
+    target <- file.path(root, package, tarball)
     ensure_parent_directory(target)
     file.rename(tarball, target)
+
+  }
+
+  # copy in packages
+  paths <- list.files(getwd(), full.names = TRUE)
+  for (path in paths) {
+
+    # upload the 'regular' package
+    upload(path, contrib)
+
+    # generate an 'old' version of the packages
+    descpath <- file.path(path, "DESCRIPTION")
+    desc <- renv_description_read(descpath)
+    desc$Version <- "0.1.0"
+    write.dcf(desc, file = descpath)
+
+    # place these packages into the archive
+    upload(path, file.path(contrib, "Archive"))
 
   }
 
