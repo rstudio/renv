@@ -29,7 +29,7 @@ renv_status <- function(project, library, lockfile) {
 
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
-    writef("* This project has not yet been initialized.")
+    vwritef("* This project has not yet been initialized.")
     return(FALSE)
   }
 
@@ -39,7 +39,7 @@ renv_status <- function(project, library, lockfile) {
       "* This project has not yet been snapshotted -- 'renv.lock' does not exist."
     else
       sprintf("* Lockfile '%s' does not exist.", aliased_path(lockfile))
-    writef(text)
+    vwritef(text)
   }
 
   # report missing library
@@ -48,7 +48,7 @@ renv_status <- function(project, library, lockfile) {
       "* This project's private library is empty or does not exist."
     else
       sprintf("* Library '%s' is empty or does not exist.", aliased_path(library))
-    writef(text)
+    vwritef(text)
   }
 
   # report status of cache
@@ -68,7 +68,7 @@ renv_status_report <- function(lock, curr) {
 
   actions <- renv_lockfile_diff_packages(lock, curr)
   if (empty(actions))
-    writef("* The project is already synchronized with the lockfile.")
+    vwritef("* The project is already synchronized with the lockfile.")
 
   if ("install" %in% actions) {
     renv_pretty_print_records(

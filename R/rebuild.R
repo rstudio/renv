@@ -34,7 +34,7 @@ rebuild <- function(packages  = NULL,
   # get collection of packages currently installed
   records <- renv_snapshot_r_packages(library = library)
   if (empty(records)) {
-    writef("* There are no packages currently installed -- nothing to rebuild.")
+    vwritef("* There are no packages currently installed -- nothing to rebuild.")
     return(invisible(records))
   }
 

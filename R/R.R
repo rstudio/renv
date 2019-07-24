@@ -27,11 +27,13 @@ r_exec <- function(package, args, label) {
   header <- sprintf(fmt, label, package)
 
   lines <- paste(rep("=", nchar(header)), collapse = "")
-  all <- c(header, lines, "", output)
-  writef(all, con = stderr())
+  output <- c(header, lines, "", output)
 
   # stop with an error
-  stopf("%s of package '%s' failed", label, package)
+  message <- sprintf("%s of package '%s' failed", label, package)
+  error <- simpleError(message = message)
+  error$output <- output
+  stop(error)
 
 }
 

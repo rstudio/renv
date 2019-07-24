@@ -120,8 +120,6 @@ renv_install <- function(records, library, project) {
 
 renv_install_impl <- function(record, project) {
 
-  state <- renv_restore_state()
-
   # figure out whether we can use the cache during install
   library <- renv_global_get("install.library") %||% renv_libpaths_default()
   linkable <-
@@ -152,9 +150,12 @@ renv_install_impl <- function(record, project) {
   with(record, vwritef(fmt, Package, Version, src))
 
   # otherwise, install
-  status <- withCallingHandlers(
+  withCallingHandlers(
     renv_install_package_local(record),
-    error = function(e) vwritef("\tFAILED")
+    error = function(e) {
+      vwritef("\tFAILED")
+      vwritef(e$output)
+    }
   )
 
   binary <-

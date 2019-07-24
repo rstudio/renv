@@ -108,10 +108,10 @@ use_python <- function(python = NULL,
   if (!renv_testing()) {
     if (is.null(type)) {
       fmt <- "* Activated Python %s (%s)."
-      writef(fmt, version, aliased_path(python))
+      vwritef(fmt, version, aliased_path(python))
     } else {
       fmt <- "* Activated Python %s [%s; %s]"
-      writef(fmt, version, type, aliased_path(name))
+      vwritef(fmt, version, type, aliased_path(name))
     }
   }
 

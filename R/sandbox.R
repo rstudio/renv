@@ -103,7 +103,7 @@ renv_sandbox_deactivate <- function() {
   # restore old bindings
   base <- .BaseNamespaceEnv
   bindings <- c(".Library", ".Library.site")
-  for (binding in c(".Library", ".Library.site")) {
+  for (binding in bindings) {
     original <- get(binding, envir = `_renv_sandbox`)
     renv_binding_replace(binding, original, envir = base)
   }
