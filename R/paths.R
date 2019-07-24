@@ -30,6 +30,7 @@
 #' \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr
 #' \code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr
 #' \code{RENV_PATHS_CACHE}       \tab The path containing cached package installations. \cr
+#' \code{RENV_PATHS_RTOOLS}      \tab (Windows only) The path to [Rtools](https://cran.r-project.org/bin/windows/Rtools/). \cr
 #' \code{RENV_PATHS_EXTSOFT}     \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
 #' }
 #'
@@ -153,6 +154,12 @@ renv_paths_binary <- function(...) {
 renv_paths_cache <- function(..., version = NULL) {
   platform <- renv_prefix_platform(version = version)
   renv_paths_common("cache", c(renv_cache_version(), platform), ...)
+}
+
+renv_paths_rtools <- function(...) {
+  drive <- Sys.getenv("SYSTEMDRIVE", unset = "C:")
+  root <- Sys.getenv("RENV_PATHS_RTOOLS", unset = file.path(drive, "Rtools"))
+  file.path(root, ...)
 }
 
 renv_paths_extsoft <- function(...) {

@@ -117,3 +117,26 @@ renv_scope_downloader <- function(.envir = NULL) {
   renv_scope_envvars(PATH = new, .envir = .envir)
 
 }
+
+renv_scope_rtools <- function() {
+
+  if (!renv_platform_windows())
+    return(FALSE)
+
+  # check for Rtools
+  rtools <- renv_paths_rtools()
+  if (!file.exists(rtools))
+    return(FALSE)
+
+  # add Rtools bin to PATH
+  bin <- normalizePath(file.path(rtools, "bin"), winslash = "\\")
+  path <- paste(bin, Sys.getenv("PATH"), sep = ";")
+
+  # set BINPREF (note: trailing slash required but file.path()
+  # drops trailing slashes on Windows)
+  binpref <- paste(rtools, "mingw_$(WIN)/bin/", sep = "/")
+
+  # scope envvars in parent
+  renv_scope_envvars(PATH = path, BINPREF = binpref, .envir = parent.frame())
+
+}

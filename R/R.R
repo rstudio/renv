@@ -11,6 +11,9 @@ r_exec <- function(package, args, label) {
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
   renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "", R_LIBS_SITE = "")
 
+  # ensure Rtools is on the PATH for Windows
+  renv_scope_rtools()
+
   # do the install
   output <- suppressWarnings(system2(R(), args, stdout = TRUE, stderr = TRUE))
 
