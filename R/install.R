@@ -1,7 +1,7 @@
 
 #' Install Packages
 #'
-#' Install one or more \R packages.
+#' Install one or more \R packages from a variety of remote sources.
 #'
 #' `install()` uses the same machinery as [restore()] when installing packages.
 #' In particular, this means that the local cache of package installations is
@@ -27,6 +27,21 @@
 #'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed
 #'   as required.
 #'
+#' @examples \dontrun{
+#'
+#' # install the latest version of a package from CRAN
+#' renv::install("digest")
+#'
+#' # install an old version of package from CRAN (using archives)
+#' renv::install("digest@0.6.18")
+#'
+#' # install a package from GitHub (latest master)
+#' renv::install("eddelbuettel/digest")
+#'
+#' # install a package in a local directory
+#' renv::install("~/path/to/package")
+#'
+#' }
 #' @export
 install <- function(packages,
                     ...,

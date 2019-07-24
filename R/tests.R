@@ -164,7 +164,18 @@ renv_tests_init_packages <- function() {
 }
 
 renv_tests_init_sandbox <- function() {
+
+  # eagerly load packages that we'll need during tests
+  # (as the sandbox will otherwise 'hide' these packages)
+  testthat <- find.package("testthat")
+  descpath <- file.path(testthat, "DESCRIPTION")
+  deps <- renv_dependencies_discover_description(descpath)
+  for (package in deps$Package)
+    requireNamespace(package, quietly = TRUE)
+
+  # now sandbox the libpaths
   renv_sandbox_activate()
+
 }
 
 renv_tests_init <- function() {

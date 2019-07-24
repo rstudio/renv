@@ -28,7 +28,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-Install one or more \R packages.
+Install one or more \R packages from a variety of remote sources.
 }
 \details{
 \code{install()} uses the same machinery as \code{\link[=restore]{restore()}} when installing packages.
@@ -39,4 +39,21 @@ a binary copy of that package is already available.
 
 Note that this interface is subject to change -- the goal is to hook into
 separate package installation backends in the future.
+}
+\examples{
+\dontrun{
+
+# install the latest version of a package from CRAN
+renv::install("digest")
+
+# install an old version of package from CRAN (using archives)
+renv::install("digest@0.6.18")
+
+# install a package from GitHub (latest master)
+renv::install("eddelbuettel/digest")
+
+# install a package in a local directory
+renv::install("~/path/to/package")
+
+}
 }
