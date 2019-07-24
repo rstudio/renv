@@ -32,7 +32,7 @@
 
 <meta property="og:title" content="Install Packages — install" />
 
-<meta property="og:description" content="Install one or more R packages." />
+<meta property="og:description" content="Install one or more R packages from a variety of remote sources." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.125</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.128</span>
       </span>
     </div>
 
@@ -133,7 +133,7 @@
 
     <div class="ref-description">
     
-    <p>Install one or more <span style="R">R</span> packages.</p>
+    <p>Install one or more <span style="R">R</span> packages from a variety of remote sources.</p>
     
     </div>
 
@@ -185,6 +185,21 @@ a binary copy of that package is already available.</p>
 separate package installation backends in the future.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># install the latest version of a package from CRAN</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/renv/topics/install'>install</a></span>(<span class='st'>"digest"</span>)
+
+<span class='co'># install an old version of package from CRAN (using archives)</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/renv/topics/install'>install</a></span>(<span class='st'>"digest@0.6.18"</span>)
+
+<span class='co'># install a package from GitHub (latest master)</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/renv/topics/install'>install</a></span>(<span class='st'>"eddelbuettel/digest"</span>)
+
+<span class='co'># install a package in a local directory</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/renv/topics/install'>install</a></span>(<span class='st'>"~/path/to/package"</span>)
+
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -192,7 +207,9 @@ separate package installation backends in the future.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>
