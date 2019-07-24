@@ -11,8 +11,8 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param library The \R library to snapshot. When `NULL`, the active library
-#'   (as reported by `.libPaths()`) is used.
+#' @param library The \R library to snapshot. When `NULL`, the active \R
+#'   libraries (as reported by `.libPaths()`) are used.
 #'
 #' @param lockfile The location where the generated lockfile should be written.
 #'   By default, the lockfile is written to a file called `renv.lock` in the
@@ -31,7 +31,7 @@ snapshot <- function(project  = NULL,
   renv_scope_error_handler()
 
   project <- project %||% renv_project()
-  library <- library %||% renv_libpaths_default()
+  library <- library %||% renv_libpaths_all()
 
   if (renv_config("snapshot.preflight", default = TRUE))
     renv_snapshot_preflight(project, library)
@@ -58,9 +58,7 @@ snapshot <- function(project  = NULL,
 
   # check for missing dependencies and warn if any are discovered
   # TODO: enable this check for multi-library configurations
-  validated <-
-    length(library) > 1 ||
-    renv_snapshot_validate(project, new, library, confirm)
+  validated <- renv_snapshot_validate(project, new, library, confirm)
 
   if (!validated) {
     message("* Operation aborted.")
@@ -132,8 +130,10 @@ renv_snapshot_validate <- function(project, lockfile, library, confirm) {
   if (!enabled)
     return(TRUE)
 
-  renv_snapshot_validate_dependencies(project, lockfile, library, confirm) &&
+  all(
+    renv_snapshot_validate_dependencies(project, lockfile, library, confirm),
     renv_snapshot_validate_sources(project, lockfile, library, confirm)
+  )
 }
 
 renv_snapshot_validate_dependencies <- function(project, lockfile, library, confirm) {
@@ -141,7 +141,7 @@ renv_snapshot_validate_dependencies <- function(project, lockfile, library, conf
   # use library to collect package dependency versions
   records <- renv_records(lockfile)
   packages <- extract_chr(records, "Package")
-  locs <- file.path(library, packages)
+  locs <- find.package(packages, lib.loc = library, quiet = TRUE)
   deps <- bapply(locs, renv_dependencies_discover_description)
   if (empty(deps))
     return(TRUE)

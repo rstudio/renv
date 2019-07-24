@@ -14,8 +14,8 @@ directory is used instead.}
 
 \item{...}{Optional arguments; reserved for future expansion.}
 
-\item{library}{The \R library to snapshot. When \code{NULL}, the active library
-(as reported by \code{.libPaths()}) is used.}
+\item{library}{The \R library to snapshot. When \code{NULL}, the active \R
+libraries (as reported by \code{.libPaths()}) are used.}
 
 \item{lockfile}{The location where the generated lockfile should be written.
 By default, the lockfile is written to a file called \code{renv.lock} in the

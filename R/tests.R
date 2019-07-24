@@ -26,7 +26,6 @@ renv_tests_scope <- function(packages = character()) {
   .libPaths(c(lib, .libPaths()))
 
   defer(envir = parent.frame(), {
-    deactivate(project = dir)
     setwd(owd)
     unlink(lib, recursive = TRUE)
     .libPaths(libpaths)
@@ -164,6 +163,10 @@ renv_tests_init_packages <- function() {
 
 }
 
+renv_tests_init_sandbox <- function() {
+  renv_sandbox_activate()
+}
+
 renv_tests_init <- function() {
 
   # NOTE: we set both variables so we can distinguish between
@@ -179,6 +182,7 @@ renv_tests_init <- function() {
   renv_tests_init_options()
   renv_tests_init_repos()
   renv_tests_init_packages()
+  renv_tests_init_sandbox()
 
 }
 

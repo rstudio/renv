@@ -79,7 +79,6 @@ renv_install <- function(records, library, project) {
   # }
 
   # save active library
-  library <- renv_libpaths_default()
   renv_global_set("install.library", library)
   on.exit(renv_global_clear("install.library"), add = TRUE)
 

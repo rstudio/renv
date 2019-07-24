@@ -5,12 +5,12 @@ renv_sandbox_enabled <- function(project) {
   renv_config("sandbox.enabled", default = renv_platform_unix())
 }
 
-renv_sandbox_activate <- function(project = NULL) {
+renv_sandbox_init <- function() {
+  assign(".Library",      .Library,      envir = `_renv_sandbox`)
+  assign(".Library.site", .Library.site, envir = `_renv_sandbox`)
+}
 
-  # check that we haven't already activated
-  bindings <- ls(envir = `_renv_sandbox`, all.names = TRUE)
-  if (length(bindings))
-    return(FALSE)
+renv_sandbox_activate <- function(project = NULL) {
 
   # attempt the activation
   status <- catch(renv_sandbox_activate_impl(project))
@@ -45,11 +45,8 @@ renv_sandbox_activate_impl <- function(project) {
 
   # override .Library, .Library.site
   base <- .BaseNamespaceEnv
-  bindings <- c(.Library = syslib, .Library.site = list(NULL))
-  enumerate(bindings, function(binding, replacement) {
-    original <- renv_binding_replace(binding, replacement, envir = base)
-    assign(binding, original, envir = `_renv_sandbox`)
-  })
+  renv_binding_replace(".Library",      syslib, envir = base)
+  renv_binding_replace(".Library.site", NULL,   envir = base)
 
   # update library paths
   newlibs <- setdiff(oldlibs, syslibs)
@@ -99,11 +96,6 @@ renv_sandbox_activate_check <- function(libs) {
 
 renv_sandbox_deactivate <- function() {
 
-  # check that the sandbox was indeed activated
-  bindings <- ls(envir = `_renv_sandbox`, all.names = TRUE)
-  if (empty(bindings))
-    return(FALSE)
-
   # get library paths sans .Library, .Library.site
   old <- .libPaths()
   sys <- normalizePath(c(.Library, .Library.site), winslash = "/", mustWork = FALSE)
@@ -115,7 +107,6 @@ renv_sandbox_deactivate <- function() {
     original <- get(binding, envir = `_renv_sandbox`)
     renv_binding_replace(binding, original, envir = base)
   }
-  rm(list = bindings, envir = `_renv_sandbox`)
 
   # update library paths
   new <- setdiff(old, sys)
