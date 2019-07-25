@@ -2,7 +2,7 @@
 context("Retrieve")
 
 test_that("we can retrieve packages from CRAN", {
-
+  skip_on_cran()
   renv_tests_scope()
 
   record <- list(
@@ -16,7 +16,7 @@ test_that("we can retrieve packages from CRAN", {
 })
 
 test_that("we can retrieve packages from the CRAN archive", {
-
+  skip_on_cran()
   renv_tests_scope()
 
   record <- list(

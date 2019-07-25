@@ -33,22 +33,22 @@ test_that("options() scoping works as expected", {
 
 test_that("environment variable scoping works as expected", {
 
-  Sys.unsetenv("A")
-  Sys.setenv(B = "0")
+  Sys.unsetenv("RENV_TEST_ENVVAR_A")
+  Sys.setenv("RENV_TEST_ENVVAR_B" = "0")
 
   local({
-    renv_scope_envvars(A = "1")
-    expect_identical(Sys.getenv("A"), "1")
+    renv_scope_envvars("RENV_TEST_ENVVAR_A" = "1")
+    expect_identical(Sys.getenv("RENV_TEST_ENVVAR_A"), "1")
   })
-  expect_identical(Sys.getenv("A", unset = NA), NA_character_)
+  expect_identical(Sys.getenv("RENV_TEST_ENVVAR_A", unset = NA), NA_character_)
 
   local({
-    renv_scope_envvars(A = "1", B = "2")
-    expect_identical(Sys.getenv("A"), "1")
-    expect_identical(Sys.getenv("B"), "2")
+    renv_scope_envvars("RENV_TEST_ENVVAR_A" = "1", "RENV_TEST_ENVVAR_B" = "2")
+    expect_identical(Sys.getenv("RENV_TEST_ENVVAR_A"), "1")
+    expect_identical(Sys.getenv("RENV_TEST_ENVVAR_B"), "2")
   })
 
-  expect_identical(Sys.getenv("B"), "0")
-  expect_identical(Sys.getenv("A", unset = NA), NA_character_)
+  expect_identical(Sys.getenv("RENV_TEST_ENVVAR_B"), "0")
+  expect_identical(Sys.getenv("RENV_TEST_ENVVAR_A", unset = NA), NA_character_)
 
 })

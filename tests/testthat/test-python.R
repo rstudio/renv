@@ -9,6 +9,7 @@ python <-
 test_that("we can activate Python with a project", {
 
   skip_on_appveyor()
+  skip_on_cran()
   skip_if_no_python(python)
 
   renv_tests_scope("breakfast")
@@ -22,6 +23,7 @@ test_that("we can activate Python with a project", {
 test_that("we can activate Python with a virtualenv in a project", {
 
   skip_on_appveyor()
+  skip_on_cran()
   skip_if_no_virtualenv(python)
 
   renv_tests_scope("breakfast")
@@ -35,6 +37,7 @@ test_that("we can activate Python with a virtualenv in a project", {
 test_that("the set of installed Python packages is snapshotted / restored", {
 
   skip_on_appveyor()
+  skip_on_cran()
   skip_if_no_virtualenv(python)
 
   renv_tests_scope("breakfast")
