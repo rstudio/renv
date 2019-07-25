@@ -19,7 +19,7 @@ written as \code{.json}, to allow for easy consumption by other tools.
 
 An example lockfile follows:\preformatted{{
   "renv": {
-    "Version": "0.6.0-4"
+    "Version": "1.0.0"
   },
   "R": {
     "Version": "3.6.1",
