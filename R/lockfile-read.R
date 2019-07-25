@@ -1,4 +1,18 @@
 
+renv_lockfile_read_finish <- function(data) {
+
+  # port from old field names / formats
+  if (!is.null(data[["R"]][["Package"]])) {
+    data[["R"]][["Packages"]] <- data[["R"]][["Package"]]
+    data[["R"]][["Package"]] <- NULL
+  }
+
+  # set class
+  class(data) <- "renv_lockfile"
+  data
+
+}
+
 renv_lockfile_read <- function(file = NULL, text = NULL) {
 
   contents <- if (is.null(file))
@@ -8,10 +22,8 @@ renv_lockfile_read <- function(file = NULL, text = NULL) {
 
   # try reading as JSON
   json <- catch(renv_json_read(text = contents))
-  if (!inherits(json, "error")) {
-    class(json) <- "renv_lockfile"
-    return(json)
-  }
+  if (!inherits(json, "error"))
+    return(renv_lockfile_read_finish(json))
 
   # fall back to internal format
   contents <- grep("^\\s*[#]", contents, value = TRUE, invert = TRUE)
@@ -40,8 +52,7 @@ renv_lockfile_read <- function(file = NULL, text = NULL) {
     data[[splat]] <<- entries
   })
 
-  class(data) <- "renv_lockfile"
-  data
+  renv_lockfile_read_finish(data)
 
 }
 

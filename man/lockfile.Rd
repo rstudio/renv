@@ -14,29 +14,34 @@ This implies re-installing packages into the project's private library,
 as encoded within the lockfile.
 
 While lockfiles are normally generated and used with \code{\link[=snapshot]{snapshot()}} /
-\code{\link[=restore]{restore()}}, they can also hand-edited if so desired. The structure is
-similar to that of the Windows-style \code{.ini} file, with some provisioning for
-nested sections.
+\code{\link[=restore]{restore()}}, they can also hand-edited if so desired. Lockfiles are
+written as \code{.json}, to allow for easy consumption by other tools.
 
-An example lockfile follows:\preformatted{[renv]
-Version=0.1.0
-
-[R]
-Version=3.5.1
-Repositories=
-  CRAN=https://cran.rstudio.com
-
-[R/Package/markdown]
-Package=markdown
-Version=0.9
-Source=CRAN
-Hash=8515151150d7372bc76e0af15ef5dee0
-
-[R/Package/mime]
-Package=mime
-Version=0.6
-Source=CRAN
-Hash=b1e49df8aef896bc8c0b749ef1da5a48
+An example lockfile follows:\preformatted{{
+  "renv": {
+    "Version": "0.6.0"
+  },
+  "R": {
+    "Version": "3.6.1",
+    "Repositories": {
+      "CRAN": "https://cran.rstudio.com"
+    },
+    "Packages": {
+      "markdown": {
+        "Package": "markdown",
+        "Version": "1.0",
+        "Source": "CRAN",
+        "Hash": "4584a57f565dd7987d59dda3a02cfb41"
+      },
+      "mime": {
+        "Package": "mime",
+        "Version": "0.7",
+        "Source": "CRAN",
+        "Hash": "908d95ccbfd1dd274073ef07a7c93934"
+      }
+    }
+  }
+}
 }
 
 The sections used within a lockfile are described next.
@@ -62,7 +67,7 @@ Properties related to the version of \R associated with this project.
 }
 }
 
-\section{[R/Package/*]}{
+\section{[R/Packages/*]}{
 
 
 Package records, related to the version of an \R package that was installed

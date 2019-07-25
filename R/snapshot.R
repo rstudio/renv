@@ -37,7 +37,7 @@ snapshot <- function(project  = NULL,
     renv_snapshot_preflight(project, library)
 
   new <- renv_lockfile_init(project)
-  new$R$Package <- renv_snapshot_r_packages(library = library)
+  new$R$Packages <- renv_snapshot_r_packages(library = library)
 
   if (is.null(lockfile))
     return(new)
@@ -475,8 +475,8 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
   # only report packages which are being modified; not added / removed
   keep <- names(actions)[actions %in% c("upgrade", "downgrade", "crossgrade")]
-  old$R$Package <- old$R$Package[keep]
-  new$R$Package <- new$R$Package[keep]
+  old$R$Packages <- old$R$Packages[keep]
+  new$R$Packages <- new$R$Packages[keep]
 
   # perform the diff
   diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
