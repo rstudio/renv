@@ -51,3 +51,10 @@ test_that("we can parse a GitHub remotes specification with 'wininet'", {
   expect_true(data$RemoteRepo == "renv")
 
 })
+
+test_that("we can read json containing escape characters", {
+  actual <- list(data = "\\\"")
+  json <- renv_json_convert(actual)
+  expected <- renv_json_read(text = json)
+  expect_equal(actual, expected)
+})

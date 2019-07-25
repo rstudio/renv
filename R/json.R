@@ -116,7 +116,7 @@ renv_json_convert_atom <- function(object, level, unbox) {
   unbox <- unbox || inherits(object, "AsIs")
 
   if (is.character(object)) {
-    object <- shQuote(object, type = "cmd")
+    object <- shQuote(encodeString(object), type = "cmd")
     object[object == "\"NA\""] <- "null"
   }
 
