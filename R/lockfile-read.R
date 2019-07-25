@@ -1,4 +1,32 @@
 
+renv_lockfile_read_finish_impl <- function(key, val) {
+
+  # convert repository records to named vectors
+  # (be careful to handle NAs)
+  if (key == "Repositories" && is.null(names(val))) {
+
+    keys <- map_chr(val, function(record) record[["Name"]] %NA% "")
+    vals <- map_chr(val, function(record) record[["URL"]] %NA% "")
+
+    result <- case(
+      empty(keys)       ~ list(),
+      any(nzchar(keys)) ~ named(vals, keys),
+      TRUE              ~ vals
+    )
+
+    return(as.list(result))
+
+  }
+
+  # recurse for lists
+  if (is.list(val))
+    return(enumerate(val, renv_lockfile_read_finish_impl))
+
+  # return other values as-is
+  val
+
+}
+
 renv_lockfile_read_finish <- function(data) {
 
   # port from old field names / formats
@@ -6,6 +34,9 @@ renv_lockfile_read_finish <- function(data) {
     data[["R"]][["Packages"]] <- data[["R"]][["Package"]]
     data[["R"]][["Package"]] <- NULL
   }
+
+  # convert repository fields
+  data <- enumerate(data, renv_lockfile_read_finish_impl)
 
   # set class
   class(data) <- "renv_lockfile"

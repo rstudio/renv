@@ -25,9 +25,31 @@ renv_lockfile_write <- function(lockfile, file = stdout()) {
 
 }
 
+renv_lockfile_write_json_prepare_repos <- function(val) {
+  unname(enumerate(val, function(key, val) list(Name = key, URL = val)))
+}
+
+renv_lockfile_write_json_prepare <- function(key, val) {
+
+  if (key == "Repositories")
+    renv_lockfile_write_json_prepare_repos(val)
+  else if (is.list(val))
+    enumerate(val, renv_lockfile_write_json_prepare)
+  else
+    val
+
+}
+
 renv_lockfile_write_json <- function(lockfile, file = stdout()) {
-  json <- renv_json_convert(lockfile)
+
+  prepared <- enumerate(lockfile, renv_lockfile_write_json_prepare)
+
+  json <- renv_json_convert(prepared)
+  if (is.null(file))
+    return(json)
+
   writeLines(json, con = file)
+
 }
 
 renv_lockfile_write_internal <- function(lockfile,

@@ -80,7 +80,7 @@ Entry=
 
 test_that("lockfiles can be read from either format", {
 
-  actual <- renv_lockfile_init()
+  actual <- renv_lockfile_init(project = NULL)
 
   file <- renv_tempfile()
   renv_lockfile_write_internal(actual, file = file)
@@ -91,5 +91,27 @@ test_that("lockfiles can be read from either format", {
   renv_lockfile_write_json(actual, file = file)
   expected <- renv_lockfile_read(file)
   expect_equal(actual, expected)
+
+})
+
+test_that("we can serialize lockfiles using unnamed repositories", {
+
+  # no repositories set
+  local({
+    renv_scope_options(repos = list())
+    actual <- renv_lockfile_init(project = NULL)
+    json <- renv_lockfile_write(actual, file = NULL)
+    expected <- renv_lockfile_read(text = json)
+    expect_equal(actual, expected)
+  })
+
+  # unnamed repositories set
+  local({
+    renv_scope_options(repos = c("alpha", "beta"))
+    actual <- renv_lockfile_init(project = NULL)
+    json <- renv_lockfile_write(actual, file = NULL)
+    expected <- renv_lockfile_read(text = json)
+    expect_equal(actual, expected)
+  })
 
 })
