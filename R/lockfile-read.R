@@ -6,6 +6,14 @@ renv_lockfile_read <- function(file = NULL, text = NULL) {
   else
     readLines(file, encoding = "UTF-8")
 
+  # try reading as JSON
+  json <- catch(renv_json_read(text = contents))
+  if (!inherits(json, "error")) {
+    class(json) <- "renv_lockfile"
+    return(json)
+  }
+
+  # fall back to internal format
   contents <- grep("^\\s*[#]", contents, value = TRUE, invert = TRUE)
   contents <- contents[nzchar(contents)]
   contents <- paste(contents, collapse = "\n")

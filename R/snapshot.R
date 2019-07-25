@@ -489,7 +489,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   # report it
   writeLines("The following lockfile fields will be updated:\n")
   output <- stack()
-  renv_lockfile_write(diff, delim = ": ", emitter = output$push)
+  renv_lockfile_write_internal(diff, delim = ": ", emitter = output$push)
   writeLines(paste("  ", output$data(), sep = ""))
 
 }

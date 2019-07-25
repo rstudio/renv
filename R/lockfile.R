@@ -110,11 +110,12 @@ renv_lockfile_init <- function(project) {
 renv_lockfile_init_r <- function(project) {
 
   repos <- getOption("repos")
+  attr(repos, "RStudio") <- NULL
   repos[repos == "@CRAN@"] <- "https://cran.rstudio.com/"
 
   list(
     Version = format(getRversion()),
-    Repositories = repos
+    Repositories = as.list(repos)
   )
 }
 
@@ -130,7 +131,7 @@ renv_lockfile_init_bioconductor <- function(project) {
   if (is.null(repos))
     return(NULL)
 
-  list(Repositories = repos)
+  list(Repositories = as.list(repos))
 
 }
 

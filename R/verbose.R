@@ -9,6 +9,6 @@ renv_verbose <- function() {
   if (!is.na(verbose))
     return(as.logical(verbose))
 
-  !renv_testing()
+  interactive() || !renv_testing()
 
 }

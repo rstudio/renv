@@ -14,8 +14,27 @@ renv_lockfile_state_clear <- function() {
   rm(list = ls(`_renv_lockfile_state`), envir = `_renv_lockfile_state`)
 }
 
-renv_lockfile_write <- function(lockfile, file = stdout(), delim = "=", emitter = NULL) {
+renv_lockfile_write <- function(lockfile, file = stdout()) {
 
+  config <- renv_config("lockfile.format", default = "json")
+  switch(
+    config,
+    json = renv_lockfile_write_json(lockfile, file),
+    internal = renv_lockfile_write_internal(lockfile, file)
+  )
+
+}
+
+renv_lockfile_write_json <- function(lockfile, file = stdout()) {
+  json <- renv_json_convert(lockfile)
+  writeLines(json, con = file)
+}
+
+renv_lockfile_write_internal <- function(lockfile,
+                                         file = stdout(),
+                                         delim = "=",
+                                         emitter = NULL)
+{
   if (is.character(file)) {
     file <- textfile(file)
     on.exit(close(file), add = TRUE)

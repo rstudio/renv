@@ -8,9 +8,15 @@ renv_lockfile_encoder_repos <- function() {
 renv_lockfile_serializer_list <- function() {
 
   list(
+
     R = list(
       Repositories = renv_lockfile_encoder_repos()
+    ),
+
+    Bioconductor = list(
+      Repositories = renv_lockfile_encoder_repos()
     )
+
   )
 
 }

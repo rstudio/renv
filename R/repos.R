@@ -11,7 +11,7 @@ renv_repos_decode <- function(x) {
   idx <- regexpr("=", parts, fixed = TRUE)
   keys <- substring(parts, 1, idx - 1)
   vals <- substring(parts, idx + 1)
-  named(trimws(vals), trimws(keys))
+  as.list(named(trimws(vals), trimws(keys)))
 }
 
 renv_repos_init_callback <- function(...) {
