@@ -53,37 +53,67 @@ renv_remotes_parse_cran <- function(entry) {
 
 }
 
-renv_remotes_parse_github <- function(entry) {
+renv_remotes_parse_github_sha_pull <- function(host, user, repo, pull) {
 
-  parts <- strsplit(entry, "[@/]")[[1]]
-  if (length(parts) < 2)
-    stopf("invalid github remotes specification '%s'", entry)
+  fmt <- "https://%s/repos/%s/%s/pulls/%s"
+  url <- sprintf(fmt, host, user, repo, pull)
+  jsonfile <- renv_tempfile("ren-json-")
+  download(url, destfile = jsonfile, quiet = TRUE)
+  json <- renv_json_read(jsonfile)
+  json$head$sha
 
-  user <- parts[1]
-  repo <- parts[2]
-  ref  <- parts[3] %NA% "master"
+}
 
-  # get the sha associated with this ref
-  fmt <- "https://api.github.com/repos/%s/%s/commits/%s"
-  url <- sprintf(fmt, user, repo, ref)
-  shafile <- renv_tempfile("renv-sha-")
+renv_remotes_parse_github_sha_ref <- function(host, user, repo, ref) {
 
+  fmt <- "https://%s/repos/%s/%s/commits/%s"
+  url <- sprintf(fmt, host, user, repo, ref)
   headers <- c(Accept = "application/vnd.github.v2.sha")
+  shafile <- renv_tempfile("renv-sha-")
   download(url, destfile = shafile, quiet = TRUE, headers = headers)
   sha <- readChar(shafile, file.info(shafile)$size, TRUE)
 
-  # check for JSON response (in case where our headers weren't sent)
+  # check for JSON response (in case our headers weren't sent)
   if (nchar(sha) > 40) {
     json <- renv_json_read(text = sha)
     sha <- json$sha
   }
 
+  sha
+
+}
+
+renv_remotes_parse_github <- function(entry) {
+
+  pattern <- "^([^/]+)/([^@#]+)(?:#(.*))?(?:@(.*))?"
+  matches <- regexec(pattern, entry, perl = TRUE)
+  parts <- regmatches(entry, matches)[[1]]
+
+  user <- parts[2]
+  repo <- parts[3]
+  pull <- parts[4]
+  ref  <- parts[5] %""% "master"
+
+  # TODO: configure GitHub host on a per-package or per-remote basis?
+  host <- renv_config("github.host", "api.github.com")
+
+  # resolve the sha associated with the ref / pull
+  sha <- case(
+    nzchar(pull) ~ renv_remotes_parse_github_sha_pull(host, user, repo, pull),
+    nzchar(ref)  ~ renv_remotes_parse_github_sha_ref(host, user, repo, ref)
+  )
+
   # get the DESCRIPTION contents
-  fmt <- "https://raw.githubusercontent.com/%s/%s/%s/DESCRIPTION"
-  url <- sprintf(fmt, user, repo, sha)
+  fmt <- "https://%s/repos/%s/%s/contents/DESCRIPTION?ref=%s"
+  url <- sprintf(fmt, host, user, repo, sha)
+  jsonfile <- renv_tempfile("renv-json-")
+  download(url, destfile = jsonfile, quiet = TRUE)
+  json <- renv_json_read(jsonfile)
+  contents <- renv_base64_decode(json$content)
+
   descfile <- renv_tempfile("renv-description-")
-  download(url, destfile = descfile, quiet = TRUE)
-  desc <- renv_description_read(descfile)
+  writeLines(contents, con = descfile)
+  desc <- renv_dcf_read(descfile)
 
   list(
     Package        = desc$Package,
@@ -93,7 +123,7 @@ renv_remotes_parse_github <- function(entry) {
     RemoteRepo     = repo,
     RemoteRef      = ref,
     RemoteSha      = sha,
-    RemoteHost     = "api.github.com"
+    RemoteHost     = host
   )
 
 }

@@ -198,7 +198,7 @@ requiring some form of authentication to access -- for example, a GitHub
 enterprise server. Usually, either a personal access token (PAT) or username
 + password combination is required for authentication. `renv` is able to
 authenticate when downloading from such sources, using the same system as the
-[remotes](https://cran.r-project.org/web/packages/remotes/index.html) package.
+[remotes](https://cran.r-project.org/package=remotes) package.
 In particular, environment variables are used to record and transfer the
 required authentication information.
 

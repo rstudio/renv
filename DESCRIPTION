@@ -1,12 +1,14 @@
 Package: renv
 Type: Package
 Title: Project Environments for R
-Version: 0.5.0-131
+Version: 0.5.0-132
 Author: Kevin Ushey
 Maintainer: Kevin Ushey <kevin@rstudio.com>
-Description: Use 'renv' to create and manage project-local R dependencies.
+Description: Use 'renv' to create and manage project-local environments.
+    Use 'renv' to make your projects more isolated, portable, and
+    reproducible.
 License: MIT + file LICENSE
-URL: https://github.com/rstudio/renv
+URL: https://rstudio.github.io/renv
 BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
 Suggests: covr, knitr, packrat, remotes, reticulate, rmarkdown, testthat
