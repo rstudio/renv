@@ -65,7 +65,7 @@ their versions) within the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.5</span>
       </span>
     </div>
 
@@ -150,28 +150,31 @@ as encoded within the lockfile.</p>
 written as <code>.json</code>, to allow for easy consumption by other tools.</p>
 <p>An example lockfile follows:</p><pre>{
   "renv": {
-    "Version": "0.6.0"
+    "Version": "0.6.0-4"
   },
   "R": {
     "Version": "3.6.1",
-    "Repositories": {
-      "CRAN": "https://cran.rstudio.com"
-    },
-    "Packages": {
-      "markdown": {
-        "Package": "markdown",
-        "Version": "1.0",
-        "Source": "CRAN",
-        "Hash": "4584a57f565dd7987d59dda3a02cfb41"
-      },
-      "mime": {
-        "Package": "mime",
-        "Version": "0.7",
-        "Source": "CRAN",
-        "Hash": "908d95ccbfd1dd274073ef07a7c93934"
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cran.rstudio.com"
       }
+    ]
+  },
+  "Packages": {
+    "markdown": {
+      "Package": "markdown",
+      "Version": "1.0",
+      "Source": "CRAN",
+      "Hash": "4584a57f565dd7987d59dda3a02cfb41"
+    },
+    "mime": {
+      "Package": "mime",
+      "Version": "0.7",
+      "Source": "CRAN",
+      "Hash": "908d95ccbfd1dd274073ef07a7c93934"
     }
-  }
+    }
 }
 </pre>
     <p>The sections used within a lockfile are described next.</p>
@@ -201,11 +204,11 @@ written as <code>.json</code>, to allow for easy consumption by other tools.</p>
 <tr><td></td><td></td></tr>
 </table>
     
-    <h2 class="hasAnchor" id="-r-packages-"><a class="anchor" href="#-r-packages-"></a>[R/Packages/*]</h2>
+    <h2 class="hasAnchor" id="-packages-"><a class="anchor" href="#-packages-"></a>[Packages]</h2>
 
     
-    <p>Package records, related to the version of an <span style="R">R</span> package that was installed
-at the time the lockfile was generated.</p>
+    <p><span style="R">R</span> package records, capturing the packages used or required by a project
+at the time when the lockfile was generated.</p>
 <table class='table'>
 <tr><td></td><td><strong>Package</strong></td></tr>
 <tr><td></td><td>The package name.</td></tr>
@@ -255,7 +258,7 @@ environment will be used instead (when not directly using a system copy of Pytho
 
       <li><a href="#-r-">[R]</a></li>
 
-      <li><a href="#-r-packages-">[R/Packages/*]</a></li>
+      <li><a href="#-packages-">[Packages]</a></li>
 
       <li><a href="#-python-">[Python]</a></li>
 
