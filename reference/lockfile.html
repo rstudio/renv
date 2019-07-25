@@ -65,7 +65,7 @@ their versions) within the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.134</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.2</span>
       </span>
     </div>
 
@@ -146,25 +146,33 @@ their versions) within the project's private library.</p>
 This implies re-installing packages into the project's private library,
 as encoded within the lockfile.</p>
 <p>While lockfiles are normally generated and used with <code><a href='snapshot.html'>snapshot()</a></code> /
-<code><a href='restore.html'>restore()</a></code>, they can also hand-edited if so desired. The structure is
-similar to that of the Windows-style <code>.ini</code> file, with some provisioning for
-nested sections.</p>
-<p>An example lockfile follows:</p><pre>[renv]
-Version=0.1.0
-    [R]
-Version=3.5.1
-Repositories=
-  CRAN=https://cran.rstudio.com
-    [R/Package/markdown]
-Package=markdown
-Version=0.9
-Source=CRAN
-Hash=8515151150d7372bc76e0af15ef5dee0
-    [R/Package/mime]
-Package=mime
-Version=0.6
-Source=CRAN
-Hash=b1e49df8aef896bc8c0b749ef1da5a48
+<code><a href='restore.html'>restore()</a></code>, they can also hand-edited if so desired. Lockfiles are
+written as <code>.json</code>, to allow for easy consumption by other tools.</p>
+<p>An example lockfile follows:</p><pre>{
+  "renv": {
+    "Version": "0.6.0"
+  },
+  "R": {
+    "Version": "3.6.1",
+    "Repositories": {
+      "CRAN": "https://cran.rstudio.com"
+    },
+    "Packages": {
+      "markdown": {
+        "Package": "markdown",
+        "Version": "1.0",
+        "Source": "CRAN",
+        "Hash": "4584a57f565dd7987d59dda3a02cfb41"
+      },
+      "mime": {
+        "Package": "mime",
+        "Version": "0.7",
+        "Source": "CRAN",
+        "Hash": "908d95ccbfd1dd274073ef07a7c93934"
+      }
+    }
+  }
+}
 </pre>
     <p>The sections used within a lockfile are described next.</p>
     
@@ -193,7 +201,7 @@ Hash=b1e49df8aef896bc8c0b749ef1da5a48
 <tr><td></td><td></td></tr>
 </table>
     
-    <h2 class="hasAnchor" id="-r-package-"><a class="anchor" href="#-r-package-"></a>[R/Package/*]</h2>
+    <h2 class="hasAnchor" id="-r-packages-"><a class="anchor" href="#-r-packages-"></a>[R/Packages/*]</h2>
 
     
     <p>Package records, related to the version of an <span style="R">R</span> package that was installed
@@ -247,7 +255,7 @@ environment will be used instead (when not directly using a system copy of Pytho
 
       <li><a href="#-r-">[R]</a></li>
 
-      <li><a href="#-r-package-">[R/Package/*]</a></li>
+      <li><a href="#-r-packages-">[R/Packages/*]</a></li>
 
       <li><a href="#-python-">[Python]</a></li>
 
