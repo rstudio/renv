@@ -19,28 +19,32 @@ written as \code{.json}, to allow for easy consumption by other tools.
 
 An example lockfile follows:\preformatted{{
   "renv": {
-    "Version": "0.6.0"
+    "Version": "0.6.0-4"
   },
   "R": {
     "Version": "3.6.1",
-    "Repositories": {
-      "CRAN": "https://cran.rstudio.com"
-    },
-    "Packages": {
-      "markdown": {
-        "Package": "markdown",
-        "Version": "1.0",
-        "Source": "CRAN",
-        "Hash": "4584a57f565dd7987d59dda3a02cfb41"
-      },
-      "mime": {
-        "Package": "mime",
-        "Version": "0.7",
-        "Source": "CRAN",
-        "Hash": "908d95ccbfd1dd274073ef07a7c93934"
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cran.rstudio.com"
       }
+    ]
+  },
+  "Packages": {
+    "markdown": {
+      "Package": "markdown",
+      "Version": "1.0",
+      "Source": "CRAN",
+      "Hash": "4584a57f565dd7987d59dda3a02cfb41"
+    },
+    "mime": {
+      "Package": "mime",
+      "Version": "0.7",
+      "Source": "CRAN",
+      "Hash": "908d95ccbfd1dd274073ef07a7c93934"
     }
-  }
+
+}
 }
 }
 
@@ -67,11 +71,11 @@ Properties related to the version of \R associated with this project.
 }
 }
 
-\section{[R/Packages/*]}{
+\section{[Packages]}{
 
 
-Package records, related to the version of an \R package that was installed
-at the time the lockfile was generated.
+\R package records, capturing the packages used or required by a project
+at the time when the lockfile was generated.
 
 \tabular{ll}{
 \strong{Package}      \tab The package name. \cr

@@ -29,10 +29,11 @@ renv_lockfile_read_finish_impl <- function(key, val) {
 
 renv_lockfile_read_finish <- function(data) {
 
-  # port from old field names / formats
-  if (!is.null(data[["R"]][["Package"]])) {
-    data[["R"]][["Packages"]] <- data[["R"]][["Package"]]
-    data[["R"]][["Package"]] <- NULL
+  # port old packages format
+  packages <- data$R$Package %||% data$R$Packages
+  if (!is.null(packages)) {
+    data$Packages <- packages
+    data$R$Package <- data$R$Packages <- NULL
   }
 
   # convert repository fields

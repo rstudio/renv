@@ -18,27 +18,31 @@
 #' ```
 #' {
 #'   "renv": {
-#'     "Version": "0.6.0"
+#'     "Version": "1.0.0"
 #'   },
 #'   "R": {
 #'     "Version": "3.6.1",
-#'     "Repositories": {
-#'       "CRAN": "https://cran.rstudio.com"
-#'     },
-#'     "Packages": {
-#'       "markdown": {
-#'         "Package": "markdown",
-#'         "Version": "1.0",
-#'         "Source": "CRAN",
-#'         "Hash": "4584a57f565dd7987d59dda3a02cfb41"
-#'       },
-#'       "mime": {
-#'         "Package": "mime",
-#'         "Version": "0.7",
-#'         "Source": "CRAN",
-#'         "Hash": "908d95ccbfd1dd274073ef07a7c93934"
+#'     "Repositories": [
+#'       {
+#'         "Name": "CRAN",
+#'         "URL": "https://cran.rstudio.com"
 #'       }
+#'     ]
+#'   },
+#'   "Packages": {
+#'     "markdown": {
+#'       "Package": "markdown",
+#'       "Version": "1.0",
+#'       "Source": "CRAN",
+#'       "Hash": "4584a57f565dd7987d59dda3a02cfb41"
+#'     },
+#'     "mime": {
+#'       "Package": "mime",
+#'       "Version": "0.7",
+#'       "Source": "CRAN",
+#'       "Hash": "908d95ccbfd1dd274073ef07a7c93934"
 #'     }
+#'
 #'   }
 #' }
 #' ```
@@ -62,10 +66,10 @@
 #' \strong{Repositories} \tab The \R repositories used in this project. \cr
 #' }
 #'
-#' @section \[R/Packages/*\]:
+#' @section \[Packages\]:
 #'
-#' Package records, related to the version of an \R package that was installed
-#' at the time the lockfile was generated.
+#' \R package records, capturing the packages used or required by a project
+#' at the time when the lockfile was generated.
 #'
 #' \tabular{ll}{
 #' \strong{Package}      \tab The package name. \cr
@@ -182,13 +186,13 @@ renv_lockfile_sort <- function(lockfile) {
   renv_scope_locale("LC_COLLATE", "C")
 
   # extract R records (nothing to do if empty)
-  records <- lockfile$R$Packages
+  records <- lockfile$Packages
   if (empty(records))
     return(lockfile)
 
   # sort the records
   sorted <- records[sort(names(records))]
-  lockfile$R$Packages <- sorted
+  lockfile$Packages <- sorted
 
   # return post-sort
   lockfile

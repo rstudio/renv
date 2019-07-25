@@ -3,7 +3,7 @@
 # within a lockfile
 renv_records <- function(records) {
   if (inherits(records, "renv_lockfile"))
-    return(records$R$Packages)
+    return(records$Packages)
   records
 }
 
