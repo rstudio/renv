@@ -64,7 +64,7 @@ renv with your particular project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.131</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5.0.132</span>
       </span>
     </div>
 
@@ -106,15 +106,13 @@ renv with your particular project." />
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="https://github.com/rstudio/renv">
-    <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -128,7 +126,7 @@ renv with your particular project." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Project Settings</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/settings.R'><code>R/settings.R</code></a></small>
+    
     <div class="hidden name"><code>settings.Rd</code></div>
     </div>
 
@@ -176,18 +174,18 @@ certain project settings within new projects.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'># check the 'ignored.packages' option</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/renv/topics/settings'>settings</a></span>$<span class='fu'>ignored.packages</span>()</div><div class='output co'>#&gt; character(0)</div><div class='input'>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/settings.html'>settings</a></span>$<span class='fu'>ignored.packages</span>()</div><div class='output co'>#&gt; character(0)</div><div class='input'>
 <span class='co'># ignore the 'tidyverse' package in this project</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/renv/topics/settings'>settings</a></span>$<span class='fu'>ignored.packages</span>(<span class='st'>"tidyverse"</span>, <span class='kw'>persist</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/settings.html'>settings</a></span>$<span class='fu'>ignored.packages</span>(<span class='st'>"tidyverse"</span>, <span class='kw'>persist</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='co'># cache is turned on by default</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/renv/topics/settings'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/settings.html'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 <span class='co'># but we can disable it by default</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/options'>options</a></span>(<span class='kw'>renv.config.use.cache</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/renv/topics/settings'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/settings.html'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 <span class='co'># enable for current project</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/renv/topics/settings'>settings</a></span>$<span class='fu'>use.cache</span>(<span class='fl'>TRUE</span>, <span class='kw'>persist</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://www.rdocumentation.org/packages/renv/topics/settings'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div></pre>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/settings.html'>settings</a></span>$<span class='fu'>use.cache</span>(<span class='fl'>TRUE</span>, <span class='kw'>persist</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/settings.html'>settings</a></span>$<span class='fu'>use.cache</span>()</div><div class='output co'>#&gt; [1] TRUE</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
