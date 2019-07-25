@@ -86,7 +86,7 @@ renv_remotes_parse_github_sha_ref <- function(host, user, repo, ref) {
 renv_remotes_parse_github <- function(entry) {
 
   pattern <- "^([^/]+)/([^@#]+)(?:#(.*))?(?:@(.*))?"
-  matches <- regexec(pattern, entry, perl = TRUE)
+  matches <- regexec(pattern, entry)
   parts <- regmatches(entry, matches)[[1]]
 
   user <- parts[2]
