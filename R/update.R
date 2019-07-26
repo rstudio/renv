@@ -21,11 +21,25 @@ renv_update_find_github <- function(record) {
   repo <- record$RemoteRepo
   ref  <- record$RemoteRef
 
-  entry <- sprintf("%s/%s@%s", user, repo, ref)
+  # check for changed sha
+  sha <- renv_remotes_parse_github_sha_ref(host, user, repo, ref)
+  if (sha == record$RemoteSha)
+    return(NULL)
 
-  renv_scope_options(renv.config.github.host = host)
-  current <- renv_remotes_parse_github(entry)
+  # get updated record
+  desc <- renv_remotes_parse_github_description(host, user, repo, sha)
+  current <- list(
+    Package        = desc$Package,
+    Version        = desc$Version,
+    Source         = "GitHub",
+    RemoteUsername = user,
+    RemoteRepo     = repo,
+    RemoteRef      = ref,
+    RemoteSha      = sha,
+    RemoteHost     = host
+  )
 
+  # check that the version has actually updated
   updated <-
     current$RemoteSha != record$RemoteSha &&
     numeric_version(current$Version) >= numeric_version(record$Version)
@@ -137,6 +151,11 @@ update <- function(packages = NULL,
   }
 
   # perform the install
-  install(updates)
+  install(
+    updates,
+    library = library,
+    rebuild = rebuild,
+    project = project
+  )
 
 }
