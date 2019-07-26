@@ -14,9 +14,8 @@ as required.}
 
 \item{...}{Optional arguments; reserved for future expansion.}
 
-\item{library}{The library from which packages should be installed. When
-\code{NULL}, the active library (that is, the first entry reported in
-\code{.libPaths()}) is used instead.}
+\item{library}{The \R library to be used. When \code{NULL}, the active project
+library will be used instead.}
 
 \item{rebuild}{Force packages to be rebuilt, thereby bypassing any installed
 versions of the package available in the cache? This can either be a

@@ -83,6 +83,23 @@ renv_remotes_parse_github_sha_ref <- function(host, user, repo, ref) {
 
 }
 
+renv_remotes_parse_github_description <- function(host, user, repo, sha) {
+
+  # get the DESCRIPTION contents
+  fmt <- "https://%s/repos/%s/%s/contents/DESCRIPTION?ref=%s"
+  url <- sprintf(fmt, host, user, repo, sha)
+  jsonfile <- renv_tempfile("renv-json-")
+  download(url, destfile = jsonfile, quiet = TRUE)
+  json <- renv_json_read(jsonfile)
+  contents <- renv_base64_decode(json$content)
+
+  # write to file and read back in
+  descfile <- renv_tempfile("renv-description-")
+  writeLines(contents, con = descfile)
+  renv_dcf_read(descfile)
+
+}
+
 renv_remotes_parse_github <- function(entry) {
 
   pattern <- "^([^/]+)/([^@#]+)(?:#(.*))?(?:@(.*))?"
@@ -103,17 +120,7 @@ renv_remotes_parse_github <- function(entry) {
     nzchar(ref)  ~ renv_remotes_parse_github_sha_ref(host, user, repo, ref)
   )
 
-  # get the DESCRIPTION contents
-  fmt <- "https://%s/repos/%s/%s/contents/DESCRIPTION?ref=%s"
-  url <- sprintf(fmt, host, user, repo, sha)
-  jsonfile <- renv_tempfile("renv-json-")
-  download(url, destfile = jsonfile, quiet = TRUE)
-  json <- renv_json_read(jsonfile)
-  contents <- renv_base64_decode(json$content)
-
-  descfile <- renv_tempfile("renv-description-")
-  writeLines(contents, con = descfile)
-  desc <- renv_dcf_read(descfile)
+  desc <- renv_remotes_parse_github_description(host, user, repo, sha)
 
   list(
     Package        = desc$Package,

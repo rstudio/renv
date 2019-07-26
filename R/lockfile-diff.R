@@ -57,7 +57,7 @@ renv_lockfile_diff_packages <- function(old, new) {
 
       before$Version < after$Version ~ "upgrade",
       before$Version > after$Version ~ "downgrade",
-      before$Source != after$Source  ~ "crossgrade"
+      ~ "crossgrade"
     )
 
   })

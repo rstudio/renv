@@ -1,10 +1,27 @@
 
+`_renv_libpaths` <- new.env(parent = emptyenv())
+
+# NOTE: if sandboxing is used then these symbols will be clobbered;
+# save them so we can properly restore them later if so required
+renv_libpaths_init <- function() {
+  assign(".Library",      .Library,      envir = `_renv_libpaths`)
+  assign(".Library.site", .Library.site, envir = `_renv_libpaths`)
+}
+
 renv_libpaths_default <- function() {
   .libPaths()[1]
 }
 
 renv_libpaths_all <- function() {
   .libPaths()
+}
+
+renv_libpaths_system <- function() {
+  get(".Library", envir = `_renv_libpaths`)
+}
+
+renv_libpaths_site <- function() {
+  get(".Library.site", envir = `_renv_libpaths`)
 }
 
 renv_libpaths_set <- function(libpaths) {

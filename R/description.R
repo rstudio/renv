@@ -15,8 +15,9 @@ renv_description_read <- function(path = NULL, package = NULL, ...) {
   else if (info$isdir)
     stopf("file '%s' is a directory.", path)
 
-  # check for a cache entry
-  key <- path
+  # check for a cache entry (note: we need to normalize as otherwise
+  # we might cache the results for a stale symlink)
+  key <- normalizePath(path, winslash = "/", mustWork = FALSE)
   entry <- renv_filebacked_get(key)
   if (!is.null(entry))
     return(entry)
@@ -46,7 +47,7 @@ renv_description_read <- function(path = NULL, package = NULL, ...) {
 
   dcf <- renv_dcf_read(path, ...)
   if (empty(dcf))
-    stopf("'%s' is empty")
+    stopf("DESCRIPTION file at '%s' is empty", path)
 
   renv_filebacked_set(key, dcf)
   dcf

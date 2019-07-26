@@ -587,7 +587,7 @@ renv_dependencies_enumerate <- function(package, visited, fields = NULL) {
   assign(package, NA, envir = visited, inherits = FALSE)
 
   # find the package
-  libpaths <- c(renv_libpaths_user(), .Library.site, .Library)
+  libpaths <- c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
   location <- renv_package_find(package, libpaths = libpaths)
   if (!file.exists(location))
     return(location)

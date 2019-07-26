@@ -1,13 +1,6 @@
 
-`_renv_sandbox` <- new.env(parent = emptyenv())
-
 renv_sandbox_enabled <- function(project) {
   renv_config("sandbox.enabled", default = renv_platform_unix())
-}
-
-renv_sandbox_init <- function() {
-  assign(".Library",      .Library,      envir = `_renv_sandbox`)
-  assign(".Library.site", .Library.site, envir = `_renv_sandbox`)
 }
 
 renv_sandbox_activate <- function(project = NULL) {
@@ -26,18 +19,22 @@ renv_sandbox_activate_impl <- function(project) {
 
   # get current library paths
   oldlibs <- .libPaths()
-  syslibs <- normalizePath(c(.Library, .Library.site), winslash = "/", mustWork = FALSE)
+  syslibs <- c(renv_libpaths_site(), renv_libpaths_system())
+  syslibs <- normalizePath(syslibs, winslash = "/", mustWork = FALSE)
 
   # create a temporary library
-  syslib <- file.path(tempdir(), "renv-system-library")
-  ensure_directory(syslib)
+  sandbox <- file.path(tempdir(), "renv-system-library")
+  ensure_directory(sandbox)
 
   # find system packages in the system library
-  syspkgs <- renv_installed_packages(lib.loc = .Library, priority = "base")
+  syspkgs <- renv_installed_packages(
+    lib.loc = renv_libpaths_system(),
+    priority = "base"
+  )
 
   # link into temporary library
   sources <- with(syspkgs, file.path(LibPath, Package))
-  targets <- with(syspkgs, file.path(syslib,  Package))
+  targets <- with(syspkgs, file.path(sandbox, Package))
   names(targets) <- sources
   enumerate(targets, function(source, target) {
     renv_file_link(source, target)
@@ -45,19 +42,19 @@ renv_sandbox_activate_impl <- function(project) {
 
   # override .Library, .Library.site
   base <- .BaseNamespaceEnv
-  renv_binding_replace(".Library",      syslib, envir = base)
-  renv_binding_replace(".Library.site", NULL,   envir = base)
+  renv_binding_replace(".Library",      sandbox, envir = base)
+  renv_binding_replace(".Library.site", NULL,    envir = base)
 
   # update library paths
   newlibs <- setdiff(oldlibs, syslibs)
-  .libPaths(newlibs)
+  renv_libpaths_set(newlibs)
 
   # protect against user profiles that might try
   # to update the library paths
   renv_sandbox_activate_check(newlibs)
 
   # return new library paths
-  .libPaths()
+  renv_libpaths_all()
 
 }
 
@@ -97,21 +94,18 @@ renv_sandbox_activate_check <- function(libs) {
 renv_sandbox_deactivate <- function() {
 
   # get library paths sans .Library, .Library.site
-  old <- .libPaths()
-  sys <- normalizePath(c(.Library, .Library.site), winslash = "/", mustWork = FALSE)
+  old <- renv_libpaths_all()
+  syslibs <- normalizePath(c(.Library, .Library.site), winslash = "/", mustWork = FALSE)
 
   # restore old bindings
   base <- .BaseNamespaceEnv
-  bindings <- c(".Library", ".Library.site")
-  for (binding in bindings) {
-    original <- get(binding, envir = `_renv_sandbox`)
-    renv_binding_replace(binding, original, envir = base)
-  }
+  renv_binding_replace(".Library",      renv_libpaths_system(), envir = base)
+  renv_binding_replace(".Library.site", renv_libpaths_site(),   envir = base)
 
   # update library paths
-  new <- setdiff(old, sys)
-  .libPaths(new)
+  new <- setdiff(old, syslibs)
+  renv_libpaths_set(new)
 
-  TRUE
+  renv_libpaths_all()
 
 }

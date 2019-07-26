@@ -299,7 +299,7 @@ renv_snapshot_r_packages_impl <- function(library = NULL) {
   broken <- Filter(function(record) inherits(record, "error"), records)
   if (length(broken)) {
     messages <- map_chr(broken, conditionMessage)
-    header <- sprintf("Error(s) snapshotting library '%s':", library)
+    header <- sprintf("snapshot of library '%s' failed:", library)
     body <- paste("-", messages, collapse = "\n")
     message <- paste(header, body, sep = "\n")
     stop(message, call. = FALSE)

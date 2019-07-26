@@ -1,34 +1,10 @@
 {
   "renv": {
-    "Version": "0.6.0-4"
+    "Version": "0.6.0-6"
   },
   "R": {
     "Version": "3.6.1",
     "Repositories": [
-      {
-        "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
-      }
-    ]
-  },
-  "Bioconductor": {
-    "Repositories": [
-      {
-        "Name": "BioCsoft",
-        "URL": "https://bioconductor.org/packages/3.9/bioc"
-      },
-      {
-        "Name": "BioCann",
-        "URL": "https://bioconductor.org/packages/3.9/data/annotation"
-      },
-      {
-        "Name": "BioCexp",
-        "URL": "https://bioconductor.org/packages/3.9/data/experiment"
-      },
-      {
-        "Name": "BioCworkflows",
-        "URL": "https://bioconductor.org/packages/3.9/workflows"
-      },
       {
         "Name": "CRAN",
         "URL": "https://cran.rstudio.com/"
@@ -284,15 +260,15 @@
     },
     "processx": {
       "Package": "processx",
-      "Version": "3.4.1",
+      "Version": "3.4.1.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteUsername": "r-lib",
       "RemoteRepo": "processx",
       "RemoteRef": "master",
-      "RemoteSha": "73eb5b09ee01c302217e1e9962535870132174a9",
+      "RemoteSha": "ea1fa0506384941dfce8de959a7549d6f65e5371",
       "RemoteHost": "api.github.com",
-      "Hash": "66d2b0fdd00cea0164a7777d1293faae"
+      "Hash": "326abd5187e6fc388b1dd44ac1344745"
     },
     "ps": {
       "Package": "ps",
@@ -326,9 +302,9 @@
     },
     "Rcpp": {
       "Package": "Rcpp",
-      "Version": "1.0.1",
+      "Version": "1.0.2",
       "Source": "CRAN",
-      "Hash": "94bf4b635dd6abac1765cff90ba98235"
+      "Hash": "c25fa7d5684fa7001ddfea3755243975"
     },
     "remotes": {
       "Package": "remotes",
@@ -344,9 +320,9 @@
       "RemoteUsername": "rstudio",
       "RemoteRepo": "reticulate",
       "RemoteRef": "master",
-      "RemoteSha": "7c68cca7673a6e528753ba5a5af8199339f9e8ab",
+      "RemoteSha": "5be94fe3f8e55f0298ba1b8fc83fdabf3f72f078",
       "RemoteHost": "api.github.com",
-      "Hash": "37d1b2fdc08e461d468c59681fa7ed54"
+      "Hash": "89f6303a6a11a654c56cbbc54cdf28c6"
     },
     "rex": {
       "Package": "rex",
@@ -410,9 +386,9 @@
     },
     "testthat": {
       "Package": "testthat",
-      "Version": "2.2.0",
+      "Version": "2.2.1",
       "Source": "CRAN",
-      "Hash": "8856f0dafd3b9dd8b7bcf028336d14b5"
+      "Hash": "3e86adb988cb96c5b30b01ec56719ac4"
     },
     "tinytex": {
       "Package": "tinytex",

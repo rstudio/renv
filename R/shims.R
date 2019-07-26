@@ -24,16 +24,7 @@ renv_shim_update_packages <- function(lib.loc = NULL, ...) {
   if (nargs() != 0)
     return(renv_delegate(utils::update.packages))
 
-  # otherwise, check to see what packages require updates, and then install
-  lib.loc <- lib.loc %||% renv_libpaths_default()
-  old <- as.data.frame(old.packages(lib.loc = lib.loc), stringsAsFactors = FALSE)
-  if (empty(old)) {
-    vwritef("* The library is up to date.")
-    return(invisible(NULL))
-  }
-
-  install(old$Package)
-  return(invisible(NULL))
+  update(library = lib.loc)
 
 }
 

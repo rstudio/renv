@@ -70,3 +70,10 @@ renv_record_cacheable <- function(record) {
   TRUE
 
 }
+
+renv_record_validate <- function(record, quiet = FALSE) {
+
+  # TODO
+  TRUE
+
+}

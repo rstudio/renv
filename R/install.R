@@ -13,19 +13,7 @@
 #' separate package installation backends in the future.
 #'
 #' @inheritParams renv-params
-#'
-#' @param library The library from which packages should be installed. When
-#'   `NULL`, the active library (that is, the first entry reported in
-#'   `.libPaths()`) is used instead.
-#'
-#' @param rebuild Force packages to be rebuilt, thereby bypassing any installed
-#'   versions of the package available in the cache? This can either be a
-#'   boolean (indicating that the requested package(s) should be rebuilt), or a
-#'   vector of package names indicating which packages should be rebuilt.
-#'
-#' @param packages A character vector of \R packages to install. Required
-#'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed
-#'   as required.
+#' @inheritParams install-params
 #'
 #' @examples \dontrun{
 #'
