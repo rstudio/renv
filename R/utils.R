@@ -139,6 +139,9 @@ catchall <- function(expr) {
 
 ask <- function(question, default = FALSE) {
 
+  if (renv_testing())
+    return(TRUE)
+
   if (!interactive())
     return(default)
 
