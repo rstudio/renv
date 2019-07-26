@@ -131,7 +131,7 @@ update <- function(packages = NULL,
   # construct new records to use for update
   vprintf("* Checking for updated packages ... ")
   find <- renv_progress(renv_update_find, length(records))
-  updates <- Filter(Negate(is.null), lapply(selected, find))
+  updates <- Filter(is.list, lapply(selected, find))
   vwritef("Done!")
 
   if (empty(updates)) {
