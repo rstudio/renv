@@ -104,6 +104,12 @@ renv_install <- function(records, library, project) {
   names(targets) <- sources
   enumerate(targets, renv_file_move, overwrite = TRUE)
 
+  # clear filebacked cache entries
+  paths <- file.path(targets, "DESCRIPTION")
+  renv_filebacked_clear(paths)
+
+  invisible(TRUE)
+
 }
 
 renv_install_impl <- function(record, project) {

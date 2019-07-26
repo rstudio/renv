@@ -5,6 +5,13 @@
 # that value, or NULL of the file mtime has changed
 `_renv_filebacked_cache` <- new.env(parent = emptyenv())
 
+renv_filebacked_clear <- function(path = NULL) {
+  existing <- ls(envir = `_renv_filebacked_cache`, all.names = TRUE)
+  path <- path %||% existing
+  removable <- intersect(existing, path)
+  rm(list = removable, envir = `_renv_filebacked_cache`)
+}
+
 renv_filebacked_set <- function(path, value) {
 
   # validate the path
