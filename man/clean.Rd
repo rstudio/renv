@@ -21,10 +21,10 @@ Clean up a project and its associated \R libraries.
 \details{
 The following actions will be performed:
 \itemize{
+\item Stale lockfiles (\code{00LOCK-}) will be removed.
 \item Leftover temporary directories in the project library will be removed.
 \item Non-system packages installed in the system library will be removed.
 \item Unused packages within the project will be removed.
-\item Stale lockfiles (\code{00LOCK-}) will be removed.
 \item Packages within the cache that are no longer used will be removed.
 }
 }

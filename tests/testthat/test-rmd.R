@@ -37,6 +37,36 @@ test_that("The chunk header parser works as expected", {
       expected = list(engine = "python")
     ),
 
+    list(
+      input    = "```{r engine = 'Rcpp'}",
+      type     = "md",
+      expected = list(engine = "Rcpp")
+    ),
+
+    list(
+      input    = "```{r, engine = 'Rcpp'}",
+      type     = "md",
+      expected = list(engine = "Rcpp")
+    ),
+
+    list(
+      input    = "```{r a?weird?label}",
+      type     = "md",
+      expected = list(engine = "r", label = "a?weird?label")
+    ),
+
+    list(
+      input    = "```{r a'weird'label, engine = 'bash'}",
+      type     = "md",
+      expected = list(engine = "bash", label = "a'weird'label")
+    ),
+
+    list(
+      input    = "```{r, 'a=weird=label', engine = 'bash'}",
+      type     = "md",
+      expected = list(engine = "bash", label = "a=weird=label")
+    ),
+
     # Sweave ----
     list(
       input = "<<a-b-c>>=",

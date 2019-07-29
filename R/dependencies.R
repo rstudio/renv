@@ -527,21 +527,24 @@ renv_dependencies_discover_parse_params <- function(header, type) {
     rest <- sub("^,*\\s*", "", substring(rest, idx + 1))
   }
 
-  # try to guess where the label is
+  # extract an unquoted label
   label <- ""
-  idx <- regexpr("(?:[ ,=]|$)", rest)
-  if (idx != -1) {
-    ch <- substring(rest, idx, idx)
-    if (ch != '=') {
-      label <- substring(rest, 1, idx - 1)
-      rest <- sub("^,*\\s*", "", substring(rest, idx + 1))
-    }
+  pattern <- "(^\\s*[^=]+)(,|\\s*$)"
+  matches <- regexec(pattern, rest)[[1]]
+  if (!identical(c(matches), -1L)) {
+    submatches <- regmatches(rest, list(matches))[[1]]
+    label <- trimws(submatches[[2L]])
+    rest <- substring(rest, matches[[3L]] + 1L)
   }
 
   params <- catch(parse(text = sprintf("alist(%s)", rest))[[1]])
-
   if (inherits(params, "error"))
     return(list(engine = engine))
+
+  # inject the label back in
+  names(params) <- names(params) %||% rep.int("", length(params))
+  if (length(params) > 1 && names(params)[[2L]] == "")
+    names(params)[[2L]] <- "label"
 
   if (is.null(params[["label"]]) && nzchar(label))
     params[["label"]] <- label
