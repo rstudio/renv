@@ -41,6 +41,32 @@ renv_lockfile_diff_impl <- function(lhs, rhs, compare) {
   )
 }
 
+renv_lockfile_diff_record <- function(before, after) {
+
+  # first, compare on version / record existence
+  type <- case(
+    is.null(before) ~ "install",
+    is.null(after)  ~ "remove",
+    before$Version < after$Version ~ "upgrade",
+    before$Version > after$Version ~ "downgrade"
+  )
+
+  if (!is.null(type))
+    return(type)
+
+  # check for a crossgrade -- where the package version is the same,
+  # but details about the package's remotes have changed
+  if (!setequal(names(before), names(after)))
+    return("crossgrade")
+
+  nm <- union(names(before), names(after))
+  if (!identical(before[nm], after[nm]))
+    return("crossgrade")
+
+  NULL
+
+}
+
 renv_lockfile_diff_packages <- function(old, new) {
 
   old <- renv_records(old)
@@ -48,18 +74,8 @@ renv_lockfile_diff_packages <- function(old, new) {
 
   packages <- named(union(names(old), names(new)))
   actions <- lapply(packages, function(package) {
-
     before <- old[[package]]; after <- new[[package]]
-
-    case(
-      is.null(before) ~ "install",
-      is.null(after)  ~ "remove",
-
-      before$Version < after$Version ~ "upgrade",
-      before$Version > after$Version ~ "downgrade",
-      ~ "crossgrade"
-    )
-
+    renv_lockfile_diff_record(before, after)
   })
 
   Filter(Negate(is.null), actions)
