@@ -5,10 +5,10 @@
 #'
 #' The following actions will be performed:
 #'
+#' - Stale lockfiles (`00LOCK-`) will be removed.
 #' - Leftover temporary directories in the project library will be removed.
 #' - Non-system packages installed in the system library will be removed.
 #' - Unused packages within the project will be removed.
-#' - Stale lockfiles (`00LOCK-`) will be removed.
 #' - Packages within the cache that are no longer used will be removed.
 #'
 #' @inheritParams renv-params
@@ -21,15 +21,20 @@ clean <- function(project = NULL,
   renv_scope_error_handler()
   project <- project %||% renv_project()
 
-  status <-
-    renv_clean_stale_lockfiles(project, confirm)  |
-    renv_clean_library_tempdirs(project, confirm) |
-    renv_clean_system_library(project, confirm)   |
-    renv_clean_unused_packages(project, confirm)  |
+  status <- any(
+    renv_clean_stale_lockfiles(project, confirm),
+    renv_clean_library_tempdirs(project, confirm),
+    renv_clean_system_library(project, confirm),
+    renv_clean_unused_packages(project, confirm),
     renv_clean_cache(project, confirm)
+  )
 
-  if (status)
-    vwritef("* The project has been cleaned.")
+  msg <- if (status)
+    "* The project has been cleaned."
+  else
+    "* The project is already clean."
+
+  vwritef(msg)
 }
 
 renv_clean_library_tempdirs <- function(project, confirm) {
@@ -95,14 +100,16 @@ renv_clean_system_library <- function(project, confirm) {
 
 renv_clean_unused_packages <- function(project, confirm) {
 
-  # find packages used in a project and their dependencies
-  deps <- dependencies(project)
-  paths <- renv_dependencies(project, deps$Package)
-  packages <- names(paths)
-
   # find packages installed in the project library
   library <- renv_paths_library(project = project)
   installed <- list.files(library)
+  if (empty(installed))
+    return(FALSE)
+
+  # find packages used in the project and their dependencies
+  deps <- dependencies(project)
+  paths <- renv_dependencies(project, deps$Package)
+  packages <- names(paths)
 
   # figure out which packages aren't needed
   removable <- setdiff(installed, packages)
@@ -200,7 +207,8 @@ renv_clean_cache <- function(project, confirm) {
   action <- function(project) {
     library <- renv_paths_library(project = project)
     packages <- list.files(library, full.names = TRUE)
-    map_chr(packages, function(package) {
+    existing <- file.exists(packages)
+    map_chr(packages[existing], function(package) {
       record <- renv_description_read(package)
       record$Hash <- renv_hash_description(package)
       renv_cache_package_path(record)
