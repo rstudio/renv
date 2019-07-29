@@ -4,11 +4,14 @@
 \alias{dependencies}
 \title{Find R Package Dependencies in a Project}
 \usage{
-dependencies(path = getwd())
+dependencies(path = getwd(), quiet = FALSE)
 }
 \arguments{
 \item{path}{The path to a (possibly multi-mode) \R file, or a directory
 containing such files.}
+
+\item{quiet}{Boolean; report problems discovered (if any) after dependency
+discovery is finished?}
 }
 \description{
 Find \R packages used within a project. \code{dependencies()} will crawl files

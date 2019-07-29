@@ -10,6 +10,9 @@ expect_same_elements <- function(lhs, rhs) {
     return(testthat::expect_equal(!!lhs, !!rhs))
   }
 
-  testthat::expect_setequal(!!lhs, !!rhs)
+  if (packageVersion("testthat") > "2.2.0")
+    testthat::expect_setequal(!!lhs, !!rhs)
+  else
+    testthat::expect_setequal(lhs, rhs)
 
 }

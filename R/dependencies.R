@@ -42,11 +42,24 @@
 #' @param path The path to a (possibly multi-mode) \R file, or a directory
 #'   containing such files.
 #'
+#' @param quiet Boolean; report problems discovered (if any) after dependency
+#'   discovery is finished?
+#'
 #' @export
-dependencies <- function(path = getwd()) {
+dependencies <- function(path = getwd(), quiet = FALSE) {
   renv_scope_error_handler()
+
+  renv_dependencies_begin()
+  on.exit(renv_dependencies_end(), add = TRUE)
+
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-  renv_dependencies_discover(path, path)
+  deps <- renv_dependencies_discover(path, path)
+
+  if (!quiet)
+    renv_dependencies_report()
+
+  deps
+
 }
 
 renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
@@ -120,7 +133,7 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
 
   dcf <- catch(renv_description_read(path))
   if (inherits(dcf, "error"))
-    return(renv_dependencies_error(path, dcf))
+    return(renv_dependencies_error(path, error = dcf))
 
   # TODO: make this user-configurable?
   fields <- fields %||% c("Depends", "Imports", "LinkingTo")
@@ -196,11 +209,11 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
   for (package in c("rmarkdown", "yaml"))
     if (!renv_dependencies_require(package, "R Markdown"))
-      return(renv_dependencies_error(path, NULL, "rmarkdown"))
+      return(renv_dependencies_list(path, packages = "rmarkdown"))
 
   yaml <- catch(rmarkdown::yaml_front_matter(path))
   if (inherits(yaml, "error"))
-    return(renv_dependencies_error(path, yaml, "rmarkdown"))
+    return(renv_dependencies_error(path, error = yaml, packages = "rmarkdown"))
 
   deps <- stack()
   deps$push("rmarkdown")
@@ -240,7 +253,7 @@ renv_dependencies_discover_chunks <- function(path) {
   patterns <- knitr::all_patterns[[type]]
   if (is.null(patterns)) {
     condition <- simpleCondition("not a recognized multi-mode R document")
-    return(renv_dependencies_error(path, condition))
+    return(renv_dependencies_error(path, error = condition))
   }
 
   # parse the chunks within
@@ -252,10 +265,19 @@ renv_dependencies_discover_chunks <- function(path) {
 
   # extract chunk code from the used ranges
   chunks <- .mapply(function(lhs, rhs) {
+
+    # parse params in header
     header <- contents[[lhs]]
     params <- renv_dependencies_discover_parse_params(header, type)
+
+    # extract chunk contents (preserve newlines for nicer error reporting)
     range <- seq.int(lhs + 1, length.out = rhs - lhs - 1)
-    list(params = params, contents = contents[range])
+    code <- rep.int("", length(contents))
+    code[range] <- contents[range]
+
+    # return list of outputs
+    list(params = params, code = code)
+
   }, ranges, NULL)
 
   # iterate over chunks, and attempt to parse dependencies from each
@@ -266,9 +288,17 @@ renv_dependencies_discover_chunks <- function(path) {
     if (!(identical(engine, "r") || identical(engine, "rscript")))
       return(character())
 
-    deps <- catch(renv_dependencies_discover_r(path = path, text = chunk$contents))
+    # skip un-evaluated chunks
+    if (identical(chunk$params$eval, FALSE))
+      return(character())
+
+    # skip explicitly-ignored chunks
+    if (identical(chunk$params$renv.ignore, TRUE))
+      return(character())
+
+    deps <- catch(renv_dependencies_discover_r(path = path, text = chunk$code))
     if (inherits(deps, "error"))
-      return(renv_dependencies_error(path, deps))
+      return(renv_dependencies_error(path, error = deps))
 
     deps
 
@@ -297,7 +327,7 @@ renv_dependencies_discover_chunks_inline <- function(path, contents) {
   code <- substring(text, 4L, nchar(text) - 1L)
   deps <- renv_dependencies_discover_r(path = path, text = code)
   if (inherits(deps, "error"))
-    return(renv_dependencies_error(path, deps))
+    return(renv_dependencies_error(path, error = deps))
 
   deps
 
@@ -327,8 +357,11 @@ renv_dependencies_discover_chunks_ranges <- function(path, contents, patterns) {
 
   }
 
-  if (chunk)
-    warningf("- '%s:%i': unclosed chunk detected", path, start)
+  if (chunk) {
+    message <- sprintf("chunk starting on line %i is not closed", start)
+    error <- simpleError(message)
+    renv_dependencies_error(path, error = error)
+  }
 
   bind_list(output)
 
@@ -355,7 +388,7 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
     # workaround for an R bug where parse-related state could be
     # leaked if an error occurred
     Sys.setlocale()
-    return(renv_dependencies_error(path, parsed))
+    return(renv_dependencies_error(path, error = parsed))
   }
 
   methods <- c(
@@ -624,16 +657,70 @@ renv_dependencies_require <- function(package, type) {
 
 }
 
+renv_dependencies_state <- function() {
+  renv_global_get("dependencies.state")
+}
+
+renv_dependencies_begin <- function() {
+  renv_global_set("dependencies.state", env(problems = stack()))
+}
+
+renv_dependencies_end <- function() {
+  renv_global_clear("dependencies.state")
+}
+
 renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
 
-  # emit warning about failed dependency discovery
-  if (!is.null(error)) {
-    fmt <- "- '%s': %s"
-    message <- paste(conditionMessage(error), collapse = "\n")
-    warningf(fmt, aliased_path(path), message)
-  }
+  # if no error, return early
+  if (is.null(error))
+    return(renv_dependencies_list(path, packages))
 
-  # return a default set of packages if available
+  # check for missing state (e.g. if internal method called directly)
+  state <- renv_dependencies_state()
+  if (is.null(state))
+    return(renv_dependencies_list(path, packages))
+
+  # record problem
+  problem <- list(file = path, error = error)
+  state$problems$push(problem)
+
+  # return dependency list
   renv_dependencies_list(path, packages)
+
+}
+
+renv_dependencies_report <- function() {
+
+  state <- renv_dependencies_state()
+  if (is.null(state))
+    return(FALSE)
+
+  problems <- state$problems$data()
+  if (empty(problems))
+    return(TRUE)
+
+  vwritef("WARNING: One or more problems were discovered while discovering dependencies.\n", con = stderr())
+
+  # bind into list
+  bound <- bapply(problems, function(problem) {
+    fields <- c(aliased_path(problem$file), problem$line, problem$column)
+    header <- paste(fields, collapse = ":")
+    message <- conditionMessage(problem$error)
+    c(file = problem$file, header = header, message = message)
+  })
+
+  # split based on header (group errors from same file)
+  splat <- split(bound, bound$file)
+
+  # emit messages
+  enumerate(splat, function(file, problem) {
+    lines <- paste(rep.int("-", nchar(file)), collapse = "")
+    prefix <- format(paste("ERROR", seq_along(problem$message)))
+    messages <- paste(prefix, problem$message, sep = ": ", collapse = "\n\n")
+    text <- c(file, lines, "", messages, "")
+    vwritef(text, con = stderr())
+  })
+
+  TRUE
 
 }

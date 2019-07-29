@@ -12,4 +12,9 @@ library(dplyr)
 this chunk has parse errors
 ```
 
+```{r}
+and so does this chunk
+```
 
+```{r}
+we forgot to close this chunk

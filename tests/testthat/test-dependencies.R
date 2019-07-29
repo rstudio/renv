@@ -15,7 +15,7 @@ test_that("usages of library, etc. are properly handled", {
 
 test_that("parse errors are okay in .Rmd documents", {
   skip_if_not_installed("knitr")
-  expect_warning(deps <- dependencies("resources/chunk-errors.Rmd"))
+  deps <- dependencies("resources/chunk-errors.Rmd")
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "dplyr"))
 })
@@ -28,20 +28,16 @@ test_that("inline chunks are parsed for dependencies", {
 })
 
 test_that("usages of S4 tools are discovered", {
-
   file <- renv_test_code({setClass("ClassSet")})
   deps <- dependencies(file)
   expect_true(deps$Package == "methods")
-
 })
 
 test_that("the package name is validated when inferring dependencies", {
-
   file <- renv_test_code({SomePackage::setClass("ClassSet")})
   deps <- dependencies(file)
   expect_true("SomePackage" %in% deps$Package)
   expect_false("methods" %in% deps$Package)
-
 })
 
 test_that("empty chunks don't cause issues during dependency resolution", {
