@@ -7,9 +7,9 @@ expect_same_elements <- function(lhs, rhs) {
   if (is.list(lhs) && is.list(rhs)) {
     lhs <- lhs[order(names(lhs))]
     rhs <- rhs[order(names(rhs))]
-    return(testthat::expect_equal(lhs, rhs))
+    return(testthat::expect_equal(!!lhs, !!rhs))
   }
 
-  testthat::expect_setequal(lhs, rhs)
+  testthat::expect_setequal(!!lhs, !!rhs)
 
 }
