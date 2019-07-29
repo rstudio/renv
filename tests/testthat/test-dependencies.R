@@ -50,3 +50,18 @@ test_that("empty chunks don't cause issues during dependency resolution", {
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown"))
 })
+
+test_that("dependencies are only returned once", {
+  skip_if_not_installed("knitr")
+
+  deps <- dependencies("resources/duplicate-deps.Rmd")
+  pkgs <- deps$Package
+
+  expected_set <- sort(c("rmarkdown", "dplyr"))
+
+  # exact comparison
+  expect_equal(
+    sort(pkgs),
+    expected_set
+  )
+})

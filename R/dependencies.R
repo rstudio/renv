@@ -46,7 +46,10 @@
 dependencies <- function(path = getwd()) {
   renv_scope_error_handler()
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-  renv_dependencies_discover(path, path)
+  deps <- renv_dependencies_discover(path, path)
+
+  # return unique dependency information
+  unique(deps)
 }
 
 renv_dependencies_discover <- function(path = getwd(), root = getwd()) {

@@ -1,0 +1,17 @@
+
+## Unique Dependencies
+
+`renv` should return dependencies only once.
+
+```{r}
+library(dplyr)
+require(dplyr)
+dplyr::mutate(dplyr)
+```
+
+```{r}
+library(dplyr)
+require(dplyr)
+requireNamespace(dplyr)
+dplyr::mutate
+```
