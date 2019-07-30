@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.18</span>
       </span>
     </div>
 
@@ -173,6 +173,20 @@ recommended that you set them in your user startup files (e.g. in
 <tr><td></td><td></td><td>Automatically snapshot changes to the project library after a new package</td></tr>
 <tr><td>is installed? Note that package upgrades or removals will not be</td><td>automatically snapshotted.</td><td>(Boolean; defaults to</td></tr>
 <tr><td><code>TRUE</code></td><td>)</td><td></td></tr>
+<tr><td></td><td><code>connect.timeout</code></td><td></td></tr>
+<tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer(1)</a></code></td><td></td></tr>
+<tr><td></td><td>The amount of time to spend (in seconds) when attempting to download a</td><td>file. If you have already configured the R downloader (that is, you have</td></tr>
+<tr><td>set the</td><td><code>download.file.method</code></td><td>or</td></tr>
+<tr><td><code>download.file.extra</code></td><td></td><td><span style="R">R</span></td></tr>
+<tr><td>options), then</td><td>this setting will be ignored.</td><td>(Integer; defaults to</td></tr>
+<tr><td><code>20</code></td><td>)</td><td></td></tr>
+<tr><td></td><td><code>connect.retry</code></td><td></td></tr>
+<tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer(1)</a></code></td><td></td></tr>
+<tr><td></td><td>The number of times to attempt re-downloading a file, when transient</td><td>errors occur. If you have already configured the R downloader (that is,</td></tr>
+<tr><td>you have set the</td><td><code>download.file.method</code></td><td>or</td></tr>
+<tr><td><code>download.file.extra</code></td><td></td><td><span style="R">R</span></td></tr>
+<tr><td></td><td>options), then this setting will be ignored.</td><td>(Integer; defaults to</td></tr>
+<tr><td><code>3</code></td><td>)</td><td></td></tr>
 <tr><td></td><td><code>sandbox.enabled</code></td><td></td></tr>
 <tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td><td></td></tr>
 <tr><td></td><td>Enable sandboxing for</td><td><code>renv</code></td></tr>
