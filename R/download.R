@@ -423,13 +423,17 @@ renv_download_size <- function(url, type, headers = NULL) {
 
   headers <- catch(renv_download_headers(url, type, headers))
   if (inherits(headers, "error"))
-    return(-1)
+    return(-1L)
+
+  size <- headers[["x-gitlab-size"]]
+  if (!is.null(size))
+    return(as.numeric(size))
 
   size <- headers[["content-length"]]
-  if (is.null(size))
-    return(-1)
+  if (!is.null(size))
+    return(as.numeric(size))
 
-  as.numeric(size)
+  return(-1L)
 
 }
 

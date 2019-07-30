@@ -1,4 +1,5 @@
 
+# take a short-form remotes entry, and generate a package record
 renv_remotes_parse <- function(entry) {
 
   # check for URLs
@@ -10,44 +11,110 @@ renv_remotes_parse <- function(entry) {
   if (!inherits(record, "error"))
     return(record)
 
-  # check for pre-supplied type
-  type <- NULL
-  parts <- strsplit(entry, "::", fixed = TRUE)[[1]]
-  if (length(parts) == 2) {
-    type <- parts[[1]]
-    entry <- parts[[2]]
+  # handle errors (add a bit of extra context)
+  error <- function(e) {
+    fmt <- "failed to parse remote entry '%s'"
+    prefix <- sprintf(fmt, entry)
+    message <- paste(prefix, e$message, sep = " -- ")
+    stop(simpleError(message = message, call = e$call))
   }
 
-  # if we don't have at type, infer from entry (can be either CRAN or GitHub)
-  type <- type %||% if (grepl("/", entry)) "github" else "cran"
+  # attempt the parse
+  withCallingHandlers(
+    renv_remotes_parse_impl(entry),
+    error = error
+  )
 
-  # generate entry from type
-  switch(type,
-    cran   = renv_remotes_parse_cran(entry),
-    github = renv_remotes_parse_github(entry),
-    stopf("unknown remote type '%s'", type %||% "<NA>")
+}
+
+renv_remotes_parse_impl <- function(entry) {
+
+  parsed <- renv_remotes_parse_entry(entry)
+  switch(
+    parsed$type,
+    bitbucket = renv_remotes_parse_bitbucket(parsed),
+    cran      = renv_remotes_parse_cran(parsed),
+    gitlab    = renv_remotes_parse_gitlab(parsed),
+    github    = renv_remotes_parse_github(parsed),
+    stopf("unknown remote type '%s'", parsed$type %||% "<NA>")
+  )
+
+}
+
+renv_remotes_parse_entry <- function(entry) {
+
+  pattern <- paste0(
+    "(?:([^:]+)::)?",   # optional leading type
+    "([^/#@]+)",        # a username
+    "(?:/([^@#]+))?",   # a repository
+    "(?:#([^@#]+))?",   # optional hash (e.g. pull request)
+    "(?:@([^@#]+))?"    # optional ref (e.g. branch or commit)
+  )
+
+  matches <- regexec(pattern, entry)
+  strings <- regmatches(entry, matches)[[1]]
+  if (empty(strings))
+    stopf("failed to parse remote entry '%s'", entry)
+
+  parsed <- list(
+    entry = strings[[1]],
+    type  = strings[[2]],
+    user  = strings[[3]],
+    repo  = strings[[4]],
+    pull  = strings[[5]],
+    ref   = strings[[6]]
+  )
+
+  # handle cran vs. github short-forms
+  if (!nzchar(parsed$type)) {
+    type <- if (nzchar(parsed$repo)) "github" else "cran"
+    parsed$type <- type
+  }
+
+  parsed
+
+}
+
+renv_remotes_parse_bitbucket <- function(entry) {
+
+  user <- entry$user
+  repo <- entry$repo
+  ref  <- entry$ref %""% "master"
+
+  host <- renv_config("bitbucket.host", "api.bitbucket.org/2.0")
+  fmt <- "https://%s/repositories/%s/%s/src/%s/DESCRIPTION"
+  url <- sprintf(fmt, host, user, repo, ref)
+
+  destfile <- renv_tempfile("renv-description-")
+  download(url, destfile = destfile, quiet = TRUE)
+  desc <- renv_dcf_read(destfile)
+
+  list(
+    Package        = desc$Package,
+    Version        = desc$Version,
+    Source         = "Bitbucket",
+    RemoteUsername = user,
+    RemoteRepo     = repo,
+    RemoteRef      = ref,
+    RemoteHost     = host
   )
 
 }
 
 renv_remotes_parse_cran <- function(entry) {
 
-  parts <- strsplit(entry, "@", fixed = TRUE)[[1]]
-  package <- parts[1]
-  version <- parts[2]
+  package <- entry$user
+  version <- entry$ref %""% "latest"
 
-  # if no version was provided, take this as a request
-  # to use the latest version available on CRAN
-  if (is.na(version) || identical(version, "latest")) {
+  if (identical(version, "latest")) {
     record <- catch(renv_records_cran_latest(package))
     if (!inherits(record, "error"))
       return(record)
   }
 
-  # otherwise, honor the requested version
   list(
     Package = package,
-    Version = version %NA% NULL,
+    Version = version,
     Source = "CRAN"
   )
 
@@ -100,16 +167,39 @@ renv_remotes_parse_github_description <- function(host, user, repo, sha) {
 
 }
 
+renv_remotes_parse_gitlab <- function(entry) {
+
+  user <- entry$user
+  repo <- entry$repo
+  ref  <- entry$ref %""% "master"
+
+  fmt <- "https://%s/api/v4/projects/%s/repository/files/DESCRIPTION/raw?ref=%s"
+  host <- renv_config("gitlab.host", "gitlab.com")
+  id <- paste(user, repo, sep = "%2F")
+  url <- sprintf(fmt, host, id, ref)
+
+  destfile <- renv_tempfile("renv-description-")
+  download(url, destfile = destfile, quiet = TRUE)
+  desc <- renv_json_read(destfile)
+
+  list(
+    Package        = desc$Package,
+    Version        = desc$Version,
+    Source         = "Gitlab",
+    RemoteUsername = user,
+    RemoteRepo     = repo,
+    RemoteRef      = ref,
+    RemoteHost     = host
+  )
+
+}
+
 renv_remotes_parse_github <- function(entry) {
 
-  pattern <- "^([^/]+)/([^@#]+)(?:#(.*))?(?:@(.*))?"
-  matches <- regexec(pattern, entry)
-  parts <- regmatches(entry, matches)[[1]]
-
-  user <- parts[2]
-  repo <- parts[3]
-  pull <- parts[4]
-  ref  <- parts[5] %""% "master"
+  user <- entry$user
+  repo <- entry$repo
+  pull <- entry$pull
+  ref  <- entry$ref %""% "master"
 
   # TODO: configure GitHub host on a per-package or per-remote basis?
   host <- renv_config("github.host", "api.github.com")
