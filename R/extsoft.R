@@ -76,7 +76,12 @@ renv_extsoft_use <- function(quiet = FALSE) {
   path <- "~/.R/Makevars"
 
   ensure_parent_directory(path)
-  original <- contents <- if (file.exists(path)) readLines(path) else character()
+  original <- if (file.exists(path))
+    readLines(path, warn = FALSE)
+  else
+    character()
+
+  contents <- original
 
   localsoft <- paste("LOCAL_SOFT", extsoft, sep = " = ")
   contents <- inject(contents, "^#?LOCAL_SOFT", localsoft)

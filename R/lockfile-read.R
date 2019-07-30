@@ -50,7 +50,7 @@ renv_lockfile_read <- function(file = NULL, text = NULL) {
   contents <- if (is.null(file))
     unlist(strsplit(text, "\n", fixed = TRUE))
   else
-    readLines(file, encoding = "UTF-8")
+    readLines(file, warn = FALSE, encoding = "UTF-8")
 
   # try reading as JSON
   json <- catch(renv_json_read(text = contents))

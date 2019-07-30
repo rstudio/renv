@@ -177,6 +177,6 @@ renv_migrate_packrat_cache <- function(project) {
 renv_migrate_packrat_infrastructure <- function(project) {
   unlink(file.path(project, ".Rprofile"))
   renv_infrastructure_write(project)
-  vwritef("* The renv support infrastructure has been written.")
+  vwritef("* renv support infrastructure has been written.")
   TRUE
 }

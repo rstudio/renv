@@ -56,7 +56,7 @@ renv_load_path <- function(project) {
       list.files("/etc/paths.d", full.names = TRUE)
     )
 
-    PATH <- unique(uapply(files, readLines))
+    PATH <- unique(uapply(files, readLines, warn = FALSE))
     Sys.setenv(PATH = paste(PATH, collapse = .Platform$path.sep))
     return(TRUE)
 
