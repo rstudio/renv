@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.19</span>
       </span>
     </div>
 
@@ -218,6 +218,18 @@
 </ol>
 <!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb -->
 </div>
+<div id="downloads" class="section level2">
+<h2 class="hasAnchor">
+<a href="#downloads" class="anchor"></a>Downloads</h2>
+<p>By default, <code>renv</code> uses <a href="https://curl.haxx.se/"><code>curl</code></a> for file downloads when available. This allows <code>renv</code> to support a number of download features across multiple versions of R, including:</p>
+<ul>
+<li>Custom headers (used especially for authentication),</li>
+<li>Connection timeouts,</li>
+<li>Download retries on transient errors.</li>
+</ul>
+<p>If <code>curl</code> is not available on your machine, it is highly recommended that you install it. Newer versions of Windows 10 come with a bundled version of <code>curl</code>; other users on Windows can use <code><a href="../reference/equip.html">renv::equip()</a></code> to download and install a recent copy of <code>curl</code>. Newer versions of macOS come with a bundled version of <code>curl</code> that is adequate for usage with <code>renv</code>, and most Linux package managers have a modern version of <code>curl</code> available in their repositories.</p>
+<p><code>curl</code> downloads can be configured through <code>renv</code>’s configuration settings – see <code><a href="../reference/config.html">?renv::config</a></code> for more details.</p>
+</div>
 <div id="authentication" class="section level2">
 <h2 class="hasAnchor">
 <a href="#authentication" class="anchor"></a>Authentication</h2>
@@ -338,6 +350,7 @@
       <li><a href="#upgrading-renv">Upgrading renv</a></li>
       <li><a href="#cache">Cache</a></li>
       <li><a href="#installation-from-source">Installation from Source</a></li>
+      <li><a href="#downloads">Downloads</a></li>
       <li><a href="#authentication">Authentication</a></li>
       <li><a href="#shims">Shims</a></li>
       <li><a href="#history">History</a></li>
