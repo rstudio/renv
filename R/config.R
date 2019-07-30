@@ -28,7 +28,7 @@
 #'
 #' If you want to set and persist these options across multiple projects, it is
 #' recommended that you set them in your user startup files (e.g. in
-#' `~/.Rprofile`).
+#' `~/.Rprofile` or `~/.Renviron`).
 #'
 #' @section Configuration:
 #'
@@ -39,8 +39,7 @@
 #'
 #' `auto.snapshot` \tab `logical(1)` \tab
 #'   Automatically snapshot changes to the project library after a new package
-#'   is installed? Note that package upgrades or removals will not be
-#'   automatically snapshotted.
+#'   is installed with `renv::install()`, or removed with `renv::remove()`?
 #'   (Boolean; defaults to `TRUE`) \cr
 #'
 #' `connect.timeout` \tab `integer(1)` \tab
@@ -67,7 +66,8 @@
 #'   Should `renv` shims be installed on package load? When enabled, `renv`
 #'   will install its own shims over the functions `install.packages()`,
 #'   `update.packages()` and `remove.packages()`, delegating these functions
-#'   to `renv::install()` and `renv::remove()` as appropriate.
+#'   to `renv::install()`, `renv::update()` and `renv::remove()` as
+#'   appropriate.
 #'   (Boolean; defaults to `TRUE`) \cr
 #'
 #' `snapshot.validate` \tab `logical(1)` \tab

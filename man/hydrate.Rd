@@ -25,10 +25,10 @@ packages into the active library. This effectively allows you to clone the
 state of your system R libraries for use within a project library.
 }
 \details{
-\code{hydrate()} attempts to re-use packages already installed on your system, to
-avoid unnecessary attempts to download and install packages from CRAN.
-\code{hydrate()} will attempt to discover \R packages from the following sources
-(in order):
+\code{hydrate()} attempts to re-use packages already installed on your system,
+to avoid unnecessary attempts to download and install packages from remote
+sources. \code{hydrate()} will attempt to discover \R packages from the
+following sources (in order):
 \itemize{
 \item The user library,
 \item The site library,

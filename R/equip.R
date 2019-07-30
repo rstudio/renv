@@ -2,7 +2,7 @@
 #' Install Required System Libraries
 #'
 #' Equip your system with libraries commonly-used during compilation of
-#' \R packages.
+#' \R packages. Currently only supported on Windows.
 #'
 #' @export
 equip <- function() {

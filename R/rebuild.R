@@ -1,10 +1,10 @@
 
 #' Rebuild the Packages in your Project Library
 #'
-#' Rebuild and reinstall all of the packages in your project library.
-#' This can be useful as a diagnostic tool -- for example, if you find that
-#' one or more of your packages fail to load, and you want to ensure that you
-#' are starting from a clean slate.
+#' Rebuild and reinstall packages in your library. This can be useful as a
+#' diagnostic tool -- for example, if you find that one or more of your
+#' packages fail to load, and you want to ensure that you are starting from a
+#' clean slate.
 #'
 #' Note that binaries will be used when appropriate and available for your
 #' platform. If you'd like to force packages to be rebuilt from sources, you
@@ -29,7 +29,7 @@ rebuild <- function(packages  = NULL,
   renv_scope_error_handler()
 
   project <- project %||% renv_project()
-  library <- library %||% renv_paths_library(project = project)
+  library <- library %||% renv_libpaths_default()
 
   # get collection of packages currently installed
   records <- renv_snapshot_r_packages(library = library)

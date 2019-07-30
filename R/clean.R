@@ -3,7 +3,7 @@
 #'
 #' Clean up a project and its associated \R libraries.
 #'
-#' The following actions will be performed:
+#' The following actions will be taken:
 #'
 #' - Stale lockfiles (`00LOCK-`) will be removed.
 #' - Leftover temporary directories in the project library will be removed.

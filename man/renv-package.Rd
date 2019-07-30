@@ -6,9 +6,7 @@
 \alias{renv-package}
 \title{Project-local Environments for R}
 \description{
-Project-local environments for \R, inspired in part by the Python
-\href{https://virtualenv.pypa.io/en/latest/}{virtualenv} and
-\href{https://docs.python.org/3/library/venv.html}{venv} modules.
+Project-local environments for \R.
 }
 \details{
 You can use \code{renv} to construct isolated, project-local \R libraries.

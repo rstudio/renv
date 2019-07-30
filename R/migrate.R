@@ -2,6 +2,7 @@
 #' Migrate a Project from Packrat to renv
 #'
 #' Migrate a project's infrastructure from Packrat to `renv`.
+#'
 #' The following actions are taken:
 #'
 #' - The Packrat lockfile is migrated to `renv.lock`;

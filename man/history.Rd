@@ -12,8 +12,8 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-The \code{history()} function can be used to search for prior versions of the
-\code{renv.lock} file used within a project.
+Use your version control system to find prior versions of the \code{renv.lock}
+file that have been used in your project.
 }
 \details{
 The \code{history()} function is currently only implemented for projects using

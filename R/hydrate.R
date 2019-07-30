@@ -5,10 +5,10 @@
 #' packages into the active library. This effectively allows you to clone the
 #' state of your system R libraries for use within a project library.
 #'
-#' `hydrate()` attempts to re-use packages already installed on your system, to
-#' avoid unnecessary attempts to download and install packages from CRAN.
-#' `hydrate()` will attempt to discover \R packages from the following sources
-#' (in order):
+#' `hydrate()` attempts to re-use packages already installed on your system,
+#' to avoid unnecessary attempts to download and install packages from remote
+#' sources. `hydrate()` will attempt to discover \R packages from the
+#' following sources (in order):
 #'
 #' - The user library,
 #' - The site library,

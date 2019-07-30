@@ -42,10 +42,10 @@ with \code{\link[=snapshot]{snapshot()}};
 \item The project is activated with \code{\link[=activate]{activate()}}.
 }
 
-This mimics the workflow provided by \code{packrat::init()}, but with more
-reasonable default behaviors -- in particular, \code{renv} does not attempt
-to download and store package sources, and \code{renv} will re-use packages
-that have already been installed whenever possible.
+This mimics the workflow provided by \code{packrat::init()}, but with a few
+differences -- in particular, \code{renv} does not attempt to download and store
+package sources, and \code{renv} will re-use packages that have already been
+installed whenever possible.
 
 If \code{renv} sees that the associated project has already been initialized and
 has a lockfile, then it will attempt to infer the appropriate action to take

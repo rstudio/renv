@@ -13,9 +13,9 @@ directory is used instead.}
 }
 \description{
 Migrate a project's infrastructure from Packrat to \code{renv}.
-The following actions are taken:
 }
 \details{
+The following actions are taken:
 \itemize{
 \item The Packrat lockfile is migrated to \code{renv.lock};
 \item Packages installed in the Packrat library are migrated to the \code{renv} library;

@@ -43,8 +43,7 @@ An example lockfile follows:\preformatted{{
       "Source": "CRAN",
       "Hash": "908d95ccbfd1dd274073ef07a7c93934"
     }
-
-}
+  }
 }
 }
 

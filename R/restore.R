@@ -259,7 +259,7 @@ renv_restore_report_actions <- function(actions, current, lockfile) {
     renv_pretty_print_records_pair(
       renv_records_select(current, actions, "crossgrade"),
       renv_records_select(lockfile, actions, "crossgrade"),
-      "The following package(s) will be crossgraded:"
+      "The following package(s) will be installed:"
     )
   }
 

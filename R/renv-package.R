@@ -1,9 +1,7 @@
 
 #' Project-local Environments for R
 #'
-#' Project-local environments for \R, inspired in part by the Python
-#' [virtualenv](https://virtualenv.pypa.io/en/latest/) and
-#' [venv](https://docs.python.org/3/library/venv.html) modules.
+#' Project-local environments for \R.
 #'
 #' You can use `renv` to construct isolated, project-local \R libraries.
 #' Each project using `renv` will share package installations from a global

@@ -19,7 +19,7 @@ directory is used instead.}
 Clean up a project and its associated \R libraries.
 }
 \details{
-The following actions will be performed:
+The following actions will be taken:
 \itemize{
 \item Stale lockfiles (\code{00LOCK-}) will be removed.
 \item Leftover temporary directories in the project library will be removed.

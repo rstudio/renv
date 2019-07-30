@@ -1,8 +1,8 @@
 
 #' View Lockfile History
 #'
-#' The `history()` function can be used to search for prior versions of the
-#' `renv.lock` file used within a project.
+#' Use your version control system to find prior versions of the `renv.lock`
+#' file that have been used in your project.
 #'
 #' The `history()` function is currently only implemented for projects using
 #' `git` for version control.

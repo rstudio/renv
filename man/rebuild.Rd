@@ -26,10 +26,10 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-Rebuild and reinstall all of the packages in your project library.
-This can be useful as a diagnostic tool -- for example, if you find that
-one or more of your packages fail to load, and you want to ensure that you
-are starting from a clean slate.
+Rebuild and reinstall packages in your library. This can be useful as a
+diagnostic tool -- for example, if you find that one or more of your
+packages fail to load, and you want to ensure that you are starting from a
+clean slate.
 }
 \details{
 Note that binaries will be used when appropriate and available for your

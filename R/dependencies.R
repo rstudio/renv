@@ -1,10 +1,11 @@
 
 #' Find R Package Dependencies in a Project
 #'
-#' Find \R packages used within a project. `dependencies()` will crawl files
-#' within your project, looking for \R files and the packages used within those
-#' \R files. This is done primarily by parsing the code and looking for calls of
-#' the form:
+#' Find \R packages used within a project.
+#'
+#' `dependencies()` will crawl files within your project, looking for \R files
+#' and the packages used within those \R files. This is done primarily by
+#' parsing the code and looking for calls of the form:
 #'
 #' - `library(package)`
 #' - `require(package)`

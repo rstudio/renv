@@ -22,10 +22,10 @@
 #'
 #' 5. The project is activated with [activate()].
 #'
-#' This mimics the workflow provided by `packrat::init()`, but with more
-#' reasonable default behaviors -- in particular, `renv` does not attempt
-#' to download and store package sources, and `renv` will re-use packages
-#' that have already been installed whenever possible.
+#' This mimics the workflow provided by `packrat::init()`, but with a few
+#' differences -- in particular, `renv` does not attempt to download and store
+#' package sources, and `renv` will re-use packages that have already been
+#' installed whenever possible.
 #'
 #' If `renv` sees that the associated project has already been initialized and
 #' has a lockfile, then it will attempt to infer the appropriate action to take

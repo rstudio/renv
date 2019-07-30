@@ -32,7 +32,7 @@ preferred.
 
 If you want to set and persist these options across multiple projects, it is
 recommended that you set them in your user startup files (e.g. in
-\code{~/.Rprofile}).
+\code{~/.Rprofile} or \code{~/.Renviron}).
 }
 \section{Configuration}{
 
@@ -44,8 +44,7 @@ The following \code{renv} configuration options are available:
 
 \code{auto.snapshot} \tab \code{logical(1)} \tab
 Automatically snapshot changes to the project library after a new package
-is installed? Note that package upgrades or removals will not be
-automatically snapshotted.
+is installed with \code{renv::install()}, or removed with \code{renv::remove()}?
 (Boolean; defaults to \code{TRUE}) \cr
 
 \code{connect.timeout} \tab \code{integer(1)} \tab
@@ -72,7 +71,8 @@ system library from becoming available in \code{renv} projects.
 Should \code{renv} shims be installed on package load? When enabled, \code{renv}
 will install its own shims over the functions \code{install.packages()},
 \code{update.packages()} and \code{remove.packages()}, delegating these functions
-to \code{renv::install()} and \code{renv::remove()} as appropriate.
+to \code{renv::install()}, \code{renv::update()} and \code{renv::remove()} as
+appropriate.
 (Boolean; defaults to \code{TRUE}) \cr
 
 \code{snapshot.validate} \tab \code{logical(1)} \tab

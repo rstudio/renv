@@ -14,12 +14,12 @@ containing such files.}
 discovery is finished?}
 }
 \description{
-Find \R packages used within a project. \code{dependencies()} will crawl files
-within your project, looking for \R files and the packages used within those
-\R files. This is done primarily by parsing the code and looking for calls of
-the form:
+Find \R packages used within a project.
 }
 \details{
+\code{dependencies()} will crawl files within your project, looking for \R files
+and the packages used within those \R files. This is done primarily by
+parsing the code and looking for calls of the form:
 \itemize{
 \item \code{library(package)}
 \item \code{require(package)}
