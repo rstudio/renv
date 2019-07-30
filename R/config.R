@@ -43,6 +43,20 @@
 #'   automatically snapshotted.
 #'   (Boolean; defaults to `TRUE`) \cr
 #'
+#' `connect.timeout` \tab `integer(1)` \tab
+#'   The amount of time to spend (in seconds) when attempting to download a
+#'   file. If you have already configured the R downloader (that is, you have
+#'   set the `download.file.method` or `download.file.extra` \R options), then
+#'   this setting will be ignored.
+#'   (Integer; defaults to `20`) \cr
+#'
+#' `connect.retry` \tab `integer(1)` \tab
+#'   The number of times to attempt re-downloading a file, when transient
+#'   errors occur. If you have already configured the R downloader (that is,
+#'   you have set the `download.file.method` or `download.file.extra` \R
+#'   options), then this setting will be ignored.
+#'   (Integer; defaults to `3`) \cr
+#'
 #' `sandbox.enabled` \tab `logical(1)` \tab
 #'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
 #'   sandbox the system library, preventing user-installed packages in the

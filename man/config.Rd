@@ -48,6 +48,20 @@ is installed? Note that package upgrades or removals will not be
 automatically snapshotted.
 (Boolean; defaults to \code{TRUE}) \cr
 
+\code{connect.timeout} \tab \code{integer(1)} \tab
+The amount of time to spend (in seconds) when attempting to download a
+file. If you have already configured the R downloader (that is, you have
+set the \code{download.file.method} or \code{download.file.extra} \R options), then
+this setting will be ignored.
+(Integer; defaults to \code{20}) \cr
+
+\code{connect.retry} \tab \code{integer(1)} \tab
+The number of times to attempt re-downloading a file, when transient
+errors occur. If you have already configured the R downloader (that is,
+you have set the \code{download.file.method} or \code{download.file.extra} \R
+options), then this setting will be ignored.
+(Integer; defaults to \code{3}) \cr
+
 \code{sandbox.enabled} \tab \code{logical(1)} \tab
 Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to
 sandbox the system library, preventing user-installed packages in the

@@ -6,6 +6,9 @@
 # (as a named character vector) to supply additional headers
 download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) {
 
+  if (quiet)
+    renv_scope_options(renv.verbose = FALSE)
+
   # handle local files by just copying the file
   if (grepl("^file:", url)) {
     source <- sub("^file:(?://)?", "", url)
@@ -16,7 +19,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   # on Windows, try using our local curl binary if available
   renv_scope_downloader()
 
-  if (!quiet) vwritef("Retrieving '%s' ...", url)
+  vwritef("Retrieving '%s' ...", url)
 
   # if this file is a zipfile or tarball, rather than attempting
   # to download headers etc. to validate the file is okay, just
@@ -77,8 +80,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
     stopf("download failed [archive cannot be read]")
 
   # everything looks ok: report success
-  if (!quiet)
-    renv_download_report(after - before, file.size(tempfile))
+  renv_download_report(after - before, file.size(tempfile))
 
   # move the file to the requested location
   renv_file_move(tempfile, destfile)
@@ -182,6 +184,17 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   fields <- c(url = url, output = destfile)
 
+  # set connect timeout
+  timeout <- catch(as.integer(renv_config("connect.timeout", default = 20L)))
+  if (is.numeric(timeout))
+    fields[["connect-timeout"]] <- timeout
+
+  # set number of retries
+  retries <- catch(as.integer(renv_config("connect.retry", default = 3L)))
+  if (is.numeric(retries))
+    fields[["retry"]] <- retries
+
+  # set up authentication headers
   auth <- renv_download_auth(url, type)
   if (length(auth)) {
     authtext <- paste(names(auth), auth, sep = ": ")
@@ -189,21 +202,24 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
     fields <- c(fields, authtext)
   }
 
+  # add other custom headers
   if (length(headers)) {
     lines <- paste(names(headers), headers, sep = ": ")
     names(lines) <- "header"
     fields <- c(fields, lines)
   }
 
+  # join together
   keys <- names(fields)
   vals <- shQuote(fields, type = "cmd")
   text <- paste(keys, vals, sep = " = ")
 
+  # add in stand-along flags
   flags <- c("location", "fail", "silent", "show-error")
   if (request == "HEAD")
     flags <- c(flags, "head", "include")
 
-  text <- c(text, flags)
+  text <- c(flags, text)
 
   writeLines(text, con = config)
 

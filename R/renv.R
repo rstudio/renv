@@ -22,7 +22,7 @@ renv_activate_impl <- function(project, version) {
   renv_infrastructure_write(project, version)
   renv_bootstrap_impl()
 
-  # set library paths now so that they're properly restored in new sessions
+  # try to load the project
   renv_load_libpaths(project)
 
   # restart session
@@ -75,6 +75,7 @@ load <- function(project = NULL) {
   renv_load_envvars(project)
   renv_load_libpaths(project)
   renv_load_sandbox(project)
+  renv_load_downloader(project)
 
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {

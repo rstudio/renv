@@ -12,11 +12,11 @@ test_that("we avoid downloading files twice", {
   destfile <- renv_tempfile("renv-download-", fileext = ".tar.gz")
 
   # download once and check file metadata
-  download(url, destfile)
+  download(url, destfile, quiet = TRUE)
   before <- file.info(destfile, extra_cols = FALSE)$mtime
 
   # download again and check the file info hasn't changed
-  download(url, destfile)
+  download(url, destfile, quiet = TRUE)
   after <- file.info(destfile, extra_cols = FALSE)$mtime
 
   # check that they're the same.
@@ -83,4 +83,12 @@ test_that("we can successfully download files with different downloaders", {
     expect_equal(readLines(destfile), thanks)
   })
 
+})
+
+test_that("we use curl as a downloader when available", {
+  skip_if(!nzchar(Sys.which("curl")), "curl is not installed")
+  renv_scope_options(download.file.method = NULL, download.file.extra = NULL)
+  renv_tests_scope()
+  renv_load_downloader(project = getwd())
+  expect_equal(getOption("download.file.method"), "curl")
 })

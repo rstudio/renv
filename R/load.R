@@ -140,6 +140,58 @@ renv_load_sandbox <- function(project) {
     renv_sandbox_activate(project)
 }
 
+renv_load_downloader <- function(project = NULL) {
+
+  # bail if custom download options already set
+  extra <- getOption("download.file.extra")
+  if (!is.null(extra)) {
+    renv <- attr(extra, "renv", exact = TRUE)
+    if (!identical(renv, TRUE))
+      return(FALSE)
+  }
+
+  # bail if no curl
+  if (!nzchar(Sys.which("curl")))
+    return(FALSE)
+
+  # set download options for curl
+  opts <- stack()
+  opts$push("--location")
+  opts$push("--fail")
+  opts$push("--silent")
+
+  # set connect timeout
+  timeout <- catch(as.integer(renv_config("connect.timeout", default = 20L)))
+  if (inherits(timeout, "error"))
+    warning(timeout)
+
+  if (is.numeric(timeout)) {
+    opts$push("--connect-timeout")
+    opts$push(timeout)
+  }
+
+  # set number of retries
+  retries <- catch(as.integer(renv_config("connect.retry", default = 3L)))
+  if (inherits(retries, "error"))
+    warning(retries)
+
+  if (is.numeric(retries)) {
+    opts$push("--retry")
+    opts$push(retries)
+  }
+
+  extra <- paste(opts$data(), collapse = " ")
+  attr(extra, "renv") <- TRUE
+
+  options(
+    download.file.method = "curl",
+    download.file.extra  = extra
+  )
+
+  return(TRUE)
+
+}
+
 renv_load_python <- function(project, fields) {
 
   # set a default reticulate Python environment path
