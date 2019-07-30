@@ -84,11 +84,3 @@ test_that("we can successfully download files with different downloaders", {
   })
 
 })
-
-test_that("we use curl as a downloader when available", {
-  skip_if(!nzchar(Sys.which("curl")), "curl is not installed")
-  renv_scope_options(download.file.method = NULL, download.file.extra = NULL)
-  renv_tests_scope()
-  renv_load_downloader(project = getwd())
-  expect_equal(getOption("download.file.method"), "curl")
-})
