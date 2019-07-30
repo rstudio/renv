@@ -22,5 +22,5 @@ renv_dcf_read <- function(file, ...) {
 
 renv_dcf_write <- function(x, file = "") {
   keep.white <- c("Description", "Authors@R", "Author", "Built", "Packaged")
-  write.dcf(x, file = file, indent = 4L, width = 80L, keep.white = keep.white)
+  write.dcf(as.list(x), file = file, indent = 4L, width = 80L, keep.white = keep.white)
 }

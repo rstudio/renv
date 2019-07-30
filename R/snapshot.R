@@ -398,15 +398,22 @@ renv_snapshot_description_source <- function(dcf) {
   if (!is.null(dcf[["biocViews"]]))
     return("Bioconductor")
 
-  # TODO: record repository name explicitly?
   if (!is.null(dcf[["Repository"]]))
     return("CRAN")
 
-  remote <- dcf[["RemoteType"]] %||% "unknown"
-  if (remote %in% c("git2r", "xgit"))
-    return("Git")
+  type <- dcf[["RemoteType"]]
+  if (!is.null(type))
+    return(renv_alias(type))
 
-  renv_alias(remote)
+  package <- dcf$Package
+  if (is.null(package))
+    return("unknown")
+
+  entry <- catch(renv_available_packages_entry(package = package, type = "source"))
+  if (!inherits(entry, "error"))
+    return("CRAN")
+
+  "unknown"
 
 }
 
