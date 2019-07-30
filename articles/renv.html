@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.20</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.21</span>
       </span>
     </div>
 
@@ -317,9 +317,11 @@
 <a href="#comparison-with-packrat" class="anchor"></a>Comparison with Packrat</h2>
 <p><code>renv</code> differs from Packrat in the following ways:</p>
 <ol style="list-style-type: decimal">
-<li><p><code>renv</code> no longer attempts to explicitly download and track R package sources within your project. This was a frustrating default that operated under the assumption that you might later want to be able to restore a project’s private library without access to a CRAN repository; in practice this is almost never the case, and the time spent downloading + storing the package sources seemed to outweigh the potential reproducibility benefits.</p></li>
-<li><p>Packrat tried to maintain the distinction between so-called ‘stale’ packages; those being R packages which were installed by Packrat but are not recorded in the lockfile for some reason. This distinction was (1) overall not useful, and (2) confusing. <code>renv</code> no longer makes this distinction: <code><a href="../reference/snapshot.html">snapshot()</a></code> saves the state of your project library to <code>renv.lock</code>, <code><a href="../reference/restore.html">restore()</a></code> loads the state of your project library from <code>renv.lock</code>, and that’s all.</p></li>
+<li><p>The <code>renv</code> lockfile <code>renv.lock</code> is formatted as <a href="https://www.json.org/">JSON</a>. This should make the lockfile easier to use and consume with other tools.</p></li>
+<li><p><code>renv</code> no longer attempts to explicitly download and track R package source tarballs within your project. This was a frustrating default that operated under the assumption that you might later want to be able to restore a project’s private library without access to a CRAN repository; in practice, this is almost never the case, and the time spent downloading + storing the package sources seemed to outweigh the potential reproducibility benefits.</p></li>
+<li><p>Packrat tried to maintain the distinction between so-called ‘stale’ packages; that is, R packages which were installed by Packrat but were not recorded in the lockfile for some reason. This distinction was (1) overall not useful, and (2) confusing. <code>renv</code> no longer makes this distinction: <code><a href="../reference/snapshot.html">snapshot()</a></code> saves the state of your project library to <code>renv.lock</code>, <code><a href="../reference/restore.html">restore()</a></code> loads the state of your project library from <code>renv.lock</code>, and that’s all.</p></li>
 <li><p>In <code>renv</code>, the global package cache is enabled by default. This should reduce overall disk-space usage as packages can effectively be shared across each project using <code>renv</code>.</p></li>
+<li><p><code>renv</code>’s dependency discovery machinery is more configurable. The function <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> is exported, and users can create <code>.renvignore</code> files to instruct <code>renv</code> to ignore specific files and folders in their projects. (See <code><a href="../reference/dependencies.html">?renv::dependencies</a></code> for more information.)</p></li>
 </ol>
 </div>
 <div id="migrating-from-packrat" class="section level2">

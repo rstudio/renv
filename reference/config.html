@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.20</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.21</span>
       </span>
     </div>
 
@@ -158,7 +158,7 @@ processes; if that behavior is not desired, then the R option may be
 preferred.</p>
 <p>If you want to set and persist these options across multiple projects, it is
 recommended that you set them in your user startup files (e.g. in
-<code>~/.Rprofile</code>).</p>
+<code>~/.Rprofile</code> or <code>~/.Renviron</code>).</p>
     
     <h2 class="hasAnchor" id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h2>
 
@@ -171,7 +171,8 @@ recommended that you set them in your user startup files (e.g. in
 <tr><td></td><td></td><td><code>auto.snapshot</code></td></tr>
 <tr><td></td><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td></tr>
 <tr><td></td><td></td><td>Automatically snapshot changes to the project library after a new package</td></tr>
-<tr><td>is installed? Note that package upgrades or removals will not be</td><td>automatically snapshotted.</td><td>(Boolean; defaults to</td></tr>
+<tr><td>is installed with</td><td><code><a href='install.html'>renv::install()</a></code></td><td>, or removed with</td></tr>
+<tr><td><code><a href='remove.html'>renv::remove()</a></code></td><td>?</td><td>(Boolean; defaults to</td></tr>
 <tr><td><code>TRUE</code></td><td>)</td><td></td></tr>
 <tr><td></td><td><code>connect.timeout</code></td><td></td></tr>
 <tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer(1)</a></code></td><td></td></tr>
@@ -200,8 +201,9 @@ recommended that you set them in your user startup files (e.g. in
 <tr><td><code>renv</code></td><td></td><td>will install its own shims over the functions</td></tr>
 <tr><td><code><a href='https://www.rdocumentation.org/packages/utils/topics/install.packages'>install.packages()</a></code></td><td>,</td><td><code><a href='https://www.rdocumentation.org/packages/utils/topics/update.packages'>update.packages()</a></code></td></tr>
 <tr><td>and</td><td><code><a href='https://www.rdocumentation.org/packages/utils/topics/remove.packages'>remove.packages()</a></code></td><td>, delegating these functions</td></tr>
-<tr><td>to</td><td><code><a href='install.html'>renv::install()</a></code></td><td>and</td></tr>
-<tr><td><code><a href='remove.html'>renv::remove()</a></code></td><td>as appropriate.</td><td>(Boolean; defaults to</td></tr>
+<tr><td>to</td><td><code><a href='install.html'>renv::install()</a></code></td><td>,</td></tr>
+<tr><td><code><a href='update.html'>renv::update()</a></code></td><td>and</td><td><code><a href='remove.html'>renv::remove()</a></code></td></tr>
+<tr><td>as</td><td>appropriate.</td><td>(Boolean; defaults to</td></tr>
 <tr><td><code>TRUE</code></td><td>)</td><td></td></tr>
 <tr><td></td><td><code>snapshot.validate</code></td><td></td></tr>
 <tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td><td></td></tr>

@@ -32,10 +32,7 @@
 
 <meta property="og:title" content="Find R Package Dependencies in a Project — dependencies" />
 
-<meta property="og:description" content="Find R packages used within a project. dependencies() will crawl files
-within your project, looking for R files and the packages used within those
-R files. This is done primarily by parsing the code and looking for calls of
-the form:" />
+<meta property="og:description" content="Find R packages used within a project." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -66,7 +63,7 @@ the form:" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.20</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.21</span>
       </span>
     </div>
 
@@ -134,10 +131,7 @@ the form:" />
 
     <div class="ref-description">
     
-    <p>Find <span style="R">R</span> packages used within a project. <code>dependencies()</code> will crawl files
-within your project, looking for <span style="R">R</span> files and the packages used within those
-<span style="R">R</span> files. This is done primarily by parsing the code and looking for calls of
-the form:</p>
+    <p>Find <span style="R">R</span> packages used within a project.</p>
     
     </div>
 
@@ -160,7 +154,9 @@ discovery is finished?</p></td>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <ul>
+    <p><code>dependencies()</code> will crawl files within your project, looking for <span style="R">R</span> files
+and the packages used within those <span style="R">R</span> files. This is done primarily by
+parsing the code and looking for calls of the form:</p><ul>
 <li><p><code><a href='https://www.rdocumentation.org/packages/base/topics/library'>library(package)</a></code></p></li>
 <li><p><code><a href='https://www.rdocumentation.org/packages/base/topics/library'>require(package)</a></code></p></li>
 <li><p><code><a href='https://www.rdocumentation.org/packages/base/topics/ns-load'>requireNamespace("package")</a></code></p></li>
