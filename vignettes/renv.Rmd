@@ -191,6 +191,27 @@ Installation from source can be challenging for a few reasons:
 <!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb -->
 
 
+## Downloads
+
+By default, `renv` uses [`curl`](https://curl.haxx.se/) for file downloads
+when available. This allows `renv` to support a number of download features
+across multiple versions of R, including:
+
+- Custom headers (used especially for authentication),
+- Connection timeouts,
+- Download retries on transient errors.
+
+If `curl` is not available on your machine, it is highly recommended that you
+install it. Newer versions of Windows 10 come with a bundled version of
+`curl`; other users on Windows can use `renv::equip()` to download and install
+a recent copy of `curl`. Newer versions of macOS come with a bundled version
+of `curl` that is adequate for usage with `renv`, and most Linux package
+managers have a modern version of `curl` available in their repositories.
+
+`curl` downloads can be configured through `renv`'s configuration settings --
+see `?renv::config` for more details.
+
+
 ## Authentication
 
 Your project may make use of packages which are available from remote sources
