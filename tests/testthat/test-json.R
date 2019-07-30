@@ -42,10 +42,11 @@ test_that("we can parse a GitHub remotes specification", {
 
 test_that("we can parse a GitHub remotes specification with 'wininet'", {
   skip_on_cran()
+  skip_on_appveyor()
   skip_if_not(renv_platform_windows())
 
   renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wininet")
-  data <- renv_remotes_parse_github("rstudio/renv")
+  data <- renv_remotes_parse("rstudio/renv")
   expect_true(data$Source == "GitHub")
   expect_true(data$RemoteUsername == "rstudio")
   expect_true(data$RemoteRepo == "renv")
