@@ -21,10 +21,20 @@ renv_available_packages <- function(type, limit = NULL) {
 
 renv_available_packages_impl <- function(type) {
 
+  # notify user as this can take some time
+  fmt <- "* Querying repositories for available %s packages ... "
+  vprintf(fmt, type)
+
+  # request repositories
   repos <- getOption("repos")
   urls <- contrib.url(repos, type)
   dbs <- lapply(urls, renv_available_packages_query, type = type)
   names(dbs) <- repos
+
+  # notify finished
+  vwritef("Done!")
+
+  # and we're done
   dbs
 
 }
@@ -39,10 +49,6 @@ renv_available_packages_query <- function(url, type) {
     unlink(path)
     return(as.data.frame(db, stringsAsFactors = FALSE))
   }
-
-  # notify user since this can take some time for non-local CRAN
-  fmt <- "* Querying repositories for available %s packages ... "
-  vprintf(fmt, type)
 
   # make the query (suppress warnings in case this is a local repository
   # whose PACKAGES files do not exist; note that an error is thrown in that
@@ -60,7 +66,6 @@ renv_available_packages_query <- function(url, type) {
   }
 
   # return the db
-  vwritef("Done!")
   as.data.frame(db, stringsAsFactors = FALSE)
 
 }

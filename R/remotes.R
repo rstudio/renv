@@ -106,11 +106,8 @@ renv_remotes_parse_cran <- function(entry) {
   package <- entry$user
   version <- entry$ref %""% "latest"
 
-  if (identical(version, "latest")) {
-    record <- catch(renv_records_cran_latest(package))
-    if (!inherits(record, "error"))
-      return(record)
-  }
+  if (identical(version, "latest"))
+    return(renv_records_cran_latest(package))
 
   list(
     Package    = package,

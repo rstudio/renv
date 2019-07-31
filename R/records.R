@@ -34,7 +34,7 @@ renv_records_cran_latest <- function(package) {
   })
 
   if (!is.data.frame(entries)) {
-    fmt <- "could not determine source for package '%s'"
+    fmt <- "package '%s' is not available on CRAN"
     stopf(fmt, package)
   }
 
