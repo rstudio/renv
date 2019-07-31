@@ -19,8 +19,14 @@ r_exec <- function(package, args, label) {
 
   # check for successful install
   status <- attr(output, "status") %||% 0L
-  if (identical(status, 0L))
-    return(output)
+  if (!identical(status, 0L))
+    r_exec_error(package, output, label)
+
+  output
+
+}
+
+r_exec_error <- function(package, output, label) {
 
   # installation failed; write output for user
   fmt <- "Error %sing package '%s':"
@@ -53,21 +59,33 @@ r_cmd_install <- function(package, path, library, ...) {
     shQuote(path)
   )
 
-  r_exec(package, args, "install")
-  file.path(library, package)
+  output <- r_exec(package, args, "install")
+
+  installpath <- file.path(library, package)
+  if (!file.exists(installpath))
+    r_exec_error(package, output, "install")
+
+  installpath
 
 }
 
 r_cmd_build <- function(package, path, ...) {
+
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   args <- c("--vanilla", "CMD", "build", "--md5", ..., shQuote(path))
   output <- r_exec(package, args, "build")
+
   pasted <- paste(output, collapse = "\n")
   pattern <- "[*] building .([a-zA-Z0-9_.-]+)."
   matches <- regexec(pattern, pasted)
   text <- regmatches(pasted, matches)
+
   tarball <- text[[1]][[2]]
+  if (!file.exists(tarball))
+    r_exec_error(package, output, "build")
+
   file.path(getwd(), tarball)
+
 }
 
 r_cmd_install_option <- function(package, option, configure) {

@@ -41,9 +41,8 @@ test_that("we can supply custom options to R CMD INSTALL", {
   # work in new renv context (don't re-use cache)
   renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
 
-  # this will suppress installation during R CMD INSTALL
+  # make install 'fail' with bad option
   renv_scope_options(install.opts = list(oatmeal = "--version"))
-  renv::install("oatmeal")
-  expect_false(renv_package_installed("oatmeal"))
+  expect_error(renv::install("oatmeal"))
 
 })

@@ -113,9 +113,12 @@ renv_remotes_parse_cran <- function(entry) {
   }
 
   list(
-    Package = package,
-    Version = version,
-    Source = "CRAN"
+    Package    = package,
+    Version    = version,
+    Source     = "CRAN",
+    RemoteType = "standard",
+    RemoteRef  = package,
+    RemoteSha  = version
   )
 
 }
