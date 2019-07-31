@@ -3,7 +3,14 @@
 # note that this does _not_ merge package entries from multiple repositories;
 # rather, a list of databases is returned (one for each repository)
 renv_available_packages <- function(type, limit = NULL) {
+
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
+
+  # force a CRAN mirror when needed
+  repos <- getOption("repos") %||% character()
+  repos[repos == "@CRAN@"] <- "https://cran.rstudio.com/"
+  options(repos = repos)
+
   renv_timecache(
     list(repos = getOption("repos"), type = type),
     renv_available_packages_impl(type),
@@ -14,14 +21,11 @@ renv_available_packages <- function(type, limit = NULL) {
 
 renv_available_packages_impl <- function(type) {
 
-  # force a CRAN mirror when needed
-  repos <- getOption("repos") %||% character()
-  repos[repos == "@CRAN@"] <- "https://cran.rstudio.com/"
-  options(repos = repos)
-
-  # request available packages
+  repos <- getOption("repos")
   urls <- contrib.url(repos, type)
-  lapply(urls, renv_available_packages_query, type = type)
+  dbs <- lapply(urls, renv_available_packages_query, type = type)
+  names(dbs) <- repos
+  dbs
 
 }
 
