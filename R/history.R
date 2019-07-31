@@ -11,6 +11,7 @@
 #'
 #' @export
 history <- function(project = NULL) {
+
   renv_scope_error_handler()
   project <- project %||% renv_project()
 
@@ -20,14 +21,19 @@ history <- function(project = NULL) {
 
   renv_git_preflight()
 
-  arguments <- c("log", "--pretty=format:'%H\031%at\031%ct\031%s'", shQuote(lockpath))
+  owd <- setwd(project)
+  on.exit(setwd(owd), add = TRUE)
+
+  arguments <- c("log", "--pretty=format:'%H\031%at\031%ct\031%s'", "renv.lock")
   data <- system2("git", arguments, stdout = TRUE)
+
   parts <- strsplit(data, "\031", fixed = TRUE)
   tbl <- bind_list(parts, names = c("commit", "author_date", "committer_date", "subject"))
   tbl$author_date <- as.POSIXct(as.numeric(tbl$author_date), origin = "1970-01-01")
   tbl$committer_date <- as.POSIXct(as.numeric(tbl$committer_date), origin = "1970-01-01")
 
   tbl
+
 }
 
 #' Revert Lockfile
@@ -44,13 +50,20 @@ history <- function(project = NULL) {
 #'
 #' @export
 revert <- function(commit = "HEAD", ..., project = NULL) {
+
   renv_scope_error_handler()
   project <- project %||% renv_project()
-  lockpath <- renv_lockfile_path(project)
+
   renv_git_preflight()
-  system2("git", c("checkout", commit, "--", shQuote(lockpath)))
-  system2("git", c("reset", "HEAD", shQuote(lockpath)), stdout = FALSE, stderr = FALSE)
-  system2("git", c("diff", "--", shQuote(lockpath)))
+
+  owd <- setwd(project)
+  on.exit(setwd(owd), add = TRUE)
+
+  system2("git", c("checkout", commit, "--", "renv.lock"))
+  system2("git", c("reset", "HEAD", "renv.lock"), stdout = FALSE, stderr = FALSE)
+  system2("git", c("diff", "--", "renv.lock"))
+
   vwritef("* renv.lock from commit %s has been checked out.", commit)
   invisible(commit)
+
 }
