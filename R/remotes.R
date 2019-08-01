@@ -13,7 +13,7 @@ renv_remotes_parse <- function(entry) {
 
   # handle errors (add a bit of extra context)
   error <- function(e) {
-    fmt <- "failed to parse remote entry '%s'"
+    fmt <- "failed to parse remote '%s'"
     prefix <- sprintf(fmt, entry)
     message <- paste(prefix, e$message, sep = " -- ")
     stop(simpleError(message = message, call = e$call))
@@ -54,7 +54,7 @@ renv_remotes_parse_entry <- function(entry) {
   matches <- regexec(pattern, entry)
   strings <- regmatches(entry, matches)[[1]]
   if (empty(strings))
-    stopf("failed to parse remote entry '%s'", entry)
+    stopf("'%s' is not a valid remote", entry)
 
   parsed <- list(
     entry = strings[[1]],
