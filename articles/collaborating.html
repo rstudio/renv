@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.35</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.36</span>
       </span>
     </div>
 
@@ -98,7 +98,7 @@
 
     
     
-<p>When you want to work on a project with other collaborators, <code>renv</code> can be a useful tool for ensuring that everyone is working in the same R environment. This vignette discusses how you can use <code>renv</code> to ensure you and your collaborators are using the same R environment in your projects. For more information on collaboration strategies, visit <a href="https://environments.rstudio.com/">environments.rstudio.com</a>.</p>
+<p>When you want to share a project with other collaborators, you may want to ensure everyone is working with the same environment – otherwise, code in the project may unexpectedly fail to run because of changes in behavior between different versions of the packages in use. You can use <code>renv</code> to help make this possible.</p>
 <div id="collaborating-with-renv" class="section level2">
 <h2 class="hasAnchor">
 <a href="#collaborating-with-renv" class="anchor"></a>Collaborating with renv</h2>
@@ -109,6 +109,7 @@
 <li><p>Share your project sources, alongside the generated lockfile <code>renv.lock</code>.</p></li>
 </ol>
 <p>After your collaborators have received your <code>renv.lock</code> lockfile, they can then also execute <code><a href="../reference/init.html">renv::init()</a></code> (or <code><a href="../reference/restore.html">renv::restore()</a></code>) to automatically install the packages declared in that lockfile into their own private project library. By doing this, they will now be able to work within your project using the exact same R packages that you were when <code>renv.lock</code> was generated.</p>
+<p>For more information on collaboration strategies, please visit <a href="https://environments.rstudio.com/">environments.rstudio.com</a>.</p>
 </div>
 <div id="updating-the-lockfile" class="section level2">
 <h2 class="hasAnchor">
