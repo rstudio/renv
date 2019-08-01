@@ -65,6 +65,11 @@ dependencies <- function(path = getwd(), quiet = FALSE) {
 
 renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
 
+  entry <- renv_filebacked_get("dependencies", path)
+  if (!is.null(entry))
+    return(entry)
+
+  # check file type
   info <- file.info(path, extra_cols = FALSE)
   if (is.na(info$isdir))
     stopf("file '%s' does not exist", path)
@@ -75,7 +80,7 @@ renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
   name <- basename(path)
   ext <- tolower(tools::file_ext(path))
 
-  case(
+  deps <- case(
 
     # special cases for special filenames
     name == "DESCRIPTION"   ~ renv_dependencies_discover_description(path),
@@ -89,6 +94,9 @@ renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
     ext == "rnw"   ~ renv_dependencies_discover_multimode(path, "rnw")
 
   )
+
+  renv_filebacked_set("dependencies", path, deps)
+  deps
 
 }
 
