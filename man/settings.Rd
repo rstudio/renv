@@ -38,7 +38,7 @@ installing some packages from source on your machine).
 
 \item{\code{snapshot.type}}{
 
-The type of snapshot to perform by default. See \link{?snapshot} for more
+The type of snapshot to perform by default. See \link{snapshot} for more
 details.
 
 }
