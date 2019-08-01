@@ -78,6 +78,21 @@ renv_load_renviron <- function(project) {
 
 }
 
+renv_load_options <- function(project) {
+
+  settings <- file.path(project, "renv/settings.R")
+  if (!file.exists(settings))
+    return(FALSE)
+
+  tryCatch(
+    eval(parse(settings), envir = baseenv()),
+    error = warning
+  )
+
+  TRUE
+
+}
+
 renv_load_project <- function(project) {
 
   # record the active project in this session
