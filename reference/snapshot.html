@@ -66,7 +66,7 @@ details on the structure of a lockfile." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.32</span>
       </span>
     </div>
 
@@ -142,7 +142,9 @@ details on the structure of a lockfile.</p>
     </div>
 
     <pre class="usage"><span class='fu'>snapshot</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/file.path'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>), <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
+  <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/file.path'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>),
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='no'>settings</span>$<span class='fu'>snapshot.type</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='no'>project</span>),
+  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -159,7 +161,7 @@ directory is used instead.</p></td>
     </tr>
     <tr>
       <th>library</th>
-      <td><p>The <span style="R">R</span> library to snapshot. When <code>NULL</code>, the active <span style="R">R</span>
+      <td><p>The <span style="R">R</span> libraries to snapshot. When <code>NULL</code>, the active <span style="R">R</span>
 libraries (as reported by <code><a href='https://www.rdocumentation.org/packages/base/topics/libPaths'>.libPaths()</a></code>) are used.</p></td>
     </tr>
     <tr>
@@ -170,15 +172,41 @@ project directory. When <code>NULL</code>, the lockfile (as an <span style="R">R
 directly instead.</p></td>
     </tr>
     <tr>
+      <th>type</th>
+      <td><p>The type of snapshot to perform. See <strong>Snapshot Type</strong> for
+more details. When <code>NULL</code> (the default), a "packrat"-style snapshot
+is performed.</p></td>
+    </tr>
+    <tr>
       <th>confirm</th>
       <td><p>Boolean; prompt the user before taking any action?</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="snapshot-type"><a class="anchor" href="#snapshot-type"></a>Snapshot Type</h2>
 
-    <p>When no project library is active, <code>snapshot()</code> will capture only the
-packages within use (as detected by <code><a href='dependencies.html'>dependencies()</a></code>) within a project.</p>
+    
+    <p>Depending on how you prefer to manage dependencies, you might prefer
+selecting a different snapshot mode. The modes available are as follows:</p>
+<dl class='dl-horizontal'>
+    <dt><code>"simple"</code></dt><dd><p>All packages within the active libraries are included in the lockfile.
+This is the quickest and simplest method, but may lead to packages
+(e.g. development dependencies) entering the lockfile, which can be
+undesired.</p></dd>
+    <dt><code>"packrat"</code></dt><dd><p>Perform a Packrat-style snapshot. The intersection of packages discovered
+in your <span style="R">R</span> libraries, alongside those discovered by <code><a href='dependencies.html'>renv::dependencies()</a></code>,
+will enter the lockfile. This helps ensure that only the packages you are
+using will enter the lockfile, but may be slower if your project contains
+a large number of files. The <code>snapshot.timeout</code> <a href='config.html'>config</a> option can be
+used to control the maximum amount of time that can be spent discovering
+dependencies.</p></dd>
+    <dt><code>"custom"</code></dt><dd><p>Like <code>"packrat"</code>, but use a custom user-defined filter instead. The filter
+should be specified by the <span style="R">R</span> option <code>renv.snapshot.filter</code>, and should
+either be a character vector naming a function (e.g. <code>"package::method"</code>),
+or be a function itself. The function should only accept one argument (the
+project directory), and should return a vector of package names to include
+in the lockfile.</p></dd>
+    </dl>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -192,7 +220,7 @@ packages within use (as detected by <code><a href='dependencies.html'>dependenci
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#details">Details</a></li>
+      <li><a href="#snapshot-type">Snapshot Type</a></li>
 
       <li><a href="#see-also">See also</a></li>
           </ul>
