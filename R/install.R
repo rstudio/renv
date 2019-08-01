@@ -41,9 +41,6 @@ install <- function(packages,
   project <- project %||% renv_project()
   library <- library %||% renv_libpaths_default()
 
-  if (library == renv_paths_library(project = project))
-    on.exit(renv_snapshot_auto(project = project), add = TRUE)
-
   records <- renv_snapshot_r_packages(library = library)
 
   remotes <- lapply(packages, function(package) {
@@ -69,6 +66,10 @@ install <- function(packages,
   # retrieve packages
   records <- renv_retrieve(packages)
   renv_install(records, library, project)
+
+  # perform auto snapshot
+  if (library == renv_paths_library(project = project))
+    renv_snapshot_auto(project = project)
 
   invisible(records)
 }
