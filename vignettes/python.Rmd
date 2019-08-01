@@ -18,6 +18,7 @@ If you're using `renv` with an R project that also depends on some Python
 packages (say, through the [reticulate](https://rstudio.github.io/reticulate/)
 package), then you may find `renv`'s Python integration useful.
 
+
 ## Activating Python Integration
 
 Python integration can be activated on a project-by-project basis. Use
@@ -36,6 +37,7 @@ use that Python virtual environment in the project.
 You can also pass the name of a virtual environment (e.g.
 `renv::settings$python("tensorflow")`) to use the virtual environment called
 "tensorflow" located at `~/.virtualenvs/tensorflow`.
+
 
 ## Understanding Python Integration
 

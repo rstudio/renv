@@ -68,6 +68,11 @@ from the project root directory. This is accomplished by creating (or amending)
 a project-local `.Rprofile` with the necessary code to load the project when
 the R session is started.
 
+If you'd like to initialize a project without attempting dependency discovery
+and installation -- that is, you'd prefer to manually install the packages
+your project requires on your own -- you can use `renv::init(bare = TRUE)`
+to initialize a project with an empty project library.
+
 
 ## Reproducibility
 
@@ -164,8 +169,8 @@ it could be set within:
 - A file at `$(R RHOME)/etc/Renviron.site`.
 
 While we recommend enabling the cache by default, if you're having trouble with
-`renv` when the cache is enabled, it can be disabled by setting the R option
-`options(renv.config.use.cache = FALSE)`. Doing this will ensure that packages
+`renv` when the cache is enabled, it can be disabled by setting the project
+setting `renv::settings$use.cache(FALSE)`. Doing this will ensure that packages
 are then installed into your project library directly, without attempting to
 link and use packages from the `renv` cache.
 
@@ -324,6 +329,7 @@ Currently, only Git repositories are supported by `renv::history()` and
    `renv::dependencies()` is exported, and users can create `.renvignore` files
    to instruct `renv` to ignore specific files and folders in their projects.
    (See `?renv::dependencies` for more information.)
+
 
 ## Migrating from Packrat
 
