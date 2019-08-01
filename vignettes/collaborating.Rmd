@@ -15,11 +15,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-When you want to work on a project with other collaborators, `renv` can be
-a useful tool for ensuring that everyone is working in the same R environment.
-This vignette discusses how you can use `renv` to ensure you and your
-collaborators are using the same R environment in your projects.
-For more information on collaboration strategies, visit [environments.rstudio.com](https://environments.rstudio.com/).
+When you want to share a project with other collaborators, you may want to
+ensure everyone is working with the same environment -- otherwise, code in the
+project may unexpectedly fail to run because of changes in behavior between
+different versions of the packages in use. You can use `renv` to help make
+this possible.
 
 ## Collaborating with renv
 
@@ -45,6 +45,8 @@ the packages declared in that lockfile into their own private project library.
 By doing this, they will now be able to work within your project using the
 exact same R packages that you were when `renv.lock` was generated.
 
+For more information on collaboration strategies, please visit
+[environments.rstudio.com](https://environments.rstudio.com/).
 
 ## Updating the Lockfile
 
