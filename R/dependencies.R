@@ -252,7 +252,7 @@ renv_dependencies_discover_chunks <- function(path) {
 
   # ensure 'knitr' is installed / available
   if (!renv_dependencies_require("knitr", "multi-mode"))
-    return(NULL)
+    return(list())
 
   # figure out the appropriate begin, end patterns
   type <- tolower(tools::file_ext(path))
@@ -330,7 +330,7 @@ renv_dependencies_discover_chunks_inline <- function(path, contents) {
   pasted <- paste(contents, collapse = "\n")
   matches <- gregexpr("`r ([^`]+)`", pasted)
   if (identical(c(matches[[1L]]), -1L))
-    return(NULL)
+    return(list())
 
   text <- unlist(regmatches(pasted, matches), use.names = FALSE, recursive = FALSE)
   code <- substring(text, 4L, nchar(text) - 1L)
@@ -417,7 +417,7 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
 
   packages <- ls(envir = discoveries)
   if (empty(packages))
-    return(NULL)
+    return(list())
 
   renv_dependencies_list(path, packages)
 
@@ -543,7 +543,7 @@ renv_dependencies_discover_r_colon <- function(node, envir) {
 renv_dependencies_list <- function(source, packages, require = "", version = "") {
 
   if (empty(packages))
-    return(NULL)
+    return(list())
 
   source <- source %||% rep.int(NA_character_, length(packages))
 
