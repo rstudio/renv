@@ -4,7 +4,7 @@
 \name{settings}
 \alias{settings}
 \title{Project Settings}
-\format{An object of class \code{list} of length 3.}
+\format{An object of class \code{list} of length 4.}
 \usage{
 settings
 }
@@ -33,6 +33,13 @@ in some global library, but for some reason \code{renv} is not able to install
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).
+
+}
+
+\item{\code{snapshot.type}}{
+
+The type of snapshot to perform by default. See \link{?snapshot} for more
+details.
 
 }
 

@@ -84,7 +84,11 @@ restore <- function(project  = NULL,
     lockfile <- renv_lockfile_read(lockfile)
 
   # detect changes in R packages in the lockfile
-  current <- snapshot(project = project, library = library, lockfile = NULL)
+  current <- snapshot(project = project,
+                      library = library,
+                      lockfile = NULL,
+                      type = "simple")
+
   diff <- renv_lockfile_diff_packages(current, lockfile)
 
   # only keep requested actions
@@ -128,7 +132,7 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
 
   actions <- renv_lockfile_diff_packages(
     lockfile,
-    snapshot(project = project, lockfile = NULL)
+    snapshot(project = project, lockfile = NULL, type = "simple")
   )
 
   if (empty(actions))
@@ -142,7 +146,8 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
     msg$push("The lockfile will be updated with the newly-installed packages.")
 
   vwritef(as.character(msg$data()))
-  snapshot(project = project, confirm = confirm)
+  snapshot(project = project, confirm = confirm, type = "simple")
+
 }
 
 renv_restore_run_actions <- function(project, actions, current, lockfile) {

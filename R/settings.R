@@ -237,6 +237,13 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 #'
+#' \item{\code{snapshot.type}}{
+#'
+#'   The type of snapshot to perform by default. See [snapshot] for more
+#'   details.
+#'
+#' }
+#'
 #' \item{\code{use.cache}}{
 #'
 #'   Use a global cache of \R packages. When active, `renv` will install
@@ -270,6 +277,13 @@ settings <- list(
     name     = "external.libraries",
     validate = is.character,
     default  = character(),
+    update   = NULL
+  ),
+
+  snapshot.type = renv_settings_impl(
+    name     = "snapshot.type",
+    validate = function(x) x %in% c("simple", "packrat"),
+    default  = "packrat",
     update   = NULL
   ),
 

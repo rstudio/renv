@@ -6,18 +6,59 @@
 #' project's dependencies as required. See the [lockfile] documentation for more
 #' details on the structure of a lockfile.
 #'
-#' When no project library is active, `snapshot()` will capture only the
-#' packages within use (as detected by `dependencies()`) within a project.
+#' @section Snapshot Type:
+#'
+#' Depending on how you prefer to manage dependencies, you might prefer
+#' selecting a different snapshot mode. The modes available are as follows:
+#'
+#' \describe{
+#'
+#' \item{`"simple"`}{
+#'
+#'   All packages within the active libraries are included in the lockfile.
+#'   This is the quickest and simplest method, but may lead to packages
+#'   (e.g. development dependencies) entering the lockfile, which can be
+#'   undesired.
+#'
+#' }
+#'
+#' \item{`"packrat"`}{
+#'
+#'   Perform a Packrat-style snapshot. The intersection of packages discovered
+#'   in your \R libraries, alongside those discovered by `renv::dependencies()`,
+#'   will enter the lockfile. This helps ensure that only the packages you are
+#'   using will enter the lockfile, but may be slower if your project contains
+#'   a large number of files. The `snapshot.timeout` [config] option can be
+#'   used to control the maximum amount of time that can be spent discovering
+#'   dependencies.
+#' }
+#'
+#' \item{`"custom"`}{
+#'
+#'   Like `"packrat"`, but use a custom user-defined filter instead. The filter
+#'   should be specified by the \R option `renv.snapshot.filter`, and should
+#'   either be a character vector naming a function (e.g. `"package::method"`),
+#'   or be a function itself. The function should only accept one argument (the
+#'   project directory), and should return a vector of package names to include
+#'   in the lockfile.
+#'
+#' }
+#'
+#' }
 #'
 #' @inheritParams renv-params
 #'
-#' @param library The \R library to snapshot. When `NULL`, the active \R
+#' @param library The \R libraries to snapshot. When `NULL`, the active \R
 #'   libraries (as reported by `.libPaths()`) are used.
 #'
 #' @param lockfile The location where the generated lockfile should be written.
 #'   By default, the lockfile is written to a file called `renv.lock` in the
 #'   project directory. When `NULL`, the lockfile (as an \R object) is returned
 #'   directly instead.
+#'
+#' @param type The type of snapshot to perform. See **Snapshot Type** for
+#'   more details. When `NULL` (the default), a "packrat"-style snapshot
+#'   is performed.
 #'
 #' @family reproducibility
 #'
@@ -26,6 +67,7 @@ snapshot <- function(project  = NULL,
                      ...,
                      library  = NULL,
                      lockfile = file.path(project, "renv.lock"),
+                     type     = settings$snapshot.type(project = project),
                      confirm  = interactive())
 {
   renv_scope_error_handler()
@@ -37,7 +79,8 @@ snapshot <- function(project  = NULL,
     renv_snapshot_preflight(project, library)
 
   new <- renv_lockfile_init(project)
-  new$Packages <- renv_snapshot_r_packages(library = library)
+  records <- renv_snapshot_r_packages(library = library)
+  new$Packages <- renv_snapshot_filter(project, records, type)
 
   if (is.null(lockfile))
     return(new)
@@ -528,27 +571,73 @@ renv_snapshot_auto <- function(project) {
 
 }
 
-# nocov start
-renv_snapshot_filter <- function(project) {
-  deps <- dependencies(project)
+renv_snapshot_filter <- function(project, records, type) {
+
+  type <- type %||% settings$snapshot.type(project = project)
+  switch(type,
+    simple  = renv_snapshot_filter_simple(project, records),
+    packrat = renv_snapshot_filter_packrat(project, records),
+    custom  = renv_snapshot_filter_custom(project, records),
+    stopf("unknown snapshot type '%s'", type)
+  )
+
+}
+
+renv_snapshot_filter_simple <- function(project, records) {
+  records
+}
+
+renv_snapshot_filter_packrat <- function(project, records) {
+
+  # set a timeout (avoid hanging the session during
+  # dependency discovery)
+  timeout <- renv_config("snapshot.timeout", default = 3L)
+  deps <- local({
+    setTimeLimit(elapsed = timeout, transient = TRUE)
+    on.exit(setTimeLimit(), add = TRUE)
+    dependencies(project)
+  })
+
+  # get recursive package dependencies for those discovered
   ignored <- c("renv", settings$ignored.packages(project = project))
   packages <- setdiff(unique(deps$Package), ignored)
   paths <- renv_dependencies(project, packages)
-  as.character(names(paths))
+  all <- as.character(names(paths))
+
+  # keep only those records
+  records[intersect(names(records), all)]
+
 }
 
-renv_snapshot_filter_apply <- function(records, filter) {
+renv_snapshot_filter_custom <- function(project, records) {
 
-  if (is.null(filter))
+  option <- "renv.snapshot.filter"
+  filter <- getOption(option, default = NULL)
+
+  # allow for filter naming a function to use
+  if (is.character(filter))
+    filter <- eval(parse(text = filter), envir = baseenv())
+
+  # check we got a function
+  if (!is.function(filter)) {
+    fmt <- "snapshot of type '%s' requested, but '%s' is not a function"
+    stopf(fmt, "custom", option)
+  }
+
+  # invoke the filter to get package list
+  timeout <- renv_config("snapshot.timeout", default = 3L)
+  packages <- local({
+    setTimeLimit(elapsed = timeout, transient = TRUE)
+    on.exit(setTimeLimit(), add = TRUE)
+    filter(project)
+  })
+
+  if (empty(packages))
     return(records)
 
-  if (is.function(filter))
-    return(Filter(filter, records))
+  if (!is.character(packages))
+    stop("custom snapshot filter did not return a character vector")
 
-  if (is.character(filter))
-    return(records[intersect(filter, names(records))])
-
-  stopf("invalid filter in call to snapshot")
+  records[intersect(names(records), packages)]
 
 }
-# nocov end

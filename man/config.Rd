@@ -75,6 +75,11 @@ to \code{renv::install()}, \code{renv::update()} and \code{renv::remove()} as
 appropriate.
 (Boolean; defaults to \code{TRUE}) \cr
 
+\code{snapshot.timeout} \tab \code{integer(1)} \tab
+The maximum amount of time (in seconds) to spend while discovering \R
+package dependencies during a call to \code{renv::snapshot()}.
+(Integer; defaults to \code{3}) \cr
+
 \code{snapshot.validate} \tab \code{logical(1)} \tab
 Validate \R package dependencies when calling snapshot? When \code{TRUE},
 \code{renv} will attempt to diagnose potential issues in the project library

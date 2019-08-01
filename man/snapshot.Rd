@@ -5,7 +5,9 @@
 \title{Snapshot a Project}
 \usage{
 snapshot(project = NULL, ..., library = NULL,
-  lockfile = file.path(project, "renv.lock"), confirm = interactive())
+  lockfile = file.path(project, "renv.lock"),
+  type = settings$snapshot.type(project = project),
+  confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -14,13 +16,17 @@ directory is used instead.}
 
 \item{...}{Optional arguments; reserved for future expansion.}
 
-\item{library}{The \R library to snapshot. When \code{NULL}, the active \R
+\item{library}{The \R libraries to snapshot. When \code{NULL}, the active \R
 libraries (as reported by \code{.libPaths()}) are used.}
 
 \item{lockfile}{The location where the generated lockfile should be written.
 By default, the lockfile is written to a file called \code{renv.lock} in the
 project directory. When \code{NULL}, the lockfile (as an \R object) is returned
 directly instead.}
+
+\item{type}{The type of snapshot to perform. See \strong{Snapshot Type} for
+more details. When \code{NULL} (the default), a "packrat"-style snapshot
+is performed.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
@@ -30,10 +36,48 @@ Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a pr
 project's dependencies as required. See the \link{lockfile} documentation for more
 details on the structure of a lockfile.
 }
-\details{
-When no project library is active, \code{snapshot()} will capture only the
-packages within use (as detected by \code{dependencies()}) within a project.
+\section{Snapshot Type}{
+
+
+Depending on how you prefer to manage dependencies, you might prefer
+selecting a different snapshot mode. The modes available are as follows:
+
+\describe{
+
+\item{\code{"simple"}}{
+
+All packages within the active libraries are included in the lockfile.
+This is the quickest and simplest method, but may lead to packages
+(e.g. development dependencies) entering the lockfile, which can be
+undesired.
+
 }
+
+\item{\code{"packrat"}}{
+
+Perform a Packrat-style snapshot. The intersection of packages discovered
+in your \R libraries, alongside those discovered by \code{renv::dependencies()},
+will enter the lockfile. This helps ensure that only the packages you are
+using will enter the lockfile, but may be slower if your project contains
+a large number of files. The \code{snapshot.timeout} \link{config} option can be
+used to control the maximum amount of time that can be spent discovering
+dependencies.
+}
+
+\item{\code{"custom"}}{
+
+Like \code{"packrat"}, but use a custom user-defined filter instead. The filter
+should be specified by the \R option \code{renv.snapshot.filter}, and should
+either be a character vector naming a function (e.g. \code{"package::method"}),
+or be a function itself. The function should only accept one argument (the
+project directory), and should return a vector of package names to include
+in the lockfile.
+
+}
+
+}
+}
+
 \seealso{
 Other reproducibility: \code{\link{lockfile}},
   \code{\link{restore}}

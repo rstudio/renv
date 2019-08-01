@@ -70,12 +70,17 @@
 #'   appropriate.
 #'   (Boolean; defaults to `TRUE`) \cr
 #'
+#' `snapshot.timeout` \tab `integer(1)` \tab
+#'   The maximum amount of time (in seconds) to spend while discovering \R
+#'   package dependencies during a call to `renv::snapshot()`.
+#'   (Integer; defaults to `3`) \cr
+#'
 #' `snapshot.validate` \tab `logical(1)` \tab
-#'  Validate \R package dependencies when calling snapshot? When `TRUE`,
-#'  `renv` will attempt to diagnose potential issues in the project library
-#'  before creating `renv.lock` -- for example, if a package installed in the
-#'  project library depends on a package which is not currently installed.
-#'  (Boolean; defaults to `TRUE`) \cr
+#'   Validate \R package dependencies when calling snapshot? When `TRUE`,
+#'   `renv` will attempt to diagnose potential issues in the project library
+#'   before creating `renv.lock` -- for example, if a package installed in the
+#'   project library depends on a package which is not currently installed.
+#'   (Boolean; defaults to `TRUE`) \cr
 #'
 #' }
 #'
