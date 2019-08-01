@@ -18,7 +18,7 @@ renv_description_read <- function(path = NULL, package = NULL, ...) {
   # check for a cache entry (note: we need to normalize as otherwise
   # we might cache the results for a stale symlink)
   key <- normalizePath(path, winslash = "/", mustWork = FALSE)
-  entry <- renv_filebacked_get(key)
+  entry <- renv_filebacked_get("DESCRIPTION", key)
   if (!is.null(entry))
     return(entry)
 
@@ -49,7 +49,7 @@ renv_description_read <- function(path = NULL, package = NULL, ...) {
   if (empty(dcf))
     stopf("DESCRIPTION file at '%s' is empty", path)
 
-  renv_filebacked_set(key, dcf)
+  renv_filebacked_set("DESCRIPTION", key, dcf)
   dcf
 
 }

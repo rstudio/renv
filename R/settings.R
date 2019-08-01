@@ -66,7 +66,7 @@ renv_settings_read <- function(project) {
   missing <- setdiff(names(defaults), names(settings))
   settings[missing] <- defaults[missing]
 
-  renv_filebacked_set(path, settings)
+  renv_filebacked_set("settings", path, settings)
 
 }
 
@@ -74,7 +74,7 @@ renv_settings_get <- function(project, name = NULL) {
 
   # check for a cached settings value
   path <- file.path(project, "renv/settings.dcf")
-  cache <- renv_filebacked_get(path)
+  cache <- renv_filebacked_get("settings", path)
   if (!is.null(cache))
     return(if (is.null(name)) cache else cache[[name]])
 
@@ -102,7 +102,9 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
 
   path <- file.path(project, "renv/settings.dcf")
 
-  settings <- renv_filebacked_get(path) %||% renv_settings_read(project)
+  settings <-
+    renv_filebacked_get("settings", path) %||%
+    renv_settings_read(project)
 
   old <- settings[[name]] %||% renv_settings_default(name)
   new <- renv_settings_validate(name, value)
@@ -111,7 +113,7 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
   if (!identical(old, new))
     renv_settings_updated(project, name, old, new)
 
-  renv_filebacked_set(path, settings)
+  renv_filebacked_set("settings", path, settings)
 
   if (persist)
     renv_settings_persist(project, settings)

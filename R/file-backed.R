@@ -3,19 +3,28 @@
 # the file mtime changes. use `renv_filebacked_set()` to associate some value
 # with a file at a particular point in time; `renv_filebacked_get()` will return
 # that value, or NULL of the file mtime has changed
-`_renv_filebacked_cache` <- new.env(parent = emptyenv())
+`_renv_filebacked` <- new.env(parent = emptyenv())
 
-renv_filebacked_clear <- function(path = NULL) {
-  existing <- ls(envir = `_renv_filebacked_cache`, all.names = TRUE)
-  path <- path %||% existing
-  removable <- intersect(existing, path)
-  rm(list = removable, envir = `_renv_filebacked_cache`)
+renv_filebacked_init <- function() {
+  scopes <- c("DESCRIPTION", "settings")
+  for (scope in scopes) {
+    envir <- new.env(parent = emptyenv())
+    assign(scope, envir, envir = `_renv_filebacked`)
+  }
 }
 
-renv_filebacked_set <- function(path, value) {
+renv_filebacked_clear <- function(scope, path = NULL) {
+  envir <- renv_filebacked_envir(scope)
+  existing <- ls(envir = envir, all.names = TRUE)
+  path <- path %||% existing
+  removable <- intersect(path, existing)
+  rm(list = removable, envir = envir)
+}
+
+renv_filebacked_set <- function(scope, path, value) {
 
   # validate the path
-  path <- path.expand(path)
+  path <- normalizePath(path, winslash = "/", mustWork = FALSE)
   stopifnot(path_absolute(path))
 
   # create our cache entry
@@ -23,22 +32,26 @@ renv_filebacked_set <- function(path, value) {
   entry <- list(value = value, exists = file.exists(path), mtime = info$mtime)
 
   # store it
-  assign(path, entry, envir = `_renv_filebacked_cache`)
+  envir <- renv_filebacked_envir(scope)
+  assign(path, entry, envir = envir)
   invisible(value)
 
 }
 
-renv_filebacked_get <- function(path) {
+renv_filebacked_get <- function(scope, path) {
 
   # validate the path
-  path <- path.expand(path)
+  path <- normalizePath(path, winslash = "/", mustWork = FALSE)
   stopifnot(path_absolute(path))
 
+  # get scoped sub-environment
+  envir <- renv_filebacked_envir(scope)
+
   # check for entry in the cache
-  if (!exists(path, envir = `_renv_filebacked_cache`))
+  if (!exists(path, envir = envir))
     return(NULL)
 
-  entry <- get(path, envir = `_renv_filebacked_cache`)
+  entry <- get(path, envir = envir)
   if (is.null(entry))
     return(NULL)
 
@@ -59,4 +72,8 @@ renv_filebacked_get <- function(path) {
 
   entry$value
 
+}
+
+renv_filebacked_envir <- function(scope) {
+  get(scope, envir = `_renv_filebacked`)
 }

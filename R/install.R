@@ -107,7 +107,7 @@ renv_install <- function(records, library, project) {
 
   # clear filebacked cache entries
   paths <- file.path(targets, "DESCRIPTION")
-  renv_filebacked_clear(paths)
+  renv_filebacked_clear("DESCRIPTION", paths)
 
   invisible(TRUE)
 
