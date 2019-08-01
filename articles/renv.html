@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.33</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.35</span>
       </span>
     </div>
 
@@ -115,6 +115,7 @@
 </ol>
 <p>The <code><a href="../reference/init.html">renv::init()</a></code> function attempts to ensure the newly-created project library includes all R packages currently used by the project. It does this by crawling any R files within the project for dependencies with the <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> function. The discovered packages are then installed into the project library with the <code><a href="../reference/hydrate.html">renv::hydrate()</a></code> function, which will also attempt to save time by copying packages from your user library (rather than re-installing from CRAN) as appropriate.</p>
 <p>Calling <code><a href="../reference/init.html">renv::init()</a></code> will also write out the infrastructure necessary to automatically load and use the private library for new R sessions launched from the project root directory. This is accomplished by creating (or amending) a project-local <code>.Rprofile</code> with the necessary code to load the project when the R session is started.</p>
+<p>If you’d like to initialize a project without attempting dependency discovery and installation – that is, you’d prefer to manually install the packages your project requires on your own – you can use <code><a href="../reference/init.html">renv::init(bare = TRUE)</a></code> to initialize a project with an empty project library.</p>
 </div>
 <div id="reproducibility" class="section level2">
 <h2 class="hasAnchor">
@@ -205,7 +206,7 @@
 <li>The user-level <code>.Renviron</code>;</li>
 <li>A file at <code>$(R RHOME)/etc/Renviron.site</code>.</li>
 </ul>
-<p>While we recommend enabling the cache by default, if you’re having trouble with <code>renv</code> when the cache is enabled, it can be disabled by setting the R option <code><a href="https://www.rdocumentation.org/packages/base/topics/options">options(renv.config.use.cache = FALSE)</a></code>. Doing this will ensure that packages are then installed into your project library directly, without attempting to link and use packages from the <code>renv</code> cache.</p>
+<p>While we recommend enabling the cache by default, if you’re having trouble with <code>renv</code> when the cache is enabled, it can be disabled by setting the project setting <code>renv::settings$use.cache(FALSE)</code>. Doing this will ensure that packages are then installed into your project library directly, without attempting to link and use packages from the <code>renv</code> cache.</p>
 <p>If you find a problematic package has entered the cache (for example, an installed package has become corrupted), that package can be removed with the <code><a href="../reference/purge.html">renv::purge()</a></code> function.</p>
 </div>
 <div id="installation-from-source" class="section level2">

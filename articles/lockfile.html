@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.33</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.35</span>
       </span>
     </div>
 
@@ -103,22 +103,38 @@
 <li>The version of <code>renv</code> used when generating the lockfile;</li>
 <li>The version of <code>R</code> used in that project;</li>
 <li>The R repositories that were active when the lockfile was created;</li>
-<li>R <em>package records</em> defining each package, their version, and their installation source.</li>
+<li>
+<em>Package records</em> defining each R package, their version, and their installation source.</li>
 </ul>
-<p>For example, here is a simple lockfile capturing a single package <code>Matrix</code>:</p>
-<pre><code>[renv]
-Version=0.2.0
-
-[R]
-Version=3.5.3
-Repositories=
-    CRAN=https://cran.rstudio.com/
-
-[R/Package/Matrix]
-Package=Matrix
-Version=1.2-17
-Source=CRAN
-Hash=b10030fd8c964dbecd79719236d4a668</code></pre>
+<p>Here is an example lockfile, including the packages <code>markdown</code> and <code>mime</code>:</p>
+<pre><code>{
+  "renv": {
+    "Version": "1.0.0"
+  },
+  "R": {
+    "Version": "3.6.1",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cran.rstudio.com"
+      }
+    ]
+  },
+  "Packages": {
+    "markdown": {
+      "Package": "markdown",
+      "Version": "1.0",
+      "Source": "CRAN",
+      "Hash": "4584a57f565dd7987d59dda3a02cfb41"
+    },
+    "mime": {
+      "Package": "mime",
+      "Version": "0.7",
+      "Source": "CRAN",
+      "Hash": "908d95ccbfd1dd274073ef07a7c93934"
+    }
+  }
+}</code></pre>
 <p>The function <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is used to create this lockfile, and by default writes these records to the file <code>renv.lock</code>. Later, if you need to reinstall the specific package versions as recorded in <code>renv.lock</code>, you can use <code><a href="../reference/restore.html">renv::restore()</a></code>.</p>
   </div>
 
