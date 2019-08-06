@@ -86,7 +86,7 @@ renv_remotes_parse_bitbucket <- function(entry) {
   url <- sprintf(fmt, host, user, repo, ref)
 
   destfile <- renv_tempfile("renv-description-")
-  download(url, destfile = destfile, quiet = TRUE)
+  download(url, destfile = destfile, type = "bitbucket", quiet = TRUE)
   desc <- renv_dcf_read(destfile)
 
   list(
@@ -125,7 +125,7 @@ renv_remotes_parse_github_sha_pull <- function(host, user, repo, pull) {
   fmt <- "https://%s/repos/%s/%s/pulls/%s"
   url <- sprintf(fmt, host, user, repo, pull)
   jsonfile <- renv_tempfile("ren-json-")
-  download(url, destfile = jsonfile, quiet = TRUE)
+  download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
   json$head$sha
 
@@ -137,7 +137,7 @@ renv_remotes_parse_github_sha_ref <- function(host, user, repo, ref) {
   url <- sprintf(fmt, host, user, repo, ref)
   headers <- c(Accept = "application/vnd.github.v2.sha")
   shafile <- renv_tempfile("renv-sha-")
-  download(url, destfile = shafile, quiet = TRUE, headers = headers)
+  download(url, destfile = shafile, type = "github", quiet = TRUE, headers = headers)
   sha <- readChar(shafile, file.info(shafile)$size, TRUE)
 
   # check for JSON response (in case our headers weren't sent)
@@ -156,7 +156,7 @@ renv_remotes_parse_github_description <- function(host, user, repo, sha) {
   fmt <- "https://%s/repos/%s/%s/contents/DESCRIPTION?ref=%s"
   url <- sprintf(fmt, host, user, repo, sha)
   jsonfile <- renv_tempfile("renv-json-")
-  download(url, destfile = jsonfile, quiet = TRUE)
+  download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
   contents <- renv_base64_decode(json$content)
 
@@ -179,7 +179,7 @@ renv_remotes_parse_gitlab <- function(entry) {
   url <- sprintf(fmt, host, id, ref)
 
   destfile <- renv_tempfile("renv-description-")
-  download(url, destfile = destfile, quiet = TRUE)
+  download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
   desc <- renv_json_read(destfile)
 
   list(
@@ -236,7 +236,7 @@ renv_remotes_parse_url <- function(entry) {
   path <- renv_paths_source("url", name)
 
   ensure_parent_directory(path)
-  download(entry, path)
+  download(entry, path, quiet = TRUE)
 
   desc <- renv_description_read(path)
 

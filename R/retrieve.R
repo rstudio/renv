@@ -408,9 +408,10 @@ renv_retrieve_cran_impl <- function(record,
 renv_retrieve_package <- function(record, url, path) {
 
   ensure_parent_directory(path)
+  type <- tolower(record$Source)
   status <- local({
     renv_scope_auth(record)
-    catch(download(url, destfile = path, type = record$Source))
+    catch(download(url, destfile = path, type = type))
   })
 
   if (inherits(status, "error") || identical(status, FALSE))
