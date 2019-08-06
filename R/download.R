@@ -349,8 +349,14 @@ renv_download_auth <- function(url, type) {
 
 renv_download_auth_bitbucket <- function() {
 
-  user <- Sys.getenv("BITBUCKET_USER", unset = NA)
-  pass <- Sys.getenv("BITBUCKET_PASSWORD", unset = NA)
+  user <-
+    Sys.getenv("BITBUCKET_USER", unset = NA) %NA%
+    Sys.getenv("BITBUCKET_USERNAME", unset = NA)
+
+  pass <-
+    Sys.getenv("BITBUCKET_PASS", unset = NA) %NA%
+    Sys.getenv("BITBUCKET_PASSWORD", unset = NA)
+
   if (is.na(user) || is.na(pass))
     return(character())
 
