@@ -23,7 +23,7 @@ renv_infrastructure_write_rprofile <- function(project) {
 renv_infrastructure_write_rbuildignore <- function(project) {
 
   renv_infrastructure_write_entry_impl(
-    lines  = "^renv$",
+    lines  = c("^renv$", "^renv\\.lock$"),
     file   = file.path(project, ".Rbuildignore"),
     create = renv_project_type(project) == "package"
   )
