@@ -77,7 +77,7 @@ renv_upgrade_impl <- function(project, version, confirm) {
   renv_infrastructure_write(project, version = record$Version)
 
   # and restart
-  renv_request_restart(project, reason = "renv updated")
+  renv_request_restart(project, reason = "renv upgraded")
 
 }
 
