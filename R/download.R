@@ -336,7 +336,7 @@ renv_download_auth_type <- function(url) {
 
 renv_download_auth <- function(url, type) {
 
-  type <- type %||% renv_download_auth_type(url)
+  type <- tolower(type %||% renv_download_auth_type(url))
   switch(
     type,
     bitbucket = renv_download_auth_bitbucket(),
