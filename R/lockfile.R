@@ -112,16 +112,32 @@ renv_lockfile_init <- function(project) {
 
 }
 
-renv_lockfile_init_r <- function(project) {
+renv_lockfile_init_r_version <- function(project) {
+  format(getRversion())
+}
+
+renv_lockfile_init_r_repos <- function(project) {
 
   repos <- getOption("repos")
+
+  # clear RStudio attribute
   attr(repos, "RStudio") <- NULL
+
+  # set a default URL
   repos[repos == "@CRAN@"] <- "https://cran.rstudio.com/"
 
-  list(
-    Version = format(getRversion()),
-    Repositories = as.list(repos)
-  )
+  # remove RSPM bits from URL
+  pattern <- "/__linux__/[^/]+/"
+  repos <- sub(pattern, "/", repos)
+
+  as.list(repos)
+
+}
+
+renv_lockfile_init_r <- function(project) {
+  version <- renv_lockfile_init_r_version(project)
+  repos   <- renv_lockfile_init_r_repos(project)
+  list(Version = version, Repositories = repos)
 }
 
 renv_lockfile_init_bioconductor <- function(project) {
