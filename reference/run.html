@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Hydrate a Project — hydrate • renv</title>
+<title>Run a Script — run • renv</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,11 +30,10 @@
 
 
 
-<meta property="og:title" content="Hydrate a Project — hydrate" />
+<meta property="og:title" content="Run a Script — run" />
 
-<meta property="og:description" content="Discover the R packages used within a project, and then install those
-packages into the active library. This effectively allows you to clone the
-state of your system R libraries for use within a project library." />
+<meta property="og:description" content="Run an R script, with an renv project active. The script will be run as
+an R sub-process." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -126,37 +125,41 @@ state of your system R libraries for use within a project library." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Hydrate a Project</h1>
+    <h1>Run a Script</h1>
     
-    <div class="hidden name"><code>hydrate.Rd</code></div>
+    <div class="hidden name"><code>run.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Discover the <span style="R">R</span> packages used within a project, and then install those
-packages into the active library. This effectively allows you to clone the
-state of your system R libraries for use within a project library.</p>
+    <p>Run an <span style="R">R</span> script, with an <code>renv</code> project active. The script will be run as
+an <span style="R">R</span> sub-process.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>hydrate</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>run</span>(<span class='no'>script</span>, <span class='no'>...</span>, <span class='kw'>job</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>packages</th>
-      <td><p>The set of <span style="R">R</span> packages to install. When <code>NULL</code>, the
-set of packages as reported by <code><a href='dependencies.html'>dependencies()</a></code> is used.</p></td>
+      <th>script</th>
+      <td><p>The path to an <span style="R">R</span> script.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Optional arguments; reserved for future expansion.</p></td>
     </tr>
     <tr>
-      <th>library</th>
-      <td><p>The <span style="R">R</span> library to be hydrated. When <code>NULL</code>, the active
-library as reported by <code><a href='https://www.rdocumentation.org/packages/base/topics/libPaths'>.libPaths()</a></code> is used.</p></td>
+      <th>job</th>
+      <td><p>Run the requested script as an RStudio job? Requires a recent
+version of both RStudio and the <code>rstudioapi</code> packages. When <code>NULL</code>, the
+script will be run as a job if possible, and as a regular <span style="R">R</span> process
+launched by <code><a href='https://www.rdocumentation.org/packages/base/topics/system2'>system2()</a></code> if not.</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>The name to associate with the job, for scripts run as a job.</p></td>
     </tr>
     <tr>
       <th>project</th>
@@ -166,46 +169,13 @@ directory is used instead.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>hydrate()</code> attempts to re-use packages already installed on your system,
-to avoid unnecessary attempts to download and install packages from remote
-sources. <code>hydrate()</code> will attempt to discover <span style="R">R</span> packages from the
-following sources (in order):</p><ul>
-<li><p>The user library,</p></li>
-<li><p>The site library,</p></li>
-<li><p>The system library,</p></li>
-<li><p>The <code>renv</code> cache.</p></li>
-</ul>
-    <p>If package is discovered in one of these locations, <code>renv</code> will attempt to
-copy or link that package into the requested library as appropriate.</p>
-    
-    <h2 class="hasAnchor" id="missing-packages"><a class="anchor" href="#missing-packages"></a>Missing Packages</h2>
-
-    
-    <p>If <code>renv</code> discovers that your project depends on <span style="R">R</span> packages not currently
-installed in your user library, then it will attempt to install those
-packages from CRAN.</p>
-    
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='co'># hydrate the active library</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/hydrate.html'>hydrate</a></span>()
-
-<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#details">Details</a></li>
-
-      <li><a href="#missing-packages">Missing Packages</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+                </ul>
 
   </div>
 </div>
