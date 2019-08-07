@@ -17,7 +17,7 @@ renv_format_srcref <- function(srcref) {
   code <- substring(srclines, indent)
 
   n <- length(code)
-  postfix <- sprintf("at %s#%i", basename(srcfile$filename), start)
+  postfix <- sprintf("at %s#%i", basename(srcfile$filename), srcref[1L])
   code[n] <- paste(code[n], postfix)
 
   code
@@ -31,10 +31,13 @@ renv_error_handler <- function(...) {
   formatted <- lapply(calls, function(call) {
 
     srcref <- attr(call, "srcref", exact = TRUE)
-    if (!is.null(srcref))
-      renv_format_srcref(srcref)
-    else
-      format(call)
+    if (!is.null(srcref)) {
+      formatted <- catch(renv_format_srcref(srcref))
+      if (!inherits(formatted, "error"))
+        return(formatted)
+    }
+
+    format(call)
 
   })
 
