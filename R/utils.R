@@ -265,3 +265,8 @@ quietly <- function(expr) {
   on.exit(sink(NULL), add = TRUE)
   expr
 }
+
+convert <- function(x, type) {
+  storage.mode(x) <- type
+  x
+}

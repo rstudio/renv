@@ -40,7 +40,7 @@ renv_modify_impl <- function(project) {
     return(NULL)
   }
 
-  options(repos = lockfile$R$Repositories)
+  options(repos = convert(lockfile$R$Repositories, "character"))
   NULL
 
 }

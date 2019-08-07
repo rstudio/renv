@@ -93,7 +93,7 @@ renv_migrate_packrat_lockfile <- function(project) {
 
   # update fields
   lockfile$R$Version <- header$RVersion
-  lockfile$R$Repositories <- as.character(repos)
+  lockfile$R$Repositories <- as.list(repos)
   lockfile$Packages <- records
 
   # write the lockfile

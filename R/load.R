@@ -11,7 +11,7 @@ renv_load_r <- function(project, fields) {
   # load repositories
   repos <- fields$Repositories
   if (!is.null(repos))
-    options(repos = repos)
+    options(repos = convert(repos, "character"))
 
   # load (check) version
   version <- fields$Version

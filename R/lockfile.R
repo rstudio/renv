@@ -130,7 +130,7 @@ renv_lockfile_init_r_repos <- function(project) {
   attr(repos, "RStudio") <- NULL
 
   # set a default URL
-  repos[repos == "@CRAN@"] <- "https://cran.rstudio.com/"
+  repos[repos == "@CRAN@"] <- "https://cran.rstudio.com"
 
   # remove RSPM bits from URL
   pattern <- "/__linux__/[^/]+/"
