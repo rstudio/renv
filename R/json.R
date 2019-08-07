@@ -92,7 +92,10 @@ renv_json_convert <- function(object, level = 0, unbox = TRUE) {
 
 renv_json_convert_list <- function(object, level, unbox) {
   indent <- renv_json_convert_indent(level)
-  if (is.null(names(object))) {
+  if (empty(object)) {
+    json <- if (is.null(names(object))) "[]" else "{}"
+    paste0(indent, json)
+  } else if (is.null(names(object))) {
     json <- map_chr(object, renv_json_convert, level = level + 1, unbox = unbox)
     paste0(indent, "[", "\n", paste(json, collapse = ",\n"), "\n", indent, "]")
   } else {

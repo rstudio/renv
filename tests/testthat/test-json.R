@@ -29,6 +29,18 @@ test_that("sample R objects can be converted to JSON", {
 
 })
 
+test_that("empty R lists are converted as expected", {
+
+  data <- list()
+  json <- renv_json_convert(data)
+  expect_equal(json, "[]")
+
+  names(data) <- character()
+  json <- renv_json_convert(data)
+  expect_equal(json, "{}")
+
+})
+
 test_that("we can parse a GitHub remotes specification", {
   skip_on_cran()
   skip_if_offline()
