@@ -22,8 +22,14 @@ renv_infrastructure_write_rprofile <- function(project) {
 
 renv_infrastructure_write_rbuildignore <- function(project) {
 
+  lines <- c("^renv$", "^renv\\.lock$")
+  if (file.exists(project, "requirements.txt"))
+    lines <- c(lines, "^requirements\\.txt$")
+  if (file.exists(project, "environment.yml"))
+    lines <- c(lines, "^environment\\.yml$")
+
   renv_infrastructure_write_entry_impl(
-    lines  = c("^renv$", "^renv\\.lock$"),
+    lines  = lines,
     file   = file.path(project, ".Rbuildignore"),
     create = renv_project_type(project) == "package"
   )

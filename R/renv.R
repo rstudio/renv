@@ -118,7 +118,9 @@ load <- function(project = NULL) {
     renv_load_python(project, lockfile$Python)
   }
 
-  renv_infrastructure_write(project)
+  renv_infrastructure_write_rbuildignore(project)
+  renv_infrastructure_write_gitignore(project)
+
   renv_load_finish(project)
 
   invisible(project)
