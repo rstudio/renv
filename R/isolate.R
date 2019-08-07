@@ -6,6 +6,14 @@
 #'
 #' @inheritParams renv-params
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # isolate a project
+#' renv::isolate()
+#'
+#' }
 isolate <- function(project = NULL) {
   project <- project %||% renv_project()
   settings$use.cache(FALSE)

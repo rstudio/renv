@@ -49,3 +49,17 @@ as appropriate,
 \item Reinstall the set of recorded Python packages during \code{renv::restore()}.
 }
 }
+\examples{
+\dontrun{
+
+# use python with a project
+renv::use_python()
+
+# use virtualenv python with a project
+renv::use_python(type = "virtualenv")
+
+# use conda python with a project
+renv::use_python(type = "conda")
+
+}
+}

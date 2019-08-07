@@ -17,6 +17,14 @@ projects for newly-launched \R sessions. In particular, this implies removing
 the requisite code from the project \code{.Rprofile} that automatically activates
 the project when new \R sessions are launched in the project directory.
 }
+\examples{
+\dontrun{
+
+# deactivate the currently-activated project
+renv::deactivate()
+
+}
+}
 \seealso{
 Other renv: \code{\link{activate}}
 }

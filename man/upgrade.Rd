@@ -27,3 +27,14 @@ different version of \code{renv} and that version of the package will be
 downloaded and installed from GitHub. Use \code{version = "master"} to install the
 latest development version of \code{renv}, as from the \code{renv} project's \href{https://github.com/rstudio/renv}{GitHub page}.
 }
+\examples{
+\dontrun{
+
+# upgrade to the latest version of renv on CRAN
+renv::upgrade()
+
+# upgrade to the latest version of renv on GitHub (development version)
+renv::upgrade(version = "master")
+
+}
+}

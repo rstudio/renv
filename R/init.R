@@ -64,6 +64,8 @@
 #'   misusages of `init()`.
 #'
 #' @export
+#'
+#' @example examples/examples-init.R
 init <- function(project = NULL,
                  ...,
                  settings = NULL,

@@ -41,6 +41,20 @@
 #'   Otherwise, a project-local environment will be created instead.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # use python with a project
+#' renv::use_python()
+#'
+#' # use virtualenv python with a project
+#' renv::use_python(type = "virtualenv")
+#'
+#' # use conda python with a project
+#' renv::use_python(type = "conda")
+#'
+#' }
 use_python <- function(python = NULL,
                        ...,
                        type = c("auto", "virtualenv", "conda", "system"),

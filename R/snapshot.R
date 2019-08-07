@@ -63,6 +63,8 @@
 #' @family reproducibility
 #'
 #' @export
+#'
+#' @example examples/examples-init.R
 snapshot <- function(project  = NULL,
                      ...,
                      library  = NULL,

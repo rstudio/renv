@@ -11,6 +11,8 @@
 #'   `.libPaths()`) is used instead.
 #'
 #' @export
+#'
+#' @example examples/examples-init.R
 remove <- function(packages,
                    ...,
                    library = NULL,

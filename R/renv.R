@@ -10,6 +10,17 @@
 #' @family renv
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # activate the current project
+#' renv::activate()
+#'
+#' # activate a separate project
+#' renv::activate("~/projects/analysis")
+#'
+#' }
 activate <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
@@ -23,7 +34,10 @@ renv_activate_impl <- function(project, version) {
   renv_bootstrap_impl()
 
   # try to load the project
-  renv_load_libpaths(project)
+  if (renv_testing())
+    renv_load_libpaths(project)
+  else
+    load(project)
 
   # restart session
   renv_request_restart(project, reason = "renv activated")
@@ -42,6 +56,14 @@ renv_activate_impl <- function(project, version) {
 #' @family renv
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # deactivate the currently-activated project
+#' renv::deactivate()
+#'
+#' }
 deactivate <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
@@ -65,6 +87,16 @@ deactivate <- function(project = NULL) {
 #' @inheritParams renv-params
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # load a project -- note that this is normally done automatically
+#' # when the R session is started in an renv project after calling
+#' # renv::activate()
+#' renv::load()
+#'
+#' }
 load <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()

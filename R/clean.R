@@ -14,6 +14,14 @@
 #' @inheritParams renv-params
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # clean the current project
+#' renv::clean()
+#'
+#' }
 clean <- function(project = NULL,
                   ...,
                   confirm = interactive())

@@ -13,3 +13,11 @@ currently active. Defaults to \code{NULL}.}
 \description{
 Retrieve the path to the active project (if any).
 }
+\examples{
+\dontrun{
+
+# get the currently-active renv project
+renv::project()
+
+}
+}

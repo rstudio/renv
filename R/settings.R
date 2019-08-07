@@ -264,8 +264,19 @@ renv_settings_impl <- function(name, validate, default, update) {
 #' See [config] for more details. This can be useful if you'd like to enforce
 #' certain project settings within new projects.
 #'
-#' @example examples/examples-settings.R
 #' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' # view currently-ignored packaged
+#' renv::settings$ignored.packages()
+#'
+#' # ignore a set of packages
+#' renv::settings$ignored.packages("devtools", persist = FALSE)
+#'
+#' }
 settings <- list(
 
   ignored.packages   = renv_settings_impl(

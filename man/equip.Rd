@@ -10,3 +10,11 @@ equip()
 Equip your system with libraries commonly-used during compilation of
 \R packages. Currently only supported on Windows.
 }
+\examples{
+\dontrun{
+
+# download useful build tools
+renv::equip()
+
+}
+}

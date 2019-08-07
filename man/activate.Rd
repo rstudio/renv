@@ -16,6 +16,17 @@ Use \code{activate()} to write the infrastructure needed to ensure that
 newly-launched \R projects will load the project's private library on launch,
 alongside any other project-specific state recorded for the project.
 }
+\examples{
+\dontrun{
+
+# activate the current project
+renv::activate()
+
+# activate a separate project
+renv::activate("~/projects/analysis")
+
+}
+}
 \seealso{
 Other renv: \code{\link{deactivate}}
 }

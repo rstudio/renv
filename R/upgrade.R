@@ -19,6 +19,17 @@
 #' @param confirm Boolean; confirm upgrade before proceeding?
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # upgrade to the latest version of renv on CRAN
+#' renv::upgrade()
+#'
+#' # upgrade to the latest version of renv on GitHub (development version)
+#' renv::upgrade(version = "master")
+#'
+#' }
 upgrade <- function(project = NULL,
                     version = NULL,
                     confirm = interactive())

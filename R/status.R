@@ -13,6 +13,8 @@
 #'   (called `renv.lock`) is used.
 #'
 #' @export
+#'
+#' @example examples/examples-init.R
 status <- function(project = NULL,
                    ...,
                    library = NULL,

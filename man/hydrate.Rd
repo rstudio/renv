@@ -47,3 +47,11 @@ installed in your user library, then it will attempt to install those
 packages from CRAN.
 }
 
+\examples{
+\dontrun{
+
+# hydrate the active library
+renv::hydrate()
+
+}
+}

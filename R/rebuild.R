@@ -19,6 +19,17 @@
 #'   recursively? Defaults to `TRUE`.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # rebuild the 'dplyr' package + all of its dependencies
+#' renv::rebuild("dplyr", recursive = TRUE)
+#'
+#' # rebuild only 'dplyr'
+#' renv::rebuild("dplyr", recursive = FALSE)
+#'
+#' }
 rebuild <- function(packages  = NULL,
                     recursive = TRUE,
                     ...,

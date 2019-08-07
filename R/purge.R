@@ -21,6 +21,17 @@
 #'   associated with a particular package's version will be removed.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # remove all versions of 'digest' from the cache
+#' renv::purge("digest")
+#'
+#' # remove only a particular version of 'digest' from the cache
+#' renv::purge("digest", version = "0.6.19")
+#'
+#' }
 purge <- function(package,
                   ...,
                   version = NULL,

@@ -5,6 +5,14 @@
 #' \R packages. Currently only supported on Windows.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # download useful build tools
+#' renv::equip()
+#'
+#' }
 equip <- function() {
   renv_scope_error_handler()
 

@@ -28,3 +28,11 @@ The following actions will be taken:
 \item Packages within the cache that are no longer used will be removed.
 }
 }
+\examples{
+\dontrun{
+
+# clean the current project
+renv::clean()
+
+}
+}

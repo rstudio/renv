@@ -11,6 +11,21 @@
 #' when it is a mounted network filesystem).
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # check CRAN available packages
+#' db <- available.packages()
+#'
+#' # wait some time (suppose packages are uploaded to CRAN in this time)
+#' Sys.sleep(5)
+#'
+#' # refresh the local CRAN available packages database
+#' # (the old locally cached db will be removed)
+#' db <- renv::refresh()
+#'
+#' }
 refresh <- function() {
 
   dbs <- list()

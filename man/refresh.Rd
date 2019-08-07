@@ -17,3 +17,18 @@ an update of both types of caches. \code{renv} prefers using an in-memory
 cache as on occasion the temporary directory can be slow to access (e.g.
 when it is a mounted network filesystem).
 }
+\examples{
+\dontrun{
+
+# check CRAN available packages
+db <- available.packages()
+
+# wait some time (suppose packages are uploaded to CRAN in this time)
+Sys.sleep(5)
+
+# refresh the local CRAN available packages database
+# (the old locally cached db will be removed)
+db <- renv::refresh()
+
+}
+}

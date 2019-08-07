@@ -13,6 +13,14 @@
 #'
 #' @inheritParams renv-params
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # migrate Packrat project infrastructure to renv
+#' renv::migrate()
+#'
+#' }
 migrate <- function(project = NULL) {
   project <- project %||% renv_project()
   renv_scope_error_handler()

@@ -54,3 +54,11 @@ data/
 }
 }
 
+\examples{
+\dontrun{
+
+# find R package dependencies in the current directory
+renv::dependencies()
+
+}
+}

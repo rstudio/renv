@@ -22,3 +22,12 @@ Useful links:
 }
 
 }
+\author{
+\strong{Maintainer}: Kevin Ushey \email{kevin@rstudio.com}
+
+Other contributors:
+\itemize{
+  \item RStudio [copyright holder]
+}
+
+}

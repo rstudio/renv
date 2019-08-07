@@ -7,6 +7,14 @@
 #'   currently active. Defaults to `NULL`.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # get the currently-active renv project
+#' renv::project()
+#'
+#' }
 project <- function(default = NULL) {
   renv_project(default = default)
 }

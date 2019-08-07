@@ -24,3 +24,11 @@ The following actions are taken:
 \item The project \code{.Rprofile} is updated to use \code{renv}.
 }
 }
+\examples{
+\dontrun{
+
+# migrate Packrat project infrastructure to renv
+renv::migrate()
+
+}
+}

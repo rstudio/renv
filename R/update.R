@@ -88,6 +88,14 @@ renv_update_find <- function(record) {
 #'   all packages within the required libraries will be updated.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # update the 'dplyr' package
+#' renv::update("dplyr")
+#'
+#' }
 update <- function(packages = NULL,
                    ...,
                    library = NULL,

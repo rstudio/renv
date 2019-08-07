@@ -10,6 +10,8 @@
 #' @inheritParams renv-params
 #'
 #' @export
+#'
+#' @example examples/examples-history.R
 history <- function(project = NULL) {
 
   renv_scope_error_handler()
@@ -49,6 +51,8 @@ history <- function(project = NULL) {
 #' @param ... Optional arguments; currently unused.
 #'
 #' @export
+#'
+#' @example examples/examples-history.R
 revert <- function(commit = "HEAD", ..., project = NULL) {
 
   renv_scope_error_handler()

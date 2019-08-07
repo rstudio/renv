@@ -59,6 +59,8 @@
 #' @family reproducibility
 #'
 #' @export
+#'
+#' @example examples/examples-init.R
 restore <- function(project  = NULL,
                     ...,
                     library  = NULL,

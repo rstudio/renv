@@ -42,16 +42,16 @@ separate package installation backends in the future.
 \examples{
 \dontrun{
 
-# install the latest version of a package from CRAN
+# install the latest version of 'digest' from CRAN
 renv::install("digest")
 
-# install an old version of package from CRAN (using archives)
+# install an old version of 'digest' from CRAN (using archives)
 renv::install("digest@0.6.18")
 
-# install a package from GitHub (latest master)
+# install 'digest' from GitHub (latest dev. version)
 renv::install("eddelbuettel/digest")
 
-# install a package in a local directory
+# install a package from local sources
 renv::install("~/path/to/package")
 
 }

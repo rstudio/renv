@@ -36,3 +36,11 @@ Updates will only be checked from the same source -- for example,
 if a package was installed from GitHub, but a newer version is
 available on CRAN, that updated version will not be seen.
 }
+\examples{
+\dontrun{
+
+# update the 'dplyr' package
+renv::update("dplyr")
+
+}
+}

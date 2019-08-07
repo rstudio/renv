@@ -33,6 +33,14 @@
 #'   library as reported by `.libPaths()` is used.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # hydrate the active library
+#' renv::hydrate()
+#'
+#' }
 hydrate <- function(packages = NULL,
                     ...,
                     library = NULL,

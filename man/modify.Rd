@@ -16,3 +16,12 @@ Open a project's lockfile (if any) for editing. After edit, if the lockfile
 edited is associated with the active project, any state-related changes
 (e.g. to \R repositories) will be updated in the current session.
 }
+\examples{
+\dontrun{
+
+# modify an existing lockfile
+if (interactive())
+  renv::modify()
+
+}
+}
