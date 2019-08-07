@@ -120,6 +120,12 @@ renv_lockfile_init_r_repos <- function(project) {
 
   repos <- getOption("repos")
 
+  # save names
+  nms <- names(repos)
+
+  # force as character
+  repos <- as.character(repos)
+
   # clear RStudio attribute
   attr(repos, "RStudio") <- NULL
 
@@ -130,7 +136,13 @@ renv_lockfile_init_r_repos <- function(project) {
   pattern <- "/__linux__/[^/]+/"
   repos <- sub(pattern, "/", repos)
 
-  as.list(repos)
+  # force as list
+  repos <- as.list(repos)
+
+  # ensure names
+  names(repos) <- nms
+
+  repos
 
 }
 
