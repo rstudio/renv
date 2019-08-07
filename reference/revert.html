@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.51</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.52</span>
       </span>
     </div>
 
@@ -162,6 +162,18 @@ directory is used instead.</p></td>
 <code>git</code> for version control.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># get history of previous versions of renv.lock in VCS</span>
+<span class='no'>db</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/history.html'>history</a></span>()
+
+<span class='co'># choose an older commit</span>
+<span class='no'>commit</span> <span class='kw'>&lt;-</span> <span class='no'>db</span>$<span class='no'>commit</span>[<span class='fl'>5</span>]
+
+<span class='co'># revert to that version of the lockfile</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/revert.html'>revert</a></span>(<span class='kw'>commit</span> <span class='kw'>=</span> <span class='no'>commit</span>)
+
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -169,7 +181,9 @@ directory is used instead.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

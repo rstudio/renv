@@ -64,7 +64,7 @@ update the in-memory cache of those packages." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.51</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.52</span>
       </span>
     </div>
 
@@ -148,13 +148,28 @@ cache as on occasion the temporary directory can be slow to access (e.g.
 when it is a mounted network filesystem).</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># check CRAN available packages</span>
+<span class='no'>db</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/available.packages'>available.packages</a></span>()
+
+<span class='co'># wait some time (suppose packages are uploaded to CRAN in this time)</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Sys.sleep'>Sys.sleep</a></span>(<span class='fl'>5</span>)
+
+<span class='co'># refresh the local CRAN available packages database</span>
+<span class='co'># (the old locally cached db will be removed)</span>
+<span class='no'>db</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/refresh.html'>refresh</a></span>()
+
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       
       <li><a href="#details">Details</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.51</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.52</span>
       </span>
     </div>
 
@@ -167,6 +167,15 @@ downloaded and installed from GitHub. Use <code>version = "master"</code> to ins
 latest development version of <code>renv</code>, as from the <code>renv</code> project's <a href='https://github.com/rstudio/renv'>GitHub page</a>.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># upgrade to the latest version of renv on CRAN</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/upgrade.html'>upgrade</a></span>()
+
+<span class='co'># upgrade to the latest version of renv on GitHub (development version)</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/upgrade.html'>upgrade</a></span>(<span class='kw'>version</span> <span class='kw'>=</span> <span class='st'>"master"</span>)
+
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -174,7 +183,9 @@ latest development version of <code>renv</code>, as from the <code>renv</code> p
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>
