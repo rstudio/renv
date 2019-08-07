@@ -225,6 +225,10 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   args <- stack()
 
+  extra <- getOption("download.file.extra")
+  if (length(extra))
+    args$push(extra)
+
   userconfig <- getOption(
     "renv.curl.config",
     renv_download_curl_config()
@@ -291,7 +295,9 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
 
   writeLines(text, con = config)
 
-  args <- c("--config", shQuote(config))
+  args <- getOption("download.file.extra")
+
+  args <- c(args, "--config", shQuote(config))
   if (request == "HEAD") {
     args <- c("--server-response", "--spider", args, shQuote(url))
     return(system2("wget", args, stdout = destfile, stderr = destfile))
