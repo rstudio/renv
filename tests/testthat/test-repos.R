@@ -16,3 +16,9 @@ test_that("repository names are not lost in the lockfile", {
   expect_equal(lockfile$R$Repositories, list(Example = url))
 
 })
+
+test_that("trailing slashes are removed from repositories on load", {
+  renv_scope_options(repos = NULL)
+  renv_load_r_repos(list(CRAN = "https://cran.rstudio.com/"))
+  expect_equal(getOption("repos"), c(CRAN = "https://cran.rstudio.com"))
+})

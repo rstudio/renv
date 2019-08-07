@@ -9,9 +9,7 @@ renv_load_r <- function(project, fields) {
   }
 
   # load repositories
-  repos <- fields$Repositories
-  if (!is.null(repos))
-    options(repos = convert(repos, "character"))
+  renv_load_r_repos(fields$Repositories)
 
   # load (check) version
   version <- fields$Version
@@ -27,6 +25,24 @@ renv_load_r <- function(project, fields) {
     fmt <- "Project requested R version '%s' but '%s' is currently being used"
     warningf(fmt, version, getRversion())
   }
+
+}
+
+renv_load_r_repos <- function(repos) {
+
+  # force a character vector (https://github.com/rstudio/renv/issues/127)
+  repos <- convert(repos, "character")
+
+  # remove trailing slashes
+  nms <- names(repos)
+  repos <- sub("/+$", "", repos)
+  names(repos) <- nms
+
+  # set sanitized repos
+  options(repos = repos)
+
+  # and return
+  repos
 
 }
 
