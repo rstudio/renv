@@ -43,7 +43,7 @@ test_that("restore can recover when required packages are missing", {
 
 })
 
-test_that("restore removes packages not in the lockfile", {
+test_that("restore(clean = TRUE) removes packages not in the lockfile", {
 
   renv_tests_scope("oatmeal")
   renv::init()
@@ -52,7 +52,7 @@ test_that("restore removes packages not in the lockfile", {
   renv::install("bread")
   expect_true(renv_package_installed("bread"))
 
-  renv::restore()
+  renv::restore(clean = TRUE)
   expect_false(renv_package_installed("bread"))
 
 })
