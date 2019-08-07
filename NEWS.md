@@ -1,4 +1,4 @@
 
-# renv 1.0.0 (UNDER DEVELOPMENT)
+# renv 0.7.0
 
 * Initial CRAN release.

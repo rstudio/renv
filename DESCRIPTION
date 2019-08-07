@@ -1,12 +1,15 @@
 Package: renv
 Type: Package
 Title: Project Environments for R
-Version: 0.6.0-49
-Author: Kevin Ushey
-Maintainer: Kevin Ushey <kevin@rstudio.com>
-Description: Use 'renv' to create and manage project-local environments.
-    Use 'renv' to make your projects more isolated, portable, and
-    reproducible.
+Version: 0.6.0-50
+Authors@R: c(
+    person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com"),
+    person("RStudio", role = c("cph"))
+    )
+Description: A dependency management toolkit for R. Using 'renv', you can create
+    and manage project-local R libraries, save the state of these libraries to
+    a lockfile, and later restore your library as required. Together, these
+    tools can help make your projects more isolated, portable, and reproducible.
 License: MIT + file LICENSE
 URL: https://rstudio.github.io/renv
 BugReports: https://github.com/rstudio/renv/issues
