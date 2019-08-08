@@ -118,10 +118,9 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
 
 renv_restore_run_actions <- function(project, actions, current, lockfile) {
 
-  records <- renv_records(lockfile)
   packages <- names(actions)
 
-  renv_restore_begin(records = records, packages = packages)
+  renv_restore_begin(records = renv_records(lockfile), packages = packages)
   on.exit(renv_restore_end(), add = TRUE)
 
   # first, handle package removals
@@ -133,12 +132,24 @@ renv_restore_run_actions <- function(project, actions, current, lockfile) {
   # next, handle installs
   installs <- actions[actions != "remove"]
   packages <- names(installs)
-  records <- renv_records(lockfile)
 
   # perform the install
   library <- renv_libpaths_default()
   records <- renv_retrieve(packages)
-  renv_install(records, library, project)
+  status <- renv_install(records, library, project)
+
+  # detect dependency tree repair
+  diff <- renv_lockfile_diff_packages(renv_records(lockfile), records)
+  if (empty(diff))
+    return(invisible(status))
+
+  renv_pretty_print_records(
+    records[names(diff)],
+    "The dependency tree was repaired during package installation:",
+    "Call `renv::snapshot()` to capture these dependencies in the lockfile."
+  )
+
+  invisible(status)
 
 }
 
@@ -338,7 +349,7 @@ renv_restore_find <- function(record) {
   }
 
   # otherwise, match on remote fields
-  fields <- c("Package", "Version", grep("^Remote", names(record), value = TRUE))
+  fields <- renv_record_names(record, c("Package", "Version"))
   if (identical(record[fields], current[fields]))
     return(path)
 

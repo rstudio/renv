@@ -62,6 +62,13 @@ renv_records_cran_latest <- function(package) {
 }
 
 
+renv_record_names <- function(record, fields = NULL) {
+  fields <- fields %||% c("Package", "Version", "Source")
+  remotes <- grep("^Remote", names(record), value = TRUE)
+  nms <- c(fields, remotes)
+  intersect(nms, names(record))
+}
+
 renv_record_cacheable <- function(record) {
 
   # check if the record has been marked as cacheable

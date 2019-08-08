@@ -51,7 +51,7 @@ renv_cache_package_path <- function(record) {
       return(package)
 
     # otherwise, match on other fields
-    fields <- c(required, grep("^Remote", names(record), value = TRUE))
+    fields <- renv_record_names(record)
     if (identical(record[fields], dcf[fields]))
       return(package)
 

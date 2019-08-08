@@ -56,10 +56,10 @@ renv_lockfile_diff_record <- function(before, after) {
 
   # check for a crossgrade -- where the package version is the same,
   # but details about the package's remotes have changed
-  if (!setequal(names(before), names(after)))
+  if (!setequal(renv_record_names(before), renv_record_names(after)))
     return("crossgrade")
 
-  nm <- union(names(before), names(after))
+  nm <- union(renv_record_names(before), renv_record_names(after))
   if (!identical(before[nm], after[nm]))
     return("crossgrade")
 
