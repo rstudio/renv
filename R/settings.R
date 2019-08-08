@@ -1,13 +1,24 @@
 
 `_renv_settings` <- new.env(parent = emptyenv())
 
-renv_settings_defaults <- function() {
-  defaults <- extract(`_renv_settings`, "default")
-  defaults[order(names(defaults))]
+renv_settings_default <- function(name) {
+
+  val <-
+    getOption(paste("renv.settings", name, sep = ".")) %||%
+    getOption("renv.settings")[[name]] %||%
+    `_renv_settings`[[name]]$default
+
+  val
+
 }
 
-renv_settings_default <- function(name) {
-  `_renv_settings`[[name]]$default
+renv_settings_defaults <- function() {
+
+  keys <- ls(envir = `_renv_settings`, all.names = TRUE)
+  vals <- lapply(keys, renv_settings_default)
+  names(vals) <- keys
+  vals[order(names(vals))]
+
 }
 
 renv_settings_validate <- function(name, value) {
@@ -57,7 +68,7 @@ renv_settings_read <- function(project) {
     return(renv_settings_defaults())
   }
 
-  known <- ls(envir = `_renv_settings`)
+  known <- ls(envir = `_renv_settings`, all.names = TRUE)
   dcf <- dcf[intersect(names(dcf), known)]
 
   settings <- enumerate(dcf, renv_settings_decode)
@@ -258,11 +269,21 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 #'
-#' @section User-Provided Defaults:
+#' @section Defaults:
 #'
-#' It is possible to provide your own global defaults for these options.
-#' See [config] for more details. This can be useful if you'd like to enforce
-#' certain project settings within new projects.
+#' You can change the default values of these settings for newly-created `renv`
+#' projects by setting \R options for `renv.settings` or `renv.settings.<name>`.
+#' For example:
+#'
+#' \preformatted{
+#' options(renv.settings = list(snapshot.type = "simple"))
+#' options(renv.settings.snapshot.type = "simple")
+#' }
+#'
+#' If both of the `renv.settings` and `renv.settings.<name>` options are set
+#' for a particular key, the option associated with `renv.settings.<name>` is
+#' used instead. We recommend setting these in an appropriate startup profile,
+#' e.g. `~/.Rprofile` or similar.
 #'
 #' @export
 #'

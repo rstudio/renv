@@ -94,7 +94,7 @@ renv_load_renviron <- function(project) {
 
 }
 
-renv_load_options <- function(project) {
+renv_load_settings <- function(project) {
 
   settings <- file.path(project, "renv/settings.R")
   if (!file.exists(settings))

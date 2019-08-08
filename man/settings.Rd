@@ -56,12 +56,22 @@ projects in the same environment.
 }
 }
 
-\section{User-Provided Defaults}{
+\section{Defaults}{
 
 
-It is possible to provide your own global defaults for these options.
-See \link{config} for more details. This can be useful if you'd like to enforce
-certain project settings within new projects.
+You can change the default values of these settings for newly-created \code{renv}
+projects by setting \R options for \code{renv.settings} or \code{renv.settings.<name>}.
+For example:
+
+\preformatted{
+options(renv.settings = list(snapshot.type = "simple"))
+options(renv.settings.snapshot.type = "simple")
+}
+
+If both of the \code{renv.settings} and \code{renv.settings.<name>} options are set
+for a particular key, the option associated with \code{renv.settings.<name>} is
+used instead. We recommend setting these in an appropriate startup profile,
+e.g. \code{~/.Rprofile} or similar.
 }
 
 \examples{

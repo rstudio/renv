@@ -104,7 +104,7 @@ load <- function(project = NULL) {
   renv_envvars_save()
   renv_load_path(project)
   renv_load_renviron(project)
-  renv_load_options(project)
+  renv_load_settings(project)
   renv_load_project(project)
   renv_load_profile(project)
   renv_load_envvars(project)
