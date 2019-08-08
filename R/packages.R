@@ -120,6 +120,7 @@ renv_package_augment <- function(installpath, record) {
 }
 
 renv_package_augment_impl <- function(data, remotes) {
+  remotes <- remotes[map_lgl(remotes, nzchar)]
   nonremotes <- grep("^Remote", names(data), invert = TRUE)
   c(data[nonremotes], remotes)
 }
