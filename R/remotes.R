@@ -180,7 +180,7 @@ renv_remotes_parse_gitlab <- function(entry) {
 
   destfile <- renv_tempfile("renv-description-")
   download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
-  desc <- renv_json_read(destfile)
+  desc <- renv_dcf_read(destfile)
 
   list(
     Package        = desc$Package,
