@@ -29,7 +29,7 @@ renv_sandbox_activate_impl <- function(project) {
   # find system packages in the system library
   syspkgs <- renv_installed_packages(
     lib.loc = renv_libpaths_system(),
-    priority = "base"
+    priority = c("base", "recommended")
   )
 
   # link into temporary library
