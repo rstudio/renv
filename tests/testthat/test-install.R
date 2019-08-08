@@ -108,8 +108,8 @@ test_that("various remote styles can be used during install", {
   expect_true(renv_package_installed("skeleton"))
   expect_true(renv_package_version("skeleton") == "1.0.2")
 
-  #install from subdir
-  renv::install("kevinushey/subdir/subdir")
+  # install from subdir
+  renv::install("kevinushey/subdir:subdir")
   expect_true(renv_package_installed("subdir"))
   expect_true(renv_package_version("subdir") == "0.0.0.9000")
 

@@ -140,6 +140,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile) {
 
   # detect dependency tree repair
   diff <- renv_lockfile_diff_packages(renv_records(lockfile), records)
+  diff <- diff[diff != "remove"]
   if (empty(diff))
     return(invisible(status))
 

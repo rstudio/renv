@@ -41,7 +41,7 @@ test_that("we can parse a variety of remotes", {
 
 test_that("subdirectories are parsed in remotes", {
 
-  entry <- "gitlab::user/repo/subdir@ref"
+  entry <- "gitlab::user/repo:subdir@ref"
   parsed <- renv_remotes_parse(entry)
 
   expected <- list(

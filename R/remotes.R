@@ -45,11 +45,11 @@ renv_remotes_parse <- function(entry) {
 
   pattern <- paste0(
     "(?:([^:]+)::)?",    # optional leading type
-    "([^/#@]+)",         # a username
-    "(?:/([^@#/]+))?",   # a repository
-    "(?:/([^@#]+))?",    # optional subdirectory
-    "(?:#([^@#]+))?",    # optional hash (e.g. pull request)
-    "(?:@([^@#]+))?"     # optional ref (e.g. branch or commit)
+    "([^/#@:]+)",        # a username
+    "(?:/([^@#:]+))?",   # a repository (allow sub-repositories)
+    "(?::([^@#:]+))?",   # optional subdirectory
+    "(?:#([^@#:]+))?",   # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?"    # optional ref (e.g. branch or commit)
   )
 
   matches <- regexec(pattern, entry)
