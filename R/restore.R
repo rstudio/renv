@@ -46,12 +46,13 @@ restore <- function(project  = NULL,
   if (is.character(lockfile))
     lockfile <- renv_lockfile_read(lockfile)
 
-  # detect changes in R packages in the lockfile
+  # get records for R packages currently installed
   current <- snapshot(project = project,
                       library = library,
                       lockfile = NULL,
                       type = "simple")
 
+  # compare lockfile vs. currently-installed packages
   diff <- renv_lockfile_diff_packages(current, lockfile)
 
   # don't remove packages unless 'clean = TRUE'
@@ -84,19 +85,18 @@ restore <- function(project  = NULL,
   # perform the restore
   status <- renv_restore_run_actions(project, diff, current, lockfile)
 
-  # check to see if the lockfile is now up to date; if it's not,
-  # then the restore might've repaired the dependency tree and
-  # we should snapshot to capture the new changes
-  renv_restore_postamble(project, lockfile, confirm)
-
   invisible(status)
 }
 
+# nocov start
+
+# TODO: does this still make sense in a world where there are
+# different kinds of snapshots?
 renv_restore_postamble <- function(project, lockfile, confirm) {
 
   actions <- renv_lockfile_diff_packages(
     lockfile,
-    snapshot(project = project, lockfile = NULL, type = "simple")
+    snapshot(project = project, lockfile = NULL)
   )
 
   if (empty(actions))
@@ -110,9 +110,11 @@ renv_restore_postamble <- function(project, lockfile, confirm) {
     msg$push("The lockfile will be updated with the newly-installed packages.")
 
   vwritef(as.character(msg$data()))
-  snapshot(project = project, confirm = confirm, type = "simple")
+  snapshot(project = project, confirm = confirm)
 
 }
+
+# nocov end
 
 renv_restore_run_actions <- function(project, actions, current, lockfile) {
 
