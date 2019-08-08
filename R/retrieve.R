@@ -302,7 +302,7 @@ renv_retrieve_explicit <- function(record) {
 
   # try parsing as a local remote
   source <- record$Source %||% ""
-  record <- catch(renv_remotes_parse_local(source))
+  record <- catch(renv_remotes_resolve_local(source))
   if (inherits(record, "error"))
     return(FALSE)
 
@@ -483,7 +483,7 @@ renv_retrieve_handle_remotes <- function(record) {
   for (field in fields) {
 
     # TODO: allow customization of behavior when remote parsing fails?
-    remote <- catch(renv_remotes_parse(field))
+    remote <- catch(renv_remotes_resolve(field))
     if (inherits(remote, "error")) {
       fmt <- "failed to parse remote '%s' declared by package '%s'; skipping"
       warningf(fmt, field, record$Package)

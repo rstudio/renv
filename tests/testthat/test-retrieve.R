@@ -99,7 +99,7 @@ test_that("we can retrieve packages with URLs", {
   skip_on_cran()
   skip_if_offline(host = "github.com")
   url <- "https://api.github.com/repos/kevinushey/skeleton/tarball"
-  record <- renv_remotes_parse(url)
+  record <- renv_remotes_resolve(url)
   renv_test_retrieve(record)
 })
 

@@ -22,12 +22,12 @@ renv_update_find_github <- function(record) {
   ref  <- record$RemoteRef
 
   # check for changed sha
-  sha <- renv_remotes_parse_github_sha_ref(host, user, repo, ref)
+  sha <- renv_remotes_resolve_github_sha_ref(host, user, repo, ref)
   if (sha == record$RemoteSha)
     return(NULL)
 
   # get updated record
-  desc <- renv_remotes_parse_github_description(host, user, repo, sha)
+  desc <- renv_remotes_resolve_github_description(host, user, repo, sha)
   current <- list(
     Package        = desc$Package,
     Version        = desc$Version,

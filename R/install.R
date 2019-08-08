@@ -48,7 +48,7 @@ install <- function(packages,
   remotes <- lapply(packages, function(package) {
     case(
       is.list(package)      ~ package,
-      is.character(package) ~ renv_remotes_parse(package)
+      is.character(package) ~ renv_remotes_resolve(package)
     )
   })
 

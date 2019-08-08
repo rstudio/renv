@@ -104,6 +104,6 @@ renv_upgrade_find_record <- function(version) {
 
   # otherwise, attempt to install the latest version of renv from GitHub
   entry <- paste("rstudio/renv", version %||% "master", sep = "@")
-  renv_remotes_parse(entry)
+  renv_remotes_resolve(entry)
 
 }

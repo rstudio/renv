@@ -39,7 +39,7 @@ renv_bootstrap_impl <- function(version = NULL) {
   # otherwise, try to download and install the requested version
   # of renv from GitHub
   remote <- paste("rstudio/renv", version %||% "master", sep = "@")
-  record <- renv_remotes_parse(remote)
+  record <- renv_remotes_resolve(remote)
   records <- list(renv = record)
 
   renv_restore_begin(records = records, packages = "renv", recursive = FALSE)

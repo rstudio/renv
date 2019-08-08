@@ -1,13 +1,13 @@
 
 # take a short-form remotes entry, and generate a package record
-renv_remotes_parse <- function(entry) {
+renv_remotes_resolve <- function(entry) {
 
   # check for URLs
   if (grepl("^(?:file|https?)://", entry))
-    return(renv_remotes_parse_url(entry))
+    return(renv_remotes_resolve_url(entry))
 
   # check for paths to existing local files
-  record <- catch(renv_remotes_parse_local(entry))
+  record <- catch(renv_remotes_resolve_local(entry))
   if (!inherits(record, "error"))
     return(record)
 
@@ -21,34 +21,35 @@ renv_remotes_parse <- function(entry) {
 
   # attempt the parse
   withCallingHandlers(
-    renv_remotes_parse_impl(entry),
+    renv_remotes_resolve_impl(entry),
     error = error
   )
 
 }
 
-renv_remotes_parse_impl <- function(entry) {
+renv_remotes_resolve_impl <- function(entry) {
 
-  parsed <- renv_remotes_parse_entry(entry)
+  parsed <- renv_remotes_parse(entry)
   switch(
     parsed$type,
-    bitbucket = renv_remotes_parse_bitbucket(parsed),
-    cran      = renv_remotes_parse_cran(parsed),
-    gitlab    = renv_remotes_parse_gitlab(parsed),
-    github    = renv_remotes_parse_github(parsed),
+    bitbucket = renv_remotes_resolve_bitbucket(parsed),
+    cran      = renv_remotes_resolve_cran(parsed),
+    gitlab    = renv_remotes_resolve_gitlab(parsed),
+    github    = renv_remotes_resolve_github(parsed),
     stopf("unknown remote type '%s'", parsed$type %||% "<NA>")
   )
 
 }
 
-renv_remotes_parse_entry <- function(entry) {
+renv_remotes_parse <- function(entry) {
 
   pattern <- paste0(
-    "(?:([^:]+)::)?",   # optional leading type
-    "([^/#@]+)",        # a username
-    "(?:/([^@#]+))?",   # a repository
-    "(?:#([^@#]+))?",   # optional hash (e.g. pull request)
-    "(?:@([^@#]+))?"    # optional ref (e.g. branch or commit)
+    "(?:([^:]+)::)?",    # optional leading type
+    "([^/#@]+)",         # a username
+    "(?:/([^@#/]+))?",   # a repository
+    "(?:/([^@#]+))?",    # optional subdirectory
+    "(?:#([^@#]+))?",    # optional hash (e.g. pull request)
+    "(?:@([^@#]+))?"     # optional ref (e.g. branch or commit)
   )
 
   matches <- regexec(pattern, entry)
@@ -57,12 +58,13 @@ renv_remotes_parse_entry <- function(entry) {
     stopf("'%s' is not a valid remote", entry)
 
   parsed <- list(
-    entry = strings[[1]],
-    type  = strings[[2]],
-    user  = strings[[3]],
-    repo  = strings[[4]],
-    pull  = strings[[5]],
-    ref   = strings[[6]]
+    entry  = strings[[1]],
+    type   = strings[[2]],
+    user   = strings[[3]],
+    repo   = strings[[4]],
+    subdir = strings[[5]],
+    pull   = strings[[6]],
+    ref    = strings[[7]]
   )
 
   # handle cran vs. github short-forms
@@ -75,11 +77,12 @@ renv_remotes_parse_entry <- function(entry) {
 
 }
 
-renv_remotes_parse_bitbucket <- function(entry) {
+renv_remotes_resolve_bitbucket <- function(entry) {
 
-  user <- entry$user
-  repo <- entry$repo
-  ref  <- entry$ref %""% "master"
+  user   <- entry$user
+  repo   <- entry$repo
+  subdir <- entry$subdir
+  ref    <- entry$ref %""% "master"
 
   host <- renv_config("bitbucket.host", "api.bitbucket.org/2.0")
   fmt <- "https://%s/repositories/%s/%s/src/%s/DESCRIPTION"
@@ -95,13 +98,14 @@ renv_remotes_parse_bitbucket <- function(entry) {
     Source         = "Bitbucket",
     RemoteUsername = user,
     RemoteRepo     = repo,
+    RemoteSubdir   = subdir,
     RemoteRef      = ref,
     RemoteHost     = host
   )
 
 }
 
-renv_remotes_parse_cran <- function(entry) {
+renv_remotes_resolve_cran <- function(entry) {
 
   package <- entry$user
   version <- entry$ref %""% "latest"
@@ -120,7 +124,7 @@ renv_remotes_parse_cran <- function(entry) {
 
 }
 
-renv_remotes_parse_github_sha_pull <- function(host, user, repo, pull) {
+renv_remotes_resolve_github_sha_pull <- function(host, user, repo, pull) {
 
   fmt <- "https://%s/repos/%s/%s/pulls/%s"
   url <- sprintf(fmt, host, user, repo, pull)
@@ -131,7 +135,7 @@ renv_remotes_parse_github_sha_pull <- function(host, user, repo, pull) {
 
 }
 
-renv_remotes_parse_github_sha_ref <- function(host, user, repo, ref) {
+renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
 
   fmt <- "https://%s/repos/%s/%s/commits/%s"
   url <- sprintf(fmt, host, user, repo, ref)
@@ -150,7 +154,7 @@ renv_remotes_parse_github_sha_ref <- function(host, user, repo, ref) {
 
 }
 
-renv_remotes_parse_github_description <- function(host, user, repo, sha) {
+renv_remotes_resolve_github_description <- function(host, user, repo, sha) {
 
   # get the DESCRIPTION contents
   fmt <- "https://%s/repos/%s/%s/contents/DESCRIPTION?ref=%s"
@@ -167,11 +171,45 @@ renv_remotes_parse_github_description <- function(host, user, repo, sha) {
 
 }
 
-renv_remotes_parse_gitlab <- function(entry) {
+renv_remotes_resolve_github <- function(entry) {
 
-  user <- entry$user
-  repo <- entry$repo
-  ref  <- entry$ref %""% "master"
+  user   <- entry$user
+  repo   <- entry$repo
+  subdir <- entry$subdir
+  pull   <- entry$pull
+  ref    <- entry$ref %""% "master"
+
+  # TODO: configure GitHub host on a per-package or per-remote basis?
+  host <- renv_config("github.host", "api.github.com")
+
+  # resolve the sha associated with the ref / pull
+  sha <- case(
+    nzchar(pull) ~ renv_remotes_resolve_github_sha_pull(host, user, repo, pull),
+    nzchar(ref)  ~ renv_remotes_resolve_github_sha_ref(host, user, repo, ref)
+  )
+
+  desc <- renv_remotes_resolve_github_description(host, user, repo, sha)
+
+  list(
+    Package        = desc$Package,
+    Version        = desc$Version,
+    Source         = "GitHub",
+    RemoteUsername = user,
+    RemoteRepo     = repo,
+    RemoteSubdir   = subdir,
+    RemoteRef      = ref,
+    RemoteSha      = sha,
+    RemoteHost     = host
+  )
+
+}
+
+renv_remotes_resolve_gitlab <- function(entry) {
+
+  user   <- entry$user
+  repo   <- entry$repo
+  subdir <- entry$subdir
+  ref    <- entry$ref %""% "master"
 
   fmt <- "https://%s/api/v4/projects/%s/repository/files/DESCRIPTION/raw?ref=%s"
   host <- renv_config("gitlab.host", "gitlab.com")
@@ -188,44 +226,14 @@ renv_remotes_parse_gitlab <- function(entry) {
     Source         = "Gitlab",
     RemoteUsername = user,
     RemoteRepo     = repo,
+    RemoteSubdir   = subdir,
     RemoteRef      = ref,
     RemoteHost     = host
   )
 
 }
 
-renv_remotes_parse_github <- function(entry) {
-
-  user <- entry$user
-  repo <- entry$repo
-  pull <- entry$pull
-  ref  <- entry$ref %""% "master"
-
-  # TODO: configure GitHub host on a per-package or per-remote basis?
-  host <- renv_config("github.host", "api.github.com")
-
-  # resolve the sha associated with the ref / pull
-  sha <- case(
-    nzchar(pull) ~ renv_remotes_parse_github_sha_pull(host, user, repo, pull),
-    nzchar(ref)  ~ renv_remotes_parse_github_sha_ref(host, user, repo, ref)
-  )
-
-  desc <- renv_remotes_parse_github_description(host, user, repo, sha)
-
-  list(
-    Package        = desc$Package,
-    Version        = desc$Version,
-    Source         = "GitHub",
-    RemoteUsername = user,
-    RemoteRepo     = repo,
-    RemoteRef      = ref,
-    RemoteSha      = sha,
-    RemoteHost     = host
-  )
-
-}
-
-renv_remotes_parse_url <- function(entry) {
+renv_remotes_resolve_url <- function(entry) {
 
   tempfile <- renv_tempfile("renv-url-")
   writeLines(entry, con = tempfile)
@@ -250,7 +258,7 @@ renv_remotes_parse_url <- function(entry) {
 
 }
 
-renv_remotes_parse_local <- function(entry) {
+renv_remotes_resolve_local <- function(entry) {
 
   # check for existing path
   path <- normalizePath(entry, winslash = "/", mustWork = TRUE)
@@ -258,17 +266,17 @@ renv_remotes_parse_local <- function(entry) {
   # first, check for a common extension
   ext <- fileext(entry)
   if (ext %in% c(".tar.gz", ".tgz", ".zip"))
-    return(renv_remotes_parse_local_impl(path))
+    return(renv_remotes_resolve_local_impl(path))
 
   # otherwise, if this is the path to a package project, use the sources as-is
   if (renv_project_type(path) == "package")
-    return(renv_remotes_parse_local_impl(path))
+    return(renv_remotes_resolve_local_impl(path))
 
   stopf("there is no package at path '%s'", entry)
 
 }
 
-renv_remotes_parse_local_impl <- function(path) {
+renv_remotes_resolve_local_impl <- function(path) {
 
   desc <- renv_description_read(path)
   list(
