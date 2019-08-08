@@ -215,10 +215,11 @@ renv_clean_cache <- function(project, confirm) {
   action <- function(project) {
     library <- renv_paths_library(project = project)
     packages <- list.files(library, full.names = TRUE)
-    existing <- file.exists(packages)
-    map_chr(packages[existing], function(package) {
-      record <- renv_description_read(package)
-      record$Hash <- renv_hash_description(package)
+    descs <- file.path(packages, "DESCRIPTION")
+    existing <- file.exists(descs)
+    map_chr(descs[existing], function(desc) {
+      record <- renv_description_read(desc)
+      record$Hash <- renv_hash_description(desc)
       renv_cache_package_path(record)
     }, USE.NAMES = FALSE)
   }
