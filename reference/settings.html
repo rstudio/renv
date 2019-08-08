@@ -64,7 +64,7 @@ renv with your particular project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.65</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.66</span>
       </span>
     </div>
 
@@ -165,12 +165,20 @@ and install time when for <span style="R">R</span> packages which are used acros
 projects in the same environment.</p></dd>
     </dl>
     
-    <h2 class="hasAnchor" id="user-provided-defaults"><a class="anchor" href="#user-provided-defaults"></a>User-Provided Defaults</h2>
+    <h2 class="hasAnchor" id="defaults"><a class="anchor" href="#defaults"></a>Defaults</h2>
 
     
-    <p>It is possible to provide your own global defaults for these options.
-See <a href='config.html'>config</a> for more details. This can be useful if you'd like to enforce
-certain project settings within new projects.</p>
+    <p>You can change the default values of these settings for newly-created <code>renv</code>
+projects by setting <span style="R">R</span> options for <code>renv.settings</code> or <code>renv.settings.&lt;name&gt;</code>.
+For example:</p>
+<pre>
+options(renv.settings = list(snapshot.type = "simple"))
+options(renv.settings.snapshot.type = "simple")
+</pre>
+    <p>If both of the <code>renv.settings</code> and <code>renv.settings.&lt;name&gt;</code> options are set
+for a particular key, the option associated with <code>renv.settings.&lt;name&gt;</code> is
+used instead. We recommend setting these in an appropriate startup profile,
+e.g. <code>~/.Rprofile</code> or similar.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -192,7 +200,7 @@ certain project settings within new projects.</p>
 
       <li><a href="#settings">Settings</a></li>
 
-      <li><a href="#user-provided-defaults">User-Provided Defaults</a></li>
+      <li><a href="#defaults">Defaults</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
