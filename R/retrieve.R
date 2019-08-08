@@ -170,7 +170,10 @@ renv_retrieve_gitlab <- function(record) {
 
   # TODO: remotes doesn't appear to understand how to interact with GitLab API?
   host <- record$RemoteHost %||% "gitlab.com"
-  id <- paste(record$RemoteUsername, record$RemoteRepo, sep = "%2F")
+
+  user <- record$RemoteUsername
+  repo <- record$RemoteRepo
+  id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
 
   fmt <- "https://%s/api/v4/projects/%s/repository/archive.tar.gz"
   url <- sprintf(fmt, host, id)
@@ -424,7 +427,11 @@ renv_retrieve_package <- function(record, url, path) {
 renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # augment record with information from DESCRIPTION file
-  desc <- renv_description_read(path)
+  subdir <- record$RemoteSubdir %||% ""
+  desc <- renv_description_read(path, subdir = subdir)
+
+  # update the record's package name, version
+  # TODO: should we warn if they didn't match for some reason?
   record$Package <- desc$Package
   record$Version <- desc$Version
 

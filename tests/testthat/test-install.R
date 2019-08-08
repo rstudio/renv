@@ -76,3 +76,41 @@ test_that("packages can be installed from local sources", {
   expect_true(renv_package_version("bread") == "1.0.0")
 
 })
+
+test_that("various remote styles can be used during install", {
+  skip_on_cran()
+
+  renv_tests_scope()
+  renv::init()
+
+  # install CRAN latest
+  renv::install("bread")
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_version("bread") == "1.0.0")
+
+  # install from archive
+  renv::install("bread@0.1.0")
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_version("bread") == "0.1.0")
+
+  # install from github
+  renv::install("kevinushey/skeleton")
+  expect_true(renv_package_installed("skeleton"))
+  expect_true(renv_package_version("skeleton") == "1.0.1")
+
+  # install from github PR
+  renv::install("kevinushey/skeleton#1")
+  expect_true(renv_package_installed("skeleton"))
+  expect_true(renv_package_version("skeleton") == "1.0.2")
+
+  # install from branch
+  renv::install("kevinushey/skeleton@feature/version-bump")
+  expect_true(renv_package_installed("skeleton"))
+  expect_true(renv_package_version("skeleton") == "1.0.2")
+
+  #install from subdir
+  renv::install("kevinushey/subdir/subdir")
+  expect_true(renv_package_installed("subdir"))
+  expect_true(renv_package_version("subdir") == "0.0.0.9000")
+
+})

@@ -78,6 +78,23 @@ test_that("we can retrieve packages from GitHub", {
 
 })
 
+test_that("we can retrieve packages from GitHub (in a sub-directory)", {
+  skip_on_cran()
+  skip_if_offline(host = "github.com")
+
+  record <- list(
+    Package        = "subdir",
+    Source         = "github",
+    RemoteUsername = "kevinushey",
+    RemoteRepo     = "subdir",
+    RemoteSubdir   = "subdir",
+    RemoteSha      = "100373b23c8adae1da4e4d6995402d40e9227cfb"
+  )
+
+  renv_test_retrieve(record)
+
+})
+
 
 test_that("we can retrieve packages from GitLab", {
   skip_on_cran()

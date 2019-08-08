@@ -1,5 +1,5 @@
 
-renv_description_read <- function(path = NULL, package = NULL, ...) {
+renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...) {
 
   # if given a package name, construct path to that package
   if (!is.null(package))
@@ -32,11 +32,18 @@ renv_description_read <- function(path = NULL, package = NULL, ...) {
     # find the DESCRIPTION file. note that for some source tarballs (e.g.
     # those from GitHub) the first entry may not be the package name, so
     # just consume everything up to the first slash
-    file <- grep("^[^/]+/DESCRIPTION$", files, value = TRUE)
-    if (length(file) != 1)
-      stopf("failed to infer path to DESCRIPTION within file '%s'", path)
+    parts <- c(if(nzchar(subdir)) subdir, "DESCRIPTION$")
+    descpath <- paste(parts, collapse = "/")
+    pattern <- paste0("(?:^|/)", descpath)
+
+    descs <- grep(pattern, files, value = TRUE)
+    if (empty(descs)) {
+      fmt <- "archive '%s' does not appear to contain a DESCRIPTION file"
+      stopf(fmt, aliased_path(path))
+    }
 
     # unpack into tempdir location
+    file <- descs[[1]]
     exdir <- renv_tempfile("renv-description-")
     renv_archive_decompress(path, files = file, exdir = exdir)
 

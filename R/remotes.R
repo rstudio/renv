@@ -128,7 +128,7 @@ renv_remotes_resolve_github_sha_pull <- function(host, user, repo, pull) {
 
   fmt <- "https://%s/repos/%s/%s/pulls/%s"
   url <- sprintf(fmt, host, user, repo, pull)
-  jsonfile <- renv_tempfile("ren-json-")
+  jsonfile <- renv_tempfile("renv-json-")
   download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
   json$head$sha
@@ -154,11 +154,15 @@ renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
 
 }
 
-renv_remotes_resolve_github_description <- function(host, user, repo, sha) {
+renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sha) {
+
+  # form DESCRIPTION path
+  parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
+  descpath <- paste(parts, collapse = "/")
 
   # get the DESCRIPTION contents
-  fmt <- "https://%s/repos/%s/%s/contents/DESCRIPTION?ref=%s"
-  url <- sprintf(fmt, host, user, repo, sha)
+  fmt <- "https://%s/repos/%s/%s/contents/%s?ref=%s"
+  url <- sprintf(fmt, host, user, repo, descpath, sha)
   jsonfile <- renv_tempfile("renv-json-")
   download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
@@ -188,7 +192,7 @@ renv_remotes_resolve_github <- function(entry) {
     nzchar(ref)  ~ renv_remotes_resolve_github_sha_ref(host, user, repo, ref)
   )
 
-  desc <- renv_remotes_resolve_github_description(host, user, repo, sha)
+  desc <- renv_remotes_resolve_github_description(host, user, repo, subdir, sha)
 
   list(
     Package        = desc$Package,
@@ -211,10 +215,13 @@ renv_remotes_resolve_gitlab <- function(entry) {
   subdir <- entry$subdir
   ref    <- entry$ref %""% "master"
 
-  fmt <- "https://%s/api/v4/projects/%s/repository/files/DESCRIPTION/raw?ref=%s"
+  parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
+  descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
+
+  fmt <- "https://%s/api/v4/projects/%s/repository/files/%s/raw?ref=%s"
   host <- renv_config("gitlab.host", "gitlab.com")
-  id <- paste(user, repo, sep = "%2F")
-  url <- sprintf(fmt, host, id, ref)
+  id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
+  url <- sprintf(fmt, host, id, descpath, ref)
 
   destfile <- renv_tempfile("renv-description-")
   download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
@@ -223,7 +230,7 @@ renv_remotes_resolve_gitlab <- function(entry) {
   list(
     Package        = desc$Package,
     Version        = desc$Version,
-    Source         = "Gitlab",
+    Source         = "GitLab",
     RemoteUsername = user,
     RemoteRepo     = repo,
     RemoteSubdir   = subdir,

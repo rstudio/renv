@@ -226,6 +226,28 @@ renv_install_package_local <- function(record, quiet = TRUE) {
   # get user-defined options to apply during installation
   options <- renv_install_package_options(package)
 
+  # get archive path for package
+  library <- renv_libpaths_default()
+  path <- record$Path
+
+  # for packages living within a sub-directory, we need to
+  # unpack the archive explicitly and update the path
+  subdir <- record$RemoteSubdir %||% ""
+  if (nzchar(subdir)) {
+
+    # create extraction directory
+    dir <- tempfile("renv-package-")
+    ensure_directory(dir)
+    on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+
+    # decompress archive to dir
+    renv_archive_decompress(path, exdir = dir)
+
+    # update path
+    path <- file.path(dir, list.files(dir)[[1]], subdir)
+
+  }
+
   # run user-defined hooks before, after install
   before <- options$before.install %||% identity
   after  <- options$after.install %||% identity
@@ -233,8 +255,6 @@ renv_install_package_local <- function(record, quiet = TRUE) {
   before(package)
   on.exit(after(package), add = TRUE)
 
-  library <- renv_libpaths_default()
-  path <- record$Path
 
   destination <- file.path(library, package)
   callback <- renv_file_backup(destination)

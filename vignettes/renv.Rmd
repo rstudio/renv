@@ -231,7 +231,7 @@ required authentication information.
 | **Remote Source** | **Authentication**                      |
 | ----------------- | --------------------------------------- |
 | GitHub            | `GITHUB_PAT`                            |
-| Gitlab            | `GITLAB_PAT`                            |
+| GitLab            | `GITLAB_PAT`                            |
 | Bitbucket         | `BITBUCKET_USER` + `BITBUCKET_PASSWORD` |
 | Git Remotes       | `GIT_PAT` / `GIT_USER` + `GIT_PASSWORD` |
 
