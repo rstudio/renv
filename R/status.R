@@ -84,7 +84,7 @@ renv_status_report <- function(lock, curr) {
     renv_pretty_print_records(
       renv_records_select(lock, actions, "remove"),
       "The following package(s) are recorded in the lockfile but not installed:",
-      "Use `renv::restore(actions = \"install\")` to install these packages."
+      "Use `renv::restore()` to install these packages."
     )
   }
 
