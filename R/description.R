@@ -32,9 +32,8 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...)
     # find the DESCRIPTION file. note that for some source tarballs (e.g.
     # those from GitHub) the first entry may not be the package name, so
     # just consume everything up to the first slash
-    parts <- c(if(nzchar(subdir)) subdir, "DESCRIPTION$")
-    descpath <- paste(parts, collapse = "/")
-    pattern <- paste0("(?:^|/)", descpath)
+    parts <- c("^[^/]+", if (nzchar(subdir)) subdir, "DESCRIPTION$")
+    pattern <- paste(parts, collapse = "/")
 
     descs <- grep(pattern, files, value = TRUE)
     if (empty(descs)) {
@@ -42,6 +41,7 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...)
       stopf(fmt, aliased_path(path))
     }
 
+    # choose the shortest DESCRPITION file matching
     # unpack into tempdir location
     file <- descs[[1]]
     exdir <- renv_tempfile("renv-description-")
