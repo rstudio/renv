@@ -75,7 +75,7 @@ local({
 
   # failed to find renv locally; we'll try to install from GitHub.
   # first, set up download options as appropriate (try to use GITHUB_PAT)
-  try({
+  install_renv <- function() {
 
     message("Failed to find installation of renv -- attempting to bootstrap...")
 
@@ -105,6 +105,25 @@ local({
       on.exit(do.call(base::options, saved), add = TRUE)
     }
 
+    # fix up repos
+    repos <- getOption("repos")
+    on.exit(options(repos = repos), add = TRUE)
+    repos[repos == "@CRAN@"] <- "https://cran.rstudio.com"
+    options(repos = repos)
+
+    # check for renv on CRAN matching this version
+    db <- as.data.frame(available.packages(), stringsAsFactors = FALSE)
+    if ("renv" %in% rownames(db)) {
+      entry <- db["renv", ]
+      if (identical(entry$Version, version)) {
+        message("* Installing renv ", version, " ... ", appendLF = FALSE)
+        dir.create(path, showWarnings = FALSE, recursive = TRUE)
+        utils::install.packages("renv", lib = path, quiet = TRUE)
+        message("Done!")
+        return(TRUE)
+      }
+    }
+
     # try to download renv
     message("* Downloading renv ", version, " ... ", appendLF = FALSE)
     prefix <- "https://api.github.com"
@@ -120,7 +139,9 @@ local({
     utils::install.packages(destfile, repos = NULL, type = "source", lib = path, quiet = TRUE)
     message("Done!")
 
-  })
+  }
+
+  try(install_renv())
 
   # try again to load
   if (requireNamespace("renv", lib.loc = path, quietly = TRUE)) {
