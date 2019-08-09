@@ -59,9 +59,7 @@ Perform a Packrat-style snapshot. The intersection of packages discovered
 in your \R libraries, alongside those discovered by \code{renv::dependencies()},
 will enter the lockfile. This helps ensure that only the packages you are
 using will enter the lockfile, but may be slower if your project contains
-a large number of files. The \code{snapshot.timeout} \link{config} option can be
-used to control the maximum amount of time that can be spent discovering
-dependencies.
+a large number of files.
 }
 
 \item{\code{"custom"}}{

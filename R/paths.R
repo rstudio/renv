@@ -90,7 +90,7 @@ renv_paths_root_default_impl <- function() {
 
 #' Path Customization
 #'
-#' Customize the paths that `renv` uses for global state storage.
+#' Access the paths that `renv` uses for global state storage.
 #'
 #' By default, `renv` collects state into these folders:
 #'

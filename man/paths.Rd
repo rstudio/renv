@@ -9,7 +9,7 @@
 paths
 }
 \description{
-Customize the paths that \code{renv} uses for global state storage.
+Access the paths that \code{renv} uses for global state storage.
 }
 \details{
 By default, \code{renv} collects state into these folders:
