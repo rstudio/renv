@@ -597,13 +597,13 @@ renv_snapshot_filter_packrat <- function(project, records) {
   deps <- local({
     setTimeLimit(elapsed = timeout, transient = TRUE)
     on.exit(setTimeLimit(), add = TRUE)
-    dependencies(project)
+    dependencies(project, quiet = TRUE)
   })
 
   # get recursive package dependencies for those discovered
   ignored <- c("renv", settings$ignored.packages(project = project))
   packages <- setdiff(unique(deps$Package), ignored)
-  paths <- renv_package_dependencies(project, packages)
+  paths <- renv_package_dependencies(packages, project = project)
   all <- as.character(names(paths))
 
   # keep only those records

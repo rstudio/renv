@@ -56,6 +56,7 @@
 #'
 #' }
 dependencies <- function(path = getwd(), quiet = FALSE) {
+
   renv_scope_error_handler()
 
   renv_dependencies_begin()

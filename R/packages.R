@@ -158,8 +158,8 @@ renv_package_augment_metadata <- function(path, remotes) {
 # all being installed locally. returns a named vector mapping package names
 # to the path where they were discovered, or NA if those packages are not
 # installed
-renv_package_dependencies <- function(project,
-                                      packages,
+renv_package_dependencies <- function(packages,
+                                      project = NULL,
                                       libpaths = NULL,
                                       fields = NULL)
 {

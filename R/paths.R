@@ -1,4 +1,93 @@
 
+renv_prefix_platform <- function(version = NULL) {
+  version <- version %||% paste(R.version$major, R.version$minor, sep = ".")
+  prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
+  file.path(prefix, R.version$platform)
+}
+
+renv_paths_common <- function(name, prefixes = NULL, ...) {
+  # check for single absolute path supplied by user
+  # TODO: handle multiple?
+  end <- file.path(...)
+  if (length(end) == 1 && path_absolute(end))
+    return(end)
+
+  # compute root path
+  envvar <- paste("RENV_PATHS", toupper(name), sep = "_")
+  root <- Sys.getenv(envvar, unset = renv_paths_root(name))
+
+  # form rest of path
+  prefixed <- file.path(root, paste(prefixes, collapse = "/"))
+  file.path(prefixed, ...) %||% ""
+}
+
+renv_paths_project <- function(..., project = NULL) {
+  project <- project %||% renv_project()
+  file.path(project, ...) %||% ""
+}
+
+renv_paths_library <- function(..., project = NULL) {
+  project <- project %||% renv_project()
+  root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = file.path(project, "renv/library"))
+  file.path(root, renv_prefix_platform(), ...) %||% ""
+}
+
+renv_paths_local <- function(...) {
+  renv_paths_common("local", c(), ...)
+}
+
+renv_paths_source <- function(...) {
+  renv_paths_common("source", c(), ...)
+}
+
+renv_paths_bootstrap <- function(...) {
+  renv_paths_common("bootstrap", c(renv_prefix_platform()), ...)
+}
+
+renv_paths_binary <- function(...) {
+  renv_paths_common("binary", c(renv_prefix_platform()), ...)
+}
+
+renv_paths_cache <- function(..., version = NULL) {
+  platform <- renv_prefix_platform(version = version)
+  renv_paths_common("cache", c(renv_cache_version(), platform), ...)
+}
+
+renv_paths_rtools <- function(...) {
+  drive <- Sys.getenv("SYSTEMDRIVE", unset = "C:")
+  root <- Sys.getenv("RENV_PATHS_RTOOLS", unset = file.path(drive, "Rtools"))
+  file.path(root, ...)
+}
+
+renv_paths_extsoft <- function(...) {
+  renv_paths_common("extsoft", c(), ...)
+}
+
+
+
+renv_paths_root <- function(...) {
+  root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
+  file.path(root, ...) %||% ""
+}
+
+renv_paths_root_default <- function() {
+  renv_global("root", renv_paths_root_default_impl())
+}
+
+renv_paths_root_default_impl <- function() {
+
+  root <- switch(
+    Sys.info()[["sysname"]],
+    Darwin  = Sys.getenv("XDG_DATA_HOME", "~/Library/Application Support"),
+    Windows = Sys.getenv("LOCALAPPDATA", "~/.renv"),
+    Sys.getenv("XDG_DATA_HOME", "~/.local/share")
+  )
+
+  ensure_directory(root)
+  file.path(normalizePath(root, winslash = "/"), "renv")
+
+}
+
 #' Path Customization
 #'
 #' Customize the paths that `renv` uses for global state storage.
@@ -100,93 +189,10 @@
 #'
 #' @rdname paths
 #' @name paths
-NULL
-
-renv_prefix_platform <- function(version = NULL) {
-  version <- version %||% paste(R.version$major, R.version$minor, sep = ".")
-  prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
-  file.path(prefix, R.version$platform)
-}
-
-renv_paths_common <- function(name, prefixes = NULL, ...) {
-  # check for single absolute path supplied by user
-  # TODO: handle multiple?
-  end <- file.path(...)
-  if (length(end) == 1 && path_absolute(end))
-    return(end)
-
-  # compute root path
-  envvar <- paste("RENV_PATHS", toupper(name), sep = "_")
-  root <- Sys.getenv(envvar, unset = renv_paths_root(name))
-
-  # form rest of path
-  prefixed <- file.path(root, paste(prefixes, collapse = "/"))
-  file.path(prefixed, ...) %||% ""
-}
-
-renv_paths_project <- function(..., project = NULL) {
-  project <- project %||% renv_project()
-  file.path(project, ...) %||% ""
-}
-
-renv_paths_library <- function(..., project = NULL) {
-  project <- project %||% renv_project()
-  root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = file.path(project, "renv/library"))
-  file.path(root, renv_prefix_platform(), ...) %||% ""
-}
-
-renv_paths_local <- function(...) {
-  renv_paths_common("local", c(), ...)
-}
-
-renv_paths_source <- function(...) {
-  renv_paths_common("source", c(), ...)
-}
-
-renv_paths_bootstrap <- function(...) {
-  renv_paths_common("bootstrap", c(renv_prefix_platform()), ...)
-}
-
-renv_paths_binary <- function(...) {
-  renv_paths_common("binary", c(renv_prefix_platform()), ...)
-}
-
-renv_paths_cache <- function(..., version = NULL) {
-  platform <- renv_prefix_platform(version = version)
-  renv_paths_common("cache", c(renv_cache_version(), platform), ...)
-}
-
-renv_paths_rtools <- function(...) {
-  drive <- Sys.getenv("SYSTEMDRIVE", unset = "C:")
-  root <- Sys.getenv("RENV_PATHS_RTOOLS", unset = file.path(drive, "Rtools"))
-  file.path(root, ...)
-}
-
-renv_paths_extsoft <- function(...) {
-  renv_paths_common("extsoft", c(), ...)
-}
-
-
-
-renv_paths_root <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
-  file.path(root, ...) %||% ""
-}
-
-renv_paths_root_default <- function() {
-  renv_global("root", renv_paths_root_default_impl())
-}
-
-renv_paths_root_default_impl <- function() {
-
-  root <- switch(
-    Sys.info()[["sysname"]],
-    Darwin  = Sys.getenv("XDG_DATA_HOME", "~/Library/Application Support"),
-    Windows = Sys.getenv("LOCALAPPDATA", "~/.renv"),
-    Sys.getenv("XDG_DATA_HOME", "~/.local/share")
-  )
-
-  ensure_directory(root)
-  file.path(normalizePath(root, winslash = "/"), "renv")
-
-}
+#'
+#' @export
+paths <- list(
+  root    = renv_paths_root,
+  library = renv_paths_library,
+  cache   = renv_paths_cache
+)
