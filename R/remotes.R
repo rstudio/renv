@@ -44,7 +44,7 @@ renv_remotes_resolve_impl <- function(entry) {
 renv_remotes_parse <- function(entry) {
 
   pattern <- paste0(
-    "(?:([^@:]+)(?:@([^:]+))?:+)?",    # optional prefix, providing type + host
+    "(?:([^@:]+)(?:@([^:]+))?::)?",    # optional prefix, providing type + host
     "([^/#@:]+)",                      # a username
     "(?:/([^@#:]+))?",                 # a repository (allow sub-repositories)
     "(?::([^@#:]+))?",                 # optional subdirectory

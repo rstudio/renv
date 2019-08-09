@@ -61,7 +61,7 @@ test_that("subdirectories are parsed in remotes", {
 
 test_that("custom hosts can be supplied", {
 
-  entry <- "gitlab@localhost:user/repo"
+  entry <- "gitlab@localhost::user/repo"
   parsed <- renv_remotes_parse(entry)
 
   expected <- list(
