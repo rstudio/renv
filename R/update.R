@@ -19,8 +19,8 @@ renv_update_find_github <- function(record) {
   host   <- record$RemoteHost
   user   <- record$RemoteUsername
   repo   <- record$RemoteRepo
-  subdir <- record$RemoteSubdir
-  ref    <- record$RemoteRef
+  subdir <- record$RemoteSubdir %||% ""
+  ref    <- record$RemoteRef %||% "master"
 
   # check for changed sha
   sha <- renv_remotes_resolve_github_sha_ref(host, user, repo, ref)
