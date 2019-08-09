@@ -51,7 +51,12 @@ renv_cache_package_path <- function(record) {
       return(package)
 
     # otherwise, match on other fields
-    fields <- renv_record_names(record)
+    fields <- renv_record_names(record, c("Package", "Version"))
+
+    # drop unnamed fields
+    record <- record[nzchar(record)]; dcf <- dcf[nzchar(dcf)]
+
+    # check identical
     if (identical(record[fields], dcf[fields]))
       return(package)
 

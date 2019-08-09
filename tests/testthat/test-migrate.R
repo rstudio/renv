@@ -5,6 +5,8 @@ test_that("a sample Packrat project can be migrated", {
   skip_on_cran()
   skip_if_not_installed("packrat")
 
+  # TODO: skip tests if non-CRAN packrat is installed
+
   # use dummy caches for this test
   renv_scope_envvars(
     R_PACKRAT_CACHE_DIR = tempfile("packrat-cache-"),
