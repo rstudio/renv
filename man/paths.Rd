@@ -109,7 +109,7 @@ any packages within the cache are no longer in use, and can be removed.
 }
 
 \examples{
-get the path to the project library
+# get the path to the project library
 path <- renv::paths$library()
 }
 \keyword{datasets}
