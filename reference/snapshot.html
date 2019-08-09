@@ -66,7 +66,7 @@ details on the structure of a lockfile." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.81</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.82</span>
       </span>
     </div>
 
@@ -197,9 +197,7 @@ undesired.</p></dd>
 in your <span style="R">R</span> libraries, alongside those discovered by <code><a href='dependencies.html'>renv::dependencies()</a></code>,
 will enter the lockfile. This helps ensure that only the packages you are
 using will enter the lockfile, but may be slower if your project contains
-a large number of files. The <code>snapshot.timeout</code> <a href='config.html'>config</a> option can be
-used to control the maximum amount of time that can be spent discovering
-dependencies.</p></dd>
+a large number of files.</p></dd>
     <dt><code>"custom"</code></dt><dd><p>Like <code>"packrat"</code>, but use a custom user-defined filter instead. The filter
 should be specified by the <span style="R">R</span> option <code>renv.snapshot.filter</code>, and should
 either be a character vector naming a function (e.g. <code>"package::method"</code>),

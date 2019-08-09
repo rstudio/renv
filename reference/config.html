@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.81</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.82</span>
       </span>
     </div>
 
@@ -205,20 +205,14 @@ recommended that you set them in your user startup files (e.g. in
 <tr><td><code><a href='update.html'>renv::update()</a></code></td><td>and</td><td><code><a href='remove.html'>renv::remove()</a></code></td></tr>
 <tr><td>as</td><td>appropriate.</td><td>(Boolean; defaults to</td></tr>
 <tr><td><code>TRUE</code></td><td>)</td><td></td></tr>
-<tr><td></td><td><code>snapshot.timeout</code></td><td></td></tr>
-<tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/integer'>integer(1)</a></code></td><td></td></tr>
-<tr><td></td><td>The maximum amount of time (in seconds) to spend while discovering</td><td><span style="R">R</span></td></tr>
-<tr><td></td><td>package dependencies during a call to</td><td><code><a href='snapshot.html'>renv::snapshot()</a></code></td></tr>
-<tr><td>.</td><td>(Integer; defaults to</td><td><code>3</code></td></tr>
-<tr><td>)</td><td></td><td></td></tr>
-<tr><td><code>snapshot.validate</code></td><td></td><td></td></tr>
-<tr><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td><td></td><td></td></tr>
-<tr><td>Validate</td><td><span style="R">R</span></td><td>package dependencies when calling snapshot? When</td></tr>
-<tr><td><code>TRUE</code></td><td>,</td><td><code>renv</code></td></tr>
-<tr><td>will attempt to diagnose potential issues in the project library</td><td>before creating</td><td><code>renv.lock</code></td></tr>
-<tr><td>-- for example, if a package installed in the</td><td>project library depends on a package which is not currently installed.</td><td>(Boolean; defaults to</td></tr>
-<tr><td><code>TRUE</code></td><td>)</td><td></td></tr>
-<tr><td></td><td></td><td><strong>Name</strong></td></tr>
+<tr><td></td><td><code>snapshot.validate</code></td><td></td></tr>
+<tr><td></td><td><code><a href='https://www.rdocumentation.org/packages/base/topics/logical'>logical(1)</a></code></td><td></td></tr>
+<tr><td></td><td>Validate</td><td><span style="R">R</span></td></tr>
+<tr><td>package dependencies when calling snapshot? When</td><td><code>TRUE</code></td><td>,</td></tr>
+<tr><td><code>renv</code></td><td>will attempt to diagnose potential issues in the project library</td><td>before creating</td></tr>
+<tr><td><code>renv.lock</code></td><td>-- for example, if a package installed in the</td><td>project library depends on a package which is not currently installed.</td></tr>
+<tr><td>(Boolean; defaults to</td><td><code>TRUE</code></td><td>)</td></tr>
+<tr><td></td><td></td><td></td></tr>
 </table>
     
     <h2 class="hasAnchor" id="project-local-settings"><a class="anchor" href="#project-local-settings"></a>Project-Local Settings</h2>
