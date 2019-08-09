@@ -90,7 +90,8 @@ renv_hydrate_dependencies <- function(project, packages = NULL) {
   packages <- packages %||% unique(dependencies(project)$Package)
   ignored <- c("renv", settings$ignored.packages(project = project))
   packages <- setdiff(packages, ignored)
-  all <- renv_dependencies(project, packages)
+  libpaths <- c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
+  all <- renv_package_dependencies(project, packages, libpaths)
   vwritef("Done!")
   all
 }

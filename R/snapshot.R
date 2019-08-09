@@ -603,7 +603,7 @@ renv_snapshot_filter_packrat <- function(project, records) {
   # get recursive package dependencies for those discovered
   ignored <- c("renv", settings$ignored.packages(project = project))
   packages <- setdiff(unique(deps$Package), ignored)
-  paths <- renv_dependencies(project, packages)
+  paths <- renv_package_dependencies(project, packages)
   all <- as.character(names(paths))
 
   # keep only those records

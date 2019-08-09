@@ -152,3 +152,55 @@ renv_package_augment_metadata <- function(path, remotes) {
   saveRDS(meta, file = metapath, version = 2L)
 
 }
+
+# find recursive dependencies of a package. note that this routine
+# doesn't farm out to CRAN; it relies on the package and its dependencies
+# all being installed locally. returns a named vector mapping package names
+# to the path where they were discovered, or NA if those packages are not
+# installed
+renv_package_dependencies <- function(project,
+                                      packages,
+                                      libpaths = NULL,
+                                      fields = NULL)
+{
+  visited <- new.env(parent = emptyenv())
+  ignored <- c("renv", settings$ignored.packages(project = project))
+  packages <- setdiff(packages, ignored)
+  libpaths <- libpaths %||% renv_libpaths_all()
+  for (package in packages)
+    renv_package_dependencies_impl(package, visited, libpaths, fields)
+
+  as.list(visited)
+}
+
+renv_package_dependencies_impl <- function(package,
+                                           visited,
+                                           libpaths = NULL,
+                                           fields = NULL)
+{
+  # skip the 'R' package
+  if (package == "R")
+    return()
+
+  # if we've already visited this package, bail
+  if (exists(package, envir = visited, inherits = FALSE))
+    return()
+
+  # default to unknown path for visited packages
+  assign(package, NA, envir = visited, inherits = FALSE)
+
+  # find the package
+  libpaths <- libpaths %||% renv_libpaths_all()
+  location <- renv_package_find(package, libpaths = libpaths)
+  if (!file.exists(location))
+    return(location)
+
+  # we know the path, so set it now
+  assign(package, location, envir = visited, inherits = FALSE)
+
+  # find its dependencies from the DESCRIPTION file
+  deps <- renv_dependencies_discover_description(location, fields)
+  subpackages <- deps$Package
+  for (subpackage in subpackages)
+    renv_package_dependencies_impl(subpackage, visited)
+}

@@ -157,7 +157,7 @@ renv_tests_init_packages <- function() {
 
   fields <- c("Depends", "Imports", "Suggests")
   project <- Sys.getenv("RENV_PROJECT", unset = getwd())
-  dependencies <- renv_dependencies(project, "renv", fields = fields)
+  dependencies <- renv_package_dependencies(project, "renv", fields = fields)
   for (dependency in names(dependencies))
     requireNamespace(dependency, quietly = TRUE)
 

@@ -606,56 +606,6 @@ renv_dependencies_discover_parse_params <- function(header, type) {
 
 }
 
-# find recursive dependencies of a package. note that this routine
-# doesn't farm out to CRAN; it relies on the package and its dependencies
-# all being installed locally. returns a named vector mapping package names
-# to the path where they were discovered, or NA if those packages are not
-# installed
-renv_dependencies <- function(project, packages, fields = NULL) {
-
-  # TODO: build a dependency tree rather than just a flat set of packages?
-  # TODO: dependency resolution? (can we depend on a different package for this)
-  # TODO: recursive and non-recursive dependencies?
-  visited <- new.env(parent = emptyenv())
-  ignored <- c("renv", settings$ignored.packages(project = project))
-  packages <- setdiff(packages, ignored)
-  for (package in packages)
-    renv_dependencies_enumerate(package, visited, fields)
-
-  as.list(visited)
-
-}
-
-renv_dependencies_enumerate <- function(package, visited, fields = NULL) {
-
-  # skip the 'R' package
-  if (package == "R")
-    return()
-
-  # if we've already visited this package, bail
-  if (exists(package, envir = visited, inherits = FALSE))
-    return()
-
-  # default to unknown path for visited packages
-  assign(package, NA, envir = visited, inherits = FALSE)
-
-  # find the package
-  libpaths <- c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
-  location <- renv_package_find(package, libpaths = libpaths)
-  if (!file.exists(location))
-    return(location)
-
-  # we know the path, so set it now
-  assign(package, location, envir = visited, inherits = FALSE)
-
-  # find its dependencies from the DESCRIPTION file
-  deps <- renv_dependencies_discover_description(location, fields)
-  subpackages <- deps$Package
-  for (subpackage in subpackages)
-    renv_dependencies_enumerate(subpackage, visited)
-
-}
-
 renv_dependencies_require <- function(package, type) {
 
   if (requireNamespace(package, quietly = TRUE))
