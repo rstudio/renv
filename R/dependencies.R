@@ -158,7 +158,13 @@ renv_dependencies_discover <- function(paths, quiet) {
   if (!renv_dependencies_discover_preflight(paths, quiet))
     return(invisible(NULL))
 
-  renv_scope_options(renv.verbose = !quiet && !renv_testing())
+  # short path if we're being quiet
+  if (quiet || renv_testing()) {
+    deps <- lapply(paths, renv_dependencies_discover_impl)
+    return(bind_list(deps))
+  }
+
+  # otherwise, run with progress reporting
   vprintf("Finding R package dependencies ... ")
   discover <- renv_progress(renv_dependencies_discover_impl, length(paths))
   deps <- lapply(paths, discover)

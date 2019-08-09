@@ -191,6 +191,10 @@ renv_paths_root_default_impl <- function() {
 #' @name paths
 #'
 #' @export
+#'
+#' @examples
+#' get the path to the project library
+#' path <- renv::paths$library()
 paths <- list(
   root    = renv_paths_root,
   library = renv_paths_library,

@@ -108,4 +108,8 @@ This file is list of projects currently using the \code{renv} cache. With this,
 any packages within the cache are no longer in use, and can be removed.
 }
 
+\examples{
+get the path to the project library
+path <- renv::paths$library()
+}
 \keyword{datasets}
