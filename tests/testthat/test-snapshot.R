@@ -71,20 +71,6 @@ test_that("multiple libraries can be used when snapshotting", {
 
 })
 
-test_that("custom snapshots that take too long are aborted", {
-
-  renv_tests_scope()
-
-  renv_scope_options(
-    renv.config.snapshot.timeout = 1L,
-    renv.snapshot.filter = function(project) replicate(10, Sys.sleep(1.1))
-  )
-
-  renv::init()
-  expect_error(renv::snapshot(type = "custom"))
-
-})
-
 test_that("packrat-style snapshots only include packages currently used", {
 
   renv_tests_scope("oatmeal")

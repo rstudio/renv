@@ -28,9 +28,7 @@
 #'   in your \R libraries, alongside those discovered by `renv::dependencies()`,
 #'   will enter the lockfile. This helps ensure that only the packages you are
 #'   using will enter the lockfile, but may be slower if your project contains
-#'   a large number of files. The `snapshot.timeout` [config] option can be
-#'   used to control the maximum amount of time that can be spent discovering
-#'   dependencies.
+#'   a large number of files.
 #' }
 #'
 #' \item{`"custom"`}{
@@ -591,20 +589,40 @@ renv_snapshot_filter_simple <- function(project, records) {
 
 renv_snapshot_filter_packrat <- function(project, records) {
 
-  # set a timeout (avoid hanging the session during
-  # dependency discovery)
-  timeout <- renv_config("snapshot.timeout", default = 3L)
-  deps <- local({
-    setTimeLimit(elapsed = timeout, transient = TRUE)
-    on.exit(setTimeLimit(), add = TRUE)
-    dependencies(project, quiet = TRUE)
-  })
+  start <- Sys.time()
 
   # get recursive package dependencies for those discovered
+  deps <- dependencies(project, quiet = TRUE)
   ignored <- c("renv", settings$ignored.packages(project = project))
   packages <- setdiff(unique(deps$Package), ignored)
   paths <- renv_package_dependencies(packages, project = project)
   all <- as.character(names(paths))
+
+  end <- Sys.time()
+
+  # report if dependency discovery took a long time
+  if (difftime(end, start, units = "secs") > 5L) {
+
+    lines <- c(
+      "Dependency discovery took %s %s during snapshot.",
+      "Consider using .renvignore to ignore files -- see `?dependencies` for more information.",
+      "Use `renv::settings$snapshot.type(\"simple\")` to disable dependency discovery during snapshot."
+    )
+
+    time <- difftime(end, start, units = "auto")
+    elapsed <- format(unclass(signif(time, digits = 2L)))
+    units <- switch(
+      attr(time, "units"),
+      secs  = "seconds",
+      mins  = "minutes",
+      hours = "hours",
+      days  = "days",
+      weeks = "weeks"
+    )
+
+    vwritef(lines, formatted, units)
+
+  }
 
   # keep only those records
   records[intersect(names(records), all)]
@@ -627,12 +645,7 @@ renv_snapshot_filter_custom <- function(project, records) {
   }
 
   # invoke the filter to get package list
-  timeout <- renv_config("snapshot.timeout", default = 3L)
-  packages <- local({
-    setTimeLimit(elapsed = timeout, transient = TRUE)
-    on.exit(setTimeLimit(), add = TRUE)
-    filter(project)
-  })
+  packages <- filter(project)
 
   if (empty(packages))
     return(records)
