@@ -16,10 +16,11 @@ renv_update_find_github <- function(record) {
     return(NULL)
 
   # construct and parse record entry
-  host <- record$RemoteHost
-  user <- record$RemoteUsername
-  repo <- record$RemoteRepo
-  ref  <- record$RemoteRef
+  host   <- record$RemoteHost
+  user   <- record$RemoteUsername
+  repo   <- record$RemoteRepo
+  subdir <- record$RemoteSubdir
+  ref    <- record$RemoteRef
 
   # check for changed sha
   sha <- renv_remotes_resolve_github_sha_ref(host, user, repo, ref)
@@ -27,13 +28,14 @@ renv_update_find_github <- function(record) {
     return(NULL)
 
   # get updated record
-  desc <- renv_remotes_resolve_github_description(host, user, repo, sha)
+  desc <- renv_remotes_resolve_github_description(host, user, repo, subdir, sha)
   current <- list(
     Package        = desc$Package,
     Version        = desc$Version,
     Source         = "GitHub",
     RemoteUsername = user,
     RemoteRepo     = repo,
+    RemoteSubdir   = subdir,
     RemoteRef      = ref,
     RemoteSha      = sha,
     RemoteHost     = host
