@@ -1,9 +1,8 @@
 
 renv_scope_auth <- function(record, .envir = NULL) {
 
-  auth <-
-    getOption(paste("renv.auth", record$Package, sep = ".")) %||%
-    getOption("renv.auth")
+  package <- record$Package
+  auth <- renv_options_override("renv.auth", package)
 
   if (empty(auth))
     return(FALSE)
@@ -12,7 +11,7 @@ renv_scope_auth <- function(record, .envir = NULL) {
     if (is.function(auth))
       auth(record)
     else
-      auth[[record$Package]] %||% auth
+      auth
   })
 
   # warn user if auth appears invalid

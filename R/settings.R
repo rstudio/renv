@@ -2,14 +2,8 @@
 `_renv_settings` <- new.env(parent = emptyenv())
 
 renv_settings_default <- function(name) {
-
-  val <-
-    getOption(paste("renv.settings", name, sep = ".")) %||%
-    getOption("renv.settings")[[name]] %||%
-    `_renv_settings`[[name]]$default
-
-  val
-
+  default <- `_renv_settings`[[name]]$default
+  renv_options_override("renv.settings", name, default)
 }
 
 renv_settings_defaults <- function() {

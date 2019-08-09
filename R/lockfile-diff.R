@@ -82,3 +82,9 @@ renv_lockfile_diff_packages <- function(old, new) {
 
 }
 
+renv_lockfile_override <- function(lockfile) {
+  records <- renv_records(lockfile)
+  overrides <- enumerate(records, renv_options_override, scope = "renv.records")
+  renv_records(lockfile) <- overrides
+  lockfile
+}

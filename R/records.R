@@ -7,6 +7,11 @@ renv_records <- function(records) {
   records
 }
 
+`renv_records<-` <- function(x, value) {
+  x$Packages <- value
+  x
+}
+
 renv_records_select <- function(records, actions, action) {
   records <- renv_records(records)
   records[names(actions[actions == action])]

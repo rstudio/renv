@@ -56,3 +56,21 @@ test_that("restore(clean = TRUE) removes packages not in the lockfile", {
   expect_false(renv_package_installed("bread"))
 
 })
+
+test_that("renv.records can be used to override records during restore", {
+
+  renv_tests_scope("bread")
+  renv::init()
+
+  renv::install("bread@0.1.0")
+  renv::snapshot()
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+  bread <- list(Package = "bread", Version = "1.0.0", Source = "CRAN")
+  overrides <- list(bread = bread)
+  renv_scope_options(renv.records = overrides)
+
+  renv::restore()
+  expect_equal(renv_package_version("bread"), "1.0.0")
+
+})
