@@ -98,6 +98,7 @@ init <- function(project = NULL,
   # perform the action
   if (action == "init") {
     ensure_directory(library)
+    renv_libpaths_set(library)
     hydrate(project = project, library = library)
     snapshot(project = project, library = library, confirm = FALSE)
   } else if (action == "restore") {

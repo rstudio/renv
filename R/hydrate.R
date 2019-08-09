@@ -74,9 +74,6 @@ hydrate <- function(packages = NULL,
   else
     renv_hydrate_copy_packages(packages, library)
 
-  # update the library paths so that we're using the newly-established library
-  renv_libpaths_set(library)
-
   # attempt to install missing packages (if any)
   missing <- renv_hydrate_resolve_missing(project, na)
 
