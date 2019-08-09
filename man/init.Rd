@@ -8,7 +8,8 @@ init(project = NULL, ..., settings = NULL, bare = FALSE,
   force = FALSE)
 }
 \arguments{
-\item{project}{The project directory.}
+\item{project}{The project directory. The \R working directory will be
+changed to match the requested project directory.}
 
 \item{...}{Optional arguments; reserved for future expansion.}
 

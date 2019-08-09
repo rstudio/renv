@@ -54,7 +54,8 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param project The project directory.
+#' @param project The project directory. The \R working directory will be
+#'   changed to match the requested project directory.
 #' @param settings A list of [settings] to be used with the newly-initialized
 #'   project.
 #' @param bare Boolean; initialize the project without attempting to discover

@@ -4,7 +4,7 @@
 \alias{install}
 \title{Install Packages}
 \usage{
-install(packages, ..., library = NULL, rebuild = FALSE,
+install(packages = NULL, ..., library = NULL, rebuild = FALSE,
   project = NULL)
 }
 \arguments{
