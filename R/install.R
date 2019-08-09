@@ -33,18 +33,21 @@
 #' renv::install("~/path/to/package")
 #'
 #' }
-install <- function(packages,
+install <- function(packages = NULL,
                     ...,
                     library = NULL,
                     rebuild = FALSE,
                     project = NULL)
 {
   renv_scope_error_handler()
-  project <- project %||% renv_project()
-  library <- library %||% renv_libpaths_default()
+  project  <- project %||% renv_project()
+  library  <- library %||% renv_libpaths_default()
+
+  packages <- packages %||% renv_project_records(project)
+  if (is.null(packages))
+    stopf("no packages specified in renv::install() request")
 
   records <- renv_snapshot_r_packages(library = library)
-
   remotes <- lapply(packages, function(package) {
     case(
       is.list(package)      ~ package,

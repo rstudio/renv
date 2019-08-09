@@ -170,7 +170,7 @@ renv_dependencies_discover <- function(paths, quiet) {
 
 renv_dependencies_discover_impl <- function(path) {
 
-  entry <- renv_filebacked_get("DESCRIPTION", path)
+  entry <- renv_filebacked_get("dependencies", path)
   if (!is.null(entry))
     return(entry)
 
@@ -179,7 +179,7 @@ renv_dependencies_discover_impl <- function(path) {
   if (inherits(result, "condition"))
     return(NULL)
 
-  renv_filebacked_set("DESCRIPTION", path, result)
+  renv_filebacked_set("dependencies", path, result)
   result
 
 }
