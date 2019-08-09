@@ -10,8 +10,8 @@ dependencies(path = getwd(), quiet = FALSE)
 \item{path}{The path to a (possibly multi-mode) \R file, or a directory
 containing such files.}
 
-\item{quiet}{Boolean; report problems discovered (if any) after dependency
-discovery is finished?}
+\item{quiet}{Boolean; report problems discovered (if any) during dependency
+discovery?}
 }
 \description{
 Find \R packages used within a project.

@@ -155,8 +155,8 @@ ask <- function(question, default = FALSE) {
 
 }
 
-proceed <- function() {
-  ask("Do you want to proceed?")
+proceed <- function(default = FALSE) {
+  ask("Do you want to proceed?", default = default)
 }
 
 # nocov end

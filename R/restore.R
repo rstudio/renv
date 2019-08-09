@@ -78,7 +78,7 @@ restore <- function(project  = NULL,
     renv_restore_report_actions(diff, current, lockfile)
 
   if (confirm && !proceed()) {
-    message("Operation aborted.")
+    message("* Operation aborted.")
     return(invisible(diff))
   }
 

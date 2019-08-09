@@ -119,7 +119,7 @@ snapshot <- function(project  = NULL,
 
   # request user confirmation
   if (confirm && !proceed()) {
-    message("Operation aborted.")
+    message("* Operation aborted.")
     return(invisible(new))
   }
 

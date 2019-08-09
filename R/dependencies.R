@@ -43,8 +43,8 @@
 #' @param path The path to a (possibly multi-mode) \R file, or a directory
 #'   containing such files.
 #'
-#' @param quiet Boolean; report problems discovered (if any) after dependency
-#'   discovery is finished?
+#' @param quiet Boolean; report problems discovered (if any) during dependency
+#'   discovery?
 #'
 #' @export
 #'
@@ -62,7 +62,9 @@ dependencies <- function(path = getwd(), quiet = FALSE) {
   on.exit(renv_dependencies_end(), add = TRUE)
 
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-  deps <- renv_dependencies_discover(path, path)
+
+  files <- renv_dependencies_find(path, path)
+  deps <- renv_dependencies_discover(files, quiet)
 
   if (!quiet)
     renv_dependencies_report()
@@ -71,11 +73,33 @@ dependencies <- function(path = getwd(), quiet = FALSE) {
 
 }
 
-renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
+renv_dependencies_callback <- function(path) {
 
-  entry <- renv_filebacked_get("dependencies", path)
-  if (!is.null(entry))
-    return(entry)
+  name <- basename(path)
+  ext <- tolower(fileext(path))
+  case(
+
+    # special cases for special filenames
+    name == "DESCRIPTION"   ~ function() renv_dependencies_discover_description(path),
+    name == "_pkgdown.yml"  ~ function() renv_dependencies_discover_pkgdown(path),
+    name == "_bookdown.yml" ~ function() renv_dependencies_discover_bookdown(path),
+
+    # generic extension-based lookup
+    ext == ".rproj" ~ function() renv_dependencies_discover_rproj(path),
+    ext == ".r"     ~ function() renv_dependencies_discover_r(path),
+    ext == ".rmd"   ~ function() renv_dependencies_discover_multimode(path, "rmd"),
+    ext == ".rnw"   ~ function() renv_dependencies_discover_multimode(path, "rnw")
+
+  )
+
+}
+
+renv_dependencies_find <- function(path = getwd(), root = getwd()) {
+  files <- renv_dependencies_find_impl(path, root)
+  unlist(files, recursive = TRUE, use.names = FALSE)
+}
+
+renv_dependencies_find_impl <- function(path, root) {
 
   # check file type
   info <- file.info(path, extra_cols = FALSE)
@@ -83,40 +107,22 @@ renv_dependencies_discover <- function(path = getwd(), root = getwd()) {
     stopf("file '%s' does not exist", path)
 
   if (info$isdir)
-    return(renv_dependencies_discover_dir(path, root))
+    return(renv_dependencies_find_dir(path, root))
 
-  name <- basename(path)
-  ext <- tolower(tools::file_ext(path))
-
-  deps <- case(
-
-    # special cases for special filenames
-    name == "DESCRIPTION"   ~ renv_dependencies_discover_description(path),
-    name == "_pkgdown.yml"  ~ renv_dependencies_discover_pkgdown(path),
-    name == "_bookdown.yml" ~ renv_dependencies_discover_bookdown(path),
-
-    # generic extension-based lookup
-    ext == "rproj" ~ renv_dependencies_discover_rproj(path),
-    ext == "r"     ~ renv_dependencies_discover_r(path),
-    ext == "rmd"   ~ renv_dependencies_discover_multimode(path, "rmd"),
-    ext == "rnw"   ~ renv_dependencies_discover_multimode(path, "rnw")
-
-  )
-
-  renv_filebacked_set("dependencies", path, deps)
-  deps
+  callback <- renv_dependencies_callback(path)
+  if (is.function(callback))
+    return(path)
 
 }
 
-renv_dependencies_discover_dir <- function(path, root) {
-  children <- renv_dependencies_discover_dir_children(path, root)
-  deps <- lapply(children, renv_dependencies_discover, root = root)
-  bind_list(deps)
+renv_dependencies_find_dir <- function(path, root) {
+  children <- renv_dependencies_find_dir_children(path, root)
+  lapply(children, renv_dependencies_find_impl, root = root)
 }
 
 # return the set of files /subdirectories within a directory that should be
 # crawled for dependencies
-renv_dependencies_discover_dir_children <- function(path, root) {
+renv_dependencies_find_dir_children <- function(path, root) {
 
   # for R packages, use a pre-defined set of files
   # (TODO: should we still respect .renvignore etc. here?)
@@ -143,6 +149,61 @@ renv_dependencies_discover_dir_children <- function(path, root) {
 
   # we had a pattern; use it to match against file entries
   grep(pattern, children, perl = TRUE, invert = TRUE, value = TRUE)
+
+}
+
+renv_dependencies_discover <- function(paths, quiet) {
+
+  if (!renv_dependencies_discover_preflight(paths, quiet))
+    return(invisible(NULL))
+
+  vprintf("Finding R package dependencies ... ")
+  discover <- renv_progress(renv_dependencies_discover_impl, length(paths))
+  deps <- lapply(paths, discover)
+  vwritef("Done!")
+
+  bind_list(deps)
+
+}
+
+renv_dependencies_discover_impl <- function(path) {
+
+  entry <- renv_filebacked_get("DESCRIPTION", path)
+  if (!is.null(entry))
+    return(entry)
+
+  callback <- renv_dependencies_callback(path)
+  result <- tryCatch(callback(), error = warning)
+  if (inherits(result, "condition"))
+    return(NULL)
+
+  renv_filebacked_set("DESCRIPTION", path, result)
+  result
+
+}
+
+renv_dependencies_discover_preflight <- function(paths, quiet) {
+
+  limit <- renv_config("dependencies.limit", default = 1000L)
+  if (quiet || length(paths) < limit)
+    return(TRUE)
+
+  lines <- c(
+    "A large number of files (%i in total) have been discovered.",
+    "It may take renv a long time to crawl these files for dependencies.",
+    "Consider using .renvignore to ignore irrelevant files.",
+    "See `?dependencies` for more information.",
+    "Set `options(renv.config.dependencies.limit = Inf)` to disable this warning.",
+    ""
+  )
+  vwritef(lines, length(paths))
+
+  if (interactive() && !proceed()) {
+    message("* Operation aborted.")
+    return(FALSE)
+  }
+
+  TRUE
 
 }
 
@@ -366,10 +427,18 @@ renv_dependencies_discover_chunks_ranges <- function(path, contents, patterns) {
       next
     }
 
+    if (chunk == TRUE && grepl(patterns$chunk.begin, line)) {
+      end <- i
+      output[[length(output) + 1]] <- list(lhs = start, rhs = end)
+      start <- i
+      next
+    }
+
     if (chunk == TRUE && grepl(patterns$chunk.end, line)) {
       chunk <- FALSE
       end <- i
       output[[length(output) + 1]] <- list(lhs = start, rhs = end)
+      next
     }
 
   }
@@ -644,12 +713,10 @@ renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
 
   # check for missing state (e.g. if internal method called directly)
   state <- renv_dependencies_state()
-  if (is.null(state))
-    return(renv_dependencies_list(path, packages))
-
-  # record problem
-  problem <- list(file = path, error = error)
-  state$problems$push(problem)
+  if (!is.null(state)) {
+    problem <- list(file = path, error = error)
+    state$problems$push(problem)
+  }
 
   # return dependency list
   renv_dependencies_list(path, packages)
