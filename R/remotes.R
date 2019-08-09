@@ -44,12 +44,12 @@ renv_remotes_resolve_impl <- function(entry) {
 renv_remotes_parse <- function(entry) {
 
   pattern <- paste0(
-    "(?:([^:]+)::)?",    # optional leading type
-    "([^/#@:]+)",        # a username
-    "(?:/([^@#:]+))?",   # a repository (allow sub-repositories)
-    "(?::([^@#:]+))?",   # optional subdirectory
-    "(?:#([^@#:]+))?",   # optional hash (e.g. pull request)
-    "(?:@([^@#:]+))?"    # optional ref (e.g. branch or commit)
+    "(?:([^@:]+)(?:@([^:]+))?:+)?",    # optional prefix, providing type + host
+    "([^/#@:]+)",                      # a username
+    "(?:/([^@#:]+))?",                 # a repository (allow sub-repositories)
+    "(?::([^@#:]+))?",                 # optional subdirectory
+    "(?:#([^@#:]+))?",                 # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?"                  # optional ref (e.g. branch or commit)
   )
 
   matches <- regexec(pattern, entry)
@@ -60,11 +60,12 @@ renv_remotes_parse <- function(entry) {
   parsed <- list(
     entry  = strings[[1]],
     type   = strings[[2]],
-    user   = strings[[3]],
-    repo   = strings[[4]],
-    subdir = strings[[5]],
-    pull   = strings[[6]],
-    ref    = strings[[7]]
+    host   = strings[[3]],
+    user   = strings[[4]],
+    repo   = strings[[5]],
+    subdir = strings[[6]],
+    pull   = strings[[7]],
+    ref    = strings[[8]]
   )
 
   # handle cran vs. github short-forms
@@ -84,7 +85,10 @@ renv_remotes_resolve_bitbucket <- function(entry) {
   subdir <- entry$subdir
   ref    <- entry$ref %""% "master"
 
-  host <- renv_config("bitbucket.host", "api.bitbucket.org/2.0")
+  host <-
+    entry$host %""%
+    renv_config("bitbucket.host", "api.bitbucket.org/2.0")
+
   fmt <- "https://%s/repositories/%s/%s/src/%s/DESCRIPTION"
   url <- sprintf(fmt, host, user, repo, ref)
 
@@ -96,11 +100,11 @@ renv_remotes_resolve_bitbucket <- function(entry) {
     Package        = desc$Package,
     Version        = desc$Version,
     Source         = "Bitbucket",
+    RemoteHost     = host,
     RemoteUsername = user,
     RemoteRepo     = repo,
     RemoteSubdir   = subdir,
-    RemoteRef      = ref,
-    RemoteHost     = host
+    RemoteRef      = ref
   )
 
 }
@@ -183,8 +187,9 @@ renv_remotes_resolve_github <- function(entry) {
   pull   <- entry$pull
   ref    <- entry$ref %""% "master"
 
-  # TODO: configure GitHub host on a per-package or per-remote basis?
-  host <- renv_config("github.host", "api.github.com")
+  host <-
+    entry$host %""%
+    renv_config("github.host", "api.github.com")
 
   # resolve the sha associated with the ref / pull
   sha <- case(
@@ -198,12 +203,12 @@ renv_remotes_resolve_github <- function(entry) {
     Package        = desc$Package,
     Version        = desc$Version,
     Source         = "GitHub",
+    RemoteHost     = host,
     RemoteUsername = user,
     RemoteRepo     = repo,
     RemoteSubdir   = subdir,
     RemoteRef      = ref,
-    RemoteSha      = sha,
-    RemoteHost     = host
+    RemoteSha      = sha
   )
 
 }
@@ -218,8 +223,11 @@ renv_remotes_resolve_gitlab <- function(entry) {
   parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
   descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
 
+  host <-
+    entry$host %""%
+    renv_config("gitlab.host", "gitlab.com")
+
   fmt <- "https://%s/api/v4/projects/%s/repository/files/%s/raw?ref=%s"
-  host <- renv_config("gitlab.host", "gitlab.com")
   id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
   url <- sprintf(fmt, host, id, descpath, ref)
 
@@ -231,11 +239,11 @@ renv_remotes_resolve_gitlab <- function(entry) {
     Package        = desc$Package,
     Version        = desc$Version,
     Source         = "GitLab",
+    RemoteHost     = host,
     RemoteUsername = user,
     RemoteRepo     = repo,
     RemoteSubdir   = subdir,
-    RemoteRef      = ref,
-    RemoteHost     = host
+    RemoteRef      = ref
   )
 
 }
