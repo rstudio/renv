@@ -1,3 +1,4 @@
 external.libraries:
 ignored.packages:
+snapshot.type: packrat
 use.cache: TRUE

@@ -27,6 +27,11 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
       return(path)
   }, limit = 10L)
 
+  if (is.null(project)) {
+    fmt <- "could not determine project root for script '%s'"
+    stopf(fmt, aliased_path(script))
+  }
+
   # ensure that it has an activate script
   activate <- file.path(project, "renv/activate.R")
   if (!file.exists(activate)) {
