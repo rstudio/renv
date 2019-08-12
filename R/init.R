@@ -63,6 +63,9 @@
 #' @param force Boolean; force initialization? By default, `renv` will refuse
 #'   to initialize the home directory as a project, to defend against accidental
 #'   misusages of `init()`.
+#' @param restart Boolean; attempt to restart the \R session after initializing
+#'   the project? A session restart will be attempting if the `"restart"` \R
+#'   option is set by the frontend embedding \R.
 #'
 #' @export
 #'
@@ -70,8 +73,9 @@
 init <- function(project = NULL,
                  ...,
                  settings = NULL,
-                 bare = FALSE,
-                 force = FALSE)
+                 bare     = FALSE,
+                 force    = FALSE,
+                 restart  = interactive())
 {
   renv_scope_error_handler()
 
@@ -82,8 +86,11 @@ init <- function(project = NULL,
   setwd(project)
 
   # for bare inits, just active the project
-  if (bare)
-    return(renv_activate_impl(project, renv_package_version("renv")))
+  if (bare) {
+    version <- renv_package_version("renv")
+    status <- renv_activate_impl(project, version, restart)
+    return(status)
+  }
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
@@ -108,7 +115,10 @@ init <- function(project = NULL,
   }
 
   # activate the newly-hydrated project
-  renv_activate_impl(project, renv_package_version("renv"))
+  version <- renv_package_version("renv")
+  status <- renv_activate_impl(project, version, restart)
+  return(status)
+
 }
 
 renv_init_action <- function(project, library, lockfile) {

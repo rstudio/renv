@@ -5,7 +5,7 @@
 \title{Initialize a Project}
 \usage{
 init(project = NULL, ..., settings = NULL, bare = FALSE,
-  force = FALSE)
+  force = FALSE, restart = interactive())
 }
 \arguments{
 \item{project}{The project directory. The \R working directory will be
@@ -22,6 +22,10 @@ and install R package dependencies?}
 \item{force}{Boolean; force initialization? By default, \code{renv} will refuse
 to initialize the home directory as a project, to defend against accidental
 misusages of \code{init()}.}
+
+\item{restart}{Boolean; attempt to restart the \R session after initializing
+the project? A session restart will be attempting if the \code{"restart"} \R
+option is set by the frontend embedding \R.}
 }
 \description{
 Discover packages used within the current project, and then initialize a

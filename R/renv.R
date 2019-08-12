@@ -24,10 +24,10 @@
 activate <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
-  renv_activate_impl(project, NULL)
+  renv_activate_impl(project, NULL, FALSE)
 }
 
-renv_activate_impl <- function(project, version) {
+renv_activate_impl <- function(project, version, restart) {
 
   # prepare renv infrastructure
   renv_infrastructure_write(project, version)
@@ -40,7 +40,8 @@ renv_activate_impl <- function(project, version) {
     load(project)
 
   # restart session
-  renv_request_restart(project, reason = "renv activated")
+  if (restart)
+    renv_request_restart(project, reason = "renv activated")
 
 }
 
