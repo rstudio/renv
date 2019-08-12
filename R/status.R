@@ -59,7 +59,11 @@ renv_status <- function(project, library, lockfile) {
 
   # compare the lockfile with current state of library
   curr <- snapshot(project = project, library = library, lockfile = NULL)
-  lock <- renv_lockfile_read(lockfile)
+  lock <- if (file.exists(lockfile))
+    renv_lockfile_read(lockfile)
+  else
+    renv_lockfile_init(project)
+
   renv_status_report(lock, curr)
 
   list(library = curr, lockfile = lock)
