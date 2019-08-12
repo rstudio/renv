@@ -620,7 +620,7 @@ renv_snapshot_filter_packrat <- function(project, records) {
       weeks = "weeks"
     )
 
-    vwritef(lines, formatted, units)
+    vwritef(lines, elapsed, units)
 
   }
 
