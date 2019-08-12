@@ -233,7 +233,7 @@ renv_load_finish <- function(project) {
     "--slave" %in% commandArgs(TRUE) ||
     identical(renv_verbose(), FALSE)
 
-  if (quiet) {
+  if (!quiet) {
     fmt <- "* Project '%s' loaded. [renv %s]"
     vwritef(fmt, aliased_path(project), renv_package_version("renv"))
   }
