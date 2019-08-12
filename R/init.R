@@ -89,7 +89,7 @@ init <- function(project = NULL,
   if (bare) {
     version <- renv_package_version("renv")
     status <- renv_activate_impl(project, version, restart)
-    return(status)
+    return(invisible(status))
   }
 
   # form path to lockfile, library
@@ -117,7 +117,7 @@ init <- function(project = NULL,
   # activate the newly-hydrated project
   version <- renv_package_version("renv")
   status <- renv_activate_impl(project, version, restart)
-  return(status)
+  invisible(status)
 
 }
 
