@@ -64,7 +64,7 @@
 #'   to initialize the home directory as a project, to defend against accidental
 #'   misusages of `init()`.
 #' @param restart Boolean; attempt to restart the \R session after initializing
-#'   the project? A session restart will be attempting if the `"restart"` \R
+#'   the project? A session restart will be attempted if the `"restart"` \R
 #'   option is set by the frontend embedding \R.
 #'
 #' @export
