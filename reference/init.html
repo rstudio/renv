@@ -66,7 +66,7 @@ are then installed to the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.93</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.94</span>
       </span>
     </div>
 
@@ -142,7 +142,7 @@ are then installed to the project's private library.</p>
     </div>
 
     <pre class="usage"><span class='fu'>init</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>settings</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bare</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>restart</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -171,6 +171,12 @@ and install R package dependencies?</p></td>
       <td><p>Boolean; force initialization? By default, <code>renv</code> will refuse
 to initialize the home directory as a project, to defend against accidental
 misusages of <code>init()</code>.</p></td>
+    </tr>
+    <tr>
+      <th>restart</th>
+      <td><p>Boolean; attempt to restart the <span style="R">R</span> session after initializing
+the project? A session restart will be attempting if the <code>"restart"</code> <span style="R">R</span>
+option is set by the frontend embedding <span style="R">R</span>.</p></td>
     </tr>
     </table>
     
