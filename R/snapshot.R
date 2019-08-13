@@ -110,7 +110,7 @@ snapshot <- function(project  = NULL,
 
   # report actions to the user
   actions <- renv_lockfile_diff_packages(old, new)
-  if (confirm && renv_verbose()) {
+  if (confirm || renv_verbose()) {
     renv_snapshot_report_actions(actions, old, new)
     vwritef("The lockfile will be written to '%s'.", aliased_path(lockfile))
   }
