@@ -112,8 +112,10 @@ renv_remotes_resolve_bitbucket <- function(entry) {
 renv_remotes_resolve_cran <- function(entry) {
 
   package <- entry$user
-  version <- entry$ref %""% "latest"
+  if (package %in% rownames(renv_installed_packages_base()))
+    return(renv_remotes_resolve_cran_base(package))
 
+  version <- entry$ref %""% "latest"
   if (identical(version, "latest"))
     return(renv_records_cran_latest(package))
 
@@ -124,6 +126,16 @@ renv_remotes_resolve_cran <- function(entry) {
     RemoteType = "standard",
     RemoteRef  = package,
     RemoteSha  = version
+  )
+
+}
+
+renv_remotes_resolve_cran_base <- function(package) {
+
+  list(
+    Package = package,
+    Version = renv_package_version(package),
+    Source  = "Base"
   )
 
 }
