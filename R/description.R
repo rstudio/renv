@@ -56,6 +56,9 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...)
   if (empty(dcf))
     stopf("DESCRIPTION file at '%s' is empty", path)
 
+  if (identical(dcf$Encoding, "UTF-8"))
+    dcf[] <- lapply(dcf, renv_encoding_mark, encoding = "UTF-8")
+
   renv_filebacked_set("DESCRIPTION", key, dcf)
   dcf
 
