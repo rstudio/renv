@@ -1,6 +1,6 @@
 {
   "renv": {
-    "Version": "0.6.0-92"
+    "Version": "0.6.0-100"
   },
   "R": {
     "Version": "3.6.1",
@@ -204,13 +204,13 @@
     },
     "markdown": {
       "Package": "markdown",
-      "Version": "1.0",
+      "Version": "1.1",
       "Source": "CRAN",
       "RemoteType": "standard",
       "RemoteRef": "markdown",
       "RemoteRepos": "https://cran.rstudio.com",
-      "RemoteSha": "1.0",
-      "Hash": "4584a57f565dd7987d59dda3a02cfb41"
+      "RemoteSha": "1.1",
+      "Hash": "80e1f73841614fa35f82a85d66fb41da"
     },
     "Matrix": {
       "Package": "Matrix",
