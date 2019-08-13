@@ -56,10 +56,6 @@ renv_records_cran_latest <- function(package) {
     Package       = package,
     Version       = entry$Version,
     Source        = "CRAN",
-    RemoteType    = "standard",
-    RemoteRef     = package,
-    RemoteRepos   = repos,
-    RemoteSha     = entry$Version,
     Type          = entry$Type,
     Repository    = entry$Repository
   )

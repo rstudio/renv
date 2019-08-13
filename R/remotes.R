@@ -122,10 +122,7 @@ renv_remotes_resolve_cran <- function(entry) {
   list(
     Package    = package,
     Version    = version,
-    Source     = "CRAN",
-    RemoteType = "standard",
-    RemoteRef  = package,
-    RemoteSha  = version
+    Source     = "CRAN"
   )
 
 }
