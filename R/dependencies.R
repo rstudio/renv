@@ -490,7 +490,8 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
     renv_dependencies_discover_r_xfun,
     renv_dependencies_discover_r_library_require,
     renv_dependencies_discover_r_require_namespace,
-    renv_dependencies_discover_r_colon
+    renv_dependencies_discover_r_colon,
+    renv_dependencies_discover_r_pacman
   )
 
   discoveries <- new.env(parent = emptyenv())
@@ -621,6 +622,50 @@ renv_dependencies_discover_r_colon <- function(node, envir) {
     return(FALSE)
 
   envir[[package]] <- TRUE
+  TRUE
+
+}
+
+renv_dependencies_discover_r_pacman <- function(node, envir) {
+
+  node <- renv_call_expect(node, "pacman", "p_load")
+  if (is.null(node) || length(node) < 2)
+    return(FALSE)
+
+  # check for character.only
+  chonly <- node[["character.only"]] %||% FALSE
+
+  # consider all unnamed arguments
+  parts <- as.list(node[-1L])
+
+  # also add in 'char'
+  parts <- c(parts, as.list(node[["char"]][-1L]))
+
+  # ensure names
+  names(parts) <- names(parts) %||% rep.int("", length(parts))
+  unnamed <- parts[!nzchar(names(parts))]
+
+  # extract symbols / characters
+  for (arg in unnamed) {
+
+    # skip symbols if necessary
+    if (chonly && is.symbol(arg))
+      next
+
+    # check for character or symbol
+    ok <-
+      length(arg) == 1 &&
+      is.character(arg) ||
+      is.symbol(arg)
+
+    if (!ok)
+      next
+
+    # add it
+    envir[[as.character(arg)]] <- TRUE
+
+  }
+
   TRUE
 
 }
