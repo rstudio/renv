@@ -48,22 +48,7 @@ test_that("empty chunks don't cause issues during dependency resolution", {
 })
 
 test_that("pacman::p_load() usages are understood", {
-
-  file <- renv_test_code({
-
-    # capture these
-    pacman::p_load(a)
-    pacman::p_load("b")
-    p_load(c, "d", e)
-    p_load(char = c("f", "g", "h"))
-
-    # don't capture these
-    pacman::p_load(A, character.only = TRUE)
-
-  })
-
-  deps <- dependencies(file)
+  deps <- dependencies("resources/pacman.R")
   packages <- setdiff(deps$Package, "pacman")
   expect_setequal(packages, letters[1:length(packages)])
-
 })
