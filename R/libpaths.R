@@ -24,6 +24,18 @@ renv_libpaths_site <- function() {
   get(".Library.site", envir = `_renv_libpaths`)
 }
 
+renv_libpaths_external <- function(project) {
+
+  projlib <- settings$external.libraries(project = project)
+
+  conflib <- renv_config("external.libraries", default = character())
+  if (is.function(conflib))
+    conflib <- conflib(project = project)
+
+  .expand_R_libs_env_var(c(projlib, conflib))
+
+}
+
 renv_libpaths_set <- function(libpaths) {
   oldlibpaths <- .libPaths()
   .libPaths(libpaths)
@@ -53,10 +65,12 @@ renv_libpaths_user <- function() {
 
 renv_libpaths_activate <- function(project) {
 
-  libpaths <- c(
-    renv_paths_library(project = project),
-    settings$external.libraries(project = project)
-  )
+  projlib <- renv_paths_library(project = project)
+  extlib <- renv_libpaths_external(project = project)
+  userlib <- if (renv_config("user.library", default = TRUE))
+    renv_libpaths_user()
+
+  libpaths <- c(projlib, extlib, userlib)
 
   lapply(libpaths, ensure_directory)
   oldlibpaths <- .libPaths()

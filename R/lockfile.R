@@ -213,13 +213,13 @@ renv_lockfile_sort <- function(lockfile) {
   renv_scope_locale("LC_COLLATE", "C")
 
   # extract R records (nothing to do if empty)
-  records <- lockfile$Packages
+  records <- renv_records(lockfile)
   if (empty(records))
     return(lockfile)
 
   # sort the records
   sorted <- records[sort(names(records))]
-  lockfile$Packages <- sorted
+  renv_records(lockfile) <- sorted
 
   # return post-sort
   lockfile

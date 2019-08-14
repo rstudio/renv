@@ -11,8 +11,8 @@ renv_lockfile_diff <- function(old, new, compare = NULL) {
   if (length(nms)) {
 
     nms <- sort(nms)
-    old[setdiff(nms, names(old))] <- list(NULL)
-    new[setdiff(nms, names(new))] <- list(NULL)
+    old[renv_vector_diff(nms, names(old))] <- list(NULL)
+    new[renv_vector_diff(nms, names(new))] <- list(NULL)
 
     old <- old[nms]
     new <- new[nms]

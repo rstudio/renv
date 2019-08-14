@@ -8,7 +8,7 @@ renv_cache_package_path <- function(record) {
 
   # validate required fields -- if any are missing, we can't use the cache
   required <- c("Package", "Version")
-  missing <- setdiff(required, names(record))
+  missing <- renv_vector_diff(required, names(record))
   if (length(missing))
     return("")
 

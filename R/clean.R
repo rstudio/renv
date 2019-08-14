@@ -120,7 +120,7 @@ renv_clean_unused_packages <- function(project, confirm) {
   packages <- names(paths)
 
   # figure out which packages aren't needed
-  removable <- setdiff(installed, packages)
+  removable <- renv_vector_diff(installed, packages)
   if (empty(removable))
     return(TRUE)
 
@@ -234,7 +234,7 @@ renv_clean_cache <- function(project, confirm) {
   # check what packages are actually available in the cache
   available <- renv_cache_list()
 
-  diff <- setdiff(available, used)
+  diff <- renv_vector_diff(available, used)
   if (empty(diff)) {
     vwritef("* The cache is up to date.")
     return(TRUE)

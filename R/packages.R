@@ -111,7 +111,7 @@ renv_package_augment <- function(installpath, record) {
 
   # ensure RemoteType field is written out
   remotes$RemoteType <- remotes$RemoteType %||% tolower(record$Source)
-  remotes <- remotes[c("RemoteType", setdiff(names(remotes), "RemoteType"))]
+  remotes <- remotes[c("RemoteType", renv_vector_diff(names(remotes), "RemoteType"))]
 
   # update package items
   renv_package_augment_description(installpath, remotes)
@@ -165,7 +165,7 @@ renv_package_dependencies <- function(packages,
 {
   visited <- new.env(parent = emptyenv())
   ignored <- c("renv", settings$ignored.packages(project = project))
-  packages <- setdiff(packages, ignored)
+  packages <- renv_vector_diff(packages, ignored)
   libpaths <- libpaths %||% renv_libpaths_all()
   for (package in packages)
     renv_package_dependencies_impl(package, visited, libpaths, fields)

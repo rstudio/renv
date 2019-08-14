@@ -13,9 +13,7 @@
 #' @name renv-params
 NULL
 
-#' @param library The library from which packages should be installed. When
-#'   `NULL`, the active library (that is, the first entry reported in
-#'   `.libPaths()`) is used instead.
+#' @param library The library into which packages should be installed.
 #'
 #' @param rebuild Force packages to be rebuilt, thereby bypassing any installed
 #'   versions of the package available in the cache? This can either be a

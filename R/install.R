@@ -41,7 +41,7 @@ install <- function(packages = NULL,
 {
   renv_scope_error_handler()
   project  <- project %||% renv_project()
-  library  <- library %||% renv_libpaths_default()
+  library  <- library %||% renv_libpaths_all()
 
   packages <- packages %||% renv_project_records(project)
   if (is.null(packages))
@@ -73,7 +73,7 @@ install <- function(packages = NULL,
   renv_install(records, library, project)
 
   # perform auto snapshot
-  if (library == renv_paths_library(project = project))
+  if (library[[1]] == renv_paths_library(project = project))
     renv_snapshot_auto(project = project)
 
   invisible(records)
@@ -88,7 +88,7 @@ renv_install <- function(records, library, project) {
   # }
 
   # save active library
-  renv_global_set("install.library", library)
+  renv_global_set("install.library", library[[1]])
   on.exit(renv_global_clear("install.library"), add = TRUE)
 
   # set up a dummy library path for installation
@@ -106,7 +106,7 @@ renv_install <- function(records, library, project) {
 
   # migrate packages into true library
   sources <- list.files(templib, full.names = TRUE)
-  targets <- file.path(library, basename(sources))
+  targets <- file.path(library[[1]], basename(sources))
   names(targets) <- sources
   enumerate(targets, renv_file_move, overwrite = TRUE)
 
@@ -215,7 +215,7 @@ renv_install_package_cache_skip <- function(record, cache) {
     return(FALSE)
 
   # check for matching cache + target paths
-  library <- renv_global_get("install.library")
+  library <- renv_global_get("install.library") %||% renv_libpaths_default()
   target <- file.path(library, record$Package)
 
   renv_file_same(cache, target)

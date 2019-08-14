@@ -111,7 +111,7 @@ update <- function(packages = NULL,
   packages <- packages %||% names(records)
 
   # check if the user has requested update for packages not installed
-  missing <- setdiff(packages, names(records))
+  missing <- renv_vector_diff(packages, names(records))
   if (!empty(missing)) {
 
     renv_pretty_print(
@@ -130,7 +130,7 @@ update <- function(packages = NULL,
 
   # select records
   selected <- c(
-    records[intersect(packages, names(records))],
+    records[renv_vector_intersect(packages, names(records))],
     named(lapply(missing, renv_records_cran_latest), missing)
   )
 

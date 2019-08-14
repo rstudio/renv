@@ -59,7 +59,7 @@ hydrate <- function(packages = NULL,
   # remove base + missing packages
   base <- renv_installed_packages_base()
   na <- deps[is.na(deps)]
-  packages <- deps[setdiff(names(deps), c(names(na), rownames(base)))]
+  packages <- deps[renv_vector_diff(names(deps), c(names(na), rownames(base)))]
 
   # get and construct path to library
   ensure_directory(library)
@@ -83,10 +83,10 @@ hydrate <- function(packages = NULL,
 }
 
 renv_hydrate_dependencies <- function(project, packages = NULL) {
-  packages <- packages %||% unique(dependencies(project)$Package)
+  packages <- packages %||% unique(dependencies(project, quiet = TRUE)$Package)
   vprintf("* Discovering package dependencies ... ")
   ignored <- c("renv", settings$ignored.packages(project = project))
-  packages <- setdiff(packages, ignored)
+  packages <- renv_vector_diff(packages, ignored)
   libpaths <- c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
   all <- renv_package_dependencies(packages, project = project, libpaths = libpaths)
   vwritef("Done!")

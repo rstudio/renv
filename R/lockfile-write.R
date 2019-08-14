@@ -17,6 +17,7 @@ renv_lockfile_state_clear <- function() {
 renv_lockfile_write <- function(lockfile, file = stdout()) {
 
   config <- renv_config("lockfile.format", default = "json")
+  lockfile <- renv_lockfile_sort(lockfile)
   switch(
     config,
     json = renv_lockfile_write_json(lockfile, file),
@@ -68,7 +69,6 @@ renv_lockfile_write_internal <- function(lockfile,
   renv_lockfile_state_set("emitter", emitter)
   on.exit(renv_lockfile_state_clear(), add = TRUE)
 
-  lockfile <- renv_lockfile_sort(lockfile)
   renv_lockfile_write_list(lockfile, section = character())
   invisible(lockfile)
 }

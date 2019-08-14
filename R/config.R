@@ -37,45 +37,63 @@
 #' \tabular{lll}{
 #' **Name** \tab **Type** \tab **Description** \cr
 #'
-#' `auto.snapshot` \tab `logical(1)` \tab
+#' `auto.snapshot` \tab `logical[1]` \tab
 #'   Automatically snapshot changes to the project library after a new package
 #'   is installed with `renv::install()`, or removed with `renv::remove()`?
-#'   (Boolean; defaults to `TRUE`) \cr
+#'   (`logical`; defaults to `TRUE`) \cr
 #'
-#' `connect.timeout` \tab `integer(1)` \tab
+#' `connect.timeout` \tab `integer[1]` \tab
 #'   The amount of time to spend (in seconds) when attempting to download a
 #'   file. If you have already configured the R downloader (that is, you have
 #'   set the `download.file.method` or `download.file.extra` \R options), then
 #'   this setting will be ignored.
-#'   (Integer; defaults to `20`) \cr
+#'   (`integer`; defaults to `20L`) \cr
 #'
-#' `connect.retry` \tab `integer(1)` \tab
+#' `connect.retry` \tab `integer[1]` \tab
 #'   The number of times to attempt re-downloading a file, when transient
 #'   errors occur. If you have already configured the R downloader (that is,
 #'   you have set the `download.file.method` or `download.file.extra` \R
 #'   options), then this setting will be ignored.
-#'   (Integer; defaults to `3`) \cr
+#'   (`integer`; defaults to `3L`) \cr
 #'
-#' `sandbox.enabled` \tab `logical(1)` \tab
+#' `external.libraries` \tab `character[*]` \tab
+#'   A character vector of external libraries, to be used in tandem with your
+#'   projects. Be careful when using external libraries: it's possible that
+#'   things can break within a project if the version(s) of packages used in
+#'   your project library happen to be incompatible with packages in your
+#'   external libraries; for example, if your project required `xyz 1.0` but
+#'   `xyz 1.1` was present and loaded from an external library. Can also be an
+#'   \R function that provides the paths to external libraries. Library paths
+#'   will be expanded through [.expand_R_libs_env_var] as necessary.
+#'   (`character`; defaults to `character()`) \cr
+#'
+#' `sandbox.enabled` \tab `logical[1]` \tab
 #'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
 #'   sandbox the system library, preventing user-installed packages in the
 #'   system library from becoming available in `renv` projects.
-#'   (Boolean; defaults to `FALSE`) \cr
+#'   (`logical`; defaults to `FALSE`) \cr
 #'
-#' `shims.enabled` \tab `logical(1)` \tab
+#' `shims.enabled` \tab `logical[1]` \tab
 #'   Should `renv` shims be installed on package load? When enabled, `renv`
 #'   will install its own shims over the functions `install.packages()`,
 #'   `update.packages()` and `remove.packages()`, delegating these functions
 #'   to `renv::install()`, `renv::update()` and `renv::remove()` as
 #'   appropriate.
-#'   (Boolean; defaults to `TRUE`) \cr
+#'   (`logical`; defaults to `TRUE`) \cr
 #'
-#' `snapshot.validate` \tab `logical(1)` \tab
+#' `snapshot.validate` \tab `logical[1]` \tab
 #'   Validate \R package dependencies when calling snapshot? When `TRUE`,
 #'   `renv` will attempt to diagnose potential issues in the project library
 #'   before creating `renv.lock` -- for example, if a package installed in the
 #'   project library depends on a package which is not currently installed.
-#'   (Boolean; defaults to `TRUE`) \cr
+#'   (`logical`; defaults to `TRUE`) \cr
+#'
+#' `user.library` \tab `logical[1]` \tab
+#'   Include the user library on the library paths for your projects? Note that
+#'   this risks breaking project encapsulation and is not recommended for
+#'   projects which you intend to share or collaborate on with other users. See
+#'   also the caveats for the `external.libraries` option.
+#'   (`logical`; defaults to `FALSE`)
 #'
 #' }
 #'

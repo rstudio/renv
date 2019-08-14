@@ -13,7 +13,7 @@ renv_hash_description <- function(path) {
   remotes <- renv_hash_description_remotes(dcf)
 
   # retrieve these fields
-  subsetted <- dcf[intersect(c(fields, remotes), names(dcf))]
+  subsetted <- dcf[renv_vector_intersect(c(fields, remotes), names(dcf))]
 
   # include R version in hash
   subsetted[["RVersion"]] <- getRversion()[1, 1:2]

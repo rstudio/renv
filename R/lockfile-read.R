@@ -32,7 +32,7 @@ renv_lockfile_read_finish <- function(data) {
   # port old packages format
   packages <- data$R$Package %||% data$R$Packages
   if (!is.null(packages)) {
-    data$Packages <- packages
+    renv_records(data) <- packages
     data$R$Package <- data$R$Packages <- NULL
   }
 

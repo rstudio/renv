@@ -27,7 +27,7 @@ test_that("we can use R CMD build to build a package", {
   args <- c("CMD", "INSTALL", "--build", package)
   output <- r_exec(package, args, "build")
   after <- list.files(testdir)
-  binball <- setdiff(after, before)
+  binball <- renv_vector_diff(after, before)
 
   expect_true(length(binball) == 1)
   expect_equal(renv_package_type(binball), "binary")

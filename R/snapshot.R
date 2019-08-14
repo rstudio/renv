@@ -80,7 +80,7 @@ snapshot <- function(project  = NULL,
 
   new <- renv_lockfile_init(project)
   records <- renv_snapshot_r_packages(library = library)
-  new$Packages <- renv_snapshot_filter(project, records, type)
+  renv_records(new) <- renv_snapshot_filter(project, records, type)
 
   if (is.null(lockfile))
     return(new)
@@ -110,10 +110,8 @@ snapshot <- function(project  = NULL,
 
   # report actions to the user
   actions <- renv_lockfile_diff_packages(old, new)
-  if (confirm || renv_verbose()) {
+  if (confirm || renv_verbose())
     renv_snapshot_report_actions(actions, old, new)
-    vwritef("The lockfile will be written to '%s'.", aliased_path(lockfile))
-  }
 
   # request user confirmation
   if (confirm && !proceed()) {
@@ -192,11 +190,11 @@ renv_snapshot_validate_dependencies <- function(project, lockfile, library, conf
   splat <- split(deps, deps$Package)
 
   # exclude base R packages
-  splat <- splat[setdiff(names(splat), renv_packages_base())]
+  splat <- splat[renv_vector_diff(names(splat), renv_packages_base())]
 
   # check for required packages not currently installed
   requested <- names(splat)
-  missing <- setdiff(requested, packages)
+  missing <- renv_vector_diff(requested, packages)
   if (length(missing)) {
 
     usedby <- map_chr(missing, function(package) {
@@ -424,7 +422,7 @@ renv_snapshot_description <- function(path) {
   dcf[["Hash"]] <- renv_hash_description(path)
 
   fields <- c("Package", "Version", "Source")
-  missing <- setdiff(fields, names(dcf))
+  missing <- renv_vector_diff(fields, names(dcf))
   if (length(missing)) {
     fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
     msg <- sprintf(fmt, paste(shQuote(missing), collapse = ", "), path)
@@ -525,8 +523,8 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
   # only report packages which are being modified; not added / removed
   keep <- names(actions)[actions %in% c("upgrade", "downgrade", "crossgrade")]
-  old$Packages <- old$Packages[keep]
-  new$Packages <- new$Packages[keep]
+  renv_records(old) <- renv_records(old)[keep]
+  renv_records(new) <- renv_records(new)[keep]
 
   # perform the diff
   diff <- renv_lockfile_diff(old, new, function(lhs, rhs) {
@@ -564,10 +562,23 @@ renv_snapshot_auto <- function(project) {
   if (!file.exists(library))
     return(FALSE)
 
+  # don't auto-snapshot unless the active library is the project library
+  if (!renv_file_same(renv_libpaths_default(), library))
+    return(FALSE)
+
   # passed pre-flight checks; snapshot the library
   # validation messages can be noisy; turn off for auto snapshot
-  renv_scope_options(renv.config.snapshot.validate = FALSE)
-  snapshot(project = project, library = library, confirm = FALSE)
+  status <- local({
+    renv_scope_options(renv.config.snapshot.validate = FALSE, renv.verbose = FALSE)
+    catch(snapshot(project = project, confirm = FALSE))
+  })
+
+  if (inherits(status, "error"))
+    return(FALSE)
+
+  lockfile <- file.path(project, "renv.lock")
+  vwritef("* Lockfile written to '%s'.", aliased_path(lockfile))
+  TRUE
 
 }
 
@@ -594,7 +605,7 @@ renv_snapshot_filter_packrat <- function(project, records) {
   # get recursive package dependencies for those discovered
   deps <- dependencies(project, quiet = TRUE)
   ignored <- c("renv", settings$ignored.packages(project = project))
-  packages <- setdiff(unique(deps$Package), ignored)
+  packages <- renv_vector_diff(unique(deps$Package), ignored)
   paths <- renv_package_dependencies(packages, project = project)
   all <- as.character(names(paths))
 
@@ -625,7 +636,7 @@ renv_snapshot_filter_packrat <- function(project, records) {
   }
 
   # keep only those records
-  records[intersect(names(records), all)]
+  records[renv_vector_intersect(names(records), all)]
 
 }
 
@@ -653,6 +664,6 @@ renv_snapshot_filter_custom <- function(project, records) {
   if (!is.character(packages))
     stop("custom snapshot filter did not return a character vector")
 
-  records[intersect(names(records), packages)]
+  records[renv_vector_intersect(names(records), packages)]
 
 }

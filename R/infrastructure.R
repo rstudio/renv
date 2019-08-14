@@ -84,7 +84,7 @@ renv_infrastructure_write_entry_impl <- function(lines, file, create) {
 
   # if the file already has the requested line, nothing to do
   contents <- trimws(readLines(file, warn = FALSE))
-  missing <- setdiff(lines, contents)
+  missing <- renv_vector_diff(lines, contents)
   if (empty(missing))
     return(TRUE)
 

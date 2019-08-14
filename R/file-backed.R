@@ -17,7 +17,7 @@ renv_filebacked_clear <- function(scope, path = NULL) {
   envir <- renv_filebacked_envir(scope)
   existing <- ls(envir = envir, all.names = TRUE)
   path <- path %||% existing
-  removable <- intersect(path, existing)
+  removable <- renv_vector_intersect(path, existing)
   rm(list = removable, envir = envir)
 }
 

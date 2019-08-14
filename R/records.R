@@ -67,7 +67,7 @@ renv_record_names <- function(record, fields = NULL) {
   fields <- fields %||% c("Package", "Version", "Source")
   remotes <- grep("^Remote", names(record), value = TRUE)
   nms <- c(fields, remotes)
-  intersect(nms, names(record))
+  renv_vector_intersect(nms, names(record))
 }
 
 renv_record_cacheable <- function(record) {

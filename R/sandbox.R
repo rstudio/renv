@@ -46,7 +46,7 @@ renv_sandbox_activate_impl <- function(project) {
   renv_binding_replace(".Library.site", NULL,    envir = base)
 
   # update library paths
-  newlibs <- setdiff(oldlibs, syslibs)
+  newlibs <- renv_vector_diff(oldlibs, syslibs)
   renv_libpaths_set(newlibs)
 
   # protect against user profiles that might try
@@ -103,7 +103,7 @@ renv_sandbox_deactivate <- function() {
   renv_binding_replace(".Library.site", renv_libpaths_site(),   envir = base)
 
   # update library paths
-  new <- setdiff(old, syslibs)
+  new <- renv_vector_diff(old, syslibs)
   renv_libpaths_set(new)
 
   renv_libpaths_all()

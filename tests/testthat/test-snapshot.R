@@ -79,14 +79,14 @@ test_that("packrat-style snapshots only include packages currently used", {
   # install toast, but don't declare that we use it
   renv::install("toast")
   lockfile <- snapshot(type = "packrat", lockfile = NULL)
-  records <- lockfile$Packages
+  records <- renv_records(lockfile)
   expect_length(records, 1L)
   expect_setequal(names(records), "oatmeal")
 
   # use toast
   writeLines("library(toast)", con = "toast.R")
   lockfile <- snapshot(type = "packrat", lockfile = NULL)
-  records <- lockfile$Packages
+  records <- renv_records(lockfile)
   expect_length(records, 3L)
   expect_setequal(names(records), c("oatmeal", "bread", "toast"))
 

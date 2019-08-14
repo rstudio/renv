@@ -34,10 +34,7 @@ renv_activate_impl <- function(project, version, restart) {
   renv_bootstrap_impl()
 
   # try to load the project
-  if (renv_testing())
-    renv_load_libpaths(project)
-  else
-    load(project)
+  load(project)
 
   # restart session
   if (restart)
@@ -103,6 +100,13 @@ load <- function(project = NULL) {
   project <- project %||% renv_project()
 
   renv_envvars_save()
+
+  # load a minimal amount of state when testing
+  if (renv_testing()) {
+    renv_load_libpaths(project)
+    return(invisible(project))
+  }
+
   renv_load_path(project)
   renv_load_renviron(project)
   renv_load_settings(project)

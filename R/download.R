@@ -130,7 +130,7 @@ renv_download_default <- function(url, destfile, type, request, headers) {
                quiet    = TRUE)
 
   fmls <- formals(download.file)
-  args <- args[intersect(names(fmls), names(args))]
+  args <- args[renv_vector_intersect(names(fmls), names(args))]
 
   do.call(download.file, args)
 

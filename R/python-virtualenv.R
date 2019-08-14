@@ -109,7 +109,7 @@ renv_python_virtualenv_restore <- function(project, python) {
     return(FALSE)
   }
 
-  diff <- setdiff(before, after)
+  diff <- renv_vector_diff(before, after)
   file <- renv_tempfile("renv-requirements-", fileext = ".txt")
   writeLines(diff, con = file)
   suffix <- paste("-m pip install --upgrade -r", shQuote(file))

@@ -81,7 +81,11 @@ renv_tests_init_envvars <- function() {
 }
 
 renv_tests_init_options <- function() {
-  options(warn = 2, restart = NULL)
+  options(
+    renv.config.user.library = FALSE,
+    restart = NULL,
+    warn = 2
+  )
 }
 
 renv_tests_init_repos <- function() {

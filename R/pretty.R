@@ -57,7 +57,7 @@ renv_pretty_print_records_pair <- function(before,
   if (!setequal(names(before), names(after)))
     stopf("internal error: names mismatch", call. = TRUE)
 
-  nm <- intersect(names(before), names(after))
+  nm <- renv_vector_intersect(names(before), names(after))
   before <- before[nm]; after <- after[nm]
 
   formatted <- sprintf(

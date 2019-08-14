@@ -63,12 +63,12 @@ renv_settings_read <- function(project) {
   }
 
   known <- ls(envir = `_renv_settings`, all.names = TRUE)
-  dcf <- dcf[intersect(names(dcf), known)]
+  dcf <- dcf[renv_vector_intersect(names(dcf), known)]
 
   settings <- enumerate(dcf, renv_settings_decode)
 
   defaults <- renv_settings_defaults()
-  missing <- setdiff(names(defaults), names(settings))
+  missing <- renv_vector_diff(names(defaults), names(settings))
   settings[missing] <- defaults[missing]
 
   renv_filebacked_set("settings", path, settings)
