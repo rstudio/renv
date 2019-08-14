@@ -3,6 +3,7 @@ context("Profiles")
 
 test_that("library paths set in a user profile are overridden after load", {
   skip_on_cran()
+  skip_on_appveyor()
 
   renv_tests_scope()
 
