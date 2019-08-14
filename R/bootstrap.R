@@ -26,11 +26,11 @@ bootstrap <- function(version = NULL) {
 
 }
 
-renv_bootstrap_impl <- function(version = NULL) {
+renv_bootstrap_impl <- function(version = NULL, force = FALSE) {
 
-  # don't bootstrap during tests
-  if (renv_testing())
-    return(TRUE)
+  # don't bootstrap during tests unless explicitly requested
+  if (renv_testing() && !force)
+    return()
 
   # NULL version means bootstrap this version of renv
   if (is.null(version))
@@ -70,8 +70,29 @@ renv_bootstrap_self <- function() {
   if (renv_file_same(source, target))
     return(TRUE)
 
-  # copy the directory
+  # if we're working with package sources, we'll need to explicitly
+  # install the package to the bootstrap directory
+  type <- renv_package_type(source)
+  switch(type,
+         source = renv_bootstrap_self_source(source, target),
+         binary = renv_bootstrap_self_binary(source, target))
+
+}
+
+renv_bootstrap_self_source <- function(source, target) {
+
+  # if the package already exists, just skip
+  if (file.exists(target))
+    return(TRUE)
+
+  # otherwise, install it
+  library <- dirname(target)
+  ensure_directory(library)
+  r_cmd_install("renv", source, library)
+
+}
+
+renv_bootstrap_self_binary <- function(source, target) {
   ensure_parent_directory(target)
   renv_file_copy(source, target, overwrite = TRUE)
-
 }

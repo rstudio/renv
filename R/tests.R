@@ -77,7 +77,7 @@ renv_tests_init_working_dir <- function() {
 renv_tests_init_envvars <- function() {
   root <- tempfile("renv-root-")
   dir.create(root, showWarnings = TRUE, mode = "755")
-  Sys.setenv(RENV_PATHS_ROOT = root, RENV_TESTS_INITIALIZED = "TRUE")
+  Sys.setenv(RENV_PATHS_ROOT = root)
 }
 
 renv_tests_init_options <- function() {
@@ -182,12 +182,12 @@ renv_tests_init_sandbox <- function() {
 
 }
 
+renv_tests_init_finish <- function() {
+  options(renv.testing = TRUE)
+}
+
 renv_tests_init <- function() {
 
-  # NOTE: we set both variables so we can distinguish between
-  # R CMD check and devtools::test(). we do this dance just in
-  # case RENV_TESTS_INITIALIZED gets set during interactive
-  # debugging of renv tests
   if (renv_testing())
     return()
 
@@ -198,6 +198,7 @@ renv_tests_init <- function() {
   renv_tests_init_repos()
   renv_tests_init_packages()
   renv_tests_init_sandbox()
+  renv_tests_init_finish()
 
 }
 
@@ -206,9 +207,7 @@ renv_tests_report <- function() {
 }
 
 renv_testing <- function() {
-  vars <- c("RENV_TESTS_INITIALIZED", "RENV_TESTS_INITIALIZED_TESTTHAT")
-  vals <- Sys.getenv(vars, unset = NA)
-  any(!is.na(vals))
+  getOption("renv.testing", default = FALSE)
 }
 
 renv_test_code <- function(code, fileext = ".R") {

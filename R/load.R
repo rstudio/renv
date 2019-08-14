@@ -135,13 +135,23 @@ renv_load_project <- function(project) {
 }
 
 renv_load_profile <- function(project = NULL) {
+
   project <- project %||% renv_project()
 
-  profile <- renv_paths_root(".Rprofile")
-  if (!file.exists(profile))
-    return(FALSE)
+  profiles <- c(
+    renv_paths_root(".Rprofile"),
+    Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
+  )
 
-  status <- catch(source(profile))
+  for (profile in profiles)
+    if (file.exists(profile))
+      renv_load_profile_impl(profile)
+
+}
+
+renv_load_profile_impl <- function(profile) {
+
+  status <- catch(sys.source(profile))
   if (inherits(status, "error")) {
     fmt <- paste("Error sourcing '%s': %s")
     warningf(fmt, aliased_path(profile), conditionMessage(status))
