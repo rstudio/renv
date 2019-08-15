@@ -105,7 +105,15 @@ renv_migrate_packrat_lockfile <- function(project) {
 renv_migrate_packrat_library <- function(project) {
 
   packrat <- asNamespace("packrat")
-  sources <- list.files(packrat$libDir(project = project), full.names = TRUE)
+
+  libdir <- packrat$libDir(project = project)
+  if (!file.exists(libdir))
+    return(TRUE)
+
+  sources <- list.files(libdir, full.names = TRUE)
+  if (empty(sources))
+    return(TRUE)
+
   targets <- renv_paths_library(basename(sources), project = project)
 
   names(targets) <- sources
