@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.108</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.109</span>
       </span>
     </div>
 
@@ -91,7 +91,7 @@
       <h1>Introduction to renv</h1>
                         <h4 class="author">Kevin Ushey</h4>
             
-            <h4 class="date">2019-08-14</h4>
+            <h4 class="date">2019-08-15</h4>
       
       
       <div class="hidden name"><code>renv.Rmd</code></div>
@@ -228,8 +228,18 @@
 <li>Connection timeouts,</li>
 <li>Download retries on transient errors.</li>
 </ul>
-<p>If <code>curl</code> is not available on your machine, it is highly recommended that you install it. Newer versions of Windows 10 come with a bundled version of <code>curl</code>; other users on Windows can use <code><a href="../reference/equip.html">renv::equip()</a></code> to download and install a recent copy of <code>curl</code>. Newer versions of macOS come with a bundled version of <code>curl</code> that is adequate for usage with <code>renv</code>, and most Linux package managers have a modern version of <code>curl</code> available in their repositories.</p>
+<p>If <code>curl</code> is not available on your machine, it is highly recommended that you install it. Newer versions of Windows 10 come with a bundled version of <code>curl.exe</code>; other users on Windows can use <code><a href="../reference/equip.html">renv::equip()</a></code> to download and install a recent copy of <code>curl</code>. Newer versions of macOS come with a bundled version of <code>curl</code> that is adequate for usage with <code>renv</code>, and most Linux package managers have a modern version of <code>curl</code> available in their repositories.</p>
 <p><code>curl</code> downloads can be configured through <code>renv</code>’s configuration settings – see <code><a href="../reference/config.html">?renv::config</a></code> for more details.</p>
+<div id="proxies" class="section level3">
+<h3 class="hasAnchor">
+<a href="#proxies" class="anchor"></a>Proxies</h3>
+<p>If your downloads need to go through a proxy server, then there are a variety of approaches you can take to make this work:</p>
+<ol style="list-style-type: decimal">
+<li><p>Set the <code>http_proxy</code> and / or <code>https_proxy</code> environment variables. These environment variables can contain the full URL to your proxy server, including a username + password if necessary.</p></li>
+<li><p>You can use a <code>.curlrc</code> (<code>_curlrc</code> on Windows) to provide information about the proxy server to be used. This file should be placed in your home folder (see <code><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv("HOME")</a></code>, or <code><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv("R_USER")</a></code> on Windows); alternatively, you can set the <code>CURL_HOME</code> environment variable to point to a custom ‘home’ folder to be used by <code>curl</code> when resolving the runtime configuration file. On Windows, you can also place your <code>_curlrc</code> in the same directory where the <code>curl.exe</code> binary is located.</p></li>
+</ol>
+<p>See the <a href="https://ec.haxx.se/usingcurl-proxies.html">curl documentation on proxies</a> for more details.</p>
+</div>
 </div>
 <div id="authentication" class="section level2">
 <h2 class="hasAnchor">
