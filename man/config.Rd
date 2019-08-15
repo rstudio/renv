@@ -93,6 +93,13 @@ before creating \code{renv.lock} -- for example, if a package installed in the
 project library depends on a package which is not currently installed.
 (\code{logical}; defaults to \code{TRUE}) \cr
 
+\code{user.profile} \tab \code{logical[1]} \tab
+Load the user R profile (typically located at \code{~/.Rprofile}) when \code{renv}
+is loaded? Consider disabling this if you require extra encapsulation in
+your projects; e.g. if your \code{.Rprofile} attempts to load packages that
+you might not install in your projects.
+(\code{logical}; defaults to \code{TRUE}) \cr
+
 \code{user.library} \tab \code{logical[1]} \tab
 Include the user library on the library paths for your projects? Note that
 this risks breaking project encapsulation and is not recommended for

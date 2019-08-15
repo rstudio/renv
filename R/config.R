@@ -88,6 +88,13 @@
 #'   project library depends on a package which is not currently installed.
 #'   (`logical`; defaults to `TRUE`) \cr
 #'
+#' `user.profile` \tab `logical[1]` \tab
+#'   Load the user R profile (typically located at `~/.Rprofile`) when `renv`
+#'   is loaded? Consider disabling this if you require extra encapsulation in
+#'   your projects; e.g. if your `.Rprofile` attempts to load packages that
+#'   you might not install in your projects.
+#'   (`logical`; defaults to `TRUE`) \cr
+#'
 #' `user.library` \tab `logical[1]` \tab
 #'   Include the user library on the library paths for your projects? Note that
 #'   this risks breaking project encapsulation and is not recommended for

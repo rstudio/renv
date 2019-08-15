@@ -138,6 +138,10 @@ renv_load_profile <- function(project = NULL) {
 
   project <- project %||% renv_project()
 
+  enabled <- renv_config("user.profile", default = TRUE)
+  if (!enabled)
+    return(FALSE)
+
   profiles <- c(
     renv_paths_root(".Rprofile"),
     Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
