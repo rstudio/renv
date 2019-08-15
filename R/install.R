@@ -76,6 +76,9 @@ install <- function(packages = NULL,
   if (library[[1]] == renv_paths_library(project = project))
     renv_snapshot_auto(project = project)
 
+  # check loaded packages and inform user if out-of-sync
+  renv_install_postamble(names(records))
+
   invisible(records)
 }
 
@@ -348,3 +351,52 @@ renv_install_preflight <- function(records) {
 
 }
 # nocov end
+
+renv_install_postamble <- function(packages) {
+
+  # don't include renv (since it's loaded from a special library)
+  packages <- renv_vector_diff(packages, "renv")
+
+  # only diagnose packages currently loaded
+  packages <- renv_vector_intersect(packages, loadedNamespaces())
+  if (empty(packages))
+    return(TRUE)
+
+  # get version of package in library
+  installed <- map_chr(packages, renv_package_version)
+
+  # get version of package currently loaded
+  loaded <- map_chr(packages, function(package) {
+    namespace <- .getNamespace(package)
+    spec <- .getNamespaceInfo(namespace, "spec")
+    spec[["version"]]
+  })
+
+  # collect into data.frame
+  data <- data.frame(
+    Package   = packages,
+    Installed = installed,
+    Loaded    = loaded,
+    stringsAsFactors = FALSE
+  )
+
+  # only keep mismatches
+  mismatches <- subset(data, Installed != Loaded)
+  if (nrow(mismatches) == 0)
+    return(TRUE)
+
+  # format and print
+  text <- with(mismatches, {
+    fmt <- "%s [installed version %s != loaded version %s]"
+    sprintf(fmt, format(Package), format(Installed), format(Loaded))
+  })
+
+  renv_pretty_print(
+    text,
+    "The following package(s) have been updated:",
+    "Consider restarting the R session and loading the newly-installed packages."
+  )
+
+  TRUE
+
+}

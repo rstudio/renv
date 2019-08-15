@@ -107,34 +107,6 @@ restore <- function(project  = NULL,
   invisible(status)
 }
 
-# nocov start
-
-# TODO: does this still make sense in a world where there are
-# different kinds of snapshots?
-renv_restore_postamble <- function(project, lockfile, confirm) {
-
-  actions <- renv_lockfile_diff_packages(
-    lockfile,
-    snapshot(project = project, lockfile = NULL)
-  )
-
-  if (empty(actions))
-    return(NULL)
-
-  msg <- stack()
-  msg$push("The dependency tree was repaired during package restoration.")
-  if (confirm)
-    msg$push("You will be prompted to snapshot the newly-installed packages.")
-  else
-    msg$push("The lockfile will be updated with the newly-installed packages.")
-
-  vwritef(as.character(msg$data()))
-  snapshot(project = project, confirm = confirm)
-
-}
-
-# nocov end
-
 renv_restore_run_actions <- function(project, actions, current, lockfile) {
 
   packages <- names(actions)
@@ -160,15 +132,18 @@ renv_restore_run_actions <- function(project, actions, current, lockfile) {
   # detect dependency tree repair
   diff <- renv_lockfile_diff_packages(renv_records(lockfile), records)
   diff <- diff[diff != "remove"]
-  if (empty(diff))
-    return(invisible(status))
+  if (!empty(diff)) {
+    renv_pretty_print_records(
+      records[names(diff)],
+      "The dependency tree was repaired during package installation:",
+      "Call `renv::snapshot()` to capture these dependencies in the lockfile."
+    )
+  }
 
-  renv_pretty_print_records(
-    records[names(diff)],
-    "The dependency tree was repaired during package installation:",
-    "Call `renv::snapshot()` to capture these dependencies in the lockfile."
-  )
+  # check installed packages and prompt for reload if needed
+  renv_install_postamble(names(records))
 
+  # return status
   invisible(status)
 
 }
