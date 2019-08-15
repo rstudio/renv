@@ -16,13 +16,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -48,6 +50,7 @@ renv with your particular project." />
 <![endif]-->
 
 
+
   </head>
 
   <body>
@@ -64,7 +67,7 @@ renv with your particular project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.111</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.112</span>
       </span>
     </div>
 
@@ -72,7 +75,7 @@ renv with your particular project." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -120,6 +123,7 @@ renv with your particular project." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -146,36 +150,35 @@ renv with your particular project." />
     <h2 class="hasAnchor" id="settings"><a class="anchor" href="#settings"></a>Settings</h2>
 
     
-    <dl class='dl-horizontal'>
-    <dt><code>ignored.packages</code></dt><dd><p>A vector of packages, which should be ignored when attempting to snapshot
-the project's private library. Note that if a package has already been
-added to the lockfile, that entry in the lockfile will not be ignored. <br /></p></dd>
-    <dt><code>external.libraries</code></dt><dd><p>A vector of library paths, to be used in addition to the project's own
-private library. This can be useful if you have a package available for use
-in some global library, but for some reason <code>renv</code> is not able to install
-that package (e.g. sources or binaries for that package are not publicly
-available, or you have been unable to orchestrate the pre-requisites for
-installing some packages from source on your machine).</p></dd>
-    <dt><code>snapshot.type</code></dt><dd><p>The type of snapshot to perform by default. See <a href='snapshot.html'>snapshot</a> for more
-details.</p></dd>
-    <dt><code>use.cache</code></dt><dd><p>Use a global cache of <span style="R">R</span> packages. When active, <code>renv</code> will install
-packages into a global cache, and link packages from the cache into your
-<code>renv</code> projects as appropriate. This can greatly save on disk space
-and install time when for <span style="R">R</span> packages which are used across multiple
-projects in the same environment.</p></dd>
-    </dl>
+
+
+<dl class='dl-horizontal'>
+
+<dt><code>ignored.packages</code></dt><dd><p>c("", "A vector of packages, which should be ignored when attempting to snapshot\nthe project's private library. Note that if a package has already been\nadded to the lockfile, that entry in the lockfile will not be ignored. <br />")</p></dd>
+
+<dt><code>external.libraries</code></dt><dd><p>c("", "A vector of library paths, to be used in addition to the project's own\nprivate library. This can be useful if you have a package available for use\nin some global library, but for some reason <code>renv</code> is not able to install\nthat package (e.g. sources or binaries for that package are not publicly\navailable, or you have been unable to orchestrate the pre-requisites for\ninstalling some packages from source on your machine).")</p></dd>
+
+<dt><code>snapshot.type</code></dt><dd><p>c("", "The type of snapshot to perform by default. See <a href='snapshot.html'>snapshot</a> for more\ndetails.")</p></dd>
+
+<dt><code>use.cache</code></dt><dd><p>c("", "Use a global cache of <span style=\"R\">R</span> packages. When active, <code>renv</code> will install\npackages into a global cache, and link packages from the cache into your\n<code>renv</code> projects as appropriate. This can greatly save on disk space\nand install time when for <span style=\"R\">R</span> packages which are used across multiple\nprojects in the same environment.")</p></dd>
+
+</dl>
+
     
     <h2 class="hasAnchor" id="defaults"><a class="anchor" href="#defaults"></a>Defaults</h2>
 
     
-    <p>You can change the default values of these settings for newly-created <code>renv</code>
+
+
+<p>You can change the default values of these settings for newly-created <code>renv</code>
 projects by setting <span style="R">R</span> options for <code>renv.settings</code> or <code>renv.settings.&lt;name&gt;</code>.
 For example:</p>
 <pre>
 options(renv.settings = list(snapshot.type = "simple"))
 options(renv.settings.snapshot.type = "simple")
 </pre>
-    <p>If both of the <code>renv.settings</code> and <code>renv.settings.&lt;name&gt;</code> options are set
+
+<p>If both of the <code>renv.settings</code> and <code>renv.settings.&lt;name&gt;</code> options are set
 for a particular key, the option associated with <code>renv.settings.&lt;name&gt;</code> is
 used instead. We recommend setting these in an appropriate startup profile,
 e.g. <code>~/.Rprofile</code> or similar.</p>
@@ -208,19 +211,23 @@ e.g. <code>~/.Rprofile</code> or similar.</p>
   </div>
 </div>
 
+
       <footer>
       <div class="copyright">
   <p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9100.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

@@ -16,13 +16,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -50,6 +52,7 @@ details on the structure of a lockfile." />
 <![endif]-->
 
 
+
   </head>
 
   <body>
@@ -66,7 +69,7 @@ details on the structure of a lockfile." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.111</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.112</span>
       </span>
     </div>
 
@@ -74,7 +77,7 @@ details on the structure of a lockfile." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -122,6 +125,7 @@ details on the structure of a lockfile." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -142,9 +146,9 @@ details on the structure of a lockfile.</p>
     </div>
 
     <pre class="usage"><span class='fu'>snapshot</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/file.path'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>),
+  <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>),
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='no'>settings</span>$<span class='fu'>snapshot.type</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='no'>project</span>),
-  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/interactive'>interactive</a></span>())</pre>
+  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,7 +166,7 @@ directory is used instead.</p></td>
     <tr>
       <th>library</th>
       <td><p>The <span style="R">R</span> libraries to snapshot. When <code>NULL</code>, the active <span style="R">R</span>
-libraries (as reported by <code><a href='https://www.rdocumentation.org/packages/base/topics/libPaths'>.libPaths()</a></code>) are used.</p></td>
+libraries (as reported by <code><a href='https://rdrr.io/r/base/libPaths.html'>.libPaths()</a></code>) are used.</p></td>
     </tr>
     <tr>
       <th>lockfile</th>
@@ -186,25 +190,20 @@ is performed.</p></td>
     <h2 class="hasAnchor" id="snapshot-type"><a class="anchor" href="#snapshot-type"></a>Snapshot Type</h2>
 
     
-    <p>Depending on how you prefer to manage dependencies, you might prefer
+
+
+<p>Depending on how you prefer to manage dependencies, you might prefer
 selecting a different snapshot mode. The modes available are as follows:</p>
 <dl class='dl-horizontal'>
-    <dt><code>"simple"</code></dt><dd><p>All packages within the active libraries are included in the lockfile.
-This is the quickest and simplest method, but may lead to packages
-(e.g. development dependencies) entering the lockfile, which can be
-undesired.</p></dd>
-    <dt><code>"packrat"</code></dt><dd><p>Perform a Packrat-style snapshot. The intersection of packages discovered
-in your <span style="R">R</span> libraries, alongside those discovered by <code><a href='dependencies.html'>renv::dependencies()</a></code>,
-will enter the lockfile. This helps ensure that only the packages you are
-using will enter the lockfile, but may be slower if your project contains
-a large number of files.</p></dd>
-    <dt><code>"custom"</code></dt><dd><p>Like <code>"packrat"</code>, but use a custom user-defined filter instead. The filter
-should be specified by the <span style="R">R</span> option <code>renv.snapshot.filter</code>, and should
-either be a character vector naming a function (e.g. <code>"package::method"</code>),
-or be a function itself. The function should only accept one argument (the
-project directory), and should return a vector of package names to include
-in the lockfile.</p></dd>
-    </dl>
+
+<dt><code>"simple"</code></dt><dd><p>c("", "All packages within the active libraries are included in the lockfile.\nThis is the quickest and simplest method, but may lead to packages\n(e.g. development dependencies) entering the lockfile, which can be\nundesired.")</p></dd>
+
+<dt><code>"packrat"</code></dt><dd><p>c("", "Perform a Packrat-style snapshot. The intersection of packages discovered\nin your <span style=\"R\">R</span> libraries, alongside those discovered by <code><a href='dependencies.html'>renv::dependencies()</a></code>,\nwill enter the lockfile. This helps ensure that only the packages you are\nusing will enter the lockfile, but may be slower if your project contains\na large number of files.\n")</p></dd>
+
+<dt><code>"custom"</code></dt><dd><p>c("", "Like <code>\"packrat\"</code>, but use a custom user-defined filter instead. The filter\nshould be specified by the <span style=\"R\">R</span> option <code>renv.snapshot.filter</code>, and should\neither be a character vector naming a function (e.g. <code>\"package::method\"</code>),\nor be a function itself. The function should only accept one argument (the\nproject directory), and should return a vector of package names to include\nin the lockfile.")</p></dd>
+
+</dl>
+
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -215,8 +214,8 @@ in the lockfile.</p></dd>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='co'># disable automatic snapshots</span>
-<span class='no'>auto.snapshot</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/options'>getOption</a></span>(<span class='st'>"renv.config.auto.snapshot"</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/options'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='no'>auto.snapshot</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"renv.config.auto.snapshot"</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='co'># initialize a new project (with an empty R library)</span>
 <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/init.html'>init</a></span>(<span class='kw'>bare</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
@@ -237,7 +236,7 @@ in the lockfile.</p></dd>
 <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/restore.html'>restore</a></span>()
 
 <span class='co'># restore automatic snapshots</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/options'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='no'>auto.snapshot</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='no'>auto.snapshot</span>)
 
 <span class='co'># }</span></pre>
   </div>
@@ -256,19 +255,23 @@ in the lockfile.</p></dd>
   </div>
 </div>
 
+
       <footer>
       <div class="copyright">
   <p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9100.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

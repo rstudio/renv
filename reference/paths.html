@@ -16,13 +16,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -47,6 +49,7 @@
 <![endif]-->
 
 
+
   </head>
 
   <body>
@@ -63,7 +66,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.111</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.112</span>
       </span>
     </div>
 
@@ -71,7 +74,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -119,6 +122,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -145,19 +149,14 @@
 
     <p>By default, <code>renv</code> collects state into these folders:</p>
 <table class='table'>
-<tr><td></td><td><strong>Platform</strong></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td><strong>Location</strong></td><td></td></tr>
-<tr><td></td><td>Linux</td></tr>
-<tr><td></td><td><code>~/.local/share/renv</code></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td>macOS</td><td></td></tr>
-<tr><td><code>~/Library/Application Support/renv</code></td><td></td></tr>
-<tr><td></td><td>Windows</td></tr>
-<tr><td></td><td><code>%APPDATA%/renv</code></td></tr>
-<tr><td></td><td></td></tr>
+<tr><td><strong>Platform</strong></td><td><strong>Location</strong></td></tr>
+<tr><td>Linux</td><td><code>~/.local/share/renv</code></td></tr>
+<tr><td>macOS</td><td><code>~/Library/Application Support/renv</code></td></tr>
+<tr><td>Windows</td><td><code>%APPDATA%/renv</code></td></tr>
 </table>
-    <p>If desired, this path can be adjusted by setting the <code>RENV_PATHS_ROOT</code>
+
+
+<p>If desired, this path can be adjusted by setting the <code>RENV_PATHS_ROOT</code>
 environment variable. This can be useful if you'd like, for example, multiple
 users to be able to share a single global cache.</p>
 <p>The various state sub-directories can also be individually adjusted, if so
@@ -165,39 +164,28 @@ desired (e.g. you'd prefer to keep the cache of package installations on a
 separate volume). The various environment variables that can be set are
 enumerated below:</p>
 <table class='table'>
-<tr><td></td><td><strong>Environment Variable</strong></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td><strong>Description</strong></td><td></td></tr>
-<tr><td></td><td><code>RENV_PATHS_ROOT</code></td></tr>
-<tr><td></td><td>The root path used for global state storage.</td></tr>
-<tr><td></td><td><code>RENV_PATHS_BOOTSTRAP</code></td></tr>
-<tr><td></td><td>The library path containing bootstrapped</td></tr>
-<tr><td><code>renv</code></td><td>installations.</td></tr>
-<tr><td></td><td><code>RENV_PATHS_LIBRARY</code></td></tr>
-<tr><td></td><td>The root path containing different</td></tr>
-<tr><td><span style="R">R</span></td><td>libraries.</td></tr>
-<tr><td></td><td><code>RENV_PATHS_LOCAL</code></td></tr>
-<tr><td></td><td>The path containing local package sources.</td></tr>
-<tr><td></td><td><code>RENV_PATHS_SOURCE</code></td></tr>
-<tr><td></td><td>The path containing downloaded package sources.</td></tr>
-<tr><td></td><td><code>RENV_PATHS_BINARY</code></td></tr>
-<tr><td></td><td>The path containing downloaded package binaries.</td></tr>
-<tr><td></td><td><code>RENV_PATHS_CACHE</code></td></tr>
-<tr><td></td><td>The path containing cached package installations.</td></tr>
-<tr><td></td><td><code>RENV_PATHS_RTOOLS</code></td></tr>
-<tr><td></td><td>(Windows only) The path to</td></tr>
-<tr><td><a href='https://cran.r-project.org/bin/windows/Rtools/'>Rtools</a></td><td>.</td></tr>
-<tr><td></td><td><code>RENV_PATHS_EXTSOFT</code></td></tr>
-<tr><td></td><td>(Windows only) The path containing external software needed for compilation of Windows source packages.</td></tr>
-<tr><td></td><td></td></tr>
+<tr><td><strong>Environment Variable</strong></td><td><strong>Description</strong></td></tr>
+<tr><td><code>RENV_PATHS_ROOT</code></td><td>The root path used for global state storage.</td></tr>
+<tr><td><code>RENV_PATHS_BOOTSTRAP</code></td><td>The library path containing bootstrapped <code>renv</code> installations.</td></tr>
+<tr><td><code>RENV_PATHS_LIBRARY</code></td><td>The root path containing different <span style="R">R</span> libraries.</td></tr>
+<tr><td><code>RENV_PATHS_LOCAL</code></td><td>The path containing local package sources.</td></tr>
+<tr><td><code>RENV_PATHS_SOURCE</code></td><td>The path containing downloaded package sources.</td></tr>
+<tr><td><code>RENV_PATHS_BINARY</code></td><td>The path containing downloaded package binaries.</td></tr>
+<tr><td><code>RENV_PATHS_CACHE</code></td><td>The path containing cached package installations.</td></tr>
+<tr><td><code>RENV_PATHS_RTOOLS</code></td><td>(Windows only) The path to <a href='https://cran.r-project.org/bin/windows/Rtools/'>Rtools</a>.</td></tr>
+<tr><td><code>RENV_PATHS_EXTSOFT</code></td><td>(Windows only) The path containing external software needed for compilation of Windows source packages.</td></tr>
 </table>
-    <p>Note that <code>renv</code> will append platform-specific and version-specific entries
+
+
+<p>Note that <code>renv</code> will append platform-specific and version-specific entries
 to the set paths as appropriate. For example, if you have set:</p><pre>Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
 </pre>
-    <p>then the directory used for the cache will still depend on the <span style="R">R</span> version
+
+<p>then the directory used for the cache will still depend on the <span style="R">R</span> version
 (e.g. <code>3.5</code>) and the <code>renv</code> cache version (e.g. <code>v2</code>). For example:</p><pre>/mnt/shared/renv/cache/R-3.5/v2
 </pre>
-    <p>This ensures that you can set a single <code>RENV_PATHS_CACHE</code> environment variable
+
+<p>This ensures that you can set a single <code>RENV_PATHS_CACHE</code> environment variable
 globally without worry that it may cause collisions or errors if multiple
 versions of <span style="R">R</span> needed to interact with the same cache.</p>
 <p>If reproducibility of a project is desired on a particular machine, it is
@@ -211,12 +199,15 @@ set in:</p><ul>
 <li><p>The user-level <code>.Renviron</code>;</p></li>
 <li><p>A file at <code>$(R RHOME)/etc/Renviron.site</code>.</p></li>
 </ul>
-    <p>Please see ?<a href='https://www.rdocumentation.org/packages/base/topics/Startup'>Startup</a> for more details.</p>
+
+<p>Please see ?<a href='https://rdrr.io/r/base/Startup.html'>Startup</a> for more details.</p>
     
     <h2 class="hasAnchor" id="local-sources"><a class="anchor" href="#local-sources"></a>Local Sources</h2>
 
     
-    <p>If your project depends on one or <span style="R">R</span> packages that are not available in any
+
+
+<p>If your project depends on one or <span style="R">R</span> packages that are not available in any
 remote location, you can still provide a locally-available tarball for <code>renv</code>
 to use during restore. By default, these packages should be made available in
 the folder as specified by the <code>RENV_PATHS_LOCAL</code> environment variable. The
@@ -224,14 +215,17 @@ package sources should be placed in a file at one of these locations:</p><ul>
 <li><p><code>${RENV_PATHS_LOCAL}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 <li><p><code>&lt;project&gt;/renv/local/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 </ul>
-    <p>where <code>.&lt;ext&gt;</code> is <code>.tar.gz</code> for source packages, or <code>.tgz</code> for binaries on
+
+<p>where <code>.&lt;ext&gt;</code> is <code>.tar.gz</code> for source packages, or <code>.tgz</code> for binaries on
 macOS and <code>.zip</code> for binaries on Windows. During a <code><a href='restore.html'>restore()</a></code>, packages
 installed from an unknown source will be searched for in this location.</p>
     
     <h2 class="hasAnchor" id="projects"><a class="anchor" href="#projects"></a>Projects</h2>
 
     
-    <p>In order to determine whether a package can safely be removed from the cache,
+
+
+<p>In order to determine whether a package can safely be removed from the cache,
 <code>renv</code> needs to know which projects are using packages from the cache. Since
 packages may be symlinked from the cache, and symlinks are by nature a one-way
 link, projects need to also report that they're using the <code>renv</code> cache.</p>
@@ -239,14 +233,15 @@ link, projects need to also report that they're using the <code>renv</code> cach
 itself as being used within a file located at:</p><ul>
 <li><p><code>${RENV_PATHS_ROOT}/projects</code></p></li>
 </ul>
-    <p>This file is list of projects currently using the <code>renv</code> cache. With this,
+
+<p>This file is list of projects currently using the <code>renv</code> cache. With this,
 <code>renv</code> can crawl projects registered with <code>renv</code> and use that to determine if
 any packages within the cache are no longer in use, and can be removed.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># get the path to the project library</span>
-<span class='no'>path</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/paths.html'>paths</a></span>$<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>()</div></pre>
+<span class='no'>path</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/paths.html'>paths</a></span>$<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>()</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -266,19 +261,23 @@ any packages within the cache are no longer in use, and can be removed.</p>
   </div>
 </div>
 
+
       <footer>
       <div class="copyright">
   <p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9100.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

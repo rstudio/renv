@@ -16,13 +16,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -49,6 +51,7 @@ their versions) within the project's private library." />
 <![endif]-->
 
 
+
   </head>
 
   <body>
@@ -65,7 +68,7 @@ their versions) within the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.111</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.112</span>
       </span>
     </div>
 
@@ -73,7 +76,7 @@ their versions) within the project's private library." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -121,6 +124,7 @@ their versions) within the project's private library." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -177,68 +181,68 @@ written as <code>.json</code>, to allow for easy consumption by other tools.</p>
   }
 }
 </pre>
-    <p>The sections used within a lockfile are described next.</p>
+
+<p>The sections used within a lockfile are described next.</p>
     
     <h2 class="hasAnchor" id="-renv-"><a class="anchor" href="#-renv-"></a>[renv]</h2>
 
     
-    <p>Information about the version of <code>renv</code> used to manage this project.</p>
+
+
+<p>Information about the version of <code>renv</code> used to manage this project.</p>
 <table class='table'>
-<tr><td></td><td><strong>Version</strong></td></tr>
-<tr><td></td><td>The version of the</td></tr>
-<tr><td><code>renv</code></td><td>package used with this project.</td></tr>
-<tr><td></td><td></td></tr>
+<tr><td><strong>Version</strong></td><td>The version of the <code>renv</code> package used with this project.</td></tr>
 </table>
+
+
     
     <h2 class="hasAnchor" id="-r-"><a class="anchor" href="#-r-"></a>[R]</h2>
 
     
-    <p>Properties related to the version of <span style="R">R</span> associated with this project.</p>
+
+
+<p>Properties related to the version of <span style="R">R</span> associated with this project.</p>
 <table class='table'>
-<tr><td></td><td><strong>Version</strong></td></tr>
-<tr><td></td><td>The version of</td></tr>
-<tr><td><span style="R">R</span></td><td>used.</td></tr>
-<tr><td></td><td><strong>Repositories</strong></td></tr>
-<tr><td></td><td>The</td></tr>
-<tr><td><span style="R">R</span></td><td>repositories used in this project.</td></tr>
-<tr><td></td><td></td></tr>
+<tr><td><strong>Version</strong></td><td>The version of <span style="R">R</span> used.</td></tr>
+<tr><td><strong>Repositories</strong></td><td>The <span style="R">R</span> repositories used in this project.</td></tr>
 </table>
+
+
     
     <h2 class="hasAnchor" id="-packages-"><a class="anchor" href="#-packages-"></a>[Packages]</h2>
 
     
-    <p><span style="R">R</span> package records, capturing the packages used or required by a project
+
+
+<p><span style="R">R</span> package records, capturing the packages used or required by a project
 at the time when the lockfile was generated.</p>
 <table class='table'>
-<tr><td></td><td><strong>Package</strong></td></tr>
-<tr><td></td><td>The package name.</td></tr>
-<tr><td></td><td><strong>Version</strong></td></tr>
-<tr><td></td><td>The package version.</td></tr>
-<tr><td></td><td><strong>Library</strong></td></tr>
-<tr><td></td><td>The library this package was installed in.</td></tr>
-<tr><td></td><td><strong>Source</strong></td></tr>
-<tr><td></td><td>The location from which this package was retrieved.</td></tr>
-<tr><td></td><td><strong>Hash</strong></td></tr>
-<tr><td></td><td>(Optional) A unique hash for this package, used for package caching.</td></tr>
-<tr><td></td><td></td></tr>
+<tr><td><strong>Package</strong></td><td>The package name.</td></tr>
+<tr><td><strong>Version</strong></td><td>The package version.</td></tr>
+<tr><td><strong>Library</strong></td><td>The library this package was installed in.</td></tr>
+<tr><td><strong>Source</strong></td><td>The location from which this package was retrieved.</td></tr>
+<tr><td><strong>Hash</strong></td><td>(Optional) A unique hash for this package, used for package caching.</td></tr>
 </table>
-    <p>Additional remote fields, further describing how the package can be
+
+
+<p>Additional remote fields, further describing how the package can be
 retrieved from its corresponding source, will also be included as
 appropriate (e.g. for packages installed from GitHub).</p>
     
     <h2 class="hasAnchor" id="-python-"><a class="anchor" href="#-python-"></a>[Python]</h2>
 
     
-    <p>Metadata related to the version of Python used with this project (if any).</p>
+
+
+<p>Metadata related to the version of Python used with this project (if any).</p>
 <table class='table'>
-<tr><td></td><td><strong>Version</strong></td></tr>
-<tr><td></td><td>The version of Python being used.</td></tr>
-<tr><td></td><td><strong>Type</strong></td></tr>
-<tr><td></td><td>The type of Python environment being used ("virtualenv", "conda", "system")</td></tr>
-<tr><td></td><td><strong>Name</strong></td></tr>
-<tr><td></td><td>The (optional) name of the environment being used.</td></tr>
+<tr><td><strong>Version</strong></td><td>The version of Python being used.</td></tr>
+<tr><td><strong>Type</strong></td><td>The type of Python environment being used ("virtualenv", "conda", "system")</td></tr>
+<tr><td><strong>Name</strong></td><td>The (optional) name of the environment being used.</td></tr>
 </table>
-    <p>Note that the <code>Name</code> field may be empty. In that case, a project-local Python
+
+
+<p>Note that the <code>Name</code> field may be empty. In that case, a project-local Python
 environment will be used instead (when not directly using a system copy of Python).</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
@@ -268,19 +272,23 @@ environment will be used instead (when not directly using a system copy of Pytho
   </div>
 </div>
 
+
       <footer>
       <div class="copyright">
   <p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9100.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

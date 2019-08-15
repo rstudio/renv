@@ -16,13 +16,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="pkgdown.css" rel="stylesheet">
@@ -44,6 +46,7 @@
 <![endif]-->
 
 
+
   </head>
 
   <body>
@@ -60,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.111</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.112</span>
       </span>
     </div>
 
@@ -68,7 +71,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -116,6 +119,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -130,7 +134,7 @@
 <li><p>[x] Properly handle broken links in the project library (e.g. if the cache moved or was mutated for some reason)</p></li>
 <li><p>[ ] <code>rehash()</code> – tools for validating package hashes + their install location? <code>rehash()</code> would look at packages in the cache and update their cache location if the caching scheme changed.</p></li>
 <li><p>[x] <code><a href="reference/clean.html">clean()</a></code> function to remove ununsed packages from the library. (If the cache is enabled, they will remain in the cache).</p></li>
-<li><p>[ ] Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://www.rdocumentation.org/packages/base/topics/options">options(repos)</a></code> would suffice here I believe)</p></li>
+<li><p>[ ] Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://rdrr.io/r/base/options.html">options(repos)</a></code> would suffice here I believe)</p></li>
 <li><p>[ ] Use custom <code>Makevars</code> file and set some variables that certain packages need but don’t properly declare? (E.g. older versions of the <code>maps</code> package need <code>awk</code> installed)</p></li>
 <li><p>[x] <code><a href="reference/restore.html">restore()</a></code> will attempt to repair the dependency tree during restore; e.g. dependent packages in the lockfile will be downloaded and installed as required. Should we prompt the user to <code><a href="reference/snapshot.html">snapshot()</a></code> afterwards so that the newly-reinstalled dependencies can be captured in the lockfile?</p></li>
 <li><p>[x] Take over the <code>R_PROFILE</code>, <code>R_PROFILE_USER</code>, <code>R_ENVIRON</code> and <code>R_ENVIRON_USER</code> environment variables? Needed for cases like <a href="https://github.com/rstudio/packrat/issues/526" class="uri">https://github.com/rstudio/packrat/issues/526</a>.</p></li>
@@ -140,7 +144,7 @@
 <li><p>[x] Allow users to ignore certain packages in a project (e.g. those that are not on CRAN)</p></li>
 <li><p>[x] Consider <code>.renvignore</code> or similar for controlling what files / directories <code>renv</code> will crawl when discovering dependencies.</p></li>
 <li><p>[x] Properly handle <code>RENV_DEFAULTS</code> case (they get lost if the user attempts to build and reload a package managed by <code>renv</code>, which screws up RStudio’s notion of the library paths if the project is later deactivated)</p></li>
-<li><p>[ ] Audit usages of <code>renv_file_exists()</code>. When do we care about broken symlinks? <code><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists()</a></code> returns FALSE for broken symlinks; <code>renv_file_exists()</code> returns TRUE.</p></li>
+<li><p>[ ] Audit usages of <code>renv_file_exists()</code>. When do we care about broken symlinks? <code><a href="https://rdrr.io/r/base/files.html">file.exists()</a></code> returns FALSE for broken symlinks; <code>renv_file_exists()</code> returns TRUE.</p></li>
 <li><p>[x] De-couple the ‘retrieve’ + ‘install’ steps during restore.</p></li>
 <li><p>[x] Include recommended packages in the lockfile? (Since R installations on Linux may not have these packages available). Or at least confirm that packages which depend on recommended packages enter the lockfile.</p></li>
 <li><p>[x] Use a single lockfile file, but provide a <code><a href="reference/history.html">history()</a></code> function to dig out old versions of the lockfile. (Make it clearer to users what needs to be committed)</p></li>
@@ -177,19 +181,23 @@
 </div>
 
 
+
       <footer>
       <div class="copyright">
   <p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.9100.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 
