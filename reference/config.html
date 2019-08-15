@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.110</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.111</span>
       </span>
     </div>
 
@@ -225,13 +225,21 @@ recommended that you set them in your user startup files (e.g. in
 <tr><td>before creating</td><td><code>renv.lock</code></td><td>-- for example, if a package installed in the</td></tr>
 <tr><td>project library depends on a package which is not currently installed.</td><td>(</td><td><code>logical</code></td></tr>
 <tr><td>; defaults to</td><td><code>TRUE</code></td><td>)</td></tr>
-<tr><td></td><td></td><td><code>user.library</code></td></tr>
+<tr><td></td><td></td><td><code>user.profile</code></td></tr>
 <tr><td></td><td></td><td><code>logical[1]</code></td></tr>
-<tr><td></td><td></td><td>Include the user library on the library paths for your projects? Note that</td></tr>
-<tr><td>this risks breaking project encapsulation and is not recommended for</td><td>projects which you intend to share or collaborate on with other users. See</td><td>also the caveats for the</td></tr>
-<tr><td><code>external.libraries</code></td><td>option.</td><td>(</td></tr>
-<tr><td><code>logical</code></td><td>; defaults to</td><td><code>FALSE</code></td></tr>
-<tr><td>)</td><td></td><td></td></tr>
+<tr><td></td><td></td><td>Load the user R profile (typically located at</td></tr>
+<tr><td><code>~/.Rprofile</code></td><td>) when</td><td><code>renv</code></td></tr>
+<tr><td></td><td>is loaded? Consider disabling this if you require extra encapsulation in</td><td>your projects; e.g. if your</td></tr>
+<tr><td><code>.Rprofile</code></td><td>attempts to load packages that</td><td>you might not install in your projects.</td></tr>
+<tr><td>(</td><td><code>logical</code></td><td>; defaults to</td></tr>
+<tr><td><code>TRUE</code></td><td>)</td><td></td></tr>
+<tr><td></td><td><code>user.library</code></td><td></td></tr>
+<tr><td></td><td><code>logical[1]</code></td><td></td></tr>
+<tr><td></td><td>Include the user library on the library paths for your projects? Note that</td><td>this risks breaking project encapsulation and is not recommended for</td></tr>
+<tr><td>projects which you intend to share or collaborate on with other users. See</td><td>also the caveats for the</td><td><code>external.libraries</code></td></tr>
+<tr><td>option.</td><td>(</td><td><code>logical</code></td></tr>
+<tr><td>; defaults to</td><td><code>FALSE</code></td><td>)</td></tr>
+<tr><td></td><td></td><td><strong>Name</strong></td></tr>
 </table>
     
     <h2 class="hasAnchor" id="project-local-settings"><a class="anchor" href="#project-local-settings"></a>Project-Local Settings</h2>
