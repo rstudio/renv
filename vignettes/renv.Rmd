@@ -208,13 +208,33 @@ across multiple versions of R, including:
 
 If `curl` is not available on your machine, it is highly recommended that you
 install it. Newer versions of Windows 10 come with a bundled version of
-`curl`; other users on Windows can use `renv::equip()` to download and install
-a recent copy of `curl`. Newer versions of macOS come with a bundled version
-of `curl` that is adequate for usage with `renv`, and most Linux package
+`curl.exe`; other users on Windows can use `renv::equip()` to download and
+install a recent copy of `curl`. Newer versions of macOS come with a bundled
+version of `curl` that is adequate for usage with `renv`, and most Linux package
 managers have a modern version of `curl` available in their repositories.
 
 `curl` downloads can be configured through `renv`'s configuration settings --
 see `?renv::config` for more details.
+
+### Proxies
+
+If your downloads need to go through a proxy server, then there are a variety of
+approaches you can take to make this work:
+
+1. Set the `http_proxy` and / or `https_proxy` environment variables. These
+   environment variables can contain the full URL to your proxy server,
+   including a username + password if necessary.
+
+2. You can use a `.curlrc` (`_curlrc` on Windows) to provide information about
+   the proxy server to be used. This file should be placed in your home folder
+   (see `Sys.getenv("HOME")`, or `Sys.getenv("R_USER")` on Windows);
+   alternatively, you can set the `CURL_HOME` environment variable to point
+   to a custom 'home' folder to be used by `curl` when resolving the runtime
+   configuration file. On Windows, you can also place your `_curlrc` in the
+   same directory where the `curl.exe` binary is located.
+
+See the [curl documentation on proxies](https://ec.haxx.se/usingcurl-proxies.html)
+for more details.
 
 
 ## Authentication
