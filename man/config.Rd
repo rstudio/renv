@@ -39,29 +39,25 @@ recommended that you set them in your user startup files (e.g. in
 
 The following \code{renv} configuration options are available:
 
-\tabular{lll}{
-\strong{Name} \tab \strong{Type} \tab \strong{Description} \cr
+\tabular{llll}{
+\strong{Name} \tab \strong{Type} \tab \strong{Default} \tab \strong{Description} \cr
 
-\code{auto.snapshot} \tab \code{logical[1]} \tab
+\code{auto.snapshot} \tab \code{logical[1]} \tab \code{TRUE} \tab
 Automatically snapshot changes to the project library after a new package
 is installed with \code{renv::install()}, or removed with \code{renv::remove()}?
-(\code{logical}; defaults to \code{TRUE}) \cr
+\cr
 
-\code{connect.timeout} \tab \code{integer[1]} \tab
+\code{connect.timeout} \tab \code{integer[1]} \tab \code{20L} \tab
 The amount of time to spend (in seconds) when attempting to download a
-file. If you have already configured the R downloader (that is, you have
-set the \code{download.file.method} or \code{download.file.extra} \R options), then
-this setting will be ignored.
-(\code{integer}; defaults to \code{20L}) \cr
+file. Only used when the \code{curl} downloader is used.
+\cr
 
-\code{connect.retry} \tab \code{integer[1]} \tab
+\code{connect.retry} \tab \code{integer[1]} \tab \code{3L} \tab
 The number of times to attempt re-downloading a file, when transient
-errors occur. If you have already configured the R downloader (that is,
-you have set the \code{download.file.method} or \code{download.file.extra} \R
-options), then this setting will be ignored.
-(\code{integer}; defaults to \code{3L}) \cr
+errors occur. Only used when the \code{curl} downloader is used.
+\cr
 
-\code{external.libraries} \tab \code{character[*]} \tab
+\code{external.libraries} \tab \code{character[*]} \tab \code{character()} \tab
 A character vector of external libraries, to be used in tandem with your
 projects. Be careful when using external libraries: it's possible that
 things can break within a project if the version(s) of packages used in
@@ -70,42 +66,42 @@ external libraries; for example, if your project required \code{xyz 1.0} but
 \code{xyz 1.1} was present and loaded from an external library. Can also be an
 \R function that provides the paths to external libraries. Library paths
 will be expanded through \link{.expand_R_libs_env_var} as necessary.
-(\code{character}; defaults to \code{character()}) \cr
+\cr
 
-\code{sandbox.enabled} \tab \code{logical[1]} \tab
+\code{sandbox.enabled} \tab \code{logical[1]} \tab \code{FALSE} \tab
 Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to
 sandbox the system library, preventing user-installed packages in the
 system library from becoming available in \code{renv} projects.
-(\code{logical}; defaults to \code{FALSE}) \cr
+\cr
 
-\code{shims.enabled} \tab \code{logical[1]} \tab
+\code{shims.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
 Should \code{renv} shims be installed on package load? When enabled, \code{renv}
 will install its own shims over the functions \code{install.packages()},
 \code{update.packages()} and \code{remove.packages()}, delegating these functions
 to \code{renv::install()}, \code{renv::update()} and \code{renv::remove()} as
 appropriate.
-(\code{logical}; defaults to \code{TRUE}) \cr
+\cr
 
-\code{snapshot.validate} \tab \code{logical[1]} \tab
+\code{snapshot.validate} \tab \code{logical[1]} \tab \code{TRUE} \tab
 Validate \R package dependencies when calling snapshot? When \code{TRUE},
 \code{renv} will attempt to diagnose potential issues in the project library
 before creating \code{renv.lock} -- for example, if a package installed in the
 project library depends on a package which is not currently installed.
-(\code{logical}; defaults to \code{TRUE}) \cr
+\cr
 
-\code{user.profile} \tab \code{logical[1]} \tab
-Load the user R profile (typically located at \code{~/.Rprofile}) when \code{renv}
-is loaded? Consider disabling this if you require extra encapsulation in
-your projects; e.g. if your \code{.Rprofile} attempts to load packages that
-you might not install in your projects.
-(\code{logical}; defaults to \code{TRUE}) \cr
-
-\code{user.library} \tab \code{logical[1]} \tab
+\code{user.library} \tab \code{logical[1]} \tab \code{FALSE} \tab
 Include the user library on the library paths for your projects? Note that
 this risks breaking project encapsulation and is not recommended for
 projects which you intend to share or collaborate on with other users. See
 also the caveats for the \code{external.libraries} option.
-(\code{logical}; defaults to \code{FALSE})
+\cr
+
+\code{user.profile} \tab \code{logical[1]} \tab \code{TRUE} \tab
+Load the user R profile (typically located at \code{~/.Rprofile}) when \code{renv}
+is loaded? Consider disabling this if you require extra encapsulation in
+your projects; e.g. if your \code{.Rprofile} attempts to load packages that
+you might not install in your projects.
+\cr
 
 }
 }

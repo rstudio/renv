@@ -34,29 +34,25 @@
 #'
 #' The following `renv` configuration options are available:
 #'
-#' \tabular{lll}{
-#' **Name** \tab **Type** \tab **Description** \cr
+#' \tabular{llll}{
+#' **Name** \tab **Type** \tab **Default** \tab **Description** \cr
 #'
-#' `auto.snapshot` \tab `logical[1]` \tab
+#' `auto.snapshot` \tab `logical[1]` \tab `TRUE` \tab
 #'   Automatically snapshot changes to the project library after a new package
 #'   is installed with `renv::install()`, or removed with `renv::remove()`?
-#'   (`logical`; defaults to `TRUE`) \cr
+#'   \cr
 #'
-#' `connect.timeout` \tab `integer[1]` \tab
+#' `connect.timeout` \tab `integer[1]` \tab `20L` \tab
 #'   The amount of time to spend (in seconds) when attempting to download a
-#'   file. If you have already configured the R downloader (that is, you have
-#'   set the `download.file.method` or `download.file.extra` \R options), then
-#'   this setting will be ignored.
-#'   (`integer`; defaults to `20L`) \cr
+#'   file. Only used when the `curl` downloader is used.
+#'   \cr
 #'
-#' `connect.retry` \tab `integer[1]` \tab
+#' `connect.retry` \tab `integer[1]` \tab `3L` \tab
 #'   The number of times to attempt re-downloading a file, when transient
-#'   errors occur. If you have already configured the R downloader (that is,
-#'   you have set the `download.file.method` or `download.file.extra` \R
-#'   options), then this setting will be ignored.
-#'   (`integer`; defaults to `3L`) \cr
+#'   errors occur. Only used when the `curl` downloader is used.
+#'   \cr
 #'
-#' `external.libraries` \tab `character[*]` \tab
+#' `external.libraries` \tab `character[*]` \tab `character()` \tab
 #'   A character vector of external libraries, to be used in tandem with your
 #'   projects. Be careful when using external libraries: it's possible that
 #'   things can break within a project if the version(s) of packages used in
@@ -65,42 +61,42 @@
 #'   `xyz 1.1` was present and loaded from an external library. Can also be an
 #'   \R function that provides the paths to external libraries. Library paths
 #'   will be expanded through [.expand_R_libs_env_var] as necessary.
-#'   (`character`; defaults to `character()`) \cr
+#'   \cr
 #'
-#' `sandbox.enabled` \tab `logical[1]` \tab
+#' `sandbox.enabled` \tab `logical[1]` \tab `FALSE` \tab
 #'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
 #'   sandbox the system library, preventing user-installed packages in the
 #'   system library from becoming available in `renv` projects.
-#'   (`logical`; defaults to `FALSE`) \cr
+#'   \cr
 #'
-#' `shims.enabled` \tab `logical[1]` \tab
+#' `shims.enabled` \tab `logical[1]` \tab `TRUE` \tab
 #'   Should `renv` shims be installed on package load? When enabled, `renv`
 #'   will install its own shims over the functions `install.packages()`,
 #'   `update.packages()` and `remove.packages()`, delegating these functions
 #'   to `renv::install()`, `renv::update()` and `renv::remove()` as
 #'   appropriate.
-#'   (`logical`; defaults to `TRUE`) \cr
+#'   \cr
 #'
-#' `snapshot.validate` \tab `logical[1]` \tab
+#' `snapshot.validate` \tab `logical[1]` \tab `TRUE` \tab
 #'   Validate \R package dependencies when calling snapshot? When `TRUE`,
 #'   `renv` will attempt to diagnose potential issues in the project library
 #'   before creating `renv.lock` -- for example, if a package installed in the
 #'   project library depends on a package which is not currently installed.
-#'   (`logical`; defaults to `TRUE`) \cr
+#'   \cr
 #'
-#' `user.profile` \tab `logical[1]` \tab
-#'   Load the user R profile (typically located at `~/.Rprofile`) when `renv`
-#'   is loaded? Consider disabling this if you require extra encapsulation in
-#'   your projects; e.g. if your `.Rprofile` attempts to load packages that
-#'   you might not install in your projects.
-#'   (`logical`; defaults to `TRUE`) \cr
-#'
-#' `user.library` \tab `logical[1]` \tab
+#' `user.library` \tab `logical[1]` \tab `FALSE` \tab
 #'   Include the user library on the library paths for your projects? Note that
 #'   this risks breaking project encapsulation and is not recommended for
 #'   projects which you intend to share or collaborate on with other users. See
 #'   also the caveats for the `external.libraries` option.
-#'   (`logical`; defaults to `FALSE`)
+#'   \cr
+#'
+#' `user.profile` \tab `logical[1]` \tab `TRUE` \tab
+#'   Load the user R profile (typically located at `~/.Rprofile`) when `renv`
+#'   is loaded? Consider disabling this if you require extra encapsulation in
+#'   your projects; e.g. if your `.Rprofile` attempts to load packages that
+#'   you might not install in your projects.
+#'   \cr
 #'
 #' }
 #'
