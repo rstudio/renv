@@ -98,7 +98,7 @@ renv_paths_root_default_impl <- function() {
 #' **Platform** \tab **Location** \cr
 #' Linux        \tab `~/.local/share/renv` \cr
 #' macOS        \tab `~/Library/Application Support/renv` \cr
-#' Windows      \tab `%APPDATA%/renv` \cr
+#' Windows      \tab `%LOCALAPPDATA%/renv` \cr
 #' }
 #'
 #' If desired, this path can be adjusted by setting the `RENV_PATHS_ROOT`
