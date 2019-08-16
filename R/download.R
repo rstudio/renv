@@ -255,8 +255,14 @@ renv_download_curl_config <- function() {
     path.expand("~/")
   )
 
-  if (renv_platform_windows())
-    homes <- c(homes, dirname(Sys.which("curl")))
+  if (renv_platform_windows()) {
+    extra <- c(
+      Sys.getenv("APPDATA"),
+      file.path(Sys.getenv("USERPROFILE"), "Application Data"),
+      dirname(Sys.which("curl"))
+    )
+    homes <- c(homes, extra)
+  }
 
   homes <- Filter(nzchar, homes)
 
