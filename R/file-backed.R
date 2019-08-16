@@ -29,7 +29,7 @@ renv_filebacked_set <- function(scope, path, value) {
 
   # create our cache entry
   info <- file.info(path, extra_cols = FALSE)
-  entry <- list(value = value, exists = file.exists(path), mtime = info$mtime)
+  entry <- list(value = value, info = info)
 
   # store it
   envir <- renv_filebacked_envir(scope)
@@ -48,29 +48,27 @@ renv_filebacked_get <- function(scope, path) {
   envir <- renv_filebacked_envir(scope)
 
   # check for entry in the cache
-  if (!exists(path, envir = envir))
-    return(NULL)
-
-  entry <- get(path, envir = envir)
+  entry <- envir[[path]]
   if (is.null(entry))
     return(NULL)
 
+  # extract pieces of interest
+  value   <- entry$value
+  oldinfo <- entry$info
+  newinfo <- file.info(path, extra_cols = FALSE)
+
   # if the file didn't exist when we set the entry,
   # check and see if it's still not there
-  if (!entry$exists && !file.exists(path))
-    return(entry$value)
+  if (is.na(oldinfo$isdir) && is.na(newinfo$isdir))
+    return(value)
 
-  # check the file mtime (guard against NA)
-  info <- file.info(path, extra_cols = FALSE)
-  if (is.na(entry$mtime) || is.na(info$mtime))
+  # compare on fields of interest
+  fields <- c("size", "isdir", "mtime")
+  if (!identical(oldinfo[fields], newinfo[fields]))
     return(NULL)
 
-  # if the file has been updated since, we have to
-  # discard our old cached value
-  if (info$mtime > entry$mtime)
-    return(NULL)
-
-  entry$value
+  # looks good
+  value
 
 }
 

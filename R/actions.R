@@ -1,5 +1,5 @@
 
-actions <- function(action,
+actions <- function(action = c("snapshot", "restore"),
                     ...,
                     project = NULL,
                     library = NULL,
@@ -7,6 +7,7 @@ actions <- function(action,
                     type = settings$snapshot.type(project = project),
                     clean = FALSE)
 {
+  action  <- match.arg(action)
   project <- project %||% renv_project()
   library <- library %||% renv_libpaths_all()
 
