@@ -18,7 +18,7 @@ By default, \code{renv} collects state into these folders:
 \strong{Platform} \tab \strong{Location} \cr
 Linux        \tab \code{~/.local/share/renv} \cr
 macOS        \tab \code{~/Library/Application Support/renv} \cr
-Windows      \tab \code{\%APPDATA\%/renv} \cr
+Windows      \tab \code{\%LOCALAPPDATA\%/renv} \cr
 }
 
 If desired, this path can be adjusted by setting the \code{RENV_PATHS_ROOT}

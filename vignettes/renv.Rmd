@@ -157,7 +157,7 @@ By default, `renv` generates its cache in the following folders:
 | ------------ | ------------------------------------ |
 | Linux        | `~/.local/share/renv`                |
 | macOS        | `~/Library/Application Support/renv` |
-| Windows      | `%APPDATA%/renv`                     |
+| Windows      | `%LOCALAPPDATA%/renv`                |
 
 If you'd like to share the package cache across multiple users, you can do so by
 setting the `RENV_PATHS_CACHE` environment variable as required. This variable
