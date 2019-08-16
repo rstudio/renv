@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.114</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.115</span>
       </span>
     </div>
 
@@ -240,7 +240,15 @@
 <li><p>Set the <code>http_proxy</code> and / or <code>https_proxy</code> environment variables. These environment variables can contain the full URL to your proxy server, including a username + password if necessary.</p></li>
 <li><p>You can use a <code>.curlrc</code> (<code>_curlrc</code> on Windows) to provide information about the proxy server to be used. This file should be placed in your home folder (see <code><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv("HOME")</a></code>, or <code><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv("R_USER")</a></code> on Windows); alternatively, you can set the <code>CURL_HOME</code> environment variable to point to a custom ‘home’ folder to be used by <code>curl</code> when resolving the runtime configuration file. On Windows, you can also place your <code>_curlrc</code> in the same directory where the <code>curl.exe</code> binary is located.</p></li>
 </ol>
-<p>See the <a href="https://ec.haxx.se/usingcurl-proxies.html">curl documentation on proxies</a> for more details.</p>
+<p>See the curl documentation on <a href="https://ec.haxx.se/usingcurl-proxies.html">proxies</a> and <a href="https://ec.haxx.se/cmdline-configfile.html">config files</a> for more details.</p>
+<p>As an <a href="https://github.com/rstudio/renv/issues/146">example</a>, the following <code>_curlrc</code> works when using authentication with NTLM and SSPI on Windows:</p>
+<pre><code>--proxy "your.proxy.dns:port"
+--proxy-ntlm
+--proxy-user ":"
+--insecure</code></pre>
+<p>The <a href="https://cran.r-project.org/package=curl">curl</a> R package also has a helper:</p>
+<pre><code><a href="https://rdrr.io/pkg/curl/man/ie_proxy.html">curl::ie_get_proxy_for_url()</a></code></pre>
+<p>which may be useful when attempting to discover this proxy address.</p>
 </div>
 </div>
 <div id="authentication" class="section level2">
@@ -277,19 +285,19 @@
 </table>
 <p>These credentials can be stored in e.g. <code>.Renviron</code>, or can be set in your R session through other means as appropriate.</p>
 <p>If you require custom authentication for different packages (for example, your project makes use of packages available on different GitHub enterprise servers), you can use the <code>renv.auth</code> R option to provide package-specific authentication settings. <code>renv.auth</code> can either be a a named list associating package names with environment variables, or a function accepting a package name + record, and returning a list of environment variables. For example:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># define a function providing authentication</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth =</span> <span class="cf">function</span>(package, record) {</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="cf">if</span> (package <span class="op">==</span><span class="st"> "MyPackage"</span>)</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">})</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># use a named list directly</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">  <span class="dt">MyPackage =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>)</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">))</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># alternatively, set package-specific option</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth.MyPackage =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># define a function providing authentication</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth =</span> <span class="cf">function</span>(package, record) {</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">  <span class="cf">if</span> (package <span class="op">==</span><span class="st"> "MyPackage"</span>)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">})</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co"># use a named list directly</span></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">  <span class="dt">MyPackage =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>)</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">))</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co"># alternatively, set package-specific option</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth.MyPackage =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a></code></pre></div>
 <p>For packages installed from Git remotes, <code>renv</code> will attempt to use <code>git</code> from the command line to download and restore the associated package. Hence, it is recommended that authentication is done through SSH keys when possible.</p>
 </div>
 <div id="shims" class="section level2">
