@@ -21,9 +21,9 @@ test_that("bind_list handles named lists", {
 
   actual <- bind_list(data)
   expected <- data.frame(
-    Index = rep(names(data), each = 2),
-    A     = unname(extract_dbl(data, "A")),
-    B     = unname(extract_dbl(data, "B")),
+    Index = names(data),
+    A = c(1, 3, 5),
+    B = c(2, 4, 6),
     stringsAsFactors = FALSE
   )
 

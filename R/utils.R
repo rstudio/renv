@@ -58,18 +58,19 @@ bind_list <- function(data, names = NULL, index = "Index") {
   rhs <- .mapply(c, filtered, list(use.names = FALSE))
   names(rhs) <- names(filtered[[1]])
 
-  if (index %in% names(rhs)) {
-    fmt <- "name collision: bound list already contains column called '%s'"
-    stopf(fmt, index)
-  }
-
   if (is.null(names(data))) {
     names(rhs) <- names(rhs) %||% names
     return(as.data.frame(rhs, stringsAsFactors = FALSE))
   }
 
+  if (index %in% names(rhs)) {
+    fmt <- "name collision: bound list already contains column called '%s'"
+    stopf(fmt, index)
+  }
+
   lhs <- list()
-  lhs[[index]] <- rep.int(names(filtered), times = map_dbl(filtered, NROW))
+  rows <- function(item) nrow(item) %||% length(item[[1]])
+  lhs[[index]] <- rep.int(names(filtered), times = map_dbl(filtered, rows))
 
   cbind(
     as.data.frame(lhs, stringsAsFactors = FALSE),
