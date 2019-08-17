@@ -4,4 +4,5 @@ R/extsoft.R
 R/modify.R
 R/preflight.R
 R/python-conda.R
+R/run.R
 R/shims.R

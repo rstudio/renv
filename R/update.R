@@ -114,12 +114,14 @@ update <- function(packages = NULL,
   missing <- renv_vector_diff(packages, names(records))
   if (!empty(missing)) {
 
-    renv_pretty_print(
-      missing,
-      "The following package(s) are not currently installed:",
-      "The latest available versions of these packages will be installed instead.",
-      wrap = FALSE
-    )
+    if (confirm || renv_verbose()) {
+      renv_pretty_print(
+        missing,
+        "The following package(s) are not currently installed:",
+        "The latest available versions of these packages will be installed instead.",
+        wrap = FALSE
+      )
+    }
 
     if (confirm && !proceed()) {
       message("* Operation aborted.")

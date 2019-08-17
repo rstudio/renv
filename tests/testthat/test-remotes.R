@@ -37,6 +37,21 @@ test_that("we can parse a variety of remotes", {
   expect_equal(record$Package, "skeleton")
   expect_equal(record$Version, "1.0.2")
 
+  # bitbucket
+  record <- renv_remotes_resolve("bitbucket::kevinushey/skeleton")
+  expect_equal(record$Package, "skeleton")
+  expect_equal(record$Version, "1.0.1")
+  expect_equal(record$RemoteHost, "api.bitbucket.org/2.0")
+
+  # gitlab
+  record <- renv_remotes_resolve("gitlab::kevinushey/skeleton")
+  expect_equal(record$Package, "skeleton")
+  expect_equal(record$Version, "1.0.1")
+  expect_equal(record$RemoteHost, "gitlab.com")
+
+  # error
+  expect_error(renv_remotes_resolve("can't parse this"))
+
 })
 
 test_that("subdirectories are parsed in remotes", {

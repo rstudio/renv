@@ -310,7 +310,7 @@ settings <- list(
 
   snapshot.type = renv_settings_impl(
     name     = "snapshot.type",
-    validate = function(x) x %in% c("simple", "packrat"),
+    validate = function(x) x %in% c("custom", "simple", "packrat"),
     default  = "packrat",
     update   = NULL
   ),

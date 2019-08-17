@@ -55,11 +55,13 @@ renv_upgrade_impl <- function(project, version, confirm) {
     return(TRUE)
   }
 
-  renv_pretty_print(
-    sprintf("[%s] -> [%s]", current, request),
-    "A new version of the renv package will be installed:",
-    "This project will use the newly-installed version of renv."
-  )
+  if (confirm || renv_verbose()) {
+    renv_pretty_print(
+      sprintf("[%s] -> [%s]", current, request),
+      "A new version of the renv package will be installed:",
+      "This project will use the newly-installed version of renv."
+    )
+  }
 
   if (confirm && !proceed()) {
     writeLines("Operation aborted.")

@@ -255,6 +255,7 @@ renv_download_curl_config <- function() {
     path.expand("~/")
   )
 
+  # nocov start
   if (renv_platform_windows()) {
     extra <- c(
       Sys.getenv("APPDATA"),
@@ -263,6 +264,7 @@ renv_download_curl_config <- function() {
     )
     homes <- c(homes, extra)
   }
+  # nocov end
 
   homes <- Filter(nzchar, homes)
 
@@ -275,6 +277,8 @@ renv_download_curl_config <- function() {
   NULL
 
 }
+
+# nocov start
 
 renv_download_wget <- function(url, destfile, type, request, headers) {
 
@@ -313,6 +317,8 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
   system2("wget", args)
 
 }
+
+# nocov end
 
 renv_download_auth_type <- function(url) {
 

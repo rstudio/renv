@@ -612,6 +612,9 @@ renv_snapshot_filter_packrat <- function(project, records) {
   end <- Sys.time()
 
   # report if dependency discovery took a long time
+
+  # nocov start
+
   if (difftime(end, start, units = "secs") > 5L) {
 
     lines <- c(
@@ -634,6 +637,8 @@ renv_snapshot_filter_packrat <- function(project, records) {
     vwritef(lines, elapsed, units)
 
   }
+
+  # nocov end
 
   # keep only those records
   records[renv_vector_intersect(names(records), all)]

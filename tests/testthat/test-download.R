@@ -3,7 +3,6 @@ context("Download")
 
 test_that("we avoid downloading files twice", {
   skip_on_cran()
-  skip_if_offline()
 
   if (!renv_download_file_method() %in% c("curl", "wget"))
     skip("required downloader not available")

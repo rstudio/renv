@@ -31,7 +31,6 @@ test_that("we can retrieve packages from the CRAN archive", {
 
 test_that("we can retrieve packages from Bitbucket", {
   skip_on_cran()
-  skip_if_offline(host = "bitbucket.org")
 
   record <- list(
     Package        = "skeleton",
@@ -48,7 +47,6 @@ test_that("we can retrieve packages from Bitbucket", {
 
 test_that("we can retrieve packages from git", {
   skip_on_cran()
-  skip_if_offline(host = "github.com")
 
   record <- list(
     Package   = "skeleton",
@@ -64,7 +62,6 @@ test_that("we can retrieve packages from git", {
 
 test_that("we can retrieve packages from GitHub", {
   skip_on_cran()
-  skip_if_offline(host = "github.com")
 
   record <- list(
     Package        = "skeleton",
@@ -80,7 +77,6 @@ test_that("we can retrieve packages from GitHub", {
 
 test_that("we can retrieve packages from GitHub (in a sub-directory)", {
   skip_on_cran()
-  skip_if_offline(host = "github.com")
 
   record <- list(
     Package        = "subdir",
@@ -98,7 +94,6 @@ test_that("we can retrieve packages from GitHub (in a sub-directory)", {
 
 test_that("we can retrieve packages from GitLab", {
   skip_on_cran()
-  skip_if_offline(host = "gitlab.com")
 
   record <- list(
     Package        = "skeleton",
@@ -114,7 +109,6 @@ test_that("we can retrieve packages from GitLab", {
 
 test_that("we can retrieve packages with URLs", {
   skip_on_cran()
-  skip_if_offline(host = "github.com")
   url <- "https://api.github.com/repos/kevinushey/skeleton/tarball"
   record <- renv_remotes_resolve(url)
   renv_test_retrieve(record)

@@ -91,3 +91,16 @@ test_that("packrat-style snapshots only include packages currently used", {
   expect_setequal(names(records), c("oatmeal", "bread", "toast"))
 
 })
+
+test_that("a custom snapshot filter can be used", {
+
+  renv_tests_scope("breakfast")
+
+  settings$snapshot.type("custom")
+  options(renv.snapshot.filter = function(project) c("bread", "toast"))
+
+  renv::init()
+  lockfile <- renv_lockfile_load(project = getwd())
+  expect_setequal(names(renv_records(lockfile)), c("bread", "toast"))
+
+})
