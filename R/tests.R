@@ -159,11 +159,11 @@ renv_tests_init_repos <- function() {
 
 renv_tests_init_packages <- function() {
 
-  fields <- c("Depends", "Imports", "Suggests")
-  project <- Sys.getenv("RENV_PROJECT", unset = getwd())
-  dependencies <- renv_package_dependencies("renv", project = project, fields = fields)
-  for (dependency in names(dependencies))
-    requireNamespace(dependency, quietly = TRUE)
+  # eagerly load packages that we'll need during tests
+  # (as the sandbox will otherwise 'hide' these packages)
+  packages <- c("knitr", "rmarkdown", "yaml")
+  for (package in packages)
+    requireNamespace(package, quietly = TRUE)
 
 }
 
