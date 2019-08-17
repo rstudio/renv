@@ -78,9 +78,31 @@ renv_migrate_packrat_lockfile <- function(project) {
   }
 
   # fix-up some record fields for renv
+  fields <- c("Package", "Version", "Source")
   records <- lapply(records, function(record) {
+
+    # remove an old packrat hash
     record$Hash <- NULL
-    as.list(record)
+
+    # add RemoteType for GitHub records
+    if (any(grepl("^Github", names(record))))
+      record$RemoteType <- "github"
+
+    # remap '^Github'-style records to '^Remote'
+    map <- c(
+      "GithubRepo"     = "RemoteRepo",
+      "GithubUsername" = "RemoteUsername",
+      "GithubRef"      = "RemoteRef",
+      "GithubSha1"     = "RemoteSha",
+      "GithubSHA1"     = "RemoteSha",
+      "GithubSubdir"   = "RemoteSubdir"
+    )
+    names(record) <- remap(names(record), map)
+
+    # keep only fields of interest
+    keep <- c(fields, grep("^Remote", names(record), value = TRUE))
+    as.list(record[keep])
+
   })
 
   # pull out names for records

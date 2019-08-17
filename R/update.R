@@ -155,7 +155,9 @@ update <- function(packages = NULL,
   old <- selected[names(updates)]
   new <- updates
   diff <- renv_lockfile_diff_packages(old, new)
-  renv_restore_report_actions(diff, old, new)
+
+  if (confirm || renv_verbose())
+    renv_restore_report_actions(diff, old, new)
 
   if (confirm && !proceed()) {
     message("* Operation aborted.")

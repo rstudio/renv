@@ -271,3 +271,14 @@ convert <- function(x, type) {
   storage.mode(x) <- type
   x
 }
+
+remap <- function(x, map) {
+
+  # TODO: use match?
+  remapped <- x
+  enumerate(map, function(key, val) {
+    remapped[remapped == key] <<- val
+  })
+  remapped
+
+}
