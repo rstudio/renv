@@ -52,3 +52,25 @@ test_that("pacman::p_load() usages are understood", {
   packages <- setdiff(deps$Package, "pacman")
   expect_setequal(packages, letters[1:length(packages)])
 })
+
+test_that("renv warns when large number of files found", {
+
+  renv_tests_scope()
+
+  files <- sprintf("%.3i.R", 1:10)
+  file.create(files)
+
+  output <- local({
+
+    renv_scope_options(
+      renv.verbose = TRUE,
+      renv.config.dependencies.limit = 5L
+    )
+
+    capture.output(invisible(dependencies()))
+
+  })
+
+  expect_true(length(output) > 0)
+
+})
