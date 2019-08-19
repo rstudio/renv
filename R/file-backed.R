@@ -75,3 +75,15 @@ renv_filebacked_get <- function(scope, path) {
 renv_filebacked_envir <- function(scope) {
   get(scope, envir = `_renv_filebacked`)
 }
+
+renv_filebacked <- function(scope, path, callback, ...) {
+
+  cache <- renv_filebacked_get(scope, path)
+  if (!is.null(cache))
+    return(cache)
+
+  result <- callback(path, ...)
+  renv_filebacked_set(scope, path, result)
+  result
+
+}

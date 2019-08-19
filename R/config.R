@@ -117,18 +117,23 @@
 #' @name config
 NULL
 
-renv_config <- function(name, default = NULL) {
+renv_config <- function(name, ..., scope = "config", default = NULL) {
+
+  # validate call
+  dots <- eval(substitute(alist(...)))
+  if (length(dots))
+    stopf("internal error: unexpected arguments supplied to renv_config")
 
   # check for R option of associated name
   optname <- tolower(name)
-  optkey <- paste("renv.config", optname, sep = ".")
+  optkey <- paste("renv", scope, optname, sep = ".")
   optval <- getOption(optkey)
   if (!is.null(optval))
     return(optval)
 
   # check for environment variable
   envname <- gsub(".", "_", toupper(name), fixed = TRUE)
-  envkey <- paste("RENV_CONFIG", envname, sep = "_")
+  envkey <- paste("RENV", toupper(scope), envname, sep = "_")
   envval <- Sys.getenv(envkey, unset = NA)
   if (!is.na(envval))
     return(renv_config_decode_envvar(envname, envval))

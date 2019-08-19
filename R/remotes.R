@@ -87,7 +87,7 @@ renv_remotes_resolve_bitbucket <- function(entry) {
 
   host <-
     entry$host %""%
-    renv_config("bitbucket.host", "api.bitbucket.org/2.0")
+    renv_config("bitbucket.host", default = "api.bitbucket.org/2.0")
 
   fmt <- "https://%s/repositories/%s/%s/src/%s/DESCRIPTION"
   url <- sprintf(fmt, host, user, repo, ref)
@@ -198,7 +198,7 @@ renv_remotes_resolve_github <- function(entry) {
 
   host <-
     entry$host %""%
-    renv_config("github.host", "api.github.com")
+    renv_config("github.host", default = "api.github.com")
 
   # resolve the sha associated with the ref / pull
   sha <- case(
@@ -234,7 +234,7 @@ renv_remotes_resolve_gitlab <- function(entry) {
 
   host <-
     entry$host %""%
-    renv_config("gitlab.host", "gitlab.com")
+    renv_config("gitlab.host", default = "gitlab.com")
 
   fmt <- "https://%s/api/v4/projects/%s/repository/files/%s/raw?ref=%s"
   id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)

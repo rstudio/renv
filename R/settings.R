@@ -50,78 +50,82 @@ renv_settings_decode <- function(name, value) {
 
 }
 
-renv_settings_read <- function(project) {
+renv_settings_read <- function(path) {
+  renv_filebacked("settings", path, renv_settings_read_impl)
+}
 
-  path <- file.path(project, "renv/settings.dcf")
+renv_settings_read_impl <- function(path) {
+
+  # check that file exists
   if (!file.exists(path))
-    return(renv_settings_defaults())
+    return(NULL)
 
+  # try to read it
   dcf <- catch(renv_dcf_read(path))
   if (inherits(dcf, "error")) {
     warning(dcf)
-    return(renv_settings_defaults())
+    return(NULL)
   }
 
+  # keep only known settings
   known <- ls(envir = `_renv_settings`, all.names = TRUE)
   dcf <- dcf[renv_vector_intersect(names(dcf), known)]
 
+  # decode encoded values
   settings <- enumerate(dcf, renv_settings_decode)
 
+  # merge in defaults
   defaults <- renv_settings_defaults()
   missing <- renv_vector_diff(names(defaults), names(settings))
   settings[missing] <- defaults[missing]
 
-  renv_filebacked_set("settings", path, settings)
+  # and return
+  settings
 
 }
 
 renv_settings_get <- function(project, name = NULL) {
 
-  # check for a cached settings value
-  path <- file.path(project, "renv/settings.dcf")
-  cache <- renv_filebacked_get("settings", path)
-  if (!is.null(cache))
-    return(if (is.null(name)) cache else cache[[name]])
+  # when 'name' is NULL, return all settings
+  if (is.null(name)) {
+    names <- ls(envir = `_renv_settings`, all.names = TRUE)
+    settings <- lapply(names, renv_settings_get, project = project)
+    names(settings) <- names
+    return(settings[order(names(settings))])
+  }
 
-  # no cache; read the settings file and check
-  settings <- renv_settings_read(project)
-  if (is.null(name))
-    return(settings)
+  # try to read settings file
+  path <- renv_settings_path(project)
+  settings <- renv_settings_read(path)
+  if (!is.null(settings))
+    return(settings[[name]])
 
-  # get requested setting
-  setting <- settings[[name]]
-  if (!is.null(setting))
-    return(setting)
-
-  # no value recorded; check for global user config
-  config <- renv_config(name)
-  if (!is.null(config))
-    return(config)
-
-  # no user-defined value available; use default
+  # no value recorded; use default
   renv_settings_default(name)
 
 }
 
 renv_settings_set <- function(project, name, value, persist = TRUE) {
 
-  path <- file.path(project, "renv/settings.dcf")
+  # read old settings
+  settings <- renv_settings_get(project)
 
-  settings <-
-    renv_filebacked_get("settings", path) %||%
-    renv_settings_read(project)
-
+  # update setting value
   old <- settings[[name]] %||% renv_settings_default(name)
   new <- renv_settings_validate(name, value)
   settings[[name]] <- new
 
+  # invoke update callback if value changed
   if (!identical(old, new))
     renv_settings_updated(project, name, old, new)
 
-  renv_filebacked_set("settings", path, settings)
-
+  # persist if requested
   if (persist)
     renv_settings_persist(project, settings)
+
+  # save session-cached value
+  path <- renv_settings_path(project)
+  renv_filebacked_set("settings", path, settings)
 
 }
 
@@ -131,11 +135,12 @@ renv_settings_updated <- function(project, name, old, new) {
 }
 
 renv_settings_persist <- function(project, settings) {
-  path <- file.path(project, "renv/settings.dcf")
+  path <- renv_settings_path(project)
   settings <- settings[order(names(settings))]
   settings <- lapply(settings, paste, collapse = ", ")
   ensure_parent_directory(path)
-  renv_dcf_write(as.data.frame(settings, stringsAsFactors = FALSE), path)
+  dcf <- as.data.frame(settings, stringsAsFactors = FALSE)
+  renv_dcf_write(dcf, path)
 }
 
 renv_settings_merge <- function(settings, merge) {
@@ -143,7 +148,9 @@ renv_settings_merge <- function(settings, merge) {
   settings
 }
 
-
+renv_settings_path <- function(project) {
+  file.path(project, "renv/settings.dcf")
+}
 
 
 # nocov start

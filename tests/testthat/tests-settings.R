@@ -27,3 +27,25 @@ test_that("renv.settings can be used to provide defaults", {
   })
 
 })
+
+test_that("non-persistent settings exist in R session; not in file", {
+
+  renv_tests_scope()
+  expect_equal(settings$snapshot.type(), "packrat")
+
+  project <- getwd()
+  path <- "renv/settings.dcf"
+  before <- renv_settings_read_impl(path)
+  settings$snapshot.type("simple", persist = FALSE)
+  after <- renv_settings_read_impl(path)
+
+  expect_equal(before, after)
+  expect_equal(settings$snapshot.type(), "simple")
+
+  settings$ignored.packages("dplyr", persist = TRUE)
+
+  settings <- renv_settings_get(project)
+  persisted <- renv_settings_read_impl(path)
+  expect_mapequal(settings, persisted)
+
+})

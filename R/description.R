@@ -2,11 +2,22 @@
 renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...) {
 
   # if given a package name, construct path to that package
-  if (!is.null(package))
-    path <- find.package(package)
+  path <- path %||% find.package(package)
+  path <- normalizePath(path, winslash = "/", mustWork = FALSE)
 
   # accept package directories
   path <- renv_description_path(path)
+
+  # read value with filebacked cache
+  renv_filebacked(
+    "DESCRIPTION", path,
+    renv_description_read_impl,
+    subdir = subdir, ...
+  )
+
+}
+
+renv_description_read_impl <- function(path = NULL, subdir = "", ...) {
 
   # ensure that we have a real file
   info <- file.info(path, extra_cols = FALSE)
@@ -14,13 +25,6 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...)
     stopf("file '%s' does not exist.", path)
   else if (info$isdir)
     stopf("file '%s' is a directory.", path)
-
-  # check for a cache entry (note: we need to normalize as otherwise
-  # we might cache the results for a stale symlink)
-  key <- normalizePath(path, winslash = "/", mustWork = FALSE)
-  entry <- renv_filebacked_get("DESCRIPTION", key)
-  if (!is.null(entry))
-    return(entry)
 
   # if we have an archive, attempt to unpack the DESCRIPTION
   type <- renv_archive_type(path)
@@ -59,7 +63,6 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...)
   if (identical(dcf$Encoding, "UTF-8"))
     dcf[] <- lapply(dcf, renv_encoding_mark, encoding = "UTF-8")
 
-  renv_filebacked_set("DESCRIPTION", key, dcf)
   dcf
 
 }
