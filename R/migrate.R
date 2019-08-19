@@ -183,6 +183,10 @@ renv_migrate_packrat_cache <- function(project) {
   hashes <- list.files(packages, full.names = TRUE)
   sources <- list.files(hashes, full.names = TRUE)
 
+  # sanity check: make sure the source folder is an R package
+  ok <- file.exists(file.path(sources, "DESCRIPTION"))
+  sources <- sources[ok]
+
   # read DESCRIPTIONs for each package (update the Hash
   # as Packrat + renv hashes are not compatible)
   records <- lapply(sources, function(source) {
@@ -194,6 +198,8 @@ renv_migrate_packrat_cache <- function(project) {
   # construct cache target paths
   targets <- map_chr(records, renv_cache_package_path)
   names(targets) <- sources
+
+  # only copy to cache target paths that don't exist
   targets <- targets[!file.exists(targets)]
   if (empty(targets)) {
     vwritef("* The renv cache is already synchronized with the Packrat cache.")
@@ -201,15 +207,40 @@ renv_migrate_packrat_cache <- function(project) {
   }
 
   # cache each installed package
-  if (settings$use.cache(project = project)) {
-    vprintf("* Migrating Packrat cache to renv cache ... ")
-    ensure_parent_directory(targets)
-    copy <- renv_progress(renv_file_copy, length(targets))
-    enumerate(targets, copy)
-    vwritef("Done!")
-  }
+  if (settings$use.cache(project = project))
+    renv_migrate_packrat_cache_impl(targets)
 
   TRUE
+
+}
+
+renv_migrate_packrat_cache_impl <- function(targets) {
+
+  # attempt to copy packages from Packrat to renv cache
+  vprintf("* Migrating Packrat cache to renv cache ... ")
+  ensure_parent_directory(targets)
+  copy <- renv_progress(renv_file_copy, length(targets))
+
+  result <- enumerate(targets, function(source, target) {
+    status <- catch(copy(source, target))
+    broken <- inherits(status, "error")
+    reason <- conditionMessage(status)
+    list(source = source, target = target, broken = broken, reason = reason)
+  })
+
+  vwritef("Done!")
+
+  # report failures
+  status <- bind_list(result)
+  bad <- subset(status, broken)
+  if (nrow(bad))
+    return(TRUE)
+
+  renv_pretty_print(
+    with(bad, sprintf("%s [%s]", format(source), reason)),
+    "The following packages could not be copied from the Packrat cache:",
+    "These packages may need to be re-installed and re-cached."
+  )
 
 }
 
