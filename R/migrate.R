@@ -224,7 +224,7 @@ renv_migrate_packrat_cache_impl <- function(targets) {
   result <- enumerate(targets, function(source, target) {
     status <- catch(copy(source, target))
     broken <- inherits(status, "error")
-    reason <- conditionMessage(status)
+    reason <- if (broken) conditionMessage(status) else ""
     list(source = source, target = target, broken = broken, reason = reason)
   })
 
@@ -233,7 +233,7 @@ renv_migrate_packrat_cache_impl <- function(targets) {
   # report failures
   status <- bind_list(result)
   bad <- subset(status, broken)
-  if (nrow(bad))
+  if (nrow(bad) == 0)
     return(TRUE)
 
   renv_pretty_print(
