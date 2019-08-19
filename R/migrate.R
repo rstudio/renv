@@ -232,7 +232,7 @@ renv_migrate_packrat_cache_impl <- function(targets) {
 
   # report failures
   status <- bind_list(result)
-  bad <- subset(status, broken)
+  bad <- status[status$broken, ]
   if (nrow(bad) == 0)
     return(TRUE)
 

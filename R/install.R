@@ -381,7 +381,7 @@ renv_install_postamble <- function(packages) {
   )
 
   # only keep mismatches
-  mismatches <- subset(data, Installed != Loaded)
+  mismatches <- data[data$Installed != data$Loaded, ]
   if (nrow(mismatches) == 0)
     return(TRUE)
 
