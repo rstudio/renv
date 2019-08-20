@@ -182,7 +182,11 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   config <- renv_tempfile("renv-download-config-")
 
-  fields <- c(url = url, output = destfile)
+  fields <- c(
+    "user-agent" = renv_http_useragent(),
+    "url"        = url,
+    "output"     = destfile
+  )
 
   # set connect timeout
   timeout <- catch(as.integer(renv_config("connect.timeout", default = 20L)))
@@ -284,7 +288,10 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
 
   config <- renv_tempfile("renv-download-config-")
 
-  fields <- c(quiet = "on")
+  fields <- c(
+    "user-agent" = renv_http_useragent(),
+    "quiet"      = "on"
+  )
 
   auth <- renv_download_auth(url, type)
   if (length(auth)) {
