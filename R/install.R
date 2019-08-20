@@ -161,10 +161,7 @@ renv_install_impl <- function(record, project) {
     }
   )
 
-  binary <-
-    endswith(record$Path, ".tgz") ||
-    endswith(record$Path, ".zip")
-
+  binary <- renv_package_type(record$Path) == "binary"
   feedback <- if (binary)
     "installed binary"
   else

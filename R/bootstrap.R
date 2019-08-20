@@ -72,7 +72,7 @@ renv_bootstrap_self <- function() {
 
   # if we're working with package sources, we'll need to explicitly
   # install the package to the bootstrap directory
-  type <- renv_package_type(source)
+  type <- renv_package_type(source, quiet = TRUE)
   switch(type,
          source = renv_bootstrap_self_source(source, target),
          binary = renv_bootstrap_self_binary(source, target))

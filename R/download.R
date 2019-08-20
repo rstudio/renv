@@ -520,9 +520,9 @@ renv_download_check_archive <- function(destfile) {
   if (!file.exists(destfile))
     return(FALSE)
 
-  # validate that we have the path to an archive
-  ext <- fileext(destfile)
-  if (!ext %in% c(".tar.gz", ".tgz", ".zip"))
+  # validate archive type
+  type <- renv_archive_type(destfile)
+  if (type == "unknown")
     return(FALSE)
 
   # try listing files in the archive

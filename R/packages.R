@@ -13,21 +13,29 @@ renv_package_description_field <- function(package, field) {
   desc[[field]]
 }
 
-renv_package_type <- function(path) {
+renv_package_type <- function(path, quiet = FALSE, default = "source") {
 
   info <- file.info(path, extra_cols = FALSE)
   if (is.na(info$isdir))
     stopf("no package at path '%s'", aliased_path(path))
 
-  # for directories, assume it's a source package
-  if (info$isdir)
-    return("source")
+  # for directories, check for Meta
+  if (info$isdir) {
+    hasmeta <- file.exists(file.path(path, "Meta"))
+    type <- if (hasmeta) "binary" else "source"
+    return(type)
+  }
 
   # otherwise, guess based on contents of package
   methods <- list(
-    function(path) untar(tarfile = path, list = TRUE),
-    function(path) unzip(zipfile = path, list = TRUE)$Name
+    tar = function(path) untar(tarfile = path, list = TRUE),
+    zip = function(path) unzip(zipfile = path, list = TRUE)$Name
   )
+
+  # guess appropriate method when possible
+  type <- renv_archive_type(path)
+  if (type %in% c("tar", "zip"))
+    methods <- methods[type]
 
   for (method in methods) {
 
@@ -35,18 +43,18 @@ renv_package_type <- function(path) {
     if (inherits(files, "error"))
       next
 
-    if (any(grepl("^[^/]+/Meta/?$", files)))
-      return("binary")
-    else
-      return("source")
+    hasmeta <- any(grepl("^[^/]+/Meta/?$", files))
+    type <- if (hasmeta) "binary" else "source"
+    return(type)
 
   }
 
-  # all else fails, assume source
-  fmt <- "failed to determine type of package '%s'; assuming source"
-  warningf(fmt, aliased_path(path))
+  if (!quiet) {
+    fmt <- "failed to determine type of package '%s'; assuming source"
+    warningf(fmt, aliased_path(path))
+  }
 
-  "source"
+  default
 
 }
 

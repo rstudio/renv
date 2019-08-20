@@ -288,8 +288,7 @@ renv_remotes_resolve_local <- function(entry) {
   path <- normalizePath(entry, winslash = "/", mustWork = TRUE)
 
   # first, check for a common extension
-  ext <- fileext(entry)
-  if (ext %in% c(".tar.gz", ".tgz", ".zip"))
+  if (renv_archive_type(entry) == "tar")
     return(renv_remotes_resolve_local_impl(path))
 
   # otherwise, if this is the path to a package project, use the sources as-is
