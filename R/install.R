@@ -161,8 +161,8 @@ renv_install_impl <- function(record, project) {
     }
   )
 
-  binary <- renv_package_type(record$Path) == "binary"
-  feedback <- if (binary)
+  type <- renv_package_type(record$Path, quiet = TRUE)
+  feedback <- if (type == "binary")
     "installed binary"
   else
     "built from source"
