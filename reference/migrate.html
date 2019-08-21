@@ -66,7 +66,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.135</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0.136</span>
       </span>
     </div>
 
@@ -139,7 +139,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>migrate</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>migrate</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>packrat</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"lockfile"</span>, <span class='st'>"sources"</span>, <span class='st'>"library"</span>,
+  <span class='st'>"options"</span>, <span class='st'>"cache"</span>))</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,17 +151,35 @@
 be used. If no project is currently active, then the current working
 directory is used instead.</p></td>
     </tr>
+    <tr>
+      <th>packrat</th>
+      <td><p>Components of the Packrat project to migrate. See the default
+argument list for components of the Packrat project that can be migrated.
+Select a subset of those components for migration as appropriate.</p></td>
+    </tr>
     </table>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="migration"><a class="anchor" href="#migration"></a>Migration</h2>
 
-    <p>The following actions are taken:</p><ul>
-<li><p>The Packrat lockfile is migrated to <code>renv.lock</code>;</p></li>
-<li><p>Packages installed in the Packrat library are migrated to the <code>renv</code> library;</p></li>
-<li><p>Relevant Packrat options (e.g. <code>ignored.packages</code>) are copied;</p></li>
-<li><p>Packages in the Packrat cache are imported into the <code>renv</code> cache;</p></li>
-<li><p>The project <code>.Rprofile</code> is updated to use <code>renv</code>.</p></li>
-</ul>
+    
+
+
+<p>When migrating Packrat projects to <code>renv</code>, the set of components migrated
+can be customized using the <code>packrat</code> argument. The set of components that
+can be migrated are as follows:</p>
+<table class='table'>
+<tr><td><strong>Name</strong></td><td><strong>Description</strong></td></tr>
+<tr><td><code>lockfile</code></td><td>Migrate the Packrat lockfile (<code>packrat/packrat.lock</code>) to the <code>renv</code> lockfile
+(<code>renv.lock</code>).</td></tr>
+<tr><td><code>sources</code></td><td>Migrate package sources from the <code>packrat/src</code> folder to the <code>renv</code>
+sources folder. Currently, only CRAN packages are migrated to <code>renv</code> --
+packages retrieved from other sources (e.g. GitHub) are ignored.</td></tr>
+<tr><td><code>library</code></td><td>Migrate installed packages from the Packrat library to the <code>renv</code> project
+library.</td></tr>
+<tr><td><code>options</code></td><td>Migrate compatible Packrat options to the <code>renv</code> project.</td></tr>
+<tr><td><code>cache</code></td><td>Migrate packages from the Packrat cache to the <code>renv</code> cache.</td></tr>
+</table>
+
 
     
 
@@ -176,7 +195,7 @@ directory is used instead.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#details">Details</a></li>
+      <li><a href="#migration">Migration</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
