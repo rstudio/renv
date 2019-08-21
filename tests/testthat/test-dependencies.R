@@ -1,6 +1,14 @@
 
 context("Dependencies")
 
+test_that(".Rproj files requesting devtools is handled", {
+  renv_tests_scope()
+  writeLines("PackageUseDevtools: Yes", "project.Rproj")
+  deps <- dependencies()
+  packages <- deps$Package
+  expect_setequal(packages, c("devtools", "roxygen2"))
+})
+
 test_that("usages of library, etc. are properly handled", {
 
   deps <- dependencies("resources/code.R")
@@ -73,4 +81,15 @@ test_that("renv warns when large number of files found", {
 
   expect_true(length(output) > 0)
 
+})
+
+test_that("evil knitr chunks are handled", {
+  deps <- dependencies("resources/evil.Rmd")
+  packages <- deps$Package
+  expect_setequal(packages, c("rmarkdown", "a", "b"))
+})
+
+test_that("renv_dependencies_requires warns once", {
+  expect_warning(renv_dependencies_require("nosuchpackage", "test"))
+  expect_false(renv_dependencies_require("nosuchpackage", "test"))
 })

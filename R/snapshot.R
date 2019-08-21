@@ -584,41 +584,24 @@ renv_snapshot_auto <- function(project) {
 
 renv_snapshot_filter <- function(project, records, type) {
 
+  start <- Sys.time()
+
   type <- type %||% settings$snapshot.type(project = project)
-  switch(type,
+  result <- switch(type,
     simple  = renv_snapshot_filter_simple(project, records),
     packrat = renv_snapshot_filter_packrat(project, records),
     custom  = renv_snapshot_filter_custom(project, records),
     stopf("unknown snapshot type '%s'", type)
   )
 
-}
-
-renv_snapshot_filter_simple <- function(project, records) {
-  records
-}
-
-renv_snapshot_filter_packrat <- function(project, records) {
-
-  start <- Sys.time()
-
-  # get recursive package dependencies for those discovered
-  deps <- dependencies(project, quiet = TRUE)
-  ignored <- c("renv", settings$ignored.packages(project = project))
-  packages <- renv_vector_diff(unique(deps$Package), ignored)
-  paths <- renv_package_dependencies(packages, project = project)
-  all <- as.character(names(paths))
-
   end <- Sys.time()
 
   # report if dependency discovery took a long time
-
-  # nocov start
-
-  if (difftime(end, start, units = "secs") > 5L) {
+  limit <- renv_config("snapshot.filter.timelimit", default = 10L)
+  if (difftime(end, start, units = "secs") > limit) {
 
     lines <- c(
-      "Dependency discovery took %s %s during snapshot.",
+      "NOTE: Dependency discovery took %s %s during snapshot.",
       "Consider using .renvignore to ignore files -- see `?dependencies` for more information.",
       "Use `renv::settings$snapshot.type(\"simple\")` to disable dependency discovery during snapshot."
     )
@@ -638,7 +621,22 @@ renv_snapshot_filter_packrat <- function(project, records) {
 
   }
 
-  # nocov end
+  result
+
+}
+
+renv_snapshot_filter_simple <- function(project, records) {
+  records
+}
+
+renv_snapshot_filter_packrat <- function(project, records) {
+
+  # get recursive package dependencies for those discovered
+  deps <- dependencies(project, quiet = TRUE)
+  ignored <- c("renv", settings$ignored.packages(project = project))
+  packages <- renv_vector_diff(unique(deps$Package), ignored)
+  paths <- renv_package_dependencies(packages, project = project)
+  all <- as.character(names(paths))
 
   # keep only those records
   records[renv_vector_intersect(names(records), all)]

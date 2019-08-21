@@ -22,7 +22,7 @@ status <- function(project = NULL,
 {
   renv_scope_error_handler()
   project <- project %||% renv_project()
-  library <- library %||% renv_paths_library(project = project)
+  library <- library %||% renv_libpaths_all()
   lockfile <- lockfile %||% renv_lockfile_path(project)
   invisible(renv_status(project, library, lockfile))
 }
@@ -45,11 +45,12 @@ renv_status <- function(project, library, lockfile) {
   }
 
   # report missing library
-  if (!file.exists(library)) {
-    text <- if (identical(library, renv_paths_library(project = project)))
+  projlib <- library[[1]]
+  if (!file.exists(projlib)) {
+    text <- if (identical(projlib, renv_paths_library(project = project)))
       "* This project's private library is empty or does not exist."
     else
-      sprintf("* Library '%s' is empty or does not exist.", aliased_path(library))
+      sprintf("* Library '%s' is empty or does not exist.", aliased_path(projlib))
     vwritef(text)
   }
 
@@ -59,13 +60,8 @@ renv_status <- function(project, library, lockfile) {
 
   # compare the lockfile with current state of library
   curr <- snapshot(project = project, library = library, lockfile = NULL)
-  lock <- if (file.exists(lockfile))
-    renv_lockfile_read(lockfile)
-  else
-    renv_lockfile_init(project)
-
+  lock <- renv_lockfile_load(project)
   renv_status_report(lock, curr)
-
   list(library = curr, lockfile = lock)
 
 }

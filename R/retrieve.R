@@ -86,16 +86,16 @@ renv_retrieve_impl <- function(package) {
 
   # otherwise, try and restore from external source
   source <- tolower(record$Source)
+  if (source %in% c("git2r", "xgit"))
+    source <- "git"
+
   switch(source,
          cran         = renv_retrieve_cran(record),
          bioconductor = renv_retrieve_bioconductor(record),
          bitbucket    = renv_retrieve_bitbucket(record),
          git          = renv_retrieve_git(record),
-         git2r        = renv_retrieve_git(record),
          github       = renv_retrieve_github(record),
          gitlab       = renv_retrieve_gitlab(record),
-         local        = renv_retrieve_local(record),
-         xgit         = renv_retrieve_git(record),
          renv_retrieve_unknown_source(record)
   )
 
@@ -466,12 +466,15 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
 
 renv_retrieve_unknown_source <- function(record) {
 
+  # try to find a matching local package
   status <- catch(renv_retrieve_local(record))
   if (!inherits(status, "error"))
     return(status)
 
-  record <- renv_retrieve_missing_record(record$Package)
+  # failed; parse as a CRAN remote
+  record$Source <- "CRAN"
   renv_retrieve_cran(record)
+
 }
 
 renv_retrieve_handle_remotes <- function(record) {

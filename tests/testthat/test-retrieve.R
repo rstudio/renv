@@ -2,6 +2,7 @@
 context("Retrieve")
 
 test_that("we can retrieve packages from CRAN", {
+
   skip_on_cran()
   renv_tests_scope()
 
@@ -16,6 +17,7 @@ test_that("we can retrieve packages from CRAN", {
 })
 
 test_that("we can retrieve packages from the CRAN archive", {
+
   skip_on_cran()
   renv_tests_scope()
 
@@ -23,6 +25,21 @@ test_that("we can retrieve packages from the CRAN archive", {
     Package = "bread",
     Version = "0.1.0",
     Source  = "CRAN"
+  )
+
+  renv_test_retrieve(record)
+
+})
+
+test_that("packages with an unknown source are retrieved from CRAN", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  record <- list(
+    Package = "bread",
+    Version = "0.1.0",
+    Source  = "unknown"
   )
 
   renv_test_retrieve(record)

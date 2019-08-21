@@ -104,3 +104,22 @@ test_that("a custom snapshot filter can be used", {
   expect_setequal(names(renv_records(lockfile)), c("bread", "toast"))
 
 })
+
+test_that("snapshots that take too long produce a warning", {
+
+  renv_tests_scope("breakfast")
+  renv_scope_options(
+    renv.config.auto.snapshot = FALSE,
+    renv.config.snapshot.filter.timelimit = 0L
+  )
+
+  init(bare = TRUE)
+  install("breakfast")
+  output <- local({
+    renv_scope_options(renv.verbose = TRUE)
+    capture.output(snapshot(type = "packrat"))
+  })
+
+  expect_true(length(output) > 1)
+
+})

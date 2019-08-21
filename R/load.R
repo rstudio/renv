@@ -65,6 +65,8 @@ renv_load_path <- function(project) {
     return(FALSE)
 
   # on macOS, read paths from /etc/paths and friends
+
+  # nocov start
   if (renv_platform_macos()) {
 
     files <- c(
@@ -77,6 +79,7 @@ renv_load_path <- function(project) {
     return(TRUE)
 
   }
+  # nocov end
 
 }
 
@@ -252,8 +255,4 @@ renv_load_finish <- function(project) {
     vwritef(fmt, aliased_path(project), renv_package_version("renv"))
   }
 
-}
-
-renv_home <- function() {
-  .getNamespaceInfo(.getNamespace("renv"), "path")
 }
