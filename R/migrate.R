@@ -3,15 +3,47 @@
 #'
 #' Migrate a project's infrastructure from Packrat to `renv`.
 #'
-#' The following actions are taken:
+#' @section Migration:
 #'
-#' - The Packrat lockfile is migrated to `renv.lock`;
-#' - Packages installed in the Packrat library are migrated to the `renv` library;
-#' - Relevant Packrat options (e.g. `ignored.packages`) are copied;
-#' - Packages in the Packrat cache are imported into the `renv` cache;
-#' - The project `.Rprofile` is updated to use `renv`.
+#' When migrating Packrat projects to `renv`, the set of components migrated
+#' can be customized using the `packrat` argument. The set of components that
+#' can be migrated are as follows:
+#'
+#' \tabular{ll}{
+#'
+#' **Name** \tab **Description** \cr
+#'
+#' `lockfile` \tab
+#'   Migrate the Packrat lockfile (`packrat/packrat.lock`) to the `renv` lockfile
+#'   (`renv.lock`). \cr
+#'
+#' `sources` \tab
+#'   Migrate package sources from the `packrat/src` folder to the `renv`
+#'   sources folder. Currently, only CRAN packages are migrated to `renv` --
+#'   packages retrieved from other sources (e.g. GitHub) are ignored.
+#'   \cr
+#'
+#' `library` \tab
+#'   Migrate installed packages from the Packrat library to the `renv` project
+#'   library.
+#'   \cr
+#'
+#' `options` \tab
+#'   Migrate compatible Packrat options to the `renv` project.
+#'   \cr
+#'
+#' `cache` \tab
+#'   Migrate packages from the Packrat cache to the `renv` cache.
+#'   \cr
+#'
+#' }
 #'
 #' @inheritParams renv-params
+#'
+#' @param packrat Components of the Packrat project to migrate. See the default
+#'   argument list for components of the Packrat project that can be migrated.
+#'   Select a subset of those components for migration as appropriate.
+#'
 #' @export
 #'
 #' @examples
@@ -21,25 +53,39 @@
 #' renv::migrate()
 #'
 #' }
-migrate <- function(project = NULL) {
+migrate <- function(
+  project = NULL,
+  packrat = c("lockfile", "sources", "library", "options", "cache"))
+{
   project <- project %||% renv_project()
   renv_scope_error_handler()
 
   project <- normalizePath(project, winslash = "/", mustWork = TRUE)
-  if (file.exists(file.path(project, "packrat/packrat.lock")))
-    renv_migrate_packrat(project)
+  if (file.exists(file.path(project, "packrat/packrat.lock"))) {
+    packrat <- match.arg(packrat, several.ok = TRUE)
+    renv_migrate_packrat(project, packrat)
+  }
 }
 
-renv_migrate_packrat <- function(project = NULL) {
+renv_migrate_packrat <- function(project = NULL, components = NULL) {
   project <- project %||% renv_project()
 
   if (!requireNamespace("packrat", quietly = TRUE))
     stopf("migration requires the 'packrat' package to be installed")
 
-  renv_migrate_packrat_lockfile(project)
-  renv_migrate_packrat_library(project)
-  renv_migrate_packrat_options(project)
-  renv_migrate_packrat_cache(project)
+  callbacks <- list(
+    lockfile = renv_migrate_packrat_lockfile,
+    sources  = renv_migrate_packrat_sources,
+    library  = renv_migrate_packrat_library,
+    options  = renv_migrate_packrat_options,
+    cache    = renv_migrate_packrat_cache
+  )
+
+  components <- components %||% names(methods)
+  callbacks <- callbacks[components]
+  for (callback in callbacks)
+    callback(project)
+
   renv_migrate_packrat_infrastructure(project)
 
   renv_bootstrap_impl()
@@ -124,11 +170,52 @@ renv_migrate_packrat_lockfile <- function(project) {
 
 }
 
+renv_migrate_packrat_sources <- function(project) {
+
+  packrat <- asNamespace("packrat")
+
+  srcdir <- packrat$src_dir(project = project)
+  if (!file.exists(srcdir))
+    return(TRUE)
+
+  pattern <- paste0(
+    "^",                   # start
+    "[^_]+",               # package name
+    "_",                   # separator
+    "\\d+(?:[_.-]\\d+)*",  # version
+    "\\.tar\\.gz",         # extension
+    "$"                    # end
+  )
+
+  suffixes <- list.files(
+    srcdir,
+    pattern = pattern,
+    recursive = TRUE
+  )
+
+  sources <- file.path(srcdir, suffixes)
+  targets <- renv_paths_source("cran", suffixes)
+
+  keep <- !file.exists(targets)
+  sources <- sources[keep]; targets <- targets[keep]
+
+  vprintf("* Migrating package sources from Packrat to renv ... ")
+  copy <- renv_progress(renv_file_copy, length(targets))
+  mapply(sources, targets, FUN = function(source, target) {
+    ensure_parent_directory(target)
+    copy(source, target)
+  })
+  vwritef("Done!")
+
+  TRUE
+
+}
+
 renv_migrate_packrat_library <- function(project) {
 
   packrat <- asNamespace("packrat")
 
-  libdir <- packrat$libDir(project = project)
+  libdir <- packrat$lib_dir(project = project)
   if (!file.exists(libdir))
     return(TRUE)
 

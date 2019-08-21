@@ -4,26 +4,58 @@
 \alias{migrate}
 \title{Migrate a Project from Packrat to renv}
 \usage{
-migrate(project = NULL)
+migrate(project = NULL, packrat = c("lockfile", "sources", "library",
+  "options", "cache"))
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{packrat}{Components of the Packrat project to migrate. See the default
+argument list for components of the Packrat project that can be migrated.
+Select a subset of those components for migration as appropriate.}
 }
 \description{
 Migrate a project's infrastructure from Packrat to \code{renv}.
 }
-\details{
-The following actions are taken:
-\itemize{
-\item The Packrat lockfile is migrated to \code{renv.lock};
-\item Packages installed in the Packrat library are migrated to the \code{renv} library;
-\item Relevant Packrat options (e.g. \code{ignored.packages}) are copied;
-\item Packages in the Packrat cache are imported into the \code{renv} cache;
-\item The project \code{.Rprofile} is updated to use \code{renv}.
+\section{Migration}{
+
+
+When migrating Packrat projects to \code{renv}, the set of components migrated
+can be customized using the \code{packrat} argument. The set of components that
+can be migrated are as follows:
+
+\tabular{ll}{
+
+\strong{Name} \tab \strong{Description} \cr
+
+\code{lockfile} \tab
+Migrate the Packrat lockfile (\code{packrat/packrat.lock}) to the \code{renv} lockfile
+(\code{renv.lock}). \cr
+
+\code{sources} \tab
+Migrate package sources from the \code{packrat/src} folder to the \code{renv}
+sources folder. Currently, only CRAN packages are migrated to \code{renv} --
+packages retrieved from other sources (e.g. GitHub) are ignored.
+\cr
+
+\code{library} \tab
+Migrate installed packages from the Packrat library to the \code{renv} project
+library.
+\cr
+
+\code{options} \tab
+Migrate compatible Packrat options to the \code{renv} project.
+\cr
+
+\code{cache} \tab
+Migrate packages from the Packrat cache to the \code{renv} cache.
+\cr
+
 }
 }
+
 \examples{
 \dontrun{
 

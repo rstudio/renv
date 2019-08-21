@@ -17,7 +17,11 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
   root <- Sys.getenv(envvar, unset = renv_paths_root(name))
 
   # form rest of path
-  prefixed <- file.path(root, paste(prefixes, collapse = "/"))
+  prefixed <- if (length(prefixes))
+    file.path(root, paste(prefixes, collapse = "/"))
+  else
+    root
+
   file.path(prefixed, ...) %||% ""
 }
 
