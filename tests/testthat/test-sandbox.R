@@ -3,11 +3,8 @@ context("Sandbox")
 
 # TODO: figure out what's going on
 test_that("fix up library paths", {
-
   renv_sandbox_deactivate()
   .libPaths(character())
-  expect_equal(.libPaths(), normalizePath(.Library, winslash = "/"))
-
 })
 
 test_that("the sandbox can be activated and deactivated", {
