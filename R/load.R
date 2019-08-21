@@ -239,7 +239,7 @@ renv_load_python_conda <- function(fields) {
 renv_load_python_env <- function(fields, loader) {
   project <- renv_project()
   version <- fields$Version
-  name <- fields$Name
+  name    <- fields$Name %NA% NULL
   loader(project = project, version = version, name = name)
 }
 
