@@ -2,11 +2,12 @@
 renv_lockfile_read_finish_impl <- function(key, val) {
 
   # convert repository records to named vectors
-  # (be careful to handle NAs)
+  # (be careful to handle NAs, NULLs)
   if (key == "Repositories" && is.null(names(val))) {
 
-    keys <- map_chr(val, function(record) record[["Name"]] %NA% "")
-    vals <- map_chr(val, function(record) record[["URL"]] %NA% "")
+    getter <- function(name) function(record) record[[name]] %||% "" %NA% ""
+    keys <- map_chr(val, getter("Name"))
+    vals <- map_chr(val, getter("URL"))
 
     result <- case(
       empty(keys)       ~ list(),

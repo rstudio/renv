@@ -4,11 +4,11 @@
 }
 
 `%""%` <- function(x, y) {
-  if (nzchar(x)) x else y
+  if (length(x) && nzchar(x)) x else y
 }
 
 `%NA%` <- function(x, y) {
-  if (is.na(x)) y else x
+  if (length(x) && is.na(x)) y else x
 }
 
 `%NULL%` <- function(x, y) {

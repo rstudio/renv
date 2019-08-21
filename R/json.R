@@ -66,13 +66,14 @@ renv_json_remap <- function(json, map) {
     else if (text == "false")
       return(FALSE)
     else if (text == "null")
-      return(NA)
+      return(NULL)
   }
 
   # recurse
   if (is.recursive(json)) {
-    for (i in seq_along(json))
-      json[[i]] <- renv_json_remap(json[[i]], map)
+    for (i in seq_along(json)) {
+      json[i] <- list(renv_json_remap(json[[i]], map))
+    }
   }
 
   json

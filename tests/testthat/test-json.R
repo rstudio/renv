@@ -5,7 +5,7 @@ test_that("sample JSON strings can be read", {
 
   expect_identical(
     renv_json_read(text = '[true, false, null]'),
-    list(TRUE, FALSE, NA)
+    list(TRUE, FALSE, NULL)
   )
 
   expect_identical(
@@ -68,5 +68,12 @@ test_that("we can read json containing escape characters", {
   actual <- list(data = "\\\"")
   json <- renv_json_convert(actual)
   expected <- renv_json_read(text = json)
+  expect_equal(actual, expected)
+})
+
+test_that("JSON null is read as R NULL", {
+  json <- "{\"NULL\": null}"
+  actual <- renv_json_read(text = json)
+  expected <- list("NULL" = NULL)
   expect_equal(actual, expected)
 })
