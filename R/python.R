@@ -16,7 +16,7 @@ renv_python_resolve <- function(python = NULL) {
   envvars <- c("RETICULATE_PYTHON", "RETICULATE_PYTHON_ENV")
   for (envvar in envvars) {
     val <- Sys.getenv(envvar, unset = NA)
-    if (!is.na(val))
+    if (!is.na(val) && file.exists(val))
       return(val)
   }
 
