@@ -4,7 +4,7 @@ renv_cache_version <- function() {
   "v4"
 }
 
-renv_cache_package_path <- function(record) {
+renv_cache_package_path <- function(record, writable=FALSE) {
 
   # validate required fields -- if any are missing, we can't use the cache
   required <- c("Package", "Version")
@@ -14,7 +14,7 @@ renv_cache_package_path <- function(record) {
 
   # if we have a hash, use it directly
   if (!is.null(record$Hash)) {
-    path <- with(record, renv_paths_cache(Package, Version, Hash, Package))
+    path <- with(record, renv_paths_cache(Package, Version, Hash, Package, writable = writable))
     return(path)
   }
 
@@ -28,7 +28,7 @@ renv_cache_package_path <- function(record) {
 
   # if the record doesn't have a hash, check to see if we can still locate a
   # compatible package version within the cache
-  root <- with(record, renv_paths_cache(Package, Version, version = version))
+  root <- with(record, renv_paths_cache(Package, Version, version = version,writable = writable))
   hashes <- list.files(root, full.names = TRUE)
   packages <- list.files(hashes, full.names = TRUE)
 
@@ -90,7 +90,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   record$Hash <- record$Hash %||% renv_hash_description(path)
 
   # construct cache entry
-  cache <- renv_cache_package_path(record)
+  cache <- renv_cache_package_path(record, writable = TRUE)
   if (!nzchar(cache))
     return(FALSE)
 

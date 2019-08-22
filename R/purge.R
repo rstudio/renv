@@ -56,7 +56,7 @@ renv_purge_impl <- function(package,
   }
 
   # get root cache path entry for package
-  paths <- renv_paths_cache(package)
+  paths <- renv_paths_cache(package,writable = TRUE)
   if (!file.exists(paths))
     return(bail())
 

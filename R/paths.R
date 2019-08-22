@@ -5,7 +5,7 @@ renv_prefix_platform <- function(version = NULL) {
   file.path(prefix, R.version$platform)
 }
 
-renv_paths_common <- function(name, prefixes = NULL, ...) {
+renv_paths_common <- function(name, prefixes = NULL,...,writable = FALSE) {
   # check for single absolute path supplied by user
   # TODO: handle multiple?
   end <- file.path(...)
@@ -14,8 +14,16 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
 
   # compute root path
   envvar <- paste("RENV_PATHS", toupper(name), sep = "_")
-  root <- Sys.getenv(envvar, unset = renv_paths_root(name))
-
+  # test if configured path is writable
+  root <- Sys.getenv(envvar)
+  if(root == ""){
+    root <- renv_paths_root(name)
+  }else{
+    if(writable && !assertthat::is.writeable(root)){
+      warning(paste0(root," folder not writable, use default ",name))
+      root <- renv_paths_root(name)
+    }
+  }
   # form rest of path
   prefixed <- if (length(prefixes))
     file.path(root, paste(prefixes, collapse = "/"))
