@@ -50,7 +50,7 @@ r_cmd_install <- function(package, path, library, ...) {
 
   args <- c(
     "--vanilla",
-    "CMD", "INSTALL", "--preclean",
+    "CMD", "INSTALL", "--preclean", "--no-multiarch",
     r_cmd_install_option(package, "configure.args", TRUE),
     r_cmd_install_option(package, "configure.vars", TRUE),
     r_cmd_install_option(package, "install.opts", FALSE),
