@@ -99,6 +99,14 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   if (renv_file_exists(target))
     return(TRUE)
 
+  # On Linux try another option
+  # Use the system command to move the links
+  if(tolower(Sys.info()[["sysname"]]) == "linux"){
+    sysmove <- catchall(system(paste("mv",source,target)))
+    if(renv_file_exists(target))
+      return(TRUE)
+  }
+
   # nocov start
   # rename failed; fall back to copying (and be sure to remove
   # the source file / directory on success)
