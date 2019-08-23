@@ -4,8 +4,8 @@ renv_cache_version <- function() {
   "v4"
 }
 
-renv_cache_package_path <- function(record, writable=FALSE) {
-
+renv_cache_package_path <- function(record, writable = FALSE) {
+  
   # validate required fields -- if any are missing, we can't use the cache
   required <- c("Package", "Version")
   missing <- renv_vector_diff(required, names(record))
@@ -28,7 +28,7 @@ renv_cache_package_path <- function(record, writable=FALSE) {
 
   # if the record doesn't have a hash, check to see if we can still locate a
   # compatible package version within the cache
-  root <- with(record, renv_paths_cache(Package, Version, version = version,writable = writable))
+  root <- with(record, renv_paths_cache(Package, Version, version = version, writable = writable))
   hashes <- list.files(root, full.names = TRUE)
   packages <- list.files(hashes, full.names = TRUE)
 

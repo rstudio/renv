@@ -19,7 +19,8 @@ renv_paths_common <- function(name, prefixes = NULL,...,writable = FALSE) {
   if(root == ""){
     root <- renv_paths_root(name)
   }else{
-    if(writable && !assertthat::is.writeable(root)){
+    if(writable &&
+       file.access(root, mode = 2) != 0) {
       warning(paste0(root," folder not writable, use default ",name))
       root <- renv_paths_root(name)
     }
