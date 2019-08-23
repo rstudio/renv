@@ -98,12 +98,29 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   if (renv_file_same(cache, path))
     return(TRUE)
 
+  # try to create the cache directory target
+  # (catch errors due to permissions, etc)
+  parent <- dirname(cache)
+  status <- catchall(ensure_directory(parent))
+  if (inherits(status, "error"))
+    return(FALSE)
+
+  # double-check that the cache is writable
+  writable <- local({
+    file <- tempfile("renv-tempfile-", tmpdir = parent)
+    on.exit(unlink(file, force = TRUE), add = TRUE)
+    status <- catchall(file.create(file))
+    file.exists(file)
+  })
+
+  if (!writable)
+    return(FALSE)
+
   # if we already have a cache entry, back it up
   callback <- renv_file_backup(cache)
   on.exit(callback(), add = TRUE)
 
   # copy into cache and link back into requested directory
-  ensure_parent_directory(cache)
   if (linkable) {
     renv_file_move(path, cache)
     renv_file_link(cache, path, overwrite = TRUE)
