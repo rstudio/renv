@@ -99,6 +99,15 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   if (renv_file_exists(target))
     return(TRUE)
 
+  # on unix, try using 'mv' command directly
+  # (can handle cross-device copies / moves a bit more efficiently)
+  if (renv_platform_unix()) {
+    args <- shQuote(c(source, target))
+    status <- catchall(system2("mv", args, stdout = FALSE, stderr = FALSE))
+    if (renv_file_exists(target))
+      return(TRUE)
+  }
+
   # nocov start
   # rename failed; fall back to copying (and be sure to remove
   # the source file / directory on success)

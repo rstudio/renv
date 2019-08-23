@@ -176,6 +176,5 @@ renv_activate_version_lockfile <- function(project) {
 }
 
 renv_activate_version_default <- function(project) {
-  spec <- .getNamespaceInfo(.getNamespace("renv"), "spec")
-  spec[["version"]]
+  renv_namespace_version("renv")
 }

@@ -18,7 +18,7 @@ local({
     # if renv has already been loaded, and it's the requested version of renv,
     # nothing to do
     spec <- .getNamespaceInfo(.getNamespace("renv"), "spec")
-    if (identical(spec$version, version))
+    if (identical(spec[["version"]], version))
       return(invisible(TRUE))
 
     # otherwise, unload and attempt to load the correct version of renv

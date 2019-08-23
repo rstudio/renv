@@ -364,11 +364,7 @@ renv_install_postamble <- function(packages) {
   installed <- map_chr(packages, renv_package_version)
 
   # get version of package currently loaded
-  loaded <- map_chr(packages, function(package) {
-    namespace <- .getNamespace(package)
-    spec <- .getNamespaceInfo(namespace, "spec")
-    spec[["version"]]
-  })
+  loaded <- map_chr(packages, renv_namespace_version)
 
   # collect into data.frame
   data <- data.frame(

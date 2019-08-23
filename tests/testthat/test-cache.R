@@ -59,3 +59,22 @@ test_that("use.cache project setting is honored", {
   expect_true(all(types == "symlink"))
 
 })
+
+test_that("package installation does not fail with non-writable cache", {
+  skip_on_os("windows")
+
+  renv_tests_scope()
+
+  cache <- tempfile("renv-cache-")
+  dir.create(cache, mode = "0555")
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
+
+  renv::init()
+  records <- renv::install("bread")
+  expect_true(records$bread$Package == "bread")
+
+  location <- find.package("bread")
+  type <- renv_file_type(location)
+  expect_false(type == "symlink")
+
+})
