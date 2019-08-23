@@ -142,6 +142,11 @@ renv_install_impl <- function(record, project) {
     cache <- renv_cache_package_path(record)
     if (file.exists(cache))
       return(renv_install_package_cache(record, cache, linker))
+    
+    # check for cache entry in the default location and install if there
+    cache <- renv_cache_package_path(record, writable = TRUE)
+    if (file.exists(cache))
+      return(renv_install_package_cache(record, cache, linker))
 
   }
 
