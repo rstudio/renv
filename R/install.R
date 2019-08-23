@@ -126,8 +126,12 @@ renv_install_impl <- function(record, project) {
   # figure out whether we can use the cache during install
   library <- renv_global_get("install.library") %||% renv_libpaths_default()
   linkable <-
-    settings$use.cache(project = project) &&
-    identical(library, renv_paths_library(project = project))
+    settings$use.cache(project = project) && (
+      identical(library, renv_paths_library(project = project)) ||
+      # this enables renv in installed package
+      # Remove inst sub-folder from path
+      identical(sub("inst/","",library), renv_paths_library(project = project))
+    )
 
   linker <- if (linkable) renv_file_link else renv_file_copy
 
@@ -135,7 +139,7 @@ renv_install_impl <- function(record, project) {
     settings$use.cache(project = project) &&
     renv_record_cacheable(record) &&
     !renv_restore_rebuild_required(record)
-
+  
   if (cacheable) {
 
     # check for cache entry and install if there
