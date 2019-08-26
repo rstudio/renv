@@ -96,8 +96,17 @@ renv_dependencies_callback <- function(path) {
 }
 
 renv_dependencies_find <- function(path = getwd(), root = getwd()) {
+
+  # if the path requested contains a DESCRIPTION file, search
+  # only that file (do not recurse)
+  descpath <- file.path(path, "DESCRIPTION")
+  if (file.exists(descpath))
+    return(descpath)
+
+  # otherwise, we'll search files in the project recursively
   files <- renv_dependencies_find_impl(path, root)
   unlist(files, recursive = TRUE, use.names = FALSE)
+
 }
 
 renv_dependencies_find_impl <- function(path, root) {
@@ -124,13 +133,6 @@ renv_dependencies_find_dir <- function(path, root) {
 # return the set of files /subdirectories within a directory that should be
 # crawled for dependencies
 renv_dependencies_find_dir_children <- function(path, root) {
-
-  # for R packages, use a pre-defined set of files
-  # (TODO: should we still respect .renvignore etc. here?)
-  if (all(file.exists(file.path(path, c("DESCRIPTION", "NAMESPACE"))))) {
-    children <- file.path(path, c("DESCRIPTION", "R", "tests", "vignettes"))
-    return(children[file.exists(children)])
-  }
 
   # list files in the folder
   children <- renv_file_list(path, full.names = TRUE)
