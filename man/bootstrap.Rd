@@ -4,9 +4,13 @@
 \alias{bootstrap}
 \title{Bootstrap an renv Installation}
 \usage{
-bootstrap(version = NULL)
+bootstrap(project = NULL, version = NULL)
 }
 \arguments{
+\item{project}{The project directory. If \code{NULL}, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.}
+
 \item{version}{The version of \code{renv} to install. If \code{NULL}, the version
 of \code{renv} currently installed will be used. The requested version of
 \code{renv} will be retrieved from the \code{renv} public GitHub repository,

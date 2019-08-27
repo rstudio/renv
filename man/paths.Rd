@@ -33,7 +33,6 @@ enumerated below:
 \tabular{ll}{
 \strong{Environment Variable} \tab \strong{Description} \cr
 \code{RENV_PATHS_ROOT}        \tab The root path used for global state storage. \cr
-\code{RENV_PATHS_BOOTSTRAP}   \tab The library path containing bootstrapped \code{renv} installations. \cr
 \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
 \code{RENV_PATHS_LOCAL}       \tab The path containing local package sources. \cr
 \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr

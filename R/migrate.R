@@ -81,7 +81,7 @@ renv_migrate_packrat <- function(project = NULL, components = NULL) {
     cache    = renv_migrate_packrat_cache
   )
 
-  components <- components %||% names(methods)
+  components <- components %||% names(callbacks)
   callbacks <- callbacks[components]
   for (callback in callbacks)
     callback(project)
