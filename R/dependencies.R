@@ -81,6 +81,7 @@ renv_dependencies_callback <- function(path) {
   case(
 
     # special cases for special filenames
+    name == "renv.lock"     ~ function() renv_dependencies_discover_renv_lock(path),
     name == "DESCRIPTION"   ~ function() renv_dependencies_discover_description(path),
     name == "_pkgdown.yml"  ~ function() renv_dependencies_discover_pkgdown(path),
     name == "_bookdown.yml" ~ function() renv_dependencies_discover_bookdown(path),
@@ -97,11 +98,14 @@ renv_dependencies_callback <- function(path) {
 
 renv_dependencies_find <- function(path = getwd(), root = getwd()) {
 
-  # if the path requested contains a DESCRIPTION file, search
-  # only that file (do not recurse)
+  # if the path requested contains a DESCRIPTION file, do not recurse
+  # (include 'renv.lock' as signal to include renv if required)
   descpath <- file.path(path, "DESCRIPTION")
-  if (file.exists(descpath))
-    return(descpath)
+  if (file.exists(descpath)) {
+    paths <- c(descpath, file.path(path, "renv.lock"))
+    existing <- paths[file.exists(paths)]
+    return(existing)
+  }
 
   # otherwise, we'll search files in the project recursively
   files <- renv_dependencies_find_impl(path, root)
@@ -218,6 +222,10 @@ renv_dependencies_discover_preflight <- function(paths, quiet) {
 
   TRUE
 
+}
+
+renv_dependencies_discover_renv_lock <- function(path) {
+  renv_dependencies_list(path, "renv")
 }
 
 renv_dependencies_discover_description <- function(path, fields = NULL) {

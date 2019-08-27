@@ -33,8 +33,7 @@ clean <- function(project = NULL,
     renv_clean_stale_lockfiles(project, confirm),
     renv_clean_library_tempdirs(project, confirm),
     renv_clean_system_library(project, confirm),
-    renv_clean_unused_packages(project, confirm),
-    renv_clean_cache(project, confirm)
+    renv_clean_unused_packages(project, confirm)
   )
 
   msg <- if (status)
@@ -47,12 +46,17 @@ clean <- function(project = NULL,
 
 renv_clean_library_tempdirs <- function(project, confirm) {
 
+  ntd <- function() {
+    vwritef("* No temporary directories were found in the project library.")
+    FALSE
+  }
+
   library <- renv_paths_library(project = project)
   children <- list.files(library, full.names = TRUE)
 
   bad <- grep("/file\\w{12}$", children, value = TRUE)
   if (empty(bad))
-    return(TRUE)
+    return(ntd())
 
   # nocov start
   if (confirm || renv_verbose()) {
@@ -78,10 +82,15 @@ renv_clean_library_tempdirs <- function(project, confirm) {
 # remove user packages in system library
 renv_clean_system_library <- function(project, confirm) {
 
+  ntd <- function() {
+    vwritef("* No non-system packages were discovered in the system library.")
+    FALSE
+  }
+
   db <- renv_installed_packages(lib.loc = .Library, priority = "NA")
   packages <- db$Package
   if (empty(packages))
-    return(TRUE)
+    return(ntd())
 
   # nocov start
   if (confirm || renv_verbose()) {
@@ -108,21 +117,26 @@ renv_clean_system_library <- function(project, confirm) {
 
 renv_clean_unused_packages <- function(project, confirm) {
 
+  ntd <- function() {
+    vwritef("* No unused packages were found in the project library.")
+    FALSE
+  }
+
   # find packages installed in the project library
   library <- renv_paths_library(project = project)
   installed <- list.files(library)
   if (empty(installed))
-    return(FALSE)
+    return(ntd())
 
   # find packages used in the project and their dependencies
-  deps <- dependencies(project)
+  deps <- dependencies(project, quiet = TRUE)
   paths <- renv_package_dependencies(deps$Package, project = project)
   packages <- names(paths)
 
   # figure out which packages aren't needed
   removable <- renv_vector_diff(installed, packages)
   if (empty(removable))
-    return(TRUE)
+    return(ntd())
 
   # nocov start
   if (confirm || renv_verbose()) {
@@ -149,11 +163,16 @@ renv_clean_unused_packages <- function(project, confirm) {
 
 renv_clean_stale_lockfiles <- function(project, confirm) {
 
+  ntd <- function() {
+    vwritef("* No stale lockfiles were found.")
+    FALSE
+  }
+
   # find 00LOCK directories in library
   library <- renv_paths_library(project = project)
   lock <- list.files(path = library, pattern = "^00LOCK", full.names = TRUE)
   if (empty(lock))
-    return(TRUE)
+    return(ntd())
 
   # check to see which are old
   now <- Sys.time()
@@ -162,7 +181,7 @@ renv_clean_stale_lockfiles <- function(project, confirm) {
   diff <- difftime(now, mtime, units = "mins")
   old <- lock[diff > 2]
   if (empty(old))
-    return(TRUE)
+    return(ntd())
 
   # nocov start
   if (confirm || renv_verbose()) {
@@ -186,6 +205,11 @@ renv_clean_stale_lockfiles <- function(project, confirm) {
 
 renv_clean_cache <- function(project, confirm) {
 
+  ntd <- function() {
+    vwritef("* No unused packages were found in the renv cache.")
+    FALSE
+  }
+
   # find projects monitored by renv
   projects <- renv_paths_root("projects")
   projlist <- character()
@@ -203,10 +227,8 @@ renv_clean_cache <- function(project, confirm) {
       wrap = FALSE
     )
 
-    if (confirm && !proceed()) {
-      message("* Operation aborted.")
+    if (confirm && !proceed())
       return(FALSE)
-    }
 
     writeLines(projlist[!missing], projects, useBytes = TRUE)
 
@@ -227,18 +249,14 @@ renv_clean_cache <- function(project, confirm) {
   # for each project, find packages used in their renv private library,
   # and look for entries in the cache
   projlist <- projlist[!missing]
-  vprintf("* Enumerating packages used by renv projects ... ")
   used <- uapply(projlist, renv_progress(action, length(projlist)))
-  vwritef("Done!")
 
   # check what packages are actually available in the cache
   available <- renv_cache_list()
 
   diff <- renv_vector_diff(available, used)
-  if (empty(diff)) {
-    vwritef("* The cache is up to date.")
-    return(TRUE)
-  }
+  if (empty(diff))
+    return(ntd())
 
   # nocov start
   if (confirm || renv_verbose()) {
