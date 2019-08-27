@@ -14,27 +14,30 @@
 #'   `renv` will be retrieved from the `renv` public GitHub repository,
 #'   at <https://github.com/rstudio/renv>.
 #'
-bootstrap <- function(version = NULL) {
+bootstrap <- function(project = NULL, version = NULL) {
   renv_scope_error_handler()
+  project <- project %||% renv_project()
 
   vtext <- version %||% renv_package_version("renv")
   vwritef("Bootstrapping renv [%s] ...", vtext)
-  status <- renv_bootstrap_impl(version)
+  status <- renv_bootstrap_impl(project, version)
   vwritef("* Done! renv has been successfully bootstrapped.")
 
   invisible(status)
 
 }
 
-renv_bootstrap_impl <- function(version = NULL, force = FALSE) {
-
+renv_bootstrap_impl <- function(project,
+                                version = NULL,
+                                force = FALSE)
+{
   # don't bootstrap during tests unless explicitly requested
   if (renv_testing() && !force)
     return()
 
   # NULL version means bootstrap this version of renv
   if (is.null(version))
-    return(renv_bootstrap_self())
+    return(renv_bootstrap_self(project))
 
   # otherwise, try to download and install the requested version
   # of renv from GitHub
@@ -49,8 +52,8 @@ renv_bootstrap_impl <- function(version = NULL, force = FALSE) {
   records <- renv_retrieve("renv")
   record <- records[[1]]
 
-  # set library paths temporarily to install into bootstrap library
-  library <- renv_paths_bootstrap("renv", record$Version)
+  # ensure renv is installed into project library
+  library <- renv_paths_library(project = project)
   ensure_directory(library)
   renv_scope_libpaths(library)
 
@@ -62,11 +65,11 @@ renv_bootstrap_impl <- function(version = NULL, force = FALSE) {
 
 }
 
-renv_bootstrap_self <- function() {
+renv_bootstrap_self <- function(project) {
 
   # construct source, target paths
   source <- find.package("renv")
-  target <- renv_paths_bootstrap("renv", renv_package_version("renv"), "renv")
+  target <- renv_paths_library("renv", project = project)
   if (renv_file_same(source, target))
     return(TRUE)
 

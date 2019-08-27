@@ -320,7 +320,7 @@ renv_snapshot_r_packages_impl <- function(library = NULL) {
   paths <- paths[!basename(paths) %in% c(ip$Package, "translations")]
 
   # remove ignored packages
-  paths <- paths[!basename(paths) %in% c("renv", settings$ignored.packages())]
+  paths <- paths[!basename(paths) %in% settings$ignored.packages()]
 
   # ignore '_cache' folder explicitly (written by 'pak')
   paths <- paths[!basename(paths) %in% "_cache"]
@@ -636,7 +636,7 @@ renv_snapshot_filter_packrat <- function(project, records) {
 
   # get recursive package dependencies for those discovered
   deps <- dependencies(project, quiet = TRUE)
-  ignored <- c("renv", settings$ignored.packages(project = project))
+  ignored <- settings$ignored.packages(project = project)
   packages <- renv_vector_diff(unique(deps$Package), ignored)
   paths <- renv_package_dependencies(packages, project = project)
   all <- as.character(names(paths))

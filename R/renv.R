@@ -31,7 +31,7 @@ renv_activate_impl <- function(project, version, restart) {
 
   # prepare renv infrastructure
   renv_infrastructure_write(project, version)
-  renv_bootstrap_impl()
+  renv_bootstrap_impl(project)
 
   # try to load the project
   load(project)

@@ -352,9 +352,6 @@ renv_install_preflight <- function(records) {
 
 renv_install_postamble <- function(packages) {
 
-  # don't include renv (since it's loaded from a special library)
-  packages <- renv_vector_diff(packages, "renv")
-
   # only diagnose packages currently loaded
   packages <- renv_vector_intersect(packages, loadedNamespaces())
   if (empty(packages))

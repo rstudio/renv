@@ -8,7 +8,6 @@ test_that("library paths set in a user profile are overridden after load", {
   renv_tests_scope()
 
   renv::init()
-  renv_bootstrap_impl(force = TRUE)
 
   # set up a dummy profile
   writeLines(".libPaths('.')", con = "profile.R")

@@ -44,10 +44,6 @@ renv_paths_source <- function(...) {
   renv_paths_common("source", c(), ...)
 }
 
-renv_paths_bootstrap <- function(...) {
-  renv_paths_common("bootstrap", c(renv_prefix_platform()), ...)
-}
-
 renv_paths_binary <- function(...) {
   renv_paths_common("binary", c(renv_prefix_platform()), ...)
 }
@@ -117,7 +113,6 @@ renv_paths_root_default_impl <- function() {
 #' \tabular{ll}{
 #' \strong{Environment Variable} \tab \strong{Description} \cr
 #' \code{RENV_PATHS_ROOT}        \tab The root path used for global state storage. \cr
-#' \code{RENV_PATHS_BOOTSTRAP}   \tab The library path containing bootstrapped `renv` installations. \cr
 #' \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
 #' \code{RENV_PATHS_LOCAL}       \tab The path containing local package sources. \cr
 #' \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr

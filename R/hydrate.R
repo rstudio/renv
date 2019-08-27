@@ -85,7 +85,7 @@ hydrate <- function(packages = NULL,
 renv_hydrate_dependencies <- function(project, packages = NULL) {
   packages <- packages %||% unique(dependencies(project, quiet = TRUE)$Package)
   vprintf("* Discovering package dependencies ... ")
-  ignored <- c("renv", settings$ignored.packages(project = project))
+  ignored <- settings$ignored.packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
   all <- renv_package_dependencies(packages, project = project, libpaths = libpaths)
