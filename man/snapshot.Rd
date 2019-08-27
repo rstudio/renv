@@ -46,10 +46,9 @@ selecting a different snapshot mode. The modes available are as follows:
 
 \item{\code{"simple"}}{
 
-All packages within the active libraries are included in the lockfile.
-This is the quickest and simplest method, but may lead to packages
-(e.g. development dependencies) entering the lockfile, which can be
-undesired.
+All packages within the active \R libraries are included in the lockfile.
+This is the quickest and simplest method, but may lead to undesired
+packages (e.g. development dependencies) entering the lockfile.
 
 }
 
@@ -72,6 +71,10 @@ project directory), and should return a vector of package names to include
 in the lockfile.
 
 }
+
+By default, \code{"packrat"}-style snapshots are used. The snapshot type can be
+configured on a project-specific basis using the \code{renv} project \link{settings}
+mechanism.
 
 }
 }

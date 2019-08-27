@@ -1,0 +1,43 @@
+---
+title: "Frequently Asked Questions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{faq}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Why isn't my package being snapshotted into the lockfile? {#1}
+
+By default, `renv` uses the intersection of:
+
+1. Packages installed into your project library, and
+2. Packages which appear to be used in your project,
+
+in determining which packages should enter the lockfile. The intention is that
+only the packages you truly require for your project should enter the lockfile;
+development dependencies (e.g. `devtools`) normally should not. This kind of
+snapshot is called a `"packrat"`-style snapshot, since the model here is similar
+to the one used in the [Packrat](https://rstudio.github.io/packrat/) package.
+
+If you'd instead prefer to capture _all_ packages installed into your project
+library, you can instead use `"simple"` snapshots. Configure your project to
+use `"simple"` snapshots with:
+
+```
+renv::settings$snapshot.type("simple")
+```
+
+Packages can also be explicitly ignored through a project setting, e.g. with
+`renv::settings$ignored.packages("<package>")`. You might want to double-check
+the set of ignored packages (`renv::settings$ignored.packages()`) and confirm
+that you aren't unintentionally ignoring a package you actually require.
+
+See the documentation in `?snapshot` for more details.

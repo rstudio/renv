@@ -15,10 +15,9 @@
 #'
 #' \item{`"simple"`}{
 #'
-#'   All packages within the active libraries are included in the lockfile.
-#'   This is the quickest and simplest method, but may lead to packages
-#'   (e.g. development dependencies) entering the lockfile, which can be
-#'   undesired.
+#'   All packages within the active \R libraries are included in the lockfile.
+#'   This is the quickest and simplest method, but may lead to undesired
+#'   packages (e.g. development dependencies) entering the lockfile.
 #'
 #' }
 #'
@@ -41,6 +40,10 @@
 #'   in the lockfile.
 #'
 #' }
+#'
+#' By default, `"packrat"`-style snapshots are used. The snapshot type can be
+#' configured on a project-specific basis using the `renv` project [settings]
+#' mechanism.
 #'
 #' }
 #'
