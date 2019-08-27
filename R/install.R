@@ -388,7 +388,8 @@ renv_install_postamble <- function(packages) {
   renv_pretty_print(
     text,
     "The following package(s) have been updated:",
-    "Consider restarting the R session and loading the newly-installed packages."
+    "Consider restarting the R session and loading the newly-installed packages.",
+    wrap = FALSE
   )
 
   TRUE
