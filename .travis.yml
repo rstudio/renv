@@ -10,7 +10,7 @@ matrix:
 
   - r: release
     before_cache:
-    - Rscript -e 'remotes::install_github("r-lib/pkgdown", ref = "1829398a4e97056fe7fb332d0e8b952784b49321")'
+    - Rscript -e 'remotes::install_github("r-lib/pkgdown", ref = "5f6ce0c2f503737c5d875657ab29234f6600aaae")'
     after_success:
     - Rscript -e 'covr::codecov(function_exclusions = c("stopf"))'
     deploy:

@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Why isn't my package being snapshotted into the lockfile? {#1}
+## Why isn't my package being snapshotted into the lockfile?
 
 By default, `renv` uses the intersection of:
 
