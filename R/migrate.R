@@ -173,8 +173,7 @@ renv_migrate_packrat_lockfile <- function(project) {
 renv_migrate_packrat_sources <- function(project) {
 
   packrat <- asNamespace("packrat")
-
-  srcdir <- packrat$src_dir(project = project)
+  srcdir <- packrat$srcDir(project = project)
   if (!file.exists(srcdir))
     return(TRUE)
 
