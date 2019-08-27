@@ -4,6 +4,7 @@ pkgdown_sha: 1829398a4e97056fe7fb332d0e8b952784b49321
 articles:
   collaborating: collaborating.html
   docker: docker.html
+  faq: faq.html
   local-sources: local-sources.html
   lockfile: lockfile.html
   python: python.html
