@@ -26,10 +26,23 @@ local({
 
   }
 
-  # attempt to load renv from project library
-  root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = "renv/library")
-  rversion <- paste("R", getRversion()[1, 1:2], sep = "-")
-  libpath <- file.path(root, rversion, R.version$platform)
+  libpath <- local({
+
+    root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = "renv/library")
+    prefix <- paste("R", getRversion()[1, 1:2], sep = "-")
+
+    # include SVN revision for development versions of R
+    # (to avoid sharing platform-specific artefacts with released versions of R)
+    devel <-
+      identical(R.version[["status"]],   "Under development (unstable)") ||
+      identical(R.version[["nickname"]], "Unsuffered Consequences")
+
+    if (devel)
+      prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
+
+    file.path(root, prefix, R.version$platform)
+
+  })
 
   # try to load renv from one of these paths
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE))

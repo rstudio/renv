@@ -1,4 +1,5 @@
 
+# NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_prefix_platform <- function(version = NULL) {
 
   # construct version prefix
@@ -19,6 +20,7 @@ renv_prefix_platform <- function(version = NULL) {
 }
 
 renv_paths_common <- function(name, prefixes = NULL, ...) {
+
   # check for single absolute path supplied by user
   # TODO: handle multiple?
   end <- file.path(...)
@@ -36,6 +38,7 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
     root
 
   file.path(prefixed, ...) %||% ""
+
 }
 
 renv_paths_project <- function(..., project = NULL) {
@@ -43,6 +46,7 @@ renv_paths_project <- function(..., project = NULL) {
   file.path(project, ...) %||% ""
 }
 
+# NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_paths_library <- function(..., project = NULL) {
   project <- project %||% renv_project()
   root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = file.path(project, "renv/library"))
