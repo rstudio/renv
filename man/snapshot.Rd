@@ -45,38 +45,36 @@ selecting a different snapshot mode. The modes available are as follows:
 \describe{
 
 \item{\code{"simple"}}{
-
-All packages within the active \R libraries are included in the lockfile.
+Capture all packages within the active \R libraries in the lockfile.
 This is the quickest and simplest method, but may lead to undesired
 packages (e.g. development dependencies) entering the lockfile.
-
 }
 
 \item{\code{"packrat"}}{
-
-Perform a Packrat-style snapshot. The intersection of packages discovered
-in your \R libraries, alongside those discovered by \code{renv::dependencies()},
-will enter the lockfile. This helps ensure that only the packages you are
-using will enter the lockfile, but may be slower if your project contains
-a large number of files.
+Perform a Packrat-style snapshot. The intersection of packages discovered in
+your \R libraries, alongside those discovered in your \R code by
+\code{renv::dependencies()}, will enter the lockfile. This helps ensure that only
+the packages you are using will enter the lockfile, but may be slower if your
+project contains a large number of files. If this becomes an issue, you might
+consider using \code{.renvignore} files to limit which files \code{renv} uses for
+dependency discovery, or explicitly declaring your required dependencies in a
+\code{DESCRIPTION} file.
 }
 
 \item{\code{"custom"}}{
-
 Like \code{"packrat"}, but use a custom user-defined filter instead. The filter
 should be specified by the \R option \code{renv.snapshot.filter}, and should
 either be a character vector naming a function (e.g. \code{"package::method"}),
 or be a function itself. The function should only accept one argument (the
 project directory), and should return a vector of package names to include
 in the lockfile.
+}
 
 }
 
 By default, \code{"packrat"}-style snapshots are used. The snapshot type can be
 configured on a project-specific basis using the \code{renv} project \link{settings}
 mechanism.
-
-}
 }
 
 \examples{
