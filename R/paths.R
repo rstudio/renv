@@ -1,8 +1,21 @@
 
 renv_prefix_platform <- function(version = NULL) {
+
+  # construct version prefix
   version <- version %||% paste(R.version$major, R.version$minor, sep = ".")
   prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
+
+  # include SVN revision for development versions of R
+  # (to avoid sharing platform-specific artefacts with released versions of R)
+  devel <-
+    identical(R.version[["status"]],   "Under development (unstable)") ||
+    identical(R.version[["nickname"]], "Unsuffered Consequences")
+
+  if (devel)
+    prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
+
   file.path(prefix, R.version$platform)
+
 }
 
 renv_paths_common <- function(name, prefixes = NULL, ...) {
