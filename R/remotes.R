@@ -7,9 +7,11 @@ renv_remotes_resolve <- function(entry) {
     return(renv_remotes_resolve_url(entry))
 
   # check for paths to existing local files
-  record <- catch(renv_remotes_resolve_local(entry))
-  if (!inherits(record, "error"))
-    return(record)
+  if (path_absolute(entry) && file.exists(entry)) {
+    record <- catch(renv_remotes_resolve_local(entry))
+    if (!inherits(record, "error"))
+      return(record)
+  }
 
   # handle errors (add a bit of extra context)
   error <- function(e) {
