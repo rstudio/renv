@@ -69,7 +69,7 @@ details on the structure of a lockfile." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.6</span>
       </span>
     </div>
 
@@ -199,18 +199,31 @@ is performed.</p></td>
 selecting a different snapshot mode. The modes available are as follows:</p>
 <dl class='dl-horizontal'>
 
-<dt><code>"simple"</code></dt><dd><p>c("", "All packages within the active <span style=\"R\">R</span> libraries are included in the lockfile.\nThis is the quickest and simplest method, but may lead to undesired\npackages (e.g. development dependencies) entering the lockfile.")</p></dd>
+<dt><code>"simple"</code></dt><dd><p>Capture all packages within the active <span style="R">R</span> libraries in the lockfile.
+This is the quickest and simplest method, but may lead to undesired
+packages (e.g. development dependencies) entering the lockfile.</p></dd>
 
-<dt><code>"packrat"</code></dt><dd><p>c("", "Perform a Packrat-style snapshot. The intersection of packages discovered\nin your <span style=\"R\">R</span> libraries, alongside those discovered by <code><a href='dependencies.html'>renv::dependencies()</a></code>,\nwill enter the lockfile. This helps ensure that only the packages you are\nusing will enter the lockfile, but may be slower if your project contains\na large number of files.\n")</p></dd>
+<dt><code>"packrat"</code></dt><dd><p>Perform a Packrat-style snapshot. The intersection of packages discovered in
+your <span style="R">R</span> libraries, alongside those discovered in your <span style="R">R</span> code by
+<code><a href='dependencies.html'>renv::dependencies()</a></code>, will enter the lockfile. This helps ensure that only
+the packages you are using will enter the lockfile, but may be slower if your
+project contains a large number of files. If this becomes an issue, you might
+consider using <code>.renvignore</code> files to limit which files <code>renv</code> uses for
+dependency discovery, or explicitly declaring your required dependencies in a
+<code>DESCRIPTION</code> file.</p></dd>
 
-<dt><code>"custom"</code></dt><dd><p>c("", "Like <code>\"packrat\"</code>, but use a custom user-defined filter instead. The filter\nshould be specified by the <span style=\"R\">R</span> option <code>renv.snapshot.filter</code>, and should\neither be a character vector naming a function (e.g. <code>\"package::method\"</code>),\nor be a function itself. The function should only accept one argument (the\nproject directory), and should return a vector of package names to include\nin the lockfile.")</p></dd>
-
-By default, "packrat"-style snapshots are used. The snapshot type can be
-configured on a project-specific basis using the renv project settings
-mechanism.
+<dt><code>"custom"</code></dt><dd><p>Like <code>"packrat"</code>, but use a custom user-defined filter instead. The filter
+should be specified by the <span style="R">R</span> option <code>renv.snapshot.filter</code>, and should
+either be a character vector naming a function (e.g. <code>"package::method"</code>),
+or be a function itself. The function should only accept one argument (the
+project directory), and should return a vector of package names to include
+in the lockfile.</p></dd>
 
 </dl>
 
+<p>By default, <code>"packrat"</code>-style snapshots are used. The snapshot type can be
+configured on a project-specific basis using the <code>renv</code> project <a href='settings.html'>settings</a>
+mechanism.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
