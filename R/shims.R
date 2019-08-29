@@ -43,11 +43,14 @@ renv_shim <- function(shim, sham) {
   shim
 }
 
-renv_shims_init <- function() {
+renv_shims_enabled <- function(project) {
+  config <- renv_config("shims.enabled", default = TRUE)
+  identical(config, TRUE)
+}
 
-  shims <- renv_config("shims.enabled", default = TRUE)
-  if (!identical(shims, TRUE))
-    return(FALSE)
+renv_shims_activate <- function() {
+
+  renv_shims_deactivate()
 
   install_shim <- renv_shim(renv_shim_install_packages, utils::install.packages)
   assign("install.packages", install_shim, envir = `_renv_shims`)
@@ -58,10 +61,12 @@ renv_shims_init <- function() {
   remove_shim <- renv_shim(renv_shim_remove_packages, utils::remove.packages)
   assign("remove.packages", remove_shim, envir = `_renv_shims`)
 
-  while ("renv:shims" %in% search())
-    detach("renv:shims")
-
   args <- list(`_renv_shims`, name = "renv:shims", warn.conflicts = FALSE)
   do.call(base::attach, args)
 
+}
+
+renv_shims_deactivate <- function() {
+  while ("renv:shims" %in% search())
+    detach("renv:shims")
 }

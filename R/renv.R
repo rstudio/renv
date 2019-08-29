@@ -70,6 +70,7 @@ deactivate <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
 
+  renv_shims_deactivate()
   renv_sandbox_deactivate()
 
   renv_infrastructure_remove_rprofile(project)
@@ -114,6 +115,7 @@ load <- function(project = NULL) {
   }
 
   renv_load_path(project)
+  renv_load_shims(project)
   renv_load_renviron(project)
   renv_load_settings(project)
   renv_load_project(project)

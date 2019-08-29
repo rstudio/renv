@@ -83,6 +83,11 @@ renv_load_path <- function(project) {
 
 }
 
+renv_load_shims <- function(project) {
+  if (renv_shims_enabled())
+    renv_shims_activate()
+}
+
 renv_load_renviron <- function(project) {
 
   environs <- c(

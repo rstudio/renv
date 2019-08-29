@@ -1,7 +1,6 @@
 
 .onLoad <- function(libname, pkgname) {
 
-  renv_shims_init()
   renv_patch_init()
   renv_libpaths_init()
   renv_filebacked_init()
