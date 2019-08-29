@@ -8,11 +8,13 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # isolate a project
 #' renv::isolate()
 #'
+#' }
 #' }
 isolate <- function(project = NULL) {
   project <- project %||% renv_project()

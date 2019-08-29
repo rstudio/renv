@@ -13,6 +13,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # check CRAN available packages
@@ -25,6 +26,7 @@
 #' # (the old locally cached db will be removed)
 #' db <- renv::refresh()
 #'
+#' }
 #' }
 refresh <- function() {
 

@@ -21,6 +21,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # upgrade to the latest version of renv on CRAN
@@ -29,6 +30,7 @@
 #' # upgrade to the latest version of renv on GitHub (development version)
 #' renv::upgrade(version = "master")
 #'
+#' }
 #' }
 upgrade <- function(project = NULL,
                     version = NULL,

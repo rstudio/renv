@@ -47,11 +47,13 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # migrate Packrat project infrastructure to renv
 #' renv::migrate()
 #'
+#' }
 #' }
 migrate <- function(
   project = NULL,

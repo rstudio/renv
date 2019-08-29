@@ -10,6 +10,7 @@
 ^appveyor\.yml$
 ^codecov\.yml$
 ^cran-comments\.md$
+^CRAN-RELEASE$
 ^docs$
 ^renv\.lock$
 ^requirements\.txt$

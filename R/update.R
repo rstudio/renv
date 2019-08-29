@@ -92,11 +92,13 @@ renv_update_find <- function(record) {
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # update the 'dplyr' package
 #' renv::update("dplyr")
 #'
+#' }
 #' }
 update <- function(packages = NULL,
                    ...,

@@ -23,6 +23,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # remove all versions of 'digest' from the cache
@@ -31,6 +32,7 @@
 #' # remove only a particular version of 'digest' from the cache
 #' renv::purge("digest", version = "0.6.19")
 #'
+#' }
 #' }
 purge <- function(package,
                   ...,

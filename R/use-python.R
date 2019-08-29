@@ -43,6 +43,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # use python with a project
@@ -54,6 +55,7 @@
 #' # use conda python with a project
 #' renv::use_python(type = "conda")
 #'
+#' }
 #' }
 use_python <- function(python = NULL,
                        ...,

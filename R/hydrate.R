@@ -35,11 +35,13 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # hydrate the active library
 #' renv::hydrate()
 #'
+#' }
 #' }
 hydrate <- function(packages = NULL,
                     ...,

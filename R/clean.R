@@ -16,11 +16,13 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # clean the current project
 #' renv::clean()
 #'
+#' }
 #' }
 clean <- function(project = NULL,
                   ...,

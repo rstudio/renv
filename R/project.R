@@ -9,11 +9,13 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # get the currently-active renv project
 #' renv::project()
 #'
+#' }
 #' }
 project <- function(default = NULL) {
   renv_project(default = default)

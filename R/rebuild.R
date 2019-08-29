@@ -21,6 +21,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # rebuild the 'dplyr' package + all of its dependencies
@@ -29,6 +30,7 @@
 #' # rebuild only 'dplyr'
 #' renv::rebuild("dplyr", recursive = FALSE)
 #'
+#' }
 #' }
 rebuild <- function(packages  = NULL,
                     recursive = TRUE,

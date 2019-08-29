@@ -18,6 +18,7 @@ cache as on occasion the temporary directory can be slow to access (e.g.
 when it is a mounted network filesystem).
 }
 \examples{
+\donttest{
 \dontrun{
 
 # check CRAN available packages
@@ -30,5 +31,6 @@ Sys.sleep(5)
 # (the old locally cached db will be removed)
 db <- renv::refresh()
 
+}
 }
 }

@@ -10,12 +10,14 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # modify an existing lockfile
 #' if (interactive())
 #'   renv::modify()
 #'
+#' }
 #' }
 modify <- function(project = NULL) {
   renv_scope_error_handler()

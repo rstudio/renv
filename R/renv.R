@@ -12,6 +12,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # activate the current project
@@ -20,6 +21,7 @@
 #' # activate a separate project
 #' renv::activate("~/projects/analysis")
 #'
+#' }
 #' }
 activate <- function(project = NULL) {
   renv_scope_error_handler()
@@ -56,11 +58,13 @@ renv_activate_impl <- function(project, version, restart) {
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # deactivate the currently-activated project
 #' renv::deactivate()
 #'
+#' }
 #' }
 deactivate <- function(project = NULL) {
   renv_scope_error_handler()
@@ -87,6 +91,7 @@ deactivate <- function(project = NULL) {
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # load a project -- note that this is normally done automatically
@@ -94,6 +99,7 @@ deactivate <- function(project = NULL) {
 #' # renv::activate()
 #' renv::load()
 #'
+#' }
 #' }
 load <- function(project = NULL) {
   renv_scope_error_handler()

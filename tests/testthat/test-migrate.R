@@ -1,11 +1,20 @@
 
 context("Migrate")
 
-test_that("a sample Packrat project can be migrated", {
+skip_if_no_packrat <- function() {
   skip_on_cran()
   skip_if_not_installed("packrat")
 
-  # TODO: skip tests if non-CRAN packrat is installed
+  version <- unclass(packageVersion("packrat"))
+  if (length(version[[1]]) > 3)
+    skip("cannot test with development version of Packrat")
+
+  TRUE
+
+}
+
+test_that("a sample Packrat project can be migrated", {
+  skip_if_no_packrat()
 
   # use dummy caches for this test
   renv_scope_envvars(
@@ -44,8 +53,7 @@ test_that("a sample Packrat project can be migrated", {
 })
 
 test_that("a Packrat project with no library can be migrated", {
-  skip_on_cran()
-  skip_if_not_installed("packrat")
+  skip_if_no_packrat()
 
   # TODO: skip tests if non-CRAN packrat is installed
 

@@ -18,6 +18,7 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' \dontrun{
 #'
 #' # install the latest version of 'digest' from CRAN
@@ -32,6 +33,7 @@
 #' # install a package from local sources
 #' renv::install("~/path/to/package")
 #'
+#' }
 #' }
 install <- function(packages = NULL,
                     ...,
