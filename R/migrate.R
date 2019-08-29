@@ -215,7 +215,7 @@ renv_migrate_packrat_library <- function(project) {
 
   packrat <- asNamespace("packrat")
 
-  libdir <- packrat$lib_dir(project = project)
+  libdir <- packrat$libDir(project = project)
   if (!file.exists(libdir))
     return(TRUE)
 
