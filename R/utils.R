@@ -39,7 +39,7 @@ empty <- function(x) {
 }
 
 aliased_path <- function(path) {
-  home <- path.expand("~/")
+  home <- normalizePath(path.expand("~/"), winslash = "/")
   match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
   path[match == 1] <- paste("~", substring(path[match == 1], nchar(home) + 1), sep = "/")
   path

@@ -45,6 +45,8 @@ consent <- function() {
   }
 
   options(renv.consent = TRUE)
+  ensure_directory(root)
+
   return(TRUE)
 
 }
@@ -69,7 +71,7 @@ renv_consent_check <- function() {
     return(TRUE)
 
   if (!interactive()) {
-    msg <- "please call `renv::consent()` in an interactive R session to continue"
+    msg <- "please call `renv::consent()` in an interactive R session before using renv"
     stop(msg, call. = FALSE)
   }
 
