@@ -28,6 +28,7 @@ downloaded and installed from GitHub. Use \code{version = "master"} to install t
 latest development version of \code{renv}, as from the \code{renv} project's \href{https://github.com/rstudio/renv}{GitHub page}.
 }
 \examples{
+\donttest{
 \dontrun{
 
 # upgrade to the latest version of renv on CRAN
@@ -36,5 +37,6 @@ renv::upgrade()
 # upgrade to the latest version of renv on GitHub (development version)
 renv::upgrade(version = "master")
 
+}
 }
 }

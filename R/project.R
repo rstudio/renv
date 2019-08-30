@@ -8,6 +8,8 @@
 #'
 #' @export
 #'
+#' @return The active project directory, as a length-one character vector.
+#'
 #' @examples
 #' \donttest{
 #' \dontrun{

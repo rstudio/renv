@@ -13,6 +13,10 @@ containing such files.}
 \item{quiet}{Boolean; report problems discovered (if any) during dependency
 discovery?}
 }
+\value{
+An \R \code{data.frame} of discovered dependencies, mapping inferred
+package names to the files in which they were discovered.
+}
 \description{
 Find \R packages used within a project.
 }
@@ -55,10 +59,12 @@ data/
 }
 
 \examples{
+\donttest{
 \dontrun{
 
 # find R package dependencies in the current directory
 renv::dependencies()
 
+}
 }
 }

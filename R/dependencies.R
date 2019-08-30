@@ -46,6 +46,9 @@
 #' @param quiet Boolean; report problems discovered (if any) during dependency
 #'   discovery?
 #'
+#' @return An \R `data.frame` of discovered dependencies, mapping inferred
+#'   package names to the files in which they were discovered.
+#'
 #' @export
 #'
 #' @examples

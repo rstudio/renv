@@ -71,6 +71,7 @@ snapshot <- function(project  = NULL,
                      type     = settings$snapshot.type(project = project),
                      confirm  = interactive())
 {
+  renv_consent_check()
   renv_scope_error_handler()
 
   project <- project %||% renv_project()

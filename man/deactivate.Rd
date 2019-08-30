@@ -18,11 +18,13 @@ the requisite code from the project \code{.Rprofile} that automatically activate
 the project when new \R sessions are launched in the project directory.
 }
 \examples{
+\donttest{
 \dontrun{
 
 # deactivate the currently-activated project
 renv::deactivate()
 
+}
 }
 }
 \seealso{

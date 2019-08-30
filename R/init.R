@@ -77,6 +77,7 @@ init <- function(project = NULL,
                  force    = FALSE,
                  restart  = interactive())
 {
+  renv_consent_check()
   renv_scope_error_handler()
 
   # prepare and move into project directory

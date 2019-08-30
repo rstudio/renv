@@ -37,10 +37,12 @@ if a package was installed from GitHub, but a newer version is
 available on CRAN, that updated version will not be seen.
 }
 \examples{
+\donttest{
 \dontrun{
 
 # update the 'dplyr' package
 renv::update("dplyr")
 
+}
 }
 }

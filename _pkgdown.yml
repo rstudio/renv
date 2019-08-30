@@ -30,6 +30,7 @@ reference:
 - title: Package Installation
   contents:
   - install
+  - rebuild
   - remove
 
 - title: Dependency Discovery
@@ -53,3 +54,6 @@ reference:
   contents:
   - use_python
 
+- title: Miscellaneous
+  contents:
+  - consent

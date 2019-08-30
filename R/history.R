@@ -11,6 +11,9 @@
 #'
 #' @export
 #'
+#' @return An \R `data.frame`, summarizing the commits in which `renv.lock`
+#'   has been mutated.
+#'
 #' @example examples/examples-history.R
 history <- function(project = NULL) {
 

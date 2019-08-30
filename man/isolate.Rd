@@ -16,10 +16,12 @@ Copy packages from the \code{renv} cache directly into the project library, so
 that the project can continue to function independently of the \code{renv} cache.
 }
 \examples{
+\donttest{
 \dontrun{
 
 # isolate a project
 renv::isolate()
 
+}
 }
 }

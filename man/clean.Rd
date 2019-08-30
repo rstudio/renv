@@ -29,10 +29,12 @@ The following actions will be taken:
 }
 }
 \examples{
+\donttest{
 \dontrun{
 
 # clean the current project
 renv::clean()
 
+}
 }
 }

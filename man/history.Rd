@@ -11,6 +11,10 @@ history(project = NULL)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+An \R \code{data.frame}, summarizing the commits in which \code{renv.lock}
+has been mutated.
+}
 \description{
 Use your version control system to find prior versions of the \code{renv.lock}
 file that have been used in your project.

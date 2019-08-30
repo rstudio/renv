@@ -10,14 +10,19 @@ project(default = NULL)
 \item{default}{The value to return when no project is
 currently active. Defaults to \code{NULL}.}
 }
+\value{
+The active project directory, as a length-one character vector.
+}
 \description{
 Retrieve the path to the active project (if any).
 }
 \examples{
+\donttest{
 \dontrun{
 
 # get the currently-active renv project
 renv::project()
 
+}
 }
 }

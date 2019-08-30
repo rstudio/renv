@@ -2,6 +2,7 @@
 
 export(activate)
 export(clean)
+export(consent)
 export(deactivate)
 export(dependencies)
 export(equip)

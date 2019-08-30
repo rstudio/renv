@@ -100,7 +100,6 @@ renv_paths_root_default_impl <- function() {
     Sys.getenv("XDG_DATA_HOME", "~/.local/share")
   )
 
-  ensure_directory(root)
   file.path(normalizePath(root, winslash = "/"), "renv")
 
 }

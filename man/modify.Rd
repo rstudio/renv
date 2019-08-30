@@ -17,11 +17,13 @@ edited is associated with the active project, any state-related changes
 (e.g. to \R repositories) will be updated in the current session.
 }
 \examples{
+\donttest{
 \dontrun{
 
 # modify an existing lockfile
 if (interactive())
   renv::modify()
 
+}
 }
 }

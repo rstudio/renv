@@ -1,0 +1,24 @@
+
+Welcome to renv! It looks like this is your first time using renv.
+This is a one-time message, briefly describing some of renv's functionality.
+
+This package maintains a local cache of data on the filesystem at:
+
+  - ${RENV_PATHS_ROOT}
+
+This path can be customized -- see the documentation in `?paths`.
+
+renv will also write to files within the active project folder, including:
+
+  - A folder 'renv' in the project directory, and
+  - A lockfile called 'renv.lock' in the project directory.
+
+In addition, renv will attempt to update files within your project, including:
+
+  - .gitignore
+  - .Rbuildignore
+  - .Rprofile
+
+Please read the introduction vignette with `vignette("renv")` for more information.
+You can also browse the package documentation online at http://rstudio.github.io/renv.
+

@@ -48,10 +48,12 @@ packages from CRAN.
 }
 
 \examples{
+\donttest{
 \dontrun{
 
 # hydrate the active library
 renv::hydrate()
 
+}
 }
 }

@@ -17,6 +17,7 @@ newly-launched \R projects will load the project's private library on launch,
 alongside any other project-specific state recorded for the project.
 }
 \examples{
+\donttest{
 \dontrun{
 
 # activate the current project
@@ -25,6 +26,7 @@ renv::activate()
 # activate a separate project
 renv::activate("~/projects/analysis")
 
+}
 }
 }
 \seealso{
