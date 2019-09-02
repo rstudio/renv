@@ -210,5 +210,5 @@ renv_package_dependencies_impl <- function(package,
   deps <- renv_dependencies_discover_description(location, fields)
   subpackages <- deps$Package
   for (subpackage in subpackages)
-    renv_package_dependencies_impl(subpackage, visited)
+    renv_package_dependencies_impl(subpackage, visited, libpaths, fields)
 }
