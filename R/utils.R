@@ -39,10 +39,16 @@ empty <- function(x) {
 }
 
 aliased_path <- function(path) {
-  home <- normalizePath(path.expand("~/"), winslash = "/")
+
+  home <- Sys.getenv("HOME", unset = NA)
+  if (is.na(home))
+    return(path)
+
   match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
-  path[match == 1] <- paste("~", substring(path[match == 1], nchar(home) + 1), sep = "/")
+  path[match == 1] <- file.path("~", substring(path[match == 1], nchar(home) + 2L))
+
   path
+
 }
 
 trimws <- function(x) {
