@@ -41,7 +41,9 @@ install <- function(packages = NULL,
                     rebuild = FALSE,
                     project = NULL)
 {
+  renv_consent_check()
   renv_scope_error_handler()
+
   project  <- project %||% renv_project()
   library  <- library %||% renv_libpaths_all()
 

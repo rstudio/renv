@@ -107,6 +107,9 @@ update <- function(packages = NULL,
                    confirm = interactive(),
                    project = NULL)
 {
+  renv_consent_check()
+  renv_scope_error_handler()
+
   # get package records
   library <- library %||% renv_libpaths_default()
   records <- renv_snapshot_r_packages(library = library)

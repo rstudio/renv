@@ -88,19 +88,51 @@ renv_paths_root <- function(...) {
 }
 
 renv_paths_root_default <- function() {
-  renv_global("root", renv_paths_root_default_impl())
-}
-
-renv_paths_root_default_impl <- function() {
 
   root <- switch(
     Sys.info()[["sysname"]],
     Darwin  = Sys.getenv("XDG_DATA_HOME", "~/Library/Application Support"),
-    Windows = Sys.getenv("LOCALAPPDATA", "~/.renv"),
+    Windows = Sys.getenv("LOCALAPPDATA", Sys.getenv("APPDATA")),
     Sys.getenv("XDG_DATA_HOME", "~/.local/share")
   )
 
-  file.path(normalizePath(root, winslash = "/"), "renv")
+  root <- normalizePath(root, winslash = "/", mustWork = FALSE)
+  path <- file.path(root, "renv")
+
+  # check for user consent
+  consenting <- identical(getOption("renv.consenting"), TRUE)
+  if (consenting)
+    return(path)
+
+  consent <- identical(getOption("renv.consent"), TRUE)
+  if (consent) {
+    ensure_directory(path)
+    return(path)
+  }
+
+  # if this root directory has not yet been created, then use a path
+  # in the temporary directory instead (users must call renv::consent
+  # to create this path explicitly)
+  type <- renv_file_type(path, symlinks = FALSE)
+  if (type == "directory")
+    return(path)
+
+  if (renv_once()) {
+    renv_pretty_print(
+      aliased_path(path),
+      "The renv cache root has not yet been created:",
+      c(
+        "A temporary cache directory will be used instead.",
+        "Please call `renv::consent()` to allow renv to generate a cache directory.",
+        "Please restart the R session after providing consent."
+      ),
+      wrap = FALSE
+    )
+  }
+
+  temp <- tempfile("renv-root-")
+  ensure_directory(temp)
+  return(temp)
 
 }
 

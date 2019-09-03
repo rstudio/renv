@@ -4,7 +4,12 @@
 \alias{consent}
 \title{Consent to usage of renv}
 \usage{
-consent()
+consent(provided = FALSE)
+}
+\arguments{
+\item{provided}{The default provided response. If you need to provide
+consent from a non-interactive \R session, you can invoke
+\code{renv::consent(provided = TRUE)} explicitly.}
 }
 \description{
 Provide consent to \code{renv}, allowing it to write and update certain files
@@ -18,11 +23,10 @@ directory. These paths are documented within \link{paths}.
 In accordance with the
 \href{https://cran.r-project.org/web/packages/policies.html}{CRAN Repository Policy},
 \code{renv} must first obtain consent from you, the user, before these actions
-can be taken. Please call \code{renv::consent()} in an interactive session to
-provide this consent.
+can be taken. Please call \code{renv::consent()} first to provide this consent.
 
 You can also set the \R option:\preformatted{options(renv.consent = TRUE)
 }
 
-to implicitly provide this consent for e.g. non-interactive \R sessions.
+to implicitly provide consent for e.g. non-interactive \R sessions.
 }

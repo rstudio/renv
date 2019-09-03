@@ -59,9 +59,10 @@ migrate <- function(
   project = NULL,
   packrat = c("lockfile", "sources", "library", "options", "cache"))
 {
-  project <- project %||% renv_project()
   renv_consent_check()
   renv_scope_error_handler()
+
+  project <- project %||% renv_project()
 
   project <- normalizePath(project, winslash = "/", mustWork = TRUE)
   if (file.exists(file.path(project, "packrat/packrat.lock"))) {
