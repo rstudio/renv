@@ -265,14 +265,11 @@ renv_cache_clean_empty <- function() {
   owd <- setwd(root)
   on.exit(setwd(owd), add = TRUE)
 
-  # try using find utility
-  command <- case(
-    nzchar(Sys.which("find"))     ~ "find . -type d -empty -delete",
-    nzchar(Sys.which("robocopy")) ~ "robocopy . . /S /MOVE"
-  )
-
-  if (is.null(command))
-    return(FALSE)
+  # construct system command for removing empty directories
+  command <- if (renv_platform_windows())
+    "robocopy . . /S /MOVE"
+  else
+    "find . -type d -empty -delete"
 
   system(command, ignore.stdout = TRUE, ignore.stderr = TRUE)
   TRUE
