@@ -7,7 +7,7 @@ test_that("we avoid downloading files twice", {
   if (!renv_download_file_method() %in% c("curl", "wget"))
     skip("required downloader not available")
 
-  url <- "https://cran.rstudio.com/src/contrib/Archive/sourcetools/sourcetools_0.1.0.tar.gz"
+  url <- "https://cloud.r-project.org/src/contrib/Archive/sourcetools/sourcetools_0.1.0.tar.gz"
   destfile <- renv_tempfile("renv-download-", fileext = ".tar.gz")
 
   # download once and check file metadata
@@ -54,7 +54,7 @@ test_that("we can successfully download files with different downloaders", {
   skip_on_appveyor()
 
   # download a small sample file
-  url <- "https://cran.rstudio.com/src/base/THANKS"
+  url <- "https://cloud.r-project.org/src/base/THANKS"
   destfile <- tempfile("r-thanks-")
   method <- renv_download_file_method()
   download.file(url, destfile = destfile, quiet = TRUE, method = method)

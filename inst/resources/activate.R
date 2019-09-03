@@ -87,7 +87,7 @@ local({
     # fix up repos
     repos <- getOption("repos")
     on.exit(options(repos = repos), add = TRUE)
-    repos[repos == "@CRAN@"] <- "https://cran.rstudio.com"
+    repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
     options(repos = repos)
 
     # check for renv on CRAN matching this version

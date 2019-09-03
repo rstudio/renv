@@ -69,7 +69,7 @@ way to accomplish this is with the `remotes` package. For example:
 
 ```
 ENV RENV_VERSION 0.5.0-25
-RUN R -e 'install.packages("remotes", repos = c(CRAN = "https://cran.rstudio.com"))
+RUN R -e 'install.packages("remotes", repos = c(CRAN = "https://cloud.r-project.org"))
 RUN R -e 'remotes::install_github("rstudio/renv@${RENV_VERSION}")'
 ```
 

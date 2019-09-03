@@ -8,7 +8,7 @@ renv_available_packages <- function(type, limit = NULL) {
 
   # force a CRAN mirror when needed
   repos <- getOption("repos") %||% character()
-  repos[repos == "@CRAN@"] <- "https://cran.rstudio.com"
+  repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
   options(repos = convert(repos, "character"))
 
   renv_timecache(

@@ -26,7 +26,7 @@ An example lockfile follows:\preformatted{{
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
+        "URL": "https://cloud.r-project.org"
       }
     ]
   },

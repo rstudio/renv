@@ -10,7 +10,7 @@ test_that("we can query our local repository during tests", {
 
 test_that("repository names are not lost in the lockfile", {
 
-  url <- "https://cran.rstudio.com"
+  url <- "https://cloud.r-project.org"
   renv_scope_options(repos = c(Example = url))
   lockfile <- renv_lockfile_init(project = getwd())
   expect_equal(lockfile$R$Repositories, list(Example = url))
@@ -19,6 +19,6 @@ test_that("repository names are not lost in the lockfile", {
 
 test_that("trailing slashes are removed from repositories on load", {
   renv_scope_options(repos = NULL)
-  renv_load_r_repos(list(CRAN = "https://cran.rstudio.com/"))
-  expect_equal(getOption("repos"), c(CRAN = "https://cran.rstudio.com"))
+  renv_load_r_repos(list(CRAN = "https://cloud.r-project.org/"))
+  expect_equal(getOption("repos"), c(CRAN = "https://cloud.r-project.org"))
 })
