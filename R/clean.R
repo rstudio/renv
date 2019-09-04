@@ -89,8 +89,17 @@ renv_clean_system_library <- function(project, confirm) {
     FALSE
   }
 
-  db <- renv_installed_packages(lib.loc = .Library, priority = "NA")
-  packages <- db$Package
+  # explicitly query for packages
+  syslib <- normalizePath(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
+  db <- renv_installed_packages(lib.loc = syslib, priority = "NA")
+
+  # also look for packages missing DESCRIPTION files
+  folders <- list.files(syslib, full.names = TRUE)
+  descpaths <- file.path(folders, "DESCRIPTION")
+  missing <- !file.exists(descpaths)
+
+  # check for any packages needing removal
+  packages <- unique(c(db$Package, basename(folders)[missing]))
   if (empty(packages))
     return(ntd())
 
@@ -101,8 +110,9 @@ renv_clean_system_library <- function(project, confirm) {
       packages,
       "The following non-system packages are installed in the system library:",
       c(
+        "Normally, only packages distributed with R should be installed in the system library.",
         "These packages will be removed.",
-        "Consider re-installing these packages in your site library."
+        "If necessary, consider re-installing these packages in your site library."
       )
     )
 
@@ -112,7 +122,7 @@ renv_clean_system_library <- function(project, confirm) {
   }
   # nocov end
 
-  remove(packages, library = .Library)
+  remove(packages, library = syslib)
   TRUE
 
 }
