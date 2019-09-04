@@ -15,7 +15,7 @@ matrix:
     - Rscript -e 'covr::codecov(function_exclusions = c("stopf"))'
     deploy:
       provider: script
-      script: Rscript -e 'pkgdown::deploy_site_github()'
+      script: Rscript -e 'print(.libPaths()); library(fansi); pkgdown::deploy_site_github()'
       skip_cleanup: true
 
   - r: oldrel
