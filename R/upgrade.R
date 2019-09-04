@@ -84,7 +84,7 @@ renv_upgrade_impl <- function(project, version, confirm) {
   record <- records[[1]]
 
   # install renv
-  renv_install_impl(record, project)
+  renv_install_impl(record)
 
   # upgrade the lockfile
   lockfile <- renv_lockfile_load(project = project)

@@ -133,7 +133,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile) {
   # perform the install
   library <- renv_libpaths_default()
   records <- renv_retrieve(packages)
-  status <- renv_install(records, library, project)
+  status <- renv_install(records, library)
 
   # detect dependency tree repair
   diff <- renv_lockfile_diff_packages(renv_records(lockfile), records)

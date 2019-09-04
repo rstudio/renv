@@ -80,7 +80,7 @@ install <- function(packages = NULL,
 
   # retrieve packages
   records <- renv_retrieve(packages)
-  renv_install(records, library, project)
+  renv_install(records, library)
 
   # perform auto snapshot
   if (library[[1]] == renv_paths_library(project = project))
@@ -92,7 +92,7 @@ install <- function(packages = NULL,
   invisible(records)
 }
 
-renv_install <- function(records, library, project) {
+renv_install <- function(records, library) {
 
   # double-check packages for validity (TODO: not yet)
   # if (!renv_install_preflight(records)) {
@@ -115,7 +115,7 @@ renv_install <- function(records, library, project) {
 
   # iterate through records and install
   for (record in records)
-    handler(record$Package, renv_install_impl(record, project))
+    handler(record$Package, renv_install_impl(record))
 
   # migrate packages into true library
   sources <- list.files(templib, full.names = TRUE)
@@ -131,7 +131,11 @@ renv_install <- function(records, library, project) {
 
 }
 
-renv_install_impl <- function(record, project) {
+renv_install_impl <- function(record) {
+
+  # get active project (if any)
+  state <- renv_restore_state()
+  project <- state$project
 
   # figure out whether we can use the cache during install
   library <- renv_global_get("install.library") %||% renv_libpaths_default()

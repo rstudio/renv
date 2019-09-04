@@ -244,7 +244,7 @@ renv_test_retrieve <- function(record) {
 
   records <- renv_retrieve(record$Package)
   library <- renv_libpaths_default()
-  renv_install(records, library, getwd())
+  renv_install(records, library)
 
   desc <- renv_description_read(file.path(templib, package))
 
