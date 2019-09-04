@@ -92,14 +92,18 @@ renv_clean_system_library <- function(project, confirm) {
   # explicitly query for packages
   syslib <- normalizePath(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
   db <- renv_installed_packages(lib.loc = syslib, priority = "NA")
+  packages <- db$Packages
 
-  # also look for packages missing DESCRIPTION files
-  folders <- list.files(syslib, full.names = TRUE)
-  descpaths <- file.path(folders, "DESCRIPTION")
-  missing <- !file.exists(descpaths)
+  # also look for leftover package folders
+  # (primarily for Windows, where .dlls from old packages can be left behind)
+  if (renv_platform_windows()) {
+    folders <- list.files(syslib, full.names = TRUE)
+    descpaths <- file.path(folders, "DESCRIPTION")
+    missing <- !file.exists(descpaths)
+    packages <- union(packages, basename(folders)[missing])
+  }
 
   # check for any packages needing removal
-  packages <- unique(c(db$Package, basename(folders)[missing]))
   if (empty(packages))
     return(ntd())
 
