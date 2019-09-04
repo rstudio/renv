@@ -65,6 +65,12 @@ renv_consent_check <- function() {
   else if (identical(consent, FALSE))
     stopf("consent has been explicitly withdrawn")
 
+  # check for existence of root
+  renv_scope_options(renv.consenting = TRUE)
+  root <- renv_paths_root()
+  if (renv_file_type(root) == "directory")
+    return(TRUE)
+
   # check for implicit consent
   consented <-
     !is.na(Sys.getenv("CI", unset = NA)) ||
