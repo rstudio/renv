@@ -48,7 +48,7 @@ local({
 
   })
 
-  # try to load renv from one of these paths
+  # try to load renv from the project library
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE))
     return(renv::load())
 
