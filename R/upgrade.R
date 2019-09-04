@@ -70,7 +70,13 @@ renv_upgrade_impl <- function(project, version, confirm) {
     return(FALSE)
   }
 
-  renv_restore_begin(records = records, packages = "renv", recursive = FALSE)
+  renv_restore_begin(
+    project = project,
+    records = records,
+    packages = "renv",
+    recursive = FALSE
+  )
+
   on.exit(renv_restore_end(), add = TRUE)
 
   # retrieve renv

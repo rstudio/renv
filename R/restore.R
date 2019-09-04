@@ -112,7 +112,12 @@ renv_restore_run_actions <- function(project, actions, current, lockfile) {
 
   packages <- names(actions)
 
-  renv_restore_begin(records = renv_records(lockfile), packages = packages)
+  renv_restore_begin(
+    project = project,
+    records = renv_records(lockfile),
+    packages = packages
+  )
+
   on.exit(renv_restore_end(), add = TRUE)
 
   # first, handle package removals
@@ -153,7 +158,8 @@ renv_restore_state <- function() {
   renv_global_get("restore.state")
 }
 
-renv_restore_begin <- function(records = NULL,
+renv_restore_begin <- function(project = NULL,
+                               records = NULL,
                                packages = NULL,
                                handler = NULL,
                                rebuild = NULL,
@@ -161,6 +167,9 @@ renv_restore_begin <- function(records = NULL,
 {
 
   renv_global_set("restore.state", env(
+
+    # the active project (if any) used for restore
+    project = project,
 
     # the package records used for restore, providing information
     # on the packages to be installed (their version, source, etc)

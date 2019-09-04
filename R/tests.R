@@ -233,7 +233,13 @@ renv_test_retrieve <- function(record) {
   renv_scope_libpaths(c(templib, .libPaths()))
 
   # attempt a restore into that library
-  renv_restore_begin(records = records, packages = package, recursive = FALSE)
+  renv_restore_begin(
+    project = getwd(),
+    records = records,
+    packages = package,
+    recursive = FALSE
+  )
+
   on.exit(renv_restore_end(), add = TRUE)
 
   records <- renv_retrieve(record$Package)

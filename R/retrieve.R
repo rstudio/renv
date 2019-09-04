@@ -56,7 +56,7 @@ renv_retrieve_impl <- function(package) {
     # if the requested record already exists in the cache,
     # we'll use that package for install
     cacheable <-
-      settings$use.cache(project = project) &&
+      settings$use.cache(project = state$project) &&
       renv_record_cacheable(record)
 
     if (cacheable) {
