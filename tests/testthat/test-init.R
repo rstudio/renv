@@ -2,6 +2,7 @@ context("Init")
 
 test_that("we can initialize a project using 'breakfast'", {
 
+  skip_on_covr()
   renv_tests_scope("breakfast")
 
   renv::init()
@@ -15,6 +16,7 @@ test_that("we can initialize a project using 'breakfast'", {
 
 test_that("we can initialize a project using 'toast'", {
 
+  skip_on_covr()
   renv_tests_scope("toast")
 
   renv::init()

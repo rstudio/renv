@@ -57,7 +57,7 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
 
 }
 
-renv_run_script <- function(script) {
+renv_run_job <- function(script, name, project) {
 
   jobscript <- tempfile("renv-job-", fileext = ".R")
 
@@ -70,13 +70,6 @@ renv_run_script <- function(script) {
   code <- deparse(exprs)
   writeLines(code, con = jobscript)
 
-  jobscript
-
-}
-
-renv_run_job <- function(script, name, project) {
-
-  jobscript <- renv_run_script(script)
   rstudioapi::jobRunScript(
     path       = jobscript,
     workingDir = project,
@@ -86,10 +79,7 @@ renv_run_job <- function(script, name, project) {
 }
 
 renv_run_impl <- function(script, name, project) {
-
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
-  jobscript <- renv_run_script(script)
-  system2(R(), c("--vanilla", "--slave", "-f", shQuote(jobscript)))
-
+  system2(R(), c("--slave", "-f", shQuote(script)))
 }
