@@ -12,7 +12,7 @@ matrix:
     before_cache:
     - Rscript -e 'remotes::install_cran(c("pkgdown", "callr"))'
     after_success:
-    - Rscript -e 'covr::codecov(function_exclusions = c("stopf"))'
+    - Rscript -e 'covr::codecov()'
     deploy:
       provider: script
       script: Rscript -e 'pkgdown::deploy_site_github()'

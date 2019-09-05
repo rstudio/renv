@@ -134,3 +134,12 @@ test_that("snapshotted packages from CRAN include the Repository field", {
   expect_true(records$bread$Repository == "CRAN")
 
 })
+
+test_that("snapshot failures due to bad library / packages are reported", {
+
+  renv_tests_scope()
+  ensure_directory("badlib/badpkg")
+  writeLines("invalid", "badlib/badpkg/DESCRIPTION")
+  expect_error(snapshot(library = "badlib"))
+
+})

@@ -96,12 +96,15 @@ renv_clean_system_library <- function(project, confirm) {
 
   # also look for leftover package folders
   # (primarily for Windows, where .dlls from old packages can be left behind)
+
+  # nocov start
   if (renv_platform_windows()) {
     folders <- list.files(syslib, full.names = TRUE)
     descpaths <- file.path(folders, "DESCRIPTION")
     missing <- !file.exists(descpaths)
     packages <- union(packages, basename(folders)[missing])
   }
+  # nocov end
 
   # check for any packages needing removal
   if (empty(packages))
@@ -219,6 +222,7 @@ renv_clean_stale_lockfiles <- function(project, confirm) {
   TRUE
 }
 
+# nocov start
 renv_clean_cache <- function(project, confirm) {
 
   ntd <- function() {
@@ -274,7 +278,6 @@ renv_clean_cache <- function(project, confirm) {
   if (empty(diff))
     return(ntd())
 
-  # nocov start
   if (confirm || renv_verbose()) {
 
     renv_pretty_print(
@@ -288,7 +291,6 @@ renv_clean_cache <- function(project, confirm) {
       return(FALSE)
 
   }
-  # nocov end
 
   # remove the directories
   unlink(diff, recursive = TRUE)
@@ -297,3 +299,4 @@ renv_clean_cache <- function(project, confirm) {
   TRUE
 
 }
+# nocov end

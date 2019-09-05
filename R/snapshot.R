@@ -337,15 +337,23 @@ renv_snapshot_r_packages_impl <- function(library = NULL) {
   # snapshot description files
   descriptions <- file.path(packages, "DESCRIPTION")
   records <- lapply(descriptions, renv_snapshot_description)
+  names(records) <- basename(packages)
 
   # report any snapshot failures
   broken <- Filter(function(record) inherits(record, "error"), records)
   if (length(broken)) {
+
     messages <- map_chr(broken, conditionMessage)
-    header <- sprintf("snapshot of library '%s' failed:", library)
-    body <- paste("-", messages, collapse = "\n")
-    message <- paste(header, body, sep = "\n")
-    stop(message, call. = FALSE)
+    text <- sprintf("'%s': %s", names(broken), messages)
+
+    renv_pretty_print(
+      text,
+      "renv was unable to snapshot the following packages:",
+      "These packages will likely need to be repaired and / or reinstalled."
+    )
+
+    stopf("snapshot of library %s failed", shQuote(aliased_path(library)))
+
   }
 
   # name results and return
