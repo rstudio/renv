@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Project Settings — settings • renv</title>
+<title>Consent to usage of renv — consent • renv</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,10 +32,10 @@
 
 
 
-<meta property="og:title" content="Project Settings — settings" />
+<meta property="og:title" content="Consent to usage of renv — consent" />
 
-<meta property="og:description" content="Define project-local settings that can be used to adjust the behavior of
-renv with your particular project." />
+<meta property="og:description" content="Provide consent to renv, allowing it to write and update certain files
+on your filesystem." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -132,100 +132,54 @@ renv with your particular project." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Project Settings</h1>
+    <h1>Consent to usage of renv</h1>
     
-    <div class="hidden name"><code>settings.Rd</code></div>
+    <div class="hidden name"><code>consent.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Define project-local settings that can be used to adjust the behavior of
-<code>renv</code> with your particular project.</p>
+    <p>Provide consent to <code>renv</code>, allowing it to write and update certain files
+on your filesystem.</p>
     
     </div>
 
-    <pre class="usage"><span class='no'>settings</span></pre>
-        
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
-
-    <p>An object of class <code>list</code> of length 4.</p>
+    <pre class="usage"><span class='fu'>consent</span>(<span class='kw'>provided</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
-    <h2 class="hasAnchor" id="settings"><a class="anchor" href="#settings"></a>Settings</h2>
-
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>provided</th>
+      <td><p>The default provided response. If you need to provide
+consent from a non-interactive <span style="R">R</span> session, you can invoke
+<code>renv::consent(provided = TRUE)</code> explicitly.</p></td>
+    </tr>
+    </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-
-<dl class='dl-horizontal'>
-
-<dt><code>ignored.packages</code></dt><dd><p>A vector of packages, which should be ignored when attempting to snapshot
-the project's private library. Note that if a package has already been
-added to the lockfile, that entry in the lockfile will not be ignored. <br /></p></dd>
-
-<dt><code>external.libraries</code></dt><dd><p>A vector of library paths, to be used in addition to the project's own
-private library. This can be useful if you have a package available for use
-in some global library, but for some reason <code>renv</code> is not able to install
-that package (e.g. sources or binaries for that package are not publicly
-available, or you have been unable to orchestrate the pre-requisites for
-installing some packages from source on your machine).</p></dd>
-
-<dt><code>snapshot.type</code></dt><dd><p>The type of snapshot to perform by default. See <a href='snapshot.html'>snapshot</a> for more
-details.</p></dd>
-
-<dt><code>use.cache</code></dt><dd><p>Use a global cache of <span style="R">R</span> packages. When active, <code>renv</code> will install
-packages into a global cache, and link packages from the cache into your
-<code>renv</code> projects as appropriate. This can greatly save on disk space
-and install time when for <span style="R">R</span> packages which are used across multiple
-projects in the same environment.</p></dd>
-
-
-</dl>
-
-    
-    <h2 class="hasAnchor" id="defaults"><a class="anchor" href="#defaults"></a>Defaults</h2>
-
-    
-
-
-<p>You can change the default values of these settings for newly-created <code>renv</code>
-projects by setting <span style="R">R</span> options for <code>renv.settings</code> or <code>renv.settings.&lt;name&gt;</code>.
-For example:</p>
-<pre>
-options(renv.settings = list(snapshot.type = "simple"))
-options(renv.settings.snapshot.type = "simple")
+    <p>As part of its normal operation, <code>renv</code> will write and update some files
+in your project directory, as well as an application-specific cache
+directory. These paths are documented within <a href='paths.html'>paths</a>.</p>
+<p>In accordance with the
+<a href='https://cran.r-project.org/web/packages/policies.html'>CRAN Repository Policy</a>,
+<code>renv</code> must first obtain consent from you, the user, before these actions
+can be taken. Please call <code>renv::consent()</code> first to provide this consent.</p>
+<p>You can also set the <span style="R">R</span> option:</p><pre>options(renv.consent = TRUE)
 </pre>
 
-<p>If both of the <code>renv.settings</code> and <code>renv.settings.&lt;name&gt;</code> options are set
-for a particular key, the option associated with <code>renv.settings.&lt;name&gt;</code> is
-used instead. We recommend setting these in an appropriate startup profile,
-e.g. <code>~/.Rprofile</code> or similar.</p>
+<p>to implicitly provide consent for e.g. non-interactive <span style="R">R</span> sessions.</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='co'># \donttest{</span>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-
-<span class='co'># view currently-ignored packaged</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/settings.html'>settings</a></span>$<span class='fu'>ignored.packages</span>()
-
-<span class='co'># ignore a set of packages</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'><a href='https://rstudio.github.io/renv//reference/settings.html'>settings</a></span>$<span class='fu'>ignored.packages</span>(<span class='st'>"devtools"</span>, <span class='kw'>persist</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-}
-<span class='co'># }</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#format">Format</a></li>
-
-      <li><a href="#settings">Settings</a></li>
-
-      <li><a href="#defaults">Defaults</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>
