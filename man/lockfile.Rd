@@ -35,12 +35,14 @@ An example lockfile follows:\preformatted{{
       "Package": "markdown",
       "Version": "1.0",
       "Source": "CRAN",
+      "Repository": "CRAN",
       "Hash": "4584a57f565dd7987d59dda3a02cfb41"
     },
     "mime": {
       "Package": "mime",
       "Version": "0.7",
       "Source": "CRAN",
+      "Repository": "CRAN",
       "Hash": "908d95ccbfd1dd274073ef07a7c93934"
     }
   }
@@ -79,8 +81,8 @@ at the time when the lockfile was generated.
 \tabular{ll}{
 \strong{Package}      \tab The package name. \cr
 \strong{Version}      \tab The package version. \cr
-\strong{Library}      \tab The library this package was installed in. \cr
 \strong{Source}       \tab The location from which this package was retrieved. \cr
+\strong{Repository}   \tab The name of the repository (if any) from which this package was retrieved. \cr
 \strong{Hash}         \tab (Optional) A unique hash for this package, used for package caching. \cr
 }
 

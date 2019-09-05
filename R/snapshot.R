@@ -434,8 +434,10 @@ renv_snapshot_description <- function(path) {
     return(simpleError(msg))
   }
 
-  fields <- c(fields, grep("^Remote", names(dcf), value = TRUE), "Hash")
-  as.list(dcf[fields])
+  remotes <- grep("^Remote", names(dcf), value = TRUE)
+  all <- c(fields, "Repository", remotes, "Hash")
+  keep <- renv_vector_intersect(all, names(dcf))
+  as.list(dcf[keep])
 
 }
 

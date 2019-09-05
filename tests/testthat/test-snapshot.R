@@ -123,3 +123,14 @@ test_that("snapshots that take too long produce a warning", {
   expect_true(length(output) > 1)
 
 })
+
+test_that("snapshotted packages from CRAN include the Repository field", {
+
+  renv_tests_scope("bread")
+  init()
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  records <- renv_records(lockfile)
+  expect_true(records$bread$Repository == "CRAN")
+
+})
