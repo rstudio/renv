@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.35</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.36</span>
       </span>
     </div>
 
@@ -120,9 +120,11 @@
 <h2 class="hasAnchor">
 <a href="#explicit-sources" class="anchor"></a>Explicit Sources</h2>
 <p>You can also provide explicit source paths in the lockfile if desired. This is most useful if you are building an <code>renv</code> lockfile “by hand”, or need to tweak an existing lockfile to point at a separate package for installation. For example, you could have a package record in <code>renv.lock</code> of the form:</p>
-<pre><code>Package=skeleton
-Version=1.0.1
-Source=/mnt/r/pkg/skeleton_1.0.1.tar.gz</code></pre>
+<pre><code>{
+  "Package": "skeleton",
+  "Version": "1.0.1",
+  "Source": "/mnt/r/pkg/skeleton_1.0.1.tar.gz"
+}</code></pre>
 <p>The main requirement is that your source path exists, and the path has an extension of either <code>.tar.gz</code>, <code>.tgz</code> (for macOS binaries) or <code>.zip</code> (for Windows binaries).</p>
 </div>
   </div>
