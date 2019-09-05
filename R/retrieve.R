@@ -334,7 +334,7 @@ renv_retrieve_cran <- function(record) {
     record <- renv_records_cran_latest(record$Package)
 
   # if we already have a type + repository, no need to find it
-  if (!is.null(record$Type) && !is.null(record$Repository))
+  if (!is.null(record$Type) && !is.null(record$ReposURL))
     return(renv_retrieve_cran_impl(record))
 
   # always attempt to retrieve from source + archive
@@ -393,7 +393,7 @@ renv_retrieve_cran_impl <- function(record,
 {
   type <- type %||% record$Type
   name <- name %||% renv_retrieve_cran_archive_name(record, type)
-  repo <- repo %||% record$Repository
+  repo <- repo %||% record$ReposURL
 
   # if we weren't provided a repository for this package, try to find it
   if (is.null(repo)) {

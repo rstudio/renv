@@ -48,16 +48,12 @@ renv_records_cran_latest <- function(package) {
   idx <- with(entries, order(Version, factor(Type, c("source", "binary"))))
   entry <- entries[tail(idx, n = 1), ]
 
-  # re-construct root repository
-  idx <- regexpr("/(?:src|bin)/", entry$Repository)
-  repos <- substring(entry$Repository, 1L, idx - 1L)
-
   list(
-    Package       = package,
-    Version       = entry$Version,
-    Source        = "CRAN",
-    Type          = entry$Type,
-    Repository    = entry$Repository
+    Package  = package,
+    Version  = entry$Version,
+    Source   = "CRAN",
+    Type     = entry$Type,
+    ReposURL = entry$Repository
   )
 
 }
