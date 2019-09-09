@@ -141,11 +141,13 @@ renv_retrieve_bioconductor <- function(record) {
 
 renv_retrieve_bitbucket <- function(record) {
 
-  host <- record$RemoteHost %||% "bitbucket.org"
+  origin <- renv_retrieve_origin(record$RemoteHost %||% "bitbucket.org")
+  username <- record$RemoteUsername
+  repo <- record$RemoteRepo
   sha <- record$RemoteSha %||% record$RemoteRef %||% "master"
 
-  fmt <- "https://%s/%s/%s/get/%s.tar.gz"
-  url <- sprintf(fmt, host, record$RemoteUsername, record$RemoteRepo, sha)
+  fmt <- "%s/%s/%s/get/%s.tar.gz"
+  url <- sprintf(fmt, origin, username, repo, sha)
   path <- renv_retrieve_path(record)
 
   renv_retrieve_package(record, url, path)
@@ -154,17 +156,18 @@ renv_retrieve_bitbucket <- function(record) {
 
 renv_retrieve_github <- function(record) {
 
-  record$RemoteHost <- record$RemoteHost %||% "api.github.com"
-
-  fmt <- "https://%s/repos/%s/%s/tarball/%s"
-
+  origin <- renv_retrieve_origin(record$RemoteHost %||% "api.github.com")
+  username <- record$RemoteUsername
+  repo <- record$RemoteRepo
   ref <- record$RemoteSha %||% record$RemoteRef
+
   if (is.null(ref)) {
     fmt <- "GitHub record for package '%s' has no recorded 'RemoteSha' / 'RemoteRef'"
     stopf(fmt, record$Package)
   }
 
-  url <- with(record, sprintf(fmt, RemoteHost, RemoteUsername, RemoteRepo, ref))
+  fmt <- "%s/repos/%s/%s/tarball/%s"
+  url <- with(record, sprintf(fmt, origin, username, repo, ref))
   path <- renv_retrieve_path(record)
   renv_retrieve_package(record, url, path)
 
@@ -172,15 +175,14 @@ renv_retrieve_github <- function(record) {
 
 renv_retrieve_gitlab <- function(record) {
 
-  # TODO: remotes doesn't appear to understand how to interact with GitLab API?
-  host <- record$RemoteHost %||% "gitlab.com"
+  origin <- renv_retrieve_origin(record$RemoteHost %||% "gitlab.com")
 
   user <- record$RemoteUsername
   repo <- record$RemoteRepo
   id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
 
-  fmt <- "https://%s/api/v4/projects/%s/repository/archive.tar.gz"
-  url <- sprintf(fmt, host, id)
+  fmt <- "%s/api/v4/projects/%s/repository/archive.tar.gz"
+  url <- sprintf(fmt, origin, id)
   path <- renv_retrieve_path(record)
 
   sha <- record$RemoteSha
@@ -565,5 +567,17 @@ renv_retrieve_incompatible <- function(record) {
     warning(satisfied)
 
   !identical(satisfied, TRUE)
+
+}
+
+renv_retrieve_origin <- function(host) {
+
+  # NOTE: some host URLs may come with a protocol already formed;
+  # if we find a protocol, use it as-is
+  if (grepl("://", host, fixed = TRUE))
+    return(host)
+
+  # otherwise, prepend protocol (assume https)
+  paste("https", host, sep = "://")
 
 }

@@ -47,6 +47,7 @@ test_that("packages with an unknown source are retrieved from CRAN", {
 })
 
 test_that("we can retrieve packages from Bitbucket", {
+
   skip_on_cran()
 
   record <- list(
@@ -63,6 +64,7 @@ test_that("we can retrieve packages from Bitbucket", {
 
 
 test_that("we can retrieve packages from git", {
+
   skip_on_cran()
 
   record <- list(
@@ -78,6 +80,7 @@ test_that("we can retrieve packages from git", {
 
 
 test_that("we can retrieve packages from GitHub", {
+
   skip_on_cran()
 
   record <- list(
@@ -93,6 +96,7 @@ test_that("we can retrieve packages from GitHub", {
 })
 
 test_that("we can retrieve packages from GitHub (in a sub-directory)", {
+
   skip_on_cran()
 
   record <- list(
@@ -110,6 +114,7 @@ test_that("we can retrieve packages from GitHub (in a sub-directory)", {
 
 
 test_that("we can retrieve packages from GitLab", {
+
   skip_on_cran()
 
   record <- list(
@@ -200,6 +205,23 @@ test_that("remotes::install_local() records are handled", {
     Version    = "1.0.1",
     Source     = "local",
     RemoteUrl  = "local/skeleton/skeleton_1.0.1.tar.gz"
+  )
+
+  renv_test_retrieve(record)
+
+})
+
+test_that("we can retrieve packages from GitHub", {
+
+  skip_on_cran()
+
+  record <- list(
+    Package        = "skeleton",
+    Source         = "github",
+    RemoteHost     = "https://api.github.com",
+    RemoteUsername = "kevinushey",
+    RemoteRepo     = "skeleton",
+    RemoteSha      = "958296dbbbf7f1d82f7f5dd1b121c7558604809f"
   )
 
   renv_test_retrieve(record)

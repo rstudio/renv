@@ -140,6 +140,10 @@ test_that("snapshot failures due to bad library / packages are reported", {
   renv_tests_scope()
   ensure_directory("badlib/badpkg")
   writeLines("invalid", "badlib/badpkg/DESCRIPTION")
-  expect_error(snapshot(library = "badlib"))
+  local({
+    renv_scope_sink()
+    expect_error(snapshot(library = "badlib"))
+  })
+
 
 })
