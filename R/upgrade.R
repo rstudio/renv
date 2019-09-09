@@ -101,16 +101,33 @@ renv_upgrade_impl <- function(project, version, confirm) {
 
 renv_upgrade_find_record <- function(version) {
 
-  # when version is NULL, attempt to get latest version of renv on CRAN;
-  # otherwise, fall back to the latest version of GitHub
-  if (is.null(version)) {
-    record <- catch(renv_records_cran_latest("renv"))
-    if (!inherits(record, "error"))
-      return(record)
-  }
+  if (is.null(version))
+    renv_upgrade_find_record_default()
+  else
+    renv_upgrade_find_record_dev(version)
 
-  # otherwise, attempt to install the latest version of renv from GitHub
+}
+
+renv_upgrade_find_record_default <- function() {
+
+  # check if the package is available on CRAN.
+  # if not, prefer GitHub
+  record <- catch(renv_records_cran_latest("renv"))
+  if (inherits(record, "error"))
+    return(renv_upgrade_find_record_dev())
+
+  # check the version reported by CRAN.
+  # if it's older than current renv, then prefer GitHub
+  version <- record$Version
+  if (package_version(version) < renv_namespace_version("renv"))
+    return(renv_upgrade_find_record_dev())
+
+  # ok -- install from CRAN
+  record
+
+}
+
+renv_upgrade_find_record_dev <- function(version = NULL) {
   entry <- paste("rstudio/renv", version %||% "master", sep = "@")
   renv_remotes_resolve(entry)
-
 }
