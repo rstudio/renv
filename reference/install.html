@@ -66,7 +66,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.43</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.44</span>
       </span>
     </div>
 
@@ -143,7 +143,7 @@
     </div>
 
     <pre class="usage"><span class='fu'>install</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rebuild</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>(), <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -169,6 +169,10 @@ library will be used instead.</p></td>
 versions of the package available in the cache? This can either be a
 boolean (indicating that the requested package(s) should be rebuilt), or a
 vector of package names indicating which packages should be rebuilt.</p></td>
+    </tr>
+    <tr>
+      <th>confirm</th>
+      <td><p>Boolean; prompt the user before taking any action?</p></td>
     </tr>
     <tr>
       <th>project</th>
