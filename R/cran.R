@@ -29,7 +29,7 @@ renv_available_packages_impl <- function(type) {
   repos <- getOption("repos")
   urls <- contrib.url(repos, type)
   dbs <- lapply(urls, renv_available_packages_query, type = type)
-  names(dbs) <- repos
+  names(dbs) <- names(repos)
 
   # notify finished
   vwritef("Done!")
@@ -79,13 +79,19 @@ renv_available_packages_entry <- function(package, type, filter = NULL) {
   }
 
   dbs <- renv_available_packages(type = type)
-  for (db in dbs) {
+  for (i in seq_along(dbs)) {
+
+    db <- dbs[[i]]
     if (!package %in% db$Package)
       next
 
     entry <- db[package, ]
-    if (filter(entry))
+    if (filter(entry)) {
+      entry[["Type"]] <- type
+      entry[["Name"]] <- names(dbs)[[i]] %||% ""
       return(entry)
+    }
+
   }
 
   stopf("failed to find %s for package %s in active repositories", type, package)

@@ -1,7 +1,7 @@
 
 renv_format_srcref <- function(srcref) {
 
-  srcfile <- attr(srcref, "srcfile")
+  srcfile <- attr(srcref, "srcfile", exact = TRUE)
 
   if (inherits(srcfile, c("srcfilecopy", "srcfilealias"))) {
     start <- srcref[7L]

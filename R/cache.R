@@ -40,14 +40,14 @@ renv_cache_package_path <- function(record) {
     if (inherits(dcf, "error"))
       next
 
-    # if we're requesting an install from CRAN,
-    # and the cached package has a "Repository" field,
-    # then use it
-    cran <-
-      identical(record$Source, "CRAN") &&
+    # if we're requesting an install from an R package repository,
+    # and the cached package has a "Repository" field, then use it
+    source <- tolower(record$Source %||% "")
+    hasrepo <-
+      source %in% c("cran", "repository") &&
       "Repository" %in% names(dcf)
 
-    if (cran)
+    if (hasrepo)
       return(package)
 
     # otherwise, match on other fields

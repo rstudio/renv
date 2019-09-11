@@ -34,10 +34,10 @@ renv_remotes_resolve_impl <- function(entry) {
   parsed <- renv_remotes_parse(entry)
   switch(
     parsed$type,
-    bitbucket = renv_remotes_resolve_bitbucket(parsed),
-    cran      = renv_remotes_resolve_cran(parsed),
-    gitlab    = renv_remotes_resolve_gitlab(parsed),
-    github    = renv_remotes_resolve_github(parsed),
+    bitbucket  = renv_remotes_resolve_bitbucket(parsed),
+    gitlab     = renv_remotes_resolve_gitlab(parsed),
+    github     = renv_remotes_resolve_github(parsed),
+    repository = renv_remotes_resolve_repository(parsed),
     stopf("unknown remote type '%s'", parsed$type %||% "<NA>")
   )
 
@@ -70,9 +70,9 @@ renv_remotes_parse <- function(entry) {
     ref    = strings[[8]]
   )
 
-  # handle cran vs. github short-forms
+  # handle short-forms
   if (!nzchar(parsed$type)) {
-    type <- if (nzchar(parsed$repo)) "github" else "cran"
+    type <- if (nzchar(parsed$repo)) "github" else "repository"
     parsed$type <- type
   }
 
@@ -111,25 +111,25 @@ renv_remotes_resolve_bitbucket <- function(entry) {
 
 }
 
-renv_remotes_resolve_cran <- function(entry) {
+renv_remotes_resolve_repository <- function(entry) {
 
   package <- entry$user
   if (package %in% rownames(renv_installed_packages_base()))
-    return(renv_remotes_resolve_cran_base(package))
+    return(renv_remotes_resolve_base(package))
 
   version <- entry$ref %""% "latest"
   if (identical(version, "latest"))
-    return(renv_records_cran_latest(package))
+    return(renv_records_repos_latest(package))
 
   list(
     Package    = package,
     Version    = version,
-    Source     = "CRAN"
+    Source     = "Repository"
   )
 
 }
 
-renv_remotes_resolve_cran_base <- function(package) {
+renv_remotes_resolve_base <- function(package) {
 
   list(
     Package = package,

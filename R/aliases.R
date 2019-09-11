@@ -8,6 +8,7 @@
   github       = "GitHub",
   gitlab       = "GitLab",
   local        = "Local",
+  repository   = "Repository",
   standard     = "CRAN",
   xgit         = "Git"
 )

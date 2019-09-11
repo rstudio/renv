@@ -43,10 +43,10 @@ separate package installation backends in the future.
 \donttest{
 \dontrun{
 
-# install the latest version of 'digest' from CRAN
+# install the latest version of 'digest'
 renv::install("digest")
 
-# install an old version of 'digest' from CRAN (using archives)
+# install an old version of 'digest' (using archives)
 renv::install("digest@0.6.18")
 
 # install 'digest' from GitHub (latest dev. version)

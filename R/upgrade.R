@@ -4,8 +4,8 @@
 #' Upgrade the version of `renv` associated with a project.
 #'
 #' By default, this function will attempt to install the latest version of
-#' `renv` as available on the active CRAN repositories. If you'd instead like to
-#' try out a development version of `renv`, you can explicitly request a
+#' `renv` as available on the active R package repositories. If you'd instead
+#' like to try out a development version of `renv`, you can explicitly request a
 #' different version of `renv` and that version of the package will be
 #' downloaded and installed from GitHub. Use `version = "master"` to install the
 #' latest development version of `renv`, as from the `renv` project's [GitHub
@@ -14,7 +14,8 @@
 #' @inheritParams renv-params
 #'
 #' @param version The version of `renv` to be installed. By default, the latest
-#'   version of `renv` as available on the active CRAN repositories is used.
+#'   version of `renv` as available on the active R package repositories is
+#'   used.
 #'
 #' @param confirm Boolean; confirm upgrade before proceeding?
 #'
@@ -24,7 +25,7 @@
 #' \donttest{
 #' \dontrun{
 #'
-#' # upgrade to the latest version of renv on CRAN
+#' # upgrade to the latest version of renv
 #' renv::upgrade()
 #'
 #' # upgrade to the latest version of renv on GitHub (development version)
@@ -110,19 +111,19 @@ renv_upgrade_find_record <- function(version) {
 
 renv_upgrade_find_record_default <- function() {
 
-  # check if the package is available on CRAN.
+  # check if the package is available on R repositories.
   # if not, prefer GitHub
-  record <- catch(renv_records_cran_latest("renv"))
+  record <- catch(renv_records_repos_latest("renv"))
   if (inherits(record, "error"))
     return(renv_upgrade_find_record_dev())
 
-  # check the version reported by CRAN.
+  # check the version reported by R repositories.
   # if it's older than current renv, then prefer GitHub
   version <- record$Version
   if (package_version(version) < renv_namespace_version("renv"))
     return(renv_upgrade_find_record_dev())
 
-  # ok -- install from CRAN
+  # ok -- install from repository
   record
 
 }

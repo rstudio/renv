@@ -22,7 +22,7 @@ renv_records_sort <- function(records) {
   records[order(names(records))]
 }
 
-renv_records_cran_latest <- function(package) {
+renv_records_repos_latest <- function(package) {
 
   types <- renv_package_pkgtypes()
 
@@ -34,7 +34,7 @@ renv_records_cran_latest <- function(package) {
     if (inherits(entry, "error"))
       return(NULL)
 
-    c(entry[c("Package", "Version", "Repository")], Type = type)
+    entry[c("Package", "Version", "Repository", "Type", "Name")]
 
   })
 
@@ -48,13 +48,18 @@ renv_records_cran_latest <- function(package) {
   idx <- with(entries, order(Version, factor(Type, c("source", "binary"))))
   entry <- entries[tail(idx, n = 1), ]
 
-  list(
-    Package  = package,
-    Version  = entry$Version,
-    Source   = "CRAN",
-    Type     = entry$Type,
-    ReposURL = entry$Repository
+  record <- list(
+    Package    = package,
+    Version    = entry$Version,
+    Source     = "Repository",
+    Repository = entry$Name
   )
+
+  # annotate record with extra information
+  attr(record, "type") <- entry$Type
+  attr(record, "url")  <- entry$Repository
+
+  record
 
 }
 

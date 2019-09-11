@@ -44,7 +44,7 @@ copy or link that package into the requested library as appropriate.
 
 If \code{renv} discovers that your project depends on \R packages not currently
 installed in your user library, then it will attempt to install those
-packages from CRAN.
+packages from the active R repositories.
 }
 
 \examples{

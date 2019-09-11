@@ -455,7 +455,7 @@ renv_snapshot_description_source <- function(dcf) {
     return("Bioconductor")
 
   if (!is.null(dcf[["Repository"]]))
-    return("CRAN")
+    return("Repository")
 
   type <- dcf[["RemoteType"]]
   if (!is.null(type))
@@ -467,7 +467,7 @@ renv_snapshot_description_source <- function(dcf) {
 
   entry <- catch(renv_available_packages_entry(package = package, type = "source"))
   if (!inherits(entry, "error"))
-    return("CRAN")
+    return("Repository")
 
   "unknown"
 

@@ -227,3 +227,19 @@ test_that("we can retrieve packages from GitHub", {
   renv_test_retrieve(record)
 
 })
+
+test_that("we can retrieve packages from R repositories", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  record <- list(
+    Package    = "oatmeal",
+    Version    = "1.0.0",
+    Source     = "Repository",
+    Repository = "CRAN"
+  )
+
+  renv_test_retrieve(record)
+
+})

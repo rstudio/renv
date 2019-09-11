@@ -1,7 +1,7 @@
 
-#' Refresh the Local Cache of Packages Available on CRAN
+#' Refresh the Local Cache of Available Packages
 #'
-#' Query the active CRAN repositories for available packages, and
+#' Query the active R package repositories for available packages, and
 #' update the in-memory cache of those packages.
 #'
 #' Note that \R also maintains its own on-disk cache of available packages,
@@ -16,13 +16,13 @@
 #' \donttest{
 #' \dontrun{
 #'
-#' # check CRAN available packages
+#' # check available packages
 #' db <- available.packages()
 #'
-#' # wait some time (suppose packages are uploaded to CRAN in this time)
+#' # wait some time (suppose packages are uploaded / changed in this time)
 #' Sys.sleep(5)
 #'
-#' # refresh the local CRAN available packages database
+#' # refresh the local available packages database
 #' # (the old locally cached db will be removed)
 #' db <- renv::refresh()
 #'

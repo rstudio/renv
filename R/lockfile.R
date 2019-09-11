@@ -33,14 +33,14 @@
 #'     "markdown": {
 #'       "Package": "markdown",
 #'       "Version": "1.0",
-#'       "Source": "CRAN",
+#'       "Source": "Repository",
 #'       "Repository": "CRAN",
 #'       "Hash": "4584a57f565dd7987d59dda3a02cfb41"
 #'     },
 #'     "mime": {
 #'       "Package": "mime",
 #'       "Version": "0.7",
-#'       "Source": "CRAN",
+#'       "Source": "Repository",
 #'       "Repository": "CRAN",
 #'       "Hash": "908d95ccbfd1dd274073ef07a7c93934"
 #'     }

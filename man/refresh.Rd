@@ -2,12 +2,12 @@
 % Please edit documentation in R/refresh.R
 \name{refresh}
 \alias{refresh}
-\title{Refresh the Local Cache of Packages Available on CRAN}
+\title{Refresh the Local Cache of Available Packages}
 \usage{
 refresh()
 }
 \description{
-Query the active CRAN repositories for available packages, and
+Query the active R package repositories for available packages, and
 update the in-memory cache of those packages.
 }
 \details{
@@ -21,13 +21,13 @@ when it is a mounted network filesystem).
 \donttest{
 \dontrun{
 
-# check CRAN available packages
+# check available packages
 db <- available.packages()
 
-# wait some time (suppose packages are uploaded to CRAN in this time)
+# wait some time (suppose packages are uploaded / changed in this time)
 Sys.sleep(5)
 
-# refresh the local CRAN available packages database
+# refresh the local available packages database
 # (the old locally cached db will be removed)
 db <- renv::refresh()
 

@@ -38,13 +38,13 @@ renv_retrieve_impl <- function(package) {
 
   # if the requested record is incompatible with the set
   # of requested package versions thus far, request the
-  # latest version on CRAN
+  # latest version on the R package repositories
   #
   # TODO: handle more explicit dependency requirements
   # TODO: report to the user if they have explicitly requested
   # installation of this package version despite it being incompatible
   if (renv_retrieve_incompatible(record))
-    record <- renv_records_cran_latest(package)
+    record <- renv_records_repos_latest(package)
 
   if (!renv_restore_rebuild_required(record)) {
 
@@ -89,17 +89,21 @@ renv_retrieve_impl <- function(package) {
     return(TRUE)
 
   # otherwise, try and restore from external source
-  source <- tolower(record$Source)
+  source <- tolower(record$Source %||% "unknown")
   if (source %in% c("git2r", "xgit"))
     source <- "git"
 
+  # handle case where repository was previously declared as CRAN
+  if (source == "cran")
+    source <- "repository"
+
   switch(source,
-         cran         = renv_retrieve_cran(record),
          bioconductor = renv_retrieve_bioconductor(record),
          bitbucket    = renv_retrieve_bitbucket(record),
          git          = renv_retrieve_git(record),
          github       = renv_retrieve_github(record),
          gitlab       = renv_retrieve_gitlab(record),
+         repository   = renv_retrieve_repos(record),
          renv_retrieve_unknown_source(record)
   )
 
@@ -134,8 +138,8 @@ renv_retrieve_bioconductor <- function(record) {
   options(repos = unique(c(renv_bioconductor_repos(), repos)))
   on.exit(options(repos = repos), add = TRUE)
 
-  # retrieve package as though from CRAN
-  renv_retrieve_cran(record)
+  # retrieve package as though from an active R repository
+  renv_retrieve_repos(record)
 
 }
 
@@ -327,28 +331,29 @@ renv_retrieve_explicit <- function(record) {
 
 }
 
-renv_retrieve_cran <- function(record) {
+renv_retrieve_repos <- function(record) {
 
   # if the record doesn't declare the package version,
   # treat it as a request for the latest version on CRAN
   # TODO: should make this behavior configurable
   if (is.null(record$Version))
-    record <- renv_records_cran_latest(record$Package)
+    record <- renv_records_repos_latest(record$Package)
 
-  # if we already have a type + repository, no need to find it
-  if (!is.null(record$Type) && !is.null(record$ReposURL))
-    return(renv_retrieve_cran_impl(record))
+  # if this record is tagged with a type + url, we can
+  # use that directly for retrieval
+  if (all(c("type", "url") %in% names(attributes(record))))
+    return(renv_retrieve_repos_impl(record))
 
   # always attempt to retrieve from source + archive
   methods <- c(
-    renv_retrieve_cran_source,
-    renv_retrieve_cran_archive
+    renv_retrieve_repos_source,
+    renv_retrieve_repos_archive
   )
 
   # only attempt to retrieve binaries when explicitly requested by user
   # TODO: what about binaries on Linux?
   if (!identical(getOption("pkgType"), "source"))
-    methods <- c(renv_retrieve_cran_binary, methods)
+    methods <- c(renv_retrieve_repos_binary, methods)
 
   for (method in methods) {
     status <- method(record)
@@ -356,30 +361,30 @@ renv_retrieve_cran <- function(record) {
       return(TRUE)
   }
 
-  stopf("failed to retrieve package '%s' from CRAN", record$Package)
+  stopf("failed to retrieve package '%s'", record$Package)
 
 }
 
-renv_retrieve_cran_archive_name <- function(record, type) {
+renv_retrieve_repos_archive_name <- function(record, type) {
   fmt <- "%s_%s%s"
   sprintf(fmt, record$Package, record$Version, renv_package_ext(type))
 }
 
-renv_retrieve_cran_binary <- function(record) {
-  renv_retrieve_cran_impl(record, "binary")
+renv_retrieve_repos_binary <- function(record) {
+  renv_retrieve_repos_impl(record, "binary")
 
 }
 
-renv_retrieve_cran_source <- function(record) {
-  renv_retrieve_cran_impl(record, "source")
+renv_retrieve_repos_source <- function(record) {
+  renv_retrieve_repos_impl(record, "source")
 }
 
-renv_retrieve_cran_archive <- function(record) {
+renv_retrieve_repos_archive <- function(record) {
 
   name <- sprintf("%s_%s.tar.gz", record$Package, record$Version)
   for (repo in getOption("repos")) {
     repo <- file.path(repo, "src/contrib/Archive", record$Package)
-    status <- catch(renv_retrieve_cran_impl(record, "source", name, repo))
+    status <- catch(renv_retrieve_repos_impl(record, "source", name, repo))
     if (identical(status, TRUE))
       return(TRUE)
   }
@@ -388,14 +393,14 @@ renv_retrieve_cran_archive <- function(record) {
 
 }
 
-renv_retrieve_cran_impl <- function(record,
+renv_retrieve_repos_impl <- function(record,
                                     type = NULL,
                                     name = NULL,
                                     repo = NULL)
 {
-  type <- type %||% record$Type
-  name <- name %||% renv_retrieve_cran_archive_name(record, type)
-  repo <- repo %||% record$ReposURL
+  type <- type %||% attr(record, "type", exact = TRUE)
+  name <- name %||% renv_retrieve_repos_archive_name(record, type)
+  repo <- repo %||% attr(record, "url", exact = TRUE)
 
   # if we weren't provided a repository for this package, try to find it
   if (is.null(repo)) {
@@ -477,9 +482,9 @@ renv_retrieve_unknown_source <- function(record) {
   if (!inherits(status, "error"))
     return(status)
 
-  # failed; parse as a CRAN remote
-  record$Source <- "CRAN"
-  renv_retrieve_cran(record)
+  # failed; parse as though from R package repository
+  record$Source <- "Repository"
+  renv_retrieve_repos(record)
 
 }
 
@@ -528,11 +533,11 @@ renv_retrieve_missing_record <- function(package) {
 
   # TODO: allow users to configure the action to take here, e.g.
   #
-  #   1. retrieve latest from CRAN (the default),
+  #   1. retrieve latest from R repositories (the default),
   #   2. request a package + version to be retrieved,
   #   3. hard error
   #
-  renv_records_cran_latest(package)
+  renv_records_repos_latest(package)
 
 }
 

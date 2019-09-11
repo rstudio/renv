@@ -21,10 +21,10 @@
 #' \donttest{
 #' \dontrun{
 #'
-#' # install the latest version of 'digest' from CRAN
+#' # install the latest version of 'digest'
 #' renv::install("digest")
 #'
-#' # install an old version of 'digest' from CRAN (using archives)
+#' # install an old version of 'digest' (using archives)
 #' renv::install("digest@0.6.18")
 #'
 #' # install 'digest' from GitHub (latest dev. version)
@@ -160,14 +160,8 @@ renv_install_impl <- function(record) {
   }
 
   # report that we're about to start installation
-  src <- record$Source
-  if (tolower(src) == "local")
-    src <- "local sources"
+  renv_install_package_preamble(record)
 
-  fmt <- "Installing %s [%s] from %s ..."
-  with(record, vwritef(fmt, Package, Version, src))
-
-  # otherwise, install
   withCallingHandlers(
     renv_install_package_local(record),
     error = function(e) {
@@ -234,6 +228,24 @@ renv_install_package_cache_skip <- function(record, cache) {
   target <- file.path(library, record$Package)
 
   renv_file_same(cache, target)
+
+}
+
+renv_install_package_preamble <- function(record) {
+
+  src <- record$Source
+
+  # when installing from an R repository,
+  # use the name of the repository for installation
+  if (tolower(src) %in% c("cran", "repository"))
+    src <- record$Repository %||% "CRAN"
+
+  # remap name for local sources
+  if (tolower(src) == "local")
+    src <- "local sources"
+
+  fmt <- "Installing %s [%s] from %s ..."
+  with(record, vwritef(fmt, Package, Version, src))
 
 }
 

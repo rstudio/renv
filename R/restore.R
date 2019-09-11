@@ -281,7 +281,7 @@ renv_restore_preflight_unknown_source <- function(actions, lockfile) {
     renv_pretty_print_records(
       unknown,
       "The following package(s) were installed from an unknown source:",
-      "renv will attempt to install the latest version(s) from CRAN instead."
+      "renv will install the latest version(s) from your R package repositories instead."
     )
   }
 
@@ -342,12 +342,12 @@ renv_restore_find <- function(record) {
     return("")
 
   # check for matching records
-  source <- tolower(record$Source)
+  source <- tolower(record$Source %||% "")
   if (empty(source))
     return("")
 
-  # check for an up-to-date version from CRAN
-  if (identical(source, "cran")) {
+  # check for an up-to-date version from R package repository
+  if (source %in% c("cran", "repository")) {
     fields <- c("Package", "Version")
     if (identical(record[fields], current[fields]))
       return(path)

@@ -1,7 +1,7 @@
 
-renv_update_find_cran <- function(record) {
+renv_update_find_repos <- function(record) {
 
-  latest <- renv_records_cran_latest(record$Package)
+  latest <- renv_records_repos_latest(record$Package)
   if (version_compare(latest$Version, record$Version) == 1)
     return(latest)
 
@@ -56,8 +56,9 @@ renv_update_find_impl <- function(record) {
   source <- tolower(record$Source %||% "unknown")
 
   case(
-    source == "cran"   ~ renv_update_find_cran(record),
-    source == "github" ~ renv_update_find_github(record)
+    source == "cran"       ~ renv_update_find_repos(record),
+    source == "repository" ~ renv_update_find_repos(record),
+    source == "github"     ~ renv_update_find_github(record)
   )
 
 }
@@ -138,7 +139,7 @@ update <- function(packages = NULL,
   # select records
   selected <- c(
     records[renv_vector_intersect(packages, names(records))],
-    named(lapply(missing, renv_records_cran_latest), missing)
+    named(lapply(missing, renv_records_repos_latest), missing)
   )
 
   # make sure we've requested available packages
