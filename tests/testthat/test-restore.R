@@ -6,7 +6,7 @@ test_that("library permissions are validated before restore", {
   inaccessible <- renv_tempfile()
   dir.create(inaccessible, mode = "0100")
   renv_scope_options(renv.verbose = FALSE)
-  expect_false(renv_restore_preflight_permissions(inaccessible))
+  expect_false(renv_install_preflight_permissions(inaccessible))
 })
 
 test_that("we can restore packages after init", {

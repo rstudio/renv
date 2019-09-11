@@ -465,7 +465,11 @@ renv_snapshot_description_source <- function(dcf) {
   if (is.null(package))
     return("unknown")
 
-  entry <- catch(renv_available_packages_entry(package = package, type = "source"))
+  entry <- local({
+    renv_scope_options(renv.verbose = FALSE)
+    catch(renv_available_packages_entry(package = package, type = "source"))
+  })
+
   if (!inherits(entry, "error"))
     return("Repository")
 

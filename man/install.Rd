@@ -5,7 +5,7 @@
 \title{Install Packages}
 \usage{
 install(packages = NULL, ..., library = NULL, rebuild = FALSE,
-  project = NULL)
+  confirm = interactive(), project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to install. Required
@@ -21,6 +21,8 @@ library will be used instead.}
 versions of the package available in the cache? This can either be a
 boolean (indicating that the requested package(s) should be rebuilt), or a
 vector of package names indicating which packages should be rebuilt.}
+
+\item{confirm}{Boolean; prompt the user before taking any action?}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working

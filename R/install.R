@@ -39,6 +39,7 @@ install <- function(packages = NULL,
                     ...,
                     library = NULL,
                     rebuild = FALSE,
+                    confirm = interactive(),
                     project = NULL)
 {
   renv_consent_check()
@@ -62,6 +63,11 @@ install <- function(packages = NULL,
   packages <- extract_chr(remotes, "Package")
   names(remotes) <- packages
   records[names(remotes)] <- remotes
+
+  if (!renv_install_preflight(project, library, records, confirm)) {
+    message("* Operation aborted.")
+    return(FALSE)
+  }
 
   rebuild <- case(
     identical(rebuild, TRUE)  ~ packages,
@@ -93,12 +99,6 @@ install <- function(packages = NULL,
 }
 
 renv_install <- function(records, library) {
-
-  # double-check packages for validity (TODO: not yet)
-  # if (!renv_install_preflight(records)) {
-  #   message("* Operation aborted.")
-  #   return(FALSE)
-  # }
 
   # save active library
   renv_global_set("install.library", library[[1]])
@@ -414,6 +414,61 @@ renv_install_postamble <- function(packages) {
     "Consider restarting the R session and loading the newly-installed packages.",
     wrap = FALSE
   )
+
+  TRUE
+
+}
+
+renv_install_preflight_unknown_source <- function(records) {
+
+  unknown <- Filter(function(record) record$Source %in% "unknown", records)
+  if (empty(unknown))
+    return(TRUE)
+
+  if (renv_verbose()) {
+    renv_pretty_print_records(
+      unknown,
+      "The following package(s) were installed from an unknown source:",
+      "renv will install the latest version(s) from your R package repositories instead."
+    )
+  }
+
+  FALSE
+
+}
+
+renv_install_preflight_permissions <- function(library) {
+
+  # check for inability to install in requested library
+  access <- file.access(library, 7)
+  if (access == 0L)
+    return(TRUE)
+
+  if (renv_verbose()) {
+    renv_pretty_print(
+      library,
+      "You do not have permissions to read / write into the requested library:",
+      "renv may be unable to restore packages."
+    )
+  }
+
+  FALSE
+
+}
+
+renv_install_preflight <- function(project, library, records, confirm) {
+
+  # check for packages installed from an unknown source
+  ok <- all(
+    renv_install_preflight_unknown_source(records),
+    renv_install_preflight_permissions(library[[1]])
+  )
+
+  if (ok)
+    return(TRUE)
+
+  if (confirm && !proceed())
+    return(FALSE)
 
   TRUE
 

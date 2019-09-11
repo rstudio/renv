@@ -22,6 +22,10 @@ renv_records_sort <- function(records) {
   records[order(names(records))]
 }
 
+renv_records_override <- function(records) {
+  enumerate(records, renv_options_override, scope = "renv.records")
+}
+
 renv_records_repos_latest <- function(package) {
 
   types <- renv_package_pkgtypes()

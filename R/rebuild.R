@@ -55,6 +55,7 @@ rebuild <- function(packages  = NULL,
   # subset packages based on user request
   packages <- packages %||% names(records)
   records <- records[packages]
+  records <- renv_records_override(records)
 
   # notify the user
   preamble <- if (recursive)

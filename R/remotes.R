@@ -1,4 +1,17 @@
 
+#' Resolve a Remote
+#'
+#' Given a [remote spec](https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html),
+#' resolve it into an `renv` package record that can be used for download and
+#' installation (e.g. with [install]).
+#'
+#' @param spec A remote specification.
+#'
+remote <- function(spec) {
+  renv_scope_error_handler()
+  renv_remotes_resolve(spec)
+}
+
 # take a short-form remotes entry, and generate a package record
 renv_remotes_resolve <- function(entry) {
 

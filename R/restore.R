@@ -265,62 +265,10 @@ renv_restore_remove <- function(project, package, lockfile) {
   TRUE
 }
 
-renv_restore_preflight_unknown_source <- function(actions, lockfile) {
-
+renv_restore_preflight <- function(project, library, actions, current, lockfile, confirm) {
   records <- renv_records(lockfile)
   matching <- records[renv_vector_intersect(names(records), names(actions))]
-  unknown <- Filter(
-    function(record) record$Source %in% "unknown",
-    matching
-  )
-
-  if (empty(unknown))
-    return(TRUE)
-
-  if (renv_verbose()) {
-    renv_pretty_print_records(
-      unknown,
-      "The following package(s) were installed from an unknown source:",
-      "renv will install the latest version(s) from your R package repositories instead."
-    )
-  }
-
-  FALSE
-
-}
-
-renv_restore_preflight_permissions <- function(library) {
-
-  # check for inability to install in requested library
-  access <- file.access(library, 7)
-  if (access == 0L)
-    return(TRUE)
-
-  if (renv_verbose()) {
-    renv_pretty_print(
-      library,
-      "You do not have permissions to read / write into the requested library:",
-      "renv may be unable to restore packages."
-    )
-  }
-
-  FALSE
-
-}
-
-renv_restore_preflight <- function(project, library, actions, current, lockfile, confirm) {
-
-  # check for packages installed from an unknown source
-  ok <- all(
-    renv_restore_preflight_unknown_source(actions, lockfile),
-    renv_restore_preflight_permissions(library[[1]])
-  )
-
-  if (!ok && confirm && !proceed())
-    return(FALSE)
-
-  TRUE
-
+  renv_install_preflight(project, library, matching, confirm)
 }
 
 renv_restore_find <- function(record) {
