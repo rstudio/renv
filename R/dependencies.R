@@ -90,6 +90,7 @@ renv_dependencies_callback <- function(path) {
     name == "DESCRIPTION"   ~ function() renv_dependencies_discover_description(path),
     name == "_pkgdown.yml"  ~ function() renv_dependencies_discover_pkgdown(path),
     name == "_bookdown.yml" ~ function() renv_dependencies_discover_bookdown(path),
+    name == "rsconnect"     ~ function() renv_dependencies_discover_rsconnect(path),
 
     # generic extension-based lookup
     ext == ".rproj" ~ function() renv_dependencies_discover_rproj(path),
@@ -135,8 +136,16 @@ renv_dependencies_find_impl <- function(path, root) {
 }
 
 renv_dependencies_find_dir <- function(path, root) {
+
   children <- renv_dependencies_find_dir_children(path, root)
-  lapply(children, renv_dependencies_find_impl, root = root)
+  paths <- lapply(children, renv_dependencies_find_impl, root = root)
+
+  callback <- renv_dependencies_callback(path)
+  if (is.function(callback))
+    paths <- c(path, paths)
+
+  paths
+
 }
 
 # return the set of files /subdirectories within a directory that should be
@@ -293,6 +302,10 @@ renv_dependencies_discover_bookdown <- function(path) {
 
   # TODO: other dependencies to parse from bookdown?
   renv_dependencies_list(path, "bookdown")
+}
+
+renv_dependencies_discover_rsconnect <- function(path) {
+  renv_dependencies_list(path, "rsconnect")
 }
 
 renv_dependencies_discover_multimode <- function(path, mode) {

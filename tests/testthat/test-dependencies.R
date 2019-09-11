@@ -93,3 +93,10 @@ test_that("renv_dependencies_requires warns once", {
   expect_warning(renv_dependencies_require("nosuchpackage", "test"))
   expect_false(renv_dependencies_require("nosuchpackage", "test"))
 })
+
+test_that("the presence of an rsconnect folder forces dependency on rsconnect", {
+  renv_tests_scope()
+  dir.create("rsconnect")
+  deps <- renv::dependencies()
+  expect_true("rsconnect" %in% deps$Package)
+})
