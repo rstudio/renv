@@ -56,9 +56,6 @@ restore <- function(project  = NULL,
   if (is.character(lockfile))
     lockfile <- renv_lockfile_read(lockfile)
 
-  # inject overrides (if any)
-  lockfile <- renv_lockfile_override(lockfile)
-
   # get records for R packages currently installed
   current <- snapshot(project = project,
                       library = library,
