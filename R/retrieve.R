@@ -34,11 +34,7 @@ renv_retrieve_impl <- function(package) {
 
   # extract record for package
   records <- state$records
-
-  record <-
-    renv_options_override("renv.records", package) %||%
-    records[[package]] %||%
-    renv_retrieve_missing_record(package)
+  record <- records[[package]] %||% renv_retrieve_missing_record(package)
 
   # if the requested record is incompatible with the set
   # of requested package versions thus far, request the
