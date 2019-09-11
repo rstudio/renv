@@ -66,7 +66,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.43</span>
       </span>
     </div>
 
@@ -156,7 +156,8 @@ directory is used instead.</p></td>
     <tr>
       <th>version</th>
       <td><p>The version of <code>renv</code> to be installed. By default, the latest
-version of <code>renv</code> as available on the active CRAN repositories is used.</p></td>
+version of <code>renv</code> as available on the active R package repositories is
+used.</p></td>
     </tr>
     <tr>
       <th>confirm</th>
@@ -167,8 +168,8 @@ version of <code>renv</code> as available on the active CRAN repositories is use
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>By default, this function will attempt to install the latest version of
-<code>renv</code> as available on the active CRAN repositories. If you'd instead like to
-try out a development version of <code>renv</code>, you can explicitly request a
+<code>renv</code> as available on the active R package repositories. If you'd instead
+like to try out a development version of <code>renv</code>, you can explicitly request a
 different version of <code>renv</code> and that version of the package will be
 downloaded and installed from GitHub. Use <code>version = "master"</code> to install the
 latest development version of <code>renv</code>, as from the <code>renv</code> project's <a href='https://github.com/rstudio/renv'>GitHub page</a>.</p>
@@ -178,7 +179,7 @@ latest development version of <code>renv</code>, as from the <code>renv</code> p
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
 <span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 
-<span class='co'># upgrade to the latest version of renv on CRAN</span>
+<span class='co'># upgrade to the latest version of renv</span>
 <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/upgrade.html'>upgrade</a></span>()
 
 <span class='co'># upgrade to the latest version of renv on GitHub (development version)</span>

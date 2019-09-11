@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Refresh the Local Cache of Packages Available on CRAN — refresh • renv</title>
+<title>Refresh the Local Cache of Available Packages — refresh • renv</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Refresh the Local Cache of Packages Available on CRAN — refresh" />
+<meta property="og:title" content="Refresh the Local Cache of Available Packages — refresh" />
 
-<meta property="og:description" content="Query the active CRAN repositories for available packages, and
+<meta property="og:description" content="Query the active R package repositories for available packages, and
 update the in-memory cache of those packages." />
 <meta name="twitter:card" content="summary" />
 
@@ -67,7 +67,7 @@ update the in-memory cache of those packages." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.42</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.43</span>
       </span>
     </div>
 
@@ -132,14 +132,14 @@ update the in-memory cache of those packages." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Refresh the Local Cache of Packages Available on CRAN</h1>
+    <h1>Refresh the Local Cache of Available Packages</h1>
     
     <div class="hidden name"><code>refresh.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Query the active CRAN repositories for available packages, and
+    <p>Query the active R package repositories for available packages, and
 update the in-memory cache of those packages.</p>
     
     </div>
@@ -159,13 +159,13 @@ when it is a mounted network filesystem).</p>
     <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
 <span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
 
-<span class='co'># check CRAN available packages</span>
+<span class='co'># check available packages</span>
 <span class='no'>db</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/available.packages.html'>available.packages</a></span>()
 
-<span class='co'># wait some time (suppose packages are uploaded to CRAN in this time)</span>
+<span class='co'># wait some time (suppose packages are uploaded / changed in this time)</span>
 <span class='fu'><a href='https://rdrr.io/r/base/Sys.sleep.html'>Sys.sleep</a></span>(<span class='fl'>5</span>)
 
-<span class='co'># refresh the local CRAN available packages database</span>
+<span class='co'># refresh the local available packages database</span>
 <span class='co'># (the old locally cached db will be removed)</span>
 <span class='no'>db</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/refresh.html'>refresh</a></span>()
 
