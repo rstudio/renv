@@ -1,13 +1,12 @@
 
 context("Errors")
 
-test_that("errors are reported through scoped handler", {
+test_that("tracebacks are captured by catch", {
   skip_if(getRversion() < "3.3.0")
 
-  output <- capture.output(
-    tryCatch(stop("ouch"), error = renv_error_handler),
-    type = "message"
-  )
+  output <- catch(stop("ouch"))
+  traceback <- output$traceback
 
-  expect_true(length(output) > 0)
+  expect_true(is.character(traceback))
+  expect_true(length(traceback) > 0)
 })

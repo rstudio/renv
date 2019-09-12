@@ -128,18 +128,18 @@ version_compare <- function(lhs, rhs) {
 
 }
 
-catch <- function(expr, ...) {
-  if (renv_debugging())
-    expr
-  else
-    tryCatch(expr, error = identity, ...)
+catch <- function(expr) {
+  tryCatch(
+    withCallingHandlers(expr, error = renv_error_capture),
+    error = renv_error_tag
+  )
 }
 
 catchall <- function(expr) {
-  if (renv_debugging())
-    expr
-  else
-    tryCatch(expr, condition = identity)
+  tryCatch(
+    withCallingHandlers(expr, condition = renv_error_capture),
+    condition = renv_error_tag
+  )
 }
 
 # nocov start

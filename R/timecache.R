@@ -20,7 +20,7 @@ renv_timecache <- function(key, value, limit = 3600, timeout = NULL) {
 
   # cache entry has expired -- run timeout hook if provided
   if (is.function(timeout))
-    catch(timeout(key), error = warning)
+    tryCatch(timeout(key), error = warning)
 
   # update the cache
   entry <- renv_timecache_set(key, value)
