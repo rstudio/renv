@@ -33,13 +33,65 @@ r_exec_error <- function(package, output, label) {
   header <- sprintf(fmt, label, package)
 
   lines <- paste(rep("=", nchar(header)), collapse = "")
-  output <- c(header, lines, "", output)
+  all <- c(header, lines, "", output)
+
+  # try to add diagnostic information if possible
+  diagnostics <- r_exec_error_diagnostics(package, output)
+  if (!empty(diagnostics)) {
+    size <- min(getOption("width"), 78L)
+    dividers <- paste(rep.int("-", size), collapse = "")
+    all <- c(all, paste(dividers, diagnostics, collapse = "\n\n"))
+  }
 
   # stop with an error
   message <- sprintf("%s of package '%s' failed", label, package)
   error <- simpleError(message = message)
-  error$output <- output
+  error$output <- all
   stop(error)
+
+}
+
+r_exec_error_diagnostics_fortran <- function() {
+
+  checker <- function(output) {
+    pattern <- "library not found for -l(quadmath|gfortran|fortran)"
+    idx <- grep(pattern, output)
+    if (length(idx))
+      return(output[idx])
+  }
+
+  suggestion <- "
+R was unable to find one or more FORTRAN libraries during compilation.
+This often implies that the FORTRAN compiler has not been properly configured.
+Please see https://stackoverflow.com/q/35999874 for more information.
+"
+
+  list(
+    checker = checker,
+    suggestion = suggestion
+  )
+
+}
+
+r_exec_error_diagnostics <- function(package, output) {
+
+  diagnostics <- list(
+    r_exec_error_diagnostics_fortran()
+  )
+
+  suggestions <- uapply(diagnostics, function(diagnostic) {
+
+    check <- catch(diagnostic$checker(output))
+    if (!is.character(check))
+      return()
+
+    suggestion <- diagnostics$suggestion
+    reasons <- paste("-", shQuote(check), collapse = "\n")
+    paste(diagnostic$suggestion, "Reason(s):", reasons, sep = "\n")
+
+  })
+
+  as.character(suggestions)
 
 }
 
