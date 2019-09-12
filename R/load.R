@@ -164,7 +164,7 @@ renv_load_profile <- function(project = NULL) {
 
 renv_load_profile_impl <- function(profile) {
 
-  status <- catch(sys.source(profile))
+  status <- catch(sys.source(profile, envir = globalenv()))
   if (inherits(status, "error")) {
     fmt <- paste("Error sourcing '%s': %s")
     warningf(fmt, aliased_path(profile), conditionMessage(status))
