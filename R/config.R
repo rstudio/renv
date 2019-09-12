@@ -37,7 +37,7 @@
 #' \tabular{llll}{
 #' **Name** \tab **Type** \tab **Default** \tab **Description** \cr
 #'
-#' `auto.snapshot` \tab `logical[1]` \tab `TRUE` \tab
+#' `auto.snapshot` \tab `logical[1]` \tab `FALSE` \tab
 #'   Automatically snapshot changes to the project library after a new package
 #'   is installed with `renv::install()`, or removed with `renv::remove()`?
 #'   \cr
