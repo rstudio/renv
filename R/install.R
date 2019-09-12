@@ -64,7 +64,7 @@ install <- function(packages = NULL,
   names(remotes) <- packages
   records[names(remotes)] <- remotes
 
-  if (!renv_install_preflight(project, library, records, confirm)) {
+  if (!renv_install_preflight(project, library, remotes, confirm)) {
     message("* Operation aborted.")
     return(FALSE)
   }
