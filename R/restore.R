@@ -6,12 +6,12 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param library The library paths to be used during restore. See **Library**
+#'   for details.
+#'
 #' @param lockfile The lockfile to be used for restoration of the associated
 #'   project. When `NULL`, the most recently generated lockfile for this project
 #'   is used.
-#'
-#' @param library The library paths to be used during restore. See **Library**
-#'   for details.
 #'
 #' @param clean Boolean; remove packages not recorded in the lockfile from
 #'   the target library? Use `clean = TRUE` if you'd like the library state
@@ -44,6 +44,11 @@ restore <- function(project  = NULL,
   project  <- project %||% renv_project()
   library  <- library %||% renv_libpaths_all()
   lockfile <- lockfile %||% renv_lockfile_load(project = project)
+
+  # override repositories if requested
+  repos <- renv_config("repos.override")
+  if (!is.null(repos))
+    renv_scope_options(repos = repos)
 
   # activate the requested library
   ensure_directory(library)

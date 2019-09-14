@@ -42,7 +42,7 @@ The following \code{renv} configuration options are available:
 \tabular{llll}{
 \strong{Name} \tab \strong{Type} \tab \strong{Default} \tab \strong{Description} \cr
 
-\code{auto.snapshot} \tab \code{logical[1]} \tab \code{TRUE} \tab
+\code{auto.snapshot} \tab \code{logical[1]} \tab \code{FALSE} \tab
 Automatically snapshot changes to the project library after a new package
 is installed with \code{renv::install()}, or removed with \code{renv::remove()}?
 \cr
@@ -66,6 +66,13 @@ external libraries; for example, if your project required \code{xyz 1.0} but
 \code{xyz 1.1} was present and loaded from an external library. Can also be an
 \R function that provides the paths to external libraries. Library paths
 will be expanded through \link{.expand_R_libs_env_var} as necessary.
+\cr
+
+\code{repos.override} \tab \code{character[n]} \tab \code{NULL} \tab
+Override the R package repositories used during \link{restore}. Primarily
+useful for deployment / continuous integration, where you might want
+to enforce the usage of some set of repositories over what is defined
+in \code{renv.lock} or otherwise set by the R session.
 \cr
 
 \code{sandbox.enabled} \tab \code{logical[1]} \tab \code{FALSE} \tab

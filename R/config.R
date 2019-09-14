@@ -63,6 +63,13 @@
 #'   will be expanded through [.expand_R_libs_env_var] as necessary.
 #'   \cr
 #'
+#' `repos.override` \tab `character[*]` \tab `NULL` \tab
+#'   Override the R package repositories used during [restore]. Primarily
+#'   useful for deployment / continuous integration, where you might want
+#'   to enforce the usage of some set of repositories over what is defined
+#'   in `renv.lock` or otherwise set by the R session.
+#'   \cr
+#'
 #' `sandbox.enabled` \tab `logical[1]` \tab `FALSE` \tab
 #'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
 #'   sandbox the system library, preventing user-installed packages in the

@@ -52,6 +52,11 @@ install <- function(packages = NULL,
   if (is.null(packages))
     stopf("no packages specified in renv::install() request")
 
+  # override repositories if requested
+  repos <- renv_config("repos.override")
+  if (!is.null(repos))
+    renv_scope_options(repos = repos)
+
   records <- renv_snapshot_r_packages(library = library)
   remotes <- lapply(packages, function(package) {
     case(
