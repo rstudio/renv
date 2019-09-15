@@ -427,9 +427,9 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
 
 }
 
-renv_snapshot_description <- function(path) {
+renv_snapshot_description <- function(path = NULL, package = NULL) {
 
-  dcf <- catch(renv_description_read(path))
+  dcf <- catch(renv_description_read(path, package))
   if (inherits(dcf, "error"))
     return(dcf)
 

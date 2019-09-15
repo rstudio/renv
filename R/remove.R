@@ -10,8 +10,8 @@
 #'   `NULL`, the active library (that is, the first entry reported in
 #'   `.libPaths()`) is used instead.
 #'
-#' @return The number of packages successfully removed, invisibly. Note
-#'   that this function is normally called for its side effects.
+#' @return A vector of package records, describing the packages (if any) which
+#'   were successfully removed.
 #'
 #' @export
 #'
@@ -25,6 +25,11 @@ remove <- function(packages,
   project <- project %||% renv_project()
   library <- library %||% renv_libpaths_default()
 
+  descpaths <- file.path(library, packages, "DESCRIPTION")
+  records <- lapply(descpaths, renv_snapshot_description)
+  names(records) <- packages
+  records <- Filter(function(record) !inherits(record, "error"), records)
+
   if (library == renv_paths_library(project = project)) {
     vwritef("* Removing package(s) from project library ...")
     on.exit(renv_snapshot_auto(project = project), add = TRUE)
@@ -34,8 +39,8 @@ remove <- function(packages,
   }
 
   if (length(packages) == 1) {
-    count <- as.numeric(renv_remove_impl(packages, library))
-    return(invisible(count))
+    renv_remove_impl(packages, library)
+    return(invisible(records))
   }
 
   count <- 0
@@ -45,7 +50,7 @@ remove <- function(packages,
   }
 
   vwritef("* Done! Removed %i %s.", count, plural("package", count))
-  invisible(count)
+  invisible(records)
 }
 
 renv_remove_impl <- function(package, library) {
