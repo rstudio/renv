@@ -10,6 +10,9 @@
 #'
 #' @param ... Optional arguments; reserved for future expansion.
 #'
+#' @return The project directory, invisibly. Note that this function is normally
+#'   called for its side effects.
+#'
 #' @name renv-params
 NULL
 

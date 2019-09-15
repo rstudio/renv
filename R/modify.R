@@ -5,12 +5,11 @@
 #' edited is associated with the active project, any state-related changes
 #' (e.g. to \R repositories) will be updated in the current session.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # modify an existing lockfile
@@ -18,11 +17,11 @@
 #'   renv::modify()
 #'
 #' }
-#' }
 modify <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
-  invisible(renv_modify_impl(project))
+  renv_modify_impl(project)
+  invisible(project)
 }
 
 renv_modify_impl <- function(project) {
@@ -42,7 +41,7 @@ renv_modify_impl <- function(project) {
     return(NULL)
   }
 
-  options(repos = convert(lockfile$R$Repositories, "character"))
-  NULL
+  repos <- lockfile$R$Repositories
+  options(repos = convert(repos, "character"))
 
 }

@@ -19,6 +19,10 @@ library as reported by \code{.libPaths()} is used.}
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+A named \R list, giving the packages that were used for hydration
+as well as the set of packages which were not found.
+}
 \description{
 Discover the \R packages used within a project, and then install those
 packages into the active library. This effectively allows you to clone the

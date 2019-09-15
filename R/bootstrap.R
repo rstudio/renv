@@ -7,7 +7,7 @@
 #' Normally, this function does not need to be called directly by the user; it
 #' will be invoked as required by [init()] and [activate()].
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param version The version of `renv` to install. If `NULL`, the version
 #'   of `renv` currently installed will be used. The requested version of

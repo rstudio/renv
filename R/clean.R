@@ -11,18 +11,16 @@
 #' - Unused packages within the project will be removed.
 #' - Packages within the cache that are no longer used will be removed.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # clean the current project
 #' renv::clean()
 #'
-#' }
 #' }
 clean <- function(project = NULL,
                   ...,
@@ -44,6 +42,7 @@ clean <- function(project = NULL,
     "* The project is already clean."
 
   vwritef(msg)
+  invisible(status)
 }
 
 renv_clean_library_tempdirs <- function(project, confirm) {

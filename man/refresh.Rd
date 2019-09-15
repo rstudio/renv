@@ -6,6 +6,11 @@
 \usage{
 refresh()
 }
+\value{
+A list of package databases, invisibly -- one for each repository
+currently active in the \R session. Note that this function is normally
+called for its side effects.
+}
 \description{
 Query the active R package repositories for available packages, and
 update the in-memory cache of those packages.

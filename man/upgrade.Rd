@@ -17,6 +17,11 @@ used.}
 
 \item{confirm}{Boolean; confirm upgrade before proceeding?}
 }
+\value{
+A boolean value, indicating whether the requested version of
+\code{renv} was successfully instaled. Note that this function is normally
+called for its side effects.
+}
 \description{
 Upgrade the version of \code{renv} associated with a project.
 }

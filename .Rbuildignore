@@ -20,5 +20,6 @@
 ^git$
 ^internal$
 ^renv$
+^tags$
 ^tools$
 

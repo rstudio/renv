@@ -12,7 +12,7 @@
 #' looking to purge the cache of a package which is difficult to install, or
 #' if the original sources for that package are no longer available!
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param package A single package to be removed from the cache.
 #' @param version The package version to be removed. When `NULL`, all versions
@@ -20,10 +20,12 @@
 #' @param hash The specific hashes to be removed. When `NULL`, all hashes
 #'   associated with a particular package's version will be removed.
 #'
+#' @return The set of packages removed from the `renv` global cache,
+#'   as a character vector of file paths.
+#'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # remove all versions of 'digest' from the cache
@@ -32,7 +34,6 @@
 #' # remove only a particular version of 'digest' from the cache
 #' renv::purge("digest", version = "0.6.19")
 #'
-#' }
 #' }
 purge <- function(package,
                   ...,

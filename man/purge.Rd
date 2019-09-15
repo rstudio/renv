@@ -20,6 +20,10 @@ associated with a particular package's version will be removed.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
+\value{
+The set of packages removed from the \code{renv} global cache,
+as a character vector of file paths.
+}
 \description{
 Purge packages from the cache. This can be useful if a package which had
 previously been installed in the cache has become corrupted or unusable,

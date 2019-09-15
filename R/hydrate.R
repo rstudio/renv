@@ -24,7 +24,7 @@
 #' installed in your user library, then it will attempt to install those
 #' packages from the active R repositories.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param packages The set of \R packages to install. When `NULL`, the
 #'   set of packages as reported by [dependencies()] is used.
@@ -32,16 +32,17 @@
 #' @param library The \R library to be hydrated. When `NULL`, the active
 #'   library as reported by `.libPaths()` is used.
 #'
+#' @return A named \R list, giving the packages that were used for hydration
+#'   as well as the set of packages which were not found.
+#'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # hydrate the active library
 #' renv::hydrate()
 #'
-#' }
 #' }
 hydrate <- function(packages = NULL,
                     ...,

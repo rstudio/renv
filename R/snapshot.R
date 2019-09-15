@@ -45,7 +45,7 @@
 #' configured on a project-specific basis using the `renv` project [settings]
 #' mechanism.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param library The \R libraries to snapshot. When `NULL`, the active \R
 #'   libraries (as reported by `.libPaths()`) are used.
@@ -58,6 +58,9 @@
 #' @param type The type of snapshot to perform. See **Snapshot Type** for
 #'   more details. When `NULL` (the default), a "packrat"-style snapshot
 #'   is performed.
+#'
+#' @return The generated lockfile, as an \R object (invisibly). Note that
+#'   this function is normally called for its side effects.
 #'
 #' @family reproducibility
 #'
@@ -130,7 +133,6 @@ snapshot <- function(project  = NULL,
   renv_infrastructure_write_rbuildignore(project)
 
   invisible(new)
-
 }
 
 renv_snapshot_preflight <- function(project, library) {

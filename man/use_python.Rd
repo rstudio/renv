@@ -33,6 +33,11 @@ Otherwise, a project-local environment will be created instead.}
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+\code{TRUE}, indicating that the requested version of Python has been
+successfully activated. Note that this function is normally called for
+its side effects.
+}
 \description{
 Associate a version of Python with your project.
 }

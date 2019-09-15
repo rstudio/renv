@@ -11,6 +11,10 @@ modify(project = NULL)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+The project directory, invisibly. Note that this function is normally
+called for its side effects.
+}
 \description{
 Open a project's lockfile (if any) for editing. After edit, if the lockfile
 edited is associated with the active project, any state-related changes

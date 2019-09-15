@@ -25,6 +25,8 @@
 #'   consent from a non-interactive \R session, you can invoke
 #'   `renv::consent(provided = TRUE)` explicitly.
 #'
+#' @return `TRUE` if consent is provided, or an \R error otherwise.
+#'
 #' @export
 consent <- function(provided = FALSE) {
 

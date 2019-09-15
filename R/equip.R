@@ -4,18 +4,18 @@
 #' Equip your system with libraries commonly-used during compilation of
 #' \R packages. Currently only supported on Windows.
 #'
+#' @return This function is normally called for its side effects.
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # download useful build tools
 #' renv::equip()
 #'
 #' }
-#' }
 equip <- function() {
+
   renv_scope_error_handler()
 
   case(
@@ -23,6 +23,9 @@ equip <- function() {
     renv_platform_macos()   ~ renv_equip_macos(),
     renv_platform_linux()   ~ renv_equip_linux()
   )
+
+  invisible(NULL)
+
 }
 
 renv_equip_windows <- function() {

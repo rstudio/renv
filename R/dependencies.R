@@ -52,13 +52,11 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # find R package dependencies in the current directory
 #' renv::dependencies()
 #'
-#' }
 #' }
 dependencies <- function(path = getwd(), quiet = FALSE) {
 

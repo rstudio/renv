@@ -16,6 +16,10 @@ directory is used instead.}
 argument list for components of the Packrat project that can be migrated.
 Select a subset of those components for migration as appropriate.}
 }
+\value{
+The project directory, invisibly. Note that this function is normally
+called for its side effects.
+}
 \description{
 Migrate a project's infrastructure from Packrat to \code{renv}.
 }

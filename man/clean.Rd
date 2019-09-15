@@ -15,6 +15,10 @@ directory is used instead.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
+\value{
+The project directory, invisibly. Note that this function is normally
+called for its side effects.
+}
 \description{
 Clean up a project and its associated \R libraries.
 }

@@ -27,6 +27,10 @@ misusages of \code{init()}.}
 the project? A session restart will be attempted if the \code{"restart"} \R
 option is set by the frontend embedding \R.}
 }
+\value{
+The project directory, invisibly. Note that this function is normally
+called for its side effects.
+}
 \description{
 Discover packages used within the current project, and then initialize a
 project-local private \R library with those packages. The currently-installed

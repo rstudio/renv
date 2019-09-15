@@ -6,6 +6,9 @@
 \usage{
 equip()
 }
+\value{
+This function is normally called for its side effects.
+}
 \description{
 Equip your system with libraries commonly-used during compilation of
 \R packages. Currently only supported on Windows.

@@ -84,22 +84,22 @@ renv_update_find <- function(record) {
 #' if a package was installed from GitHub, but a newer version is
 #' available on CRAN, that updated version will not be seen.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #' @inheritParams install-params
 #'
 #' @param packages A character vector of \R packages to update. When `NULL`,
 #'   all packages within the required libraries will be updated.
 #'
+#' @return A named list of package records which were installed by `renv`.
+#'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # update the 'dplyr' package
 #' renv::update("dplyr")
 #'
-#' }
 #' }
 update <- function(packages = NULL,
                    ...,

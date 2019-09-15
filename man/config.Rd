@@ -68,7 +68,7 @@ external libraries; for example, if your project required \code{xyz 1.0} but
 will be expanded through \link{.expand_R_libs_env_var} as necessary.
 \cr
 
-\code{repos.override} \tab \code{character[n]} \tab \code{NULL} \tab
+\code{repos.override} \tab \code{character[*]} \tab \code{NULL} \tab
 Override the R package repositories used during \link{restore}. Primarily
 useful for deployment / continuous integration, where you might want
 to enforce the usage of some set of repositories over what is defined

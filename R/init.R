@@ -52,7 +52,7 @@
 #'   package development; e.g. when attempting to build or install a package
 #'   using `renv`.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param project The project directory. The \R working directory will be
 #'   changed to match the requested project directory.
@@ -117,7 +117,7 @@ init <- function(project = NULL,
   # activate the newly-hydrated project
   version <- renv_package_version("renv")
   status <- renv_activate_impl(project, version, restart)
-  invisible(status)
+  invisible(project)
 
 }
 

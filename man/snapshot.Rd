@@ -30,6 +30,10 @@ is performed.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
+\value{
+The generated lockfile, as an \R object (invisibly). Note that
+this function is normally called for its side effects.
+}
 \description{
 Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a project's
 \R package dependencies. The lockfile can be used to later restore these

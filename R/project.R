@@ -11,13 +11,11 @@
 #' @return The active project directory, as a length-one character vector.
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # get the currently-active renv project
 #' renv::project()
 #'
-#' }
 #' }
 project <- function(default = NULL) {
   renv_project(default = default)

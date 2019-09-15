@@ -10,7 +10,7 @@
 #' platform. If you'd like to force packages to be rebuilt from sources, you
 #' can set `options(pkgType = "source")`.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param packages The package(s) to be rebuilt. When `NULL`, all packages
 #'   in the library will be installed.
@@ -18,10 +18,11 @@
 #' @param recursive Boolean; should dependencies of packages be rebuilt
 #'   recursively? Defaults to `TRUE`.
 #'
+#' @return A named list of package records which were installed by `renv`.
+#'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # rebuild the 'dplyr' package + all of its dependencies
@@ -30,7 +31,6 @@
 #' # rebuild only 'dplyr'
 #' renv::rebuild("dplyr", recursive = FALSE)
 #'
-#' }
 #' }
 rebuild <- function(packages  = NULL,
                     recursive = TRUE,

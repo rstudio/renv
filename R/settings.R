@@ -290,7 +290,6 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' @examples
 #'
-#' \donttest{
 #' \dontrun{
 #'
 #' # view currently-ignored packaged
@@ -299,7 +298,6 @@ renv_settings_impl <- function(name, validate, default, update) {
 #' # ignore a set of packages
 #' renv::settings$ignored.packages("devtools", persist = FALSE)
 #'
-#' }
 #' }
 settings <- list(
 

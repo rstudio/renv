@@ -11,6 +11,10 @@ deactivate(project = NULL)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+The project directory, invisibly. Note that this function is normally
+called for its side effects.
+}
 \description{
 Use \code{deactivate()} to remove the infrastructure used by \code{renv} to activate
 projects for newly-launched \R sessions. In particular, this implies removing

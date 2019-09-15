@@ -17,7 +17,7 @@
 #'
 #' - Reinstall the set of recorded Python packages during `renv::restore()`.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param ... Optional arguments; currently unused.
 #'
@@ -39,6 +39,10 @@
 #'   environment. If `NULL` and `python` points to a Python executable living
 #'   within a pre-existing virtual environment, that environment will be used.
 #'   Otherwise, a project-local environment will be created instead.
+#'
+#' @return `TRUE`, indicating that the requested version of Python has been
+#'   successfully activated. Note that this function is normally called for
+#'   its side effects.
 #'
 #' @export
 #'

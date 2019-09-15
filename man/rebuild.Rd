@@ -25,6 +25,9 @@ library will be used instead.}
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+A named list of package records which were installed by \code{renv}.
+}
 \description{
 Rebuild and reinstall packages in your library. This can be useful as a
 diagnostic tool -- for example, if you find that one or more of your

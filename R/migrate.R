@@ -38,7 +38,7 @@
 #'
 #' }
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param packrat Components of the Packrat project to migrate. See the default
 #'   argument list for components of the Packrat project that can be migrated.
@@ -47,13 +47,11 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # migrate Packrat project infrastructure to renv
 #' renv::migrate()
 #'
-#' }
 #' }
 migrate <- function(
   project = NULL,
@@ -69,6 +67,8 @@ migrate <- function(
     packrat <- match.arg(packrat, several.ok = TRUE)
     renv_migrate_packrat(project, packrat)
   }
+
+  invisible(project)
 }
 
 renv_migrate_packrat <- function(project = NULL, components = NULL) {

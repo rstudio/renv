@@ -4,13 +4,15 @@
 #' Report differences between the project's lockfile and the current state of
 #' the private library (if any).
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param library The path to a library. By default, the project library
 #'   associated with the requested project `project` is used.
 #'
 #' @param lockfile The path to a lockfile. By default, the project lockfile
 #'   (called `renv.lock`) is used.
+#'
+#' @return This function is normally called for its side effects.
 #'
 #' @export
 #'

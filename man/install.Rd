@@ -28,6 +28,9 @@ vector of package names indicating which packages should be rebuilt.}
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+A named list of package records which were installed by \code{renv}.
+}
 \description{
 Install one or more \R packages from a variety of remote sources.
 }

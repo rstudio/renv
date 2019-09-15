@@ -11,7 +11,7 @@
 #' latest development version of `renv`, as from the `renv` project's [GitHub
 #' page](https://github.com/rstudio/renv).
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param version The version of `renv` to be installed. By default, the latest
 #'   version of `renv` as available on the active R package repositories is
@@ -19,10 +19,13 @@
 #'
 #' @param confirm Boolean; confirm upgrade before proceeding?
 #'
+#' @return A boolean value, indicating whether the requested version of
+#'   `renv` was successfully instaled. Note that this function is normally
+#'   called for its side effects.
+#'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # upgrade to the latest version of renv
@@ -31,7 +34,6 @@
 #' # upgrade to the latest version of renv on GitHub (development version)
 #' renv::upgrade(version = "master")
 #'
-#' }
 #' }
 upgrade <- function(project = NULL,
                     version = NULL,
@@ -97,6 +99,7 @@ renv_upgrade_impl <- function(project, version, confirm) {
 
   # and restart
   renv_request_restart(project, reason = "renv upgraded")
+  invisible(TRUE)
 
 }
 

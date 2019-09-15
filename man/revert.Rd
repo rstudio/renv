@@ -15,6 +15,10 @@ revert(commit = "HEAD", ..., project = NULL)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+The commit used when reverting \code{renv.lock}. Note that this function
+is normally called for its side effects.
+}
 \description{
 Revert the lockfile to its contents at a prior commit.
 }

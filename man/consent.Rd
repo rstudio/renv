@@ -11,6 +11,9 @@ consent(provided = FALSE)
 consent from a non-interactive \R session, you can invoke
 \code{renv::consent(provided = TRUE)} explicitly.}
 }
+\value{
+\code{TRUE} if consent is provided, or an \R error otherwise.
+}
 \description{
 Provide consent to \code{renv}, allowing it to write and update certain files
 on your filesystem.

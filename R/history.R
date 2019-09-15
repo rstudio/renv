@@ -7,7 +7,7 @@
 #' The `history()` function is currently only implemented for projects using
 #' `git` for version control.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @export
 #'
@@ -48,10 +48,13 @@ history <- function(project = NULL) {
 #' The `revert()` function is currently only implemented for projects using
 #' `git` for version control.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param commit The commit associated with a prior version of the lockfile.
 #' @param ... Optional arguments; currently unused.
+#'
+#' @return The commit used when reverting `renv.lock`. Note that this function
+#'   is normally called for its side effects.
 #'
 #' @export
 #'

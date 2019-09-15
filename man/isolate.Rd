@@ -11,6 +11,10 @@ isolate(project = NULL)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+The project directory, invisibly. Note that this function is normally
+called for its side effects.
+}
 \description{
 Copy packages from the \code{renv} cache directly into the project library, so
 that the project can continue to function independently of the \code{renv} cache.

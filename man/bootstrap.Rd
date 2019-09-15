@@ -16,6 +16,10 @@ of \code{renv} currently installed will be used. The requested version of
 \code{renv} will be retrieved from the \code{renv} public GitHub repository,
 at \url{https://github.com/rstudio/renv}.}
 }
+\value{
+The project directory, invisibly. Note that this function is normally
+called for its side effects.
+}
 \description{
 Bootstrap an \code{renv} installation, making the requested version of
 \code{renv} available for projects on the system.

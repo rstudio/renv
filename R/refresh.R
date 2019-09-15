@@ -10,10 +10,13 @@
 #' cache as on occasion the temporary directory can be slow to access (e.g.
 #' when it is a mounted network filesystem).
 #'
+#' @return A list of package databases, invisibly -- one for each repository
+#'   currently active in the \R session. Note that this function is normally
+#'   called for its side effects.
+#'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # check available packages
@@ -26,7 +29,6 @@
 #' # (the old locally cached db will be removed)
 #' db <- renv::refresh()
 #'
-#' }
 #' }
 refresh <- function() {
 

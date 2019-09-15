@@ -3,12 +3,15 @@
 #'
 #' Remove (uninstall) \R packages.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param packages A character vector of \R packages to remove.
 #' @param library The library from which packages should be removed. When
 #'   `NULL`, the active library (that is, the first entry reported in
 #'   `.libPaths()`) is used instead.
+#'
+#' @return The number of packages successfully removed, invisibly. Note
+#'   that this function is normally called for its side effects.
 #'
 #' @export
 #'

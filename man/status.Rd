@@ -19,6 +19,9 @@ associated with the requested project \code{project} is used.}
 \item{lockfile}{The path to a lockfile. By default, the project lockfile
 (called \code{renv.lock}) is used.}
 }
+\value{
+This function is normally called for its side effects.
+}
 \description{
 Report differences between the project's lockfile and the current state of
 the private library (if any).

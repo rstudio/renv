@@ -12,13 +12,14 @@
 #' Note that this interface is subject to change -- the goal is to hook into
 #' separate package installation backends in the future.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #' @inheritParams install-params
+#'
+#' @return A named list of package records which were installed by `renv`.
 #'
 #' @export
 #'
 #' @examples
-#' \donttest{
 #' \dontrun{
 #'
 #' # install the latest version of 'digest'
@@ -33,7 +34,6 @@
 #' # install a package from local sources
 #' renv::install("~/path/to/package")
 #'
-#' }
 #' }
 install <- function(packages = NULL,
                     ...,

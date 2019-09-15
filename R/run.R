@@ -4,7 +4,7 @@
 #' Run an \R script, with an `renv` project active. The script will be run as
 #' an \R sub-process.
 #'
-#' @inheritParams renv-params
+#' @inherit renv-params
 #'
 #' @param script The path to an \R script.
 #'
