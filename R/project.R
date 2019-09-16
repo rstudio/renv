@@ -71,17 +71,19 @@ renv_project_records <- function(project) {
   # if this project has a DESCRIPTION file, use it to provide records
   descpath <- file.path(project, "DESCRIPTION")
   if (file.exists(descpath))
-    return(renv_project_records_description(descpath))
+    return(renv_project_records_description(project, descpath))
 
 }
 
-renv_project_records_description <- function(descpath) {
+renv_project_records_description <- function(project, descpath) {
 
   # parse explicit dependencies from DESCRIPTION file
   # TODO: handle version requirements
   fields <- c("Depends", "Imports", "LinkingTo", "Suggests")
   deps <- renv_dependencies_discover_description(descpath, fields)
-  records <- lapply(deps$Package, renv_remotes_resolve)
+  ignored <- settings$ignored.packages(project = project)
+  packages <- setdiff(deps$Package, c("R", ignored))
+  records <- lapply(packages, renv_remotes_resolve)
   names(records) <- extract_chr(records, "Package")
 
   # parse remotes (if any)
