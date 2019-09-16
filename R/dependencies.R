@@ -101,20 +101,8 @@ renv_dependencies_callback <- function(path) {
 }
 
 renv_dependencies_find <- function(path = getwd(), root = getwd()) {
-
-  # if the path requested contains a DESCRIPTION file, do not recurse
-  # (include 'renv.lock' as signal to include renv if required)
-  descpath <- file.path(path, "DESCRIPTION")
-  if (file.exists(descpath)) {
-    paths <- c(descpath, file.path(path, "renv.lock"))
-    existing <- paths[file.exists(paths)]
-    return(existing)
-  }
-
-  # otherwise, we'll search files in the project recursively
   files <- renv_dependencies_find_impl(path, root)
   unlist(files, recursive = TRUE, use.names = FALSE)
-
 }
 
 renv_dependencies_find_impl <- function(path, root) {
