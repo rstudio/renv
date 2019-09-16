@@ -32,6 +32,10 @@ package repositories.
 3. Ensure that the project library, as well as the global `renv` cache, are
    cached by the CI service.
 
+Normally, `renv` will use the R package repositories as encoded in `renv.lock`
+during restore, and this will override any repositories set in other locations
+(e.g. in `.Rprofile` or `.Rprofile.site`). We'll discuss some strategies for
+providing an alternate R package repository to use during restore below.
 
 ## Travis CI
 
@@ -47,6 +51,29 @@ cache:
 before_install:
   - Rscript -e "renv::restore()"
 ```
+
+It's also possible to override the package repository used during restore by
+setting the `RENV_CONFIG_REPOS_OVERRIDE` environment variable. For example:
+
+```
+env:
+  global:
+    - RENV_CONFIG_REPOS_OVERRIDE=<cran>
+```
+
+replacing `<cran>` with your desired R package repository. This can also be
+accomplished in a similar way by setting:
+
+```
+options(renv.config.repos.override = <...>)
+```
+
+but it is generally more ergonomic to set the associated environment variable.
+(See `?config` for more details.)
+
+This can be useful if you'd like to, for example, enforce the usage of a
+[MRAN](https://mran.microsoft.com) checkpoint during restore, or another
+similarly-equipped repository.
 
 See <https://docs.travis-ci.com/user/caching> for more details on how Travis
 manages caching.
