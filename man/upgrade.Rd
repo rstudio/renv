@@ -19,7 +19,7 @@ used.}
 }
 \value{
 A boolean value, indicating whether the requested version of
-\code{renv} was successfully instaled. Note that this function is normally
+\code{renv} was successfully installed. Note that this function is normally
 called for its side effects.
 }
 \description{

@@ -141,7 +141,7 @@ of that particular version of `renv` if so required.
 One of `renv`'s primary features is the use of a global package cache, which
 is shared across all projects using `renv`. The cache works as follows:
 
-1. During `renv::init()`, package depencencies in the project are discovered.
+1. During `renv::init()`, package dependencies in the project are discovered.
 2. These dependencies are then installed into the `renv` cache.
 3. These packages are then linked into the project library.
 

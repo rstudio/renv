@@ -20,7 +20,7 @@
 #' @param confirm Boolean; confirm upgrade before proceeding?
 #'
 #' @return A boolean value, indicating whether the requested version of
-#'   `renv` was successfully instaled. Note that this function is normally
+#'   `renv` was successfully installed. Note that this function is normally
 #'   called for its side effects.
 #'
 #' @export
