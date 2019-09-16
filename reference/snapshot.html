@@ -8,11 +8,13 @@
 
 <title>Snapshot a Project — snapshot • renv</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -32,13 +34,14 @@
 
 
 
-<meta property="og:title" content="Snapshot a Project — snapshot" />
 
+<meta property="og:title" content="Snapshot a Project — snapshot" />
 <meta property="og:description" content="Call snapshot() to create a lockfile capturing the state of a project's
 R package dependencies. The lockfile can be used to later restore these
 project's dependencies as required. See the lockfile documentation for more
 details on the structure of a lockfile." />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -69,7 +72,7 @@ details on the structure of a lockfile." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.55</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.56</span>
       </span>
     </div>
 
@@ -118,7 +121,6 @@ details on the structure of a lockfile." />
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -140,19 +142,17 @@ details on the structure of a lockfile." />
     </div>
 
     <div class="ref-description">
-    
     <p>Call <code>snapshot()</code> to create a <strong>lockfile</strong> capturing the state of a project's
 <span style="R">R</span> package dependencies. The lockfile can be used to later restore these
 project's dependencies as required. See the <a href='lockfile.html'>lockfile</a> documentation for more
 details on the structure of a lockfile.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>snapshot</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>),
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='no'>settings</span>$<span class='fu'>snapshot.type</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='no'>project</span>),
   <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -189,12 +189,11 @@ is performed.</p></td>
       <td><p>Boolean; prompt the user before taking any action?</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The generated lockfile, as an <span style="R">R</span> object (invisibly). Note that
 this function is normally called for its side effects.</p>
-    
     <h2 class="hasAnchor" id="snapshot-type"><a class="anchor" href="#snapshot-type"></a>Snapshot Type</h2>
 
     
@@ -230,12 +229,10 @@ in the lockfile.</p></dd>
 <p>By default, <code>"packrat"</code>-style snapshots are used. The snapshot type can be
 configured on a project-specific basis using the <code>renv</code> project <a href='settings.html'>settings</a>
 mechanism.</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other reproducibility: <code><a href='lockfile.html'>lockfile</a></code>,
   <code><a href='restore.html'>restore</a></code></p></div>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
@@ -271,13 +268,9 @@ mechanism.</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#snapshot-type">Snapshot Type</a></li>
-
       <li><a href="#see-also">See also</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 

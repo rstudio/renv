@@ -8,11 +8,13 @@
 
 <title>Refresh the Local Cache of Available Packages — refresh • renv</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -32,11 +34,12 @@
 
 
 
-<meta property="og:title" content="Refresh the Local Cache of Available Packages — refresh" />
 
+<meta property="og:title" content="Refresh the Local Cache of Available Packages — refresh" />
 <meta property="og:description" content="Query the active R package repositories for available packages, and
 update the in-memory cache of those packages." />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -67,7 +70,7 @@ update the in-memory cache of those packages." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.55</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.56</span>
       </span>
     </div>
 
@@ -116,7 +119,6 @@ update the in-memory cache of those packages." />
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -138,20 +140,18 @@ update the in-memory cache of those packages." />
     </div>
 
     <div class="ref-description">
-    
     <p>Query the active R package repositories for available packages, and
 update the in-memory cache of those packages.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>refresh</span>()</pre>
-        
+
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A list of package databases, invisibly -- one for each repository
 currently active in the <span style="R">R</span> session. Note that this function is normally
 called for its side effects.</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Note that <span style="R">R</span> also maintains its own on-disk cache of available packages,
@@ -159,7 +159,6 @@ which is used by <code><a href='https://rdrr.io/r/utils/available.packages.html'
 an update of both types of caches. <code>renv</code> prefers using an in-memory
 cache as on occasion the temporary directory can be slow to access (e.g.
 when it is a mounted network filesystem).</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
@@ -179,11 +178,8 @@ when it is a mounted network filesystem).</p>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
