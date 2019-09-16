@@ -20,8 +20,8 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \value{
-The number of packages successfully removed, invisibly. Note
-that this function is normally called for its side effects.
+A vector of package records, describing the packages (if any) which
+were successfully removed.
 }
 \description{
 Remove (uninstall) \R packages.

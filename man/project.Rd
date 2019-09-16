@@ -17,12 +17,10 @@ The active project directory, as a length-one character vector.
 Retrieve the path to the active project (if any).
 }
 \examples{
-\donttest{
 \dontrun{
 
 # get the currently-active renv project
 renv::project()
 
-}
 }
 }

@@ -55,7 +55,6 @@ as appropriate,
 }
 }
 \examples{
-\donttest{
 \dontrun{
 
 # use python with a project
@@ -67,6 +66,5 @@ renv::use_python(type = "virtualenv")
 # use conda python with a project
 renv::use_python(type = "conda")
 
-}
 }
 }

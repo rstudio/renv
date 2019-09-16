@@ -40,7 +40,6 @@ platform. If you'd like to force packages to be rebuilt from sources, you
 can set \code{options(pkgType = "source")}.
 }
 \examples{
-\donttest{
 \dontrun{
 
 # rebuild the 'dplyr' package + all of its dependencies
@@ -49,6 +48,5 @@ renv::rebuild("dplyr", recursive = TRUE)
 # rebuild only 'dplyr'
 renv::rebuild("dplyr", recursive = FALSE)
 
-}
 }
 }

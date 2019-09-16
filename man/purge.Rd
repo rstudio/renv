@@ -38,7 +38,6 @@ looking to purge the cache of a package which is difficult to install, or
 if the original sources for that package are no longer available!
 }
 \examples{
-\donttest{
 \dontrun{
 
 # remove all versions of 'digest' from the cache
@@ -47,6 +46,5 @@ renv::purge("digest")
 # remove only a particular version of 'digest' from the cache
 renv::purge("digest", version = "0.6.19")
 
-}
 }
 }

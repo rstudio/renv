@@ -52,12 +52,10 @@ packages from the active R repositories.
 }
 
 \examples{
-\donttest{
 \dontrun{
 
 # hydrate the active library
 renv::hydrate()
 
-}
 }
 }

@@ -61,12 +61,10 @@ Migrate packages from the Packrat cache to the \code{renv} cache.
 }
 
 \examples{
-\donttest{
 \dontrun{
 
 # migrate Packrat project infrastructure to renv
 renv::migrate()
 
-}
 }
 }

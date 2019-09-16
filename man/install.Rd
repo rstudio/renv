@@ -45,7 +45,6 @@ Note that this interface is subject to change -- the goal is to hook into
 separate package installation backends in the future.
 }
 \examples{
-\donttest{
 \dontrun{
 
 # install the latest version of 'digest'
@@ -60,6 +59,5 @@ renv::install("eddelbuettel/digest")
 # install a package from local sources
 renv::install("~/path/to/package")
 
-}
 }
 }

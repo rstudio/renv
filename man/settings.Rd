@@ -76,7 +76,6 @@ e.g. \code{~/.Rprofile} or similar.
 
 \examples{
 
-\donttest{
 \dontrun{
 
 # view currently-ignored packaged
@@ -85,7 +84,6 @@ renv::settings$ignored.packages()
 # ignore a set of packages
 renv::settings$ignored.packages("devtools", persist = FALSE)
 
-}
 }
 }
 \keyword{datasets}
