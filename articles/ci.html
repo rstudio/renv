@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.63</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.64</span>
       </span>
     </div>
 
@@ -113,6 +113,7 @@
 <li><p>Call <code><a href="../reference/restore.html">renv::restore()</a></code> on your CI service, to restore the project library from <code>renv.lock</code>;</p></li>
 <li><p>Ensure that the project library, as well as the global <code>renv</code> cache, are cached by the CI service.</p></li>
 </ol>
+<p>Normally, <code>renv</code> will use the R package repositories as encoded in <code>renv.lock</code> during restore, and this will override any repositories set in other locations (e.g. in <code>.Rprofile</code> or <code>.Rprofile.site</code>). We’ll discuss some strategies for providing an alternate R package repository to use during restore below.</p>
 <div id="travis-ci" class="section level2">
 <h2 class="hasAnchor">
 <a href="#travis-ci" class="anchor"></a>Travis CI</h2>
@@ -124,6 +125,14 @@
 
 before_install:
   - Rscript -e "renv::restore()"</code></pre>
+<p>It’s also possible to override the package repository used during restore by setting the <code>RENV_CONFIG_REPOS_OVERRIDE</code> environment variable. For example:</p>
+<pre><code>env:
+  global:
+    - RENV_CONFIG_REPOS_OVERRIDE=&lt;cran&gt;</code></pre>
+<p>replacing <code>&lt;cran&gt;</code> with your desired R package repository. This can also be accomplished in a similar way by setting:</p>
+<pre><code>options(renv.config.repos.override = &lt;...&gt;)</code></pre>
+<p>but it is generally more ergonomic to set the associated environment variable. (See <code><a href="../reference/config.html">?config</a></code> for more details.)</p>
+<p>This can be useful if you’d like to, for example, enforce the usage of a <a href="https://mran.microsoft.com">MRAN</a> checkpoint during restore, or another similarly-equipped repository.</p>
 <p>See <a href="https://docs.travis-ci.com/user/caching" class="uri">https://docs.travis-ci.com/user/caching</a> for more details on how Travis manages caching.</p>
 </div>
   </div>
