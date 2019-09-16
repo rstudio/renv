@@ -57,3 +57,9 @@ reference:
 - title: Miscellaneous
   contents:
   - consent
+
+vignettes:
+  menu:
+  - Introduction  : [renv, lockfile, faq, local-sources]
+  - Collaborating : [collaborating]
+  - Deployment    : [ci, docker]

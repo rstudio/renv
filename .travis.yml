@@ -10,7 +10,8 @@ matrix:
 
   - r: release
     before_cache:
-    - Rscript -e 'remotes::install_cran(c("pkgdown", "callr"))'
+    - Rscript -e 'remotes::install_cran("callr")'
+    - Rscript -e 'remotes::install_github("kevinushey/pkgdown@features/articles-navbar")'
     after_success:
     - Rscript -e 'covr::codecov()'
     deploy:
