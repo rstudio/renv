@@ -1,6 +1,6 @@
 pandoc: '2.2'
-pkgdown: 1.4.1
-pkgdown_sha: ~
+pkgdown: 1.4.1.9000
+pkgdown_sha: 2023018160e144d46d40d393fb0ca93d64e3e5d1
 articles:
   ci: ci.html
   collaborating: collaborating.html

@@ -8,11 +8,13 @@
 
 <title>Revert Lockfile — revert • renv</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
@@ -32,10 +34,11 @@
 
 
 
-<meta property="og:title" content="Revert Lockfile — revert" />
 
+<meta property="og:title" content="Revert Lockfile — revert" />
 <meta property="og:description" content="Revert the lockfile to its contents at a prior commit." />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -66,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.64</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.65</span>
       </span>
     </div>
 
@@ -91,14 +94,12 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">Introduction</li>
     <li>
-      <a href="../articles/ci.html">Using renv with Continuous Integration</a>
+      <a href="../articles/renv.html">Introduction to renv</a>
     </li>
     <li>
-      <a href="../articles/collaborating.html">Collaborating with renv</a>
-    </li>
-    <li>
-      <a href="../articles/docker.html">Using renv with Docker</a>
+      <a href="../articles/lockfile.html">Lockfiles</a>
     </li>
     <li>
       <a href="../articles/faq.html">Frequently Asked Questions</a>
@@ -106,11 +107,16 @@
     <li>
       <a href="../articles/local-sources.html">Local Sources</a>
     </li>
+    <li class="dropdown-header">Collaborating</li>
     <li>
-      <a href="../articles/lockfile.html">Lockfiles</a>
+      <a href="../articles/collaborating.html">Collaborating with renv</a>
+    </li>
+    <li class="dropdown-header">Deployment</li>
+    <li>
+      <a href="../articles/ci.html">Using renv with Continuous Integration</a>
     </li>
     <li>
-      <a href="../articles/python.html">Python Integration</a>
+      <a href="../articles/docker.html">Using renv with Docker</a>
     </li>
   </ul>
 </li>
@@ -118,7 +124,6 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -140,13 +145,11 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Revert the lockfile to its contents at a prior commit.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>revert</span>(<span class='kw'>commit</span> <span class='kw'>=</span> <span class='st'>"HEAD"</span>, <span class='no'>...</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -165,17 +168,15 @@ be used. If no project is currently active, then the current working
 directory is used instead.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>The commit used when reverting <code>renv.lock</code>. Note that this function
 is normally called for its side effects.</p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The <code>revert()</code> function is currently only implemented for projects using
 <code>git</code> for version control.</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
@@ -195,11 +196,8 @@ is normally called for its side effects.</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#details">Details</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
@@ -213,7 +211,7 @@ is normally called for its side effects.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.9000.</p>
 </div>
 
       </footer>
