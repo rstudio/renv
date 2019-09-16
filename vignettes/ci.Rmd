@@ -1,0 +1,53 @@
+---
+title: "Using renv with Continuous Integration"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ci}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+When building, deploying, or testing with continuous integration (CI) systems
+(e.g. [Travis](https://www.travis-ci.org), [AppVeyor](https://www.appveyor.com),
+and others), one often needs to download and install a set of R packages
+before the service can be run. Normally, one will have to download and
+re-install these packages on each build, which can often be slow -- especially
+in environments where binary packages are not available from your R
+package repositories.
+
+`renv` can often be helpful in these situations. The general idea is:
+
+1. Call `renv::snapshot()` on your local machine, to generate `renv.lock`;
+
+2. Call `renv::restore()` on your CI service, to restore the project library
+   from `renv.lock`;
+   
+3. Ensure that the project library, as well as the global `renv` cache, are
+   cached by the CI service.
+
+
+## Travis CI
+
+On Travis CI, one can add the following entries to `.travis.yml` to accomplish
+the above:
+
+```
+cache:
+  directories:
+  - $HOME/.local/share/renv
+  - $TRAVIS_BUILD_DIR/renv/library
+
+before_install:
+  - Rscript -e "renv::restore()"
+```
+
+See <https://docs.travis-ci.com/user/caching> for more details on how Travis
+manages caching.
+
