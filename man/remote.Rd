@@ -10,7 +10,6 @@ remote(spec)
 \item{spec}{A remote specification.}
 }
 \description{
-Given a \href{https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html}{remote spec},
-resolve it into an \code{renv} package record that can be used for download and
-installation (e.g. with \link{install}).
+Given a remote specification, resolve it into an \code{renv} package record that
+can be used for download and installation (e.g. with \link{install}).
 }
