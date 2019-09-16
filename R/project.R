@@ -79,7 +79,8 @@ renv_project_records_description <- function(descpath) {
 
   # parse explicit dependencies from DESCRIPTION file
   # TODO: handle version requirements
-  deps <- renv_dependencies_discover_description(descpath)
+  fields <- c("Depends", "Imports", "LinkingTo", "Suggests")
+  deps <- renv_dependencies_discover_description(descpath, fields)
   records <- lapply(deps$Package, renv_remotes_resolve)
   names(records) <- extract_chr(records, "Package")
 

@@ -19,7 +19,8 @@ knitr::opts_chunk$set(
 By default, `renv` uses the intersection of:
 
 1. Packages installed into your project library, and
-2. Packages which appear to be used in your project,
+2. Packages which appear to be used in your project (as discovered by
+   `renv::dependencies()`),
 
 in determining which packages should enter the lockfile. The intention is that
 only the packages you truly require for your project should enter the lockfile;
@@ -35,9 +36,36 @@ use `"simple"` snapshots with:
 renv::settings$snapshot.type("simple")
 ```
 
-Packages can also be explicitly ignored through a project setting, e.g. with
-`renv::settings$ignored.packages("<package>")`. You might want to double-check
-the set of ignored packages (`renv::settings$ignored.packages()`) and confirm
-that you aren't unintentionally ignoring a package you actually require.
+Packages can also be explicitly ignored through a project setting, e.g. with:
+
+```
+renv::settings$ignored.packages("<package>")
+```
+
+You might want to double-check the set of ignored packages
+(`renv::settings$ignored.packages()`) and confirm that you aren't
+unintentionally ignoring a package you actually require.
 
 See the documentation in `?snapshot` for more details.
+
+
+## How should I handle development dependencies?
+
+This is related to the above question: by design, `renv.lock` normally only
+captures build-time or deploy-time dependencies; it may not capture the packages
+that you use in iterative workflows (e.g. `devtools`). However, you may want
+some way of still ensuring these development dependencies get installed when
+trying to restore a project library.
+
+For cases like these, we recommend tracking these packages in a project
+DESCRIPTION file; typically, within the `Suggests:` field. Then, you can
+execute:
+
+```
+renv::install()
+```
+
+to request that `renv` install the packages as described in the DESCRIPTION
+file. In addition, the `Remotes:` fields will be parsed and used, to ensure
+packages are installed from their declared remote source as appropriate.
+
