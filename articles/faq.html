@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.53</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.54</span>
       </span>
     </div>
 
@@ -109,13 +109,23 @@
 <p>By default, <code>renv</code> uses the intersection of:</p>
 <ol style="list-style-type: decimal">
 <li>Packages installed into your project library, and</li>
-<li>Packages which appear to be used in your project,</li>
+<li>Packages which appear to be used in your project (as discovered by <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>),</li>
 </ol>
 <p>in determining which packages should enter the lockfile. The intention is that only the packages you truly require for your project should enter the lockfile; development dependencies (e.g. <code>devtools</code>) normally should not. This kind of snapshot is called a <code>"packrat"</code>-style snapshot, since the model here is similar to the one used in the <a href="https://rstudio.github.io/packrat/">Packrat</a> package.</p>
 <p>If you’d instead prefer to capture <em>all</em> packages installed into your project library, you can instead use <code>"simple"</code> snapshots. Configure your project to use <code>"simple"</code> snapshots with:</p>
 <pre><code>renv::settings$snapshot.type("simple")</code></pre>
-<p>Packages can also be explicitly ignored through a project setting, e.g. with <code>renv::settings$ignored.packages("&lt;package&gt;")</code>. You might want to double-check the set of ignored packages (<code>renv::settings$ignored.packages()</code>) and confirm that you aren’t unintentionally ignoring a package you actually require.</p>
+<p>Packages can also be explicitly ignored through a project setting, e.g. with:</p>
+<pre><code>renv::settings$ignored.packages("&lt;package&gt;")</code></pre>
+<p>You might want to double-check the set of ignored packages (<code>renv::settings$ignored.packages()</code>) and confirm that you aren’t unintentionally ignoring a package you actually require.</p>
 <p>See the documentation in <code><a href="../reference/snapshot.html">?snapshot</a></code> for more details.</p>
+</div>
+<div id="how-should-i-handle-development-dependencies" class="section level2">
+<h2 class="hasAnchor">
+<a href="#how-should-i-handle-development-dependencies" class="anchor"></a>How should I handle development dependencies?</h2>
+<p>This is related to the above question: by design, <code>renv.lock</code> normally only captures build-time or deploy-time dependencies; it may not capture the packages that you use in iterative workflows (e.g. <code>devtools</code>). However, you may want some way of still ensuring these development dependencies get installed when trying to restore a project library.</p>
+<p>For cases like these, we recommend tracking these packages in a project DESCRIPTION file; typically, within the <code>Suggests:</code> field. Then, you can execute:</p>
+<pre><code><a href="../reference/install.html">renv::install()</a></code></pre>
+<p>to request that <code>renv</code> install the packages as described in the DESCRIPTION file. In addition, the <code>Remotes:</code> fields will be parsed and used, to ensure packages are installed from their declared remote source as appropriate.</p>
 </div>
   </div>
 
@@ -125,6 +135,7 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#why-isnt-my-package-being-snapshotted-into-the-lockfile">Why isn’t my package being snapshotted into the lockfile?</a></li>
+      <li><a href="#how-should-i-handle-development-dependencies">How should I handle development dependencies?</a></li>
       </ul>
 </div>
       </div>
