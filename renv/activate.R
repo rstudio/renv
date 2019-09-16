@@ -2,11 +2,14 @@
 local({
 
   # the requested version of renv
-  version <- "0.7.0"
+  version <- "0.7.0-44"
 
   # signal that we're loading renv during R startup
   Sys.setenv("RENV_R_INITIALIZING" = "true")
   on.exit(Sys.unsetenv("RENV_R_INITIALIZING"), add = TRUE)
+
+  # signal that we've consented to use renv
+  options(renv.consent = TRUE)
 
   # load the 'utils' package eagerly -- this ensures that renv shims, which
   # mask 'utils' packages, will come first on the search path
@@ -26,12 +29,26 @@ local({
 
   }
 
-  # attempt to load renv from project library
-  root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = "renv/library")
-  rversion <- paste("R", getRversion()[1, 1:2], sep = "-")
-  libpath <- file.path(root, rversion, R.version$platform)
+  # construct path to renv in library
+  libpath <- local({
 
-  # try to load renv from one of these paths
+    root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = "renv/library")
+    prefix <- paste("R", getRversion()[1, 1:2], sep = "-")
+
+    # include SVN revision for development versions of R
+    # (to avoid sharing platform-specific artefacts with released versions of R)
+    devel <-
+      identical(R.version[["status"]],   "Under development (unstable)") ||
+      identical(R.version[["nickname"]], "Unsuffered Consequences")
+
+    if (devel)
+      prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
+
+    file.path(root, prefix, R.version$platform)
+
+  })
+
+  # try to load renv from the project library
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE))
     return(renv::load())
 
