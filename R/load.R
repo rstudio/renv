@@ -214,7 +214,7 @@ renv_load_python <- function(project, fields) {
   python <- switch(type,
     system     = renv_load_python_default(fields),
     virtualenv = renv_load_python_env(fields, renv_use_python_virtualenv),
-    type       = renv_load_python_env(fields, renv_use_python_condaenv),
+    conda      = renv_load_python_env(fields, renv_use_python_condaenv),
     stopf("unrecognized Python type '%s'", type)
   )
 
