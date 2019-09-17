@@ -170,7 +170,7 @@ update <- function(packages = NULL,
 
   # make sure we've requested available packages
   for (type in renv_package_pkgtypes())
-    renv_available_packages(type = type)
+    renv_available_packages(type = type, quiet = check)
 
   # construct new records to use for update
   vprintf("* Checking for updated packages ... ")

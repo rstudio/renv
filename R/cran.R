@@ -2,7 +2,7 @@
 # tools for querying information about packages available on CRAN.
 # note that this does _not_ merge package entries from multiple repositories;
 # rather, a list of databases is returned (one for each repository)
-renv_available_packages <- function(type, limit = NULL) {
+renv_available_packages <- function(type, limit = NULL, quiet = FALSE) {
 
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
 
@@ -13,13 +13,16 @@ renv_available_packages <- function(type, limit = NULL) {
 
   renv_timecache(
     list(repos = getOption("repos"), type = type),
-    renv_available_packages_impl(type),
+    renv_available_packages_impl(type, quiet),
     limit = as.integer(limit),
     timeout = renv_available_packages_timeout
   )
 }
 
-renv_available_packages_impl <- function(type) {
+renv_available_packages_impl <- function(type, quiet) {
+
+  if (quiet)
+    renv_scope_options(renv.verbose = FALSE)
 
   # notify user as this can take some time
   fmt <- "* Querying repositories for available %s packages ... "
