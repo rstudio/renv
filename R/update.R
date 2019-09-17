@@ -190,9 +190,16 @@ update <- function(packages = NULL,
 
   # if we're only checking for updates, just report and exit
   if (check) {
-    vwritef("* %i package(s) have updates available.", length(diff))
+
+    fmt <- case(
+      length(diff) == 1 ~ "* %i package has updates available.",
+      length(diff) != 1 ~ "* %i packages have updates available."
+    )
+
+    vwritef(fmt, length(diff))
     updates <- renv_updates(diff = diff, old = old, new = new)
     return(updates)
+
   }
 
   if (confirm || renv_verbose())
