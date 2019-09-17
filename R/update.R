@@ -1,5 +1,9 @@
 
-renv_update_find_repos <- function(record) {
+renv_update_find_repos <- function(records) {
+  lapply(records, renv_update_find_repos_impl)
+}
+
+renv_update_find_repos_impl <- function(record) {
 
   latest <- renv_records_repos_latest(record$Package)
   if (version_compare(latest$Version, record$Version) == 1)
@@ -9,7 +13,12 @@ renv_update_find_repos <- function(record) {
 
 }
 
-renv_update_find_github <- function(record) {
+renv_update_find_github <- function(records) {
+  renv_parallel_exec(records, renv_update_find_github_impl)
+
+}
+
+renv_update_find_github_impl <- function(record) {
 
   # validate we have a ref
   if (!renv_record_validate(record))
@@ -51,27 +60,25 @@ renv_update_find_github <- function(record) {
 
 }
 
-renv_update_find_impl <- function(record) {
+renv_update_find <- function(records) {
 
-  source <- tolower(record$Source %||% "unknown")
+  sources <- extract_chr(records, "Source")
+  grouped <- split(records, sources)
 
-  case(
-    source == "cran"       ~ renv_update_find_repos(record),
-    source == "repository" ~ renv_update_find_repos(record),
-    source == "github"     ~ renv_update_find_github(record)
-  )
+  # retrieve updates
+  results <- enumerate(grouped, function(source, records) {
+    case(
+      source == "Repository" ~ renv_update_find_repos(records),
+      source == "GitHub"     ~ renv_update_find_github(records)
+    )
+  })
 
-}
+  # remove groupings
+  ungrouped <- unlist(results, recursive = FALSE, use.names = FALSE)
 
-renv_update_find <- function(record) {
-
-  status <- catch(renv_update_find_impl(record))
-  if (inherits(status, "error")) {
-    warning(status)
-    return(NULL)
-  }
-
-  status
+  updates <- Filter(Negate(is.null), ungrouped)
+  names(updates) <- extract_chr(updates, "Package")
+  renv_records_sort(updates)
 
 }
 
@@ -173,9 +180,7 @@ update <- function(packages = NULL,
   for (type in renv_package_pkgtypes())
     renv_available_packages(type = type, quiet = TRUE)
 
-  find <- renv_progress(renv_update_find, length(selected))
-  updates <- Filter(is.list, lapply(selected, find))
-
+  updates <- renv_update_find(selected)
   vwritef("Done!")
 
   if (empty(updates)) {

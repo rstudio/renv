@@ -10,9 +10,9 @@ print.renv_updates <- function(x, ...) {
 
   old <- x$old; new <- x$new; diff <- x$diff
 
-  renv_pretty_print_records_pair(
-    renv_records_select(old, diff, "upgrade"),
-    renv_records_select(new, diff, "upgrade")
-  )
+  lhs <- renv_records(old)[names(diff)]
+  rhs <- renv_records(new)[names(diff)]
+
+  renv_pretty_print_records_pair(lhs, rhs)
 
 }

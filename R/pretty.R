@@ -84,10 +84,11 @@ renv_pretty_print_records_pair <- function(before,
 
       # use short-form for sha
       if (identical(field, "RemoteSha")) {
+        ref  <- lhs[["RemoteRef"]]
         lhsf <- substring(lhsf, 1L, 8L)
         rhsf <- substring(rhsf, 1L, 8L)
-        fmt <- "  [sha: %s -> %s]"
-        return(sprintf(fmt, lhsf, rhsf))
+        fmt  <- "  [%s: %s -> %s]"
+        return(sprintf(fmt, ref, lhsf, rhsf))
       }
 
       return(sprintf("  [%s -> %s]", lhsf, rhsf))

@@ -102,6 +102,12 @@ This can be useful if you'd like to ensure that your project lockfile
 remains up-to-date with packages as they are released on CRAN.
 \cr
 
+\code{updates.parallel} \tab \code{integer[1]} \tab \code{2L} \tab
+Check for package updates in parallel? This can be useful when a large
+number of packages installed from non-CRAN remotes are installed, as
+these packages can then be checked for updates in parallel.
+\cr
+
 \code{user.library} \tab \code{logical[1]} \tab \code{FALSE} \tab
 Include the user library on the library paths for your projects? Note that
 this risks breaking project encapsulation and is not recommended for

@@ -97,6 +97,12 @@
 #'   remains up-to-date with packages as they are released on CRAN.
 #'   \cr
 #'
+#' `updates.parallel` \tab `integer[1]` \tab `2L` \tab
+#'   Check for package updates in parallel? This can be useful when a large
+#'   number of packages installed from non-CRAN remotes are installed, as
+#'   these packages can then be checked for updates in parallel.
+#'   \cr
+#'
 #' `user.library` \tab `logical[1]` \tab `FALSE` \tab
 #'   Include the user library on the library paths for your projects? Note that
 #'   this risks breaking project encapsulation and is not recommended for
