@@ -43,7 +43,7 @@ rebuild <- function(packages  = NULL,
   renv_scope_error_handler()
 
   project <- project %||% renv_project()
-  library <- library %||% renv_libpaths_default()
+  library <- library %||% renv_libpaths_all()
 
   # get collection of packages currently installed
   records <- renv_snapshot_r_packages(library = library)

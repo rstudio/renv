@@ -112,7 +112,7 @@ update <- function(packages = NULL,
   renv_scope_error_handler()
 
   # get package records
-  library <- library %||% renv_libpaths_default()
+  library <- library %||% renv_libpaths_all()
   records <- renv_snapshot_r_packages(library = library)
   packages <- packages %||% names(records)
 
@@ -148,7 +148,7 @@ update <- function(packages = NULL,
 
   # construct new records to use for update
   vprintf("* Checking for updated packages ... ")
-  find <- renv_progress(renv_update_find, length(records))
+  find <- renv_progress(renv_update_find, length(selected))
   updates <- Filter(is.list, lapply(selected, find))
   vwritef("Done!")
 
