@@ -12,8 +12,7 @@ print.renv_updates <- function(x, ...) {
 
   renv_pretty_print_records_pair(
     renv_records_select(old, diff, "upgrade"),
-    renv_records_select(new, diff, "upgrade"),
-    "The following package(s) have updates available:"
+    renv_records_select(new, diff, "upgrade")
   )
 
 }
