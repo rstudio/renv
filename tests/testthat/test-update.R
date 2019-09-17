@@ -2,6 +2,7 @@
 context("Update")
 
 test_that("update() finds packages requiring updates from CRAN", {
+  skip_on_cran()
 
   renv_tests_scope()
   renv::init()
@@ -39,7 +40,7 @@ test_that("update() can upgrade GitHub packages", {
   renv_package_augment(pkgpath, remotes)
 
   # try updating
-  update()
+  update(packages = "skeleton")
 
   # check for new version of package
   dcf <- renv_dcf_read(descpath)

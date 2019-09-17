@@ -148,6 +148,26 @@ update <- function(packages = NULL,
     named(lapply(missing, renv_records_repos_latest), missing)
   )
 
+  # remove records that appear to be from an R package repository,
+  # but are not actually available in the current repositories
+  selected <- Filter(function(record) {
+
+    if (!identical(record$Source, "Repository"))
+      return(TRUE)
+
+    # check for package in one of the active binary / source repos
+    package <- record$Package
+    for (type in renv_package_pkgtypes()) {
+      entry <- catch(renv_available_packages_entry(package, type = type))
+      if (!inherits(entry, "error"))
+        return(TRUE)
+    }
+
+    # not found; return FALSE
+    FALSE
+
+  }, selected)
+
   # make sure we've requested available packages
   for (type in renv_package_pkgtypes())
     renv_available_packages(type = type)
