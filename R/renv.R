@@ -120,7 +120,6 @@ load <- function(project = NULL) {
   renv_load_envvars(project)
   renv_load_libpaths(project)
   renv_load_sandbox(project)
-  renv_load_updates(project)
 
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {

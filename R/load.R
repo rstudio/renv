@@ -198,6 +198,18 @@ renv_load_sandbox <- function(project) {
 
 renv_load_updates <- function(project) {
 
+  if (!is.na(Sys.getenv("RSTUDIO", unset = NA))) {
+    update <- function() renv_load_updates_impl(project = project)
+    setHook("rstudio.sessionInit", update)
+    return(TRUE)
+  }
+
+  renv_load_updates_impl(project = project)
+
+}
+
+renv_load_updates_impl <- function(project) {
+
   if (!renv_config("updates.check", default = FALSE))
     return(FALSE)
 
@@ -205,8 +217,13 @@ renv_load_updates <- function(project) {
     return(FALSE)
 
   status <- update(project = project, check = TRUE)
-  if (inherits(status, "renv_updates") && length(status$diff))
-    vwritef("* Use `renv::update()` to install updated packages.")
+  available <- inherits(status, "renv_updates") && length(status$diff)
+  if (!available)
+    return(FALSE)
+
+  vwritef("* Use `renv::update()` to install updated packages.")
+  if (!interactive())
+    print(status)
 
   TRUE
 
@@ -278,5 +295,8 @@ renv_load_finish <- function(project) {
     fmt <- "* Project '%s' loaded. [renv %s]"
     vwritef(fmt, aliased_path(project), renv_package_version("renv"))
   }
+
+  # check for updates
+  renv_load_updates(project)
 
 }
