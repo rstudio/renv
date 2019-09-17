@@ -60,11 +60,43 @@ renv_pretty_print_records_pair <- function(before,
   nm <- renv_vector_intersect(names(before), names(after))
   before <- before[nm]; after <- after[nm]
 
-  formatted <- sprintf(
-    "  [%s -> %s]",
-    map_chr(extract(before, "Version"), format),
-    map_chr(extract(after, "Version"), format)
-  )
+  formatted <- .mapply(function(lhs, rhs) {
+
+    # TODO: how should we report multiple field changes?
+    fields <- c("Version", "Source", "RemoteRef", "RemoteSha")
+    for (field in fields) {
+
+      lhsf <- lhs[[field]]; rhsf <- rhs[[field]]
+      if (identical(lhsf, rhsf))
+        next
+
+      # report source changes as-is
+      if (identical(field, "Source")) {
+        fmt <- "  [src: %s -> %s]"
+        return(sprintf(fmt, lhsf, rhsf))
+      }
+
+      # report ref changes as-is
+      if (identical(field, "RemoteRef")) {
+        fmt <- "  [ref: %s -> %s]"
+        return(sprintf(fmt, lhsf, rhsf))
+      }
+
+      # use short-form for sha
+      if (identical(field, "RemoteSha")) {
+        lhsf <- substring(lhsf, 1L, 8L)
+        rhsf <- substring(rhsf, 1L, 8L)
+        fmt <- "  [sha: %s -> %s]"
+        return(sprintf(fmt, lhsf, rhsf))
+      }
+
+      return(sprintf("  [%s -> %s]", lhsf, rhsf))
+    }
+
+    # TODO: can we report this better?
+    "  [? -> ?]"
+
+  }, list(before, after), NULL)
 
   names(formatted) <- sprintf("  %s", extract_chr(before, "Package"))
 
