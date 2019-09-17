@@ -19,12 +19,11 @@ renv_available_packages <- function(type, limit = NULL, quiet = FALSE) {
   )
 }
 
-renv_available_packages_impl <- function(type, quiet) {
+renv_available_packages_impl <- function(type, quiet = FALSE) {
 
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
 
-  # notify user as this can take some time
   fmt <- "* Querying repositories for available %s packages ... "
   vprintf(fmt, type)
 
@@ -73,15 +72,18 @@ renv_available_packages_query <- function(url, type) {
 
 }
 
-renv_available_packages_entry <- function(package, type, filter = NULL) {
-
+renv_available_packages_entry <- function(package,
+                                          type,
+                                          filter = NULL,
+                                          quiet = FALSE)
+{
   filter <- filter %||% function(entry) TRUE
   if (is.character(filter)) {
     version <- filter
     filter <- function(entry) entry$Version == version
   }
 
-  dbs <- renv_available_packages(type = type)
+  dbs <- renv_available_packages(type = type, quiet = quiet)
   for (i in seq_along(dbs)) {
 
     db <- dbs[[i]]
@@ -98,7 +100,6 @@ renv_available_packages_entry <- function(package, type, filter = NULL) {
   }
 
   stopf("failed to find %s for package %s in active repositories", type, package)
-
 }
 
 renv_available_packages_timeout <- function(data) {

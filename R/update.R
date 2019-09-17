@@ -148,6 +148,8 @@ update <- function(packages = NULL,
     named(lapply(missing, renv_records_repos_latest), missing)
   )
 
+  vprintf("* Checking for updated packages ... ")
+
   # remove records that appear to be from an R package repository,
   # but are not actually available in the current repositories
   selected <- Filter(function(record) {
@@ -158,7 +160,7 @@ update <- function(packages = NULL,
     # check for package in one of the active binary / source repos
     package <- record$Package
     for (type in renv_package_pkgtypes()) {
-      entry <- catch(renv_available_packages_entry(package, type = type))
+      entry <- catch(renv_available_packages_entry(package, type = type, quiet = TRUE))
       if (!inherits(entry, "error"))
         return(TRUE)
     }
@@ -168,11 +170,12 @@ update <- function(packages = NULL,
 
   }, selected)
 
-  vprintf("* Checking for updated packages ... ")
   for (type in renv_package_pkgtypes())
     renv_available_packages(type = type, quiet = TRUE)
+
   find <- renv_progress(renv_update_find, length(selected))
   updates <- Filter(is.list, lapply(selected, find))
+
   vwritef("Done!")
 
   if (empty(updates)) {
