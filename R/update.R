@@ -168,12 +168,9 @@ update <- function(packages = NULL,
 
   }, selected)
 
-  # make sure we've requested available packages
-  for (type in renv_package_pkgtypes())
-    renv_available_packages(type = type, quiet = check)
-
-  # construct new records to use for update
   vprintf("* Checking for updated packages ... ")
+  for (type in renv_package_pkgtypes())
+    renv_available_packages(type = type, quiet = TRUE)
   find <- renv_progress(renv_update_find, length(selected))
   updates <- Filter(is.list, lapply(selected, find))
   vwritef("Done!")
