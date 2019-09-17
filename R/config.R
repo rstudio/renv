@@ -91,6 +91,12 @@
 #'   project library depends on a package which is not currently installed.
 #'   \cr
 #'
+#' `updates.check` \tab `logical[1]` \tab `FALSE` \tab
+#'   Check for package updates when the session is initialized?
+#'   This can be useful if you'd like to ensure that your project lockfile
+#'   remains up-to-date with packages as they are released on CRAN.
+#'   \cr
+#'
 #' `user.library` \tab `logical[1]` \tab `FALSE` \tab
 #'   Include the user library on the library paths for your projects? Note that
 #'   this risks breaking project encapsulation and is not recommended for

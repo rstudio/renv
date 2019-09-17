@@ -196,6 +196,22 @@ renv_load_sandbox <- function(project) {
     renv_sandbox_activate(project)
 }
 
+renv_load_updates <- function(project) {
+
+  if (!renv_config("updates.check", default = FALSE))
+    return(FALSE)
+
+  if (!file.exists(file.path(project, "renv.lock")))
+    return(FALSE)
+
+  status <- update(project = project, check = TRUE)
+  if (inherits(status, "renv_updates") && length(status$diff))
+    vwritef("* Use `renv::update()` to install updated packages.")
+
+  TRUE
+
+}
+
 renv_load_python <- function(project, fields) {
 
   # set a default reticulate Python environment path

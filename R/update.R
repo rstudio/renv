@@ -75,6 +75,8 @@ renv_update_find <- function(record) {
 
 }
 
+
+
 #' Update Packages
 #'
 #' Update packages which are currently out-of-date. Currently, only
@@ -89,6 +91,9 @@ renv_update_find <- function(record) {
 #'
 #' @param packages A character vector of \R packages to update. When `NULL`,
 #'   all packages within the required libraries will be updated.
+#'
+#' @param check Boolean; check for package updates without actually
+#'   installing available updates?
 #'
 #' @return A named list of package records which were installed by `renv`.
 #'
@@ -105,6 +110,7 @@ update <- function(packages = NULL,
                    ...,
                    library = NULL,
                    rebuild = FALSE,
+                   check   = FALSE,
                    confirm = interactive(),
                    project = NULL)
 {
@@ -161,6 +167,13 @@ update <- function(packages = NULL,
   old <- selected[names(updates)]
   new <- updates
   diff <- renv_lockfile_diff_packages(old, new)
+
+  # if we're only checking for updates, just report and exit
+  if (check) {
+    vwritef("* %i package(s) have updates available.", length(diff))
+    updates <- renv_updates(diff = diff, old = old, new = new)
+    return(updates)
+  }
 
   if (confirm || renv_verbose())
     renv_restore_report_actions(diff, old, new)

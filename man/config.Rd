@@ -96,6 +96,12 @@ before creating \code{renv.lock} -- for example, if a package installed in the
 project library depends on a package which is not currently installed.
 \cr
 
+\code{updates.check} \tab \code{logical[1]} \tab \code{FALSE} \tab
+Check for package updates when the session is initialized?
+This can be useful if you'd like to ensure that your project lockfile
+remains up-to-date with packages as they are released on CRAN.
+\cr
+
 \code{user.library} \tab \code{logical[1]} \tab \code{FALSE} \tab
 Include the user library on the library paths for your projects? Note that
 this risks breaking project encapsulation and is not recommended for

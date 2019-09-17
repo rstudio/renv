@@ -5,7 +5,7 @@
 \title{Update Packages}
 \usage{
 update(packages = NULL, ..., library = NULL, rebuild = FALSE,
-  confirm = interactive(), project = NULL)
+  check = FALSE, confirm = interactive(), project = NULL)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to update. When \code{NULL},
@@ -20,6 +20,9 @@ library will be used instead.}
 versions of the package available in the cache? This can either be a
 boolean (indicating that the requested package(s) should be rebuilt), or a
 vector of package names indicating which packages should be rebuilt.}
+
+\item{check}{Boolean; check for package updates without actually
+installing available updates?}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 
