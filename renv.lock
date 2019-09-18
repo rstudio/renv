@@ -1,13 +1,13 @@
 {
   "renv": {
-    "Version": "0.7.0-44"
+    "Version": "0.7.0-78"
   },
   "R": {
     "Version": "3.6.1",
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://cloud.r-project.org"
+        "URL": "https://cran.rstudio.com/"
       }
     ]
   },
@@ -21,10 +21,10 @@
     },
     "DT": {
       "Package": "DT",
-      "Version": "0.8",
+      "Version": "0.9",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "f3c8ebf07b488feb5045a1ca7cd398b2"
+      "Hash": "3713a75ea5f5bbc25579b20cbb7843f3"
     },
     "MASS": {
       "Package": "MASS",
@@ -161,10 +161,10 @@
     },
     "curl": {
       "Package": "curl",
-      "Version": "4.0",
+      "Version": "4.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "7dc1d02a04a75510424d2c7404fadfa7"
+      "Hash": "cdd60bbfb548290b3a6f02f8f4cd9312"
     },
     "desc": {
       "Package": "desc",
@@ -183,9 +183,14 @@
     "digest": {
       "Package": "digest",
       "Version": "0.6.20",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "e90f6670040b5aec92425051fc13ac1c"
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "digest",
+      "RemoteUsername": "mdequeljoe",
+      "RemoteRef": "vdigest",
+      "RemoteSha": "7f079ba2fad82a0838d1471b366ff11663e65916",
+      "Hash": "9caaf0b5afc61944c3e6cae28a5517a5"
     },
     "ellipsis": {
       "Package": "ellipsis",
@@ -249,6 +254,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "6a58b2980a57345822ec5f9c7d2d1751"
+    },
+    "highlight": {
+      "Package": "highlight",
+      "Version": "0.4.7.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f10a7317affc76cf87d22a11c8196b6d"
     },
     "highr": {
       "Package": "highr",
@@ -418,6 +430,18 @@
       "Repository": "CRAN",
       "Hash": "2dd2d8867e4f0173ea2ce029d630a086"
     },
+    "pkgdown": {
+      "Package": "pkgdown",
+      "Version": "1.4.1.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "pkgdown",
+      "RemoteUsername": "kevinushey",
+      "RemoteRef": "feature/articles-navbar",
+      "RemoteSha": "2023018160e144d46d40d393fb0ca93d64e3e5d1",
+      "Hash": "b7060b2e5fc3e91323287a088e7158da"
+    },
     "pkgload": {
       "Package": "pkgload",
       "Version": "1.0.2",
@@ -481,6 +505,13 @@
       "Repository": "CRAN",
       "Hash": "577b91be8aea851ea27aad3585adef05"
     },
+    "rematch2": {
+      "Package": "rematch2",
+      "Version": "2.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0f9d491406a99401fdbfd8e8234cf1aa"
+    },
     "remotes": {
       "Package": "remotes",
       "Version": "2.1.0",
@@ -490,9 +521,9 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.7.0-55",
+      "Version": "0.7.0-78",
       "Source": "unknown",
-      "Hash": "82af03e46e7ee7104f7261b71e771411"
+      "Hash": "05df2a9d2a8fa6e7fcb4d07f5243af7b"
     },
     "reshape2": {
       "Package": "reshape2",
@@ -503,10 +534,10 @@
     },
     "reticulate": {
       "Package": "reticulate",
-      "Version": "1.13",
+      "Version": "1.13.0-9000",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "a083b977df80dcb6ef64d2b623edff22"
+      "Hash": "0c3554cedd85bdbbfd589460350e8af5"
     },
     "rex": {
       "Package": "rex",
@@ -545,9 +576,10 @@
     },
     "rstudioapi": {
       "Package": "rstudioapi",
-      "Version": "0.10.0-9001",
+      "Version": "0.10",
       "Source": "Repository",
-      "Hash": "5f0f57e3f7271d035a3c4055e83cf5cc"
+      "Repository": "CRAN",
+      "Hash": "04552808fd065fdf0fec7bad340eb83c"
     },
     "rversions": {
       "Package": "rversions",
@@ -621,10 +653,10 @@
     },
     "tinytex": {
       "Package": "tinytex",
-      "Version": "0.15",
+      "Version": "0.16",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "11c9260eb54db1f55e7573844c2ae8ed"
+      "Hash": "9349f30ae6ddce61d7fa26f7b6228a73"
     },
     "usethis": {
       "Package": "usethis",
@@ -635,8 +667,8 @@
       "RemoteUsername": "r-lib",
       "RemoteRepo": "usethis",
       "RemoteRef": "master",
-      "RemoteSha": "4377307c35dfea365edf2ac99cdbedc83f56663b",
-      "Hash": "343c3226d4ce8e2c477b5ce583d1fe38"
+      "RemoteSha": "f76f8ff2421927c9952104cfe09d6e5a31b961c3",
+      "Hash": "daf09da461c41a14115f9c8ac16f5ffa"
     },
     "utf8": {
       "Package": "utf8",

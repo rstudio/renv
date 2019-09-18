@@ -14,7 +14,7 @@ renv_records <- function(records) {
 
 renv_records_select <- function(records, actions, action) {
   records <- renv_records(records)
-  records[names(actions[actions == action])]
+  records[names(actions[actions %in% action])]
 }
 
 renv_records_sort <- function(records) {
@@ -26,7 +26,7 @@ renv_records_override <- function(records) {
   enumerate(records, renv_options_override, scope = "renv.records")
 }
 
-renv_records_repos_latest <- function(package) {
+renv_records_repos_latest <- function(package, repos = NULL) {
 
   types <- renv_package_pkgtypes()
 
@@ -34,7 +34,14 @@ renv_records_repos_latest <- function(package) {
   # and look for a matching entry
   entries <- bapply(types, function(type) {
 
-    entry <- catch(renv_available_packages_entry(package, type))
+    entry <- catch(
+      renv_available_packages_entry(
+        package = package,
+        type    = type,
+        repos   = repos
+      )
+    )
+
     if (inherits(entry, "error"))
       return(NULL)
 
@@ -96,5 +103,131 @@ renv_record_validate <- function(record, quiet = FALSE) {
 
   # TODO
   TRUE
+
+}
+
+renv_record_format_short <- function(record) {
+
+  remotes <- c("RemoteUsername", "RemoteRepo")
+  if (all(remotes %in% names(record)))
+    return(renv_record_format_short_remote(record))
+
+  # TODO: include other information (e.g. repository name)?
+  record$Version
+
+}
+
+renv_record_format_short_remote <- function(record) {
+
+  text <- paste(record$RemoteUsername, record$RemoteRepo, sep = "/")
+
+  if (!is.null(record$RemoteSubdir)) {
+    subdir <- record$RemoteSubdir
+    text <- paste(text, subdir, sep = ":")
+  }
+
+  if (!is.null(record$RemoteRef)) {
+    ref <- record$RemoteRef
+    if (!identical(ref, "master"))
+      text <- paste(text, record$RemoteRef, sep = "@")
+  } else if (!is.null(record$RemoteSha)) {
+    sha <- substring(record$RemoteSha, 1L, 8L)
+    text <- paste(text, sha, sep = "@")
+  }
+
+  text
+
+}
+
+renv_record_format_pair <- function(lhs, rhs) {
+
+  # check for install / remove
+  if (is.null(lhs))
+    return(sprintf("[* -> %s]", renv_record_format_short(rhs)))
+  else if (is.null(rhs))
+    return(sprintf("[%s -> *]", renv_record_format_short(lhs)))
+
+  map <- list(
+    Source         = "src",
+    Repository     = "repo",
+    Version        = "ver",
+    RemoteHost     = "host",
+    RemoteUsername = "user",
+    RemoteRepo     = "repo",
+    RemoteRef      = "ref",
+    RemoteSha      = "sha",
+    RemoteSubdir   = "subdir"
+  )
+
+  fields <- names(map)
+
+  # check to see which fields have changed between the two
+  diff <- map_lgl(fields, function(field) {
+    !identical(lhs[[field]], rhs[[field]])
+  })
+
+  changed <- names(which(diff))
+  if (empty(changed) || "Source" %in% changed) {
+    lhsf <- renv_record_format_short(lhs)
+    rhsf <- renv_record_format_short(rhs)
+    return(sprintf("[%s -> %s]", lhsf, rhsf))
+  }
+
+  # check for only sha changed
+  usesha <-
+    setequal(changed, "RemoteSha") ||
+    setequal(changed, c("RemoteSha", "Version"))
+
+  if (usesha) {
+
+    user <- lhs$RemoteUsername %||% "*"
+    repo <- lhs$RemoteRepo %||% "*"
+    spec <- paste(user, repo, sep = "/")
+
+    ref <- lhs$RemoteRef %||% "*"
+    if (!ref %in% c("master", "*"))
+      spec <- paste(spec, ref, sep = "@")
+
+    fmt <- "[%s: %s -> %s]"
+    lsha <- substring(lhs$RemoteSha %||% "*", 1L, 8L)
+    rsha <- substring(rhs$RemoteSha %||% "*", 1L, 8L)
+
+    return(sprintf(fmt, spec, lsha, rsha))
+
+  }
+
+  # check for only source change
+  if (setequal(changed, "Source")) {
+    fmt <- "[%s: %s -> %s]"
+    ver <- lhs$Version %||% "*"
+    lhsf <- lhs$Source %||% "*"
+    rhsf <- rhs$Source %||% "*"
+    return(sprintf(fmt, ver, lhsf, rhsf))
+  }
+
+  # check only version changed
+  if (setequal(changed, "Version")) {
+    fmt <- "[%s -> %s]"
+    lhsf <- lhs$Version %||% "*"
+    rhsf <- rhs$Version %||% "*"
+    return(sprintf(fmt, lhsf, rhsf))
+  }
+
+  # otherwise, report each diff individually
+  diffs <- map_chr(changed, function(field) {
+
+    lhsf <- lhs[[field]] %||% "*"
+    rhsf <- rhs[[field]] %||% "*"
+
+    if (field == "RemoteSha") {
+      lhsf <- substring(lhsf, 1L, 8L)
+      rhsf <- substring(rhsf, 1L, 8L)
+    }
+
+    fmt <- "%s: %s -> %s"
+    sprintf(fmt, map[[field]], lhsf, rhsf)
+  })
+
+  sprintf("[%s]", paste(diffs, collapse = "; "))
 
 }

@@ -218,43 +218,16 @@ renv_restore_end <- function() {
 
 renv_restore_report_actions <- function(actions, current, lockfile) {
 
-  if ("install" %in% actions) {
-    renv_pretty_print_records(
-      renv_records_select(lockfile, actions, "install"),
-      "The following package(s) will be installed:"
-    )
-  }
+  if (!renv_verbose() || empty(actions))
+    return(invisible(NULL))
 
-  if ("remove" %in% actions) {
-    renv_pretty_print_records(
-      renv_records_select(current, actions, "remove"),
-      "The following package(s) will be removed:"
-    )
-  }
-
-  if ("upgrade" %in% actions) {
-    renv_pretty_print_records_pair(
-      renv_records_select(current, actions, "upgrade"),
-      renv_records_select(lockfile, actions, "upgrade"),
-      "The following package(s) will be upgraded:"
-    )
-  }
-
-  if ("downgrade" %in% actions) {
-    renv_pretty_print_records_pair(
-      renv_records_select(current, actions, "downgrade"),
-      renv_records_select(lockfile, actions, "downgrade"),
-      "The following package(s) will be downgraded:"
-    )
-  }
-
-  if ("crossgrade" %in% actions) {
-    renv_pretty_print_records_pair(
-      renv_records_select(current, actions, "crossgrade"),
-      renv_records_select(lockfile, actions, "crossgrade"),
-      "The following package(s) will be installed:"
-    )
-  }
+  lhs <- renv_records(current)
+  rhs <- renv_records(lockfile)
+  renv_pretty_print_records_pair(
+    lhs[names(lhs) %in% names(actions)],
+    rhs[names(rhs) %in% names(actions)],
+    "The following package(s) will be updated:"
+  )
 
 }
 

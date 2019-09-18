@@ -61,7 +61,11 @@ renv_status <- function(project, library, lockfile) {
     renv_cache_diagnose()
 
   # compare the lockfile with current state of library
-  curr <- snapshot(project = project, library = library, lockfile = NULL)
+  curr <- local({
+    renv_scope_options(renv.verbose = FALSE)
+    snapshot(project = project, library = library, lockfile = NULL, force = TRUE)
+  })
+
   lock <- renv_lockfile_load(project)
   renv_status_report(lock, curr)
   list(library = curr, lockfile = lock)

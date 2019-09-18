@@ -7,7 +7,7 @@
 snapshot(project = NULL, ..., library = NULL,
   lockfile = file.path(project, "renv.lock"),
   type = settings$snapshot.type(project = project),
-  confirm = interactive())
+  confirm = interactive(), force = FALSE)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -29,6 +29,9 @@ more details. When \code{NULL} (the default), a "packrat"-style snapshot
 is performed.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
+
+\item{force}{Boolean; force generation of a lockfile even when preflight
+validation checks have failed?}
 }
 \value{
 The generated lockfile, as an \R object (invisibly). Note that

@@ -288,3 +288,18 @@ remap <- function(x, map) {
   remapped
 
 }
+
+header <- function(label, n = 38L) {
+
+  n <- n - nchar(label) - 3L
+  if (n <= 0)
+    return(paste("#", label))
+
+  tail <- paste(rep.int("=", n), collapse = "")
+  paste("#", label, tail)
+
+}
+
+is_nonempty_string <- function(x) {
+  is.character(x) && length(x) == 1 && nzchar(x)
+}

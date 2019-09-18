@@ -79,7 +79,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   # unknown source are not cacheable)
   desc <- renv_description_read(path)
   source <- renv_snapshot_description_source(desc)
-  if (identical(source, "unknown"))
+  if (identical(source, list(Source = "unknown")))
     return(FALSE)
 
   # bail if record not cacheable

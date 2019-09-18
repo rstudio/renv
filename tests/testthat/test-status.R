@@ -43,7 +43,7 @@ test_that("status reports packages to be installed / changed", {
   install("breakfast")
   remove("toast")
   status()
-  snapshot()
+  snapshot(force = TRUE)
 
   install("breakfast@0.1.0")
   status()

@@ -62,11 +62,11 @@ test_that("subdirectories are parsed in remotes", {
   expected <- list(
     entry  = entry,
     type   = "gitlab",
-    host   = "",
+    host   = NULL,
     user   = "user",
     repo   = "repo",
     subdir = "subdir",
-    pull   = "",
+    pull   = NULL,
     ref    = "ref"
   )
 
@@ -85,9 +85,9 @@ test_that("custom hosts can be supplied", {
     host   = "localhost",
     user   = "user",
     repo   = "repo",
-    subdir = "",
-    pull   = "",
-    ref    = ""
+    subdir = NULL,
+    pull   = NULL,
+    ref    = NULL
   )
 
   expect_equal(parsed, expected)

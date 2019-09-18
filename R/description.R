@@ -1,5 +1,5 @@
 
-renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...) {
+renv_description_read <- function(path = NULL, package = NULL, subdir = NULL, ...) {
 
   # if given a package name, construct path to that package
   path <- path %||% find.package(package)
@@ -17,7 +17,7 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = "", ...)
 
 }
 
-renv_description_read_impl <- function(path = NULL, subdir = "", ...) {
+renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
 
   # ensure that we have a real file
   info <- file.info(path, extra_cols = FALSE)
@@ -36,7 +36,9 @@ renv_description_read_impl <- function(path = NULL, subdir = "", ...) {
     # find the DESCRIPTION file. note that for some source tarballs (e.g.
     # those from GitHub) the first entry may not be the package name, so
     # just consume everything up to the first slash
+    subdir <- subdir %||% ""
     parts <- c("^[^/]+", if (nzchar(subdir)) subdir, "DESCRIPTION$")
+
     pattern <- paste(parts, collapse = "/")
 
     descs <- grep(pattern, files, value = TRUE)

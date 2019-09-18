@@ -49,63 +49,54 @@ renv_pretty_print_records <- function(records,
   invisible(NULL)
 }
 
-renv_pretty_print_records_pair <- function(before,
-                                           after,
+renv_pretty_print_records_pair <- function(old,
+                                           new,
                                            preamble = NULL,
                                            postamble = NULL)
 {
-  if (!setequal(names(before), names(after)))
-    stopf("internal error: names mismatch", call. = TRUE)
-
-  nm <- renv_vector_intersect(names(before), names(after))
-  before <- before[nm]; after <- after[nm]
-
-  formatted <- .mapply(function(lhs, rhs) {
-
-    # TODO: how should we report multiple field changes?
-    fields <- c("Version", "Source", "RemoteRef", "RemoteSha")
-    for (field in fields) {
-
-      lhsf <- lhs[[field]]; rhsf <- rhs[[field]]
-      if (identical(lhsf, rhsf))
-        next
-
-      # report source changes as-is
-      if (identical(field, "Source")) {
-        fmt <- "  [src: %s -> %s]"
-        return(sprintf(fmt, lhsf, rhsf))
-      }
-
-      # report ref changes as-is
-      if (identical(field, "RemoteRef")) {
-        fmt <- "  [ref: %s -> %s]"
-        return(sprintf(fmt, lhsf, rhsf))
-      }
-
-      # use short-form for sha
-      if (identical(field, "RemoteSha")) {
-        ref  <- lhs[["RemoteRef"]]
-        lhsf <- substring(lhsf, 1L, 8L)
-        rhsf <- substring(rhsf, 1L, 8L)
-        fmt  <- "  [%s: %s -> %s]"
-        return(sprintf(fmt, ref, lhsf, rhsf))
-      }
-
-      return(sprintf("  [%s -> %s]", lhsf, rhsf))
-    }
-
-    # TODO: can we report this better?
-    "  [? -> ?]"
-
-  }, list(before, after), NULL)
-
-  names(formatted) <- sprintf("  %s", extract_chr(before, "Package"))
-
-  preamble %&&% writeLines(preamble)
-  print.simple.list(formatted)
-  writeLines("")
-  postamble %&&% writeLines(postamble)
-  postamble %&&% writeLines("")
-
+  preamble %&&% writeLines(c(preamble, ""))
+  renv_pretty_print_records_impl(old, new)
+  postamble %&&% writeLines(c(postamble, ""))
   invisible(NULL)
+}
+
+renv_pretty_print_records_impl <- function(old, new) {
+
+  all <- union(names(old), names(new))
+
+  # compute groups
+  groups <- map_chr(all, function(package) {
+
+    lhs <- old[[package]]; rhs <- new[[package]]
+    case(
+      is.null(lhs$Source)      ~ rhs$Repository %||% rhs$Source,
+      is.null(rhs$Source)      ~ lhs$Repository %||% lhs$Source,
+      !is.null(rhs$Repository) ~ rhs$Repository,
+      !is.null(rhs$Source)     ~ rhs$Source
+    )
+
+  })
+
+  n <- max(nchar(all))
+
+  # iterate over each group and print
+  lapply(sort(unique(groups)), function(group) {
+
+    lhs <- renv_records_select(old, groups, group)
+    rhs <- renv_records_select(new, groups, group)
+
+    nms <- union(names(lhs), names(rhs))
+    text <- map_chr(nms, function(nm) {
+      renv_record_format_pair(lhs[[nm]], rhs[[nm]])
+    })
+
+    if (group == "unknown")
+      group <- "(Unknown Source)"
+
+    vwritef(header(group))
+    vwritef(paste("-", format(nms, width = n), " ", text))
+    vwritef("")
+
+  })
+
 }

@@ -34,7 +34,7 @@ test_that("restore can recover when required packages are missing", {
   local({
     renv_scope_sink()
     renv::remove("oatmeal")
-    renv::snapshot()
+    renv::snapshot(force = TRUE)
     unlink(renv_paths_library(), recursive = TRUE)
     renv::restore()
   })

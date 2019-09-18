@@ -55,40 +55,75 @@ renv_remotes_resolve_impl <- function(entry) {
 
 }
 
-renv_remotes_parse <- function(entry) {
-
-  pattern <- paste0(
-    "(?:([^@:]+)(?:@([^:]+))?::)?",    # optional prefix, providing type + host
-    "([^/#@:]+)",                      # a username
-    "(?:/([^@#:]+))?",                 # a repository (allow sub-repositories)
-    "(?::([^@#:]+))?",                 # optional subdirectory
-    "(?:#([^@#:]+))?",                 # optional hash (e.g. pull request)
-    "(?:@([^@#:]+))?"                  # optional ref (e.g. branch or commit)
-  )
+renv_remotes_parse_impl <- function(entry, pattern, fields) {
 
   matches <- regexec(pattern, entry)
   strings <- regmatches(entry, matches)[[1]]
   if (empty(strings))
     stopf("'%s' is not a valid remote", entry)
 
-  parsed <- list(
-    entry  = strings[[1]],
-    type   = strings[[2]],
-    host   = strings[[3]],
-    user   = strings[[4]],
-    repo   = strings[[5]],
-    subdir = strings[[6]],
-    pull   = strings[[7]],
-    ref    = strings[[8]]
+  if (length(fields) != length(strings))
+    stop("internal error: field length mismatch in renv_remotes_parse_impl")
+
+  names(strings) <- fields
+  remote <- as.list(strings)
+  lapply(remote, function(item) if (nzchar(item)) item)
+
+}
+
+renv_remotes_parse_repos <- function(entry) {
+
+  pattern <- paste0(
+    "^",                               # start
+    "(?:([^:]+)::)?",                  # optional repository name
+    "([[:alnum:].]+)",                 # package name
+    "(?:@([[:digit:]_.-]+))?",         # optional package version
+    "$"
   )
 
-  # handle short-forms
-  if (!nzchar(parsed$type)) {
-    type <- if (nzchar(parsed$repo)) "github" else "repository"
-    parsed$type <- type
-  }
+  fields <- c("entry", "repository", "package", "version")
+  renv_remotes_parse_impl(entry, pattern, fields)
+
+}
+
+renv_remotes_parse_remote <- function(entry) {
+
+  pattern <- paste0(
+    "^",
+    "(?:([^@:]+)(?:@([^:]+))?::)?",    # optional prefix, providing type + host
+    "([^/#@:]+)",                      # a username
+    "(?:/([^@#:]+))?",                 # a repository (allow sub-repositories)
+    "(?::([^@#:]+))?",                 # optional subdirectory
+    "(?:#([^@#:]+))?",                 # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?",                 # optional ref (e.g. branch or commit)
+    "$"
+  )
+
+  fields <- c("entry", "type", "host", "user", "repo", "subdir", "pull", "ref")
+  parsed <- renv_remotes_parse_impl(entry, pattern, fields)
+
+  if (!nzchar(parsed$repo))
+    stopf("'%s' is not a valid remote", entry)
 
   parsed
+
+}
+
+renv_remotes_parse <- function(entry) {
+
+  parsed <- catch(renv_remotes_parse_repos(entry))
+  if (!inherits(parsed, "error")) {
+    parsed$type <- "repository"
+    return(parsed)
+  }
+
+  parsed <- catch(renv_remotes_parse_remote(entry))
+  if (!inherits(parsed, "error")) {
+    parsed$type <- parsed$type %||% "github"
+    return(parsed)
+  }
+
+  stopf("failed to parse remote spec '%s'", entry)
 
 }
 
@@ -97,10 +132,10 @@ renv_remotes_resolve_bitbucket <- function(entry) {
   user   <- entry$user
   repo   <- entry$repo
   subdir <- entry$subdir
-  ref    <- entry$ref %""% "master"
+  ref    <- entry$ref %||% "master"
 
   host <-
-    entry$host %""%
+    entry$host %||%
     renv_config("bitbucket.host", default = "api.bitbucket.org/2.0")
 
   fmt <- "https://%s/repositories/%s/%s/src/%s/DESCRIPTION"
@@ -125,18 +160,20 @@ renv_remotes_resolve_bitbucket <- function(entry) {
 
 renv_remotes_resolve_repository <- function(entry) {
 
-  package <- entry$user
+  package <- entry$package
   if (package %in% rownames(renv_installed_packages_base()))
     return(renv_remotes_resolve_base(package))
 
-  version <- entry$ref %""% "latest"
+  repository <- entry$repository
+  version <- entry$version %||% "latest"
   if (identical(version, "latest"))
-    return(renv_records_repos_latest(package))
+    return(renv_records_repos_latest(package, repository))
 
   list(
     Package    = package,
     Version    = version,
-    Source     = "Repository"
+    Source     = "Repository",
+    Repository = repository
   )
 
 }
@@ -165,7 +202,7 @@ renv_remotes_resolve_github_sha_pull <- function(host, user, repo, pull) {
 renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
 
   fmt <- "https://%s/repos/%s/%s/commits/%s"
-  url <- sprintf(fmt, host, user, repo, ref)
+  url <- sprintf(fmt, host, user, repo, ref %||% "master")
   headers <- c(Accept = "application/vnd.github.v2.sha")
   shafile <- renv_tempfile("renv-sha-")
   download(url, destfile = shafile, type = "github", quiet = TRUE, headers = headers)
@@ -184,7 +221,9 @@ renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
 renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sha) {
 
   # form DESCRIPTION path
+  subdir <- subdir %||% ""
   parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
+
   descpath <- paste(parts, collapse = "/")
 
   # get the DESCRIPTION contents
@@ -207,11 +246,11 @@ renv_remotes_resolve_github <- function(entry) {
   user   <- entry$user
   repo   <- entry$repo
   subdir <- entry$subdir
-  pull   <- entry$pull
-  ref    <- entry$ref %""% "master"
+  pull   <- entry$pull %||% ""
+  ref    <- entry$ref %||% "master"
 
   host <-
-    entry$host %""%
+    entry$host %||%
     renv_config("github.host", default = "api.github.com")
 
   # resolve the sha associated with the ref / pull
@@ -240,14 +279,14 @@ renv_remotes_resolve_gitlab <- function(entry) {
 
   user   <- entry$user
   repo   <- entry$repo
-  subdir <- entry$subdir
-  ref    <- entry$ref %""% "master"
+  subdir <- entry$subdir %||% ""
+  ref    <- entry$ref %||% "master"
 
   parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
   descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
 
   host <-
-    entry$host %""%
+    entry$host %||%
     renv_config("gitlab.host", default = "gitlab.com")
 
   fmt <- "https://%s/api/v4/projects/%s/repository/files/%s/raw?ref=%s"

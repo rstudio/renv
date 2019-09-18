@@ -394,9 +394,9 @@ renv_retrieve_repos_archive <- function(record) {
 }
 
 renv_retrieve_repos_impl <- function(record,
-                                    type = NULL,
-                                    name = NULL,
-                                    repo = NULL)
+                                     type = NULL,
+                                     name = NULL,
+                                     repo = NULL)
 {
   type <- type %||% attr(record, "type", exact = TRUE)
   name <- name %||% renv_retrieve_repos_archive_name(record, type)
@@ -404,11 +404,20 @@ renv_retrieve_repos_impl <- function(record,
 
   # if we weren't provided a repository for this package, try to find it
   if (is.null(repo)) {
-    filter <- function(entry) identical(record$Version, entry$Version)
-    entry <- catch(renv_available_packages_entry(record$Package, type, filter))
+
+    entry <- catch(
+      renv_available_packages_entry(
+        package = record$Package,
+        type    = type,
+        filter  = function(entry) identical(record$Version, entry$Version)
+      )
+    )
+
     if (inherits(entry, "error"))
       return(FALSE)
+
     repo <- entry$Repository
+
   }
 
   url <- file.path(repo, name)
@@ -438,7 +447,7 @@ renv_retrieve_package <- function(record, url, path) {
 renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # augment record with information from DESCRIPTION file
-  subdir <- record$RemoteSubdir %||% ""
+  subdir <- record$RemoteSubdir
   desc <- renv_description_read(path, subdir = subdir)
 
   # update the record's package name, version

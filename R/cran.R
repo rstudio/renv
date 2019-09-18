@@ -74,6 +74,7 @@ renv_available_packages_query <- function(url, type) {
 
 renv_available_packages_entry <- function(package,
                                           type,
+                                          repos = NULL,
                                           filter = NULL,
                                           quiet = FALSE)
 {
@@ -84,6 +85,10 @@ renv_available_packages_entry <- function(package,
   }
 
   dbs <- renv_available_packages(type = type, quiet = quiet)
+
+  repos <- repos %||% names(dbs)
+  dbs <- dbs[repos]
+
   for (i in seq_along(dbs)) {
 
     db <- dbs[[i]]

@@ -28,8 +28,8 @@ renv_update_find_github_impl <- function(record) {
   host   <- record$RemoteHost
   user   <- record$RemoteUsername
   repo   <- record$RemoteRepo
-  subdir <- record$RemoteSubdir %||% ""
-  ref    <- record$RemoteRef %||% "master"
+  subdir <- record$RemoteSubdir
+  ref    <- record$RemoteRef
 
   # check for changed sha
   sha <- renv_remotes_resolve_github_sha_ref(host, user, repo, ref)
@@ -167,9 +167,18 @@ update <- function(packages = NULL,
     # check for package in one of the active binary / source repos
     package <- record$Package
     for (type in renv_package_pkgtypes()) {
-      entry <- catch(renv_available_packages_entry(package, type = type, quiet = TRUE))
+
+      entry <- catch(
+        renv_available_packages_entry(
+          package = package,
+          type = type,
+          quiet = TRUE
+        )
+      )
+
       if (!inherits(entry, "error"))
         return(TRUE)
+
     }
 
     # not found; return FALSE
