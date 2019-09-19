@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.86</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.87</span>
       </span>
     </div>
 
@@ -126,16 +126,19 @@
   - $HOME/.local/share/renv
   - $TRAVIS_BUILD_DIR/renv/library
 
-before_install:
-  - Rscript -e "renv::restore()"</code></pre>
+install:
+  - Rscript -e "renv::restore()"
+  
+script:
+  - Rscript -e '&lt;your-build-action&gt;'</code></pre>
+<p>Note that we provide both <code>install</code> and <code>script</code> steps, as we want to override the default behaviors provided by Travis for R (which might attempt to install different version of R packages than what is currently encoded in <code>renv.lock</code>). See <a href="https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps" class="uri">https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps</a> for more details.</p>
 <p>It’s also possible to override the package repository used during restore by setting the <code>RENV_CONFIG_REPOS_OVERRIDE</code> environment variable. For example:</p>
 <pre><code>env:
   global:
     - RENV_CONFIG_REPOS_OVERRIDE=&lt;cran&gt;</code></pre>
 <p>replacing <code>&lt;cran&gt;</code> with your desired R package repository. This can also be accomplished in a similar way by setting:</p>
 <pre><code>options(renv.config.repos.override = &lt;...&gt;)</code></pre>
-<p>but it is generally more ergonomic to set the associated environment variable. (See <code><a href="../reference/config.html">?config</a></code> for more details.)</p>
-<p>This can be useful if you’d like to, for example, enforce the usage of a <a href="https://mran.microsoft.com">MRAN</a> checkpoint during restore, or another similarly-equipped repository.</p>
+<p>but it is generally more ergonomic to set the associated environment variable. (See <code><a href="../reference/config.html">?config</a></code> for more details.) This can be useful if you’d like to, for example, enforce the usage of a <a href="https://mran.microsoft.com">MRAN</a> checkpoint during restore, or another similarly-equipped repository.</p>
 <p>See <a href="https://docs.travis-ci.com/user/caching" class="uri">https://docs.travis-ci.com/user/caching</a> for more details on how Travis manages caching.</p>
 </div>
   </div>
