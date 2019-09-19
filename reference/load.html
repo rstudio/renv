@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.83</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.86</span>
       </span>
     </div>
 
@@ -148,7 +148,7 @@
     <p>Load a project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>load</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>load</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,6 +158,10 @@
       <td><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.</p></td>
+    </tr>
+    <tr>
+      <th>quiet</th>
+      <td><p>Boolean; be quiet during load?</p></td>
     </tr>
     </table>
 
