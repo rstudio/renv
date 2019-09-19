@@ -156,9 +156,12 @@ renv_load_profile <- function(project = NULL) {
     Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
   )
 
+  renv_scope_libpaths()
   for (profile in profiles)
     if (file.exists(profile))
       renv_load_profile_impl(profile)
+
+  TRUE
 
 }
 

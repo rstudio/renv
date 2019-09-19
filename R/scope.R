@@ -29,7 +29,7 @@ renv_scope_auth <- function(record, .envir = NULL) {
 
 }
 
-renv_scope_libpaths <- function(new, .envir = NULL) {
+renv_scope_libpaths <- function(new = .libPaths(), .envir = NULL) {
   .envir <- .envir %||% parent.frame()
   old <- renv_libpaths_set(new)
   defer(renv_libpaths_set(old), envir = .envir)
