@@ -123,10 +123,11 @@ renv_dependencies_callback <- function(path) {
   case(
 
     # special cases for special filenames
-    name == "renv.lock"     ~ function() renv_dependencies_discover_renv_lock(path),
+    name == ".Rprofile"     ~ function() renv_dependencies_discover_r(path),
     name == "DESCRIPTION"   ~ function() renv_dependencies_discover_description(path),
-    name == "_pkgdown.yml"  ~ function() renv_dependencies_discover_pkgdown(path),
     name == "_bookdown.yml" ~ function() renv_dependencies_discover_bookdown(path),
+    name == "_pkgdown.yml"  ~ function() renv_dependencies_discover_pkgdown(path),
+    name == "renv.lock"     ~ function() renv_dependencies_discover_renv_lock(path),
     name == "rsconnect"     ~ function() renv_dependencies_discover_rsconnect(path),
 
     # generic extension-based lookup

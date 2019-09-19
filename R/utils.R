@@ -299,7 +299,3 @@ header <- function(label, n = 38L) {
   paste("#", label, tail)
 
 }
-
-is_nonempty_string <- function(x) {
-  is.character(x) && length(x) == 1 && nzchar(x)
-}

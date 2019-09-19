@@ -86,14 +86,22 @@ hydrate <- function(packages = NULL,
 }
 
 renv_hydrate_dependencies <- function(project, packages = NULL) {
-  packages <- packages %||% unique(dependencies(project, quiet = TRUE)$Package)
+
+  if (is.null(packages)) {
+    paths <- Filter(file.exists, c(project, "~/.Rprofile"))
+    deps <- dependencies(paths, quiet = TRUE)
+    packages <- unique(deps$Package)
+  }
+
   vprintf("* Discovering package dependencies ... ")
   ignored <- settings$ignored.packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
   all <- renv_package_dependencies(packages, project = project, libpaths = libpaths)
   vwritef("Done!")
+
   all
+
 }
 
 # takes a package called 'package' installed at location 'location',
