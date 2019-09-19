@@ -48,9 +48,19 @@ cache:
   - $HOME/.local/share/renv
   - $TRAVIS_BUILD_DIR/renv/library
 
-before_install:
+install:
   - Rscript -e "renv::restore()"
+  
+script:
+  - Rscript -e '<your-build-action>'
 ```
+
+Note that we provide both `install` and `script` steps, as we want to
+override the default behaviors provided by Travis for R (which might
+attempt to install different version of R packages than what is currently
+encoded in `renv.lock`). See
+https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps
+for more details.
 
 It's also possible to override the package repository used during restore by
 setting the `RENV_CONFIG_REPOS_OVERRIDE` environment variable. For example:
@@ -69,11 +79,9 @@ options(renv.config.repos.override = <...>)
 ```
 
 but it is generally more ergonomic to set the associated environment variable.
-(See `?config` for more details.)
-
-This can be useful if you'd like to, for example, enforce the usage of a
-[MRAN](https://mran.microsoft.com) checkpoint during restore, or another
-similarly-equipped repository.
+(See `?config` for more details.) This can be useful if you'd like to, for
+example, enforce the usage of a [MRAN](https://mran.microsoft.com) checkpoint
+during restore, or another similarly-equipped repository.
 
 See <https://docs.travis-ci.com/user/caching> for more details on how Travis
 manages caching.
