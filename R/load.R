@@ -179,14 +179,6 @@ renv_load_profile_impl <- function(profile) {
   TRUE
 }
 
-renv_load_envvars <- function(project = NULL) {
-  project <- project %||% renv_project()
-  Sys.setenv(
-    R_PROFILE_USER = "",
-    R_ENVIRON_USER = file.path(project, ".Renviron")
-  )
-}
-
 renv_load_libpaths <- function(project = NULL) {
   renv_libpaths_activate(project)
   libpaths <- renv_libpaths_all()
@@ -289,7 +281,11 @@ renv_load_python_env <- function(fields, loader) {
 
 renv_load_finish <- function(project) {
 
-  # report to user
+  Sys.setenv(
+    R_PROFILE_USER = "",
+    R_ENVIRON_USER = file.path(project, ".Renviron")
+  )
+
   quiet <-
     "--slave" %in% commandArgs(TRUE) ||
     identical(renv_verbose(), FALSE)
@@ -299,7 +295,6 @@ renv_load_finish <- function(project) {
     vwritef(fmt, aliased_path(project), renv_package_version("renv"))
   }
 
-  # check for updates
   renv_load_updates(project)
 
 }
