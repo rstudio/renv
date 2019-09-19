@@ -29,14 +29,14 @@ activate <- function(project = NULL) {
   invisible(project)
 }
 
-renv_activate_impl <- function(project, version, restart) {
+renv_activate_impl <- function(project, version, restart, quiet) {
 
   # prepare renv infrastructure
   renv_infrastructure_write(project, version)
   renv_bootstrap_impl(project)
 
   # try to load the project
-  load(project)
+  load(project, quiet = quiet)
 
   # restart session
   if (restart)
@@ -88,6 +88,8 @@ deactivate <- function(project = NULL) {
 #'
 #' @inherit renv-params
 #'
+#' @param quiet Boolean; be quiet during load?
+#'
 #' @export
 #'
 #' @examples
@@ -99,9 +101,12 @@ deactivate <- function(project = NULL) {
 #' renv::load()
 #'
 #' }
-load <- function(project = NULL) {
+load <- function(project = NULL, quiet = FALSE) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
+
+  if (quiet)
+    renv_scope_options(renv.verbose = FALSE)
 
   renv_envvars_save()
 

@@ -1,6 +1,6 @@
 {
   "renv": {
-    "Version": "0.7.0-82"
+    "Version": "0.7.0-84"
   },
   "R": {
     "Version": "3.6.1",
@@ -521,9 +521,9 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.7.0-82",
+      "Version": "0.7.0-84",
       "Source": "unknown",
-      "Hash": "ec9ff837c1ed27f7935ec9a80a59b13c"
+      "Hash": "8e8db210b68663a0d815e8befe24205b"
     },
     "reshape2": {
       "Package": "reshape2",

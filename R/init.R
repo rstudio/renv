@@ -86,10 +86,13 @@ init <- function(project = NULL,
   renv_init_settings(project, settings)
   setwd(project)
 
+  # be quiet in RStudio projects (as we will normally restart automatically)
+  quiet <- !is.null(getOption("restart"))
+
   # for bare inits, just active the project
   if (bare) {
     version <- renv_package_version("renv")
-    status <- renv_activate_impl(project, version, restart)
+    status <- renv_activate_impl(project, version, restart, quiet)
     return(invisible(status))
   }
 
@@ -116,7 +119,7 @@ init <- function(project = NULL,
 
   # activate the newly-hydrated project
   version <- renv_package_version("renv")
-  status <- renv_activate_impl(project, version, restart)
+  status <- renv_activate_impl(project, version, restart, quiet)
   invisible(project)
 
 }

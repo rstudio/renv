@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.7.0-82"
+  version <- "0.7.0-84"
 
   # signal that we're loading renv during R startup
   Sys.setenv("RENV_R_INITIALIZING" = "true")
