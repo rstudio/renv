@@ -100,3 +100,26 @@ test_that("the presence of an rsconnect folder forces dependency on rsconnect", 
   deps <- renv::dependencies()
   expect_true("rsconnect" %in% deps$Package)
 })
+
+test_that("dependencies can accept multiple files", {
+
+  deps <- renv::dependencies(
+    path = c("packages/bread", "packages/breakfast"),
+    root = getwd(),
+    quiet = TRUE
+  )
+
+  expect_setequal(deps$Package, c("oatmeal", "toast"))
+
+})
+
+test_that("dependencies can infer the root directory", {
+
+  deps <- renv::dependencies(
+    path = c("packages/bread", "packages/breakfast"),
+    quiet = TRUE
+  )
+
+  expect_setequal(deps$Package, c("oatmeal", "toast"))
+
+})

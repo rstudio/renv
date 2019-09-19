@@ -3,6 +3,9 @@
 # and generate a pattern that can be used to filter file results
 renv_renvignore_pattern <- function(path = getwd(), root = path) {
 
+  if (is.null(root))
+    return(NULL)
+
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
   root <- normalizePath(root, winslash = "/", mustWork = TRUE)
 
@@ -85,5 +88,15 @@ renv_renvignore_parse <- function(contents, prefix) {
 
   # prepend prefix
   sprintf("^\\Q%s/\\E%s", prefix, pattern)
+
+}
+
+renv_renvignore_exec <- function(path, root, children) {
+
+  pattern <- renv_renvignore_pattern(path, root)
+  if (empty(pattern))
+    return(children)
+
+  grep(pattern, children, perl = TRUE, invert = TRUE, value = TRUE)
 
 }

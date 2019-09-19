@@ -16,7 +16,10 @@ test_that(".renvignore ignores files, directories", {
   dir.create("scripts/internal", recursive = TRUE)
   writeLines("library(breakfast)", con = "scripts/internal/script.R")
 
-  deps <- dependencies()
+  deps <- dependencies(root = getwd())
   expect_setequal(deps$Package, "oatmeal")
+
+  deps <- dependencies("scripts", root = getwd())
+  expect_true(NROW(deps) == 0)
 
 })

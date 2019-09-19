@@ -4,11 +4,16 @@
 \alias{dependencies}
 \title{Find R Package Dependencies in a Project}
 \usage{
-dependencies(path = getwd(), quiet = FALSE)
+dependencies(path = getwd(), root = NULL, quiet = FALSE)
 }
 \arguments{
 \item{path}{The path to a (possibly multi-mode) \R file, or a directory
 containing such files.}
+
+\item{root}{The root directory to be used for dependency discovery.
+Defaults to the active project directory. You may need to set this
+explicitly to ensure that your project's \code{.renvignore}s (if any) are
+properly handled.}
 
 \item{quiet}{Boolean; report problems discovered (if any) during dependency
 discovery?}

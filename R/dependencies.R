@@ -43,6 +43,11 @@
 #' @param path The path to a (possibly multi-mode) \R file, or a directory
 #'   containing such files.
 #'
+#' @param root The root directory to be used for dependency discovery.
+#'   Defaults to the active project directory. You may need to set this
+#'   explicitly to ensure that your project's `.renvignore`s (if any) are
+#'   properly handled.
+#'
 #' @param quiet Boolean; report problems discovered (if any) during dependency
 #'   discovery?
 #'
@@ -58,22 +63,56 @@
 #' renv::dependencies()
 #'
 #' }
-dependencies <- function(path = getwd(), quiet = FALSE) {
-
+dependencies <- function(path = getwd(),
+                         root = NULL,
+                         quiet = FALSE)
+{
   renv_scope_error_handler()
 
   renv_dependencies_begin()
   on.exit(renv_dependencies_end(), add = TRUE)
 
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  root <- root %||% renv_dependencies_root(path)
 
-  files <- renv_dependencies_find(path, path)
+  files <- renv_dependencies_find(path, root)
   deps <- renv_dependencies_discover(files, quiet)
 
   if (!quiet)
     renv_dependencies_report()
 
   deps
+
+}
+
+renv_dependencies_root <- function(path = getwd()) {
+
+  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+
+  project <- Sys.getenv("RENV_PROJECT", unset = NA)
+  if (!is.na(project) && all(path_within(path, project)))
+    return(project)
+
+  roots <- uapply(path, renv_dependencies_root_impl)
+  if (empty(roots))
+    return(NULL)
+
+  uniroot <- unique(roots)
+  if (length(uniroot) > 1)
+    return(NULL)
+
+  uniroot
+
+}
+
+renv_dependencies_root_impl <- function(path) {
+
+  renv_file_find(path, function(parent) {
+    anchors <- c("DESCRIPTION", ".git", ".Rproj.user", "renv.lock", "renv")
+    for (anchor in anchors)
+      if (file.exists(file.path(parent, anchor)))
+        return(parent)
+  })
 
 }
 
@@ -101,7 +140,7 @@ renv_dependencies_callback <- function(path) {
 }
 
 renv_dependencies_find <- function(path = getwd(), root = getwd()) {
-  files <- renv_dependencies_find_impl(path, root)
+  files <- lapply(path, renv_dependencies_find_impl, root = root)
   unlist(files, recursive = TRUE, use.names = FALSE)
 }
 
@@ -123,6 +162,10 @@ renv_dependencies_find_impl <- function(path, root) {
 
 renv_dependencies_find_dir <- function(path, root) {
 
+  path <- renv_renvignore_exec(path, root, path)
+  if (empty(path))
+    return(character())
+
   children <- renv_dependencies_find_dir_children(path, root)
   paths <- lapply(children, renv_dependencies_find_impl, root = root)
 
@@ -134,7 +177,7 @@ renv_dependencies_find_dir <- function(path, root) {
 
 }
 
-# return the set of files /subdirectories within a directory that should be
+# return the set of files / subdirectories within a directory that should be
 # crawled for dependencies
 renv_dependencies_find_dir_children <- function(path, root) {
 
@@ -150,12 +193,7 @@ renv_dependencies_find_dir_children <- function(path, root) {
 
   # construct pattern for matching files in this path
   # (return all files if no such pattern available)
-  pattern <- renv_renvignore_pattern(path, root)
-  if (empty(pattern))
-    return(children)
-
-  # we had a pattern; use it to match against file entries
-  grep(pattern, children, perl = TRUE, invert = TRUE, value = TRUE)
+  renv_renvignore_exec(path, root, children)
 
 }
 

@@ -294,10 +294,10 @@ renv_file_edit <- function(path) {
 }
 # nocov end
 
-renv_file_find <- function(path, predicate, limit = 3) {
+renv_file_find <- function(path, predicate, limit = 8L) {
 
   parent <- dirname(path)
-  while (path != parent && limit > 0) {
+  while (path != parent && limit > 0L) {
 
     if (file.exists(path)) {
       status <- predicate(path)
