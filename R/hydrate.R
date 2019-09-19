@@ -88,9 +88,16 @@ hydrate <- function(packages = NULL,
 renv_hydrate_dependencies <- function(project, packages = NULL) {
 
   if (is.null(packages)) {
-    paths <- Filter(file.exists, c(project, "~/.Rprofile"))
-    deps <- dependencies(paths, root = project, quiet = TRUE)
-    packages <- unique(deps$Package)
+
+    projdeps <- dependencies(project, quiet = TRUE)
+    if (!renv_testing() && file.exists("~/.Rprofile")) {
+      profdeps <- dependencies("~/.Rprofile", quiet = TRUE)
+      if (length(projdeps))
+        projdeps <- bind_list(list(projdeps, profdeps))
+    }
+
+    packages <- unique(projdeps$Package)
+
   }
 
   vprintf("* Discovering package dependencies ... ")
