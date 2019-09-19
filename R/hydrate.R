@@ -89,7 +89,7 @@ renv_hydrate_dependencies <- function(project, packages = NULL) {
 
   if (is.null(packages)) {
     paths <- Filter(file.exists, c(project, "~/.Rprofile"))
-    deps <- dependencies(paths, quiet = TRUE)
+    deps <- dependencies(paths, root = project, quiet = TRUE)
     packages <- unique(deps$Package)
   }
 

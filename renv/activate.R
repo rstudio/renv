@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.7.0-44"
+  version <- "0.7.0-82"
 
   # signal that we're loading renv during R startup
   Sys.setenv("RENV_R_INITIALIZING" = "true")
@@ -112,11 +112,25 @@ local({
     utils::download.file(url, destfile = destfile, mode = "wb", quiet = TRUE)
     message("Done!")
 
-    # attempt to install it into bootstrap library
+    # attempt to install it into project library
     message("* Installing renv ", version, " ... ", appendLF = FALSE)
     dir.create(libpath, showWarnings = FALSE, recursive = TRUE)
-    utils::install.packages(destfile, repos = NULL, type = "source", lib = libpath, quiet = TRUE)
+
+    # invoke using system2 so we can capture and report output
+    bin <- R.home("bin")
+    exe <- if (Sys.info()[["sysname"]] == "Windows") "R.exe" else "R"
+    r <- file.path(bin, exe)
+    args <- c("--vanilla", "CMD", "INSTALL", "-l", shQuote(libpath), shQuote(destfile))
+    output <- system2(r, args, stdout = TRUE, stderr = TRUE)
     message("Done!")
+
+    # check for successful install
+    status <- attr(output, "status")
+    if (is.numeric(status) && !identical(status, 0L)) {
+      text <- c("Error installing renv", "=====================", output)
+      writeLines(text, con = stderr())
+    }
+
 
   }
 

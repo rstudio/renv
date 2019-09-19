@@ -1,13 +1,13 @@
 {
   "renv": {
-    "Version": "0.7.0-78"
+    "Version": "0.7.0-82"
   },
   "R": {
     "Version": "3.6.1",
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://cran.rstudio.com/"
+        "URL": "https://cran.rstudio.com"
       }
     ]
   },
@@ -183,14 +183,9 @@
     "digest": {
       "Package": "digest",
       "Version": "0.6.20",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "digest",
-      "RemoteUsername": "mdequeljoe",
-      "RemoteRef": "vdigest",
-      "RemoteSha": "7f079ba2fad82a0838d1471b366ff11663e65916",
-      "Hash": "9caaf0b5afc61944c3e6cae28a5517a5"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e90f6670040b5aec92425051fc13ac1c"
     },
     "ellipsis": {
       "Package": "ellipsis",
@@ -215,10 +210,15 @@
     },
     "fs": {
       "Package": "fs",
-      "Version": "1.3.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "dba7e43c4103d978cb7c95b97987cc68"
+      "Version": "1.3.1.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "r-lib",
+      "RemoteRepo": "fs",
+      "RemoteRef": "master",
+      "RemoteSha": "380685c7fc0a3346b5ea0e6db127d8ca09a813a1",
+      "Hash": "d7487262461d43d1244afd2cbefd9cd3"
     },
     "ggplot2": {
       "Package": "ggplot2",
@@ -313,10 +313,10 @@
     },
     "knitr": {
       "Package": "knitr",
-      "Version": "1.24",
+      "Version": "1.25",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "4d5213d0ec43d3ef3415177faa434602"
+      "Hash": "33a3a009f5e7c3606d6851692bf703d9"
     },
     "labeling": {
       "Package": "labeling",
@@ -436,8 +436,8 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "pkgdown",
       "RemoteUsername": "kevinushey",
+      "RemoteRepo": "pkgdown",
       "RemoteRef": "feature/articles-navbar",
       "RemoteSha": "2023018160e144d46d40d393fb0ca93d64e3e5d1",
       "Hash": "b7060b2e5fc3e91323287a088e7158da"
@@ -521,9 +521,9 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.7.0-78",
+      "Version": "0.7.0-82",
       "Source": "unknown",
-      "Hash": "05df2a9d2a8fa6e7fcb4d07f5243af7b"
+      "Hash": "ec9ff837c1ed27f7935ec9a80a59b13c"
     },
     "reshape2": {
       "Package": "reshape2",
@@ -535,9 +535,14 @@
     "reticulate": {
       "Package": "reticulate",
       "Version": "1.13.0-9000",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "0c3554cedd85bdbbfd589460350e8af5"
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "rstudio",
+      "RemoteRepo": "reticulate",
+      "RemoteRef": "master",
+      "RemoteSha": "6b94066a4a124523b4338062db71c982f4e11961",
+      "Hash": "fa49b1d4e65156790fcfbbcca4b8fd50"
     },
     "rex": {
       "Package": "rex",
