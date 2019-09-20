@@ -82,8 +82,8 @@ renv_pretty_print_records_impl <- function(old, new) {
   # iterate over each group and print
   lapply(sort(unique(groups)), function(group) {
 
-    lhs <- renv_records_select(old, groups, group)
-    rhs <- renv_records_select(new, groups, group)
+    lhs <- collapse(renv_records_select(old, groups, group))
+    rhs <- collapse(renv_records_select(new, groups, group))
 
     nms <- union(names(lhs), names(rhs))
     text <- map_chr(nms, function(nm) {
