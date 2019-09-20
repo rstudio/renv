@@ -4,6 +4,7 @@ context("Bioconductor")
 test_that("packages can be installed, restored from Bioconductor", {
 
   skip_on_cran()
+  skip_on_appveyor()
   skip_if(getRversion() < "3.6")
 
   renv_tests_scope("limma")
