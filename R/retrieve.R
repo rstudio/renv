@@ -135,7 +135,8 @@ renv_retrieve_bioconductor <- function(record) {
 
   # activate bioconductor repositories in this context
   repos <- getOption("repos")
-  options(repos = unique(c(renv_bioconductor_repos(), repos)))
+  biocrepos <- c(renv_bioconductor_repos(), repos)
+  options(repos = biocrepos[!duplicated(biocrepos)])
   on.exit(options(repos = repos), add = TRUE)
 
   # retrieve package as though from an active R repository
