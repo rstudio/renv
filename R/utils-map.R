@@ -57,7 +57,3 @@ extract_int <- function(x, ...) {
 extract_lgl <- function(x, ...) {
   vapply(x, `[[`, ..., FUN.VALUE = logical(1))
 }
-
-collapse <- function(x) {
-  x[!map_lgl(x, empty)]
-}

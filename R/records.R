@@ -14,7 +14,8 @@ renv_records <- function(records) {
 
 renv_records_select <- function(records, actions, action) {
   records <- renv_records(records)
-  records[names(actions[actions %in% action])]
+  matching <- actions[actions %in% action]
+  records[intersect(names(records), names(matching))]
 }
 
 renv_records_sort <- function(records) {
