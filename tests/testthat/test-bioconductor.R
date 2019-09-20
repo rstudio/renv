@@ -11,7 +11,8 @@ test_that("packages can be installed, restored from Bioconductor", {
 
   cran <- "https://cloud.r-project.org"
   install.packages("BiocManager", repos = cran, quiet = TRUE)
-  BiocManager::install("limma", quiet = TRUE)
+  BiocManager <- asNamespace("BiocManager")
+  BiocManager$install("limma", quiet = TRUE)
 
   snapshot()
 
