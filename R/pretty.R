@@ -35,14 +35,18 @@ renv_pretty_print_records <- function(records,
                                       preamble = NULL,
                                       postamble = NULL)
 {
-  formatted <- named(
-    sprintf("  [%s]", map_chr(extract(records, "Version"), format)),
-    sprintf("  %s",   map_chr(extract(records, "Package"), format))
-  )
+  packages <- extract_chr(records, "Package")
+  descs <- map_chr(records, renv_record_format_short)
+
+  lhs <- paste(" ", format(packages))
+  rhs <- descs
+
+  n <- max(nchar(lhs))
+  header <- paste(c(rep.int(" ", n + 1), "_"), collapse = "")
+  text <- sprintf("%s   [%s]", lhs, rhs)
 
   preamble %&&% writeLines(preamble)
-  print.simple.list(formatted)
-  writeLines("")
+  writeLines(c(header, text, ""))
   postamble %&&% writeLines(postamble)
   postamble %&&% writeLines("")
 
