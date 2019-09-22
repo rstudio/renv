@@ -149,6 +149,7 @@ renv_remotes_resolve_bitbucket <- function(entry) {
     Package        = desc$Package,
     Version        = desc$Version,
     Source         = "Bitbucket",
+    RemoteType     = "bitbucket",
     RemoteHost     = host,
     RemoteUsername = user,
     RemoteRepo     = repo,
@@ -265,6 +266,7 @@ renv_remotes_resolve_github <- function(entry) {
     Package        = desc$Package,
     Version        = desc$Version,
     Source         = "GitHub",
+    RemoteType     = "github",
     RemoteHost     = host,
     RemoteUsername = user,
     RemoteRepo     = repo,
@@ -301,6 +303,7 @@ renv_remotes_resolve_gitlab <- function(entry) {
     Package        = desc$Package,
     Version        = desc$Version,
     Source         = "GitLab",
+    RemoteType     = "gitlab",
     RemoteHost     = host,
     RemoteUsername = user,
     RemoteRepo     = repo,
@@ -326,11 +329,12 @@ renv_remotes_resolve_url <- function(entry) {
   desc <- renv_description_read(path)
 
   list(
-    Package   = desc$Package,
-    Version   = desc$Version,
-    Source    = "URL",
-    Path      = path,
-    RemoteUrl = entry
+    Package    = desc$Package,
+    Version    = desc$Version,
+    Source     = "URL",
+    RemoteType = "url",
+    RemoteUrl  = entry,
+    Path       = path
   )
 
 }

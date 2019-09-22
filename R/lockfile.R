@@ -106,7 +106,6 @@ renv_lockfile_init <- function(project) {
 
   lockfile <- list()
 
-  lockfile$renv         <- list(Version = renv_package_version("renv"))
   lockfile$R            <- renv_lockfile_init_r(project)
   lockfile$Bioconductor <- renv_lockfile_init_bioconductor(project)
   lockfile$Python       <- renv_lockfile_init_python(project)

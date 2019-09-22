@@ -144,8 +144,8 @@ renv_activate_version <- function(project) {
 
   # try to get version from activate.R
   methods <- list(
-    renv_activate_version_activate,
     renv_activate_version_lockfile,
+    renv_activate_version_activate,
     renv_activate_version_default
   )
 
@@ -180,7 +180,7 @@ renv_activate_version_lockfile <- function(project) {
     return(NULL)
 
   lockfile <- renv_lockfile_read(path)
-  lockfile$renv$Version
+  lockfile$Packages[["renv"]]$Version %||% lockfile$renv$Version
 
 }
 

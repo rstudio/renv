@@ -47,22 +47,19 @@ renv_upgrade_impl <- function(project, version, confirm) {
 
   project <- project %||% renv_project()
 
-  # conduct a mini-restore for renv itself
-  record <- renv_upgrade_find_record(version)
-  records <- list(renv = record)
+  old <- renv_snapshot_description(package = "renv")
+  new <- renv_upgrade_find_record(version)
 
-  # produce nice messages based on package versions
-  current <- renv_activate_version(project)
-  request <- record$Version
-  if (version_compare(current, request) == 0) {
+  # check for some form of change
+  if (renv_records_equal(old, new)) {
     fmt <- "renv [%s] is already installed and active for this project."
-    vwritef(fmt, current)
+    vwritef(fmt, renv_record_format_short(new))
     return(TRUE)
   }
 
   if (confirm || renv_verbose()) {
-    renv_pretty_print(
-      sprintf("[%s] -> [%s]", current, request),
+    renv_pretty_print_records_pair(
+      list(renv = old), list(renv = new),
       "A new version of the renv package will be installed:",
       "This project will use the newly-installed version of renv."
     )
@@ -75,7 +72,7 @@ renv_upgrade_impl <- function(project, version, confirm) {
 
   renv_restore_begin(
     project = project,
-    records = records,
+    records = list(renv = new),
     packages = "renv",
     recursive = FALSE
   )
@@ -89,9 +86,11 @@ renv_upgrade_impl <- function(project, version, confirm) {
   # install renv
   renv_install_impl(record)
 
-  # upgrade the lockfile
+  # update the lockfile
   lockfile <- renv_lockfile_load(project = project)
-  lockfile$renv$Version <- record$Version
+  records <- renv_records(lockfile) %||% list()
+  records$renv <- new
+  renv_records(lockfile) <- records
   renv_lockfile_save(lockfile, project = project)
 
   # now update the infrastructure to use this version of renv

@@ -157,10 +157,12 @@ renv_migrate_packrat_lockfile <- function(project) {
   # pull out names for records
   names(records) <- extract_chr(records, "Package")
 
+  # ensure renv is added
+  records$renv <- if (!renv_testing()) renv_snapshot_renv()
+
   # generate a blank lockfile
   lockfile <- structure(list(), class = "renv_lockfile")
-  lockfile$renv <- list(Version = renv_package_version("renv"))
-  lockfile$R    <- renv_lockfile_init_r(project)
+  lockfile$R <- renv_lockfile_init_r(project)
 
   # update fields
   lockfile$R$Version <- header$RVersion

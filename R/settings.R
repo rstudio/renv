@@ -69,7 +69,7 @@ renv_settings_read_impl <- function(path) {
 
   # keep only known settings
   known <- ls(envir = `_renv_settings`, all.names = TRUE)
-  dcf <- dcf[renv_vector_intersect(names(dcf), known)]
+  dcf <- keep(dcf, known)
 
   # decode encoded values
   settings <- enumerate(dcf, renv_settings_decode)

@@ -307,9 +307,7 @@ renv_retrieve_local_report <- function(record) {
 renv_retrieve_local <- function(record) {
   source <- renv_retrieve_local_find(record)
   record <- renv_retrieve_local_report(record)
-  url <- paste("file://", source, sep = "")
-  path <- renv_retrieve_path(record, type = names(source))
-  renv_retrieve_package(record, url, path)
+  renv_retrieve_successful(record, source)
 }
 
 renv_retrieve_explicit <- function(record) {
@@ -323,12 +321,7 @@ renv_retrieve_explicit <- function(record) {
   # treat as 'local' source but extract path
   normalized <- normalizePath(source, winslash = "/", mustWork = TRUE)
   record$Source <- "local"
-
-  # perform dummy retrieval
-  url <- paste0("file://", normalized)
-  type <- if (fileext(source) == ".tar.gz") "source" else "binary"
-  path <- renv_retrieve_path(record, type = type)
-  renv_retrieve_package(record, url, path)
+  renv_retrieve_successful(record, normalized)
 
 }
 

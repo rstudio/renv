@@ -89,7 +89,9 @@ snapshot <- function(project  = NULL,
 
   new <- renv_lockfile_init(project)
   records <- renv_snapshot_r_packages(library = library)
-  renv_records(new) <- renv_snapshot_filter(project, records, type)
+  filtered <- renv_snapshot_filter(project, records, type)
+  filtered$renv <- if (!renv_testing()) renv_snapshot_renv()
+  renv_records(new) <- filtered
 
   if (is.null(lockfile))
     return(new)
@@ -305,6 +307,10 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 renv_snapshot_validate_sources <- function(project, lockfile, library) {
 
   records <- renv_records(lockfile)
+
+  if (renv_testing())
+    records$renv <- NULL
+
   unknown <- Filter(
     function(record) (record$Source %||% "unknown") == "unknown",
     records
@@ -450,9 +456,22 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
 
 }
 
+# snapshot renv specially: if the source is not known (e.g. the
+# user installed it from sources), then assume a GitHub remote
+renv_snapshot_renv <- function() {
+
+  record <- renv_snapshot_description(package = "renv")
+  if (renv_testing() || !identical(record$Source, "unknown"))
+    return(record)
+
+  remote <- paste("rstudio/renv", record$Version, sep = "@")
+  renv_remotes_resolve(remote)
+
+}
+
 renv_snapshot_description <- function(path = NULL, package = NULL) {
 
-  path <- path %||% find.package(package)
+  path <- path %||% renv_package_find(package)
   dcf <- catch(renv_description_read(path, package))
   if (inherits(dcf, "error"))
     return(dcf)
@@ -609,15 +628,12 @@ renv_snapshot_filter_simple <- function(project, records) {
 
 renv_snapshot_filter_packrat <- function(project, records) {
 
-  # get recursive package dependencies for those discovered
   deps <- dependencies(project, quiet = TRUE)
   ignored <- settings$ignored.packages(project = project)
   packages <- renv_vector_diff(unique(deps$Package), ignored)
   paths <- renv_package_dependencies(packages, project = project)
   all <- as.character(names(paths))
-
-  # keep only those records
-  records[renv_vector_intersect(names(records), all)]
+  keep(records, all)
 
 }
 
@@ -645,6 +661,6 @@ renv_snapshot_filter_custom <- function(project, records) {
   if (!is.character(packages))
     stop("custom snapshot filter did not return a character vector")
 
-  records[renv_vector_intersect(names(records), packages)]
+  keep(records, packages)
 
 }

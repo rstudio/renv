@@ -246,7 +246,7 @@ renv_restore_remove <- function(project, package, lockfile) {
 
 renv_restore_preflight <- function(project, library, actions, current, lockfile, confirm) {
   records <- renv_records(lockfile)
-  matching <- records[renv_vector_intersect(names(records), names(actions))]
+  matching <- keep(records, names(actions))
   renv_install_preflight(project, library, matching, confirm)
 }
 

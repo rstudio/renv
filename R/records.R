@@ -15,7 +15,7 @@ renv_records <- function(records) {
 renv_records_select <- function(records, actions, action) {
   records <- renv_records(records)
   matching <- actions[actions %in% action]
-  records[intersect(names(records), names(matching))]
+  keep(records, names(matching))
 }
 
 renv_records_sort <- function(records) {
@@ -230,5 +230,15 @@ renv_record_format_pair <- function(lhs, rhs) {
   })
 
   sprintf("[%s]", paste(diffs, collapse = "; "))
+
+}
+
+renv_records_equal <- function(lhs, rhs) {
+
+  lhs <- drop_if(is.null, lhs)
+  rhs <- drop_if(is.null, rhs)
+
+  nm <- setdiff(union(names(lhs), names(rhs)), "Hash")
+  identical(keep(lhs, nm), keep(rhs, nm))
 
 }
