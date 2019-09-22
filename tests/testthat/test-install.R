@@ -113,4 +113,9 @@ test_that("various remote styles can be used during install", {
   expect_true(renv_package_installed("subdir"))
   expect_true(renv_package_version("subdir") == "0.0.0.9000")
 
+  # install from URL to zip
+  renv::install("https://github.com/kevinushey/skeleton/archive/master.zip")
+  expect_true(renv_package_installed("skeleton"))
+  expect_true(renv_package_version("skeleton") == "1.0.1")
+
 })

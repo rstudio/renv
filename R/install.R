@@ -268,7 +268,15 @@ renv_install_package_local <- function(record, quiet = TRUE) {
   # for packages living within a sub-directory, we need to
   # unpack the archive explicitly and update the path
   subdir <- record$RemoteSubdir %||% ""
-  if (nzchar(subdir)) {
+
+  # for source packages downloaded as zips,
+  # we need to extract before install
+  unpack <-
+    renv_archive_type(path) == "zip" &&
+    renv_package_type(path) == "source" ||
+    nzchar(subdir)
+
+  if (unpack) {
 
     # create extraction directory
     dir <- tempfile("renv-package-")
@@ -278,8 +286,13 @@ renv_install_package_local <- function(record, quiet = TRUE) {
     # decompress archive to dir
     renv_archive_decompress(path, exdir = dir)
 
-    # update path
-    path <- file.path(dir, list.files(dir)[[1]], subdir)
+    # rename to true package name
+    name <- list.files(dir)
+    file.rename(file.path(dir, name), file.path(dir, package))
+
+    # form new path
+    components <- c(dir, package, if (nzchar(subdir)) subdir)
+    path <- paste(components, collapse = "/")
 
   }
 
