@@ -10,6 +10,7 @@
   local        = "Local",
   repository   = "Repository",
   standard     = "CRAN",
+  url          = "URL",
   xgit         = "Git"
 )
 
