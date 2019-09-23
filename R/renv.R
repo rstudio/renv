@@ -121,8 +121,8 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_load_renviron(project)
   renv_load_settings(project)
   renv_load_project(project)
-  renv_load_libpaths(project)
   renv_load_sandbox(project)
+  renv_load_libpaths(project)
   renv_load_profile(project)
 
   lockfile <- renv_lockfile_load(project)
