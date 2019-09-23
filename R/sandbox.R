@@ -70,11 +70,11 @@ renv_sandbox_activate_check <- function(libs) {
   .First <- get(".First", envir = globalenv(), inherits = FALSE)
   wrapper <- function() {
 
+    # scope the library paths as currently defined
+    renv_scope_libpaths()
+
     # call the user-defined .First function
     status <- tryCatch(.First(), error = warning)
-
-    # restore the library paths if necessary
-    .libPaths(libs)
 
     # double-check if we should restore .First (this is extra
     # paranoid but in theory .First could remove itself)
