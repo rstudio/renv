@@ -81,7 +81,7 @@ renv_project_records_description <- function(project, descpath) {
   remotes <- renv_project_records_description_remotes(project, descpath)
 
   # next, find packages mentioned in the DESCRIPTION file
-  fields <- c("Depends", "Imports", "LinkingTo", "Suggests")
+  fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
   deps <- renv_dependencies_discover_description(descpath, fields)
   ignored <- settings$ignored.packages(project = project)
   packages <- setdiff(deps$Package, c("R", ignored))
