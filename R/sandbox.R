@@ -67,26 +67,26 @@ renv_sandbox_activate_check <- function(libs) {
   if (!danger)
     return(FALSE)
 
-  genv <- globalenv()
-  oldfirst <- get(".First", envir = genv, inherits = FALSE)
+  .First <- get(".First", envir = globalenv(), inherits = FALSE)
   wrapper <- function() {
 
-    # call .First and then ensure libpaths are set
-    status <- oldfirst()
+    # call the user-defined .First function
+    status <- tryCatch(.First(), error = warning)
+
+    # restore the library paths if necessary
     .libPaths(libs)
 
     # double-check if we should restore .First (this is extra
     # paranoid but in theory .First could remove itself)
-    newfirst <- genv[[".First"]]
-    if (identical(newfirst, wrapper))
-      assign(".First", oldfirst, envir = genv)
+    if (identical(wrapper, get(".First", envir = globalenv())))
+      assign(".First", .First, envir = globalenv())
 
     # return result of .First
     invisible(status)
 
   }
 
-  assign(".First", envir = genv, wrapper)
+  assign(".First", wrapper, envir = globalenv())
   return(TRUE)
 
 }
