@@ -77,26 +77,37 @@ renv_project_records <- function(project) {
 
 renv_project_records_description <- function(project, descpath) {
 
-  # parse explicit dependencies from DESCRIPTION file
-  # TODO: handle version requirements
+  # first, parse remotes (if any)
+  remotes <- renv_project_records_description_remotes(project, descpath)
+
+  # next, find packages mentioned in the DESCRIPTION file
   fields <- c("Depends", "Imports", "LinkingTo", "Suggests")
   deps <- renv_dependencies_discover_description(descpath, fields)
   ignored <- settings$ignored.packages(project = project)
   packages <- setdiff(deps$Package, c("R", ignored))
-  records <- lapply(packages, renv_remotes_resolve)
-  names(records) <- extract_chr(records, "Package")
 
-  # parse remotes (if any)
-  desc <- renv_description_read(descpath)
-  remotes <- desc$Remotes
-  if (!is.null(remotes)) {
-    splat <- strsplit(remotes, "\\s*,\\s*")[[1]]
-    resolved <- lapply(splat, renv_remotes_resolve)
-    names(resolved) <- extract_chr(resolved, "Package")
-    records[names(resolved)] <- resolved
-  }
+  # now, try to resolve the packages
+  records <- lapply(packages, function(package) {
+    remotes[[package]] %||% renv_remotes_resolve(package)
+  })
+  names(records) <- extract_chr(records, "Package")
 
   # return records
   records
+
+}
+
+renv_project_records_description_remotes <- function(project, descpath) {
+
+  desc <- renv_description_read(descpath)
+
+  remotes <- desc$Remotes
+  if (is.null(desc$Remotes))
+    return(list())
+
+  splat <- strsplit(remotes, "\\s*,\\s*")[[1]]
+  resolved <- lapply(splat, renv_remotes_resolve)
+  names(resolved) <- extract_chr(resolved, "Package")
+  resolved
 
 }

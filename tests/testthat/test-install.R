@@ -119,3 +119,25 @@ test_that("various remote styles can be used during install", {
   expect_true(renv_package_version("skeleton") == "1.0.1")
 
 })
+
+test_that("Remotes fields in a project DESCRIPTION are respected", {
+  skip_on_cran()
+
+  renv_tests_scope()
+  renv_scope_options(repos = character())
+  renv::init()
+
+  desc <- c(
+    "Type: Package",
+    "Package: renv.test.package",
+    "Suggests: skeleton",
+    "Remotes: kevinushey/skeleton"
+  )
+
+  writeLines(desc, con = "DESCRIPTION")
+  renv::install()
+
+  record <- renv_snapshot_description(package = "skeleton")
+  expect_true(record$Source == "GitHub")
+
+})
