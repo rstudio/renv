@@ -151,15 +151,15 @@ renv_load_profile <- function(project = NULL) {
   if (!enabled)
     return(FALSE)
 
-  profiles <- c(
-    renv_paths_root(".Rprofile"),
-    Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
-  )
-
   renv_scope_libpaths()
-  for (profile in profiles)
-    if (file.exists(profile))
-      renv_load_profile_impl(profile)
+
+  profile <-
+    Sys.getenv("RENV_DEFAULT_R_PROFILE_USER", unset = NA) %NA%
+    Sys.getenv("R_PROFILE_USER", unset = NA) %NA%
+    "~/.Rprofile"
+
+  if (file.exists(profile))
+    renv_load_profile_impl(profile)
 
   TRUE
 
@@ -282,7 +282,7 @@ renv_load_python_env <- function(fields, loader) {
 renv_load_finish <- function(project) {
 
   Sys.setenv(
-    R_PROFILE_USER = "",
+    R_PROFILE_USER = file.path(project, ".Rprofile"),
     R_ENVIRON_USER = file.path(project, ".Renviron")
   )
 
