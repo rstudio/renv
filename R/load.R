@@ -287,7 +287,7 @@ renv_load_finish <- function(project) {
   )
 
   quiet <-
-    "--slave" %in% commandArgs(TRUE) ||
+    "--slave" %in% commandArgs(trailingOnly = FALSE) ||
     identical(renv_verbose(), FALSE)
 
   if (!quiet) {
