@@ -63,7 +63,10 @@ renv_scope_envvars <- function(..., .list = NULL, .envir = NULL) {
   old <- as.list(Sys.getenv(names(dots), unset = NA))
   names(old) <- names(dots)
 
-  do.call(Sys.setenv, dots)
+  unset <- map_lgl(dots, is.null)
+  Sys.unsetenv(names(dots[unset]))
+  if (length(dots[!unset]))
+    do.call(Sys.setenv, dots[!unset])
 
   defer({
     na <- is.na(old)

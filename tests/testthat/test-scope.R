@@ -35,20 +35,29 @@ test_that("environment variable scoping works as expected", {
 
   Sys.unsetenv("RENV_TEST_ENVVAR_A")
   Sys.setenv("RENV_TEST_ENVVAR_B" = "0")
+  on.exit(Sys.unsetenv("RENV_TEST_ENVVAR_B"), add = TRUE)
 
+  # set and later unset a variable
   local({
     renv_scope_envvars("RENV_TEST_ENVVAR_A" = "1")
     expect_identical(Sys.getenv("RENV_TEST_ENVVAR_A"), "1")
   })
   expect_identical(Sys.getenv("RENV_TEST_ENVVAR_A", unset = NA), NA_character_)
 
+  # override and restore variables
   local({
     renv_scope_envvars("RENV_TEST_ENVVAR_A" = "1", "RENV_TEST_ENVVAR_B" = "2")
     expect_identical(Sys.getenv("RENV_TEST_ENVVAR_A"), "1")
     expect_identical(Sys.getenv("RENV_TEST_ENVVAR_B"), "2")
   })
-
   expect_identical(Sys.getenv("RENV_TEST_ENVVAR_B"), "0")
   expect_identical(Sys.getenv("RENV_TEST_ENVVAR_A", unset = NA), NA_character_)
+
+  # unset and reset variable
+  local({
+    renv_scope_envvars("RENV_TEST_ENVVAR_B" = NULL)
+    expect_identical(Sys.getenv("RENV_TEST_ENVVAR_B", unset = NA), NA_character_)
+  })
+  expect_identical(Sys.getenv("RENV_TEST_ENVVAR_B"), "0")
 
 })

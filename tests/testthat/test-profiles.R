@@ -10,11 +10,14 @@ test_that("library paths set in a user profile are overridden after load", {
   renv::init()
   renv_bootstrap_impl(project = getwd(), force = TRUE)
 
-  # set up a dummy profile
-  writeLines(".libPaths('.')", con = "profile.R")
+  profile <- c(
+    ".libPaths('.')",
+    "source('renv/activate.R')"
+  )
+  writeLines(profile, con = ".Rprofile")
 
-  # ensure .Rprofile is loaded in this context
-  renv_scope_envvars(R_PROFILE_USER = ".Rprofile")
+  # ensure profile is executed
+  renv_scope_envvars(R_PROFILE_USER = NULL)
 
   # invoke R
   args <- c("--slave", "-e", shQuote("writeLines(.libPaths(), 'libpaths.txt')"))
@@ -43,8 +46,8 @@ test_that(".First is executed; library paths are restored after", {
   )
   writeLines(profile, con = ".Rprofile")
 
-  # ensure .Rprofile is loaded in this context
-  renv_scope_envvars(R_PROFILE_USER = ".Rprofile")
+  # ensure profile is executed
+  renv_scope_envvars(R_PROFILE_USER = NULL)
 
   # invoke R
   args <- c("-e", shQuote("writeLines(.libPaths(), 'libpaths.txt')"))
