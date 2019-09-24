@@ -153,11 +153,7 @@ renv_load_profile <- function(project = NULL) {
 
   renv_scope_libpaths()
 
-  profile <-
-    Sys.getenv("RENV_DEFAULT_R_PROFILE_USER", unset = NA) %NA%
-    Sys.getenv("R_PROFILE_USER", unset = NA) %NA%
-    "~/.Rprofile"
-
+  profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
   if (file.exists(profile))
     renv_load_profile_impl(profile)
 
@@ -280,11 +276,6 @@ renv_load_python_env <- function(fields, loader) {
 }
 
 renv_load_finish <- function(project) {
-
-  Sys.setenv(
-    R_PROFILE_USER = file.path(project, ".Rprofile"),
-    R_ENVIRON_USER = file.path(project, ".Renviron")
-  )
 
   quiet <-
     "--slave" %in% commandArgs(trailingOnly = FALSE) ||

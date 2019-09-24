@@ -23,7 +23,7 @@ renv_tests_scope <- function(packages = character()) {
   lib <- tempfile("renv-library-")
   ensure_directory(lib)
   libpaths <- .libPaths()
-  .libPaths(c(lib, .libPaths()))
+  .libPaths(lib)
 
   defer(envir = parent.frame(), {
     setwd(owd)
