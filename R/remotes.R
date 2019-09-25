@@ -44,7 +44,8 @@ renv_remotes_resolve <- function(entry) {
 renv_remotes_resolve_impl <- function(entry) {
 
   parsed <- renv_remotes_parse(entry)
-  switch(
+
+  resolved <- switch(
     parsed$type,
     bitbucket  = renv_remotes_resolve_bitbucket(parsed),
     gitlab     = renv_remotes_resolve_gitlab(parsed),
@@ -52,6 +53,8 @@ renv_remotes_resolve_impl <- function(entry) {
     repository = renv_remotes_resolve_repository(parsed),
     stopf("unknown remote type '%s'", parsed$type %||% "<NA>")
   )
+
+  drop_if(is.null, resolved)
 
 }
 
