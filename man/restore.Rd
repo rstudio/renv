@@ -5,7 +5,7 @@
 \title{Restore a Project}
 \usage{
 restore(project = NULL, ..., library = NULL, lockfile = NULL,
-  clean = FALSE, confirm = interactive())
+  repos = NULL, clean = FALSE, confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -20,6 +20,12 @@ for details.}
 \item{lockfile}{The lockfile to be used for restoration of the associated
 project. When \code{NULL}, the most recently generated lockfile for this project
 is used.}
+
+\item{repos}{The repositories to use during restore, for packages installed
+from CRAN or another similar R package repository. When set, this will
+override any repositories declared in the lockfile. See also the
+\code{repos.override} option in \link{config} for an alternate way to provide a
+repository override.}
 
 \item{clean}{Boolean; remove packages not recorded in the lockfile from
 the target library? Use \code{clean = TRUE} if you'd like the library state

@@ -13,6 +13,12 @@
 #'   project. When `NULL`, the most recently generated lockfile for this project
 #'   is used.
 #'
+#' @param repos The repositories to use during restore, for packages installed
+#'   from CRAN or another similar R package repository. When set, this will
+#'   override any repositories declared in the lockfile. See also the
+#'   `repos.override` option in [config] for an alternate way to provide a
+#'   repository override.
+#'
 #' @param clean Boolean; remove packages not recorded in the lockfile from
 #'   the target library? Use `clean = TRUE` if you'd like the library state
 #'   to exactly reflect the lockfile contents after `restore()`.
@@ -37,6 +43,7 @@ restore <- function(project  = NULL,
                     ...,
                     library  = NULL,
                     lockfile = NULL,
+                    repos    = NULL,
                     clean    = FALSE,
                     confirm  = interactive())
 {
@@ -48,9 +55,12 @@ restore <- function(project  = NULL,
   lockfile <- lockfile %||% renv_lockfile_load(project = project)
 
   # override repositories if requested
-  repos <- renv_config("repos.override")
-  if (!is.null(repos))
-    renv_scope_options(repos = repos)
+  repos <- repos %||%
+    renv_config("repos.override") %||%
+    lockfile$R$Repositories
+
+  if (length(repos))
+    renv_scope_options(repos = convert(repos, "character"))
 
   # activate the requested library
   ensure_directory(library)
