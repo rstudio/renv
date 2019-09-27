@@ -70,7 +70,7 @@ snapshot()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.109</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.110</span>
       </span>
     </div>
 
@@ -151,7 +151,7 @@ snapshot()." />
     </div>
 
     <pre class="usage"><span class='fu'>restore</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>clean</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
+  <span class='kw'>repos</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>clean</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,6 +176,14 @@ for details.</p></td>
       <td><p>The lockfile to be used for restoration of the associated
 project. When <code>NULL</code>, the most recently generated lockfile for this project
 is used.</p></td>
+    </tr>
+    <tr>
+      <th>repos</th>
+      <td><p>The repositories to use during restore, for packages installed
+from CRAN or another similar R package repository. When set, this will
+override any repositories declared in the lockfile. See also the
+<code>repos.override</code> option in <a href='config.html'>config</a> for an alternate way to provide a
+repository override.</p></td>
     </tr>
     <tr>
       <th>clean</th>
