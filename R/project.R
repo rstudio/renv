@@ -46,23 +46,24 @@ renv_project_type <- function(path) {
 
   # check for R package projects
   descpath <- file.path(path, "DESCRIPTION")
-  if (file.exists(descpath)) {
+  if (!file.exists(descpath))
+    return("unknown")
 
-    desc <- renv_description_read(descpath)
-
-    # check for explicitly recorded type
-    type <- desc$Type
-    if (!is.null(type))
-      return(tolower(type))
-
-    # infer otherwise from 'Package' field otherwise
-    package <- desc$Package
-    if (!is.null(package))
-      return("package")
-
+  desc <- catch(renv_description_read(descpath))
+  if (inherits(desc, "error")) {
+    warning(desc)
+    return("unknown")
   }
 
-  "unknown"
+  # check for explicitly recorded type
+  type <- desc$Type
+  if (!is.null(type))
+    return(tolower(type))
+
+  # infer otherwise from 'Package' field otherwise
+  package <- desc$Package
+  if (!is.null(package))
+    return("package")
 
 }
 

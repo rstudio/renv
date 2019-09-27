@@ -275,3 +275,20 @@ renv_cache_clean_empty <- function() {
   TRUE
 
 }
+
+renv_cache_package_validate <- function(path) {
+
+  if (renv_project_type(path) == "package")
+    return(TRUE)
+
+  type <- renv_file_type(path, symlinks = FALSE)
+  if (!nzchar(type))
+    return(FALSE)
+
+  name <- if (type == "directory") "directory" else "file"
+  fmt <- "%s %s exists but does not appear to be an R package"
+  warningf(fmt, name, shQuote(path))
+
+  FALSE
+
+}

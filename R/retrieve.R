@@ -61,7 +61,7 @@ renv_retrieve_impl <- function(package) {
 
     if (cacheable) {
       path <- renv_cache_package_path(record)
-      if (file.exists(path))
+      if (renv_cache_package_validate(path))
         return(renv_retrieve_successful(record, path))
     }
 
