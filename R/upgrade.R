@@ -19,6 +19,11 @@
 #'
 #' @param confirm Boolean; confirm upgrade before proceeding?
 #'
+#' @param reload Boolean; reload `renv` after install? When `NULL` (the
+#'   default), `renv` will be re-loaded only if updating `renv` for the
+#'   active project. Note that this may fail if you've loaded packages
+#'   which also depend on `renv`.
+#'
 #' @return A boolean value, indicating whether the requested version of
 #'   `renv` was successfully installed. Note that this function is normally
 #'   called for its side effects.
@@ -37,15 +42,17 @@
 #' }
 upgrade <- function(project = NULL,
                     version = NULL,
+                    reload  = NULL,
                     confirm = interactive())
 {
   renv_scope_error_handler()
-  invisible(renv_upgrade_impl(project, version, confirm))
+  invisible(renv_upgrade_impl(project, version, reload, confirm))
 }
 
-renv_upgrade_impl <- function(project, version, confirm) {
+renv_upgrade_impl <- function(project, version, reload, confirm) {
 
   project <- project %||% renv_project()
+  reload <- reload %||% identical(project, renv_project())
 
   old <- renv_snapshot_description(package = "renv")
   new <- renv_upgrade_find_record(version)
@@ -96,8 +103,10 @@ renv_upgrade_impl <- function(project, version, confirm) {
   # now update the infrastructure to use this version of renv
   renv_infrastructure_write(project, version = record$Version)
 
-  # and restart
-  renv_request_restart(project, reason = "renv upgraded")
+  # reload renv
+  if (reload)
+    renv_package_reload("renv")
+
   invisible(TRUE)
 
 }

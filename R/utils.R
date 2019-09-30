@@ -288,10 +288,20 @@ nullfile <- function() {
   if (renv_platform_windows()) "NUL" else "/dev/null"
 }
 
-quietly <- function(expr) {
-  sink(file = nullfile())
-  on.exit(sink(NULL), add = TRUE)
-  expr
+quietly <- function(expr, sink = TRUE) {
+
+  if (sink) {
+    sink(file = nullfile())
+    on.exit(sink(NULL), add = TRUE)
+  }
+
+  withCallingHandlers(
+    expr,
+    warning               = function(c) invokeRestart("muffleWarning"),
+    message               = function(c) invokeRestart("muffleMessage"),
+    packageStartupMessage = function(c) invokeRestart("muffleMessage")
+  )
+
 }
 
 convert <- function(x, type) {

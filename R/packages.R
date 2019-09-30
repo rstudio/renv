@@ -212,3 +212,42 @@ renv_package_dependencies_impl <- function(package,
   for (subpackage in subpackages)
     renv_package_dependencies_impl(subpackage, visited, libpaths, fields)
 }
+
+renv_package_reload <- function(package) {
+  status <- catch(renv_package_reload_impl(package))
+  !inherits(status, "error") && status
+}
+
+renv_package_reload_impl <- function(package) {
+
+  if (renv_testing())
+    return(FALSE)
+
+  # record if package is attached (and, if so, where)
+  name <- paste("package", package, sep = ":")
+  pos <- match(name, search())
+
+  # unload the package
+  if (!is.na(pos))
+    renv_package_reload_impl_searchpath(package, pos)
+  else
+    renv_package_reload_impl_namespace(package)
+
+  TRUE
+
+}
+
+renv_package_reload_impl_searchpath <- function(package, pos) {
+
+  args <- list(pos = pos, unload = TRUE, force = TRUE)
+  quietly(do.call(base::detach, args), sink = FALSE)
+
+  args <- list(package = package, pos = pos, quietly = TRUE)
+  quietly(do.call(base::library, args), sink = FALSE)
+
+}
+
+renv_package_reload_impl_namespace <- function(package) {
+  unloadNamespace(package)
+  loadNamespace(package)
+}

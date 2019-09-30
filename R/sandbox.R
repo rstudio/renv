@@ -60,14 +60,16 @@ renv_sandbox_activate_impl <- function(project) {
 
 renv_sandbox_activate_check <- function(libs) {
 
+  envir <- globalenv()
+
   danger <-
-    exists(".First", envir = globalenv(), inherits = FALSE) &&
+    exists(".First", envir = envir, inherits = FALSE) &&
     !is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA))
 
   if (!danger)
     return(FALSE)
 
-  .First <- get(".First", envir = globalenv(), inherits = FALSE)
+  .First <- get(".First", envir = envir, inherits = FALSE)
   wrapper <- function() {
 
     # scope the library paths as currently defined
@@ -78,15 +80,15 @@ renv_sandbox_activate_check <- function(libs) {
 
     # double-check if we should restore .First (this is extra
     # paranoid but in theory .First could remove itself)
-    if (identical(wrapper, get(".First", envir = globalenv())))
-      assign(".First", .First, envir = globalenv())
+    if (identical(wrapper, get(".First", envir = envir)))
+      assign(".First", .First, envir = envir)
 
     # return result of .First
     invisible(status)
 
   }
 
-  assign(".First", wrapper, envir = globalenv())
+  assign(".First", wrapper, envir = envir)
   return(TRUE)
 
 }

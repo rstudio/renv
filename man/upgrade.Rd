@@ -4,7 +4,8 @@
 \alias{upgrade}
 \title{Upgrade renv}
 \usage{
-upgrade(project = NULL, version = NULL, confirm = interactive())
+upgrade(project = NULL, version = NULL, reload = NULL,
+  confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -14,6 +15,11 @@ directory is used instead.}
 \item{version}{The version of \code{renv} to be installed. By default, the latest
 version of \code{renv} as available on the active R package repositories is
 used.}
+
+\item{reload}{Boolean; reload \code{renv} after install? When \code{NULL} (the
+default), \code{renv} will be re-loaded only if updating \code{renv} for the
+active project. Note that this may fail if you've loaded packages
+which also depend on \code{renv}.}
 
 \item{confirm}{Boolean; confirm upgrade before proceeding?}
 }
