@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.112</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.117</span>
       </span>
     </div>
 
@@ -197,6 +197,12 @@ external libraries; for example, if your project required <code>xyz 1.0</code> b
 <code>xyz 1.1</code> was present and loaded from an external library. Can also be an
 <span style="R">R</span> function that provides the paths to external libraries. Library paths
 will be expanded through <a href='https://rdrr.io/r/base/libPaths.html'>.expand_R_libs_env_var</a> as necessary.</td></tr>
+<tr><td><code>install.staged</code></td><td><code>logical[1]</code></td><td><code>TRUE</code></td><td>Perform a staged install of packages during install and restore?
+When enabled, <code>renv</code> will first install packages into a temporary
+library, and later copy or move those packages back into the project
+library only if all packages were successfully downloaded and installed.
+This can be useful if you'd like to avoid mutating your project library
+if installation of one or more packages fails.</td></tr>
 <tr><td><code>repos.override</code></td><td><code>character[*]</code></td><td><code>NULL</code></td><td>Override the R package repositories used during <a href='restore.html'>restore</a>. Primarily
 useful for deployment / continuous integration, where you might want
 to enforce the usage of some set of repositories over what is defined
