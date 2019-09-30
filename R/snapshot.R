@@ -88,10 +88,10 @@ snapshot <- function(project  = NULL,
     renv_snapshot_preflight(project, library)
 
   new <- renv_lockfile_init(project)
-  records <- renv_snapshot_r_packages(library = library)
-  filtered <- renv_snapshot_filter(project, records, type)
-  filtered$renv <- if (!renv_testing()) renv_snapshot_renv()
-  renv_records(new) <- filtered
+  renv_records(new) <-
+    renv_snapshot_r_packages(library = library) %>%
+    renv_snapshot_filter(project = project, type = type) %>%
+    renv_snapshot_fixup()
 
   if (is.null(lockfile))
     return(new)
@@ -456,19 +456,6 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
 
 }
 
-# snapshot renv specially: if the source is not known (e.g. the
-# user installed it from sources), then assume a GitHub remote
-renv_snapshot_renv <- function() {
-
-  record <- renv_snapshot_description(package = "renv")
-  if (renv_testing() || !identical(record$Source, "unknown"))
-    return(record)
-
-  remote <- paste("rstudio/renv", record$Version, sep = "@")
-  renv_remotes_resolve(remote)
-
-}
-
 renv_snapshot_description <- function(path = NULL, package = NULL) {
 
   path <- path %||% renv_package_find(package)
@@ -662,5 +649,27 @@ renv_snapshot_filter_custom <- function(project, records) {
     stop("custom snapshot filter did not return a character vector")
 
   keep(records, packages)
+
+}
+
+renv_snapshot_fixup <- function(records) {
+
+  records <- renv_snapshot_fixup_renv(records)
+  records
+
+}
+
+renv_snapshot_fixup_renv <- function(records) {
+
+  if (renv_testing())
+    return(records)
+
+  record <- records$renv
+  if (is.null(record) || !identical(record$Source, "unknown"))
+    return(records)
+
+  remote <- paste("rstudio/renv", record$Version, sep = "@")
+  records$renv <- renv_remotes_resolve(remote)
+  records
 
 }

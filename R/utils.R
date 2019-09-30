@@ -1,4 +1,25 @@
 
+`%>%` <- function(...) {
+
+  dots <- eval(substitute(alist(...)))
+  if (length(dots) != 2L)
+    stopf("`%>%` called with invalid number of arguments")
+
+  lhs <- dots[[1L]]; rhs <- dots[[2L]]
+  if (!is.call(rhs))
+    stopf("right-hand side of rhs is not a call")
+
+  data <- c(rhs[[1L]], lhs, as.list(rhs[-1L]))
+  call <- as.call(data)
+
+  nm <- names(rhs)
+  if (length(nm))
+    names(call) <- c("", "", nm[-1L])
+
+  eval(call, envir = parent.frame())
+
+}
+
 `%||%` <- function(x, y) {
   if (length(x) || is.environment(x)) x else y
 }

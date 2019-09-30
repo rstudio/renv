@@ -158,7 +158,7 @@ renv_migrate_packrat_lockfile <- function(project) {
   names(records) <- extract_chr(records, "Package")
 
   # ensure renv is added
-  records$renv <- if (!renv_testing()) renv_snapshot_renv()
+  records <- renv_snapshot_fixup_renv(records)
 
   # generate a blank lockfile
   lockfile <- structure(list(), class = "renv_lockfile")
