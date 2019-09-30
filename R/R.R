@@ -148,10 +148,10 @@ r_cmd_install_option <- function(package, option, configure) {
     return(NULL)
 
   # check for named values
-  if (package %in% names(value)) {
+  if (!is.null(names(value))) {
     value <- value[[package]]
     if (is.null(value))
-      return(value)
+      return(NULL)
   }
 
   # if this is a configure option, format specially

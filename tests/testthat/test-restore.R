@@ -74,3 +74,35 @@ test_that("renv.records can be used to override records during restore", {
   expect_equal(renv_package_version("bread"), "1.0.0")
 
 })
+
+test_that("install.staged works as expected", {
+
+  renv_tests_scope("breakfast")
+
+  renv::init()
+  renv::remove("breakfast")
+  renv::purge("breakfast")
+
+  install.opts <- list(breakfast = "--version")
+
+  local({
+    renv_scope_options(renv.config.install.staged = TRUE)
+    renv_scope_options(install.opts = install.opts)
+    templib <- tempfile("renv-templib-")
+    expect_error(renv::restore(library = templib))
+    files <- list.files(templib)
+    expect_true(length(files) == 0L)
+  })
+
+  local({
+    renv_scope_options(renv.config.install.staged = FALSE)
+    renv_scope_options(install.opts = install.opts)
+    templib <- tempfile("renv-templib-")
+    expect_error(renv::restore(library = templib))
+    files <- list.files(templib)
+    expect_true(length(files) != 0L)
+  })
+
+  install("breakfast")
+
+})
