@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.119</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.120</span>
       </span>
     </div>
 
@@ -148,7 +148,8 @@
     <p>Upgrade the version of <code>renv</code> associated with a project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>upgrade</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
+    <pre class="usage"><span class='fu'>upgrade</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>reload</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -164,6 +165,13 @@ directory is used instead.</p></td>
       <td><p>The version of <code>renv</code> to be installed. By default, the latest
 version of <code>renv</code> as available on the active R package repositories is
 used.</p></td>
+    </tr>
+    <tr>
+      <th>reload</th>
+      <td><p>Boolean; reload <code>renv</code> after install? When <code>NULL</code> (the
+default), <code>renv</code> will be re-loaded only if updating <code>renv</code> for the
+active project. Note that this may fail if you've loaded packages
+which also depend on <code>renv</code>.</p></td>
     </tr>
     <tr>
       <th>confirm</th>
