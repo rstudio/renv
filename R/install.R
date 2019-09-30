@@ -105,22 +105,31 @@ install <- function(packages = NULL,
 
 renv_install <- function(records, library) {
 
+  staged <- renv_config("install.staged", default = TRUE)
+
+  if (staged)
+    renv_install_staged(records, library)
+  else
+    renv_install_default(records, library)
+
+  invisible(TRUE)
+
+}
+
+renv_install_staged <- function(records, library) {
+
   # save active library
   renv_global_set("install.library", library[[1]])
   on.exit(renv_global_clear("install.library"), add = TRUE)
 
   # set up a dummy library path for installation
-  templib <- renv_tempfile("renv-templib-")
+  templib <- tempfile("renv-staging-")
   ensure_directory(templib)
+  on.exit(unlink(templib, recursive = TRUE), add = TRUE)
   renv_scope_libpaths(c(templib, renv_libpaths_all()))
 
-  # get error handler
-  state <- renv_restore_state()
-  handler <- state$handler %||% function(...) {}
-
-  # iterate through records and install
-  for (record in records)
-    handler(record$Package, renv_install_impl(record))
+  # perform the install
+  renv_install_default(records, library)
 
   # migrate packages into true library
   sources <- list.files(templib, full.names = TRUE)
@@ -129,12 +138,22 @@ renv_install <- function(records, library) {
   enumerate(targets, renv_file_move, overwrite = TRUE)
 
   # clear filebacked cache entries
-  paths <- file.path(targets, "DESCRIPTION")
-  renv_filebacked_clear("DESCRIPTION", paths)
+  descpaths <- file.path(targets, "DESCRIPTION")
+  renv_filebacked_clear("DESCRIPTION", descpaths)
 
-  invisible(TRUE)
+  invisible(targets)
 
 }
+
+renv_install_default <- function(records, library) {
+  state <- renv_restore_state()
+  handler <- state$handler
+  for (record in records) {
+    package <- record$Package
+    handler(package, renv_install_impl(record))
+  }
+}
+
 
 renv_install_impl <- function(record) {
 

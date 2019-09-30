@@ -195,7 +195,7 @@ renv_restore_begin <- function(project = NULL,
     # as explicitly requested by the user / front-end API call
     packages = packages,
 
-    # an optional custom error handler
+    # an optional handler, to be used during retrieve / restore
     handler = handler %||% function(package, action) action,
 
     # packages which should be rebuilt (skipping the cache)

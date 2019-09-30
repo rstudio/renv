@@ -63,6 +63,15 @@
 #'   will be expanded through [.expand_R_libs_env_var] as necessary.
 #'   \cr
 #'
+#' `install.staged` \tab `logical[1]` \tab `TRUE` \tab
+#'   Perform a staged install of packages during install and restore?
+#'   When enabled, `renv` will first install packages into a temporary
+#'   library, and later copy or move those packages back into the project
+#'   library only if all packages were successfully downloaded and installed.
+#'   This can be useful if you'd like to avoid mutating your project library
+#'   if installation of one or more packages fails.
+#'   \cr
+#'
 #' `repos.override` \tab `character[*]` \tab `NULL` \tab
 #'   Override the R package repositories used during [restore]. Primarily
 #'   useful for deployment / continuous integration, where you might want

@@ -68,6 +68,15 @@ external libraries; for example, if your project required \code{xyz 1.0} but
 will be expanded through \link{.expand_R_libs_env_var} as necessary.
 \cr
 
+\code{install.staged} \tab \code{logical[1]} \tab \code{TRUE} \tab
+Perform a staged install of packages during install and restore?
+When enabled, \code{renv} will first install packages into a temporary
+library, and later copy or move those packages back into the project
+library only if all packages were successfully downloaded and installed.
+This can be useful if you'd like to avoid mutating your project library
+if installation of one or more packages fails.
+\cr
+
 \code{repos.override} \tab \code{character[*]} \tab \code{NULL} \tab
 Override the R package repositories used during \link{restore}. Primarily
 useful for deployment / continuous integration, where you might want

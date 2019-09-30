@@ -21,6 +21,10 @@ uapply <- function(x, f, ...) {
   unlist(lapply(x, f, ...), recursive = FALSE)
 }
 
+map <- function(x, f, ...) {
+  lapply(x, f, ...)
+}
+
 map_chr <- function(x, f, ...) {
   vapply(x, f, ..., FUN.VALUE = character(1))
 }
