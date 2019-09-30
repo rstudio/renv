@@ -2,7 +2,11 @@
 local({
 
   # the requested version of renv
-  version <- "0.7.0-84"
+  version <- "0.7.0-120"
+
+  # avoid recursion
+  if (!is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA)))
+    return(invisible(TRUE))
 
   # signal that we're loading renv during R startup
   Sys.setenv("RENV_R_INITIALIZING" = "true")

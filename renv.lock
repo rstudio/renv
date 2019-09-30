@@ -1,6 +1,6 @@
 {
   "renv": {
-    "Version": "0.7.0-84"
+    "Version": "0.7.0-120"
   },
   "R": {
     "Version": "3.6.1",
@@ -521,9 +521,14 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.7.0-84",
-      "Source": "unknown",
-      "Hash": "8e8db210b68663a0d815e8befe24205b"
+      "Version": "0.7.0-120",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "rstudio",
+      "RemoteRepo": "renv",
+      "RemoteRef": "master",
+      "RemoteSha": "191a2758e2cb4c5df88ef499b774b9df1ff61312"
     },
     "reshape2": {
       "Package": "reshape2",
