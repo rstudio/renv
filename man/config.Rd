@@ -9,19 +9,19 @@ Configure different behaviors of \code{renv}.
 \details{
 For a given configuration option:
 \enumerate{
-\item If an \R option of the form \code{renv.config.<name>} is available,
+\item If an \R option of the form \verb{renv.config.<name>} is available,
 then that option's value will be used;
-\item If an environment variable of the form \code{RENV_CONFIG_<NAME>} is available,
+\item If an environment variable of the form \verb{RENV_CONFIG_<NAME>} is available,
 then that option's value will be used;
 \item Otherwise, the default for that particular configuration value is used.
 }
 
-Any periods (\code{.})s in the option name are transformed into underscores (\code{_})
+Any periods (\code{.})s in the option name are transformed into underscores (\verb{_})
 in the environment variable name, and vice versa. For example, the
 configuration option \code{auto.snapshot} could be configured as:
 \itemize{
-\item \code{options(renv.config.auto.snapshot = <...>)}
-\item \code{Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = <...>)}
+\item \verb{options(renv.config.auto.snapshot = <...>)}
+\item \verb{Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = <...>)}
 }
 
 Note that if both the R option and the environment variable are defined, the
@@ -32,7 +32,7 @@ preferred.
 
 If you want to set and persist these options across multiple projects, it is
 recommended that you set them in your user startup files (e.g. in
-\code{~/.Rprofile} or \code{~/.Renviron}).
+\verb{~/.Rprofile} or \verb{~/.Renviron}).
 }
 \section{Configuration}{
 
@@ -57,13 +57,13 @@ The number of times to attempt re-downloading a file, when transient
 errors occur. Only used when the \code{curl} downloader is used.
 \cr
 
-\code{external.libraries} \tab \code{character[*]} \tab \code{character()} \tab
+\code{external.libraries} \tab \verb{character[*]} \tab \code{character()} \tab
 A character vector of external libraries, to be used in tandem with your
 projects. Be careful when using external libraries: it's possible that
 things can break within a project if the version(s) of packages used in
 your project library happen to be incompatible with packages in your
-external libraries; for example, if your project required \code{xyz 1.0} but
-\code{xyz 1.1} was present and loaded from an external library. Can also be an
+external libraries; for example, if your project required \verb{xyz 1.0} but
+\verb{xyz 1.1} was present and loaded from an external library. Can also be an
 \R function that provides the paths to external libraries. Library paths
 will be expanded through \link{.expand_R_libs_env_var} as necessary.
 \cr
@@ -77,7 +77,7 @@ This can be useful if you'd like to avoid mutating your project library
 if installation of one or more packages fails.
 \cr
 
-\code{repos.override} \tab \code{character[*]} \tab \code{NULL} \tab
+\code{repos.override} \tab \verb{character[*]} \tab \code{NULL} \tab
 Override the R package repositories used during \link{restore}. Primarily
 useful for deployment / continuous integration, where you might want
 to enforce the usage of some set of repositories over what is defined
@@ -125,7 +125,7 @@ also the caveats for the \code{external.libraries} option.
 \cr
 
 \code{user.profile} \tab \code{logical[1]} \tab \code{TRUE} \tab
-Load the user R profile (typically located at \code{~/.Rprofile}) when \code{renv}
+Load the user R profile (typically located at \verb{~/.Rprofile}) when \code{renv}
 is loaded? Consider disabling this if you require extra encapsulation in
 your projects; e.g. if your \code{.Rprofile} attempts to load packages that
 you might not install in your projects.

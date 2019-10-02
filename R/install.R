@@ -268,21 +268,8 @@ renv_install_package_cache_skip <- function(record, cache) {
 }
 
 renv_install_package_preamble <- function(record) {
-
-  src <- record$Source
-
-  # when installing from an R repository,
-  # use the name of the repository for installation
-  if (tolower(src) %in% c("cran", "repository"))
-    src <- record$Repository %||% "CRAN"
-
-  # remap name for local sources
-  if (tolower(src) == "local")
-    src <- "local sources"
-
-  fmt <- "Installing %s [%s] from %s ..."
-  with(record, vwritef(fmt, Package, Version, src))
-
+  fmt <- "Installing %s [%s] ..."
+  with(record, vwritef(fmt, Package, Version))
 }
 
 renv_install_package_local <- function(record, quiet = TRUE) {

@@ -4,8 +4,14 @@
 \alias{rebuild}
 \title{Rebuild the Packages in your Project Library}
 \usage{
-rebuild(packages = NULL, recursive = TRUE, ...,
-  confirm = interactive(), library = NULL, project = NULL)
+rebuild(
+  packages = NULL,
+  recursive = TRUE,
+  ...,
+  confirm = interactive(),
+  library = NULL,
+  project = NULL
+)
 }
 \arguments{
 \item{packages}{The package(s) to be rebuilt. When \code{NULL}, all packages

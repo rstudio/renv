@@ -4,8 +4,15 @@
 \alias{restore}
 \title{Restore a Project}
 \usage{
-restore(project = NULL, ..., library = NULL, lockfile = NULL,
-  repos = NULL, clean = FALSE, confirm = interactive())
+restore(
+  project = NULL,
+  ...,
+  library = NULL,
+  lockfile = NULL,
+  repos = NULL,
+  clean = FALSE,
+  confirm = interactive()
+)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -83,6 +90,6 @@ options(renv.config.auto.snapshot = auto.snapshot)
 }
 \seealso{
 Other reproducibility: \code{\link{lockfile}},
-  \code{\link{snapshot}}
+  \code{\link{snapshot}()}
 }
 \concept{reproducibility}

@@ -16,9 +16,9 @@ By default, \code{renv} collects state into these folders:
 
 \tabular{ll}{
 \strong{Platform} \tab \strong{Location} \cr
-Linux        \tab \code{~/.local/share/renv} \cr
-macOS        \tab \code{~/Library/Application Support/renv} \cr
-Windows      \tab \code{\%LOCALAPPDATA\%/renv} \cr
+Linux        \tab \verb{~/.local/share/renv} \cr
+macOS        \tab \verb{~/Library/Application Support/renv} \cr
+Windows      \tab \verb{\%LOCALAPPDATA\%/renv} \cr
 }
 
 If desired, this path can be adjusted by setting the \code{RENV_PATHS_ROOT}
@@ -65,7 +65,7 @@ set in:
 \itemize{
 \item A project-local \code{.Renviron};
 \item The user-level \code{.Renviron};
-\item A file at \code{$(R RHOME)/etc/Renviron.site}.
+\item A file at \verb{$(R RHOME)/etc/Renviron.site}.
 }
 
 Please see ?\link{Startup} for more details.
@@ -79,11 +79,11 @@ to use during restore. By default, these packages should be made available in
 the folder as specified by the \code{RENV_PATHS_LOCAL} environment variable. The
 package sources should be placed in a file at one of these locations:
 \itemize{
-\item \code{${RENV_PATHS_LOCAL}/<package>/<package>_<version>.<ext>}
-\item \code{<project>/renv/local/<package>/<package>_<version>.<ext>}
+\item \verb{$\{RENV_PATHS_LOCAL\}/<package>/<package>_<version>.<ext>}
+\item \verb{<project>/renv/local/<package>/<package>_<version>.<ext>}
 }
 
-where \code{.<ext>} is \code{.tar.gz} for source packages, or \code{.tgz} for binaries on
+where \verb{.<ext>} is \code{.tar.gz} for source packages, or \code{.tgz} for binaries on
 macOS and \code{.zip} for binaries on Windows. During a \code{restore()}, packages
 installed from an unknown source will be searched for in this location.
 }
@@ -99,7 +99,7 @@ link, projects need to also report that they're using the \code{renv} cache.
 To accomplish this, whenever \code{renv} is used with a project, it will record
 itself as being used within a file located at:
 \itemize{
-\item \code{${RENV_PATHS_ROOT}/projects}
+\item \verb{$\{RENV_PATHS_ROOT\}/projects}
 }
 
 This file is list of projects currently using the \code{renv} cache. With this,

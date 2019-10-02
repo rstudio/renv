@@ -4,8 +4,7 @@
 \alias{upgrade}
 \title{Upgrade renv}
 \usage{
-upgrade(project = NULL, version = NULL, reload = NULL,
-  confirm = interactive())
+upgrade(project = NULL, version = NULL, reload = NULL, confirm = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will

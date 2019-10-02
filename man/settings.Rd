@@ -60,7 +60,7 @@ projects in the same environment.
 
 
 You can change the default values of these settings for newly-created \code{renv}
-projects by setting \R options for \code{renv.settings} or \code{renv.settings.<name>}.
+projects by setting \R options for \code{renv.settings} or \verb{renv.settings.<name>}.
 For example:
 
 \preformatted{
@@ -68,10 +68,10 @@ options(renv.settings = list(snapshot.type = "simple"))
 options(renv.settings.snapshot.type = "simple")
 }
 
-If both of the \code{renv.settings} and \code{renv.settings.<name>} options are set
-for a particular key, the option associated with \code{renv.settings.<name>} is
+If both of the \code{renv.settings} and \verb{renv.settings.<name>} options are set
+for a particular key, the option associated with \verb{renv.settings.<name>} is
 used instead. We recommend setting these in an appropriate startup profile,
-e.g. \code{~/.Rprofile} or similar.
+e.g. \verb{~/.Rprofile} or similar.
 }
 
 \examples{

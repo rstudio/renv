@@ -4,8 +4,13 @@
 \alias{use_python}
 \title{Use Python}
 \usage{
-use_python(python = NULL, ..., type = c("auto", "virtualenv", "conda",
-  "system"), name = NULL, project = NULL)
+use_python(
+  python = NULL,
+  ...,
+  type = c("auto", "virtualenv", "conda", "system"),
+  name = NULL,
+  project = NULL
+)
 }
 \arguments{
 \item{python}{The path to a Python binary. This can be the path to a Python

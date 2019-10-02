@@ -4,10 +4,15 @@
 \alias{snapshot}
 \title{Snapshot a Project}
 \usage{
-snapshot(project = NULL, ..., library = NULL,
+snapshot(
+  project = NULL,
+  ...,
+  library = NULL,
   lockfile = file.path(project, "renv.lock"),
   type = settings$snapshot.type(project = project),
-  confirm = interactive(), force = FALSE)
+  confirm = interactive(),
+  force = FALSE
+)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -116,6 +121,6 @@ options(renv.config.auto.snapshot = auto.snapshot)
 }
 \seealso{
 Other reproducibility: \code{\link{lockfile}},
-  \code{\link{restore}}
+  \code{\link{restore}()}
 }
 \concept{reproducibility}

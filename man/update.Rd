@@ -4,8 +4,15 @@
 \alias{update}
 \title{Update Packages}
 \usage{
-update(packages = NULL, ..., library = NULL, rebuild = FALSE,
-  check = FALSE, confirm = interactive(), project = NULL)
+update(
+  packages = NULL,
+  ...,
+  library = NULL,
+  rebuild = FALSE,
+  check = FALSE,
+  confirm = interactive(),
+  project = NULL
+)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to update. When \code{NULL},

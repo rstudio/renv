@@ -4,8 +4,7 @@
 \alias{purge}
 \title{Purge Packages from the Cache}
 \usage{
-purge(package, ..., version = NULL, hash = NULL,
-  confirm = interactive())
+purge(package, ..., version = NULL, hash = NULL, confirm = interactive())
 }
 \arguments{
 \item{package}{A single package to be removed from the cache.}

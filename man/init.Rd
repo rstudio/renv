@@ -4,8 +4,14 @@
 \alias{init}
 \title{Initialize a Project}
 \usage{
-init(project = NULL, ..., settings = NULL, bare = FALSE,
-  force = FALSE, restart = interactive())
+init(
+  project = NULL,
+  ...,
+  settings = NULL,
+  bare = FALSE,
+  force = FALSE,
+  restart = interactive()
+)
 }
 \arguments{
 \item{project}{The project directory. The \R working directory will be

@@ -4,8 +4,14 @@
 \alias{install}
 \title{Install Packages}
 \usage{
-install(packages = NULL, ..., library = NULL, rebuild = FALSE,
-  confirm = interactive(), project = NULL)
+install(
+  packages = NULL,
+  ...,
+  library = NULL,
+  rebuild = FALSE,
+  confirm = interactive(),
+  project = NULL
+)
 }
 \arguments{
 \item{packages}{A character vector of \R packages to install. Required

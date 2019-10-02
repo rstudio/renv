@@ -17,36 +17,36 @@ While lockfiles are normally generated and used with \code{\link[=snapshot]{snap
 \code{\link[=restore]{restore()}}, they can also hand-edited if so desired. Lockfiles are
 written as \code{.json}, to allow for easy consumption by other tools.
 
-An example lockfile follows:\preformatted{{
-  "renv": {
+An example lockfile follows:\preformatted{\{
+  "renv": \{
     "Version": "1.0.0"
-  },
-  "R": {
+  \},
+  "R": \{
     "Version": "3.6.1",
     "Repositories": [
-      {
+      \{
         "Name": "CRAN",
         "URL": "https://cloud.r-project.org"
-      }
+      \}
     ]
-  },
-  "Packages": {
-    "markdown": {
+  \},
+  "Packages": \{
+    "markdown": \{
       "Package": "markdown",
       "Version": "1.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "4584a57f565dd7987d59dda3a02cfb41"
-    },
-    "mime": {
+    \},
+    "mime": \{
       "Package": "mime",
       "Version": "0.7",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "908d95ccbfd1dd274073ef07a7c93934"
-    }
-  }
-}
+    \}
+  \}
+\}
 }
 
 The sections used within a lockfile are described next.
@@ -107,7 +107,7 @@ environment will be used instead (when not directly using a system copy of Pytho
 }
 
 \seealso{
-Other reproducibility: \code{\link{restore}},
-  \code{\link{snapshot}}
+Other reproducibility: \code{\link{restore}()},
+  \code{\link{snapshot}()}
 }
 \concept{reproducibility}

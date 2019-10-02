@@ -4,8 +4,10 @@
 \alias{migrate}
 \title{Migrate a Project from Packrat to renv}
 \usage{
-migrate(project = NULL, packrat = c("lockfile", "sources", "library",
-  "options", "cache"))
+migrate(
+  project = NULL,
+  packrat = c("lockfile", "sources", "library", "options", "cache")
+)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
