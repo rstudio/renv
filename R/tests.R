@@ -243,7 +243,7 @@ renv_test_retrieve <- function(record) {
   on.exit(renv_restore_end(), add = TRUE)
 
   records <- renv_retrieve(record$Package)
-  library <- renv_libpaths_default()
+  library <- renv_libpaths_all()
   renv_install(records, library)
 
   desc <- renv_description_read(file.path(templib, package))

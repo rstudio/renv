@@ -119,8 +119,8 @@ renv_install <- function(records, library) {
 renv_install_staged <- function(records, library) {
 
   # save active library
-  renv_global_set("install.library", library[[1]])
-  on.exit(renv_global_clear("install.library"), add = TRUE)
+  renv_global_set("library.paths", library)
+  on.exit(renv_global_clear("library.paths"), add = TRUE)
 
   # set up a dummy library path for installation
   templib <- renv_install_staged_library(library[[1]])
@@ -174,7 +174,8 @@ renv_install_impl <- function(record) {
   project <- state$project
 
   # figure out whether we can use the cache during install
-  library <- renv_global_get("install.library") %||% renv_libpaths_default()
+  libpaths <- renv_global_get("library.paths") %||% renv_libpaths_all()
+  library <- libpaths[[1]]
   linkable <-
     settings$use.cache(project = project) &&
     identical(library, renv_paths_library(project = project))
@@ -260,7 +261,8 @@ renv_install_package_cache_skip <- function(record, cache) {
     return(FALSE)
 
   # check for matching cache + target paths
-  library <- renv_global_get("install.library") %||% renv_libpaths_default()
+  libpaths <- renv_global_get("library.paths") %||% renv_libpaths_all()
+  library <- libpaths[[1]]
   target <- file.path(library, record$Package)
 
   renv_file_same(cache, target)

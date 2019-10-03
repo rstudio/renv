@@ -268,7 +268,19 @@ renv_restore_find <- function(record) {
     return("")
 
   # need to restore if it's not yet installed
-  library <- renv_global_get("install.library") %||% renv_libpaths_default()
+  libpaths <- renv_global_get("library.paths") %||% renv_libpaths_all()
+  for (library in libpaths) {
+    path <- renv_restore_find_impl(record, library)
+    if (nzchar(path))
+      return(path)
+  }
+
+  ""
+
+}
+
+renv_restore_find_impl <- function(record, library) {
+
   path <- file.path(library, record$Package)
   if (!file.exists(path))
     return("")
@@ -280,7 +292,7 @@ renv_restore_find <- function(record) {
 
   # check for matching records
   source <- tolower(record$Source %||% "")
-  if (empty(source))
+  if (!nzchar(source))
     return("")
 
   # check for an up-to-date version from R package repository
