@@ -32,7 +32,7 @@ renv_modify_impl <- function(project) {
 
   renv_file_edit(path)
 
-  if (!path_same(project, renv_project()))
+  if (!renv_path_same(project, renv_project()))
     return(NULL)
 
   lockfile <- catch(renv_lockfile_load(project))

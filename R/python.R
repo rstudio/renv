@@ -100,7 +100,7 @@ renv_python_exe <- function(path) {
 }
 
 renv_python_version <- function(python) {
-  python <- normalizePath(python)
+  python <- renv_path_normalize(python)
   output <- system2(python, "--version", stdout = TRUE, stderr = TRUE)
   space <- regexpr(" ", output, fixed = TRUE)
   substring(output, space + 1)
@@ -201,7 +201,7 @@ renv_python_envname <- function(project, path, type) {
   # we return NULL for environments within the project
   # as these names get auto-constructed from other metadata
   # related to the Python executable used
-  if (path_within(path, project))
+  if (renv_path_within(path, project))
     return(NULL)
 
   bn <- basename(path)

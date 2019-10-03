@@ -214,7 +214,7 @@ renv_retrieve_git <- function(record) {
   )
 
   data <- list(
-    DIR    = normalizePath(package),
+    DIR    = renv_path_normalize(package),
     ORIGIN = record$RemoteUrl,
     REF    = record$RemoteSha %||% record$RemoteRef
   )
@@ -264,7 +264,7 @@ renv_retrieve_local_find <- function(record) {
   # have a RemoteUrl entry that we can use
   url <- record$RemoteUrl %||% ""
   if (file.exists(url)) {
-    path <- normalizePath(url, winslash = "/", mustWork = TRUE)
+    path <- renv_path_normalize(url, winslash = "/", mustWork = TRUE)
     type <- if (fileext(path) %in% c(".tgz", ".zip")) "binary" else "source"
     return(named(path, type))
   }
@@ -319,7 +319,7 @@ renv_retrieve_explicit <- function(record) {
     return(FALSE)
 
   # treat as 'local' source but extract path
-  normalized <- normalizePath(source, winslash = "/", mustWork = TRUE)
+  normalized <- renv_path_normalize(source, winslash = "/", mustWork = TRUE)
   record$Source <- "local"
   renv_retrieve_successful(record, normalized)
 

@@ -163,8 +163,8 @@ renv_file_same <- function(source, target) {
 
   # check to see if they're equal after normalization
   # (e.g. for symlinks pointing to same file)
-  source <- normalizePath(source, mustWork = FALSE)
-  target <- normalizePath(target, mustWork = FALSE)
+  source <- renv_path_normalize(source, mustWork = FALSE)
+  target <- renv_path_normalize(target, mustWork = FALSE)
   if (identical(source, target))
     return(TRUE)
 
@@ -198,7 +198,7 @@ renv_file_backup <- function(path) {
   # by the time the callback is invoked). note that the file may
   # be a broken symlink so construct the path by normalizing the
   # parent directory and building path relative to that
-  parent <- normalizePath(dirname(path), winslash = "/", mustWork = TRUE)
+  parent <- renv_path_normalize(dirname(path), winslash = "/", mustWork = TRUE)
   path <- file.path(parent, basename(path))
 
   # attempt to rename the file
@@ -220,7 +220,7 @@ renv_file_backup <- function(path) {
 }
 
 renv_file_normalize <- function(path, winslash = "\\", mustWork = NA) {
-  parent <- normalizePath(dirname(path), winslash = winslash, mustWork = mustWork)
+  parent <- renv_path_normalize(dirname(path), winslash = winslash, mustWork = mustWork)
   file.path(parent, basename(path))
 }
 
@@ -246,7 +246,7 @@ renv_file_list_impl <- function(path) {
 
   # nocov start
   if (renv_platform_windows()) {
-    path <- normalizePath(path)
+    path <- renv_path_normalize(path)
     command <- paste(comspec(), "/c chcp 65001 && dir /B", shQuote(path))
     output <- system(command, intern = TRUE)
     Encoding(output) <- "UTF-8"

@@ -89,7 +89,7 @@ renv_clean_system_library <- function(project, confirm) {
   }
 
   # explicitly query for packages
-  syslib <- normalizePath(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
+  syslib <- renv_path_normalize(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
   db <- renv_installed_packages(lib.loc = syslib, priority = "NA")
   packages <- db$Packages
 

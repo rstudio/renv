@@ -97,8 +97,8 @@ r_exec_error_diagnostics <- function(package, output) {
 
 r_cmd_install <- function(package, path, library, ...) {
 
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
-  library <- normalizePath(library, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  library <- renv_path_normalize(library, winslash = "/", mustWork = TRUE)
 
   args <- c(
     "--vanilla",
@@ -123,7 +123,7 @@ r_cmd_install <- function(package, path, library, ...) {
 
 r_cmd_build <- function(package, path, ...) {
 
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   args <- c("--vanilla", "CMD", "build", "--md5", ..., shQuote(path))
   output <- r_exec(package, args, "build")
 

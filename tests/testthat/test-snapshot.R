@@ -28,7 +28,7 @@ test_that("broken symlinks are reported", {
   renv_tests_scope("oatmeal")
   renv::init()
 
-  oatmeal <- normalizePath(system.file(package = "oatmeal"), winslash = "/")
+  oatmeal <- renv_path_normalize(system.file(package = "oatmeal"), winslash = "/")
   unlink(oatmeal, recursive = TRUE)
 
   output <- tempfile("renv-snapshot-output-")

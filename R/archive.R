@@ -76,13 +76,13 @@ renv_archive_decompress_tar <- function(path, exdir = ".", ...) {
   # on the PATH is okay?
 
   # construct arguments for archive extraction
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   args <- c("xf", shQuote(path))
 
   # add in extraction dir
   if (exdir != ".") {
     ensure_directory(exdir)
-    exargs <- c("-C", shQuote(normalizePath(exdir, winslash = "/", mustWork = TRUE)))
+    exargs <- c("-C", shQuote(renv_path_normalize(exdir, winslash = "/", mustWork = TRUE)))
     args <- c(args, exargs)
   }
 

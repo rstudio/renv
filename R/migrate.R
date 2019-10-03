@@ -62,7 +62,7 @@ migrate <- function(
 
   project <- project %||% renv_project()
 
-  project <- normalizePath(project, winslash = "/", mustWork = TRUE)
+  project <- renv_path_normalize(project, winslash = "/", mustWork = TRUE)
   if (file.exists(file.path(project, "packrat/packrat.lock"))) {
     packrat <- match.arg(packrat, several.ok = TRUE)
     renv_migrate_packrat(project, packrat)

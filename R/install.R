@@ -339,8 +339,8 @@ renv_install_package_local <- function(record, quiet = TRUE) {
 }
 
 renv_install_package_local_impl <- function(package, path, library) {
-  library <- normalizePath(library, winslash = "/", mustWork = TRUE)
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  library <- renv_path_normalize(library, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   r_cmd_install(package, path, library)
 }
 

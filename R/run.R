@@ -18,7 +18,7 @@
 run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
 
   renv_scope_error_handler()
-  script <- normalizePath(script, winslash = "/", mustWork = TRUE)
+  script <- renv_path_normalize(script, winslash = "/", mustWork = TRUE)
 
   # find the project directory
   project <- project %||% renv_file_find(script, function(path) {

@@ -115,7 +115,7 @@ renv_scope_downloader <- function(.envir = NULL) {
   if (is.na(old))
     return(FALSE)
 
-  new <- paste(normalizePath(dirname(curl)), old, sep = .Platform$path.sep)
+  new <- paste(renv_path_normalize(dirname(curl)), old, sep = .Platform$path.sep)
 
   .envir <- .envir %||% parent.frame()
   renv_scope_envvars(PATH = new, .envir = .envir)
@@ -135,7 +135,7 @@ renv_scope_rtools <- function() {
     return(FALSE)
 
   # add Rtools bin to PATH
-  bin <- normalizePath(file.path(rtools, "bin"), winslash = "\\")
+  bin <- renv_path_normalize(file.path(rtools, "bin"), winslash = "\\")
   path <- paste(bin, Sys.getenv("PATH"), sep = ";")
 
   # set BINPREF (note: trailing slash required but file.path()

@@ -5,7 +5,7 @@ test_that(".libPaths() scoping works as expected", {
   libpaths <- .libPaths()
 
   local({
-    dir <- normalizePath(tempdir(), winslash = "/")
+    dir <- renv_path_normalize(tempdir(), winslash = "/")
     renv_scope_libpaths(dir)
     expect_true(.libPaths()[1] == dir)
   })

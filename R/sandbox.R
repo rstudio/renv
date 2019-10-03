@@ -20,7 +20,7 @@ renv_sandbox_activate_impl <- function(project) {
   # get current library paths
   oldlibs <- .libPaths()
   syslibs <- c(renv_libpaths_site(), renv_libpaths_system())
-  syslibs <- normalizePath(syslibs, winslash = "/", mustWork = FALSE)
+  syslibs <- renv_path_normalize(syslibs, winslash = "/", mustWork = FALSE)
 
   # create a temporary library
   sandbox <- file.path(tempdir(), "renv-system-library")
@@ -97,7 +97,7 @@ renv_sandbox_deactivate <- function() {
 
   # get library paths sans .Library, .Library.site
   old <- renv_libpaths_all()
-  syslibs <- normalizePath(c(.Library, .Library.site), winslash = "/", mustWork = FALSE)
+  syslibs <- renv_path_normalize(c(.Library, .Library.site), winslash = "/", mustWork = FALSE)
 
   # restore old bindings
   base <- .BaseNamespaceEnv

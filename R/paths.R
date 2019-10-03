@@ -24,7 +24,7 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
   # check for single absolute path supplied by user
   # TODO: handle multiple?
   end <- file.path(...)
-  if (length(end) == 1 && path_absolute(end))
+  if (length(end) == 1 && renv_path_absolute(end))
     return(end)
 
   # compute root path
@@ -96,7 +96,7 @@ renv_paths_root_default <- function() {
     Sys.getenv("XDG_DATA_HOME", "~/.local/share")
   )
 
-  root <- normalizePath(root, winslash = "/", mustWork = FALSE)
+  root <- renv_path_normalize(root, winslash = "/", mustWork = FALSE)
   path <- file.path(root, "renv")
 
   # check for user consent

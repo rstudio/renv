@@ -164,8 +164,8 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
   # nocov end
 
   path    <- dirname(bad)
-  package <- path_component(bad, 1)
-  version <- path_component(bad, 3)
+  package <- renv_path_component(bad, 1)
+  version <- renv_path_component(bad, 3)
 
   data <- data.frame(
     Package = package,
@@ -182,7 +182,7 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
 renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
 
-  hash <- path_component(paths, 2)
+  hash <- renv_path_component(paths, 2)
   computed <- map_chr(paths, renv_hash_description)
   diff <- hash != computed
 
@@ -190,8 +190,8 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
   if (empty(bad))
     return(paths)
 
-  package <- path_component(bad, 1)
-  version <- path_component(bad, 3)
+  package <- renv_path_component(bad, 1)
+  version <- renv_path_component(bad, 3)
 
   # nocov start
   if (verbose) {
@@ -248,9 +248,9 @@ renv_cache_move <- function(source, target, overwrite = FALSE) {
 # nocov start
 renv_cache_format_path <- function(paths) {
 
-  names    <- format(path_component(paths, 1))
-  hashes   <- format(path_component(paths, 2))
-  versions <- format(path_component(paths, 3))
+  names    <- format(renv_path_component(paths, 1))
+  hashes   <- format(renv_path_component(paths, 2))
+  versions <- format(renv_path_component(paths, 3))
 
   fmt <- "%s %s [Hash: %s]"
   sprintf(fmt, names, versions, hashes)

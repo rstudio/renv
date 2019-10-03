@@ -72,7 +72,7 @@ dependencies <- function(path = getwd(),
   renv_dependencies_begin()
   on.exit(renv_dependencies_end(), add = TRUE)
 
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
 
   files <- renv_dependencies_find(path, root)
@@ -87,10 +87,10 @@ dependencies <- function(path = getwd(),
 
 renv_dependencies_root <- function(path = getwd()) {
 
-  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
   project <- Sys.getenv("RENV_PROJECT", unset = NA)
-  if (!is.na(project) && all(path_within(path, project)))
+  if (!is.na(project) && all(renv_path_within(path, project)))
     return(project)
 
   roots <- uapply(path, renv_dependencies_root_impl)

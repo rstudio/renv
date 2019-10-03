@@ -3,7 +3,7 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = NULL, ..
 
   # if given a package name, construct path to that package
   path <- path %||% find.package(package)
-  path <- normalizePath(path, winslash = "/", mustWork = FALSE)
+  path <- renv_path_normalize(path, winslash = "/", mustWork = FALSE)
 
   # accept package directories
   path <- renv_description_path(path)

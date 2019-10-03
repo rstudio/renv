@@ -173,7 +173,7 @@ renv_init_validate_project <- function(project, force) {
   home <- path.expand("~/")
   msg <- if (renv_file_same(project, home))
     "refusing to initialize project in home directory"
-  else if (path_within(home, project))
+  else if (renv_path_within(home, project))
     sprintf("refusing to initialize project in directory '%s'", project)
 
   if (!is.null(msg)) {

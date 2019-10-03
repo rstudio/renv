@@ -80,7 +80,7 @@ renv_purge_impl <- function(package,
     return(bail())
 
   # now add package name
-  paths <- file.path(paths, path_component(paths, 3))
+  paths <- file.path(paths, renv_path_component(paths, 3))
 
   # check that these entries exist
   missing <- !file.exists(paths)

@@ -9,7 +9,7 @@ renv_tests_scope <- function(packages = character()) {
   # move to own test directory
   dir <- tempfile("renv-test-")
   ensure_directory(dir)
-  dir <- normalizePath(dir, winslash = "/")
+  dir <- renv_path_normalize(dir, winslash = "/")
   owd <- setwd(dir)
 
   # set as active project

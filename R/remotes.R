@@ -19,7 +19,7 @@ renv_remotes_resolve <- function(entry) {
     return(renv_remotes_resolve_url(entry))
 
   # check for paths to existing local files
-  if (path_absolute(entry) && file.exists(entry)) {
+  if (renv_path_absolute(entry) && file.exists(entry)) {
     record <- catch(renv_remotes_resolve_local(entry))
     if (!inherits(record, "error"))
       return(record)
@@ -345,7 +345,7 @@ renv_remotes_resolve_url <- function(entry) {
 renv_remotes_resolve_local <- function(entry) {
 
   # check for existing path
-  path <- normalizePath(entry, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(entry, winslash = "/", mustWork = TRUE)
 
   # first, check for a common extension
   if (renv_archive_type(entry) == "tar")

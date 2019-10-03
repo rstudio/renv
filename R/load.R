@@ -120,7 +120,7 @@ renv_load_settings <- function(project) {
 renv_load_project <- function(project) {
 
   # record the active project in this session
-  project <- normalizePath(project, winslash = "/")
+  project <- renv_path_normalize(project, winslash = "/")
   Sys.setenv(RENV_PROJECT = project)
 
   # read project list
