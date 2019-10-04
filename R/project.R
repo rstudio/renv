@@ -87,6 +87,12 @@ renv_project_records_description <- function(project, descpath) {
   ignored <- settings$ignored.packages(project = project)
   packages <- setdiff(deps$Package, c("R", ignored))
 
+  # if any Roxygen fields are included,
+  # infer a dependency on roxygen2 and devtools
+  desc <- renv_description_read(descpath)
+  if (any(grepl("^Roxygen", names(desc))))
+    packages <- union(packages, c("devtools", "roxygen2"))
+
   # now, try to resolve the packages
   records <- lapply(packages, function(package) {
     remotes[[package]] %||% renv_remotes_resolve(package)
