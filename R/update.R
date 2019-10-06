@@ -5,7 +5,7 @@ renv_update_find_repos <- function(records) {
 
 renv_update_find_repos_impl <- function(record) {
 
-  latest <- renv_records_repos_latest(record$Package)
+  latest <- renv_available_packages_latest(record$Package)
   if (version_compare(latest$Version, record$Version) == 1)
     return(latest)
 
@@ -152,7 +152,7 @@ update <- function(packages = NULL,
   # select records
   selected <- c(
     records[renv_vector_intersect(packages, names(records))],
-    named(lapply(missing, renv_records_repos_latest), missing)
+    named(lapply(missing, renv_available_packages_latest), missing)
   )
 
   vprintf("* Checking for updated packages ... ")

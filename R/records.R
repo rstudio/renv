@@ -27,55 +27,6 @@ renv_records_override <- function(records) {
   enumerate(records, renv_options_override, scope = "renv.records")
 }
 
-renv_records_repos_latest <- function(package, repos = NULL) {
-
-  types <- renv_package_pkgtypes()
-
-  # iterate through available packages reported by all repositories
-  # and look for a matching entry
-  entries <- bapply(types, function(type) {
-
-    entry <- catch(
-      renv_available_packages_entry(
-        package = package,
-        type    = type,
-        repos   = repos
-      )
-    )
-
-    if (inherits(entry, "error"))
-      return(NULL)
-
-    entry[c("Package", "Version", "Repository", "Type", "Name")]
-
-  })
-
-  if (!is.data.frame(entries)) {
-    fmt <- "package '%s' is not available on CRAN"
-    stopf(fmt, package)
-  }
-
-  # since multiple entries could match, take the newest version by default
-  # TODO: could also allow older binary version here
-  idx <- with(entries, order(Version, factor(Type, c("source", "binary"))))
-  entry <- entries[tail(idx, n = 1), ]
-
-  record <- list(
-    Package    = package,
-    Version    = entry$Version,
-    Source     = "Repository",
-    Repository = entry$Name
-  )
-
-  # annotate record with extra information
-  attr(record, "type") <- entry$Type
-  attr(record, "url")  <- entry$Repository
-
-  record
-
-}
-
-
 renv_record_names <- function(record, fields = NULL) {
   fields <- fields %||% c("Package", "Version", "Source")
   remotes <- grep("^Remote", names(record), value = TRUE)

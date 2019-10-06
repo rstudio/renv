@@ -171,7 +171,7 @@ renv_remotes_resolve_repository <- function(entry) {
   repository <- entry$repository
   version <- entry$version %||% "latest"
   if (identical(version, "latest"))
-    return(renv_records_repos_latest(package, repository))
+    return(renv_available_packages_latest(package))
 
   list(
     Package    = package,

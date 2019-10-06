@@ -44,7 +44,7 @@ renv_retrieve_impl <- function(package) {
   # TODO: report to the user if they have explicitly requested
   # installation of this package version despite it being incompatible
   if (renv_retrieve_incompatible(record))
-    record <- renv_records_repos_latest(package)
+    record <- renv_available_packages_latest(package)
 
   if (!renv_restore_rebuild_required(record)) {
 
@@ -331,7 +331,7 @@ renv_retrieve_repos <- function(record) {
   # treat it as a request for the latest version on CRAN
   # TODO: should make this behavior configurable
   if (is.null(record$Version))
-    record <- renv_records_repos_latest(record$Package)
+    record <- renv_available_packages_latest(record$Package)
 
   # if this record is tagged with a type + url, we can
   # use that directly for retrieval
@@ -540,7 +540,7 @@ renv_retrieve_missing_record <- function(package) {
   #   2. request a package + version to be retrieved,
   #   3. hard error
   #
-  renv_records_repos_latest(package)
+  renv_available_packages_latest(package)
 
 }
 

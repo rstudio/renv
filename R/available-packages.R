@@ -115,3 +115,106 @@ renv_available_packages_timeout <- function(data) {
     unlink(path)
   }
 }
+
+renv_available_packages_record <- function(entry, type) {
+
+  record <- list(
+    Package    = entry$Package,
+    Version    = entry$Version,
+    Source     = "Repository",
+    Repository = entry$Name
+  )
+
+  attr(record, "type") <- type
+  attr(record, "url")  <- entry$Repository
+
+  record
+
+}
+
+renv_available_packages_latest_impl <- function(package, type) {
+
+  dbs <- renv_available_packages(type = type, quiet = TRUE)
+  fields <- c("Package", "Version", "NeedsCompilation", "Repository")
+  entries <- bapply(dbs, function(db) {
+    db[db$Package == package, fields]
+  }, index = "Name")
+
+  if (is.null(entries))
+    return(NULL)
+
+  version <- numeric_version(entries$Version)
+  ordered <- order(version, decreasing = TRUE)
+  entries[ordered[[1]], , drop = FALSE]
+
+}
+
+renv_available_packages_latest <- function(package) {
+
+  # if we're not using binary repositories,
+  # then just take the latest available from source repositories
+  types <- renv_package_pkgtypes()
+  if (!"binary" %in% types) {
+
+    entry <- renv_available_packages_latest_impl(package, "source")
+    if (is.null(entry))
+      stopf("package '%s' is not available", package)
+
+    record <- renv_available_packages_record(entry, "source")
+    return(record)
+
+  }
+
+  # get latest source, binary packages available
+  src <- renv_available_packages_latest_impl(package, "source")
+  bin <- renv_available_packages_latest_impl(package, "binary")
+
+  # choose an appropriate record
+  if (is.null(src) && is.null(bin))
+    stopf("package '%s' is not available", package)
+  else if (is.null(src))
+    renv_available_packages_record(bin, "binary")
+  else if (is.null(bin))
+    renv_available_packages_record(src, "source")
+  else
+    renv_available_packages_latest_select(src, bin)
+
+}
+
+renv_available_packages_latest_select <- function(src, bin) {
+
+  # if the binary is at least as old as the source version,
+  # then use the binary version
+  if (version_compare(bin$Version, src$Version) >= 0)
+    return(renv_available_packages_record(bin, "binary"))
+
+  # if the user has requested we skip source repositories,
+  # use the binary anyway
+  ipcs <- getOption("install.packages.check.source", default = "yes")
+  if (!identical(ipcs, "yes"))
+    return(renv_available_packages_record(bin, "binary"))
+
+  # if the package requires compilation, check to see whether
+  # the user has opted in to compiling packages from source
+  nc <- identical(src$NeedsCompilation, "yes")
+  if (nc) {
+
+    # check user preference re: compilation from source
+    ipcfs <- getOption(
+      "install.packages.compile.from.source",
+      default = Sys.getenv("R_COMPILE_AND_INSTALL_PACKAGES")
+    )
+
+    # if make is not available, then we can't build from source
+    if (!nzchar(Sys.getenv("MAKE", unset = "make")))
+      ipcfs <- "never"
+
+    if (identical(ipcfs, "never"))
+      return(renv_available_packages_record(bin, "binary"))
+
+  }
+
+  # take the source version
+  renv_available_packages_record(src, "source")
+
+}

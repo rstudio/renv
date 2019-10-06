@@ -124,7 +124,7 @@ renv_upgrade_find_record_default <- function() {
 
   # check if the package is available on R repositories.
   # if not, prefer GitHub
-  record <- catch(renv_records_repos_latest("renv"))
+  record <- catch(renv_available_packages_latest("renv"))
   if (inherits(record, "error"))
     return(renv_upgrade_find_record_dev())
 
