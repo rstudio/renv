@@ -24,13 +24,25 @@ By default, `renv` uses the intersection of:
 
 in determining which packages should enter the lockfile. The intention is that
 only the packages you truly require for your project should enter the lockfile;
-development dependencies (e.g. `devtools`) normally should not. This kind of
-snapshot is called a `"packrat"`-style snapshot, since the model here is similar
-to the one used in the [Packrat](https://rstudio.github.io/packrat/) package.
+development dependencies (e.g. `devtools`) normally should not.
+
+If you find a package is not entering the lockfile, you can check the output of:
+
+```
+renv::dependencies()
+```
+
+and see whether usages of your package are reported in the output. Note that
+`renv`'s dependency discovery machinery relies on static analysis of your R
+code, and does not understand all of the different ways in which a package might
+be loaded. However, the most common forms (e.g. `library(<package>)`) are
+understood. If you use a custom package loader in your project that `renv` could
+feasibly support, please feel free to
+[file a feature request](https://github.com/rstudio/renv/issues).
 
 If you'd instead prefer to capture _all_ packages installed into your project
-library, you can instead use `"simple"` snapshots. Configure your project to
-use `"simple"` snapshots with:
+library (and eschew dependency discovery altogether), you can instead use
+`"simple"` snapshots. Configure your project to use `"simple"` snapshots with:
 
 ```
 renv::settings$snapshot.type("simple")
@@ -42,7 +54,7 @@ Packages can also be explicitly ignored through a project setting, e.g. with:
 renv::settings$ignored.packages("<package>")
 ```
 
-You might want to double-check the set of ignored packages
+You might also want to double-check the set of ignored packages
 (`renv::settings$ignored.packages()`) and confirm that you aren't
 unintentionally ignoring a package you actually require.
 
