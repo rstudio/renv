@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.129</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0.130</span>
       </span>
     </div>
 
@@ -117,12 +117,15 @@
 <li>Packages installed into your project library, and</li>
 <li>Packages which appear to be used in your project (as discovered by <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>),</li>
 </ol>
-<p>in determining which packages should enter the lockfile. The intention is that only the packages you truly require for your project should enter the lockfile; development dependencies (e.g. <code>devtools</code>) normally should not. This kind of snapshot is called a <code>"packrat"</code>-style snapshot, since the model here is similar to the one used in the <a href="https://rstudio.github.io/packrat/">Packrat</a> package.</p>
-<p>If you’d instead prefer to capture <em>all</em> packages installed into your project library, you can instead use <code>"simple"</code> snapshots. Configure your project to use <code>"simple"</code> snapshots with:</p>
+<p>in determining which packages should enter the lockfile. The intention is that only the packages you truly require for your project should enter the lockfile; development dependencies (e.g. <code>devtools</code>) normally should not.</p>
+<p>If you find a package is not entering the lockfile, you can check the output of:</p>
+<pre><code><a href="../reference/dependencies.html">renv::dependencies()</a></code></pre>
+<p>and see whether usages of your package are reported in the output. Note that <code>renv</code>’s dependency discovery machinery relies on static analysis of your R code, and does not understand all of the different ways in which a package might be loaded. However, the most common forms (e.g. <code>library(&lt;package&gt;)</code>) are understood. If you use a custom package loader in your project that <code>renv</code> could feasibly support, please feel free to <a href="https://github.com/rstudio/renv/issues">file a feature request</a>.</p>
+<p>If you’d instead prefer to capture <em>all</em> packages installed into your project library (and eschew dependency discovery altogether), you can instead use <code>"simple"</code> snapshots. Configure your project to use <code>"simple"</code> snapshots with:</p>
 <pre><code>renv::settings$snapshot.type("simple")</code></pre>
 <p>Packages can also be explicitly ignored through a project setting, e.g. with:</p>
 <pre><code>renv::settings$ignored.packages("&lt;package&gt;")</code></pre>
-<p>You might want to double-check the set of ignored packages (<code>renv::settings$ignored.packages()</code>) and confirm that you aren’t unintentionally ignoring a package you actually require.</p>
+<p>You might also want to double-check the set of ignored packages (<code>renv::settings$ignored.packages()</code>) and confirm that you aren’t unintentionally ignoring a package you actually require.</p>
 <p>See the documentation in <code><a href="../reference/snapshot.html">?snapshot</a></code> for more details.</p>
 </div>
 <div id="how-should-i-handle-development-dependencies" class="section level2">
