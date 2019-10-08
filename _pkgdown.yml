@@ -26,10 +26,12 @@ reference:
 - title: Package Cache
   contents:
   - purge
+  - isolate
 
 - title: Package Installation
   contents:
   - install
+  - update
   - rebuild
   - remove
 
