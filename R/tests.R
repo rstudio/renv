@@ -109,7 +109,7 @@ renv_tests_init_repos <- function() {
   setwd(target)
 
   # helper function for 'uploading' a package to our test repo
-  upload <- function(path, root) {
+  upload <- function(path, root, subdir = FALSE) {
 
     # create package tarball
     desc <- renv_description_read(path)
@@ -118,7 +118,8 @@ renv_tests_init_repos <- function() {
     tar(tarball, package, compression = "gzip", tar = "internal")
 
     # copy into repository tree
-    target <- file.path(root, package, tarball)
+    components <- c(root, if (subdir) package, tarball)
+    target <- paste(components, collapse = "/")
     ensure_parent_directory(target)
     file.rename(tarball, target)
 
@@ -129,7 +130,7 @@ renv_tests_init_repos <- function() {
   for (path in paths) {
 
     # upload the 'regular' package
-    upload(path, contrib)
+    upload(path, contrib, subdir = FALSE)
 
     # generate an 'old' version of the packages
     descpath <- file.path(path, "DESCRIPTION")
@@ -138,12 +139,12 @@ renv_tests_init_repos <- function() {
     write.dcf(desc, file = descpath)
 
     # place these packages into the archive
-    upload(path, file.path(contrib, "Archive"))
+    upload(path, file.path(contrib, "Archive"), subdir = TRUE)
 
   }
 
   # update PACKAGES metadata
-  tools::write_PACKAGES(contrib, subdirs = TRUE, type = "source")
+  tools::write_PACKAGES(contrib, subdirs = FALSE, type = "source")
 
   # set repository URL (for tests)
   options(renv.tests.repos = c(CRAN = repos))

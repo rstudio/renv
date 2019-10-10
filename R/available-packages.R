@@ -41,6 +41,27 @@ renv_available_packages_impl <- function(type, quiet = FALSE) {
 
 }
 
+renv_available_packages_query_packages_rds <- function(url) {
+  path <- file.path(url, "PACKAGES.rds")
+  destfile <- tempfile("renv-packages-", fileext = ".rds")
+  renv_download_impl(url = path, destfile = destfile)
+  suppressWarnings(readRDS(destfile))
+}
+
+renv_available_packages_query_packages_gz <- function(url) {
+  path <- file.path(url, "PACKAGES.gz")
+  destfile <- tempfile("renv-packages-", fileext = ".gz")
+  renv_download_impl(url = path, destfile = destfile)
+  suppressWarnings(read.dcf(destfile))
+}
+
+renv_available_packages_query_packages <- function(url) {
+  path <- file.path(url, "PACKAGES")
+  destfile <- tempfile("renv-packages-")
+  renv_download_impl(url = path, destfile = destfile)
+  suppressWarnings(read.dcf(destfile))
+}
+
 renv_available_packages_query <- function(url, type) {
 
   # check for a cached value
@@ -52,23 +73,57 @@ renv_available_packages_query <- function(url, type) {
     return(as.data.frame(db, stringsAsFactors = FALSE))
   }
 
-  # make the query (suppress warnings in case this is a local repository
-  # whose PACKAGES files do not exist; note that an error is thrown in that
-  # case anyhow)
-  db <- withCallingHandlers(
-    catch(available.packages(contriburl = url)),
-    warning = function(w) invokeRestart("muffleWarning"),
-    message = function(m) invokeRestart("muffleMessage")
+  # define query methods for the different PACKAGES
+  methods <- list(
+    renv_available_packages_query_packages_rds,
+    renv_available_packages_query_packages_gz,
+    renv_available_packages_query_packages
   )
 
-  # report errors
-  if (inherits(db, "error")) {
-    vwritef("FAILED")
-    return(data.frame())
+  seize <- function(stack, restart) {
+    function(condition) {
+      stack$push(condition)
+      invokeRestart(restart)
+    }
   }
 
-  # return the db
-  as.data.frame(db, stringsAsFactors = FALSE)
+  warnings <- stack()
+  messages <- stack()
+  for (method in methods) {
+
+    db <- withCallingHandlers(
+      catch(method(url)),
+      warning = seize(warnings, "muffleWarning"),
+      message = seize(messages, "muffleMessage")
+    )
+
+    if (!inherits(db, "error"))
+      return(renv_available_packages_success(db, url))
+
+  }
+
+  vwritef("FAILED")
+
+  lapply(warnings$data(), warning)
+  lapply(messages$data(), message)
+
+  fmt <- "could not retrieve available packages for repository '%s'"
+  stopf(fmt, url)
+
+}
+
+renv_available_packages_success <- function(db, url) {
+
+  db <- as.data.frame(db, stringsAsFactors = FALSE)
+
+  # remove packages which won't work on this OS
+  ok <- is.na(db$OS_type) | db$OS_type %in% .Platform$OS.type
+  db <- db[ok, ]
+
+  # tag with repository
+  db$Repository <- url
+
+  db
 
 }
 

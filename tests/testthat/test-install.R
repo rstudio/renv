@@ -69,7 +69,7 @@ test_that("packages can be installed from local sources", {
 
   # get path to package sources in local repos
   repos <- getOption("renv.tests.repos")
-  tarball <- file.path(repos, "src/contrib/bread/bread_1.0.0.tar.gz")
+  tarball <- file.path(repos, "src/contrib/bread_1.0.0.tar.gz")
 
   # try to install it
   renv::install(tarball)

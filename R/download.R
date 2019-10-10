@@ -244,7 +244,18 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   args$push("--config", shQuote(config))
 
-  system2("curl", args$data())
+  stdout <- tempfile("renv-curl-stdout-")
+  stderr <- tempfile("renv-curl-stderr-")
+
+  status <- system2("curl", args$data(), stdout = stdout, stderr = stderr)
+
+  if (file.exists(stderr)) {
+    errs <- readLines(stderr)
+    if (length(errs))
+      warning(errs)
+  }
+
+  status
 
 }
 

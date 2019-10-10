@@ -6,6 +6,8 @@ test_that("packages can be installed, restored from Bioconductor", {
   skip_on_cran()
   skip_on_appveyor()
 
+  skip("unreliable test")
+
   skip_if(getRversion() < "3.6")
   skip_if(R.version$nickname == "Unsuffered Consequences")
 
