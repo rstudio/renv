@@ -117,8 +117,12 @@ renv_available_packages_success <- function(db, url) {
   db <- as.data.frame(db, stringsAsFactors = FALSE)
 
   # remove packages which won't work on this OS
-  ok <- is.na(db$OS_type) | db$OS_type %in% .Platform$OS.type
-  db <- db[ok, ]
+  ostype <- db$OS_type
+  if (is.character(ostype)) {
+    ok <- is.na(ostype) | ostype %in% .Platform$OS.type
+    db <- db[ok, ]
+  }
+
 
   # tag with repository
   db$Repository <- url
