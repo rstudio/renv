@@ -66,7 +66,7 @@ renv_package_priority <- function(package) {
 
   # read priority from db
   db <- renv_installed_packages()
-  entry <- db[package, ]
+  entry <- db[db$Package == package, ]
   entry$Priority %NA% ""
 
 }

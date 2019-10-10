@@ -10,7 +10,9 @@ test_that("we can initialize a project using 'breakfast'", {
 
   expected <- c("bread", "breakfast", "oatmeal", "toast")
   lockfile <- renv::snapshot(lockfile = NULL)
-  expect_setequal(names(renv_records(lockfile)), expected)
+
+  actual <- setdiff(names(renv_records(lockfile)), "renv")
+  expect_setequal(actual, expected)
 
 })
 
@@ -23,7 +25,9 @@ test_that("we can initialize a project using 'toast'", {
 
   expected <- c("bread", "toast")
   lockfile <- renv::snapshot(lockfile = NULL)
-  expect_setequal(names(renv_records(lockfile)), expected)
+
+  actual <- setdiff(names(renv_records(lockfile)), "renv")
+  expect_setequal(actual, expected)
 
 })
 

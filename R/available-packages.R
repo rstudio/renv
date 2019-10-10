@@ -154,7 +154,7 @@ renv_available_packages_entry <- function(package,
     if (!package %in% db$Package)
       next
 
-    entry <- db[package, ]
+    entry <- db[db$Package == package, ]
     if (filter(entry)) {
       entry[["Type"]] <- type
       entry[["Name"]] <- names(dbs)[[i]] %||% ""
