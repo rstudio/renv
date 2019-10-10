@@ -44,21 +44,21 @@ renv_available_packages_impl <- function(type, quiet = FALSE) {
 renv_available_packages_query_packages_rds <- function(url) {
   path <- file.path(url, "PACKAGES.rds")
   destfile <- tempfile("renv-packages-", fileext = ".rds")
-  renv_download_impl(url = path, destfile = destfile)
+  download(url = path, destfile = destfile)
   suppressWarnings(readRDS(destfile))
 }
 
 renv_available_packages_query_packages_gz <- function(url) {
   path <- file.path(url, "PACKAGES.gz")
   destfile <- tempfile("renv-packages-", fileext = ".gz")
-  renv_download_impl(url = path, destfile = destfile)
+  download(url = path, destfile = destfile)
   suppressWarnings(read.dcf(destfile))
 }
 
 renv_available_packages_query_packages <- function(url) {
   path <- file.path(url, "PACKAGES")
   destfile <- tempfile("renv-packages-")
-  renv_download_impl(url = path, destfile = destfile)
+  download(url = path, destfile = destfile)
   suppressWarnings(read.dcf(destfile))
 }
 
