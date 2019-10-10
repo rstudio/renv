@@ -196,7 +196,7 @@ renv_available_packages_latest_impl <- function(package, type) {
   dbs <- renv_available_packages(type = type, quiet = TRUE)
   fields <- c("Package", "Version", "NeedsCompilation", "Repository")
   entries <- bapply(dbs, function(db) {
-    db[db$Package == package, fields]
+    db[db$Package == package, intersect(fields, names(db))]
   }, index = "Name")
 
   if (is.null(entries))
