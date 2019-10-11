@@ -23,8 +23,6 @@ project depends on.
 **Reproducible**: `renv` records the exact package versions you depend on, and
 ensures those exact versions are the ones that get installed wherever you go.
 
-See the [project page](https://rstudio.github.io/renv) for more information.
-
 
 ## Installation
 
@@ -52,3 +50,22 @@ private library, and can be used to restore the state of that library as require
 
 Later, if you need to port your project to a new machine, you can call
 `renv::restore()` to reinstall all of the packages as declared in the lockfile.
+
+
+## Learning More
+
+You can browse the package documentation online at
+<https://rstudio.github.io/renv/>.
+
+If this is your first time using `renv`, we strongly recommend reading the
+[Introduction to renv](https://rstudio.github.io/renv/articles/renv.html)
+vignette.
+
+If you have a question about `renv`, please first check the
+[FAQ](https://rstudio.github.io/renv/articles/faq.html) to see whether your
+question has already been addressed. If it hasn't, please feel free to either
+ask on the [RStudio Community forums](https://community.rstudio.com).
+
+If you believe you've found a bug in `renv`, please file a bug (and, if
+possible, a [reproducible example](https://reprex.tidyverse.org)) at
+<https://github.com/rstudio/renv/issues>.
