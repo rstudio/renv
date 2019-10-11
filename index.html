@@ -34,7 +34,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.1.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.1.6</span>
       </span>
     </div>
 
@@ -113,7 +113,6 @@
 <p><strong>Isolated</strong>: Installing a new or updated package for one project won’t break your other projects, and vice versa. That’s because <code>renv</code> gives each project its own private package library.</p>
 <p><strong>Portable</strong>: Easily transport your projects from one computer to another, even across different platforms. <code>renv</code> makes it easy to install the packages your project depends on.</p>
 <p><strong>Reproducible</strong>: <code>renv</code> records the exact package versions you depend on, and ensures those exact versions are the ones that get installed wherever you go.</p>
-<p>See the <a href="https://rstudio.github.io/renv">project page</a> for more information.</p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -130,6 +129,14 @@
 <p>Use <code><a href="reference/init.html">renv::init()</a></code> to initialize <code>renv</code> with a new or existing project. This will set up your project with a private library, and also make sure to install all of the packages you’re using into that library. The packages used in your project will be recorded into a <em>lockfile</em>, called <code>renv.lock</code>.</p>
 <p>As you work in your project, you may need to install or upgrade different packages. As these packages are installed, <code>renv</code> will automatically write <code>renv.lock</code> for you. The <code>renv.lock</code> lockfile records the state of your project’s private library, and can be used to restore the state of that library as required.</p>
 <p>Later, if you need to port your project to a new machine, you can call <code><a href="reference/restore.html">renv::restore()</a></code> to reinstall all of the packages as declared in the lockfile.</p>
+</div>
+<div id="learning-more" class="section level2">
+<h2 class="hasAnchor">
+<a href="#learning-more" class="anchor"></a>Learning More</h2>
+<p>You can browse the package documentation online at <a href="https://rstudio.github.io/renv/" class="uri">https://rstudio.github.io/renv/</a>.</p>
+<p>If this is your first time using <code>renv</code>, we strongly recommend reading the <a href="https://rstudio.github.io/renv/articles/renv.html">Introduction to renv</a> vignette.</p>
+<p>If you have a question about <code>renv</code>, please first check the <a href="https://rstudio.github.io/renv/articles/faq.html">FAQ</a> to see whether your question has already been addressed. If it hasn’t, please feel free to either ask on the <a href="https://community.rstudio.com">RStudio Community forums</a>.</p>
+<p>If you believe you’ve found a bug in <code>renv</code>, please file a bug (and, if possible, a <a href="https://reprex.tidyverse.org">reproducible example</a>) at <a href="https://github.com/rstudio/renv/issues" class="uri">https://github.com/rstudio/renv/issues</a>.</p>
 </div>
 </div>
   </div>

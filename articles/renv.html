@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.1.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.1.6</span>
       </span>
     </div>
 
@@ -334,7 +334,7 @@
 </tbody>
 </table>
 <p>This can be useful when installing packages which have already been cached. For example, if you use <code><a href="../reference/install.html">renv::install("dplyr")</a></code>, and <code>renv</code> detects that the latest version on CRAN has already been cached, then <code>renv</code> will just install using the copy available in the cache – thereby skipping some of the installation overhead.</p>
-<p>If you’d prefer not to use the <code>renv</code> shims, they can be disabled by setting the option <code><a href="https://rdrr.io/r/base/options.html">options(renv.shims = FALSE)</a></code>.</p>
+<p>If you’d prefer not to use the <code>renv</code> shims, they can be disabled by setting the option <code><a href="https://rdrr.io/r/base/options.html">options(renv.config.shims.enabled = FALSE)</a></code>. See <code><a href="../reference/config.html">?config</a></code> for more details.</p>
 </div>
 <div id="history" class="section level2">
 <h2 class="hasAnchor">
