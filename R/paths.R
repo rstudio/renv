@@ -53,6 +53,12 @@ renv_paths_library <- function(..., project = NULL) {
   file.path(root, renv_prefix_platform(), ...) %||% ""
 }
 
+renv_paths_staging <- function(..., project = NULL) {
+  project <- project %||% renv_project()
+  root <- Sys.getenv("RENV_PATHS_STAGING", unset = file.path(project, "renv/staging"))
+  file.path(root, ...) %||% ""
+}
+
 renv_paths_local <- function(...) {
   renv_paths_common("local", c(), ...)
 }
@@ -162,6 +168,7 @@ renv_paths_root_default <- function() {
 #' \strong{Environment Variable} \tab \strong{Description} \cr
 #' \code{RENV_PATHS_ROOT}        \tab The root path used for global state storage. \cr
 #' \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
+#' \code{RENV_PATHS_STAGING}     \tab The root path used for staged package installs. \cr
 #' \code{RENV_PATHS_LOCAL}       \tab The path containing local package sources. \cr
 #' \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr
 #' \code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr

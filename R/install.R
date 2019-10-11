@@ -123,7 +123,7 @@ renv_install_staged <- function(records, library) {
   on.exit(renv_global_clear("library.paths"), add = TRUE)
 
   # set up a dummy library path for installation
-  templib <- renv_install_staged_library(library[[1]])
+  templib <- renv_install_staged_library()
   on.exit(unlink(templib, recursive = TRUE), add = TRUE)
   renv_scope_libpaths(c(templib, renv_libpaths_all()))
 
@@ -145,16 +145,27 @@ renv_install_staged <- function(records, library) {
 
 }
 
-renv_install_staged_library <- function(library) {
+renv_install_staged_library <- function() {
 
-  tmpdirs <- c(library, tempdir())
-  libs <- tempfile(".renv-staging-", tmpdir = tmpdirs)
+  staging <- renv_paths_staging()
+  ensure_directory(staging)
 
-  for (lib in libs)
-    if (dir.create(lib, showWarnings = FALSE, recursive = TRUE))
-      return(lib)
+  i <- 0
+  repeat {
 
-  stop("could not create staging library for install")
+    path <- file.path(staging, i)
+    if (dir.create(path, showWarnings = FALSE))
+      return(path)
+
+    i <- i + 1
+    if (i == 100)
+      break
+
+  }
+
+  fallback <- tempfile(".renv-staging-")
+  ensure_directory(fallback)
+  fallback
 
 }
 
