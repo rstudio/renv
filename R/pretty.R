@@ -59,12 +59,12 @@ renv_pretty_print_records_pair <- function(old,
                                            postamble = NULL)
 {
   preamble %&&% writeLines(c(preamble, ""))
-  renv_pretty_print_records_impl(old, new)
+  renv_pretty_print_records_pair_impl(old, new)
   postamble %&&% writeLines(c(postamble, ""))
   invisible(NULL)
 }
 
-renv_pretty_print_records_impl <- function(old, new) {
+renv_pretty_print_records_pair_impl <- function(old, new) {
 
   renv_scope_locale("LC_COLLATE", "C")
   all <- sort(union(names(old), names(new)))

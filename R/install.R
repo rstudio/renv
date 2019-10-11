@@ -139,6 +139,7 @@ renv_install_staged <- function(records, library) {
   # clear filebacked cache entries
   descpaths <- file.path(targets, "DESCRIPTION")
   renv_filebacked_clear("DESCRIPTION", descpaths)
+  renv_filebacked_clear("hash", descpaths)
 
   invisible(targets)
 
