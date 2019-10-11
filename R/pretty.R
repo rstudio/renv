@@ -66,7 +66,8 @@ renv_pretty_print_records_pair <- function(old,
 
 renv_pretty_print_records_impl <- function(old, new) {
 
-  all <- union(names(old), names(new))
+  renv_scope_locale("LC_COLLATE", "C")
+  all <- sort(union(names(old), names(new)))
 
   # compute groups
   groups <- map_chr(all, function(package) {
