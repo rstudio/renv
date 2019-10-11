@@ -28,7 +28,7 @@ renv_file_copy <- function(source, target, overwrite = FALSE) {
   on.exit(callback(), add = TRUE)
 
   # check to see if we're copying a plain file -- if so, things are simpler
-  if (renv_directory_exists(source))
+  if (dir.exists(source))
     renv_file_copy_dir(source, target)
   else
     renv_file_copy_file(source, target)
