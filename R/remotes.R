@@ -213,7 +213,7 @@ renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
   headers <- c(Accept = "application/vnd.github.v2.sha")
   shafile <- renv_tempfile("renv-sha-")
   download(url, destfile = shafile, type = "github", quiet = TRUE, headers = headers)
-  sha <- readChar(shafile, file.info(shafile)$size, TRUE)
+  sha <- renv_file_read(shafile)
 
   # check for JSON response (in case our headers weren't sent)
   if (nchar(sha) > 40) {

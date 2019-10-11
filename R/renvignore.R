@@ -6,8 +6,10 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
   if (is.null(root))
     return(NULL)
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
-  root <- renv_path_normalize(root, winslash = "/", mustWork = TRUE)
+  stopifnot(
+    renv_path_absolute(path),
+    renv_path_absolute(root)
+  )
 
   # prepare ignores
   ignores <- stack()

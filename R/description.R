@@ -3,7 +3,7 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = NULL, ..
 
   # if given a package name, construct path to that package
   path <- path %||% find.package(package)
-  path <- renv_path_normalize(path, winslash = "/", mustWork = FALSE)
+  stopifnot(renv_path_absolute(path))
 
   # accept package directories
   path <- renv_description_path(path)
@@ -22,9 +22,9 @@ renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
   # ensure that we have a real file
   info <- file.info(path, extra_cols = FALSE)
   if (is.na(info$isdir))
-    stopf("file '%s' does not exist.", path)
+    stopf("file '%s' does not exist", path)
   else if (info$isdir)
-    stopf("file '%s' is a directory.", path)
+    stopf("file '%s' exists but is a directory", path)
 
   # if we have an archive, attempt to unpack the DESCRIPTION
   type <- renv_archive_type(path)

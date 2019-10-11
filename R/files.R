@@ -28,11 +28,10 @@ renv_file_copy <- function(source, target, overwrite = FALSE) {
   on.exit(callback(), add = TRUE)
 
   # check to see if we're copying a plain file -- if so, things are simpler
-  info <- file.info(source, extra_cols = FALSE)
-  case(
-    identical(info$isdir, FALSE) ~ renv_file_copy_file(source, target),
-    identical(info$isdir, TRUE)  ~ renv_file_copy_dir(source, target)
-  )
+  if (renv_directory_exists(source))
+    renv_file_copy_dir(source, target)
+  else
+    renv_file_copy_file(source, target)
 
 }
 
@@ -312,4 +311,9 @@ renv_file_find <- function(path, predicate, limit = 8L) {
 
   predicate(path)
 
+}
+
+renv_file_read <- function(path) {
+  contents <- readLines(path, warn = FALSE)
+  paste(contents, collapse = "\n")
 }

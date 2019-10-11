@@ -24,7 +24,6 @@ renv_filebacked_clear <- function(scope, path = NULL) {
 renv_filebacked_set <- function(scope, path, value) {
 
   # validate the path
-  path <- renv_path_normalize(path, winslash = "/", mustWork = FALSE)
   stopifnot(renv_path_absolute(path))
 
   # create our cache entry
@@ -41,7 +40,6 @@ renv_filebacked_set <- function(scope, path, value) {
 renv_filebacked_get <- function(scope, path) {
 
   # validate the path
-  path <- renv_path_normalize(path, winslash = "/", mustWork = FALSE)
   stopifnot(renv_path_absolute(path))
 
   # get scoped sub-environment

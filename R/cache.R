@@ -146,9 +146,8 @@ renv_cache_list <- function(packages = NULL) {
 renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
   descpaths <- file.path(paths, "DESCRIPTION")
-  info <- file.info(descpaths, extra_cols = FALSE)
-  missing <- is.na(info$isdir)
-  bad <- rownames(info)[missing]
+  exists <- file.exists(descpaths)
+  bad <- paths[!exists]
   if (empty(bad))
     return(paths)
 
@@ -176,7 +175,7 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
   )
 
   problems$push(data)
-  paths[!missing]
+  paths[exists]
 
 }
 
