@@ -141,8 +141,9 @@ renv_remotes_resolve_bitbucket <- function(entry) {
     entry$host %||%
     renv_config("bitbucket.host", default = "api.bitbucket.org/2.0")
 
-  fmt <- "https://%s/repositories/%s/%s/src/%s/DESCRIPTION"
-  url <- sprintf(fmt, host, user, repo, ref)
+  fmt <- "%s/repositories/%s/%s/src/%s/DESCRIPTION"
+  origin <- renv_retrieve_origin(host)
+  url <- sprintf(fmt, origin, user, repo, ref)
 
   destfile <- renv_tempfile("renv-description-")
   download(url, destfile = destfile, type = "bitbucket", quiet = TRUE)
@@ -194,8 +195,9 @@ renv_remotes_resolve_base <- function(package) {
 
 renv_remotes_resolve_github_sha_pull <- function(host, user, repo, pull) {
 
-  fmt <- "https://%s/repos/%s/%s/pulls/%s"
-  url <- sprintf(fmt, host, user, repo, pull)
+  fmt <- "%s/repos/%s/%s/pulls/%s"
+  origin <- renv_retrieve_origin(host)
+  url <- sprintf(fmt, origin, user, repo, pull)
   jsonfile <- renv_tempfile("renv-json-")
   download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
@@ -205,8 +207,9 @@ renv_remotes_resolve_github_sha_pull <- function(host, user, repo, pull) {
 
 renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
 
-  fmt <- "https://%s/repos/%s/%s/commits/%s"
-  url <- sprintf(fmt, host, user, repo, ref %||% "master")
+  fmt <- "%s/repos/%s/%s/commits/%s"
+  origin <- renv_retrieve_origin(host)
+  url <- sprintf(fmt, origin, user, repo, ref %||% "master")
   headers <- c(Accept = "application/vnd.github.v2.sha")
   shafile <- renv_tempfile("renv-sha-")
   download(url, destfile = shafile, type = "github", quiet = TRUE, headers = headers)
@@ -231,8 +234,9 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   descpath <- paste(parts, collapse = "/")
 
   # get the DESCRIPTION contents
-  fmt <- "https://%s/repos/%s/%s/contents/%s?ref=%s"
-  url <- sprintf(fmt, host, user, repo, descpath, sha)
+  fmt <- "%s/repos/%s/%s/contents/%s?ref=%s"
+  origin <- renv_retrieve_origin(host)
+  url <- sprintf(fmt, origin, user, repo, descpath, sha)
   jsonfile <- renv_tempfile("renv-json-")
   download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
@@ -294,9 +298,10 @@ renv_remotes_resolve_gitlab <- function(entry) {
     entry$host %||%
     renv_config("gitlab.host", default = "gitlab.com")
 
-  fmt <- "https://%s/api/v4/projects/%s/repository/files/%s/raw?ref=%s"
+  fmt <- "%s/api/v4/projects/%s/repository/files/%s/raw?ref=%s"
+  origin <- renv_retrieve_origin(host)
   id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
-  url <- sprintf(fmt, host, id, descpath, ref)
+  url <- sprintf(fmt, origin, id, descpath, ref)
 
   destfile <- renv_tempfile("renv-description-")
   download(url, destfile = destfile, type = "gitlab", quiet = TRUE)

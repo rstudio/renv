@@ -213,7 +213,7 @@ renv_install_impl <- function(record) {
   else
     "built from source"
 
-  vwritef("\tOK (%s)", feedback)
+  vwritef("\tOK [%s]", feedback)
 
   # link into cache
   if (settings$use.cache(project = project))

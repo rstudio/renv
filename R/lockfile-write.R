@@ -26,8 +26,14 @@ renv_lockfile_write <- function(lockfile, file = stdout()) {
 
 }
 
-renv_lockfile_write_json_prepare_repos <- function(val) {
-  unname(enumerate(val, function(key, val) list(Name = key, URL = val)))
+renv_lockfile_write_json_prepare_repos <- function(repos) {
+
+  prepared <- enumerate(repos, function(name, url) {
+    url <- sub("/+$", "", url)
+    list(Name = name, URL = url)
+  })
+
+  unname(prepared)
 }
 
 renv_lockfile_write_json_prepare <- function(key, val) {

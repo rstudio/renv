@@ -15,5 +15,8 @@ renv_parallel_cores <- function() {
 
 renv_parallel_exec <- function(data, callback) {
   cores <- renv_parallel_cores()
-  parallel::mclapply(data, callback, mc.cores = cores)
+  if (renv_config("updates.parallel", default = TRUE))
+    parallel::mclapply(data, callback, mc.cores = cores)
+  else
+    lapply(data, callback)
 }
