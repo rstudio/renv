@@ -140,7 +140,9 @@ renv_available_packages_entry <- function(package,
   filter <- filter %||% function(entry) TRUE
   if (is.character(filter)) {
     version <- filter
-    filter <- function(entry) entry$Version == version
+    filter <- function(entries) {
+      entries[entries$Version == version, ]
+    }
   }
 
   dbs <- renv_available_packages(type = type, quiet = quiet)
@@ -154,8 +156,9 @@ renv_available_packages_entry <- function(package,
     if (!package %in% db$Package)
       next
 
-    entry <- db[db$Package == package, ]
-    if (filter(entry)) {
+    entries <- db[db$Package == package, ]
+    entry <- filter(entries)
+    if (nrow(entry)) {
       entry[["Type"]] <- type
       entry[["Name"]] <- names(dbs)[[i]] %||% ""
       return(entry)

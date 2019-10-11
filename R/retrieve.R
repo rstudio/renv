@@ -403,7 +403,7 @@ renv_retrieve_repos_impl <- function(record,
       renv_available_packages_entry(
         package = record$Package,
         type    = type,
-        filter  = function(entry) identical(record$Version, entry$Version)
+        filter  = record$Version
       )
     )
 
