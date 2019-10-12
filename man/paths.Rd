@@ -34,7 +34,6 @@ enumerated below:
 \strong{Environment Variable} \tab \strong{Description} \cr
 \code{RENV_PATHS_ROOT}        \tab The root path used for global state storage. \cr
 \code{RENV_PATHS_LIBRARY}     \tab The root path containing different \R libraries. \cr
-\code{RENV_PATHS_STAGING}     \tab The root path used for staged package installs. \cr
 \code{RENV_PATHS_LOCAL}       \tab The path containing local package sources. \cr
 \code{RENV_PATHS_SOURCE}      \tab The path containing downloaded package sources. \cr
 \code{RENV_PATHS_BINARY}      \tab The path containing downloaded package binaries. \cr

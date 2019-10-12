@@ -123,7 +123,7 @@ renv_install_staged <- function(records, library) {
   on.exit(renv_global_clear("library.paths"), add = TRUE)
 
   # set up a dummy library path for installation
-  templib <- renv_install_staged_library()
+  templib <- renv_install_staged_library(library)
   on.exit(unlink(templib, recursive = TRUE), add = TRUE)
   renv_scope_libpaths(c(templib, renv_libpaths_all()))
 
@@ -145,27 +145,35 @@ renv_install_staged <- function(records, library) {
 
 }
 
-renv_install_staged_library <- function() {
+renv_install_staged_library_impl <- function(root) {
 
-  staging <- renv_paths_staging()
-  ensure_directory(staging)
-
-  i <- 0
-  repeat {
-
-    path <- file.path(staging, i)
+  ensure_directory(root)
+  for (i in 1:100) {
+    path <- file.path(root, i)
     if (dir.create(path, showWarnings = FALSE))
       return(path)
-
-    i <- i + 1
-    if (i == 100)
-      break
-
   }
 
-  fallback <- tempfile(".renv-staging-")
-  ensure_directory(fallback)
-  fallback
+  tempfile(".renv-staging")
+
+}
+
+# NOTE: on Windows, installing packages into very long paths
+# can fail, as R's internal unzip utility does not handle
+# long Windows paths well. in addition, an renv project's
+# library path tends to be long, exaspeating the issue.
+# for that reason, we try to use a shorter staging directory
+# when possible
+renv_install_staged_library <- function(library) {
+
+  project <- renv_project(default = NULL)
+
+  root <- if (is.null(project))
+    file.path(library, ".renv")
+  else
+    file.path(project, "renv/staging")
+
+  renv_install_staged_library_impl(root)
 
 }
 
@@ -177,7 +185,6 @@ renv_install_default <- function(records, library) {
     handler(package, renv_install_impl(record))
   }
 }
-
 
 renv_install_impl <- function(record) {
 

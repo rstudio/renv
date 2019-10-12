@@ -165,9 +165,9 @@ update <- function(packages = NULL,
       return(TRUE)
 
     # check for package in one of the active binary / source repos
-    package <- record$Package
     for (type in renv_package_pkgtypes()) {
 
+      package <- record$Package
       entry <- catch(
         renv_available_packages_entry(
           package = package,

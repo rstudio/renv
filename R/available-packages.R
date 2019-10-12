@@ -137,12 +137,19 @@ renv_available_packages_entry <- function(package,
                                           filter = NULL,
                                           quiet = FALSE)
 {
-  filter <- filter %||% function(entry) TRUE
+
   if (is.character(filter)) {
     version <- filter
     filter <- function(entries) {
-      entries[entries$Version == version, ]
+      matches <- entries$Version == version
+      entries[matches[1], ]
     }
+  }
+
+  filter <- filter %||% function(entries) {
+    version <- numeric_version(entries$Version)
+    ordered <- order(version, decreasing = TRUE)
+    entries[ordered[[1]], ]
   }
 
   dbs <- renv_available_packages(type = type, quiet = quiet)
@@ -158,15 +165,18 @@ renv_available_packages_entry <- function(package,
 
     entries <- db[db$Package == package, ]
     entry <- filter(entries)
-    if (nrow(entry)) {
-      entry[["Type"]] <- type
-      entry[["Name"]] <- names(dbs)[[i]] %||% ""
-      return(entry)
-    }
+    if (nrow(entry) == 0)
+      next
+
+    entry[["Type"]] <- type
+    entry[["Name"]] <- names(dbs)[[i]] %||% ""
+    return(entry)
 
   }
 
-  stopf("failed to find %s for package %s in active repositories", type, package)
+  fmt <- "failed to find %s for package %s in active repositories"
+  stopf(fmt, type, package)
+
 }
 
 renv_available_packages_timeout <- function(data) {
@@ -207,7 +217,7 @@ renv_available_packages_latest_impl <- function(package, type) {
 
   version <- numeric_version(entries$Version)
   ordered <- order(version, decreasing = TRUE)
-  entries[ordered[[1]], , drop = FALSE]
+  entries[ordered[[1]], ]
 
 }
 
