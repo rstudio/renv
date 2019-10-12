@@ -169,7 +169,7 @@ renv_install_staged_library <- function(library) {
   project <- renv_project(default = NULL)
 
   root <- if (is.null(project))
-    file.path(library, ".renv")
+    file.path(library[[1]], ".renv")
   else
     file.path(project, "renv/staging")
 
