@@ -127,7 +127,6 @@ load <- function(project = NULL, quiet = FALSE) {
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {
     renv_load_r(project, lockfile$R)
-    renv_load_bioconductor(project, lockfile$Bioconductor)
     renv_load_python(project, lockfile$Python)
   }
 

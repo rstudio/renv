@@ -46,18 +46,6 @@ renv_load_r_repos <- function(repos) {
 
 }
 
-renv_load_bioconductor <- function(project, fields) {
-
-  # check for missing field
-  if (is.null(fields))
-    return(NULL)
-
-  repos <- fields$Repositories
-  if (!is.null(repos))
-    options(bioconductor.repos = repos)
-
-}
-
 renv_load_path <- function(project) {
 
   # only required when running in RStudio

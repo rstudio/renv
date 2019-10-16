@@ -107,7 +107,6 @@ renv_lockfile_init <- function(project) {
   lockfile <- list()
 
   lockfile$R            <- renv_lockfile_init_r(project)
-  lockfile$Bioconductor <- renv_lockfile_init_bioconductor(project)
   lockfile$Python       <- renv_lockfile_init_python(project)
 
   class(lockfile) <- "renv_lockfile"
@@ -153,22 +152,6 @@ renv_lockfile_init_r <- function(project) {
   version <- renv_lockfile_init_r_version(project)
   repos   <- renv_lockfile_init_r_repos(project)
   list(Version = version, Repositories = repos)
-}
-
-renv_lockfile_init_bioconductor <- function(project) {
-
-  # if BiocManager / BiocInstaller is available, ask for the
-  # current repositories; otherwise preserve the last-used
-  # repositories (if any)
-  repos <- catch(renv_bioconductor_repos())
-  if (inherits(repos, "error"))
-    repos <- getOption("bioconductor.repos")
-
-  if (is.null(repos))
-    return(NULL)
-
-  list(Repositories = as.list(repos))
-
 }
 
 renv_lockfile_init_python <- function(project) {

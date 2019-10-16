@@ -18,11 +18,19 @@ test_that("packages can be installed, restored from Bioconductor", {
   BiocManager <- asNamespace("BiocManager")
   BiocManager$install("limma", quiet = TRUE)
 
-  snapshot()
+  expect_true(renv_package_installed("BiocManager"))
+  expect_true(renv_package_installed("BiocVersion"))
+  expect_true(renv_package_installed("limma"))
 
+  snapshot()
   lockfile <- snapshot(lockfile = NULL)
-  limma <- lockfile$Packages$limma
-  expect_equal(limma$Source, "Bioconductor")
+  records <- renv_records(lockfile)
+  expect_true("BiocManager" %in% names(records))
+  expect_true("BiocVersion" %in% names(records))
+  expect_true("limma" %in% names(records))
+
+  if (!renv_platform_linux())
+    renv_scope_options(pkgType = "both")
 
   remove("limma")
   restore()

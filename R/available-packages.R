@@ -30,14 +30,29 @@ renv_available_packages_impl <- function(type, quiet = FALSE) {
   # request repositories
   repos <- getOption("repos")
   urls <- contrib.url(repos, type)
-  dbs <- lapply(urls, renv_available_packages_query, type = type)
+  errors <- new.env(parent = emptyenv())
+  dbs <- lapply(urls, renv_available_packages_query, type = type, errors = errors)
   names(dbs) <- names(repos)
 
   # notify finished
   vwritef("Done!")
 
-  # and we're done
-  dbs
+  # propagate errors
+  errors <- as.list(errors)
+  enumerate(errors, function(url, output) {
+
+    warnings <- output$warnings
+    messages <- output$messages
+    if (empty(warnings) && empty(messages))
+      return()
+
+    fmt <- "could not retrieve available packages for url %s"
+    warningf(fmt, shQuote(url))
+
+  })
+
+  # filter results
+  Filter(Negate(is.null), dbs)
 
 }
 
@@ -62,7 +77,7 @@ renv_available_packages_query_packages <- function(url) {
   suppressWarnings(read.dcf(destfile))
 }
 
-renv_available_packages_query <- function(url, type) {
+renv_available_packages_query <- function(url, type, errors) {
 
   # check for a cached value
   name <- sprintf("repos_%s.rds.cache", URLencode(url, reserved = TRUE))
@@ -102,19 +117,21 @@ renv_available_packages_query <- function(url, type) {
 
   }
 
-  vwritef("FAILED")
+  data <- list(
+    warnings = warnings$data(),
+    messages = messages$data()
+  )
 
-  lapply(warnings$data(), warning)
-  lapply(messages$data(), message)
-
-  fmt <- "could not retrieve available packages for repository '%s'"
-  stopf(fmt, url)
+  assign(url, data, envir = errors)
+  NULL
 
 }
 
 renv_available_packages_success <- function(db, url) {
 
   db <- as.data.frame(db, stringsAsFactors = FALSE)
+  if (nrow(db) == 0)
+    return(db)
 
   # remove packages which won't work on this OS
   ostype <- db$OS_type
@@ -141,7 +158,7 @@ renv_available_packages_entry <- function(package,
   if (is.character(filter)) {
     version <- filter
     filter <- function(entries) {
-      matches <- entries$Version == version
+      matches <- which(entries$Version == version)
       entries[matches[1], ]
     }
   }

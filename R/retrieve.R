@@ -410,7 +410,10 @@ renv_retrieve_repos_impl <- function(record,
     if (inherits(entry, "error"))
       return(FALSE)
 
+    # add in the path if available
     repo <- entry$Repository
+    if (!is.null(entry$Path) && !is.na(entry$Path))
+      repo <- file.path(repo, entry$Path)
 
   }
 

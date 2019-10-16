@@ -185,10 +185,36 @@ renv_snapshot_validate <- function(project, lockfile, library) {
     return(TRUE)
 
   all(
+    renv_snapshot_validate_bioconductor(project, lockfile, library),
     renv_snapshot_validate_dependencies_available(project, lockfile, library),
     renv_snapshot_validate_dependencies_compatible(project, lockfile, library),
     renv_snapshot_validate_sources(project, lockfile, library)
   )
+}
+
+renv_snapshot_validate_bioconductor <- function(project, lockfile, library) {
+
+  # check whether any packages are installed from Bioconductor
+  records <- renv_records(lockfile)
+  sources <- extract_chr(records, "Source")
+  if (!"Bioconductor" %in% sources)
+    return(TRUE)
+
+  package <- if (getRversion() >= "3.5.0") "BiocManager" else "BiocInstaller"
+  if (package %in% names(records))
+    return(TRUE)
+
+  text <- c(
+    "One or more Bioconductor packages are used in your project,",
+    "but neither BiocManager nor BiocInstaller will be snapshotted.",
+    "",
+    "Consider installing the appropriate package before snapshot.",
+    ""
+  )
+
+  writeLines(text)
+  FALSE
+
 }
 
 renv_snapshot_validate_dependencies_available <- function(project, lockfile, library) {
@@ -615,12 +641,24 @@ renv_snapshot_filter_simple <- function(project, records) {
 
 renv_snapshot_filter_packrat <- function(project, records) {
 
+  # keep only package records for packages actually used in project
   deps <- dependencies(project, quiet = TRUE)
   ignored <- settings$ignored.packages(project = project)
   packages <- renv_vector_diff(unique(deps$Package), ignored)
   paths <- renv_package_dependencies(packages, project = project)
   all <- as.character(names(paths))
-  keep(records, all)
+  kept <- keep(records, all)
+
+  # add in bioconductor infrastructure packages
+  # if any other bioconductor packages detected
+  sources <- extract_chr(kept, "Source")
+  if ("Bioconductor" %in% sources) {
+    packages <- c("BiocManager", "BiocInstaller", "BiocVersion")
+    for (package in packages)
+      kept[[package]] <- records[[package]]
+  }
+
+  kept
 
 }
 
