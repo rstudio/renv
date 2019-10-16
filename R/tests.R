@@ -36,6 +36,10 @@ renv_tests_scope <- function(packages = character()) {
 }
 
 renv_tests_root <- function(path = getwd()) {
+  renv_global("tests.root", renv_tests_root_impl(path))
+}
+
+renv_tests_root_impl <- function(path = getwd()) {
 
   # construct set of paths we'll hunt through
   slashes <- gregexpr("(?:/|$)", path)[[1]]
@@ -54,6 +58,9 @@ renv_tests_root <- function(path = getwd()) {
       return(file.path(part, "tests/testthat"))
 
   }
+
+  stop("could not determine root directory for test files")
+
 }
 
 renv_tests_init_workarounds <- function() {
@@ -88,13 +95,13 @@ renv_tests_init_options <- function() {
   )
 }
 
-renv_tests_init_repos <- function() {
+renv_tests_init_repos <- function(repos = NULL) {
 
   # find root directory
   root <- renv_tests_root()
 
   # generate our dummy repository
-  repos <- tempfile("renv-repos-")
+  repos <- repos %||% tempfile("renv-repos-")
   contrib <- file.path(repos, "src/contrib")
   ensure_directory(contrib)
 
@@ -127,10 +134,14 @@ renv_tests_init_repos <- function() {
 
   # copy in packages
   paths <- list.files(getwd(), full.names = TRUE)
+  subdirs <- file.path(getRversion(), "Recommended")
   for (path in paths) {
 
     # upload the 'regular' package
     upload(path, contrib, subdir = FALSE)
+
+    # upload a subdir (mocking what R does during upgrades)
+    upload(path, file.path(contrib, subdirs), subdir = FALSE)
 
     # generate an 'old' version of the packages
     descpath <- file.path(path, "DESCRIPTION")
@@ -144,7 +155,7 @@ renv_tests_init_repos <- function() {
   }
 
   # update PACKAGES metadata
-  tools::write_PACKAGES(contrib, subdirs = FALSE, type = "source")
+  tools::write_PACKAGES(contrib, subdirs = subdirs, type = "source")
 
   # set repository URL (for tests)
   options(renv.tests.repos = c(CRAN = repos))
