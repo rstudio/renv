@@ -8,30 +8,6 @@
       }
     ]
   },
-  "Bioconductor": {
-    "Repositories": [
-      {
-        "Name": "BioCsoft",
-        "URL": "https://bioconductor.org/packages/3.9/bioc"
-      },
-      {
-        "Name": "BioCann",
-        "URL": "https://bioconductor.org/packages/3.9/data/annotation"
-      },
-      {
-        "Name": "BioCexp",
-        "URL": "https://bioconductor.org/packages/3.9/data/experiment"
-      },
-      {
-        "Name": "BioCworkflows",
-        "URL": "https://bioconductor.org/packages/3.9/workflows"
-      },
-      {
-        "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
-      }
-    ]
-  },
   "Packages": {
     "BH": {
       "Package": "BH",
@@ -551,14 +527,14 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.7.1-4",
+      "Version": "0.7.1-16",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "rstudio",
       "RemoteRepo": "renv",
-      "RemoteRef": "0.7.1-4",
-      "RemoteSha": "6fe65aea32102242eecb0109539316c40ce4bfba"
+      "RemoteRef": "0.7.1-16",
+      "RemoteSha": "5d0c0def33d07b04b95f1134ecbbbf7cd551c7f8"
     },
     "reshape2": {
       "Package": "reshape2",
@@ -586,11 +562,6 @@
       "Version": "0.4.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "RemoteType": "standard",
-      "RemoteRef": "rlang",
-      "RemoteRepos": "https://cran.rstudio.com/",
-      "RemotePkgType": "macos",
-      "RemoteSha": "0.4.0",
       "Hash": "8f1bf3a54c8844dc254baabba61cb6a9"
     },
     "rmarkdown": {

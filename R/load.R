@@ -224,7 +224,7 @@ renv_load_python <- function(project, fields) {
 
   # set a default reticulate Python environment path
   envpath <- file.path(project, "renv/python/r-reticulate")
-  Sys.setenv(RETICULATE_PYTHON_ENV = envpath)
+  Sys.setenv(RETICULATE_MINICONDA_PYTHON_ENVPATH = envpath)
 
   # nothing more to do if no lockfile fields set
   if (is.null(fields))
