@@ -817,7 +817,7 @@ renv_dependencies_discover_r_import <- function(node, envir) {
     return(FALSE)
 
   # match a call to any function with a '.from' argument
-  prototype <- function(.from = "", ...) {}
+  prototype <- function(.from, ...) {}
   matched <- catch(match.call(prototype, node, expand.dots = FALSE))
   if (inherits(matched, "error"))
     return(FALSE)
