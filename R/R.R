@@ -98,7 +98,13 @@ r_exec_error_diagnostics <- function(package, output) {
 r_cmd_install <- function(package, path, library, ...) {
 
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
-  library <- renv_path_normalize(library, winslash = "/", mustWork = TRUE)
+
+  # prefer using a short path name for the library on Windows,
+  # to help avoid issues caused by overly-long paths
+  library <- if (renv_platform_windows())
+    utils::shortPathName(library)
+  else
+    renv_path_normalize(library, winslash = "/", mustWork = TRUE)
 
   args <- c(
     "--vanilla",
