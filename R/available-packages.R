@@ -155,6 +155,7 @@ renv_available_packages_entry <- function(package,
                                           quiet = FALSE)
 {
 
+  # if filter is a string, treat it as an explicit version requirement
   if (is.character(filter)) {
     version <- filter
     filter <- function(entries) {
@@ -164,6 +165,7 @@ renv_available_packages_entry <- function(package,
     }
   }
 
+  # by default, provide a filter that selects the newest-available package
   filter <- filter %||% function(entries) {
     version <- numeric_version(entries$Version)
     ordered <- order(version, decreasing = TRUE)
@@ -178,10 +180,11 @@ renv_available_packages_entry <- function(package,
   for (i in seq_along(dbs)) {
 
     db <- dbs[[i]]
-    if (!package %in% db$Package)
+    matches <- which(db$Package == package)
+    if (empty(matches))
       next
 
-    entries <- db[db$Package == package, ]
+    entries <- db[matches, ]
     entry <- filter(entries)
     if (nrow(entry) == 0)
       next
