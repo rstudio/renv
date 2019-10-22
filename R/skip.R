@@ -9,7 +9,7 @@ skip_if_no_python <- function(python = NULL) {
   })
 
   if (installed)
-    return(python)
+    return(TRUE)
 
   testthat::skip("python is not installed")
 
@@ -29,5 +29,19 @@ skip_if_no_virtualenv <- function(python = NULL) {
 
   if (!installed)
     testthat::skip("virtualenv module not installed")
+
+  TRUE
+
+}
+
+skip_if_no_miniconda <- function(python) {
+
+  skip_if_no_python(python)
+  testthat::skip_if_not_installed("reticulate", "1.13.0.9002")
+  path <- reticulate::miniconda_path()
+  if (!file.exists(path))
+    testthat::skip("miniconda is not installed")
+
+  TRUE
 
 }

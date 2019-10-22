@@ -34,11 +34,13 @@ test_that("we can activate Python with a virtualenv in a project", {
 
 })
 
-test_that("the set of installed Python packages is snapshotted / restored", {
+test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
   skip_on_appveyor()
   skip_on_cran()
   skip_if_no_virtualenv(python)
+  Sys.unsetenv("RETICULATE_PYTHON")
+  Sys.unsetenv("RETICULATE_PYTHON_ENV")
 
   renv_tests_scope("breakfast")
 
@@ -75,4 +77,53 @@ test_that("the set of installed Python packages is snapshotted / restored", {
   status <- system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
   expect_true(status == 0L)
 
+})
+
+
+test_that("installed Python packages are snapshotted / restored [conda]", {
+
+  skip_on_appveyor()
+  skip_on_cran()
+  skip_if_no_miniconda(python)
+  Sys.unsetenv("RETICULATE_PYTHON")
+  Sys.unsetenv("RETICULATE_PYTHON_ENV")
+
+  renv_tests_scope("breakfast")
+
+  # initialize python
+  quietly(renv::use_python(type = "conda"))
+  python <- Sys.getenv("RETICULATE_PYTHON")
+
+  # install numpy
+  cmd <- paste(shQuote(python), "-m pip install --quiet numpy")
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+
+  # snapshot changes
+  renv::snapshot()
+
+  # check requirements.txt for install
+  expect_true(file.exists("environment.yml"))
+
+  # uninstall numpy
+  cmd <- paste(shQuote(python), "-m pip uninstall --quiet --yes numpy")
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+
+  # can no longer load numpy
+  cmd <- paste(shQuote(python), "-c 'import numpy'")
+  status <- system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  expect_false(status == 0L)
+
+  # try to restore
+  renv::restore()
+
+  # check that we can load numpy now
+  cmd <- paste(shQuote(python), "-c 'import numpy'")
+  status <- system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  expect_true(status == 0L)
+
+})
+
+test_that("python integration is deactivated afterwards", {
+  Sys.unsetenv("RETICULATE_PYTHON")
+  Sys.unsetenv("RETICULATE_PYTHON_ENV")
 })

@@ -62,6 +62,7 @@ reference:
 
 vignettes:
   menu:
-  - Introduction  : [renv, lockfile, faq, local-sources]
-  - Collaborating : [collaborating]
-  - Deployment    : [ci, docker]
+  - Introduction   : [renv, lockfile, faq, local-sources]
+  - Collaborating  : [collaborating]
+  - Deployment     : [ci, docker]
+  - Integration    : [python]

@@ -34,8 +34,9 @@ renv_python_conda_snapshot <- function(project, python) {
   prefix <- info$root
 
   conda <- reticulate::conda_binary()
-  args <- c("env", "export", "--prefix", shQuote(prefix))
-  system2(conda, args, stdout = path)
+  args <- c("env", "export", "--prefix", shQuote(prefix), "--file", shQuote(path))
+  output <- if (renv_testing()) FALSE else ""
+  system2(conda, args, stdout = output, stderr = output)
 
   vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
   return(TRUE)
@@ -46,7 +47,7 @@ renv_python_conda_restore <- function(project, python) {
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
-  path <- file.path(project, "requirements.txt")
+  path <- file.path(project, "environment.yml")
 
   # find the root of the associated conda environment
   lockfile <- renv_lockfile_load(project = project)
@@ -56,9 +57,10 @@ renv_python_conda_restore <- function(project, python) {
   prefix <- info$root
 
   conda <- reticulate::conda_binary()
-  cmd <- if (file.exists(prefix)) "create" else "update"
-  args <- c(cmd, "--yes", "--prefix", shQuote(prefix), "--file", shQuote(path))
-  system2(conda, args)
+  cmd <- if (file.exists(prefix)) "update" else "create"
+  args <- c("env", cmd, "--prefix", shQuote(prefix), "--file", shQuote(path))
+  output <- if (renv_testing()) FALSE else ""
+  system2(conda, args, stdout = output, stderr = output)
 
   return(TRUE)
 
