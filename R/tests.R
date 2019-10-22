@@ -203,6 +203,10 @@ renv_tests_init <- function() {
   if (renv_testing())
     return()
 
+  Sys.unsetenv("RENV_PYTHON")
+  Sys.unsetenv("RETICULATE_PYTHON")
+  Sys.unsetenv("RETICULATE_PYTHON_ENV")
+
   renv_tests_init_workarounds()
   renv_tests_init_working_dir()
   renv_tests_init_envvars()

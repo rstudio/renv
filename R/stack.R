@@ -1,7 +1,8 @@
 
-stack <- function() {
+stack <- function(mode = "list") {
 
   .data <- list()
+  storage.mode(.data) <- mode
 
   object <- list(
 

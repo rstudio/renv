@@ -13,7 +13,8 @@ renv_infrastructure_write <- function(project = NULL, version = NULL) {
 renv_infrastructure_write_rprofile <- function(project) {
 
   renv_infrastructure_write_entry_impl(
-    lines  = "source(\"renv/activate.R\")",
+    add    = "source(\"renv/activate.R\")",
+    remove = character(),
     file   = file.path(project, ".Rprofile"),
     create = TRUE
   )
@@ -29,7 +30,8 @@ renv_infrastructure_write_rbuildignore <- function(project) {
     lines <- c(lines, "^environment\\.yml$")
 
   renv_infrastructure_write_entry_impl(
-    lines  = lines,
+    add    = lines,
+    remove = character(),
     file   = file.path(project, ".Rbuildignore"),
     create = renv_project_type(project) == "package"
   )
@@ -38,14 +40,17 @@ renv_infrastructure_write_rbuildignore <- function(project) {
 
 renv_infrastructure_write_gitignore <- function(project) {
 
-  lines <- c(
-    if (settings$vcs.ignore.library()) "library/",
-    "python/",
-    "staging/"
-  )
+  add    <- stack(mode = "character")
+  remove <- stack(mode = "character")
+
+  stk <- if (settings$vcs.ignore.library()) add else remove
+  stk$push("library/")
+
+  add$push("python/", "staging/")
 
   renv_infrastructure_write_entry_impl(
-    lines  = lines,
+    add    = as.character(add$data()),
+    remove = as.character(remove$data()),
     file   = file.path(project, "renv/.gitignore"),
     create = file.exists(file.path(project, ".git"))
   )
@@ -73,7 +78,7 @@ renv_infrastructure_write_activate <- function(project = NULL, version = NULL) {
 }
 
 
-renv_infrastructure_write_entry_impl <- function(lines, file, create) {
+renv_infrastructure_write_entry_impl <- function(add, remove, file, create) {
 
   # check to see if file doesn't exist
   if (!file.exists(file)) {
@@ -84,18 +89,17 @@ renv_infrastructure_write_entry_impl <- function(lines, file, create) {
 
     # otherwise, write the file
     ensure_parent_directory(file)
-    writeLines(lines, file)
+    writeLines(add, file)
     return(TRUE)
   }
 
   # if the file already has the requested line, nothing to do
-  contents <- trimws(readLines(file, warn = FALSE))
-  missing <- renv_vector_diff(lines, contents)
-  if (empty(missing))
+  before <- trimws(readLines(file, warn = FALSE))
+  after <- before %>% setdiff(remove) %>% union(add)
+  if (identical(before, after))
     return(TRUE)
 
-  amended <- c(contents, missing)
-  writeLines(amended, file)
+  writeLines(after, file)
   TRUE
 
 }

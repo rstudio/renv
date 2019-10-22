@@ -124,6 +124,7 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
 })
 
 test_that("python integration is deactivated afterwards", {
+  Sys.unsetenv("RENV_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON_ENV")
 })

@@ -115,17 +115,20 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
   new <- renv_settings_validate(name, value)
   settings[[name]] <- new
 
-  # invoke update callback if value changed
-  if (!identical(old, new))
-    renv_settings_updated(project, name, old, new)
-
   # persist if requested
   if (persist)
     renv_settings_persist(project, settings)
 
   # save session-cached value
   path <- renv_settings_path(project)
-  renv_filebacked_set("settings", path, settings)
+  value <- renv_filebacked_set("settings", path, settings)
+
+  # invoke update callback if value changed
+  if (!identical(old, new))
+    renv_settings_updated(project, name, old, new)
+
+  # return value
+  invisible(value)
 
 }
 
@@ -199,6 +202,10 @@ renv_settings_updated_cache <- function(project, old, new) {
   fmt <- "* The cache has been %s for this project."
   vwritef(fmt, if (new) "enabled" else "disabled")
 
+}
+
+renv_settings_updated_ignore <- function(project, old, new) {
+  renv_infrastructure_write_gitignore(project = project)
 }
 
 
@@ -341,7 +348,7 @@ settings <- list(
     name     = "vcs.ignore.library",
     validate = is.logical,
     default  = TRUE,
-    update   = NULL
+    update   = renv_settings_updated_ignore
   )
 
 )

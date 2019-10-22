@@ -27,3 +27,22 @@ test_that("infrastructure can be removed", {
   expect_setequal(before, after)
 
 })
+
+test_that("library/ is excluded from .gitignore as appropriate", {
+
+  skip_if_not(nzchar(Sys.which("git")), "git is not available")
+
+  renv_tests_scope()
+  system("git init", ignore.stdout = TRUE, ignore.stderr = TRUE)
+  renv::init(bare = TRUE)
+
+  contents <- readLines("renv/.gitignore")
+  expect_true("library/" %in% contents)
+
+  settings$vcs.ignore.library(FALSE)
+
+  contents <- readLines("renv/.gitignore")
+  expect_false("library/" %in% contents)
+
+
+})
