@@ -38,8 +38,14 @@ renv_infrastructure_write_rbuildignore <- function(project) {
 
 renv_infrastructure_write_gitignore <- function(project) {
 
+  lines <- c(
+    if (settings$vcs.ignore.library()) "library/",
+    "python/",
+    "staging/"
+  )
+
   renv_infrastructure_write_entry_impl(
-    lines  = c("library/", "python/", "staging/"),
+    lines  = lines,
     file   = file.path(project, "renv/.gitignore"),
     create = file.exists(file.path(project, ".git"))
   )

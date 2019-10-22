@@ -4,7 +4,7 @@
 \name{settings}
 \alias{settings}
 \title{Project Settings}
-\format{An object of class \code{list} of length 4.}
+\format{An object of class \code{list} of length 5.}
 \usage{
 settings
 }
@@ -50,6 +50,12 @@ packages into a global cache, and link packages from the cache into your
 \code{renv} projects as appropriate. This can greatly save on disk space
 and install time when for \R packages which are used across multiple
 projects in the same environment.
+
+}
+
+\item{\code{vcs.ignore.library}}{
+
+Set whether the \code{renv} project library is excluded from version control.
 
 }
 

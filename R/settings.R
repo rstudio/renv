@@ -270,6 +270,12 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 #'
+#' \item{\code{vcs.ignore.library}}{
+#'
+#'   Set whether the `renv` project library is excluded from version control.
+#'
+#' }
+#'
 #' }
 #'
 #' @section Defaults:
@@ -329,6 +335,13 @@ settings <- list(
     validate = is.logical,
     default  = TRUE,
     update   = renv_settings_updated_cache
+  ),
+
+  vcs.ignore.library = renv_settings_impl(
+    name     = "vcs.ignore.library",
+    validate = is.logical,
+    default  = TRUE,
+    update   = NULL
   )
 
 )
