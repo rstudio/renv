@@ -65,7 +65,7 @@ test_that("the remotes field in a DESCRIPTION is honored", {
 
 })
 
-test_that("renv::init(bare = TRUE) can be used to initialize a project without installing packages", {
+test_that("renv::init(bare = TRUE) initializes a project without packages", {
 
   renv_tests_scope("brunch")
   renv::init(bare = TRUE)

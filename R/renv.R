@@ -37,6 +37,10 @@ renv_activate_impl <- function(project, version, restart, quiet) {
   # try to load the project
   load(project, quiet = quiet)
 
+  # ensure renv is installed
+  if (!renv_testing())
+    renv_bootstrap_self(project = project)
+
   # restart session
   if (restart)
     renv_request_restart(project, reason = "renv activated")
