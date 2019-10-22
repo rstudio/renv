@@ -159,7 +159,8 @@ renv_available_packages_entry <- function(package,
     version <- filter
     filter <- function(entries) {
       matches <- which(entries$Version == version)
-      entries[matches[1], ]
+      candidate <- head(matches, n = 1L)
+      entries[candidate, ]
     }
   }
 
