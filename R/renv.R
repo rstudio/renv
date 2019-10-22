@@ -72,6 +72,7 @@ deactivate <- function(project = NULL) {
 
   renv_infrastructure_remove_rprofile(project)
   renv_envvars_restore()
+  renv_libpaths_restore()
 
   renv_request_restart(project, reason = "renv deactivated")
   invisible(project)

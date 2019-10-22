@@ -78,3 +78,17 @@ renv_libpaths_activate <- function(project) {
   oldlibpaths
 
 }
+
+renv_libpaths_save <- function() {
+  libpaths <- renv_global_get("default.libpaths")
+  if (is.null(libpaths))
+    renv_global_set("default.libpaths", libpaths)
+}
+
+renv_libpaths_restore <- function() {
+  libpaths <- renv_global_get("default.libpaths")
+  if (!is.null(libpaths)) {
+    renv_global_clear("default.libpaths")
+    .libPaths(libpaths)
+  }
+}
