@@ -38,9 +38,16 @@ skip_if_no_miniconda <- function(python) {
 
   skip_if_no_python(python)
   testthat::skip_if_not_installed("reticulate", "1.13.0.9002")
-  path <- reticulate::miniconda_path()
-  if (!file.exists(path))
-    testthat::skip("miniconda is not installed")
+
+  # gymnastics for CRAN checks before next release of reticulate
+  if (requireNamespace("reticulate", quietly = TRUE)) {
+    reticulate <- asNamespace("reticulate")
+    if (is.function(reticulate$miniconda_path)) {
+      path <- reticulate$miniconda_path()
+      if (!file.exists(path))
+        testthat::skip("miniconda is not installed")
+    }
+  }
 
   TRUE
 
