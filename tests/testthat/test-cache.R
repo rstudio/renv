@@ -2,6 +2,7 @@
 context("Cache")
 
 test_that("issues within the cache are reported", {
+  skip_on_cran()
 
   # use a temporary cache for this test as we're going
   # to mutate and invalidate it

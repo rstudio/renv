@@ -4,6 +4,8 @@ context("R")
 test_that("we can use R CMD build to build a package", {
 
   testdir <- tempfile("renv-r-tests-")
+  on.exit(unlink(testdir, recursive = TRUE), add = TRUE)
+
   ensure_directory(testdir)
   owd <- setwd(testdir)
   on.exit(setwd(owd), add = TRUE)

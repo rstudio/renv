@@ -29,7 +29,9 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
 
   # compute root path
   envvar <- paste("RENV_PATHS", toupper(name), sep = "_")
-  root <- Sys.getenv(envvar, unset = renv_paths_root(name))
+  root <-
+    Sys.getenv(envvar, unset = NA) %NA%
+    renv_paths_root(name)
 
   # form rest of path
   prefixed <- if (length(prefixes))
@@ -83,8 +85,13 @@ renv_paths_extsoft <- function(...) {
 
 
 renv_paths_root <- function(...) {
-  root <- Sys.getenv("RENV_PATHS_ROOT", renv_paths_root_default())
+
+  root <-
+    Sys.getenv("RENV_PATHS_ROOT", unset = NA) %NA%
+    renv_paths_root_default()
+
   file.path(root, ...) %||% ""
+
 }
 
 renv_paths_root_default <- function() {

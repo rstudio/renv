@@ -189,6 +189,11 @@ renv_tests_init_sandbox <- function() {
   for (package in deps$Package)
     requireNamespace(package, quietly = TRUE)
 
+  # set up a dummy library path
+  dummy <- tempfile("renv-library-")
+  dir.create(dummy)
+  .libPaths(dummy)
+
   # now sandbox the libpaths
   renv_sandbox_activate()
 
@@ -266,5 +271,57 @@ renv_test_retrieve <- function(record) {
 
   fields <- grep("^Remote", names(record), value = TRUE)
   testthat::expect_identical(as.list(desc[fields]), as.list(record[fields]))
+
+}
+
+renv_tests_diagnostics <- function() {
+
+  # print library paths
+  renv_pretty_print(
+    paste("-", .libPaths()),
+    "The following R libraries are set:",
+    wrap = FALSE
+  )
+
+  # print repositories
+  repos <- getOption("repos")
+  renv_pretty_print(
+    paste(names(repos), repos, sep = ": "),
+    "The following repositories are set:",
+    wrap = FALSE
+  )
+
+  # print renv root
+  renv_pretty_print(
+    paste("-", paths$root()),
+    "The following renv root directory is being used:",
+    wrap = FALSE
+  )
+
+  # print cache root
+  renv_pretty_print(
+    paste("-", paths$cache()),
+    "The following renv cache directory is being used:",
+    wrap = FALSE
+  )
+
+  # check packages in repository
+  db <- as.data.frame(
+    available.packages(type = "source"),
+    stringsAsFactors = FALSE
+  )
+
+  # avoid printing too many
+  n <- 10L
+  packages <- head(db$Package, n = n)
+  if (length(db$Package) > n) {
+    rest <- paste("and", length(db$Package) - n, "more")
+    packages <- c(packages, rest)
+  }
+
+  renv_pretty_print(
+    packages,
+    "The following packages are available in the test repositories:",
+  )
 
 }
