@@ -52,7 +52,9 @@ test_that("multiple libraries can be used when snapshotting", {
   lib1 <- tempfile("renv-lib1-")
   lib2 <- tempfile("renv-lib2-")
   ensure_directory(c(lib1, lib2))
-  renv_scope_libpaths(c(lib1, lib2))
+
+  oldlibpaths <- .libPaths()
+  .libPaths(c(lib1, lib2))
 
   renv::install("bread", library = lib1)
   breadloc <- find.package("bread")
@@ -68,6 +70,8 @@ test_that("multiple libraries can be used when snapshotting", {
 
   expect_length(records, 2L)
   expect_setequal(names(records), c("bread", "toast"))
+
+  .libPaths(oldlibpaths)
 
 })
 
@@ -93,7 +97,7 @@ test_that("packrat-style snapshots only include packages currently used", {
 })
 
 test_that("a custom snapshot filter can be used", {
-
+  skip_on_cran()
   renv_tests_scope("breakfast")
 
   settings$snapshot.type("custom")

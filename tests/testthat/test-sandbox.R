@@ -1,12 +1,6 @@
 
 context("Sandbox")
 
-# TODO: figure out what's going on
-test_that("fix up library paths", {
-  renv_sandbox_deactivate()
-  .libPaths(character())
-})
-
 test_that("the sandbox can be activated and deactivated", {
 
   renv_sandbox_deactivate()

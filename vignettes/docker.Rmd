@@ -2,7 +2,7 @@
 title: "Using renv with Docker"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{docker}
+  %\VignetteIndexEntry{Using renv with Docker}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

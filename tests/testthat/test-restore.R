@@ -10,7 +10,7 @@ test_that("library permissions are validated before restore", {
 })
 
 test_that("we can restore packages after init", {
-
+  skip_on_cran()
   renv_tests_scope("breakfast")
 
   renv::init()
@@ -27,7 +27,7 @@ test_that("we can restore packages after init", {
 })
 
 test_that("restore can recover when required packages are missing", {
-
+  skip_on_cran()
   renv_tests_scope("breakfast")
   renv::init()
 

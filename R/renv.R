@@ -71,12 +71,14 @@ deactivate <- function(project = NULL) {
   renv_scope_error_handler()
   project <- project %||% renv_project()
 
-  renv_shims_deactivate()
-  renv_sandbox_deactivate()
-
   renv_infrastructure_remove_rprofile(project)
-  renv_envvars_restore()
-  renv_libpaths_restore()
+
+  if (!renv_testing()) {
+    renv_shims_deactivate()
+    renv_sandbox_deactivate()
+    renv_envvars_restore()
+    renv_libpaths_restore()
+  }
 
   renv_request_restart(project, reason = "renv deactivated")
   invisible(project)

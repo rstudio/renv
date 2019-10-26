@@ -2,7 +2,7 @@
 title: "Using renv with Continuous Integration"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{ci}
+  %\VignetteIndexEntry{Continuous Integration}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

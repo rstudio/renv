@@ -2,7 +2,7 @@
 title: "Collaborating with renv"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{collaborating-with-renv}
+  %\VignetteIndexEntry{Collaborating with renv}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

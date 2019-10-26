@@ -2,7 +2,7 @@
 title: "Using Python with renv"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{python-integration}
+  %\VignetteIndexEntry{Using Python with renv}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

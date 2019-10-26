@@ -2,7 +2,7 @@
 title: "Lockfiles"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{lockfiles}
+  %\VignetteIndexEntry{Lockfiles}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

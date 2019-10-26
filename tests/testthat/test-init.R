@@ -1,7 +1,7 @@
 context("Init")
 
 test_that("we can initialize a project using 'breakfast'", {
-
+  skip_on_cran()
   skip_on_covr()
   renv_tests_scope("breakfast")
 

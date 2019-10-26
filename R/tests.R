@@ -173,7 +173,7 @@ renv_tests_init_packages <- function() {
 
   # eagerly load packages that we'll need during tests
   # (as the sandbox will otherwise 'hide' these packages)
-  packages <- c("packrat", "knitr", "rmarkdown", "yaml")
+  packages <- c("packrat", "knitr", "reticulate", "rmarkdown", "yaml")
   for (package in packages)
     requireNamespace(package, quietly = TRUE)
 
@@ -323,5 +323,11 @@ renv_tests_diagnostics <- function() {
     packages,
     "The following packages are available in the test repositories:",
   )
+
+  envvars <- c("R_LIBS", "R_LIBS_SITE", "R_LIBS_USER")
+  keys <- format(envvars)
+  vals <- Sys.getenv(keys, unset = "<NA>")
+  vals[vals != "<NA>"] <- shQuote(vals[vals != "<NA>"], type = "cmd")
+  renv_pretty_print(paste(keys, vals, sep = " : "), wrap = FALSE)
 
 }

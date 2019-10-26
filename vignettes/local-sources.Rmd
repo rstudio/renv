@@ -2,7 +2,7 @@
 title: "Local Sources"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{local-sources}
+  %\VignetteIndexEntry{Local Sources}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

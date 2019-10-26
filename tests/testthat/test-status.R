@@ -2,7 +2,7 @@
 context("Status")
 
 test_that("status() works when there is no library", {
-
+  skip_on_cran()
   renv_scope_options(renv.config.snapshot.preflight = FALSE)
 
   renv_tests_scope("breakfast")
@@ -48,5 +48,7 @@ test_that("status reports packages to be installed / changed", {
   install("breakfast@0.1.0")
   status()
   snapshot()
+
+  expect_true(TRUE)
 
 })

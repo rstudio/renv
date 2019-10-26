@@ -22,7 +22,7 @@ test_that("snapshot preflight tests catch common issues", {
 })
 
 test_that("renv warns when snapshotting missing dependencies", {
-
+  skip_on_cran()
   renv_tests_scope("breakfast")
   renv::init()
 
