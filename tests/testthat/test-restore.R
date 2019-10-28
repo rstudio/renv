@@ -106,3 +106,20 @@ test_that("install.staged works as expected", {
   install("breakfast")
 
 })
+
+test_that("renv::restore(lockfile = '/path/to/lockfile') works", {
+
+  renv_tests_scope("bread")
+
+  renv::init()
+
+  unlink(paths$library(), recursive = TRUE)
+  renv::restore(lockfile = "renv.lock")
+  expect_true(renv_package_installed("bread"))
+
+  unlink(paths$library(), recursive = TRUE)
+  lockfile <- renv_lockfile_load(project = getwd())
+  renv::restore(lockfile = "renv.lock")
+  expect_true(renv_package_installed("bread"))
+
+})

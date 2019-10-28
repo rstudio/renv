@@ -54,14 +54,6 @@ restore <- function(project  = NULL,
   library  <- library %||% renv_libpaths_all()
   lockfile <- lockfile %||% renv_lockfile_load(project = project)
 
-  # override repositories if requested
-  repos <- repos %||%
-    renv_config("repos.override") %||%
-    lockfile$R$Repositories
-
-  if (length(repos))
-    renv_scope_options(repos = convert(repos, "character"))
-
   # activate the requested library
   ensure_directory(library)
   renv_scope_libpaths(library)
@@ -75,6 +67,14 @@ restore <- function(project  = NULL,
 
   # inject overrides (if any)
   lockfile <- renv_lockfile_override(lockfile)
+
+  # override repositories if requested
+  repos <- repos %||%
+    renv_config("repos.override") %||%
+    lockfile$R$Repositories
+
+  if (length(repos))
+    renv_scope_options(repos = convert(repos, "character"))
 
   # get records for R packages currently installed
   current <- snapshot(project = project,

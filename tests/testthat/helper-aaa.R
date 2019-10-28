@@ -1,4 +1,9 @@
 
+context <- function(desc) {
+  renv_tests_init()
+  testthat::context(desc)
+}
+
 test_that <- function(desc, code) {
 
   oldlibpaths <- .libPaths()
