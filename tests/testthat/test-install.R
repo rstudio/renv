@@ -141,3 +141,31 @@ test_that("Remotes fields in a project DESCRIPTION are respected", {
   expect_true(record$Source == "GitHub")
 
 })
+
+test_that("source packages in .zip files can be installed", {
+
+  renv_tests_scope()
+
+  dir <- tempfile("renv-ziptest-")
+  dir.create(dir)
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+
+  owd <- setwd(dir)
+  on.exit(setwd(owd), add = TRUE)
+
+  location <- download.packages("bread", destdir = tempdir())
+  path <- location[1, 2]
+  renv_archive_decompress(path, exdir = "bread")
+
+  zippath <- file.path(getwd(), "bread_1.0.0.zip")
+  setwd("bread")
+  status <- catchall(zip(zippath, files = ".", extras = "-q"))
+  setwd("..")
+
+  if (inherits(status, "condition"))
+    skip("could not zip archive")
+
+  install(zippath)
+  expect_true(renv_package_installed("bread"))
+
+})

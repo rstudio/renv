@@ -1,6 +1,9 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* It is now possible to install source packages contained within `.zip`
+  archives using `renv::install()`.
+
 * Fixed an issue where attempts to call `renv::restore()` with the path to the
   lockfile explicitly provided would fail. (#227)
 

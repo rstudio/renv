@@ -15,7 +15,7 @@ renv_python_conda_select <- function(name) {
     return(envs$python[[idx]])
 
   # no environment exists; create it
-  reticulate::conda_create(envname = name)
+  reticulate::conda_create(envname = name, packages = "python=3.6")
 
 }
 
