@@ -123,3 +123,16 @@ test_that("dependencies can infer the root directory", {
   expect_setequal(deps$Package, c("oatmeal", "toast"))
 
 })
+
+test_that("no warnings are produced when crawling dependencies", {
+
+  expect_warning(
+    regexp = NA,
+    renv::dependencies(
+      "resources",
+      root = file.path(getwd(), "resources"),
+      quiet = TRUE
+    )
+  )
+
+})

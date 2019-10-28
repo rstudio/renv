@@ -118,25 +118,23 @@ renv_dependencies_root_impl <- function(path) {
 
 renv_dependencies_callback <- function(path) {
 
-  name <- basename(path)
-  ext <- tolower(fileext(path))
-  case(
-
-    # special cases for special filenames
-    name == ".Rprofile"     ~ function() renv_dependencies_discover_r(path),
-    name == "DESCRIPTION"   ~ function() renv_dependencies_discover_description(path),
-    name == "_bookdown.yml" ~ function() renv_dependencies_discover_bookdown(path),
-    name == "_pkgdown.yml"  ~ function() renv_dependencies_discover_pkgdown(path),
-    name == "renv.lock"     ~ function() renv_dependencies_discover_renv_lock(path),
-    name == "rsconnect"     ~ function() renv_dependencies_discover_rsconnect(path),
-
-    # generic extension-based lookup
-    ext == ".rproj" ~ function() renv_dependencies_discover_rproj(path),
-    ext == ".r"     ~ function() renv_dependencies_discover_r(path),
-    ext == ".rmd"   ~ function() renv_dependencies_discover_multimode(path, "rmd"),
-    ext == ".rnw"   ~ function() renv_dependencies_discover_multimode(path, "rnw")
-
+  cbname <- list(
+    ".Rprofile"     = function(path) renv_dependencies_discover_r(path),
+    "DESCRIPTION"   = function(path) renv_dependencies_discover_description(path),
+    "_bookdown.yml" = function(path) renv_dependencies_discover_bookdown(path),
+    "_pkgdown.yml"  = function(path) renv_dependencies_discover_pkgdown(path),
+    "renv.lock"     = function(path) renv_dependencies_discover_renv_lock(path),
+    "rsconnect"     = function(path) renv_dependencies_discover_rsconnect(path)
   )
+
+  cbext <- list(
+    ".rproj" = function(path) renv_dependencies_discover_rproj(path),
+    ".r"     = function(path) renv_dependencies_discover_r(path),
+    ".rmd"   = function(path) renv_dependencies_discover_multimode(path, "rmd"),
+    ".rnw"   = function(path) renv_dependencies_discover_multimode(path, "rnw")
+  )
+
+  cbname[[basename(path)]] %||% cbext[[tolower(fileext(path))]]
 
 }
 
@@ -170,9 +168,9 @@ renv_dependencies_find_dir <- function(path, root) {
   children <- renv_dependencies_find_dir_children(path, root)
   paths <- lapply(children, renv_dependencies_find_impl, root = root)
 
-  callback <- renv_dependencies_callback(path)
-  if (is.function(callback))
-    paths <- c(path, paths)
+  rsconnect <- file.path(path, "rsconnect")
+  if (file.exists(rsconnect))
+    paths <- c(rsconnect, paths)
 
   paths
 
@@ -229,7 +227,12 @@ renv_dependencies_discover_impl <- function(path) {
     return(entry)
 
   callback <- renv_dependencies_callback(path)
-  result <- tryCatch(callback(), error = warning)
+  if (is.null(callback)) {
+    fmt <- "internal error: no callback registered for file %s"
+    warningf(fmt, shQuote(aliased_path(callback), type = "cmd"))
+  }
+
+  result <- tryCatch(callback(path), error = warning)
   if (inherits(result, "condition"))
     return(NULL)
 

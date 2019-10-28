@@ -1,6 +1,9 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* `renv::dependencies()` no longer treats folders named with the extension
+  `.Rmd` as though they were regular files. (#228)
+
 * It is now possible to install source packages contained within `.zip`
   archives using `renv::install()`.
 
