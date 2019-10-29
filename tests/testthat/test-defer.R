@@ -5,7 +5,7 @@ test_that("defer evaluates in appropriate environment", {
 
   foo <- function() {
     writeLines("+ foo")
-    defer(writeLines("> foo"),              environment())
+    defer(writeLines("> foo"),               environment())
     defer(writeLines("> foo.parent"),        parent.frame(1))
     defer(writeLines("> foo.parent.parent"), parent.frame(2))
     writeLines("- foo")
