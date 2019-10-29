@@ -7,6 +7,7 @@ context <- function(desc) {
 test_that <- function(desc, code) {
 
   oldlibpaths <- .libPaths()
+  oldrepos <- getOption("repos")
 
   call <- sys.call()
   call[[1]] <- quote(testthat::test_that)
@@ -15,6 +16,7 @@ test_that <- function(desc, code) {
   newlibpaths <- .libPaths()
 
   reporter <- testthat::get_reporter()
+
   ok <-
     identical(reporter$.context, "Sandbox") ||
     identical(oldlibpaths, newlibpaths)
@@ -22,6 +24,13 @@ test_that <- function(desc, code) {
   if (!ok) {
     writeLines(c("", oldlibpaths, "", newlibpaths))
     stopf("test %s has corrupted libpaths", shQuote(desc))
+  }
+
+  newrepos <- getOption("repos")
+  ok <- identical(oldrepos, newrepos)
+  if (!ok) {
+    writeLines(c("", oldrepos, "", newrepos))
+    stopf("test %s has corrupted repos", shQuote(desc))
   }
 
 }
