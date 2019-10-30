@@ -65,6 +65,9 @@ aliased_path <- function(path) {
   if (is.na(home))
     return(path)
 
+  home <- gsub("\\", "/", home, fixed = TRUE)
+  path <- gsub("\\", "/", path, fixed = TRUE)
+
   match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
   path[match == 1] <- file.path("~", substring(path[match == 1], nchar(home) + 2L))
 

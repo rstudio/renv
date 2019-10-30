@@ -1,6 +1,8 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* renv will now search for Rtools in more locations. (#225)
+
 * `renv::load()` now ensures that the version of `renv` associated with
   the loaded project is loaded when possible. In addition, experimental
   support for switching between projects with `renv::load()` has been
