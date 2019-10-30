@@ -1,10 +1,14 @@
 
 renv_python_conda_select <- function(name) {
 
+  # get python package
+  version <- Sys.getenv("RENV_CONDA_PYTHON_VERSION", unset = "3.6")
+  packages <- paste("python", version, sep = "=")
+
   # handle paths (as opposed to environment names)
   if (grepl("[/\\\\]", name)) {
     if (!file.exists(name))
-      return(reticulate::conda_create(envname = name))
+      return(reticulate::conda_create(envname = name, packages = packages))
     return(renv_python_exe(name))
   }
 
@@ -15,7 +19,7 @@ renv_python_conda_select <- function(name) {
     return(envs$python[[idx]])
 
   # no environment exists; create it
-  reticulate::conda_create(envname = name, packages = "python=3.6")
+  reticulate::conda_create(envname = name, packages = packages)
 
 }
 
