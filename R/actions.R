@@ -74,10 +74,10 @@ renv_actions_restore <- function(project, library, lockfile, clean) {
   # that is, we want to know what the library looks like without any
   # filtering of what records would be reported from the library
   lock <- renv_lockfile_load(project = project)
-  snap  <- snapshot(project = project,
-                    library = library,
-                    lockfile = NULL,
-                    type = "simple")
+  snap <- snapshot(project = project,
+                   library = library,
+                   lockfile = NULL,
+                   type = "simple")
 
   diff <- renv_lockfile_diff_packages(snap, lock)
   actions <- renv_actions_merge(snap, lock, diff)

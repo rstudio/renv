@@ -1,6 +1,11 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* `renv::load()` now ensures that the version of `renv` associated with
+  the loaded project is loaded when possible. In addition, experimental
+  support for switching between projects with `renv::load()` has been
+  implemented. (#229)
+
 * `renv::dependencies()` no longer treats folders named with the extension
   `.Rmd` as though they were regular files. (#228)
 
