@@ -103,11 +103,24 @@ renv_hydrate_dependencies <- function(project, packages = NULL) {
   vprintf("* Discovering package dependencies ... ")
   ignored <- settings$ignored.packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
-  libpaths <- c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
+  libpaths <- renv_hydrate_libpaths()
   all <- renv_package_dependencies(packages, project = project, libpaths = libpaths)
   vwritef("Done!")
 
   all
+
+}
+
+# NOTE: we don't want to look in user / site libraries when testing
+# on CRAN, as we may accidentally find versions of packages available
+# on CRAN but not that we want to use during tests
+renv_hydrate_libpaths <- function() {
+
+  if (renv_testing()) {
+    renv_libpaths_all()
+  } else {
+    c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
+  }
 
 }
 

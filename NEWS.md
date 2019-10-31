@@ -1,6 +1,8 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* Fixes for checks run on CRAN.
+
 * renv will now search for Rtools in more locations. (#225)
 
 * `renv::load()` now ensures that the version of `renv` associated with
