@@ -25,3 +25,11 @@ test_that("we can query actions for a sample project", {
   expect_true(all(acts$Action == "remove"))
 
 })
+
+test_that("we can query actions when no lockfile has yet been generated", {
+  renv_tests_scope("bread")
+  init(bare = TRUE)
+  install("bread")
+  actions <- actions("snapshot")
+  expect_true(nrow(actions) == 1L)
+})

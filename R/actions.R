@@ -21,46 +21,54 @@ actions <- function(action = c("snapshot", "restore"),
 renv_actions_merge <- function(snap, lock, diff) {
 
   fields <- c("Package", "Version", "Source")
-  default <- data.frame(
+  defaults <- data.frame(
     "Package"          = character(),
     "Library Version"  = character(),
     "Library Source"   = character(),
     "Lockfile Version" = character(),
     "Lockfile Source"  = character(),
-    "Action"           = character(),
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
 
   lhs <- bapply(unname(renv_records(snap)), `[`, fields)
-  if (empty(lhs))
-    return(default)
+  if (length(lhs))
+    names(lhs) <- c("Package", paste("Library",  names(lhs)[-1L]))
 
   rhs <- bapply(unname(renv_records(lock)), `[`, fields)
-  if (empty(rhs))
-    return(default)
+  if (length(rhs))
+    names(rhs) <- c("Package", paste("Lockfile", names(rhs)[-1L]))
 
-  names(lhs) <- c("Package", paste("Library",  names(lhs)[-1L]))
-  names(rhs) <- c("Package", paste("Lockfile", names(rhs)[-1L]))
-
-  merged <- merge(lhs, rhs, by = "Package", all = TRUE)
+  merged <- if (length(lhs) && length(rhs))
+    merge(lhs, rhs, by = "Package", all = TRUE)
+  else if (length(lhs))
+    lhs
+  else if (length(rhs))
+    rhs
+  else
+    defaults
 
   actions <- data.frame(Package = names(diff),
                         Action = as.character(diff),
                         check.names = FALSE,
                         stringsAsFactors = FALSE)
 
-  merge(merged, actions, by = "Package")
+  all <- merge(merged, actions, by = "Package")
+
+  missing <- setdiff(names(defaults), names(all))
+  all[missing] <- NA_character_
+
+  all
 
 }
 
 renv_actions_snapshot <- function(project, library, lockfile, type) {
 
   lock <- renv_lockfile_load(project = project)
-  snap  <- snapshot(project = project,
-                    library = library,
-                    lockfile = NULL,
-                    type = type)
+  snap <- snapshot(project = project,
+                   library = library,
+                   lockfile = NULL,
+                   type = type)
 
   diff <- renv_lockfile_diff_packages(lock, snap)
   renv_actions_merge(snap, lock, diff)
