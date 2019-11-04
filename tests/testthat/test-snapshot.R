@@ -151,3 +151,20 @@ test_that("snapshot failures due to bad library / packages are reported", {
 
 
 })
+
+test_that("snapshot ignores own package in package development scenarios", {
+
+  renv_tests_scope()
+  ensure_directory("bread")
+  setwd("bread")
+
+  writeLines(c("Type: Package", "Package: bread"), con = "DESCRIPTION")
+
+  ensure_directory("R")
+  writeLines("function() { library(bread) }", con = "R/deps.R")
+
+  lockfile <- snapshot(lockfile = NULL)
+  records <- renv_records(lockfile)
+  expect_true(is.null(records[["bread"]]))
+
+})

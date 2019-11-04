@@ -101,7 +101,7 @@ renv_hydrate_dependencies <- function(project, packages = NULL) {
   }
 
   vprintf("* Discovering package dependencies ... ")
-  ignored <- settings$ignored.packages(project = project)
+  ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- renv_hydrate_libpaths()
   all <- renv_package_dependencies(packages, project = project, libpaths = libpaths)

@@ -57,7 +57,7 @@ install <- function(packages = NULL,
   if (!is.null(repos))
     renv_scope_options(repos = repos)
 
-  records <- renv_snapshot_r_packages(library = library)
+  records <- renv_snapshot_r_packages(library = library, project = project)
   remotes <- lapply(packages, function(package) {
     case(
       is.list(package)      ~ package,

@@ -97,7 +97,7 @@ restore <- function(project  = NULL,
   diff <- diff[!exclude]
 
   # don't take any actions with ignored packages
-  ignored <- settings$ignored.packages(project = project)
+  ignored <- renv_project_ignored_packages(project = project)
   diff <- diff[renv_vector_diff(names(diff), ignored)]
 
   if (!length(diff)) {

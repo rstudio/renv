@@ -172,7 +172,7 @@ renv_package_dependencies <- function(packages,
                                       fields = NULL)
 {
   visited <- new.env(parent = emptyenv())
-  ignored <- settings$ignored.packages(project = project)
+  ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- libpaths %||% renv_libpaths_all()
   for (package in packages)

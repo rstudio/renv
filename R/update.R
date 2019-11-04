@@ -126,7 +126,7 @@ update <- function(packages = NULL,
 
   # get package records
   library <- library %||% renv_libpaths_all()
-  records <- renv_snapshot_r_packages(library = library)
+  records <- renv_snapshot_r_packages(library = library, project = project)
   packages <- packages %||% names(records)
 
   # check if the user has requested update for packages not installed

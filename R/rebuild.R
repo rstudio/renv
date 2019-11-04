@@ -46,7 +46,7 @@ rebuild <- function(packages  = NULL,
   library <- library %||% renv_libpaths_all()
 
   # get collection of packages currently installed
-  records <- renv_snapshot_r_packages(library = library)
+  records <- renv_snapshot_r_packages(library = library, project = project)
   if (empty(records)) {
     vwritef("* There are no packages currently installed -- nothing to rebuild.")
     return(invisible(records))

@@ -84,7 +84,7 @@ renv_project_records_description <- function(project, descpath) {
   # next, find packages mentioned in the DESCRIPTION file
   fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
   deps <- renv_dependencies_discover_description(descpath, fields)
-  ignored <- settings$ignored.packages(project = project)
+  ignored <- renv_project_ignored_packages(project = project)
   packages <- setdiff(deps$Package, c("R", ignored))
 
   # if any Roxygen fields are included,
@@ -116,5 +116,25 @@ renv_project_records_description_remotes <- function(project, descpath) {
   resolved <- lapply(splat, renv_remotes_resolve)
   names(resolved) <- extract_chr(resolved, "Package")
   resolved
+
+}
+
+renv_project_ignored_packages <- function(project) {
+
+  # if we don't have a project, nothing to do
+  if (is.null(project))
+    return(character())
+
+  # read base set of ignored packages
+  ignored <- settings$ignored.packages(project = project)
+
+  # for R package projects, ensure the project itself is ignored
+  if (renv_project_type(project) == "package") {
+    desc <- renv_description_read(project)
+    ignored <- c(ignored, desc[["Package"]])
+  }
+
+  # return collected set of ignored packages
+  ignored
 
 }
