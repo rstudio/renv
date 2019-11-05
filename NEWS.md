@@ -1,6 +1,12 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* Fixed an issue where `renv:::actions()` would fail to report any actions if
+  the project lockfile was empty. (#232)
+
+* When using `renv` for R package development, `renv` will no longer attempt to
+  write the package being developed to the lockfile. (#231)
+
 * Fixes for checks run on CRAN.
 
 * renv will now search for Rtools in more locations. (#225)
