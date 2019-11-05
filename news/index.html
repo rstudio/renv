@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.2.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.2.16</span>
       </span>
     </div>
 
@@ -150,6 +150,7 @@
 <a href="#renv-0-8-3-unreleased" class="anchor"></a>renv 0.8.3 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/install.html">renv::install()</a></code> now respects explicit version requests when discovered in a project’s DESCRIPTION file. (#233)</p></li>
 <li><p>Fixed an issue where <code>renv:::actions()</code> would fail to report any actions if the project lockfile was empty. (#232)</p></li>
 <li><p>When using <code>renv</code> for R package development, <code>renv</code> will no longer attempt to write the package being developed to the lockfile. (#231)</p></li>
 <li><p>Fixes for checks run on CRAN.</p></li>
