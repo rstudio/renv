@@ -10,7 +10,7 @@ test_that("we can parse a variety of remotes", {
   # cran latest
   record <- renv_remotes_resolve("breakfast")
   expect_equal(record$Package, "breakfast")
-  expect_equal(record$Version, "1.0.0")
+  expect_equal(record$Version, NULL)
 
   # cran archive
   record <- renv_remotes_resolve("breakfast@0.1.0")

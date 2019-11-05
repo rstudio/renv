@@ -173,10 +173,8 @@ renv_remotes_resolve_repository <- function(entry) {
   if (package %in% rownames(renv_installed_packages_base()))
     return(renv_remotes_resolve_base(package))
 
+  version <- entry$version
   repository <- entry$repository
-  version <- entry$version %||% "latest"
-  if (identical(version, "latest"))
-    return(renv_available_packages_latest(package))
 
   list(
     Package    = package,
@@ -192,7 +190,7 @@ renv_remotes_resolve_base <- function(package) {
   list(
     Package = package,
     Version = renv_package_version(package),
-    Source  = "Base"
+    Source  = "R"
   )
 
 }

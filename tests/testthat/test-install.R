@@ -1,5 +1,22 @@
 context("Install")
 
+test_that("requested version in DESCRIPTION file is honored", {
+
+  renv_tests_scope()
+
+  desc <- c(
+    "Type: Package",
+    "Package: test",
+    "Imports: bread (== 0.1.0), toast"
+  )
+  writeLines(desc, con = "DESCRIPTION")
+
+  install()
+
+  expect_true(renv_package_version("bread") == "0.1.0")
+
+})
+
 test_that("installation failure is well-reported", {
 
   owd <- setwd(tempdir())

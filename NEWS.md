@@ -1,6 +1,9 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* `renv::install()` now respects explicit version requests when discovered
+  in a project's DESCRIPTION file. (#233)
+
 * Fixed an issue where `renv:::actions()` would fail to report any actions if
   the project lockfile was empty. (#232)
 
