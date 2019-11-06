@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.2.17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.2.19</span>
       </span>
     </div>
 
@@ -150,6 +150,7 @@
 <a href="#renv-0-8-3-unreleased" class="anchor"></a>renv 0.8.3 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/equip.html">renv::equip()</a></code> can now be used on macOS to install the R LLVM toolchain normally used when compiling packages from source. <code>renv</code> will also use this toolchain as appropriate when building packages from source.</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> now provides a custom Makevars when building packages on macOS with Apple Clang, to avoid issues due to the use of ‘-fopenmp’ during compilation.</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> now respects explicit version requests when discovered in a project’s DESCRIPTION file. (#233)</p></li>
 <li><p>Fixed an issue where <code>renv:::actions()</code> would fail to report any actions if the project lockfile was empty. (#232)</p></li>
