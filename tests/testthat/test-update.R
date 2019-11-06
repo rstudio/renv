@@ -21,7 +21,7 @@ test_that("update() finds packages requiring updates from CRAN", {
 
 test_that("update() can upgrade GitHub packages", {
   skip_on_cran()
-  skip_if(getRversion() < "3.5.0")
+  skip_if(getRversion() < "3.5.3")
 
   renv_tests_scope()
   renv::init()

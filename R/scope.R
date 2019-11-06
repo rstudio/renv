@@ -150,7 +150,8 @@ renv_scope_rtools <- function(.envir = NULL) {
 # nocov end
 
 # nocov start
-renv_scope_makevars <- function(.envir = NULL) {
+renv_scope_install <- function(.envir = NULL) {
+  .envir <- .envir %||% parent.frame()
 
   # currently only required on macOS
   if (!renv_platform_macos())
@@ -158,42 +159,74 @@ renv_scope_makevars <- function(.envir = NULL) {
 
   # get the current compiler
   args <- c("CMD", "config", "CC")
-  compiler <- system2(R(), args, stdout = TRUE, stderr = TRUE)
-  resolved <- Sys.which(compiler)
+  cc <- system2(R(), args, stdout = TRUE, stderr = TRUE)
 
-  # if we're not using the system compiler, assume the user has
-  # installed their own LLVM toolchain which would likely provide
-  # OpenMP support
-  if (resolved != "/usr/bin/clang")
-    return(FALSE)
+  # check to see if we're using the system toolchain
+  # (need to be careful since users might put e.g. ccache or other flags
+  # into the CC variable)
 
-  # check for usages of '-fopenmp' in etc/Makeconf
-  makeconf <- readLines(file.path(R.home("etc"), "Makeconf"), warn = FALSE)
-  mplines <- grep(" -fopenmp", makeconf, fixed = TRUE, value = TRUE)
-  if (empty(mplines))
-    return(FALSE)
+  # helper for creating regex matching compiler bits
+  matches <- function(pattern) {
+    regex <- paste("(?:[[:space:]]|^)", pattern, "(?:[[:space:]]|$)", sep = "")
+    grepl(regex, cc)
+  }
 
-  # read a user makevars (if any)
-  contents <- character()
-  path <- Sys.getenv(
-    "R_MAKEVARS_SITE",
-    unset = file.path(R.home("etc"), "Makevars.site")
+  sysclang <- case(
+    matches("/usr/bin/clang") ~ TRUE,
+    matches("clang")          ~ Sys.which("clang") == "/usr/bin/clang",
+    FALSE
   )
 
-  if (file.exists(path))
-    contents <- readLines(path, warn = FALSE)
+  # check for an appropriate LLVM toolchain -- if it exists, use it
+  spec <- renv_equip_macos_spec()
+  if (sysclang && !is.null(spec) && file.exists(spec$dst)) {
+    path <- paste(file.path(spec$dst, "bin"), Sys.getenv("PATH"), sep = ":")
+    renv_scope_envvars(PATH = path, .envir = .envir)
+  }
 
-  # override usages of '-fopenmp'
-  replaced <- gsub(" -fopenmp", "", mplines, fixed = TRUE)
-  amended <- unique(c(contents, replaced))
+  # generate a custom makevars that should better handle compilation
+  # with the system toolchain (or other toolchains)
+  makevars <- stack()
 
-  # set up our own makevars
-  .envir <- .envir %||% parent.frame()
-  makevars <- tempfile("Makevars-")
-  writeLines(amended, con = makevars)
+  # if we don't have an LLVM toolchain available, then try to generate
+  # a Makeconf that shields compilation from usages of '-fopenmp'
+  if (sysclang) {
+
+    makeconf <- readLines(file.path(R.home("etc"), "Makeconf"), warn = FALSE)
+    mplines <- grep(" -fopenmp", makeconf, fixed = TRUE, value = TRUE)
+
+    # read a user makevars (if any)
+    contents <- character()
+    mvsite <- Sys.getenv(
+      "R_MAKEVARS_SITE",
+      unset = file.path(R.home("etc"), "Makevars.site")
+    )
+
+    if (file.exists(mvsite))
+      contents <- readLines(mvsite, warn = FALSE)
+
+    # override usages of '-fopenmp'
+    replaced <- gsub(" -fopenmp", "", mplines, fixed = TRUE)
+    amended <- unique(c(contents, replaced))
+    makevars$push(amended)
+
+  }
+
+  # if we have command line tools, add them to CPPFLAGS
+  sdk <- "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+  if (file.exists(sdk)) {
+    line <- paste("CPPFLAGS += -isysroot", sdk)
+    makevars$push(line)
+  }
+
+  # write makevars to file
+  path <- tempfile("Makevars-")
+  contents <- unlist(makevars$data(), recursive = TRUE, use.names = FALSE)
+  writeLines(contents, con = path)
 
   # tell R to use it
-  renv_scope_envvars(R_MAKEVARS_SITE = makevars, .envir = .envir)
+  renv_scope_envvars(R_MAKEVARS_SITE = path, .envir = .envir)
+  TRUE
 
 }
 # nocov end

@@ -32,10 +32,6 @@ renv_equip_windows <- function() {
   invisible(renv_extsoft_install() && renv_extsoft_use())
 }
 
-renv_equip_macos <- function() {
-  stopf("renv::equip() not yet implemented for macOS")
-}
-
 renv_equip_linux <- function() {
   stopf("renv::equip() not yet implemented for Linux")
 }

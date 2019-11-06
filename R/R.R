@@ -129,7 +129,7 @@ r_cmd_install <- function(package, path, library, ...) {
   else
     renv_path_normalize(library, winslash = "/", mustWork = TRUE)
 
-  renv_scope_makevars()
+  renv_scope_install()
 
   args <- c(
     "--vanilla",

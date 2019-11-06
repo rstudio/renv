@@ -1,6 +1,10 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* `renv::equip()` can now be used on macOS to install the R LLVM toolchain
+  normally used when compiling packages from source. `renv` will also use
+  this toolchain as appropriate when building packages from source.
+
 * `renv::install()` now provides a custom Makevars when building packages on
   macOS with Apple Clang, to avoid issues due to the use of '-fopenmp' during
   compilation.
