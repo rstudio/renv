@@ -124,7 +124,7 @@ renv_scope_downloader <- function(.envir = NULL) {
 # nocov end
 
 # nocov start
-renv_scope_rtools <- function() {
+renv_scope_rtools <- function(.envir = NULL) {
 
   if (!renv_platform_windows())
     return(FALSE)
@@ -143,7 +143,57 @@ renv_scope_rtools <- function() {
   binpref <- paste(rtools, "mingw_$(WIN)/bin/", sep = "/")
 
   # scope envvars in parent
-  renv_scope_envvars(PATH = path, BINPREF = binpref, .envir = parent.frame())
+  .envir <- .envir %||% parent.frame()
+  renv_scope_envvars(PATH = path, BINPREF = binpref, .envir = .envir)
+
+}
+# nocov end
+
+# nocov start
+renv_scope_makevars <- function(.envir = NULL) {
+
+  # currently only required on macOS
+  if (!renv_platform_macos())
+    return(FALSE)
+
+  # get the current compiler
+  args <- c("CMD", "config", "CC")
+  compiler <- system2(R(), args, stdout = TRUE, stderr = TRUE)
+  resolved <- Sys.which(compiler)
+
+  # if we're not using the system compiler, assume the user has
+  # installed their own LLVM toolchain which would likely provide
+  # OpenMP support
+  if (resolved != "/usr/bin/clang")
+    return(FALSE)
+
+  # check for usages of '-fopenmp' in etc/Makeconf
+  makeconf <- readLines(file.path(R.home("etc"), "Makeconf"), warn = FALSE)
+  mplines <- grep(" -fopenmp", makeconf, fixed = TRUE, value = TRUE)
+  if (empty(mplines))
+    return(FALSE)
+
+  # read a user makevars (if any)
+  contents <- character()
+  path <- Sys.getenv(
+    "R_MAKEVARS_SITE",
+    unset = file.path(R.home("etc"), "Makevars.site")
+  )
+
+  if (file.exists(path))
+    contents <- readLines(path, warn = FALSE)
+
+  # override usages of '-fopenmp'
+  replaced <- gsub(" -fopenmp", "", mplines, fixed = TRUE)
+  amended <- unique(c(contents, replaced))
+
+  # set up our own makevars
+  .envir <- .envir %||% parent.frame()
+  makevars <- tempfile("Makevars-")
+  writeLines(amended, con = makevars)
+
+  # tell R to use it
+  renv_scope_envvars(R_MAKEVARS_SITE = makevars, .envir = .envir)
 
 }
 # nocov end

@@ -57,7 +57,7 @@ r_exec_error_diagnostics_fortran <- function() {
     pattern <- "library not found for -l(quadmath|gfortran|fortran)"
     idx <- grep(pattern, output)
     if (length(idx))
-      return(output[idx])
+      return(unique(output[idx]))
   }
 
   suggestion <- "
@@ -73,10 +73,33 @@ Please see https://stackoverflow.com/q/35999874 for more information.
 
 }
 
+r_exec_error_diagnostics_openmp <- function() {
+
+  checker <- function(output) {
+    pattern <- "unsupported option '-fopenmp'"
+    idx <- grep(pattern, output, fixed = TRUE)
+    if (length(idx))
+      return(unique(output[idx]))
+  }
+
+  suggestion <- "
+R is currently configured to use a compiler that does not have OpenMP support.
+You may need to disable OpenMP, or update your compiler toolchain.
+Please see https://support.bioconductor.org/p/119536/ for a related discussion.
+"
+
+  list(
+    checker = checker,
+    suggestion = suggestion
+  )
+
+}
+
 r_exec_error_diagnostics <- function(package, output) {
 
   diagnostics <- list(
-    r_exec_error_diagnostics_fortran()
+    r_exec_error_diagnostics_fortran(),
+    r_exec_error_diagnostics_openmp()
   )
 
   suggestions <- uapply(diagnostics, function(diagnostic) {
@@ -105,6 +128,8 @@ r_cmd_install <- function(package, path, library, ...) {
     utils::shortPathName(library)
   else
     renv_path_normalize(library, winslash = "/", mustWork = TRUE)
+
+  renv_scope_makevars()
 
   args <- c(
     "--vanilla",

@@ -1,6 +1,10 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* `renv::install()` now provides a custom Makevars when building packages on
+  macOS with Apple Clang, to avoid issues due to the use of '-fopenmp' during
+  compilation.
+
 * `renv::install()` now respects explicit version requests when discovered
   in a project's DESCRIPTION file. (#233)
 

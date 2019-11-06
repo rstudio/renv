@@ -342,7 +342,6 @@ renv_install_package_local <- function(record, quiet = TRUE) {
   before(package)
   on.exit(after(package), add = TRUE)
 
-
   destination <- file.path(library, package)
   callback <- renv_file_backup(destination)
   on.exit(callback(), add = TRUE)
