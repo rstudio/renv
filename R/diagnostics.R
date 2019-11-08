@@ -104,9 +104,9 @@ renv_diagnostics_dependencies <- function(project) {
 
   vwritef(header("Dependencies"))
 
-  deps <- dependencies(project, quiet = TRUE)
+  deps <- dependencies(project, quiet = TRUE, dev = TRUE)
   if (empty(deps))
-    return(vwritef("[no R packages are being used in this project]"))
+    return(vwritef("[no usages of R packages discovered in this project]"))
 
   renv_scope_options(width = 200)
   print(deps)
@@ -121,7 +121,7 @@ renv_diagnostics_profile <- function(project) {
   if (!file.exists(userprofile))
     return(vwritef("[no user profile detected]"))
 
-  deps <- dependencies(userprofile, quiet = TRUE)
+  deps <- dependencies(userprofile, quiet = TRUE, dev = TRUE)
   if (empty(deps))
     return(vwritef("[no R packages referenced in user profile"))
 

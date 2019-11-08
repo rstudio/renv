@@ -4,7 +4,7 @@
 \alias{dependencies}
 \title{Find R Package Dependencies in a Project}
 \usage{
-dependencies(path = getwd(), root = NULL, quiet = FALSE)
+dependencies(path = getwd(), root = NULL, quiet = FALSE, dev = FALSE)
 }
 \arguments{
 \item{path}{The path to a (possibly multi-mode) \R file, or a directory
@@ -17,6 +17,11 @@ properly handled.}
 
 \item{quiet}{Boolean; report problems discovered (if any) during dependency
 discovery?}
+
+\item{dev}{Boolean; include 'development' dependencies as well? That is,
+packages which may be required during development but are unlikely to be
+required during runtime for your project. By default, only runtime
+dependencies are returned.}
 }
 \value{
 An \R \code{data.frame} of discovered dependencies, mapping inferred
@@ -61,6 +66,16 @@ data/
 # ignore only data folders from the root of the project
 /data/
 }
+}
+
+\section{Development Dependencies}{
+
+
+\code{renv} attempts to distinguish between 'development' dependencies and
+'runtime' dependencies. For example, you might rely on e.g.
+\href{https://cran.r-project.org/package=devtools}{devtools} and
+\href{https://cran.r-project.org/package=roxygen2}{roxygen2} during development
+for a project, but may not actually require these packages at runtime.
 }
 
 \examples{

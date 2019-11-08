@@ -4,7 +4,7 @@ context("Dependencies")
 test_that(".Rproj files requesting devtools is handled", {
   renv_tests_scope()
   writeLines("PackageUseDevtools: Yes", "project.Rproj")
-  deps <- dependencies()
+  deps <- dependencies(dev = TRUE)
   packages <- deps$Package
   expect_setequal(packages, c("devtools", "roxygen2"))
 })
@@ -135,4 +135,13 @@ test_that("no warnings are produced when crawling dependencies", {
     )
   )
 
+})
+
+test_that("packages referenced in Suggests are considered dev deps", {
+  renv_tests_scope()
+  writeLines("Suggests: bread", con = "DESCRIPTION")
+  deps <- dependencies(dev = TRUE)
+  expect_true(nrow(deps) == 1)
+  expect_true(deps$Package == "bread")
+  expect_true(deps$Development)
 })

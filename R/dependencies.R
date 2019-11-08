@@ -51,8 +51,21 @@
 #' @param quiet Boolean; report problems discovered (if any) during dependency
 #'   discovery?
 #'
+#' @param dev Boolean; include 'development' dependencies as well? That is,
+#'   packages which may be required during development but are unlikely to be
+#'   required during runtime for your project. By default, only runtime
+#'   dependencies are returned.
+#'
 #' @return An \R `data.frame` of discovered dependencies, mapping inferred
 #'   package names to the files in which they were discovered.
+#'
+#' @section Development Dependencies:
+#'
+#' `renv` attempts to distinguish between 'development' dependencies and
+#' 'runtime' dependencies. For example, you might rely on e.g.
+#' [devtools](https://cran.r-project.org/package=devtools) and
+#' [roxygen2](https://cran.r-project.org/package=roxygen2) during development
+#' for a project, but may not actually require these packages at runtime.
 #'
 #' @export
 #'
@@ -65,7 +78,8 @@
 #' }
 dependencies <- function(path = getwd(),
                          root = NULL,
-                         quiet = FALSE)
+                         quiet = FALSE,
+                         dev = FALSE)
 {
   renv_scope_error_handler()
 
@@ -80,6 +94,12 @@ dependencies <- function(path = getwd(),
 
   if (!quiet)
     renv_dependencies_report()
+
+  if (empty(deps) || nrow(deps) == 0L)
+    return(deps)
+
+  if (identical(dev, FALSE))
+    deps <- deps[!deps$Dev, ]
 
   deps
 
@@ -297,11 +317,13 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
     if (empty(matches))
       return(list())
 
+    dev <- field == "Suggests"
     renv_dependencies_list(
       path,
       extract_chr(matches, 2L),
       extract_chr(matches, 3L),
-      extract_chr(matches, 4L)
+      extract_chr(matches, 4L),
+      dev
     )
 
   })
@@ -520,7 +542,7 @@ renv_dependencies_discover_rproj <- function(path) {
     deps$push("roxygen2")
   }
 
-  renv_dependencies_list(path, deps$data())
+  renv_dependencies_list(path, deps$data(), dev = TRUE)
 
 }
 
@@ -719,8 +741,12 @@ renv_dependencies_discover_r_pacman <- function(node, envir) {
 
 }
 
-renv_dependencies_list <- function(source, packages, require = "", version = "") {
-
+renv_dependencies_list <- function(source,
+                                   packages,
+                                   require = "",
+                                   version = "",
+                                   dev = FALSE)
+{
   if (empty(packages))
     return(list())
 
@@ -731,6 +757,7 @@ renv_dependencies_list <- function(source, packages, require = "", version = "")
     Package = as.character(packages),
     Require = require,
     Version = version,
+    Dev     = dev,
     stringsAsFactors = FALSE
   )
 

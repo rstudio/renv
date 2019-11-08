@@ -1,6 +1,13 @@
 
 # renv 0.8.3 (UNRELEASED)
 
+* `renv::dependencies()` gains a new argument `dev`, indicating whether
+  development dependencies should also be included in the set of discovered
+  package dependencies. By default, only runtime dependencies will be reported.
+
+* `renv` has gained the function `renv::diagnostics()`, which can occasionally
+  be useful in understanding and diagnosing `renv` (mis)behaviors.
+
 * `renv::equip()` can now be used on macOS to install the R LLVM toolchain
   normally used when compiling packages from source. `renv` will also use
   this toolchain as appropriate when building packages from source.

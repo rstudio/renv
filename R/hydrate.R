@@ -89,9 +89,9 @@ renv_hydrate_dependencies <- function(project, packages = NULL) {
 
   if (is.null(packages)) {
 
-    projdeps <- dependencies(project, quiet = TRUE)
+    projdeps <- dependencies(project, quiet = TRUE, dev = TRUE)
     if (!renv_testing() && file.exists("~/.Rprofile")) {
-      profdeps <- dependencies("~/.Rprofile", quiet = TRUE)
+      profdeps <- dependencies("~/.Rprofile", quiet = TRUE, dev = TRUE)
       if (length(projdeps))
         projdeps <- bind_list(list(projdeps, profdeps))
     }
