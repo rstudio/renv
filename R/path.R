@@ -43,3 +43,7 @@ renv_path_component <- function(path, index = 1) {
   splat <- strsplit(path, "[/\\]+")
   map_chr(splat, function(parts) parts[length(parts) - index + 1])
 }
+
+renv_path_pretty <- function(path) {
+  shQuote(aliased_path(path), type = "cmd")
+}

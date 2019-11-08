@@ -41,9 +41,6 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
   if (empty(patterns))
     return(patterns)
 
-  # clean up empty quotes
-  patterns <- gsub("\\Q\\E", "", patterns, fixed = TRUE)
-
   # join into single pattern for matching
   sprintf("(?:%s)", paste(patterns, collapse = "|"))
 
@@ -51,7 +48,7 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
 
 # reads a .gitignore / .renvignore file, and translates the associated
 # entries into PCREs which can be combined and used during directory traversal
-renv_renvignore_parse <- function(contents, prefix) {
+renv_renvignore_parse <- function(contents, prefix = "") {
 
   # read the ignore entries
   entries <- grep("^\\s*(?:#|\\s*$)", contents, value = TRUE, invert = TRUE)
@@ -89,7 +86,10 @@ renv_renvignore_parse <- function(contents, prefix) {
   pattern <- sprintf("(?:%s)", paste(entries, collapse = "|"))
 
   # prepend prefix
-  sprintf("^\\Q%s/\\E%s", prefix, pattern)
+  pattern <- sprintf("^\\Q%s/\\E%s", prefix, pattern)
+
+  # remove \\Q\\E
+  gsub("\\Q\\E", "", pattern, fixed = TRUE)
 
 }
 

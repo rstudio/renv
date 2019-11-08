@@ -59,6 +59,7 @@ reference:
 - title: Miscellaneous
   contents:
   - consent
+  - diagnostics
 
 vignettes:
   menu:
