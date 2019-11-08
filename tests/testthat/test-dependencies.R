@@ -143,5 +143,5 @@ test_that("packages referenced in Suggests are considered dev deps", {
   deps <- dependencies(dev = TRUE)
   expect_true(nrow(deps) == 1)
   expect_true(deps$Package == "bread")
-  expect_true(deps$Development)
+  expect_true(deps$Dev)
 })
