@@ -171,7 +171,7 @@ renv_diagnostics_envvars <- function(project) {
 renv_diagnostics_path <- function(project) {
   vwritef(header("PATH"))
   path <- strsplit(Sys.getenv("PATH"), .Platform$path.sep, fixed = TRUE)[[1]]
-  vwritef(paste("-", PATH))
+  vwritef(paste("-", path))
 }
 
 renv_diagnostics_cache <- function(project) {
