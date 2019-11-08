@@ -150,7 +150,7 @@ renv_diagnostics_envvars <- function(project) {
   useful <- c(
     "R_LIBS_USER", "R_LIBS_SITE", "R_LIBS",
     "HOME", "LANG",
-    grep("^RENV_", names(envvars))
+    grep("^RENV_", names(envvars), value = TRUE)
   )
 
   matches <- envvars[useful]
