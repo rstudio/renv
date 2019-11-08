@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Upgrade renv — upgrade • renv</title>
+<title>Print a Diagnostics Report — diagnostics • renv</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,9 @@
 
 
 
-<meta property="og:title" content="Upgrade renv — upgrade" />
-<meta property="og:description" content="Upgrade the version of renv associated with a project." />
+<meta property="og:title" content="Print a Diagnostics Report — diagnostics" />
+<meta property="og:description" content="Print a diagnostics report, summarizing the state of a project using renv.
+This report can occasionally be useful when diagnosing issues with renv." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -143,16 +144,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Upgrade renv</h1>
+    <h1>Print a Diagnostics Report</h1>
     
-    <div class="hidden name"><code>upgrade.Rd</code></div>
+    <div class="hidden name"><code>diagnostics.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Upgrade the version of <code>renv</code> associated with a project.</p>
+    <p>Print a diagnostics report, summarizing the state of a project using <code>renv</code>.
+This report can occasionally be useful when diagnosing issues with <code>renv</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>upgrade</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>reload</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
+    <pre class="usage"><span class='fu'>diagnostics</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,57 +165,14 @@
 be used. If no project is currently active, then the current working
 directory is used instead.</p></td>
     </tr>
-    <tr>
-      <th>version</th>
-      <td><p>The version of <code>renv</code> to be installed. By default, the latest
-version of <code>renv</code> as available on the active R package repositories is
-used.</p></td>
-    </tr>
-    <tr>
-      <th>reload</th>
-      <td><p>Boolean; reload <code>renv</code> after install? When <code>NULL</code> (the
-default), <code>renv</code> will be re-loaded only if updating <code>renv</code> for the
-active project. Note that this may fail if you've loaded packages
-which also depend on <code>renv</code>.</p></td>
-    </tr>
-    <tr>
-      <th>confirm</th>
-      <td><p>Boolean; confirm upgrade before proceeding?</p></td>
-    </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A boolean value, indicating whether the requested version of
-<code>renv</code> was successfully installed. Note that this function is normally
-called for its side effects.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>By default, this function will attempt to install the latest version of
-<code>renv</code> as available on the active R package repositories. If you'd instead
-like to try out a development version of <code>renv</code>, you can explicitly request a
-different version of <code>renv</code> and that version of the package will be
-downloaded and installed from GitHub. Use <code>version = "master"</code> to install the
-latest development version of <code>renv</code>, as from the <code>renv</code> project's <a href='https://github.com/rstudio/renv'>GitHub page</a>.</p>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-
-<span class='co'># upgrade to the latest version of renv</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/upgrade.html'>upgrade</a></span>()
-
-<span class='co'># upgrade to the latest version of renv on GitHub (development version)</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/upgrade.html'>upgrade</a></span>(<span class='kw'>version</span> <span class='kw'>=</span> <span class='st'>"master"</span>)
-
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
-      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
