@@ -562,7 +562,8 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
     renv_dependencies_discover_r_library_require,
     renv_dependencies_discover_r_require_namespace,
     renv_dependencies_discover_r_colon,
-    renv_dependencies_discover_r_pacman
+    renv_dependencies_discover_r_pacman,
+    renv_dependencies_discover_r_module_import
   )
 
   discoveries <- new.env(parent = emptyenv())
@@ -739,6 +740,30 @@ renv_dependencies_discover_r_pacman <- function(node, envir) {
 
   TRUE
 
+}
+
+renv_dependencies_discover_r_module_import <- function(node, envir) {
+
+  node <- renv_call_expect(node, "modules", c("import"))
+  if (is.null(node))
+    return(FALSE)
+
+  # attempt to match the call
+  prototype <- function(from, ..., attach = TRUE, where = parent.frame()) {}
+  matched <- catch(match.call(prototype, node, expand.dots = FALSE))
+  if (inherits(matched, "error"))
+    return(FALSE)
+
+  # extract character vector or symbol from `from`
+  package <- matched[["from"]]
+  if (empty(package))
+    return(FALSE)
+
+  # package could be symbols or character so call as.character 
+  # to be safe then mark packages as known
+  envir[[as.character(package)]] <- TRUE
+
+  TRUE
 }
 
 renv_dependencies_list <- function(source,
