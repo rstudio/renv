@@ -81,8 +81,10 @@ renv_load_r <- function(project, fields) {
 
   # load (check) version
   version <- fields$Version
-  if (is.null(version))
+  if (is.null(version)) {
+    warning("no R version recorded in this lockfile")
     return(NULL)
+  }
 
   # normalize versions as plain old vectors
   requested <- unclass(numeric_version(version))[[1]]
@@ -220,15 +222,16 @@ renv_load_profile <- function(project = NULL) {
 renv_load_profile_impl <- function(profile) {
 
   status <- catch(eval(parse(profile), envir = globalenv()))
-  if (inherits(status, "error")) {
-    fmt <- paste("Error sourcing '%s': %s")
-    text <- sprintf(fmt, aliased_path(profile), conditionMessage(status))
-    all <- c(text, "", status$traceback)
-    writeLines(all, con = stderr())
-    return(FALSE)
-  }
+  if (!inherits(status, "error"))
+    return(TRUE)
 
-  TRUE
+  fmt <- "error sourcing %s: %s"
+  warningf(fmt, renv_path_pretty(profile), conditionMessage(status))
+  if (!renv_testing())
+    writeLines(status$traceback, con = stderr())
+
+  FALSE
+
 }
 
 renv_load_libpaths <- function(project = NULL) {
@@ -246,16 +249,19 @@ renv_load_sandbox <- function(project) {
 
 renv_load_updates <- function(project) {
 
+  # nocov start
   if (!is.na(Sys.getenv("RSTUDIO", unset = NA))) {
     update <- function() renv_load_updates_impl(project = project)
     setHook("rstudio.sessionInit", update)
     return(TRUE)
   }
+  # nocov end
 
   renv_load_updates_impl(project = project)
 
 }
 
+# nocov start
 renv_load_updates_impl <- function(project) {
 
   if (!renv_config("updates.check", default = FALSE))
@@ -276,6 +282,7 @@ renv_load_updates_impl <- function(project) {
   TRUE
 
 }
+# nocov end
 
 renv_load_python <- function(project, fields) {
 

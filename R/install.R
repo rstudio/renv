@@ -464,12 +464,19 @@ renv_install_postamble <- function(packages) {
     sprintf(fmt, format(Package), format(Installed), format(Loaded))
   })
 
-  renv_pretty_print(
-    text,
-    "The following package(s) have been updated:",
-    "Consider restarting the R session and loading the newly-installed packages.",
-    wrap = FALSE
-  )
+  if (renv_testing())
+    warning("please restart your sesion")
+
+  # nocov start
+  if (renv_verbose()) {
+    renv_pretty_print(
+      text,
+      "The following package(s) have been updated:",
+      "Consider restarting the R session and loading the newly-installed packages.",
+      wrap = FALSE
+    )
+  }
+  # nocov end
 
   TRUE
 
@@ -481,6 +488,7 @@ renv_install_preflight_unknown_source <- function(records) {
   if (empty(unknown))
     return(TRUE)
 
+  # nocov start
   if (renv_verbose()) {
     renv_pretty_print_records(
       unknown,
@@ -488,6 +496,7 @@ renv_install_preflight_unknown_source <- function(records) {
       "renv will install the latest version(s) from your R package repositories instead."
     )
   }
+  # nocov end
 
   FALSE
 
@@ -500,6 +509,7 @@ renv_install_preflight_permissions <- function(library) {
   if (access == 0L)
     return(TRUE)
 
+  # nocov start
   if (renv_verbose()) {
     renv_pretty_print(
       library,
@@ -507,6 +517,7 @@ renv_install_preflight_permissions <- function(library) {
       "renv may be unable to restore packages."
     )
   }
+  # nocov end
 
   FALSE
 

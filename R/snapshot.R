@@ -128,10 +128,13 @@ snapshot <- function(project  = NULL,
     renv_snapshot_report_actions(actions, old, new)
 
   # request user confirmation
+
+  # nocov start
   if (confirm && !proceed()) {
     message("* Operation aborted.")
     return(invisible(new))
   }
+  # nocov end
 
   # write it out
   ensure_parent_directory(lockfile)
@@ -554,6 +557,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 }
 # nocov end
 
+# nocov start
 renv_snapshot_auto <- function(project) {
 
   # don't auto-snapshot if disabled by user
@@ -592,6 +596,7 @@ renv_snapshot_auto <- function(project) {
   TRUE
 
 }
+# nocov end
 
 renv_snapshot_filter <- function(project, records, type) {
 
