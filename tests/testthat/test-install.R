@@ -196,4 +196,5 @@ test_that("renv warns when installing an already-loaded package", {
   install("bread")
   requireNamespace("bread")
   expect_warning(install("bread@0.1.0"))
+  unloadNamespace("bread")
 })
