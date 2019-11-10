@@ -94,6 +94,7 @@ renv_paths_root <- function(...) {
 
 }
 
+# nocov start
 renv_paths_root_default <- function() {
 
   root <- switch(
@@ -142,6 +143,7 @@ renv_paths_root_default <- function() {
   return(temp)
 
 }
+# nocov end
 
 #' Path Customization
 #'

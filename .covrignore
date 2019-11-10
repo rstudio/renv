@@ -1,8 +1,10 @@
 R/bootstrap.R
 R/equip.R
+R/equip-macos.R
 R/extsoft.R
 R/modify.R
 R/preflight.R
 R/python-conda.R
+R/rtools.R
 R/run.R
 R/shims.R
