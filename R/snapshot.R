@@ -357,6 +357,7 @@ renv_snapshot_validate_sources <- function(project, lockfile, library) {
       "Consider re-installing these packages from a known source (e.g. CRAN)."
     )
   )
+  # nocov end
 
   FALSE
 
