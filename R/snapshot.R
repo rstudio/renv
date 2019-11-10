@@ -709,6 +709,7 @@ renv_snapshot_fixup_renv <- function(records) {
   if (renv_testing())
     return(records)
 
+  # nocov start
   record <- records$renv
   if (is.null(record) || !identical(record$Source, "unknown"))
     return(records)
@@ -716,5 +717,6 @@ renv_snapshot_fixup_renv <- function(records) {
   remote <- paste("rstudio/renv", record$Version, sep = "@")
   records$renv <- renv_remotes_resolve(remote)
   records
+  # nocov end
 
 }
