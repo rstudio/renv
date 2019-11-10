@@ -8,11 +8,15 @@ test_that("R files have balanced covr exclusions", {
 
   errors <- stack()
 
-  files <- list.files("R", full.names = TRUE)
+  files <- list.files("R", pattern = "[.][rR]$", full.names = TRUE)
   lapply(files, function(file) {
 
     nocov <- FALSE
-    contents <- readLines(file)
+    contents <- catch(readLines(file))
+    if (inherits(contents, "error")) {
+      vwritef("[%s]: %s", file, conditionMessage(contents))
+      return()
+    }
 
     for (i in seq_along(contents)) {
       line <- contents[[i]]
