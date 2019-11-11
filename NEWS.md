@@ -1,5 +1,5 @@
 
-# renv 0.8.3 (UNRELEASED)
+# renv 0.8.3
 
 * `renv::dependencies()` gains a new argument `dev`, indicating whether
   development dependencies should also be included in the set of discovered
