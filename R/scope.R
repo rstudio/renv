@@ -151,11 +151,20 @@ renv_scope_rtools <- function(.envir = NULL) {
 
 # nocov start
 renv_scope_install <- function(.envir = NULL) {
+
   .envir <- .envir %||% parent.frame()
 
-  # currently only required on macOS
-  if (!renv_platform_macos())
-    return(FALSE)
+  if (renv_platform_macos())
+    renv_scope_install_macos(.envir)
+
+  if (renv_platform_wsl())
+    renv_scope_install_wsl(.envir)
+
+}
+
+renv_scope_install_macos <- function(.envir = NULL) {
+
+  .envir <- .envir %||% parent.frame()
 
   # get the current compiler
   args <- c("CMD", "config", "CC")
@@ -228,5 +237,10 @@ renv_scope_install <- function(.envir = NULL) {
   renv_scope_envvars(R_MAKEVARS_SITE = path, .envir = .envir)
   TRUE
 
+}
+
+renv_scope_install_wsl <- function(.envir = NULL) {
+  .envir <- .envir %||% parent.frame()
+  renv_scope_envvars(R_INSTALL_STAGED = "FALSE")
 }
 # nocov end

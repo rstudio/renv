@@ -1,4 +1,9 @@
 
+# renv 0.8.4 (UNRELEASED)
+
+* `renv::install()` disables staged package install when running with the
+  Windows Subsystem for Linux. (#239)
+
 # renv 0.8.3
 
 * `renv::dependencies()` gains a new argument `dev`, indicating whether
