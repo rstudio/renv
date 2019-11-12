@@ -69,6 +69,10 @@ renv_project_records_description <- function(project, descpath) {
   # next, find packages mentioned in the DESCRIPTION file
   fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
   deps <- renv_dependencies_discover_description(descpath, fields)
+  if (empty(deps))
+    return(list())
+
+  # split according to package
   specs <- split(deps, deps$Package)
 
   # drop ignored specs

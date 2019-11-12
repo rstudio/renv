@@ -69,9 +69,14 @@ install <- function(packages = NULL,
   names(remotes) <- packages
   records[names(remotes)] <- remotes
 
+  if (empty(records)) {
+    vprintf("* There are no packages to install.")
+    return(list())
+  }
+
   if (!renv_install_preflight(project, library, remotes, confirm)) {
     message("* Operation aborted.")
-    return(FALSE)
+    return(list())
   }
 
   rebuild <- case(

@@ -1,5 +1,12 @@
 context("Install")
 
+test_that("install works when DESCRIPTION contains no dependencies", {
+  renv_tests_scope()
+  desc <- c("Type: Package", "Package: test")
+  writeLines(desc, con = "DESCRIPTION")
+  expect_length(install(), 0L)
+})
+
 test_that("requested version in DESCRIPTION file is honored", {
 
   renv_tests_scope()
