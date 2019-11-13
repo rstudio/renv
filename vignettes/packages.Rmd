@@ -1,0 +1,68 @@
+---
+title: "Package Development with renv"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Package Development with renv}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+
+## Dependencies
+
+Often, R packages will have other R packages as dependencies. For this, one must
+declare their R package dependencies within the package `DESCRIPTION` file. If
+you want to prepare your environment for package development, you can use:
+
+```
+renv::install()
+```
+
+to install the packages as declared in the package's `DESCRIPTION` file. This
+action is roughly analogous to `remotes::install_deps()`.
+
+If you're developing a package that you intend to release to CRAN, then you
+likely want to build and test your package against the latest versions of your
+dependencies as available on CRAN. For this, you should consider using:
+
+```
+renv::update()
+```
+
+to ensure your package dependencies are up-to-date, as appropriate.
+
+
+## Isolation
+
+Normally, a package under development should be tested against the
+latest-available versions of its dependencies on CRAN. However, in some cases,
+you may need to ensure your package is compatible with other packages also
+currently under development.
+
+In these cases, the `renv` project library can be useful -- you can install the
+development version(s) of your dependencies into the project library, without
+worrying about clobbering any packages already installed in your user library.
+
+In these cases, you can declare your development dependencies using the
+`Remotes` field of the `DESCRIPTION` file; e.g.
+
+```
+Remotes:
+  r-lib/ggplot2
+```
+
+See the `remotes` vignette,
+[Dependency resolution for R package development][dependencies],
+for more details.
+
+
+
+[dependencies]: https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html
