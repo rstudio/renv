@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.14</span>
       </span>
     </div>
 
@@ -108,6 +108,10 @@
     <li class="dropdown-header">Collaborating</li>
     <li>
       <a href="../articles/collaborating.html">Collaborating with renv</a>
+    </li>
+    <li class="dropdown-header">Packages</li>
+    <li>
+      <a href="../articles/packages.html">Package Development with renv</a>
     </li>
     <li class="dropdown-header">Deployment</li>
     <li>
@@ -150,6 +154,7 @@
 <a href="#renv-0-8-4-unreleased" class="anchor"></a>renv 0.8.4 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> can now parse R package dependencies declared and used by the <code>modules</code> package. (#238, <a href='https://github.com/labriola'>@labriola</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/restore.html">renv::restore()</a></code> could fail in Docker environments, usually with an error message like ‘Invalid cross-device link’. (#243)</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> disables staged package install when running with the Windows Subsystem for Linux. (#239)</p></li>
 </ul>
