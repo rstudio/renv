@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.10</span>
       </span>
     </div>
 
@@ -150,8 +150,8 @@
 <a href="#renv-0-8-4-unreleased" class="anchor"></a>renv 0.8.4 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
-<li>
-<code><a href="../reference/install.html">renv::install()</a></code> disables staged package install when running with the Windows Subsystem for Linux. (#239)</li>
+<li><p>Fixed an issue where <code><a href="../reference/restore.html">renv::restore()</a></code> could fail in Docker environments, usually with an error message like ‘Invalid cross-device link’. (#243)</p></li>
+<li><p><code><a href="../reference/install.html">renv::install()</a></code> disables staged package install when running with the Windows Subsystem for Linux. (#239)</p></li>
 </ul>
 </div>
     <div id="renv-0-8-3" class="section level1">
