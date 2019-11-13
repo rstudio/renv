@@ -52,6 +52,11 @@ install <- function(packages = NULL,
   if (is.null(packages))
     stopf("no packages specified in renv::install() request")
 
+  if (empty(packages)) {
+    vwritef("* There are no packages to install.")
+    return(invisible(list()))
+  }
+
   # override repositories if requested
   repos <- renv_config("repos.override")
   if (!is.null(repos))
@@ -69,14 +74,9 @@ install <- function(packages = NULL,
   names(remotes) <- packages
   records[names(remotes)] <- remotes
 
-  if (empty(records)) {
-    vprintf("* There are no packages to install.")
-    return(list())
-  }
-
   if (!renv_install_preflight(project, library, remotes, confirm)) {
     message("* Operation aborted.")
-    return(list())
+    return(invisible(list()))
   }
 
   rebuild <- case(
