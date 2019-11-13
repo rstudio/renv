@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.11</span>
       </span>
     </div>
 
@@ -142,18 +142,9 @@
 RUN R -e "install.packages('remotes', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"</code></pre>
 <p>Now, <code>renv</code> can be used to install packages on the image. If you’d like the <code>renv.lock</code> lockfile to be used to install R packages when the Docker image is built, you can include something of the form:</p>
-<pre><code># set a project-specific working directory
-WORKDIR /project
-
-# copy in supporting files
+<pre><code>WORKDIR /project
 COPY renv.lock renv.lock
-
-# create user library
-RUN R -e 'dir.create(Sys.getenv("R_LIBS_USER"), recursive = TRUE)'
-
-# restore the R project library
 RUN R -e 'renv::restore()'</code></pre>
-<p>Note that we create a user library (from <code>R_LIBS_USER</code>) to avoid potential issues with read-only or write-only mounts in the Docker image.</p>
 <p>With this, <code>renv</code> will download and install packages from CRAN and other external sources as appropriate when the image is created.</p>
 <p>There are two main downsides to this approach:</p>
 <ol style="list-style-type: decimal">
