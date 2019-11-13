@@ -6,6 +6,8 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @return This function is normally called for its side effects.
+#'
 #' @export
 diagnostics <- function(project = NULL) {
 

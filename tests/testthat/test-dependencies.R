@@ -137,11 +137,20 @@ test_that("no warnings are produced when crawling dependencies", {
 
 })
 
-test_that("packages referenced in Suggests are considered dev deps", {
+test_that("Suggests are dev. deps for non-package projects", {
   renv_tests_scope()
-  writeLines("Suggests: bread", con = "DESCRIPTION")
+  writeLines(c("Type: Project", "Suggests: bread"), con = "DESCRIPTION")
   deps <- dependencies(dev = TRUE)
   expect_true(nrow(deps) == 1)
   expect_true(deps$Package == "bread")
   expect_true(deps$Dev)
+})
+
+test_that("Suggests are _not_ dev. deps for package projects", {
+  renv_tests_scope()
+  writeLines(c("Type: Package", "Suggests: bread"), con = "DESCRIPTION")
+  deps <- dependencies(dev = FALSE)
+  expect_true(nrow(deps) == 1)
+  expect_true(deps$Package == "bread")
+  expect_false(deps$Dev)
 })

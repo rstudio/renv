@@ -83,11 +83,11 @@ dependencies <- function(path = getwd(),
 {
   renv_scope_error_handler()
 
-  renv_dependencies_begin()
-  on.exit(renv_dependencies_end(), add = TRUE)
-
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
+
+  renv_dependencies_begin(root = root)
+  on.exit(renv_dependencies_end(), add = TRUE)
 
   files <- renv_dependencies_find(path, root)
   deps <- renv_dependencies_discover(files, quiet)
@@ -301,9 +301,14 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
   pattern <- "([a-zA-Z0-9._]+)(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"
 
   # if this is the DESCRIPTION file for the active project, include
-  # Suggests since they're often needed as well
-  if (identical(renv_project(), dirname(path)))
+  # Suggests since they're often needed as well. such packages will be
+  # considered development dependencies, except for package projects
+  state <- renv_dependencies_state()
+  type <- "unknown"
+  if (identical(file.path(state$root, "DESCRIPTION"), path)) {
     fields <- c(fields, "Suggests")
+    type <- renv_description_type(desc = dcf)
+  }
 
   data <- lapply(fields, function(field) {
 
@@ -317,7 +322,7 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
     if (empty(matches))
       return(list())
 
-    dev <- field == "Suggests"
+    dev <- field == "Suggests" && type != "package"
     renv_dependencies_list(
       path,
       extract_chr(matches, 2L),
@@ -826,8 +831,9 @@ renv_dependencies_state <- function() {
   renv_global_get("dependencies.state")
 }
 
-renv_dependencies_begin <- function() {
-  renv_global_set("dependencies.state", env(problems = stack()))
+renv_dependencies_begin <- function(root = NULL) {
+  state <- env(root = root, problems = stack())
+  renv_global_set("dependencies.state", state)
 }
 
 renv_dependencies_end <- function() {

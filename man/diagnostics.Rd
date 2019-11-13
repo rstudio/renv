@@ -11,6 +11,9 @@ diagnostics(project = NULL)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
+\value{
+This function is normally called for its side effects.
+}
 \description{
 Print a diagnostics report, summarizing the state of a project using \code{renv}.
 This report can occasionally be useful when diagnosing issues with \code{renv}.
