@@ -199,8 +199,9 @@ test_that("source packages in .zip files can be installed", {
 })
 
 test_that("renv warns when installing an already-loaded package", {
+  skip_on_cran()
   renv_tests_scope()
-  install("bread")
+  install("bread@1.0.0")
   requireNamespace("bread")
   expect_warning(install("bread@0.1.0"))
   unloadNamespace("bread")
