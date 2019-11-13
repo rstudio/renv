@@ -128,7 +128,7 @@ renv_tests_init_repos <- function(repos = NULL) {
     components <- c(root, if (subdir) package, tarball)
     target <- paste(components, collapse = "/")
     ensure_parent_directory(target)
-    file.rename(tarball, target)
+    renv_file_move(tarball, target)
 
   }
 

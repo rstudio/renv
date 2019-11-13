@@ -203,14 +203,14 @@ renv_file_backup <- function(path) {
   # attempt to rename the file
   pattern <- sprintf("renv-backup-%s", basename(path))
   tempfile <- tempfile(pattern, tmpdir = dirname(path))
-  if (!file.rename(path, tempfile))
+  if (!renv_file_move(path, tempfile))
     return(function() {})
 
   # return callback that will restore if needed
   function() {
 
     if (!renv_file_exists(path))
-      file.rename(tempfile, path)
+      renv_file_move(tempfile, path)
     else
       unlink(tempfile, recursive = TRUE)
 
