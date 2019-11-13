@@ -568,7 +568,7 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
     renv_dependencies_discover_r_require_namespace,
     renv_dependencies_discover_r_colon,
     renv_dependencies_discover_r_pacman,
-    renv_dependencies_discover_r_module_import
+    renv_dependencies_discover_r_modules
   )
 
   discoveries <- new.env(parent = emptyenv())
@@ -747,7 +747,7 @@ renv_dependencies_discover_r_pacman <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_module_import <- function(node, envir) {
+renv_dependencies_discover_r_modules <- function(node, envir) {
 
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))

@@ -1,6 +1,9 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* `renv::dependencies()` can now parse R package dependencies declared and
+  used by the `modules` package. (#238, @labriola)
+
 * Fixed an issue where `renv::restore()` could fail in Docker environments,
   usually with an error message like 'Invalid cross-device link'. (#243)
 
