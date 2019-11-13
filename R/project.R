@@ -86,7 +86,7 @@ renv_project_records_description <- function(project, descpath) {
     for (package in c("devtools", "roxygen2")) {
       specs[[package]] <-
         specs[[package]] %||%
-        list(Package = package, Require = "", Version = "")
+        renv_dependencies_list(descpath, package, dev = TRUE)
     }
   }
 
