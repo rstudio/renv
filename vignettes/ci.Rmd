@@ -28,7 +28,7 @@ package repositories.
 
 2. Call `renv::restore()` on your CI service, to restore the project library
    from `renv.lock`;
-   
+
 3. Ensure that the project library, as well as the global `renv` cache, are
    cached by the CI service.
 
