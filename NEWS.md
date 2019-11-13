@@ -1,6 +1,9 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* Fixed an issue where `renv::restore()` could fail in Docker environments,
+  usually with an error message like 'Invalid cross-device link'. (#243)
+
 * `renv::install()` disables staged package install when running with the
   Windows Subsystem for Linux. (#239)
 
