@@ -78,21 +78,10 @@ Now, `renv` can be used to install packages on the image. If you'd like the
 built, you can include something of the form:
 
 ```
-# set a project-specific working directory
 WORKDIR /project
-
-# copy in supporting files
 COPY renv.lock renv.lock
-
-# create user library
-RUN R -e 'dir.create(Sys.getenv("R_LIBS_USER"), recursive = TRUE)'
-
-# restore the R project library
 RUN R -e 'renv::restore()'
 ```
-
-Note that we create a user library (from `R_LIBS_USER`) to avoid potential
-issues with read-only or write-only mounts in the Docker image.
 
 With this, `renv` will download and install packages from CRAN and other
 external sources as appropriate when the image is created.
