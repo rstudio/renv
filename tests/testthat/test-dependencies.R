@@ -154,3 +154,19 @@ test_that("Suggests are _not_ dev. deps for package projects", {
   expect_true(deps$Package == "bread")
   expect_false(deps$Dev)
 })
+
+test_that("packages referenced by modules::import() are discovered", {
+
+  file <- renv_test_code({
+    module({
+      import("A")
+      import(B)
+      import(from = "C")
+      import(symbol, from = D)
+    })
+  })
+
+  deps <- dependencies(file)
+  expect_setequal(deps$Package, c("A", "B", "C", "D"))
+
+})
