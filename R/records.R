@@ -119,10 +119,11 @@ renv_record_format_pair <- function(lhs, rhs) {
   })
 
   changed <- names(which(diff))
-  if (empty(changed) || "Source" %in% changed) {
+
+  if (empty(changed)) {
+    fmt <- "[%s: unchanged]"
     lhsf <- renv_record_format_short(lhs)
-    rhsf <- renv_record_format_short(rhs)
-    return(sprintf("[%s -> %s]", lhsf, rhsf))
+    return(sprintf(fmt, lhsf))
   }
 
   # check for only sha changed
@@ -162,6 +163,14 @@ renv_record_format_pair <- function(lhs, rhs) {
     fmt <- "[%s -> %s]"
     lhsf <- lhs$Version %||% "*"
     rhsf <- rhs$Version %||% "*"
+    return(sprintf(fmt, lhsf, rhsf))
+  }
+
+  # if the source has changed, highlight that
+  if ("Source" %in% changed) {
+    fmt <- "[%s -> %s]"
+    lhsf <- renv_record_format_short(lhs)
+    rhsf <- renv_record_format_short(rhs)
     return(sprintf(fmt, lhsf, rhsf))
   }
 

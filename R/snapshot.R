@@ -203,6 +203,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, library) {
   if (!"Bioconductor" %in% sources)
     return(TRUE)
 
+  # nocov start
   package <- if (getRversion() >= "3.5.0") "BiocManager" else "BiocInstaller"
   if (package %in% names(records))
     return(TRUE)
@@ -217,6 +218,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, library) {
 
   writeLines(text)
   FALSE
+  # nocov end
 
 }
 
@@ -319,8 +321,8 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   requires <- sprintf("%s (%s %s)", bad$Package, bad$Require, bad$Version)
   request  <- bad$Requested
 
-  fmt <- "%s requires %s, but %s will be snapshotted"
-  txt <- sprintf(fmt, format(package), format(requires), format(request))
+  fmt <- "'%s' requires '%s', but version '%s' will be snapshotted"
+  txt <- sprintf(fmt, format(package), format(requires), format(package), format(request))
 
   renv_pretty_print(
     txt,
@@ -329,6 +331,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
     wrap = FALSE
   )
 
+  renv_condition_signal("renv.snapshot.unsatisfied_dependencies")
   FALSE
 
 }

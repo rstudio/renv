@@ -40,4 +40,44 @@ test_that("we can format records in various ways", {
     "[1.0.0 -> kevinushey/skeleton]"
   )
 
+  expect_equal(
+    renv_record_format_pair(new, new),
+    "[kevinushey/skeleton: unchanged]"
+  )
+
+  record <- list(
+    Package        = "skeleton",
+    Version        = "1.0.0",
+    Source         = "github",
+    RemoteUsername = "kevinushey",
+    RemoteRepo     = "skeleton",
+    RemoteRef      = "feature/branch"
+  )
+
+  expect_equal(
+    renv_record_format_short(record),
+    "kevinushey/skeleton@feature/branch"
+  )
+
+  old <- list(
+    Package        = "skeleton",
+    Version        = "1.0.0",
+    Source         = "GitHub",
+    RemoteUsername = "kevinushey",
+    RemoteRepo     = "skeleton"
+  )
+
+  new <- list(
+    Package        = "skeleton",
+    Version        = "1.0.0",
+    Source         = "Gitlab",
+    RemoteUsername = "kevinushey",
+    RemoteRepo     = "skeleton"
+  )
+
+  expect_equal(
+    renv_record_format_pair(old, new),
+    "[1.0.0: GitHub -> Gitlab]"
+  )
+
 })
