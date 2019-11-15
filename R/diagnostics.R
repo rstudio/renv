@@ -42,7 +42,7 @@ diagnostics <- function(project = NULL) {
   vwritef(c(title, lines, ""))
 
   for (reporter in reporters) {
-    tryCatch(reporter(project), error = renv_error_handler)
+    catch(reporter(project))
     vwritef()
   }
 

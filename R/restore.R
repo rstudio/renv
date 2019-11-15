@@ -135,13 +135,11 @@ renv_restore_run_actions <- function(project, actions, current, lockfile) {
 
   packages <- names(actions)
 
-  renv_restore_begin(
+  renv_scope_restore(
     project = project,
     records = renv_records(lockfile),
     packages = packages
   )
-
-  on.exit(renv_restore_end(), add = TRUE)
 
   # first, handle package removals
   removes <- actions[actions == "remove"]
@@ -188,7 +186,7 @@ renv_restore_begin <- function(project = NULL,
                                rebuild = NULL,
                                recursive = TRUE)
 {
-
+  state <- renv_global_get("restore.state")
   renv_global_set("restore.state", env(
 
     # the active project (if any) used for restore
@@ -225,10 +223,11 @@ renv_restore_begin <- function(project = NULL,
 
   ))
 
+  state
 }
 
-renv_restore_end <- function() {
-  renv_global_clear("restore.state")
+renv_restore_end <- function(state) {
+  renv_global_set("restore.state", state)
 }
 
 # nocov start

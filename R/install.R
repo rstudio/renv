@@ -85,14 +85,12 @@ install <- function(packages = NULL,
     as.character(rebuild)
   )
 
-  renv_restore_begin(
+  renv_scope_restore(
     project = project,
     records = records,
     packages = packages,
     rebuild = rebuild
   )
-
-  on.exit(renv_restore_end(), add = TRUE)
 
   # retrieve packages
   records <- renv_retrieve(packages)

@@ -45,14 +45,12 @@ renv_bootstrap_impl <- function(project,
   record <- renv_remotes_resolve(remote)
   records <- list(renv = record)
 
-  renv_restore_begin(
+  renv_scope_restore(
     project = project,
     records = records,
     packages = "renv",
     recursive = FALSE
   )
-
-  on.exit(renv_restore_end(), add = TRUE)
 
   # retrieve renv
   records <- renv_retrieve("renv")

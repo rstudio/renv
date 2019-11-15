@@ -244,3 +244,9 @@ renv_scope_install_wsl <- function(.envir = NULL) {
   renv_scope_envvars(R_INSTALL_STAGED = "FALSE")
 }
 # nocov end
+
+renv_scope_restore <- function(..., .envir = NULL) {
+  .envir <- .envir %||% parent.frame()
+  state <- renv_restore_begin(...)
+  defer(renv_restore_end(state), envir = .envir)
+}
