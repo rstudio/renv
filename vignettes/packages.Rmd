@@ -75,6 +75,25 @@ the `renv` cache can help save time that might normally be spent on package
 installation.
 
 
+## R CMD build and the Project Library
+
+By default, when building a package tarball, R will copy all files within the
+package directory to a temporary build directory before building the package.
+Unfortunately, this also implies copying the `renv` library. When that library
+is large, this can dramatically increase the amount of time it takes to build
+your package.
+
+One way to resolve this issue is to force `renv` to use a library path that
+lives outside of your project. For example, you might set the following in your
+project `.Renviron`:
+
+```
+RENV_PATHS_LIBRARY = /home/$USER/.renv/<package>/library
+```
+
+where `<package>` is the name of your package project.
+
+
 
 
 

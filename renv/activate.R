@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.7.1-16"
+  version <- "0.8.3-14"
 
   # avoid recursion
   if (!is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA)))
