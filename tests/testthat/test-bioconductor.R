@@ -5,6 +5,7 @@ test_that("packages can be installed, restored from Bioconductor", {
 
   skip_on_cran()
   skip_on_appveyor()
+  skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
 
   renv_tests_scope("Biobase")
