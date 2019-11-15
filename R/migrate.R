@@ -169,6 +169,9 @@ renv_migrate_packrat_lockfile <- function(project) {
   lockfile$R$Repositories <- as.list(repos)
   renv_records(lockfile) <- records
 
+  # finish
+  lockfile <- renv_lockfile_fini(lockfile)
+
   # write the lockfile
   lockpath <- file.path(project, "renv.lock")
   renv_lockfile_write(lockfile, file = lockpath)

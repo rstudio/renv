@@ -1,6 +1,10 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* `renv` now tracks the version of Bioconductor used within a project
+  (if applicable), and uses that when retrieving the set of repositories
+  to be used during `renv::restore()`.
+
 * `renv::dependencies()` can now parse R package dependencies declared and
   used by the `modules` package. (#238, @labriola)
 

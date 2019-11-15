@@ -1,10 +1,9 @@
 
 renv_bioconductor_init <- function() {
-  if (getRversion() >= "3.5.0") {
+  if (getRversion() >= "3.5.0")
     renv_bioconductor_init_biocmanager()
-  } else {
+  else
     renv_bioconductor_init_biocinstaller()
-  }
 }
 
 renv_bioconductor_init_biocmanager <- function() {
@@ -13,7 +12,7 @@ renv_bioconductor_init_biocmanager <- function() {
   if (!empty(location))
     return(TRUE)
 
-  utils::install.packages("BiocManager", quiet = TRUE)
+  install("BiocManager")
   TRUE
 
 }
@@ -24,24 +23,48 @@ renv_bioconductor_init_biocinstaller <- function() {
   if (!empty(location))
     return(TRUE)
 
-  source("https://bioconductor.org/biocLite.R")
+  url <- "https://bioconductor.org/biocLite.R"
+  destfile <- tempfile("renv-bioclite-", fileext = ".R")
+  on.exit(unlink(destfile), add = TRUE)
+  download(url, destfile = destfile, quiet = TRUE)
+
+  source(destfile)
   TRUE
+
+}
+
+renv_bioconductor_version <- function() {
+
+  if (renv_package_installed("BiocManager")) {
+    BiocManager <- asNamespace("BiocManager")
+    format(BiocManager$version())
+  } else if (renv_package_installed("BiocInstaller")) {
+    BiocInstaller <- asNamespace("BiocInstaller")
+    format(BiocInstaller$biocVersion())
+  } else if (renv_package_installed("BiocVersion")) {
+    format(packageVersion("BiocVersion")[1, 1:2])
+  }
 
 }
 
 renv_bioconductor_repos <- function() {
 
-  # try both BiocManager, BiocInstaller to get Bioc repositories
+  # read Bioconductor version (normally set during restore)
+  version <- getOption("renv.bioconductor.version")
+
+  # try both BiocManager, BiocInstaller to get Bioconductor repositories
   getters <- list(
 
     BiocManager = function() {
       BiocManager <- asNamespace("BiocManager")
-      BiocManager$repositories()
+      version <- version %||% BiocManager$version()
+      BiocManager$repositories(version = version)
     },
 
     BiocInstaller = function() {
       BiocInstaller <- asNamespace("BiocInstaller")
-      BiocInstaller$biocinstallRepos()
+      version <- version %||% BiocInstaller$biocVersion()
+      BiocInstaller$biocinstallRepos(version = version)
     }
 
   )

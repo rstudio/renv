@@ -76,6 +76,13 @@ restore <- function(project  = NULL,
   if (length(repos))
     renv_scope_options(repos = convert(repos, "character"))
 
+  # set up Bioconductor repositories
+  biocversion <- lockfile$Bioconductor$Version
+  if (!is.null(biocversion)) {
+    biocversion <- package_version(biocversion)
+    renv_scope_options(renv.bioconductor.version = biocversion)
+  }
+
   # get records for R packages currently installed
   current <- snapshot(project = project,
                       library = library,

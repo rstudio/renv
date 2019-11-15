@@ -87,12 +87,7 @@ snapshot <- function(project  = NULL,
   if (renv_config("snapshot.preflight", default = TRUE))
     renv_snapshot_preflight(project, library)
 
-  new <- renv_lockfile_init(project)
-  renv_records(new) <-
-    renv_snapshot_r_packages(library = library, project = project) %>%
-    renv_snapshot_filter(project = project, type = type) %>%
-    renv_snapshot_fixup()
-
+  new <- renv_lockfile_create(project, library, type)
   if (is.null(lockfile))
     return(new)
 
@@ -324,12 +319,14 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   fmt <- "'%s' requires '%s', but version '%s' will be snapshotted"
   txt <- sprintf(fmt, format(package), format(requires), format(package), format(request))
 
-  renv_pretty_print(
-    txt,
-    "The following package(s) have unsatisfied dependencies:",
-    "Consider updating the required dependencies as appropriate.",
-    wrap = FALSE
-  )
+  if (renv_verbose()) {
+    renv_pretty_print(
+      txt,
+      "The following package(s) have unsatisfied dependencies:",
+      "Consider updating the required dependencies as appropriate.",
+      wrap = FALSE
+    )
+  }
 
   renv_condition_signal("renv.snapshot.unsatisfied_dependencies")
   FALSE
