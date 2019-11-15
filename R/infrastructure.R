@@ -95,7 +95,7 @@ renv_infrastructure_write_entry_impl <- function(add, remove, file, create) {
 
   # if the file already has the requested line, nothing to do
   before <- trimws(readLines(file, warn = FALSE))
-  after <- before %>% setdiff(remove) %>% union(add)
+  after <- before %>% renv_vector_diff(remove) %>% renv_vector_union(add)
   if (identical(before, after))
     return(TRUE)
 

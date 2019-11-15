@@ -46,3 +46,12 @@ test_that("library/ is excluded from .gitignore as appropriate", {
 
 
 })
+
+test_that("whitespace in infrastructure file is preserved", {
+  renv_tests_scope()
+  before <- c("^renv$", "", "^renv\\.lock$", "", "c")
+  writeLines(before, ".Rbuildignore")
+  renv_infrastructure_write()
+  after <- readLines(".Rbuildignore")
+  expect_equal(before, after)
+})
