@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.20</span>
       </span>
     </div>
 
@@ -142,6 +142,14 @@
 <a href="#testing" class="anchor"></a>Testing</h2>
 <p>While developing your package, you may want to use a continuous integration service (such as <a href="https://www.travis-ci.org/">Travis CI</a>) to build and test your package remotely. You can use <code>renv</code> to help facilitate this testing – see the <a href="https://cran.r-project.org/web/packages/renv/vignettes/ci.html">CI</a> vignette for more information. In particular, clever use of the <code>renv</code> cache can help save time that might normally be spent on package installation.</p>
 </div>
+<div id="r-cmd-build-and-the-project-library" class="section level2">
+<h2 class="hasAnchor">
+<a href="#r-cmd-build-and-the-project-library" class="anchor"></a>R CMD build and the Project Library</h2>
+<p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. Unfortunately, this also implies copying the <code>renv</code> library. When that library is large, this can dramatically increase the amount of time it takes to build your package.</p>
+<p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in your project <code>.Renviron</code>:</p>
+<pre><code>RENV_PATHS_LIBRARY = /home/$USER/.renv/&lt;package&gt;/library</code></pre>
+<p>where <code>&lt;package&gt;</code> is the name of your package project.</p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -153,6 +161,7 @@
 <li><a href="#development">Development</a></li>
       <li><a href="#isolation">Isolation</a></li>
       <li><a href="#testing">Testing</a></li>
+      <li><a href="#r-cmd-build-and-the-project-library">R CMD build and the Project Library</a></li>
       </ul>
 </div>
       </div>
