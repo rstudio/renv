@@ -27,6 +27,7 @@ Report differences between the project's lockfile and the current state of
 the private library (if any).
 }
 \examples{
+
 \dontrun{
 
 # disable automatic snapshots

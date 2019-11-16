@@ -88,6 +88,7 @@ using \code{renv}.
 }
 
 \examples{
+
 \dontrun{
 
 # disable automatic snapshots

@@ -27,6 +27,7 @@ were successfully removed.
 Remove (uninstall) \R packages.
 }
 \examples{
+
 \dontrun{
 
 # disable automatic snapshots

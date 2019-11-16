@@ -107,7 +107,8 @@ environment will be used instead (when not directly using a system copy of Pytho
 }
 
 \seealso{
-Other reproducibility: \code{\link{restore}()},
-  \code{\link{snapshot}()}
+Other reproducibility: 
+\code{\link{restore}()},
+\code{\link{snapshot}()}
 }
 \concept{reproducibility}

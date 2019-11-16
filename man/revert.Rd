@@ -27,6 +27,7 @@ The \code{revert()} function is currently only implemented for projects using
 \code{git} for version control.
 }
 \examples{
+
 \dontrun{
 
 # get history of previous versions of renv.lock in VCS

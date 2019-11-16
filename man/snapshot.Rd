@@ -90,6 +90,7 @@ mechanism.
 }
 
 \examples{
+
 \dontrun{
 
 # disable automatic snapshots
@@ -120,7 +121,8 @@ options(renv.config.auto.snapshot = auto.snapshot)
 }
 }
 \seealso{
-Other reproducibility: \code{\link{lockfile}},
-  \code{\link{restore}()}
+Other reproducibility: 
+\code{\link{lockfile}},
+\code{\link{restore}()}
 }
 \concept{reproducibility}

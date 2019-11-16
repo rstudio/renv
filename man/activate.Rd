@@ -32,6 +32,7 @@ renv::activate("~/projects/analysis")
 }
 }
 \seealso{
-Other renv: \code{\link{deactivate}()}
+Other renv: 
+\code{\link{deactivate}()}
 }
 \concept{renv}

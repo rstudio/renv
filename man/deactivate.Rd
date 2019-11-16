@@ -30,6 +30,7 @@ renv::deactivate()
 }
 }
 \seealso{
-Other renv: \code{\link{activate}()}
+Other renv: 
+\code{\link{activate}()}
 }
 \concept{renv}
