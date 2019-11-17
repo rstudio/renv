@@ -45,6 +45,7 @@
 #' `copy.method` \tab `character[1]` \tab `"auto"` \tab
 #'   The method to use when attempting to copy directories. See **Copy Methods**
 #'   for more information.
+#'   \cr
 #'
 #' `connect.timeout` \tab `integer[1]` \tab `20L` \tab
 #'   The amount of time to spend (in seconds) when attempting to download a

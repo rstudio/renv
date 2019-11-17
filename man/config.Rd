@@ -50,6 +50,7 @@ is installed with \code{renv::install()}, or removed with \code{renv::remove()}?
 \code{copy.method} \tab \code{character[1]} \tab \code{"auto"} \tab
 The method to use when attempting to copy directories. See \strong{Copy Methods}
 for more information.
+\cr
 
 \code{connect.timeout} \tab \code{integer[1]} \tab \code{20L} \tab
 The amount of time to spend (in seconds) when attempting to download a
