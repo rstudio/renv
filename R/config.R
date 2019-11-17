@@ -162,9 +162,9 @@
 #'
 #' Note that `renv` will always first attempt to copy a directory first to a
 #' temporary path within the target folder, and then rename that temporary path
-#' to the final target destination. This is necessary to avoid issues due to
-#' race conditions if multiple processes were to attempt to write to the same
-#' file on the filesystem at the same time.
+#' to the final target destination. This helps avoid issues where a failed
+#' attempt to copy a directory could leave a half-copied directory behind
+#' in the final location.
 #'
 #' @section Project-Local Settings:
 #'
