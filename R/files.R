@@ -59,7 +59,7 @@ renv_file_copy_file <- function(source, target) {
 
 renv_file_copy_dir_robocopy <- function(source, target) {
 
-  flags <- c("/E", "/ZB", "/R:5", "/W:10")
+  flags <- c("/E", "/Z", "/R:5", "/W:10")
   args <- c(flags, shQuote(source), shQuote(target))
 
   # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
