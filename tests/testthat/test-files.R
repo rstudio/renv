@@ -151,7 +151,7 @@ test_that("permissions, timestamps are preserved", {
 
   rownames(srcinfo) <- rownames(tgtinfo) <- basename(srcfiles)
 
-  fields <- setdiff(names(srcinfo), "ctime")
+  fields <- setdiff(names(srcinfo), c("ctime", "atime"))
   expect_equal(srcinfo[fields], tgtinfo[fields])
 
 })
