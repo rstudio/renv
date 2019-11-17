@@ -1,7 +1,9 @@
 
 renv_system_exec <- function(command, args, action, success = 0L) {
 
-  output <- system2(command, args, stdout = TRUE, stderr = TRUE)
+  output <- suppressWarnings(
+    system2(command, args, stdout = TRUE, stderr = TRUE)
+  )
 
   status <- attr(output, "status") %||% 0L
   if (!status %in% success) {
