@@ -42,6 +42,10 @@
 #'   is installed with `renv::install()`, or removed with `renv::remove()`?
 #'   \cr
 #'
+#' `copy.method` \tab `character[1]` \tab `"auto"` \tab
+#'   The method to use when attempting to copy directories. See **Copy Methods**
+#'   for more information.
+#'
 #' `connect.timeout` \tab `integer[1]` \tab `20L` \tab
 #'   The amount of time to spend (in seconds) when attempting to download a
 #'   file. Only used when the `curl` downloader is used.
@@ -127,6 +131,39 @@
 #'   \cr
 #'
 #' }
+#'
+#' @section Copy Methods:
+#'
+#' If you find that `renv` is unable to copy some directories in your
+#' environment, you may want to try setting the `copy.method` option. By
+#' default, `renv` will try to choose a system tool that is likely to succeed in
+#' copying files on your system -- `robocopy` on Windows, and `cp` on Unix.
+#' `renv` will also instruct these tools to preserve timestamps and attributes
+#' when copying files. However, you can select a different method as
+#' appropriate.
+#'
+#' The following methods are supported:
+#'
+#' \tabular{ll}{
+#' `R`        \tab Use \R's built-in `file.copy()` function. \cr
+#' `cp`       \tab Use `cp` to copy files. \cr
+#' `robocopy` \tab Use `robocopy` to copy files. (Only available on Windows.) \cr
+#' `rsync`    \tab Use `rsync` to copy files. \cr
+#' }
+#'
+#' You can also provide a custom copy method if required; e.g.
+#'
+#' ```
+#' options(renv.config.copy.method = function(src, dst) {
+#'   # copy a file from 'src' to 'dst'
+#' })
+#' ```
+#'
+#' Note that `renv` will always first attempt to copy a directory first to a
+#' temporary path within the target folder, and then rename that temporary path
+#' to the final target destination. This is necessary to avoid issues due to
+#' race conditions if multiple processes were to attempt to write to the same
+#' file on the filesystem at the same time.
 #'
 #' @section Project-Local Settings:
 #'

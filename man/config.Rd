@@ -47,6 +47,10 @@ Automatically snapshot changes to the project library after a new package
 is installed with \code{renv::install()}, or removed with \code{renv::remove()}?
 \cr
 
+\code{copy.method} \tab \code{character[1]} \tab \code{"auto"} \tab
+The method to use when attempting to copy directories. See \strong{Copy Methods}
+for more information.
+
 \code{connect.timeout} \tab \code{integer[1]} \tab \code{20L} \tab
 The amount of time to spend (in seconds) when attempting to download a
 file. Only used when the \code{curl} downloader is used.
@@ -132,6 +136,38 @@ you might not install in your projects.
 \cr
 
 }
+}
+
+\section{Copy Methods}{
+
+
+If you find that \code{renv} is unable to copy some directories in your
+environment, you may want to try setting the \code{copy.method} option. By
+default, \code{renv} will try to choose a system tool that is likely to succeed in
+copying files on your system -- \code{robocopy} on Windows, and \code{cp} on Unix.
+\code{renv} will also instruct these tools to preserve timestamps and attributes
+when copying files. However, you can select a different method as
+appropriate.
+
+The following methods are supported:
+
+\tabular{ll}{
+\code{R}        \tab Use \R's built-in \code{file.copy()} function. \cr
+\code{cp}       \tab Use \code{cp} to copy files. \cr
+\code{robocopy} \tab Use \code{robocopy} to copy files. (Only available on Windows.) \cr
+\code{rsync}    \tab Use \code{rsync} to copy files. \cr
+}
+
+You can also provide a custom copy method if required; e.g.\preformatted{options(renv.config.copy.method = function(src, dst) \{
+  # copy a file from 'src' to 'dst'
+\})
+}
+
+Note that \code{renv} will always first attempt to copy a directory first to a
+temporary path within the target folder, and then rename that temporary path
+to the final target destination. This is necessary to avoid issues due to
+race conditions if multiple processes were to attempt to write to the same
+file on the filesystem at the same time.
 }
 
 \section{Project-Local Settings}{
