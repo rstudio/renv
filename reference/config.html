@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.22</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.23</span>
       </span>
     </div>
 
@@ -193,6 +193,8 @@ recommended that you set them in your user startup files (e.g. in
 <tr><td><strong>Name</strong></td><td><strong>Type</strong></td><td><strong>Default</strong></td><td><strong>Description</strong></td></tr>
 <tr><td><code>auto.snapshot</code></td><td><code>logical[1]</code></td><td><code>FALSE</code></td><td>Automatically snapshot changes to the project library after a new package
 is installed with <code><a href='install.html'>renv::install()</a></code>, or removed with <code><a href='remove.html'>renv::remove()</a></code>?</td></tr>
+<tr><td><code>copy.method</code></td><td><code>character[1]</code></td><td><code>"auto"</code></td><td>The method to use when attempting to copy directories. See <strong>Copy Methods</strong>
+for more information.</td></tr>
 <tr><td><code>connect.timeout</code></td><td><code>integer[1]</code></td><td><code>20L</code></td><td>The amount of time to spend (in seconds) when attempting to download a
 file. Only used when the <code>curl</code> downloader is used.</td></tr>
 <tr><td><code>connect.retry</code></td><td><code>integer[1]</code></td><td><code>3L</code></td><td>The number of times to attempt re-downloading a file, when transient
@@ -244,6 +246,37 @@ you might not install in your projects.</td></tr>
 </table>
 
 
+    <h2 class="hasAnchor" id="copy-methods"><a class="anchor" href="#copy-methods"></a>Copy Methods</h2>
+
+    
+
+
+<p>If you find that <code>renv</code> is unable to copy some directories in your
+environment, you may want to try setting the <code>copy.method</code> option. By
+default, <code>renv</code> will try to choose a system tool that is likely to succeed in
+copying files on your system -- <code>robocopy</code> on Windows, and <code>cp</code> on Unix.
+<code>renv</code> will also instruct these tools to preserve timestamps and attributes
+when copying files. However, you can select a different method as
+appropriate.</p>
+<p>The following methods are supported:</p>
+<table class='table'>
+<tr><td><code>R</code></td><td>Use <span style="R">R</span>'s built-in <code><a href='https://rdrr.io/r/base/files.html'>file.copy()</a></code> function.</td></tr>
+<tr><td><code>cp</code></td><td>Use <code>cp</code> to copy files.</td></tr>
+<tr><td><code>robocopy</code></td><td>Use <code>robocopy</code> to copy files. (Only available on Windows.)</td></tr>
+<tr><td><code>rsync</code></td><td>Use <code>rsync</code> to copy files.</td></tr>
+</table>
+
+
+<p>You can also provide a custom copy method if required; e.g.</p><pre>options(renv.config.copy.method = function(src, dst) {
+  # copy a file from 'src' to 'dst'
+})
+</pre>
+
+<p>Note that <code>renv</code> will always first attempt to copy a directory first to a
+temporary path within the target folder, and then rename that temporary path
+to the final target destination. This helps avoid issues where a failed
+attempt to copy a directory could leave a half-copied directory behind
+in the final location.</p>
     <h2 class="hasAnchor" id="project-local-settings"><a class="anchor" href="#project-local-settings"></a>Project-Local Settings</h2>
 
     
@@ -265,6 +298,7 @@ various settings available in <a href='settings.html'>settings</a> can be used.<
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#details">Details</a></li>
       <li><a href="#configuration">Configuration</a></li>
+      <li><a href="#copy-methods">Copy Methods</a></li>
       <li><a href="#project-local-settings">Project-Local Settings</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
