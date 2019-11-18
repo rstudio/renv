@@ -474,11 +474,11 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
     return(pkgs)
 
   renv_pretty_print(
-    basename(pkgs[missing]),
+    sprintf("%s [%s]", format(basename(pkgs[missing])), pkgs[missing]),
     "The following package(s) are missing their DESCRIPTION files:",
     c(
-      "Consider removing or re-installing these packages.",
-      paste("Library:", shQuote(aliased_path(library), type = "cmd"))
+      "These may be left over from a prior, failed installation attempt.",
+      "Consider removing or re-installing these packages."
     ),
     wrap = FALSE
   )
