@@ -1,6 +1,11 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* The method `renv` uses when copying directories can now be customized. When
+  copying directories, `renv` now by default uses `robocopy` on Windows, and
+  `cp` on Unix. This should improve robustness when attempting to copy files
+  in some contexts; e.g. when copying across network shares.
+
 * `renv` now tracks the version of Bioconductor used within a project
   (if applicable), and uses that when retrieving the set of repositories
   to be used during `renv::restore()`.

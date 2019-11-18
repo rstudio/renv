@@ -1,18 +1,28 @@
 
+`_renv_sysinfo` <- NULL
+
+renv_platform_init <- function() {
+  `_renv_sysinfo` <<- Sys.info()
+}
+
 renv_platform_unix <- function() {
   .Platform$OS.type == "unix"
 }
 
 renv_platform_windows <- function() {
-  renv_global("platform", Sys.info()[["sysname"]]) == "Windows"
+  .Platform$OS.type == "windows"
 }
 
 renv_platform_macos <- function() {
-  renv_global("platform", Sys.info()[["sysname"]]) == "Darwin"
+  `_renv_sysinfo`[["sysname"]] == "Darwin"
 }
 
 renv_platform_linux <- function() {
-  renv_global("platform", Sys.info()[["sysname"]]) == "Linux"
+  `_renv_sysinfo`[["sysname"]] == "Linux"
+}
+
+renv_platform_solaris <- function() {
+  `_renv_sysinfo`[["sysname"]] == "Solaris"
 }
 
 renv_platform_wsl <- function() {
