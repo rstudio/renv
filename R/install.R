@@ -258,10 +258,7 @@ renv_install_package_cache <- function(record, cache, linker) {
   # report successful link to user
   fmt <- "Installing %s [%s] ..."
   with(record, vwritef(fmt, Package, Version))
-
-  status <- catch(linker(cache, target))
-  if (inherits(status, "error"))
-    return(status)
+  linker(cache, target)
 
   type <- case(
     identical(linker, renv_file_copy) ~ "copied",
