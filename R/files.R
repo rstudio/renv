@@ -226,7 +226,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
 
 }
 
-renv_file_link <- function(source, target, overwrite = FALSE, link = NULL) {
+renv_file_link <- function(source, target, overwrite = FALSE) {
 
   if (renv_file_same(source, target))
     return(TRUE)
@@ -234,16 +234,28 @@ renv_file_link <- function(source, target, overwrite = FALSE, link = NULL) {
   callback <- renv_file_preface(source, target, overwrite)
   on.exit(callback(), add = TRUE)
 
-  # use junction points on Windows by default as symlinks
-  # are unreliable / un-deletable in some circumstances
-  link <- link %||% if (renv_platform_windows())
-    Sys.junction
-  else
-    file.symlink
+  if (renv_platform_windows()) {
 
-  status <- catchall(link(source, target))
-  if (identical(status, TRUE) && renv_file_exists(target))
-    return(TRUE)
+    # use junction points on Windows by default as symlinks
+    # are unreliable / un-deletable in some circumstances
+    status <- catchall(Sys.junction(source, target))
+    if (identical(status, TRUE))
+      return(TRUE)
+
+    # if Sys.junction() fails, it may leave behind an empty
+    # directory. this may occur if the source and target files
+    # reside on different volumes. either way, remove an empty
+    # left-behind directory on failure
+    unlink(target, recursive = TRUE, force = TRUE)
+
+  } else {
+
+    # on non-Windows, we can try to create a symlink
+    status <- catchall(file.symlink(source, target))
+    if (identical(status, TRUE))
+      return(TRUE)
+
+  }
 
   # all else fails, just perform a copy
   renv_file_copy(source, target, overwrite = overwrite)

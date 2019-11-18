@@ -1,6 +1,9 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* Fixed an issue where `renv` would not properly clean up after a failed
+  attempt to call `Sys.junction()`. (#251)
+
 * Fixed an issue where `renv` would, in some cases, copy rather than link from
   the package cache when the library path had been customized with the
   `RENV_PATHS_LIBRARY` environment variable. (#245)
