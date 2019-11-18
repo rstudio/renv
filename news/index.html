@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.27</span>
       </span>
     </div>
 
@@ -154,6 +154,7 @@
 <a href="#renv-0-8-4-unreleased" class="anchor"></a>renv 0.8.4 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>Fixed an issue where <code>renv</code> would not properly clean up after a failed attempt to call <code>Sys.junction()</code>. (#251)</p></li>
 <li><p>Fixed an issue where <code>renv</code> would, in some cases, copy rather than link from the package cache when the library path had been customized with the <code>RENV_PATHS_LIBRARY</code> environment variable. (#245)</p></li>
 <li><p>The method <code>renv</code> uses when copying directories can now be customized. When copying directories, <code>renv</code> now by default uses <code>robocopy</code> on Windows, and <code>cp</code> on Unix. This should improve robustness when attempting to copy files in some contexts; e.g. when copying across network shares.</p></li>
 <li><p><code>renv</code> now tracks the version of Bioconductor used within a project (if applicable), and uses that when retrieving the set of repositories to be used during <code><a href="../reference/restore.html">renv::restore()</a></code>.</p></li>
