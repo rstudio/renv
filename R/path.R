@@ -18,6 +18,9 @@ renv_path_normalize <- function(path, winslash = "/", mustWork = FALSE) {
   # we work around this by round-tripping between the short name and
   # the long name, as Windows then has no choice but to figure out
   # the correct casing for us
+  #
+  # this isn't 100% reliable (not all paths have a short-path equivalent)
+  # but seems to be good enough in practice
   if (renv_platform_windows())
     path <- utils::shortPathName(path.expand(path))
 
@@ -25,11 +28,10 @@ renv_path_normalize <- function(path, winslash = "/", mustWork = FALSE) {
 
 }
 
-# TODO: this relies on the parent directory of path existing, but this
-# is normally true in all the contexts where we use this function
+# TODO: this is a lie; for existing paths symlinks will be resolved
 renv_path_canonicalize <- function(path) {
   parent <- dirname(path)
-  root <- renv_path_normalize(parent, winslash = "/", mustWork = TRUE)
+  root <- renv_path_normalize(parent, winslash = "/", mustWork = FALSE)
   trimmed <- sub("/+$", "", root)
   file.path(trimmed, basename(path))
 }

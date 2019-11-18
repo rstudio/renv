@@ -200,7 +200,7 @@ renv_install_impl <- function(record) {
   library <- libpaths[[1]]
   linkable <-
     settings$use.cache(project = project) &&
-    identical(library, renv_paths_library(project = project))
+    renv_path_same(library, renv_paths_library(project = project))
 
   linker <- if (linkable) renv_file_link else renv_file_copy
 

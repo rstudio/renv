@@ -79,3 +79,20 @@ test_that("package installation does not fail with non-writable cache", {
   expect_false(type == "symlink")
 
 })
+
+test_that("the cache is used even if RENV_PATHS_LIBRARY is non-canonical", {
+  skip_on_os("windows")
+
+  libpath <- renv_tempfile("renv-library")
+  ensure_directory(libpath)
+  renv_scope_envvars(RENV_PATHS_LIBRARY = file.path(libpath, "."))
+
+  renv_tests_scope("bread")
+  init()
+  remove("bread")
+  restore()
+
+  bread <- system.file(package = "bread")
+  expect_true(renv_file_type(bread) == "symlink")
+
+})

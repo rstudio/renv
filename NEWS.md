@@ -1,6 +1,10 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* Fixed an issue where `renv` would, in some cases, copy rather than link from
+  the package cache when the library path had been customized with the
+  `RENV_PATHS_LIBRARY` environment variable. (#245)
+
 * The method `renv` uses when copying directories can now be customized. When
   copying directories, `renv` now by default uses `robocopy` on Windows, and
   `cp` on Unix. This should improve robustness when attempting to copy files
