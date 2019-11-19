@@ -188,6 +188,10 @@ For example, it could be set within:
 - The user-level `~/.Renviron`;
 - A site-wide file at `$(R RHOME)/etc/Renviron.site`.
 
+You may also want to set `RENV_PATHS_CACHE` so that the global package cache can
+be stored on the same volume as the projects you normally work on. This is
+especially important when working projects stored on a networked filesystem.
+
 While we recommend enabling the cache by default, if you're having trouble with
 `renv` when the cache is enabled, it can be disabled by setting the project
 setting `renv::settings$use.cache(FALSE)`. Doing this will ensure that packages
