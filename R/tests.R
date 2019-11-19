@@ -6,6 +6,9 @@ renv_tests_scope <- function(packages = character()) {
   # ensure that attempts to restart are a no-op
   options(restart = function(...) TRUE)
 
+  # save local repositories
+  Sys.setenv(RENV_PATHS_LOCAL = file.path(renv_tests_root(), "local"))
+
   # move to own test directory
   dir <- tempfile("renv-test-")
   ensure_directory(dir)

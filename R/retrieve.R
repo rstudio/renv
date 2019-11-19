@@ -301,7 +301,7 @@ renv_retrieve_local_report <- function(record) {
   if (tolower(source) == "local")
     return(record)
 
-  record$Source <- "local"
+  record$Source <- "Local"
   rather <- if (source == "unknown") "" else paste(" rather than", renv_alias(source))
   fmt <- "* Package %s [%s] will be installed from local sources%s."
   with(record, vwritef(fmt, Package, Version, rather))
@@ -326,7 +326,7 @@ renv_retrieve_explicit <- function(record) {
 
   # treat as 'local' source but extract path
   normalized <- renv_path_normalize(source, winslash = "/", mustWork = TRUE)
-  record$Source <- "local"
+  record$Source <- "Local"
   renv_retrieve_successful(record, normalized)
 
 }

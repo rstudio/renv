@@ -525,7 +525,7 @@ renv_snapshot_description_source <- function(dcf) {
   if (!is.null(type))
     return(list(Source = renv_alias(type)))
 
-  package <- dcf$Package
+  package <- dcf[["Package"]]
   if (is.null(package))
     return(list(Source = "unknown"))
 
@@ -536,6 +536,10 @@ renv_snapshot_description_source <- function(dcf) {
 
   if (!inherits(entry, "error"))
     return(list(Source = "Repository", Repository = entry[["Name"]]))
+
+  location <- catch(renv_retrieve_local_find(dcf))
+  if (!inherits(location, "error"))
+    return(list(Source = "Local"))
 
   list(Source = "unknown")
 

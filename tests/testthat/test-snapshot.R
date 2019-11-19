@@ -199,3 +199,22 @@ test_that("snapshot warns about unsatisfied dependencies", {
   )
 
 })
+
+test_that("snapshot records packages discovered in local sources", {
+
+  renv_tests_scope("skeleton")
+  renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+
+  init(bare = TRUE)
+
+  record <- list(Package = "skeleton", Version = "1.0.1", Source = "Local")
+  install(list(record))
+
+  lockfile <- snapshot(lockfile = NULL)
+  records <- renv_records(lockfile)
+  skeleton <- records[["skeleton"]]
+
+  expect_equal(skeleton$Version, "1.0.1")
+  expect_equal(skeleton$Source, "Local")
+
+})
