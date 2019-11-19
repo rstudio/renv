@@ -19,8 +19,9 @@ knitr::opts_chunk$set(
 By default, `renv` uses the intersection of:
 
 1. Packages installed into your project library, and
-2. Packages which appear to be used in your project (as discovered by
-   `renv::dependencies()`),
+
+2. Packages which appear to be used in your project, as discovered by
+   `renv::dependencies()`,
 
 in determining which packages should enter the lockfile. The intention is that
 only the packages you truly require for your project should enter the lockfile;

@@ -67,3 +67,6 @@ The simplest way to guard against this it to use a version control system, and
 have all collaborators work off the same branch. This way, if someone needs to
 update `renv.lock` in the public repository, all collaborators will see that
 updated lockfile and will gain access to it next time they pull those changes.
+Depending on the size of your team, you may want to ensure any changes to
+`renv.lock` are communicated so that everyone knows and understands when and
+why packages have been installed or updated.

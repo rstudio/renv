@@ -68,7 +68,7 @@ First, you'll need to get `renv` installed on your Docker image. The easiest
 way to accomplish this is with the `remotes` package. For example:
 
 ```
-ENV RENV_VERSION 0.5.0-25
+ENV RENV_VERSION `r renv:::renv_package_version("renv")`
 RUN R -e "install.packages('remotes', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"
 ```
@@ -132,8 +132,8 @@ RENV_PATHS_CACHE_CONTAINER=/renv/cache
 docker run --rm \
     -e "RENV_PATHS_CACHE=${RENV_PATHS_CACHE_CONTAINER}" \
     -v "${RENV_PATHS_CACHE_HOST}:${RENV_PATHS_CACHE_CONTAINER}" \
-    -p 14619:14619 \
-    R --vanilla --slave -e 'renv::activate(); renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14619)'
+    -p 14618:14618 \
+    R --slave -e 'renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14618)'
 ```
 
 With this, any calls to `renv` APIs within the created docker container will

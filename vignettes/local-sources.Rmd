@@ -49,8 +49,8 @@ See `?paths` for more details.
 
 You can also provide explicit source paths in the lockfile if desired. This is
 most useful if you are building an `renv` lockfile "by hand", or need to tweak
-an existing lockfile to point at a separate package for installation. For example,
-you could have a package record in `renv.lock` of the form:
+an existing lockfile to point at a separate package for installation. For
+example, you could have a package record in `renv.lock` of the form:
 
 ```
 {
@@ -60,5 +60,6 @@ you could have a package record in `renv.lock` of the form:
 }
 ```
 
-The main requirement is that your source path exists, and the path has an extension
-of either `.tar.gz`, `.tgz` (for macOS binaries) or `.zip` (for Windows binaries).
+The main requirement is that your source path exists, and the path has an
+extension of either `.tar.gz`, (for source packages), `.tgz` (for macOS
+binaries) or `.zip` (for Windows binaries).

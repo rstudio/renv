@@ -30,7 +30,7 @@ Underlying the philosophy of `renv` is that any of your existing workflows
 should just work as they did before -- `renv` helps manage library paths (and
 other project-specific state) to help isolate your project's R dependencies,
 and the existing tools you've used for managing R packages (e.g.
-`install.packages()`, `remove.packages()`) should work as before.
+`install.packages()`, `remove.packages()`) should work as they did before.
 
 
 ## Workflow
@@ -56,7 +56,7 @@ The general workflow when working with `renv` is:
 
 The `renv::init()` function attempts to ensure the newly-created project
 library includes all R packages currently used by the project. It does this
-by crawling any R files within the project for dependencies with the
+by crawling R files within the project for dependencies with the
 `renv::dependencies()` function. The discovered packages are then installed
 into the project library with the `renv::hydrate()` function, which will also
 attempt to save time by copying packages from your user library (rather than
@@ -76,26 +76,25 @@ to initialize a project with an empty project library.
 
 ## Reproducibility
 
-With Packrat, one can save and restore the state of the private library with
-`packrat::snapshot()` and `packrat::restore()`. The same model is used here:
+Using `renv`, it's possible to "save" and "load" the state of your project
+library. More specifically, you can use:
 
-- Call `renv::snapshot()` to save the state of your project to a lockfile; and
+- `renv::snapshot()` to save the state of your project to `renv.lock`; and
   
-- Call `renv::restore()` to restore the state of your project from a lockfile.
+- `renv::restore()` to restore the state of your project from `renv.lock`.
+
+For each package used in your project, `renv` will record the package version,
+and (if known) the external source from which that package can be retrieved.
+`renv::restore()` uses that information to retrieve and re-install those
+packages in your project.
 
 Be aware that `renv::restore()` may fail if a package was originally installed
 through a CRAN-available binary, but that binary is no longer available. `renv`
 will attempt to install the package from sources in this situation, but attempts
 to install from source can (and often do) fail due to missing system
-prerequisites for compilation of a package. On Windows, the `renv::equip()`
-function may be useful -- it will download external software commonly used when
-compiling R packages from sources, and instruct R to use that software during
-compilation.
-
-By default, `renv` will maintain and use a global cache of packages during
-`renv::restore()`, so (at least on the same machine) if that cache is maintained
-old projects will be restored by copying or linking from an installation
-discovered in the cache.
+prerequisites for compilation of a package. The `renv::equip()` function may be
+useful -- it will download external software commonly used when compiling R
+packages from sources, and instruct R to use that software during compilation.
 
 
 ## Infrastructure
@@ -109,9 +108,10 @@ The following files are written to and used by projects using `renv`:
 | `renv/activate.R` | The activation script run by the project `.Rprofile`.                               |
 | `renv/library`    | The private project library.                                                        |
 
-In particular, `renv/activate.R` ensures that the project library is made
-active for newly launched R sessions. This effectively ensures that any
-new R processes launched within the project directory are isolated.
+In particular, `renv/activate.R` ensures that the project library is made active
+for newly launched R sessions. This ensures that any new R processes launched
+within the project directory will use the project library, and hence are
+isolated from the regular user library.
  
 For development and collaboration, the `.Rprofile`, `renv.lock` and
 `renv/activate.R` files should be committed to your version control system; the
@@ -125,31 +125,51 @@ will attempt to write the requisite ignore statements to the project
 After initializing a project with `renv`, that project will then be 'bound'
 to the particular version of `renv` that was used to initialize the project.
 If you need to upgrade (or otherwise change) the version of `renv` associated
-with a project, you can use `renv::upgrade()`. Currently, this will (by default)
-install the latest version of `renv` available from GitHub; once CRAN releases
-of `renv` are available, we will likely prefer installation of the latest CRAN
-release.
+with a project, you can use `renv::upgrade()`. This will install the latest
+version of the `renv` 
 
 With each commit of `renv`, we bump the package version and also tag the
-commit with the associated package version. This implies that you can call
-(for example) `renv::upgrade(version = "0.3.0-17")` to request the installation
-of that particular version of `renv` if so required.
+commit with the associated package version. This implies that you can call,
+for example:
+
+```
+renv::upgrade(version = "`r renv:::renv_package_version("renv")`")
+```
+
+to request the installation of that particular version of `renv` if so required.
 
 
 ## Cache
 
-One of `renv`'s primary features is the use of a global package cache, which
-is shared across all projects using `renv`. The cache works as follows:
+One of `renv`'s primary features is the use of a global package cache, which is
+shared across all projects using `renv`. The `renv` package cache provides
+two primary benefits:
 
-1. During `renv::init()`, package dependencies in the project are discovered.
-2. These dependencies are then installed into the `renv` cache.
-3. These packages are then linked into the project library.
+1. Future calls to `renv::restore()` and `renv::install()` will become much
+   faster, as `renv` will be able to find and re-use packages already installed
+   in the cache.
 
-This allows a single package installation to be shared across multiple projects,
-while allowing these projects to still remain isolated from one another. Because
-each project uses its own project library, packages can be upgraded as needed
-without risk of affecting any other projects still using the previous version
-of the package.
+2. Because it is not necessary to have duplicate versions of your packages
+   installed in each project, the `renv` cache should also help you save
+   disk space relative to an approach with project-specific libraries without
+   a global cache.
+
+To understand the `renv` cache, we need to first understand what an R _library_
+is. An R library is, normally, a directory of installed R packages which can be
+loaded and used within an R session. These are the directories reported by e.g.
+`.libPaths()`, and R uses these directories when searching for packages to
+load (e.g. in response to a call to `library(dplyr)`).
+
+When using `renv` with the global package cache, the project library is instead
+formed as a directory of symlinks (or, on Windows, junction points) into the
+`renv` global package cache. Hence, while each `renv` project is isolated from
+other projects on your system, they can still re-use the same installed packages
+as required.
+
+In some cases, `renv` will be unable to directly link from the global package
+cache to your project library -- for example, if the package cache and your
+project library live on different disk volumes. In such a case, `renv` will
+instead copy the package from the cache into the project library.
 
 By default, `renv` generates its cache in the following folders:
 
@@ -160,13 +180,13 @@ By default, `renv` generates its cache in the following folders:
 | Windows      | `%LOCALAPPDATA%/renv`                |
 
 If you'd like to share the package cache across multiple users, you can do so by
-setting the `RENV_PATHS_CACHE` environment variable as required. This variable
-can be set in an R startup file to make it apply to all R sessions. For example,
-it could be set within:
+setting the `RENV_PATHS_CACHE` environment variable to a shared path. This
+variable can be set in an R startup file to make it apply to all R sessions.
+For example, it could be set within:
 
 - A project-local `.Renviron`;
-- The user-level `.Renviron`;
-- A file at `$(R RHOME)/etc/Renviron.site`.
+- The user-level `~/.Renviron`;
+- A site-wide file at `$(R RHOME)/etc/Renviron.site`.
 
 While we recommend enabling the cache by default, if you're having trouble with
 `renv` when the cache is enabled, it can be disabled by setting the project
@@ -176,7 +196,8 @@ link and use packages from the `renv` cache.
 
 If you find a problematic package has entered the cache (for example, an
 installed package has become corrupted), that package can be removed with the
-`renv::purge()` function.
+`renv::purge()` function. See the `?purge` documentation for caveats and things
+to be aware of when removing packages from the cache.
 
 
 ## Installation from Source
@@ -215,6 +236,7 @@ managers have a modern version of `curl` available in their repositories.
 
 `curl` downloads can be configured through `renv`'s configuration settings --
 see `?renv::config` for more details.
+
 
 ### Proxies
 
@@ -348,7 +370,7 @@ Currently, only Git repositories are supported by `renv::history()` and
 2. `renv` no longer attempts to explicitly download and track R package source
    tarballs within your project. This was a frustrating default that operated
    under the assumption that you might later want to be able to restore a
-   project's private library without access to a CRAN repository; in practice,
+   project's private library without access to a CRAN repository. In practice,
    this is almost never the case, and the time spent downloading + storing the
    package sources seemed to outweigh the potential reproducibility benefits.
 
