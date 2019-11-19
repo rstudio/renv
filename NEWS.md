@@ -1,6 +1,9 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* `renv` now normalizes any paths set in the `RENV_PATHS_*` family of
+  environment variables when `renv` is loaded.
+
 * Fixed an issue where `renv` would not properly clean up after a failed
   attempt to call `Sys.junction()`. (#251)
 

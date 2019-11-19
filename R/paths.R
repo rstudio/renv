@@ -145,6 +145,19 @@ renv_paths_root_default <- function() {
 }
 # nocov end
 
+renv_paths_init <- function() {
+
+  envvars <- Sys.getenv()
+
+  keys <- grep("^RENV_PATHS_", names(envvars), value = TRUE)
+  if (empty(keys))
+    return(character())
+
+  args <- lapply(envvars[keys], normalizePath, winslash = "/", mustWork = FALSE)
+  do.call(Sys.setenv, args)
+
+}
+
 #' Path Customization
 #'
 #' Access the paths that `renv` uses for global state storage.
