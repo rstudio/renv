@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.30</span>
       </span>
     </div>
 
@@ -135,7 +135,7 @@
 <a href="#updating-the-lockfile" class="anchor"></a>Updating the Lockfile</h2>
 <p>While working on a project, you or your collaborators may need to update or install new packages in your project. The workflow remains the same as before – after installing these new packages, you can share the updated lockfile with your collaborators, and request that they execute <code><a href="../reference/restore.html">renv::restore()</a></code> to synchronize their library with the lockfile.</p>
 <p>A bit of care needs to be taken if your collaborators attempt to update packages independently. It is recommended that a single ‘source of truth’ is used for the package sources and <code>renv.lock</code>, to avoid different collaborators ending up with different lockfiles – or even, different versions of the project sources!</p>
-<p>The simplest way to guard against this it to use a version control system, and have all collaborators work off the same branch. This way, if someone needs to update <code>renv.lock</code> in the public repository, all collaborators will see that updated lockfile and will gain access to it next time they pull those changes.</p>
+<p>The simplest way to guard against this it to use a version control system, and have all collaborators work off the same branch. This way, if someone needs to update <code>renv.lock</code> in the public repository, all collaborators will see that updated lockfile and will gain access to it next time they pull those changes. Depending on the size of your team, you may want to ensure any changes to <code>renv.lock</code> are communicated so that everyone knows and understands when and why packages have been installed or updated.</p>
 </div>
   </div>
 

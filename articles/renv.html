@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.30</span>
       </span>
     </div>
 
@@ -110,7 +110,7 @@
       <h1>Introduction to renv</h1>
                         <h4 class="author">Kevin Ushey</h4>
             
-            <h4 class="date">2019-11-18</h4>
+            <h4 class="date">2019-11-19</h4>
       
       
       <div class="hidden name"><code>renv.Rmd</code></div>
@@ -120,7 +120,7 @@
     
     
 <p>The <code>renv</code> package is a new effort to bring project-local R dependency management to your projects. The goal is for <code>renv</code> to be a robust, stable replacement for the <a href="https://rstudio.github.io/packrat/">Packrat</a> package, with fewer surprises and better default behaviors.</p>
-<p>Underlying the philosophy of <code>renv</code> is that any of your existing workflows should just work as they did before – <code>renv</code> helps manage library paths (and other project-specific state) to help isolate your project’s R dependencies, and the existing tools you’ve used for managing R packages (e.g. <code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages()</a></code>, <code><a href="https://rdrr.io/r/utils/remove.packages.html">remove.packages()</a></code>) should work as before.</p>
+<p>Underlying the philosophy of <code>renv</code> is that any of your existing workflows should just work as they did before – <code>renv</code> helps manage library paths (and other project-specific state) to help isolate your project’s R dependencies, and the existing tools you’ve used for managing R packages (e.g. <code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages()</a></code>, <code><a href="https://rdrr.io/r/utils/remove.packages.html">remove.packages()</a></code>) should work as they did before.</p>
 <div id="workflow" class="section level2">
 <h2 class="hasAnchor">
 <a href="#workflow" class="anchor"></a>Workflow</h2>
@@ -132,20 +132,20 @@
 <li><p>Continue working on your project, installing and updating R packages as needed.</p></li>
 <li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> again to save the state of your project library if your attempts to update R packages were successful, or call <code><a href="../reference/restore.html">renv::restore()</a></code> to revert to the previous state as encoded in the lockfile if your attempts to update packages introduced some new problems.</p></li>
 </ol>
-<p>The <code><a href="../reference/init.html">renv::init()</a></code> function attempts to ensure the newly-created project library includes all R packages currently used by the project. It does this by crawling any R files within the project for dependencies with the <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> function. The discovered packages are then installed into the project library with the <code><a href="../reference/hydrate.html">renv::hydrate()</a></code> function, which will also attempt to save time by copying packages from your user library (rather than re-installing from CRAN) as appropriate.</p>
+<p>The <code><a href="../reference/init.html">renv::init()</a></code> function attempts to ensure the newly-created project library includes all R packages currently used by the project. It does this by crawling R files within the project for dependencies with the <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> function. The discovered packages are then installed into the project library with the <code><a href="../reference/hydrate.html">renv::hydrate()</a></code> function, which will also attempt to save time by copying packages from your user library (rather than re-installing from CRAN) as appropriate.</p>
 <p>Calling <code><a href="../reference/init.html">renv::init()</a></code> will also write out the infrastructure necessary to automatically load and use the private library for new R sessions launched from the project root directory. This is accomplished by creating (or amending) a project-local <code>.Rprofile</code> with the necessary code to load the project when the R session is started.</p>
 <p>If you’d like to initialize a project without attempting dependency discovery and installation – that is, you’d prefer to manually install the packages your project requires on your own – you can use <code><a href="../reference/init.html">renv::init(bare = TRUE)</a></code> to initialize a project with an empty project library.</p>
 </div>
 <div id="reproducibility" class="section level2">
 <h2 class="hasAnchor">
 <a href="#reproducibility" class="anchor"></a>Reproducibility</h2>
-<p>With Packrat, one can save and restore the state of the private library with <code><a href="https://rdrr.io/pkg/packrat/man/snapshot.html">packrat::snapshot()</a></code> and <code><a href="https://rdrr.io/pkg/packrat/man/restore.html">packrat::restore()</a></code>. The same model is used here:</p>
+<p>Using <code>renv</code>, it’s possible to “save” and “load” the state of your project library. More specifically, you can use:</p>
 <ul>
-<li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to save the state of your project to a lockfile; and</p></li>
-<li><p>Call <code><a href="../reference/restore.html">renv::restore()</a></code> to restore the state of your project from a lockfile.</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to save the state of your project to <code>renv.lock</code>; and</p></li>
+<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> to restore the state of your project from <code>renv.lock</code>.</p></li>
 </ul>
-<p>Be aware that <code><a href="../reference/restore.html">renv::restore()</a></code> may fail if a package was originally installed through a CRAN-available binary, but that binary is no longer available. <code>renv</code> will attempt to install the package from sources in this situation, but attempts to install from source can (and often do) fail due to missing system prerequisites for compilation of a package. On Windows, the <code><a href="../reference/equip.html">renv::equip()</a></code> function may be useful – it will download external software commonly used when compiling R packages from sources, and instruct R to use that software during compilation.</p>
-<p>By default, <code>renv</code> will maintain and use a global cache of packages during <code><a href="../reference/restore.html">renv::restore()</a></code>, so (at least on the same machine) if that cache is maintained old projects will be restored by copying or linking from an installation discovered in the cache.</p>
+<p>For each package used in your project, <code>renv</code> will record the package version, and (if known) the external source from which that package can be retrieved. <code><a href="../reference/restore.html">renv::restore()</a></code> uses that information to retrieve and re-install those packages in your project.</p>
+<p>Be aware that <code><a href="../reference/restore.html">renv::restore()</a></code> may fail if a package was originally installed through a CRAN-available binary, but that binary is no longer available. <code>renv</code> will attempt to install the package from sources in this situation, but attempts to install from source can (and often do) fail due to missing system prerequisites for compilation of a package. The <code><a href="../reference/equip.html">renv::equip()</a></code> function may be useful – it will download external software commonly used when compiling R packages from sources, and instruct R to use that software during compilation.</p>
 </div>
 <div id="infrastructure" class="section level2">
 <h2 class="hasAnchor">
@@ -179,25 +179,28 @@
 </tr>
 </tbody>
 </table>
-<p>In particular, <code>renv/activate.R</code> ensures that the project library is made active for newly launched R sessions. This effectively ensures that any new R processes launched within the project directory are isolated.</p>
+<p>In particular, <code>renv/activate.R</code> ensures that the project library is made active for newly launched R sessions. This ensures that any new R processes launched within the project directory will use the project library, and hence are isolated from the regular user library.</p>
 <p>For development and collaboration, the <code>.Rprofile</code>, <code>renv.lock</code> and <code>renv/activate.R</code> files should be committed to your version control system; the <code>renv/library</code> directory should normally be ignored. Note that <code><a href="../reference/init.html">renv::init()</a></code> will attempt to write the requisite ignore statements to the project <code>.gitignore</code>.</p>
 </div>
 <div id="upgrading-renv" class="section level2">
 <h2 class="hasAnchor">
 <a href="#upgrading-renv" class="anchor"></a>Upgrading renv</h2>
-<p>After initializing a project with <code>renv</code>, that project will then be ‘bound’ to the particular version of <code>renv</code> that was used to initialize the project. If you need to upgrade (or otherwise change) the version of <code>renv</code> associated with a project, you can use <code><a href="../reference/upgrade.html">renv::upgrade()</a></code>. Currently, this will (by default) install the latest version of <code>renv</code> available from GitHub; once CRAN releases of <code>renv</code> are available, we will likely prefer installation of the latest CRAN release.</p>
-<p>With each commit of <code>renv</code>, we bump the package version and also tag the commit with the associated package version. This implies that you can call (for example) <code><a href="../reference/upgrade.html">renv::upgrade(version = "0.3.0-17")</a></code> to request the installation of that particular version of <code>renv</code> if so required.</p>
+<p>After initializing a project with <code>renv</code>, that project will then be ‘bound’ to the particular version of <code>renv</code> that was used to initialize the project. If you need to upgrade (or otherwise change) the version of <code>renv</code> associated with a project, you can use <code><a href="../reference/upgrade.html">renv::upgrade()</a></code>. This will install the latest version of the <code>renv</code></p>
+<p>With each commit of <code>renv</code>, we bump the package version and also tag the commit with the associated package version. This implies that you can call, for example:</p>
+<pre><code><a href="../reference/upgrade.html">renv::upgrade(version = "0.8.3-30")</a></code></pre>
+<p>to request the installation of that particular version of <code>renv</code> if so required.</p>
 </div>
 <div id="cache" class="section level2">
 <h2 class="hasAnchor">
 <a href="#cache" class="anchor"></a>Cache</h2>
-<p>One of <code>renv</code>’s primary features is the use of a global package cache, which is shared across all projects using <code>renv</code>. The cache works as follows:</p>
+<p>One of <code>renv</code>’s primary features is the use of a global package cache, which is shared across all projects using <code>renv</code>. The <code>renv</code> package cache provides two primary benefits:</p>
 <ol style="list-style-type: decimal">
-<li>During <code><a href="../reference/init.html">renv::init()</a></code>, package dependencies in the project are discovered.</li>
-<li>These dependencies are then installed into the <code>renv</code> cache.</li>
-<li>These packages are then linked into the project library.</li>
+<li><p>Future calls to <code><a href="../reference/restore.html">renv::restore()</a></code> and <code><a href="../reference/install.html">renv::install()</a></code> will become much faster, as <code>renv</code> will be able to find and re-use packages already installed in the cache.</p></li>
+<li><p>Because it is not necessary to have duplicate versions of your packages installed in each project, the <code>renv</code> cache should also help you save disk space relative to an approach with project-specific libraries without a global cache.</p></li>
 </ol>
-<p>This allows a single package installation to be shared across multiple projects, while allowing these projects to still remain isolated from one another. Because each project uses its own project library, packages can be upgraded as needed without risk of affecting any other projects still using the previous version of the package.</p>
+<p>To understand the <code>renv</code> cache, we need to first understand what an R <em>library</em> is. An R library is, normally, a directory of installed R packages which can be loaded and used within an R session. These are the directories reported by e.g. <code><a href="https://rdrr.io/r/base/libPaths.html">.libPaths()</a></code>, and R uses these directories when searching for packages to load (e.g. in response to a call to <code><a href="https://rdrr.io/r/base/library.html">library(dplyr)</a></code>).</p>
+<p>When using <code>renv</code> with the global package cache, the project library is instead formed as a directory of symlinks (or, on Windows, junction points) into the <code>renv</code> global package cache. Hence, while each <code>renv</code> project is isolated from other projects on your system, they can still re-use the same installed packages as required.</p>
+<p>In some cases, <code>renv</code> will be unable to directly link from the global package cache to your project library – for example, if the package cache and your project library live on different disk volumes. In such a case, <code>renv</code> will instead copy the package from the cache into the project library.</p>
 <p>By default, <code>renv</code> generates its cache in the following folders:</p>
 <table class="table">
 <thead><tr class="header">
@@ -219,14 +222,14 @@
 </tr>
 </tbody>
 </table>
-<p>If you’d like to share the package cache across multiple users, you can do so by setting the <code>RENV_PATHS_CACHE</code> environment variable as required. This variable can be set in an R startup file to make it apply to all R sessions. For example, it could be set within:</p>
+<p>If you’d like to share the package cache across multiple users, you can do so by setting the <code>RENV_PATHS_CACHE</code> environment variable to a shared path. This variable can be set in an R startup file to make it apply to all R sessions. For example, it could be set within:</p>
 <ul>
 <li>A project-local <code>.Renviron</code>;</li>
-<li>The user-level <code>.Renviron</code>;</li>
-<li>A file at <code>$(R RHOME)/etc/Renviron.site</code>.</li>
+<li>The user-level <code>~/.Renviron</code>;</li>
+<li>A site-wide file at <code>$(R RHOME)/etc/Renviron.site</code>.</li>
 </ul>
 <p>While we recommend enabling the cache by default, if you’re having trouble with <code>renv</code> when the cache is enabled, it can be disabled by setting the project setting <code>renv::settings$use.cache(FALSE)</code>. Doing this will ensure that packages are then installed into your project library directly, without attempting to link and use packages from the <code>renv</code> cache.</p>
-<p>If you find a problematic package has entered the cache (for example, an installed package has become corrupted), that package can be removed with the <code><a href="../reference/purge.html">renv::purge()</a></code> function.</p>
+<p>If you find a problematic package has entered the cache (for example, an installed package has become corrupted), that package can be removed with the <code><a href="../reference/purge.html">renv::purge()</a></code> function. See the <code><a href="../reference/purge.html">?purge</a></code> documentation for caveats and things to be aware of when removing packages from the cache.</p>
 </div>
 <div id="installation-from-source" class="section level2">
 <h2 class="hasAnchor">
@@ -302,19 +305,19 @@
 </table>
 <p>These credentials can be stored in e.g. <code>.Renviron</code>, or can be set in your R session through other means as appropriate.</p>
 <p>If you require custom authentication for different packages (for example, your project makes use of packages available on different GitHub enterprise servers), you can use the <code>renv.auth</code> R option to provide package-specific authentication settings. <code>renv.auth</code> can either be a a named list associating package names with environment variables, or a function accepting a package name + record, and returning a list of environment variables. For example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># define a function providing authentication</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth =</span> <span class="cf">function</span>(package, record) {</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">  <span class="cf">if</span> (package <span class="op">==</span><span class="st"> "MyPackage"</span>)</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">})</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="co"># use a named list directly</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb3-9" data-line-number="9">  <span class="dt">MyPackage =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>)</a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">))</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co"># alternatively, set package-specific option</span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth.MyPackage =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># define a function providing authentication</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth =</span> <span class="cf">function</span>(package, record) {</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="cf">if</span> (package <span class="op">==</span><span class="st"> "MyPackage"</span>)</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">})</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="co"># use a named list directly</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">  <span class="dt">MyPackage =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>)</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">))</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="co"># alternatively, set package-specific option</span></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">renv.auth.MyPackage =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">GITHUB_PAT =</span> <span class="st">"&lt;pat&gt;"</span>))</a></code></pre></div>
 <p>For packages installed from Git remotes, <code>renv</code> will attempt to use <code>git</code> from the command line to download and restore the associated package. Hence, it is recommended that authentication is done through SSH keys when possible.</p>
 </div>
 <div id="shims" class="section level2">
@@ -356,7 +359,7 @@
 <p><code>renv</code> differs from Packrat in the following ways:</p>
 <ol style="list-style-type: decimal">
 <li><p>The <code>renv</code> lockfile <code>renv.lock</code> is formatted as <a href="https://www.json.org/">JSON</a>. This should make the lockfile easier to use and consume with other tools.</p></li>
-<li><p><code>renv</code> no longer attempts to explicitly download and track R package source tarballs within your project. This was a frustrating default that operated under the assumption that you might later want to be able to restore a project’s private library without access to a CRAN repository; in practice, this is almost never the case, and the time spent downloading + storing the package sources seemed to outweigh the potential reproducibility benefits.</p></li>
+<li><p><code>renv</code> no longer attempts to explicitly download and track R package source tarballs within your project. This was a frustrating default that operated under the assumption that you might later want to be able to restore a project’s private library without access to a CRAN repository. In practice, this is almost never the case, and the time spent downloading + storing the package sources seemed to outweigh the potential reproducibility benefits.</p></li>
 <li><p>Packrat tried to maintain the distinction between so-called ‘stale’ packages; that is, R packages which were installed by Packrat but were not recorded in the lockfile for some reason. This distinction was (1) overall not useful, and (2) confusing. <code>renv</code> no longer makes this distinction: <code><a href="../reference/snapshot.html">snapshot()</a></code> saves the state of your project library to <code>renv.lock</code>, <code><a href="../reference/restore.html">restore()</a></code> loads the state of your project library from <code>renv.lock</code>, and that’s all.</p></li>
 <li><p>In <code>renv</code>, the global package cache is enabled by default. This should reduce overall disk-space usage as packages can effectively be shared across each project using <code>renv</code>.</p></li>
 <li><p><code>renv</code>’s dependency discovery machinery is more configurable. The function <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> is exported, and users can create <code>.renvignore</code> files to instruct <code>renv</code> to ignore specific files and folders in their projects. (See <code><a href="../reference/dependencies.html">?renv::dependencies</a></code> for more information.)</p></li>

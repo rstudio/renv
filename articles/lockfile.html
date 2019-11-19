@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.30</span>
       </span>
     </div>
 
@@ -128,7 +128,7 @@
 <p>Here is an example lockfile, including the packages <code>markdown</code> and <code>mime</code>:</p>
 <pre><code>{
   "renv": {
-    "Version": "1.0.0"
+    "Version": "0.8.3-30"
   },
   "R": {
     "Version": "3.6.1",
@@ -143,18 +143,20 @@
     "markdown": {
       "Package": "markdown",
       "Version": "1.0",
-      "Source": "CRAN",
+      "Source": "Repository",
+      "Repository": "CRAN",
       "Hash": "4584a57f565dd7987d59dda3a02cfb41"
     },
     "mime": {
       "Package": "mime",
       "Version": "0.7",
-      "Source": "CRAN",
+      "Source": "Repository",
+      "Repository": "CRAN",
       "Hash": "908d95ccbfd1dd274073ef07a7c93934"
     }
   }
 }</code></pre>
-<p>The function <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is used to create this lockfile, and by default writes these records to the file <code>renv.lock</code>. Later, if you need to reinstall the specific package versions as recorded in <code>renv.lock</code>, you can use <code><a href="../reference/restore.html">renv::restore()</a></code>.</p>
+<p>The function <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is used to create this lockfile, and by default writes these records to the file <code>renv.lock</code>. Later, if you need to re-install the specific package versions as recorded in <code>renv.lock</code>, you can use <code><a href="../reference/restore.html">renv::restore()</a></code>.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

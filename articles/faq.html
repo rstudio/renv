@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.30</span>
       </span>
     </div>
 
@@ -122,8 +122,8 @@
 <a href="#why-isnt-my-package-being-snapshotted-into-the-lockfile" class="anchor"></a>Why isn’t my package being snapshotted into the lockfile?</h2>
 <p>By default, <code>renv</code> uses the intersection of:</p>
 <ol style="list-style-type: decimal">
-<li>Packages installed into your project library, and</li>
-<li>Packages which appear to be used in your project (as discovered by <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>),</li>
+<li><p>Packages installed into your project library, and</p></li>
+<li><p>Packages which appear to be used in your project, as discovered by <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>,</p></li>
 </ol>
 <p>in determining which packages should enter the lockfile. The intention is that only the packages you truly require for your project should enter the lockfile; development dependencies (e.g. <code>devtools</code>) normally should not.</p>
 <p>If you find a package is not entering the lockfile, you can check the output of:</p>
