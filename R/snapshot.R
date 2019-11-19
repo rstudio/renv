@@ -125,7 +125,7 @@ snapshot <- function(project  = NULL,
   # request user confirmation
 
   # nocov start
-  if (confirm && !proceed()) {
+  if (length(actions) && confirm && !proceed()) {
     message("* Operation aborted.")
     return(invisible(new))
   }
