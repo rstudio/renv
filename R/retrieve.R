@@ -97,6 +97,13 @@ renv_retrieve_impl <- function(package) {
   if (source == "cran")
     source <- "repository"
 
+  # check for ad-hoc requests to install from bioc
+  if (identical(source, "repository")) {
+    repos <- record$Repository %||% ""
+    if (repos %in% c("bioc", "bioconductor"))
+      source <- "bioconductor"
+  }
+
   switch(source,
          bioconductor = renv_retrieve_bioconductor(record),
          bitbucket    = renv_retrieve_bitbucket(record),
