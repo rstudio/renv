@@ -174,10 +174,15 @@ test_that("compatible local sources are preferred when available", {
 
 test_that("an explicitly-provided local source path can be used", {
 
+  source <- normalizePath("local/skeleton/skeleton_1.0.1.tar.gz")
+
+  owd <- setwd(tempdir())
+  on.exit(setwd(owd), add = TRUE)
+
   record <- list(
     Package = "skeleton",
     Version = "1.0.1",
-    Source  = "local/skeleton/skeleton_1.0.1.tar.gz"
+    Source  = source
   )
 
   renv_test_retrieve(record)
