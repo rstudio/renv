@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.36</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.37</span>
       </span>
     </div>
 
@@ -120,10 +120,13 @@
 <p>If your project depends on R packages not available in any external source, you can set up an ad-hoc local source to use during restore. This allows you to provide package tarballs that can be used to restore packages otherwise not available elsewhere.</p>
 <p>The environment variable <code>RENV_PATHS_LOCAL</code> can be used to customize where this local source of packages should live. It should point to a directory containing package binaries and sources, with a structure of the form:</p>
 <ul>
+<li>
+<code>${RENV_PATHS_LOCAL}/&lt;package&gt;_&lt;version&gt;.tar.gz</code>; or</li>
 <li><code>${RENV_PATHS_LOCAL}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
 </ul>
-<p>For example, if your project depended on a package <code>skeleton [1.0.0]</code>, you could place the tarball for this package at:</p>
+<p>For example, if your project depended on a package <code>skeleton 1.0.0</code>, you could place the tarball for this package at one of these locations:</p>
 <ul>
+<li><code>${RENV_PATHS_LOCAL}/skeleton_1.0.0.tar.gz</code></li>
 <li><code>${RENV_PATHS_LOCAL}/skeleton/skeleton_1.0.0.tar.gz</code></li>
 </ul>
 <p>Once this is done, <code>renv</code> will consult this directory during future attempts to restore packages installed from unknown sources.</p>

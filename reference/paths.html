@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.36</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.37</span>
       </span>
     </div>
 
@@ -227,7 +227,9 @@ remote location, you can still provide a locally-available tarball for <code>ren
 to use during restore. By default, these packages should be made available in
 the folder as specified by the <code>RENV_PATHS_LOCAL</code> environment variable. The
 package sources should be placed in a file at one of these locations:</p><ul>
+<li><p><code>${RENV_PATHS_LOCAL}/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 <li><p><code>${RENV_PATHS_LOCAL}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
+<li><p><code>&lt;project&gt;/renv/local/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 <li><p><code>&lt;project&gt;/renv/local/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 </ul>
 
