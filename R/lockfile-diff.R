@@ -27,7 +27,7 @@ renv_lockfile_diff <- function(old, new, compare = NULL) {
   )
 
   # drop NULL entries
-  diffs[!map_lgl(diffs, empty)]
+  reject(diffs, empty)
 
 }
 

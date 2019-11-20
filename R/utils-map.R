@@ -21,6 +21,14 @@ uapply <- function(x, f, ...) {
   unlist(lapply(x, f, ...), recursive = FALSE)
 }
 
+filter <- function(x, f, ...) {
+  x[map_lgl(x, f, ...)]
+}
+
+reject <- function(x, f, ...) {
+  x[!map_lgl(x, f, ...)]
+}
+
 map <- function(x, f, ...) {
   lapply(x, f, ...)
 }

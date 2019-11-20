@@ -338,14 +338,6 @@ keep <- function(x, keys) {
   x[intersect(keys, names(x))]
 }
 
-keep_if <- function(f, x, ...) {
-  x[map_lgl(x, f, ...)]
-}
-
 drop <- function(x, keys) {
   x[setdiff(names(x), keys)]
-}
-
-drop_if <- function(f, x, ...) {
-  x[!map_lgl(x, f, ...)]
 }

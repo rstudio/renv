@@ -58,7 +58,7 @@ renv_remotes_resolve_impl <- function(entry) {
     stopf("unknown remote type '%s'", parsed$type %||% "<NA>")
   )
 
-  drop_if(is.null, resolved)
+  reject(resolved, is.null)
 
 }
 

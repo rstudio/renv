@@ -195,8 +195,8 @@ renv_record_format_pair <- function(lhs, rhs) {
 
 renv_records_equal <- function(lhs, rhs) {
 
-  lhs <- drop_if(is.null, lhs)
-  rhs <- drop_if(is.null, rhs)
+  lhs <- reject(lhs, is.null)
+  rhs <- reject(rhs, is.null)
 
   nm <- setdiff(union(names(lhs), names(rhs)), "Hash")
   identical(keep(lhs, nm), keep(rhs, nm))

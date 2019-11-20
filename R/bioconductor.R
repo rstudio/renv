@@ -47,10 +47,10 @@ renv_bioconductor_version <- function() {
 
 }
 
-renv_bioconductor_repos <- function() {
+renv_bioconductor_repos <- function(version = NULL) {
 
   # read Bioconductor version (normally set during restore)
-  version <- getOption("renv.bioconductor.version")
+  version <- version %||% getOption("renv.bioconductor.version")
 
   # try both BiocManager, BiocInstaller to get Bioconductor repositories
   getters <- list(

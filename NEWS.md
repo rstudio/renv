@@ -1,6 +1,10 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* `renv` now warns if any Bioconductor packages used in the project appear
+  to be from a different Bioconductor release than the one currently active
+  and stored in the lockfile. (#244)
+
 * `renv` now normalizes any paths set in the `RENV_PATHS_*` family of
   environment variables when `renv` is loaded.
 

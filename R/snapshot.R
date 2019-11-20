@@ -182,40 +182,110 @@ renv_snapshot_validate <- function(project, lockfile, library) {
   if (!enabled)
     return(TRUE)
 
-  all(
-    renv_snapshot_validate_bioconductor(project, lockfile, library),
-    renv_snapshot_validate_dependencies_available(project, lockfile, library),
-    renv_snapshot_validate_dependencies_compatible(project, lockfile, library),
-    renv_snapshot_validate_sources(project, lockfile, library)
+  methods <- list(
+    renv_snapshot_validate_bioconductor,
+    renv_snapshot_validate_dependencies_available,
+    renv_snapshot_validate_dependencies_compatible,
+    renv_snapshot_validate_sources
   )
+
+  ok <- map_lgl(methods, function(method) {
+    tryCatch(
+      method(project, lockfile, library),
+      error = function(e) { warning(e); FALSE }
+    )
+  })
+
+  all(ok)
+
 }
 
+# nocov start
 renv_snapshot_validate_bioconductor <- function(project, lockfile, library) {
+
+  ok <- TRUE
 
   # check whether any packages are installed from Bioconductor
   records <- renv_records(lockfile)
   sources <- extract_chr(records, "Source")
   if (!"Bioconductor" %in% sources)
-    return(TRUE)
+    return(ok)
 
-  # nocov start
+  # check for BiocManager or BiocInstaller
   package <- if (getRversion() >= "3.5.0") "BiocManager" else "BiocInstaller"
-  if (package %in% names(records))
-    return(TRUE)
+  if (!package %in% names(records)) {
 
-  text <- c(
-    "One or more Bioconductor packages are used in your project,",
-    "but neither BiocManager nor BiocInstaller will be snapshotted.",
-    "",
-    "Consider installing the appropriate package before snapshot.",
-    ""
-  )
+    text <- c(
+      "One or more Bioconductor packages are used in your project,",
+      "but the %s package is not available.",
+      "",
+      "Consider installing %s before snapshot.",
+      ""
+    )
 
-  writeLines(text)
-  FALSE
-  # nocov end
+    if (!renv_testing())
+      writeLines(sprintf(text, package))
+
+    ok <- FALSE
+  }
+
+  # check that Bioconductor packages are from correct release
+  version <-
+    lockfile$Bioconductor$Version %||%
+    renv_bioconductor_version()
+
+  renv_scope_options(repos = renv_bioconductor_repos(version = version))
+
+  # collect Bioconductor records
+  bioc <- records %>%
+    filter(function(record) record$Source == "Bioconductor") %>%
+    map(function(record) record[c("Package", "Version")]) %>%
+    bind_list()
+
+  # collect latest versions of these packages
+  bioc$Latest <- vapply(bioc$Package, function(package) {
+    entry <- catch(renv_available_packages_latest(package))
+    if (inherits(entry, "error"))
+      return("<NA>")
+    entry$Version
+  }, FUN.VALUE = character(1))
+
+  # check for version mismatches (allow mismatch in minor version)
+  bioc$Mismatch <- mapply(function(current, latest) {
+
+    if (identical(latest, "<NA>"))
+      return(TRUE)
+
+    current <- unclass(package_version(current))[[1]]
+    latest <- unclass(package_version(latest))[[1]]
+    current[[1]] != latest[[1]] || current[[2]] != latest[[2]]
+
+  }, bioc$Version, bioc$Latest)
+
+  bad <- bioc[bioc$Mismatch, ]
+  if (nrow(bad)) {
+
+    fmt <- "%s [installed %s != latest %s]"
+    msg <- sprintf(fmt, format(bad$Package), format(bad$Version), bad$Latest)
+
+    if (!renv_testing()) {
+      renv_pretty_print(
+        msg,
+        "The following Bioconductor packages appear to be from a separate Bioconductor release:",
+        c(
+          "renv may be unable to restore these packages.",
+          paste("Bioconductor version:", version)
+        )
+      )
+    }
+
+    ok <- FALSE
+  }
+
+  ok
 
 }
+# nocov end
 
 renv_snapshot_validate_dependencies_available <- function(project, lockfile, library) {
 
@@ -253,12 +323,14 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
 
   })
 
-  renv_pretty_print(
-    sprintf("%s  [required by %s]", format(missing), usedby),
-    "The following required packages are not installed:",
-    "Consider re-installing these packages before snapshotting the lockfile.",
-    wrap = FALSE
-  )
+  if (!renv_testing()) {
+    renv_pretty_print(
+      sprintf("%s  [required by %s]", format(missing), usedby),
+      "The following required packages are not installed:",
+      "Consider re-installing these packages before snapshotting the lockfile.",
+      wrap = FALSE
+    )
+  }
 
   FALSE
 
@@ -319,7 +391,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   fmt <- "'%s' requires '%s', but version '%s' will be snapshotted"
   txt <- sprintf(fmt, format(package), format(requires), format(package), format(request))
 
-  if (renv_verbose()) {
+  if (!renv_testing()) {
     renv_pretty_print(
       txt,
       "The following package(s) have unsatisfied dependencies:",
@@ -349,14 +421,16 @@ renv_snapshot_validate_sources <- function(project, lockfile, library) {
     return(TRUE)
 
   # nocov start
-  renv_pretty_print(
-    names(unknown),
-    "The following package(s) were installed from an unknown source:",
-    c(
-      "renv may be unable to restore these packages in the future.",
-      "Consider re-installing these packages from a known source (e.g. CRAN)."
+  if (!renv_testing()) {
+    renv_pretty_print(
+      names(unknown),
+      "The following package(s) were installed from an unknown source:",
+      c(
+        "renv may be unable to restore these packages in the future.",
+        "Consider re-installing these packages from a known source (e.g. CRAN)."
+      )
     )
-  )
+  }
   # nocov end
 
   FALSE
