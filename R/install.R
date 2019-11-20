@@ -493,7 +493,7 @@ renv_install_preflight_unknown_source <- function(records) {
     renv_pretty_print_records(
       unknown,
       "The following package(s) were installed from an unknown source:",
-      "renv will install the latest version(s) from your R package repositories instead."
+      "renv may be unable to restore these packages."
     )
   }
   # nocov end
