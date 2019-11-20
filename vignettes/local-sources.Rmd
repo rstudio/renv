@@ -25,11 +25,13 @@ The environment variable `RENV_PATHS_LOCAL` can be used to customize where this
 local source of packages should live. It should point to a directory containing
 package binaries and sources, with a structure of the form:
 
+- `${RENV_PATHS_LOCAL}/<package>_<version>.tar.gz`; or
 - `${RENV_PATHS_LOCAL}/<package>/<package>_<version>.tar.gz`
 
-For example, if your project depended on a package `skeleton [1.0.0]`, you could
-place the tarball for this package at:
+For example, if your project depended on a package `skeleton 1.0.0`, you could
+place the tarball for this package at one of these locations:
 
+- `${RENV_PATHS_LOCAL}/skeleton_1.0.0.tar.gz`
 - `${RENV_PATHS_LOCAL}/skeleton/skeleton_1.0.0.tar.gz`
 
 Once this is done, `renv` will consult this directory during future attempts to

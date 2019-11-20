@@ -275,18 +275,27 @@ renv_retrieve_local_find <- function(record) {
     return(named(path, type))
   }
 
-  # otherwise, use our own local cache of packages
+  # otherwise, use the user's local packages
   roots <- c(
     renv_paths_project("renv/local"),
     renv_paths_local()
   )
 
   for (type in c("binary", "source")) {
+
     name <- renv_retrieve_name(record, type = type)
     for (root in roots) {
-      path <- file.path(root, record$Package, name)
-      if (file.exists(path))
-        return(named(path, type))
+
+      package <- record$Package
+      paths <- c(
+        file.path(root, package, name),
+        file.path(root, name)
+      )
+
+      for (path in paths)
+        if (file.exists(path))
+          return(named(path, type))
+
     }
   }
 

@@ -79,7 +79,9 @@ to use during restore. By default, these packages should be made available in
 the folder as specified by the \code{RENV_PATHS_LOCAL} environment variable. The
 package sources should be placed in a file at one of these locations:
 \itemize{
+\item \verb{$\{RENV_PATHS_LOCAL\}/<package>_<version>.<ext>}
 \item \verb{$\{RENV_PATHS_LOCAL\}/<package>/<package>_<version>.<ext>}
+\item \verb{<project>/renv/local/<package>_<version>.<ext>}
 \item \verb{<project>/renv/local/<package>/<package>_<version>.<ext>}
 }
 

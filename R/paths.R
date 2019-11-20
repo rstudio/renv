@@ -233,7 +233,9 @@ renv_paths_init <- function() {
 #' the folder as specified by the `RENV_PATHS_LOCAL` environment variable. The
 #' package sources should be placed in a file at one of these locations:
 #'
+#' - `${RENV_PATHS_LOCAL}/<package>_<version>.<ext>`
 #' - `${RENV_PATHS_LOCAL}/<package>/<package>_<version>.<ext>`
+#' - `<project>/renv/local/<package>_<version>.<ext>`
 #' - `<project>/renv/local/<package>/<package>_<version>.<ext>`
 #'
 #' where `.<ext>` is `.tar.gz` for source packages, or `.tgz` for binaries on
