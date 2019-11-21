@@ -1,6 +1,9 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* `renv` now tries harder to preserve the existing structure in infrastructure
+  files (e.g. the project `.Rprofile`) that it modifies. (#259)
+
 * `renv` now warns if any Bioconductor packages used in the project appear
   to be from a different Bioconductor release than the one currently active
   and stored in the lockfile. (#244)

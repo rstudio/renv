@@ -42,8 +42,14 @@ test_that("library/ is excluded from .gitignore as appropriate", {
   settings$vcs.ignore.library(FALSE)
 
   contents <- readLines("renv/.gitignore")
+  expect_true("# library/" %in% contents)
   expect_false("library/" %in% contents)
 
+  settings$vcs.ignore.library(TRUE)
+
+  contents <- readLines("renv/.gitignore")
+  expect_true("library/" %in% contents)
+  expect_false("# library/" %in% contents)
 
 })
 
@@ -54,4 +60,33 @@ test_that("whitespace in infrastructure file is preserved", {
   renv_infrastructure_write()
   after <- readLines(".Rbuildignore")
   expect_equal(before, after)
+})
+
+test_that("lines are commented, uncommented as appropriate", {
+  renv_tests_scope()
+
+  text <- "  # Some pre-existing text"
+  writeLines(text, con = ".Rprofile")
+
+  init(bare = TRUE)
+
+  before <- readLines(".Rprofile")
+
+  deactivate()
+
+  after <- readLines(".Rprofile")
+
+  expected <- c("# source(\"renv/activate.R\")", text)
+  expect_identical(after, expected)
+
+})
+
+test_that("comments after a required line are preserved", {
+  renv_tests_scope()
+  text <- "source(\"renv/activate.R\")  # TODO: change?"
+  writeLines(text, con = ".Rprofile")
+  renv_infrastructure_remove()
+  expect_identical(readLines(con = ".Rprofile"), paste("#", text))
+  renv_infrastructure_write()
+  expect_identical(readLines(con = ".Rprofile"), text)
 })
