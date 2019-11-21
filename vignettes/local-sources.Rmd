@@ -28,14 +28,28 @@ package binaries and sources, with a structure of the form:
 - `${RENV_PATHS_LOCAL}/<package>_<version>.tar.gz`; or
 - `${RENV_PATHS_LOCAL}/<package>/<package>_<version>.tar.gz`
 
-For example, if your project depended on a package `skeleton 1.0.0`, you could
-place the tarball for this package at one of these locations:
+Alternatively, you can also use project-specific local sources by placing your
+packages within a folder located at `renv/local`. Note that this folder does
+not exist by default; you must create it to opt-in to this mechanism.
+
+- `<project>/renv/local/<package>_<version>.tar.gz`; or
+- `<project>/renv/local/<package>/<package>_<version>.tar.gz`
+
+As an example, if your project depended on a package `skeleton 1.0.0`, you could
+place a tarball for this package in one of the following locations:
 
 - `${RENV_PATHS_LOCAL}/skeleton_1.0.0.tar.gz`
 - `${RENV_PATHS_LOCAL}/skeleton/skeleton_1.0.0.tar.gz`
+- `<project>/renv/local/<package>_<version>.tar.gz`; or
+- `<project>/renv/local/<package>/<package>_<version>.tar.gz`
 
-Once this is done, `renv` will consult this directory during future attempts to
-restore packages installed from unknown sources.
+Once this is done, `renv` will consult these directories during future attempts
+to restore packages installed from unknown sources.
+
+Note that packages placed in one of these local sources will override any
+default source recorded in the lockfile. For example, if `skeleton 1.0.0` was
+also available on CRAN, `renv::restore()` would still use the locally-provided
+tarball rather than the version available from CRAN.
 
 If you want to see what directory is being used by `renv` for local package
 sources, you can execute:
