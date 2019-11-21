@@ -13,6 +13,11 @@
 #'   project. When `NULL`, the most recently generated lockfile for this project
 #'   is used.
 #'
+#' @param packages A subset of packages recorded in the lockfile to restore.
+#'   When `NULL` (the default), all packages available in the lockfile will be
+#'   restored. Any required recursive dependencies of the requested packages
+#'   will be restored as well.
+#'
 #' @param repos The repositories to use during restore, for packages installed
 #'   from CRAN or another similar R package repository. When set, this will
 #'   override any repositories declared in the lockfile. See also the
@@ -43,6 +48,7 @@ restore <- function(project  = NULL,
                     ...,
                     library  = NULL,
                     lockfile = NULL,
+                    packages = NULL,
                     repos    = NULL,
                     clean    = FALSE,
                     confirm  = interactive())
@@ -106,6 +112,9 @@ restore <- function(project  = NULL,
   # don't take any actions with ignored packages
   ignored <- renv_project_ignored_packages(project = project)
   diff <- diff[renv_vector_diff(names(diff), ignored)]
+
+  # only take action with requested packages
+  diff <- diff[intersect(names(diff), packages %||% names(diff))]
 
   if (!length(diff)) {
     name <- if (!missing(library)) "library" else "project"

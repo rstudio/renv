@@ -1,6 +1,9 @@
 
 # renv 0.8.4 (UNRELEASED)
 
+* `renv::restore()` gains the `packages` argument, to be used to restore
+  a subset of packages recorded within the lockfile. (#260)
+
 * `renv` now tries harder to preserve the existing structure in infrastructure
   files (e.g. the project `.Rprofile`) that it modifies. (#259)
 

@@ -9,6 +9,7 @@ restore(
   ...,
   library = NULL,
   lockfile = NULL,
+  packages = NULL,
   repos = NULL,
   clean = FALSE,
   confirm = interactive()
@@ -27,6 +28,11 @@ for details.}
 \item{lockfile}{The lockfile to be used for restoration of the associated
 project. When \code{NULL}, the most recently generated lockfile for this project
 is used.}
+
+\item{packages}{A subset of packages recorded in the lockfile to restore.
+When \code{NULL} (the default), all packages available in the lockfile will be
+restored. Any required recursive dependencies of the requested packages
+will be restored as well.}
 
 \item{repos}{The repositories to use during restore, for packages installed
 from CRAN or another similar R package repository. When set, this will

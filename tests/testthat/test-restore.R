@@ -123,3 +123,13 @@ test_that("renv::restore(lockfile = '/path/to/lockfile') works", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("renv::restore(packages = <...>) works", {
+  renv_tests_scope("breakfast")
+  renv::init()
+  unlink(paths$library(), recursive = TRUE)
+  renv::restore(packages = "toast")
+  expect_length(list.files(paths$library()), 2L)
+  expect_true(renv_package_installed("bread"))
+  expect_true(renv_package_installed("toast"))
+})
