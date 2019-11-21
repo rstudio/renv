@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.40</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.42</span>
       </span>
     </div>
 
@@ -154,6 +154,7 @@
 <a href="#renv-0-8-4-unreleased" class="anchor"></a>renv 0.8.4 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> gains the <code>packages</code> argument, to be used to restore a subset of packages recorded within the lockfile. (#260)</p></li>
 <li><p><code>renv</code> now tries harder to preserve the existing structure in infrastructure files (e.g. the project <code>.Rprofile</code>) that it modifies. (#259)</p></li>
 <li><p><code>renv</code> now warns if any Bioconductor packages used in the project appear to be from a different Bioconductor release than the one currently active and stored in the lockfile. (#244)</p></li>
 <li><p><code>renv</code> now normalizes any paths set in the <code>RENV_PATHS_*</code> family of environment variables when <code>renv</code> is loaded.</p></li>
