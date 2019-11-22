@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.43</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.46</span>
       </span>
     </div>
 
@@ -149,11 +149,12 @@
       
     </div>
 
-    <div id="renv-0-8-4-unreleased" class="section level1">
+    <div id="renv-0-9-0-unreleased" class="section level1">
 <h1 class="page-header">
-<a href="#renv-0-8-4-unreleased" class="anchor"></a>renv 0.8.4 (UNRELEASED)<small> Unreleased </small>
+<a href="#renv-0-9-0-unreleased" class="anchor"></a>renv 0.9.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code>renv</code> no longer sources the user profile (normally located at <code>~/.Rprofile</code>) by default. If you desire this behavior, you can opt-in by setting <code>RENV_CONFIG_USER_PROFILE = TRUE</code>; e.g. within your project or user <code>.Renviron</code> file. (#261)</p></li>
 <li><p><code><a href="../reference/restore.html">renv::restore()</a></code> gains the <code>packages</code> argument, to be used to restore a subset of packages recorded within the lockfile. (#260)</p></li>
 <li><p><code>renv</code> now tries harder to preserve the existing structure in infrastructure files (e.g. the project <code>.Rprofile</code>) that it modifies. (#259)</p></li>
 <li><p><code>renv</code> now warns if any Bioconductor packages used in the project appear to be from a different Bioconductor release than the one currently active and stored in the lockfile. (#244)</p></li>
@@ -217,7 +218,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#renv-0-8-4-unreleased">0.8.4</a></li>
+        <li><a href="#renv-0-9-0-unreleased">0.9.0</a></li>
         <li><a href="#renv-0-8-3">0.8.3</a></li>
         <li><a href="#renv-0-8-2">0.8.2</a></li>
         <li><a href="#renv-0-8-1">0.8.1</a></li>
