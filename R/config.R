@@ -124,7 +124,7 @@
 #'   also the caveats for the `external.libraries` option.
 #'   \cr
 #'
-#' `user.profile` \tab `logical[1]` \tab `TRUE` \tab
+#' `user.profile` \tab `logical[1]` \tab `FALSE` \tab
 #'   Load the user R profile (typically located at `~/.Rprofile`) when `renv`
 #'   is loaded? Consider disabling this if you require extra encapsulation in
 #'   your projects; e.g. if your `.Rprofile` attempts to load packages that

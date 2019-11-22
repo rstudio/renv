@@ -1,5 +1,10 @@
 
-# renv 0.8.4 (UNRELEASED)
+# renv 0.9.0 (UNRELEASED)
+
+* `renv` no longer sources the user profile (normally located at `~/.Rprofile`)
+  by default. If you desire this behavior, you can opt-in by setting
+  `RENV_CONFIG_USER_PROFILE = TRUE`; e.g. within your project or user
+  `.Renviron` file. (#261)
 
 * `renv::restore()` gains the `packages` argument, to be used to restore
   a subset of packages recorded within the lockfile. (#260)
