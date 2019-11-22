@@ -129,7 +129,7 @@ projects which you intend to share or collaborate on with other users. See
 also the caveats for the \code{external.libraries} option.
 \cr
 
-\code{user.profile} \tab \code{logical[1]} \tab \code{TRUE} \tab
+\code{user.profile} \tab \code{logical[1]} \tab \code{FALSE} \tab
 Load the user R profile (typically located at \verb{~/.Rprofile}) when \code{renv}
 is loaded? Consider disabling this if you require extra encapsulation in
 your projects; e.g. if your \code{.Rprofile} attempts to load packages that

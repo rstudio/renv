@@ -18,17 +18,9 @@ renv_cache_package_path <- function(record) {
     return(path)
   }
 
-  # figure out the R version to be used when constructing
-  # the cache package path
-  built <- record$Built
-  version <- if (is.null(built))
-    getRversion()
-  else
-    substring(built, 3, regexpr(";", built, fixed = TRUE) - 1L)
-
   # if the record doesn't have a hash, check to see if we can still locate a
   # compatible package version within the cache
-  root <- with(record, renv_paths_cache(Package, Version, version = version))
+  root <- with(record, renv_paths_cache(Package, Version))
   hashes <- list.files(root, full.names = TRUE)
   packages <- list.files(hashes, full.names = TRUE)
 

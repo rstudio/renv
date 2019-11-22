@@ -1,9 +1,9 @@
 
 # NOTE: changes here must be synchronized with 'inst/activate.R'
-renv_prefix_platform <- function(version = NULL) {
+renv_prefix_platform <- function() {
 
   # construct version prefix
-  version <- version %||% paste(R.version$major, R.version$minor, sep = ".")
+  version <- paste(R.version$major, R.version$minor, sep = ".")
   prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
 
   # include SVN revision for development versions of R
@@ -67,8 +67,8 @@ renv_paths_binary <- function(...) {
   renv_paths_common("binary", c(renv_prefix_platform()), ...)
 }
 
-renv_paths_cache <- function(..., version = NULL) {
-  platform <- renv_prefix_platform(version = version)
+renv_paths_cache <- function(...) {
+  platform <- renv_prefix_platform()
   renv_paths_common("cache", c(renv_cache_version(), platform), ...)
 }
 
