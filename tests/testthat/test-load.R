@@ -22,6 +22,7 @@ test_that("renv/settings.R is sourced on load if available", {
 
 test_that("errors when sourcing user profile are reported", {
   renv_tests_scope()
+  renv_scope_options(renv.config.user.profile = TRUE)
   profile <- renv_tempfile("renv-profile-", fileext = ".R")
   writeLines("stop(1)", con = profile)
   renv_scope_envvars(R_PROFILE_USER = profile)
