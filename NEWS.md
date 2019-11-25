@@ -1,6 +1,9 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* `renv::dependencies()` can now parse R package dependencies used as custom
+  site generator in an Rmd yaml header. (#269, @cderv)
+
 * `renv` no longer sources the user profile (normally located at `~/.Rprofile`)
   by default. If you desire this behavior, you can opt-in by setting
   `RENV_CONFIG_USER_PROFILE = TRUE`; e.g. within your project or user
