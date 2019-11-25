@@ -396,6 +396,15 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
       deps$push(splat[[1]])
   }
 
+  # check for custom site generator function from another package
+  output <- yaml$site %||% ""
+
+  if (is_string(output)) {
+    splat <- strsplit(output, ":{2,3}")[[1]]
+    if (length(splat) == 2)
+      deps$push(splat[[1]])
+  }
+
   packages <- as.character(deps$data())
   renv_dependencies_list(path, packages)
 
@@ -764,7 +773,7 @@ renv_dependencies_discover_r_modules <- function(node, envir) {
   if (empty(package))
     return(FALSE)
 
-  # package could be symbols or character so call as.character 
+  # package could be symbols or character so call as.character
   # to be safe then mark packages as known
   envir[[as.character(package)]] <- TRUE
 
