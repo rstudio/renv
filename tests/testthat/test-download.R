@@ -67,6 +67,13 @@ test_that("we can successfully download files with different downloaders", {
     expect_equal(readLines(destfile), thanks)
   })
 
+  if (renv_platform_windows()) local({
+    renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wininet")
+    destfile <- tempfile("r-wininet-thanks-")
+    download(url, destfile, quiet = TRUE)
+    expect_equal(readLines(destfile), thanks)
+  })
+
   # TODO: fails on winbuilder
   # if (nzchar(Sys.which("wget"))) local({
   #   renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wget")
