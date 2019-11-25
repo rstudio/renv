@@ -170,3 +170,17 @@ test_that("packages referenced by modules::import() are discovered", {
   expect_setequal(deps$Package, c("A", "B", "C", "D"))
 
 })
+
+test_that("Rmarkdown custom site generator is found as dependency", {
+  renv_tests_scope()
+  writeLines(
+    c("---", "site: blogdown:::blogdown_site", "---"),
+    con = "index.Rmd")
+  deps <- dependencies()
+  expect_true("blogdown" %in% deps$Package)
+  writeLines(
+    c("---", "site: bookdown::bookdown_site", "---"),
+    con = "index.Rmd")
+  deps <- dependencies()
+  expect_true("bookdown" %in% deps$Package)
+})
