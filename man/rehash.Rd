@@ -7,6 +7,10 @@
 rehash(cache = paths$cache(), clean = FALSE, confirm = TRUE)
 }
 \arguments{
+\item{cache}{The path to the \code{renv} cache.}
+
+\item{clean}{Boolean; remove files from their previously-cached locations?}
+
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
 \description{

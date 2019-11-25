@@ -10,6 +10,10 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param cache The path to the `renv` cache.
+#'
+#' @param clean Boolean; remove files from their previously-cached locations?
+#'
 rehash <- function(cache   = paths$cache(),
                    clean   = FALSE,
                    confirm = TRUE)
