@@ -72,6 +72,12 @@ renv_retrieve_impl <- function(package) {
   if (file.exists(path))
     return(renv_retrieve_successful(record, path))
 
+  # if the user has provided an explicit path to a tarball in the source,
+  # then just use that
+  retrieved <- catch(renv_retrieve_explicit(record))
+  if (identical(retrieved, TRUE))
+    return(TRUE)
+
   # if we find a suitable package tarball available locally,
   # then we can just use that directly (this also acts as an escape
   # hatch for cases where a package might have some known external source
@@ -79,12 +85,6 @@ renv_retrieve_impl <- function(package) {
   #
   # TODO: consider if this should be guarded by a user preference
   retrieved <- catch(renv_retrieve_local(record))
-  if (identical(retrieved, TRUE))
-    return(TRUE)
-
-  # if the user has provided an explicit path to a tarball in the source,
-  # then just use that
-  retrieved <- catch(renv_retrieve_explicit(record))
   if (identical(retrieved, TRUE))
     return(TRUE)
 
