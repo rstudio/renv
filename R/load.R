@@ -54,6 +54,9 @@ load <- function(project = getwd(), quiet = FALSE) {
   renv_load_libpaths(project)
   renv_load_profile(project)
 
+  # TODO: not yet
+  # renv_load_cache(project)
+
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {
     renv_load_r(project, lockfile$R)
@@ -391,5 +394,49 @@ renv_load_switch <- function(project) {
       do.call(base::library, args)
     }
   }
+
+}
+
+renv_load_cache <- function(project) {
+
+  if (!interactive())
+    return(FALSE)
+
+  cache <- renv_paths_cache()
+  if (file.exists(cache))
+    return(FALSE)
+
+  cache <- normalizePath(cache, winslash = "/", mustWork = FALSE)
+  parts <- strsplit(cache, "/", fixed = TRUE)[[1]]
+
+  newversion <- parts[[length(parts) - 2L]]
+  number <- as.integer(substring(newversion, 2L))
+  oldversion <- sprintf("v%i", number - 1L)
+
+  parts[[length(parts) - 2L]] <- oldversion
+  oldcache <- paste(parts, collapse = "/")
+  if (!file.exists(oldcache))
+    return(FALSE)
+
+  ensure_directory(cache)
+
+  renv_pretty_print(
+    sprintf("[%s -> %s]", oldversion, newversion),
+    "The cache version has been updated in this version of renv:",
+    "renv will migrate packages to the new cache."
+  )
+
+  if (!proceed()) {
+    message("* Operation aborted.")
+    return(FALSE)
+  }
+
+  rehash(cache = oldcache, clean = FALSE, confirm = FALSE)
+
+  writeLines(c(
+    "The cache was successfully migrated.",
+    "Consider removing the old cache once it is not longer required.",
+    paste("Cache path:", renv_path_pretty(oldcache))
+  ))
 
 }

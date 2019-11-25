@@ -151,7 +151,9 @@ renv_file_copy_dir_impl <- function(source, target) {
 renv_file_copy_dir <- function(source, target) {
 
   # create temporary sub-directory
-  tempdir <- renv_tempfile(".renv-copy-", tmpdir = dirname(target))
+  tmpdir <- dirname(target)
+  ensure_directory(tmpdir)
+  tempdir <- renv_tempfile(".renv-copy-", tmpdir = tmpdir)
 
   # copy to that directory
   status <- catchall(renv_file_copy_dir_impl(source, tempdir))

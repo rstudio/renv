@@ -19,9 +19,6 @@ renv_hash_description_impl <- function(path) {
   # retrieve these fields
   subsetted <- dcf[renv_vector_intersect(c(fields, remotes), names(dcf))]
 
-  # include R version in hash
-  subsetted[["RVersion"]] <- getRversion()[1, 1:2]
-
   # sort names (use C locale to ensure consistent ordering)
   ordered <- local({
     renv_scope_locale("LC_COLLATE", "C")
