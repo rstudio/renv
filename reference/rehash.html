@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Install Required System Libraries — equip • renv</title>
+<title>Re-Hash Packages in the renv Cache — rehash • renv</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,10 @@
 
 
 
-<meta property="og:title" content="Install Required System Libraries — equip" />
-<meta property="og:description" content="Equip your system with libraries commonly-used during compilation of
-R packages. Currently only supported on Windows." />
+<meta property="og:title" content="Re-Hash Packages in the renv Cache — rehash" />
+<meta property="og:description" content="Re-hash packages in the renv cache, ensuring that any previously-cached
+packages are copied (or moved) to a new cache location appropriate for this
+version of renv." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -148,36 +149,47 @@ R packages. Currently only supported on Windows." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Install Required System Libraries</h1>
+    <h1>Re-Hash Packages in the renv Cache</h1>
     
-    <div class="hidden name"><code>equip.Rd</code></div>
+    <div class="hidden name"><code>rehash.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Equip your system with libraries commonly-used during compilation of
-<span style="R">R</span> packages. Currently only supported on Windows.</p>
+    <p>Re-hash packages in the <code>renv</code> cache, ensuring that any previously-cached
+packages are copied (or moved) to a new cache location appropriate for this
+version of <code>renv</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>equip</span>()</pre>
+    <pre class="usage"><span class='fu'>rehash</span>(<span class='kw'>cache</span> <span class='kw'>=</span> <span class='no'>paths</span>$<span class='fu'>cache</span>(), <span class='kw'>clean</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>cache</th>
+      <td><p>The path to the <code>renv</code> cache.</p></td>
+    </tr>
+    <tr>
+      <th>clean</th>
+      <td><p>Boolean; remove files from their previously-cached locations?</p></td>
+    </tr>
+    <tr>
+      <th>confirm</th>
+      <td><p>Boolean; prompt the user before taking any action?</p></td>
+    </tr>
+    </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is normally called for its side effects.</p>
+    <p>This can be useful if the cache scheme has changed in a new version of
+<code>renv</code>, but you'd like to preserve your previously-cached packages.</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-
-<span class='co'># download useful build tools</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/equip.html'>equip</a></span>()
-
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#value">Value</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>

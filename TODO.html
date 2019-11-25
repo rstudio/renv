@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.46</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.50</span>
       </span>
     </div>
 
@@ -152,7 +152,7 @@
 <li><p>[x] Packrat-style <code><a href="reference/init.html">init()</a></code> function, where we discover the R packages used within the project, and then initialize a new environment / library with those packages. Speed up the process by re-using installed packages in the user library if possible.</p></li>
 <li><p>[x] Warn (error?) when attempting to snapshot a library with missing dependencies – e.g. the library contains ‘markdown’ but not its dependency ‘mime’.</p></li>
 <li><p>[x] Properly handle broken links in the project library (e.g. if the cache moved or was mutated for some reason)</p></li>
-<li><p>[ ] <code>rehash()</code> – tools for validating package hashes + their install location? <code>rehash()</code> would look at packages in the cache and update their cache location if the caching scheme changed.</p></li>
+<li><p>[ ] <code><a href="reference/rehash.html">rehash()</a></code> – tools for validating package hashes + their install location? <code><a href="reference/rehash.html">rehash()</a></code> would look at packages in the cache and update their cache location if the caching scheme changed.</p></li>
 <li><p>[x] <code><a href="reference/clean.html">clean()</a></code> function to remove ununsed packages from the library. (If the cache is enabled, they will remain in the cache).</p></li>
 <li><p>[ ] Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://rdrr.io/r/base/options.html">options(repos)</a></code> would suffice here I believe)</p></li>
 <li><p>[ ] Use custom <code>Makevars</code> file and set some variables that certain packages need but don’t properly declare? (E.g. older versions of the <code>maps</code> package need <code>awk</code> installed)</p></li>
