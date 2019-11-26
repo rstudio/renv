@@ -111,6 +111,7 @@ renv_retrieve_impl <- function(package) {
          github       = renv_retrieve_github(record),
          gitlab       = renv_retrieve_gitlab(record),
          repository   = renv_retrieve_repos(record),
+         url          = renv_retrieve_url(record),
          renv_retrieve_unknown_source(record)
   )
 
@@ -371,6 +372,18 @@ renv_retrieve_repos <- function(record) {
   }
 
   stopf("failed to retrieve package '%s'", record$Package)
+
+}
+
+renv_retrieve_url <- function(record) {
+
+  if (is.null(record$RemoteUrl)) {
+    fmt <- "package '%s' has no recorded RemoteUrl"
+    stopf(fmt, record$Package)
+  }
+
+  resolved <- renv_remotes_resolve_url(record$RemoteUrl, quiet = FALSE)
+  renv_retrieve_successful(record, resolved$Path)
 
 }
 

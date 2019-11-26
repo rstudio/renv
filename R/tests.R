@@ -268,8 +268,11 @@ renv_test_retrieve <- function(record) {
   library <- renv_libpaths_all()
   renv_install(records, library)
 
-  desc <- renv_description_read(file.path(templib, package))
+  descpath <- file.path(templib, package)
+  if (!file.exists(descpath))
+    stopf("failed to retrieve package '%s'", package)
 
+  desc <- renv_description_read(descpath)
   fields <- grep("^Remote", names(record), value = TRUE)
   testthat::expect_identical(as.list(desc[fields]), as.list(record[fields]))
 
