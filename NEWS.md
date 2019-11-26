@@ -1,6 +1,9 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* `renv` now properly respects a downloader requested by the environment
+  variable `RENV_DOWNLOAD_FILE_METHOD`.
+
 * `renv` no longer sources the user profile (normally located at `~/.Rprofile`)
   by default. If you desire this behavior, you can opt-in by setting
   `RENV_CONFIG_USER_PROFILE = TRUE`; e.g. within your project or user
