@@ -74,6 +74,13 @@ test_that("we can successfully download files with different downloaders", {
     expect_equal(readLines(destfile), thanks)
   })
 
+  if (capabilities("libcurl") %||% FALSE) local({
+    renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "libcurl")
+    destfile <- tempfile("r-libcurl-thanks-")
+    download(url, destfile, quiet = TRUE)
+    expect_equal(readLines(destfile), thanks)
+  })
+
   # TODO: fails on winbuilder
   # if (nzchar(Sys.which("wget"))) local({
   #   renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wget")
@@ -81,12 +88,5 @@ test_that("we can successfully download files with different downloaders", {
   #   download(url, destfile, quiet = TRUE)
   #   expect_equal(readLines(destfile), thanks)
   # })
-
-  if (getRversion() >= "3.3.0") local({
-    renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "internal")
-    destfile <- tempfile("r-internal-thanks-")
-    download(url, destfile, quiet = TRUE)
-    expect_equal(readLines(destfile), thanks)
-  })
 
 })

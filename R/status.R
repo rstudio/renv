@@ -26,10 +26,10 @@ status <- function(project = NULL,
   project <- project %||% renv_project()
   library <- library %||% renv_libpaths_all()
   lockfile <- lockfile %||% renv_lockfile_path(project)
-  invisible(renv_status(project, library, lockfile))
+  invisible(renv_status_impl(project, library, lockfile))
 }
 
-renv_status <- function(project, library, lockfile) {
+renv_status_impl <- function(project, library, lockfile) {
 
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
