@@ -1,6 +1,9 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* `renv::dependencies()` can now parse R package dependencies used as custom
+  site generator in an Rmd yaml header. (#269, @cderv)
+
 * `renv` now properly respects a downloader requested by the environment
   variable `RENV_DOWNLOAD_FILE_METHOD`.
 
