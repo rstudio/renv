@@ -260,7 +260,7 @@ renv_cache_clean_empty <- function(cache = NULL) {
   action <- "removing empty directories"
   if (renv_platform_windows()) {
     args <- c(".", ".", "/S", "/MOVE")
-    renv_system_exec("robocopy", args, action, 1:8)
+    renv_system_exec("robocopy", args, action, 0:8)
   } else {
     args <- c(".", "-type", "d", "-empty", "-delete")
     renv_system_exec("find", args, action)
