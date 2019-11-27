@@ -185,10 +185,11 @@ renv_status_check_synchronized <- function(project, lockfile, libstate) {
   rest <- c("upgrade", "downgrade", "crossgrade")
   if (any(rest %in% actions)) {
 
+    matches <- actions[actions %in% rest]
+
     rlock <- renv_records(lockfile)[names(matches)]
     rlibs <- renv_records(libstate)[names(matches)]
 
-    matches <- actions[actions %in% rest]
     data <- data.frame(
       "  Package"          = names(matches),
       "  Lockfile Version" = extract_chr(rlock, "Version"),
