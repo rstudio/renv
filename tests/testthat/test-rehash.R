@@ -5,6 +5,10 @@ test_that("rehash() migrates cached packages as expected", {
 
   on.exit(Sys.unsetenv("RENV_CACHE_VERSION"), add = TRUE)
 
+  tempcache <- tempfile("renv-cache-")
+  on.exit(unlink(tempcache, recursive = TRUE), add = TRUE)
+  renv_scope_envvars(RENV_PATHS_CACHE = tempcache)
+
   Sys.setenv(RENV_CACHE_VERSION = "v4")
   renv_tests_scope("breakfast")
   init()
