@@ -1,6 +1,9 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* `renv::status()` now reports packages which are referenced in your project
+  code, but are not currently installed. (#271)
+
 * `renv` is now able to restore packages with a recorded URL remote. (#272)
 
 * `renv::dependencies()` can now parse R package dependencies used as custom

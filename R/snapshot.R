@@ -728,9 +728,10 @@ renv_snapshot_filter_packrat <- function(project, records) {
 
   # keep only package records for packages actually used in project
   deps <- dependencies(project, quiet = TRUE)
+  packages <- unique(c(deps$Package, "renv"))
   ignored <- renv_project_ignored_packages(project = project)
-  packages <- renv_vector_diff(unique(deps$Package), ignored)
-  paths <- renv_package_dependencies(packages, project = project)
+  used <- setdiff(packages, ignored)
+  paths <- renv_package_dependencies(used, project = project)
   all <- as.character(names(paths))
   kept <- keep(records, all)
 
