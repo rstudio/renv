@@ -4,21 +4,19 @@
 \alias{rehash}
 \title{Re-Hash Packages in the renv Cache}
 \usage{
-rehash(cache = paths$cache(), clean = FALSE, confirm = TRUE)
+rehash(confirm = interactive())
 }
 \arguments{
-\item{cache}{The path to the \code{renv} cache.}
-
-\item{clean}{Boolean; remove files from their previously-cached locations?}
-
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }
 \description{
 Re-hash packages in the \code{renv} cache, ensuring that any previously-cached
-packages are copied (or moved) to a new cache location appropriate for this
-version of \code{renv}.
+packages are copied to a new cache location appropriate for this version of
+\code{renv}. This can be useful if the cache scheme has changed in a new version
+of \code{renv}, but you'd like to preserve your previously-cached packages.
 }
 \details{
-This can be useful if the cache scheme has changed in a new version of
-\code{renv}, but you'd like to preserve your previously-cached packages.
+Any packages which are re-hashed will retain links to the location of the
+newly-hashed package, ensuring that prior installations of \code{renv} can still
+function as expected.
 }

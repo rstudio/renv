@@ -1,6 +1,10 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* The algorithm used by `renv` for hashing packages has changed. Consider 
+  using `renv::rehash()` to migrate packages from the old `renv` cache to
+  the new `renv` cache.
+
 * `renv::status()` now reports packages which are referenced in your project
   code, but are not currently installed. (#271)
 

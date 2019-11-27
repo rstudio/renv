@@ -25,8 +25,9 @@ reference:
 
 - title: Package Cache
   contents:
-  - purge
   - isolate
+  - rehash
+  - purge
 
 - title: Package Installation
   contents:

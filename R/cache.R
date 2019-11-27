@@ -1,7 +1,15 @@
 
 # tools for interacting with the renv global package cache
 renv_cache_version <- function() {
-  "v4"
+  # NOTE: users should normally not override the cache version;
+  # this is provided just to make testing easier
+  Sys.getenv("RENV_CACHE_VERSION", unset = "v5")
+}
+
+renv_cache_version_previous <- function() {
+  version <- renv_cache_version()
+  number <- as.integer(substring(version, 2L))
+  paste("v", number - 1L, sep = "")
 }
 
 renv_cache_package_path <- function(record) {

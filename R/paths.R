@@ -67,9 +67,10 @@ renv_paths_binary <- function(...) {
   renv_paths_common("binary", c(renv_prefix_platform()), ...)
 }
 
-renv_paths_cache <- function(...) {
+renv_paths_cache <- function(..., version = NULL) {
   platform <- renv_prefix_platform()
-  renv_paths_common("cache", c(renv_cache_version(), platform), ...)
+  version <- version %||% renv_cache_version()
+  renv_paths_common("cache", c(version, platform), ...)
 }
 
 renv_paths_rtools <- function(...) {
