@@ -41,6 +41,7 @@ renv_status_impl <- function(project, library, lockfile) {
   recorded <- renv_status_check_missing_lockfile(project, lockfile)
 
   renv_status_check_used_packages(project, current)
+  renv_status_check_unknown_sources(project, recorded)
   renv_status_check_synchronized(project, recorded, current)
   renv_status_check_cache(project)
 
@@ -110,6 +111,46 @@ renv_status_check_used_packages <- function(project, current) {
       "to record these packages in the lockfile."
     ),
     wrap = FALSE
+  )
+
+  FALSE
+
+}
+
+renv_status_check_unknown_sources <- function(project, recorded) {
+
+  records <- renv_records(recorded)
+  if (empty(records))
+    return(TRUE)
+
+  unknown <- filter(records, function(record) {
+
+    source <- tolower(record$Source %||% "unknown")
+    if (source != "unknown")
+      return(FALSE)
+
+    localpath <- tryCatch(
+      renv_retrieve_local_find(record),
+      error = function(e) ""
+    )
+
+    if (file.exists(localpath))
+      return(FALSE)
+
+    TRUE
+
+  })
+
+  if (empty(unknown))
+    return(TRUE)
+
+  renv_pretty_print_records(
+    unknown,
+    "The following package(s) were installed from an unknown source:",
+    c(
+      "renv may be unable to restore these packages.",
+      "Consider reinstalling these packages from a known source if possible."
+    )
   )
 
   FALSE
