@@ -37,8 +37,9 @@
 
 <meta property="og:title" content="Re-Hash Packages in the renv Cache — rehash" />
 <meta property="og:description" content="Re-hash packages in the renv cache, ensuring that any previously-cached
-packages are copied (or moved) to a new cache location appropriate for this
-version of renv." />
+packages are copied to a new cache location appropriate for this version of
+renv. This can be useful if the cache scheme has changed in a new version
+of renv, but you'd like to preserve your previously-cached packages." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -71,7 +72,7 @@ version of renv." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.58</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.60</span>
       </span>
     </div>
 
@@ -156,23 +157,16 @@ version of renv." />
 
     <div class="ref-description">
     <p>Re-hash packages in the <code>renv</code> cache, ensuring that any previously-cached
-packages are copied (or moved) to a new cache location appropriate for this
-version of <code>renv</code>.</p>
+packages are copied to a new cache location appropriate for this version of
+<code>renv</code>. This can be useful if the cache scheme has changed in a new version
+of <code>renv</code>, but you'd like to preserve your previously-cached packages.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rehash</span>(<span class='kw'>cache</span> <span class='kw'>=</span> <span class='no'>paths</span>$<span class='fu'>cache</span>(), <span class='kw'>clean</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>rehash</span>(<span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>cache</th>
-      <td><p>The path to the <code>renv</code> cache.</p></td>
-    </tr>
-    <tr>
-      <th>clean</th>
-      <td><p>Boolean; remove files from their previously-cached locations?</p></td>
-    </tr>
     <tr>
       <th>confirm</th>
       <td><p>Boolean; prompt the user before taking any action?</p></td>
@@ -181,8 +175,9 @@ version of <code>renv</code>.</p>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This can be useful if the cache scheme has changed in a new version of
-<code>renv</code>, but you'd like to preserve your previously-cached packages.</p>
+    <p>Any packages which are re-hashed will retain links to the location of the
+newly-hashed package, ensuring that prior installations of <code>renv</code> can still
+function as expected.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

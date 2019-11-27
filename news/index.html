@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.58</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.60</span>
       </span>
     </div>
 
@@ -154,6 +154,7 @@
 <a href="#renv-0-9-0-unreleased" class="anchor"></a>renv 0.9.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>The algorithm used by <code>renv</code> for hashing packages has changed. Consider using <code><a href="../reference/rehash.html">renv::rehash()</a></code> to migrate packages from the old <code>renv</code> cache to the new <code>renv</code> cache.</p></li>
 <li><p><code><a href="../reference/status.html">renv::status()</a></code> now reports packages which are referenced in your project code, but are not currently installed. (#271)</p></li>
 <li><p><code>renv</code> is now able to restore packages with a recorded URL remote. (#272)</p></li>
 <li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> can now parse R package dependencies used as custom site generator in an Rmd yaml header. (#269, <a href='https://github.com/cderv'>@cderv</a>)</p></li>
