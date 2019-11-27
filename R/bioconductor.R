@@ -49,6 +49,11 @@ renv_bioconductor_version <- function() {
 
 renv_bioconductor_repos <- function(version = NULL) {
 
+  # allow bioconductor repos override
+  repos <- getOption("renv.bioconductor.repos")
+  if (!is.null(repos))
+    return(repos)
+
   # read Bioconductor version (normally set during restore)
   version <- version %||% getOption("renv.bioconductor.version")
 

@@ -589,11 +589,11 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
 
 renv_snapshot_description_source <- function(dcf) {
 
-  if (!is.null(dcf[["biocViews"]]))
-    return(list(Source = "Bioconductor"))
-
   if (!is.null(dcf[["Repository"]]))
     return(list(Source = "Repository", Repository = dcf[["Repository"]]))
+
+  if (!is.null(dcf[["biocViews"]]))
+    return(list(Source = "Bioconductor"))
 
   type <- dcf[["RemoteType"]]
   if (!is.null(type))
