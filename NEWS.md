@@ -1,6 +1,9 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* `renv` gains a new function `renv::run()`, for running R scripts within
+  a particular project's context inside an R subprocess. (#126)
+
 * The algorithm used by `renv` for hashing packages has changed. Consider 
   using `renv::rehash()` to migrate packages from the old `renv` cache to
   the new `renv` cache.

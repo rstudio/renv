@@ -1,8 +1,8 @@
 
 #' Run a Script
 #'
-#' Run an \R script, with an `renv` project active. The script will be run as
-#' an \R sub-process.
+#' Run an \R script, in the context of a project using `renv`. The script will
+#' be run within an \R sub-process.
 #'
 #' @inherit renv-params
 #'
@@ -15,6 +15,12 @@
 #'
 #' @param name The name to associate with the job, for scripts run as a job.
 #'
+#' @param project The path to the `renv` project. This project will be loaded
+#'   before the requested script is executed. When `NULL` (the default), `renv`
+#'   will automatically determine the project root for the associated script
+#'   if possible.
+#'
+#' @export
 run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
 
   renv_scope_error_handler()

@@ -18,15 +18,16 @@ launched by \code{\link[=system2]{system2()}} if not.}
 
 \item{name}{The name to associate with the job, for scripts run as a job.}
 
-\item{project}{The project directory. If \code{NULL}, then the active project will
-be used. If no project is currently active, then the current working
-directory is used instead.}
+\item{project}{The path to the \code{renv} project. This project will be loaded
+before the requested script is executed. When \code{NULL} (the default), \code{renv}
+will automatically determine the project root for the associated script
+if possible.}
 }
 \value{
 The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Run an \R script, with an \code{renv} project active. The script will be run as
-an \R sub-process.
+Run an \R script, in the context of a project using \code{renv}. The script will
+be run within an \R sub-process.
 }
