@@ -2,12 +2,12 @@
 #' Status
 #'
 #' Report differences between the project's lockfile and the current state of
-#' the private library (if any).
+#' the project's library (if any).
 #'
 #' @inherit renv-params
 #'
-#' @param library The path to a library. By default, the project library
-#'   associated with the requested project `project` is used.
+#' @param library The library paths. By default, the library paths associated
+#'   with the requested project are used.
 #'
 #' @param lockfile The path to a lockfile. By default, the project lockfile
 #'   (called `renv.lock`) is used.
@@ -25,11 +25,11 @@ status <- function(project = NULL,
   renv_scope_error_handler()
   project <- project %||% renv_project()
   library <- library %||% renv_libpaths_all()
-  lockfile <- lockfile %||% renv_lockfile_path(project)
-  invisible(renv_status_impl(project, library, lockfile))
+  lockpath <- lockfile %||% renv_lockfile_path(project)
+  invisible(renv_status_impl(project, library, lockpath))
 }
 
-renv_status_impl <- function(project, library, lockfile) {
+renv_status_impl <- function(project, library, lockpath) {
 
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
@@ -37,29 +37,29 @@ renv_status_impl <- function(project, library, lockfile) {
     return(list())
   }
 
-  current  <- renv_status_check_missing_library(project, library)
-  recorded <- renv_status_check_missing_lockfile(project, lockfile)
+  libstate <- renv_status_check_missing_library(project, library)
+  lockfile <- renv_status_check_missing_lockfile(project, lockpath)
 
-  renv_status_check_used_packages(project, current)
-  renv_status_check_unknown_sources(project, recorded)
-  renv_status_check_synchronized(project, recorded, current)
+  renv_status_check_used_packages(project, libstate)
+  renv_status_check_unknown_sources(project, lockfile)
+  renv_status_check_synchronized(project, lockfile, libstate)
   renv_status_check_cache(project)
 
-  list(library = current, lockfile = recorded)
+  list(library = libstate, lockfile = lockfile)
 
 }
 
-renv_status_check_missing_lockfile <- function(project, lockfile) {
+renv_status_check_missing_lockfile <- function(project, lockpath) {
 
-  if (file.exists(lockfile))
-    return(renv_lockfile_read(lockfile))
+  if (file.exists(lockpath))
+    return(renv_lockfile_read(lockpath))
 
-  if (identical(lockfile, renv_lockfile_path(project))) {
+  if (identical(lockpath, renv_lockfile_path(project))) {
     text <- "* This project has not yet been snapshotted -- 'renv.lock' does not exist."
     vwritef(text)
   } else {
     fmt <- "* Lockfile %s does not exist."
-    vwritef(fmt, renv_path_pretty(lockfile))
+    vwritef(fmt, renv_path_pretty(lockpath))
   }
 
   list()
@@ -90,13 +90,13 @@ renv_status_check_missing_library <- function(project, library) {
 
 }
 
-renv_status_check_used_packages <- function(project, current) {
+renv_status_check_used_packages <- function(project, libstate) {
 
   db <- renv_installed_packages_base()
 
   deps <- dependencies(project, quiet = TRUE)
   used <- sort(unique(deps$Package))
-  records <- renv_records(current)
+  records <- renv_records(libstate)
 
   ignored <- c("R", db$Package, renv_project_ignored_packages(project), names(records))
   missing <- setdiff(used, ignored)
@@ -117,9 +117,9 @@ renv_status_check_used_packages <- function(project, current) {
 
 }
 
-renv_status_check_unknown_sources <- function(project, recorded) {
+renv_status_check_unknown_sources <- function(project, lockfile) {
 
-  records <- renv_records(recorded)
+  records <- renv_records(lockfile)
   if (empty(records))
     return(TRUE)
 
@@ -157,10 +157,10 @@ renv_status_check_unknown_sources <- function(project, recorded) {
 
 }
 
-renv_status_check_synchronized <- function(project, recorded, current) {
+renv_status_check_synchronized <- function(project, lockfile, libstate) {
 
   # diff packages
-  actions <- renv_lockfile_diff_packages(recorded, current)
+  actions <- renv_lockfile_diff_packages(lockfile, libstate)
   if (empty(actions)) {
     vwritef("* The project is already synchronized with the lockfile.")
     return(TRUE)
@@ -168,7 +168,7 @@ renv_status_check_synchronized <- function(project, recorded, current) {
 
   if ("install" %in% actions) {
     renv_pretty_print_records(
-      renv_records_select(current, actions, "install"),
+      renv_records_select(libstate, actions, "install"),
       "The following package(s) are installed but not recorded in the lockfile:",
       "Use `renv::snapshot()` to add these packages to your lockfile."
     )
@@ -176,7 +176,7 @@ renv_status_check_synchronized <- function(project, recorded, current) {
 
   if ("remove" %in% actions) {
     renv_pretty_print_records(
-      renv_records_select(recorded, actions, "remove"),
+      renv_records_select(lockfile, actions, "remove"),
       "The following package(s) are recorded in the lockfile but not installed:",
       "Use `renv::restore()` to install these packages."
     )
@@ -185,14 +185,14 @@ renv_status_check_synchronized <- function(project, recorded, current) {
   rest <- c("upgrade", "downgrade", "crossgrade")
   if (any(rest %in% actions)) {
 
-    rlock <- renv_records(recorded)
-    rcurr <- renv_records(current)
+    rlock <- renv_records(lockfile)[names(matches)]
+    rlibs <- renv_records(libstate)[names(matches)]
 
     matches <- actions[actions %in% rest]
     data <- data.frame(
       "  Package"          = names(matches),
-      "  Lockfile Version" = extract_chr(rlock[names(matches)], "Version"),
-      "  Library Version"  = extract_chr(rcurr[names(matches)], "Version"),
+      "  Lockfile Version" = extract_chr(rlock, "Version"),
+      "  Library Version"  = extract_chr(rlibs, "Version"),
       row.names            = NULL,
       stringsAsFactors     = FALSE,
       check.names          = FALSE
@@ -203,7 +203,7 @@ renv_status_check_synchronized <- function(project, recorded, current) {
     print(data, row.names = FALSE)
     writeLines("")
     writeLines("Use `renv::snapshot()` to save the state of your library to the lockfile.")
-    writeLines("Use `renv::restore()` to restore your library from the state of the lockfile.")
+    writeLines("Use `renv::restore()` to restore your library from the lockfile.")
     writeLines("")
   }
 
