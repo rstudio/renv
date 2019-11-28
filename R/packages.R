@@ -118,7 +118,7 @@ renv_package_augment <- function(installpath, record) {
     return(FALSE)
 
   # ensure RemoteType field is written out
-  remotes$RemoteType <- remotes$RemoteType %||% tolower(record$Source)
+  remotes$RemoteType <- remotes$RemoteType %||% renv_record_source(record)
   remotes <- remotes[c("RemoteType", renv_vector_diff(names(remotes), "RemoteType"))]
 
   # update package items

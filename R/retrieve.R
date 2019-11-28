@@ -89,7 +89,7 @@ renv_retrieve_impl <- function(package) {
     return(TRUE)
 
   # otherwise, try and restore from external source
-  source <- tolower(record$Source %||% "unknown")
+  source <- renv_record_source(record)
   if (source %in% c("git2r", "xgit"))
     source <- "git"
 
@@ -127,7 +127,7 @@ renv_retrieve_name <- function(record, type = "source", ext = NULL) {
 renv_retrieve_path <- function(record, type = "source", ext = NULL) {
   package <- record$Package
   name <- renv_retrieve_name(record, type, ext)
-  source <- tolower(record$Source)
+  source <- renv_record_source(record)
   if (type == "source")
     renv_paths_source(source, package, name)
   else if (type == "binary")
@@ -307,8 +307,8 @@ renv_retrieve_local_find <- function(record) {
 
 renv_retrieve_local_report <- function(record) {
 
-  source <- tolower(record$Source)
-  if (tolower(source) == "local")
+  source <- renv_record_source(record)
+  if (source == "local")
     return(record)
 
   record$Source <- "Local"
@@ -329,7 +329,7 @@ renv_retrieve_local <- function(record) {
 renv_retrieve_explicit <- function(record) {
 
   # try parsing as a local remote
-  source <- record$Source %||% ""
+  source <- record$Source %||% record$RemoteUrl %||% ""
   record <- catch(renv_remotes_resolve_local(source))
   if (inherits(record, "error"))
     return(FALSE)
@@ -456,7 +456,7 @@ renv_retrieve_repos_impl <- function(record,
 renv_retrieve_package <- function(record, url, path) {
 
   ensure_parent_directory(path)
-  type <- tolower(record$Source)
+  type <- renv_record_source(record)
   status <- local({
     renv_scope_auth(record)
     catch(download(url, destfile = path, type = type))

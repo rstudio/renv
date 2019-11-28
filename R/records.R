@@ -42,13 +42,17 @@ renv_record_cacheable <- function(record) {
     return(FALSE)
 
   # check for unknown source
-  source <- record$Source %||% "unknown"
+  source <- renv_record_source(record)
   if (source == "unknown")
     return(FALSE)
 
   # record is ok
   TRUE
 
+}
+
+renv_record_source <- function(record) {
+  tolower(record$Source %||% "unknown")
 }
 
 renv_record_validate <- function(record, quiet = FALSE) {

@@ -305,13 +305,8 @@ renv_restore_find_impl <- function(record, library) {
   if (inherits(current, "error"))
     return("")
 
-  # check for matching records
-  source <- tolower(record$Source %||% "")
-  if (!nzchar(source))
-    return("")
-
   # check for an up-to-date version from R package repository
-  if (source %in% c("cran", "repository")) {
+  if (renv_record_source(record) %in% c("cran", "repository")) {
     fields <- c("Package", "Version")
     if (identical(record[fields], current[fields]))
       return(path)

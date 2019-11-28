@@ -484,7 +484,10 @@ renv_install_postamble <- function(packages) {
 
 renv_install_preflight_unknown_source <- function(records) {
 
-  unknown <- Filter(function(record) record$Source %in% "unknown", records)
+  unknown <- filter(records, function(record) {
+    renv_record_source(record) == "unknown"
+  })
+
   if (empty(unknown))
     return(TRUE)
 

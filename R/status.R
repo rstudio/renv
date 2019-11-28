@@ -125,7 +125,7 @@ renv_status_check_unknown_sources <- function(project, lockfile) {
 
   unknown <- filter(records, function(record) {
 
-    source <- tolower(record$Source %||% "unknown")
+    source <- renv_record_source(record)
     if (source != "unknown")
       return(FALSE)
 

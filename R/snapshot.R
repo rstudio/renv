@@ -238,7 +238,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, library) {
 
   # collect Bioconductor records
   bioc <- records %>%
-    filter(function(record) record$Source == "Bioconductor") %>%
+    filter(function(record) renv_record_source(record) == "bioconductor") %>%
     map(function(record) record[c("Package", "Version")]) %>%
     bind_list()
 
@@ -412,10 +412,9 @@ renv_snapshot_validate_sources <- function(project, lockfile, library) {
   if (renv_testing())
     records$renv <- NULL
 
-  unknown <- Filter(
-    function(record) (record$Source %||% "unknown") == "unknown",
-    records
-  )
+  unknown <- filter(records, function(record) {
+    renv_record_source(record) == "unknown"
+  })
 
   if (empty(unknown))
     return(TRUE)
@@ -790,7 +789,11 @@ renv_snapshot_fixup_renv <- function(records) {
 
   # nocov start
   record <- records$renv
-  if (is.null(record) || !identical(record$Source, "unknown"))
+  if (is.null(record))
+    return(records)
+
+  source <- renv_record_source(record)
+  if (source != "unknown")
     return(records)
 
   remote <- paste("rstudio/renv", record$Version, sep = "@")

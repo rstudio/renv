@@ -42,7 +42,7 @@ renv_cache_package_path <- function(record) {
 
     # if we're requesting an install from an R package repository,
     # and the cached package has a "Repository" field, then use it
-    source <- tolower(record$Source %||% "")
+    source <- renv_record_source(record)
     hasrepo <-
       source %in% c("cran", "repository") &&
       "Repository" %in% names(dcf)
@@ -79,7 +79,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   # unknown source are not cacheable)
   desc <- renv_description_read(path)
   source <- renv_snapshot_description_source(desc)
-  if (identical(source, list(Source = "unknown")))
+  if (identical(source, list(Source = "Unknown")))
     return(FALSE)
 
   # bail if record not cacheable

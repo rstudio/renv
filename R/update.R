@@ -161,7 +161,8 @@ update <- function(packages = NULL,
   # but are not actually available in the current repositories
   selected <- Filter(function(record) {
 
-    if (!identical(record$Source, "Repository"))
+    source <- renv_record_source(record)
+    if (!source %in% c("cran", "repository"))
       return(TRUE)
 
     # check for package in one of the active binary / source repos
