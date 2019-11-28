@@ -37,7 +37,7 @@
 
 <meta property="og:title" content="Status — status" />
 <meta property="og:description" content="Report differences between the project's lockfile and the current state of
-the private library (if any)." />
+the project's library (if any)." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -70,7 +70,7 @@ the private library (if any)." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.62</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.66</span>
       </span>
     </div>
 
@@ -155,7 +155,7 @@ the private library (if any)." />
 
     <div class="ref-description">
     <p>Report differences between the project's lockfile and the current state of
-the private library (if any).</p>
+the project's library (if any).</p>
     </div>
 
     <pre class="usage"><span class='fu'>status</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
@@ -175,8 +175,8 @@ directory is used instead.</p></td>
     </tr>
     <tr>
       <th>library</th>
-      <td><p>The path to a library. By default, the project library
-associated with the requested project <code>project</code> is used.</p></td>
+      <td><p>The library paths. By default, the library paths associated
+with the requested project are used.</p></td>
     </tr>
     <tr>
       <th>lockfile</th>
