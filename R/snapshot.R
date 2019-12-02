@@ -139,6 +139,9 @@ snapshot <- function(project  = NULL,
   # ensure the lockfile is .Rbuildignore-d
   renv_infrastructure_write_rbuildignore(project)
 
+  # ensure the activate script is up-to-date
+  renv_infrastructure_write_activate(project)
+
   invisible(new)
 }
 

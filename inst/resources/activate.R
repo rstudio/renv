@@ -53,8 +53,20 @@ local({
   })
 
   # try to load renv from the project library
-  if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE))
+  if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
+
+    # warn if the version of renv loaded does not match
+    spec <- getNamespaceInfo("renv", "spec")
+    if (package_version(version) != package_version(spec[["version"]])) {
+      fmt <- "renv autoloader requested version %s but %s was loaded instead"
+      msg <- sprintf(fmt, version, spec[["version"]])
+      warning(msg, call. = FALSE)
+    }
+
+    # load the project
     return(renv::load())
+
+  }
 
   # failed to find renv locally; we'll try to install from GitHub.
   # first, set up download options as appropriate (try to use GITHUB_PAT)

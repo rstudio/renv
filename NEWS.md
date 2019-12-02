@@ -1,6 +1,9 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* `renv` now warns if the version of `renv` loaded within a project does not
+  match the version declared within the `renv` autoloader. (#285)
+
 * `renv` gains a new function `renv::run()`, for running R scripts within
   a particular project's context inside an R subprocess. (#126)
 
