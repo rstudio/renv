@@ -71,10 +71,11 @@ renv_status_check_missing_library <- function(project, library) {
   projlib <- library[[1]]
   if (file.exists(projlib)) {
     renv_scope_options(renv.verbose = FALSE)
-    snapshotted <- snapshot(project = project,
-                            library = library,
+    snapshotted <- snapshot(project  = project,
+                            library  = library,
                             lockfile = NULL,
-                            force = TRUE)
+                            type     = "simple",
+                            force    = TRUE)
     return(snapshotted)
   }
 
