@@ -59,6 +59,7 @@ restore <- function(project  = NULL,
   project  <- project %||% renv_project()
   library  <- library %||% renv_libpaths_all()
   lockfile <- lockfile %||% renv_lockfile_load(project = project)
+  lockfile <- renv_lockfile_resolve(lockfile)
 
   # activate the requested library
   ensure_directory(library)
