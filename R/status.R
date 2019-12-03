@@ -74,7 +74,6 @@ renv_status_check_missing_library <- function(project, library) {
     snapshotted <- snapshot(project  = project,
                             library  = library,
                             lockfile = NULL,
-                            type     = "simple",
                             force    = TRUE)
     return(snapshotted)
   }

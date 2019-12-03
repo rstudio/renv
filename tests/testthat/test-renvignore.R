@@ -58,3 +58,12 @@ test_that("ignore patterns are constructed correctly", {
   )
 
 })
+
+test_that("empty .renvignore does not ignore anything", {
+
+  renv_tests_scope("oatmeal")
+  file.create(".renvignore")
+  deps <- dependencies(quiet = TRUE)
+  expect_true("oatmeal" %in% deps$Package)
+
+})

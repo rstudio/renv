@@ -1,6 +1,9 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* An empty `.renvignore` no longer erroneously ignores all files within a
+  directory. (#286)
+
 * `renv` now warns if the version of `renv` loaded within a project does not
   match the version declared within the `renv` autoloader. (#285)
 

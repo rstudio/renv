@@ -51,7 +51,9 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
 renv_renvignore_parse <- function(contents, prefix = "") {
 
   # read the ignore entries
-  entries <- grep("^\\s*(?:#|\\s*$)", contents, value = TRUE, invert = TRUE)
+  entries <- grep("^\\s*(?:#|$)", contents, value = TRUE, invert = TRUE)
+  if (empty(entries))
+    return(character())
 
   # remove trailing whitespace
   entries <- gsub("\\s+$", "", entries)
