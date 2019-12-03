@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Lockfiles — lockfile • renv</title>
+<title>Programmatically Create and Modify a Lockfile — lockfile • renv</title>
 
 
 <!-- jquery -->
@@ -35,10 +35,11 @@
 
 
 
-<meta property="og:title" content="Lockfiles — lockfile" />
-<meta property="og:description" content="A lockfile records the state of a project at some point in time. In
-particular, this implies capturing the R packages installed (along with
-their versions) within the project's private library." />
+<meta property="og:title" content="Programmatically Create and Modify a Lockfile — lockfile" />
+<meta property="og:description" content="This function provides an API for creating and modifying renv lockfiles.
+This can be useful when you'd like to programmatically generate or modify
+a lockfile -- for example, because you want to update or change a package
+record in an existing lockfile." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -71,7 +72,7 @@ their versions) within the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.71</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.73</span>
       </span>
     </div>
 
@@ -149,133 +150,65 @@ their versions) within the project's private library." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Lockfiles</h1>
+    <h1>Programmatically Create and Modify a Lockfile</h1>
     
     <div class="hidden name"><code>lockfile.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A <strong>lockfile</strong> records the state of a project at some point in time. In
-particular, this implies capturing the <span style="R">R</span> packages installed (along with
-their versions) within the project's private library.</p>
+    <p>This function provides an API for creating and modifying <code>renv</code> lockfiles.
+This can be useful when you'd like to programmatically generate or modify
+a lockfile -- for example, because you want to update or change a package
+record in an existing lockfile.</p>
     </div>
 
+    <pre class="usage"><span class='fu'>lockfile</span>(<span class='kw'>file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>file</th>
+      <td><p>The path to an existing lockfile. When no lockfile is provided,
+a new one will be created based on the current project context. If you
+want to create a blank lockfile, use <code>file = NA</code> instead.</p></td>
+    </tr>
+    <tr>
+      <th>project</th>
+      <td><p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p></td>
+    </tr>
+    </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Projects can be restored from a lockfile using the <code><a href='restore.html'>restore()</a></code> function.
-This implies re-installing packages into the project's private library,
-as encoded within the lockfile.</p>
-<p>While lockfiles are normally generated and used with <code><a href='snapshot.html'>snapshot()</a></code> /
-<code><a href='restore.html'>restore()</a></code>, they can also hand-edited if so desired. Lockfiles are
-written as <code>.json</code>, to allow for easy consumption by other tools.</p>
-<p>An example lockfile follows:</p><pre>{
-  "renv": {
-    "Version": "1.0.0"
-  },
-  "R": {
-    "Version": "3.6.1",
-    "Repositories": [
-      {
-        "Name": "CRAN",
-        "URL": "https://cloud.r-project.org"
-      }
-    ]
-  },
-  "Packages": {
-    "markdown": {
-      "Package": "markdown",
-      "Version": "1.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "4584a57f565dd7987d59dda3a02cfb41"
-    },
-    "mime": {
-      "Package": "mime",
-      "Version": "0.7",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "908d95ccbfd1dd274073ef07a7c93934"
-    }
-  }
-}
-</pre>
-
-<p>The sections used within a lockfile are described next.</p>
-    <h2 class="hasAnchor" id="-renv-"><a class="anchor" href="#-renv-"></a>[renv]</h2>
-
-    
-
-
-<p>Information about the version of <code>renv</code> used to manage this project.</p>
-<table class='table'>
-<tr><td><strong>Version</strong></td><td>The version of the <code>renv</code> package used with this project.</td></tr>
-</table>
-
-
-    <h2 class="hasAnchor" id="-r-"><a class="anchor" href="#-r-"></a>[R]</h2>
-
-    
-
-
-<p>Properties related to the version of <span style="R">R</span> associated with this project.</p>
-<table class='table'>
-<tr><td><strong>Version</strong></td><td>The version of <span style="R">R</span> used.</td></tr>
-<tr><td><strong>Repositories</strong></td><td>The <span style="R">R</span> repositories used in this project.</td></tr>
-</table>
-
-
-    <h2 class="hasAnchor" id="-packages-"><a class="anchor" href="#-packages-"></a>[Packages]</h2>
-
-    
-
-
-<p><span style="R">R</span> package records, capturing the packages used or required by a project
-at the time when the lockfile was generated.</p>
-<table class='table'>
-<tr><td><strong>Package</strong></td><td>The package name.</td></tr>
-<tr><td><strong>Version</strong></td><td>The package version.</td></tr>
-<tr><td><strong>Source</strong></td><td>The location from which this package was retrieved.</td></tr>
-<tr><td><strong>Repository</strong></td><td>The name of the repository (if any) from which this package was retrieved.</td></tr>
-<tr><td><strong>Hash</strong></td><td>(Optional) A unique hash for this package, used for package caching.</td></tr>
-</table>
-
-
-<p>Additional remote fields, further describing how the package can be
-retrieved from its corresponding source, will also be included as
-appropriate (e.g. for packages installed from GitHub).</p>
-    <h2 class="hasAnchor" id="-python-"><a class="anchor" href="#-python-"></a>[Python]</h2>
-
-    
-
-
-<p>Metadata related to the version of Python used with this project (if any).</p>
-<table class='table'>
-<tr><td><strong>Version</strong></td><td>The version of Python being used.</td></tr>
-<tr><td><strong>Type</strong></td><td>The type of Python environment being used ("virtualenv", "conda", "system")</td></tr>
-<tr><td><strong>Name</strong></td><td>The (optional) name of the environment being used.</td></tr>
-</table>
-
-
-<p>Note that the <code>Name</code> field may be empty. In that case, a project-local Python
-environment will be used instead (when not directly using a system copy of Python).</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other reproducibility: 
-<code><a href='restore.html'>restore</a>()</code>,
-<code><a href='snapshot.html'>snapshot</a>()</code></p></div>
+    <div class='dont-index'><p><code><a href='lockfiles.html'>lockfiles</a></code>, for a description of the structure of an
+<code>renv</code> lockfile.</p></div>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+
+<span class='no'>lock</span> <span class='kw'>&lt;-</span> <span class='fu'>lockfile</span>(<span class='st'>"renv.lock"</span>)
+
+<span class='co'># set the repositories for a lockfile</span>
+<span class='no'>lock</span>$<span class='fu'>repos</span>(<span class='kw'>CRAN</span> <span class='kw'>=</span> <span class='st'>"https://cran.r-project.org"</span>)
+
+<span class='co'># depend on digest 0.6.22</span>
+<span class='no'>lock</span>$<span class='fu'>add</span>(<span class='kw'>digest</span> <span class='kw'>=</span> <span class='st'>"digest@0.6.22"</span>)
+
+<span class='co'># write to file</span>
+<span class='no'>lock</span>$<span class='fu'><a href='https://rdrr.io/r/base/write.html'>write</a></span>(<span class='st'>"renv.lock"</span>)
+
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#details">Details</a></li>
-      <li><a href="#-renv-">[renv]</a></li>
-      <li><a href="#-r-">[R]</a></li>
-      <li><a href="#-packages-">[Packages]</a></li>
-      <li><a href="#-python-">[Python]</a></li>
+      <li><a href="#arguments">Arguments</a></li>
       <li><a href="#see-also">See also</a></li>
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
