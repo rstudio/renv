@@ -1,6 +1,6 @@
 
-renv_condition_signal <- function(class = NULL) {
-  condition <- list(message = character(), call = NULL)
-  class(condition) <- c(class, "condition")
+renv_condition_signal <- function(class = NULL, data = NULL) {
+  condition <- list(message = character(), call = NULL, data = data)
+  class(condition) <- c(class, "renv.condition", "condition")
   signalCondition(condition)
 }

@@ -203,6 +203,6 @@ test_that("renv warns when installing an already-loaded package", {
   renv_tests_scope()
   install("bread@1.0.0")
   requireNamespace("bread")
-  expect_warning(install("bread@0.1.0"))
+  expect_condition(install("bread@0.1.0"), class = "renv.install.restart_required")
   unloadNamespace("bread")
 })

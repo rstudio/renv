@@ -16,3 +16,21 @@ expect_same_elements <- function(lhs, rhs) {
     testthat::expect_setequal(lhs, rhs)
 
 }
+
+expect_signal <- function(expr, class) {
+
+  conditions <- stack()
+  withCallingHandlers(expr, condition = function(c) conditions$push(c))
+
+  ok <- FALSE
+  for (c in conditions$data()) {
+    if (inherits(c, class)) {
+      ok <- TRUE
+      break
+    }
+  }
+
+  message <- sprintf("did not signal condition of class '%s'", class)
+  testthat::expect(ok, message)
+
+}
