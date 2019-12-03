@@ -101,9 +101,8 @@ renv_python_exe <- function(path) {
 
 renv_python_version <- function(python) {
   python <- renv_path_normalize(python)
-  output <- system2(python, "--version", stdout = TRUE, stderr = TRUE)
-  space <- regexpr(" ", output, fixed = TRUE)
-  substring(output, space + 1)
+  args <- c("-c", shQuote("from platform import python_version; print(python_version())"))
+  system2(python, args, stdout = TRUE, stderr = TRUE)
 }
 
 renv_python_info <- function(python) {
