@@ -83,10 +83,25 @@ test_that("lines are commented, uncommented as appropriate", {
 
 test_that("comments after a required line are preserved", {
   renv_tests_scope()
-  text <- "source(\"renv/activate.R\")  # TODO: change?"
-  writeLines(text, con = ".Rprofile")
+
+  before <- c("# a comment", "source(\"renv/activate.R\")")
+  after  <- c("# a comment", "# source(\"renv/activate.R\")")
+
+  writeLines(before, con = ".Rprofile")
   renv_infrastructure_remove()
-  expect_identical(readLines(con = ".Rprofile"), paste("#", text))
+
+  expect_identical(readLines(con = ".Rprofile"), after)
+
   renv_infrastructure_write()
-  expect_identical(readLines(con = ".Rprofile"), text)
+  expect_identical(readLines(con = ".Rprofile"), before)
+
+})
+
+test_that("the project .Rprofile is removed if only autoloader exists", {
+
+  renv_tests_scope()
+  writeLines("source(\"renv/activate.R\")", con = ".Rprofile")
+  renv_infrastructure_remove()
+  expect_false(file.exists(".Rprofile"))
+
 })

@@ -143,8 +143,9 @@ renv_infrastructure_remove <- function(project = NULL) {
 renv_infrastructure_remove_rprofile <- function(project) {
 
   renv_infrastructure_remove_entry_impl(
-    "source(\"renv/activate.R\")",
-    file.path(project, ".Rprofile")
+    line      = "source(\"renv/activate.R\")",
+    file      = file.path(project, ".Rprofile"),
+    removable = TRUE
   )
 
 }
@@ -152,13 +153,14 @@ renv_infrastructure_remove_rprofile <- function(project) {
 renv_infrastructure_remove_rbuildignore <- function(project) {
 
   renv_infrastructure_remove_entry_impl(
-    "^renv$",
-    file.path(project, ".Rbuildignore")
+    line      = "^renv$",
+    file      = file.path(project, ".Rbuildignore"),
+    removable = FALSE
   )
 
 }
 
-renv_infrastructure_remove_entry_impl <- function(line, file) {
+renv_infrastructure_remove_entry_impl <- function(line, file, removable) {
 
   # if the file doesn't exist, nothing to do
   if (!file.exists(file))
@@ -167,11 +169,21 @@ renv_infrastructure_remove_entry_impl <- function(line, file) {
   # find and comment out the line
   contents <- readLines(file, warn = FALSE)
   pattern <- sprintf("^\\s*\\Q%s\\E\\s*(?:#|\\s*$)", line)
-  matches <- grep(pattern, contents, perl = TRUE)
-  if (any(matches)) {
-    contents[matches] <- paste("#", contents[matches])
-    writeLines(contents, file)
+  matches <- grepl(pattern, contents, perl = TRUE)
+
+  # if this file is removable, check to see if we matched all non-blank
+  # lines; if so, remove the file
+  if (removable) {
+    rest <- contents[!matches]
+    if (all(grepl("^\\s*$", rest))) {
+      unlink(file)
+      return(TRUE)
+    }
   }
+
+  # otherwise, just mutate the file
+  contents[matches] <- paste("#", contents[matches])
+  writeLines(contents, file)
 
   TRUE
 
