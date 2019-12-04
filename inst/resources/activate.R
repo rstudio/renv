@@ -56,11 +56,19 @@ local({
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
 
     # warn if the version of renv loaded does not match
-    spec <- getNamespaceInfo("renv", "spec")
-    if (package_version(version) != package_version(spec[["version"]])) {
-      fmt <- "renv autoloader requested version %s but %s was loaded instead"
-      msg <- sprintf(fmt, version, spec[["version"]])
+    loadedversion <- utils::packageDescription("renv", fields = "Version")
+    if (version != loadedversion) {
+
+      fmt <- paste(
+        "renv %1$s was loaded from project library, but renv %2$s is recorded in lockfile.",
+        "Use `renv::snapshot()` to update the lockfile with renv %1$s.",
+        "Use `renv::restore(packages = \"renv\")` to install renv %2$s.",
+        sep = "\n"
+      )
+
+      msg <- sprintf(fmt, loadedversion, version)
       warning(msg, call. = FALSE)
+
     }
 
     # load the project
