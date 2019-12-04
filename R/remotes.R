@@ -14,6 +14,10 @@ remote <- function(spec) {
 # take a short-form remotes entry, and generate a package record
 renv_remotes_resolve <- function(entry) {
 
+  # check for already-resolved lists
+  if (is.list(entry))
+    return(entry)
+
   # check for URLs
   if (grepl("^(?:file|https?)://", entry))
     return(renv_remotes_resolve_url(entry, quiet = TRUE))

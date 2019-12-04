@@ -1,6 +1,10 @@
 
 # renv 0.9.0 (UNRELEASED)
 
+* `renv` gains a new function `renv::record()`, for recording new packages
+  within an existing lockfile. This can be useful when one or more of the
+  recorded packages need to be modified for some reason.
+  
 * An empty `.renvignore` no longer erroneously ignores all files within a
   directory. (#286)
 

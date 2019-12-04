@@ -14,3 +14,8 @@ renv_vector_union <- function(x, y) {
 renv_vector_unique <- function(x) {
   x[!duplicated(x)]
 }
+
+renv_vector_merge <- function(x, y) {
+  x[names(y)] <- y
+  x
+}

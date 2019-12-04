@@ -63,12 +63,7 @@ install <- function(packages = NULL,
     renv_scope_options(repos = repos)
 
   records <- renv_snapshot_r_packages(library = library, project = project)
-  remotes <- lapply(packages, function(package) {
-    case(
-      is.list(package)      ~ package,
-      is.character(package) ~ renv_remotes_resolve(package)
-    )
-  })
+  remotes <- lapply(packages, renv_remotes_resolve)
 
   packages <- extract_chr(remotes, "Package")
   names(remotes) <- packages

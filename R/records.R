@@ -206,3 +206,24 @@ renv_records_equal <- function(lhs, rhs) {
   identical(keep(lhs, nm), keep(rhs, nm))
 
 }
+
+renv_records_resolve <- function(records) {
+
+  enumerate(records, function(package, record) {
+
+    # check for already-resolved records
+    if (is.list(record))
+      return(record)
+
+    # check for version-only specifications and
+    # prepend the package name in such a case
+    pattern <- "^(?:[[:digit:]]+[.-]){1,}[[:digit:]]+$"
+    if (grepl(pattern, record))
+      record <- paste(package, record, sep = "@")
+
+    # resolve the record
+    renv_remotes_resolve(record)
+
+  })
+
+}

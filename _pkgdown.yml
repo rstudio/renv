@@ -18,7 +18,8 @@ reference:
 
 - title: Lockfile Management
   contents:
-  - lockfile
+  - lockfiles
+  - record
   - modify
   - history
   - revert
