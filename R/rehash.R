@@ -24,14 +24,14 @@ renv_rehash_impl <- function(confirm) {
   oldcache <- renv_paths_cache(version = renv_cache_version_previous())
   newcache <- renv_paths_cache(version = renv_cache_version())
   if (file.exists(oldcache) && !file.exists(newcache))
-    renv_rehash_cache(oldcache, confirm)
+    renv_rehash_cache(oldcache, confirm, renv_file_copy)
 
   # re-cache packages as necessary
-  renv_rehash_cache(newcache, confirm)
+  renv_rehash_cache(newcache, confirm, renv_file_move)
 
 }
 
-renv_rehash_cache <- function(cache, confirm) {
+renv_rehash_cache <- function(cache, confirm, action) {
 
   # re-compute package hashes
   old <- renv_cache_list(cache = cache)
@@ -76,7 +76,7 @@ renv_rehash_cache <- function(cache, confirm) {
   names(targets) <- sources
 
   vprintf("* Re-caching packages ... ")
-  enumerate(targets, renv_progress(renv_file_copy, length(targets)))
+  enumerate(targets, renv_progress(action, length(targets)))
   vwritef("Done!")
 
   fmt <- "* %i %s have been re-cached."
