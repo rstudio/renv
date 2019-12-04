@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.74</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.75</span>
       </span>
     </div>
 
@@ -154,6 +154,7 @@
 <a href="#renv-0-9-0-unreleased" class="anchor"></a>renv 0.9.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code>renv</code> gains a new function <code><a href="../reference/record.html">renv::record()</a></code>, for recording new packages within an existing lockfile. This can be useful when one or more of the recorded packages need to be modified for some reason.</p></li>
 <li><p>An empty <code>.renvignore</code> no longer erroneously ignores all files within a directory. (#286)</p></li>
 <li><p><code>renv</code> now warns if the version of <code>renv</code> loaded within a project does not match the version declared within the <code>renv</code> autoloader. (#285)</p></li>
 <li><p><code>renv</code> gains a new function <code><a href="../reference/run.html">renv::run()</a></code>, for running R scripts within a particular project’s context inside an R subprocess. (#126)</p></li>
