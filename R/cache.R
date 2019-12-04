@@ -140,7 +140,8 @@ renv_cache_list <- function(cache = NULL, packages = NULL) {
   versions <- list.files(names, full.names = TRUE)
   hashes <- list.files(versions, full.names = TRUE)
   paths <- list.files(hashes, full.names = TRUE)
-  paths
+  norm <- normalizePath(paths, winslash = "/", mustWork = FALSE)
+  sort(unique(norm))
 }
 
 renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
@@ -207,7 +208,7 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
     renv_pretty_print(
       entries,
       "The following packages have incorrect hashes:",
-      "These packages should be purged and re-installed.",
+      "Consider using `renv::rehash()` to re-hash these packages.",
       wrap = FALSE
     )
   }

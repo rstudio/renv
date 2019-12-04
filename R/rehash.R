@@ -88,8 +88,8 @@ renv_rehash_cache <- function(cache, confirm) {
   enumerate(sources, renv_progress(renv_file_link, length(sources)))
   vwritef("Done!")
 
-  fmt <- "* %i package(s) have been re-cached."
-  vwritef(fmt, length(targets))
+  fmt <- "* %i %s have been re-cached."
+  vwritef(fmt, length(targets), plural("package", length(targets)))
 
   renv_cache_clean_empty()
 
