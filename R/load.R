@@ -405,8 +405,6 @@ renv_load_cache <- function(project) {
   if (!file.exists(oldcache) || file.exists(newcache))
     return(FALSE)
 
-  ensure_directory(newcache)
-
   msg <- lines(
     "* The cache version has been updated in this version of renv.",
     "* Use `renv::rehash()` to migrate packages from the old renv cache."
