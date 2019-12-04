@@ -140,8 +140,7 @@ renv_cache_list <- function(cache = NULL, packages = NULL) {
   versions <- list.files(names, full.names = TRUE)
   hashes <- list.files(versions, full.names = TRUE)
   paths <- list.files(hashes, full.names = TRUE)
-  norm <- normalizePath(paths, winslash = "/", mustWork = FALSE)
-  sort(unique(norm))
+  paths
 }
 
 renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {

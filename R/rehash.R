@@ -59,12 +59,7 @@ renv_rehash_cache <- function(cache, confirm) {
     renv_pretty_print(
       sprintf(fmt, format(packages), format(oldhash), format(newhash)),
       "The following packages will be re-cached:",
-      c(
-        "Packages will be copied to their new locations in the cache.",
-        "Links from the previously-cached location will be provided",
-        "to ensure that projects using older versions of renv will",
-        "remain functional."
-      ),
+      "Packages will be copied to their new locations in the cache.",
       wrap = FALSE
     )
 
@@ -81,11 +76,7 @@ renv_rehash_cache <- function(cache, confirm) {
   names(targets) <- sources
 
   vprintf("* Re-caching packages ... ")
-  enumerate(targets, renv_progress(renv_file_move, length(targets)))
-  vwritef("Done!")
-
-  vprintf("* Linking old packages ... ")
-  enumerate(sources, renv_progress(renv_file_link, length(sources)))
+  enumerate(targets, renv_progress(renv_file_copy, length(targets)))
   vwritef("Done!")
 
   fmt <- "* %i %s have been re-cached."
