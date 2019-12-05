@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.81</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.83</span>
       </span>
     </div>
 
@@ -128,7 +128,15 @@
 <p>in determining which packages should enter the lockfile. The intention is that only the packages you truly require for your project should enter the lockfile; development dependencies (e.g. <code>devtools</code>) normally should not.</p>
 <p>If you find a package is not entering the lockfile, you can check the output of:</p>
 <pre><code><a href="../reference/dependencies.html">renv::dependencies()</a></code></pre>
-<p>and see whether usages of your package are reported in the output. Note that <code>renv</code>’s dependency discovery machinery relies on static analysis of your R code, and does not understand all of the different ways in which a package might be loaded. However, the most common forms (e.g. <code>library(&lt;package&gt;)</code>) are understood. If you use a custom package loader in your project that <code>renv</code> could feasibly support, please feel free to <a href="https://github.com/rstudio/renv/issues">file a feature request</a>.</p>
+<p>and see whether usages of your package are reported in the output.</p>
+<p>Note that <code>renv</code>’s dependency discovery machinery relies on static analysis of your R code, and does not understand all of the different ways in which a package might be used in a project. For example, <code>renv</code> will detect the following usages:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</a></code></pre></div>
+<p>But it will be unable to detect these kinds of usages:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="cf">for</span> (package <span class="cf">in</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span>)) {</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(package, <span class="dt">character.only =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">}</a></code></pre></div>
+<p>If you use a custom package loader in your project that <code>renv</code> could feasibly support, please feel free to <a href="https://github.com/rstudio/renv/issues">file a feature request</a>.</p>
 <p>If you’d instead prefer to capture <em>all</em> packages installed into your project library (and eschew dependency discovery altogether), you can instead use <code>"simple"</code> snapshots. Configure your project to use <code>"simple"</code> snapshots with:</p>
 <pre><code>renv::settings$snapshot.type("simple")</code></pre>
 <p>Packages can also be explicitly ignored through a project setting, e.g. with:</p>
