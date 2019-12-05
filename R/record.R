@@ -38,7 +38,12 @@ record <- function(records,
     ~ stopf("unexpected records format '%s'", typeof(records))
   )
 
-  names(records) <- map_chr(records, `[[`, "Package")
+  names(records) <- enum_chr(records, function(package, record) {
+    if (is.null(package) || is.na(package) || !nzchar(package))
+      record[["Package"]]
+    else
+      package
+  })
 
   if (is.list(lockfile))
     return(renv_lockfile_modify(lockfile, records))

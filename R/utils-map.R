@@ -4,9 +4,33 @@ bapply <- function(x, f, ..., index = "Index") {
   bind_list(result, index = index)
 }
 
-enumerate <- function(x, f, ...) {
-  n <- names(x); idx <- named(seq_along(x), n)
-  lapply(idx, function(i) f(n[[i]], x[[i]], ...))
+enumerate <- function(x, f, ..., FUN.VALUE = NULL) {
+
+  n <- names(x)
+  idx <- named(seq_along(x), n)
+  callback <- function(i) f(n[[i]], x[[i]], ...)
+
+  if (is.null(FUN.VALUE))
+    lapply(idx, callback)
+  else
+    vapply(idx, callback, FUN.VALUE = FUN.VALUE)
+
+}
+
+enum_chr <- function(x, f, ...) {
+  enumerate(x, f, ..., FUN.VALUE = "character")
+}
+
+enum_int <- function(x, f, ...) {
+  enumerate(x, f, ..., FUN.VALUE = "integer")
+}
+
+enum_dbl <- function(x, f, ...) {
+  enumerate(x, f, ..., FUN.VALUE = "double")
+}
+
+enum_lgl <- function(x, f, ...) {
+  enumerate(x, f, ..., FUN.VALUE = "logical")
 }
 
 recurse <- function(x, f, ...) {

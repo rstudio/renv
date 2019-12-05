@@ -175,10 +175,8 @@ renv_infrastructure_remove_entry_impl <- function(line, file, removable) {
   # lines; if so, remove the file
   if (removable) {
     rest <- contents[!matches]
-    if (all(grepl("^\\s*$", rest))) {
-      unlink(file)
-      return(TRUE)
-    }
+    if (all(grepl("^\\s*$", rest)))
+      return(unlink(file))
   }
 
   # otherwise, just mutate the file

@@ -150,6 +150,11 @@ renv_lockfile_create <- function(project, library, type) {
 }
 
 renv_lockfile_modify <- function(lockfile, records) {
-  renv_records(lockfile)[names(records)] <- records
+
+  enumerate(records, function(package, record) {
+    renv_records(lockfile)[[package]] <<- record
+  })
+
   lockfile
+
 }

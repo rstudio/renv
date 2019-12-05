@@ -212,7 +212,7 @@ renv_records_resolve <- function(records) {
   enumerate(records, function(package, record) {
 
     # check for already-resolved records
-    if (is.list(record))
+    if (is.null(record) || is.list(record))
       return(record)
 
     # check for version-only specifications and

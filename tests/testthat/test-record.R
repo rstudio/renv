@@ -32,4 +32,9 @@ test_that("an existing lockfile can be updated", {
   records <- renv_records(lockfile)
   expect_equal(records$toast$Version, "1.0.2")
 
+  # remove a record
+  lockfile <- renv::record(list(toast = NULL), lockfile = lockfile)
+  records <- renv_records(lockfile)
+  expect_true(is.null(records$toast))
+
 })
