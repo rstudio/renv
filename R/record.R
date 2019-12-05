@@ -61,6 +61,14 @@ record <- function(records,
   fmt <- "* Updated %i %s in %s."
   vwritef(fmt, n, plural("record", n), renv_path_pretty(lockfile))
 
+  renv <- records[["renv"]]
+  if (!is.null(renv) && !is.null(renv[["Version"]])) {
+    renv_infrastructure_write_activate(
+      project = project,
+      version = renv[["Version"]]
+    )
+  }
+
   invisible(lockfile)
 
 }
