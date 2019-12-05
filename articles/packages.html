@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.83</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.89</span>
       </span>
     </div>
 
@@ -135,19 +135,19 @@
 <p>In these cases, you can declare your development dependencies using the <code>Remotes</code> field of the <code>DESCRIPTION</code> file; e.g.</p>
 <pre><code>Remotes:
   r-lib/ggplot2</code></pre>
-<p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration and retrieve the requested package. See the <code>remotes</code> vignette, <a href="https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html">Dependency resolution for R package development</a>, for more details.</p>
+<p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration and retrieve the requested package. See the <code>remotes</code> vignette, <a href="https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html">Dependency resolution for R package development</a>, for more details.</p>
 </div>
 <div id="testing" class="section level2">
 <h2 class="hasAnchor">
 <a href="#testing" class="anchor"></a>Testing</h2>
-<p>While developing your package, you may want to use a continuous integration service (such as <a href="https://www.travis-ci.org/">Travis CI</a>) to build and test your package remotely. You can use <code>renv</code> to help facilitate this testing – see the <a href="https://cran.r-project.org/web/packages/renv/vignettes/ci.html">CI</a> vignette for more information. In particular, clever use of the <code>renv</code> cache can help save time that might normally be spent on package installation.</p>
+<p>While developing your package, you may want to use a continuous integration service (such as <a href="https://www.travis-ci.org/">Travis CI</a>) to build and test your package remotely. You can use <code>renv</code> to help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html">CI</a> vignette for more information. In particular, clever use of the <code>renv</code> cache can help save time that might normally be spent on package installation.</p>
 </div>
 <div id="r-cmd-build-and-the-project-library" class="section level2">
 <h2 class="hasAnchor">
 <a href="#r-cmd-build-and-the-project-library" class="anchor"></a>R CMD build and the Project Library</h2>
 <p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. Unfortunately, this also implies copying the <code>renv</code> library. When that library is large, this can dramatically increase the amount of time it takes to build your package.</p>
 <p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in your project <code>.Renviron</code>:</p>
-<pre><code>RENV_PATHS_LIBRARY = /home/$USER/.renv/&lt;package&gt;/library</code></pre>
+<pre><code>RENV_PATHS_LIBRARY = /home/$USER/.renv/library/&lt;package&gt;</code></pre>
 <p>where <code>&lt;package&gt;</code> is the name of your package project.</p>
 </div>
   </div>
