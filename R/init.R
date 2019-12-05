@@ -109,11 +109,13 @@ init <- function(project = NULL,
 
   # perform the action
   if (action == "init") {
+    vwritef("* Initializing project ...")
     renv_libpaths_activate(project = project)
     renv_bootstrap_impl(project)
     hydrate(project = project, library = library)
     snapshot(project = project, library = library, confirm = FALSE)
   } else if (action == "restore") {
+    vwritef("* Restoring project ... ")
     ensure_directory(library)
     restore(project = project, confirm = FALSE)
   }

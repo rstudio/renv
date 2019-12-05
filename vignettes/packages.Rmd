@@ -88,7 +88,7 @@ lives outside of your project. For example, you might set the following in your
 project `.Renviron`:
 
 ```
-RENV_PATHS_LIBRARY = /home/$USER/.renv/<package>/library
+RENV_PATHS_LIBRARY = /home/$USER/.renv/library/<package>
 ```
 
 where `<package>` is the name of your package project.

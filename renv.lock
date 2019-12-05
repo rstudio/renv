@@ -4,7 +4,7 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
+        "URL": "https://cloud.r-project.org"
       }
     ]
   },
@@ -545,6 +545,17 @@
       "RemoteRef": "feature/pkgtype-resilience",
       "RemoteSha": "53b19dce9c9e757a25a0845eba1ad3e4613b1bc2",
       "Hash": "be80a084d0f7d17b854e72537a0453cd"
+    },
+    "renv": {
+      "Package": "renv",
+      "Version": "0.8.3-82",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "rstudio",
+      "RemoteRepo": "renv",
+      "RemoteRef": "0.8.3-82",
+      "RemoteSha": "51b5401167272edde97af53efe08a06c77f9ae36"
     },
     "reshape2": {
       "Package": "reshape2",
