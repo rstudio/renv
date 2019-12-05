@@ -97,6 +97,6 @@ where `<package>` is the name of your package project.
 
 
 
-[ci]: https://cran.r-project.org/web/packages/renv/vignettes/ci.html
-[dependencies]: https://cran.r-project.org/web/packages/remotes/vignettes/dependencies.html
+[ci]: https://CRAN.R-project.org/package=renv/vignettes/ci.html
+[dependencies]: https://CRAN.R-project.org/package=renv/vignettes/dependencies.html
 
