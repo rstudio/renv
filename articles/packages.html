@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.89</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8.3.90</span>
       </span>
     </div>
 
@@ -147,8 +147,8 @@
 <a href="#r-cmd-build-and-the-project-library" class="anchor"></a>R CMD build and the Project Library</h2>
 <p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. Unfortunately, this also implies copying the <code>renv</code> library. When that library is large, this can dramatically increase the amount of time it takes to build your package.</p>
 <p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in your project <code>.Renviron</code>:</p>
-<pre><code>RENV_PATHS_LIBRARY = /home/$USER/.renv/library/&lt;package&gt;</code></pre>
-<p>where <code>&lt;package&gt;</code> is the name of your package project.</p>
+<pre><code>RENV_PATHS_LIBRARY = ~/.renv/library/&lt;package&gt;</code></pre>
+<p>where <code>&lt;package&gt;</code> is the name of your package project. Note that if you’re testing your package with continuous integration systems, you may need to unset this environment variable before tests are run.</p>
 </div>
   </div>
 
