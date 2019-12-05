@@ -211,6 +211,8 @@ renv_tests_init <- function() {
   if (renv_testing())
     return()
 
+  Sys.unsetenv("RENV_PATHS_LIBRARY")
+
   Sys.unsetenv("RENV_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON_ENV")
