@@ -1,4 +1,6 @@
 
+# renv 0.9.2 (UNRELEASED)
+
 # renv 0.9.1
 
 * Fixed an issue in invoking `cp` on Solaris.
