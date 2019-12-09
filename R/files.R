@@ -85,8 +85,7 @@ renv_file_copy_dir_rsync <- function(source, target) {
 
 renv_file_copy_dir_cp <- function(source, target) {
   source <- sub("/*$", "/", source)
-  flags <- if (renv_platform_solaris()) "-pR" else "-a"
-  args <- c(flags, shQuote(source), shQuote(target))
+  args <- c("-pPR", shQuote(source), shQuote(target))
   renv_system_exec("cp", args, action = "copying directory")
 }
 

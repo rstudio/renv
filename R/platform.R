@@ -22,7 +22,7 @@ renv_platform_linux <- function() {
 }
 
 renv_platform_solaris <- function() {
-  `_renv_sysinfo`[["sysname"]] == "Solaris"
+  `_renv_sysinfo`[["sysname"]] == "SunOS"
 }
 
 renv_platform_wsl <- function() {
