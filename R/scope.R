@@ -221,13 +221,6 @@ renv_scope_install_macos <- function(.envir = NULL) {
 
   }
 
-  # if we have command line tools, add them to CPPFLAGS
-  sdk <- "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
-  if (file.exists(sdk)) {
-    line <- paste("CPPFLAGS += -isysroot", sdk)
-    makevars$push(line)
-  }
-
   # write makevars to file
   path <- tempfile("Makevars-")
   contents <- unlist(makevars$data(), recursive = TRUE, use.names = FALSE)
