@@ -259,6 +259,10 @@ renv_cache_format_path <- function(paths) {
 
 renv_cache_clean_empty <- function(cache = NULL) {
 
+  # no-op for Solaris
+  if (renv_platform_solaris())
+    return(FALSE)
+
   # move to cache root
   cache <- cache %||% renv_paths_cache()
   owd <- setwd(cache)

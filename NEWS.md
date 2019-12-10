@@ -1,5 +1,7 @@
 
-# renv 0.9.2 (UNRELEASED)
+# renv 0.9.2
+
+* Fixed an issue in invoking `find` on Solaris.
 
 # renv 0.9.1
 
