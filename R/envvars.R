@@ -62,7 +62,7 @@ renv_envvars_init <- function() {
     sdk <- "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
     sdkroot <- Sys.getenv("SDKROOT", unset = NA)
     if (is.na(sdkroot) && file.exists(sdk))
-      Sys.setenv(SDKROOT = sdkroot)
+      Sys.setenv(SDKROOT = sdk)
 
   }
 
