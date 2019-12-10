@@ -61,7 +61,7 @@ renv_envvars_init <- function() {
     # set SDKROOT so older R installations can find command line tools
     sdk <- "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
     sdkroot <- Sys.getenv("SDKROOT", unset = NA)
-    if (is.na(sdkroot) && file.exist(sdk))
+    if (is.na(sdkroot) && file.exists(sdk))
       Sys.setenv(SDKROOT = sdkroot)
 
   }
