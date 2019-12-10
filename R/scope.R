@@ -231,10 +231,11 @@ renv_scope_install_macos <- function(.envir = NULL) {
   # write makevars to file
   path <- tempfile("Makevars-")
   contents <- unlist(makevars$data(), recursive = TRUE, use.names = FALSE)
-  writeLines(contents, con = path)
+  if (length(contents)) {
+    writeLines(contents, con = path)
+    renv_scope_envvars(R_MAKEVARS_SITE = path, .envir = .envir)
+  }
 
-  # tell R to use it
-  renv_scope_envvars(R_MAKEVARS_SITE = path, .envir = .envir)
   TRUE
 
 }
