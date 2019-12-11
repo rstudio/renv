@@ -200,11 +200,11 @@ renv_paths_init <- function() {
 #' Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
 #' ```
 #'
-#' then the directory used for the cache will still depend on the \R version
-#' (e.g. `3.5`) and the `renv` cache version (e.g. `v2`). For example:
+#' then the directory used for the cache will still depend on the `renv` cache version (e.g. `v2`), the \R version
+#' (e.g. `3.5`) and the platform (e.g. `x86_64-pc-linux-gnu`). For example:
 #'
 #' ```
-#' /mnt/shared/renv/cache/R-3.5/v2
+#' /mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
 #' ```
 #'
 #' This ensures that you can set a single `RENV_PATHS_CACHE` environment variable
