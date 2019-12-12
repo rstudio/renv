@@ -105,3 +105,14 @@ test_that("the project .Rprofile is removed if only autoloader exists", {
   expect_false(file.exists(".Rprofile"))
 
 })
+
+test_that("the renv .gitignore is updated for sub-projects", {
+
+  renv_tests_scope()
+  dir.create(".git")
+  project <- file.path(getwd(), "project")
+  dir.create(project)
+  renv_infrastructure_write(project = project)
+  expect_true(file.exists("project/renv/.gitignore"))
+
+})

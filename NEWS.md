@@ -1,6 +1,9 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` now updates its local `.gitignore` file, when part of a git repository
+  whose git root lives in a parent directory. (#300)
+
 # renv 0.9.2
 
 * Fixed an issue in invoking `find` on Solaris.

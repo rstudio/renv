@@ -52,7 +52,7 @@ renv_infrastructure_write_gitignore <- function(project) {
     add    = as.character(add$data()),
     remove = as.character(remove$data()),
     file   = file.path(project, "renv/.gitignore"),
-    create = file.exists(file.path(project, ".git"))
+    create = !is.null(renv_git_root(project = project))
   )
 
 }
