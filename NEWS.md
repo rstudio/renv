@@ -1,6 +1,9 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` gains a new function `renv::scaffold()`, for generating `renv` project
+  infrastructure without explicitly loading the project. (#303)
+
 * `renv` now updates its local `.gitignore` file, when part of a git repository
   whose git root lives in a parent directory. (#300)
 
