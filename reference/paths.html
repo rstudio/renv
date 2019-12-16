@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.8</span>
       </span>
     </div>
 
@@ -197,8 +197,8 @@ enumerated below:</p>
 to the set paths as appropriate. For example, if you have set:</p><pre>Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
 </pre>
 
-<p>then the directory used for the cache will still depend on the <span style="R">R</span> version
-(e.g. <code>3.5</code>) and the <code>renv</code> cache version (e.g. <code>v2</code>). For example:</p><pre>/mnt/shared/renv/cache/R-3.5/v2
+<p>then the directory used for the cache will still depend on the <code>renv</code> cache version (e.g. <code>v2</code>), the <span style="R">R</span> version
+(e.g. <code>3.5</code>) and the platform (e.g. <code>x86_64-pc-linux-gnu</code>). For example:</p><pre>/mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
 </pre>
 
 <p>This ensures that you can set a single <code>RENV_PATHS_CACHE</code> environment variable

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Deactivate a Project — deactivate • renv</title>
+<title>Generate renv Project Infrastructure — scaffold • renv</title>
 
 
 <!-- jquery -->
@@ -35,11 +35,8 @@
 
 
 
-<meta property="og:title" content="Deactivate a Project — deactivate" />
-<meta property="og:description" content="Use deactivate() to remove the infrastructure used by renv to activate
-projects for newly-launched R sessions. In particular, this implies removing
-the requisite code from the project .Rprofile that automatically activates
-the project when new R sessions are launched in the project directory." />
+<meta property="og:title" content="Generate renv Project Infrastructure — scaffold" />
+<meta property="og:description" content="Write the renv project infrastructure for a project." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -150,19 +147,16 @@ the project when new R sessions are launched in the project directory." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Deactivate a Project</h1>
+    <h1>Generate renv Project Infrastructure</h1>
     
-    <div class="hidden name"><code>deactivate.Rd</code></div>
+    <div class="hidden name"><code>scaffold.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Use <code>deactivate()</code> to remove the infrastructure used by <code>renv</code> to activate
-projects for newly-launched <span style="R">R</span> sessions. In particular, this implies removing
-the requisite code from the project <code>.Rprofile</code> that automatically activates
-the project when new <span style="R">R</span> sessions are launched in the project directory.</p>
+    <p>Write the <code>renv</code> project infrastructure for a project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>deactivate</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>scaffold</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,32 +167,26 @@ the project when new <span style="R">R</span> sessions are launched in the proje
 be used. If no project is currently active, then the current working
 directory is used instead.</p></td>
     </tr>
+    <tr>
+      <th>version</th>
+      <td><p>The version of <code>renv</code> to associate with this project. By
+default, the version of <code>renv</code> currently installed is used.</p></td>
+    </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The project directory, invisibly. Note that this function is normally
-called for its side effects.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>The function will update the project <code>.Rprofile</code> so that <code>renv</code> is
+automatically loaded for new <span style="R">R</span> sessions launched in this project. <code>renv</code>
+will also be installed and made available within the project's private
+library.</p>
 
-    <div class='dont-index'><p>Other renv: 
-<code><a href='activate.html'>activate</a>()</code></p></div>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-
-<span class='co'># deactivate the currently-activated project</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/deactivate.html'>deactivate</a></span>()
-
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      <li><a href="#value">Value</a></li>
-      <li><a href="#see-also">See also</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>
