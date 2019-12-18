@@ -176,7 +176,15 @@ renv_tests_init_packages <- function() {
 
   # eagerly load packages that we'll need during tests
   # (as the sandbox will otherwise 'hide' these packages)
-  packages <- c("packrat", "knitr", "reticulate", "rmarkdown", "yaml")
+  packages <- c(
+    "packrat",
+    "knitr",
+    "rappdirs",
+    "reticulate",
+    "rmarkdown",
+    "yaml"
+  )
+
   for (package in packages)
     requireNamespace(package, quietly = TRUE)
 
