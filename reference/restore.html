@@ -70,7 +70,7 @@ snapshot()." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.13</span>
       </span>
     </div>
 
@@ -224,6 +224,20 @@ to exactly reflect the lockfile contents after <code>restore()</code>.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A named list of package records which were installed by <code>renv</code>.</p>
+    <h2 class="hasAnchor" id="package-repositories"><a class="anchor" href="#package-repositories"></a>Package Repositories</h2>
+
+    
+
+
+<p>By default, the package repositories encoded in the lockfile will be used
+during restore, as opposed to the repositories that might already
+be set in the current session (through <code><a href='https://rdrr.io/r/base/options.html'>getOption("repos")</a></code>). If you'd like
+to override the repositories used by <code>renv</code> during restore, you can use,
+for example:</p><pre>renv::restore(repos = c(CRAN = &lt;...&gt;))
+</pre>
+
+<p>See also the <code>repos.override</code> option in <a href='config.html'>config</a> for an alternate way to
+provide a repository override.</p>
     <h2 class="hasAnchor" id="library"><a class="anchor" href="#library"></a>Library</h2>
 
     
@@ -277,6 +291,7 @@ well.</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#package-repositories">Package Repositories</a></li>
       <li><a href="#library">Library</a></li>
       <li><a href="#see-also">See also</a></li>
       <li><a href="#examples">Examples</a></li>
