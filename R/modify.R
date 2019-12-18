@@ -19,7 +19,7 @@
 #' }
 modify <- function(project = NULL) {
   renv_scope_error_handler()
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   renv_modify_impl(project)
   invisible(project)
 }

@@ -65,7 +65,7 @@ use_python <- function(python = NULL,
                        name = NULL,
                        project = NULL)
 {
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   renv_scope_error_handler()
 
   if (identical(python, FALSE))

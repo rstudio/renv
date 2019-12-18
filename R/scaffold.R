@@ -15,7 +15,7 @@
 #' @export
 scaffold <- function(project = NULL, version = NULL) {
   renv_scope_error_handler()
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   renv_bootstrap_impl(project, version)
   renv_infrastructure_write(project, version)
   fmt <- "* renv infrastructure has been generated for project %s."

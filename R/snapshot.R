@@ -81,7 +81,7 @@ snapshot <- function(project  = NULL,
   renv_consent_check()
   renv_scope_error_handler()
 
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
 
   if (renv_config("snapshot.preflight", default = TRUE))

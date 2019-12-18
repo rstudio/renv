@@ -29,7 +29,7 @@ record <- function(records,
                    project  = NULL)
 {
   renv_scope_error_handler()
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   lockfile <- lockfile %||% renv_lockfile_path(project)
 
   records <- case(

@@ -51,7 +51,7 @@ upgrade <- function(project = NULL,
 
 renv_upgrade_impl <- function(project, version, reload, confirm) {
 
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   reload <- reload %||% identical(project, renv_project())
 
   old <- renv_snapshot_description(package = "renv")

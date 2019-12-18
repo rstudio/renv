@@ -16,7 +16,7 @@
 #'
 #' }
 isolate <- function(project = NULL) {
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   settings$use.cache(FALSE)
   invisible(project)
 }

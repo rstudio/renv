@@ -60,7 +60,7 @@ migrate <- function(
   renv_consent_check()
   renv_scope_error_handler()
 
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
 
   project <- renv_path_normalize(project, winslash = "/", mustWork = TRUE)
   if (file.exists(file.path(project, "packrat/packrat.lock"))) {
@@ -72,7 +72,7 @@ migrate <- function(
 }
 
 renv_migrate_packrat <- function(project = NULL, components = NULL) {
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
 
   if (!requireNamespace("packrat", quietly = TRUE))
     stopf("migration requires the 'packrat' package to be installed")

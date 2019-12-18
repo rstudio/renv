@@ -12,7 +12,7 @@
 diagnostics <- function(project = NULL) {
 
   renv_scope_error_handler()
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
 
   if (renv_file_type(project, symlinks = FALSE) != "directory") {
     fmt <- "project %s is not a directory"

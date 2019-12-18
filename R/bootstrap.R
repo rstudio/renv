@@ -16,7 +16,7 @@
 #'
 bootstrap <- function(project = NULL, version = NULL) {
   renv_scope_error_handler()
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
 
   vtext <- version %||% renv_package_version("renv")
   vwritef("Bootstrapping renv [%s] ...", vtext)

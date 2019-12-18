@@ -1,7 +1,7 @@
 
 unload <- function(project = NULL, quiet = FALSE) {
 
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   renv_scope_error_handler()
 
   if (renv_testing())

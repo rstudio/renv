@@ -221,7 +221,7 @@ renv_settings_impl <- function(name, validate, default, update) {
   )
 
   function(value, project = NULL, persist = TRUE) {
-    project <- project %||% renv_project()
+    project <- renv_project_resolve(project)
     if (missing(value))
       renv_settings_get(project, name)
     else

@@ -204,7 +204,7 @@ renv_load_project <- function(project) {
 
 renv_load_profile <- function(project = NULL) {
 
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
 
   enabled <- renv_config("user.profile", default = FALSE)
   if (!enabled)

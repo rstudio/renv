@@ -119,7 +119,7 @@ str.renv_lockfile_api <- function(object, ...) {
 #'
 #' }
 lockfile <- function(file = NULL, project = NULL) {
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   renv_scope_error_handler()
 
   lock <- if (is.null(file)) {

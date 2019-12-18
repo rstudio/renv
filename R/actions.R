@@ -8,7 +8,7 @@ actions <- function(action = c("snapshot", "restore"),
                     clean = FALSE)
 {
   action  <- match.arg(action)
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
 
   switch(

@@ -44,13 +44,13 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
 }
 
 renv_paths_project <- function(..., project = NULL) {
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   file.path(project, ...) %||% ""
 }
 
 # NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_paths_library <- function(..., project = NULL) {
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = file.path(project, "renv/library"))
   file.path(root, renv_prefix_platform(), ...) %||% ""
 }

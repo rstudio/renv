@@ -28,6 +28,11 @@ renv_project <- function(default = getwd()) {
   project
 }
 
+renv_project_resolve <- function(project = NULL) {
+  project <- project %||% renv_project()
+  normalizePath(project, winslash = "/", mustWork = FALSE)
+}
+
 renv_project_initialized <- function(project) {
 
   lockfile <- renv_lockfile_path(project)
