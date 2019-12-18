@@ -218,3 +218,19 @@ test_that("snapshot records packages discovered in local sources", {
   expect_equal(skeleton$Source, "Local")
 
 })
+
+test_that("snapshot prefers RemoteType to biocViews", {
+
+  desc <- list(
+    Package = "test",
+    Version = "1.0",
+    RemoteType = "github",
+    biocViews = "Biology"
+  )
+
+  descfile <- tempfile()
+  renv_dcf_write(desc, file = descfile)
+  record <- renv_snapshot_description(descfile)
+  expect_identical(record$Source, "GitHub")
+
+})

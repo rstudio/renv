@@ -1,6 +1,9 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` now prefers using a RemoteType field (if any) when attempting to
+  determine a package's source. (#306)
+
 * `renv` gains a new function `renv::scaffold()`, for generating `renv` project
   infrastructure without explicitly loading the project. (#303)
 
