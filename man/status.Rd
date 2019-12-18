@@ -11,7 +11,8 @@ status(project = NULL, ..., library = NULL, lockfile = NULL)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{library}{The library paths. By default, the library paths associated
 with the requested project are used.}

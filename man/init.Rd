@@ -17,7 +17,8 @@ init(
 \item{project}{The project directory. The \R working directory will be
 changed to match the requested project directory.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{settings}{A list of \link{settings} to be used with the newly-initialized
 project.}

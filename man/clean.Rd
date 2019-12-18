@@ -11,7 +11,8 @@ clean(project = NULL, ..., confirm = interactive())
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 }

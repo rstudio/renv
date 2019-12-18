@@ -18,7 +18,8 @@ install(
 package dependencies (\code{Depends}, \code{Imports}, \code{LinkingTo}) will be installed
 as required.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}

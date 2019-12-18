@@ -41,6 +41,7 @@ rebuild <- function(packages  = NULL,
 {
   renv_consent_check()
   renv_scope_error_handler()
+  renv_dots_disallow(...)
 
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()

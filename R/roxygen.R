@@ -8,7 +8,8 @@
 #'
 #' @param confirm Boolean; prompt the user before taking any action?
 #'
-#' @param ... Optional arguments; reserved for future expansion.
+#' @param ... Unused arguments, reserved for future expansion. If any arguments
+#'   are matched to `...`, `renv` will signal an error.
 #'
 #' @return The project directory, invisibly. Note that this function is normally
 #'   called for its side effects.

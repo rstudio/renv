@@ -9,3 +9,7 @@ test_that("long lines and be printed", {
   long <- paste(sample(letters, 8192 * 2, TRUE), collapse = "")
   expect_equal(sprintf(long), long)
 })
+
+test_that("unmatched dots cause an error", {
+  expect_error(snapshot(packaeg = getwd()))
+})

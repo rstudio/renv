@@ -42,6 +42,7 @@ purge <- function(package,
                   confirm = interactive())
 {
   renv_scope_error_handler()
+  renv_dots_disallow(...)
   invisible(renv_purge_impl(package, version, hash, confirm))
 }
 

@@ -9,7 +9,8 @@ remove(packages, ..., library = NULL, project = NULL)
 \arguments{
 \item{packages}{A character vector of \R packages to remove.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{library}{The library from which packages should be removed. When
 \code{NULL}, the active library (that is, the first entry reported in

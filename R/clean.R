@@ -27,6 +27,7 @@ clean <- function(project = NULL,
                   confirm = interactive())
 {
   renv_scope_error_handler()
+  renv_dots_disallow(...)
   project <- renv_project_resolve(project)
 
   status <- any(

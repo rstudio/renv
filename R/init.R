@@ -79,6 +79,7 @@ init <- function(project = NULL,
 {
   renv_consent_check()
   renv_scope_error_handler()
+  renv_dots_disallow(...)
 
   # prepare and move into project directory
   project <- project %||% getwd()

@@ -62,6 +62,7 @@ history <- function(project = NULL) {
 revert <- function(commit = "HEAD", ..., project = NULL) {
 
   renv_scope_error_handler()
+  renv_dots_disallow(...)
   project <- renv_project_resolve(project)
 
   renv_git_preflight()

@@ -123,6 +123,7 @@ update <- function(packages = NULL,
 {
   renv_consent_check()
   renv_scope_error_handler()
+  renv_dots_disallow(...)
 
   # get package records
   library <- library %||% renv_libpaths_all()

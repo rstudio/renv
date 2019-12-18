@@ -20,7 +20,8 @@ in the library will be installed.}
 \item{recursive}{Boolean; should dependencies of packages be rebuilt
 recursively? Defaults to \code{TRUE}.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{confirm}{Boolean; prompt the user before taking any action?}
 

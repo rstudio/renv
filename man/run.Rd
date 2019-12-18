@@ -9,7 +9,8 @@ run(script, ..., job = NULL, name = NULL, project = NULL)
 \arguments{
 \item{script}{The path to an \R script.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{job}{Run the requested script as an RStudio job? Requires a recent
 version of both RStudio and the \code{rstudioapi} packages. When \code{NULL}, the

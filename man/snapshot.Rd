@@ -19,7 +19,8 @@ snapshot(
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{library}{The \R libraries to snapshot. When \code{NULL}, the active \R
 libraries (as reported by \code{.libPaths()}) are used.}

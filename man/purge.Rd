@@ -9,7 +9,8 @@ purge(package, ..., version = NULL, hash = NULL, confirm = interactive())
 \arguments{
 \item{package}{A single package to be removed from the cache.}
 
-\item{...}{Optional arguments; reserved for future expansion.}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{version}{The package version to be removed. When \code{NULL}, all versions
 of the requested package will be removed.}
