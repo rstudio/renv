@@ -117,6 +117,24 @@ renv_package_augment <- function(installpath, record) {
   if (empty(remotes))
     return(FALSE)
 
+  # for backwards compatibility with older versions of Packrat,
+  # we write out 'Github*' fields as well
+  if (identical(record$Source, "GitHub")) {
+
+    map <- list(
+      "GithubHost"     = "RemoteHost",
+      "GithubRepo"     = "RemoteRepo",
+      "GithubUsername" = "RemoteUsername",
+      "GithubRef"      = "RemoteRef",
+      "GithubSHA1"     = "RemoteSha"
+    )
+
+    enumerate(map, function(old, new) {
+      remotes[[old]] <<- remotes[[old]] %||% remotes[[new]]
+    })
+
+  }
+
   # ensure RemoteType field is written out
   remotes$RemoteType <- remotes$RemoteType %||% renv_record_source(record)
   remotes <- remotes[c("RemoteType", renv_vector_diff(names(remotes), "RemoteType"))]
@@ -129,7 +147,7 @@ renv_package_augment <- function(installpath, record) {
 
 renv_package_augment_impl <- function(data, remotes) {
   remotes <- remotes[map_lgl(remotes, Negate(is.null))]
-  nonremotes <- grep("^Remote", names(data), invert = TRUE)
+  nonremotes <- grep("^(?:Remote|Github)", names(data), invert = TRUE)
   c(data[nonremotes], remotes)
 }
 

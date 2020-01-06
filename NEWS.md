@@ -1,6 +1,11 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* Packages installed from GitHub using `renv::install()` will now also have
+  `Github*` fields added, in addition to the default `Remote*` fields. This
+  should help fix issues when attempting to deploy projects to RStudio Connect
+  requiring packages installed by `renv`. (#397)
+  
 * `renv` now prefers using a RemoteType field (if any) when attempting to
   determine a package's source. (#306)
 

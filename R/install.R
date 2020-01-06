@@ -26,7 +26,7 @@
 #' renv::install("digest")
 #'
 #' # install an old version of 'digest' (using archives)
-#' renv::install("digest@0.6.18")
+#' renv::install("digest@@0.6.18")
 #'
 #' # install 'digest' from GitHub (latest dev. version)
 #' renv::install("eddelbuettel/digest")

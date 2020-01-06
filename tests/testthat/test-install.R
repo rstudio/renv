@@ -206,3 +206,18 @@ test_that("renv warns when installing an already-loaded package", {
   expect_condition(install("bread@0.1.0"), class = "renv.install.restart_required")
   unloadNamespace("bread")
 })
+
+test_that("renv::install() writes out Github fields for backwards compatibility", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  install("rstudio/packrat")
+  descpath <- file.path(.libPaths()[1], "packrat/DESCRIPTION")
+  dcf <- renv_description_read(descpath)
+
+  expect_equal(dcf$RemoteRepo,     dcf$GithubRepo)
+  expect_equal(dcf$RemoteUsername, dcf$GithubUsername)
+  expect_equal(dcf$RemoteRef,      dcf$GithubRef)
+  expect_equal(dcf$RemoteSha,      dcf$GithubSHA1)
+
+})
