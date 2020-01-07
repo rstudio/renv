@@ -266,3 +266,27 @@ test_that("we can retrieve packages from R repositories", {
   renv_test_retrieve(record)
 
 })
+
+test_that("we can retrieve files using file URIs", {
+
+  renv_tests_scope()
+
+  source <- file.path(getwd(), "source")
+  target <- file.path(getwd(), "target")
+
+  writeLines("Hello, world!", con = source)
+
+  # plain 'file:' URI with no authority
+  uri <- paste("file:", source, sep = "")
+  download(uri, destfile = target)
+  expect_equal(readLines(target), "Hello, world!")
+  unlink(target)
+
+  # file URI using empty authority
+  prefix <- if (renv_platform_windows()) "file:///" else "file://"
+  uri <- paste(prefix, source, sep = "")
+  download(uri, destfile = target)
+  expect_equal(readLines(target), "Hello, world!")
+  unlink(target)
+
+})

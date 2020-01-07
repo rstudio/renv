@@ -1,6 +1,8 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` now better handles repositories referenced using file URIs.
+
 * Packages installed from GitHub using `renv::install()` will now also have
   `Github*` fields added, in addition to the default `Remote*` fields. This
   should help fix issues when attempting to deploy projects to RStudio Connect

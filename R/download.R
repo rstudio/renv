@@ -10,11 +10,8 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
     renv_scope_options(renv.verbose = FALSE)
 
   # handle local files by just copying the file
-  if (grepl("^file:", url)) {
-    source <- sub("^file:(?://)?", "", url)
-    renv_file_copy(source, destfile, overwrite = TRUE)
+  if (renv_download_local(url, destfile, headers))
     return(destfile)
-  }
 
   # on Windows, try using our local curl binary if available
   renv_scope_downloader()
@@ -530,5 +527,20 @@ renv_download_check_archive <- function(destfile) {
 
   # try listing files in the archive
   tryCatch({renv_archive_list(destfile); TRUE}, error = identity)
+
+}
+
+renv_download_local <- function(url, destfile, headers) {
+
+  if (!grepl("^file:", url))
+    return(FALSE)
+
+  renv_download_impl(
+    url = url,
+    destfile = destfile,
+    headers = headers
+  )
+
+  TRUE
 
 }
