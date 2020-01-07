@@ -1,6 +1,12 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` gains the project setting `package.dependency.fields`, for controlling
+  which fields in an R package's `DESCRIPTION` file are examined when
+  discovering recursive package dependencies. This can be useful when you'd like
+  to instruct `renv` to track, for example, the `Suggests` dependencies of the
+  packages used in your project. (#315)
+
 * `renv` now better handles repositories referenced using file URIs.
 
 * Packages installed from GitHub using `renv::install()` will now also have

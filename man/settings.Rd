@@ -4,7 +4,7 @@
 \name{settings}
 \alias{settings}
 \title{Project Settings}
-\format{An object of class \code{list} of length 5.}
+\format{An object of class \code{list} of length 6.}
 \usage{
 settings
 }
@@ -17,14 +17,6 @@ Define project-local settings that can be used to adjust the behavior of
 
 \describe{
 
-\item{\code{ignored.packages}}{
-
-A vector of packages, which should be ignored when attempting to snapshot
-the project's private library. Note that if a package has already been
-added to the lockfile, that entry in the lockfile will not be ignored. \cr
-
-}
-
 \item{\code{external.libraries}}{
 
 A vector of library paths, to be used in addition to the project's own
@@ -33,6 +25,25 @@ in some global library, but for some reason \code{renv} is not able to install
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).
+
+}
+
+\item{\code{ignored.packages}}{
+
+A vector of packages, which should be ignored when attempting to snapshot
+the project's private library. Note that if a package has already been
+added to the lockfile, that entry in the lockfile will not be ignored.
+
+}
+
+\item{\code{package.dependency.fields}}{
+
+During dependency discovery, \code{renv} uses the fields of an installed
+package's \code{DESCRIPTION} file to determine that package's recursive
+dependencies. By default, the \code{Imports}, \code{Depends} and \code{LinkingTo} fields
+are used. If you'd prefer that \code{renv} also captures the \code{Suggests}
+dependencies for a package, you can set this to
+\code{c("Imports", "Depends", "LinkingTo", "Suggests")}.
 
 }
 

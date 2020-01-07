@@ -184,3 +184,16 @@ test_that("Rmarkdown custom site generator is found as dependency", {
   deps <- dependencies()
   expect_true("bookdown" %in% deps$Package)
 })
+
+test_that("Suggest dependencies are ignored by default", {
+  renv_tests_scope("breakfast")
+  install("breakfast")
+  expect_false(renv_package_installed("egg"))
+})
+
+test_that("Suggest dependencies are used when requested", {
+  renv_tests_scope("breakfast")
+  settings$package.dependency.fields(c("Imports", "Depends", "LinkingTo", "Suggests"))
+  install("breakfast")
+  expect_true(renv_package_installed("egg"))
+})

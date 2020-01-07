@@ -193,6 +193,8 @@ renv_package_dependencies <- function(packages,
   ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- libpaths %||% renv_libpaths_all()
+  fields <- fields %||% settings$package.dependency.fields(project = project)
+
   for (package in packages)
     renv_package_dependencies_impl(package, visited, libpaths, fields)
 

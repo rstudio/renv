@@ -241,14 +241,6 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' \describe{
 #'
-#' \item{\code{ignored.packages}}{
-#'
-#'   A vector of packages, which should be ignored when attempting to snapshot
-#'   the project's private library. Note that if a package has already been
-#'   added to the lockfile, that entry in the lockfile will not be ignored. \cr
-#'
-#' }
-#'
 #' \item{\code{external.libraries}}{
 #'
 #'   A vector of library paths, to be used in addition to the project's own
@@ -257,6 +249,25 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'   that package (e.g. sources or binaries for that package are not publicly
 #'   available, or you have been unable to orchestrate the pre-requisites for
 #'   installing some packages from source on your machine).
+#'
+#' }
+#'
+#' \item{\code{ignored.packages}}{
+#'
+#'   A vector of packages, which should be ignored when attempting to snapshot
+#'   the project's private library. Note that if a package has already been
+#'   added to the lockfile, that entry in the lockfile will not be ignored.
+#'
+#' }
+#'
+#' \item{\code{package.dependency.fields}}{
+#'
+#'   During dependency discovery, `renv` uses the fields of an installed
+#'   package's `DESCRIPTION` file to determine that package's recursive
+#'   dependencies. By default, the `Imports`, `Depends` and `LinkingTo` fields
+#'   are used. If you'd prefer that `renv` also captures the `Suggests`
+#'   dependencies for a package, you can set this to
+#'   `c("Imports", "Depends", "LinkingTo", "Suggests")`.
 #'
 #' }
 #'
@@ -327,6 +338,13 @@ settings <- list(
     name     = "external.libraries",
     validate = is.character,
     default  = character(),
+    update   = NULL
+  ),
+
+  package.dependency.fields = renv_settings_impl(
+    name     = "package.dependency.fields",
+    validate = is.character,
+    default  = c("Imports", "Depends", "LinkingTo"),
     update   = NULL
   ),
 
