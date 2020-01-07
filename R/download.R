@@ -535,6 +535,9 @@ renv_download_local <- function(url, destfile, headers) {
   if (!grepl("^file:", url))
     return(FALSE)
 
+  url <- gsub("\\", "/", url, fixed = TRUE)
+  destfile <- gsub("\\", "/", destfile, fixed = TRUE)
+
   renv_download_impl(
     url = url,
     destfile = destfile,
