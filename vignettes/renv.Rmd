@@ -330,6 +330,29 @@ the command line to download and restore the associated package. Hence, it is
 recommended that authentication is done through SSH keys when possible.
 
 
+### Authentication with Custom Headers
+
+If you want to set arbitrary headers when downloading files using `renv`, you
+can do so using the `renv.download.headers` R option. It should be a function
+that accepts a URL, and returns a named character vector indicating the headers
+which should be supplied when accessing that URL.
+
+For example, suppose you have a package repository hosted at
+`https://my/repository`, and the credentials required to access that repository
+are stored in the `AUTH_HEADER` environment variable. You could define
+`renv.download.headers` like so:
+
+```r
+options(renv.download.headers = function(url) {
+  if (grepl("^https://my/repository", url))
+    return(c(Authorization = Sys.getenv("AUTH_HEADER")))
+})
+```
+
+With the above, `renv` will set the `Authorization` header whenever it attempts
+to download files from the repository at URL `https://my/repository`.
+
+
 ## Shims
 
 To help you take advantage of the package cache, `renv` places a couple of

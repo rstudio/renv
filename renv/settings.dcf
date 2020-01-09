@@ -1,5 +1,6 @@
 external.libraries:
 ignored.packages:
+package.dependency.fields: Imports, Depends, LinkingTo
 snapshot.type: packrat
 use.cache: TRUE
 vcs.ignore.library: TRUE

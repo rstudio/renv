@@ -341,3 +341,7 @@ keep <- function(x, keys) {
 drop <- function(x, keys) {
   x[setdiff(names(x), keys)]
 }
+
+invoke <- function(f, ...) {
+  f(...)
+}

@@ -193,7 +193,8 @@ test_that("Suggest dependencies are ignored by default", {
 
 test_that("Suggest dependencies are used when requested", {
   renv_tests_scope("breakfast")
-  settings$package.dependency.fields(c("Imports", "Depends", "LinkingTo", "Suggests"))
+  fields <- c("Imports", "Depends", "LinkingTo", "Suggests")
+  settings$package.dependency.fields(fields)
   install("breakfast")
   expect_true(renv_package_installed("egg"))
 })

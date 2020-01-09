@@ -1,6 +1,10 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* The `renv.download.headers` option can now be used to provide arbitrary HTTP
+  headers when downloading files. See the **Authentication** section in
+  `vignette("renv")` for more details. (#307)
+
 * `renv` gains the project setting `package.dependency.fields`, for controlling
   which fields in an R package's `DESCRIPTION` file are examined when
   discovering recursive package dependencies. This can be useful when you'd like

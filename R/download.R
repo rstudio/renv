@@ -9,6 +9,9 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
 
+  # add custom headers as appropriate for the URL
+  headers <- c(headers, renv_download_custom_headers(url))
+
   # handle local files by just copying the file
   if (renv_download_local(url, destfile, headers))
     return(destfile)
@@ -133,7 +136,7 @@ renv_download_default <- function(url, destfile, type, request, headers) {
 
 renv_download_default_agent_scope <- function(headers) {
 
-  if (is.null(headers))
+  if (empty(headers))
     return(FALSE)
 
   if (getRversion() >= "3.6.0")
@@ -545,5 +548,28 @@ renv_download_local <- function(url, destfile, headers) {
   )
 
   TRUE
+
+}
+
+renv_download_custom_headers <- function(url) {
+
+  headers <- getOption("renv.download.headers")
+  if (is.null(headers))
+    return(character())
+
+  if (!is.function(headers))
+    stopf("'renv.download.headers' is not a function")
+
+  headers <- invoke(headers, url)
+  if (empty(headers))
+    return(character())
+
+  if (is.list(headers))
+    headers <- unlist(headers, recursive = FALSE, use.names = TRUE)
+
+  if (!is.character(headers) || is.null(names(headers)))
+    stop("invocation of 'renv.download.headers' did not return a named character vector")
+
+  headers
 
 }
