@@ -89,10 +89,12 @@ to enforce the usage of some set of repositories over what is defined
 in \code{renv.lock} or otherwise set by the R session.
 \cr
 
-\code{sandbox.enabled} \tab \code{logical[1]} \tab \code{FALSE} \tab
+\code{sandbox.enabled} \tab \code{logical[1]} \tab \code{TRUE} on Unix; \code{FALSE} on Windows \tab
 Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to
-sandbox the system library, preventing user-installed packages in the
-system library from becoming available in \code{renv} projects.
+sandbox the system library, preventing non-system packages installed in the
+system library from becoming available in \code{renv} projects. (That is, only
+packages with priority \code{"base"} or \code{"recommended"}, as reported by
+\code{installed.packages()}, are made available.)
 \cr
 
 \code{shims.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab

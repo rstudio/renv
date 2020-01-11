@@ -84,10 +84,12 @@
 #'   in `renv.lock` or otherwise set by the R session.
 #'   \cr
 #'
-#' `sandbox.enabled` \tab `logical[1]` \tab `FALSE` \tab
+#' `sandbox.enabled` \tab `logical[1]` \tab `TRUE` on Unix; `FALSE` on Windows \tab
 #'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
-#'   sandbox the system library, preventing user-installed packages in the
-#'   system library from becoming available in `renv` projects.
+#'   sandbox the system library, preventing non-system packages installed in the
+#'   system library from becoming available in `renv` projects. (That is, only
+#'   packages with priority `"base"` or `"recommended"`, as reported by
+#'   `installed.packages()`, are made available.)
 #'   \cr
 #'
 #' `shims.enabled` \tab `logical[1]` \tab `TRUE` \tab
