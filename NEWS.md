@@ -1,6 +1,9 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` now properly expands `R_LIBS_SITE` and `R_LIBS_USER` when set within a
+  startup `.Renviron` file. (#318)
+
 * The `renv.download.headers` option can now be used to provide arbitrary HTTP
   headers when downloading files. See the **Authentication** section in
   `vignette("renv")` for more details. (#307)

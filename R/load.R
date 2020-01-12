@@ -159,6 +159,9 @@ renv_load_renviron <- function(project) {
     if (file.exists(environ))
       readRenviron(environ)
 
+  Sys.setenv(R_LIBS_SITE = .expand_R_libs_env_var(Sys.getenv("R_LIBS_SITE")))
+  Sys.setenv(R_LIBS_USER = .expand_R_libs_env_var(Sys.getenv("R_LIBS_USER")))
+
 }
 
 renv_load_settings <- function(project) {
