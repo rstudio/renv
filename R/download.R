@@ -6,6 +6,22 @@
 # (as a named character vector) to supply additional headers
 download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) {
 
+  # allow for user-defined overrides
+  override <- getOption("renv.download.override")
+  if (is.function(override)) {
+
+    result <- override(
+      url      = url,
+      destfile = destfile,
+      quiet    = quiet,
+      mode     = "wb",
+      headers  = headers
+    )
+
+    return(destfile)
+
+  }
+
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
 

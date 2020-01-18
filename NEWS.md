@@ -1,6 +1,14 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* The R option `renv.download.override` can now be used to override the
+  machinery used by `renv` when downloading files. For example, setting
+  `options(renv.download.override = utils::download.file)` would instruct
+  `renv` to use R's own downloader when downloading files from the internet.
+  This can be useful when configuration of `curl` is challenging or
+  intractable in your environment, or you've already configured the base
+  R downloader suitably.
+
 * `renv::use_python("~/path/to/python")` now works as expected.
 
 * `renv` now properly expands `R_LIBS_SITE` and `R_LIBS_USER` when set within a
