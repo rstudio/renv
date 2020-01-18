@@ -4,7 +4,7 @@ renv_python_resolve <- function(python = NULL) {
   # if Python was explicitly supplied, use it
   if (!is.null(python)) {
 
-    python <- Sys.which(python)
+    python <- Sys.which(path.expand(python))
     if (nzchar(python))
       return(python)
 
