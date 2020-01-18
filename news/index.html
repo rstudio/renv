@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.20</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.21</span>
       </span>
     </div>
 
@@ -154,6 +154,7 @@
 <a href="#renv-0-9-3-unreleased" class="anchor"></a>renv 0.9.3 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/use_python.html">renv::use_python("~/path/to/python")</a></code> now works as expected.</p></li>
 <li><p><code>renv</code> now properly expands <code>R_LIBS_SITE</code> and <code>R_LIBS_USER</code> when set within a startup <code>.Renviron</code> file. (#318)</p></li>
 <li><p>The <code>renv.download.headers</code> option can now be used to provide arbitrary HTTP headers when downloading files. See the <strong>Authentication</strong> section in <code><a href="../articles/renv.html">vignette("renv")</a></code> for more details. (#307)</p></li>
 <li><p><code>renv</code> gains the project setting <code>package.dependency.fields</code>, for controlling which fields in an R package’s <code>DESCRIPTION</code> file are examined when discovering recursive package dependencies. This can be useful when you’d like to instruct <code>renv</code> to track, for example, the <code>Suggests</code> dependencies of the packages used in your project. (#315)</p></li>
