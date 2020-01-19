@@ -9,7 +9,7 @@ renv_package_version <- function(package) {
 }
 
 renv_package_description_field <- function(package, field) {
-  path <- find.package(package, lib.loc = renv_libpaths_all())
+  path <- renv_package_find(package)
   desc <- renv_description_read(path)
   desc[[field]]
 }
