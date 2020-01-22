@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.27</span>
       </span>
     </div>
 
@@ -154,6 +154,7 @@
 <a href="#renv-0-9-3-unreleased" class="anchor"></a>renv 0.9.3 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code>renv</code> now validates that the Xcode license has been accepted before attempting to install R packages from sources. (#296)</p></li>
 <li><p>The R option <code>renv.download.override</code> can now be used to override the machinery used by <code>renv</code> when downloading files. For example, setting <code><a href="https://rdrr.io/r/base/options.html">options(renv.download.override = utils::download.file)</a></code> would instruct <code>renv</code> to use R’s own downloader when downloading files from the internet. This can be useful when configuration of <code>curl</code> is challenging or intractable in your environment, or you’ve already configured the base R downloader suitably.</p></li>
 <li><p><code><a href="../reference/use_python.html">renv::use_python("~/path/to/python")</a></code> now works as expected.</p></li>
 <li><p><code>renv</code> now properly expands <code>R_LIBS_SITE</code> and <code>R_LIBS_USER</code> when set within a startup <code>.Renviron</code> file. (#318)</p></li>
