@@ -244,3 +244,39 @@ renv_scope_restore <- function(..., .envir = NULL) {
   state <- renv_restore_begin(...)
   defer(renv_restore_end(state), envir = .envir)
 }
+
+renv_scope_git_auth <- function(.envir = NULL) {
+
+  .envir <- .envir %||% parent.frame()
+
+  # TODO: not yet implemented for Windows
+  if (renv_platform_windows())
+    return(FALSE)
+
+  # use GIT_PAT when provided
+  pat <- Sys.getenv("GIT_PAT", unset = NA)
+  if (!is.na(pat)) {
+    renv_scope_envvars(
+      GIT_USERNAME = pat,
+      GIT_PASSWORD = "x-oauth-basic",
+      .envir = .envir
+    )
+  }
+
+  # only set askpass when GIT_USERNAME + GIT_PASSWORD are set
+  user <-
+    Sys.getenv("GIT_USERNAME", unset = NA) %NA%
+    Sys.getenv("GIT_USER",     unset = NA)
+
+  pass <-
+    Sys.getenv("GIT_PASSWORD", unset = NA) %NA%
+    Sys.getenv("GIT_PASS",     unset = NA)
+
+  if (is.na(user) || is.na(pass))
+    return(FALSE)
+
+  askpass <- system.file("resources/scripts-git-askpass.sh", package = "renv")
+  renv_scope_envvars(GIT_ASKPASS = askpass, .envir = .envir)
+  return(TRUE)
+
+}

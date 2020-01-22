@@ -36,9 +36,11 @@ test_that("we can activate Python with a virtualenv in a project", {
 
 test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
+  skip_if_local()
   skip_on_appveyor()
   skip_on_cran()
   skip_if_no_virtualenv(python)
+
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON_ENV")
 
@@ -82,9 +84,11 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
 test_that("installed Python packages are snapshotted / restored [conda]", {
 
+  skip_if_local()
   skip_on_appveyor()
   skip_on_cran()
   skip_if_no_miniconda(python)
+
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON_ENV")
 

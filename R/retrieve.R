@@ -231,27 +231,11 @@ renv_retrieve_git <- function(record) {
   if (renv_platform_windows())
     command <- paste(comspec(), "/C", command)
 
+
   status <- local({
-
     renv_scope_auth(record)
-
-    # use GIT_PAT when provided
-    pat <- Sys.getenv("GIT_PAT", unset = NA)
-    if (!is.na(pat)) {
-      renv_scope_envvars(
-        GIT_USERNAME = pat,
-        GIT_PASSWORD = "x-oauth-basic"
-      )
-    }
-
-    # set askpass helper
-    # TODO: Windows?
-    askpass <- system.file("resources/scripts-git-askpass.sh", package = "renv")
-    renv_scope_envvars(GIT_ASKPASS = askpass)
-
-    # run the command
+    renv_scope_git_auth()
     system(command)
-
   })
 
   if (status != 0L) {
