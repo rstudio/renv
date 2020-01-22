@@ -1,6 +1,9 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` now validates that the Xcode license has been accepted before
+  attempting to install R packages from sources. (#296)
+  
 * The R option `renv.download.override` can now be used to override the
   machinery used by `renv` when downloading files. For example, setting
   `options(renv.download.override = utils::download.file)` would instruct

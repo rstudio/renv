@@ -129,6 +129,11 @@ r_cmd_install <- function(package, path, library, ...) {
   else
     renv_path_normalize(library, winslash = "/", mustWork = TRUE)
 
+  # validate that we have command line tools installed and
+  # available for e.g. macOS
+  if (renv_platform_macos() && renv_package_type(path) == "source")
+    renv_xcode_check()
+
   renv_scope_install()
 
   args <- c(
