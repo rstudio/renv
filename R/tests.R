@@ -125,7 +125,7 @@ renv_tests_init_repos <- function(repos = NULL) {
     desc <- renv_description_read(path)
     package <- basename(path)
     tarball <- sprintf("%s_%s.tar.gz", package, desc$Version)
-    tar(tarball, package, compression = "gzip", tar = "internal")
+    tar(tarball, package, compression = "gzip")
 
     # copy into repository tree
     components <- c(root, if (subdir) package, tarball)
