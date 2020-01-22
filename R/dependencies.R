@@ -819,10 +819,10 @@ renv_dependencies_discover_r_import <- function(node, envir) {
   # attempt to match the call
   call_name <- as.character(node[[1L]])
   if (call_name == "from") {
-    # a call to import::from must name the package and at least one object to import
-    prototype <- function(.from, object, ...) {}
+    # a call to import::from must name the package as the first argument or as `.from`
+    prototype <- function(.from, ...) {}
   } else {
-    # a call to import::here or import::into must name the .from argument
+    # a call to import::here or import::into must provide the `.from` argument
     prototype <- function(..., .from) {}
   }
   matched <- catch(match.call(prototype, node, expand.dots = FALSE))
