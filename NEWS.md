@@ -1,6 +1,8 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` now sandboxes the system library by default on Windows.
+
 * `renv` now validates that the Xcode license has been accepted before
   attempting to install R packages from sources. (#296)
   

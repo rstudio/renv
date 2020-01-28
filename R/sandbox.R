@@ -1,6 +1,6 @@
 
 renv_sandbox_enabled <- function(project) {
-  renv_config("sandbox.enabled", default = renv_platform_unix())
+  renv_config("sandbox.enabled", default = TRUE)
 }
 
 renv_sandbox_activate <- function(project = NULL) {

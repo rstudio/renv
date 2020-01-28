@@ -84,7 +84,7 @@
 #'   in `renv.lock` or otherwise set by the R session.
 #'   \cr
 #'
-#' `sandbox.enabled` \tab `logical[1]` \tab `TRUE` on Unix; `FALSE` on Windows \tab
+#' `sandbox.enabled` \tab `logical[1]` \tab `TRUE` \tab
 #'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
 #'   sandbox the system library, preventing non-system packages installed in the
 #'   system library from becoming available in `renv` projects. (That is, only
