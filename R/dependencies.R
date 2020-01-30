@@ -606,7 +606,8 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
     renv_dependencies_discover_r_require_namespace,
     renv_dependencies_discover_r_colon,
     renv_dependencies_discover_r_pacman,
-    renv_dependencies_discover_r_modules
+    renv_dependencies_discover_r_modules,
+    renv_dependencies_discover_r_import
   )
 
   discoveries <- new.env(parent = emptyenv())
@@ -807,6 +808,37 @@ renv_dependencies_discover_r_modules <- function(node, envir) {
   envir[[as.character(package)]] <- TRUE
 
   TRUE
+}
+
+renv_dependencies_discover_r_import <- function(node, envir) {
+
+  node <- renv_call_expect(node, "import", c("from", "here", "into"))
+  if (is.null(node))
+    return(FALSE)
+
+  # attempt to match the call
+  call_name <- as.character(node[[1L]])
+  if (call_name == "from") {
+    # a call to import::from must name the package as the first argument or as `.from`
+    prototype <- function(.from, ...) {}
+  } else {
+    # a call to import::here or import::into must provide the `.from` argument
+    prototype <- function(..., .from) {}
+  }
+  matched <- catch(match.call(prototype, node, expand.dots = FALSE))
+  if (inherits(matched, "error"))
+    return(FALSE)
+
+  # the '.from' argument is the package name, either a character vector of length one or a symbol
+  if ((is.character(matched$.from) && length(matched$.from) == 1)
+      || is.symbol(matched$.from))
+  {
+    envir[[as.character(matched$.from)]] <- TRUE
+    return(TRUE)
+  }
+
+  FALSE
+
 }
 
 renv_dependencies_list <- function(source,

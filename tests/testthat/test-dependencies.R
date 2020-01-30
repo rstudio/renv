@@ -61,6 +61,12 @@ test_that("pacman::p_load() usages are understood", {
   expect_setequal(packages, letters[1:length(packages)])
 })
 
+test_that("import:: usages are understood", {
+  deps <- dependencies("resources/import.R")
+  packages <- setdiff(deps$Package, "import")
+  expect_setequal(packages, letters[1:length(packages)])
+})
+
 test_that("renv warns when large number of files found", {
 
   renv_tests_scope()
