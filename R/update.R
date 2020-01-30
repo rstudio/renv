@@ -14,6 +14,23 @@ renv_update_find_repos_impl <- function(record) {
 }
 
 renv_update_find_github <- function(records) {
+
+  # check for GITHUB_PAT
+  if (is.na(Sys.getenv("GITHUB_PAT", unset = NA))) {
+
+    msg <- paste(
+      "GITHUB_PAT is unset. Updates may fail due to GitHub's API rate limit.",
+      "",
+      "To increase your GitHub API rate limit:",
+      "- Use `usethis::browse_github_pat()` to create a Personal Access Token (PAT).",
+      "- Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.",
+      sep = "\n"
+    )
+
+    warning(msg, call. = FALSE)
+
+  }
+
   renv_parallel_exec(records, renv_update_find_github_impl)
 
 }
