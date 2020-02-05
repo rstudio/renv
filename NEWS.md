@@ -2,7 +2,7 @@
 # renv 0.9.3 (UNRELEASED)
 
 * `renv` will now transform RSPM source URLs into binary URLs as appropriate,
-  allowing `renv` to use binary packages during restore on Linux. (#124)
+  allowing `renv` to use RSPM's binary repositories during restore. (#124)
   
 * `renv` now sandboxes the system library by default on Windows.
 
