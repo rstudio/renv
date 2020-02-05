@@ -38,7 +38,7 @@
 <meta property="og:title" content="Hydrate a Project — hydrate" />
 <meta property="og:description" content="Discover the R packages used within a project, and then install those
 packages into the active library. This effectively allows you to clone the
-state of your system R libraries for use within a project library." />
+state of your default R libraries for use within a project library." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -71,7 +71,7 @@ state of your system R libraries for use within a project library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.32</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.33</span>
       </span>
     </div>
 
@@ -157,10 +157,10 @@ state of your system R libraries for use within a project library." />
     <div class="ref-description">
     <p>Discover the <span style="R">R</span> packages used within a project, and then install those
 packages into the active library. This effectively allows you to clone the
-state of your system R libraries for use within a project library.</p>
+state of your default <span style="R">R</span> libraries for use within a project library.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>hydrate</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>hydrate</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sources</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,6 +181,11 @@ are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td
 library as reported by <code><a href='https://rdrr.io/r/base/libPaths.html'>.libPaths()</a></code> is used.</p></td>
     </tr>
     <tr>
+      <th>sources</th>
+      <td><p>A set of library paths from which <code>renv</code> should attempt to
+draw packages. See <strong>Sources</strong> for more details.</p></td>
+    </tr>
+    <tr>
       <th>project</th>
       <td><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
@@ -192,12 +197,15 @@ directory is used instead.</p></td>
 
     <p>A named <span style="R">R</span> list, giving the packages that were used for hydration
 as well as the set of packages which were not found.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="sources"><a class="anchor" href="#sources"></a>Sources</h2>
 
-    <p><code>hydrate()</code> attempts to re-use packages already installed on your system,
+    
+
+
+<p><code>hydrate()</code> attempts to re-use packages already installed on your system,
 to avoid unnecessary attempts to download and install packages from remote
-sources. <code>hydrate()</code> will attempt to discover <span style="R">R</span> packages from the
-following sources (in order):</p><ul>
+sources. When <code>NULL</code> (the default), <code>hydrate()</code> will attempt to discover <span style="R">R</span>
+packages from the following sources (in order):</p><ul>
 <li><p>The user library,</p></li>
 <li><p>The site library,</p></li>
 <li><p>The system library,</p></li>
@@ -228,7 +236,7 @@ packages from the active R repositories.</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#details">Details</a></li>
+      <li><a href="#sources">Sources</a></li>
       <li><a href="#missing-packages">Missing Packages</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>

@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.32</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.33</span>
       </span>
     </div>
 
@@ -207,13 +207,17 @@ external libraries; for example, if your project required <code>xyz 1.0</code> b
 <code>xyz 1.1</code> was present and loaded from an external library. Can also be an
 <span style="R">R</span> function that provides the paths to external libraries. Library paths
 will be expanded through <a href='https://rdrr.io/r/base/libPaths.html'>.expand_R_libs_env_var</a> as necessary.</td></tr>
+<tr><td><code>hydrate.libpaths</code></td><td><code>character[*]</code></td><td><code><a href='https://rdrr.io/r/base/character.html'>character()</a></code></td><td>A character vector of library paths, to be used by <code><a href='hydrate.html'>renv::hydrate()</a></code> when
+attempting to hydrate projects. When empty, the default set of library
+paths (as specified in <code><a href='hydrate.html'>?hydrate</a></code>) are used instead. See <code><a href='hydrate.html'>hydrate</a></code> for
+more details.</td></tr>
 <tr><td><code>install.staged</code></td><td><code>logical[1]</code></td><td><code>TRUE</code></td><td>Perform a staged install of packages during install and restore?
 When enabled, <code>renv</code> will first install packages into a temporary
 library, and later copy or move those packages back into the project
 library only if all packages were successfully downloaded and installed.
 This can be useful if you'd like to avoid mutating your project library
 if installation of one or more packages fails.</td></tr>
-<tr><td><code>repos.override</code></td><td><code>character[*]</code></td><td><code>NULL</code></td><td>Override the R package repositories used during <a href='restore.html'>restore</a>. Primarily
+<tr><td><code>repos.override</code></td><td><code>character[*]</code></td><td><code>NULL</code></td><td>Override the R package repositories used during <code><a href='restore.html'>restore</a></code>. Primarily
 useful for deployment / continuous integration, where you might want
 to enforce the usage of some set of repositories over what is defined
 in <code>renv.lock</code> or otherwise set by the R session.</td></tr>
