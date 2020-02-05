@@ -73,6 +73,13 @@ external libraries; for example, if your project required \verb{xyz 1.0} but
 will be expanded through \link{.expand_R_libs_env_var} as necessary.
 \cr
 
+\code{hydrate.libpaths} \tab \verb{character[*]} \tab \code{character()} \tab
+A character vector of library paths, to be used by \code{renv::hydrate()} when
+attempting to hydrate projects. When empty, the default set of library
+paths (as specified in \code{?hydrate}) are used instead. See \code{\link{hydrate}} for
+more details.
+\cr
+
 \code{install.staged} \tab \code{logical[1]} \tab \code{TRUE} \tab
 Perform a staged install of packages during install and restore?
 When enabled, \code{renv} will first install packages into a temporary
@@ -83,7 +90,7 @@ if installation of one or more packages fails.
 \cr
 
 \code{repos.override} \tab \verb{character[*]} \tab \code{NULL} \tab
-Override the R package repositories used during \link{restore}. Primarily
+Override the R package repositories used during \code{\link{restore}}. Primarily
 useful for deployment / continuous integration, where you might want
 to enforce the usage of some set of repositories over what is defined
 in \code{renv.lock} or otherwise set by the R session.

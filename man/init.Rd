@@ -28,7 +28,7 @@ and install R package dependencies?}
 
 \item{force}{Boolean; force initialization? By default, \code{renv} will refuse
 to initialize the home directory as a project, to defend against accidental
-misusages of \code{init()}.}
+mis-usages of \code{init()}.}
 
 \item{restart}{Boolean; attempt to restart the \R session after initializing
 the project? A session restart will be attempted if the \code{"restart"} \R

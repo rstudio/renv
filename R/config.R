@@ -68,6 +68,13 @@
 #'   will be expanded through [.expand_R_libs_env_var] as necessary.
 #'   \cr
 #'
+#' `hydrate.libpaths` \tab `character[*]` \tab `character()` \tab
+#'   A character vector of library paths, to be used by `renv::hydrate()` when
+#'   attempting to hydrate projects. When empty, the default set of library
+#'   paths (as specified in `?hydrate`) are used instead. See [`hydrate`] for
+#'   more details.
+#'   \cr
+#'
 #' `install.staged` \tab `logical[1]` \tab `TRUE` \tab
 #'   Perform a staged install of packages during install and restore?
 #'   When enabled, `renv` will first install packages into a temporary
@@ -78,7 +85,7 @@
 #'   \cr
 #'
 #' `repos.override` \tab `character[*]` \tab `NULL` \tab
-#'   Override the R package repositories used during [restore]. Primarily
+#'   Override the R package repositories used during [`restore`]. Primarily
 #'   useful for deployment / continuous integration, where you might want
 #'   to enforce the usage of some set of repositories over what is defined
 #'   in `renv.lock` or otherwise set by the R session.

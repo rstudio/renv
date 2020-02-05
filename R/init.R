@@ -56,13 +56,17 @@
 #'
 #' @param project The project directory. The \R working directory will be
 #'   changed to match the requested project directory.
+#'
 #' @param settings A list of [settings] to be used with the newly-initialized
 #'   project.
+#'
 #' @param bare Boolean; initialize the project without attempting to discover
 #'   and install R package dependencies?
+#'
 #' @param force Boolean; force initialization? By default, `renv` will refuse
 #'   to initialize the home directory as a project, to defend against accidental
-#'   misusages of `init()`.
+#'   mis-usages of `init()`.
+#'
 #' @param restart Boolean; attempt to restart the \R session after initializing
 #'   the project? A session restart will be attempted if the `"restart"` \R
 #'   option is set by the frontend embedding \R.

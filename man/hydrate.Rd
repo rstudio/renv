@@ -4,7 +4,7 @@
 \alias{hydrate}
 \title{Hydrate a Project}
 \usage{
-hydrate(packages = NULL, ..., library = NULL, project = NULL)
+hydrate(packages = NULL, ..., library = NULL, sources = NULL, project = NULL)
 }
 \arguments{
 \item{packages}{The set of \R packages to install. When \code{NULL}, the
@@ -15,6 +15,9 @@ are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{library}{The \R library to be hydrated. When \code{NULL}, the active
 library as reported by \code{.libPaths()} is used.}
+
+\item{sources}{A set of library paths from which \code{renv} should attempt to
+draw packages. See \strong{Sources} for more details.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
@@ -27,13 +30,15 @@ as well as the set of packages which were not found.
 \description{
 Discover the \R packages used within a project, and then install those
 packages into the active library. This effectively allows you to clone the
-state of your system R libraries for use within a project library.
+state of your default \R libraries for use within a project library.
 }
-\details{
+\section{Sources}{
+
+
 \code{hydrate()} attempts to re-use packages already installed on your system,
 to avoid unnecessary attempts to download and install packages from remote
-sources. \code{hydrate()} will attempt to discover \R packages from the
-following sources (in order):
+sources. When \code{NULL} (the default), \code{hydrate()} will attempt to discover \R
+packages from the following sources (in order):
 \itemize{
 \item The user library,
 \item The site library,
@@ -44,6 +49,7 @@ following sources (in order):
 If package is discovered in one of these locations, \code{renv} will attempt to
 copy or link that package into the requested library as appropriate.
 }
+
 \section{Missing Packages}{
 
 

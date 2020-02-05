@@ -1,6 +1,12 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` gains the config option `hydrate.libpaths`, allowing one to control
+  the library paths used by default for `renv::hydrate()`. (#329)
+
+* `renv::hydrate()` gains the `sources` argument, used to control the library
+  paths used by `renv` when hydrating a project. (#329)
+  
 * `renv` now sandboxes the system library by default on Windows.
 
 * `renv` now validates that the Xcode license has been accepted before
