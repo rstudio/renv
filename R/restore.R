@@ -96,8 +96,12 @@ restore <- function(project  = NULL,
     renv_config("repos.override") %||%
     lockfile$R$Repositories
 
-  if (length(repos))
-    renv_scope_options(repos = convert(repos, "character"))
+  if (length(repos)) {
+    repos <- convert(repos, "character")
+    if (renv_rspm_enabled())
+      repos <- renv_rspm_transform(repos)
+    renv_scope_options(repos = repos)
+  }
 
   # set up Bioconductor repositories
   biocversion <- lockfile$Bioconductor$Version

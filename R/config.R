@@ -84,6 +84,14 @@
 #'   in `renv.lock` or otherwise set by the R session.
 #'   \cr
 #'
+#' `rspm.enabled` \tab `logical[1]` \tab `TRUE` \tab
+#'   Boolean; enable RSPM integration for `renv` projects? When `TRUE`, `renv`
+#'   will attempt to transform the repository URLs used by RSPM into binary
+#'   URLs as appropriate for the current platform. Set this to `FALSE` if
+#'   you'd like to continue using source-only RSPM URLs, or if you find that
+#'   `renv` is improperly transforming your repository URLs.
+#'   \cr
+#'
 #' `sandbox.enabled` \tab `logical[1]` \tab `TRUE` \tab
 #'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
 #'   sandbox the system library, preventing non-system packages installed in the
