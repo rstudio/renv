@@ -148,7 +148,9 @@ renv_project_ignored_packages <- function(project) {
   # for R package projects, ensure the project itself is ignored
   if (renv_project_type(project) == "package") {
     desc <- renv_description_read(project)
-    ignored <- c(ignored, desc[["Package"]])
+    package <- desc[["Package"]]
+    if (!identical(package, "renv"))
+      ignored <- c(ignored, desc[["Package"]])
   }
 
   # return collected set of ignored packages
