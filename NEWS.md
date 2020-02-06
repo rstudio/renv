@@ -1,6 +1,8 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* `renv` better handles unnamed repositories. (#333)
+
 * `renv` gains the config option `hydrate.libpaths`, allowing one to control
   the library paths used by default for `renv::hydrate()`. (#329)
 
