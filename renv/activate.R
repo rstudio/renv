@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.8.3-82"
+  version <- "0.9.2-36"
 
   # avoid recursion
   if (!is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA)))
@@ -59,14 +59,22 @@ local({
     loadedversion <- utils::packageDescription("renv", fields = "Version")
     if (version != loadedversion) {
 
+      # assume four-component versions are from GitHub; three-component
+      # versions are from CRAN
+      components <- strsplit(loadedversion, "[.-]")[[1]]
+      remote <- if (length(components) == 4L)
+        paste("rstudio/renv", loadedversion, sep = "@")
+      else
+        paste("renv", loadedversion, sep = "@")
+
       fmt <- paste(
         "renv %1$s was loaded from project library, but renv %2$s is recorded in lockfile.",
-        "Use `renv::snapshot()` to update the lockfile with renv %1$s.",
-        "Use `renv::restore(packages = \"renv\")` to install renv %2$s.",
+        "Use `renv::record(\"%3$s\")` to record this version in the lockfile.",
+        "Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
         sep = "\n"
       )
 
-      msg <- sprintf(fmt, loadedversion, version)
+      msg <- sprintf(fmt, loadedversion, version, remote)
       warning(msg, call. = FALSE)
 
     }
