@@ -135,7 +135,7 @@ renv_scope_rtools <- function(.envir = NULL) {
     return(FALSE)
 
   # add Rtools bin to PATH
-  bin <- renv_path_normalize(file.path(rtools, "bin"), winslash = "\\")
+  bin <- normalizePath(file.path(rtools, "bin"), mustWork = FALSE)
   path <- paste(bin, Sys.getenv("PATH"), sep = ";")
 
   # set BINPREF (note: trailing slash required but file.path()

@@ -24,7 +24,7 @@ renv_path_normalize <- function(path, winslash = "/", mustWork = FALSE) {
   if (renv_platform_windows())
     path <- utils::shortPathName(path.expand(path))
 
-  normalizePath(path, winslash = "/", mustWork = mustWork)
+  normalizePath(path, winslash = winslash, mustWork = mustWork)
 
 }
 
