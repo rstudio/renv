@@ -74,8 +74,20 @@ renv_paths_cache <- function(..., version = NULL) {
 }
 
 renv_paths_rtools <- function(...) {
+
+  root <- Sys.getenv("RENV_PATHS_RTOOLS", unset = NA)
+  if (!is.na(root))
+    return(root)
+
+  # TODO: this was a typo in a previous usage; preserved
+  # for backwards compatibility
+  root <- Sys.getenv("RENV_PATH_RTOOLS", unset = NA)
+  if (!is.na(root))
+    return(root)
+
   root <- renv_rtools_find()
   file.path(root, ...) %||% ""
+
 }
 
 renv_paths_extsoft <- function(...) {

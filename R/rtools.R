@@ -5,8 +5,6 @@ renv_rtools_find <- function() {
 
   roots <- c(
 
-    Sys.getenv("RENV_PATH_RTOOLS"),
-    Sys.getenv("RENV_PATHS_RTOOLS"),
     renv_rtools_registry(),
 
     file.path(drive, "rtools40"),

@@ -1,6 +1,9 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* Fixed an issue where attempts to specify `RENV_PATHS_RTOOLS` would
+  be ignored by `renv`. (#335)
+
 * Fixed an issue where downloads could fail when using the `wininet`
   downloader, typically with a message of the form
   "InternetOpenUrl failed: 'The requested header was not found'".
