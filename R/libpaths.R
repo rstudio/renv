@@ -36,8 +36,44 @@ renv_libpaths_external <- function(project) {
 
 }
 
+# on Windows, attempting to use a library path containing
+# characters considered special by cmd.exe will fail.
+# to guard against this, we try to create a junction point
+# from the temporary directory to the target library path
+#
+# https://github.com/rstudio/renv/issues/334
+renv_libpaths_safe <- function(libpaths) {
+
+  if (!renv_platform_windows())
+    return(libpaths)
+
+  map_chr(libpaths, function(libpath) {
+
+    # assume that UTF-8 library paths are not safe
+    unsafe <-
+      Encoding(libpath) == "UTF-8" ||
+      grepl("[&\\<>^|\"]", libpath)
+
+    if (!unsafe)
+      return(libpath)
+
+    # TODO: is there a way for us to be sure that the
+    # 'safe' library path lives on the same filesystem
+    # as the 'bad' library?
+    safelib <- tempfile("renv-library-")
+    status <- catchall(Sys.junction(libpath, safelib))
+    if (inherits(status, "condition"))
+      return(libpath)
+
+    safelib
+
+  })
+
+}
+
 renv_libpaths_set <- function(libpaths) {
   oldlibpaths <- .libPaths()
+  libpaths <- renv_libpaths_safe(libpaths)
   .libPaths(libpaths)
   oldlibpaths
 }
@@ -73,9 +109,7 @@ renv_libpaths_activate <- function(project) {
   libpaths <- c(projlib, extlib, userlib)
 
   lapply(libpaths, ensure_directory)
-  oldlibpaths <- .libPaths()
-  .libPaths(libpaths)
-  oldlibpaths
+  renv_libpaths_set(libpaths)
 
 }
 
@@ -89,6 +123,6 @@ renv_libpaths_restore <- function() {
   libpaths <- renv_global_get("default.libpaths")
   if (!is.null(libpaths)) {
     renv_global_clear("default.libpaths")
-    .libPaths(libpaths)
+    renv_libpaths_set(libpaths)
   }
 }

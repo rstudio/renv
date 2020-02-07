@@ -135,6 +135,10 @@ renv_download_default <- function(url, destfile, type, request, headers) {
   default <- if (renv_platform_windows()) "wininet" else "auto"
   method <- Sys.getenv("RENV_DOWNLOAD_FILE_METHOD", unset = default)
 
+  # headers _must_ be NULL rather than zero-length character
+  if (length(headers) == 0)
+    headers <- NULL
+
   # handle absence of 'headers' argument in older versions of R
   args <- list(url      = url,
                destfile = destfile,
