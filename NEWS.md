@@ -1,6 +1,13 @@
 
 # renv 0.9.3 (UNRELEASED)
 
+* Fixed an issue where downloads could fail when using the `wininet`
+  downloader, typically with a message of the form
+  "InternetOpenUrl failed: 'The requested header was not found'".
+
+* `renv` better handles projects containing special characters on Windows.
+  (#334)
+
 * `renv` better handles unnamed repositories. (#333)
 
 * `renv` gains the config option `hydrate.libpaths`, allowing one to control
