@@ -263,6 +263,24 @@ renv_file_link <- function(source, target, overwrite = FALSE) {
 
 }
 
+renv_file_junction <- function(source, target) {
+
+  if (!renv_platform_windows())
+    stopf("'renv_file_junction()' is only available on Windows")
+
+  if (renv_file_exists(target))
+    stopf("file '%s' already exists")
+
+  status <- catchall(Sys.junction(source, target))
+  if (inherits(status, "condition")) {
+    unlink(target, recursive = TRUE, force = TRUE)
+    stop(status)
+  }
+
+  TRUE
+
+}
+
 renv_file_same <- function(source, target) {
 
   # if the paths are the same, we can return early

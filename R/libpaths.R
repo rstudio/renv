@@ -49,25 +49,62 @@ renv_libpaths_safe <- function(libpaths) {
 
   map_chr(libpaths, function(libpath) {
 
-    # assume that UTF-8 library paths are not safe
+    # check for an unsafe library path
     unsafe <-
       Encoding(libpath) == "UTF-8" ||
       grepl("[&\\<>^|\"]", libpath)
 
+    # if the path appears safe, use it as-is
     if (!unsafe)
       return(libpath)
 
-    # TODO: is there a way for us to be sure that the
-    # 'safe' library path lives on the same filesystem
-    # as the 'bad' library?
-    safelib <- tempfile("renv-library-")
-    status <- catchall(Sys.junction(libpath, safelib))
-    if (inherits(status, "condition"))
-      return(libpath)
+    # try to form a safe library path
+    methods <- c(
+      renv_libpaths_safe_tempdir,
+      renv_libpaths_safe_userlib
+    )
 
-    safelib
+    for (method in methods) {
+      safelib <- catchall(method(libpath))
+      if (is.character(safelib))
+        return(safelib)
+    }
+
+    # could not form a safe library path;
+    # just use the existing library path as-is
+    libpath
 
   })
+
+}
+
+renv_libpaths_safe_tempdir <- function(libpath) {
+  safelib <- tempfile("renv-library-")
+  renv_file_junction(libpath, safelib)
+  safelib
+}
+
+renv_libpaths_safe_userlib <- function(libpath) {
+
+  # form path into user library
+  userlib <- renv_libpaths_user()[[1]]
+  base <- file.path(userlib, ".renv-links")
+  ensure_directory(base)
+
+  # create name for actual junction point
+  name <- renv_hash_text(libpath)
+  safelib <- file.path(base, name)
+
+  # if the junction already exists, use it
+  if (renv_file_same(libpath, safelib))
+    return(safelib)
+
+  # otherwise, try to create it. note that junction
+  # points can be removed with a non-recursive unlink
+  unlink(safelib)
+  renv_file_junction(libpath, safelib)
+
+  safelib
 
 }
 
