@@ -7,6 +7,9 @@ renv_options_set <- function(key, value) {
 
 renv_options_override <- function(scope, key, default = NULL) {
 
+  if (is.null(key))
+    return(default)
+
   value <-
     getOption(paste(scope, key, sep = ".")) %||%
     getOption(scope)[[key]] %||%
