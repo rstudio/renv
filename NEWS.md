@@ -1,4 +1,7 @@
 
+# renv 0.9.4 (UNRELEASED)
+
+
 # renv 0.9.3
 
 * Fixed an issue where attempts to specify `RENV_PATHS_RTOOLS` would
