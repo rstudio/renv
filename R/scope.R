@@ -135,12 +135,21 @@ renv_scope_rtools <- function(.envir = NULL) {
     return(FALSE)
 
   # add Rtools bin to PATH
-  bin <- normalizePath(file.path(rtools, "bin"), mustWork = FALSE)
-  path <- paste(bin, Sys.getenv("PATH"), sep = ";")
+  bin <- normalizePath(
+    file.path(rtools, "bin"),
+    winslash = "\\",
+    mustWork = FALSE
+  )
+
+  path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
   # set BINPREF (note: trailing slash required but file.path()
   # drops trailing slashes on Windows)
-  binpref <- paste(rtools, "mingw_$(WIN)/bin/", sep = "/")
+  binpref <- paste(
+    normalizePath(rtools, winslash = "/", mustWork = FALSE),
+    "mingw_$(WIN)/bin/",
+    sep = "/"
+  )
 
   # scope envvars in parent
   .envir <- .envir %||% parent.frame()
