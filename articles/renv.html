@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.48</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.2.49</span>
       </span>
     </div>
 
@@ -208,7 +208,7 @@
 <li><p>The <code>biocViews</code> field; typically present for packages installed from the Bioconductor repositories,</p></li>
 </ol>
 <p>As a fallback, if <code>renv</code> is unable to determine a package’s source from the <code>DESCRIPTION</code> file directly, but a package of the same name is available in the active R repositories (as specified in <code><a href="https://rdrr.io/r/base/options.html">getOption("repos")</a></code>), then the package will be treated as though it was installed from an R package repository.</p>
-<p>If all of the above methods fail, <code>renv</code> will finally check for a package available from local sources. See [local-sources] for more details. Local sources are typically used as an escape hatch, for packages which do not have a well-defined remote source.</p>
+<p>If all of the above methods fail, <code>renv</code> will finally check for a package available from local sources. See <a href="local-sources.html">here</a> for more details. Local sources are typically used as an escape hatch, for packages which do not have a well-defined remote source.</p>
 </div>
 <div id="unknown-sources" class="section level3">
 <h3 class="hasAnchor">
@@ -239,7 +239,7 @@ options(repos = repos)</code></pre>
 <a href="#upgrading-renv" class="anchor"></a>Upgrading renv</h2>
 <p>After initializing a project with <code>renv</code>, that project will then be ‘bound’ to the particular version of <code>renv</code> that was used to initialize the project. If you need to upgrade (or otherwise change) the version of <code>renv</code> associated with a project, you can use <code><a href="../reference/upgrade.html">renv::upgrade()</a></code>. This will install the latest version of the <code>renv</code></p>
 <p>With each commit of <code>renv</code>, we bump the package version and also tag the commit with the associated package version. This implies that you can call, for example:</p>
-<pre><code><a href="../reference/upgrade.html">renv::upgrade(version = "0.9.2-48")</a></code></pre>
+<pre><code><a href="../reference/upgrade.html">renv::upgrade(version = "0.9.2-49")</a></code></pre>
 <p>to request the installation of that particular version of <code>renv</code> if so required.</p>
 </div>
 <div id="cache" class="section level2">
