@@ -9,6 +9,9 @@ renv_delegate <- function(delegate) {
 
 renv_shim_install_packages <- function(pkgs, ...) {
 
+  # place Rtools on PATH
+  renv_scope_rtools()
+
   # currently we only handle the case where only 'pkgs' was specified
   if (missing(pkgs) || nargs() != 1)
     return(renv_delegate(utils::install.packages))

@@ -1,6 +1,8 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* `renv` now tries to place Rtools on the PATH when a package is installed
+  with the `install.packages()` hook active. (#335)
 
 # renv 0.9.3
 
