@@ -10,7 +10,7 @@ sprintf <- function(fmt, ...) {
 }
 
 writef <- function(fmt = "", ..., con = stdout()) {
-  if (!is.null(fmt))
+  if (!is.null(fmt) && !renv_testing())
     writeLines(sprintf(fmt, ...), con = con)
 }
 
