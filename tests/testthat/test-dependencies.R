@@ -177,27 +177,6 @@ test_that("packages referenced by modules::import() are discovered", {
 
 })
 
-test_that("packages referenced by import::from() etc are discovered", {
-
-  file <- renv_test_code({
-
-    # import::from()
-    import::from(A, method)
-    import::from(method, .from = B)
-
-    # import::here
-    import::here(.from = C)
-
-    # import::into
-    import::into(a, .from = D)
-
-  })
-
-  deps <- dependencies(file)
-  expect_setequal(deps$Package, c("A", "B", "C", "D", "import"))
-
-})
-
 test_that("Rmarkdown custom site generator is found as dependency", {
   renv_tests_scope()
   writeLines(

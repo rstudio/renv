@@ -37,5 +37,5 @@ expect_signal <- function(expr, class) {
 
 skip_if_local <- function() {
   ci <- Sys.getenv("CI", unset = NA)
-  skip_if(is.na(ci), "Running tests locally")
+  testthat::skip_if(is.na(ci), "Running tests locally")
 }
