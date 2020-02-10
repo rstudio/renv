@@ -9,6 +9,11 @@ sprintf <- function(fmt, ...) {
 
 }
 
+writef <- function(fmt = "", ..., con = stdout()) {
+  if (!is.null(fmt))
+    writeLines(sprintf(fmt, ...), con = con)
+}
+
 stopf <- function(fmt = "", ..., call. = FALSE) {
   stop(sprintf(fmt, ...), call. = call.)
 }
