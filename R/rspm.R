@@ -12,24 +12,29 @@ renv_rspm_transform <- function(repos) {
 
 renv_rspm_transform_impl <- function(url) {
 
-  # check that we have a known OS, platform
+  # repository URL transformation is only necessary on Linux
   os <- renv_rspm_os()
-  if (is.null(os))
+  if (!identical(os, "__linux__"))
     return(url)
 
+  # check for a known platform
   platform <- renv_rspm_platform()
   if (is.null(platform))
     return(url)
 
-  # if this is already a binary URL, then nothing to do
+  # if this already appears to be a binary URL, then avoid
+  # transforming it
   if (grepl("/__[^_]+__/", url))
     return(url)
 
-  # check if this is truly an RSPM url
-  if (!grepl("/cran/", url))
+  # ignore some known CRAN mirrors
+  mirrors <- getCRANmirrors(local.only = TRUE)
+  urls <- mirrors$URL
+  if (sub("/+$", "", url) %in% sub("/+$", "", urls))
     return(url)
 
   # try to query the status endpoint
+  # TODO: this could fail if the URL is a proxy back to RSPM
   base <- dirname(dirname(url))
   status <- catch(renv_rspm_status(base))
   if (inherits(status, "error"))
@@ -43,7 +48,7 @@ renv_rspm_transform_impl <- function(url) {
       identical(distro$binaries, TRUE)
 
     if (ok) {
-      parts <- c(base, "cran", os, platform, basename(url))
+      parts <- c(dirname(url), "__linux__", platform, basename(url))
       binurl <- paste(parts, collapse = "/")
       return(binurl)
     }
@@ -68,21 +73,6 @@ renv_rspm_status <- function(base) {
 
   `_renv_rspm_status`[[base]] <- status
   status
-
-}
-
-renv_rspm_os <- function() {
-
-  os <- Sys.getenv("RENV_RSPM_OS", unset = NA)
-  if (!is.na(os))
-    return(os)
-
-  if (renv_platform_windows())
-    "__windows__"
-  else if (renv_platform_macos())
-    "__macos__"
-  else if (renv_platform_linux())
-    "__linux__"
 
 }
 
@@ -121,6 +111,22 @@ renv_rspm_platform <- function() {
   }
 
 }
+
+renv_rspm_os <- function() {
+
+  os <- Sys.getenv("RENV_RSPM_OS", unset = NA)
+  if (!is.na(os))
+    return(os)
+
+  if (renv_platform_windows())
+    "__windows__"
+  else if (renv_platform_macos())
+    "__macos__"
+  else if (renv_platform_linux())
+    "__linux__"
+
+}
+
 
 renv_rspm_enabled <- function() {
   renv_config("rspm.enabled", default = TRUE)

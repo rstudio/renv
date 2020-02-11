@@ -24,3 +24,15 @@ test_that("a binary-specific URL is transformed before writing a lockfile", {
   expect_identical(actual, expected)
 
 })
+
+test_that("RSPM bits are preserved when writing lockfile", {
+  skip_on_cran()
+
+  renv_tests_scope()
+  renv_scope_options(repos = c(RSPM = "https://cluster.rstudiopm.com/curated/__linux__/bionic/12"))
+  lockfile <- snapshot(lockfile = NULL)
+  actual <- convert(lockfile$R$Repositories, "character")
+  expected <- c(RSPM = "https://cluster.rstudiopm.com/curated/12")
+  expect_identical(actual, expected)
+
+})
