@@ -32,7 +32,7 @@ renv_lockfile_init_r_repos <- function(project) {
   repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
 
   # remove RSPM bits from URL
-  pattern <- "/__linux__/[^/]+/"
+  pattern <- "/__[^_]+__/[^/]+/"
   repos <- sub(pattern, "/", repos)
 
   # force as list

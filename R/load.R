@@ -109,6 +109,10 @@ renv_load_r_repos <- function(repos) {
   repos <- sub("/+$", "", repos)
   names(repos) <- nms
 
+  # transform binary URLs for RSPM
+  if (renv_rspm_enabled())
+    repos <- renv_rspm_transform(repos)
+
   # set sanitized repos
   options(repos = repos)
 

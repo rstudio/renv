@@ -1,6 +1,9 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* `renv` will now transform RSPM source URLs into binary URLs as appropriate,
+  allowing `renv` to use RSPM's binary repositories during restore. (#124)
+
 * `renv` will now infer a dependency on `hexbin` in projects that make
   use of the `ggplot2::geom_hex()` function.
 
