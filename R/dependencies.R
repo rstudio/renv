@@ -607,7 +607,8 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
     renv_dependencies_discover_r_colon,
     renv_dependencies_discover_r_pacman,
     renv_dependencies_discover_r_modules,
-    renv_dependencies_discover_r_import
+    renv_dependencies_discover_r_import,
+    renv_dependencies_discover_r_database
   )
 
   discoveries <- new.env(parent = emptyenv())
@@ -841,6 +842,51 @@ renv_dependencies_discover_r_import <- function(node, envir) {
 
   envir[[from]] <- TRUE
   TRUE
+
+}
+
+renv_dependencies_discover_r_database <- function(node, envir) {
+
+  found <- FALSE
+
+  db <- renv_dependencies_database()
+  enumerate(db, function(package, dependencies) {
+    enumerate(dependencies, function(method, requirements) {
+
+      expect <- renv_call_expect(node, package, method)
+      if (is.null(expect))
+        return(FALSE)
+
+      for (requirement in requirements)
+        envir[[requirement]] <- TRUE
+
+      found <<- TRUE
+      TRUE
+
+    })
+  })
+
+  found
+
+}
+
+renv_dependencies_database <- function() {
+  # TODO: make this user-accessible?
+  renv_global(
+    "dependencies.database",
+    renv_dependencies_database_impl()
+  )
+}
+
+renv_dependencies_database_impl <- function() {
+
+  db <- list()
+
+  db$ggplot2 <- list(
+    geom_hex = "hexbin"
+  )
+
+  db
 
 }
 

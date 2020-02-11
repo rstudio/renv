@@ -204,3 +204,14 @@ test_that("Suggest dependencies are used when requested", {
   install("breakfast")
   expect_true(renv_package_installed("egg"))
 })
+
+test_that("a call to geom_hex() implies a dependency on ggplot2", {
+
+  file <- renv_test_code({
+    ggplot() + geom_hex()
+  })
+
+  deps <- dependencies(file)
+  expect_true("hexbin" %in% deps$Package)
+
+})

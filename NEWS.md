@@ -1,6 +1,9 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* `renv` will now infer a dependency on `hexbin` in projects that make
+  use of the `ggplot2::geom_hex()` function.
+
 * `renv` now tries to place Rtools on the PATH when a package is installed
   with the `install.packages()` hook active. (#335)
 
