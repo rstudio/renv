@@ -268,7 +268,7 @@ test_that("we can retrieve packages from R repositories", {
 })
 
 test_that("we can retrieve files using file URIs", {
-
+  skip_on_cran()
   renv_tests_scope()
 
   source <- file.path(getwd(), "source")
