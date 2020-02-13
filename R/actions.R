@@ -85,7 +85,7 @@ renv_actions_restore <- function(project, library, lockfile, clean) {
   snap <- snapshot(project = project,
                    library = library,
                    lockfile = NULL,
-                   type = "simple")
+                   type = "all")
 
   diff <- renv_lockfile_diff_packages(snap, lock)
   actions <- renv_actions_merge(snap, lock, diff)

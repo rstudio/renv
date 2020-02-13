@@ -1,6 +1,11 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* `renv` gains the "explicit" snapshot type, wherein only packages explicitly
+  listed as dependencies within the project `DESCRIPTION` file (and those
+  package's transitive dependencies) will enter the lockfile when
+  `renv::snapshot()` is called. (#338)
+
 * `renv` will now transform RSPM source URLs into binary URLs as appropriate,
   allowing `renv` to use RSPM's binary repositories during restore. (#124)
 

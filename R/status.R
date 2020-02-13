@@ -201,7 +201,7 @@ renv_status_check_synchronized <- function(project,
     # installed in the project library anymore
     records <- renv_records_select(lockfile, actions, "remove")
 
-    if (settings$snapshot.type() == "packrat") {
+    if (settings$snapshot.type() %in% c("implicit", "packrat")) {
 
       deps <- dependencies(quiet = TRUE)
       pkgpaths <- renv_package_dependencies(

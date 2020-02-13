@@ -99,7 +99,7 @@ in \code{renv.lock} or otherwise set by the R session.
 \code{rspm.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
 Boolean; enable RSPM integration for \code{renv} projects? When \code{TRUE}, \code{renv}
 will attempt to transform the repository URLs used by RSPM into binary
-URL as appropriate for the current platform. Set this to \code{FALSE} if
+URLs as appropriate for the current platform. Set this to \code{FALSE} if
 you'd like to continue using source-only RSPM URLs, or if you find that
 \code{renv} is improperly transforming your repository URLs.
 \cr

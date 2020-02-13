@@ -114,7 +114,7 @@ restore <- function(project  = NULL,
   current <- snapshot(project = project,
                       library = library,
                       lockfile = NULL,
-                      type = "simple")
+                      type = "all")
 
   # compare lockfile vs. currently-installed packages
   diff <- renv_lockfile_diff_packages(current, lockfile)

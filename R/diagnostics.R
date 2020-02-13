@@ -94,7 +94,7 @@ renv_diagnostics_library <- function(project) {
   lockfile <- snapshot(project = project,
                        library = library,
                        lockfile = NULL,
-                       type = "simple")
+                       type = "all")
 
   records <- renv_records(lockfile)
   vwritef("The are %i package(s) installed in the project library.", length(records))

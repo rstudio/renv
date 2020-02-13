@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 ## Why isn't my package being snapshotted into the lockfile?
 
 By default, `renv` uses the intersection of:
@@ -56,12 +57,14 @@ for (package in c("dplyr", "ggplot2")) {
 If you use a custom package loader in your project that `renv` could feasibly
 support, please feel free to [file a feature request](https://github.com/rstudio/renv/issues).
 
+
+### Capturing All Dependencies
+
 If you'd instead prefer to capture _all_ packages installed into your project
-library (and eschew dependency discovery altogether), you can instead use
-`"simple"` snapshots. Configure your project to use `"simple"` snapshots with:
+library (and eschew dependency discovery altogether), you can do so with:
 
 ```
-renv::settings$snapshot.type("simple")
+renv::settings$snapshot.type("all")
 ```
 
 Packages can also be explicitly ignored through a project setting, e.g. with:
@@ -75,6 +78,19 @@ You might also want to double-check the set of ignored packages
 unintentionally ignoring a package you actually require.
 
 See the documentation in `?snapshot` for more details.
+
+
+### Capturing Explicit Dependencies
+
+If you'd like to explicitly declare which packages your project depends on,
+you can do so by telling `renv` to form "explicit" snapshots:
+
+```
+renv::settings$snapshot.type("explicit")
+```
+
+In this mode, `renv` will only include packages which are explicitly listed
+in the project's `DESCRIPTION` file as dependencies.
 
 
 ## How should I handle development dependencies?
