@@ -70,7 +70,7 @@ renv with your particular project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.6</span>
       </span>
     </div>
 
@@ -212,8 +212,8 @@ projects in the same environment.</p></dd>
 projects by setting <span style="R">R</span> options for <code>renv.settings</code> or <code>renv.settings.&lt;name&gt;</code>.
 For example:</p>
 <pre>
-options(renv.settings = list(snapshot.type = "simple"))
-options(renv.settings.snapshot.type = "simple")
+options(renv.settings = list(snapshot.type = "all"))
+options(renv.settings.snapshot.type = "all")
 </pre>
 
 <p>If both of the <code>renv.settings</code> and <code>renv.settings.&lt;name&gt;</code> options are set

@@ -72,7 +72,7 @@ details on the structure of a lockfile." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.6</span>
       </span>
     </div>
 
@@ -201,7 +201,7 @@ directly instead.</p></td>
     <tr>
       <th>type</th>
       <td><p>The type of snapshot to perform. See <strong>Snapshot Type</strong> for
-more details. When <code>NULL</code> (the default), a "packrat"-style snapshot
+more details. When <code>NULL</code> (the default), an "implicit"-style snapshot
 is performed.</p></td>
     </tr>
     <tr>
@@ -210,7 +210,7 @@ is performed.</p></td>
     </tr>
     <tr>
       <th>force</th>
-      <td><p>Boolean; force generation of a lockfile even when preflight
+      <td><p>Boolean; force generation of a lockfile even when pre-flight
 validation checks have failed?</p></td>
     </tr>
     </table>
@@ -228,20 +228,26 @@ this function is normally called for its side effects.</p>
 selecting a different snapshot mode. The modes available are as follows:</p>
 <dl class='dl-horizontal'>
 
-<dt><code>"simple"</code></dt><dd><p>Capture all packages within the active <span style="R">R</span> libraries in the lockfile.
+<dt><code>"all"</code></dt><dd><p>Capture all packages within the active <span style="R">R</span> libraries in the lockfile.
 This is the quickest and simplest method, but may lead to undesired
 packages (e.g. development dependencies) entering the lockfile.</p></dd>
 
-<dt><code>"packrat"</code></dt><dd><p>Perform a Packrat-style snapshot. The intersection of packages discovered in
-your <span style="R">R</span> libraries, alongside those discovered in your <span style="R">R</span> code by
-<code><a href='dependencies.html'>renv::dependencies()</a></code>, will enter the lockfile. This helps ensure that only
-the packages you are using will enter the lockfile, but may be slower if your
-project contains a large number of files. If this becomes an issue, you might
+<dt><code>"implicit"</code></dt><dd><p>Only capture packages which appear to be used in your project in the
+lockfile. The intersection of packages installed in your <span style="R">R</span> libraries,
+alongside those used in your <span style="R">R</span> code as inferred by <code><a href='dependencies.html'>renv::dependencies()</a></code>,
+will enter the lockfile. This helps ensure that only the packages your
+project requires will enter the lockfile, but may be slower if your project
+contains a large number of files. If this becomes an issue, you might
 consider using <code>.renvignore</code> files to limit which files <code>renv</code> uses for
 dependency discovery, or explicitly declaring your required dependencies in a
-<code>DESCRIPTION</code> file.</p></dd>
+<code>DESCRIPTION</code> file. You can also force a dependency on a particular package
+by writing e.g. <code>library(&lt;package&gt;)</code> into a file called <code>dependencies.R</code>.</p></dd>
 
-<dt><code>"custom"</code></dt><dd><p>Like <code>"packrat"</code>, but use a custom user-defined filter instead. The filter
+<dt><code>"explicit"</code></dt><dd><p>Only capture packages which are explicitly listed in the project
+<code>DESCRIPTION</code> file. This workflow is recommended for users who wish to more
+explicitly manage a project's <span style="R">R</span> package dependencies.</p></dd>
+
+<dt><code>"custom"</code></dt><dd><p>Like <code>"implicit"</code>, but use a custom user-defined filter instead. The filter
 should be specified by the <span style="R">R</span> option <code>renv.snapshot.filter</code>, and should
 either be a character vector naming a function (e.g. <code>"package::method"</code>),
 or be a function itself. The function should only accept one argument (the
@@ -251,7 +257,7 @@ in the lockfile.</p></dd>
 
 </dl>
 
-<p>By default, <code>"packrat"</code>-style snapshots are used. The snapshot type can be
+<p>By default, <code>"implicit"</code>-style snapshots are used. The snapshot type can be
 configured on a project-specific basis using the <code>renv</code> project <a href='settings.html'>settings</a>
 mechanism.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>

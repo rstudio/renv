@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.6</span>
       </span>
     </div>
 
@@ -137,12 +137,23 @@
 <a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(package, <span class="dt">character.only =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">}</a></code></pre></div>
 <p>If you use a custom package loader in your project that <code>renv</code> could feasibly support, please feel free to <a href="https://github.com/rstudio/renv/issues">file a feature request</a>.</p>
-<p>If you’d instead prefer to capture <em>all</em> packages installed into your project library (and eschew dependency discovery altogether), you can instead use <code>"simple"</code> snapshots. Configure your project to use <code>"simple"</code> snapshots with:</p>
-<pre><code>renv::settings$snapshot.type("simple")</code></pre>
+<div id="capturing-all-dependencies" class="section level3">
+<h3 class="hasAnchor">
+<a href="#capturing-all-dependencies" class="anchor"></a>Capturing All Dependencies</h3>
+<p>If you’d instead prefer to capture <em>all</em> packages installed into your project library (and eschew dependency discovery altogether), you can do so with:</p>
+<pre><code>renv::settings$snapshot.type("all")</code></pre>
 <p>Packages can also be explicitly ignored through a project setting, e.g. with:</p>
 <pre><code>renv::settings$ignored.packages("&lt;package&gt;")</code></pre>
 <p>You might also want to double-check the set of ignored packages (<code>renv::settings$ignored.packages()</code>) and confirm that you aren’t unintentionally ignoring a package you actually require.</p>
 <p>See the documentation in <code><a href="../reference/snapshot.html">?snapshot</a></code> for more details.</p>
+</div>
+<div id="capturing-explicit-dependencies" class="section level3">
+<h3 class="hasAnchor">
+<a href="#capturing-explicit-dependencies" class="anchor"></a>Capturing Explicit Dependencies</h3>
+<p>If you’d like to explicitly declare which packages your project depends on, you can do so by telling <code>renv</code> to form “explicit” snapshots:</p>
+<pre><code>renv::settings$snapshot.type("explicit")</code></pre>
+<p>In this mode, <code>renv</code> will only include packages which are explicitly listed in the project’s <code>DESCRIPTION</code> file as dependencies.</p>
+</div>
 </div>
 <div id="how-should-i-handle-development-dependencies" class="section level2">
 <h2 class="hasAnchor">
