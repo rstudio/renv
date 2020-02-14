@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project Environments
-Version: 0.9.3-9
+Version: 0.9.3-10
 Authors@R: c(
     person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com"),
     person("RStudio", role = c("cph"))
@@ -14,7 +14,7 @@ License: MIT + file LICENSE
 URL: https://rstudio.github.io/renv
 BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
-Suggests: covr, knitr, packrat, remotes, reticulate, rmarkdown, rstudioapi, testthat
+Suggests: covr, knitr, packrat, remotes, reticulate, rmarkdown, rstudioapi, testthat, uuid
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
