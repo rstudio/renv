@@ -102,3 +102,10 @@ renv_error_tag <- function(e) {
   e$traceback <- renv_global_get("traceback")
   e
 }
+
+renv_error_handler_call <- function() {
+  substitute(
+    (function(...) body)(),
+    list(body = body(renv_error_handler))
+  )
+}

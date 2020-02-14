@@ -1,6 +1,9 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* `renv` no longer unsets an error handler set within the user profile when
+  loading a project. (#343)
+
 * `renv` gains the "explicit" snapshot type, wherein only packages explicitly
   listed as dependencies within the project `DESCRIPTION` file (and those
   package's transitive dependencies) will enter the lockfile when

@@ -87,11 +87,18 @@ renv_scope_error_handler <- function(.envir = NULL) {
 
   error <- getOption("error")
   if (!is.null(error))
-    return()
+    return(FALSE)
+
+  call <- renv_error_handler_call()
+  options(error = call)
 
   .envir <- .envir %||% parent.frame()
-  defer(options(error = error), envir = .envir)
-  options(error = renv_error_handler)
+  defer({
+    if (identical(getOption("error"), call))
+      options(error = error)
+  }, envir = .envir)
+
+  TRUE
 
 }
 
