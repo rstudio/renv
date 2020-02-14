@@ -1,6 +1,11 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* Projects using `renv` are now assigned a unique project ID, written to a
+  file within the project located at `renv/project-id`. This will be used
+  internally by `renv` when it is necessary to construct project-stable
+  information that lives independently from the project folder itself. (#345)
+
 * `renv` no longer unsets an error handler set within the user profile when
   loading a project. (#343)
 

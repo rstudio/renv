@@ -46,7 +46,10 @@
 #'   `.Rprofile` to load the project.
 #'
 #' - `renv/.gitignore`: This is used to instruct Git to ignore the project's
-#'   private library, as it does not need to be
+#'   private library, as it should normally not be committed to a version
+#'   control repository.
+#'
+#' - `renv/project-id`: A unique project ID.
 #'
 #' - `.Rbuildignore`: to ensure that the `renv` directory is ignored during
 #'   package development; e.g. when attempting to build or install a package

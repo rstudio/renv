@@ -157,3 +157,15 @@ renv_project_ignored_packages <- function(project) {
   ignored
 
 }
+
+renv_project_id <- function(project) {
+
+  idpath <- renv_id_path(project = project)
+  if (!file.exists(idpath)) {
+    id <- renv_id_generate()
+    writeLines(id, con = idpath)
+  }
+
+  readLines(idpath, n = 1L, warn = FALSE)
+
+}

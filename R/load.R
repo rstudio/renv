@@ -39,12 +39,16 @@ load <- function(project = getwd(), quiet = FALSE) {
 
   renv_envvars_save()
 
+  # generate project id
+  id <- renv_project_id(project = project)
+
   # load a minimal amount of state when testing
   if (renv_testing()) {
     renv_load_libpaths(project)
     return(invisible(project))
   }
 
+  # load rest of renv components
   renv_load_path(project)
   renv_load_shims(project)
   renv_load_renviron(project)
