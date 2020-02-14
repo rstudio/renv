@@ -10,7 +10,8 @@ renv_id_generate <- function() {
     renv_id_generate_kernel,
     renv_id_generate_uuidgen,
     renv_id_generate_cscript,
-    renv_id_generate_powershell
+    renv_id_generate_powershell,
+    renv_id_generate_csc
   )
 
   for (method in methods) {
@@ -121,5 +122,50 @@ renv_id_generate_r <- function() {
   id <- uuid::UUIDgenerate()
   catchall(unloadNamespace("uuid"))
   id
+
+}
+
+renv_id_generate_csc <- function() {
+
+  csc <- local({
+
+    csc <- Sys.which("csc.exe")
+    if (nzchar(csc))
+      return(csc)
+
+    frameworks <- file.path(
+      Sys.getenv("SYSTEMDRIVE", unset = "C:"),
+      "Windows/Microsoft.NET",
+      c("Framework", "Framework64")
+    )
+
+    versions <- list.files(frameworks, full.names = TRUE)
+    candidates <- file.path(versions, "csc.exe")
+    candidates[file.exists(candidates)]
+
+  })
+
+  if (empty(csc) || !file.exists(csc))
+    stop("could not find csc.exe")
+
+
+  code <- "
+class GenerateUUID {
+  static void Main(string[] args) {
+    System.Console.WriteLine(System.Guid.NewGuid().ToString());
+  }
+}
+"
+
+  renv_scope_tempdir("renv-uuid-")
+  writeLines(code, con = "program.cs")
+
+  renv_system_exec(
+    csc[[1]],
+    c("/nologo", "/out:program.exe", "program.cs"),
+    "compiling uuid helper"
+  )
+
+  renv_system_exec("program.exe", character(), "generating uuid")
 
 }

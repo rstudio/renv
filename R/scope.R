@@ -1,4 +1,19 @@
 
+renv_scope_tempdir <- function(pattern, .envir = NULL) {
+
+  dir <- tempfile(pattern)
+  ensure_directory(dir)
+  owd <- setwd(dir)
+
+  .envir <- .envir %||% parent.frame()
+
+  defer({
+    setwd(owd)
+    unlink(dir, recursive = TRUE)
+  }, envir = .envir)
+
+}
+
 renv_scope_auth <- function(record, .envir = NULL) {
 
   package <- record$Package
