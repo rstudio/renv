@@ -1,6 +1,9 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* The code used to bootstrap `renv` (that is, the code used to install `renv`
+  into a project) has been overhauled. (#344)
+
 * Projects using `renv` are now assigned a unique project ID, written to a
   file within the project located at `renv/project-id`. This will be used
   internally by `renv` when it is necessary to construct project-stable

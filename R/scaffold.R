@@ -16,7 +16,7 @@
 scaffold <- function(project = NULL, version = NULL) {
   renv_scope_error_handler()
   project <- renv_project_resolve(project)
-  renv_bootstrap_impl(project, version)
+  renv_imbue_impl(project, version)
   renv_infrastructure_write(project, version)
   fmt <- "* renv infrastructure has been generated for project %s."
   vwritef(fmt, renv_path_pretty(project))

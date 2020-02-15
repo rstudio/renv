@@ -11,3 +11,41 @@
   addTaskCallback(renv_repos_init_callback)
 
 }
+
+renv_zzz_run <- function() {
+
+  # only run when devtools::document() is called
+  ok <- FALSE
+  expect <- quote(devtools::document)
+  for (call in sys.calls()) {
+    if (identical(call[[1]], expect)) {
+      ok <- TRUE
+      break
+    }
+  }
+
+  if (!ok)
+    return(FALSE)
+
+  renv_zzz_bootstrap()
+  TRUE
+
+}
+
+renv_zzz_bootstrap <- function() {
+
+  source <- "templates/template-activate.R"
+  target <- "inst/resources/activate.R"
+
+  bootstrap <- readLines("R/bootstrap.R")
+  bootstrap <- paste(" ", bootstrap)
+  bootstrap <- paste(bootstrap, collapse = "\n")
+
+  template <- renv_file_read(source)
+  replaced <- renv_template_replace(template, list(BOOTSTRAP = bootstrap))
+
+  writeLines(replaced, con = target)
+
+}
+
+renv_zzz_run()

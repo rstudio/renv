@@ -8,7 +8,7 @@ test_that("library paths set in a user profile are overridden after load", {
   renv_tests_scope()
 
   renv::init()
-  renv_bootstrap_impl(project = getwd(), force = TRUE)
+  renv_imbue_impl(project = getwd(), force = TRUE)
 
   profile <- c(
     ".libPaths('.')",
@@ -37,7 +37,7 @@ test_that(".First is executed; library paths are restored after", {
   renv_tests_scope()
 
   renv::init()
-  renv_bootstrap_impl(project = getwd(), force = TRUE)
+  renv_imbue_impl(project = getwd(), force = TRUE)
 
   # add a .First to the profile
   profile <- c(
