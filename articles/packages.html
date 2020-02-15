@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.14</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.18</span>
       </span>
     </div>
 
@@ -122,7 +122,7 @@
 <a href="#development" class="anchor"></a>Development</h2>
 <p>Often, R packages will have other R packages as dependencies. For this, one must declare their R package dependencies within the package <code>DESCRIPTION</code> file. If you want to prepare your environment for package development, you can use:</p>
 <pre><code><a href="../reference/install.html">renv::install()</a></code></pre>
-<p>to install the packages as declared in the package’s <code>DESCRIPTION</code> file. This action is roughly analogous to <code><a href="https://rdrr.io/pkg/remotes/man/install_deps.html">remotes::install_deps()</a></code>.</p>
+<p>to install the packages as declared in the package’s <code>DESCRIPTION</code> file. This action is roughly analogous to <code><a href="https://remotes.r-lib.org/reference/install_deps.html">remotes::install_deps()</a></code>.</p>
 <p>If you’re developing a package that you intend to release to CRAN, then you likely want to build and test your package against the latest versions of your dependencies as available on CRAN. For this, you should consider using:</p>
 <pre><code><a href="../reference/update.html">renv::update()</a></code></pre>
 <p>to ensure your package dependencies are up-to-date, as appropriate.</p>
@@ -146,9 +146,9 @@
 <h2 class="hasAnchor">
 <a href="#r-cmd-build-and-the-project-library" class="anchor"></a>R CMD build and the Project Library</h2>
 <p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. Unfortunately, this also implies copying the <code>renv</code> library. When that library is large, this can dramatically increase the amount of time it takes to build your package.</p>
-<p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in your project <code>.Renviron</code>:</p>
-<pre><code>RENV_PATHS_LIBRARY = ~/.renv/library/&lt;package&gt;</code></pre>
-<p>where <code>&lt;package&gt;</code> is the name of your package project. Note that if you’re testing your package with continuous integration systems, you may need to unset this environment variable before tests are run.</p>
+<p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in a start-up <code>.Renviron</code> file:</p>
+<pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
+<p><code>renv</code> will then form library paths within this directory, using the project ID to disambiguate between multiple projects of the same name.</p>
 </div>
   </div>
 

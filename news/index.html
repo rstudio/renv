@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.14</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.18</span>
       </span>
     </div>
 
@@ -154,8 +154,8 @@
 <a href="#renv-0-9-4-unreleased" class="anchor"></a>renv 0.9.4 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>The environment variable <code>RENV_PATHS_LIBRARY_ROOT</code> can now be set, to instruct <code>renv</code> to use a particular directory as a host for any project libraries that are used by <code>renv</code>. This can be useful for certain cases where it is cumbersome to include the project library within the project itself; for example, when developing an R package. (#345)</p></li>
 <li><p>The code used to bootstrap <code>renv</code> (that is, the code used to install <code>renv</code> into a project) has been overhauled. (#344)</p></li>
-<li><p>Projects using <code>renv</code> are now assigned a unique project ID, written to a file within the project located at <code>renv/project-id</code>. This will be used internally by <code>renv</code> when it is necessary to construct project-stable information that lives independently from the project folder itself. (#345)</p></li>
 <li><p><code>renv</code> no longer unsets an error handler set within the user profile when loading a project. (#343)</p></li>
 <li><p><code>renv</code> gains the “explicit” snapshot type, wherein only packages explicitly listed as dependencies within the project <code>DESCRIPTION</code> file (and those package’s transitive dependencies) will enter the lockfile when <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is called. (#338)</p></li>
 <li><p><code>renv</code> will now transform RSPM source URLs into binary URLs as appropriate, allowing <code>renv</code> to use RSPM’s binary repositories during restore. (#124)</p></li>
