@@ -2,6 +2,7 @@
 context("Bootstrap")
 
 test_that("we can bootstrap the current version of renv", {
+
   renv_tests_scope()
 
   library <- renv_libpaths_default()
@@ -12,6 +13,7 @@ test_that("we can bootstrap the current version of renv", {
 })
 
 test_that("we can bootstrap an archived version of renv", {
+
   renv_tests_scope()
 
   library <- renv_libpaths_default()
@@ -23,6 +25,8 @@ test_that("we can bootstrap an archived version of renv", {
 
 test_that("we can install a version of renv from GitHub", {
   skip_on_cran()
+  skip_on_appveyor()
+
   renv_tests_scope()
 
   library <- renv_libpaths_default()
