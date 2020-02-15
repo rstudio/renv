@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Remove Packages — remove • renv</title>
+<title>Imbue an renv Installation — imbue • renv</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,9 @@
 
 
 
-<meta property="og:title" content="Remove Packages — remove" />
-<meta property="og:description" content="Remove (uninstall) R packages." />
+<meta property="og:title" content="Imbue an renv Installation — imbue" />
+<meta property="og:description" content="Imbue an renv installation into a project, thereby making the requested
+version of renv available within." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -147,85 +148,52 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Remove Packages</h1>
+    <h1>Imbue an renv Installation</h1>
     
-    <div class="hidden name"><code>remove.Rd</code></div>
+    <div class="hidden name"><code>imbue.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Remove (uninstall) <span style="R">R</span> packages.</p>
+    <p>Imbue an <code>renv</code> installation into a project, thereby making the requested
+version of <code>renv</code> available within.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>remove</span>(<span class='no'>packages</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>imbue</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>packages</th>
-      <td><p>A character vector of <span style="R">R</span> packages to remove.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Unused arguments, reserved for future expansion. If any arguments
-are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
-    </tr>
-    <tr>
-      <th>library</th>
-      <td><p>The library from which packages should be removed. When
-<code>NULL</code>, the active library (that is, the first entry reported in
-<code><a href='https://rdrr.io/r/base/libPaths.html'>.libPaths()</a></code>) is used instead.</p></td>
-    </tr>
     <tr>
       <th>project</th>
       <td><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.</p></td>
     </tr>
+    <tr>
+      <th>version</th>
+      <td><p>The version of <code>renv</code> to install. If <code>NULL</code>, the version
+of <code>renv</code> currently installed will be used. The requested version of
+<code>renv</code> will be retrieved from the <code>renv</code> public GitHub repository,
+at <a href='https://github.com/rstudio/renv'>https://github.com/rstudio/renv</a>.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A vector of package records, describing the packages (if any) which
-were successfully removed.</p>
+    <p>The project directory, invisibly. Note that this function is normally
+called for its side effects.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <p>Normally, this function does not need to be called directly by the user; it
+will be invoked as required by <code><a href='init.html'>init()</a></code> and <code><a href='activate.html'>activate()</a></code>.</p>
 
-<span class='co'># disable automatic snapshots</span>
-<span class='no'>auto.snapshot</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"renv.config.auto.snapshot"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='co'># initialize a new project (with an empty R library)</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/init.html'>init</a></span>(<span class='kw'>bare</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-
-<span class='co'># install digest 0.6.19</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/install.html'>install</a></span>(<span class='st'>"digest@0.6.19"</span>)
-
-<span class='co'># save library state to lockfile</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/snapshot.html'>snapshot</a></span>()
-
-<span class='co'># remove digest from library</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/remove.html'>remove</a></span>(<span class='st'>"digest"</span>)
-
-<span class='co'># check library status</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/status.html'>status</a></span>()
-
-<span class='co'># restore lockfile, thereby reinstalling digest 0.6.19</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='https://rstudio.github.io/renv//reference/restore.html'>restore</a></span>()
-
-<span class='co'># restore automatic snapshots</span>
-<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='no'>auto.snapshot</span>)
-
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
-      <li><a href="#examples">Examples</a></li>
+      <li><a href="#details">Details</a></li>
     </ul>
 
   </div>

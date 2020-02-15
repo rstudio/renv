@@ -7,9 +7,6 @@
     <loc>https://rstudio.github.io/renv//reference/activate.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv//reference/bootstrap.html</loc>
-  </url>
-  <url>
     <loc>https://rstudio.github.io/renv//reference/clean.html</loc>
   </url>
   <url>
@@ -35,6 +32,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv//reference/hydrate.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/renv//reference/imbue.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv//reference/init.html</loc>
