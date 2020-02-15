@@ -56,7 +56,7 @@ renv_paths_library_root <- function(project) {
 
   path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
   if (!is.na(path))
-    return(file.path(path, renv_project_id(project)))
+    return(file.path(path, dirname(project)))
 
   file.path(project, "renv/library")
 

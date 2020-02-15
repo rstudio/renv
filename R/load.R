@@ -39,9 +39,6 @@ load <- function(project = getwd(), quiet = FALSE) {
 
   renv_envvars_save()
 
-  # generate project id
-  id <- renv_project_id(project = project)
-
   # load a minimal amount of state when testing
   if (renv_testing()) {
     renv_load_libpaths(project)
