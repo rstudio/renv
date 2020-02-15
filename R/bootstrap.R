@@ -95,7 +95,7 @@ renv_bootstrap_download_cran_archive <- function(version) {
 
 renv_bootstrap_download_github <- function(version) {
 
-  enabled <- Sys.getenv("RENV_BOOTSTRAP_FROM_GITHUB", default = "TRUE")
+  enabled <- Sys.getenv("RENV_BOOTSTRAP_FROM_GITHUB", unset = "TRUE")
   if (!identical(enabled, "TRUE"))
     return(FALSE)
 

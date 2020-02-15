@@ -181,6 +181,10 @@ local({
   
   renv_bootstrap_download_github <- function(version) {
   
+    enabled <- Sys.getenv("RENV_BOOTSTRAP_FROM_GITHUB", unset = "TRUE")
+    if (!identical(enabled, "TRUE"))
+      return(FALSE)
+  
     # prepare download options
     pat <- Sys.getenv("GITHUB_PAT")
     if (nzchar(Sys.which("curl")) && nzchar(pat)) {
