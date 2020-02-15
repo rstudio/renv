@@ -84,7 +84,7 @@ is large, this can dramatically increase the amount of time it takes to build
 your package.
 
 One way to resolve this issue is to force `renv` to use a library path that
-lives outside of your project. For example, you might set the following in your
+lives outside of your project. For example, you might set the following in
 a start-up `.Renviron` file:
 
 ```

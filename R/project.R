@@ -163,6 +163,7 @@ renv_project_id <- function(project) {
   idpath <- renv_id_path(project = project)
   if (!file.exists(idpath)) {
     id <- renv_id_generate()
+    ensure_parent_directory(idpath)
     writeLines(id, con = idpath)
   }
 
