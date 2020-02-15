@@ -85,7 +85,7 @@ local({
   }
 
   # try to bootstrap an renv installation ${BOOTSTRAP}
-  bootstrap(version, library)
+  bootstrap(version, libpath)
 
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {

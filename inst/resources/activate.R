@@ -158,7 +158,7 @@ local({
     urls <- file.path(repos, "src/contrib/Archive/renv", name)
     destfile <- file.path(tempdir(), name)
   
-    message("* Attempting to download renv ", version, " from CRAN archive ... ", appendLF = FALSE)
+    message("* Downloading renv ", version, " from CRAN archive ... ", appendLF = FALSE)
   
     for (url in urls) {
   
@@ -249,7 +249,7 @@ local({
   
   }
   
-  bootstrap(version, library)
+  bootstrap(version, libpath)
 
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {

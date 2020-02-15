@@ -104,8 +104,5 @@ renv_error_tag <- function(e) {
 }
 
 renv_error_handler_call <- function() {
-  substitute(
-    (function(...) body)(),
-    list(body = body(renv_error_handler))
-  )
+  as.call(list(renv_error_handler))
 }

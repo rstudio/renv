@@ -137,28 +137,41 @@ init <- function(project = NULL,
 
 renv_init_action <- function(project, library, lockfile) {
 
-  has_library  <- file.exists(library)
-  has_lockfile <- file.exists(lockfile)
-
   # figure out appropriate action
   action <- case(
 
-    has_lockfile && has_library  ~ "ask",
-    has_lockfile && !has_library ~ "restore",
+    file.exists(lockfile) && file.exists(library)  ~ "lockfile",
+    file.exists(lockfile) && !file.exists(library) ~ "restore",
 
-    !has_lockfile && has_library  ~ "ask",
-    !has_lockfile && !has_library ~ "init"
+    !file.exists(lockfile) && file.exists(library)  ~ "library",
+    !file.exists(lockfile) && !file.exists(library) ~ "init"
 
   )
 
-  # ask the user for an action to take when required
-  if (interactive() && action == "ask") {
+  if (interactive() && action == "lockfile") {
 
     title <- "This project already has a lockfile. What would you like to do?"
     choices <- c(
       restore = "Restore the project from the lockfile.",
       init    = "Discard the lockfile and re-initialize the project.",
       nothing = "Activate the project without snapshotting or installing any packages."
+    )
+
+    selection <- tryCatch(
+      utils::select.list(choices, title = title, graphics = FALSE),
+      interrupt = function(e) ""
+    )
+
+    action <- names(selection)
+
+  }
+
+  if (interactive() && action == "library") {
+
+    title <- "This project already has a private library. What would you like to do?"
+    choices <- c(
+      nothing = "Activate the project and use the existing library.",
+      init    = "Re-initialize the project with a new library."
     )
 
     selection <- tryCatch(

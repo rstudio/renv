@@ -72,7 +72,7 @@ renv_bootstrap_download_cran_archive <- function(version) {
   urls <- file.path(repos, "src/contrib/Archive/renv", name)
   destfile <- file.path(tempdir(), name)
 
-  message("* Attempting to download renv ", version, " from CRAN archive ... ", appendLF = FALSE)
+  message("* Downloading renv ", version, " from CRAN archive ... ", appendLF = FALSE)
 
   for (url in urls) {
 

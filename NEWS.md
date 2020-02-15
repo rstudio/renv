@@ -1,6 +1,12 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* The environment variable `RENV_PATHS_LIBRARY_ROOT` can now be set, to
+  instruct `renv` to use a particular directory as a host for any project
+  libraries that are used by `renv`. This can be useful for certain cases
+  where it is cumbersome to include the project library within the project
+  itself; for example, when developing an R package. (#345)
+
 * The code used to bootstrap `renv` (that is, the code used to install `renv`
   into a project) has been overhauled. (#344)
 
