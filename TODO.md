@@ -1,4 +1,9 @@
 
+# Downloads
+
+- [ ] `download.file(method = "wininet")` appears to be unreliable for file URIs?
+
+
 # Dependencies
 
 - [x] User should be able to control whether errors encountered during depenency
