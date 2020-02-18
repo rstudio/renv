@@ -1,6 +1,10 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* Fixed an issue where downloads could fail on Windows when using
+  `method = "wininet"` and R package repositories referenced with a `file://`
+  scheme.
+
 * The configuration option `dependency.errors` has been added, controlling how
   errors are handled during dependency enumeration. This is used, for
   example, when enumerating dependencies during a call to `renv::snapshot()`.

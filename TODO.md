@@ -1,7 +1,7 @@
 
 # Downloads
 
-- [ ] `download.file(method = "wininet")` appears to be unreliable for file URIs?
+- [x] `download.file(method = "wininet")` appears to be unreliable for file URIs?
 
 
 # Dependencies

@@ -172,10 +172,10 @@
     },
     "devtools": {
       "Package": "devtools",
-      "Version": "2.2.1",
+      "Version": "2.2.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "5f7e8f803a05446ff0b5f98732b1e4b4"
+      "Hash": "e12b66f9f6dc41b765b047b4df4b4a38"
     },
     "digest": {
       "Package": "digest",
@@ -536,22 +536,17 @@
     },
     "remotes": {
       "Package": "remotes",
-      "Version": "2.1.0.9000",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "kevinushey",
-      "RemoteRepo": "remotes",
-      "RemoteRef": "feature/pkgtype-resilience",
-      "RemoteSha": "53b19dce9c9e757a25a0845eba1ad3e4613b1bc2",
-      "Hash": "be80a084d0f7d17b854e72537a0453cd"
+      "Version": "2.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "57c3009534f805f0f6476ffee68483cc"
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.9.3-14",
+      "Version": "0.9.3-23",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "80c8f475417fcabac14b40b9cbf3e316"
+      "Hash": "9b6a2cfcd5a03f87f0a2771179cdf7d0"
     },
     "reshape2": {
       "Package": "reshape2",
@@ -646,10 +641,10 @@
     },
     "stringi": {
       "Package": "stringi",
-      "Version": "1.4.5",
+      "Version": "1.4.6",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "ced3b63472796155f74abc4eb5266c78"
+      "Hash": "e99d8d656980d2dd416a962ae55aec90"
     },
     "stringr": {
       "Package": "stringr",

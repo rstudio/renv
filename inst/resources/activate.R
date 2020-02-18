@@ -105,6 +105,28 @@ local({
   
   }
   
+  renv_bootstrap_download_impl <- function(url, destfile) {
+  
+    mode <- "wb"
+  
+    # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17715
+    fixup <-
+      Sys.info()[["sysname"]] == "Windows" &&
+      identical(getOption("download.file.method"), "wininet") &&
+      substring(url, 1, 5) == "file:"
+  
+    if (fixup)
+      mode <- "w+b"
+  
+    download.file(
+      url      = url,
+      destfile = destfile,
+      mode     = mode,
+      quiet    = TRUE
+    )
+  
+  }
+  
   renv_bootstrap_download <- function(version) {
   
     methods <- list(
@@ -163,7 +185,7 @@ local({
     for (url in urls) {
   
       status <- tryCatch(
-        download.file(url, destfile, mode = "wb", quiet = TRUE),
+        renv_bootstrap_download_impl(url, destfile),
         condition = identity
       )
   
@@ -208,7 +230,7 @@ local({
     destfile <- file.path(tempdir(), name)
   
     status <- tryCatch(
-      download.file(url, destfile = destfile, mode = "wb", quiet = TRUE),
+      renv_bootstrap_download_impl(url, destfile),
       condition = identity
     )
   
