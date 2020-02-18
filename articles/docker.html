@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.28</span>
       </span>
     </div>
 
@@ -142,7 +142,7 @@
 <a href="#creating-docker-images-with-renv" class="anchor"></a>Creating Docker Images with renv</h2>
 <p>With Docker, <a href="https://docs.docker.com/engine/reference/builder/">Dockerfiles</a> are used to define new images. Dockerfiles can be used to declaratively specify how a Docker image should be created. A Docker image captures the state of a machine at some point in time – e.g., an Ubuntu operating system after downloading and installing R 3.5. Docker containers can be created using that image as a base, allowing isolated applications to run using the same pre-defined machine state.</p>
 <p>First, you’ll need to get <code>renv</code> installed on your Docker image. The easiest way to accomplish this is with the <code>remotes</code> package. For example:</p>
-<pre><code>ENV RENV_VERSION 0.9.3-27
+<pre><code>ENV RENV_VERSION 0.9.3-28
 RUN R -e "install.packages('remotes', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"</code></pre>
 <p>Now, <code>renv</code> can be used to install packages on the image. If you’d like the <code>renv.lock</code> lockfile to be used to install R packages when the Docker image is built, you can include something of the form:</p>

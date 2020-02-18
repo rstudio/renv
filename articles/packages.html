@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.28</span>
       </span>
     </div>
 
@@ -148,7 +148,7 @@
 <p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. Unfortunately, this also implies copying the <code>renv</code> library. When that library is large, this can dramatically increase the amount of time it takes to build your package.</p>
 <p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in a start-up <code>.Renviron</code> file:</p>
 <pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
-<p><code>renv</code> will then form library paths within this directory, using the project ID to disambiguate between multiple projects of the same name.</p>
+<p><code>renv</code> will then form library paths within this directory.</p>
 </div>
   </div>
 
