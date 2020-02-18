@@ -28,7 +28,9 @@ clean <- function(project = NULL,
 {
   renv_scope_error_handler()
   renv_dots_disallow(...)
+
   project <- renv_project_resolve(project)
+  renv_dependencies_scope(project, action = "clean")
 
   status <- any(
     renv_clean_stale_lockfiles(project, confirm),
@@ -148,7 +150,7 @@ renv_clean_unused_packages <- function(project, confirm) {
     return(ntd())
 
   # find packages used in the project and their dependencies
-  deps <- dependencies(project, quiet = TRUE)
+  deps <- dependencies(project, progress = FALSE)
   paths <- renv_package_dependencies(deps$Package, project = project)
   packages <- names(paths)
 

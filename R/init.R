@@ -88,11 +88,15 @@ init <- function(project = NULL,
   renv_scope_error_handler()
   renv_dots_disallow(...)
 
-  # prepare and move into project directory
   project <- project %||% getwd()
+
+  # prepare and move into project directory
   renv_init_validate_project(project, force)
   renv_init_settings(project, settings)
   setwd(project)
+
+  # collect dependencies
+  renv_dependencies_scope(project, action = "init")
 
   # be quiet in RStudio projects (as we will normally restart automatically)
   quiet <- !is.null(getOption("restart"))

@@ -688,6 +688,18 @@ renv_snapshot_auto <- function(project) {
 }
 # nocov end
 
+renv_snapshot_dependencies <- function(source) {
+
+  message <- "snapshot aborted"
+  errors <- renv_config("dependency.errors", default = "reported")
+
+  withCallingHandlers(
+    dependencies(source, progress = FALSE, errors = errors),
+    renv.dependencies.error = renv_dependencies_error_handler(message, errors)
+  )
+
+}
+
 renv_snapshot_filter <- function(project, records, type) {
 
   start <- Sys.time()
@@ -699,9 +711,9 @@ renv_snapshot_filter <- function(project, records, type) {
 
   result <- switch(type,
     all      = renv_snapshot_filter_all(project, records),
-    implicit = renv_snapshot_filter_implicit(project, records),
+    custom   = renv_snapshot_filter_custom(project, records),
     explicit = renv_snapshot_filter_explicit(project, records),
-    custom  = renv_snapshot_filter_custom(project, records),
+    implicit = renv_snapshot_filter_implicit(project, records),
     stopf("unknown snapshot type '%s'", type)
   )
 
@@ -745,8 +757,7 @@ renv_snapshot_filter_all <- function(project, records) {
 
 renv_snapshot_filter_impl <- function(project, records, source) {
 
-  # discover relevant packages in use
-  deps <- dependencies(source, quiet = TRUE)
+  deps <- renv_snapshot_dependencies(source)
   packages <- unique(c(deps$Package, "renv"))
 
   # ignore packages as defined by project

@@ -4,7 +4,14 @@
 \alias{dependencies}
 \title{Find R Package Dependencies in a Project}
 \usage{
-dependencies(path = getwd(), root = NULL, quiet = FALSE, dev = FALSE)
+dependencies(
+  path = getwd(),
+  root = NULL,
+  ...,
+  progress = TRUE,
+  errors = c("reported", "fatal", "ignored"),
+  dev = FALSE
+)
 }
 \arguments{
 \item{path}{The path to a (possibly multi-mode) \R file, or a directory
@@ -16,8 +23,14 @@ Defaults to the active project directory. You may need to set this
 explicitly to ensure that your project's \code{.renvignore}s (if any) are
 properly handled.}
 
-\item{quiet}{Boolean; report problems discovered (if any) during dependency
-discovery?}
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
+
+\item{progress}{Boolean; report progress output while enumerating
+dependencies?}
+
+\item{errors}{How should errors that occur during dependency enumeration be
+handled? See \strong{Errors} for more details.}
 
 \item{dev}{Boolean; include 'development' dependencies as well? That is,
 packages which may be required during development but are unlikely to be
@@ -67,6 +80,28 @@ data/
 # ignore only data folders from the root of the project
 /data/
 }
+}
+
+\section{Errors}{
+
+
+\code{renv}'s attempts to enumerate package dependencies in your project can fail
+-- most commonly, because of parse errors in your \R code. The \code{errors}
+parameter can be used to control how \code{renv} responds to errors that occur.
+
+\tabular{ll}{
+\strong{Name} \tab \strong{Action} \cr
+\code{"reported"} \tab Errors are reported to the user, but are otherwise ignored. \cr
+\code{"fatal"}    \tab Errors are fatal and stop execution. \cr
+\code{"ignored"}  \tab Errors are ignored and not reported to the user. \cr
+}
+
+Depending on the structure of your project, you may want \code{renv} to ignore
+errors that occur when attempting to enumerate dependencies. However, a more
+robust solution would be to use an \code{.renvignore} file to tell \code{renv} not to
+scan such files for dependencies, or to configure the project to require
+explicit dependency management (\code{renv::settings$snapshot.type("explicit")})
+and enumerate your dependencies in a project \code{DESCRIPTION} file.
 }
 
 \section{Development Dependencies}{

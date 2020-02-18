@@ -4,3 +4,7 @@ renv_condition_signal <- function(class = NULL, data = NULL) {
   class(condition) <- c(class, "renv.condition", "condition")
   signalCondition(condition)
 }
+
+renv_condition_data <- function(condition) {
+  condition$data
+}

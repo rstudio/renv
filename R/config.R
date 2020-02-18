@@ -57,6 +57,14 @@
 #'   errors occur. Only used when the `curl` downloader is used.
 #'   \cr
 #'
+#' `dependency.errors` \tab `"reported"` \tab
+#'   Many `renv` APIs require the enumeration of your project's \R package
+#'   dependencies. This option controls how errors that occur during this
+#'   enumeration are handled. By default, errors are reported but are non-fatal.
+#'   Set this to `"fatal"` to force errors to be fatal, and `"ignored"` to
+#'   ignore errors altogether. See [dependencies] for more details.
+#'   \cr
+#'
 #' `external.libraries` \tab `character[*]` \tab `character()` \tab
 #'   A character vector of external libraries, to be used in tandem with your
 #'   projects. Be careful when using external libraries: it's possible that

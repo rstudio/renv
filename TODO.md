@@ -1,4 +1,23 @@
 
+# Dependencies
+
+- [x] User should be able to control whether errors encountered during depenency
+      enumeration are fatal, reported, or ignored.
+
+- [x] `renv::init()` should report dependency errors, but otherwise initialize
+      the project.
+
+- [x] `renv` APIs that might call `dependencies()` should avoid re-reporting
+      dependency errors multiple times. Potential fix: `renv_dependencies_scope()`
+      could call dependencies once at the top level, and then `renv::dependencies()`
+      could re-use the result of that object when requested.
+
+- [x] Audit other internal usages of `renv::snapshot()` for the appropriate value
+      of the `errors` argument.
+
+
+# Miscellaneous
+
 - [x] Packrat-style `init()` function, where we discover the R packages used within
       the project, and then initialize a new environment / library with those
       packages. Speed up the process by re-using installed packages in the user
@@ -11,14 +30,14 @@
 - [x] Properly handle broken links in the project library (e.g. if the cache
       moved or was mutated for some reason)
   
-- [ ] `rehash()` -- tools for validating package hashes + their install location?
+- [x] `rehash()` -- tools for validating package hashes + their install location?
       `rehash()` would look at packages in the cache and update their cache
       location if the caching scheme changed.
   
 - [x] `clean()` function to remove ununsed packages from the library. (If the
       cache is enabled, they will remain in the cache).
   
-- [ ] Allow users to override the repository used during restore of a
+- [x] Allow users to override the repository used during restore of a
       particular package? (Setting `options(repos)` would suffice here I believe)
 
 - [ ] Use custom `Makevars` file and set some variables that certain packages
@@ -89,7 +108,7 @@
 
 - [x] Python: allow e.g. 'python = TRUE' for initializating a Python project.
 
-- [ ] Python: properly handle conda environments vs. pip.
+- [x] Python: properly handle conda environments vs. pip.
 
 - [x] Python: teach reticulate how to load virtual environments within renv dir.
 
@@ -112,7 +131,7 @@
 
 - [ ] Treat user library as a source when restoring projects?
 
-- [ ] `renv` should build packages before install (especially for packages from GitHub)
+- [ ] `renv` should build packages before install, especially for packages from GitHub.
 
 - [ ] Use `pkgcache` for package installation?
 
@@ -122,9 +141,9 @@
 
 - [ ] Record usage time for packages (as alternate scheme for finding unused packages)
 
-- [ ] `renv::revert()` should tell the user what it did.
+- [x] `renv::revert()` should tell the user what it did.
 
-- [ ] `renv::revert()` should have project argument last.
+- [x] `renv::revert()` should have project argument last.
 
-- [ ] Warn when installing a package currently loaded? (so that user
+- [x] Warn when installing a package currently loaded? (so that user
       knows they must restart R to get newly-installed package)

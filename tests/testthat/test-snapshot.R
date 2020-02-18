@@ -250,3 +250,11 @@ test_that("snapshot prefers RemoteType to biocViews", {
   expect_identical(record$Source, "GitHub")
 
 })
+
+test_that("parse errors cause snapshot to abort", {
+  renv_tests_scope()
+  writeLines("parse error", con = "parse-error.R")
+  init(bare = TRUE)
+  renv_scope_options(renv.config.dependency.errors = "fatal")
+  expect_error(snapshot())
+})

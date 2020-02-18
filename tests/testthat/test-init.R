@@ -73,3 +73,12 @@ test_that("renv::init(bare = TRUE) initializes a project without packages", {
   expect_length(files, 0)
 
 })
+
+test_that("init succeeds even if there are parse errors in project", {
+
+  renv_tests_scope()
+  writeLines("oh no", con = "analysis.R")
+  renv::init()
+  expect_true(file.exists("renv.lock"))
+
+})

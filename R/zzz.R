@@ -28,6 +28,7 @@ renv_zzz_run <- function() {
     return(FALSE)
 
   renv_zzz_bootstrap()
+
   TRUE
 
 }

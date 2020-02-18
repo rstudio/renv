@@ -9,11 +9,6 @@ sprintf <- function(fmt, ...) {
 
 }
 
-writef <- function(fmt = "", ..., con = stdout()) {
-  if (!is.null(fmt) && !renv_testing())
-    writeLines(sprintf(fmt, ...), con = con)
-}
-
 stopf <- function(fmt = "", ..., call. = FALSE) {
   stop(sprintf(fmt, ...), call. = call.)
 }
@@ -31,12 +26,47 @@ vmessagef <- function(fmt = "", ..., appendLF = TRUE) {
     message(sprintf(fmt, ...), appendLF = appendLF)
 }
 
+
+
+printf <- function(fmt = "", ..., file = stdout()) {
+  if (!is.null(fmt) && !renv_testing())
+    cat(sprintf(fmt, ...), file = file, sep = "")
+}
+
+eprintf <- function(fmt = "", ..., file = stderr()) {
+  if (!is.null(fmt) && !renv_testing())
+    cat(sprintf(fmt, ...), file = file, sep = "")
+}
+
 vprintf <- function(fmt = "", ..., file = stdout()) {
   if (!is.null(fmt) && renv_verbose())
     cat(sprintf(fmt, ...), file = file, sep = "")
+}
+
+veprintf <- function(fmt = "", ..., file = stderr()) {
+  if (!is.null(fmt) && renv_verbose())
+    cat(sprintf(fmt, ...), file = file, sep = "")
+}
+
+
+
+writef <- function(fmt = "", ..., con = stdout()) {
+  if (!is.null(fmt) && !renv_testing())
+    writeLines(sprintf(fmt, ...), con = con)
+}
+
+ewritef <- function(fmt = "", ..., con = stderr()) {
+  if (!is.null(fmt) && !renv_testing())
+    writeLines(sprintf(fmt, ...), con = con)
 }
 
 vwritef <- function(fmt = "", ..., con = stdout()) {
   if (!is.null(fmt) && renv_verbose())
     writeLines(sprintf(fmt, ...), con = con)
 }
+
+vewritef <- function(fmt = "", ..., con = stderr()) {
+  if (!is.null(fmt) && renv_verbose())
+    writeLines(sprintf(fmt, ...), con = con)
+}
+

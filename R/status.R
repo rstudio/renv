@@ -24,9 +24,13 @@ status <- function(project = NULL,
 {
   renv_scope_error_handler()
   renv_dots_disallow(...)
+
   project <- renv_project_resolve(project)
+  renv_dependencies_scope(project, action = "status")
+
   library <- library %||% renv_libpaths_all()
   lockpath <- lockfile %||% renv_lockfile_path(project)
+
   invisible(renv_status_impl(project, library, lockpath))
 }
 
@@ -101,7 +105,7 @@ renv_status_check_used_packages <- function(project, libstate) {
 
   db <- renv_installed_packages_base()
 
-  deps <- dependencies(project, quiet = TRUE)
+  deps <- dependencies(project, progress = FALSE)
   used <- sort(unique(deps$Package))
   records <- renv_records(libstate)
 
@@ -203,7 +207,7 @@ renv_status_check_synchronized <- function(project,
 
     if (settings$snapshot.type() %in% c("implicit", "packrat")) {
 
-      deps <- dependencies(quiet = TRUE)
+      deps <- dependencies(project, progress = FALSE)
       pkgpaths <- renv_package_dependencies(
         packages = unique(deps$Package),
         project = project,

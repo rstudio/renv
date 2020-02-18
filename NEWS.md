@@ -1,6 +1,21 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* The configuration option `dependency.errors` has been added, controlling how
+  errors are handled during dependency enumeration. This is used, for
+  example, when enumerating dependencies during a call to `renv::snapshot()`.
+  By default, errors are reported, and (for interactive sessions) the user is
+  prompted to continue. (#342)
+  
+* `renv::dependencies()` gains two new arguments: the `progress` argument
+  controls whether `renv` reports progress while enumerating dependencies,
+  and `errors` controls how `renv` handles and reports errors encountered
+  during dependency discovery. The `quiet` argument is now soft-deprecated,
+  but continues to be supported for backwards compatibility. Specifying
+  `quiet = TRUE` is equivalent to specifying `progress = FALSE` and
+  `errors = "ignored"`. Please see the documentation in `?dependencies`
+  for more details. (#342)
+  
 * The environment variable `RENV_PATHS_LIBRARY_ROOT` can now be set, to
   instruct `renv` to use a particular directory as a host for any project
   libraries that are used by `renv`. This can be useful for certain cases
