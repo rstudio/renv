@@ -49,8 +49,6 @@
 #'   private library, as it should normally not be committed to a version
 #'   control repository.
 #'
-#' - `renv/project-id`: A unique project ID.
-#'
 #' - `.Rbuildignore`: to ensure that the `renv` directory is ignored during
 #'   package development; e.g. when attempting to build or install a package
 #'   using `renv`.

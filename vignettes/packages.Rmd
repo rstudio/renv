@@ -91,8 +91,7 @@ a start-up `.Renviron` file:
 RENV_PATHS_LIBRARY_ROOT = ~/.renv/library
 ```
 
-`renv` will then form library paths within this directory, using the project ID
-to disambiguate between multiple projects of the same name.
+`renv` will then form library paths within this directory.
 
 
 
