@@ -2,7 +2,10 @@
 local({
 
   # the requested version of renv
-  version <- "0.9.3-25"
+  version <- "0.9.3-26"
+
+  # the project directory
+  project <- getwd()
 
   # avoid recursion
   if (!is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA)))
@@ -33,10 +36,24 @@ local({
 
   }
 
+  # construct path to library root
+  root <- local({
+
+    path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
+    if (!is.na(path))
+      return(path)
+
+    path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
+    if (!is.na(path))
+      return(file.path(path, basename(project)))
+
+    file.path(project, "renv/library")
+
+  })
+
   # construct path to renv in library
   libpath <- local({
 
-    root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = "renv/library")
     prefix <- paste("R", getRversion()[1, 1:2], sep = "-")
 
     # include SVN revision for development versions of R
@@ -105,6 +122,28 @@ local({
   
   }
   
+  renv_bootstrap_download_impl <- function(url, destfile) {
+  
+    mode <- "wb"
+  
+    # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17715
+    fixup <-
+      Sys.info()[["sysname"]] == "Windows" &&
+      identical(getOption("download.file.method"), "wininet") &&
+      substring(url, 1, 5) == "file:"
+  
+    if (fixup)
+      mode <- "w+b"
+  
+    download.file(
+      url      = url,
+      destfile = destfile,
+      mode     = mode,
+      quiet    = TRUE
+    )
+  
+  }
+  
   renv_bootstrap_download <- function(version) {
   
     methods <- list(
@@ -163,7 +202,7 @@ local({
     for (url in urls) {
   
       status <- tryCatch(
-        download.file(url, destfile, mode = "wb", quiet = TRUE),
+        renv_bootstrap_download_impl(url, destfile),
         condition = identity
       )
   
@@ -208,7 +247,7 @@ local({
     destfile <- file.path(tempdir(), name)
   
     status <- tryCatch(
-      download.file(url, destfile = destfile, mode = "wb", quiet = TRUE),
+      renv_bootstrap_download_impl(url, destfile),
       condition = identity
     )
   

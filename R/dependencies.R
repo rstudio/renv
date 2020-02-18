@@ -141,6 +141,12 @@ renv_dependencies_impl <- function(
   renv_dependencies_begin(root = root)
   on.exit(renv_dependencies_end(), add = TRUE)
 
+  dots <- list(...)
+  if (identical(dots[["quiet"]], TRUE)) {
+    progress <- FALSE
+    errors <- "ignored"
+  }
+
   files <- renv_dependencies_find(path, root)
   deps <- renv_dependencies_discover(files, progress, errors)
   renv_dependencies_report(errors)
