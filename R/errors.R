@@ -104,16 +104,38 @@ renv_error_format <- function(calls, frames) {
 
 }
 
-renv_error_handler <- function() {
+renv_error_find <- function(calls, frames) {
 
-  suppressed <- getOption("renv.traceback.suppressed")
-  if (identical(suppressed, TRUE)) {
-    options(renv.traceback.suppressed = FALSE)
-    return(character())
+  for (i in rev(seq_along(frames))) {
+
+    fn <- sys.function(which = i)
+    if (!identical(fn, stop))
+      next
+
+    frame <- frames[[i]]
+    args <- frame[["args"]]
+    if (is.null(args) || empty(args))
+      next
+
+    first <- args[[1L]]
+    if (!inherits(first, "condition"))
+      next
+
+    return(first)
+
   }
+
+}
+
+renv_error_handler <- function() {
 
   calls <- head(sys.calls(), n = -1L)
   frames <- head(sys.frames(), n = -1L)
+
+  error <- renv_error_find(calls, frames)
+  if (identical(error$traceback, FALSE))
+    return(character())
+
   formatted <- renv_error_format(calls, frames)
   writeLines(formatted, con = stderr())
 
@@ -135,9 +157,4 @@ renv_error_tag <- function(e) {
 
 renv_error_handler_call <- function() {
   as.call(list(renv_error_handler))
-}
-
-renv_errors_init_callback <- function(...) {
-  options(renv.traceback.suppressed = FALSE)
-  TRUE
 }

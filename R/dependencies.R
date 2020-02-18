@@ -1119,9 +1119,14 @@ renv_dependencies_error_handler <- function(message, errors) {
   function(condition) {
 
     if (identical(errors, "fatal") || interactive() && !proceed()) {
-      options(renv.traceback.suppressed = TRUE)
-      condition <- simpleError(message)
+
+      condition <- structure(
+        list(message = message, call = NULL, traceback = FALSE),
+        class = c("renv.dependencies.error", "error", "condition")
+      )
+
       stop(condition)
+
     }
 
     renv_condition_data(condition)
