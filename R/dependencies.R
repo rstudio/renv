@@ -1112,10 +1112,19 @@ renv_dependencies_scope <- function(path, action, .envir = NULL) {
 }
 
 renv_dependencies_error_handler <- function(message, errors) {
-  list(message, errors)
+
+  force(message)
+  force(errors)
+
   function(condition) {
-    if (identical(errors, "fatal") || interactive() && !proceed())
-      stop(message)
+
+    if (identical(errors, "fatal") || interactive() && !proceed()) {
+      options(renv.traceback.suppressed = TRUE)
+      condition <- simpleError(message)
+      stop(condition)
+    }
+
     renv_condition_data(condition)
+
   }
 }

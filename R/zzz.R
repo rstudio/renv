@@ -9,6 +9,7 @@
   renv_envvars_init()
 
   addTaskCallback(renv_repos_init_callback)
+  addTaskCallback(renv_errors_init_callback)
 
 }
 
