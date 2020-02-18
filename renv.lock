@@ -4,7 +4,7 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
+        "URL": "https://cloud.r-project.org"
       }
     ]
   },
@@ -543,10 +543,15 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.9.3-23",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "9b6a2cfcd5a03f87f0a2771179cdf7d0"
+      "Version": "0.9.3-25",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "rstudio",
+      "RemoteRepo": "renv",
+      "RemoteRef": "master",
+      "RemoteSha": "d65eff5d4d2604dbd77582386ea9bee3d118232f",
+      "Hash": "e4f15094cd838f79946a2df638714427"
     },
     "reshape2": {
       "Package": "reshape2",

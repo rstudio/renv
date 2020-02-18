@@ -48,6 +48,7 @@ renv_paths_project <- function(..., project = NULL) {
   file.path(project, ...) %||% ""
 }
 
+# NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_paths_library_root <- function(project) {
 
   path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
@@ -56,7 +57,7 @@ renv_paths_library_root <- function(project) {
 
   path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
   if (!is.na(path))
-    return(file.path(path, dirname(project)))
+    return(file.path(path, basename(project)))
 
   file.path(project, "renv/library")
 

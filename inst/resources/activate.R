@@ -4,6 +4,9 @@ local({
   # the requested version of renv
   version <- "${VERSION}"
 
+  # the project directory
+  project <- getwd()
+
   # avoid recursion
   if (!is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA)))
     return(invisible(TRUE))
@@ -33,10 +36,24 @@ local({
 
   }
 
+  # construct path to library root
+  root <- local({
+
+    path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
+    if (!is.na(path))
+      return(path)
+
+    path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
+    if (!is.na(path))
+      return(file.path(path, basename(project)))
+
+    file.path(project, "renv/library")
+
+  })
+
   # construct path to renv in library
   libpath <- local({
 
-    root <- Sys.getenv("RENV_PATHS_LIBRARY", unset = "renv/library")
     prefix <- paste("R", getRversion()[1, 1:2], sep = "-")
 
     # include SVN revision for development versions of R
