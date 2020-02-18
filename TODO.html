@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>NA • renv</title>
+<title>Dependencies • renv</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,7 @@
 
 
 
-<meta property="og:title" content="NA" />
+<meta property="og:title" content="Dependencies" />
 
 
 
@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.22</span>
       </span>
     </div>
 
@@ -145,16 +145,29 @@
 <div class="row">
   <div class="contents col-md-9">
     <div class="page-header">
-      <h1>NA</h1>
+      <h1>Dependencies</h1>
     </div>
 
+
+<div id="dependencies" class="section level1">
+
+<ul>
+<li><p>[x] User should be able to control whether errors encountered during depenency enumeration are fatal, reported, or ignored.</p></li>
+<li><p>[x] <code><a href="reference/init.html">renv::init()</a></code> should report dependency errors, but otherwise initialize the project.</p></li>
+<li><p>[x] <code>renv</code> APIs that might call <code><a href="reference/dependencies.html">dependencies()</a></code> should avoid re-reporting dependency errors multiple times. Potential fix: <code>renv_dependencies_scope()</code> could call dependencies once at the top level, and then <code><a href="reference/dependencies.html">renv::dependencies()</a></code> could re-use the result of that object when requested.</p></li>
+<li><p>[x] Audit other internal usages of <code><a href="reference/snapshot.html">renv::snapshot()</a></code> for the appropriate value of the <code>errors</code> argument.</p></li>
+</ul>
+</div>
+<div id="miscellaneous" class="section level1">
+<h1 class="hasAnchor">
+<a href="#miscellaneous" class="anchor"></a>Miscellaneous</h1>
 <ul>
 <li><p>[x] Packrat-style <code><a href="reference/init.html">init()</a></code> function, where we discover the R packages used within the project, and then initialize a new environment / library with those packages. Speed up the process by re-using installed packages in the user library if possible.</p></li>
 <li><p>[x] Warn (error?) when attempting to snapshot a library with missing dependencies – e.g. the library contains ‘markdown’ but not its dependency ‘mime’.</p></li>
 <li><p>[x] Properly handle broken links in the project library (e.g. if the cache moved or was mutated for some reason)</p></li>
-<li><p>[ ] <code><a href="reference/rehash.html">rehash()</a></code> – tools for validating package hashes + their install location? <code><a href="reference/rehash.html">rehash()</a></code> would look at packages in the cache and update their cache location if the caching scheme changed.</p></li>
+<li><p>[x] <code><a href="reference/rehash.html">rehash()</a></code> – tools for validating package hashes + their install location? <code><a href="reference/rehash.html">rehash()</a></code> would look at packages in the cache and update their cache location if the caching scheme changed.</p></li>
 <li><p>[x] <code><a href="reference/clean.html">clean()</a></code> function to remove ununsed packages from the library. (If the cache is enabled, they will remain in the cache).</p></li>
-<li><p>[ ] Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://rdrr.io/r/base/options.html">options(repos)</a></code> would suffice here I believe)</p></li>
+<li><p>[x] Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://rdrr.io/r/base/options.html">options(repos)</a></code> would suffice here I believe)</p></li>
 <li><p>[ ] Use custom <code>Makevars</code> file and set some variables that certain packages need but don’t properly declare? (E.g. older versions of the <code>maps</code> package need <code>awk</code> installed)</p></li>
 <li><p>[x] <code><a href="reference/restore.html">restore()</a></code> will attempt to repair the dependency tree during restore; e.g. dependent packages in the lockfile will be downloaded and installed as required. Should we prompt the user to <code><a href="reference/snapshot.html">snapshot()</a></code> afterwards so that the newly-reinstalled dependencies can be captured in the lockfile?</p></li>
 <li><p>[x] Take over the <code>R_PROFILE</code>, <code>R_PROFILE_USER</code>, <code>R_ENVIRON</code> and <code>R_ENVIRON_USER</code> environment variables? Needed for cases like <a href="https://github.com/rstudio/packrat/issues/526" class="uri">https://github.com/rstudio/packrat/issues/526</a>.</p></li>
@@ -176,7 +189,7 @@
 <li><p>[x] <code><a href="reference/status.html">renv::status()</a></code> function reporting differences between lockfile + library.</p></li>
 <li><p>[ ] Tools for analyzing the cache?</p></li>
 <li><p>[x] Python: allow e.g. ‘python = TRUE’ for initializating a Python project.</p></li>
-<li><p>[ ] Python: properly handle conda environments vs. pip.</p></li>
+<li><p>[x] Python: properly handle conda environments vs. pip.</p></li>
 <li><p>[x] Python: teach reticulate how to load virtual environments within renv dir.</p></li>
 <li><p>[x] Warn when lockfile contains packages from unknown source?</p></li>
 <li><p>[x] Automatically bootstrap an <code>renv</code> installation when loading a project if none is available locally?</p></li>
@@ -186,15 +199,17 @@
 <li><p>[ ] Install of <code>keras</code> failed to install <code>reticulate</code>?</p></li>
 <li><p>[ ] API for activating project and upgrading <code>renv</code>, rather than using previously-recorded version of <code>renv</code>?</p></li>
 <li><p>[ ] Treat user library as a source when restoring projects?</p></li>
-<li><p>[ ] <code>renv</code> should build packages before install (especially for packages from GitHub)</p></li>
+<li><p>[ ] <code>renv</code> should build packages before install, especially for packages from GitHub.</p></li>
 <li><p>[ ] Use <code>pkgcache</code> for package installation?</p></li>
 <li><p>[ ] Use <code>pkgdepends</code> to validate dependency list before snapshot.</p></li>
 <li><p>[ ] API to allow <code>pak</code> to use the cache?</p></li>
 <li><p>[ ] Record usage time for packages (as alternate scheme for finding unused packages)</p></li>
-<li><p>[ ] <code><a href="reference/revert.html">renv::revert()</a></code> should tell the user what it did.</p></li>
-<li><p>[ ] <code><a href="reference/revert.html">renv::revert()</a></code> should have project argument last.</p></li>
-<li><p>[ ] Warn when installing a package currently loaded? (so that user knows they must restart R to get newly-installed package)</p></li>
+<li><p>[x] <code><a href="reference/revert.html">renv::revert()</a></code> should tell the user what it did.</p></li>
+<li><p>[x] <code><a href="reference/revert.html">renv::revert()</a></code> should have project argument last.</p></li>
+<li><p>[x] Warn when installing a package currently loaded? (so that user knows they must restart R to get newly-installed package)</p></li>
 </ul>
+</div>
+
 
   </div>
 

@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.22</span>
       </span>
     </div>
 
@@ -156,7 +156,14 @@
     <p>Find <span style="R">R</span> packages used within a project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dependencies</span>(<span class='kw'>path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(), <span class='kw'>root</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>dev</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>dependencies</span>(
+  <span class='kw'>path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span>(),
+  <span class='kw'>root</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>...</span>,
+  <span class='kw'>progress</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>errors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"reported"</span>, <span class='st'>"fatal"</span>, <span class='st'>"ignored"</span>),
+  <span class='kw'>dev</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -175,9 +182,19 @@ explicitly to ensure that your project's <code>.renvignore</code>s (if any) are
 properly handled.</p></td>
     </tr>
     <tr>
-      <th>quiet</th>
-      <td><p>Boolean; report problems discovered (if any) during dependency
-discovery?</p></td>
+      <th>...</th>
+      <td><p>Unused arguments, reserved for future expansion. If any arguments
+are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
+    </tr>
+    <tr>
+      <th>progress</th>
+      <td><p>Boolean; report progress output while enumerating
+dependencies?</p></td>
+    </tr>
+    <tr>
+      <th>errors</th>
+      <td><p>How should errors that occur during dependency enumeration be
+handled? See <strong>Errors</strong> for more details.</p></td>
     </tr>
     <tr>
       <th>dev</th>
@@ -229,6 +246,28 @@ data/
 /data/
 </pre>
 
+    <h2 class="hasAnchor" id="errors"><a class="anchor" href="#errors"></a>Errors</h2>
+
+    
+
+
+<p><code>renv</code>'s attempts to enumerate package dependencies in your project can fail
+-- most commonly, because of parse errors in your <span style="R">R</span> code. The <code>errors</code>
+parameter can be used to control how <code>renv</code> responds to errors that occur.</p>
+<table class='table'>
+<tr><td><strong>Name</strong></td><td><strong>Action</strong></td></tr>
+<tr><td><code>"reported"</code></td><td>Errors are reported to the user, but are otherwise ignored.</td></tr>
+<tr><td><code>"fatal"</code></td><td>Errors are fatal and stop execution.</td></tr>
+<tr><td><code>"ignored"</code></td><td>Errors are ignored and not reported to the user.</td></tr>
+</table>
+
+
+<p>Depending on the structure of your project, you may want <code>renv</code> to ignore
+errors that occur when attempting to enumerate dependencies. However, a more
+robust solution would be to use an <code>.renvignore</code> file to tell <code>renv</code> not to
+scan such files for dependencies, or to configure the project to require
+explicit dependency management (<code>renv::settings$snapshot.type("explicit")</code>)
+and enumerate your dependencies in a project <code>DESCRIPTION</code> file.</p>
     <h2 class="hasAnchor" id="development-dependencies"><a class="anchor" href="#development-dependencies"></a>Development Dependencies</h2>
 
     
@@ -255,6 +294,7 @@ for a project, but may not actually require these packages at runtime.</p>
       <li><a href="#value">Value</a></li>
       <li><a href="#details">Details</a></li>
       <li><a href="#ignoring-files">Ignoring Files</a></li>
+      <li><a href="#errors">Errors</a></li>
       <li><a href="#development-dependencies">Development Dependencies</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>

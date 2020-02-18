@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.18</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.22</span>
       </span>
     </div>
 
@@ -154,6 +154,8 @@
 <a href="#renv-0-9-4-unreleased" class="anchor"></a>renv 0.9.4 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>The configuration option <code>dependency.errors</code> has been added, controlling how errors are handled during dependency enumeration. This is used, for example, when enumerating dependencies during a call to <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>. By default, errors are reported, and (for interactive sessions) the user is prompted to continue. (#342)</p></li>
+<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> gains two new arguments: the <code>progress</code> argument controls whether <code>renv</code> reports progress while enumerating dependencies, and <code>errors</code> controls how <code>renv</code> handles and reports errors encountered during dependency discovery. The <code>quiet</code> argument is now soft-deprecated, but continues to be supported for backwards compatibility. Specifying <code>quiet = TRUE</code> is equivalent to specifying <code>progress = FALSE</code> and <code>errors = "ignored"</code>. Please see the documentation in <code><a href="../reference/dependencies.html">?dependencies</a></code> for more details. (#342)</p></li>
 <li><p>The environment variable <code>RENV_PATHS_LIBRARY_ROOT</code> can now be set, to instruct <code>renv</code> to use a particular directory as a host for any project libraries that are used by <code>renv</code>. This can be useful for certain cases where it is cumbersome to include the project library within the project itself; for example, when developing an R package. (#345)</p></li>
 <li><p>The code used to bootstrap <code>renv</code> (that is, the code used to install <code>renv</code> into a project) has been overhauled. (#344)</p></li>
 <li><p><code>renv</code> no longer unsets an error handler set within the user profile when loading a project. (#343)</p></li>
