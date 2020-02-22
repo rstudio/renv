@@ -1,6 +1,10 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* `renv::init()` now restores the associated project library when called in a
+  project containing a lockfile but no project library nor any pre-existing
+  project infrastructure.
+
 * Fixed an issue where downloads could fail on Windows when using
   `method = "wininet"` and R package repositories referenced with a `file://`
   scheme.

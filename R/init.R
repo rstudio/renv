@@ -127,7 +127,7 @@ init <- function(project = NULL,
   } else if (action == "restore") {
     vwritef("* Restoring project ... ")
     ensure_directory(library)
-    restore(project = project, confirm = FALSE)
+    restore(project = project, library = library, confirm = FALSE)
   }
 
   # activate the newly-hydrated project
