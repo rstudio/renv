@@ -83,7 +83,6 @@ launched within the project are automatically loaded.
 \item \code{renv/.gitignore}: This is used to instruct Git to ignore the project's
 private library, as it should normally not be committed to a version
 control repository.
-\item \code{renv/project-id}: A unique project ID.
 \item \code{.Rbuildignore}: to ensure that the \code{renv} directory is ignored during
 package development; e.g. when attempting to build or install a package
 using \code{renv}.
