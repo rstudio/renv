@@ -4,6 +4,7 @@
 # NOTE: if sandboxing is used then these symbols will be clobbered;
 # save them so we can properly restore them later if so required
 renv_libpaths_init <- function() {
+  assign(".libPaths()",   .libPaths(),   envir = `_renv_libpaths`)
   assign(".Library",      .Library,      envir = `_renv_libpaths`)
   assign(".Library.site", .Library.site, envir = `_renv_libpaths`)
 }
@@ -150,16 +151,7 @@ renv_libpaths_activate <- function(project) {
 
 }
 
-renv_libpaths_save <- function() {
-  libpaths <- renv_global_get("default.libpaths")
-  if (is.null(libpaths))
-    renv_global_set("default.libpaths", libpaths)
-}
-
 renv_libpaths_restore <- function() {
-  libpaths <- renv_global_get("default.libpaths")
-  if (!is.null(libpaths)) {
-    renv_global_clear("default.libpaths")
-    renv_libpaths_set(libpaths)
-  }
+  libpaths <- get(".libPaths()", envir = `_renv_libpaths`)
+  renv_libpaths_set(libpaths)
 }

@@ -244,7 +244,6 @@ renv_load_profile_impl <- function(profile) {
 }
 
 renv_load_libpaths <- function(project = NULL) {
-  renv_libpaths_save()
   renv_libpaths_activate(project)
   libpaths <- renv_libpaths_all()
   lapply(libpaths, renv_library_diagnose, project = project)

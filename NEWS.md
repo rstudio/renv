@@ -1,6 +1,9 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* `renv` now properly resets the session library paths when calling
+  `renv::deactivate()` from within RStudio. (#219)
+  
 * `renv::init()` now restores the associated project library when called in a
   project containing a lockfile but no project library nor any pre-existing
   project infrastructure.
