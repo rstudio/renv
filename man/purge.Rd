@@ -18,8 +18,8 @@ of the requested package will be removed.}
 \item{hash}{The specific hashes to be removed. When \code{NULL}, all hashes
 associated with a particular package's version will be removed.}
 
-\item{prompt}{Boolean; prompt the user before taking any action? Note that
-\code{confirm} is accepted as an alias for \code{prompt}.}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 }
 \value{
 The set of packages removed from the \code{renv} global cache,

@@ -32,8 +32,8 @@ vector of package names indicating which packages should be rebuilt.}
 \item{check}{Boolean; check for package updates without actually
 installing available updates?}
 
-\item{prompt}{Boolean; prompt the user before taking any action? Note that
-\code{confirm} is accepted as an alias for \code{prompt}.}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
