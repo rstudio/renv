@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.32</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.33</span>
       </span>
     </div>
 
@@ -154,6 +154,7 @@
 <a href="#renv-0-9-4-unreleased" class="anchor"></a>renv 0.9.4 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code>renv</code> now properly resets the session library paths when calling <code><a href="../reference/deactivate.html">renv::deactivate()</a></code> from within RStudio. (#219)</p></li>
 <li><p><code><a href="../reference/init.html">renv::init()</a></code> now restores the associated project library when called in a project containing a lockfile but no project library nor any pre-existing project infrastructure.</p></li>
 <li><p>Fixed an issue where downloads could fail on Windows when using <code>method = "wininet"</code> and R package repositories referenced with a <code>file://</code> scheme.</p></li>
 <li><p>The configuration option <code>dependency.errors</code> has been added, controlling how errors are handled during dependency enumeration. This is used, for example, when enumerating dependencies during a call to <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>. By default, errors are reported, and (for interactive sessions) the user is prompted to continue. (#342)</p></li>
