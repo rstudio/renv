@@ -129,8 +129,7 @@ local({
     # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17715
     fixup <-
       Sys.info()[["sysname"]] == "Windows" &&
-      identical(getOption("download.file.method"), "wininet") &&
-      substring(url, 1, 5) == "file:"
+      substring(url, 1L, 5L) == "file:"
   
     if (fixup)
       mode <- "w+b"

@@ -39,12 +39,12 @@ install <- function(packages = NULL,
                     ...,
                     library = NULL,
                     rebuild = FALSE,
-                    confirm = interactive(),
+                    prompt  = interactive(),
                     project = NULL)
 {
   renv_consent_check()
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
 
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
@@ -70,7 +70,7 @@ install <- function(packages = NULL,
   names(remotes) <- packages
   records[names(remotes)] <- remotes
 
-  if (!renv_install_preflight(project, library, remotes, confirm)) {
+  if (!renv_install_preflight(project, library, remotes, prompt)) {
     message("* Operation aborted.")
     return(invisible(list()))
   }
@@ -524,7 +524,7 @@ renv_install_preflight_permissions <- function(library) {
 
 }
 
-renv_install_preflight <- function(project, library, records, confirm) {
+renv_install_preflight <- function(project, library, records, prompt) {
 
   # check for packages installed from an unknown source
   ok <- all(
@@ -535,7 +535,7 @@ renv_install_preflight <- function(project, library, records, confirm) {
   if (ok)
     return(TRUE)
 
-  if (confirm && !proceed())
+  if (prompt && !proceed())
     return(FALSE)
 
   TRUE

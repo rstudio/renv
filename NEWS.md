@@ -1,6 +1,10 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* The arugment `confirm` has been renamed to `prompt` in all places where it
+  is used. `confirm` remains supported for backwards compatibility, but is no
+  longer explicitly documented. (#347)
+
 * The continuous integration `renv` vignette now also contains a template for
   using `renv` together with GitLab CI. (#348, @artemklevtsov)
 

@@ -23,7 +23,7 @@ status <- function(project = NULL,
                    lockfile = NULL)
 {
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
 
   project <- renv_project_resolve(project)
   renv_dependencies_scope(project, action = "status")

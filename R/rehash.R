@@ -13,25 +13,26 @@
 #' @inheritParams renv-params
 #'
 #' @export
-rehash <- function(confirm = interactive()) {
+rehash <- function(prompt = interactive(), ...) {
   renv_scope_error_handler()
-  invisible(renv_rehash_impl(confirm))
+  renv_dots_check(...)
+  invisible(renv_rehash_impl(prompt))
 }
 
-renv_rehash_impl <- function(confirm) {
+renv_rehash_impl <- function(prompt) {
 
   # check for cache migration
   oldcache <- renv_paths_cache(version = renv_cache_version_previous())
   newcache <- renv_paths_cache(version = renv_cache_version())
   if (file.exists(oldcache) && !file.exists(newcache))
-    renv_rehash_cache(oldcache, confirm, renv_file_copy, "copied")
+    renv_rehash_cache(oldcache, prompt, renv_file_copy, "copied")
 
   # re-cache packages as necessary
-  renv_rehash_cache(newcache, confirm, renv_file_move, "moved")
+  renv_rehash_cache(newcache, prompt, renv_file_move, "moved")
 
 }
 
-renv_rehash_cache <- function(cache, confirm, action, label) {
+renv_rehash_cache <- function(cache, prompt, action, label) {
 
   # re-compute package hashes
   old <- renv_cache_list(cache = cache)
@@ -46,7 +47,7 @@ renv_rehash_cache <- function(cache, confirm, action, label) {
     return(TRUE)
   }
 
-  if (confirm) {
+  if (prompt) {
 
     fmt <- "%s [%s -> %s]"
     packages <- basename(old)[changed]
@@ -59,7 +60,7 @@ renv_rehash_cache <- function(cache, confirm, action, label) {
       wrap = FALSE
     )
 
-    if (confirm && !proceed()) {
+    if (prompt && !proceed()) {
       message("* Operation aborted.")
       return(FALSE)
     }

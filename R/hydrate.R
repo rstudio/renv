@@ -56,7 +56,7 @@ hydrate <- function(packages = NULL,
                     project = NULL)
 {
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
   project  <- renv_project_resolve(project)
   library  <- library %||% renv_libpaths_default()
 

@@ -27,7 +27,7 @@ test_that("snapshot failures are reported", {
   output <- tempfile("renv-snapshot-output-")
   local({
     renv_scope_sink(file = output)
-    renv::snapshot(confirm = FALSE)
+    renv::snapshot(prompt = FALSE)
   })
 
   contents <- readLines(output)
@@ -48,7 +48,7 @@ test_that("broken symlinks are reported", {
   output <- tempfile("renv-snapshot-output-")
   local({
     renv_scope_sink(file = output)
-    renv::snapshot(confirm = FALSE)
+    renv::snapshot(prompt = FALSE)
   })
 
   contents <- readLines(output)

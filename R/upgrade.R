@@ -17,7 +17,7 @@
 #'   version of `renv` as available on the active R package repositories is
 #'   used.
 #'
-#' @param confirm Boolean; confirm upgrade before proceeding?
+#' @param prompt Boolean; prompt upgrade before proceeding?
 #'
 #' @param reload Boolean; reload `renv` after install? When `NULL` (the
 #'   default), `renv` will be re-loaded only if updating `renv` for the
@@ -43,13 +43,13 @@
 upgrade <- function(project = NULL,
                     version = NULL,
                     reload  = NULL,
-                    confirm = interactive())
+                    prompt = interactive())
 {
   renv_scope_error_handler()
-  invisible(renv_upgrade_impl(project, version, reload, confirm))
+  invisible(renv_upgrade_impl(project, version, reload, prompt))
 }
 
-renv_upgrade_impl <- function(project, version, reload, confirm) {
+renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   project <- renv_project_resolve(project)
   reload <- reload %||% identical(project, renv_project())
@@ -64,7 +64,7 @@ renv_upgrade_impl <- function(project, version, reload, confirm) {
     return(TRUE)
   }
 
-  if (confirm || renv_verbose()) {
+  if (prompt || renv_verbose()) {
     renv_pretty_print_records_pair(
       list(renv = old), list(renv = new),
       "A new version of the renv package will be installed:",
@@ -72,7 +72,7 @@ renv_upgrade_impl <- function(project, version, reload, confirm) {
     )
   }
 
-  if (confirm && !proceed()) {
+  if (prompt && !proceed()) {
     writeLines("Operation aborted.")
     return(FALSE)
   }

@@ -17,7 +17,7 @@ cite <- function(type = c("plain", "bibtex"),
                  project = NULL)
 {
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
 
   project <- project %||% renv_project()
   type <- match.arg(type)

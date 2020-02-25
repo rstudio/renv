@@ -84,7 +84,7 @@ init <- function(project = NULL,
 {
   renv_consent_check()
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
 
   project <- project %||% getwd()
 
@@ -123,11 +123,11 @@ init <- function(project = NULL,
     renv_libpaths_activate(project = project)
     renv_imbue_impl(project)
     hydrate(project = project, library = library)
-    snapshot(project = project, library = library, confirm = FALSE)
+    snapshot(project = project, library = library, prompt = FALSE)
   } else if (action == "restore") {
     vwritef("* Restoring project ... ")
     ensure_directory(library)
-    restore(project = project, library = library, confirm = FALSE)
+    restore(project = project, library = library, prompt = FALSE)
   }
 
   # activate the newly-hydrated project

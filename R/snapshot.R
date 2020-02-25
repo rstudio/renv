@@ -83,12 +83,12 @@ snapshot <- function(project  = NULL,
                      library  = NULL,
                      lockfile = file.path(project, "renv.lock"),
                      type     = settings$snapshot.type(project = project),
-                     confirm  = interactive(),
+                     prompt   = interactive(),
                      force    = FALSE)
 {
   renv_consent_check()
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
 
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
@@ -118,7 +118,7 @@ snapshot <- function(project  = NULL,
   # TODO: enable this check for multi-library configurations
   validated <- renv_snapshot_validate(project, new, library)
   if (!validated && !force) {
-    if (confirm && !proceed()) {
+    if (prompt && !proceed()) {
       message("* Operation aborted.")
       return(invisible(new))
     } else if (!interactive()) {
@@ -128,13 +128,13 @@ snapshot <- function(project  = NULL,
 
   # report actions to the user
   actions <- renv_lockfile_diff_packages(old, new)
-  if (confirm || renv_verbose())
+  if (prompt || renv_verbose())
     renv_snapshot_report_actions(actions, old, new)
 
   # request user confirmation
 
   # nocov start
-  if (length(actions) && confirm && !proceed()) {
+  if (length(actions) && prompt && !proceed()) {
     message("* Operation aborted.")
     return(invisible(new))
   }
@@ -675,7 +675,7 @@ renv_snapshot_auto <- function(project) {
   # validation messages can be noisy; turn off for auto snapshot
   status <- local({
     renv_scope_options(renv.config.snapshot.validate = FALSE, renv.verbose = FALSE)
-    catch(snapshot(project = project, confirm = FALSE))
+    catch(snapshot(project = project, prompt = FALSE))
   })
 
   if (inherits(status, "error"))
