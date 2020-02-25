@@ -281,16 +281,8 @@ renv_migrate_packrat_cache <- function(project) {
   ok <- file.exists(file.path(sources, "DESCRIPTION"))
   sources <- sources[ok]
 
-  # read DESCRIPTIONs for each package (update the Hash
-  # as Packrat + renv hashes are not compatible)
-  records <- lapply(sources, function(source) {
-    record <- renv_description_read(source)
-    record$Hash <- renv_hash_description(source)
-    record
-  })
-
   # construct cache target paths
-  targets <- map_chr(records, renv_cache_package_path)
+  targets <- map_chr(sources, renv_cache_path)
   names(targets) <- sources
 
   # only copy to cache target paths that don't exist

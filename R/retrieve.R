@@ -60,7 +60,7 @@ renv_retrieve_impl <- function(package) {
       renv_record_cacheable(record)
 
     if (cacheable) {
-      path <- renv_cache_package_path(record)
+      path <- renv_cache_find(record)
       if (renv_cache_package_validate(path))
         return(renv_retrieve_successful(record, path))
     }

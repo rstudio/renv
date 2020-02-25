@@ -208,7 +208,7 @@ renv_install_impl <- function(record) {
   if (cacheable) {
 
     # check for cache entry and install if there
-    path <- renv_cache_package_path(record)
+    path <- renv_cache_find(record)
     if (renv_cache_package_validate(path))
       return(renv_install_package_cache(record, path, linker))
 

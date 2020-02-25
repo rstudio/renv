@@ -176,12 +176,7 @@ renv_settings_updated_cache <- function(project, old, new) {
   library <- renv_paths_library(project = project)
   targets <- list.files(library, full.names = TRUE)
 
-  sources <- map_chr(targets, function(target) {
-    record <- renv_description_read(target)
-    record$Hash <- renv_hash_description(target)
-    renv_cache_package_path(record)
-  })
-
+  sources <- map_chr(targets, renv_cache_path)
   names(targets) <- sources
 
   if (empty(targets)) {

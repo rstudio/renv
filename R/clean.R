@@ -261,11 +261,7 @@ renv_clean_cache <- function(project, confirm) {
     packages <- list.files(library, full.names = TRUE)
     descs <- file.path(packages, "DESCRIPTION")
     existing <- file.exists(descs)
-    map_chr(descs[existing], function(desc) {
-      record <- renv_description_read(desc)
-      record$Hash <- renv_hash_description(desc)
-      renv_cache_package_path(record)
-    }, USE.NAMES = FALSE)
+    map_chr(descs[existing], renv_cache_path, USE.NAMES = FALSE)
   }
 
   # for each project, find packages used in their renv private library,

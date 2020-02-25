@@ -1,5 +1,5 @@
 
-renv_scope_tempdir <- function(pattern, .envir = NULL) {
+renv_scope_tempdir <- function(pattern = "renv-tempdir-", .envir = NULL) {
 
   dir <- tempfile(pattern)
   ensure_directory(dir)
