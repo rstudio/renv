@@ -1,6 +1,9 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* The continuous integration `renv` vignette now also contains a template for
+  using `renv` together with GitLab CI. (#348, @artemklevtsov)
+
 * `renv` now properly resets the session library paths when calling
   `renv::deactivate()` from within RStudio. (#219)
   

@@ -37,6 +37,7 @@ during restore, and this will override any repositories set in other locations
 (e.g. in `.Rprofile` or `.Rprofile.site`). We'll discuss some strategies for
 providing an alternate R package repository to use during restore below.
 
+
 ## Travis CI
 
 On Travis CI, one can add the following entries to `.travis.yml` to accomplish
@@ -86,3 +87,26 @@ during restore, or another similarly-equipped repository.
 See <https://docs.travis-ci.com/user/caching> for more details on how Travis
 manages caching.
 
+
+## GitLab CI
+
+The following template can be used as a base when using `renv` with
+[GitLab CI](https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/):
+
+```
+variables:
+  RENV_CONFIG_REPOS_OVERRIDE: "http://cran.r-project.org"
+  RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/cache
+  RENV_PATHS_LIBRARY: ${CI_PROJECT_DIR}/renv/library
+
+cache:
+  key: ${CI_JOB_NAME}
+  paths:
+    - ${RENV_PATHS_CACHE}
+    - ${RENV_PATHS_LIBRARY}
+
+before_script:
+  - < ... other pre-deploy steps ... >
+  - Rscript -e "renv::restore()"
+  
+```
