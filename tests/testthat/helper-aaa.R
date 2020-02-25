@@ -6,6 +6,9 @@ context <- function(desc) {
 
 test_that <- function(desc, code) {
 
+  cran <- !identical(Sys.getenv("NOT_CRAN"), "true")
+  testthat::skip_if(cran && renv_platform_macos())
+
   oldlibpaths <- .libPaths()
   oldrepos <- getOption("repos")
 
@@ -14,7 +17,6 @@ test_that <- function(desc, code) {
   eval(call, envir = parent.frame())
 
   newlibpaths <- .libPaths()
-
   reporter <- testthat::get_reporter()
 
   ok <-
