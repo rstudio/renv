@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.33</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.34</span>
       </span>
     </div>
 
@@ -149,6 +149,26 @@ script:
 <p>but it is generally more ergonomic to set the associated environment variable. (See <code><a href="../reference/config.html">?config</a></code> for more details.) This can be useful if you’d like to, for example, enforce the usage of a <a href="https://mran.microsoft.com">MRAN</a> checkpoint during restore, or another similarly-equipped repository.</p>
 <p>See <a href="https://docs.travis-ci.com/user/caching" class="uri">https://docs.travis-ci.com/user/caching</a> for more details on how Travis manages caching.</p>
 </div>
+<div id="gitlab-ci" class="section level2">
+<h2 class="hasAnchor">
+<a href="#gitlab-ci" class="anchor"></a>GitLab CI</h2>
+<p>The following template can be used as a base when using <code>renv</code> with <a href="https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/">GitLab CI</a>:</p>
+<pre><code>variables:
+  RENV_CONFIG_REPOS_OVERRIDE: "http://cran.r-project.org"
+  RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/cache
+  RENV_PATHS_LIBRARY: ${CI_PROJECT_DIR}/renv/library
+
+cache:
+  key: ${CI_JOB_NAME}
+  paths:
+    - ${RENV_PATHS_CACHE}
+    - ${RENV_PATHS_LIBRARY}
+
+before_script:
+  - &lt; ... other pre-deploy steps ... &gt;
+  - Rscript -e "renv::restore()"
+  </code></pre>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -158,6 +178,7 @@ script:
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#travis-ci">Travis CI</a></li>
+      <li><a href="#gitlab-ci">GitLab CI</a></li>
       </ul>
 </div>
       </div>
