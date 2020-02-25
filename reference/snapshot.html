@@ -72,7 +72,7 @@ details on the structure of a lockfile." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.35</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.36</span>
       </span>
     </div>
 
@@ -168,7 +168,7 @@ details on the structure of a lockfile.</p>
   <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>),
   <span class='kw'>type</span> <span class='kw'>=</span> <span class='no'>settings</span>$<span class='fu'>snapshot.type</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='no'>project</span>),
-  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>(),
+  <span class='kw'>prompt</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>(),
   <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
@@ -205,8 +205,9 @@ more details. When <code>NULL</code> (the default), an "implicit"-style snapshot
 is performed.</p></td>
     </tr>
     <tr>
-      <th>confirm</th>
-      <td><p>Boolean; prompt the user before taking any action?</p></td>
+      <th>prompt</th>
+      <td><p>Boolean; prompt the user before taking any action? Note that
+<code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></td>
     </tr>
     <tr>
       <th>force</th>

@@ -72,7 +72,7 @@ clean slate." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.35</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.36</span>
       </span>
     </div>
 
@@ -166,7 +166,7 @@ clean slate.</p>
   <span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>recursive</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>,
-  <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>(),
+  <span class='kw'>prompt</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>(),
   <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
@@ -190,8 +190,9 @@ recursively? Defaults to <code>TRUE</code>.</p></td>
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
     </tr>
     <tr>
-      <th>confirm</th>
-      <td><p>Boolean; prompt the user before taking any action?</p></td>
+      <th>prompt</th>
+      <td><p>Boolean; prompt the user before taking any action? Note that
+<code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></td>
     </tr>
     <tr>
       <th>library</th>
