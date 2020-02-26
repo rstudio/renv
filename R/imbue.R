@@ -27,11 +27,11 @@ imbue <- function(project = NULL, version = NULL) {
 
 }
 
-renv_imbue_impl <- function(project, version = NULL, force = FALSE)
-  {
+renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
+
   # don't imbue during tests unless explicitly requested
   if (renv_testing() && !force)
-    return()
+    return(NULL)
 
   # NULL version means imbue this version of renv
   if (is.null(version))
@@ -63,7 +63,7 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE)
   status <- with(record, r_cmd_install(Package, Path, library))
   vwritef("\tOK [built source]")
 
-  invisible(status)
+  invisible(record)
 
 }
 
@@ -79,6 +79,8 @@ renv_imbue_self <- function(project) {
   switch(type,
          source = renv_imbue_self_source(source, target),
          binary = renv_imbue_self_binary(source, target))
+
+  renv_snapshot_description(target)
 
 }
 

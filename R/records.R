@@ -8,7 +8,7 @@ renv_records <- function(records) {
 }
 
 `renv_records<-` <- function(x, value) {
-  x$Packages <- value
+  x$Packages <- filter(value, Negate(empty))
   x
 }
 

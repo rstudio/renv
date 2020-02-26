@@ -1,6 +1,8 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* `renv::scaffold()` now also generates a lockfile when invoked. (#351)
+
 * The arugment `confirm` has been renamed to `prompt` in all places where it
   is used. `confirm` remains supported for backwards compatibility, but is no
   longer explicitly documented. (#347)

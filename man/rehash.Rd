@@ -7,8 +7,8 @@
 rehash(prompt = interactive(), ...)
 }
 \arguments{
-\item{prompt}{Boolean; prompt the user before taking any action? Note that
-\code{confirm} is accepted as an alias for \code{prompt}.}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}

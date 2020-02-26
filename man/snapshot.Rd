@@ -34,8 +34,8 @@ directly instead.}
 more details. When \code{NULL} (the default), an "implicit"-style snapshot
 is performed.}
 
-\item{prompt}{Boolean; prompt the user before taking any action? Note that
-\code{confirm} is accepted as an alias for \code{prompt}.}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 
 \item{force}{Boolean; force generation of a lockfile even when pre-flight
 validation checks have failed?}
