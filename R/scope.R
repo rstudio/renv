@@ -129,7 +129,8 @@ renv_scope_downloader <- function(.envir = NULL) {
   if (nzchar(Sys.which("curl")))
     return(FALSE)
 
-  curl <- renv_paths_extsoft("curl-7.64.1-win32-mingw/bin/curl.exe")
+  curlroot <- sprintf("curl-%s-win32-mingw", renv_extsoft_curl_version())
+  curl <- renv_paths_extsoft(curlroot, "bin/curl.exe")
   if (!file.exists(curl))
     return(FALSE)
 
