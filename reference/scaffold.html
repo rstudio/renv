@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.39</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.40</span>
       </span>
     </div>
 
@@ -156,7 +156,7 @@
     <p>Write the <code>renv</code> project infrastructure for a project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>scaffold</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>scaffold</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>repos</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"repos"</span>))</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -172,14 +172,21 @@ directory is used instead.</p></td>
       <td><p>The version of <code>renv</code> to associate with this project. By
 default, the version of <code>renv</code> currently installed is used.</p></td>
     </tr>
+    <tr>
+      <th>repos</th>
+      <td><p>The <span style="R">R</span> repositories to associate with this project.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The function will update the project <code>.Rprofile</code> so that <code>renv</code> is
-automatically loaded for new <span style="R">R</span> sessions launched in this project. <code>renv</code>
-will also be installed and made available within the project's private
-library.</p>
+    <p>Invoking <code>renv::scaffold()</code> will:</p><ul>
+<li><p>Install <code>renv</code> into the project library,</p></li>
+<li><p>Update the project <code>.Rprofile</code> so that <code>renv</code> is automatically loaded
+for new <span style="R">R</span> sessions launched in this project, and</p></li>
+<li><p>Write a bare lockfile <code>renv.lock</code>.</p></li>
+</ul>
+
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.39</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.40</span>
       </span>
     </div>
 
@@ -154,6 +154,7 @@
 <a href="#renv-0-9-4-unreleased" class="anchor"></a>renv 0.9.4 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/scaffold.html">renv::scaffold()</a></code> now also generates a lockfile when invoked. (#351)</p></li>
 <li><p>The arugment <code>confirm</code> has been renamed to <code>prompt</code> in all places where it is used. <code>confirm</code> remains supported for backwards compatibility, but is no longer explicitly documented. (#347)</p></li>
 <li><p>The continuous integration <code>renv</code> vignette now also contains a template for using <code>renv</code> together with GitLab CI. (#348, <a href='https://github.com/artemklevtsov'>@artemklevtsov</a>)</p></li>
 <li><p><code>renv</code> now properly resets the session library paths when calling <code><a href="../reference/deactivate.html">renv::deactivate()</a></code> from within RStudio. (#219)</p></li>
