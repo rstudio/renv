@@ -57,7 +57,7 @@
 #'   errors occur. Only used when the `curl` downloader is used.
 #'   \cr
 #'
-#' `dependency.errors` \tab `"reported"` \tab
+#' `dependency.errors` \tab `character(1)` \tab `"reported"` \tab
 #'   Many `renv` APIs require the enumeration of your project's \R package
 #'   dependencies. This option controls how errors that occur during this
 #'   enumeration are handled. By default, errors are reported but are non-fatal.
