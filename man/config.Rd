@@ -62,7 +62,7 @@ The number of times to attempt re-downloading a file, when transient
 errors occur. Only used when the \code{curl} downloader is used.
 \cr
 
-\code{dependency.errors} \tab \code{"reported"} \tab
+\code{dependency.errors} \tab \verb{character[1]} \tab \code{"reported"} \tab
 Many \code{renv} APIs require the enumeration of your project's \R package
 dependencies. This option controls how errors that occur during this
 enumeration are handled. By default, errors are reported but are non-fatal.
