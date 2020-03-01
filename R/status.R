@@ -45,7 +45,7 @@ renv_status_impl <- function(project, library, lockpath) {
   libstate <- renv_status_check_missing_library(project, library)
   lockfile <- renv_status_check_missing_lockfile(project, lockpath)
 
-  renv_status_check_synchronized(
+  synchronized <- renv_status_check_synchronized(
     project  = project,
     lockpath = lockpath,
     lockfile = lockfile,
@@ -56,7 +56,7 @@ renv_status_impl <- function(project, library, lockpath) {
   renv_status_check_unknown_sources(project, lockfile)
   renv_status_check_cache(project)
 
-  list(library = libstate, lockfile = lockfile)
+  list(library = libstate, lockfile = lockfile, synchronized = synchronized)
 
 }
 
