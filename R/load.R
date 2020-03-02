@@ -358,7 +358,7 @@ renv_load_finish <- function(project) {
     vwritef(fmt, aliased_path(project), renv_package_version("renv"))
   }
 
-  renv_load_updates(project)
+  renv_load_check(project)
 
 }
 
@@ -418,5 +418,12 @@ renv_load_cache <- function(project) {
   )
 
   vmessagef(msg)
+
+}
+
+renv_load_check <- function(project) {
+
+  renv_load_updates(project)
+  renv_project_synchronized_check()
 
 }

@@ -169,3 +169,13 @@ renv_project_id <- function(project) {
   readLines(idpath, n = 1L, warn = FALSE)
 
 }
+
+renv_project_synchronized_check <- function() {
+
+  quietly({status <- renv::status()})
+  if (identical(status$synchronized, FALSE)) {
+    msg <- "The project and lockfile are out of sync. Use `renv::status()` to view details."
+    warning(msg, call. = FALSE)
+  }
+
+}
