@@ -65,7 +65,7 @@ load <- function(project = getwd(), quiet = FALSE) {
   renv_infrastructure_write_rbuildignore(project)
   renv_infrastructure_write_gitignore(project)
 
-  renv_load_finish(project)
+  renv_load_finish(project, lockfile)
 
   invisible(project)
 }
@@ -347,7 +347,7 @@ renv_load_python_env <- function(fields, loader) {
   loader(project = project, version = version, name = name)
 }
 
-renv_load_finish <- function(project) {
+renv_load_finish <- function(project, lockfile) {
 
   quiet <-
     "--slave" %in% commandArgs(trailingOnly = FALSE) ||
@@ -358,7 +358,7 @@ renv_load_finish <- function(project) {
     vwritef(fmt, aliased_path(project), renv_package_version("renv"))
   }
 
-  renv_load_check(project)
+  renv_load_check(project, lockfile)
 
 }
 
@@ -421,9 +421,9 @@ renv_load_cache <- function(project) {
 
 }
 
-renv_load_check <- function(project) {
+renv_load_check <- function(project, lockfile) {
 
   renv_load_updates(project)
-  renv_project_synchronized_check()
+  renv_project_synchronized_check(project, lockfile)
 
 }
