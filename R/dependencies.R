@@ -659,10 +659,10 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
   )
 
   discoveries <- new.env(parent = emptyenv())
-  recurse(parsed, function(node) {
+  recurse(parsed, function(node, stack) {
     for (method in methods)
       if (is.call(node))
-        method(node, discoveries)
+        method(node, stack, discoveries)
   })
 
   packages <- ls(envir = discoveries)
@@ -673,7 +673,7 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
 
 }
 
-renv_dependencies_discover_r_methods <- function(node, envir) {
+renv_dependencies_discover_r_methods <- function(node, stack, envir) {
 
   node <- renv_call_expect(node, "methods", c("setClass", "setGeneric"))
   if (is.null(node))
@@ -684,7 +684,7 @@ renv_dependencies_discover_r_methods <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_xfun <- function(node, envir) {
+renv_dependencies_discover_r_xfun <- function(node, stack, envir) {
 
   node <- renv_call_expect(node, "xfun", c("pkg_attach", "pkg_attach2"))
   if (is.null(node))
@@ -698,7 +698,7 @@ renv_dependencies_discover_r_xfun <- function(node, envir) {
 
   # extract character vectors from `...`
   strings <- stack()
-  recurse(matched[["..."]], function(node) {
+  recurse(matched[["..."]], function(node, stack) {
     if (is.character(node))
       strings$push(node)
   })
@@ -714,7 +714,7 @@ renv_dependencies_discover_r_xfun <- function(node, envir) {
   TRUE
 }
 
-renv_dependencies_discover_r_library_require <- function(node, envir) {
+renv_dependencies_discover_r_library_require <- function(node, stack, envir) {
 
   node <- renv_call_expect(node, "base", c("library", "require"))
   if (is.null(node))
@@ -745,7 +745,7 @@ renv_dependencies_discover_r_library_require <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_require_namespace <- function(node, envir) {
+renv_dependencies_discover_r_require_namespace <- function(node, stack, envir) {
 
   node <- renv_call_expect(node, "base", c("requireNamespace", "loadNamespace"))
   if (is.null(node))
@@ -767,7 +767,7 @@ renv_dependencies_discover_r_require_namespace <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_colon <- function(node, envir) {
+renv_dependencies_discover_r_colon <- function(node, stack, envir) {
 
   ok <-
     is.call(node) &&
@@ -790,7 +790,7 @@ renv_dependencies_discover_r_colon <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_pacman <- function(node, envir) {
+renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
 
   node <- renv_call_expect(node, "pacman", "p_load")
   if (is.null(node) || length(node) < 2)
@@ -834,10 +834,23 @@ renv_dependencies_discover_r_pacman <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_modules <- function(node, envir) {
+renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))
+    return(FALSE)
+
+  # only consider calls within a 'module' block
+  ok <- FALSE
+  for (parent in stack) {
+    parent <- renv_call_expect(parent, "modules", c("amodule", "module"))
+    if (!is.null(parent)) {
+      ok <- TRUE
+      break
+    }
+  }
+
+  if (!ok)
     return(FALSE)
 
   # attempt to match the call
@@ -858,7 +871,7 @@ renv_dependencies_discover_r_modules <- function(node, envir) {
   TRUE
 }
 
-renv_dependencies_discover_r_import <- function(node, envir) {
+renv_dependencies_discover_r_import <- function(node, stack, envir) {
 
   node <- renv_call_expect(node, "import", c("from", "here", "into"))
   if (is.null(node))
@@ -892,7 +905,7 @@ renv_dependencies_discover_r_import <- function(node, envir) {
 
 }
 
-renv_dependencies_discover_r_database <- function(node, envir) {
+renv_dependencies_discover_r_database <- function(node, stack, envir) {
 
   found <- FALSE
 

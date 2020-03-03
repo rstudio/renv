@@ -1,6 +1,11 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* Fixed an issue where packages referenced using `reticulate::import()`
+  were incorrectly tagged as R package dependencies. Similarly, `renv` now
+  only considers calls to `modules::import()` if those calls occur within
+  a call to `modules::module()`. (#359)
+
 * `renv::scaffold()` now also generates a lockfile when invoked. (#351)
 
 * The arugment `confirm` has been renamed to `prompt` in all places where it

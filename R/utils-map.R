@@ -33,11 +33,23 @@ enum_lgl <- function(x, f, ...) {
   enumerate(x, f, ..., FUN.VALUE = "logical")
 }
 
-recurse <- function(x, f, ...) {
-  f(x, ...)
-  if (is.recursive(x))
-    for (i in seq_along(x))
-      recurse(x[[i]], f, ...)
+recurse <- function(object, callback, ...) {
+  recurse_impl(list(), object, callback, ...)
+}
+
+recurse_impl <- function(stack, object, callback, ...) {
+
+  # push node on to stack
+  stack[[length(stack) + 1]] <- object
+
+  # invoke callback
+  callback(object, stack, ...)
+
+  # recurse
+  if (is.recursive(object))
+    for (i in seq_along(object))
+      recurse_impl(stack, object[[i]], callback, ...)
+
 }
 
 
