@@ -164,12 +164,19 @@ test_that("Suggests are _not_ dev. deps for package projects", {
 test_that("packages referenced by modules::import() are discovered", {
 
   file <- renv_test_code({
+
     module({
       import("A")
       import(B)
       import(from = "C")
       import(symbol, from = D)
     })
+
+    # NOTE: these should be ignored as they are not
+    # called within a module block
+    import("e")
+    import(f)
+
   })
 
   deps <- dependencies(file)
