@@ -45,6 +45,7 @@ load <- function(project = getwd(), quiet = FALSE) {
     return(invisible(project))
   }
 
+  # load rest of renv components
   renv_load_path(project)
   renv_load_shims(project)
   renv_load_renviron(project)
@@ -64,7 +65,7 @@ load <- function(project = getwd(), quiet = FALSE) {
   renv_infrastructure_write_rbuildignore(project)
   renv_infrastructure_write_gitignore(project)
 
-  renv_load_finish(project)
+  renv_load_finish(project, lockfile)
 
   invisible(project)
 }
@@ -243,7 +244,6 @@ renv_load_profile_impl <- function(profile) {
 }
 
 renv_load_libpaths <- function(project = NULL) {
-  renv_libpaths_save()
   renv_libpaths_activate(project)
   libpaths <- renv_libpaths_all()
   lapply(libpaths, renv_library_diagnose, project = project)
@@ -254,43 +254,6 @@ renv_load_sandbox <- function(project) {
   if (renv_sandbox_enabled(project))
     renv_sandbox_activate(project)
 }
-
-renv_load_updates <- function(project) {
-
-  # nocov start
-  if (!is.na(Sys.getenv("RSTUDIO", unset = NA))) {
-    update <- function() renv_load_updates_impl(project = project)
-    setHook("rstudio.sessionInit", update)
-    return(TRUE)
-  }
-  # nocov end
-
-  renv_load_updates_impl(project = project)
-
-}
-
-# nocov start
-renv_load_updates_impl <- function(project) {
-
-  if (!renv_config("updates.check", default = FALSE))
-    return(FALSE)
-
-  if (!file.exists(file.path(project, "renv.lock")))
-    return(FALSE)
-
-  status <- update(project = project, check = TRUE)
-  available <- inherits(status, "renv_updates") && length(status$diff)
-  if (!available)
-    return(FALSE)
-
-  vwritef("* Use `renv::update()` to install updated packages.")
-  if (!interactive())
-    print(status)
-
-  TRUE
-
-}
-# nocov end
 
 renv_load_python <- function(project, fields) {
 
@@ -345,21 +308,6 @@ renv_load_python_env <- function(fields, loader) {
   version <- fields$Version
   name    <- fields$Name %NA% NULL
   loader(project = project, version = version, name = name)
-}
-
-renv_load_finish <- function(project) {
-
-  quiet <-
-    "--slave" %in% commandArgs(trailingOnly = FALSE) ||
-    identical(renv_verbose(), FALSE)
-
-  if (!quiet) {
-    fmt <- "* Project '%s' loaded. [renv %s]"
-    vwritef(fmt, aliased_path(project), renv_package_version("renv"))
-  }
-
-  renv_load_updates(project)
-
 }
 
 renv_load_switch <- function(project) {
@@ -418,5 +366,72 @@ renv_load_cache <- function(project) {
   )
 
   vmessagef(msg)
+
+}
+
+renv_load_finish <- function(project, lockfile) {
+
+  renv_load_report_project(project)
+  renv_load_report_updates(project)
+  renv_load_report_synchronized(project, lockfile)
+
+}
+
+renv_load_report_project <- function(project) {
+
+  quiet <-
+    "--slave" %in% commandArgs(trailingOnly = FALSE) ||
+    identical(renv_verbose(), FALSE)
+
+  if (!quiet) {
+    fmt <- "* Project '%s' loaded. [renv %s]"
+    vwritef(fmt, aliased_path(project), renv_package_version("renv"))
+  }
+
+}
+
+renv_load_report_updates <- function(project) {
+
+  # nocov start
+  if (!is.na(Sys.getenv("RSTUDIO", unset = NA))) {
+    update <- function() renv_load_report_updates_impl(project = project)
+    setHook("rstudio.sessionInit", update)
+    return(TRUE)
+  }
+  # nocov end
+
+  renv_load_report_updates_impl(project = project)
+
+}
+
+# nocov start
+renv_load_report_updates_impl <- function(project) {
+
+  if (!renv_config("updates.check", default = FALSE))
+    return(FALSE)
+
+  if (!file.exists(file.path(project, "renv.lock")))
+    return(FALSE)
+
+  status <- update(project = project, check = TRUE)
+  available <- inherits(status, "renv_updates") && length(status$diff)
+  if (!available)
+    return(FALSE)
+
+  vwritef("* Use `renv::update()` to install updated packages.")
+  if (!interactive())
+    print(status)
+
+  TRUE
+
+}
+# nocov end
+
+renv_load_report_synchronized <- function(project, lockfile) {
+
+  if (!renv_config("synchronized.check", default = TRUE))
+    return(FALSE)
+
+  renv_project_synchronized_check(project, lockfile)
 
 }

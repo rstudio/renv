@@ -28,7 +28,7 @@ and install R package dependencies?}
 
 \item{force}{Boolean; force initialization? By default, \code{renv} will refuse
 to initialize the home directory as a project, to defend against accidental
-misusages of \code{init()}.}
+mis-usages of \code{init()}.}
 
 \item{restart}{Boolean; attempt to restart the \R session after initializing
 the project? A session restart will be attempted if the \code{"restart"} \R
@@ -81,7 +81,8 @@ launched within the project are automatically loaded.
 \item \code{renv/activate.R}: This script is run by the previously-mentioned
 \code{.Rprofile} to load the project.
 \item \code{renv/.gitignore}: This is used to instruct Git to ignore the project's
-private library, as it does not need to be
+private library, as it should normally not be committed to a version
+control repository.
 \item \code{.Rbuildignore}: to ensure that the \code{renv} directory is ignored during
 package development; e.g. when attempting to build or install a package
 using \code{renv}.

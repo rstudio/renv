@@ -120,6 +120,89 @@ will attempt to write the requisite ignore statements to the project
 `.gitignore`.
 
 
+## Package Sources
+
+`renv` is able to install and restore packages from a variety of sources,
+including:
+
+- [CRAN](https://cran.r-project.org/),
+- [Bioconductor](https://www.bioconductor.org/),
+- [GitHub](https://github.com/)
+- [Gitlab](https://gitlab.com/)
+- [Bitbucket](https://bitbucket.org/)
+
+`renv` uses an installed package's `DESCRIPTION` file to infer its source. For
+example, packages installed from the CRAN repositories typically have the field:
+
+```
+Repository: CRAN
+```
+
+set, and `renv` takes this as a signal that the package was retrieved from CRAN.
+
+
+### Inferring Package Sources
+
+The following fields are checked, in order, when inferring a package's source:
+
+1. The `RemoteType` field; typically written for packages installed by the
+  `devtools`, `remotes` and `pak` packages,
+
+1. The `Repository` field; for example, packages retrieved from CRAN will
+   typically have the `Repository: CRAN` field,
+   
+1. The `biocViews` field; typically present for packages installed from the
+   Bioconductor repositories,
+
+As a fallback, if `renv` is unable to determine a package's source from the
+`DESCRIPTION` file directly, but a package of the same name is available in the
+active R repositories (as specified in `getOption("repos")`), then the package
+will be treated as though it was installed from an R package repository.
+
+If all of the above methods fail, `renv` will finally check for a package
+available from local sources. See [here](local-sources.html) for more details. Local
+sources are typically used as an escape hatch, for packages which do not
+have a well-defined remote source.
+
+
+### Unknown Sources
+
+If `renv` is unable to infer a package's source, it will inform you during
+`renv::snapshot()` -- for example, if we attempted to snapshot a package
+called `skeleton` with no known source:
+
+```
+> renv::snapshot()
+The following package(s) were installed from an unknown source:
+
+        skeleton
+
+renv may be unable to restore these packages in the future.
+Consider re-installing these packages from a known source (e.g. CRAN).
+
+Do you want to proceed? [y/N]:
+```
+
+While you can still create a lockfile with such packages, `restore()` will
+likely fail unless you can ensure this package is installed through some
+other mechanism.
+
+
+### Custom R Package Repositories
+
+Custom and local R package repositories are supported as well. The only
+requirement is that these repositories are set as part of the `repos` R
+option, and that these repositories are named. For example, you might use:
+
+```
+repos <- c(CRAN = "https://cloud.r-project.org", WORK = "https://work.example.org")
+options(repos = repos)
+```
+
+to tell `renv` to work with both the official CRAN package repository, as well
+as a package repository you have hosted and set up in your work environment.
+
+
 ## Upgrading renv
 
 After initializing a project with `renv`, that project will then be 'bound'

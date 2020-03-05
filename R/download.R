@@ -120,6 +120,22 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
 
 }
 
+renv_download_default_mode <- function(url, method) {
+
+  mode <- "wb"
+
+  fixup <-
+    renv_platform_windows() &&
+    identical(method, "wininet") &&
+    substring(url, 1, 5) == "file:"
+
+  if (fixup)
+    mode <- "w+b"
+
+  "wb"
+
+}
+
 renv_download_default <- function(url, destfile, type, request, headers) {
 
   # custom request types are not supported with the default downloader
@@ -135,12 +151,18 @@ renv_download_default <- function(url, destfile, type, request, headers) {
   default <- if (renv_platform_windows()) "wininet" else "auto"
   method <- Sys.getenv("RENV_DOWNLOAD_FILE_METHOD", unset = default)
 
+  # headers _must_ be NULL rather than zero-length character
+  if (length(headers) == 0)
+    headers <- NULL
+
+  mode <- renv_download_default_mode(url, method)
+
   # handle absence of 'headers' argument in older versions of R
   args <- list(url      = url,
                destfile = destfile,
                method   = method,
                headers  = headers,
-               mode     = "wb",
+               mode     = mode,
                quiet    = TRUE)
 
   fmls <- formals(download.file)

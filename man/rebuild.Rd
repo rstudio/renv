@@ -8,7 +8,7 @@ rebuild(
   packages = NULL,
   recursive = TRUE,
   ...,
-  confirm = interactive(),
+  prompt = interactive(),
   library = NULL,
   project = NULL
 )
@@ -23,7 +23,8 @@ recursively? Defaults to \code{TRUE}.}
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
 
-\item{confirm}{Boolean; prompt the user before taking any action?}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}

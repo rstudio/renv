@@ -4,7 +4,7 @@
 \alias{scaffold}
 \title{Generate renv Project Infrastructure}
 \usage{
-scaffold(project = NULL, version = NULL)
+scaffold(project = NULL, version = NULL, repos = getOption("repos"))
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -13,13 +13,18 @@ directory is used instead.}
 
 \item{version}{The version of \code{renv} to associate with this project. By
 default, the version of \code{renv} currently installed is used.}
+
+\item{repos}{The \R repositories to associate with this project.}
 }
 \description{
 Write the \code{renv} project infrastructure for a project.
 }
 \details{
-The function will update the project \code{.Rprofile} so that \code{renv} is
-automatically loaded for new \R sessions launched in this project. \code{renv}
-will also be installed and made available within the project's private
-library.
+Invoking \code{renv::scaffold()} will:
+\itemize{
+\item Install \code{renv} into the project library,
+\item Update the project \code{.Rprofile} so that \code{renv} is automatically loaded
+for new \R sessions launched in this project, and
+\item Write a bare lockfile \code{renv.lock}.
+}
 }

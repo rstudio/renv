@@ -164,12 +164,19 @@ test_that("Suggests are _not_ dev. deps for package projects", {
 test_that("packages referenced by modules::import() are discovered", {
 
   file <- renv_test_code({
+
     module({
       import("A")
       import(B)
       import(from = "C")
       import(symbol, from = D)
     })
+
+    # NOTE: these should be ignored as they are not
+    # called within a module block
+    import("e")
+    import(f)
+
   })
 
   deps <- dependencies(file)
@@ -203,4 +210,15 @@ test_that("Suggest dependencies are used when requested", {
   settings$package.dependency.fields(fields)
   install("breakfast")
   expect_true(renv_package_installed("egg"))
+})
+
+test_that("a call to geom_hex() implies a dependency on ggplot2", {
+
+  file <- renv_test_code({
+    ggplot() + geom_hex()
+  })
+
+  deps <- dependencies(file)
+  expect_true("hexbin" %in% deps$Package)
+
 })

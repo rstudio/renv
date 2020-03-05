@@ -6,7 +6,8 @@
 #' @param library The \R library to be used. When `NULL`, the active project
 #'  library will be used instead.
 #'
-#' @param confirm Boolean; prompt the user before taking any action?
+#' @param prompt Boolean; prompt the user before taking any action? For backwards
+#'   compatibility, `confirm` is accepted as an alias for `prompt`.
 #'
 #' @param ... Unused arguments, reserved for future expansion. If any arguments
 #'   are matched to `...`, `renv` will signal an error.

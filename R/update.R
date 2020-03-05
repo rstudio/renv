@@ -135,12 +135,12 @@ update <- function(packages = NULL,
                    library = NULL,
                    rebuild = FALSE,
                    check   = FALSE,
-                   confirm = interactive(),
+                   prompt  = interactive(),
                    project = NULL)
 {
   renv_consent_check()
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
 
   # get package records
   library <- library %||% renv_libpaths_all()
@@ -151,7 +151,7 @@ update <- function(packages = NULL,
   missing <- renv_vector_diff(packages, names(records))
   if (!empty(missing)) {
 
-    if (confirm || renv_verbose()) {
+    if (prompt || renv_verbose()) {
       renv_pretty_print(
         missing,
         "The following package(s) are not currently installed:",
@@ -160,7 +160,7 @@ update <- function(packages = NULL,
       )
     }
 
-    if (confirm && !proceed()) {
+    if (prompt && !proceed()) {
       message("* Operation aborted.")
       return(invisible(FALSE))
     }
@@ -235,10 +235,10 @@ update <- function(packages = NULL,
 
   }
 
-  if (confirm || renv_verbose())
+  if (prompt || renv_verbose())
     renv_restore_report_actions(diff, old, new)
 
-  if (confirm && !proceed()) {
+  if (prompt && !proceed()) {
     message("* Operation aborted.")
     return(invisible(FALSE))
   }

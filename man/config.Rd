@@ -62,6 +62,14 @@ The number of times to attempt re-downloading a file, when transient
 errors occur. Only used when the \code{curl} downloader is used.
 \cr
 
+\code{dependency.errors} \tab \code{character(1)} \tab \code{"reported"} \tab
+Many \code{renv} APIs require the enumeration of your project's \R package
+dependencies. This option controls how errors that occur during this
+enumeration are handled. By default, errors are reported but are non-fatal.
+Set this to \code{"fatal"} to force errors to be fatal, and \code{"ignored"} to
+ignore errors altogether. See \link{dependencies} for more details.
+\cr
+
 \code{external.libraries} \tab \verb{character[*]} \tab \code{character()} \tab
 A character vector of external libraries, to be used in tandem with your
 projects. Be careful when using external libraries: it's possible that
@@ -71,6 +79,13 @@ external libraries; for example, if your project required \verb{xyz 1.0} but
 \verb{xyz 1.1} was present and loaded from an external library. Can also be an
 \R function that provides the paths to external libraries. Library paths
 will be expanded through \link{.expand_R_libs_env_var} as necessary.
+\cr
+
+\code{hydrate.libpaths} \tab \verb{character[*]} \tab \code{character()} \tab
+A character vector of library paths, to be used by \code{renv::hydrate()} when
+attempting to hydrate projects. When empty, the default set of library
+paths (as specified in \code{?hydrate}) are used instead. See \code{\link{hydrate}} for
+more details.
 \cr
 
 \code{install.staged} \tab \code{logical[1]} \tab \code{TRUE} \tab
@@ -83,7 +98,7 @@ if installation of one or more packages fails.
 \cr
 
 \code{repos.override} \tab \verb{character[*]} \tab \code{NULL} \tab
-Override the R package repositories used during \link{restore}. Primarily
+Override the R package repositories used during \code{\link{restore}}. Primarily
 useful for deployment / continuous integration, where you might want
 to enforce the usage of some set of repositories over what is defined
 in \code{renv.lock} or otherwise set by the R session.
@@ -92,7 +107,7 @@ in \code{renv.lock} or otherwise set by the R session.
 \code{rspm.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
 Boolean; enable RSPM integration for \code{renv} projects? When \code{TRUE}, \code{renv}
 will attempt to transform the repository URLs used by RSPM into binary
-URL as appropriate for the current platform. Set this to \code{FALSE} if
+URLs as appropriate for the current platform. Set this to \code{FALSE} if
 you'd like to continue using source-only RSPM URLs, or if you find that
 \code{renv} is improperly transforming your repository URLs.
 \cr
@@ -118,6 +133,10 @@ Validate \R package dependencies when calling snapshot? When \code{TRUE},
 \code{renv} will attempt to diagnose potential issues in the project library
 before creating \code{renv.lock} -- for example, if a package installed in the
 project library depends on a package which is not currently installed.
+\cr
+
+\code{synchronized.check} \tab \code{logical[1]} \tab \code{TRUE} \tab
+Check that the project library is synchronized with the lockfile on load?
 \cr
 
 \code{updates.check} \tab \code{logical[1]} \tab \code{FALSE} \tab

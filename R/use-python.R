@@ -66,7 +66,7 @@ use_python <- function(python = NULL,
                        project = NULL)
 {
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
   project <- renv_project_resolve(project)
 
   if (identical(python, FALSE))

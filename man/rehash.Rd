@@ -4,10 +4,14 @@
 \alias{rehash}
 \title{Re-Hash Packages in the renv Cache}
 \usage{
-rehash(confirm = interactive())
+rehash(prompt = interactive(), ...)
 }
 \arguments{
-\item{confirm}{Boolean; prompt the user before taking any action?}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
+
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, \code{renv} will signal an error.}
 }
 \description{
 Re-hash packages in the \code{renv} cache, ensuring that any previously-cached

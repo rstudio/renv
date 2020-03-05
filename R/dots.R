@@ -1,7 +1,15 @@
 
-renv_dots_disallow <- function(...) {
+renv_dots_check <- function(...) {
 
   dots <- list(...)
+
+  # allow 'confirm' as an alias for 'prompt'
+  confirm <- dots[["confirm"]]
+  if (!is.null(confirm) && exists("prompt", envir = parent.frame())) {
+    assign("prompt", confirm, envir = parent.frame())
+    dots[["confirm"]] <- NULL
+  }
+
   if (length(dots) == 0)
     return(TRUE)
 

@@ -345,3 +345,9 @@ drop <- function(x, keys) {
 invoke <- function(f, ...) {
   f(...)
 }
+
+delegate <- function(to) {
+  call <- sys.call(sys.parent())
+  call[[1]] <- to
+  eval(call, envir = parent.frame(2))
+}

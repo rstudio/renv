@@ -149,10 +149,9 @@ renv_available_packages_success <- function(db, url) {
 }
 
 renv_available_packages_entry <- function(package,
-                                          type,
-                                          repos = NULL,
+                                          type   = "source",
                                           filter = NULL,
-                                          quiet = FALSE)
+                                          quiet  = FALSE)
 {
 
   # if filter is a string, treat it as an explicit version requirement
@@ -173,10 +172,6 @@ renv_available_packages_entry <- function(package,
   }
 
   dbs <- renv_available_packages(type = type, quiet = quiet)
-
-  repos <- repos %||% names(dbs)
-  dbs <- dbs[repos]
-
   for (i in seq_along(dbs)) {
 
     db <- dbs[[i]]

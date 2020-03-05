@@ -13,35 +13,32 @@
 #' @inheritParams renv-params
 #'
 #' @export
-rehash <- function(confirm = interactive()) {
+rehash <- function(prompt = interactive(), ...) {
   renv_scope_error_handler()
-  invisible(renv_rehash_impl(confirm))
+  renv_dots_check(...)
+  invisible(renv_rehash_impl(prompt))
 }
 
-renv_rehash_impl <- function(confirm) {
+renv_rehash_impl <- function(prompt) {
 
   # check for cache migration
   oldcache <- renv_paths_cache(version = renv_cache_version_previous())
   newcache <- renv_paths_cache(version = renv_cache_version())
   if (file.exists(oldcache) && !file.exists(newcache))
-    renv_rehash_cache(oldcache, confirm, renv_file_copy)
+    renv_rehash_cache(oldcache, prompt, renv_file_copy, "copied")
 
   # re-cache packages as necessary
-  renv_rehash_cache(newcache, confirm, renv_file_move)
+  renv_rehash_cache(newcache, prompt, renv_file_move, "moved")
 
 }
 
-renv_rehash_cache <- function(cache, confirm, action) {
+renv_rehash_cache <- function(cache, prompt, action, label) {
 
   # re-compute package hashes
   old <- renv_cache_list(cache = cache)
 
-  callback <- function(path) {
-    renv_snapshot_description(path) %>% renv_cache_package_path()
-  }
-
   vprintf("* Re-computing package hashes ... ")
-  new <- map_chr(old, renv_progress(callback, length(old)))
+  new <- map_chr(old, renv_progress(renv_cache_path, length(old)))
   vwritef("Done!")
 
   changed <- which(old != new & file.exists(old) & !file.exists(new))
@@ -50,7 +47,7 @@ renv_rehash_cache <- function(cache, confirm, action) {
     return(TRUE)
   }
 
-  if (confirm) {
+  if (prompt) {
 
     fmt <- "%s [%s -> %s]"
     packages <- basename(old)[changed]
@@ -59,11 +56,11 @@ renv_rehash_cache <- function(cache, confirm, action) {
     renv_pretty_print(
       sprintf(fmt, format(packages), format(oldhash), format(newhash)),
       "The following packages will be re-cached:",
-      "Packages will be copied to their new locations in the cache.",
+      sprintf("Packages will be %s to their new locations in the cache.", label),
       wrap = FALSE
     )
 
-    if (confirm && !proceed()) {
+    if (prompt && !proceed()) {
       message("* Operation aborted.")
       return(FALSE)
     }
@@ -79,8 +76,9 @@ renv_rehash_cache <- function(cache, confirm, action) {
   enumerate(targets, renv_progress(action, length(targets)))
   vwritef("Done!")
 
-  fmt <- "* %i %s have been re-cached."
-  vwritef(fmt, length(targets), plural("package", length(targets)))
+  n <- length(targets)
+  fmt <- "Successfully re-cached %i %s."
+  vwritef(fmt, n, plural("package", n))
 
   renv_cache_clean_empty()
 

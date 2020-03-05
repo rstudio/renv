@@ -57,6 +57,14 @@
 #'   errors occur. Only used when the `curl` downloader is used.
 #'   \cr
 #'
+#' `dependency.errors` \tab `character(1)` \tab `"reported"` \tab
+#'   Many `renv` APIs require the enumeration of your project's \R package
+#'   dependencies. This option controls how errors that occur during this
+#'   enumeration are handled. By default, errors are reported but are non-fatal.
+#'   Set this to `"fatal"` to force errors to be fatal, and `"ignored"` to
+#'   ignore errors altogether. See [dependencies] for more details.
+#'   \cr
+#'
 #' `external.libraries` \tab `character[*]` \tab `character()` \tab
 #'   A character vector of external libraries, to be used in tandem with your
 #'   projects. Be careful when using external libraries: it's possible that
@@ -66,6 +74,13 @@
 #'   `xyz 1.1` was present and loaded from an external library. Can also be an
 #'   \R function that provides the paths to external libraries. Library paths
 #'   will be expanded through [.expand_R_libs_env_var] as necessary.
+#'   \cr
+#'
+#' `hydrate.libpaths` \tab `character[*]` \tab `character()` \tab
+#'   A character vector of library paths, to be used by `renv::hydrate()` when
+#'   attempting to hydrate projects. When empty, the default set of library
+#'   paths (as specified in `?hydrate`) are used instead. See [`hydrate`] for
+#'   more details.
 #'   \cr
 #'
 #' `install.staged` \tab `logical[1]` \tab `TRUE` \tab
@@ -78,7 +93,7 @@
 #'   \cr
 #'
 #' `repos.override` \tab `character[*]` \tab `NULL` \tab
-#'   Override the R package repositories used during [restore]. Primarily
+#'   Override the R package repositories used during [`restore`]. Primarily
 #'   useful for deployment / continuous integration, where you might want
 #'   to enforce the usage of some set of repositories over what is defined
 #'   in `renv.lock` or otherwise set by the R session.
@@ -113,6 +128,10 @@
 #'   `renv` will attempt to diagnose potential issues in the project library
 #'   before creating `renv.lock` -- for example, if a package installed in the
 #'   project library depends on a package which is not currently installed.
+#'   \cr
+#'
+#' `synchronized.check` \tab `logical[1]` \tab `TRUE` \tab
+#'   Check that the project library is synchronized with the lockfile on load?
 #'   \cr
 #'
 #' `updates.check` \tab `logical[1]` \tab `FALSE` \tab

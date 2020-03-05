@@ -26,6 +26,10 @@ test_that("requested version in DESCRIPTION file is honored", {
 
 test_that("installation failure is well-reported", {
 
+  # TODO: test seems to fail because a connection gets
+  # left open by utils::package.skeleton()
+  skip_on_os("windows")
+
   owd <- setwd(tempdir())
   on.exit(setwd(owd), add = TRUE)
 
@@ -219,5 +223,27 @@ test_that("renv::install() writes out Github fields for backwards compatibility"
   expect_equal(dcf$RemoteUsername, dcf$GithubUsername)
   expect_equal(dcf$RemoteRef,      dcf$GithubRef)
   expect_equal(dcf$RemoteSha,      dcf$GithubSHA1)
+
+})
+
+test_that("renv uses safe library paths on Windows", {
+  skip_if_not(renv_platform_windows())
+  renv_tests_scope()
+
+  goodlib <- "Research and Development"
+  expect_true(renv_libpaths_safe(goodlib) == goodlib)
+
+  badlib <- "R&D"
+  expect_false(renv_libpaths_safe(badlib) != badlib)
+
+  ensure_directory(badlib)
+  renv_libpaths_set(badlib)
+  install("bread")
+
+  descpath <- file.path(getwd(), "R&D/bread")
+  desc <- renv_description_read(descpath)
+
+  expect_true(desc$Package == "bread")
+  expect_true(desc$Version == "1.0.0")
 
 })

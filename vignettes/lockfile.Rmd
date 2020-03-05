@@ -28,9 +28,6 @@ Here is an example lockfile, including the packages `markdown` and `mime`:
 
 ```
 {
-  "renv": {
-    "Version": "`r renv:::renv_package_version("renv")`"
-  },
   "R": {
     "Version": "`r getRversion()`",
     "Repositories": [

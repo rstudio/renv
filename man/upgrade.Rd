@@ -4,7 +4,7 @@
 \alias{upgrade}
 \title{Upgrade renv}
 \usage{
-upgrade(project = NULL, version = NULL, reload = NULL, confirm = interactive())
+upgrade(project = NULL, version = NULL, reload = NULL, prompt = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -20,7 +20,7 @@ default), \code{renv} will be re-loaded only if updating \code{renv} for the
 active project. Note that this may fail if you've loaded packages
 which also depend on \code{renv}.}
 
-\item{confirm}{Boolean; confirm upgrade before proceeding?}
+\item{prompt}{Boolean; prompt upgrade before proceeding?}
 }
 \value{
 A boolean value, indicating whether the requested version of

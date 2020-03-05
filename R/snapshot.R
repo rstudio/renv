@@ -13,25 +13,33 @@
 #'
 #' \describe{
 #'
-#' \item{`"simple"`}{
+#' \item{`"all"`}{
 #' Capture all packages within the active \R libraries in the lockfile.
 #' This is the quickest and simplest method, but may lead to undesired
 #' packages (e.g. development dependencies) entering the lockfile.
 #' }
 #'
-#' \item{`"packrat"`}{
-#' Perform a Packrat-style snapshot. The intersection of packages discovered in
-#' your \R libraries, alongside those discovered in your \R code by
-#' `renv::dependencies()`, will enter the lockfile. This helps ensure that only
-#' the packages you are using will enter the lockfile, but may be slower if your
-#' project contains a large number of files. If this becomes an issue, you might
+#' \item{`"implicit"`}{
+#' Only capture packages which appear to be used in your project in the
+#' lockfile. The intersection of packages installed in your \R libraries,
+#' alongside those used in your \R code as inferred by `renv::dependencies()`,
+#' will enter the lockfile. This helps ensure that only the packages your
+#' project requires will enter the lockfile, but may be slower if your project
+#' contains a large number of files. If this becomes an issue, you might
 #' consider using `.renvignore` files to limit which files `renv` uses for
 #' dependency discovery, or explicitly declaring your required dependencies in a
-#' `DESCRIPTION` file.
+#' `DESCRIPTION` file. You can also force a dependency on a particular package
+#' by writing e.g. `library(<package>)` into a file called `dependencies.R`.
+#' }
+#'
+#' \item{`"explicit"`}{
+#' Only capture packages which are explicitly listed in the project
+#' `DESCRIPTION` file. This workflow is recommended for users who wish to more
+#' explicitly manage a project's \R package dependencies.
 #' }
 #'
 #' \item{`"custom"`}{
-#' Like `"packrat"`, but use a custom user-defined filter instead. The filter
+#' Like `"implicit"`, but use a custom user-defined filter instead. The filter
 #' should be specified by the \R option `renv.snapshot.filter`, and should
 #' either be a character vector naming a function (e.g. `"package::method"`),
 #' or be a function itself. The function should only accept one argument (the
@@ -41,7 +49,7 @@
 #'
 #' }
 #'
-#' By default, `"packrat"`-style snapshots are used. The snapshot type can be
+#' By default, `"implicit"`-style snapshots are used. The snapshot type can be
 #' configured on a project-specific basis using the `renv` project [settings]
 #' mechanism.
 #'
@@ -56,10 +64,10 @@
 #'   directly instead.
 #'
 #' @param type The type of snapshot to perform. See **Snapshot Type** for
-#'   more details. When `NULL` (the default), a "packrat"-style snapshot
+#'   more details. When `NULL` (the default), an "implicit"-style snapshot
 #'   is performed.
 #'
-#' @param force Boolean; force generation of a lockfile even when preflight
+#' @param force Boolean; force generation of a lockfile even when pre-flight
 #'   validation checks have failed?
 #'
 #' @return The generated lockfile, as an \R object (invisibly). Note that
@@ -75,12 +83,12 @@ snapshot <- function(project  = NULL,
                      library  = NULL,
                      lockfile = file.path(project, "renv.lock"),
                      type     = settings$snapshot.type(project = project),
-                     confirm  = interactive(),
+                     prompt   = interactive(),
                      force    = FALSE)
 {
   renv_consent_check()
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
 
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
@@ -110,7 +118,7 @@ snapshot <- function(project  = NULL,
   # TODO: enable this check for multi-library configurations
   validated <- renv_snapshot_validate(project, new, library)
   if (!validated && !force) {
-    if (confirm && !proceed()) {
+    if (prompt && !proceed()) {
       message("* Operation aborted.")
       return(invisible(new))
     } else if (!interactive()) {
@@ -120,13 +128,13 @@ snapshot <- function(project  = NULL,
 
   # report actions to the user
   actions <- renv_lockfile_diff_packages(old, new)
-  if (confirm || renv_verbose())
+  if (prompt || renv_verbose())
     renv_snapshot_report_actions(actions, old, new)
 
   # request user confirmation
 
   # nocov start
-  if (length(actions) && confirm && !proceed()) {
+  if (length(actions) && prompt && !proceed()) {
     message("* Operation aborted.")
     return(invisible(new))
   }
@@ -667,7 +675,7 @@ renv_snapshot_auto <- function(project) {
   # validation messages can be noisy; turn off for auto snapshot
   status <- local({
     renv_scope_options(renv.config.snapshot.validate = FALSE, renv.verbose = FALSE)
-    catch(snapshot(project = project, confirm = FALSE))
+    catch(snapshot(project = project, prompt = FALSE))
   })
 
   if (inherits(status, "error"))
@@ -680,17 +688,37 @@ renv_snapshot_auto <- function(project) {
 }
 # nocov end
 
+renv_snapshot_dependencies <- function(source) {
+
+  message <- "snapshot aborted"
+  errors <- renv_config("dependency.errors", default = "reported")
+
+  withCallingHandlers(
+    dependencies(source, progress = FALSE, errors = errors),
+    renv.dependencies.error = renv_dependencies_error_handler(message, errors)
+  )
+
+}
+
 renv_snapshot_filter <- function(project, records, type) {
 
   start <- Sys.time()
 
   type <- type %||% settings$snapshot.type(project = project)
+
+  aliases <- list(packrat = "implicit", simple = "all")
+  type <- aliases[[type]] %||% type
+
   result <- switch(type,
-    simple  = renv_snapshot_filter_simple(project, records),
-    packrat = renv_snapshot_filter_packrat(project, records),
-    custom  = renv_snapshot_filter_custom(project, records),
+    all      = renv_snapshot_filter_all(project, records),
+    custom   = renv_snapshot_filter_custom(project, records),
+    explicit = renv_snapshot_filter_explicit(project, records),
+    implicit = renv_snapshot_filter_implicit(project, records),
     stopf("unknown snapshot type '%s'", type)
   )
+
+  if (type %in% c("all", "explicit"))
+    return(result)
 
   end <- Sys.time()
 
@@ -701,7 +729,7 @@ renv_snapshot_filter <- function(project, records, type) {
     lines <- c(
       "NOTE: Dependency discovery took %s %s during snapshot.",
       "Consider using .renvignore to ignore files -- see `?dependencies` for more information.",
-      "Use `renv::settings$snapshot.type(\"simple\")` to disable dependency discovery during snapshot."
+      "Use `renv::settings$snapshot.type(\"all\")` to disable dependency discovery during snapshot."
     )
 
     time <- difftime(end, start, units = "auto")
@@ -723,17 +751,20 @@ renv_snapshot_filter <- function(project, records, type) {
 
 }
 
-renv_snapshot_filter_simple <- function(project, records) {
+renv_snapshot_filter_all <- function(project, records) {
   records
 }
 
-renv_snapshot_filter_packrat <- function(project, records) {
+renv_snapshot_filter_impl <- function(project, records, source) {
 
-  # keep only package records for packages actually used in project
-  deps <- dependencies(project, quiet = TRUE)
+  deps <- renv_snapshot_dependencies(source)
   packages <- unique(c(deps$Package, "renv"))
+
+  # ignore packages as defined by project
   ignored <- renv_project_ignored_packages(project = project)
   used <- setdiff(packages, ignored)
+
+  # include transitive dependencies
   paths <- renv_package_dependencies(used, project = project)
   all <- as.character(names(paths))
   kept <- keep(records, all)
@@ -748,6 +779,23 @@ renv_snapshot_filter_packrat <- function(project, records) {
   }
 
   kept
+
+}
+
+renv_snapshot_filter_implicit <- function(project, records) {
+  renv_snapshot_filter_impl(project, records, project)
+}
+
+renv_snapshot_filter_explicit <- function(project, records) {
+
+  # keep only packages mentioned in the project DESCRIPTION file
+  descpath <- file.path(project, "DESCRIPTION")
+  if (!file.exists(descpath)) {
+    fmt <- "%s does not exist; cannot perform explicit snapshot"
+    stopf(fmt, renv_path_pretty(descpath))
+  }
+
+  renv_snapshot_filter_impl(project, records, descpath)
 
 }
 

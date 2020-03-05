@@ -73,3 +73,34 @@ test_that("renv::init(bare = TRUE) initializes a project without packages", {
   expect_length(files, 0)
 
 })
+
+test_that("init succeeds even if there are parse errors in project", {
+
+  renv_tests_scope()
+  writeLines("oh no", con = "analysis.R")
+  renv::init()
+  expect_true(file.exists("renv.lock"))
+
+})
+
+test_that("init() restores project containing only a lockfile", {
+
+  renv_tests_scope("breakfast")
+  init()
+
+  unlink(".Rprofile")
+  unlink("renv", recursive = TRUE)
+
+  restored <- FALSE
+  trace(renv:::restore, print = FALSE, function() {
+    restored <<- TRUE
+  })
+  init()
+  untrace(renv:::restore)
+
+  expect_true(restored)
+  expect_true(file.exists(".Rprofile"))
+  expect_true(file.exists("renv/activate.R"))
+  expect_true(renv_package_installed("breakfast"))
+
+})

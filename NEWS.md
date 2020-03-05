@@ -1,8 +1,94 @@
 
-# renv 0.9.3 (UNRELEASED)
+# renv 0.9.4 (UNRELEASED)
 
 * `renv` will now transform RSPM source URLs into binary URLs as appropriate,
   allowing `renv` to use RSPM's binary repositories during restore. (#124)
+
+* Fixed an issue where packages referenced using `reticulate::import()`
+  were incorrectly tagged as R package dependencies. Similarly, `renv` now
+  only considers calls to `modules::import()` if those calls occur within
+  a call to `modules::module()`. (#359)
+
+* `renv::scaffold()` now also generates a lockfile when invoked. (#351)
+
+* The arugment `confirm` has been renamed to `prompt` in all places where it
+  is used. `confirm` remains supported for backwards compatibility, but is no
+  longer explicitly documented. (#347)
+
+* The continuous integration `renv` vignette now also contains a template for
+  using `renv` together with GitLab CI. (#348, @artemklevtsov)
+
+* `renv` now properly resets the session library paths when calling
+  `renv::deactivate()` from within RStudio. (#219)
+  
+* `renv::init()` now restores the associated project library when called in a
+  project containing a lockfile but no project library nor any pre-existing
+  project infrastructure.
+
+* Fixed an issue where downloads could fail on Windows when using
+  `method = "wininet"` and R package repositories referenced with a `file://`
+  scheme.
+
+* The configuration option `dependency.errors` has been added, controlling how
+  errors are handled during dependency enumeration. This is used, for
+  example, when enumerating dependencies during a call to `renv::snapshot()`.
+  By default, errors are reported, and (for interactive sessions) the user is
+  prompted to continue. (#342)
+  
+* `renv::dependencies()` gains two new arguments: the `progress` argument
+  controls whether `renv` reports progress while enumerating dependencies,
+  and `errors` controls how `renv` handles and reports errors encountered
+  during dependency discovery. The `quiet` argument is now soft-deprecated,
+  but continues to be supported for backwards compatibility. Specifying
+  `quiet = TRUE` is equivalent to specifying `progress = FALSE` and
+  `errors = "ignored"`. Please see the documentation in `?dependencies`
+  for more details. (#342)
+  
+* The environment variable `RENV_PATHS_LIBRARY_ROOT` can now be set, to
+  instruct `renv` to use a particular directory as a host for any project
+  libraries that are used by `renv`. This can be useful for certain cases
+  where it is cumbersome to include the project library within the project
+  itself; for example, when developing an R package. (#345)
+
+* The code used to bootstrap `renv` (that is, the code used to install `renv`
+  into a project) has been overhauled. (#344)
+
+* `renv` no longer unsets an error handler set within the user profile when
+  loading a project. (#343)
+
+* `renv` gains the "explicit" snapshot type, wherein only packages explicitly
+  listed as dependencies within the project `DESCRIPTION` file (and those
+  package's transitive dependencies) will enter the lockfile when
+  `renv::snapshot()` is called. (#338)
+
+* `renv` will now transform RSPM source URLs into binary URLs as appropriate,
+  allowing `renv` to use RSPM's binary repositories during restore. (#124)
+
+* `renv` will now infer a dependency on `hexbin` in projects that make
+  use of the `ggplot2::geom_hex()` function.
+
+* `renv` now tries to place Rtools on the PATH when a package is installed
+  with the `install.packages()` hook active. (#335)
+
+# renv 0.9.3
+
+* Fixed an issue where attempts to specify `RENV_PATHS_RTOOLS` would
+  be ignored by `renv`. (#335)
+
+* Fixed an issue where downloads could fail when using the `wininet`
+  downloader, typically with a message of the form
+  "InternetOpenUrl failed: 'The requested header was not found'".
+
+* `renv` better handles projects containing special characters on Windows.
+  (#334)
+
+* `renv` better handles unnamed repositories. (#333)
+
+* `renv` gains the config option `hydrate.libpaths`, allowing one to control
+  the library paths used by default for `renv::hydrate()`. (#329)
+
+* `renv::hydrate()` gains the `sources` argument, used to control the library
+  paths used by `renv` when hydrating a project. (#329)
   
 * `renv` now sandboxes the system library by default on Windows.
 

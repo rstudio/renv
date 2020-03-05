@@ -4,7 +4,7 @@
 \alias{purge}
 \title{Purge Packages from the Cache}
 \usage{
-purge(package, ..., version = NULL, hash = NULL, confirm = interactive())
+purge(package, ..., version = NULL, hash = NULL, prompt = interactive())
 }
 \arguments{
 \item{package}{A single package to be removed from the cache.}
@@ -18,7 +18,8 @@ of the requested package will be removed.}
 \item{hash}{The specific hashes to be removed. When \code{NULL}, all hashes
 associated with a particular package's version will be removed.}
 
-\item{confirm}{Boolean; prompt the user before taking any action?}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 }
 \value{
 The set of packages removed from the \code{renv} global cache,

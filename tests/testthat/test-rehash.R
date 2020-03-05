@@ -18,7 +18,7 @@ test_that("rehash() migrates cached packages as expected", {
   expect_match(cached, "/v4/", fixed = TRUE)
 
   Sys.setenv(RENV_CACHE_VERSION = "v5")
-  rehash(confirm = FALSE)
+  rehash(prompt = FALSE)
   cached <- renv_cache_list()
   expect_length(cached, 4L)
   expect_match(cached, "/v5/", fixed = TRUE)

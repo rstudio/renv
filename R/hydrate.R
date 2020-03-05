@@ -3,12 +3,14 @@
 #'
 #' Discover the \R packages used within a project, and then install those
 #' packages into the active library. This effectively allows you to clone the
-#' state of your system R libraries for use within a project library.
+#' state of your default \R libraries for use within a project library.
+#'
+#' @section Sources:
 #'
 #' `hydrate()` attempts to re-use packages already installed on your system,
 #' to avoid unnecessary attempts to download and install packages from remote
-#' sources. `hydrate()` will attempt to discover \R packages from the
-#' following sources (in order):
+#' sources. When `NULL` (the default), `hydrate()` will attempt to discover \R
+#' packages from the following sources (in order):
 #'
 #' - The user library,
 #' - The site library,
@@ -32,6 +34,9 @@
 #' @param library The \R library to be hydrated. When `NULL`, the active
 #'   library as reported by `.libPaths()` is used.
 #'
+#' @param sources A set of library paths from which `renv` should attempt to
+#'   draw packages. See **Sources** for more details.
+#'
 #' @return A named \R list, giving the packages that were used for hydration
 #'   as well as the set of packages which were not found.
 #'
@@ -47,15 +52,16 @@
 hydrate <- function(packages = NULL,
                     ...,
                     library = NULL,
+                    sources = NULL,
                     project = NULL)
 {
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
   project  <- renv_project_resolve(project)
   library  <- library %||% renv_libpaths_default()
 
   # find packages used in this project, and the dependencies of those packages
-  deps <- renv_hydrate_dependencies(project, packages)
+  deps <- renv_hydrate_dependencies(project, packages, sources)
 
   # remove 'renv' since it's managed separately
   deps$renv <- NULL
@@ -86,8 +92,10 @@ hydrate <- function(packages = NULL,
   invisible(result)
 }
 
-renv_hydrate_dependencies <- function(project, packages = NULL) {
-
+renv_hydrate_dependencies <- function(project,
+                                      packages = NULL,
+                                      libpaths = NULL)
+{
   if (is.null(packages)) {
 
     projdeps <- dependencies(project, quiet = TRUE, dev = TRUE)
@@ -104,12 +112,11 @@ renv_hydrate_dependencies <- function(project, packages = NULL) {
   vprintf("* Discovering package dependencies ... ")
   ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
-  libpaths <- renv_hydrate_libpaths()
+  libpaths <- libpaths %||% renv_hydrate_libpaths()
   all <- renv_package_dependencies(packages, project = project, libpaths = libpaths)
   vwritef("Done!")
 
   all
-
 }
 
 # NOTE: we don't want to look in user / site libraries when testing
@@ -117,11 +124,23 @@ renv_hydrate_dependencies <- function(project, packages = NULL) {
 # on CRAN but not that we want to use during tests
 renv_hydrate_libpaths <- function() {
 
+  config <- renv_config("hydrate.libpaths", default = character())
+  if (!is.character(config)) {
+    warning("ignoring non-character 'hydrate.libpaths' option")
+    config <- character()
+  }
+
+  if (is.character(config) && length(config))
+    config <- unlist(strsplit(config, ":", fixed = TRUE))
+
   libpaths <- if (renv_testing())
     renv_libpaths_all()
+  else if (length(config))
+    config
   else
     c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
 
+  libpaths <- .expand_R_libs_env_var(libpaths)
   normalizePath(libpaths, winslash = "/", mustWork = FALSE)
 
 }
@@ -133,7 +152,7 @@ renv_hydrate_link_package <- function(package, location, library) {
 
   # construct path to cache
   record <- renv_snapshot_description(location)
-  cache <- renv_cache_package_path(record)
+  cache <- renv_cache_find(record)
   if (!nzchar(cache))
     return(FALSE)
 

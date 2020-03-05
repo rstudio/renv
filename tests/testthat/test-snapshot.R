@@ -27,7 +27,7 @@ test_that("snapshot failures are reported", {
   output <- tempfile("renv-snapshot-output-")
   local({
     renv_scope_sink(file = output)
-    renv::snapshot(confirm = FALSE)
+    renv::snapshot(prompt = FALSE)
   })
 
   contents <- readLines(output)
@@ -48,7 +48,7 @@ test_that("broken symlinks are reported", {
   output <- tempfile("renv-snapshot-output-")
   local({
     renv_scope_sink(file = output)
-    renv::snapshot(confirm = FALSE)
+    renv::snapshot(prompt = FALSE)
   })
 
   contents <- readLines(output)
@@ -79,7 +79,7 @@ test_that("multiple libraries can be used when snapshotting", {
   expect_true(renv_file_same(dirname(toastloc), lib2))
 
   libs <- c(lib1, lib2)
-  lockfile <- renv::snapshot(lockfile = NULL, library = libs, type = "simple")
+  lockfile <- renv::snapshot(lockfile = NULL, library = libs, type = "all")
   records <- renv_records(lockfile)
 
   expect_length(records, 2L)
@@ -89,14 +89,14 @@ test_that("multiple libraries can be used when snapshotting", {
 
 })
 
-test_that("packrat-style snapshots only include packages currently used", {
+test_that("implicit snapshots only include packages currently used", {
 
   renv_tests_scope("oatmeal")
   renv::init()
 
   # install toast, but don't declare that we use it
   renv::install("toast")
-  lockfile <- snapshot(type = "packrat", lockfile = NULL)
+  lockfile <- snapshot(type = "implicit", lockfile = NULL)
   records <- renv_records(lockfile)
   expect_length(records, 1L)
   expect_setequal(names(records), "oatmeal")
@@ -107,6 +107,22 @@ test_that("packrat-style snapshots only include packages currently used", {
   records <- renv_records(lockfile)
   expect_length(records, 3L)
   expect_setequal(names(records), c("oatmeal", "bread", "toast"))
+
+})
+
+test_that("explicit snapshots only capture packages in DESCRIPTION", {
+
+  renv_tests_scope("breakfast")
+  renv::init()
+
+  desc <- list(Type = "Project", Depends = "toast")
+
+  write.dcf(desc, file = "DESCRIPTION")
+  lockfile <- snapshot(type = "explicit", lockfile = NULL)
+  records <- renv_records(lockfile)
+  expect_true(length(records) == 2L)
+  expect_true(!is.null(records[["bread"]]))
+  expect_true(!is.null(records[["toast"]]))
 
 })
 
@@ -233,4 +249,12 @@ test_that("snapshot prefers RemoteType to biocViews", {
   record <- renv_snapshot_description(descfile)
   expect_identical(record$Source, "GitHub")
 
+})
+
+test_that("parse errors cause snapshot to abort", {
+  renv_tests_scope()
+  writeLines("parse error", con = "parse-error.R")
+  init(bare = TRUE)
+  renv_scope_options(renv.config.dependency.errors = "fatal")
+  expect_error(snapshot())
 })

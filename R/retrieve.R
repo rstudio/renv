@@ -60,7 +60,14 @@ renv_retrieve_impl <- function(package) {
       renv_record_cacheable(record)
 
     if (cacheable) {
-      path <- renv_cache_package_path(record)
+
+      # for packages from a repository without a tagged version,
+      # tag that version now
+      if (identical(record$Source, "Repository") && is.null(record$Version))
+        record <- renv_available_packages_latest(record$Package)
+
+      # now try to find the record in the cache
+      path <- renv_cache_find(record)
       if (renv_cache_package_validate(path))
         return(renv_retrieve_successful(record, path))
     }

@@ -39,7 +39,7 @@ renv_activate_impl <- function(project, version, restart, quiet) {
 
   # ensure renv is installed
   if (!renv_testing())
-    renv_bootstrap_self(project = project)
+    renv_imbue_self(project = project)
 
   # restart session
   if (restart)

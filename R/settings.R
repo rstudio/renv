@@ -23,7 +23,13 @@ renv_settings_validate <- function(name, value) {
 
   # otherwise, validate the user-provided value
   validate <- `_renv_settings`[[name]]$validate
-  if (validate(value))
+  ok <- case(
+    is.character(validate) ~ value %in% validate,
+    is.function(validate)  ~ validate(value),
+    TRUE
+  )
+
+  if (identical(ok, TRUE))
     return(value)
 
   # validation failed; warn the user and use default
@@ -170,12 +176,7 @@ renv_settings_updated_cache <- function(project, old, new) {
   library <- renv_paths_library(project = project)
   targets <- list.files(library, full.names = TRUE)
 
-  sources <- map_chr(targets, function(target) {
-    record <- renv_description_read(target)
-    record$Hash <- renv_hash_description(target)
-    renv_cache_package_path(record)
-  })
-
+  sources <- map_chr(targets, renv_cache_path)
   names(targets) <- sources
 
   if (empty(targets)) {
@@ -303,8 +304,8 @@ renv_settings_impl <- function(name, validate, default, update) {
 #' For example:
 #'
 #' \preformatted{
-#' options(renv.settings = list(snapshot.type = "simple"))
-#' options(renv.settings.snapshot.type = "simple")
+#' options(renv.settings = list(snapshot.type = "all"))
+#' options(renv.settings.snapshot.type = "all")
 #' }
 #'
 #' If both of the `renv.settings` and `renv.settings.<name>` options are set
@@ -350,8 +351,8 @@ settings <- list(
 
   snapshot.type = renv_settings_impl(
     name     = "snapshot.type",
-    validate = function(x) x %in% c("custom", "simple", "packrat"),
-    default  = "packrat",
+    validate = c("all", "custom", "implicit", "explicit", "packrat", "simple"),
+    default  = "implicit",
     update   = NULL
   ),
 

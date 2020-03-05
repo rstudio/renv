@@ -84,16 +84,14 @@ is large, this can dramatically increase the amount of time it takes to build
 your package.
 
 One way to resolve this issue is to force `renv` to use a library path that
-lives outside of your project. For example, you might set the following in your
-project `.Renviron`:
+lives outside of your project. For example, you might set the following in
+a start-up `.Renviron` file:
 
 ```
-RENV_PATHS_LIBRARY = ~/.renv/library/<package>
+RENV_PATHS_LIBRARY_ROOT = ~/.renv/library
 ```
 
-where `<package>` is the name of your package project. Note that if you're
-testing your package with continuous integration systems, you may need to
-unset this environment variable before tests are run.
+`renv` will then form library paths within this directory.
 
 
 

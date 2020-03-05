@@ -1,4 +1,10 @@
 
+renv_hash_text <- function(text) {
+  hashfile <- renv_tempfile("renv-hash-")
+  writeLines(text, con = hashfile)
+  tools::md5sum(hashfile)
+}
+
 renv_hash_description <- function(path) {
   renv_filebacked("hash", path, renv_hash_description_impl)
 }

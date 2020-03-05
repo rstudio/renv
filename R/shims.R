@@ -1,17 +1,14 @@
 
 `_renv_shims` <- new.env(parent = emptyenv())
 
-renv_delegate <- function(delegate) {
-  call <- sys.call(sys.parent())
-  call[[1]] <- substitute(delegate)
-  eval(call, envir = parent.frame(2))
-}
-
 renv_shim_install_packages <- function(pkgs, ...) {
+
+  # place Rtools on PATH
+  renv_scope_rtools()
 
   # currently we only handle the case where only 'pkgs' was specified
   if (missing(pkgs) || nargs() != 1)
-    return(renv_delegate(utils::install.packages))
+    return(delegate(utils::install.packages))
 
   # otherwise, we get to handle it
   install(pkgs)
@@ -22,7 +19,7 @@ renv_shim_update_packages <- function(lib.loc = NULL, ...) {
 
   # handle only 0-argument case
   if (nargs() != 0)
-    return(renv_delegate(utils::update.packages))
+    return(delegate(utils::update.packages))
 
   update(library = lib.loc)
 
@@ -32,7 +29,7 @@ renv_shim_remove_packages <- function(pkgs, lib) {
 
   # handle single-argument case
   if (nargs() != 1)
-    return(renv_delegate(utils::remove.packages))
+    return(delegate(utils::remove.packages))
 
   remove(pkgs)
 

@@ -12,7 +12,7 @@ restore(
   packages = NULL,
   repos = NULL,
   clean = FALSE,
-  confirm = interactive()
+  prompt = interactive()
 )
 }
 \arguments{
@@ -45,7 +45,8 @@ repository override.}
 the target library? Use \code{clean = TRUE} if you'd like the library state
 to exactly reflect the lockfile contents after \code{restore()}.}
 
-\item{confirm}{Boolean; prompt the user before taking any action?}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 }
 \value{
 A named list of package records which were installed by \code{renv}.

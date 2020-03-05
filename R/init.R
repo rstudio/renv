@@ -46,7 +46,8 @@
 #'   `.Rprofile` to load the project.
 #'
 #' - `renv/.gitignore`: This is used to instruct Git to ignore the project's
-#'   private library, as it does not need to be
+#'   private library, as it should normally not be committed to a version
+#'   control repository.
 #'
 #' - `.Rbuildignore`: to ensure that the `renv` directory is ignored during
 #'   package development; e.g. when attempting to build or install a package
@@ -56,13 +57,17 @@
 #'
 #' @param project The project directory. The \R working directory will be
 #'   changed to match the requested project directory.
+#'
 #' @param settings A list of [settings] to be used with the newly-initialized
 #'   project.
+#'
 #' @param bare Boolean; initialize the project without attempting to discover
 #'   and install R package dependencies?
+#'
 #' @param force Boolean; force initialization? By default, `renv` will refuse
 #'   to initialize the home directory as a project, to defend against accidental
-#'   misusages of `init()`.
+#'   mis-usages of `init()`.
+#'
 #' @param restart Boolean; attempt to restart the \R session after initializing
 #'   the project? A session restart will be attempted if the `"restart"` \R
 #'   option is set by the frontend embedding \R.
@@ -79,13 +84,17 @@ init <- function(project = NULL,
 {
   renv_consent_check()
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
+
+  project <- project %||% getwd()
 
   # prepare and move into project directory
-  project <- project %||% getwd()
   renv_init_validate_project(project, force)
   renv_init_settings(project, settings)
   setwd(project)
+
+  # collect dependencies
+  renv_dependencies_scope(project, action = "init")
 
   # be quiet in RStudio projects (as we will normally restart automatically)
   quiet <- !is.null(getOption("restart"))
@@ -112,13 +121,13 @@ init <- function(project = NULL,
   if (action == "init") {
     vwritef("* Initializing project ...")
     renv_libpaths_activate(project = project)
-    renv_bootstrap_impl(project)
+    renv_imbue_impl(project)
     hydrate(project = project, library = library)
-    snapshot(project = project, library = library, confirm = FALSE)
+    snapshot(project = project, library = library, prompt = FALSE)
   } else if (action == "restore") {
     vwritef("* Restoring project ... ")
     ensure_directory(library)
-    restore(project = project, confirm = FALSE)
+    restore(project = project, library = library, prompt = FALSE)
   }
 
   # activate the newly-hydrated project
@@ -130,28 +139,41 @@ init <- function(project = NULL,
 
 renv_init_action <- function(project, library, lockfile) {
 
-  has_library  <- file.exists(library)
-  has_lockfile <- file.exists(lockfile)
-
   # figure out appropriate action
   action <- case(
 
-    has_lockfile && has_library  ~ "ask",
-    has_lockfile && !has_library ~ "restore",
+    file.exists(lockfile) && file.exists(library)  ~ "lockfile",
+    file.exists(lockfile) && !file.exists(library) ~ "restore",
 
-    !has_lockfile && has_library  ~ "ask",
-    !has_lockfile && !has_library ~ "init"
+    !file.exists(lockfile) && file.exists(library)  ~ "library",
+    !file.exists(lockfile) && !file.exists(library) ~ "init"
 
   )
 
-  # ask the user for an action to take when required
-  if (interactive() && action == "ask") {
+  if (interactive() && action == "lockfile") {
 
     title <- "This project already has a lockfile. What would you like to do?"
     choices <- c(
       restore = "Restore the project from the lockfile.",
       init    = "Discard the lockfile and re-initialize the project.",
       nothing = "Activate the project without snapshotting or installing any packages."
+    )
+
+    selection <- tryCatch(
+      utils::select.list(choices, title = title, graphics = FALSE),
+      interrupt = function(e) ""
+    )
+
+    action <- names(selection)
+
+  }
+
+  if (interactive() && action == "library") {
+
+    title <- "This project already has a private library. What would you like to do?"
+    choices <- c(
+      nothing = "Activate the project and use the existing library.",
+      init    = "Re-initialize the project with a new library."
     )
 
     selection <- tryCatch(

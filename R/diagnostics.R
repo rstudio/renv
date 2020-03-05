@@ -94,7 +94,7 @@ renv_diagnostics_library <- function(project) {
   lockfile <- snapshot(project = project,
                        library = library,
                        lockfile = NULL,
-                       type = "simple")
+                       type = "all")
 
   records <- renv_records(lockfile)
   vwritef("The are %i package(s) installed in the project library.", length(records))
@@ -106,7 +106,11 @@ renv_diagnostics_dependencies <- function(project) {
 
   vwritef(header("Dependencies"))
 
-  deps <- dependencies(project, quiet = TRUE, dev = TRUE)
+  deps <- dependencies(project,
+                       progress = FALSE,
+                       errors = "reported",
+                       dev = TRUE)
+
   if (empty(deps))
     return(vwritef("[no usages of R packages discovered in this project]"))
 
@@ -123,7 +127,11 @@ renv_diagnostics_profile <- function(project) {
   if (!file.exists(userprofile))
     return(vwritef("[no user profile detected]"))
 
-  deps <- dependencies(userprofile, quiet = TRUE, dev = TRUE)
+  deps <- dependencies(userprofile,
+                       progress = FALSE,
+                       errors = "reported",
+                       dev = TRUE)
+
   if (empty(deps))
     return(vwritef("[no R packages referenced in user profile"))
 

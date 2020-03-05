@@ -12,7 +12,10 @@ renv_cache_version_previous <- function() {
   paste("v", number - 1L, sep = "")
 }
 
-renv_cache_package_path <- function(record) {
+# given a package record, find a compatible version
+# of that package in the cache, using a computed hash if
+# available or trying to find a compatible package if not
+renv_cache_find <- function(record) {
 
   # validate required fields -- if any are missing, we can't use the cache
   required <- c("Package", "Version")
@@ -67,6 +70,26 @@ renv_cache_package_path <- function(record) {
 
 }
 
+# given the path to a package's description file,
+# compute the location it would be assigned if it
+# were moved to the renv cache
+renv_cache_path <- function(path) {
+  record <- renv_description_read(path)
+  record$Hash <- renv_hash_description(path)
+  renv_cache_find(record)
+}
+
+renv_cache_path_components <- function(path, name) {
+
+  data.frame(
+    Package = renv_path_component(path, 1L),
+    Hash    = renv_path_component(path, 2L),
+    Version = renv_path_component(path, 3L),
+    stringsAsFactors = FALSE
+  )
+
+}
+
 renv_cache_synchronize <- function(record, linkable = FALSE) {
 
   # construct path to package in library
@@ -90,7 +113,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   record$Hash <- record$Hash %||% renv_hash_description(path)
 
   # construct cache entry
-  cache <- renv_cache_package_path(record)
+  cache <- renv_cache_find(record)
   if (!nzchar(cache))
     return(FALSE)
 
@@ -163,8 +186,8 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
   # nocov end
 
   path    <- dirname(bad)
-  package <- renv_path_component(bad, 1)
-  version <- renv_path_component(bad, 3)
+  package <- renv_path_component(bad, 1L)
+  version <- renv_path_component(bad, 3L)
 
   data <- data.frame(
     Package = package,
@@ -181,28 +204,19 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
 renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
 
-  hash <- renv_path_component(paths, 2)
-  computed <- map_chr(paths, renv_hash_description)
-  diff <- hash != computed
-
-  bad <- names(computed)[diff]
-  if (empty(bad))
+  expected <- map_chr(paths, renv_cache_path)
+  wrong <- paths != expected & !file.exists(expected)
+  if (!any(wrong))
     return(paths)
-
-  package <- renv_path_component(bad, 1)
-  version <- renv_path_component(bad, 3)
 
   # nocov start
   if (verbose) {
 
+    lhs <- renv_cache_path_components(paths[wrong])
+    rhs <- renv_cache_path_components(expected[wrong])
+
     fmt <- "%s %s [Hash: %s != %s]"
-    entries <- sprintf(
-      fmt,
-      format(package),
-      format(version),
-      format(hash[diff]),
-      format(computed[diff])
-    )
+    entries <- sprintf(fmt, lhs$Package, lhs$Version, lhs$Hash, rhs$Hash)
 
     renv_pretty_print(
       entries,
@@ -214,9 +228,9 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
   # nocov end
 
   data <- data.frame(
-    Package = package,
-    Version = version,
-    Path    = dirname(bad),
+    Package = renv_path_component(paths[wrong], 1L),
+    Version = renv_path_component(paths[wrong], 3L),
+    Path    = paths[wrong],
     Reason  = "badhash",
     stringsAsFactors = FALSE
   )

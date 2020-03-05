@@ -1,11 +1,26 @@
 
+renv_extsoft_curl_version <- function() {
+  "7.68.0"
+}
+
 renv_extsoft_install <- function(quiet = FALSE) {
 
   extsoft <- renv_paths_extsoft()
+
   ensure_directory(extsoft)
+  ensure_directory(file.path(extsoft, "lib/i386"))
+  ensure_directory(file.path(extsoft, "lib/x64"))
 
   root <- "https://s3.amazonaws.com/rstudio-buildtools/extsoft"
-  files <- c("local323.zip", "spatial324.zip", "curl-7.64.1_1-win32-mingw.zip")
+
+  files <- c(
+    sprintf("curl-%s-win32-mingw.zip", renv_extsoft_curl_version()),
+    "glpk32.zip",
+    "glpk64.zip",
+    "local323.zip",
+    "nlopt-2.4.2.zip",
+    "spatial324.zip"
+  )
 
   # check for missing installs
   files <- Filter(renv_extsoft_install_required, files)
@@ -40,11 +55,37 @@ renv_extsoft_install <- function(quiet = FALSE) {
     # write manifest
     manifest <- renv_extsoft_manifest_path(file)
     ensure_parent_directory(manifest)
-    listed <- unzip(destfile, list = TRUE)
-    saveRDS(listed, file = manifest)
+
+    before <- list.files(extsoft, recursive = TRUE)
 
     # unpack archive
-    unzip(destfile, exdir = extsoft)
+    if (file == "glpk32.zip") {
+
+      unzip(destfile, files = "include/glpk.h", exdir = extsoft)
+      unzip(destfile, exdir = file.path(extsoft, "lib/i386", junkpaths = TRUE))
+
+    } else if (file == "glpk64.zip") {
+
+      unzip(destfile, files = "include/glpk.h", exdir = extsoft)
+      unzip(destfile, exdir = file.path(extsoft, "lib/x64", junkpaths = TRUE))
+
+    } else if (file == "nlopt-2.4.2.zip") {
+
+      unzip(destfile, exdir = extsoft)
+
+      file.copy(file.path(extsoft, "nlopt-2.4.2/include"), extsoft, recursive = TRUE)
+      file.copy(file.path(extsoft, "nlopt-2.4.2/lib"), extsoft, recursive = TRUE)
+      unlink(file.path(extsoft, "nlopt-2.4.2"), recursive = TRUE)
+
+
+    } else {
+
+      unzip(destfile, exdir = extsoft)
+
+    }
+
+    after <- list.files(extsoft, recursive = TRUE)
+    writeLines(setdiff(after, before), con = manifest)
 
   }
 
@@ -59,13 +100,11 @@ renv_extsoft_install_required <- function(file) {
   if (!file.exists(manifest))
     return(TRUE)
 
-  db <- catch(readRDS(manifest))
-  if (inherits(db, "error"))
-    return(TRUE)
+  files <- catch(readLines(manifest, warn = FALSE))
+  if (inherits(files, "error"))
+    return(FALSE)
 
-  # TODO: could also validate file sizes
-  names <- db$Name
-  paths <- renv_paths_extsoft(names)
+  paths <- renv_paths_extsoft(files)
   !all(file.exists(paths))
 
 }
@@ -122,5 +161,5 @@ renv_extsoft_use <- function(quiet = FALSE) {
 
 renv_extsoft_manifest_path <- function(file) {
   name <- paste(file, "manifest", sep = ".")
-  renv_paths_extsoft("manifest", name)
+  renv_paths_extsoft("manifests", name)
 }

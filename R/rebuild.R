@@ -35,13 +35,13 @@
 rebuild <- function(packages  = NULL,
                     recursive = TRUE,
                     ...,
-                    confirm = interactive(),
+                    prompt  = interactive(),
                     library = NULL,
                     project = NULL)
 {
   renv_consent_check()
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
 
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
@@ -66,7 +66,7 @@ rebuild <- function(packages  = NULL,
 
   renv_pretty_print_records(records, preamble)
 
-  if (confirm && !proceed()) {
+  if (prompt && !proceed()) {
     message("Operation aborted.")
     return(invisible(records))
   }

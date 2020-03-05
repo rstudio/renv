@@ -1,4 +1,19 @@
 
+renv_scope_tempdir <- function(pattern = "renv-tempdir-", .envir = NULL) {
+
+  dir <- tempfile(pattern)
+  ensure_directory(dir)
+  owd <- setwd(dir)
+
+  .envir <- .envir %||% parent.frame()
+
+  defer({
+    setwd(owd)
+    unlink(dir, recursive = TRUE)
+  }, envir = .envir)
+
+}
+
 renv_scope_auth <- function(record, .envir = NULL) {
 
   package <- record$Package
@@ -87,11 +102,18 @@ renv_scope_error_handler <- function(.envir = NULL) {
 
   error <- getOption("error")
   if (!is.null(error))
-    return()
+    return(FALSE)
+
+  call <- renv_error_handler_call()
+  options(error = call)
 
   .envir <- .envir %||% parent.frame()
-  defer(options(error = error), envir = .envir)
-  options(error = renv_error_handler)
+  defer({
+    if (identical(getOption("error"), call))
+      options(error = error)
+  }, envir = .envir)
+
+  TRUE
 
 }
 
@@ -107,7 +129,8 @@ renv_scope_downloader <- function(.envir = NULL) {
   if (nzchar(Sys.which("curl")))
     return(FALSE)
 
-  curl <- renv_paths_extsoft("curl-7.64.1-win32-mingw/bin/curl.exe")
+  curlroot <- sprintf("curl-%s-win32-mingw", renv_extsoft_curl_version())
+  curl <- renv_paths_extsoft(curlroot, "bin/curl.exe")
   if (!file.exists(curl))
     return(FALSE)
 
@@ -135,12 +158,21 @@ renv_scope_rtools <- function(.envir = NULL) {
     return(FALSE)
 
   # add Rtools bin to PATH
-  bin <- renv_path_normalize(file.path(rtools, "bin"), winslash = "\\")
-  path <- paste(bin, Sys.getenv("PATH"), sep = ";")
+  bin <- normalizePath(
+    file.path(rtools, "bin"),
+    winslash = "\\",
+    mustWork = FALSE
+  )
+
+  path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
   # set BINPREF (note: trailing slash required but file.path()
   # drops trailing slashes on Windows)
-  binpref <- paste(rtools, "mingw_$(WIN)/bin/", sep = "/")
+  binpref <- paste(
+    normalizePath(rtools, winslash = "/", mustWork = FALSE),
+    "mingw_$(WIN)/bin/",
+    sep = "/"
+  )
 
   # scope envvars in parent
   .envir <- .envir %||% parent.frame()

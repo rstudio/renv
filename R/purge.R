@@ -38,18 +38,18 @@
 purge <- function(package,
                   ...,
                   version = NULL,
-                  hash = NULL,
-                  confirm = interactive())
+                  hash    = NULL,
+                  prompt  = interactive())
 {
   renv_scope_error_handler()
-  renv_dots_disallow(...)
-  invisible(renv_purge_impl(package, version, hash, confirm))
+  renv_dots_check(...)
+  invisible(renv_purge_impl(package, version, hash, prompt))
 }
 
 renv_purge_impl <- function(package,
                             version = NULL,
                             hash = NULL,
-                            confirm = interactive())
+                            prompt = interactive())
 {
   if (length(package) != 1)
     stop("argument 'package' is not of length one", call. = FALSE)
@@ -99,7 +99,7 @@ renv_purge_impl <- function(package,
   }
 
   # nocov start
-  if (confirm || renv_verbose()) {
+  if (prompt || renv_verbose()) {
 
     renv_pretty_print(
       renv_cache_format_path(paths),
@@ -107,7 +107,7 @@ renv_purge_impl <- function(package,
       wrap = FALSE
     )
 
-    if (confirm && !proceed()) {
+    if (prompt && !proceed()) {
       message("Operation aborted.")
       return(paths)
     }

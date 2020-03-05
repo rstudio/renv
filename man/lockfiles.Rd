@@ -20,9 +20,6 @@ While lockfiles are normally generated and used with \code{\link[=snapshot]{snap
 written as \code{.json}, to allow for easy consumption by other tools.
 
 An example lockfile follows:\preformatted{\{
-  "renv": \{
-    "Version": "1.0.0"
-  \},
   "R": \{
     "Version": "3.6.1",
     "Repositories": [

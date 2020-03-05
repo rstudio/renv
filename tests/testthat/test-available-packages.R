@@ -20,9 +20,29 @@ test_that("renv handles multiple available source packages", {
   entries <- cran[cran$Package == "breakfast", ]
   expect_true(nrow(entries) == 2)
 
-  entry <- renv_available_packages_entry("breakfast", "source")
+  entry <- renv_available_packages_entry(
+    package = "breakfast",
+    type    = "source"
+  )
+
   expect_true(nrow(entry) == 1)
   expect_true(entry$Package == "breakfast")
   expect_true(entry$Version == "1.0.0")
+
+})
+
+test_that("renv_available_packages() succeeds with unnamed repositories", {
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(repos = unname(getOption("repos")))
+
+  entry <- renv_available_packages_entry(
+    package = "breakfast",
+    type    = "source",
+    filter  = "1.0.0"
+  )
+
+  expect_identical(entry$Package, "breakfast")
+  expect_identical(entry$Version, "1.0.0")
 
 })

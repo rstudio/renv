@@ -4,7 +4,7 @@
 \alias{clean}
 \title{Clean a Project}
 \usage{
-clean(project = NULL, ..., confirm = interactive())
+clean(project = NULL, ..., prompt = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -14,7 +14,8 @@ directory is used instead.}
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
 
-\item{confirm}{Boolean; prompt the user before taking any action?}
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 }
 \value{
 The project directory, invisibly. Note that this function is normally

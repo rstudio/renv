@@ -23,10 +23,14 @@ status <- function(project = NULL,
                    lockfile = NULL)
 {
   renv_scope_error_handler()
-  renv_dots_disallow(...)
+  renv_dots_check(...)
+
   project <- renv_project_resolve(project)
+  renv_dependencies_scope(project, action = "status")
+
   library <- library %||% renv_libpaths_all()
   lockpath <- lockfile %||% renv_lockfile_path(project)
+
   invisible(renv_status_impl(project, library, lockpath))
 }
 
@@ -43,7 +47,6 @@ renv_status_impl <- function(project, library, lockpath) {
 
   renv_status_check_synchronized(
     project  = project,
-    lockpath = lockpath,
     lockfile = lockfile,
     library  = library,
     libstate = libstate
@@ -101,7 +104,7 @@ renv_status_check_used_packages <- function(project, libstate) {
 
   db <- renv_installed_packages_base()
 
-  deps <- dependencies(project, quiet = TRUE)
+  deps <- dependencies(project, progress = FALSE)
   used <- sort(unique(deps$Package))
   records <- renv_records(libstate)
 
@@ -165,7 +168,6 @@ renv_status_check_unknown_sources <- function(project, lockfile) {
 }
 
 renv_status_check_synchronized <- function(project,
-                                           lockpath,
                                            lockfile,
                                            library,
                                            libstate)
@@ -201,9 +203,9 @@ renv_status_check_synchronized <- function(project,
     # installed in the project library anymore
     records <- renv_records_select(lockfile, actions, "remove")
 
-    if (settings$snapshot.type() == "packrat") {
+    if (settings$snapshot.type() %in% c("implicit", "packrat")) {
 
-      deps <- dependencies(quiet = TRUE)
+      deps <- dependencies(project, progress = FALSE)
       pkgpaths <- renv_package_dependencies(
         packages = unique(deps$Package),
         project = project,
