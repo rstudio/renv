@@ -47,7 +47,6 @@ renv_status_impl <- function(project, library, lockpath) {
 
   renv_status_check_synchronized(
     project  = project,
-    lockpath = lockpath,
     lockfile = lockfile,
     library  = library,
     libstate = libstate
@@ -169,7 +168,6 @@ renv_status_check_unknown_sources <- function(project, lockfile) {
 }
 
 renv_status_check_synchronized <- function(project,
-                                           lockpath,
                                            lockfile,
                                            library,
                                            libstate)
