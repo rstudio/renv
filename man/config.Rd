@@ -135,6 +135,10 @@ before creating \code{renv.lock} -- for example, if a package installed in the
 project library depends on a package which is not currently installed.
 \cr
 
+\code{synchronized.check} \tab \code{logical[1]} \tab \code{TRUE} \tab
+Check that the project library is synchronized with the lockfile on load?
+\cr
+
 \code{updates.check} \tab \code{logical[1]} \tab \code{FALSE} \tab
 Check for package updates when the session is initialized?
 This can be useful if you'd like to ensure that your project lockfile

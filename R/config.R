@@ -130,6 +130,10 @@
 #'   project library depends on a package which is not currently installed.
 #'   \cr
 #'
+#' `synchronized.check` \tab `logical[1]` \tab `TRUE` \tab
+#'   Check that the project library is synchronized with the lockfile on load?
+#'   \cr
+#'
 #' `updates.check` \tab `logical[1]` \tab `FALSE` \tab
 #'   Check for package updates when the session is initialized?
 #'   This can be useful if you'd like to ensure that your project lockfile

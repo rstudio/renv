@@ -171,10 +171,12 @@ renv_project_id <- function(project) {
 }
 
 renv_project_synchronized_check <- function(project, lockfile) {
+
   library <- renv_libpaths_all()
 
   quietly({
-    library_state <- snapshot(
+
+    libstate <- snapshot(
       project  = project,
       library  = library,
       lockfile = NULL,
@@ -185,12 +187,13 @@ renv_project_synchronized_check <- function(project, lockfile) {
       project  = project,
       lockfile = lockfile,
       library  = library,
-      libstate = library_state
+      libstate = libstate
     )
+
   })
 
   if (!synchronized) {
-    msg <- "The project and lockfile are out of sync. Use `renv::status()` to view details."
+    msg <- "* The project and lockfile are out of sync -- use `renv::status()` for more details."
     warning(msg, call. = FALSE)
   }
 
