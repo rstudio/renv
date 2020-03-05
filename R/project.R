@@ -194,7 +194,7 @@ renv_project_synchronized_check <- function(project, lockfile) {
 
   if (!synchronized) {
     msg <- "* The project and lockfile are out of sync -- use `renv::status()` for more details."
-    ewritef(msg, call. = FALSE)
+    ewritef(msg)
   }
 
 }
