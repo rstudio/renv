@@ -1,6 +1,9 @@
 
 # renv 0.9.4 (UNRELEASED)
 
+* renv will now attempt to re-generate the system library sandbox if it is
+  deleted while a session is active. (#361)
+
 * Fixed an issue where packages referenced using `reticulate::import()`
   were incorrectly tagged as R package dependencies. Similarly, `renv` now
   only considers calls to `modules::import()` if those calls occur within

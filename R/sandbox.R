@@ -22,23 +22,10 @@ renv_sandbox_activate_impl <- function(project) {
   syslibs <- c(renv_libpaths_site(), renv_libpaths_system())
   syslibs <- renv_path_normalize(syslibs, winslash = "/", mustWork = FALSE)
 
-  # create a temporary library
+  # generate the sandbox
   sandbox <- file.path(tempdir(), "renv-system-library")
   ensure_directory(sandbox)
-
-  # find system packages in the system library
-  syspkgs <- renv_installed_packages(
-    lib.loc = renv_libpaths_system(),
-    priority = c("base", "recommended")
-  )
-
-  # link into temporary library
-  sources <- with(syspkgs, file.path(LibPath, Package))
-  targets <- with(syspkgs, file.path(sandbox, Package))
-  names(targets) <- sources
-  enumerate(targets, function(source, target) {
-    renv_file_link(source, target)
-  })
+  renv_sandbox_generate(sandbox)
 
   # override .Library, .Library.site
   base <- .BaseNamespaceEnv
@@ -52,6 +39,10 @@ renv_sandbox_activate_impl <- function(project) {
   # protect against user profiles that might try
   # to update the library paths
   renv_sandbox_activate_check(newlibs)
+
+  # add a callback that double-checks the sandbox is active
+  # and working as intended
+  addTaskCallback(renv_sandbox_task)
 
   # return new library paths
   renv_libpaths_all()
@@ -93,6 +84,27 @@ renv_sandbox_activate_check <- function(libs) {
 
 }
 
+renv_sandbox_generate <- function(sandbox) {
+
+  # find system packages in the system library
+  syspkgs <- renv_installed_packages(
+    lib.loc = renv_libpaths_system(),
+    priority = c("base", "recommended")
+  )
+
+  # link into temporary library
+  sources <- with(syspkgs, file.path(LibPath, Package))
+  targets <- with(syspkgs, file.path(sandbox, Package))
+  names(targets) <- sources
+  enumerate(targets, function(source, target) {
+    renv_file_link(source, target)
+  })
+
+  # return sandbox path
+  sandbox
+
+}
+
 renv_sandbox_deactivate <- function() {
 
   # get library paths sans .Library, .Library.site
@@ -109,5 +121,20 @@ renv_sandbox_deactivate <- function() {
   renv_libpaths_set(new)
 
   renv_libpaths_all()
+
+}
+
+renv_sandbox_task <- function(...) {
+
+  if (!renv_config("sandbox.enabled", default = TRUE))
+    return(FALSE)
+
+  sandbox <- tail(.libPaths(), n = 1L)
+  if (!file.exists(sandbox)) {
+    warning("the renv sandbox was deleted; it will be re-generated", call. = FALSE)
+    renv_sandbox_generate(sandbox)
+  }
+
+  TRUE
 
 }

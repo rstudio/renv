@@ -4,7 +4,7 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://cloud.r-project.org"
+        "URL": "https://cran.rstudio.com"
       }
     ]
   },
@@ -102,10 +102,10 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "2.0.1",
+      "Version": "2.0.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "5173d8ab28680cf263636b110f4f3220"
+      "Hash": "ff0becff7bfdfe3f75d29aff8f3172dd"
     },
     "clipr": {
       "Package": "clipr",
@@ -179,10 +179,10 @@
     },
     "digest": {
       "Package": "digest",
-      "Version": "0.6.24",
+      "Version": "0.6.25",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "dc0030cea0d85397ba3ba5b930c82c6a"
+      "Hash": "f697db7d92b7028c4b3436e9603fb636"
     },
     "ellipsis": {
       "Package": "ellipsis",
@@ -340,10 +340,10 @@
     },
     "lattice": {
       "Package": "lattice",
-      "Version": "0.20-38",
+      "Version": "0.20-40",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "848f8c593fd1050371042d18d152e3d7"
+      "Hash": "61339152c288b871facca5f68f401f89"
     },
     "lazyeval": {
       "Package": "lazyeval",
@@ -466,10 +466,10 @@
     },
     "plyr": {
       "Package": "plyr",
-      "Version": "1.8.5",
+      "Version": "1.8.6",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "3f1b0dbcc503320e6e7aae6c3ff87eaa"
+      "Hash": "ec0e5ab4e5f851f6ef32cd1d1984957f"
     },
     "praise": {
       "Package": "praise",
@@ -543,15 +543,10 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.9.3-26",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "rstudio",
-      "RemoteRepo": "renv",
-      "RemoteRef": "master",
-      "RemoteSha": "7811ff6b72b1b959aabffead6a100aa600a255d3",
-      "Hash": "41e6c394ef3036383af0571f99a80631"
+      "Version": "0.9.3-48",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "4dd1b733a63db9e553e1e4dddc22151f"
     },
     "reshape2": {
       "Package": "reshape2",
@@ -576,10 +571,10 @@
     },
     "rlang": {
       "Package": "rlang",
-      "Version": "0.4.4",
+      "Version": "0.4.5",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "09a36f36a13436be327dad3d000c8dd3"
+      "Hash": "1cc1b38e4db40ea6eb19ab8080bbed3b"
     },
     "rmarkdown": {
       "Package": "rmarkdown",
@@ -667,10 +662,10 @@
     },
     "testthat": {
       "Package": "testthat",
-      "Version": "2.3.1",
+      "Version": "2.3.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "68dad590f6445cdcdaa5b7eec60e9686"
+      "Hash": "0829b987b8961fb07f3b1b64a2fbc495"
     },
     "tibble": {
       "Package": "tibble",
@@ -681,10 +676,10 @@
     },
     "tinytex": {
       "Package": "tinytex",
-      "Version": "0.19",
+      "Version": "0.20",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "b1c0c22cab714ec9ce9472a8073b6922"
+      "Hash": "d2cef450cbbf081b4a2ef1067fae9f32"
     },
     "usethis": {
       "Package": "usethis",
@@ -695,8 +690,8 @@
       "RemoteUsername": "r-lib",
       "RemoteRepo": "usethis",
       "RemoteRef": "master",
-      "RemoteSha": "1ffe47239c0a447ebe577e929cecf85cecb8c652",
-      "Hash": "eb92407762273a48b8cde945961a53bf"
+      "RemoteSha": "2a3d1347e3bee25fbaaca766b42bc93de2de0563",
+      "Hash": "ae44054297aa1fc50abc2436343258e9"
     },
     "utf8": {
       "Package": "utf8",
@@ -707,17 +702,17 @@
     },
     "uuid": {
       "Package": "uuid",
-      "Version": "0.1-2",
+      "Version": "0.1-4",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "a7b4e18971d6981361712704c76f50f3"
+      "Hash": "e4169eb989a5d03ccb6b628cad1b1b50"
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.2.2",
+      "Version": "0.2.3",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "a1de558a76d2843a10f766209b9a545f"
+      "Hash": "2c0f41d87be7a186139a6d3d5215848e"
     },
     "viridisLite": {
       "Package": "viridisLite",
