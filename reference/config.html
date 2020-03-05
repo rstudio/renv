@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.44</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.48</span>
       </span>
     </div>
 
@@ -245,6 +245,7 @@ appropriate.</td></tr>
 <code>renv</code> will attempt to diagnose potential issues in the project library
 before creating <code>renv.lock</code> -- for example, if a package installed in the
 project library depends on a package which is not currently installed.</td></tr>
+<tr><td><code>synchronized.check</code></td><td><code>logical[1]</code></td><td><code>TRUE</code></td><td>Check that the project library is synchronized with the lockfile on load?</td></tr>
 <tr><td><code>updates.check</code></td><td><code>logical[1]</code></td><td><code>FALSE</code></td><td>Check for package updates when the session is initialized?
 This can be useful if you'd like to ensure that your project lockfile
 remains up-to-date with packages as they are released on CRAN.</td></tr>
