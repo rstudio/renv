@@ -12,6 +12,10 @@
 
 }
 
+.onAttach <- function(libname, pkgname) {
+  renv_rstudio_fixup()
+}
+
 renv_zzz_run <- function() {
 
   # only run when devtools::document() is called
