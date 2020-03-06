@@ -62,12 +62,12 @@ renv_extsoft_install <- function(quiet = FALSE) {
     if (file == "glpk32.zip") {
 
       unzip(destfile, files = "include/glpk.h", exdir = extsoft)
-      unzip(destfile, exdir = file.path(extsoft, "lib/i386", junkpaths = TRUE))
+      unzip(destfile, exdir = file.path(extsoft, "lib/i386"), junkpaths = TRUE)
 
     } else if (file == "glpk64.zip") {
 
       unzip(destfile, files = "include/glpk.h", exdir = extsoft)
-      unzip(destfile, exdir = file.path(extsoft, "lib/x64", junkpaths = TRUE))
+      unzip(destfile, exdir = file.path(extsoft, "lib/x64"), junkpaths = TRUE)
 
     } else if (file == "nlopt-2.4.2.zip") {
 
