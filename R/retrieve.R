@@ -9,6 +9,12 @@ renv_retrieve <- function(packages) {
   if (is.null(state))
     stopf("renv_restore_begin() must be called first")
 
+  # transform repository URLs for RSPM
+  if (renv_rspm_enabled()) {
+    repos <- getOption("repos")
+    renv_scope_options(repos = renv_rspm_transform(repos))
+  }
+
   # TODO: parallel?
   handler <- state$handler
   for (package in packages)
