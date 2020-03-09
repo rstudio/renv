@@ -30,6 +30,16 @@ renv_rspm_transform_impl <- function(url) {
   # ignore some known CRAN mirrors
   mirrors <- getCRANmirrors(local.only = TRUE)
   urls <- mirrors$URL
+
+  # include RStudio URLs
+  rstudio <- c(
+    "http://cran.rstudio.com",
+    "http://cran.rstudio.org",
+    "https://cran.rstudio.com",
+    "https://cran.rstudio.org"
+  )
+  urls <- c(urls, rstudio)
+
   if (sub("/+$", "", url) %in% sub("/+$", "", urls))
     return(url)
 
