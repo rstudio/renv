@@ -138,9 +138,21 @@ renv_retrieve_name <- function(record, type = "source", ext = NULL) {
 }
 
 renv_retrieve_path <- function(record, type = "source", ext = NULL) {
+
+  # extract relevant record information
   package <- record$Package
   name <- renv_retrieve_name(record, type, ext)
   source <- renv_record_source(record)
+
+  # check for packages from an RSPM binary URL, and
+  # update the package type if known
+  if (renv_rspm_enabled()) {
+    url <- attr(record, "url")
+    if (is.character(url) && grepl("/__[^_]+__/", url))
+      type <- "binary"
+  }
+
+  # form path for package to be downloaded
   if (type == "source")
     renv_paths_source(source, package, name)
   else if (type == "binary")
