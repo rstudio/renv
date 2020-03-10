@@ -27,6 +27,17 @@ renv_rspm_transform_impl <- function(url) {
   if (grepl("/__[^_]+__/", url))
     return(url)
 
+  # only attempt to transform URLs that are formatted like
+  # RSPM urls -- for example:
+  #
+  #   https://rspm.company.org/cran/checkpoint/id
+  #
+  # in particular, there should be at least two trailing
+  # alphanumeric path components
+  pattern <- "/[^/]+/[^/]+/*$"
+  if (!grepl(pattern, url))
+    return(url)
+
   # ignore some known CRAN mirrors
   mirrors <- getCRANmirrors(local.only = TRUE)
   urls <- mirrors$URL
