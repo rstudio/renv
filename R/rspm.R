@@ -22,6 +22,10 @@ renv_rspm_transform_impl <- function(url) {
   if (is.null(platform))
     return(url)
 
+  # don't transform non-https URLs
+  if (!grepl("^https?://", url))
+    return(url)
+
   # if this already appears to be a binary URL, then avoid
   # transforming it
   if (grepl("/__[^_]+__/", url))
