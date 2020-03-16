@@ -115,7 +115,11 @@ renv_rspm_platform <- function() {
 
   if (file.exists("/etc/os-release")) {
 
-    properties <- renv_read_properties("/etc/os-release", delimiter = "=")
+    properties <- renv_properties_read(
+      path      = "/etc/os-release",
+      delimiter = "=",
+      dequote   = TRUE
+    )
 
     id <- properties$ID %||% ""
     id_like <- properties$ID_LIKE %||% ""

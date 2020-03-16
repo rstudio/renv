@@ -351,3 +351,10 @@ delegate <- function(to) {
   call[[1]] <- to
   eval(call, envir = parent.frame(2))
 }
+
+dequote <- function(string) {
+  parsed <- catch(parse(text = string)[[1L]])
+  if (!is.character(parsed))
+    return(string)
+  parsed
+}

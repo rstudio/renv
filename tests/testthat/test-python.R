@@ -59,7 +59,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
   # check requirements.txt for install
   expect_true(file.exists("requirements.txt"))
-  reqs <- renv_read_properties("requirements.txt", delimiter = "==")
+  reqs <- renv_properties_read("requirements.txt", delimiter = "==")
   expect_true("numpy" %in% names(reqs))
 
   # uninstall numpy

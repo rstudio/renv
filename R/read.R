@@ -1,6 +1,10 @@
 
-renv_read_properties <- function(path = NULL, text = NULL, delimiter = ":", trim = TRUE) {
-
+renv_properties_read <- function(path = NULL,
+                                 text = NULL,
+                                 delimiter = ":",
+                                 dequote = TRUE,
+                                 trim = TRUE)
+{
   text <- text %||% readLines(path, warn = FALSE)
 
   # drop empty lines, commented values
@@ -20,6 +24,12 @@ renv_read_properties <- function(path = NULL, text = NULL, delimiter = ":", trim
   if (trim) {
     keys <- trimws(keys)
     vals <- trimws(vals)
+  }
+
+  # strip quotes if requested
+  if (dequote) {
+    keys <- dequote(keys)
+    vals <- dequote(vals)
   }
 
   # return as named list

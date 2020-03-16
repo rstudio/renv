@@ -482,7 +482,7 @@ renv_download_headers <- function(url, type, headers) {
 
   # keep only header lines
   lines <- grep(":", text, fixed = TRUE, value = TRUE)
-  headers <- catch(renv_read_properties(text = lines))
+  headers <- catch(renv_properties_read(text = lines))
   names(headers) <- tolower(names(headers))
   if (inherits(headers, "error"))
     return(list())

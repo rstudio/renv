@@ -624,7 +624,7 @@ renv_dependencies_discover_chunks_ranges <- function(path, contents, patterns) {
 
 renv_dependencies_discover_rproj <- function(path) {
 
-  props <- renv_read_properties(path)
+  props <- renv_properties_read(path)
 
   deps <- stack()
   if (identical(props$PackageUseDevtools, "Yes")) {

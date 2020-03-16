@@ -123,7 +123,7 @@ renv_migrate_packrat_lockfile <- function(project) {
   repos <- getOption("repos")
   if (!is.null(header$Repos)) {
     parts <- strsplit(header$Repos, "\\s*,\\s*")[[1]]
-    repos <- renv_read_properties(text = parts, delimiter = "=")
+    repos <- renv_properties_read(text = parts, delimiter = "=")
   }
 
   # fix-up some record fields for renv
