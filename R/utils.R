@@ -352,9 +352,24 @@ delegate <- function(to) {
   eval(call, envir = parent.frame(2))
 }
 
-dequote <- function(string) {
-  parsed <- catch(parse(text = string)[[1L]])
-  if (!is.character(parsed))
-    return(string)
-  parsed
+dequote <- function(strings) {
+
+  for (quote in c("'", '"')) {
+
+    # find strings matching pattern
+    pattern <- paste0(quote, "(.*)", quote)
+    matches <- grep(pattern, strings)
+    if (empty(matches))
+      next
+
+    # remove outer quotes
+    strings[matches] <- gsub(pattern, "\\1", strings[matches])
+
+    # un-escape inner quotes
+    pattern <- paste0("\\", quote)
+    strings[matches] <- gsub(pattern, quote, strings[matches], fixed = TRUE)
+  }
+
+  strings
+
 }

@@ -20,14 +20,18 @@ test_that("properties can be read successfully", {
 
 test_that("quoted properties are unquoted", {
 
-  text <- "Key=\"Value\""
-
   props <- renv_properties_read(
-    text      = text,
+    path      = "resources/properties.txt",
     delimiter = "=",
     dequote   = TRUE
   )
 
-  expect_identical(props, list(Key = "Value"))
+  expected <- list(
+    Key1 = "Value 1",
+    Key2 = 'Value "2"',
+    Key3 = "Value '3'"
+  )
+
+  expect_identical(props, expected)
 
 })
