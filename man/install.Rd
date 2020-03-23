@@ -52,6 +52,20 @@ a binary copy of that package is already available.
 Note that this interface is subject to change -- the goal is to hook into
 separate package installation backends in the future.
 }
+\section{Package Configuration}{
+
+
+Many \R packages have a \code{configure} script that needs to be run to prepare
+the package for installation. Arguments and environment variables can be
+passed through to those scripts in a manner similar to \link{install.packages}.
+In particular, the \R options \code{configure.args} and \code{configure.vars} can be
+used to map package names to their appropriate configuration. For example:\preformatted{# installation of RNetCDF may require us to set include paths for netcdf
+configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
+options(configure.args = configure.args)
+renv::install("RNetCDF")
+}
+}
+
 \examples{
 \dontrun{
 
