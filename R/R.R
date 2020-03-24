@@ -51,11 +51,11 @@ r_exec_error <- function(package, output, label) {
 
 }
 
-r_exec_error_diagnostics_fortran <- function() {
+r_exec_error_diagnostics_fortran_library <- function() {
 
   checker <- function(output) {
     pattern <- "library not found for -l(quadmath|gfortran|fortran)"
-    idx <- grep(pattern, output)
+    idx <- grep(pattern, output, ignore.case = TRUE)
     if (length(idx))
       return(unique(output[idx]))
   }
@@ -63,6 +63,29 @@ r_exec_error_diagnostics_fortran <- function() {
   suggestion <- "
 R was unable to find one or more FORTRAN libraries during compilation.
 This often implies that the FORTRAN compiler has not been properly configured.
+Please see https://stackoverflow.com/q/35999874 for more information.
+"
+
+  list(
+    checker = checker,
+    suggestion = suggestion
+  )
+
+}
+
+r_exec_error_diagnostics_fortran_binary <- function() {
+
+  checker <- function(output) {
+    pattern <- "gfortran: no such file or directory"
+    idx <- grep(pattern, output, ignore.case = TRUE)
+    if (length(idx))
+      return(unique(output[idx]))
+  }
+
+  suggestion <- "
+R was unable to find the gfortran binary.
+gfortran is required for the compilation of FORTRAN source files.
+Please check that gfortran is installed and available on the PATH.
 Please see https://stackoverflow.com/q/35999874 for more information.
 "
 
@@ -98,7 +121,8 @@ Please see https://support.bioconductor.org/p/119536/ for a related discussion.
 r_exec_error_diagnostics <- function(package, output) {
 
   diagnostics <- list(
-    r_exec_error_diagnostics_fortran(),
+    r_exec_error_diagnostics_fortran_library(),
+    r_exec_error_diagnostics_fortran_binary(),
     r_exec_error_diagnostics_openmp()
   )
 
