@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Local Sources • renv</title>
+<title>Retrieving MRAN Binaries • renv</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Local Sources">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Retrieving MRAN Binaries">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -110,64 +110,34 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Local Sources</h1>
+      <h1>Retrieving MRAN Binaries</h1>
             
       
       
-      <div class="hidden name"><code>local-sources.Rmd</code></div>
+      <div class="hidden name"><code>mran.Rmd</code></div>
 
     </div>
 
     
     
-<p>If your project depends on R packages not available in any external source, you can set up an ad-hoc local source to use during restore. This allows you to provide package tarballs that can be used to restore packages otherwise not available elsewhere.</p>
-<p>The environment variable <code>RENV_PATHS_LOCAL</code> can be used to customize where this local source of packages should live. It should point to a directory containing package binaries and sources, with a structure of the form:</p>
-<ul>
-<li>
-<code>${RENV_PATHS_LOCAL}/&lt;package&gt;_&lt;version&gt;.tar.gz</code>; or</li>
-<li><code>${RENV_PATHS_LOCAL}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
-</ul>
-<p>Alternatively, you can also use project-specific local sources by placing your packages within a folder located at <code>renv/local</code>. Note that this folder does not exist by default; you must create it to opt-in to this mechanism.</p>
-<ul>
-<li>
-<code>&lt;project&gt;/renv/local/&lt;package&gt;_&lt;version&gt;.tar.gz</code>; or</li>
-<li><code>&lt;project&gt;/renv/local/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
-</ul>
-<p>As an example, if your project depended on a package <code>skeleton 1.0.0</code>, you could place a tarball for this package in one of the following locations:</p>
-<ul>
-<li><code>${RENV_PATHS_LOCAL}/skeleton_1.0.0.tar.gz</code></li>
-<li><code>${RENV_PATHS_LOCAL}/skeleton/skeleton_1.0.0.tar.gz</code></li>
-<li>
-<code>&lt;project&gt;/renv/local/&lt;package&gt;_&lt;version&gt;.tar.gz</code>; or</li>
-<li><code>&lt;project&gt;/renv/local/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
-</ul>
-<p>Once this is done, <code>renv</code> will consult these directories during future attempts to restore packages installed from unknown sources.</p>
-<p>Note that packages placed in one of these local sources will override any default source recorded in the lockfile. For example, if <code>skeleton 1.0.0</code> was also available on CRAN, <code><a href="../reference/restore.html">renv::restore()</a></code> would still use the locally-provided tarball rather than the version available from CRAN.</p>
-<p>If you want to see what directory is being used by <code>renv</code> for local package sources, you can execute:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">renv<span class="op">:::</span><span class="kw">renv_paths_local</span>()</a></code></pre></div>
-<p>See <code><a href="../reference/paths.html">?paths</a></code> for more details.</p>
-<div id="explicit-sources" class="section level2">
-<h2 class="hasAnchor">
-<a href="#explicit-sources" class="anchor"></a>Explicit Sources</h2>
-<p>You can also provide explicit source paths in the lockfile if desired. This is most useful if you are building an <code>renv</code> lockfile “by hand”, or need to tweak an existing lockfile to point at a separate package for installation. For example, you could have a package record in <code>renv.lock</code> of the form:</p>
-<pre><code>{
-  "Package": "skeleton",
-  "Version": "1.0.1",
-  "Source": "/mnt/r/pkg/skeleton_1.0.1.tar.gz"
-}</code></pre>
-<p>The main requirement is that your source path exists, and the path has an extension of either <code>.tar.gz</code>, (for source packages), <code>.tgz</code> (for macOS binaries) or <code>.zip</code> (for Windows binaries).</p>
-</div>
+<p>When working on macOS and Windows, users will often download and install package binaries, rather than sources, as provided by CRAN. However, CRAN only provides binaries for the latest-available version of a package, and so binaries for older versions of a package will become inaccessible as that package is updated.</p>
+<p><a href="https://mran.microsoft.com/">MRAN</a> is a service provided by Microsoft that mirrors CRAN every day, and allows users to use particular snapshots of CRAN as their active repositories within their R session.</p>
+<p>Starting with <code>renv 0.10.0</code>, <code>renv</code> can also make use of MRAN binary packages when restoring packages on Windows and macOS. When invoking <code><a href="../reference/install.html">renv::install()</a></code> or <code><a href="../reference/restore.html">renv::restore()</a></code>, <code>renv</code> will attempt to install the package from the latest-available MRAN snapshot that still had this package available.</p>
+<p>As an example, the <code>stringi</code> package was updated from version <code>1.4.5</code> to version <code>1.4.6</code> on 2020-02-17, and binaries for that version of <code>stringi</code> were made available for macOS on 2020-02-20. Because of this, the last date on which <code>stringi 1.4.5</code> macOS binaries were available on CRAN was <code>2020-02-19</code>.</p>
+<p>Fortunately, because MRAN snapshotted CRAN on this date, we can retrieve that binary. For example, on macOS with R 3.6:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="op">&gt;</span><span class="st"> </span>renv<span class="op">::</span><span class="kw"><a href="https://rstudio.github.io/renv//reference/install.html">install</a></span>(<span class="st">"stringi@1.4.5"</span>)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">Retrieving <span class="st">'https://mran.microsoft.com/snapshot/2020-02-19/bin/macosx/el-capitan/contrib/3.6/stringi_1.4.5.tgz'</span> ...</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    OK [file is up to date]</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">Installing stringi [<span class="dv">1</span>.<span class="fl">4.5</span>] ...</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">    OK [installed binary]</a></code></pre></div>
+<p>When binaries are available from MRAN, <code>renv</code> should transparently download and use them when possible. When binaries are not available, <code>renv</code> will fall back to the old behavior, and attempt to install packages from sources.</p>
+<p>If you prefer not to make use of MRAN (e.g. because you are using <code>renv</code> in an environment without external internet access), you can disable it with:</p>
+<pre><code><a href="https://rdrr.io/r/base/options.html">options(renv.config.mran.enabled = FALSE)</a></code></pre>
+<p>See also the <code><a href="../reference/equip.html">?renv::equip</a></code> function, which can assist you in preparing your environment for compilation of packages.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
 
-        <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-<li><a href="#explicit-sources">Explicit Sources</a></li>
-      </ul>
-</div>
       </div>
 
 </div>

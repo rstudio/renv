@@ -8,6 +8,7 @@ articles:
   faq: faq.html
   local-sources: local-sources.html
   lockfile: lockfile.html
+  mran: mran.html
   packages: packages.html
   python: python.html
   renv: renv.html

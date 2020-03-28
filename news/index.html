@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.60</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.61</span>
       </span>
     </div>
 
@@ -104,6 +104,9 @@
     </li>
     <li>
       <a href="../articles/local-sources.html">Local Sources</a>
+    </li>
+    <li>
+      <a href="../articles/mran.html">Retrieving MRAN Binaries</a>
     </li>
     <li class="dropdown-header">Collaborating</li>
     <li>
@@ -149,11 +152,12 @@
       
     </div>
 
-    <div id="renv-0-9-4-unreleased" class="section level1">
+    <div id="renv-0-10-0-unreleased" class="section level1">
 <h1 class="page-header">
-<a href="#renv-0-9-4-unreleased" class="anchor"></a>renv 0.9.4 (UNRELEASED)<small> Unreleased </small>
+<a href="#renv-0-10-0-unreleased" class="anchor"></a>renv 0.10.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>renv will now download binaries of older packages from MRAN when possible.</p></li>
 <li><p>renv will now attempt to re-generate the system library sandbox if it is deleted while a session is active. (#361)</p></li>
 <li><p>Fixed an issue where packages referenced using <code><a href="https://rdrr.io/pkg/reticulate/man/import.html">reticulate::import()</a></code> were incorrectly tagged as R package dependencies. Similarly, <code>renv</code> now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (#359)</p></li>
 <li><p><code><a href="../reference/scaffold.html">renv::scaffold()</a></code> now also generates a lockfile when invoked. (#351)</p></li>
@@ -292,7 +296,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#renv-0-9-4-unreleased">0.9.4</a></li>
+        <li><a href="#renv-0-10-0-unreleased">0.10.0</a></li>
         <li><a href="#renv-0-9-3">0.9.3</a></li>
         <li><a href="#renv-0-9-2">0.9.2</a></li>
         <li><a href="#renv-0-9-1">0.9.1</a></li>
