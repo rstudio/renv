@@ -65,7 +65,7 @@ reference:
 
 vignettes:
   menu:
-  - Introduction   : [renv, lockfile, faq, local-sources]
+  - Introduction   : [renv, lockfile, faq, local-sources, mran]
   - Collaborating  : [collaborating]
   - Packages       : [packages]
   - Deployment     : [ci, docker]

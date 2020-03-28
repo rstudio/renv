@@ -92,6 +92,11 @@
 #'   if installation of one or more packages fails.
 #'   \cr
 #'
+#' `mran.enabled` \tab `logical[1]` \tab `TRUE` \tab
+#'   Attempt to download binaries from [MRAN](https://mran.microsoft.com/)
+#'   during restore?
+#'   \cr
+#'
 #' `repos.override` \tab `character[*]` \tab `NULL` \tab
 #'   Override the R package repositories used during [`restore`]. Primarily
 #'   useful for deployment / continuous integration, where you might want

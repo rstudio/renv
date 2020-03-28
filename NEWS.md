@@ -1,5 +1,7 @@
 
-# renv 0.9.4 (UNRELEASED)
+# renv 0.10.0 (UNRELEASED)
+
+* renv will now download binaries of older packages from MRAN when possible.
 
 * renv will now attempt to re-generate the system library sandbox if it is
   deleted while a session is active. (#361)

@@ -97,6 +97,11 @@ This can be useful if you'd like to avoid mutating your project library
 if installation of one or more packages fails.
 \cr
 
+\code{mran.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
+Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN}
+during restore?
+\cr
+
 \code{repos.override} \tab \verb{character[*]} \tab \code{NULL} \tab
 Override the R package repositories used during \code{\link{restore}}. Primarily
 useful for deployment / continuous integration, where you might want

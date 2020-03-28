@@ -367,10 +367,15 @@ renv_retrieve_repos <- function(record) {
     renv_retrieve_repos_archive
   )
 
-  # only attempt to retrieve binaries when explicitly requested by user
-  # TODO: what about binaries on Linux?
   if (!identical(getOption("pkgType"), "source"))
+  {
+    # only attempt to retrieve binaries when explicitly requested by user
     methods <- c(renv_retrieve_repos_binary, methods)
+
+    # attempt to retrieve binaries from MRAN when enabled as well
+    if (renv_config("mran.enabled", default = TRUE))
+      methods <- c(renv_retrieve_repos_mran, methods)
+  }
 
   for (method in methods) {
     status <- method(record)
@@ -399,9 +404,46 @@ renv_retrieve_repos_archive_name <- function(record, type) {
   sprintf(fmt, record$Package, record$Version, renv_package_ext(type))
 }
 
+renv_retrieve_repos_mran <- function(record) {
+
+  # MRAN does not make binaries available on Linux
+  if (renv_platform_linux())
+    return(FALSE)
+
+  # ensure local MRAN database is up-to-date
+  renv_mran_database_refresh(explicit = FALSE)
+  database <- renv_mran_database_load()
+
+  # get entry for this version of R + platform
+  suffix <- contrib.url("", type = "binary")
+  entry <- database[[suffix]]
+  if (is.null(entry))
+    return(FALSE)
+
+  # check for known entry for this package + version
+  key <- paste(record$Package, record$Version)
+  idate <- entry[[key]]
+  if (is.null(idate))
+    return(FALSE)
+
+  # convert from integer to date
+  date <- as.Date(idate, origin = "1970-01-01")
+
+  # form url to binary package
+  base <- renv_mran_url(date, suffix)
+  name <- renv_retrieve_name(record, type = "binary")
+  url <- file.path(base, name)
+
+  # form path to saved file
+  path <- renv_retrieve_path(record, "binary")
+
+  # attempt to retrieve
+  renv_retrieve_package(record, url, path)
+
+}
+
 renv_retrieve_repos_binary <- function(record) {
   renv_retrieve_repos_impl(record, "binary")
-
 }
 
 renv_retrieve_repos_source <- function(record) {

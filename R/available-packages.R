@@ -31,7 +31,7 @@ renv_available_packages_impl <- function(type, quiet = FALSE) {
   repos <- getOption("repos")
   urls <- contrib.url(repos, type)
   errors <- new.env(parent = emptyenv())
-  dbs <- lapply(urls, renv_available_packages_query, type = type, errors = errors)
+  dbs <- lapply(urls, renv_available_packages_query, errors = errors)
   names(dbs) <- names(repos)
 
   # notify finished
@@ -77,7 +77,7 @@ renv_available_packages_query_packages <- function(url) {
   suppressWarnings(read.dcf(destfile))
 }
 
-renv_available_packages_query <- function(url, type, errors) {
+renv_available_packages_query <- function(url, errors) {
 
   # check for a cached value
   name <- sprintf("repos_%s.rds.cache", URLencode(url, reserved = TRUE))
