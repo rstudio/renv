@@ -215,10 +215,10 @@ renv_mran_database_refresh_required <- function() {
 
 renv_mran_database_refresh_impl <- function() {
 
-  download(
-    url      = renv_mran_database_url(),
-    destfile = renv_mran_database_path(),
-    quiet    = TRUE
-  )
+  url <- renv_mran_database_url()
+  path <- renv_mran_database_path()
+
+  ensure_parent_directory(path)
+  download(url = url, destfile = path, quiet = TRUE)
 
 }
