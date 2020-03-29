@@ -222,3 +222,35 @@ renv_mran_database_refresh_impl <- function() {
   download(url = url, destfile = path, quiet = TRUE)
 
 }
+
+renv_mran_database_sync <- function(platform, version) {
+
+  # read database
+  database <- renv_mran_database_load()
+
+  # read entry for this platform + version combo
+  key <- renv_mran_database_key(platform, version)
+  entry <- database[[key]]
+  if (is.null(entry)) {
+    warningf("no entry for key '%s'", key)
+    return(FALSE)
+  }
+
+  # get the last known updated date
+  last <- max(as.integer(as.list(entry)))
+
+  # get yesterday's date
+  now <- as.integer(as.Date(Sys.time(), tz = "UTC")) - 1L
+
+  # if we've already in sync, nothing to do
+  if (last == now)
+    return(FALSE)
+
+  # invoke update for missing dates
+  dates <- as.Date(seq(last + 1, now, by = 1L), origin = "1970-01-01")
+  renv_mran_database_update(platform, version, dates)
+
+  # return TRUE to indicate update occurred
+  return(TRUE)
+
+}
