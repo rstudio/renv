@@ -113,7 +113,7 @@ init <- function(project = NULL,
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile)
   if (empty(action)) {
-    message("Operation aborted.")
+    message("* Operation aborted.")
     return(invisible(FALSE))
   }
 
@@ -150,42 +150,54 @@ renv_init_action <- function(project, library, lockfile) {
 
   )
 
-  if (interactive() && action == "lockfile") {
+  if (!interactive())
+    return(action)
 
-    title <- "This project already has a lockfile. What would you like to do?"
-    choices <- c(
-      restore = "Restore the project from the lockfile.",
-      init    = "Discard the lockfile and re-initialize the project.",
-      nothing = "Activate the project without snapshotting or installing any packages."
-    )
+  case(
+    action == "lockfile" ~ renv_init_action_lockfile(project, library, lockfile),
+    action == "library"  ~ renv_init_action_library(project, library, lockfile)
+  )
 
-    selection <- tryCatch(
-      utils::select.list(choices, title = title, graphics = FALSE),
-      interrupt = function(e) ""
-    )
+}
 
-    action <- names(selection)
+renv_init_action_lockfile <- function(project, library, lockfile) {
 
-  }
+  title <- "This project already has a lockfile. What would you like to do?"
+  choices <- c(
+    restore = "Restore the project from the lockfile.",
+    init    = "Discard the lockfile and re-initialize the project.",
+    nothing = "Activate the project without snapshotting or installing any packages."
+  )
 
-  if (interactive() && action == "library") {
+  selection <- tryCatch(
+    utils::select.list(choices, title = title, graphics = FALSE),
+    interrupt = identity
+  )
 
-    title <- "This project already has a private library. What would you like to do?"
-    choices <- c(
-      nothing = "Activate the project and use the existing library.",
-      init    = "Re-initialize the project with a new library."
-    )
+  if (inherits(selection, "interrupt"))
+    return(NULL)
 
-    selection <- tryCatch(
-      utils::select.list(choices, title = title, graphics = FALSE),
-      interrupt = function(e) ""
-    )
+  names(selection)
 
-    action <- names(selection)
+}
 
-  }
+renv_init_action_library <- function(project, library, lockfile) {
 
-  action
+  title <- "This project already has a private library. What would you like to do?"
+  choices <- c(
+    nothing = "Activate the project and use the existing library.",
+    init    = "Re-initialize the project with a new library."
+  )
+
+  selection <- tryCatch(
+    utils::select.list(choices, title = title, graphics = FALSE),
+    interrupt = identity
+  )
+
+  if (inherits(selection, "interrupt"))
+    return(NULL)
+
+  names(selection)
 
 }
 
