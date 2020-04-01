@@ -27,9 +27,9 @@ this possible.
 When using `renv`, the packages used in your project will be recorded into a
 lockfile, `renv.lock`. Because `renv.lock` records the exact versions of R
 packages used within a project, if you share that file with your collaborators,
-they will be able to use `renv::restore()` to install exactly the same R
-packages as recorded in the lockfile. This implies the following workflow for
-collaboration:
+they will be able to use `renv::init()` to initialize your project with exactly
+the same R packages as recorded in the lockfile. This implies the following
+workflow for collaboration:
 
 1. Select a way to share your project sources. The most common way nowadays is
    to use a version control system with a public repository; e.g.
@@ -41,10 +41,10 @@ collaboration:
 3. Share your project sources, alongside the generated lockfile `renv.lock`.
 
 After your collaborators have received your `renv.lock` lockfile, they can then
-also execute `renv::init()` (or `renv::restore()`) to automatically install
-the packages declared in that lockfile into their own private project library.
-By doing this, they will now be able to work within your project using the
-exact same R packages that you were when `renv.lock` was generated.
+also execute `renv::init()` to initialize their project with the packages
+declared in that lockfile into their own private project library. By doing this,
+they will now be able to work within your project using the exact same R
+packages that you were when `renv.lock` was generated.
 
 For more information on collaboration strategies, please visit
 [environments.rstudio.com](https://environments.rstudio.com/).
@@ -55,8 +55,10 @@ For more information on collaboration strategies, please visit
 While working on a project, you or your collaborators may need to update or
 install new packages in your project. The workflow remains the same as before --
 after installing these new packages, you can share the updated lockfile with
-your collaborators, and request that they execute `renv::restore()` to
-synchronize their library with the lockfile.
+your collaborators, and request that they execute `renv::init()` to
+synchronize their library with the lockfile. Or, if the project has already
+been initialized on their machine via a prior call to `renv::init()`, then they
+can simply execute `renv::restore()`.
 
 A bit of care needs to be taken if your collaborators attempt to update packages
 independently. It is recommended that a single 'source of truth' is used for the
