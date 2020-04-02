@@ -217,7 +217,10 @@ r_cmd_install_option <- function(package, option, configure) {
   # if this is a configure option, format specially
   if (configure) {
     confkey <- sub(".", "-", option, fixed = TRUE)
-    confval <- shQuote(paste(value, collapse = " "))
+    confval <- if (!is.null(names(value)))
+      shQuote(paste(names(value), value, sep = "=", collapse = " "))
+    else
+      shQuote(paste(value, collapse = " "))
     return(sprintf("--%s=%s", confkey, confval))
   }
 

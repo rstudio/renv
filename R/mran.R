@@ -181,8 +181,8 @@ renv_mran_database_update_impl <- function(date, url, entry) {
 }
 
 renv_mran_url <- function(date, suffix) {
-  root <- Sys.getenv("RENV_MRAN_URL", unset = "https://mran.microsoft.com")
-  snapshot <- file.path(root, "snapshot", date)
+  root <- Sys.getenv("RENV_MRAN_URL", unset = "https://mran.microsoft.com/snapshot")
+  snapshot <- file.path(root, date)
   paste(snapshot, suffix, sep = "")
 }
 

@@ -99,7 +99,7 @@ if installation of one or more packages fails.
 
 \code{mran.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
 Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN}
-during restore?
+during restore? See \code{vignette("mran", package = "renv")} for more details.
 \cr
 
 \code{repos.override} \tab \verb{character[*]} \tab \code{NULL} \tab

@@ -94,7 +94,7 @@
 #'
 #' `mran.enabled` \tab `logical[1]` \tab `TRUE` \tab
 #'   Attempt to download binaries from [MRAN](https://mran.microsoft.com/)
-#'   during restore?
+#'   during restore? See `vignette("mran", package = "renv")` for more details.
 #'   \cr
 #'
 #' `repos.override` \tab `character[*]` \tab `NULL` \tab
