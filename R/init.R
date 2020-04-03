@@ -142,26 +142,29 @@ renv_init_action <- function(project, library, lockfile) {
   # figure out appropriate action
   action <- case(
 
-    file.exists(lockfile) && file.exists(library)  ~ "lockfile",
-    file.exists(lockfile) && !file.exists(library) ~ "restore",
+    # if both the library and lockfile exist, ask user for intended action
+    file.exists(lockfile) && file.exists(library)
+      ~ renv_init_action_conflict_lockfile(project, library, lockfile),
 
-    !file.exists(lockfile) && file.exists(library)  ~ "library",
-    !file.exists(lockfile) && !file.exists(library) ~ "init"
+    # if a private library exists but no lockfile, ask whether we should use it
+    !file.exists(lockfile) && file.exists(library)
+      ~ renv_init_action_conflict_library(project, library, lockfile),
 
-  )
+    # if a lockfile exists but not a library, we just want to restore
+    file.exists(lockfile) && !file.exists(library)
+      ~ "restore",
 
-  if (!interactive())
-    return(action)
+    # otherwise, we juse want to initialize the project
+    ~ "init"
 
-  case(
-    action == "lockfile" ~ renv_init_action_lockfile(project, library, lockfile),
-    action == "library"  ~ renv_init_action_library(project, library, lockfile),
-    ~ action
   )
 
 }
 
-renv_init_action_lockfile <- function(project, library, lockfile) {
+renv_init_action_conflict_lockfile <- function(project, library, lockfile) {
+
+  if (!interactive())
+    return("nothing")
 
   title <- "This project already has a lockfile. What would you like to do?"
   choices <- c(
@@ -182,7 +185,10 @@ renv_init_action_lockfile <- function(project, library, lockfile) {
 
 }
 
-renv_init_action_library <- function(project, library, lockfile) {
+renv_init_action_conflict_library <- function(project, library, lockfile) {
+
+  if (!interactive())
+    return("nothing")
 
   title <- "This project already has a private library. What would you like to do?"
   choices <- c(

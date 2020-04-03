@@ -31,8 +31,8 @@ they will be able to use `renv::init()` to initialize your project with exactly
 the same R packages as recorded in the lockfile. This implies the following
 workflow for collaboration:
 
-1. Select a way to share your project sources. The most common way nowadays is
-   to use a version control system with a public repository; e.g.
+1. Select a way to share your project sources. The recommended way to do so is
+   with a version control system alongside a public repository; e.g.
    [git](https://git-scm.com/) with [GitHub](https://github.com/), but
    many other options are available.
 
