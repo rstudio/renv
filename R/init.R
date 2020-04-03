@@ -155,7 +155,8 @@ renv_init_action <- function(project, library, lockfile) {
 
   case(
     action == "lockfile" ~ renv_init_action_lockfile(project, library, lockfile),
-    action == "library"  ~ renv_init_action_library(project, library, lockfile)
+    action == "library"  ~ renv_init_action_library(project, library, lockfile),
+    ~ action
   )
 
 }
