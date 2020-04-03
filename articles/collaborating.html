@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.67</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.68</span>
       </span>
     </div>
 
@@ -126,7 +126,7 @@
 <a href="#collaborating-with-renv" class="anchor"></a>Collaborating with renv</h2>
 <p>When using <code>renv</code>, the packages used in your project will be recorded into a lockfile, <code>renv.lock</code>. Because <code>renv.lock</code> records the exact versions of R packages used within a project, if you share that file with your collaborators, they will be able to use <code><a href="../reference/init.html">renv::init()</a></code> to initialize your project with exactly the same R packages as recorded in the lockfile. This implies the following workflow for collaboration:</p>
 <ol style="list-style-type: decimal">
-<li><p>Select a way to share your project sources. The most common way nowadays is to use a version control system with a public repository; e.g. <a href="https://git-scm.com/">git</a> with <a href="https://github.com/">GitHub</a>, but many other options are available.</p></li>
+<li><p>Select a way to share your project sources. The recommended way to do so is with a version control system alongside a public repository; e.g. <a href="https://git-scm.com/">git</a> with <a href="https://github.com/">GitHub</a>, but many other options are available.</p></li>
 <li><p>Make sure your project is initialized with <code>renv</code> by calling <code><a href="../reference/init.html">renv::init()</a></code>.</p></li>
 <li><p>Share your project sources, alongside the generated lockfile <code>renv.lock</code>.</p></li>
 </ol>
