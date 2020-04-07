@@ -222,3 +222,8 @@ test_that("a call to geom_hex() implies a dependency on ggplot2", {
   expect_true("hexbin" %in% deps$Package)
 
 })
+
+test_that("empty fields are handled in DESCRIPTION", {
+  deps <- dependencies("resources/DESCRIPTION", progress = FALSE)
+  expect_setequal(deps$Package, c("a", "b", "c"))
+})

@@ -1,6 +1,9 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* Fixed an issue where empty records within a DESCRIPTION file could cause
+  `renv::dependencies()` to fail. (#382)
+
 * renv will now download binaries of older packages from MRAN when possible.
 
 * renv will now attempt to re-generate the system library sandbox if it is

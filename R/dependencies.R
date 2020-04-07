@@ -350,7 +350,10 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
     renv_dependencies_discover_description_fields() %||%
     c("Depends", "Imports", "LinkingTo")
 
-  pattern <- "([a-zA-Z0-9._]+)(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"
+  pattern <- paste0(
+    "([a-zA-Z0-9._]+)",                      # package name
+    "(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"  # optional version specification
+  )
 
   # if this is the DESCRIPTION file for the active project, include
   # Suggests since they're often needed as well. such packages will be
@@ -364,16 +367,24 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
 
   data <- lapply(fields, function(field) {
 
+    # read field
     contents <- dcf[[field]]
     if (!is.character(contents))
       return(list())
 
-    x <- strsplit(dcf[[field]], "\\s*,\\s*")[[1]]
+    # split on commas
+    parts <- strsplit(dcf[[field]], "\\s*,\\s*")[[1]]
+
+    # drop any empty fields
+    x <- parts[nzchar(parts)]
+
+    # match to split on package name, version
     m <- regexec(pattern, x)
     matches <- regmatches(x, m)
     if (empty(matches))
       return(list())
 
+    # create dependency list
     dev <- field == "Suggests" && type != "package"
     renv_dependencies_list(
       path,
