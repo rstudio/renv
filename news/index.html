@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.68</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.69</span>
       </span>
     </div>
 
@@ -157,6 +157,7 @@
 <a href="#renv-0-10-0-unreleased" class="anchor"></a>renv 0.10.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>Fixed an issue where empty records within a DESCRIPTION file could cause <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> to fail. (#382)</p></li>
 <li><p>renv will now download binaries of older packages from MRAN when possible.</p></li>
 <li><p>renv will now attempt to re-generate the system library sandbox if it is deleted while a session is active. (#361)</p></li>
 <li><p>Fixed an issue where packages referenced using <code><a href="https://rdrr.io/pkg/reticulate/man/import.html">reticulate::import()</a></code> were incorrectly tagged as R package dependencies. Similarly, <code>renv</code> now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (#359)</p></li>
