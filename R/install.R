@@ -74,8 +74,8 @@ install <- function(packages = NULL,
   }
 
   # override repositories if requested
-  repos <- renv_config("repos.override")
-  if (!is.null(repos))
+  repos <- config$repos.override()
+  if (length(repos))
     renv_scope_options(repos = repos)
 
   records <- renv_snapshot_r_packages(library = library, project = project)
@@ -119,7 +119,7 @@ install <- function(packages = NULL,
 
 renv_install <- function(records, library) {
 
-  staged <- renv_config("install.staged", default = TRUE)
+  staged <- config$install.staged()
 
   if (staged)
     renv_install_staged(records, library)

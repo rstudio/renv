@@ -76,7 +76,7 @@ renv_filebacked_envir <- function(scope) {
 
 renv_filebacked <- function(scope, path, callback, ...) {
 
-  config <- renv_config("filebacked.cache", default = TRUE)
+  config <- config$filebacked.cache()
   if (identical(config, FALSE))
     return(callback(path, ...))
 

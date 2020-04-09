@@ -30,142 +30,7 @@
 #' recommended that you set them in your user startup files (e.g. in
 #' `~/.Rprofile` or `~/.Renviron`).
 #'
-#' @section Configuration:
-#'
-#' The following `renv` configuration options are available:
-#'
-#' \tabular{llll}{
-#' **Name** \tab **Type** \tab **Default** \tab **Description** \cr
-#'
-#' `auto.snapshot` \tab `logical[1]` \tab `FALSE` \tab
-#'   Automatically snapshot changes to the project library after a new package
-#'   is installed with `renv::install()`, or removed with `renv::remove()`?
-#'   \cr
-#'
-#' `copy.method` \tab `character[1]` \tab `"auto"` \tab
-#'   The method to use when attempting to copy directories. See **Copy Methods**
-#'   for more information.
-#'   \cr
-#'
-#' `connect.timeout` \tab `integer[1]` \tab `20L` \tab
-#'   The amount of time to spend (in seconds) when attempting to download a
-#'   file. Only used when the `curl` downloader is used.
-#'   \cr
-#'
-#' `connect.retry` \tab `integer[1]` \tab `3L` \tab
-#'   The number of times to attempt re-downloading a file, when transient
-#'   errors occur. Only used when the `curl` downloader is used.
-#'   \cr
-#'
-#' `dependency.errors` \tab `character(1)` \tab `"reported"` \tab
-#'   Many `renv` APIs require the enumeration of your project's \R package
-#'   dependencies. This option controls how errors that occur during this
-#'   enumeration are handled. By default, errors are reported but are non-fatal.
-#'   Set this to `"fatal"` to force errors to be fatal, and `"ignored"` to
-#'   ignore errors altogether. See [dependencies] for more details.
-#'   \cr
-#'
-#' `external.libraries` \tab `character[*]` \tab `character()` \tab
-#'   A character vector of external libraries, to be used in tandem with your
-#'   projects. Be careful when using external libraries: it's possible that
-#'   things can break within a project if the version(s) of packages used in
-#'   your project library happen to be incompatible with packages in your
-#'   external libraries; for example, if your project required `xyz 1.0` but
-#'   `xyz 1.1` was present and loaded from an external library. Can also be an
-#'   \R function that provides the paths to external libraries. Library paths
-#'   will be expanded through [.expand_R_libs_env_var] as necessary.
-#'   \cr
-#'
-#' `hydrate.libpaths` \tab `character[*]` \tab `character()` \tab
-#'   A character vector of library paths, to be used by `renv::hydrate()` when
-#'   attempting to hydrate projects. When empty, the default set of library
-#'   paths (as specified in `?hydrate`) are used instead. See [`hydrate`] for
-#'   more details.
-#'   \cr
-#'
-#' `install.staged` \tab `logical[1]` \tab `TRUE` \tab
-#'   Perform a staged install of packages during install and restore?
-#'   When enabled, `renv` will first install packages into a temporary
-#'   library, and later copy or move those packages back into the project
-#'   library only if all packages were successfully downloaded and installed.
-#'   This can be useful if you'd like to avoid mutating your project library
-#'   if installation of one or more packages fails.
-#'   \cr
-#'
-#' `mran.enabled` \tab `logical[1]` \tab `TRUE` \tab
-#'   Attempt to download binaries from [MRAN](https://mran.microsoft.com/)
-#'   during restore? See `vignette("mran", package = "renv")` for more details.
-#'   \cr
-#'
-#' `repos.override` \tab `character[*]` \tab `NULL` \tab
-#'   Override the R package repositories used during [`restore`]. Primarily
-#'   useful for deployment / continuous integration, where you might want
-#'   to enforce the usage of some set of repositories over what is defined
-#'   in `renv.lock` or otherwise set by the R session.
-#'   \cr
-#'
-#' `rspm.enabled` \tab `logical[1]` \tab `TRUE` \tab
-#'   Boolean; enable RSPM integration for `renv` projects? When `TRUE`, `renv`
-#'   will attempt to transform the repository URLs used by RSPM into binary
-#'   URLs as appropriate for the current platform. Set this to `FALSE` if
-#'   you'd like to continue using source-only RSPM URLs, or if you find that
-#'   `renv` is improperly transforming your repository URLs.
-#'   \cr
-#'
-#' `sandbox.enabled` \tab `logical[1]` \tab `TRUE` \tab
-#'   Enable sandboxing for `renv` projects? When active, `renv` will attempt to
-#'   sandbox the system library, preventing non-system packages installed in the
-#'   system library from becoming available in `renv` projects. (That is, only
-#'   packages with priority `"base"` or `"recommended"`, as reported by
-#'   `installed.packages()`, are made available.)
-#'   \cr
-#'
-#' `shims.enabled` \tab `logical[1]` \tab `TRUE` \tab
-#'   Should `renv` shims be installed on package load? When enabled, `renv`
-#'   will install its own shims over the functions `install.packages()`,
-#'   `update.packages()` and `remove.packages()`, delegating these functions
-#'   to `renv::install()`, `renv::update()` and `renv::remove()` as
-#'   appropriate.
-#'   \cr
-#'
-#' `snapshot.validate` \tab `logical[1]` \tab `TRUE` \tab
-#'   Validate \R package dependencies when calling snapshot? When `TRUE`,
-#'   `renv` will attempt to diagnose potential issues in the project library
-#'   before creating `renv.lock` -- for example, if a package installed in the
-#'   project library depends on a package which is not currently installed.
-#'   \cr
-#'
-#' `synchronized.check` \tab `logical[1]` \tab `TRUE` \tab
-#'   Check that the project library is synchronized with the lockfile on load?
-#'   \cr
-#'
-#' `updates.check` \tab `logical[1]` \tab `FALSE` \tab
-#'   Check for package updates when the session is initialized?
-#'   This can be useful if you'd like to ensure that your project lockfile
-#'   remains up-to-date with packages as they are released on CRAN.
-#'   \cr
-#'
-#' `updates.parallel` \tab `integer[1]` \tab `2L` \tab
-#'   Check for package updates in parallel? This can be useful when a large
-#'   number of packages installed from non-CRAN remotes are installed, as
-#'   these packages can then be checked for updates in parallel.
-#'   \cr
-#'
-#' `user.library` \tab `logical[1]` \tab `FALSE` \tab
-#'   Include the user library on the library paths for your projects? Note that
-#'   this risks breaking project encapsulation and is not recommended for
-#'   projects which you intend to share or collaborate on with other users. See
-#'   also the caveats for the `external.libraries` option.
-#'   \cr
-#'
-#' `user.profile` \tab `logical[1]` \tab `FALSE` \tab
-#'   Load the user R profile (typically located at `~/.Rprofile`) when `renv`
-#'   is loaded? Consider disabling this if you require extra encapsulation in
-#'   your projects; e.g. if your `.Rprofile` attempts to load packages that
-#'   you might not install in your projects.
-#'   \cr
-#'
-#' }
+#' @eval renv_roxygen_config_section()
 #'
 #' @section Copy Methods:
 #'
@@ -217,26 +82,27 @@
 #' @name config
 NULL
 
-renv_config <- function(name, ..., scope = "config", default = NULL) {
-
-  # validate call
-  dots <- eval(substitute(alist(...)))
-  if (length(dots))
-    stopf("internal error: unexpected arguments supplied to renv_config")
-
+renv_config_get <- function(name,
+                            scope   = "config",
+                            type    = "*",
+                            default = NULL,
+                            args    = NULL)
+{
   # check for R option of associated name
   optname <- tolower(name)
   optkey <- paste("renv", scope, optname, sep = ".")
   optval <- getOption(optkey)
   if (!is.null(optval))
-    return(optval)
+    return(renv_config_validate(name, optval, type, default, args))
 
   # check for environment variable
   envname <- gsub(".", "_", toupper(name), fixed = TRUE)
   envkey <- paste("RENV", toupper(scope), envname, sep = "_")
   envval <- Sys.getenv(envkey, unset = NA)
-  if (!is.na(envval))
-    return(renv_config_decode_envvar(envname, envval))
+  if (!is.na(envval)) {
+    decoded <- renv_config_decode_envvar(envname, envval)
+    return(renv_config_validate(name, decoded, type, default, args))
+  }
 
   # return default if nothing found
   default
@@ -261,5 +127,60 @@ renv_config_decode_envvar <- function(envname, envval) {
     return(get(envval, envir = map, inherits = FALSE))
 
   strsplit(envval, "\\s*,\\s*")[[1]]
+
+}
+
+renv_config_validate <- function(name, value, type, default, args) {
+
+  # no validation required for type = '*'
+  if (identical(type, "*"))
+    return(value)
+
+  # if 'value' is a function, invoke it with args
+  if (is.function(value)) {
+    value <- catch(do.call(value, args))
+    if (inherits(value, "error")) {
+      warning(value, call. = FALSE)
+      return(default)
+    }
+  }
+
+  # parse the type string
+  parsed <- catch(renv_parse(text = type)[[1L]])
+  if (inherits(parsed, "error")) {
+    warningf("could not parse type string '%s'", type)
+    return(value)
+  }
+
+  # check the requested length
+  if (length(parsed) != 3L) {
+    warningf("invalid type string '%s'", type)
+    return(value)
+  }
+
+  # extract fields
+  mode <- as.character(parsed[[2L]])
+  n <- as.character(parsed[[3L]])
+
+  # convert NULL values to requested type
+  if (is.null(value)) {
+    value <- convert(value, mode)
+    return(value)
+  }
+
+  # otherwise, validate that this is a valid option
+  if (identical(storage.mode(value), mode))
+    return(value)
+
+  # try converting
+  value <- catchall(convert(value, mode))
+  if (inherits(value, "condition")) {
+    fmt <- "'%s' does not satisfy constraint '%s' for config '%s'; using default '%s' instead"
+    warningf(fmt, renv_deparse(value), type, name, renv_deparse(default))
+    return(default)
+  }
+
+  # ok, validated + converted option
+  value
 
 }

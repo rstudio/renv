@@ -308,7 +308,8 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
   if (identical(errors, "ignored"))
     return(TRUE)
 
-  limit <- renv_config("dependencies.limit", default = 1000L)
+  # TODO: worth customizing?
+  limit <- 1000L
   if (length(paths) < limit)
     return(TRUE)
 
@@ -1126,7 +1127,7 @@ renv_dependencies_scope <- function(path, action, .envir = NULL) {
   if (exists(path, envir = `_renv_dependencies`))
     return(get(path, envir = `_renv_dependencies`))
 
-  errors <- renv_config("dependency.errors", default = "reported")
+  errors <- config$dependency.errors()
   message <- paste(action, "aborted")
 
   deps <- withCallingHandlers(

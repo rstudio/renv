@@ -41,135 +41,51 @@ The following \code{renv} configuration options are available:
 
 \tabular{llll}{
 \strong{Name} \tab \strong{Type} \tab \strong{Default} \tab \strong{Description} \cr
-
-\code{auto.snapshot} \tab \code{logical[1]} \tab \code{FALSE} \tab
-Automatically snapshot changes to the project library after a new package
-is installed with \code{renv::install()}, or removed with \code{renv::remove()}?
+\code{auto.snapshot} \tab \code{logical[1]} \tab \code{FALSE} \tab Automatically snapshot changes to the project library after a new package is installed with \code{renv::install()}, or removed with \code{renv::remove()}?
 \cr
-
-\code{copy.method} \tab \code{character[1]} \tab \code{"auto"} \tab
-The method to use when attempting to copy directories. See \strong{Copy Methods}
-for more information.
+\code{bitbucket.host} \tab \code{character[1]} \tab \code{"api.bitbucket.org/2.0"} \tab The default Bitbucket host to be used during package retrieval.
 \cr
-
-\code{connect.timeout} \tab \code{integer[1]} \tab \code{20L} \tab
-The amount of time to spend (in seconds) when attempting to download a
-file. Only used when the \code{curl} downloader is used.
+\code{copy.method} \tab \code{*} \tab \code{"auto"} \tab The method to use when attempting to copy directories. See \strong{Copy Methods} for more information.
 \cr
-
-\code{connect.retry} \tab \code{integer[1]} \tab \code{3L} \tab
-The number of times to attempt re-downloading a file, when transient
-errors occur. Only used when the \code{curl} downloader is used.
+\code{connect.timeout} \tab \code{integer[1]} \tab \code{20L} \tab The amount of time to spend (in seconds) when attempting to download a file. Only used when the \code{curl} downloader is used.
 \cr
-
-\code{dependency.errors} \tab \code{character(1)} \tab \code{"reported"} \tab
-Many \code{renv} APIs require the enumeration of your project's \R package
-dependencies. This option controls how errors that occur during this
-enumeration are handled. By default, errors are reported but are non-fatal.
-Set this to \code{"fatal"} to force errors to be fatal, and \code{"ignored"} to
-ignore errors altogether. See \link{dependencies} for more details.
+\code{connect.retry} \tab \code{integer[1]} \tab \code{3L} \tab The number of times to attempt re-downloading a file, when transient errors occur. Only used when the \code{curl} downloader is used.
 \cr
-
-\code{external.libraries} \tab \verb{character[*]} \tab \code{character()} \tab
-A character vector of external libraries, to be used in tandem with your
-projects. Be careful when using external libraries: it's possible that
-things can break within a project if the version(s) of packages used in
-your project library happen to be incompatible with packages in your
-external libraries; for example, if your project required \verb{xyz 1.0} but
-\verb{xyz 1.1} was present and loaded from an external library. Can also be an
-\R function that provides the paths to external libraries. Library paths
-will be expanded through \link{.expand_R_libs_env_var} as necessary.
+\code{dependency.errors} \tab \code{character[1]} \tab \code{"reported"} \tab Many \code{renv} APIs require the enumeration of your project's \R package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to \code{"fatal"} to force errors to be fatal, and \code{"ignored"} to ignore errors altogether. See \link{dependencies} for more details.
 \cr
-
-\code{hydrate.libpaths} \tab \verb{character[*]} \tab \code{character()} \tab
-A character vector of library paths, to be used by \code{renv::hydrate()} when
-attempting to hydrate projects. When empty, the default set of library
-paths (as specified in \code{?hydrate}) are used instead. See \code{\link{hydrate}} for
-more details.
+\code{external.libraries} \tab \verb{character[*]} \tab \code{NULL} \tab A character vector of external libraries, to be used in tandem with your projects. Be careful when using external libraries: it's possible that things can break within a project if the version(s) of packages used in your project library happen to be incompatible with packages in your external libraries; for example, if your project required \verb{xyz 1.0} but \verb{xyz 1.1} was present and loaded from an external library. Can also be an \R function that provides the paths to external libraries. Library paths will be expanded through \link{.expand_R_libs_env_var} as necessary.
 \cr
-
-\code{install.staged} \tab \code{logical[1]} \tab \code{TRUE} \tab
-Perform a staged install of packages during install and restore?
-When enabled, \code{renv} will first install packages into a temporary
-library, and later copy or move those packages back into the project
-library only if all packages were successfully downloaded and installed.
-This can be useful if you'd like to avoid mutating your project library
-if installation of one or more packages fails.
+\code{filebacked.cache} \tab \code{logical[1]} \tab \code{TRUE} \tab Enable the \code{renv} file-backed cache? When enabled, \code{renv} will cache the contents of files that are read (e.g. DESCRIPTION files) in memory, thereby avoiding re-reading the file contents from the filesystem if the file has not changed. \code{renv} uses the file \code{mtime} to determine if the file has changed; consider disabling this if \code{mtime} is unreliable on your system.
 \cr
-
-\code{mran.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
-Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN}
-during restore? See \code{vignette("mran", package = "renv")} for more details.
+\code{github.host} \tab \code{character[1]} \tab \code{"api.github.com"} \tab The default GitHub host to be used during package retrieval.
 \cr
-
-\code{repos.override} \tab \verb{character[*]} \tab \code{NULL} \tab
-Override the R package repositories used during \code{\link{restore}}. Primarily
-useful for deployment / continuous integration, where you might want
-to enforce the usage of some set of repositories over what is defined
-in \code{renv.lock} or otherwise set by the R session.
+\code{gitlab.host} \tab \code{character[1]} \tab \code{"gitlab.com"} \tab The default GitLab host to be used during package retrieval.
 \cr
-
-\code{rspm.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
-Boolean; enable RSPM integration for \code{renv} projects? When \code{TRUE}, \code{renv}
-will attempt to transform the repository URLs used by RSPM into binary
-URLs as appropriate for the current platform. Set this to \code{FALSE} if
-you'd like to continue using source-only RSPM URLs, or if you find that
-\code{renv} is improperly transforming your repository URLs.
+\code{hydrate.libpaths} \tab \verb{character[*]} \tab \code{NULL} \tab A character vector of library paths, to be used by \code{renv::hydrate()} when attempting to hydrate projects. When empty, the default set of library paths (as specified in \code{?hydrate}) are used instead. See \code{\link{hydrate}} for more details.
 \cr
-
-\code{sandbox.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
-Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to
-sandbox the system library, preventing non-system packages installed in the
-system library from becoming available in \code{renv} projects. (That is, only
-packages with priority \code{"base"} or \code{"recommended"}, as reported by
-\code{installed.packages()}, are made available.)
+\code{install.staged} \tab \code{logical[1]} \tab \code{TRUE} \tab Perform a staged install of packages during install and restore? When enabled, \code{renv} will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
 \cr
-
-\code{shims.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab
-Should \code{renv} shims be installed on package load? When enabled, \code{renv}
-will install its own shims over the functions \code{install.packages()},
-\code{update.packages()} and \code{remove.packages()}, delegating these functions
-to \code{renv::install()}, \code{renv::update()} and \code{renv::remove()} as
-appropriate.
+\code{mran.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN} during restore? See \code{vignette("mran", package = "renv")} for more details.
 \cr
-
-\code{snapshot.validate} \tab \code{logical[1]} \tab \code{TRUE} \tab
-Validate \R package dependencies when calling snapshot? When \code{TRUE},
-\code{renv} will attempt to diagnose potential issues in the project library
-before creating \code{renv.lock} -- for example, if a package installed in the
-project library depends on a package which is not currently installed.
+\code{repos.override} \tab \verb{character[*]} \tab \code{NULL} \tab Override the R package repositories used during \code{\link{restore}}. Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
 \cr
-
-\code{synchronized.check} \tab \code{logical[1]} \tab \code{TRUE} \tab
-Check that the project library is synchronized with the lockfile on load?
+\code{rspm.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab Boolean; enable RSPM integration for \code{renv} projects? When \code{TRUE}, \code{renv} will attempt to transform the repository URLs used by RSPM into binary URLs as appropriate for the current platform. Set this to \code{FALSE} if you'd like to continue using source-only RSPM URLs, or if you find that \code{renv} is improperly transforming your repository URLs.
 \cr
-
-\code{updates.check} \tab \code{logical[1]} \tab \code{FALSE} \tab
-Check for package updates when the session is initialized?
-This can be useful if you'd like to ensure that your project lockfile
-remains up-to-date with packages as they are released on CRAN.
+\code{sandbox.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in \code{renv} projects. (That is, only packages with priority \code{"base"} or \code{"recommended"}, as reported by \code{installed.packages()}, are made available.)
 \cr
-
-\code{updates.parallel} \tab \code{integer[1]} \tab \code{2L} \tab
-Check for package updates in parallel? This can be useful when a large
-number of packages installed from non-CRAN remotes are installed, as
-these packages can then be checked for updates in parallel.
+\code{shims.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab Should \code{renv} shims be installed on package load? When enabled, \code{renv} will install its own shims over the functions \code{install.packages()}, \code{update.packages()} and \code{remove.packages()}, delegating these functions to \code{renv::install()}, \code{renv::update()} and \code{renv::remove()} as appropriate.
 \cr
-
-\code{user.library} \tab \code{logical[1]} \tab \code{FALSE} \tab
-Include the user library on the library paths for your projects? Note that
-this risks breaking project encapsulation and is not recommended for
-projects which you intend to share or collaborate on with other users. See
-also the caveats for the \code{external.libraries} option.
+\code{snapshot.validate} \tab \code{logical[1]} \tab \code{TRUE} \tab Validate \R package dependencies when calling snapshot? When \code{TRUE}, \code{renv} will attempt to diagnose potential issues in the project library before creating \code{renv.lock} -- for example, if a package installed in the project library depends on a package which is not currently installed.
 \cr
-
-\code{user.profile} \tab \code{logical[1]} \tab \code{FALSE} \tab
-Load the user R profile (typically located at \verb{~/.Rprofile}) when \code{renv}
-is loaded? Consider disabling this if you require extra encapsulation in
-your projects; e.g. if your \code{.Rprofile} attempts to load packages that
-you might not install in your projects.
+\code{synchronized.check} \tab \code{logical[1]} \tab \code{TRUE} \tab Check that the project library is synchronized with the lockfile on load?
 \cr
-
+\code{updates.check} \tab \code{logical[1]} \tab \code{FALSE} \tab Check for package updates when the session is initialized? This can be useful if you'd like to ensure that your project lockfile remains up-to-date with packages as they are released on CRAN.
+\cr
+\code{updates.parallel} \tab \code{*} \tab \code{2L} \tab Check for package updates in parallel? This can be useful when a large number of packages installed from non-CRAN remotes are installed, as these packages can then be checked for updates in parallel.
+\cr
+\code{user.library} \tab \code{logical[1]} \tab \code{FALSE} \tab Include the user library on the library paths for your projects? Note that this risks breaking project encapsulation and is not recommended for projects which you intend to share or collaborate on with other users. See also the caveats for the \code{external.libraries} option.
+\cr
+\code{user.profile} \tab \code{logical[1]} \tab \code{FALSE} \tab Load the user R profile (typically located at \verb{~/.Rprofile}) when \code{renv} is loaded? Consider disabling this if you require extra encapsulation in your projects; e.g. if your \code{.Rprofile} attempts to load packages that you might not install in your projects. \cr
 }
 }
 

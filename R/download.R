@@ -216,7 +216,7 @@ renv_download_default_agent_scope_impl <- function(headers, envir = NULL) {
 
 renv_download_curl <- function(url, destfile, type, request, headers) {
 
-  config <- renv_tempfile("renv-download-config-")
+  file <- renv_tempfile("renv-download-config-")
 
   fields <- c(
     "user-agent" = renv_http_useragent(),
@@ -225,12 +225,12 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   )
 
   # set connect timeout
-  timeout <- catch(as.integer(renv_config("connect.timeout", default = 20L)))
+  timeout <- config$connect.timeout()
   if (is.numeric(timeout))
     fields[["connect-timeout"]] <- timeout
 
   # set number of retries
-  retries <- catch(as.integer(renv_config("connect.retry", default = 3L)))
+  retries <- config$connect.retry()
   if (is.numeric(retries))
     fields[["retry"]] <- retries
 
@@ -261,7 +261,7 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   text <- c(flags, text)
 
-  writeLines(text, con = config)
+  writeLines(text, con = file)
 
   args <- stack()
 
@@ -278,7 +278,7 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
     if (file.exists(entry))
       args$push("--config", shQuote(entry))
 
-  args$push("--config", shQuote(config))
+  args$push("--config", shQuote(file))
 
   output <- system2("curl", args$data(), stdout = TRUE, stderr = TRUE)
   status <- attr(output, "status") %||% 0L

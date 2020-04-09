@@ -26,15 +26,9 @@ renv_libpaths_site <- function() {
 }
 
 renv_libpaths_external <- function(project) {
-
   projlib <- settings$external.libraries(project = project)
-
-  conflib <- renv_config("external.libraries", default = character())
-  if (is.function(conflib))
-    conflib <- conflib(project = project)
-
+  conflib <- config$external.libraries(project)
   .expand_R_libs_env_var(c(projlib, conflib))
-
 }
 
 # on Windows, attempting to use a library path containing
@@ -141,7 +135,7 @@ renv_libpaths_activate <- function(project) {
 
   projlib <- renv_paths_library(project = project)
   extlib <- renv_libpaths_external(project = project)
-  userlib <- if (renv_config("user.library", default = FALSE))
+  userlib <- if (config$user.library())
     renv_libpaths_user()
 
   libpaths <- c(projlib, extlib, userlib)

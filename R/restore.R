@@ -92,9 +92,7 @@ restore <- function(project  = NULL,
   lockfile <- renv_lockfile_override(lockfile)
 
   # override repositories if requested
-  repos <- repos %||%
-    renv_config("repos.override") %||%
-    lockfile$R$Repositories
+  repos <- repos %||% config$repos.override() %||% lockfile$R$Repositories
 
   if (length(repos))
     renv_scope_options(repos = convert(repos, "character"))

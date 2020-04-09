@@ -158,5 +158,5 @@ renv_rspm_os <- function() {
 
 
 renv_rspm_enabled <- function() {
-  renv_config("rspm.enabled", default = TRUE)
+  config$rspm.enabled()
 }

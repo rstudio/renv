@@ -41,8 +41,7 @@ renv_shim <- function(shim, sham) {
 }
 
 renv_shims_enabled <- function(project) {
-  config <- renv_config("shims.enabled", default = TRUE)
-  identical(config, TRUE)
+  config$shims.enabled()
 }
 
 renv_shims_activate <- function() {

@@ -210,7 +210,7 @@ renv_load_profile <- function(project = NULL) {
 
   project <- renv_project_resolve(project)
 
-  enabled <- renv_config("user.profile", default = FALSE)
+  enabled <- config$user.profile()
   if (!enabled)
     return(FALSE)
 
@@ -247,7 +247,7 @@ renv_load_libpaths <- function(project = NULL) {
 }
 
 renv_load_sandbox <- function(project) {
-  if (renv_sandbox_enabled(project))
+  if (config$sandbox.enabled())
     renv_sandbox_activate(project)
 }
 
@@ -403,7 +403,8 @@ renv_load_report_updates <- function(project) {
 # nocov start
 renv_load_report_updates_impl <- function(project) {
 
-  if (!renv_config("updates.check", default = FALSE))
+  enabled <- config$updates.check()
+  if (!enabled)
     return(FALSE)
 
   if (!file.exists(file.path(project, "renv.lock")))
@@ -425,7 +426,8 @@ renv_load_report_updates_impl <- function(project) {
 
 renv_load_report_synchronized <- function(project, lockfile) {
 
-  if (!renv_config("synchronized.check", default = TRUE))
+  enabled <- config$synchronized.check()
+  if (!enabled)
     return(FALSE)
 
   renv_project_synchronized_check(project, lockfile)

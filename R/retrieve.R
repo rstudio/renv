@@ -373,7 +373,7 @@ renv_retrieve_repos <- function(record) {
     methods <- c(renv_retrieve_repos_binary, methods)
 
     # attempt to retrieve binaries from MRAN when enabled as well
-    if (renv_config("mran.enabled", default = TRUE))
+    if (config$mran.enabled())
       methods <- c(renv_retrieve_repos_mran, methods)
   }
 

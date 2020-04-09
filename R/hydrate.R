@@ -124,19 +124,14 @@ renv_hydrate_dependencies <- function(project,
 # on CRAN but not that we want to use during tests
 renv_hydrate_libpaths <- function() {
 
-  config <- renv_config("hydrate.libpaths", default = character())
-  if (!is.character(config)) {
-    warning("ignoring non-character 'hydrate.libpaths' option")
-    config <- character()
-  }
-
-  if (is.character(config) && length(config))
-    config <- unlist(strsplit(config, ":", fixed = TRUE))
+  conf <- config$hydrate.libpaths()
+  if (is.character(conf) && length(conf))
+    conf <- unlist(strsplit(conf, ":", fixed = TRUE))
 
   libpaths <- if (renv_testing())
     renv_libpaths_all()
-  else if (length(config))
-    config
+  else if (length(conf))
+    conf
   else
     c(renv_libpaths_user(), renv_libpaths_site(), renv_libpaths_system())
 

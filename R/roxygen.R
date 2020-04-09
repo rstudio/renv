@@ -31,3 +31,43 @@ NULL
 #'
 #' @name install-params
 NULL
+
+renv_roxygen_config_section <- function() {
+
+  # read config
+  config <- yaml::read_yaml("inst/config.yml")
+
+  # generate table entries
+  rows <- map_chr(config, function(entry) {
+
+    # extract fields
+    name <- entry$name
+    type <- entry$type
+    default <- entry$default
+    description <- entry$description
+
+    # deparse default value
+    default <- case(
+      identical(default, list()) ~ "NULL",
+      TRUE                       ~ deparse(default)
+    )
+
+    # generate table row
+    fmt <- "`%s` \\tab `%s` \\tab `%s` \\tab %s \\cr"
+    sprintf(fmt, name, type, default, description)
+
+  })
+
+  c(
+    "@section Configuration:",
+    "",
+    "The following `renv` configuration options are available:",
+    "",
+    "\\tabular{llll}{",
+    "**Name** \\tab **Type** \\tab **Default** \\tab **Description** \\cr",
+    rows,
+    "}",
+    ""
+  )
+
+}

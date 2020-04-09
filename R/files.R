@@ -128,7 +128,7 @@ renv_file_copy_dir_impl <- function(source, target) {
     rsync    = renv_file_copy_dir_rsync
   )
 
-  copy <- renv_config("copy.method", default = "auto")
+  copy <- config$copy.method()
   if (is.function(copy))
     return(copy(source, target))
 

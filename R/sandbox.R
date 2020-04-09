@@ -1,8 +1,4 @@
 
-renv_sandbox_enabled <- function(project) {
-  renv_config("sandbox.enabled", default = TRUE)
-}
-
 renv_sandbox_activate <- function(project = NULL) {
 
   # attempt the activation
@@ -126,7 +122,8 @@ renv_sandbox_deactivate <- function() {
 
 renv_sandbox_task <- function(...) {
 
-  if (!renv_config("sandbox.enabled", default = TRUE))
+  enabled <- config$sandbox.enabled()
+  if (!enabled)
     return(FALSE)
 
   sandbox <- tail(.libPaths(), n = 1L)

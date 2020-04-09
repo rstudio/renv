@@ -93,7 +93,7 @@ snapshot <- function(project  = NULL,
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
 
-  if (renv_config("snapshot.preflight", default = TRUE))
+  if (config$snapshot.validate())
     renv_snapshot_preflight(project, library)
 
   new <- renv_lockfile_create(project, library, type)
@@ -190,7 +190,7 @@ renv_snapshot_preflight_library_exists <- function(project, library) {
 renv_snapshot_validate <- function(project, lockfile, library) {
 
   # allow user to disable snapshot validation, just in case
-  enabled <- renv_config("snapshot.validate", default = TRUE)
+  enabled <- config$snapshot.validate()
   if (!enabled)
     return(TRUE)
 
@@ -651,7 +651,8 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 renv_snapshot_auto <- function(project) {
 
   # don't auto-snapshot if disabled by user
-  if (!renv_config("auto.snapshot", default = FALSE))
+  enabled <- config$auto.snapshot()
+  if (!enabled)
     return(FALSE)
 
   # only automatically snapshot the current project
@@ -691,7 +692,7 @@ renv_snapshot_auto <- function(project) {
 renv_snapshot_dependencies <- function(source) {
 
   message <- "snapshot aborted"
-  errors <- renv_config("dependency.errors", default = "reported")
+  errors <- config$dependency.errors()
 
   withCallingHandlers(
     dependencies(source, progress = FALSE, errors = errors),
@@ -723,7 +724,7 @@ renv_snapshot_filter <- function(project, records, type) {
   end <- Sys.time()
 
   # report if dependency discovery took a long time
-  limit <- renv_config("snapshot.filter.timelimit", default = 10L)
+  limit <- 10L
   if (difftime(end, start, units = "secs") > limit) {
 
     lines <- c(

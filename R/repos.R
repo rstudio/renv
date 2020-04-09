@@ -17,7 +17,7 @@ renv_repos_decode <- function(x) {
 renv_repos_init_callback <- function(...) {
 
   # bail unless opted in
-  config <- renv_config("eager.repos", default = FALSE)
+  config <- renv_config_get("eager.repos", default = FALSE)
   if (!identical(config, TRUE))
     return(FALSE)
 
