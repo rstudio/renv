@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.71</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.72</span>
       </span>
     </div>
 
@@ -120,7 +120,7 @@
 
     
     
-<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="https://www.travis-ci.org">Travis</a>, <a href="https://www.appveyor.com">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and re-install these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
+<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="github-actions">GitHub Actions</a>, <a href="travis-ci">Travis CI</a>, <a href="appveyor">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and re-install these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
 <p><code>renv</code> can often be helpful in these situations. The general idea is:</p>
 <ol style="list-style-type: decimal">
 <li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> on your local machine, to generate <code>renv.lock</code>;</p></li>
@@ -128,6 +128,35 @@
 <li><p>Ensure that the project library, as well as the global <code>renv</code> cache, are cached by the CI service.</p></li>
 </ol>
 <p>Normally, <code>renv</code> will use the R package repositories as encoded in <code>renv.lock</code> during restore, and this will override any repositories set in other locations (e.g. in <code>.Rprofile</code> or <code>.Rprofile.site</code>). We’ll discuss some strategies for providing an alternate R package repository to use during restore below.</p>
+<div id="github-actions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#github-actions" class="anchor"></a>GitHub Actions</h2>
+<p>When using GitHub Actions, you typically need two steps:</p>
+<ol style="list-style-type: decimal">
+<li>Cache any packages installed by <code>renv</code>,</li>
+<li>Use <code><a href="../reference/restore.html">renv::restore()</a></code> to restore packages.</li>
+</ol>
+<p>As an example, these steps might look like:</p>
+<pre><code>env:
+  RENV_PATHS_ROOT: ~/.local/share/renv
+
+steps:
+
+- name: Cache packages
+  uses: actions/cache@v1
+  with:
+    path: ~/.local/share/renv
+    key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+    restore-keys: |
+      ${{ runner.os }}-renv-
+
+- name: Restore packages
+  shell: Rscript {0}
+  run: |
+    install.packages("renv")
+    renv::restore()</code></pre>
+<p>See also the <a href="github-actions-renv">example</a> on GitHub actions.</p>
+</div>
 <div id="travis-ci" class="section level2">
 <h2 class="hasAnchor">
 <a href="#travis-ci" class="anchor"></a>Travis CI</h2>
@@ -180,7 +209,8 @@ before_script:
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#travis-ci">Travis CI</a></li>
+<li><a href="#github-actions">GitHub Actions</a></li>
+      <li><a href="#travis-ci">Travis CI</a></li>
       <li><a href="#gitlab-ci">GitLab CI</a></li>
       </ul>
 </div>
