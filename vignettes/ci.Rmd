@@ -83,6 +83,7 @@ cache:
   - $TRAVIS_BUILD_DIR/renv/library
 
 install:
+  - Rsciprt -e "install.packages('renv')"
   - Rscript -e "renv::restore()"
   
 script:
