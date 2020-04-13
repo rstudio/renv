@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.72</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.73</span>
       </span>
     </div>
 
@@ -167,6 +167,7 @@ steps:
   - $TRAVIS_BUILD_DIR/renv/library
 
 install:
+  - Rsciprt -e "install.packages('renv')"
   - Rscript -e "renv::restore()"
   
 script:
