@@ -15,11 +15,11 @@ knitr::opts_chunk$set(
 ```
 
 When building, deploying, or testing with continuous integration (CI) systems
-(e.g. [Travis](https://www.travis-ci.org), [AppVeyor](https://www.appveyor.com),
-and others), one often needs to download and install a set of R packages
-before the service can be run. Normally, one will have to download and
-re-install these packages on each build, which can often be slow -- especially
-in environments where binary packages are not available from your R
+(e.g. [GitHub Actions](github-actions), [Travis CI](travis-ci),
+[AppVeyor](appveyor), and others), one often needs to download and install a set
+of R packages before the service can be run. Normally, one will have to download
+and re-install these packages on each build, which can often be slow --
+especially in environments where binary packages are not available from your R
 package repositories.
 
 `renv` can often be helpful in these situations. The general idea is:
@@ -36,6 +36,39 @@ Normally, `renv` will use the R package repositories as encoded in `renv.lock`
 during restore, and this will override any repositories set in other locations
 (e.g. in `.Rprofile` or `.Rprofile.site`). We'll discuss some strategies for
 providing an alternate R package repository to use during restore below.
+
+
+## GitHub Actions
+
+When using GitHub Actions, you typically need two steps:
+
+1. Cache any packages installed by `renv`,
+2. Use `renv::restore()` to restore packages.
+
+As an example, these steps might look like:
+
+```
+env:
+  RENV_PATHS_ROOT: ~/.local/share/renv
+
+steps:
+
+- name: Cache packages
+  uses: actions/cache@v1
+  with:
+    path: ~/.local/share/renv
+    key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+    restore-keys: |
+      ${{ runner.os }}-renv-
+
+- name: Restore packages
+  shell: Rscript {0}
+  run: |
+    install.packages("renv")
+    renv::restore()
+```
+
+See also the [example](github-actions-renv) on GitHub actions.
 
 
 ## Travis CI
@@ -110,3 +143,9 @@ before_script:
   - Rscript -e "renv::restore()"
   
 ```
+
+
+[github-actions]: https://github.com/features/actions
+[travis-ci]: https://travis-ci.org/
+[appveyor]: https://www.appveyor.com/
+[github-actions-renv]: https://github.com/actions/cache/blob/master/examples.md#r---renv
