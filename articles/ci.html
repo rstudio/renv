@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.74</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.76</span>
       </span>
     </div>
 
@@ -120,7 +120,7 @@
 
     
     
-<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="github-actions">GitHub Actions</a>, <a href="travis-ci">Travis CI</a>, <a href="appveyor">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and re-install these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
+<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="https://github.com/features/actions">GitHub Actions</a>, <a href="https://travis-ci.org/">Travis CI</a>, <a href="https://www.appveyor.com/">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and re-install these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
 <p><code>renv</code> can often be helpful in these situations. The general idea is:</p>
 <ol style="list-style-type: decimal">
 <li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> on your local machine, to generate <code>renv.lock</code>;</p></li>
@@ -145,7 +145,7 @@ steps:
 - name: Cache packages
   uses: actions/cache@v1
   with:
-    path: ~/.local/share/renv
+    path: ${{ env.RENV_PATHS_ROOT }}
     key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
     restore-keys: |
       ${{ runner.os }}-renv-
@@ -153,9 +153,9 @@ steps:
 - name: Restore packages
   shell: Rscript {0}
   run: |
-    install.packages("renv")
+    if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
     renv::restore()</code></pre>
-<p>See also the <a href="github-actions-renv">example</a> on GitHub actions.</p>
+<p>See also the <a href="https://github.com/actions/cache/blob/master/examples.md#r---renv">example</a> on GitHub actions.</p>
 </div>
 <div id="travis-ci" class="section level2">
 <h2 class="hasAnchor">
@@ -167,7 +167,7 @@ steps:
   - $TRAVIS_BUILD_DIR/renv/library
 
 install:
-  - Rsciprt -e "install.packages('renv')"
+  - Rscript -e "if (!requireNamespace('renv', quietly = TRUE)) install.packages('renv')"
   - Rscript -e "renv::restore()"
   
 script:
@@ -199,7 +199,7 @@ cache:
 
 before_script:
   - &lt; ... other pre-deploy steps ... &gt;
-  - Rscript -e "install.packages('renv')"
+  - Rscript -e "if (!requireNamespace('renv', quietly = TRUE)) install.packages('renv')"
   - Rscript -e "renv::restore()"
   </code></pre>
 </div>
