@@ -56,7 +56,7 @@ steps:
 - name: Cache packages
   uses: actions/cache@v1
   with:
-    path: ~/.local/share/renv
+    path: ${{ env.RENV_PATHS_ROOT }}
     key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
     restore-keys: |
       ${{ runner.os }}-renv-
@@ -64,7 +64,7 @@ steps:
 - name: Restore packages
   shell: Rscript {0}
   run: |
-    install.packages("renv")
+    if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
     renv::restore()
 ```
 
@@ -83,7 +83,7 @@ cache:
   - $TRAVIS_BUILD_DIR/renv/library
 
 install:
-  - Rsciprt -e "install.packages('renv')"
+  - Rscript -e "if (!requireNamespace('renv', quietly = TRUE)) install.packages('renv')"
   - Rscript -e "renv::restore()"
   
 script:
@@ -141,7 +141,7 @@ cache:
 
 before_script:
   - < ... other pre-deploy steps ... >
-  - Rscript -e "install.packages('renv')"
+  - Rscript -e "if (!requireNamespace('renv', quietly = TRUE)) install.packages('renv')"
   - Rscript -e "renv::restore()"
   
 ```
