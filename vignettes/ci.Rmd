@@ -141,6 +141,7 @@ cache:
 
 before_script:
   - < ... other pre-deploy steps ... >
+  - Rscript -e "install.packages('renv')"
   - Rscript -e "renv::restore()"
   
 ```
