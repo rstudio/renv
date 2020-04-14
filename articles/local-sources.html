@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.77</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.78</span>
       </span>
     </div>
 
@@ -155,7 +155,32 @@
   "Version": "1.0.1",
   "Source": "/mnt/r/pkg/skeleton_1.0.1.tar.gz"
 }</code></pre>
-<p>The main requirement is that your source path exists, and the path has an extension of either <code>.tar.gz</code>, (for source packages), <code>.tgz</code> (for macOS binaries) or <code>.zip</code> (for Windows binaries).</p>
+<p>Packages should have the following extensions, depending on whether the archive contains a binary copy of the package or the package sources:</p>
+<table class="table">
+<thead><tr class="header">
+<th><strong>Platform</strong></th>
+<th><strong>Binary</strong></th>
+<th><strong>Sources</strong></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Windows</td>
+<td><code>.zip</code></td>
+<td><code>.tar.gz</code></td>
+</tr>
+<tr class="even">
+<td>macOS</td>
+<td><code>.tgz</code></td>
+<td><code>.tar.gz</code></td>
+</tr>
+<tr class="odd">
+<td>Linux</td>
+<td><code>.tar.gz</code></td>
+<td><code>.tar.gz</code></td>
+</tr>
+</tbody>
+</table>
+<p>Note that on Linux, both binaries and sources should have the <code>.tar.gz</code> extension, but R and <code>renv</code> will handle this as appropriate during installation.</p>
 </div>
   </div>
 
