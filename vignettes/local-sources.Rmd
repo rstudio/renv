@@ -76,6 +76,14 @@ example, you could have a package record in `renv.lock` of the form:
 }
 ```
 
-The main requirement is that your source path exists, and the path has an
-extension of either `.tar.gz`, (for source packages), `.tgz` (for macOS
-binaries) or `.zip` (for Windows binaries).
+Packages should have the following extensions, depending on whether the archive
+contains a binary copy of the package or the package sources:
+
+| **Platform** | **Binary** | **Sources** |
+| ------------ | ---------- | ----------- |
+| Windows      | `.zip`     | `.tar.gz`   |
+| macOS        | `.tgz`     | `.tar.gz`   |
+| Linux        | `.tar.gz`  | `.tar.gz`   |
+
+Note that on Linux, both binaries and sources should have the `.tar.gz`
+extension, but R and `renv` will handle this as appropriate during installation.
