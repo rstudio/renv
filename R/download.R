@@ -116,7 +116,12 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
     renv_download_default
   )
 
-  catch(downloader(url, destfile, type, request, headers))
+  exit_code = catch(downloader(url, destfile, type, request, headers))
+
+  if (request == "HEAD" && exit_code == 22)
+    unlink(destfile, recursive = TRUE, force = TRUE)
+
+  exit_code
 
 }
 
