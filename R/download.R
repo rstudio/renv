@@ -132,7 +132,7 @@ renv_download_default_mode <- function(url, method) {
   if (fixup)
     mode <- "w+b"
 
-  "wb"
+  mode
 
 }
 
