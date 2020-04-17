@@ -57,8 +57,8 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   }
 
   # back up a pre-existing file if necessary
-  backup_callback <- renv_file_backup(destfile)
-  on.exit(backup_callback(), add = TRUE)
+  callback <- renv_file_backup(destfile)
+  on.exit(callback(), add = TRUE)
 
   # form path to temporary file
   tempfile <- renv_tempfile(tmpdir = dirname(destfile))
@@ -280,10 +280,13 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   args$push("--config", shQuote(file))
 
-  output <- system2("curl", args$data(), stdout = TRUE, stderr = TRUE)
-  status <- attr(output, "status") %||% 0L
+  output <- suppressWarnings(
+    system2("curl", args$data(), stdout = TRUE, stderr = TRUE)
+  )
+
+  status <- attr(output, "status", exact = TRUE) %||% 0L
   if (status != 0L)
-    warning(output)
+    warning(output, call. = FALSE)
 
   status
 
@@ -353,16 +356,35 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
 
   writeLines(text, con = config)
 
-  args <- getOption("download.file.extra")
+  args <- stack()
 
-  args <- c(args, "--config", shQuote(config))
-  if (request == "HEAD") {
-    args <- c("--server-response", "--spider", args, shQuote(url))
-    return(system2("wget", args, stdout = destfile, stderr = destfile))
+  extra <- getOption("download.file.extra")
+  if (length(extra))
+    args$push(extra)
+
+  args$push("--config", shQuote(config))
+
+  # NOTE: '-O' does not write headers to file; we need to manually redirect
+  # in that case
+  status <- if (request == "HEAD") {
+    args$push("--server-response", "--spider")
+    args$push(">", shQuote(destfile), "2>&1")
+    cmdline <- paste("wget", paste(args$data(), collapse = " "))
+    return(suppressWarnings(system(cmdline)))
   }
 
-  args <- c(args, shQuote(url), "-O", shQuote(destfile))
-  system2("wget", args)
+  args$push("-O", shQuote(destfile))
+  args$push(shQuote(url))
+
+  output <- suppressWarnings(
+    system2("wget", args$data(), stdout = TRUE, stderr = TRUE)
+  )
+
+  status <- attr(output, "status", exact = TRUE) %||% 0L
+  if (status != 0L)
+    warning(output, call. = FALSE)
+
+  status
 
 }
 
@@ -460,16 +482,25 @@ renv_download_headers <- function(url, type, headers) {
 
   # perform the download
   file <- renv_tempfile("renv-headers-")
-  renv_download_impl(
-    url = url,
+
+  status <- renv_download_impl(
+    url      = url,
     destfile = file,
-    type = type,
-    request = "HEAD",
-    headers = headers
+    type     = type,
+    request  = "HEAD",
+    headers  = headers
   )
 
-  if (!file.exists(file))
+  # check for failure
+  failed <-
+    inherits(status, "error") ||
+    !identical(status, 0L) ||
+    !file.exists(file)
+
+  if (failed) {
+    unlink(file)
     return(list())
+  }
 
   # read the downloaded headers
   contents <- read(file)

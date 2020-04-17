@@ -1,6 +1,9 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* Fixed an issue where downloads could fail when the associated pre-flight
+  HEAD request failed as well. (#390)
+
 * Fixed an issue where empty records within a DESCRIPTION file could cause
   `renv::dependencies()` to fail. (#382)
 
