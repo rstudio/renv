@@ -632,13 +632,11 @@ renv_download_local_copy <- function(url, destfile, headers) {
 
   url <- case(
     startswith(url, "file:///") ~ substring(url, 8L),
-    startswith(url, "file://")  ~ substring(url, 6L)
+    startswith(url, "file://")  ~ substring(url, 6L),
+    TRUE                        ~ url
   )
 
-  if (is.null(url))
-    return(FALSE)
-
-  status <- catchall(renv_file_copy(file, destfile, overwrite = TRUE))
+  status <- catchall(renv_file_copy(url, destfile, overwrite = TRUE))
   if (!identical(status, TRUE))
     return(FALSE)
 
