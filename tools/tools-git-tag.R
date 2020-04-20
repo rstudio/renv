@@ -31,7 +31,8 @@ repeat {
   system(paste("git tag", version))
 
   # go to the previous commit
-  status <- system("git checkout HEAD~1 &> /dev/null")
+  args <- c("checkout", shQuote("HEAD~1"))
+  status <- system2("git", args, stdout = FALSE, stderr = FALSE)
   if (status != 0)
     break
 
