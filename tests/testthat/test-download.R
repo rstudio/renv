@@ -122,7 +122,7 @@ test_that("downloads work with file URIs", {
   renv_tests_scope()
 
   repos <- getOption("repos")[["CRAN"]]
-  url <- file.path(repos, "src/contrib/PACKAGES.rds")
+  url <- file.path(repos, "src/contrib/PACKAGES")
 
   destfile <- tempfile("packages-")
   download(url, destfile = destfile)
