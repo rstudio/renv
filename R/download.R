@@ -655,6 +655,8 @@ renv_download_local_default <- function(url, destfile, headers) {
   if (!identical(status, TRUE))
     return(FALSE)
 
+  TRUE
+
 }
 
 renv_download_custom_headers <- function(url) {
