@@ -116,3 +116,17 @@ test_that("downloads still succeed even if HEAD request fails", {
   expect_equal(unname(md5), "9e978ca14adea985850f7913fc837166")
 
 })
+
+test_that("downloads work with file URIs", {
+
+  renv_tests_scope()
+
+  repos <- getOption("repos")[["CRAN"]]
+  url <- file.path(repos, "src/contrib/PACKAGES.rds")
+
+  destfile <- tempfile("packages-")
+  download(url, destfile = destfile)
+
+  expect_true(file.exists(destfile))
+
+})

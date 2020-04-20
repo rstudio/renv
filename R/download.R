@@ -107,6 +107,8 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 }
 
 # NOTE: only 'GET' and 'HEAD' are supported
+#
+# each downloader should return 0 on success
 renv_download_impl <- function(url, destfile, type = NULL, request = "GET", headers = NULL) {
 
   downloader <- switch(
@@ -630,12 +632,21 @@ renv_download_local <- function(url, destfile, headers) {
 
 renv_download_local_copy <- function(url, destfile, headers) {
 
+  # remove file prefix (to get path to local / server file)
   url <- case(
     startswith(url, "file:///") ~ substring(url, 8L),
     startswith(url, "file://")  ~ substring(url, 6L),
     TRUE                        ~ url
   )
 
+  # fix up file URIs to local paths on Windows
+  if (renv_platform_windows()) {
+    badpath <- grepl("^/[a-zA-Z]:", url)
+    if (badpath)
+      url <- substring(url, 2L)
+  }
+
+  # attempt to copy
   status <- catchall(renv_file_copy(url, destfile, overwrite = TRUE))
   if (!identical(status, TRUE))
     return(FALSE)
@@ -652,10 +663,7 @@ renv_download_local_default <- function(url, destfile, headers) {
     headers  = headers
   )
 
-  if (!identical(status, TRUE))
-    return(FALSE)
-
-  TRUE
+  identical(status, 0L)
 
 }
 
