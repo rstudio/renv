@@ -604,19 +604,58 @@ renv_download_check_archive <- function(destfile) {
 
 renv_download_local <- function(url, destfile, headers) {
 
+  # only ever used for downloads from file URIs
   if (!grepl("^file:", url))
     return(FALSE)
 
+  # normalize separators (file URIs should normally use forward
+  # slashes, even on Windows where the native separator is backslash)
   url <- gsub("\\", "/", url, fixed = TRUE)
   destfile <- gsub("\\", "/", destfile, fixed = TRUE)
 
-  renv_download_impl(
-    url = url,
-    destfile = destfile,
-    headers = headers
+  methods <- list(
+    renv_download_local_copy,
+    renv_download_local_default
   )
 
+  for (method in methods) {
+    status <- catch(method(url, destfile, headers))
+    if (identical(status, TRUE))
+      return(TRUE)
+  }
+
+  FALSE
+
+}
+
+renv_download_local_copy <- function(url, destfile, headers) {
+
+  url <- case(
+    startswith(url, "file:///") ~ substring(url, 8L),
+    startswith(url, "file://")  ~ substring(url, 6L)
+  )
+
+  if (is.null(url))
+    return(FALSE)
+
+  status <- catchall(renv_file_copy(file, destfile, overwrite = TRUE))
+  if (!identical(status, TRUE))
+    return(FALSE)
+
   TRUE
+
+}
+
+renv_download_local_default <- function(url, destfile, headers) {
+
+  status <- renv_download_impl(
+    url      = url,
+    destfile = destfile,
+    headers  = headers
+  )
+
+  if (!identical(status, TRUE))
+    return(FALSE)
 
 }
 
