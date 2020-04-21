@@ -287,7 +287,8 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, library) {
         c(
           "renv may be unable to restore these packages.",
           paste("Bioconductor version:", version)
-        )
+        ),
+        wrap = FALSE
       )
     }
 

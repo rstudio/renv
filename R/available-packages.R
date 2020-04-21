@@ -226,7 +226,6 @@ renv_available_packages_latest_impl <- function(package, type) {
   fields <- c("Package", "Version", "NeedsCompilation", "Repository")
   entries <- bapply(dbs, function(db) {
 
-
     # extract entries for this package
     rows <- db[db$Package == package, ]
     if (nrow(rows) == 0L)
@@ -250,12 +249,11 @@ renv_available_packages_latest_impl <- function(package, type) {
 
       # build code to validate requirements
       fmt <- "getRversion() %s \"%s\""
-      all <- sprintf(fmt, parsed$Require, parsed$Version)
+      all <- sprintf(fmt, r$Require, r$Version)
       code <- paste(all, collapse = " && ")
 
       # evaluate it
-      parsed <- renv_parse(text = code)
-      status <- catch(eval(parsed, envir = baseenv()))
+      status <- catch(eval(parse(text = code), envir = baseenv()))
       if (inherits(status, "error")) {
         warning(status)
         return(TRUE)
