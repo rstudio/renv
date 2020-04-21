@@ -104,3 +104,37 @@ renv_description_type <- function(path = NULL, desc = NULL) {
   "unknown"
 
 }
+
+# parse the dependency requirements normally presented in
+# Depends, Imports, Suggests, and so on
+renv_description_parse_field <- function(field) {
+
+  # check for invalid / unexpected inputs
+  if (is.na(field) || !nzchar(field))
+    return(data.frame())
+
+  pattern <- paste0(
+    "([a-zA-Z0-9._]+)",                      # package name
+    "(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"  # optional version specification
+  )
+
+  # split on commas
+  parts <- strsplit(field, "\\s*,\\s*")[[1]]
+
+  # drop any empty fields
+  x <- parts[nzchar(parts)]
+
+  # match to split on package name, version
+  m <- regexec(pattern, x)
+  matches <- regmatches(x, m)
+  if (empty(matches))
+    return(data.frame())
+
+  data.frame(
+    Package = extract_chr(matches, 2L),
+    Require = extract_chr(matches, 3L),
+    Version = extract_chr(matches, 4L),
+    stringsAsFactors = FALSE
+  )
+
+}

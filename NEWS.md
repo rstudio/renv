@@ -1,6 +1,10 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* Fixed an issue where `renv::install()` could fail when multiple versions
+  of a package are available from a single repository, but some versions of
+  those packages are incompatible with the current version of R. (#252)
+
 * Fixed an issue where downloads could fail when the associated pre-flight
   HEAD request failed as well. (#390)
 

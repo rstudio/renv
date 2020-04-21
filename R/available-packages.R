@@ -225,12 +225,56 @@ renv_available_packages_latest_impl <- function(package, type) {
   dbs <- renv_available_packages(type = type, quiet = TRUE)
   fields <- c("Package", "Version", "NeedsCompilation", "Repository")
   entries <- bapply(dbs, function(db) {
-    db[db$Package == package, intersect(fields, names(db))]
+
+
+    # extract entries for this package
+    rows <- db[db$Package == package, ]
+    if (nrow(rows) == 0L)
+      return(rows)
+
+    # only keep entries for which this version of R is compatible
+    deps <- rows$Depends %||% rep.int("", nrow(rows))
+    compatible <- map_lgl(deps, function(dep) {
+
+      # read 'R' entries from Depends (if any)
+      parsed <- catch(renv_description_parse_field(dep))
+      if (inherits(parsed, "error")) {
+        warning(parsed)
+        return(FALSE)
+      }
+
+      # read requirements for R
+      r <- parsed[parsed$Package == "R", ]
+      if (nrow(r) == 0)
+        return(TRUE)
+
+      # build code to validate requirements
+      fmt <- "getRversion() %s \"%s\""
+      all <- sprintf(fmt, parsed$Require, parsed$Version)
+      code <- paste(all, collapse = " && ")
+
+      # evaluate it
+      parsed <- renv_parse(text = code)
+      status <- catch(eval(parsed, envir = baseenv()))
+      if (inherits(status, "error")) {
+        warning(status)
+        return(TRUE)
+      }
+
+      # all done
+      status
+
+    })
+
+    # keep only compatible rows + the required fields
+    rows[compatible, intersect(fields, names(db))]
+
   }, index = "Name")
 
   if (is.null(entries))
     return(NULL)
 
+  # sort based on version
   version <- numeric_version(entries$Version)
   ordered <- order(version, decreasing = TRUE)
   entries[ordered[[1]], ]
