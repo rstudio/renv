@@ -230,13 +230,26 @@ renv_dependencies_find_impl <- function(path, root) {
 
 renv_dependencies_find_dir <- function(path, root) {
 
+  # check if this path should be ignored
   path <- renv_renvignore_exec(path, root, path)
   if (empty(path))
     return(character())
 
+  # check if we've already scanned this directory
+  # (necessary to guard against recursive symlinks)
+  if (!renv_platform_windows()) {
+    norm <- renv_path_normalize(path, mustWork = FALSE)
+    state <- renv_dependencies_state()
+    if (visited(norm, state$scanned))
+      return(character())
+  }
+
+  # list children
   children <- renv_dependencies_find_dir_children(path, root)
   paths <- lapply(children, renv_dependencies_find_impl, root = root)
 
+  # explicitly include rsconnect folder
+  # (so we can infer a dependency on rsconnect when appropriate)
   rsconnect <- file.path(path, "rsconnect")
   if (file.exists(rsconnect))
     paths <- c(rsconnect, paths)
@@ -1048,7 +1061,7 @@ renv_dependencies_state <- function() {
 }
 
 renv_dependencies_begin <- function(root = NULL) {
-  state <- env(root = root, problems = stack())
+  state <- env(root = root, scanned = env(), problems = stack())
   renv_global_set("dependencies.state", state)
 }
 

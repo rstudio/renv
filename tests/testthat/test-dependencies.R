@@ -227,3 +227,20 @@ test_that("empty fields are handled in DESCRIPTION", {
   deps <- dependencies("resources/DESCRIPTION", progress = FALSE)
   expect_setequal(deps$Package, c("a", "b", "c"))
 })
+
+test_that("recursive symlinks are handled", {
+  skip_on_os("windows")
+
+  project <- renv_tempfile()
+  ensure_directory(project)
+
+  owd <- setwd(project)
+  on.exit(setwd(owd), add = TRUE)
+
+  symlink <- file.path(project, "symlink")
+  file.symlink(dirname(symlink), symlink)
+
+  trace(renv:::renv_dependencies_find_dir_children)
+  renv:::dependencies()
+
+})
