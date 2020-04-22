@@ -1,6 +1,10 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* `renv` now properly parses negated entries within a `.gitignore`; e.g.
+  `!script.R` will indicate that `renv` should include `script.R` when
+  parsing dependencies. (#403)
+
 * Fixed an issue where packages which had only binaries available on a
   package repository were not detected as being from a package repository.
   (#402)

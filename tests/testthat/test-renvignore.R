@@ -30,31 +30,40 @@ test_that("ignore patterns are constructed correctly", {
 
   # ignore all data directories in project
   expect_equal(
-    renv_renvignore_parse("data", "/project"),
+    renv_renvignore_parse_impl("data", "/project"),
     "^\\Q/project/\\E(?:(?:.*/)?\\Qdata\\E$)"
   )
 
   # ignore data directory at root of project
   expect_equal(
-    renv_renvignore_parse("/data", "/project"),
+    renv_renvignore_parse_impl("/data", "/project"),
     "^\\Q/project/\\E(?:\\Qdata\\E$)"
   )
 
   # ignores are combined correctly
   expect_equal(
-    renv_renvignore_parse(c("/data1", "/data2"), "/project"),
+    renv_renvignore_parse_impl(c("/data1", "/data2"), "/project"),
     "^\\Q/project/\\E(?:\\Qdata1\\E$|\\Qdata2\\E$)"
   )
 
   expect_equal(
-    renv_renvignore_parse(c("data1", "data2"), "/project"),
+    renv_renvignore_parse_impl(c("data1", "data2"), "/project"),
     "^\\Q/project/\\E(?:(?:.*/)?\\Qdata1\\E$|(?:.*/)?\\Qdata2\\E$)"
   )
 
   # sub-directory ignores are handled
   expect_equal(
-    renv_renvignore_parse("data/internal", "/project"),
+    renv_renvignore_parse_impl("data/internal", "/project"),
     "^\\Q/project/\\E(?:\\Qdata/internal\\E$)"
+  )
+
+  # negations are handled
+  expect_equal(
+    renv_renvignore_parse(c("abc.R", "!def.R")),
+    list(
+      exclude = "^\\Q/\\E(?:(?:.*/)?\\Qabc.R\\E$)",
+      include = "^\\Q/\\E(?:(?:.*/)?\\Qdef.R\\E$)"
+    )
   )
 
 })
@@ -65,5 +74,15 @@ test_that("empty .renvignore does not ignore anything", {
   file.create(".renvignore")
   deps <- dependencies(quiet = TRUE)
   expect_true("oatmeal" %in% deps$Package)
+
+})
+
+test_that("negated .renvignore patterns are handled", {
+
+  renv_tests_scope()
+  writeLines(c("script.R", "!script.R"), con = ".renvignore")
+  writeLines("library(foo)", con = "script.R")
+  deps <- dependencies(quiet = TRUE)
+  expect_false("foo" %in% deps$Package)
 
 })
