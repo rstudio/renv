@@ -130,3 +130,30 @@ test_that("downloads work with file URIs", {
   expect_true(file.exists(destfile))
 
 })
+
+
+test_that("downlaods work with UNC paths on Windows", {
+  skip_on_cran()
+
+  renv_tests_scope()
+
+  # get path to repos PACKAGES file
+  repos <- getOption("repos")[["CRAN"]]
+  base <- sub("^file:/*", "", repos)
+  url <- file.path(base, "src/contrib/PACKAGES")
+  norm <- normalizePath(url, winslash = "/")
+
+  # create server-style path to localhost
+  unc <- sub("^([a-zA-Z]):", "//localhost/\\1$", norm)
+  expect_true(file.exists(unc))
+
+  destfile <- renv_tempfile("packages-")
+
+  urls <- c(unc, paste0("file:", unc))
+  for (url in urls) {
+    download(unc, destfile)
+    expect_true(file.exists(destfile))
+    unlink(destfile)
+  }
+
+})

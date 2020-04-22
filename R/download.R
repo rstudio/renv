@@ -25,6 +25,9 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
 
+  # notify user we're about to try downloading
+  vwritef("Retrieving '%s' ...", url)
+
   # add custom headers as appropriate for the URL
   headers <- c(headers, renv_download_custom_headers(url))
 
@@ -34,8 +37,6 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 
   # on Windows, try using our local curl binary if available
   renv_scope_downloader()
-
-  vwritef("Retrieving '%s' ...", url)
 
   # if this file is a zipfile or tarball, rather than attempting
   # to download headers etc. to validate the file is okay, just
@@ -96,7 +97,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
     stopf("download failed [archive cannot be read]")
 
   # everything looks ok: report success
-  renv_download_report(after - before, file.size(tempfile))
+  renv_download_report(after - before, tempfile)
 
   # move the file to the requested location
   renv_file_move(tempfile, destfile)
@@ -575,13 +576,15 @@ renv_download_file_method <- function() {
 
 }
 
-renv_download_report <- function(elapsed, size) {
+renv_download_report <- function(elapsed, file) {
 
   if (!renv_verbose())
     return()
 
   time <- round(elapsed, 1)
-  size <- structure(size, class = "object_size")
+
+  info <- file.info(file, extra_cols = FALSE)
+  size <- structure(info$size, class = "object_size")
 
   fmt <- "\tOK [downloaded %s in %s]"
   vwritef(fmt, format(size, units = "auto"), format(time, units = "auto"))
@@ -606,8 +609,12 @@ renv_download_check_archive <- function(destfile) {
 
 renv_download_local <- function(url, destfile, headers) {
 
-  # only ever used for downloads from file URIs
-  if (!grepl("^file:", url))
+  # only ever used for downloads from file URIs and server URIs
+  ok <-
+    grepl("^file:", url) ||
+    !grepl("^[a-zA-Z]+://", url)
+
+  if (!ok)
     return(FALSE)
 
   # normalize separators (file URIs should normally use forward
@@ -621,9 +628,21 @@ renv_download_local <- function(url, destfile, headers) {
   )
 
   for (method in methods) {
+
+    # perform the copy
+    before <- Sys.time()
     status <- catch(method(url, destfile, headers))
-    if (identical(status, TRUE))
-      return(TRUE)
+    after <- Sys.time()
+
+    # check for success
+    if (!identical(status, TRUE))
+      next
+
+    # report download summary
+    renv_download_report(after - before, destfile)
+
+    return(TRUE)
+
   }
 
   FALSE
@@ -636,6 +655,7 @@ renv_download_local_copy <- function(url, destfile, headers) {
   url <- case(
     startswith(url, "file:///") ~ substring(url, 8L),
     startswith(url, "file://")  ~ substring(url, 6L),
+    startswith(url, "file:")    ~ substring(url, 6L),
     TRUE                        ~ url
   )
 
