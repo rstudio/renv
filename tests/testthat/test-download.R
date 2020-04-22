@@ -134,6 +134,7 @@ test_that("downloads work with file URIs", {
 
 test_that("downlaods work with UNC paths on Windows", {
   skip_on_cran()
+  skip_if_not(renv_platform_windows())
 
   renv_tests_scope()
 
