@@ -617,7 +617,7 @@ renv_snapshot_description_source <- function(dcf) {
 
   entry <- local({
     renv_scope_options(renv.verbose = FALSE)
-    catch(renv_available_packages_entry(package = package, type = "source"))
+    catch(renv_available_packages_latest(package))
   })
 
   if (!inherits(entry, "error"))

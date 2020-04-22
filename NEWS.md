@@ -1,6 +1,10 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* Fixed an issue where packages which had only binaries available on a
+  package repository were not detected as being from a package repository.
+  (#402)
+
 * Fixed an issue where calls of the form `p_load(char = <vctr>)` caused a
   failure when enumerating dependencies. (#401)
 
