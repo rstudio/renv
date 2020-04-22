@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.95</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.96</span>
       </span>
     </div>
 
@@ -157,6 +157,7 @@
 <a href="#renv-0-10-0-unreleased" class="anchor"></a>renv 0.10.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/update.html">renv::update()</a></code> now also checks and updates any Bioconductor packages used within a project. (#392)</p></li>
 <li><p><code>renv</code> now properly parses negated entries within a <code>.gitignore</code>; e.g. <code>!script.R</code> will indicate that <code>renv</code> should include <code>script.R</code> when parsing dependencies. (#403)</p></li>
 <li><p>Fixed an issue where packages which had only binaries available on a package repository were not detected as being from a package repository. (#402)</p></li>
 <li><p>Fixed an issue where calls of the form <code>p_load(char = &lt;vctr&gt;)</code> caused a failure when enumerating dependencies. (#401)</p></li>
