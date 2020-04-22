@@ -827,8 +827,16 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
   # consider all unnamed arguments
   parts <- as.list(node[-1L])
 
-  # also add in 'char'
-  parts <- c(parts, as.list(node[["char"]][-1L]))
+  # consider packages passed to 'char' parameter
+  char <- node[["char"]]
+
+  # detect vector of packages passed as vector
+  if (is.call(char) && identical(char[[1L]], as.name("c")))
+    parts <- c(parts, as.list(char[-1L]))
+
+  # detect plain old package name
+  if (is.character(char))
+    parts <- c(parts, as.list(char))
 
   # ensure names
   names(parts) <- names(parts) %||% rep.int("", length(parts))

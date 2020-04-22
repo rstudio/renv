@@ -1,6 +1,9 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* Fixed an issue where calls of the form `p_load(char = <vctr>)` caused a
+  failure when enumerating dependencies. (#401)
+
 * Fixed an issue where `renv::install()` could fail when multiple versions
   of a package are available from a single repository, but some versions of
   those packages are incompatible with the current version of R. (#252)
