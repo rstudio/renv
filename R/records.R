@@ -51,8 +51,33 @@ renv_record_cacheable <- function(record) {
 
 }
 
-renv_record_source <- function(record) {
-  tolower(record$Source %||% "unknown")
+renv_record_source <- function(record, normalize = FALSE) {
+  source <- tolower(record$Source %||% "unknown")
+  if (normalize)
+    source <- renv_record_source_normalize(record, source)
+  source
+}
+
+renv_record_source_normalize <- function(record, source) {
+
+  # normalize different types of git remotes
+  if (source %in% c("git2r", "xgit"))
+    source <- "git"
+
+  # handle old lockfiles where 'source' was explicitly set as CRAN
+  if (source %in% c("cran"))
+    source <- "repository"
+
+  # check for ad-hoc requests to install from bioc
+  if (identical(source, "repository")) {
+    repos <- record$Repository %||% ""
+    if (repos %in% c("bioc", "bioconductor"))
+      source <- "bioconductor"
+  }
+
+  # all done; return normalized source
+  source
+
 }
 
 renv_record_validate <- function(record, quiet = FALSE) {

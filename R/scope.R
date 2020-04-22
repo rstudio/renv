@@ -312,3 +312,17 @@ renv_scope_git_auth <- function(.envir = NULL) {
   return(TRUE)
 
 }
+
+renv_scope_bioconductor <- function(.envir = NULL) {
+
+  .envir <- .envir %||% parent.frame()
+
+  # ensure bioconductor support infrastructure initialized
+  renv_bioconductor_init()
+
+  # activate bioconductor repositories in this context
+  repos <- getOption("repos")
+  biocrepos <- c(renv_bioconductor_repos(), repos)
+  renv_scope_options(repos = renv_vector_unique(biocrepos), .envir = .envir)
+
+}

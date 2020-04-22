@@ -42,6 +42,16 @@ renv_retrieve_impl <- function(package) {
   records <- state$records
   record <- records[[package]] %||% renv_retrieve_missing_record(package)
 
+  # normalize the record source
+  source <- renv_record_source(record, normalize = TRUE)
+
+  # if this is a package from Bioconductor, activate those repositories now
+  #
+  # TODO: we should consider making this more scoped; calls to `renv_available_packages_*`
+  # would need to be record-aware or source-aware to make this a bit cleaner
+  if (source %in% c("bioconductor"))
+    renv_scope_bioconductor()
+
   # if the requested record is incompatible with the set
   # of requested package versions thus far, request the
   # latest version on the R package repositories
@@ -68,7 +78,7 @@ renv_retrieve_impl <- function(package) {
     if (cacheable) {
 
       # for packages from a repository without a tagged version,
-      # tag that version now
+      # attempt to tag that version now
       if (identical(record$Source, "Repository") && is.null(record$Version))
         record <- renv_available_packages_latest(record$Package)
 
@@ -101,22 +111,7 @@ renv_retrieve_impl <- function(package) {
   if (identical(retrieved, TRUE))
     return(TRUE)
 
-  # otherwise, try and restore from external source
-  source <- renv_record_source(record)
-  if (source %in% c("git2r", "xgit"))
-    source <- "git"
-
-  # handle case where repository was previously declared as CRAN
-  if (source == "cran")
-    source <- "repository"
-
-  # check for ad-hoc requests to install from bioc
-  if (identical(source, "repository")) {
-    repos <- record$Repository %||% ""
-    if (repos %in% c("bioc", "bioconductor"))
-      source <- "bioconductor"
-  }
-
+  # time to retrieve -- delegate based on previously-determined source
   switch(source,
          bioconductor = renv_retrieve_bioconductor(record),
          bitbucket    = renv_retrieve_bitbucket(record),
@@ -162,18 +157,8 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
 }
 
 renv_retrieve_bioconductor <- function(record) {
-
-  # ensure bioconductor support infrastructure initialized
-  renv_bioconductor_init()
-
-  # activate bioconductor repositories in this context
-  repos <- getOption("repos")
-  biocrepos <- c(renv_bioconductor_repos(), repos)
-  renv_scope_options(repos = renv_vector_unique(biocrepos))
-
-  # retrieve package as though from an active R repository
+  renv_scope_bioconductor()
   renv_retrieve_repos(record)
-
 }
 
 renv_retrieve_bitbucket <- function(record) {

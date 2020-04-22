@@ -85,8 +85,9 @@ renv_update_find <- function(records) {
   # retrieve updates
   results <- enumerate(grouped, function(source, records) {
     case(
-      source == "Repository" ~ renv_update_find_repos(records),
-      source == "GitHub"     ~ renv_update_find_github(records)
+      source == "Bioconductor" ~ renv_update_find_repos(records),
+      source == "Repository"   ~ renv_update_find_repos(records),
+      source == "GitHub"       ~ renv_update_find_github(records)
     )
   })
 
@@ -173,40 +174,51 @@ update <- function(packages = NULL,
     named(lapply(missing, renv_available_packages_latest), missing)
   )
 
+  # check for usage of cran, bioc
+  repo <- FALSE
+  bioc <- FALSE
+
+  for (record in selected) {
+
+    source <- renv_record_source(record, normalize = TRUE)
+
+    if (source %in% c("repository")) {
+      repo <- TRUE
+      next
+    }
+
+    if (source %in% c("bioconductor")) {
+      repo <- bioc <- TRUE
+      next
+    }
+
+  }
+
+  # activate bioc repositories if needed
+  if (bioc)
+    renv_scope_bioconductor()
+
+  # ensure database of available packages is current
+  if (repo)
+    for (type in renv_package_pkgtypes())
+      renv_available_packages(type = type)
+
   vprintf("* Checking for updated packages ... ")
 
   # remove records that appear to be from an R package repository,
   # but are not actually available in the current repositories
   selected <- Filter(function(record) {
 
-    source <- renv_record_source(record)
-    if (!source %in% c("cran", "repository"))
+    source <- renv_record_source(record, normalize = TRUE)
+    if (!source %in% c("bioconductor", "cran", "repository"))
       return(TRUE)
 
-    # check for package in one of the active binary / source repos
-    for (type in renv_package_pkgtypes()) {
-
-      package <- record$Package
-      entry <- catch(
-        renv_available_packages_entry(
-          package = package,
-          type = type,
-          quiet = TRUE
-        )
-      )
-
-      if (!inherits(entry, "error"))
-        return(TRUE)
-
-    }
-
-    # not found; return FALSE
-    FALSE
+    # check for available package
+    package <- record$Package
+    entry <- catch(renv_available_packages_latest(package))
+    !inherits(entry, "error")
 
   }, selected)
-
-  for (type in renv_package_pkgtypes())
-    renv_available_packages(type = type, quiet = TRUE)
 
   updates <- renv_update_find(selected)
   vwritef("Done!")

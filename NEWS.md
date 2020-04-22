@@ -1,6 +1,9 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* `renv::update()` now also checks and updates any Bioconductor packages
+  used within a project. (#392)
+
 * `renv` now properly parses negated entries within a `.gitignore`; e.g.
   `!script.R` will indicate that `renv` should include `script.R` when
   parsing dependencies. (#403)
