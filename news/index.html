@@ -67,7 +67,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.93</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3.94</span>
       </span>
     </div>
 
@@ -157,6 +157,7 @@
 <a href="#renv-0-10-0-unreleased" class="anchor"></a>renv 0.10.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>Fixed an issue where packages which had only binaries available on a package repository were not detected as being from a package repository. (#402)</p></li>
 <li><p>Fixed an issue where calls of the form <code>p_load(char = &lt;vctr&gt;)</code> caused a failure when enumerating dependencies. (#401)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install()</a></code> could fail when multiple versions of a package are available from a single repository, but some versions of those packages are incompatible with the current version of R. (#252)</p></li>
 <li><p>Fixed an issue where downloads could fail when the associated pre-flight HEAD request failed as well. (#390)</p></li>
