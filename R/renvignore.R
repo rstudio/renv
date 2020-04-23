@@ -66,8 +66,8 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
 renv_renvignore_parse <- function(contents, prefix = "") {
 
   # read the ignore entries
-  entries <- grep("^\\s*(?:#|$)", contents, value = TRUE, invert = TRUE)
-  if (empty(entries))
+  contents <- grep("^\\s*(?:#|$)", contents, value = TRUE, invert = TRUE)
+  if (empty(contents))
     return(list())
 
   # split into inclusion, exclusion patterns
@@ -135,13 +135,20 @@ renv_renvignore_exec <- function(path, root, children) {
   if (empty(patterns))
     return(children)
 
-  include <- if (length(patterns$include))
-    grep(patterns$include, children, perl = TRUE, invert = FALSE)
+  # if we don't have an exclusion pattern, keep everything
+  if (empty(patterns$exclude))
+    return(children)
 
-  exclude <- if (length(patterns$exclude))
-    grep(patterns$exclude, children, perl = TRUE, invert = TRUE)
+  # get the entries that need to be excluded
+  exclude <- grepl(patterns$exclude %||% "", children, perl = TRUE)
 
-  exclude <- setdiff(exclude, include)
-  children[exclude]
+  # also check which entries should explicitly be included
+  if (length(patterns$include)) {
+    include <- grepl(patterns$include, children, perl = TRUE)
+    exclude[include] <- FALSE
+  }
+
+  # keep paths not explicitly excluded
+  children[!exclude]
 
 }

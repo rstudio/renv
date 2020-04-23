@@ -83,6 +83,6 @@ test_that("negated .renvignore patterns are handled", {
   writeLines(c("script.R", "!script.R"), con = ".renvignore")
   writeLines("library(foo)", con = "script.R")
   deps <- dependencies(quiet = TRUE)
-  expect_false("foo" %in% deps$Package)
+  expect_true("foo" %in% deps$Package)
 
 })
