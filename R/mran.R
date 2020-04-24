@@ -92,7 +92,8 @@ renv_mran_database_dates <- function(version) {
     "3.4" = "2017-04-21",
     "3.5" = "2018-04-23",
     "3.6" = "2019-04-26",
-    "4.0" = "2020-04-24"   # projected
+    "4.0" = "2020-04-24",
+    "4.1" = "2021-04-23"  # projected
   )
 
   # find the start date
