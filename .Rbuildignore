@@ -11,14 +11,15 @@
 ^codecov\.yml$
 ^cran-comments\.md$
 ^CRAN-RELEASE$
-^docs$
 ^renv\.lock$
 ^requirements\.txt$
 ^TODO\.md$
 
+^docs$
 ^examples$
 ^git$
 ^internal$
+^pkgdown$
 ^renv$
 ^tags$
 ^templates$
