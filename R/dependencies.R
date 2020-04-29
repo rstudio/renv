@@ -869,17 +869,29 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 
+  # check for call of the form 'pkg::foo(a, b, c)'
+  colon <-
+    is.call(node[[1L]]) &&
+    is.name(node[[1L]][[1L]]) &&
+    as.character(node[[1L]][[1L]]) %in% c("::", ":::")
+
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))
     return(FALSE)
 
-  # only consider calls within a 'module' block
   ok <- FALSE
-  for (parent in stack) {
-    parent <- renv_call_expect(parent, "modules", c("amodule", "module"))
-    if (!is.null(parent)) {
-      ok <- TRUE
-      break
+  if (colon) {
+    # include if fully qualified call to modules::import
+    ok <- TRUE
+  } else {
+    # otherwise only consider calls within a 'module' block
+    # (to reduce confusion with reticulate::import)
+    for (parent in stack) {
+      parent <- renv_call_expect(parent, "modules", c("amodule", "module"))
+      if (!is.null(parent)) {
+        ok <- TRUE
+        break
+      }
     }
   }
 

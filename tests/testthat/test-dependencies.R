@@ -177,10 +177,15 @@ test_that("packages referenced by modules::import() are discovered", {
     import("e")
     import(f)
 
+    # NOTE: fully scoped modules::import calls should
+    # be added to dependencies
+
+    modules::import("G")
+    modules::import(H)
   })
 
   deps <- dependencies(file)
-  expect_setequal(deps$Package, c("A", "B", "C", "D"))
+  expect_setequal(deps$Package, c("A", "B", "C", "D", "G", "H", "modules"))
 
 })
 
