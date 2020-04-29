@@ -244,7 +244,7 @@ renv_mran_database_sync <- function(platform, version) {
   now <- as.integer(as.Date(Sys.time(), tz = "UTC")) - 1L
 
   # if we've already in sync, nothing to do
-  if (last == now)
+  if (last >= now)
     return(FALSE)
 
   # invoke update for missing dates
