@@ -35,3 +35,17 @@ test_that("we can install a version of renv from GitHub", {
   expect_true(renv_package_version("renv") == "0.9.3-10")
 
 })
+
+test_that("we can parse a variety of release files", {
+
+  expect_equal(
+    renv_bootstrap_os_release("resources/release/os-release"),
+    "ubuntu-bionic"
+  )
+
+  expect_equal(
+    renv_bootstrap_os_redhat("resources/release/redhat-release"),
+    "centos-7"
+  )
+
+})

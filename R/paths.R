@@ -1,22 +1,6 @@
 
-# NOTE: changes here must be synchronized with 'inst/activate.R'
-renv_prefix_platform <- function() {
-
-  # construct version prefix
-  version <- paste(R.version$major, R.version$minor, sep = ".")
-  prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
-
-  # include SVN revision for development versions of R
-  # (to avoid sharing platform-specific artefacts with released versions of R)
-  devel <-
-    identical(R.version[["status"]],   "Under development (unstable)") ||
-    identical(R.version[["nickname"]], "Unsuffered Consequences")
-
-  if (devel)
-    prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
-
-  file.path(prefix, R.version$platform)
-
+renv_prefix_platform <- function(os = TRUE) {
+  renv_bootstrap_prefix(os = os)
 }
 
 renv_paths_common <- function(name, prefixes = NULL, ...) {
@@ -48,22 +32,10 @@ renv_paths_project <- function(..., project = NULL) {
   file.path(project, ...) %||% ""
 }
 
-# NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_paths_library_root <- function(project) {
-
-  path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
-  if (!is.na(path))
-    return(path)
-
-  path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
-  if (!is.na(path))
-    return(file.path(path, basename(project)))
-
-  file.path(project, "renv/library")
-
+  renv_bootstrap_library_root(project)
 }
 
-# NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_paths_library <- function(..., project = NULL) {
   project <- renv_project_resolve(project)
   root <- renv_paths_library_root(project)
@@ -82,9 +54,13 @@ renv_paths_binary <- function(...) {
   renv_paths_common("binary", c(renv_prefix_platform()), ...)
 }
 
+# NOTE: cache versions from v6 and later include an operating
+# system component in the cache directory, and we need to preserve
+# the old behavior for attempts to migrate from a v5 to a v6 cache
 renv_paths_cache <- function(..., version = NULL) {
-  platform <- renv_prefix_platform()
   version <- version %||% renv_cache_version()
+  number <- as.numeric(substring(version, 2L))
+  platform <- renv_prefix_platform(os = number >= 6L)
   renv_paths_common("cache", c(version, platform), ...)
 }
 

@@ -8,12 +8,20 @@ bootstrap <- function(version, library) {
   options(repos = repos)
 
   # attempt to download renv
-  tarball <- tryCatch(renv_bootstrap_download(version), error = identity)
+  tarball <- tryCatch(
+    renv_bootstrap_download(version),
+    error = identity
+  )
+
   if (inherits(tarball, "error"))
     stop("failed to download renv ", version)
 
   # now attempt to install
-  status <- tryCatch(renv_bootstrap_install(version, tarball, library), error = identity)
+  status <- tryCatch(
+    renv_bootstrap_install(version, tarball, library),
+    error = identity
+  )
+
   if (inherits(status, "error"))
     stop("failed to install renv ", version)
 
@@ -63,11 +71,11 @@ renv_bootstrap_download_cran_latest <- function(version) {
   # check for renv on CRAN matching this version
   db <- as.data.frame(available.packages(), stringsAsFactors = FALSE)
   if (!"renv" %in% rownames(db))
-    stop("renv is not available on your declared package repositories")
+    stop("renv is not available from your declared package repositories")
 
   entry <- db["renv", ]
   if (!identical(entry$Version, version))
-    stop("renv is not available on your declared package repositories")
+    stop("renv is not available from your declared package repositories")
 
   message("* Downloading renv ", version, " from CRAN ... ", appendLF = FALSE)
 
@@ -184,3 +192,221 @@ renv_bootstrap_install <- function(version, tarball, library) {
 
 }
 
+renv_bootstrap_os_release <- function(path = "/etc/os-release") {
+
+  # this is a 'creative' use of read.table, but it works
+  stopifnot(file.exists(path))
+  release <- read.table(
+    file         = path,
+    header       = FALSE,
+    sep          = "=",
+    comment.char = "#",
+    col.names    = c("key", "value")
+  )
+
+  # extract into named vector
+  vars <- as.list(release$value)
+  names(vars) <- release$key
+
+  # extract OS id
+  id <- vars$ID
+  if (is.null(id)) {
+    fmt <- "no declared ID in '%s'"
+    stop(sprintf(fmt, path), call. = FALSE)
+  }
+
+  for (candidate in c("VERSION_CODENAME", "VERSION_ID")) {
+    entry <- vars[[candidate]]
+    if (!is.null(entry))
+      return(paste(id, entry, sep = "-"))
+  }
+
+  fmt <- "could not infer os from '%s'"
+  stop(sprintf(fmt, path), call. = FALSE)
+
+}
+
+renv_bootstrap_os_redhat <- function(path = "/etc/redhat-release") {
+
+  # read release file
+  stopifnot(file.exists(path))
+  fields <- scan(file = path, what = character(), quiet = TRUE)
+
+  # try to find version entry (normally should be second-last field)
+  for (field in rev(fields)) {
+    version <- tryCatch(numeric_version(field), error = identity)
+    if (!inherits(version, "error"))
+      break
+  }
+
+  # keep major version only
+  os    <- fields[[1L]]
+  major <- version[1, 1]
+
+  paste(tolower(os), major, sep = "-")
+
+}
+
+renv_bootstrap_os <- function() {
+
+  # allow override by user
+  os <- Sys.getenv("RENV_OPERATING_SYSTEM", unset = NA)
+  if (!is.na(os))
+    return(os)
+
+  # detect Windows
+  if (Sys.info()[["sysname"]] == "Windows")
+    return("windows")
+
+  # detect macOS
+  if (Sys.info()[["sysname"]] == "Darwin")
+    return("macos")
+
+  # detect arch linux (but renv isn't going to work great here)
+  if (file.exists("/etc/arch-release"))
+    return("arch-linux")
+
+  # different linux OS detection methods
+  methods <- list(
+    function() renv_bootstrap_os_release(),
+    function() renv_bootstrap_os_redhat()
+  )
+
+  # try each one
+  for (method in methods) {
+    os <- tryCatch(method(), error = identity)
+    if (!inherits(os, "error"))
+      return(os)
+  }
+
+  msg <- "
+Failed to infer your operating system! Please file a bug report via:
+
+    utils::bug.report(package = \"renv\")
+
+You can also set the RENV_OPERATING_SYSTEM environment variable
+to explicitly tell renv the name of your operating system.
+"
+
+  warning(msg)
+
+  "unknown"
+
+}
+
+renv_bootstrap_library_root <- function(project) {
+
+  path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
+  if (!is.na(path))
+    return(path)
+
+  path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
+  if (!is.na(path))
+    return(file.path(path, basename(project)))
+
+  file.path(project, "renv/library")
+
+}
+
+renv_bootstrap_prefix <- function(os = TRUE) {
+
+  # construct r component
+  r <- paste("R", getRversion()[1, 1:2], sep = "-")
+
+  # include SVN revision for development versions of R
+  # (to avoid sharing platform-specific artefacts with released versions of R)
+  devel <-
+    identical(R.version[["status"]],   "Under development (unstable)") ||
+    identical(R.version[["nickname"]], "Unsuffered Consequences")
+
+  if (devel)
+    r <- paste(r, R.version[["svn rev"]], sep = "-r")
+
+  # construct library prefix (include os if requested)
+  components <- c(if (os) renv_bootstrap_os(), r, R.version$platform)
+  paste(components, collapse = "/")
+
+}
+
+renv_bootstrap_libpath_impl <- function(project, os) {
+  file.path(
+    renv_bootstrap_library_root(project),
+    renv_bootstrap_prefix(os)
+  )
+}
+
+renv_bootstrap_libpath <- function(project) {
+
+  # NOTE: older versions of renv did not include the operating system
+  # name / version in the library or cache paths; try to transparently
+  # migrate as necessary
+
+  # construct path to current library path and use if it already exists
+  newpath <- renv_bootstrap_libpath_impl(project, os = TRUE)
+  if (file.exists(newpath))
+    return(newpath)
+
+  # check for old library path; if it doesn't exist we can just use the
+  # new library path; otherwise we'll attempt to migrate
+  oldpath <- renv_bootstrap_libpath_impl(project, os = FALSE)
+  if (!file.exists(oldpath))
+    return(newpath)
+
+  # old library path exists but new doesn't; try to move
+  source <- dirname(oldpath)
+  target <- dirname(newpath)
+  dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
+  status <- tryCatch(file.rename(source, target), condition = identity)
+  if (file.exists(newpath))
+    return(newpath)
+
+  # migration failed; continue to use previous library path
+  oldpath
+
+}
+
+renv_bootstrap_version_check <- function(version) {
+
+  # compare loaded version of renv with requested version
+  loadedversion <- utils::packageDescription("renv", fields = "Version")
+  if (version == loadedversion)
+    return(TRUE)
+
+  # assume four-component versions are from GitHub; three-component
+  # versions are from CRAN
+  components <- strsplit(loadedversion, "[.-]")[[1]]
+  remote <- if (length(components) == 4L)
+    paste("rstudio/renv", loadedversion, sep = "@")
+  else
+    paste("renv", loadedversion, sep = "@")
+
+  fmt <- paste(
+    "renv %1$s was loaded from project library, but renv %2$s is recorded in lockfile.",
+    "Use `renv::record(\"%3$s\")` to record this version in the lockfile.",
+    "Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
+    sep = "\n"
+  )
+
+  msg <- sprintf(fmt, loadedversion, version, remote)
+  warning(msg, call. = FALSE)
+
+  FALSE
+
+}
+
+renv_bootstrap_load <- function(project, version) {
+
+  # attempt to load renv
+  libpath <- renv_bootstrap_libpath(project)
+  if (!requireNamespace("renv", lib.loc = libpath, quietly = TRUE))
+    return(FALSE)
+
+  # warn if the version of renv loaded does not match
+  renv_bootstrap_version_check(version)
+
+  # load the project
+  renv::load(project = project)
+
+  return(TRUE)
+
+}

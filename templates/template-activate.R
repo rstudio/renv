@@ -36,72 +36,13 @@ local({
 
   }
 
-  # construct path to library root
-  root <- local({
+  # tools for bootstrapping renv ${BOOTSTRAP}
 
-    path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
-    if (!is.na(path))
-      return(path)
+  # attempt to load renv
+  if (renv_bootstrap_load(project, version))
+    return(TRUE)
 
-    path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
-    if (!is.na(path))
-      return(file.path(path, basename(project)))
-
-    file.path(project, "renv/library")
-
-  })
-
-  # construct path to renv in library
-  libpath <- local({
-
-    prefix <- paste("R", getRversion()[1, 1:2], sep = "-")
-
-    # include SVN revision for development versions of R
-    # (to avoid sharing platform-specific artefacts with released versions of R)
-    devel <-
-      identical(R.version[["status"]],   "Under development (unstable)") ||
-      identical(R.version[["nickname"]], "Unsuffered Consequences")
-
-    if (devel)
-      prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
-
-    file.path(root, prefix, R.version$platform)
-
-  })
-
-  # try to load renv from the project library
-  if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-
-    # warn if the version of renv loaded does not match
-    loadedversion <- utils::packageDescription("renv", fields = "Version")
-    if (version != loadedversion) {
-
-      # assume four-component versions are from GitHub; three-component
-      # versions are from CRAN
-      components <- strsplit(loadedversion, "[.-]")[[1]]
-      remote <- if (length(components) == 4L)
-        paste("rstudio/renv", loadedversion, sep = "@")
-      else
-        paste("renv", loadedversion, sep = "@")
-
-      fmt <- paste(
-        "renv %1$s was loaded from project library, but renv %2$s is recorded in lockfile.",
-        "Use `renv::record(\"%3$s\")` to record this version in the lockfile.",
-        "Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
-        sep = "\n"
-      )
-
-      msg <- sprintf(fmt, loadedversion, version, remote)
-      warning(msg, call. = FALSE)
-
-    }
-
-    # load the project
-    return(renv::load())
-
-  }
-
-  # try to bootstrap an renv installation ${BOOTSTRAP}
+  # couldn't load renv; try to bootstrap an installation
   bootstrap(version, libpath)
 
   # try again to load

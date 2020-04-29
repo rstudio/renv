@@ -26,9 +26,8 @@ renv_rehash_impl <- function(prompt) {
   newcache <- renv_paths_cache(version = renv_cache_version())
   if (file.exists(oldcache) && !file.exists(newcache))
     renv_rehash_cache(oldcache, prompt, renv_file_copy, "copied")
-
-  # re-cache packages as necessary
-  renv_rehash_cache(newcache, prompt, renv_file_move, "moved")
+  else
+    renv_rehash_cache(newcache, prompt, renv_file_move, "moved")
 
 }
 
@@ -37,7 +36,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   # re-compute package hashes
   old <- renv_cache_list(cache = cache)
 
-  vprintf("* Re-computing package hashes ... ")
+  vprintf("* Recomputing package hashes ... ")
   new <- map_chr(old, renv_progress(renv_cache_path, length(old)))
   vwritef("Done!")
 
@@ -55,7 +54,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
     newhash <- renv_path_component(new[changed], 2L)
     renv_pretty_print(
       sprintf(fmt, format(packages), format(oldhash), format(newhash)),
-      "The following packages will be re-cached:",
+      "The following packages will be recached:",
       sprintf("Packages will be %s to their new locations in the cache.", label),
       wrap = FALSE
     )
@@ -72,12 +71,12 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   names(sources) <- targets
   names(targets) <- sources
 
-  vprintf("* Re-caching packages ... ")
+  vprintf("* Recaching packages ... ")
   enumerate(targets, renv_progress(action, length(targets)))
   vwritef("Done!")
 
   n <- length(targets)
-  fmt <- "Successfully re-cached %i %s."
+  fmt <- "Successfully recached %i %s."
   vwritef(fmt, n, plural("package", n))
 
   renv_cache_clean_empty()

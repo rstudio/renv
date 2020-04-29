@@ -96,3 +96,13 @@ test_that("the cache is used even if RENV_PATHS_LIBRARY is non-canonical", {
   expect_true(renv_file_type(bread) == "symlink")
 
 })
+
+test_that("cache version is of form 'v<number>'", {
+
+  version <- renv_cache_version()
+  expect_equal(substring(version, 1L, 1L), "v")
+
+  number <- substring(version, 2L)
+  expect_true(is.numeric(as.numeric(number)))
+
+})

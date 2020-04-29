@@ -3,7 +3,7 @@
 renv_cache_version <- function() {
   # NOTE: users should normally not override the cache version;
   # this is provided just to make testing easier
-  Sys.getenv("RENV_CACHE_VERSION", unset = "v5")
+  Sys.getenv("RENV_CACHE_VERSION", unset = "v6")
 }
 
 renv_cache_version_previous <- function() {
