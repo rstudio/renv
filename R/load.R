@@ -110,6 +110,9 @@ renv_load_r_repos <- function(repos) {
   repos <- sub("/+$", "", repos)
   names(repos) <- nms
 
+  # convert to rspm
+  repos <- renv_rspm_transform(repos)
+
   # set sanitized repos
   options(repos = repos)
 
