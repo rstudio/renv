@@ -1,6 +1,9 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* Fixed an issue where `renv::install()` could fail for packages from GitHub
+  whose DESCRIPTION files contained Windows-style line endings. (#408)
+
 * `renv::update()` now also checks and updates any Bioconductor packages
   used within a project. (#392)
 

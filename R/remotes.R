@@ -246,6 +246,9 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   json <- renv_json_read(jsonfile)
   contents <- renv_base64_decode(json$content)
 
+  # normalize newlines
+  contents <- gsub("\r\n", "\n", contents, fixed = TRUE)
+
   # write to file and read back in
   descfile <- renv_tempfile("renv-description-")
   writeLines(contents, con = descfile)
