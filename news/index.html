@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-102</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-103</span>
       </span>
     </div>
 
@@ -166,6 +166,7 @@
 <a href="#renv-0-10-0-unreleased" class="anchor"></a>renv 0.10.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install()</a></code> could fail for packages from GitHub whose DESCRIPTION files contained Windows-style line endings. (<a href='https://github.com/rstudio/renv/issues/408'>#408</a>)</p></li>
 <li><p><code><a href="../reference/update.html">renv::update()</a></code> now also checks and updates any Bioconductor packages used within a project. (<a href='https://github.com/rstudio/renv/issues/392'>#392</a>)</p></li>
 <li><p><code>renv</code> now properly parses negated entries within a <code>.gitignore</code>; e.g. <code>!script.R</code> will indicate that <code>renv</code> should include <code>script.R</code> when parsing dependencies. (<a href='https://github.com/rstudio/renv/issues/403'>#403</a>)</p></li>
 <li><p>Fixed an issue where packages which had only binaries available on a package repository were not detected as being from a package repository. (<a href='https://github.com/rstudio/renv/issues/402'>#402</a>)</p></li>
