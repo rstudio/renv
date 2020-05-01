@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-105</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-106</span>
       </span>
     </div>
 
@@ -200,6 +200,7 @@ enumerated below:</p>
 <tr><td><code>RENV_PATHS_SOURCE</code></td><td>The path containing downloaded package sources.</td></tr>
 <tr><td><code>RENV_PATHS_BINARY</code></td><td>The path containing downloaded package binaries.</td></tr>
 <tr><td><code>RENV_PATHS_CACHE</code></td><td>The path containing cached package installations.</td></tr>
+<tr><td><code>RENV_PATHS_PREFIX</code></td><td>An optional prefix to prepend to the constructed library / cache paths.</td></tr>
 <tr><td><code>RENV_PATHS_RTOOLS</code></td><td>(Windows only) The path to <a href='https://cran.r-project.org/bin/windows/Rtools/'>Rtools</a>.</td></tr>
 <tr><td><code>RENV_PATHS_EXTSOFT</code></td><td>(Windows only) The path containing external software needed for compilation of Windows source packages.</td></tr>
 </table>
@@ -215,6 +216,16 @@ to the set paths as appropriate. For example, if you have set:</p><pre><span cla
 <p>This ensures that you can set a single <code>RENV_PATHS_CACHE</code> environment variable
 globally without worry that it may cause collisions or errors if multiple
 versions of <span style="R">R</span> needed to interact with the same cache.</p>
+<p>If you need to share the same cache with multiple different Linux operating
+systems, you may want to set the <code>RENV_PATHS_PREFIX</code> environment variable
+to help disambiguate the paths used on Linux. For example, setting
+<code>RENV_PATHS_PREFIX = "ubuntu-bionic"</code> would instruct <code>renv</code> to construct a
+cache path like:</p><pre>/mnt/shared/renv/cache/v2/ubuntu-bionic/R-3.5/x86_64-pc-linux-gnu
+</pre>
+
+<p>If this is required, it's strongly recommended that this environment
+variable is set in your <span style="R">R</span> installation's <code>Renviron.site</code> file, typically
+located at <code><a href='https://rdrr.io/r/base/file.path.html'>file.path(R.home("etc"), "Renviron.site")</a></code>.</p>
 <p>If reproducibility of a project is desired on a particular machine, it is
 highly recommended that the <code>renv</code> cache of installed packages + binary
 packages is stored, so that packages can be easily restored in the future --
@@ -224,7 +235,7 @@ you add these to an appropriate <span style="R">R</span> startup file. For examp
 set in:</p><ul>
 <li><p>A project-local <code>.Renviron</code>;</p></li>
 <li><p>The user-level <code>.Renviron</code>;</p></li>
-<li><p>A file at <code>$(R RHOME)/etc/Renviron.site</code>.</p></li>
+<li><p>A file at <code><a href='https://rdrr.io/r/base/file.path.html'>file.path(R.home("etc"), "Renviron.site")</a></code>.</p></li>
 </ul>
 
 <p>Please see ?<a href='https://rdrr.io/r/base/Startup.html'>Startup</a> for more details.</p>
