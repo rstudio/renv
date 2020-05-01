@@ -36,72 +36,7 @@ local({
 
   }
 
-  # construct path to library root
-  root <- local({
-
-    path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
-    if (!is.na(path))
-      return(path)
-
-    path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
-    if (!is.na(path))
-      return(file.path(path, basename(project)))
-
-    file.path(project, "renv/library")
-
-  })
-
-  # construct path to renv in library
-  libpath <- local({
-
-    prefix <- paste("R", getRversion()[1, 1:2], sep = "-")
-
-    # include SVN revision for development versions of R
-    # (to avoid sharing platform-specific artefacts with released versions of R)
-    devel <-
-      identical(R.version[["status"]],   "Under development (unstable)") ||
-      identical(R.version[["nickname"]], "Unsuffered Consequences")
-
-    if (devel)
-      prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
-
-    file.path(root, prefix, R.version$platform)
-
-  })
-
-  # try to load renv from the project library
-  if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-
-    # warn if the version of renv loaded does not match
-    loadedversion <- utils::packageDescription("renv", fields = "Version")
-    if (version != loadedversion) {
-
-      # assume four-component versions are from GitHub; three-component
-      # versions are from CRAN
-      components <- strsplit(loadedversion, "[.-]")[[1]]
-      remote <- if (length(components) == 4L)
-        paste("rstudio/renv", loadedversion, sep = "@")
-      else
-        paste("renv", loadedversion, sep = "@")
-
-      fmt <- paste(
-        "renv %1$s was loaded from project library, but renv %2$s is recorded in lockfile.",
-        "Use `renv::record(\"%3$s\")` to record this version in the lockfile.",
-        "Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
-        sep = "\n"
-      )
-
-      msg <- sprintf(fmt, loadedversion, version, remote)
-      warning(msg, call. = FALSE)
-
-    }
-
-    # load the project
-    return(renv::load())
-
-  }
-
-  # try to bootstrap an renv installation   
+  # load bootstrap tools   
   bootstrap <- function(version, library) {
   
     # fix up repos
@@ -287,6 +222,106 @@ local({
   
   }
   
+  renv_bootstrap_prefix <- function() {
+  
+    # construct version prefix
+    version <- paste(R.version$major, R.version$minor, sep = ".")
+    prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
+  
+    # include SVN revision for development versions of R
+    # (to avoid sharing platform-specific artefacts with released versions of R)
+    devel <-
+      identical(R.version[["status"]],   "Under development (unstable)") ||
+      identical(R.version[["nickname"]], "Unsuffered Consequences")
+  
+    if (devel)
+      prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
+  
+    # build list of path components
+    components <- c(prefix, R.version$platform)
+  
+    # include prefix if provided by user
+    prefix <- Sys.getenv("RENV_PATHS_PREFIX")
+    if (nzchar(prefix))
+      components <- c(prefix, components)
+  
+    # build prefix
+    paste(components, collapse = "/")
+  
+  }
+  
+  renv_bootstrap_library_root <- function(project) {
+  
+    path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
+    if (!is.na(path))
+      return(path)
+  
+    path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
+    if (!is.na(path))
+      return(file.path(path, basename(project)))
+  
+    file.path(project, "renv/library")
+  
+  }
+  
+  renv_bootstrap_validate_version <- function(version) {
+  
+    loadedversion <- utils::packageDescription("renv", fields = "Version")
+    if (version == loadedversion)
+      return(TRUE)
+  
+    # assume four-component versions are from GitHub; three-component
+    # versions are from CRAN
+    components <- strsplit(loadedversion, "[.-]")[[1]]
+    remote <- if (length(components) == 4L)
+      paste("rstudio/renv", loadedversion, sep = "@")
+    else
+      paste("renv", loadedversion, sep = "@")
+  
+    fmt <- paste(
+      "renv %1$s was loaded from project library, but renv %2$s is recorded in lockfile.",
+      "Use `renv::record(\"%3$s\")` to record this version in the lockfile.",
+      "Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
+      sep = "\n"
+    )
+  
+    msg <- sprintf(fmt, loadedversion, version, remote)
+    warning(msg, call. = FALSE)
+  
+    FALSE
+  
+  }
+  
+  renv_bootstrap_load <- function(project, libpath, version) {
+  
+    # try to load renv from the project library
+    if (!requireNamespace("renv", lib.loc = libpath, quietly = TRUE))
+      return(FALSE)
+  
+    # warn if the version of renv loaded does not match
+    renv_bootstrap_validate_version(version)
+  
+    # load the project
+    renv::load(project)
+  
+    TRUE
+  
+  }
+
+  # construct path to library root
+  root <- renv_bootstrap_library_root(project)
+
+  # construct library prefix for platform
+  prefix <- renv_bootstrap_prefix()
+
+  # construct full libpath
+  libpath <- file.path(root, prefix)
+
+  # attempt to load
+  if (renv_bootstrap_load(project, libpath, version))
+    return(TRUE)
+
+  # load failed; attempt to bootstrap
   bootstrap(version, libpath)
 
   # try again to load

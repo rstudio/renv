@@ -19,3 +19,19 @@ test_that("we can construct paths to multiple files with path APIs", {
   expected <- file.path(root, c("A/a", "B/b", "C/c"))
   expect_equal(files, expected)
 })
+
+test_that("RENV_PATHS_PREFIX is respected", {
+
+  os <- "ubuntu-bionic"
+  renv_scope_envvars(RENV_PATHS_PREFIX = os)
+
+  cachepath <- renv_paths_cache()
+  expect_true(grepl(os, cachepath, fixed = TRUE))
+
+  libpath <- renv_paths_library()
+  expect_true(grepl(os, libpath, fixed = TRUE))
+
+  prefix <- renv_prefix_platform()
+  expect_true(startswith(prefix, os))
+
+})

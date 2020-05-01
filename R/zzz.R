@@ -49,7 +49,9 @@ renv_zzz_bootstrap <- function() {
   template <- renv_file_read(source)
   replaced <- renv_template_replace(template, list(BOOTSTRAP = bootstrap))
 
+  printf("* Generating 'inst/resources/activate.R' ... ")
   writeLines(replaced, con = target)
+  writef("Done!")
 
 }
 

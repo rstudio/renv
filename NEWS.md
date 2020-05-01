@@ -1,6 +1,12 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* The `RENV_PATHS_PREFIX` environment variable can now be used to prepend an
+  optional path component to the project library and global cache paths.
+  This is primarily useful for users who want to share the `renv` cache across
+  multiple operating systems on Linux, but need to disambigutate these paths
+  according to the operating system in use. See `?renv::paths` for more details.
+  
 * Fixed an issue where `renv::install()` could fail for packages from GitHub
   whose DESCRIPTION files contained Windows-style line endings. (#408)
 

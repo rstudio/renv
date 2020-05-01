@@ -41,6 +41,7 @@ enumerated below:
 \code{RENV_PATHS_SOURCE}       \tab The path containing downloaded package sources. \cr
 \code{RENV_PATHS_BINARY}       \tab The path containing downloaded package binaries. \cr
 \code{RENV_PATHS_CACHE}        \tab The path containing cached package installations. \cr
+\code{RENV_PATHS_PREFIX}       \tab An optional prefix to prepend to the constructed library / cache paths. \cr
 \code{RENV_PATHS_RTOOLS}       \tab (Windows only) The path to \href{https://cran.r-project.org/bin/windows/Rtools/}{Rtools}. \cr
 \code{RENV_PATHS_EXTSOFT}      \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
 }
@@ -57,6 +58,17 @@ This ensures that you can set a single \code{RENV_PATHS_CACHE} environment varia
 globally without worry that it may cause collisions or errors if multiple
 versions of \R needed to interact with the same cache.
 
+If you need to share the same cache with multiple different Linux operating
+systems, you may want to set the \code{RENV_PATHS_PREFIX} environment variable
+to help disambiguate the paths used on Linux. For example, setting
+\code{RENV_PATHS_PREFIX = "ubuntu-bionic"} would instruct \code{renv} to construct a
+cache path like:\preformatted{/mnt/shared/renv/cache/v2/ubuntu-bionic/R-3.5/x86_64-pc-linux-gnu
+}
+
+If this is required, it's strongly recommended that this environment
+variable is set in your \R installation's \code{Renviron.site} file, typically
+located at \code{file.path(R.home("etc"), "Renviron.site")}.
+
 If reproducibility of a project is desired on a particular machine, it is
 highly recommended that the \code{renv} cache of installed packages + binary
 packages is stored, so that packages can be easily restored in the future --
@@ -68,7 +80,7 @@ set in:
 \itemize{
 \item A project-local \code{.Renviron};
 \item The user-level \code{.Renviron};
-\item A file at \verb{$(R RHOME)/etc/Renviron.site}.
+\item A file at \code{file.path(R.home("etc"), "Renviron.site")}.
 }
 
 Please see ?\link{Startup} for more details.

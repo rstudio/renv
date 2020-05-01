@@ -1,22 +1,6 @@
 
-# NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_prefix_platform <- function() {
-
-  # construct version prefix
-  version <- paste(R.version$major, R.version$minor, sep = ".")
-  prefix <- paste("R", numeric_version(version)[1, 1:2], sep = "-")
-
-  # include SVN revision for development versions of R
-  # (to avoid sharing platform-specific artefacts with released versions of R)
-  devel <-
-    identical(R.version[["status"]],   "Under development (unstable)") ||
-    identical(R.version[["nickname"]], "Unsuffered Consequences")
-
-  if (devel)
-    prefix <- paste(prefix, R.version[["svn rev"]], sep = "-r")
-
-  file.path(prefix, R.version$platform)
-
+  renv_bootstrap_prefix()
 }
 
 renv_paths_common <- function(name, prefixes = NULL, ...) {
@@ -48,22 +32,10 @@ renv_paths_project <- function(..., project = NULL) {
   file.path(project, ...) %||% ""
 }
 
-# NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_paths_library_root <- function(project) {
-
-  path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
-  if (!is.na(path))
-    return(path)
-
-  path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
-  if (!is.na(path))
-    return(file.path(path, basename(project)))
-
-  file.path(project, "renv/library")
-
+  renv_bootstrap_library_root(project)
 }
 
-# NOTE: changes here must be synchronized with 'inst/activate.R'
 renv_paths_library <- function(..., project = NULL) {
   project <- renv_project_resolve(project)
   root <- renv_paths_library_root(project)
@@ -217,6 +189,7 @@ renv_paths_init <- function() {
 #' \code{RENV_PATHS_SOURCE}       \tab The path containing downloaded package sources. \cr
 #' \code{RENV_PATHS_BINARY}       \tab The path containing downloaded package binaries. \cr
 #' \code{RENV_PATHS_CACHE}        \tab The path containing cached package installations. \cr
+#' \code{RENV_PATHS_PREFIX}       \tab An optional prefix to prepend to the constructed library / cache paths. \cr
 #' \code{RENV_PATHS_RTOOLS}       \tab (Windows only) The path to [Rtools](https://cran.r-project.org/bin/windows/Rtools/). \cr
 #' \code{RENV_PATHS_EXTSOFT}      \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
 #' }
@@ -228,8 +201,9 @@ renv_paths_init <- function() {
 #' Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
 #' ```
 #'
-#' then the directory used for the cache will still depend on the `renv` cache version (e.g. `v2`), the \R version
-#' (e.g. `3.5`) and the platform (e.g. `x86_64-pc-linux-gnu`). For example:
+#' then the directory used for the cache will still depend on the `renv` cache
+#' version (e.g. `v2`), the \R version (e.g. `3.5`) and the platform (e.g.
+#' `x86_64-pc-linux-gnu`). For example:
 #'
 #' ```
 #' /mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
@@ -239,10 +213,25 @@ renv_paths_init <- function() {
 #' globally without worry that it may cause collisions or errors if multiple
 #' versions of \R needed to interact with the same cache.
 #'
+#' If you need to share the same cache with multiple different Linux operating
+#' systems, you may want to set the `RENV_PATHS_PREFIX` environment variable
+#' to help disambiguate the paths used on Linux. For example, setting
+#' `RENV_PATHS_PREFIX = "ubuntu-bionic"` would instruct `renv` to construct a
+#' cache path like:
+#'
+#' ```
+#' /mnt/shared/renv/cache/v2/ubuntu-bionic/R-3.5/x86_64-pc-linux-gnu
+#' ```
+#'
+#' If this is required, it's strongly recommended that this environment
+#' variable is set in your \R installation's `Renviron.site` file, typically
+#' located at `file.path(R.home("etc"), "Renviron.site")`, so that it can be
+#' active for any \R sessions launched on that machine.
+#'
 #' If reproducibility of a project is desired on a particular machine, it is
 #' highly recommended that the `renv` cache of installed packages + binary
-#' packages is stored, so that packages can be easily restored in the future --
-#' installation of packages from source can often be arduous.
+#' packages is backed up and persisted, so that packages can be easily restored
+#' in the future -- installation of packages from source can often be arduous.
 #'
 #' If you want these settings to persist in your project, it is recommended that
 #' you add these to an appropriate \R startup file. For example, these could be
@@ -250,7 +239,7 @@ renv_paths_init <- function() {
 #'
 #' - A project-local `.Renviron`;
 #' - The user-level `.Renviron`;
-#' - A file at `$(R RHOME)/etc/Renviron.site`.
+#' - A file at `file.path(R.home("etc"), "Renviron.site")`.
 #'
 #' Please see ?[Startup] for more details.
 #'
