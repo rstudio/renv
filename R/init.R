@@ -112,7 +112,7 @@ init <- function(project = NULL,
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile)
-  if (empty(action)) {
+  if (empty(action) || identical(action, "cancel")) {
     message("* Operation aborted.")
     return(invisible(FALSE))
   }
@@ -140,7 +140,7 @@ init <- function(project = NULL,
 renv_init_action <- function(project, library, lockfile) {
 
   # figure out appropriate action
-  action <- case(
+  case(
 
     # if both the library and lockfile exist, ask user for intended action
     file.exists(lockfile) && file.exists(library)
@@ -170,7 +170,8 @@ renv_init_action_conflict_lockfile <- function(project, library, lockfile) {
   choices <- c(
     restore = "Restore the project from the lockfile.",
     init    = "Discard the lockfile and re-initialize the project.",
-    nothing = "Activate the project without snapshotting or installing any packages."
+    nothing = "Activate the project without snapshotting or installing any packages.",
+    cancel  = "Abort project initialization."
   )
 
   selection <- tryCatch(
@@ -193,7 +194,8 @@ renv_init_action_conflict_library <- function(project, library, lockfile) {
   title <- "This project already has a private library. What would you like to do?"
   choices <- c(
     nothing = "Activate the project and use the existing library.",
-    init    = "Re-initialize the project with a new library."
+    init    = "Re-initialize the project with a new library.",
+    cancel  = "Abort project initialization."
   )
 
   selection <- tryCatch(
