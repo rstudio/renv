@@ -1,6 +1,6 @@
 
 unlink("R/config-defaults.R")
-devtools::load_all()
+devtools::load_all(quiet = TRUE)
 
 source <- "inst/config.yml"
 target <- "R/config-defaults.R"
@@ -48,3 +48,4 @@ all <- c(
 )
 
 writeLines(all, con = target)
+vwritef("* 'R/config-defaults.R' has been updated.")
