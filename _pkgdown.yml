@@ -63,10 +63,25 @@ reference:
   - consent
   - diagnostics
 
-vignettes:
-  menu:
-  - Introduction   : [renv, lockfile, faq, local-sources, mran]
-  - Collaborating  : [collaborating]
-  - Packages       : [packages]
-  - Deployment     : [ci, docker]
-  - Integration    : [python]
+articles:
+
+  - title: Introduction to renv
+    navbar: Introduction
+    contents: [renv, lockfile, faq, local-sources, mran]
+
+  - title: Collaborating using renv
+    navbar: Collaborating
+    contents: [collaborating]
+
+  - title: Packages Development with renv
+    navbar: Packages
+    contents: [packages]
+
+  - title: Deploy Applications with renv
+    navbar: Deployment
+    contents: [ci, docker]
+
+  - title: Integrating other projects with renv
+    navbar: Integration
+    contents: [python]
+
