@@ -7,7 +7,7 @@ renv_rtools_find <- function() {
 
     renv_rtools_registry(),
 
-    file.path(drive, "rtools40"),
+    Sys.getenv("RTOOLS40_HOME", unset = file.path(drive, "rtools40")),
     file.path(drive, "Rtools"),
     list.files(file.path(drive, "RBuildTools"), full.names = TRUE),
 
@@ -28,6 +28,25 @@ renv_rtools_find <- function() {
 }
 
 renv_rtools_read <- function(root) {
+
+  mirrors <- file.path(root, "etc/pacman.d/mirrorlist.rtools")
+  if (file.exists(mirrors))
+    renv_rtools_read_rtools40(root)
+  else
+    renv_rtools_read_default(root)
+
+}
+
+renv_rtools_read_rtools40 <- function(root) {
+
+  list(
+    root    = root,
+    version = "4.0"
+  )
+
+}
+
+renv_rtools_read_default <- function(root) {
 
   path <- file.path(root, "VERSION.txt")
   if (!file.exists(path))
