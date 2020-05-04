@@ -1,6 +1,10 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* `renv::install()` gains the `type` argument, used to control whether `renv`
+  should attempt to install packages from sources (`"source"`) or using
+  binaries (`"binary"`).
+
 * `renv` now knows how to find and activate Rtools40, for R 4.0.0 installations
   on Windows.
 

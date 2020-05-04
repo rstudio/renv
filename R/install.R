@@ -53,6 +53,7 @@
 install <- function(packages = NULL,
                     ...,
                     library = NULL,
+                    type    = NULL,
                     rebuild = FALSE,
                     prompt  = interactive(),
                     project = NULL)
@@ -63,6 +64,9 @@ install <- function(packages = NULL,
 
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
+
+  type <- type %||% getOption("pkgType")
+  renv_scope_options(pkgType = type)
 
   packages <- packages %||% renv_project_records(project)
   if (is.null(packages))

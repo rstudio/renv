@@ -8,6 +8,7 @@ install(
   packages = NULL,
   ...,
   library = NULL,
+  type = NULL,
   rebuild = FALSE,
   prompt = interactive(),
   project = NULL
@@ -23,6 +24,9 @@ are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}
+
+\item{type}{The type of package to install ("source" or "binary"). Defaults
+to the value of \code{getOption("pkgType")}.}
 
 \item{rebuild}{Force packages to be rebuilt, thereby bypassing any installed
 versions of the package available in the cache? This can either be a

@@ -50,8 +50,9 @@ Note that \code{renv} will append platform-specific and version-specific entries
 to the set paths as appropriate. For example, if you have set:\preformatted{Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
 }
 
-then the directory used for the cache will still depend on the \code{renv} cache version (e.g. \code{v2}), the \R version
-(e.g. \code{3.5}) and the platform (e.g. \code{x86_64-pc-linux-gnu}). For example:\preformatted{/mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
+then the directory used for the cache will still depend on the \code{renv} cache
+version (e.g. \code{v2}), the \R version (e.g. \code{3.5}) and the platform (e.g.
+\code{x86_64-pc-linux-gnu}). For example:\preformatted{/mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
 }
 
 This ensures that you can set a single \code{RENV_PATHS_CACHE} environment variable
@@ -67,12 +68,13 @@ cache path like:\preformatted{/mnt/shared/renv/cache/v2/ubuntu-bionic/R-3.5/x86_
 
 If this is required, it's strongly recommended that this environment
 variable is set in your \R installation's \code{Renviron.site} file, typically
-located at \code{file.path(R.home("etc"), "Renviron.site")}.
+located at \code{file.path(R.home("etc"), "Renviron.site")}, so that it can be
+active for any \R sessions launched on that machine.
 
 If reproducibility of a project is desired on a particular machine, it is
 highly recommended that the \code{renv} cache of installed packages + binary
-packages is stored, so that packages can be easily restored in the future --
-installation of packages from source can often be arduous.
+packages is backed up and persisted, so that packages can be easily restored
+in the future -- installation of packages from source can often be arduous.
 
 If you want these settings to persist in your project, it is recommended that
 you add these to an appropriate \R startup file. For example, these could be

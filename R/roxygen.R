@@ -3,6 +3,9 @@
 #'   be used. If no project is currently active, then the current working
 #'   directory is used instead.
 #'
+#' @param type The type of package to install ("source" or "binary"). Defaults
+#'   to the value of `getOption("pkgType")`.
+#'
 #' @param library The \R library to be used. When `NULL`, the active project
 #'  library will be used instead.
 #'
