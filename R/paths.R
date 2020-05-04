@@ -72,8 +72,11 @@ renv_paths_rtools <- function(...) {
   if (!is.na(root))
     return(root)
 
-  root <- renv_rtools_find()
-  file.path(root, ...) %||% ""
+  rtools <- renv_rtools_find()
+  if (empty(rtools))
+    return("")
+
+  file.path(rtools[[1L]]$root, ...) %||% ""
 
 }
 

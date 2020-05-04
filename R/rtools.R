@@ -18,36 +18,28 @@ renv_rtools_find <- function() {
 
   roots <- unique(roots[file.exists(roots)])
   specs <- lapply(roots, renv_rtools_read)
-  compatible <- Filter(renv_rtools_compatible, specs)
 
-  if (length(compatible) == 0)
-    return(NULL)
-
-  compatible[[1]]$root
+  Filter(renv_rtools_compatible, specs)
 
 }
 
 renv_rtools_read <- function(root) {
 
-  mirrors <- file.path(root, "etc/pacman.d/mirrorlist.rtools")
-  if (file.exists(mirrors))
-    renv_rtools_read_rtools40(root)
-  else
-    renv_rtools_read_default(root)
-
-}
-
-renv_rtools_read_rtools40 <- function(root) {
-
   list(
     root    = root,
-    version = "4.0"
+    version = renv_rtools_version(root)
   )
 
 }
 
-renv_rtools_read_default <- function(root) {
+renv_rtools_version <- function(root) {
 
+  # detect Rtools40
+  mirrors <- file.path(root, "etc/pacman.d/mirrorlist.rtools")
+  if (file.exists(mirrors))
+    return(numeric_version("4.0"))
+
+  # detect older Rtools installations
   path <- file.path(root, "VERSION.txt")
   if (!file.exists(path))
     return(NULL)
@@ -55,14 +47,14 @@ renv_rtools_read_default <- function(root) {
   contents <- readLines(path, warn = FALSE)
   version <- gsub("[^[:digit:].]", "", contents)
 
-  list(
-    root = root,
-    version = numeric_version(version)
-  )
+  numeric_version(version)
 
 }
 
 renv_rtools_compatible <- function(spec) {
+
+  if (is.null(spec$version))
+    return(FALSE)
 
   ranges <- list(
     "4.0" = c("4.0.0", "9.9.9"),
@@ -73,13 +65,13 @@ renv_rtools_compatible <- function(spec) {
     "3.1" = c("3.0.0", "3.1.0")
   )
 
-  version <- spec$version[1, 1:2]
+  version <- numeric_version(spec$version)[1, 1:2]
   range <- ranges[[format(version)]]
   if (is.null(range))
     return(FALSE)
 
   rversion <- getRversion()
-  range[[1]] < rversion && rversion < range[[2]]
+  range[[1]] <= rversion && rversion < range[[2]]
 
 }
 
@@ -96,5 +88,57 @@ renv_rtools_registry <- function() {
   path <- status$InstallPath %||% ""
   if (file.exists(path))
     return(normalizePath(path, winslash = "/"))
+
+}
+
+renv_rtools_envvars <- function(root) {
+
+  version <- renv_rtools_version(root)
+
+  if (version < "4.0")
+    renv_rtools_envvars_default(root)
+  else
+    renv_rtools_envvars_rtools40(root)
+
+}
+
+renv_rtools_envvars_default <- function(root) {
+
+  # add Rtools utilities to path
+  bin <- normalizePath(
+    file.path(root, "bin"),
+    winslash = "\\",
+    mustWork = FALSE
+  )
+
+  path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
+
+  # set BINPREF (note: trailing slash required but file.path()
+  # drops trailing slashes on Windows)
+  binpref <- paste(
+    normalizePath(root, winslash = "/", mustWork = FALSE),
+    "mingw_$(WIN)/bin/",
+    sep = "/"
+  )
+
+  list(PATH = path, BINPREF = binpref)
+
+}
+
+renv_rtools_envvars_rtools40 <- function(root) {
+
+  # add Rtools utilities to path
+  bin <- normalizePath(
+    file.path(root, "usr/bin"),
+    winslash = "\\",
+    mustWork = FALSE
+  )
+
+  path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
+
+  # set BINPREF
+  binpref <- "/mingw$(WIN)/bin/"
+
+  list(PATH = path, BINPREF = binpref)
 
 }

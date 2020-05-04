@@ -61,8 +61,11 @@ empty <- function(x) {
 
 aliased_path <- function(path) {
 
-  home <- Sys.getenv("HOME", unset = NA)
-  if (is.na(home))
+  home <-
+    Sys.getenv("HOME") %""%
+    Sys.getenv("R_USER")
+
+  if (!nzchar(home))
     return(path)
 
   home <- gsub("\\", "/", home, fixed = TRUE)

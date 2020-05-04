@@ -1,6 +1,9 @@
 
 # renv 0.10.0 (UNRELEASED)
 
+* `renv` now knows how to find and activate Rtools40, for R 4.0.0 installations
+  on Windows.
+
 * The `RENV_PATHS_PREFIX` environment variable can now be used to prepend an
   optional path component to the project library and global cache paths.
   This is primarily useful for users who want to share the `renv` cache across
