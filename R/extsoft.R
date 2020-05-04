@@ -1,6 +1,6 @@
 
 renv_extsoft_curl_version <- function() {
-  "7.68.0"
+  "7.70.0"
 }
 
 renv_extsoft_install <- function(quiet = FALSE) {
