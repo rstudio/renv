@@ -1,5 +1,5 @@
 
-renv_rtools_find <- function() {
+renv_rtools_list <- function() {
 
   drive <- Sys.getenv("SYSTEMDRIVE", unset = "C:")
 
@@ -17,9 +17,17 @@ renv_rtools_find <- function() {
   )
 
   roots <- unique(roots[file.exists(roots)])
-  specs <- lapply(roots, renv_rtools_read)
+  lapply(roots, renv_rtools_read)
 
-  Filter(renv_rtools_compatible, specs)
+}
+
+renv_rtools_find <- function() {
+
+  for (spec in renv_rtools_list())
+    if (renv_rtools_compatible(spec))
+      return(spec)
+
+  NULL
 
 }
 
