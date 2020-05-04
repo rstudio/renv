@@ -1,8 +1,8 @@
 ---
-title: "Lockfiles"
+title: "Anatomy of a Lockfile"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Lockfiles}
+  %\VignetteIndexEntry{Anatomy of a Lockfile}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -67,7 +67,7 @@ articles:
 
   - title: Introduction to renv
     navbar: Introduction
-    contents: [renv, lockfile, faq, local-sources, mran]
+    contents: [lockfile, local-sources, mran, faq]
 
   - title: Collaborating using renv
     navbar: Collaborating

@@ -1,8 +1,8 @@
 ---
-title: "Local Sources"
+title: "Installing from Local Sources"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Local Sources}
+  %\VignetteIndexEntry{Installing from Local Sources}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

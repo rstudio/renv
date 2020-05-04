@@ -1,8 +1,8 @@
 ---
-title: "Retrieving MRAN Binaries"
+title: "Using MRAN Binaries"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Retrieving MRAN Binaries}
+  %\VignetteIndexEntry{Using MRAN Binaries}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
