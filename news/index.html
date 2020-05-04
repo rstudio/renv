@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-110</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-111</span>
       </span>
     </div>
 
@@ -166,6 +166,7 @@
 <a href="#renv-0-10-0-unreleased" class="anchor"></a>renv 0.10.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/install.html">renv::install()</a></code> gains the <code>type</code> argument, used to control whether <code>renv</code> should attempt to install packages from sources (<code>"source"</code>) or using binaries (<code>"binary"</code>).</p></li>
 <li><p><code>renv</code> now knows how to find and activate Rtools40, for R 4.0.0 installations on Windows.</p></li>
 <li><p>The <code>RENV_PATHS_PREFIX</code> environment variable can now be used to prepend an optional path component to the project library and global cache paths. This is primarily useful for users who want to share the <code>renv</code> cache across multiple operating systems on Linux, but need to disambigutate these paths according to the operating system in use. See <code><a href="../reference/paths.html">?renv::paths</a></code> for more details.</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install()</a></code> could fail for packages from GitHub whose DESCRIPTION files contained Windows-style line endings. (<a href='https://github.com/rstudio/renv/issues/408'>#408</a>)</p></li>

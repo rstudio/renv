@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-110</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-111</span>
       </span>
     </div>
 
@@ -171,6 +171,7 @@
   <span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='no'>...</span>,
   <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>rebuild</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>prompt</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>(),
   <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
@@ -194,6 +195,11 @@ are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td
       <th>library</th>
       <td><p>The <span style="R">R</span> library to be used. When <code>NULL</code>, the active project
 library will be used instead.</p></td>
+    </tr>
+    <tr>
+      <th>type</th>
+      <td><p>The type of package to install ("source" or "binary"). Defaults
+to the value of <code><a href='https://rdrr.io/r/base/options.html'>getOption("pkgType")</a></code>.</p></td>
     </tr>
     <tr>
       <th>rebuild</th>

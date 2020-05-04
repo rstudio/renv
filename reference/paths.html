@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-110</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.9.3-111</span>
       </span>
     </div>
 
@@ -209,8 +209,9 @@ enumerated below:</p>
 <p>Note that <code>renv</code> will append platform-specific and version-specific entries
 to the set paths as appropriate. For example, if you have set:</p><pre><span class='fu'><a href='https://rdrr.io/r/base/Sys.setenv.html'>Sys.setenv</a></span>(<span class='kw'>RENV_PATHS_CACHE</span> <span class='kw'>=</span> <span class='st'>"/mnt/shared/renv/cache"</span>)</pre>
 
-<p>then the directory used for the cache will still depend on the <code>renv</code> cache version (e.g. <code>v2</code>), the <span style="R">R</span> version
-(e.g. <code>3.5</code>) and the platform (e.g. <code>x86_64-pc-linux-gnu</code>). For example:</p><pre>/mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
+<p>then the directory used for the cache will still depend on the <code>renv</code> cache
+version (e.g. <code>v2</code>), the <span style="R">R</span> version (e.g. <code>3.5</code>) and the platform (e.g.
+<code>x86_64-pc-linux-gnu</code>). For example:</p><pre>/mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
 </pre>
 
 <p>This ensures that you can set a single <code>RENV_PATHS_CACHE</code> environment variable
@@ -225,11 +226,12 @@ cache path like:</p><pre>/mnt/shared/renv/cache/v2/ubuntu-bionic/R-3.5/x86_64-pc
 
 <p>If this is required, it's strongly recommended that this environment
 variable is set in your <span style="R">R</span> installation's <code>Renviron.site</code> file, typically
-located at <code><a href='https://rdrr.io/r/base/file.path.html'>file.path(R.home("etc"), "Renviron.site")</a></code>.</p>
+located at <code><a href='https://rdrr.io/r/base/file.path.html'>file.path(R.home("etc"), "Renviron.site")</a></code>, so that it can be
+active for any <span style="R">R</span> sessions launched on that machine.</p>
 <p>If reproducibility of a project is desired on a particular machine, it is
 highly recommended that the <code>renv</code> cache of installed packages + binary
-packages is stored, so that packages can be easily restored in the future --
-installation of packages from source can often be arduous.</p>
+packages is backed up and persisted, so that packages can be easily restored
+in the future -- installation of packages from source can often be arduous.</p>
 <p>If you want these settings to persist in your project, it is recommended that
 you add these to an appropriate <span style="R">R</span> startup file. For example, these could be
 set in:</p><ul>
