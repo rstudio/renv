@@ -1,5 +1,5 @@
 
-# renv 0.10.0 (UNRELEASED)
+# renv 0.10.0
 
 * `renv::install()` gains the `type` argument, used to control whether `renv`
   should attempt to install packages from sources (`"source"`) or using
