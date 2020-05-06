@@ -46,14 +46,14 @@
 * renv will now attempt to re-generate the system library sandbox if it is
   deleted while a session is active. (#361)
 
-* Fixed an issue where packages referenced using `reticulate::import()`
-  were incorrectly tagged as R package dependencies. Similarly, `renv` now
-  only considers calls to `modules::import()` if those calls occur within
-  a call to `modules::module()`. (#359)
+* Fixed an issue where Python packages referenced using `reticulate::import()`
+  were incorrectly tagged as R package dependencies. Similarly, `renv` now only
+  considers calls to `modules::import()` if those calls occur within a call to
+  `modules::module()`. (#359)
 
 * `renv::scaffold()` now also generates a lockfile when invoked. (#351)
 
-* The arugment `confirm` has been renamed to `prompt` in all places where it
+* The argument `confirm` has been renamed to `prompt` in all places where it
   is used. `confirm` remains supported for backwards compatibility, but is no
   longer explicitly documented. (#347)
 
@@ -67,10 +67,9 @@
   project containing a lockfile but no project library nor any pre-existing
   project infrastructure.
 
-* Fixed an issue where downloads could fail on Windows when using
-  `method = "wininet"` and R package repositories referenced with a `file://`
-  scheme.
-
+* Fixed an issue on Windows where attempts to download packages from package
+  repositories referenced with a `file://` scheme could fail.
+  
 * The configuration option `dependency.errors` has been added, controlling how
   errors are handled during dependency enumeration. This is used, for
   example, when enumerating dependencies during a call to `renv::snapshot()`.
@@ -104,7 +103,8 @@
   `renv::snapshot()` is called. (#338)
 
 * `renv` will now transform RSPM source URLs into binary URLs as appropriate,
-  allowing `renv` to use RSPM's binary repositories during restore. (#124)
+  allowing `renv` to use RSPM's binary repositories during restore. See
+  `?config` for more details. (#124)
 
 * `renv` will now infer a dependency on `hexbin` in projects that make
   use of the `ggplot2::geom_hex()` function.
