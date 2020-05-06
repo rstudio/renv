@@ -363,9 +363,14 @@ renv_retrieve_repos <- function(record) {
   }
 
   for (method in methods) {
-    status <- method(record)
+
+    status <- catch(method(record))
+    if (inherits(status, "error"))
+      warning(status)
+
     if (identical(status, TRUE))
       return(TRUE)
+
   }
 
   stopf("failed to retrieve package '%s'", record$Package)
@@ -397,7 +402,16 @@ renv_retrieve_repos_mran <- function(record) {
 
   # ensure local MRAN database is up-to-date
   renv_mran_database_refresh(explicit = FALSE)
-  database <- renv_mran_database_load()
+
+  # check that we have an available database
+  path <- renv_mran_database_path()
+  if (!file.exists(path))
+    return(FALSE)
+
+  # attempt to read it
+  database <- catch(renv_mran_database_load())
+  if (inherits(database, "error"))
+    return(FALSE)
 
   # get entry for this version of R + platform
   suffix <- contrib.url("", type = "binary")
