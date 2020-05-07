@@ -45,6 +45,16 @@ renv_retrieve_impl <- function(package) {
   # normalize the record source
   source <- renv_record_source(record, normalize = TRUE)
 
+  # don't install packages from incompatible OS
+  ostype <- tolower(record[["OS_type"]] %||% "")
+
+  skip <-
+    renv_platform_unix() && identical(ostype, "unix") ||
+    renv_platform_windows() && identical(ostype, "windows")
+
+  if (skip)
+    return()
+
   # if this is a package from Bioconductor, activate those repositories now
   #
   # TODO: we should consider making this more scoped; calls to `renv_available_packages_*`

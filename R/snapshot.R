@@ -593,7 +593,7 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
   }
 
   remotes <- grep("^Remote", names(dcf), value = TRUE)
-  all <- c(fields, "Repository", remotes, "Hash")
+  all <- c(fields, "Repository", "OS_type", remotes, "Hash")
   keep <- renv_vector_intersect(all, names(dcf))
   as.list(dcf[keep])
 

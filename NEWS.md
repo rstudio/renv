@@ -1,6 +1,10 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* `renv` now records the `OS_type` reported in a package's `DESCRIPTION` file
+  (if any), and ignores packages incompatible with the current operating
+  system during restore. (#394)
+
 # renv 0.10.0
 
 * `renv::install()` gains the `type` argument, used to control whether `renv`

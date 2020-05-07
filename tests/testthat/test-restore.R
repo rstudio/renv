@@ -133,3 +133,30 @@ test_that("renv::restore(packages = <...>) works", {
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_installed("toast"))
 })
+
+test_that("restore ignores packages of incompatible architecture", {
+
+  renv_tests_scope(c("unixonly", "windowsonly"))
+  renv::init()
+
+  if (renv_platform_unix()) {
+
+    expect_true(renv_package_installed("unixonly"))
+    expect_false(renv_package_installed("windowsonly"))
+
+    lockfile <- renv_lockfile_read("renv.lock")
+    package <- lockfile$Packages$unixonly
+    expect_identical(package$OS_type, "unix")
+
+  } else {
+
+    expect_true(renv_package_installed("windowsonly"))
+    expect_false(renv_package_installed("unixonly"))
+
+    lockfile <- renv_lockfile_read("renv.lock")
+    package <- lockfile$Packages$windowsonly
+    expect_identical(package$OS_type, "windows")
+
+  }
+
+})

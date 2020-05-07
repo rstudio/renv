@@ -2,10 +2,14 @@
 context("Repositories")
 
 test_that("we can query our local repository during tests", {
-  expected <- list.files("packages")
+
+  exclude <- if (renv_platform_unix()) "windowsonly" else "unixonly"
+  expected <- setdiff(list.files("packages"), exclude)
+
   renv_tests_scope()
   ap <- renv_available_packages(type = "source")[[1]]
   expect_setequal(ap$Package, expected)
+
 })
 
 test_that("repository names are not lost in the lockfile", {

@@ -223,7 +223,7 @@ renv_available_packages_record <- function(entry, type) {
 renv_available_packages_latest_impl <- function(package, type) {
 
   dbs <- renv_available_packages(type = type, quiet = TRUE)
-  fields <- c("Package", "Version", "NeedsCompilation", "Repository")
+  fields <- c("Package", "Version", "OS_type", "NeedsCompilation", "Repository")
   entries <- bapply(dbs, function(db) {
 
     # extract entries for this package
@@ -234,6 +234,10 @@ renv_available_packages_latest_impl <- function(package, type) {
     # only keep entries for which this version of R is compatible
     deps <- rows$Depends %||% rep.int("", nrow(rows))
     compatible <- map_lgl(deps, function(dep) {
+
+      # skip NAs
+      if (is.na(dep))
+        return(TRUE)
 
       # read 'R' entries from Depends (if any)
       parsed <- catch(renv_description_parse_field(dep))
