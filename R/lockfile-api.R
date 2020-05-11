@@ -102,6 +102,8 @@ str.renv_lockfile_api <- function(object, ...) {
 #' @seealso \code{\link{lockfiles}}, for a description of the structure of an
 #'   `renv` lockfile.
 #'
+#' @export
+#'
 #' @examples
 #'
 #' \dontrun{
