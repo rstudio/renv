@@ -150,9 +150,10 @@ update <- function(packages = NULL,
   renv_dots_check(...)
 
   # get package records
+  project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
   records <- renv_snapshot_r_packages(library = library, project = project)
-  packages <- packages %||% names(records)
+  packages <- packages %||% setdiff(names(records), settings$ignored.packages(project = project))
 
   # check if the user has requested update for packages not installed
   missing <- renv_vector_diff(packages, names(records))
