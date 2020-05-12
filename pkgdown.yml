@@ -12,7 +12,7 @@ articles:
   packages: packages.html
   python: python.html
   renv: renv.html
-last_built: 2020-05-07T20:27Z
+last_built: 2020-05-12T18:27Z
 urls:
   reference: https://rstudio.github.io/renv//reference
   article: https://rstudio.github.io/renv//articles
