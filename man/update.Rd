@@ -7,6 +7,7 @@
 update(
   packages = NULL,
   ...,
+  exclude = NULL,
   library = NULL,
   rebuild = FALSE,
   check = FALSE,
@@ -15,11 +16,15 @@ update(
 )
 }
 \arguments{
-\item{packages}{A character vector of \R packages to update. When \code{NULL},
-all packages within the required libraries will be updated.}
+\item{packages}{A character vector of \R packages to update. When \code{NULL}
+(the default), all packages will be updated.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
+
+\item{exclude}{A set of packages to explicitly exclude from updating.
+Use \verb{renv::update(exclude = <...>)} to update all packages except for
+a specific set of excluded packages.}
 
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}
@@ -30,7 +35,8 @@ boolean (indicating that the requested package(s) should be rebuilt), or a
 vector of package names indicating which packages should be rebuilt.}
 
 \item{check}{Boolean; check for package updates without actually
-installing available updates?}
+installing available updates? This is useful when you'd like to determine
+what updates are available, without actually installing those updates.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
@@ -50,6 +56,11 @@ CRAN and GitHub package sources are supported.
 Updates will only be checked from the same source -- for example,
 if a package was installed from GitHub, but a newer version is
 available on CRAN, that updated version will not be seen.
+
+You can call \code{renv::update()} with no arguments to update all packages within
+the project, excluding any packages ignored via the \code{ignored.packages}
+project setting. Use the \code{exclude} argument to further refine the exclusion
+criteria if desired.
 }
 \examples{
 \dontrun{

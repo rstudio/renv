@@ -117,14 +117,24 @@ renv_update_find <- function(records) {
 #' if a package was installed from GitHub, but a newer version is
 #' available on CRAN, that updated version will not be seen.
 #'
+#' You can call `renv::update()` with no arguments to update all packages within
+#' the project, excluding any packages ignored via the `ignored.packages`
+#' project setting. Use the `exclude` argument to further refine the exclusion
+#' criteria if desired.
+#'
 #' @inherit renv-params
 #' @inheritParams install-params
 #'
-#' @param packages A character vector of \R packages to update. When `NULL`,
-#'   all packages within the required libraries will be updated.
+#' @param packages A character vector of \R packages to update. When `NULL`
+#'   (the default), all packages will be updated.
 #'
 #' @param check Boolean; check for package updates without actually
-#'   installing available updates?
+#'   installing available updates? This is useful when you'd like to determine
+#'   what updates are available, without actually installing those updates.
+#'
+#' @param exclude A set of packages to explicitly exclude from updating.
+#'   Use `renv::update(exclude = <...>)` to update all packages except for
+#'   a specific set of excluded packages.
 #'
 #' @return A named list of package records which were installed by `renv`.
 #'
@@ -139,6 +149,7 @@ renv_update_find <- function(records) {
 #' }
 update <- function(packages = NULL,
                    ...,
+                   exclude = NULL,
                    library = NULL,
                    rebuild = FALSE,
                    check   = FALSE,
@@ -154,6 +165,9 @@ update <- function(packages = NULL,
   library <- library %||% renv_libpaths_all()
   records <- renv_snapshot_r_packages(library = library, project = project)
   packages <- packages %||% setdiff(names(records), settings$ignored.packages(project = project))
+
+  # apply exclusions
+  packages <- setdiff(packages, exclude)
 
   # check if the user has requested update for packages not installed
   missing <- renv_vector_diff(packages, names(records))
