@@ -36,3 +36,11 @@ test_that("RSPM bits are preserved when writing lockfile", {
   expect_identical(actual, expected)
 
 })
+
+test_that("RSPM is confirmed not supported on trusty", {
+  skip_on_cran()
+  renv_scope_envvars(RENV_RSPM_OS = "__linux__", RENV_RSPM_PLATFORM = "trusty")
+  before <- "https://cluster.rstudiopm.com/cran/latest"
+  after  <- renv_rspm_transform(before)
+  expect_identical(unname(before), unname(after))
+})

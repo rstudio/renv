@@ -1,6 +1,9 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* Fixed an issue where RSPM binary URL transformations could fail for
+  Ubuntu Trusty. (#423)
+
 * `renv` now records the `OS_type` reported in a package's `DESCRIPTION` file
   (if any), and ignores packages incompatible with the current operating
   system during restore. (#394)

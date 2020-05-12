@@ -1,6 +1,7 @@
 
 renv_parse <- function(file = "", text = NULL, encoding = "UTF-8", ...) {
 
+  # suppress parse warnings
   renv_scope_options(warn = -1L)
 
   # if text was provided, use it (ignoring file)
