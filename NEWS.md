@@ -1,6 +1,9 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to parse non-ASCII content on Windows.
+  (#421)
+
 * `renv::update()` gains the `exclude` argument, useful in cases where one
   would like to update all packages used in a project, except for a small
   subset of excluded packages. (#425)
