@@ -81,7 +81,7 @@ CRAN and GitHub package sources are supported." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-6</span>
       </span>
     </div>
 
@@ -182,6 +182,7 @@ CRAN and GitHub package sources are supported.</p>
     <pre class="usage"><span class='fu'>update</span>(
   <span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='no'>...</span>,
+  <span class='kw'>exclude</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>rebuild</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>check</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
@@ -194,13 +195,19 @@ CRAN and GitHub package sources are supported.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>packages</th>
-      <td><p>A character vector of <span style="R">R</span> packages to update. When <code>NULL</code>,
-all packages within the required libraries will be updated.</p></td>
+      <td><p>A character vector of <span style="R">R</span> packages to update. When <code>NULL</code>
+(the default), all packages will be updated.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
+    </tr>
+    <tr>
+      <th>exclude</th>
+      <td><p>A set of packages to explicitly exclude from updating.
+Use <code>renv::update(exclude = &lt;...&gt;)</code> to update all packages except for
+a specific set of excluded packages.</p></td>
     </tr>
     <tr>
       <th>library</th>
@@ -217,7 +224,8 @@ vector of package names indicating which packages should be rebuilt.</p></td>
     <tr>
       <th>check</th>
       <td><p>Boolean; check for package updates without actually
-installing available updates?</p></td>
+installing available updates? This is useful when you'd like to determine
+what updates are available, without actually installing those updates.</p></td>
     </tr>
     <tr>
       <th>prompt</th>
@@ -240,6 +248,10 @@ directory is used instead.</p></td>
     <p>Updates will only be checked from the same source -- for example,
 if a package was installed from GitHub, but a newer version is
 available on CRAN, that updated version will not be seen.</p>
+<p>You can call <code>renv::update()</code> with no arguments to update all packages within
+the project, excluding any packages ignored via the <code>ignored.packages</code>
+project setting. Use the <code>exclude</code> argument to further refine the exclusion
+criteria if desired.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
