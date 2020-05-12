@@ -146,7 +146,7 @@ renv_config_validate <- function(name, value, type, default, args) {
   }
 
   # parse the type string
-  parsed <- catch(renv_parse(text = type)[[1L]])
+  parsed <- catch(renv_parse_text(text = type)[[1L]])
   if (inherits(parsed, "error")) {
     warningf("could not parse type string '%s'", type)
     return(value)

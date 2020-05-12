@@ -663,7 +663,11 @@ renv_dependencies_discover_rproj <- function(path) {
 
 renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
 
-  parsed <- catch(renv_parse(file = path, text = text))
+  parsed <- if (is.character(text))
+    catch(renv_parse_text(text))
+  else
+    catch(renv_parse_file(path))
+
   if (inherits(parsed, "error")) {
     # workaround for an R bug where parse-related state could be
     # leaked if an error occurred
