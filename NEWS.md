@@ -1,6 +1,12 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* `renv::update()` gains the `exclude` argument, useful in cases where one
+  would like to update all packages used in a project, except for a small
+  subset of excluded packages. (#425)
+
+* `renv::update()` now respects the project `ignored.packages` setting. (#425)
+
 * Fixed an issue where RSPM binary URL transformations could fail for
   Ubuntu Trusty. (#423)
 
