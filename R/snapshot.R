@@ -321,6 +321,11 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
   if (empty(missing))
     return(TRUE)
 
+  # exclude ignored packages
+  missing <- renv_vector_diff(missing, settings$ignored.packages(project = project))
+  if (empty(missing))
+    return(TRUE)
+
   usedby <- map_chr(missing, function(package) {
 
     revdeps <- sort(unique(basename(deps$Source)[deps$Package == package]))
