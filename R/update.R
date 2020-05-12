@@ -93,8 +93,14 @@ renv_update_find <- function(records) {
 
   # remove groupings
   ungrouped <- unlist(results, recursive = FALSE, use.names = FALSE)
+  if (empty(ungrouped))
+    return(list())
 
+  # keep non-null results
   updates <- Filter(Negate(is.null), ungrouped)
+  if (empty(updates))
+    return(list())
+
   names(updates) <- extract_chr(updates, "Package")
   renv_records_sort(updates)
 
