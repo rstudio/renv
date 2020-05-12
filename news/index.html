@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-8</span>
       </span>
     </div>
 
@@ -176,6 +176,8 @@
 <a href="#renv-0-11-0-unreleased" class="anchor"></a>renv 0.11.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/update.html">renv::update()</a></code> gains the <code>exclude</code> argument, useful in cases where one would like to update all packages used in a project, except for a small subset of excluded packages. (<a href='https://github.com/rstudio/renv/issues/425'>#425</a>)</p></li>
+<li><p><code><a href="../reference/update.html">renv::update()</a></code> now respects the project <code>ignored.packages</code> setting. (<a href='https://github.com/rstudio/renv/issues/425'>#425</a>)</p></li>
 <li><p>Fixed an issue where RSPM binary URL transformations could fail for Ubuntu Trusty. (<a href='https://github.com/rstudio/renv/issues/423'>#423</a>)</p></li>
 <li><p><code>renv</code> now records the <code>OS_type</code> reported in a package’s <code>DESCRIPTION</code> file (if any), and ignores packages incompatible with the current operating system during restore. (<a href='https://github.com/rstudio/renv/issues/394'>#394</a>)</p></li>
 </ul>
