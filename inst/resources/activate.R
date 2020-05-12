@@ -39,8 +39,12 @@ local({
   # load bootstrap tools   
   bootstrap <- function(version, library) {
   
+    # read repos (respecting override if set)
+    repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
+    if (is.na(repos))
+      repos <- getOption("repos")
+  
     # fix up repos
-    repos <- getOption("repos")
     on.exit(options(repos = repos), add = TRUE)
     repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
     options(repos = repos)
@@ -100,12 +104,12 @@ local({
   
     # check for renv on CRAN matching this version
     db <- as.data.frame(available.packages(), stringsAsFactors = FALSE)
-    if (!"renv" %in% rownames(db))
-      stop("renv is not available on your declared package repositories")
   
-    entry <- db["renv", ]
-    if (!identical(entry$Version, version))
-      stop("renv is not available on your declared package repositories")
+    entry <- db[db$Package %in% "renv" & db$Version %in% version, ]
+    if (nrow(entry) == 0) {
+      fmt <- "renv %s is not available from your declared package repositories"
+      stop(sprintf(fmt, version))
+    }
   
     message("* Downloading renv ", version, " from CRAN ... ", appendLF = FALSE)
   
@@ -323,6 +327,10 @@ local({
 
   # load failed; attempt to bootstrap
   bootstrap(version, libpath)
+
+  # exit early if we're just testing bootstrap
+  if (!is.na(Sys.getenv("RENV_BOOTSTRAP_INSTALL_ONLY", unset = NA)))
+    return(TRUE)
 
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {

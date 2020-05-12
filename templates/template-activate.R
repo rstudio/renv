@@ -54,6 +54,10 @@ local({
   # load failed; attempt to bootstrap
   bootstrap(version, libpath)
 
+  # exit early if we're just testing bootstrap
+  if (!is.na(Sys.getenv("RENV_BOOTSTRAP_INSTALL_ONLY", unset = NA)))
+    return(TRUE)
+
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
     message("Successfully installed and loaded renv ", version, ".")
