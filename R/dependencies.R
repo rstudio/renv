@@ -689,8 +689,8 @@ renv_dependencies_discover_r <- function(path = NULL, text = NULL) {
 
   discoveries <- new.env(parent = emptyenv())
   recurse(parsed, function(node, stack) {
-    for (method in methods)
-      if (is.call(node))
+    if (is.call(node))
+      for (method in methods)
         method(node, stack, discoveries)
   })
 
