@@ -379,8 +379,8 @@ renv_load_finish <- function(project, lockfile) {
 renv_load_report_project <- function(project) {
 
   quiet <-
-    "--slave" %in% commandArgs(trailingOnly = FALSE) ||
-    identical(renv_verbose(), FALSE)
+    identical(renv_verbose(), FALSE) ||
+    renv_session_quiet()
 
   if (!quiet) {
     fmt <- "* Project '%s' loaded. [renv %s]"
