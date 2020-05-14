@@ -339,6 +339,22 @@ download files from the internet (respecting the R options
 can also provide their own download function, provided its signature matches
 that of `utils::download.file()`.
 
+You can also instruct `renv` to use a different download method by setting
+the `RENV_DOWNLOAD_FILE_METHOD` environment variable. For example:
+
+```
+# use Windows' internal download machinery
+Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = "wininet")
+
+# use R's bundled libcurl implementation
+Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = "libcurl")
+```
+
+Note that other features (e.g. authentication) may not be supported when
+using an alternative download file method -- you will have to configure
+the downloader yourself if that is required. See `?download.file` for more
+details.
+
 
 ### Proxies
 
