@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-17</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-18</span>
       </span>
     </div>
 
@@ -176,6 +176,7 @@
 <a href="#renv-0-11-0-unreleased" class="anchor"></a>renv 0.11.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code>renv</code> better handles files that are removed during an invocation to <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>. (<a href='https://github.com/rstudio/renv/issues/429'>#429</a>)</p></li>
 <li><p>The configuration option <code>install.staged</code> has been renamed to <code>install.transactional</code>, to better reflect its purpose. <code>install.staged</code> remains supported as a deprecated alias.</p></li>
 <li><p>Fixed an issue where <code>renv</code> could fail to parse non-ASCII content on Windows. (<a href='https://github.com/rstudio/renv/issues/421'>#421</a>)</p></li>
 <li><p><code><a href="../reference/update.html">renv::update()</a></code> gains the <code>exclude</code> argument, useful in cases where one would like to update all packages used in a project, except for a small subset of excluded packages. (<a href='https://github.com/rstudio/renv/issues/425'>#425</a>)</p></li>
