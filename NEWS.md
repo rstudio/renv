@@ -1,6 +1,10 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* The configuration option `install.staged` has been renamed to
+  `install.transactional`, to better reflect its purpose. `install.staged`
+  remains supported as a deprecated alias.
+
 * Fixed an issue where `renv` could fail to parse non-ASCII content on Windows.
   (#421)
 
