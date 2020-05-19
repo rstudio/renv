@@ -81,6 +81,9 @@ renv_paths_extsoft <- function(...) {
   renv_paths_common("extsoft", c(), ...)
 }
 
+renv_paths_mran <- function(...) {
+  renv_paths_common("mran", c(), ...)
+}
 
 
 
@@ -192,6 +195,7 @@ renv_paths_init <- function() {
 #' \code{RENV_PATHS_PREFIX}       \tab An optional prefix to prepend to the constructed library / cache paths. \cr
 #' \code{RENV_PATHS_RTOOLS}       \tab (Windows only) The path to [Rtools](https://cran.r-project.org/bin/windows/Rtools/). \cr
 #' \code{RENV_PATHS_EXTSOFT}      \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
+#' \code{RENV_PATHS_MRAN}         \tab The path containing MRAN-related metadata. See `vignette("mran", package = "renv")` for more details. \cr
 #' }
 #'
 #' Note that `renv` will append platform-specific and version-specific entries

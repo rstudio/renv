@@ -420,8 +420,10 @@ renv_retrieve_repos_mran <- function(record) {
 
   # attempt to read it
   database <- catch(renv_mran_database_load())
-  if (inherits(database, "error"))
+  if (inherits(database, "error")) {
+    warning(database)
     return(FALSE)
+  }
 
   # get entry for this version of R + platform
   suffix <- contrib.url("", type = "binary")

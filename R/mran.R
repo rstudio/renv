@@ -1,6 +1,6 @@
 
 renv_mran_database_path <- function() {
-  renv_paths_root("mran/packages.rds")
+  renv_paths_mran("packages.rds")
 }
 
 renv_mran_database_encode <- function(database) {
@@ -134,7 +134,7 @@ renv_mran_database_update <- function(platform, version, dates = NULL) {
 
     # attempt to update our database entry for this date
     url <- renv_mran_url(date, suffix)
-    status <- tryCatch(
+    tryCatch(
       renv_mran_database_update_impl(date, url, entry),
       error = warning
     )
@@ -188,9 +188,8 @@ renv_mran_url <- function(date, suffix) {
 }
 
 renv_mran_database_url <- function() {
-  url <-
-    Sys.getenv("RENV_MRAN_DATABASE_URL", unset = NA) %NA%
-    "https://rstudio-buildtools.s3.amazonaws.com/renv/mran/packages.rds"
+  default <- "https://rstudio-buildtools.s3.amazonaws.com/renv/mran/packages.rds"
+  Sys.getenv("RENV_MRAN_DATABASE_URL", unset = default)
 }
 
 renv_mran_database_refresh <- function(explicit = TRUE) {
@@ -202,25 +201,40 @@ renv_mran_database_refresh <- function(explicit = TRUE) {
 
 renv_mran_database_refresh_required <- function() {
 
+  # if the cache doesn't exist, we must refresh
   path <- renv_mran_database_path()
   if (!file.exists(path))
     return(TRUE)
 
+  # if we're using an older version of R, but we have newer package
+  # versions available in the cache, we don't need to refresh
+  db <- tryCatch(renv_mran_database_load(), error = identity)
+  if (!inherits(db, "error")) {
+    keys <- names(db)
+    versions <- unique(basename(keys))
+    if (any(versions > getRversion()))
+      return(FALSE)
+  }
+
+  # read the file mtime
   info <- file.info(path)
   if (is.na(info$mtime))
     return(FALSE)
 
+  # if it's older than a day, then we should update
   difftime(Sys.time(), info$mtime, units = "days") > 1
 
 }
 
 renv_mran_database_refresh_impl <- function() {
 
-  url <- renv_mran_database_url()
+  url  <- renv_mran_database_url()
   path <- renv_mran_database_path()
 
-  ensure_parent_directory(path)
-  download(url = url, destfile = path, quiet = TRUE)
+  if (nzchar(url) && nzchar(path)) {
+    ensure_parent_directory(path)
+    download(url = url, destfile = path, quiet = TRUE)
+  }
 
 }
 
