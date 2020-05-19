@@ -1,6 +1,9 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* `renv` better handles files that are removed during an invocation to
+  `renv::dependencies()`. (#429)
+
 * The configuration option `install.staged` has been renamed to
   `install.transactional`, to better reflect its purpose. `install.staged`
   remains supported as a deprecated alias.

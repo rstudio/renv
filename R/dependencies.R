@@ -216,12 +216,16 @@ renv_dependencies_find_impl <- function(path, root) {
 
   # check file type
   info <- file.info(path, extra_cols = FALSE)
-  if (is.na(info$isdir))
-    stopf("file '%s' does not exist", path)
 
+  # the file might have been removed after listing -- if so, just ignore it
+  if (is.na(info$isdir))
+    return(NULL)
+
+  # if this is a directory, recurse
   if (info$isdir)
     return(renv_dependencies_find_dir(path, root))
 
+  # otherwise, check and see if we have a registered callback
   callback <- renv_dependencies_callback(path)
   if (is.function(callback))
     return(path)
