@@ -123,7 +123,9 @@ install <- function(packages = NULL,
 
 renv_install <- function(records, library) {
 
-  staged <- config$install.staged()
+  staged <-
+    config$install.transactional(default = NULL) %||%
+    config$install.staged()
 
   if (staged)
     renv_install_staged(records, library)

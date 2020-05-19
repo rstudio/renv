@@ -90,7 +90,13 @@
   type: "logical[1]"
   default: true
   description: >
-    Perform a staged install of packages during install and restore? When
+    DEPRECATED: Please use `install.transactional` instead.
+
+- name: "install.transactional"
+  type: "logical[1]"
+  default: true
+  description: >
+    Perform a transactional install of packages during install and restore? When
     enabled, `renv` will first install packages into a temporary library, and later
     copy or move those packages back into the project library only if all packages
     were successfully downloaded and installed. This can be useful if you'd like to

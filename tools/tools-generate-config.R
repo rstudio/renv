@@ -6,11 +6,11 @@ source <- "inst/config.yml"
 target <- "R/config-defaults.R"
 
 template <- renv_template_create('
-  ${NAME} = function(...) {
+  ${NAME} = function(..., default = ${DEFAULT}) {
     renv_config_get(
       name    = "${NAME}",
       type    = "${TYPE}",
-      default = ${DEFAULT},
+      default = default,
       args    = list(...)
     )
   }

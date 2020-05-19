@@ -3,209 +3,218 @@
 
 config <- list(
 
-  auto.snapshot = function(...) {
+  auto.snapshot = function(..., default = FALSE) {
     renv_config_get(
       name    = "auto.snapshot",
       type    = "logical[1]",
-      default = FALSE,
+      default = default,
       args    = list(...)
     )
   },
 
-  bitbucket.host = function(...) {
+  bitbucket.host = function(..., default = "api.bitbucket.org/2.0") {
     renv_config_get(
       name    = "bitbucket.host",
       type    = "character[1]",
-      default = "api.bitbucket.org/2.0",
+      default = default,
       args    = list(...)
     )
   },
 
-  copy.method = function(...) {
+  copy.method = function(..., default = "auto") {
     renv_config_get(
       name    = "copy.method",
       type    = "*",
-      default = "auto",
+      default = default,
       args    = list(...)
     )
   },
 
-  connect.timeout = function(...) {
+  connect.timeout = function(..., default = 20L) {
     renv_config_get(
       name    = "connect.timeout",
       type    = "integer[1]",
-      default = 20L,
+      default = default,
       args    = list(...)
     )
   },
 
-  connect.retry = function(...) {
+  connect.retry = function(..., default = 3L) {
     renv_config_get(
       name    = "connect.retry",
       type    = "integer[1]",
-      default = 3L,
+      default = default,
       args    = list(...)
     )
   },
 
-  dependency.errors = function(...) {
+  dependency.errors = function(..., default = "reported") {
     renv_config_get(
       name    = "dependency.errors",
       type    = "character[1]",
-      default = "reported",
+      default = default,
       args    = list(...)
     )
   },
 
-  external.libraries = function(...) {
+  external.libraries = function(..., default = NULL) {
     renv_config_get(
       name    = "external.libraries",
       type    = "character[*]",
-      default = NULL,
+      default = default,
       args    = list(...)
     )
   },
 
-  filebacked.cache = function(...) {
+  filebacked.cache = function(..., default = TRUE) {
     renv_config_get(
       name    = "filebacked.cache",
       type    = "logical[1]",
-      default = TRUE,
+      default = default,
       args    = list(...)
     )
   },
 
-  github.host = function(...) {
+  github.host = function(..., default = "api.github.com") {
     renv_config_get(
       name    = "github.host",
       type    = "character[1]",
-      default = "api.github.com",
+      default = default,
       args    = list(...)
     )
   },
 
-  gitlab.host = function(...) {
+  gitlab.host = function(..., default = "gitlab.com") {
     renv_config_get(
       name    = "gitlab.host",
       type    = "character[1]",
-      default = "gitlab.com",
+      default = default,
       args    = list(...)
     )
   },
 
-  hydrate.libpaths = function(...) {
+  hydrate.libpaths = function(..., default = NULL) {
     renv_config_get(
       name    = "hydrate.libpaths",
       type    = "character[*]",
-      default = NULL,
+      default = default,
       args    = list(...)
     )
   },
 
-  install.staged = function(...) {
+  install.staged = function(..., default = TRUE) {
     renv_config_get(
       name    = "install.staged",
       type    = "logical[1]",
-      default = TRUE,
+      default = default,
       args    = list(...)
     )
   },
 
-  mran.enabled = function(...) {
+  install.transactional = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "install.transactional",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
+  mran.enabled = function(..., default = TRUE) {
     renv_config_get(
       name    = "mran.enabled",
       type    = "logical[1]",
-      default = TRUE,
+      default = default,
       args    = list(...)
     )
   },
 
-  repos.override = function(...) {
+  repos.override = function(..., default = NULL) {
     renv_config_get(
       name    = "repos.override",
       type    = "character[*]",
-      default = NULL,
+      default = default,
       args    = list(...)
     )
   },
 
-  rspm.enabled = function(...) {
+  rspm.enabled = function(..., default = TRUE) {
     renv_config_get(
       name    = "rspm.enabled",
       type    = "logical[1]",
-      default = TRUE,
+      default = default,
       args    = list(...)
     )
   },
 
-  sandbox.enabled = function(...) {
+  sandbox.enabled = function(..., default = TRUE) {
     renv_config_get(
       name    = "sandbox.enabled",
       type    = "logical[1]",
-      default = TRUE,
+      default = default,
       args    = list(...)
     )
   },
 
-  shims.enabled = function(...) {
+  shims.enabled = function(..., default = TRUE) {
     renv_config_get(
       name    = "shims.enabled",
       type    = "logical[1]",
-      default = TRUE,
+      default = default,
       args    = list(...)
     )
   },
 
-  snapshot.validate = function(...) {
+  snapshot.validate = function(..., default = TRUE) {
     renv_config_get(
       name    = "snapshot.validate",
       type    = "logical[1]",
-      default = TRUE,
+      default = default,
       args    = list(...)
     )
   },
 
-  synchronized.check = function(...) {
+  synchronized.check = function(..., default = TRUE) {
     renv_config_get(
       name    = "synchronized.check",
       type    = "logical[1]",
-      default = TRUE,
+      default = default,
       args    = list(...)
     )
   },
 
-  updates.check = function(...) {
+  updates.check = function(..., default = FALSE) {
     renv_config_get(
       name    = "updates.check",
       type    = "logical[1]",
-      default = FALSE,
+      default = default,
       args    = list(...)
     )
   },
 
-  updates.parallel = function(...) {
+  updates.parallel = function(..., default = 2L) {
     renv_config_get(
       name    = "updates.parallel",
       type    = "*",
-      default = 2L,
+      default = default,
       args    = list(...)
     )
   },
 
-  user.library = function(...) {
+  user.library = function(..., default = FALSE) {
     renv_config_get(
       name    = "user.library",
       type    = "logical[1]",
-      default = FALSE,
+      default = default,
       args    = list(...)
     )
   },
 
-  user.profile = function(...) {
+  user.profile = function(..., default = FALSE) {
     renv_config_get(
       name    = "user.profile",
       type    = "logical[1]",
-      default = FALSE,
+      default = default,
       args    = list(...)
     )
   }
