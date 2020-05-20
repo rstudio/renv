@@ -104,27 +104,40 @@ snapshot <- function(project  = NULL,
   # the R-level snapshot?
   on.exit(renv_python_snapshot(project), add = TRUE)
 
+  # get prior lockfile state
   old <- list()
   if (file.exists(lockfile)) {
+
+    # read a pre-existing lockfile (if any)
     old <- renv_lockfile_read(lockfile)
-    diff <- renv_lockfile_diff(old, new)
+
+    # preserve records from alternate OSes in lockfile
+    alt <- renv_snapshot_preserve(old, new)
+
+    # check if there are any changes in the lockfile
+    diff <- renv_lockfile_diff(old, alt)
     if (empty(diff)) {
       vwritef("* The lockfile is already up to date.")
-      return(invisible(new))
+      return(invisible(alt))
     }
+
   }
 
   # check for missing dependencies and warn if any are discovered
-  # TODO: enable this check for multi-library configurations
+  # (note: use 'new' rather than 'alt' here as we don't want to attempt
+  # validation on uninstalled packages)
   validated <- renv_snapshot_validate(project, new, library)
   if (!validated && !force) {
     if (prompt && !proceed()) {
       message("* Operation aborted.")
-      return(invisible(new))
+      return(invisible(alt))
     } else if (!interactive()) {
       stop("aborting snapshot due to pre-flight validation failure")
     }
   }
+
+  # update new reference
+  new <- alt
 
   # report actions to the user
   actions <- renv_lockfile_diff_packages(old, new)
@@ -152,6 +165,24 @@ snapshot <- function(project  = NULL,
   renv_infrastructure_write_activate(project)
 
   invisible(new)
+}
+
+renv_snapshot_preserve <- function(old, new) {
+  records <- filter(old$Packages, renv_snapshot_preserve_impl)
+  if (length(records))
+    new$Packages[names(records)] <- records
+  new
+}
+
+renv_snapshot_preserve_impl <- function(record) {
+
+  ostype <- record[["OS_type"]]
+  if (is.null(ostype))
+    return(FALSE)
+
+  altos <- if (renv_platform_unix()) "windows" else "unix"
+  identical(ostype, altos)
+
 }
 
 renv_snapshot_preflight <- function(project, library) {

@@ -258,3 +258,26 @@ test_that("parse errors cause snapshot to abort", {
   renv_scope_options(renv.config.dependency.errors = "fatal")
   expect_error(snapshot())
 })
+
+test_that("records for packages available on other OSes are preserved", {
+  renv_tests_scope("unixonly")
+  skip_on_os("windows")
+
+  init()
+
+  # fake a windows-only record
+  lockfile <- renv_lockfile_read("renv.lock")
+  lockfile$Packages$windowsonly <- lockfile$Packages$unixonly
+  lockfile$Packages$windowsonly$Package <- "windowsonly"
+  lockfile$Packages$windowsonly$Hash <- NULL
+  lockfile$Packages$windowsonly$OS_type <- "windows"
+  renv_lockfile_write(lockfile, "renv.lock")
+
+  # call snapshot to update lockfile
+  snapshot()
+
+  # ensure that 'windowsonly' is still preserved
+  lockfile <- renv_lockfile_read("renv.lock")
+  expect_true(!is.null(lockfile$Packages$windowsonly))
+
+})

@@ -1,6 +1,10 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* `renv::snapshot()` now preserves records in a lockfile that are only
+  available for a different operating system. This should make it easier
+  to share lockfiles that make use of platform-specific packages. (#419)
+
 * `renv` better handles files that are removed during an invocation to
   `renv::dependencies()`. (#429)
 
