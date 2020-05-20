@@ -60,7 +60,10 @@ install <- function(packages = NULL,
 {
   renv_consent_check()
   renv_scope_error_handler()
-  renv_dots_check(...)
+
+  dots <- list(...)
+  names(dots) <- names(dots) %||% rep.int("", length(dots))
+  packages <- c(packages, dots[!nzchar(names(dots))])
 
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
