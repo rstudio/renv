@@ -96,7 +96,7 @@ snapshot <- function(project  = NULL,
   if (config$snapshot.validate())
     renv_snapshot_preflight(project, library)
 
-  new <- renv_lockfile_create(project, library, type)
+  alt <- new <- renv_lockfile_create(project, library, type)
   if (is.null(lockfile))
     return(new)
 
