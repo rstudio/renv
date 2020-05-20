@@ -429,7 +429,7 @@ renv_load_report_updates_impl <- function(project) {
 
 renv_load_report_synchronized <- function(project, lockfile) {
 
-  enabled <- config$synchronized.check()
+  enabled <- interactive() && config$synchronized.check()
   if (!enabled)
     return(FALSE)
 
