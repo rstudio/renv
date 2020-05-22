@@ -10,7 +10,7 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param file The path to an \R or R Markdown script.
+#' @param path The path to an \R or R Markdown script.
 #'
 embed <- function(path = NULL,
                   ...,

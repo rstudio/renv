@@ -47,7 +47,7 @@ renv_parse_impl_asis <- function(text, ...) {
 
 renv_parse_impl_native <- function(text, ...) {
   on.exit(Sys.setlocale(), add = TRUE)
-  parse(text = enc2native(text), encoding = "unknown", ..)
+  parse(text = enc2native(text), encoding = "unknown", ...)
 }
 
 renv_parse_impl_utf8 <- function(text, ...) {

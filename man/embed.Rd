@@ -7,14 +7,14 @@
 embed(path = NULL, ..., project = NULL)
 }
 \arguments{
+\item{path}{The path to an \R or R Markdown script.}
+
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
-
-\item{file}{The path to an \R or R Markdown script.}
 }
 \description{
 Use \code{embed()} to embed a lockfile directly within a file.
