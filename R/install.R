@@ -100,6 +100,7 @@ install <- function(packages = NULL,
   rebuild <- case(
     identical(rebuild, TRUE)  ~ packages,
     identical(rebuild, FALSE) ~ character(),
+    identical(rebuild, "*")   ~ NA_character_,
     as.character(rebuild)
   )
 
