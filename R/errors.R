@@ -127,7 +127,7 @@ renv_error_find <- function(calls, frames) {
 
 }
 
-renv_error_handler <- function() {
+renv_error_handler <- function(...) {
 
   calls <- head(sys.calls(), n = -1L)
   frames <- head(sys.frames(), n = -1L)
