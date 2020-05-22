@@ -147,6 +147,17 @@ renv_remotes_resolve_bitbucket <- function(entry) {
 
   host <- entry$host %||% config$bitbucket.host()
 
+  # get commit sha for ref
+  fmt <- "%s/repositories/%s/%s/commit/%s"
+  origin <- renv_retrieve_origin(host)
+  url <- sprintf(fmt, origin, user, repo, ref)
+
+  destfile <- renv_tempfile("renv-bitbucket-")
+  download(url, destfile = destfile, type = "bitbucket", quiet = TRUE)
+  json <- renv_json_read(file = destfile)
+  sha <- json$hash
+
+  # get DESCRIPTION file
   fmt <- "%s/repositories/%s/%s/src/%s/DESCRIPTION"
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, ref)
@@ -164,7 +175,8 @@ renv_remotes_resolve_bitbucket <- function(entry) {
     RemoteUsername = user,
     RemoteRepo     = repo,
     RemoteSubdir   = subdir,
-    RemoteRef      = ref
+    RemoteRef      = ref,
+    RemoteSha      = sha
   )
 
 }
@@ -301,6 +313,18 @@ renv_remotes_resolve_gitlab <- function(entry) {
 
   host <- entry$host %||% config$gitlab.host()
 
+  # retrieve sha associated with this ref
+  fmt <- "%s/api/v4/projects/%s/repository/commits/%s"
+  origin <- renv_retrieve_origin(host)
+  id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
+  url <- sprintf(fmt, origin, id, ref)
+
+  destfile <- renv_tempfile("renv-gitlab-commits-")
+  download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
+  json <- renv_json_read(file = destfile)
+  sha <- json$id
+
+  # retrieve DESCRIPTION file
   fmt <- "%s/api/v4/projects/%s/repository/files/%s/raw?ref=%s"
   origin <- renv_retrieve_origin(host)
   id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
@@ -319,7 +343,8 @@ renv_remotes_resolve_gitlab <- function(entry) {
     RemoteUsername = user,
     RemoteRepo     = repo,
     RemoteSubdir   = subdir,
-    RemoteRef      = ref
+    RemoteRef      = ref,
+    RemoteSha      = sha
   )
 
 }

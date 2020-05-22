@@ -1,6 +1,12 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* Fixed an issue where packages downloaded from Bitbucket and GitLab did not
+  record the associated commit hash.
+
+* Fixed an issue where attempting to install packages from GitLab could fail
+  to install the correct version of the package. (#436)
+
 * `renv::snapshot()` now preserves records in a lockfile that are only
   available for a different operating system. This should make it easier
   to share lockfiles that make use of platform-specific packages. (#419)

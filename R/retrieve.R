@@ -207,7 +207,8 @@ renv_retrieve_github <- function(record) {
 
 renv_retrieve_gitlab <- function(record) {
 
-  origin <- renv_retrieve_origin(record$RemoteHost %||% "gitlab.com")
+  host <- record$RemoteHost %||% config$gitlab.host()
+  origin <- renv_retrieve_origin(host)
 
   user <- record$RemoteUsername
   repo <- record$RemoteRepo
@@ -217,7 +218,7 @@ renv_retrieve_gitlab <- function(record) {
   url <- sprintf(fmt, origin, id)
   path <- renv_retrieve_path(record)
 
-  sha <- record$RemoteSha
+  sha <- record$RemoteSha %||% record$RemoteRef
   if (!is.null(sha))
     url <- paste(url, paste("sha", sha, sep = "="), sep = "?")
 
