@@ -102,10 +102,9 @@ renv_record_format_short_remote <- function(record) {
 
   text <- paste(record$RemoteUsername, record$RemoteRepo, sep = "/")
 
-  if (!is.null(record$RemoteSubdir)) {
-    subdir <- record$RemoteSubdir
+  subdir <- record$RemoteSubdir %||% ""
+  if (nzchar(subdir))
     text <- paste(text, subdir, sep = ":")
-  }
 
   if (!is.null(record$RemoteRef)) {
     ref <- record$RemoteRef
