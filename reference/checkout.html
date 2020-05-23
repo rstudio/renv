@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Clean a Project — clean • renv</title>
+<title>Checkout a Repository — checkout • renv</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,11 @@
 
 
 
-<meta property="og:title" content="Clean a Project — clean" />
-<meta property="og:description" content="Clean up a project and its associated R libraries." />
+<meta property="og:title" content="Checkout a Repository — checkout" />
+<meta property="og:description" content="renv::checkout() can be used to install and use the latest packages
+available from the requested repositories. This can be useful for cleaning
+up a library which has become a mish-mash of packages installed from a
+variety of disparate sources." />
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg" />
 
 
@@ -168,25 +171,32 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Clean a Project</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/clean.R'><code>R/clean.R</code></a></small>
-    <div class="hidden name"><code>clean.Rd</code></div>
+    <h1>Checkout a Repository</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/checkout.R'><code>R/checkout.R</code></a></small>
+    <div class="hidden name"><code>checkout.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Clean up a project and its associated <span style="R">R</span> libraries.</p>
+    <p><code>renv::checkout()</code> can be used to install and use the latest packages
+available from the requested repositories. This can be useful for cleaning
+up a library which has become a mish-mash of packages installed from a
+variety of disparate sources.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>clean</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>prompt</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>())</pre>
+    <pre class="usage"><span class='fu'>checkout</span>(
+  <span class='kw'>repos</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"repos"</span>),
+  <span class='no'>...</span>,
+  <span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>clean</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>project</th>
-      <td><p>The project directory. If <code>NULL</code>, then the active project will
-be used. If no project is currently active, then the current working
-directory is used instead.</p></td>
+      <th>repos</th>
+      <td><p>The <span style="R">R</span> package repositories to check out.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -194,34 +204,25 @@ directory is used instead.</p></td>
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
     </tr>
     <tr>
-      <th>prompt</th>
-      <td><p>Boolean; prompt the user before taking any action? For backwards
-compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></td>
+      <th>packages</th>
+      <td><p>The packages to be installed. When <code>NULL</code> (the default),
+all packages currently used in the project will be installed.</p></td>
+    </tr>
+    <tr>
+      <th>clean</th>
+      <td><p>Boolean; remove packages not recorded in the lockfile from
+the target library? Use <code>clean = TRUE</code> if you'd like the library state
+to exactly reflect the lockfile contents after <code><a href='restore.html'>restore()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>project</th>
+      <td><p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The project directory, invisibly. Note that this function is normally
-called for its side effects.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>The following actions will be taken:</p><ul>
-<li><p>Stale lockfiles (<code>00LOCK-</code>) will be removed.</p></li>
-<li><p>Leftover temporary directories in the project library will be removed.</p></li>
-<li><p>Non-system packages installed in the system library will be removed.</p></li>
-<li><p>Unused packages within the project will be removed.</p></li>
-<li><p>Packages within the cache that are no longer used will be removed.</p></li>
-</ul>
-
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-
-<span class='co'># clean the current project</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>clean</span>()
-
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
