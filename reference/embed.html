@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Update Package Records in a Lockfile — record • renv</title>
+<title>Embed a Lockfile — embed • renv</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Update Package Records in a Lockfile — record" />
-<meta property="og:description" content="Use record() to record a new entry within an existing renv lockfile." />
+<meta property="og:title" content="Embed a Lockfile — embed" />
+<meta property="og:description" content="Use embed() to embed a lockfile directly within a file." />
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg" />
 
 
@@ -168,29 +168,28 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Update Package Records in a Lockfile</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/record.R'><code>R/record.R</code></a></small>
-    <div class="hidden name"><code>record.Rd</code></div>
+    <h1>Embed a Lockfile</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/embed.R'><code>R/embed.R</code></a></small>
+    <div class="hidden name"><code>embed.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Use <code>record()</code> to record a new entry within an existing <code>renv</code> lockfile.</p>
+    <p>Use <code>embed()</code> to embed a lockfile directly within a file.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>record</span>(<span class='no'>records</span>, <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>), <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>embed</span>(<span class='kw'>path</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>records</th>
-      <td><p>A list of named records, mapping package names to a definition
-of their source. See <strong>Records</strong> for more details.</p></td>
+      <th>path</th>
+      <td><p>The path to an <span style="R">R</span> or R Markdown script.</p></td>
     </tr>
     <tr>
-      <th>lockfile</th>
-      <td><p>The path to a lockfile. By default, the project lockfile
-is used.</p></td>
+      <th>...</th>
+      <td><p>Unused arguments, reserved for future expansion. If any arguments
+are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
     </tr>
     <tr>
       <th>project</th>
@@ -202,40 +201,11 @@ directory is used instead.</p></td>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function can be useful when you need to change one or more of the
-package records within an <code>renv</code> lockfile -- for example, because a recorded
-package cannot be restored in a particular environment, and you know of a
-suitable alternative.</p>
-    <h2 class="hasAnchor" id="records"><a class="anchor" href="#records"></a>Records</h2>
+    <p>This is primarily useful in tandem with <a href='run.html'>run</a> -- if you call <code><a href='run.html'>renv::run()</a></code>
+on a script containing an inline lockfile, <code>renv</code> will first provision
+a library based on that lockfile definition, and then run the script
+using that lockfile.</p>
 
-    
-
-
-<p>Records can be provided either using the <strong>remotes</strong> short-hand syntax,
-or by using an <span style="R">R</span> list of entries to record within the lockfile. See
-<code><a href='lockfiles.html'>?lockfiles</a></code> for more information on the structure of a package record.</p>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-
-<span class='co'># use digest 0.6.22 from package repositories -- different ways</span>
-<span class='co'># of specifying the remote. use whichever is most natural</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>record</span>(<span class='st'>"digest@0.6.22"</span>)
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>record</span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>digest</span> <span class='kw'>=</span> <span class='st'>"0.6.22"</span>))
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>record</span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>digest</span> <span class='kw'>=</span> <span class='st'>"digest@0.6.22"</span>))
-
-<span class='co'># alternatively, provide a full record as a list</span>
-<span class='no'>digest_record</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
-  <span class='kw'>Package</span> <span class='kw'>=</span> <span class='st'>"digest"</span>,
-  <span class='kw'>Version</span> <span class='kw'>=</span> <span class='st'>"0.6.22"</span>,
-  <span class='kw'>Source</span>  <span class='kw'>=</span> <span class='st'>"Repository"</span>,
-  <span class='kw'>Repository</span> <span class='kw'>=</span> <span class='st'>"CRAN"</span>
-)
-
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>record</span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>digest</span> <span class='kw'>=</span> <span class='no'>digest_record</span>))
-
-}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
