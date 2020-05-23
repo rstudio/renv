@@ -1,5 +1,9 @@
 
 renv_cli_exec <- function(clargs = commandArgs(trailingOnly = TRUE)) {
+  invisible(renv_cli_exec_impl(clargs))
+}
+
+renv_cli_exec_impl <- function(clargs) {
 
   # check for tool called without arguments, or called with '--help'
   usage <-
@@ -18,6 +22,11 @@ renv_cli_exec <- function(clargs = commandArgs(trailingOnly = TRUE)) {
 
   if (help)
     return(renv_cli_help(method))
+
+  # check for known function in renv
+  exports <- getNamespaceExports("renv")
+  if (!method %in% exports)
+    return(renv_cli_unknown(method, exports))
 
   # begin parsing arguments
   args <- list()
@@ -86,5 +95,25 @@ Examples:
 }
 
 renv_cli_help <- function(method) {
-  help(method, package = "renv")
+  print(help(method, package = "renv"))
+}
+
+renv_cli_unknown <- function(method, exports) {
+
+  # report unknown command
+  fmt <- "renv: '%s' is not a known command."
+  writef(fmt, method, con = stderr())
+
+  # check for similar commands
+  distance <- c(adist(method, exports))
+  names(distance) <- exports
+  n <- min(distance)
+  if (n > 2)
+    return(1L)
+
+  candidates <- names(distance)[distance == n]
+  fmt <- "did you mean %s?"
+  vwritef(fmt, paste(shQuote(candidates), collapse = " or "))
+  return(1L)
+
 }
