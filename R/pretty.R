@@ -7,6 +7,9 @@ renv_pretty_print <- function(values,
 {
   msg <- stack()
 
+  if (empty(values))
+    return()
+
   if (!is.null(preamble)) {
     msg$push(paste(preamble, collapse = "\n"))
     msg$push("")

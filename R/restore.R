@@ -39,10 +39,6 @@
 #'   `repos.override` option in [config] for an alternate way to provide a
 #'   repository override.
 #'
-#' @param clean Boolean; remove packages not recorded in the lockfile from
-#'   the target library? Use `clean = TRUE` if you'd like the library state
-#'   to exactly reflect the lockfile contents after `restore()`.
-#'
 #' @return A named list of package records which were installed by `renv`.
 #'
 #' @section Library:

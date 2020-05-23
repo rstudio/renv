@@ -15,6 +15,10 @@
 #' @param ... Unused arguments, reserved for future expansion. If any arguments
 #'   are matched to `...`, `renv` will signal an error.
 #'
+#' @param clean Boolean; remove packages not recorded in the lockfile from
+#'   the target library? Use `clean = TRUE` if you'd like the library state
+#'   to exactly reflect the lockfile contents after `restore()`.
+#'
 #' @return The project directory, invisibly. Note that this function is normally
 #'   called for its side effects.
 #'
