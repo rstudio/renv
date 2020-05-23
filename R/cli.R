@@ -28,8 +28,9 @@ renv_cli_exec_impl <- function(clargs) {
   if (!method %in% exports)
     return(renv_cli_unknown(method, exports))
 
-  # begin parsing arguments
-  args <- list()
+  # begin building call
+  args <- list(call("::", as.name("renv"), as.name(method)))
+
   for (clarg in clargs[-1L]) {
 
     # convert '--no-<flag>' into a FALSE parameter
@@ -43,7 +44,7 @@ renv_cli_exec_impl <- function(clargs) {
       index <- regexpr("=", clarg, fixed = TRUE)
       key <- substring(clarg, 3L, index - 1L)
       val <- substring(clarg, index + 1L)
-      args[[key]] <- val
+      args[[key]] <- renv_cli_parse(val)
     }
 
     # convert '--flag' into a TRUE parameter
@@ -55,13 +56,14 @@ renv_cli_exec_impl <- function(clargs) {
     # take other parameters as-is
     else {
       splat <- strsplit(clarg, ",", fixed = TRUE)[[1L]]
-      args[[length(args) + 1L]] <- splat
+      args[[length(args) + 1L]] <- renv_cli_parse(splat)
     }
 
   }
 
   # invoke method with parsed arguments
-  do.call(method, args)
+  expr <- as.call(args)
+  eval(expr = expr, envir = globalenv())
 
 }
 
@@ -115,5 +117,17 @@ renv_cli_unknown <- function(method, exports) {
   fmt <- "did you mean %s?"
   vwritef(fmt, paste(shQuote(candidates), collapse = " or "))
   return(1L)
+
+}
+
+renv_cli_parse <- function(text) {
+
+  expr <- parse(text = text)
+
+  for (i in seq_along(expr))
+    if (is.symbol(expr[[i]]))
+      expr[[i]] <- as.character(expr[[i]])
+
+  unlist(as.list(expr), recursive = FALSE)
 
 }
