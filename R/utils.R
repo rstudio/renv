@@ -179,13 +179,17 @@ ask <- function(question, default = FALSE) {
   if (!interactive())
     return(default)
 
+  initializing <- Sys.getenv("RENV_R_INITIALIZING", unset = NA)
+  if (identical(initializing, "true"))
+    return(default)
+
   selection <- if (default) "[Y/n]" else "[y/N]"
   prompt <- sprintf("%s %s: ", question, selection)
   response <- tolower(trimws(readline(prompt)))
   if (!nzchar(response))
     return(default)
 
-  substring(response, 1, 1) == "y"
+  substring(response, 1L, 1L) == "y"
 
 }
 
