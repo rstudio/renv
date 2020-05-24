@@ -42,6 +42,11 @@ renv_libpaths_safe <- function(libpaths) {
   if (!renv_platform_windows())
     return(libpaths)
 
+  # note: was fixed upstream for R 4.0.0; see:
+  # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17709
+  if (getRversion() >= "4.0.0")
+    return(libpaths)
+
   map_chr(libpaths, function(libpath) {
 
     # check for an unsafe library path
