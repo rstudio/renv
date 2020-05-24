@@ -64,6 +64,8 @@ renv_hash_description_impl <- function(path) {
   # remove the old file
   unlink(tempfile)
 
+  # return hash
+  invisible(hash)
 
 }
 
