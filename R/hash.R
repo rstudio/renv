@@ -33,7 +33,7 @@ renv_hash_description_impl <- function(path) {
 
   # write to tempfile (use binary connection to ensure unix-style
   # newlines for cross-platform hash stability)
-  tempfile <- renv_tempfile("renv-description-hash-")
+  tempfile <- tempfile("renv-description-hash-")
   contents <- paste(names(ordered), ordered, sep = ": ", collapse = "\n")
 
   # remove whitespace -- it's possible that tools (e.g. Packrat) that
@@ -48,12 +48,16 @@ renv_hash_description_impl <- function(path) {
   # create the file connection (use binary so that unix newlines are used
   # across platforms, for more stable hashing)
   con <- file(tempfile, open = "wb")
-  on.exit(close(con), add = TRUE)
 
-  # write to the file (be sure to flush since we don't close the connection
-  # until exit)
+  # write to the file
   writeLines(enc2utf8(contents), con = con, useBytes = TRUE)
+
+  # flush to ensure we've written to file
   flush(con)
+
+  # close the connection and remove the file
+  close(con)
+  unlink(tempfile)
 
   # ready for hasing
   unname(tools::md5sum(tempfile))
