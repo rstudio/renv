@@ -57,10 +57,13 @@ renv_hash_description_impl <- function(path) {
 
   # close the connection and remove the file
   close(con)
-  unlink(tempfile)
 
   # ready for hasing
-  unname(tools::md5sum(tempfile))
+  hash <- unname(tools::md5sum(tempfile))
+
+  # remove the old file
+  unlink(tempfile)
+
 
 }
 
