@@ -47,34 +47,36 @@ renv_libpaths_safe <- function(libpaths) {
   if (getRversion() >= "4.0.0")
     return(libpaths)
 
-  map_chr(libpaths, function(libpath) {
+  map_chr(libpaths, renv_libpaths_safe_impl)
 
-    # check for an unsafe library path
-    unsafe <-
-      Encoding(libpath) == "UTF-8" ||
-      grepl("[&\\<>^|\"]", libpath)
+}
 
-    # if the path appears safe, use it as-is
-    if (!unsafe)
-      return(libpath)
+renv_libpaths_safe_impl <- function(libpath) {
 
-    # try to form a safe library path
-    methods <- c(
-      renv_libpaths_safe_tempdir,
-      renv_libpaths_safe_userlib
-    )
+  # check for an unsafe library path
+  unsafe <-
+    Encoding(libpath) == "UTF-8" ||
+    grepl("[&\\<>^|\"]", libpath)
 
-    for (method in methods) {
-      safelib <- catchall(method(libpath))
-      if (is.character(safelib))
-        return(safelib)
-    }
+  # if the path appears safe, use it as-is
+  if (!unsafe)
+    return(libpath)
 
-    # could not form a safe library path;
-    # just use the existing library path as-is
-    libpath
+  # try to form a safe library path
+  methods <- c(
+    renv_libpaths_safe_tempdir,
+    renv_libpaths_safe_userlib
+  )
 
-  })
+  for (method in methods) {
+    safelib <- catchall(method(libpath))
+    if (is.character(safelib))
+      return(safelib)
+  }
+
+  # could not form a safe library path;
+  # just use the existing library path as-is
+  libpath
 
 }
 
