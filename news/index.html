@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-43</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-44</span>
       </span>
     </div>
 
@@ -176,6 +176,7 @@
 <a href="#renv-0-11-0-unreleased" class="anchor"></a>renv 0.11.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>The default value of the <code>synchronized.check</code> option has been changed from TRUE to FALSE.</p></li>
 <li><p>Fixed an issue where packages downloaded from Bitbucket and GitLab did not record the associated commit hash.</p></li>
 <li><p>Fixed an issue where attempting to install packages from GitLab could fail to install the correct version of the package. (<a href='https://github.com/rstudio/renv/issues/436'>#436</a>)</p></li>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> now preserves records in a lockfile that are only available for a different operating system. This should make it easier to share lockfiles that make use of platform-specific packages. (<a href='https://github.com/rstudio/renv/issues/419'>#419</a>)</p></li>
