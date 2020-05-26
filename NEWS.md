@@ -1,6 +1,9 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* The default value of the `synchronized.check` option has been changed from
+  TRUE to FALSE.
+
 * Fixed an issue where packages downloaded from Bitbucket and GitLab did not
   record the associated commit hash.
 
