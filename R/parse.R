@@ -1,7 +1,7 @@
 
 renv_parse_file <- function(file = "", ...) {
   if (nzchar(file)) {
-    text <- readLines(file, warn = FALSE)
+    text <- readLines(file, warn = FALSE, encoding = "UTF-8")
     renv_parse_impl(text, srcfile = file, ...)
   }
 }
@@ -13,6 +13,9 @@ renv_parse_text <- function(text = NULL, ...) {
 }
 
 renv_parse_impl <- function(text, ...) {
+
+  # save default encoding
+  enc <- Encoding(text)
 
   # disable warnings + encoding conversions
   renv_scope_options(
@@ -27,15 +30,22 @@ renv_parse_impl <- function(text, ...) {
     renv_parse_impl_utf8
   )
 
-  for (method in methods) {
-    parsed <- catch(method(text, ...))
-    if (!inherits(parsed, "error"))
-      return(parsed)
+  # attempt with different guessed encodings
+  encodings <- c("UTF-8", "unknown")
+
+  for (encoding in encodings) {
+    Encoding(text) <- encoding
+    for (method in methods) {
+      parsed <- catch(method(text, ...))
+      if (!inherits(parsed, "error"))
+        return(parsed)
+    }
   }
 
   # if these all fail, then just try the default
   # parse and let the error propagate
   on.exit(Sys.setlocale(), add = TRUE)
+  Encoding(text) <- enc
   parse(text = text, ...)
 
 }

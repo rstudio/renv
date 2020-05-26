@@ -441,6 +441,6 @@ renv_file_find <- function(path, predicate, limit = 8L) {
 }
 
 renv_file_read <- function(path) {
-  contents <- readLines(path, warn = FALSE)
+  contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
   paste(contents, collapse = "\n")
 }
