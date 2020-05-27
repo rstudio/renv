@@ -726,14 +726,22 @@ renv_snapshot_auto <- function(project) {
 }
 # nocov end
 
-renv_snapshot_dependencies <- function(source) {
+renv_snapshot_dependencies <- function(project, source) {
 
   message <- "snapshot aborted"
   errors <- config$dependency.errors()
 
   withCallingHandlers(
-    dependencies(source, progress = FALSE, errors = errors),
+
+    dependencies(
+      path = source,
+      root = project,
+      progress = FALSE,
+      errors = errors
+    ),
+
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
+
   )
 
 }
@@ -795,7 +803,7 @@ renv_snapshot_filter_all <- function(project, records) {
 
 renv_snapshot_filter_impl <- function(project, records, source) {
 
-  deps <- renv_snapshot_dependencies(source)
+  deps <- renv_snapshot_dependencies(project, source)
   packages <- unique(c(deps$Package, "renv"))
 
   # ignore packages as defined by project

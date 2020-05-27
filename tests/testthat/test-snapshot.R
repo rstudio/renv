@@ -281,3 +281,27 @@ test_that("records for packages available on other OSes are preserved", {
   expect_true(!is.null(lockfile$Packages$windowsonly))
 
 })
+
+test_that(".renvignore works during snapshot without an explicit root", {
+
+  renv_tests_scope()
+
+  # pretend we don't know the project root
+  renv_scope_envvars(RENV_PROJECT = NULL)
+
+  # install bread
+  install("bread")
+
+  # create sub-directory that should be ignored
+  dir.create("ignored")
+  writeLines("library(bread)", con = "ignored/script.R")
+
+  lockfile <- snapshot(project = ".", lockfile = NULL)
+  expect_false(is.null(lockfile$Packages$bread))
+
+  writeLines("*", con = "ignored/.renvignore")
+
+  lockfile <- snapshot(project = ".", lockfile = NULL)
+  expect_true(is.null(lockfile$Packages$bread))
+
+})

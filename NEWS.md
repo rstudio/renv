@@ -1,6 +1,10 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* `renv::snapshot(project = <path>)` now properly respects `.gitignore` /
+  `.renvignore` files, even when that project has not yet been explicitly
+  initialized yet. (#439)
+  
 * The default value of the `synchronized.check` option has been changed from
   TRUE to FALSE.
 
