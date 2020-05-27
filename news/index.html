@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-44</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-45</span>
       </span>
     </div>
 
@@ -176,6 +176,7 @@
 <a href="#renv-0-11-0-unreleased" class="anchor"></a>renv 0.11.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code>renv::snapshot(project = &lt;path&gt;)</code> now properly respects <code>.gitignore</code> / <code>.renvignore</code> files, even when that project has not yet been explicitly initialized yet. (<a href='https://github.com/rstudio/renv/issues/439'>#439</a>)</p></li>
 <li><p>The default value of the <code>synchronized.check</code> option has been changed from TRUE to FALSE.</p></li>
 <li><p>Fixed an issue where packages downloaded from Bitbucket and GitLab did not record the associated commit hash.</p></li>
 <li><p>Fixed an issue where attempting to install packages from GitLab could fail to install the correct version of the package. (<a href='https://github.com/rstudio/renv/issues/436'>#436</a>)</p></li>
