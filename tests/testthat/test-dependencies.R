@@ -238,3 +238,18 @@ test_that("recursive symlinks are handled", {
   renv:::dependencies()
 
 })
+
+test_that(".renvignore can be used to ignore all but certain files", {
+
+  renv_tests_scope()
+
+  writeLines(c("*", "!dependencies.R"), con = ".renvignore")
+  writeLines("library(oatmeal)", con = "script.R")
+  writeLines("library(bread)", con = "dependencies.R")
+
+  deps <- dependencies(quiet = TRUE)
+
+  expect_true("bread" %in% deps$Package)
+  expect_false("oatmeal" %in% deps$Package)
+
+})
