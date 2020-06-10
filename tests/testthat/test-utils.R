@@ -61,3 +61,17 @@ test_that("aliased_path() correctly forms aliased path", {
   expanded <- path.expand(path)
   expect_equal(path, aliased_path(expanded))
 })
+
+test_that("memoize avoids evaluating expression multiple times", {
+
+  envir <- new.env(parent = emptyenv())
+  key <- "test"
+
+  value <- 0
+  memoize(key, { value <- value + 1 }, envir)
+  memoize(key, { value <- value + 1 }, envir)
+
+  expect_equal(envir$test, 1)
+  expect_equal(value, 1)
+
+})

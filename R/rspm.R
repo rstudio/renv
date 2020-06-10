@@ -86,18 +86,28 @@ renv_rspm_transform_impl <- function(url) {
 }
 
 renv_rspm_status <- function(base) {
+  memoize(
+    key   = base,
+    expr  = catch(renv_rspm_status_impl(base)),
+    envir = `_renv_rspm_status`
+  )
+}
 
-  status <- `_renv_rspm_status`[[base]]
-  if (!is.null(status))
-    return(status)
+renv_rspm_status_impl <- function(base) {
 
+  # use a shorter delay to avoid hanging a session
+  renv_scope_options(
+    renv.config.connect.timeout = 10L,
+    renv.config.connect.retry   = 1L
+  )
+
+  # attempt the download
   endpoint <- file.path(base, "__api__/status")
   destfile <- renv_tempfile("renv-rspm-status-", fileext = ".json")
   quietly(download(endpoint, destfile))
-  status <- renv_json_read(destfile)
 
-  `_renv_rspm_status`[[base]] <- status
-  status
+  # read the downloaded JSON
+  renv_json_read(destfile)
 
 }
 

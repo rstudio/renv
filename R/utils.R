@@ -383,3 +383,9 @@ dequote <- function(strings) {
   strings
 
 }
+
+memoize <- function(key, expr, envir) {
+  value <- envir[[key]] %||% expr
+  envir[[key]] <- value
+  value
+}
