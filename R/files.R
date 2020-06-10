@@ -373,7 +373,7 @@ renv_file_list_impl <- function(path) {
   # nocov start
   if (renv_platform_windows()) {
     path <- renv_path_normalize(path)
-    command <- paste(comspec(), "/c chcp 65001 && dir /B", shQuote(path))
+    command <- paste(comspec(), "/c chcp 65001 >NUL && dir /B", shQuote(path))
     output <- system(command, intern = TRUE)
     Encoding(output) <- "UTF-8"
     return(output)
