@@ -70,3 +70,10 @@ test_that("invalid configuration options trigger a warning", {
   })
 
 })
+
+test_that("we can query the default configuration values without issue", {
+
+  for (key in names(config))
+    config[[key]]()
+
+})
