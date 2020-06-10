@@ -1,6 +1,9 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* Fixed an issue where setting the `external.libraries` configuration option
+  would trigger a warning. (#452)
+
 * Improved handling of unicode paths on Windows. (#451)
 
 * `renv::snapshot(project = <path>)` now properly respects `.gitignore` /

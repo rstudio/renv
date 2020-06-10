@@ -146,21 +146,28 @@ renv_config_validate <- function(name, value, type, default, args) {
   }
 
   # parse the type string
-  parsed <- catch(renv_parse_text(text = type)[[1L]])
-  if (inherits(parsed, "error")) {
-    warningf("could not parse type string '%s'", type)
-    return(value)
-  }
+  pattern <- paste0(
+    "^",          # start of specifier
+    "([^[(]+)",   # type name
+    "[[(]",       # opening bracket
+    "([^])]+)",   # length specifier
+    "[])]",       # closing bracket
+    "$"           # end of specifier
+  )
 
-  # check the requested length
-  if (length(parsed) != 3L) {
-    warningf("invalid type string '%s'", type)
-    return(value)
-  }
+  m <- regexec(pattern, type)
+  matches <- regmatches(type, m)
+  fields <- matches[[1L]]
 
-  # extract fields
-  mode <- as.character(parsed[[2L]])
-  n <- as.character(parsed[[3L]])
+  # extract declared mode, size
+  mode <- fields[[2L]]
+  size <- fields[[3L]]
+
+  # validate the requested size for this option
+  if (!renv_config_validate_size(value, size)) {
+    fmt <- "value for option '%s' does not satisfy constraint '%s'"
+    warningf(fmt, name, type)
+  }
 
   # convert NULL values to requested type
   if (is.null(value)) {
@@ -182,5 +189,16 @@ renv_config_validate <- function(name, value, type, default, args) {
 
   # ok, validated + converted option
   value
+
+}
+
+renv_config_validate_size <- function(value, size) {
+
+  case(
+    size == "*" ~ TRUE,
+    size == "+" ~ length(value) > 0,
+    size == "?" ~ length(value) %in% c(0, 1),
+    TRUE        ~ as.numeric(size) == length(value)
+  )
 
 }
