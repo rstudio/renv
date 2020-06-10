@@ -155,3 +155,16 @@ test_that("permissions, timestamps are preserved", {
   expect_equal(srcinfo[fields], tgtinfo[fields])
 
 })
+
+test_that("renv can list files not representable in the native encoding", {
+
+  renv_scope_tempdir()
+  evil <- "\u9b3c"
+
+  file.create(evil)
+  on.exit(unlink(evil), add = TRUE)
+
+  files <- renv_file_list(getwd(), full.names = FALSE)
+  expect_true(evil %in% files)
+
+})

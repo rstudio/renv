@@ -367,21 +367,46 @@ renv_file_list <- function(path, full.names = TRUE) {
 
 renv_file_list_impl <- function(path) {
 
-  # on Windows, list.files mangles encoding; avoid this by making a call to
-  # 'dir' with the code page set to request UTF-8 encoded paths
+  if (!renv_platform_windows())
+    return(list.files(path))
 
   # nocov start
-  if (renv_platform_windows()) {
-    path <- renv_path_normalize(path)
-    command <- paste(comspec(), "/c chcp 65001 >NUL && dir /B", shQuote(path))
-    output <- system(command, intern = TRUE)
-    Encoding(output) <- "UTF-8"
-    return(output)
-  }
-  # nocov end
 
-  # otherwise, a plain old list.files will suffice
-  list.files(path)
+  # we'll use dir in a unicode command shell to produce the paths
+  # encoded in UTF-16LE, and then use iconv to convert that back
+  # to UTF-8 as appropriate
+  path <- renv_path_normalize(path)
+  command <- paste(comspec(), "/U /C dir /B", shQuote(path))
+
+  conn <- pipe(command, open = "rb")
+  on.exit(close(conn), add = TRUE)
+
+  # read binary output from connection
+  output <- stack()
+
+  while (TRUE) {
+
+    data <- readBin(conn, what = "raw", n = 256L)
+    if (empty(data))
+      break
+
+    output$push(data)
+
+  }
+
+  # join into single raw vector
+  encoded <- unlist(output$data(), recursive = FALSE, use.names = FALSE)
+
+  # convert raw data (encoded as UTF-16LE) to UTF-8
+  converted <- iconv(list(encoded), from = "UTF-16LE", to = "UTF-8")
+
+  # split on (Windows) newlines
+  paths <- strsplit(converted, "\r\n", fixed = TRUE)[[1]]
+
+  # just in case?
+  paths[nzchar(paths)]
+
+  # nocov end
 
 }
 
