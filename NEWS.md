@@ -1,6 +1,8 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* Improved handling of unicode paths on Windows. (#451)
+
 * `renv::snapshot(project = <path>)` now properly respects `.gitignore` /
   `.renvignore` files, even when that project has not yet been explicitly
   initialized yet. (#439)
