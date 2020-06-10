@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-52</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-54</span>
       </span>
     </div>
 
@@ -176,6 +176,7 @@
 <a href="#renv-0-11-0-unreleased" class="anchor"></a>renv 0.11.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>Fixed an issue where setting the <code>external.libraries</code> configuration option would trigger a warning. (<a href='https://github.com/rstudio/renv/issues/452'>#452</a>)</p></li>
 <li><p>Improved handling of unicode paths on Windows. (<a href='https://github.com/rstudio/renv/issues/451'>#451</a>)</p></li>
 <li><p><code>renv::snapshot(project = &lt;path&gt;)</code> now properly respects <code>.gitignore</code> / <code>.renvignore</code> files, even when that project has not yet been explicitly initialized yet. (<a href='https://github.com/rstudio/renv/issues/439'>#439</a>)</p></li>
 <li><p>The default value of the <code>synchronized.check</code> option has been changed from TRUE to FALSE.</p></li>
