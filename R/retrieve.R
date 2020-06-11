@@ -49,8 +49,8 @@ renv_retrieve_impl <- function(package) {
   ostype <- tolower(record[["OS_type"]] %||% "")
 
   skip <-
-    renv_platform_unix() && identical(ostype, "unix") ||
-    renv_platform_windows() && identical(ostype, "windows")
+    renv_platform_unix() && identical(ostype, "windows") ||
+    renv_platform_windows() && identical(ostype, "unix")
 
   if (skip)
     return()

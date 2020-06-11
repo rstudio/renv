@@ -176,8 +176,8 @@ renv_snapshot_preserve <- function(old, new) {
 
 renv_snapshot_preserve_impl <- function(record) {
 
-  ostype <- record[["OS_type"]]
-  if (is.null(ostype))
+  ostype <- tolower(record[["OS_type"]] %||% "")
+  if (!nzchar(ostype))
     return(FALSE)
 
   altos <- if (renv_platform_unix()) "windows" else "unix"

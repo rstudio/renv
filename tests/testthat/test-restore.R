@@ -148,6 +148,10 @@ test_that("restore ignores packages of incompatible architecture", {
     package <- lockfile$Packages$unixonly
     expect_identical(package$OS_type, "unix")
 
+    remove("unixonly")
+    restore()
+    expect_true(renv_package_installed("unixonly"))
+
   } else {
 
     expect_true(renv_package_installed("windowsonly"))
@@ -156,6 +160,10 @@ test_that("restore ignores packages of incompatible architecture", {
     lockfile <- renv_lockfile_read("renv.lock")
     package <- lockfile$Packages$windowsonly
     expect_identical(package$OS_type, "windows")
+
+    remove("windowsonly")
+    restore()
+    expect_true(renv_package_installed("windowsonly"))
 
   }
 
