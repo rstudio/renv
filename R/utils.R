@@ -291,7 +291,7 @@ rowapply <- function(X, FUN, ...) {
 }
 
 comspec <- function() {
-  Sys.getenv("COMSPEC", unset = "cmd.exe")
+  Sys.getenv("COMSPEC", unset = Sys.which("cmd.exe"))
 }
 
 nullfile <- function() {

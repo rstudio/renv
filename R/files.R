@@ -372,13 +372,17 @@ renv_file_list_impl <- function(path) {
 
   # nocov start
 
-  # we'll use dir in a unicode command shell to produce the paths
-  # encoded in UTF-16LE, and then use iconv to convert that back
-  # to UTF-8 as appropriate
-  path <- renv_path_normalize(path)
-  command <- paste(comspec(), "/U /C dir /B", shQuote(path))
+  # change working directory (done just to avoid encoding issues
+  # when submitting path to cmd shell)
+  owd <- setwd(path)
+  on.exit(setwd(owd), add = TRUE)
 
-  conn <- pipe(command, open = "rb")
+  # hack up the COMPSEC envvar so that we use a unicode cmd.exe shell
+  comspec <- Sys.getenv("COMSPEC", unset = comspec())
+  renv_scope_envvars(COMSPEC = paste(comspec, "/U"))
+
+  # create pipe to dir command
+  conn <- pipe("dir /B", open = "rb")
   on.exit(close(conn), add = TRUE)
 
   # read binary output from connection
@@ -386,7 +390,7 @@ renv_file_list_impl <- function(path) {
 
   while (TRUE) {
 
-    data <- readBin(conn, what = "raw", n = 256L)
+    data <- readBin(conn, what = "raw", n = 1024L)
     if (empty(data))
       break
 
