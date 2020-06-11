@@ -361,8 +361,18 @@ renv_file_exists <- function(path) {
 }
 
 renv_file_list <- function(path, full.names = TRUE) {
+
+  # list files
   files <- renv_file_list_impl(path)
-  if (full.names) file.path(path, files) else files
+
+  # NOTE: paths may be marked with UTF-8 encoding;
+  # if that's the case we need to use paste rather
+  # than file.path to preserve the encoding
+  if (full.names)
+    files <- paste(path, files, sep = "/")
+
+  files
+
 }
 
 renv_file_list_impl <- function(path) {
