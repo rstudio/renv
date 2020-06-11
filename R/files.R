@@ -387,12 +387,10 @@ renv_file_list_impl <- function(path) {
   owd <- setwd(path)
   on.exit(setwd(owd), add = TRUE)
 
-  # hack up the COMPSEC envvar so that we use a unicode cmd.exe shell
-  comspec <- Sys.getenv("COMSPEC", unset = comspec())
-  renv_scope_envvars(COMSPEC = paste(comspec, "/U"))
-
-  # create pipe to dir command
-  conn <- pipe("dir /B", open = "rb")
+  # NOTE: a sub-shell is required here in some contexts; e.g. when running
+  # tests non-interactively or building in the RStudio pane
+  command <- paste(comspec(), "/U /C dir /B")
+  conn <- pipe(command, open = "rb", encoding = "native.enc")
   on.exit(close(conn), add = TRUE)
 
   # read binary output from connection
