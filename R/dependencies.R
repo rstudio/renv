@@ -197,10 +197,11 @@ renv_dependencies_callback <- function(path) {
   )
 
   cbext <- list(
-    ".rproj" = function(path) renv_dependencies_discover_rproj(path),
-    ".r"     = function(path) renv_dependencies_discover_r(path),
-    ".rmd"   = function(path) renv_dependencies_discover_multimode(path, "rmd"),
-    ".rnw"   = function(path) renv_dependencies_discover_multimode(path, "rnw")
+    ".rproj"       = function(path) renv_dependencies_discover_rproj(path),
+    ".r"           = function(path) renv_dependencies_discover_r(path),
+    ".rmd"         = function(path) renv_dependencies_discover_multimode(path, "rmd"),
+    ".rmarkdown"   = function(path) renv_dependencies_discover_multimode(path, "rmd"),
+    ".rnw"         = function(path) renv_dependencies_discover_multimode(path, "rnw")
   )
 
   cbname[[basename(path)]] %||% cbext[[tolower(fileext(path))]]

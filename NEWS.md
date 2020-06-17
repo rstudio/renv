@@ -1,6 +1,9 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* R Markdown documents with the `.Rmarkdown` file extension are now parsed for
+  dependencies.
+
 * Fixed an issue where setting the `external.libraries` configuration option
   would trigger a warning. (#452)
 
