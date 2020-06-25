@@ -46,3 +46,19 @@ test_that("renv_available_packages() succeeds with unnamed repositories", {
   expect_identical(entry$Version, "1.0.0")
 
 })
+
+test_that("renv_available_packages_latest() respects pkgType option", {
+
+  skip_on_cran()
+  skip_if(.Platform$pkgType == "source")
+  renv_tests_scope()
+
+  renv_scope_options(pkgType = "source")
+  record <- renv_available_packages_latest("breakfast")
+  expect_identical(attr(record, "type"), "source")
+
+  # NOTE: this fails because we don't populate binary repositories during tests
+  renv_scope_options(pkgType = "binary")
+  expect_error(renv_available_packages_latest("breakfast"))
+
+})

@@ -1,6 +1,9 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* Fixed an issue where `renv::install(..., type = "binary")` would
+  still attempt to install packages from sources in some cases. (#461)
+  
 * `renv` now always writes `renv/.gitignore`, to ensure that the appropriate
   directories are ignored for projects which initialize `git` after `renv`
   itself is initialized. (#462)

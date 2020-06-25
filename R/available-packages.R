@@ -299,7 +299,17 @@ renv_available_packages_latest <- function(package) {
 
   }
 
-  # get latest source, binary packages available
+  type <- getOption("pkgType")
+
+  # detect requests for only source packages
+  if (identical(type, "source"))
+    return(renv_available_packages_latest_impl(package, "source"))
+
+  # detect requests for only binary packages
+  if (grepl("\\bbinary\\b", type))
+    return(renv_available_packages_latest_impl(package, "binary"))
+
+  # otherwise, check both source and binary repositories
   src <- renv_available_packages_latest_impl(package, "source")
   bin <- renv_available_packages_latest_impl(package, "binary")
 
