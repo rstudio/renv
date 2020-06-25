@@ -1,6 +1,10 @@
 
 # renv 0.11.0 (UNRELEASED)
 
+* `renv` now always writes `renv/.gitignore`, to ensure that the appropriate
+  directories are ignored for projects which initialize `git` after `renv`
+  itself is initialized. (#462)
+
 * R Markdown documents with the `.Rmarkdown` file extension are now parsed for
   dependencies.
 
