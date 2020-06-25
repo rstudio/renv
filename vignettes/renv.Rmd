@@ -542,6 +542,39 @@ migrate the Packrat library and lockfile such that they can then be
 used by `renv`.
 
 
+## Uninstalling renv
+
+If you find `renv` isn't the right fit for your project, deactivating and
+uninstalling it is easy.
+
+- To deactivate `renv` in a project, use `renv::deactivate()`. This removes
+  the `renv` auto-loader from the project `.Rprofile`, but doesn't touch any
+  other `renv` files used in the project. If you'd like to later re-activate
+  `renv`, you can do so with `renv::activate()`.
+  
+- To remove `renv` from a project, use `renv::deactivate()` to first remove
+  the `renv` auto-loader from the project `.Rprofile`, then delete the project's
+  `renv` folder and `renv.lock` lockfile as desired.
+
+If you want to completely remove any installed `renv` infrastructure components
+from your entire system, you can do so with the following R code:
+
+```
+root <- renv::paths$root()
+unlink(root, recursive = TRUE)
+```
+
+The `renv` package can then also be uninstalled via:
+
+```
+utils::remove.packages("renv")
+```
+
+Note that if you've customized any of `renv`'s infrastructure paths as described
+in `?renv::paths`, then you'll need to find and remove those customized folders
+as well.
+
+
 ## Future Work
 
 `renv`, like Packrat, is designed to work standalone without the need to
