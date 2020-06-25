@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-64</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.10.0-65</span>
       </span>
     </div>
 
@@ -176,6 +176,7 @@
 <a href="#renv-0-11-0-unreleased" class="anchor"></a>renv 0.11.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code>renv</code> now always writes <code>renv/.gitignore</code>, to ensure that the appropriate directories are ignored for projects which initialize <code>git</code> after <code>renv</code> itself is initialized. (<a href='https://github.com/rstudio/renv/issues/462'>#462</a>)</p></li>
 <li><p>R Markdown documents with the <code>.Rmarkdown</code> file extension are now parsed for dependencies.</p></li>
 <li><p>Fixed an issue where setting the <code>external.libraries</code> configuration option would trigger a warning. (<a href='https://github.com/rstudio/renv/issues/452'>#452</a>)</p></li>
 <li><p>Improved handling of unicode paths on Windows. (<a href='https://github.com/rstudio/renv/issues/451'>#451</a>)</p></li>
