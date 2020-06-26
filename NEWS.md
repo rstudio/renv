@@ -1,5 +1,5 @@
 
-# renv 0.11.0 (UNRELEASED)
+# renv 0.11.0
 
 * Fixed an issue where `renv::install(..., type = "binary")` would
   still attempt to install packages from sources in some cases. (#461)
