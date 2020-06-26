@@ -1,4 +1,6 @@
 
+# renv 0.12.0 (UNRELEASED)
+
 # renv 0.11.0
 
 * Fixed an issue where `renv::install(..., type = "binary")` would
