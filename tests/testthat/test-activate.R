@@ -18,7 +18,7 @@ test_that("renv can bootstrap itself if not installed", {
   )
 
   # perform bootstrap
-  args <- c("--slave", "-e", shQuote("library(renv)"))
+  args <- c("-s", "-e", shQuote("library(renv)"))
   stdout <- stderr <- if (interactive()) "" else FALSE
   status <- system2(R(), args, stdout = stdout, stderr = stderr)
   expect_equal(status, 0L)

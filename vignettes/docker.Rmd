@@ -133,7 +133,7 @@ docker run --rm \
     -e "RENV_PATHS_CACHE=${RENV_PATHS_CACHE_CONTAINER}" \
     -v "${RENV_PATHS_CACHE_HOST}:${RENV_PATHS_CACHE_CONTAINER}" \
     -p 14618:14618 \
-    R --slave -e 'renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14618)'
+    R -s -e 'renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14618)'
 ```
 
 With this, any calls to `renv` APIs within the created docker container will

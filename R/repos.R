@@ -29,7 +29,7 @@ renv_repos_init_callback <- function(...) {
   # invoke helper script
   script <- system.file("resources/scripts-repos-cache.R", package = "renv")
   args <- c(
-    "--vanilla", "--slave",
+    "--vanilla", "-s",
     "-f", shQuote(script),
     "--args", shQuote(file), shQuote(tempdir())
   )
