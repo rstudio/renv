@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-2</span>
       </span>
     </div>
 
@@ -161,7 +161,7 @@
 <a href="#creating-docker-images-with-renv" class="anchor"></a>Creating Docker Images with renv</h2>
 <p>With Docker, <a href="https://docs.docker.com/engine/reference/builder/">Dockerfiles</a> are used to define new images. Dockerfiles can be used to declaratively specify how a Docker image should be created. A Docker image captures the state of a machine at some point in time – e.g., an Ubuntu operating system after downloading and installing R 3.5. Docker containers can be created using that image as a base, allowing isolated applications to run using the same pre-defined machine state.</p>
 <p>First, you’ll need to get <code>renv</code> installed on your Docker image. The easiest way to accomplish this is with the <code>remotes</code> package. For example:</p>
-<pre><code>ENV RENV_VERSION 0.11.0-1
+<pre><code>ENV RENV_VERSION 0.11.0-2
 RUN R -e "install.packages('remotes', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"</code></pre>
 <p>Now, <code>renv</code> can be used to install packages on the image. If you’d like the <code>renv.lock</code> lockfile to be used to install R packages when the Docker image is built, you can include something of the form:</p>
@@ -192,7 +192,7 @@ docker run --rm \
     -e "RENV_PATHS_CACHE=${RENV_PATHS_CACHE_CONTAINER}" \
     -v "${RENV_PATHS_CACHE_HOST}:${RENV_PATHS_CACHE_CONTAINER}" \
     -p 14618:14618 \
-    R --slave -e 'renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14618)'</code></pre>
+    R -s -e 'renv::restore(); shiny::runApp(host = "0.0.0.0", port = 14618)'</code></pre>
 <p>With this, any calls to <code>renv</code> APIs within the created docker container will have access to the mounted cache. The first time you run a container, <code>renv</code> will likely need to populate the cache, and so some time will be spent downloading and installing the required packages. Subsequent runs should be much faster, as <code>renv</code> will be able to reuse the global package cache.</p>
 <p>The primary downside with this approach compared to the image-based approach is that it requires you to modify how containers are created, and requires a bit of extra orchestration in how containers are launched. However, once the <code>renv</code> cache is active, newly-created containers will launch very quickly, and a single image can then be used as a base for a myriad of different containers and applications, each with their own private R library.</p>
 </div>
