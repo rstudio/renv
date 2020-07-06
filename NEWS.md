@@ -1,6 +1,9 @@
 
 # renv 0.12.0 (UNRELEASED)
 
+* Fixed an issue where the `RENV_PATHS_PREFIX` environment variable
+  was inappropriately normalized when `renv` was loaded. (#465)
+  
 # renv 0.11.0
 
 * Fixed an issue where `renv::install(..., type = "binary")` would

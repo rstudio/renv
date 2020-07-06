@@ -153,6 +153,8 @@ renv_paths_init <- function() {
   envvars <- Sys.getenv()
 
   keys <- grep("^RENV_PATHS_", names(envvars), value = TRUE)
+  keys <- setdiff(keys, "RENV_PATHS_PREFIX")
+
   if (empty(keys))
     return(character())
 
