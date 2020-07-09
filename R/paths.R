@@ -131,10 +131,10 @@ renv_paths_root_default <- function() {
   if (renv_once()) {
     renv_pretty_print(
       aliased_path(path),
-      "The renv cache root has not yet been created:",
+      "The renv support directory has not yet been created:",
       c(
-        "A temporary cache directory will be used instead.",
-        "Please call `renv::consent()` to allow renv to generate a cache directory.",
+        "A temporary support directory will be used instead.",
+        "Please call `renv::consent()` to allow renv to generate the support directory.",
         "Please restart the R session after providing consent."
       ),
       wrap = FALSE
