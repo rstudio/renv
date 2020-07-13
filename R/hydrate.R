@@ -57,8 +57,10 @@ hydrate <- function(packages = NULL,
 {
   renv_scope_error_handler()
   renv_dots_check(...)
-  project  <- renv_project_resolve(project)
-  library  <- library %||% renv_libpaths_default()
+
+  project <- renv_project_resolve(project)
+  library <- library %||% renv_libpaths_default()
+  packages <- packages %||% renv_hydrate_packages(project, sources)
 
   # find packages used in this project, and the dependencies of those packages
   deps <- renv_hydrate_dependencies(project, packages, sources)
@@ -77,7 +79,7 @@ hydrate <- function(packages = NULL,
   # copy packages from user library to cache
   linkable <-
     settings$use.cache(project = project) &&
-    library == renv_paths_library(project = project)
+    renv_path_same(library, renv_paths_library(project = project))
 
   if (linkable)
     renv_hydrate_link_packages(packages, library)
@@ -92,23 +94,24 @@ hydrate <- function(packages = NULL,
   invisible(result)
 }
 
+renv_hydrate_packages <- function(project, libpaths = NULL) {
+
+  deps <- dependencies(project, quiet = TRUE, dev = TRUE)
+
+  if (!renv_testing() && file.exists("~/.Rprofile")) {
+    profdeps <- dependencies("~/.Rprofile", quiet = TRUE, dev = TRUE)
+    if (length(deps))
+      deps <- bind_list(list(deps, profdeps))
+  }
+
+  unique(deps$Package)
+
+}
+
 renv_hydrate_dependencies <- function(project,
                                       packages = NULL,
                                       libpaths = NULL)
 {
-  if (is.null(packages)) {
-
-    projdeps <- dependencies(project, quiet = TRUE, dev = TRUE)
-    if (!renv_testing() && file.exists("~/.Rprofile")) {
-      profdeps <- dependencies("~/.Rprofile", quiet = TRUE, dev = TRUE)
-      if (length(projdeps))
-        projdeps <- bind_list(list(projdeps, profdeps))
-    }
-
-    packages <- unique(projdeps$Package)
-
-  }
-
   vprintf("* Discovering package dependencies ... ")
   ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
