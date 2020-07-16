@@ -38,7 +38,7 @@ renv_rspm_transform_impl <- function(url) {
   #
   # in particular, there should be at least two trailing
   # alphanumeric path components
-  pattern <- "/[^/]+/[^/]+/*$"
+  pattern <- "/[^/]+/[^/]+/"
   if (!grepl(pattern, url))
     return(url)
 
