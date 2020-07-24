@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-7</span>
       </span>
     </div>
 
@@ -257,6 +257,12 @@ configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
 options(configure.args = configure.args)
 renv::install("RNetCDF")
 </pre>
+
+<p>Similarly, additional flags that should be passed to <code>R CMD INSTALL</code> can
+be set via the <code>install.opts</code> <span style="R">R</span> option:</p><pre><span class='co'># installation of R packages using the Windows Subsystem for Linux</span>
+<span class='co'># may require the `--no-lock` flag to be set during install</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>install.opts</span> <span class='kw'>=</span> <span class='st'>"--no-lock"</span>)
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>install</span>(<span class='st'>"xml2"</span>)</pre>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
