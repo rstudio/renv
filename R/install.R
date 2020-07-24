@@ -12,6 +12,7 @@
 #' Note that this interface is subject to change -- the goal is to hook into
 #' separate package installation backends in the future.
 #'
+#'
 #' @section Package Configuration:
 #'
 #' Many \R packages have a `configure` script that needs to be run to prepare
@@ -25,6 +26,16 @@
 #' configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
 #' options(configure.args = configure.args)
 #' renv::install("RNetCDF")
+#' ```
+#'
+#' Similarly, additional flags that should be passed to `R CMD INSTALL` can
+#' be set via the `install.opts` \R option:
+#'
+#' ```
+#' # installation of R packages using the Windows Subsystem for Linux
+#' # may require the `--no-lock` flag to be set during install
+#' options(install.opts = "--no-lock")
+#' renv::install("xml2")
 #' ```
 #'
 #' @inherit renv-params

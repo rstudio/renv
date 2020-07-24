@@ -68,6 +68,13 @@ configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
 options(configure.args = configure.args)
 renv::install("RNetCDF")
 }
+
+Similarly, additional flags that should be passed to \verb{R CMD INSTALL} can
+be set via the \code{install.opts} \R option:\preformatted{# installation of R packages using the Windows Subsystem for Linux
+# may require the `--no-lock` flag to be set during install
+options(install.opts = "--no-lock")
+renv::install("xml2")
+}
 }
 
 \examples{
