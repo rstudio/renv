@@ -247,3 +247,10 @@ test_that("renv uses safe library paths on Windows", {
   expect_true(desc$Version == "1.0.0")
 
 })
+
+test_that("renv can install packages from Bitbucket", {
+  skip_on_cran()
+  renv_tests_scope()
+  install("bitbucket::kevinushey/skeleton")
+  expect_true(renv_package_installed("skeleton"))
+})

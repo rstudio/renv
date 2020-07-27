@@ -173,13 +173,25 @@ renv_retrieve_bioconductor <- function(record) {
 
 renv_retrieve_bitbucket <- function(record) {
 
-  origin <- renv_retrieve_origin(record$RemoteHost %||% "bitbucket.org")
+  # query repositories endpoint to find download URL
+  origin <- renv_retrieve_origin(record$RemoteHost %||% "api.bitbucket.org/2.0")
   username <- record$RemoteUsername
   repo <- record$RemoteRepo
-  sha <- record$RemoteSha %||% record$RemoteRef %||% "master"
 
-  fmt <- "%s/%s/%s/get/%s.tar.gz"
-  url <- sprintf(fmt, origin, username, repo, sha)
+  fmt <- "%s/repositories/%s/%s"
+  url <- sprintf(fmt, origin, username, repo)
+
+  destfile <- renv_tempfile("renv-bitbucket-")
+  download(url, destfile = destfile, quiet = TRUE)
+  json <- renv_json_read(destfile)
+
+  # now build URL to tarball
+  base <- json$links$html$href
+  ref <- record$RemoteSha %||% record$RemoteRef
+
+  fmt <- "%s/get/%s.tar.gz"
+  url <- sprintf(fmt, base, ref)
+
   path <- renv_retrieve_path(record)
 
   renv_retrieve_package(record, url, path)
