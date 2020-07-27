@@ -2,7 +2,7 @@
 # renv 0.12.0 (UNRELEASED)
 
 * Fixed an issue where `renv` did not construct the correct URL
-  for packages to be installed from Bitbucket remotes. (#495)
+  for packages to be installed from Bitbucket remotes. (#494)
 
 * Fixed an issue where the `RENV_PATHS_PREFIX` environment variable
   was inappropriately normalized when `renv` was loaded. (#465)
