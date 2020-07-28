@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-14</span>
       </span>
     </div>
 
@@ -243,6 +243,19 @@ already been downloaded before, and re-compiling packages from source when
 a binary copy of that package is already available.</p>
 <p>Note that this interface is subject to change -- the goal is to hook into
 separate package installation backends in the future.</p>
+    <h2 class="hasAnchor" id="bioconductor"><a class="anchor" href="#bioconductor"></a>Bioconductor</h2>
+
+    
+
+
+<p>Packages from Bioconductor can be installed by using the <code>bioc::</code> prefix.
+For example,</p><pre><span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>install</span>(<span class='st'>"bioc::Biobase"</span>)</pre>
+
+<p>will install the latest-available version of <code>Biobase</code> from Bioconductor.</p>
+<p><code>renv</code> depends on <code>BiocManager</code> (or, for older versions of <span style="R">R</span>, <code>BiocInstaller</code>)
+for the installation of packages from Bioconductor. If these packages are
+not available, <code>renv</code> will attempt to automatically install them before
+fulfilling the installation request.</p>
     <h2 class="hasAnchor" id="remotes-syntax"><a class="anchor" href="#remotes-syntax"></a>Remotes Syntax</h2>
 
     
