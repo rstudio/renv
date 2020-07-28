@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-11</span>
       </span>
     </div>
 
@@ -176,6 +176,7 @@
 <a href="#renv-0-12-0-unreleased" class="anchor"></a>renv 0.12.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code>renv</code> now handles the <code>remotes</code> syntax for installing packages lying within the sub-directory of a GitHub repository; that is, <code><a href="../reference/install.html">renv::install("user/repo/subdir")</a></code> should work as expected. (<a href='https://github.com/rstudio/renv/issues/497'>#497</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> did not construct the correct URL for packages to be installed from Bitbucket remotes. (<a href='https://github.com/rstudio/renv/issues/494'>#494</a>)</p></li>
 <li><p>Fixed an issue where the <code>RENV_PATHS_PREFIX</code> environment variable was inappropriately normalized when <code>renv</code> was loaded. (<a href='https://github.com/rstudio/renv/issues/465'>#465</a>)</p></li>
 </ul>

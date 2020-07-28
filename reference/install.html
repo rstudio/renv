@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-10</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-11</span>
       </span>
     </div>
 
@@ -243,6 +243,14 @@ already been downloaded before, and re-compiling packages from source when
 a binary copy of that package is already available.</p>
 <p>Note that this interface is subject to change -- the goal is to hook into
 separate package installation backends in the future.</p>
+    <h2 class="hasAnchor" id="remotes-syntax"><a class="anchor" href="#remotes-syntax"></a>Remotes Syntax</h2>
+
+    
+
+
+<p><code>renv</code> supports a subset of the <code>remotes</code> syntax used for package installation,
+as described in <a href='https://remotes.r-lib.org/articles/dependencies.html'>https://remotes.r-lib.org/articles/dependencies.html</a>. See
+the examples below for more details.</p>
     <h2 class="hasAnchor" id="package-configuration"><a class="anchor" href="#package-configuration"></a>Package Configuration</h2>
 
     
@@ -276,6 +284,13 @@ be set via the <code>install.opts</code> <span style="R">R</span> option:</p><pr
 
 <span class='co'># install 'digest' from GitHub (latest dev. version)</span>
 <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>install</span>(<span class='st'>"eddelbuettel/digest"</span>)
+
+<span class='co'># install a package from GitHub, using specific commit</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>install</span>(<span class='st'>"eddelbuettel/digest@df55b00bff33e945246eff2586717452e635032f"</span>)
+
+<span class='co'># install a package from Bioconductor</span>
+<span class='co'># (note: requires the BiocManager package)</span>
+<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>install</span>(<span class='st'>"bioc::Biobase"</span>)
 
 <span class='co'># install a package from local sources</span>
 <span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>install</span>(<span class='st'>"~/path/to/package"</span>)
