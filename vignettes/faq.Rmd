@@ -58,7 +58,7 @@ If you use a custom package loader in your project that `renv` could feasibly
 support, please feel free to [file a feature request](https://github.com/rstudio/renv/issues).
 
 
-### Capturing All Dependencies
+### Capturing all dependencies
 
 If you'd instead prefer to capture _all_ packages installed into your project
 library (and eschew dependency discovery altogether), you can do so with:
@@ -80,7 +80,7 @@ unintentionally ignoring a package you actually require.
 See the documentation in `?snapshot` for more details.
 
 
-### Capturing Explicit Dependencies
+### Capturing explicit dependencies
 
 If you'd like to explicitly declare which packages your project depends on,
 you can do so by telling `renv` to form "explicit" snapshots:
@@ -112,4 +112,54 @@ renv::install()
 to request that `renv` install the packages as described in the DESCRIPTION
 file. In addition, the `Remotes:` fields will be parsed and used, to ensure
 packages are installed from their declared remote source as appropriate.
+
+
+## I'm returning to an older renv project. What do I do?
+
+Suppose you were using `renv` to manage an older project's dependencies. You
+have an older lockfile, capturing the dependencies in use when you were last
+working with that project. You now need to resume work on this project --
+what do you do?
+
+The answer depends on how exactly you want to use the project. Do you want
+to treat it as a "time capsule", with dependencies frozen in time? Or are
+the dependencies in this project fluid, and you are primarily using `renv`
+just for isolation of project dependencies?
+
+For time capsules, the solution is to use `renv::restore()` to re-install the
+exact packages as declared in the project lockfile `renv.lock`. You may also
+need to find and install the older version of R used previously with that
+project, unless your intention is to upgrade R.
+
+For projects with fluid dependencies, one solution is to use `renv::init()`
+to re-initialize the project with a brand new project library. When
+`renv::init()` is invoked, you may see a question such as:
+
+```
+> renv::init()
+This project already has a lockfile. What would you like to do?
+
+1: Restore the project from the lockfile.
+2: Discard the lockfile and re-initialize the project.
+3: Activate the project without snapshotting or installing any packages.
+4: Abort project initialization.
+```
+
+You can select option (2) to instruct `renv` to re-initialize the project,
+effectively discarding the old lockfile and initializing the project with a new
+project library. You may also want to call `renv::upgrade()` to ensure all
+packages in the new project library are updated to the latest-available
+versions, as well.
+
+If you prefer a more managed approach, you might also consider the following
+approach:
+
+1. Use `renv::restore()` to restore the project state as defined in the
+   lockfile,
+
+2. Install and update packages deliberately, e.g. via `renv::install()`,
+   `install.packages()`, or other relevant tools,
+
+3. Call `renv::snapshot()` after you've finished updating the requisite
+   packages, to generate a new lockfile.
 
