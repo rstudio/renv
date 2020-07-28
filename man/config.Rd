@@ -79,7 +79,7 @@ The following \code{renv} configuration options are available:
 \cr
 \code{snapshot.validate} \tab \code{logical[1]} \tab \code{TRUE} \tab Validate \R package dependencies when calling snapshot? When \code{TRUE}, \code{renv} will attempt to diagnose potential issues in the project library before creating \code{renv.lock} -- for example, if a package installed in the project library depends on a package which is not currently installed.
 \cr
-\code{synchronized.check} \tab \code{logical[1]} \tab \code{FALSE} \tab Check that the project library is synchronized with the lockfile on load?
+\code{synchronized.check} \tab \code{logical[1]} \tab \code{TRUE} \tab Check that the project library is synchronized with the lockfile on load?
 \cr
 \code{updates.check} \tab \code{logical[1]} \tab \code{FALSE} \tab Check for package updates when the session is initialized? This can be useful if you'd like to ensure that your project lockfile remains up-to-date with packages as they are released on CRAN.
 \cr

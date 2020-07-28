@@ -125,7 +125,7 @@ renv_load_r_repos <- function(repos) {
 renv_load_path <- function(project) {
 
   # only required when running in RStudio
-  if (identical(.Platform$GUI, "RStudio"))
+  if (!renv_rstudio_available())
     return(FALSE)
 
   # on macOS, read paths from /etc/paths and friends
@@ -393,23 +393,18 @@ renv_load_report_project <- function(project) {
 renv_load_report_updates <- function(project) {
 
   # nocov start
-  if (!is.na(Sys.getenv("RSTUDIO", unset = NA))) {
-    update <- function() renv_load_report_updates_impl(project = project)
-    setHook("rstudio.sessionInit", update)
-    return(TRUE)
-  }
-  # nocov end
+  enabled <- interactive() && config$updates.check()
+  if (!enabled)
+    return(FALSE)
 
-  renv_load_report_updates_impl(project = project)
+  callback <- function(...) renv_load_report_updates_impl(project = project)
+  renv_load_invoke(callback)
+  # nocov end
 
 }
 
 # nocov start
 renv_load_report_updates_impl <- function(project) {
-
-  enabled <- config$updates.check()
-  if (!enabled)
-    return(FALSE)
 
   if (!file.exists(file.path(project, "renv.lock")))
     return(FALSE)
@@ -430,10 +425,25 @@ renv_load_report_updates_impl <- function(project) {
 
 renv_load_report_synchronized <- function(project, lockfile) {
 
+  # nocov start
   enabled <- interactive() && config$synchronized.check()
   if (!enabled)
     return(FALSE)
 
-  renv_project_synchronized_check(project, lockfile)
+  callback <- function(...) renv_project_synchronized_check(project, lockfile)
+  renv_load_invoke(callback)
+  # nocov end
 
 }
+
+renv_load_invoke <- function(callback) {
+
+  # helper function for running code that might need to
+  # wait until RStudio has finished initializing
+  if (renv_rstudio_loading())
+    setHook("rstudio.sessionInit", callback, action = "append")
+  else
+    callback()
+
+}
+

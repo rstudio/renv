@@ -1,6 +1,11 @@
 
 # renv 0.12.0 (UNRELEASED)
 
+* `renv` now performs a lighter-weight check as to whether the
+  project lockfile is synchronized with the project library on load.
+  The default value for the `synchronized.check` R option has been
+  changed back to `TRUE`. (#496)
+
 * `renv` now handles the `remotes` syntax for installing packages lying
   within the sub-directory of a GitHub repository; that is,
   `renv::install("user/repo/subdir")` should work as expected. (#497)

@@ -47,8 +47,11 @@ this function is normally called for its side effects.
 \description{
 Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a project's
 \R package dependencies. The lockfile can be used to later restore these
-project's dependencies as required. See the \link{lockfile} documentation for more
-details on the structure of a lockfile.
+project's dependencies as required.
+}
+\details{
+See the \link{lockfile} documentation for more details on the structure of a
+lockfile.
 }
 \section{Snapshot Type}{
 

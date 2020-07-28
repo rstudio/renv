@@ -1,4 +1,19 @@
 
+renv_rstudio_available <- function() {
+
+  # NOTE: detecting whether we're running within RStudio is a bit
+  # tricky because not all of the expected RStudio bits have been
+  # initialized when the R session is being initialized (e.g.
+  # when the .Rprofile is being executed)
+  args <- commandArgs(trailingOnly = FALSE)
+  args[[1L]] == "RStudio" || .Platform$GUI == "RStudio"
+
+}
+
+renv_rstudio_loading <- function() {
+  renv_rstudio_available() && !identical(.Platform$GUI, "RStudio")
+}
+
 renv_rstudio_fixup <- function() {
 
   # if RStudio's tools are on the search path, we should try

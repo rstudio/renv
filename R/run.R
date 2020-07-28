@@ -50,7 +50,7 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
   # run as a job when possible in RStudio
   jobbable <-
     !identical(job, FALSE) &&
-    identical(.Platform$GUI, "RStudio") &&
+    renv_rstudio_available() &&
     renv_package_installed("rstudioapi") &&
     renv_package_version("rstudioapi") >= "0.10" &&
     rstudioapi::verifyAvailable("1.2.1335")

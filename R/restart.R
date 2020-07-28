@@ -3,7 +3,7 @@ renv_request_restart <- function(project, reason, ...) {
 
   # if we're running in RStudio, explicitly open the project
   # if it differs from the current project
-  if (identical(.Platform$GUI, "RStudio")) {
+  if (renv_rstudio_available()) {
     status <- renv_request_restart_rstudio(project, reason, ...)
     return(invisible(status))
   }

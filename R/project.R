@@ -170,30 +170,38 @@ renv_project_id <- function(project) {
 
 }
 
-renv_project_synchronized_check <- function(project, lockfile) {
+renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
 
+  project  <- renv_project_resolve(project)
+  lockfile <- lockfile %||% renv_lockfile_load(project)
+
+  # perform a lightweight comparison between the project
+  # library and lockfile, and report if there may be
+  # any conflicts
   library <- renv_libpaths_all()
 
-  quietly({
+  # don't validate lockfile state in this scope; just try
+  # to read and use it as-is
+  renv_scope_options(renv.config.snapshot.validate = FALSE)
 
-    libstate <- snapshot(
-      project  = project,
-      library  = library,
-      lockfile = NULL,
-      force    = TRUE
-    )
+  # read current state of project library
+  libstate <- snapshot(
+    project  = project,
+    library  = library,
+    lockfile = NULL,
+    type     = "all",
+    force    = TRUE
+  )
 
-    synchronized <- renv_status_check_synchronized(
-      project  = project,
-      lockfile = lockfile,
-      library  = library,
-      libstate = libstate
-    )
+  # compare with the current lockfile
+  diff <- renv_lockfile_diff_packages(lockfile, libstate)
 
-  })
-
-  if (!synchronized) {
-    msg <- "* The project and lockfile are out of sync -- use `renv::status()` for more details."
+  # we only want to report cases where a package version
+  # has changed, or the lockfile references a package that
+  # is not currently installed in the project library
+  diff <- diff[diff != "install"]
+  if (length(diff)) {
+    msg <- "* The project may be out of sync -- use `renv::status()` for more details."
     ewritef(msg)
   }
 

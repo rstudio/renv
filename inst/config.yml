@@ -158,7 +158,7 @@
 
 - name: "synchronized.check"
   type: "logical[1]"
-  default: false
+  default: true
   description: >
     Check that the project library is synchronized with the lockfile on
     load?

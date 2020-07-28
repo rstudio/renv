@@ -3,8 +3,10 @@
 #'
 #' Call `snapshot()` to create a **lockfile** capturing the state of a project's
 #' \R package dependencies. The lockfile can be used to later restore these
-#' project's dependencies as required. See the [lockfile] documentation for more
-#' details on the structure of a lockfile.
+#' project's dependencies as required.
+#'
+#' See the [lockfile] documentation for more details on the structure of a
+#' lockfile.
 #'
 #' @section Snapshot Type:
 #'

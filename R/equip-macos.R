@@ -93,7 +93,7 @@ renv_equip_macos_toolchain <- function() {
 renv_equip_macos_rstudio <- function(spec, destfile) {
 
   rstudio <-
-    .Platform$GUI == "RStudio" &&
+    renv_rstudio_available() &&
     requireNamespace("rstudioapi", quietly = TRUE)
 
   if (!rstudio)
