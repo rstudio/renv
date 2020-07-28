@@ -56,6 +56,14 @@ a binary copy of that package is already available.
 Note that this interface is subject to change -- the goal is to hook into
 separate package installation backends in the future.
 }
+\section{Remotes Syntax}{
+
+
+\code{renv} supports a subset of the \code{remotes} syntax used for package installation,
+as described in \url{https://remotes.r-lib.org/articles/dependencies.html}. See
+the examples below for more details.
+}
+
 \section{Package Configuration}{
 
 
@@ -88,6 +96,13 @@ renv::install("digest@0.6.18")
 
 # install 'digest' from GitHub (latest dev. version)
 renv::install("eddelbuettel/digest")
+
+# install a package from GitHub, using specific commit
+renv::install("eddelbuettel/digest@df55b00bff33e945246eff2586717452e635032f")
+
+# install a package from Bioconductor
+# (note: requires the BiocManager package)
+renv::install("bioc::Biobase")
 
 # install a package from local sources
 renv::install("~/path/to/package")

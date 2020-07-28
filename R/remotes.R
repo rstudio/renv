@@ -116,6 +116,36 @@ renv_remotes_parse_remote <- function(entry) {
   if (!nzchar(parsed$repo))
     stopf("'%s' is not a valid remote", entry)
 
+  renv_remotes_parse_finalize(parsed)
+
+}
+
+renv_remotes_parse_finalize <- function(parsed) {
+
+  # default remote type is github
+  parsed$type <- tolower(parsed$type %||% "github")
+
+  # custom finalization for different remote types
+  case(
+    parsed$type == "github" ~ renv_remotes_parse_finalize_github(parsed),
+    TRUE                    ~ parsed
+  )
+
+}
+
+renv_remotes_parse_finalize_github <- function(parsed) {
+
+  # split repo spec into pieces
+  repo <- parsed$repo %||% ""
+  parts <- strsplit(repo, "/", fixed = TRUE)[[1]]
+  if (length(parts) < 2)
+    return(parsed)
+
+  # form subdir from tail of repo
+  parsed$repo <- paste(head(parts, n = -1L), collapse = "/")
+  parsed$subdir <- tail(parts, n = 1L)
+
+  # return modified remote
   parsed
 
 }

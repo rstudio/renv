@@ -254,3 +254,11 @@ test_that("renv can install packages from Bitbucket", {
   install("bitbucket::kevinushey/skeleton")
   expect_true(renv_package_installed("skeleton"))
 })
+
+test_that("renv can install packages from GitHub using remotes subdir syntax", {
+  skip_on_cran()
+  renv_tests_scope()
+  install("kevinushey/skeleton/subdir")
+  expect_true(renv_package_installed("skeleton"))
+  expect_true(renv_package_version("skeleton") == "1.1.0")
+})

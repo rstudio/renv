@@ -1,6 +1,10 @@
 
 # renv 0.12.0 (UNRELEASED)
 
+* `renv` now handles the `remotes` syntax for installing packages lying
+  within the sub-directory of a GitHub repository; that is,
+  `renv::install("user/repo/subdir")` should work as expected. (#497)
+
 * Fixed an issue where `renv` did not construct the correct URL
   for packages to be installed from Bitbucket remotes. (#494)
 
