@@ -13,6 +13,23 @@
 #' separate package installation backends in the future.
 #'
 #'
+#' @section Bioconductor:
+#'
+#' Packages from Bioconductor can be installed by using the `bioc::` prefix.
+#' For example,
+#'
+#' ```
+#' renv::install("bioc::Biobase")
+#' ```
+#'
+#' will install the latest-available version of `Biobase` from Bioconductor.
+#'
+#' `renv` depends on `BiocManager` (or, for older versions of \R, `BiocInstaller`)
+#' for the installation of packages from Bioconductor. If these packages are
+#' not available, `renv` will attempt to automatically install them before
+#' fulfilling the installation request.
+#'
+#'
 #' @section Remotes Syntax:
 #'
 #' `renv` supports a subset of the `remotes` syntax used for package installation,

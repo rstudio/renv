@@ -56,6 +56,21 @@ a binary copy of that package is already available.
 Note that this interface is subject to change -- the goal is to hook into
 separate package installation backends in the future.
 }
+\section{Bioconductor}{
+
+
+Packages from Bioconductor can be installed by using the \verb{bioc::} prefix.
+For example,\preformatted{renv::install("bioc::Biobase")
+}
+
+will install the latest-available version of \code{Biobase} from Bioconductor.
+
+\code{renv} depends on \code{BiocManager} (or, for older versions of \R, \code{BiocInstaller})
+for the installation of packages from Bioconductor. If these packages are
+not available, \code{renv} will attempt to automatically install them before
+fulfilling the installation request.
+}
+
 \section{Remotes Syntax}{
 
 
