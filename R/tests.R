@@ -340,10 +340,31 @@ renv_tests_diagnostics <- function() {
     "The following packages are available in the test repositories:",
   )
 
-  envvars <- c("R_LIBS", "R_LIBS_SITE", "R_LIBS_USER")
+  path <- Sys.getenv("PATH")
+  splat <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1]]
+
+  renv_pretty_print(
+    paste("-", splat),
+    "The following PATH is set:",
+    wrap = FALSE
+  )
+
+  envvars <- c(
+    "HOME",
+    "R_ARCH", "R_HOME",
+    "R_LIBS", "R_LIBS_SITE", "R_LIBS_USER", "R_USER",
+    "R_ZIPCMD",
+    "TAR", "TEMP", "TMP", "TMPDIR"
+  )
+
   keys <- format(envvars)
-  vals <- Sys.getenv(keys, unset = "<NA>")
+  vals <- Sys.getenv(envvars, unset = "<NA>")
   vals[vals != "<NA>"] <- shQuote(vals[vals != "<NA>"], type = "cmd")
-  renv_pretty_print(paste(keys, vals, sep = " : "), wrap = FALSE)
+
+  renv_pretty_print(
+    paste(keys, vals, sep = " : "),
+    "The following environment variables of interest are set:",
+    wrap = FALSE
+  )
 
 }

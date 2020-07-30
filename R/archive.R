@@ -2,9 +2,10 @@
 renv_archive_type <- function(path) {
 
   ext <- fileext(path)
+
   if (ext %in% c(".tgz", ".tar", ".tar.gz"))
     return("tar")
-  if (ext %in% c(".zip"))
+  else if (ext %in% c(".zip"))
     return("zip")
   else
     return("unknown")
