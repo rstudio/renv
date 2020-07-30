@@ -40,7 +40,10 @@ renv_package_type <- function(path, quiet = FALSE, default = "source") {
 
   for (method in methods) {
 
-    files <- catch(method(path))
+    # suppress warnings to avoid issues with e.g.
+    # 'skipping pax global extended headers' when
+    # using internal tar
+    files <- catch(suppressWarnings(method(path)))
     if (inherits(files, "error"))
       next
 
