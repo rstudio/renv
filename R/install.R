@@ -292,11 +292,18 @@ renv_install_impl <- function(record) {
     }
   )
 
-  type <- renv_package_type(record$Path, quiet = TRUE)
-  feedback <- if (type == "binary")
-    "installed binary"
-  else
+  path <- record$Path
+  type <- renv_package_type(path, quiet = TRUE)
+
+  feedback <- if (type == "binary") {
+    if (renv_file_type(path, symlinks = FALSE) == "directory") {
+      "copied local binary"
+    } else {
+      "installed binary"
+    }
+  } else {
     "built from source"
+  }
 
   vwritef("\tOK [%s]", feedback)
 
@@ -374,9 +381,8 @@ renv_install_package_local <- function(record, quiet = TRUE) {
   # for source packages downloaded as zips,
   # we need to extract before install
   unpack <-
-    renv_archive_type(path) == "zip" &&
-    renv_package_type(path) == "source" ||
-    nzchar(subdir)
+    renv_archive_type(path) %in% c("tar", "zip") &&
+    (renv_package_type(path) == "source" || nzchar(subdir))
 
   if (unpack) {
 
@@ -422,9 +428,22 @@ renv_install_package_local <- function(record, quiet = TRUE) {
 }
 
 renv_install_package_local_impl <- function(package, path, library) {
+
+  # normalize paths
   library <- renv_path_normalize(library, winslash = "/", mustWork = TRUE)
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
-  r_cmd_install(package, path, library)
+
+  # if this is the path to an unpacked binary archive,
+  # we can just copy the folder over
+  copyable <-
+    renv_file_type(path, symlinks = FALSE) == "directory" &&
+    renv_package_type(path, quiet = TRUE) == "binary"
+
+  if (copyable)
+    renv_file_copy(path, file.path(library, package), overwrite = TRUE)
+  else
+    r_cmd_install(package, path, library)
+
 }
 
 renv_install_package_options <- function(package) {

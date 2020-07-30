@@ -1,6 +1,12 @@
 
 # renv 0.12.0 (UNRELEASED)
 
+* `renv` now treats the user + site libraries as package sources
+  during a restore. If `renv` sees that a package already installed
+  in one of these libraries is compatible with the record requested
+  via `renv::install()` or `renv::restore()`, that copy of the package
+  will be copied and used. (#492)
+  
 * `renv` now performs a lighter-weight check as to whether the
   project lockfile is synchronized with the project library on load.
   The default value for the `synchronized.check` R option has been

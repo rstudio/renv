@@ -105,21 +105,29 @@ renv_retrieve_impl <- function(package) {
   if (file.exists(path))
     return(renv_retrieve_successful(record, path))
 
-  # if the user has provided an explicit path to a tarball in the source,
-  # then just use that
-  retrieved <- catch(renv_retrieve_explicit(record))
-  if (identical(retrieved, TRUE))
-    return(TRUE)
+  # if the record doesn't declare the package version,
+  # treat it as a request for the latest version on CRAN
+  # TODO: should make this behavior configurable
+  uselatest <-
+    identical(source, "repository") &&
+    is.null(record$Version)
 
-  # if we find a suitable package tarball available locally,
-  # then we can just use that directly (this also acts as an escape
-  # hatch for cases where a package might have some known external source
-  # but the user is unable to access that source in some context).
-  #
-  # TODO: consider if this should be guarded by a user preference
-  retrieved <- catch(renv_retrieve_local(record))
-  if (identical(retrieved, TRUE))
-    return(TRUE)
+  if (uselatest)
+    record <- renv_available_packages_latest(record$Package)
+
+  # try some early shortcut methods
+  shortcuts <- c(
+    renv_retrieve_explicit,
+    renv_retrieve_local,
+    if (!renv_testing())
+      renv_retrieve_libpaths
+  )
+
+  for (shortcut in shortcuts) {
+    retrieved <- catch(shortcut(record))
+    if (identical(retrieved, TRUE))
+      return(TRUE)
+  }
 
   # time to retrieve -- delegate based on previously-determined source
   switch(source,
@@ -341,6 +349,37 @@ renv_retrieve_local <- function(record) {
   renv_retrieve_successful(record, source)
 }
 
+renv_retrieve_libpaths <- function(record) {
+
+  libpaths <- c(renv_libpaths_user(), renv_libpaths_site())
+  for (libpath in libpaths)
+    if (renv_retrieve_libpaths_impl(record, libpath))
+      return(TRUE)
+}
+
+renv_retrieve_libpaths_impl <- function(record, libpath) {
+
+  # form path to installed package's DESCRIPTION
+  source <- file.path(libpath, record$Package)
+  if (!file.exists(source))
+    return(FALSE)
+
+  # read DESCRIPTION
+  desc <- renv_description_read(path = source)
+
+  # check if it's compatible with the requested record
+  # TODO: what fields should we check against?
+  fields <- c("Package", "Version")
+  compatible <- identical(record[fields], desc[fields])
+  if (!compatible)
+    return(FALSE)
+
+  # OK: treat as restore from local source
+  record$Source <- "Local"
+  renv_retrieve_successful(record, source)
+
+}
+
 renv_retrieve_explicit <- function(record) {
 
   # try parsing as a local remote
@@ -357,12 +396,6 @@ renv_retrieve_explicit <- function(record) {
 }
 
 renv_retrieve_repos <- function(record) {
-
-  # if the record doesn't declare the package version,
-  # treat it as a request for the latest version on CRAN
-  # TODO: should make this behavior configurable
-  if (is.null(record$Version))
-    record <- renv_available_packages_latest(record$Package)
 
   # if this record is tagged with a type + url, we can
   # use that directly for retrieval
