@@ -374,6 +374,7 @@ renv_load_finish <- function(project, lockfile) {
   renv_load_report_project(project)
   renv_load_report_updates(project)
   renv_load_report_synchronized(project, lockfile)
+  renv_snapshot_auto_update(project = project)
 
 }
 

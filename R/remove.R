@@ -33,7 +33,6 @@ remove <- function(packages,
 
   if (library == renv_paths_library(project = project)) {
     vwritef("* Removing package(s) from project library ...")
-    on.exit(renv_snapshot_auto(project = project), add = TRUE)
   } else {
     fmt <- "* Removing package(s) from library '%s' ..."
     vwritef(fmt, aliased_path(library))

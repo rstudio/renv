@@ -1,26 +1,29 @@
 
 # renv 0.12.0 (UNRELEASED)
 
-* `renv` now treats the user + site libraries as package sources
-  during a restore. If `renv` sees that a package already installed
-  in one of these libraries is compatible with the record requested
-  via `renv::install()` or `renv::restore()`, that copy of the package
-  will be copied and used. (#492)
-  
-* `renv` now performs a lighter-weight check as to whether the
-  project lockfile is synchronized with the project library on load.
-  The default value for the `synchronized.check` R option has been
-  changed back to `TRUE`. (#496)
+* `renv` now uses a task callback to detect mutations to the project library
+  when the `auto.snapshot` configuration option is enabled. This will help
+  ensure that automatic snapshots occur when packages are installed via a
+  mechanism not explicitly understood by `renv`. (#501)
 
-* `renv` now handles the `remotes` syntax for installing packages lying
-  within the sub-directory of a GitHub repository; that is,
+* `renv` now treats the user + site libraries as package sources during a
+  restore. If `renv` sees that a package already installed in one of these
+  libraries is compatible with the record requested via `renv::install()` or
+  `renv::restore()`, that copy of the package will be copied and used. (#492)
+  
+* `renv` now performs a lighter-weight check as to whether the project lockfile
+  is synchronized with the project library on load. The default value for the
+  `synchronized.check` R option has been changed back to `TRUE`. (#496)
+
+* `renv` now handles the `remotes` syntax for installing packages lying within
+  the sub-directory of a GitHub repository; that is,
   `renv::install("user/repo/subdir")` should work as expected. (#497)
 
-* Fixed an issue where `renv` did not construct the correct URL
-  for packages to be installed from Bitbucket remotes. (#494)
+* Fixed an issue where `renv` did not construct the correct URL for packages to
+  be installed from Bitbucket remotes. (#494)
 
-* Fixed an issue where the `RENV_PATHS_PREFIX` environment variable
-  was inappropriately normalized when `renv` was loaded. (#465)
+* Fixed an issue where the `RENV_PATHS_PREFIX` environment variable was
+  inappropriately normalized when `renv` was loaded. (#465)
   
 # renv 0.11.0
 

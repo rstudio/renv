@@ -157,10 +157,6 @@ install <- function(packages = NULL,
   records <- renv_retrieve(packages)
   renv_install(records, library)
 
-  # perform auto snapshot
-  if (library[[1]] == renv_paths_library(project = project))
-    renv_snapshot_auto(project = project)
-
   # check loaded packages and inform user if out-of-sync
   renv_install_postamble(names(records))
 
