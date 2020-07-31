@@ -174,7 +174,7 @@ config <- list(
     )
   },
 
-  synchronized.check = function(..., default = FALSE) {
+  synchronized.check = function(..., default = TRUE) {
     renv_config_get(
       name    = "synchronized.check",
       type    = "logical[1]",
