@@ -43,6 +43,9 @@ renv_lockfile_diff_impl <- function(lhs, rhs, compare) {
 
 renv_lockfile_diff_record <- function(before, after) {
 
+  before <- renv_record_normalize(before)
+  after  <- renv_record_normalize(after)
+
   # first, compare on version / record existence
   type <- case(
     is.null(before) ~ "install",

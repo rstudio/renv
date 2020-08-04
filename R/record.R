@@ -72,3 +72,13 @@ record <- function(records,
   invisible(lockfile)
 
 }
+
+renv_record_normalize <- function(record) {
+
+  # drop remotes from records with a repository source
+  if (identical(record$Source, "Repository"))
+    record <- record[grep("^Remote", names(record), invert = TRUE)]
+
+  record
+
+}
