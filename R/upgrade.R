@@ -138,6 +138,24 @@ renv_upgrade_find_record_default <- function() {
 }
 
 renv_upgrade_find_record_dev <- function(version = NULL) {
-  entry <- paste("rstudio/renv", version %||% "master", sep = "@")
+  version <- version %||% renv_upgrade_find_record_dev_latest()
+  entry <- paste("rstudio/renv", version, sep = "@")
   renv_remotes_resolve(entry)
+}
+
+
+renv_upgrade_find_record_dev_latest <- function() {
+
+  # download tags
+  url <- "https://api.github.com/repos/rstudio/renv/tags"
+  destfile <- tempfile("renv-tags-", fileext = ".json")
+  download(url, destfile = destfile, quiet = TRUE)
+  json <- renv_json_read(destfile)
+
+  # find latest version
+  names <- extract_chr(json, "name")
+  versions <- numeric_version(names, strict = FALSE)
+  latest <- sort(versions, decreasing = TRUE)[[1]]
+  names[versions %in% latest][[1L]]
+
 }
