@@ -15,6 +15,14 @@ renv_retrieve <- function(packages) {
     renv_scope_options(repos = renv_rspm_transform(repos))
   }
 
+  # ensure HTTPUserAgent is set (required for RSPM binaries)
+  agent <- renv_http_useragent()
+  if (!grepl("renv", agent)) {
+    renv <- sprintf("renv (%s)", renv_package_version("renv"))
+    agent <- paste(renv, agent, sep = "; ")
+  }
+  renv_scope_options(HTTPUserAgent = agent)
+
   # TODO: parallel?
   handler <- state$handler
   for (package in packages)

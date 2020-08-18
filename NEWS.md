@@ -1,6 +1,10 @@
 
 # renv 0.12.0 (UNRELEASED)
 
+* `renv` now prepends `renv (<version>)` to the user agent string. This should
+  help ensure that package binaries are located when installing packages from
+  RSPM outside of RStudio. (#520)
+
 * `renv` now uses a task callback to detect mutations to the project library
   when the `auto.snapshot` configuration option is enabled. This will help
   ensure that automatic snapshots occur when packages are installed via a
