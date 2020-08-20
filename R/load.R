@@ -312,35 +312,44 @@ renv_load_python_env <- function(fields, loader) {
 
 renv_load_switch <- function(project) {
 
+  # safety check: avoid recursive unload attempts
   unloading <- getOption("renv.unloading")
   if (identical(unloading, TRUE)) {
     fmt <- "ignoring recursive attempt to load project '%s'"
-    warningf(fmt, shQuote(aliased_path(project), type = "cmd"))
+    warningf(fmt, renv_path_pretty(project))
     return(project)
   }
 
+  # validate that this project has an activate script
   script <- file.path(project, "renv/activate.R")
   if (!file.exists(script)) {
     fmt <- "project %s has no activate script and so cannot be activated"
-    stopf(fmt, shQuote(aliased_path(project), type = "cmd"))
+    stopf(fmt, renv_path_pretty(project))
   }
 
+  # signal that we're unloading now
   renv_scope_options(renv.unloading = TRUE)
 
+  # perform the unload
   unload()
 
+  # unload the current version of renv (but keep track of position
+  # on search path in case we need to revert later)
   path <- renv_namespace_path("renv")
   pos <- match("package:renv", search())
   unloadNamespace("renv")
 
+  # move to new project directory
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
+  # source the activate script
   source("renv/activate.R")
 
+  # check and see if renv was successfully loaded
   if (!"renv" %in% loadedNamespaces()) {
     fmt <- "could not load renv from project %s; reloading previously-loaded renv"
-    warningf(fmt, shQuote(aliased_path(project), type = "cmd"))
+    warningf(fmt, renv_path_pretty(project))
     loadNamespace("renv", lib.loc = dirname(path))
     if (!is.na(pos)) {
       args <- list(package = "renv", pos = pos, character.only = TRUE)

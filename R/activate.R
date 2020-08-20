@@ -22,11 +22,21 @@
 #'
 #' }
 activate <- function(project = NULL) {
+
   renv_consent_check()
   renv_scope_error_handler()
+
   project <- renv_project_resolve(project)
-  renv_activate_impl(project, NULL, FALSE, FALSE)
+
+  renv_activate_impl(
+    project = project,
+    version = NULL,
+    restart = FALSE,
+    quiet   = FALSE
+  )
+
   invisible(project)
+
 }
 
 renv_activate_impl <- function(project, version, restart, quiet) {
@@ -37,11 +47,7 @@ renv_activate_impl <- function(project, version, restart, quiet) {
   # try to load the project
   load(project, quiet = quiet)
 
-  # ensure renv is installed
-  if (!renv_testing())
-    renv_imbue_self(project = project)
-
-  # restart session
+  # restart session if requested
   if (restart)
     renv_request_restart(project, reason = "renv activated")
 

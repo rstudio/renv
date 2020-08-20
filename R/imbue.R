@@ -14,9 +14,16 @@
 #'   `renv` will be retrieved from the `renv` public GitHub repository,
 #'   at <https://github.com/rstudio/renv>.
 #'
-imbue <- function(project = NULL, version = NULL) {
+#' @param quiet Boolean; avoid printing output during install of `renv`?
+#'
+imbue <- function(project = NULL,
+                  version = NULL,
+                  quiet   = FALSE)
+{
   renv_scope_error_handler()
   project <- renv_project_resolve(project)
+
+  renv_scope_options(renv.verbose = !quiet)
 
   vtext <- version %||% renv_package_version("renv")
   vwritef("Installing renv [%s] ...", vtext)
