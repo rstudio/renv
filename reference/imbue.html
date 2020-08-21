@@ -81,7 +81,7 @@ version of renv available within." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-24</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-27</span>
       </span>
     </div>
 
@@ -179,7 +179,7 @@ version of renv available within." />
 version of <code>renv</code> available within.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>imbue</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>imbue</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -196,6 +196,10 @@ directory is used instead.</p></td>
 of <code>renv</code> currently installed will be used. The requested version of
 <code>renv</code> will be retrieved from the <code>renv</code> public GitHub repository,
 at <a href='https://github.com/rstudio/renv'>https://github.com/rstudio/renv</a>.</p></td>
+    </tr>
+    <tr>
+      <th>quiet</th>
+      <td><p>Boolean; avoid printing output during install of <code>renv</code>?</p></td>
     </tr>
     </table>
 
