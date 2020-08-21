@@ -4,7 +4,7 @@
 \alias{imbue}
 \title{Imbue an renv Installation}
 \usage{
-imbue(project = NULL, version = NULL)
+imbue(project = NULL, version = NULL, quiet = FALSE)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -15,6 +15,8 @@ directory is used instead.}
 of \code{renv} currently installed will be used. The requested version of
 \code{renv} will be retrieved from the \code{renv} public GitHub repository,
 at \url{https://github.com/rstudio/renv}.}
+
+\item{quiet}{Boolean; avoid printing output during install of \code{renv}?}
 }
 \value{
 The project directory, invisibly. Note that this function is normally
