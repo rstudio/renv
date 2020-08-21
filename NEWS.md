@@ -1,6 +1,12 @@
 
 # renv 0.12.0 (UNRELEASED)
 
+* `renv` now uses R's internal tar implementation by default on Windows. This is
+  done to avoid issues that may occur when a version of `tar.exe` on the `PATH`
+  exists, but does not accept Windows-style paths. The `TAR` environment
+  variable can be set if one needs to explicitly force the use of a particular
+  version of `tar`. (#521)
+
 * `renv` now prepends `renv (<version>)` to the user agent string. This should
   help ensure that package binaries are located when installing packages from
   RSPM outside of RStudio. (#520)
