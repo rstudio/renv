@@ -158,6 +158,8 @@ test_that("permissions, timestamps are preserved", {
 
 test_that("renv can list files not representable in the native encoding", {
 
+  skip_if(renv_platform_unix() && !renv_l10n_utf8())
+
   renv_scope_tempdir()
   evil <- "\u9b3c"
 
