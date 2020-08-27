@@ -1,5 +1,5 @@
 
-# renv<a href="https://rstudio.github.io/renv"><img src="man/figures/logo.svg" align="right" height="115" /></a>
+# renv<a href="https://rstudio.github.io/renv/"><img src="man/figures/logo.svg" align="right" height="115" /></a>
 
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)

@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project Environments
-Version: 0.11.0-28
+Version: 0.11.0-29
 Authors@R: c(
     person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com"),
     person("RStudio", role = c("cph"))
@@ -11,7 +11,7 @@ Description: A dependency management toolkit for R. Using 'renv', you can create
     a 'lockfile', and later restore your library as required. Together, these
     tools can help make your projects more isolated, portable, and reproducible.
 License: MIT + file LICENSE
-URL: https://rstudio.github.io/renv
+URL: https://rstudio.github.io/renv/
 BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
 Suggests: covr, knitr, packrat, remotes, reticulate, rmarkdown, rstudioapi, testthat, uuid, yaml
