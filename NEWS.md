@@ -5,7 +5,7 @@
   done to avoid issues that may occur when a version of `tar.exe` on the `PATH`
   exists, but does not accept Windows-style paths. The `TAR` environment
   variable can be set if one needs to explicitly force the use of a particular
-  version of `tar`. (#521)
+  `tar.exe` executable. (#521)
 
 * `renv` now prepends `renv (<version>)` to the user agent string. This should
   help ensure that package binaries are located when installing packages from
@@ -23,7 +23,7 @@
   
 * `renv` now performs a lighter-weight check as to whether the project lockfile
   is synchronized with the project library on load. The default value for the
-  `synchronized.check` R option has been changed back to `TRUE`. (#496)
+  `synchronized.check` config option has been changed back to `TRUE`. (#496)
 
 * `renv` now handles the `remotes` syntax for installing packages lying within
   the sub-directory of a GitHub repository; that is,

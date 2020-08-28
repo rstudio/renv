@@ -238,10 +238,6 @@ renv_tests_init <- function() {
 
 }
 
-renv_tests_report <- function() {
-  Sys.getenv()
-}
-
 renv_testing <- function() {
   getOption("renv.testing", default = FALSE)
 }
@@ -369,86 +365,46 @@ renv_tests_diagnostics <- function() {
 
 }
 
-renv_tests_report <- function(result) {
+renv_tests_report <- function(test, elapsed, expectations) {
 
-  # group results based on file
-  files <- map_chr(result, `[[`, "file")
-  grouped <- split(result, files)
+  # figure out overall test result
+  status <- "PASS"
+  for (expectation in expectations) {
 
-  # sort by name
-  grouped <- grouped[order(names(grouped))]
-
-  # loop through files and print results
-  enumerate(grouped, renv_tests_report_impl)
-
-  # called for side effects; nothing to return
-  invisible(NULL)
-
-}
-
-renv_tests_report_impl <- function(file, tests) {
-
-  # write file header
-  if (requireNamespace("cli", quietly = TRUE))
-    cli::cat_rule(file)
-  else
-    writeLines(paste("#", file))
-
-  # write test results
-  map(tests, function(test) {
-
-    # figure out overall test status (check for a failure / skip)
-    status <- "PASS"
-
-    for (result in test$results) {
-
-      errors <- c("expectation_error", "expectation_failure")
-      if (inherits(result, errors)) {
-        status <- "FAIL"
-        break
-      }
-
-      if (inherits(result, "expectation_skip")) {
-        status <- "SKIP"
-        break
-      }
-
+    errors <- c("expectation_error", "expectation_failure")
+    if (inherits(expectation, errors)) {
+      status <- "FAIL"
+      break
     }
 
-    # get console width
-    width <- max(getOption("width"), 78L)
+    if (inherits(expectation, "expectation_skip")) {
+      status <- "SKIP"
+      break
+    }
 
-    # write out text with line
-    left <- trunc(test$test, width - 23L)
+  }
 
-    # figure out how long tests took to run
-    elapsed <- test$real
-    attr(elapsed, "units") <- "secs"
-    class(elapsed) <- "difftime"
+  # get console width
+  width <- max(getOption("width"), 78L)
 
-    # format elapsed time
-    elapsed <- format(elapsed, digits = 2L, width = 5L)
+  # write out text with line
+  left <- trunc(test, width - 23L)
 
-    # write formatted
-    fmt <- "[%s / %s]"
-    right <- sprintf(fmt, status, elapsed)
-
-    # fill space between with dots
-    dots <- rep.int(".", max(0L, width - nchar(left) - nchar(right) - 4L))
-    all <- paste(left, paste(dots, collapse = ""), right)
-
-    # write it out
-    if (requireNamespace("cli", quietly = TRUE))
-      cli::cat_bullet(all)
-    else
-      writeLines(paste("*", all))
-
-  })
-
-  # write an empty line
-  if (requireNamespace("cli", quietly = TRUE))
-    cli::cat_line()
+  # figure out how long tests took to run
+  time <- if (elapsed < 0.1)
+    "<0.1s"
   else
-    writeLines("")
+    format(renv_difftime_format_short(elapsed), width = 5L, justify = "right")
+
+  # write formatted
+  fmt <- "[%s / %s]"
+  right <- sprintf(fmt, status, time)
+
+  # fill space between with dots
+  dots <- rep.int(".", max(0L, width - nchar(left) - nchar(right) - 4L))
+  all <- paste(left, paste(dots, collapse = ""), right)
+
+  # write it out
+  cli::cat_bullet(all)
 
 }
