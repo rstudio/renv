@@ -276,7 +276,7 @@ renv_restore_remove <- function(project, package, lockfile) {
   paths <- renv_paths_library(project = project, package)
   recursive <- renv_file_type(paths) == "directory"
   unlink(paths, recursive = recursive)
-  vwritef("\tOK (removed from library)")
+  vwritef("\tOK [removed from library]")
   TRUE
 }
 

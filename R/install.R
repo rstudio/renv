@@ -331,7 +331,7 @@ renv_install_package_cache <- function(record, cache, linker) {
     identical(linker, renv_file_link) ~ "linked"
   )
 
-  vwritef("\tOK (%s cache)", type)
+  vwritef("\tOK [%s cache]", type)
 
   return(TRUE)
 

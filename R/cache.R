@@ -147,11 +147,22 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   if (linkable) {
     renv_file_move(path, cache)
     renv_file_link(cache, path, overwrite = TRUE)
-  } else {
-    vprintf("* Copying '%s' into the cache ... ", record$Package)
-    renv_file_copy(path, cache)
-    vwritef("Done!")
+    return(TRUE)
   }
+
+  # otherwise, copy into the cache (notifying as appropriate)
+  fmt <- "Copying %s [%s] into the cache ..."
+  vwritef(fmt, record$Package, record$Version)
+
+  before <- Sys.time()
+  renv_file_copy(path, cache)
+  after <- Sys.time()
+
+  files <- list.files(cache, recursive = TRUE)
+  time <- difftime(after, before, units = "auto")
+
+  fmt <- "\tOK [copied %s files in %s]"
+  vwritef(fmt, length(files), renv_difftime_format(time))
 
   TRUE
 
