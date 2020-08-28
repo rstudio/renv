@@ -6,8 +6,12 @@ context <- function(desc) {
 
 test_that <- function(desc, code) {
 
-  cran <- !identical(Sys.getenv("NOT_CRAN"), "true")
-  testthat::skip_if(cran && renv_platform_macos())
+  iscran <-
+    !identical(Sys.getenv("NOT_CRAN"), "true") &&
+    !identical(Sys.getenv("USER"), "kevinushey") &&
+    !identical(Sys.getenv("USER"), "kevin")
+
+  testthat::skip_if(iscran && renv_platform_macos())
 
   oldlibpaths <- .libPaths()
   oldrepos <- getOption("repos")

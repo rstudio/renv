@@ -1,7 +1,7 @@
 
 context("Archives")
 
-test_that("attempts to decompress invalid archives cause R errors to be reported", {
+test_that("renv reports errors when decompressing invalid archives", {
 
   badtar <- tempfile(fileext = ".tar")
   writeLines("oh no", con = badtar)
