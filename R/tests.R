@@ -182,7 +182,6 @@ renv_tests_init_packages <- function() {
     "rappdirs",
     "reticulate",
     "rmarkdown",
-    "testthat",
     "uuid",
     "yaml"
   )
