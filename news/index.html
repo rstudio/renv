@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-35</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.11.0-36</span>
       </span>
     </div>
 
@@ -176,11 +176,11 @@
 <a href="#renv-0-12-0-unreleased" class="anchor"></a>renv 0.12.0 (UNRELEASED)<small> Unreleased </small>
 </h1>
 <ul>
-<li><p><code>renv</code> now uses R’s internal tar implementation by default on Windows. This is done to avoid issues that may occur when a version of <code>tar.exe</code> on the <code>PATH</code> exists, but does not accept Windows-style paths. The <code>TAR</code> environment variable can be set if one needs to explicitly force the use of a particular version of <code>tar</code>. (<a href='https://github.com/rstudio/renv/issues/521'>#521</a>)</p></li>
+<li><p><code>renv</code> now uses R’s internal tar implementation by default on Windows. This is done to avoid issues that may occur when a version of <code>tar.exe</code> on the <code>PATH</code> exists, but does not accept Windows-style paths. The <code>TAR</code> environment variable can be set if one needs to explicitly force the use of a particular <code>tar.exe</code> executable. (<a href='https://github.com/rstudio/renv/issues/521'>#521</a>)</p></li>
 <li><p><code>renv</code> now prepends <code>renv (&lt;version&gt;)</code> to the user agent string. This should help ensure that package binaries are located when installing packages from RSPM outside of RStudio. (<a href='https://github.com/rstudio/renv/issues/520'>#520</a>)</p></li>
 <li><p><code>renv</code> now uses a task callback to detect mutations to the project library when the <code>auto.snapshot</code> configuration option is enabled. This will help ensure that automatic snapshots occur when packages are installed via a mechanism not explicitly understood by <code>renv</code>. (<a href='https://github.com/rstudio/renv/issues/501'>#501</a>)</p></li>
 <li><p><code>renv</code> now treats the user + site libraries as package sources during a restore. If <code>renv</code> sees that a package already installed in one of these libraries is compatible with the record requested via <code><a href="../reference/install.html">renv::install()</a></code> or <code><a href="../reference/restore.html">renv::restore()</a></code>, that copy of the package will be copied and used. (<a href='https://github.com/rstudio/renv/issues/492'>#492</a>)</p></li>
-<li><p><code>renv</code> now performs a lighter-weight check as to whether the project lockfile is synchronized with the project library on load. The default value for the <code>synchronized.check</code> R option has been changed back to <code>TRUE</code>. (<a href='https://github.com/rstudio/renv/issues/496'>#496</a>)</p></li>
+<li><p><code>renv</code> now performs a lighter-weight check as to whether the project lockfile is synchronized with the project library on load. The default value for the <code>synchronized.check</code> config option has been changed back to <code>TRUE</code>. (<a href='https://github.com/rstudio/renv/issues/496'>#496</a>)</p></li>
 <li><p><code>renv</code> now handles the <code>remotes</code> syntax for installing packages lying within the sub-directory of a GitHub repository; that is, <code><a href="../reference/install.html">renv::install("user/repo/subdir")</a></code> should work as expected. (<a href='https://github.com/rstudio/renv/issues/497'>#497</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> did not construct the correct URL for packages to be installed from Bitbucket remotes. (<a href='https://github.com/rstudio/renv/issues/494'>#494</a>)</p></li>
 <li><p>Fixed an issue where the <code>RENV_PATHS_PREFIX</code> environment variable was inappropriately normalized when <code>renv</code> was loaded. (<a href='https://github.com/rstudio/renv/issues/465'>#465</a>)</p></li>
