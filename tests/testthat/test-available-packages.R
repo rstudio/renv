@@ -5,7 +5,7 @@ test_that("renv_available_packages() errs on incorrect repository", {
   skip_on_cran()
 
   renv_scope_options(
-    renv.config.connect.timeout = 0L,
+    renv.config.connect.timeout = 1L,
     renv.config.connect.retry   = 0L,
     repos = c(CRAN = "https://www.example.com/no/such/repository")
   )
