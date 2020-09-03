@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
       </span>
     </div>
 
@@ -171,9 +171,18 @@
       <small>Source: <a href='https://github.com/rstudio/renv/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="renv-0-12-0-unreleased" class="section level1">
+    <div id="renv-0-12-1-unreleased" class="section level1">
+<h1 class="page-header" data-toc-text="0.12.1">
+<a href="#renv-0-12-1-unreleased" class="anchor"></a>renv 0.12.1 (UNRELEASED)<small> Unreleased </small>
+</h1>
+<ul>
+<li>
+<code>renv</code> now provides an optional locking mechanism, to help minimize the chance of interprocess conflicts when multiple R processes need to use the same <code>renv</code> project. The option is currently disabled by default; it can be enabled by setting <code><a href="https://rdrr.io/r/base/options.html">options(renv.config.locking.enabled = TRUE)</a></code> in an appropriate R startup file. (<a href='https://github.com/rstudio/renv/issues/525'>#525</a>)</li>
+</ul>
+</div>
+    <div id="renv-0-12-0" class="section level1">
 <h1 class="page-header" data-toc-text="0.12.0">
-<a href="#renv-0-12-0-unreleased" class="anchor"></a>renv 0.12.0 (UNRELEASED)<small> 2020-08-28 </small>
+<a href="#renv-0-12-0" class="anchor"></a>renv 0.12.0<small> 2020-08-28 </small>
 </h1>
 <ul>
 <li><p><code>renv</code> now uses R’s internal tar implementation by default on Windows. This is done to avoid issues that may occur when a version of <code>tar.exe</code> on the <code>PATH</code> exists, but does not accept Windows-style paths. The <code>TAR</code> environment variable can be set if one needs to explicitly force the use of a particular <code>tar.exe</code> executable. (<a href='https://github.com/rstudio/renv/issues/521'>#521</a>)</p></li>
