@@ -57,6 +57,7 @@ test_that("nested locks are handled correctly", {
 
 test_that("multiple calls to renv_scope_lock() do the right thing", {
 
+  renv_scope_options(renv.config.locking.enabled = TRUE)
   path <- renv_path_canonicalize(tempfile())
 
   local({
