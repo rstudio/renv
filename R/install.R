@@ -108,6 +108,8 @@ install <- function(packages = NULL,
   packages <- c(packages, dots[!nzchar(names(dots))])
 
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
+
   library <- library %||% renv_libpaths_all()
 
   type <- type %||% getOption("pkgType")

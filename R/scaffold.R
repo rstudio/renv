@@ -27,6 +27,7 @@ scaffold <- function(project = NULL,
   renv_scope_options(repos = repos)
 
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
 
   # install renv into project library
   renv <- renv_imbue_impl(project, version)

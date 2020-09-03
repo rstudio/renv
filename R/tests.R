@@ -18,6 +18,9 @@ renv_tests_scope <- function(packages = character()) {
   # set as active project
   Sys.setenv(RENV_PROJECT = dir)
 
+  # create empty renv directory
+  dir.create(file.path(dir, "renv"))
+
   # create file with dependencies
   code <- sprintf("library(%s)", packages)
   writeLines(code, "dependencies.R")
@@ -178,8 +181,10 @@ renv_tests_init_packages <- function() {
   # (as the sandbox will otherwise 'hide' these packages)
   packages <- c(
     "packrat",
+    "diffobj",
     "knitr",
     "rappdirs",
+    "rematch2",
     "reticulate",
     "rmarkdown",
     "uuid",

@@ -87,6 +87,7 @@ init <- function(project = NULL,
   renv_dots_check(...)
 
   project <- project %||% getwd()
+  renv_scope_lock(project = project)
 
   # prepare and move into project directory
   renv_init_validate_project(project, force)

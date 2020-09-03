@@ -17,6 +17,7 @@
 #' }
 isolate <- function(project = NULL) {
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
   settings$use.cache(FALSE)
   invisible(project)
 }

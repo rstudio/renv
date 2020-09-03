@@ -59,6 +59,8 @@ hydrate <- function(packages = NULL,
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
+
   library <- library %||% renv_libpaths_default()
   packages <- packages %||% renv_hydrate_packages(project, sources)
 

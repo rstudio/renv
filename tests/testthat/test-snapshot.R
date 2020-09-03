@@ -209,10 +209,12 @@ test_that("snapshot warns about unsatisfied dependencies", {
   toast$Depends <- "bread (> 1.0.0)"
   renv_dcf_write(toast, file = descpath)
 
-  expect_condition(
+  condition <- tryCatch(
     snapshot(),
-    class = "renv.snapshot.unsatisfied_dependencies"
+    renv.snapshot.unsatisfied_dependencies = identity
   )
+
+  expect_s3_class(condition, "renv.snapshot.unsatisfied_dependencies")
 
 })
 

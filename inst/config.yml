@@ -102,6 +102,17 @@
     were successfully downloaded and installed. This can be useful if you'd like to
     avoid mutating your project library if installation of one or more packages fails.
 
+- name: "locking.enabled"
+  type: "logical[1]"
+  default: false
+  description: >
+    Use interprocess locks when invoking methods which might mutate the project
+    library? Enable this to allow multiple processes to use the same `renv`
+    project, while minimizing risks relating to concurrent access to the
+    project library. Disable this if you encounter locking issues. Locks are stored
+    as files within the project at `renv/lock`; if you need to manually remove a
+    stale lock you can do so via `unlink("renv/lock")`.
+
 - name: "mran.enabled"
   type: "logical[1]"
   default: true

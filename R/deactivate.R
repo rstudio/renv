@@ -20,8 +20,11 @@
 #'
 #' }
 deactivate <- function(project = NULL) {
+
   renv_scope_error_handler()
+
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
 
   renv_infrastructure_remove_rprofile(project)
 
@@ -29,4 +32,5 @@ deactivate <- function(project = NULL) {
 
   renv_request_restart(project, reason = "renv deactivated")
   invisible(project)
+
 }

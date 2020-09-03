@@ -20,6 +20,7 @@
 modify <- function(project = NULL) {
   renv_scope_error_handler()
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
   renv_modify_impl(project)
   invisible(project)
 }

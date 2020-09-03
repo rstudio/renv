@@ -160,8 +160,10 @@ update <- function(packages = NULL,
   renv_scope_error_handler()
   renv_dots_check(...)
 
-  # get package records
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
+
+  # get package records
   library <- library %||% renv_libpaths_all()
   records <- renv_snapshot_r_packages(library = library, project = project)
   packages <- packages %||% setdiff(names(records), settings$ignored.packages(project = project))

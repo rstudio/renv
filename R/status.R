@@ -26,6 +26,8 @@ status <- function(project = NULL,
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
+
   renv_dependencies_scope(project, action = "status")
 
   library <- library %||% renv_libpaths_all()

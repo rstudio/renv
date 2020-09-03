@@ -23,7 +23,9 @@
 #'
 #' }
 load <- function(project = getwd(), quiet = FALSE) {
+
   renv_scope_error_handler()
+  renv_scope_lock(project = project)
 
   # if we're loading a project different from the one currently loaded,
   # then unload the current project and reload the requested one

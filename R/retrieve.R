@@ -123,18 +123,22 @@ renv_retrieve_impl <- function(package) {
   if (uselatest)
     record <- renv_available_packages_latest(record$Package)
 
-  # try some early shortcut methods
-  shortcuts <- c(
-    renv_retrieve_explicit,
-    renv_retrieve_local,
-    if (!renv_testing())
-      renv_retrieve_libpaths
-  )
+  if (!renv_restore_rebuild_required(record)) {
 
-  for (shortcut in shortcuts) {
-    retrieved <- catch(shortcut(record))
-    if (identical(retrieved, TRUE))
-      return(TRUE)
+    # try some early shortcut methods
+    shortcuts <- c(
+      renv_retrieve_explicit,
+      renv_retrieve_local,
+      if (!renv_testing())
+        renv_retrieve_libpaths
+    )
+
+    for (shortcut in shortcuts) {
+      retrieved <- catch(shortcut(record))
+      if (identical(retrieved, TRUE))
+        return(TRUE)
+    }
+
   }
 
   # time to retrieve -- delegate based on previously-determined source

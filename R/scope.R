@@ -312,3 +312,18 @@ renv_scope_bioconductor <- function(.envir = NULL) {
   renv_scope_options(repos = renv_vector_unique(biocrepos), .envir = .envir)
 
 }
+
+renv_scope_lock <- function(path = NULL,
+                            ...,
+                            project = NULL) {
+
+  if (!config$locking.enabled())
+    return(TRUE)
+
+  path <- path %||% renv_lock_path(project)
+  ensure_parent_directory(path)
+
+  callback <- renv_lock_create(path)
+  defer(callback(), envir = parent.frame())
+
+}

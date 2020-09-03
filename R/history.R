@@ -18,7 +18,9 @@
 history <- function(project = NULL) {
 
   renv_scope_error_handler()
+
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
 
   lockpath <- renv_lockfile_path(project)
   if (!file.exists(lockpath))
@@ -63,7 +65,9 @@ revert <- function(commit = "HEAD", ..., project = NULL) {
 
   renv_scope_error_handler()
   renv_dots_check(...)
+
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
 
   renv_git_preflight()
 

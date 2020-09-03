@@ -93,6 +93,8 @@ snapshot <- function(project  = NULL,
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
+
   library <- library %||% renv_libpaths_all()
 
   if (config$snapshot.validate())

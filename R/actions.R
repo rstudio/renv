@@ -11,6 +11,8 @@ actions <- function(action = c("snapshot", "restore"),
   project <- renv_project_resolve(project)
   library <- library %||% renv_libpaths_all()
 
+  renv_scope_lock(project = project)
+
   switch(
     action,
     snapshot = renv_actions_snapshot(project, library, lockfile, type),

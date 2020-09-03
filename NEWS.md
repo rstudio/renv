@@ -1,5 +1,13 @@
 
-# renv 0.12.0 (UNRELEASED)
+# renv 0.12.1 (UNRELEASED)
+
+* `renv` now provides an optional locking mechanism, to help minimize the
+  chance of interprocess conflicts when multiple R processes need to use the
+  same `renv` project. The option is currently disabled by default; it can be
+  enabled by setting `options(renv.config.locking.enabled = TRUE)` in an
+  appropriate R startup file. (#525)
+
+# renv 0.12.0
 
 * `renv` now uses R's internal tar implementation by default on Windows. This is
   done to avoid issues that may occur when a version of `tar.exe` on the `PATH`

@@ -120,6 +120,15 @@ config <- list(
     )
   },
 
+  locking.enabled = function(..., default = FALSE) {
+    renv_config_get(
+      name    = "locking.enabled",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   mran.enabled = function(..., default = TRUE) {
     renv_config_get(
       name    = "mran.enabled",
