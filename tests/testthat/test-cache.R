@@ -96,3 +96,23 @@ test_that("the cache is used even if RENV_PATHS_LIBRARY is non-canonical", {
   expect_true(renv_file_type(bread) == "symlink")
 
 })
+
+test_that("malformed folders in the cache are ignored", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  cachepath <- tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
+
+  badpath <- renv_paths_cache("a-b/c-d/e-f/g-h/i-j")
+  dir.create(dirname(badpath), recursive = TRUE)
+  file.create(badpath)
+
+  paths <- list.files(renv_paths_cache(), recursive = TRUE)
+  expect_length(paths, 1)
+
+  paths <- renv_cache_list()
+  expect_length(paths, 0)
+
+})

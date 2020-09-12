@@ -169,12 +169,24 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
 }
 
 renv_cache_list <- function(cache = NULL, packages = NULL) {
+
+  # get path to cache
   cache <- cache %||% renv_paths_cache()
+
+  # paths to packages in the cache have the following format:
+  #
+  #    <package>/<version>/<hash>/<package>
+  #
+  # so find entries in the cache by listing files in each directory
   names <- file.path(cache, packages %||% list.files(cache))
   versions <- list.files(names, full.names = TRUE)
   hashes <- list.files(versions, full.names = TRUE)
   paths <- list.files(hashes, full.names = TRUE)
-  paths
+
+  # only keep paths that appear to be valid
+  valid <- grep(renv_regexps_package_name(), basename(paths))
+  paths[valid]
+
 }
 
 renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
