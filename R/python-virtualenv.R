@@ -49,11 +49,10 @@ renv_python_virtualenv_create <- function(python, path) {
 
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
-
-  fmt <- "%s -m %s %s 2>&1"
   python <- renv_path_normalize(python)
-  cmd <- sprintf(fmt, shQuote(python), module, shQuote(path.expand(path)))
-  output <- system(cmd, intern = TRUE)
+
+  output <- system2(python, args = c("-m", module, path.expand(path)))
+  
   status <- attr(output, "status") %||% 0L
 
   if (status != 0L || !file.exists(path)) {
