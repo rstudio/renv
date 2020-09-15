@@ -245,8 +245,8 @@ renv_bootstrap_validate_version <- function(version) {
     paste("renv", loadedversion, sep = "@")
 
   fmt <- paste(
-    "renv %1$s was loaded from project library, but renv %2$s is recorded in lockfile.",
-    "Use `renv::record(\"%3$s\")` to record this version in the lockfile.",
+    "renv %1$s was loaded from project library, but this project is configured to use renv %2$s.",
+    "Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.",
     "Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
     sep = "\n"
   )
