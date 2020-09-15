@@ -67,7 +67,7 @@ The following \code{renv} configuration options are available:
 \cr
 \code{install.transactional} \tab \code{logical[1]} \tab \code{TRUE} \tab Perform a transactional install of packages during install and restore? When enabled, \code{renv} will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
 \cr
-\code{locking.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab Use interprocess locks for methods which might mutate the project library? Keep this enabled to allow multiple processes to use the same \code{renv} project while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues.
+\code{locking.enabled} \tab \code{logical[1]} \tab \code{FALSE} \tab Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same \code{renv} project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at \code{renv/lock}; if you need to manually remove a stale lock you can do so via \code{unlink("renv/lock")}.
 \cr
 \code{mran.enabled} \tab \code{logical[1]} \tab \code{TRUE} \tab Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN} during restore? See \code{vignette("mran", package = "renv")} for more details.
 \cr
