@@ -51,7 +51,7 @@ renv_python_virtualenv_create <- function(python, path) {
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
   python <- renv_path_normalize(python)
 
-  output <- system2(python, args = c("-m", module, path.expand(path)))
+  output <- system2(python, args = c("-m", module, shQuote(path.expand(path))))
   
   status <- attr(output, "status") %||% 0L
 
