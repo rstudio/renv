@@ -45,6 +45,7 @@
 #' The following methods are supported:
 #'
 #' \tabular{ll}{
+#' `auto`     \tab Use `robocopy` on Windows, and `cp` on Unix-alikes. \cr
 #' `R`        \tab Use \R's built-in `file.copy()` function. \cr
 #' `cp`       \tab Use `cp` to copy files. \cr
 #' `robocopy` \tab Use `robocopy` to copy files. (Only available on Windows.) \cr
@@ -76,7 +77,7 @@
 #' options(renv.config.auto.snapshot = FALSE)
 #'
 #' # disable with environment variable
-#' Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = "FALSE")
+#' Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = FALSE)
 #'
 #' @rdname config
 #' @name config

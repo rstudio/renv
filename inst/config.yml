@@ -4,7 +4,7 @@
   default: false
   description: >
     Automatically snapshot changes to the project library after a new package
-    is installed with `renv::install()`, or removed with `renv::remove()`?
+    is installed?
 
 - name: "bitbucket.host"
   type: "character[1]"
@@ -24,14 +24,14 @@
   default: 20
   description: >
     The amount of time to spend (in seconds) when attempting to download
-    a file. Only used when the `curl` downloader is used.
+    a file. Only applicable when the `curl` downloader is used.
 
 - name: "connect.retry"
   type: "integer[1]"
   default: 3
   description: >
     The number of times to attempt re-downloading a file, when transient
-    errors occur. Only used when the `curl` downloader is used.
+    download errors occur. Only applicable when the `curl` downloader is used.
 
 - name: "dependency.errors"
   type: "character[1]"
@@ -41,7 +41,7 @@
     dependencies. This option controls how errors that occur during this enumeration
     are handled. By default, errors are reported but are non-fatal. Set this to `"fatal"`
     to force errors to be fatal, and `"ignored"` to ignore errors altogether. See
-    [dependencies] for more details.
+    [`dependencies()`] for more details.
 
 - name: "external.libraries"
   type: "character[*]"
@@ -53,7 +53,7 @@
     library happen to be incompatible with packages in your external libraries; for
     example, if your project required `xyz 1.0` but `xyz 1.1` was present and loaded
     from an external library. Can also be an \R function that provides the paths to
-    external libraries. Library paths will be expanded through [.expand_R_libs_env_var]
+    external libraries. Library paths will be expanded via [`.expand_R_libs_env_var()`]
     as necessary.
 
 - name: "filebacked.cache"
@@ -82,15 +82,15 @@
   type: "character[*]"
   default: ~
   description: >
-    A character vector of library paths, to be used by `renv::hydrate()`
+    A character vector of library paths, to be used by [hydrate()]
     when attempting to hydrate projects. When empty, the default set of library paths
-    (as specified in `?hydrate`) are used instead. See [`hydrate`] for more details.
+    (as documented in `?hydrate`) are used instead. See [`hydrate()`] for more details.
 
 - name: "install.staged"
   type: "logical[1]"
   default: true
   description: >
-    DEPRECATED: Please use `install.transactional` instead.
+    DEPRECATED: Please use `renv.config.install.transactional` instead.
 
 - name: "install.transactional"
   type: "logical[1]"
@@ -111,7 +111,7 @@
     project, while minimizing risks relating to concurrent access to the
     project library. Disable this if you encounter locking issues. Locks are stored
     as files within the project at `renv/lock`; if you need to manually remove a
-    stale lock you can do so via `unlink("renv/lock")`.
+    stale lock you can do so via `unlink("renv/lock", recursive = TRUE)`.
 
 - name: "mran.enabled"
   type: "logical[1]"
@@ -124,7 +124,7 @@
   type: "character[*]"
   default: ~
   description: >
-    Override the R package repositories used during [`restore`]. Primarily
+    Override the R package repositories used during [`restore()`]? Primarily
     useful for deployment / continuous integration, where you might want to enforce
     the usage of some set of repositories over what is defined in `renv.lock` or otherwise
     set by the R session.
@@ -149,14 +149,19 @@
     with priority `"base"` or `"recommended"`, as reported by `installed.packages()`,
     are made available.)
 
+    Sandboxing is done by linking or copying system packages into a separate
+    library path, and then instructing R to use that library path as the system
+    library path. In some environments, this action can take a large amount of
+    time -- in such a case, you may want to disable the renv sandbox.
+
 - name: "shims.enabled"
   type: "logical[1]"
   default: true
   description: >
     Should `renv` shims be installed on package load? When enabled, `renv`
     will install its own shims over the functions `install.packages()`, `update.packages()`
-    and `remove.packages()`, delegating these functions to `renv::install()`, `renv::update()`
-    and `renv::remove()` as appropriate.
+    and `remove.packages()`, delegating these functions to [`renv::install()`],
+    [`renv::update()`] and [`renv::remove()`] as appropriate.
 
 - name: "snapshot.validate"
   type: "logical[1]"
@@ -197,7 +202,7 @@
     Include the user library on the library paths for your projects? Note
     that this risks breaking project encapsulation and is not recommended for projects
     which you intend to share or collaborate on with other users. See also the caveats
-    for the `external.libraries` option.
+    for the `renv.config.external.libraries` option.
 
 - name: "user.profile"
   type: "logical[1]"
