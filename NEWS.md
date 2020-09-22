@@ -1,6 +1,8 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv` now warns if sandbox generation takes a long time (> 30 seconds).
+
 * `renv` now provides an optional locking mechanism, to help minimize the
   chance of interprocess conflicts when multiple R processes need to use the
   same `renv` project. The option is currently disabled by default; it can be

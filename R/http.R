@@ -5,6 +5,7 @@ renv_http_useragent <- function() {
 }
 
 renv_http_useragent_default <- function() {
-  fmt <- "R (%s %s %s)"
-  sprintf(fmt,  getRversion(), R.version$platform, R.version$os)
+  version <- getRversion()
+  platform <- with(R.version, paste(version, platform, arch, os))
+  sprintf("R/%s R (%s)", version, platform)
 }

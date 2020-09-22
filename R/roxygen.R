@@ -44,8 +44,8 @@ renv_roxygen_config_section <- function() {
   # read config
   config <- yaml::read_yaml("inst/config.yml")
 
-  # generate table entries
-  rows <- map_chr(config, function(entry) {
+  # generate items
+  items <- map_chr(config, function(entry) {
 
     # extract fields
     name <- entry$name
@@ -60,8 +60,8 @@ renv_roxygen_config_section <- function() {
     )
 
     # generate table row
-    fmt <- "`%s` \\tab `%s` \\tab `%s` \\tab %s \\cr"
-    sprintf(fmt, name, type, default, description)
+    fmt <- "\\item{\\bold{\\code{renv.config.%s}}}{%s Defaults to \\code{%s}.}"
+    sprintf(fmt, name, description, default)
 
   })
 
@@ -70,9 +70,8 @@ renv_roxygen_config_section <- function() {
     "",
     "The following `renv` configuration options are available:",
     "",
-    "\\tabular{llll}{",
-    "**Name** \\tab **Type** \\tab **Default** \\tab **Description** \\cr",
-    rows,
+    "\\describe{",
+    items,
     "}",
     ""
   )
