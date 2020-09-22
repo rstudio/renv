@@ -50,11 +50,10 @@ renv_python_virtualenv_create <- function(python, path) {
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
   python <- renv_path_normalize(python)
+  args <- c("-m", module, shQuote(path.expand(path)))
+  output <- system2(python, args = args, stdout = TRUE, stderr = TRUE)
 
-  output <- system2(python, args = c("-m", module, shQuote(path.expand(path))))
-  
   status <- attr(output, "status") %||% 0L
-
   if (status != 0L || !file.exists(path)) {
     msg <- c("failed to create virtual environment", output)
     stop(paste(msg, collapse = "\n"), call. = FALSE)
