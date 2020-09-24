@@ -1,6 +1,10 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv` now ignores chunks with the parameter `exercise=TRUE` set, under the
+  assumption that such chunks might contain errors and so otherwise be
+  un-parsable.
+
 * `renv` now warns if sandbox generation takes a long time (> 30 seconds).
 
 * `renv` now provides an optional locking mechanism, to help minimize the

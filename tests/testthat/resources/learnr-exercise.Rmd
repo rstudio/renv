@@ -1,0 +1,8 @@
+
+```{r exercise=TRUE}
+x <- _____
+```
+
+```{r exercise=FALSE}
+library(A)
+```

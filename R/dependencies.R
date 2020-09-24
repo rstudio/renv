@@ -573,6 +573,16 @@ renv_dependencies_discover_chunks <- function(path) {
     if (identical(chunk$params$renv.ignore, TRUE))
       return(character())
 
+    # skip learnr exercises
+    if (identical(chunk$params$exercise, TRUE))
+      return(character())
+
+    # skip chunks whose labels end in '-display'
+    label <- chunk$params$label %||% ""
+    if (grepl("-display$", label))
+      return(character())
+
+    # okay, now we can discover deps
     deps <- catch(renv_dependencies_discover_r(path = path, text = chunk$code))
     if (inherits(deps, "error"))
       return(renv_dependencies_error(path, error = deps))

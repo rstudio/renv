@@ -253,3 +253,8 @@ test_that(".renvignore can be used to ignore all but certain files", {
   expect_false("oatmeal" %in% deps$Package)
 
 })
+
+test_that("exercise chunks are ignored", {
+  deps <- renv::dependencies("resources/learnr-exercise.Rmd")
+  expect_true("A" %in% deps$Package)
+})
