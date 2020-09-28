@@ -166,6 +166,22 @@ renv_use_python_virtualenv <- function(project, name, version = NULL, python = N
 
 renv_use_python_condaenv <- function(project, name, version = NULL, python = NULL) {
 
+  # if we can't load reticulate, try installing if there is a version
+  # recorded in the lockfile
+  if (!requireNamespace("reticulate", quietly = TRUE)) {
+
+    # retrieve reticulate record
+    lockfile <- renv_lockfile_load(project = project)
+    records <- renv_records(lockfile)
+    reticulate <- records[["reticulate"]]
+
+    # if we have a reticulate record, then attempt to restore
+    if (!is.null(reticulate))
+      restore(project = project, packages = "reticulate")
+
+  }
+
+  # try once more to load reticulate
   if (!requireNamespace("reticulate", quietly = TRUE))
     stopf("use of conda environments requires the 'reticulate' package")
 
