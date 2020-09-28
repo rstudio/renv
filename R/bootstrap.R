@@ -76,7 +76,7 @@ renv_bootstrap_download_cran_latest <- function(version) {
   message("* Downloading renv ", version, " from CRAN ... ", appendLF = FALSE)
 
   info <- tryCatch(
-    download.packages("renv", destdir = tempdir()),
+    download.packages("renv", destdir = tempdir(), quiet = TRUE),
     condition = identity
   )
 
