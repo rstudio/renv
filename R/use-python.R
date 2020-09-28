@@ -176,8 +176,15 @@ renv_use_python_condaenv <- function(project, name, version = NULL, python = NUL
     reticulate <- records[["reticulate"]]
 
     # if we have a reticulate record, then attempt to restore
-    if (!is.null(reticulate))
-      restore(project = project, packages = "reticulate")
+    if (!is.null(reticulate)) {
+      restore(packages = "reticulate",
+              prompt = FALSE,
+              project = project)
+    } else {
+      install(packages = "reticulate",
+              prompt = FALSE,
+              project = project)
+    }
 
   }
 
