@@ -52,6 +52,7 @@ local({
     return(TRUE)
 
   # load failed; attempt to bootstrap
+  message("Bootstrapping renv ", version, " ...")
   bootstrap(version, libpath)
 
   # exit early if we're just testing bootstrap

@@ -84,11 +84,19 @@ local({
   
   renv_bootstrap_download <- function(version) {
   
-    methods <- list(
-      renv_bootstrap_download_cran_latest,
-      renv_bootstrap_download_cran_archive,
-      renv_bootstrap_download_github
-    )
+    # if the renv version number has 4 components, assume it must
+    # be retrieved via github
+    nv <- numeric_version(version)
+    components <- unclass(nv)
+  
+    methods <- if (length(components) == 4L) {
+      list(renv_bootstrap_download_github)
+    } else {
+      list(
+        renv_bootstrap_download_cran_latest,
+        renv_bootstrap_download_cran_archive
+      )
+    }
   
     for (method in methods) {
       path <- tryCatch(method(version), error = identity)
@@ -114,7 +122,7 @@ local({
     message("* Downloading renv ", version, " from CRAN ... ", appendLF = FALSE)
   
     info <- tryCatch(
-      download.packages("renv", destdir = tempdir()),
+      download.packages("renv", destdir = tempdir(), quiet = TRUE),
       condition = identity
     )
   
@@ -326,6 +334,7 @@ local({
     return(TRUE)
 
   # load failed; attempt to bootstrap
+  message("Bootstrapping renv ", version, " ...")
   bootstrap(version, libpath)
 
   # exit early if we're just testing bootstrap

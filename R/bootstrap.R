@@ -46,11 +46,19 @@ renv_bootstrap_download_impl <- function(url, destfile) {
 
 renv_bootstrap_download <- function(version) {
 
-  methods <- list(
-    renv_bootstrap_download_cran_latest,
-    renv_bootstrap_download_cran_archive,
-    renv_bootstrap_download_github
-  )
+  # if the renv version number has 4 components, assume it must
+  # be retrieved via github
+  nv <- numeric_version(version)
+  components <- unclass(nv)
+
+  methods <- if (length(components) == 4L) {
+    list(renv_bootstrap_download_github)
+  } else {
+    list(
+      renv_bootstrap_download_cran_latest,
+      renv_bootstrap_download_cran_archive
+    )
+  }
 
   for (method in methods) {
     path <- tryCatch(method(version), error = identity)
