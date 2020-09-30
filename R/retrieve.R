@@ -300,7 +300,9 @@ renv_retrieve_git <- function(record) {
 
 }
 
-renv_retrieve_local_find <- function(record) {
+renv_retrieve_local_find <- function(record, project = NULL) {
+
+  project <- renv_project_resolve(project)
 
   # packages installed with 'remotes::install_local()' will
   # have a RemoteUrl entry that we can use
@@ -313,7 +315,7 @@ renv_retrieve_local_find <- function(record) {
 
   # otherwise, use the user's local packages
   roots <- c(
-    renv_paths_project("renv/local"),
+    renv_paths_project("renv/local", project = project),
     renv_paths_local()
   )
 

@@ -459,34 +459,8 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 }
 
 renv_snapshot_validate_sources <- function(project, lockfile, library) {
-
   records <- renv_records(lockfile)
-
-  if (renv_testing())
-    records$renv <- NULL
-
-  unknown <- filter(records, function(record) {
-    renv_record_source(record) == "unknown"
-  })
-
-  if (empty(unknown))
-    return(TRUE)
-
-  # nocov start
-  if (!renv_testing()) {
-    renv_pretty_print(
-      names(unknown),
-      "The following package(s) were installed from an unknown source:",
-      c(
-        "renv may be unable to restore these packages in the future.",
-        "Consider re-installing these packages from a known source (e.g. CRAN)."
-      )
-    )
-  }
-  # nocov end
-
-  FALSE
-
+  renv_check_unknown_source(records, project)
 }
 
 # NOTE: if packages are found in multiple libraries,

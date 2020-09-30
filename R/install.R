@@ -565,26 +565,7 @@ renv_install_postamble <- function(packages) {
 }
 
 renv_install_preflight_unknown_source <- function(records) {
-
-  unknown <- filter(records, function(record) {
-    renv_record_source(record) == "unknown"
-  })
-
-  if (empty(unknown))
-    return(TRUE)
-
-  # nocov start
-  if (renv_verbose()) {
-    renv_pretty_print_records(
-      unknown,
-      "The following package(s) were installed from an unknown source:",
-      "renv may be unable to restore these packages."
-    )
-  }
-  # nocov end
-
-  FALSE
-
+  renv_check_unknown_source(records)
 }
 
 renv_install_preflight_permissions <- function(library) {

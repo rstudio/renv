@@ -1,6 +1,9 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* Warnings related to unknown sources can now be suppressed by setting
+  `options(renv.warnings.unknown_sources = FALSE)`. (#546)
+
 * `renv` now ignores chunks with the parameter `exercise=TRUE` set, under the
   assumption that such chunks might contain errors and so otherwise be
   un-parsable.
