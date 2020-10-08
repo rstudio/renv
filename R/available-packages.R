@@ -350,7 +350,8 @@ renv_available_packages_latest_select <- function(src, bin) {
     )
 
     # if make is not available, then we can't build from source
-    if (!nzchar(Sys.getenv("MAKE", unset = "make")))
+    make <- Sys.getenv("MAKE", unset = "make")
+    if (!nzchar(Sys.which(make)))
       ipcfs <- "never"
 
     if (identical(ipcfs, "never"))

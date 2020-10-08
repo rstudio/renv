@@ -1,6 +1,10 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv` now only installs packages from sources if it detects that build tools
+  are available. This determination is done by checking whether `make` is
+  available on the `PATH`. (#552)
+  
 * Warnings related to unknown sources can now be suppressed by setting
   `options(renv.warnings.unknown_sources = FALSE)`. (#546)
 

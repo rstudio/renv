@@ -127,8 +127,13 @@ point to this mount. You can specify this when the container is launched.
 For example, if you had a container running a Shiny application:
 
 ```
+# the path to an renv cache on the host machine
 RENV_PATHS_CACHE_HOST=/opt/local/renv/cache
-RENV_PATHS_CACHE_CONTAINER=/renv/cache
+
+# the path to the cache within the container
+RENV_PATHS_CACHE_CONTAINER=/renv/cacheA
+
+# run the container with the host cache mounted in the container
 docker run --rm \
     -e "RENV_PATHS_CACHE=${RENV_PATHS_CACHE_CONTAINER}" \
     -v "${RENV_PATHS_CACHE_HOST}:${RENV_PATHS_CACHE_CONTAINER}" \
