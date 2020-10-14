@@ -1,6 +1,10 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv::dependencies()` now accepts an R function as the first argument,
+  for finding the packages used by a particular function. Currently,
+  package usages must be prefixed with `::` to be detected. (#554)
+
 * `renv::record(<package>)` now ensures that the latest-available version of
   that package is recorded in the lockfile. Previously, a package record
   without any specified version was added instead. For existing records

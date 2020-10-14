@@ -258,3 +258,8 @@ test_that("exercise chunks are ignored", {
   deps <- renv::dependencies("resources/learnr-exercise.Rmd")
   expect_true("A" %in% deps$Package)
 })
+
+test_that("dependencies in R functions can be found", {
+  deps <- renv::dependencies(function() bread::bread())
+  expect_true("bread" %in% deps$Package)
+})
