@@ -307,3 +307,27 @@ test_that(".renvignore works during snapshot without an explicit root", {
   expect_true(is.null(lockfile$Packages$bread))
 
 })
+
+test_that("snapshot(packages = ...) captures package dependencies", {
+
+  renv_tests_scope("breakfast")
+
+  # init to install required packages
+  init()
+
+  # remove old lockfile
+  unlink("renv.lock")
+
+  # create lockfile
+  snapshot(packages = "breakfast")
+
+  # check for expected records
+  lockfile <- renv_lockfile_load(project = getwd())
+  records <- renv_records(lockfile)
+
+  expect_true(!is.null(records$breakfast))
+  expect_true(!is.null(records$bread))
+  expect_true(!is.null(records$toast))
+  expect_true(!is.null(records$oatmeal))
+
+})
