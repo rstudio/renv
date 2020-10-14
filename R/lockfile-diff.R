@@ -91,3 +91,27 @@ renv_lockfile_override <- function(lockfile) {
   renv_records(lockfile) <- overrides
   lockfile
 }
+
+renv_lockfile_repair <- function(lockfile) {
+
+  records <- renv_records(lockfile)
+
+  # fix up records in lockfile
+  renv_records(lockfile) <- enumerate(records, function(package, record) {
+
+    # if this package is from a repository, but doesn't specify an explicit
+    # version, then use the latest-available version of that package
+    source <- renv_record_source_normalize(record, record$Source)
+    if (identical(source, "Repository") && is.null(record$Version)) {
+      entry <- renv_available_packages_latest(package)
+      record$Version <- entry$Version
+    }
+
+    # return normalized record
+    record
+
+  })
+
+  lockfile
+
+}

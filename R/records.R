@@ -231,7 +231,7 @@ renv_records_equal <- function(lhs, rhs) {
 
 }
 
-renv_records_resolve <- function(records) {
+renv_records_resolve <- function(records, latest = FALSE) {
 
   enumerate(records, function(package, record) {
 
@@ -246,7 +246,7 @@ renv_records_resolve <- function(records) {
       record <- paste(package, record, sep = "@")
 
     # resolve the record
-    renv_remotes_resolve(record)
+    renv_remotes_resolve(record, latest)
 
   })
 

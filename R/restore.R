@@ -89,6 +89,9 @@ restore <- function(project  = NULL,
   # inject overrides (if any)
   lockfile <- renv_lockfile_override(lockfile)
 
+  # repair potential issues in the lockfile
+  lockfile <- renv_lockfile_repair(lockfile)
+
   # override repositories if requested
   repos <- repos %||% config$repos.override() %||% lockfile$R$Repositories
 

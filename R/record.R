@@ -36,8 +36,8 @@ record <- function(records,
   lockfile <- lockfile %||% renv_lockfile_path(project)
 
   records <- case(
-    is.character(records) ~ lapply(records, renv_remotes_resolve),
-    is.list(records)      ~ renv_records_resolve(records),
+    is.character(records) ~ lapply(records, renv_remotes_resolve, latest = TRUE),
+    is.list(records)      ~ renv_records_resolve(records, latest = TRUE),
     ~ stopf("unexpected records format '%s'", typeof(records))
   )
 

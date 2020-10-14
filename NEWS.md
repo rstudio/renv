@@ -1,6 +1,12 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv::record(<package>)` now ensures that the latest-available version of
+  that package is recorded in the lockfile. Previously, a package record
+  without any specified version was added instead. For existing records
+  without a recorded version, the latest-available version on the package
+  repositories will be used during `restore()` instead. (#540)
+
 * `renv` now reads the default branch tagged for repositories created on GitHub,
   ensuring that calls of the form `renv::install("<user>/<repo>")` resolve to
   the declared default branch, rather than always defaulting to `"master"`.

@@ -168,3 +168,24 @@ test_that("restore ignores packages of incompatible architecture", {
   }
 
 })
+
+test_that("restore handled records without version set", {
+
+  renv_tests_scope()
+
+  # create dummy lockfile
+  snapshot()
+
+  # read lockfile and add record without version
+  lockfile <- renv_lockfile_load(project = getwd())
+  lockfile$Packages$bread <- list(Package = "bread", Source = "Repository")
+  renv_lockfile_save(lockfile, project = getwd())
+
+  # try to restore
+  restore()
+
+  # check for success
+  expect_true(renv_package_installed("bread"))
+  expect_equal(renv_package_version("bread"), "1.0.0")
+
+})

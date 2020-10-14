@@ -38,3 +38,20 @@ test_that("an existing lockfile can be updated", {
   expect_true(is.null(records$toast))
 
 })
+
+test_that("renv::record(<package>) also records version", {
+
+  renv_tests_scope()
+
+  # create empty lockfile
+  snapshot()
+
+  # add a record
+  record("breakfast")
+
+  # check that the version of breakfast was recorded
+  lockfile <- renv_lockfile_load(project = getwd())
+  breakfast <- lockfile$Packages$breakfast
+  expect_identical(breakfast$Version, "1.0.0")
+
+})

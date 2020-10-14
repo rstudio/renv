@@ -12,7 +12,7 @@ remote <- function(spec) {
 }
 
 # take a short-form remotes entry, and generate a package record
-renv_remotes_resolve <- function(entry) {
+renv_remotes_resolve <- function(entry, latest = FALSE) {
 
   # check for already-resolved lists
   if (is.list(entry))
@@ -43,13 +43,13 @@ renv_remotes_resolve <- function(entry) {
 
   # attempt the parse
   withCallingHandlers(
-    renv_remotes_resolve_impl(entry),
+    renv_remotes_resolve_impl(entry, latest),
     error = error
   )
 
 }
 
-renv_remotes_resolve_impl <- function(entry) {
+renv_remotes_resolve_impl <- function(entry, latest = FALSE) {
 
   parsed <- renv_remotes_parse(entry)
 
@@ -58,7 +58,7 @@ renv_remotes_resolve_impl <- function(entry) {
     bitbucket  = renv_remotes_resolve_bitbucket(parsed),
     gitlab     = renv_remotes_resolve_gitlab(parsed),
     github     = renv_remotes_resolve_github(parsed),
-    repository = renv_remotes_resolve_repository(parsed),
+    repository = renv_remotes_resolve_repository(parsed, latest),
     stopf("unknown remote type '%s'", parsed$type %||% "<NA>")
   )
 
@@ -211,7 +211,7 @@ renv_remotes_resolve_bitbucket <- function(entry) {
 
 }
 
-renv_remotes_resolve_repository <- function(entry) {
+renv_remotes_resolve_repository <- function(entry, latest) {
 
   package <- entry$package
   if (package %in% rownames(renv_installed_packages_base()))
@@ -219,6 +219,11 @@ renv_remotes_resolve_repository <- function(entry) {
 
   version <- entry$version
   repository <- entry$repository
+
+  if (latest && is.null(version)) {
+    entry <- renv_available_packages_latest(package)
+    version <- entry$Version
+  }
 
   list(
     Package    = package,
