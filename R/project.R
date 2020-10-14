@@ -159,14 +159,21 @@ renv_project_ignored_packages_self <- function(project) {
   if (renv_project_type(project) != "package")
     return(NULL)
 
+  # read current package
+  desc <- renv_description_read(project)
+  package <- desc[["Package"]]
+
+  # respect user preference if set
+  ignore <- getOption("renv.snapshot.ignore.self", default = NULL)
+  if (identical(ignore, TRUE))
+    return(package)
+  else if (identical(ignore, FALSE))
+    return(NULL)
+
   # don't ignore self in golem projets
   golem <- file.path(project, "inst/golem-config.yml")
   if (file.exists(golem))
     return(NULL)
-
-  # read current package
-  desc <- renv_description_read(project)
-  package <- desc[["Package"]]
 
   # hack for renv: don't depend on self
   if (identical(package, "renv"))
