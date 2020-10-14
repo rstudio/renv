@@ -1,6 +1,9 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv::snapshot()` no longer excludes the project itself, for `R` package
+  projects that use [golem](https://engineering-shiny.org/). (#538)
+  
 * The `renv` configuration option `cache.symlinks` can now be used to control
   whether `renv` used symlinks into the cache, as opposed to full package
   copies. Please see `?renv::config` for more details. (#556)
