@@ -1,6 +1,11 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv` now reads the default branch tagged for repositories created on GitHub,
+  ensuring that calls of the form `renv::install("<user>/<repo>")` resolve to
+  the declared default branch, rather than always defaulting to `"master"`.
+  (#557)
+
 * `renv` now only installs packages from sources if it detects that build tools
   are available. This determination is done by checking whether `make` is
   available on the `PATH`. (#552)
