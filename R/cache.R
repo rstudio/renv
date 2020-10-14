@@ -335,3 +335,11 @@ renv_cache_package_validate <- function(path) {
   FALSE
 
 }
+
+renv_cache_config_enabled <- function(project) {
+  config$cache.enabled() && settings$use.cache()
+}
+
+renv_cache_config_symlinks <- function(project) {
+  config$cache.symlinks() && settings$use.cache()
+}

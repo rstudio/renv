@@ -240,7 +240,7 @@ renv_status_check_synchronized <- function(project,
 
 renv_status_check_cache <- function(project) {
 
-  if (settings$use.cache(project = project))
+  if (renv_cache_config_enabled(project = project))
     renv_cache_diagnose()
 
 }

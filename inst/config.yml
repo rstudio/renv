@@ -33,6 +33,25 @@
     The number of times to attempt re-downloading a file, when transient
     download errors occur. Only applicable when the `curl` downloader is used.
 
+- name: "cache.enabled"
+  type: "logical[1]"
+  default: true
+  description: >
+    Enable the global `renv` package cache? When active, `renv` will install
+    packages into a global cache, and link or copy packages from the cache
+    into your \R library as appropriate. This can greatly save on disk space
+    and install time when \R packages are shared across multiple projects in
+    the same environment.
+
+- name: "cache.symlinks"
+  type: "logical[1]"
+  default: true
+  description: >
+    Symlink packages from the global `renv` package cache into your project
+    library? When `TRUE`, `renv` will use symlinks (or, on Windows, junction
+    points) to reference packages installed in the cache. Set this to `FALSE`
+    if you'd prefer to copy packages from the cache into your project library.
+
 - name: "dependency.errors"
   type: "character[1]"
   default: "reported"

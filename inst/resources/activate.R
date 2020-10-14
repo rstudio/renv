@@ -87,7 +87,7 @@ local({
     # if the renv version number has 4 components, assume it must
     # be retrieved via github
     nv <- numeric_version(version)
-    components <- unclass(nv)
+    components <- unclass(nv)[[1]]
   
     methods <- if (length(components) == 4L) {
       list(renv_bootstrap_download_github)

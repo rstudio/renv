@@ -10,6 +10,7 @@ snapshot(
   library = NULL,
   lockfile = file.path(project, "renv.lock"),
   type = settings$snapshot.type(project = project),
+  packages = NULL,
   prompt = interactive(),
   force = FALSE
 )
@@ -33,6 +34,12 @@ directly instead.}
 \item{type}{The type of snapshot to perform. See \strong{Snapshot Type} for
 more details. When \code{NULL} (the default), an "implicit"-style snapshot
 is performed.}
+
+\item{packages}{A vector of packages to be included in the lockfile. When
+\code{NULL} (the default), all packages relevant for the type of snapshot being
+performed will be included. When set, the \code{type} argument is ignored.
+Recursive dependencies of the specified packages will be added to the
+lockfile as well.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
@@ -100,6 +107,10 @@ in the lockfile.
 By default, \code{"implicit"}-style snapshots are used. The snapshot type can be
 configured on a project-specific basis using the \code{renv} project \link{settings}
 mechanism.
+
+When the \code{packages} argument is set, \code{type} is ignored, and instead only the
+requested set of packages, and their recursive dependencies, will be written
+to the lockfile.
 }
 
 \examples{

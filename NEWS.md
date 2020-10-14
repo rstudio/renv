@@ -1,6 +1,10 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* The `renv` configuration option `cache.symlinks` can now be used to control
+  whether `renv` used symlinks into the cache, as opposed to full package
+  copies. Please see `?renv::config` for more details. (#556)
+
 * `renv::snapshot()` gains the `packages` argument, to be used when creating a
   lockfile that captures a specific set of packages and their dependencies.
   `renv` will use the currently-installed versions of those packages when

@@ -80,7 +80,8 @@ hydrate <- function(packages = NULL,
 
   # copy packages from user library to cache
   linkable <-
-    settings$use.cache(project = project) &&
+    renv_cache_config_enabled(project = project) &&
+    renv_cache_config_symlinks(project = project) &&
     renv_path_same(library, renv_paths_library(project = project))
 
   if (linkable)

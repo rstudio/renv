@@ -328,7 +328,7 @@ renv_settings_impl <- function(name, validate, default, update) {
 #' }
 settings <- list(
 
-  ignored.packages   = renv_settings_impl(
+  ignored.packages = renv_settings_impl(
     name     = "ignored.packages",
     validate = is.character,
     default  = character(),

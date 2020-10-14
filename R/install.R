@@ -260,13 +260,14 @@ renv_install_impl <- function(record) {
   libpaths <- renv_global_get("library.paths") %||% renv_libpaths_all()
   library <- libpaths[[1]]
   linkable <-
-    settings$use.cache(project = project) &&
+    renv_cache_config_enabled(project = project) &&
+    renv_cache_config_symlinks(project = project) &&
     renv_path_same(library, renv_paths_library(project = project))
 
   linker <- if (linkable) renv_file_link else renv_file_copy
 
   cacheable <-
-    settings$use.cache(project = project) &&
+    renv_cache_config_enabled(project = project)
     renv_record_cacheable(record) &&
     !renv_restore_rebuild_required(record)
 
@@ -306,7 +307,7 @@ renv_install_impl <- function(record) {
   vwritef("\tOK [%s]", feedback)
 
   # link into cache
-  if (settings$use.cache(project = project))
+  if (renv_cache_config_enabled(project = project))
     renv_cache_synchronize(record, linkable = linkable)
 
 }

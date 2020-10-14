@@ -48,6 +48,24 @@ config <- list(
     )
   },
 
+  cache.enabled = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "cache.enabled",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
+  cache.symlinks = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "cache.symlinks",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   dependency.errors = function(..., default = "reported") {
     renv_config_get(
       name    = "dependency.errors",

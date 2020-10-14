@@ -19,6 +19,20 @@ called for its side effects.
 Copy packages from the \code{renv} cache directly into the project library, so
 that the project can continue to function independently of the \code{renv} cache.
 }
+\details{
+After calling \code{isolate()}, \code{renv} will still be able to use the cache on
+future \code{\link[=install]{install()}}s and \code{\link[=restore]{restore()}}s. If you'd prefer that \code{renv} copy
+packages from the cache, rather than use symlinks, you can set the \code{renv}
+configuration option:\preformatted{options(renv.config.cache.symlinks = FALSE)
+}
+
+to force \code{renv} to copy packages from the cache, as opposed to symlinking
+them. If you'd like to disable the cache altogether for a project, you can
+use:\preformatted{settings$use.cache(FALSE)
+}
+
+to explicitly disable the cache for the project.
+}
 \examples{
 \dontrun{
 
