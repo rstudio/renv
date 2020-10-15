@@ -82,19 +82,13 @@ state of your default R libraries for use within a project library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -181,7 +175,7 @@ packages into the active library. This effectively allows you to clone the
 state of your default <span style="R">R</span> libraries for use within a project library.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>hydrate</span>(<span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>, <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sources</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>hydrate</span><span class='op'>(</span>packages <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, library <span class='op'>=</span> <span class='cn'>NULL</span>, sources <span class='op'>=</span> <span class='cn'>NULL</span>, project <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -245,12 +239,13 @@ installed in your user library, then it will attempt to install those
 packages from the active R repositories.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
 <span class='co'># hydrate the active library</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>hydrate</span>()
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>hydrate</span><span class='op'>(</span><span class='op'>)</span>
 
-}</div></pre>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -266,7 +261,7 @@ packages from the active R repositories.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

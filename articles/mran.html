@@ -38,18 +38,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -123,7 +117,8 @@
 
       
 
-      </header><div class="row">
+      </header><script src="mran_files/header-attrs-2.4.5/header-attrs.js"></script><link href="mran_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="mran_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using MRAN Binaries</h1>
@@ -141,11 +136,11 @@
 <p>Starting with <code>renv 0.10.0</code>, <code>renv</code> can also make use of MRAN binary packages when restoring packages on Windows and macOS. When invoking <code><a href="../reference/install.html">renv::install()</a></code> or <code><a href="../reference/restore.html">renv::restore()</a></code>, <code>renv</code> will attempt to install the package from the latest-available MRAN snapshot that still had this package available.</p>
 <p>As an example, the <code>stringi</code> package was updated from version <code>1.4.5</code> to version <code>1.4.6</code> on 2020-02-17, and binaries for that version of <code>stringi</code> were made available for macOS on 2020-02-20. Because of this, the last date on which <code>stringi 1.4.5</code> macOS binaries were available on CRAN was <code>2020-02-19</code>.</p>
 <p>Fortunately, because MRAN snapshotted CRAN on this date, we can retrieve that binary. For example, on macOS with R 3.6:</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r">&gt; renv::install("stringi@1.4.5")
-Retrieving 'https://mran.microsoft.com/snapshot/2020-02-19/bin/macosx/el-capitan/contrib/3.6/stringi_1.4.5.tgz' ...
-    OK [file is up to date]
-Installing stringi [1.4.5] ...
-    OK [installed binary]</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="op">&gt;</span><span class="st"> </span>renv<span class="op">::</span><span class="kw">install</span>(<span class="st">"stringi@1.4.5"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>Retrieving <span class="st">'https://mran.microsoft.com/snapshot/2020-02-19/bin/macosx/el-capitan/contrib/3.6/stringi_1.4.5.tgz'</span> ...</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    OK [file is up to date]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>Installing stringi [<span class="dv">1</span>.<span class="fl">4.5</span>] ...</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    OK [installed binary]</span></code></pre></div>
 <p>When binaries are available from MRAN, <code>renv</code> should transparently download and use them when possible. When binaries are not available, <code>renv</code> will fall back to the old behavior, and attempt to install packages from sources.</p>
 <p>If you prefer not to make use of MRAN (e.g. because you are using <code>renv</code> in an environment without external internet access), you can disable it with:</p>
 <pre><code><a href="https://rdrr.io/r/base/options.html">options(renv.config.mran.enabled = FALSE)</a></code></pre>
@@ -165,7 +160,7 @@ Installing stringi [1.4.5] ...
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

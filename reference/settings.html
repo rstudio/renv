@@ -81,19 +81,13 @@ renv with your particular project." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -179,7 +173,7 @@ renv with your particular project." />
 <code>renv</code> with your particular project.</p>
     </div>
 
-    <pre class="usage"><span class='no'>settings</span></pre>
+    <pre class="usage"><span class='va'>settings</span></pre>
 
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
@@ -190,7 +184,7 @@ renv with your particular project." />
     
 
 
-<dl'>
+<dl>
 
 <dt><code>external.libraries</code></dt><dd><p>A vector of library paths, to be used in addition to the project's own
 private library. This can be useful if you have a package available for use
@@ -233,8 +227,9 @@ projects in the same environment.</p></dd>
 projects by setting <span style="R">R</span> options for <code>renv.settings</code> or <code>renv.settings.&lt;name&gt;</code>.
 For example:</p>
 <pre>
-<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.settings</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>snapshot.type</span> <span class='kw'>=</span> <span class='st'>"all"</span>))
-<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.settings.snapshot.type</span> <span class='kw'>=</span> <span class='st'>"all"</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>renv.settings <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>snapshot.type <span class='op'>=</span> <span class='st'>"all"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>renv.settings.snapshot.type <span class='op'>=</span> <span class='st'>"all"</span><span class='op'>)</span>
+</pre>
 
 <p>If both of the <code>renv.settings</code> and <code>renv.settings.&lt;name&gt;</code> options are set
 for a particular key, the option associated with <code>renv.settings.&lt;name&gt;</code> is
@@ -243,15 +238,16 @@ e.g. <code>~/.Rprofile</code> or similar.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
 <span class='co'># view currently-ignored packaged</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'>settings</span>$<span class='fu'>ignored.packages</span>()
+<span class='fu'>renv</span><span class='fu'>::</span><span class='va'>settings</span><span class='op'>$</span><span class='fu'>ignored.packages</span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># ignore a set of packages</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='no'>settings</span>$<span class='fu'>ignored.packages</span>(<span class='st'>"devtools"</span>, <span class='kw'>persist</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>renv</span><span class='fu'>::</span><span class='va'>settings</span><span class='op'>$</span><span class='fu'>ignored.packages</span><span class='op'>(</span><span class='st'>"devtools"</span>, persist <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-}</div></pre>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -267,7 +263,7 @@ e.g. <code>~/.Rprofile</code> or similar.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

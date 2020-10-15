@@ -79,19 +79,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -171,18 +165,9 @@
       <small>Source: <a href='https://github.com/rstudio/renv/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="renv-0-12-1-unreleased" class="section level1">
-<h1 class="page-header" data-toc-text="0.12.1">
-<a href="#renv-0-12-1-unreleased" class="anchor"></a>renv 0.12.1 (UNRELEASED)<small> Unreleased </small>
-</h1>
-<ul>
-<li>
-<code>renv</code> now provides an optional locking mechanism, to help minimize the chance of interprocess conflicts when multiple R processes need to use the same <code>renv</code> project. The option is currently disabled by default; it can be enabled by setting <code><a href="https://rdrr.io/r/base/options.html">options(renv.config.locking.enabled = TRUE)</a></code> in an appropriate R startup file. (<a href='https://github.com/rstudio/renv/issues/525'>#525</a>)</li>
-</ul>
-</div>
-    <div id="renv-0-12-0" class="section level1">
+    <div id="renv-0120-unreleased" class="section level1">
 <h1 class="page-header" data-toc-text="0.12.0">
-<a href="#renv-0-12-0" class="anchor"></a>renv 0.12.0<small> 2020-08-28 </small>
+<a href="#renv-0120-unreleased" class="anchor"></a>renv 0.12.0 (UNRELEASED)<small> 2020-08-28 </small>
 </h1>
 <ul>
 <li><p><code>renv</code> now uses R’s internal tar implementation by default on Windows. This is done to avoid issues that may occur when a version of <code>tar.exe</code> on the <code>PATH</code> exists, but does not accept Windows-style paths. The <code>TAR</code> environment variable can be set if one needs to explicitly force the use of a particular <code>tar.exe</code> executable. (<a href='https://github.com/rstudio/renv/issues/521'>#521</a>)</p></li>
@@ -195,9 +180,9 @@
 <li><p>Fixed an issue where the <code>RENV_PATHS_PREFIX</code> environment variable was inappropriately normalized when <code>renv</code> was loaded. (<a href='https://github.com/rstudio/renv/issues/465'>#465</a>)</p></li>
 </ul>
 </div>
-    <div id="renv-0-11-0" class="section level1">
+    <div id="renv-0110" class="section level1">
 <h1 class="page-header" data-toc-text="0.11.0">
-<a href="#renv-0-11-0" class="anchor"></a>renv 0.11.0<small> 2020-06-26 </small>
+<a href="#renv-0110" class="anchor"></a>renv 0.11.0<small> 2020-06-26 </small>
 </h1>
 <ul>
 <li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install(..., type = "binary")</a></code> would still attempt to install packages from sources in some cases. (<a href='https://github.com/rstudio/renv/issues/461'>#461</a>)</p></li>
@@ -219,9 +204,9 @@
 <li><p><code>renv</code> now records the <code>OS_type</code> reported in a package’s <code>DESCRIPTION</code> file (if any), and ignores packages incompatible with the current operating system during restore. (<a href='https://github.com/rstudio/renv/issues/394'>#394</a>)</p></li>
 </ul>
 </div>
-    <div id="renv-0-10-0" class="section level1">
+    <div id="renv-0100" class="section level1">
 <h1 class="page-header" data-toc-text="0.10.0">
-<a href="#renv-0-10-0" class="anchor"></a>renv 0.10.0<small> 2020-05-06 </small>
+<a href="#renv-0100" class="anchor"></a>renv 0.10.0<small> 2020-05-06 </small>
 </h1>
 <ul>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> gains the <code>type</code> argument, used to control whether <code>renv</code> should attempt to install packages from sources (<code>"source"</code>) or using binaries (<code>"binary"</code>).</p></li>
@@ -237,7 +222,7 @@
 <li><p>Fixed an issue where empty records within a DESCRIPTION file could cause <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> to fail. (<a href='https://github.com/rstudio/renv/issues/382'>#382</a>)</p></li>
 <li><p>renv will now download binaries of older packages from MRAN when possible.</p></li>
 <li><p>renv will now attempt to re-generate the system library sandbox if it is deleted while a session is active. (<a href='https://github.com/rstudio/renv/issues/361'>#361</a>)</p></li>
-<li><p>Fixed an issue where Python packages referenced using <code><a href="https://rdrr.io/pkg/reticulate/man/import.html">reticulate::import()</a></code> were incorrectly tagged as R package dependencies. Similarly, <code>renv</code> now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (<a href='https://github.com/rstudio/renv/issues/359'>#359</a>)</p></li>
+<li><p>Fixed an issue where Python packages referenced using <code>reticulate::import()</code> were incorrectly tagged as R package dependencies. Similarly, <code>renv</code> now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (<a href='https://github.com/rstudio/renv/issues/359'>#359</a>)</p></li>
 <li><p><code><a href="../reference/scaffold.html">renv::scaffold()</a></code> now also generates a lockfile when invoked. (<a href='https://github.com/rstudio/renv/issues/351'>#351</a>)</p></li>
 <li><p>The argument <code>confirm</code> has been renamed to <code>prompt</code> in all places where it is used. <code>confirm</code> remains supported for backwards compatibility, but is no longer explicitly documented. (<a href='https://github.com/rstudio/renv/issues/347'>#347</a>)</p></li>
 <li><p>The continuous integration <code>renv</code> vignette now also contains a template for using <code>renv</code> together with GitLab CI. (<a href='https://github.com/rstudio/renv/issues/348'>#348</a>, <a href='https://github.com/artemklevtsov'>@artemklevtsov</a>)</p></li>
@@ -251,13 +236,13 @@
 <li><p><code>renv</code> no longer unsets an error handler set within the user profile when loading a project. (<a href='https://github.com/rstudio/renv/issues/343'>#343</a>)</p></li>
 <li><p><code>renv</code> gains the “explicit” snapshot type, wherein only packages explicitly listed as dependencies within the project <code>DESCRIPTION</code> file (and those package’s transitive dependencies) will enter the lockfile when <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is called. (<a href='https://github.com/rstudio/renv/issues/338'>#338</a>)</p></li>
 <li><p><code>renv</code> will now transform RSPM source URLs into binary URLs as appropriate, allowing <code>renv</code> to use RSPM’s binary repositories during restore. See <code><a href="../reference/config.html">?config</a></code> for more details. (<a href='https://github.com/rstudio/renv/issues/124'>#124</a>)</p></li>
-<li><p><code>renv</code> will now infer a dependency on <code>hexbin</code> in projects that make use of the <code>ggplot2::geom_hex()</code> function.</p></li>
+<li><p><code>renv</code> will now infer a dependency on <code>hexbin</code> in projects that make use of the <code><a href="https://ggplot2.tidyverse.org/reference/geom_hex.html">ggplot2::geom_hex()</a></code> function.</p></li>
 <li><p><code>renv</code> now tries to place Rtools on the PATH when a package is installed with the <code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages()</a></code> hook active. (<a href='https://github.com/rstudio/renv/issues/335'>#335</a>)</p></li>
 </ul>
 </div>
-    <div id="renv-0-9-3" class="section level1">
+    <div id="renv-093" class="section level1">
 <h1 class="page-header" data-toc-text="0.9.3">
-<a href="#renv-0-9-3" class="anchor"></a>renv 0.9.3<small> 2020-02-10 </small>
+<a href="#renv-093" class="anchor"></a>renv 0.9.3<small> 2020-02-10 </small>
 </h1>
 <ul>
 <li><p>Fixed an issue where attempts to specify <code>RENV_PATHS_RTOOLS</code> would be ignored by <code>renv</code>. (<a href='https://github.com/rstudio/renv/issues/335'>#335</a>)</p></li>
@@ -280,25 +265,25 @@
 <li><p><code>renv</code> now updates its local <code>.gitignore</code> file, when part of a git repository whose git root lives in a parent directory. (<a href='https://github.com/rstudio/renv/issues/300'>#300</a>)</p></li>
 </ul>
 </div>
-    <div id="renv-0-9-2" class="section level1">
+    <div id="renv-092" class="section level1">
 <h1 class="page-header" data-toc-text="0.9.2">
-<a href="#renv-0-9-2" class="anchor"></a>renv 0.9.2<small> 2019-12-09 </small>
+<a href="#renv-092" class="anchor"></a>renv 0.9.2<small> 2019-12-09 </small>
 </h1>
 <ul>
 <li>Fixed an issue in invoking <code>find</code> on Solaris.</li>
 </ul>
 </div>
-    <div id="renv-0-9-1" class="section level1">
+    <div id="renv-091" class="section level1">
 <h1 class="page-header" data-toc-text="0.9.1">
-<a href="#renv-0-9-1" class="anchor"></a>renv 0.9.1<small> 2019-12-09 </small>
+<a href="#renv-091" class="anchor"></a>renv 0.9.1<small> 2019-12-09 </small>
 </h1>
 <ul>
 <li>Fixed an issue in invoking <code>cp</code> on Solaris.</li>
 </ul>
 </div>
-    <div id="renv-0-9-0" class="section level1">
+    <div id="renv-090" class="section level1">
 <h1 class="page-header" data-toc-text="0.9.0">
-<a href="#renv-0-9-0" class="anchor"></a>renv 0.9.0<small> 2019-12-05 </small>
+<a href="#renv-090" class="anchor"></a>renv 0.9.0<small> 2019-12-05 </small>
 </h1>
 <ul>
 <li><p><code>renv</code> gains a new function <code><a href="../reference/record.html">renv::record()</a></code>, for recording new packages within an existing lockfile. This can be useful when one or more of the recorded packages need to be modified for some reason.</p></li>
@@ -324,9 +309,9 @@
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> disables staged package install when running with the Windows Subsystem for Linux. (<a href='https://github.com/rstudio/renv/issues/239'>#239</a>)</p></li>
 </ul>
 </div>
-    <div id="renv-0-8-3" class="section level1">
+    <div id="renv-083" class="section level1">
 <h1 class="page-header" data-toc-text="0.8.3">
-<a href="#renv-0-8-3" class="anchor"></a>renv 0.8.3<small> 2019-11-11 </small>
+<a href="#renv-083" class="anchor"></a>renv 0.8.3<small> 2019-11-11 </small>
 </h1>
 <ul>
 <li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> gains a new argument <code>dev</code>, indicating whether development dependencies should also be included in the set of discovered package dependencies. By default, only runtime dependencies will be reported.</p></li>
@@ -344,25 +329,25 @@
 <li><p>Fixed an issue where attempts to call <code><a href="../reference/restore.html">renv::restore()</a></code> with the path to the lockfile explicitly provided would fail. (<a href='https://github.com/rstudio/renv/issues/227'>#227</a>)</p></li>
 </ul>
 </div>
-    <div id="renv-0-8-2" class="section level1">
+    <div id="renv-082" class="section level1">
 <h1 class="page-header" data-toc-text="0.8.2">
-<a href="#renv-0-8-2" class="anchor"></a>renv 0.8.2<small> 2019-10-26 </small>
+<a href="#renv-082" class="anchor"></a>renv 0.8.2<small> 2019-10-26 </small>
 </h1>
 <ul>
 <li>Further fixes for checks run on CRAN.</li>
 </ul>
 </div>
-    <div id="renv-0-8-1" class="section level1">
+    <div id="renv-081" class="section level1">
 <h1 class="page-header" data-toc-text="0.8.1">
-<a href="#renv-0-8-1" class="anchor"></a>renv 0.8.1<small> 2019-10-25 </small>
+<a href="#renv-081" class="anchor"></a>renv 0.8.1<small> 2019-10-25 </small>
 </h1>
 <ul>
 <li>Fixes for checks run on CRAN.</li>
 </ul>
 </div>
-    <div id="renv-0-8-0" class="section level1">
+    <div id="renv-080" class="section level1">
 <h1 class="page-header" data-toc-text="0.8.0">
-<a href="#renv-0-8-0" class="anchor"></a>renv 0.8.0<small> 2019-10-25 </small>
+<a href="#renv-080" class="anchor"></a>renv 0.8.0<small> 2019-10-25 </small>
 </h1>
 <ul>
 <li>Initial CRAN release.</li>
@@ -385,7 +370,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

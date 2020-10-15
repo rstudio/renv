@@ -80,19 +80,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -177,10 +171,10 @@
     <p>Migrate a project's infrastructure from Packrat to <code>renv</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>migrate</span>(
-  <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>packrat</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"lockfile"</span>, <span class='st'>"sources"</span>, <span class='st'>"library"</span>, <span class='st'>"options"</span>, <span class='st'>"cache"</span>)
-)</pre>
+    <pre class="usage"><span class='fu'>migrate</span><span class='op'>(</span>
+  project <span class='op'>=</span> <span class='cn'>NULL</span>,
+  packrat <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"lockfile"</span>, <span class='st'>"sources"</span>, <span class='st'>"library"</span>, <span class='st'>"options"</span>, <span class='st'>"cache"</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -227,12 +221,13 @@ library.</td></tr>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
 <span class='co'># migrate Packrat project infrastructure to renv</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>migrate</span>()
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>migrate</span><span class='op'>(</span><span class='op'>)</span>
 
-}</div></pre>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -248,7 +243,7 @@ library.</td></tr>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

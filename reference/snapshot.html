@@ -82,19 +82,13 @@ project's dependencies as required." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -181,15 +175,15 @@ project's dependencies as required." />
 project's dependencies as required.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>snapshot</span>(
-  <span class='kw'>project</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>library</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>lockfile</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>project</span>, <span class='st'>"renv.lock"</span>),
-  <span class='kw'>type</span> <span class='kw'>=</span> <span class='no'>settings</span>$<span class='fu'>snapshot.type</span>(<span class='kw'>project</span> <span class='kw'>=</span> <span class='no'>project</span>),
-  <span class='kw'>prompt</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span>(),
-  <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>snapshot</span><span class='op'>(</span>
+  project <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>,
+  library <span class='op'>=</span> <span class='cn'>NULL</span>,
+  lockfile <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>project</span>, <span class='st'>"renv.lock"</span><span class='op'>)</span>,
+  type <span class='op'>=</span> <span class='va'>settings</span><span class='op'>$</span><span class='fu'>snapshot.type</span><span class='op'>(</span>project <span class='op'>=</span> <span class='va'>project</span><span class='op'>)</span>,
+  prompt <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span>,
+  force <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -250,7 +244,7 @@ lockfile.</p>
 
 <p>Depending on how you prefer to manage dependencies, you might prefer
 selecting a different snapshot mode. The modes available are as follows:</p>
-<dl'>
+<dl>
 
 <dt><code>"all"</code></dt><dd><p>Capture all packages within the active <span style="R">R</span> libraries in the lockfile.
 This is the quickest and simplest method, but may lead to undesired
@@ -292,34 +286,35 @@ mechanism.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
 <span class='co'># disable automatic snapshots</span>
-<span class='no'>auto.snapshot</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"renv.config.auto.snapshot"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='va'>auto.snapshot</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"renv.config.auto.snapshot"</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>renv.config.auto.snapshot <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
 <span class='co'># initialize a new project (with an empty R library)</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='init.html'>init</a></span>(<span class='kw'>bare</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'><a href='init.html'>init</a></span><span class='op'>(</span>bare <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'># install digest 0.6.19</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='install.html'>install</a></span>(<span class='st'>"digest@0.6.19"</span>)
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'><a href='install.html'>install</a></span><span class='op'>(</span><span class='st'>"digest@0.6.19"</span><span class='op'>)</span>
 
 <span class='co'># save library state to lockfile</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'>snapshot</span>()
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>snapshot</span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># remove digest from library</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='remove.html'>remove</a></span>(<span class='st'>"digest"</span>)
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'><a href='remove.html'>remove</a></span><span class='op'>(</span><span class='st'>"digest"</span><span class='op'>)</span>
 
 <span class='co'># check library status</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='status.html'>status</a></span>()
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'><a href='status.html'>status</a></span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># restore lockfile, thereby reinstalling digest 0.6.19</span>
-<span class='kw pkg'>renv</span><span class='kw ns'>::</span><span class='fu'><a href='restore.html'>restore</a></span>()
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'><a href='restore.html'>restore</a></span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># restore automatic snapshots</span>
-<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span>(<span class='kw'>renv.config.auto.snapshot</span> <span class='kw'>=</span> <span class='no'>auto.snapshot</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>renv.config.auto.snapshot <span class='op'>=</span> <span class='va'>auto.snapshot</span><span class='op'>)</span>
 
-}</div></pre>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -335,7 +330,7 @@ mechanism.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

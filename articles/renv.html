@@ -38,18 +38,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -123,13 +117,14 @@
 
       
 
-      </header><div class="row">
+      </header><script src="renv_files/header-attrs-2.4.5/header-attrs.js"></script><link href="renv_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="renv_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to renv</h1>
                         <h4 class="author">Kevin Ushey</h4>
             
-            <h4 class="date">2020-09-03</h4>
+            <h4 class="date">2020-10-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/renv.Rmd"><code>vignettes/renv.Rmd</code></a></small>
       <div class="hidden name"><code>renv.Rmd</code></div>
@@ -258,7 +253,7 @@ options(repos = repos)</code></pre>
 <a href="#upgrading-renv" class="anchor"></a>Upgrading renv</h2>
 <p>After initializing a project with <code>renv</code>, that project will then be ‘bound’ to the particular version of <code>renv</code> that was used to initialize the project. If you need to upgrade (or otherwise change) the version of <code>renv</code> associated with a project, you can use <code><a href="../reference/upgrade.html">renv::upgrade()</a></code>. This will install the latest version of the <code>renv</code></p>
 <p>With each commit of <code>renv</code>, we bump the package version and also tag the commit with the associated package version. This implies that you can call, for example:</p>
-<pre><code><a href="../reference/upgrade.html">renv::upgrade(version = "0.12.0-3")</a></code></pre>
+<pre><code><a href="../reference/upgrade.html">renv::upgrade(version = "0.12.0")</a></code></pre>
 <p>to request the installation of that particular version of <code>renv</code> if so required.</p>
 </div>
 <div id="cache" class="section level2">
@@ -269,7 +264,7 @@ options(repos = repos)</code></pre>
 <li><p>Future calls to <code><a href="../reference/restore.html">renv::restore()</a></code> and <code><a href="../reference/install.html">renv::install()</a></code> will become much faster, as <code>renv</code> will be able to find and re-use packages already installed in the cache.</p></li>
 <li><p>Because it is not necessary to have duplicate versions of your packages installed in each project, the <code>renv</code> cache should also help you save disk space relative to an approach with project-specific libraries without a global cache.</p></li>
 </ol>
-<p>To understand the <code>renv</code> cache, we need to first understand what an R <em>library</em> is. An R library is, normally, a directory of installed R packages which can be loaded and used within an R session. These are the directories reported by e.g. <code><a href="https://rdrr.io/r/base/libPaths.html">.libPaths()</a></code>, and R uses these directories when searching for packages to load (e.g. in response to a call to <code><a href="https://rdrr.io/pkg/dplyr/man">library(dplyr)</a></code>).</p>
+<p>To understand the <code>renv</code> cache, we need to first understand what an R <em>library</em> is. An R library is, normally, a directory of installed R packages which can be loaded and used within an R session. These are the directories reported by e.g. <code><a href="https://rdrr.io/r/base/libPaths.html">.libPaths()</a></code>, and R uses these directories when searching for packages to load (e.g. in response to a call to <code><a href="https://dplyr.tidyverse.org">library(dplyr)</a></code>).</p>
 <p>When using <code>renv</code> with the global package cache, the project library is instead formed as a directory of symlinks (or, on Windows, junction points) into the <code>renv</code> global package cache. Hence, while each <code>renv</code> project is isolated from other projects on your system, they can still re-use the same installed packages as required.</p>
 <p>In some cases, <code>renv</code> will be unable to directly link from the global package cache to your project library – for example, if the package cache and your project library live on different disk volumes. In such a case, <code>renv</code> will instead copy the package from the cache into the project library.</p>
 <p>By default, <code>renv</code> generates its cache in the following folders:</p>
@@ -325,7 +320,8 @@ options(repos = repos)</code></pre>
 <p>If <code>curl</code> is not available on your machine, it is highly recommended that you install it. Newer versions of Windows 10 come with a bundled version of <code>curl.exe</code>; other users on Windows can use <code><a href="../reference/equip.html">renv::equip()</a></code> to download and install a recent copy of <code>curl</code>. Newer versions of macOS come with a bundled version of <code>curl</code> that is adequate for usage with <code>renv</code>, and most Linux package managers have a modern version of <code>curl</code> available in their package repositories.</p>
 <p><code>curl</code> downloads can be configured through <code>renv</code>’s configuration settings – see <code><a href="../reference/config.html">?renv::config</a></code> for more details.</p>
 <p>If you’ve already configured R’s downloader and would like to bypass <code>renv</code>’s attempts to use <code>curl</code>, you can use the R option <code>renv.download.override</code>. For example, executing:</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="kw">renv.download.override</span> <span class="kw">=</span> <span class="kw pkg">utils</span><span class="kw ns">::</span><span class="no"><a href="https://rdrr.io/r/utils/download.file.html">download.file</a></span>)</pre></body></html></div>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.download.override <span class="op">=</span> <span class="fu">utils</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/utils/download.file.html">download.file</a></span><span class="op">)</span></pre></div>
 <p>would instruct <code>renv</code> to use R’s own download machinery when attempting to download files from the internet (respecting the R options <code>download.file.method</code> and <code>download.file.extra</code> as appropriate). Advanced users can also provide their own download function, provided its signature matches that of <code><a href="https://rdrr.io/r/utils/download.file.html">utils::download.file()</a></code>.</p>
 <p>You can also instruct <code>renv</code> to use a different download method by setting the <code>RENV_DOWNLOAD_FILE_METHOD</code> environment variable. For example:</p>
 <pre><code><a href="https://rdrr.io/r/base/Sys.setenv.html"># use Windows' internal download machinery
@@ -385,31 +381,33 @@ Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = "libcurl")</a></code></pre>
 </tr>
 </tbody>
 </table>
-<p>These credentials can be stored in e.g. <code>.Renviron</code>, or can be set in your R session through other means as appropriate.</p>
+<p>These credentials can be stored in e.g. <code>.Renviron</code>, or can be set in your R session through other means as appropriate.</p>
 <p>If you require custom authentication for different packages (for example, your project makes use of packages available on different GitHub enterprise servers), you can use the <code>renv.auth</code> R option to provide package-specific authentication settings. <code>renv.auth</code> can either be a a named list associating package names with environment variables, or a function accepting a package name + record, and returning a list of environment variables. For example:</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="co"># define a function providing authentication</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="kw">renv.auth</span> <span class="kw">=</span> <span class="kw">function</span>(<span class="no">package</span>, <span class="no">record</span>) {
-  <span class="kw">if</span> (<span class="no">package</span> <span class="kw">==</span> <span class="st">"MyPackage"</span>)
-    <span class="fu"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">GITHUB_PAT</span> <span class="kw">=</span> <span class="st">"&lt;pat&gt;"</span>))
-})
+<div class="sourceCode" id="cb9"><pre class="downlit">
+<span class="co"># define a function providing authentication</span>
+<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.auth <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">package</span>, <span class="va">record</span><span class="op">)</span> <span class="op">{</span>
+  <span class="kw">if</span> <span class="op">(</span><span class="va">package</span> <span class="op">==</span> <span class="st">"MyPackage"</span><span class="op">)</span>
+    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span><span class="op">)</span>
 
 <span class="co"># use a named list directly</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="kw">renv.auth</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-  <span class="kw">MyPackage</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">GITHUB_PAT</span> <span class="kw">=</span> <span class="st">"&lt;pat&gt;"</span>)
-))
+<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.auth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+  MyPackage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span>
+<span class="op">)</span><span class="op">)</span>
 
 <span class="co"># alternatively, set package-specific option</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="kw">renv.auth.MyPackage</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">GITHUB_PAT</span> <span class="kw">=</span> <span class="st">"&lt;pat&gt;"</span>))</pre></body></html></div>
+<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.auth.MyPackage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p>For packages installed from Git remotes, <code>renv</code> will attempt to use <code>git</code> from the command line to download and restore the associated package. Hence, it is recommended that authentication is done through SSH keys when possible.</p>
 <div id="authentication-with-custom-headers" class="section level3">
 <h3 class="hasAnchor">
 <a href="#authentication-with-custom-headers" class="anchor"></a>Authentication with Custom Headers</h3>
 <p>If you want to set arbitrary headers when downloading files using <code>renv</code>, you can do so using the <code>renv.download.headers</code> R option. It should be a function that accepts a URL, and returns a named character vector indicating the headers which should be supplied when accessing that URL.</p>
 <p>For example, suppose you have a package repository hosted at <code>https://my/repository</code>, and the credentials required to access that repository are stored in the <code>AUTH_HEADER</code> environment variable. You could define <code>renv.download.headers</code> like so:</p>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="kw">renv.download.headers</span> <span class="kw">=</span> <span class="kw">function</span>(<span class="no">url</span>) {
-  <span class="kw">if</span> (<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span>(<span class="st">"^https://my/repository"</span>, <span class="no">url</span>))
-    <span class="fu"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">Authorization</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv</a></span>(<span class="st">"AUTH_HEADER"</span>)))
-})</pre></body></html></div>
+<div class="sourceCode" id="cb10"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.download.headers <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="op">{</span>
+  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span><span class="op">(</span><span class="st">"^https://my/repository"</span>, <span class="va">url</span><span class="op">)</span><span class="op">)</span>
+    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Authorization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv</a></span><span class="op">(</span><span class="st">"AUTH_HEADER"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span><span class="op">)</span></pre></div>
 <p>With the above, <code>renv</code> will set the <code>Authorization</code> header whenever it attempts to download files from the repository at URL <code>https://my/repository</code>.</p>
 </div>
 </div>
@@ -505,7 +503,7 @@ unlink(root, recursive = TRUE)</code></pre>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

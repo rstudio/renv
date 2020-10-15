@@ -38,18 +38,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -123,7 +117,8 @@
 
       
 
-      </header><div class="row">
+      </header><script src="ci_files/header-attrs-2.4.5/header-attrs.js"></script><link href="ci_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="ci_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using renv with Continuous Integration</h1>
@@ -136,7 +131,7 @@
 
     
     
-<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="https://github.com/features/actions">GitHub Actions</a>, <a href="https://travis-ci.org/">Travis CI</a>, <a href="https://www.appveyor.com/">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and re-install these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
+<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="https://github.com/features/actions">GitHub Actions</a>, <a href="https://travis-ci.org/">Travis CI</a>, <a href="https://www.appveyor.com/">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and re-install these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
 <p><code>renv</code> can often be helpful in these situations. The general idea is:</p>
 <ol style="list-style-type: decimal">
 <li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> on your local machine, to generate <code>renv.lock</code>;</p></li>
@@ -236,7 +231,7 @@ before_script:
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

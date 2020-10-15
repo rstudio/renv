@@ -38,18 +38,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0-3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -123,7 +117,8 @@
 
       
 
-      </header><div class="row">
+      </header><script src="faq_files/header-attrs-2.4.5/header-attrs.js"></script><link href="faq_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="faq_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Frequently Asked Questions</h1>
@@ -144,17 +139,19 @@
 <li><p>Packages installed into your project library, and</p></li>
 <li><p>Packages which appear to be used in your project, as discovered by <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>,</p></li>
 </ol>
-<p>in determining which packages should enter the lockfile. The intention is that only the packages you truly require for your project should enter the lockfile; development dependencies (e.g. <code>devtools</code>) normally should not.</p>
+<p>in determining which packages should enter the lockfile. The intention is that only the packages you truly require for your project should enter the lockfile; development dependencies (e.g. <code>devtools</code>) normally should not.</p>
 <p>If you find a package is not entering the lockfile, you can check the output of:</p>
 <pre><code><a href="../reference/dependencies.html">renv::dependencies()</a></code></pre>
 <p>and see whether usages of your package are reported in the output.</p>
 <p>Note that <code>renv</code>’s dependency discovery machinery relies on static analysis of your R code, and does not understand all of the different ways in which a package might be used in a project. For example, <code>renv</code> will detect the following usages:</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">dplyr</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></pre></div>
 <p>But it will be unable to detect these kinds of usages:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="kw">for</span> (<span class="no">package</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span>)) {
-  <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">package</span>, <span class="kw">character.only</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-}</pre></body></html></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="kw">for</span> <span class="op">(</span><span class="va">package</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">package</span>, character.only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="op">}</span></pre></div>
 <p>If you use a custom package loader in your project that <code>renv</code> could feasibly support, please feel free to <a href="https://github.com/rstudio/renv/issues">file a feature request</a>.</p>
 <div id="capturing-all-dependencies" class="section level3">
 <h3 class="hasAnchor">
@@ -177,7 +174,7 @@
 <div id="how-should-i-handle-development-dependencies" class="section level2">
 <h2 class="hasAnchor">
 <a href="#how-should-i-handle-development-dependencies" class="anchor"></a>How should I handle development dependencies?</h2>
-<p>This is related to the above question: by design, <code>renv.lock</code> normally only captures build-time or deploy-time dependencies; it may not capture the packages that you use in iterative workflows (e.g. <code>devtools</code>). However, you may want some way of still ensuring these development dependencies get installed when trying to restore a project library.</p>
+<p>This is related to the above question: by design, <code>renv.lock</code> normally only captures build-time or deploy-time dependencies; it may not capture the packages that you use in iterative workflows (e.g. <code>devtools</code>). However, you may want some way of still ensuring these development dependencies get installed when trying to restore a project library.</p>
 <p>For cases like these, we recommend tracking these packages in a project DESCRIPTION file; typically, within the <code>Suggests:</code> field. Then, you can execute:</p>
 <pre><code><a href="../reference/install.html">renv::install()</a></code></pre>
 <p>to request that <code>renv</code> install the packages as described in the DESCRIPTION file. In addition, the <code>Remotes:</code> fields will be parsed and used, to ensure packages are installed from their declared remote source as appropriate.</p>
@@ -221,7 +218,7 @@ This project already has a lockfile. What would you like to do?
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
