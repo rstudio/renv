@@ -2,6 +2,9 @@
 
 config: R/config-defaults.R
 
+site:
+	@tools/tools-build-site.sh
+
 tags:
 	@Rscript tools/tools-git-tags.R
 	@git pull
