@@ -267,7 +267,7 @@ renv_install_impl <- function(record) {
   linker <- if (linkable) renv_file_link else renv_file_copy
 
   cacheable <-
-    renv_cache_config_enabled(project = project)
+    renv_cache_config_enabled(project = project) &&
     renv_record_cacheable(record) &&
     !renv_restore_rebuild_required(record)
 
