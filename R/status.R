@@ -30,7 +30,7 @@ status <- function(project = NULL,
 
   renv_dependencies_scope(project, action = "status")
 
-  library <- library %||% renv_libpaths_all()
+  library <- renv_path_normalize(library %||% renv_libpaths_all())
   lockpath <- lockfile %||% renv_lockfile_path(project)
 
   invisible(renv_status_impl(project, library, lockpath))

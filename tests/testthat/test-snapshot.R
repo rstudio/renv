@@ -331,3 +331,24 @@ test_that("snapshot(packages = ...) captures package dependencies", {
   expect_true(!is.null(records$oatmeal))
 
 })
+
+test_that("snapshot() accepts relative library paths", {
+
+  renv_tests_scope("breakfast")
+
+  # initialize project
+  init()
+
+  # remove lockfile
+  unlink("renv.lock")
+
+  # form relative path to library
+  library <- substring(.libPaths()[1], nchar(getwd()) + 2)
+
+  # try to snapshot with relative library path
+  snapshot(library = library)
+
+  # test that snapshot succeeded
+  expect_true(file.exists("renv.lock"))
+
+})

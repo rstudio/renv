@@ -61,7 +61,7 @@ hydrate <- function(packages = NULL,
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
-  library <- library %||% renv_libpaths_default()
+  library <- renv_path_normalize(library %||% renv_libpaths_default())
   packages <- packages %||% renv_hydrate_packages(project, sources)
 
   # find packages used in this project, and the dependencies of those packages

@@ -27,7 +27,7 @@ remove <- function(packages,
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
-  library <- library %||% renv_libpaths_default()
+  library <- renv_path_normalize(library %||% renv_libpaths_default())
 
   descpaths <- file.path(library, packages, "DESCRIPTION")
   records <- lapply(descpaths, renv_snapshot_description)

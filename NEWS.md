@@ -1,6 +1,9 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv::snapshot()` now accepts library paths specified with a relative
+  path. (#562)
+
 * `renv::snapshot()` no longer excludes the project itself, for `R` package
   projects that use [golem](https://engineering-shiny.org/). (#538)
   

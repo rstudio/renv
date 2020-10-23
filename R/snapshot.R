@@ -106,7 +106,7 @@ snapshot <- function(project  = NULL,
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
-  library <- library %||% renv_libpaths_all()
+  library <- renv_path_normalize(library %||% renv_libpaths_all())
 
   if (config$snapshot.validate())
     renv_snapshot_preflight(project, library)
@@ -507,7 +507,7 @@ renv_snapshot_r_packages_impl <- function(library = NULL,
                                           project = NULL)
 {
   # list packages in the library
-  library <- library %||% renv_libpaths_default()
+  library <- renv_path_normalize(library %||% renv_libpaths_default())
   paths <- list.files(library, full.names = TRUE)
 
   # remove 'base' packages

@@ -110,7 +110,7 @@ install <- function(packages = NULL,
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
-  library <- library %||% renv_libpaths_all()
+  library <- renv_path_normalize(library %||% renv_libpaths_all())
 
   type <- type %||% getOption("pkgType")
   renv_scope_options(pkgType = type)
