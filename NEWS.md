@@ -14,7 +14,7 @@
 * `renv::snapshot()` gains the `packages` argument, to be used when creating a
   lockfile that captures a specific set of packages and their dependencies.
   `renv` will use the currently-installed versions of those packages when
-  determing the package records to be written to the lockfile. (#554)
+  determining the package records to be written to the lockfile. (#554)
   
 * `renv::dependencies()` now accepts an R function as the first argument,
   for finding the packages used by a particular function. Currently,
