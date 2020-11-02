@@ -1,6 +1,9 @@
 
 # renv 0.12.1 (UNRELEASED)
 
+* `renv` now ensures all of its dependencies are loaded eagerly when running
+  tests, to avoid issues with missing + lazily-loaded packages.
+
 * `renv::snapshot()` now accepts library paths specified with a relative
   path. (#562)
 
