@@ -128,7 +128,7 @@ including:
 - [CRAN](https://cran.r-project.org/),
 - [Bioconductor](https://www.bioconductor.org/),
 - [GitHub](https://github.com/)
-- [Gitlab](https://gitlab.com/)
+- [Gitlab](https://about.gitlab.com/)
 - [Bitbucket](https://bitbucket.org/)
 
 `renv` uses an installed package's `DESCRIPTION` file to infer its source. For
