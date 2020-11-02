@@ -177,22 +177,85 @@ renv_tests_init_repos <- function(repos = NULL) {
 
 renv_tests_init_packages <- function() {
 
-  # eagerly load packages that we'll need during tests
-  # (as the sandbox will otherwise 'hide' these packages)
-  packages <- c(
-    "packrat",
-    "diffobj",
-    "knitr",
-    "rappdirs",
-    "rematch2",
-    "reticulate",
-    "rmarkdown",
-    "uuid",
-    "yaml"
+  packages <- renv_tests_init_packages_find()
+  renv_tests_init_packages_load(packages)
+
+}
+
+renv_tests_init_packages_find <- function() {
+
+  # find the package DESCRIPTION file and use it to figure out what packages
+  # we need to opportunistically load (since renv munges library paths while
+  # running its tests these won't be available on the search paths)
+  sources <- c(
+    "../00_pkg_src/renv/DESCRIPTION",
+    "../renv/DESCRIPTION",
+    "DESCRIPTION",
+    "../DESCRIPTION",
+    "../../DESCRIPTION"
   )
 
-  for (package in packages)
-    requireNamespace(package, quietly = TRUE)
+  for (source in sources) {
+
+    if (!file.exists(source))
+      next
+
+    source <- normalizePath(source, winslash = "/", mustWork = TRUE)
+    desc <- catch(renv_description_read(source))
+    if (!identical(desc$Package, "renv"))
+      next
+
+    deps <- dependencies(source, progress = FALSE)
+    return(deps$Package)
+
+  }
+
+  stop(
+    "couldn't locate 'renv' DESCRIPTION file during test setup",
+    call. = FALSE
+  )
+
+}
+
+renv_tests_init_packages_load <- function(packages) {
+
+  # environment capturing packages which have already been loaded
+  envir <- new.env(parent = emptyenv())
+
+  # load packages and their dependencies eagerly, since we'll munge the
+  # library paths and this could affect load of dependent packages
+  for (package in packages) {
+    tryCatch(
+      renv_tests_init_packages_load_impl(package, envir),
+      error = warning
+    )
+  }
+
+}
+
+renv_tests_init_packages_load_impl <- function(package, envir) {
+
+  # if we've already tried to load this package, skip it
+  if (visited(package, envir))
+    return()
+
+  # try to load the package
+  requireNamespace(package, quietly = TRUE)
+
+  # try to find this package
+  pkgpath <- renv_package_find(package)
+  if (!file.exists(pkgpath))
+    return()
+
+  # try to read the package DESCRIPTION and load its dependencies
+  descpath <- file.path(pkgpath, "DESCRIPTION")
+  deps <- dependencies(path = descpath, progress = FALSE)
+  for (dep in deps$Package) {
+    tryCatch(
+      renv_tests_init_packages_load_impl(dep, envir),
+      error = warning
+    )
+  }
 
 }
 
