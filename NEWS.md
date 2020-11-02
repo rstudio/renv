@@ -1,5 +1,5 @@
 
-# renv 0.12.1 (UNRELEASED)
+# renv 0.12.1
 
 * `renv` now ensures all of its dependencies are loaded eagerly when running
   tests, to avoid issues with missing + lazily-loaded packages.
