@@ -183,38 +183,10 @@ renv_tests_init_packages <- function() {
 }
 
 renv_tests_init_packages_find <- function() {
-
-  # find the package DESCRIPTION file and use it to figure out what packages
-  # we need to opportunistically load (since renv munges library paths while
-  # running its tests these won't be available on the search paths)
-  sources <- c(
-    "../00_pkg_src/renv/DESCRIPTION",
-    "../renv/DESCRIPTION",
-    "DESCRIPTION",
-    "../DESCRIPTION",
-    "../../DESCRIPTION"
-  )
-
-  for (source in sources) {
-
-    if (!file.exists(source))
-      next
-
-    source <- normalizePath(source, winslash = "/", mustWork = TRUE)
-    desc <- catch(renv_description_read(source))
-    if (!identical(desc$Package, "renv"))
-      next
-
-    deps <- dependencies(source, progress = FALSE)
-    return(deps$Package)
-
-  }
-
-  stop(
-    "couldn't locate 'renv' DESCRIPTION file during test setup",
-    call. = FALSE
-  )
-
+  fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
+  descpath <- system.file("DESCRIPTION", package = "renv")
+  deps <- renv_dependencies_discover_description(descpath, fields = fields)
+  deps[["Package"]]
 }
 
 renv_tests_init_packages_load <- function(packages) {
