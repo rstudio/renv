@@ -380,6 +380,7 @@ renv_tests_diagnostics <- function() {
   )
 
   envvars <- c(
+    grep("^_R_", names(Sys.getenv()), value = TRUE),
     "HOME",
     "R_ARCH", "R_HOME",
     "R_LIBS", "R_LIBS_SITE", "R_LIBS_USER", "R_USER",

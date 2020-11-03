@@ -1,7 +1,11 @@
 
-renv_package_installed <- function(package, lib.loc = NULL) {
+renv_package_installed <- function(package, lib.loc = renv_libpaths_all()) {
   location <- find.package(package, lib.loc = lib.loc, quiet = TRUE)
   length(location) > 0
+}
+
+renv_package_available <- function(package) {
+  renv_package_installed(package, lib.loc = NULL)
 }
 
 renv_package_version <- function(package) {

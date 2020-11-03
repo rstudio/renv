@@ -35,13 +35,13 @@ renv_bioconductor_init_biocinstaller <- function() {
 
 renv_bioconductor_version <- function() {
 
-  if (renv_package_installed("BiocManager")) {
+  if (renv_package_available("BiocManager")) {
     BiocManager <- asNamespace("BiocManager")
     format(BiocManager$version())
-  } else if (renv_package_installed("BiocInstaller")) {
+  } else if (renv_package_available("BiocInstaller")) {
     BiocInstaller <- asNamespace("BiocInstaller")
     format(BiocInstaller$biocVersion())
-  } else if (renv_package_installed("BiocVersion")) {
+  } else if (renv_package_available("BiocVersion")) {
     format(packageVersion("BiocVersion")[1, 1:2])
   }
 
