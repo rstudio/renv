@@ -29,8 +29,19 @@ renv_tests_reporter <- function() {
       },
 
       add_result = function(context, test, result) {
+
+        # store our expectation result
         self$.expectations[[length(self$.expectations) + 1]] <- result
-        super$add_result(context, test, result)
+
+        # record skips but don't print when they occur
+        if (inherits(result, "expectation_skip")) {
+          message <- sprintf("[%s]: %s", test, result$message)
+          self$n_skip <- self$n_skip + 1
+          self$skips$push(message)
+        } else {
+          super$add_result(context, test, result)
+        }
+
       },
 
       start_test = function(context, test) {
