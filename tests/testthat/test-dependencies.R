@@ -194,6 +194,7 @@ test_that("dependencies specified in R Markdown site generators are found", {
 })
 
 test_that("Suggest dependencies are ignored by default", {
+  skip_on_cran()
   renv_tests_scope("breakfast")
   install("breakfast")
   expect_false(renv_package_installed("egg"))
