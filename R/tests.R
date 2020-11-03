@@ -176,10 +176,8 @@ renv_tests_init_repos <- function(repos = NULL) {
 }
 
 renv_tests_init_packages <- function() {
-
   packages <- renv_tests_init_packages_find()
-  renv_tests_init_packages_load(packages)
-
+  renv_tests_init_packages_load(packages, new.env(parent = emptyenv()))
 }
 
 renv_tests_init_packages_find <- function() {
@@ -189,26 +187,19 @@ renv_tests_init_packages_find <- function() {
   deps[["Package"]]
 }
 
-renv_tests_init_packages_load <- function(packages) {
-
-  # environment capturing packages which have already been loaded
-  envir <- new.env(parent = emptyenv())
-
-  # load packages and their dependencies eagerly, since we'll munge the
-  # library paths and this could affect load of dependent packages
+renv_tests_init_packages_load <- function(packages, envir) {
   for (package in packages) {
     tryCatch(
       renv_tests_init_packages_load_impl(package, envir),
       error = warning
     )
   }
-
 }
 
 renv_tests_init_packages_load_impl <- function(package, envir) {
 
   # if we've already tried to load this package, skip it
-  if (visited(package, envir))
+  if (visited(package, envir = envir))
     return()
 
   # try to load the package
@@ -221,13 +212,16 @@ renv_tests_init_packages_load_impl <- function(package, envir) {
 
   # try to read the package DESCRIPTION and load its dependencies
   descpath <- file.path(pkgpath, "DESCRIPTION")
-  deps <- dependencies(path = descpath, progress = FALSE)
-  for (dep in deps$Package) {
-    tryCatch(
-      renv_tests_init_packages_load_impl(dep, envir),
-      error = warning
-    )
-  }
+  deps <- renv_dependencies_discover_description(
+    path   = descpath,
+    fields = c("Depends", "Imports", "LinkingTo")
+  )
+
+  map(
+    deps$Package,
+    renv_tests_init_packages_load,
+    envir = envir
+  )
 
 }
 
