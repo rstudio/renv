@@ -1,5 +1,5 @@
 
-# renv 0.13.0 (UNRELEASED)
+# renv 0.12.2
 
 * `renv` no longer errs when running tests with `_R_CHECK_SUGGESTS_ONLY_=false`.
 
