@@ -231,8 +231,11 @@ renv_bootstrap_library_root <- function(project) {
     return(path)
 
   path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
-  if (!is.na(path))
-    return(file.path(path, basename(project)))
+  if (!is.na(path)) {
+    id <- substring(renv_hash_text(project), 1L, 8L)
+    name <- paste(basename(project), id, sep = "-")
+    return(file.path(path, name))
+  }
 
   file.path(project, "renv/library")
 

@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* When `RENV_PATHS_LIBRARY_ROOT` is set, `renv` will now disambiguate library
+  paths based on a hash of the project's path. (#564)
+
 # renv 0.12.2
 
 * `renv` no longer errs when running tests with `_R_CHECK_SUGGESTS_ONLY_=false`.
