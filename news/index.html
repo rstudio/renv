@@ -79,13 +79,19 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -165,9 +171,38 @@
       <small>Source: <a href='https://github.com/rstudio/renv/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="renv-0120-unreleased" class="section level1">
+    <div id="renv-0122" class="section level1">
+<h1 class="page-header" data-toc-text="0.12.2">
+<a href="#renv-0122" class="anchor"></a>renv 0.12.2<small> 2020-11-04 </small>
+</h1>
+<ul>
+<li>
+<code>renv</code> no longer errs when running tests with <code>_R_CHECK_SUGGESTS_ONLY_=false</code>.</li>
+</ul>
+</div>
+    <div id="renv-0121" class="section level1">
+<h1 class="page-header" data-toc-text="0.12.1">
+<a href="#renv-0121" class="anchor"></a>renv 0.12.1<small> 2020-11-02 </small>
+</h1>
+<ul>
+<li><p><code>renv</code> now ensures all of its dependencies are loaded eagerly when running tests, to avoid issues with missing + lazily-loaded packages.</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> now accepts library paths specified with a relative path. (<a href='https://github.com/rstudio/renv/issues/562'>#562</a>)</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer excludes the project itself, for <code>R</code> package projects that use <a href="https://engineering-shiny.org/">golem</a>. (<a href='https://github.com/rstudio/renv/issues/538'>#538</a>)</p></li>
+<li><p>The <code>renv</code> configuration option <code>cache.symlinks</code> can now be used to control whether <code>renv</code> used symlinks into the cache, as opposed to full package copies. Please see <code><a href="../reference/config.html">?renv::config</a></code> for more details. (<a href='https://github.com/rstudio/renv/issues/556'>#556</a>)</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> gains the <code>packages</code> argument, to be used when creating a lockfile that captures a specific set of packages and their dependencies. <code>renv</code> will use the currently-installed versions of those packages when determining the package records to be written to the lockfile. (<a href='https://github.com/rstudio/renv/issues/554'>#554</a>)</p></li>
+<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now accepts an R function as the first argument, for finding the packages used by a particular function. Currently, package usages must be prefixed with <code><a href="https://rdrr.io/r/base/ns-dblcolon.html">::</a></code> to be detected. (<a href='https://github.com/rstudio/renv/issues/554'>#554</a>)</p></li>
+<li><p><code>renv::record(&lt;package&gt;)</code> now ensures that the latest-available version of that package is recorded in the lockfile. Previously, a package record without any specified version was added instead. For existing records without a recorded version, the latest-available version on the package repositories will be used during <code><a href="../reference/restore.html">restore()</a></code> instead. (<a href='https://github.com/rstudio/renv/issues/540'>#540</a>)</p></li>
+<li><p><code>renv</code> now reads the default branch tagged for repositories created on GitHub, ensuring that calls of the form <code><a href="../reference/install.html">renv::install("&lt;user&gt;/&lt;repo&gt;")</a></code> resolve to the declared default branch, rather than always defaulting to <code>"master"</code>. (<a href='https://github.com/rstudio/renv/issues/557'>#557</a>)</p></li>
+<li><p><code>renv</code> now only installs packages from sources if it detects that build tools are available. This determination is done by checking whether <code>make</code> is available on the <code>PATH</code>. (<a href='https://github.com/rstudio/renv/issues/552'>#552</a>)</p></li>
+<li><p>Warnings related to unknown sources can now be suppressed by setting <code><a href="https://rdrr.io/r/base/options.html">options(renv.warnings.unknown_sources = FALSE)</a></code>. (<a href='https://github.com/rstudio/renv/issues/546'>#546</a>)</p></li>
+<li><p><code>renv</code> now ignores chunks with the parameter <code>exercise=TRUE</code> set, under the assumption that such chunks might contain errors and so otherwise be un-parsable.</p></li>
+<li><p><code>renv</code> now warns if sandbox generation takes a long time (&gt; 30 seconds).</p></li>
+<li><p><code>renv</code> now provides an optional locking mechanism, to help minimize the chance of interprocess conflicts when multiple R processes need to use the same <code>renv</code> project. The option is currently disabled by default; it can be enabled by setting <code><a href="https://rdrr.io/r/base/options.html">options(renv.config.locking.enabled = TRUE)</a></code> in an appropriate R startup file. (<a href='https://github.com/rstudio/renv/issues/525'>#525</a>)</p></li>
+</ul>
+</div>
+    <div id="renv-0120" class="section level1">
 <h1 class="page-header" data-toc-text="0.12.0">
-<a href="#renv-0120-unreleased" class="anchor"></a>renv 0.12.0 (UNRELEASED)<small> 2020-08-28 </small>
+<a href="#renv-0120" class="anchor"></a>renv 0.12.0<small> 2020-08-28 </small>
 </h1>
 <ul>
 <li><p><code>renv</code> now uses R’s internal tar implementation by default on Windows. This is done to avoid issues that may occur when a version of <code>tar.exe</code> on the <code>PATH</code> exists, but does not accept Windows-style paths. The <code>TAR</code> environment variable can be set if one needs to explicitly force the use of a particular <code>tar.exe</code> executable. (<a href='https://github.com/rstudio/renv/issues/521'>#521</a>)</p></li>
@@ -222,7 +257,7 @@
 <li><p>Fixed an issue where empty records within a DESCRIPTION file could cause <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> to fail. (<a href='https://github.com/rstudio/renv/issues/382'>#382</a>)</p></li>
 <li><p>renv will now download binaries of older packages from MRAN when possible.</p></li>
 <li><p>renv will now attempt to re-generate the system library sandbox if it is deleted while a session is active. (<a href='https://github.com/rstudio/renv/issues/361'>#361</a>)</p></li>
-<li><p>Fixed an issue where Python packages referenced using <code>reticulate::import()</code> were incorrectly tagged as R package dependencies. Similarly, <code>renv</code> now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (<a href='https://github.com/rstudio/renv/issues/359'>#359</a>)</p></li>
+<li><p>Fixed an issue where Python packages referenced using <code><a href="https://rdrr.io/pkg/reticulate/man/import.html">reticulate::import()</a></code> were incorrectly tagged as R package dependencies. Similarly, <code>renv</code> now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (<a href='https://github.com/rstudio/renv/issues/359'>#359</a>)</p></li>
 <li><p><code><a href="../reference/scaffold.html">renv::scaffold()</a></code> now also generates a lockfile when invoked. (<a href='https://github.com/rstudio/renv/issues/351'>#351</a>)</p></li>
 <li><p>The argument <code>confirm</code> has been renamed to <code>prompt</code> in all places where it is used. <code>confirm</code> remains supported for backwards compatibility, but is no longer explicitly documented. (<a href='https://github.com/rstudio/renv/issues/347'>#347</a>)</p></li>
 <li><p>The continuous integration <code>renv</code> vignette now also contains a template for using <code>renv</code> together with GitLab CI. (<a href='https://github.com/rstudio/renv/issues/348'>#348</a>, <a href='https://github.com/artemklevtsov'>@artemklevtsov</a>)</p></li>
@@ -370,7 +405,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

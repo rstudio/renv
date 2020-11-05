@@ -80,13 +80,19 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -229,9 +235,9 @@ package names to the files in which they were discovered.</p>
     <p><code>dependencies()</code> will crawl files within your project, looking for <span style="R">R</span> files
 and the packages used within those <span style="R">R</span> files. This is done primarily by
 parsing the code and looking for calls of the form:</p><ul>
-<li><p><code>library(package)</code></p></li>
-<li><p><code>require(package)</code></p></li>
-<li><p><code>requireNamespace("package")</code></p></li>
+<li><p><code><a href='https://rdrr.io/r/base/library.html'>library(package)</a></code></p></li>
+<li><p><code><a href='https://rdrr.io/r/base/library.html'>require(package)</a></code></p></li>
+<li><p><code><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace("package")</a></code></p></li>
 <li><p><code>package::method()</code></p></li>
 </ul>
 
@@ -317,7 +323,7 @@ for a project, but may not actually require these packages at runtime.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

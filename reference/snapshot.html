@@ -82,13 +82,19 @@ project's dependencies as required." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -181,6 +187,7 @@ project's dependencies as required.</p>
   library <span class='op'>=</span> <span class='cn'>NULL</span>,
   lockfile <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>project</span>, <span class='st'>"renv.lock"</span><span class='op'>)</span>,
   type <span class='op'>=</span> <span class='va'>settings</span><span class='op'>$</span><span class='fu'>snapshot.type</span><span class='op'>(</span>project <span class='op'>=</span> <span class='va'>project</span><span class='op'>)</span>,
+  packages <span class='op'>=</span> <span class='cn'>NULL</span>,
   prompt <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span>,
   force <span class='op'>=</span> <span class='cn'>FALSE</span>
 <span class='op'>)</span></pre>
@@ -216,6 +223,14 @@ directly instead.</p></td>
       <td><p>The type of snapshot to perform. See <strong>Snapshot Type</strong> for
 more details. When <code>NULL</code> (the default), an "implicit"-style snapshot
 is performed.</p></td>
+    </tr>
+    <tr>
+      <th>packages</th>
+      <td><p>A vector of packages to be included in the lockfile. When
+<code>NULL</code> (the default), all packages relevant for the type of snapshot being
+performed will be included. When set, the <code>type</code> argument is ignored.
+Recursive dependencies of the specified packages will be added to the
+lockfile as well.</p></td>
     </tr>
     <tr>
       <th>prompt</th>
@@ -278,6 +293,9 @@ in the lockfile.</p></dd>
 <p>By default, <code>"implicit"</code>-style snapshots are used. The snapshot type can be
 configured on a project-specific basis using the <code>renv</code> project <a href='settings.html'>settings</a>
 mechanism.</p>
+<p>When the <code>packages</code> argument is set, <code>type</code> is ignored, and instead only the
+requested set of packages, and their recursive dependencies, will be written
+to the lockfile.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other reproducibility: 
@@ -330,7 +348,7 @@ mechanism.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

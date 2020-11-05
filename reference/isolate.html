@@ -81,13 +81,19 @@ that the project can continue to function independently of the renv cache." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -190,6 +196,20 @@ directory is used instead.</p></td>
 
     <p>The project directory, invisibly. Note that this function is normally
 called for its side effects.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>After calling <code>isolate()</code>, <code>renv</code> will still be able to use the cache on
+future <code><a href='install.html'>install()</a></code>s and <code><a href='restore.html'>restore()</a></code>s. If you'd prefer that <code>renv</code> copy
+packages from the cache, rather than use symlinks, you can set the <code>renv</code>
+configuration option:</p><pre><span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>renv.config.cache.symlinks <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+</pre>
+
+<p>to force <code>renv</code> to copy packages from the cache, as opposed to symlinking
+them. If you'd like to disable the cache altogether for a project, you can
+use:</p><pre><span class='va'>settings</span><span class='op'>$</span><span class='fu'>use.cache</span><span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span>
+</pre>
+
+<p>to explicitly disable the cache for the project.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
@@ -214,7 +234,7 @@ called for its side effects.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

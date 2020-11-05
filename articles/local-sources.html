@@ -38,12 +38,18 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+<li>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -117,7 +123,7 @@
 
       
 
-      </header><script src="local-sources_files/header-attrs-2.4.5/header-attrs.js"></script><link href="local-sources_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+      </header><script src="local-sources_files/header-attrs-2.5/header-attrs.js"></script><link href="local-sources_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
 <script src="local-sources_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -155,8 +161,8 @@
 <p>Once this is done, <code>renv</code> will consult these directories during future attempts to restore packages installed from unknown sources.</p>
 <p>Note that packages placed in one of these local sources will override any default source recorded in the lockfile. For example, if <code>skeleton 1.0.0</code> was also available on CRAN, <code><a href="../reference/restore.html">renv::restore()</a></code> would still use the locally-provided tarball rather than the version available from CRAN.</p>
 <p>If you want to see what directory is being used by <code>renv</code> for local package sources, you can execute:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu">renv</span><span class="fu">:::</span><span class="fu">renv_paths_local</span><span class="op">(</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">renv</span><span class="fu">:::</span><span class="fu">renv_paths_local</span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p>See <code><a href="../reference/paths.html">?paths</a></code> for more details.</p>
 <div id="explicit-sources" class="section level2">
 <h2 class="hasAnchor">
@@ -211,7 +217,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
