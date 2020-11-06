@@ -667,7 +667,7 @@ renv_snapshot_description_source <- function(dcf) {
   })
 
   if (!inherits(entry, "error"))
-    return(list(Source = "Repository", Repository = entry[["Name"]]))
+    return(list(Source = "Repository", Repository = entry[["Repository"]]))
 
   location <- catch(renv_retrieve_local_find(dcf))
   if (!inherits(location, "error"))

@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where the repository name for a package installed from
+  an R package repository was sometimes incorrect. (#402)
+
 * When `RENV_PATHS_LIBRARY_ROOT` is set, `renv` will now disambiguate library
   paths based on a hash of the project's path. (#564)
 
