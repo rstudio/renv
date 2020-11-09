@@ -117,7 +117,7 @@ renv_retrieve_impl <- function(package) {
   # treat it as a request for the latest version on CRAN
   # TODO: should make this behavior configurable
   uselatest <-
-    identical(source, "repository") &&
+    source %in% c("repository", "bioconductor") &&
     is.null(record$Version)
 
   if (uselatest)

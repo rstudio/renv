@@ -8,8 +8,7 @@ renv_bioconductor_init <- function() {
 
 renv_bioconductor_init_biocmanager <- function() {
 
-  location <- find.package("BiocManager", quiet = TRUE)
-  if (!empty(location))
+  if (renv_package_available("BiocManager"))
     return(TRUE)
 
   install("BiocManager")
@@ -19,8 +18,7 @@ renv_bioconductor_init_biocmanager <- function() {
 
 renv_bioconductor_init_biocinstaller <- function() {
 
-  location <- find.package("BiocInstaller", quiet = TRUE)
-  if (!empty(location))
+  if (renv_package_available("BiocInstaller"))
     return(TRUE)
 
   url <- "https://bioconductor.org/biocLite.R"

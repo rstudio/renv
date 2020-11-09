@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where `renv::install("bioc::<package>", rebuild = TRUE)` would
+  fail to install the requested package. (#565)
+
 * Fixed an issue where the repository name for a package installed from
   an R package repository was sometimes incorrect. (#402)
 

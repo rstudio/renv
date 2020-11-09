@@ -5,7 +5,7 @@ renv_package_installed <- function(package, lib.loc = renv_libpaths_all()) {
 }
 
 renv_package_available <- function(package) {
-  renv_package_installed(package, lib.loc = NULL)
+  package %in% loadedNamespaces() || renv_package_installed(package)
 }
 
 renv_package_version <- function(package) {
