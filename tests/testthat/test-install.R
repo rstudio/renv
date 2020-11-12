@@ -252,7 +252,8 @@ test_that("renv uses safe library path when needed", {
 
   renv_tests_scope()
 
-  badlib <- "Has'Single'Quote"
+  badlib <- file.path(getwd(), "Has'Single'Quote")
+  dir.create(badlib)
   expect_false(renv_libpaths_safe(badlib) == badlib)
 
 })
