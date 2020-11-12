@@ -248,6 +248,15 @@ test_that("renv uses safe library paths on Windows", {
 
 })
 
+test_that("renv uses safe library path when needed", {
+
+  renv_tests_scope()
+
+  badlib <- "Has'Single'Quote"
+  expect_false(renv_libpaths_safe(badlib) == badlib)
+
+})
+
 test_that("renv can install packages from Bitbucket", {
   skip_on_cran()
   renv_tests_scope()

@@ -95,7 +95,12 @@ renv_libpaths_safe_impl <- function(libpath) {
 
 renv_libpaths_safe_tempdir <- function(libpath) {
   safelib <- tempfile("renv-library-")
-  renv_file_junction(libpath, safelib)
+
+  if (renv_platform_windows())
+    renv_file_junction(libpath, safelib)
+  else
+    file.symlink(libpath, safelib)
+
   safelib
 }
 
@@ -117,7 +122,11 @@ renv_libpaths_safe_userlib <- function(libpath) {
   # otherwise, try to create it. note that junction
   # points can be removed with a non-recursive unlink
   unlink(safelib)
-  renv_file_junction(libpath, safelib)
+
+  if (renv_platform_windows())
+    renv_file_junction(libpath, safelib)
+  else
+    file.symlink(libpath, safelib)
 
   safelib
 
