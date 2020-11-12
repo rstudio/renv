@@ -269,6 +269,12 @@ renv_bootstrap_validate_version <- function(version) {
 
 }
 
+renv_bootstrap_hash_text <- function(text) {
+  hashfile <- renv_tempfile("renv-hash-")
+  writeLines(text, con = hashfile)
+  tools::md5sum(hashfile)
+}
+
 renv_bootstrap_load <- function(project, libpath, version) {
 
   # try to load renv from the project library
