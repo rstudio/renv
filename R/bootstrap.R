@@ -232,7 +232,7 @@ renv_bootstrap_library_root <- function(project) {
 
   path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
   if (!is.na(path)) {
-    id <- substring(renv_hash_text(project), 1L, 8L)
+    id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
     name <- paste(basename(project), id, sep = "-")
     return(file.path(path, name))
   }
