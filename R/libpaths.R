@@ -39,15 +39,28 @@ renv_libpaths_external <- function(project) {
 # https://github.com/rstudio/renv/issues/334
 renv_libpaths_safe <- function(libpaths) {
 
-  if (!renv_platform_windows())
-    return(libpaths)
-
-  # note: was fixed upstream for R 4.0.0; see:
-  # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17709
-  if (getRversion() >= "4.0.0")
+  if (renv_libpaths_safe_check(libpaths))
     return(libpaths)
 
   map_chr(libpaths, renv_libpaths_safe_impl)
+
+}
+
+renv_libpaths_safe_check <- function(libpaths) {
+
+  # if any of the paths have single quotes, then
+  # we need to use a safe path
+  # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17973
+  if (any(grepl("'", libpaths, fixed = TRUE)))
+    return(FALSE)
+
+  # on Windows, we need to use safe library paths for R < 4.0.0
+  # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17709
+  if (renv_platform_windows() && getRversion() < "4.0.0")
+    return(FALSE)
+
+  # otherwise, we're okay
+  return(TRUE)
 
 }
 
@@ -56,7 +69,7 @@ renv_libpaths_safe_impl <- function(libpath) {
   # check for an unsafe library path
   unsafe <-
     Encoding(libpath) == "UTF-8" ||
-    grepl("[&\\<>^|\"]", libpath)
+    grepl("[&\\<>^|'\"]", libpath)
 
   # if the path appears safe, use it as-is
   if (!unsafe)
