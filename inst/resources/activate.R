@@ -308,9 +308,13 @@ local({
   }
   
   renv_bootstrap_hash_text <- function(text) {
-    hashfile <- renv_tempfile("renv-hash-")
+  
+    hashfile <- tempfile("renv-hash-")
+    on.exit(unlink(hashfile), add = TRUE)
+  
     writeLines(text, con = hashfile)
     tools::md5sum(hashfile)
+  
   }
   
   renv_bootstrap_load <- function(project, libpath, version) {
