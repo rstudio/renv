@@ -347,7 +347,7 @@ local({
     return(TRUE)
 
   # load failed; attempt to bootstrap
-  message("Bootstrapping renv ", version, " ...")
+  message("# Bootstrapping renv ", version, " ----")
   bootstrap(version, libpath)
 
   # exit early if we're just testing bootstrap
@@ -356,7 +356,7 @@ local({
 
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-    message("Successfully installed and loaded renv ", version, ".")
+    message("* Successfully installed and loaded renv ", version, ".")
     return(renv::load())
   }
 

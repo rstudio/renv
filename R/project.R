@@ -201,6 +201,27 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   project  <- renv_project_resolve(project)
   lockfile <- lockfile %||% renv_lockfile_load(project)
 
+  # if there are no packages (other than renv) available in the project library,
+  # but there are multiple packages referenced in the lockfile,
+  # then instruct the user that they may need to run restore
+  libpath <- renv_paths_library(project = project)
+  packages <- list.files(libpath)
+
+  needsrestore <-
+    empty(setdiff(packages, "renv")) &&
+    length(lockfile$Packages) > 1
+
+  if (needsrestore) {
+
+    msg <- lines(
+      "* The project library is out of sync with the lockfile.",
+      "* Use `renv::restore()` to install packages recorded in the lockfile."
+    )
+
+    ewritef(msg)
+    return(FALSE)
+  }
+
   # perform a lightweight comparison between the project
   # library and lockfile, and report if there may be
   # any conflicts
@@ -220,15 +241,18 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   )
 
   # compare with the current lockfile
-  diff <- renv_lockfile_diff_packages(lockfile, libstate)
+  diff <- renv_lockfile_diff_packages(libstate, lockfile)
 
   # we only want to report cases where a package version
   # has changed, or the lockfile references a package that
   # is not currently installed in the project library
-  diff <- diff[diff != "install"]
-  if (length(diff)) {
+  diff <- diff[diff != "remove"]
+  if (!empty(diff)) {
     msg <- "* The project may be out of sync -- use `renv::status()` for more details."
     ewritef(msg)
+    return(FALSE)
   }
+
+  TRUE
 
 }
