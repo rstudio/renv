@@ -1,6 +1,12 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv::status()` gains the `cache` argument, used to control whether
+  `renv::status()` also performs diagnostics on the global package cache. (#570)
+
+* Fixed an issue where `renv::status()` would make an un-necessary call to
+  `renv::dependencies()`. (#570)
+
 * Fixed an issue where `renv::install("bioc::<package>", rebuild = TRUE)` would
   fail to install the requested package. (#565)
 

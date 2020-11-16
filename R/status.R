@@ -12,6 +12,11 @@
 #' @param lockfile The path to a lockfile. By default, the project lockfile
 #'   (called `renv.lock`) is used.
 #'
+#' @param cache Boolean; perform diagnostics on the global package cache?
+#'   When `TRUE`, `renv` will validate that the packages installed into the
+#'   cache are installed at the expected + proper locations, and validate the
+#'   hashes used for those storage locations.
+#'
 #' @return This function is normally called for its side effects.
 #'
 #' @export
@@ -20,7 +25,8 @@
 status <- function(project = NULL,
                    ...,
                    library = NULL,
-                   lockfile = NULL)
+                   lockfile = NULL,
+                   cache = FALSE)
 {
   renv_scope_error_handler()
   renv_dots_check(...)
@@ -28,15 +34,13 @@ status <- function(project = NULL,
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
-  renv_dependencies_scope(project, action = "status")
-
   library <- renv_path_normalize(library %||% renv_libpaths_all())
   lockpath <- lockfile %||% renv_lockfile_path(project)
 
-  invisible(renv_status_impl(project, library, lockpath))
+  invisible(renv_status_impl(project, library, lockpath, cache))
 }
 
-renv_status_impl <- function(project, library, lockpath) {
+renv_status_impl <- function(project, library, lockpath, cache) {
 
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
@@ -55,7 +59,9 @@ renv_status_impl <- function(project, library, lockpath) {
   )
 
   renv_status_check_unknown_sources(project, lockfile)
-  renv_status_check_cache(project)
+
+  if (cache)
+    renv_status_check_cache(project)
 
   list(library = libstate, lockfile = lockfile)
 

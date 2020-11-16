@@ -4,7 +4,7 @@
 \alias{status}
 \title{Status}
 \usage{
-status(project = NULL, ..., library = NULL, lockfile = NULL)
+status(project = NULL, ..., library = NULL, lockfile = NULL, cache = FALSE)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -19,6 +19,11 @@ with the requested project are used.}
 
 \item{lockfile}{The path to a lockfile. By default, the project lockfile
 (called \code{renv.lock}) is used.}
+
+\item{cache}{Boolean; perform diagnostics on the global package cache?
+When \code{TRUE}, \code{renv} will validate that the packages installed into the
+cache are installed at the expected + proper locations, and validate the
+hashes used for those storage locations.}
 }
 \value{
 This function is normally called for its side effects.
