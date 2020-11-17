@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv::dependencies()` now detects the usage of R packages within dotfiles;
+  e.g. the project `.Rprofile`. (#569)
+
 * `renv::status()` gains the `cache` argument, used to control whether
   `renv::status()` also performs diagnostics on the global package cache. (#570)
 

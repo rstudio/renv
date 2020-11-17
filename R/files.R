@@ -378,7 +378,7 @@ renv_file_list <- function(path, full.names = TRUE) {
 renv_file_list_impl <- function(path) {
 
   if (!renv_platform_windows())
-    return(list.files(path))
+    return(list.files(path, all.files = TRUE, no.. = TRUE))
 
   # nocov start
 

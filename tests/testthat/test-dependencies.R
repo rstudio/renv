@@ -108,13 +108,13 @@ test_that("renv_dependencies_requires warns once", {
 test_that("the presence of an rsconnect folder forces dependency on rsconnect", {
   renv_tests_scope()
   dir.create("rsconnect")
-  deps <- renv::dependencies()
+  deps <- dependencies()
   expect_true("rsconnect" %in% deps$Package)
 })
 
 test_that("dependencies can accept multiple files", {
 
-  deps <- renv::dependencies(
+  deps <- dependencies(
     path = c("packages/bread", "packages/breakfast"),
     root = getwd(),
     quiet = TRUE
@@ -126,7 +126,7 @@ test_that("dependencies can accept multiple files", {
 
 test_that("dependencies can infer the root directory", {
 
-  deps <- renv::dependencies(
+  deps <- dependencies(
     path = c("packages/bread", "packages/breakfast"),
     quiet = TRUE
   )
@@ -142,7 +142,7 @@ test_that("no warnings are produced when crawling dependencies", {
 
   expect_warning(
     regexp = NA,
-    renv::dependencies(
+    dependencies(
       "resources",
       root = file.path(getwd(), "resources"),
       quiet = TRUE
@@ -255,11 +255,20 @@ test_that(".renvignore can be used to ignore all but certain files", {
 })
 
 test_that("exercise chunks are ignored", {
-  deps <- renv::dependencies("resources/learnr-exercise.Rmd")
+  deps <- dependencies("resources/learnr-exercise.Rmd")
   expect_true("A" %in% deps$Package)
 })
 
 test_that("dependencies in R functions can be found", {
-  deps <- renv::dependencies(function() bread::bread())
+  deps <- dependencies(function() bread::bread())
   expect_true("bread" %in% deps$Package)
+})
+
+test_that("dependencies in dotfiles are discovered", {
+  renv_tests_scope()
+  writeLines("library(A)", con = ".Rprofile")
+  deps <- dependencies(quiet = TRUE)
+  expect_true(nrow(deps) == 1L)
+  expect_true(basename(deps$Source) == ".Rprofile")
+  expect_true(deps$Package == "A")
 })
