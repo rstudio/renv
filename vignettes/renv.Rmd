@@ -209,7 +209,7 @@ After initializing a project with `renv`, that project will then be 'bound'
 to the particular version of `renv` that was used to initialize the project.
 If you need to upgrade (or otherwise change) the version of `renv` associated
 with a project, you can use `renv::upgrade()`. This will install the latest
-version of the `renv` 
+version of `renv` as available on the active R package repositories.
 
 With each commit of `renv`, we bump the package version and also tag the
 commit with the associated package version. This implies that you can call,
