@@ -1,6 +1,7 @@
 
 renv_patch_init <- function() {
   renv_patch_tar()
+  renv_patch_golem()
 }
 
 renv_patch_tar <- function() {
@@ -37,5 +38,48 @@ renv_patch_tar <- function() {
   # report to the user
   fmt <- "requested TAR '%s' does not exist; using '%s' instead"
   warningf(fmt, tar, newtar)
+
+}
+
+renv_patch_golem <- function() {
+  renv_package_hook("golem", renv_patch_golem_impl)
+}
+
+renv_patch_golem_impl <- function(...) {
+
+  if (packageVersion("golem") != "0.2.1")
+    return()
+
+  golem <- getNamespace("golem")
+
+  replacement <- function(file, pattern, replace) {
+
+    # skip .rds files
+    if (grepl("[.]rds$", file))
+      return()
+
+    # skip files containing nul bytes
+    info <- file.info(file, extra_cols = FALSE)
+    bytes <- readBin(file, "raw", info$size)
+    if (any(bytes == 0L))
+      return()
+
+    # otherwise, attempt replacement
+    old <- readLines(file)
+    new <- gsub(pattern, replace, old)
+    writeLines(new, con = file)
+
+  }
+
+  environment(replacement) <- golem
+
+  if ("compiler" %in% loadedNamespaces())
+    replacement <- compiler::cmpfun(replacement)
+
+  renv_binding_replace(
+    symbol = "replace_word",
+    envir  = golem,
+    replacement = replacement
+  )
 
 }
