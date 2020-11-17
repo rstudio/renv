@@ -208,8 +208,11 @@ as a package repository you have hosted and set up in your work environment.
 After initializing a project with `renv`, that project will then be 'bound'
 to the particular version of `renv` that was used to initialize the project.
 If you need to upgrade (or otherwise change) the version of `renv` associated
-with a project, you can use `renv::upgrade()`. This will install the latest
-version of the `renv` 
+with a project, you can use `renv::upgrade()`. This will install the
+latest-available version of `renv` from your declared package repositories.
+Alternatively, if you're currently using a development version of `renv` as
+installed from GitHub in your project, then `renv` will install the
+latest-available version of `renv` from GitHub.
 
 With each commit of `renv`, we bump the package version and also tag the
 commit with the associated package version. This implies that you can call,
