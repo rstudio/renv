@@ -116,3 +116,31 @@ test_that("malformed folders in the cache are ignored", {
   expect_length(paths, 0)
 
 })
+
+test_that("corrupt Meta/package.rds is detected", {
+  skip_on_cran()
+  renv_tests_scope()
+
+  cachepath <- tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
+
+  init()
+  install("bread")
+
+  path <- renv_cache_find(list(Package = "bread", Version = "1.0.0"))
+  expect_true(nzchar(path) && file.exists(path))
+
+  metapath <- file.path(path, "Meta/package.rds")
+  expect_true(file.exists(metapath))
+
+  writeLines("whoops!", con = file.path(path, "Meta/package.rds"))
+
+  diagnostics <- renv_cache_diagnose(verbose = TRUE)
+
+  expect_true(is.data.frame(diagnostics))
+  expect_true(nrow(diagnostics) == 1)
+  expect_true(diagnostics$Package == "bread")
+  expect_true(diagnostics$Version == "1.0.0")
+
+})

@@ -189,6 +189,75 @@ renv_cache_list <- function(cache = NULL, packages = NULL) {
 
 }
 
+renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
+
+  # check for missing metadata files
+  metapaths <- file.path(paths, "Meta/package.rds")
+  ok <- file.exists(metapaths)
+  bad <- paths[!ok]
+
+  if (length(bad)) {
+
+    # nocov start
+    if (verbose) {
+      renv_pretty_print(
+        renv_cache_format_path(dirname(bad)),
+        "The following package(s) are missing 'Meta/package.rds':",
+        "These packages should be purged and re-installed.",
+        wrap = FALSE
+      )
+    }
+    # nocov end
+
+    data <- data.frame(
+      Package = renv_path_component(bad, 1L),
+      Version = renv_path_component(bad, 3L),
+      Path    = bad,
+      Reason  = "'Meta/package.rds' does not exist",
+      stringsAsFactors = FALSE
+    )
+
+    problems$push(data)
+
+  }
+
+  # check for corrupt / unreadable metadata files
+  ok <- map_lgl(metapaths, function(path) {
+    rds <- catch(readRDS(path))
+    !inherits(rds, "error")
+  })
+
+  bad <- paths[!ok]
+
+  if (length(bad)) {
+
+    # nocov start
+    if (verbose) {
+      renv_pretty_print(
+        renv_cache_format_path(dirname(bad)),
+        "The following package(s) have corrupt 'Meta/package.rds' files:",
+        "These packages should be purged and re-installed.",
+        wrap = FALSE
+      )
+    }
+    # nocov end
+
+    data <- data.frame(
+      Package = renv_path_component(bad, 1L),
+      Version = renv_path_component(bad, 3L),
+      Path    = bad,
+      Reason  = "'Meta/package.rds' is corrupt and cannot be read",
+      stringsAsFactors = FALSE
+    )
+
+    problems$push(data)
+
+  }
+
+  paths
+
+}
+
 renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
 
   descpaths <- file.path(paths, "DESCRIPTION")
@@ -216,7 +285,7 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
     Package = package,
     Version = version,
     Path    = path,
-    Reason  = "missing",
+    Reason  = "'DESCRIPTION' does not exist",
     stringsAsFactors = FALSE
   )
 
@@ -254,7 +323,7 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
     Package = renv_path_component(paths[wrong], 1L),
     Version = renv_path_component(paths[wrong], 3L),
     Path    = paths[wrong],
-    Reason  = "badhash",
+    Reason  = "unexpected hash",
     stringsAsFactors = FALSE
   )
 
@@ -269,6 +338,7 @@ renv_cache_diagnose <- function(verbose = NULL) {
 
   problems <- stack()
   paths <- renv_cache_list()
+  paths <- renv_cache_diagnose_corrupt_metadata(paths, problems, verbose)
   paths <- renv_cache_diagnose_missing_descriptions(paths, problems, verbose)
   paths <- renv_cache_diagnose_bad_hash(paths, problems, verbose)
 
@@ -284,9 +354,9 @@ renv_cache_move <- function(source, target, overwrite = FALSE) {
 # nocov start
 renv_cache_format_path <- function(paths) {
 
-  names    <- format(renv_path_component(paths, 1))
-  hashes   <- format(renv_path_component(paths, 2))
-  versions <- format(renv_path_component(paths, 3))
+  names    <- format(renv_path_component(paths, 1L))
+  hashes   <- format(renv_path_component(paths, 2L))
+  versions <- format(renv_path_component(paths, 3L))
 
   fmt <- "%s %s [Hash: %s]"
   sprintf(fmt, names, versions, hashes)
