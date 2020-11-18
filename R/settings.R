@@ -362,7 +362,7 @@ settings <- list(
   r.version = renv_settings_impl(
     name     = "r.version",
     validate = is.character,
-    default  = NULL,
+    default  = character(),
     update   = NULL
   ),
 
