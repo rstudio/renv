@@ -1,6 +1,13 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* The `renv` setting `r.version` has been added. This can be set if you'd like
+  to associate a particular project with a specific version of R, independent
+  of the version of R actually used when subsequent lockfiles are created via
+  `renv::snapshot()`. For example, setting `renv::settings$r.version("4.0")`
+  will ensure that R version `"4.0"` is encoded in the lockfile for future
+  calls to `renv::snapshot()` in a project. (#254)
+
 * `renv::dependencies()` now detects the usage of R packages within dotfiles;
   e.g. the project `.Rprofile`. (#569)
 

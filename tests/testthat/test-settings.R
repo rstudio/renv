@@ -49,3 +49,14 @@ test_that("non-persistent settings exist in R session; not in file", {
   expect_mapequal(settings, persisted)
 
 })
+
+test_that("users can request specific versions of R for lockfile", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.settings.r.version = "4.0")
+  init()
+
+  lockfile <- renv_lockfile_load(getwd())
+  expect_identical(lockfile$R$Version, "4.0")
+
+})

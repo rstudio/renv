@@ -272,6 +272,16 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 #'
+#' \item{\code{r.version}}{
+#'
+#'   The version of \R to encode within the lockfile. This can be set as a
+#'   project-specific option if you'd like to allow multiple users to use
+#'   the same \code{renv} project with different versions of \R. `renv` will
+#'   still warn the user if the major + minor version of \R used in a project
+#'   does not match what is encoded in the lockfile.
+#'
+#' }
+#'
 #' \item{\code{snapshot.type}}{
 #'
 #'   The type of snapshot to perform by default. See [snapshot] for more
@@ -346,6 +356,13 @@ settings <- list(
     name     = "package.dependency.fields",
     validate = is.character,
     default  = c("Imports", "Depends", "LinkingTo"),
+    update   = NULL
+  ),
+
+  r.version = renv_settings_impl(
+    name     = "r.version",
+    validate = is.character,
+    default  = NULL,
     update   = NULL
   ),
 

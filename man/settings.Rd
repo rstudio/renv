@@ -5,7 +5,7 @@
 \alias{settings}
 \title{Project Settings}
 \format{
-An object of class \code{list} of length 6.
+An object of class \code{list} of length 7.
 }
 \usage{
 settings
@@ -46,6 +46,16 @@ dependencies. By default, the \code{Imports}, \code{Depends} and \code{LinkingTo
 are used. If you'd prefer that \code{renv} also captures the \code{Suggests}
 dependencies for a package, you can set this to
 \code{c("Imports", "Depends", "LinkingTo", "Suggests")}.
+
+}
+
+\item{\code{r.version}}{
+
+The version of \R to encode within the lockfile. This can be set as a
+project-specific option if you'd like to allow multiple users to use
+the same \code{renv} project with different versions of \R. \code{renv} will
+still warn the user if the major + minor version of \R used in a project
+does not match what is encoded in the lockfile.
 
 }
 

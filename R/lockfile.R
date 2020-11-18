@@ -12,7 +12,13 @@ renv_lockfile_init <- function(project) {
 }
 
 renv_lockfile_init_r_version <- function(project) {
-  format(getRversion())
+
+  version <-
+    settings$r.version(project = project) %||%
+    getRversion()
+
+  format(version)
+
 }
 
 renv_lockfile_init_r_repos <- function(project) {
