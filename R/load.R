@@ -71,8 +71,12 @@ load <- function(project = getwd(), quiet = FALSE) {
     renv_load_python(project, lockfile$Python)
   }
 
-  renv_infrastructure_write_rbuildignore(project)
-  renv_infrastructure_write_gitignore(project)
+  # allow failure to write infrastructure here to be non-fatal
+  # https://github.com/rstudio/renv/issues/574#issuecomment-731159197
+  catch({
+    renv_infrastructure_write_rbuildignore(project)
+    renv_infrastructure_write_gitignore(project)
+  })
 
   renv_load_finish(project, lockfile)
 
