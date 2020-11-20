@@ -1,6 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` will now attempt to bootstrap itself from CRAN, in addition to any
+  repositories declared via `getOption("repos")`. If you'd prefer to disable
+  this behavior, you can set `options(renv.bootstrap.repos = character())`.
+
 * The `renv` setting `r.version` has been added. This can be set if you'd like
   to associate a particular project with a specific version of R, independent
   of the version of R actually used when subsequent lockfiles are created via

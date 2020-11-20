@@ -110,19 +110,12 @@ local({
   
   renv_bootstrap_download_cran_latest <- function(version) {
   
-    # check for renv on CRAN matching this version
-    db <- as.data.frame(available.packages(), stringsAsFactors = FALSE)
-  
-    entry <- db[db$Package %in% "renv" & db$Version %in% version, ]
-    if (nrow(entry) == 0) {
-      fmt <- "renv %s is not available from your declared package repositories"
-      stop(sprintf(fmt, version))
-    }
+    repos <- renv_bootstrap_download_cran_latest_find(version)
   
     message("* Downloading renv ", version, " from CRAN ... ", appendLF = FALSE)
   
     info <- tryCatch(
-      download.packages("renv", destdir = tempdir(), quiet = TRUE),
+      download.packages("renv", repos = repos, destdir = tempdir(), quiet = TRUE),
       condition = identity
     )
   
@@ -133,6 +126,37 @@ local({
   
     message("OK")
     info[1, 2]
+  
+  }
+  
+  renv_bootstrap_download_cran_latest_find <- function(version) {
+  
+    # check for renv on CRAN matching this version
+    all <- unique(c(
+      getOption("repos"),
+      getOption("renv.bootstrap.repos", default = "https://cloud.r-project.org")
+    ))
+  
+    for (repos in all) {
+  
+      db <- tryCatch(
+        as.data.frame(available.packages(repos = repos), stringsAsFactors = FALSE),
+        error = identity
+      )
+  
+      if (inherits(db, "error"))
+        next
+  
+      entry <- db[db$Package %in% "renv" & db$Version %in% version, ]
+      if (nrow(entry) == 0)
+        next
+  
+      return(repos)
+  
+    }
+  
+    fmt <- "renv %s is not available from your declared package repositories"
+    stop(sprintf(fmt, version))
   
   }
   
