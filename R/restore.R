@@ -60,6 +60,7 @@ restore <- function(project  = NULL,
                     library  = NULL,
                     lockfile = NULL,
                     packages = NULL,
+                    rebuild  = FALSE,
                     repos    = NULL,
                     clean    = FALSE,
                     prompt   = interactive())
@@ -152,18 +153,19 @@ restore <- function(project  = NULL,
   }
 
   # perform the restore
-  records <- renv_restore_run_actions(project, diff, current, lockfile)
+  records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild)
   invisible(records)
 }
 
-renv_restore_run_actions <- function(project, actions, current, lockfile) {
+renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild) {
 
   packages <- names(actions)
 
   renv_scope_restore(
-    project = project,
-    records = renv_records(lockfile),
-    packages = packages
+    project  = project,
+    records  = renv_records(lockfile),
+    packages = packages,
+    rebuild  = rebuild
   )
 
   # first, handle package removals
@@ -211,6 +213,14 @@ renv_restore_begin <- function(project = NULL,
                                rebuild = NULL,
                                recursive = TRUE)
 {
+  # resolve rebuild request
+  rebuild <- case(
+    identical(rebuild, TRUE)  ~ packages,
+    identical(rebuild, FALSE) ~ character(),
+    identical(rebuild, "*")   ~ NA_character_,
+    as.character(rebuild)
+  )
+
   state <- renv_global_get("restore.state")
   renv_global_set("restore.state", env(
 

@@ -31,7 +31,7 @@ library will be used instead.}
 
 \item{rebuild}{Force packages to be rebuilt, thereby bypassing any installed
 versions of the package available in the cache? This can either be a
-boolean (indicating that the requested package(s) should be rebuilt), or a
+boolean (indicating that all installed packages should be rebuilt), or a
 vector of package names indicating which packages should be rebuilt.}
 
 \item{check}{Boolean; check for package updates without actually

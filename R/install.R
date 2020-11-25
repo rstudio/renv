@@ -141,18 +141,11 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
-  rebuild <- case(
-    identical(rebuild, TRUE)  ~ packages,
-    identical(rebuild, FALSE) ~ character(),
-    identical(rebuild, "*")   ~ NA_character_,
-    as.character(rebuild)
-  )
-
   renv_scope_restore(
-    project = project,
-    records = records,
+    project  = project,
+    records  = records,
     packages = packages,
-    rebuild = rebuild
+    rebuild  = rebuild
   )
 
   # retrieve packages

@@ -19,6 +19,11 @@
 #'   the target library? Use `clean = TRUE` if you'd like the library state
 #'   to exactly reflect the lockfile contents after `restore()`.
 #'
+#' @param rebuild Force packages to be rebuilt, thereby bypassing any installed
+#'   versions of the package available in the cache? This can either be a
+#'   boolean (indicating that all installed packages should be rebuilt), or a
+#'   vector of package names indicating which packages should be rebuilt.
+#'
 #' @return The project directory, invisibly. Note that this function is normally
 #'   called for its side effects.
 #'
@@ -26,11 +31,6 @@
 NULL
 
 #' @param library The library into which packages should be installed.
-#'
-#' @param rebuild Force packages to be rebuilt, thereby bypassing any installed
-#'   versions of the package available in the cache? This can either be a
-#'   boolean (indicating that the requested package(s) should be rebuilt), or a
-#'   vector of package names indicating which packages should be rebuilt.
 #'
 #' @param packages A character vector of \R packages to install. Required
 #'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed

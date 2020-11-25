@@ -10,6 +10,7 @@ restore(
   library = NULL,
   lockfile = NULL,
   packages = NULL,
+  rebuild = FALSE,
   repos = NULL,
   clean = FALSE,
   prompt = interactive()
@@ -34,6 +35,11 @@ is used.}
 When \code{NULL} (the default), all packages available in the lockfile will be
 restored. Any required recursive dependencies of the requested packages
 will be restored as well.}
+
+\item{rebuild}{Force packages to be rebuilt, thereby bypassing any installed
+versions of the package available in the cache? This can either be a
+boolean (indicating that all installed packages should be rebuilt), or a
+vector of package names indicating which packages should be rebuilt.}
 
 \item{repos}{The repositories to use during restore, for packages installed
 from CRAN or another similar R package repository. When set, this will

@@ -1,6 +1,11 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv::restore()` gains the `rebuild` argument, allowing users to control
+  whether packages should be rebuilt on `restore()` rather than installed
+  via links or copies from the cache, or other sources providing
+  already-installed packages.
+
 * `renv` will now attempt to bootstrap itself from CRAN, in addition to any
   repositories declared via `getOption("repos")`. If you'd prefer to disable
   this behavior, you can set `options(renv.bootstrap.repos = character())`.
