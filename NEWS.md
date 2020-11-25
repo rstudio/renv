@@ -1,4 +1,6 @@
 
+# renv 0.13.0 (UNRELEASED)
+
 # renv 0.12.3
 
 * Fixed an issue where `renv::dependencies()` could give an error if called
