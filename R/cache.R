@@ -201,7 +201,7 @@ renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
     # nocov start
     if (verbose) {
       renv_pretty_print(
-        renv_cache_format_path(dirname(bad)),
+        renv_cache_format_path(bad),
         "The following package(s) are missing 'Meta/package.rds':",
         "These packages should be purged and re-installed.",
         wrap = FALSE
@@ -234,7 +234,7 @@ renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
     # nocov start
     if (verbose) {
       renv_pretty_print(
-        renv_cache_format_path(dirname(bad)),
+        renv_cache_format_path(bad),
         "The following package(s) have corrupt 'Meta/package.rds' files:",
         "These packages should be purged and re-installed.",
         wrap = FALSE
