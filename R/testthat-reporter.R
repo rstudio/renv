@@ -24,8 +24,13 @@ renv_tests_reporter <- function() {
       },
 
       end_file = function() {
+
+        if (empty(self$.expectations))
+          cli::cat_line("[no test results to report]")
+
         cli::cat_line()
         super$end_file()
+
       },
 
       add_result = function(context, test, result) {

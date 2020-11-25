@@ -139,8 +139,11 @@ renv_dependencies_impl <- function(
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
 
-  if (exists(path, envir = `_renv_dependencies`))
-    return(get(path, envir = `_renv_dependencies`))
+  # check and see if we've pre-computed dependencies for this path, and
+  # retrieve those pre-computed dependencies if so
+  if (length(path) == 1)
+    if (exists(path, envir = `_renv_dependencies`))
+      return(get(path, envir = `_renv_dependencies`))
 
   renv_dependencies_begin(root = root)
   on.exit(renv_dependencies_end(), add = TRUE)

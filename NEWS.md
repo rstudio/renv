@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where `renv::dependencies()` could give an error if called
+  with a `path` argument of length > 1.
+
 * `renv::restore()` gains the `rebuild` argument, allowing users to control
   whether packages should be rebuilt on `restore()` rather than installed
   via links or copies from the cache, or other sources providing
