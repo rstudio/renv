@@ -136,7 +136,7 @@ test_that("corrupt Meta/package.rds is detected", {
 
   writeLines("whoops!", con = file.path(path, "Meta/package.rds"))
 
-  diagnostics <- renv_cache_diagnose(verbose = TRUE)
+  diagnostics <- renv_cache_diagnose(verbose = FALSE)
 
   expect_true(is.data.frame(diagnostics))
   expect_true(nrow(diagnostics) == 1)
