@@ -309,7 +309,7 @@ Installation from source can be challenging for a few reasons:
 
 ## Downloads
 
-By default, `renv` uses [`curl`](https://curl.haxx.se/) for file downloads
+By default, `renv` uses [`curl`](https://curl.se/) for file downloads
 when available. This allows `renv` to support a number of download features
 across multiple versions of R, including:
 

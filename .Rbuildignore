@@ -28,3 +28,4 @@
 ^templates$
 ^tools$
 
+^tests/testthat/testthat-problems.rds$
