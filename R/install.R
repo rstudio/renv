@@ -89,7 +89,7 @@
 #' renv::install("bioc::Biobase")
 #'
 #' # install a package from local sources
-#' renv::install("~/path/to/package")
+#' renv::install("~/path/to/package@@version")
 #'
 #' }
 install <- function(packages = NULL,
