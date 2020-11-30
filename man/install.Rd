@@ -119,7 +119,7 @@ renv::install("eddelbuettel/digest@df55b00bff33e945246eff2586717452e635032f")
 # (note: requires the BiocManager package)
 renv::install("bioc::Biobase")
 
-# install a package from local sources
+# install a package, specifying path explicitly
 renv::install("~/path/to/package")
 
 }
