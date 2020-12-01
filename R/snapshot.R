@@ -558,6 +558,7 @@ renv_snapshot_r_packages_impl <- function(library = NULL,
 
 renv_snapshot_r_library_diagnose <- function(library, pkgs) {
 
+  pkgs <- grep("00LOCK", pkgs, invert = TRUE, value = TRUE)
   pkgs <- renv_snapshot_r_library_diagnose_broken_link(library, pkgs)
   pkgs <- renv_snapshot_r_library_diagnose_tempfile(library, pkgs)
   pkgs <- renv_snapshot_r_library_diagnose_missing_description(library, pkgs)

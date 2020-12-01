@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where bootstrapping an older version of `renv` could
+  fail if the R repositories had not been appropriately set.
+
 # renv 0.12.3
 
 * Fixed an issue where `renv::dependencies()` could give an error if called
