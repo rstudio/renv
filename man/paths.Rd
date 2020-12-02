@@ -33,18 +33,19 @@ separate volume). The various environment variables that can be set are
 enumerated below:
 
 \tabular{ll}{
-\strong{Environment Variable}  \tab \strong{Description} \cr
-\code{RENV_PATHS_ROOT}         \tab The root path used for global state storage. \cr
-\code{RENV_PATHS_LIBRARY}      \tab The path to the project library. \cr
-\code{RENV_PATHS_LIBRARY_ROOT} \tab The parent path for project libraries. \cr
-\code{RENV_PATHS_LOCAL}        \tab The path containing local package sources. \cr
-\code{RENV_PATHS_SOURCE}       \tab The path containing downloaded package sources. \cr
-\code{RENV_PATHS_BINARY}       \tab The path containing downloaded package binaries. \cr
-\code{RENV_PATHS_CACHE}        \tab The path containing cached package installations. \cr
-\code{RENV_PATHS_PREFIX}       \tab An optional prefix to prepend to the constructed library / cache paths. \cr
-\code{RENV_PATHS_RTOOLS}       \tab (Windows only) The path to \href{https://cran.r-project.org/bin/windows/Rtools/}{Rtools}. \cr
-\code{RENV_PATHS_EXTSOFT}      \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
-\code{RENV_PATHS_MRAN}         \tab The path containing MRAN-related metadata. See \code{vignette("mran", package = "renv")} for more details. \cr
+\strong{Environment Variable}     \tab \strong{Description} \cr
+\code{RENV_PATHS_ROOT}            \tab The root path used for global state storage. \cr
+\code{RENV_PATHS_LIBRARY}         \tab The path to the project library. \cr
+\code{RENV_PATHS_LIBRARY_ROOT}    \tab The parent path for project libraries. \cr
+\code{RENV_PATHS_LIBRARY_STAGING} \tab The parent path used for staged package installs. \cr
+\code{RENV_PATHS_LOCAL}           \tab The path containing local package sources. \cr
+\code{RENV_PATHS_SOURCE}          \tab The path containing downloaded package sources. \cr
+\code{RENV_PATHS_BINARY}          \tab The path containing downloaded package binaries. \cr
+\code{RENV_PATHS_CACHE}           \tab The path containing cached package installations. \cr
+\code{RENV_PATHS_PREFIX}          \tab An optional prefix to prepend to the constructed library / cache paths. \cr
+\code{RENV_PATHS_RTOOLS}          \tab (Windows only) The path to \href{https://cran.r-project.org/bin/windows/Rtools/}{Rtools}. \cr
+\code{RENV_PATHS_EXTSOFT}         \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
+\code{RENV_PATHS_MRAN}            \tab The path containing MRAN-related metadata. See \code{vignette("mran", package = "renv")} for more details. \cr
 }
 
 Note that \code{renv} will append platform-specific and version-specific entries

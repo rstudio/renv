@@ -218,14 +218,21 @@ renv_install_staged_library_impl <- function(root) {
 # NOTE: on Windows, installing packages into very long paths
 # can fail, as R's internal unzip utility does not handle
 # long Windows paths well. in addition, an renv project's
-# library path tends to be long, exaspeating the issue.
+# library path tends to be long, exasperating the issue.
 # for that reason, we try to use a shorter staging directory
 # when possible
 renv_install_staged_library <- function(library) {
 
   project <- renv_project(default = NULL)
 
-  root <- if (is.null(project))
+  # allow user configuration of staged library location
+  staging <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
+  if (!is.na(staging))
+    ensure_directory(staging)
+
+  root <- if (!is.na(staging))
+    staging
+  else if (is.null(project))
     file.path(library[[1]], ".renv")
   else
     file.path(project, "renv/staging")
