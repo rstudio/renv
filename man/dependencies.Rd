@@ -59,6 +59,18 @@ For \R package projects, dependencies expressed in the \code{DESCRIPTION} file
 will also be discovered. Note that the \code{rmarkdown} package is required in
 order to crawl dependencies in R Markdown files.
 }
+\section{Suppressing Errors}{
+
+
+Depending on how you've structured your code, \code{renv} may emit errors when
+attempting to enumerate dependencies within \code{.Rmd} / \code{.Rnw} documents.
+For code chunks that you'd explicitly like \code{renv} to ignore, you can
+include \code{renv.ignore=FALSE} in the chunk header. For example:\preformatted{```\{r chunk-label, renv.ignore=FALSE\}
+# code in this chunk will be ignored by renv
+```
+}
+}
+
 \section{Ignoring Files}{
 
 
