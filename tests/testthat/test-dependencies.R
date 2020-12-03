@@ -272,3 +272,8 @@ test_that("dependencies in dotfiles are discovered", {
   expect_true(basename(deps$Source) == ".Rprofile")
   expect_true(deps$Package == "A")
 })
+
+test_that("reused knitr chunks are handled", {
+  deps <- dependencies("resources/knitr-reused-chunks.Rmd")
+  expect_true(all(c("A", "B") %in% deps$Package))
+})

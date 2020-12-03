@@ -1,0 +1,14 @@
+
+```{r chunk1}
+x <- 1
+```
+
+```{r chunk2}
+<<chunk1>>
+library(A)
+```
+
+```{r chunk3}
+<<no-such-chunk>>
+library(B)
+```

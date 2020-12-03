@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` no longer emits warnings when parsing multi-mode R files that make
+  use of re-used knitr chunks (those specified as `<<label>>`). (#586)
+
 * The library used for staged installs can now be configured via the
   `RENV_PATHS_LIBRARY_STAGING` environment variable. (#584)
   

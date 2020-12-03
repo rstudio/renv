@@ -589,8 +589,12 @@ renv_dependencies_discover_chunks <- function(path) {
     if (grepl("-display$", label))
       return(character())
 
+    # remove reused chunk placeholders
+    pattern <- "<<[^>]+>>"
+    code <- gsub(pattern, "", chunk$code)
+
     # okay, now we can discover deps
-    deps <- catch(renv_dependencies_discover_r(path = path, text = chunk$code))
+    deps <- catch(renv_dependencies_discover_r(path = path, text = code))
     if (inherits(deps, "error"))
       return(renv_dependencies_error(path, error = deps))
 
