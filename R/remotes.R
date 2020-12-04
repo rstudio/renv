@@ -382,6 +382,7 @@ renv_remotes_resolve_gitlab <- function(entry) {
   fmt <- "%s/api/v4/projects/%s/repository/commits/%s"
   origin <- renv_retrieve_origin(host)
   id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
+  ref <- URLencode(ref, reserved = TRUE)
   url <- sprintf(fmt, origin, id, ref)
 
   destfile <- renv_tempfile("renv-gitlab-commits-")

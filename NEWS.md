@@ -1,6 +1,8 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where GitLab references were not URL encoded. (#590)
+
 * `renv` no longer emits warnings when parsing multi-mode R files that make
   use of re-used knitr chunks (those specified as `<<label>>`). (#586)
 

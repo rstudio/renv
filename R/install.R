@@ -129,6 +129,7 @@ install <- function(packages = NULL,
   if (length(repos))
     renv_scope_options(repos = repos)
 
+  # resolve packages / remotes to be installed
   records <- renv_snapshot_r_packages(library = library, project = project)
   remotes <- lapply(packages, renv_remotes_resolve)
 
@@ -499,7 +500,7 @@ renv_install_preflight <- function(records) {
   if (renv_verbose()) {
     renv_pretty_print(
       text,
-      "The following issues were discovered during installation:",
+      "The following issues were discovered while preparing for installation:",
       "Installation of these packages may not succeed.",
       wrap = FALSE
     )
