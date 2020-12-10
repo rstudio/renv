@@ -283,11 +283,11 @@ renv_available_packages_latest_impl <- function(package, type) {
 
 }
 
-renv_available_packages_latest <- function(package) {
+renv_available_packages_latest <- function(package, type = NULL) {
 
   # if we're not using binary repositories,
   # then just take the latest available from source repositories
-  types <- renv_package_pkgtypes()
+  types <- type %||% renv_package_pkgtypes()
   if (!"binary" %in% types) {
 
     entry <- renv_available_packages_latest_impl(package, "source")

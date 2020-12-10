@@ -662,9 +662,19 @@ renv_snapshot_description_source <- function(dcf) {
   if (is.null(package))
     return(list(Source = "unknown"))
 
+  # NOTE: this is sort of a hack that allows renv to declare packages which
+  # appear to be installed from sources, but are actually available on the
+  # active R package repositories, as though they were retrieved from that
+  # repository. however, this is often what users intend, especially if
+  # they haven't configured their repository to tag the packages it makes
+  # available with the 'Repository:' field in the DESCRIPTION file.
+  #
+  # still, this has the awkward side-effect of a package's source potentially
+  # depending on what repositories happen to be active at the time of snapshot,
+  # so it'd be nice to tighten up the logic here if possible
   entry <- local({
     renv_scope_options(renv.verbose = FALSE)
-    catch(renv_available_packages_latest(package))
+    catch(renv_available_packages_latest(package, type = "source"))
   })
 
   if (!inherits(entry, "error"))
