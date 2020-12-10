@@ -49,9 +49,10 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
-  if (file.exists(destfile)) {
+  info <- file.info(destfile, extra_cols = FALSE)
+  if (identical(info$isdir, FALSE)) {
     size <- renv_download_size(url, type, headers)
-    if (size != -1 && file.size(destfile) == size) {
+    if (info$size == size) {
       vwritef("\tOK [file is up to date]")
       return(destfile)
     }
