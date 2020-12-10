@@ -152,6 +152,16 @@ renv_tests_init_repos <- function(repos = NULL) {
     # generate an 'old' version of the packages
     descpath <- file.path(path, "DESCRIPTION")
     desc <- renv_description_read(descpath)
+    desc$Version <- "0.0.1"
+    write.dcf(desc, file = descpath)
+
+    # place packages at top level (simulating packages with multiple
+    # versions at the top level of the repository)
+    upload(path, contrib, subdir = FALSE)
+
+    # generate an 'old' version of the packages
+    descpath <- file.path(path, "DESCRIPTION")
+    desc <- renv_description_read(descpath)
     desc$Version <- "0.1.0"
     write.dcf(desc, file = descpath)
 
@@ -161,7 +171,12 @@ renv_tests_init_repos <- function(repos = NULL) {
   }
 
   # update PACKAGES metadata
-  tools::write_PACKAGES(contrib, subdirs = subdirs, type = "source")
+  tools::write_PACKAGES(
+    dir = contrib,
+    subdirs = subdirs,
+    type = "source",
+    latestOnly = FALSE
+  )
 
   # set repository URL (for tests)
   options(renv.tests.repos = c(CRAN = repos))

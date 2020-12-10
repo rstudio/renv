@@ -24,7 +24,7 @@ test_that("renv handles multiple available source packages", {
   dbs <- renv_available_packages(type = "source")
   cran <- dbs[["CRAN"]]
   entries <- cran[cran$Package == "breakfast", ]
-  expect_true(nrow(entries) == 2)
+  expect_true(nrow(entries) == 3)
 
   entry <- renv_available_packages_entry(
     package = "breakfast",
