@@ -88,10 +88,6 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   if (!file.exists(tempfile))
     stopf("download failed [unknown reason]")
 
-  # double-check that the reported size is correct
-  if (size != -1 && file.size(tempfile) != size)
-    stopf("download failed [file was truncated]")
-
   # double-check archives are readable
   status <- renv_download_check_archive(tempfile)
   if (inherits(status, "error"))
