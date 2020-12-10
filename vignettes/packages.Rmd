@@ -93,6 +93,21 @@ RENV_PATHS_LIBRARY_ROOT = ~/.renv/library
 
 `renv` will then form library paths within this directory.
 
+By default, library paths will be formed using the project name, alongside a
+unique identifier generated from the full project path. These paths are of
+the form:
+
+```
+<name>-<id>
+```
+
+If you'd prefer to omit the `<id>`, then you can set the environment variable:
+
+```
+RENV_PATHS_LIBRARY_ROOT_ASIS = TRUE
+```
+
+to instruct `renv` to forego the use of an identifier.
 
 
 

@@ -259,6 +259,19 @@ renv_bootstrap_prefix <- function() {
 
 }
 
+renv_bootstrap_library_root_name <- function(project) {
+
+  # use project name as-is if requested
+  asis <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT_ASIS", unset = "FALSE")
+  if (asis)
+    return(basename(project))
+
+  # otherwise, disambiguate based on project's path
+  id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
+  paste(basename(project), id, sep = "-")
+
+}
+
 renv_bootstrap_library_root <- function(project) {
 
   path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
@@ -267,8 +280,7 @@ renv_bootstrap_library_root <- function(project) {
 
   path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
   if (!is.na(path)) {
-    id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
-    name <- paste(basename(project), id, sep = "-")
+    name <- renv_bootstrap_library_root_name(project)
     return(file.path(path, name))
   }
 

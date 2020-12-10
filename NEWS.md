@@ -1,6 +1,12 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* The environment variable `RENV_PATHS_LIBRARY_ROOT_ASIS` can now be used
+  to control whether the project name should be used as-is when forming the
+  library path within the `RENV_PATHS_LIBRARY_ROOT` folder. Set this to
+  `"TRUE"` if you would prefer `renv` did not append a unique identifier
+  to your project's library path. (#593)
+  
 * Fixed an issue where GitLab references were not URL encoded. (#590)
 
 * `renv` no longer emits warnings when parsing multi-mode R files that make
