@@ -5,7 +5,7 @@ test_that("properties can be read successfully", {
 
   data <- '# This is a comment.\nKey: Value'
 
-  path <- renv_tempfile("renv-properties-")
+  path <- renv_tempfile_create("renv-properties-")
   writeLines(data, con = path)
 
   # trim whitespace by default

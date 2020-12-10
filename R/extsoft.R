@@ -49,7 +49,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
 
     # download the file
     url <- file.path(root, file)
-    destfile <- renv_tempfile("renv-archive-", fileext = ".zip")
+    destfile <- renv_tempfile_create("renv-archive-", fileext = ".zip")
     download(url, destfile = destfile, quiet = quiet)
 
     # write manifest

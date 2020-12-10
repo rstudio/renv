@@ -38,7 +38,7 @@ renv_file_copy <- function(source, target, overwrite = FALSE) {
 renv_file_copy_file <- function(source, target) {
 
   # copy to temporary path
-  tmpfile <- renv_tempfile(".renv-copy-", tmpdir = dirname(target))
+  tmpfile <- renv_tempfile_create(".renv-copy-", tmpdir = dirname(target))
   status <- catchall(file.copy(source, tmpfile))
   if (inherits(status, "condition"))
     stop(status)
@@ -92,7 +92,7 @@ renv_file_copy_dir_cp <- function(source, target) {
 renv_file_copy_dir_r <- function(source, target) {
 
   # create sub-directory to host copy attempt
-  tempdir <- renv_tempfile(".renv-copy-", tmpdir = dirname(target))
+  tempdir <- renv_tempfile_create(".renv-copy-", tmpdir = dirname(target))
   ensure_directory(tempdir)
 
   # attempt to copy to generated folder
@@ -152,7 +152,7 @@ renv_file_copy_dir <- function(source, target) {
   # create temporary sub-directory
   tmpdir <- dirname(target)
   ensure_directory(tmpdir)
-  tempdir <- renv_tempfile(".renv-copy-", tmpdir = tmpdir)
+  tempdir <- renv_tempfile_create(".renv-copy-", tmpdir = tmpdir)
 
   # copy to that directory
   status <- catchall(renv_file_copy_dir_impl(source, tempdir))

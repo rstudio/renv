@@ -5,7 +5,7 @@ test_that("hydrate does not change library paths", {
 
   renv_tests_scope()
 
-  lib <- renv_tempfile()
+  lib <- renv_tempfile_create()
   ensure_directory(lib)
   .libPaths(lib)
 

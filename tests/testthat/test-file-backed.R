@@ -3,7 +3,7 @@ context("File-backed")
 
 test_that("file-backed entries are discarded after the file is modified", {
 
-  file <- renv_tempfile("renv-test-")
+  file <- renv_tempfile_create("renv-test-")
 
   contents <- "Hello, world!"
   writeLines(contents, con = file)
@@ -18,7 +18,7 @@ test_that("file-backed entries are discarded after the file is modified", {
 
 test_that("file-backed entries are discarded after the file is deleted", {
 
-  file <- renv_tempfile("renv-test-")
+  file <- renv_tempfile_create("renv-test-")
 
   contents <- "Hello, world!"
   writeLines(contents, con = file)

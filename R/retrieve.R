@@ -201,7 +201,7 @@ renv_retrieve_bitbucket <- function(record) {
   fmt <- "%s/repositories/%s/%s"
   url <- sprintf(fmt, origin, username, repo)
 
-  destfile <- renv_tempfile("renv-bitbucket-")
+  destfile <- renv_tempfile_create("renv-bitbucket-")
   download(url, destfile = destfile, quiet = TRUE)
   json <- renv_json_read(destfile)
 

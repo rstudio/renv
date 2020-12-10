@@ -226,7 +226,7 @@ test_that("empty fields are handled in DESCRIPTION", {
 test_that("recursive symlinks are handled", {
   skip_on_os("windows")
 
-  project <- renv_tempfile()
+  project <- renv_tempfile_create()
   ensure_directory(project)
 
   owd <- setwd(project)

@@ -34,7 +34,7 @@ test_that("installation failure is well-reported", {
   on.exit(setwd(owd), add = TRUE)
 
   # init dummy library
-  library <- renv_tempfile("renv-library-")
+  library <- renv_tempfile_create("renv-library-")
   ensure_directory(library)
 
   # dummy environment

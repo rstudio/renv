@@ -50,7 +50,7 @@ renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
     # choose the shortest DESCRPITION file matching
     # unpack into tempdir location
     file <- descs[[1]]
-    exdir <- renv_tempfile("renv-description-")
+    exdir <- renv_tempfile_create("renv-description-")
     renv_archive_decompress(path, files = file, exdir = exdir)
 
     # update path to extracted DESCRIPTION

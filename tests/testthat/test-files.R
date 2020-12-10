@@ -3,8 +3,8 @@ context("Files")
 
 test_that("directories can be copied", {
 
-  source <- renv_tempfile("renv-source-")
-  target <- renv_tempfile("renv-target-")
+  source <- renv_tempfile_create("renv-source-")
+  target <- renv_tempfile_create("renv-target-")
 
   ensure_directory(source)
 
@@ -21,8 +21,8 @@ test_that("directories can be copied", {
 
 test_that("directories can be moved", {
 
-  source <- renv_tempfile("renv-source-")
-  target <- renv_tempfile("renv-target-")
+  source <- renv_tempfile_create("renv-source-")
+  target <- renv_tempfile_create("renv-target-")
 
   ensure_directory(source)
 
@@ -40,8 +40,8 @@ test_that("directories can be moved", {
 
 test_that("attempts to link files work", {
 
-  source <- renv_tempfile("renv-source-")
-  target <- renv_tempfile("renv-target-")
+  source <- renv_tempfile_create("renv-source-")
+  target <- renv_tempfile_create("renv-target-")
 
   dir.create(source)
   renv_file_link(source, target)
@@ -51,8 +51,8 @@ test_that("attempts to link files work", {
 
 test_that("scoped backups are cleared as necessary", {
 
-  source <- renv_tempfile("renv-source-")
-  target <- renv_tempfile("renv-target-")
+  source <- renv_tempfile_create("renv-source-")
+  target <- renv_tempfile_create("renv-target-")
 
   writeLines("source", source)
   writeLines("target", target)
@@ -87,8 +87,8 @@ test_that("renv tempfiles are deleted at end of scope", {
   path <- NULL
   path2 <- NULL
   local({
-    path <<- renv_tempfile()
-    path2 <<- renv_tempfile()
+    path <<- renv_tempfile_create()
+    path2 <<- renv_tempfile_create()
     file.create(path, path2)
     expect_true(file.exists(path))
     expect_true(file.exists(path2))
@@ -116,8 +116,8 @@ test_that("renv_file_find finds parent files", {
 
 test_that("attempts to overwrite existing files are handled appropriately", {
 
-  source <- renv_tempfile("renv-source-")
-  target <- renv_tempfile("renv-target-")
+  source <- renv_tempfile_create("renv-source-")
+  target <- renv_tempfile_create("renv-target-")
 
   writeLines("alpha", con = source)
   writeLines("beta",  con = target)
@@ -129,8 +129,8 @@ test_that("attempts to overwrite existing files are handled appropriately", {
 
 test_that("permissions, timestamps are preserved", {
 
-  source <- renv_tempfile("renv-source-")
-  target <- renv_tempfile("renv-target-")
+  source <- renv_tempfile_create("renv-source-")
+  target <- renv_tempfile_create("renv-target-")
 
   ensure_directory(source)
 
