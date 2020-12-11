@@ -40,8 +40,9 @@ managed by `renv`.
 
 When publishing content to RStudio Connect programatically, it is necessary to
 generate a manifest file describing the project environment. This can be done
-with the `writeManifest()` function from the `rsconnect` package. When using
-`renv`, the only thing that needs to be considered is that `rsconnect` should be
+with the `writeManifest()` function from the
+[`rsconnect`](https://github.com/rstudio/rsconnect) package. When using `renv`,
+the only thing that needs to be considered is that `rsconnect` should be
 installed and executed from within the `renv` environment so that it recognizes
 the local project library when generating the manifest file. As long as
 `rsconnect` is run from within the `renv` created environment, it will capture
