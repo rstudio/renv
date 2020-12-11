@@ -26,3 +26,4 @@ addons:
     - python3-dev
     - python3-virtualenv
     - python3-venv
+    - libgit2-dev
