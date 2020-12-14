@@ -34,7 +34,8 @@ Connect: ![RStudio IDE Publish Button](ide-publish.png)
 When this option is used to deploy content to RStudio Connect, a manifest file
 is automatically generated and sent to RStudio Connect describing the project
 environment. This manifest file will reflect the project environment create and
-managed by `renv`.
+managed by `renv`. The `renv` generated `.Rprofile` file should **not** be
+included in deployments to RStudio Connect.
 
 ## Publishing programatically
 
@@ -46,7 +47,10 @@ the only thing that needs to be considered is that `rsconnect` should be
 installed and executed from within the `renv` environment so that it recognizes
 the local project library when generating the manifest file. As long as
 `rsconnect` is run from within the `renv` created environment, it will capture
-project dependencies from the local `renv` library.
+project dependencies from the local `renv` library. This can be accomplished by
+opening the project in RStudio or by starting the R session from the project
+root directory. The `renv` generated `.Rprofile` file should **not** be
+included in deployments to RStudio Connect.
 
 ## A word about packrat
 
