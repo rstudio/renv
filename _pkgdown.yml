@@ -79,7 +79,7 @@ articles:
 
   - title: Deploy Applications with renv
     navbar: Deployment
-    contents: [ci, docker]
+    contents: [ci, docker, rsconnect]
 
   - title: Integrating other projects with renv
     navbar: Integration
