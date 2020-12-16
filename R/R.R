@@ -8,8 +8,12 @@ R <- function() {
 r_exec <- function(args, ...) {
 
   # ensure R_LIBS is set
+  #
+  # TODO: on Windows, if R_LIBS_USER is empty or unset, R will automatically
+  # set R_LIBS_USER to the user-specific package directory. do we want that
+  # behavior here? if not, we have to set it to a non-existent path
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
-  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = NULL, R_LIBS_SITE = NULL)
+  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "", R_LIBS_SITE = "")
 
   # ensure Rtools is on the PATH for Windows
   renv_scope_rtools()
@@ -141,9 +145,7 @@ r_cmd_install <- function(package, path, library, ...) {
 
   # prefer using a short path name for the library on Windows,
   # to help avoid issues caused by overly-long paths
-  library <- if (renv_testing())
-    renv_path_normalize(library, winslash = "/", mustWork = TRUE)
-  else if (renv_platform_windows())
+  library <- if (renv_platform_windows())
     utils::shortPathName(library)
   else
     renv_path_normalize(library, winslash = "/", mustWork = TRUE)
