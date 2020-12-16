@@ -101,14 +101,14 @@ renv_tests_init_options <- function() {
   )
 }
 
-renv_tests_init_repos <- function(repos = NULL) {
+renv_tests_init_repos <- function(repopath = NULL) {
 
   # find root directory
   root <- renv_tests_root()
 
   # generate our dummy repository
-  repos <- repos %||% tempfile("renv-repos-")
-  contrib <- file.path(repos, "src/contrib")
+  repopath <- repopath %||% tempfile("renv-repos-")
+  contrib <- file.path(repopath, "src/contrib")
   ensure_directory(contrib)
 
   # save current directory
@@ -178,14 +178,14 @@ renv_tests_init_repos <- function(repos = NULL) {
     latestOnly = FALSE
   )
 
-  # set repository URL (for tests)
-  options(renv.tests.repos = c(CRAN = repos))
-
-  # and update our repos option
+  # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  repos <- c(CRAN = sprintf(fmt, repopath))
+
   options(
     pkgType = "source",
-    repos = c(CRAN = sprintf(fmt, repos))
+    repos = repos,
+    renv.tests.repos = repos
   )
 
 }

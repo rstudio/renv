@@ -30,9 +30,9 @@ test_that("we can install a version of renv from GitHub", {
   renv_tests_scope()
 
   library <- renv_libpaths_default()
-  bootstrap(version = "0.9.3-10", library = library)
+  bootstrap(version = "0.12.3-1", library = library)
   expect_true(renv_package_installed("renv", library))
-  expect_true(renv_package_version("renv") == "0.9.3-10")
+  expect_true(renv_package_version("renv") == "0.12.3-1")
 
 })
 
@@ -44,7 +44,7 @@ test_that("bootstrap succeeds with empty repos", {
   renv_scope_options(repos = character())
 
   library <- renv_libpaths_default()
-  bootstrap(version = "0.12.2", library = library)
+  bootstrap(version = "1.0.0", library = library)
   expect_true(renv_package_installed("renv", library))
-  expect_true(renv_package_version("renv") == "0.12.2")
+  expect_true(renv_package_version("renv") == "1.0.0")
 })

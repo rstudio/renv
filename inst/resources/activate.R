@@ -39,16 +39,6 @@ local({
   # load bootstrap tools   
   bootstrap <- function(version, library) {
   
-    # read repos (respecting override if set)
-    repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
-    if (is.na(repos))
-      repos <- getOption("repos")
-  
-    # fix up repos
-    on.exit(options(repos = repos), add = TRUE)
-    repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
-    options(repos = repos)
-  
     # attempt to download renv
     tarball <- tryCatch(renv_bootstrap_download(version), error = identity)
     if (inherits(tarball, "error"))
@@ -63,14 +53,27 @@ local({
   
   renv_bootstrap_repos <- function() {
   
-    repos <- c(
-      getOption("repos"),
-      getOption(
-        "renv.bootstrap.repos",
-        default = c(CRAN = "https://cloud.r-project.org")
-      )
-    )
+    # check for repos override
+    repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
+    if (!is.na(repos))
+      return(repos)
   
+    # if we're testing, re-use the test repositories
+    if (renv_testing())
+      return(getOption("renv.tests.repos"))
+  
+    # retrieve current repos
+    repos <- getOption("repos")
+  
+    # ensure @CRAN@ entries are resolved
+    repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
+  
+    # add in renv.bootstrap.repos if set
+    default <- c(CRAN = "https://cloud.r-project.org")
+    extra <- getOption("renv.bootstrap.repos", default = default)
+    repos <- c(repos, extra)
+  
+    # remove duplicates that might've snuck in
     dupes <- duplicated(repos) | duplicated(names(repos))
     repos[!dupes]
   
@@ -84,7 +87,9 @@ local({
     components <- unclass(nv)[[1]]
   
     methods <- if (length(components) == 4L) {
-      list(renv_bootstrap_download_github)
+      list(
+        renv_bootstrap_download_github
+      )
     } else {
       list(
         renv_bootstrap_download_cran_latest,

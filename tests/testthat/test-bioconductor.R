@@ -54,4 +54,6 @@ test_that("renv::install(<bioc>, rebuild = TRUE) works", {
   renv_tests_scope()
   install("bioc::Biobase", rebuild = TRUE)
 
+  expect_true(renv_package_installed("Biobase"))
+
 })
