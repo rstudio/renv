@@ -261,6 +261,7 @@ renv_tests_init_sandbox <- function() {
 }
 
 renv_tests_init_finish <- function() {
+  options(renv.verbose = TRUE)
   options(renv.testing = TRUE)
 }
 
