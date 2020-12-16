@@ -4,7 +4,7 @@
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 [![CRAN status](https://www.r-pkg.org/badges/version/renv)](https://CRAN.R-project.org/package=renv)
-[![Travis build status](https://travis-ci.org/rstudio/renv.svg?branch=master)](https://travis-ci.org/rstudio/renv)
+[![R-CMD-check](https://github.com/rstudio/renv/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/renv/actions)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/rstudio/renv?branch=master&svg=true)](https://ci.appveyor.com/project/rstudio/renv)
 [![Codecov test coverage](https://codecov.io/gh/rstudio/renv/branch/master/graph/badge.svg)](https://codecov.io/gh/rstudio/renv?branch=master)
 <!-- badges: end -->

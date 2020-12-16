@@ -16,6 +16,7 @@
 ^requirements\.txt$
 ^TODO\.md$
 
+^\.github$
 ^docs$
 ^examples$
 ^git$
