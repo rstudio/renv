@@ -61,24 +61,18 @@ local({
   
   }
   
-  renv_bootstrap_download_impl <- function(url, destfile) {
+  renv_bootstrap_repos <- function() {
   
-    mode <- "wb"
-  
-    # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17715
-    fixup <-
-      Sys.info()[["sysname"]] == "Windows" &&
-      substring(url, 1L, 5L) == "file:"
-  
-    if (fixup)
-      mode <- "w+b"
-  
-    download.file(
-      url      = url,
-      destfile = destfile,
-      mode     = mode,
-      quiet    = TRUE
+    repos <- c(
+      getOption("repos"),
+      getOption(
+        "renv.bootstrap.repos",
+        default = c(CRAN = "https://cloud.r-project.org")
+      )
     )
+  
+    dupes <- duplicated(repos) | duplicated(names(repos))
+    repos[!dupes]
   
   }
   
@@ -108,6 +102,27 @@ local({
   
   }
   
+  renv_bootstrap_download_impl <- function(url, destfile) {
+  
+    mode <- "wb"
+  
+    # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17715
+    fixup <-
+      Sys.info()[["sysname"]] == "Windows" &&
+      substring(url, 1L, 5L) == "file:"
+  
+    if (fixup)
+      mode <- "w+b"
+  
+    download.file(
+      url      = url,
+      destfile = destfile,
+      mode     = mode,
+      quiet    = TRUE
+    )
+  
+  }
+  
   renv_bootstrap_download_cran_latest <- function(version) {
   
     repos <- renv_bootstrap_download_cran_latest_find(version)
@@ -131,11 +146,7 @@ local({
   
   renv_bootstrap_download_cran_latest_find <- function(version) {
   
-    # check for renv on CRAN matching this version
-    all <- unique(c(
-      getOption("repos"),
-      getOption("renv.bootstrap.repos", default = "https://cloud.r-project.org")
-    ))
+    all <- renv_bootstrap_repos()
   
     for (repos in all) {
   
@@ -163,7 +174,7 @@ local({
   renv_bootstrap_download_cran_archive <- function(version) {
   
     name <- sprintf("renv_%s.tar.gz", version)
-    repos <- getOption("repos")
+    repos <- renv_bootstrap_repos()
     urls <- file.path(repos, "src/contrib/Archive/renv", name)
     destfile <- file.path(tempdir(), name)
   
@@ -286,6 +297,19 @@ local({
   
   }
   
+  renv_bootstrap_library_root_name <- function(project) {
+  
+    # use project name as-is if requested
+    asis <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT_ASIS", unset = "FALSE")
+    if (asis)
+      return(basename(project))
+  
+    # otherwise, disambiguate based on project's path
+    id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
+    paste(basename(project), id, sep = "-")
+  
+  }
+  
   renv_bootstrap_library_root <- function(project) {
   
     path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
@@ -294,8 +318,7 @@ local({
   
     path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
     if (!is.na(path)) {
-      id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
-      name <- paste(basename(project), id, sep = "-")
+      name <- renv_bootstrap_library_root_name(project)
       return(file.path(path, name))
     }
   

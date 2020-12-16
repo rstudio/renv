@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to parse R Markdown chunk headers
+  with an empty label. (#598)
+
 * The environment variable `RENV_PATHS_LIBRARY_ROOT_ASIS` can now be used
   to control whether the project name should be used as-is when forming the
   library path within the `RENV_PATHS_LIBRARY_ROOT` folder. Set this to

@@ -277,3 +277,8 @@ test_that("reused knitr chunks are handled", {
   deps <- dependencies("resources/knitr-reused-chunks.Rmd")
   expect_true(all(c("A", "B") %in% deps$Package))
 })
+
+test_that("empty / missing labels are handled", {
+  deps <- dependencies("resources/empty-label.Rmd", progress = FALSE)
+  expect_true(all(c("A", "B") %in% deps$Package))
+})

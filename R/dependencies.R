@@ -1095,6 +1095,10 @@ renv_dependencies_discover_parse_params <- function(header, type) {
   if (length(params) > 1 && names(params)[[2L]] == "")
     names(params)[[2L]] <- "label"
 
+  # fix up 'label' if it's a missing value
+  if (identical(params[["label"]], quote(expr = )))
+    params[["label"]] <- NULL
+
   if (is.null(params[["label"]]) && nzchar(label))
     params[["label"]] <- label
 

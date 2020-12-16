@@ -1,0 +1,6 @@
+
+```{r  , echo=TRUE}
+# uh oh
+library(A)
+library(B)
+```
