@@ -181,7 +181,7 @@ renv_install_staged <- function(records, library) {
   on.exit(renv_global_clear("library.paths"), add = TRUE)
 
   # set up a dummy library path for installation
-  templib <- renv_install_staged_library(library)
+  templib <- renv_install_staged_library_path(library)
   on.exit(unlink(templib, recursive = TRUE), add = TRUE)
   renv_scope_libpaths(c(templib, renv_libpaths_all()))
 
@@ -203,16 +203,15 @@ renv_install_staged <- function(records, library) {
 
 }
 
-renv_install_staged_library_impl <- function(root) {
+renv_install_staged_library_path_impl <- function(root) {
 
-  ensure_directory(root)
-  for (i in 1:100) {
-    path <- file.path(root, i)
-    if (dir.create(path, showWarnings = FALSE))
-      return(path)
-  }
+  # allow user configuration of staged library location
+  staging <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
+  if (!is.na(staging))
+    return(staging)
 
-  tempfile(".renv-staging")
+  # otherwise, just use a temporary file
+  tempfile("renv-staging-")
 
 }
 
@@ -221,25 +220,20 @@ renv_install_staged_library_impl <- function(root) {
 # long Windows paths well. in addition, an renv project's
 # library path tends to be long, exasperating the issue.
 # for that reason, we try to use a shorter staging directory
-# when possible
-renv_install_staged_library <- function(library) {
-
-  project <- renv_project(default = NULL)
-
-  # allow user configuration of staged library location
-  staging <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
-  if (!is.na(staging))
-    ensure_directory(staging)
-
-  root <- if (!is.na(staging))
-    staging
-  else if (is.null(project))
-    file.path(library[[1]], ".renv")
-  else
-    file.path(project, "renv/staging")
-
-  renv_install_staged_library_impl(root)
-
+#
+# part of the challenge here is that the R temporary directory
+# and R library path might reside on different mounts, and so
+# we may want to try and avoid installing on one mount and then
+# copying to another mount (as that could be slow).
+#
+# note that using the renv folder might be counter-productive,
+# since users will want to use renv in projects sync'ed via
+# OneDrive and friends, and we don't want those to lock files
+# in the staging directory
+renv_install_staged_library_path <- function(library) {
+  path <- renv_install_staged_library_path_impl(library)
+  ensure_directory(path)
+  return(path)
 }
 
 renv_install_default <- function(records, library) {
