@@ -181,7 +181,7 @@ renv_install_staged <- function(records, library) {
   on.exit(renv_global_clear("library.paths"), add = TRUE)
 
   # set up a dummy library path for installation
-  templib <- renv_install_staged_library_path(library)
+  templib <- renv_install_staged_library_path()
   on.exit(unlink(templib, recursive = TRUE), add = TRUE)
   renv_scope_libpaths(c(templib, renv_libpaths_all()))
 
@@ -203,7 +203,7 @@ renv_install_staged <- function(records, library) {
 
 }
 
-renv_install_staged_library_path_impl <- function(root) {
+renv_install_staged_library_path_impl <- function() {
 
   # allow user configuration of staged library location
   staging <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
@@ -230,8 +230,8 @@ renv_install_staged_library_path_impl <- function(root) {
 # since users will want to use renv in projects sync'ed via
 # OneDrive and friends, and we don't want those to lock files
 # in the staging directory
-renv_install_staged_library_path <- function(library) {
-  path <- renv_install_staged_library_path_impl(library)
+renv_install_staged_library_path <- function() {
+  path <- renv_install_staged_library_path_impl()
   ensure_directory(path)
   return(path)
 }
