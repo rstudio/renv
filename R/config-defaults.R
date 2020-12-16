@@ -138,6 +138,15 @@ config <- list(
     )
   },
 
+  install.verbose = function(..., default = FALSE) {
+    renv_config_get(
+      name    = "install.verbose",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   locking.enabled = function(..., default = FALSE) {
     renv_config_get(
       name    = "locking.enabled",

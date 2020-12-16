@@ -1,4 +1,6 @@
 
+set -eux
+
 : "${TMPDIR:=/tmp}"
 
 if [ -z "${VERSION}" ]; then

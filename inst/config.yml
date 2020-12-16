@@ -121,6 +121,13 @@
     were successfully downloaded and installed. This can be useful if you'd like to
     avoid mutating your project library if installation of one or more packages fails.
 
+- name: "install.verbose"
+  type: "logical[1]"
+  default: false
+  description: >
+    Be verbose when installing R packages from sources? When `TRUE`, `renv` will
+    stream any output generated during package build + installation to the console.
+
 - name: "locking.enabled"
   type: "logical[1]"
   default: false

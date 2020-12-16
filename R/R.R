@@ -5,7 +5,7 @@ R <- function() {
   file.path(bin, exe)
 }
 
-r_exec <- function(package, args, label) {
+r_exec <- function(args, ...) {
 
   # ensure R_LIBS is set
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
@@ -14,15 +14,8 @@ r_exec <- function(package, args, label) {
   # ensure Rtools is on the PATH for Windows
   renv_scope_rtools()
 
-  # do the install
-  output <- suppressWarnings(system2(R(), args, stdout = TRUE, stderr = TRUE))
-
-  # check for successful install
-  status <- attr(output, "status") %||% 0L
-  if (!identical(status, 0L))
-    r_exec_error(package, output, label)
-
-  output
+  # invoke r
+  suppressWarnings(system2(R(), args, ...))
 
 }
 
@@ -171,13 +164,33 @@ r_cmd_install <- function(package, path, library, ...) {
     shQuote(path)
   )
 
-  output <- r_exec(package, args, "install")
+  if (config$install.verbose()) {
 
-  installpath <- file.path(library, package)
-  if (!file.exists(installpath))
-    r_exec_error(package, output, "install")
+    status <- r_exec(args, stdout = "", stderr = "")
+    if (!identical(status, 0L))
+      stopf("install of package '%s' failed", package)
 
-  installpath
+    installpath <- file.path(library, package)
+    if (!file.exists(installpath))
+      stopf("install of package '%s' failed [unknown reason]", package)
+
+    installpath
+
+  } else {
+
+    output <- r_exec(args, stdout = TRUE, stderr = TRUE)
+    status <- attr(output, "status") %||% 0L
+    if (!identical(status, 0L))
+      r_exec_error(package, output, "install")
+
+    installpath <- file.path(library, package)
+    if (!file.exists(installpath))
+      r_exec_error(package, output, "install")
+
+    installpath
+
+  }
+
 
 }
 
@@ -185,7 +198,11 @@ r_cmd_build <- function(package, path, ...) {
 
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   args <- c("--vanilla", "CMD", "build", "--md5", ..., shQuote(path))
-  output <- r_exec(package, args, "build")
+
+  output <- r_exec(args, stdout = TRUE, stderr = TRUE)
+  status <- attr(output, "status") %||% 0L
+  if (!identical(status, 0L))
+    r_exec_error(package, output, "build")
 
   pasted <- paste(output, collapse = "\n")
   pattern <- "[*] building .([a-zA-Z0-9_.-]+)."
