@@ -4,7 +4,7 @@ context("Bioconductor")
 test_that("packages can be installed, restored from Bioconductor", {
 
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
 
@@ -43,7 +43,7 @@ test_that("packages can be installed, restored from Bioconductor", {
 test_that("renv::install(<bioc>, rebuild = TRUE) works", {
 
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
   skip_if_not_installed("BiocManager")

@@ -51,7 +51,7 @@ test_that("we can successfully tweak the user agent string", {
 
 test_that("we can successfully download files with different downloaders", {
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
 
   # download a small sample file
   url <- "https://cloud.r-project.org/src/base/THANKS"

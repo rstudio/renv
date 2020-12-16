@@ -4,7 +4,7 @@ context("Activate")
 test_that("renv can bootstrap itself if not installed", {
 
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
 
   # initialize bare project
   renv_tests_scope()

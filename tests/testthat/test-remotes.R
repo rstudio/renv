@@ -3,7 +3,7 @@ context("Remotes")
 
 test_that("we can parse a variety of remotes", {
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
 
   renv_tests_scope()
 

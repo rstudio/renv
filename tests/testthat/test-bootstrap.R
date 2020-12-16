@@ -25,7 +25,7 @@ test_that("we can bootstrap an archived version of renv", {
 
 test_that("we can install a version of renv from GitHub", {
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
 
   renv_tests_scope()
 
@@ -38,7 +38,7 @@ test_that("we can install a version of renv from GitHub", {
 
 test_that("bootstrap succeeds with empty repos", {
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
 
   renv_tests_scope()
   renv_scope_options(repos = character())

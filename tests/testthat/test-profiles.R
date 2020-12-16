@@ -3,7 +3,7 @@ context("Profiles")
 
 test_that("library paths set in a user profile are overridden after load", {
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
 
   renv_tests_scope()
 
@@ -32,7 +32,7 @@ test_that("library paths set in a user profile are overridden after load", {
 
 test_that(".First is executed; library paths are restored after", {
   skip_on_cran()
-  skip_on_appveyor()
+  skip_on_os("windows")
 
   renv_tests_scope()
 
