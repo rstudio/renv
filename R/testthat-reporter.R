@@ -17,6 +17,9 @@ renv_tests_reporter <- function() {
     classname = "RenvReporter",
     inherit   = testthat::CheckReporter,
 
+    lock_class   = FALSE,
+    lock_objects = FALSE,
+
     public = list(
 
       .time = NULL,
