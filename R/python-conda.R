@@ -39,7 +39,7 @@ renv_python_conda_snapshot <- function(project, python) {
 
   conda <- reticulate::conda_binary()
   args <- c("env", "export", "--prefix", shQuote(prefix), "--file", shQuote(path))
-  output <- if (renv_testing()) FALSE else ""
+  output <- if (renv_tests_running()) FALSE else ""
   system2(conda, args, stdout = output, stderr = output)
 
   vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
@@ -63,7 +63,7 @@ renv_python_conda_restore <- function(project, python) {
   conda <- reticulate::conda_binary()
   cmd <- if (file.exists(prefix)) "update" else "create"
   args <- c("env", cmd, "--prefix", shQuote(prefix), "--file", shQuote(path))
-  output <- if (renv_testing()) FALSE else ""
+  output <- if (renv_tests_running()) FALSE else ""
   system2(conda, args, stdout = output, stderr = output)
 
   return(TRUE)

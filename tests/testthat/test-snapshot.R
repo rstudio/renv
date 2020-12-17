@@ -254,11 +254,22 @@ test_that("snapshot prefers RemoteType to biocViews", {
 })
 
 test_that("parse errors cause snapshot to abort", {
+
   renv_tests_scope()
+
+  # write invalid code to an R file
   writeLines("parse error", con = "parse-error.R")
-  init(bare = TRUE)
+
+  # init should succeed even with parse errors
+  local({
+    renv_scope_options(renv.tests.verbose = FALSE)
+    init(bare = TRUE)
+  })
+
+  # snapshots should fail when configured to do so
   renv_scope_options(renv.config.dependency.errors = "fatal")
   expect_error(snapshot())
+
 })
 
 test_that("records for packages available on other OSes are preserved", {

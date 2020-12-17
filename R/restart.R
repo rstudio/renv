@@ -30,7 +30,7 @@ renv_request_restart_default <- function(project, reason, ...) {
 renv_request_restart_rstudio <- function(project, reason, ...) {
 
   # if we're running tests, don't restart
-  if (renv_testing())
+  if (renv_tests_running())
     return(renv_request_restart_default(project, reason, ...))
 
   # if we don't have a tools env, bail

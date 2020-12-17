@@ -21,7 +21,7 @@ renv_bootstrap_repos <- function() {
     return(repos)
 
   # if we're testing, re-use the test repositories
-  if (renv_testing())
+  if (renv_tests_running())
     return(getOption("renv.tests.repos"))
 
   # retrieve current repos

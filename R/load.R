@@ -49,7 +49,7 @@ load <- function(project = getwd(), quiet = FALSE) {
   renv_envvars_save()
 
   # load a minimal amount of state when testing
-  if (renv_testing()) {
+  if (renv_tests_running()) {
     renv_load_libpaths(project)
     return(invisible(project))
   }
@@ -249,7 +249,7 @@ renv_load_profile_impl <- function(profile) {
 
   fmt <- "error sourcing %s: %s"
   warningf(fmt, renv_path_pretty(profile), conditionMessage(status))
-  if (!renv_testing())
+  if (!renv_tests_running())
     writeLines(status$traceback, con = stderr())
 
   FALSE

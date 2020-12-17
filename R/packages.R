@@ -248,7 +248,7 @@ renv_package_reload <- function(package, library = NULL) {
 
 renv_package_reload_impl <- function(package, library) {
 
-  if (renv_testing())
+  if (renv_tests_running())
     return(FALSE)
 
   # record if package is attached (and, if so, where)

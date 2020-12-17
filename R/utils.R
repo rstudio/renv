@@ -173,7 +173,7 @@ catchall <- function(expr) {
 
 ask <- function(question, default = FALSE) {
 
-  if (renv_testing())
+  if (renv_tests_running())
     return(TRUE)
 
   if (!interactive())

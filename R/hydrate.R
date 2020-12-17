@@ -101,7 +101,7 @@ renv_hydrate_packages <- function(project, libpaths = NULL) {
 
   deps <- dependencies(project, quiet = TRUE, dev = TRUE)
 
-  if (!renv_testing() && file.exists("~/.Rprofile")) {
+  if (!renv_tests_running() && file.exists("~/.Rprofile")) {
     profdeps <- dependencies("~/.Rprofile", quiet = TRUE, dev = TRUE)
     if (length(deps))
       deps <- bind_list(list(deps, profdeps))
@@ -134,7 +134,7 @@ renv_hydrate_libpaths <- function() {
   if (is.character(conf) && length(conf))
     conf <- unlist(strsplit(conf, ":", fixed = TRUE))
 
-  libpaths <- if (renv_testing())
+  libpaths <- if (renv_tests_running())
     renv_libpaths_all()
   else if (length(conf))
     conf

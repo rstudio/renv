@@ -6,7 +6,7 @@ renv_check_unknown_source <- function(records, project = NULL) {
     return(TRUE)
 
   # for testing, we ignore renv
-  if (renv_testing())
+  if (renv_tests_running())
     records$renv <- NULL
 
   # keep only records which have unknown source
@@ -33,7 +33,7 @@ renv_check_unknown_source <- function(records, project = NULL) {
     return(TRUE)
 
   # provide warning
-  if (!renv_testing())
+  if (!renv_tests_running())
     renv_warnings_unknown_sources(unknown)
 
   # return FALSE to indicate failed validation

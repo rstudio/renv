@@ -261,13 +261,19 @@ renv_tests_init_sandbox <- function() {
 }
 
 renv_tests_init_finish <- function() {
+
+  # don't perform transactional installs by default for now
+  # (causes strange CI failures, especially on Windows?)
   options(renv.config.install.transactional = FALSE)
-  options(renv.testing = TRUE)
+
+  # mark tests as running
+  options(renv.tests.running = TRUE)
+
 }
 
 renv_tests_init <- function() {
 
-  if (renv_testing())
+  if (renv_tests_running())
     return()
 
   Sys.unsetenv("RENV_PATHS_LIBRARY")
@@ -288,8 +294,21 @@ renv_tests_init <- function() {
 
 }
 
-renv_testing <- function() {
-  getOption("renv.testing", default = FALSE)
+renv_tests_running <- function() {
+  getOption("renv.tests.running", default = FALSE)
+}
+
+renv_tests_verbose <- function() {
+
+  # if we're not running tests, mark as true
+  running <- renv_tests_running()
+  if (!running)
+    return(TRUE)
+
+  # otherwise, respect option
+  # (we might set this to FALSE to silence output from expected errors)
+  getOption("renv.tests.verbose", default = TRUE)
+
 }
 
 renv_test_code <- function(code, fileext = ".R") {

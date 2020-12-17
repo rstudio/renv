@@ -36,7 +36,10 @@ test_that("we cannot initialize a project using 'brunch'", {
   renv_tests_scope("brunch")
 
   # 'brunch' will fail to install
-  renv::init()
+  local({
+    renv_scope_options(renv.tests.verbose = FALSE)
+    renv::init()
+  })
 
   expect_false(file.exists(renv_paths_library("brunch")))
 
@@ -47,7 +50,10 @@ test_that("attempts to initialize a project with a missing package is okay", {
   renv_tests_scope("missing")
 
   # package 'missing' does not exist and so cannot be installed
-  renv::init()
+  local({
+    renv_scope_options(renv.tests.verbose = FALSE)
+    renv::init()
+  })
 
   expect_false(file.exists(renv_paths_library("missing")))
 

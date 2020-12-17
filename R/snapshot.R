@@ -293,7 +293,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
       ""
     )
 
-    if (!renv_testing())
+    if (!renv_tests_running())
       writeLines(sprintf(text, package))
 
     ok <- FALSE
@@ -338,7 +338,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     fmt <- "%s [installed %s != latest %s]"
     msg <- sprintf(fmt, format(bad$Package), format(bad$Version), bad$Latest)
 
-    if (!renv_testing()) {
+    if (!renv_tests_running()) {
       renv_pretty_print(
         msg,
         "The following Bioconductor packages appear to be from a separate Bioconductor release:",
@@ -399,7 +399,7 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
 
   })
 
-  if (!renv_testing()) {
+  if (!renv_tests_running()) {
     renv_pretty_print(
       sprintf("%s  [required by %s]", format(missing), usedby),
       "The following required packages are not installed:",
@@ -467,7 +467,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   fmt <- "'%s' requires '%s', but version '%s' will be snapshotted"
   txt <- sprintf(fmt, format(package), format(requires), format(request))
 
-  if (!renv_testing()) {
+  if (!renv_tests_running()) {
     renv_pretty_print(
       txt,
       "The following package(s) have unsatisfied dependencies:",
@@ -881,7 +881,7 @@ renv_snapshot_fixup <- function(records) {
 
 renv_snapshot_fixup_renv <- function(records) {
 
-  if (renv_testing())
+  if (renv_tests_running())
     return(records)
 
   # nocov start

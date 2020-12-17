@@ -124,7 +124,7 @@ use_python <- function(python = NULL,
   renv_load_python(project, fields)
 
   # notify user
-  if (!renv_testing()) {
+  if (!renv_tests_running()) {
     if (is.null(type)) {
       fmt <- "* Activated Python %s (%s)."
       vwritef(fmt, version, aliased_path(python))

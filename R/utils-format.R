@@ -29,12 +29,12 @@ vmessagef <- function(fmt = "", ..., appendLF = TRUE) {
 
 
 printf <- function(fmt = "", ..., file = stdout()) {
-  if (!is.null(fmt) && !renv_testing())
+  if (!is.null(fmt) && renv_tests_verbose())
     cat(sprintf(fmt, ...), file = file, sep = "")
 }
 
 eprintf <- function(fmt = "", ..., file = stderr()) {
-  if (!is.null(fmt) && !renv_testing())
+  if (!is.null(fmt) && renv_tests_verbose())
     cat(sprintf(fmt, ...), file = file, sep = "")
 }
 
@@ -51,12 +51,12 @@ veprintf <- function(fmt = "", ..., file = stderr()) {
 
 
 writef <- function(fmt = "", ..., con = stdout()) {
-  if (!is.null(fmt) && !renv_testing())
+  if (!is.null(fmt) && renv_tests_verbose())
     writeLines(sprintf(fmt, ...), con = con)
 }
 
 ewritef <- function(fmt = "", ..., con = stderr()) {
-  if (!is.null(fmt) && !renv_testing())
+  if (!is.null(fmt) && renv_tests_verbose())
     writeLines(sprintf(fmt, ...), con = con)
 }
 

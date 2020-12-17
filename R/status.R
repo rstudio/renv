@@ -156,7 +156,7 @@ renv_status_check_synchronized <- function(project,
 
     records <- renv_records_select(libstate, actions, "install")
 
-    if (renv_testing()) {
+    if (renv_tests_running()) {
       condition <- "renv.status.installed_but_not_recorded"
       renv_condition_signal(condition, records)
     }
@@ -188,7 +188,7 @@ renv_status_check_synchronized <- function(project,
       used <- intersect(names(records), names(pkgpaths))
       unused <- setdiff(names(records), used)
 
-      if (renv_testing()) {
+      if (renv_tests_running()) {
         condition <- "renv.status.recorded_but_no_longer_used"
         renv_condition_signal(condition, records[unused])
       }
@@ -203,7 +203,7 @@ renv_status_check_synchronized <- function(project,
 
     }
 
-    if (renv_testing()) {
+    if (renv_tests_running()) {
       condition <- "renv.status.recorded_but_not_installed"
       renv_condition_signal(condition, records)
     }

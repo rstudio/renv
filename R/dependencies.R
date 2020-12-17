@@ -150,6 +150,10 @@ renv_dependencies_impl <- function(
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
 
+  # ignore errors when testing unless explicitly asked for
+  if (renv_tests_running() && missing(errors))
+    errors <- "ignored"
+
   # check and see if we've pre-computed dependencies for this path, and
   # retrieve those pre-computed dependencies if so
   if (length(path) == 1)
