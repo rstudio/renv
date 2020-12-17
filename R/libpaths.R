@@ -172,9 +172,15 @@ renv_libpaths_activate <- function(project) {
   lapply(libpaths, ensure_directory)
   renv_libpaths_set(libpaths)
 
+  libpaths
+
 }
 
 renv_libpaths_restore <- function() {
   libpaths <- get(".libPaths()", envir = `_renv_libpaths`)
   renv_libpaths_set(libpaths)
+}
+
+renv_libpaths_resolve <- function(library, default = renv_libpaths_all()) {
+  unique(normalizePath(c(library, default), winslash = "/", mustWork = FALSE))
 }

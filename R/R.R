@@ -139,16 +139,14 @@ r_exec_error_diagnostics <- function(package, output) {
 
 }
 
-r_cmd_install <- function(package, path, library, ...) {
+# install package called 'package' located at path 'path'
+r_cmd_install <- function(package, path, ...) {
 
+  # normalize path to package
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
-  # prefer using a short path name for the library on Windows,
-  # to help avoid issues caused by overly-long paths
-  library <- if (renv_platform_windows())
-    utils::shortPathName(library)
-  else
-    renv_path_normalize(library, winslash = "/", mustWork = TRUE)
+  # resolve default library path
+  library <- renv_libpaths_default()
 
   # validate that we have command line tools installed and
   # available for e.g. macOS
@@ -165,7 +163,6 @@ r_cmd_install <- function(package, path, library, ...) {
     r_cmd_install_option(package, "configure.args", TRUE),
     r_cmd_install_option(package, "configure.vars", TRUE),
     r_cmd_install_option(package, "install.opts", FALSE),
-    "-l", shQuote(library),
     ...,
     shQuote(path)
   )

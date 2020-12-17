@@ -79,31 +79,44 @@ test_that("install.staged works as expected", {
 
   renv_tests_scope("breakfast")
 
-  renv::init()
-  renv::remove("breakfast")
-  renv::purge("breakfast")
+  init()
+  library <- renv_paths_library(project = getwd())
 
   install.opts <- list(breakfast = "--version")
 
   local({
-    renv_scope_options(renv.config.install.staged = TRUE)
-    renv_scope_options(install.opts = install.opts)
-    templib <- tempfile("renv-templib-")
-    expect_error(renv::restore(library = templib))
-    files <- list.files(templib)
+
+    renv_scope_options(
+      renv.config.install.staged = TRUE,
+      renv.config.install.transactional = TRUE,
+      install.opts = install.opts
+    )
+
+    renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+
+    unlink(renv_paths_library(), recursive = TRUE)
+    expect_error(renv::restore())
+    files <- list.files(library)
     expect_true(length(files) == 0L)
+
   })
 
   local({
-    renv_scope_options(renv.config.install.staged = FALSE)
-    renv_scope_options(install.opts = install.opts)
-    templib <- tempfile("renv-templib-")
-    expect_error(renv::restore(library = templib))
-    files <- list.files(templib)
-    expect_true(length(files) != 0L)
-  })
 
-  install("breakfast")
+    renv_scope_options(
+      renv.config.install.staged = FALSE,
+      renv.config.install.transactional = FALSE,
+      install.opts = install.opts
+    )
+
+    renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+
+    unlink(renv_paths_library(), recursive = TRUE)
+    expect_error(renv::restore())
+    files <- list.files(library)
+    expect_true(length(files) != 0L)
+
+  })
 
 })
 

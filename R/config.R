@@ -203,3 +203,15 @@ renv_config_validate_size <- function(value, size) {
   )
 
 }
+
+renv_config_install_staged <- function(default = TRUE) {
+
+  values <- c(
+    config$install.staged(default = NULL),
+    config$install.transactional(default = NULL),
+    default
+  )
+
+  values[[1L]]
+
+}

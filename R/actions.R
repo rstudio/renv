@@ -9,7 +9,6 @@ actions <- function(action = c("snapshot", "restore"),
 {
   action  <- match.arg(action)
   project <- renv_project_resolve(project)
-  library <- renv_path_normalize(library %||% renv_libpaths_all())
 
   renv_scope_lock(project = project)
 

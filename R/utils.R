@@ -389,3 +389,7 @@ memoize <- function(key, expr, envir) {
   envir[[key]] <- value
   value
 }
+
+nth <- function(x, i) {
+  x[[i]]
+}

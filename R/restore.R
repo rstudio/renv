@@ -72,13 +72,15 @@ restore <- function(project  = NULL,
   project  <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
-  library  <- renv_path_normalize(library %||% renv_libpaths_all())
+  # resolve library, lockfile arguments
+  libpaths <- renv_libpaths_resolve(library)
   lockfile <- lockfile %||% renv_lockfile_load(project = project)
   lockfile <- renv_lockfile_resolve(lockfile)
 
-  # activate the requested library
+  # activate the requested library (place at front of library paths)
+  library <- nth(libpaths, 1L)
   ensure_directory(library)
-  renv_scope_libpaths(library)
+  renv_scope_libpaths(libpaths)
 
   # perform Python actions on exit
   on.exit(renv_python_restore(project), add = TRUE)
@@ -108,7 +110,7 @@ restore <- function(project  = NULL,
 
   # get records for R packages currently installed
   current <- snapshot(project  = project,
-                      library  = library,
+                      library  = libpaths,
                       lockfile = NULL,
                       type     = "all")
 
@@ -120,10 +122,10 @@ restore <- function(project  = NULL,
 
   # only remove packages from the project library
   difflocs <- map_chr(names(diff), function(package) {
-    find.package(package, lib.loc = library, quiet = TRUE) %||% ""
+    find.package(package, lib.loc = libpaths, quiet = TRUE) %||% ""
   })
 
-  exclude <- diff == "remove" & dirname(difflocs) != library[[1]]
+  exclude <- diff == "remove" & dirname(difflocs) != library
   diff <- diff[!exclude]
 
   # don't take any actions with ignored packages
@@ -139,7 +141,7 @@ restore <- function(project  = NULL,
     return(invisible(diff))
   }
 
-  if (!renv_restore_preflight(project, library, diff, current, lockfile, prompt)) {
+  if (!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt)) {
     message("* Operation aborted.")
     return(FALSE)
   }
@@ -163,6 +165,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   renv_scope_restore(
     project  = project,
+    library  = renv_libpaths_default(),
     records  = renv_records(lockfile),
     packages = packages,
     rebuild  = rebuild
@@ -179,9 +182,8 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   packages <- names(installs)
 
   # perform the install
-  library <- renv_libpaths_default()
   records <- renv_retrieve(packages)
-  status <- renv_install(records, library)
+  status <- renv_install(records)
 
   # detect dependency tree repair
   diff <- renv_lockfile_diff_packages(renv_records(lockfile), records)
@@ -202,11 +204,13 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
 }
 
-renv_restore_state <- function() {
-  renv_global_get("restore.state")
+renv_restore_state <- function(key = NULL) {
+  state <- renv_global_get("restore.state")
+  if (is.null(key)) state else state[[key]]
 }
 
 renv_restore_begin <- function(project = NULL,
+                               library = NULL,
                                records = NULL,
                                packages = NULL,
                                handler = NULL,
@@ -226,6 +230,12 @@ renv_restore_begin <- function(project = NULL,
 
     # the active project (if any) used for restore
     project = project,
+
+    # the library path into which packages will be installed.
+    # this is set because some behaviors depend on whether the target
+    # library is the project library, but during staged installs the
+    # library paths might be mutated during restore
+    library = library,
 
     # the package records used for restore, providing information
     # on the packages to be installed (their version, source, etc)
@@ -295,10 +305,10 @@ renv_restore_remove <- function(project, package, lockfile) {
   TRUE
 }
 
-renv_restore_preflight <- function(project, library, actions, current, lockfile, prompt) {
+renv_restore_preflight <- function(project, libpaths, actions, current, lockfile, prompt) {
   records <- renv_records(lockfile)
   matching <- keep(records, names(actions))
-  renv_install_preflight(project, library, matching, prompt)
+  renv_install_preflight(project, libpaths, matching, prompt)
 }
 
 renv_restore_find <- function(record) {

@@ -118,17 +118,19 @@ init <- function(project = NULL,
     return(invisible(FALSE))
   }
 
+  # activate library paths for this project
+  libpaths <- renv_libpaths_activate(project = project)
+
   # perform the action
   if (action == "init") {
     vwritef("* Initializing project ...")
-    renv_libpaths_activate(project = project)
     renv_imbue_impl(project)
     hydrate(project = project, library = library)
-    snapshot(project = project, library = library, prompt = FALSE)
+    snapshot(project = project, library = libpaths, prompt = FALSE)
   } else if (action == "restore") {
     vwritef("* Restoring project ... ")
     ensure_directory(library)
-    restore(project = project, library = library, prompt = FALSE)
+    restore(project = project, library = libpaths, prompt = FALSE)
   }
 
   # activate the newly-hydrated project

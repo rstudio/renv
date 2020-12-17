@@ -125,9 +125,9 @@ lockfile <- function(file = NULL, project = NULL) {
   lock <- if (is.null(file)) {
 
     renv_lockfile_create(
-      project = project,
-      library = renv_libpaths_all(),
-      type    = settings$snapshot.type(project = project)
+      project  = project,
+      libpaths = renv_libpaths_all(),
+      type     = settings$snapshot.type(project = project)
     )
 
   } else if (is.na(file)) {

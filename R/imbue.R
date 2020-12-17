@@ -52,6 +52,7 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
 
   renv_scope_restore(
     project = project,
+    library = renv_libpaths_default(),
     records = records,
     packages = "renv",
     recursive = FALSE

@@ -195,10 +195,14 @@ renv_hydrate_copy_packages <- function(packages, library) {
 
 renv_hydrate_resolve_missing <- function(project, na) {
 
+  # resolve library paths
+  library <- renv_paths_library(project = project)
+  libpaths <- renv_libpaths_resolve(library)
+  renv_scope_libpaths(libpaths)
+
   # figure out which packages are missing (if any)
   packages <- names(na)
-  library <- renv_paths_library(project = project)
-  installed <- renv_installed_packages(lib.loc = library)
+  installed <- renv_installed_packages(lib.loc = libpaths)
   if (all(packages %in% installed$Package))
     return()
 
@@ -215,13 +219,14 @@ renv_hydrate_resolve_missing <- function(project, na) {
 
   # perform the restore
   renv_scope_restore(
-    project = project,
+    project  = project,
+    library  = library,
     packages = packages,
-    handler = handler
+    handler  = handler
   )
 
   records <- renv_retrieve(packages)
-  renv_install(records, library)
+  renv_install(records)
 
   # if we failed to restore anything, warn the user
   data <- errors$data()

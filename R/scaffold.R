@@ -37,9 +37,9 @@ scaffold <- function(project = NULL,
 
   # generate a lockfile
   lockfile <- renv_lockfile_create(
-    project = project,
-    library = renv_paths_library(project = project),
-    type    = "implicit"
+    project  = project,
+    libpaths = renv_paths_library(project = project),
+    type     = "implicit"
   )
 
   renv_lockfile_write(lockfile, file = renv_lockfile_path(project))

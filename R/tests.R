@@ -261,6 +261,7 @@ renv_tests_init_sandbox <- function() {
 }
 
 renv_tests_init_finish <- function() {
+  options(renv.config.install.transactional = FALSE)
   options(renv.testing = TRUE)
 }
 
@@ -316,14 +317,14 @@ renv_test_retrieve <- function(record) {
   # attempt a restore into that library
   renv_scope_restore(
     project = getwd(),
+    library = templib,
     records = records,
     packages = package,
     recursive = FALSE
   )
 
   records <- renv_retrieve(record$Package)
-  library <- renv_libpaths_all()
-  renv_install(records, library)
+  renv_install(records)
 
   descpath <- file.path(templib, package)
   if (!file.exists(descpath))

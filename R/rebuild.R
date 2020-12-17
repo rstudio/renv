@@ -46,10 +46,11 @@ rebuild <- function(packages  = NULL,
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
-  library <- renv_path_normalize(library %||% renv_libpaths_all())
+  libpaths <- renv_libpaths_resolve(library)
+  library <- nth(libpaths, 1L)
 
   # get collection of packages currently installed
-  records <- renv_snapshot_r_packages(library = library, project = project)
+  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
   if (empty(records)) {
     vwritef("* There are no packages currently installed -- nothing to rebuild.")
     return(invisible(records))
@@ -77,5 +78,10 @@ rebuild <- function(packages  = NULL,
   rebuild <- if (recursive) NA else packages
 
   # perform the install
-  install(records, library = library, project = project, rebuild = rebuild)
+  install(
+    packages = records,
+    library  = libpaths,
+    project  = project,
+    rebuild  = rebuild
+  )
 }

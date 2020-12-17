@@ -138,14 +138,14 @@ renv_lockfile_sort <- function(lockfile) {
 
 }
 
-renv_lockfile_create <- function(project, library, type, packages) {
+renv_lockfile_create <- function(project, libpaths, type, packages) {
 
   lockfile <- renv_lockfile_init(project)
 
   renv_records(lockfile) <-
 
-    renv_snapshot_r_packages(library = library,
-                             project = project) %>%
+    renv_snapshot_r_packages(libpaths = libpaths,
+                             project  = project) %>%
 
     renv_snapshot_filter(project = project,
                          type = type,

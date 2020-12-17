@@ -164,8 +164,9 @@ update <- function(packages = NULL,
   renv_scope_lock(project = project)
 
   # get package records
-  library <- renv_path_normalize(library %||% renv_libpaths_all())
-  records <- renv_snapshot_r_packages(library = library, project = project)
+  libpaths <- renv_libpaths_resolve(library)
+  library <- nth(libpaths, 1L)
+  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
   packages <- packages %||% setdiff(names(records), settings$ignored.packages(project = project))
 
   # apply exclusions
@@ -280,10 +281,10 @@ update <- function(packages = NULL,
 
   # perform the install
   install(
-    updates,
-    library = library,
-    rebuild = rebuild,
-    project = project
+    packages = updates,
+    library  = libpaths,
+    rebuild  = rebuild,
+    project  = project
   )
 
 }
