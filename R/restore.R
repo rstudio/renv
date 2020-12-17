@@ -318,9 +318,8 @@ renv_restore_find <- function(record) {
   if (record$Package %in% state$packages)
     return("")
 
-  # need to restore if it's not yet installed
-  libpaths <- renv_global_get("library.paths") %||% renv_libpaths_all()
-  for (library in libpaths) {
+  # check the active library paths to see if this package is already installed
+  for (library in renv_libpaths_all()) {
     path <- renv_restore_find_impl(record, library)
     if (nzchar(path))
       return(path)

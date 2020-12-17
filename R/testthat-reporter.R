@@ -3,6 +3,10 @@ utils::globalVariables(c("self", "super"), package = "renv")
 
 renv_tests_reporter <- function() {
 
+  # if we're running on CI, use the default reporter
+  if (!is.na(Sys.getenv("CI", unset = NA)))
+    return(testthat::default_reporter())
+
   # if we can't load R6, use the default reporter
   if (!requireNamespace("R6", quietly = TRUE))
     return(testthat::default_reporter())

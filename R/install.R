@@ -338,15 +338,12 @@ renv_install_package_cache <- function(record, cache, linker) {
 
 renv_install_package_cache_skip <- function(record, cache) {
 
-  state <- renv_restore_state()
-
   # don't skip if installation was explicitly requested
-  if (record$Package %in% state$packages)
+  if (record$Package %in% renv_restore_state("packages"))
     return(FALSE)
 
   # check for matching cache + target paths
-  libpaths <- renv_global_get("library.paths") %||% renv_libpaths_all()
-  library <- libpaths[[1]]
+  library <- renv_restore_state("library") %||% renv_libpaths_default()
   target <- file.path(library, record$Package)
 
   renv_file_same(cache, target)
