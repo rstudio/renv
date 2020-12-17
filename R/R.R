@@ -13,10 +13,17 @@ r_exec <- function(args, ...) {
   # set R_LIBS_USER to the user-specific package directory. do we want that
   # behavior here? if not, we have to set it to a non-existent path
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
-  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "", R_LIBS_SITE = "")
+  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
 
   # ensure Rtools is on the PATH for Windows
   renv_scope_rtools()
+
+  # be noisy for now
+  if (renv_testing()) {
+    print(Sys.getenv("R_LIBS"))
+    command <- paste(R(), paste(args, collapse = " "))
+    writeLines(c("", command, "", ""))
+  }
 
   # invoke r
   suppressWarnings(system2(R(), args, ...))
@@ -155,15 +162,21 @@ r_cmd_install <- function(package, path, library, ...) {
   if (renv_platform_macos() && renv_package_type(path) == "source")
     renv_xcode_check()
 
+  # perform platform-specific pre-install checks
   renv_scope_install()
 
+  # ensure 'library' is at front of library paths
+  # we do this so that when R_LIBS is set later, it places the requested
+  # library at the front and so that is used for installations
+  renv_scope_libpaths(c(library, renv_libpaths_all()))
+
+  # perform the install
   args <- c(
     "--vanilla",
     "CMD", "INSTALL", "--preclean", "--no-multiarch",
     r_cmd_install_option(package, "configure.args", TRUE),
     r_cmd_install_option(package, "configure.vars", TRUE),
     r_cmd_install_option(package, "install.opts", FALSE),
-    "-l", shQuote(library),
     ...,
     shQuote(path)
   )

@@ -282,7 +282,7 @@ renv_install_impl <- function(record) {
     renv_install_package_local(record),
     error = function(e) {
       vwritef("\tFAILED")
-      writeLines(e$output)
+      writef(e$output)
     }
   )
 
