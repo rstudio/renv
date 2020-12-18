@@ -2,24 +2,20 @@
 # tools for querying information about packages available on CRAN.
 # note that this does _not_ merge package entries from multiple repositories;
 # rather, a list of databases is returned (one for each repository)
-renv_available_packages <- function(type, limit = NULL, quiet = FALSE) {
+renv_available_packages <- function(type, repos = NULL, limit = NULL, quiet = FALSE) {
 
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
-
-  # force a CRAN mirror when needed
-  repos <- getOption("repos") %||% character()
-  repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
-  options(repos = convert(repos, "character"))
+  repos <- renv_repos_normalize(repos %||% getOption("repos"))
 
   renv_timecache(
-    list(repos = getOption("repos"), type = type),
-    renv_available_packages_impl(type, quiet),
+    list(repos = repos, type = type),
+    renv_available_packages_impl(type, repos, quiet),
     limit = as.integer(limit),
     timeout = renv_available_packages_timeout
   )
 }
 
-renv_available_packages_impl <- function(type, quiet = FALSE) {
+renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
 
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
@@ -28,7 +24,6 @@ renv_available_packages_impl <- function(type, quiet = FALSE) {
   vprintf(fmt, type)
 
   # request repositories
-  repos <- getOption("repos")
   urls <- contrib.url(repos, type)
   errors <- new.env(parent = emptyenv())
   dbs <- lapply(urls, renv_available_packages_query, errors = errors)
