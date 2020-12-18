@@ -34,7 +34,7 @@ test_that("installation failure is well-reported", {
   on.exit(setwd(owd), add = TRUE)
 
   # init dummy library
-  library <- renv_tempfile_create("renv-library-")
+  library <- renv_tempfile_path("renv-library-")
   ensure_directory(library)
 
   # dummy environment
@@ -280,5 +280,27 @@ test_that("install via version succeeds", {
   install("bread@0.0.1")
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_version("bread") == "0.0.1")
+
+})
+
+test_that("install() installs inferred dependencies", {
+
+  skip_on_cran()
+  renv_tests_scope("breakfast")
+
+  # use dummy library path
+  templib <- renv_tempfile_path("renv-library-")
+  ensure_directory(templib)
+  renv_scope_libpaths(templib)
+
+  # try installing packages
+  install()
+
+  # validate that we've installed breakfast + deps
+  expect_true(renv_package_installed("breakfast"))
+
+  # try calling install once more; nothing should happen
+  records <- install()
+  expect_length(records, 0L)
 
 })

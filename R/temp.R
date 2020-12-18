@@ -1,5 +1,5 @@
 
-renv_tempfile_create <- function(pattern = "renv-",
+renv_tempfile_path <- function(pattern = "renv-",
                                  tmpdir = renv_tempdir_path(),
                                  fileext = "")
 {

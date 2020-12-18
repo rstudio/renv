@@ -268,8 +268,35 @@ renv_available_packages_latest_impl <- function(package, type) {
 
   }, index = "Name")
 
-  if (is.null(entries))
+  if (is.null(entries)) {
+
+    # for diagnostics on CI
+    if (renv_tests_running() && renv_tests_verbose()) {
+
+      # write error message
+      fmt <- "internal error: package '%s' not available on test repositories"
+      writef(fmt, package)
+
+      # dump some (hopefully) helpful information
+      repos <- getOption("repos")
+      str(repos)
+
+      dbs %>% map(`[`, c("Package", "Version")) %>% print()
+
+      repopath <- gsub("^file:/+", "", repos)
+      files <- list.files(
+        path       = repopath,
+        all.files  = TRUE,
+        full.names = TRUE,
+        recursive  = TRUE
+      )
+
+      writeLines(files)
+
+    }
+
     return(NULL)
+  }
 
   # sort based on version
   version <- numeric_version(entries$Version)

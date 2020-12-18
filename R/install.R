@@ -103,6 +103,7 @@ install <- function(packages = NULL,
   renv_consent_check()
   renv_scope_error_handler()
 
+  # allow user to provide additional package names as part of '...'
   dots <- list(...)
   names(dots) <- names(dots) %||% rep.int("", length(dots))
   packages <- c(packages, dots[!nzchar(names(dots))])
@@ -116,26 +117,24 @@ install <- function(packages = NULL,
   type <- type %||% getOption("pkgType")
   renv_scope_options(pkgType = type)
 
-  packages <- packages %||% renv_project_records(project)
-  if (is.null(packages))
-    stopf("no packages specified in renv::install() request")
-
-  if (empty(packages)) {
-    vwritef("* There are no packages to install.")
-    return(invisible(list()))
-  }
-
   # override repositories if requested
   repos <- config$repos.override()
   if (length(repos))
     renv_scope_options(repos = repos)
 
-  # resolve packages / remotes to be installed
-  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
-  remotes <- lapply(packages, renv_remotes_resolve)
+  # get and resolve the packages / remotes to be installed
+  remotes <- packages %||% renv_project_remotes(project)
+  if (empty(remotes)) {
+    vwritef("* There are no packages to install.")
+    return(invisible(list()))
+  }
 
-  packages <- extract_chr(remotes, "Package")
-  names(remotes) <- packages
+  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
+  remotes <- lapply(remotes, renv_remotes_resolve)
+
+  # ensure remotes are named
+  nm <- extract_chr(remotes, "Package")
+  names(remotes) <- nm
   records[names(remotes)] <- remotes
 
   if (!renv_install_preflight(project, libpaths, remotes, prompt)) {
@@ -152,7 +151,13 @@ install <- function(packages = NULL,
   )
 
   # retrieve packages
-  records <- renv_retrieve(packages)
+  records <- renv_retrieve(nm)
+  if (empty(records)) {
+    vwritef("* There are no packages to install.")
+    return(invisible(list()))
+  }
+
+  # install retrieved records
   renv_install(records)
 
   # check loaded packages and inform user if out-of-sync

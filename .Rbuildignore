@@ -18,6 +18,7 @@
 
 ^\.github$
 ^check$
+^ci$
 ^docs$
 ^examples$
 ^git$

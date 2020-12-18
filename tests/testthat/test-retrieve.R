@@ -4,6 +4,8 @@ context("Retrieve")
 test_that("we can retrieve packages from CRAN", {
 
   skip_on_cran()
+  skip_sometimes()
+
   renv_tests_scope()
 
   record <- list(
@@ -19,6 +21,8 @@ test_that("we can retrieve packages from CRAN", {
 test_that("we can retrieve packages from the CRAN archive", {
 
   skip_on_cran()
+  skip_sometimes()
+
   renv_tests_scope()
 
   record <- list(
@@ -34,6 +38,8 @@ test_that("we can retrieve packages from the CRAN archive", {
 test_that("packages with an unknown source are retrieved from CRAN", {
 
   skip_on_cran()
+  skip_sometimes()
+
   renv_tests_scope()
 
   record <- list(
@@ -66,8 +72,8 @@ test_that("we can retrieve packages from Bitbucket", {
 
 test_that("we can retrieve packages from git", {
 
-  # appears to be unreliable on CI
-  skip_on_ci()
+  skip_on_cran()
+  skip("unreliable test")
 
   record <- list(
     Package   = "skeleton",
@@ -84,6 +90,7 @@ test_that("we can retrieve packages from git", {
 test_that("we can retrieve packages from GitHub", {
 
   skip_on_cran()
+  skip_sometimes()
 
   record <- list(
     Package        = "skeleton",
@@ -100,6 +107,7 @@ test_that("we can retrieve packages from GitHub", {
 test_that("we can retrieve packages from GitHub (in a sub-directory)", {
 
   skip_on_cran()
+  skip_sometimes()
 
   record <- list(
     Package        = "subdir",
@@ -118,6 +126,7 @@ test_that("we can retrieve packages from GitHub (in a sub-directory)", {
 test_that("we can retrieve packages from GitLab", {
 
   skip_on_cran()
+  skip_sometimes()
 
   record <- list(
     Package        = "skeleton",
@@ -133,13 +142,16 @@ test_that("we can retrieve packages from GitLab", {
 
 test_that("we can retrieve packages with URLs", {
   skip_on_cran()
+  skip_sometimes()
   url <- "https://api.github.com/repos/kevinushey/skeleton/tarball"
   record <- renv_remotes_resolve(url)
   renv_test_retrieve(record)
 })
 
 test_that("we can retrieve packages from URL sources", {
+
   skip_on_cran()
+  skip_sometimes()
 
   renv_tests_scope()
   renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
@@ -239,6 +251,7 @@ test_that("remotes::install_local() records are handled", {
 test_that("we can retrieve packages from GitHub", {
 
   skip_on_cran()
+  skip_sometimes()
 
   record <- list(
     Package        = "skeleton",
@@ -270,6 +283,7 @@ test_that("we can retrieve packages from R repositories", {
 })
 
 test_that("we can retrieve files using file URIs", {
+
   skip_on_cran()
   renv_tests_scope()
 

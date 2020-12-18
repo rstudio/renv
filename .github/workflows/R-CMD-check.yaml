@@ -1,7 +1,4 @@
-# NOTE: This workflow is overkill for most R packages
-# check-standard.yaml is likely a better choice
-# usethis::use_github_action("check-standard") will install it.
-#
+
 # For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
 # https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
 on:
@@ -38,9 +35,11 @@ jobs:
           - {os: ubuntu-16.04,   r: '3.3',     rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest"}
 
     env:
-      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      RSPM: ${{ matrix.config.rspm }}
+      _R_CHECK_CRAN_INCOMING_: FALSE
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      RENV_PATHS_ROOT: ~/.local/share/renv
+      USE_CXX1X: TRUE
+      USE_CXX11: TRUE
 
     steps:
       - uses: actions/checkout@v2
@@ -52,49 +51,62 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v1
 
-      - name: Query dependencies
-        run: |
-          install.packages('remotes')
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
-          writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
+      - name: R configuration
+        if: runner.os == 'Linux'
         shell: Rscript {0}
+        run: |
+          conf <- file.path(R.home("etc"), "Makeconf")
+          writeLines(readLines(conf))
 
-      - name: Cache R packages
-        if: runner.os != 'Windows'
+      - name: Install renv
+        shell: bash
+        run: R CMD INSTALL --preclean .
+
+      - name: Generate dependency list
+        shell: Rscript {0}
+        run: renv:::renv_ci_dependencies()
+
+      - name: Cache packages
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+          key: ${{ runner.os }}-renv-${{ hashFiles('ci/dependencies.rds') }}
 
-      - name: Install system dependencies
+      - name: Install Linux system dependencies
         if: runner.os == 'Linux'
+        shell: bash
         run: |
-          while read -r cmd
-          do
-            eval sudo $cmd
-          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "16.04"))')
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:cran/libgit2
+          sudo apt-get update
+          sudo apt-get install -y git
+          sudo apt-get install -y libcurl4-openssl-dev
+          sudo apt-get install -y libgit2-dev
+          sudo apt-get install -y libicu-dev
+          sudo apt-get install -y libssl-dev
+          sudo apt-get install -y libxml2-dev
+          sudo apt-get install -y make
+          sudo apt-get install -y python
 
-      - name: Install dependencies
+      - name: Install macOS system dependencies
+        if: runner.os == 'macOS'
+        shell: bash
         run: |
-          remotes::install_deps(dependencies = TRUE)
+          brew install libgit2
+
+      - name: Install R dependencies
         shell: Rscript {0}
-
-      - name: Session info
-        run: |
-          options(width = 100)
-          pkgs <- installed.packages()[, "Package"]
-          sessioninfo::session_info(pkgs, include_base = TRUE)
-        shell: Rscript {0}
-
-      - name: R CMD check
+        run: renv::install()
         env:
-          _R_CHECK_CRAN_INCOMING_: false
+          RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.rstudio.com/cran/latest
+          RENV_CONFIG_CACHE_ENABLED: FALSE
+
+      - name: Check renv
+        shell: bash
         run: |
           mkdir -p check
           R CMD build .
           R CMD check --no-manual -o check *.tar.gz
-        shell: bash
 
       - name: Show testthat output
         if: always()
@@ -105,6 +117,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@main
         with:
-          name: ${{ runner.os }}-r${{ matrix.config.r }}-results
+          name: ${{ runner.os }}-r-${{ matrix.config.r }}-results
           path: check
 

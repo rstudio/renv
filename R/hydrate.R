@@ -71,9 +71,9 @@ hydrate <- function(packages = NULL,
   deps$renv <- NULL
 
   # remove base + missing packages
-  base <- renv_installed_packages_base()
+  base <- renv_packages_base()
   na <- deps[is.na(deps)]
-  packages <- deps[renv_vector_diff(names(deps), c(names(na), rownames(base)))]
+  packages <- deps[renv_vector_diff(names(deps), c(names(na), base))]
 
   # get and construct path to library
   ensure_directory(library)

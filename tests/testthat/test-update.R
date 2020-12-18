@@ -2,6 +2,7 @@
 context("Update")
 
 test_that("update() finds packages requiring updates from CRAN", {
+
   skip_on_cran()
 
   renv_tests_scope()
@@ -24,6 +25,7 @@ test_that("update() can upgrade GitHub packages", {
   skip_on_cran()
   skip_if(getRversion() < "3.5.3")
   skip_if(is.na(Sys.getenv("GITHUB_PAT", unset = NA)))
+  skip_sometimes()
 
   renv_tests_scope()
   renv::init()
@@ -47,4 +49,5 @@ test_that("update() can upgrade GitHub packages", {
   # check for new version of package
   dcf <- renv_dcf_read(descpath)
   expect_true(dcf$Version == "1.0.1")
+
 })

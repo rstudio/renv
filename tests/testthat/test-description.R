@@ -4,6 +4,7 @@ context("DESCRIPTION")
 test_that("snapshotting broken DESCRIPTION files is an error", {
 
   file <- tempfile()
+  renv_scope_options(renv.tests.verbose = FALSE)
 
   # empty file
   file.create(file)

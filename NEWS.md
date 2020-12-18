@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` no longer re-installs packages that are already installed and
+  up-to-date in bare calls to `renv::install()`.
+
 * `renv` now uses the R temporary directory for staging, when performing
   transactional restores / installs. If you need to control the path used
   for staged installs, please set the `RENV_PATHS_LIBRARY_STAGING` environment

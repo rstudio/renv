@@ -57,19 +57,30 @@ renv_project_type <- function(path) {
 
 }
 
-renv_project_records <- function(project) {
+renv_project_remotes <- function(project) {
 
   # if this project has a DESCRIPTION file, use it to provide records
   descpath <- file.path(project, "DESCRIPTION")
   if (file.exists(descpath))
-    return(renv_project_records_description(project, descpath))
+    return(renv_project_remotes_description(project, descpath))
+
+  # otherwise, use the set of (non-base) packages used in the project
+  deps <- dependencies(
+    path     = project,
+    progress = FALSE,
+    errors   = "ignored",
+    dev      = TRUE
+  )
+
+  packages <- sort(unique(deps$Package))
+  setdiff(packages, renv_packages_base())
 
 }
 
-renv_project_records_description <- function(project, descpath) {
+renv_project_remotes_description <- function(project, descpath) {
 
   # first, parse remotes (if any)
-  remotes <- renv_project_records_description_remotes(project, descpath)
+  remotes <- renv_project_remotes_description_remotes(project, descpath)
 
   # next, find packages mentioned in the DESCRIPTION file
   fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
@@ -121,7 +132,7 @@ renv_project_records_description <- function(project, descpath) {
 
 }
 
-renv_project_records_description_remotes <- function(project, descpath) {
+renv_project_remotes_description_remotes <- function(project, descpath) {
 
   desc <- renv_description_read(descpath)
 

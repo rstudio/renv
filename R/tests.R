@@ -278,6 +278,7 @@ renv_tests_init <- function() {
 
   Sys.unsetenv("RENV_PATHS_LIBRARY")
   Sys.unsetenv("RENV_PATHS_LIBRARY_ROOT")
+  Sys.unsetenv("RENV_CONFIG_CACHE_ENABLED")
 
   Sys.unsetenv("RENV_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON")
@@ -329,7 +330,7 @@ renv_test_retrieve <- function(record) {
   names(records) <- package
 
   # prepare dummy library
-  templib <- renv_tempfile_create("renv-library-")
+  templib <- renv_tempfile_path("renv-library-")
   ensure_directory(templib)
   renv_scope_libpaths(c(templib, .libPaths()))
 

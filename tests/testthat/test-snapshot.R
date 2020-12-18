@@ -220,6 +220,8 @@ test_that("snapshot warns about unsatisfied dependencies", {
 
 test_that("snapshot records packages discovered in local sources", {
 
+  renv_scope_options(renv.tests.verbose = FALSE)
+
   renv_tests_scope("skeleton")
   renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
 

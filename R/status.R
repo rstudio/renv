@@ -110,13 +110,16 @@ renv_status_check_missing_library <- function(project, libpaths) {
 
 renv_status_check_used_packages <- function(project, libstate) {
 
-  db <- renv_installed_packages_base()
-
   deps <- dependencies(project, progress = FALSE)
   used <- sort(unique(deps$Package))
   records <- renv_records(libstate)
 
-  ignored <- c("R", db$Package, renv_project_ignored_packages(project), names(records))
+  ignored <- c(
+    renv_packages_base(),
+    renv_project_ignored_packages(project),
+    names(records)
+  )
+
   missing <- setdiff(used, ignored)
   if (empty(missing))
     return(TRUE)

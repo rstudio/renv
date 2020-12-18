@@ -80,6 +80,16 @@ renv_retrieve_impl <- function(package) {
   if (renv_retrieve_incompatible(record))
     record <- renv_available_packages_latest(package)
 
+  # if the record doesn't declare the package version,
+  # treat it as a request for the latest version on CRAN
+  # TODO: should make this behavior configurable
+  uselatest <-
+    source %in% c("repository", "bioconductor") &&
+    is.null(record$Version)
+
+  if (uselatest)
+    record <- renv_available_packages_latest(record$Package)
+
   if (!renv_restore_rebuild_required(record)) {
 
     # if we have an installed package matching the requested record, finish early
@@ -95,12 +105,7 @@ renv_retrieve_impl <- function(package) {
 
     if (cacheable) {
 
-      # for packages from a repository without a tagged version,
-      # attempt to tag that version now
-      if (identical(record$Source, "Repository") && is.null(record$Version))
-        record <- renv_available_packages_latest(record$Package)
-
-      # now try to find the record in the cache
+      # try to find the record in the cache
       path <- renv_cache_find(record)
       if (renv_cache_package_validate(path))
         return(renv_retrieve_successful(record, path))
@@ -112,16 +117,6 @@ renv_retrieve_impl <- function(package) {
   path <- record$Path %||% ""
   if (file.exists(path))
     return(renv_retrieve_successful(record, path))
-
-  # if the record doesn't declare the package version,
-  # treat it as a request for the latest version on CRAN
-  # TODO: should make this behavior configurable
-  uselatest <-
-    source %in% c("repository", "bioconductor") &&
-    is.null(record$Version)
-
-  if (uselatest)
-    record <- renv_available_packages_latest(record$Package)
 
   if (!renv_restore_rebuild_required(record)) {
 
@@ -201,7 +196,7 @@ renv_retrieve_bitbucket <- function(record) {
   fmt <- "%s/repositories/%s/%s"
   url <- sprintf(fmt, origin, username, repo)
 
-  destfile <- renv_tempfile_create("renv-bitbucket-")
+  destfile <- renv_tempfile_path("renv-bitbucket-")
   download(url, destfile = destfile, quiet = TRUE)
   json <- renv_json_read(destfile)
 
@@ -433,15 +428,41 @@ renv_retrieve_repos <- function(record) {
     methods <- c(renv_retrieve_repos_binary, methods)
   }
 
+  # capture errors for reporting
+  errors <- stack()
+
   for (method in methods) {
 
-    status <- catch(method(record))
+    status <- catch(
+      withCallingHandlers(
+        method(record),
+        renv.retrieve.error = function(error) {
+          errors$push(error)
+        }
+      )
+    )
+
     if (inherits(status, "error"))
       warning(status)
 
     if (identical(status, TRUE))
       return(TRUE)
 
+  }
+
+  # if we couldn't download the package, report the errors we saw
+  fmt <- "The following error(s) occurred while retrieving '%s':"
+  preamble <- sprintf(fmt, record$Package)
+
+  messages <- extract(errors$data(), "message")
+  renv_pretty_print(
+    values   = paste("-", messages),
+    preamble = preamble,
+    wrap     = FALSE
+  )
+
+  if (renv_tests_running() && renv_tests_verbose()) {
+    str(record)
   }
 
   stopf("failed to retrieve package '%s'", record$Package)
@@ -556,8 +577,11 @@ renv_retrieve_repos_impl <- function(record,
       )
     )
 
-    if (inherits(entry, "error"))
+    if (inherits(entry, "error")) {
+      attr(entry, "record") <- record
+      renv_condition_signal("renv.retrieve.error", entry)
       return(FALSE)
+    }
 
     # add in the path if available
     repo <- entry$Repository

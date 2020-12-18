@@ -510,8 +510,7 @@ renv_snapshot_r_packages_impl <- function(library = NULL,
   paths <- list.files(library, full.names = TRUE)
 
   # remove 'base' packages
-  ip <- renv_installed_packages_base()
-  paths <- paths[!basename(paths) %in% c(ip$Package, "translations")]
+  paths <- paths[!basename(paths) %in% renv_packages_base()]
 
   # remove ignored packages
   ignored <- renv_project_ignored_packages(project = project)
