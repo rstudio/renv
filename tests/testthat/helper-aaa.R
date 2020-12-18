@@ -13,6 +13,8 @@ test_that <- function(desc, code) {
 
   testthat::skip_if(iscran && renv_platform_macos())
 
+  options(repos = getOption("renv.tests.repos"))
+
   oldlibpaths <- .libPaths()
   oldrepos <- getOption("repos")
 

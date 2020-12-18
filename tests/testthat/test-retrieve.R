@@ -66,7 +66,8 @@ test_that("we can retrieve packages from Bitbucket", {
 
 test_that("we can retrieve packages from git", {
 
-  skip_on_cran()
+  # appears to be unreliable on CI
+  skip_on_ci()
 
   record <- list(
     Package   = "skeleton",

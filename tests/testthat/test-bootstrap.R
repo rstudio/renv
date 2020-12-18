@@ -3,6 +3,9 @@ context("Bootstrap")
 
 test_that("we can bootstrap the current version of renv", {
 
+  skip_on_cran()
+  skip_on_ci()
+
   renv_tests_scope()
 
   library <- renv_libpaths_default()
@@ -14,6 +17,9 @@ test_that("we can bootstrap the current version of renv", {
 
 test_that("we can bootstrap an archived version of renv", {
 
+  skip_on_cran()
+  skip_on_ci()
+
   renv_tests_scope()
 
   library <- renv_libpaths_default()
@@ -24,8 +30,9 @@ test_that("we can bootstrap an archived version of renv", {
 })
 
 test_that("we can install a version of renv from GitHub", {
+
   skip_on_cran()
-  skip_on_os("windows")
+  skip_on_ci()
 
   renv_tests_scope()
 
@@ -37,6 +44,7 @@ test_that("we can install a version of renv from GitHub", {
 })
 
 test_that("bootstrap succeeds with empty repos", {
+
   skip_on_cran()
   skip_on_os("windows")
 
@@ -47,4 +55,5 @@ test_that("bootstrap succeeds with empty repos", {
   bootstrap(version = "1.0.0", library = library)
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "1.0.0")
+
 })
