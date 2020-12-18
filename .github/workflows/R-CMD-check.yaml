@@ -105,7 +105,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p check
-          R CMD build .
+          R CMD build --no-manual .
           R CMD check --no-manual -o check *.tar.gz
 
       - name: Show testthat output
