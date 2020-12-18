@@ -448,18 +448,28 @@ renv_retrieve_repos <- function(record) {
     if (identical(status, TRUE))
       return(TRUE)
 
+    if (!is.logical(status)) {
+      fmt <- "internal error: unexpected status code '%s'"
+      warningf(fmt, renv_deparse(status))
+    }
+
   }
 
   # if we couldn't download the package, report the errors we saw
-  fmt <- "The following error(s) occurred while retrieving '%s':"
-  preamble <- sprintf(fmt, record$Package)
+  data <- errors$data()
+  if (length(data)) {
 
-  messages <- extract(errors$data(), "message")
-  renv_pretty_print(
-    values   = paste("-", messages),
-    preamble = preamble,
-    wrap     = FALSE
-  )
+    fmt <- "The following error(s) occurred while retrieving '%s':"
+    preamble <- sprintf(fmt, record$Package)
+
+    messages <- extract(errors$data(), "message")
+    renv_pretty_print(
+      values   = paste("-", messages),
+      preamble = preamble,
+      wrap     = FALSE
+    )
+
+  }
 
   if (renv_tests_running() && renv_tests_verbose()) {
     str(record)
@@ -607,6 +617,13 @@ renv_retrieve_package <- function(record, url, path) {
     catch(download(url, destfile = path, type = type))
   })
 
+  # report error for logging upstream
+  if (inherits(status, "error")) {
+    attr(status, "record") <- record
+    renv_condition_signal("renv.retrieve.error", status)
+  }
+
+  # handle failures
   if (inherits(status, "error") || identical(status, FALSE))
     return(status)
 
