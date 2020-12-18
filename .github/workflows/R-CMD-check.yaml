@@ -93,7 +93,8 @@ jobs:
         run: |
           mkdir -p check
           R CMD build .
-          R CMD check *.tar.gz -o check
+          R CMD check --no-manual -o check *.tar.gz
+        shell: bash
 
       - name: Show testthat output
         if: always()
