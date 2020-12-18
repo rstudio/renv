@@ -285,8 +285,22 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   )
 
   status <- attr(output, "status", exact = TRUE) %||% 0L
-  if (status != 0L)
+  if (status != 0L) {
+
+    # dump extra information about the failure during tests
+    if (renv_tests_running() && renv_tests_verbose()) {
+      if (status != 22L && status != 37L) {
+        ewritef()
+        ewritef("Error downloading URL '%s' [status code %i]", url, status)
+        ewritef(readLines(file))
+        ewritef()
+      }
+    }
+
+    # emit a warning
     warning(output, call. = FALSE)
+
+  }
 
   status
 

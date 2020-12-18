@@ -471,11 +471,8 @@ renv_retrieve_repos <- function(record) {
 
   }
 
-  if (renv_tests_running() && renv_tests_verbose()) {
-    print(data)
+  if (renv_tests_running() && renv_tests_verbose())
     str(data)
-    str(record)
-  }
 
   stopf("failed to retrieve package '%s'", record$Package)
 
