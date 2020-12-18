@@ -472,6 +472,8 @@ renv_retrieve_repos <- function(record) {
   }
 
   if (renv_tests_running() && renv_tests_verbose()) {
+    print(data)
+    str(data)
     str(record)
   }
 
@@ -572,6 +574,9 @@ renv_retrieve_repos_impl <- function(record,
                                      name = NULL,
                                      repo = NULL)
 {
+  package <- record$Package
+  version <- record$Version
+
   type <- type %||% attr(record, "type", exact = TRUE)
   name <- name %||% renv_retrieve_repos_archive_name(record, type)
   repo <- repo %||% attr(record, "url", exact = TRUE)
@@ -581,9 +586,9 @@ renv_retrieve_repos_impl <- function(record,
 
     entry <- catch(
       renv_available_packages_entry(
-        package = record$Package,
+        package = package,
         type    = type,
-        filter  = record$Version
+        filter  = version
       )
     )
 
