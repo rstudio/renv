@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 
+check
 cran-comments.md
 CRAN-RELEASE
 docs
@@ -10,3 +11,4 @@ internal
 
 inst/doc
 
+/*.tar.gz

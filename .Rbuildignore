@@ -17,6 +17,7 @@
 ^TODO\.md$
 
 ^\.github$
+^check$
 ^docs$
 ^examples$
 ^git$
