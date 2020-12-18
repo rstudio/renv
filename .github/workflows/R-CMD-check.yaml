@@ -94,7 +94,6 @@ jobs:
           mkdir -p check
           R CMD build .
           R CMD check *.tar.gz -o check
-        shell: Rscript {0}
 
       - name: Show testthat output
         if: always()
