@@ -58,7 +58,7 @@ jobs:
         run: R CMD INSTALL --preclean .
 
       - name: Generate dependency list
-        shell: R --no-save --no-restore -f {0}
+        shell: R --no-save --no-restore --quiet -f {0}
         run: renv:::renv_ci_dependencies()
 
       - name: Cache packages
@@ -91,19 +91,23 @@ jobs:
         run: |
           brew install libgit2
 
+      - name: Install renv
+        shell: bash
+        run: R CMD INSTALL --preclean .
+
       - name: Repair broken packages
-        shell: R --no-save --no-restore -f {0}
+        shell: R --no-save --no-restore --quiet -f {0}
         run: renv:::renv_ci_repair()
 
       - name: Install R dependencies
-        shell: R --no-save --no-restore -f {0}
+        shell: R --no-save --no-restore --quiet -f {0}
         run: renv::install()
         env:
           RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.rstudio.com/cran/latest
           RENV_CONFIG_CACHE_ENABLED: FALSE
 
       - name: Write diagnostics report
-        shell: R --no-save --no-restore -f {0}
+        shell: R --no-save --no-restore --quiet -f {0}
         run: renv::diagnostics()
 
       - name: Check renv

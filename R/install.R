@@ -133,8 +133,7 @@ install <- function(packages = NULL,
   remotes <- lapply(remotes, renv_remotes_resolve)
 
   # ensure remotes are named
-  nm <- extract_chr(remotes, "Package")
-  names(remotes) <- nm
+  names(remotes) <- extract_chr(remotes, "Package")
   records[names(remotes)] <- remotes
 
   if (!renv_install_preflight(project, libpaths, remotes, prompt)) {
