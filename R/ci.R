@@ -21,6 +21,9 @@ renv_ci_dependencies <- function() {
   resolved <- db[db$Package %in% all, c("Package", "Version")]
   rownames(resolved) <- NULL
 
+  # set R version
+  attr(resolved, "version") <- R.version
+
   # save to file for hashing
   ensure_directory("ci")
 
@@ -31,12 +34,13 @@ renv_ci_dependencies <- function() {
     renv_platform_windows() ~ "RENV_CI_CACHE_VERSION_WINDOWS"
   )
 
-  version <- Sys.getenv(envvar, unset = NA)
-  if (!is.na(version))
-    attr(resolved, "version") <- version
+  # set cache version
+  cache <- Sys.getenv(envvar, unset = NA)
+  if (!is.na(cache))
+    attr(resolved, "cache") <- cache
 
   # save to file
-  saveRDS(resolved, file = "ci/dependencies.rds")
+  saveRDS(resolved, file = "ci/dependencies.rds", version = 2L)
 
 }
 

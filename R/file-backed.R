@@ -14,10 +14,20 @@ renv_filebacked_init <- function() {
 }
 
 renv_filebacked_clear <- function(scope, path = NULL) {
+
+  # get cache associated with this scope
   envir <- renv_filebacked_envir(scope)
+
+  # list all available cached results
   existing <- ls(envir = envir, all.names = TRUE)
+
+  # if path is set, use it; otherwise remove everything
   path <- path %||% existing
+
+  # validate the requested paths exist in the environment
   removable <- renv_vector_intersect(path, existing)
+
+  # remove them
   rm(list = removable, envir = envir)
 }
 
@@ -76,16 +86,20 @@ renv_filebacked_envir <- function(scope) {
 
 renv_filebacked <- function(scope, path, callback, ...) {
 
+  # don't use filebacked cache when disabled
   config <- config$filebacked.cache()
   if (identical(config, FALSE))
     return(callback(path, ...))
 
+  # check for cache entry -- if available, use it
   cache <- renv_filebacked_get(scope, path)
   if (!is.null(cache))
     return(cache)
 
+  # otherwise, generate our value and cache it
   result <- callback(path, ...)
   renv_filebacked_set(scope, path, result)
+
   result
 
 }

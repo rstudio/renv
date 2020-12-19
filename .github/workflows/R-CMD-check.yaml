@@ -53,19 +53,12 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v1
 
-      - name: R configuration
-        if: runner.os == 'Linux'
-        shell: Rscript {0}
-        run: |
-          conf <- file.path(R.home("etc"), "Makeconf")
-          writeLines(readLines(conf))
-
       - name: Install renv
         shell: bash
         run: R CMD INSTALL --preclean .
 
       - name: Generate dependency list
-        shell: Rscript {0}
+        shell: R --no-save --no-restore -f {0}
         run: renv:::renv_ci_dependencies()
 
       - name: Cache packages
@@ -99,15 +92,19 @@ jobs:
           brew install libgit2
 
       - name: Repair broken packages
-        shell: Rscript {0}
+        shell: R --no-save --no-restore -f {0}
         run: renv:::renv_ci_repair()
 
       - name: Install R dependencies
-        shell: Rscript {0}
+        shell: R --no-save --no-restore -f {0}
         run: renv::install()
         env:
           RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.rstudio.com/cran/latest
           RENV_CONFIG_CACHE_ENABLED: FALSE
+
+      - name: Write diagnostics report
+        shell: R --no-save --no-restore -f {0}
+        run: renv::diagnostics()
 
       - name: Check renv
         shell: bash
