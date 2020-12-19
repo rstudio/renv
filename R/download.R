@@ -301,11 +301,18 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
     # dump extra information about the failure during tests
     if (renv_tests_running() && renv_tests_verbose()) {
+
       ewritef()
       ewritef("Error downloading URL '%s' [status code %i]", url, status)
       ewritef(readLines(file))
       ewritef()
-      print(charToRaw(url))
+
+      if (grepl("^file:", url)) {
+        n <- if (renv_platform_windows()) 9L else 8L
+        path <- substring(url, n)
+        print(file.info(path))
+      }
+
     }
 
     # emit a warning

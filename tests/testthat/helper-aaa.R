@@ -16,6 +16,14 @@ test_that <- function(desc, code) {
   oldlibpaths <- .libPaths()
   oldrepos <- getOption("repos")
 
+  repopath <- getOption("renv.tests.repopath")
+  oldfiles <- list.files(
+    path = repopath,
+    all.files = TRUE,
+    full.names = TRUE,
+    recursive = TRUE
+  )
+
   call <- sys.call()
   call[[1]] <- quote(testthat::test_that)
   eval(call, envir = parent.frame())
@@ -37,6 +45,19 @@ test_that <- function(desc, code) {
   if (!ok) {
     writeLines(c("", oldrepos, "", newrepos))
     stopf("test %s has corrupted repos", shQuote(desc))
+  }
+
+  newfiles <- list.files(
+    path = repopath,
+    all.files = TRUE,
+    full.names = TRUE,
+    recursive = TRUE
+  )
+
+  if (!setequal(oldfiles, newfiles)) {
+    writeLines(setdiff(oldfiles, newfiles))
+    writeLines(setdiff(newfiles, oldfiles))
+    stopf("test %s has corrupted packages in repository", shQuote(desc))
   }
 
 }

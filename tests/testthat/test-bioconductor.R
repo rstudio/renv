@@ -48,6 +48,8 @@ test_that("renv::install(<bioc>, rebuild = TRUE) works", {
   skip_if(R.version$nickname == "Unsuffered Consequences")
   skip_if_not_installed("BiocManager")
 
+  renv_scope_options(renv.tests.verbose = FALSE)
+
   requireNamespace("BiocManager", quietly = TRUE)
   on.exit(unloadNamespace("BiocManager"), add = TRUE)
 

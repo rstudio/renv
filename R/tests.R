@@ -138,6 +138,9 @@ renv_tests_init_repos <- function(repopath = NULL) {
 
   }
 
+  # just in case?
+  renv_scope_options(renv.config.filebacked.cache = FALSE)
+
   # copy in packages
   paths <- list.files(getwd(), full.names = TRUE)
   subdirs <- file.path(getRversion(), "Recommended")
@@ -183,9 +186,10 @@ renv_tests_init_repos <- function(repopath = NULL) {
   repos <- c(CRAN = sprintf(fmt, repopath))
 
   options(
-    pkgType = "source",
-    repos = repos,
-    renv.tests.repos = repos
+    pkgType             = "source",
+    repos               = repos,
+    renv.tests.repos    = repos,
+    renv.tests.repopath = repopath
   )
 
 }
@@ -387,24 +391,7 @@ renv_tests_diagnostics <- function() {
     wrap = FALSE
   )
 
-  # check packages in repository
-  db <- as.data.frame(
-    available.packages(type = "source"),
-    stringsAsFactors = FALSE
-  )
-
-  # avoid printing too many
-  n <- 10L
-  packages <- head(db$Package, n = n)
-  if (length(db$Package) > n) {
-    rest <- paste("and", length(db$Package) - n, "more")
-    packages <- c(packages, rest)
-  }
-
-  renv_pretty_print(
-    packages,
-    "The following packages are available in the test repositories:",
-  )
+  writeLines("The following packages are available in the test repositories:")
 
   dbs <-
     renv_available_packages(type = "source", quiet = TRUE) %>%

@@ -53,7 +53,7 @@ skip_if_no_miniconda <- function(python) {
 
 }
 
-skip_sometimes <- function(percentage = 80) {
+skip_sometimes <- function(freq = 0.80) {
   threshold <- sample.int(100L, size = 1L)
-  testthat::skip_if(percentage * 100 < threshold)
+  testthat::skip_if(freq * 100 >= threshold)
 }
