@@ -57,6 +57,10 @@ jobs:
         shell: bash
         run: R CMD INSTALL --preclean .
 
+      - name: Write diagnostics report
+        shell: R --no-save --no-restore --quiet -f {0}
+        run: renv::diagnostics()
+
       - name: Generate dependency list
         shell: R --no-save --no-restore --quiet -f {0}
         run: renv:::renv_ci_dependencies()

@@ -150,7 +150,7 @@ install <- function(packages = NULL,
   )
 
   # retrieve packages
-  records <- renv_retrieve(nm)
+  records <- renv_retrieve(names(remotes))
   if (empty(records)) {
     vwritef("* There are no packages to install.")
     return(invisible(list()))
