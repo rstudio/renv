@@ -1,6 +1,9 @@
 
 renv_ci_dependencies <- function() {
 
+  # ensure ci directory exists
+  ensure_directory("ci")
+
   # save R version
   saveRDS(R.version, file = "ci/version.rds", version = 2L)
 
@@ -24,9 +27,6 @@ renv_ci_dependencies <- function() {
   resolved <- db[db$Package %in% all, c("Package", "Version")]
   rownames(resolved) <- NULL
 
-  # save to file for hashing
-  ensure_directory("ci")
-
   # set version if available
   envvar <- case(
     renv_platform_linux()   ~ "RENV_CI_CACHE_VERSION_LINUX",
@@ -39,7 +39,7 @@ renv_ci_dependencies <- function() {
   if (!is.na(version))
     attr(resolved, "cache") <- version
 
-  # save to file
+  # save to file for hashing
   saveRDS(resolved, file = "ci/dependencies.rds", version = 2L)
 
 }
