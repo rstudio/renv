@@ -71,6 +71,8 @@ jobs:
         with:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ runner.os }}-renv-${{ hashFiles('ci/dependencies.rds') }}
+          restore-keys: |
+            ${{ runner.os  }}-renv-
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
