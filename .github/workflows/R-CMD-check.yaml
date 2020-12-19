@@ -69,9 +69,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-renv-${{ hashFiles('ci/dependencies.rds') }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('ci/version.rds') }}-${{ hashFiles('ci/dependencies.rds') }}
           restore-keys: |
-            ${{ runner.os  }}-renv-
+            ${{ runner.os  }}-renv-${{ hashFiles('ci/version.rds') }}-
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'

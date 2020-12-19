@@ -1,6 +1,9 @@
 
 renv_ci_dependencies <- function() {
 
+  # save R version
+  saveRDS(R.version, file = "ci/version.rds", version = 2L)
+
   # find the packages used in this project
   records <- renv_project_remotes(project = getwd())
   packages <- extract_chr(records, "Package")
@@ -21,9 +24,6 @@ renv_ci_dependencies <- function() {
   resolved <- db[db$Package %in% all, c("Package", "Version")]
   rownames(resolved) <- NULL
 
-  # set R version
-  attr(resolved, "version") <- R.version
-
   # save to file for hashing
   ensure_directory("ci")
 
@@ -35,9 +35,9 @@ renv_ci_dependencies <- function() {
   )
 
   # set cache version
-  cache <- Sys.getenv(envvar, unset = NA)
-  if (!is.na(cache))
-    attr(resolved, "cache") <- cache
+  version <- Sys.getenv(envvar, unset = NA)
+  if (!is.na(version))
+    attr(resolved, "cache") <- version
 
   # save to file
   saveRDS(resolved, file = "ci/dependencies.rds", version = 2L)
