@@ -23,6 +23,53 @@ renv_ci_dependencies <- function() {
 
   # save to file for hashing
   ensure_directory("ci")
+
+  # set version if available
+  envvar <- case(
+    renv_platform_linux()   ~ "RENV_CI_CACHE_VERSION_LINUX",
+    renv_platform_macos()   ~ "RENV_CI_CACHE_VERSION_MACOS",
+    renv_platform_windows() ~ "RENV_CI_CACHE_VERSION_WINDOWS"
+  )
+
+  version <- Sys.getenv(envvar, unset = NA)
+  if (!is.na(version))
+    attr(resolved, "version") <- version
+
+  # save to file
   saveRDS(resolved, file = "ci/dependencies.rds")
+
+}
+
+renv_ci_repair <- function() {
+
+  # get installed packages
+  library <- renv_libpaths_default()
+  db <- renv_installed_packages(lib.loc = library)
+
+  # attempt to load these packages
+  packages <- db$Package
+  names(packages) <- packages
+  ok <- map_lgl(packages, requireNamespace, quietly = TRUE)
+
+  # check which failed to load
+  broken <- packages[!ok]
+  if (empty(broken)) {
+    vwritef("* All installed packages can be successfully loaded.")
+    return(broken)
+  }
+
+  # notify the user
+  renv_pretty_print(
+    values    = paste("-", packages),
+    preamble  = "The following package(s) could not be successfully loaded:",
+    postamble = "These packages will be removed and later re-installed.",
+    wrap      = FALSE
+  )
+
+  # remove each broken package
+  paths <- file.path(library, broken)
+  unlink(paths, recursive = TRUE)
+
+  return(broken)
 
 }

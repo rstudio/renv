@@ -37,7 +37,9 @@ jobs:
     env:
       _R_CHECK_CRAN_INCOMING_: FALSE
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      RENV_PATHS_ROOT: ~/.local/share/renv
+      RENV_CI_CACHE_VERSION_LINUX: 1
+      RENV_CI_CACHE_VERSION_MACOS: 1
+      RENV_CI_CACHE_VERSION_WINDOWS: 1
       USE_CXX1X: TRUE
       USE_CXX11: TRUE
 
@@ -95,6 +97,10 @@ jobs:
         shell: bash
         run: |
           brew install libgit2
+
+      - name: Repair broken packages
+        shell: Rscript {0}
+        run: renv:::renv_ci_repair()
 
       - name: Install R dependencies
         shell: Rscript {0}
