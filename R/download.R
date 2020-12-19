@@ -25,6 +25,11 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
 
+  # normalize separators (file URIs should normally use forward
+  # slashes, even on Windows where the native separator is backslash)
+  url      <- chartr("\\", "/", url)
+  destfile <- chartr("\\", "/", destfile)
+
   # notify user we're about to try downloading
   vwritef("Retrieving '%s' ...", url)
 
@@ -69,11 +74,11 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   before <- Sys.time()
 
   status <- renv_download_impl(
-    url = url,
+    url      = url,
     destfile = tempfile,
-    type = type,
-    request = "GET",
-    headers = headers
+    type     = type,
+    request  = "GET",
+    headers  = headers
   )
 
   after <- Sys.time()
@@ -109,6 +114,12 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 # each downloader should return 0 on success
 renv_download_impl <- function(url, destfile, type = NULL, request = "GET", headers = NULL) {
 
+  # normalize separators (file URIs should normally use forward
+  # slashes, even on Windows where the native separator is backslash)
+  url      <- chartr("\\", "/", url)
+  destfile <- chartr("\\", "/", destfile)
+
+  # select the appropriate downloader
   downloader <- switch(
     renv_download_file_method(),
     curl = renv_download_curl,
@@ -116,6 +127,7 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
     renv_download_default
   )
 
+  # run downloader, catching errors
   catch(downloader(url, destfile, type, request, headers))
 
 }
@@ -294,6 +306,7 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
         ewritef("Error downloading URL '%s' [status code %i]", url, status)
         ewritef(readLines(file))
         ewritef()
+        print(charToRaw(url))
       }
     }
 
@@ -627,11 +640,6 @@ renv_download_local <- function(url, destfile, headers) {
 
   if (!ok)
     return(FALSE)
-
-  # normalize separators (file URIs should normally use forward
-  # slashes, even on Windows where the native separator is backslash)
-  url <- gsub("\\", "/", url, fixed = TRUE)
-  destfile <- gsub("\\", "/", destfile, fixed = TRUE)
 
   methods <- list(
     renv_download_local_copy,
