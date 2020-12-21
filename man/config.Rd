@@ -87,6 +87,8 @@ Defaults to \code{TRUE}.}
 Defaults to \code{TRUE}.}
 \item{\bold{\code{renv.config.snapshot.validate}}}{Validate \R package dependencies when calling snapshot? When \code{TRUE}, \code{renv} will attempt to diagnose potential issues in the project library before creating \code{renv.lock} -- for example, if a package installed in the project library depends on a package which is not currently installed.
 Defaults to \code{TRUE}.}
+\item{\bold{\code{renv.config.startup.quiet}}}{Be quiet during startup? When set, \code{renv} will not display the typical \verb{Project <path> loaded. [renv <version>]} banner on startup.
+Defaults to \code{NULL}.}
 \item{\bold{\code{renv.config.synchronized.check}}}{Check that the project library is synchronized with the lockfile on load?
 Defaults to \code{TRUE}.}
 \item{\bold{\code{renv.config.updates.check}}}{Check for package updates when the session is initialized? This can be useful if you'd like to ensure that your project lockfile remains up-to-date with packages as they are released on CRAN.

@@ -210,6 +210,15 @@ config <- list(
     )
   },
 
+  startup.quiet = function(..., default = NULL) {
+    renv_config_get(
+      name    = "startup.quiet",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   synchronized.check = function(..., default = TRUE) {
     renv_config_get(
       name    = "synchronized.check",

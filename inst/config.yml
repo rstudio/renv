@@ -198,6 +198,13 @@
     creating `renv.lock` -- for example, if a package installed in the project library
     depends on a package which is not currently installed.
 
+- name: "startup.quiet"
+  type: "logical[1]"
+  default: ~
+  description: >
+    Be quiet during startup? When set, `renv` will not display the typical
+    `Project <path> loaded. [renv <version>]` banner on startup.
+
 - name: "synchronized.check"
   type: "logical[1]"
   default: true

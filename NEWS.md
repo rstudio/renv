@@ -1,6 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* The configuration option `startup.quiet` has been added, allowing one to
+  control whether `renv` will display the typical startup banner when a
+  project is loaded.
+  
 * `renv` now better handles being unloaded and reloaded within the
   same R session. In particular, warnings related to a corrupted
   lazy-load database should no longer occur. (#600)
