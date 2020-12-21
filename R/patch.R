@@ -2,6 +2,7 @@
 renv_patch_init <- function() {
   renv_patch_tar()
   renv_patch_golem()
+  renv_patch_methods_table()
 }
 
 renv_patch_tar <- function() {
@@ -82,4 +83,26 @@ renv_patch_golem_impl <- function(...) {
     replacement = replacement
   )
 
+}
+
+renv_patch_methods_table <- function() {
+  catchall(renv_patch_methods_table_impl())
+}
+
+renv_patch_methods_table_impl <- function() {
+  # ensure promises in S3 methods table are forced
+  # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16644
+  renv <- asNamespace("renv")
+
+  # unlock binding if it's locked
+  binding <- ".__S3MethodsTable__."
+  if (bindingIsLocked(binding, env = renv)) {
+    unlockBinding(binding, env = renv)
+    on.exit(lockBinding(binding, renv), add = TRUE)
+  }
+
+  # force everything defined in the environment
+  table <- renv[[binding]]
+  for (key in ls(envir = table, all.names = TRUE))
+    table[[key]] <- force(table[[key]])
 }

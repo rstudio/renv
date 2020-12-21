@@ -1,6 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` now better handles being unloaded and reloaded within the
+  same R session. In particular, warnings related to a corrupted
+  lazy-load database should no longer occur. (#600)
+
 * `renv` no longer re-installs packages that are already installed and
   up-to-date in bare calls to `renv::install()`.
 

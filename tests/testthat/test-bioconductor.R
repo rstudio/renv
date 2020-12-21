@@ -8,6 +8,8 @@ test_that("packages can be installed, restored from Bioconductor", {
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
 
+  renv_scope_options(renv.tests.verbose = FALSE)
+
   renv_tests_scope("Biobase")
 
   cran <- "https://cloud.r-project.org"
