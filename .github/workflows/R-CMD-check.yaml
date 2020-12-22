@@ -53,10 +53,6 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v1
 
-      - name: Fix path for Windows caching
-        if: runner.os == 'Windows'
-        run: echo "C:/Program Files/Git/usr/bin" >> $GITHUB_PATH
-
       - name: Install renv
         shell: bash
         run: R CMD INSTALL --preclean .
@@ -134,6 +130,10 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@main
         with:
-          name: ${{ runner.os }}-r-${{ matrix.config.r }}-results
+          name: ${{ matrix.config.os }}-r-${{ matrix.config.r }}-results
           path: check
 
+      - name: Fix path for Windows caching
+        if: runner.os == 'Windows'
+        shell: bash
+        run: echo "C:/Program Files/Git/usr/bin" >> $GITHUB_PATH
