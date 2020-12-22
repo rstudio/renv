@@ -1,6 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv::install("package")` will now install the latest-available version of
+  that package from local sources, if that package is available and newer than
+  any package available on the active package repositories. (#591)
+
 * The configuration option `startup.quiet` has been added, allowing one to
   control whether `renv` will display the typical startup banner when a
   project is loaded.

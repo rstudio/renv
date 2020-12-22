@@ -228,8 +228,14 @@ test_that("snapshot records packages discovered in local sources", {
   init(bare = TRUE)
 
   record <- list(Package = "skeleton", Version = "1.0.1", Source = "Local")
-  install(list(record))
+  records <- install(list(record))
 
+  # validate the record reported by install
+  skeleton <- records[["skeleton"]]
+  expect_equal(skeleton$Version, "1.0.1")
+  expect_equal(skeleton$Source, "Local")
+
+  # validate the record in the lockfile
   lockfile <- snapshot(lockfile = NULL)
   records <- renv_records(lockfile)
   skeleton <- records[["skeleton"]]

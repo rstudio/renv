@@ -217,7 +217,14 @@ renv_available_packages_record <- function(entry, type) {
 
 renv_available_packages_latest_impl <- function(package, type) {
 
+  # get available packages
   dbs <- renv_available_packages(type = type, quiet = TRUE)
+
+  # prepend local sources if available
+  local <- renv_available_packages_local(type = type)
+  if (!is.null(local))
+    dbs <- c(list(Local = local), dbs)
+
   fields <- c("Package", "Version", "OS_type", "NeedsCompilation", "Repository")
   entries <- bapply(dbs, function(db) {
 
@@ -268,39 +275,14 @@ renv_available_packages_latest_impl <- function(package, type) {
 
   }, index = "Name")
 
-  if (is.null(entries)) {
-
-    # for diagnostics on CI
-    if (renv_tests_running() && renv_tests_verbose()) {
-
-      # write error message
-      fmt <- "internal error: package '%s' not available on test repositories"
-      writef(fmt, package)
-
-      # dump some (hopefully) helpful information
-      repos <- getOption("repos")
-      str(repos)
-
-      dbs %>% map(`[`, c("Package", "Version")) %>% print()
-
-      repopath <- gsub("^file:/+", "", repos)
-      files <- list.files(
-        path       = repopath,
-        all.files  = TRUE,
-        full.names = TRUE,
-        recursive  = TRUE
-      )
-
-      writeLines(files)
-
-    }
-
+  if (is.null(entries))
     return(NULL)
-  }
 
   # sort based on version
   version <- numeric_version(entries$Version)
   ordered <- order(version, decreasing = TRUE)
+
+  # return newest-available version
   entries[ordered[[1]], ]
 
 }
@@ -383,5 +365,62 @@ renv_available_packages_latest_select <- function(src, bin) {
 
   # take the source version
   renv_available_packages_record(src, "source")
+
+}
+
+renv_available_packages_local <- function(type, project = NULL) {
+
+  project <- renv_project_resolve(project)
+
+  # list files recursively in the local sources paths
+  roots <- c(
+    renv_paths_project("renv/local", project = project),
+    renv_paths_local()
+  )
+
+  # find all files used in the locals folder
+  all <- list.files(
+    path         = roots,
+    all.files    = TRUE,
+    full.names   = TRUE,
+    recursive    = TRUE,
+    include.dirs = FALSE
+  )
+
+  # keep only files with matching extensions
+  ext <- renv_package_ext(type = type)
+  keep <- all[fileext(all) %in% ext]
+
+  # read the DESCRIPTION files within the archive
+  descs <- lapply(keep, function(path) {
+
+    # read the DESCRIPTION
+    desc <- renv_description_read(path)
+
+    # set the Repository field
+    prefix <- if (renv_platform_windows()) "file:///" else "file://"
+    uri <- paste0(prefix, dirname(path))
+    desc[["Repository"]] <- uri
+
+    # return it
+    desc
+
+  })
+
+  # extract DESCRIPTION fields of interest
+  fields <- c("Package", "Version", "OS_type", "NeedsCompilation", "Repository")
+  records <- map(descs, function(desc) {
+
+    # ensure missing fields are set as NA
+    missing <- setdiff(fields, names(desc))
+    desc[missing] <- NA
+
+    # return record with requested fields
+    desc[fields]
+
+  })
+
+  # bind into data.frame for lookup
+  bind_list(records)
 
 }

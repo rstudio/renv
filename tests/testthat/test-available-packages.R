@@ -68,3 +68,17 @@ test_that("renv_available_packages_latest() respects pkgType option", {
   expect_error(renv_available_packages_latest("breakfast"))
 
 })
+
+test_that("local sources are preferred when available", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  root <- renv_tests_root()
+  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(root, "local"))
+
+  record <- renv_available_packages_latest(package = "skeleton", type = "source")
+  expect_identical(record$Source, "Repository")
+  expect_identical(record$Repository, "Local")
+
+})

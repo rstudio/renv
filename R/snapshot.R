@@ -675,8 +675,17 @@ renv_snapshot_description_source <- function(dcf) {
     catch(renv_available_packages_latest(package, type = "source"))
   })
 
-  if (!inherits(entry, "error"))
-    return(list(Source = "Repository", Repository = entry[["Repository"]]))
+  if (!inherits(entry, "error")) {
+
+    # check for and handle local repositories
+    repos <- entry[["Repository"]]
+    if (identical(repos, "Local"))
+      return(list(Source = "Local"))
+
+    # otherwise, treat as regular entry
+    return(list(Source = "Repository", Repository = repos))
+
+  }
 
   location <- catch(renv_retrieve_local_find(dcf))
   if (!inherits(location, "error"))

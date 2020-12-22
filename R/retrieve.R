@@ -343,10 +343,8 @@ renv_retrieve_local_report <- function(record) {
   if (source == "local")
     return(record)
 
-  record$Source <- "Local"
-  rather <- if (source == "unknown") "" else paste(" rather than", renv_alias(source))
-  fmt <- "* Package %s [%s] will be installed from local sources%s."
-  with(record, vwritef(fmt, Package, Version, rather))
+  fmt <- "* Package %s [%s] will be installed from local sources."
+  with(record, vwritef(fmt, Package, Version))
 
   record
 

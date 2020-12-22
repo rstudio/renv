@@ -304,3 +304,22 @@ test_that("install() installs inferred dependencies", {
   expect_length(records, 0L)
 
 })
+
+test_that("install() prefers local sources when available", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  root <- renv_tests_root()
+  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(root, "local"))
+
+  records <- install("skeleton")
+
+  record <- records$skeleton
+  expect_equal(record$Repository, "Local")
+
+  prefix <- if (renv_platform_windows()) "file:///" else "file://"
+  uri <- paste0(prefix, root, "/local/skeleton")
+  expect_equal(attr(record, "url"), uri)
+
+})
