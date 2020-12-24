@@ -297,8 +297,15 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   )
 
   status <- attr(output, "status", exact = TRUE) %||% 0L
-  if (status != 0L)
+  if (status != 0L) {
     warning(output, call. = FALSE)
+    if (renv_tests_running() && renv_tests_verbose()) {
+      writeLines("")
+      writeLines(text)
+      writeLines(output)
+      writeLines("")
+    }
+  }
 
   status
 
@@ -771,7 +778,8 @@ renv_download_available_impl <- function(url) {
   renv_scope_options(download.file.extra = paste(extra, collapse = " "))
 
   # attempt the download
-  destfile <- renv_tempfile_path()
+  destfile <- chartr("\\", "/", renv_tempfile_path())
+
   status <- catchall(
     renv_download_curl(
       url      = url,
