@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 
+ci
 check
 cran-comments.md
 CRAN-RELEASE

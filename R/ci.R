@@ -39,6 +39,9 @@ renv_ci_dependencies <- function() {
   if (!is.na(version))
     attr(resolved, "cache") <- version
 
+  # print it out, just for our own information
+  print(resolved)
+
   # save to file for hashing
   saveRDS(resolved, file = "ci/dependencies.rds", version = 2L)
 

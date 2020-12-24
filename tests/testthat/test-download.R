@@ -158,3 +158,8 @@ test_that("downloads work with UNC paths on Windows", {
   }
 
 })
+
+test_that("we can check that a URL is available", {
+  skip_on_cran()
+  expect_true(renv_download_available("https://www.google.com"))
+})

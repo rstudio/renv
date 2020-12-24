@@ -141,6 +141,9 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  # ensure package names are resolved if provided
+  packages <- if (length(packages)) names(remotes)
+
   renv_scope_restore(
     project  = project,
     library  = renv_libpaths_default(),

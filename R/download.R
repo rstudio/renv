@@ -139,7 +139,7 @@ renv_download_default_mode <- function(url, method) {
   fixup <-
     renv_platform_windows() &&
     identical(method, "wininet") &&
-    substring(url, 1, 5) == "file:"
+    substring(url, 1L, 5L) == "file:"
 
   if (fixup)
     mode <- "w+b"
@@ -297,28 +297,8 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   )
 
   status <- attr(output, "status", exact = TRUE) %||% 0L
-  if (status != 0L) {
-
-    # dump extra information about the failure during tests
-    if (renv_tests_running() && renv_tests_verbose()) {
-
-      ewritef()
-      ewritef("Error downloading URL '%s' [status code %i]", url, status)
-      ewritef(readLines(file))
-      ewritef()
-
-      if (grepl("^file:", url)) {
-        n <- if (renv_platform_windows()) 9L else 8L
-        path <- substring(url, n)
-        print(file.info(path))
-      }
-
-    }
-
-    # emit a warning
+  if (status != 0L)
     warning(output, call. = FALSE)
-
-  }
 
   status
 
@@ -554,7 +534,7 @@ renv_download_headers <- function(url, type, headers) {
 
 }
 
-renv_download_size <- function(url, type, headers = NULL) {
+renv_download_size <- function(url, type = NULL, headers = NULL) {
 
   headers <- catch(renv_download_headers(url, type, headers))
   if (inherits(headers, "error"))
@@ -586,22 +566,25 @@ renv_download_file_method <- function() {
   if (!is.na(method))
     return(method)
 
-  method <- getOption("download.file.method", default = "auto")
-  if (method %in% c("curl", "wget"))
-    return(method)
-
+  # prefer curl if available
   if (nzchar(Sys.which("curl")))
     return("curl")
 
+  # if curl is not available, use libcurl if available
   libcurl <- capabilities("libcurl")
   if (length(libcurl) && libcurl)
     return("libcurl")
 
+  # on windows, just use wininet here
+  if (renv_platform_windows())
+    return("wininet")
+
+  # if neither curl nor libcurl is available, prefer wget
   if (nzchar(Sys.which("wget")))
     return("wget")
 
-  # fall back to default method
-  method
+  # all else fails, use the internal downloader
+  "internal"
 
 }
 
@@ -732,5 +715,76 @@ renv_download_custom_headers <- function(url) {
     stop("invocation of 'renv.download.headers' did not return a named character vector")
 
   headers
+
+}
+
+renv_download_available <- function(url) {
+
+  # normalize separators (file URIs should normally use forward
+  # slashes, even on Windows where the native separator is backslash)
+  url <- chartr("\\", "/", url)
+
+  # add custom headers as appropriate for the URL
+  headers <- renv_download_custom_headers(url)
+
+  # on Windows, try using our local curl binary if available
+  renv_scope_downloader()
+
+  # be sure to timeout quickly
+  renv_scope_options(
+    renv.config.connect.timeout = 0.1,
+    renv.config.connect.retry   = 1
+  )
+
+  # do it
+  method <- renv_download_file_method()
+  if (identical(method, "curl"))
+    renv_download_available_impl(url)
+  else
+    renv_download_available_headers(url)
+
+}
+
+renv_download_available_headers <- function(url) {
+
+  # attempt to download headers
+  headers <- catchall(
+    renv_download_headers(
+      url = url,
+      type = NULL,
+      headers = headers
+    )
+  )
+
+  if (inherits(headers, "condition"))
+    return(FALSE)
+
+  # check that we got something
+  length(headers) != 0L
+
+}
+
+renv_download_available_impl <- function(url) {
+
+  # instruct curl to request only first byte
+  extra <- c(getOption("download.file.extra"), "-r 0-0")
+  renv_scope_options(download.file.extra = paste(extra, collapse = " "))
+
+  # attempt the download
+  destfile <- renv_tempfile_path()
+  status <- catchall(
+    renv_download_curl(
+      url      = url,
+      destfile = destfile,
+      type     = NULL,
+      request  = "GET",
+      headers  = NULL
+    )
+  )
+
+  if (inherits(status, "condition"))
+    return(FALSE)
+
+  identical(status, 0L)
 
 }

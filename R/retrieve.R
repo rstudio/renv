@@ -1,4 +1,6 @@
 
+`_renv_repos_archive` <- new.env(parent = emptyenv())
+
 # this routine retrieves a package + its dependencies, and as a side
 # effect populates the restore state's `retrieved` member with a
 # list of package records which can later be used for install
@@ -552,15 +554,66 @@ renv_retrieve_repos_source <- function(record) {
 
 renv_retrieve_repos_archive <- function(record) {
 
-  name <- sprintf("%s_%s.tar.gz", record$Package, record$Version)
   for (repo in getOption("repos")) {
-    repo <- file.path(repo, "src/contrib/Archive", record$Package)
-    status <- catch(renv_retrieve_repos_impl(record, "source", name, repo))
+
+    # try to determine path to package in archive
+    url <- renv_retrieve_repos_archive_path(repo, record)
+    if (is.null(url))
+      next
+
+    # attempt download
+    name <- renv_retrieve_name(record, ext = ".tar.gz")
+    status <- catch(renv_retrieve_repos_impl(record, "source", name, url))
     if (identical(status, TRUE))
       return(TRUE)
+
   }
 
   return(FALSE)
+
+}
+
+renv_retrieve_repos_archive_path <- function(repo, record) {
+
+  # allow users to provide a custom archive path for a record,
+  # in case they're using a repository that happens to archive
+  # packages with a different format than regular CRAN network
+  # https://github.com/rstudio/renv/issues/602
+  override <- getOption("renv.retrieve.repos.archive.path")
+  if (is.function(override)) {
+    result <- override(repo, record)
+    if (!is.null(result))
+      return(result)
+  }
+
+  # if we already know the format of the repository, use that
+  if (exists(repo, envir = `_renv_repos_archive`)) {
+    formatter <- get(repo, envir = `_renv_repos_archive`)
+    return(formatter(repo, record))
+  }
+
+  # otherwise, try determining the archive paths with a couple
+  # custom locations, and cache the version that works for the
+  # associated repository
+  formatters <- list(
+
+    function(repo, record) {
+      with(record, file.path(repo, "src/contrib/Archive", Package))
+    },
+
+    function(repo, record) {
+      with(record, file.path(repo, "src/contrib/Archive", Package, Version))
+    }
+
+  )
+
+  for (formatter in formatters) {
+    url <- formatter(repo, record)
+    if (renv_download_available(url)) {
+      assign(repo, formatter, envir = `_renv_repos_archive`)
+      return(url)
+    }
+  }
 
 }
 
