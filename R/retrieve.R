@@ -589,7 +589,8 @@ renv_retrieve_repos_archive_path <- function(repo, record) {
   # if we already know the format of the repository, use that
   if (exists(repo, envir = `_renv_repos_archive`)) {
     formatter <- get(repo, envir = `_renv_repos_archive`)
-    return(formatter(repo, record))
+    root <- formatter(repo, record)
+    return(root)
   }
 
   # otherwise, try determining the archive paths with a couple
@@ -607,11 +608,13 @@ renv_retrieve_repos_archive_path <- function(repo, record) {
 
   )
 
+  name <- renv_retrieve_repos_archive_name(record, "source")
   for (formatter in formatters) {
-    url <- formatter(repo, record)
+    root <- formatter(repo, record)
+    url <- file.path(root, name)
     if (renv_download_available(url)) {
       assign(repo, formatter, envir = `_renv_repos_archive`)
-      return(url)
+      return(root)
     }
   }
 
