@@ -737,13 +737,7 @@ renv_download_available <- function(url) {
   # on Windows, try using our local curl binary if available
   renv_scope_downloader()
 
-  # be sure to timeout quickly
-  renv_scope_options(
-    renv.config.connect.timeout = 0.1,
-    renv.config.connect.retry   = 1
-  )
-
-  # do it
+  # do the thing
   method <- renv_download_file_method()
   if (identical(method, "curl"))
     renv_download_available_impl(url)
