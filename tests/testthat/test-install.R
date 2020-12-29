@@ -323,3 +323,19 @@ test_that("install() prefers local sources when available", {
   expect_equal(attr(record, "url"), uri)
 
 })
+
+test_that("packages can be installed from the archive w/libcurl", {
+  skip_on_cran()
+
+  # validate that we have libcurl
+  ok <- identical(capabilities("libcurl"), c(libcurl = TRUE))
+  skip_if(!ok, "libcurl is not available")
+
+  # perform test
+  renv_tests_scope()
+  renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "libcurl")
+  install("bread@0.1.0")
+  expect_true(renv_package_installed("bread"))
+  expect_equal(renv_package_version("bread"), "0.1.0")
+
+})
