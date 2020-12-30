@@ -86,6 +86,7 @@ test_that("local sources are preferred when available", {
 test_that("available packages database refreshed on http_proxy change", {
 
   skip_on_cran()
+  skip_on_windows()
 
   count <- 0L
   renv_scope_trace(
