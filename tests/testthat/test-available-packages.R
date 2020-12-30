@@ -82,3 +82,19 @@ test_that("local sources are preferred when available", {
   expect_identical(record$Repository, "Local")
 
 })
+
+test_that("available packages database refreshed on http_proxy change", {
+
+  skip_on_cran()
+
+  count <- 0L
+  renv_scope_trace(
+    what   = renv:::renv_available_packages_impl,
+    tracer = function() { count <<- count + 1L }
+  )
+
+  Sys.setenv("https_proxy" = "")
+  renv_available_packages(type = "source")
+  expect_identical(count, 1L)
+
+})

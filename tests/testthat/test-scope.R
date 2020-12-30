@@ -76,3 +76,18 @@ test_that("nested attempts to scope libpaths are properly handled", {
   expect_true(.libPaths()[1] == libpaths[1])
 
 })
+
+test_that("renv_scope_trace works", {
+
+  count <- 0
+
+  local({
+    renv_scope_trace(what = identity, tracer = function() count <<- count + 1)
+    identity(1)
+  })
+
+  identity(1)
+
+  expect_equal(count, 1L)
+
+})

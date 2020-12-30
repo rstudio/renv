@@ -7,12 +7,19 @@ renv_available_packages <- function(type, repos = NULL, limit = NULL, quiet = FA
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
   repos <- renv_repos_normalize(repos %||% getOption("repos"))
 
+  # invalidate cache if http_proxy or https_proxy environment variables change,
+  # since those could effect (or even re-direct?) repository URLs
+  envkeys <- c("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY")
+  envvals <- Sys.getenv(envkeys, unset = NA)
+  key <- list(repos = repos, type = type, envvals)
+
   renv_timecache(
-    list(repos = repos, type = type),
-    renv_available_packages_impl(type, repos, quiet),
-    limit = as.integer(limit),
+    key     = key,
+    value   = renv_available_packages_impl(type, repos, quiet),
+    limit   = as.integer(limit),
     timeout = renv_available_packages_timeout
   )
+
 }
 
 renv_available_packages_impl <- function(type, repos, quiet = FALSE) {

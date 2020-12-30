@@ -1,7 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
-* `renv::install("package")` will now install the latest-available version of
+* `renv` now invalidates the available packages cache if the `https_proxy`
+  environment variable changes. (#579)
+  
+* `renv::install(<pkg>)` will now install the latest-available version of
   that package from local sources, if that package is available and newer than
   any package available on the active package repositories. (#591)
 

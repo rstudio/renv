@@ -329,7 +329,14 @@ renv_scope_lock <- function(path = NULL,
 }
 
 renv_scope_trace <- function(what, tracer, ..., .envir = NULL) {
+
   .envir <- .envir %||% parent.frame()
-  trace(what = substitute(what), tracer = tracer, print = FALSE, ...)
-  defer(untrace(what), envir = .envir)
+
+  call <- sys.call()
+  call[[1L]] <- base::trace
+  call[["print"]] <- FALSE
+  eval(call, envir = parent.frame())
+
+  defer(untrace(substitute(what)), envir = .envir)
+
 }
