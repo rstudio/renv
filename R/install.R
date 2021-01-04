@@ -574,18 +574,35 @@ renv_install_preflight_unknown_source <- function(records) {
 
 renv_install_preflight_permissions <- function(library) {
 
-  # check for inability to install in requested library
-  access <- file.access(library, 7L)
-  if (access == 0L)
+  # try creating and deleting a directory in the library folder
+  file <- tempfile(".renv-write-test-", tmpdir = library)
+  dir.create(file, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(file, recursive = TRUE), add = TRUE)
+
+  # check if we created the directory successfully
+  info <- file.info(file, extra_cols = FALSE)
+  if (identical(info$isdir, TRUE))
     return(TRUE)
 
   # nocov start
   if (renv_verbose()) {
+
+    # construct header for message
+    preamble <- "renv appears to be unable to access the requested library path:"
+
+    # construct footer for message
+    info <- as.list(Sys.info())
+    fmt <- "Check that the '%s' user has read / write access to this directory."
+    postamble <- sprintf(fmt, info$effective_user %||% info$user)
+
+    # print it
     renv_pretty_print(
-      library,
-      "You do not have permissions to read / write into the requested library:",
-      "renv may be unable to restore packages."
+      values = library,
+      preamble = preamble,
+      postamble = postamble,
+      wrap = FALSE
     )
+
   }
   # nocov end
 
