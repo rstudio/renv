@@ -217,7 +217,7 @@ renv_load_project <- function(project) {
   renv_scope_locale("LC_COLLATE", "C")
   projlist <- sort(c(projlist, project))
   ensure_parent_directory(projects)
-  writeLines(enc2utf8(projlist), projects, useBytes = TRUE)
+  catchall(writeLines(enc2utf8(projlist), projects, useBytes = TRUE))
 
   TRUE
 
