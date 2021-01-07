@@ -1,5 +1,5 @@
 
-# renv 0.13.0 (UNRELEASED)
+# renv 0.12.4
 
 * `renv` now invalidates the available packages cache if the `https_proxy`
   environment variable changes. (#579)
