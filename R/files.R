@@ -382,6 +382,12 @@ renv_file_list_impl <- function(path) {
 
   # nocov start
 
+  # first, try a plain list.files to see if we can get away with that
+  files <- list.files(path, all.files = TRUE, no.. = TRUE)
+  if (!any(grepl("?", files, fixed = TRUE)))
+    return(files)
+
+  # otherwise, try some madness ...
   # change working directory (done just to avoid encoding issues
   # when submitting path to cmd shell)
   owd <- setwd(path)
