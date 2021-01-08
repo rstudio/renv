@@ -53,6 +53,14 @@ renv_cli_exec_impl <- function(clargs) {
       args[[key]] <- TRUE
     }
 
+    # convert 'param=value' flags
+    else if (grepl("=", clarg, fixed = TRUE)) {
+      index <- regexpr("=", clarg, fixed = TRUE)
+      key <- substring(clarg, 1L, index - 1L)
+      val <- substring(clarg, index + 1L)
+      args[[key]] <- renv_cli_parse(val)
+    }
+
     # take other parameters as-is
     else {
       splat <- strsplit(clarg, ",", fixed = TRUE)[[1L]]
@@ -121,6 +129,11 @@ renv_cli_unknown <- function(method, exports) {
 }
 
 renv_cli_parse <- function(text) {
+
+  if (text %in% c("true", "True", "TRUE"))
+    return(TRUE)
+  else if (text %in% c("false", "False", "FALSE"))
+    return(FALSE)
 
   expr <- parse(text = text)
 
