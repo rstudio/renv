@@ -64,6 +64,7 @@ test_that("renv_available_packages_latest() respects pkgType option", {
   expect_identical(attr(record, "type"), "source")
 
   # NOTE: this fails because we don't populate binary repositories during tests
+  renv_scope_options(renv.config.mran.enabled = FALSE)
   renv_scope_options(pkgType = "binary")
   expect_error(renv_available_packages_latest("breakfast"))
 

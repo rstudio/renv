@@ -290,7 +290,8 @@ renv_available_packages_latest_repos_impl <- function(package, type) {
   ordered <- order(version, decreasing = TRUE)
 
   # return newest-available version
-  entries[ordered[[1]], ]
+  entry <- entries[ordered[[1]], ]
+  renv_available_packages_record(entry, type)
 
 }
 
@@ -375,21 +376,7 @@ renv_available_packages_latest_mran <- function(package, type = NULL) {
 
 renv_available_packages_latest_repos <- function(package, type = NULL) {
 
-  # if we're not using binary repositories,
-  # then just take the latest available from source repositories
-  types <- type %||% renv_package_pkgtypes()
-  if (!"binary" %in% types) {
-
-    entry <- renv_available_packages_latest_repos_impl(package, "source")
-    if (is.null(entry))
-      stopf("package '%s' is not available", package)
-
-    record <- renv_available_packages_record(entry, "source")
-    return(record)
-
-  }
-
-  type <- getOption("pkgType")
+  type <- type %||% getOption("pkgType")
 
   # detect requests for only source packages
   if (identical(type, "source"))
