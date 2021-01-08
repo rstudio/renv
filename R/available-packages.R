@@ -298,8 +298,8 @@ renv_available_packages_latest_repos_impl <- function(package, type) {
 renv_available_packages_latest <- function(package, type = NULL) {
 
   methods <- list(
-    renv_available_packages_latest_repos,
-    renv_available_packages_latest_mran
+    renv_available_packages_latest_repos
+    # renv_available_packages_latest_mran
   )
 
   for (method in methods) {
