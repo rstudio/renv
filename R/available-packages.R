@@ -298,8 +298,8 @@ renv_available_packages_latest_repos_impl <- function(package, type) {
 renv_available_packages_latest <- function(package, type = NULL) {
 
   methods <- list(
-    renv_available_packages_latest_repos
-    # renv_available_packages_latest_mran
+    renv_available_packages_latest_repos,
+    renv_available_packages_latest_mran
   )
 
   for (method in methods) {
@@ -317,9 +317,9 @@ renv_available_packages_latest_mran <- function(package, type = NULL) {
   if (!config$mran.enabled())
     stop("MRAN is not enabled")
 
-  type <- type %||% renv_package_pkgtypes()
-  if (!"binary" %in% type)
-    stop("MRAN database is not used for source packages")
+  type <- type %||% getOption("pkgType")
+  if (identical(type, "source"))
+    stop("MRAN database requires binary packages to be available")
 
   # ensure local MRAN database is up-to-date
   renv_mran_database_refresh(explicit = FALSE)
