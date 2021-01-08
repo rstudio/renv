@@ -1,6 +1,8 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where `renv` would fail to bootstrap. (#608)
+
 # renv 0.12.4
 
 * `renv` now invalidates the available packages cache if the `https_proxy`

@@ -51,6 +51,10 @@ local({
   
   }
   
+  renv_bootstrap_tests_running <- function() {
+    getOption("renv.tests.running", default = FALSE)
+  }
+  
   renv_bootstrap_repos <- function() {
   
     # check for repos override
@@ -59,7 +63,7 @@ local({
       return(repos)
   
     # if we're testing, re-use the test repositories
-    if (renv_tests_running())
+    if (renv_bootstrap_tests_running())
       return(getOption("renv.tests.repos"))
   
     # retrieve current repos
