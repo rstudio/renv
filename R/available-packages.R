@@ -222,7 +222,7 @@ renv_available_packages_record <- function(entry, type) {
 
 }
 
-renv_available_packages_latest_impl <- function(package, type) {
+renv_available_packages_latest_repos_impl <- function(package, type) {
 
   # get available packages
   dbs <- renv_available_packages(type = type, quiet = TRUE)
@@ -296,12 +296,91 @@ renv_available_packages_latest_impl <- function(package, type) {
 
 renv_available_packages_latest <- function(package, type = NULL) {
 
+  methods <- list(
+    renv_available_packages_latest_repos,
+    renv_available_packages_latest_mran
+  )
+
+  for (method in methods) {
+    entry <- catch(method(package, type))
+    if (!inherits(entry, "error") && is.list(entry))
+      return(entry)
+  }
+
+  stopf("package '%s' is not available", package)
+
+}
+
+renv_available_packages_latest_mran <- function(package, type = NULL) {
+
+  if (!config$mran.enabled())
+    stop("MRAN is not enabled")
+
+  type <- type %||% renv_package_pkgtypes()
+  if (!"binary" %in% type)
+    stop("MRAN database is not used for source packages")
+
+  # ensure local MRAN database is up-to-date
+  renv_mran_database_refresh(explicit = FALSE)
+
+  # attempt to read it
+  database <- catch(renv_mran_database_load())
+  if (inherits(database, "error"))
+    return(database)
+
+  # get entry for this version of R + platform
+  suffix <- contrib.url("", type = "binary")
+  entry <- database[[suffix]]
+  if (is.null(entry))
+    stopf("no MRAN records available from repository URL '%s'", suffix)
+
+  # find all available packages
+  keys <- ls(envir = entry)
+  pattern <- paste0("^", package, " ")
+  matching <- grep(pattern, keys, perl = TRUE, value = TRUE)
+  entries <- unlist(mget(matching, envir = entry))
+
+  # take the latest-available package
+  sorted <- sort(entries, decreasing = TRUE)
+  key <- names(sorted)[[1L]]
+  idate <- sorted[[1L]]
+
+  # split into package, version
+  index <- regexpr(" ", key, fixed = TRUE)
+  version <- substring(key, index + 1)
+
+  # return an appropriate record
+  record <- list(
+    Package    = package,
+    Version    = version,
+    Source     = "Repository",
+    Repository = "MRAN"
+  )
+
+  # convert from integer to date
+  date <- as.Date(idate, origin = "1970-01-01")
+
+  # form url to binary package
+  base <- renv_mran_url(date, suffix)
+  name <- renv_retrieve_name(record, type = "binary")
+  url <- file.path(base, name)
+
+  # tag record with url + type
+  attr(record, "url")  <- url
+  attr(record, "type") <- "binary"
+
+  record
+
+}
+
+renv_available_packages_latest_repos <- function(package, type = NULL) {
+
   # if we're not using binary repositories,
   # then just take the latest available from source repositories
   types <- type %||% renv_package_pkgtypes()
   if (!"binary" %in% types) {
 
-    entry <- renv_available_packages_latest_impl(package, "source")
+    entry <- renv_available_packages_latest_repos_impl(package, "source")
     if (is.null(entry))
       stopf("package '%s' is not available", package)
 
@@ -314,15 +393,15 @@ renv_available_packages_latest <- function(package, type = NULL) {
 
   # detect requests for only source packages
   if (identical(type, "source"))
-    return(renv_available_packages_latest_impl(package, "source"))
+    return(renv_available_packages_latest_repos_impl(package, "source"))
 
   # detect requests for only binary packages
   if (grepl("\\bbinary\\b", type))
-    return(renv_available_packages_latest_impl(package, "binary"))
+    return(renv_available_packages_latest_repos_impl(package, "binary"))
 
   # otherwise, check both source and binary repositories
-  src <- renv_available_packages_latest_impl(package, "source")
-  bin <- renv_available_packages_latest_impl(package, "binary")
+  src <- renv_available_packages_latest_repos_impl(package, "source")
+  bin <- renv_available_packages_latest_repos_impl(package, "binary")
 
   # choose an appropriate record
   if (is.null(src) && is.null(bin))
