@@ -208,6 +208,13 @@ renv_available_packages_timeout <- function(data) {
 
 renv_available_packages_record <- function(entry, type) {
 
+  # check to see if this is already a proper record
+  attrs <- attributes(entry)
+  keys <- c("type", "url")
+  if (all(keys %in% names(attrs)))
+    return(entry)
+
+  # otherwise, construct it
   record <- list(
     Package    = entry$Package,
     Version    = entry$Version,
@@ -290,7 +297,7 @@ renv_available_packages_latest_repos_impl <- function(package, type) {
   ordered <- order(version, decreasing = TRUE)
 
   # return newest-available version
-  entry <- entries[ordered[[1]], ]
+  entry <- as.list(entries[ordered[[1]], ])
   renv_available_packages_record(entry, type)
 
 }
