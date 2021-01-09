@@ -88,13 +88,43 @@ and (if known) the external source from which that package can be retrieved.
 `renv::restore()` uses that information to retrieve and re-install those
 packages in your project.
 
-Be aware that `renv::restore()` may fail if a package was originally installed
-through a CRAN-available binary, but that binary is no longer available. `renv`
-will attempt to install the package from sources in this situation, but attempts
-to install from source can (and often do) fail due to missing system
-prerequisites for compilation of a package. The `renv::equip()` function may be
-useful -- it will download external software commonly used when compiling R
-packages from sources, and instruct R to use that software during compilation.
+
+### Caveats
+
+It is important to emphasize that **renv is not a panacea for reproducibility**.
+Rather, it is a tool that can help make projects reproducible by solving one
+small part of the problem: it records the version of R + R packages being used
+in a project, and provides tools for re-installing the declared versions of
+those packages in a project. Ultimately, making a project reproducible requires
+some thoughtfulness from the user: what does it mean for a particular project to
+be reproducible, and how can `renv` (and other tools) be used to accomplish
+that particular goal of reproducibility?
+
+There are a still a number of factors that can affect whether this project
+could truly be reproducible in the future -- for example,
+
+1. The results produced by a particular project might depend on other 
+   components of the system it's being run on -- for example, the operating
+   system itself, the versions of system libraries in use, the compiler(s)
+   used to compile R and the R packages used, and so on. Keeping a 'stable'
+   machine image is a separate challenge, but [Docker](https://www.docker.com/)
+   is one popular solution. See also `vignette("docker", package = "renv")` for
+   recommendations on how Docker can be used together with `renv`.
+
+2. The R packages that the project depends on may no longer be available.
+   If your project depends on R packages available on CRAN, it's possible those
+   packages may be removed in the future -- either by request of the package
+   maintainer, or by the maintainers of CRAN itself. This is quite rare, but
+   needs consideration if reproducibility of a project is paramount.
+
+In addition, be aware that package installation may fail if a package was
+originally installed through a CRAN-available binary, but that binary is no
+longer available. `renv` will attempt to install the package from sources in
+this situation, but attempts to install from source can (and often do) fail due
+to missing system prerequisites for compilation of a package. The
+`renv::equip()` function may be useful in these scenarios, especially on Windows:
+it will download external software commonly used when compiling R packages from
+sources, and instruct R to use that software during compilation.
 
 
 ## Infrastructure
