@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5</span>
       </span>
     </div>
 
@@ -94,6 +94,9 @@
     </li>
     <li>
       <a href="../articles/docker.html">Using renv with Docker</a>
+    </li>
+    <li>
+      <a href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
     </li>
     <li class="divider">
     <li class="dropdown-header">Integration</li>
@@ -168,6 +171,11 @@
 <p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in a start-up <code>.Renviron</code> file:</p>
 <pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
 <p><code>renv</code> will then form library paths within this directory.</p>
+<p>By default, library paths will be formed using the project name, alongside a unique identifier generated from the full project path. These paths are of the form:</p>
+<pre><code>&lt;name&gt;-&lt;id&gt;</code></pre>
+<p>If you’d prefer to omit the <code>&lt;id&gt;</code>, then you can set the environment variable:</p>
+<pre><code>RENV_PATHS_LIBRARY_ROOT_ASIS = TRUE</code></pre>
+<p>to instruct <code>renv</code> to forego the use of an identifier.</p>
 </div>
   </div>
 

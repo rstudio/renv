@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5</span>
       </span>
     </div>
 
@@ -94,6 +94,9 @@
     </li>
     <li>
       <a href="../articles/docker.html">Using renv with Docker</a>
+    </li>
+    <li>
+      <a href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
     </li>
     <li class="divider">
     <li class="dropdown-header">Integration</li>
@@ -158,6 +161,11 @@
 <li><code>&lt;project&gt;/renv/local/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
 </ul>
 <p>Once this is done, <code>renv</code> will consult these directories during future attempts to restore packages installed from unknown sources.</p>
+<p>To directly install a package from these local sources, you must specify the package version or provide the full path to the tarball:</p>
+<ul>
+<li><code><a href="../reference/install.html">renv::install("&lt;package&gt;@&lt;version&gt;")</a></code></li>
+<li><code>renv::install("&lt;project&gt;/renv/local/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
+</ul>
 <p>Note that packages placed in one of these local sources will override any default source recorded in the lockfile. For example, if <code>skeleton 1.0.0</code> was also available on CRAN, <code><a href="../reference/restore.html">renv::restore()</a></code> would still use the locally-provided tarball rather than the version available from CRAN.</p>
 <p>If you want to see what directory is being used by <code>renv</code> for local package sources, you can execute:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">

@@ -156,4 +156,7 @@
   <url>
     <loc>https://rstudio.github.io/renv//articles/renv.html</loc>
   </url>
+  <url>
+    <loc>https://rstudio.github.io/renv//articles/rsconnect.html</loc>
+  </url>
 </urlset>

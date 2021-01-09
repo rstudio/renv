@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5</span>
       </span>
     </div>
 
@@ -136,6 +136,9 @@
     </li>
     <li>
       <a href="../articles/docker.html">Using renv with Docker</a>
+    </li>
+    <li>
+      <a href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Integration</li>
@@ -244,6 +247,19 @@ parsing the code and looking for calls of the form:</p><ul>
 <p>For <span style="R">R</span> package projects, dependencies expressed in the <code>DESCRIPTION</code> file
 will also be discovered. Note that the <code>rmarkdown</code> package is required in
 order to crawl dependencies in R Markdown files.</p>
+    <h2 class="hasAnchor" id="suppressing-errors"><a class="anchor" href="#suppressing-errors"></a>Suppressing Errors</h2>
+
+    
+
+
+<p>Depending on how you've structured your code, <code>renv</code> may emit errors when
+attempting to enumerate dependencies within <code>.Rmd</code> / <code>.Rnw</code> documents.
+For code chunks that you'd explicitly like <code>renv</code> to ignore, you can
+include <code>renv.ignore=FALSE</code> in the chunk header. For example:</p><pre>```{r chunk-label, renv.ignore=FALSE}
+# code in this chunk will be ignored by renv
+```
+</pre>
+
     <h2 class="hasAnchor" id="ignoring-files"><a class="anchor" href="#ignoring-files"></a>Ignoring Files</h2>
 
     

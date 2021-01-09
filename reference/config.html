@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5</span>
       </span>
     </div>
 
@@ -136,6 +136,9 @@
     </li>
     <li>
       <a href="../articles/docker.html">Using renv with Docker</a>
+    </li>
+    <li>
+      <a href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Integration</li>
@@ -241,6 +244,8 @@ Defaults to <code>NULL</code>.</p></dd>
 Defaults to <code>TRUE</code>.</p></dd>
 <dt><b><code>renv.config.install.transactional</code></b></dt><dd><p>Perform a transactional install of packages during install and restore? When enabled, <code>renv</code> will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
 Defaults to <code>TRUE</code>.</p></dd>
+<dt><b><code>renv.config.install.verbose</code></b></dt><dd><p>Be verbose when installing R packages from sources? When <code>TRUE</code>, <code>renv</code> will stream any output generated during package build + installation to the console.
+Defaults to <code>FALSE</code>.</p></dd>
 <dt><b><code>renv.config.locking.enabled</code></b></dt><dd><p>Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same <code>renv</code> project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at <code>renv/lock</code>; if you need to manually remove a stale lock you can do so via <code><a href='https://rdrr.io/r/base/unlink.html'>unlink("renv/lock", recursive = TRUE)</a></code>.
 Defaults to <code>FALSE</code>.</p></dd>
 <dt><b><code>renv.config.mran.enabled</code></b></dt><dd><p>Attempt to download binaries from <a href='https://mran.microsoft.com/'>MRAN</a> during restore? See <code><a href='../articles/mran.html'>vignette("mran", package = "renv")</a></code> for more details.
@@ -256,6 +261,8 @@ Defaults to <code>TRUE</code>.</p></dd>
 Defaults to <code>TRUE</code>.</p></dd>
 <dt><b><code>renv.config.snapshot.validate</code></b></dt><dd><p>Validate <span style="R">R</span> package dependencies when calling snapshot? When <code>TRUE</code>, <code>renv</code> will attempt to diagnose potential issues in the project library before creating <code>renv.lock</code> -- for example, if a package installed in the project library depends on a package which is not currently installed.
 Defaults to <code>TRUE</code>.</p></dd>
+<dt><b><code>renv.config.startup.quiet</code></b></dt><dd><p>Be quiet during startup? When set, <code>renv</code> will not display the typical <code>Project &lt;path&gt; loaded. [renv &lt;version&gt;]</code> banner on startup.
+Defaults to <code>NULL</code>.</p></dd>
 <dt><b><code>renv.config.synchronized.check</code></b></dt><dd><p>Check that the project library is synchronized with the lockfile on load?
 Defaults to <code>TRUE</code>.</p></dd>
 <dt><b><code>renv.config.updates.check</code></b></dt><dd><p>Check for package updates when the session is initialized? This can be useful if you'd like to ensure that your project lockfile remains up-to-date with packages as they are released on CRAN.

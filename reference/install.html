@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5</span>
       </span>
     </div>
 
@@ -136,6 +136,9 @@
     </li>
     <li>
       <a href="../articles/docker.html">Using renv with Docker</a>
+    </li>
+    <li>
+      <a href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Integration</li>
@@ -307,7 +310,7 @@ be set via the <code>install.opts</code> <span style="R">R</span> option:</p><pr
 <span class='co'># (note: requires the BiocManager package)</span>
 <span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"bioc::Biobase"</span><span class='op'>)</span>
 
-<span class='co'># install a package from local sources</span>
+<span class='co'># install a package, specifying path explicitly</span>
 <span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"~/path/to/package"</span><span class='op'>)</span>
 
 <span class='op'>}</span>

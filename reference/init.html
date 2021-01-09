@@ -83,7 +83,7 @@ are then installed to the project's private library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5</span>
       </span>
     </div>
 
@@ -139,6 +139,9 @@ are then installed to the project's private library." />
     </li>
     <li>
       <a href="../articles/docker.html">Using renv with Docker</a>
+    </li>
+    <li>
+      <a href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Integration</li>
@@ -247,7 +250,7 @@ with <code><a href='snapshot.html'>snapshot()</a></code>;</p></li>
 <li><p>The project is activated with <code><a href='activate.html'>activate()</a></code>.</p></li>
 </ol>
 
-<p>This mimics the workflow provided by <code>packrat::init()</code>, but with a few
+<p>This mimics the workflow provided by <code><a href='https://rdrr.io/pkg/packrat/man/init.html'>packrat::init()</a></code>, but with a few
 differences -- in particular, <code>renv</code> does not attempt to download and store
 package sources, and <code>renv</code> will re-use packages that have already been
 installed whenever possible.</p>
