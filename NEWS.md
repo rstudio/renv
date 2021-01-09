@@ -1,5 +1,5 @@
 
-# renv 0.13.0 (UNRELEASED)
+# renv 0.12.5
 
 * Fixed an issue where `renv` would fail to bootstrap. (#608)
 
