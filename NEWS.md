@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where package installation could fail if the `configure.vars`
+  option was set to be a named character, rather than a named list. (#609)
+
 # renv 0.12.5
 
 * Fixed an issue where `renv` would fail to bootstrap. (#608)

@@ -227,6 +227,11 @@ r_cmd_install_option <- function(package, option, configure) {
   if (is.null(value))
     return(NULL)
 
+  # if the value is named, treat it as a list,
+  # mapping package names to their configure arguments
+  if (!is.null(names(value)))
+    value <- as.list(value)
+
   # check for named values
   if (!is.null(names(value))) {
     value <- value[[package]]

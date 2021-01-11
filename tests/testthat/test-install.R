@@ -339,3 +339,13 @@ test_that("packages can be installed from the archive w/libcurl", {
   expect_equal(renv_package_version("bread"), "0.1.0")
 
 })
+
+test_that("issue #609", {
+  skip_on_cran()
+
+  renv_tests_scope()
+
+  options(configure.vars = c(breakfast = ""))
+  install("bread")
+  expect_true(renv_package_installed("bread"))
+})
