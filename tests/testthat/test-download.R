@@ -91,32 +91,6 @@ test_that("we can successfully download files with different downloaders", {
 
 })
 
-# https://github.com/rstudio/renv/issues/390
-test_that("downloads still succeed even if HEAD request fails", {
-  skip_on_cran()
-
-  url <- "https://github.com/kevinushey/skeleton/releases/download/v1.0.1/skeleton_1.0.1.tar.gz"
-  destfile <- file.path(tempdir(), basename(url))
-  on.exit(unlink(destfile), add = TRUE)
-
-  # HEAD requests will fail on GitHub releases
-  expect_warning(
-    renv_download_headers(
-      url     = url,
-      type    = "github",
-      headers = list()
-    )
-  )
-
-  # but a plain old download should be fine
-  download(url, destfile)
-
-  # validate the md5sum
-  md5 <- tools::md5sum(destfile)
-  expect_equal(unname(md5), "9e978ca14adea985850f7913fc837166")
-
-})
-
 test_that("downloads work with file URIs", {
 
   renv_tests_scope()
@@ -130,7 +104,6 @@ test_that("downloads work with file URIs", {
   expect_true(file.exists(destfile))
 
 })
-
 
 test_that("downloads work with UNC paths on Windows", {
   skip_on_cran()
