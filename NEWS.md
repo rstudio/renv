@@ -1,6 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv::status()` now reports packages that are referenced in a project's
+  scripts, but are neither installed in the project library nor recorded in the
+  lockfile. (#588)
+
 * Fixed an issue where package installation could fail if the `configure.vars`
   option was set to be a named character, rather than a named list. (#609)
 

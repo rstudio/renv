@@ -59,6 +59,7 @@ renv_status_impl <- function(project, libpaths, lockpath, cache) {
   )
 
   renv_status_check_unknown_sources(project, lockfile)
+  renv_status_check_used_packages(project, lockfile, libstate)
 
   if (cache)
     renv_status_check_cache(project)
@@ -108,16 +109,21 @@ renv_status_check_missing_library <- function(project, libpaths) {
 
 }
 
-renv_status_check_used_packages <- function(project, libstate) {
+renv_status_check_used_packages <- function(project, lockfile, libstate) {
+
+  # only done when using implicit snapshots in a project
+  type <- settings$snapshot.type(project = project)
+  if (!type %in% c("implicit", "packrat"))
+    return(FALSE)
 
   deps <- dependencies(project, progress = FALSE)
   used <- sort(unique(deps$Package))
-  records <- renv_records(libstate)
 
   ignored <- c(
     renv_packages_base(),
     renv_project_ignored_packages(project),
-    names(records)
+    names(renv_records(lockfile)),
+    names(renv_records(libstate))
   )
 
   missing <- setdiff(used, ignored)
@@ -133,6 +139,9 @@ renv_status_check_used_packages <- function(project, libstate) {
     ),
     wrap = FALSE
   )
+
+  if (renv_tests_running())
+    renv_condition_signal("renv.status.used_but_not_installed", missing)
 
   FALSE
 

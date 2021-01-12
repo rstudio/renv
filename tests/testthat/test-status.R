@@ -51,3 +51,14 @@ test_that("status reports packages to be installed / changed", {
   snapshot()
 
 })
+
+test_that("status reports packages which are used but not installed", {
+
+  renv_tests_scope()
+  renv_scope_sink()
+  init()
+
+  writeLines("library(bread)", con = "script.R")
+  expect_signal(status(), class = "renv.status.used_but_not_installed")
+
+})
