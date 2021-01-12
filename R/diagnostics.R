@@ -36,7 +36,7 @@ diagnostics <- function(project = NULL) {
     renv_diagnostics_cache
   )
 
-  fmt <- "Diagnostics Report -- renv [%s]"
+  fmt <- "Diagnostics Report [renv %s]"
   title <- sprintf(fmt, renv_package_version("renv"))
   lines <- paste(rep.int("=", nchar(title)), collapse = "")
   vwritef(c(title, lines, ""))

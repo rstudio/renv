@@ -37,7 +37,7 @@ load <- function(project = getwd(), quiet = FALSE) {
   # if we're loading a project different from the one currently loaded,
   # then unload the current project and reload the requested one
   switch <-
-    !is.null(Sys.getenv("RENV_PROJECT")) &&
+    !is.na(Sys.getenv("RENV_PROJECT", unset = NA)) &&
     !identical(project, renv_project())
 
   if (switch)
