@@ -8,6 +8,8 @@
 * Fixed an issue where package installation could fail if the `configure.vars`
   option was set to be a named character, rather than a named list. (#609)
 
+* Increase bootstrap reliability by always trying an extra CRAN URL.
+
 # renv 0.12.5
 
 * Fixed an issue where `renv` would fail to bootstrap. (#608)

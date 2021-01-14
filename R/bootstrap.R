@@ -35,7 +35,7 @@ renv_bootstrap_repos <- function() {
   repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
 
   # add in renv.bootstrap.repos if set
-  default <- c(CRAN = "https://cloud.r-project.org")
+  default <- c(EXTRA_CRAN = "https://cloud.r-project.org")
   extra <- getOption("renv.bootstrap.repos", default = default)
   repos <- c(repos, extra)
 
