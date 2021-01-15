@@ -12,7 +12,8 @@ snapshot(
   type = settings$snapshot.type(project = project),
   packages = NULL,
   prompt = interactive(),
-  force = FALSE
+  force = FALSE,
+  reprex = FALSE
 )
 }
 \arguments{
@@ -46,6 +47,9 @@ compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 
 \item{force}{Boolean; force generation of a lockfile even when pre-flight
 validation checks have failed?}
+
+\item{reprex}{Boolean; generate output appropriate for embedding the lockfile
+as part of a \href{https://www.tidyverse.org/help/#reprex}{reprex}?}
 }
 \value{
 The generated lockfile, as an \R object (invisibly). Note that
