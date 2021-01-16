@@ -204,3 +204,22 @@ test_that("restore handled records without version set", {
   expect_equal(renv_package_version("bread"), "1.0.0")
 
 })
+
+test_that("restore doesn't re-use active library paths", {
+
+  renv_tests_scope()
+  renv_scope_options(renv.settings.snapshot.type = "all")
+
+  lib1 <- file.path(tempdir(), "lib1")
+  lib2 <- file.path(tempdir(), "lib2")
+  ensure_directory(c(lib1, lib2))
+  .libPaths(c(lib2, .libPaths()))
+
+  renv::install("bread", library = lib2)
+  expect_true(renv_package_installed("bread", lib.loc = lib2))
+
+  lockfile <- renv::snapshot(library = lib2, lockfile = NULL)
+  restore(library = lib1, lockfile = lockfile)
+  expect_true(renv_package_installed("bread", lib.loc = lib1))
+
+})

@@ -181,6 +181,6 @@ renv_libpaths_restore <- function() {
   renv_libpaths_set(libpaths)
 }
 
-renv_libpaths_resolve <- function(library, default = renv_libpaths_all()) {
-  unique(normalizePath(c(library, default), winslash = "/", mustWork = FALSE))
+renv_libpaths_resolve <- function(library) {
+  library %||% renv_libpaths_all()
 }
