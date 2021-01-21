@@ -1,6 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` now always attempts to bootstrap itself from the R Project's
+  Cloud package repository, as a fallback in case no other repository
+  is available. (#613)
+
 * `renv::rebuild(<package>)` now uses the latest-available version of the
   requested package(s) if those packages are not currently installed.
 
@@ -19,8 +23,6 @@
 
 * Fixed an issue where package installation could fail if the `configure.vars`
   option was set to be a named character, rather than a named list. (#609)
-
-* Increase bootstrap reliability by always trying an extra CRAN URL.
 
 # renv 0.12.5
 
