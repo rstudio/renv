@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv::rebuild(<package>)` now uses the latest-available version of the
+  requested package(s) if those packages are not currently installed.
+
 * Fixed an issue where `renv::restore(library = "/path/to/lib")` would fail to
   restore packages, if those packages were already installed on the active
   library paths (as reported by `.libPaths()`). (#612)

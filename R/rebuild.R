@@ -58,7 +58,14 @@ rebuild <- function(packages  = NULL,
 
   # subset packages based on user request
   packages <- packages %||% names(records)
-  records <- records[packages]
+  records <- named(records[packages], packages)
+
+  # for any packages that are missing, use the latest available instead
+  records <- enumerate(records, function(package, record) {
+    record %||% renv_available_packages_latest(package)
+  })
+
+  # apply any overrides
   records <- renv_records_override(records)
 
   # notify the user
