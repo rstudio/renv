@@ -126,6 +126,13 @@ to missing system prerequisites for compilation of a package. The
 it will download external software commonly used when compiling R packages from
 sources, and instruct R to use that software during compilation.
 
+A salient example of this is the `rmarkdown` package, as it relies heavily on
+the [`pandoc`](https://pandoc.org/) command line utility. However, because
+pandoc is not bundled with the `rmarkdown` package (it is normally provided by
+RStudio, or installed separately by the user), simply restoring an `renv`
+project using `rmarkdown` may not be sufficient -- one also needs to ensure the
+project is run in a environment with the correct version of `pandoc` available.
+
 
 ## Infrastructure
 
