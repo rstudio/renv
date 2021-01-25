@@ -75,6 +75,7 @@ renv_consent_check <- function() {
 
   # check for implicit consent
   consented <-
+    !interactive() ||
     !is.na(Sys.getenv("CI", unset = NA)) ||
     !is.na(Sys.getenv("GITHUB_ACTION", unset = NA)) ||
     !is.na(Sys.getenv("RENV_PATHS_ROOT", unset = NA)) ||
