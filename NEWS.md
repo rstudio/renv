@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* During bootstrap, `renv` will now attempt to download and unpack a binary
+  copy of `renv` if available from the specified package repositories.
+
 * `renv` now always attempts to bootstrap itself from the R Project's
   Cloud package repository, as a fallback in case no other repository
   is available. (#613)

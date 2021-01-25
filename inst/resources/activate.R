@@ -136,24 +136,46 @@ local({
   
     repos <- renv_bootstrap_download_cran_latest_find(version)
   
-    message("* Downloading renv ", version, " from CRAN ... ", appendLF = FALSE)
+    message("* Downloading renv ", version, " ... ", appendLF = FALSE)
   
-    info <- tryCatch(
-      utils::download.packages(
-        pkgs = "renv",
-        repos = repos,
-        destdir = tempdir(),
-        quiet = TRUE
-      ),
-      condition = identity
-    )
+    downloader <- function(type) {
   
+      tryCatch(
+        utils::download.packages(
+          pkgs = "renv",
+          destdir = tempdir(),
+          repos = repos,
+          type = type,
+          quiet = TRUE
+        ),
+        condition = identity
+      )
+  
+    }
+  
+    # first, try downloading a binary on Windows + macOS if appropriate
+    binary <-
+      !identical(.Platform$pkgType, "source") &&
+      !identical(getOption("pkgType"), "source") &&
+      Sys.info()[["sysname"]] %in% c("Darwin", "Windows")
+  
+    if (binary) {
+      info <- downloader(type = "binary")
+      if (!inherits(info, "condition")) {
+        message("OK (downloaded binary)")
+        return(info[1, 2])
+      }
+    }
+  
+    # otherwise, try downloading a source tarball
+    info <- downloader(type = "source")
     if (inherits(info, "condition")) {
       message("FAILED")
       return(FALSE)
     }
   
-    message("OK")
+    # report success and return
+    message("OK (downloaded source)")
     info[1, 2]
   
   }
@@ -195,7 +217,7 @@ local({
     urls <- file.path(repos, "src/contrib/Archive/renv", name)
     destfile <- file.path(tempdir(), name)
   
-    message("* Downloading renv ", version, " from CRAN archive ... ", appendLF = FALSE)
+    message("* Downloading renv ", version, " ... ", appendLF = FALSE)
   
     for (url in urls) {
   
