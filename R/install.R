@@ -432,6 +432,18 @@ renv_install_package_local_impl <- function(package, path) {
   # normalize paths
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
+  # get library path
+  library <- renv_libpaths_default()
+
+  # if a package already exists at that path, back it up first
+  # this avoids problems with older versions of R attempting to
+  # overwrite a pre-existing symlink
+  #
+  # https://github.com/rstudio/renv/issues/611
+  installpath <- file.path(library, package)
+  callback <- renv_file_backup(installpath)
+  on.exit(callback(), add = TRUE)
+
   # if this is the path to an unpacked binary archive,
   # we can just copy the folder over
   copyable <-
@@ -439,7 +451,6 @@ renv_install_package_local_impl <- function(package, path) {
     renv_package_type(path, quiet = TRUE) == "binary"
 
   # shortcut via copying a binary directory if possible
-  library <- renv_libpaths_default()
   if (copyable)
     return(renv_file_copy(path, file.path(library, package), overwrite = TRUE))
 
