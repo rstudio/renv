@@ -262,11 +262,7 @@ renv_install_impl <- function(record) {
   # use library path recorded in restore state as staged installs will have
   # mutated the library path, placing a staging library at the front
   library <- renv_restore_state("library")
-  linkable <-
-    renv_cache_config_enabled(project = project) &&
-    renv_cache_config_symlinks(project = project) &&
-    renv_path_same(library, renv_paths_library(project = project))
-
+  linkable <- renv_cache_linkable(project = project, library = library)
   linker <- if (linkable) renv_file_link else renv_file_copy
 
   cacheable <-
