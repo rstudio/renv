@@ -35,6 +35,12 @@ renv_update_find_github <- function(records) {
 
 }
 
+renv_update_find_git <- function(records) {
+
+  renv_parallel_exec(records, renv_update_find_git_impl)
+
+}
+
 renv_update_find_github_impl <- function(record) {
 
   # validate we have a ref
@@ -77,6 +83,62 @@ renv_update_find_github_impl <- function(record) {
 
 }
 
+renv_update_find_git_impl <- function(record) {
+
+  # validate we have a ref
+  if (!renv_record_validate(record))
+    return(NULL)
+
+  renv_git_preflight()
+
+  path <- tempfile("renv-git-")
+  ensure_directory(path)
+
+  template <- c(
+    "cd \"${DIR}\"",
+    "git init --quiet",
+    "git remote add origin \"${ORIGIN}\"",
+    "git fetch --quiet origin \"${REF}\"",
+    "git reset --quiet --hard FETCH_HEAD",
+    "git rev-parse HEAD"
+  )
+
+  data <- list(
+    DIR    = renv_path_normalize(path),
+    ORIGIN = record$RemoteUrl,
+    REF    = record$RemoteRef
+  )
+
+  commands <- renv_template_replace(template, data)
+  command <- paste(commands, collapse = " && ")
+  if (renv_platform_windows())
+    command <- paste(comspec(), "/C", command)
+
+  renv_scope_auth(record)
+  renv_scope_git_auth()
+  sha <- system(command, intern = TRUE)
+
+  # check for changed sha
+  if (sha == record$RemoteSha)
+    return(NULL)
+
+  # get updated record
+  descfile <- renv_path_normalize(file.path(path, "DESCRIPTION"))
+  desc <- renv_dcf_read(descfile)
+  current <- record
+  current$Version <- desc$Version
+  current$RemoteSha <- sha
+
+  # check that the version has actually updated
+  updated <-
+    current$RemoteSha != record$RemoteSha &&
+    numeric_version(current$Version) >= numeric_version(record$Version)
+
+  if (updated)
+    return(current)
+
+}
+
 renv_update_find <- function(records) {
 
   sources <- extract_chr(records, "Source")
@@ -87,7 +149,8 @@ renv_update_find <- function(records) {
     case(
       source == "Bioconductor" ~ renv_update_find_repos(records),
       source == "Repository"   ~ renv_update_find_repos(records),
-      source == "GitHub"       ~ renv_update_find_github(records)
+      source == "GitHub"       ~ renv_update_find_github(records),
+      source == "Git"          ~ renv_update_find_git(records)
     )
   })
 
