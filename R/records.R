@@ -87,6 +87,16 @@ renv_record_validate <- function(record, quiet = FALSE) {
 
 }
 
+renv_record_format_remote <- function(record) {
+
+  remotes <- c("RemoteUsername", "RemoteRepo")
+  if (all(remotes %in% names(record)))
+    return(renv_record_format_short_remote(record))
+
+  paste(record$Package, record$Version, sep = "@")
+
+}
+
 renv_record_format_short <- function(record) {
 
   remotes <- c("RemoteUsername", "RemoteRepo")

@@ -172,3 +172,19 @@ renv_lockfile_modify <- function(lockfile, records) {
   lockfile
 
 }
+
+renv_lockfile_compact <- function(lockfile) {
+
+  records <- renv_records(lockfile)
+  remotes <- map_chr(records, renv_record_format_remote)
+
+  renv_scope_locale("LC_COLLATE", "C")
+  remotes <- sort(remotes)
+
+  formatted <- sprintf("  \"%s\"", remotes)
+  joined <- paste(formatted, collapse = ",\n")
+
+  all <- c("renv::use(", joined, ")")
+  paste(all, collapse = "\n")
+
+}

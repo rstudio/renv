@@ -417,5 +417,8 @@ renv_cache_config_symlinks <- function(project) {
 renv_cache_linkable <- function(project, library) {
   renv_cache_config_enabled(project = project) &&
     renv_cache_config_symlinks(project = project) &&
-    renv_path_same(library, renv_paths_library(project = project))
+    getOption(
+      "renv.cache.linkable",
+      renv_path_same(library, renv_paths_library(project = project))
+    )
 }

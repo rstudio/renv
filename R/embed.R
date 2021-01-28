@@ -1,19 +1,21 @@
 
 #' Embed a Lockfile
 #'
-#' Use `embed()` to embed a lockfile directly within a file.
+#' Use `embed()` to embed a compact representation of an `renv` lockfile
+#' directly within a file, using [use()] to automatically provision an
+#' \R library when that script is run.
 #'
-#' This is primarily useful in tandem with [run] -- if you call `renv::run()`
-#' on a script containing an inline lockfile, `renv` will first provision
-#' a library based on that lockfile definition, and then run the script
-#' using that lockfile.
+#' Using `embed()` is useful if you'd like to be able to share "reproducible"
+#' R scripts -- when these scripts are sourced, the generated call to
+#' `renv::use()` will ensure that an R library with the requested packages
+#' is automatically provisioned.
 #'
 #' @inheritParams renv-params
 #'
 #' @param path The path to an \R or R Markdown script.
-#'
 embed <- function(path = NULL,
                   ...,
+                  lockfile = NULL,
                   project = NULL)
 {
   ext <- tolower(fileext(path))
@@ -30,26 +32,24 @@ embed <- function(path = NULL,
   delegate(method)
 }
 
-renv_embed_create_r <- function(lockfile = NULL, project = NULL) {
-
+renv_embed_create <- function(path = NULL,
+                              lockfile = NULL,
+                              project = NULL)
+{
   # generate lockfile
   project <- renv_project_resolve(project)
-  lockfile <- lockfile %||% snapshot(project = project, lockfile = NULL)
+  lockfile <- renv_lockfile_resolve(
+    lockfile %||% snapshot(project = project, lockfile = NULL)
+  )
 
-  # write to JSON string
-  embed <- renv_lockfile_write(lockfile, file = NULL)
+  # TODO: filter lockfile based on dependendencies of associated script?
+  # would we need to parse the dependencies of scripts evaluated via 'source()'
 
-  # comment each line in the lockfile
-  splat <- strsplit(embed, "\n", fixed = TRUE)[[1]]
-  body <- paste("#", splat)
-
-  # create header
-  header <- header("renv.lock", suffix = "-")
-  c(header, "#", body)
-
+  # write compact use statement
+  renv_lockfile_compact(lockfile)
 }
 
-renv_embed_r <- function(path, ..., project = NULL) {
+renv_embed_r <- function(path, ..., lockfile = NULL, project = NULL) {
 
   # resolve project
   project <- renv_project_resolve(project)
@@ -57,18 +57,20 @@ renv_embed_r <- function(path, ..., project = NULL) {
   # read file contents
   contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
 
-  # generate a lockfile
-  embed <- renv_embed_create_r(project = project)
+  # generate embed
+  embed <- renv_embed_create(
+    path = path,
+    lockfile = lockfile,
+    project = project
+  )
 
-  # check for existing renv.lock marker in file
-  # if it exists, we'll want to replace at this location;
-  # otherwise, insert at end of document
-  pattern <- "#\\s*renv[.]lock\\s*-+"
+  # check for existing 'renv::use' statement
+  pattern <- "^\\s*(?:renv::)?use\\(\\s*$"
   index <- grep(pattern, contents, perl = TRUE)
 
-  # if we don't have an index, just insert at end
+  # if we don't have an index, just insert at start
   if (empty(index)) {
-    contents <- c(contents, "", embed)
+    contents <- c(embed, "", contents)
     writeLines(contents, con = path)
     return(TRUE)
   }
@@ -78,14 +80,14 @@ renv_embed_r <- function(path, ..., project = NULL) {
 
   # find the end of the block
   n <- length(contents)
-  lines <- grep("^#", contents, invert = TRUE)
+  lines <- grep("^\\s*\\)\\s*$", contents, perl = TRUE)
   end <- min(lines[lines > start], n + 1L)
 
   # inject new lockfile
   contents <- c(
     head(contents, n = start - 1L),
     embed,
-    tail(contents, n = n - end + 1L)
+    tail(contents, n = n - end)
   )
 
   writeLines(contents, con = path)
@@ -93,28 +95,34 @@ renv_embed_r <- function(path, ..., project = NULL) {
 
 }
 
-renv_embed_create_rmd <- function(lockfile = NULL, project = NULL) {
-
+renv_embed_create_rmd <- function(path = NULL,
+                                  lockfile = NULL,
+                                  project = NULL)
+{
   # create lockfile
   project <- renv_project_resolve(project)
-  lockfile <- snapshot(project = project, lockfile = NULL)
+  lockfile <- renv_lockfile_resolve(
+    lockfile %||% snapshot(project = project, lockfile = NULL)
+  )
 
-  # write to JSON
-  body <- renv_lockfile_write(lockfile, file = NULL)
-  body <- strsplit(body, "\n", fixed = TRUE)[[1L]]
-
-  # surround in script tags
-  header <- "<script id=\"renv-lockfile\" type=\"application/json\">"
-  footer <- "</script>"
+  # create embed
+  embed <- renv_embed_create(
+    path = path,
+    lockfile = lockfile,
+    project = project
+  )
 
   # return embed
-  c(header, body, footer)
+  c("```{r renv, include=FALSE}", embed, "```")
 
 }
 
 
-renv_embed_rmd <- function(path, ..., project = NULL) {
-
+renv_embed_rmd <- function(path,
+                           ...,
+                           lockfile = NULL,
+                           project = NULL)
+{
   # resolve project
   project <- renv_project_resolve(project)
 
@@ -122,14 +130,18 @@ renv_embed_rmd <- function(path, ..., project = NULL) {
   contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
 
   # generate embed
-  embed <- renv_embed_create_rmd(project = project)
+  embed <- renv_embed_create_rmd(
+    path = path,
+    lockfile = lockfile,
+    project = project
+  )
 
   # check for existing renv.lock in file
   # if it exists, we'll want to replace at this location;
   # otherwise, insert at end of document
-  header <- "<script id=\"renv-lockfile\" type=\"application/json\">"
-  footer <- "</script>"
-  start <- which(contents == header)
+  header <- "^\\s*```{r renv"
+  footer <- "```"
+  start <- grep(header, contents, perl = TRUE)
 
   # if we don't have an index, just insert at end
   if (empty(start)) {

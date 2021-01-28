@@ -4,7 +4,7 @@
 \alias{embed}
 \title{Embed a Lockfile}
 \usage{
-embed(path = NULL, ..., project = NULL)
+embed(path = NULL, ..., lockfile = NULL, project = NULL)
 }
 \arguments{
 \item{path}{The path to an \R or R Markdown script.}
@@ -17,11 +17,13 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-Use \code{embed()} to embed a lockfile directly within a file.
+Use \code{embed()} to embed a compact representation of an \code{renv} lockfile
+directly within a file, using \code{\link[=use]{use()}} to automatically provision an
+\R library when that script is run.
 }
 \details{
-This is primarily useful in tandem with \link{run} -- if you call \code{renv::run()}
-on a script containing an inline lockfile, \code{renv} will first provision
-a library based on that lockfile definition, and then run the script
-using that lockfile.
+Using \code{embed()} is useful if you'd like to be able to share "reproducible"
+R scripts -- when these scripts are sourced, the generated call to
+\code{renv::use()} will ensure that an R library with the requested packages
+is automatically provisioned.
 }

@@ -1,16 +1,11 @@
 
 renv_lockfile_resolve <- function(lockfile) {
-  UseMethod("renv_lockfile_resolve")
-}
-
-#' @export
-renv_lockfile_resolve.renv_lockfile_api <- function(lockfile) {
-  lockfile$data()
-}
-
-#' @export
-renv_lockfile_resolve.default <- function(lockfile) {
-  lockfile
+  if (inherits(lockfile, "renv_lockfile_api"))
+    lockfile$data()
+  else if (is.character(lockfile))
+    renv_lockfile_read(file = lockfile)
+  else
+    lockfile
 }
 
 renv_lockfile_api <- function(lockfile = NULL) {
