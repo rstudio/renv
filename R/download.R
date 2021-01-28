@@ -43,15 +43,6 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   # on Windows, try using our local curl binary if available
   renv_scope_downloader()
 
-  # if this file is a zipfile or tarball, rather than attempting
-  # to download headers etc. to validate the file is okay, just
-  # check that the archive appears not to be damaged
-  status <- renv_download_check_archive(destfile)
-  if (identical(status, TRUE)) {
-    vwritef("\tOK [file is up to date]")
-    return(destfile)
-  }
-
   # if the file already exists, compare its size with
   # the server's reported size for that file
   info <- file.info(destfile, extra_cols = FALSE)

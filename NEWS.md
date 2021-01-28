@@ -1,6 +1,11 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` no longer skips downloading a requested source package if an existing
+  cached download exists and appears to be valid. This should help avoid issues
+  when attempting to install a package whose associated tarball has changed
+  remotely. (#504)
+  
 * During bootstrap, `renv` will now attempt to download and unpack a binary
   copy of `renv` if available from the specified package repositories.
 
