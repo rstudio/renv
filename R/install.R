@@ -213,12 +213,34 @@ renv_install_staged <- function(records) {
 renv_install_staged_library_path_impl <- function() {
 
   # allow user configuration of staged library location
-  staging <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
-  if (!is.na(staging))
-    return(staging)
 
-  # otherwise, just use a temporary file
-  tempfile("renv-staging-")
+  # retrieve current project, library path
+  staging <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
+  project <- Sys.getenv("RENV_PROJECT", unset = NA)
+  libpath <- renv_libpaths_default()
+
+  # determine root directory for staging
+  root <- if (!is.na(staging))
+    staging
+  else if (!is.na(project))
+    file.path(project, "renv/staging")
+  else
+    file.path(libpath, ".renv")
+
+  # attempt to create it
+  ok <- catch(ensure_directory(root))
+  if (inherits(ok, "error"))
+    return(tempfile("renv-staging"))
+
+  # resolve a unique staging directory in this path
+  for (i in 1:100) {
+    path <- file.path(root, i)
+    if (dir.create(path, showWarnings = FALSE))
+      return(path)
+  }
+
+  # all else fails, use tempfile
+  tempfile("renv-staging")
 
 }
 

@@ -1,6 +1,12 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` again defaults to using the project's `renv/staging` folder for staged
+  / transactional installs. Use the `RENV_PATHS_LIBRARY_STAGING` environment
+  variable if more granular control over the staging library path is required.
+  This fixes issues on Windows with creating junction points to the global
+  package cache on Windows. (#584)
+  
 * `renv` no longer skips downloading a requested source package if an existing
   cached download exists and appears to be valid. This should help avoid issues
   when attempting to install a package whose associated tarball has changed
