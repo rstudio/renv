@@ -18,6 +18,8 @@ embed <- function(path = NULL,
                   lockfile = NULL,
                   project = NULL)
 {
+  path <- path %||% renv_embed_path()
+
   ext <- tolower(fileext(path))
   method <- case(
     ext == ".r"   ~ renv_embed_r,
@@ -32,18 +34,44 @@ embed <- function(path = NULL,
   delegate(method)
 }
 
+renv_embed_path <- function() {
+
+  tryCatch(
+    renv_embed_path_impl(),
+    error = function(e) NULL
+  )
+
+}
+
+renv_embed_path_impl <- function() {
+  rstudio <- as.environment("tools:rstudio")
+  rstudio$.rs.api.documentPath()
+}
+
 renv_embed_create <- function(path = NULL,
                               lockfile = NULL,
                               project = NULL)
 {
   # generate lockfile
   project <- renv_project_resolve(project)
-  lockfile <- renv_lockfile_resolve(
-    lockfile %||% snapshot(project = project, lockfile = NULL)
-  )
 
-  # TODO: filter lockfile based on dependendencies of associated script?
-  # would we need to parse the dependencies of scripts evaluated via 'source()'
+  lockfile <- if (is.character(lockfile))
+    renv_lockfile_read(lockfile)
+  else if (!is.null(lockfile))
+    lockfile
+  else if (file.exists(renv_lockfile_path(project)))
+    renv_lockfile_load(project = project)
+  else
+    snapshot(project = project)
+
+  # figure out recursive package dependencies
+  deps <- dependencies(path, progress = FALSE)
+  packages <- sort(unique(deps$Package))
+  all <- renv_package_dependencies(packages)
+
+  # keep only matched records
+  lockfile$Packages <-
+    keep(lockfile$Packages, c("renv", names(all)))
 
   # write compact use statement
   renv_lockfile_compact(lockfile)
@@ -65,7 +93,7 @@ renv_embed_r <- function(path, ..., lockfile = NULL, project = NULL) {
   )
 
   # check for existing 'renv::use' statement
-  pattern <- "^\\s*(?:renv::)?use\\(\\s*$"
+  pattern <- "^\\s*(?:renv:{2,3})?use\\(\\s*$"
   index <- grep(pattern, contents, perl = TRUE)
 
   # if we don't have an index, just insert at start
@@ -143,10 +171,24 @@ renv_embed_rmd <- function(path,
   footer <- "```"
   start <- grep(header, contents, perl = TRUE)
 
-  # if we don't have an index, just insert at end
+  # if we don't have an index, insert after YAML header (if any)
   if (empty(start)) {
-    contents <- c(contents, "", embed)
-    writeLines(contents, con = path)
+    bounds <- which(trimws(contents) == "---")
+
+    all <- if (length(bounds) >= 2) {
+      index <- bounds[[2L]]
+      c(
+        head(contents, n = index),
+        "",
+        embed,
+        "",
+        tail(contents, n = length(contents) - index)
+      )
+    } else {
+      c(embed, "", contents)
+    }
+
+    writeLines(all, con = path)
     return(TRUE)
   }
 
