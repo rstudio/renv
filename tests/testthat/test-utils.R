@@ -75,3 +75,26 @@ test_that("memoize avoids evaluating expression multiple times", {
   expect_equal(value, 1)
 
 })
+
+test_that("delegate() handles basic forwarding", {
+
+  delegatee <- function(x, y, z) { x + y + z }
+  delegator <- function(x, y = 2) {
+    z <- 3
+    delegate(delegatee)
+  }
+
+  result <- delegator(1)
+  expect_equal(result, 6)
+
+})
+
+test_that("delegate() handles missingness", {
+
+  delegatee <- function(x) { missing(x) }
+  delegator <- function(x) { delegate(delegatee) }
+
+  result <- delegator()
+  expect_true(result)
+
+})

@@ -24,7 +24,7 @@ test_that("usages of library, etc. are properly handled", {
 test_that("parse errors are okay in .Rmd documents", {
   skip_if_not_installed("knitr")
   skip_if_not_installed("rmarkdown")
-  deps <- dependencies("resources/chunk-errors.Rmd")
+  deps <- dependencies("resources/chunk-errors.Rmd", quiet = TRUE)
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "dplyr"))
 })
