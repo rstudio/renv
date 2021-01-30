@@ -449,10 +449,8 @@ local({
   renv_bootstrap_profile_prefix <- function() {
   
     profile <- renv_bootstrap_profile_get()
-    if (is.na(profile))
-      return(character())
-  
-    file.path("renv/profiles", profile)
+    if (!is.na(profile) && nzchar(profile))
+      return(file.path("renv/profiles", profile))
   
   }
   
