@@ -7,6 +7,7 @@
 init(
   project = NULL,
   ...,
+  profile = NULL,
   settings = NULL,
   bare = FALSE,
   force = FALSE,
@@ -19,6 +20,10 @@ changed to match the requested project directory.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
+
+\item{profile}{The profile to be activated. When \code{NULL}, the default
+profile is activated instead. See \code{vignette("profiles", package = "renv")}
+for more information.}
 
 \item{settings}{A list of \link{settings} to be used with the newly-initialized
 project.}

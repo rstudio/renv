@@ -8,7 +8,7 @@ snapshot(
   project = NULL,
   ...,
   library = NULL,
-  lockfile = file.path(project, "renv.lock"),
+  lockfile = paths$lockfile(project = project),
   type = settings$snapshot.type(project = project),
   packages = NULL,
   prompt = interactive(),

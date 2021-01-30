@@ -3,12 +3,13 @@ actions <- function(action = c("snapshot", "restore"),
                     ...,
                     project = NULL,
                     library = NULL,
-                    lockfile = file.path(project, "renv.lock"),
+                    lockfile = NULL,
                     type = settings$snapshot.type(project = project),
                     clean = FALSE)
 {
-  action  <- match.arg(action)
-  project <- renv_project_resolve(project)
+  action   <- match.arg(action)
+  project  <- renv_project_resolve(project)
+  lockfile <- lockfile %||% renv_lockfile_path(project = project)
 
   renv_scope_lock(project = project)
 

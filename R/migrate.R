@@ -174,7 +174,7 @@ renv_migrate_packrat_lockfile <- function(project) {
   lockfile <- renv_lockfile_fini(lockfile)
 
   # write the lockfile
-  lockpath <- file.path(project, "renv.lock")
+  lockpath <- renv_lockfile_path(project = project)
   renv_lockfile_write(lockfile, file = lockpath)
 
 }

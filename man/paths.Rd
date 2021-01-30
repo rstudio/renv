@@ -5,7 +5,7 @@
 \alias{paths}
 \title{Path Customization}
 \format{
-An object of class \code{list} of length 3.
+An object of class \code{list} of length 5.
 }
 \usage{
 paths

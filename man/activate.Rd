@@ -4,12 +4,16 @@
 \alias{activate}
 \title{Activate a Project}
 \usage{
-activate(project = NULL)
+activate(project = NULL, profile = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{profile}{The profile to be activated. When \code{NULL}, the default
+profile is activated instead. See \code{vignette("profiles", package = "renv")}
+for more information.}
 }
 \value{
 The project directory, invisibly. Note that this function is normally

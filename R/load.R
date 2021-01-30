@@ -58,11 +58,12 @@ load <- function(project = getwd(), quiet = FALSE) {
   renv_load_path(project)
   renv_load_shims(project)
   renv_load_renviron(project)
+  renv_load_profile(project)
   renv_load_settings(project)
   renv_load_project(project)
   renv_load_sandbox(project)
   renv_load_libpaths(project)
-  renv_load_profile(project)
+  renv_load_rprofile(project)
   renv_load_cache(project)
 
   lockfile <- renv_lockfile_load(project)
@@ -182,9 +183,16 @@ renv_load_renviron <- function(project) {
 
 }
 
+renv_load_profile <- function(project) {
+
+  renv_bootstrap_profile_load(project = project)
+
+}
+
 renv_load_settings <- function(project) {
 
-  settings <- file.path(project, "renv/settings.R")
+  components <- c(project, renv_profile_prefix(), "renv/settings.R")
+  settings <- paste(components, collapse = "/")
   if (!file.exists(settings))
     return(FALSE)
 
@@ -223,7 +231,7 @@ renv_load_project <- function(project) {
 
 }
 
-renv_load_profile <- function(project = NULL) {
+renv_load_rprofile <- function(project = NULL) {
 
   project <- renv_project_resolve(project)
 
@@ -235,13 +243,13 @@ renv_load_profile <- function(project = NULL) {
 
   profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
   if (file.exists(profile))
-    renv_load_profile_impl(profile)
+    renv_load_rprofile_impl(profile)
 
   TRUE
 
 }
 
-renv_load_profile_impl <- function(profile) {
+renv_load_rprofile_impl <- function(profile) {
 
   status <- catch(eval(parse(profile), envir = globalenv()))
   if (!inherits(status, "error"))
@@ -407,7 +415,16 @@ renv_load_report_project <- function(project) {
     renv_session_quiet()
   )
 
-  if (!quiet) {
+  if (quiet)
+    return()
+
+  profile <- renv_profile_get()
+  version <- renv_package_version("renv")
+
+  if (!is.na(profile)) {
+    fmt <- "* (%s) Project '%s' loaded. [renv %s]"
+    vwritef(fmt, profile, aliased_path(project), version)
+  } else {
     fmt <- "* Project '%s' loaded. [renv %s]"
     vwritef(fmt, aliased_path(project), renv_package_version("renv"))
   }
@@ -430,7 +447,8 @@ renv_load_report_updates <- function(project) {
 # nocov start
 renv_load_report_updates_impl <- function(project) {
 
-  if (!file.exists(file.path(project, "renv.lock")))
+  lockpath <- renv_lockfile_path(project = project)
+  if (!file.exists(lockpath))
     return(FALSE)
 
   status <- update(project = project, check = TRUE)

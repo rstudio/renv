@@ -361,7 +361,8 @@ local({
       return(file.path(path, name))
     }
   
-    file.path(project, "renv/library")
+    prefix <- renv_bootstrap_profile_prefix()
+    paste(c(project, prefix, "renv/library"), collapse = "/")
   
   }
   
@@ -418,6 +419,53 @@ local({
     TRUE
   
   }
+  
+  renv_bootstrap_profile_load <- function(project) {
+  
+    # if RENV_PROFILE is already set, just use that
+    profile <- Sys.getenv("RENV_PROFILE", unset = NA)
+    if (!is.na(profile) && nzchar(profile))
+      return(profile)
+  
+    # check for a profile file (nothing to do if it doesn't exist)
+    path <- file.path(project, "renv/profile")
+    if (!file.exists(path))
+      return(NULL)
+  
+    # read the profile, and set it if it exists
+    contents <- readLines(path, warn = FALSE)
+    if (length(contents) == 0L)
+      return(NULL)
+  
+    # set RENV_PROFILE
+    profile <- contents[[1L]]
+    if (nzchar(profile))
+      Sys.setenv(RENV_PROFILE = profile)
+  
+    profile
+  
+  }
+  
+  renv_bootstrap_profile_prefix <- function() {
+  
+    profile <- renv_bootstrap_profile_get()
+    if (is.na(profile))
+      return(character())
+  
+    file.path("renv/profiles", profile)
+  
+  }
+  
+  renv_bootstrap_profile_get <- function() {
+    Sys.getenv("RENV_PROFILE", unset = NA)
+  }
+  
+  renv_bootstrap_profile_set <- function(profile) {
+    Sys.setenv(RENV_PROFILE = profile)
+  }
+
+  # load the renv profile, if any
+  renv_bootstrap_profile_load(project)
 
   # construct path to library root
   root <- renv_bootstrap_library_root(project)

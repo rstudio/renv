@@ -102,11 +102,12 @@ renv_lockfile_fini_bioconductor <- function(lockfile) {
 }
 
 renv_lockfile_path <- function(project) {
-  file.path(project, "renv.lock")
+  renv_paths_lockfile(project = project)
 }
 
 renv_lockfile_save <- function(lockfile, project) {
-  renv_lockfile_write(lockfile, file = renv_lockfile_path(project))
+  file <- renv_lockfile_path(project)
+  renv_lockfile_write(lockfile, file = file)
 }
 
 renv_lockfile_load <- function(project) {

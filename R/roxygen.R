@@ -24,6 +24,10 @@
 #'   boolean (indicating that all installed packages should be rebuilt), or a
 #'   vector of package names indicating which packages should be rebuilt.
 #'
+#' @param profile The profile to be activated. When `NULL`, the default
+#'   profile is activated instead. See `vignette("profiles", package = "renv")`
+#'   for more information.
+#'
 #' @return The project directory, invisibly. Note that this function is normally
 #'   called for its side effects.
 #'

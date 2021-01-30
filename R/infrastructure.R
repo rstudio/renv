@@ -1,14 +1,31 @@
 
 # tools for writing / removing renv-related infrastructure
-renv_infrastructure_write <- function(project = NULL, version = NULL) {
+renv_infrastructure_write <- function(project = NULL,
+                                      profile = NULL,
+                                      version = NULL)
+{
   project <- renv_project_resolve(project)
 
+  renv_infrastructure_write_profile(project, profile = profile)
   renv_infrastructure_write_rprofile(project)
   renv_infrastructure_write_rbuildignore(project)
   renv_infrastructure_write_gitignore(project)
   renv_infrastructure_write_activate(project, version = version)
 }
 
+renv_infrastructure_write_profile <- function(project, profile = NULL) {
+
+  path <- file.path(project, "renv/profile")
+  ensure_parent_directory(path)
+
+  if (is.null(profile))
+    unlink(path)
+  else
+    writeLines(profile, con = path)
+
+  invisible(path)
+
+}
 
 renv_infrastructure_write_rprofile <- function(project) {
 

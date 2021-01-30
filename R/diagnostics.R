@@ -156,7 +156,7 @@ renv_diagnostics_packages_sources <- function(lockfile, all) {
 
 renv_diagnostics_packages_lockfile <- function(project) {
 
-  lockpath <- file.path(project, "renv.lock")
+  lockpath <- renv_lockfile_path(project = project)
   if (!file.exists(lockpath)) {
     vwritef("This project has not yet been snapshotted: 'renv.lock' does not exist.")
     return(list())

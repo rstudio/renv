@@ -158,7 +158,7 @@ renv_settings_merge <- function(settings, merge) {
 }
 
 renv_settings_path <- function(project) {
-  file.path(project, "renv/settings.dcf")
+  renv_paths_settings(project = project)
 }
 
 
