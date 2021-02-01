@@ -1,6 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where `renv::install("<package>")` could fail if `renv` chose
+  to install the package from MRAN rather than from one of the active package
+  repositories. (#627)
+
 * `renv` again defaults to using the project's `renv/staging` folder for staged
   / transactional installs. Use the `RENV_PATHS_LIBRARY_STAGING` environment
   variable if more granular control over the staging library path is required.

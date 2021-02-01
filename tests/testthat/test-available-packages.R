@@ -1,6 +1,26 @@
 
 context("Available Packages")
 
+test_that("renv_available_packages() returns NULL when no repos set", {
+  skip_on_cran()
+
+  local({
+    renv_scope_options(repos = character())
+    expect_null(renv_available_packages(type = "source"))
+  })
+
+  local({
+    renv_scope_options(repos = list())
+    expect_null(renv_available_packages(type = "source"))
+  })
+
+  local({
+    renv_scope_options(repos = NULL)
+    expect_null(renv_available_packages(type = "source"))
+  })
+
+})
+
 test_that("renv_available_packages() errs on incorrect repository", {
   skip_on_cran()
 
