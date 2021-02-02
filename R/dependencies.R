@@ -252,12 +252,12 @@ renv_dependencies_find_extra <- function(root) {
 }
 
 renv_dependencies_find <- function(path = getwd(), root = getwd()) {
-  files <- lapply(path, renv_dependencies_find_impl, root = root)
+  files <- lapply(path, renv_dependencies_find_impl, root = root, depth = 0)
   extra <- renv_dependencies_find_extra(root)
   unlist(c(files, extra), recursive = TRUE, use.names = FALSE)
 }
 
-renv_dependencies_find_impl <- function(path, root) {
+renv_dependencies_find_impl <- function(path, root, depth) {
 
   # check file type
   info <- file.info(path, extra_cols = FALSE)
@@ -268,7 +268,7 @@ renv_dependencies_find_impl <- function(path, root) {
 
   # if this is a directory, recurse
   if (info$isdir)
-    return(renv_dependencies_find_dir(path, root))
+    return(renv_dependencies_find_dir(path, root, depth))
 
   # otherwise, check and see if we have a registered callback
   callback <- renv_dependencies_callback(path)
@@ -277,16 +277,11 @@ renv_dependencies_find_impl <- function(path, root) {
 
 }
 
-renv_dependencies_find_dir <- function(path, root) {
+renv_dependencies_find_dir <- function(path, root, depth) {
 
   # check if this path should be ignored
   path <- renv_renvignore_exec(path, root, path)
   if (empty(path))
-    return(character())
-
-  # ignore a set of hard-coded directory paths
-  ignored <- getOption("renv.dependencies.ignore", default = c("renv", "packrat"))
-  if (basename(path) %in% ignored)
     return(character())
 
   # check if we've already scanned this directory
@@ -299,8 +294,11 @@ renv_dependencies_find_dir <- function(path, root) {
   }
 
   # list children
-  children <- renv_dependencies_find_dir_children(path, root)
-  paths <- lapply(children, renv_dependencies_find_impl, root = root)
+  children <- renv_dependencies_find_dir_children(path, root, depth)
+
+  # find recursive dependencies
+  depth <- depth + 1
+  paths <- map(children, renv_dependencies_find_impl, root = root, depth = depth)
 
   # explicitly include rsconnect folder
   # (so we can infer a dependency on rsconnect when appropriate)
@@ -314,7 +312,7 @@ renv_dependencies_find_dir <- function(path, root) {
 
 # return the set of files / subdirectories within a directory that should be
 # crawled for dependencies
-renv_dependencies_find_dir_children <- function(path, root) {
+renv_dependencies_find_dir_children <- function(path, root, depth) {
 
   # list files in the folder
   children <- renv_file_list(path, full.names = TRUE)
@@ -323,11 +321,11 @@ renv_dependencies_find_dir_children <- function(path, root) {
   children <- children[file.exists(children)]
 
   # remove hard-coded ignores
-  ignored <- c("renv")
+  # (only keep DESCRIPTION files at the top level)
+  ignored <- c("renv", "packrat", if (depth) "DESCRIPTION")
   children <- children[!basename(children) %in% ignored]
 
-  # construct pattern for matching files in this path
-  # (return all files if no such pattern available)
+  # exclude ignored paths
   renv_renvignore_exec(path, root, children)
 
 }
