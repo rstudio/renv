@@ -150,7 +150,7 @@ renv_dependencies_impl <- function(
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
 
-  # ignore errors when testing unless explicitly asked for
+  # ignore errors when testing, unless explicitly asked for
   if (renv_tests_running() && missing(errors))
     errors <- "ignored"
 
@@ -230,9 +230,31 @@ renv_dependencies_callback <- function(path) {
 
 }
 
+renv_dependencies_find_extra <- function(root) {
+
+  # if we don't have a root, we don't have a project
+  if (is.null(root))
+    return(NULL)
+
+  # only run for root-level dependency checks
+  if (!renv_path_same(root, renv_project_resolve()))
+    return(NULL)
+
+  # only run if we have a custom profile
+  prefix <- renv_profile_prefix()
+  if (is.null(prefix))
+    return(NULL)
+
+  # collect deps
+  path <- file.path(root, prefix)
+  renv_dependencies_find_impl(path, root)
+
+}
+
 renv_dependencies_find <- function(path = getwd(), root = getwd()) {
   files <- lapply(path, renv_dependencies_find_impl, root = root)
-  unlist(files, recursive = TRUE, use.names = FALSE)
+  extra <- renv_dependencies_find_extra(root)
+  unlist(c(files, extra), recursive = TRUE, use.names = FALSE)
 }
 
 renv_dependencies_find_impl <- function(path, root) {
@@ -260,6 +282,11 @@ renv_dependencies_find_dir <- function(path, root) {
   # check if this path should be ignored
   path <- renv_renvignore_exec(path, root, path)
   if (empty(path))
+    return(character())
+
+  # ignore a set of hard-coded directory paths
+  ignored <- getOption("renv.dependencies.ignore", default = c("renv", "packrat"))
+  if (basename(path) %in% ignored)
     return(character())
 
   # check if we've already scanned this directory

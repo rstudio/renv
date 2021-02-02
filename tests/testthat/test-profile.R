@@ -33,3 +33,28 @@ test_that("a profile changes the default library / lockfile path", {
   )
 
 })
+
+test_that("profile-specific dependencies can be written", {
+
+  renv_tests_scope()
+
+  # initialize project with 'testing' profile
+  renv_scope_envvars(RENV_PROFILE = "testing")
+  init()
+
+  # have this profile depend on 'toast'
+  path <- file.path(getwd(), renv_profile_prefix(), "deps.R")
+  writeLines("library(toast)", con = path)
+
+  # validate the dependency is included
+  deps <- dependencies(quiet = TRUE)
+  expect_true("toast" %in% deps$Package)
+
+  # switch to other profile
+  Sys.setenv(RENV_PROFILE = "other")
+
+  # 'toast' is no longe required
+  deps <- dependencies(quiet = TRUE)
+  expect_false("toast" %in% deps$Package)
+
+})
