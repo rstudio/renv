@@ -247,7 +247,7 @@ renv_dependencies_find_extra <- function(root) {
 
   # collect deps
   path <- file.path(root, prefix)
-  renv_dependencies_find_impl(path, root)
+  renv_dependencies_find_impl(path, root, 0)
 
 }
 
