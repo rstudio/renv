@@ -9,20 +9,15 @@ renv_path_within <- function(path, parent) {
   path == parent | substring(path, 1L, nchar(prefix)) == prefix
 }
 
-renv_path_normalize_win32 <- function(path,
-                                      winslash = "/",
-                                      mustWork = FALSE)
-{
-  map_chr(
-    path,
-    renv_path_normalize_win32_impl,
-    winslash = winslash,
-    mustWork = mustWork
-  )
-}
-
 renv_path_normalize <- function(path, winslash = "/", mustWork = FALSE) {
   renv_methods_error()
+}
+
+renv_path_normalize_unix <- function(path,
+                                     winslash = "/",
+                                     mustWork = FALSE)
+{
+  normalizePath(path, winslash, mustWork)
 }
 
 # NOTE: in versions of R < 4.0.0, normalizePath() does not normalize path

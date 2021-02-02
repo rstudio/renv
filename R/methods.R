@@ -4,7 +4,7 @@ renv_methods_map <- function() {
   list(
 
     renv_path_normalize = c(
-      unix  = "base::normalizePath",
+      unix  = "renv_path_normalize_unix",
       win32 = "renv_path_normalize_win32"
     ),
 

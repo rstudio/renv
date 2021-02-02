@@ -44,12 +44,13 @@ test_that("RENV_PATHS_PREFIX is not normalized", {
 
 test_that("renv_path_normalize is correctly initialized", {
 
-  f <- if (renv_platform_windows())
-    renv_path_normalize_win32
-  else
-    normalizePath
-
-  expect_identical(renv_path_normalize, f)
+  expect_identical(
+    renv_path_normalize,
+    if (renv_platform_windows())
+      renv_path_normalize_win32
+    else
+      renv_path_normalize_unix
+  )
 
 })
 
@@ -57,17 +58,13 @@ test_that("UTF-8 paths can be normalized", {
 
   skip_if(getRversion() < "4.0.0")
 
-  name <- "你好"
-  path <- paste(tempdir(), name, sep = "/")
-  path <- chartr("\\", "/", path)
-
-  # first, without the file existing
-  norm <- renv_path_normalize(path)
-  expect_equal(path, norm)
-
-  # now, with the file existing
+  name <- enc2utf8("\u4f60\u597d")  # nihao
+  root <- normalizePath(tempdir(), winslash = "/", mustWork = TRUE)
+  path <- paste(root, name, sep = "/")
   expect_true(file.create(path))
-  norm <- renv_path_normalize(path)
-  expect_equal(path, norm)
+
+  expected <- path
+  actual   <- renv_path_normalize(path)
+  expect_equal(expected, actual)
 
 })
