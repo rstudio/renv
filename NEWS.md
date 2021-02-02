@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where attempts to initialize an `renv` project in a path
+  containing non-ASCII characters could fail on Windows. (#629)
+
 * Fixed an issue where `renv::install("<package>")` could fail if `renv` chose
   to install the package from MRAN rather than from one of the active package
   repositories. (#627)
