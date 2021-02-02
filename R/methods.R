@@ -1,0 +1,42 @@
+
+renv_methods_map <- function() {
+
+  list(
+
+    renv_path_normalize = c(
+      unix  = "base::normalizePath",
+      win32 = "renv_path_normalize_win32"
+    ),
+
+    renv_file_list_impl = c(
+      unix  = "renv_file_list_impl_unix",
+      win32 = "renv_file_list_impl_win32"
+    )
+
+  )
+
+}
+
+renv_methods_init <- function() {
+
+  # get list of method mappings
+  methods <- renv_methods_map()
+
+  # determine appropriate lookup key for finding alternative
+  key <- if (renv_platform_windows()) "win32" else "unix"
+  alts <- map(methods, `[[`, key)
+
+  # update methods in namespace
+  renv <- asNamespace("renv")
+  enumerate(alts, function(name, alt) {
+    replacement <- eval(parse(text = alt), envir = renv)
+    assign(name, replacement, envir = renv)
+  })
+
+}
+
+renv_methods_error <- function() {
+  call <- sys.call(sys.parent())
+  fmt <- "internal error: '%s()' not initialized in .onLoad()"
+  stopf(fmt, as.character(call[[1L]]), call. = FALSE)
+}

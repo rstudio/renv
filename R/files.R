@@ -376,11 +376,15 @@ renv_file_list <- function(path, full.names = TRUE) {
 }
 
 renv_file_list_impl <- function(path) {
+  renv_methods_error()
+}
 
-  if (!renv_platform_windows())
-    return(list.files(path, all.files = TRUE, no.. = TRUE))
+renv_file_list_impl_unix <- function(path) {
+  list.files(path, all.files = TRUE, no.. = TRUE)
+}
 
-  # nocov start
+# nocov start
+renv_file_list_impl_win32 <- function(path) {
 
   # first, try a plain list.files to see if we can get away with that
   files <- list.files(path, all.files = TRUE, no.. = TRUE)
@@ -388,6 +392,7 @@ renv_file_list_impl <- function(path) {
     return(files)
 
   # otherwise, try some madness ...
+  #
   # change working directory (done just to avoid encoding issues
   # when submitting path to cmd shell)
   owd <- setwd(path)
@@ -424,9 +429,8 @@ renv_file_list_impl <- function(path) {
   # just in case?
   paths[nzchar(paths)]
 
-  # nocov end
-
 }
+# nocov end
 
 renv_file_type <- function(paths, symlinks = TRUE) {
 
