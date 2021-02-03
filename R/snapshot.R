@@ -36,8 +36,8 @@
 #'
 #' \item{`"explicit"`}{
 #' Only capture packages which are explicitly listed in the project
-#' `DESCRIPTION` file. This workflow is recommended for users who wish to more
-#' explicitly manage a project's \R package dependencies.
+#' `DESCRIPTION` file. This workflow is recommended for users who wish to
+#' manage their project's \R package dependencies directly.
 #' }
 #'
 #' \item{`"custom"`}{
@@ -53,7 +53,11 @@
 #'
 #' By default, `"implicit"`-style snapshots are used. The snapshot type can be
 #' configured on a project-specific basis using the `renv` project [settings]
-#' mechanism.
+#' mechanism. For example, to use `"explicit"` snapshots in a project:
+#'
+#' ```
+#' renv::settings$snapshot.type("explicit")
+#' ````
 #'
 #' When the `packages` argument is set, `type` is ignored, and instead only the
 #' requested set of packages, and their recursive dependencies, will be written
@@ -70,8 +74,7 @@
 #'   directly instead.
 #'
 #' @param type The type of snapshot to perform. See **Snapshot Type** for
-#'   more details. When `NULL` (the default), an "implicit"-style snapshot
-#'   is performed.
+#'   more details.
 #'
 #' @param packages A vector of packages to be included in the lockfile. When
 #'   `NULL` (the default), all packages relevant for the type of snapshot being
@@ -96,7 +99,7 @@
 snapshot <- function(project  = NULL,
                      ...,
                      library  = NULL,
-                     lockfile = file.path(project, "renv.lock"),
+                     lockfile = paths$lockfile(project = project),
                      type     = settings$snapshot.type(project = project),
                      packages = NULL,
                      prompt   = interactive(),

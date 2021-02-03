@@ -280,6 +280,7 @@ renv_tests_init <- function() {
   if (renv_tests_running())
     return()
 
+  Sys.unsetenv("RENV_PROFILE")
   Sys.unsetenv("RENV_PATHS_LIBRARY")
   Sys.unsetenv("RENV_PATHS_LIBRARY_ROOT")
   Sys.unsetenv("RENV_CONFIG_CACHE_ENABLED")
@@ -287,6 +288,7 @@ renv_tests_init <- function() {
   Sys.unsetenv("RENV_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON_ENV")
+  Sys.unsetenv("RETICULATE_PYTHON_FALLBACK")
 
   renv_tests_init_workarounds()
   renv_tests_init_working_dir()

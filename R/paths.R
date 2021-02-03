@@ -42,6 +42,18 @@ renv_paths_library <- function(..., project = NULL) {
   file.path(root, renv_prefix_platform(), ...) %||% ""
 }
 
+renv_paths_lockfile <- function(project = NULL) {
+  project <- renv_project_resolve(project)
+  components <- c(project, renv_profile_prefix(), "renv.lock")
+  paste(components, collapse = "/")
+}
+
+renv_paths_settings <- function(project = NULL) {
+  project <- renv_project_resolve(project)
+  components <- c(project, renv_profile_prefix(), "renv/settings.dcf")
+  paste(components, collapse = "/")
+}
+
 renv_paths_local <- function(...) {
   renv_paths_common("local", c(), ...)
 }
@@ -292,7 +304,9 @@ renv_paths_init <- function() {
 #' # get the path to the project library
 #' path <- renv::paths$library()
 paths <- list(
-  root    = renv_paths_root,
-  library = renv_paths_library,
-  cache   = renv_paths_cache
+  root     = renv_paths_root,
+  library  = renv_paths_library,
+  lockfile = renv_paths_lockfile,
+  settings = renv_paths_settings,
+  cache    = renv_paths_cache
 )

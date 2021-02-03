@@ -282,3 +282,16 @@ test_that("empty / missing labels are handled", {
   deps <- dependencies("resources/empty-label.Rmd", progress = FALSE)
   expect_true(all(c("A", "B") %in% deps$Package))
 })
+
+test_that("only dependencies in a top-level DESCRIPTION file are used", {
+  renv_tests_scope()
+
+  dir.create("a")
+  writeLines("Depends: toast", con = "DESCRIPTION")
+  writeLines("Depends: oatmeal", con = "a/DESCRIPTION")
+
+  deps <- dependencies(quiet = TRUE)
+  expect_true("toast" %in% deps$Package)
+  expect_false("oatmeal" %in% deps$Package)
+
+})

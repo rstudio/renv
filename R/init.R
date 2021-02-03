@@ -77,6 +77,7 @@
 #' @example examples/examples-init.R
 init <- function(project = NULL,
                  ...,
+                 profile  = NULL,
                  settings = NULL,
                  bare     = FALSE,
                  force    = FALSE,
@@ -100,12 +101,9 @@ init <- function(project = NULL,
   # be quiet in RStudio projects (as we will normally restart automatically)
   quiet <- !is.null(getOption("restart"))
 
-  # for bare inits, just active the project
-  if (bare) {
-    version <- renv_package_version("renv")
-    status <- renv_activate_impl(project, version, restart, quiet)
-    return(invisible(status))
-  }
+  # for bare inits, just activate the project
+  if (bare)
+    return(renv_init_fini(project, profile, version, restart, quiet))
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
@@ -134,8 +132,22 @@ init <- function(project = NULL,
   }
 
   # activate the newly-hydrated project
+  renv_init_fini(project, profile, version, restart, quiet)
+
+}
+
+renv_init_fini <- function(project, profile, version, restart, quiet) {
+
   version <- renv_package_version("renv")
-  status <- renv_activate_impl(project, version, restart, quiet)
+
+  renv_activate_impl(
+    project = project,
+    profile = profile,
+    version = version,
+    restart = restart,
+    quiet   = quiet
+  )
+
   invisible(project)
 
 }

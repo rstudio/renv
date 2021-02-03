@@ -38,6 +38,9 @@ local({
 
   # load bootstrap tools ${BOOTSTRAP}
 
+  # load the renv profile, if any
+  renv_bootstrap_profile_load(project)
+
   # construct path to library root
   root <- renv_bootstrap_library_root(project)
 

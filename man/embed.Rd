@@ -12,6 +12,10 @@ embed(path = NULL, ..., lockfile = NULL, project = NULL)
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
 
+\item{lockfile}{The path to an \code{renv} lockfile. When \code{NULL} (the default),
+the project lockfile will be read (if any); otherwise, a new lockfile
+will be generated from the current library paths.}
+
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}

@@ -25,7 +25,7 @@
 #' @example examples/examples-record.R
 #' @export
 record <- function(records,
-                   lockfile = file.path(project, "renv.lock"),
+                   lockfile = NULL,
                    project  = NULL)
 {
   renv_scope_error_handler()

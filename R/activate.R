@@ -21,7 +21,7 @@
 #' renv::activate("~/projects/analysis")
 #'
 #' }
-activate <- function(project = NULL) {
+activate <- function(project = NULL, profile = NULL) {
 
   renv_consent_check()
   renv_scope_error_handler()
@@ -29,8 +29,11 @@ activate <- function(project = NULL) {
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
+  renv_profile_set(profile)
+
   renv_activate_impl(
     project = project,
+    profile = profile,
     version = NULL,
     restart = FALSE,
     quiet   = FALSE
@@ -40,13 +43,25 @@ activate <- function(project = NULL) {
 
 }
 
-renv_activate_impl <- function(project, version, restart, quiet) {
-
+renv_activate_impl <- function(project,
+                               profile,
+                               version,
+                               restart,
+                               quiet)
+{
   # prepare renv infrastructure
-  renv_infrastructure_write(project, version)
+  renv_infrastructure_write(
+    project = project,
+    profile = profile,
+    version = version
+  )
 
   # try to load the project
   load(project, quiet = quiet)
+
+  # ensure renv is imbued into the new library path if necessary
+  if (!renv_tests_running())
+    renv_imbue_self(project)
 
   # restart session if requested
   if (restart)

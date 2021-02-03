@@ -4,7 +4,7 @@
 \alias{record}
 \title{Update Package Records in a Lockfile}
 \usage{
-record(records, lockfile = file.path(project, "renv.lock"), project = NULL)
+record(records, lockfile = NULL, project = NULL)
 }
 \arguments{
 \item{records}{A list of named records, mapping package names to a definition

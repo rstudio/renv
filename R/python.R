@@ -191,7 +191,8 @@ renv_python_envpath <- function(project, type, version) {
     stopf("unrecognized environment type '%s'", type)
   )
 
-  file.path(project, suffix)
+  components <- c(project, renv_profile_prefix(), suffix)
+  paste(components, collapse = "/")
 
 }
 

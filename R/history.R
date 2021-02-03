@@ -74,9 +74,10 @@ revert <- function(commit = "HEAD", ..., project = NULL) {
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
-  system2("git", c("checkout", commit, "--", "renv.lock"))
-  system2("git", c("reset", "HEAD", "renv.lock"), stdout = FALSE, stderr = FALSE)
-  system2("git", c("diff", "--", "renv.lock"))
+  lockpath <- renv_lockfile_path(project = project)
+  system2("git", c("checkout", commit, "--", shQuote(lockpath)))
+  system2("git", c("reset", "HEAD", shQuote(lockpath)), stdout = FALSE, stderr = FALSE)
+  system2("git", c("diff", "--", shQuote(lockpath)))
 
   vwritef("* renv.lock from commit %s has been checked out.", commit)
   invisible(commit)

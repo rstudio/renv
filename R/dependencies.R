@@ -150,7 +150,7 @@ renv_dependencies_impl <- function(
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
 
-  # ignore errors when testing unless explicitly asked for
+  # ignore errors when testing, unless explicitly asked for
   if (renv_tests_running() && missing(errors))
     errors <- "ignored"
 
@@ -230,12 +230,34 @@ renv_dependencies_callback <- function(path) {
 
 }
 
-renv_dependencies_find <- function(path = getwd(), root = getwd()) {
-  files <- lapply(path, renv_dependencies_find_impl, root = root)
-  unlist(files, recursive = TRUE, use.names = FALSE)
+renv_dependencies_find_extra <- function(root) {
+
+  # if we don't have a root, we don't have a project
+  if (is.null(root))
+    return(NULL)
+
+  # only run for root-level dependency checks
+  if (!renv_path_same(root, renv_project_resolve()))
+    return(NULL)
+
+  # only run if we have a custom profile
+  prefix <- renv_profile_prefix()
+  if (is.null(prefix))
+    return(NULL)
+
+  # collect deps
+  path <- file.path(root, prefix)
+  renv_dependencies_find_impl(path, root, 0)
+
 }
 
-renv_dependencies_find_impl <- function(path, root) {
+renv_dependencies_find <- function(path = getwd(), root = getwd()) {
+  files <- lapply(path, renv_dependencies_find_impl, root = root, depth = 0)
+  extra <- renv_dependencies_find_extra(root)
+  unlist(c(files, extra), recursive = TRUE, use.names = FALSE)
+}
+
+renv_dependencies_find_impl <- function(path, root, depth) {
 
   # check file type
   info <- file.info(path, extra_cols = FALSE)
@@ -246,7 +268,7 @@ renv_dependencies_find_impl <- function(path, root) {
 
   # if this is a directory, recurse
   if (info$isdir)
-    return(renv_dependencies_find_dir(path, root))
+    return(renv_dependencies_find_dir(path, root, depth))
 
   # otherwise, check and see if we have a registered callback
   callback <- renv_dependencies_callback(path)
@@ -255,7 +277,7 @@ renv_dependencies_find_impl <- function(path, root) {
 
 }
 
-renv_dependencies_find_dir <- function(path, root) {
+renv_dependencies_find_dir <- function(path, root, depth) {
 
   # check if this path should be ignored
   path <- renv_renvignore_exec(path, root, path)
@@ -272,8 +294,11 @@ renv_dependencies_find_dir <- function(path, root) {
   }
 
   # list children
-  children <- renv_dependencies_find_dir_children(path, root)
-  paths <- lapply(children, renv_dependencies_find_impl, root = root)
+  children <- renv_dependencies_find_dir_children(path, root, depth)
+
+  # find recursive dependencies
+  depth <- depth + 1
+  paths <- map(children, renv_dependencies_find_impl, root = root, depth = depth)
 
   # explicitly include rsconnect folder
   # (so we can infer a dependency on rsconnect when appropriate)
@@ -287,7 +312,7 @@ renv_dependencies_find_dir <- function(path, root) {
 
 # return the set of files / subdirectories within a directory that should be
 # crawled for dependencies
-renv_dependencies_find_dir_children <- function(path, root) {
+renv_dependencies_find_dir_children <- function(path, root, depth) {
 
   # list files in the folder
   children <- renv_file_list(path, full.names = TRUE)
@@ -296,11 +321,11 @@ renv_dependencies_find_dir_children <- function(path, root) {
   children <- children[file.exists(children)]
 
   # remove hard-coded ignores
-  ignored <- c("renv")
+  # (only keep DESCRIPTION files at the top level)
+  ignored <- c("renv", "packrat", if (depth) "DESCRIPTION")
   children <- children[!basename(children) %in% ignored]
 
-  # construct pattern for matching files in this path
-  # (return all files if no such pattern available)
+  # exclude ignored paths
   renv_renvignore_exec(path, root, children)
 
 }
@@ -402,8 +427,15 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
   state <- renv_dependencies_state()
   type <- "unknown"
   if (identical(file.path(state$root, "DESCRIPTION"), path)) {
-    fields <- c(fields, "Suggests")
+
+    # collect profile-specific dependencies as well
+    profile <- renv_profile_get()
+    field <- if (length(profile))
+      sprintf("Config/renv/profiles/%s/dependencies", profile)
+
+    fields <- c(fields, "Suggests", field)
     type <- renv_description_type(desc = dcf)
+
   }
 
   data <- lapply(fields, function(field) {

@@ -26,5 +26,5 @@ test_that("errors when sourcing user profile are reported", {
   profile <- renv_tempfile_path("renv-profile-", fileext = ".R")
   writeLines("stop(1)", con = profile)
   renv_scope_envvars(R_PROFILE_USER = profile)
-  expect_warning(renv_load_profile(getwd()))
+  expect_warning(renv_load_rprofile(getwd()))
 })

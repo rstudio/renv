@@ -10,7 +10,7 @@ renv_snapshot_auto <- function(project) {
   if (inherits(status, "error"))
     return(FALSE)
 
-  lockfile <- file.path(project, "renv.lock")
+  lockfile <- renv_lockfile_path(project = project)
   vwritef("* Automatic snapshot has updated '%s'.", aliased_path(lockfile))
   TRUE
 
