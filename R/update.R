@@ -5,11 +5,23 @@ renv_update_find_repos <- function(records) {
 
 renv_update_find_repos_impl <- function(record) {
 
-  latest <- renv_available_packages_latest(record$Package)
-  if (version_compare(latest$Version, record$Version) == 1)
-    return(latest)
+  # retrieve latest-available package
+  package <- record$Package
+  record <- catch(renv_available_packages_latest(package))
+  if (inherits(record, "error"))
+    return(NULL)
 
-  NULL
+  # validate our versions
+  if (empty(latest$Version) || empty(record$Version))
+    return(NULL)
+
+  # compare the versions; return NULL if the 'latest' version
+  # is older
+  compare <- version_compare(latest$Version, record$Version)
+  if (compare != 1)
+    return(NULL)
+
+  compare
 
 }
 
