@@ -420,7 +420,7 @@ renv_bootstrap_profile_get <- function() {
 }
 
 renv_bootstrap_profile_set <- function(profile) {
-  profile <- renv_profile_normalize(profile)
+  profile <- renv_bootstrap_profile_normalize(profile)
   if (is.null(profile))
     Sys.unsetenv("RENV_PROFILE")
   else
