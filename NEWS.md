@@ -1,6 +1,11 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` now has support for custom project profiles. Profiles can be used to
+  activate different sets of project libraries + lockfiles for different workflows
+  in a given project. See `vignette("profiles", package = "renv")` for more
+  details.
+  
 * Fixed an issue where attempts to initialize an `renv` project in a path
   containing non-ASCII characters could fail on Windows. (#629)
 

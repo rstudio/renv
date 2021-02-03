@@ -29,6 +29,8 @@ activate <- function(project = NULL, profile = NULL) {
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
+  renv_profile_set(profile)
+
   renv_activate_impl(
     project = project,
     profile = profile,
@@ -47,9 +49,6 @@ renv_activate_impl <- function(project,
                                restart,
                                quiet)
 {
-  # activate requested profile
-  renv_profile_set(profile)
-
   # prepare renv infrastructure
   renv_infrastructure_write(
     project = project,
