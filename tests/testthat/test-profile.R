@@ -58,3 +58,19 @@ test_that("profile-specific dependencies can be written", {
   expect_false("toast" %in% deps$Package)
 
 })
+
+test_that("profile-specific dependencies can be declared in DESCRIPTION", {
+  renv_tests_scope()
+
+  renv_scope_envvars(RENV_PROFILE = "testing")
+  init()
+
+  writeLines(
+    "Config/renv/profiles/testing/dependencies: toast",
+    con = "DESCRIPTION"
+  )
+
+  deps <- dependencies()
+  expect_true("toast" %in% deps$Package)
+
+})

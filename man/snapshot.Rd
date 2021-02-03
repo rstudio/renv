@@ -33,8 +33,7 @@ project directory. When \code{NULL}, the lockfile (as an \R object) is returned
 directly instead.}
 
 \item{type}{The type of snapshot to perform. See \strong{Snapshot Type} for
-more details. When \code{NULL} (the default), an "implicit"-style snapshot
-is performed.}
+more details.}
 
 \item{packages}{A vector of packages to be included in the lockfile. When
 \code{NULL} (the default), all packages relevant for the type of snapshot being
@@ -110,7 +109,8 @@ in the lockfile.
 
 By default, \code{"implicit"}-style snapshots are used. The snapshot type can be
 configured on a project-specific basis using the \code{renv} project \link{settings}
-mechanism.
+mechanism. For example, to use \code{"explicit"} snapshots in a project:\preformatted{renv::settings$snapshot.type("explicit")
+}
 
 When the \code{packages} argument is set, \code{type} is ignored, and instead only the
 requested set of packages, and their recursive dependencies, will be written

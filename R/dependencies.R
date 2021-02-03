@@ -427,8 +427,15 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
   state <- renv_dependencies_state()
   type <- "unknown"
   if (identical(file.path(state$root, "DESCRIPTION"), path)) {
-    fields <- c(fields, "Suggests")
+
+    # collect profile-specific dependencies as well
+    profile <- renv_profile_get()
+    field <- if (!is.na(profile))
+      sprintf("Config/renv/profiles/%s/dependencies", profile)
+
+    fields <- c(fields, "Suggests", field)
     type <- renv_description_type(desc = dcf)
+
   }
 
   data <- lapply(fields, function(field) {
