@@ -8,7 +8,7 @@ renv_update_find_repos_impl <- function(record) {
   # retrieve latest-available package
   package <- record$Package
   latest <- catch(renv_available_packages_latest(package))
-  if (inherits(record, "error"))
+  if (inherits(latest, "error"))
     return(NULL)
 
   # validate our versions
@@ -21,7 +21,7 @@ renv_update_find_repos_impl <- function(record) {
   if (compare != 1)
     return(NULL)
 
-  compare
+  latest
 
 }
 
