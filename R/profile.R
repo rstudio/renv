@@ -10,3 +10,7 @@ renv_profile_get <- function() {
 renv_profile_set <- function(profile) {
   renv_bootstrap_profile_set(profile)
 }
+
+renv_profile_normalize <- function(profile) {
+  renv_bootstrap_profile_normalize(profile)
+}

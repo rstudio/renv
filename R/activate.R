@@ -47,6 +47,9 @@ renv_activate_impl <- function(project,
                                restart,
                                quiet)
 {
+  # activate requested profile
+  renv_profile_set(profile)
+
   # prepare renv infrastructure
   renv_infrastructure_write(
     project = project,

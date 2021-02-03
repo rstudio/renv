@@ -447,19 +447,27 @@ local({
   }
   
   renv_bootstrap_profile_prefix <- function() {
-  
     profile <- renv_bootstrap_profile_get()
-    if (!is.na(profile) && nzchar(profile))
+    if (!is.null(profile))
       return(file.path("renv/profiles", profile))
-  
   }
   
   renv_bootstrap_profile_get <- function() {
-    Sys.getenv("RENV_PROFILE", unset = NA)
+    profile <- Sys.getenv("RENV_PROFILE", unset = "")
+    renv_bootstrap_profile_normalize(profile)
   }
   
   renv_bootstrap_profile_set <- function(profile) {
     Sys.setenv(RENV_PROFILE = profile)
+  }
+  
+  renv_bootstrap_profile_normalize <- function(profile) {
+  
+    if (is.null(profile) || profile %in% c("", "default"))
+      return(NULL)
+  
+    profile
+  
   }
 
   # load the renv profile, if any

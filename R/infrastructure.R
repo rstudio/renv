@@ -18,6 +18,7 @@ renv_infrastructure_write_profile <- function(project, profile = NULL) {
   path <- file.path(project, "renv/profile")
   ensure_parent_directory(path)
 
+  profile <- renv_profile_normalize(profile)
   if (is.null(profile))
     unlink(path)
   else

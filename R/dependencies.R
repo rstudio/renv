@@ -430,7 +430,7 @@ renv_dependencies_discover_description <- function(path, fields = NULL) {
 
     # collect profile-specific dependencies as well
     profile <- renv_profile_get()
-    field <- if (!is.na(profile))
+    field <- if (length(profile))
       sprintf("Config/renv/profiles/%s/dependencies", profile)
 
     fields <- c(fields, "Suggests", field)

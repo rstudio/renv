@@ -422,7 +422,7 @@ renv_load_report_project <- function(project) {
   profile <- renv_profile_get()
   version <- renv_package_version("renv")
 
-  if (!is.na(profile)) {
+  if (length(profile)) {
     fmt <- "* (%s) Project '%s' loaded. [renv %s]"
     vwritef(fmt, profile, aliased_path(project), version)
   } else {
