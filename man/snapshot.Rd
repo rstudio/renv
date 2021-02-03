@@ -92,8 +92,8 @@ by writing e.g. \verb{library(<package>)} into a file called \code{dependencies.
 
 \item{\code{"explicit"}}{
 Only capture packages which are explicitly listed in the project
-\code{DESCRIPTION} file. This workflow is recommended for users who wish to more
-explicitly manage a project's \R package dependencies.
+\code{DESCRIPTION} file. This workflow is recommended for users who wish to
+manage their project's \R package dependencies directly.
 }
 
 \item{\code{"custom"}}{
