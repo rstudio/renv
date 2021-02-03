@@ -11,7 +11,7 @@ test_that("a profile changes the default library / lockfile path", {
 
   # NOTE: renv/profile should not be written here as we've only forced
   # activation via an environment variable and not explicitly via API
-  profile <- file.path(project, "renv/profile")
+  profile <- file.path(project, "renv/local/profile")
   expect_false(file.exists(profile))
 
   # however, other paths should resolve relative to the active profile

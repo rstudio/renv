@@ -390,7 +390,7 @@ renv_bootstrap_profile_load <- function(project) {
     return(profile)
 
   # check for a profile file (nothing to do if it doesn't exist)
-  path <- file.path(project, "renv/profile")
+  path <- file.path(project, "renv/local/profile")
   if (!file.exists(path))
     return(NULL)
 

@@ -428,7 +428,7 @@ local({
       return(profile)
   
     # check for a profile file (nothing to do if it doesn't exist)
-    path <- file.path(project, "renv/profile")
+    path <- file.path(project, "renv/local/profile")
     if (!file.exists(path))
       return(NULL)
   
@@ -458,7 +458,11 @@ local({
   }
   
   renv_bootstrap_profile_set <- function(profile) {
-    Sys.setenv(RENV_PROFILE = profile)
+    profile <- renv_bootstrap_profile_normalize(profile)
+    if (is.null(profile))
+      Sys.unsetenv("RENV_PROFILE")
+    else
+      Sys.setenv(RENV_PROFILE = profile)
   }
   
   renv_bootstrap_profile_normalize <- function(profile) {

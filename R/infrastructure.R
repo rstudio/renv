@@ -15,7 +15,7 @@ renv_infrastructure_write <- function(project = NULL,
 
 renv_infrastructure_write_profile <- function(project, profile = NULL) {
 
-  path <- file.path(project, "renv/profile")
+  path <- file.path(project, "renv/local/profile")
   ensure_parent_directory(path)
 
   profile <- renv_profile_normalize(profile)
@@ -64,7 +64,7 @@ renv_infrastructure_write_gitignore <- function(project) {
   stk <- if (settings$vcs.ignore.library()) add else remove
   stk$push("library/")
 
-  add$push("lock/", "python/", "staging/")
+  add$push("local/", "lock/", "python/", "staging/")
 
   renv_infrastructure_write_entry_impl(
     add    = as.character(add$data()),
