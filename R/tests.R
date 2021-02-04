@@ -47,6 +47,12 @@ renv_tests_root <- function(path = getwd()) {
 
 renv_tests_root_impl <- function(path = getwd()) {
 
+  # if we're working in an RStudio project, we can cheat
+  if (exists(".rs.getProjectDirectory")) {
+    projroot <- get(".rs.getProjectDirectory")
+    return(file.path(projroot(), "tests/testthat"))
+  }
+
   # construct set of paths we'll hunt through
   slashes <- gregexpr("(?:/|$)", path)[[1]]
   parts <- substring(path, 1, slashes - 1)
@@ -476,4 +482,9 @@ renv_tests_report <- function(test, elapsed, expectations) {
   # write it out
   cli::cat_bullet(all)
 
+}
+
+renv_tests_path <- function(path) {
+  root <- renv_tests_root()
+  file.path(root, path)
 }

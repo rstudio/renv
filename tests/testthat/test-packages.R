@@ -3,7 +3,8 @@ context("Packages")
 
 test_that("remote field updates are written to both DESCRIPTION, packages.rds", {
 
-  url <- renv_path_normalize("local/skeleton/skeleton_1.0.1.tar.gz")
+  url <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
+
   record <- list(
     Package    = "skeleton",
     Version    = "1.0.1",
