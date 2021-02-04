@@ -336,6 +336,9 @@ renv_test_retrieve <- function(record) {
 
   renv_scope_error_handler()
 
+  # avoid using cache
+  renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+
   # construct records
   package <- record$Package
   records <- list(record)
@@ -364,7 +367,11 @@ renv_test_retrieve <- function(record) {
 
   desc <- renv_description_read(descpath)
   fields <- grep("^Remote", names(record), value = TRUE)
-  testthat::expect_identical(as.list(desc[fields]), as.list(record[fields]))
+
+  testthat::expect_identical(
+    as.list(desc[fields]),
+    as.list(record[fields])
+  )
 
 }
 

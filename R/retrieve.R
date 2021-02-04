@@ -394,15 +394,15 @@ renv_retrieve_libpaths_impl <- function(record, libpath) {
 renv_retrieve_explicit <- function(record) {
 
   # try parsing as a local remote
-  source <- record$Source %||% record$RemoteUrl %||% ""
-  record <- catch(renv_remotes_resolve_local(source))
-  if (inherits(record, "error"))
+  source <- record$Path %||% record$RemoteUrl %||% ""
+  resolved <- catch(renv_remotes_resolve_path(source))
+  if (inherits(resolved, "error"))
     return(FALSE)
 
   # treat as 'local' source but extract path
   normalized <- renv_path_normalize(source, winslash = "/", mustWork = TRUE)
-  record$Source <- "Local"
-  renv_retrieve_successful(record, normalized)
+  resolved$Source <- "Local"
+  renv_retrieve_successful(resolved, normalized)
 
 }
 

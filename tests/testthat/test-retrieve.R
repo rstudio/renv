@@ -206,7 +206,7 @@ test_that("compatible local sources are preferred when available", {
 
 test_that("an explicitly-provided local source path can be used", {
 
-  source <- normalizePath("local/skeleton/skeleton_1.0.1.tar.gz")
+  source <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
 
   owd <- setwd(tempdir())
   on.exit(setwd(owd), add = TRUE)
@@ -241,7 +241,7 @@ test_that("remotes::install_local() records are handled", {
     Package    = "skeleton",
     Version    = "1.0.1",
     Source     = "local",
-    RemoteUrl  = "local/skeleton/skeleton_1.0.1.tar.gz"
+    RemoteUrl  = renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
   )
 
   renv_test_retrieve(record)

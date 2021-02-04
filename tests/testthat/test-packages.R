@@ -13,7 +13,7 @@ test_that("remote field updates are written to both DESCRIPTION, packages.rds", 
   )
 
   renv_tests_scope()
-  renv::install(packages = list(record))
+  install(packages = list(record))
 
   pkgpath <- renv_package_find("skeleton")
 

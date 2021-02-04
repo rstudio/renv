@@ -103,3 +103,19 @@ test_that("custom hosts can be supplied", {
   expect_equal(parsed, expected)
 
 })
+
+test_that("paths specified with '.' are treated as local", {
+
+  renv_tests_scope()
+
+  writeLines(con = "DESCRIPTION", c(
+    "Type: Package",
+    "Package: test",
+    "Version: 1.0"
+  ))
+
+  entry <- renv_remotes_resolve(".")
+  expect_equal(entry$Package, "test")
+  expect_equal(entry$Version, "1.0")
+
+})

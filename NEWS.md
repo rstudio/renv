@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv::install(".")` can now be used to install a package from sources within
+  the current working directory. (#634)
+
 * Fixed an issue where `renv::update()` could fail if a package installed from
   GitHub was missing the `RemoteHost` field in its DESCRIPTION file. (#632)
 

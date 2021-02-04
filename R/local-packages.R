@@ -40,10 +40,9 @@ renv_local_packages_latest <- function(package, project) {
 
   entry <- db[1, ]
   list(
-    Package   = entry$Package,
-    Version   = entry$Version,
-    Source    = "Local",
-    RemoteUrl = entry$Path
+    Package = entry$Package,
+    Version = entry$Version,
+    Source  = "Local"
   )
 
 }
