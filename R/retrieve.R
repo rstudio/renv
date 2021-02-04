@@ -191,7 +191,8 @@ renv_retrieve_bioconductor <- function(record) {
 renv_retrieve_bitbucket <- function(record) {
 
   # query repositories endpoint to find download URL
-  origin <- renv_retrieve_origin(record$RemoteHost %||% "api.bitbucket.org/2.0")
+  host <- record$RemoteHost %||% config$bitbucket.host()
+  origin <- renv_retrieve_origin(host)
   username <- record$RemoteUsername
   repo <- record$RemoteRepo
 
@@ -217,7 +218,8 @@ renv_retrieve_bitbucket <- function(record) {
 
 renv_retrieve_github <- function(record) {
 
-  origin <- renv_retrieve_origin(record$RemoteHost %||% "api.github.com")
+  host <- record$RemoteHost %||% config$github.host()
+  origin <- renv_retrieve_origin(host)
   username <- record$RemoteUsername
   repo <- record$RemoteRepo
   ref <- record$RemoteSha %||% record$RemoteRef

@@ -1,8 +1,30 @@
 
 renv_patch_init <- function() {
+  renv_patch_rprofile()
   renv_patch_tar()
   renv_patch_golem()
   renv_patch_methods_table()
+}
+
+renv_patch_rprofile <- function() {
+
+  # resolve path to user profile
+  path <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
+  info <- file.info(path, extra_cols = FALSE)
+  if (!identical(info$isdir, FALSE))
+    return(FALSE)
+
+  # check for trailing newline
+  data <- readBin(path, raw(), n = info$size)
+  last <- data[length(data)]
+  endings <- as.raw(c(0x0a, 0x0d))
+  if (last %in% endings)
+    return(TRUE)
+
+  # if it's missing, inform the user
+  warningf("%s is missing a trailing newline", renv_path_pretty(path))
+  FALSE
+
 }
 
 renv_patch_tar <- function() {

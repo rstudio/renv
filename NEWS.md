@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where `renv::update()` could fail if a package installed from
+  GitHub was missing the `RemoteHost` field in its DESCRIPTION file. (#632)
+
 * `renv` now has support for custom project profiles. Profiles can be used to
   activate different sets of project libraries + lockfiles for different workflows
   in a given project. See `vignette("profiles", package = "renv")` for more

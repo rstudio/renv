@@ -54,7 +54,7 @@ renv_update_find_github_impl <- function(record) {
     return(NULL)
 
   # construct and parse record entry
-  host   <- record$RemoteHost
+  host   <- record$RemoteHost %||% config$github.host()
   user   <- record$RemoteUsername
   repo   <- record$RemoteRepo
   subdir <- record$RemoteSubdir
