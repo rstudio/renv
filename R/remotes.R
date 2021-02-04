@@ -258,16 +258,29 @@ renv_remotes_resolve_github_sha_pull <- function(host, user, repo, pull) {
 
 renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
 
+  # build url for github endpoint
   fmt <- "%s/repos/%s/%s/commits/%s"
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, ref %||% "master")
+
+  # prepare headers
   headers <- c(Accept = "application/vnd.github.v2.sha")
+
+  # make request to endpoint
   shafile <- renv_tempfile_path("renv-sha-")
-  download(url, destfile = shafile, type = "github", quiet = TRUE, headers = headers)
+  download(
+    url,
+    destfile = shafile,
+    type = "github",
+    quiet = TRUE,
+    headers = headers
+  )
+
+  # read downloaded content
   sha <- renv_file_read(shafile)
 
   # check for JSON response (in case our headers weren't sent)
-  if (nchar(sha) > 40) {
+  if (nchar(sha) > 40L) {
     json <- renv_json_read(text = sha)
     sha <- json$sha
   }

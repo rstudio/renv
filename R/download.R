@@ -10,13 +10,18 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   override <- getOption("renv.download.override")
   if (is.function(override)) {
 
-    result <- override(
-      url      = url,
-      destfile = destfile,
-      quiet    = quiet,
-      mode     = "wb",
-      headers  = headers
+    result <- catch(
+      override(
+        url      = url,
+        destfile = destfile,
+        quiet    = quiet,
+        mode     = "wb",
+        headers  = headers
+      )
     )
+
+    if (inherits(result, "error"))
+      renv_download_error(result, "%s", conditionMessage(result))
 
     return(destfile)
 
@@ -76,18 +81,18 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 
   # check for failure
   if (inherits(status, "error"))
-    stopf("download failed [%s]", conditionMessage(status))
+    renv_download_error(url, "%s", conditionMessage(status))
 
   if (status != 0L)
-    stopf("download failed [error code %i]", status)
+    renv_download_error(url, "error code %i", status)
 
   if (!file.exists(tempfile))
-    stopf("download failed [unknown reason]")
+    renv_download_error(url, "%s", "unknown reason")
 
   # double-check archives are readable
   status <- renv_download_check_archive(tempfile)
   if (inherits(status, "error"))
-    stopf("download failed [archive cannot be read]")
+    renv_download_error(url, "%s", "archive cannot be read")
 
   # everything looks ok: report success
   renv_download_report(after - before, tempfile)
@@ -288,15 +293,8 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   )
 
   status <- attr(output, "status", exact = TRUE) %||% 0L
-  if (status != 0L) {
+  if (status != 0L)
     warning(output, call. = FALSE)
-    if (renv_tests_running() && renv_tests_verbose()) {
-      writeLines("")
-      writeLines(text)
-      writeLines(output)
-      writeLines("")
-    }
-  }
 
   status
 
@@ -775,4 +773,9 @@ renv_download_available_fallback <- function(url, destfile, headers) {
 
   identical(status, 0L)
 
+}
+
+renv_download_error <- function(url, fmt, ...) {
+  msg <- sprintf(fmt, ...)
+  stopf("failed to retrieve '%s' [%s]", url, msg, call. = FALSE)
 }
