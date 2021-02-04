@@ -1,6 +1,47 @@
 
 context("Cache")
 
+# test_that("multiple cache directories are used", {
+#   skip_on_cran()
+#
+#   # use a temporary cache for this test as we're going
+#   # to mutate and invalidate it
+#   tempcache1 <- tempfile("renv-tempcache-")
+#   ensure_directory(tempcache1)
+#   tempcache2 <- tempfile("renv-tempcache-")
+#   ensure_directory(tempcache2)
+#   browser()
+#   on.exit({
+#     unlink(tempcache1, recursive = TRUE)
+#     unlink(tempcache2, recursive = TRUE)
+#   }, add = TRUE)
+#   renv_scope_envvars(RENV_PATHS_CACHE = paste(tempcache1, tempcache2, sep = ";"))
+#
+#   # initialize project
+#   renv_tests_scope("breakfast")
+#   renv::init()
+#
+#   # find packages in the cache
+#   cache <- renv_cache_list()
+#
+#   # diagnostics for missing DESCRIPTION
+#   bread <- renv_cache_list(packages = "bread")
+#   descpath <- file.path(bread, "DESCRIPTION")
+#   unlink(descpath)
+#
+#   # diagnostics for bad hash
+#   breakfast <- renv_cache_list(packages = "breakfast")
+#   descpath <- file.path(breakfast, "DESCRIPTION")
+#   desc <- renv_description_read(descpath)
+#   desc$Version <- "2.0.0"
+#   renv_dcf_write(desc, file = descpath)
+#
+#   # check problems explicitly
+#   problems <- renv_cache_diagnose(verbose = FALSE)
+#   expect_true(nrow(problems) == 2)
+#
+# })
+
 test_that("issues within the cache are reported", {
   skip_on_cran()
 

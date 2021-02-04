@@ -17,6 +17,9 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
     Sys.getenv(envvar, unset = NA) %NA%
     renv_paths_root(name)
 
+  if (identical(name, "cache") && grepl(";", root, fixed = TRUE))
+    root <- strsplit(root, ";", fixed = TRUE)[[1]]
+
   # form rest of path
   prefixed <- if (length(prefixes))
     file.path(root, paste(prefixes, collapse = "/"))
