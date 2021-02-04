@@ -31,19 +31,34 @@ renv_path_normalize_unix <- function(path,
 # this isn't 100% reliable (not all paths have a short-path equivalent)
 # but seems to be good enough in practice ...
 #
-# except that, if the path contains characters not representable in the
-# current encoding, then attempting to normalize the short version of
-# that path will fail -- so if the path is already UTF-8, then we need to
-# avoid round-tripping through the short path
+# except that, if the path contains characters that cannot be represented in the
+# current encoding, then attempting to normalize the short version of that path
+# will fail -- so if the path is already UTF-8, then we need to avoid
+# round-tripping through the short path.
+#
+# furthermore, it appears that shortPathName() can mis-encode its result for
+# strings marked with latin1 encoding?
+# https://github.com/rstudio/renv/issues/629
 #
 # https://github.com/rstudio/renv/issues/629
 renv_path_normalize_win32 <- function(path,
                                       winslash = "/",
                                       mustWork = FALSE)
 {
-  utf8 <- Encoding(path) == "UTF-8"
-  path[utf8]  <- normalizePath(path[utf8], winslash, mustWork)
-  path[!utf8] <- renv_path_normalize_win32_impl(path[!utf8], winslash, mustWork)
+  # get encoding for this set of paths
+  enc <- Encoding(path)
+
+  # perform separate operations for each
+  utf8    <- enc == "UTF-8"
+  latin1  <- enc == "latin1"
+  unknown <- enc == "unknown"
+
+  # normalize based on their encoding
+  path[utf8]    <- normalizePath(path[utf8], winslash, mustWork)
+  path[latin1]  <- normalizePath(path[latin1], winslash, mustWork)
+  path[unknown] <- renv_path_normalize_win32_impl(path[unknown], winslash, mustWork)
+
+  # return resulting path
   path
 }
 
