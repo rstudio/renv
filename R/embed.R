@@ -12,11 +12,13 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param path The path to an \R or R Markdown script.
+#' @param path
+#'   The path to an \R or R Markdown script.
 #'
-#' @param lockfile The path to an `renv` lockfile. When `NULL` (the default),
-#'   the project lockfile will be read (if any); otherwise, a new lockfile
-#'   will be generated from the current library paths.
+#' @param lockfile
+#'   The path to an `renv` lockfile. When `NULL` (the default), the project
+#'   lockfile will be read (if any); otherwise, a new lockfile will be generated
+#'   from the current library paths.
 embed <- function(path = NULL,
                   ...,
                   lockfile = NULL,

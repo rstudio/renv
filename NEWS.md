@@ -1,6 +1,12 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` gains a new function, `renv::use()`, used to download, install, and
+  load a set of packages directly within an R script. `renv::use()` can make it
+  easier to share a standalone R script, with the packages required to install
+  that script embedded directly in the script. It is inspired in part by the
+  [groundhog](https://groundhogr.com/) package.
+
 * `renv::install(".")` can now be used to install a package from sources within
   the current working directory. (#634)
 
