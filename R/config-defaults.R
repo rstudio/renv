@@ -120,6 +120,15 @@ config <- list(
     )
   },
 
+  install.shortcuts = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "install.shortcuts",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   install.staged = function(..., default = TRUE) {
     renv_config_get(
       name    = "install.staged",

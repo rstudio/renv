@@ -1,6 +1,11 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv` gains a new configuration option, `install.shortcuts`. When enabled,
+  if `renv` discovers that a package to be installed is already available in
+  the user or site libraries, `renv` will instead install a copy of that package
+  into the project library. (#636)
+
 * `renv` gains a new function, `renv::use()`, used to download, install, and
   load a set of packages directly within an R script. `renv::use()` can make it
   easier to share a standalone R script, with the packages required to install

@@ -66,6 +66,8 @@ Defaults to \code{"api.github.com"}.}
 Defaults to \code{"gitlab.com"}.}
 \item{\bold{\code{renv.config.hydrate.libpaths}}}{A character vector of library paths, to be used by \code{\link[=hydrate]{hydrate()}} when attempting to hydrate projects. When empty, the default set of library paths (as documented in \code{?hydrate}) are used instead. See \code{\link[=hydrate]{hydrate()}} for more details.
 Defaults to \code{NULL}.}
+\item{\bold{\code{renv.config.install.shortcuts}}}{Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if \code{renv} discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
+Defaults to \code{TRUE}.}
 \item{\bold{\code{renv.config.install.staged}}}{DEPRECATED: Please use \code{renv.config.install.transactional} instead.
 Defaults to \code{TRUE}.}
 \item{\bold{\code{renv.config.install.transactional}}}{Perform a transactional install of packages during install and restore? When enabled, \code{renv} will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.

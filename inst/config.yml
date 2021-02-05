@@ -105,6 +105,15 @@
     when attempting to hydrate projects. When empty, the default set of library paths
     (as documented in `?hydrate`) are used instead. See [`hydrate()`] for more details.
 
+- name: "install.shortcuts"
+  type: "logical[1]"
+  default: true
+  description: >
+    Allow for a set of 'shortcuts' when installing packages with renv? When
+    enabled, if `renv` discovers that a package to be installed is already
+    available within the user or site libraries, then it will install a
+    local copy of that package.
+
 - name: "install.staged"
   type: "logical[1]"
   default: true

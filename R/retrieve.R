@@ -126,7 +126,7 @@ renv_retrieve_impl <- function(package) {
     shortcuts <- c(
       renv_retrieve_explicit,
       renv_retrieve_local,
-      if (!renv_tests_running())
+      if (!renv_tests_running() && config$install.shortcuts())
         renv_retrieve_libpaths
     )
 
