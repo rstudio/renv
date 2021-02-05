@@ -380,7 +380,7 @@ renv_retrieve_libpaths_impl <- function(record, libpath) {
   desc <- renv_description_read(path = source)
 
   # check if it's compatible with the requested record
-  fields <- c("Package", "Version", grep("^Remote", names(record)))
+  fields <- c("Package", "Version", grep("^Remote", names(record), value = TRUE))
   compatible <- identical(record[fields], desc[fields])
   if (!compatible)
     return(FALSE)
