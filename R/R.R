@@ -23,7 +23,7 @@ r_exec <- function(args, ...) {
 
 }
 
-r_exec_error <- function(package, output, label) {
+r_exec_error <- function(package, output, label, extra) {
 
   # installation failed; write output for user
   fmt <- "Error %sing package '%s':"
@@ -40,8 +40,14 @@ r_exec_error <- function(package, output, label) {
     all <- c(all, paste(dividers, diagnostics, collapse = "\n\n"))
   }
 
+  # normalize 'extra'
+  extra <- if (is.integer(extra))
+    paste("error code", extra)
+  else
+    paste(renv_path_pretty(extra), "does not exist")
+
   # stop with an error
-  message <- sprintf("%s of package '%s' failed", label, package)
+  message <- sprintf("%s of package '%s' failed [%s]", label, package, extra)
   error <- simpleError(message = message)
   error$output <- all
   stop(error)
@@ -174,8 +180,10 @@ r_cmd_install <- function(package, path, ...) {
       stopf("install of package '%s' failed", package)
 
     installpath <- file.path(library, package)
-    if (!file.exists(installpath))
-      stopf("install of package '%s' failed [unknown reason]", package)
+    if (!file.exists(installpath)) {
+      fmt <- "install of package '%s' failed: %s does not exist"
+      stopf(fmt, package, renv_path_pretty(installpath))
+    }
 
     installpath
 
@@ -184,11 +192,11 @@ r_cmd_install <- function(package, path, ...) {
     output <- r_exec(args, stdout = TRUE, stderr = TRUE)
     status <- attr(output, "status") %||% 0L
     if (!identical(status, 0L))
-      r_exec_error(package, output, "install")
+      r_exec_error(package, output, "install", status)
 
     installpath <- file.path(library, package)
     if (!file.exists(installpath))
-      r_exec_error(package, output, "install")
+      r_exec_error(package, output, "install", installpath)
 
     installpath
 
@@ -205,7 +213,7 @@ r_cmd_build <- function(package, path, ...) {
   output <- r_exec(args, stdout = TRUE, stderr = TRUE)
   status <- attr(output, "status") %||% 0L
   if (!identical(status, 0L))
-    r_exec_error(package, output, "build")
+    r_exec_error(package, output, "build", status)
 
   pasted <- paste(output, collapse = "\n")
   pattern <- "[*] building .([a-zA-Z0-9_.-]+)."
@@ -214,7 +222,7 @@ r_cmd_build <- function(package, path, ...) {
 
   tarball <- text[[1]][[2]]
   if (!file.exists(tarball))
-    r_exec_error(package, output, "build")
+    r_exec_error(package, output, "build", tarball)
 
   file.path(getwd(), tarball)
 
