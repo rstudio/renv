@@ -744,7 +744,7 @@ renv_download_available <- function(url) {
       destfile = destfile,
       type     = NULL,
       request  = "GET",
-      headers  = NULL
+      headers  = headers
     )
   )
 
