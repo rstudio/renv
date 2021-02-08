@@ -42,7 +42,7 @@ renv_filebacked_set <- function(scope, path, value) {
 
   # store it
   envir <- renv_filebacked_envir(scope)
-  assign(enc2native(path), entry, envir = envir)
+  assign(path, entry, envir = envir)
   invisible(value)
 
 }
@@ -56,7 +56,7 @@ renv_filebacked_get <- function(scope, path) {
   envir <- renv_filebacked_envir(scope)
 
   # check for entry in the cache
-  entry <- envir[[enc2native(path)]]
+  entry <- envir[[path]]
   if (is.null(entry))
     return(NULL)
 

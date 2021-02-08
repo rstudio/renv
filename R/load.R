@@ -55,6 +55,7 @@ load <- function(project = getwd(), quiet = FALSE) {
   }
 
   # load rest of renv components
+  renv_load_init(project)
   renv_load_path(project)
   renv_load_shims(project)
   renv_load_renviron(project)
@@ -133,6 +134,24 @@ renv_load_r_repos <- function(repos) {
 
   # and return
   repos
+
+}
+
+renv_load_init <- function(project) {
+
+  # warn if the project path cannot be translated into the native encoding,
+  # as (especially on Windows) this will likely prevent renv from working
+  actual <- enc2utf8(project)
+  expected <- catch(enc2utf8(enc2native(actual)))
+  if (identical(actual, expected))
+    return(TRUE)
+
+  msg <- paste(
+    "the project path cannot be represented in the native encoding;",
+    "renv may not function as expected"
+  )
+
+  warning(msg)
 
 }
 
