@@ -458,25 +458,35 @@ renv_retrieve_repos <- function(record) {
   }
 
   # if we couldn't download the package, report the errors we saw
-  data <- errors$data()
-  if (length(data)) {
+  renv_retrieve_repos_error_report(record, errors$data())
+  stopf("failed to retrieve package '%s'", record$Package)
 
-    fmt <- "The following error(s) occurred while retrieving '%s':"
-    preamble <- sprintf(fmt, record$Package)
+}
 
-    messages <- extract(errors$data(), "message")
-    renv_pretty_print(
-      values   = paste("-", messages),
-      preamble = preamble,
-      wrap     = FALSE
-    )
+renv_retrieve_repos_error_report <- function(record, errors) {
 
-  }
+  if (empty(errors))
+    return()
+
+  messages <- extract(errors, "message")
+  if (empty(messages))
+    return()
+
+  messages <- unlist(messages, recursive = TRUE, use.names = FALSE)
+  if (empty(messages))
+    return()
+
+  fmt <- "The following error(s) occurred while retrieving '%s':"
+  preamble <- sprintf(fmt, record$Package)
+
+  renv_pretty_print(
+    values   = paste("-", messages),
+    preamble = preamble,
+    wrap     = FALSE
+  )
 
   if (renv_tests_running() && renv_tests_verbose())
-    str(data)
-
-  stopf("failed to retrieve package '%s'", record$Package)
+    str(errors)
 
 }
 
