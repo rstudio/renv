@@ -176,6 +176,10 @@ renv_download_default <- function(url, destfile, type, request, headers) {
   fmls <- formals(download.file)
   args <- keep(args, names(fmls))
 
+  renv_download_trace_begin(url, method)
+  if (renv_download_trace())
+    str(args)
+
   do.call(download.file, args)
 
 }
@@ -224,6 +228,8 @@ renv_download_default_agent_scope_impl <- function(headers, envir = NULL) {
 
 renv_download_curl <- function(url, destfile, type, request, headers) {
 
+  renv_download_trace_begin(url, "curl")
+
   file <- renv_tempfile_path("renv-download-config-")
 
   fields <- c(
@@ -267,16 +273,21 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   if (request == "HEAD")
     flags <- c(flags, "head", "include")
 
+  # put it all together
   text <- c(flags, text)
 
   writeLines(text, con = file)
+  renv_download_trace_request(text)
 
+  # generate the arguments to be passed to 'curl'
   args <- stack()
 
+  # include anything provided explicitly in 'download.file.extra' here
   extra <- getOption("download.file.extra")
   if (length(extra))
     args$push(extra)
 
+  # add in any user configuration files
   userconfig <- getOption(
     "renv.curl.config",
     renv_download_curl_config()
@@ -286,12 +297,17 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
     if (file.exists(entry))
       args$push("--config", shQuote(entry))
 
+  # add in our own config file (the actual request)
   args$push("--config", shQuote(file))
 
+  # perform the download
   output <- suppressWarnings(
     system2("curl", args$data(), stdout = TRUE, stderr = TRUE)
   )
 
+  renv_download_trace_result(output)
+
+  # report non-zero status as warning
   status <- attr(output, "status", exact = TRUE) %||% 0L
   if (status != 0L)
     warning(output, call. = FALSE)
@@ -338,6 +354,8 @@ renv_download_curl_config <- function() {
 
 renv_download_wget <- function(url, destfile, type, request, headers) {
 
+  renv_download_trace_begin(url, "wget")
+
   config <- renv_tempfile_path("renv-download-config-")
 
   fields <- c(
@@ -363,6 +381,7 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
   text <- paste(keys, vals, sep = " = ")
 
   writeLines(text, con = config)
+  renv_download_trace_request(text)
 
   args <- stack()
 
@@ -387,6 +406,8 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
   output <- suppressWarnings(
     system2("wget", args$data(), stdout = TRUE, stderr = TRUE)
   )
+
+  renv_download_trace_result(output)
 
   status <- attr(output, "status", exact = TRUE) %||% 0L
   if (status != 0L)
@@ -778,4 +799,48 @@ renv_download_available_fallback <- function(url, destfile, headers) {
 renv_download_error <- function(url, fmt, ...) {
   msg <- sprintf(fmt, ...)
   stopf("failed to retrieve '%s' [%s]", url, msg, call. = FALSE)
+}
+
+renv_download_trace <- function() {
+  getOption("renv.download.trace", default = FALSE)
+}
+
+renv_download_trace_begin <- function(url, type) {
+
+  if (!renv_download_trace())
+    return()
+
+  fmt <- "Downloading '%s' [%s]"
+  msg <- sprintf(fmt, url, type)
+
+  title <- header(msg, n = 78L)
+  writeLines(c(title, ""))
+
+}
+
+renv_download_trace_request <- function(text) {
+
+  if (!renv_download_trace())
+    return()
+
+  title <- header("Request", n = 78L, prefix = "##")
+  writeLines(c(title, text, ""))
+
+}
+
+renv_download_trace_result <- function(output) {
+
+  if (!renv_download_trace())
+    return()
+
+  title <- header("Output", prefix = "##", n = 78L)
+  text <- if (empty(output)) "[no output generated]" else output
+  all <- c(title, text, "")
+  writeLines(all)
+
+  status <- attr(output, "status", exact = TRUE) %||% 0L
+  title <- header("Status", prefix = "##", n = 78L)
+  all <- c(title, status, "")
+  writeLines(all)
+
 }
