@@ -134,5 +134,12 @@ test_that("downloads work with UNC paths on Windows", {
 
 test_that("we can check that a URL is available", {
   skip_on_cran()
-  expect_true(renv_download_available("https://www.google.com"))
+
+  url <- "https://www.google.com"
+  expect_true(renv_download_available(url))
+
+  # also test the different methods
+  expect_true(renv_download_available_headers(url))
+  expect_true(renv_download_available_range(url))
+  expect_true(renv_download_available_fallback(url))
 })

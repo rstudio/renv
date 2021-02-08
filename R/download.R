@@ -741,51 +741,86 @@ renv_download_available <- function(url) {
   # slashes, even on Windows where the native separator is backslash)
   url <- chartr("\\", "/", url)
 
-  # add custom headers as appropriate for the URL
-  headers <- renv_download_custom_headers(url)
-
   # on Windows, try using our local curl binary if available
   renv_scope_downloader()
-
-  # provide download path
-  destfile <- renv_tempfile_path("renv-download-")
 
   # if we're not using curl, then use fallback method
   method <- renv_download_file_method()
   if (!identical(method, "curl"))
-    return(renv_download_available_fallback(url, destfile, headers))
+    return(renv_download_available_fallback(url))
 
-  # instruct curl to request only first byte
-  extra <- c(getOption("download.file.extra"), "-r 0-0")
-  renv_scope_options(download.file.extra = paste(extra, collapse = " "))
+  # otherwise, try a couple candidate methods
+  methods <- list(
+    renv_download_available_headers,
+    renv_download_available_range
+  )
+
+  for (method in methods) {
+    result <- catch(method(url))
+    if (identical(result, TRUE))
+      return(TRUE)
+  }
+
+  FALSE
+
+}
+
+renv_download_available_headers <- function(url) {
 
   status <- catchall(
-    renv_download_curl(
-      url      = url,
-      destfile = destfile,
-      type     = NULL,
-      request  = "GET",
-      headers  = headers
+    renv_download_headers(
+      url     = url,
+      type    = NULL,
+      headers = renv_download_custom_headers(url)
     )
   )
 
   if (inherits(status, "condition"))
     return(FALSE)
 
+  is.list(status) && length(status)
+
+}
+
+renv_download_available_range <- function(url) {
+
+  destfile <- renv_tempfile_path("renv-download-")
+
+  # instruct curl to request only first byte
+  extra <- c(getOption("download.file.extra"), "-r 0-0")
+  renv_scope_options(download.file.extra = paste(extra, collapse = " "))
+
+  # perform the download
+  status <- catchall(
+    renv_download_curl(
+      url      = url,
+      destfile = destfile,
+      type     = NULL,
+      request  = "GET",
+      headers  = renv_download_custom_headers(url)
+    )
+  )
+
+  if (inherits(status, "condition"))
+    return(FALSE)
+
+  # check for success
   identical(status, 0L)
 
 }
 
-renv_download_available_fallback <- function(url, destfile, headers) {
+renv_download_available_fallback <- function(url) {
 
-  # just try downloading it
+  destfile <- renv_tempfile_path("renv-download-")
+
+  # just try downloading the requested URL
   status <- catchall(
     renv_download_impl(
       url      = url,
       destfile = destfile,
       type     = NULL,
       request  = "GET",
-      headers  = headers
+      headers  = renv_download_custom_headers(url)
     )
   )
 
