@@ -348,9 +348,11 @@ renv_available_packages_latest_mran <- function(package, type = NULL) {
   keys <- ls(envir = entry)
   pattern <- paste0("^", package, " ")
   matching <- grep(pattern, keys, perl = TRUE, value = TRUE)
-  entries <- unlist(mget(matching, envir = entry))
+  if (empty(matching))
+    stopf("package '%s' is not available from MRAN", package)
 
   # take the latest-available package
+  entries <- unlist(mget(matching, envir = entry))
   sorted <- sort(entries, decreasing = TRUE)
   key <- names(sorted)[[1L]]
   idate <- sorted[[1L]]
