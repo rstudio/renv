@@ -1,5 +1,5 @@
 
-renv_tests_scope <- function(packages = character()) {
+renv_tests_scope <- function(packages = character(), project = NULL) {
 
   renv_tests_init()
 
@@ -10,7 +10,7 @@ renv_tests_scope <- function(packages = character()) {
   Sys.setenv(RENV_PATHS_LOCAL = file.path(renv_tests_root(), "local"))
 
   # move to own test directory
-  dir <- tempfile("renv-test-")
+  dir <- project %||% tempfile("renv-test-")
   ensure_directory(dir)
   dir <- renv_path_normalize(dir, winslash = "/")
   owd <- setwd(dir)
