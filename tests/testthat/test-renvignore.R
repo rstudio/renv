@@ -31,38 +31,36 @@ test_that("ignore patterns are constructed correctly", {
   # ignore all data directories in project
   expect_equal(
     renv_renvignore_parse_impl("data", "/project"),
-    "^\\Q/project/\\E(?:(?:.*/)?\\Qdata\\E$)"
+    "^\\Q/project/\\E(?:.*/)?\\Qdata\\E$"
   )
 
   # ignore data directory at root of project
   expect_equal(
     renv_renvignore_parse_impl("/data", "/project"),
-    "^\\Q/project/\\E(?:\\Qdata\\E$)"
+    "^\\Q/project/\\E\\Qdata\\E$"
   )
 
-  # ignores are combined correctly
+  # multiple ignores are parsed separately
   expect_equal(
     renv_renvignore_parse_impl(c("/data1", "/data2"), "/project"),
-    "^\\Q/project/\\E(?:\\Qdata1\\E$|\\Qdata2\\E$)"
-  )
-
-  expect_equal(
-    renv_renvignore_parse_impl(c("data1", "data2"), "/project"),
-    "^\\Q/project/\\E(?:(?:.*/)?\\Qdata1\\E$|(?:.*/)?\\Qdata2\\E$)"
+    c(
+      "^\\Q/project/\\E\\Qdata1\\E$",
+      "^\\Q/project/\\E\\Qdata2\\E$"
+    )
   )
 
   # sub-directory ignores are handled
   expect_equal(
     renv_renvignore_parse_impl("data/internal", "/project"),
-    "^\\Q/project/\\E(?:\\Qdata/internal\\E$)"
+    "^\\Q/project/\\E\\Qdata/internal\\E$"
   )
 
   # negations are handled
   expect_equal(
     renv_renvignore_parse(c("abc.R", "!def.R")),
     list(
-      exclude = "^\\Q/\\E(?:(?:.*/)?\\Qabc.R\\E$)",
-      include = "^\\Q/\\E(?:(?:.*/)?\\Qdef.R\\E$)"
+      exclude = "^\\Q/\\E(?:.*/)?\\Qabc.R\\E$",
+      include = "^\\Q/\\E(?:.*/)?\\Qdef.R\\E$"
     )
   )
 

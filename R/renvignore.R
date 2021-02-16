@@ -122,11 +122,7 @@ renv_renvignore_parse_impl <- function(entries, prefix = "") {
 renv_renvignore_exec <- function(path, root, children) {
 
   patterns <- renv_renvignore_pattern(path, root)
-  if (empty(patterns))
-    return(children)
-
-  # if we don't have an exclusion pattern, keep everything
-  if (empty(patterns$exclude))
+  if (empty(patterns) || empty(patterns$exclude))
     return(children)
 
   # get the entries that need to be excluded
@@ -135,15 +131,19 @@ renv_renvignore_exec <- function(path, root, children) {
     if (nzchar(pattern))
       excludes <- excludes | grepl(pattern, children, perl = TRUE)
 
-  # now, check for entries that should be explicitly included
-  # (note that these override any excludes)
-  includes <- logical(length = length(children))
-  for (pattern in patterns$include)
-    if (nzchar(pattern))
-      includes <- includes | grepl(pattern, children, perl = TRUE)
+  if (length(patterns$include)) {
 
-  # unset those excludes
-  excludes[includes] <- FALSE
+    # check for entries that should be explicitly included
+    # (note that these override any excludes)
+    includes <- logical(length = length(children))
+    for (pattern in patterns$include)
+      if (nzchar(pattern))
+        includes <- includes | grepl(pattern, children, perl = TRUE)
+
+    # unset those excludes
+    excludes[includes] <- FALSE
+
+  }
 
   # keep paths not explicitly excluded
   children[!excludes]
