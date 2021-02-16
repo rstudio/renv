@@ -15,7 +15,7 @@ renv_ci_dependencies <- function() {
   revdeps <- tools::package_dependencies(packages, recursive = TRUE)
 
   # collapse into unique list
-  all <- unique(unlist(revdeps))
+  all <- sort(unique(unlist(revdeps)))
 
   # get versions of these dependencies
   db <- as.data.frame(
