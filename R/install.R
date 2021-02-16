@@ -162,6 +162,17 @@ install <- function(packages = NULL,
   # install retrieved records
   renv_install(records)
 
+  # a bit of extra test reporting
+  if (renv_tests_running()) {
+    fmt <- "Installed %i %s into library at path %s."
+    vwritef(
+      fmt,
+      length(records),
+      plural("package", length(records)),
+      renv_path_pretty(renv_libpaths_default())
+    )
+  }
+
   # check loaded packages and inform user if out-of-sync
   renv_install_postamble(names(records))
 

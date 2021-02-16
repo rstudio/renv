@@ -127,8 +127,8 @@ renv_paths_root_default <- function() {
   if (consenting)
     return(path)
 
-  consent <- identical(getOption("renv.consent"), TRUE)
-  if (consent) {
+  consented <- renv_consent_check()
+  if (consented) {
     ensure_directory(path)
     return(path)
   }

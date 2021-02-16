@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.12.5"
+  version <- "0.12.5-56"
 
   # the project directory
   project <- getwd()
@@ -73,7 +73,7 @@ local({
     repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
   
     # add in renv.bootstrap.repos if set
-    default <- c(CRAN = "https://cloud.r-project.org")
+    default <- c(FALLBACK = "https://cloud.r-project.org")
     extra <- getOption("renv.bootstrap.repos", default = default)
     repos <- c(repos, extra)
   
@@ -136,24 +136,46 @@ local({
   
     repos <- renv_bootstrap_download_cran_latest_find(version)
   
-    message("* Downloading renv ", version, " from CRAN ... ", appendLF = FALSE)
+    message("* Downloading renv ", version, " ... ", appendLF = FALSE)
   
-    info <- tryCatch(
-      utils::download.packages(
-        pkgs = "renv",
-        repos = repos,
-        destdir = tempdir(),
-        quiet = TRUE
-      ),
-      condition = identity
-    )
+    downloader <- function(type) {
   
+      tryCatch(
+        utils::download.packages(
+          pkgs = "renv",
+          destdir = tempdir(),
+          repos = repos,
+          type = type,
+          quiet = TRUE
+        ),
+        condition = identity
+      )
+  
+    }
+  
+    # first, try downloading a binary on Windows + macOS if appropriate
+    binary <-
+      !identical(.Platform$pkgType, "source") &&
+      !identical(getOption("pkgType"), "source") &&
+      Sys.info()[["sysname"]] %in% c("Darwin", "Windows")
+  
+    if (binary) {
+      info <- downloader(type = "binary")
+      if (!inherits(info, "condition")) {
+        message("OK (downloaded binary)")
+        return(info[1, 2])
+      }
+    }
+  
+    # otherwise, try downloading a source tarball
+    info <- downloader(type = "source")
     if (inherits(info, "condition")) {
       message("FAILED")
       return(FALSE)
     }
   
-    message("OK")
+    # report success and return
+    message("OK (downloaded source)")
     info[1, 2]
   
   }
@@ -195,7 +217,7 @@ local({
     urls <- file.path(repos, "src/contrib/Archive/renv", name)
     destfile <- file.path(tempdir(), name)
   
-    message("* Downloading renv ", version, " from CRAN archive ... ", appendLF = FALSE)
+    message("* Downloading renv ", version, " ... ", appendLF = FALSE)
   
     for (url in urls) {
   
@@ -339,7 +361,8 @@ local({
       return(file.path(path, name))
     }
   
-    file.path(project, "renv/library")
+    prefix <- renv_bootstrap_profile_prefix()
+    paste(c(project, prefix, "renv/library"), collapse = "/")
   
   }
   
@@ -396,6 +419,63 @@ local({
     TRUE
   
   }
+  
+  renv_bootstrap_profile_load <- function(project) {
+  
+    # if RENV_PROFILE is already set, just use that
+    profile <- Sys.getenv("RENV_PROFILE", unset = NA)
+    if (!is.na(profile) && nzchar(profile))
+      return(profile)
+  
+    # check for a profile file (nothing to do if it doesn't exist)
+    path <- file.path(project, "renv/local/profile")
+    if (!file.exists(path))
+      return(NULL)
+  
+    # read the profile, and set it if it exists
+    contents <- readLines(path, warn = FALSE)
+    if (length(contents) == 0L)
+      return(NULL)
+  
+    # set RENV_PROFILE
+    profile <- contents[[1L]]
+    if (nzchar(profile))
+      Sys.setenv(RENV_PROFILE = profile)
+  
+    profile
+  
+  }
+  
+  renv_bootstrap_profile_prefix <- function() {
+    profile <- renv_bootstrap_profile_get()
+    if (!is.null(profile))
+      return(file.path("renv/profiles", profile))
+  }
+  
+  renv_bootstrap_profile_get <- function() {
+    profile <- Sys.getenv("RENV_PROFILE", unset = "")
+    renv_bootstrap_profile_normalize(profile)
+  }
+  
+  renv_bootstrap_profile_set <- function(profile) {
+    profile <- renv_bootstrap_profile_normalize(profile)
+    if (is.null(profile))
+      Sys.unsetenv("RENV_PROFILE")
+    else
+      Sys.setenv(RENV_PROFILE = profile)
+  }
+  
+  renv_bootstrap_profile_normalize <- function(profile) {
+  
+    if (is.null(profile) || profile %in% c("", "default"))
+      return(NULL)
+  
+    profile
+  
+  }
+
+  # load the renv profile, if any
+  renv_bootstrap_profile_load(project)
 
   # construct path to library root
   root <- renv_bootstrap_library_root(project)

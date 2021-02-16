@@ -98,10 +98,10 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "2.2.0",
+      "Version": "2.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "3ef298932294b775fa0a3eeaa3a645b0"
+      "Hash": "26fb4f0871c8e5b84d77f6dc22f2ee0a"
     },
     "clipr": {
       "Package": "clipr",
@@ -280,10 +280,10 @@
     },
     "knitr": {
       "Package": "knitr",
-      "Version": "1.30",
+      "Version": "1.31",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "eed7ee0d02eee88d53881cdc92457c62"
+      "Hash": "c3994c036d19fc22c5e2a209c8298bfb"
     },
     "later": {
       "Package": "later",
@@ -455,10 +455,10 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.12.5",
+      "Version": "0.12.5-56",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "5c0cdb37f063c58cdab3c7e9fbb8bd2c"
+      "Hash": "b4bbbac436c109cbb45eab71199b0d05"
     },
     "reticulate": {
       "Package": "reticulate",
@@ -546,10 +546,10 @@
     },
     "testthat": {
       "Package": "testthat",
-      "Version": "3.0.1",
+      "Version": "3.0.2",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "17826764cb92d8b5aae6619896e5a161"
+      "Hash": "495e0434d9305716b6a87031570ce109"
     },
     "tibble": {
       "Package": "tibble",
@@ -595,10 +595,10 @@
     },
     "waldo": {
       "Package": "waldo",
-      "Version": "0.2.3",
+      "Version": "0.2.4",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "181d1a31b1ba2009ef20926f2ee0570c"
+      "Hash": "29df52c781e572c967f90de9713423c4"
     },
     "whisker": {
       "Package": "whisker",
