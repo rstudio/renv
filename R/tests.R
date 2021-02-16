@@ -201,8 +201,14 @@ renv_tests_init_repos <- function(repopath = NULL) {
 }
 
 renv_tests_init_packages <- function() {
-  packages <- renv_tests_init_packages_find()
+
+  packages <- union(
+    renv_tests_init_packages_find(),
+    c("waldo")
+  )
+
   renv_tests_init_packages_load(packages, new.env(parent = emptyenv()))
+
 }
 
 renv_tests_init_packages_find <- function() {
