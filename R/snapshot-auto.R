@@ -73,14 +73,14 @@ renv_snapshot_auto_update <- function(project) {
 
   # only keep relevant fields
   fields <- c("size", "mtime", "ctime")
-  new <- info[fields]
+  new <- c(info[fields])
 
   # update our cached info
   old <- `_renv_library_state`[["info"]]
   `_renv_library_state`[["info"]] <- new
 
   # report if things have changed
-  !identical(old, new)
+  !is.null(old) && !identical(old, new)
 
 }
 
