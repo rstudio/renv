@@ -44,20 +44,10 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
     return(list())
 
   # separate exclusions, exclusions
-  exclude <- unlist(extract(patterns, "exclude"))
   include <- unlist(extract(patterns, "include"))
+  exclude <- unlist(extract(patterns, "exclude"))
 
-  # join into single pattern for matching
-  if (length(exclude))
-    exclude <- sprintf("(?:%s)", paste(exclude, collapse = "|"))
-
-  if (length(include))
-    include <- sprintf("(?:%s)", paste(include, collapse = "|"))
-
-  list(
-    exclude = exclude,
-    include = include
-  )
+  list(include = include, exclude = exclude)
 
 }
 
@@ -118,14 +108,14 @@ renv_renvignore_parse_impl <- function(entries, prefix = "") {
   # as regex characters
   entries <- sprintf("\\Q%s\\E$", entries)
 
-  # join entries into a single pattern
-  pattern <- sprintf("(?:%s)", paste(entries, collapse = "|"))
-
   # prepend prefix
-  pattern <- sprintf("^\\Q%s/\\E%s", prefix, pattern)
+  entries <- sprintf("^\\Q%s/\\E%s", prefix, entries)
 
   # remove \\Q\\E
-  gsub("\\Q\\E", "", pattern, fixed = TRUE)
+  entries <- gsub("\\Q\\E", "", entries, fixed = TRUE)
+
+  # all done!
+  entries
 
 }
 
@@ -140,15 +130,22 @@ renv_renvignore_exec <- function(path, root, children) {
     return(children)
 
   # get the entries that need to be excluded
-  exclude <- grepl(patterns$exclude %||% "", children, perl = TRUE)
+  excludes <- logical(length = length(children))
+  for (pattern in patterns$exclude)
+    if (nzchar(pattern))
+      excludes <- excludes | grepl(pattern, children, perl = TRUE)
 
-  # also check which entries should explicitly be included
-  if (length(patterns$include)) {
-    include <- grepl(patterns$include, children, perl = TRUE)
-    exclude[include] <- FALSE
-  }
+  # now, check for entries that should be explicitly included
+  # (note that these override any excludes)
+  includes <- logical(length = length(children))
+  for (pattern in patterns$include)
+    if (nzchar(pattern))
+      includes <- includes | grepl(pattern, children, perl = TRUE)
+
+  # unset those excludes
+  excludes[includes] <- FALSE
 
   # keep paths not explicitly excluded
-  children[!exclude]
+  children[!excludes]
 
 }

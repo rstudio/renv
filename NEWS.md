@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to discover dependencies in directories
+  with very large `.gitignore` or `.renvignore` files. (#652)
+
 * `renv` gains a new configuration option, `install.shortcuts`. When enabled,
   if `renv` discovers that a package to be installed is already available in
   the user or site libraries, `renv` will instead install a copy of that package
