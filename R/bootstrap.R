@@ -327,26 +327,28 @@ renv_bootstrap_platform_os <- function() {
     return("macos")
 
   # check for os-release files
-  for (path in c("/etc/os-release", "/usr/lib/os-release"))
-    if (file.exists(path))
-      return(renv_bootstrap_platform_os_via_os_release(sysinfo))
+  for (file in c("/etc/os-release", "/usr/lib/os-release"))
+    if (file.exists(file))
+      return(renv_bootstrap_platform_os_via_os_release(file, sysinfo))
 
   # check for redhat-release files
   if (file.exists("/etc/redhat-release"))
     return(renv_bootstrap_platform_os_via_redhat_release())
 
+  warning("failed to infer platform operating system")
   "unknown"
 
 }
 
-renv_bootstrap_platform_os_via_os_release <- function(sysinfo) {
+renv_bootstrap_platform_os_via_os_release <- function(file, sysinfo) {
 
   # read /etc/os-release
   release <- utils::read.table(
-    file      = "/etc/os-release",
-    sep       = "=",
-    quote     = c("\"", "'"),
-    col.names = c("Key", "Value")
+    file         = file,
+    sep          = "=",
+    quote        = c("\"", "'"),
+    col.names    = c("Key", "Value"),
+    comment.char = "#"
   )
 
   vars <- as.list(release$Value)
@@ -383,12 +385,30 @@ renv_bootstrap_platform_os_via_redhat_release <- function() {
   # read /etc/redhat-release
   contents <- readLines("/etc/redhat-release", warn = FALSE)
 
-  # check for centos
-  if (grepl("centos", contents, ignore.case = TRUE)) {
-    parts <- strsplit(contents, "[[:space:]]")[[1L]]
-    version <- numeric_version(parts[[3L]])
-    return(paste(c("linux", "centos", version[1, 1]), collapse = "-"))
+  # infer id
+  id <- if (grepl("centos", contents, ignore.case = TRUE))
+    "centos"
+  else if (grepl("redhat", contents, ignore.case = TRUE))
+    "redhat"
+  else
+    "unknown"
+
+  # try to find a version component (very hacky)
+  version <- "unknown"
+
+  parts <- strsplit(contents, "[[:space:]]")[[1L]]
+  for (part in parts) {
+
+    nv <- tryCatch(numeric_version(part), error = identity)
+    if (inherits(nv, "error"))
+      next
+
+    version <- nv[1, 1]
+    break
+
   }
+
+  paste(c("linux", id, version), collapse = "-")
 
 }
 
