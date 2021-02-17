@@ -103,9 +103,11 @@ jobs:
         shell: R --no-save --no-restore --quiet -f {0}
         run: renv:::renv_ci_repair()
 
-      - name: Install R dependencies
+      - name: Update R dependencies
         shell: R --no-save --no-restore --quiet -f {0}
-        run: renv::install()
+        run: |
+          renv::install()
+          renv::update()
         env:
           RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.rstudio.com/cran/latest
           RENV_CONFIG_CACHE_ENABLED: FALSE
