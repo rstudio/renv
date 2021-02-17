@@ -240,12 +240,17 @@ renv_tests_init_packages_load <- function(packages, envir) {
 
 renv_tests_init_packages_load_impl <- function(package, envir) {
 
+  # skip the 'R' package
+  if (identical(package, "R"))
+    return()
+
   # if we've already tried to load this package, skip it
   if (visited(package, envir = envir))
     return()
 
   # try to load the package
-  requireNamespace(package, quietly = TRUE)
+  if (!package %in% loadedNamespaces())
+    loadNamespace(package)
 
   # try to find this package
   pkgpath <- renv_package_find(package)
