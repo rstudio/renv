@@ -1,6 +1,10 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv`'s dependency discovery machinery now has preliminary support
+  for packages imported via the [box](https://github.com/klmr/box) package;
+  e.g. `box::use(dplyr[...])`.
+
 * Multiple cache paths can now be specified, with each cache path separated
   by either a `;` or `:`. This can be useful when you'd like to use multiple
   package caches within the same project; for example, because you'd like to

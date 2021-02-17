@@ -70,6 +70,22 @@ test_that("import:: usages are understood", {
   expect_setequal(packages, letters[1:length(packages)])
 })
 
+test_that("box::use() usages are handled", {
+
+  file <- renv_test_code({
+    box::use(
+      A,
+      b = B,
+      C[...],
+      D[c, d]
+    )
+  })
+
+  deps <- dependencies(file)
+  expect_setequal(deps$Package, c("A", "B", "C", "D", "box"))
+
+})
+
 test_that("renv warns when large number of files found", {
 
   renv_tests_scope()

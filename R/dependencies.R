@@ -763,6 +763,7 @@ renv_dependencies_discover_r <- function(path = NULL,
     renv_dependencies_discover_r_pacman,
     renv_dependencies_discover_r_modules,
     renv_dependencies_discover_r_import,
+    renv_dependencies_discover_r_box,
     renv_dependencies_discover_r_database
   )
 
@@ -1030,6 +1031,43 @@ renv_dependencies_discover_r_import <- function(node, stack, envir) {
 
   envir[[from]] <- TRUE
   TRUE
+
+}
+
+renv_dependencies_discover_r_box <- function(node, stack, envir) {
+
+  node <- renv_call_expect(node, "box", "use")
+  if (is.null(node))
+    return(FALSE)
+
+  for (i in seq.int(2L, length.out = length(node) - 1L))
+    renv_dependencies_discover_r_box_impl(node[[i]], stack, envir)
+
+  TRUE
+
+}
+
+renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
+
+  # if the node is just a symbol, then it's the name of a package
+  if (is.symbol(node)) {
+    package <- as.character(node)
+    envir[[package]] <- TRUE
+    return(TRUE)
+  }
+
+  # if this is a call to `[`, then the first argument is the package name
+  ok <-
+    is.call(node) &&
+    length(node) > 1 &&
+    identical(node[[1L]], as.name("[")) &&
+    is.symbol(node[[2L]])
+
+  if (ok) {
+    package <- as.character(node[[2L]])
+    envir[[package]] <- TRUE
+    return(TRUE)
+  }
 
 }
 
