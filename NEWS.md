@@ -1,6 +1,11 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* Multiple cache paths can now be specified, with each cache path separated
+  by either a `;` or `:`. This can be useful when you'd like to use multiple
+  package caches within the same project; for example, because you'd like to
+  share a read-only cache with a set of projects. (#653, @vandenman)
+
 * Fixed an issue where `renv` could fail to discover dependencies in directories
   with very large `.gitignore` or `.renvignore` files. (#652)
 
