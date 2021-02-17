@@ -144,3 +144,69 @@ test_that("corrupt Meta/package.rds is detected", {
   expect_true(diagnostics$Version == "1.0.0")
 
 })
+
+test_that("multiple cache directories are used", {
+  skip_on_cran()
+  skip_on_os("windows") # setting folder permissions is a bit more complex on windows
+
+  chmod <- function(path, mode = c("read", "read+write")) {
+    mode <- match.arg(mode)
+    path <- normalizePath(path)
+    stopifnot(file.exists(path))
+    # '5' (read and execute) is the minimum permission that will work.
+    # With '4' (read only) things like dir() don't work anymore.
+    numbers <- if (mode == "read") "555" else "777"
+    system(sprintf("chmod %s %s", numbers, path))
+  }
+
+  # use multiple temporary caches for this test
+  tempcache1 <- tempfile("renv-tempcache-")
+  ensure_directory(tempcache1)
+  tempcache2 <- tempfile("renv-tempcache-")
+  ensure_directory(tempcache2)
+
+  on.exit({
+    unlink(tempcache1, recursive = TRUE)
+    unlink(tempcache2, recursive = TRUE)
+  }, add = TRUE)
+
+  # add both packages to the cache
+  renv_scope_envvars(RENV_PATHS_CACHE = paste(tempcache1, tempcache2, sep = ";"))
+
+  # initialize project
+  renv_tests_scope()
+  renv::init()
+
+  # there should be two paths in the cache
+  expect_length(renv::paths$cache(), 2L)
+
+  # install bread to first cache path
+  renv::install("bread")
+
+  # test that there is one package (bread) and it is installed in the first cache
+  cache <- renv_cache_list()
+  expect_length(cache, 1L)
+  expect_true(startsWith(cache[basename(cache) == "bread"], tempcache1))
+
+  # make the first cache read only
+  chmod(renv::paths$cache()[1L], "read")
+
+  # install oatmeal to second cache path
+  renv::install("oatmeal")
+
+  # test that there are 2 packages and the latest package (oatmeal) is installed in the second cache
+  cache <- renv_cache_list()
+  expect_length(cache, 2L)
+  expect_true(startsWith(cache[basename(cache) == "oatmeal"], tempcache2))
+
+  # make the first cache read+write again, should now install into the first cache again
+  chmod(renv::paths$cache()[1L], "read+write")
+
+  renv::install("toast")
+
+  # test that there are 3 packages and the latest package (toast) is installed in the first cache
+  cache <- renv_cache_list()
+  expect_length(cache, 3L)
+  expect_true(startsWith(cache[basename(cache) == "toast"], tempcache1))
+
+})

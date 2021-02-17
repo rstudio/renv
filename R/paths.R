@@ -17,6 +17,11 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
     Sys.getenv(envvar, unset = NA) %NA%
     renv_paths_root(name)
 
+  # check if the cache consists of multiple paths, if yes then split the paths
+  # this allows mixing read-only and read+write cache directories. See also https://github.com/rstudio/renv/issues/628
+  if (identical(name, "cache") && grepl("[:;]", root))
+    root <- strsplit(root, "[:;]")[[1]]
+
   # form rest of path
   prefixed <- if (length(prefixes))
     file.path(root, paste(prefixes, collapse = "/"))
