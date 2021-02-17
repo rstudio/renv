@@ -31,7 +31,7 @@ test_that("RENV_PATHS_PREFIX is respected", {
   libpath <- renv_paths_library()
   expect_true(grepl(os, libpath, fixed = TRUE))
 
-  prefix <- renv_prefix_platform()
+  prefix <- renv_platform_prefix()
   expect_true(startswith(prefix, os))
 
 })

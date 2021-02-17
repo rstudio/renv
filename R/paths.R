@@ -1,8 +1,4 @@
 
-renv_prefix_platform <- function() {
-  renv_bootstrap_prefix()
-}
-
 renv_paths_common <- function(name, prefixes = NULL, ...) {
 
   # check for single absolute path supplied by user
@@ -47,7 +43,7 @@ renv_paths_library_root <- function(project) {
 renv_paths_library <- function(..., project = NULL) {
   project <- renv_project_resolve(project)
   root <- renv_paths_library_root(project)
-  file.path(root, renv_prefix_platform(), ...) %||% ""
+  file.path(root, renv_platform_prefix(), ...) %||% ""
 }
 
 renv_paths_lockfile <- function(project = NULL) {
@@ -71,11 +67,11 @@ renv_paths_source <- function(...) {
 }
 
 renv_paths_binary <- function(...) {
-  renv_paths_common("binary", c(renv_prefix_platform()), ...)
+  renv_paths_common("binary", c(renv_platform_prefix()), ...)
 }
 
 renv_paths_cache <- function(..., version = NULL) {
-  platform <- renv_prefix_platform()
+  platform <- renv_platform_prefix()
   version <- version %||% renv_cache_version()
   renv_paths_common("cache", c(version, platform), ...)
 }
@@ -173,7 +169,7 @@ renv_paths_init <- function() {
   envvars <- Sys.getenv()
 
   keys <- grep("^RENV_PATHS_", names(envvars), value = TRUE)
-  keys <- setdiff(keys, "RENV_PATHS_PREFIX")
+  keys <- setdiff(keys, c("RENV_PATHS_PREFIX", "RENV_PATHS_PREFIX_AUTO"))
 
   if (empty(keys))
     return(character())
