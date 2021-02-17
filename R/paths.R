@@ -22,8 +22,7 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
   # https://github.com/rstudio/renv/issues/628
   if (identical(name, "cache")) {
     pattern <- if (renv_platform_windows()) "[;]" else "[;:]"
-    parts <- strsplit(root, pattern)[[1L]]
-    root <- parts[[1L]]
+    root <- strsplit(root, pattern)[[1L]]
   }
 
   # form rest of path
