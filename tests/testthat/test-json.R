@@ -42,7 +42,9 @@ test_that("empty R lists are converted as expected", {
 })
 
 test_that("we can parse a GitHub remotes specification", {
+
   skip_on_cran()
+  skip_sometimes()
 
   data <- renv_remotes_resolve("rstudio/renv")
   expect_true(data$Source == "GitHub")

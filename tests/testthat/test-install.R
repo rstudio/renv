@@ -267,6 +267,7 @@ test_that("renv can install packages from Bitbucket", {
 
 test_that("renv can install packages from GitHub using remotes subdir syntax", {
   skip_on_cran()
+  skip_sometimes()
   renv_tests_scope()
   install("kevinushey/skeleton/subdir")
   expect_true(renv_package_installed("skeleton"))

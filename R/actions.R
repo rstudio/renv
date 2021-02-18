@@ -105,7 +105,7 @@ renv_actions_restore_clean <- function(actions, clean, project) {
 
   # otherwise, only process removals in the project library
   projlib <- renv_paths_library(project = project)
-  locations <- renv_package_find_impl(actions$Package)
+  locations <- renv_package_find(actions$Package)
 
   keep <- actions$Action != "remove" | dirname(locations) == projlib
   actions[keep, ]

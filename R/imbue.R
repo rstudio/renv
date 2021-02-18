@@ -78,7 +78,13 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
 renv_imbue_self <- function(project) {
 
   # construct source, target paths
-  source <- find.package("renv")
+  source <- renv_namespace_path("renv")
+  if (!file.exists(source))
+    source <- renv_package_find("renv")
+
+  if (!file.exists(source))
+    stop("internal error: could not find where 'renv' is installed")
+
   target <- renv_paths_library("renv", project = project)
   if (renv_file_same(source, target))
     return(TRUE)

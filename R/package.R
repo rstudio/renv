@@ -1,7 +1,43 @@
 
+# NOTE: intentionally checks library paths before checking loaded namespaces
+renv_package_find <- function(package,
+                              lib.loc = renv_libpaths_all(),
+                              check.loaded = TRUE)
+{
+  map_chr(
+    package,
+    renv_package_find_impl,
+    lib.loc = lib.loc,
+    check.loaded = check.loaded
+  )
+}
+
+renv_package_find_impl <- function(package,
+                                   lib.loc = renv_libpaths_all(),
+                                   check.loaded = TRUE)
+{
+  # first, look in the library paths
+  for (libpath in lib.loc) {
+    pkgpath <- file.path(libpath, package)
+    descpath <- file.path(pkgpath, "DESCRIPTION")
+    if (file.exists(descpath))
+      return(pkgpath)
+  }
+
+  # if that failed, check to see if it's loaded and use the associated path
+  if (check.loaded && package %in% loadedNamespaces()) {
+    path <- renv_namespace_path(package)
+    if (file.exists(path))
+      return(path)
+  }
+
+  # failed to find package
+  ""
+}
+
 renv_package_installed <- function(package, lib.loc = renv_libpaths_all()) {
-  location <- find.package(package, lib.loc = lib.loc, quiet = TRUE)
-  length(location) > 0
+  paths <- renv_package_find(package, lib.loc, check.loaded = FALSE)
+  nzchar(paths)
 }
 
 renv_package_available <- function(package) {
@@ -13,7 +49,7 @@ renv_package_version <- function(package) {
 }
 
 renv_package_description_field <- function(package, field) {
-  path <- renv_package_find(package, cache = FALSE)
+  path <- renv_package_find(package)
   desc <- renv_description_read(path)
   desc[[field]]
 }
@@ -222,7 +258,7 @@ renv_package_dependencies_impl <- function(package,
 
   # find the package
   libpaths <- libpaths %||% renv_libpaths_all()
-  location <- renv_package_find(package, libpaths = libpaths)
+  location <- renv_package_find(package, libpaths)
   if (!file.exists(location))
     return(location)
 
