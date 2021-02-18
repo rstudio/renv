@@ -209,17 +209,6 @@ renv_tests_init_packages <- function() {
   envir <- new.env(parent = emptyenv())
   renv_tests_init_packages_load(packages, envir)
 
-  # report the loaded packages
-  loaded <- sort(setdiff(ls(envir = envir, all.names = TRUE), "R"))
-  versions <- map_chr(loaded, renv_package_version)
-
-  renv_pretty_print(
-    sprintf("%s [%s]", format(loaded), versions),
-    "The following packages have been pre-loaded for testing:",
-    "This is necessary to ensure those packages are available while tests are run.",
-    wrap = FALSE
-  )
-
 }
 
 renv_tests_init_packages_find <- function() {
