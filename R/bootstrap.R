@@ -362,11 +362,12 @@ renv_bootstrap_platform_os_via_os_release <- function(file, sysinfo) {
 
   # read /etc/os-release
   release <- utils::read.table(
-    file         = file,
-    sep          = "=",
-    quote        = c("\"", "'"),
-    col.names    = c("Key", "Value"),
-    comment.char = "#"
+    file             = file,
+    sep              = "=",
+    quote            = c("\"", "'"),
+    col.names        = c("Key", "Value"),
+    comment.char     = "#",
+    stringsAsFactors = FALSE
   )
 
   vars <- as.list(release$Value)
