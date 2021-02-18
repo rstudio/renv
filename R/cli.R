@@ -130,17 +130,25 @@ renv_cli_unknown <- function(method, exports) {
 
 renv_cli_parse <- function(text) {
 
+  # handle logical-like values up-front
   if (text %in% c("true", "True", "TRUE"))
     return(TRUE)
   else if (text %in% c("false", "False", "FALSE"))
     return(FALSE)
 
+  # parse the expression
   expr <- parse(text = text)
 
-  for (i in seq_along(expr))
-    if (is.symbol(expr[[i]]))
-      expr[[i]] <- as.character(expr[[i]])
+  # convert symbols and calls to plain character strings
+  parts <- map(expr, function(e) {
+    case(
+      is.symbol(e) ~ as.character(e),
+      is.call(e)   ~ format(e),
+                   ~ e
+    )
+  })
 
-  unlist(as.list(expr), recursive = FALSE)
+  # unlist the object
+  unlist(as.list(parts), recursive = FALSE)
 
 }
