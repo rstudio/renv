@@ -38,3 +38,11 @@ renv_platform_wsl <- function() {
   any(grepl("(?:Microsoft|WSL)", contents, ignore.case = TRUE))
 
 }
+
+renv_platform_prefix <- function() {
+  renv_bootstrap_platform_prefix()
+}
+
+renv_platform_os <- function() {
+  renv_bootstrap_platform_os()
+}

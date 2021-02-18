@@ -270,7 +270,7 @@ renv_bootstrap_install <- function(version, tarball, library) {
 
 }
 
-renv_bootstrap_prefix <- function() {
+renv_bootstrap_platform_prefix <- function() {
 
   # construct version prefix
   version <- paste(R.version$major, R.version$minor, sep = ".")
@@ -289,12 +289,144 @@ renv_bootstrap_prefix <- function() {
   components <- c(prefix, R.version$platform)
 
   # include prefix if provided by user
-  prefix <- Sys.getenv("RENV_PATHS_PREFIX")
-  if (nzchar(prefix))
+  prefix <- renv_bootstrap_platform_prefix_impl()
+  if (!is.na(prefix) && nzchar(prefix))
     components <- c(prefix, components)
 
   # build prefix
   paste(components, collapse = "/")
+
+}
+
+renv_bootstrap_platform_prefix_impl <- function() {
+
+  # if an explicit prefix has been supplied, use it
+  prefix <- Sys.getenv("RENV_PATHS_PREFIX", unset = NA)
+  if (!is.na(prefix))
+    return(prefix)
+
+  # if the user has requested an automatic prefix, generate it
+  auto <- Sys.getenv("RENV_PATHS_PREFIX_AUTO", unset = NA)
+  if (auto %in% c("TRUE", "True", "true", "1"))
+    return(renv_bootstrap_platform_prefix_auto())
+
+  # empty string on failure
+  ""
+
+}
+
+renv_bootstrap_platform_prefix_auto <- function() {
+
+  prefix <- tryCatch(renv_bootstrap_platform_os(), error = identity)
+  if (inherits(prefix, "error") || prefix %in% "unknown") {
+
+    msg <- paste(
+      "failed to infer current operating system",
+      "please file a bug report at https://github.com/rstudio/renv/issues",
+      sep = "; "
+    )
+
+    warning(msg)
+
+  }
+
+  prefix
+
+}
+
+renv_bootstrap_platform_os <- function() {
+
+  sysinfo <- Sys.info()
+  sysname <- sysinfo[["sysname"]]
+
+  # handle Windows + macOS up front
+  if (sysname == "Windows")
+    return("windows")
+  else if (sysname == "Darwin")
+    return("macos")
+
+  # check for os-release files
+  for (file in c("/etc/os-release", "/usr/lib/os-release"))
+    if (file.exists(file))
+      return(renv_bootstrap_platform_os_via_os_release(file, sysinfo))
+
+  # check for redhat-release files
+  if (file.exists("/etc/redhat-release"))
+    return(renv_bootstrap_platform_os_via_redhat_release())
+
+  "unknown"
+
+}
+
+renv_bootstrap_platform_os_via_os_release <- function(file, sysinfo) {
+
+  # read /etc/os-release
+  release <- utils::read.table(
+    file         = file,
+    sep          = "=",
+    quote        = c("\"", "'"),
+    col.names    = c("Key", "Value"),
+    comment.char = "#"
+  )
+
+  vars <- as.list(release$Value)
+  names(vars) <- release$Key
+
+  # get os name
+  os <- tolower(sysinfo[["sysname"]])
+
+  # read id
+  id <- "unknown"
+  for (field in c("ID", "ID_LIKE")) {
+    if (field %in% names(vars) && nzchar(vars[[field]])) {
+      id <- vars[[field]]
+      break
+    }
+  }
+
+  # read version
+  version <- "unknown"
+  for (field in c("UBUNTU_CODENAME", "VERSION_CODENAME", "VERSION_ID", "BUILD_ID")) {
+    if (field %in% names(vars) && nzchar(vars[[field]])) {
+      version <- vars[[field]]
+      break
+    }
+  }
+
+  # join together
+  paste(c(os, id, version), collapse = "-")
+
+}
+
+renv_bootstrap_platform_os_via_redhat_release <- function() {
+
+  # read /etc/redhat-release
+  contents <- readLines("/etc/redhat-release", warn = FALSE)
+
+  # infer id
+  id <- if (grepl("centos", contents, ignore.case = TRUE))
+    "centos"
+  else if (grepl("redhat", contents, ignore.case = TRUE))
+    "redhat"
+  else
+    "unknown"
+
+  # try to find a version component (very hacky)
+  version <- "unknown"
+
+  parts <- strsplit(contents, "[[:space:]]")[[1L]]
+  for (part in parts) {
+
+    nv <- tryCatch(numeric_version(part), error = identity)
+    if (inherits(nv, "error"))
+      next
+
+    version <- nv[1, 1]
+    break
+
+  }
+
+  paste(c("linux", id, version), collapse = "-")
 
 }
 

@@ -1,6 +1,13 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* The `RENV_PATHS_PREFIX_AUTO` environment variable can now be set to instruct
+  `renv` to include an OS-specific component as part of the library and
+  cache paths. This is primarily useful for Linux systems, where one might
+  want to share a global cache with multiple different operating systems.
+  The path component is constructed from the `ID` and `VERSION_CODENAME` /
+  `VERSION_ID` components of the system's `/etc/os-release` file.
+  
 * `renv`'s dependency discovery machinery now has preliminary support
   for packages imported via the [box](https://github.com/klmr/box) package;
   e.g. `box::use(dplyr[...])`.

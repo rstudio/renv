@@ -308,7 +308,7 @@ local({
   
   }
   
-  renv_bootstrap_prefix <- function() {
+  renv_bootstrap_platform_prefix <- function() {
   
     # construct version prefix
     version <- paste(R.version$major, R.version$minor, sep = ".")
@@ -481,7 +481,7 @@ local({
   root <- renv_bootstrap_library_root(project)
 
   # construct library prefix for platform
-  prefix <- renv_bootstrap_prefix()
+  prefix <- renv_bootstrap_platform_prefix()
 
   # construct full libpath
   libpath <- file.path(root, prefix)
