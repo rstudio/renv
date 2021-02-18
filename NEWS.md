@@ -1,6 +1,9 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* `renv::snapshot()` no longer creates an `renv/activate.R` file in the project
+  folder if one does not already exist. (#655)
+  
 * The `renv::hydrate()` function gains the `update` argument, used to control
   whether `renv::hydrate()` chooses to update packages when invoked. When set
   to `TRUE`, if the version of a package installed in the source library is

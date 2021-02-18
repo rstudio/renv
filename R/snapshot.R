@@ -200,7 +200,7 @@ snapshot <- function(project  = NULL,
   renv_infrastructure_write_rbuildignore(project)
 
   # ensure the activate script is up-to-date
-  renv_infrastructure_write_activate(project)
+  renv_infrastructure_write_activate(project, create = FALSE)
 
   invisible(new)
 }
