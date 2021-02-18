@@ -308,10 +308,29 @@ renv_bootstrap_platform_prefix_impl <- function() {
   # if the user has requested an automatic prefix, generate it
   auto <- Sys.getenv("RENV_PATHS_PREFIX_AUTO", unset = NA)
   if (auto %in% c("TRUE", "True", "true", "1"))
-    return(renv_bootstrap_platform_os())
+    return(renv_bootstrap_platform_prefix_auto())
 
   # empty string on failure
   ""
+
+}
+
+renv_bootstrap_platform_prefix_auto <- function() {
+
+  prefix <- tryCatch(renv_bootstrap_platform_os(), error = identity)
+  if (inherits(prefix, "error") || prefix %in% "unknown") {
+
+    msg <- paste(
+      "failed to infer current operating system",
+      "please file a bug report at https://github.com/rstudio/renv/issues",
+      sep = "; "
+    )
+
+    warning(msg)
+
+  }
+
+  prefix
 
 }
 
@@ -335,7 +354,6 @@ renv_bootstrap_platform_os <- function() {
   if (file.exists("/etc/redhat-release"))
     return(renv_bootstrap_platform_os_via_redhat_release())
 
-  warning("failed to infer platform operating system")
   "unknown"
 
 }
