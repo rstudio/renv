@@ -251,6 +251,17 @@ renv_paths_init <- function() {
 #' located at `file.path(R.home("etc"), "Renviron.site")`, so that it can be
 #' active for any \R sessions launched on that machine.
 #'
+#' Starting from `renv 0.13.0`, you can also instruct `renv` to auto-generate
+#' an OS-specific component to include as part of library and cache paths,
+#' by setting the environment variable:
+#'
+#' ```
+#' RENV_PATHS_PREFIX_AUTO = TRUE
+#' ```
+#'
+#' The prefix will be constructed based on fields within the system's
+#' `/etc/os-release` file.
+#'
 #' If reproducibility of a project is desired on a particular machine, it is
 #' highly recommended that the `renv` cache of installed packages + binary
 #' packages is backed up and persisted, so that packages can be easily restored
