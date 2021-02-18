@@ -13,7 +13,7 @@ renv_package_version <- function(package) {
 }
 
 renv_package_description_field <- function(package, field) {
-  path <- renv_package_find(package)
+  path <- renv_package_find(package, cache = FALSE)
   desc <- renv_description_read(path)
   desc[[field]]
 }

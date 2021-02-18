@@ -1,6 +1,8 @@
 
-renv_package_find <- function(package, libpaths = renv_libpaths_all()) {
-
+renv_package_find <- function(package,
+                              libpaths = renv_libpaths_all(),
+                              cache = TRUE)
+{
   # first, look in the library paths (specifically lib.loc so that we avoid
   # using the path to loaded namespaces)
   location <- renv_package_find_impl(package, libpaths)
@@ -13,6 +15,38 @@ renv_package_find <- function(package, libpaths = renv_libpaths_all()) {
     if (file.exists(path))
       return(path)
   }
+
+  # search cache if requested
+  if (cache) {
+    path <- renv_package_find_cache(package)
+    if (file.exists(path))
+      return(path)
+  }
+
+  # failed to find package
+  ""
+}
+
+renv_package_find_impl <- function(packages, libpaths = renv_libpaths_all()) {
+  map_chr(packages, renv_package_find_impl_one, libpaths = libpaths)
+}
+
+renv_package_find_impl_one <- function(package, libpaths) {
+
+  # check for DESCRIPTION file for each library path
+  for (libpath in libpaths) {
+    pkgpath <- file.path(libpath, package)
+    descpath <- file.path(pkgpath, "DESCRIPTION")
+    if (file.exists(descpath))
+      return(pkgpath)
+  }
+
+  # nothing found; return empty string
+  ""
+
+}
+
+renv_package_find_cache <- function(package) {
 
   # try looking in the cache for the package
   location <- renv_paths_cache(package)
@@ -36,21 +70,3 @@ renv_package_find <- function(package, libpaths = renv_libpaths_all()) {
 
 }
 
-renv_package_find_impl <- function(packages, libpaths = renv_libpaths_all()) {
-  map_chr(packages, renv_package_find_impl_one, libpaths = libpaths)
-}
-
-renv_package_find_impl_one <- function(package, libpaths) {
-
-  # check for DESCRIPTION file for each library path
-  for (libpath in libpaths) {
-    pkgpath <- file.path(libpath, package)
-    descpath <- file.path(pkgpath, "DESCRIPTION")
-    if (file.exists(descpath))
-      return(pkgpath)
-  }
-
-  # nothing found; return empty string
-  ""
-
-}

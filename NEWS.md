@@ -1,6 +1,12 @@
 
 # renv 0.13.0 (UNRELEASED)
 
+* The `renv::hydrate()` function gains the `update` argument, used to control
+  whether `renv::hydrate()` chooses to update packages when invoked. When set
+  to `TRUE`, if the version of a package installed in the source library is
+  newer than that of the project library, then `renv` will copy that version
+  of the package into the project library. (#647)
+  
 * The `RENV_PATHS_PREFIX_AUTO` environment variable can now be set to instruct
   `renv` to include an OS-specific component as part of the library and
   cache paths. This is primarily useful for Linux systems, where one might

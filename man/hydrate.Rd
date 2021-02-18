@@ -4,7 +4,14 @@
 \alias{hydrate}
 \title{Hydrate a Project}
 \usage{
-hydrate(packages = NULL, ..., library = NULL, sources = NULL, project = NULL)
+hydrate(
+  packages = NULL,
+  ...,
+  library = NULL,
+  update = FALSE,
+  sources = NULL,
+  project = NULL
+)
 }
 \arguments{
 \item{packages}{The set of \R packages to install. When \code{NULL}, the
@@ -15,6 +22,11 @@ are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{library}{The \R library to be hydrated. When \code{NULL}, the active
 library as reported by \code{.libPaths()} is used.}
+
+\item{update}{Boolean; should \code{hydrate()} attempt to update already-installed
+packages if the requested package is already installed in the project
+library? Set this to \code{"all"} if you'd like \emph{all} packages to be refreshed
+from the source library if possible.}
 
 \item{sources}{A set of library paths from which \code{renv} should attempt to
 draw packages. See \strong{Sources} for more details.}
@@ -29,8 +41,15 @@ as well as the set of packages which were not found.
 }
 \description{
 Discover the \R packages used within a project, and then install those
-packages into the active library. This effectively allows you to clone the
+packages into the active library. This effectively allows you to fork the
 state of your default \R libraries for use within a project library.
+}
+\details{
+It may occasionally be useful to use \code{renv::hydrate()} to update the packages
+used within a project that has already been initialized. However, be warned
+that it's possible that the packages pulled in may not actually be compatible
+with the packages installed in the project library, so you should exercise
+caution when doing so.
 }
 \section{Sources}{
 

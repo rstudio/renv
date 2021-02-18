@@ -2,8 +2,14 @@
 #' Hydrate a Project
 #'
 #' Discover the \R packages used within a project, and then install those
-#' packages into the active library. This effectively allows you to clone the
+#' packages into the active library. This effectively allows you to fork the
 #' state of your default \R libraries for use within a project library.
+#'
+#' It may occasionally be useful to use `renv::hydrate()` to update the packages
+#' used within a project that has already been initialized. However, be warned
+#' that it's possible that the packages pulled in may not actually be compatible
+#' with the packages installed in the project library, so you should exercise
+#' caution when doing so.
 #'
 #' @section Sources:
 #'
@@ -34,6 +40,11 @@
 #' @param library The \R library to be hydrated. When `NULL`, the active
 #'   library as reported by `.libPaths()` is used.
 #'
+#' @param update Boolean; should `hydrate()` attempt to update already-installed
+#'   packages if the requested package is already installed in the project
+#'   library? Set this to `"all"` if you'd like _all_ packages to be refreshed
+#'   from the source library if possible.
+#'
 #' @param sources A set of library paths from which `renv` should attempt to
 #'   draw packages. See **Sources** for more details.
 #'
@@ -52,6 +63,7 @@
 hydrate <- function(packages = NULL,
                     ...,
                     library = NULL,
+                    update  = FALSE,
                     sources = NULL,
                     project = NULL)
 {
@@ -78,6 +90,10 @@ hydrate <- function(packages = NULL,
   # get and construct path to library
   ensure_directory(library)
 
+  # only hydrate with packages that are either not currently installed,
+  # or (if update = TRUE) the version in the library is newer
+  packages <- renv_hydrate_filter(packages, update)
+
   # copy packages from user library to cache
   linkable <- renv_cache_linkable(project = project, library = library)
   if (linkable)
@@ -91,6 +107,48 @@ hydrate <- function(packages = NULL,
   # we're done!
   result <- list(packages = packages, missing = missing)
   invisible(result)
+}
+
+renv_hydrate_filter <- function(packages, update) {
+
+  # run filter
+  keep <- enumerate(
+    packages,
+    renv_hydrate_filter_impl,
+    update = update,
+    FUN.VALUE = logical(1)
+  )
+
+  # filter based on kept packages
+  packages[keep]
+
+}
+
+renv_hydrate_filter_impl <- function(package, path, update) {
+
+  # if user has requested hydration of all packages, respect that
+  if (identical(update, "all"))
+    return(TRUE)
+
+  # check current version of package
+  # if this fails, assume package is unavailable and should be installed
+  current <- catch(numeric_version(renv_package_version(package)))
+  if (inherits(current, "error"))
+    return(TRUE)
+
+  # if the package is already installed and we're not updating, stop here
+  if (identical(update, FALSE))
+    return(FALSE)
+
+  # check to-be-copied package version
+  requested <- catch({
+    desc <- renv_description_read(path = path)
+    numeric_version(desc[["Version"]])
+  })
+
+  # only hydrate with a newer version
+  requested > current
+
 }
 
 renv_hydrate_packages <- function(project, libpaths = NULL) {
