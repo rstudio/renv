@@ -214,9 +214,22 @@ renv_diagnostics_settings <- function(project) {
 }
 
 renv_diagnostics_options <- function(project) {
+
   vwritef(header("Options"))
-  matches <- grep("^renv[.]", names(.Options))
-  str(.Options[matches])
+
+  keys <- c(
+    "defaultPackages",
+    "download.file.method",
+    "download.file.extra",
+    "repos",
+    grep("^renv[.]", names(.Options), value = TRUE)
+  )
+
+  vals <- .Options[keys]
+  names(vals) <- keys
+
+  str(vals)
+
 }
 
 renv_diagnostics_envvars <- function(project) {
