@@ -15,10 +15,15 @@ renv_json_read <- function(file = NULL, text = NULL) {
 
   if (!identical(c(locs), -1L)) {
 
-    # get the string values + compute replacements
+    # get the string values
     starts <- locs
     ends <- locs + attr(locs, "match.length") - 1L
     strings <- substring(text, starts, ends)
+
+    # only keep those requiring escaping
+    strings <- grep("[[\\]{}:]", strings, perl = TRUE, value = TRUE)
+
+    # compute replacements
     replacements <- sprintf('"\032%i\032"', seq_along(strings))
 
     # replace the strings
@@ -39,6 +44,9 @@ renv_json_read <- function(file = NULL, text = NULL) {
   map <- as.character(parse(text = strings))
   names(map) <- as.character(parse(text = replacements))
 
+  # convert to list
+  map <- as.list(map)
+
   # remap strings in object
   remapped <- renv_json_remap(json, map)
 
@@ -50,13 +58,15 @@ renv_json_read <- function(file = NULL, text = NULL) {
 renv_json_remap <- function(json, map) {
 
   # fix names
-  nm <- names(json)
-  if (!is.null(nm))
-    names(json) <- map[names(json)]
+  if (!is.null(names(json))) {
+    lhs <- match(names(json), names(map), nomatch = 0L)
+    rhs <- match(names(map), names(json), nomatch = 0L)
+    names(json)[rhs] <- map[lhs]
+  }
 
   # fix values
   if (is.character(json))
-    return(map[[json]])
+    return(map[[json]] %||% json)
 
   # handle true, false, null
   if (is.name(json)) {
