@@ -92,7 +92,7 @@ hydrate <- function(packages = NULL,
 
   # only hydrate with packages that are either not currently installed,
   # or (if update = TRUE) the version in the library is newer
-  packages <- renv_hydrate_filter(packages, update)
+  packages <- renv_hydrate_filter(packages, library, update)
 
   # copy packages from user library to cache
   linkable <- renv_cache_linkable(project = project, library = library)
@@ -109,12 +109,13 @@ hydrate <- function(packages = NULL,
   invisible(result)
 }
 
-renv_hydrate_filter <- function(packages, update) {
+renv_hydrate_filter <- function(packages, library, update) {
 
   # run filter
   keep <- enumerate(
     packages,
     renv_hydrate_filter_impl,
+    library = library,
     update = update,
     FUN.VALUE = logical(1)
   )
@@ -124,15 +125,23 @@ renv_hydrate_filter <- function(packages, update) {
 
 }
 
-renv_hydrate_filter_impl <- function(package, path, update) {
+renv_hydrate_filter_impl <- function(package, path, library, update) {
 
   # if user has requested hydration of all packages, respect that
   if (identical(update, "all"))
     return(TRUE)
 
-  # check current version of package
-  # if this fails, assume package is unavailable and should be installed
-  current <- catch(numeric_version(renv_package_version(package)))
+  # is the package already installed in the requested library?
+  # if not, then we'll want to hydrate this package
+  # if so, we'll want to compare the version first and
+  # hydrate only if the requested version is newer than the current
+  descpath <- file.path(library, package, "DESCRIPTION")
+  desc <- catch(renv_description_read(path = descpath))
+  if (inherits(desc, "error"))
+    return(TRUE)
+
+  # get the current package version
+  current <- catch(numeric_version(desc[["Version"]]))
   if (inherits(current, "error"))
     return(TRUE)
 

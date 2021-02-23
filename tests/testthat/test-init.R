@@ -1,5 +1,14 @@
 context("Init")
 
+test_that("init() automatically installs referenced packages", {
+  skip_on_cran()
+
+  renv_tests_scope("bread")
+  init()
+  expect_true(renv_package_installed("bread"))
+
+})
+
 test_that("we can initialize a project using 'breakfast'", {
   skip_on_cran()
   skip_on_covr()
