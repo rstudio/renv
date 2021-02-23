@@ -4,7 +4,7 @@
 \alias{use}
 \title{Use a set of Packages}
 \usage{
-use(..., library = NULL, isolate = FALSE, attach = TRUE)
+use(..., library = NULL, isolate = FALSE, attach = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{...}{The \R packages to be used with this script.}
@@ -22,6 +22,8 @@ packages provided to \code{renv::use()} to be visible on the library paths.}
 \item{attach}{Boolean; should the set of requested packages be automatically attached?
 If \code{TRUE} (the default), packages will be loaded and attached via a call
 to \code{\link[=library]{library()}} after install.}
+
+\item{verbose}{Boolean; be verbose while installing packages?}
 }
 \value{
 This function is normally called for its side effects.

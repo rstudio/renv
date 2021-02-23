@@ -35,6 +35,9 @@
 #'   If `TRUE` (the default), packages will be loaded and attached via a call
 #'   to [library()] after install.
 #'
+#' @param verbose
+#'   Boolean; be verbose while installing packages?
+#'
 #' @return
 #'   This function is normally called for its side effects.
 #'
@@ -42,7 +45,8 @@
 use <- function(...,
                 library = NULL,
                 isolate = FALSE,
-                attach  = TRUE)
+                attach  = TRUE,
+                verbose = FALSE)
 {
 
   # allow use of the cache in this context
@@ -68,7 +72,7 @@ use <- function(...,
 
   # install packages
   records <- local({
-    renv_scope_options(renv.verbose = FALSE)
+    renv_scope_options(renv.verbose = verbose)
     install(packages = remotes, library = library, prompt = FALSE)
   })
 
