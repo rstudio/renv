@@ -38,7 +38,10 @@ renv_json_read <- function(file = NULL, text = NULL) {
   transformed <- gsub("[[{]", "list(", transformed)
   transformed <- gsub("[]}]", ")", transformed)
   transformed <- gsub(":", "=", transformed, fixed = TRUE)
-  json <- parse(text = paste(transformed, collapse = "\n"))[[1]]
+  text <- paste(transformed, collapse = "\n")
+
+  # parse it
+  json <- parse(text = text, keep.source = FALSE, srcfile = NULL)[[1L]]
 
   # construct map between source strings, replaced strings
   map <- as.character(parse(text = strings))
