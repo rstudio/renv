@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -111,7 +107,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -126,13 +122,13 @@
 
       
 
-      </header><script src="collaborating_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
+      </header><script src="collaborating_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Collaborating with renv</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/collaborating.Rmd"><code>vignettes/collaborating.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/collaborating.Rmd" class="external-link"><code>vignettes/collaborating.Rmd</code></a></small>
       <div class="hidden name"><code>collaborating.Rmd</code></div>
 
     </div>
@@ -145,12 +141,12 @@
 <a href="#collaborating-with-renv" class="anchor"></a>Collaborating with renv</h2>
 <p>If you’re planning to collaborate with others using <code>renv</code>, we recommend the following steps to get started:</p>
 <ol style="list-style-type: decimal">
-<li><p>Select a way to share your project sources. We recommend using a version control system alongside a public repository; e.g. <a href="https://git-scm.com/">git</a> with <a href="https://github.com/">GitHub</a>, but many other options are available.</p></li>
+<li><p>Select a way to share your project sources. We recommend using a version control system alongside a public repository; e.g. <a href="https://git-scm.com/" class="external-link">git</a> with <a href="https://github.com/" class="external-link">GitHub</a>, but many other options are available.</p></li>
 <li><p>One user (perhaps yourself) should explicitly initialize <code>renv</code> in the project, via <code><a href="../reference/init.html">renv::init()</a></code>. This will create the initial <code>renv</code> lockfile, and also write the <code>renv</code> auto-loaders to the project’s <code>.Rprofile</code> and <code>renv/activate.R</code>. These will ensure the right version of <code>renv</code> is downloaded and installed for your collaborators when they start in this project.</p></li>
 <li><p>Share your project sources, alongside the generated lockfile <code>renv.lock</code>. Be sure to also share the generated auto-loaders in <code>.Rprofile</code> and <code>renv/activate.R</code>.</p></li>
 <li><p>When a collaborator first launches in this project, <code>renv</code> should automatically bootstrap itself, thereby downloading and installing the appropriate version of <code>renv</code> into the project library. After this has completed, they can then use <code><a href="../reference/restore.html">renv::restore()</a></code> to restore the project library locally on their machine.</p></li>
 </ol>
-<p>For more information on collaboration strategies, please visit <a href="https://environments.rstudio.com/">environments.rstudio.com</a>.</p>
+<p>For more information on collaboration strategies, please visit <a href="https://environments.rstudio.com/" class="external-link">environments.rstudio.com</a>.</p>
 </div>
 <div id="updating-the-lockfile" class="section level2">
 <h2 class="hasAnchor">
@@ -182,7 +178,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -190,6 +186,8 @@
 
   
 
+
+  
 
   </body>
 </html>

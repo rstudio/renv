@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -111,7 +107,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -126,20 +122,20 @@
 
       
 
-      </header><script src="ci_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
+      </header><script src="ci_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using renv with Continuous Integration</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/ci.Rmd"><code>vignettes/ci.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/ci.Rmd" class="external-link"><code>vignettes/ci.Rmd</code></a></small>
       <div class="hidden name"><code>ci.Rmd</code></div>
 
     </div>
 
     
     
-<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="https://github.com/features/actions">GitHub Actions</a>, <a href="https://travis-ci.org/">Travis CI</a>, <a href="https://www.appveyor.com/">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and re-install these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
+<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="https://github.com/features/actions" class="external-link">GitHub Actions</a>, <a href="https://travis-ci.org/" class="external-link">Travis CI</a>, <a href="https://www.appveyor.com/" class="external-link">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and re-install these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
 <p><code>renv</code> can often be helpful in these situations. The general idea is:</p>
 <ol style="list-style-type: decimal">
 <li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> on your local machine, to generate <code>renv.lock</code>;</p></li>
@@ -174,7 +170,7 @@ steps:
   run: |
     if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
     renv::restore()</code></pre>
-<p>See also the <a href="https://github.com/actions/cache/blob/master/examples.md#r---renv">example</a> on GitHub actions.</p>
+<p>See also the <a href="https://github.com/actions/cache/blob/master/examples.md#r---renv" class="external-link">example</a> on GitHub actions.</p>
 </div>
 <div id="travis-ci" class="section level2">
 <h2 class="hasAnchor">
@@ -191,20 +187,20 @@ install:
   
 script:
   - Rscript -e '&lt;your-build-action&gt;'</code></pre>
-<p>Note that we provide both <code>install</code> and <code>script</code> steps, as we want to override the default behaviors provided by Travis for R (which might attempt to install different version of R packages than what is currently encoded in <code>renv.lock</code>). See <a href="https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps" class="uri">https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps</a> for more details.</p>
+<p>Note that we provide both <code>install</code> and <code>script</code> steps, as we want to override the default behaviors provided by Travis for R (which might attempt to install different version of R packages than what is currently encoded in <code>renv.lock</code>). See <a href="https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps" class="external-link uri">https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps</a> for more details.</p>
 <p>It’s also possible to override the package repository used during restore by setting the <code>RENV_CONFIG_REPOS_OVERRIDE</code> environment variable. For example:</p>
 <pre><code>env:
   global:
     - RENV_CONFIG_REPOS_OVERRIDE=&lt;cran&gt;</code></pre>
 <p>replacing <code>&lt;cran&gt;</code> with your desired R package repository. This can also be accomplished in a similar way by setting:</p>
 <pre><code>options(renv.config.repos.override = &lt;...&gt;)</code></pre>
-<p>but it is generally more ergonomic to set the associated environment variable. (See <code><a href="../reference/config.html">?config</a></code> for more details.) This can be useful if you’d like to, for example, enforce the usage of a <a href="https://mran.microsoft.com">MRAN</a> checkpoint during restore, or another similarly-equipped repository.</p>
-<p>See <a href="https://docs.travis-ci.com/user/caching" class="uri">https://docs.travis-ci.com/user/caching</a> for more details on how Travis manages caching.</p>
+<p>but it is generally more ergonomic to set the associated environment variable. (See <code><a href="../reference/config.html">?config</a></code> for more details.) This can be useful if you’d like to, for example, enforce the usage of a <a href="https://mran.microsoft.com" class="external-link">MRAN</a> checkpoint during restore, or another similarly-equipped repository.</p>
+<p>See <a href="https://docs.travis-ci.com/user/caching" class="external-link uri">https://docs.travis-ci.com/user/caching</a> for more details on how Travis manages caching.</p>
 </div>
 <div id="gitlab-ci" class="section level2">
 <h2 class="hasAnchor">
 <a href="#gitlab-ci" class="anchor"></a>GitLab CI</h2>
-<p>The following template can be used as a base when using <code>renv</code> with <a href="https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/">GitLab CI</a>:</p>
+<p>The following template can be used as a base when using <code>renv</code> with <a href="https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/" class="external-link">GitLab CI</a>:</p>
 <pre><code>variables:
   RENV_CONFIG_REPOS_OVERRIDE: "http://cran.r-project.org"
   RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/cache
@@ -239,7 +235,7 @@ before_script:
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -247,6 +243,8 @@ before_script:
 
   
 
+
+  
 
   </body>
 </html>

@@ -53,6 +53,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -64,9 +66,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -80,19 +88,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -185,7 +187,7 @@
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>An object of class <code>list</code> of length 3.</p>
+    <p>An object of class <code>list</code> of length 5.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>By default, <code>renv</code> collects state into these folders:</p>
@@ -244,6 +246,13 @@ cache path like:</p><pre>/mnt/shared/renv/cache/v2/ubuntu-bionic/R-3.5/x86_64-pc
 variable is set in your <span style="R">R</span> installation's <code>Renviron.site</code> file, typically
 located at <code><a href='https://rdrr.io/r/base/file.path.html'>file.path(R.home("etc"), "Renviron.site")</a></code>, so that it can be
 active for any <span style="R">R</span> sessions launched on that machine.</p>
+<p>Starting from <code>renv 0.13.0</code>, you can also instruct <code>renv</code> to auto-generate
+an OS-specific component to include as part of library and cache paths,
+by setting the environment variable:</p><pre><span class='va'>RENV_PATHS_PREFIX_AUTO</span> <span class='op'>=</span> <span class='cn'>TRUE</span>
+</pre>
+
+<p>The prefix will be constructed based on fields within the system's
+<code>/etc/os-release</code> file.</p>
 <p>If reproducibility of a project is desired on a particular machine, it is
 highly recommended that the <code>renv</code> cache of installed packages + binary
 packages is backed up and persisted, so that packages can be easily restored
@@ -313,7 +322,7 @@ any packages within the cache are no longer in use, and can be removed.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -321,6 +330,8 @@ any packages within the cache are no longer in use, and can be removed.</p>
 
   
 
+
+  
 
   </body>
 </html>

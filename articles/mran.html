@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -111,7 +107,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -126,13 +122,13 @@
 
       
 
-      </header><script src="mran_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
+      </header><script src="mran_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using MRAN Binaries</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/mran.Rmd"><code>vignettes/mran.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/mran.Rmd" class="external-link"><code>vignettes/mran.Rmd</code></a></small>
       <div class="hidden name"><code>mran.Rmd</code></div>
 
     </div>
@@ -140,7 +136,7 @@
     
     
 <p>When working on macOS and Windows, users will often download and install package binaries, rather than sources, as provided by CRAN. However, CRAN only provides binaries for the latest-available version of a package, and so binaries for older versions of a package will become inaccessible as that package is updated.</p>
-<p><a href="https://mran.microsoft.com/">MRAN</a> is a service provided by Microsoft that mirrors CRAN every day, and allows users to use particular snapshots of CRAN as their active repositories within their R session.</p>
+<p><a href="https://mran.microsoft.com/" class="external-link">MRAN</a> is a service provided by Microsoft that mirrors CRAN every day, and allows users to use particular snapshots of CRAN as their active repositories within their R session.</p>
 <p>Starting with <code>renv 0.10.0</code>, <code>renv</code> can also make use of MRAN binary packages when restoring packages on Windows and macOS. When invoking <code><a href="../reference/install.html">renv::install()</a></code> or <code><a href="../reference/restore.html">renv::restore()</a></code>, <code>renv</code> will attempt to install the package from the latest-available MRAN snapshot that still had this package available.</p>
 <p>As an example, the <code>stringi</code> package was updated from version <code>1.4.5</code> to version <code>1.4.6</code> on 2020-02-17, and binaries for that version of <code>stringi</code> were made available for macOS on 2020-02-20. Because of this, the last date on which <code>stringi 1.4.5</code> macOS binaries were available on CRAN was <code>2020-02-19</code>.</p>
 <p>Fortunately, because MRAN snapshotted CRAN on this date, we can retrieve that binary. For example, on macOS with R 3.6:</p>
@@ -151,7 +147,7 @@
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    OK [installed binary]</span></code></pre></div>
 <p>When binaries are available from MRAN, <code>renv</code> should transparently download and use them when possible. When binaries are not available, <code>renv</code> will fall back to the old behavior, and attempt to install packages from sources.</p>
 <p>If you prefer not to make use of MRAN (e.g. because you are using <code>renv</code> in an environment without external internet access), you can disable it with:</p>
-<pre><code><a href="https://rdrr.io/r/base/options.html">options(renv.config.mran.enabled = FALSE)</a></code></pre>
+<pre><code><a href="https://rdrr.io/r/base/options.html" class="external-link">options(renv.config.mran.enabled = FALSE)</a></code></pre>
 <p>See also the <code><a href="../reference/equip.html">?renv::equip</a></code> function, which can assist you in preparing your environment for compilation of packages.</p>
   </div>
 
@@ -168,7 +164,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -176,6 +172,8 @@
 
   
 
+
+  
 
   </body>
 </html>

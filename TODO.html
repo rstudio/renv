@@ -52,6 +52,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -63,9 +65,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-title-body">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -79,19 +87,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="articles/renv.html">Get started</a>
 </li>
 <li>
@@ -178,7 +180,7 @@
 
 <ul class="task-list">
 <li>
-<input type="checkbox" disabled checked><code><a href="https://rdrr.io/r/utils/download.file.html">download.file(method = "wininet")</a></code> appears to be unreliable for file URIs?</li>
+<input type="checkbox" disabled checked><code><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file(method = "wininet")</a></code> appears to be unreliable for file URIs?</li>
 </ul>
 </div>
 <div id="dependencies" class="section level1">
@@ -206,12 +208,12 @@ Properly handle broken links in the project library (e.g. if the cache moved or
 <li><p><input type="checkbox" disabled checked><code><a href="reference/rehash.html">rehash()</a></code> – tools for validating package hashes + their install location? <code><a href="reference/rehash.html">rehash()</a></code> would look at packages in the cache and update their cache location if the caching scheme changed.</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/clean.html">clean()</a></code> function to remove ununsed packages from the library. (If the cache is enabled, they will remain in the cache).</p></li>
 <li><p><input type="checkbox" disabled checked>
-Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://rdrr.io/r/base/options.html">options(repos)</a></code> would suffice here I believe)</p></li>
+Allow users to override the repository used during restore of a particular package? (Setting <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options(repos)</a></code> would suffice here I believe)</p></li>
 <li><p><input type="checkbox" disabled>
 Use custom <code>Makevars</code> file and set some variables that certain packages need but don’t properly declare? (E.g. older versions of the <code>maps</code> package need <code>awk</code> installed)</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/restore.html">restore()</a></code> will attempt to repair the dependency tree during restore; e.g. dependent packages in the lockfile will be downloaded and installed as required. Should we prompt the user to <code><a href="reference/snapshot.html">snapshot()</a></code> afterwards so that the newly-reinstalled dependencies can be captured in the lockfile?</p></li>
 <li><p><input type="checkbox" disabled checked>
-Take over the <code>R_PROFILE</code>, <code>R_PROFILE_USER</code>, <code>R_ENVIRON</code> and <code>R_ENVIRON_USER</code> environment variables? Needed for cases like <a href="https://github.com/rstudio/packrat/issues/526" class="uri">https://github.com/rstudio/packrat/issues/526</a>.</p></li>
+Take over the <code>R_PROFILE</code>, <code>R_PROFILE_USER</code>, <code>R_ENVIRON</code> and <code>R_ENVIRON_USER</code> environment variables? Needed for cases like https://github.com/rstudio/packrat/issues/526.</p></li>
 <li><p><input type="checkbox" disabled checked>
 Make it possible to snapshot arbitrary libraries. [DONE: call <code><a href="reference/snapshot.html">snapshot()</a></code> on any project to generate a manifest for that project’s state]</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/hydrate.html">hydrate()</a></code> as a general function to discover dependencies and then install any missing packages into the active library. (Companion function to <code><a href="reference/init.html">init()</a></code>)</p></li>
@@ -224,7 +226,7 @@ Consider <code>.renvignore</code> or similar for controlling what files / direct
 <li><p><input type="checkbox" disabled checked>
 Properly handle <code>RENV_DEFAULTS</code> case (they get lost if the user attempts to build and reload a package managed by <code>renv</code>, which screws up RStudio’s notion of the library paths if the project is later deactivated)</p></li>
 <li><p><input type="checkbox" disabled>
-Audit usages of <code>renv_file_exists()</code>. When do we care about broken symlinks? <code><a href="https://rdrr.io/r/base/files.html">file.exists()</a></code> returns FALSE for broken symlinks; <code>renv_file_exists()</code> returns TRUE.</p></li>
+Audit usages of <code>renv_file_exists()</code>. When do we care about broken symlinks? <code><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists()</a></code> returns FALSE for broken symlinks; <code>renv_file_exists()</code> returns TRUE.</p></li>
 <li><p><input type="checkbox" disabled checked>
 De-couple the ‘retrieve’ + ‘install’ steps during restore.</p></li>
 <li><p><input type="checkbox" disabled checked>
@@ -301,7 +303,7 @@ Warn when installing a package currently loaded? (so that user knows they must r
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -309,6 +311,8 @@ Warn when installing a package currently loaded? (so that user knows they must r
 
   
 
+
+  
 
   </body>
 </html>

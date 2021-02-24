@@ -53,6 +53,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -64,9 +66,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -80,19 +88,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -240,6 +242,8 @@ Defaults to <code>"api.github.com"</code>.</p></dd>
 Defaults to <code>"gitlab.com"</code>.</p></dd>
 <dt><b><code>renv.config.hydrate.libpaths</code></b></dt><dd><p>A character vector of library paths, to be used by <code><a href='hydrate.html'>hydrate()</a></code> when attempting to hydrate projects. When empty, the default set of library paths (as documented in <code><a href='hydrate.html'>?hydrate</a></code>) are used instead. See <code><a href='hydrate.html'>hydrate()</a></code> for more details.
 Defaults to <code>NULL</code>.</p></dd>
+<dt><b><code>renv.config.install.shortcuts</code></b></dt><dd><p>Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if <code>renv</code> discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
+Defaults to <code>TRUE</code>.</p></dd>
 <dt><b><code>renv.config.install.staged</code></b></dt><dd><p>DEPRECATED: Please use <code>renv.config.install.transactional</code> instead.
 Defaults to <code>TRUE</code>.</p></dd>
 <dt><b><code>renv.config.install.transactional</code></b></dt><dd><p>Perform a transactional install of packages during install and restore? When enabled, <code>renv</code> will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
@@ -339,7 +343,7 @@ various settings available in <a href='settings.html'>settings</a> can be used.<
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -347,6 +351,8 @@ various settings available in <a href='settings.html'>settings</a> can be used.<
 
   
 
+
+  
 
   </body>
 </html>

@@ -47,8 +47,12 @@
 
 
 <meta property="og:title" content="Embed a Lockfile — embed" />
-<meta property="og:description" content="Use embed() to embed a lockfile directly within a file." />
+<meta property="og:description" content="Use embed() to embed a compact representation of an renv lockfile
+directly within a file, using use() to automatically provision an
+R library when that script is run." />
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg" />
+
+
 
 
 
@@ -64,9 +68,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -80,19 +90,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -177,10 +181,12 @@
     </div>
 
     <div class="ref-description">
-    <p>Use <code>embed()</code> to embed a lockfile directly within a file.</p>
+    <p>Use <code>embed()</code> to embed a compact representation of an <code>renv</code> lockfile
+directly within a file, using <code><a href='use.html'>use()</a></code> to automatically provision an
+<span style="R">R</span> library when that script is run.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>embed</span><span class='op'>(</span>path <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, project <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>embed</span><span class='op'>(</span>path <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, lockfile <span class='op'>=</span> <span class='cn'>NULL</span>, project <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -195,6 +201,12 @@
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
     </tr>
     <tr>
+      <th>lockfile</th>
+      <td><p>The path to an <code>renv</code> lockfile. When <code>NULL</code> (the default), the project
+lockfile will be read (if any); otherwise, a new lockfile will be generated
+from the current library paths.</p></td>
+    </tr>
+    <tr>
       <th>project</th>
       <td><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
@@ -204,10 +216,10 @@ directory is used instead.</p></td>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This is primarily useful in tandem with <a href='run.html'>run</a> -- if you call <code><a href='run.html'>renv::run()</a></code>
-on a script containing an inline lockfile, <code>renv</code> will first provision
-a library based on that lockfile definition, and then run the script
-using that lockfile.</p>
+    <p>Using <code>embed()</code> is useful if you'd like to be able to share "reproducible"
+R scripts -- when these scripts are sourced, the generated call to
+<code><a href='use.html'>renv::use()</a></code> will ensure that an R library with the requested packages
+is automatically provisioned.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -224,7 +236,7 @@ using that lockfile.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -232,6 +244,8 @@ using that lockfile.</p>
 
   
 
+
+  
 
   </body>
 </html>

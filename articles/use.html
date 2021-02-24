@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Using renv with RStudio Connect • renv</title>
+<title>Using Use • renv</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Using renv with RStudio Connect">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Using Use">
 <meta property="og:description" content="renv">
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -122,43 +122,42 @@
 
       
 
-      </header><script src="rsconnect_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="use_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Using renv with RStudio Connect</h1>
+      <h1 data-toc-skip>Using Use</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/rsconnect.Rmd" class="external-link"><code>vignettes/rsconnect.Rmd</code></a></small>
-      <div class="hidden name"><code>rsconnect.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/use.Rmd" class="external-link"><code>vignettes/use.Rmd</code></a></small>
+      <div class="hidden name"><code>use.Rmd</code></div>
 
     </div>
 
     
     
-<p><a href="https://rstudio.com/products/connect/" class="external-link">RStudio Connect</a> is a publication platform for deploying content built in R and Python to share with a broad audience. R users may want to develop content (like <a href="https://shiny.rstudio.com/" class="external-link">Shiny applications</a> or <a href="https://rmarkdown.rstudio.com/index.html" class="external-link">RMarkdown documents</a>) using <code>renv</code> and then publish that content to RStudio Connect. This is a supported pattern where <code>renv</code> is used to manage the local project environment and then RStudio Connect recreates and manages the deployment environment.</p>
-<div id="publishing-from-the-rstudio-ide" class="section level2">
-<h2 class="hasAnchor">
-<a href="#publishing-from-the-rstudio-ide" class="anchor"></a>Publishing from the RStudio IDE</h2>
-<p>The RStudio IDE includes a button for push-button deployment to RStudio Connect: <img src="ide-publish.png" alt="RStudio IDE Publish Button"></p>
-<p>When this option is used to deploy content to RStudio Connect, a manifest file is automatically generated and sent to RStudio Connect describing the project environment. This manifest file will reflect the project environment create and managed by <code>renv</code>. The <code>renv</code> generated <code>.Rprofile</code> file should <strong>not</strong> be included in deployments to RStudio Connect.</p>
-</div>
-<div id="publishing-programatically" class="section level2">
-<h2 class="hasAnchor">
-<a href="#publishing-programatically" class="anchor"></a>Publishing programatically</h2>
-<p>When publishing content to RStudio Connect programatically, it is necessary to generate a manifest file describing the project environment. This can be done with the <code>writeManifest()</code> function from the <a href="https://github.com/rstudio/rsconnect" class="external-link"><code>rsconnect</code></a> package. When using <code>renv</code>, the only thing that needs to be considered is that <code>rsconnect</code> should be installed and executed from within the <code>renv</code> environment so that it recognizes the local project library when generating the manifest file. As long as <code>rsconnect</code> is run from within the <code>renv</code> created environment, it will capture project dependencies from the local <code>renv</code> library. This can be accomplished by opening the project in RStudio or by starting the R session from the project root directory. The <code>renv</code> generated <code>.Rprofile</code> file should <strong>not</strong> be included in deployments to RStudio Connect.</p>
-</div>
-<div id="a-word-about-packrat" class="section level2">
-<h2 class="hasAnchor">
-<a href="#a-word-about-packrat" class="anchor"></a>A word about packrat</h2>
-<p>RStudio Connect uses <a href="https://rstudio.github.io/packrat/" class="external-link"><code>packrat</code></a> to restore project environments on the RStudio Connect server. This should have no impact on how the user develops content for RStudio Connect. It is not necessary for the user to use <code>packrat</code> instead of <code>renv</code> when developing content, as the environment management tool used locally has no impact on the tools RStudio Connect uses for environment management. Therefore, there should be no concerns with using <code>renv</code> to develop content that will be deployed to RStudio Connect.</p>
-</div>
+<p>The <code><a href="../reference/use.html">renv::use()</a></code> function can make it easier to define stand-alone R scripts that include their R package requirements directly in the script itself. For example:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R">
+<span class="co"># write down the set of packages required by this script</span>
+<span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use.html">use</a></span><span class="op">(</span>
+  <span class="st">"digest"</span>,         <span class="co"># use the latest-available version of digest</span>
+  <span class="st">"rlang@0.3.4"</span>     <span class="co"># use an older release of rlang (installed from archive)</span>
+<span class="op">)</span>
+
+<span class="co"># use the requested packages</span>
+<span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>answer <span class="op">=</span> <span class="fl">42</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>Running a script with these contents will:</p>
+<ol style="list-style-type: decimal">
+<li><p>Automatically download the requested packages (the latest release of <code>digest</code>, alongside <code>rlang 0.3.4</code>),</p></li>
+<li><p>Install the requested packages (plus their recursive package dependencies) to a temporary library path,</p></li>
+<li><p>Activate that library path, so that it’s used subsequently in the script.</p></li>
+</ol>
+<p><code><a href="../reference/use.html">renv::use()</a></code> can hence be a useful way of sharing standalone R scripts with a set of specific package requirements. Running these scripts will ensure the requested packages are automatically downloaded and installed.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 

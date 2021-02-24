@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Using renv with RStudio Connect • renv</title>
+<title>Project Profiles • renv</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Using renv with RStudio Connect">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Project Profiles">
 <meta property="og:description" content="renv">
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -122,35 +122,53 @@
 
       
 
-      </header><script src="rsconnect_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="profiles_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Using renv with RStudio Connect</h1>
+      <h1 data-toc-skip>Project Profiles</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/rsconnect.Rmd" class="external-link"><code>vignettes/rsconnect.Rmd</code></a></small>
-      <div class="hidden name"><code>rsconnect.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/profiles.Rmd" class="external-link"><code>vignettes/profiles.Rmd</code></a></small>
+      <div class="hidden name"><code>profiles.Rmd</code></div>
 
     </div>
 
     
     
-<p><a href="https://rstudio.com/products/connect/" class="external-link">RStudio Connect</a> is a publication platform for deploying content built in R and Python to share with a broad audience. R users may want to develop content (like <a href="https://shiny.rstudio.com/" class="external-link">Shiny applications</a> or <a href="https://rmarkdown.rstudio.com/index.html" class="external-link">RMarkdown documents</a>) using <code>renv</code> and then publish that content to RStudio Connect. This is a supported pattern where <code>renv</code> is used to manage the local project environment and then RStudio Connect recreates and manages the deployment environment.</p>
-<div id="publishing-from-the-rstudio-ide" class="section level2">
+<div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#publishing-from-the-rstudio-ide" class="anchor"></a>Publishing from the RStudio IDE</h2>
-<p>The RStudio IDE includes a button for push-button deployment to RStudio Connect: <img src="ide-publish.png" alt="RStudio IDE Publish Button"></p>
-<p>When this option is used to deploy content to RStudio Connect, a manifest file is automatically generated and sent to RStudio Connect describing the project environment. This manifest file will reflect the project environment create and managed by <code>renv</code>. The <code>renv</code> generated <code>.Rprofile</code> file should <strong>not</strong> be included in deployments to RStudio Connect.</p>
+<a href="#introduction" class="anchor"></a>Introduction</h2>
+<p>Starting with <code>renv 0.13.0</code>, it is possible to activate and switch between different profiles associated with a project. A profile can be thought of as a different mode in which a project is used. For example:</p>
+<ul>
+<li>A “development” profile might be used when developing and testing a project,</li>
+<li>A “production” profile might be used for production deployments,</li>
+<li>A “shiny” profile might be used when running the Shiny application.</li>
+</ul>
+<p>At its heart, activating or using a particular profile implies using a different set of paths for the project library and lockfile. With this, it is possible to associate different packages, and different dependencies, with different workflows in a single project using <code>renv</code>.</p>
 </div>
-<div id="publishing-programatically" class="section level2">
+<div id="usage" class="section level2">
 <h2 class="hasAnchor">
-<a href="#publishing-programatically" class="anchor"></a>Publishing programatically</h2>
-<p>When publishing content to RStudio Connect programatically, it is necessary to generate a manifest file describing the project environment. This can be done with the <code>writeManifest()</code> function from the <a href="https://github.com/rstudio/rsconnect" class="external-link"><code>rsconnect</code></a> package. When using <code>renv</code>, the only thing that needs to be considered is that <code>rsconnect</code> should be installed and executed from within the <code>renv</code> environment so that it recognizes the local project library when generating the manifest file. As long as <code>rsconnect</code> is run from within the <code>renv</code> created environment, it will capture project dependencies from the local <code>renv</code> library. This can be accomplished by opening the project in RStudio or by starting the R session from the project root directory. The <code>renv</code> generated <code>.Rprofile</code> file should <strong>not</strong> be included in deployments to RStudio Connect.</p>
+<a href="#usage" class="anchor"></a>Usage</h2>
+<p>By default, <code>renv</code> projects use the “default” profile, which implies that library and lockfile paths are set in the typical way. To activate a particular profile, use:</p>
+<pre><code><a href="../reference/activate.html">renv::activate(profile = "dev")</a></code></pre>
+<p>This creates a profile called <code>"dev"</code>, and sets it as the default for the project, so that newly-launched R sessions will operate using the <code>"dev"</code> profile. After setting this and re-launching R, you should see that the default library and lockfile paths are resolved within the <code>renv/profiles/dev</code> folder from the project root.</p>
+<p>Alternatively, if you want to activate a particular profile for an R session without setting it as the default for new R sessions, you can use:</p>
+<pre><code><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv(RENV_PROFILE = "dev")</a></code></pre>
+<p>and <code>renv</code> will automatically use that profile as appropriate when computing library and lockfile paths. Similarly, from the command line, you might enforce the use of a particular profile in an <code>renv</code> project with:</p>
+<pre><code>export RENV_PROFILE=dev</code></pre>
+<p>With that set, <code>renv</code> would default to using the <code>"dev"</code> profile for any newly-launched R sessions within <code>renv</code> projects.</p>
+<p>To activate the “default” profile used by a project, use:</p>
+<pre><code><a href="../reference/activate.html">renv::activate(profile = NULL)</a></code></pre>
 </div>
-<div id="a-word-about-packrat" class="section level2">
+<div id="managing-profile-specific-dependencies" class="section level2">
 <h2 class="hasAnchor">
-<a href="#a-word-about-packrat" class="anchor"></a>A word about packrat</h2>
-<p>RStudio Connect uses <a href="https://rstudio.github.io/packrat/" class="external-link"><code>packrat</code></a> to restore project environments on the RStudio Connect server. This should have no impact on how the user develops content for RStudio Connect. It is not necessary for the user to use <code>packrat</code> instead of <code>renv</code> when developing content, as the environment management tool used locally has no impact on the tools RStudio Connect uses for environment management. Therefore, there should be no concerns with using <code>renv</code> to develop content that will be deployed to RStudio Connect.</p>
+<a href="#managing-profile-specific-dependencies" class="anchor"></a>Managing Profile-specific Dependencies</h2>
+<p>Profile-specific package dependencies can be declared within the project’s top-level <code>DESCRIPTION</code> file. For example, to declare a set of dependencies for a profile called “shiny”:</p>
+<pre><code>Config/renv/profiles/shiny/dependencies: shiny, tidyverse</code></pre>
+<p>The dependencies in this field can be specified in a format similar to that of the <code>Depends</code> and <code>Imports</code> fields of a regular <code>DESCRIPTION</code> file. These dependencies will be included in addition to the default set of dependencies normally discovered in the project. If you’d prefer that only the packages enumerated in this field are used, you can opt-in to using <code>"explicit"</code> snapshots, and leave the <code>Imports</code>, <code>Depends</code> and <code>Suggests</code> fields blank:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span><span class="st">"explicit"</span><span class="op">)</span></code></pre></div>
+<p>When set, only the dependencies listed in the project <code>DESCRIPTION</code> file will be used when the lockfile is generated. See <code><a href="../reference/snapshot.html">?renv::snapshot</a></code> for more details.</p>
 </div>
   </div>
 

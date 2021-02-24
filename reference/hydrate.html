@@ -48,9 +48,11 @@
 
 <meta property="og:title" content="Hydrate a Project — hydrate" />
 <meta property="og:description" content="Discover the R packages used within a project, and then install those
-packages into the active library. This effectively allows you to clone the
+packages into the active library. This effectively allows you to fork the
 state of your default R libraries for use within a project library." />
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg" />
+
+
 
 
 
@@ -66,9 +68,15 @@ state of your default R libraries for use within a project library." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -82,19 +90,13 @@ state of your default R libraries for use within a project library." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -180,11 +182,18 @@ state of your default R libraries for use within a project library." />
 
     <div class="ref-description">
     <p>Discover the <span style="R">R</span> packages used within a project, and then install those
-packages into the active library. This effectively allows you to clone the
+packages into the active library. This effectively allows you to fork the
 state of your default <span style="R">R</span> libraries for use within a project library.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>hydrate</span><span class='op'>(</span>packages <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, library <span class='op'>=</span> <span class='cn'>NULL</span>, sources <span class='op'>=</span> <span class='cn'>NULL</span>, project <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>hydrate</span><span class='op'>(</span>
+  packages <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>...</span>,
+  library <span class='op'>=</span> <span class='cn'>NULL</span>,
+  update <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  sources <span class='op'>=</span> <span class='cn'>NULL</span>,
+  project <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -205,6 +214,13 @@ are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td
 library as reported by <code><a href='https://rdrr.io/r/base/libPaths.html'>.libPaths()</a></code> is used.</p></td>
     </tr>
     <tr>
+      <th>update</th>
+      <td><p>Boolean; should <code>hydrate()</code> attempt to update already-installed
+packages if the requested package is already installed in the project
+library? Set this to <code>"all"</code> if you'd like <em>all</em> packages to be refreshed
+from the source library if possible.</p></td>
+    </tr>
+    <tr>
       <th>sources</th>
       <td><p>A set of library paths from which <code>renv</code> should attempt to
 draw packages. See <strong>Sources</strong> for more details.</p></td>
@@ -221,6 +237,13 @@ directory is used instead.</p></td>
 
     <p>A named <span style="R">R</span> list, giving the packages that were used for hydration
 as well as the set of packages which were not found.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>It may occasionally be useful to use <code>renv::hydrate()</code> to update the packages
+used within a project that has already been initialized. However, be warned
+that it's possible that the packages pulled in may not actually be compatible
+with the packages installed in the project library, so you should exercise
+caution when doing so.</p>
     <h2 class="hasAnchor" id="sources"><a class="anchor" href="#sources"></a>Sources</h2>
 
     
@@ -270,7 +293,7 @@ packages from the active R repositories.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -278,6 +301,8 @@ packages from the active R repositories.</p>
 
   
 
+
+  
 
   </body>
 </html>

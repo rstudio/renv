@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Update Packages — update • renv</title>
+<title>Use a set of Packages — use • renv</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +46,9 @@
 
 
 
-<meta property="og:title" content="Update Packages — update" />
-<meta property="og:description" content="Update packages which are currently out-of-date. Currently, only
-CRAN and GitHub package sources are supported." />
+<meta property="og:title" content="Use a set of Packages — use" />
+<meta property="og:description" content="Given a set of R package requirements, install those packages into the
+library path requested via library, and then activate that library path." />
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg" />
 
 
@@ -174,98 +174,66 @@ CRAN and GitHub package sources are supported." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Update Packages</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/update.R'><code>R/update.R</code></a></small>
-    <div class="hidden name"><code>update.Rd</code></div>
+    <h1>Use a set of Packages</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/use.R'><code>R/use.R</code></a></small>
+    <div class="hidden name"><code>use.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Update packages which are currently out-of-date. Currently, only
-CRAN and GitHub package sources are supported.</p>
+    <p>Given a set of <span style="R">R</span> package requirements, install those packages into the
+library path requested via <code>library</code>, and then activate that library path.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>update</span><span class='op'>(</span>
-  packages <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>...</span>,
-  exclude <span class='op'>=</span> <span class='cn'>NULL</span>,
-  library <span class='op'>=</span> <span class='cn'>NULL</span>,
-  rebuild <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  check <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  prompt <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span>,
-  project <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>use</span><span class='op'>(</span><span class='va'>...</span>, library <span class='op'>=</span> <span class='cn'>NULL</span>, isolate <span class='op'>=</span> <span class='cn'>FALSE</span>, attach <span class='op'>=</span> <span class='cn'>TRUE</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>packages</th>
-      <td><p>A character vector of <span style="R">R</span> packages to update. When <code>NULL</code>
-(the default), all packages will be updated.</p></td>
-    </tr>
-    <tr>
       <th>...</th>
-      <td><p>Unused arguments, reserved for future expansion. If any arguments
-are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
-    </tr>
-    <tr>
-      <th>exclude</th>
-      <td><p>A set of packages to explicitly exclude from updating.
-Use <code>renv::update(exclude = &lt;...&gt;)</code> to update all packages except for
-a specific set of excluded packages.</p></td>
+      <td><p>The <span style="R">R</span> packages to be used with this script.</p></td>
     </tr>
     <tr>
       <th>library</th>
-      <td><p>The <span style="R">R</span> library to be used. When <code>NULL</code>, the active project
-library will be used instead.</p></td>
+      <td><p>The library path into which the requested packages should be installed.
+When <code>NULL</code> (the default), a library path within the <span style="R">R</span> temporary
+directory will be generated and used. Note that this same library path
+will be re-used on future calls to <code>renv::use()</code>, allowing <code>renv::use()</code>
+to be used multiple times within a single script.</p></td>
     </tr>
     <tr>
-      <th>rebuild</th>
-      <td><p>Force packages to be rebuilt, thereby bypassing any installed
-versions of the package available in the cache? This can either be a
-boolean (indicating that all installed packages should be rebuilt), or a
-vector of package names indicating which packages should be rebuilt.</p></td>
+      <th>isolate</th>
+      <td><p>Boolean; should the active library paths be included in the set of library
+paths activated for this script? Set this to <code>TRUE</code> if you only want the
+packages provided to <code>renv::use()</code> to be visible on the library paths.</p></td>
     </tr>
     <tr>
-      <th>check</th>
-      <td><p>Boolean; check for package updates without actually
-installing available updates? This is useful when you'd like to determine
-what updates are available, without actually installing those updates.</p></td>
+      <th>attach</th>
+      <td><p>Boolean; should the set of requested packages be automatically attached?
+If <code>TRUE</code> (the default), packages will be loaded and attached via a call
+to <code><a href='https://rdrr.io/r/base/library.html'>library()</a></code> after install.</p></td>
     </tr>
     <tr>
-      <th>prompt</th>
-      <td><p>Boolean; prompt the user before taking any action? For backwards
-compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></td>
-    </tr>
-    <tr>
-      <th>project</th>
-      <td><p>The project directory. If <code>NULL</code>, then the active project will
-be used. If no project is currently active, then the current working
-directory is used instead.</p></td>
+      <th>verbose</th>
+      <td><p>Boolean; be verbose while installing packages?</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A named list of package records which were installed by <code>renv</code>.</p>
+    <p>This function is normally called for its side effects.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Updates will only be checked from the same source -- for example,
-if a package was installed from GitHub, but a newer version is
-available on CRAN, that updated version will not be seen.</p>
-<p>You can call <code>renv::update()</code> with no arguments to update all packages within
-the project, excluding any packages ignored via the <code>ignored.packages</code>
-project setting. Use the <code>exclude</code> argument to further refine the exclusion
-criteria if desired.</p>
+    <p><code>renv::use()</code> is intended to be used within standalone <span style="R">R</span> scripts. It can
+be useful when you'd like to specify an <span style="R">R</span> script's dependencies directly
+within that script, and have those packages automatically installed and
+loaded when the associated script is run. In this way, an <span style="R">R</span> script can more
+easily be shared and re-run with the exact package versions requested via
+<code>use()</code>.</p>
+<p><code>renv::use()</code> is inspired in part by the <a href='https://groundhogr.com/'>groundhog</a>
+package, which provides an alternate mechanism for specifying a script's
+<span style="R">R</span> package requirements within that same <span style="R">R</span> script.</p>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-
-<span class='co'># update the 'dplyr' package</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>update</span><span class='op'>(</span><span class='st'>"dplyr"</span><span class='op'>)</span>
-
-<span class='op'>}</span>
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

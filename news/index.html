@@ -52,6 +52,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -63,9 +65,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -79,19 +87,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.12.5-2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -174,10 +176,34 @@
       <small>Source: <a href='https://github.com/rstudio/renv/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="renv-0130-unreleased" class="section level1">
+    <div id="renv-0130" class="section level1">
 <h1 class="page-header" data-toc-text="0.13.0">
-<a href="#renv-0130-unreleased" class="anchor"></a>renv 0.13.0 (UNRELEASED)<small> Unreleased </small>
+<a href="#renv-0130" class="anchor"></a>renv 0.13.0<small> Unreleased </small>
 </h1>
+<ul>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer creates an <code>renv/activate.R</code> file in the project folder if one does not already exist. (<a href='https://github.com/rstudio/renv/issues/655'>#655</a>)</p></li>
+<li><p>The <code><a href="../reference/hydrate.html">renv::hydrate()</a></code> function gains the <code>update</code> argument, used to control whether <code><a href="../reference/hydrate.html">renv::hydrate()</a></code> chooses to update packages when invoked. When set to <code>TRUE</code>, if the version of a package installed in the source library is newer than that of the project library, then <code>renv</code> will copy that version of the package into the project library. (<a href='https://github.com/rstudio/renv/issues/647'>#647</a>)</p></li>
+<li><p>The <code>RENV_PATHS_PREFIX_AUTO</code> environment variable can now be set to instruct <code>renv</code> to include an OS-specific component as part of the library and cache paths. This is primarily useful for Linux systems, where one might want to share a global cache with multiple different operating systems. The path component is constructed from the <code>ID</code> and <code>VERSION_CODENAME</code> / <code>VERSION_ID</code> components of the system’s <code>/etc/os-release</code> file.</p></li>
+<li><p><code>renv</code>’s dependency discovery machinery now has preliminary support for packages imported via the <a href="https://github.com/klmr/box" class="external-link">box</a> package; e.g. <code>box::use(dplyr[...])</code>.</p></li>
+<li><p>Multiple cache paths can now be specified, with each cache path separated by either a <code>;</code> or <code><a href="https://rdrr.io/r/base/Colon.html" class="external-link">:</a></code>. This can be useful when you’d like to use multiple package caches within the same project; for example, because you’d like to share a read-only cache with a set of projects. (<a href='https://github.com/rstudio/renv/issues/653'>#653</a>, <a href='https://github.com/vandenman'>@vandenman</a>)</p></li>
+<li><p>Fixed an issue where <code>renv</code> could fail to discover dependencies in directories with very large <code>.gitignore</code> or <code>.renvignore</code> files. (<a href='https://github.com/rstudio/renv/issues/652'>#652</a>)</p></li>
+<li><p><code>renv</code> gains a new configuration option, <code>install.shortcuts</code>. When enabled, if <code>renv</code> discovers that a package to be installed is already available in the user or site libraries, <code>renv</code> will instead install a copy of that package into the project library. (<a href='https://github.com/rstudio/renv/issues/636'>#636</a>)</p></li>
+<li><p><code>renv</code> gains a new function, <code><a href="../reference/use.html">renv::use()</a></code>, used to download, install, and load a set of packages directly within an R script. <code><a href="../reference/use.html">renv::use()</a></code> can make it easier to share a standalone R script, with the packages required to install that script embedded directly in the script. It is inspired in part by the <a href="https://groundhogr.com/" class="external-link">groundhog</a> package.</p></li>
+<li><p><code><a href="../reference/install.html">renv::install(".")</a></code> can now be used to install a package from sources within the current working directory. (<a href='https://github.com/rstudio/renv/issues/634'>#634</a>)</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/update.html">renv::update()</a></code> could fail if a package installed from GitHub was missing the <code>RemoteHost</code> field in its DESCRIPTION file. (<a href='https://github.com/rstudio/renv/issues/632'>#632</a>)</p></li>
+<li><p><code>renv</code> now has support for custom project profiles. Profiles can be used to activate different sets of project libraries + lockfiles for different workflows in a given project. See <code><a href="../articles/profiles.html">vignette("profiles", package = "renv")</a></code> for more details.</p></li>
+<li><p>Fixed an issue where attempts to initialize an <code>renv</code> project in a path containing non-ASCII characters could fail on Windows. (<a href='https://github.com/rstudio/renv/issues/629'>#629</a>)</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install("&lt;package&gt;")</a></code> could fail if <code>renv</code> chose to install the package from MRAN rather than from one of the active package repositories. (<a href='https://github.com/rstudio/renv/issues/627'>#627</a>)</p></li>
+<li><p><code>renv</code> again defaults to using the project’s <code>renv/staging</code> folder for staged / transactional installs. Use the <code>RENV_PATHS_LIBRARY_STAGING</code> environment variable if more granular control over the staging library path is required. This fixes issues on Windows with creating junction points to the global package cache on Windows. (<a href='https://github.com/rstudio/renv/issues/584'>#584</a>)</p></li>
+<li><p><code>renv</code> no longer skips downloading a requested source package if an existing cached download exists and appears to be valid. This should help avoid issues when attempting to install a package whose associated tarball has changed remotely. (<a href='https://github.com/rstudio/renv/issues/504'>#504</a>)</p></li>
+<li><p>During bootstrap, <code>renv</code> will now attempt to download and unpack a binary copy of <code>renv</code> if available from the specified package repositories.</p></li>
+<li><p><code>renv</code> now always attempts to bootstrap itself from the R Project’s Cloud package repository, as a fallback in case no other repository is available. (<a href='https://github.com/rstudio/renv/issues/613'>#613</a>)</p></li>
+<li><p><code>renv::rebuild(&lt;package&gt;)</code> now uses the latest-available version of the requested package(s) if those packages are not currently installed.</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/restore.html">renv::restore(library = "/path/to/lib")</a></code> would fail to restore packages, if those packages were already installed on the active library paths (as reported by <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code>). (<a href='https://github.com/rstudio/renv/issues/612'>#612</a>)</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> gains the <code>reprex</code> argument. Set this to <code>TRUE</code> if you’d like to embed an <code>renv</code> lockfile as part of a reproducible example, as generated by the <a href="https://www.tidyverse.org/help/#reprex-pkg" class="external-link"><code>reprex</code></a> package.</p></li>
+<li><p><code><a href="../reference/status.html">renv::status()</a></code> now reports packages that are referenced in a project’s scripts, but are neither installed in the project library nor recorded in the lockfile. (<a href='https://github.com/rstudio/renv/issues/588'>#588</a>)</p></li>
+<li><p>Fixed an issue where package installation could fail if the <code>configure.vars</code> option was set to be a named character, rather than a named list. (<a href='https://github.com/rstudio/renv/issues/609'>#609</a>)</p></li>
+</ul>
 </div>
     <div id="renv-0125" class="section level1">
 <h1 class="page-header" data-toc-text="0.12.5">
@@ -214,7 +240,7 @@
 <ul>
 <li><p>Fixed an issue where <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> could give an error if called with a <code>path</code> argument of length &gt; 1.</p></li>
 <li><p><code><a href="../reference/restore.html">renv::restore()</a></code> gains the <code>rebuild</code> argument, allowing users to control whether packages should be rebuilt on <code><a href="../reference/restore.html">restore()</a></code> rather than installed via links or copies from the cache, or other sources providing already-installed packages.</p></li>
-<li><p><code>renv</code> will now attempt to bootstrap itself from CRAN, in addition to any repositories declared via <code><a href="https://rdrr.io/r/base/options.html">getOption("repos")</a></code>. If you’d prefer to disable this behavior, you can set <code><a href="https://rdrr.io/r/base/options.html">options(renv.bootstrap.repos = character())</a></code>.</p></li>
+<li><p><code>renv</code> will now attempt to bootstrap itself from CRAN, in addition to any repositories declared via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption("repos")</a></code>. If you’d prefer to disable this behavior, you can set <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options(renv.bootstrap.repos = character())</a></code>.</p></li>
 <li><p>The <code>renv</code> setting <code>r.version</code> has been added. This can be set if you’d like to associate a particular project with a specific version of R, independent of the version of R actually used when subsequent lockfiles are created via <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>. For example, setting <code>renv::settings$r.version("4.0")</code> will ensure that R version <code>"4.0"</code> is encoded in the lockfile for future calls to <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> in a project. (<a href='https://github.com/rstudio/renv/issues/254'>#254</a>)</p></li>
 <li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now detects the usage of R packages within dotfiles; e.g. the project <code>.Rprofile</code>. (<a href='https://github.com/rstudio/renv/issues/569'>#569</a>)</p></li>
 <li><p><code><a href="../reference/status.html">renv::status()</a></code> gains the <code>cache</code> argument, used to control whether <code><a href="../reference/status.html">renv::status()</a></code> also performs diagnostics on the global package cache. (<a href='https://github.com/rstudio/renv/issues/570'>#570</a>)</p></li>
@@ -240,17 +266,17 @@
 <ul>
 <li><p><code>renv</code> now ensures all of its dependencies are loaded eagerly when running tests, to avoid issues with missing + lazily-loaded packages.</p></li>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> now accepts library paths specified with a relative path. (<a href='https://github.com/rstudio/renv/issues/562'>#562</a>)</p></li>
-<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer excludes the project itself, for <code>R</code> package projects that use <a href="https://engineering-shiny.org/">golem</a>. (<a href='https://github.com/rstudio/renv/issues/538'>#538</a>)</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer excludes the project itself, for <code>R</code> package projects that use <a href="https://engineering-shiny.org/" class="external-link">golem</a>. (<a href='https://github.com/rstudio/renv/issues/538'>#538</a>)</p></li>
 <li><p>The <code>renv</code> configuration option <code>cache.symlinks</code> can now be used to control whether <code>renv</code> used symlinks into the cache, as opposed to full package copies. Please see <code><a href="../reference/config.html">?renv::config</a></code> for more details. (<a href='https://github.com/rstudio/renv/issues/556'>#556</a>)</p></li>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> gains the <code>packages</code> argument, to be used when creating a lockfile that captures a specific set of packages and their dependencies. <code>renv</code> will use the currently-installed versions of those packages when determining the package records to be written to the lockfile. (<a href='https://github.com/rstudio/renv/issues/554'>#554</a>)</p></li>
-<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now accepts an R function as the first argument, for finding the packages used by a particular function. Currently, package usages must be prefixed with <code><a href="https://rdrr.io/r/base/ns-dblcolon.html">::</a></code> to be detected. (<a href='https://github.com/rstudio/renv/issues/554'>#554</a>)</p></li>
+<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now accepts an R function as the first argument, for finding the packages used by a particular function. Currently, package usages must be prefixed with <code><a href="https://rdrr.io/r/base/ns-dblcolon.html" class="external-link">::</a></code> to be detected. (<a href='https://github.com/rstudio/renv/issues/554'>#554</a>)</p></li>
 <li><p><code>renv::record(&lt;package&gt;)</code> now ensures that the latest-available version of that package is recorded in the lockfile. Previously, a package record without any specified version was added instead. For existing records without a recorded version, the latest-available version on the package repositories will be used during <code><a href="../reference/restore.html">restore()</a></code> instead. (<a href='https://github.com/rstudio/renv/issues/540'>#540</a>)</p></li>
 <li><p><code>renv</code> now reads the default branch tagged for repositories created on GitHub, ensuring that calls of the form <code><a href="../reference/install.html">renv::install("&lt;user&gt;/&lt;repo&gt;")</a></code> resolve to the declared default branch, rather than always defaulting to <code>"master"</code>. (<a href='https://github.com/rstudio/renv/issues/557'>#557</a>)</p></li>
 <li><p><code>renv</code> now only installs packages from sources if it detects that build tools are available. This determination is done by checking whether <code>make</code> is available on the <code>PATH</code>. (<a href='https://github.com/rstudio/renv/issues/552'>#552</a>)</p></li>
-<li><p>Warnings related to unknown sources can now be suppressed by setting <code><a href="https://rdrr.io/r/base/options.html">options(renv.warnings.unknown_sources = FALSE)</a></code>. (<a href='https://github.com/rstudio/renv/issues/546'>#546</a>)</p></li>
+<li><p>Warnings related to unknown sources can now be suppressed by setting <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options(renv.warnings.unknown_sources = FALSE)</a></code>. (<a href='https://github.com/rstudio/renv/issues/546'>#546</a>)</p></li>
 <li><p><code>renv</code> now ignores chunks with the parameter <code>exercise=TRUE</code> set, under the assumption that such chunks might contain errors and so otherwise be un-parsable.</p></li>
 <li><p><code>renv</code> now warns if sandbox generation takes a long time (&gt; 30 seconds).</p></li>
-<li><p><code>renv</code> now provides an optional locking mechanism, to help minimize the chance of interprocess conflicts when multiple R processes need to use the same <code>renv</code> project. The option is currently disabled by default; it can be enabled by setting <code><a href="https://rdrr.io/r/base/options.html">options(renv.config.locking.enabled = TRUE)</a></code> in an appropriate R startup file. (<a href='https://github.com/rstudio/renv/issues/525'>#525</a>)</p></li>
+<li><p><code>renv</code> now provides an optional locking mechanism, to help minimize the chance of interprocess conflicts when multiple R processes need to use the same <code>renv</code> project. The option is currently disabled by default; it can be enabled by setting <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options(renv.config.locking.enabled = TRUE)</a></code> in an appropriate R startup file. (<a href='https://github.com/rstudio/renv/issues/525'>#525</a>)</p></li>
 </ul>
 </div>
     <div id="renv-0120" class="section level1">
@@ -310,7 +336,7 @@
 <li><p>Fixed an issue where empty records within a DESCRIPTION file could cause <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> to fail. (<a href='https://github.com/rstudio/renv/issues/382'>#382</a>)</p></li>
 <li><p>renv will now download binaries of older packages from MRAN when possible.</p></li>
 <li><p>renv will now attempt to re-generate the system library sandbox if it is deleted while a session is active. (<a href='https://github.com/rstudio/renv/issues/361'>#361</a>)</p></li>
-<li><p>Fixed an issue where Python packages referenced using <code><a href="https://rdrr.io/pkg/reticulate/man/import.html">reticulate::import()</a></code> were incorrectly tagged as R package dependencies. Similarly, <code>renv</code> now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (<a href='https://github.com/rstudio/renv/issues/359'>#359</a>)</p></li>
+<li><p>Fixed an issue where Python packages referenced using <code><a href="https://rdrr.io/pkg/reticulate/man/import.html" class="external-link">reticulate::import()</a></code> were incorrectly tagged as R package dependencies. Similarly, <code>renv</code> now only considers calls to <code>modules::import()</code> if those calls occur within a call to <code>modules::module()</code>. (<a href='https://github.com/rstudio/renv/issues/359'>#359</a>)</p></li>
 <li><p><code><a href="../reference/scaffold.html">renv::scaffold()</a></code> now also generates a lockfile when invoked. (<a href='https://github.com/rstudio/renv/issues/351'>#351</a>)</p></li>
 <li><p>The argument <code>confirm</code> has been renamed to <code>prompt</code> in all places where it is used. <code>confirm</code> remains supported for backwards compatibility, but is no longer explicitly documented. (<a href='https://github.com/rstudio/renv/issues/347'>#347</a>)</p></li>
 <li><p>The continuous integration <code>renv</code> vignette now also contains a template for using <code>renv</code> together with GitLab CI. (<a href='https://github.com/rstudio/renv/issues/348'>#348</a>, <a href='https://github.com/artemklevtsov'>@artemklevtsov</a>)</p></li>
@@ -324,8 +350,8 @@
 <li><p><code>renv</code> no longer unsets an error handler set within the user profile when loading a project. (<a href='https://github.com/rstudio/renv/issues/343'>#343</a>)</p></li>
 <li><p><code>renv</code> gains the “explicit” snapshot type, wherein only packages explicitly listed as dependencies within the project <code>DESCRIPTION</code> file (and those package’s transitive dependencies) will enter the lockfile when <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is called. (<a href='https://github.com/rstudio/renv/issues/338'>#338</a>)</p></li>
 <li><p><code>renv</code> will now transform RSPM source URLs into binary URLs as appropriate, allowing <code>renv</code> to use RSPM’s binary repositories during restore. See <code><a href="../reference/config.html">?config</a></code> for more details. (<a href='https://github.com/rstudio/renv/issues/124'>#124</a>)</p></li>
-<li><p><code>renv</code> will now infer a dependency on <code>hexbin</code> in projects that make use of the <code><a href="https://ggplot2.tidyverse.org/reference/geom_hex.html">ggplot2::geom_hex()</a></code> function.</p></li>
-<li><p><code>renv</code> now tries to place Rtools on the PATH when a package is installed with the <code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages()</a></code> hook active. (<a href='https://github.com/rstudio/renv/issues/335'>#335</a>)</p></li>
+<li><p><code>renv</code> will now infer a dependency on <code>hexbin</code> in projects that make use of the <code><a href="https://ggplot2.tidyverse.org/reference/geom_hex.html" class="external-link">ggplot2::geom_hex()</a></code> function.</p></li>
+<li><p><code>renv</code> now tries to place Rtools on the PATH when a package is installed with the <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> hook active. (<a href='https://github.com/rstudio/renv/issues/335'>#335</a>)</p></li>
 </ul>
 </div>
     <div id="renv-093" class="section level1">
@@ -341,7 +367,7 @@
 <li><p><code><a href="../reference/hydrate.html">renv::hydrate()</a></code> gains the <code>sources</code> argument, used to control the library paths used by <code>renv</code> when hydrating a project. (<a href='https://github.com/rstudio/renv/issues/329'>#329</a>)</p></li>
 <li><p><code>renv</code> now sandboxes the system library by default on Windows.</p></li>
 <li><p><code>renv</code> now validates that the Xcode license has been accepted before attempting to install R packages from sources. (<a href='https://github.com/rstudio/renv/issues/296'>#296</a>)</p></li>
-<li><p>The R option <code>renv.download.override</code> can now be used to override the machinery used by <code>renv</code> when downloading files. For example, setting <code><a href="https://rdrr.io/r/base/options.html">options(renv.download.override = utils::download.file)</a></code> would instruct <code>renv</code> to use R’s own downloader when downloading files from the internet. This can be useful when configuration of <code>curl</code> is challenging or intractable in your environment, or you’ve already configured the base R downloader suitably.</p></li>
+<li><p>The R option <code>renv.download.override</code> can now be used to override the machinery used by <code>renv</code> when downloading files. For example, setting <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options(renv.download.override = utils::download.file)</a></code> would instruct <code>renv</code> to use R’s own downloader when downloading files from the internet. This can be useful when configuration of <code>curl</code> is challenging or intractable in your environment, or you’ve already configured the base R downloader suitably.</p></li>
 <li><p><code><a href="../reference/use_python.html">renv::use_python("~/path/to/python")</a></code> now works as expected.</p></li>
 <li><p><code>renv</code> now properly expands <code>R_LIBS_SITE</code> and <code>R_LIBS_USER</code> when set within a startup <code>.Renviron</code> file. (<a href='https://github.com/rstudio/renv/issues/318'>#318</a>)</p></li>
 <li><p>The <code>renv.download.headers</code> option can now be used to provide arbitrary HTTP headers when downloading files. See the <strong>Authentication</strong> section in <code><a href="../articles/renv.html">vignette("renv")</a></code> for more details. (<a href='https://github.com/rstudio/renv/issues/307'>#307</a>)</p></li>
@@ -458,7 +484,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
@@ -466,6 +492,8 @@
 
   
 
+
+  
 
   </body>
 </html>

@@ -1,6 +1,6 @@
-pandoc: 2.11.3.2
-pkgdown: 1.6.1
-pkgdown_sha: ~
+pandoc: 2.11.4
+pkgdown: 1.6.1.9000
+pkgdown_sha: 8bb9cef2f58d6c6ceec351d2f96497af6cef485b
 articles:
   ci: ci.html
   collaborating: collaborating.html
@@ -10,11 +10,13 @@ articles:
   lockfile: lockfile.html
   mran: mran.html
   packages: packages.html
+  profiles: profiles.html
   python: python.html
   renv: renv.html
   rsconnect: rsconnect.html
-last_built: 2021-01-09T18:17Z
+  use: use.html
+last_built: 2021-02-24T20:47Z
 urls:
-  reference: https://rstudio.github.io/renv//reference
-  article: https://rstudio.github.io/renv//articles
+  reference: https://rstudio.github.io/renv/reference
+  article: https://rstudio.github.io/renv/articles
 
