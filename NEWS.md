@@ -1,4 +1,6 @@
 
+# renv 0.14.0 (UNRELEASED)
+
 # renv 0.13.0
 
 * `renv::snapshot()` no longer creates an `renv/activate.R` file in the project
