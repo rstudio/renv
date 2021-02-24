@@ -2,7 +2,7 @@
 # renv<a href="https://rstudio.github.io/renv/"><img src="man/figures/logo.svg" align="right" height="115" /></a>
 
 <!-- badges: start -->
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN status](https://www.r-pkg.org/badges/version/renv)](https://CRAN.R-project.org/package=renv)
 [![R-CMD-check](https://github.com/rstudio/renv/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/renv/actions)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/rstudio/renv?branch=master&svg=true)](https://ci.appveyor.com/project/rstudio/renv)
