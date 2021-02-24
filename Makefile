@@ -2,6 +2,9 @@
 
 config: R/config-defaults.R
 
+release:
+	@tools/tools-release.sh
+
 site:
 	@tools/tools-build-site.sh
 
