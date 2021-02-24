@@ -9,6 +9,7 @@ cran-comments.md
 CRAN-RELEASE
 docs
 internal
+revdep
 
 inst/doc
 
