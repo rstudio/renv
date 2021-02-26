@@ -19,10 +19,8 @@ mv DESCRIPTION.tmp DESCRIPTION
 sed "s|.*(UNRELEASED)|# renv ${VERSION}|g" NEWS.md > NEWS.md.tmp
 mv NEWS.md.tmp NEWS.md
 
-# move to parent directory and build tarball
+# build and check the package
 cd ..
 R CMD build renv
-
-# move back to renv folder and revert changes
+R CMD check "renv_${VERSION}.tar.gz"
 cd renv
-git stash
