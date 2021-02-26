@@ -164,7 +164,7 @@ approach:
    packages, to generate a new lockfile.
 
 
-# Why aren't packages installed in the system library visible in my renv projects?
+## Why aren't packages installed in the system library visible in my renv projects?
 
 By default, `renv` generates a "sandboxed" version of the system library,
 containing only the base set of packages normally bundled and distributed with
