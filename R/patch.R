@@ -14,8 +14,15 @@ renv_patch_rprofile <- function() {
   if (!identical(info$isdir, FALSE))
     return(FALSE)
 
+  # if the .Rprofile is empty, do nothing
+  if (info$size == 0)
+    return(TRUE)
+  
   # check for trailing newline
   data <- readBin(path, raw(), n = info$size)
+  if (empty(data))
+    return(TRUE)
+
   last <- data[length(data)]
   endings <- as.raw(c(0x0a, 0x0d))
   if (last %in% endings)
