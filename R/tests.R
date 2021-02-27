@@ -506,3 +506,19 @@ renv_tests_path <- function(path) {
   root <- renv_tests_root()
   file.path(root, path)
 }
+
+renv_tests_supported <- function() {
+
+  # supported when running locally + on CI
+  for (envvar in c("NOT_CRAN", "CI"))
+    if (!is.na(Sys.getenv(envvar, unset = NA)))
+      return(TRUE)
+
+  # disabled on older macOS releases (credentials fails to load)
+  if (renv_platform_macos() && getRversion() < "4.0.0")
+    return(FALSE)
+
+  # true otherwise
+  TRUE
+
+}
