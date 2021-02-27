@@ -58,6 +58,10 @@ test_that("UTF-8 paths can be normalized", {
 
   skip_if(getRversion() < "4.0.0")
 
+  info <- l10n_info()
+  if (!identical(info$`UTF-8`, TRUE))
+    skip("locale is not UTF-8")
+
   name <- enc2utf8("\u4f60\u597d")  # nihao
   root <- normalizePath(tempdir(), winslash = "/", mustWork = TRUE)
   path <- paste(root, name, sep = "/")
