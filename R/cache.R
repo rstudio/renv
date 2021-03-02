@@ -31,7 +31,8 @@ renv_cache_find <- function(record) {
     # if no paths exist, return the first cache
     if (length(path) > 1L) {
       existing_paths <- which(dir.exists(path))
-      path <- path[if (length(existing_paths) == 0) 1L else existing_paths[1L]]
+      if (length(existing_paths) > 0)
+        path <- path[existing_paths[1L]]
     }
 
     return(path)
