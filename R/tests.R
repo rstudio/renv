@@ -202,6 +202,9 @@ renv_tests_init_repos <- function(repopath = NULL) {
 
 renv_tests_init_packages <- function() {
 
+  # don't treat warnings as errors in this scope
+  renv_scope_options(warn = 1)
+
   # find packages to load
   packages <- renv_tests_init_packages_find()
 
