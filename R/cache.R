@@ -26,6 +26,15 @@ renv_cache_find <- function(record) {
   # if we have a hash, use it directly
   if (!is.null(record$Hash)) {
     path <- with(record, renv_paths_cache(Package, Version, Hash, Package))
+
+    # if there are multiple caches, return the first existing one.
+    # if no paths exist, return the first cache
+    if (length(path) > 1L) {
+      existing_paths <- which(dir.exists(path))
+      if (length(existing_paths) > 0)
+        path <- path[existing_paths[1L]]
+    }
+
     return(path)
   }
 
