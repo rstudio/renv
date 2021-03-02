@@ -12,9 +12,9 @@ renv_cache_version_previous <- function() {
   paste("v", number - 1L, sep = "")
 }
 
-# given a package record, find a compatible version
-# of that package in the cache, using a computed hash if
-# available or trying to find a compatible package if not
+# given a record, find a compatible version of that package in the cache,
+# using a computed hash if available; if no hash is available, then try
+# to match based on the package name + version
 renv_cache_find <- function(record) {
 
   # validate required fields -- if any are missing, we can't use the cache
@@ -25,17 +25,20 @@ renv_cache_find <- function(record) {
 
   # if we have a hash, use it directly
   if (!is.null(record$Hash)) {
+
+    # generate path to package installations in cache
     path <- with(record, renv_paths_cache(Package, Version, Hash, Package))
 
-    # if there are multiple caches, return the first existing one.
-    # if no paths exist, return the first cache
+    # if there are multiple cache entries, return the first existing one
+    # if no entries exist, return path into first cache entry
     if (length(path) > 1L) {
-      existing_paths <- which(dir.exists(path))
-      if (length(existing_paths) > 0)
-        path <- path[existing_paths[1L]]
+      existing <- filter(path, file.exists)
+      if (length(existing))
+        path <- existing[[1L]]
     }
 
-    return(path)
+    return(path[[1L]])
+
   }
 
   # if the record doesn't have a hash, check to see if we can still locate a
