@@ -380,14 +380,14 @@ can also provide their own download function, provided its signature matches
 that of `utils::download.file()`.
 
 You can also instruct `renv` to use a different download method by setting
-the `RENV_DOWNLOAD_FILE_METHOD` environment variable. For example:
+the `RENV_DOWNLOAD_METHOD` environment variable. For example:
 
 ```
 # use Windows' internal download machinery
-Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = "wininet")
+Sys.setenv(RENV_DOWNLOAD_METHOD = "wininet")
 
 # use R's bundled libcurl implementation
-Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = "libcurl")
+Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")
 ```
 
 Note that other features (e.g. authentication) may not be supported when

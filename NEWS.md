@@ -1,6 +1,8 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `RENV_DOWNLOAD_METHOD` is now treated as an alias for `RENV_DOWNLOAD_FILE_METHOD`.
+
 * Fixed an issue where `renv` would fail to load if the `~/.Rprofile` existed
   but was an empty file.
 

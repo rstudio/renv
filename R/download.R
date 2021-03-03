@@ -117,7 +117,7 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
 
   # select the appropriate downloader
   downloader <- switch(
-    renv_download_file_method(),
+    renv_download_method(),
     curl = renv_download_curl,
     wget = renv_download_wget,
     renv_download_default
@@ -156,8 +156,13 @@ renv_download_default <- function(url, destfile, type, request, headers) {
 
   # on Windows, prefer 'wininet' as most users will have already configured
   # authentication etc. to work with this protocol
-  default <- if (renv_platform_windows()) "wininet" else "auto"
-  method <- Sys.getenv("RENV_DOWNLOAD_FILE_METHOD", unset = default)
+  methods <- c(
+    Sys.getenv("RENV_DOWNLOAD_METHOD", unset = NA),
+    Sys.getenv("RENV_DOWNLOAD_FILE_METHOD", unset = NA),
+    if (renv_platform_windows()) "wininet" else "auto"
+  )
+
+  method <- Find(Negate(is.na), methods)
 
   # headers _must_ be NULL rather than zero-length character
   if (length(headers) == 0)
@@ -505,7 +510,7 @@ renv_download_auth_gitlab <- function() {
 renv_download_headers <- function(url, type, headers) {
 
   # check for compatible download method
-  method <- renv_download_file_method()
+  method <- renv_download_method()
   if (!method %in% c("libcurl", "curl", "wget"))
     return(list())
 
@@ -577,7 +582,11 @@ renv_download_size <- function(url, type = NULL, headers = NULL) {
 # with those methods. users can force a method with the
 # RENV_DOWNLOAD_FILE_METHOD environment variable but we generally
 # want to override a user-specified 'download.file.method'
-renv_download_file_method <- function() {
+renv_download_method <- function() {
+
+  method <- Sys.getenv("RENV_DOWNLOAD_METHOD", unset = NA)
+  if (!is.na(method))
+    return(method)
 
   method <- Sys.getenv("RENV_DOWNLOAD_FILE_METHOD", unset = NA)
   if (!is.na(method))
@@ -745,7 +754,7 @@ renv_download_available <- function(url) {
   renv_scope_downloader()
 
   # if we're not using curl, then use fallback method
-  method <- renv_download_file_method()
+  method <- renv_download_method()
   if (!identical(method, "curl"))
     return(renv_download_available_fallback(url))
 
