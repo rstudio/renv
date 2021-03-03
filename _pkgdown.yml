@@ -71,7 +71,7 @@ articles:
 
   - title: Collaborating using renv
     navbar: Collaborating
-    contents: [collaborating]
+    contents: [collaborating, use]
 
   - title: Packages Development with renv
     navbar: Packages
@@ -84,4 +84,8 @@ articles:
   - title: Integrating other projects with renv
     navbar: Integration
     contents: [python]
+
+  - title: Advanced Usages of renv
+    navbar: Advanced
+    contents: [profiles]
 
