@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0-11</span>
       </span>
     </div>
 
@@ -78,6 +78,9 @@
     <li>
       <a href="../articles/collaborating.html">Collaborating with renv</a>
     </li>
+    <li>
+      <a href="../articles/use.html">Using Use</a>
+    </li>
     <li class="divider">
     <li class="dropdown-header">Packages</li>
     <li>
@@ -98,6 +101,11 @@
     <li class="dropdown-header">Integration</li>
     <li>
       <a href="../articles/python.html">Using Python with renv</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Advanced</li>
+    <li>
+      <a href="../articles/profiles.html">Project Profiles</a>
     </li>
   </ul>
 </li>
@@ -205,9 +213,9 @@ This project already has a lockfile. What would you like to do?
 <li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> after you’ve finished updating the requisite packages, to generate a new lockfile.</p></li>
 </ol>
 </div>
-<div id="why-arent-packages-installed-in-the-system-library-visible-in-my-renv-projects" class="section level1">
-<h1 class="hasAnchor">
-<a href="#why-arent-packages-installed-in-the-system-library-visible-in-my-renv-projects" class="anchor"></a>Why aren’t packages installed in the system library visible in my renv projects?</h1>
+<div id="why-arent-packages-installed-in-the-system-library-visible-in-my-renv-projects" class="section level2">
+<h2 class="hasAnchor">
+<a href="#why-arent-packages-installed-in-the-system-library-visible-in-my-renv-projects" class="anchor"></a>Why aren’t packages installed in the system library visible in my renv projects?</h2>
 <p>By default, <code>renv</code> generates a “sandboxed” version of the system library, containing only the base set of packages normally bundled and distributed with R. If you’d prefer that packages installed into the system library remain visible to <code>renv</code> projects, you can set:</p>
 <pre><code>RENV_CONFIG_SANDBOX_ENABLED = FALSE</code></pre>
 <p>in an appropriate <code>.Renviron</code> file. See the entry for <code>renv.config.sandbox.enabled</code> in <code><a href="../reference/config.html">?renv::config</a></code> for more details.</p>

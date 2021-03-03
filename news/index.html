@@ -87,7 +87,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0-11</span>
       </span>
     </div>
 
@@ -125,6 +125,9 @@
     <li>
       <a href="../articles/collaborating.html">Collaborating with renv</a>
     </li>
+    <li>
+      <a href="../articles/use.html">Using Use</a>
+    </li>
     <li class="divider"></li>
     <li class="dropdown-header">Packages</li>
     <li>
@@ -145,6 +148,11 @@
     <li class="dropdown-header">Integration</li>
     <li>
       <a href="../articles/python.html">Using Python with renv</a>
+    </li>
+    <li class="divider"></li>
+    <li class="dropdown-header">Advanced</li>
+    <li>
+      <a href="../articles/profiles.html">Project Profiles</a>
     </li>
   </ul>
 </li>
@@ -176,9 +184,18 @@
       <small>Source: <a href='https://github.com/rstudio/renv/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="renv-0140-unreleased" class="section level1">
+<h1 class="page-header" data-toc-text="0.14.0">
+<a href="#renv-0140-unreleased" class="anchor"></a>renv 0.14.0 (UNRELEASED)<small> Unreleased </small>
+</h1>
+<ul>
+<li><p><code>RENV_DOWNLOAD_METHOD</code> is now treated as an alias for <code>RENV_DOWNLOAD_FILE_METHOD</code>.</p></li>
+<li><p>Fixed an issue where <code>renv</code> would fail to load if the <code>~/.Rprofile</code> existed but was an empty file.</p></li>
+</ul>
+</div>
     <div id="renv-0130" class="section level1">
 <h1 class="page-header" data-toc-text="0.13.0">
-<a href="#renv-0130" class="anchor"></a>renv 0.13.0<small> Unreleased </small>
+<a href="#renv-0130" class="anchor"></a>renv 0.13.0<small> 2021-02-24 </small>
 </h1>
 <ul>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer creates an <code>renv/activate.R</code> file in the project folder if one does not already exist. (<a href='https://github.com/rstudio/renv/issues/655'>#655</a>)</p></li>

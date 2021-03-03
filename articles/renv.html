@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0-11</span>
       </span>
     </div>
 
@@ -78,6 +78,9 @@
     <li>
       <a href="../articles/collaborating.html">Collaborating with renv</a>
     </li>
+    <li>
+      <a href="../articles/use.html">Using Use</a>
+    </li>
     <li class="divider">
     <li class="dropdown-header">Packages</li>
     <li>
@@ -98,6 +101,11 @@
     <li class="dropdown-header">Integration</li>
     <li>
       <a href="../articles/python.html">Using Python with renv</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Advanced</li>
+    <li>
+      <a href="../articles/profiles.html">Project Profiles</a>
     </li>
   </ul>
 </li>
@@ -128,7 +136,7 @@
       <h1 data-toc-skip>Introduction to renv</h1>
                         <h4 data-toc-skip class="author">Kevin Ushey</h4>
             
-            <h4 data-toc-skip class="date">2021-02-24</h4>
+            <h4 data-toc-skip class="date">2021-03-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/renv.Rmd" class="external-link"><code>vignettes/renv.Rmd</code></a></small>
       <div class="hidden name"><code>renv.Rmd</code></div>
@@ -268,7 +276,7 @@ options(repos = repos)</code></pre>
 <a href="#upgrading-renv" class="anchor"></a>Upgrading renv</h2>
 <p>After initializing a project with <code>renv</code>, that project will then be ‘bound’ to the particular version of <code>renv</code> that was used to initialize the project. If you need to upgrade (or otherwise change) the version of <code>renv</code> associated with a project, you can use <code><a href="../reference/upgrade.html">renv::upgrade()</a></code>. This will install the latest-available version of <code>renv</code> from your declared package repositories. Alternatively, if you’re currently using a development version of <code>renv</code> as installed from GitHub in your project, then <code>renv</code> will install the latest-available version of <code>renv</code> from GitHub.</p>
 <p>With each commit of <code>renv</code>, we bump the package version and also tag the commit with the associated package version. This implies that you can call, for example:</p>
-<pre><code><a href="../reference/upgrade.html">renv::upgrade(version = "0.13.0")</a></code></pre>
+<pre><code><a href="../reference/upgrade.html">renv::upgrade(version = "0.13.0-11")</a></code></pre>
 <p>to request the installation of that particular version of <code>renv</code> if so required.</p>
 </div>
 <div id="cache" class="section level2">
@@ -338,12 +346,12 @@ options(repos = repos)</code></pre>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.override <span class="op">=</span> <span class="fu">utils</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">)</span></code></pre></div>
 <p>would instruct <code>renv</code> to use R’s own download machinery when attempting to download files from the internet (respecting the R options <code>download.file.method</code> and <code>download.file.extra</code> as appropriate). Advanced users can also provide their own download function, provided its signature matches that of <code><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">utils::download.file()</a></code>.</p>
-<p>You can also instruct <code>renv</code> to use a different download method by setting the <code>RENV_DOWNLOAD_FILE_METHOD</code> environment variable. For example:</p>
+<p>You can also instruct <code>renv</code> to use a different download method by setting the <code>RENV_DOWNLOAD_METHOD</code> environment variable. For example:</p>
 <pre><code><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link"># use Windows' internal download machinery
-Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = "wininet")
+Sys.setenv(RENV_DOWNLOAD_METHOD = "wininet")
 
 # use R's bundled libcurl implementation
-Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = "libcurl")</a></code></pre>
+Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")</a></code></pre>
 <p>Note that other features (e.g. authentication) may not be supported when using an alternative download file method – you will have to configure the downloader yourself if that is required. See <code><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">?download.file</a></code> for more details.</p>
 <div id="proxies" class="section level3">
 <h3 class="hasAnchor">
