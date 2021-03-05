@@ -792,9 +792,7 @@ renv_retrieve_handle_remotes <- function(record) {
     }
 
     # update the record
-    records <- state$records
-    records[[remote$Package]] <- remote
-    state$records <- records
+    state$records[[package]] <- remote
 
   }
 
