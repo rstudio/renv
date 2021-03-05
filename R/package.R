@@ -187,7 +187,7 @@ renv_package_augment <- function(installpath, record) {
 renv_package_augment_impl <- function(data, remotes) {
   remotes <- remotes[map_lgl(remotes, Negate(is.null))]
   nonremotes <- grep("^(?:Remote|Github)", names(data), invert = TRUE)
-  c(data[nonremotes], remotes, data[["Remotes"]])
+  c(data[nonremotes], remotes, Remotes = data[["Remotes"]])
 }
 
 renv_package_augment_description <- function(path, remotes) {
