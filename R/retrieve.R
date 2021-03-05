@@ -780,11 +780,18 @@ renv_retrieve_handle_remotes <- function(record) {
     # the user (ie: it's been requested as it's a dependency of this package)
     # then update the record. note that we don't want to update in explicit
     # installs as we don't want to override what was reported / requested
-    # in e.g. `renv::restore()`
+    # in e.g. `renv::restore()`.
+    #
+    # allow override if a non-specific version of the package was requested
+    package <- remote$Package
     state <- renv_restore_state()
-    if (remote$Package %in% state$packages)
-      next
+    if (package %in% state$packages) {
+      record <- state$records[[package]]
+      if (!identical(record, list(Package = package, Source = "Repository")))
+        next
+    }
 
+    # update the record
     records <- state$records
     records[[remote$Package]] <- remote
     state$records <- records
