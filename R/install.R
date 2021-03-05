@@ -134,7 +134,13 @@ install <- function(packages = NULL,
 
   # ensure remotes are named
   names(remotes) <- extract_chr(remotes, "Package")
+
+  # update records with requested remotes
   records[names(remotes)] <- remotes
+
+  # read remotes from the package DESCRIPTION file and use those to
+  # update non-specific package requests
+  records <- renv_install_remotes_update(records, project)
 
   if (!renv_install_preflight(project, libpaths, remotes, prompt)) {
     message("* Operation aborted.")
@@ -667,5 +673,36 @@ renv_install_preflight <- function(project, libpaths, records, prompt) {
     return(FALSE)
 
   TRUE
+
+}
+
+renv_install_remotes_update <- function(records, project) {
+
+  # check for DESCRIPTION file
+  descpath <- file.path(project, "DESCRIPTION")
+  if (!file.exists(descpath))
+    return(records)
+
+  # read Remotes field (if any)
+  remotes <- renv_description_remotes(descpath)
+  if (empty(remotes))
+    return(records)
+
+  # update records as appropriate
+  enumerate(remotes, function(package, remote) {
+
+    record <- records[[package]]
+
+    update <-
+      is.null(record) ||
+      identical(record, list(Package = package, Source = "Repository"))
+
+    if (update)
+      records[[package]] <<- remote
+
+  })
+
+  # return updated set of records
+  records
 
 }

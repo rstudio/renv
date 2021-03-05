@@ -138,3 +138,37 @@ renv_description_parse_field <- function(field) {
   )
 
 }
+
+renv_description_remotes <- function(descpath) {
+
+  # read Remotes field from DESCRIPTION
+  desc <- renv_description_read(path = descpath)
+  remotes <- desc[["Remotes"]]
+  if (is.null(remotes))
+    return(NULL)
+
+  # parse each remote entry
+  entries <- strsplit(remotes, "\\s*,\\s*", perl = TRUE)[[1L]]
+  parsed <- map(entries, renv_description_remotes_parse)
+
+  # ensure named
+  names(parsed) <- map_chr(parsed, `[[`, "Package")
+
+  # and return
+  parsed
+
+}
+
+renv_description_remotes_parse <- function(entry) {
+
+  status <- catch(renv_remotes_resolve(entry))
+
+  if (inherits(status, "error")) {
+    fmt <- "failed to resolve remote '%s' from project DESCRIPTION file; skipping"
+    warningf(fmt, entry)
+    return(NULL)
+  }
+
+  status
+
+}
