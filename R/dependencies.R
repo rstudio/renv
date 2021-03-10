@@ -542,27 +542,27 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
   # check for Shiny runtime
   runtime <- yaml$runtime %||% ""
-  if (is_string(runtime) && grepl("shiny", runtime, fixed = TRUE))
+  if (pstring(runtime) && grepl("shiny", runtime, fixed = TRUE))
     deps$push("shiny")
 
   # check for custom output function from another package
-  output <- yaml$output %||% ""
-  if (is.list(output) && length(output) == 1)
-    output <- names(output)
+  for (output in list(yaml$output, yaml$site)) {
 
-  if (is_string(output)) {
-    splat <- strsplit(output, ":{2,3}")[[1]]
-    if (length(splat) == 2)
-      deps$push(splat[[1]])
-  }
+    # if the output is named, then the output is mapping the
+    # function name to the parameters to be used; use names
+    output <- names(output) %||% output
 
-  # check for custom site generator function from another package
-  output <- yaml$site %||% ""
+    # skip non-character arguments
+    if (!is.character(output))
+      next
 
-  if (is_string(output)) {
-    splat <- strsplit(output, ":{2,3}")[[1]]
-    if (length(splat) == 2)
-      deps$push(splat[[1]])
+    # parse calls of the form <package>::<function>
+    parts <- strsplit(output, ":{2,3}")
+    map(parts, function(part) {
+      if (length(part) == 2L)
+        deps$push(part[[1L]])
+    })
+
   }
 
   packages <- as.character(deps$data())

@@ -1,10 +1,14 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv::dependencies()` would miss dependencies in
+  R Markdown YAML headers containing multiple output formats. (#674)
+
 * `renv::install()` now better respects the `Remotes` field in a project
   `DESCRIPTION` file, if available. (#670)
 
-* `RENV_DOWNLOAD_METHOD` is now treated as an alias for `RENV_DOWNLOAD_FILE_METHOD`.
+* `RENV_DOWNLOAD_METHOD` is now treated as an alias for
+  `RENV_DOWNLOAD_FILE_METHOD`.
 
 * Fixed an issue where `renv` would fail to load if the `~/.Rprofile` existed
   but was an empty file.

@@ -1,0 +1,10 @@
+---
+title: "Test"
+author: "Test"
+date: "3/9/2021"
+output:
+  bookdown::pdf_document2:
+   number_sections: false
+  bookdown::html_document2:
+   number_sections: false
+---

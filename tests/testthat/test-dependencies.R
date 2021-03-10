@@ -300,3 +300,8 @@ test_that("only dependencies in a top-level DESCRIPTION file are used", {
   expect_false("oatmeal" %in% deps$Package)
 
 })
+
+test_that("multiple output formats are handled", {
+  deps <- dependencies("resources/multiple-output-formats.Rmd", progress = FALSE)
+  expect_true("bookdown" %in% deps$Package)
+})
