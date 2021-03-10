@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv::init()` could fail when passed a relative
+  path to a directory. (#673)
+
 * Fixed an issue where `renv::dependencies()` would miss dependencies in
   R Markdown YAML headers containing multiple output formats. (#674)
 

@@ -87,7 +87,7 @@ init <- function(project = NULL,
   renv_scope_error_handler()
   renv_dots_check(...)
 
-  project <- project %||% getwd()
+  project <- renv_path_normalize(project %||% getwd())
   renv_scope_lock(project = project)
 
   # prepare and move into project directory
