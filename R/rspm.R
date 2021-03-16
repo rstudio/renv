@@ -42,9 +42,14 @@ renv_rspm_transform_impl <- function(url) {
   if (!grepl(pattern, url))
     return(url)
 
+  # begin building list of URLs
+  urls <- character()
+
   # ignore some known CRAN mirrors
-  mirrors <- getCRANmirrors(local.only = TRUE)
-  urls <- mirrors$URL
+  # (note that getCRANmirrors can fail if R is not installed with
+  # any local knowledge of available CRAN repositories)
+  mirrors <- catch(getCRANmirrors(local.only = TRUE))
+  urls <- c(urls, mirrors$URL)
 
   # also ignore some RStudio URLs
   rstudio <- c(
