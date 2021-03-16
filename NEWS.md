@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where attempts to transform RSPM repository URLs could
+  fail if the copy of R was installed without a local `CRAN_mirrors.csv`
+  file.
+
 * Fixed an issue where `renv::init()` could fail when passed a relative
   path to a directory. (#673)
 
