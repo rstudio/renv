@@ -26,8 +26,6 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -40,12 +38,18 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0-11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+<li>
+  <a href="../index.html">
+    <span class="fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -115,7 +119,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/" class="external-link">
+  <a href="https://github.com/rstudio/renv/">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -136,7 +140,7 @@
       <h1 data-toc-skip>Frequently Asked Questions</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/faq.Rmd" class="external-link"><code>vignettes/faq.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/faq.Rmd"><code>vignettes/faq.Rmd</code></a></small>
       <div class="hidden name"><code>faq.Rmd</code></div>
 
     </div>
@@ -157,14 +161,14 @@
 <p>and see whether usages of your package are reported in the output.</p>
 <p>Note that <code>renv</code>’s dependency discovery machinery relies on static analysis of your R code, and does not understand all of the different ways in which a package might be used in a project. For example, <code>renv</code> will detect the following usages:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></code></pre></div>
 <p>But it will be unable to detect these kinds of usages:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">package</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">package</span>, character.only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw">for</span> <span class="op">(</span><span class="va">package</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">package</span>, character.only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
-<p>If you use a custom package loader in your project that <code>renv</code> could feasibly support, please feel free to <a href="https://github.com/rstudio/renv/issues" class="external-link">file a feature request</a>.</p>
+<p>If you use a custom package loader in your project that <code>renv</code> could feasibly support, please feel free to <a href="https://github.com/rstudio/renv/issues">file a feature request</a>.</p>
 <div id="capturing-all-dependencies" class="section level3">
 <h3 class="hasAnchor">
 <a href="#capturing-all-dependencies" class="anchor"></a>Capturing all dependencies</h3>
@@ -209,7 +213,7 @@ This project already has a lockfile. What would you like to do?
 <p>If you prefer a more managed approach, you might also consider the following approach:</p>
 <ol style="list-style-type: decimal">
 <li><p>Use <code><a href="../reference/restore.html">renv::restore()</a></code> to restore the project state as defined in the lockfile,</p></li>
-<li><p>Install and update packages deliberately, e.g. via <code><a href="../reference/install.html">renv::install()</a></code>, <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, or other relevant tools,</p></li>
+<li><p>Install and update packages deliberately, e.g. via <code><a href="../reference/install.html">renv::install()</a></code>, <code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages()</a></code>, or other relevant tools,</p></li>
 <li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> after you’ve finished updating the requisite packages, to generate a new lockfile.</p></li>
 </ol>
 </div>
@@ -237,7 +241,7 @@ This project already has a lockfile. What would you like to do?
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -245,8 +249,6 @@ This project already has a lockfile. What would you like to do?
 
   
 
-
-  
 
   </body>
 </html>

@@ -53,8 +53,6 @@
 
 
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -66,15 +64,9 @@
 
 
 
-  
-
-  
-
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -88,13 +80,19 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.0-11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
+  <a href="../index.html">
+    <span class="fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -190,7 +188,7 @@
     <p>Clean up a project and its associated <span style="R">R</span> libraries.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>clean</span><span class='op'>(</span>project <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, prompt <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>clean</span><span class='op'>(</span>project <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, actions <span class='op'>=</span> <span class='cn'>NULL</span>, prompt <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -207,6 +205,12 @@ directory is used instead.</p></td>
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
     </tr>
     <tr>
+      <th>actions</th>
+      <td><p>The set of clean actions to take. See the documentation in
+<strong>Actions</strong> for a list of available actions, and the default actions
+taken when no actions are supplied.</p></td>
+    </tr>
+    <tr>
       <th>prompt</th>
       <td><p>Boolean; prompt the user before taking any action? For backwards
 compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></td>
@@ -217,15 +221,37 @@ compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</co
 
     <p>The project directory, invisibly. Note that this function is normally
 called for its side effects.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="actions"><a class="anchor" href="#actions"></a>Actions</h2>
 
-    <p>The following actions will be taken:</p><ul>
-<li><p>Stale lockfiles (<code>00LOCK-</code>) will be removed.</p></li>
-<li><p>Leftover temporary directories in the project library will be removed.</p></li>
-<li><p>Non-system packages installed in the system library will be removed.</p></li>
-<li><p>Unused packages within the project will be removed.</p></li>
-<li><p>Packages within the cache that are no longer used will be removed.</p></li>
-</ul>
+    
+
+
+<p>The following clean actions are available:</p>
+<dl>
+
+<dt><code>package.locks</code></dt><dd><p>During package installation, <span style="R">R</span> will create package locks in the
+library path, typically named <code>00LOCK-&lt;package&gt;</code>. On occasion, if package
+installation fails or <span style="R">R</span> is terminated while installing a package, these
+locks can be left behind and will inhibit future attempts to re-install
+that package. Use this action to remove such left-over package locks.</p></dd>
+
+<dt><code>library.tempdirs</code></dt><dd><p>During package installation, <span style="R">R</span> may create temporary directories with
+names of the form <code>file\w{12}</code>, and on occasion those files can be
+left behind even after they are no longer in use. Use this action to
+remove such left-over directories.</p></dd>
+
+<dt><code>system.library</code></dt><dd><p>In general, it is recommended that only packages distributed with <span style="R">R</span>
+are installed into the system library (the library path referred to
+by <code>.Library</code>). Use this action to remove any user-installed packages
+that have been installed to the system library.Because this action is destructive, it is by default only run in
+interactive sessions when prompting is enabled.</p></dd>
+
+<dt><code>unused.packages</code></dt><dd><p>Remove packages that are installed in the project library, but no longer
+appear to be used in the project sources.Because this action is destructive, it is by default only run in
+interactive sessions when prompting is enabled.</p></dd>
+
+
+</dl>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -251,7 +277,7 @@ called for its side effects.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -259,8 +285,6 @@ called for its side effects.</p>
 
   
 
-
-  
 
   </body>
 </html>

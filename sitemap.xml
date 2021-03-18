@@ -1,171 +1,171 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://rstudio.github.io/renv/index.html</loc>
+    <loc>https://rstudio.github.io/renv//index.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/activate.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/activate.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/checkout.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/checkout.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/clean.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/clean.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/config.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/config.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/consent.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/consent.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/deactivate.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/deactivate.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/dependencies.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/dependencies.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/diagnostics.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/diagnostics.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/embed.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/embed.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/equip.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/equip.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/history.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/history.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/hydrate.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/hydrate.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/imbue.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/imbue.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/init.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/init.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/install.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/install.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/isolate.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/isolate.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/load.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/load.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/lockfile.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/lockfile.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/lockfiles.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/lockfiles.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/migrate.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/migrate.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/modify.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/modify.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/paths.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/paths.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/project.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/project.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/purge.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/purge.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/rebuild.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/rebuild.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/record.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/record.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/refresh.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/refresh.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/rehash.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/rehash.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/remote.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/remote.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/remove.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/remove.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/renv-package.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/renv-package.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/restore.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/restore.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/revert.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/revert.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/run.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/run.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/scaffold.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/scaffold.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/settings.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/settings.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/snapshot.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/snapshot.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/status.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/status.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/update.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/update.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/upgrade.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/upgrade.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/use.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/use.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/use_python.html</loc>
+    <loc>https://rstudio.github.io/renv//reference/use_python.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/ci.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/ci.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/collaborating.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/collaborating.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/docker.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/docker.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/faq.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/faq.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/local-sources.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/local-sources.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/lockfile.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/lockfile.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/mran.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/mran.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/packages.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/packages.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/profiles.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/profiles.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/python.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/python.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/renv.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/renv.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/rsconnect.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/rsconnect.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/use.html</loc>
+    <loc>https://rstudio.github.io/renv//articles/use.html</loc>
   </url>
 </urlset>

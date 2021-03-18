@@ -1,6 +1,6 @@
-pandoc: 2.11.4
-pkgdown: 1.6.1.9000
-pkgdown_sha: 8bb9cef2f58d6c6ceec351d2f96497af6cef485b
+pandoc: '2.12'
+pkgdown: 1.6.1
+pkgdown_sha: ~
 articles:
   ci: ci.html
   collaborating: collaborating.html
@@ -15,8 +15,8 @@ articles:
   renv: renv.html
   rsconnect: rsconnect.html
   use: use.html
-last_built: 2021-03-03T20:56Z
+last_built: 2021-03-18T20:45Z
 urls:
-  reference: https://rstudio.github.io/renv/reference
-  article: https://rstudio.github.io/renv/articles
+  reference: https://rstudio.github.io/renv//reference
+  article: https://rstudio.github.io/renv//articles
 
