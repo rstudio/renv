@@ -62,7 +62,7 @@ renv_patch_tar <- function() {
   #    TAR = /path/to/tar --force-local
   #
   # so we need to handle that case appropriately
-  whitespace <- gregexpr("\\s+", tar, perl = TRUE)[[1L]]
+  whitespace <- gregexpr("(?:\\s+|$)", tar, perl = TRUE)[[1L]]
   for (index in whitespace) {
     candidate <- substring(tar, 1L, index - 1L)
     resolved <- Sys.which(candidate)
