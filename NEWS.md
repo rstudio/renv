@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv::status()` could provide a misleading message
+  for packages which are recorded in the lockfile, but not explicitly
+  required by the project. (#684)
+
 # renv 0.13.1
 
 * `renv::clean()` gains the `actions` argument, allowing the caller to control

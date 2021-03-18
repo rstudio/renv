@@ -2,6 +2,6 @@ external.libraries:
 ignored.packages:
 package.dependency.fields: Imports, Depends, LinkingTo
 r.version:
-snapshot.type: implicit
+snapshot.type: all
 use.cache: TRUE
 vcs.ignore.library: TRUE

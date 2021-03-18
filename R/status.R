@@ -222,11 +222,42 @@ renv_status_check_synchronized <- function(project,
       renv_condition_signal(condition, records)
     }
 
-    renv_pretty_print_records(
-      records,
-      "The following package(s) are recorded in the lockfile but not installed:",
-      "Use `renv::restore()` to install these packages."
-    )
+    if (settings$snapshot.type() %in% c("all", "implicit", "packrat")) {
+
+      renv_pretty_print_records(
+        records,
+        "The following package(s) are recorded in the lockfile, but not installed:",
+        "Use `renv::restore()` to install these packages."
+      )
+
+    } else if (settings$snapshot.type() %in% c("explicit")) {
+
+      renv_pretty_print_records(
+        records,
+        "The following unused package(s) are recorded in the lockfile:",
+        "Use `renv::snapshot()` to remove these packages from the lockfile."
+      )
+
+    } else {
+
+      renv_pretty_print_records(
+
+        records = records,
+
+        preamble = c(
+          "The following package(s) are recorded in the lockfile, ",
+          "but do not appear to be required by the project:"
+        ),
+
+        postamble = c(
+          "Use `renv::restore()` to install these packages.",
+          "Use `renv::snapshot()` to remove these packages from the lockfile."
+        )
+
+      )
+
+    }
+
   }
 
   rest <- c("upgrade", "downgrade", "crossgrade")
