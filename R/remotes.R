@@ -45,7 +45,7 @@ renv_remotes_resolve <- function(entry, latest = FALSE) {
     if (renv_tests_running()) {
       unauth <- any(grepl("403", e$message %||% ""))
       if (unauth)
-        skip("Ignoring transient 403 error")
+        testthat::skip("Ignoring transient 403 error")
     }
 
     # otherwise, propagate the error
