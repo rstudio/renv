@@ -15,19 +15,19 @@ renv_sandbox_activate <- function(project = NULL) {
   # check for long elapsed time
   elapsed <- difftime(after, before, units = "secs")
 
-  # if it took more than 30 seconds to activate the sandbox, warn the user
-  if (elapsed > 30) {
+  # if it took too long to activate the sandbox, warn the user
+  if (elapsed > 10) {
 
-    fmt <- paste(
-      "renv took longer than expected (%s) to activate the sandbox.",
-      "",
-      "The sandbox can be disabled by setting:",
-      "",
-      "    RENV_CONFIG_SANDBOX_ENABLED = FALSE",
-      "",
-      "within an appropriate start-up .Renviron file. See `?renv::config` for more details.",
-      sep = "\n"
-    )
+    fmt <- heredoc("
+    renv took longer than expected (%s) to activate the sandbox.
+
+    The sandbox can be disabled by setting:
+
+        RENV_CONFIG_SANDBOX_ENABLED = FALSE
+
+    within an appropriate start-up .Renviron file. See `?renv::config` for more details.
+    ")
+
 
     warningf(fmt, renv_difftime_format(elapsed))
 

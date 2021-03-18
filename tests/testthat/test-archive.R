@@ -29,7 +29,7 @@ test_that("we can successfully compress / decompress some sample files", {
   tar(tarfile, files = ".")
 
   actual <- list.files(dir)
-  expected <- basename(renv_archive_list(tarfile))
+  expected <- setdiff(basename(renv_archive_list(tarfile)), ".")
   expect_setequal(actual, expected)
 
   exdir <- tempfile()

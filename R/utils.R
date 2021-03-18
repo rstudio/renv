@@ -408,3 +408,18 @@ memoize <- function(key, expr, envir) {
 nth <- function(x, i) {
   x[[i]]
 }
+
+heredoc <- function(text) {
+
+  # remove leading, trailing whitespace
+  trimmed <- gsub("^\\s*\\n|\\n\\s*$", "", text)
+
+  # split into lines
+  lines <- strsplit(trimmed, "\n", fixed = TRUE)[[1L]]
+
+  # compute common indent
+  indent <- regexpr("[^[:space:]]", lines)
+  common <- min(setdiff(indent, -1L))
+  paste(substring(lines, common), collapse = "\n")
+
+}
