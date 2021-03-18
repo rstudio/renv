@@ -32,12 +32,25 @@ renv_remotes_resolve <- function(entry, latest = FALSE) {
       return(record)
   }
 
-  # handle errors (add a bit of extra context)
+  # define error handler (tag error with extra context when possible)
   error <- function(e) {
-    fmt <- "failed to parse remote '%s'"
+
+    # build error message
+    fmt <- "failed to resolve remote '%s'"
     prefix <- sprintf(fmt, entry)
     message <- paste(prefix, e$message, sep = " -- ")
+
+    # if the error occurred while running tests, and the error appears
+    # to be due to an HTTP error (unauthorized), then just skip instead
+    if (renv_tests_running()) {
+      unauth <- any(grepl("403", e$message %||% ""))
+      if (unauth)
+        skip("Ignoring transient 403 error")
+    }
+
+    # otherwise, propagate the error
     stop(simpleError(message = message, call = e$call))
+
   }
 
   # attempt the parse
