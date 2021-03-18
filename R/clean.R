@@ -3,15 +3,60 @@
 #'
 #' Clean up a project and its associated \R libraries.
 #'
-#' The following actions will be taken:
+#' @section Actions:
 #'
-#' - Stale lockfiles (`00LOCK-`) will be removed.
-#' - Leftover temporary directories in the project library will be removed.
-#' - Non-system packages installed in the system library will be removed.
-#' - Unused packages within the project will be removed.
-#' - Packages within the cache that are no longer used will be removed.
+#' The following clean actions are available:
+#'
+#' \describe{
+#'
+#' \item{`package.locks`}{
+#'
+#'   During package installation, \R will create package locks in the
+#'   library path, typically named `00LOCK-<package>`. On occasion, if package
+#'   installation fails or \R is terminated while installing a package, these
+#'   locks can be left behind and will inhibit future attempts to re-install
+#'   that package. Use this action to remove such left-over package locks.
+#'
+#' }
+#'
+#' \item{`library.tempdirs`}{
+#'
+#'   During package installation, \R may create temporary directories with
+#'   names of the form `file\w{12}`, and on occasion those files can be
+#'   left behind even after they are no longer in use. Use this action to
+#'   remove such left-over directories.
+#' }
+#'
+#' \item{`system.library`}{
+#'
+#'   In general, it is recommended that only packages distributed with \R
+#'   are installed into the system library (the library path referred to
+#'   by `.Library`). Use this action to remove any user-installed packages
+#'   that have been installed to the system library.
+#'
+#'   Because this action is destructive, it is by default only run in
+#'   interactive sessions when prompting is enabled.
+#'
+#' }
+#'
+#' \item{`unused.packages`}{
+#'
+#'   Remove packages that are installed in the project library, but no longer
+#'   appear to be used in the project sources.
+#'
+#'   Because this action is destructive, it is by default only run in
+#'   interactive sessions when prompting is enabled.
+#'
+#' }
+#'
+#' }
+#'
 #'
 #' @inherit renv-params
+#'
+#' @param actions The set of clean actions to take. See the documentation in
+#'   **Actions** for a list of available actions, and the default actions
+#'   taken when no actions are supplied.
 #'
 #' @export
 #'
@@ -24,7 +69,8 @@
 #' }
 clean <- function(project = NULL,
                   ...,
-                  prompt = interactive())
+                  actions = NULL,
+                  prompt  = interactive())
 {
   renv_scope_error_handler()
   renv_dots_check(...)
@@ -34,20 +80,37 @@ clean <- function(project = NULL,
 
   renv_dependencies_scope(project, action = "clean")
 
-  status <- any(
-    renv_clean_stale_lockfiles(project, prompt),
-    renv_clean_library_tempdirs(project, prompt),
-    renv_clean_system_library(project, prompt),
-    renv_clean_unused_packages(project, prompt)
+  actions <- actions %||% renv_clean_actions(prompt)
+
+  all <- list(
+    package.locks     = renv_clean_package_locks,
+    library.tempdirs  = renv_clean_library_tempdirs,
+    system.library    = renv_clean_system_library,
+    unused.packages   = renv_clean_unused_packages
   )
 
-  msg <- if (status)
-    "* The project has been cleaned."
-  else
-    "* The project is already clean."
+  methods <- all[actions]
+  for (method in methods)
+    tryCatch(method(project, prompt), error = warning)
 
-  vwritef(msg)
+  vwritef("* THe pojrect has been cleaned.")
   invisible(status)
+}
+
+renv_clean_actions <- function(prompt) {
+
+  default <- c(
+    "package.locks",
+    "library.tempdirs"
+  )
+
+  unsafe <- c(
+    "system.library",
+    "unused.packages"
+  )
+
+  c(default, if (prompt) unsafe)
+
 }
 
 renv_clean_library_tempdirs <- function(project, prompt) {
@@ -92,10 +155,6 @@ renv_clean_system_library <- function(project, prompt) {
     vwritef("* No non-system packages were discovered in the system library.")
     FALSE
   }
-
-  # don't run non-interactively
-  if (!interactive() || identical(prompt, FALSE))
-    return(FALSE)
 
   # explicitly query for packages
   syslib <- renv_path_normalize(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
@@ -188,10 +247,10 @@ renv_clean_unused_packages <- function(project, prompt) {
 
 }
 
-renv_clean_stale_lockfiles <- function(project, prompt) {
+renv_clean_package_locks <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No stale lockfiles were found.")
+    vwritef("* No stale package locks were found.")
     FALSE
   }
 
@@ -215,8 +274,8 @@ renv_clean_stale_lockfiles <- function(project, prompt) {
 
     renv_pretty_print(
       basename(old),
-      "The following stale lockfiles were discovered in your library:",
-      "These lockfiles will be removed.",
+      "The following stale package locks were discovered in your library:",
+      "These locks will be removed.",
       wrap = FALSE
     )
 

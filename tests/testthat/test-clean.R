@@ -24,7 +24,8 @@ test_that("clean removes stale lockfiles", {
   })
 
   # clean up the project
-  renv::clean()
+  actions <- c("package.locks", "library.tempdirs", "unused.packages")
+  renv::clean(actions = actions)
 
   # check the project has been cleaned
   expect_false(file.exists(tmpdir))

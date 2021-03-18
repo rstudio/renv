@@ -4,7 +4,7 @@
 \alias{clean}
 \title{Clean a Project}
 \usage{
-clean(project = NULL, ..., prompt = interactive())
+clean(project = NULL, ..., actions = NULL, prompt = interactive())
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -13,6 +13,10 @@ directory is used instead.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
+
+\item{actions}{The set of clean actions to take. See the documentation in
+\strong{Actions} for a list of available actions, and the default actions
+taken when no actions are supplied.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
@@ -24,16 +28,56 @@ called for its side effects.
 \description{
 Clean up a project and its associated \R libraries.
 }
-\details{
-The following actions will be taken:
-\itemize{
-\item Stale lockfiles (\verb{00LOCK-}) will be removed.
-\item Leftover temporary directories in the project library will be removed.
-\item Non-system packages installed in the system library will be removed.
-\item Unused packages within the project will be removed.
-\item Packages within the cache that are no longer used will be removed.
+\section{Actions}{
+
+
+The following clean actions are available:
+
+\describe{
+
+\item{\code{package.locks}}{
+
+During package installation, \R will create package locks in the
+library path, typically named \verb{00LOCK-<package>}. On occasion, if package
+installation fails or \R is terminated while installing a package, these
+locks can be left behind and will inhibit future attempts to re-install
+that package. Use this action to remove such left-over package locks.
+
+}
+
+\item{\code{library.tempdirs}}{
+
+During package installation, \R may create temporary directories with
+names of the form \verb{file\\w\{12\}}, and on occasion those files can be
+left behind even after they are no longer in use. Use this action to
+remove such left-over directories.
+}
+
+\item{\code{system.library}}{
+
+In general, it is recommended that only packages distributed with \R
+are installed into the system library (the library path referred to
+by \code{.Library}). Use this action to remove any user-installed packages
+that have been installed to the system library.
+
+Because this action is destructive, it is by default only run in
+interactive sessions when prompting is enabled.
+
+}
+
+\item{\code{unused.packages}}{
+
+Remove packages that are installed in the project library, but no longer
+appear to be used in the project sources.
+
+Because this action is destructive, it is by default only run in
+interactive sessions when prompting is enabled.
+
+}
+
 }
 }
+
 \examples{
 \dontrun{
 

@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::clean()` gains the `actions` argument, allowing the caller to control
+  which specific actions are taken during a `clean()` operation.
+
 * `renv` no longer performs an automatic snapshot after a call to
   `renv::snapshot()`. (#651)
 
