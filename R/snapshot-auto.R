@@ -1,4 +1,5 @@
 
+`_renv_snapshot_auto` <- new.env(parent = emptyenv())
 `_renv_library_state` <- new.env(parent = emptyenv())
 
 # nocov start
@@ -79,6 +80,13 @@ renv_snapshot_auto_update <- function(project) {
   old <- `_renv_library_state`[["info"]]
   `_renv_library_state`[["info"]] <- new
 
+  # if we've suppressed the next automatic snapshot, bail here
+  suppressed <- `_renv_snapshot_auto`[["suppressed"]] %||% FALSE
+  if (suppressed) {
+    `_renv_snapshot_auto`[["suppressed"]] <- FALSE
+    return(FALSE)
+  }
+
   # report if things have changed
   !is.null(old) && !identical(old, new)
 
@@ -105,6 +113,10 @@ renv_snapshot_auto_callback_impl <- function() {
   renv_snapshot_auto(project = project)
   TRUE
 
+}
+
+renv_snapshot_auto_suppress_next <- function() {
+  `_renv_snapshot_auto`[["suppressed"]] <- TRUE
 }
 
 # nocov end

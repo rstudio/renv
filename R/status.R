@@ -31,6 +31,8 @@ status <- function(project = NULL,
   renv_scope_error_handler()
   renv_dots_check(...)
 
+  renv_snapshot_auto_suppress_next()
+
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 

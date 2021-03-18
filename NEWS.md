@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` no longer performs an automatic snapshot after a call to
+  `renv::snapshot()`. (#651)
+
 * Fixed an issue where attempts to transform RSPM repository URLs could
   fail if the copy of R was installed without a local `CRAN_mirrors.csv`
   file.
