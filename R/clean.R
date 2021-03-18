@@ -93,6 +93,10 @@ renv_clean_system_library <- function(project, prompt) {
     FALSE
   }
 
+  # don't run non-interactively
+  if (!interactive())
+    return(FALSE)
+
   # explicitly query for packages
   syslib <- renv_path_normalize(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
   db <- renv_installed_packages(lib.loc = syslib, priority = "NA")
