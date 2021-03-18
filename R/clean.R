@@ -94,7 +94,7 @@ renv_clean_system_library <- function(project, prompt) {
   }
 
   # don't run non-interactively
-  if (!interactive())
+  if (!interactive() || identical(prompt, FALSE))
     return(FALSE)
 
   # explicitly query for packages
