@@ -12,8 +12,8 @@
     "Version": "3.12"
   },
   "Packages": {
-    "BHA": {
-      "Package": "BHA",
+    "BH": {
+      "Package": "BH",
       "Version": "1.75.0-0",
       "Source": "Repository",
       "Repository": "CRAN",
