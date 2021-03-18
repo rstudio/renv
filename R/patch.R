@@ -17,7 +17,7 @@ renv_patch_rprofile <- function() {
   # if the .Rprofile is empty, do nothing
   if (info$size == 0)
     return(TRUE)
-  
+
   # check for trailing newline
   data <- readBin(path, raw(), n = info$size)
   if (empty(data))
@@ -56,9 +56,19 @@ renv_patch_tar <- function() {
 
   # the user (or R itself) has set the TAR environment variable
   # validate that it exists (resolve from PATH)
-  resolved <- Sys.which(tar)
-  if (nzchar(resolved) && file.exists(resolved))
-    return(TRUE)
+  #
+  # note that the user can set TAR to be a full command; e.g.
+  #
+  #    TAR = /path/to/tar --force-local
+  #
+  # so we need to handle that case appropriately
+  whitespace <- gregexpr("\\s+", tar, perl = TRUE)[[1L]]
+  for (index in whitespace) {
+    candidate <- substring(tar, 1L, index - 1L)
+    resolved <- Sys.which(candidate)
+    if (nzchar(resolved))
+      return(TRUE)
+  }
 
   # TAR appears to be set but invalid; override it
   # and warn the user
