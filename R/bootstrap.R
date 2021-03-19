@@ -32,7 +32,10 @@ renv_bootstrap_repos <- function() {
   repos <- getOption("repos")
 
   # ensure @CRAN@ entries are resolved
-  repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
+  repos[repos == "@CRAN@"] <- getOption(
+    "renv.repos.cran",
+    "https://cloud.r-project.org"
+  )
 
   # add in renv.bootstrap.repos if set
   default <- c(FALLBACK = "https://cloud.r-project.org")

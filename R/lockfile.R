@@ -35,7 +35,10 @@ renv_lockfile_init_r_repos <- function(project) {
   attr(repos, "RStudio") <- NULL
 
   # set a default URL
-  repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
+  repos[repos == "@CRAN@"] <- getOption(
+    "renv.repos.cran",
+    "https://cloud.r-project.org"
+  )
 
   # remove RSPM bits from URL
   if (config$rspm.enabled()) {

@@ -39,10 +39,13 @@ renv_repos_init_callback <- function(...) {
 
 }
 
-renv_repos_normalize <- function(repos) {
+renv_repos_normalize <- function(repos = getOption("repos")) {
 
   # force a CRAN mirror when needed
-  repos[repos == "@CRAN@"] <- "https://cloud.r-project.org"
+  repos[repos == "@CRAN@"] <- getOption(
+    "renv.repos.cran",
+    "https://cloud.r-project.org"
+  )
 
   # ensure repos are a character vector
   convert(repos, "character")

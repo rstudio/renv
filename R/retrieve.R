@@ -11,6 +11,9 @@ renv_retrieve <- function(packages) {
   if (is.null(state))
     stopf("renv_restore_begin() must be called first")
 
+  # normalize repositories (ensure @CRAN@ is resolved)
+  options(repos = renv_repos_normalize())
+
   # transform repository URLs for RSPM
   if (renv_rspm_enabled()) {
     repos <- getOption("repos")
