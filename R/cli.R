@@ -1,4 +1,20 @@
 
+renv_cli_install <- function(target = NULL) {
+
+  # get path to bundled tool
+  exe <- if (renv_platform_windows()) "bin/renv.bat" else "bin/renv"
+  path <- system.file(exe, package = "renv")
+
+  # copy into directory on PATH
+  target <- target %||% path.expand("~/bin/renv")
+  ensure_parent_directory(target)
+  file.copy(path, target)
+
+  writef("* renv binary copied to %s.", renv_path_pretty(target))
+  invisible(target)
+
+}
+
 renv_cli_exec <- function(clargs = commandArgs(trailingOnly = TRUE)) {
   invisible(renv_cli_exec_impl(clargs))
 }
@@ -63,8 +79,7 @@ renv_cli_exec_impl <- function(clargs) {
 
     # take other parameters as-is
     else {
-      splat <- strsplit(clarg, ",", fixed = TRUE)[[1L]]
-      args[[length(args) + 1L]] <- renv_cli_parse(splat)
+      args[[length(args) + 1L]] <- renv_cli_parse(clarg)
     }
 
   }
@@ -137,18 +152,7 @@ renv_cli_parse <- function(text) {
     return(FALSE)
 
   # parse the expression
-  expr <- parse(text = text)
-
-  # convert symbols and calls to plain character strings
-  parts <- map(expr, function(e) {
-    case(
-      is.symbol(e) ~ as.character(e),
-      is.call(e)   ~ format(e),
-                   ~ e
-    )
-  })
-
-  # unlist the object
-  unlist(as.list(parts), recursive = FALSE)
+  value <- parse(text = text)[[1L]]
+  if (is.language(value)) text else value
 
 }
