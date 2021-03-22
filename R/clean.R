@@ -93,7 +93,7 @@ clean <- function(project = NULL,
   for (method in methods)
     tryCatch(method(project, prompt), error = warning)
 
-  vwritef("* THe pojrect has been cleaned.")
+  vwritef("* The project has been cleaned.")
   invisible(status)
 }
 
