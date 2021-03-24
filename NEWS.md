@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv`'s bootstrapping code could inadvertently bootstrap
+  with the wrong version of `renv`, if the source and binary versions of `renv`
+  on CRAN were not in sync. (#695)
+  
 * Fixed an issue where `renv::status()` could provide a misleading message
   for packages which are recorded in the lockfile, but not explicitly
   required by the project. (#684)
