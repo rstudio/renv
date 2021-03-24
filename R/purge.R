@@ -108,7 +108,7 @@ renv_purge_impl <- function(package,
     )
 
     if (prompt && !proceed()) {
-      message("Operation aborted.")
+      renv_report_user_cancel()
       return(paths)
     }
 

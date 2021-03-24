@@ -167,7 +167,7 @@ snapshot <- function(project  = NULL,
   validated <- renv_snapshot_validate(project, new, libpaths)
   if (!validated && !force) {
     if (prompt && !proceed()) {
-      message("* Operation aborted.")
+      renv_report_user_cancel()
       return(invisible(alt))
     } else if (!interactive()) {
       stop("aborting snapshot due to pre-flight validation failure")
@@ -186,7 +186,7 @@ snapshot <- function(project  = NULL,
 
   # nocov start
   if (length(actions) && prompt && !proceed()) {
-    message("* Operation aborted.")
+    renv_report_user_cancel()
     return(invisible(new))
   }
   # nocov end

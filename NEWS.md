@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` no longer performs an automatic snapshot following a user-canceled
+  `renv` action -- for example, if `renv::restore()` is canceled, the next
+  automatic snapshot will be suppressed. (#697)
+
 * Added the `vcs.ignore.local` project setting, to control whether the
   project's `renv/local` folder is added to `renv`'s VCS ignore file
   (e.g. `renv/.gitignore`). (#696)

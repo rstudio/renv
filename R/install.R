@@ -143,7 +143,7 @@ install <- function(packages = NULL,
   records <- renv_install_remotes_update(records, project)
 
   if (!renv_install_preflight(project, libpaths, remotes, prompt)) {
-    message("* Operation aborted.")
+    renv_report_user_cancel()
     return(invisible(list()))
   }
 

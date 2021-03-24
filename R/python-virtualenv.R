@@ -34,7 +34,7 @@ renv_python_virtualenv_validate <- function(path, python, version) {
 
   if (!proceed()) {
     renv_scope_options(show.error.messages = FALSE)
-    message("* Operation aborted.")
+    renv_report_user_cancel()
     stop("operation aborted", call. = FALSE)
   }
 

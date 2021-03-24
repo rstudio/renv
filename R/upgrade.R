@@ -75,7 +75,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   }
 
   if (prompt && !proceed()) {
-    writeLines("Operation aborted.")
+    renv_report_user_cancel()
     return(FALSE)
   }
 

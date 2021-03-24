@@ -142,7 +142,7 @@ restore <- function(project  = NULL,
   }
 
   if (!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt)) {
-    message("* Operation aborted.")
+    renv_report_user_cancel()
     return(FALSE)
   }
 
@@ -150,7 +150,7 @@ restore <- function(project  = NULL,
     renv_restore_report_actions(diff, current, lockfile)
 
   if (prompt && !proceed()) {
-    message("* Operation aborted.")
+    renv_report_user_cancel()
     return(invisible(diff))
   }
 

@@ -61,7 +61,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
     )
 
     if (prompt && !proceed()) {
-      message("* Operation aborted.")
+      renv_report_user_cancel()
       return(FALSE)
     }
 

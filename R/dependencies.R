@@ -392,7 +392,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
     return(TRUE)
 
   if (interactive() && !proceed()) {
-    message("* Operation aborted.")
+    renv_report_user_cancel()
     return(FALSE)
   }
 

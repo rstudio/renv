@@ -219,7 +219,7 @@ update <- function(packages = NULL,
     }
 
     if (prompt && !proceed()) {
-      message("* Operation aborted.")
+      renv_report_user_cancel()
       return(invisible(FALSE))
     }
 
@@ -310,7 +310,7 @@ update <- function(packages = NULL,
     renv_restore_report_actions(diff, old, new)
 
   if (prompt && !proceed()) {
-    message("* Operation aborted.")
+    renv_report_user_cancel()
     return(invisible(FALSE))
   }
 

@@ -77,7 +77,7 @@ rebuild <- function(packages  = NULL,
   renv_pretty_print_records(records, preamble)
 
   if (prompt && !proceed()) {
-    message("Operation aborted.")
+    renv_report_user_cancel()
     return(invisible(records))
   }
 

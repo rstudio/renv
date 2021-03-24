@@ -112,7 +112,7 @@ init <- function(project = NULL,
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile)
   if (empty(action) || identical(action, "cancel")) {
-    message("* Operation aborted.")
+    renv_report_user_cancel()
     return(invisible(FALSE))
   }
 
