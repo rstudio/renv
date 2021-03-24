@@ -385,6 +385,13 @@ settings <- list(
     validate = is.logical,
     default  = TRUE,
     update   = renv_settings_updated_ignore
+  ),
+
+  vcs.ignore.local = renv_settings_impl(
+    name     = "vcs.ignore.local",
+    validate = is.logical,
+    default  = TRUE,
+    update   = renv_settings_updated_ignore
   )
 
 )

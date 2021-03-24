@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Added the `vcs.ignore.local` project setting, to control whether the
+  project's `renv/local` folder is added to `renv`'s VCS ignore file
+  (e.g. `renv/.gitignore`). (#696)
+
 * Fixed an issue where `renv`'s bootstrapping code could inadvertently bootstrap
   with the wrong version of `renv`, if the source and binary versions of `renv`
   on CRAN were not in sync. (#695)

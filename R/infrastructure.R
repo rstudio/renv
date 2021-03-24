@@ -64,7 +64,10 @@ renv_infrastructure_write_gitignore <- function(project) {
   stk <- if (settings$vcs.ignore.library()) add else remove
   stk$push("library/")
 
-  add$push("local/", "lock/", "python/", "staging/")
+  stk <- if (settings$vcs.ignore.local()) add else remove
+  stk$push("local/")
+
+  add$push("lock/", "python/", "staging/")
 
   renv_infrastructure_write_entry_impl(
     add    = as.character(add$data()),

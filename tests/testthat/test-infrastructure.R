@@ -51,6 +51,18 @@ test_that("library/ is excluded from .gitignore as appropriate", {
   expect_true("library/" %in% contents)
   expect_false("# library/" %in% contents)
 
+  settings$vcs.ignore.local(TRUE)
+
+  contents <- readLines("renv/.gitignore")
+  expect_true("local/" %in% contents)
+  expect_false("# local/" %in% contents)
+
+  settings$vcs.ignore.local(FALSE)
+
+  contents <- readLines("renv/.gitignore")
+  expect_false("local/" %in% contents)
+  expect_true("# local/" %in% contents)
+
 })
 
 test_that("whitespace in infrastructure file is preserved", {
