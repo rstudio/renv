@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` can now parse package dependencies declared by
+  `targets::tar_option_set(packages = <...>)`. (#698)
+
 * `renv` no longer performs an automatic snapshot following a user-canceled
   `renv` action -- for example, if `renv::restore()` is canceled, the next
   automatic snapshot will be suppressed. (#697)

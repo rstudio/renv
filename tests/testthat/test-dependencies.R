@@ -75,6 +75,11 @@ test_that("box::use() usages are handled", {
   expect_setequal(deps$Package, c("A", "B", "C", "D", "box"))
 })
 
+test_that("targets::tar_option_set() dependencies are handled", {
+  deps <- dependencies("resources/targets.R")
+  expect_setequal(deps$Package, c("A", "B", "targets"))
+})
+
 test_that("renv warns when large number of files found", {
 
   renv_tests_scope()

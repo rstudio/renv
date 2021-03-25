@@ -764,6 +764,7 @@ renv_dependencies_discover_r <- function(path = NULL,
     renv_dependencies_discover_r_modules,
     renv_dependencies_discover_r_import,
     renv_dependencies_discover_r_box,
+    renv_dependencies_discover_r_targets,
     renv_dependencies_discover_r_database
   )
 
@@ -1071,6 +1072,33 @@ renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
 
 }
 
+renv_dependencies_discover_r_targets <- function(node, stack, envir) {
+
+  node <- renv_call_expect(node, "targets", "tar_option_set")
+  if (is.null(node))
+    return(FALSE)
+
+  envir[["targets"]] <- TRUE
+
+  packages <- tryCatch(
+    renv_dependencies_eval(node$packages),
+    error = identity
+  )
+
+  if (inherits(packages, "error")) {
+    warning(packages)
+    return(TRUE)
+  }
+
+  if (is.character(packages))
+    for (package in packages)
+      envir[[package]] <- TRUE
+
+  TRUE
+
+}
+
+
 renv_dependencies_discover_r_database <- function(node, stack, envir) {
 
   found <- FALSE
@@ -1321,4 +1349,16 @@ renv_dependencies_error_handler <- function(message, errors) {
     renv_condition_data(condition)
 
   }
+}
+
+renv_dependencies_eval <- function(expr) {
+
+  # create environment with small subset of symbols
+  syms <- c("list", "c")
+  vals <- mget(syms, envir = baseenv())
+  envir <- list2env(vals, parent = emptyenv())
+
+  # evaluate in that environment
+  eval(expr, envir = envir)
+
 }

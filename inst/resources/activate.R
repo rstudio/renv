@@ -146,11 +146,11 @@ local({
   
     info <- tryCatch(
       utils::download.packages(
-        pkgs = "renv",
+        pkgs    = "renv",
         destdir = tempdir(),
-        repos = repos,
-        type = type,
-        quiet = TRUE
+        repos   = repos,
+        type    = type,
+        quiet   = TRUE
       ),
       condition = identity
     )
@@ -199,7 +199,7 @@ local({
           next
   
         # found it; return spec to caller
-        spec <- list(type = type, repos = repos)
+        spec <- list(entry = entry, type = type, repos = repos)
         return(spec)
   
       }
