@@ -521,6 +521,10 @@ renv_tests_supported <- function() {
   if (renv_platform_macos() && getRversion() < "4.0.0")
     return(FALSE)
 
+  # disabled on Windows
+  if (renv_platform_windows())
+    return(FALSE)
+
   # true otherwise
   TRUE
 
