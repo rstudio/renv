@@ -50,7 +50,7 @@ To directly install a package from these local sources, you must specify the pac
 version or provide the full path to the tarball:
 
 - `renv::install("<package>@<version>")`
-- `renv::install("<project>/renv/local/<package>_<version>.tar.gz`
+- `renv::install("<project>/renv/local/<package>_<version>.tar.gz")`
 
 Note that packages placed in one of these local sources will override any
 default source recorded in the lockfile. For example, if `skeleton 1.0.0` was
