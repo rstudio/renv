@@ -305,7 +305,10 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
 
   # form DESCRIPTION path
   subdir <- subdir %||% ""
-  parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
+  parts <- c(
+    if (nzchar(subdir)) URLencode(subdir),
+    "DESCRIPTION"
+  )
 
   descpath <- paste(parts, collapse = "/")
 

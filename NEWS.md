@@ -1,6 +1,8 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::install("user/repo/subdir with spaces")` now works as expected. (#694)
+
 * `renv` can now parse package dependencies declared by
   `targets::tar_option_set(packages = <...>)`. (#698)
 
