@@ -2,7 +2,9 @@
 context("Migrate")
 
 skip_if_no_packrat <- function() {
+
   skip_on_cran()
+  skip_on_windows()
   skip_if_not_installed("packrat")
 
   version <- unclass(packageVersion("packrat"))
