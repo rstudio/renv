@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `RENV_CONFIG_EXTERNAL_LIBRARIES` can now be configured to use multiple
+  library paths, delimited by either `:`, `;`, or `,`. (#700)
+  
 * `renv` gains the configuration option, `exported.functions`, controlling
   which functions and objects are placed on the R search path when `renv`
   is attached (e.g. via `library(renv)`). Set this to `NULL` to instruct `renv`

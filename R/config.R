@@ -101,7 +101,7 @@ renv_config_get <- function(name,
   envkey <- paste("RENV", toupper(scope), envname, sep = "_")
   envval <- Sys.getenv(envkey, unset = NA)
   if (!is.na(envval)) {
-    decoded <- renv_config_decode_envvar(envname, envval)
+    decoded <- renv_config_decode_envvar(envkey, envval)
     return(renv_config_validate(name, decoded, type, default, args))
   }
 
@@ -112,7 +112,7 @@ renv_config_get <- function(name,
 
 renv_config_decode_envvar <- function(envname, envval) {
 
-  map <- renv_global("config.map", env(
+  map <- env(
     "NULL" = NULL,
     "NA"   = NA,
     "NaN"  = NaN,
@@ -122,12 +122,18 @@ renv_config_decode_envvar <- function(envname, envval) {
     "false" = FALSE,
     "False" = FALSE,
     "FALSE" = FALSE
-  ))
+  )
 
   if (exists(envval, envir = map, inherits = FALSE))
     return(get(envval, envir = map, inherits = FALSE))
 
-  strsplit(envval, "\\s*,\\s*")[[1]]
+  libvars <- c("RENV_CONFIG_EXTERNAL_LIBRARIES", "RENV_CONFIG_HYDRATE_LIBPATHS")
+  pattern <- if (envname %in% libvars)
+    "\\s*[:;,]\\s*"
+  else
+    "\\s*,\\s*"
+
+  strsplit(envval, pattern, perl = TRUE)[[1L]]
 
 }
 

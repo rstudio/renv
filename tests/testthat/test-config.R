@@ -76,4 +76,14 @@ test_that("we can query the default configuration values without issue", {
   for (key in names(config))
     config[[key]]()
 
+  expect_true(TRUE)
+
+})
+
+test_that("multiple library paths can be set in RENV_CONFIG_EXTERNAL_LIBRARIES", {
+
+  renv_scope_envvars(RENV_CONFIG_EXTERNAL_LIBRARIES = "a:b:c")
+  libpaths <- config$external.libraries()
+  expect_equal(libpaths, c("a", "b", "c"))
+
 })
