@@ -1,6 +1,13 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` gains the configuration option, `exported.functions`, controlling
+  which functions and objects are placed on the R search path when `renv`
+  is attached (e.g. via `library(renv)`). Set this to `NULL` to instruct `renv`
+  not to place any functions on the search path. This helps avoid issues with,
+  for example, `renv::load()` masking `base::load()`. When set, all usages
+  of `renv` APIs must be explicitly qualified with the `renv::` prefix.
+  
 # renv 0.13.2
 
 * `renv::install("user/repo/subdir with spaces")` now works as expected. (#694)

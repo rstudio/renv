@@ -17,6 +17,7 @@
 
 .onAttach <- function(libname, pkgname) {
   renv_rstudio_fixup()
+  renv_exports_attach()
 }
 
 renv_zzz_run <- function() {

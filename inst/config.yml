@@ -62,6 +62,20 @@
     to force errors to be fatal, and `"ignored"` to ignore errors altogether. See
     [`dependencies()`] for more details.
 
+- name: "exported.functions"
+  type: "character[*]"
+  default: "*"
+  description: >
+    When `library(renv)` is called, should its exports be placed on the search
+    path? Set this to `FALSE` to avoid issues that can arise with, for example,
+    `renv::load()` masking `base::load()`. In general, we recommend referencing
+    `renv` functions from its namespace explicitly; e.g. prefer
+    `renv::snapshot()` over `snapshot()`.
+
+    By default, all exported `renv` functions are attached and placed on the
+    search path, for backwards compatibility with existing scripts using `renv`.
+
+
 - name: "external.libraries"
   type: "character[*]"
   default: ~

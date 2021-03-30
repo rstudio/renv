@@ -9,6 +9,10 @@ skip_if_no_packrat <- function() {
   if (length(version[[1]]) > 3)
     skip("cannot test with development version of Packrat")
 
+  packrat <- renv_available_packages_latest(package = "packrat", type = "source")
+  if (packageVersion("packrat") > packrat$Version)
+    skip("packrat is not current")
+
   TRUE
 
 }
