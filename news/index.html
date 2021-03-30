@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
       </span>
     </div>
 
@@ -182,13 +182,26 @@
       <small>Source: <a href='https://github.com/rstudio/renv/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="renv-0132" class="section level1">
+<h1 class="page-header" data-toc-text="0.13.2">
+<a href="#renv-0132" class="anchor"></a>renv 0.13.2<small> 2021-03-30 </small>
+</h1>
+<ul>
+<li><p><code><a href="../reference/install.html">renv::install("user/repo/subdir with spaces")</a></code> now works as expected. (<a href='https://github.com/rstudio/renv/issues/694'>#694</a>)</p></li>
+<li><p><code>renv</code> can now parse package dependencies declared by <code>targets::tar_option_set(packages = &lt;...&gt;)</code>. (<a href='https://github.com/rstudio/renv/issues/698'>#698</a>)</p></li>
+<li><p><code>renv</code> no longer performs an automatic snapshot following a user-canceled <code>renv</code> action – for example, if <code><a href="../reference/restore.html">renv::restore()</a></code> is canceled, the next automatic snapshot will be suppressed. (<a href='https://github.com/rstudio/renv/issues/697'>#697</a>)</p></li>
+<li><p>Added the <code>vcs.ignore.local</code> project setting, to control whether the project’s <code>renv/local</code> folder is added to <code>renv</code>’s VCS ignore file (e.g. <code>renv/.gitignore</code>). (<a href='https://github.com/rstudio/renv/issues/696'>#696</a>)</p></li>
+<li><p>Fixed an issue where <code>renv</code>’s bootstrapping code could inadvertently bootstrap with the wrong version of <code>renv</code>, if the source and binary versions of <code>renv</code> on CRAN were not in sync. (<a href='https://github.com/rstudio/renv/issues/695'>#695</a>)</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/status.html">renv::status()</a></code> could provide a misleading message for packages which are recorded in the lockfile, but not explicitly required by the project. (<a href='https://github.com/rstudio/renv/issues/684'>#684</a>)</p></li>
+</ul>
+</div>
     <div id="renv-0131" class="section level1">
 <h1 class="page-header" data-toc-text="0.13.1">
-<a href="#renv-0131" class="anchor"></a>renv 0.13.1<small> Unreleased </small>
+<a href="#renv-0131" class="anchor"></a>renv 0.13.1<small> 2021-03-18 </small>
 </h1>
 <ul>
 <li><p><code><a href="../reference/clean.html">renv::clean()</a></code> gains the <code>actions</code> argument, allowing the caller to control which specific actions are taken during a <code><a href="../reference/clean.html">clean()</a></code> operation.</p></li>
-<li><p><code>renv</code> no longer performs an automatic snapshot after a call to <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>. (<a href='https://github.com/rstudio/renv/issues/651'>#651</a>)</p></li>
+<li><p><code>renv</code> no longer performs an automatic snapshot after a call to <code><a href="../reference/status.html">renv::status()</a></code>. (<a href='https://github.com/rstudio/renv/issues/651'>#651</a>)</p></li>
 <li><p>Fixed an issue where attempts to transform RSPM repository URLs could fail if the copy of R was installed without a local <code>CRAN_mirrors.csv</code> file.</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/init.html">renv::init()</a></code> could fail when passed a relative path to a directory. (<a href='https://github.com/rstudio/renv/issues/673'>#673</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> would miss dependencies in R Markdown YAML headers containing multiple output formats. (<a href='https://github.com/rstudio/renv/issues/674'>#674</a>)</p></li>

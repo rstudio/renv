@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
       </span>
     </div>
 
@@ -172,7 +172,7 @@
 <p>To directly install a package from these local sources, you must specify the package version or provide the full path to the tarball:</p>
 <ul>
 <li><code><a href="../reference/install.html">renv::install("&lt;package&gt;@&lt;version&gt;")</a></code></li>
-<li><code>renv::install("&lt;project&gt;/renv/local/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
+<li><code><a href="../reference/install.html">renv::install("&lt;project&gt;/renv/local/&lt;package&gt;_&lt;version&gt;.tar.gz")</a></code></li>
 </ul>
 <p>Note that packages placed in one of these local sources will override any default source recorded in the lockfile. For example, if <code>skeleton 1.0.0</code> was also available on CRAN, <code><a href="../reference/restore.html">renv::restore()</a></code> would still use the locally-provided tarball rather than the version available from CRAN.</p>
 <p>If you want to see what directory is being used by <code>renv</code> for local package sources, you can execute:</p>
