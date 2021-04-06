@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` now supports the discovery of dependencies within interpolated strings
+  as used by the `glue` package.
+
 * `RENV_CONFIG_EXTERNAL_LIBRARIES` can now be configured to use multiple
   library paths, delimited by either `:`, `;`, or `,`. (#700)
   

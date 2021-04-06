@@ -310,3 +310,8 @@ test_that("multiple output formats are handled", {
   deps <- dependencies("resources/multiple-output-formats.Rmd", progress = FALSE)
   expect_true("bookdown" %in% deps$Package)
 })
+
+test_that("glue::glue() package usages are found", {
+  deps <- dependencies("resources/glue.R", progress = FALSE)
+  expect_true(all(c("hello", "goodbye") %in% deps$Package))
+})

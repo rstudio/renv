@@ -738,10 +738,22 @@ renv_dependencies_discover_r <- function(path = NULL,
                                          text = NULL,
                                          expr = NULL)
 {
+  packages <- renv_dependencies_discover_r_impl(path, text, expr)
+  if (empty(packages))
+    return(list())
 
+  renv_dependencies_list(path, packages)
+}
+
+renv_dependencies_discover_r_impl <- function(path  = NULL,
+                                              text  = NULL,
+                                              expr  = NULL,
+                                              envir = NULL)
+{
   expr <- case(
     is.function(expr)  ~ body(expr),
     is.language(expr)  ~ expr,
+    is.character(expr) ~ catch(renv_parse_text(expr)),
     is.character(text) ~ catch(renv_parse_text(text)),
     is.character(path) ~ catch(renv_parse_file(path)),
     ~ stop("internal error")
@@ -765,22 +777,18 @@ renv_dependencies_discover_r <- function(path = NULL,
     renv_dependencies_discover_r_import,
     renv_dependencies_discover_r_box,
     renv_dependencies_discover_r_targets,
+    renv_dependencies_discover_r_glue,
     renv_dependencies_discover_r_database
   )
 
-  discoveries <- new.env(parent = emptyenv())
+  envir <- envir %||% new.env(parent = emptyenv())
   recurse(expr, function(node, stack) {
     if (is.call(node))
       for (method in methods)
-        method(node, stack, discoveries)
+        method(node, stack, envir)
   })
 
-  packages <- ls(envir = discoveries)
-  if (empty(packages))
-    return(list())
-
-  renv_dependencies_list(path, packages)
-
+  ls(envir = envir, all.names = TRUE)
 }
 
 renv_dependencies_discover_r_methods <- function(node, stack, envir) {
@@ -1098,6 +1106,29 @@ renv_dependencies_discover_r_targets <- function(node, stack, envir) {
 
 }
 
+renv_dependencies_discover_r_glue <- function(node, stack, envir) {
+
+  node <- renv_call_expect(node, "glue", "glue")
+  if (is.null(node))
+    return(FALSE)
+
+  # analyze all unnamed strings in the call
+  args <- as.list(node)[-1L]
+  nm <- names(args) %||% rep.int("", length(args))
+  strings <- args[!nzchar(nm) & map_lgl(args, is.character)]
+
+  # TODO: support custom '.open' and '.close' arguments?
+  pattern <- "\\{[^}]+\\}"
+  for (string in strings) {
+    m <- gregexpr(pattern, string)
+    matches <- unlist(regmatches(string, m), recursive = FALSE)
+    code <- substring(matches, 2L, nchar(matches) - 1L)
+    renv_dependencies_discover_r_impl(text = code, envir = envir)
+  }
+
+  TRUE
+
+}
 
 renv_dependencies_discover_r_database <- function(node, stack, envir) {
 
