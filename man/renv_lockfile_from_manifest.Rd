@@ -2,29 +2,36 @@
 % Please edit documentation in R/manifest-convert.R
 \name{renv_lockfile_from_manifest}
 \alias{renv_lockfile_from_manifest}
-\title{Convert manifest.json to an renv.lock file}
+\title{Generate \code{renv.lock} from an RStudio Connect \code{manifest.json}}
 \usage{
-renv_lockfile_from_manifest(manifest = NULL, lockfile = NA)
+renv_lockfile_from_manifest(manifest, lockfile = NA)
 }
 \arguments{
-\item{manifest}{The path to a manifest.json file.}
+\item{manifest}{The path to a \code{manifest.json} file.}
 
-\item{lockfile}{The path to a lockfile you want to update, can be an empty text file. Defaults to NA.}
+\item{lockfile}{The path to the lockfile to be generated and / or updated.
+When \code{NA} (the default), the generated lockfile is returned as an \R
+object; otherwise, the lockfile will be written to the path specified by
+\code{lockfile}.}
+}
+\value{
+An \code{renv} lockfile.
 }
 \description{
-Use \code{rsc_manifest_to_renv_lock} to convert a \code{manifest.json} file from
-an RStudio Connect content bundle into an \code{renv.lock} file.
+Use \code{renv_lockfile_from_manifest()} to convert a \code{manifest.json} file from
+an RStudio Connect content bundle into an \code{renv.lock} lockfile.
 }
 \details{
 This function can be useful when you need to recreate the package environment
 of a piece of content that is deployed to RStudio Connect. The content bundle
-contains a \code{manifest.json} file that is used to recreate the package environment.
-This function will let you convert that manifest file to an \code{renv.lock} file.
-Run \code{renv::restore()} after you've converted the file to restore the package
-environment.
+contains a \code{manifest.json} file that is used to recreate the package
+environment. This function will let you convert that manifest file to an
+\code{renv.lock} file. Run \code{renv::restore()} after you've converted the file to
+restore the package environment.
 
-By default the \code{lockfile} argument is set to \code{NA}. This will not create a new renv.lock file.
-Rather, it will return a lockfile object (see \code{?lockfile}) that can be used to create a new
-renv.lock file. If \code{lockfile} is set to a character string, a new file will be created with that
-path—e.g. \code{renv.lock}—and the lockfile object will be returned.
+By default the \code{lockfile} argument is set to \code{NA}. This will not create a new
+\code{renv.lock} file. Rather, it will return a lockfile object (see \code{?lockfile})
+that can be used to create a new \code{renv.lock} file. If \code{lockfile} is set to a
+character string, a new file will be created with that path -- e.g.
+\code{renv.lock} -- and the lockfile object will be returned.
 }
