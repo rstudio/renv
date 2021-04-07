@@ -423,14 +423,15 @@ renv_retrieve_repos <- function(record) {
   )
 
   # only attempt to retrieve binaries when explicitly requested by user
-  if (!identical(getOption("pkgType"), "source"))
-  {
+  if (!identical(getOption("pkgType"), "source")) {
+
     # attempt to retrieve binaries from MRAN when enabled as well
     if (config$mran.enabled())
       methods <- c(renv_retrieve_repos_mran, methods)
 
     # prefer using default CRAN mirror over MRAN when possible
     methods <- c(renv_retrieve_repos_binary, methods)
+
   }
 
   # capture errors for reporting
@@ -654,7 +655,8 @@ renv_retrieve_repos_impl <- function(record,
       renv_available_packages_entry(
         package = package,
         type    = type,
-        filter  = version
+        filter  = version,
+        prefer  = record[["Repository"]]
       )
     )
 

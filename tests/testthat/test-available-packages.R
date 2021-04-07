@@ -120,3 +120,25 @@ test_that("available packages database refreshed on http_proxy change", {
   expect_identical(count, 1L)
 
 })
+
+test_that("available packages prefer tagged repository", {
+
+  skip_on_cran()
+  skip_on_os("windows")
+
+  renv_tests_scope()
+
+  repos <- getOption("repos")[[1L]]
+  renv_scope_options(repos = c(CRAN = repos, ALT = repos))
+
+  entry <- renv_available_packages_entry(
+    package = "breakfast",
+    type    = "source",
+    prefer  = "ALT",
+    quiet   = TRUE
+  )
+
+  expect_equal(entry$Name, "ALT")
+
+})
+

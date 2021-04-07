@@ -1,6 +1,11 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::restore()` will now prefer restoring packages from the repository
+  named in the `Repository` field if available. The name is matched against
+  the repository names set in the R `repos` option, or as encoded in the
+  `renv` lockfile. (#701)
+  
 * `renv` now supports the discovery of dependencies within interpolated strings
   as used by the `glue` package.
 
