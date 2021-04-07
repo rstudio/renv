@@ -82,6 +82,12 @@ Set whether the \code{renv} project library is excluded from version control.
 
 }
 
+\item{\code{vcs.ignore.local}}{
+
+Set whether \code{renv} project-specific local sources are excluded from version control.
+
+}
+
 }
 }
 
