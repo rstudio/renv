@@ -1,6 +1,6 @@
 #' Convert manifest.json to an renv.lock file
 #'
-#' Use `rsc_manifest_to_renv_lock` to convert a `manifest.json` file from
+#' Use `renv_lockfile_from_manifest()` to convert a `manifest.json` file from
 #' an RStudio Connect content bundle into an `renv.lock` file.
 #'
 #' This function can be useful when you need to recreate the package environment
@@ -19,28 +19,26 @@
 #' Rather, it will return a lockfile object (see `?lockfile`) that can be used to create a new
 #' renv.lock file. If `lockfile` is set to a character string, a new file will be created with that
 #' path—e.g. `renv.lock`—and the lockfile object will be returned.
-#'
-#'
-#' @export
-rsc_manifest_to_renv_lock <- function(manifest = NULL, lockfile = NA) {
+
+renv_lockfile_from_manifest<- function(manifest = NULL, lockfile = NA) {
 
   if (missing(manifest)) {
     stop("Provide the path the manifest.json file.", call. = FALSE)
   }
 
-  # create lockfile if non-existant and lockfile != NA
-  if (!file.exists(lockfile %&&% "") & !is.na(lockfile)) {
+  # create lockfile if non-existent and lockfile != NA
+  if (!is.na(lockfile) && !file.exists(lockfile)) {
     fmt <- "%s doesn't exist. Creating new file."
     vwritef(fmt, lockfile)
     file.create(lockfile)
   }
 
-  cat("* Reading manifest.json...\n")
+  writef("* Reading manifest.json...")
   .manifest <- renv_json_read(manifest)
 
   lock <- lockfile(lockfile)
 
-  cat("* Parsing dependencies...\n")
+  writef("* Parsing dependencies...")
 
   # packages
   manifest_pkgs <- lapply(.manifest[["packages"]], extract_pkg_version)
@@ -56,7 +54,7 @@ rsc_manifest_to_renv_lock <- function(manifest = NULL, lockfile = NA) {
 
   if (is.na(lockfile)) {
     return(lock)
-  } else{
+  } else {
     lock$write(lockfile)
     fmt <- "* %s written."
     vwritef(fmt, renv_path_pretty(lockfile))
