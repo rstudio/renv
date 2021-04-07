@@ -29,6 +29,24 @@ renv_lockfile_api <- function(lockfile = NULL) {
 
   }
 
+  .self$version <- function(..., .version = NULL) {
+
+    if (nargs() == 0) {
+      version <- .lockfile$R$Version
+      return(version)
+    }
+
+    version <- .version %||% c(...)
+
+    if (length(version) > 1) {
+      stop("Version should be length 1 character e.g. `\"3.6.3\"`")
+    }
+
+    .lockfile$R$Version <<- version
+    invisible(.self)
+
+  }
+
   .self$add <- function(..., .list = NULL) {
 
     records <- renv_records(.lockfile)
