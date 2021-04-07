@@ -305,6 +305,12 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 #'
+#' \item{\code{vcs.ignore.local}}{
+#'
+#'   Set whether `renv` project-specific local sources are excluded from version control.
+#'
+#' }
+#'
 #' }
 #'
 #' @section Defaults:
