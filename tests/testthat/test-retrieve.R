@@ -306,3 +306,18 @@ test_that("we can retrieve files using file URIs", {
   unlink(target)
 
 })
+
+test_that("records with RemoteSha successfully retrieved from archives", {
+
+  renv_tests_scope()
+
+  record <- list(
+    Package   = "bread",
+    Version   = "0.1.0",
+    Source    = "Repository",
+    RemoteSha = "oops"
+  )
+
+  renv_test_retrieve(record)
+
+})

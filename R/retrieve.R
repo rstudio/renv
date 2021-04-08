@@ -506,9 +506,9 @@ renv_retrieve_url <- function(record) {
 
 }
 
-renv_retrieve_repos_archive_name <- function(record, type) {
-  fmt <- "%s_%s%s"
-  sprintf(fmt, record$Package, record$Version, renv_package_ext(type))
+renv_retrieve_repos_archive_name <- function(record, type = "source") {
+  ext <- renv_package_ext(type)
+  paste0(record$Package, "_", record$Version, ext)
 }
 
 renv_retrieve_repos_mran <- function(record) {
@@ -578,7 +578,7 @@ renv_retrieve_repos_archive <- function(record) {
       next
 
     # attempt download
-    name <- renv_retrieve_name(record, ext = ".tar.gz")
+    name <- renv_retrieve_repos_archive_name(record, type = "source")
     status <- catch(renv_retrieve_repos_impl(record, "source", name, url))
     if (identical(status, TRUE))
       return(TRUE)

@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv` would fail to retrieve packages from the
+  archives if the lockfile entry was tagged with a `RemoteSha` field.
+
 * `renv::restore()` will now prefer restoring packages from the repository
   named in the `Repository` field if available. The name is matched against
   the repository names set in the R `repos` option, or as encoded in the

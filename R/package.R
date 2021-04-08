@@ -122,15 +122,16 @@ renv_package_tarball_name <- function(path) {
 
 renv_package_ext <- function(type) {
 
+  # always use '.tar.gz' for source packages
   type <- match.arg(type, c("binary", "source"))
   if (type == "source")
     return(".tar.gz")
 
-  switch(
-    Sys.info()[["sysname"]],
-    Darwin  = ".tgz",
-    Windows = ".zip",
-    ".tar.gz"
+  # otherwise, infer appropriate extension based on platform
+  case(
+    renv_platform_macos()   ~ ".tgz",
+    renv_platform_windows() ~ ".zip",
+    renv_platform_unix()    ~ ".tar.gz"
   )
 
 }
