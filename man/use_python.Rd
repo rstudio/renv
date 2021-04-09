@@ -13,21 +13,21 @@ use_python(
 )
 }
 \arguments{
-\item{python}{The path to a Python binary. This can be the path to a Python
-binary on the system, or the path to a Python binary within an
-already-existing Python environment. If \code{NULL}, the \code{RETICULATE_PYTHON}
-environment variable is checked; if that is not set, then the default
-version of \code{python} on the \code{PATH} is used instead. As a special case,
-\code{use_python(FALSE)} can be used to deactivate Python integration with
-a project.}
+\item{python}{The version of Python to be used with this project. This can
+be the path to a Python binary on the system, or the path to a Python
+binary within an already-existing Python environment. In interactive
+sessions, the user will be prompted to select an appropriate version
+of Python, as described in \strong{Finding Python}. Otherwise, the
+\code{RETICULATE_PYTHON} environment variable is checked; if that is not set,
+then the default version of \code{python} on the \code{PATH} is used instead. As a
+special case, \code{use_python(FALSE)} can be used to deactivate Python
+integration with a project.}
 
 \item{...}{Optional arguments; currently unused.}
 
 \item{type}{The type of Python environment to use. When \code{"auto"} (the
 default), a project-local environment (virtual environments on Linux /
-macOS; conda environments on Windows) will be created. Ignored if the
-requested version of \code{python} lives within a pre-existing Python
-environment.}
+macOS; conda environments on Windows) will be created.}
 
 \item{name}{The name or path that should be used for the associated Python
 environment. If \code{NULL} and \code{python} points to a Python executable living
@@ -40,8 +40,8 @@ directory is used instead.}
 }
 \value{
 \code{TRUE}, indicating that the requested version of Python has been
-successfully activated. Note that this function is normally called for
-its side effects.
+successfully activated. Note that this function is normally called for its
+side effects.
 }
 \description{
 Associate a version of Python with your project.
@@ -56,9 +56,22 @@ particular, the Python version, and the Python type ("virtualenv", "conda",
 \code{reticulate} package can automatically use the requested copy of Python
 as appropriate,
 \item Capture the set of installed Python packages during \code{renv::snapshot()},
-\item Reinstall the set of recorded Python packages during \code{renv::restore()}.
+\item Re-install the set of recorded Python packages during \code{renv::restore()}.
 }
 }
+\section{Finding Python}{
+
+
+\code{renv} will search a pre-defined set of locations when attempting to find
+Python installations on the system:
+\itemize{
+\item \code{getOption("renv.python.root", default = "/opt/python")},
+\item (macOS) \verb{/usr/local/opt}, for Homebrew-installed copies of Python;
+\item \verb{~/.pyenv}, for versions of Python installed by \href{https://github.com/pyenv/pyenv}{pyenv};
+\item The \code{PATH}.
+}
+}
+
 \examples{
 \dontrun{
 

@@ -1,45 +1,40 @@
 
 renv_python_virtualenv_path <- function(name) {
 
-  path <- name
-  if (!grepl("[/\\\\]", name)) {
-    home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
-    path <- file.path(home, name)
-  }
+  if (grepl("/", name, fixed = TRUE))
+    return(name)
 
-  path
+  home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+  file.path(home, name)
 
 }
 
-renv_python_virtualenv_validate <- function(path, python, version) {
+renv_python_virtualenv_validate <- function(path, version) {
 
-  # compare requested vs. actual versions of Python
-  exe <- renv_python_exe(path)
-  request <- version %||% renv_python_version(python)
-  current <- renv_python_version(exe)
+  # get path to python executable
+  python <- renv_python_exe(path)
+
+  # compare requested + actual versions
+  request <- version
+  current <- renv_python_version(python)
   if (request == current)
-    return(exe)
+    return(python)
 
-  # err in automatic sessions
-  if (!interactive()) {
-    fmt <- "incompatible virtual environment already exists at path '%s'"
-    stopf(fmt, path)
-  }
-
-  renv_pretty_print(
-    sprintf("Requested version %s != %s", request, current),
-    "This virtual environment has already been initialized with a different copy of Python.",
-    "The old virtual environment will be overwritten."
+  # notify user that there's a mismatch in what the lockfile asked for,
+  # and what renv was able to find to satisfy the request
+  values = c(
+    paste("Lockfile version: ", version),
+    paste("Actual version:   ", version)
   )
 
-  if (!proceed()) {
-    renv_scope_options(show.error.messages = FALSE)
-    renv_report_user_cancel()
-    stop("operation aborted", call. = FALSE)
-  }
+  preamble <- "The virtual environment exists, but has an unexpected version."
+  postamble <- c(
+    "You may need to re-generate the virtual environment, or update the lockfile.",
+    paste("Python path:", renv_path_pretty(python))
+  )
 
-  unlink(path, recursive = TRUE)
-  return("")
+  renv_pretty_print(values, preamble, postamble, wrap = FALSE)
+  python
 
 }
 

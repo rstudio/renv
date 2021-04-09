@@ -6,11 +6,22 @@
 `_renv_filebacked` <- new.env(parent = emptyenv())
 
 renv_filebacked_init <- function() {
-  scopes <- c("DESCRIPTION", "dependencies", "hash", "mran", "settings", "test")
+
+  scopes <- c(
+    "DESCRIPTION",
+    "dependencies",
+    "hash",
+    "mran",
+    "python.versions",
+    "settings",
+    "test"
+  )
+
   for (scope in scopes) {
     envir <- new.env(parent = emptyenv())
     assign(scope, envir, envir = `_renv_filebacked`)
   }
+
 }
 
 renv_filebacked_clear <- function(scope, path = NULL) {

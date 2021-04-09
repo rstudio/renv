@@ -46,3 +46,7 @@ renv_platform_prefix <- function() {
 renv_platform_os <- function() {
   renv_bootstrap_platform_os()
 }
+
+renv_platform_machine <- function() {
+  `_renv_sysinfo`[["machine"]]
+}
