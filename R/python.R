@@ -35,22 +35,6 @@ renv_python_resolve <- function(python = NULL) {
 
 }
 
-renv_python_compatible <- function(python, version) {
-
-  actual <- renv_python_version(python = python)
-  if (actual == version)
-    return(TRUE)
-
-  actual <- numeric_version(actual)
-  expected <- numeric_version(version)
-
-  if (actual[1, 1:2] == expected[1, 1:2])
-    return(TRUE)
-
-  FALSE
-
-}
-
 renv_python_find <- function(version, path = NULL) {
   renv_python_find_impl(version, path)
 }
@@ -79,7 +63,7 @@ renv_python_find_impl <- function(version, path = NULL) {
   # second pass: look for match in major.minor
   for (python in pythons) {
     pyversion <- renv_python_version(python)
-    if (numeric_version(pyversion)[1, 1:2] == numeric_version(version)[1, 1:2])
+    if (renv_version_equal(version, pyversion, 1:2))
       return(python)
   }
 
@@ -115,7 +99,8 @@ renv_python_version <- function(python) {
 
 renv_python_version_impl <- function(python) {
   python <- renv_path_normalize(python)
-  args <- c("-c", shQuote("from platform import python_version; print(python_version())"))
+  code <- "from platform import python_version; print(python_version())"
+  args <- c("-c", shQuote(code))
   system2(python, args, stdout = TRUE, stderr = TRUE)
 }
 
@@ -126,7 +111,8 @@ renv_python_info <- function(python) {
     # check for virtual environment files
     virtualenv <-
       file.exists(file.path(path, "pyvenv.cfg")) ||
-      file.exists(file.path(path, ".Python"))
+      file.exists(file.path(path, ".Python")) ||
+      file.exists(file.path(path, "bin/activate_this.py"))
 
     if (virtualenv) {
       suffix <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"

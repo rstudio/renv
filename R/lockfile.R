@@ -80,7 +80,14 @@ renv_lockfile_init_python <- function(project) {
   root <- info$root
   name <- renv_python_envname(project, root, type)
 
-  list(Version = version, Type = type, Name = name)
+  fields <- list()
+
+  fields$Version <- version
+  fields$Type    <- type
+  fields$Name    <- name
+
+  fields
+
 }
 
 renv_lockfile_fini <- function(lockfile) {
