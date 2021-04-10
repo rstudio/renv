@@ -46,19 +46,25 @@ When Python integration is active, \code{renv} will:
 \item Save metadata about the requested version of Python in \code{renv.lock} -- in
 particular, the Python version, and the Python type ("virtualenv", "conda",
 "system"),
-\item On load, set the \code{RETICULATE_PYTHON} environment variable, so that the
-\code{reticulate} package can automatically use the requested copy of Python
-as appropriate,
 \item Capture the set of installed Python packages during \code{renv::snapshot()},
 \item Re-install the set of recorded Python packages during \code{renv::restore()}.
+}
+
+In addition, when the project is loaded, the following actions will be taken:
+\itemize{
+\item The \code{RETICULATE_PYTHON} environment variable will be set, so that the
+\code{reticulate} package can automatically use the requested copy of Python
+as appropriate,
+\item The requested version of Python will be placed on the \code{PATH}, so that
+attempts to invoke Python will resolve to the expected version of Python.
 }
 }
 \section{Finding Python}{
 
 
-In interactive sessions, when \code{python = NULL}, the user will be prompted to
-select an appropriate version of Python. \code{renv} will search a pre-defined set
-of locations when attempting to find Python installations on the system:
+In interactive sessions, when \code{python = NULL}, \code{renv} will prompt for an
+appropriate version of Python. \code{renv} will search a pre-defined set of
+locations when attempting to find Python installations on the system:
 \itemize{
 \item \code{getOption("renv.python.root")},
 \item \verb{/opt/python},

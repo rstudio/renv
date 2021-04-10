@@ -9,13 +9,18 @@
 #'   particular, the Python version, and the Python type ("virtualenv", "conda",
 #'   "system"),
 #'
-#' - On load, set the `RETICULATE_PYTHON` environment variable, so that the
-#'   `reticulate` package can automatically use the requested copy of Python
-#'   as appropriate,
-#'
 #' - Capture the set of installed Python packages during `renv::snapshot()`,
 #'
 #' - Re-install the set of recorded Python packages during `renv::restore()`.
+#'
+#' In addition, when the project is loaded, the following actions will be taken:
+#'
+#' - The `RETICULATE_PYTHON` environment variable will be set, so that the
+#'   `reticulate` package can automatically use the requested copy of Python
+#'   as appropriate,
+#'
+#' - The requested version of Python will be placed on the `PATH`, so that
+#'   attempts to invoke Python will resolve to the expected version of Python.
 #'
 #' @inherit renv-params
 #'
@@ -39,9 +44,9 @@
 #'
 #' @section Finding Python:
 #'
-#' In interactive sessions, when `python = NULL`, the user will be prompted to
-#' select an appropriate version of Python. `renv` will search a pre-defined set
-#' of locations when attempting to find Python installations on the system:
+#' In interactive sessions, when `python = NULL`, `renv` will prompt for an
+#' appropriate version of Python. `renv` will search a pre-defined set of
+#' locations when attempting to find Python installations on the system:
 #'
 #' - `getOption("renv.python.root")`,
 #' - `/opt/python`,
