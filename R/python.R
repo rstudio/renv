@@ -13,8 +13,16 @@ renv_python_resolve <- function(python = NULL) {
   }
 
   # in interactive sessions, ask user what version of python they'd like to use
-  if (interactive())
-    return(renv_python_select())
+  if (interactive()) {
+
+    python <- renv_python_select()
+
+    fmt <- "* Selected %s [Python %s]."
+    vwritef(fmt, renv_path_pretty(python), renv_python_version(python))
+
+    return(python)
+
+  }
 
   # check environment variables
   envvars <- c("RETICULATE_PYTHON", "RETICULATE_PYTHON_ENV")
@@ -51,9 +59,21 @@ renv_python_find_impl <- function(version, path = NULL) {
   }
 
   # try to find a compatible version of python
+  pythons <- renv_python_discover()
+  if (length(pythons) == 0) {
+
+    fmt <- lines(
+      "project requested Python %s, but no compatible Python installation could be found.",
+      "renv's Python integration will be disabled in this session.",
+      "See `?renv::use_python` for more details."
+    )
+
+    msg <- sprintf(fmt, version)
+    stop(msg)
+
+  }
 
   # first pass: look for exact match
-  pythons <- renv_python_discover()
   for (python in pythons) {
     pyversion <- renv_python_version(python)
     if (pyversion == version)
@@ -67,12 +87,12 @@ renv_python_find_impl <- function(version, path = NULL) {
       return(python)
   }
 
-  fmt <- lines(
-    "project requested Python %s, but no compatible Python installation could be found.",
-    "renv's Python integration will be disabled in this session."
-  )
+  # third pass: just use whatever and notify the user
+  python <- pythons[[1L]]
 
-  stopf(fmt, version)
+  # notify user that we couldn't find a compatible version of python
+  fmt <- "project requested Python %s, but Python %s was found"
+  warningf(fmt, version, renv_python_version(python))
 
 }
 
@@ -236,10 +256,11 @@ renv_python_discover <- function() {
   # find python in some pre-determined root directories
   roots <- c(
     getOption("renv.python.root"),
+    Sys.getenv("WORKON_HOME", "~/.virtualenvs"),
     "/opt/python",
     "/opt/local/python",
     "~/opt/python",
-    file.path(renv_pyenv_root(), "versions"),
+    file.path(renv_pyenv_root(), "versions")
   )
 
   for (root in roots) {

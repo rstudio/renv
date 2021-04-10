@@ -125,7 +125,12 @@ use_python <- function(python = NULL,
 
   # if name is unset, and this is a virtual environment, then we'll
   # instruct renv to use that virtual environment
-  if (is.null(name) && type == "virtualenv") {
+  usevirtualenv <-
+    is.null(name) &&
+    type == "virtualenv" &&
+    !is.null(info$root)
+
+  if (usevirtualenv) {
     name <- aliased_path(info$root)
     if (renv_path_same(dirname(name), renv_python_virtualenv_home()))
       name <- basename(name)
@@ -200,6 +205,7 @@ renv_use_python_virtualenv_existing <- function(project,
   renv_python_virtualenv_validate(path, version)
 }
 
+#'
 #' @param project
 #'   The project directory.
 #'
