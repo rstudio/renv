@@ -235,8 +235,11 @@ renv_python_discover <- function() {
 
   # find python in some pre-determined root directories
   roots <- c(
+    getOption("renv.python.root"),
+    "/opt/python",
+    "/opt/local/python",
+    "~/opt/python",
     file.path(renv_pyenv_root(), "versions"),
-    getOption("renv.python.root", default = "/opt/python")
   )
 
   for (root in roots) {

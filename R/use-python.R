@@ -22,36 +22,39 @@
 #' @param ... Optional arguments; currently unused.
 #'
 #' @param python
-#'   The path to the version of Python to be used with this project. This can be
-#'   the path to a Python binary on the system, or the path to a Python binary
-#'   within an already-existing Python environment. In interactive sessions, the
-#'   user will be prompted to select an appropriate version of Python, as
-#'   described in **Finding Python**. Otherwise, the `RETICULATE_PYTHON`
-#'   environment variable is checked; if that is not set, then the default
-#'   version of `python` on the `PATH` is used instead. As a special case,
-#'   `use_python(FALSE)` can be used to deactivate Python integration with a
-#'   project.
+#'   The path to the version of Python to be used with this project. See
+#'   **Finding Python** for more details.
 #'
 #' @param type
 #'   The type of Python environment to use. When `"auto"` (the default), a
-#'   project-local environment (virtual environments on Linux / macOS; conda
-#'   environments on Windows) will be created.
+#'   Python environment (virtual environments on Linux / macOS; conda
+#'   environments on Windows) will be used.
 #'
 #' @param name
 #'   The name or path that should be used for the associated Python environment.
 #'   If `NULL` and `python` points to a Python executable living within a
 #'   pre-existing virtual environment, that environment will be used. Otherwise,
-#'   a project-local environment will be created instead.
+#'   a project-local environment will be created instead, using a name
+#'   generated from the associated version of Python.
 #'
 #' @section Finding Python:
 #'
-#' `renv` will search a pre-defined set of locations when attempting to find
-#' Python installations on the system:
+#' In interactive sessions, when `python = NULL`, the user will be prompted to
+#' select an appropriate version of Python. `renv` will search a pre-defined set
+#' of locations when attempting to find Python installations on the system:
 #'
-#' - `getOption("renv.python.root", default = "/opt/python")`,
-#' - (macOS) `/usr/local/opt`, for Homebrew-installed copies of Python;
-#' - `~/.pyenv`, (See: https://github.com/pyenv/pyenv);
-#' - The `PATH`.
+#' - `getOption("renv.python.root")`,
+#' - `/opt/python`,
+#' - `/opt/local/python`,
+#' - `~/opt/python`,
+#' - `/usr/local/opt` (for macOS Homebrew-installed copies of Python),
+#' - `~/.pyenv/versions`,
+#' - Python instances available on the `PATH`.
+#'
+#' In non-interactive sessions, `renv` will first check the `RETICULATE_PYTHON`
+#' environment variable; if that is unset, `renv` will look for Python on the
+#' `PATH`. It is recommended that the version of Python to be used is explicitly
+#' supplied for non-interactive usages of `use_python()`.
 #'
 #' @return
 #'   `TRUE`, indicating that the requested version of Python has been
