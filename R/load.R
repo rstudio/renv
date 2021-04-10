@@ -337,6 +337,9 @@ renv_load_python_impl <- function(project, fields) {
     Sys.setenv(RETICULATE_PYTHON_ENV = info$root)
   }
 
+  bindir <- normalizePath(dirname(python), mustWork = FALSE)
+  renv_envvar_prepend("PATH", bindir)
+
   TRUE
 
 }
