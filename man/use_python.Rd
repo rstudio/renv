@@ -13,26 +13,26 @@ use_python(
 )
 }
 \arguments{
-\item{python}{The version of Python to be used with this project. This can
-be the path to a Python binary on the system, or the path to a Python
-binary within an already-existing Python environment. In interactive
-sessions, the user will be prompted to select an appropriate version
-of Python, as described in \strong{Finding Python}. Otherwise, the
-\code{RETICULATE_PYTHON} environment variable is checked; if that is not set,
-then the default version of \code{python} on the \code{PATH} is used instead. As a
-special case, \code{use_python(FALSE)} can be used to deactivate Python
-integration with a project.}
+\item{python}{The path to the version of Python to be used with this project. This can be
+the path to a Python binary on the system, or the path to a Python binary
+within an already-existing Python environment. In interactive sessions, the
+user will be prompted to select an appropriate version of Python, as
+described in \strong{Finding Python}. Otherwise, the \code{RETICULATE_PYTHON}
+environment variable is checked; if that is not set, then the default
+version of \code{python} on the \code{PATH} is used instead. As a special case,
+\code{use_python(FALSE)} can be used to deactivate Python integration with a
+project.}
 
 \item{...}{Optional arguments; currently unused.}
 
-\item{type}{The type of Python environment to use. When \code{"auto"} (the
-default), a project-local environment (virtual environments on Linux /
-macOS; conda environments on Windows) will be created.}
+\item{type}{The type of Python environment to use. When \code{"auto"} (the default), a
+project-local environment (virtual environments on Linux / macOS; conda
+environments on Windows) will be created.}
 
-\item{name}{The name or path that should be used for the associated Python
-environment. If \code{NULL} and \code{python} points to a Python executable living
-within a pre-existing virtual environment, that environment will be used.
-Otherwise, a project-local environment will be created instead.}
+\item{name}{The name or path that should be used for the associated Python environment.
+If \code{NULL} and \code{python} points to a Python executable living within a
+pre-existing virtual environment, that environment will be used. Otherwise,
+a project-local environment will be created instead.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
@@ -67,7 +67,7 @@ Python installations on the system:
 \itemize{
 \item \code{getOption("renv.python.root", default = "/opt/python")},
 \item (macOS) \verb{/usr/local/opt}, for Homebrew-installed copies of Python;
-\item \verb{~/.pyenv}, for versions of Python installed by \href{https://github.com/pyenv/pyenv}{pyenv};
+\item \verb{~/.pyenv}, (See: https://github.com/pyenv/pyenv);
 \item The \code{PATH}.
 }
 }
@@ -77,6 +77,10 @@ Python installations on the system:
 
 # use python with a project
 renv::use_python()
+
+# use python with a project; create the environment
+# within the project directory in the '.venv' folder
+renv::use_python(name = ".venv")
 
 # use virtualenv python with a project
 renv::use_python(type = "virtualenv")

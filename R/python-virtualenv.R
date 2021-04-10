@@ -1,10 +1,20 @@
 
+renv_python_virtualenv_home <- function() {
+  Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+}
+
 renv_python_virtualenv_path <- function(name) {
 
+  # if the name contains a slash, use it as-is
   if (grepl("/", name, fixed = TRUE))
     return(name)
 
-  home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+  # treat names starting with '.' specially
+  if (substring(name, 1L, 1L) == ".")
+    return(name)
+
+  # otherwise, resolve relative to virtualenv home
+  home <- renv_python_virtualenv_home()
   file.path(home, name)
 
 }

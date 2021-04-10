@@ -21,24 +21,27 @@
 #'
 #' @param ... Optional arguments; currently unused.
 #'
-#' @param python The version of Python to be used with this project. This can
-#'   be the path to a Python binary on the system, or the path to a Python
-#'   binary within an already-existing Python environment. In interactive
-#'   sessions, the user will be prompted to select an appropriate version
-#'   of Python, as described in **Finding Python**. Otherwise, the
-#'   `RETICULATE_PYTHON` environment variable is checked; if that is not set,
-#'   then the default version of `python` on the `PATH` is used instead. As a
-#'   special case, `use_python(FALSE)` can be used to deactivate Python
-#'   integration with a project.
+#' @param python
+#'   The path to the version of Python to be used with this project. This can be
+#'   the path to a Python binary on the system, or the path to a Python binary
+#'   within an already-existing Python environment. In interactive sessions, the
+#'   user will be prompted to select an appropriate version of Python, as
+#'   described in **Finding Python**. Otherwise, the `RETICULATE_PYTHON`
+#'   environment variable is checked; if that is not set, then the default
+#'   version of `python` on the `PATH` is used instead. As a special case,
+#'   `use_python(FALSE)` can be used to deactivate Python integration with a
+#'   project.
 #'
-#' @param type The type of Python environment to use. When `"auto"` (the
-#'   default), a project-local environment (virtual environments on Linux /
-#'   macOS; conda environments on Windows) will be created.
+#' @param type
+#'   The type of Python environment to use. When `"auto"` (the default), a
+#'   project-local environment (virtual environments on Linux / macOS; conda
+#'   environments on Windows) will be created.
 #'
-#' @param name The name or path that should be used for the associated Python
-#'   environment. If `NULL` and `python` points to a Python executable living
-#'   within a pre-existing virtual environment, that environment will be used.
-#'   Otherwise, a project-local environment will be created instead.
+#' @param name
+#'   The name or path that should be used for the associated Python environment.
+#'   If `NULL` and `python` points to a Python executable living within a
+#'   pre-existing virtual environment, that environment will be used. Otherwise,
+#'   a project-local environment will be created instead.
 #'
 #' @section Finding Python:
 #'
@@ -47,7 +50,7 @@
 #'
 #' - `getOption("renv.python.root", default = "/opt/python")`,
 #' - (macOS) `/usr/local/opt`, for Homebrew-installed copies of Python;
-#' - `~/.pyenv`, for versions of Python installed by [pyenv](https://github.com/pyenv/pyenv);
+#' - `~/.pyenv`, (See: https://github.com/pyenv/pyenv);
 #' - The `PATH`.
 #'
 #' @return
@@ -62,6 +65,10 @@
 #'
 #' # use python with a project
 #' renv::use_python()
+#'
+#' # use python with a project; create the environment
+#' # within the project directory in the '.venv' folder
+#' renv::use_python(name = ".venv")
 #'
 #' # use virtualenv python with a project
 #' renv::use_python(type = "virtualenv")
@@ -107,6 +114,14 @@ use_python <- function(python = NULL,
   # handle 'auto' type
   if (identical(type, "auto"))
     type <- ifelse(renv_platform_windows(), "conda", "virtualenv")
+
+  # if name is unset, and this is a virtual environment, then we'll
+  # instruct renv to use that virtual environment
+  if (is.null(name) && type == "virtualenv") {
+    name <- aliased_path(info$root)
+    if (renv_path_same(dirname(name), renv_python_virtualenv_home()))
+      name <- basename(name)
+  }
 
   # form the lockfile fields we'll want to write
   fields <- list()

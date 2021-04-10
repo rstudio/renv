@@ -61,7 +61,8 @@ renv_filebacked_set <- function(scope, path, value) {
 renv_filebacked_get <- function(scope, path) {
 
   # validate the path
-  stopifnot(renv_path_absolute(path))
+  if (!renv_path_absolute(path))
+    stopf("internal error: '%s' is not an absolute path", path)
 
   # get scoped sub-environment
   envir <- renv_filebacked_envir(scope)
