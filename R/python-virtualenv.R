@@ -17,19 +17,19 @@ renv_python_virtualenv_validate <- function(path, version) {
   # compare requested + actual versions
   request <- version
   current <- renv_python_version(python)
-  if (request == current)
+  if (renv_version_equal(request, current, 1:2))
     return(python)
 
   # notify user that there's a mismatch in what the lockfile asked for,
   # and what renv was able to find to satisfy the request
   values = c(
-    paste("Lockfile version: ", version),
-    paste("Actual version:   ", version)
+    paste("Lockfile version: ", request),
+    paste("Actual version:   ", current)
   )
 
-  preamble <- "The virtual environment exists, but has an unexpected version."
+  preamble <- "A Python environment was found, but it has an unexpected version:"
   postamble <- c(
-    "You may need to re-generate the virtual environment, or update the lockfile.",
+    "You may need to re-generate the environment, or update the lockfile.",
     paste("Python path:", renv_path_pretty(python))
   )
 
