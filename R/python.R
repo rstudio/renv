@@ -267,6 +267,30 @@ renv_python_discover <- function() {
 
   }
 
+  # find Windows python installations
+  if (renv_platform_windows()) {
+
+    sd <- Sys.getenv("SYSTEMDRIVE", unset = "C:")
+    roots <- file.path(sd, c("", "Program Files"))
+
+    lad <- Sys.getenv("LOCALAPPDATA", unset = NA)
+    if (!is.na(lad))
+      roots <- c(roots, file.path(lad, "Programs/Python"))
+
+    dirs <- list.files(
+      path       = roots,
+      pattern    = "^Python",
+      full.names = TRUE
+    )
+
+    if (length(dirs)) {
+      exes <- file.path(dirs, "python.exe")
+      pythons <- normalizePath(dirs, winslash = "/", mustWork = FALSE)
+      all$push(pythons)
+    }
+
+  }
+
   # find Python installations on the PATH
   path <- Sys.getenv("PATH", unset = "")
   splat <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1L]]
