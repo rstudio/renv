@@ -29,8 +29,8 @@ renv_update_find_repos_impl <- function(record) {
 
   # compare the versions; return NULL if the 'latest' version
   # is older
-  compare <- version_compare(latest$Version, record$Version)
-  if (compare != 1)
+  compare <- renv_version_compare(latest$Version, record$Version)
+  if (compare != 1L)
     return(NULL)
 
   latest
