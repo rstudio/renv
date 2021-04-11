@@ -254,29 +254,7 @@ renv_use_python_virtualenv <- function(project,
   renv_python_virtualenv_create(python, path)
   vwritef("Done!")
 
-  # get path to python executable in virtual environment
-  exe <- renv_python_exe(path)
-
-  # notify the user if we couldn't satisfy lockfile-requested python
-  if (!renv_version_equal(pyversion, version, 1:2)) {
-
-    values <- c(
-      paste("Requested version:  ", version),
-      paste("Discovered version: ", pyversion)
-    )
-
-    preamble <- "renv was unable to locate a compatible version of Python for this project."
-    postamble <- c(
-      "You may need to install a compatible version of Python.",
-      "See ?renv::use_python for more details."
-    )
-
-    renv_pretty_print(values, preamble, postamble, wrap = FALSE)
-
-  }
-
-  # return executable path
-  renv_python_exe(path)
+  renv_python_virtualenv_validate(path, version)
 
 }
 

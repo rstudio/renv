@@ -76,23 +76,19 @@ renv_python_find_impl <- function(version, path = NULL) {
   # first pass: look for exact match
   for (python in pythons) {
     pyversion <- renv_python_version(python)
-    if (pyversion == version)
+    if (renv_version_equal(version, pyversion))
       return(python)
   }
 
   # second pass: look for match in major.minor
   for (python in pythons) {
     pyversion <- renv_python_version(python)
-    if (renv_version_equal(version, pyversion, 1:2))
+    if (renv_version_equal(version, pyversion, 2L))
       return(python)
   }
 
-  # third pass: just use whatever and notify the user
-  python <- pythons[[1L]]
-
-  # notify user that we couldn't find a compatible version of python
-  fmt <- "project requested Python %s, but Python %s was found"
-  warningf(fmt, version, renv_python_version(python))
+  # third pass: just use the newest available
+  pythons[[1L]]
 
 }
 
