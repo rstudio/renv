@@ -73,22 +73,16 @@ renv_python_find_impl <- function(version, path = NULL) {
 
   }
 
-  # first pass: look for exact match
-  for (python in pythons) {
-    pyversion <- renv_python_version(python)
-    if (renv_version_equal(version, pyversion))
-      return(python)
-  }
+  # read python versions
+  pyversions <- map_chr(pythons, function(python) {
+    tryCatch(
+      renv_python_version(python),
+      error = function(e) "0.0.0"
+    )
+  })
 
-  # second pass: look for match in major.minor
-  for (python in pythons) {
-    pyversion <- renv_python_version(python)
-    if (renv_version_equal(version, pyversion, 2L))
-      return(python)
-  }
-
-  # third pass: just use the newest available
-  pythons[[1L]]
+  # try to find a compatible version
+  renv_version_match(pyversions, version)
 
 }
 

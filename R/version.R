@@ -29,3 +29,23 @@ renv_version_equal <- function(lhs, rhs, n = NULL) {
   renv_version_compare(lhs, rhs, n) == 0
 }
 
+renv_version_match <- function(versions, request) {
+
+  nrequest <- unclass(numeric_version(request))[[1L]]
+  for (i in rev(seq_along(nrequest))) {
+
+    matches <- which(map_lgl(versions, function(version) {
+      renv_version_equal(version, request, n = i)
+    }))
+
+    if (!length(matches))
+      next
+
+    sorted <- matches[sort(names(matches), decreasing = TRUE)]
+    return(names(sorted)[[1L]])
+
+  }
+
+  versions[[1L]]
+
+}
