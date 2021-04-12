@@ -297,14 +297,35 @@ renv_load_sandbox <- function(project) {
 
 renv_load_python <- function(project, fields) {
 
-  tryCatch(
+  python <- tryCatch(
     renv_load_python_impl(project, fields),
-    error = warning
+    error = function(e) {
+      warning(e)
+      NULL
+    }
   )
+
+  if (is.null(python))
+    return(FALSE)
+
+  Sys.setenv(
+    RENV_PYTHON       = python,
+    RETICULATE_PYTHON = python
+  )
+
+  bindir <- normalizePath(dirname(python), mustWork = FALSE)
+  renv_envvar_prepend("PATH", bindir)
+
+  TRUE
 
 }
 
 renv_load_python_impl <- function(project, fields) {
+
+  # if RENV_PYTHON is already set, just use it
+  python <- Sys.getenv("RENV_PYTHON", unset = NA)
+  if (!is.na(python))
+    return(python)
 
   # set a default reticulate Python environment path
   components <- c(project, renv_profile_prefix(), "renv/python/r-reticulate")
@@ -313,34 +334,19 @@ renv_load_python_impl <- function(project, fields) {
 
   # nothing more to do if no lockfile fields set
   if (is.null(fields))
-    return(FALSE)
+    return(NULL)
 
   # delegate based on type appropriately
   type <- fields$Type
   if (is.null(type))
-    return(FALSE)
+    return(NULL)
 
-  python <- switch(type,
+  switch(type,
     system     = renv_load_python_default(project, fields),
     virtualenv = renv_load_python_virtualenv(project, fields),
     conda      = renv_load_python_condaenv(project, fields),
     stopf("unrecognized Python type '%s'", type)
   )
-
-  if (is.null(python))
-    return(FALSE)
-
-  Sys.setenv(RENV_PYTHON = python, RETICULATE_PYTHON = python)
-
-  if (type %in% c("virtualenv", "conda")) {
-    info <- renv_python_info(python)
-    Sys.setenv(RETICULATE_PYTHON_ENV = info$root)
-  }
-
-  bindir <- normalizePath(dirname(python), mustWork = FALSE)
-  renv_envvar_prepend("PATH", bindir)
-
-  TRUE
 
 }
 

@@ -52,12 +52,20 @@ particular, the Python version, and the Python type ("virtualenv", "conda",
 
 In addition, when the project is loaded, the following actions will be taken:
 \itemize{
+\item The \code{RENV_PYTHON} environment variable will be set, indicating the version
+of Python currently active for this sessions,
 \item The \code{RETICULATE_PYTHON} environment variable will be set, so that the
 \code{reticulate} package can automatically use the requested copy of Python
 as appropriate,
 \item The requested version of Python will be placed on the \code{PATH}, so that
 attempts to invoke Python will resolve to the expected version of Python.
 }
+
+You can override the version of Python used in a particular project by
+setting the \code{RENV_PYTHON} environment variable; e.g. as part of the
+project's \code{.Renviron} file. This can be useful if you find that \code{renv}
+is unable to automatically discover a compatible version of Python to
+be used in the project.
 }
 \section{Finding Python}{
 
