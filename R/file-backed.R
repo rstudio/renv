@@ -6,11 +6,22 @@
 `_renv_filebacked` <- new.env(parent = emptyenv())
 
 renv_filebacked_init <- function() {
-  scopes <- c("DESCRIPTION", "dependencies", "hash", "mran", "settings", "test")
+
+  scopes <- c(
+    "DESCRIPTION",
+    "dependencies",
+    "hash",
+    "mran",
+    "python.versions",
+    "settings",
+    "test"
+  )
+
   for (scope in scopes) {
     envir <- new.env(parent = emptyenv())
     assign(scope, envir, envir = `_renv_filebacked`)
   }
+
 }
 
 renv_filebacked_clear <- function(scope, path = NULL) {
@@ -50,7 +61,8 @@ renv_filebacked_set <- function(scope, path, value) {
 renv_filebacked_get <- function(scope, path) {
 
   # validate the path
-  stopifnot(renv_path_absolute(path))
+  if (!renv_path_absolute(path))
+    stopf("internal error: '%s' is not an absolute path", path)
 
   # get scoped sub-environment
   envir <- renv_filebacked_envir(scope)

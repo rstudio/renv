@@ -13,3 +13,7 @@ renv_namespace_path <- function(package) {
   namespace <- asNamespace(package)
   .getNamespaceInfo(namespace, "path")
 }
+
+renv_namespace_load <- function(package) {
+  suppressPackageStartupMessages(getNamespace(package))
+}

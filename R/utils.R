@@ -139,22 +139,6 @@ case <- function(...) {
 
 }
 
-version_compare <- function(lhs, rhs) {
-
-  lhs <- unclass(numeric_version(lhs))[[1]]
-  rhs <- unclass(numeric_version(rhs))[[1]]
-
-  n <- max(length(lhs), length(rhs))
-  for (i in seq_len(n)) {
-    l <- lhs[i] %NA% 0; r <- rhs[i] %NA% 0
-    if (l < r) return(-1)
-    if (l > r) return(+1)
-  }
-
-  0
-
-}
-
 catch <- function(expr) {
   tryCatch(
     withCallingHandlers(expr, error = renv_error_capture),

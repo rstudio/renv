@@ -9,40 +9,62 @@
 #'   particular, the Python version, and the Python type ("virtualenv", "conda",
 #'   "system"),
 #'
-#' - On load, set the `RETICULATE_PYTHON` environment variable, so that the
+#' - Capture the set of installed Python packages during `renv::snapshot()`,
+#'
+#' - Re-install the set of recorded Python packages during `renv::restore()`.
+#'
+#' In addition, when the project is loaded, the following actions will be taken:
+#'
+#' - The `RETICULATE_PYTHON` environment variable will be set, so that the
 #'   `reticulate` package can automatically use the requested copy of Python
 #'   as appropriate,
 #'
-#' - Capture the set of installed Python packages during `renv::snapshot()`,
-#'
-#' - Reinstall the set of recorded Python packages during `renv::restore()`.
+#' - The requested version of Python will be placed on the `PATH`, so that
+#'   attempts to invoke Python will resolve to the expected version of Python.
 #'
 #' @inherit renv-params
 #'
 #' @param ... Optional arguments; currently unused.
 #'
-#' @param python The path to a Python binary. This can be the path to a Python
-#'   binary on the system, or the path to a Python binary within an
-#'   already-existing Python environment. If `NULL`, the `RETICULATE_PYTHON`
-#'   environment variable is checked; if that is not set, then the default
-#'   version of `python` on the `PATH` is used instead. As a special case,
-#'   `use_python(FALSE)` can be used to deactivate Python integration with
-#'   a project.
+#' @param python
+#'   The path to the version of Python to be used with this project. See
+#'   **Finding Python** for more details.
 #'
-#' @param type The type of Python environment to use. When `"auto"` (the
-#'   default), a project-local environment (virtual environments on Linux /
-#'   macOS; conda environments on Windows) will be created. Ignored if the
-#'   requested version of `python` lives within a pre-existing Python
-#'   environment.
+#' @param type
+#'   The type of Python environment to use. When `"auto"` (the default), a
+#'   Python environment (virtual environments on Linux / macOS; conda
+#'   environments on Windows) will be used.
 #'
-#' @param name The name or path that should be used for the associated Python
-#'   environment. If `NULL` and `python` points to a Python executable living
-#'   within a pre-existing virtual environment, that environment will be used.
-#'   Otherwise, a project-local environment will be created instead.
+#' @param name
+#'   The name or path that should be used for the associated Python environment.
+#'   If `NULL` and `python` points to a Python executable living within a
+#'   pre-existing virtual environment, that environment will be used. Otherwise,
+#'   a project-local environment will be created instead, using a name
+#'   generated from the associated version of Python.
 #'
-#' @return `TRUE`, indicating that the requested version of Python has been
-#'   successfully activated. Note that this function is normally called for
-#'   its side effects.
+#' @section Finding Python:
+#'
+#' In interactive sessions, when `python = NULL`, `renv` will prompt for an
+#' appropriate version of Python. `renv` will search a pre-defined set of
+#' locations when attempting to find Python installations on the system:
+#'
+#' - `getOption("renv.python.root")`,
+#' - `/opt/python`,
+#' - `/opt/local/python`,
+#' - `~/opt/python`,
+#' - `/usr/local/opt` (for macOS Homebrew-installed copies of Python),
+#' - `~/.pyenv/versions`,
+#' - Python instances available on the `PATH`.
+#'
+#' In non-interactive sessions, `renv` will first check the `RETICULATE_PYTHON`
+#' environment variable; if that is unset, `renv` will look for Python on the
+#' `PATH`. It is recommended that the version of Python to be used is explicitly
+#' supplied for non-interactive usages of `use_python()`.
+#'
+#' @return
+#'   `TRUE`, indicating that the requested version of Python has been
+#'   successfully activated. Note that this function is normally called for its
+#'   side effects.
 #'
 #' @export
 #'
@@ -51,6 +73,10 @@
 #'
 #' # use python with a project
 #' renv::use_python()
+#'
+#' # use python with a project; create the environment
+#' # within the project directory in the '.venv' folder
+#' renv::use_python(name = ".venv")
 #'
 #' # use virtualenv python with a project
 #' renv::use_python(type = "virtualenv")
@@ -72,21 +98,21 @@ use_python <- function(python = NULL,
   if (identical(python, FALSE))
     return(renv_python_deactivate(project))
 
-  # resolve path to Python
+  # resolve path to python
   python <- renv_python_resolve(python)
 
-  # validate we have a real path to Python
-  if (!file.exists(python)) local({
+  # validate we have a real path to python
+  if (!file.exists(python)) {
 
     if (nzchar(python %||% ""))
       stopf("requested Python '%s' does not exist or cannot be found", python)
 
     stopf("failed to resolve path to Python executable")
 
-  })
+  }
 
   # construct path to Python executable
-  python <- renv_python_exe(python) %||% python
+  python <- renv_python_exe(python)
   version <- renv_python_version(python)
 
   # build information about the version of python requested
@@ -97,6 +123,19 @@ use_python <- function(python = NULL,
   if (identical(type, "auto"))
     type <- ifelse(renv_platform_windows(), "conda", "virtualenv")
 
+  # if name is unset, and this is a virtual environment, then we'll
+  # instruct renv to use that virtual environment
+  usevirtualenv <-
+    is.null(name) &&
+    type == "virtualenv" &&
+    !is.null(info$root)
+
+  if (usevirtualenv) {
+    name <- aliased_path(info$root)
+    if (renv_path_same(dirname(name), renv_python_virtualenv_home()))
+      name <- basename(name)
+  }
+
   # form the lockfile fields we'll want to write
   fields <- list()
   fields$Version <- version
@@ -104,7 +143,7 @@ use_python <- function(python = NULL,
   fields$Name    <- name
 
   # if a Python virtual environment or conda environment was requested,
-  # check for existence; if it doesn't exist create it now
+  # check for existence; if it doesn't exist, create it now
   if (type != "system") {
     name <- name %||% renv_python_envpath(project, type, version)
     python <- case(
@@ -142,25 +181,80 @@ use_python <- function(python = NULL,
 
 }
 
-renv_use_python_virtualenv <- function(project, name, version = NULL, python = NULL) {
-
+# return the path to an existing python binary associated with the virtual
+# environment having name 'name' and version 'version', or "" if no such
+# python instance exists
+renv_use_python_virtualenv_existing <- function(project,
+                                                name = NULL,
+                                                version = NULL)
+{
+  # resolve environment path from name
   name <- name %||% renv_python_envpath(project, "virtualenv", version)
   path <- renv_python_virtualenv_path(name)
-  python <- python %||% renv_python_find(version, path)
+  if (!file.exists(path))
+    return("")
+
+  # check that this appears to have a valid python executable
+  info <- catch(renv_python_info(path))
+  if (inherits(info, "error")) {
+    warning(info)
+    return("")
+  }
+
+  # validate version and return
+  renv_python_virtualenv_validate(path, version)
+}
+
+#'
+#' @param project
+#'   The project directory.
+#'
+#' @param name
+#'   The environment name, if any. If unset, it should be constructed
+#'   based on the Python executable used (note: _not_ the version parameter)
+#'
+#' @param version
+#'   The _requested_ version of Python (which may not be the actual version!)
+#'   This version should be used as a hint for finding an appropriate version
+#'   of Python, if the environment needs to be re-created.
+#'
+#' @param python
+#'   The copy of Python to be used. When unset, an appropriate version of Python
+#'   should be discovered based on the `version` parameter.
+#'
+#' @return
+#'   The path to the Python binary in the associated virtual environment.
+renv_use_python_virtualenv <- function(project,
+                                       name = NULL,
+                                       version = NULL,
+                                       python = NULL)
+{
+  # first, look for an already-existing python installation
+  # associated with the requested version of python
+  exe <- renv_use_python_virtualenv_existing(project, name, version)
+  if (file.exists(exe))
+    return(exe)
+
+  # couldn't resolve environment from requested version; try to find
+  # a compatible version of python and re-create that environment
+  python <- python %||% renv_python_find(version)
+  pyversion <- renv_python_version(python)
+  name <- name %||% renv_python_envpath(project, "virtualenv", pyversion)
+  path <- renv_python_virtualenv_path(name)
 
   # if the environment already exists, but is associated with a different
   # version of Python, prompt the user to re-create that environment
   if (file.exists(path)) {
-    exe <- renv_python_virtualenv_validate(path, python, version)
+    exe <- renv_python_virtualenv_validate(path, version)
     if (file.exists(exe))
       return(exe)
   }
 
-  # if no virtual environment exists, create it
   vprintf("* Creating virtual environment '%s' ... ", basename(name))
   renv_python_virtualenv_create(python, path)
   vwritef("Done!")
-  renv_python_exe(path)
+
+  renv_python_virtualenv_validate(path, version)
 
 }
 

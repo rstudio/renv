@@ -428,7 +428,7 @@ renv_available_packages_latest_select <- function(src, bin) {
 
   # if the binary is at least as old as the source version,
   # then use the binary version
-  if (version_compare(bin$Version, src$Version) >= 0)
+  if (renv_version_compare(bin$Version, src$Version) >= 0)
     return(renv_available_packages_record(bin, "binary"))
 
   # if the user has requested we skip source repositories,

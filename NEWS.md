@@ -1,6 +1,11 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* In interactive sessions, `renv::use_python()` will now prompt for
+  the version of Python to be used. Python installations in a set
+  of common locations will be searched. See `?renv::use_python()`
+  for more details.
+
 * Fixed an issue where `renv` would fail to retrieve packages from the
   archives if the lockfile entry was tagged with a `RemoteSha` field.
 

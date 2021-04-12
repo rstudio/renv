@@ -12,6 +12,18 @@ renv_python_resolve <- function(python = NULL) {
 
   }
 
+  # in interactive sessions, ask user what version of python they'd like to use
+  if (interactive()) {
+
+    python <- renv_python_select()
+
+    fmt <- "* Selected %s [Python %s]."
+    vwritef(fmt, renv_path_pretty(python), renv_python_version(python))
+
+    return(python)
+
+  }
+
   # check environment variables
   envvars <- c("RETICULATE_PYTHON", "RETICULATE_PYTHON_ENV")
   for (envvar in envvars) {
@@ -31,25 +43,11 @@ renv_python_resolve <- function(python = NULL) {
 
 }
 
-renv_python_compatible <- function(python, version) {
-
-  actual <- renv_python_version(python = python)
-  if (actual == version)
-    return(TRUE)
-
-  actual <- numeric_version(actual)
-  expected <- numeric_version(version)
-
-  if (actual[1, 1:2] == expected[1, 1:2])
-    return(TRUE)
-
-  FALSE
-
+renv_python_find <- function(version, path = NULL) {
+  renv_python_find_impl(version, path)
 }
 
-renv_python_find <- function(version, path = NULL) {
-
-  # TODO: use renv_python_compatible() throughout
+renv_python_find_impl <- function(version, path = NULL) {
 
   # if we've been given the name of an environment,
   # check to see if it's already been initialized
@@ -60,25 +58,31 @@ renv_python_find <- function(version, path = NULL) {
       return(python)
   }
 
-  # try to find a copy of python on the PATH
-  idx <- gregexpr("(?:[.]|$)", version)[[1]]
-  strings <- substring(version, 1, idx - 1)
-  for (suffix in rev(strings)) {
-    binary <- paste("python", suffix, sep = "")
-    python <- Sys.which(binary)
-    if (nzchar(python))
-      return(python)
+  # try to find a compatible version of python
+  pythons <- renv_python_discover()
+  if (length(pythons) == 0) {
+
+    fmt <- lines(
+      "project requested Python %s, but no compatible Python installation could be found.",
+      "renv's Python integration will be disabled in this session.",
+      "See `?renv::use_python` for more details."
+    )
+
+    msg <- sprintf(fmt, version)
+    stop(msg)
+
   }
 
-  # try to find a plain old python executable
-  python <- Sys.which("python")
-  if (nzchar(python) && renv_python_compatible(python, version))
-    return(python)
+  # read python versions
+  pyversions <- map_chr(pythons, function(python) {
+    tryCatch(
+      renv_python_version(python),
+      error = function(e) "0.0.0"
+    )
+  })
 
-  fmt <- "failed to find Python %s on the PATH"
-  warningf(fmt, version)
-
-  NULL
+  # try to find a compatible version
+  renv_version_match(pyversions, version)
 
 }
 
@@ -94,14 +98,20 @@ renv_python_exe <- function(path) {
   if (!is.null(info$python))
     return(info$python)
 
-  fmt <- "failed to find Python executable associated with path '%s'"
-  stopf(fmt, aliased_path(path))
+  fmt <- "failed to find Python executable associated with path %s"
+  stopf(fmt, renv_path_pretty(path))
 
 }
 
 renv_python_version <- function(python) {
+  python <- normalizePath(python, winslash = "/", mustWork = TRUE)
+  renv_filebacked("python.versions", python, renv_python_version_impl)
+}
+
+renv_python_version_impl <- function(python) {
   python <- renv_path_normalize(python)
-  args <- c("-c", shQuote("from platform import python_version; print(python_version())"))
+  code <- "from platform import python_version; print(python_version())"
+  args <- c("-c", shQuote(code))
   system2(python, args, stdout = TRUE, stderr = TRUE)
 }
 
@@ -112,7 +122,8 @@ renv_python_info <- function(python) {
     # check for virtual environment files
     virtualenv <-
       file.exists(file.path(path, "pyvenv.cfg")) ||
-      file.exists(file.path(path, ".Python"))
+      file.exists(file.path(path, ".Python")) ||
+      file.exists(file.path(path, "bin/activate_this.py"))
 
     if (virtualenv) {
       suffix <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"
@@ -136,7 +147,8 @@ renv_python_info <- function(python) {
 }
 
 renv_python_type <- function(python) {
-  renv_python_info(python)$type
+  info <- renv_python_info(python)
+  info$type
 }
 
 renv_python_action <- function(action, project) {
@@ -224,5 +236,111 @@ renv_python_envname <- function(project, path, type) {
 
   # doesn't match any known named environments; return full path
   path
+
+}
+
+renv_python_discover <- function() {
+
+  all <- stack()
+
+  # find python in some pre-determined root directories
+  roots <- c(
+    getOption("renv.python.root"),
+    Sys.getenv("WORKON_HOME", "~/.virtualenvs"),
+    "/opt/python",
+    "/opt/local/python",
+    "~/opt/python",
+    file.path(renv_pyenv_root(), "versions")
+  )
+
+  for (root in roots) {
+    versions <- sort(list.files(root, full.names = TRUE), decreasing = TRUE)
+    pythons <- file.path(versions, "bin/python")
+    all$push(pythons)
+  }
+
+  # find Homebrew python
+  homebrew <- renv_homebrew_root()
+  roots <- sort(list.files(
+    path       = file.path(homebrew, "opt"),
+    pattern    = "^python@[[:digit:]]+[.][[:digit:]]+$",
+    full.names = TRUE
+  ), decreasing = TRUE)
+
+  for (root in roots) {
+
+    # homebrew python doesn't install bin/python, so we need
+    # to be a little bit more clever here
+    exes <- list.files(
+      path = file.path(root, "bin"),
+      pattern = "^python[[:digit:]]+[.][[:digit:]]+$",
+      full.names = TRUE
+    )
+
+    if (length(exes))
+      all$push(exes[[1L]])
+
+  }
+
+  # find Windows python installations
+  if (renv_platform_windows()) {
+
+    sd <- Sys.getenv("SYSTEMDRIVE", unset = "C:")
+    roots <- file.path(sd, c("", "Program Files"))
+
+    lad <- Sys.getenv("LOCALAPPDATA", unset = NA)
+    if (!is.na(lad))
+      roots <- c(roots, file.path(lad, "Programs/Python"))
+
+    dirs <- list.files(
+      path       = roots,
+      pattern    = "^Python",
+      full.names = TRUE
+    )
+
+    if (length(dirs)) {
+      exes <- file.path(dirs, "python.exe")
+      pythons <- normalizePath(dirs, winslash = "/", mustWork = FALSE)
+      all$push(pythons)
+    }
+
+  }
+
+  # find Python installations on the PATH
+  path <- Sys.getenv("PATH", unset = "")
+  splat <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1L]]
+  for (entry in rev(splat)) {
+    for (exe in c("python3", "python")) {
+      python <- file.path(entry, exe)
+      if (file.exists(python))
+        all$push(python)
+    }
+  }
+
+  # collect discovered pythons as vector
+  pythons <- unlist(all$data(), recursive = FALSE, use.names = TRUE)
+
+  # don't include /usr/bin/python on macOS (too old)
+  if (renv_platform_macos())
+    pythons <- setdiff(pythons, "/usr/bin/python")
+
+  pythons[file.exists(pythons)]
+
+}
+
+renv_python_select <- function(candidates = NULL) {
+
+  candidates <- aliased_path(candidates %||% renv_python_discover())
+
+  title <- "Please select a version of Python to use with this project:"
+  selection <- tryCatch(
+    utils::select.list(candidates, title = title, graphics = FALSE),
+    interrupt = identity
+  )
+
+  if (inherits(selection, "interrupt"))
+    stop("operation canceled by user")
+
+  return(path.expand(selection))
 
 }

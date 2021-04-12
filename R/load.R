@@ -297,6 +297,15 @@ renv_load_sandbox <- function(project) {
 
 renv_load_python <- function(project, fields) {
 
+  tryCatch(
+    renv_load_python_impl(project, fields),
+    error = warning
+  )
+
+}
+
+renv_load_python_impl <- function(project, fields) {
+
   # set a default reticulate Python environment path
   components <- c(project, renv_profile_prefix(), "renv/python/r-reticulate")
   envpath <- paste(components, collapse = "/")
@@ -312,9 +321,9 @@ renv_load_python <- function(project, fields) {
     return(FALSE)
 
   python <- switch(type,
-    system     = renv_load_python_default(fields),
-    virtualenv = renv_load_python_env(fields, renv_use_python_virtualenv),
-    conda      = renv_load_python_env(fields, renv_use_python_condaenv),
+    system     = renv_load_python_default(project, fields),
+    virtualenv = renv_load_python_virtualenv(project, fields),
+    conda      = renv_load_python_condaenv(project, fields),
     stopf("unrecognized Python type '%s'", type)
   )
 
@@ -328,27 +337,37 @@ renv_load_python <- function(project, fields) {
     Sys.setenv(RETICULATE_PYTHON_ENV = info$root)
   }
 
+  bindir <- normalizePath(dirname(python), mustWork = FALSE)
+  renv_envvar_prepend("PATH", bindir)
+
   TRUE
 
 }
 
-renv_load_python_default <- function(fields) {
+renv_load_python_default <- function(project, fields) {
   renv_python_find(fields$Version)
 }
 
-renv_load_python_virtualenv <- function(fields) {
-  renv_load_python_env(fields, renv_use_python_virtualenv)
+renv_load_python_virtualenv <- function(project, fields) {
+
+  renv_use_python_virtualenv(
+    project = project,
+    name    = fields[["Name"]]    %NA% NULL,
+    version = fields[["Version"]] %NA% NULL,
+    python  = fields[["Python"]]  %NA% NULL
+  )
+
 }
 
-renv_load_python_conda <- function(fields) {
-  renv_load_python_env(fields, renv_use_python_condaenv)
-}
+renv_load_python_condaenv <- function(project, fields) {
 
-renv_load_python_env <- function(fields, loader) {
-  project <- renv_project()
-  version <- fields$Version
-  name    <- fields$Name %NA% NULL
-  loader(project = project, version = version, name = name)
+  renv_use_python_condaenv(
+    project = project,
+    name    = fields[["Name"]]    %NA% NULL,
+    version = fields[["Version"]] %NA% NULL,
+    python  = fields[["Python"]]  %NA% NULL
+  )
+
 }
 
 renv_load_switch <- function(project) {
@@ -419,24 +438,26 @@ renv_load_cache <- function(project) {
 
 }
 
+renv_load_quiet <- function() {
+  default <- identical(renv_verbose(), FALSE) || renv_session_quiet()
+  config$startup.quiet(default = default)
+}
+
 renv_load_finish <- function(project, lockfile) {
 
-  renv_load_report_project(project)
+  if (!renv_load_quiet()) {
+    renv_load_report_project(project)
+    renv_load_report_python(project)
+  }
+
   renv_load_report_updates(project)
   renv_load_report_synchronized(project, lockfile)
+
   renv_snapshot_auto_update(project = project)
 
 }
 
 renv_load_report_project <- function(project) {
-
-  quiet <- config$startup.quiet() %||% (
-    identical(renv_verbose(), FALSE) ||
-    renv_session_quiet()
-  )
-
-  if (quiet)
-    return()
 
   profile <- renv_profile_get()
   version <- renv_package_version("renv")
@@ -448,6 +469,17 @@ renv_load_report_project <- function(project) {
     fmt <- "* Project '%s' loaded. [renv %s]"
     vwritef(fmt, aliased_path(project), renv_package_version("renv"))
   }
+
+}
+
+renv_load_report_python <- function(project) {
+
+  python <- Sys.getenv("RENV_PYTHON", unset = NA)
+  if (is.na(python))
+    return(FALSE)
+
+  # fmt <- "* Using Python %s. [%s]"
+  # vwritef(fmt, renv_python_version(python), renv_python_type(python))
 
 }
 

@@ -38,9 +38,9 @@ test_that("bind_list warns on name collision", {
 
 test_that("versions are compared as expected", {
 
-  expect_equal(version_compare("0.1.0", "0.2.0"), -1)
-  expect_equal(version_compare("0.2.0", "0.2.0"),  0)
-  expect_equal(version_compare("0.3.0", "0.2.0"), +1)
+  expect_equal(renv_version_compare("0.1.0", "0.2.0"), -1L)
+  expect_equal(renv_version_compare("0.2.0", "0.2.0"), +0L)
+  expect_equal(renv_version_compare("0.3.0", "0.2.0"), +1L)
 
 })
 

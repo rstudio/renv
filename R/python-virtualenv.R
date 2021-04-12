@@ -1,45 +1,38 @@
 
+renv_python_virtualenv_home <- function() {
+  Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+}
+
 renv_python_virtualenv_path <- function(name) {
 
-  path <- name
-  if (!grepl("[/\\\\]", name)) {
-    home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
-    path <- file.path(home, name)
-  }
+  # if the name contains a slash, use it as-is
+  if (grepl("/", name, fixed = TRUE))
+    return(name)
 
-  path
+  # treat names starting with '.' specially
+  if (substring(name, 1L, 1L) == ".")
+    return(name)
+
+  # otherwise, resolve relative to virtualenv home
+  home <- renv_python_virtualenv_home()
+  file.path(home, name)
 
 }
 
-renv_python_virtualenv_validate <- function(path, python, version) {
+renv_python_virtualenv_validate <- function(path, version) {
 
-  # compare requested vs. actual versions of Python
-  exe <- renv_python_exe(path)
-  request <- version %||% renv_python_version(python)
-  current <- renv_python_version(exe)
-  if (request == current)
-    return(exe)
+  # get path to python executable
+  python <- renv_python_exe(path)
 
-  # err in automatic sessions
-  if (!interactive()) {
-    fmt <- "incompatible virtual environment already exists at path '%s'"
-    stopf(fmt, path)
+  # compare requested + actual versions
+  request <- version
+  current <- renv_python_version(python)
+  if (!renv_version_eq(request, current, 2L)) {
+    fmt <- "Project requested Python version '%s' but '%s' is currently being used"
+    warningf(fmt, request, current)
   }
 
-  renv_pretty_print(
-    sprintf("Requested version %s != %s", request, current),
-    "This virtual environment has already been initialized with a different copy of Python.",
-    "The old virtual environment will be overwritten."
-  )
-
-  if (!proceed()) {
-    renv_scope_options(show.error.messages = FALSE)
-    renv_report_user_cancel()
-    stop("operation aborted", call. = FALSE)
-  }
-
-  unlink(path, recursive = TRUE)
-  return("")
+  python
 
 }
 
