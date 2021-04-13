@@ -620,15 +620,15 @@ renv_dependencies_discover_chunks <- function(path) {
       return(character())
 
     # skip un-evaluated chunks
-    if (identical(chunk$params$eval, FALSE))
+    if (!truthy(chunk$params$eval, default = TRUE))
       return(character())
 
     # skip explicitly-ignored chunks
-    if (identical(chunk$params$renv.ignore, TRUE))
+    if (truthy(chunk$params$renv.ignore, default = FALSE))
       return(character())
 
     # skip learnr exercises
-    if (identical(chunk$params$exercise, TRUE))
+    if (truthy(chunk$params$exercise, default = FALSE))
       return(character())
 
     # skip chunks whose labels end in '-display'

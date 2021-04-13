@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where chunks with the chunk option `eval=F` would
+  still be scanned for dependencies. (#421)
+  
 * In interactive sessions, `renv::use_python()` will now prompt for
   the version of Python to be used. Python installations in a set
   of common locations will be searched. See `?renv::use_python()`
