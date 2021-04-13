@@ -1,9 +1,21 @@
 
 renv_binding_replace <- function(symbol, replacement, envir) {
-  original <- envir[[symbol]]
+
   base <- .BaseNamespaceEnv
-  base$unlockBinding(symbol, envir)
+
+  # get the original definition
+  original <- envir[[symbol]]
+
+  # if the binding is locked, temporarily unlock it
+  if (base$bindingIsLocked(symbol, envir)) {
+    base$unlockBinding(symbol, envir)
+    on.exit(base$lockBinding(symbol, envir), add = TRUE)
+  }
+
+  # update the binding
   assign(symbol, replacement, envir = envir)
-  base$lockBinding(symbol, envir)
+
+  # return old definition
   original
+
 }
