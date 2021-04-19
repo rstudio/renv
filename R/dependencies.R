@@ -23,10 +23,17 @@
 #' Depending on how you've structured your code, `renv` may emit errors when
 #' attempting to enumerate dependencies within `.Rmd` / `.Rnw` documents.
 #' For code chunks that you'd explicitly like `renv` to ignore, you can
-#' include `renv.ignore=FALSE` in the chunk header. For example:
+#' include `renv.ignore=TRUE` in the chunk header. For example:
 #'
-#'     ```{r chunk-label, renv.ignore=FALSE}
+#'     ```{r chunk-label, renv.ignore=TRUE}
 #'     # code in this chunk will be ignored by renv
+#'     ```
+#'
+#' Similarly, if you'd like `renv` to parse a chunk that is otherwise ignored
+#' (e.g. because it has `eval=FALSE` as a chunk header), you can set:
+#'
+#'     ```{r chunk-label, eval=FALSE, renv.ignore=FALSE}
+#'     # code in this chunk will _not be ignored
 #'     ```
 #'
 #' @section Ignoring Files:
@@ -570,6 +577,36 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
 }
 
+renv_dependencies_discover_chunks_ignore <- function(chunk) {
+
+  # if renv.ignore is set, respect it
+  ignore <- chunk$params$renv.ignore
+  if (!is.null(ignore))
+    return(truthy(ignore))
+
+  # skip non-R chunks
+  engine <- chunk$params$engine
+  if (!(identical(engine, "r") || identical(engine, "rscript")))
+    return(TRUE)
+
+  # skip un-evaluated chunks
+  if (!truthy(chunk$params$eval, default = TRUE))
+    return(TRUE)
+
+  # skip learnr exercises
+  if (truthy(chunk$params$exercise, default = FALSE))
+    return(TRUE)
+
+  # skip chunks whose labels end in '-display'
+  label <- chunk$params$label %||% ""
+  if (grepl("-display$", label))
+    return(TRUE)
+
+  # ok, don't ignore this chunk
+  FALSE
+
+}
+
 renv_dependencies_discover_chunks <- function(path) {
 
   # ensure 'knitr' is installed / available
@@ -614,26 +651,8 @@ renv_dependencies_discover_chunks <- function(path) {
   # iterate over chunks, and attempt to parse dependencies from each
   cdeps <- bapply(chunks, function(chunk) {
 
-    # skip non-R chunks
-    engine <- chunk$params$engine
-    if (!(identical(engine, "r") || identical(engine, "rscript")))
-      return(character())
-
-    # skip un-evaluated chunks
-    if (!truthy(chunk$params$eval, default = TRUE))
-      return(character())
-
-    # skip explicitly-ignored chunks
-    if (truthy(chunk$params$renv.ignore, default = FALSE))
-      return(character())
-
-    # skip learnr exercises
-    if (truthy(chunk$params$exercise, default = FALSE))
-      return(character())
-
-    # skip chunks whose labels end in '-display'
-    label <- chunk$params$label %||% ""
-    if (grepl("-display$", label))
+    # check whether this chunk should be ignored
+    if (renv_dependencies_discover_chunks_ignore(chunk))
       return(character())
 
     # remove reused chunk placeholders

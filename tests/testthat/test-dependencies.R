@@ -321,3 +321,9 @@ test_that("eval=F does not trip up dependencies", {
   expect_true("A" %in% deps$Package)
   expect_false("a" %in% deps$Package)
 })
+
+test_that("renv.ignore=FALSE, eval=TRUE is handled", {
+  deps <- dependencies("resources/ignore.Rmd", progress = FALSE)
+  expect_true("A" %in% deps$Package)
+  expect_false("a" %in% deps$Package)
+})

@@ -1,6 +1,11 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* The chunk `renv.ignore` parameter can now be set to `FALSE`. When set,
+  `renv` will explicitly parse dependencies from chunks even if other
+  chunk metadata would have told `renv` to ignore it (e.g. because it
+  was marked with `eval=F`). (#722)
+
 * Fixed an issue where chunks with the chunk option `eval=F` would
   still be scanned for dependencies. (#421)
   

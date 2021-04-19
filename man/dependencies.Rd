@@ -65,8 +65,14 @@ order to crawl dependencies in R Markdown files.
 Depending on how you've structured your code, \code{renv} may emit errors when
 attempting to enumerate dependencies within \code{.Rmd} / \code{.Rnw} documents.
 For code chunks that you'd explicitly like \code{renv} to ignore, you can
-include \code{renv.ignore=FALSE} in the chunk header. For example:\preformatted{```\{r chunk-label, renv.ignore=FALSE\}
+include \code{renv.ignore=TRUE} in the chunk header. For example:\preformatted{```\{r chunk-label, renv.ignore=TRUE\}
 # code in this chunk will be ignored by renv
+```
+}
+
+Similarly, if you'd like \code{renv} to parse a chunk that is otherwise ignored
+(e.g. because it has \code{eval=FALSE} as a chunk header), you can set:\preformatted{```\{r chunk-label, eval=FALSE, renv.ignore=FALSE\}
+# code in this chunk will _not be ignored
 ```
 }
 }

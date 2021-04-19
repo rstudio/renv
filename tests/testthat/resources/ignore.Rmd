@@ -1,0 +1,8 @@
+
+```{r, renv.ignore=TRUE}
+library(a)
+```
+
+```{r, eval=FALSE, renv.ignore=FALSE}
+library(A)
+```
