@@ -328,9 +328,25 @@ renv_python_discover <- function() {
 
 }
 
+renv_python_select_error <- function() {
+
+  lines <- c(
+    "renv was unable to find any Python installations on your machine.",
+    if (renv_platform_windows())
+      "Consider installing Python from https://www.python.org/downloads/windows/.",
+    if (renv_platform_macos())
+      "Consider installing Python from https://www.python.org/downloads/mac-osx/."
+  )
+
+  stop(paste(lines, collapse = "\n"))
+
+}
+
 renv_python_select <- function(candidates = NULL) {
 
   candidates <- aliased_path(candidates %||% renv_python_discover())
+  if (empty(candidates))
+    return(renv_python_select_error())
 
   title <- "Please select a version of Python to use with this project:"
   selection <- tryCatch(
@@ -338,7 +354,7 @@ renv_python_select <- function(candidates = NULL) {
     interrupt = identity
   )
 
-  if (inherits(selection, "interrupt"))
+  if (selection %in% "" || inherits(selection, "interrupt"))
     stop("operation canceled by user")
 
   return(path.expand(selection))
