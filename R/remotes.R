@@ -15,7 +15,7 @@ remote <- function(spec) {
 renv_remotes_resolve <- function(entry, latest = FALSE) {
 
   # check for already-resolved lists
-  if (is.list(entry))
+  if (is.null(entry) || is.list(entry))
     return(entry)
 
   # check for URLs
