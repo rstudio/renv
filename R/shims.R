@@ -8,7 +8,7 @@ renv_shim_install_packages <- function(pkgs, ...) {
 
   # currently we only handle the case where only 'pkgs' was specified
   if (missing(pkgs) || nargs() != 1)
-    return(delegate(utils::install.packages))
+    return(utils::install.packages(pkgs, ...))
 
   # otherwise, we get to handle it
   install(pkgs)
@@ -19,7 +19,7 @@ renv_shim_update_packages <- function(lib.loc = NULL, ...) {
 
   # handle only 0-argument case
   if (nargs() != 0)
-    return(delegate(utils::update.packages))
+    return(utils::update.packages(lib.loc, ...))
 
   update(library = lib.loc)
 
@@ -29,7 +29,7 @@ renv_shim_remove_packages <- function(pkgs, lib) {
 
   # handle single-argument case
   if (nargs() != 1)
-    return(delegate(utils::remove.packages))
+    return(utils::remove.packages(pkgs, lib))
 
   remove(pkgs)
 

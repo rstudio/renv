@@ -132,7 +132,15 @@ dependencies <- function(
 {
   renv_scope_error_handler()
 
-  deps <- delegate(renv_dependencies_impl)
+  deps <- renv_dependencies_impl(
+    path     = path,
+    root     = root,
+    progress = progress,
+    errors   = errors,
+    dev      = dev,
+    ...
+  )
+
   if (empty(deps) || nrow(deps) == 0L)
     return(deps)
 

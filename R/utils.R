@@ -340,27 +340,6 @@ invoke <- function(f, ...) {
   f(...)
 }
 
-delegate <- function(to) {
-
-  # forward all arguments by default
-  params <- names(formals(to))
-  syms <- map(params, as.name)
-  names(syms) <- params
-
-  # if the parent function provides '...', forward it
-  if ("..." %in% params) {
-    syms[["..."]] <- NULL
-    syms <- c(syms, as.name("..."))
-  }
-
-  # build call
-  call <- as.call(c(substitute(to), syms))
-
-  # evaluate it
-  eval(call, envir = parent.frame())
-
-}
-
 dequote <- function(strings) {
 
   for (quote in c("'", '"')) {

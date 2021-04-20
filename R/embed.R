@@ -37,7 +37,13 @@ embed <- function(path = NULL,
     stopf(fmt, renv_path_pretty(path))
   }
 
-  delegate(method)
+  method(
+    path     = path,
+    lockfile = lockfile,
+    project  = project,
+    ...
+  )
+
 }
 
 renv_embed_path <- function() {
