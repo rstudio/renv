@@ -45,6 +45,11 @@ renv_path_normalize_win32 <- function(path,
                                       winslash = "/",
                                       mustWork = FALSE)
 {
+
+  # see the NOTE above, this workaround is only necessary for R < 4 and it complicates things unnecessarily
+  if (getRversion() >= "4.0.0")
+    return(normalizePath(path, winslash, mustWork))
+
   # get encoding for this set of paths
   enc <- Encoding(path)
 
