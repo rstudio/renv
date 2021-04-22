@@ -7,7 +7,7 @@ renv_session_quiet <- function() {
   if (!is.na(index))
     args <- head(args, n = index - 1L)
 
-  quiet <- c("-s", "-q", "--slave", "--no-echo", "--quiet", "--silent")
+  quiet <- c("-s", "--slave", "--no-echo")
   any(quiet %in% args)
 
 }
