@@ -40,14 +40,14 @@ place a tarball for this package in one of the following locations:
 
 - `${RENV_PATHS_LOCAL}/skeleton_1.0.0.tar.gz`
 - `${RENV_PATHS_LOCAL}/skeleton/skeleton_1.0.0.tar.gz`
-- `<project>/renv/local/<package>_<version>.tar.gz`; or
-- `<project>/renv/local/<package>/<package>_<version>.tar.gz`
+- `<project>/renv/local/skeleton_1.0.0.tar.gz`; or
+- `<project>/renv/local/skeleton/skeleton_1.0.0.tar.gz`
 
 Once this is done, `renv` will consult these directories during future attempts
 to restore packages installed from unknown sources.
 
-To directly install a package from these local sources, you must specify the package
-version or provide the full path to the tarball:
+To directly install a package from these local sources, you must specify the
+package version or provide the full path to the tarball:
 
 - `renv::install("<package>@<version>")`
 - `renv::install("<project>/renv/local/<package>_<version>.tar.gz")`
