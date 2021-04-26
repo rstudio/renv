@@ -448,8 +448,10 @@ renv_retrieve_repos <- function(record) {
       )
     )
 
-    if (inherits(status, "error"))
+    if (inherits(status, "error")) {
       warning(status)
+      next
+    }
 
     if (identical(status, TRUE))
       return(TRUE)
