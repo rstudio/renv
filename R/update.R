@@ -85,28 +85,15 @@ renv_update_find_github_impl <- function(record) {
 
 renv_update_find_git_impl <- function(record) {
 
-  # validate we have a ref
-  if (!renv_record_validate(record))
-    return(NULL)
-
   renv_git_preflight()
 
-  path <- tempfile("renv-git-")
-  ensure_directory(path)
-
   template <- c(
-    "cd \"${DIR}\"",
-    "git init --quiet",
-    "git remote add origin \"${ORIGIN}\"",
-    "git fetch --quiet origin \"${REF}\"",
-    "git reset --quiet --hard FETCH_HEAD",
-    "git rev-parse HEAD"
+    "git ls-remote \"${ORIGIN}\" \"${REF}\" | head -1 | sed 's/\t.*//'"
   )
 
   data <- list(
-    DIR    = renv_path_normalize(path),
     ORIGIN = record$RemoteUrl,
-    REF    = record$RemoteRef
+    REF    = record$RemoteRef %||% record$RemoteSha
   )
 
   commands <- renv_template_replace(template, data)
@@ -114,13 +101,19 @@ renv_update_find_git_impl <- function(record) {
   if (renv_platform_windows())
     command <- paste(comspec(), "/C", command)
 
-  renv_scope_auth(record)
-  renv_scope_git_auth()
   sha <- system(command, intern = TRUE)
+
+  # if sha is empty, return NULL
+  # probably because recored$RemoteRef is SHA, not branch
+  if (length(sha) == 0) {
+    return(NULL)
+  }
 
   # check for changed sha
   if (sha == record$RemoteSha)
     return(NULL)
+
+  path <- renv_retrtieve_git_impl(record)
 
   # get updated record
   descfile <- renv_path_normalize(file.path(path, "DESCRIPTION"))
