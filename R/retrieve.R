@@ -259,6 +259,14 @@ renv_retrieve_git <- function(record) {
 
   renv_git_preflight()
 
+  path <- renv_retrtieve_git_impl(record)
+
+  renv_retrieve_successful(record, path)
+
+}
+
+renv_retrtieve_git_impl <- function(record) {
+
   path <- tempfile("renv-git-")
   ensure_directory(path)
 
@@ -293,8 +301,7 @@ renv_retrieve_git <- function(record) {
     stopf(fmt, record$Package, record$RemoteUrl, status)
   }
 
-  renv_retrieve_successful(record, path)
-
+  return(path)
 }
 
 renv_retrieve_local_find <- function(record, project = NULL) {
