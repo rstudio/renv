@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::clean()` no longer attempts to clean the system library by default.
+  (#737)
+
 * Fixed an issue where `install.packages()` could fail when used within an
   `renv` package to install a package from local sources. (#724)
 

@@ -60,8 +60,8 @@ are installed into the system library (the library path referred to
 by \code{.Library}). Use this action to remove any user-installed packages
 that have been installed to the system library.
 
-Because this action is destructive, it is by default only run in
-interactive sessions when prompting is enabled.
+Because this action is destructive, it is by default never run -- it
+must be explicitly requested by the user.
 
 }
 

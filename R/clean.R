@@ -34,8 +34,8 @@
 #'   by `.Library`). Use this action to remove any user-installed packages
 #'   that have been installed to the system library.
 #'
-#'   Because this action is destructive, it is by default only run in
-#'   interactive sessions when prompting is enabled.
+#'   Because this action is destructive, it is by default never run -- it
+#'   must be explicitly requested by the user.
 #'
 #' }
 #'
@@ -105,7 +105,7 @@ renv_clean_actions <- function(prompt) {
   )
 
   unsafe <- c(
-    "system.library",
+    # "system.library",
     "unused.packages"
   )
 
