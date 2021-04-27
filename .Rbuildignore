@@ -12,6 +12,7 @@
 ^cran-comments\.md$
 ^CRAN-RELEASE$
 ^derby\.log$
+^LICENSE\.md$
 ^renv\.lock$
 ^requirements\.txt$
 ^TODO\.md$
