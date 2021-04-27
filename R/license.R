@@ -9,7 +9,11 @@ renv_license_generate <- function() {
   if (!isbuild)
     return(FALSE)
 
-  contents <- c("YEAR: 2019", "COPYRIGHT HOLDER: RStudio, PBC")
+  contents <- c(
+    paste("YEAR:", format(Sys.Date(), "%Y")),
+    "COPYRIGHT HOLDER: RStudio, PBC"
+  )
+
   writeLines(contents, con = "LICENSE")
 
   return(TRUE)
