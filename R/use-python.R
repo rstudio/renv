@@ -145,6 +145,19 @@ use_python <- function(python = NULL,
       name <- basename(name)
   }
 
+  # similarly, if name is unset, and this is a conda environment,
+  # then we'll instruct renv to use that environment
+  #
+  # TODO: what if the user has opted to use a conda environment not in
+  # a default known location to conda?
+  usecondaenv <-
+    is.null(name) &&
+    type == "conda" &&
+    !is.null(info$root)
+
+  if (usecondaenv)
+    name <- basename(info$root)
+
   # form the lockfile fields we'll want to write
   fields <- list()
   fields$Version <- version
