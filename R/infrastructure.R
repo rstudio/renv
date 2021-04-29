@@ -127,6 +127,7 @@ renv_infrastructure_write_entry_impl <- function(add, remove, file, create) {
 
   # add requested entries
   for (item in rev(add)) {
+
     # check to see if the requested line exists (either commented
     # or uncommented). if it exists, we'll attempt to uncomment
     # any commented lines
@@ -143,8 +144,10 @@ renv_infrastructure_write_entry_impl <- function(add, remove, file, create) {
   for (item in rev(remove)) {
     pattern <- sprintf("^\\s*\\Q%s\\E\\s*(?:#|\\s*$)", item)
     matches <- grepl(pattern, after, perl = TRUE)
-    if (any(matches))
-      after[matches] <- paste("#", after[matches])
+    if (any(matches)) {
+      replacement <- gsub("^(\\s*)", "\\1# ", after[matches], perl = TRUE)
+      after[matches] <- replacement
+    }
   }
 
   # write to file if we have changes
@@ -207,7 +210,8 @@ renv_infrastructure_remove_entry_impl <- function(line, file, removable) {
   }
 
   # otherwise, just mutate the file
-  contents[matches] <- paste("#", contents[matches])
+  replacement <- gsub("^(\\s*)", "\\1# ", contents[matches], perl = TRUE)
+  contents[matches] <- replacement
   writeLines(contents, file)
 
   TRUE
