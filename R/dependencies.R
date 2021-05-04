@@ -1086,24 +1086,23 @@ renv_dependencies_discover_r_box <- function(node, stack, envir) {
 renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
 
   # if the node is just a symbol, then it's the name of a package
-  if (is.symbol(node)) {
-    package <- as.character(node)
-    envir[[package]] <- TRUE
-    return(TRUE)
-  }
-
-  # if this is a call to `[`, then the first argument is the package name
-  ok <-
+  # otherwise, if it's a call to `[`, the first argument is the package name
+  name <- if (is.symbol(node) && ! identical(node, quote(expr = ))) {
+    as.character(node)
+  } else if (
     is.call(node) &&
-    length(node) > 1 &&
-    identical(node[[1L]], as.name("[")) &&
-    is.symbol(node[[2L]])
-
-  if (ok) {
-    package <- as.character(node[[2L]])
-    envir[[package]] <- TRUE
-    return(TRUE)
+      length(node) > 1L &&
+      identical(node[[1L]], as.name("[")) &&
+      is.symbol(node[[2L]])) {
+    as.character(node[[2L]])
   }
+
+  # the names `.` and `..` are special place holders and don't refer to packages
+  if (is.null(name) || name == "." || name == "..")
+    return(FALSE)
+
+  envir[[name]] <- TRUE
+  TRUE
 
 }
 
