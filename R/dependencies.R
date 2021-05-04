@@ -1085,6 +1085,11 @@ renv_dependencies_discover_r_box <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
 
+  # Trailing comma causes empty nodes
+  if (identical(node, quote(expr = ))) {
+    return(FALSE)
+  }
+
   # if the node is just a symbol, then it's the name of a package
   if (is.symbol(node)) {
     package <- as.character(node)
