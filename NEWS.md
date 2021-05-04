@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed crash during dependency discovery when encountering `box::use()`
+  declarations that use a trailing comma (@klmr)
+
 * `renv::clean()` no longer attempts to clean the system library by default.
   (#737)
 
