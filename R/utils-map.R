@@ -39,10 +39,15 @@ recurse <- function(object, callback, ...) {
 
 recurse_impl <- function(stack, object, callback, ...) {
 
+  # ignore missing values
+  if (missing(object) || identical(object, quote(expr = )))
+    return()
+
   # push node on to stack
   stack[[length(stack) + 1]] <- object
 
   # invoke callback
+
   result <- callback(object, stack, ...)
   if (is.call(result))
     object <- result

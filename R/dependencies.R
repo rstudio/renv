@@ -814,7 +814,7 @@ renv_dependencies_discover_r_impl <- function(path  = NULL,
     # normalize calls (handle magrittr pipes)
     node <- renv_call_normalize(node, stack)
 
-    # otherwise, recurse in the default way
+    # invoke methods on call objects
     if (is.call(node))
       for (method in methods)
         method(node, stack, envir)
