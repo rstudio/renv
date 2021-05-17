@@ -1,6 +1,8 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::dependencies()` now has improved handling for piped expressions.
+
 * Fixed crash during dependency discovery when encountering `box::use()`
   declarations that use a trailing comma, and no longer treat `.` and `..` as
   package names (@klmr)

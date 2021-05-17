@@ -36,3 +36,43 @@ renv_call_expect <- function(node, package, methods) {
   node
 
 }
+
+renv_call_normalize <- function(node, stack) {
+
+  # check for magrittr pipe -- if this part of the expression is
+  # being piped into, then we need to munge the call
+  ispipe <-
+    is.call(node) &&
+    is.symbol(node[[1L]]) &&
+    as.character(node[[1L]]) %in% c("%>%", "%T>%", "%<>%")
+
+  if (!ispipe)
+    return(node)
+
+  # get lhs and rhs of piped expression
+  lhs <- node[[2L]]
+  rhs <- node[[3L]]
+
+  # handle rhs symbols
+  if (is.symbol(rhs))
+    rhs <- call(as.character(rhs))
+
+  # check for usage of '.'
+  # if it exists, replace each with lhs
+  hasdot <- FALSE
+  dot <- as.symbol(".")
+  for (i in seq_along(rhs)) {
+    if (identical(dot, rhs[[i]])) {
+      hasdot <- TRUE
+      rhs[[i]] <- lhs
+    }
+  }
+
+  if (hasdot)
+    return(rhs)
+
+  # otherwise, mutate rhs call with lhs passed as first argument
+  args <- as.list(rhs)
+  as.call(c(args[[1L]], lhs, args[-1L]))
+
+}

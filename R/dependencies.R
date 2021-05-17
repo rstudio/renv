@@ -810,12 +810,22 @@ renv_dependencies_discover_r_impl <- function(path  = NULL,
 
   envir <- envir %||% new.env(parent = emptyenv())
   recurse(expr, function(node, stack) {
+
+    # normalize calls (handle magrittr pipes)
+    node <- renv_call_normalize(node, stack)
+
+    # otherwise, recurse in the default way
     if (is.call(node))
       for (method in methods)
         method(node, stack, envir)
+
+    # return node
+    node
+
   })
 
   ls(envir = envir, all.names = TRUE)
+
 }
 
 renv_dependencies_discover_r_methods <- function(node, stack, envir) {

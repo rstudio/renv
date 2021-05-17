@@ -43,7 +43,9 @@ recurse_impl <- function(stack, object, callback, ...) {
   stack[[length(stack) + 1]] <- object
 
   # invoke callback
-  callback(object, stack, ...)
+  result <- callback(object, stack, ...)
+  if (is.call(result))
+    object <- result
 
   # recurse
   if (is.recursive(object))
