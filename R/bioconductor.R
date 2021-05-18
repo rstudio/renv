@@ -59,6 +59,7 @@ renv_bioconductor_repos <- function(version = NULL) {
   getters <- list(
 
     BiocManager = function() {
+      renv_scope_options(BiocManager.check_repositories = FALSE)
       BiocManager <- asNamespace("BiocManager")
       version <- version %||% BiocManager$version()
       BiocManager$repositories(version = version)
