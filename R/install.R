@@ -52,6 +52,15 @@
 #' renv::install("RNetCDF")
 #' ```
 #'
+#' This could also be specified as, for example,
+#'
+#' ```
+#' options(
+#'   configure.args.RNetCDF = "--with-netcdf-include=/usr/include/udunits2"
+#' )
+#' renv::install("RNetCDF")
+#' ```
+#'
 #' Similarly, additional flags that should be passed to `R CMD INSTALL` can
 #' be set via the `install.opts` \R option:
 #'

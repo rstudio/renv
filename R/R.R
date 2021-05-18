@@ -230,8 +230,19 @@ r_cmd_build <- function(package, path, ...) {
 
 r_cmd_install_option <- function(package, option, configure) {
 
-  # read option
-  value <- getOption(option)
+  # read option -- first, check for package-specific option, then
+  # fall back to 'global' option
+  value <-
+    getOption(paste(option, package, sep = ".")) %||%
+    getOption(option)
+
+  # check INSTALL_opts as well (in case that's used instead of install.opts)
+  if (is.null(value) && identical(option, "install.opts")) {
+    value <-
+      getOption(paste("INSTALL_opts", package, sep = ".")) %||%
+      getOption("INSTALL_opts")
+  }
+
   if (is.null(value))
     return(NULL)
 
