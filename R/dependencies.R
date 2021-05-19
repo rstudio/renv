@@ -805,6 +805,7 @@ renv_dependencies_discover_r_impl <- function(path  = NULL,
     renv_dependencies_discover_r_box,
     renv_dependencies_discover_r_targets,
     renv_dependencies_discover_r_glue,
+    renv_dependencies_discover_r_parsnip,
     renv_dependencies_discover_r_database
   )
 
@@ -1161,6 +1162,50 @@ renv_dependencies_discover_r_glue <- function(node, stack, envir) {
     code <- substring(matches, 2L, nchar(matches) - 1L)
     renv_dependencies_discover_r_impl(text = code, envir = envir)
   }
+
+  TRUE
+
+}
+
+renv_dependencies_discover_r_parsnip <- function(node, stack, envir) {
+
+  node <- renv_call_expect(node, "parsnip", "set_engine")
+  if (is.null(node))
+    return(FALSE)
+
+  matched <- catch(match.call(function(object, engine, ...) {}, node))
+  if (inherits(matched, "error"))
+    return(FALSE)
+
+  engine <- matched$engine
+  if (!is.character(engine) || length(engine) != 1L)
+    return(FALSE)
+
+  map <- getOption("renv.parsnip.engines", default = list(
+    glm    = "stats",
+    glmnet = "glmnet",
+    keras  = "keras",
+    kknn   = "kknn",
+    nnet   = "nnet",
+    rpart  = "rpart",
+    spark  = "sparklyr",
+    stan   = "rstanarm"
+  ))
+
+  packages <- if (is.function(map))
+    catch(map(engine), error = function(e) NULL)
+  else
+    map[[engine]]
+
+  if (is.null(packages))
+    return(FALSE)
+
+  for (package in packages)
+    envir[[package]] <- TRUE
+
+  # TODO: a number of model routines appear to depend on dials;
+  # should we just assume it's required by default? or should
+  # users normally be using tidymodels instead of parsnip directly?
 
   TRUE
 

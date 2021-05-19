@@ -1,6 +1,8 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::dependencies()` can now parse (some) usages of `parsnip::set_engine()`.
+
 * `renv::dependencies()` now has improved handling for piped expressions.
 
 * Fixed crash during dependency discovery when encountering `box::use()`

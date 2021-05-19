@@ -316,6 +316,11 @@ test_that("glue::glue() package usages are found", {
   expect_true(all(c("hello", "goodbye") %in% deps$Package))
 })
 
+test_that("set_engine() package usages are found", {
+  deps <- dependencies("resources/parsnip.R", progress = FALSE)
+  expect_setequal(deps$Package, c("glmnet"))
+})
+
 test_that("eval=F does not trip up dependencies", {
   deps <- dependencies("resources/eval.Rmd", progress = FALSE)
   expect_true("A" %in% deps$Package)
