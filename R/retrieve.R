@@ -388,6 +388,19 @@ renv_retrieve_libpaths_impl <- function(record, libpath) {
   if (!compatible)
     return(FALSE)
 
+  # check that it was built for a compatible version of R
+  built <- desc[["Built"]]
+  if (is.null(built))
+    return(FALSE)
+
+  ok <- catch({
+    version <- substring(built, 3L, regexpr(";", built, fixed = TRUE) - 1L)
+    renv_version_compare(version, getRversion(), 2L) == 0
+  })
+
+  if (!identical(ok, TRUE))
+    return(FALSE)
+
   # OK: treat as restore from local source
   record$Source <- "Local"
   renv_retrieve_successful(record, source)

@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv` could incorrectly copy an incompatible version
+  of an R package from a site library into the project library during install.
+  (#750)
+
 * `renv::dependencies()` can now parse (some) usages of `parsnip::set_engine()`.
 
 * `renv::dependencies()` now has improved handling for piped expressions.
