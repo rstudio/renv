@@ -129,7 +129,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
 
   copied <- FALSE
   for (cachePath in cache) {
-    copied <- renv_cache_synchronize_inner(cachePath, record, linkable, path)
+    copied <- renv_cache_synchronize_impl(cachePath, record, linkable, path)
     if (copied)
       return(TRUE)
   }
@@ -137,8 +137,9 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
 
 }
 
-renv_cache_synchronize_inner <- function(cache, record, linkable, path) {
+renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
+  # double-check we have a valid cache path
   if (!nzchar(cache))
     return(FALSE)
 
@@ -168,26 +169,22 @@ renv_cache_synchronize_inner <- function(cache, record, linkable, path) {
   callback <- renv_file_backup(cache)
   on.exit(callback(), add = TRUE)
 
-  # copy into cache and link back into requested directory
-  if (linkable) {
-    renv_file_move(path, cache)
-    renv_file_link(cache, path, overwrite = TRUE)
-    return(TRUE)
-  }
-
-  # otherwise, copy into the cache (notifying as appropriate)
-  fmt <- "Copying %s [%s] into the cache ..."
-  vwritef(fmt, record$Package, record$Version)
+  # get ready to copy / move into cache
+  fmt <- "%s %s [%s] into the cache ..."
+  vwritef(fmt, if (linkable) "Moving" else "Copying", record$Package, record$Version)
 
   before <- Sys.time()
-  renv_file_copy(path, cache)
+  if (linkable)
+    renv_file_move(path, cache)
+  else
+    renv_file_copy(path, cache)
   after <- Sys.time()
 
-  files <- list.files(cache, recursive = TRUE)
   time <- difftime(after, before, units = "auto")
 
-  fmt <- "\tOK [copied %s files in %s]"
-  vwritef(fmt, length(files), renv_difftime_format(time))
+  # report status to user
+  fmt <- "\tOK [%s to cache in %s]"
+  vwritef(fmt, if (linkable) "moved" else "copied", renv_difftime_format(time))
 
   TRUE
 
