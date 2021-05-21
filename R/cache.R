@@ -174,10 +174,14 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
   vwritef(fmt, if (linkable) "Moving" else "Copying", record$Package, record$Version)
 
   before <- Sys.time()
-  if (linkable)
+
+  if (linkable) {
     renv_file_move(path, cache)
-  else
+    renv_file_link(cache, path, overwrite = TRUE)
+  } else {
     renv_file_copy(path, cache)
+  }
+
   after <- Sys.time()
 
   time <- difftime(after, before, units = "auto")

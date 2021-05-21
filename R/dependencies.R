@@ -1193,7 +1193,7 @@ renv_dependencies_discover_r_parsnip <- function(node, stack, envir) {
   ))
 
   packages <- if (is.function(map))
-    catch(map(engine), error = function(e) NULL)
+    tryCatch(map(engine), error = function(e) NULL)
   else
     map[[engine]]
 
@@ -1206,7 +1206,6 @@ renv_dependencies_discover_r_parsnip <- function(node, stack, envir) {
   # TODO: a number of model routines appear to depend on dials;
   # should we just assume it's required by default? or should
   # users normally be using tidymodels instead of parsnip directly?
-
   TRUE
 
 }
