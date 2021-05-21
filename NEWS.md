@@ -223,7 +223,7 @@
   same R session. In particular, warnings related to a corrupted
   lazy-load database should no longer occur. (#600)
 
-* `renv` no longer re-installs packages that are already installed and
+* `renv` no longer reinstalls packages that are already installed and
   up-to-date in bare calls to `renv::install()`.
 
 * `renv` now uses the R temporary directory for staging, when performing

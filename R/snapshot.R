@@ -416,7 +416,7 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
     renv_pretty_print(
       sprintf("%s  [required by %s]", format(missing), usedby),
       "The following required packages are not installed:",
-      "Consider re-installing these packages before snapshotting the lockfile.",
+      "Consider reinstalling these packages before snapshotting the lockfile.",
       wrap = FALSE
     )
   }
@@ -587,7 +587,7 @@ renv_snapshot_r_library_diagnose_broken_link <- function(library, pkgs) {
   renv_pretty_print(
     basename(pkgs)[broken],
     "The following package(s) have broken symlinks into the cache:",
-    "Consider re-installing these packages."
+    "Consider reinstalling these packages."
   )
 
   pkgs[!broken]
@@ -623,7 +623,7 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
     "The following package(s) are missing their DESCRIPTION files:",
     c(
       "These may be left over from a prior, failed installation attempt.",
-      "Consider removing or re-installing these packages."
+      "Consider removing or reinstalling these packages."
     ),
     wrap = FALSE
   )

@@ -159,7 +159,7 @@ r_cmd_install <- function(package, path, ...) {
   if (renv_platform_macos() && renv_package_type(path) == "source")
     renv_xcode_check()
 
-  # perform platform-specific pre-install checks
+  # perform platform-specific preinstall checks
   renv_scope_install()
 
   # perform the install

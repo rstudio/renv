@@ -16,7 +16,7 @@ rebuild(
 }
 \arguments{
 \item{packages}{The package(s) to be rebuilt. When \code{NULL}, all packages
-in the library will be re-installed.}
+in the library will be reinstalled.}
 
 \item{recursive}{Boolean; should dependencies of packages be rebuilt
 recursively? Defaults to \code{TRUE}.}
@@ -41,7 +41,7 @@ directory is used instead.}
 A named list of package records which were installed by \code{renv}.
 }
 \description{
-Rebuild and re-install packages in your library. This can be useful as a
+Rebuild and reinstall packages in your library. This can be useful as a
 diagnostic tool -- for example, if you find that one or more of your
 packages fail to load, and you want to ensure that you are starting from a
 clean slate.

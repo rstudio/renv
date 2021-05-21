@@ -14,7 +14,7 @@
 #'   During package installation, \R will create package locks in the
 #'   library path, typically named `00LOCK-<package>`. On occasion, if package
 #'   installation fails or \R is terminated while installing a package, these
-#'   locks can be left behind and will inhibit future attempts to re-install
+#'   locks can be left behind and will inhibit future attempts to reinstall
 #'   that package. Use this action to remove such left-over package locks.
 #'
 #' }
@@ -186,7 +186,7 @@ renv_clean_system_library <- function(project, prompt) {
       c(
         "Normally, only packages distributed with R should be installed in the system library.",
         "These packages will be removed.",
-        "If necessary, consider re-installing these packages in your site library."
+        "If necessary, consider reinstalling these packages in your site library."
       )
     )
 

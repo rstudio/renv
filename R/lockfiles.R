@@ -8,7 +8,7 @@
 #' known) are recorded in the lockfile.
 #'
 #' Projects can be restored from a lockfile using the [restore()] function. This
-#' implies re-installing packages into the project's private library, as encoded
+#' implies reinstalling packages into the project's private library, as encoded
 #' within the lockfile.
 #'
 #' While lockfiles are normally generated and used with [snapshot()] /

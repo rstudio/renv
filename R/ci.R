@@ -69,7 +69,7 @@ renv_ci_repair <- function() {
   renv_pretty_print(
     values    = paste("-", packages),
     preamble  = "The following package(s) could not be successfully loaded:",
-    postamble = "These packages will be removed and later re-installed.",
+    postamble = "These packages will be removed and later reinstalled.",
     wrap      = FALSE
   )
 

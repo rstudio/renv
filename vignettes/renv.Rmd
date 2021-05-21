@@ -60,7 +60,7 @@ by crawling R files within the project for dependencies with the
 `renv::dependencies()` function. The discovered packages are then installed
 into the project library with the `renv::hydrate()` function, which will also
 attempt to save time by copying packages from your user library (rather than
-re-installing from CRAN) as appropriate.
+reinstalling from CRAN) as appropriate.
 
 Calling `renv::init()` will also write out the infrastructure necessary to
 automatically load and use the private library for new R sessions launched
@@ -85,7 +85,7 @@ library. More specifically, you can use:
 
 For each package used in your project, `renv` will record the package version,
 and (if known) the external source from which that package can be retrieved.
-`renv::restore()` uses that information to retrieve and re-install those
+`renv::restore()` uses that information to retrieve and reinstall those
 packages in your project.
 
 
@@ -94,7 +94,7 @@ packages in your project.
 It is important to emphasize that **renv is not a panacea for reproducibility**.
 Rather, it is a tool that can help make projects reproducible by solving one
 small part of the problem: it records the version of R + R packages being used
-in a project, and provides tools for re-installing the declared versions of
+in a project, and provides tools for reinstalling the declared versions of
 those packages in a project. Ultimately, making a project reproducible requires
 some thoughtfulness from the user: what does it mean for a particular project to
 be reproducible, and how can `renv` (and other tools) be used to accomplish
@@ -215,7 +215,7 @@ The following package(s) were installed from an unknown source:
         skeleton
 
 renv may be unable to restore these packages in the future.
-Consider re-installing these packages from a known source (e.g. CRAN).
+Consider reinstalling these packages from a known source (e.g. CRAN).
 
 Do you want to proceed? [y/N]:
 ```

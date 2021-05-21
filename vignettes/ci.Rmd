@@ -18,7 +18,7 @@ When building, deploying, or testing with continuous integration (CI) systems
 (e.g. [GitHub Actions][github-actions], [Travis CI][travis-ci],
 [AppVeyor][appveyor], and others), one often needs to download and install a set
 of R packages before the service can be run. Normally, one will have to download
-and re-install these packages on each build, which can often be slow --
+and reinstall these packages on each build, which can often be slow --
 especially in environments where binary packages are not available from your R
 package repositories.
 

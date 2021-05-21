@@ -126,7 +126,7 @@ to treat it as a "time capsule", with dependencies frozen in time? Or are
 the dependencies in this project fluid, and you are primarily using `renv`
 just for isolation of project dependencies?
 
-For time capsules, the solution is to use `renv::restore()` to re-install the
+For time capsules, the solution is to use `renv::restore()` to reinstall the
 exact packages as declared in the project lockfile `renv.lock`. You may also
 need to find and install the older version of R used previously with that
 project, unless your intention is to upgrade R.

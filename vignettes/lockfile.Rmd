@@ -57,6 +57,6 @@ Here is an example lockfile, including the packages `markdown` and `mime`:
 ```
 
 The function `renv::snapshot()` is used to create this lockfile, and by default
-writes these records to the file `renv.lock`. Later, if you need to re-install
+writes these records to the file `renv.lock`. Later, if you need to reinstall
 the specific package versions as recorded in `renv.lock`, you can use
 `renv::restore()`.
