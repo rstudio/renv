@@ -145,6 +145,38 @@ test_that("corrupt Meta/package.rds is detected", {
 
 })
 
+test_that("invalid Built field is detected", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  cachepath <- tempfile("renv-cache-")
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
+
+  init()
+  install("bread")
+
+  path <- renv_cache_find(list(Package = "bread", Version = "1.0.0"))
+  expect_true(nzchar(path) && file.exists(path))
+
+  descpath <- file.path(path, "DESCRIPTION")
+  contents <- readLines(descpath)
+
+  old <- paste("R", getRversion())
+  new <- paste("R 1.0.0")
+  replaced <- gsub(old, new, contents)
+  writeLines(replaced, con = descpath)
+
+  diagnostics <- renv_cache_diagnose(verbose = FALSE)
+
+  expect_true(is.data.frame(diagnostics))
+  expect_true(nrow(diagnostics) == 1)
+  expect_true(diagnostics$Package == "bread")
+  expect_true(diagnostics$Version == "1.0.0")
+
+})
+
 # test_that("multiple cache directories are used", {
 #   skip_on_cran()
 #   skip_on_os("windows") # setting folder permissions is a bit more complex on windows

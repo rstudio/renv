@@ -172,3 +172,23 @@ renv_description_remotes_parse <- function(entry) {
   status
 
 }
+
+renv_description_resolve <- function(path) {
+
+  case(
+    is.list(path)      ~ path,
+    is.character(path) ~ renv_description_read(path = path)
+  )
+
+}
+
+renv_description_built_version <- function(desc = NULL) {
+
+  desc <- renv_description_resolve(desc)
+
+  built <- desc[["Built"]]
+  if (is.null(built))
+    return(NA)
+
+  substring(built, 3L, regexpr(";", built, fixed = TRUE) - 1L)
+}

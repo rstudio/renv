@@ -393,11 +393,7 @@ renv_retrieve_libpaths_impl <- function(record, libpath) {
   if (is.null(built))
     return(FALSE)
 
-  ok <- catch({
-    version <- substring(built, 3L, regexpr(";", built, fixed = TRUE) - 1L)
-    renv_version_compare(version, getRversion(), 2L) == 0
-  })
-
+  ok <- catch(renv_description_built_version(desc))
   if (!identical(ok, TRUE))
     return(FALSE)
 
