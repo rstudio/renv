@@ -3,16 +3,27 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = NULL, ..
 
   # if given a package name, construct path to that package
   path <- path %||% find.package(package)
-  stopifnot(renv_path_absolute(path))
+  if (!file.exists(path)) {
+    fmt <- "%s does not exist"
+    stopf(fmt, renv_path_pretty(path))
+  }
+
+  # validate that the path is absolute
+  if (!renv_path_absolute(path)) {
+    fmt <- "internal error: path %s is not absolute"
+    stopf(fmt, renv_path_pretty(path))
+  }
 
   # accept package directories
   path <- renv_description_path(path)
 
   # read value with filebacked cache
   renv_filebacked(
-    "DESCRIPTION", path,
-    renv_description_read_impl,
-    subdir = subdir, ...
+    scope    = "DESCRIPTION",
+    path     = path,
+    callback = renv_description_read_impl,
+    subdir   = subdir,
+    ...
   )
 
 }
