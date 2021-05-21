@@ -8,6 +8,7 @@ rebuild(
   packages = NULL,
   recursive = TRUE,
   ...,
+  type = NULL,
   prompt = interactive(),
   library = NULL,
   project = NULL
@@ -15,13 +16,16 @@ rebuild(
 }
 \arguments{
 \item{packages}{The package(s) to be rebuilt. When \code{NULL}, all packages
-in the library will be installed.}
+in the library will be re-installed.}
 
 \item{recursive}{Boolean; should dependencies of packages be rebuilt
 recursively? Defaults to \code{TRUE}.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
+
+\item{type}{The type of package to install ("source" or "binary"). Defaults
+to the value of \code{getOption("pkgType")}.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
@@ -37,15 +41,10 @@ directory is used instead.}
 A named list of package records which were installed by \code{renv}.
 }
 \description{
-Rebuild and reinstall packages in your library. This can be useful as a
+Rebuild and re-install packages in your library. This can be useful as a
 diagnostic tool -- for example, if you find that one or more of your
 packages fail to load, and you want to ensure that you are starting from a
 clean slate.
-}
-\details{
-Note that binaries will be used when appropriate and available for your
-platform. If you'd like to force packages to be rebuilt from sources, you
-can set \code{options(pkgType = "source")}.
 }
 \examples{
 \dontrun{

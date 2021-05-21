@@ -1,19 +1,15 @@
 
 #' Rebuild the Packages in your Project Library
 #'
-#' Rebuild and reinstall packages in your library. This can be useful as a
+#' Rebuild and re-install packages in your library. This can be useful as a
 #' diagnostic tool -- for example, if you find that one or more of your
 #' packages fail to load, and you want to ensure that you are starting from a
 #' clean slate.
 #'
-#' Note that binaries will be used when appropriate and available for your
-#' platform. If you'd like to force packages to be rebuilt from sources, you
-#' can set `options(pkgType = "source")`.
-#'
 #' @inherit renv-params
 #'
 #' @param packages The package(s) to be rebuilt. When `NULL`, all packages
-#'   in the library will be installed.
+#'   in the library will be re-installed.
 #'
 #' @param recursive Boolean; should dependencies of packages be rebuilt
 #'   recursively? Defaults to `TRUE`.
@@ -35,6 +31,7 @@
 rebuild <- function(packages  = NULL,
                     recursive = TRUE,
                     ...,
+                    type    = NULL,
                     prompt  = interactive(),
                     library = NULL,
                     project = NULL)
@@ -57,7 +54,7 @@ rebuild <- function(packages  = NULL,
   }
 
   # subset packages based on user request
-  packages <- packages %||% names(records)
+  packages <- setdiff(packages %||% names(records), "renv")
   records <- named(records[packages], packages)
 
   # for any packages that are missing, use the latest available instead
@@ -88,7 +85,8 @@ rebuild <- function(packages  = NULL,
   install(
     packages = records,
     library  = libpaths,
-    project  = project,
-    rebuild  = rebuild
+    type     = type,
+    rebuild  = rebuild,
+    project  = project
   )
 }

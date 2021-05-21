@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::rebuild()` gains the `type` parameter, for parity with
+  `renv::install()`.
+
 * Fixed an issue where `renv` could incorrectly copy an incompatible version
   of an R package from a site library into the project library during install.
   (#750)
