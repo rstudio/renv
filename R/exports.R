@@ -20,7 +20,6 @@ renv_exports_attach <- function() {
 
   # remove anything that wasn't explicitly exported
   envir <- as.environment("package:renv")
-  exports <- exports %||% ls(envir = envir, all.names = TRUE)
   all <- ls(envir = envir, all.names = TRUE)
   removed <- setdiff(all, exports)
   rm(list = removed, envir = envir, inherits = FALSE)
