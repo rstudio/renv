@@ -20,7 +20,7 @@
   (#737)
 
 * Fixed an issue where `install.packages()` could fail when used within an
-  `renv` package to install a package from local sources. (#724)
+  `renv` project to install a package from local sources. (#724)
 
 * The chunk `renv.ignore` parameter can now be set to `FALSE`. When set,
   `renv` will explicitly parse dependencies from chunks even if other
