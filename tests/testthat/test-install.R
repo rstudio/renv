@@ -54,8 +54,9 @@ test_that("installation failure is well-reported", {
   writeLines("parse error", con = file.path(package, "R/error.R"))
 
   # try to build it and confirm error
+  record <- list(Package = package, Path = package)
   renv_scope_options(renv.verbose = FALSE)
-  expect_error(renv_install_package_local_impl(package, package, library))
+  expect_error(renv_install_package_impl(record))
 
 })
 

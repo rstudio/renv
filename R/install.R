@@ -1,7 +1,7 @@
 
 #' Install Packages
 #'
-#' Install one or more \R packages from a variety of remote sources.
+#' Install one or more \R packages, from a variety of remote sources.
 #'
 #' `install()` uses the same machinery as [restore()] when installing packages.
 #' In particular, this means that the local cache of package installations is
@@ -9,8 +9,33 @@
 #' already been downloaded before, and re-compiling packages from source when
 #' a binary copy of that package is already available.
 #'
-#' Note that this interface is subject to change -- the goal is to hook into
-#' separate package installation backends in the future.
+#'
+#' @section Project DESCRIPTION Files:
+#'
+#' If your project contains a `DESCRIPTION` file, then calling `install()`
+#' without any arguments will instruct `renv` to install the latest versions of
+#' all packages as declared within that `DESCRIPTION` file's `Depends`,
+#' `Imports` and `LinkingTo` fields; similar to how an \R package might declare
+#' its dependencies.
+#'
+#' If you have one or more packages that you'd like to install from a separate
+#' remote source, this can be accomplished by adding a `Remotes:` field to the
+#' `DESCRIPTION` file. See
+#' <https://cran.r-project.org/web/packages/devtools/vignettes/dependencies.html>
+#' for more details.
+#'
+#' Note that `install()` does not use the project's `renv.lock` when determining
+#' sources for packages to be installed. If you want to install packages using
+#' the sources declared in the lockfile, consider using `restore()` instead.
+#' Otherwise, you can declare the package sources in your `DESCRIPTION`'s
+#' `Remotes:` field.
+#'
+#'
+#' @section Remotes Syntax:
+#'
+#' `renv` supports a subset of the `remotes` syntax used for package installation,
+#' as described in <https://remotes.r-lib.org/articles/dependencies.html>. See
+#' the examples below for more details.
 #'
 #'
 #' @section Bioconductor:
@@ -28,13 +53,6 @@
 #' for the installation of packages from Bioconductor. If these packages are
 #' not available, `renv` will attempt to automatically install them before
 #' fulfilling the installation request.
-#'
-#'
-#' @section Remotes Syntax:
-#'
-#' `renv` supports a subset of the `remotes` syntax used for package installation,
-#' as described in <https://remotes.r-lib.org/articles/dependencies.html>. See
-#' the examples below for more details.
 #'
 #'
 #' @section Package Configuration:
@@ -99,6 +117,9 @@
 #'
 #' # install a package, specifying path explicitly
 #' renv::install("~/path/to/package")
+#'
+#' # install packages as declared in the project DESCRIPTION file
+#' renv::install()
 #'
 #' }
 install <- function(packages = NULL,
@@ -175,7 +196,7 @@ install <- function(packages = NULL,
   }
 
   # install retrieved records
-  renv_install(records)
+  renv_install_impl(records)
 
   # a bit of extra test reporting
   if (renv_tests_running()) {
@@ -194,7 +215,7 @@ install <- function(packages = NULL,
   invisible(records)
 }
 
-renv_install <- function(records) {
+renv_install_impl <- function(records) {
 
   staged <- renv_config_install_staged()
 
@@ -296,11 +317,11 @@ renv_install_default <- function(records) {
   handler <- state$handler
   for (record in records) {
     package <- record$Package
-    handler(package, renv_install_impl(record))
+    handler(package, renv_install_package(record))
   }
 }
 
-renv_install_impl <- function(record) {
+renv_install_package <- function(record) {
 
   # get active project (if any)
   state <- renv_restore_state()
@@ -331,7 +352,7 @@ renv_install_impl <- function(record) {
   renv_install_package_preamble(record)
 
   withCallingHandlers(
-    renv_install_package_local(record),
+    renv_install_package_impl(record),
     error = function(e) {
       vwritef("\tFAILED")
       writef(e$output)
@@ -406,7 +427,7 @@ renv_install_package_preamble <- function(record) {
   with(record, vwritef(fmt, Package, Version))
 }
 
-renv_install_package_local <- function(record, quiet = TRUE) {
+renv_install_package_impl <- function(record, quiet = TRUE) {
 
   package <- record$Package
 
@@ -459,20 +480,6 @@ renv_install_package_local <- function(record, quiet = TRUE) {
   callback <- renv_file_backup(destination)
   on.exit(callback(), add = TRUE)
 
-  # install the package
-  renv_install_package_local_impl(package, path)
-
-  # augment package metadata after install
-  installpath <- file.path(library, package)
-  renv_package_augment(installpath, record)
-
-  # return the path to the package
-  invisible(installpath)
-
-}
-
-renv_install_package_local_impl <- function(package, path) {
-
   # normalize paths
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
@@ -494,12 +501,18 @@ renv_install_package_local_impl <- function(package, path) {
     renv_file_type(path, symlinks = FALSE) == "directory" &&
     renv_package_type(path, quiet = TRUE) == "binary"
 
-  # shortcut via copying a binary directory if possible
-  if (copyable)
-    return(renv_file_copy(path, file.path(library, package), overwrite = TRUE))
-
+  # shortcut via copying a binary directory if possible,
   # otherwise, install the package
-  r_cmd_install(package, path)
+  if (copyable)
+    renv_file_copy(path, installpath, overwrite = TRUE)
+  else
+    r_cmd_install(package, path)
+
+  # augment package metadata after install
+  renv_package_augment(installpath, record)
+
+  # return the path to the package
+  invisible(installpath)
 
 }
 

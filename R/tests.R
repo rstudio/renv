@@ -373,7 +373,7 @@ renv_test_retrieve <- function(record) {
   )
 
   records <- retrieve(record$Package)
-  renv_install(records)
+  renv_install_impl(records)
 
   descpath <- file.path(templib, package)
   if (!file.exists(descpath))

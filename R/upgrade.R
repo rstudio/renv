@@ -80,10 +80,10 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   }
 
   renv_scope_restore(
-    project = project,
-    librar  = renv_libpaths_default(),
-    records = list(renv = new),
-    packages = "renv",
+    project   = project,
+    library   = renv_libpaths_default(),
+    records   = list(renv = new),
+    packages  = "renv",
     recursive = FALSE
   )
 

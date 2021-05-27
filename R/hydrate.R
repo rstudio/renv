@@ -289,7 +289,7 @@ renv_hydrate_resolve_missing <- function(project, na) {
   )
 
   records <- retrieve(packages)
-  renv_install(records)
+  renv_install_impl(records)
 
   # if we failed to restore anything, warn the user
   data <- errors$data()
