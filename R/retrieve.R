@@ -4,7 +4,7 @@
 # this routine retrieves a package + its dependencies, and as a side
 # effect populates the restore state's `retrieved` member with a
 # list of package records which can later be used for install
-renv_retrieve <- function(packages) {
+retrieve <- function(packages) {
 
   # confirm that we have restore state set up
   state <- renv_restore_state()
@@ -707,10 +707,18 @@ renv_retrieve_package <- function(record, url, path) {
     renv_condition_signal("renv.retrieve.error", status)
   }
 
-  # handle failures
-  if (inherits(status, "error") || identical(status, FALSE))
-    return(status)
+  # handle FALSE returns (shouldn't normally happen?)
+  if (identical(status, FALSE)) {
+    fmt <- "an unknown error occurred installing '%s' (%s)"
+    msg <- sprintf(fmt, record$Package, renv_record_format_remote(record))
+    status <- simpleError(msg)
+  }
 
+  # handle errors
+  if (inherits(status, "error"))
+    stop(status)
+
+  # handle success
   renv_retrieve_successful(record, path)
 
 }
@@ -745,7 +753,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   # ensure its dependencies are retrieved as well
   if (state$recursive)
     for (package in unique(deps$Package))
-      renv_retrieve(package)
+      retrieve(package)
 
   # mark package as requiring install if needed
   if (install)

@@ -59,7 +59,7 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
   )
 
   # retrieve renv
-  records <- renv_retrieve("renv")
+  records <- retrieve("renv")
   record <- records[[1]]
 
   # ensure renv is installed into project library

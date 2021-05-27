@@ -88,7 +88,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   )
 
   # retrieve renv
-  records <- renv_retrieve("renv")
+  records <- retrieve("renv")
   record <- records[[1]]
 
   # install renv

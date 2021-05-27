@@ -372,7 +372,7 @@ renv_test_retrieve <- function(record) {
     recursive = FALSE
   )
 
-  records <- renv_retrieve(record$Package)
+  records <- retrieve(record$Package)
   renv_install(records)
 
   descpath <- file.path(templib, package)

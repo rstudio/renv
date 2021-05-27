@@ -182,7 +182,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   packages <- names(installs)
 
   # perform the install
-  records <- renv_retrieve(packages)
+  records <- retrieve(packages)
   status <- renv_install(records)
 
   # detect dependency tree repair
