@@ -24,6 +24,20 @@ test_that("we can parse a variety of remotes", {
   expect_equal(record$RemoteRef, "master")
   expect_equal(record$RemoteSha, "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
 
+  # github monorepo subdirectory
+  record <- renv_remotes_resolve("github::kevinushey/skeleton/subdir")
+  expect_equal(record$Package, "skeleton")
+  expect_equal(record$Version, "1.1.0")
+  expect_equal(record$RemoteRef, "master")
+  expect_equal(record$RemoteSha, "e4aafb92b86ba7eba3b7036d9d96fdfb6c32761a")
+
+  # github monorepo sub subdirectory
+  record <- renv_remotes_resolve("github::gtm19/skeleton/subdir/subsubdir")
+  expect_equal(record$Package, "skeleton")
+  expect_equal(record$Version, "1.1.1")
+  expect_equal(record$RemoteRef, "master")
+  expect_equal(record$RemoteSha, "2afe73403ceecc60c2f9502913e212c0ab66ba30")
+
   # by commit
   record <- renv_remotes_resolve("kevinushey/skeleton@209c4e48e505e545ad7ab915904d983b5ab83b93")
   expect_equal(record$Package, "skeleton")
