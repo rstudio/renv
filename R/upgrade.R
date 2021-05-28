@@ -87,12 +87,9 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
     recursive = FALSE
   )
 
-  # retrieve renv
+  # retrieve and install renv
   records <- retrieve("renv")
-  record <- records[[1]]
-
-  # install renv
-  renv_install_impl(record)
+  renv_install_impl(records)
 
   # update the lockfile
   lockfile <- renv_lockfile_load(project = project)
@@ -102,6 +99,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   renv_lockfile_save(lockfile, project = project)
 
   # now update the infrastructure to use this version of renv
+  record <- records[["renv"]]
   renv_infrastructure_write(project, version = record$Version)
 
   # reload renv
