@@ -140,10 +140,6 @@ snapshot <- function(project  = NULL,
   if (reprex)
     return(renv_snapshot_reprex(new))
 
-  # TODO: do we still want to snapshot if the user cancels
-  # the R-level snapshot?
-  on.exit(renv_python_snapshot(project), add = TRUE)
-
   # get prior lockfile state
   old <- list()
   if (file.exists(lockfile)) {
@@ -158,7 +154,7 @@ snapshot <- function(project  = NULL,
     diff <- renv_lockfile_diff(old, alt)
     if (empty(diff)) {
       vwritef("* The lockfile is already up to date.")
-      return(invisible(alt))
+      return(renv_snapshot_successful(alt, project))
     }
 
   }
@@ -204,7 +200,8 @@ snapshot <- function(project  = NULL,
   # ensure the activate script is up-to-date
   renv_infrastructure_write_activate(project, create = FALSE)
 
-  invisible(new)
+  # return new records
+  renv_snapshot_successful(new, project)
 }
 
 renv_snapshot_preserve <- function(old, new) {
@@ -532,7 +529,7 @@ renv_snapshot_r_packages_impl <- function(library = NULL,
   # remove paths that are not valid package names
   pattern <- sprintf("^%s$", .standard_regexps()$valid_package_name)
   paths <- paths[grep(pattern, basename(paths))]
-  
+
   # validate the remaining set of packages
   valid <- renv_snapshot_r_library_diagnose(library, paths)
 
@@ -942,5 +939,15 @@ renv_snapshot_reprex <- function(lockfile) {
   attr(output, "knit_cacheable") <- NA
 
   output
+
+}
+
+renv_snapshot_successful <- function(records, project) {
+
+  # perform python snapshot on success
+  renv_python_snapshot(project)
+
+  # return generated records
+  invisible(records)
 
 }

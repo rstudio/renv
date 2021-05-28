@@ -82,9 +82,6 @@ restore <- function(project  = NULL,
   ensure_directory(library)
   renv_scope_libpaths(libpaths)
 
-  # perform Python actions on exit
-  on.exit(renv_python_restore(project), add = TRUE)
-
   # resolve the lockfile
   if (is.character(lockfile))
     lockfile <- renv_lockfile_read(lockfile)
@@ -138,7 +135,7 @@ restore <- function(project  = NULL,
   if (!length(diff)) {
     name <- if (!missing(library)) "library" else "project"
     vwritef("* The %s is already synchronized with the lockfile.", name)
-    return(invisible(diff))
+    return(renv_restore_successful(diff, project))
   }
 
   if (!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt)) {
@@ -156,7 +153,7 @@ restore <- function(project  = NULL,
 
   # perform the restore
   records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild)
-  invisible(records)
+  renv_restore_successful(records, project)
 }
 
 renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild) {
@@ -360,4 +357,9 @@ renv_restore_find_impl <- function(record, library) {
 renv_restore_rebuild_required <- function(record) {
   state <- renv_restore_state()
   any(c(NA_character_, record$Package) %in% state$rebuild)
+}
+
+renv_restore_successful <- function(records, project) {
+  renv_python_restore(project)
+  invisible(records)
 }

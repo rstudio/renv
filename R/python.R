@@ -20,7 +20,7 @@ renv_python_resolve <- function(python = NULL) {
     fmt <- "* Selected %s [Python %s]."
     vwritef(fmt, renv_path_pretty(python), renv_python_version(python))
 
-    return(python)
+    return(path.expand(python))
 
   }
 
@@ -91,12 +91,12 @@ renv_python_exe <- function(path) {
   # if this already looks like a Python executable, use it directly
   info <- file.info(path, extra_cols = FALSE)
   if (identical(info$isdir, FALSE) && startswith(basename(path), "python"))
-    return(path)
+    return(path.expand(path))
 
   # otherwise, attempt to infer the Python executable type
   info <- renv_python_info(path)
   if (!is.null(info$python))
-    return(info$python)
+    return(path.expand(info$python))
 
   fmt <- "failed to find Python executable associated with path %s"
   stopf(fmt, renv_path_pretty(path))
