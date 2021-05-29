@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::use()` gains the lockfile argument. This can be useful for
+  R Markdown documents and scripts that you'd like to run with the
+  context for a particular lockfile applied.
+
 * `renv::rebuild()` gains the `type` parameter, for parity with
   `renv::install()`.
 

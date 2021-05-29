@@ -16,7 +16,12 @@
 #' \R package requirements within that same \R script.
 #'
 #' @param ...
-#'   The \R packages to be used with this script.
+#'   The \R packages to be used with this script. Ignored if `lockfile` is
+#'   non-`NULL`.
+#'
+#' @param lockfile
+#'   The lockfile to use. When supplied, `renv` will use the packages as
+#'   declared in the lockfile.
 #'
 #' @param library
 #'   The library path into which the requested packages should be installed.
@@ -33,7 +38,7 @@
 #' @param attach
 #'   Boolean; should the set of requested packages be automatically attached?
 #'   If `TRUE` (the default), packages will be loaded and attached via a call
-#'   to [library()] after install.
+#'   to [library()] after install. Ignored if `lockfile` is non-`NULL`.
 #'
 #' @param verbose
 #'   Boolean; be verbose while installing packages?
@@ -43,10 +48,11 @@
 #'
 #' @export
 use <- function(...,
-                library = NULL,
-                isolate = FALSE,
-                attach  = TRUE,
-                verbose = FALSE)
+                lockfile = NULL,
+                library  = NULL,
+                isolate  = FALSE,
+                attach   = TRUE,
+                verbose  = FALSE)
 {
 
   # allow use of the cache in this context
@@ -59,6 +65,12 @@ use <- function(...,
   # set library paths
   libpaths <- c(library, if (!isolate) .libPaths())
   renv_libpaths_set(libpaths)
+
+  # if we were supplied a lockfile, use it
+  if (!is.null(lockfile)) {
+    records <- restore(lockfile = lockfile, clean = FALSE)
+    return(invisible(records))
+  }
 
   dots <- list(...)
   if (empty(dots))
