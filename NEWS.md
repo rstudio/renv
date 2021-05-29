@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` gains the function `embed()`, used to embed a lockfile with an
+  R document (via a call to `renv::use()`).
+
 * `renv::use()` gains the lockfile argument. This can be useful for
   R Markdown documents and scripts that you'd like to run with the
   context for a particular lockfile applied.

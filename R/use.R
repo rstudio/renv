@@ -37,7 +37,7 @@
 #'
 #' @param attach
 #'   Boolean; should the set of requested packages be automatically attached?
-#'   If `TRUE` (the default), packages will be loaded and attached via a call
+#'   If `TRUE`, packages will be loaded and attached via a call
 #'   to [library()] after install. Ignored if `lockfile` is non-`NULL`.
 #'
 #' @param verbose
@@ -51,8 +51,8 @@ use <- function(...,
                 lockfile = NULL,
                 library  = NULL,
                 isolate  = FALSE,
-                attach   = TRUE,
-                verbose  = FALSE)
+                attach   = FALSE,
+                verbose  = TRUE)
 {
 
   # allow use of the cache in this context

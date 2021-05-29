@@ -19,6 +19,8 @@
 #'   The path to an `renv` lockfile. When `NULL` (the default), the project
 #'   lockfile will be read (if any); otherwise, a new lockfile will be generated
 #'   from the current library paths.
+#'
+#' @export
 embed <- function(path = NULL,
                   ...,
                   lockfile = NULL,
@@ -66,15 +68,7 @@ renv_embed_create <- function(path = NULL,
 {
   # generate lockfile
   project <- renv_project_resolve(project)
-
-  lockfile <- if (is.character(lockfile))
-    renv_lockfile_read(lockfile)
-  else if (!is.null(lockfile))
-    lockfile
-  else if (file.exists(renv_lockfile_path(project)))
-    renv_lockfile_load(project = project)
-  else
-    snapshot(project = project)
+  lockfile <- renv_embed_lockfile_resolve(lockfile, project)
 
   # figure out recursive package dependencies
   deps <- dependencies(path, progress = FALSE)
@@ -99,9 +93,9 @@ renv_embed_r <- function(path, ..., lockfile = NULL, project = NULL) {
 
   # generate embed
   embed <- renv_embed_create(
-    path = path,
+    path     = path,
     lockfile = lockfile,
-    project = project
+    project  = project
   )
 
   # check for existing 'renv::use' statement
@@ -140,20 +134,18 @@ renv_embed_create_rmd <- function(path = NULL,
                                   project = NULL)
 {
   # create lockfile
-  project <- renv_project_resolve(project)
-  lockfile <- renv_lockfile_resolve(
-    lockfile %||% snapshot(project = project, lockfile = NULL)
-  )
+  project  <- renv_project_resolve(project)
+  lockfile <- renv_embed_lockfile_resolve(lockfile, project)
 
   # create embed
   embed <- renv_embed_create(
-    path = path,
+    path     = path,
     lockfile = lockfile,
-    project = project
+    project  = project
   )
 
   # return embed
-  c("```{r renv, include=FALSE}", embed, "```")
+  c("```{r lockfile, include=FALSE}", embed, "```")
 
 }
 
@@ -171,15 +163,15 @@ renv_embed_rmd <- function(path,
 
   # generate embed
   embed <- renv_embed_create_rmd(
-    path = path,
+    path     = path,
     lockfile = lockfile,
-    project = project
+    project  = project
   )
 
   # check for existing renv.lock in file
   # if it exists, we'll want to replace at this location;
   # otherwise, insert at end of document
-  header <- "^\\s*```{r renv"
+  header <- "^\\s*```{r lockfile"
   footer <- "```"
   start <- grep(header, contents, perl = TRUE)
 
@@ -217,5 +209,25 @@ renv_embed_rmd <- function(path,
 
   writeLines(contents, con = path)
   return(TRUE)
+
+}
+
+renv_embed_lockfile_resolve <- function(lockfile, project) {
+
+  # if lockfile is character, assume it's the path to a lockfile
+  if (is.character(lockfile))
+    return(renv_lockfile_read(lockfile))
+
+  # if lockfile is not NULL, assume lockfile object
+  if (!is.null(lockfile))
+    return(lockfile)
+
+  # check for lockfile in project
+  path <- renv_lockfile_path(project)
+  if (file.exists(path))
+    return(renv_lockfile_read(path))
+
+  # no lockfile available; just snapshot
+  snapshot(project = project, lockfile = NULL)
 
 }

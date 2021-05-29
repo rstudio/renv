@@ -22,6 +22,7 @@ test_that("use() works as intended", {
 test_that("use(lockfile) works as intended", {
 
   skip_on_cran()
+  skip_on_windows()
 
   renv_tests_scope("bread")
   init()
