@@ -54,6 +54,7 @@ renv::use(lockfile = "/path/to/renv.lock")
 
 # the rest of this script will run with the packages as declared
 # in that lockfile installed into a temporary library path
+
 ```
 
 This can be useful in projects where you'd like to associate different lockfiles

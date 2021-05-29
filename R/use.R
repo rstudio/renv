@@ -68,6 +68,7 @@ use <- function(...,
 
   # if we were supplied a lockfile, use it
   if (!is.null(lockfile)) {
+    renv_scope_options(renv.verbose = verbose)
     records <- restore(lockfile = lockfile, clean = FALSE)
     return(invisible(records))
   }
@@ -80,7 +81,8 @@ use <- function(...,
   remotes <- lapply(dots, renv_remotes_resolve)
   names(remotes) <- map_chr(remotes, `[[`, "Package")
 
-  vprintf("* renv is installing %i package(s) and their dependencies ... ", length(remotes))
+  fmt <- "* renv is installing %i package(s) and their dependencies ... "
+  vprintf(fmt, length(remotes))
 
   # install packages
   records <- local({
