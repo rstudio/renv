@@ -260,7 +260,11 @@ renv_load_rprofile <- function(project = NULL) {
 
   renv_scope_libpaths()
 
-  profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
+  profile <- Sys.getenv("R_PROFILE_USER")
+
+  if (!file.exists(profile))
+    profile <- file.path(Sys.getenv("HOME"), ".Rprofile")
+
   if (file.exists(profile))
     renv_load_rprofile_impl(profile)
 
@@ -546,4 +550,3 @@ renv_load_invoke <- function(callback) {
     callback()
 
 }
-
