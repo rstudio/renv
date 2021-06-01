@@ -221,6 +221,8 @@ renv_diagnostics_options <- function(project) {
     "defaultPackages",
     "download.file.method",
     "download.file.extra",
+    "install.packages.compile.from.source",
+    "pkgType",
     "repos",
     grep("^renv[.]", names(.Options), value = TRUE)
   )
@@ -240,7 +242,7 @@ renv_diagnostics_envvars <- function(project) {
 
   useful <- c(
     "R_LIBS_USER", "R_LIBS_SITE", "R_LIBS",
-    "HOME", "LANG",
+    "HOME", "LANG", "MAKE",
     grep("^RENV_", names(envvars), value = TRUE)
   )
 
