@@ -119,3 +119,30 @@ test_that("paths specified with '.' are treated as local", {
   expect_equal(entry$Version, "1.0")
 
 })
+
+test_that("packages can be installed from GitLab groups", {
+
+  # test parsing of entry
+  entry <- "gitlab::renv-group/renv-subgroup/subpackage"
+  parsed <- renv_remotes_parse(entry)
+
+  expected <- list(
+    entry  = entry,
+    type   = "gitlab",
+    host   = NULL,
+    user   = "renv-group",
+    repo   = "renv-subgroup/subpackage",
+    subdir = NULL,
+    pull   = NULL,
+    ref    = NULL
+  )
+
+  expect_equal(parsed, expected)
+
+  # test installation
+  skip_sometimes()
+  renv_tests_scope()
+  renv::install(entry)
+  expect_true(renv_package_installed("subpackage"))
+
+})
