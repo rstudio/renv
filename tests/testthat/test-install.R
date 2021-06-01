@@ -275,6 +275,15 @@ test_that("renv can install packages from GitHub using remotes subdir syntax", {
   expect_true(renv_package_version("skeleton") == "1.1.0")
 })
 
+test_that("renv can install packages from GitHub using remotes sub-subdir syntax", {
+  skip_on_cran()
+  # skip_sometimes()
+  renv_tests_scope()
+  install("gtm19/skeleton/subdir/subsubdir")
+  expect_true(renv_package_installed("skeleton"))
+  expect_true(renv_package_version("skeleton") == "1.1.1")
+})
+
 test_that("install via version succeeds", {
   skip_on_cran()
   renv_tests_scope()
