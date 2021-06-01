@@ -33,8 +33,8 @@ digest::digest(list(answer = 42))
 
 Running a script with these contents will:
 
-1. Automatically download the requested packages (the latest release of
-   `digest`, alongside `rlang 0.3.4`),
+1. Automatically download the requested packages -- in this case,
+   the latest release of `digest`, alongside `rlang 0.3.4`,
 
 2. Install the requested packages (plus their recursive package dependencies) to
    a temporary library path,
@@ -44,3 +44,26 @@ Running a script with these contents will:
 `renv::use()` can hence be a useful way of sharing standalone R scripts with
 a set of specific package requirements. Running these scripts will ensure the
 requested packages are automatically downloaded and installed.
+
+In addition, you can also supply the path to a lockfile. For example:
+
+```{r eval=FALSE}
+
+# use a particular lockfile in the context of this script
+renv::use(lockfile = "/path/to/renv.lock")
+
+# the rest of this script will run with the packages as declared
+# in that lockfile installed into a temporary library path
+
+```
+
+This can be useful in projects where you'd like to associate different lockfiles
+with different documents -- for example, in a [blog][blogdown] or a website
+where you'd like to associate a separate lockfile with each post. Once the
+post is complete, you could use `renv::snapshot(lockfile = "/path/to/renv.lock")`
+to "save" the state that was active while authoring that lockfile, and then use
+`renv::use(lockfile = "/path/to/renv.lock")` in that document to ensure the blog
+post is always run using that lockfile on future renders.
+
+
+[blogdown]: https://bookdown.org/yihui/blogdown/

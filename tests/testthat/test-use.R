@@ -3,6 +3,8 @@ context("Use")
 
 test_that("use() works as intended", {
 
+  skip_on_cran()
+
   renv_tests_scope()
   init()
 
@@ -14,5 +16,26 @@ test_that("use() works as intended", {
 
   toast <- find.package("toast")
   expect_true(renv_file_same(dirname(toast), .libPaths()[1]))
+
+})
+
+test_that("use(lockfile) works as intended", {
+
+  skip_on_cran()
+  skip_on_windows()
+
+  renv_tests_scope("bread")
+  init()
+
+  renv_scope_libpaths()
+  use(lockfile = "renv.lock", isolate = TRUE)
+
+  libpath <- renv_use_libpath()
+  pkgpath <- renv_package_find("bread")
+
+  expect_equal(
+    normalizePath(pkgpath),
+    normalizePath(file.path(libpath, "bread"))
+  )
 
 })

@@ -5,6 +5,13 @@
   sub-directories of sub-directories of a GitHub repository; that is,
   `renv::install("user/repo/subdir/subsubdir")` should work as expected. (#759)
 
+* `renv` gains the function `embed()`, used to embed a lockfile with an
+  R document (via a call to `renv::use()`).
+
+* `renv::use()` gains the lockfile argument. This can be useful for
+  R Markdown documents and scripts that you'd like to run with the
+  context for a particular lockfile applied.
+
 * `renv::rebuild()` gains the `type` parameter, for parity with
   `renv::install()`.
 

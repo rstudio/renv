@@ -4,10 +4,21 @@
 \alias{use}
 \title{Use a set of Packages}
 \usage{
-use(..., library = NULL, isolate = FALSE, attach = TRUE, verbose = FALSE)
+use(
+  ...,
+  lockfile = NULL,
+  library = NULL,
+  isolate = FALSE,
+  attach = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{...}{The \R packages to be used with this script.}
+\item{...}{The \R packages to be used with this script. Ignored if \code{lockfile} is
+non-\code{NULL}.}
+
+\item{lockfile}{The lockfile to use. When supplied, \code{renv} will use the packages as
+declared in the lockfile.}
 
 \item{library}{The library path into which the requested packages should be installed.
 When \code{NULL} (the default), a library path within the \R temporary
@@ -20,8 +31,8 @@ paths activated for this script? Set this to \code{TRUE} if you only want the
 packages provided to \code{renv::use()} to be visible on the library paths.}
 
 \item{attach}{Boolean; should the set of requested packages be automatically attached?
-If \code{TRUE} (the default), packages will be loaded and attached via a call
-to \code{\link[=library]{library()}} after install.}
+If \code{TRUE}, packages will be loaded and attached via a call
+to \code{\link[=library]{library()}} after install. Ignored if \code{lockfile} is non-\code{NULL}.}
 
 \item{verbose}{Boolean; be verbose while installing packages?}
 }

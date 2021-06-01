@@ -10,7 +10,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment  = "#>",
+  eval     = FALSE
 )
 ```
 
@@ -30,7 +31,7 @@ development dependencies (e.g. `devtools`) normally should not.
 
 If you find a package is not entering the lockfile, you can check the output of:
 
-```
+```{r}
 renv::dependencies()
 ```
 
@@ -41,14 +42,14 @@ your R code, and does not understand all of the different ways in which a
 package might be used in a project. For example, `renv` will detect the
 following usages:
 
-```r
+```{r}
 library(dplyr)
 library(ggplot2)
 ```
 
 But it will be unable to detect these kinds of usages:
 
-```r
+```{r}
 for (package in c("dplyr", "ggplot2")) {
   library(package, character.only = TRUE)
 }
@@ -63,13 +64,13 @@ support, please feel free to [file a feature request](https://github.com/rstudio
 If you'd instead prefer to capture _all_ packages installed into your project
 library (and eschew dependency discovery altogether), you can do so with:
 
-```
+```{r}
 renv::settings$snapshot.type("all")
 ```
 
 Packages can also be explicitly ignored through a project setting, e.g. with:
 
-```
+```{r}
 renv::settings$ignored.packages("<package>")
 ```
 
@@ -85,7 +86,7 @@ See the documentation in `?snapshot` for more details.
 If you'd like to explicitly declare which packages your project depends on,
 you can do so by telling `renv` to form "explicit" snapshots:
 
-```
+```{r}
 renv::settings$snapshot.type("explicit")
 ```
 
@@ -105,7 +106,7 @@ For cases like these, we recommend tracking these packages in a project
 DESCRIPTION file; typically, within the `Suggests:` field. Then, you can
 execute:
 
-```
+```{r}
 renv::install()
 ```
 
@@ -171,9 +172,51 @@ containing only the base set of packages normally bundled and distributed with
 R. If you'd prefer that packages installed into the system library remain
 visible to `renv` projects, you can set:
 
-```
+```{r}
 RENV_CONFIG_SANDBOX_ENABLED = FALSE
 ```
 
 in an appropriate `.Renviron` file. See the entry for
 `renv.config.sandbox.enabled` in `?renv::config` for more details.
+
+
+## Why are package downloads failing?
+
+Some issues ultimately boil down to a lack of connectivity between your machine
+and the R package repositories and remote sources you are trying to use. If
+you are working in a corporate environment, it may be worth confirming whether
+you have a corporate proxy in place inhibiting internet access, or whether R
+and `renv` need to be configured in a way compatible with your working
+environment. This is often true on Windows machines in enterprise environments,
+where the default "wininet" download method may work more reliably than others.
+
+Note that by default `renv` attempts to use the `curl` command line utility
+in order to download files and communicate with remote web services. This is
+done to enable authentication with private web services (e.g. private
+GitHub repositories).
+
+If you find that downloads work outside of `renv` projects, but not within
+`renv` projects, you may need to tell `renv` to use the same download file
+method that R has been configured to use. You can check which download method
+R is currently configured to use with:
+
+```{r}
+getOption("download.file.method")
+```
+
+And the downloader currently used by `renv` can be queried with:
+
+```{r}
+renv:::renv_download_method()
+```
+
+You can force `renv` to use the same download method as R by setting:
+
+```{r}
+Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = getOption("download.file.method"))
+```
+
+and, if necessary, you could also set this environment variable within e.g. your
+`~/.Renviron`, so that it is visible to all R sessions. See `?Startup` for more
+details.
+
