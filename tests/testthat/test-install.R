@@ -277,7 +277,7 @@ test_that("renv can install packages from GitHub using remotes subdir syntax", {
 
 test_that("renv can install packages from GitHub using remotes sub-subdir syntax", {
   skip_on_cran()
-  # skip_sometimes()
+  skip_sometimes()
   renv_tests_scope()
   install("gtm19/skeleton/subdir/subsubdir")
   expect_true(renv_package_installed("skeleton"))
