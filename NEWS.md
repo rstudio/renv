@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to install packages located
+  on GitHub within sub-subdirectories. (#759)
+  
 * `renv` gains the function `embed()`, used to embed a lockfile with an
   R document (via a call to `renv::use()`).
 

@@ -154,8 +154,8 @@ renv_remotes_parse_finalize_github <- function(parsed) {
     return(parsed)
 
   # form subdir from tail of repo
-  parsed$repo <- paste(head(parts, n = -1L), collapse = "/")
-  parsed$subdir <- tail(parts, n = 1L)
+  parsed$repo   <- paste(head(parts, n = 1L),  collapse = "/")
+  parsed$subdir <- paste(tail(parts, n = -1L), collapse = "/")
 
   # return modified remote
   parsed

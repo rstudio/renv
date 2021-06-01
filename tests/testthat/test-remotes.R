@@ -146,3 +146,23 @@ test_that("packages can be installed from GitLab groups", {
   expect_true(renv_package_installed("subpackage"))
 
 })
+
+test_that("remote entries referencing packages in sub-sub-directories are parsed correctly", {
+
+  entry <- "github::user/repo/subdir/subsubdir"
+  parsed <- renv_remotes_parse(entry)
+
+  expected <- list(
+    entry  = entry,
+    type   = "github",
+    host   = NULL,
+    user   = "user",
+    repo   = "repo",
+    subdir = "subdir/subsubdir",
+    pull   = NULL,
+    ref    = NULL
+  )
+
+  expect_equal(parsed, expected)
+
+})
