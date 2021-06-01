@@ -115,8 +115,8 @@ renv_remotes_parse_remote <- function(entry) {
     "^",
     "(?:([^@:]+)(?:@([^:]+))?::)?",    # optional prefix, providing type + host
     "([^/#@:]+)",                      # a username
-    "(?:/([^@#:]+))?",                 # a repository (allow sub-repositories)
-    "(?::([^@#:]+))?",                 # optional subdirectory
+    "(?:/([^@#:/]+))?",                # a repository (allow sub-repositories)
+    "(?:[/:]([^@#:]+))?",              # optional subdirectory
     "(?:#([^@#:]+))?",                 # optional hash (e.g. pull request)
     "(?:@([^@#:]+))?",                 # optional ref (e.g. branch or commit)
     "$"
