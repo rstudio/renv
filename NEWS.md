@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` now handles the `remotes` syntax for installing packages lying within
+  sub-directories of sub-directories of a GitHub repository; that is,
+  `renv::install("user/repo/subdir/subsubdir")` should work as expected. (#759)
+
 * `renv::rebuild()` gains the `type` parameter, for parity with
   `renv::install()`.
 
