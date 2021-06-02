@@ -78,9 +78,9 @@ renv_remotes_resolve_impl <- function(entry, latest = FALSE) {
 
 }
 
-renv_remotes_parse_impl <- function(entry, pattern, fields) {
+renv_remotes_parse_impl <- function(entry, pattern, fields, perl = FALSE) {
 
-  matches <- regexec(pattern, entry)
+  matches <- regexec(pattern, entry, perl = perl)
   strings <- regmatches(entry, matches)[[1]]
   if (empty(strings))
     stopf("'%s' is not a valid remote", entry)
@@ -132,6 +132,47 @@ renv_remotes_parse_remote <- function(entry) {
 
 }
 
+renv_remotes_parse_git <- function(entry) {
+  pattern <- paste0(
+    "^",
+    "(?:([^@:]+)::)?",  # optional prefix, providing type
+    "(", # URL start
+      "(?:(https?|git|ssh)://)?",   # protocol
+      "(?:([^@]+)@)?",    # login (probably git)
+      # stack overflow: https://stackoverflow.com/a/26987741/9238801
+      "(",  # host start
+        "(?:(?:(?!-))(?:xn--|_{1,1})?[a-z0-9-]{0,61}[a-z0-9]{1,1}\\.)*",
+        "(?:xn--)?",
+        "(?:[a-z0-9][a-z0-9\\-]{0,60}|[a-z0-9-]{1,30}\\.[a-z]{2,})",
+      ")",  # host end
+      "[/:]([-\\.a-zA-Z]+)",             # a username
+      "(?:/([^@#:]+?))?",                # a repository (allow sub-repositories)
+      "(?:\\.(git))?",                     # optional .git extension
+    ")", # URL end
+    "(?::([^@#:]+))?",                 # optional subdirectory
+    "(?:#([^@#:]+))?",                 # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?",                 # optional ref (e.g. branch or commit)
+    "$"
+  )
+
+  fields <- c(
+    "entry",
+      "type",
+      "url",
+        "protocol", "login", "host",
+        "user", "repo", "ext",
+      "subdir",
+      "pull",
+      "ref"
+    )
+  parsed <- renv_remotes_parse_impl(entry, pattern, fields, perl = TRUE)
+
+  if (!nzchar(parsed$repo))
+    stopf("'%s' is not a valid remote", entry)
+
+  renv_remotes_parse_finalize(parsed)
+}
+
 renv_remotes_parse_finalize <- function(parsed) {
 
   # default remote type is github
@@ -173,6 +214,12 @@ renv_remotes_parse <- function(entry) {
   parsed <- catch(renv_remotes_parse_remote(entry))
   if (!inherits(parsed, "error")) {
     parsed$type <- parsed$type %||% "github"
+    return(parsed)
+  }
+
+  parsed <- catch(renv_remotes_parse_git(entry))
+  if (!inherits(parsed, "error")) {
+    parsed$type <- parsed$type %||% "git"
     return(parsed)
   }
 
