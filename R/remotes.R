@@ -71,6 +71,7 @@ renv_remotes_resolve_impl <- function(entry, latest = FALSE) {
     gitlab     = renv_remotes_resolve_gitlab(parsed),
     github     = renv_remotes_resolve_github(parsed),
     repository = renv_remotes_resolve_repository(parsed, latest),
+    git        = renv_remotes_resolve_git(parsed),
     stopf("unknown remote type '%s'", parsed$type %||% "<NA>")
   )
 
@@ -472,6 +473,58 @@ renv_remotes_resolve_github <- function(entry) {
     RemoteSha      = sha
   )
 
+}
+
+renv_remotes_resolve_git <- function(parsed) {
+
+  # handle refs that are direct refs
+  # handle potential PR refs
+  # handle tags too?
+
+  package <- parsed$repo
+  version <- "unknown"
+  repo    <- parsed$repo
+  url     <- parsed$url
+
+  # handle git ref
+  pull <- parsed$pull %||% ""
+  ref <- parsed$ref %||% ""
+
+  remote_ref <- case(
+    nzchar(pull) ~ renv_remotes_resolve_git_pull(pull),
+    nzchar(ref)  ~ ref,
+    TRUE         ~ ""
+  )
+
+  record <- list(
+    Package        = package, # desc$Package,
+    Version        = version,
+    Source         = "git",
+    RemoteType     = "git",
+    # RemoteHost     = host,
+    # RemoteUsername = user,
+    # RemoteRepo     = repo,
+    RemoteUrl      = url,
+    # RemoteSubdir   = subdir,
+    RemoteRef      = remote_ref
+  )
+  # RemoteSha      = sha
+
+  record
+}
+
+renv_remotes_resolve_git_pull <- function(pr) {
+  # to be able to checkout PR 760:
+  # git fetch origin pull/760/head:pr-760
+  # or:
+  # git fetch origin pull/760/head:pull/760
+
+  # so format for ref is:
+  # pull/{ref_number}/head:pr-{ref_number}
+  fmt <- "pull/%s/head:pull/%s"
+
+  remote_ref <- sprintf(fmt, pr, pr)
+  remote_ref
 }
 
 renv_remotes_resolve_gitlab <- function(entry) {
