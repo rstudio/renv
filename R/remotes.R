@@ -482,7 +482,12 @@ renv_remotes_resolve_git <- function(parsed) {
   # handle tags too?
 
   package <- parsed$repo
-  version <- "unknown"
+  # Assume the version is very high to force retrieval
+  # if a package specifies a minimum version
+  # this is a hacky workaround.
+  # TODO: Actually resolve the version by pulling the
+  #       package description
+  version <- "9999.0.0"
   repo    <- parsed$repo
   url     <- parsed$url
 
