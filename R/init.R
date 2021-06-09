@@ -90,15 +90,15 @@ init <- function(project = NULL,
   renv_init_settings(project, settings)
   setwd(project)
 
-  # collect dependencies
-  renv_dependencies_scope(project, action = "init")
-
   # be quiet in RStudio projects (as we will normally restart automatically)
   quiet <- !is.null(getOption("restart"))
 
   # for bare inits, just activate the project
   if (bare)
     return(renv_init_fini(project, profile, version, restart, quiet))
+
+  # collect dependencies
+  renv_dependencies_scope(project, action = "init")
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)

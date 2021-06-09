@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv::init(bare = TRUE)` would unnecessarily
+  scour the project for R package dependencies. (#771)
+
 * Fixed an issue where `renv` could fail to install packages located
   on GitHub within sub-subdirectories. (#759)
   
