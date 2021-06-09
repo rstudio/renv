@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::restore()` gains the `exclude` argument, used to exclude a subset of
+  packages during restore. (#746)
+  
 * Fixed an issue where `renv::dependencies()` could fail to parse
   dependencies in calls to `glue::glue()` that used custom open
   and close delimiters. (#772)

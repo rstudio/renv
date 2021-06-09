@@ -223,3 +223,14 @@ test_that("restore doesn't re-use active library paths", {
   expect_true(renv_package_installed("bread", lib.loc = lib1))
 
 })
+
+test_that("restore(exclude = <...>) excludes as expected", {
+
+  renv_tests_scope("breakfast")
+  init()
+
+  remove(c("bread", "breakfast", "oatmeal", "toast"))
+  restore(exclude = "breakfast")
+  expect_false(renv_package_installed("breakfast"))
+
+})

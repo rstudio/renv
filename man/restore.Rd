@@ -10,6 +10,7 @@ restore(
   library = NULL,
   lockfile = NULL,
   packages = NULL,
+  exclude = NULL,
   rebuild = FALSE,
   repos = NULL,
   clean = FALSE,
@@ -35,6 +36,12 @@ is used.}
 When \code{NULL} (the default), all packages available in the lockfile will be
 restored. Any required recursive dependencies of the requested packages
 will be restored as well.}
+
+\item{exclude}{A subset of packages to be excluded during restore. This can
+be useful for when you'd like to restore all but a subset of packages from
+a lockfile. Note that if you attempt to exclude a package which is required
+as the recursive dependency of another package, your request will be
+ignored.}
 
 \item{rebuild}{Force packages to be rebuilt, thereby bypassing any installed
 versions of the package available in the cache? This can either be a

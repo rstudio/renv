@@ -33,6 +33,12 @@
 #'   restored. Any required recursive dependencies of the requested packages
 #'   will be restored as well.
 #'
+#' @param exclude A subset of packages to be excluded during restore. This can
+#'  be useful for when you'd like to restore all but a subset of packages from
+#'  a lockfile. Note that if you attempt to exclude a package which is required
+#'  as the recursive dependency of another package, your request will be
+#'  ignored.
+#'
 #' @param repos The repositories to use during restore, for packages installed
 #'   from CRAN or another similar R package repository. When set, this will
 #'   override any repositories declared in the lockfile. See also the
@@ -60,6 +66,7 @@ restore <- function(project  = NULL,
                     library  = NULL,
                     lockfile = NULL,
                     packages = NULL,
+                    exclude  = NULL,
                     rebuild  = FALSE,
                     repos    = NULL,
                     clean    = FALSE,
@@ -122,15 +129,15 @@ restore <- function(project  = NULL,
     find.package(package, lib.loc = libpaths, quiet = TRUE) %||% ""
   })
 
-  exclude <- diff == "remove" & dirname(difflocs) != library
-  diff <- diff[!exclude]
+  diff <- diff[!(diff == "remove" & dirname(difflocs) != library)]
 
   # don't take any actions with ignored packages
   ignored <- renv_project_ignored_packages(project = project)
   diff <- diff[renv_vector_diff(names(diff), ignored)]
 
   # only take action with requested packages
-  diff <- diff[intersect(names(diff), packages %||% names(diff))]
+  packages <- setdiff(packages %||% names(diff), exclude)
+  diff <- diff[intersect(names(diff), packages)]
 
   if (!length(diff)) {
     name <- if (!missing(library)) "library" else "project"
