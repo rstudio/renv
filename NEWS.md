@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv::dependencies()` could fail to parse
+  dependencies in calls to `glue::glue()` that used custom open
+  and close delimiters. (#772)
+
 * Fixed an issue where `renv::init(bare = TRUE)` would unnecessarily
   scour the project for R package dependencies. (#771)
 

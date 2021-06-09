@@ -313,7 +313,7 @@ test_that("multiple output formats are handled", {
 
 test_that("glue::glue() package usages are found", {
   deps <- dependencies("resources/glue.R", progress = FALSE)
-  expect_true(all(c("hello", "goodbye") %in% deps$Package))
+  expect_true(all(c("A", "B", "C") %in% deps$Package))
 })
 
 test_that("set_engine() package usages are found", {

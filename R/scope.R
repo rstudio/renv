@@ -340,3 +340,18 @@ renv_scope_trace <- function(what, tracer, ..., .envir = NULL) {
   defer(untrace(substitute(what)), envir = .envir)
 
 }
+
+renv_scope_var <- function(key, value, envir, ..., .envir = NULL) {
+
+  .envir <- .envir %||% parent.frame()
+
+  if (exists(key, envir = envir, inherits = FALSE)) {
+    saved <- get(key, envir = envir, inherits = FALSE)
+    assign(key, value, envir = envir, inherits = FALSE)
+    defer(assign(key, saved, envir = envir, inherits = FALSE), envir = .envir)
+  } else {
+    assign(key, value, envir = envir, inherits = FALSE)
+    defer(rm(list = key, envir = envir, inherits = FALSE), envir = .envir)
+  }
+
+}

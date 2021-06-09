@@ -787,12 +787,13 @@ renv_dependencies_discover_r_impl <- function(path  = NULL,
     ~ stop("internal error")
   )
 
-  if (inherits(expr, "error")) {
-    # workaround for an R bug where parse-related state could be
-    # leaked if an error occurred
-    Sys.setlocale()
+  if (inherits(expr, "error"))
     return(renv_dependencies_error(path, error = expr))
-  }
+
+  # update current path
+  state <- renv_dependencies_state()
+  if (!is.null(state))
+    renv_scope_var("path", path, envir = state)
 
   methods <- c(
     renv_dependencies_discover_r_methods,
@@ -1155,10 +1156,13 @@ renv_dependencies_discover_r_glue <- function(node, stack, envir) {
   nm <- names(args) %||% rep.int("", length(args))
   strings <- args[!nzchar(nm) & map_lgl(args, is.character)]
 
-  # TODO: support custom '.open' and '.close' arguments?
-  pattern <- "\\{[^}]+\\}"
+  # construct pattern
+  open  <- node$.open  %||% "{"
+  close <- node$.close %||% "}"
+  pattern <- sprintf("\\Q%s\\E(.*?)\\Q%s\\E", open, close)
+
   for (string in strings) {
-    m <- gregexpr(pattern, string)
+    m <- gregexpr(pattern, string, perl = TRUE)
     matches <- unlist(regmatches(string, m), recursive = FALSE)
     code <- substring(matches, 2L, nchar(matches) - 1L)
     renv_dependencies_discover_r_impl(text = code, envir = envir)
@@ -1363,6 +1367,7 @@ renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
   # check for missing state (e.g. if internal method called directly)
   state <- renv_dependencies_state()
   if (!is.null(state)) {
+    path <- path %||% state$path
     problem <- list(file = path, error = error)
     state$problems$push(problem)
   }
