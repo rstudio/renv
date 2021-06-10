@@ -522,7 +522,7 @@ renv_remotes_resolve_git_description <- function(record) {
   path <- tempfile("renv-git-")
   ensure_directory(path)
 
-  renv_git_clone(record, path)
+  renv_retrieve_git_impl(record, path)
 
   subdir <- record$RemoteSubdir
   # subdir may be NULL
