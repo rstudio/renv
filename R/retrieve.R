@@ -262,41 +262,10 @@ renv_retrieve_gitlab <- function(record) {
 
 renv_retrieve_git <- function(record) {
 
-  renv_git_preflight()
-
   path <- tempfile("renv-git-")
   ensure_directory(path)
 
-  template <- c(
-    "cd \"${DIR}\"",
-    "git init --quiet",
-    "git remote add origin \"${ORIGIN}\"",
-    "git fetch --quiet origin \"${REF}\"",
-    "git reset --quiet --hard FETCH_HEAD"
-  )
-
-  data <- list(
-    DIR    = renv_path_normalize(path),
-    ORIGIN = record$RemoteUrl,
-    REF    = record$RemoteSha %||% record$RemoteRef
-  )
-
-  commands <- renv_template_replace(template, data)
-  command <- paste(commands, collapse = " && ")
-  if (renv_platform_windows())
-    command <- paste(comspec(), "/C", command)
-
-
-  status <- local({
-    renv_scope_auth(record)
-    renv_scope_git_auth()
-    system(command)
-  })
-
-  if (status != 0L) {
-    fmt <- "cannot retrieve package '%s' from '%s' [status code %i]"
-    stopf(fmt, record$Package, record$RemoteUrl, status)
-  }
+  renv_git_clone(record, path)
 
   renv_retrieve_successful(record, path)
 
