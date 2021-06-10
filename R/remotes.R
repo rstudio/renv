@@ -518,6 +518,40 @@ renv_remotes_resolve_git <- function(parsed) {
   record
 }
 
+
+renv_remotes_resolve_git_sha_ref <- function(record) {
+  renv_git_preflight()
+  template <- c(
+    "git ls-remote \"${ORIGIN}\" \"${REF}\" | head -1 | sed 's/\t.*//'"
+  )
+
+  data <- list(
+    ORIGIN = record$RemoteUrl,
+    REF    = record$RemoteRef %||% record$RemoteSha
+  )
+
+  commands <- renv_template_replace(template, data)
+  command <- paste(commands, collapse = " && ")
+  if (renv_platform_windows())
+    command <- paste(comspec(), "/C", command)
+
+  sha <- local({
+    renv_scope_auth(record)
+    renv_scope_git_auth()
+    system(command, intern = TRUE)
+  })
+
+  command_failed <- attr(sha, "status") %||% 0
+
+  if (command_failed != 0L) {
+    fmt <- "Checking %s for changes: `'%s'` failed  [status code %i]"
+    stopf(fmt, record$Package, command, status)
+  }
+
+  return(sha)
+}
+
+
 renv_remotes_resolve_git_description <- function(record) {
   path <- tempfile("renv-git-")
   ensure_directory(path)
