@@ -83,7 +83,7 @@ renv_mran_database_load_impl <- function(path) {
 
 }
 
-renv_mran_database_dates <- function(version) {
+renv_mran_database_dates <- function(version, all = TRUE) {
 
   # release dates for old versions of R
   releases <- c(
@@ -102,11 +102,14 @@ renv_mran_database_dates <- function(version) {
   if (is.na(index))
     stopf("no known release date for R %s", version)
 
-  # form start, end dates
+  # form start date
   start <- as.Date(releases[[index + 0]])
-  end   <- as.Date(releases[[index + 1]])
+  if (!all)
+    return(start)
 
+  # form end date (ensure not in future)
   # ensure end date is not in future
+  end <- as.Date(releases[[index + 1]])
   end <- min(as.Date(Sys.time(), tz = "UTC"), end)
 
   # generate list of dates
@@ -248,12 +251,16 @@ renv_mran_database_sync <- function(platform, version) {
   key <- renv_mran_database_key(platform, version)
   entry <- database[[key]]
   if (is.null(entry)) {
-    warningf("no entry for key '%s'", key)
-    return(FALSE)
+    database[[key]] <- new.env(parent = emptyenv())
+    entry <- database[[key]]
   }
 
   # get the last known updated date
-  last <- max(as.integer(as.list(entry)))
+  last <- max(0L, as.integer(as.list(entry)))
+  if (identical(last, 0L)) {
+    date <- renv_mran_database_dates(version, all = FALSE)
+    last <- as.integer(date)
+  }
 
   # get yesterday's date
   now <- as.integer(as.Date(Sys.time(), tz = "UTC")) - 1L
