@@ -481,15 +481,14 @@ renv_remotes_resolve_git <- function(parsed) {
   # handle potential PR refs
   # handle tags too?
 
-  package <- parsed$repo
-  # Assume the version is very high to force retrieval
-  # if a package specifies a minimum version
-  # this is a hacky workaround.
-  # TODO: Actually resolve the version by pulling the
-  #       package description
-  version <- "9999.0.0"
-  repo    <- parsed$repo
-  url     <- parsed$url
+
+  # For now, set package & version to dummy values.
+  # will need to clone first to resolve these.
+  temp_package <- parsed$repo
+  temp_version <- "UNKNOWN"
+  repo         <- parsed$repo
+  url          <- parsed$url
+  subdir       <- parsed$subdir
 
   # handle git ref
   pull <- parsed$pull %||% ""
@@ -502,20 +501,34 @@ renv_remotes_resolve_git <- function(parsed) {
   )
 
   record <- list(
-    Package        = package, # desc$Package,
-    Version        = version,
+    Package        = temp_package,
+    Version        = temp_version,
     Source         = "git",
     RemoteType     = "git",
-    # RemoteHost     = host,
-    # RemoteUsername = user,
-    # RemoteRepo     = repo,
     RemoteUrl      = url,
-    # RemoteSubdir   = subdir,
+    RemoteSubdir   = subdir,
     RemoteRef      = remote_ref
   )
-  # RemoteSha      = sha
+
+  desc <- renv_remotes_resolve_git_description(record)
+
+  record$Package <- desc$Package
+  record$Version <- desc$Version
 
   record
+}
+
+renv_remotes_resolve_git_description <- function(record) {
+  path <- tempfile("renv-git-")
+  ensure_directory(path)
+
+  renv_git_clone(record, path)
+
+  subdir <- record$RemoteSubdir
+  # subdir may be NULL
+  desc <- renv_description_read(path, subdir = subdir)
+
+  desc
 }
 
 renv_remotes_resolve_git_pull <- function(pr) {
