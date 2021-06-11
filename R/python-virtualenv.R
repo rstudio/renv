@@ -42,7 +42,7 @@ renv_python_virtualenv_create <- function(python, path) {
 
   ensure_parent_directory(path)
 
-  python <- renv_path_normalize(python)
+  python <- renv_path_canonicalize(python)
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
   args <- c("-m", module, shQuote(path.expand(path)))
@@ -63,7 +63,7 @@ renv_python_virtualenv_update <- function(python, packages = NULL) {
 
   # resolve python executable path
   python <- renv_python_exe(python)
-  python <- renv_path_normalize(python)
+  python <- renv_path_canonicalize(python)
 
   # resolve packages
   packages <- packages %||% c("pip", "setuptools", "wheel")

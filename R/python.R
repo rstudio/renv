@@ -109,7 +109,7 @@ renv_python_version <- function(python) {
 }
 
 renv_python_version_impl <- function(python) {
-  python <- renv_path_normalize(python)
+  python <- renv_path_canonicalize(python)
   code <- "from platform import python_version; print(python_version())"
   args <- c("-c", shQuote(code))
   system2(python, args, stdout = TRUE, stderr = TRUE)
