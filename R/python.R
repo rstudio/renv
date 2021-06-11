@@ -271,30 +271,35 @@ renv_python_discover <- function() {
 
   for (root in roots) {
     versions <- sort(list.files(root, full.names = TRUE), decreasing = TRUE)
+    exts <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"
     pythons <- file.path(versions, "bin/python")
     all$push(pythons)
   }
 
   # find Homebrew python
-  homebrew <- renv_homebrew_root()
-  roots <- sort(list.files(
-    path       = file.path(homebrew, "opt"),
-    pattern    = "^python@[[:digit:]]+[.][[:digit:]]+$",
-    full.names = TRUE
-  ), decreasing = TRUE)
+  if (renv_platform_macos()) {
 
-  for (root in roots) {
-
-    # homebrew python doesn't install bin/python, so we need
-    # to be a little bit more clever here
-    exes <- list.files(
-      path = file.path(root, "bin"),
-      pattern = "^python[[:digit:]]+[.][[:digit:]]+$",
+    homebrew <- renv_homebrew_root()
+    roots <- sort(list.files(
+      path       = file.path(homebrew, "opt"),
+      pattern    = "^python@[[:digit:]]+[.][[:digit:]]+$",
       full.names = TRUE
-    )
+    ), decreasing = TRUE)
 
-    if (length(exes))
-      all$push(exes[[1L]])
+    for (root in roots) {
+
+      # homebrew python doesn't install bin/python, so we need
+      # to be a little bit more clever here
+      exes <- list.files(
+        path = file.path(root, "bin"),
+        pattern = "^python[[:digit:]]+[.][[:digit:]]+$",
+        full.names = TRUE
+      )
+
+      if (length(exes))
+        all$push(exes[[1L]])
+
+    }
 
   }
 
@@ -316,7 +321,7 @@ renv_python_discover <- function() {
 
     if (length(dirs)) {
       exes <- file.path(dirs, "python.exe")
-      pythons <- normalizePath(dirs, winslash = "/", mustWork = FALSE)
+      pythons <- normalizePath(exes, winslash = "/", mustWork = FALSE)
       all$push(pythons)
     }
 
@@ -327,8 +332,8 @@ renv_python_discover <- function() {
   splat <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1L]]
   for (entry in rev(splat)) {
     for (exe in c("python3", "python")) {
-      python <- file.path(entry, exe)
-      if (file.exists(python))
+      python <- Sys.which(file.path(entry, exe))
+      if (nzchar(python))
         all$push(python)
     }
   }
@@ -340,7 +345,14 @@ renv_python_discover <- function() {
   if (renv_platform_macos())
     pythons <- setdiff(pythons, "/usr/bin/python")
 
-  pythons[file.exists(pythons)]
+  # get list of pythons
+  pythons <- renv_path_canonicalize(pythons[file.exists(pythons)])
+
+  # don't include WindowsApps
+  if (renv_platform_windows())
+    pythons <- grep("/WindowsApps/", pythons, invert = TRUE, value = TRUE)
+
+  pythons
 
 }
 
