@@ -97,7 +97,8 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   python <- renv::use_python(python, type = "virtualenv")
 
   # install numpy
-  expect_true(renv_python_module_install(python, "numpy"))
+  expect_false(renv_python_module_available(python, "numpy"))
+  pip_install(python, "numpy")
   expect_true(renv_python_module_available(python, "numpy"))
 
   # snapshot changes
@@ -109,9 +110,8 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   expect_true("numpy" %in% names(reqs))
 
   # uninstall numpy
-  expect_true(renv_python_module_uninstall(python, "numpy"))
-
-  # can no longer load numpy
+  expect_true(renv_python_module_available(python, "numpy"))
+  pip_uninstall(python, "numpy")
   expect_false(renv_python_module_available(python, "numpy"))
 
   # try to restore

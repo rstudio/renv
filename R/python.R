@@ -389,24 +389,10 @@ renv_python_select <- function(candidates = NULL) {
 
 }
 
-renv_python_module_install <- function(python, module) {
-  python <- renv_path_canonicalize(python)
-  args <- c("-m", "pip", "install", "--upgrade", module)
-  status <- system2(python, args, stdout = FALSE, stderr = FALSE)
-  identical(status, 0L)
-}
-
 renv_python_module_available <- function(python, module) {
   python <- renv_path_canonicalize(python)
   command <- paste("import", module)
   args <- c("-c", shQuote(command))
-  status <- system2(python, args, stdout = FALSE, stderr = FALSE)
-  identical(status, 0L)
-}
-
-renv_python_module_uninstall <- function(python, module) {
-  python <- renv_path_canonicalize(python)
-  args <- c("-m", "pip", "uninstall", "--yes", module)
   status <- system2(python, args, stdout = FALSE, stderr = FALSE)
   identical(status, 0L)
 }

@@ -46,13 +46,7 @@ renv_python_virtualenv_create <- function(python, path) {
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
   args <- c("-m", module, shQuote(path.expand(path)))
-  output <- system2(python, args = args, stdout = TRUE, stderr = TRUE)
-
-  status <- attr(output, "status") %||% 0L
-  if (status != 0L || !file.exists(path)) {
-    msg <- c("failed to create virtual environment", output)
-    stop(paste(msg, collapse = "\n"), call. = FALSE)
-  }
+  renv_system_exec(python, args, "creating virtual environment")
 
   info <- renv_python_info(path)
   info$python
@@ -67,16 +61,11 @@ renv_python_virtualenv_update <- function(python, packages = NULL) {
 
   # resolve packages
   packages <- packages %||% c("pip", "setuptools", "wheel")
+  status <- catch(pip_install(python, packages))
+  if (inherits(status, "error"))
+    warning(status)
 
-  # run upgrade command
-  args <- c("-m", "pip", "install", "--upgrade", packages)
-  output <- system2(python, args = args, stdout = TRUE, stderr = TRUE)
-
-  status <- attr(output, "status") %||% 0L
-  if (status != 0L) {
-    msg <- c("failed to update python packages", output)
-    warning(paste(msg, collapse = "\n"), call. = FALSE)
-  }
+  TRUE
 
 }
 
@@ -90,10 +79,7 @@ renv_python_virtualenv_snapshot <- function(project, python) {
   if (file.exists(path))
     before <- readLines(path, warn = FALSE)
 
-  suffix <- "-m pip freeze 2> /dev/null"
-  command <- paste(shQuote(python), suffix)
-  after <- system(command, intern = TRUE)
-
+  after <- pip_freeze(python)
   if (setequal(before, after)) {
     vwritef("* '%s' is already up to date.", aliased_path(path))
     return(FALSE)
@@ -115,22 +101,14 @@ renv_python_virtualenv_restore <- function(project, python) {
   if (file.exists(path))
     before <- readLines(path, warn = FALSE)
 
-  suffix <- "-m pip freeze 2> /dev/null"
-  command <- paste(shQuote(python), suffix)
-  after <- system(command, intern = TRUE)
-
+  after <- pip_freeze(python)
   if (setequal(before, after)) {
     vwritef("* The Python library is already up to date.")
     return(FALSE)
   }
 
   diff <- renv_vector_diff(before, after)
-  file <- renv_tempfile_path("renv-requirements-", fileext = ".txt")
-  writeLines(diff, con = file)
-  suffix <- paste("-m pip install --upgrade -r", shQuote(file))
-  command <- paste(shQuote(python), suffix)
-  ignore <- renv_tests_running()
-  system(command, ignore.stdout = ignore, ignore.stderr = ignore)
+  pip_install_requirements(python, diff)
 
   vwritef("* Restored Python packages from '%s'.", aliased_path(path))
 
