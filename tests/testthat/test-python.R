@@ -96,10 +96,10 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   # initialize python
   python <- renv::use_python(python, type = "virtualenv")
 
-  # install numpy
-  expect_false(renv_python_module_available(python, "numpy"))
-  pip_install(python, "numpy")
-  expect_true(renv_python_module_available(python, "numpy"))
+  # install python-dotenv
+  expect_false(renv_python_module_available(python, "dotenv"))
+  pip_install(python, "python-dotenv")
+  expect_true(renv_python_module_available(python, "dotenv"))
 
   # snapshot changes
   renv::snapshot()
@@ -107,18 +107,18 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   # check requirements.txt for install
   expect_true(file.exists("requirements.txt"))
   reqs <- renv_properties_read("requirements.txt", delimiter = "==")
-  expect_true("numpy" %in% names(reqs))
+  expect_true("python-dotenv" %in% names(reqs))
 
-  # uninstall numpy
-  expect_true(renv_python_module_available(python, "numpy"))
-  pip_uninstall(python, "numpy")
-  expect_false(renv_python_module_available(python, "numpy"))
+  # uninstall python-dotenv
+  expect_true(renv_python_module_available(python, "dotenv"))
+  pip_uninstall(python, "python-dotenv")
+  expect_false(renv_python_module_available(python, "dotenv"))
 
   # try to restore
   renv::restore()
 
-  # check that we can load numpy now
-  expect_true(renv_python_module_available(python, "numpy"))
+  # check that we can load python-dotenv now
+  expect_true(renv_python_module_available(python, "dotenv"))
 
 })
 
@@ -129,6 +129,7 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
   skip_on_os("windows")
   skip_on_cran()
   skip_if_no_miniconda(python)
+  skip_if(renv_version_lt(renv_python_version(python), "3.6"))
 
   Sys.unsetenv("RENV_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON")

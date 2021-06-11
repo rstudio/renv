@@ -62,12 +62,12 @@ renv_python_virtualenv_update <- function(python) {
   # resolve packages
   packages <- c("pip", "setuptools", "wheel")
 
-  # don't upgrade pip for older versions of python, as we might end up
-  # installing a version of pip that isn't actually compatible with the
-  # version of python we're running. :(
+  # don't upgrade these packages for older versions of python, as we may
+  # end up installing versions of packages that aren't actually compatible
+  # with the version of python we're running
   version <- renv_python_version(python)
   if (renv_version_lt(version, "3.6"))
-    packages <- setdiff(packages, "pip")
+    return(TRUE)
 
   # perform the install
   # make errors non-fatal as the environment will still be functional even
