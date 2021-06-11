@@ -86,6 +86,20 @@ test_that("we can retrieve packages from git", {
 
 })
 
+test_that("we can retrieve packages with git dependencies", {
+  skip_on_cran()
+  skip_sometimes()
+
+  record <- list(
+    Package   = "renv.git1",
+    Source    = "git",
+    RemoteUrl = "https://github.com/kevinushey/renv.git1.git",
+    RemoteRef = "main"
+  )
+
+  renv_test_retrieve(record)
+})
+
 
 test_that("we can retrieve packages from GitHub", {
 
