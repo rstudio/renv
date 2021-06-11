@@ -17,14 +17,13 @@ skip_if_no_python <- function(python = NULL) {
 
 skip_if_no_virtualenv <- function(python = NULL) {
 
-  # TODO: need to check 'venv' for Python 3
   skip_if_no_python(python)
 
   key <- paste("tests", python, "virtualenv.installed", sep = ".")
   installed <- renv_global(key, {
-    command <- paste(shQuote(python), "-m virtualenv --version")
-    status <- system(command, ignore.stdout = TRUE, ignore.stderr = TRUE)
-    status == 0L
+    version <- renv_python_version(python)
+    module <- if (numeric_version(version) >= "3.2") "venv" else "virtualenv"
+    renv_python_module_available(python, module)
   })
 
   if (!installed)

@@ -7,11 +7,11 @@ renv_python_virtualenv_path <- function(name) {
 
   # if the name contains a slash, use it as-is
   if (grepl("/", name, fixed = TRUE))
-    return(name)
+    return(renv_path_canonicalize(name))
 
   # treat names starting with '.' specially
   if (substring(name, 1L, 1L) == ".")
-    return(name)
+    return(renv_path_canonicalize(name))
 
   # otherwise, resolve relative to virtualenv home
   home <- renv_python_virtualenv_home()
@@ -25,11 +25,13 @@ renv_python_virtualenv_validate <- function(path, version) {
   python <- renv_python_exe(path)
 
   # compare requested + actual versions
-  request <- version
-  current <- renv_python_version(python)
-  if (!renv_version_eq(request, current, 2L)) {
-    fmt <- "Project requested Python version '%s' but '%s' is currently being used"
-    warningf(fmt, request, current)
+  if (!is.null(version)) {
+    request <- version
+    current <- renv_python_version(python)
+    if (!renv_version_eq(request, current, 2L)) {
+      fmt <- "Project requested Python version '%s' but '%s' is currently being used"
+      warningf(fmt, request, current)
+    }
   }
 
   python
@@ -40,9 +42,9 @@ renv_python_virtualenv_create <- function(python, path) {
 
   ensure_parent_directory(path)
 
+  python <- renv_path_normalize(python)
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
-  python <- renv_path_normalize(python)
   args <- c("-m", module, shQuote(path.expand(path)))
   output <- system2(python, args = args, stdout = TRUE, stderr = TRUE)
 
@@ -52,7 +54,29 @@ renv_python_virtualenv_create <- function(python, path) {
     stop(paste(msg, collapse = "\n"), call. = FALSE)
   }
 
-  invisible(file.exists(path))
+  info <- renv_python_info(path)
+  info$python
+
+}
+
+renv_python_virtualenv_update <- function(python, packages = NULL) {
+
+  # resolve python executable path
+  python <- renv_python_exe(python)
+  python <- renv_path_normalize(python)
+
+  # resolve packages
+  packages <- packages %||% c("pip", "setuptools", "wheel")
+
+  # run upgrade command
+  args <- c("-m", "pip", "install", "--upgrade", packages)
+  output <- system2(python, args = args, stdout = TRUE, stderr = TRUE)
+
+  status <- attr(output, "status") %||% 0L
+  if (status != 0L) {
+    msg <- c("failed to update python packages", output)
+    warning(paste(msg, collapse = "\n"), call. = FALSE)
+  }
 
 }
 

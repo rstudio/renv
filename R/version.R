@@ -68,7 +68,17 @@ renv_version_match <- function(versions, request) {
 
 }
 
-renv_version_component <- function(version, n) {
+renv_version_components <- function(version, n) {
+
+  # split version into parts
   parts <- unclass(numeric_version(version))[[1L]]
-  if (n > length(parts)) 0L else parts[[n]]
+
+  # extend parts to size of n
+  diff <- max(n) - length(parts)
+  if (diff > 0)
+    parts <- c(parts, rep.int(0L, diff))
+
+  # retrieve components
+  parts[n]
+
 }

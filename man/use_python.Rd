@@ -18,9 +18,8 @@ use_python(
 
 \item{...}{Optional arguments; currently unused.}
 
-\item{type}{The type of Python environment to use. When \code{"auto"} (the default), a
-Python environment (virtual environments on Linux / macOS; conda
-environments on Windows) will be used.}
+\item{type}{The type of Python environment to use. When \code{"auto"} (the default),
+virtual environments will be used.}
 
 \item{name}{The name or path that should be used for the associated Python environment.
 If \code{NULL} and \code{python} points to a Python executable living within a
@@ -89,6 +88,30 @@ environment variable; if that is unset, \code{renv} will look for Python on the
 supplied for non-interactive usages of \code{use_python()}.
 }
 
+\section{Warning}{
+
+
+We strongly recommend using Python virtual environments, for a few reasons:
+\enumerate{
+\item If something goes wrong with a local virtual environment, you can safely
+delete that virtual environment, and then re-initialize it later, without
+worry that doing so might impact other software on your system.
+\item If you choose to use a "system" installation of Python, then any packages
+you install or upgrade will be visible to any other application that
+wants to use that same Python installation. Using a virtual environment
+ensures that any changes made are isolated to that environment only.
+\item Choosing to use Anaconda will likely invite extra frustration in the
+future, as you may be required to upgrade and manage your Anaconda
+installation as new versions of Anaconda are released. In addition,
+Anaconda installations tend to work poorly with software not specifically
+installed as part of that same Anaconda installation.
+}
+
+In other words, we recommend selecting "system" or "conda" only if you are an
+expert Python user who is already accustomed to managing Python / Anaconda
+installations on your own.
+}
+
 \examples{
 \dontrun{
 
@@ -98,6 +121,9 @@ renv::use_python()
 # use python with a project; create the environment
 # within the project directory in the '.venv' folder
 renv::use_python(name = ".venv")
+
+# use python with a pre-existing virtual environment located elsewhere
+renv::use_python(name = "~/.virtualenvs/env")
 
 # use virtualenv python with a project
 renv::use_python(type = "virtualenv")

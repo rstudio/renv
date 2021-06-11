@@ -49,10 +49,8 @@ load <- function(project = getwd(), quiet = FALSE) {
   renv_envvars_save()
 
   # load a minimal amount of state when testing
-  if (renv_tests_running()) {
-    renv_load_libpaths(project)
-    return(invisible(project))
-  }
+  if (renv_tests_running())
+    return(renv_load_minimal(project))
 
   # load rest of renv components
   renv_load_init(project)
@@ -83,6 +81,18 @@ load <- function(project = getwd(), quiet = FALSE) {
   renv_load_finish(project, lockfile)
 
   invisible(project)
+}
+
+renv_load_minimal <- function(project) {
+
+  renv_load_libpaths(project)
+
+  lockfile <- renv_lockfile_load(project)
+  if (length(lockfile))
+    renv_load_python(project, lockfile$Python)
+
+  invisible(project)
+
 }
 
 renv_load_r <- function(project, fields) {
@@ -341,22 +351,32 @@ renv_load_python_impl <- function(project, fields) {
   if (is.null(type))
     return(NULL)
 
-  switch(type,
+  python <- switch(type,
     system     = renv_load_python_default(project, fields),
     virtualenv = renv_load_python_virtualenv(project, fields),
     conda      = renv_load_python_condaenv(project, fields),
     stopf("unrecognized Python type '%s'", type)
   )
 
+  renv_path_canonicalize(python)
+
 }
 
 renv_load_python_default <- function(project, fields) {
+
+  # if 'Name' points to a valid copy of Python, use it
+  name <- fields$Name
+  if (!is.null(name) && file.exists(name))
+    return(name)
+
+  # otherwise, try to find a compatible version of Python
   renv_python_find(fields$Version)
+
 }
 
 renv_load_python_virtualenv <- function(project, fields) {
 
-  renv_use_python_virtualenv(
+  renv_use_python_virtualenv_impl(
     project = project,
     name    = fields[["Name"]]    %NA% NULL,
     version = fields[["Version"]] %NA% NULL,
@@ -367,7 +387,7 @@ renv_load_python_virtualenv <- function(project, fields) {
 
 renv_load_python_condaenv <- function(project, fields) {
 
-  renv_use_python_condaenv(
+  renv_use_python_condaenv_impl(
     project = project,
     name    = fields[["Name"]]    %NA% NULL,
     version = fields[["Version"]] %NA% NULL,

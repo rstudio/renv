@@ -4,11 +4,11 @@ renv_python_resolve <- function(python = NULL) {
   # if Python was explicitly supplied, use it
   if (!is.null(python)) {
 
-    python <- Sys.which(path.expand(python))
-    if (nzchar(python))
-      return(python)
+    resolved <- Sys.which(renv_path_canonicalize(python))
+    if (nzchar(resolved))
+      return(resolved)
 
-    stopf("requested python '%s' is not available", python)
+    stopf("'%s' does not refer to a valid python interpreter", python)
 
   }
 
@@ -91,12 +91,12 @@ renv_python_exe <- function(path) {
   # if this already looks like a Python executable, use it directly
   info <- file.info(path, extra_cols = FALSE)
   if (identical(info$isdir, FALSE) && startswith(basename(path), "python"))
-    return(path.expand(path))
+    return(renv_path_canonicalize(path))
 
   # otherwise, attempt to infer the Python executable type
   info <- renv_python_info(path)
   if (!is.null(info$python))
-    return(path.expand(info$python))
+    return(renv_path_canonicalize(info$python))
 
   fmt <- "failed to find Python executable associated with path %s"
   stopf(fmt, renv_path_pretty(path))
@@ -117,7 +117,7 @@ renv_python_version_impl <- function(python) {
 
 renv_python_info <- function(python) {
 
-  renv_file_find(python, function(path) {
+  found <- renv_file_find(python, function(path) {
 
     # check for virtual environment files
     virtualenv <-
@@ -143,6 +143,12 @@ renv_python_info <- function(python) {
     }
 
   })
+
+  if (!is.null(found))
+    return(found)
+
+  if (file.exists(python))
+    list(python = python, type = "system", root = python)
 
 }
 
@@ -188,19 +194,29 @@ renv_python_restore <- function(project) {
 
 renv_python_restore_impl <- function(python, type, project) {
 
-  switch(type,
-    virtualenv = renv_python_virtualenv_restore(project, python),
-    conda      = renv_python_conda_restore(project, python)
+  case(
+    type == "virtualenv" ~ renv_python_virtualenv_restore(project, python),
+    type == "conda"      ~ renv_python_conda_restore(project, python)
   )
 
 }
 
-renv_python_envpath <- function(project, type, version) {
+renv_python_envpath_virtualenv <- function(version) {
+  majmin <- paste(renv_version_components(version, 1:2), collapse = ".")
+  fmt <- "renv/python/virtualenvs/renv-python-%s"
+  sprintf(fmt, majmin)
+}
 
-  suffix <- switch(type,
-    virtualenv = sprintf("renv/python/virtualenvs/renv-python-%s", version),
-    conda      = "renv/python/condaenvs/renv-python",
-    stopf("unrecognized environment type '%s'", type)
+renv_python_envpath_condaenv <- function(version) {
+  "renv/python/condaenvs/renv-python"
+}
+
+renv_python_envpath <- function(project, type, version = NULL) {
+
+  suffix <- case(
+    type == "virtualenv" ~ renv_python_envpath_virtualenv(version),
+    type == "conda"      ~ renv_python_envpath_condaenv(version),
+    ~ stopf("internal error: unrecognized environment type '%s'", type)
   )
 
   components <- c(project, renv_profile_prefix(), suffix)
@@ -359,4 +375,26 @@ renv_python_select <- function(candidates = NULL) {
 
   return(path.expand(selection))
 
+}
+
+renv_python_module_install <- function(python, module) {
+  python <- renv_path_canonicalize(python)
+  args <- c("-m", "pip", "install", "--upgrade", module)
+  status <- system2(python, args, stdout = FALSE, stderr = FALSE)
+  identical(status, 0L)
+}
+
+renv_python_module_available <- function(python, module) {
+  python <- renv_path_canonicalize(python)
+  command <- paste("import", module)
+  args <- c("-c", shQuote(command))
+  status <- system2(python, args, stdout = FALSE, stderr = FALSE)
+  identical(status, 0L)
+}
+
+renv_python_module_uninstall <- function(python, module) {
+  python <- renv_path_canonicalize(python)
+  args <- c("-m", "pip", "uninstall", "--yes", module)
+  status <- system2(python, args, stdout = FALSE, stderr = FALSE)
+  identical(status, 0L)
 }

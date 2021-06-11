@@ -54,6 +54,7 @@ test_that("users can request specific versions of R for lockfile", {
 
   renv_tests_scope()
   renv_scope_options(renv.settings.r.version = "4.0")
+
   init()
 
   lockfile <- renv_lockfile_load(getwd())

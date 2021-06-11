@@ -712,5 +712,10 @@
       "Repository": "CRAN",
       "Hash": "3bc8405c637d988801ec5ea88372d0c2"
     }
+  },
+  "Python": {
+    "Version": "3.7.9",
+    "Type": "virtualenv",
+    "Name": "3.7.9"
   }
 }

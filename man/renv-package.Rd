@@ -27,7 +27,7 @@ Useful links:
 
 Other contributors:
 \itemize{
-  \item RStudio [copyright holder]
+  \item RStudio, PBC [copyright holder]
 }
 
 }
