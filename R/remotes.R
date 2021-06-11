@@ -519,32 +519,46 @@ renv_remotes_resolve_git <- function(parsed) {
 
 renv_remotes_resolve_git_sha_ref <- function(record) {
   renv_git_preflight()
-  template <- c(
-    "git ls-remote \"${ORIGIN}\" \"${REF}\" | head -1 | sed 's/\t.*//'"
-  )
 
   data <- list(
     ORIGIN = record$RemoteUrl,
     REF    = record$RemoteRef %||% record$RemoteSha
   )
 
-  commands <- renv_template_replace(template, data)
-  command <- paste(commands, collapse = " && ")
-  if (renv_platform_windows())
-    command <- paste(comspec(), "/C", command)
+  cmd_base <- "git"
+  cmd_args <- c("ls-remote", data$ORIGIN, data$REF)
 
-  sha <- local({
+  # output looks like:
+  # SHA1 (tab) refs/path/to/ref_name
+
+  ref_list <- local({
     renv_scope_auth(record)
     renv_scope_git_auth()
-    system(command, intern = TRUE)
+    system2(cmd_base, args = cmd_args, stdout = TRUE)
   })
 
-  command_failed <- attr(sha, "status") %||% 0
+  command_failed <- attr(ref_list, "status") %||% 0
 
   if (command_failed != 0L) {
     fmt <- "Checking %s for changes: `'%s'` failed  [status code %i]"
-    stopf(fmt, record$Package, command, status)
+    stopf(
+      fmt,
+      record$Package,
+      paste0(c(cmd_base, cmd_args), collapse = " "),
+      status
+      )
   }
+
+  if (is.empty(ref_list)) return("")
+
+  # split each line
+  # gets a list of character vectors,
+  # list(
+  #   c("sha1", "refname1"),
+  #   c("sha2", "refname2)
+  #  )
+  # get first sha of first line
+  sha <- ref_list  %>% strsplit("\t") %>% .[[1]][1]
 
   return(sha)
 }
