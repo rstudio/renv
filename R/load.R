@@ -318,13 +318,25 @@ renv_load_python <- function(project, fields) {
   if (is.null(python))
     return(FALSE)
 
+  # set environment variables
+  # - RENV_PYTHON is the version of Python renv was configured to use
+  # - RETICULATE_PYTHON used to configure version of Python used by reticulate
   Sys.setenv(
     RENV_PYTHON       = python,
     RETICULATE_PYTHON = python
   )
 
+  # place python + relevant utilities on the PATH
   bindir <- normalizePath(dirname(python), mustWork = FALSE)
   renv_envvar_prepend("PATH", bindir)
+
+  # on Windows, for conda environments, we may also have a Scripts directory
+  # which will need to be pre-pended to the PATH
+  if (renv_platform_windows()) {
+    scriptsdir <- file.path(bindir, "Scripts")
+    if (file.exists(scriptsdir))
+      renv_envvar_prepend("PATH", scriptsdir)
+  }
 
   TRUE
 
