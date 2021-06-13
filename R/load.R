@@ -338,6 +338,21 @@ renv_load_python <- function(project, fields) {
       renv_envvar_prepend("PATH", scriptsdir)
   }
 
+  # for conda environments, we should try to find conda and place the conda
+  # executable on the PATH, in case users want to use conda e.g. from
+  # the terminal or even via R system calls
+  #
+  # we'll also need to set some environment variables to ensure that conda
+  # uses this environment by default
+  info <- renv_python_info(python)
+  if (identical(info$type, "conda")) {
+    conda <- renv_conda_find(python)
+    if (file.exists(conda)) {
+      renv_envvar_prepend("PATH", dirname(conda))
+      Sys.setenv(CONDA_PREFIX = info$root)
+    }
+  }
+
   TRUE
 
 }
