@@ -627,6 +627,10 @@ renv_dependencies_discover_chunks <- function(path) {
   if (type %in% c("rmd", "rmarkdown"))
     type <- "md"
 
+  # support .qmd extensions
+  if (type %in% "qmd")
+    type <- "rmd"
+
   patterns <- knitr::all_patterns[[type]]
   if (is.null(patterns)) {
     condition <- simpleCondition("not a recognized multi-mode R document")
