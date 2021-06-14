@@ -58,6 +58,9 @@ test_that("update() can upgrade Git packages", {
   skip_if(getRversion() < "3.5.3")
   skip_sometimes()
 
+  # # this test appears to fail on CI (ssh clone from GitHub disallowed?)
+  testthat::skip_on_ci()
+
   renv_tests_scope()
   renv::init()
 

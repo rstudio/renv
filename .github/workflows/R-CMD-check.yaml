@@ -80,13 +80,13 @@ jobs:
           sudo apt-get install -y software-properties-common
           sudo add-apt-repository -y ppa:cran/libgit2
           sudo apt-get update
+          sudo apt-get install -y make
           sudo apt-get install -y git
           sudo apt-get install -y libcurl4-openssl-dev
           sudo apt-get install -y libgit2-dev
           sudo apt-get install -y libicu-dev
           sudo apt-get install -y libssl-dev
           sudo apt-get install -y libxml2-dev
-          sudo apt-get install -y make
           sudo apt-get install -y python3
           sudo apt-get install -y python3-pip
           sudo apt-get install -y python3-venv
@@ -95,6 +95,7 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: |
+          brew install git
           brew install libgit2
 
       - name: Install renv
