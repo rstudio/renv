@@ -1,6 +1,8 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` now has improved handling for `git` remotes. (#776; @matthewstrasiotto)
+
 * `renv::restore()` gains the `exclude` argument, used to exclude a subset of
   packages during restore. (#746)
   
