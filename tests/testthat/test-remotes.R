@@ -59,9 +59,27 @@ test_that("we can parse a variety of remotes", {
   expect_equal(record$RemoteRef, "master")
   expect_equal(record$RemoteSha, "958296dbbbf7f1d82f7f5dd1b121c7558604809f")
 
+  # git - https
+  record <- renv_remotes_resolve("git::https://github.com/kevinushey/renv.git1.git@main")
+  expect_equal(record$Package, "renv.git1")
+  expect_equal(record$Version, "0.0.0.9000")
+  expect_equal(record$RemoteUrl, "https://github.com/kevinushey/renv.git1.git")
+  expect_equal(record$RemoteRef, "main")
+
+  # git - ssh
+  record <- renv_remotes_resolve("git::git@github.com:kevinushey/renv.git1.git@main")
+  expect_equal(record$Package, "renv.git1")
+  expect_equal(record$Version, "0.0.0.9000")
+  expect_equal(record$RemoteUrl, "https:git@github.com:kevinushey/renv.git1.git")
+  expect_equal(record$RemoteRef, "main")
+
   # error
   expect_error(renv_remotes_resolve("can't parse this"))
 
+})
+
+test_that("git remotes with subdirectories &/or pull requests can be resolved!", {
+  skip("Need to make test repos")
 })
 
 test_that("subdirectories are parsed in remotes", {

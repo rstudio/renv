@@ -37,6 +37,41 @@ renv_update_find_repos_impl <- function(record) {
 
 }
 
+renv_update_find_git <- function(records) {
+  renv_parallel_exec(records, renv_update_find_git_impl)
+}
+
+renv_update_find_git_impl <- function(record) {
+
+  sha <- renv_remotes_resolve_git_sha_ref(record)
+
+  # if sha is empty:
+  # `git remote-ls origin ref` expects ref to be a reference, not a sha
+  # it is empty if ref isn't a reference on the repo
+  # this may be due to record$RemoteRef actually being a sha
+  # or it may be because record$RemoteRef is not a real ref
+  # but we can't check, so we will try to fetch the ref & see what we get
+
+  prev_sha <- record$RemoteSha %||% ""
+
+  if (nzchar(prev_sha)) {
+    if (prev_sha == sha) return(NULL)
+  }
+
+  current <- record
+  current$RemoteSha <- sha
+
+  desc <- renv_remotes_resolve_git_description(current)
+
+  current$Version <- desc$Version
+  current$Package <- desc$Package
+
+  updated <-
+    numeric_version(current$Version) >= numeric_version(record$Version)
+
+  if (updated) return(current)
+}
+
 renv_update_find_github <- function(records) {
 
   # check for GITHUB_PAT
@@ -120,7 +155,8 @@ renv_update_find <- function(records) {
     case(
       source == "Bioconductor" ~ renv_update_find_repos(records),
       source == "Repository"   ~ renv_update_find_repos(records),
-      source == "GitHub"       ~ renv_update_find_github(records)
+      source == "GitHub"       ~ renv_update_find_github(records),
+      source == "Git"          ~ renv_update_find_git(records)
     )
   })
 
