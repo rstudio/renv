@@ -70,7 +70,7 @@ test_that("we can parse a variety of remotes", {
   record <- renv_remotes_resolve("git::git@github.com:kevinushey/renv.git1.git@main")
   expect_equal(record$Package, "renv.git1")
   expect_equal(record$Version, "0.0.0.9000")
-  expect_equal(record$RemoteUrl, "https:git@github.com:kevinushey/renv.git1.git")
+  expect_equal(record$RemoteUrl, "git@github.com:kevinushey/renv.git1.git")
   expect_equal(record$RemoteRef, "main")
 
   # error

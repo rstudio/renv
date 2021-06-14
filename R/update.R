@@ -51,12 +51,9 @@ renv_update_find_git_impl <- function(record) {
   # this may be due to record$RemoteRef actually being a sha
   # or it may be because record$RemoteRef is not a real ref
   # but we can't check, so we will try to fetch the ref & see what we get
-
-  prev_sha <- record$RemoteSha %||% ""
-
-  if (nzchar(prev_sha)) {
-    if (prev_sha == sha) return(NULL)
-  }
+  oldsha <- record$RemoteSha %||% ""
+  if (nzchar(oldsha) && identical(sha, oldsha))
+    return(NULL)
 
   current <- record
   current$RemoteSha <- sha
@@ -66,10 +63,10 @@ renv_update_find_git_impl <- function(record) {
   current$Version <- desc$Version
   current$Package <- desc$Package
 
-  updated <-
-    numeric_version(current$Version) >= numeric_version(record$Version)
+  updated <- renv_version_ge(current$Version, record$Version)
+  if (updated)
+    return(current)
 
-  if (updated) return(current)
 }
 
 renv_update_find_github <- function(records) {

@@ -2,8 +2,8 @@
 renv_version_compare <- function(lhs, rhs, n = NULL) {
 
   # retrieve versions as integer vector
-  lhs <- unclass(numeric_version(lhs))[[1L]]
-  rhs <- unclass(numeric_version(rhs))[[1L]]
+  lhs <- unlist(unclass(numeric_version(lhs)))
+  rhs <- unlist(unclass(numeric_version(rhs)))
 
   # compute number of components to compare
   n <- n %||% max(length(lhs), length(rhs))
