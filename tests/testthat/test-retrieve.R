@@ -90,6 +90,9 @@ test_that("we can retrieve packages with git dependencies", {
   skip_on_cran()
   skip_sometimes()
 
+  # GitHub doesn't like ssh (used as remote field in renv.git1)
+  skip_on_ci()
+
   record <- list(
     Package   = "renv.git1",
     Source    = "git",
