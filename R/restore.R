@@ -142,7 +142,7 @@ restore <- function(project  = NULL,
   if (!length(diff)) {
     name <- if (!missing(library)) "library" else "project"
     vwritef("* The %s is already synchronized with the lockfile.", name)
-    return(renv_restore_successful(diff, project))
+    return(renv_restore_successful(diff, prompt, project))
   }
 
   if (!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt)) {
@@ -160,7 +160,7 @@ restore <- function(project  = NULL,
 
   # perform the restore
   records <- renv_restore_run_actions(project, diff, current, lockfile, rebuild)
-  renv_restore_successful(records, project)
+  renv_restore_successful(records, prompt, project)
 }
 
 renv_restore_run_actions <- function(project, actions, current, lockfile, rebuild) {
@@ -366,7 +366,7 @@ renv_restore_rebuild_required <- function(record) {
   any(c(NA_character_, record$Package) %in% state$rebuild)
 }
 
-renv_restore_successful <- function(records, project) {
-  renv_python_restore(project)
+renv_restore_successful <- function(records, prompt, project) {
+  renv_python_restore(project, prompt)
   invisible(records)
 }

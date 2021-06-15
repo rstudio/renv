@@ -154,7 +154,7 @@ snapshot <- function(project  = NULL,
     diff <- renv_lockfile_diff(old, alt)
     if (empty(diff)) {
       vwritef("* The lockfile is already up to date.")
-      return(renv_snapshot_successful(alt, project))
+      return(renv_snapshot_successful(alt, prompt, project))
     }
 
   }
@@ -201,7 +201,7 @@ snapshot <- function(project  = NULL,
   renv_infrastructure_write_activate(project, create = FALSE)
 
   # return new records
-  renv_snapshot_successful(new, project)
+  renv_snapshot_successful(new, prompt, project)
 }
 
 renv_snapshot_preserve <- function(old, new) {
@@ -942,10 +942,10 @@ renv_snapshot_reprex <- function(lockfile) {
 
 }
 
-renv_snapshot_successful <- function(records, project) {
+renv_snapshot_successful <- function(records, prompt, project) {
 
   # perform python snapshot on success
-  renv_python_snapshot(project)
+  renv_python_snapshot(project, prompt)
 
   # return generated records
   invisible(records)

@@ -78,6 +78,7 @@ locations when attempting to find Python installations on the system:
 \item \verb{/opt/local/python},
 \item \verb{~/opt/python},
 \item \verb{/usr/local/opt} (for macOS Homebrew-installed copies of Python),
+\item \verb{/opt/homebrew/opt} (for M1 macOS Homebrew-installed copies of Python),
 \item \verb{~/.pyenv/versions},
 \item Python instances available on the \code{PATH}.
 }

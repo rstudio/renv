@@ -72,7 +72,7 @@ renv_python_virtualenv_update <- function(python) {
   # perform the install
   # make errors non-fatal as the environment will still be functional even
   # if we're not able to install or update these packages
-  status <- catch(pip_install(python, packages))
+  status <- catch(pip_install(packages, python = python))
   if (inherits(status, "error"))
     warning(status)
 
@@ -80,7 +80,7 @@ renv_python_virtualenv_update <- function(python) {
 
 }
 
-renv_python_virtualenv_snapshot <- function(project, python) {
+renv_python_virtualenv_snapshot <- function(project, prompt, python) {
 
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
@@ -90,37 +90,60 @@ renv_python_virtualenv_snapshot <- function(project, python) {
   if (file.exists(path))
     before <- readLines(path, warn = FALSE)
 
-  after <- pip_freeze(python)
+  after <- pip_freeze(python = python)
   if (setequal(before, after)) {
-    vwritef("* '%s' is already up to date.", aliased_path(path))
+    vwritef("* Python requirements are already up to date.")
+    return(FALSE)
+  }
+
+  renv_pretty_print(
+    values   = after,
+    preamble = "The following will be written to requirements.txt:",
+    wrap     = FALSE
+  )
+
+  if (prompt && !proceed()) {
+    renv_report_user_cancel()
     return(FALSE)
   }
 
   writeLines(after, con = path)
-  vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
+
+  fmt <- "* Wrote Python packages to %s."
+  vwritef(fmt, renv_path_pretty(path))
   return(TRUE)
 
 }
 
-renv_python_virtualenv_restore <- function(project, python) {
+renv_python_virtualenv_restore <- function(project, prompt, python) {
 
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
   path <- file.path(project, "requirements.txt")
-  before <- character()
-  if (file.exists(path))
-    before <- readLines(path, warn = FALSE)
+  if (!file.exists(path))
+    return(FALSE)
 
-  after <- pip_freeze(python)
-  if (setequal(before, after)) {
+  before <- readLines(path, warn = FALSE)
+  after <- pip_freeze(python = python)
+  diff <- renv_vector_diff(before, after)
+  if (empty(diff)) {
     vwritef("* The Python library is already up to date.")
     return(FALSE)
   }
 
-  diff <- renv_vector_diff(before, after)
-  pip_install_requirements(python, diff)
+  renv_pretty_print(
+    values   = diff,
+    preamble = "The following Python packages will be restored:",
+    wrap     = FALSE
+  )
 
-  vwritef("* Restored Python packages from '%s'.", aliased_path(path))
+  if (prompt && !proceed()) {
+    renv_report_user_cancel()
+    return(FALSE)
+  }
+
+  pip_install_requirements(diff, python = python, stream = TRUE)
+  TRUE
 
 }

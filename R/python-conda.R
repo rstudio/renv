@@ -23,7 +23,8 @@ renv_python_conda_select <- function(name, version = NULL) {
 
 }
 
-renv_python_conda_snapshot <- function(project, python) {
+# TODO: support prompt
+renv_python_conda_snapshot <- function(project, prompt, python) {
 
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
@@ -46,7 +47,8 @@ renv_python_conda_snapshot <- function(project, python) {
   return(TRUE)
 }
 
-renv_python_conda_restore <- function(project, python) {
+# TODO: support prompt
+renv_python_conda_restore <- function(project, prompt, python) {
 
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)

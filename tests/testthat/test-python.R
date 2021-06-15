@@ -98,7 +98,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
   # install python-dotenv
   expect_false(renv_python_module_available(python, "dotenv"))
-  pip_install(python, "python-dotenv")
+  pip_install("python-dotenv", python = python)
   expect_true(renv_python_module_available(python, "dotenv"))
 
   # snapshot changes
@@ -111,7 +111,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
   # uninstall python-dotenv
   expect_true(renv_python_module_available(python, "dotenv"))
-  pip_uninstall(python, "python-dotenv")
+  pip_uninstall("python-dotenv", python = python)
   expect_false(renv_python_module_available(python, "dotenv"))
 
   # try to restore

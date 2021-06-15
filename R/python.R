@@ -112,7 +112,8 @@ renv_python_version_impl <- function(python) {
   python <- renv_path_canonicalize(python)
   code <- "from platform import python_version; print(python_version())"
   args <- c("-c", shQuote(code))
-  system2(python, args, stdout = TRUE, stderr = TRUE)
+  action <- "reading Python version"
+  renv_system_exec(python, args, action)
 }
 
 renv_python_info <- function(python) {
@@ -157,7 +158,7 @@ renv_python_type <- function(python) {
   info$type
 }
 
-renv_python_action <- function(action, project) {
+renv_python_action <- function(action, prompt, project) {
 
   python <- Sys.getenv("RENV_PYTHON", unset = NA)
   if (is.na(python) || !file.exists(python))
@@ -170,39 +171,46 @@ renv_python_action <- function(action, project) {
   if (type == "conda" && !requireNamespace("reticulate", quietly = TRUE))
     return(NULL)
 
-  action(python, type, project)
+  action(python, type, prompt, project)
 
 }
 
-renv_python_snapshot <- function(project) {
-  renv_python_action(renv_python_snapshot_impl, project = project)
+renv_python_snapshot <- function(project, prompt) {
+  renv_python_action(
+    renv_python_snapshot_impl,
+    prompt  = prompt,
+    project = project
+  )
 }
 
-renv_python_snapshot_impl <- function(python, type, project) {
+renv_python_snapshot_impl <- function(python, type, prompt, project) {
 
   switch(type,
-    system     = renv_python_virtualenv_snapshot(project, python),
-    virtualenv = renv_python_virtualenv_snapshot(project, python),
-    conda      = renv_python_conda_snapshot(project, python)
+    virtualenv = renv_python_virtualenv_snapshot(project, prompt, python),
+    conda      = renv_python_conda_snapshot(project, prompt, python)
   )
 
 }
 
-renv_python_restore <- function(project) {
-  renv_python_action(renv_python_restore_impl, project = project)
+renv_python_restore <- function(project, prompt) {
+  renv_python_action(
+    renv_python_restore_impl,
+    prompt  = prompt,
+    project = project
+  )
 }
 
-renv_python_restore_impl <- function(python, type, project) {
+renv_python_restore_impl <- function(python, type, prompt, project) {
 
   case(
-    type == "virtualenv" ~ renv_python_virtualenv_restore(project, python),
-    type == "conda"      ~ renv_python_conda_restore(project, python)
+    type == "virtualenv" ~ renv_python_virtualenv_restore(project, prompt, python),
+    type == "conda"      ~ renv_python_conda_restore(project, prompt, python)
   )
 
 }
 
 renv_python_envpath_virtualenv <- function(version) {
-  majmin <- paste(renv_version_components(version, 1:2), collapse = ".")
+  majmin <- paste(renv_version_components(version, 1L:2L), collapse = ".")
   fmt <- "renv/python/virtualenvs/renv-python-%s"
   sprintf(fmt, majmin)
 }
@@ -395,4 +403,27 @@ renv_python_module_available <- function(python, module) {
   args <- c("-c", shQuote(command))
   status <- system2(python, args, stdout = FALSE, stderr = FALSE)
   identical(status, 0L)
+}
+
+renv_python_active <- function() {
+
+  python <- Sys.getenv("RENV_PYTHON", unset = NA)
+  if (is.na(python))
+    stop("internal error: RENV_PYTHON is not set")
+
+  renv_python_validate(python)
+
+}
+
+renv_python_validate <- function(python) {
+
+  if (!file.exists(python)) {
+    fmt <- "%s does not exist"
+    stopf(fmt, renv_path_pretty(python))
+  }
+
+  version <- renv_python_version(python)
+
+  invisible(python)
+
 }

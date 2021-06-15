@@ -366,7 +366,7 @@ renv_use_python_virtualenv_impl <- function(project,
   vpython <- renv_python_virtualenv_create(python, path)
   vwritef("Done!")
 
-  vprintf("* Updating Python packages ...")
+  vprintf("* Updating Python packages ... ")
   renv_python_virtualenv_update(vpython)
   vwritef("Done!")
 

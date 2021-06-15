@@ -3,11 +3,32 @@ renv_system_exec <- function(command,
                              args,
                              action,
                              success = 0L,
-                             quiet = FALSE)
+                             stream  = FALSE,
+                             quiet   = FALSE)
 {
-  # suppress warnings as some successful commands
-  # may return a non-zero exit code, whereas R
-  # will always warn on such error codes
+  # handle 'stream' specially
+  if (stream) {
+
+    # execute command
+    stdout <- stderr <- if (quiet) FALSE else ""
+    status <- suppressWarnings(
+      system2(command, args, stdout = stdout, stderr = stderr)
+    )
+
+    # check for error
+    status <- status %||% 0L
+    if (!status %in% success) {
+      fmt <- "error %s [error code %i]"
+      stopf(fmt, action, status)
+    }
+
+    # return status code
+    return(status)
+
+  }
+
+  # suppress warnings as some successful commands may return a non-zero exit
+  # code, whereas R will always warn on such error codes
   output <- suppressWarnings(
     system2(command, args, stdout = TRUE, stderr = TRUE)
   )
