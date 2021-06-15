@@ -352,7 +352,7 @@ renv_python_discover <- function() {
   if (renv_platform_windows())
     pythons <- grep("/WindowsApps/", pythons, invert = TRUE, value = TRUE)
 
-  pythons
+  unique(pythons)
 
 }
 
