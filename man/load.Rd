@@ -31,6 +31,10 @@ launched from the root of an \code{renv} project directory to automatically load
 that project, without requiring explicit action from the user. However, if
 preferred or necessary, one can call \code{renv::load("<project>")} to explicitly
 load an \code{renv} project located at a particular path.
+
+Use \code{\link[=activate]{activate()}} to activate (or re-activate) an \code{renv} project, so
+that newly-launched \R sessions can automatically load the associated
+project.
 }
 \examples{
 \dontrun{

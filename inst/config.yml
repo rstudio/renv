@@ -1,4 +1,13 @@
 
+- name: "activate.prompt"
+  type: "logical[1]"
+  default: true
+  description: >
+    Automatically prompt the user to activate the current project, if it does
+    not appear to already be activated? This is mainly useful to help ensure
+    that calls to `renv::snapshot()` and `renv::restore()` use the project
+    library. See `?renv::activate` for more details.
+
 - name: "auto.snapshot"
   type: "logical[1]"
   default: false

@@ -14,6 +14,10 @@
 #' preferred or necessary, one can call `renv::load("<project>")` to explicitly
 #' load an `renv` project located at a particular path.
 #'
+#' Use [renv::activate()] to activate (or re-activate) an `renv` project, so
+#' that newly-launched \R sessions can automatically load the associated
+#' project.
+#'
 #' @inherit renv-params
 #'
 #' @param quiet Boolean; be quiet during load?

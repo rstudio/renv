@@ -5,7 +5,7 @@
 \alias{config}
 \title{User-Level Configuration of renv}
 \format{
-An object of class \code{list} of length 31.
+An object of class \code{list} of length 32.
 }
 \usage{
 config
@@ -47,6 +47,8 @@ recommended that you set them in your user startup files (e.g. in
 The following \code{renv} configuration options are available:
 
 \describe{
+\item{\bold{\code{renv.config.activate.prompt}}}{Automatically prompt the user to activate the current project, if it does not appear to already be activated? This is mainly useful to help ensure that calls to \code{renv::snapshot()} and \code{renv::restore()} use the project library. See \code{?renv::activate} for more details.
+Defaults to \code{TRUE}.}
 \item{\bold{\code{renv.config.auto.snapshot}}}{Automatically snapshot changes to the project library after a new package is installed?
 Defaults to \code{FALSE}.}
 \item{\bold{\code{renv.config.bitbucket.host}}}{The default Bitbucket host to be used during package retrieval.

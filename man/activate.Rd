@@ -20,9 +20,24 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Use \code{activate()} to write the infrastructure needed to ensure that
-newly-launched \R projects will load the project's private library on launch,
-alongside any other project-specific state recorded for the project.
+Activate a project, thereby loading it in the current session and also
+writing the infrastructure necessary to ensure the project is auto-loaded
+for newly-launched \R sessions.
+}
+\details{
+Using \code{activate()} will:
+\enumerate{
+\item Load the requested project via \code{\link[=load]{load()}},
+\item Add \code{source("renv/init.R")} to the project \code{.Rprofile}, thereby
+instructing newly-launched \R sessions to automatically load the
+current project.
+}
+
+Normally, \code{activate()} is called as part of \code{\link[=init]{init()}} when a project
+is first initialized. However, \code{activate()} can be used to activate
+(or re-activate) an \code{renv} project -- for example, if the project was shared
+without the auto-loader included in the project \code{.Rprofile}, or because
+that project was previously deactivated (via \code{\link[=deactivate]{deactivate()}}).
 }
 \examples{
 \dontrun{

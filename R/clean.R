@@ -78,6 +78,8 @@ clean <- function(project = NULL,
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
+  renv_activate_prompt("clean", NULL, prompt, project)
+
   renv_dependencies_scope(project, action = "clean")
 
   actions <- actions %||% renv_clean_actions(prompt)

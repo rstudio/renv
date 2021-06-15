@@ -115,6 +115,8 @@ snapshot <- function(project  = NULL,
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
+  renv_activate_prompt("snapshot", library, prompt, project)
+
   libpaths <- library %||% renv_libpaths_all()
   if (config$snapshot.validate())
     renv_snapshot_preflight(project, libpaths)

@@ -1,9 +1,23 @@
 
 #' Activate a Project
 #'
-#' Use `activate()` to write the infrastructure needed to ensure that
-#' newly-launched \R projects will load the project's private library on launch,
-#' alongside any other project-specific state recorded for the project.
+#' Activate a project, thereby loading it in the current session and also
+#' writing the infrastructure necessary to ensure the project is auto-loaded
+#' for newly-launched \R sessions.
+#'
+#' Using `activate()` will:
+#'
+#' 1. Load the requested project via [renv::load()],
+#'
+#' 2. Add `source("renv/init.R")` to the project `.Rprofile`, thereby
+#'    instructing newly-launched \R sessions to automatically load the
+#'    current project.
+#'
+#' Normally, `activate()` is called as part of [renv::init()] when a project
+#' is first initialized. However, `activate()` can be used to activate
+#' (or re-activate) an `renv` project -- for example, if the project was shared
+#' without the auto-loader included in the project `.Rprofile`, or because
+#' that project was previously deactivated (via [renv::deactivate()]).
 #'
 #' @inherit renv-params
 #'
@@ -115,4 +129,39 @@ renv_activate_version_lockfile <- function(project) {
 
 renv_activate_version_default <- function(project) {
   renv_namespace_version("renv")
+}
+
+renv_activate_prompt <- function(action, library, prompt, project) {
+
+  # check whether we should ask user to activate
+  ask <-
+    config$activate.prompt() &&
+    prompt &&
+    interactive() &&
+    is.null(library) &&
+    !identical(project, Sys.getenv("RENV_PROJECT"))
+
+  if (!ask)
+    return(FALSE)
+
+  fmt <- lines(
+    "",
+    "This project has not yet been activated.",
+    "Activating this project will ensure the project library is used for %s().",
+    "Please see `?renv::activate` for more details.",
+    ""
+  )
+
+  notice <- sprintf(fmt, action)
+  vwritef(notice)
+
+  fmt <- "Would you like to activate this project before %s()?"
+  question <- sprintf(fmt, action)
+  response <- ask(question, default = TRUE)
+  if (!response)
+    return(FALSE)
+
+  activate(project = project)
+  return(TRUE)
+
 }

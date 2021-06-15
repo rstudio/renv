@@ -5,6 +5,15 @@
 #' @export
 config <- list(
 
+  activate.prompt = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "activate.prompt",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   auto.snapshot = function(..., default = FALSE) {
     renv_config_get(
       name    = "auto.snapshot",

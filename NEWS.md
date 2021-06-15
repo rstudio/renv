@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` will now prompt users to activate the current project when calling
+  `renv::snapshot()` or `renv::restore()` from within a project that has not
+  yet been activated. (#777)
+  
 * `renv` now has improved handling for `git` remotes. (#776; @matthewstrasiotto)
 
 * `renv::restore()` gains the `exclude` argument, used to exclude a subset of
