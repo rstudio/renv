@@ -17,7 +17,13 @@ renv_lockfile_state_clear <- function() {
 renv_lockfile_write_preflight <- function(old, new) {
 
   diff <- renv_lockfile_diff(old, new)
+  if (empty(diff))
+    return(new)
+
   packages <- diff$Packages
+  if (empty(diff$Packages))
+    return(new)
+
   enumerate(packages, function(package, changes) {
 
     # avoid spurious changes between CRAN and RSPM
