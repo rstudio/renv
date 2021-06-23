@@ -14,7 +14,36 @@ renv_lockfile_state_clear <- function() {
   rm(list = ls(`_renv_lockfile_state`), envir = `_renv_lockfile_state`)
 }
 
+renv_lockfile_write_preflight <- function(old, new) {
+
+  diff <- renv_lockfile_diff(old, new)
+  packages <- diff$Packages
+  enumerate(packages, function(package, changes) {
+
+    # avoid spurious changes between CRAN and RSPM
+    spurious <-
+      identical(changes, list(Repository = list(before = "CRAN", after = "RSPM"))) ||
+      identical(changes, list(Repository = list(before = "RSPM", after = "CRAN")))
+
+    if (spurious)
+      new$Packages[[package]]$Repository <<- old$Packages[[package]]$Repository
+
+  })
+
+  new
+
+}
+
 renv_lockfile_write <- function(lockfile, file = stdout()) {
+
+  # if we're updating an existing lockfile, try to avoid
+  # "unnecessary" diffs that might otherwise be annoying
+  if (is.character(file) && file.exists(file)) {
+    old <- catch(renv_lockfile_read(file))
+    if (!inherits(old, "error"))
+      lockfile <- renv_lockfile_write_preflight(old, lockfile)
+  }
+
   lockfile <- renv_lockfile_sort(lockfile)
   renv_lockfile_write_json(lockfile, file)
 }
