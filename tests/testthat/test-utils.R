@@ -36,6 +36,38 @@ test_that("bind_list warns on name collision", {
   expect_error(bind_list(data))
 })
 
+test_that("bind_list() handles data.frames with potentially different names", {
+
+  data <- list(
+    a = data.frame(A = 1, B = 2),
+    b = data.frame(A = 1, C = 3)
+  )
+
+  bound <- bind_list(data)
+  expected <- data.frame(
+    Index = c("a", "b"),
+    A     = c(1, 1),
+    B     = c(2, NA),
+    C     = c(NA, 3),
+    stringsAsFactors = FALSE
+  )
+
+  expect_identical(bound, expected)
+
+})
+
+test_that("bind_list() preserves order where possible", {
+
+  data <- list(
+    a = data.frame(A = 1,        C = 3),
+    b = data.frame(A = 1, B = 2, C = 3)
+  )
+
+  bound <- bind_list(data)
+  expect_equal(names(bound), c("Index", "A", "B", "C"))
+
+})
+
 test_that("versions are compared as expected", {
 
   expect_equal(renv_version_compare("0.1.0", "0.2.0"), -1L)
