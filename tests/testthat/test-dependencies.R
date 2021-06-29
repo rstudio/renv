@@ -337,3 +337,8 @@ test_that("piped expressions can be parsed for dependencies", {
   deps <- dependencies("resources/magrittr.R", progress = FALSE)
   expect_setequal(deps$Package, c("A", "B", "C"))
 })
+
+test_that("bslib dependencies are discovered", {
+  deps <- dependencies("resources/bslib.Rmd", progress = FALSE)
+  expect_true("bslib" %in% deps$Package)
+})

@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` now infers a dependency on the `bslib` package for R Markdown
+  documents using custom themes. (#790)
+
 * `renv` will now prompt users to activate the current project when calling
   `renv::snapshot()` or `renv::restore()` from within a project that has not
   yet been activated. (#777)

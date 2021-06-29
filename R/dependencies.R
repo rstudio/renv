@@ -581,6 +581,11 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 
   }
 
+  # check for dependency on bslib
+  theme <- yaml$output$html_document$theme
+  if (is.list(theme))
+    deps$push("bslib")
+
   packages <- as.character(deps$data())
   renv_dependencies_list(path, packages)
 
