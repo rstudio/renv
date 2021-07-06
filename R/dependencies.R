@@ -560,6 +560,11 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
   runtime <- yaml$runtime %||% ""
   if (pstring(runtime) && grepl("shiny", runtime, fixed = TRUE))
     deps$push("shiny")
+  server <- yaml$server %||% ""
+  if (identical(server, "shiny") ||
+      (is.list(server) && identical(server[["type"]], "shiny"))) {
+    deps$push("shiny")
+  }
 
   # check for custom output function from another package
   for (output in list(yaml$output, yaml$site)) {
