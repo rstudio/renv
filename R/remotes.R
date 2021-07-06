@@ -390,7 +390,7 @@ renv_remotes_resolve_github_ref <- function(host, user, repo) {
     renv_remotes_resolve_github_ref_impl(host, user, repo),
     error = function(e) {
       warning(e)
-      "master"
+      getOption("renv.github.default_branch", default = "master")
     }
   )
 
@@ -542,17 +542,52 @@ renv_remotes_resolve_git_pull <- function(pr) {
   remote_ref
 }
 
+renv_remotes_resolve_gitlab_ref <- function(host, user, repo) {
+
+  tryCatch(
+    renv_remotes_resolve_gitlab_ref_impl(host, user, repo),
+    error = function(e) {
+      warning(e)
+      "master"
+    }
+  )
+
+}
+
+renv_remotes_resolve_gitlab_ref_impl <- function(host, user, repo) {
+
+  # get list of available branches
+  fmt <- "%s/api/v4/projects/%s/repository/branches"
+  origin <- renv_retrieve_origin(host)
+  id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
+  url <- sprintf(fmt, origin, id)
+
+  destfile <- renv_tempfile_path("renv-gitlab-commits-")
+  download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
+  json <- renv_json_read(file = destfile)
+
+  # iterate through and find the default
+  for (info in json)
+    if (identical(info$default, TRUE))
+      return(info$name)
+
+  # if no default was found, use master branch
+  # (for backwards compatibility with existing projects)
+  getOption("renv.gitlab.default_branch", default = "master")
+
+}
+
 renv_remotes_resolve_gitlab <- function(entry) {
 
+  host   <- entry$host %||% config$gitlab.host()
   user   <- entry$user
   repo   <- entry$repo
   subdir <- entry$subdir %||% ""
-  ref    <- entry$ref %||% "master"
+
+  ref <- entry$ref %||% renv_remotes_resolve_gitlab_ref(host, user, repo)
 
   parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
   descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
-
-  host <- entry$host %||% config$gitlab.host()
 
   # retrieve sha associated with this ref
   fmt <- "%s/api/v4/projects/%s/repository/commits/%s"

@@ -338,3 +338,9 @@ test_that("records with RemoteSha successfully retrieved from archives", {
   renv_test_retrieve(record)
 
 })
+
+test_that("we respect the default branch for gitlab repositories", {
+  skip_on_cran()
+  remote <- renv_remotes_resolve("gitlab::kevinushey/main")
+  expect_equal(remote$RemoteRef, "main")
+})

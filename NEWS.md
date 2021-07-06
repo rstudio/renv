@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` now determines the default branch name for packages installed from
+  GitLab without an explicit reference supplied; for example, as in
+  `renv::install("gitlab::<user>/<repo>")`. (#795)
+  
 * `renv` now infers a dependency on the `bslib` package for R Markdown
   documents using custom themes. (#790)
 
