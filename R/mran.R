@@ -94,7 +94,9 @@ renv_mran_database_dates <- function(version, all = TRUE) {
     "3.6" = "2019-04-26",
     "4.0" = "2020-04-24",
     "4.1" = "2021-05-18",
-    "4.2" = "2022-05-18"   # projected
+    "4.2" = "2022-05-18",  # projected
+    "4.3" = "2023-05-18",  # projected
+    NULL
   )
 
   # find the start date
@@ -102,14 +104,13 @@ renv_mran_database_dates <- function(version, all = TRUE) {
   if (is.na(index))
     stopf("no known release date for R %s", version)
 
-  # form start date
   start <- as.Date(releases[[index + 0]])
   if (!all)
     return(start)
 
   # form end date (ensure not in future)
   # ensure end date is not in future
-  end <- as.Date(releases[[index + 1]])
+  end <- as.Date(releases[[index + 2L]])
   end <- min(as.Date(Sys.time(), tz = "UTC"), end)
 
   # generate list of dates
@@ -265,15 +266,57 @@ renv_mran_database_sync <- function(platform, version) {
   # get yesterday's date
   now <- as.integer(as.Date(Sys.time(), tz = "UTC")) - 1L
 
+  # sync up to the last version's release date
+  dates <- as.integer(renv_mran_database_dates(version))
+  now <- min(now, max(dates))
+
   # if we've already in sync, nothing to do
   if (last >= now)
     return(FALSE)
 
   # invoke update for missing dates
-  dates <- as.Date(seq(last + 1, now, by = 1L), origin = "1970-01-01")
+  dates <- as.Date(seq(last + 1L, now, by = 1L), origin = "1970-01-01")
   renv_mran_database_update(platform, version, dates)
 
   # return TRUE to indicate update occurred
   return(TRUE)
+
+}
+
+renv_mran_database_sync_all <- function() {
+
+  # NOTE: this needs to be manually updated since the binary URL for
+  # packages can change from version to version, especially on macOS
+
+  # R 3.2
+  renv_mran_database_sync("windows", "3.2")
+  renv_mran_database_sync("macosx/mavericks", "3.2")
+
+  # R 3.3
+  renv_mran_database_sync("windows", "3.3")
+  renv_mran_database_sync("macosx/mavericks", "3.3")
+
+  # R 3.4
+  renv_mran_database_sync("windows", "3.4")
+  renv_mran_database_sync("macosx/el-capitan", "3.4")
+
+  # R 3.5
+  renv_mran_database_sync("windows", "3.5")
+  renv_mran_database_sync("macosx/el-capitan", "3.5")
+
+  # R 3.6
+  renv_mran_database_sync("windows", "3.6")
+  renv_mran_database_sync("macosx/el-capitan", "3.6")
+
+  # R 4.0
+  renv_mran_database_sync("windows", "4.0")
+  renv_mran_database_sync("macosx", "4.0")
+
+  # R 4.1
+  renv_mran_database_sync("windows", "4.1")
+  renv_mran_database_sync("macosx", "4.1")
+  renv_mran_database_sync("macosx/big-sur-arm64", "4.1")
+
+
 
 }
