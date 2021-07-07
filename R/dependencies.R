@@ -634,12 +634,8 @@ renv_dependencies_discover_chunks <- function(path) {
 
   # figure out the appropriate begin, end patterns
   type <- tolower(tools::file_ext(path))
-  if (type %in% c("rmd", "rmarkdown"))
+  if (type %in% c("rmd", "qmd", "rmarkdown"))
     type <- "md"
-
-  # support .qmd extensions
-  if (type %in% "qmd")
-    type <- "rmd"
 
   patterns <- knitr::all_patterns[[type]]
   if (is.null(patterns)) {
