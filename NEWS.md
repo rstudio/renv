@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv::scaffold()` gains the `settings` argument, used to create a project
+  scaffolding with some default project options set. (#791)
+  
 * `renv` now determines the default branch name for packages installed from
   GitLab without an explicit reference supplied; for example, as in
   `renv::install("gitlab::<user>/<repo>")`. (#795)

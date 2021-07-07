@@ -18,10 +18,21 @@
 #'
 #' @param repos The \R repositories to associate with this project.
 #'
+#' @param settings A list of `renv` settings, to be applied to the project
+#'   after creation. These should map setting names to the desired values.
+#'
+#' @examples
+#'
+#' \dontrun{
+#' # create scaffolding with 'devtools' ignored
+#' renv::scaffold(settings = list(ignored.packages = "devtools"))
+#' }
+#'
 #' @export
-scaffold <- function(project = NULL,
-                     version = NULL,
-                     repos   = getOption("repos"))
+scaffold <- function(project  = NULL,
+                     version  = NULL,
+                     repos    = getOption("repos"),
+                     settings = NULL)
 {
   renv_scope_error_handler()
   renv_scope_options(repos = repos)
@@ -30,16 +41,21 @@ scaffold <- function(project = NULL,
   renv_scope_lock(project = project)
 
   # install renv into project library
-  renv <- renv_imbue_impl(project, version)
+  renv_imbue_impl(project, version)
 
   # write out project infrastructure
   renv_infrastructure_write(project, version)
+
+  # update project settings
+  if (is.list(settings))
+    renv_settings_persist(project, settings)
 
   # generate a lockfile
   lockfile <- renv_lockfile_create(
     project  = project,
     libpaths = renv_paths_library(project = project),
-    type     = "implicit"
+    type     = "implicit",
+    packages = NULL
   )
 
   renv_lockfile_write(lockfile, file = renv_lockfile_path(project))
