@@ -109,9 +109,10 @@ renv_mran_database_dates <- function(version, all = TRUE) {
     return(start)
 
   # form end date (ensure not in future)
-  # ensure end date is not in future
-  end <- as.Date(releases[[index + 2L]])
-  end <- min(as.Date(Sys.time(), tz = "UTC"), end)
+  end <- min(
+    as.Date(releases[[index + 2L]]),
+    as.Date(Sys.time(), tz = "UTC")
+  )
 
   # generate list of dates
   seq(start, end, by = 1L)
