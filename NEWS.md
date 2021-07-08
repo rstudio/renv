@@ -1,6 +1,10 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue where `renv::install("<package>", type = "both")` would attempt
+  to install the package from sources, even if the current system did not have
+  the requisite build tools available. (#800)
+  
 * `renv::scaffold()` gains the `settings` argument, used to create a project
   scaffolding with some default project options set. (#791)
   
