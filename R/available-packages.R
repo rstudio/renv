@@ -228,12 +228,11 @@ renv_available_packages_record <- function(entry, type) {
     return(entry)
 
   # otherwise, construct it
-  record <- list(
-    Package    = entry$Package,
-    Version    = entry$Version,
-    Source     = "Repository",
-    Repository = entry$Name
-  )
+  record <- entry
+
+  record$Source     <- "Repository"
+  record$Repository <- entry$Name
+  record$Name       <- NULL
 
   attr(record, "type") <- type
   attr(record, "url")  <- entry$Repository
