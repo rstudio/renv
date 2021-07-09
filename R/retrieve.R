@@ -822,8 +822,12 @@ renv_retrieve_handle_remotes <- function(record) {
         next
     }
 
-    # update the record
-    state$records[[package]] <- remote
+    # only update the record if we don't have an existing instance
+    # of the record. the intention here is that remotes specified in,
+    # say, the project DESCRIPTION file should take precedence over
+    # remotes defined by packages themselves. there is some obvious
+    # potential for breakage here though
+    state$records[[package]] <- state$records[[package]] %||% remote
 
   }
 
