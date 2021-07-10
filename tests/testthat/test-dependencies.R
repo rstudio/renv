@@ -342,3 +342,9 @@ test_that("bslib dependencies are discovered", {
   deps <- dependencies("resources/bslib.Rmd", progress = FALSE)
   expect_true("bslib" %in% deps$Package)
 })
+
+test_that("utility script dependencies are discovered", {
+  deps <- dependencies("resources/utility", progress = FALSE)
+  expect_false(is.null(deps))
+  expect_setequal(deps$Package, c("A", "B"))
+})
