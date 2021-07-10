@@ -242,8 +242,32 @@ renv_dependencies_callback <- function(path) {
     ".rnw"         = function(path) renv_dependencies_discover_multimode(path, "rnw")
   )
 
-  cbname[[basename(path)]] %||% cbext[[tolower(fileext(path))]]
+  cbname[[basename(path)]] %||% cbext[[tolower(fileext(path))]] %||% {
+    if (is_r_executable(path)) function(path) renv_dependencies_discover_r(path)
+  }
 
+}
+
+is_r_executable <- function(path) {
+  if (nzchar(fileext(path)))
+    return(FALSE)
+
+  grepl("\\b(R|r|Rscript)\\b", get_shebang_command(path))
+}
+
+get_shebang_command <- function(path) {
+  con <- file(path, open = "rb")
+  on.exit(close(con), add = TRUE)
+
+  signature <- charToRaw("#!")
+  first_two_bytes <- readBin(con, what = "raw", n = length(signature))
+  looks_like_script <- identical(first_two_bytes, signature)
+
+  # skip binary files with potentially very long first "lines"
+  if (looks_like_script)
+    readLines(con, n = 1L, warn = FALSE)
+  else
+    ""
 }
 
 renv_dependencies_find_extra <- function(root) {
