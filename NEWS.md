@@ -1,6 +1,9 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Added dependency discovery support for R utility scripts identified by a
+  shebang line instead of a file extension. (#801; @klmr)
+
 * Fixed an issue where `renv::install("<package>", type = "both")` would attempt
   to install the package from sources, even if the current system did not have
   the requisite build tools available. (#800)
@@ -54,7 +57,7 @@
 
 * Fixed crash during dependency discovery when encountering `box::use()`
   declarations that use a trailing comma, and no longer treat `.` and `..` as
-  package names (@klmr)
+  package names. (@klmr)
 
 * `renv::clean()` no longer attempts to clean the system library by default.
   (#737)
