@@ -10,6 +10,20 @@ renv_rstudio_available <- function() {
 
 }
 
+renv_rstudio_initialize <- function(project) {
+
+  tools <- catch(as.environment("tools:rstudio"))
+  if (inherits(tools, "error"))
+    return(FALSE)
+
+  if (is.null(tools$.rs.api.initializeProject))
+    return(FALSE)
+
+  tools$.rs.api.initializeProject(project)
+  TRUE
+
+}
+
 renv_rstudio_loading <- function() {
   renv_rstudio_available() && !identical(.Platform$GUI, "RStudio")
 }
