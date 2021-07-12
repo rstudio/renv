@@ -30,7 +30,7 @@ deactivate <- function(project = NULL) {
 
   unload(project)
 
-  renv_request_restart(project, reason = "renv deactivated")
+  renv_restart_request(project, reason = "renv deactivated")
   invisible(project)
 
 }

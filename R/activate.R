@@ -79,7 +79,7 @@ renv_activate_impl <- function(project,
 
   # restart session if requested
   if (restart)
-    renv_request_restart(project, reason = "renv activated")
+    renv_restart_request(project, reason = "renv activated")
   else if (renv_rstudio_available())
     renv_rstudio_initialize(project)
 
