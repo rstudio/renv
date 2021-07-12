@@ -1,9 +1,6 @@
 
 # renv 0.14.0 (UNRELEASED)
 
-* `renv` now ensures an RStudio project file is created when calling
-  `renv::init()` from within an RStudio session. (#805)
-
 * Fixed an issue where `renv::install("<package>", type = "both")` would attempt
   to install the package from sources, even if the current system did not have
   the requisite build tools available. (#800)
