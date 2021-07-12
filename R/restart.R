@@ -56,6 +56,9 @@ renv_request_restart_rstudio <- function(project, reason, ...) {
   }
 
   # otherwise, explicitly open the new project
+  if (!is.null(tools$.rs.api.initializeProject))
+    tools$.rs.api.initializeProject(project)
+
   tools$.rs.api.openProject(project, newSession = FALSE)
 
 }
