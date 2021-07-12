@@ -4,7 +4,12 @@
 \alias{scaffold}
 \title{Generate renv Project Infrastructure}
 \usage{
-scaffold(project = NULL, version = NULL, repos = getOption("repos"))
+scaffold(
+  project = NULL,
+  version = NULL,
+  repos = getOption("repos"),
+  settings = NULL
+)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -15,6 +20,10 @@ directory is used instead.}
 default, the version of \code{renv} currently installed is used.}
 
 \item{repos}{The \R repositories to associate with this project.}
+
+\item{settings}{A list of \code{renv} settings, to be applied to the project
+after creation. These should map setting names to the desired values.
+See \link{settings} for more details.}
 }
 \description{
 Write the \code{renv} project infrastructure for a project.
@@ -27,4 +36,12 @@ Invoking \code{renv::scaffold()} will:
 for new \R sessions launched in this project, and
 \item Write a bare lockfile \code{renv.lock}.
 }
+}
+\examples{
+
+\dontrun{
+# create scaffolding with 'devtools' ignored
+renv::scaffold(settings = list(ignored.packages = "devtools"))
+}
+
 }

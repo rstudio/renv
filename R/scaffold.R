@@ -20,6 +20,7 @@
 #'
 #' @param settings A list of `renv` settings, to be applied to the project
 #'   after creation. These should map setting names to the desired values.
+#'   See [settings] for more details.
 #'
 #' @examples
 #'
