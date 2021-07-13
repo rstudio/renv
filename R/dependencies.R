@@ -249,25 +249,13 @@ renv_dependencies_callback <- function(path) {
 }
 
 is_r_executable <- function(path) {
+  # don't check executability via `file.access` since this is implemented
+  # differently on Windows, and would thus lead to different dependencies being
+  # discovered across platforms
   if (nzchar(fileext(path)))
     return(FALSE)
 
-  grepl("\\b(R|r|Rscript)\\b", get_shebang_command(path))
-}
-
-get_shebang_command <- function(path) {
-  con <- file(path, open = "rb")
-  on.exit(close(con), add = TRUE)
-
-  signature <- charToRaw("#!")
-  first_two_bytes <- readBin(con, what = "raw", n = length(signature))
-  looks_like_script <- identical(first_two_bytes, signature)
-
-  # skip binary files with potentially very long first "lines"
-  if (looks_like_script)
-    readLines(con, n = 1L, warn = FALSE)
-  else
-    ""
+  grepl("\\b(R|r|Rscript)\\b", renv_file_shebang(path))
 }
 
 renv_dependencies_find_extra <- function(root) {
