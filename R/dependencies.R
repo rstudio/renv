@@ -242,8 +242,20 @@ renv_dependencies_callback <- function(path) {
     ".rnw"         = function(path) renv_dependencies_discover_multimode(path, "rnw")
   )
 
-  cbname[[basename(path)]] %||% cbext[[tolower(fileext(path))]]
+  cbname[[basename(path)]] %||% cbext[[tolower(fileext(path))]] %||% {
+    if (is_r_executable(path)) function(path) renv_dependencies_discover_r(path)
+  }
 
+}
+
+is_r_executable <- function(path) {
+  # don't check executability via `file.access` since this is implemented
+  # differently on Windows, and would thus lead to different dependencies being
+  # discovered across platforms
+  if (nzchar(fileext(path)))
+    return(FALSE)
+
+  grepl("\\b(R|r|Rscript)\\b", renv_file_shebang(path))
 }
 
 renv_dependencies_find_extra <- function(root) {

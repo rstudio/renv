@@ -1,0 +1,8 @@
+#!/usr/bin/env Rscript
+
+library(A)
+
+B::C()
+
+
+# vim: ft=r

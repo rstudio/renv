@@ -491,3 +491,18 @@ renv_file_read <- function(path) {
   contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
   paste(contents, collapse = "\n")
 }
+
+renv_file_shebang <- function(path) {
+  con <- file(path, open = "rb")
+  on.exit(close(con), add = TRUE)
+
+  signature <- charToRaw("#!")
+  first_two_bytes <- readBin(con, what = "raw", n = length(signature))
+  looks_like_script <- identical(first_two_bytes, signature)
+
+  # skip binary files with potentially very long first "lines"
+  if (looks_like_script)
+    readLines(con, n = 1L, warn = FALSE)
+  else
+    ""
+}
