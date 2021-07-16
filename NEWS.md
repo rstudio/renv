@@ -1,6 +1,12 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` will no longer auto-activate itself within R processes launched via
+  `R CMD INSTALL`. This behavior can be controlled if necessary via the
+  `RENV_ACTIVATE_PROJECT` environment variable -- set this to `TRUE` to
+  force the project in the current working directory to be activated, and
+  `FALSE` to suppress the `renv` auto-loader altogether. (#804)
+  
 * Added dependency discovery support for R utility scripts identified by a
   shebang line instead of a file extension. (#801; @klmr)
 
