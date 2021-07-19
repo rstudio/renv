@@ -270,7 +270,7 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   # join together
   keys <- names(fields)
-  vals <- shQuote(fields, type = "cmd")
+  vals <- renv_json_quote(fields)
   text <- paste(keys, vals, sep = " = ")
 
   # add in stand-along flags

@@ -1,6 +1,8 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* Fixed an issue with `renv` tests failing with R (>= 4.2.0).
+
 * `renv` will no longer auto-activate itself within R processes launched via
   `R CMD INSTALL`. This behavior can be controlled if necessary via the
   `RENV_ACTIVATE_PROJECT` environment variable -- set this to `TRUE` to

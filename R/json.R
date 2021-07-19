@@ -113,7 +113,7 @@ renv_json_convert_list <- function(object, level, unbox) {
     json <- map_chr(object, renv_json_convert, level = level + 1, unbox = unbox)
     paste0(indent, "[", "\n", paste(json, collapse = ",\n"), "\n", indent, "]")
   } else {
-    keys <- shQuote(names(object), type = "cmd")
+    keys <- renv_json_quote(names(object))
     vals <- map_chr(object, renv_json_convert, level = level + 1, unbox = unbox)
     idx  <- regexpr("[^[:space:]]", vals)
     json <- paste0(substring(vals, 1, idx - 1L), keys, ": ", substring(vals, idx))
@@ -133,7 +133,7 @@ renv_json_convert_atom <- function(object, level, unbox) {
   unbox <- unbox || inherits(object, "AsIs")
 
   if (is.character(object)) {
-    object <- shQuote(encodeString(object), type = "cmd")
+    object <- renv_json_quote(object)
     object[object == "\"NA\""] <- "null"
   }
 
@@ -167,4 +167,8 @@ renv_json_write <- function(object, file = stdout()) {
 
   writeLines(json, con = file)
 
+}
+
+renv_json_quote <- function(text) {
+  encodeString(text, quote = "\"", justify = "none")
 }

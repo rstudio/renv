@@ -451,7 +451,7 @@ renv_tests_diagnostics <- function() {
 
   keys <- format(envvars)
   vals <- Sys.getenv(envvars, unset = "<NA>")
-  vals[vals != "<NA>"] <- shQuote(vals[vals != "<NA>"], type = "cmd")
+  vals[vals != "<NA>"] <- renv_json_quote(vals[vals != "<NA>"])
 
   renv_pretty_print(
     paste(keys, vals, sep = " : "),

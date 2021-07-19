@@ -94,5 +94,5 @@ renv_path_component <- function(path, index = 1) {
 }
 
 renv_path_pretty <- function(path) {
-  shQuote(aliased_path(path), type = "cmd")
+  renv_json_quote(aliased_path(path))
 }

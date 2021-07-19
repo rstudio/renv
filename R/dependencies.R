@@ -385,7 +385,7 @@ renv_dependencies_discover_impl <- function(path) {
   callback <- renv_dependencies_callback(path)
   if (is.null(callback)) {
     fmt <- "internal error: no callback registered for file %s"
-    warningf(fmt, shQuote(aliased_path(callback), type = "cmd"))
+    warningf(fmt, renv_path_pretty(path))
   }
 
   result <- tryCatch(callback(path), error = warning)
