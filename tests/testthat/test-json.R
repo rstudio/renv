@@ -89,3 +89,8 @@ test_that("JSON null is read as R NULL", {
   expected <- list("NULL" = NULL)
   expect_equal(actual, expected)
 })
+
+test_that("some common control characters are escaped", {
+  json <- renv_json_convert("\b\f\n\r\t")
+  expect_equal(json, "\"\\b\\f\\n\\r\\t\"")
+})
