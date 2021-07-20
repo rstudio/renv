@@ -64,8 +64,7 @@ its dependencies.
 
 If you have one or more packages that you'd like to install from a separate
 remote source, this can be accomplished by adding a \verb{Remotes:} field to the
-\code{DESCRIPTION} file. See
-\url{https://cran.r-project.org/web/packages/devtools/vignettes/dependencies.html}
+\code{DESCRIPTION} file. See \code{vignette("dependencies", package = "devtools")}
 for more details.
 
 Note that \code{install()} does not use the project's \code{renv.lock} when determining

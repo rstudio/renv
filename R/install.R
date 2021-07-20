@@ -20,8 +20,7 @@
 #'
 #' If you have one or more packages that you'd like to install from a separate
 #' remote source, this can be accomplished by adding a `Remotes:` field to the
-#' `DESCRIPTION` file. See
-#' <https://cran.r-project.org/web/packages/devtools/vignettes/dependencies.html>
+#' `DESCRIPTION` file. See `vignette("dependencies", package = "devtools")`
 #' for more details.
 #'
 #' Note that `install()` does not use the project's `renv.lock` when determining
