@@ -33,7 +33,7 @@ renv_preflight_compiler <- function(problems) {
 
   # try to compile a simple program
   program <- "void test() {}"
-  file <- renv_tempfile_path("renv-test-compile-", fileext = ".c")
+  file <- renv_scope_tempfile("renv-test-compile-", fileext = ".c")
   writeLines(program, con = file)
 
   args <- c("CMD", "SHLIB", shQuote(file))

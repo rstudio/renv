@@ -72,7 +72,7 @@ Entry=
 '
 
   data <- list(Section = list(Entry = c(Key1 = "Value1", Key2 = "Value2")))
-  file <- renv_tempfile_path("renv-lockfile-")
+  file <- renv_scope_tempfile("renv-lockfile-")
   renv_lockfile_write_internal(data, file)
   expect_equal(trimws(text), trimws(read(file)))
 
@@ -82,12 +82,12 @@ test_that("lockfiles can be read from either format", {
 
   actual <- renv_lockfile_init(project = NULL)
 
-  file <- renv_tempfile_path()
+  file <- renv_scope_tempfile()
   renv_lockfile_write_internal(actual, file = file)
   expected <- renv_lockfile_read(file)
   expect_equal(actual, expected)
 
-  file <- renv_tempfile_path()
+  file <- renv_scope_tempfile()
   renv_lockfile_write_json(actual, file = file)
   expected <- renv_lockfile_read(file)
   expect_equal(actual, expected)

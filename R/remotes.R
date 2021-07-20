@@ -247,7 +247,7 @@ renv_remotes_resolve_bitbucket <- function(entry) {
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, ref)
 
-  destfile <- renv_tempfile_path("renv-bitbucket-")
+  destfile <- renv_scope_tempfile("renv-bitbucket-")
   download(url, destfile = destfile, type = "bitbucket", quiet = TRUE)
   json <- renv_json_read(file = destfile)
   sha <- json$hash
@@ -257,7 +257,7 @@ renv_remotes_resolve_bitbucket <- function(entry) {
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, ref)
 
-  destfile <- renv_tempfile_path("renv-description-")
+  destfile <- renv_scope_tempfile("renv-description-")
   download(url, destfile = destfile, type = "bitbucket", quiet = TRUE)
   desc <- renv_dcf_read(destfile)
 
@@ -314,7 +314,7 @@ renv_remotes_resolve_github_sha_pull <- function(host, user, repo, pull) {
   fmt <- "%s/repos/%s/%s/pulls/%s"
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, pull)
-  jsonfile <- renv_tempfile_path("renv-json-")
+  jsonfile <- renv_scope_tempfile("renv-json-")
   download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
   json$head$sha
@@ -332,7 +332,7 @@ renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
   headers <- c(Accept = "application/vnd.github.v2.sha")
 
   # make request to endpoint
-  shafile <- renv_tempfile_path("renv-sha-")
+  shafile <- renv_scope_tempfile("renv-sha-")
   download(
     url,
     destfile = shafile,
@@ -369,7 +369,7 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   fmt <- "%s/repos/%s/%s/contents/%s?ref=%s"
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, descpath, sha)
-  jsonfile <- renv_tempfile_path("renv-json-")
+  jsonfile <- renv_scope_tempfile("renv-json-")
   download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
   contents <- renv_base64_decode(json$content)
@@ -378,7 +378,7 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   contents <- gsub("\r\n", "\n", contents, fixed = TRUE)
 
   # write to file and read back in
-  descfile <- renv_tempfile_path("renv-description-")
+  descfile <- renv_scope_tempfile("renv-description-")
   writeLines(contents, con = descfile)
   renv_dcf_read(descfile)
 
@@ -404,7 +404,7 @@ renv_remotes_resolve_github_ref_impl <- function(host, user, repo) {
   url <- sprintf(fmt, origin, user, repo)
 
   # download JSON data at endpoint
-  jsonfile <- renv_tempfile_path("renv-github-ref-", fileext = ".json")
+  jsonfile <- renv_scope_tempfile("renv-github-ref-", fileext = ".json")
   download(url, destfile = jsonfile, type = "github", quiet = TRUE)
   json <- renv_json_read(jsonfile)
 
@@ -562,7 +562,7 @@ renv_remotes_resolve_gitlab_ref_impl <- function(host, user, repo) {
   id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
   url <- sprintf(fmt, origin, id)
 
-  destfile <- renv_tempfile_path("renv-gitlab-commits-")
+  destfile <- renv_scope_tempfile("renv-gitlab-commits-")
   download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
   json <- renv_json_read(file = destfile)
 
@@ -596,7 +596,7 @@ renv_remotes_resolve_gitlab <- function(entry) {
   ref <- URLencode(ref, reserved = TRUE)
   url <- sprintf(fmt, origin, id, ref)
 
-  destfile <- renv_tempfile_path("renv-gitlab-commits-")
+  destfile <- renv_scope_tempfile("renv-gitlab-commits-")
   download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
   json <- renv_json_read(file = destfile)
   sha <- json$id
@@ -607,7 +607,7 @@ renv_remotes_resolve_gitlab <- function(entry) {
   id <- URLencode(paste(user, repo, sep = "/"), reserved = TRUE)
   url <- sprintf(fmt, origin, id, descpath, ref)
 
-  destfile <- renv_tempfile_path("renv-description-")
+  destfile <- renv_scope_tempfile("renv-description-")
   download(url, destfile = destfile, type = "gitlab", quiet = TRUE)
   desc <- renv_dcf_read(destfile)
 
@@ -628,7 +628,7 @@ renv_remotes_resolve_gitlab <- function(entry) {
 
 renv_remotes_resolve_url <- function(entry, quiet = FALSE) {
 
-  tempfile <- renv_tempfile_path("renv-url-")
+  tempfile <- renv_scope_tempfile("renv-url-")
   writeLines(entry, con = tempfile)
   hash <- tools::md5sum(tempfile)
 

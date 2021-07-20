@@ -64,7 +64,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   on.exit(callback(), add = TRUE)
 
   # form path to temporary file
-  tempfile <- renv_tempfile_path(tmpdir = dirname(destfile))
+  tempfile <- renv_scope_tempfile(tmpdir = dirname(destfile))
 
   # request the download
   before <- Sys.time()
@@ -235,7 +235,7 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   renv_download_trace_begin(url, "curl")
 
-  file <- renv_tempfile_path("renv-download-config-")
+  file <- renv_scope_tempfile("renv-download-config-")
 
   fields <- c(
     "user-agent" = renv_http_useragent(),
@@ -361,7 +361,7 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
 
   renv_download_trace_begin(url, "wget")
 
-  config <- renv_tempfile_path("renv-download-config-")
+  config <- renv_scope_tempfile("renv-download-config-")
 
   fields <- c(
     "user-agent" = renv_http_useragent(),
@@ -515,7 +515,7 @@ renv_download_headers <- function(url, type, headers) {
     return(list())
 
   # perform the download
-  file <- renv_tempfile_path("renv-headers-")
+  file <- renv_scope_tempfile("renv-headers-")
 
   status <- renv_download_impl(
     url      = url,
@@ -793,7 +793,7 @@ renv_download_available_headers <- function(url) {
 
 renv_download_available_range <- function(url) {
 
-  destfile <- renv_tempfile_path("renv-download-")
+  destfile <- renv_scope_tempfile("renv-download-")
 
   # instruct curl to request only first byte
   extra <- c(getOption("download.file.extra"), "-r 0-0")
@@ -820,7 +820,7 @@ renv_download_available_range <- function(url) {
 
 renv_download_available_fallback <- function(url) {
 
-  destfile <- renv_tempfile_path("renv-download-")
+  destfile <- renv_scope_tempfile("renv-download-")
 
   # just try downloading the requested URL
   status <- catchall(

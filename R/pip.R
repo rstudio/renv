@@ -21,7 +21,7 @@ pip_install_requirements <- function(requirements, ..., python = NULL) {
 
   python <- python %||% renv_python_active()
 
-  file <- renv_tempfile_path("renv-requirements-", fileext = ".txt")
+  file <- renv_scope_tempfile("renv-requirements-", fileext = ".txt")
   writeLines(requirements, con = file)
   on.exit(unlink(requirements), add = TRUE)
 

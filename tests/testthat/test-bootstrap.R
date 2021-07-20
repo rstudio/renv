@@ -100,7 +100,7 @@ test_that("bootstrapping functions standalone", {
   list2env(vals, envir = envir)
 
   # set up library path
-  library <- renv_tempfile_path("renv-library-")
+  library <- renv_scope_tempfile("renv-library-")
   ensure_directory(library)
 
   # try running 'sandboxed' version of bootstrap

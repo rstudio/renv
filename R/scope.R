@@ -93,9 +93,19 @@ renv_scope_envvars <- function(..., .list = NULL, .envir = NULL) {
 }
 
 renv_scope_sink <- function(file = nullfile(), ..., .envir = NULL) {
+
   .envir <- .envir %||% parent.frame()
-  sink(file = file, ...)
-  defer(sink(NULL), envir = parent.frame())
+
+  # redirect stdout to file, and redirect stderr back to stdout
+  # this ensures that both stdout, stderr are redirected to the same place
+  sink(file = file,     type = "output")
+  sink(file = stdout(), type = "message")
+
+  defer({
+    sink(type = "output")
+    sink(type = "message")
+  }, envir = .envir)
+
 }
 
 renv_scope_error_handler <- function(.envir = NULL) {
@@ -354,4 +364,17 @@ renv_scope_var <- function(key, value, envir, ..., .envir = NULL) {
     defer(rm(list = key, envir = envir, inherits = FALSE), envir = .envir)
   }
 
+}
+
+renv_scope_tempfile <- function(pattern = "renv-tempfile-",
+                                tmpdir  = renv_tempdir_path(),
+                                fileext = ".log",
+                                .envir  = NULL)
+{
+  filepath <- renv_tempfile_path(pattern, tmpdir, fileext)
+
+  .envir <- .envir %||% parent.frame()
+  defer(unlink(filepath), envir = .envir)
+
+  invisible(filepath)
 }

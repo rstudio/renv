@@ -108,7 +108,7 @@ renv_rspm_status_impl <- function(base) {
 
   # attempt the download
   endpoint <- file.path(base, "__api__/status")
-  destfile <- renv_tempfile_path("renv-rspm-status-", fileext = ".json")
+  destfile <- renv_scope_tempfile("renv-rspm-status-", fileext = ".json")
   quietly(download(endpoint, destfile))
 
   # read the downloaded JSON

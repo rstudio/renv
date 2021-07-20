@@ -20,7 +20,7 @@ VERSION_CODENAME=bionic
 UBUNTU_CODENAME=bionic
 '
 
-  file <- renv_tempfile_path("os-release-")
+  file <- renv_scope_tempfile("os-release-")
   writeLines(contents, con = file)
 
   sysinfo <- list(sysname = "linux")

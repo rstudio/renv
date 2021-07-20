@@ -769,8 +769,10 @@ renv_snapshot_filter <- function(project, records, type, packages) {
   end <- Sys.time()
 
   # report if dependency discovery took a long time
-  limit <- 10L
-  if (difftime(end, start, units = "secs") > limit) {
+  limit <- getOption("renv.snapshot.filter.timelimit", default = 10L)
+  diff <- difftime(end, start, units = "secs")
+
+  if (diff > limit) {
 
     lines <- c(
       "NOTE: Dependency discovery took %s %s during snapshot.",

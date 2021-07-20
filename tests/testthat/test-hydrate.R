@@ -5,7 +5,7 @@ test_that("hydrate does not change library paths", {
 
   renv_tests_scope()
 
-  lib <- renv_tempfile_path()
+  lib <- renv_scope_tempfile()
   ensure_directory(lib)
   .libPaths(lib)
 
@@ -29,7 +29,7 @@ test_that("hydrate(update = FALSE) does not update older packages", {
   writeLines("library(toast)", con = "deps2.R")
 
   # set up library for hydration
-  sourcelib <- renv_tempfile_path("renv-source-")
+  sourcelib <- renv_scope_tempfile("renv-source-")
   ensure_directory(sourcelib)
   install("toast", library = sourcelib)
 

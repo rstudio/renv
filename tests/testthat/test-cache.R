@@ -83,7 +83,7 @@ test_that("package installation does not fail with non-writable cache", {
 test_that("the cache is used even if RENV_PATHS_LIBRARY is non-canonical", {
   skip_on_os("windows")
 
-  libpath <- renv_tempfile_path("renv-library")
+  libpath <- renv_scope_tempfile("renv-library")
   ensure_directory(libpath)
   renv_scope_envvars(RENV_PATHS_LIBRARY = file.path(libpath, "."))
 

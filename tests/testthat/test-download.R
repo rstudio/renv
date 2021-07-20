@@ -8,7 +8,7 @@ test_that("we avoid downloading files twice", {
     skip("required downloader not available")
 
   url <- "https://cloud.r-project.org/src/contrib/Archive/sourcetools/sourcetools_0.1.0.tar.gz"
-  destfile <- renv_tempfile_path("renv-download-", fileext = ".tar.gz")
+  destfile <- renv_scope_tempfile("renv-download-", fileext = ".tar.gz")
 
   # download once and check file metadata
   download(url, destfile, quiet = TRUE)
@@ -121,7 +121,7 @@ test_that("downloads work with UNC paths on Windows", {
   unc <- sub("^([a-zA-Z]):", "//localhost/\\1$", norm)
   expect_true(file.exists(unc))
 
-  destfile <- renv_tempfile_path("packages-")
+  destfile <- renv_scope_tempfile("packages-")
 
   urls <- c(unc, paste0("file:", unc))
   for (url in urls) {

@@ -1,12 +1,10 @@
 
 renv_tempfile_path <- function(pattern = "renv-",
-                                 tmpdir = renv_tempdir_path(),
-                                 fileext = "")
+                               tmpdir = renv_tempdir_path(),
+                               fileext = "")
 {
   path <- tempfile(pattern, tmpdir, fileext)
-  norm <- renv_file_normalize(path, winslash = "/")
-  defer(unlink(norm, recursive = TRUE, force = TRUE), envir = parent.frame())
-  norm
+  renv_file_normalize(path, winslash = "/")
 }
 
 renv_tempdir_path_impl <- function() {

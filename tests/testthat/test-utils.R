@@ -107,3 +107,25 @@ test_that("memoize avoids evaluating expression multiple times", {
   expect_equal(value, 1)
 
 })
+
+test_that("sink captures both stdout and stderr", {
+
+  file <- tempfile("renv-sink-", fileext = ".log")
+
+  osinks <- sink.number(type = "output")
+  msinks <- sink.number(type = "message")
+
+  local({
+    renv_scope_sink(file)
+    writeLines("stdout", con = stdout())
+    writeLines("stderr", con = stderr())
+  })
+
+  contents <- readLines(file)
+  expect_equal(contents, c("stdout", "stderr"))
+
+  expect_equal(sink.number(type = "output"),  osinks)
+  expect_equal(sink.number(type = "message"), msinks)
+
+
+})

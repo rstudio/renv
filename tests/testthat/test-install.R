@@ -34,7 +34,7 @@ test_that("installation failure is well-reported", {
   on.exit(setwd(owd), add = TRUE)
 
   # init dummy library
-  library <- renv_tempfile_path("renv-library-")
+  library <- renv_scope_tempfile("renv-library-")
   ensure_directory(library)
 
   # dummy environment
@@ -291,7 +291,7 @@ test_that("install() installs inferred dependencies", {
   renv_tests_scope("breakfast")
 
   # use dummy library path
-  templib <- renv_tempfile_path("renv-library-")
+  templib <- renv_scope_tempfile("renv-library-")
   ensure_directory(templib)
   renv_scope_libpaths(templib)
 
