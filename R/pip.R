@@ -23,7 +23,6 @@ pip_install_requirements <- function(requirements, ..., python = NULL) {
 
   file <- renv_scope_tempfile("renv-requirements-", fileext = ".txt")
   writeLines(requirements, con = file)
-  on.exit(unlink(requirements), add = TRUE)
 
   renv_scope_envvars(PIP_DISABLE_PIP_VERSION_CHECK = "1")
   python <- renv_path_canonicalize(python)

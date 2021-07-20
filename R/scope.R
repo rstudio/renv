@@ -367,14 +367,14 @@ renv_scope_var <- function(key, value, envir, ..., .envir = NULL) {
 }
 
 renv_scope_tempfile <- function(pattern = "renv-tempfile-",
-                                tmpdir  = renv_tempdir_path(),
+                                tmpdir  = tempdir(),
                                 fileext = ".log",
                                 .envir  = NULL)
 {
-  filepath <- renv_tempfile_path(pattern, tmpdir, fileext)
+  filepath <- tempfile(pattern, tmpdir, fileext)
 
   .envir <- .envir %||% parent.frame()
-  defer(unlink(filepath), envir = .envir)
+  defer(unlink(filepath, recursive = TRUE, force = TRUE), envir = .envir)
 
   invisible(filepath)
 }
