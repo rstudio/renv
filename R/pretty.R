@@ -1,9 +1,9 @@
 
 renv_pretty_print <- function(values,
-                              preamble = NULL,
+                              preamble  = NULL,
                               postamble = NULL,
-                              emitter = NULL,
-                              wrap = TRUE)
+                              emitter   = NULL,
+                              wrap      = TRUE)
 {
   msg <- stack()
 
@@ -30,13 +30,14 @@ renv_pretty_print <- function(values,
   msg$push("")
   text <- paste(as.character(msg$data()), collapse = "\n")
 
-  emitter <- emitter %||% writeLines
+  emitter <- emitter %||% renv_pretty_print_emitter()
   emitter(text)
 }
 
 renv_pretty_print_records <- function(records,
-                                      preamble = NULL,
-                                      postamble = NULL)
+                                      preamble  = NULL,
+                                      postamble = NULL,
+                                      emitter   = NULL)
 {
   if (empty(records))
     return(invisible(NULL))
@@ -51,23 +52,36 @@ renv_pretty_print_records <- function(records,
   header <- paste(c(rep.int(" ", n + 1), "_"), collapse = "")
   text <- sprintf("%s   [%s]", lhs, rhs)
 
-  preamble %&&% writeLines(preamble)
-  writeLines(c(header, text, ""))
-  postamble %&&% writeLines(postamble)
-  postamble %&&% writeLines("")
+  all <- c(
+    if (length(preamble)) preamble,
+    c(header, text, ""),
+    if (length(postamble)) c(postamble, "")
+  )
+
+  emitter <- emitter %||% renv_pretty_print_emitter()
+  emitter(all)
 
   invisible(NULL)
 }
 
 renv_pretty_print_records_pair <- function(old,
                                            new,
-                                           preamble = NULL,
-                                           postamble = NULL)
+                                           preamble  = NULL,
+                                           postamble = NULL,
+                                           emitter   = NULL)
 {
-  preamble %&&% writeLines(c(preamble, ""))
-  renv_pretty_print_records_pair_impl(old, new)
-  postamble %&&% writeLines(c(postamble, ""))
+
+  all <- c(
+    if (length(preamble)) c(preamble, ""),
+    renv_pretty_print_records_pair_impl(old, new),
+    if (length(postamble)) c(postamble, "")
+  )
+
+  emitter <- emitter %||% renv_pretty_print_emitter()
+  emitter(all)
+
   invisible(NULL)
+
 }
 
 renv_pretty_print_records_pair_impl <- function(old, new) {
@@ -91,7 +105,7 @@ renv_pretty_print_records_pair_impl <- function(old, new) {
   n <- max(nchar(all))
 
   # iterate over each group and print
-  lapply(sort(unique(groups)), function(group) {
+  uapply(sort(unique(groups)), function(group) {
 
     lhs <- renv_records_select(old, groups, group)
     rhs <- renv_records_select(new, groups, group)
@@ -104,10 +118,25 @@ renv_pretty_print_records_pair_impl <- function(old, new) {
     if (group == "unknown")
       group <- "(Unknown Source)"
 
-    vwritef(header(group))
-    vwritef(paste("-", format(nms, width = n), " ", text))
-    vwritef("")
+    c(
+      header(group),
+      paste("-", format(nms, width = n), " ", text),
+      ""
+    )
 
   })
+
+}
+
+renv_pretty_print_emitter <- function() {
+
+  emitter <- getOption("renv.pretty.print.emitter", default = NULL)
+  if (!is.null(emitter))
+    return(emitter)
+
+  if (interactive())
+    function(text, ...) writeLines(text, con = stdout(), ...)
+  else
+    function(text, ...) writeLines(text, con = stderr(), ...)
 
 }
