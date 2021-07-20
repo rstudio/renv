@@ -102,7 +102,10 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   expect_true(renv_python_module_available(python, "dotenv"))
 
   # snapshot changes
-  renv::snapshot()
+  local({
+    renv_scope_sink()
+    renv::snapshot()
+  })
 
   # check requirements.txt for install
   expect_true(file.exists("requirements.txt"))
@@ -115,7 +118,10 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   expect_false(renv_python_module_available(python, "dotenv"))
 
   # try to restore
-  renv::restore()
+  local({
+    renv_scope_sink()
+    renv::restore()
+  })
 
   # check that we can load python-dotenv now
   expect_true(renv_python_module_available(python, "dotenv"))

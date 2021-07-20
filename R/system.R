@@ -9,8 +9,14 @@ renv_system_exec <- function(command,
   # handle 'stream' specially
   if (stream) {
 
-    # execute command
+    # be quiet when running tests by default
+    if (renv_tests_running())
+      quiet <- TRUE
+
+    # form stdout, stderr
     stdout <- stderr <- if (quiet) FALSE else ""
+
+    # execute command
     status <- suppressWarnings(
       system2(command, args, stdout = stdout, stderr = stderr)
     )
