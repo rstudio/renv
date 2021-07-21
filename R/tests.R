@@ -93,12 +93,6 @@ renv_tests_init_working_dir <- function() {
   }
 }
 
-renv_tests_init_envvars <- function() {
-  root <- tempfile("renv-root-")
-  dir.create(root, showWarnings = TRUE, mode = "755")
-  Sys.setenv(RENV_PATHS_ROOT = root)
-}
-
 renv_tests_init_options <- function() {
   options(
     renv.config.user.library = FALSE,
@@ -301,6 +295,7 @@ renv_tests_init <- function() {
     return()
 
   Sys.unsetenv("RENV_PROFILE")
+  Sys.unsetenv("RENV_PATHS_ROOT")
   Sys.unsetenv("RENV_PATHS_LIBRARY")
   Sys.unsetenv("RENV_PATHS_LIBRARY_ROOT")
   Sys.unsetenv("RENV_CONFIG_CACHE_ENABLED")
@@ -312,7 +307,6 @@ renv_tests_init <- function() {
 
   renv_tests_init_workarounds()
   renv_tests_init_working_dir()
-  renv_tests_init_envvars()
   renv_tests_init_options()
   renv_tests_init_repos()
   renv_tests_init_packages()

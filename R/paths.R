@@ -116,6 +116,14 @@ renv_paths_root <- function(...) {
 # nocov start
 renv_paths_root_default <- function() {
 
+  checking <-
+    "CheckExEnv" %in% search() ||
+    !is.na(Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)) ||
+    !is.na(Sys.getenv("TESTTHAT", unset = NA))
+
+  if (checking)
+    return(renv_paths_root_default_impl())
+
   root <- switch(
     Sys.info()[["sysname"]],
     Darwin  = Sys.getenv("XDG_DATA_HOME", "~/Library/Application Support"),
@@ -157,11 +165,16 @@ renv_paths_root_default <- function() {
     )
   }
 
-  temp <- tempfile("renv-root-")
-  ensure_directory(temp)
-  return(temp)
+  renv_paths_root_default_impl()
 
 }
+
+renv_paths_root_default_impl <- function() {
+  temp <- file.path(tempdir(), "renv")
+  ensure_directory(temp)
+  return(temp)
+}
+
 # nocov end
 
 renv_paths_init <- function() {
