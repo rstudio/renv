@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -119,7 +115,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -134,13 +130,13 @@
 
       
 
-      </header><script src="use_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="use_files/header-attrs-2.9.4/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using Use</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/use.Rmd"><code>vignettes/use.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/use.Rmd" class="external-link"><code>vignettes/use.Rmd</code></a></small>
       <div class="hidden name"><code>use.Rmd</code></div>
 
     </div>
@@ -157,14 +153,23 @@
 <span class="op">)</span>
 
 <span class="co"># use the requested packages</span>
-<span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html">digest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>answer <span class="op">=</span> <span class="fl">42</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>answer <span class="op">=</span> <span class="fl">42</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>Running a script with these contents will:</p>
 <ol style="list-style-type: decimal">
-<li><p>Automatically download the requested packages (the latest release of <code>digest</code>, alongside <code>rlang 0.3.4</code>),</p></li>
+<li><p>Automatically download the requested packages – in this case, the latest release of <code>digest</code>, alongside <code>rlang 0.3.4</code>,</p></li>
 <li><p>Install the requested packages (plus their recursive package dependencies) to a temporary library path,</p></li>
 <li><p>Activate that library path, so that it’s used subsequently in the script.</p></li>
 </ol>
 <p><code><a href="../reference/use.html">renv::use()</a></code> can hence be a useful way of sharing standalone R scripts with a set of specific package requirements. Running these scripts will ensure the requested packages are automatically downloaded and installed.</p>
+<p>In addition, you can also supply the path to a lockfile. For example:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R">
+<span class="co"># use a particular lockfile in the context of this script</span>
+<span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use.html">use</a></span><span class="op">(</span>lockfile <span class="op">=</span> <span class="st">"/path/to/renv.lock"</span><span class="op">)</span>
+
+<span class="co"># the rest of this script will run with the packages as declared</span>
+<span class="co"># in that lockfile installed into a temporary library path</span></code></pre></div>
+<p>This can be useful in projects where you’d like to associate different lockfiles with different documents – for example, in a <a href="https://bookdown.org/yihui/blogdown/" class="external-link">blog</a> or a website where you’d like to associate a separate lockfile with each post. Once the post is complete, you could use <code>renv::snapshot(lockfile = "/path/to/renv.lock")</code> to “save” the state that was active while authoring that lockfile, and then use <code>renv::use(lockfile = "/path/to/renv.lock")</code> in that document to ensure the blog post is always run using that lockfile on future renders.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -176,11 +181,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p></p>
+<p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -188,6 +195,8 @@
 
   
 
+
+  
 
   </body>
 </html>

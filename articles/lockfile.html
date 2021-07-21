@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -119,7 +115,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -134,13 +130,13 @@
 
       
 
-      </header><script src="lockfile_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="lockfile_files/header-attrs-2.9.4/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Anatomy of a Lockfile</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/lockfile.Rmd"><code>vignettes/lockfile.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/lockfile.Rmd" class="external-link"><code>vignettes/lockfile.Rmd</code></a></small>
       <div class="hidden name"><code>lockfile.Rmd</code></div>
 
     </div>
@@ -158,7 +154,7 @@
 <p>Here is an example lockfile, including the packages <code>markdown</code> and <code>mime</code>:</p>
 <pre><code>{
   "R": {
-    "Version": "4.0.3",
+    "Version": "4.1.0",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -183,7 +179,7 @@
     }
   }
 }</code></pre>
-<p>The function <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is used to create this lockfile, and by default writes these records to the file <code>renv.lock</code>. Later, if you need to re-install the specific package versions as recorded in <code>renv.lock</code>, you can use <code><a href="../reference/restore.html">renv::restore()</a></code>.</p>
+<p>The function <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is used to create this lockfile, and by default writes these records to the file <code>renv.lock</code>. Later, if you need to reinstall the specific package versions as recorded in <code>renv.lock</code>, you can use <code><a href="../reference/restore.html">renv::restore()</a></code>.</p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -195,11 +191,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p></p>
+<p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -207,6 +205,8 @@
 
   
 
+
+  
 
   </body>
 </html>

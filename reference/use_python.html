@@ -53,6 +53,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -64,9 +66,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -80,19 +88,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -188,26 +190,21 @@
     <p>Associate a version of Python with your project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>use_python</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>use_python</span><span class='op'>(</span>
   python <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>,
   type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"auto"</span>, <span class='st'>"virtualenv"</span>, <span class='st'>"conda"</span>, <span class='st'>"system"</span><span class='op'>)</span>,
   name <span class='op'>=</span> <span class='cn'>NULL</span>,
   project <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>python</th>
-      <td><p>The path to a Python binary. This can be the path to a Python
-binary on the system, or the path to a Python binary within an
-already-existing Python environment. If <code>NULL</code>, the <code>RETICULATE_PYTHON</code>
-environment variable is checked; if that is not set, then the default
-version of <code>python</code> on the <code>PATH</code> is used instead. As a special case,
-<code>use_python(FALSE)</code> can be used to deactivate Python integration with
-a project.</p></td>
+      <td><p>The path to the version of Python to be used with this project. See
+<strong>Finding Python</strong> for more details.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -215,18 +212,16 @@ a project.</p></td>
     </tr>
     <tr>
       <th>type</th>
-      <td><p>The type of Python environment to use. When <code>"auto"</code> (the
-default), a project-local environment (virtual environments on Linux /
-macOS; conda environments on Windows) will be created. Ignored if the
-requested version of <code>python</code> lives within a pre-existing Python
-environment.</p></td>
+      <td><p>The type of Python environment to use. When <code>"auto"</code> (the default),
+virtual environments will be used.</p></td>
     </tr>
     <tr>
       <th>name</th>
-      <td><p>The name or path that should be used for the associated Python
-environment. If <code>NULL</code> and <code>python</code> points to a Python executable living
-within a pre-existing virtual environment, that environment will be used.
-Otherwise, a project-local environment will be created instead.</p></td>
+      <td><p>The name or path that should be used for the associated Python environment.
+If <code>NULL</code> and <code>python</code> points to a Python executable living within a
+pre-existing virtual environment, that environment will be used. Otherwise,
+a project-local environment will be created instead, using a name
+generated from the associated version of Python.</p></td>
     </tr>
     <tr>
       <th>project</th>
@@ -239,36 +234,100 @@ directory is used instead.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p><code>TRUE</code>, indicating that the requested version of Python has been
-successfully activated. Note that this function is normally called for
-its side effects.</p>
+successfully activated. Note that this function is normally called for its
+side effects.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>When Python integration is active, <code>renv</code> will:</p><ul>
 <li><p>Save metadata about the requested version of Python in <code>renv.lock</code> -- in
 particular, the Python version, and the Python type ("virtualenv", "conda",
 "system"),</p></li>
-<li><p>On load, set the <code>RETICULATE_PYTHON</code> environment variable, so that the
-<code>reticulate</code> package can automatically use the requested copy of Python
-as appropriate,</p></li>
 <li><p>Capture the set of installed Python packages during <code><a href='snapshot.html'>renv::snapshot()</a></code>,</p></li>
-<li><p>Reinstall the set of recorded Python packages during <code><a href='restore.html'>renv::restore()</a></code>.</p></li>
+<li><p>Re-install the set of recorded Python packages during <code><a href='restore.html'>renv::restore()</a></code>.</p></li>
 </ul>
 
+<p>In addition, when the project is loaded, the following actions will be taken:</p><ul>
+<li><p>The <code>RENV_PYTHON</code> environment variable will be set, indicating the version
+of Python currently active for this sessions,</p></li>
+<li><p>The <code>RETICULATE_PYTHON</code> environment variable will be set, so that the
+<code>reticulate</code> package can automatically use the requested copy of Python
+as appropriate,</p></li>
+<li><p>The requested version of Python will be placed on the <code>PATH</code>, so that
+attempts to invoke Python will resolve to the expected version of Python.</p></li>
+</ul>
+
+<p>You can override the version of Python used in a particular project by
+setting the <code>RENV_PYTHON</code> environment variable; e.g. as part of the
+project's <code>.Renviron</code> file. This can be useful if you find that <code>renv</code>
+is unable to automatically discover a compatible version of Python to
+be used in the project.</p>
+    <h2 class="hasAnchor" id="finding-python"><a class="anchor" href="#finding-python"></a>Finding Python</h2>
+
+    
+
+
+<p>In interactive sessions, when <code>python = NULL</code>, <code>renv</code> will prompt for an
+appropriate version of Python. <code>renv</code> will search a pre-defined set of
+locations when attempting to find Python installations on the system:</p><ul>
+<li><p><code>getOption("renv.python.root")</code>,</p></li>
+<li><p><code>/opt/python</code>,</p></li>
+<li><p><code>/opt/local/python</code>,</p></li>
+<li><p><code>~/opt/python</code>,</p></li>
+<li><p><code>/usr/local/opt</code> (for macOS Homebrew-installed copies of Python),</p></li>
+<li><p><code>/opt/homebrew/opt</code> (for M1 macOS Homebrew-installed copies of Python),</p></li>
+<li><p><code>~/.pyenv/versions</code>,</p></li>
+<li><p>Python instances available on the <code>PATH</code>.</p></li>
+</ul>
+
+<p>In non-interactive sessions, <code>renv</code> will first check the <code>RETICULATE_PYTHON</code>
+environment variable; if that is unset, <code>renv</code> will look for Python on the
+<code>PATH</code>. It is recommended that the version of Python to be used is explicitly
+supplied for non-interactive usages of <code>use_python()</code>.</p>
+    <h2 class="hasAnchor" id="warning"><a class="anchor" href="#warning"></a>Warning</h2>
+
+    
+
+
+<p>We strongly recommend using Python virtual environments, for a few reasons:</p><ol>
+<li><p>If something goes wrong with a local virtual environment, you can safely
+delete that virtual environment, and then re-initialize it later, without
+worry that doing so might impact other software on your system.</p></li>
+<li><p>If you choose to use a "system" installation of Python, then any packages
+you install or upgrade will be visible to any other application that
+wants to use that same Python installation. Using a virtual environment
+ensures that any changes made are isolated to that environment only.</p></li>
+<li><p>Choosing to use Anaconda will likely invite extra frustration in the
+future, as you may be required to upgrade and manage your Anaconda
+installation as new versions of Anaconda are released. In addition,
+Anaconda installations tend to work poorly with software not specifically
+installed as part of that same Anaconda installation.</p></li>
+</ol>
+
+<p>In other words, we recommend selecting "system" or "conda" only if you are an
+expert Python user who is already accustomed to managing Python / Anaconda
+installations on your own.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-
-<span class='co'># use python with a project</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>use_python</span><span class='op'>(</span><span class='op'>)</span>
-
-<span class='co'># use virtualenv python with a project</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>use_python</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"virtualenv"</span><span class='op'>)</span>
-
-<span class='co'># use conda python with a project</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>use_python</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"conda"</span><span class='op'>)</span>
-
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># use python with a project</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>use_python</span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># use python with a project; create the environment</span></span>
+<span class='r-in'><span class='co'># within the project directory in the '.venv' folder</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>use_python</span><span class='op'>(</span>name <span class='op'>=</span> <span class='st'>".venv"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># use python with a pre-existing virtual environment located elsewhere</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>use_python</span><span class='op'>(</span>name <span class='op'>=</span> <span class='st'>"~/.virtualenvs/env"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># use virtualenv python with a project</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>use_python</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"virtualenv"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># use conda python with a project</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>use_python</span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"conda"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -280,11 +339,11 @@ as appropriate,</p></li>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p><p>Developed by Kevin Ushey.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -292,6 +351,8 @@ as appropriate,</p></li>
 
   
 
+
+  
 
   </body>
 </html>

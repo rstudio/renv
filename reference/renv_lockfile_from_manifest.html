@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Migrate a Project from Packrat to renv — migrate • renv</title>
+<title>Generate renv.lock from an RStudio Connect manifest.json — renv_lockfile_from_manifest • renv</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,9 @@
 
 
 
-<meta property="og:title" content="Migrate a Project from Packrat to renv — migrate" />
-<meta property="og:description" content="Migrate a project's infrastructure from Packrat to renv." />
+<meta property="og:title" content="Generate renv.lock from an RStudio Connect manifest.json — renv_lockfile_from_manifest" />
+<meta property="og:description" content="Use renv_lockfile_from_manifest() to convert a manifest.json file from
+an RStudio Connect content bundle into an renv.lock lockfile." />
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg" />
 
 
@@ -181,72 +182,51 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Migrate a Project from Packrat to renv</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/migrate.R'><code>R/migrate.R</code></a></small>
-    <div class="hidden name"><code>migrate.Rd</code></div>
+    <h1>Generate <code>renv.lock</code> from an RStudio Connect <code>manifest.json</code></h1>
+    <small class="dont-index">Source: <a href='https://github.com/rstudio/renv/blob/master/R/manifest-convert.R'><code>R/manifest-convert.R</code></a></small>
+    <div class="hidden name"><code>renv_lockfile_from_manifest.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Migrate a project's infrastructure from Packrat to <code>renv</code>.</p>
+    <p>Use <code>renv_lockfile_from_manifest()</code> to convert a <code>manifest.json</code> file from
+an RStudio Connect content bundle into an <code>renv.lock</code> lockfile.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>migrate</span><span class='op'>(</span>
-  project <span class='op'>=</span> <span class='cn'>NULL</span>,
-  packrat <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"lockfile"</span>, <span class='st'>"sources"</span>, <span class='st'>"library"</span>, <span class='st'>"options"</span>, <span class='st'>"cache"</span><span class='op'>)</span>
-<span class='op'>)</span></code></pre></div>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>renv_lockfile_from_manifest</span><span class='op'>(</span><span class='va'>manifest</span>, lockfile <span class='op'>=</span> <span class='cn'>NA</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>project</th>
-      <td><p>The project directory. If <code>NULL</code>, then the active project will
-be used. If no project is currently active, then the current working
-directory is used instead.</p></td>
+      <th>manifest</th>
+      <td><p>The path to a <code>manifest.json</code> file.</p></td>
     </tr>
     <tr>
-      <th>packrat</th>
-      <td><p>Components of the Packrat project to migrate. See the default
-argument list for components of the Packrat project that can be migrated.
-Select a subset of those components for migration as appropriate.</p></td>
+      <th>lockfile</th>
+      <td><p>The path to the lockfile to be generated and / or updated.
+When <code>NA</code> (the default), the generated lockfile is returned as an <span style="R">R</span>
+object; otherwise, the lockfile will be written to the path specified by
+<code>lockfile</code>.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The project directory, invisibly. Note that this function is normally
-called for its side effects.</p>
-    <h2 class="hasAnchor" id="migration"><a class="anchor" href="#migration"></a>Migration</h2>
+    <p>An <code>renv</code> lockfile.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    
+    <p>This function can be useful when you need to recreate the package environment
+of a piece of content that is deployed to RStudio Connect. The content bundle
+contains a <code>manifest.json</code> file that is used to recreate the package
+environment. This function will let you convert that manifest file to an
+<code>renv.lock</code> file. Run <code><a href='restore.html'>renv::restore()</a></code> after you've converted the file to
+restore the package environment.</p>
+<p>By default the <code>lockfile</code> argument is set to <code>NA</code>. This will not create a new
+<code>renv.lock</code> file. Rather, it will return a lockfile object (see <code><a href='lockfile.html'>?lockfile</a></code>)
+that can be used to create a new <code>renv.lock</code> file. If <code>lockfile</code> is set to a
+character string, a new file will be created with that path -- e.g.
+<code>renv.lock</code> -- and the lockfile object will be returned.</p>
 
-
-<p>When migrating Packrat projects to <code>renv</code>, the set of components migrated
-can be customized using the <code>packrat</code> argument. The set of components that
-can be migrated are as follows:</p>
-<table class='table'>
-<tr><td><strong>Name</strong></td><td><strong>Description</strong></td></tr>
-<tr><td><code>lockfile</code></td><td>Migrate the Packrat lockfile (<code>packrat/packrat.lock</code>) to the <code>renv</code> lockfile
-(<code>renv.lock</code>).</td></tr>
-<tr><td><code>sources</code></td><td>Migrate package sources from the <code>packrat/src</code> folder to the <code>renv</code>
-sources folder. Currently, only CRAN packages are migrated to <code>renv</code> --
-packages retrieved from other sources (e.g. GitHub) are ignored.</td></tr>
-<tr><td><code>library</code></td><td>Migrate installed packages from the Packrat library to the <code>renv</code> project
-library.</td></tr>
-<tr><td><code>options</code></td><td>Migrate compatible Packrat options to the <code>renv</code> project.</td></tr>
-<tr><td><code>cache</code></td><td>Migrate packages from the Packrat cache to the <code>renv</code> cache.</td></tr>
-</table>
-
-
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='co'># migrate Packrat project infrastructure to renv</span></span>
-<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>migrate</span><span class='op'>(</span><span class='op'>)</span></span>
-<span class='r-in'></span>
-<span class='r-in'><span class='op'>}</span></span>
-</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

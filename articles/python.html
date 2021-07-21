@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -119,7 +115,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -134,33 +130,33 @@
 
       
 
-      </header><script src="python_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="python_files/header-attrs-2.9.4/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using Python with renv</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/python.Rmd"><code>vignettes/python.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/python.Rmd" class="external-link"><code>vignettes/python.Rmd</code></a></small>
       <div class="hidden name"><code>python.Rmd</code></div>
 
     </div>
 
     
     
-<p>If you’re using <code>renv</code> with an R project that also depends on some Python packages (say, through the <a href="https://rstudio.github.io/reticulate/">reticulate</a> package), then you may find <code>renv</code>’s Python integration useful.</p>
+<p>If you’re using <code>renv</code> with an R project that also depends on some Python packages (say, through the <a href="https://rstudio.github.io/reticulate/" class="external-link">reticulate</a> package), then you may find <code>renv</code>’s Python integration useful.</p>
 <div id="activating-python-integration" class="section level2">
 <h2 class="hasAnchor">
-<a href="#activating-python-integration" class="anchor"></a>Activating Python Integration</h2>
+<a href="#activating-python-integration" class="anchor" aria-hidden="true"></a>Activating Python Integration</h2>
 <p>Python integration can be activated on a project-by-project basis. Use <code><a href="../reference/use_python.html">renv::use_python()</a></code> to tell <code>renv</code> to create and use a project-local Python environment with your project. If the <code>reticulate</code> package is installed and active, then <code>renv</code> will use the same version of Python that <code>reticulate</code> normally would when generating the virtual environment. Alternatively, you can set the <code>RETICULATE_PYTHON</code> environment variable to instruct <code>renv</code> to use a different version of Python.</p>
-<p>If you’d rather tell <code>renv</code> to use an existing Python virtual environment, you can do so by passing the path of that virtual environment instead – use <code><a href="../reference/use_python.html">renv::use_python(python = "/path/to/python")</a></code> and <code>renv</code> will record and use that Python interpreter with your project. This can also be used with pre-existing virtual environments and Conda environments.</p>
+<p>If you’d rather tell <code>renv</code> to use an existing Python virtual environment, you can do so by passing the path of that virtual environment instead – use <code>renv::use_python(python = "/path/to/python")</code> and <code>renv</code> will record and use that Python interpreter with your project. This can also be used with pre-existing virtual environments and Conda environments.</p>
 </div>
 <div id="understanding-python-integration" class="section level2">
 <h2 class="hasAnchor">
-<a href="#understanding-python-integration" class="anchor"></a>Understanding Python Integration</h2>
+<a href="#understanding-python-integration" class="anchor" aria-hidden="true"></a>Understanding Python Integration</h2>
 <p>Once Python integration is active, <code>renv</code> will attempt to manage the state of your Python virtual environment when <code><a href="../reference/snapshot.html">snapshot()</a></code> / <code><a href="../reference/restore.html">restore()</a></code> is called. With this, projects that use <code>renv</code> and Python can ensure that Python dependencies are tracked in addition to R package dependencies. Note that future restores will require both <code>renv.lock</code> (for R package dependencies) and <code>requirements.txt</code> (for Python package dependencies).</p>
 <div id="virtual-environments" class="section level3">
 <h3 class="hasAnchor">
-<a href="#virtual-environments" class="anchor"></a>Virtual Environments</h3>
+<a href="#virtual-environments" class="anchor" aria-hidden="true"></a>Virtual Environments</h3>
 <p>When using virtual environments, the following extensions are provided:</p>
 <ul>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> calls <code>pip freeze &gt; requirements.txt</code> to save the set of installed Python packages;</p></li>
@@ -169,7 +165,7 @@
 </div>
 <div id="conda-environments" class="section level3">
 <h3 class="hasAnchor">
-<a href="#conda-environments" class="anchor"></a>Conda Environments</h3>
+<a href="#conda-environments" class="anchor" aria-hidden="true"></a>Conda Environments</h3>
 <p>When using Conda environments, the following extensions are provided:</p>
 <ul>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> calls <code>conda env export &gt; environment.yml</code> to save the set of installed Python packages;</p></li>
@@ -190,11 +186,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p></p>
+<p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -202,6 +200,8 @@
 
   
 
+
+  
 
   </body>
 </html>

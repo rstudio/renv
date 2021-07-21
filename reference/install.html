@@ -47,8 +47,10 @@
 
 
 <meta property="og:title" content="Install Packages — install" />
-<meta property="og:description" content="Install one or more R packages from a variety of remote sources." />
+<meta property="og:description" content="Install one or more R packages, from a variety of remote sources." />
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg" />
+
+
 
 
 
@@ -64,9 +66,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -80,19 +88,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -185,10 +187,10 @@
     </div>
 
     <div class="ref-description">
-    <p>Install one or more <span style="R">R</span> packages from a variety of remote sources.</p>
+    <p>Install one or more <span style="R">R</span> packages, from a variety of remote sources.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>install</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>install</span><span class='op'>(</span>
   packages <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>,
   library <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -196,7 +198,7 @@
   rebuild <span class='op'>=</span> <span class='cn'>FALSE</span>,
   prompt <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span>,
   project <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -220,7 +222,7 @@ library will be used instead.</p></td>
     <tr>
       <th>type</th>
       <td><p>The type of package to install ("source" or "binary"). Defaults
-to the value of <code><a href='https://rdrr.io/r/base/options.html'>getOption("pkgType")</a></code>.</p></td>
+to the value of <code>getOption("pkgType")</code>.</p></td>
     </tr>
     <tr>
       <th>rebuild</th>
@@ -252,22 +254,26 @@ In particular, this means that the local cache of package installations is
 used when possible. This helps to avoid re-downloading packages that have
 already been downloaded before, and re-compiling packages from source when
 a binary copy of that package is already available.</p>
-<p>Note that this interface is subject to change -- the goal is to hook into
-separate package installation backends in the future.</p>
-    <h2 class="hasAnchor" id="bioconductor"><a class="anchor" href="#bioconductor"></a>Bioconductor</h2>
+    <h2 class="hasAnchor" id="project-description-files"><a class="anchor" href="#project-description-files"></a>Project DESCRIPTION Files</h2>
 
     
 
 
-<p>Packages from Bioconductor can be installed by using the <code>bioc::</code> prefix.
-For example,</p><pre><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"bioc::Biobase"</span><span class='op'>)</span>
-</pre>
-
-<p>will install the latest-available version of <code>Biobase</code> from Bioconductor.</p>
-<p><code>renv</code> depends on <code>BiocManager</code> (or, for older versions of <span style="R">R</span>, <code>BiocInstaller</code>)
-for the installation of packages from Bioconductor. If these packages are
-not available, <code>renv</code> will attempt to automatically install them before
-fulfilling the installation request.</p>
+<p>If your project contains a <code>DESCRIPTION</code> file, then calling <code>install()</code>
+without any arguments will instruct <code>renv</code> to install the latest versions of
+all packages as declared within that <code>DESCRIPTION</code> file's <code>Depends</code>,
+<code>Imports</code> and <code>LinkingTo</code> fields; similar to how an <span style="R">R</span> package might declare
+its dependencies.</p>
+<p>If you have one or more packages that you'd like to install from a separate
+remote source, this can be accomplished by adding a <code>Remotes:</code> field to the
+<code>DESCRIPTION</code> file. See <code><a href='https://devtools.r-lib.org//articles/dependencies.html'>vignette("dependencies", package = "devtools")</a></code>
+for more details. Alternatively, view the vignette online at
+<a href='https://devtools.r-lib.org/articles/dependencies.html'>https://devtools.r-lib.org/articles/dependencies.html</a>.</p>
+<p>Note that <code>install()</code> does not use the project's <code>renv.lock</code> when determining
+sources for packages to be installed. If you want to install packages using
+the sources declared in the lockfile, consider using <code><a href='restore.html'>restore()</a></code> instead.
+Otherwise, you can declare the package sources in your <code>DESCRIPTION</code>'s
+<code>Remotes:</code> field.</p>
     <h2 class="hasAnchor" id="remotes-syntax"><a class="anchor" href="#remotes-syntax"></a>Remotes Syntax</h2>
 
     
@@ -276,6 +282,20 @@ fulfilling the installation request.</p>
 <p><code>renv</code> supports a subset of the <code>remotes</code> syntax used for package installation,
 as described in <a href='https://remotes.r-lib.org/articles/dependencies.html'>https://remotes.r-lib.org/articles/dependencies.html</a>. See
 the examples below for more details.</p>
+    <h2 class="hasAnchor" id="bioconductor"><a class="anchor" href="#bioconductor"></a>Bioconductor</h2>
+
+    
+
+
+<p>Packages from Bioconductor can be installed by using the <code>bioc::</code> prefix.
+For example,</p><pre class='sourceCode r'><code><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"bioc::Biobase"</span><span class='op'>)</span>
+</code></pre>
+
+<p>will install the latest-available version of <code>Biobase</code> from Bioconductor.</p>
+<p><code>renv</code> depends on <code>BiocManager</code> (or, for older versions of <span style="R">R</span>, <code>BiocInstaller</code>)
+for the installation of packages from Bioconductor. If these packages are
+not available, <code>renv</code> will attempt to automatically install them before
+fulfilling the installation request.</p>
     <h2 class="hasAnchor" id="package-configuration"><a class="anchor" href="#package-configuration"></a>Package Configuration</h2>
 
     
@@ -285,44 +305,53 @@ the examples below for more details.</p>
 the package for installation. Arguments and environment variables can be
 passed through to those scripts in a manner similar to <a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a>.
 In particular, the <span style="R">R</span> options <code>configure.args</code> and <code>configure.vars</code> can be
-used to map package names to their appropriate configuration. For example:</p><pre># installation of RNetCDF may require us to set include paths for netcdf
+used to map package names to their appropriate configuration. For example:</p><pre><code># installation of RNetCDF may require us to set include paths for netcdf
 configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
 options(configure.args = configure.args)
 renv::install("RNetCDF")
-</pre>
+</code></pre>
+
+<p>This could also be specified as, for example,</p><pre class='sourceCode r'><code><span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>
+  configure.args.RNetCDF <span class='op'>=</span> <span class='st'>"--with-netcdf-include=/usr/include/udunits2"</span>
+<span class='op'>)</span>
+<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"RNetCDF"</span><span class='op'>)</span>
+</code></pre>
 
 <p>Similarly, additional flags that should be passed to <code>R CMD INSTALL</code> can
-be set via the <code>install.opts</code> <span style="R">R</span> option:</p><pre><span class='co'># installation of R packages using the Windows Subsystem for Linux</span>
+be set via the <code>install.opts</code> <span style="R">R</span> option:</p><pre class='sourceCode r'><code><span class='co'># installation of R packages using the Windows Subsystem for Linux</span>
 <span class='co'># may require the `--no-lock` flag to be set during install</span>
 <span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>install.opts <span class='op'>=</span> <span class='st'>"--no-lock"</span><span class='op'>)</span>
 <span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"xml2"</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-
-<span class='co'># install the latest version of 'digest'</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"digest"</span><span class='op'>)</span>
-
-<span class='co'># install an old version of 'digest' (using archives)</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"digest@0.6.18"</span><span class='op'>)</span>
-
-<span class='co'># install 'digest' from GitHub (latest dev. version)</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"eddelbuettel/digest"</span><span class='op'>)</span>
-
-<span class='co'># install a package from GitHub, using specific commit</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"eddelbuettel/digest@df55b00bff33e945246eff2586717452e635032f"</span><span class='op'>)</span>
-
-<span class='co'># install a package from Bioconductor</span>
-<span class='co'># (note: requires the BiocManager package)</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"bioc::Biobase"</span><span class='op'>)</span>
-
-<span class='co'># install a package, specifying path explicitly</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"~/path/to/package"</span><span class='op'>)</span>
-
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># install the latest version of 'digest'</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"digest"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># install an old version of 'digest' (using archives)</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"digest@0.6.18"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># install 'digest' from GitHub (latest dev. version)</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"eddelbuettel/digest"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># install a package from GitHub, using specific commit</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"eddelbuettel/digest@df55b00bff33e945246eff2586717452e635032f"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># install a package from Bioconductor</span></span>
+<span class='r-in'><span class='co'># (note: requires the BiocManager package)</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"bioc::Biobase"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># install a package, specifying path explicitly</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='st'>"~/path/to/package"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># install packages as declared in the project DESCRIPTION file</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>install</span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -334,11 +363,11 @@ be set via the <code>install.opts</code> <span style="R">R</span> option:</p><pr
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p><p>Developed by Kevin Ushey.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -346,6 +375,8 @@ be set via the <code>install.opts</code> <span style="R">R</span> option:</p><pr
 
   
 
+
+  
 
   </body>
 </html>

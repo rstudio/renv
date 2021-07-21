@@ -54,6 +54,8 @@ on your filesystem." />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -65,9 +67,15 @@ on your filesystem." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -81,19 +89,13 @@ on your filesystem." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -190,7 +192,7 @@ on your filesystem." />
 on your filesystem.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>consent</span><span class='op'>(</span>provided <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>consent</span><span class='op'>(</span>provided <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -215,8 +217,8 @@ directory. These paths are documented within <a href='paths.html'>paths</a>.</p>
 <a href='https://cran.r-project.org/web/packages/policies.html'>CRAN Repository Policy</a>,
 <code>renv</code> must first obtain consent from you, the user, before these actions
 can be taken. Please call <code>renv::consent()</code> first to provide this consent.</p>
-<p>You can also set the <span style="R">R</span> option:</p><pre><span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>renv.consent <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</pre>
+<p>You can also set the <span style="R">R</span> option:</p><pre class='sourceCode r'><code><span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span>renv.consent <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</code></pre>
 
 <p>to implicitly provide consent for e.g. non-interactive <span style="R">R</span> sessions.</p>
 
@@ -231,11 +233,11 @@ can be taken. Please call <code>renv::consent()</code> first to provide this con
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p><p>Developed by Kevin Ushey.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -243,6 +245,8 @@ can be taken. Please call <code>renv::consent()</code> first to provide this con
 
   
 
+
+  
 
   </body>
 </html>

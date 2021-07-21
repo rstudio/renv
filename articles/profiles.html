@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -119,7 +115,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -134,13 +130,13 @@
 
       
 
-      </header><script src="profiles_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="profiles_files/header-attrs-2.9.4/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Project Profiles</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/profiles.Rmd"><code>vignettes/profiles.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/profiles.Rmd" class="external-link"><code>vignettes/profiles.Rmd</code></a></small>
       <div class="hidden name"><code>profiles.Rmd</code></div>
 
     </div>
@@ -149,7 +145,7 @@
     
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h2>
+<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction</h2>
 <p>Starting with <code>renv 0.13.0</code>, it is possible to activate and switch between different profiles associated with a project. A profile can be thought of as a different mode in which a project is used. For example:</p>
 <ul>
 <li>A “development” profile might be used when developing and testing a project,</li>
@@ -160,21 +156,21 @@
 </div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
-<a href="#usage" class="anchor"></a>Usage</h2>
+<a href="#usage" class="anchor" aria-hidden="true"></a>Usage</h2>
 <p>By default, <code>renv</code> projects use the “default” profile, which implies that library and lockfile paths are set in the typical way. To activate a particular profile, use:</p>
-<pre><code><a href="../reference/activate.html">renv::activate(profile = "dev")</a></code></pre>
+<pre><code>renv::activate(profile = "dev")</code></pre>
 <p>This creates a profile called <code>"dev"</code>, and sets it as the default for the project, so that newly-launched R sessions will operate using the <code>"dev"</code> profile. After setting this and re-launching R, you should see that the default library and lockfile paths are resolved within the <code>renv/profiles/dev</code> folder from the project root.</p>
 <p>Alternatively, if you want to activate a particular profile for an R session without setting it as the default for new R sessions, you can use:</p>
-<pre><code><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv(RENV_PROFILE = "dev")</a></code></pre>
+<pre><code>Sys.setenv(RENV_PROFILE = "dev")</code></pre>
 <p>and <code>renv</code> will automatically use that profile as appropriate when computing library and lockfile paths. Similarly, from the command line, you might enforce the use of a particular profile in an <code>renv</code> project with:</p>
 <pre><code>export RENV_PROFILE=dev</code></pre>
 <p>With that set, <code>renv</code> would default to using the <code>"dev"</code> profile for any newly-launched R sessions within <code>renv</code> projects.</p>
 <p>To activate the “default” profile used by a project, use:</p>
-<pre><code><a href="../reference/activate.html">renv::activate(profile = NULL)</a></code></pre>
+<pre><code>renv::activate(profile = NULL)</code></pre>
 </div>
 <div id="managing-profile-specific-dependencies" class="section level2">
 <h2 class="hasAnchor">
-<a href="#managing-profile-specific-dependencies" class="anchor"></a>Managing Profile-specific Dependencies</h2>
+<a href="#managing-profile-specific-dependencies" class="anchor" aria-hidden="true"></a>Managing Profile-specific Dependencies</h2>
 <p>Profile-specific package dependencies can be declared within the project’s top-level <code>DESCRIPTION</code> file. For example, to declare a set of dependencies for a profile called “shiny”:</p>
 <pre><code>Config/renv/profiles/shiny/dependencies: shiny, tidyverse</code></pre>
 <p>The dependencies in this field can be specified in a format similar to that of the <code>Depends</code> and <code>Imports</code> fields of a regular <code>DESCRIPTION</code> file. These dependencies will be included in addition to the default set of dependencies normally discovered in the project. If you’d prefer that only the packages enumerated in this field are used, you can opt-in to using <code>"explicit"</code> snapshots, and leave the <code>Imports</code>, <code>Depends</code> and <code>Suggests</code> fields blank:</p>
@@ -195,11 +191,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p></p>
+<p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -207,6 +205,8 @@
 
   
 
+
+  
 
   </body>
 </html>

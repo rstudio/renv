@@ -56,6 +56,8 @@ clean slate." />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -67,9 +69,15 @@ clean slate." />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -83,19 +91,13 @@ clean slate." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -194,14 +196,15 @@ packages fail to load, and you want to ensure that you are starting from a
 clean slate.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rebuild</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>rebuild</span><span class='op'>(</span>
   packages <span class='op'>=</span> <span class='cn'>NULL</span>,
   recursive <span class='op'>=</span> <span class='cn'>TRUE</span>,
   <span class='va'>...</span>,
+  type <span class='op'>=</span> <span class='cn'>NULL</span>,
   prompt <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span>,
   library <span class='op'>=</span> <span class='cn'>NULL</span>,
   project <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -209,7 +212,7 @@ clean slate.</p>
     <tr>
       <th>packages</th>
       <td><p>The package(s) to be rebuilt. When <code>NULL</code>, all packages
-in the library will be installed.</p></td>
+in the library will be reinstalled.</p></td>
     </tr>
     <tr>
       <th>recursive</th>
@@ -220,6 +223,11 @@ recursively? Defaults to <code>TRUE</code>.</p></td>
       <th>...</th>
       <td><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></td>
+    </tr>
+    <tr>
+      <th>type</th>
+      <td><p>The type of package to install ("source" or "binary"). Defaults
+to the value of <code>getOption("pkgType")</code>.</p></td>
     </tr>
     <tr>
       <th>prompt</th>
@@ -242,23 +250,18 @@ directory is used instead.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A named list of package records which were installed by <code>renv</code>.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Note that binaries will be used when appropriate and available for your
-platform. If you'd like to force packages to be rebuilt from sources, you
-can set <code><a href='https://rdrr.io/r/base/options.html'>options(pkgType = "source")</a></code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-
-<span class='co'># rebuild the 'dplyr' package + all of its dependencies</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>rebuild</span><span class='op'>(</span><span class='st'>"dplyr"</span>, recursive <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-
-<span class='co'># rebuild only 'dplyr'</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>rebuild</span><span class='op'>(</span><span class='st'>"dplyr"</span>, recursive <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># rebuild the 'dplyr' package + all of its dependencies</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>rebuild</span><span class='op'>(</span><span class='st'>"dplyr"</span>, recursive <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># rebuild only 'dplyr'</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>rebuild</span><span class='op'>(</span><span class='st'>"dplyr"</span>, recursive <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -270,11 +273,11 @@ can set <code><a href='https://rdrr.io/r/base/options.html'>options(pkgType = "s
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p><p>Developed by Kevin Ushey.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -282,6 +285,8 @@ can set <code><a href='https://rdrr.io/r/base/options.html'>options(pkgType = "s
 
   
 
+
+  
 
   </body>
 </html>

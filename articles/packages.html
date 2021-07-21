@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -119,7 +115,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -134,13 +130,13 @@
 
       
 
-      </header><script src="packages_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="packages_files/header-attrs-2.9.4/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Package Development with renv</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/packages.Rmd"><code>vignettes/packages.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/packages.Rmd" class="external-link"><code>vignettes/packages.Rmd</code></a></small>
       <div class="hidden name"><code>packages.Rmd</code></div>
 
     </div>
@@ -149,32 +145,32 @@
     
 <div id="development" class="section level2">
 <h2 class="hasAnchor">
-<a href="#development" class="anchor"></a>Development</h2>
+<a href="#development" class="anchor" aria-hidden="true"></a>Development</h2>
 <p>Often, R packages will have other R packages as dependencies. For this, one must declare their R package dependencies within the package <code>DESCRIPTION</code> file. If you want to prepare your environment for package development, you can use:</p>
 <pre><code><a href="../reference/install.html">renv::install()</a></code></pre>
-<p>to install the packages as declared in the package’s <code>DESCRIPTION</code> file. This action is roughly analogous to <code><a href="https://remotes.r-lib.org/reference/install_deps.html">remotes::install_deps()</a></code>.</p>
+<p>to install the packages as declared in the package’s <code>DESCRIPTION</code> file. This action is roughly analogous to <code><a href="https://remotes.r-lib.org/reference/install_deps.html" class="external-link">remotes::install_deps()</a></code>.</p>
 <p>If you’re developing a package that you intend to release to CRAN, then you likely want to build and test your package against the latest versions of your dependencies as available on CRAN. For this, you should consider using:</p>
 <pre><code><a href="../reference/update.html">renv::update()</a></code></pre>
 <p>to ensure your package dependencies are up-to-date, as appropriate.</p>
 </div>
 <div id="isolation" class="section level2">
 <h2 class="hasAnchor">
-<a href="#isolation" class="anchor"></a>Isolation</h2>
+<a href="#isolation" class="anchor" aria-hidden="true"></a>Isolation</h2>
 <p>Normally, a package under development should be tested against the latest-available versions of its dependencies on CRAN. However, in some cases, you may need to ensure your package is compatible with other packages also currently under development.</p>
 <p>In these cases, the <code>renv</code> project library can be useful – you can install the development version(s) of your dependencies into the project library, without worrying about clobbering any packages already installed in your user library.</p>
 <p>In these cases, you can declare your development dependencies using the <code>Remotes</code> field of the <code>DESCRIPTION</code> file; e.g.</p>
 <pre><code>Remotes:
   r-lib/ggplot2</code></pre>
-<p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration and retrieve the requested package. See the <code>remotes</code> vignette, <a href="https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html">Dependency resolution for R package development</a>, for more details.</p>
+<p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration and retrieve the requested package. See the <code>remotes</code> vignette, <a href="https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html" class="external-link">Dependency resolution for R package development</a>, for more details.</p>
 </div>
 <div id="testing" class="section level2">
 <h2 class="hasAnchor">
-<a href="#testing" class="anchor"></a>Testing</h2>
-<p>While developing your package, you may want to use a continuous integration service (such as <a href="https://www.travis-ci.org/">Travis CI</a>) to build and test your package remotely. You can use <code>renv</code> to help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html">Continuous Integration</a> vignette for more information. In particular, clever use of the <code>renv</code> cache can help save time that might normally be spent on package installation.</p>
+<a href="#testing" class="anchor" aria-hidden="true"></a>Testing</h2>
+<p>While developing your package, you may want to use a continuous integration service (such as <a href="https://www.travis-ci.org/" class="external-link">Travis CI</a>) to build and test your package remotely. You can use <code>renv</code> to help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html" class="external-link">Continuous Integration</a> vignette for more information. In particular, clever use of the <code>renv</code> cache can help save time that might normally be spent on package installation.</p>
 </div>
 <div id="r-cmd-build-and-the-project-library" class="section level2">
 <h2 class="hasAnchor">
-<a href="#r-cmd-build-and-the-project-library" class="anchor"></a>R CMD build and the Project Library</h2>
+<a href="#r-cmd-build-and-the-project-library" class="anchor" aria-hidden="true"></a>R CMD build and the Project Library</h2>
 <p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. Unfortunately, this also implies copying the <code>renv</code> library. When that library is large, this can dramatically increase the amount of time it takes to build your package.</p>
 <p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in a start-up <code>.Renviron</code> file:</p>
 <pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
@@ -198,11 +194,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p></p>
+<p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -210,6 +208,8 @@
 
   
 
+
+  
 
   </body>
 </html>

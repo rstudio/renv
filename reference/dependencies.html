@@ -53,6 +53,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -64,9 +66,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -80,19 +88,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -188,14 +190,14 @@
     <p>Find <span style="R">R</span> packages used within a project.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>dependencies</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>dependencies</span><span class='op'>(</span>
   path <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
   root <span class='op'>=</span> <span class='cn'>NULL</span>,
   <span class='va'>...</span>,
   progress <span class='op'>=</span> <span class='cn'>TRUE</span>,
   errors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"reported"</span>, <span class='st'>"fatal"</span>, <span class='st'>"ignored"</span><span class='op'>)</span>,
   dev <span class='op'>=</span> <span class='cn'>FALSE</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -263,10 +265,16 @@ order to crawl dependencies in R Markdown files.</p>
 <p>Depending on how you've structured your code, <code>renv</code> may emit errors when
 attempting to enumerate dependencies within <code>.Rmd</code> / <code>.Rnw</code> documents.
 For code chunks that you'd explicitly like <code>renv</code> to ignore, you can
-include <code>renv.ignore=FALSE</code> in the chunk header. For example:</p><pre>```{r chunk-label, renv.ignore=FALSE}
+include <code>renv.ignore=TRUE</code> in the chunk header. For example:</p><pre><code>```{r chunk-label, renv.ignore=TRUE}
 # code in this chunk will be ignored by renv
 ```
-</pre>
+</code></pre>
+
+<p>Similarly, if you'd like <code>renv</code> to parse a chunk that is otherwise ignored
+(e.g. because it has <code>eval=FALSE</code> as a chunk header), you can set:</p><pre><code>```{r chunk-label, eval=FALSE, renv.ignore=FALSE}
+# code in this chunk will _not be ignored
+```
+</code></pre>
 
     <h2 class="hasAnchor" id="ignoring-files"><a class="anchor" href="#ignoring-files"></a>Ignoring Files</h2>
 
@@ -281,7 +289,7 @@ which files to ignore within a directory. If both <code>.renvignore</code> and
 <code>.gitignore</code> exist within a folder, the <code>.renvignore</code> will be used in lieu of
 the <code>.gitignore</code>.</p>
 <p>See <a href='https://git-scm.com/docs/gitignore'>https://git-scm.com/docs/gitignore</a> for documentation on the
-<code>.gitignore</code> format. Some simple examples here:</p><pre># ignore all R Markdown files
+<code>.gitignore</code> format. Some simple examples here:</p><pre><code># ignore all R Markdown files
 *.Rmd
 
 # ignore all data folders
@@ -289,7 +297,7 @@ data/
 
 # ignore only data folders from the root of the project
 /data/
-</pre>
+</code></pre>
 
     <h2 class="hasAnchor" id="errors"><a class="anchor" href="#errors"></a>Errors</h2>
 
@@ -325,13 +333,13 @@ and enumerate your dependencies in a project <code>DESCRIPTION</code> file.</p>
 for a project, but may not actually require these packages at runtime.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-
-<span class='co'># find R package dependencies in the current directory</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>dependencies</span><span class='op'>(</span><span class='op'>)</span>
-
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># find R package dependencies in the current directory</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>dependencies</span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -343,11 +351,11 @@ for a project, but may not actually require these packages at runtime.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p><p>Developed by Kevin Ushey.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -355,6 +363,8 @@ for a project, but may not actually require these packages at runtime.</p>
 
   
 
+
+  
 
   </body>
 </html>

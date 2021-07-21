@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/renv.html">Get started</a>
 </li>
@@ -119,7 +115,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/renv/">
+  <a href="https://github.com/rstudio/renv/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -134,35 +130,35 @@
 
       
 
-      </header><script src="rsconnect_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="rsconnect_files/header-attrs-2.9.4/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using renv with RStudio Connect</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/rsconnect.Rmd"><code>vignettes/rsconnect.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/rsconnect.Rmd" class="external-link"><code>vignettes/rsconnect.Rmd</code></a></small>
       <div class="hidden name"><code>rsconnect.Rmd</code></div>
 
     </div>
 
     
     
-<p><a href="https://www.rstudio.com/products/connect/">RStudio Connect</a> is a publication platform for deploying content built in R and Python to share with a broad audience. R users may want to develop content (like <a href="https://shiny.rstudio.com/">Shiny applications</a> or <a href="https://rmarkdown.rstudio.com/index.html">RMarkdown documents</a>) using <code>renv</code> and then publish that content to RStudio Connect. This is a supported pattern where <code>renv</code> is used to manage the local project environment and then RStudio Connect recreates and manages the deployment environment.</p>
+<p><a href="https://www.rstudio.com/products/connect/" class="external-link">RStudio Connect</a> is a publication platform for deploying content built in R and Python to share with a broad audience. R users may want to develop content (like <a href="https://shiny.rstudio.com/" class="external-link">Shiny applications</a> or <a href="https://rmarkdown.rstudio.com/index.html" class="external-link">RMarkdown documents</a>) using <code>renv</code> and then publish that content to RStudio Connect. This is a supported pattern where <code>renv</code> is used to manage the local project environment and then RStudio Connect recreates and manages the deployment environment.</p>
 <div id="publishing-from-the-rstudio-ide" class="section level2">
 <h2 class="hasAnchor">
-<a href="#publishing-from-the-rstudio-ide" class="anchor"></a>Publishing from the RStudio IDE</h2>
+<a href="#publishing-from-the-rstudio-ide" class="anchor" aria-hidden="true"></a>Publishing from the RStudio IDE</h2>
 <p>The RStudio IDE includes a button for push-button deployment to RStudio Connect: <img src="ide-publish.png" alt="RStudio IDE Publish Button"></p>
 <p>When this option is used to deploy content to RStudio Connect, a manifest file is automatically generated and sent to RStudio Connect describing the project environment. This manifest file will reflect the project environment create and managed by <code>renv</code>. The <code>renv</code> generated <code>.Rprofile</code> file should <strong>not</strong> be included in deployments to RStudio Connect.</p>
 </div>
 <div id="publishing-programatically" class="section level2">
 <h2 class="hasAnchor">
-<a href="#publishing-programatically" class="anchor"></a>Publishing programatically</h2>
-<p>When publishing content to RStudio Connect programatically, it is necessary to generate a manifest file describing the project environment. This can be done with the <code>writeManifest()</code> function from the <a href="https://github.com/rstudio/rsconnect"><code>rsconnect</code></a> package. When using <code>renv</code>, the only thing that needs to be considered is that <code>rsconnect</code> should be installed and executed from within the <code>renv</code> environment so that it recognizes the local project library when generating the manifest file. As long as <code>rsconnect</code> is run from within the <code>renv</code> created environment, it will capture project dependencies from the local <code>renv</code> library. This can be accomplished by opening the project in RStudio or by starting the R session from the project root directory. The <code>renv</code> generated <code>.Rprofile</code> file should <strong>not</strong> be included in deployments to RStudio Connect.</p>
+<a href="#publishing-programatically" class="anchor" aria-hidden="true"></a>Publishing programatically</h2>
+<p>When publishing content to RStudio Connect programatically, it is necessary to generate a manifest file describing the project environment. This can be done with the <code>writeManifest()</code> function from the <a href="https://github.com/rstudio/rsconnect" class="external-link"><code>rsconnect</code></a> package. When using <code>renv</code>, the only thing that needs to be considered is that <code>rsconnect</code> should be installed and executed from within the <code>renv</code> environment so that it recognizes the local project library when generating the manifest file. As long as <code>rsconnect</code> is run from within the <code>renv</code> created environment, it will capture project dependencies from the local <code>renv</code> library. This can be accomplished by opening the project in RStudio or by starting the R session from the project root directory. The <code>renv</code> generated <code>.Rprofile</code> file should <strong>not</strong> be included in deployments to RStudio Connect.</p>
 </div>
 <div id="a-word-about-packrat" class="section level2">
 <h2 class="hasAnchor">
-<a href="#a-word-about-packrat" class="anchor"></a>A word about packrat</h2>
-<p>RStudio Connect uses <a href="https://rstudio.github.io/packrat/"><code>packrat</code></a> to restore project environments on the RStudio Connect server. This should have no impact on how the user develops content for RStudio Connect. It is not necessary for the user to use <code>packrat</code> instead of <code>renv</code> when developing content, as the environment management tool used locally has no impact on the tools RStudio Connect uses for environment management. Therefore, there should be no concerns with using <code>renv</code> to develop content that will be deployed to RStudio Connect.</p>
+<a href="#a-word-about-packrat" class="anchor" aria-hidden="true"></a>A word about packrat</h2>
+<p>RStudio Connect uses <a href="https://rstudio.github.io/packrat/" class="external-link"><code>packrat</code></a> to restore project environments on the RStudio Connect server. This should have no impact on how the user develops content for RStudio Connect. It is not necessary for the user to use <code>packrat</code> instead of <code>renv</code> when developing content, as the environment management tool used locally has no impact on the tools RStudio Connect uses for environment management. Therefore, there should be no concerns with using <code>renv</code> to develop content that will be deployed to RStudio Connect.</p>
 </div>
   </div>
 
@@ -177,11 +173,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p></p>
+<p>Developed by Kevin Ushey.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -189,6 +187,8 @@
 
   
 
+
+  
 
   </body>
 </html>

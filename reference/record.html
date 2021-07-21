@@ -53,6 +53,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -64,9 +66,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -80,19 +88,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.13.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/renv.html">Get started</a>
 </li>
 <li>
@@ -188,7 +190,7 @@
     <p>Use <code>record()</code> to record a new entry within an existing <code>renv</code> lockfile.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>record</span><span class='op'>(</span><span class='va'>records</span>, lockfile <span class='op'>=</span> <span class='cn'>NULL</span>, project <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>record</span><span class='op'>(</span><span class='va'>records</span>, lockfile <span class='op'>=</span> <span class='cn'>NULL</span>, project <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -227,27 +229,27 @@ or by using an <span style="R">R</span> list of entries to record within the loc
 <code><a href='lockfiles.html'>?lockfiles</a></code> for more information on the structure of a package record.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-
-<span class='co'># use digest 0.6.22 from package repositories -- different ways</span>
-<span class='co'># of specifying the remote. use whichever is most natural</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>record</span><span class='op'>(</span><span class='st'>"digest@0.6.22"</span><span class='op'>)</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>record</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>digest <span class='op'>=</span> <span class='st'>"0.6.22"</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>record</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>digest <span class='op'>=</span> <span class='st'>"digest@0.6.22"</span><span class='op'>)</span><span class='op'>)</span>
-
-<span class='co'># alternatively, provide a full record as a list</span>
-<span class='va'>digest_record</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
-  Package <span class='op'>=</span> <span class='st'>"digest"</span>,
-  Version <span class='op'>=</span> <span class='st'>"0.6.22"</span>,
-  Source  <span class='op'>=</span> <span class='st'>"Repository"</span>,
-  Repository <span class='op'>=</span> <span class='st'>"CRAN"</span>
-<span class='op'>)</span>
-
-<span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>record</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>digest <span class='op'>=</span> <span class='va'>digest_record</span><span class='op'>)</span><span class='op'>)</span>
-
-<span class='op'>}</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'></span>
+<span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># use digest 0.6.22 from package repositories -- different ways</span></span>
+<span class='r-in'><span class='co'># of specifying the remote. use whichever is most natural</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>record</span><span class='op'>(</span><span class='st'>"digest@0.6.22"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>record</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>digest <span class='op'>=</span> <span class='st'>"0.6.22"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>record</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>digest <span class='op'>=</span> <span class='st'>"digest@0.6.22"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># alternatively, provide a full record as a list</span></span>
+<span class='r-in'><span class='va'>digest_record</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span></span>
+<span class='r-in'>  Package <span class='op'>=</span> <span class='st'>"digest"</span>,</span>
+<span class='r-in'>  Version <span class='op'>=</span> <span class='st'>"0.6.22"</span>,</span>
+<span class='r-in'>  Source  <span class='op'>=</span> <span class='st'>"Repository"</span>,</span>
+<span class='r-in'>  Repository <span class='op'>=</span> <span class='st'>"CRAN"</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='fu'>renv</span><span class='fu'>::</span><span class='fu'>record</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>digest <span class='op'>=</span> <span class='va'>digest_record</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='op'>}</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -259,11 +261,11 @@ or by using an <span style="R">R</span> list of entries to record within the loc
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kevin Ushey.</p>
+  <p><p>Developed by Kevin Ushey.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -271,6 +273,8 @@ or by using an <span style="R">R</span> list of entries to record within the loc
 
   
 
+
+  
 
   </body>
 </html>
