@@ -1,5 +1,5 @@
 
-# renv 0.14.0 (UNRELEASED)
+# renv 0.14.0
 
 * `renv` now uses `tools::R_user_dir()` to resolve the default path to the
   global `renv` cache, for R installations 4.0.0 or greater. If the `renv`
