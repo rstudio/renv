@@ -1,4 +1,6 @@
 
+# renv 0.15.0  (UNRELEASED)
+
 # renv 0.14.0
 
 * `renv` now uses `tools::R_user_dir()` to resolve the default path to the
