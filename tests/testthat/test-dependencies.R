@@ -348,3 +348,8 @@ test_that("utility script dependencies are discovered", {
   expect_false(is.null(deps))
   expect_setequal(deps$Package, c("A", "B"))
 })
+
+test_that("we handle shiny_prerendered documents", {
+  deps <- dependencies("resources/shiny-prerendered.Rmd", progress = FALSE)
+  expect_true("shiny" %in% deps$Package)
+})

@@ -1,0 +1,6 @@
+---
+title: "shiny_prerendered"
+output: html_document
+runtime: shiny_prerendered
+---
+

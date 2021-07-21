@@ -569,17 +569,19 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
   deps$push("rmarkdown")
 
   # check for Shiny runtime
-  runtime <- yaml$runtime %||% ""
+  runtime <- yaml[["runtime"]] %||% ""
   if (pstring(runtime) && grepl("shiny", runtime, fixed = TRUE))
     deps$push("shiny")
+
   server <- yaml[["server"]] %||% ""
-  if (identical(server, "shiny") ||
-      (is.list(server) && identical(server[["type"]], "shiny"))) {
+  if (identical(server, "shiny"))
     deps$push("shiny")
-  }
+
+  if (is.list(server) && identical(server[["type"]], "shiny"))
+    deps$push("shiny")
 
   # check for custom output function from another package
-  for (output in list(yaml$output, yaml$site)) {
+  for (output in list(yaml[["output"]], yaml[["site"]])) {
 
     # if the output is named, then the output is mapping the
     # function name to the parameters to be used; use names
@@ -599,8 +601,8 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
   }
 
   # check for dependency on bslib
-  theme <- yaml$output$html_document$theme
-  if (is.list(theme))
+  theme <- catchall(yaml[[c("output", "html_document", "theme")]])
+  if (!inherits(theme, "error") && is.list(theme))
     deps$push("bslib")
 
   packages <- as.character(deps$data())
