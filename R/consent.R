@@ -40,7 +40,7 @@ consent <- function(provided = FALSE) {
 
   template <- system.file("resources/WELCOME", package = "renv")
   contents <- readLines(template)
-  replacements <- list(RENV_PATHS_ROOT = shQuote(aliased_path(root)))
+  replacements <- list(RENV_PATHS_ROOT = renv_path_pretty(root))
   welcome <- renv_template_replace(contents, replacements)
   writeLines(welcome)
 
@@ -52,7 +52,7 @@ consent <- function(provided = FALSE) {
 
   options(renv.consent = TRUE)
   ensure_directory(root)
-  vwritef("* %s has been created.", shQuote(aliased_path(root)))
+  vwritef("* %s has been created.", renv_path_pretty(root))
 
   return(invisible(TRUE))
 

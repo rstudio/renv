@@ -1,6 +1,12 @@
 
 # renv 0.14.0 (UNRELEASED)
 
+* `renv` now uses `tools::R_user_dir()` to resolve the default path to the
+  global `renv` cache, for R installations 4.0.0 or greater. If the `renv`
+  cache still exists at the old location, that location will be used instead.
+  This change should only affect brand new installations of `renv` on newer
+  versions of `R`.
+  
 * Fixed an issue with `renv` tests failing with R (>= 4.2.0).
 
 * `renv` will no longer auto-activate itself within R processes launched via
