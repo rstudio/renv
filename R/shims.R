@@ -7,8 +7,11 @@ renv_shim_install_packages <- function(pkgs, ...) {
   renv_scope_rtools()
 
   # currently we only handle the case where only 'pkgs' was specified
-  if (missing(pkgs) || nargs() != 1)
-    return(utils::install.packages(pkgs, ...))
+  if (missing(pkgs) || nargs() != 1) {
+    call <- sys.call()
+    call[[1L]] <- quote(utils::install.packages)
+    return(eval(call, envir = parent.frame()))
+  }
 
   # otherwise, we get to handle it
   install(pkgs)
@@ -18,8 +21,11 @@ renv_shim_install_packages <- function(pkgs, ...) {
 renv_shim_update_packages <- function(lib.loc = NULL, ...) {
 
   # handle only 0-argument case
-  if (nargs() != 0)
-    return(utils::update.packages(lib.loc, ...))
+  if (nargs() != 0) {
+    call <- sys.call()
+    call[[1L]] <- quote(utils::update.packages)
+    return(eval(call, envir = parent.frame()))
+  }
 
   update(library = lib.loc)
 
@@ -28,14 +34,17 @@ renv_shim_update_packages <- function(lib.loc = NULL, ...) {
 renv_shim_remove_packages <- function(pkgs, lib) {
 
   # handle single-argument case
-  if (nargs() != 1)
-    return(utils::remove.packages(pkgs, lib))
+  if (nargs() != 1) {
+    call <- sys.call()
+    call[[1L]] <- quote(utils::remove.packages)
+    return(eval(call, envir = parent.frame()))
+  }
 
   remove(pkgs)
 
 }
 
-renv_shim <- function(shim, sham) {
+renv_shim_create <- function(shim, sham) {
   formals(shim) <- formals(sham)
   shim
 }
@@ -48,13 +57,13 @@ renv_shims_activate <- function() {
 
   renv_shims_deactivate()
 
-  install_shim <- renv_shim(renv_shim_install_packages, utils::install.packages)
+  install_shim <- renv_shim_create(renv_shim_install_packages, utils::install.packages)
   assign("install.packages", install_shim, envir = `_renv_shims`)
 
-  update_shim <- renv_shim(renv_shim_update_packages, utils::update.packages)
+  update_shim <- renv_shim_create(renv_shim_update_packages, utils::update.packages)
   assign("update.packages", update_shim, envir = `_renv_shims`)
 
-  remove_shim <- renv_shim(renv_shim_remove_packages, utils::remove.packages)
+  remove_shim <- renv_shim_create(renv_shim_remove_packages, utils::remove.packages)
   assign("remove.packages", remove_shim, envir = `_renv_shims`)
 
   args <- list(`_renv_shims`, name = "renv:shims", warn.conflicts = FALSE)

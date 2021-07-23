@@ -1,6 +1,10 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* Fixed an issue where `renv`'s shims, e.g. for `install.packages()`, failed
+  to pass along other optional arguments to the shimmed function correctly.
+  (#808)
+  
 # renv 0.14.0
 
 * `renv` now uses `tools::R_user_dir()` to resolve the default path to the
