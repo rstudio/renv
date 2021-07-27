@@ -4,7 +4,7 @@
 \alias{load}
 \title{Load a Project}
 \usage{
-load(project = getwd(), quiet = FALSE)
+load(project = NULL, quiet = FALSE)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will

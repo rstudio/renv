@@ -33,9 +33,11 @@
 #' renv::load()
 #'
 #' }
-load <- function(project = getwd(), quiet = FALSE) {
+load <- function(project = NULL, quiet = FALSE) {
 
   renv_scope_error_handler()
+
+  project <- renv_project_find(project)
   renv_scope_lock(project = project)
 
   # if we're loading a project different from the one currently loaded,

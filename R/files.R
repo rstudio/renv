@@ -467,10 +467,17 @@ renv_file_edit <- function(path) {
 }
 # nocov end
 
-renv_file_find <- function(path, predicate, limit = 8L) {
+renv_file_find <- function(path, predicate) {
 
+  # normalize path
+  path <- normalizePath(path, winslash = "/", mustWork = FALSE)
   parent <- dirname(path)
-  while (path != parent && limit > 0L) {
+
+  # compute number of slashes (avoid searching beyond home directory)
+  slashes <- gregexpr("/", path, fixed = TRUE)[[1L]]
+  n <- length(slashes) - 2L
+
+  for (i in 1:n) {
 
     if (file.exists(path)) {
       status <- predicate(path)
@@ -478,8 +485,8 @@ renv_file_find <- function(path, predicate, limit = 8L) {
         return(status)
     }
 
-    path <- parent; parent <- dirname(path)
-    limit <- limit - 1
+    path <- parent
+    parent <- dirname(path)
 
   }
 

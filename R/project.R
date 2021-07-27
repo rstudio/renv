@@ -267,3 +267,22 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   TRUE
 
 }
+
+renv_project_find <- function(project = NULL) {
+
+  project <- project %||% getwd()
+
+  resolved <- renv_file_find(project, function(parent) {
+    lockpath <- file.path(parent, "renv/activate.R")
+    if (file.exists(lockpath))
+      return(parent)
+  })
+
+  if (is.null(resolved)) {
+    fmt <- "couldn't resolve renv project associated with path %s"
+    stopf(fmt, renv_path_pretty(project))
+  }
+
+  resolved
+
+}

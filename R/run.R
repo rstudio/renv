@@ -33,7 +33,7 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
     paths <- file.path(path, c("renv", "renv.lock"))
     if (any(file.exists(paths)))
       return(path)
-  }, limit = 10L)
+  })
 
   if (is.null(project)) {
     fmt <- "could not determine project root for script '%s'"
