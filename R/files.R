@@ -469,8 +469,9 @@ renv_file_edit <- function(path) {
 
 renv_file_find <- function(path, predicate) {
 
-  # normalize path
-  path <- normalizePath(path, winslash = "/", mustWork = FALSE)
+  # canonicalize path
+  # (note: don't normalize as we don't want to follow symlinks)
+  path <- renv_path_canonicalize(path)
   parent <- dirname(path)
 
   # compute number of slashes (avoid searching beyond home directory)

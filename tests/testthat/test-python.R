@@ -13,7 +13,7 @@ test_that("we can activate Python with a project", {
   skip_if_no_python(python)
 
   renv_tests_scope("breakfast")
-  renv::use_python(python = python, type = "system")
+  use_python(python = python, type = "system")
 
   lockfile <- renv_lockfile_read("renv.lock")
   expect_true(lockfile$Python$Type == "system")
@@ -27,7 +27,7 @@ test_that("we can activate Python with a virtualenv in a project", {
   skip_if_no_virtualenv(python)
 
   renv_tests_scope("breakfast")
-  renv::use_python(python = python, type = "virtualenv")
+  use_python(python = python, type = "virtualenv")
 
   lockfile <- renv_lockfile_read("renv.lock")
   expect_equal(lockfile$Python$Type, "virtualenv")
