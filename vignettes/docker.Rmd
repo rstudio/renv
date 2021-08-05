@@ -157,7 +157,7 @@ containers and applications, each with their own private R library.
 
 ## Handling the renv Autoloader
 
-When \R is launched within a project folder, he `renv` auto-loader (if present)
+When \R is launched within a project folder, the `renv` auto-loader (if present)
 will attempt to download and install `renv` into the project library. Depending
 on how your Docker container is configured, this could fail. For example:
 
