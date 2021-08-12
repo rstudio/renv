@@ -76,6 +76,10 @@
 #' @param type The type of snapshot to perform. See **Snapshot Type** for
 #'   more details.
 #'
+#' @param repos The \R repositories to be recorded in the lockfile. Defaults
+#'   to the currently active package repositories, as retrieved by
+#'   `getOption("repos")`.
+#'
 #' @param packages A vector of packages to be included in the lockfile. When
 #'   `NULL` (the default), all packages relevant for the type of snapshot being
 #'   performed will be included. When set, the `type` argument is ignored.
@@ -101,6 +105,7 @@ snapshot <- function(project  = NULL,
                      library  = NULL,
                      lockfile = paths$lockfile(project = project),
                      type     = settings$snapshot.type(project = project),
+                     repos    = getOption("repos"),
                      packages = NULL,
                      prompt   = interactive(),
                      force    = FALSE,
@@ -114,6 +119,9 @@ snapshot <- function(project  = NULL,
 
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
+
+  repos <- renv_repos_validate(repos)
+  renv_scope_options(repos = repos)
 
   renv_activate_prompt("snapshot", library, prompt, project)
 

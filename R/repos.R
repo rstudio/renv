@@ -51,3 +51,34 @@ renv_repos_normalize <- function(repos = getOption("repos")) {
   convert(repos, "character")
 
 }
+
+renv_repos_validate <- function(repos = getOption("repos")) {
+
+  # allow empty repository explicitly
+  if (empty(repos))
+    return(character())
+
+  # otherwise, ensure it's a named list or character vector
+  ok <- is.list(repos) || is.character(repos)
+  if (!ok)
+    stopf("repos has unexpected type '%s'", typeof(repos))
+
+  # read repository names
+  nm <- names(repos) %||% rep.int("", length(repos))
+  if (any(nm %in% "")) {
+
+    # if this is a length-one repository, assume it's CRAN
+    if (length(repos) == 1L) {
+      repos <- c(CRAN = repos)
+      return(renv_repos_normalize(repos))
+    }
+
+    # otherwise, error
+    stopf("all repository entries must be named")
+
+  }
+
+  # normalize the repos option
+  renv_repos_normalize(repos)
+
+}

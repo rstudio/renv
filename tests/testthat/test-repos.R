@@ -26,3 +26,31 @@ test_that("trailing slashes are removed from repositories on load", {
   renv_load_r_repos(list(CRAN = "https://cloud.r-project.org/"))
   expect_equal(getOption("repos"), c(CRAN = "https://cloud.r-project.org"))
 })
+
+test_that("renv emits an error if repos option is malformed", {
+  renv_tests_scope()
+
+  # disallow malformed repos
+  expect_error(snapshot(repos = 1))
+
+  # disallow unnamed repositories
+  expect_error(snapshot(repos = c("a", "b")))
+
+  # allow zero-length repos
+  lockfile <- snapshot(repos = NULL, lockfile = NULL)
+  expect_true(empty(lockfile$R$Repositories))
+
+  # explicitly allow single unnamed repository
+  lockfile <- snapshot(repos = "https://cloud.r-project.org", lockfile = NULL)
+  expect_equal(lockfile$R$Repositories, list(CRAN = "https://cloud.r-project.org"))
+
+  # allow custom named repositories
+  repos <- list(
+    CRAN = "https://cran.rstudio.com",
+    RSPM = "https://packagemanager.rstudio.com/all/latest"
+  )
+
+  lockfile <- snapshot(repos = repos, lockfile = NULL)
+  expect_equal(lockfile$R$Repositories, repos)
+
+})

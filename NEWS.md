@@ -1,6 +1,13 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* `renv::snapshot()` gains the `repos` argument, to be used to force
+  the lockfile to be generated with the requested set of R repositories
+  encoded within.
+
+* `renv` now validates that the `repos` option, as used by `renv::snapshot()`,
+  is a named vector. (#811)
+
 * Fixed an issue where `renv`'s shims, e.g. for `install.packages()`, failed
   to pass along other optional arguments to the shimmed function correctly.
   (#808)
