@@ -317,6 +317,7 @@ renv_use_python_virtualenv_impl_existing <- function(project,
   renv_python_virtualenv_validate(path, version)
 }
 
+#' Internal helper for activating a Python virtual environment
 #'
 #' @param project
 #'   The project directory.
@@ -336,6 +337,8 @@ renv_use_python_virtualenv_impl_existing <- function(project,
 #'
 #' @return
 #'   The path to the Python binary in the associated virtual environment.
+#'
+#' @keywords internal
 renv_use_python_virtualenv_impl <- function(project,
                                             name = NULL,
                                             version = NULL,

@@ -10,6 +10,7 @@ snapshot(
   library = NULL,
   lockfile = paths$lockfile(project = project),
   type = settings$snapshot.type(project = project),
+  repos = getOption("repos"),
   packages = NULL,
   prompt = interactive(),
   force = FALSE,
@@ -34,6 +35,10 @@ directly instead.}
 
 \item{type}{The type of snapshot to perform. See \strong{Snapshot Type} for
 more details.}
+
+\item{repos}{The \R repositories to be recorded in the lockfile. Defaults
+to the currently active package repositories, as retrieved by
+\code{getOption("repos")}.}
 
 \item{packages}{A vector of packages to be included in the lockfile. When
 \code{NULL} (the default), all packages relevant for the type of snapshot being
