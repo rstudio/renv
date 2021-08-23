@@ -1,6 +1,11 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* The `renv` auto-loader can now be disabled by setting the environment
+  variable `RENV_AUTOLOADER_ENABLED = FALSE`. This can be useful if you'd like
+  to explicitly control how a project is loaded, e.g. by calling `renv::load()`
+  explicitly.
+
 * `renv::snapshot()` gains the `repos` argument, to be used to force
   the lockfile to be generated with the requested set of R repositories
   encoded within.
