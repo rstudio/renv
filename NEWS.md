@@ -1,6 +1,10 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* `renv` now respects the `R_PROFILE_USER` environment variable, in addition
+  to the `user.profile` configuration option, when considering whether the
+  user `.Rprofile` should be examined for package dependencies. (#821)
+
 * The `renv` auto-loader can now be disabled by setting the environment
   variable `RENV_AUTOLOADER_ENABLED = FALSE`. This can be useful if you'd like
   to explicitly control how a project is loaded, e.g. by calling `renv::load()`

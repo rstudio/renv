@@ -270,7 +270,7 @@ renv_load_rprofile <- function(project = NULL) {
 
   project <- renv_project_resolve(project)
 
-  enabled <- config$user.profile()
+  enabled <- identical(config$user.profile(), TRUE)
   if (!enabled)
     return(FALSE)
 
