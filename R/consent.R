@@ -79,6 +79,7 @@ renv_consent_check <- function() {
     !is.na(Sys.getenv("CI", unset = NA)) ||
     !is.na(Sys.getenv("GITHUB_ACTION", unset = NA)) ||
     !is.na(Sys.getenv("RENV_PATHS_ROOT", unset = NA)) ||
+    file.exists("/.singularity.d") ||
     file.exists("/.dockerenv")
 
   if (consented)
