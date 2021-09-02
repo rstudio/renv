@@ -1,6 +1,9 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* `renv` no longer requires explicit user consent when used within Singularity
+  containers. (#824, @kiwiroy)
+
 * `renv` now respects the `R_PROFILE_USER` environment variable, in addition
   to the `user.profile` configuration option, when considering whether the
   user `.Rprofile` should be examined for package dependencies. (#821)
