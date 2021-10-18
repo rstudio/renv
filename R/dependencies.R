@@ -627,7 +627,7 @@ renv_dependencies_discover_chunks_ignore <- function(chunk) {
     return(TRUE)
 
   # skip learnr exercises
-  if (truthy(chunk$params$exercise, default = FALSE))
+  if (truthy(chunk$params[["exercise"]], default = FALSE))
     return(TRUE)
 
   # skip chunks whose labels end in '-display'
