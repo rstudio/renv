@@ -79,10 +79,6 @@ test_that("we can parse a variety of remotes", {
 
 })
 
-test_that("git remotes with subdirectories &/or pull requests can be resolved!", {
-  skip("Need to make test repos")
-})
-
 test_that("subdirectories are parsed in remotes", {
 
   entry <- "gitlab::user/repo:subdir@ref"

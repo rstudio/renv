@@ -52,10 +52,19 @@ renv_record_cacheable <- function(record) {
 }
 
 renv_record_source <- function(record, normalize = FALSE) {
+
+  # if this appears to be a file path, then keep it as-is
+  source <- record$Source %||% "unknown"
+  if (grepl("[/\\]", source))
+    return(source)
+
+  # otherwise, try to normalize it
   source <- tolower(record$Source %||% "unknown")
   if (normalize)
     source <- renv_record_source_normalize(record, source)
+
   source
+
 }
 
 renv_record_source_normalize <- function(record, source) {

@@ -119,9 +119,11 @@ renv_retrieve_impl <- function(package) {
   }
 
   # if this is a URL source, then it should already have a local path
-  path <- record$Path %||% ""
-  if (file.exists(path))
+  path <- record$Path %||% record$Source %||% ""
+  if (grepl("[/\\]", path) && file.exists(path)) {
+    path <- normalizePath(path, winslash = "/", mustWork = TRUE)
     return(renv_retrieve_successful(record, path))
+  }
 
   if (!renv_restore_rebuild_required(record)) {
 

@@ -234,3 +234,37 @@ test_that("restore(exclude = <...>) excludes as expected", {
   expect_false(renv_package_installed("breakfast"))
 
 })
+
+test_that("restore works with explicit Source", {
+
+  renv_tests_scope("breakfast")
+  init()
+
+  locals <- Sys.getenv("RENV_PATHS_LOCAL", unset = NA)
+  if (is.na(locals))
+    stop("internal error: RENV_PATHS_LOCAL unset in tests")
+
+  renv_scope_envvars(
+    RENV_PATHS_LOCAL = "",
+    RENV_PATHS_CACHE = ""
+  )
+
+  record <- list(
+    Package = "skeleton",
+    Version = "1.0.0",
+    Source  = file.path(locals, "skeleton/skeleton_1.0.0.tar.gz")
+  )
+
+  renv_test_retrieve(record)
+
+  lockfile <- renv_lockfile_init(project = getwd())
+  lockfile$R$Packages <- list(skeleton = record)
+  renv_lockfile_write(lockfile, file = "renv.lock")
+  remove("skeleton")
+
+  restore()
+
+  expect_true(renv_package_installed("skeleton"))
+  expect_true(renv_package_version("skeleton") == "1.0.0")
+
+})

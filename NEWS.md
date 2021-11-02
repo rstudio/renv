@@ -1,6 +1,9 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* Fixed an issue where `renv::restore()` could fail to restore packages which
+  referred to their source via an explicit path in the `Source` field. (#849)
+  
 * `renv` no longer requires explicit user consent when used within Singularity
   containers. (#824, @kiwiroy)
 
