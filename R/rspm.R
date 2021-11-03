@@ -116,7 +116,7 @@ renv_rspm_status_impl <- function(base) {
 
 }
 
-renv_rspm_platform <- function() {
+renv_rspm_platform <- function(file = "/etc/os-release") {
 
   platform <- Sys.getenv("RENV_RSPM_PLATFORM", unset = NA)
   if (!is.na(platform))
@@ -128,10 +128,16 @@ renv_rspm_platform <- function() {
   if (renv_platform_macos())
     return("macos")
 
-  if (file.exists("/etc/os-release")) {
+  renv_rspm_platform_impl(file)
+
+}
+
+renv_rspm_platform_impl <- function(file = "/etc/os-release") {
+
+  if (file.exists(file)) {
 
     properties <- renv_properties_read(
-      path      = "/etc/os-release",
+      path      = file,
       delimiter = "=",
       dequote   = TRUE
     )
@@ -141,6 +147,7 @@ renv_rspm_platform <- function() {
     case(
       identical(id, "ubuntu") ~ renv_rspm_platform_ubuntu(properties),
       identical(id, "centos") ~ renv_rspm_platform_centos(properties),
+      identical(id, "rhel")   ~ renv_rspm_platform_rhel(properties),
       grepl("\\bsuse\\b", id) ~ renv_rspm_platform_suse(properties)
     )
 
@@ -164,9 +171,20 @@ renv_rspm_platform_centos <- function(properties) {
   if (is.null(id))
     return(NULL)
 
-  paste0("centos", id)
+  paste0("centos", substring(id, 1L, 1L))
 
 }
+
+renv_rspm_platform_rhel <- function(properties) {
+
+  id <- properties$VERSION_ID
+  if (is.null(id))
+    return(NULL)
+
+  paste0("centos", substring(id, 1L, 1L))
+
+}
+
 
 renv_rspm_platform_suse <- function(properties) {
 

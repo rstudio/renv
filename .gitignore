@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.venv
 
 ci
 check

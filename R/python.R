@@ -234,11 +234,12 @@ renv_python_envpath <- function(project, type, version = NULL) {
 
 renv_python_envname <- function(project, path, type) {
 
-  # we return NULL for environments within the project
-  # as these names get auto-constructed from other metadata
-  # related to the Python executable used
-  if (renv_path_within(path, project))
-    return(NULL)
+  # check for a project-local environment
+  if (renv_path_within(path, project)) {
+    stem <- substring(path, nchar(project) + 2L)
+    path <- paste(".", stem, sep = "/")
+    return(path)
+  }
 
   bn <- basename(path)
 

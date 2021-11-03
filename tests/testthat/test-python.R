@@ -176,7 +176,42 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
 
 })
 
+test_that("python environment name is preserved after snapshot", {
+
+  skip_if_local()
+  skip_on_os("windows")
+  skip_on_cran()
+  skip_if_no_miniconda(python)
+  skip_if(renv_version_lt(renv_python_version(python), "3.6"))
+
+  # create and use local python environment
+  renv_tests_scope()
+  renv::init()
+
+  system2(python, c("-m", "venv", "virtualenv"))
+  renv::use_python(name = "./virtualenv")
+
+  # check that the lockfile has been updated
+  lockfile <- renv_lockfile_read("renv.lock")
+  expect_equal(lockfile$Python$Name, "./virtualenv")
+
+  # try to snapshot
+  renv::snapshot()
+
+  # check that the virtual environment name was preserved
+  lockfile <- renv_lockfile_read("renv.lock")
+  expect_equal(lockfile$Python$Name, "./virtualenv")
+
+})
+
+
 # deactivate reticulate integration
 Sys.unsetenv("RENV_PYTHON")
 Sys.unsetenv("RETICULATE_PYTHON")
 Sys.unsetenv("RETICULATE_PYTHON_ENV")
+
+
+
+
+
+

@@ -18,6 +18,7 @@
 ^TODO\.md$
 
 ^\.github$
+^\.venv$
 ^check$
 ^ci$
 ^docs$

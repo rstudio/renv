@@ -1,6 +1,13 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* Fixed an issue where `renv` would fail to produce the appropriate binary
+  repository URL for RSPM repositories built using Red Hat Enterprise Linux.
+
+* Fixed an issue where `renv::snapshot()` could cause the environment name
+  and / or path associated with a Python environment to be omitted from the
+  lockfile. (#843)
+
 * Fixed an issue where `renv::restore()` could fail to restore packages which
   referred to their source via an explicit path in the `Source` field. (#849)
   
