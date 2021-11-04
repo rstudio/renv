@@ -1,5 +1,5 @@
 
-utils::globalVariables(c("self", "super"), package = "renv")
+utils::globalVariables(c("self", "super"), package = .packageName)
 
 renv_tests_reporter <- function() {
 
