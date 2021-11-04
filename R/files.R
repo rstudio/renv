@@ -376,7 +376,10 @@ renv_file_list <- function(path, full.names = TRUE) {
 }
 
 renv_file_list_impl <- function(path) {
-  renv_methods_error()
+  if (renv_platform_windows())
+    renv_file_list_impl_win32(path)
+  else
+    renv_file_list_impl_unix(path)
 }
 
 renv_file_list_impl_unix <- function(path) {

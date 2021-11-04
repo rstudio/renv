@@ -19,6 +19,10 @@ renv_methods_map <- function() {
 
 renv_methods_init <- function() {
 
+  # only done if we're in the renv namespace
+  if (!identical(.packageName, "renv"))
+    return()
+
   # get list of method mappings
   methods <- renv_methods_map()
 

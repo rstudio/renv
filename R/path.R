@@ -10,7 +10,10 @@ renv_path_within <- function(path, parent) {
 }
 
 renv_path_normalize <- function(path, winslash = "/", mustWork = FALSE) {
-  renv_methods_error()
+  if (renv_platform_windows())
+    renv_path_normalize_win32(path, winslash, mustWork)
+  else
+    renv_path_normalize_unix(path, winslash, mustWork)
 }
 
 renv_path_normalize_unix <- function(path,
