@@ -1,6 +1,10 @@
 
 renv_exports_attach <- function() {
 
+  # only done if we're renv
+  if (!identical(.packageName, "renv"))
+    return()
+
   # guard against intermediate case where config hasn't been generated
   renv <- asNamespace("renv")
   if (!exists("config", envir = renv))

@@ -31,7 +31,7 @@ renv_methods_init <- function() {
   alts <- map(methods, `[[`, key)
 
   # update methods in namespace
-  renv <- asNamespace("renv")
+  renv <- asNamespace(.packageName)
   enumerate(alts, function(name, alt) {
     replacement <- eval(parse(text = alt), envir = renv)
     assign(name, replacement, envir = renv)
