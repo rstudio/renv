@@ -353,3 +353,13 @@ test_that("we handle shiny_prerendered documents", {
   deps <- dependencies("resources/shiny-prerendered.Rmd", progress = FALSE)
   expect_true("shiny" %in% deps$Package)
 })
+
+test_that("we don't infer a dependency on rmarkdown for empty .qmd", {
+  deps <- dependencies("resources/quarto-empty.qmd", progress = FALSE)
+  expect_true(is.null(deps) || !"rmarkdown" %in% deps$Package)
+})
+
+test_that("we do infer dependency on rmarkdown for .qmd with R chunks", {
+  deps <- dependencies("resources/quarto-r-chunks.qmd", progress = FALSE)
+  expect_true("rmarkdown" %in% deps$Package)
+})

@@ -1,0 +1,7 @@
+---
+title: Quarto document
+---
+
+```{python}
+# we don't use R here
+```

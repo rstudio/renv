@@ -236,7 +236,7 @@ renv_dependencies_callback <- function(path) {
   cbext <- list(
     ".rproj"       = function(path) renv_dependencies_discover_rproj(path),
     ".r"           = function(path) renv_dependencies_discover_r(path),
-    ".qmd"         = function(path) renv_dependencies_discover_multimode(path, "rmd"),
+    ".qmd"         = function(path) renv_dependencies_discover_multimode(path, "qmd"),
     ".rmd"         = function(path) renv_dependencies_discover_multimode(path, "rmd"),
     ".rmarkdown"   = function(path) renv_dependencies_discover_multimode(path, "rmd"),
     ".rnw"         = function(path) renv_dependencies_discover_multimode(path, "rnw")
@@ -546,27 +546,50 @@ renv_dependencies_discover_multimode <- function(path, mode) {
   # TODO: find in-line R code?
   deps <- stack()
 
-  if (identical(mode, "rmd"))
-    deps$push(renv_dependencies_discover_rmd_yaml_header(path))
+  if (mode %in% c("rmd", "qmd"))
+    deps$push(renv_dependencies_discover_rmd_yaml_header(path, mode))
 
-  deps$push(renv_dependencies_discover_chunks(path))
+  deps$push(renv_dependencies_discover_chunks(path, mode))
 
   bind_list(Filter(NROW, deps$data()))
 
 }
 
-renv_dependencies_discover_rmd_yaml_header <- function(path) {
+renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
 
-  for (package in c("rmarkdown", "yaml"))
-    if (!renv_dependencies_require(package, "R Markdown"))
-      return(renv_dependencies_list(path, packages = "rmarkdown"))
+  deps <- stack(mode = "character")
 
-  yaml <- catch(rmarkdown::yaml_front_matter(path))
+  # R Markdown documents always depend on rmarkdown
+  if (identical(mode, "rmd"))
+    deps$push("rmarkdown")
+
+  # try and read the document's YAML header
+  contents <- renv_file_read(path)
+  pattern <- "(?:^|\n)\\s*---\\s*(?:$|\n)"
+  matches <- gregexpr(pattern, contents, perl = TRUE)[[1L]]
+
+  # check that we have something that looks like a YAML header
+  ok <- length(matches) > 1L && matches[[1L]] == 1L
+  if (!ok)
+    return(renv_dependencies_list(path, packages = deps$data()))
+
+  # require yaml package for parsing YAML header
+  name <- case(
+    mode == "rmd" ~ "R Markdown",
+    mode == "qmd" ~ "Quarto Markdown"
+  )
+
+  # validate that we actually have the yaml package available
+  if (!renv_dependencies_require("yaml", name)) {
+    packages <- deps$data()
+    return(renv_dependencies_list(path, packages))
+  }
+
+  # extract YAML text
+  yamltext <- substring(contents, matches[[1L]] + 4L, matches[[2L]] - 1L)
+  yaml <- catch(yaml::yaml.load(yamltext))
   if (inherits(yaml, "error"))
     return(renv_dependencies_error(path, error = yaml, packages = "rmarkdown"))
-
-  deps <- stack()
-  deps$push("rmarkdown")
 
   # check for Shiny runtime
   runtime <- yaml[["runtime"]] %||% ""
@@ -605,7 +628,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
   if (!inherits(theme, "error") && is.list(theme))
     deps$push("bslib")
 
-  packages <- as.character(deps$data())
+  packages <- deps$data()
   renv_dependencies_list(path, packages)
 
 }
@@ -613,17 +636,18 @@ renv_dependencies_discover_rmd_yaml_header <- function(path) {
 renv_dependencies_discover_chunks_ignore <- function(chunk) {
 
   # if renv.ignore is set, respect it
-  ignore <- chunk$params$renv.ignore
+  ignore <- chunk$params[["renv.ignore"]]
   if (!is.null(ignore))
     return(truthy(ignore))
 
   # skip non-R chunks
-  engine <- chunk$params$engine
-  if (!(identical(engine, "r") || identical(engine, "rscript")))
+  engine <- chunk$params[["engine"]]
+  ok <- is.character(engine) && engine %in% c("r", "rscript")
+  if (!ok)
     return(TRUE)
 
   # skip un-evaluated chunks
-  if (!truthy(chunk$params$eval, default = TRUE))
+  if (!truthy(chunk$params[["eval"]], default = TRUE))
     return(TRUE)
 
   # skip learnr exercises
@@ -631,7 +655,7 @@ renv_dependencies_discover_chunks_ignore <- function(chunk) {
     return(TRUE)
 
   # skip chunks whose labels end in '-display'
-  label <- chunk$params$label %||% ""
+  label <- chunk$params[["label"]] %||% ""
   if (grepl("-display$", label))
     return(TRUE)
 
@@ -640,18 +664,15 @@ renv_dependencies_discover_chunks_ignore <- function(chunk) {
 
 }
 
-renv_dependencies_discover_chunks <- function(path) {
-
-  # ensure 'knitr' is installed / available
-  if (!renv_dependencies_require("knitr", "multi-mode"))
-    return(list())
+renv_dependencies_discover_chunks <- function(path, mode) {
 
   # figure out the appropriate begin, end patterns
   type <- tolower(tools::file_ext(path))
   if (type %in% c("rmd", "qmd", "rmarkdown"))
     type <- "md"
 
-  patterns <- knitr::all_patterns[[type]]
+  allpatterns <- renv_knitr_patterns()
+  patterns <- allpatterns[[type]]
   if (is.null(patterns)) {
     condition <- simpleCondition("not a recognized multi-mode R document")
     return(renv_dependencies_error(path, error = condition))
@@ -704,7 +725,20 @@ renv_dependencies_discover_chunks <- function(path) {
   # check for dependencies in inline chunks as well
   ideps <- renv_dependencies_discover_chunks_inline(path, contents)
 
-  deps <- bind_list(list(cdeps, ideps))
+  # if this is a .qmd, infer a dependency on rmarkdown if we have any R chunks
+  qdeps <- NULL
+  if (mode %in% "qmd") {
+    for (chunk in chunks) {
+      engine <- chunk$params[["engine"]]
+      if (is.character(engine) && engine %in% c("r", "rscript")) {
+        qdeps <- renv_dependencies_list(path, "rmarkdown")
+        break
+      }
+    }
+  }
+
+  # paste them all together
+  deps <- bind_list(list(cdeps, ideps, qdeps))
   if (is.null(deps))
     return(deps)
 
@@ -1309,7 +1343,8 @@ renv_dependencies_list <- function(source,
 renv_dependencies_discover_parse_params <- function(header, type) {
 
   engine <- "r"
-  rest <- sub(knitr::all_patterns[[type]]$chunk.begin, "\\1", header)
+  patterns <- renv_knitr_patterns()
+  rest <- sub(patterns[[type]]$chunk.begin, "\\1", header)
 
   # if this is an R Markdown document, parse the initial engine chunk
   if (type == "md") {

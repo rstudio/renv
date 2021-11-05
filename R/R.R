@@ -168,7 +168,7 @@ r_cmd_install <- function(package, path, ...) {
     "CMD", "INSTALL", "--preclean", "--no-multiarch",
     r_cmd_install_option(package, "configure.args", TRUE),
     r_cmd_install_option(package, "configure.vars", TRUE),
-    r_cmd_install_option(package, "install.opts", FALSE),
+    r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE),
     ...,
     shQuote(path)
   )
@@ -228,20 +228,13 @@ r_cmd_build <- function(package, path, ...) {
 
 }
 
-r_cmd_install_option <- function(package, option, configure) {
+r_cmd_install_option <- function(package, scopes, configure) {
 
   # read option -- first, check for package-specific option, then
   # fall back to 'global' option
-  value <-
-    getOption(paste(option, package, sep = ".")) %||%
-    getOption(option)
-
-  # check INSTALL_opts as well (in case that's used instead of install.opts)
-  if (is.null(value) && identical(option, "install.opts")) {
-    value <-
-      getOption(paste("INSTALL_opts", package, sep = ".")) %||%
-      getOption("INSTALL_opts")
-  }
+  value <- find(scopes, function(scope) {
+    getOption(paste(scope, package, sep = ".")) %||% getOption(scope)
+  })
 
   if (is.null(value))
     return(NULL)

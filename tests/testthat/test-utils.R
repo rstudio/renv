@@ -129,3 +129,21 @@ test_that("sink captures both stdout and stderr", {
 
 
 })
+
+test_that("find() returns first non-null matching value", {
+
+  data <- list(x = 1, y = 2, z = 3)
+
+  value <- find(data, function(datum) {
+    if (datum == 2)
+      return(42)
+  })
+  expect_equal(value, 42)
+
+  value <- find(data, function(datum) {
+    if (datum == 4)
+      return(42)
+  })
+  expect_null(value)
+
+})

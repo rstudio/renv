@@ -410,3 +410,9 @@ heredoc <- function(text) {
   paste(substring(lines, common), collapse = "\n")
 
 }
+
+find <- function(x, f, ...) {
+  for (i in seq_along(x))
+    if (!is.null(value <- f(x[[i]], ...)))
+      return(value)
+}
