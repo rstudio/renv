@@ -228,13 +228,23 @@ r_cmd_build <- function(package, path, ...) {
 
 }
 
-r_cmd_install_option <- function(package, scopes, configure) {
+r_cmd_install_option <- function(package, options, configure) {
 
   # read option -- first, check for package-specific option, then
   # fall back to 'global' option
-  value <- find(scopes, function(scope) {
-    getOption(paste(scope, package, sep = ".")) %||% getOption(scope)
-  })
+  for (option in options) {
+    value <- r_cmd_install_option_impl(package, option, configure)
+    if (!is.null(value))
+      return(value)
+  }
+
+}
+
+r_cmd_install_option_impl <- function(package, option, configure) {
+
+  value <-
+    getOption(paste(option, package, sep = ".")) %||%
+    getOption(option)
 
   if (is.null(value))
     return(NULL)

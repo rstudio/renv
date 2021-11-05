@@ -135,10 +135,11 @@ renv_patch_methods_table_impl <- function() {
   envir <- asNamespace(.packageName)
 
   # unlock binding if it's locked
+  base <- .BaseNamespaceEnv
   binding <- ".__S3MethodsTable__."
-  if (bindingIsLocked(binding, env = envir)) {
-    unlockBinding(binding, env = envir)
-    on.exit(lockBinding(binding, envir), add = TRUE)
+  if (base$bindingIsLocked(binding, env = envir)) {
+    base$unlockBinding(binding, env = envir)
+    on.exit(base$lockBinding(binding, envir), add = TRUE)
   }
 
   # force everything defined in the environment
