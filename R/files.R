@@ -84,9 +84,20 @@ renv_file_copy_dir_rsync <- function(source, target) {
 }
 
 renv_file_copy_dir_cp <- function(source, target) {
+
+  # ensure 'source' ends with a single trailing slash
   source <- sub("/*$", "/", source)
+
+  # ensure tildes are path-expanded
+  source <- path.expand(source)
+  target <- path.expand(target)
+
+  # build command arguments
   args <- c("-pPR", shQuote(source), shQuote(target))
+
+  # execute copy
   renv_system_exec("cp", args, action = "copying directory")
+
 }
 
 renv_file_copy_dir_r <- function(source, target) {
