@@ -19,10 +19,6 @@ renv_methods_map <- function() {
 
 renv_methods_init <- function() {
 
-  # only done if we're in the renv namespace
-  if (!identical(.packageName, "renv"))
-    return()
-
   # get list of method mappings
   methods <- renv_methods_map()
 
@@ -31,10 +27,10 @@ renv_methods_init <- function() {
   alts <- map(methods, `[[`, key)
 
   # update methods in namespace
-  renv <- asNamespace(.packageName)
+  envir <- renv_envir_self()
   enumerate(alts, function(name, alt) {
-    replacement <- eval(parse(text = alt), envir = renv)
-    assign(name, replacement, envir = renv)
+    replacement <- eval(parse(text = alt), envir = envir)
+    assign(name, replacement, envir = envir)
   })
 
 }

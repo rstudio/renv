@@ -20,4 +20,5 @@ renv_license_generate <- function() {
 
 }
 
-renv_license_generate()
+if (identical(.packageName, "renv"))
+  renv_license_generate()

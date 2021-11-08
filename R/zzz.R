@@ -58,4 +58,5 @@ renv_zzz_bootstrap <- function() {
 
 }
 
-renv_zzz_run()
+if (identical(.packageName, "renv"))
+  renv_zzz_run()

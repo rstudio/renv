@@ -132,7 +132,7 @@ renv_patch_methods_table_impl <- function() {
 
   # ensure promises in S3 methods table are forced
   # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16644
-  envir <- asNamespace(.packageName)
+  envir <- renv_envir_self()
 
   # unlock binding if it's locked
   base <- .BaseNamespaceEnv

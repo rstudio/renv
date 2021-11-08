@@ -1,6 +1,4 @@
 
-utils::globalVariables(c("self", "super"), package = .packageName)
-
 renv_tests_reporter <- function() {
 
   # if we're running on CI, use the default reporter
@@ -10,6 +8,9 @@ renv_tests_reporter <- function() {
   # if we can't load R6, use the default reporter
   if (!requireNamespace("R6", quietly = TRUE))
     return(testthat::default_reporter())
+
+  # silence R CMD check
+  self <- super <- NULL
 
   # otherwise, define and return instance of our reporter
   R6::R6Class(
