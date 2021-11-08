@@ -59,6 +59,9 @@ renv_file_copy_file <- function(source, target) {
 
 renv_file_copy_dir_robocopy <- function(source, target) {
 
+  source <- path.expand(source)
+  target <- path.expand(target)
+
   flags <- c("/E", "/Z", "/R:5", "/W:10")
   args <- c(flags, shQuote(source), shQuote(target))
 
