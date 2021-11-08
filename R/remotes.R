@@ -484,15 +484,9 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 
   renv_git_preflight()
 
-  data <- list(
-    ORIGIN = record$RemoteUrl,
-    REF    = record$RemoteRef %||% record$RemoteSha
-  )
-
-  args <- c("ls-remote", data$ORIGIN, data$REF)
-
-  # output looks like:
-  # SHA1 (tab) refs/path/to/ref_name
+  origin <- record$RemoteUrl
+  ref <- record$RemoteRef %||% record$RemoteSha
+  args <- c("ls-remote", origin, ref)
 
   output <- local({
     renv_scope_auth(record)
@@ -503,15 +497,14 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
   if (empty(output))
     return("")
 
-  # split each line
-  # gets a list of character vectors,
-  # list(
-  #   c("sha1", "refname1"),
-  #   c("sha2", "refname2)
-  #  )
-  # get first sha of first line
-  sha <- strsplit(output, "\t", fixed = TRUE)[[1]][1]
-  return(sha)
+  # format of output is, for example:
+  #
+  #   $ git ls-remote https://github.com/rstudio/renv refs/tags/0.14.0
+  #   20ca74bdcc3c87848e5665effa2fc8ee8b039c69        refs/tags/0.14.0
+  #
+  # take first line of output, split on tab character, and take leftmost entry
+  strsplit(output[[1L]], "\t", fixed = TRUE)[[1L]][[1L]]
+
 }
 
 
@@ -521,8 +514,8 @@ renv_remotes_resolve_git_description <- function(record) {
 
   renv_retrieve_git_impl(record, path)
 
-  subdir <- record$RemoteSubdir
   # subdir may be NULL
+  subdir <- record$RemoteSubdir
   desc <- renv_description_read(path, subdir = subdir)
 
   desc
