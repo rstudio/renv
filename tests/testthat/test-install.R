@@ -351,3 +351,21 @@ test_that("issue #609", {
   install("bread")
   expect_true(renv_package_installed("bread"))
 })
+
+test_that("we can install packages from git remotes within subdirs", {
+  skip_on_cran()
+
+  renv_tests_scope("subdir")
+
+  install("git@github.com:kevinushey/subdir.git:subdir", rebuild = TRUE)
+  expect_true(renv_package_installed("subdir"))
+
+  snapshot()
+
+  remove("subdir")
+  expect_false(renv_package_installed("subdir"))
+
+  restore(packages = "subdir", rebuild = TRUE)
+  expect_true(renv_package_installed("subdir"))
+
+})

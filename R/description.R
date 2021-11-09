@@ -46,7 +46,6 @@ renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
     # just consume everything up to the first slash
     subdir <- subdir %||% ""
     parts <- c("^[^/]+", if (nzchar(subdir)) subdir, "DESCRIPTION$")
-
     pattern <- paste(parts, collapse = "/")
 
     descs <- grep(pattern, files, value = TRUE)
