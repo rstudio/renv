@@ -321,11 +321,22 @@ renv_available_packages_latest <- function(package, type = NULL) {
     renv_available_packages_latest_mran
   )
 
+  errors <- stack()
+
   for (method in methods) {
+
     entry <- catch(method(package, type))
-    if (!inherits(entry, "error") && is.list(entry))
-      return(entry)
+    if (inherits(entry, "error")) {
+      errors$push(entry)
+      next
+    }
+
+    return(entry)
+
   }
+
+  for (error in errors$data())
+    warning(error)
 
   stopf("package '%s' is not available", package)
 
