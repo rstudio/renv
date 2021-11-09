@@ -1,6 +1,8 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* The development branch for `renv` has moved from master to main.
+
 * `renv` now handles packages stored within the sub-directory of a Git
   repository better. (#793)
 

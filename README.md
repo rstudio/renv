@@ -5,8 +5,8 @@
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![CRAN status](https://www.r-pkg.org/badges/version/renv)](https://CRAN.R-project.org/package=renv)
 [![R-CMD-check](https://github.com/rstudio/renv/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/renv/actions)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/rstudio/renv?branch=master&svg=true)](https://ci.appveyor.com/project/rstudio/renv)
-[![Codecov test coverage](https://codecov.io/gh/rstudio/renv/branch/master/graph/badge.svg)](https://codecov.io/gh/rstudio/renv?branch=master)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/rstudio/renv?branch=main&svg=true)](https://ci.appveyor.com/project/rstudio/renv)
+[![Codecov test coverage](https://codecov.io/gh/rstudio/renv/branch/main/graph/badge.svg)](https://codecov.io/gh/rstudio/renv?branch=main)
 <!-- badges: end -->
 
 ## Overview

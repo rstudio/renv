@@ -238,7 +238,7 @@ renv_remotes_resolve_bitbucket <- function(entry) {
   user   <- entry$user
   repo   <- entry$repo
   subdir <- entry$subdir
-  ref    <- entry$ref %||% "master"
+  ref    <- entry$ref %||% getOption("renv.bitbucket.default_branch", "master")
 
   host <- entry$host %||% config$bitbucket.host()
 
@@ -326,6 +326,7 @@ renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
   # build url for github endpoint
   fmt <- "%s/repos/%s/%s/commits/%s"
   origin <- renv_retrieve_origin(host)
+  ref <- ref %||% getOption("renv.github.default_branch", default = "master")
   url <- sprintf(fmt, origin, user, repo, ref %||% "master")
 
   # prepare headers
@@ -409,7 +410,7 @@ renv_remotes_resolve_github_ref_impl <- function(host, user, repo) {
   json <- renv_json_read(jsonfile)
 
   # read default branch
-  json$default_branch %||% "master"
+  json$default_branch %||% getOption("renv.github.default_branch", default = "master")
 
 }
 
@@ -541,7 +542,7 @@ renv_remotes_resolve_gitlab_ref <- function(host, user, repo) {
     renv_remotes_resolve_gitlab_ref_impl(host, user, repo),
     error = function(e) {
       warning(e)
-      "master"
+      getOption("renv.gitlab.default_branch", default = "master")
     }
   )
 

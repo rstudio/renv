@@ -46,7 +46,7 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
 
   # otherwise, try to download and install the requested version
   # of renv from GitHub
-  remote <- paste("rstudio/renv", version %||% "master", sep = "@")
+  remote <- paste("rstudio/renv", version %||% "main", sep = "@")
   record <- renv_remotes_resolve(remote)
   records <- list(renv = record)
 

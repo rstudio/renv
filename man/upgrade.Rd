@@ -35,7 +35,7 @@ By default, this function will attempt to install the latest version of
 \code{renv} as available on the active R package repositories. If you'd instead
 like to try out a development version of \code{renv}, you can explicitly request a
 different version of \code{renv} and that version of the package will be
-downloaded and installed from GitHub. Use \code{version = "master"} to install the
+downloaded and installed from GitHub. Use \code{version = "main"} to install the
 latest development version of \code{renv}, as from the \code{renv} project's \href{https://github.com/rstudio/renv}{GitHub page}.
 }
 \examples{
@@ -45,7 +45,7 @@ latest development version of \code{renv}, as from the \code{renv} project's \hr
 renv::upgrade()
 
 # upgrade to the latest version of renv on GitHub (development version)
-renv::upgrade(version = "master")
+renv::upgrade(version = "main")
 
 }
 }

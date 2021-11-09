@@ -7,7 +7,7 @@
 #' `renv` as available on the active R package repositories. If you'd instead
 #' like to try out a development version of `renv`, you can explicitly request a
 #' different version of `renv` and that version of the package will be
-#' downloaded and installed from GitHub. Use `version = "master"` to install the
+#' downloaded and installed from GitHub. Use `version = "main"` to install the
 #' latest development version of `renv`, as from the `renv` project's [GitHub
 #' page](https://github.com/rstudio/renv).
 #'
@@ -37,7 +37,7 @@
 #' renv::upgrade()
 #'
 #' # upgrade to the latest version of renv on GitHub (development version)
-#' renv::upgrade(version = "master")
+#' renv::upgrade(version = "main")
 #'
 #' }
 upgrade <- function(project = NULL,

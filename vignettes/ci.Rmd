@@ -150,4 +150,4 @@ before_script:
 [github-actions]: https://github.com/features/actions
 [travis-ci]: https://travis-ci.org/
 [appveyor]: https://www.appveyor.com/
-[github-actions-renv]: https://github.com/actions/cache/blob/master/examples.md#r---renv
+[github-actions-renv]: https://github.com/actions/cache/blob/main/examples.md#r---renv
