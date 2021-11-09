@@ -49,8 +49,8 @@ renv_lockfile_from_manifest <- function(manifest, lockfile = NA) {
 
   # read packages from manifest
   packages <- map(manifest[["packages"]], function(entry) {
-    version <- record[["description"]][["Version"]]
-    package <- record[["description"]][["Package"]]
+    version <- entry[["description"]][["Version"]]
+    package <- entry[["description"]][["Package"]]
     paste(package, version, sep = "@")
   })
 
