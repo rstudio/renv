@@ -1,6 +1,9 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* Fixed an issue where `renv::history()` would fail to resolve the correct
+  lockfile path if the working directory was changed. (#834)
+
 * Refined dependency discovery within `glue::glue()` expressions.
 
 * `renv` now parses packages referenced via the `base_format` field within

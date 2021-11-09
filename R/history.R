@@ -31,7 +31,7 @@ history <- function(project = NULL) {
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
-  arguments <- c("log", "--pretty=format:%H\031%at\031%ct\031%s", "renv.lock")
+  arguments <- c("log", "--pretty=format:%H\031%at\031%ct\031%s", lockpath)
   data <- system2("git", shQuote(arguments), stdout = TRUE)
 
   parts <- strsplit(data, "\031", fixed = TRUE)
