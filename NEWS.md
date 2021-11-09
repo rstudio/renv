@@ -1,6 +1,9 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* `renv` now handles packages stored within the sub-directory of a Git
+  repository better. (#793)
+
 * Fixed an issue where `renv::history()` would fail to resolve the correct
   lockfile path if the working directory was changed. (#834)
 
