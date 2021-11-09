@@ -74,7 +74,7 @@ renv_path_normalize_win32_impl <- function(path,
                                            winslash = "/",
                                            mustWork = FALSE)
 {
-  short <- shortPathName(path.expand(path))
+  short <- utils::shortPathName(path.expand(path))
   normalizePath(short, winslash, mustWork)
 }
 

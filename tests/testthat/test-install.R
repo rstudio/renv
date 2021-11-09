@@ -354,6 +354,7 @@ test_that("issue #609", {
 
 test_that("we can install packages from git remotes within subdirs", {
   skip_on_cran()
+  skip_on_ci()
 
   renv_tests_scope("subdir")
 
