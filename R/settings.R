@@ -57,7 +57,7 @@ renv_settings_decode <- function(name, value) {
 }
 
 renv_settings_read <- function(path) {
-  renv_filebacked("settings", path, renv_settings_read_impl)
+  filebacked("settings", path, renv_settings_read_impl)
 }
 
 renv_settings_read_impl <- function(path) {

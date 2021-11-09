@@ -264,11 +264,17 @@ renv_retrieve_gitlab <- function(record) {
 
 renv_retrieve_git <- function(record) {
 
+  # check out git repository to temporary directory
   path <- tempfile("renv-git-")
   ensure_directory(path)
-
   renv_retrieve_git_impl(record, path)
 
+  # form path to unpacked archive
+  subdir <- record$RemoteSubdir %||% ""
+  components <- c(path, if (nzchar(subdir)) subdir)
+  path <- paste(components, collapse = "/")
+
+  # finish retrieval
   renv_retrieve_successful(record, path)
 
 }

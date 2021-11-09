@@ -4,7 +4,7 @@ renv_hash_text <- function(text) {
 }
 
 renv_hash_description <- function(path) {
-  renv_filebacked("hash", path, renv_hash_description_impl)
+  filebacked("hash", path, renv_hash_description_impl)
 }
 
 renv_hash_description_impl <- function(path) {

@@ -67,7 +67,7 @@ renv_mran_database_save <- function(database, path = NULL) {
 
 renv_mran_database_load <- function(path = NULL) {
   path <- path %||% renv_mran_database_path()
-  renv_filebacked("mran", path, renv_mran_database_load_impl)
+  filebacked("mran", path, renv_mran_database_load_impl)
 }
 
 renv_mran_database_load_impl <- function(path) {
