@@ -432,9 +432,11 @@ renv_dependencies_discover_renv_lock <- function(path) {
   renv_dependencies_list(path, "renv")
 }
 
-renv_dependencies_discover_description <- function(path, fields = NULL) {
-
-  dcf <- catch(renv_description_read(path))
+renv_dependencies_discover_description <- function(path,
+                                                   fields = NULL,
+                                                   subdir = NULL)
+{
+  dcf <- catch(renv_description_read(path = path, subdir = subdir))
   if (inherits(dcf, "error"))
     return(renv_dependencies_error(path, error = dcf))
 

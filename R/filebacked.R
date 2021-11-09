@@ -96,7 +96,7 @@ renv_filebacked_envir <- function(scope) {
   get(scope, envir = `_renv_filebacked`)
 }
 
-renv_filebacked <- function(scope, path, callback, ...) {
+filebacked <- function(scope, path, callback, ...) {
 
   # don't use filebacked cache when disabled
   config <- config$filebacked.cache()

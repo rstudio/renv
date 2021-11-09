@@ -263,14 +263,10 @@ renv_retrieve_gitlab <- function(record) {
 }
 
 renv_retrieve_git <- function(record) {
-
   path <- tempfile("renv-git-")
   ensure_directory(path)
-
   renv_retrieve_git_impl(record, path)
-
   renv_retrieve_successful(record, path)
-
 }
 
 renv_retrieve_git_impl <- function(record, path) {
@@ -749,7 +745,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   # record this package's requirements
   state <- renv_restore_state()
   requirements <- state$requirements
-  deps <- renv_dependencies_discover_description(path)
+  deps <- renv_dependencies_discover_description(path, subdir = subdir)
   rowapply(deps, function(dep) {
     package <- dep$Package
     requirements[[package]] <- requirements[[package]] %||% stack()
@@ -793,7 +789,9 @@ renv_retrieve_handle_remotes <- function(record) {
 
   # check and see if this package declares Remotes -- if so,
   # use those to fill in any missing records
-  desc <- renv_description_read(record$Path)
+  path <- record$Path
+  subdir <- record$RemoteSubdir
+  desc <- renv_description_read(path = path, subdir = subdir)
   if (is.null(desc$Remotes))
     return(NULL)
 

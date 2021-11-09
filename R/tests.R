@@ -211,7 +211,7 @@ renv_tests_init_packages <- function() {
 renv_tests_init_packages_find <- function() {
   fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
   descpath <- system.file("DESCRIPTION", package = "renv")
-  deps <- renv_dependencies_discover_description(descpath, fields = fields)
+  deps <- renv_dependencies_discover_description(descpath, fields)
   deps[["Package"]]
 }
 

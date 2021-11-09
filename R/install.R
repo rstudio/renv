@@ -437,9 +437,13 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   # get archive path for package
   path <- record$Path
 
-  # for packages living within a sub-directory, we need to
-  # unpack the archive explicitly and update the path
+  # for directories, we may need to use subdir to find the package path
+  info <- file.info(path, extra_cols = FALSE)
   subdir <- record$RemoteSubdir %||% ""
+  if (identical(info$isdir, TRUE) && nzchar(subdir)) {
+    components <- c(path, subdir)
+    path <- paste(components, collapse = "/")
+  }
 
   # for source packages downloaded as zips,
   # we need to extract before install
