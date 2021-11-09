@@ -1,6 +1,8 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* Refined dependency discovery within `glue::glue()` expressions.
+
 * `renv` now parses packages referenced via the `base_format` field within
   an R Markdown document's YAML header. (#854)
 
