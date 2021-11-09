@@ -363,3 +363,9 @@ test_that("we do infer dependency on rmarkdown for .qmd with R chunks", {
   deps <- dependencies("resources/quarto-r-chunks.qmd", progress = FALSE)
   expect_true("rmarkdown" %in% deps$Package)
 })
+
+test_that("we parse package references from arbitrary yaml fields", {
+  deps <- dependencies("resources/rmd-base-format.Rmd", progress = FALSE)
+  expect_true("bookdown" %in% deps$Package)
+  expect_true("rticles" %in% deps$Package)
+})

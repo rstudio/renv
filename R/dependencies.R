@@ -603,31 +603,30 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
   if (is.list(server) && identical(server[["type"]], "shiny"))
     deps$push("shiny")
 
-  # check for custom output function from another package
-  for (output in list(yaml[["output"]], yaml[["site"]])) {
+  pattern <- renv_regexps_package_name()
 
-    # if the output is named, then the output is mapping the
-    # function name to the parameters to be used; use names
-    output <- names(output) %||% output
+  # check recursively for package usages of the form 'package::method'
+  recurse(yaml, function(node, stack) {
 
-    # skip non-character arguments
-    if (!is.character(output))
-      next
+    # look for keys of the form 'package::method'
+    values <- c(names(node), if (pstring(node)) node)
+    for (value in values) {
+      parts <- strsplit(value, ":{2,3}")[[1L]]
+      if (length(parts) == 2L) {
+        name <- parts[[1L]]
+        if (grepl(pattern, name))
+          deps$push(parts[[1L]])
+      }
+    }
 
-    # parse calls of the form <package>::<function>
-    parts <- strsplit(output, ":{2,3}")
-    map(parts, function(part) {
-      if (length(part) == 2L)
-        deps$push(part[[1L]])
-    })
-
-  }
+  })
 
   # check for dependency on bslib
   theme <- catchall(yaml[[c("output", "html_document", "theme")]])
   if (!inherits(theme, "error") && is.list(theme))
     deps$push("bslib")
 
+  # get list of dependencies
   packages <- deps$data()
   renv_dependencies_list(path, packages)
 

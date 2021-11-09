@@ -1,6 +1,9 @@
 
 # renv 0.15.0  (UNRELEASED)
 
+* `renv` now parses packages referenced via the `base_format` field within
+  an R Markdown document's YAML header. (#854)
+
 * Fixed an issue where `renv` would fail to produce the appropriate binary
   repository URL for RSPM repositories built using Red Hat Enterprise Linux.
 

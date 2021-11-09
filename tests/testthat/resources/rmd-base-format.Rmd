@@ -1,0 +1,7 @@
+---
+title: "Uses base_format"
+
+output:
+  bookdown::pdf_book:
+    base_format: rticles::plos_article
+---
