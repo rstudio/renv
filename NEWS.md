@@ -3,6 +3,10 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` now supports the `*release` remotes specifier for GitHub repositories,
+  for requesting installation of the latest declared release of a package from
+  GitHub. (#792)
+  
 * `renv` now handles packages stored within the sub-directory of a Git
   repository better. (#793)
 

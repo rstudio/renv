@@ -81,11 +81,11 @@ test_that("we can parse a variety of remotes", {
 
 test_that("subdirectories are parsed in remotes", {
 
-  entry <- "gitlab::user/repo:subdir@ref"
-  parsed <- renv_remotes_parse(entry)
+  spec <- "gitlab::user/repo:subdir@ref"
+  remote <- renv_remotes_parse(spec)
 
   expected <- list(
-    entry  = entry,
+    spec   = spec,
     type   = "gitlab",
     host   = NULL,
     user   = "user",
@@ -95,17 +95,17 @@ test_that("subdirectories are parsed in remotes", {
     ref    = "ref"
   )
 
-  expect_equal(parsed, expected)
+  expect_equal(remote, expected)
 
 })
 
 test_that("custom hosts can be supplied", {
 
-  entry <- "gitlab@localhost::user/repo"
-  parsed <- renv_remotes_parse(entry)
+  spec <- "gitlab@localhost::user/repo"
+  remote <- renv_remotes_parse(spec)
 
   expected <- list(
-    entry  = entry,
+    spec   = spec,
     type   = "gitlab",
     host   = "localhost",
     user   = "user",
@@ -115,7 +115,7 @@ test_that("custom hosts can be supplied", {
     ref    = NULL
   )
 
-  expect_equal(parsed, expected)
+  expect_equal(remote, expected)
 
 })
 
@@ -129,20 +129,20 @@ test_that("paths specified with '.' are treated as local", {
     "Version: 1.0"
   ))
 
-  entry <- renv_remotes_resolve(".")
-  expect_equal(entry$Package, "test")
-  expect_equal(entry$Version, "1.0")
+  record <- renv_remotes_resolve(".")
+  expect_equal(record$Package, "test")
+  expect_equal(record$Version, "1.0")
 
 })
 
 test_that("packages can be installed from GitLab groups", {
 
-  # test parsing of entry
-  entry <- "gitlab::renv-group/renv-subgroup/subpackage"
-  parsed <- renv_remotes_parse(entry)
+  # test parsing of spec
+  spec <- "gitlab::renv-group/renv-subgroup/subpackage"
+  remote <- renv_remotes_parse(spec)
 
   expected <- list(
-    entry  = entry,
+    spec   = spec,
     type   = "gitlab",
     host   = NULL,
     user   = "renv-group",
@@ -152,23 +152,23 @@ test_that("packages can be installed from GitLab groups", {
     ref    = NULL
   )
 
-  expect_equal(parsed, expected)
+  expect_equal(remote, expected)
 
   # test installation
   skip_sometimes()
   renv_tests_scope()
-  renv::install(entry)
+  renv::install(spec)
   expect_true(renv_package_installed("subpackage"))
 
 })
 
-test_that("remote entries referencing packages in sub-sub-directories are parsed correctly", {
+test_that("remote specs referencing packages in sub-sub-directories are parsed correctly", {
 
-  entry <- "github::user/repo/subdir/subsubdir"
-  parsed <- renv_remotes_parse(entry)
+  spec <- "github::user/repo/subdir/subsubdir"
+  remote <- renv_remotes_parse(spec)
 
   expected <- list(
-    entry  = entry,
+    spec   = spec,
     type   = "github",
     host   = NULL,
     user   = "user",
@@ -178,6 +178,6 @@ test_that("remote entries referencing packages in sub-sub-directories are parsed
     ref    = NULL
   )
 
-  expect_equal(parsed, expected)
+  expect_equal(remote, expected)
 
 })
