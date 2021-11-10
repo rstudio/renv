@@ -84,3 +84,42 @@ test_that("negated .renvignore patterns are handled", {
   expect_true("foo" %in% deps$Package)
 
 })
+
+test_that("ignores with a trailing slash are handled", {
+
+  renv_tests_scope()
+  writeLines("dir.R/", con = ".renvignore")
+
+  # dir.R is a file, not a directory, so include it
+  writeLines("library(foo)", con = "dir.R")
+  deps <- dependencies(quiet = TRUE)
+  expect_true("foo" %in% deps$Package)
+
+  # dir.R is, in fact, a directory, so ignore it
+  unlink("dir.R")
+  dir.create("dir.R")
+  writeLines("library(bar)", con = "dir.R/deps.R")
+  deps <- dependencies(quiet = TRUE)
+  expect_false("bar" %in% deps$Package)
+
+  # dotfile exclusions can be overridden
+  writeLines(c("dir.R/", "!dir.R/"), con = ".renvignore")
+  deps <- dependencies(quiet = TRUE)
+  expect_true("bar" %in% deps$Package)
+
+})
+
+test_that(".renvignore can be used to ignore all but certain files", {
+
+  renv_tests_scope()
+
+  writeLines(c("*", "!dependencies.R"), con = ".renvignore")
+  writeLines("library(oatmeal)", con = "script.R")
+  writeLines("library(bread)", con = "dependencies.R")
+
+  deps <- dependencies(quiet = TRUE)
+
+  expect_true("bread" %in% deps$Package)
+  expect_false("oatmeal" %in% deps$Package)
+
+})

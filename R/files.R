@@ -518,16 +518,19 @@ renv_file_read <- function(path) {
 }
 
 renv_file_shebang <- function(path) {
-  con <- file(path, open = "rb")
+
+  # open connection to file
+  con <- file(path, open = "rb", encoding = "native.enc")
   on.exit(close(con), add = TRUE)
 
-  signature <- charToRaw("#!")
-  first_two_bytes <- readBin(con, what = "raw", n = length(signature))
-  looks_like_script <- identical(first_two_bytes, signature)
+  # validate file starts with '#!' -- read using 'raw' vector to avoid
+  # issues which files that might start with null bytes
+  bytes <- readBin(con, what = "raw", n = 2L)
+  expected <- as.raw(c(0x23L, 0x21L))
+  if (!identical(bytes, expected))
+    return("")
 
-  # skip binary files with potentially very long first "lines"
-  if (looks_like_script)
-    readLines(con, n = 1L, warn = FALSE)
-  else
-    ""
+  # read a single line from the connection
+  readLines(con, n = 1L, warn = FALSE)
+
 }

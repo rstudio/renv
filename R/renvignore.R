@@ -82,11 +82,8 @@ renv_renvignore_parse_impl <- function(entries, prefix = "") {
   # remove trailing whitespace
   entries <- gsub("\\s+$", "", entries)
 
-  # remove trailing slashes
-  entries <- gsub("/+$", "", entries)
-
-  # entries without a slash should match in whole tree
-  noslash <- grep("/", entries, fixed = TRUE, invert = TRUE)
+  # entries without a slash (other than a trailing one) should match in tree
+  noslash <- grep("/", gsub("/*$", "", entries), fixed = TRUE, invert = TRUE)
   entries[noslash] <- paste("**", entries[noslash], sep = "/")
 
   # remove a leading slash (avoid double-slashing)
@@ -121,9 +118,21 @@ renv_renvignore_parse_impl <- function(entries, prefix = "") {
 
 renv_renvignore_exec <- function(path, root, children) {
 
+  # the root directory is always included
+  if (identical(root, children))
+    return(FALSE)
+
+  # compute exclusion patterns
   patterns <- renv_renvignore_pattern(path, root)
+
+  # if we have no patterns, then we're not excluding anything
   if (empty(patterns) || empty(patterns$exclude))
-    return(children)
+    return(logical(length(children)))
+
+  # append slashes to files which are directories
+  info <- file.info(children, extra_cols = FALSE)
+  dirs <- info$isdir %in% TRUE
+  children[dirs] <- paste0(children[dirs], "/")
 
   # get the entries that need to be excluded
   excludes <- logical(length = length(children))
@@ -145,7 +154,7 @@ renv_renvignore_exec <- function(path, root, children) {
 
   }
 
-  # keep paths not explicitly excluded
-  children[!excludes]
+  # return vector of excludes
+  excludes
 
 }

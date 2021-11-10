@@ -249,21 +249,6 @@ test_that("recursive symlinks are handled", {
 
 })
 
-test_that(".renvignore can be used to ignore all but certain files", {
-
-  renv_tests_scope()
-
-  writeLines(c("*", "!dependencies.R"), con = ".renvignore")
-  writeLines("library(oatmeal)", con = "script.R")
-  writeLines("library(bread)", con = "dependencies.R")
-
-  deps <- dependencies(quiet = TRUE)
-
-  expect_true("bread" %in% deps$Package)
-  expect_false("oatmeal" %in% deps$Package)
-
-})
-
 test_that("exercise chunks are ignored", {
   deps <- dependencies("resources/learnr-exercise.Rmd")
   expect_true("A" %in% deps$Package)
@@ -369,4 +354,18 @@ test_that("we parse package references from arbitrary yaml fields", {
   deps <- dependencies("resources/rmd-base-format.Rmd", progress = FALSE)
   expect_true("bookdown" %in% deps$Package)
   expect_true("rticles" %in% deps$Package)
+})
+
+test_that("dependencies in hidden folders are not scoured", {
+  renv_tests_scope()
+
+  dir.create(".hidden")
+  writeLines("library(A)", con = ".hidden/deps.R")
+
+  deps <- dependencies(progress = FALSE)
+  expect_false("A" %in% deps$Package)
+
+  deps <- dependencies(progress = FALSE, hidden = TRUE)
+  expect_true("A" %in% deps$Package)
+
 })

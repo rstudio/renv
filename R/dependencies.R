@@ -242,20 +242,20 @@ renv_dependencies_callback <- function(path) {
     ".rnw"         = function(path) renv_dependencies_discover_multimode(path, "rnw")
   )
 
-  cbname[[basename(path)]] %||% cbext[[tolower(fileext(path))]] %||% {
-    if (is_r_executable(path)) function(path) renv_dependencies_discover_r(path)
+  name <- basename(path)
+  ext  <- tolower(fileext(path))
+
+  callback <- cbname[[name]] %||% cbext[[ext]]
+  if (!is.null(callback))
+    return(callback)
+
+  # for files without an extension, check if those might be executable by R
+  if (!nzchar(ext)) {
+    shebang <- renv_file_shebang(path)
+    if (grepl("\\b(?:R|r|Rscript)\\b", shebang))
+      return(function(path) renv_dependencies_discover_r(path))
   }
 
-}
-
-is_r_executable <- function(path) {
-  # don't check executability via `file.access` since this is implemented
-  # differently on Windows, and would thus lead to different dependencies being
-  # discovered across platforms
-  if (nzchar(fileext(path)))
-    return(FALSE)
-
-  grepl("\\b(R|r|Rscript)\\b", renv_file_shebang(path))
 }
 
 renv_dependencies_find_extra <- function(root) {
@@ -308,8 +308,8 @@ renv_dependencies_find_impl <- function(path, root, depth) {
 renv_dependencies_find_dir <- function(path, root, depth) {
 
   # check if this path should be ignored
-  path <- renv_renvignore_exec(path, root, path)
-  if (empty(path))
+  excluded <- renv_renvignore_exec(path, root, path)
+  if (excluded)
     return(character())
 
   # check if we've already scanned this directory
@@ -353,8 +353,11 @@ renv_dependencies_find_dir_children <- function(path, root, depth) {
   ignored <- c("renv", "packrat", "revdep", if (depth) "DESCRIPTION")
   children <- children[!basename(children) %in% ignored]
 
-  # exclude ignored paths
-  renv_renvignore_exec(path, root, children)
+  # compute exclusions
+  excluded <- renv_renvignore_exec(path, root, children)
+
+  # keep only non-excluded children
+  children[!excluded]
 
 }
 

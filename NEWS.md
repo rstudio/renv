@@ -3,6 +3,11 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` now ignores hidden directories during dependency discovery by default.
+  If you want to force a particular hidden directory to be included for
+  discovery, you can use a `.renvignore` file with an explicit inclusion
+  criteria; e.g. `!.hidden/`.
+  
 * `renv` now supports the `*release` remotes specifier for GitHub repositories,
   for requesting installation of the latest declared release of a package from
   GitHub. (#792)
