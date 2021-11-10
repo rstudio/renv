@@ -3,6 +3,10 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` now infers that parameterized R Markdown documents have a dependency
+  on the `shiny` package. In addition, R code included within the `params:`
+  list will be parsed for dependencies. (#859)
+  
 * `renv` now ignores hidden directories during dependency discovery by default.
   If you want to force a particular hidden directory to be included for
   discovery, you can use a `.renvignore` file with an explicit inclusion

@@ -2,7 +2,6 @@
 context("R Markdown")
 
 test_that("The chunk header parser works as expected", {
-  skip_if_not_installed("knitr")
 
   cases <- list(
 

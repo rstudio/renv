@@ -1,0 +1,5 @@
+---
+params:
+  x: !r A::a()   # should be parsed
+  y: B::b()      # should _not_ be parsed
+---

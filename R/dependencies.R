@@ -142,10 +142,10 @@ dependencies <- function(
   )
 
   if (empty(deps) || nrow(deps) == 0L)
-    return(deps)
+    return(renv_dependencies_list_empty())
 
-  if (identical(dev, FALSE))
-    deps <- deps[!deps$Dev, ]
+  # drop NAs, and only keep 'dev' dependencies if requested
+  deps <- deps[deps$Dev %in% c(dev, FALSE), ]
 
   deps
 }
@@ -592,7 +592,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
 
   # extract YAML text
   yamltext <- substring(contents, matches[[1L]] + 4L, matches[[2L]] - 1L)
-  yaml <- catch(yaml::yaml.load(yamltext))
+  yaml <- catch(renv_yaml_load(yamltext))
   if (inherits(yaml, "error"))
     return(renv_dependencies_error(path, error = yaml, packages = "rmarkdown"))
 
@@ -631,9 +631,45 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
   if (!inherits(theme, "error") && is.list(theme))
     deps$push("bslib")
 
+  # check for parameterized documents
+  status <- catch(renv_dependencies_discover_rmd_yaml_header_params(yaml, deps))
+  if (inherits(status, "error"))
+    renv_error_report(status)
+
   # get list of dependencies
   packages <- deps$data()
   renv_dependencies_list(path, packages)
+
+}
+
+renv_dependencies_discover_rmd_yaml_header_params <- function(yaml, deps) {
+
+  # check for declared params
+  params <- yaml[["params"]]
+  if (!is.list(params))
+    return()
+
+  # infer dependency on shiny
+  deps$push("shiny")
+
+  # iterate through params, parsing dependencies from R code
+  for (param in params) {
+
+    # check for r types
+    type <- attr(param, "type", exact = TRUE)
+    if (!identical(type, "r"))
+      next
+
+    # attempt to parse dependencies
+    rdeps <- catch(renv_dependencies_discover_r(text = param))
+    if (inherits(rdeps, "error"))
+      next
+
+    # add each dependency
+    for (package in sort(unique(rdeps$Package)))
+      deps$push(package)
+
+  }
 
 }
 
@@ -826,19 +862,8 @@ renv_dependencies_discover_rproj <- function(path) {
 
 renv_dependencies_discover_r <- function(path = NULL,
                                          text = NULL,
-                                         expr = NULL)
-{
-  packages <- renv_dependencies_discover_r_impl(path, text, expr)
-  if (empty(packages))
-    return(list())
-
-  renv_dependencies_list(path, packages)
-}
-
-renv_dependencies_discover_r_impl <- function(path  = NULL,
-                                              text  = NULL,
-                                              expr  = NULL,
-                                              envir = NULL)
+                                         expr = NULL,
+                                         envir = NULL)
 {
   expr <- case(
     is.function(expr)  ~ body(expr),
@@ -889,8 +914,8 @@ renv_dependencies_discover_r_impl <- function(path  = NULL,
 
   })
 
-  ls(envir = envir, all.names = TRUE)
-
+  packages <- ls(envir = envir, all.names = TRUE)
+  renv_dependencies_list(path, packages)
 }
 
 renv_dependencies_discover_r_methods <- function(node, stack, envir) {
@@ -1338,7 +1363,7 @@ renv_dependencies_discover_r_glue_impl <- function(string, node, envir) {
           code <- rawToChar(raw[lhs:rhs])
 
           # parse dependencies
-          renv_dependencies_discover_r_impl(text = code, envir = envir)
+          deps <- renv_dependencies_discover_r(text = code, envir = envir)
 
         }
 
@@ -1445,7 +1470,7 @@ renv_dependencies_list <- function(source,
                                    dev = FALSE)
 {
   if (empty(packages))
-    return(list())
+    return(renv_dependencies_list_empty())
 
   source <- source %||% rep.int(NA_character_, length(packages))
 
@@ -1459,6 +1484,20 @@ renv_dependencies_list <- function(source,
   )
 
 }
+
+renv_dependencies_list_empty <- function() {
+
+  data.frame(
+    Source  = character(),
+    Package = character(),
+    Require = character(),
+    Version = character(),
+    Dev     = logical(),
+    stringsAsFactors = FALSE
+  )
+
+}
+
 
 renv_dependencies_discover_parse_params <- function(header, type) {
 
