@@ -365,7 +365,8 @@ test_that("dependencies in hidden folders are not scoured", {
   deps <- dependencies(progress = FALSE)
   expect_false("A" %in% deps$Package)
 
-  deps <- dependencies(progress = FALSE, hidden = TRUE)
+  writeLines("!.hidden", con = ".renvignore")
+  deps <- dependencies(progress = FALSE)
   expect_true("A" %in% deps$Package)
 
 })

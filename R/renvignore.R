@@ -40,12 +40,13 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
 
   # collect patterns read
   patterns <- ignores$data()
-  if (empty(patterns))
-    return(list())
 
   # separate exclusions, exclusions
   include <- unlist(extract(patterns, "include"))
   exclude <- unlist(extract(patterns, "exclude"))
+
+  # ignore hidden directories by default
+  exclude <- c("/[.][^/]*/$", exclude)
 
   list(include = include, exclude = exclude)
 
@@ -100,6 +101,10 @@ renv_renvignore_parse_impl <- function(entries, prefix = "") {
   # restore '**' entries
   entries <- gsub("\001", "\\E(?:.*/)?\\Q", entries, fixed = TRUE)
   entries <- gsub("\002", "/\\E.*\\Q",      entries, fixed = TRUE)
+
+  # if we don't have a trailing slash, then we can match both files and dirs
+  noslash <- grep("/$", entries, invert = TRUE)
+  entries[noslash] <- paste0(entries[noslash], "\\E(?:/)?\\Q")
 
   # enclose in \\Q \\E to ensure e.g. plain '.' are not treated
   # as regex characters
