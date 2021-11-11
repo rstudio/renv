@@ -229,6 +229,7 @@ renv_dependencies_callback <- function(path) {
     "DESCRIPTION"   = function(path) renv_dependencies_discover_description(path),
     "_bookdown.yml" = function(path) renv_dependencies_discover_bookdown(path),
     "_pkgdown.yml"  = function(path) renv_dependencies_discover_pkgdown(path),
+    "_quarto.yml"   = function(path) renv_dependencies_discover_quarto(path),
     "renv.lock"     = function(path) renv_dependencies_discover_renv_lock(path),
     "rsconnect"     = function(path) renv_dependencies_discover_rsconnect(path)
   )
@@ -530,16 +531,19 @@ renv_dependencies_discover_description_fields <- function() {
 
 }
 
-renv_dependencies_discover_pkgdown <- function(path) {
+renv_dependencies_discover_bookdown <- function(path) {
+  # TODO: other dependencies to parse from bookdown?
+  renv_dependencies_list(path, "bookdown")
+}
 
+renv_dependencies_discover_pkgdown <- function(path) {
   # TODO: other dependencies to parse from pkgdown?
   renv_dependencies_list(path, "pkgdown")
 }
 
-renv_dependencies_discover_bookdown <- function(path) {
-
-  # TODO: other dependencies to parse from bookdown?
-  renv_dependencies_list(path, "bookdown")
+renv_dependencies_discover_quarto <- function(path) {
+  # TODO: other dependencies to parse from quarto?
+  renv_dependencies_list(path, "quarto")
 }
 
 renv_dependencies_discover_rsconnect <- function(path) {
