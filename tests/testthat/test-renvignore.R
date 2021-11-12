@@ -123,3 +123,24 @@ test_that(".renvignore can be used to ignore all but certain files", {
   expect_false("oatmeal" %in% deps$Package)
 
 })
+
+test_that("ignores can be set via option if required", {
+
+  renv_tests_scope()
+
+  dir.create("data")
+  writeLines("library(A)", con = "data/script.R")
+
+  dir.create("inst")
+  writeLines("library(B)", con = "inst/script.R")
+
+  dir.create("ok")
+  writeLines("library(C)", con = "ok/script.R")
+
+  exclude <- structure(c("/data/", "/inst/"), asis = TRUE)
+  options(renv.renvignore.exclude = exclude)
+
+  deps <- dependencies(progress = FALSE)
+  expect_setequal(deps$Package, "C")
+
+})
