@@ -245,6 +245,16 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' \describe{
 #'
+#' \item{\code{bioconductor.version}}{
+#'
+#'   The Bioconductor version to be used with this project. Use this if you'd
+#'   like to lock the version of Bioconductor used on a per-project basis.
+#'   When unset, `renv` will try to infer the appropriate Bioconductor release
+#'   using the `BiocVersion` package if installed; if not, `renv` uses
+#'   `BiocManager::version()` to infer the appropriate Bioconductor version.
+#'
+#' }
+#'
 #' \item{\code{external.libraries}}{
 #'
 #'   A vector of library paths, to be used in addition to the project's own
@@ -346,6 +356,13 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' }
 settings <- list(
+
+  bioconductor.version = renv_settings_impl(
+    name     = "bioconductor.version",
+    validate = is.character,
+    default  = character(),
+    update   = NULL
+  ),
 
   ignored.packages = renv_settings_impl(
     name     = "ignored.packages",

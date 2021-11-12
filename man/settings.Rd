@@ -5,7 +5,7 @@
 \alias{settings}
 \title{Project Settings}
 \format{
-An object of class \code{list} of length 8.
+An object of class \code{list} of length 9.
 }
 \usage{
 settings
@@ -18,6 +18,16 @@ Define project-local settings that can be used to adjust the behavior of
 
 
 \describe{
+
+\item{\code{bioconductor.version}}{
+
+The Bioconductor version to be used with this project. Use this if you'd
+like to lock the version of Bioconductor used on a per-project basis.
+When unset, \code{renv} will try to infer the appropriate Bioconductor release
+using the \code{BiocVersion} package if installed; if not, \code{renv} uses
+\code{BiocManager::version()} to infer the appropriate Bioconductor version.
+
+}
 
 \item{\code{external.libraries}}{
 

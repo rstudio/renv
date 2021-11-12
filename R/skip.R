@@ -36,7 +36,7 @@ skip_if_no_virtualenv <- function(python = NULL) {
 skip_if_no_miniconda <- function(python) {
 
   skip_if_no_python(python)
-  skip_if_not_installed("reticulate", "1.13.0.9002")
+  testthat::skip_if_not_installed("reticulate", "1.13.0.9002")
 
   # gymnastics for CRAN checks before next release of reticulate
   if (requireNamespace("reticulate", quietly = TRUE)) {

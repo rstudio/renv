@@ -72,8 +72,10 @@ renv_retrieve_impl <- function(package) {
   #
   # TODO: we should consider making this more scoped; calls to `renv_available_packages_*`
   # would need to be record-aware or source-aware to make this a bit cleaner
-  if (source %in% c("bioconductor"))
-    renv_scope_bioconductor()
+  if (source %in% c("bioconductor")) {
+    project <- renv_restore_state(key = "project")
+    renv_scope_bioconductor(project = project)
+  }
 
   # if the requested record is incompatible with the set
   # of requested package versions thus far, request the
@@ -189,8 +191,14 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
 }
 
 renv_retrieve_bioconductor <- function(record) {
-  renv_scope_bioconductor()
+
+  # activate Bioconductor repositories in this context
+  project <- renv_restore_state(key = "project")
+  renv_scope_bioconductor(project = project)
+
+  # retrieve record using updated repositories
   renv_retrieve_repos(record)
+
 }
 
 renv_retrieve_bitbucket <- function(record) {

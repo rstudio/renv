@@ -61,3 +61,13 @@ test_that("renv::install(<bioc>, rebuild = TRUE) works", {
   expect_true(renv_package_installed("Biobase"))
 
 })
+
+test_that("bioconductor.version can be used to freeze version", {
+
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  settings$bioconductor.version("3.14", project = project)
+  expect_equal(renv_bioconductor_version(project = project), "3.14")
+
+})

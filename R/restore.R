@@ -107,7 +107,7 @@ restore <- function(project  = NULL,
   if (length(repos))
     renv_scope_options(repos = convert(repos, "character"))
 
-  # set up Bioconductor repositories
+  # set up Bioconductor version + repositories
   biocversion <- lockfile$Bioconductor$Version
   if (!is.null(biocversion)) {
     biocversion <- package_version(biocversion)

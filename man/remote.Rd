@@ -7,7 +7,9 @@
 remote(spec)
 }
 \arguments{
-\item{spec}{A remote specification.}
+\item{spec}{A remote specification. This should be a string, conforming
+to the Remotes specification as defined in
+\url{https://remotes.r-lib.org/articles/dependencies.html}.}
 }
 \description{
 Given a remote specification, resolve it into an \code{renv} package record that

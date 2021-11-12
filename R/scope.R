@@ -309,7 +309,7 @@ renv_scope_git_auth <- function(.envir = NULL) {
 
 }
 
-renv_scope_bioconductor <- function(.envir = NULL) {
+renv_scope_bioconductor <- function(project, .envir = NULL) {
 
   .envir <- .envir %||% parent.frame()
 
@@ -318,7 +318,7 @@ renv_scope_bioconductor <- function(.envir = NULL) {
 
   # activate bioconductor repositories in this context
   repos <- getOption("repos")
-  biocrepos <- c(renv_bioconductor_repos(), repos)
+  biocrepos <- c(renv_bioconductor_repos(project = project), repos)
   renv_scope_options(repos = renv_vector_unique(biocrepos), .envir = .envir)
 
 }

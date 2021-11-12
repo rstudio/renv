@@ -3,6 +3,11 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` gains the `bioconductor.version` project setting, used to freeze
+  the version of Bioconductor used in a particular project. When set, this
+  will override any version that might be selected via the `BiocManager`
+  package. (#864)
+
 * `renv` now infers that parameterized R Markdown documents have a dependency
   on the `shiny` package. In addition, R code included within the `params:`
   list will be parsed for dependencies. (#859)

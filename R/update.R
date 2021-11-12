@@ -286,7 +286,7 @@ update <- function(packages = NULL,
 
   # activate bioc repositories if needed
   if (bioc)
-    renv_scope_bioconductor()
+    renv_scope_bioconductor(project = project)
 
   # ensure database of available packages is current
   if (repo)

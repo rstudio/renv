@@ -322,9 +322,10 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
   # check that Bioconductor packages are from correct release
   version <-
     lockfile$Bioconductor$Version %||%
-    renv_bioconductor_version()
+    renv_bioconductor_version(project = project)
 
-  renv_scope_options(repos = renv_bioconductor_repos(version = version))
+  biocrepos <- renv_bioconductor_repos(version = version)
+  renv_scope_options(repos = biocrepos)
 
   # collect Bioconductor records
   bioc <- records %>%
