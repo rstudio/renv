@@ -74,10 +74,8 @@ test_that("UTF-8 paths can be normalized", {
 })
 
 test_that("our fallback R_user_dir() implementation is compatible", {
-
   skip_if(getRversion() < "4.0.0")
-  actual   <- renv_paths_root_default_impl_fallback()
+  actual   <- renv_paths_root_default_impl_v2_fallback()
   expected <- tools::R_user_dir("renv", which = "cache")
   expect_true(renv_path_same(actual, expected))
-
 })

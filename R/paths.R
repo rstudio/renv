@@ -1,4 +1,6 @@
 
+`_renv_root` <- NULL
+
 renv_paths_common <- function(name, prefixes = NULL, ...) {
 
   # check for single absolute path supplied by user
@@ -116,6 +118,10 @@ renv_paths_root <- function(...) {
 # nocov start
 renv_paths_root_default <- function() {
 
+  # if we have a cached root value, use it
+  if (!is.null(`_renv_root`))
+    return(`_renv_root`)
+
   # use tempdir for cache when running tests
   # this check is necessary here to support packages which might use renv
   # during testing (and we don't want those to try to use the user dir)
@@ -124,61 +130,39 @@ renv_paths_root_default <- function() {
     !is.na(Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)) ||
     !is.na(Sys.getenv("TESTTHAT", unset = NA))
 
-  if (checking)
-    return(renv_paths_root_default_tempdir())
+  # compute the root directory
+  root <- if (checking)
+    renv_paths_root_default_tempdir()
+  else
+    renv_paths_root_default_impl()
 
-  # resolve path to cache
-  path <- renv_paths_root_default_impl()
+  # cache the value
+  renv_binding_replace("_renv_root", root, renv_envir_self())
 
-  # check for user consent
-  consenting <- identical(getOption("renv.consenting"), TRUE)
-  if (consenting)
-    return(path)
-
-  consented <- renv_consent_check()
-  if (consented) {
-    ensure_directory(path)
-    return(path)
-  }
-
-  # if this root directory has not yet been created, then use a path
-  # in the temporary directory instead (users must call renv::consent
-  # to create this path explicitly)
-  type <- renv_file_type(path, symlinks = FALSE)
-  if (type == "directory")
-    return(path)
-
-  if (renv_once()) {
-    renv_pretty_print(
-      aliased_path(path),
-      "The renv support directory has not yet been created:",
-      c(
-        "A temporary support directory will be used instead.",
-        "Please call `renv::consent()` to allow renv to generate the support directory.",
-        "Please restart the R session after providing consent."
-      ),
-      wrap = FALSE
-    )
-  }
-
-  renv_paths_root_default_tempdir()
+  # return it
+  invisible(`_renv_root`)
 
 }
 
 renv_paths_root_default_impl <- function() {
 
-  # support renv projects created with the old root location
-  oldroot <- switch(
-    Sys.info()[["sysname"]],
-    Darwin  = Sys.getenv("XDG_DATA_HOME", "~/Library/Application Support"),
-    Windows = Sys.getenv("LOCALAPPDATA", Sys.getenv("APPDATA")),
-    Sys.getenv("XDG_DATA_HOME", "~/.local/share")
+  # compute known root directories
+  roots <- c(
+    renv_paths_root_default_impl_v2(),
+    renv_paths_root_default_impl_v1()
   )
 
-  # if we've already initialized renv with the old location, use it
-  oldpath <- file.path(oldroot, "renv")
-  if (file.exists(oldpath))
-    return(oldpath)
+  # iterate through those roots, finding the first existing
+  for (root in roots)
+    if (file.exists(root))
+      return(root)
+
+  # if none exist, choose the most recent definition
+  roots[[1L]]
+
+}
+
+renv_paths_root_default_impl_v2 <- function() {
 
   # try using tools to get the user directory
   tools <- asNamespace("tools")
@@ -186,14 +170,13 @@ renv_paths_root_default_impl <- function() {
   if (!inherits(path, "error"))
     return(path)
 
-  # try using our own backfill for older versions of R
-  renv_paths_root_default_impl_fallback()
+  renv_paths_root_default_impl_v2_fallback()
 
 }
 
-renv_paths_root_default_impl_fallback <- function() {
+renv_paths_root_default_impl_v2_fallback <- function() {
 
-  # check for R_USER_CACHE_DIR + XDG_CACHE_HOME overrides
+  # try using our own backfill for older versions of R
   envvars <- c("R_USER_CACHE_DIR", "XDG_CACHE_HOME")
   for (envvar in envvars) {
     root <- Sys.getenv(envvar, unset = NA)
@@ -210,6 +193,19 @@ renv_paths_root_default_impl_fallback <- function() {
     "~/Library/Caches/org.R-project.R/R/renv"
   else
     "~/.cache/R/renv"
+
+}
+
+renv_paths_root_default_impl_v1 <- function() {
+
+  base <- switch(
+    Sys.info()[["sysname"]],
+    Darwin  = Sys.getenv("XDG_DATA_HOME", "~/Library/Application Support"),
+    Windows = Sys.getenv("LOCALAPPDATA", Sys.getenv("APPDATA")),
+    Sys.getenv("XDG_DATA_HOME", "~/.local/share")
+  )
+
+  file.path(base, "renv")
 
 }
 
