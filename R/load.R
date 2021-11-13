@@ -252,8 +252,8 @@ renv_load_project <- function(project) {
   if (file.exists(projects))
     projlist <- readLines(projects, warn = FALSE, encoding = "UTF-8")
 
-  # if the project is already recorded, nothing to do
-  if (project %in% projlist)
+  # if the project is already recorded or cache disabled, nothing to do
+  if (project %in% projlist || !renv::config$cache.enabled())
     return(TRUE)
 
   # otherwise, update the project list
