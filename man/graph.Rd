@@ -51,10 +51,12 @@ Generate a package dependency graph.
 }
 \examples{
 
+\dontrun{
 # graph the relationship between devtools and rlang
 graph(root = "devtools", leaf = "rlang")
 
 # figure out why a project depends on 'askpass'
 graph(leaf = "askpass")
+}
 
 }
