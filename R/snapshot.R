@@ -123,7 +123,8 @@ snapshot <- function(project  = NULL,
   repos <- renv_repos_validate(repos)
   renv_scope_options(repos = repos)
 
-  renv_activate_prompt("snapshot", library, prompt, project)
+  if (!is.null(lockfile))
+    renv_activate_prompt("snapshot", library, prompt, project)
 
   libpaths <- library %||% renv_libpaths_all()
   if (config$snapshot.validate())

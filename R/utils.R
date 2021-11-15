@@ -138,9 +138,13 @@ bind_list <- function(data, names = NULL, index = "Index") {
 
 case <- function(...) {
 
-  dots <- list(...)
-  for (dot in dots) {
+  dots <- eval(substitute(alist(...)))
+  for (i in seq_along(dots)) {
 
+    if (identical(dots[[i]], quote(expr = )))
+      next
+
+    dot <- eval(dots[[i]], envir = parent.frame())
     if (!inherits(dot, "formula"))
       return(dot)
 

@@ -450,6 +450,7 @@ renv_dependencies_discover_description <- function(path,
     renv_dependencies_discover_description_fields() %||%
     c("Depends", "Imports", "LinkingTo")
 
+  # build pattern used to split DESCRIPTION fields
   pattern <- paste0(
     "([a-zA-Z0-9._]+)",                      # package name
     "(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"  # optional version specification
