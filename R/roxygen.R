@@ -64,7 +64,7 @@ renv_roxygen_config_section <- function() {
     )
 
     # generate table row
-    fmt <- "\\item{\\bold{\\code{renv.config.%s}}}{%s Defaults to \\code{%s}.}"
+    fmt <- "\\subsection{renv.config.%s}{%s Defaults to \\code{%s}.}"
     sprintf(fmt, name, description, default)
 
   })
@@ -74,9 +74,7 @@ renv_roxygen_config_section <- function() {
     "",
     "The following `renv` configuration options are available:",
     "",
-    "\\describe{",
     items,
-    "}",
     ""
   )
 
