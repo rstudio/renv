@@ -246,6 +246,20 @@ renv_load_project <- function(project) {
   project <- renv_path_normalize(project, winslash = "/")
   Sys.setenv(RENV_PROJECT = project)
 
+  # update project list if enabled
+  enabled <-
+    settings$use.cache(project = project) &&
+    config$cache.enabled()
+
+  if (enabled)
+    renv_load_project_projlist(project)
+
+  TRUE
+
+}
+
+renv_load_project_projlist <- function(project) {
+
   # read project list
   projects <- renv_paths_root("projects")
   projlist <- character()
@@ -256,9 +270,13 @@ renv_load_project <- function(project) {
   if (project %in% projlist)
     return(TRUE)
 
-  # otherwise, update the project list
-  renv_scope_locale("LC_COLLATE", "C")
-  projlist <- sort(c(projlist, project))
+  # sort with C locale (ensure consistent sorting across OSes)
+  projlist <- local({
+    renv_scope_locale("LC_COLLATE", "C")
+    sort(c(projlist, project))
+  })
+
+  # update the project list
   ensure_parent_directory(projects)
   catchall(writeLines(enc2utf8(projlist), projects, useBytes = TRUE))
 
