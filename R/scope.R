@@ -16,7 +16,7 @@ renv_scope_tempdir <- function(pattern = "renv-tempdir-", .envir = NULL) {
 
 renv_scope_auth <- function(record, .envir = NULL) {
 
-  package <- record$Package
+  package <- if (is.list(record)) record$Package else record
   auth <- renv_options_override("renv.auth", package)
 
   if (empty(auth))

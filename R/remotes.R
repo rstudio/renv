@@ -247,6 +247,9 @@ renv_remotes_resolve_bitbucket <- function(remote) {
 
   host <- remote$host %||% config$bitbucket.host()
 
+  # scope authentication
+  renv_scope_auth(repo)
+
   # get commit sha for ref
   fmt <- "%s/repositories/%s/%s/commit/%s"
   origin <- renv_retrieve_origin(host)
@@ -316,17 +319,26 @@ renv_remotes_resolve_base <- function(package) {
 
 renv_remotes_resolve_github_sha_pull <- function(host, user, repo, pull) {
 
+  # scope authentication
+  renv_scope_auth(repo)
+
+  # make request
   fmt <- "%s/repos/%s/%s/pulls/%s"
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, pull)
   jsonfile <- renv_scope_tempfile("renv-json-")
   download(url, destfile = jsonfile, type = "github", quiet = TRUE)
+
+  # read resulting JSON
   json <- renv_json_read(jsonfile)
   json$head$sha
 
 }
 
 renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
+
+  # scope authentication
+  renv_scope_auth(repo)
 
   # build url for github commits endpoint
   fmt <- "%s/repos/%s/%s/commits/%s"
@@ -371,6 +383,9 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
 
   descpath <- paste(parts, collapse = "/")
 
+  # scope authentication
+  renv_scope_auth(repo)
+
   # get the DESCRIPTION contents
   fmt <- "%s/repos/%s/%s/contents/%s?ref=%s"
   origin <- renv_retrieve_origin(host)
@@ -403,6 +418,9 @@ renv_remotes_resolve_github_ref <- function(host, user, repo) {
 }
 
 renv_remotes_resolve_github_ref_impl <- function(host, user, repo) {
+
+  # scope authentication
+  renv_scope_auth(repo)
 
   # build url to repos endpoint
   fmt <- "%s/repos/%s/%s"
@@ -459,6 +477,9 @@ renv_remotes_resolve_github <- function(remote) {
 }
 
 renv_remotes_resolve_github_release <- function(host, user, repo, spec) {
+
+  # scope authentication
+  renv_scope_auth(repo)
 
   # build url for github releases endpoint
   fmt <- "%s/repos/%s/%s/releases?per_page=1"
@@ -591,6 +612,9 @@ renv_remotes_resolve_gitlab_ref <- function(host, user, repo) {
 
 renv_remotes_resolve_gitlab_ref_impl <- function(host, user, repo) {
 
+  # scope authentication
+  renv_scope_auth(repo)
+
   # get list of available branches
   fmt <- "%s/api/v4/projects/%s/repository/branches"
   origin <- renv_retrieve_origin(host)
@@ -623,6 +647,9 @@ renv_remotes_resolve_gitlab <- function(remote) {
 
   parts <- c(if (nzchar(subdir)) subdir, "DESCRIPTION")
   descpath <- URLencode(paste(parts, collapse = "/"), reserved = TRUE)
+
+  # scope authentication
+  renv_scope_auth(repo)
 
   # retrieve sha associated with this ref
   fmt <- "%s/api/v4/projects/%s/repository/commits/%s"

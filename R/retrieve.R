@@ -209,6 +209,9 @@ renv_retrieve_bitbucket <- function(record) {
   username <- record$RemoteUsername
   repo <- record$RemoteRepo
 
+  # scope authentication
+  renv_scope_auth(repo)
+
   fmt <- "%s/repositories/%s/%s"
   url <- sprintf(fmt, origin, username, repo)
 
