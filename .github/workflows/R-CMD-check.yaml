@@ -35,6 +35,7 @@ jobs:
 
     env:
       _R_CHECK_CRAN_INCOMING_: FALSE
+      _R_CHECK_RD_XREFS: false
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       RENV_CI_CACHE_VERSION_LINUX: 1
       RENV_CI_CACHE_VERSION_MACOS: 1
@@ -107,12 +108,12 @@ jobs:
 
       - name: Update R dependencies
         shell: R --no-save --no-restore --quiet -f {0}
-        run: |
-          renv::install()
-          renv::update()
         env:
           RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.rstudio.com/cran/latest
           RENV_CONFIG_CACHE_ENABLED: FALSE
+        run: |
+          renv::install()
+          renv::update()
 
       - name: Write diagnostics report
         shell: R --no-save --no-restore --quiet -f {0}
