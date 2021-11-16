@@ -45,6 +45,11 @@ renv_renvignore_pattern <- function(path = getwd(), root = path) {
   include <- unlist(extract(patterns, "include"))
   exclude <- unlist(extract(patterns, "exclude"))
 
+  # allow for inclusion / exclusion via option
+  # (primarily intended for internal use with packrat)
+  include <- c(include, renv_renvignore_pattern_extra("include", root))
+  exclude <- c(exclude, renv_renvignore_pattern_extra("exclude", root))
+
   # ignore hidden directories by default
   exclude <- c("/[.][^/]*/$", exclude)
 
@@ -161,5 +166,25 @@ renv_renvignore_exec <- function(path, root, children) {
 
   # return vector of excludes
   excludes
+
+}
+
+renv_renvignore_pattern_extra <- function(key, root) {
+
+  # check for value from option
+  optname <- paste("renv.renvignore", key, sep = ".")
+  patterns <- getOption(optname)
+  if (is.null(patterns))
+    return(NULL)
+
+  # should we use the pattern as-is?
+  asis <- attr(patterns, "asis", exact = TRUE)
+  if (identical(asis, TRUE))
+    return(patterns)
+
+  # otherwise, process it as an .renvignore-style ignore
+  root <- attr(patterns, "root", exact = TRUE) %||% root
+  patterns <- renv_renvignore_parse(patterns, root)
+  patterns[[key]]
 
 }
