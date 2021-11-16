@@ -89,3 +89,6 @@ articles:
     navbar: Advanced
     contents: [profiles]
 
+template:
+  bootstrap: 5
+
