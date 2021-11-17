@@ -281,7 +281,12 @@ renv_retrieve_git <- function(record) {
 }
 
 renv_retrieve_git_impl <- function(record, path) {
+
   renv_git_preflight()
+
+  url <- record$RemoteUrl
+  ref <- record$RemoteRef
+  sha <- record$RemoteSha
 
   template <- c(
     "cd \"${DIR}\"",
@@ -293,8 +298,8 @@ renv_retrieve_git_impl <- function(record, path) {
 
   data <- list(
     DIR    = renv_path_normalize(path),
-    ORIGIN = record$RemoteUrl,
-    REF    = record$RemoteSha %||% record$RemoteRef
+    ORIGIN = url,
+    REF    = sha %||% ref
   )
 
   commands <- renv_template_replace(template, data)
@@ -303,18 +308,28 @@ renv_retrieve_git_impl <- function(record, path) {
     command <- paste(comspec(), "/C", command)
 
 
+  vwritef("Cloning '%s' ...", url)
+
+  before <- Sys.time()
+
   status <- local({
     renv_scope_auth(record)
     renv_scope_git_auth()
     system(command)
   })
 
+  after <- Sys.time()
+
   if (status != 0L) {
-    fmt <- "cannot retrieve package '%s' from '%s' [status code %i]"
-    stopf(fmt, record$Package, record$RemoteUrl, status)
+    fmt <- "error cloning '%s' from '%s' [status code %i]"
+    stopf(fmt, package, url, status)
   }
 
+  fmt <- "\tOK [cloned repository in %s]"
+  vwritef(fmt, renv_difftime_format(after - before))
+
   TRUE
+
 }
 
 
