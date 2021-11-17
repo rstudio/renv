@@ -441,28 +441,36 @@ renv_retrieve_repos <- function(record) {
   if (all(c("type", "url") %in% names(attributes(record))))
     return(renv_retrieve_repos_impl(record))
 
-  # always attempt to retrieve from source + archive
-  methods <- c(
-    renv_retrieve_repos_source,
-    renv_retrieve_repos_archive
-  )
+  # collect list of 'methods' for retrieval
+  methods <- stack(mode = "list")
 
   # only attempt to retrieve binaries when explicitly requested by user
   if (!identical(getOption("pkgType"), "source")) {
 
-    # attempt to retrieve binaries from MRAN when enabled as well
-    if (config$mran.enabled())
-      methods <- c(renv_retrieve_repos_mran, methods)
+    # prefer repository binaries if available
+    methods$push(renv_retrieve_repos_binary)
 
-    # prefer using default CRAN mirror over MRAN when possible
-    methods <- c(renv_retrieve_repos_binary, methods)
+    # if MRAN is enabled, check those binaries as well
+    if (config$mran.enabled())
+      methods$push(renv_retrieve_repos_mran)
 
   }
+
+  # next, try to retrieve from sources
+  methods$push(renv_retrieve_repos_source)
+
+  # if this is a package from r-universe, try restoring from github
+  # (currently inferred from presence for RemoteUrl field)
+  unifields <- c("RemoteUrl", "RemoteRef", "RemoteSha")
+  if (all(unifields %in% names(record)))
+    methods$push(renv_retrieve_git)
+  else
+    methods$push(renv_retrieve_repos_archive)
 
   # capture errors for reporting
   errors <- stack()
 
-  for (method in methods) {
+  for (method in methods$data()) {
 
     status <- catch(
       withCallingHandlers(

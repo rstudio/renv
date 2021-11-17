@@ -3,6 +3,9 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` now supports restoration of packages installed via one of the
+  [r-universe](https://r-universe.dev/) repositories.
+
 * `renv` gains the `bioconductor.version` project setting, used to freeze
   the version of Bioconductor used in a particular project. When set, this
   will override any version that might be selected via the `BiocManager`
