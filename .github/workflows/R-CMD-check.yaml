@@ -35,7 +35,7 @@ jobs:
 
     env:
       _R_CHECK_CRAN_INCOMING_: FALSE
-      _R_CHECK_RD_XREFS: false
+      _R_CHECK_RD_XREFS: FALSE
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       RENV_CI_CACHE_VERSION_LINUX: 1
       RENV_CI_CACHE_VERSION_MACOS: 1
