@@ -34,14 +34,15 @@ jobs:
           - {os: ubuntu-18.04,   r: '3.4'}
 
     env:
-      _R_CHECK_CRAN_INCOMING_: FALSE
-      _R_CHECK_RD_XREFS: FALSE
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      RENV_CI_CACHE_VERSION_LINUX: 1
-      RENV_CI_CACHE_VERSION_MACOS: 1
-      RENV_CI_CACHE_VERSION_WINDOWS: 1
-      USE_CXX1X: TRUE
-      USE_CXX11: TRUE
+      _R_CHECK_CRAN_INCOMING_:       "FALSE"
+      _R_CHECK_RD_XREFS:             "FALSE"
+      _R_CHECK_PACKAGE_NAME_:        "renv"
+      GITHUB_PAT:                    "${{ secrets.GITHUB_TOKEN }}"
+      RENV_CI_CACHE_VERSION_LINUX:   "1"
+      RENV_CI_CACHE_VERSION_MACOS:   "1"
+      RENV_CI_CACHE_VERSION_WINDOWS: "1"
+      USE_CXX1X:                     "TRUE"
+      USE_CXX11:                     "TRUE"
 
     steps:
       - uses: actions/checkout@v2
