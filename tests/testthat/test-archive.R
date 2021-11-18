@@ -36,16 +36,20 @@ test_that("we can successfully compress / decompress some sample files", {
   renv_archive_decompress(tarfile, exdir = exdir)
   expect_setequal(list.files(exdir), list.files(dir))
 
+  zipper <- Sys.getenv("R_ZIPCMD", unset = "zip")
+  if (nzchar(Sys.which(zipper))) {
 
-  zipfile <- tempfile(fileext = ".zip")
-  zip(zipfile, files = ".", extras = "-q")
+    zipfile <- tempfile(fileext = ".zip")
+    zip(zipfile, files = ".", extras = "-q")
 
-  actual <- list.files(dir)
-  expected <- basename(renv_archive_list(zipfile))
-  expect_setequal(actual, expected)
+    actual <- list.files(dir)
+    expected <- basename(renv_archive_list(zipfile))
+    expect_setequal(actual, expected)
 
-  exdir <- tempfile()
-  renv_archive_decompress(zipfile, exdir = exdir)
-  expect_setequal(list.files(exdir), list.files(dir))
+    exdir <- tempfile()
+    renv_archive_decompress(zipfile, exdir = exdir)
+    expect_setequal(list.files(exdir), list.files(dir))
+
+  }
 
 })

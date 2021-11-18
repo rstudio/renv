@@ -58,23 +58,7 @@ renv_file_copy_file <- function(source, target) {
 }
 
 renv_file_copy_dir_robocopy <- function(source, target) {
-
-  source <- path.expand(source)
-  target <- path.expand(target)
-
-  flags <- c("/E", "/Z", "/R:5", "/W:10")
-  args <- c(flags, shQuote(source), shQuote(target))
-
-  # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
-  # > Any value greater than 8 indicates that there was at least one failure
-  # > during the copy operation.
-  renv_system_exec(
-    "robocopy",
-    args,
-    action = "copying directory",
-    success = 0:8
-  )
-
+  renv_robocopy_copy(source, target)
 }
 
 # TODO: the version of rsync distributed with macOS
@@ -201,11 +185,23 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   if (renv_file_exists(target))
     return(TRUE)
 
+  # expand tildes
+  source <- path.expand(source)
+  target <- path.expand(target)
+
   # on unix, try using 'mv' command directly
   # (can handle cross-device copies / moves a bit more efficiently)
   if (renv_platform_unix()) {
     args <- shQuote(c(source, target))
     status <- catchall(system2("mv", args, stdout = FALSE, stderr = FALSE))
+    if (renv_file_exists(target))
+      return(TRUE)
+  }
+
+  # on Windows, similarly try 'robocopy' command
+  # (should be faster than 'move' for large directories)
+  if (renv_platform_windows()) {
+    status <- catchall(renv_robocopy_move(source, target))
     if (renv_file_exists(target))
       return(TRUE)
   }
@@ -219,8 +215,8 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   }
 
   # nocov start
-  # rename failed; fall back to copying (and be sure to remove
-  # the source file / directory on success)
+  # rename failed; fall back to copying
+  # (and be sure to remove the source file / directory on success)
   copy <- catchall(renv_file_copy(source, target, overwrite = overwrite))
   if (identical(copy, TRUE) && file.exists(target)) {
     unlink(source, recursive = TRUE)
