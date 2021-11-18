@@ -247,10 +247,7 @@ renv_load_project <- function(project) {
   Sys.setenv(RENV_PROJECT = project)
 
   # update project list if enabled
-  enabled <-
-    settings$use.cache(project = project) &&
-    config$cache.enabled()
-
+  enabled <- renv_cache_config_enabled(project = project)
   if (enabled)
     renv_load_project_projlist(project)
 

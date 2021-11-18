@@ -516,11 +516,11 @@ renv_cache_package_validate <- function(path) {
 }
 
 renv_cache_config_enabled <- function(project) {
-  config$cache.enabled() && settings$use.cache()
+  config$cache.enabled() && settings$use.cache(project = project)
 }
 
 renv_cache_config_symlinks <- function(project) {
-  config$cache.symlinks() && settings$use.cache()
+  config$cache.symlinks() && settings$use.cache(project = project)
 }
 
 renv_cache_linkable <- function(project, library) {
