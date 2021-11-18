@@ -198,13 +198,13 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
       return(TRUE)
   }
 
-  # on Windows, similarly try 'robocopy' command
-  # (should be faster than 'move' for large directories)
-  if (renv_platform_windows()) {
-    status <- catchall(renv_robocopy_move(source, target))
-    if (renv_file_exists(target))
-      return(TRUE)
-  }
+  # # on Windows, similarly try 'robocopy' command
+  # # (should be faster than 'move' for large directories)
+  # if (renv_platform_windows()) {
+  #   status <- catchall(renv_robocopy_move(source, target))
+  #   if (renv_file_exists(target))
+  #     return(TRUE)
+  # }
 
   # on Windows, similarly try 'move' command
   if (renv_platform_windows()) {
