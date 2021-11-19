@@ -100,7 +100,7 @@ renv_config_get <- function(name,
   envname <- gsub(".", "_", toupper(name), fixed = TRUE)
   envkey <- paste("RENV", toupper(scope), envname, sep = "_")
   envval <- Sys.getenv(envkey, unset = NA)
-  if (!is.na(envval)) {
+  if (!is.na(envval) && nzchar(envval)) {
     decoded <- renv_config_decode_envvar(envkey, envval)
     return(renv_config_validate(name, decoded, type, default, args))
   }
@@ -187,15 +187,15 @@ renv_config_validate <- function(name, value, type, default, args) {
     return(value)
 
   # try converting
-  value <- catchall(convert(value, mode))
-  if (inherits(value, "condition")) {
+  converted <- catchall(convert(value, mode))
+  if (is.na(converted) || inherits(converted, "condition")) {
     fmt <- "'%s' does not satisfy constraint '%s' for config '%s'; using default '%s' instead"
     warningf(fmt, renv_deparse(value), type, name, renv_deparse(default))
     return(default)
   }
 
   # ok, validated + converted option
-  value
+  converted
 
 }
 

@@ -3,6 +3,9 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* Fixed an issue where invalid `config` option values were not properly
+  reported. (#773)
+
 * `renv` now supports restoration of packages installed via one of the
   [r-universe](https://r-universe.dev/) repositories.
 
