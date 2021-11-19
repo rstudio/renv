@@ -284,9 +284,10 @@ renv_retrieve_git_impl <- function(record, path) {
 
   renv_git_preflight()
 
-  url <- record$RemoteUrl
-  ref <- record$RemoteRef
-  sha <- record$RemoteSha
+  package <- record$Package
+  url     <- record$RemoteUrl
+  ref     <- record$RemoteRef
+  sha     <- record$RemoteSha
 
   template <- c(
     "cd \"${DIR}\"",

@@ -220,7 +220,7 @@ r_cmd_build <- function(package, path, ...) {
   matches <- regexec(pattern, pasted)
   text <- regmatches(pasted, matches)
 
-  tarball <- text[[1]][[2]]
+  tarball <- text[[1L]][[2L]]
   if (!file.exists(tarball))
     r_exec_error(package, output, "build", tarball)
 
