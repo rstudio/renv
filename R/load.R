@@ -285,15 +285,24 @@ renv_load_rprofile <- function(project = NULL) {
 
   project <- renv_project_resolve(project)
 
+  # bail if not enabled by user
   enabled <- identical(config$user.profile(), TRUE)
   if (!enabled)
     return(FALSE)
 
-  renv_scope_libpaths()
+  # callr will manage sourcing of user profile, so don't try
+  # to source the user profile if we're in callr
+  callr <- Sys.getenv("CALLR_CHILD_R_LIBS", unset = NA)
+  if (!is.na(callr))
+    return(FALSE)
 
+  # check for existence of profile
   profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
-  if (file.exists(profile))
-    renv_load_rprofile_impl(profile)
+  if (!file.exists(profile))
+    return(FALSE)
+
+  renv_scope_libpaths()
+  renv_load_rprofile_impl(profile)
 
   TRUE
 
