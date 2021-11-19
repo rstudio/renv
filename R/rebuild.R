@@ -59,7 +59,10 @@ rebuild <- function(packages  = NULL,
 
   # for any packages that are missing, use the latest available instead
   records <- enumerate(records, function(package, record) {
-    record %||% renv_available_packages_latest(package)
+    record %||% renv_available_packages_latest(package) %||% {
+      fmt <- "package '%s' is not available"
+      stopf(fmt, package)
+    }
   })
 
   # apply any overrides
