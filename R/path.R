@@ -3,8 +3,8 @@
 
 renv_path_absolute <- function(path) {
 
-  substr(path, 1L, 1L) %in% c("~", "/", "\\") || (
-    substr(path, 1L, 1L) %in% `_renv_alpha` &&
+  substr(path, 1L, 1L) %in% c("~", "/", "\\") | (
+    substr(path, 1L, 1L) %in% `_renv_alpha` &
     substr(path, 2L, 3L) %in% c(":/", ":\\")
   )
 
@@ -48,13 +48,15 @@ renv_path_normalize_unix <- function(path,
 #
 # furthermore, it appears that shortPathName() can mis-encode its result for
 # strings marked with latin1 encoding?
+#
 # https://github.com/rstudio/renv/issues/629
 renv_path_normalize_win32 <- function(path,
                                       winslash = "/",
                                       mustWork = FALSE)
 {
 
-  # see the NOTE above, this workaround is only necessary for R < 4 and it complicates things unnecessarily
+  # see the NOTE above, this workaround is only necessary for R < 4.0.0,
+  # and it complicates things unnecessarily
   if (getRversion() >= "4.0.0")
     return(normalizePath(path, winslash, mustWork))
 
