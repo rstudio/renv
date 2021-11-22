@@ -18,7 +18,10 @@ test_that("renv_path_absolute() reports common absolute paths", {
     "::/weird/path"
   )
 
-  expect_true(all(renv_path_absolute(abs)))
-  expect_false(any(renv_path_absolute(rel)))
+  for (path in abs)
+    expect_true(renv_path_absolute(path))
+
+  for (path in rel)
+    expect_false(renv_path_absolute(path))
 
 })
