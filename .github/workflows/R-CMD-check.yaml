@@ -126,6 +126,9 @@ jobs:
           mkdir -p check
           R CMD build --no-manual .
           R CMD check --no-manual -o check *.tar.gz
+        env:
+          _R_CHECK_LENGTH_1_CONDITION_: TRUE
+          _R_CHECK_LENGTH_1_LOGIC2_: TRUE
 
       - name: Show testthat output
         if: always()
