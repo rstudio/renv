@@ -370,3 +370,29 @@ test_that("we can install packages from git remotes within subdirs", {
   expect_true(renv_package_installed("subdir"))
 
 })
+
+test_that("packages embedded in the project use a project-local RemoteURL", {
+
+  skip_if(getRversion() < "4.1")
+  skip_if_not_installed("usethis")
+
+  renv_tests_scope("example")
+
+  usethis <- renv_namespace_load("usethis")
+  skip_if(is.null(usethis$create_package))
+  renv_scope_options(usethis.quiet = TRUE)
+  unlink("example", recursive = TRUE)
+  usethis$create_package("example", rstudio = FALSE, open = FALSE)
+
+  install("./example")
+  lockfile <- snapshot(lockfile = NULL)
+  expect_equal(lockfile$Packages$example$RemoteUrl, "./example")
+
+  # TODO: if the user provides a "weird" path, we'll use it as-is.
+  # is that okay? what about relative paths that resolve outside of
+  # the project root directory?
+  install("./././example")
+  lockfile <- snapshot(lockfile = NULL)
+  expect_equal(lockfile$Packages$example$RemoteUrl, "./././example")
+
+})

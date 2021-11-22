@@ -8,11 +8,9 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = NULL, ..
     stopf(fmt, renv_path_pretty(path))
   }
 
-  # validate that the path is absolute
-  if (!renv_path_absolute(path)) {
-    fmt <- "internal error: path %s is not absolute"
-    stopf(fmt, renv_path_pretty(path))
-  }
+  # normalize non-absolute paths
+  if (!renv_path_absolute(path))
+    path <- renv_path_normalize(path)
 
   # if 'path' refers to a directory, try to resolve the DESCRIPTION file
   info <- file.info(path, extra_cols = FALSE)

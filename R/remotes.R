@@ -14,7 +14,7 @@ remote <- function(spec) {
 }
 
 # take a short-form remotes spec, parse that into a remote,
-# and generate a corresopnding package record
+# and generate a corresponding package record
 renv_remotes_resolve <- function(spec, latest = FALSE) {
 
   # check for already-resolved specs
@@ -716,16 +716,13 @@ renv_remotes_resolve_url <- function(url, quiet = FALSE) {
 
 renv_remotes_resolve_path <- function(path) {
 
-  # check for existing path
-  norm <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
-
   # first, check for a common extension
   if (renv_archive_type(path) %in% c("tar", "zip"))
-    return(renv_remotes_resolve_path_impl(norm))
+    return(renv_remotes_resolve_path_impl(path))
 
   # otherwise, if this is the path to a package project, use the sources as-is
-  if (renv_project_type(norm) == "package")
-    return(renv_remotes_resolve_path_impl(norm))
+  if (renv_project_type(path) == "package")
+    return(renv_remotes_resolve_path_impl(path))
 
   stopf("there is no package at path '%s'", path)
 

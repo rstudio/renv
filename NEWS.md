@@ -3,6 +3,10 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* Packages installed via e.g. `renv::install("./path/to/package")`
+  will now retain the relative path to that package within the lockfile.
+  (#873)
+  
 * Fixed an issue where invalid `config` option values were not properly
   reported. (#773)
 

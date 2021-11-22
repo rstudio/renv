@@ -34,7 +34,7 @@ test_that("packages can be installed, restored from Bioconductor", {
   expect_true("Biobase" %in% names(records))
 
   if (!renv_platform_linux())
-    renv_scope_options(pkgType = "both")
+    renv_scope_options(pkgType = .Platform$pkgType)
 
   remove("Biobase")
   restore()
