@@ -27,17 +27,15 @@ renv_cache_find <- function(record) {
   if (!is.null(record$Hash)) {
 
     # generate path to package installations in cache
-    path <- with(record, renv_paths_cache(Package, Version, Hash, Package))
+    paths <- with(record, renv_paths_cache(Package, Version, Hash, Package))
 
     # if there are multiple cache entries, return the first existing one
     # if no entries exist, return path into first cache entry
-    if (length(path) > 1L) {
-      existing <- filter(path, file.exists)
-      if (length(existing))
-        path <- existing[[1L]]
-    }
+    for (path in paths)
+      if (file.exists(path))
+        return(path)
 
-    return(path[[1L]])
+    return(paths[[1L]])
 
   }
 
@@ -195,9 +193,12 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 }
 
 renv_cache_list <- function(cache = NULL, packages = NULL) {
+  caches <- cache %||% renv_paths_cache()
+  paths <- map(caches, renv_cache_list_impl, packages = packages)
+  unlist(paths, recursive = TRUE, use.names = FALSE)
+}
 
-  # get path to cache
-  cache <- cache %||% renv_paths_cache()
+renv_cache_list_impl <- function(cache, packages) {
 
   # paths to packages in the cache have the following format:
   #
@@ -480,7 +481,17 @@ renv_cache_clean_empty <- function(cache = NULL) {
     return(FALSE)
 
   # move to cache root
-  cache <- cache %||% renv_paths_cache()
+  caches <- cache %||% renv_paths_cache()
+  for (cache in caches)
+    renv_cache_clean_empty_impl(cache)
+
+  TRUE
+
+}
+
+renv_cache_clean_empty_impl <- function(cache) {
+
+  # move to cache directory
   owd <- setwd(cache)
   on.exit(setwd(owd), add = TRUE)
 

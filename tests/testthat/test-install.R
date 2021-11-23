@@ -95,7 +95,7 @@ test_that("install forces update of dependencies as needed", {
 
 })
 
-test_that("packages can be installed from local sources", {
+test_that("packages can be installed from sources", {
 
   renv_tests_scope()
   renv::init()
@@ -313,12 +313,19 @@ test_that("install() prefers local sources when available", {
   renv_tests_scope()
 
   root <- renv_tests_root()
-  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(root, "local"))
+  locals <- paste(
+    file.path(root, "nowhere"),
+    file.path(root, "local"),
+    sep = ";"
+  )
+
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+  renv_scope_envvars(RENV_PATHS_LOCAL = locals)
 
   records <- install("skeleton")
 
   record <- records$skeleton
-  expect_equal(record$Repository, "Local")
+  expect_equal(record$Source, "Local")
 
   prefix <- if (renv_platform_windows()) "file:///" else "file://"
   uri <- paste0(prefix, root, "/local/skeleton")

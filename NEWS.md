@@ -3,6 +3,10 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* The `RENV_PATHS_LOCAL` environment variable can now be set to multiple
+  paths. Use `;` as a separator between paths; for example,
+  `RENV_PATHS_LOCAL=/path/to/sources/v1;/path/to/sources/v2`. (#550)
+  
 * Packages installed via e.g. `renv::install("./path/to/package")`
   will now retain the relative path to that package within the lockfile.
   (#873)

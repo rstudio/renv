@@ -22,8 +22,8 @@ rehash <- function(prompt = interactive(), ...) {
 renv_rehash_impl <- function(prompt) {
 
   # check for cache migration
-  oldcache <- renv_paths_cache(version = renv_cache_version_previous())
-  newcache <- renv_paths_cache(version = renv_cache_version())
+  oldcache <- renv_paths_cache(version = renv_cache_version_previous())[[1L]]
+  newcache <- renv_paths_cache(version = renv_cache_version())[[1L]]
   if (file.exists(oldcache) && !file.exists(newcache))
     renv_rehash_cache(oldcache, prompt, renv_file_copy, "copied")
 

@@ -1,6 +1,22 @@
 
 `_renv_root` <- NULL
 
+renv_paths_override <- function(name) {
+
+  # # check for value from option
+  # optname <- paste("renv.paths", name, sep = ".")
+  # optval <- getOption(optname)
+  # if (!is.null(optval))
+  #   return(optval)
+
+  # check for value from envvar
+  envname <- paste("RENV_PATHS", toupper(name), sep = "_")
+  envval  <- Sys.getenv(envname, unset = NA)
+  if (!is.na(envval))
+    return(envval)
+
+}
+
 renv_paths_common <- function(name, prefixes = NULL, ...) {
 
   # check for single absolute path supplied by user
@@ -9,16 +25,11 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
   if (length(end) == 1 && renv_path_absolute(end))
     return(end)
 
-  # compute root path
-  envvar <- paste("RENV_PATHS", toupper(name), sep = "_")
-  root <-
-    Sys.getenv(envvar, unset = NA) %NA%
-    renv_paths_root(name)
+  # check for path provided via option
+  root <- renv_paths_override(name) %||% renv_paths_root(name)
 
-  # check if the cache consists of multiple paths, if yes then split the paths
-  # this allows mixing read-only and read+write cache directories.
-  # https://github.com/rstudio/renv/issues/628
-  if (identical(name, "cache")) {
+  # split path entries containing a separator
+  if (name %in% c("cache", "local")) {
     pattern <- if (renv_platform_windows()) "[;]" else "[;:]"
     root <- strsplit(root, pattern)[[1L]]
   }
@@ -80,17 +91,12 @@ renv_paths_cache <- function(..., version = NULL) {
 
 renv_paths_rtools <- function(...) {
 
-  root <- Sys.getenv("RENV_PATHS_RTOOLS", unset = NA)
-  if (!is.na(root))
-    return(root)
+  root <- renv_paths_override("rtools")
+  if (is.null(root)) {
+    spec <- renv_rtools_find()
+    root <- spec$root
+  }
 
-  # TODO: this was a typo in a previous usage; preserved
-  # for backwards compatibility
-  root <- Sys.getenv("RENV_PATH_RTOOLS", unset = NA)
-  if (!is.na(root))
-    return(root)
-
-  spec <- renv_rtools_find()
   file.path(spec$root, ...) %||% ""
 
 }
@@ -106,13 +112,8 @@ renv_paths_mran <- function(...) {
 
 
 renv_paths_root <- function(...) {
-
-  root <-
-    Sys.getenv("RENV_PATHS_ROOT", unset = NA) %NA%
-    renv_paths_root_default()
-
+  root <- renv_paths_override("root") %||% renv_paths_root_default()
   file.path(root, ...) %||% ""
-
 }
 
 # nocov start
@@ -215,6 +216,7 @@ renv_paths_root_default_tempdir <- function() {
   ensure_directory(temp)
   return(temp)
 }
+
 # nocov end
 
 renv_paths_init <- function() {

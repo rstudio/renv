@@ -15,7 +15,7 @@ renv_available_packages <- function(type, repos = NULL, limit = NULL, quiet = FA
   envvals <- Sys.getenv(envkeys, unset = NA)
   key <- list(repos = repos, type = type, envvals)
 
-  renv_timecache(
+  timecache(
     key     = key,
     value   = renv_available_packages_impl(type, repos, quiet),
     limit   = as.integer(limit),
@@ -230,9 +230,15 @@ renv_available_packages_record <- function(entry, type) {
   # otherwise, construct it
   record <- entry
 
-  record$Source     <- "Repository"
-  record$Repository <- entry$Name
-  record$Name       <- NULL
+  if (identical(record$Name, "Local")) {
+    record$Source     <- "Local"
+    record$Repository <- NULL
+    record$Name       <- NULL
+  } else {
+    record$Source     <- "Repository"
+    record$Repository <- entry$Name
+    record$Name       <- NULL
+  }
 
   attr(record, "type") <- type
   attr(record, "url")  <- entry$Repository

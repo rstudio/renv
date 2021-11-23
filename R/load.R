@@ -507,8 +507,8 @@ renv_load_cache <- function(project) {
   if (!interactive())
     return(FALSE)
 
-  oldcache <- renv_paths_cache(version = renv_cache_version_previous())
-  newcache <- renv_paths_cache(version = renv_cache_version())
+  oldcache <- renv_paths_cache(version = renv_cache_version_previous())[[1L]]
+  newcache <- renv_paths_cache(version = renv_cache_version())[[1L]]
   if (!file.exists(oldcache) || file.exists(newcache))
     return(FALSE)
 

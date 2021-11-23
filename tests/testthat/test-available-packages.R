@@ -77,6 +77,7 @@ test_that("renv_available_packages_latest() respects pkgType option", {
 
   skip_on_cran()
   skip_if(.Platform$pkgType == "source")
+
   renv_tests_scope()
 
   renv_scope_options(pkgType = "source")
@@ -99,8 +100,7 @@ test_that("local sources are preferred when available", {
   renv_scope_envvars(RENV_PATHS_LOCAL = file.path(root, "local"))
 
   record <- renv_available_packages_latest(package = "skeleton", type = "source")
-  expect_identical(record$Source, "Repository")
-  expect_identical(record$Repository, "Local")
+  expect_identical(record$Source, "Local")
 
 })
 

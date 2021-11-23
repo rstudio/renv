@@ -79,3 +79,9 @@ test_that("our fallback R_user_dir() implementation is compatible", {
   expected <- tools::R_user_dir("renv", which = "cache")
   expect_true(renv_path_same(actual, expected))
 })
+
+test_that("path environment variables can use ';' as separator", {
+  renv_scope_envvars(RENV_PATHS_LOCAL = "a;b;c")
+  paths <- renv_paths_local()
+  expect_equal(paths, c("a", "b", "c"))
+})

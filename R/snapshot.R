@@ -693,6 +693,9 @@ renv_snapshot_description_source <- function(dcf) {
   # still, this has the awkward side-effect of a package's source potentially
   # depending on what repositories happen to be active at the time of snapshot,
   # so it'd be nice to tighten up the logic here if possible
+  #
+  # NOTE: local sources are also searched here as part of finding the 'latest'
+  # available package, so we need to handle local packages discovered here
   entry <- local({
     renv_scope_options(renv.verbose = FALSE)
     catch(renv_available_packages_latest(package))
@@ -701,11 +704,12 @@ renv_snapshot_description_source <- function(dcf) {
   if (!inherits(entry, "error")) {
 
     # check for and handle local repositories
-    repos <- entry[["Repository"]]
-    if (identical(repos, "Local"))
+    source <- entry[["Source"]]
+    if (identical(source, "Local"))
       return(list(Source = "Local"))
 
     # otherwise, treat as regular entry
+    repos <- entry[["Repository"]]
     return(list(Source = "Repository", Repository = repos))
 
   }

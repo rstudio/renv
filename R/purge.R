@@ -61,7 +61,7 @@ renv_purge_impl <- function(package,
 
   # get root cache path entry for package
   paths <- renv_paths_cache(package)
-  if (!file.exists(paths))
+  if (!any(file.exists(paths)))
     return(bail())
 
   # construct versioned path
@@ -69,7 +69,7 @@ renv_purge_impl <- function(package,
     list.files(paths, full.names = TRUE)
   else
     file.path(paths, version)
-  if (all(!file.exists(paths)))
+  if (!any(file.exists(paths)))
     return(bail())
 
   # construct hashed path

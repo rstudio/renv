@@ -13,7 +13,7 @@ renv_library_diagnose <- function(project, libpath) {
     msg <- lines(
       "The project library's symlinks to the cache are all broken.",
       "Has the cache been removed, or is it otherwise inaccessible?",
-      paste("Cache root:", shQuote(renv_paths_cache()))
+      paste("Cache root:", shQuote(renv_paths_cache()[[1L]]))
     )
     warning(msg, call. = FALSE)
     return(FALSE)

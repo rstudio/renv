@@ -3,7 +3,12 @@
 # some period of time
 `_renv_timecache` <- new.env(parent = emptyenv())
 
-renv_timecache <- function(key, value, limit = 3600, timeout = NULL) {
+timecache <- function(key, value, limit = 3600, timeout = NULL) {
+
+  # allow override
+  enabled <- getOption("renv.timecache.enabled")
+  if (identical(enabled, FALSE))
+    return(value)
 
   # read cached time entry
   entry <- renv_timecache_get(key)

@@ -215,6 +215,7 @@ test_that("snapshot records packages discovered in local sources", {
   skeleton <- records[["skeleton"]]
   expect_equal(skeleton$Version, "1.0.1")
   expect_equal(skeleton$Source, "Local")
+  expect_false("Repository" %in% names(skeleton))
 
   # validate the record in the lockfile
   lockfile <- snapshot(lockfile = NULL)
