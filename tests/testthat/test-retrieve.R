@@ -254,6 +254,8 @@ test_that("explicit path to binary packages work", {
 
 test_that("remotes::install_local() records are handled", {
 
+  renv_scope_envvars(RENV_PATHS_LOCAL = "")
+
   record <- list(
     Package    = "skeleton",
     Version    = "1.0.1",

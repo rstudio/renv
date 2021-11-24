@@ -6,8 +6,8 @@ test_that("we can query actions for a sample project", {
   renv_tests_scope("bread")
   renv_scope_options(renv.config.auto.snapshot = FALSE)
 
-  renv::init(settings = list(snapshot.type = "all"))
-  renv::install("breakfast")
+  init(settings = list(snapshot.type = "all"))
+  install("breakfast")
 
   acts <- actions("snapshot", library = renv_paths_library(), project = getwd())
   expect_true(nrow(acts) == 3)

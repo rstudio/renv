@@ -3,6 +3,7 @@
 `_renv_aliases` <- list(
   bioconductor = "Bioconductor",
   bitbucket    = "Bitbucket",
+  cellar       = "Cellar",
   cran         = "CRAN",
   git2r        = "Git",
   github       = "GitHub",

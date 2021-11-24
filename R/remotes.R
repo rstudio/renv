@@ -716,6 +716,13 @@ renv_remotes_resolve_url <- function(url, quiet = FALSE) {
 
 renv_remotes_resolve_path <- function(path) {
 
+  # if this package lives within one of the cellar paths,
+  # then treat it as a cellar source
+  roots <- renv_cellar_roots()
+  for (root in roots)
+    if (renv_path_within(path, root))
+      return(renv_remotes_resolve_path_cellar(path))
+
   # first, check for a common extension
   if (renv_archive_type(path) %in% c("tar", "zip"))
     return(renv_remotes_resolve_path_impl(path))
@@ -725,6 +732,18 @@ renv_remotes_resolve_path <- function(path) {
     return(renv_remotes_resolve_path_impl(path))
 
   stopf("there is no package at path '%s'", path)
+
+}
+
+renv_remotes_resolve_path_cellar <- function(path) {
+
+  desc <- renv_description_read(path)
+  list(
+    Package    = desc$Package,
+    Version    = desc$Version,
+    Source     = "Cellar",
+    Cacheable  = FALSE
+  )
 
 }
 

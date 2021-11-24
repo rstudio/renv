@@ -100,7 +100,7 @@ test_that("local sources are preferred when available", {
   renv_scope_envvars(RENV_PATHS_LOCAL = file.path(root, "local"))
 
   record <- renv_available_packages_latest(package = "skeleton", type = "source")
-  expect_identical(record$Source, "Local")
+  expect_identical(record$Source, "Cellar")
 
 })
 

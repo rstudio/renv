@@ -5,7 +5,7 @@
 \alias{settings}
 \title{Project Settings}
 \format{
-An object of class \code{list} of length 9.
+An object of class \code{list} of length 10.
 }
 \usage{
 settings
@@ -78,11 +78,19 @@ details.
 
 \item{\code{use.cache}}{
 
-Use a global cache of \R packages. When active, \code{renv} will install
-packages into a global cache, and link packages from the cache into your
-\code{renv} projects as appropriate. This can greatly save on disk space
+Enable the \code{renv} package cache with this project. When active, \code{renv} will
+install packages into a global cache, and link packages from the cache into
+your \code{renv} projects as appropriate. This can greatly save on disk space
 and install time when for \R packages which are used across multiple
 projects in the same environment.
+
+}
+
+\item{\code{vcs.ignore.local}}{
+
+Set whether packages within a project-local package cellar are excluded
+from version control. See \code{vignette("cellar", package = "renv")} for
+more information.
 
 }
 
@@ -94,7 +102,8 @@ Set whether the \code{renv} project library is excluded from version control.
 
 \item{\code{vcs.ignore.local}}{
 
-Set whether \code{renv} project-specific local sources are excluded from version control.
+Set whether \code{renv} project-specific local sources are excluded from version
+control.
 
 }
 

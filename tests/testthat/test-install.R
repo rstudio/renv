@@ -307,7 +307,7 @@ test_that("install() installs inferred dependencies", {
 
 })
 
-test_that("install() prefers local sources when available", {
+test_that("install() prefers cellar when available", {
 
   skip_on_cran()
   renv_tests_scope()
@@ -320,12 +320,12 @@ test_that("install() prefers local sources when available", {
   )
 
   renv_scope_options(renv.config.cache.enabled = FALSE)
-  renv_scope_envvars(RENV_PATHS_LOCAL = locals)
+  renv_scope_envvars(RENV_PATHS_CELLAR = locals)
 
   records <- install("skeleton")
 
   record <- records$skeleton
-  expect_equal(record$Source, "Local")
+  expect_equal(record$Source, "Cellar")
 
   prefix <- if (renv_platform_windows()) "file:///" else "file://"
   uri <- paste0(prefix, root, "/local/skeleton")
@@ -401,5 +401,29 @@ test_that("packages embedded in the project use a project-local RemoteURL", {
   install("./././example")
   lockfile <- snapshot(lockfile = NULL)
   expect_equal(lockfile$Packages$example$RemoteUrl, "./././example")
+
+})
+
+test_that("packages installed from cellar via direct path", {
+
+  skip_on_cran()
+  renv_tests_scope("skeleton")
+
+  root <- renv_tests_root()
+  locals <- paste(
+    file.path(root, "nowhere"),
+    file.path(root, "local"),
+    sep = ";"
+  )
+
+  renv_scope_options(renv.config.cache.enabled = FALSE)
+  renv_scope_envvars(RENV_PATHS_CELLAR = locals)
+
+  path <- file.path(root, "local/skeleton/skeleton_1.0.1.tar.gz")
+  records <- install(path, rebuild = TRUE)
+  expect_equal(records$skeleton$Source, "Cellar")
+
+  lockfile <- snapshot(lockfile = NULL)
+  expect_equal(lockfile$Packages$skeleton$Source, "Cellar")
 
 })

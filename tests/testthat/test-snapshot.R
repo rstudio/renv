@@ -199,7 +199,7 @@ test_that("snapshot warns about unsatisfied dependencies", {
 
 })
 
-test_that("snapshot records packages discovered in local sources", {
+test_that("snapshot records packages discovered in cellar", {
 
   renv_scope_options(renv.tests.verbose = FALSE)
 
@@ -208,22 +208,17 @@ test_that("snapshot records packages discovered in local sources", {
 
   init(bare = TRUE)
 
-  record <- list(Package = "skeleton", Version = "1.0.1", Source = "Local")
+  record <- list(Package = "skeleton", Version = "1.0.1")
   records <- install(list(record))
-
-  # validate the record reported by install
-  skeleton <- records[["skeleton"]]
-  expect_equal(skeleton$Version, "1.0.1")
-  expect_equal(skeleton$Source, "Local")
-  expect_false("Repository" %in% names(skeleton))
 
   # validate the record in the lockfile
   lockfile <- snapshot(lockfile = NULL)
   records <- renv_records(lockfile)
   skeleton <- records[["skeleton"]]
 
+  expect_equal(skeleton$Package, "skeleton")
   expect_equal(skeleton$Version, "1.0.1")
-  expect_equal(skeleton$Source, "Local")
+  expect_equal(skeleton$Source, "Cellar")
 
 })
 

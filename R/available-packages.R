@@ -230,8 +230,8 @@ renv_available_packages_record <- function(entry, type) {
   # otherwise, construct it
   record <- entry
 
-  if (identical(record$Name, "Local")) {
-    record$Source     <- "Local"
+  if (identical(record$Name, "__renv_cellar__")) {
+    record$Source     <- "Cellar"
     record$Repository <- NULL
     record$Name       <- NULL
   } else {
@@ -253,9 +253,11 @@ renv_available_packages_latest_repos_impl <- function(package, type) {
   dbs <- renv_available_packages(type = type, quiet = TRUE)
 
   # prepend local sources if available
-  local <- renv_available_packages_cellar(type = type)
-  if (!is.null(local))
-    dbs <- c(list(Local = local), dbs)
+  cellar <- renv_available_packages_cellar(type = type)
+  if (!is.null(cellar)) {
+    db <- list("__renv_cellar__" = cellar)
+    dbs <- c(db, dbs)
+  }
 
   fields <- c("Package", "Version", "OS_type", "NeedsCompilation", "Repository")
   entries <- bapply(dbs, function(db) {

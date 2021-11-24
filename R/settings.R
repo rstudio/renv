@@ -304,11 +304,19 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' \item{\code{use.cache}}{
 #'
-#'   Use a global cache of \R packages. When active, `renv` will install
-#'   packages into a global cache, and link packages from the cache into your
-#'   `renv` projects as appropriate. This can greatly save on disk space
+#'   Enable the `renv` package cache with this project. When active, `renv` will
+#'   install packages into a global cache, and link packages from the cache into
+#'   your `renv` projects as appropriate. This can greatly save on disk space
 #'   and install time when for \R packages which are used across multiple
 #'   projects in the same environment.
+#'
+#' }
+#'
+#' \item{\code{vcs.ignore.local}}{
+#'
+#'   Set whether packages within a project-local package cellar are excluded
+#'   from version control. See `vignette("cellar", package = "renv")` for
+#'   more information.
 #'
 #' }
 #'
@@ -320,7 +328,8 @@ renv_settings_impl <- function(name, validate, default, update) {
 #'
 #' \item{\code{vcs.ignore.local}}{
 #'
-#'   Set whether `renv` project-specific local sources are excluded from version control.
+#'   Set whether `renv` project-specific local sources are excluded from version
+#'   control.
 #'
 #' }
 #'
@@ -404,6 +413,13 @@ settings <- list(
     validate = is.logical,
     default  = TRUE,
     update   = renv_settings_updated_cache
+  ),
+
+  vcs.ignore.cellar = renv_settings_impl(
+    name     = "vcs.ignore.cellar",
+    validate = is.logical,
+    default  = TRUE,
+    update   = renv_settings_updated_ignore
   ),
 
   vcs.ignore.library = renv_settings_impl(

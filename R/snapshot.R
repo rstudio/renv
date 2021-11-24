@@ -703,10 +703,10 @@ renv_snapshot_description_source <- function(dcf) {
 
   if (!inherits(entry, "error")) {
 
-    # check for and handle local repositories
+    # check for entry in cellar
     source <- entry[["Source"]]
-    if (identical(source, "Local"))
-      return(list(Source = "Local"))
+    if (identical(source, "Cellar"))
+      return(list(Source = "Cellar"))
 
     # otherwise, treat as regular entry
     repos <- entry[["Repository"]]
@@ -716,7 +716,7 @@ renv_snapshot_description_source <- function(dcf) {
 
   location <- catch(renv_retrieve_cellar_find(dcf))
   if (!inherits(location, "error"))
-    return(list(Source = "Local"))
+    return(list(Source = "Cellar"))
 
   list(Source = "unknown")
 

@@ -50,7 +50,7 @@ renv_cellar_latest <- function(package, project) {
   list(
     Package = entry$Package,
     Version = entry$Version,
-    Source  = "Local"
+    Source  = "Cellar"
   )
 
 }

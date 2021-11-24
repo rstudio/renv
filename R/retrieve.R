@@ -375,10 +375,10 @@ renv_retrieve_cellar_find <- function(record, project = NULL) {
 renv_retrieve_cellar_report <- function(record) {
 
   source <- renv_record_source(record)
-  if (source == "local")
+  if (source == "cellar")
     return(record)
 
-  fmt <- "* Package %s [%s] will be installed from local sources."
+  fmt <- "* Package %s [%s] will be installed from the cellar."
   with(record, vwritef(fmt, Package, Version))
 
   record
@@ -403,12 +403,12 @@ renv_retrieve_libpaths <- function(record) {
 renv_retrieve_libpaths_impl <- function(record, libpath) {
 
   # form path to installed package's DESCRIPTION
-  source <- file.path(libpath, record$Package)
-  if (!file.exists(source))
+  path <- file.path(libpath, record$Package)
+  if (!file.exists(path))
     return(FALSE)
 
   # read DESCRIPTION
-  desc <- renv_description_read(path = source)
+  desc <- renv_description_read(path = path)
 
   # check if it's compatible with the requested record
   fields <- c("Package", "Version", grep("^Remote", names(record), value = TRUE))
@@ -425,9 +425,13 @@ renv_retrieve_libpaths_impl <- function(record, libpath) {
   if (!identical(ok, TRUE))
     return(FALSE)
 
-  # OK: treat as restore from local source
-  record$Source <- "Local"
-  renv_retrieve_successful(record, source)
+  # check that this package has a known source
+  source <- renv_snapshot_description_source(desc)
+  if (identical(source$Source, "unknown"))
+    return(FALSE)
+
+  # OK: copy this package as-is
+  renv_retrieve_successful(record, path)
 
 }
 
