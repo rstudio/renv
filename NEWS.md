@@ -3,6 +3,14 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* The ad-hoc package repository called "local sources" has been renamed to
+  the "package cellar". In addition, the path to the cellar is now
+  controlled by the `RENV_PATHS_CELLAR` environment variable, rather than
+  `RENV_PATHS_LOCAL`. This change was made to reduce confusion between
+  "local sources" of packages located somewhere on the filesystem, as
+  opposed to packages explicitly placed in this ad-hoc repository.
+  `RENV_PATHS_LOCAL` remains supported for backwards compatibility.
+  
 * The `RENV_PATHS_LOCAL` environment variable can now be set to multiple
   paths. Use `;` as a separator between paths; for example,
   `RENV_PATHS_LOCAL=/path/to/sources/v1;/path/to/sources/v2`. (#550)

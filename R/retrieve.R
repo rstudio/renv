@@ -132,7 +132,7 @@ renv_retrieve_impl <- function(package) {
     # try some early shortcut methods
     shortcuts <- c(
       renv_retrieve_explicit,
-      renv_retrieve_local,
+      renv_retrieve_cellar,
       if (!renv_tests_running() && config$install.shortcuts())
         renv_retrieve_libpaths
     )
@@ -334,7 +334,7 @@ renv_retrieve_git_impl <- function(record, path) {
 }
 
 
-renv_retrieve_local_find <- function(record, project = NULL) {
+renv_retrieve_cellar_find <- function(record, project = NULL) {
 
   project <- renv_project_resolve(project)
 
@@ -347,12 +347,8 @@ renv_retrieve_local_find <- function(record, project = NULL) {
     return(named(path, type))
   }
 
-  # otherwise, use the user's local packages
-  roots <- c(
-    renv_paths_project("renv/local", project = project),
-    renv_paths_local()
-  )
-
+  # otherwise, look in the cellar
+  roots <- renv_cellar_roots(project)
   for (type in c("binary", "source")) {
 
     name <- renv_retrieve_name(record, type = type)
@@ -376,7 +372,7 @@ renv_retrieve_local_find <- function(record, project = NULL) {
 
 }
 
-renv_retrieve_local_report <- function(record) {
+renv_retrieve_cellar_report <- function(record) {
 
   source <- renv_record_source(record)
   if (source == "local")
@@ -389,9 +385,9 @@ renv_retrieve_local_report <- function(record) {
 
 }
 
-renv_retrieve_local <- function(record) {
-  source <- renv_retrieve_local_find(record)
-  record <- renv_retrieve_local_report(record)
+renv_retrieve_cellar <- function(record) {
+  source <- renv_retrieve_cellar_find(record)
+  record <- renv_retrieve_cellar_report(record)
   renv_retrieve_successful(record, source)
 }
 
@@ -806,7 +802,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
 renv_retrieve_unknown_source <- function(record) {
 
   # try to find a matching local package
-  status <- catch(renv_retrieve_local(record))
+  status <- catch(renv_retrieve_cellar(record))
   if (!inherits(status, "error"))
     return(status)
 

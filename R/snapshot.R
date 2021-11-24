@@ -714,7 +714,7 @@ renv_snapshot_description_source <- function(dcf) {
 
   }
 
-  location <- catch(renv_retrieve_local_find(dcf))
+  location <- catch(renv_retrieve_cellar_find(dcf))
   if (!inherits(location, "error"))
     return(list(Source = "Local"))
 

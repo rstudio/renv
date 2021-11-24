@@ -1,10 +1,18 @@
 
-renv_local_packages_database <- function(project) {
-
-  roots <- c(
+renv_cellar_roots <- function(project = NULL) {
+  c(
+    renv_paths_project("renv/cellar", project = project),
     renv_paths_project("renv/local", project = project),
+    renv_paths_cellar(),
     renv_paths_local()
   )
+}
+
+renv_cellar_database <- function(project = NULL) {
+
+  # find cellar root directories
+  project <- renv_project_resolve(project)
+  roots <- renv_cellar_roots(project)
 
   # list files both at top-level + one nested level
   paths <- list.files(roots, full.names = TRUE)
@@ -30,9 +38,9 @@ renv_local_packages_database <- function(project) {
 
 }
 
-renv_local_packages_latest <- function(package, project) {
+renv_cellar_latest <- function(package, project) {
 
-  db <- renv_local_packages_database(project = project)
+  db <- renv_cellar_database(project = project)
   db <- db[db$Package == package, ]
   db <- db[order(package_version(db$Version), decreasing = TRUE), ]
   if (nrow(db) == 0L)

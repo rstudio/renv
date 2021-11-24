@@ -71,6 +71,10 @@ renv_paths_settings <- function(project = NULL) {
   paste(components, collapse = "/")
 }
 
+renv_paths_cellar <- function(...) {
+  renv_paths_common("cellar", c(), ...)
+}
+
 renv_paths_local <- function(...) {
   renv_paths_common("local", c(), ...)
 }
@@ -279,7 +283,7 @@ renv_paths_init_envvars <- function() {
 #' \code{RENV_PATHS_LIBRARY}         \tab The path to the project library. \cr
 #' \code{RENV_PATHS_LIBRARY_ROOT}    \tab The parent path for project libraries. \cr
 #' \code{RENV_PATHS_LIBRARY_STAGING} \tab The parent path used for staged package installs. \cr
-#' \code{RENV_PATHS_LOCAL}           \tab The path containing local package sources. \cr
+#' \code{RENV_PATHS_CELLAR}          \tab The cellar, containing local package binaries and sources. \cr
 #' \code{RENV_PATHS_SOURCE}          \tab The path containing downloaded package sources. \cr
 #' \code{RENV_PATHS_BINARY}          \tab The path containing downloaded package binaries. \cr
 #' \code{RENV_PATHS_CACHE}           \tab The path containing cached package installations. \cr
@@ -349,22 +353,23 @@ renv_paths_init_envvars <- function() {
 #'
 #' Please see ?[Startup] for more details.
 #'
-#' @section Local Sources:
+#' @section Package Cellar:
 #'
 #' If your project depends on one or \R packages that are not available in any
 #' remote location, you can still provide a locally-available tarball for `renv`
 #' to use during restore. By default, these packages should be made available in
-#' the folder as specified by the `RENV_PATHS_LOCAL` environment variable. The
+#' the folder as specified by the `RENV_PATHS_CELLAR` environment variable. The
 #' package sources should be placed in a file at one of these locations:
 #'
-#' - `${RENV_PATHS_LOCAL}/<package>_<version>.<ext>`
-#' - `${RENV_PATHS_LOCAL}/<package>/<package>_<version>.<ext>`
-#' - `<project>/renv/local/<package>_<version>.<ext>`
-#' - `<project>/renv/local/<package>/<package>_<version>.<ext>`
+#' - `${RENV_PATHS_CELLAR}/<package>_<version>.<ext>`
+#' - `${RENV_PATHS_CELLAR}/<package>/<package>_<version>.<ext>`
+#' - `<project>/renv/cellar/<package>_<version>.<ext>`
+#' - `<project>/renv/cellar/<package>/<package>_<version>.<ext>`
 #'
 #' where `.<ext>` is `.tar.gz` for source packages, or `.tgz` for binaries on
-#' macOS and `.zip` for binaries on Windows. During a `restore()`, packages
-#' installed from an unknown source will be searched for in this location.
+#' macOS and `.zip` for binaries on Windows. During `restore()`, `renv` will
+#' search the cellar for a compatible package, and prefer installation with
+#' that copy of the package if appropriate.
 #'
 #' @section Projects:
 #'

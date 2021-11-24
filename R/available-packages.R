@@ -253,7 +253,7 @@ renv_available_packages_latest_repos_impl <- function(package, type) {
   dbs <- renv_available_packages(type = type, quiet = TRUE)
 
   # prepend local sources if available
-  local <- renv_available_packages_local(type = type)
+  local <- renv_available_packages_cellar(type = type)
   if (!is.null(local))
     dbs <- c(list(Local = local), dbs)
 
@@ -479,15 +479,11 @@ renv_available_packages_latest_select <- function(src, bin) {
 
 }
 
-renv_available_packages_local <- function(type, project = NULL) {
+renv_available_packages_cellar <- function(type, project = NULL) {
 
+  # look in the cellar
   project <- renv_project_resolve(project)
-
-  # list files recursively in the local sources paths
-  roots <- c(
-    renv_paths_project("renv/local", project = project),
-    renv_paths_local()
-  )
+  roots <- renv_cellar_roots(project = project)
 
   # find all files used in the locals folder
   all <- list.files(

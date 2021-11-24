@@ -197,9 +197,10 @@ active R repositories (as specified in `getOption("repos")`), then the package
 will be treated as though it was installed from an R package repository.
 
 If all of the above methods fail, `renv` will finally check for a package
-available from local sources. See [here](local-sources.html) for more details. Local
-sources are typically used as an escape hatch, for packages which do not
-have a well-defined remote source.
+available from the _cellar_. See [here](cellar.html) for more details.
+The package cellar is typically used as an escape hatch, for packages which do
+not have a well-defined remote source, or for packages which might not be
+remotely accessible from your machine.
 
 
 ### Unknown Sources

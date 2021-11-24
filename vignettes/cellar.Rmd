@@ -1,0 +1,97 @@
+---
+title: "The Package Cellar"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The Package Cellar}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+
+In some cases, your project may depend on R packages which are not available
+from any external source, or that external source may not accessible from the
+machine calling `renv::restore()`. To help accommodate these scenarios, `renv`
+allows you to prepare a package "cellar", to be used as an ad-hoc repository of
+packages during restore. This allows you to provide package tarballs that can be
+used to restore packages which cannot be retrieved from any other source.
+
+The environment variable `RENV_PATHS_CELLAR` can be used to customize the
+package cellar location.  It should point to a directory containing package
+binaries and sources, with a structure of the form:
+
+- `${RENV_PATHS_CELLAR}/<package>_<version>.tar.gz`; or
+- `${RENV_PATHS_CELLAR}/<package>/<package>_<version>.tar.gz`
+
+Alternatively, you can also use a project-local cellar by placing your
+packages within a folder located at `<project>/renv/cellar`. Note that this
+folder does not exist by default; you must create it to opt-in.
+
+- `<project>/renv/cellar/<package>_<version>.tar.gz`; or
+- `<project>/renv/cellar/<package>/<package>_<version>.tar.gz`
+
+As an example, if your project depended on a package `skeleton 1.0.0`, you could
+place a tarball for this package in one of the following locations:
+
+- `${RENV_PATHS_CELLAR}/skeleton_1.0.0.tar.gz`
+- `${RENV_PATHS_CELLAR}/skeleton/skeleton_1.0.0.tar.gz`
+- `<project>/renv/cellar/skeleton_1.0.0.tar.gz`; or
+- `<project>/renv/cellar/skeleton/skeleton_1.0.0.tar.gz`
+
+Once this is done, `renv` will consult these directories during future attempts
+to restore your packages.
+
+To directly install a package from the cellar, you must specify the
+package version, or provide the full path to the tarball:
+
+- `renv::install("<package>@<version>")`
+- `renv::install("<project>/renv/cellar/<package>_<version>.tar.gz")`
+
+During restore, if a compatible package is located within the cellar, that copy
+of the package will be preferred even if that package might otherwise be
+accessible from its associated remote source. For example, if `skeleton 1.0.0`
+was also available on CRAN, `renv::restore()` would still use the tarball
+available in the cellar rather than the version available from CRAN.
+
+If you want to see what paths `renv` is using for the cellar, you can use:
+
+```{r eval=FALSE}
+renv:::renv_paths_cellar()
+```
+
+See `?paths` for more details.
+
+
+## Explicit Sources
+
+You can also provide explicit source paths in the lockfile if desired. This is
+most useful if you are building an `renv` lockfile "by hand", or need to tweak
+an existing lockfile to point at a separate package for installation. For
+example, you could have a package record in `renv.lock` of the form:
+
+```
+{
+  "Package": "skeleton",
+  "Version": "1.0.1",
+  "Source": "/mnt/r/pkg/skeleton_1.0.1.tar.gz"
+}
+```
+
+Packages should have the following extensions, depending on whether the archive
+contains a binary copy of the package or the package sources:
+
+| **Platform** | **Binary** | **Sources** |
+| ------------ | ---------- | ----------- |
+| Windows      | `.zip`     | `.tar.gz`   |
+| macOS        | `.tgz`     | `.tar.gz`   |
+| Linux        | `.tar.gz`  | `.tar.gz`   |
+
+Note that on Linux, both binaries and sources should have the `.tar.gz`
+extension, but R and `renv` will handle this as appropriate during installation.

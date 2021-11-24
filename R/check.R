@@ -17,7 +17,7 @@ renv_check_unknown_source <- function(records, project = NULL) {
       return(FALSE)
 
     localpath <- tryCatch(
-      renv_retrieve_local_find(record, project),
+      renv_retrieve_cellar_find(record, project),
       error = function(e) ""
     )
 
