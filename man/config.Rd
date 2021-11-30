@@ -38,8 +38,9 @@ processes; if that behavior is not desired, then the R option may be
 preferred.
 
 If you want to set and persist these options across multiple projects, it is
-recommended that you set them in your user startup files (e.g. in
-\verb{~/.Rprofile} or \verb{~/.Renviron}).
+recommended that you set them in a a startup \code{.Renviron} file; e.g. in your
+own \verb{~/.Renviron}, or in the R installation's \code{etc/Rprofile.site} file. See
+\link{Startup} for more details.
 }
 \section{Configuration}{
 

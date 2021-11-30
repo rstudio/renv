@@ -27,8 +27,9 @@
 #' preferred.
 #'
 #' If you want to set and persist these options across multiple projects, it is
-#' recommended that you set them in your user startup files (e.g. in
-#' `~/.Rprofile` or `~/.Renviron`).
+#' recommended that you set them in a a startup `.Renviron` file; e.g. in your
+#' own `~/.Renviron`, or in the R installation's `etc/Rprofile.site` file. See
+#' [Startup] for more details.
 #'
 #' @eval renv_roxygen_config_section()
 #'
