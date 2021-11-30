@@ -332,7 +332,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
   bioc <- records %>%
     filter(function(record) renv_record_source(record) == "bioconductor") %>%
     map(function(record) record[c("Package", "Version")]) %>%
-    bind_list()
+    lbind()
 
   # collect latest versions of these packages
   bioc$Latest <- vapply(bioc$Package, function(package) {
@@ -478,7 +478,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 
   })
 
-  bad <- bind_list(bad)
+  bad <- lbind(bad)
   if (empty(bad))
     return(TRUE)
 

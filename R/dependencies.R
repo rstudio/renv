@@ -379,7 +379,7 @@ renv_dependencies_discover <- function(paths, progress, errors) {
   deps <- lapply(paths, discover)
   vwritef("Done!")
 
-  bind_list(deps)
+  lbind(deps)
   # nocov end
 
 }
@@ -504,7 +504,7 @@ renv_dependencies_discover_description <- function(path,
 
   })
 
-  bind_list(data)
+  lbind(data)
 
 }
 
@@ -561,7 +561,7 @@ renv_dependencies_discover_multimode <- function(path, mode) {
 
   deps$push(renv_dependencies_discover_chunks(path, mode))
 
-  bind_list(Filter(NROW, deps$data()))
+  lbind(Filter(NROW, deps$data()))
 
 }
 
@@ -783,7 +783,7 @@ renv_dependencies_discover_chunks <- function(path, mode) {
   }
 
   # paste them all together
-  deps <- bind_list(list(cdeps, ideps, qdeps))
+  deps <- lbind(list(cdeps, ideps, qdeps))
   if (is.null(deps))
     return(deps)
 
@@ -847,7 +847,7 @@ renv_dependencies_discover_chunks_ranges <- function(path, contents, patterns) {
     renv_dependencies_error(path, error = error)
   }
 
-  bind_list(output)
+  lbind(output)
 
 }
 

@@ -921,7 +921,7 @@ renv_retrieve_incompatible <- function(record) {
   if (is.null(requirements))
     return(FALSE)
 
-  data <- bind_list(requirements$data())
+  data <- lbind(requirements$data())
   explicit <- data[nzchar(data$Require) & nzchar(data$Version), ]
   if (nrow(explicit) == 0)
     return(FALSE)

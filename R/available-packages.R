@@ -537,6 +537,6 @@ renv_available_packages_cellar <- function(type, project = NULL) {
   })
 
   # bind into data.frame for lookup
-  bind_list(records)
+  lbind(records)
 
 }

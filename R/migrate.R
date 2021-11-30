@@ -318,7 +318,7 @@ renv_migrate_packrat_cache_impl <- function(targets) {
   vwritef("Done!")
 
   # report failures
-  status <- bind_list(result)
+  status <- lbind(result)
   bad <- status[status$broken, ]
   if (nrow(bad) == 0)
     return(TRUE)

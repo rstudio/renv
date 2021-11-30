@@ -561,7 +561,7 @@ renv_install_preflight_requirements <- function(records) {
 
   })
 
-  bad <- bind_list(unname(bad))
+  bad <- lbind(unname(bad))
   if (empty(bad))
     return(TRUE)
 
