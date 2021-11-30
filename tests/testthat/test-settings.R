@@ -17,15 +17,6 @@ test_that("renv.settings can be used to provide defaults", {
     expect_equal(settings$snapshot.type(), "all")
   })
 
-  renv::init()
-
-  # project is now initialized; defaults are ignored
-  expect_equal(settings$snapshot.type(), "implicit")
-  local({
-    renv_scope_options(renv.settings = list(snapshot.type = "all"))
-    expect_equal(settings$snapshot.type(), "implicit")
-  })
-
 })
 
 test_that("non-persistent settings exist in R session; not in file", {
