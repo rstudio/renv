@@ -332,7 +332,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
   bioc <- records %>%
     filter(function(record) renv_record_source(record) == "bioconductor") %>%
     map(function(record) record[c("Package", "Version")]) %>%
-    bind_list()
+    lbind()
 
   # collect latest versions of these packages
   bioc$Latest <- vapply(bioc$Package, function(package) {
@@ -478,7 +478,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 
   })
 
-  bad <- bind_list(bad)
+  bad <- lbind(bad)
   if (empty(bad))
     return(TRUE)
 
@@ -486,7 +486,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   requires <- sprintf("%s (%s %s)", bad$Package, bad$Require, bad$Version)
   request  <- bad$Requested
 
-  fmt <- "'%s' requires '%s', but version '%s' will be snapshotted"
+  fmt <- "%s requires %s, but version %s is installed"
   txt <- sprintf(fmt, format(package), format(requires), format(request))
 
   if (!renv_tests_running()) {
@@ -660,8 +660,9 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
     return(simpleError(msg))
   }
 
+  git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
-  all <- c(fields, "Repository", "OS_type", remotes, "Hash")
+  all <- c(fields, "Repository", "OS_type", remotes, git, "Hash")
   keep <- renv_vector_intersect(all, names(dcf))
   as.list(dcf[keep])
 

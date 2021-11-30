@@ -69,9 +69,6 @@ renv_retrieve_impl <- function(package) {
     return()
 
   # if this is a package from Bioconductor, activate those repositories now
-  #
-  # TODO: we should consider making this more scoped; calls to `renv_available_packages_*`
-  # would need to be record-aware or source-aware to make this a bit cleaner
   if (source %in% c("bioconductor")) {
     project <- renv_restore_state(key = "project")
     renv_scope_bioconductor(project = project)
@@ -84,8 +81,12 @@ renv_retrieve_impl <- function(package) {
   # TODO: handle more explicit dependency requirements
   # TODO: report to the user if they have explicitly requested
   # installation of this package version despite it being incompatible
-  if (renv_retrieve_incompatible(record))
-    record <- renv_available_packages_latest(package)
+  compat <- renv_retrieve_incompatible(record)
+  if (NROW(compat)) {
+    replacement <- renv_available_packages_latest(package)
+    renv_retrieve_incompatible_report(record, replacement, compat)
+    record <- replacement
+  }
 
   # if the record doesn't declare the package version,
   # treat it as a request for the latest version on CRAN
@@ -192,12 +193,36 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
 
 renv_retrieve_bioconductor <- function(record) {
 
+  # try to read the bioconductor version from the record
+  version <- renv_retrieve_bioconductor_version(record)
+
   # activate Bioconductor repositories in this context
   project <- renv_restore_state(key = "project")
-  renv_scope_bioconductor(project = project)
+  renv_scope_bioconductor(project = project, version = version)
 
   # retrieve record using updated repositories
   renv_retrieve_repos(record)
+
+}
+
+renv_retrieve_bioconductor_version <- function(record) {
+
+  # read git branch
+  branch <- record[["git_branch"]]
+  if (is.null(branch))
+    return(NULL)
+
+  # try and parse version
+  parts <- strsplit(branch, "_", fixed = TRUE)[[1L]]
+  ok <-
+    length(parts) == 3L &&
+    tolower(parts[[1L]]) == "release"
+
+  if (!ok)
+    return(NULL)
+
+  # we have a version; use it
+  paste(tail(parts, n = -1L), collapse = ".")
 
 }
 
@@ -492,7 +517,7 @@ renv_retrieve_repos <- function(record) {
       withCallingHandlers(
         method(record),
         renv.retrieve.error = function(error) {
-          errors$push(error)
+          errors$push(error$data)
         }
       )
     )
@@ -513,8 +538,13 @@ renv_retrieve_repos <- function(record) {
   }
 
   # if we couldn't download the package, report the errors we saw
-  renv_retrieve_repos_error_report(record, errors$data())
-  stopf("failed to retrieve package '%s'", record$Package)
+  local({
+    renv_scope_options(warn = 1)
+    for (error in errors$data())
+      warning(error)
+  })
+
+  stopf("failed to retrieve package '%s'", renv_record_format_remote(record))
 
 }
 
@@ -781,6 +811,9 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   state <- renv_restore_state()
   requirements <- state$requirements
   deps <- renv_dependencies_discover_description(path, subdir = subdir)
+  if (length(deps$Source))
+    deps$Source <- record$Package
+
   rowapply(deps, function(dep) {
     package <- dep$Package
     requirements[[package]] <- requirements[[package]] %||% stack()
@@ -890,27 +923,45 @@ renv_retrieve_incompatible <- function(record) {
   # check and see if the installed version satisfies all requirements
   requirements <- state$requirements[[record$Package]]
   if (is.null(requirements))
-    return(FALSE)
+    return(NULL)
 
-  data <- bind_list(requirements$data())
+  data <- lbind(requirements$data())
   explicit <- data[nzchar(data$Require) & nzchar(data$Version), ]
   if (nrow(explicit) == 0)
-    return(FALSE)
+    return(NULL)
 
-  expr <- c(
-    sprintf("version <- numeric_version('%s')", record$Version),
-    paste(
-      sprintf("version %s '%s'", explicit$Require, explicit$Version),
-      collapse = " && "
-    )
+  # drop 'Dev' column
+  explicit$Dev <- NULL
+
+  # for each row, compute whether we're compatible
+  fmt <- "'%s' %s '%s'"
+  exprs <- sprintf(fmt, record$Version, explicit$Require, explicit$Version)
+  compatible <- map_lgl(exprs, function(expr) {
+    eval(parse(text = expr), envir = baseenv())
+  }, USE.NAMES = FALSE)
+
+  # keep whatever wasn't compatible
+  explicit[!compatible, ]
+
+}
+
+renv_retrieve_incompatible_report <- function(record, replacement, compat) {
+
+  fmt <- "%s (requires %s %s %s)"
+  values <- with(compat, sprintf(fmt, Source, Package, Require, Version))
+
+  fmt <- "The following constraints are not satisfied for '%s %s':"
+  preamble <- with(record, sprintf(fmt, Package, Version))
+
+  fmt <- "renv will install '%s %s' instead."
+  postamble <- with(replacement, sprintf(fmt, Package, Version))
+
+  renv_pretty_print(
+    values = values,
+    preamble = preamble,
+    postamble = postamble,
+    wrap = FALSE
   )
-
-  envir <- new.env(parent = baseenv())
-  satisfied <- catch(eval(parse(text = expr), envir = envir))
-  if (inherits(satisfied, "error"))
-    warning(satisfied)
-
-  !identical(satisfied, TRUE)
 
 }
 

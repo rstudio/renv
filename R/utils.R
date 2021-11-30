@@ -82,7 +82,7 @@ trimws <- function(x) {
   gsub("^\\s+|\\s+$", "", x)
 }
 
-bind_list <- function(data, names = NULL, index = "Index") {
+lbind <- function(data, names = NULL, index = "Index") {
 
   # keep only non-empty data
   filtered <- Filter(NROW, data)

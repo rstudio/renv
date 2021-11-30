@@ -281,6 +281,9 @@ renv_scope_git_auth <- function(.envir = NULL) {
   if (renv_platform_windows())
     return(FALSE)
 
+  # try and tell git to be non-interactive
+  renv_scope_envvars(GIT_TERMINAL_PROMPT = "0")
+
   # use GIT_PAT when provided
   pat <- Sys.getenv("GIT_PAT", unset = NA)
   if (!is.na(pat)) {
@@ -309,18 +312,30 @@ renv_scope_git_auth <- function(.envir = NULL) {
 
 }
 
-renv_scope_bioconductor <- function(project, .envir = NULL) {
-
+renv_scope_bioconductor <- function(project = NULL,
+                                    version = NULL,
+                                    .envir = NULL)
+{
   .envir <- .envir %||% parent.frame()
 
   # ensure bioconductor support infrastructure initialized
   renv_bioconductor_init()
 
-  # activate bioconductor repositories in this context
+  # get current repository
   repos <- getOption("repos")
-  biocrepos <- c(renv_bioconductor_repos(project = project), repos)
-  renv_scope_options(repos = renv_vector_unique(biocrepos), .envir = .envir)
 
+  # remove old / stale bioc repositories
+  stale <- grepl("Bioc", names(repos))
+  repos <- repos[!stale]
+
+  # retrieve bioconductor repositories appropriate for this record
+  biocrepos <- renv_bioconductor_repos(project = project, version = version)
+
+  # put it all together
+  allrepos <- c(repos, biocrepos)
+
+  # activate repositories in this context
+  renv_scope_options(repos = renv_vector_unique(allrepos), .envir = .envir)
 }
 
 renv_scope_lock <- function(path = NULL,

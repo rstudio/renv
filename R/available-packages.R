@@ -154,12 +154,14 @@ renv_available_packages_success <- function(db, url) {
 
 renv_available_packages_entry <- function(package,
                                           type   = "source",
+                                          repos  = NULL,
                                           filter = NULL,
                                           quiet  = FALSE,
                                           prefer = NULL)
 {
 
   # if filter is a string, treat it as an explicit version requirement
+  version <- NULL
   if (is.character(filter)) {
     version <- filter
     filter <- function(entries) {
@@ -177,7 +179,11 @@ renv_available_packages_entry <- function(package,
   }
 
   # read available packages
-  dbs <- renv_available_packages(type = type, quiet = quiet)
+  dbs <- renv_available_packages(
+    type  = type,
+    repos = repos,
+    quiet = quiet
+  )
 
   # if a preferred repository is marked and available, prefer using that
   if (length(prefer) == 1L && prefer %in% names(dbs)) {
@@ -205,8 +211,14 @@ renv_available_packages_entry <- function(package,
 
   }
 
-  fmt <- "failed to find %s for package %s in active repositories"
-  stopf(fmt, type, package)
+  # report package + version if both available
+  pkgver <- if (length(version))
+    paste(package, version)
+  else
+    package
+
+  fmt <- "failed to find %s for '%s' in package repositories"
+  stopf(fmt, type, pkgver)
 
 }
 
@@ -247,10 +259,14 @@ renv_available_packages_record <- function(entry, type) {
 
 }
 
-renv_available_packages_latest_repos_impl <- function(package, type) {
+renv_available_packages_latest_repos_impl <- function(package, type, repos) {
 
   # get available packages
-  dbs <- renv_available_packages(type = type, quiet = TRUE)
+  dbs <- renv_available_packages(
+    type  = type,
+    repos = repos,
+    quiet = TRUE
+  )
 
   # prepend local sources if available
   cellar <- renv_available_packages_cellar(type = type)
@@ -322,8 +338,10 @@ renv_available_packages_latest_repos_impl <- function(package, type) {
 
 }
 
-renv_available_packages_latest <- function(package, type = NULL) {
-
+renv_available_packages_latest <- function(package,
+                                           type = NULL,
+                                           repos = NULL)
+{
   methods <- list(
     renv_available_packages_latest_repos,
     renv_available_packages_latest_mran
@@ -333,7 +351,7 @@ renv_available_packages_latest <- function(package, type = NULL) {
 
   for (method in methods) {
 
-    entry <- catch(method(package, type))
+    entry <- catch(method(package, type, repos))
     if (inherits(entry, "error")) {
       errors$push(entry)
       next
@@ -347,11 +365,12 @@ renv_available_packages_latest <- function(package, type = NULL) {
     warning(error)
 
   stopf("package '%s' is not available", package)
-
 }
 
-renv_available_packages_latest_mran <- function(package, type = NULL) {
-
+renv_available_packages_latest_mran <- function(package,
+                                                type = NULL,
+                                                repos = NULL)
+{
   if (!config$mran.enabled())
     stop("MRAN is not enabled")
 
@@ -411,24 +430,25 @@ renv_available_packages_latest_mran <- function(package, type = NULL) {
   attr(record, "type") <- "binary"
 
   record
-
 }
 
-renv_available_packages_latest_repos <- function(package, type = NULL) {
-
+renv_available_packages_latest_repos <- function(package,
+                                                 type = NULL,
+                                                 repos = NULL)
+{
   type <- type %||% getOption("pkgType")
 
   # detect requests for only source packages
   if (identical(type, "source"))
-    return(renv_available_packages_latest_repos_impl(package, "source"))
+    return(renv_available_packages_latest_repos_impl(package, "source", repos))
 
   # detect requests for only binary packages
   if (grepl("\\bbinary\\b", type))
-    return(renv_available_packages_latest_repos_impl(package, "binary"))
+    return(renv_available_packages_latest_repos_impl(package, "binary", repos))
 
   # otherwise, check both source and binary repositories
-  src <- renv_available_packages_latest_repos_impl(package, "source")
-  bin <- renv_available_packages_latest_repos_impl(package, "binary")
+  src <- renv_available_packages_latest_repos_impl(package, "source", repos)
+  bin <- renv_available_packages_latest_repos_impl(package, "binary", repos)
 
   # choose an appropriate record
   if (is.null(src) && is.null(bin))
@@ -439,7 +459,6 @@ renv_available_packages_latest_repos <- function(package, type = NULL) {
     renv_available_packages_record(src, "source")
   else
     renv_available_packages_latest_select(src, bin)
-
 }
 
 renv_available_packages_latest_select <- function(src, bin) {
@@ -530,6 +549,6 @@ renv_available_packages_cellar <- function(type, project = NULL) {
   })
 
   # bind into data.frame for lookup
-  bind_list(records)
+  lbind(records)
 
 }

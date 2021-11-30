@@ -11,7 +11,7 @@ test_that("common utils work as expected", {
     expect_error(git())
 })
 
-test_that("bind_list handles named lists", {
+test_that("lbind handles named lists", {
 
   data <- list(
     alpha = list(A = 1, B = 2),
@@ -19,7 +19,7 @@ test_that("bind_list handles named lists", {
     gamma = list(A = 5, B = 6)
   )
 
-  actual <- bind_list(data)
+  actual <- lbind(data)
   expected <- data.frame(
     Index = names(data),
     A = c(1, 3, 5),
@@ -31,19 +31,19 @@ test_that("bind_list handles named lists", {
 
 })
 
-test_that("bind_list warns on name collision", {
+test_that("lbind warns on name collision", {
   data <- list(alpha = list(Index = 1), beta = list(Index = 2))
-  expect_error(bind_list(data))
+  expect_error(lbind(data))
 })
 
-test_that("bind_list() handles data.frames with potentially different names", {
+test_that("lbind() handles data.frames with potentially different names", {
 
   data <- list(
     a = data.frame(A = 1, B = 2),
     b = data.frame(A = 1, C = 3)
   )
 
-  bound <- bind_list(data)
+  bound <- lbind(data)
   expected <- data.frame(
     Index = c("a", "b"),
     A     = c(1, 1),
@@ -56,14 +56,14 @@ test_that("bind_list() handles data.frames with potentially different names", {
 
 })
 
-test_that("bind_list() preserves order where possible", {
+test_that("lbind() preserves order where possible", {
 
   data <- list(
     a = data.frame(A = 1,        C = 3),
     b = data.frame(A = 1, B = 2, C = 3)
   )
 
-  bound <- bind_list(data)
+  bound <- lbind(data)
   expect_equal(names(bound), c("Index", "A", "B", "C"))
 
 })

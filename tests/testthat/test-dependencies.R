@@ -362,3 +362,18 @@ test_that("dependencies in hidden folders are not scoured", {
   expect_true("A" %in% deps$Package)
 
 })
+
+test_that("dependencies() doesn't barf on files without read permission", {
+
+  skip_on_windows()
+  renv_tests_scope()
+
+  dir.create("secrets")
+  writeLines("library(dplyr)", con = "secrets/secrets.R")
+  Sys.chmod("secrets/secrets.R", mode = "0000")
+
+  expect_error(renv_file_read("secrets/secrets.R"))
+  deps <- dependencies(quiet = TRUE)
+  expect_true(NROW(deps) == 0L)
+
+})

@@ -75,35 +75,23 @@ renv_bioconductor_repos <- function(project, version = NULL) {
   # read Bioconductor version (normally set during restore)
   version <- version %||% renv_bioconductor_version(project = project)
 
-  # try both BiocManager, BiocInstaller to get Bioconductor repositories
-  getters <- list(
-
-    BiocManager = function() {
-      renv_scope_options(BiocManager.check_repositories = FALSE)
-      BiocManager <- asNamespace("BiocManager")
-      version <- version %||% BiocManager$version()
-      BiocManager$repositories(version = version)
-    },
-
-    BiocInstaller = function() {
-      BiocInstaller <- asNamespace("BiocInstaller")
-      version <- version %||% BiocInstaller$biocVersion()
-      BiocInstaller$biocinstallRepos(version = version)
-    }
-
-  )
-
-  # prefer BiocInstaller for older versions of R
+  # read Bioconductor repositories (prefer BiocInstaller for older R)
   if (getRversion() < "3.5.0")
-    getters <- rev(getters)
+    renv_bioconductor_repos_biocinstaller(version)
+  else
+    renv_bioconductor_repos_biocmanager(version)
 
-  # now, try asking the packages for the active repositories
-  for (getter in getters) {
-    repos <- catch(getter())
-    if (!inherits(repos, "error"))
-      return(repos)
-  }
+}
 
-  stopf("failed to determine Bioconductor repositories")
+renv_bioconductor_repos_biocmanager <- function(version) {
+  renv_scope_options(BiocManager.check_repositories = FALSE)
+  BiocManager <- asNamespace("BiocManager")
+  version <- version %||% BiocManager$version()
+  BiocManager$repositories(version = version)
+}
 
+renv_bioconductor_repos_biocinstaller <- function(version) {
+  BiocInstaller <- asNamespace("BiocInstaller")
+  version <- version %||% BiocInstaller$biocVersion()
+  BiocInstaller$biocinstallRepos(version = version)
 }

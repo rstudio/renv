@@ -3,6 +3,11 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* Project settings can now be overridden by setting an R option of the same
+  name. For example, one could force a project to use Bioconductor 3.14 by
+  setting `options(renv.settings.bioconductor.version = "3.14")` within
+  the project `.Rprofile` (or similar startup profile).
+
 * The ad-hoc package repository called "local sources" has been renamed to
   the "package cellar". In addition, the path to the cellar is now
   controlled by the `RENV_PATHS_CELLAR` environment variable, rather than

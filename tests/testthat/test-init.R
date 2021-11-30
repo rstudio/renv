@@ -1,3 +1,4 @@
+
 context("Init")
 
 test_that("init() automatically installs referenced packages", {

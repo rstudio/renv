@@ -35,7 +35,7 @@ history <- function(project = NULL) {
   data <- system2("git", shQuote(arguments), stdout = TRUE)
 
   parts <- strsplit(data, "\031", fixed = TRUE)
-  tbl <- bind_list(parts, names = c("commit", "author_date", "committer_date", "subject"))
+  tbl <- lbind(parts, names = c("commit", "author_date", "committer_date", "subject"))
   tbl$author_date <- as.POSIXct(as.numeric(tbl$author_date), origin = "1970-01-01")
   tbl$committer_date <- as.POSIXct(as.numeric(tbl$committer_date), origin = "1970-01-01")
 
