@@ -85,7 +85,6 @@ renv_bioconductor_repos <- function(project, version = NULL) {
   repos <- catch(method(version))
   if (inherits(repos, "error")) {
     fmt <- "Error reading Bioconductor repositories: %s"
-    msg <- sprintf(fmt, conditionMessage(repos))
     stopf(fmt, conditionMessage(repos) %||% "<unknown>")
   }
 

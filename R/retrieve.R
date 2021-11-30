@@ -492,7 +492,7 @@ renv_retrieve_repos <- function(record) {
       withCallingHandlers(
         method(record),
         renv.retrieve.error = function(error) {
-          errors$push(error)
+          errors$push(error$data)
         }
       )
     )
@@ -513,8 +513,13 @@ renv_retrieve_repos <- function(record) {
   }
 
   # if we couldn't download the package, report the errors we saw
-  renv_retrieve_repos_error_report(record, errors$data())
-  stopf("failed to retrieve package '%s'", record$Package)
+  local({
+    renv_scope_options(warn = 1)
+    for (error in errors$data())
+      warning(error)
+  })
+
+  stopf("failed to retrieve package '%s'", renv_record_format_remote(record))
 
 }
 

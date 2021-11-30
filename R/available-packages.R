@@ -160,6 +160,7 @@ renv_available_packages_entry <- function(package,
 {
 
   # if filter is a string, treat it as an explicit version requirement
+  version <- NULL
   if (is.character(filter)) {
     version <- filter
     filter <- function(entries) {
@@ -205,8 +206,14 @@ renv_available_packages_entry <- function(package,
 
   }
 
-  fmt <- "failed to find %s for package %s in active repositories"
-  stopf(fmt, type, package)
+  # report package + version if both available
+  pkgver <- if (length(version))
+    paste(package, version)
+  else
+    package
+
+  fmt <- "failed to find %s for '%s' in package repositories"
+  stopf(fmt, type, pkgver)
 
 }
 
