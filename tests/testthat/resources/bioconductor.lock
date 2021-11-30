@@ -1,0 +1,44 @@
+{
+    "R": {
+        "Version": "4.1.2",
+        "Repositories": [
+            {
+                "Name": "CRAN",
+                "URL": "https://cloud.r-project.org"
+            }
+        ]
+    },
+    "Bioconductor": {
+        "Version": "3.13"
+    },
+    "Packages": {
+        "BiocGenerics": {
+            "Package": "BiocGenerics",
+            "Version": "0.38.0",
+            "Source": "Bioconductor",
+            "git_url": "https://git.bioconductor.org/packages/BiocGenerics",
+            "git_branch": "RELEASE_3_13",
+            "git_last_commit": "1db849a",
+            "git_last_commit_date": "2021-05-19",
+            "Hash": "de5e346fed0fc44a0424a0531cf5d12d"
+        },
+        "limma": {
+            "Package": "limma",
+            "Version": "3.50.0",
+            "Source": "Bioconductor",
+            "git_url": "https://git.bioconductor.org/packages/limma",
+            "git_branch": "RELEASE_3_14",
+            "git_last_commit": "657b19b",
+            "git_last_commit_date": "2021-10-26",
+            "Hash": "25679c54c2737e06835c5484682990b5"
+        },
+        "renv": {
+            "Package": "renv",
+            "Version": "0.14.0-69",
+            "Source": "Local",
+            "RemoteType": "local",
+            "RemoteUrl": "~/r/pkg/renv",
+            "Hash": "41fed5e791a5f7ea1eb290eda0531722"
+        }
+    }
+}

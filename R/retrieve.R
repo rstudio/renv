@@ -192,12 +192,36 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
 
 renv_retrieve_bioconductor <- function(record) {
 
+  # try to read the bioconductor version from the record
+  version <- renv_retrieve_bioconductor_version(record)
+
   # activate Bioconductor repositories in this context
   project <- renv_restore_state(key = "project")
-  renv_scope_bioconductor(project = project)
+  renv_scope_bioconductor(project = project, version = version)
 
   # retrieve record using updated repositories
   renv_retrieve_repos(record)
+
+}
+
+renv_retrieve_bioconductor_version <- function(record) {
+
+  # read git branch
+  branch <- record[["git_branch"]]
+  if (is.null(branch))
+    return(NULL)
+
+  # try and parse version
+  parts <- strsplit(branch, "_", fixed = TRUE)[[1L]]
+  ok <-
+    length(parts) == 3L &&
+    tolower(parts[[1L]]) == "release"
+
+  if (!ok)
+    return(NULL)
+
+  # we have a version; use it
+  paste(tail(parts, n = -1L), collapse = ".")
 
 }
 

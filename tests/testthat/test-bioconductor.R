@@ -71,3 +71,22 @@ test_that("bioconductor.version can be used to freeze version", {
   expect_equal(renv_bioconductor_version(project = project), "3.14")
 
 })
+
+test_that("we can restore a lockfile using multiple Bioconductor releases", {
+
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  path <- file.path(renv_tests_root(), "resources/bioconductor.lock")
+  lockfile <- renv_lockfile_read(path)
+
+  restore(
+    lockfile = lockfile,
+    packages = c("limma", "BiocGenerics"),
+    rebuild  = TRUE
+  )
+
+  expect_true(renv_package_version("limma") == "3.50.0")
+  expect_true(renv_package_version("BiocGenerics") == "0.38.0")
+
+})
