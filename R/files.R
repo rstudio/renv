@@ -515,6 +515,11 @@ renv_file_read <- function(path) {
 
 renv_file_shebang <- function(path) {
 
+  # confirm we have read access for this file
+  access <- file.access(path, mode = 4L)
+  if (identical(access, -1L))
+    return("")
+
   # open connection to file
   con <- file(path, open = "rb", encoding = "native.enc")
   on.exit(close(con), add = TRUE)
