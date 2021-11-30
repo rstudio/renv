@@ -76,19 +76,10 @@ renv_bioconductor_repos <- function(project, version = NULL) {
   version <- version %||% renv_bioconductor_version(project = project)
 
   # read Bioconductor repositories (prefer BiocInstaller for older R)
-  method <- if (getRversion() < "3.5.0")
-    renv_bioconductor_repos_biocinstaller
+  if (getRversion() < "3.5.0")
+    renv_bioconductor_repos_biocinstaller(version)
   else
-    renv_bioconductor_repos_biocmanager
-
-  # invoke the method, reporting errors as appropriate
-  repos <- catch(method(version))
-  if (inherits(repos, "error")) {
-    fmt <- "Error reading Bioconductor repositories: %s"
-    stopf(fmt, conditionMessage(repos) %||% "<unknown>")
-  }
-
-  repos
+    renv_bioconductor_repos_biocmanager(version)
 
 }
 
