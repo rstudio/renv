@@ -364,6 +364,8 @@ test_that("dependencies in hidden folders are not scoured", {
 })
 
 test_that("dependencies() doesn't barf on files without read permission", {
+
+  skip_on_windows()
   renv_tests_scope()
 
   dir.create("secrets")
