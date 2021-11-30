@@ -75,35 +75,33 @@ renv_bioconductor_repos <- function(project, version = NULL) {
   # read Bioconductor version (normally set during restore)
   version <- version %||% renv_bioconductor_version(project = project)
 
-  # try both BiocManager, BiocInstaller to get Bioconductor repositories
-  getters <- list(
+  # read Bioconductor repositories (prefer BiocInstaller for older R)
+  method <- if (getRversion() < "3.5.0")
+    renv_bioconductor_repos_biocinstaller
+  else
+    renv_bioconductor_repos_biocmanager
 
-    BiocManager = function() {
-      renv_scope_options(BiocManager.check_repositories = FALSE)
-      BiocManager <- asNamespace("BiocManager")
-      version <- version %||% BiocManager$version()
-      BiocManager$repositories(version = version)
-    },
-
-    BiocInstaller = function() {
-      BiocInstaller <- asNamespace("BiocInstaller")
-      version <- version %||% BiocInstaller$biocVersion()
-      BiocInstaller$biocinstallRepos(version = version)
-    }
-
-  )
-
-  # prefer BiocInstaller for older versions of R
-  if (getRversion() < "3.5.0")
-    getters <- rev(getters)
-
-  # now, try asking the packages for the active repositories
-  for (getter in getters) {
-    repos <- catch(getter())
-    if (!inherits(repos, "error"))
-      return(repos)
+  # invoke the method, reporting errors as appropriate
+  repos <- catch(method(version))
+  if (inherits(repos, "error")) {
+    fmt <- "Error reading Bioconductor repositories: %s"
+    msg <- sprintf(fmt, conditionMessage(repos))
+    stopf(fmt, conditionMessage(repos) %||% "<unknown>")
   }
 
-  stopf("failed to determine Bioconductor repositories")
+  repos
 
+}
+
+renv_bioconductor_repos_biocmanager <- function(version) {
+  renv_scope_options(BiocManager.check_repositories = FALSE)
+  BiocManager <- asNamespace("BiocManager")
+  version <- version %||% BiocManager$version()
+  BiocManager$repositories(version = version)
+}
+
+renv_bioconductor_repos_biocinstaller <- function(version) {
+  BiocInstaller <- asNamespace("BiocInstaller")
+  version <- version %||% BiocInstaller$biocVersion()
+  BiocInstaller$biocinstallRepos(version = version)
 }
