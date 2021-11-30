@@ -100,6 +100,11 @@ renv_settings_get <- function(project, name = NULL) {
     return(settings[order(names(settings))])
   }
 
+  # check for an override via option
+  override <- renv_options_override("renv.settings", name)
+  if (!is.null(override))
+    return(override)
+
   # try to read settings file
   path <- renv_settings_path(project)
   settings <- renv_settings_read(path)
