@@ -1224,10 +1224,10 @@ renv_dependencies_discover_r_targets <- function(node, stack, envir) {
     error = identity
   )
 
-  if (inherits(packages, "error")) {
-    warning(packages)
+  # TODO: evaluation can fail for a multitude of reasons;
+  # are any of these worth signalling to the user?
+  if (inherits(packages, "error"))
     return(TRUE)
-  }
 
   if (is.character(packages))
     for (package in packages)
