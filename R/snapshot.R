@@ -486,7 +486,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   requires <- sprintf("%s (%s %s)", bad$Package, bad$Require, bad$Version)
   request  <- bad$Requested
 
-  fmt <- "'%s' requires '%s', but version '%s' will be snapshotted"
+  fmt <- "%s requires %s, but version %s is installed"
   txt <- sprintf(fmt, format(package), format(requires), format(request))
 
   if (!renv_tests_running()) {
