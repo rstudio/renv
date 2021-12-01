@@ -74,6 +74,16 @@ renv_retrieve_impl <- function(package) {
     renv_scope_bioconductor(project = project)
   }
 
+  # if the record doesn't declare the package version,
+  # treat it as a request for the latest version on CRAN
+  # TODO: should make this behavior configurable
+  uselatest <-
+    source %in% c("repository", "bioconductor") &&
+    is.null(record$Version)
+
+  if (uselatest)
+    record <- renv_available_packages_latest(record$Package)
+
   # if the requested record is incompatible with the set
   # of requested package versions thus far, request the
   # latest version on the R package repositories
@@ -87,16 +97,6 @@ renv_retrieve_impl <- function(package) {
     renv_retrieve_incompatible_report(record, replacement, compat)
     record <- replacement
   }
-
-  # if the record doesn't declare the package version,
-  # treat it as a request for the latest version on CRAN
-  # TODO: should make this behavior configurable
-  uselatest <-
-    source %in% c("repository", "bioconductor") &&
-    is.null(record$Version)
-
-  if (uselatest)
-    record <- renv_available_packages_latest(record$Package)
 
   if (!renv_restore_rebuild_required(record)) {
 
@@ -933,8 +933,13 @@ renv_retrieve_incompatible <- function(record) {
   # drop 'Dev' column
   explicit$Dev <- NULL
 
+  # retrieve record version
+  version <- record$Version
+  if (is.null(version))
+    return(NULL)
+
   # for each row, compute whether we're compatible
-  rversion <- numeric_version(record$Version)
+  rversion <- numeric_version(version)
   compatible <- map_lgl(seq_len(nrow(explicit)), function(i) {
     expr <- call(explicit$Require[[i]], rversion, explicit$Version[[i]])
     eval(expr, envir = baseenv())
