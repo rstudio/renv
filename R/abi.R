@@ -49,11 +49,13 @@ renv_abi_check <- function(packages = NULL,
       values    = packages,
       preamble  = "The following packages were built against a newer version of Rcpp than is currently available:",
       postamble = c(
-        "These packages depend on APIs provided by Rcpp (>= 1.0.7).",
-        paste("However, Rcpp", renv_package_version("Rcpp"), "is currently installed."),
-        "Consider installing a new version of Rcpp."
+        paste(
+          "These packages depend on Rcpp (>= 1.0.7);",
+          "however, Rcpp", renv_package_version("Rcpp"), "is currently installed."
+        ),
+        "Consider installing a new version of Rcpp with 'install.packages(\"Rcpp\")'."
       ),
-      wrap = TRUE
+      wrap = FALSE
     )
   }
 
@@ -103,7 +105,7 @@ renv_abi_check_impl_rcpp_preciouslist <- function(package, symbols, rcppsyms, pr
 
   # check for dependency on Rcpp_precious APIs
   required <- grep("Rcpp_precious", symbols$symbol, value = TRUE)
-  if (empty(plrequired))
+  if (empty(required))
     return()
 
   # check for Rcpp_precious APIs being available
