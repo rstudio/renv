@@ -113,7 +113,7 @@ lbind <- function(data, names = NULL, index = "Index") {
 
   # we've collected and ordered each data.frame, now merge them
   rhs <- .mapply(c, filled, list(use.names = FALSE))
-  names(rhs) <- names(filled[[1]])
+  names(rhs) <- names(filled[[1L]])
 
   if (is.null(names(data))) {
     names(rhs) <- names(rhs) %||% names

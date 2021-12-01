@@ -328,3 +328,16 @@ renv_package_metadata <- function(package) {
   metapath <- file.path(pkgpath, "Meta/package.rds")
   readRDS(metapath)
 }
+
+renv_package_shlib <- function(package) {
+
+  pkgpath <- renv_package_find(package)
+
+  pkgname <- basename(package)
+  if (pkgname == "data.table")
+    pkgname <- "datatable"
+
+  libname <- paste0(pkgname, .Platform$dynlib.ext)
+  file.path(pkgpath, "libs", libname)
+
+}
