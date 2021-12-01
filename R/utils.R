@@ -298,7 +298,7 @@ visited <- function(name, envir) {
 
 rowapply <- function(X, FUN, ...) {
   lapply(seq_len(NROW(X)), function(I) {
-    FUN(X[I, ], ...)
+    FUN(X[I, , drop = FALSE], ...)
   })
 }
 

@@ -934,11 +934,11 @@ renv_retrieve_incompatible <- function(record) {
   explicit$Dev <- NULL
 
   # for each row, compute whether we're compatible
-  fmt <- "'%s' %s '%s'"
-  exprs <- sprintf(fmt, record$Version, explicit$Require, explicit$Version)
-  compatible <- map_lgl(exprs, function(expr) {
-    eval(parse(text = expr), envir = baseenv())
-  }, USE.NAMES = FALSE)
+  rversion <- numeric_version(record$Version)
+  compatible <- map_lgl(seq_len(nrow(explicit)), function(i) {
+    expr <- call(explicit$Require[[i]], rversion, explicit$Version[[i]])
+    eval(expr, envir = baseenv())
+  })
 
   # keep whatever wasn't compatible
   explicit[!compatible, ]
@@ -947,21 +947,32 @@ renv_retrieve_incompatible <- function(record) {
 
 renv_retrieve_incompatible_report <- function(record, replacement, compat) {
 
+  # if the record + replacement look the same, bail
+  # (nothing useful to report to user; failure will happen later)
+  same <-
+    record$Package == replacement$Package &&
+    record$Version == replacement$Version
+
+  if (same)
+    return()
+
   fmt <- "%s (requires %s %s %s)"
   values <- with(compat, sprintf(fmt, Source, Package, Require, Version))
 
-  fmt <- "The following constraints are not satisfied for '%s %s':"
+  fmt <- "renv tried to install '%s %s', but the following constraints were not met:"
   preamble <- with(record, sprintf(fmt, Package, Version))
 
-  fmt <- "renv will install '%s %s' instead."
+  fmt <- "renv will try to install '%s %s' instead."
   postamble <- with(replacement, sprintf(fmt, Package, Version))
 
-  renv_pretty_print(
-    values = values,
-    preamble = preamble,
-    postamble = postamble,
-    wrap = FALSE
-  )
+  if (!renv_tests_running()) {
+    renv_pretty_print(
+      values = values,
+      preamble = preamble,
+      postamble = postamble,
+      wrap = FALSE
+    )
+  }
 
 }
 

@@ -6,7 +6,6 @@ renv_pretty_print <- function(values,
                               wrap      = TRUE)
 {
   msg <- stack()
-
   if (empty(values))
     return()
 
