@@ -139,25 +139,28 @@ renv_remotes_parse_remote <- function(spec) {
 
 renv_remotes_parse_git <- function(spec) {
 
+  hostpattern <- paste0(
+    "(",
+      "(?:(?:(?!-))(?:xn--|_{1,1})?[a-z0-9-]{0,61}[a-z0-9]{1,1}\\.)*",
+      "(?:xn--)?",
+      "(?:[a-z0-9][a-z0-9\\-]{0,60}|[a-z0-9-]{1,30}\\.[a-z]{2,})",
+    ")"
+  )
+
   pattern <- paste0(
     "^",
-    "(?:([^@:]+)::)?",  # optional prefix, providing type
-    "(", # URL start
-      "(?:(https?|git|ssh)://)?",   # protocol
-      "(?:([^@]+)@)?",    # login (probably git)
-      # stack overflow: https://stackoverflow.com/a/26987741/9238801
-      "(",  # host start
-        "(?:(?:(?!-))(?:xn--|_{1,1})?[a-z0-9-]{0,61}[a-z0-9]{1,1}\\.)*",
-        "(?:xn--)?",
-        "(?:[a-z0-9][a-z0-9\\-]{0,60}|[a-z0-9-]{1,30}\\.[a-z]{2,})",
-      ")",  # host end
-      "[/:]([-\\.a-zA-Z]+)",             # a username
-      "(?:/([^@#:]+?))?",                # a repository (allow sub-repositories)
-      "(?:\\.(git))?",                     # optional .git extension
-    ")", # URL end
-    "(?::([^@#:]+))?",                 # optional subdirectory
-    "(?:#([^@#:]+))?",                 # optional hash (e.g. pull request)
-    "(?:@([^@#:]+))?",                 # optional ref (e.g. branch or commit)
+    "(?:(git)::)?",                 # optional git prefix
+    "(",                            # URL start
+      "(?:(https?|git|ssh)://)?",     # protocol
+      "(?:([^@]+)@)?",                # login (probably git)
+      hostpattern,                    # host
+      "[/:]([-\\.a-zA-Z]+)",          # a username
+      "(?:/([^@#:]+?))?",             # a repository (allow sub-repositories)
+      "(?:\\.(git))?",                # optional .git extension
+    ")",                            # URL end
+    "(?::([^@#:]+))?",              # optional sub-directory
+    "(?:#([^@#:]+))?",              # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?",              # optional ref (e.g. branch or commit)
     "$"
   )
 
@@ -176,31 +179,32 @@ renv_remotes_parse_git <- function(spec) {
   if (!nzchar(remote$repo))
     stopf("'%s' is not a valid remote", spec)
 
+  # If type has not been found & repo looks like a git repo, set it as git
+  # (note that this parser also accepts entries which are not truly git
+  # references, so we try to "fix up" after the fact)
+  if ("git" %in% c(remote$type, remote$ext, remote$protocol))
+    remote$type <- tolower(remote$type %||% "git")
+
   renv_remotes_parse_finalize(remote)
+
 }
 
+# NOTE: to avoid ambiguity with git remote specs, we require URL
+# remotes to begin with a 'url::' prefix
 renv_remotes_parse_url <- function(spec) {
 
   pattern <- paste0(
     "^",
-    "(?:(url+)::)?",  # url prefix
-    "((?:(https?|http)://)(.*)?)", # url, protocol, path
+    "(url)::",              # type (required for URL remotes)
+    "((https?)://([^:]+))", # url, protocol, path
+    "(?::([^@#:]+))?",      # optional subdir
     "$"
   )
 
-  fields <- c(
-    "spec",
-    "type",
-    "url",
-    "protocol", "path"
-  )
-
+  fields <- c("spec", "type", "url", "protocol", "path", "subdir")
   remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
   if (!nzchar(remote$url))
     stopf("'%s' is not a valid remote", spec)
-
-  if ("url" %in% c(remote$type))
-    remote$type <- tolower(remote$type %||% "url")
 
   renv_remotes_parse_finalize(remote)
 }
@@ -249,15 +253,15 @@ renv_remotes_parse <- function(spec) {
     return(remote)
   }
 
-  remote <- catch(renv_remotes_parse_git(spec))
-  if (!inherits(remote, "error")) {
-    remote$type <- remote$type %||% "git"
-    return(remote)
-  }
-
   remote <- catch(renv_remotes_parse_url(spec))
   if (!inherits(remote, "error")) {
     remote$type <- remote$type %||% "url"
+    return(remote)
+  }
+
+  remote <- catch(renv_remotes_parse_git(spec))
+  if (!inherits(remote, "error")) {
+    remote$type <- remote$type %||% "git"
     return(remote)
   }
 

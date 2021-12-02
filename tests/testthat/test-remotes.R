@@ -2,6 +2,25 @@
 context("Remotes")
 
 test_that("we can parse a variety of remotes", {
+
+  remote <- renv_remotes_parse("git@github.com:kevinushey/repo.git:subdir")
+
+  expect_equal(remote$type,   "git")
+  expect_equal(remote$host,   "github.com")
+  expect_equal(remote$user,   "kevinushey")
+  expect_equal(remote$repo,   "repo")
+  expect_equal(remote$ext,    "git")
+  expect_equal(remote$subdir, "subdir")
+
+  remote <- renv_remotes_parse("url::https://github.com/kevinushey/renv.git1/archive/refs/heads/main.zip")
+
+  expect_equal(remote$type,     "url")
+  expect_equal(remote$url,      "https://github.com/kevinushey/renv.git1/archive/refs/heads/main.zip")
+  expect_equal(remote$protocol, "https")
+
+})
+
+test_that("we can parse a variety of remotes", {
   skip_on_cran()
   skip_on_os("windows")
 
