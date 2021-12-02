@@ -63,6 +63,12 @@
 #'   to initialize the home directory as a project, to defend against accidental
 #'   mis-usages of `init()`.
 #'
+#' @param bioconductor The version of Bioconductor to be used with this project.
+#'   Setting this may be appropriate if `renv` is unable to determine that your
+#'   project depends on a package normally available from Bioconductor. Set this
+#'   to `TRUE` to use the default version of Bioconductor recommended by the
+#'   `BiocManager` package.
+#'
 #' @param restart Boolean; attempt to restart the \R session after initializing
 #'   the project? A session restart will be attempted if the `"restart"` \R
 #'   option is set by the frontend embedding \R.
@@ -72,11 +78,12 @@
 #' @example examples/examples-init.R
 init <- function(project = NULL,
                  ...,
-                 profile  = NULL,
-                 settings = NULL,
-                 bare     = FALSE,
-                 force    = FALSE,
-                 restart  = interactive())
+                 profile      = NULL,
+                 settings     = NULL,
+                 bare         = FALSE,
+                 force        = FALSE,
+                 bioconductor = NULL,
+                 restart      = interactive())
 {
   renv_consent_check()
   renv_scope_error_handler()
@@ -84,6 +91,14 @@ init <- function(project = NULL,
 
   project <- renv_path_normalize(project %||% getwd())
   renv_scope_lock(project = project)
+
+  # initialize bioconductor pieces
+  biocver <- renv_init_bioconductor(bioconductor, project)
+  if (!is.null(biocver)) {
+    vwritef("* Using Bioconductor version '%s'.", biocver)
+    renv_scope_bioconductor(version = biocver)
+    settings[["bioconductor.version"]] <- biocver
+  }
 
   # prepare and move into project directory
   renv_init_validate_project(project, force)
@@ -98,14 +113,14 @@ init <- function(project = NULL,
     return(renv_init_fini(project, profile, version, restart, quiet))
 
   # collect dependencies
-  renv_dependencies_scope(project, action = "init")
+  deps <- renv_dependencies_scope(project, action = "init")
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
   lockfile <- renv_lockfile_path(project)
 
   # determine appropriate action
-  action <- renv_init_action(project, library, lockfile)
+  action <- renv_init_action(project, library, lockfile, bioconductor)
   if (empty(action) || identical(action, "cancel")) {
     renv_report_user_cancel()
     return(invisible(FALSE))
@@ -147,7 +162,11 @@ renv_init_fini <- function(project, profile, version, restart, quiet) {
 
 }
 
-renv_init_action <- function(project, library, lockfile) {
+renv_init_action <- function(project, library, lockfile, bioconductor) {
+
+  # if the user has asked for bioconductor, treat this as a re-initialization
+  if (!is.null(bioconductor))
+    return("init")
 
   # figure out appropriate action
   case(
@@ -247,5 +266,26 @@ renv_init_settings <- function(project, settings) {
   merged <- renv_settings_merge(defaults, settings)
   renv_settings_persist(project, merged)
   invisible(merged)
+
+}
+
+renv_init_bioconductor <- function(bioconductor, project) {
+
+  # if we're re-initializing a project that appears to depend
+  # on Bioconductor, then use the latest Bioconductor release
+  if (is.null(bioconductor)) {
+    lockpath <- renv_paths_lockfile(project = project)
+    if (file.exists(lockpath)) {
+      lockfile <- renv_lockfile_read(lockpath)
+      bioconductor <- !is.null(lockfile$Bioconductor)
+    }
+  }
+
+  # resolve bioconductor argument
+  case(
+    is.character(bioconductor)     ~ bioconductor,
+    identical(bioconductor, TRUE)  ~ renv_bioconductor_version(project),
+    identical(bioconductor, FALSE) ~ NULL
+  )
 
 }

@@ -1666,6 +1666,8 @@ renv_dependencies_scope <- function(path, action, .envir = NULL) {
   envir <- .envir %||% parent.frame()
   defer(rm(list = path, envir = `_renv_dependencies`), envir = envir)
 
+  invisible(deps)
+
 }
 
 renv_dependencies_error_handler <- function(message, errors) {

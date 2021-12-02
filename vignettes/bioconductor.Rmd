@@ -1,0 +1,65 @@
+---
+title: "Using renv with Bioconductor"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using renv with Bioconductor}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+
+`renv` has been designed to work together as seamlessly as possible with
+the [Bioconductor](https://bioconductor.org/) project. This vignette outlines
+some of the extra steps that may be required when using `renv` with packages
+obtained from Bioconductor.
+
+
+## Initializing a Project
+
+To initialize `renv` in a project using Bioconductor, you can pass the
+`bioconductor` argument to `renv::init()`:
+
+```{r}
+# use the latest-available Bioconductor release
+renv::init(bioconductor = TRUE)
+
+# use a specific version of Bioconductor
+renv::init(bioconductor = "3.14")
+```
+
+This will tell `renv` to activate the appropriate Bioconductor repositories,
+and to use those repositories when attempting to restore packages.
+
+
+## Bioconductor Releases
+
+Bioconductor prepares different versions of its package repositories, for use
+with different versions of R. The version of Bioconductor used within a
+particular `renv` project is stored both as a project setting, and also within
+the project lockfile. This allows you to "lock" a particular project to a
+particular Bioconductor release, even as new Bioconductor releases are made
+available for newer versions of R.
+
+To set the version of Bioconductor used in a project, you can use:
+
+```{r}
+renv::settings$bioconductor.version("3.14")
+```
+
+If you later choose to upgrade R, you may need to upgrade the version
+of Bioconductor used as well.
+
+If you want to override the Bioconductor repositories used by `renv`, you can
+also explicitly set the following option:
+
+```{r}
+options(renv.bioconductor.repos = c(...))
+```

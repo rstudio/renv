@@ -75,6 +75,7 @@ load <- function(project = NULL, quiet = FALSE) {
   if (length(lockfile)) {
     renv_load_r(project, lockfile$R)
     renv_load_python(project, lockfile$Python)
+    renv_load_bioconductor(project, lockfile$Bioconductor)
   }
 
   # allow failure to write infrastructure here to be non-fatal
@@ -450,6 +451,29 @@ renv_load_python_condaenv <- function(project, fields) {
     version = fields[["Version"]] %NA% NULL,
     python  = fields[["Python"]]  %NA% NULL
   )
+
+}
+
+renv_load_bioconductor <- function(project, bioconductor) {
+
+  if (is.null(bioconductor) || getRversion() < "3.4")
+    return()
+
+  renv_bioconductor_init()
+  BiocManager <- renv_namespace_load("BiocManager")
+  if (is.null(BiocManager$.version_validate))
+    return()
+
+  status <- catch(BiocManager$.version_validate(bioconductor))
+  if (!inherits(status, "error"))
+    return()
+
+  fmt <- lines(
+    "This project is configured to use Bioconductor '%s', which is not compatible with R '%s'.",
+    "Use 'renv::init(bioconductor = TRUE)' to re-initialize this project."
+  )
+
+  warningf(fmt, bioconductor, getRversion())
 
 }
 
