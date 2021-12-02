@@ -126,7 +126,7 @@ renv_load_r <- function(project, fields) {
 
   # only compare major, minor versions
   if (!identical(requested[1:2], current[1:2])) {
-    fmt <- "Project requested R version '%s' but '%s' is currently being used"
+    fmt <- "This project is configured to use R version '%s', but '%s' is currently being used."
     warningf(fmt, version, getRversion())
   }
 
@@ -470,7 +470,7 @@ renv_load_bioconductor <- function(project, bioconductor) {
 
   fmt <- lines(
     "This project is configured to use Bioconductor '%s', which is not compatible with R '%s'.",
-    "Use 'renv::init(bioconductor = TRUE)' to re-initialize this project."
+    "Use 'renv::init(bioconductor = TRUE)' to re-initialize this project with the latest Bioconductor release."
   )
 
   warningf(fmt, bioconductor, getRversion())
