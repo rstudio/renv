@@ -63,6 +63,9 @@
 #'   to initialize the home directory as a project, to defend against accidental
 #'   mis-usages of `init()`.
 #'
+#' @param repos The \R repositories to be used in this project. By default,
+#'   the active repositories (as determined by `getOption("repos")`) are used.
+#'
 #' @param bioconductor The version of Bioconductor to be used with this project.
 #'   Setting this may be appropriate if `renv` is unable to determine that your
 #'   project depends on a package normally available from Bioconductor. Set this
@@ -82,6 +85,7 @@ init <- function(project = NULL,
                  settings     = NULL,
                  bare         = FALSE,
                  force        = FALSE,
+                 repos        = NULL,
                  bioconductor = NULL,
                  restart      = interactive())
 {
@@ -93,6 +97,7 @@ init <- function(project = NULL,
   renv_scope_lock(project = project)
 
   # initialize bioconductor pieces
+  repos <- repos %||% getOption("repos")
   biocver <- renv_init_bioconductor(bioconductor, project)
   if (!is.null(biocver)) {
     vwritef("* Using Bioconductor version '%s'.", biocver)
@@ -134,7 +139,7 @@ init <- function(project = NULL,
     vwritef("* Initializing project ...")
     renv_imbue_impl(project)
     hydrate(project = project, library = library)
-    snapshot(project = project, library = libpaths, prompt = FALSE)
+    snapshot(project = project, library = libpaths, repos = repos, prompt = FALSE)
   } else if (action == "restore") {
     vwritef("* Restoring project ... ")
     ensure_directory(library)

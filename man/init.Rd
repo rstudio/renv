@@ -11,6 +11,8 @@ init(
   settings = NULL,
   bare = FALSE,
   force = FALSE,
+  repos = NULL,
+  bioconductor = NULL,
   restart = interactive()
 )
 }
@@ -34,6 +36,15 @@ and install R package dependencies?}
 \item{force}{Boolean; force initialization? By default, \code{renv} will refuse
 to initialize the home directory as a project, to defend against accidental
 mis-usages of \code{init()}.}
+
+\item{repos}{The \R repositories to be used in this project. By default,
+the active repositories (as determined by \code{getOption("repos")}) are used.}
+
+\item{bioconductor}{The version of Bioconductor to be used with this project.
+Setting this may be appropriate if \code{renv} is unable to determine that your
+project depends on a package normally available from Bioconductor. Set this
+to \code{TRUE} to use the default version of Bioconductor recommended by the
+\code{BiocManager} package.}
 
 \item{restart}{Boolean; attempt to restart the \R session after initializing
 the project? A session restart will be attempted if the \code{"restart"} \R
