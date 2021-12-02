@@ -75,6 +75,7 @@ renv_remotes_resolve_impl <- function(spec, latest = FALSE) {
     github     = renv_remotes_resolve_github(remote),
     repository = renv_remotes_resolve_repository(remote, latest),
     git        = renv_remotes_resolve_git(remote),
+    url        = renv_remotes_resolve_url(remote$url, quiet = TRUE),
     stopf("unknown remote type '%s'", remote$type %||% "<NA>")
   )
 
@@ -175,11 +176,31 @@ renv_remotes_parse_git <- function(spec) {
   if (!nzchar(remote$repo))
     stopf("'%s' is not a valid remote", spec)
 
-  # If type has not been found & repo looks like a git repo, set it as git
-  # (note that this parser also accepts entries which are not truly git
-  # references, so we try to "fix up" after the fact)
-  if ("git" %in% c(remote$type, remote$ext, remote$protocol))
-    remote$type <- tolower(remote$type %||% "git")
+  renv_remotes_parse_finalize(remote)
+}
+
+renv_remotes_parse_url <- function(spec) {
+
+  pattern <- paste0(
+    "^",
+    "(?:(url+)::)?",  # url prefix
+    "((?:(https?|http)://)(.*)?)", # url, protocol, path
+    "$"
+  )
+
+  fields <- c(
+    "spec",
+    "type",
+    "url",
+    "protocol", "path"
+  )
+
+  remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
+  if (!nzchar(remote$url))
+    stopf("'%s' is not a valid remote", spec)
+
+  if ("url" %in% c(remote$type))
+    remote$type <- tolower(remote$type %||% "url")
 
   renv_remotes_parse_finalize(remote)
 }
@@ -231,6 +252,12 @@ renv_remotes_parse <- function(spec) {
   remote <- catch(renv_remotes_parse_git(spec))
   if (!inherits(remote, "error")) {
     remote$type <- remote$type %||% "git"
+    return(remote)
+  }
+
+  remote <- catch(renv_remotes_parse_url(spec))
+  if (!inherits(remote, "error")) {
+    remote$type <- remote$type %||% "url"
     return(remote)
   }
 

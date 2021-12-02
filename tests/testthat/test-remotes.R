@@ -66,6 +66,13 @@ test_that("we can parse a variety of remotes", {
   expect_equal(record$RemoteUrl, "https://github.com/kevinushey/renv.git1.git")
   expect_equal(record$RemoteRef, "main")
 
+  # url
+  record <- renv_remotes_resolve("url::https://github.com/kevinushey/renv.git1/archive/refs/heads/main.zip")
+  expect_equal(record$Package, "renv.git1")
+  expect_equal(record$Version, "0.0.0.9000")
+  expect_equal(record$RemoteUrl, "https://github.com/kevinushey/renv.git1/archive/refs/heads/main.zip")
+  expect_equal(record$Source, "URL")
+
   # # git - ssh
   # # this test appears to fail on CI (ssh access to GitHub disallowed?)
   # record <- renv_remotes_resolve("git::git@github.com:kevinushey/renv.git1.git@main")
