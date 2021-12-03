@@ -138,12 +138,13 @@ project is run in a environment with the correct version of `pandoc` available.
 
 The following files are written to and used by projects using `renv`:
 
-| **File**          | **Usage**                                                                           |
-| ----------------- | ----------------------------------------------------------------------------------- |
-| `.Rprofile`       | Used to activate `renv` for new R sessions launched in the project.                 |
-| `renv.lock`       | The lockfile, describing the state of your project's library at some point in time. |
-| `renv/activate.R` | The activation script run by the project `.Rprofile`.                               |
-| `renv/library`    | The private project library.                                                        |
+| **File**            | **Usage**                                                                           |
+| -----------------   | ----------------------------------------------------------------------------------- |
+| `.Rprofile`         | Used to activate `renv` for new R sessions launched in the project.                 |
+| `renv.lock`         | The lockfile, describing the state of your project's library at some point in time. |
+| `renv/activate.R`   | The activation script run by the project `.Rprofile`.                               |
+| `renv/library`      | The private project library.                                                        |
+| `renv/settings.dcf` | Project settings -- see `?settings` for more details.                               |
 
 In particular, `renv/activate.R` ensures that the project library is made active
 for newly launched R sessions. This ensures that any new R processes launched
@@ -155,6 +156,74 @@ For development and collaboration, the `.Rprofile`, `renv.lock` and
 `renv/library` directory should normally be ignored. Note that `renv::init()`
 will attempt to write the requisite ignore statements to the project
 `.gitignore`.
+
+
+## Dependency Discovery
+
+By default, `renv::snapshot()` will examine your project's R files to determine
+which packages are used in your project, and will include only those packages
+(alongside their recursive dependencies) in the lockfile. This is done via
+a call to the `renv::dependencies()` function. We call this an "implicit"
+snapshot, since the packages your project depends on are implicit based on how
+packages appear to be used in your project. `renv` uses static analysis to
+determine which packages appear to be used; e.g. by scanning your code for calls
+to `library()` or `require()`.
+
+While useful, this approach is not 100% reliable in detecting the packages
+required by your project. Depending on your workflow, you might prefer to
+control or modify which packages `renv` chooses to include in the lockfile.
+
+
+### Ignore Files
+
+By default, `renv` reads the `.gitignore` files in your project (if any)
+to infer which files should be ignored when scanning for dependencies.
+If you find that `renv`'s dependency discovery is scanning files you don't
+want to be scanned, you can use an `.renvignore` file to instruct `renv`
+to ignore certain patterns of files in the project. For example, you might
+use:
+
+```
+/data
+```
+
+to tell `renv` not to scan files within the `data` folder.
+
+If you'd prefer that `renv` ignored all folders by default, except for some
+subset of folders where you place your code files, you could use something
+like:
+
+```
+*
+!/code
+```
+
+In this case, `renv` will only scan your `code` folder at the root of the
+project directory for dependencies.
+
+
+### Explicit Snapshots
+
+If you'd instead prefer to explicitly declare which packages are used in your
+project, you can do so by creating a `DESCRIPTION` file at your project root.
+These `DESCRIPTION` files should be formatted similarly to those used by
+default in R package development -- see https://r-pkgs.org/description.html
+for more details.
+
+In this case, your `DESCRIPTION` file might look like:
+
+```
+Type: project
+Description: My project.
+Depends:
+    tidyverse,
+    devtools,
+    shiny,
+    data.table
+```
+
+The packages used in your project can be part of either the `Depends` or
+`Imports` fields.
 
 
 ## Package Sources
