@@ -531,7 +531,35 @@ renv_cache_config_enabled <- function(project) {
 }
 
 renv_cache_config_symlinks <- function(project) {
-  config$cache.symlinks() && settings$use.cache(project = project)
+
+  usesymlinks <-
+    config$cache.symlinks() %||%
+    renv_cache_config_symlinks_default(project = project)
+
+  usesymlinks && settings$use.cache(project = project)
+
+}
+
+renv_cache_config_symlinks_default <- function(project) {
+
+  # on linux, we can always use symlinks
+  if (renv_platform_unix())
+    return(TRUE)
+
+  # on Windows, only try to use symlinks (junction points) if the cache
+  # and the project library appear to live on the same drive
+  libpath <- renv_paths_library(project = project)
+  cachepath <- renv_paths_cache()
+
+  # TODO: with this change, anyone using networks not mapped to a local drive
+  # would need to opt-in to using symlinks, but that's probably okay?
+  all(
+    substring(libpath, 1L, 2L) == substring(cachepath, 1L, 2L),
+    substring(libpath, 2L, 2L) == ":",
+    substring(cachepath, 2L, 2L) == ":"
+  )
+
+
 }
 
 renv_cache_linkable <- function(project, library) {

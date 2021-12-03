@@ -62,7 +62,7 @@ Defaults to \code{3L}.}
 \subsection{renv.config.cache.enabled}{Enable the global \code{renv} package cache? When active, \code{renv} will install packages into a global cache, and link or copy packages from the cache into your \R library as appropriate. This can greatly save on disk space and install time when \R packages are shared across multiple projects in the same environment.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.cache.symlinks}{Symlink packages from the global \code{renv} package cache into your project library? When \code{TRUE}, \code{renv} will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to \code{FALSE} if you'd prefer to copy packages from the cache into your project library.
-Defaults to \code{TRUE}.}
+Defaults to \code{NULL}.}
 \subsection{renv.config.dependency.errors}{Many \code{renv} APIs require the enumeration of your project's \R package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to \code{"fatal"} to force errors to be fatal, and \code{"ignored"} to ignore errors altogether. See \code{\link[=dependencies]{dependencies()}} for more details.
 Defaults to \code{"reported"}.}
 \subsection{renv.config.exported.functions}{When \code{library(renv)} is called, should its exports be placed on the search path? Set this to \code{FALSE} to avoid issues that can arise with, for example, \code{renv::load()} masking \code{base::load()}. In general, we recommend referencing \code{renv} functions from its namespace explicitly; e.g. prefer \code{renv::snapshot()} over \code{snapshot()}.

@@ -54,12 +54,14 @@
 
 - name: "cache.symlinks"
   type: "logical[1]"
-  default: true
+  default: ~
   description: >
     Symlink packages from the global `renv` package cache into your project
     library? When `TRUE`, `renv` will use symlinks (or, on Windows, junction
     points) to reference packages installed in the cache. Set this to `FALSE`
     if you'd prefer to copy packages from the cache into your project library.
+    Enabled by default, except on Windows where this feature is only enabled
+    if the project library and global package cache are on the same volume.
 
 - name: "dependency.errors"
   type: "character[1]"
