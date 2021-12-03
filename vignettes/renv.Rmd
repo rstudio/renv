@@ -170,8 +170,13 @@ determine which packages appear to be used; e.g. by scanning your code for calls
 to `library()` or `require()`.
 
 While useful, this approach is not 100% reliable in detecting the packages
-required by your project. Depending on your workflow, you might prefer to
-control or modify which packages `renv` chooses to include in the lockfile.
+required by your project. If you find that `renv`'s dependency discovery is
+failing to discover one or more packages used in your project, one escape hatch
+is to include a file called `_dependencies.R` with code of the form:
+
+```
+library(<pkg>)
+```
 
 
 ### Ignore Files

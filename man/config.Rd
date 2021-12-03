@@ -5,7 +5,7 @@
 \alias{config}
 \title{User-Level Configuration of renv}
 \format{
-An object of class \code{list} of length 32.
+An object of class \code{list} of length 33.
 }
 \usage{
 config
@@ -61,7 +61,7 @@ Defaults to \code{20L}.}
 Defaults to \code{3L}.}
 \subsection{renv.config.cache.enabled}{Enable the global \code{renv} package cache? When active, \code{renv} will install packages into a global cache, and link or copy packages from the cache into your \R library as appropriate. This can greatly save on disk space and install time when \R packages are shared across multiple projects in the same environment.
 Defaults to \code{TRUE}.}
-\subsection{renv.config.cache.symlinks}{Symlink packages from the global \code{renv} package cache into your project library? When \code{TRUE}, \code{renv} will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to \code{FALSE} if you'd prefer to copy packages from the cache into your project library.
+\subsection{renv.config.cache.symlinks}{Symlink packages from the global \code{renv} package cache into your project library? When \code{TRUE}, \code{renv} will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to \code{FALSE} if you'd prefer to copy packages from the cache into your project library. Enabled by default, except on Windows where this feature is only enabled if the project library and global package cache are on the same volume.
 Defaults to \code{NULL}.}
 \subsection{renv.config.dependency.errors}{Many \code{renv} APIs require the enumeration of your project's \R package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to \code{"fatal"} to force errors to be fatal, and \code{"ignored"} to ignore errors altogether. See \code{\link[=dependencies]{dependencies()}} for more details.
 Defaults to \code{"reported"}.}
@@ -90,6 +90,8 @@ Defaults to \code{FALSE}.}
 Defaults to \code{FALSE}.}
 \subsection{renv.config.mran.enabled}{Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN} during restore? See \code{vignette("mran", package = "renv")} for more details.
 Defaults to \code{TRUE}.}
+\subsection{renv.config.pak.enabled}{Use the \href{https://pak.r-lib.org/}{pak} package to install packages?
+Defaults to \code{FALSE}.}
 \subsection{renv.config.repos.override}{Override the R package repositories used during \code{\link[=restore]{restore()}}? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
 Defaults to \code{NULL}.}
 \subsection{renv.config.rspm.enabled}{Boolean; enable RSPM integration for \code{renv} projects? When \code{TRUE}, \code{renv} will attempt to transform the repository URLs used by RSPM into binary URLs as appropriate for the current platform. Set this to \code{FALSE} if you'd like to continue using source-only RSPM URLs, or if you find that \code{renv} is improperly transforming your repository URLs.
