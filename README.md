@@ -28,13 +28,10 @@ ensures those exact versions are the ones that get installed wherever you go.
 
 ## Installation
 
-Install the latest development version of `renv` with:
+Install the latest version of `renv` from CRAN with:
 
 ```r
-if (!requireNamespace("remotes"))
-  install.packages("remotes")
-
-remotes::install_github("rstudio/renv")
+install.packages("renv")
 ```
 
 
