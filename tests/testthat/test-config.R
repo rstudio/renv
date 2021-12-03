@@ -87,3 +87,18 @@ test_that("multiple library paths can be set in RENV_CONFIG_EXTERNAL_LIBRARIES",
   expect_equal(libpaths, c("a", "b", "c"))
 
 })
+
+test_that("cache symlinks are disabled if the cache and project library lie in different volumes", {
+
+  skip_on_cran()
+  project <- renv_tests_scope()
+
+  renv_scope_envvars(RENV_PATHS_CACHE = "//network/drive")
+  expect_false(renv_cache_config_symlinks(project = project))
+
+  projlib <- renv_paths_library(project = project)
+  renv_scope_envvars(RENV_PATHS_CACHE = dirname(projlib))
+  expect_true(renv_cache_config_symlinks(project = project))
+
+
+})
