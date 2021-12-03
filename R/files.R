@@ -181,6 +181,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
 
   # first, attempt to do a plain rename
   # use catchall since this might fail for e.g. cross-device links
+  # (note that junction points on Windows will be copies as-is)
   move <- catchall(file.rename(source, target))
   if (renv_file_exists(target))
     return(TRUE)
@@ -198,18 +199,10 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
       return(TRUE)
   }
 
-  # # on Windows, similarly try 'robocopy' command
-  # # (should be faster than 'move' for large directories)
-  # if (renv_platform_windows()) {
-  #   status <- catchall(renv_robocopy_move(source, target))
-  #   if (renv_file_exists(target))
-  #     return(TRUE)
-  # }
-
-  # on Windows, similarly try 'move' command
+  # on Windows, similarly try 'robocopy' command
+  # (should be faster than 'move' for large directories)
   if (renv_platform_windows()) {
-    args <- c("/Y", shQuote(source), shQuote(target))
-    status <- catchall(system2("move", args, stdout = FALSE, stderr = FALSE))
+    status <- catchall(renv_robocopy_move(source, target))
     if (renv_file_exists(target))
       return(TRUE)
   }
