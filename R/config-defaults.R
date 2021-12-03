@@ -194,6 +194,15 @@ config <- list(
     )
   },
 
+  pak.enabled = function(..., default = FALSE) {
+    renv_config_get(
+      name    = "pak.enabled",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   repos.override = function(..., default = NULL) {
     renv_config_get(
       name    = "repos.override",

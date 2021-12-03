@@ -1,7 +1,7 @@
 
 # NOTE: mostly for internal use when i accidentally
 # link packages in the user library into the cache
-renv_repair <- function(library = NULL) {
+repair <- function(library = NULL) {
   library <- renv_path_normalize(library %||% renv_libpaths_default())
   paths <- list.files(library, full.names = TRUE)
   links <- Sys.readlink(paths)

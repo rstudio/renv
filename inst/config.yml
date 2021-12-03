@@ -180,6 +180,12 @@
     Attempt to download binaries from [MRAN](https://mran.microsoft.com/)
     during restore? See `vignette("mran", package = "renv")` for more details.
 
+- name: "pak.enabled"
+  type: "logical[1]"
+  default: false
+  description: >
+    Use the [pak](https://pak.r-lib.org/) package to install packages?
+
 - name: "repos.override"
   type: "character[*]"
   default: ~

@@ -3,8 +3,15 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` gains experimental support for the [pak](https://pak.r-lib.org/)
+  package. Set `RENV_CONFIG_PAK_ENABLED = TRUE` in an appropriate `.Renviron`
+  file to enable `pak` integration. When enabled, calls to `renv::install()`
+  will use `pak` to download and install packages.
+  
 * `renv::init()` gains the `bioconductor` argument, to be used to initialize
-  a project with a particular Bioconductor release.
+  a project with a particular Bioconductor release. You can also use
+  `renv::init(bioconductor = TRUE)` to initialize with the latest-available
+  release for the version of R being used.
 
 * Project settings can now be overridden by setting an R option of the same
   name. For example, one could force a project to use Bioconductor 3.14 by

@@ -298,12 +298,15 @@ renv_tests_init <- function() {
   Sys.unsetenv("RENV_PATHS_ROOT")
   Sys.unsetenv("RENV_PATHS_LIBRARY")
   Sys.unsetenv("RENV_PATHS_LIBRARY_ROOT")
-  Sys.unsetenv("RENV_CONFIG_CACHE_ENABLED")
 
   Sys.unsetenv("RENV_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON_ENV")
   Sys.unsetenv("RETICULATE_PYTHON_FALLBACK")
+
+  envvars <- Sys.getenv()
+  configvars <- grep("^RENV_CONFIG_", names(envvars), value = TRUE)
+  Sys.unsetenv(configvars)
 
   renv_tests_init_workarounds()
   renv_tests_init_working_dir()

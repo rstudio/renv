@@ -159,13 +159,18 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
-  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
-  remotes <- lapply(remotes, renv_remotes_resolve)
+  # if users have requested the use of pak, delegate there
+  if (config$pak.enabled()) {
+    renv_pak_init()
+    return(renv_pak_install(remotes, libpaths))
+  }
 
-  # ensure remotes are named
+  # resolve remotes
+  remotes <- lapply(remotes, renv_remotes_resolve)
   names(remotes) <- extract_chr(remotes, "Package")
 
   # update records with requested remotes
+  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
   records[names(remotes)] <- remotes
 
   # read remotes from the package DESCRIPTION file and use those to
