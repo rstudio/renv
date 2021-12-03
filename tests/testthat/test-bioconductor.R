@@ -75,6 +75,7 @@ test_that("bioconductor.version can be used to freeze version", {
 test_that("we can restore a lockfile using multiple Bioconductor releases", {
 
   skip_on_cran()
+  skip_on_windows()
   skip_if(getRversion()[1, 1:2] != "4.1")
 
   project <- renv_tests_scope()
