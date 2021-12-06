@@ -48,6 +48,23 @@ following steps to get started:
    completed, they can then use `renv::restore()` to restore the project
    library locally on their machine.
 
+If the `renv` auto-loader is not enabled, or if the project `.Rprofile` is not
+shared, your collaborator may see the following after calling `renv::restore()`:
+
+```
+> renv::restore()
+
+This project has not yet been activated.
+Activating this project will ensure the project library is used during restore.
+Please see `?renv::activate` for more details.
+
+Would you like to activate this project before restore? [Y/n]:
+```
+
+They can enter `Y` to ensure the project is activated before restore, thereby
+ensuring that `renv::restore()` restores package into the project library
+as expected.
+
 For more information on collaboration strategies, please visit
 [environments.rstudio.com](https://environments.rstudio.com/).
 

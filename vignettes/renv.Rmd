@@ -231,6 +231,15 @@ The packages used in your project can be part of either the `Depends` or
 `Imports` fields.
 
 
+## Collaborating
+
+When sharing a project with other collaborators, you may want to ensure everyone
+is working with the same environment -- otherwise, code in the project may
+unexpectedly fail to run because of changes in behavior between different
+versions of the packages in use. `renv` can help to make such collaboration
+easier -- see `vignette("collaborating", package = "renv")` for more details.
+
+
 ## Package Sources
 
 `renv` is able to install and restore packages from a variety of sources,
