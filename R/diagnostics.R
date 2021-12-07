@@ -81,7 +81,12 @@ renv_diagnostics_packages <- function(project) {
   )
 
   # bundle together
-  all <- c(names(lockfile$Packages), names(libstate$Packages), names(recdeps))
+  all <- c(
+    names(lockfile$Packages),
+    names(libstate$Packages),
+    names(recdeps),
+    used
+  )
 
   # sort
   renv_scope_locale(category = "LC_COLLATE", locale = "C")
