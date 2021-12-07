@@ -21,11 +21,26 @@ project <- function(default = NULL) {
   renv_project(default = default)
 }
 
-renv_project <- function(default = getwd()) {
+renv_project_get <- function(default = NULL) {
+
   project <- Sys.getenv("RENV_PROJECT", unset = NA)
   if (is.na(project))
     return(default)
+
   project
+
+}
+
+renv_project_set <- function(project) {
+  Sys.setenv(RENV_PROJECT = project)
+}
+
+renv_project_clear <- function() {
+  Sys.unsetenv("RENV_PROJECT")
+}
+
+renv_project <- function(default = getwd()) {
+  renv_project_get(default = default)
 }
 
 renv_project_resolve <- function(project = NULL) {

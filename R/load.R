@@ -40,6 +40,12 @@ load <- function(project = NULL, quiet = FALSE) {
   project <- project %||% renv_project_find(project)
   renv_scope_lock(project = project)
 
+  # if load is being called via the autoloader,
+  # then ensure RENV_PROJECT is unset
+  # https://github.com/rstudio/renv/issues/887
+  if (!is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA)))
+    renv_project_clear()
+
   # if we're loading a project different from the one currently loaded,
   # then unload the current project and reload the requested one
   switch <-
