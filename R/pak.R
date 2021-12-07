@@ -1,11 +1,15 @@
 
-renv_pak_init <- function() {
+renv_pak_init <- function(library, type, rebuild, project) {
 
   if (requireNamespace("pak", quietly = TRUE))
     return(renv_namespace_load("pak"))
 
-  install.packages("pak")
-  renv_namespace_load("pak")
+  install(
+    packages = "pak",
+    library  = library,
+    type     = type,
+    project  = project
+  )
 
 }
 

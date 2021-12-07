@@ -7,7 +7,7 @@ context <- function(desc) {
 test_that <- function(desc, code) {
 
   # skip tests when run on CRAN's macOS machine
-  iscran <- !identical(Sys.getenv("NOT_CRAN"), "true")
+  iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
   testthat::skip_if(iscran && renv_platform_macos())
 
   oldlibpaths <- .libPaths()

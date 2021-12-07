@@ -420,3 +420,19 @@ find <- function(x, f, ...) {
     if (!is.null(value <- f(x[[i]], ...)))
       return(value)
 }
+
+recursing <- function() {
+
+  nf <- sys.nframe()
+  if (nf < 2)
+    return(FALSE)
+
+  np <- sys.parent()
+  fn <- sys.function(np)
+  for (i in seq_len(np - 1L))
+    if (identical(fn, sys.function(i)))
+      return(TRUE)
+
+  FALSE
+
+}

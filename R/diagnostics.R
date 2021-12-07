@@ -28,6 +28,7 @@ diagnostics <- function(project = NULL) {
     renv_diagnostics_project,
     renv_diagnostics_status,
     renv_diagnostics_packages,
+    renv_diagnostics_abi,
     renv_diagnostics_profile,
     renv_diagnostics_settings,
     renv_diagnostics_options,
@@ -184,6 +185,18 @@ renv_diagnostics_packages_dependencies <- function(project) {
                progress = FALSE,
                errors = "reported",
                dev = TRUE)
+
+}
+
+renv_diagnostics_abi <- function(project) {
+
+  vwritef(header("ABI"))
+  tryCatch(
+    renv_abi_check(),
+    error = function(e) {
+      vwritef(conditionMessage(e))
+    }
+  )
 
 }
 

@@ -147,3 +147,28 @@ test_that("find() returns first non-null matching value", {
   expect_null(value)
 
 })
+
+test_that("recursing() reports if we're recursing", {
+
+  f <- function(i) {
+
+    if (recursing())
+      expect_true(i == 2)
+    else
+      expect_true(i == 1)
+
+
+    if (i < 2)
+      f(i + 1)
+
+    if (recursing())
+      expect_true(i == 2)
+    else
+      expect_true(i == 1)
+
+  }
+
+  f(1)
+
+
+})
