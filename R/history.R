@@ -31,11 +31,11 @@ history <- function(project = NULL) {
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
-  arguments <- c("log", "--pretty=format:%H\031%at\031%ct\031%s", lockpath)
-  data <- system2("git", shQuote(arguments), stdout = TRUE)
+  args <- c("log", "--pretty=format:%H\031%at\031%ct\031%s", shQuote(lockpath))
+  data <- renv_system_exec("git", args, action = "retrieving git log")
 
   parts <- strsplit(data, "\031", fixed = TRUE)
-  tbl <- lbind(parts, names = c("commit", "author_date", "committer_date", "subject"))
+  tbl <- bind(parts, names = c("commit", "author_date", "committer_date", "subject"))
   tbl$author_date <- as.POSIXct(as.numeric(tbl$author_date), origin = "1970-01-01")
   tbl$committer_date <- as.POSIXct(as.numeric(tbl$committer_date), origin = "1970-01-01")
 

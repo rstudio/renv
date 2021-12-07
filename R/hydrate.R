@@ -183,7 +183,7 @@ renv_hydrate_packages <- function(project, libpaths = NULL) {
 
   profdeps <- renv_hydrate_packages_rprofile()
   if (length(deps) && length(profdeps))
-    deps <- lbind(list(deps, profdeps))
+    deps <- bind(list(deps, profdeps))
 
   unique(deps$Package)
 

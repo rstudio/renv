@@ -1,7 +1,7 @@
 
 bapply <- function(x, f, ..., index = "Index") {
   result <- lapply(x, f, ...)
-  lbind(result, index = index)
+  bind(result, index = index)
 }
 
 enumerate <- function(x, f, ..., FUN.VALUE = NULL) {

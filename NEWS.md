@@ -3,6 +3,8 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* Fixed an regression which caused `renv::history()` to fail. (#886)
+
 * `renv` gains experimental support for the [pak](https://pak.r-lib.org/)
   package. Set `RENV_CONFIG_PAK_ENABLED = TRUE` in an appropriate `.Renviron`
   file to enable `pak` integration. When enabled, calls to `renv::install()`

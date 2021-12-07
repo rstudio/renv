@@ -39,7 +39,7 @@ renv_abi_check <- function(packages = NULL,
   }
 
   # combine everything together
-  tbl <- lbind(data)
+  tbl <- bind(data)
 
   # make reports for each different type
   reasons <- unique(tbl$reason)

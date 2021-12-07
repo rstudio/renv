@@ -450,7 +450,7 @@ renv_cache_diagnose <- function(verbose = NULL) {
   paths <- renv_cache_diagnose_bad_hash(paths, problems, verbose)
   paths <- renv_cache_diagnose_wrong_built_version(paths, problems, verbose)
 
-  invisible(lbind(problems$data()))
+  invisible(bind(problems$data()))
 
 }
 
