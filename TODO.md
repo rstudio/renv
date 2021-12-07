@@ -152,3 +152,9 @@
 
 - [x] Warn when installing a package currently loaded? (so that user
       knows they must restart R to get newly-installed package)
+
+- [ ] Implement a smarter static analysis scheme that can handle simple
+      variable assignments. Do this by implementing our own shims for
+      some common functions (assignment, control flow, etc) with only
+      a very small subset of base symbols defined (e.g. "c" and "list").
+      
