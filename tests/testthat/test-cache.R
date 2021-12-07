@@ -177,6 +177,29 @@ test_that("invalid Built field is detected", {
 
 })
 
+test_that("renv uses LinkingTo chain in hashes", {
+
+  renv_scope_envvars(RENV_PATHS_CACHE = tempdir())
+  renv_scope_options(renv.config.filebacked.cache = FALSE)
+  renv_tests_scope("lunch")
+  init()
+
+  # compute the hash for 'lunch'
+  descpath <- system.file("DESCRIPTION", package = "lunch")
+  oldhash <- renv_hash_description(descpath)
+
+  # install an older version of a dependency
+  install("breakfast@0.1.0")
+
+  # compute the hash again for 'lunch'
+  descpath <- system.file("DESCRIPTION", package = "lunch")
+  newhash <- renv_hash_description(descpath)
+
+  # ensure they're different now
+  expect_false(oldhash == newhash)
+
+})
+
 # test_that("multiple cache directories are used", {
 #   skip_on_cran()
 #   skip_on_os("windows") # setting folder permissions is a bit more complex on windows

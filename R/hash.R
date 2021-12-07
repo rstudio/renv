@@ -9,6 +9,7 @@ renv_hash_description <- function(path) {
 
 renv_hash_description_impl <- function(path) {
 
+  # read DESCRIPTION file
   dcf <- renv_description_read(path)
 
   # include default fields
@@ -29,10 +30,14 @@ renv_hash_description_impl <- function(path) {
     subsetted[sort(names(subsetted))]
   })
 
-  # write to tempfile (use binary connection to ensure unix-style
-  # newlines for cross-platform hash stability)
-  tempfile <- tempfile("renv-description-hash-")
-  contents <- paste(names(ordered), ordered, sep = ": ", collapse = "\n")
+  # include hashes for LinkingTo packages
+  recurse <- renv_hash_description_impl_recurse(dcf)
+
+  # start building character string for hashing
+  contents <- c(
+    paste(names(ordered), ordered, sep = ": ", collapse = "\n"),
+    recurse
+  )
 
   # remove whitespace -- it's possible that tools (e.g. Packrat) that
   # mutate a package's DESCRIPTION file may also inadvertently change
@@ -43,8 +48,9 @@ renv_hash_description_impl <- function(path) {
   # configured based on the 'width' option)
   contents <- gsub("[[:space:]]", "", contents)
 
-  # create the file connection (use binary so that unix newlines are used
-  # across platforms, for more stable hashing)
+  # write to tempfile (use binary connection to ensure unix-style
+  # newlines for cross-platform hash stability)
+  tempfile <- tempfile("renv-description-hash-")
   con <- file(tempfile, open = "wb")
 
   # write to the file
@@ -56,7 +62,7 @@ renv_hash_description_impl <- function(path) {
   # close the connection and remove the file
   close(con)
 
-  # ready for hasing
+  # ready for hashing
   hash <- unname(tools::md5sum(tempfile))
 
   # remove the old file
@@ -77,5 +83,28 @@ renv_hash_description_remotes <- function(dcf) {
     return(character())
 
   grep("^Remote", names(dcf), value = TRUE)
+
+}
+
+renv_hash_description_impl_recurse <- function(dcf, fields = "LinkingTo") {
+
+  # retrieve entries we care about
+  entries <- paste(keep(dcf, fields), collapse = ", ")
+  if (!nzchar(entries))
+    return(NULL)
+
+  # set sorted list of packages
+  data <- renv_description_parse_field(entries)
+  packages <- local({
+    renv_scope_locale("LC_COLLATE", "C")
+    sort(unique(data$Package))
+  })
+
+  # compute hashes recursively
+  map_chr(packages, function(package) {
+    descpath <- system.file("DESCRIPTION", package = package)
+    if (file.exists(descpath))
+      renv_hash_description(descpath)
+  }, USE.NAMES = FALSE)
 
 }
