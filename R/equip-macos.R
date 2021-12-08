@@ -55,10 +55,13 @@ renv_equip_macos_sdk <- function() {
 
 renv_equip_macos_toolchain <- function() {
 
+  if (getRversion() >= "4.1.0")
+    return()
+
   spec <- renv_equip_macos_spec()
   if (is.null(spec)) {
     fmt <- "no known toolchain recorded in renv for R %s"
-    warningf(fmt, version)
+    warningf(fmt, getRversion())
     return(FALSE)
   }
 
