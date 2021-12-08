@@ -9,14 +9,15 @@ test_that("history() on an example git repository works", {
   renv_tests_scope()
   snapshot()
 
-  system(
-    "git init --quiet && git add -A && git commit --quiet -m 'initial commit'",
-    ignore.stdout = TRUE,
-    ignore.stderr = TRUE
-  )
+  # try initializing a simple git repository
+  renv_system_exec("git", c("init", "--quiet"), action = "git init")
+  renv_system_exec("git", c("add", "-A"), action = "git add files")
+  renv_system_exec("git", c("commit", "-m", shQuote("initial commit")))
 
+  # retrieve history
   hist <- history()
 
+  # check that it worked
   expect_true(nrow(hist) == 1L)
   expect_equal(hist$subject, "initial commit")
 
