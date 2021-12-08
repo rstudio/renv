@@ -15,6 +15,11 @@ renv_pak_init <- function(library, type, rebuild, project) {
 
 renv_pak_install <- function(packages, library) {
 
+  if (config$rspm.enabled()) {
+    repos <- renv_rspm_repos()
+    renv_scope_options(repos = repos)
+  }
+
   pak <- renv_namespace_load("pak")
   pak$pkg_install(
     pkg     = unlist(packages, use.names = FALSE),

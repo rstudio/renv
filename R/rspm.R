@@ -220,3 +220,17 @@ renv_rspm_enabled <- function() {
 renv_rspm_url <- function() {
   getOption("renv.rspm.url", "https://packagemanager.rstudio.com/cran/latest")
 }
+
+renv_rspm_repos <- function(repos = getOption("repos")) {
+
+  # retrieve current repositories
+  repos <- as.list(repos)
+
+  # add in the public package manager if unset
+  if (!"RSPM" %in% names(repos))
+    repos <- c(RSPM = renv_rspm_url(), repos)
+
+  # return transformed repos
+  renv_rspm_transform(repos)
+
+}

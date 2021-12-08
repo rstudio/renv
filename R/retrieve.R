@@ -15,17 +15,9 @@ retrieve <- function(packages) {
   options(repos = renv_repos_normalize())
 
   # transform repository URLs for RSPM
-  if (renv_rspm_enabled()) {
-
-    # retrieve current repositories
-    repos <- as.list(getOption("repos"))
-
-    # add in the public package manager if unset
-    if (!"RSPM" %in% names(repos))
-      repos <- c(RSPM = renv_rspm_url(), repos)
-
-    renv_scope_options(repos = renv_rspm_transform(repos))
-
+  if (config$rspm.enabled()) {
+    repos <- renv_rspm_repos()
+    renv_scope_options(repos = repos)
   }
 
   # ensure HTTPUserAgent is set (required for RSPM binaries)
