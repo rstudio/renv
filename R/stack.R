@@ -34,6 +34,14 @@ stack <- function(mode = "list") {
       length(.data) == 0
     },
 
+    get = function(index) {
+      if (index <= length(.data)) .data[[index]]
+    },
+
+    set = function(index, value) {
+      .data[[index]] <<- value
+    },
+
     clear = function() {
       .data <<- list()
     },

@@ -13,7 +13,10 @@ renv_available_packages <- function(type, repos = NULL, limit = NULL, quiet = FA
   # since those could effect (or even re-direct?) repository URLs
   envkeys <- c("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY")
   envvals <- Sys.getenv(envkeys, unset = NA)
-  key <- list(repos = repos, type = type, envvals)
+
+  # invalidate the cache if 'renv.download.headers' changes as well
+  headers <- getOption("renv.download.headers")
+  key <- list(repos = repos, type = type, headers = headers, envvals)
 
   timecache(
     key     = key,

@@ -1,7 +1,7 @@
 
 # tools for caching a value that should expire after
 # some period of time
-`_renv_timecache` <- new.env(parent = emptyenv())
+`_renv_timecache` <- stack(mode = "list")
 
 timecache <- function(key, value, limit = 3600, timeout = NULL) {
 
@@ -15,7 +15,8 @@ timecache <- function(key, value, limit = 3600, timeout = NULL) {
 
   # if the entry is null, this is our first time setting the cache
   if (is.null(entry)) {
-    entry <- renv_timecache_set(key, value)
+    entry <- renv_timecache_entry(key, value)
+    renv_timecache_set(entry)
     return(entry$value)
   }
 
@@ -28,26 +29,42 @@ timecache <- function(key, value, limit = 3600, timeout = NULL) {
     tryCatch(timeout(key), error = warning)
 
   # update the cache
-  entry <- renv_timecache_set(key, value)
+  entry <- renv_timecache_entry(key, value)
+  renv_timecache_set(entry)
+
+  # return entry value
   entry$value
 
 }
 
+# returns the index of an existing cache entry (if any),
+# or an index at which a new element could be inserted
+renv_timecache_index <- function(key) {
+
+  data <- `_renv_timecache`$data()
+
+  for (index in seq_along(data)) {
+    entry <- data[[index]]
+    if (identical(key, entry$key))
+      return(index)
+  }
+
+  length(data) + 1L
+
+}
+
 renv_timecache_get <- function(key) {
-  id <- renv_deparse(key)
-  if (exists(id, envir = `_renv_timecache`))
-    get(id, envir = `_renv_timecache`, inherits = FALSE)
+  index <- renv_timecache_index(key)
+  `_renv_timecache`$get(index)
 }
 
-renv_timecache_set <- function(key, value) {
-  id <- renv_deparse(key)
-  entry <- renv_timecache_entry(value)
-  assign(id, entry, envir = `_renv_timecache`, inherits = FALSE)
-  entry
+renv_timecache_set <- function(entry) {
+  index <- renv_timecache_index(entry$key)
+  `_renv_timecache`$set(index, entry)
 }
 
-renv_timecache_entry <- function(value) {
-  list(time = Sys.time(), value = value)
+renv_timecache_entry <- function(key, value) {
+  list(time = Sys.time(), key = key, value = value)
 }
 
 renv_timecache_expired <- function(entry, limit) {
@@ -57,4 +74,5 @@ renv_timecache_expired <- function(entry, limit) {
     return(TRUE)
 
   FALSE
+
 }
