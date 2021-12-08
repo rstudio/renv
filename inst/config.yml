@@ -282,6 +282,8 @@
   default: false
   description: >
     Load the user R profile (typically located at `~/.Rprofile`) when `renv`
-    is loaded? Consider disabling this if you require extra encapsulation in your
-    projects; e.g. if your `.Rprofile` attempts to load packages that you might not
-    install in your projects.
+    is loaded? This is disabled by default, as running arbitrary code from
+    the the user `~/.Rprofile` could risk breaking project encapsulation.
+    If your goal is to set environment variables that are visible within all
+    `renv` projects, then placing those in `~/.Renviron` is often a better
+    choice.
