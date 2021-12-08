@@ -11,6 +11,8 @@ test_that("history() on an example git repository works", {
 
   # try initializing a simple git repository
   renv_system_exec("git", c("init", "--quiet"), action = "git init")
+  renv_system_exec("git", c("config", "user.name", shQuote("User Name")), action = "git config")
+  renv_system_exec("git", c("config", "user.email", shQuote("user@example.com")), action = "git config")
   renv_system_exec("git", c("add", "-A"), action = "git add files")
   renv_system_exec("git", c("commit", "-m", shQuote("initial commit")))
 
