@@ -21,7 +21,9 @@ retrieve <- function(packages) {
     repos <- as.list(getOption("repos"))
 
     # add in the public package manager if unset
-    repos[["RSPM"]] <- repos[["RSPM"]] %||% renv_rspm_url()
+    if (!"RSPM" %in% names(repos))
+      repos <- c(RSPM = renv_rspm_url(), repos)
+
     renv_scope_options(repos = renv_rspm_transform(repos))
 
   }
