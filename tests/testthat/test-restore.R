@@ -268,3 +268,24 @@ test_that("restore works with explicit Source", {
   expect_true(renv_package_version("skeleton") == "1.0.0")
 
 })
+
+test_that("restore() restores packages with broken symlinks", {
+
+  skip_on_cran()
+  renv_scope_options(renv.settings.cache.enabled = TRUE)
+  renv_scope_options(renv.tests.verbose = FALSE)
+  renv_tests_scope("breakfast")
+  init()
+
+  # break the cache
+  record <- list(Package = "breakfast", Version = "1.0.0")
+  cachepath <- renv_cache_find(record)
+  unlink(cachepath, recursive = TRUE)
+
+  # try to restore
+  restore()
+
+  # check that we're happy again
+  expect_true(renv_package_installed("breakfast"))
+
+})

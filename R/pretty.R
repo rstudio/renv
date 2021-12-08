@@ -5,6 +5,9 @@ renv_pretty_print <- function(values,
                               emitter   = NULL,
                               wrap      = TRUE)
 {
+  if (renv_tests_running() && !renv_tests_verbose())
+    return()
+
   msg <- stack()
   if (empty(values))
     return()

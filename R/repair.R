@@ -33,7 +33,6 @@ repair <- function(library  = NULL,
   # try to find records for these packages in the lockfile
   records <- renv_repair_records(packages, lockfile, project)
 
-
   # install these records
   install(
     packages = records,
