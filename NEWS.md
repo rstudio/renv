@@ -3,6 +3,9 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* Fixed an issue where the staging library used during install could fail to
+  inherit the same directory permissions as the target library itself. (#331)
+
 * Fixed an regression which caused `renv::history()` to fail. (#886)
 
 * `renv` gains experimental support for the [pak](https://pak.r-lib.org/)

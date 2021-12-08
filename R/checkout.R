@@ -1,14 +1,14 @@
 
 #' Checkout a Repository
 #'
-#' `renv::checkout()` can be used to install and use the latest packages
-#' available from the requested repositories. This can be useful for cleaning
-#' up a library which has become a mish-mash of packages installed from a
-#' variety of disparate sources.
+#' `renv::checkout()` can be used to install the latest packages available from
+#' the requested repositories.
 #'
 #' @inheritParams renv-params
 #'
-#' @param repos The \R package repositories to check out.
+#' @param repos The \R package repositories to check out. When `NULL` (the default),
+#'   `renv` will attempt to determine the packages used in the project via
+#'   a call to [renv::dependencies()].
 #'
 #' @param packages The packages to be installed. When `NULL` (the default),
 #'   all packages currently used in the project will be installed.
@@ -19,14 +19,18 @@ checkout <- function(repos = getOption("repos"),
                      clean    = FALSE,
                      project  = NULL)
 {
-  project <- renv_project_resolve(project)
+  renv_consent_check()
+  renv_scope_error_handler()
   renv_dots_check(...)
+
+  project  <- renv_project_resolve(project)
+  renv_scope_lock(project = project)
 
   # set new repositories
   options(repos = repos)
 
   # select packages to install
-  packages <- renv_checkout_packages(project = project)
+  packages <- packages %||% renv_checkout_packages(project = project)
   names(packages) <- packages
 
   # install all of these packages, effectively attempting to update

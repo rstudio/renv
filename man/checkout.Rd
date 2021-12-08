@@ -31,7 +31,5 @@ directory is used instead.}
 }
 \description{
 \code{renv::checkout()} can be used to install and use the latest packages
-available from the requested repositories. This can be useful for cleaning
-up a library which has become a mish-mash of packages installed from a
-variety of disparate sources.
+available from the requested repositories.
 }

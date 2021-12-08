@@ -320,9 +320,25 @@ renv_install_staged_library_path_impl <- function() {
 # OneDrive and friends, and we don't want those to lock files
 # in the staging directory
 renv_install_staged_library_path <- function() {
+
+  # compute path
   path <- renv_install_staged_library_path_impl()
+
+  # create library directory
   ensure_directory(path)
+
+  # try to make sure it has the same permissions as the library itself
+  if (!renv_platform_windows()) {
+    libpath <- renv_libpaths_default()
+    umask <- Sys.umask("0")
+    on.exit(Sys.umask(umask), add = TRUE)
+    info <- file.info(libpath, extra_cols = FALSE)
+    Sys.chmod(path, info$mode)
+  }
+
+  # return the created path
   return(path)
+
 }
 
 renv_install_default <- function(records) {

@@ -427,3 +427,23 @@ test_that("packages installed from cellar via direct path", {
   expect_equal(lockfile$Packages$skeleton$Source, "Cellar")
 
 })
+
+test_that("staging library path has same permissions as library path", {
+
+  skip_on_cran()
+  skip_on_windows()
+
+  renv_tests_scope()
+
+  library <- renv_paths_library()
+  ensure_directory(library)
+  renv_scope_libpaths(library)
+
+  umask <- Sys.umask("0")
+  Sys.chmod(library, "0775")
+  Sys.umask(umask)
+
+  staging <- renv_install_staged_library_path()
+  expect_equal(file.mode(staging), file.mode(library))
+
+})

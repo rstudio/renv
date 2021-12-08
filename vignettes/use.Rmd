@@ -19,7 +19,6 @@ that include their R package requirements directly in the script itself.
 For example:
 
 ```{r eval=FALSE}
-
 # write down the set of packages required by this script
 renv::use(
   "digest",         # use the latest-available version of digest
@@ -28,7 +27,6 @@ renv::use(
 
 # use the requested packages
 digest::digest(list(answer = 42))
-
 ```
 
 Running a script with these contents will:
@@ -48,13 +46,11 @@ requested packages are automatically downloaded and installed.
 In addition, you can also supply the path to a lockfile. For example:
 
 ```{r eval=FALSE}
-
 # use a particular lockfile in the context of this script
 renv::use(lockfile = "/path/to/renv.lock")
 
 # the rest of this script will run with the packages as declared
 # in that lockfile installed into a temporary library path
-
 ```
 
 This can be useful in projects where you'd like to associate different lockfiles
