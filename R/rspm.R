@@ -216,3 +216,7 @@ renv_rspm_os <- function() {
 renv_rspm_enabled <- function() {
   config$rspm.enabled()
 }
+
+renv_rspm_url <- function() {
+  getOption("renv.rspm.url", "https://packagemanager.rstudio.com/cran/latest")
+}
