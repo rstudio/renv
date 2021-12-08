@@ -146,8 +146,8 @@ test_that("permissions, timestamps are preserved", {
   srcfiles <- list.files(source, full.names = TRUE)
   tgtfiles <- list.files(target, full.names = TRUE)
 
-  srcinfo <- file.info(srcfiles)
-  tgtinfo <- file.info(tgtfiles)
+  srcinfo <- renv_file_info(srcfiles)
+  tgtinfo <- renv_file_info(tgtfiles)
 
   rownames(srcinfo) <- rownames(tgtinfo) <- basename(srcfiles)
 
@@ -170,3 +170,34 @@ test_that("renv can list files not representable in the native encoding", {
   expect_true(evil %in% files)
 
 })
+
+test_that("renv can detect broken junctions / symlinks", {
+
+  owd <- setwd(tempdir())
+  on.exit(setwd(owd), add = TRUE)
+
+  if (renv_platform_windows()) {
+
+    dir.create("dir")
+    dir.create("nowhere")
+    Sys.junction("dir", "junction")
+    Sys.junction("nowhere", "broken")
+    unlink("nowhere", recursive = TRUE)
+
+  } else {
+
+    file.create("file")
+    dir.create("dir")
+
+    file.symlink("file", "filelink")
+    file.symlink("dir", "dirlink")
+    file.symlink("oops", "broken")
+
+  }
+
+  paths <- list.files()
+  broken <- renv_file_broken(paths)
+  expect_equal(paths[broken], "broken")
+
+})
+

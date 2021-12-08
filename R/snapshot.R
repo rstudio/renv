@@ -596,7 +596,7 @@ renv_snapshot_r_library_diagnose_broken_link <- function(library, pkgs) {
   renv_pretty_print(
     basename(pkgs)[broken],
     "The following package(s) have broken symlinks into the cache:",
-    "Consider reinstalling these packages."
+    "Use `renv::repair()` to try and reinstall these packages."
   )
 
   pkgs[!broken]

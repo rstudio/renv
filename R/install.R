@@ -332,7 +332,7 @@ renv_install_staged_library_path <- function() {
     libpath <- renv_libpaths_default()
     umask <- Sys.umask("0")
     on.exit(Sys.umask(umask), add = TRUE)
-    info <- file.info(libpath, extra_cols = FALSE)
+    info <- renv_file_info(libpath)
     Sys.chmod(path, info$mode)
   }
 
@@ -467,7 +467,7 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   path <- record$Path
 
   # for directories, we may need to use subdir to find the package path
-  info <- file.info(path, extra_cols = FALSE)
+  info <- renv_file_info(path)
   subdir <- record$RemoteSubdir %||% ""
   if (identical(info$isdir, TRUE) && nzchar(subdir)) {
     components <- c(path, subdir)
@@ -681,7 +681,7 @@ renv_install_preflight_permissions <- function(library) {
   on.exit(unlink(file, recursive = TRUE), add = TRUE)
 
   # check if we created the directory successfully
-  info <- file.info(file, extra_cols = FALSE)
+  info <- renv_file_info(file)
   if (identical(info$isdir, TRUE))
     return(TRUE)
 

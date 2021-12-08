@@ -70,7 +70,7 @@ renv_snapshot_auto_update <- function(project) {
     return(FALSE)
 
   # list files + get file info for files in project library
-  info <- file.info(libpath, extra_cols = FALSE)
+  info <- renv_file_info(libpath)
 
   # only keep relevant fields
   fields <- c("size", "mtime", "ctime")

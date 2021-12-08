@@ -304,8 +304,8 @@ renv_file_same <- function(source, target) {
   # for hard links + junction points, it's difficult to detect
   # whether the two files point to the same object; use some
   # heuristics to guess (note that these aren't perfect)
-  sinfo <- file.info(source, extra_cols = FALSE)
-  tinfo <- file.info(target, extra_cols = FALSE)
+  sinfo <- renv_file_info(source)
+  tinfo <- renv_file_info(target)
   if (!identical(c(sinfo), c(tinfo)))
     return(FALSE)
 
@@ -351,6 +351,10 @@ renv_file_backup <- function(path) {
 renv_file_normalize <- function(path, winslash = "\\", mustWork = NA) {
   parent <- renv_path_normalize(dirname(path), winslash = winslash, mustWork = mustWork)
   file.path(parent, basename(path))
+}
+
+renv_file_info <- function(paths, extra_cols = FALSE) {
+  suppressWarnings(file.info(paths, extra_cols = extra_cols))
 }
 
 # NOTE: returns true for files that are broken symlinks
@@ -440,7 +444,7 @@ renv_file_list_impl_win32 <- function(path) {
 
 renv_file_type <- function(paths, symlinks = TRUE) {
 
-  info <- file.info(paths, extra_cols = FALSE)
+  info <- renv_file_info(paths)
 
   types <- character(length(paths))
   types[info$isdir %in% FALSE] <- "file"
@@ -531,4 +535,27 @@ renv_file_shebang_impl <- function(path) {
   # read a single line from the connection
   readLines(con, n = 1L, warn = FALSE)
 
+}
+
+# here, 'broken' implies a file which is a link pointing to a file that
+# doesn't exist, so only returns true if the file is "link"-y and the
+# file it points to doesn't exist
+renv_file_broken <- function(paths) {
+  if (renv_platform_unix())
+    renv_file_broken_unix(paths)
+  else
+    renv_file_broken_win32(paths)
+}
+
+renv_file_broken_unix <- function(paths) {
+  nzchar(Sys.readlink(paths)) & !file.exists(paths)
+}
+
+renv_file_broken_win32 <- function(paths) {
+  # on Windows, broken junction points will exist as directories,
+  # but have size 0 and unknown mtime. we could further validate by
+  # checking whether we can setwd() into that directory, but that
+  # seems relatively expensive...
+  info <- renv_file_info(paths)
+  file.access(paths, 1L) == 0 & info$isdir %in% TRUE & is.na(info$mtime)
 }

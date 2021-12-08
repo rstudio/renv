@@ -3,6 +3,10 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` gains the function `repair()`, to be used to attempt to repair
+  the project library when links into the global package cache appear to
+  be broken. (#378)
+
 * Fixed an issue where the staging library used during install could fail to
   inherit the same directory permissions as the target library itself. (#331)
 

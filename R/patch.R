@@ -10,7 +10,7 @@ renv_patch_rprofile <- function() {
 
   # resolve path to user profile
   path <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
-  info <- file.info(path, extra_cols = FALSE)
+  info <- renv_file_info(path)
   if (!identical(info$isdir, FALSE))
     return(FALSE)
 
@@ -99,7 +99,7 @@ renv_patch_golem_impl <- function(...) {
       return()
 
     # skip files containing nul bytes
-    info <- file.info(file, extra_cols = FALSE)
+    info <- renv_file_info(file)
     bytes <- readBin(file, "raw", info$size)
     if (any(bytes == 0L))
       return()

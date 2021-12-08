@@ -4,7 +4,7 @@ renv_dcf_read <- function(file, ...) {
   # if the file is empty, then nothing to do (guard against NA
   # file sizes if for some reason the filesystem / OS doesn't report it)
   if (is.character(file)) {
-    info <- file.info(file, extra_cols = FALSE)
+    info <- renv_file_info(file)
     if (identical(as.numeric(info$size), 0))
       return(data.frame())
   }

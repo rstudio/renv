@@ -13,7 +13,7 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = NULL, ..
     path <- renv_path_normalize(path)
 
   # if 'path' refers to a directory, try to resolve the DESCRIPTION file
-  info <- file.info(path, extra_cols = FALSE)
+  info <- renv_file_info(path)
   if (identical(info$isdir, TRUE)) {
     components <- c(path, if (nzchar(subdir %||% "")) subdir, "DESCRIPTION")
     path <- paste(components, collapse = "/")

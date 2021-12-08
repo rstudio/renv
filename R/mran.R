@@ -223,7 +223,7 @@ renv_mran_database_refresh_required <- function() {
   }
 
   # read the file mtime
-  info <- file.info(path)
+  info <- renv_file_info(path)
   if (is.na(info$mtime))
     return(FALSE)
 

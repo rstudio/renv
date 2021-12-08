@@ -1,11 +1,20 @@
 
 renv_lockfile_resolve <- function(lockfile) {
+
   if (inherits(lockfile, "renv_lockfile_api"))
-    lockfile$data()
-  else if (is.character(lockfile))
-    renv_lockfile_read(file = lockfile)
-  else
-    lockfile
+    return(lockfile$data())
+
+  if (is.character(lockfile)) {
+    if (any(grepl("\n", lockfile)))
+      return(renv_lockfile_read(text = lockfile))
+    else if (file.exists(lockfile))
+      return(renv_lockfile_read(file = lockfile))
+    else
+      return(invisible(NULL))
+  }
+
+  lockfile
+
 }
 
 renv_lockfile_api <- function(lockfile = NULL) {

@@ -50,7 +50,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 
   # if the file already exists, compare its size with
   # the server's reported size for that file
-  info <- file.info(destfile, extra_cols = FALSE)
+  info <- renv_file_info(destfile)
   if (identical(info$isdir, FALSE)) {
     size <- renv_download_size(url, type, headers)
     if (info$size == size) {
@@ -621,7 +621,7 @@ renv_download_report <- function(elapsed, file) {
 
   time <- round(elapsed, 1)
 
-  info <- file.info(file, extra_cols = FALSE)
+  info <- renv_file_info(file)
   size <- structure(info$size, class = "object_size")
 
   fmt <- "\tOK [downloaded %s in %s]"

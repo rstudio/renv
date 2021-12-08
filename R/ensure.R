@@ -6,7 +6,7 @@ ensure_existing_path <- function(path) {
 }
 
 ensure_existing_file <- function(path) {
-  info <- file.info(path, extra_cols = FALSE)
+  info <- renv_file_info(path)
   if (is.na(info$isdir))
     stopf("no file at path '%s'", path)
   else if (identical(info$isdir, TRUE))
@@ -21,7 +21,7 @@ ensure_directory <- function(paths) {
     return(invisible(paths))
 
   # collect file info as list
-  fileinfo <- file.info(paths, extra_cols = FALSE)
+  fileinfo <- renv_file_info(paths)
   infos <- lapply(1:nrow(fileinfo), function(i) fileinfo[i, ])
 
   # check for existing files that aren't directories

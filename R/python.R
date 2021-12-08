@@ -89,7 +89,7 @@ renv_python_find_impl <- function(version, path = NULL) {
 renv_python_exe <- function(path) {
 
   # if this already looks like a Python executable, use it directly
-  info <- file.info(path, extra_cols = FALSE)
+  info <- renv_file_info(path)
   if (identical(info$isdir, FALSE) && startswith(basename(path), "python"))
     return(renv_path_canonicalize(path))
 

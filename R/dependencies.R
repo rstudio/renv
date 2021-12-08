@@ -289,7 +289,7 @@ renv_dependencies_find <- function(path = getwd(), root = getwd()) {
 renv_dependencies_find_impl <- function(path, root, depth) {
 
   # check file type
-  info <- file.info(path, extra_cols = FALSE)
+  info <- renv_file_info(path)
 
   # the file might have been removed after listing -- if so, just ignore it
   if (is.na(info$isdir))

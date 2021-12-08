@@ -11,6 +11,11 @@ renv_methods_map <- function() {
     renv_file_list_impl = c(
       unix  = "renv_file_list_impl_unix",
       win32 = "renv_file_list_impl_win32"
+    ),
+
+    renv_file_broken = c(
+      unix  = "renv_file_broken_unix",
+      win32 = "renv_file_broken_win32"
     )
 
   )

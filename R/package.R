@@ -60,7 +60,7 @@ renv_package_description_field <- function(package, field) {
 
 renv_package_type <- function(path, quiet = FALSE, default = "source") {
 
-  info <- file.info(path, extra_cols = FALSE)
+  info <- renv_file_info(path)
   if (is.na(info$isdir))
     stopf("no package at path '%s'", aliased_path(path))
 

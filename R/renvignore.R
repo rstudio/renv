@@ -140,7 +140,7 @@ renv_renvignore_exec <- function(path, root, children) {
     return(logical(length(children)))
 
   # append slashes to files which are directories
-  info <- file.info(children, extra_cols = FALSE)
+  info <- renv_file_info(children)
   dirs <- info$isdir %in% TRUE
   children[dirs] <- paste0(children[dirs], "/")
 
