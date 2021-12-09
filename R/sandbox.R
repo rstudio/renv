@@ -46,7 +46,7 @@ renv_sandbox_activate_impl <- function(project) {
   syslibs <- renv_path_normalize(syslibs, winslash = "/", mustWork = FALSE)
 
   # generate the sandbox
-  sandbox <- file.path(tempdir(), "renv-system-library")
+  sandbox <- Sys.getenv("RENV_PATHS_SANDBOX", unset = tempfile("renv-system-library-"))
   ensure_directory(sandbox)
   renv_sandbox_generate(sandbox)
 

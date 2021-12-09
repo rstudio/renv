@@ -3,6 +3,8 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* The `renv` sandbox is now disabled by default -- see #614 for more details.
+
 * `renv` gains the function `repair()`, to be used to attempt to repair
   the project library when links into the global package cache appear to
   be broken. (#378)

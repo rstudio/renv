@@ -4,7 +4,7 @@
 \alias{repair}
 \title{Repair a Project Library}
 \usage{
-repair(library = NULL, project = NULL)
+repair(library = NULL, lockfile = NULL, project = NULL)
 }
 \arguments{
 \item{library}{The \R library to be used. When \code{NULL}, the active project

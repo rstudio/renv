@@ -20,7 +20,7 @@ test_that("we can repair a broken project library", {
   # try to repair
   repair()
 
-  # validate that we re-installed it
+  # validate that we reinstalled it
   expect_true(renv_package_installed("breakfast"))
 
 })
@@ -47,7 +47,7 @@ test_that("repair() uses the package version recorded in the lockfile", {
   # try to repair
   repair()
 
-  # validate that we re-installed it
+  # validate that we reinstalled it
   expect_true(renv_package_installed("breakfast"))
   expect_true(renv_package_version("breakfast") == "0.1.0")
 

@@ -207,7 +207,7 @@
 
 - name: "sandbox.enabled"
   type: "logical[1]"
-  default: true
+  default: false
   description: >
     Enable sandboxing for `renv` projects? When active, `renv` will attempt
     to sandbox the system library, preventing non-system packages installed in the
