@@ -16,15 +16,13 @@ renv_infrastructure_write <- function(project = NULL,
 renv_infrastructure_write_profile <- function(project, profile = NULL) {
 
   path <- file.path(project, "renv/local/profile")
-  ensure_parent_directory(path)
 
   profile <- renv_profile_normalize(profile)
   if (is.null(profile))
-    unlink(path)
-  else
-    writeLines(profile, con = path)
+    return(unlink(path))
 
-  invisible(path)
+  ensure_parent_directory(profile)
+  writeLines(profile, con = path)
 
 }
 
