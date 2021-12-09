@@ -72,7 +72,10 @@ service (such as [Travis CI](https://www.travis-ci.org/)) to build and test
 your package remotely. You can use `renv` to help facilitate this testing --
 see the [Continuous Integration][ci] vignette for more information. In
 particular, clever use of the `renv` cache can help save time that might
-normally be spent on package installation.
+normally be spent on package installation. See
+<https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml>
+for an example of how `renv` uses itself for package management in its own
+CI tests.
 
 
 ## R CMD build and the Project Library

@@ -317,28 +317,27 @@ renv_use_python_virtualenv_impl_existing <- function(project,
   renv_python_virtualenv_validate(path, version)
 }
 
-#' Internal helper for activating a Python virtual environment
-#'
-#' @param project
-#'   The project directory.
-#'
-#' @param name
-#'   The environment name, if any. If unset, it should be constructed
-#'   based on the Python executable used (note: _not_ the version parameter)
-#'
-#' @param version
-#'   The _requested_ version of Python (which may not be the actual version!)
-#'   This version should be used as a hint for finding an appropriate version
-#'   of Python, if the environment needs to be re-created.
-#'
-#' @param python
-#'   The copy of Python to be used. When unset, an appropriate version of Python
-#'   should be discovered based on the `version` parameter.
-#'
-#' @return
-#'   The path to the Python binary in the associated virtual environment.
-#'
-#' @keywords internal
+# Internal helper for activating a Python virtual environment
+#
+# @param project
+#   The project directory.
+#
+# @param name
+#   The environment name, if any. If unset, it should be constructed
+#   based on the Python executable used (note: _not_ the version parameter)
+#
+# @param version
+#   The _requested_ version of Python (which may not be the actual version!)
+#   This version should be used as a hint for finding an appropriate version
+#   of Python, if the environment needs to be re-created.
+#
+# @param python
+#   The copy of Python to be used. When unset, an appropriate version of Python
+#   should be discovered based on the `version` parameter.
+#
+# @return
+#   The path to the Python binary in the associated virtual environment.
+#
 renv_use_python_virtualenv_impl <- function(project,
                                             name = NULL,
                                             version = NULL,

@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.14.0-103"
+  version <- "0.14.0-119"
 
   # the project directory
   project <- getwd()
@@ -54,6 +54,10 @@ local({
   }
 
   # load bootstrap tools   
+  `%||%` <- function(x, y) {
+    if (is.environment(x) || length(x)) x else y
+  }
+  
   bootstrap <- function(version, library) {
   
     # attempt to download renv
@@ -78,6 +82,14 @@ local({
     repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
     if (!is.na(repos))
       return(repos)
+  
+    # check for lockfile repositories
+    if (file.exists("renv.lock")) {
+      lockfile <- renv_json_read("renv.lock")
+      repos <- lockfile$R$Repositories
+      if (!is.null(repos))
+        return(repos)
+    }
   
     # if we're testing, re-use the test repositories
     if (renv_bootstrap_tests_running())
@@ -506,14 +518,28 @@ local({
     if (!is.na(path))
       return(path)
   
-    path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
-    if (!is.na(path)) {
+    path <- renv_bootstrap_library_root_impl(project)
+    if (!is.null(path)) {
       name <- renv_bootstrap_library_root_name(project)
       return(file.path(path, name))
     }
   
     prefix <- renv_bootstrap_profile_prefix()
     paste(c(project, prefix, "renv/library"), collapse = "/")
+  
+  }
+  
+  renv_bootstrap_library_root_impl <- function(project) {
+  
+    root <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
+    if (!is.na(root))
+      return(root)
+  
+    type <- renv_bootstrap_project_type(project)
+    if (identical(type, "package")) {
+      userdir <- renv_bootstrap_user_dir()
+      return(file.path(userdir, "library"))
+    }
   
   }
   
@@ -622,6 +648,152 @@ local({
       return(NULL)
   
     profile
+  
+  }
+  
+  renv_bootstrap_project_type <- function(path) {
+  
+    descpath <- file.path(path, "DESCRIPTION")
+    if (!file.exists(descpath))
+      return("unknown")
+  
+    desc <- tryCatch(
+      read.dcf(descpath, all = TRUE),
+      error = identity
+    )
+  
+    if (inherits(desc, "error"))
+      return("unknown")
+  
+    type <- desc$Type
+    if (!is.null(type))
+      return(tolower(type))
+  
+    package <- desc$Package
+    if (!is.null(package))
+      return("package")
+  
+    "unknown"
+  
+  }
+  
+  renv_bootstrap_user_dir <- function(path) {
+  
+    # use R_user_dir if available
+    tools <- asNamespace("tools")
+    if (is.function(tools$R_user_dir))
+      return(tools$R_user_dir("renv", "cache"))
+  
+    # try using our own backfill for older versions of R
+    envvars <- c("R_USER_CACHE_DIR", "XDG_CACHE_HOME")
+    for (envvar in envvars) {
+      root <- Sys.getenv(envvar, unset = NA)
+      if (!is.na(root)) {
+        path <- file.path(root, "R/renv")
+        return(path)
+      }
+    }
+  
+    # use platform-specific default fallbacks
+    if (Sys.info()[["sysname"]] == "Windows")
+      file.path(Sys.getenv("LOCALAPPDATA"), "R/cache/R/renv")
+    else if (Sys.info()[["sysname"]] == "Darwin")
+      "~/Library/Caches/org.R-project.R/R/renv"
+    else
+      "~/.cache/R/renv"
+  
+  }
+  
+  renv_json_read <- function(file = NULL, text = NULL) {
+  
+    text <- paste(text %||% read(file), collapse = "\n")
+  
+    # find strings in the JSON
+    pattern <- '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
+    locs <- gregexpr(pattern, text)[[1]]
+  
+    # if any are found, replace them with placeholders
+    replaced <- text
+    strings <- character()
+    replacements <- character()
+  
+    if (!identical(c(locs), -1L)) {
+  
+      # get the string values
+      starts <- locs
+      ends <- locs + attr(locs, "match.length") - 1L
+      strings <- substring(text, starts, ends)
+  
+      # only keep those requiring escaping
+      strings <- grep("[[\\]{}:]", strings, perl = TRUE, value = TRUE)
+  
+      # compute replacements
+      replacements <- sprintf('"\032%i\032"', seq_along(strings))
+  
+      # replace the strings
+      mapply(function(string, replacement) {
+        replaced <<- sub(string, replacement, replaced, fixed = TRUE)
+      }, strings, replacements)
+  
+    }
+  
+    # transform the JSON into something the R parser understands
+    transformed <- replaced
+    transformed <- gsub("[[{]", "list(", transformed)
+    transformed <- gsub("[]}]", ")", transformed)
+    transformed <- gsub(":", "=", transformed, fixed = TRUE)
+    text <- paste(transformed, collapse = "\n")
+  
+    # parse it
+    json <- parse(text = text, keep.source = FALSE, srcfile = NULL)[[1L]]
+  
+    # construct map between source strings, replaced strings
+    map <- as.character(parse(text = strings))
+    names(map) <- as.character(parse(text = replacements))
+  
+    # convert to list
+    map <- as.list(map)
+  
+    # remap strings in object
+    remapped <- renv_json_remap(json, map)
+  
+    # evaluate
+    eval(remapped, envir = baseenv())
+  
+  }
+  
+  renv_json_remap <- function(json, map) {
+  
+    # fix names
+    if (!is.null(names(json))) {
+      lhs <- match(names(json), names(map), nomatch = 0L)
+      rhs <- match(names(map), names(json), nomatch = 0L)
+      names(json)[rhs] <- map[lhs]
+    }
+  
+    # fix values
+    if (is.character(json))
+      return(map[[json]] %||% json)
+  
+    # handle true, false, null
+    if (is.name(json)) {
+      text <- as.character(json)
+      if (text == "true")
+        return(TRUE)
+      else if (text == "false")
+        return(FALSE)
+      else if (text == "null")
+        return(NULL)
+    }
+  
+    # recurse
+    if (is.recursive(json)) {
+      for (i in seq_along(json)) {
+        json[i] <- list(renv_json_remap(json[[i]], map))
+      }
+    }
+  
+    json
   
   }
 
