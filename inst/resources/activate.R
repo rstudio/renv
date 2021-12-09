@@ -14,9 +14,9 @@ local({
 
   if (!nzchar(activate)) {
 
-    # don't auto-activate when R CMD INSTALL is running
-    if (nzchar(Sys.getenv("R_INSTALL_PKG")))
-      return(FALSE)
+    # # don't auto-activate when R CMD INSTALL is running
+    # if (nzchar(Sys.getenv("R_INSTALL_PKG")))
+    #   return(FALSE)
 
   }
 
@@ -678,6 +678,11 @@ local({
   }
   
   renv_bootstrap_user_dir <- function(path) {
+    dir <- renv_bootstrap_user_dir_impl(path)
+    chartr("\\", "/", dir)
+  }
+  
+  renv_bootstrap_user_dir_impl <- function(path) {
   
     # use R_user_dir if available
     tools <- asNamespace("tools")

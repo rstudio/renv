@@ -14,9 +14,9 @@ local({
 
   if (!nzchar(activate)) {
 
-    # don't auto-activate when R CMD INSTALL is running
-    if (nzchar(Sys.getenv("R_INSTALL_PKG")))
-      return(FALSE)
+    # # don't auto-activate when R CMD INSTALL is running
+    # if (nzchar(Sys.getenv("R_INSTALL_PKG")))
+    #   return(FALSE)
 
   }
 
