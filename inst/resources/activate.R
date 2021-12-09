@@ -514,17 +514,18 @@ local({
   
   renv_bootstrap_library_root <- function(project) {
   
+    prefix <- renv_bootstrap_profile_prefix()
+  
     path <- Sys.getenv("RENV_PATHS_LIBRARY", unset = NA)
     if (!is.na(path))
-      return(path)
+      return(paste(c(path, prefix), collapse = "/"))
   
     path <- renv_bootstrap_library_root_impl(project)
     if (!is.null(path)) {
       name <- renv_bootstrap_library_root_name(project)
-      return(file.path(path, name))
+      return(paste(c(path, prefix, name), collapse = "/"))
     }
   
-    prefix <- renv_bootstrap_profile_prefix()
     paste(c(project, prefix, "renv/library"), collapse = "/")
   
   }
