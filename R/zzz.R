@@ -45,13 +45,20 @@ renv_zzz_bootstrap <- function() {
   source <- "templates/template-activate.R"
   target <- "inst/resources/activate.R"
 
-  bootstrap <- readLines("R/bootstrap.R")
+  # read the necessary bootstrap scripts
+  scripts <- c("R/bootstrap.R", "R/json-read.R")
+  contents <- map(scripts, readLines)
+  bootstrap <- unlist(contents)
+
+  # format nicely for insertion
   bootstrap <- paste(" ", bootstrap)
   bootstrap <- paste(bootstrap, collapse = "\n")
 
+  # replace template with bootstrap code
   template <- renv_file_read(source)
   replaced <- renv_template_replace(template, list(BOOTSTRAP = bootstrap))
 
+  # write to resources
   printf("* Generating 'inst/resources/activate.R' ... ")
   writeLines(replaced, con = target)
   writef("Done!")

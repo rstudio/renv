@@ -1,4 +1,8 @@
 
+`%||%` <- function(x, y) {
+  if (is.environment(x) || length(x)) x else y
+}
+
 bootstrap <- function(version, library) {
 
   # attempt to download renv
@@ -23,6 +27,14 @@ renv_bootstrap_repos <- function() {
   repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
   if (!is.na(repos))
     return(repos)
+
+  # check for lockfile repositories
+  if (file.exists("renv.lock")) {
+    lockfile <- renv_json_read("renv.lock")
+    repos <- lockfile$R$Repositories
+    if (!is.null(repos))
+      return(repos)
+  }
 
   # if we're testing, re-use the test repositories
   if (renv_bootstrap_tests_running())

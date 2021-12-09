@@ -20,10 +20,6 @@
 
 }
 
-`%||%` <- function(x, y) {
-  if (length(x) || is.environment(x)) x else y
-}
-
 `%""%` <- function(x, y) {
   if (length(x) && nzchar(x)) x else y
 }

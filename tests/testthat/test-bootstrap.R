@@ -60,9 +60,12 @@ test_that("bootstrap succeeds with empty repos", {
 
 test_that("bootstrap functions don't depend on non-bootstrap APIs", {
 
+  # pattern matching things that are bootstrapped for renv
+  pattern <- "^renv_(?:bootstrap|json)_"
+
   # get all of the bootstrap functions defined in renv
   renv <- asNamespace("renv")
-  keys <- grep("^renv_bootstrap_", ls(envir = renv), value = TRUE)
+  keys <- grep(pattern, ls(envir = renv), value = TRUE)
   fns <- mget(keys, envir = renv, mode = "function")
   bodies <- map(fns, body)
 
@@ -77,8 +80,8 @@ test_that("bootstrap functions don't depend on non-bootstrap APIs", {
   # check what renv APIs are used
   apis <- grep("^renv_", calls, value = TRUE)
 
-  # validate they're all renv_bootstrap_ APIs
-  ok <- grepl("^renv_bootstrap_", apis)
+  # validate they're all available
+  ok <- grepl(pattern, apis)
   expect_true(all(ok))
 
 })

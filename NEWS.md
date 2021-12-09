@@ -3,6 +3,9 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` now uses the repositories as defined within the project lockfile
+  (if any) when attempting to bootstrap itself in a project. (#820)
+
 * The `renv` sandbox is now disabled by default -- see #614 for more details.
 
 * `renv` gains the function `repair()`, to be used to attempt to repair
