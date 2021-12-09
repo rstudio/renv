@@ -177,18 +177,14 @@ renv_init_action <- function(project, library, lockfile, bioconductor) {
   case(
 
     # if both the library and lockfile exist, ask user for intended action
-    file.exists(lockfile) && file.exists(library)
+    file.exists(lockfile)
       ~ renv_init_action_conflict_lockfile(project, library, lockfile),
 
     # if a private library exists but no lockfile, ask whether we should use it
-    !file.exists(lockfile) && file.exists(library)
+    file.exists(library)
       ~ renv_init_action_conflict_library(project, library, lockfile),
 
-    # if a lockfile exists but not a library, we just want to restore
-    file.exists(lockfile) && !file.exists(library)
-      ~ "restore",
-
-    # otherwise, we juse want to initialize the project
+    # otherwise, we just want to initialize the project
     ~ "init"
 
   )
