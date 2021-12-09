@@ -279,7 +279,7 @@ renv_mran_database_sync <- function(platform, version) {
   vwritef("==> Synchronizing MRAN database (%s/%s)", platform, version)
   dates <- as.Date(seq(last + 1L, now, by = 1L), origin = "1970-01-01")
   renv_mran_database_update(platform, version, dates)
-  vwritef("Finished synchronizing MRAN database.", platform, version)
+  vwritef("Finished synchronizing MRAN database (%s/%s)", platform, version)
 
   # return TRUE to indicate update occurred
   return(TRUE)
