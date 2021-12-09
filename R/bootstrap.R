@@ -623,6 +623,11 @@ renv_bootstrap_project_type <- function(path) {
 }
 
 renv_bootstrap_user_dir <- function(path) {
+  dir <- renv_bootstrap_user_dir_impl(path)
+  chartr("\\", "/", dir)
+}
+
+renv_bootstrap_user_dir_impl <- function(path) {
 
   # use R_user_dir if available
   tools <- asNamespace("tools")

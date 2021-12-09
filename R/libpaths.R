@@ -69,7 +69,7 @@ renv_libpaths_safe_impl <- function(libpath) {
   # check for an unsafe library path
   unsafe <-
     Encoding(libpath) == "UTF-8" ||
-    grepl("[&\\<>^|'\"]", libpath)
+    grepl("[&<>^|'\"]", libpath)
 
   # if the path appears safe, use it as-is
   if (!unsafe)
@@ -134,8 +134,8 @@ renv_libpaths_safe_userlib <- function(libpath) {
 
 renv_libpaths_set <- function(libpaths) {
   oldlibpaths <- .libPaths()
-  libpaths <- renv_libpaths_safe(libpaths)
-  .libPaths(libpaths)
+  safepaths <- renv_libpaths_safe(libpaths)
+  .libPaths(safepaths)
   oldlibpaths
 }
 

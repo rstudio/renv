@@ -254,8 +254,13 @@ renv_tests_init_packages_load_impl <- function(package, envir) {
     return()
 
   # try to load the package
-  if (!package %in% loadedNamespaces())
-    loadNamespace(package)
+  if (!package %in% loadedNamespaces()) {
+    if (!requireNamespace(package, quietly = TRUE)) {
+      fmt <- "Failed to load package '%s' (required for testing)"
+      writef(fmt, package)
+      return()
+    }
+  }
 
   # try to find this package
   pkgpath <- renv_package_find(package)

@@ -171,10 +171,9 @@ renv_paths_root_default_impl <- function() {
 renv_paths_root_default_impl_v2 <- function() {
 
   # try using tools to get the user directory
-  tools <- asNamespace("tools")
-  path <- catch(tools$R_user_dir("renv", which = "cache"))
-  if (!inherits(path, "error"))
-    return(path)
+  tools <- renv_namespace_load("tools")
+  if (is.function(tools$R_user_dir))
+    return(tools$R_user_dir("renv", "cache"))
 
   renv_paths_root_default_impl_v2_fallback()
 
