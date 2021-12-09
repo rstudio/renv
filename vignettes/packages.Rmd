@@ -79,19 +79,28 @@ normally be spent on package installation.
 
 By default, when building a package tarball, R will copy all files within the
 package directory to a temporary build directory before building the package.
-Unfortunately, this also implies copying the `renv` library. When that library
-is large, this can dramatically increase the amount of time it takes to build
-your package.
+This can be time consuming if your project contains a large number of files.
+For this reason, `renv` places the project library for package projects within
+a separate external directory by default. This directory is:
 
-One way to resolve this issue is to force `renv` to use a library path that
-lives outside of your project. For example, you might set the following in
-a start-up `.Renviron` file:
+```
+tools::R_user_dir("renv/library", "cache")
+```
+
+If you want to use your own custom path, you can use, for example:
 
 ```
 RENV_PATHS_LIBRARY_ROOT = ~/.renv/library
 ```
 
-`renv` will then form library paths within this directory.
+If you'd prefer to keep your project library within the project directory,
+you can instead set:
+
+```
+RENV_PATHS_LIBRARY = renv/library
+```
+
+within an appropriate `.Renviron` startup profile.
 
 By default, library paths will be formed using the project name, alongside a
 unique identifier generated from the full project path. These paths are of

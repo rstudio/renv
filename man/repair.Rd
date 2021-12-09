@@ -10,6 +10,10 @@ repair(library = NULL, lockfile = NULL, project = NULL)
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}
 
+\item{lockfile}{The path to a lockfile (if any). When available, \code{renv}
+will use the lockfile when attempting to infer the remote associated
+with the inaccessible version of each missing package.}
+
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}

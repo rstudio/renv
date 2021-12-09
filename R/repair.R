@@ -6,6 +6,10 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param lockfile The path to a lockfile (if any). When available, `renv`
+#'   will use the lockfile when attempting to infer the remote associated
+#'   with the inaccessible version of each missing package.
+#'
 #' @export
 repair <- function(library  = NULL,
                    lockfile = NULL,

@@ -1,5 +1,5 @@
 
-renv_envvars <- function() {
+renv_envvars_list <- function() {
   c(
     "R_PROFILE", "R_PROFILE_USER",
     "R_ENVIRON", "R_ENVIRON_USER",
@@ -10,7 +10,7 @@ renv_envvars <- function() {
 renv_envvars_save <- function() {
 
   # save the common set of environment variables
-  keys <- renv_envvars()
+  keys <- renv_envvars_list()
   vals <- Sys.getenv(keys, unset = "<NA>")
 
   # check for defaults that have already been set
@@ -33,8 +33,8 @@ renv_envvars_restore <- function() {
   Sys.unsetenv("RENV_PROJECT")
 
   # read defaults
-  keys <- renv_envvars()
-  defkeys <- paste("RENV_DEFAULT", renv_envvars(), sep = "_")
+  keys <- renv_envvars_list()
+  defkeys <- paste("RENV_DEFAULT", renv_envvars_list(), sep = "_")
   defvals <- Sys.getenv(defkeys, unset = "<NA>")
 
   # remove previously-unset environment variables
@@ -56,6 +56,8 @@ renv_envvars_restore <- function() {
 
 renv_envvars_init <- function() {
 
+  renv_envvars_normalize()
+
   if (renv_platform_macos()) {
 
     # set SDKROOT so older R installations can find command line tools
@@ -65,5 +67,23 @@ renv_envvars_init <- function() {
       Sys.setenv(SDKROOT = sdk)
 
   }
+
+}
+
+renv_envvars_normalize <- function() {
+
+  Sys.setenv(R_LIBS_SITE = .expand_R_libs_env_var(Sys.getenv("R_LIBS_SITE")))
+  Sys.setenv(R_LIBS_USER = .expand_R_libs_env_var(Sys.getenv("R_LIBS_USER")))
+
+  envvars <- Sys.getenv()
+
+  keys <- grep("^RENV_PATHS_", names(envvars), value = TRUE)
+  keys <- setdiff(keys, c("RENV_PATHS_PREFIX", "RENV_PATHS_PREFIX_AUTO"))
+
+  if (empty(keys))
+    return(character())
+
+  args <- lapply(envvars[keys], renv_path_normalize)
+  do.call(Sys.setenv, args)
 
 }

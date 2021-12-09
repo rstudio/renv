@@ -463,14 +463,28 @@ renv_bootstrap_library_root <- function(project) {
   if (!is.na(path))
     return(path)
 
-  path <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
-  if (!is.na(path)) {
+  path <- renv_bootstrap_library_root_impl(project)
+  if (!is.null(path)) {
     name <- renv_bootstrap_library_root_name(project)
     return(file.path(path, name))
   }
 
   prefix <- renv_bootstrap_profile_prefix()
   paste(c(project, prefix, "renv/library"), collapse = "/")
+
+}
+
+renv_bootstrap_library_root_impl <- function(project) {
+
+  root <- Sys.getenv("RENV_PATHS_LIBRARY_ROOT", unset = NA)
+  if (!is.na(root))
+    return(root)
+
+  type <- renv_bootstrap_project_type(project)
+  if (identical(type, "package")) {
+    userdir <- renv_bootstrap_user_dir()
+    return(file.path(userdir, "library"))
+  }
 
 }
 
@@ -579,5 +593,58 @@ renv_bootstrap_profile_normalize <- function(profile) {
     return(NULL)
 
   profile
+
+}
+
+renv_bootstrap_project_type <- function(path) {
+
+  descpath <- file.path(path, "DESCRIPTION")
+  if (!file.exists(descpath))
+    return("unknown")
+
+  desc <- tryCatch(
+    read.dcf(descpath, all = TRUE),
+    error = identity
+  )
+
+  if (inherits(desc, "error"))
+    return("unknown")
+
+  type <- desc$Type
+  if (!is.null(type))
+    return(tolower(type))
+
+  package <- desc$Package
+  if (!is.null(package))
+    return("package")
+
+  "unknown"
+
+}
+
+renv_bootstrap_user_dir <- function(path) {
+
+  # use R_user_dir if available
+  tools <- asNamespace("tools")
+  if (is.function(tools$R_user_dir))
+    return(tools$R_user_dir("renv", "cache"))
+
+  # try using our own backfill for older versions of R
+  envvars <- c("R_USER_CACHE_DIR", "XDG_CACHE_HOME")
+  for (envvar in envvars) {
+    root <- Sys.getenv(envvar, unset = NA)
+    if (!is.na(root)) {
+      path <- file.path(root, "R/renv")
+      return(path)
+    }
+  }
+
+  # use platform-specific default fallbacks
+  if (Sys.info()[["sysname"]] == "Windows")
+    file.path(Sys.getenv("LOCALAPPDATA"), "R/cache/R/renv")
+  else if (Sys.info()[["sysname"]] == "Darwin")
+    "~/Library/Caches/org.R-project.R/R/renv"
+  else
+    "~/.cache/R/renv"
 
 }

@@ -27,6 +27,14 @@ renv_path_normalize_unix <- function(path,
                                      winslash = "/",
                                      mustWork = FALSE)
 {
+  # force paths to be absolute
+  bad <- !map_lgl(path, renv_path_absolute)
+  if (any(bad)) {
+    prefix <- normalizePath(".", winslash = winslash)
+    path[bad] <- paste(prefix, path[bad], sep = winslash)
+  }
+
+  # normalize the expanded paths
   normalizePath(path, winslash, mustWork)
 }
 
@@ -58,7 +66,7 @@ renv_path_normalize_win32 <- function(path,
   # see the NOTE above, this workaround is only necessary for R < 4.0.0,
   # and it complicates things unnecessarily
   if (getRversion() >= "4.0.0")
-    return(normalizePath(path, winslash, mustWork))
+    return(renv_path_normalize_unix(path, winslash, mustWork))
 
   # get encoding for this set of paths
   enc <- Encoding(path)

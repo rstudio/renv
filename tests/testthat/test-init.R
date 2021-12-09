@@ -154,3 +154,16 @@ test_that("init() works in path containing accented characters", {
   expect_true(!is.null(lockfile$Packages$toast))
 
 })
+
+test_that("we use an external library path for package projects", {
+
+  renv_tests_scope()
+
+  writeLines("Type: Package", con = "DESCRIPTION")
+  init()
+
+  library <- renv_libpaths_default()
+  userdir <- renv_bootstrap_user_dir()
+  expect_true(renv_path_within(library, userdir))
+
+})

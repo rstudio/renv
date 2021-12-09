@@ -63,13 +63,7 @@ renv_project_initialized <- function(project) {
 }
 
 renv_project_type <- function(path) {
-
-  descpath <- file.path(path, "DESCRIPTION")
-  if (!file.exists(descpath))
-    return("unknown")
-
-  renv_description_type(descpath)
-
+  renv_bootstrap_project_type(path)
 }
 
 renv_project_remotes <- function(project) {

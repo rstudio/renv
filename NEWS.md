@@ -3,6 +3,12 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` now uses an external library by default for R package projects,
+  with the library located within `tools::R_user_dir("renv", "cache")`.
+  This directory can be configured via the `RENV_PATHS_LIBRARY_ROOT`
+  environment variable if desired. See
+  `vignette("packages", package = "renv")` for more details. (#384)
+
 * `renv` now uses the repositories as defined within the project lockfile
   (if any) when attempting to bootstrap itself in a project. (#820)
 

@@ -25,3 +25,14 @@ test_that("renv_path_absolute() reports common absolute paths", {
     expect_false(renv_path_absolute(path))
 
 })
+
+test_that("renv_path_normalize() normalizes relative paths that don't exist", {
+
+  prefix <- normalizePath(".", winslash = "/", mustWork = TRUE)
+  path <- "i/dont/exist"
+
+  actual <- renv_path_normalize(path)
+  expected <- paste(prefix, "i/dont/exist", sep = "/")
+  expect_equal(actual, expected)
+
+})

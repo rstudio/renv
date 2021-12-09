@@ -223,25 +223,6 @@ renv_paths_root_default_tempdir <- function() {
 
 # nocov end
 
-renv_paths_init <- function() {
-  renv_paths_init_envvars()
-}
-
-renv_paths_init_envvars <- function() {
-
-  envvars <- Sys.getenv()
-
-  keys <- grep("^RENV_PATHS_", names(envvars), value = TRUE)
-  keys <- setdiff(keys, c("RENV_PATHS_PREFIX", "RENV_PATHS_PREFIX_AUTO"))
-
-  if (empty(keys))
-    return(character())
-
-  args <- lapply(envvars[keys], normalizePath, winslash = "/", mustWork = FALSE)
-  do.call(Sys.setenv, args)
-
-}
-
 #' Path Customization
 #'
 #' Access the paths that `renv` uses for global state storage.
