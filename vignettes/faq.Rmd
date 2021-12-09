@@ -165,6 +165,8 @@ approach:
    packages, to generate a new lockfile.
 
 
+<!--
+
 ## Why aren't packages installed in the system library visible in my renv projects?
 
 By default, `renv` generates a "sandboxed" version of the system library,
@@ -179,6 +181,7 @@ RENV_CONFIG_SANDBOX_ENABLED = FALSE
 in an appropriate `.Renviron` file. See the entry for
 `renv.config.sandbox.enabled` in `?renv::config` for more details.
 
+-->
 
 ## Why are package downloads failing?
 
