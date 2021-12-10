@@ -165,11 +165,11 @@ test_that("RENV_PATHS_RENV is respected on init", {
     expect_true(file.exists(".renv/renv.lock"))
   })
 
-  code <- shcode({
+  script <- renv_test_code({
     writeLines(Sys.getenv("RENV_PATHS_RENV"))
   })
 
-  args <- c("-s", "-e", code)
+  args <- c("-s", "-f", script)
   renv <- local({
     renv_scope_envvars(R_PROFILE_USER = NULL)
     renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
