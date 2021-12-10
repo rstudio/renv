@@ -8,6 +8,15 @@
     that calls to `renv::snapshot()` and `renv::restore()` use the project
     library. See `?renv::activate` for more details.
 
+- name: "autoloader.enabled"
+  type: "logical[1]"
+  default: true
+  description: >
+    Enable the `renv` auto-loader? When `FALSE`, `renv` will not not
+    automatically load a project containing an `renv` autoloader within
+    its `.Rprofile`. In addition, `renv` will not write out the project
+    auto-loader in calls to `renv::init()`.
+
 - name: "auto.snapshot"
   type: "logical[1]"
   default: false

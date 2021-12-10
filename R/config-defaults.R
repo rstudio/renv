@@ -14,6 +14,15 @@ config <- list(
     )
   },
 
+  autoloader.enabled = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "autoloader.enabled",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   auto.snapshot = function(..., default = FALSE) {
     renv_config_get(
       name    = "auto.snapshot",
@@ -221,7 +230,7 @@ config <- list(
     )
   },
 
-  sandbox.enabled = function(..., default = TRUE) {
+  sandbox.enabled = function(..., default = FALSE) {
     renv_config_get(
       name    = "sandbox.enabled",
       type    = "logical[1]",

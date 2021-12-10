@@ -82,6 +82,7 @@ renv_tests_init_envvars <- function() {
   Sys.unsetenv("RENV_PATHS_ROOT")
   Sys.unsetenv("RENV_PATHS_LIBRARY")
   Sys.unsetenv("RENV_PATHS_LIBRARY_ROOT")
+  Sys.unsetenv("RENV_PATHS_RENV")
 
   Sys.unsetenv("RENV_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON")

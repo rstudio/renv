@@ -149,3 +149,32 @@ test_that("we use an external library path for package projects", {
   )
 
 })
+
+test_that("RENV_PATHS_RENV is respected on init", {
+
+  skip_on_cran()
+
+  renv_tests_scope()
+  renv_scope_envvars(RENV_PATHS_LOCKFILE = ".renv/renv.lock")
+
+  local({
+    renv_scope_envvars(RENV_PATHS_RENV = ".renv")
+    args <- c("-s", "-e", shcode(renv::init()))
+    renv_system_exec(R(), args, action = "renv::init()")
+    expect_true(file.exists(".renv"))
+    expect_true(file.exists(".renv/renv.lock"))
+  })
+
+  code <- shcode({
+    writeLines(Sys.getenv("RENV_PATHS_RENV"))
+  })
+
+  args <- c("-s", "-e", code)
+  renv <- local({
+    renv_scope_envvars(R_PROFILE_USER = NULL)
+    renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
+  })
+
+  expect_equal(renv, ".renv")
+
+})

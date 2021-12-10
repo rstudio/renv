@@ -15,21 +15,27 @@ renv_infrastructure_write <- function(project = NULL,
 
 renv_infrastructure_write_profile <- function(project, profile = NULL) {
 
-  path <- file.path(project, "renv/local/profile")
-
+  path <- renv_paths_renv("profile", project = project)
   profile <- renv_profile_normalize(profile)
   if (is.null(profile))
     return(unlink(path))
 
-  ensure_parent_directory(profile)
+  ensure_parent_directory(path)
   writeLines(profile, con = path)
 
 }
 
 renv_infrastructure_write_rprofile <- function(project) {
 
+  if (!config$autoloader.enabled())
+    return()
+
+  # NOTE: intentionally leave project NULL to compute relative path
+  path <- renv_paths_renv("activate.R", project = NULL)
+  add <- sprintf("source(%s)", renv_json_quote(path))
+
   renv_infrastructure_write_entry_impl(
-    add    = "source(\"renv/activate.R\")",
+    add    = add,
     remove = character(),
     file   = file.path(project, ".Rprofile"),
     create = TRUE
@@ -73,7 +79,7 @@ renv_infrastructure_write_gitignore <- function(project) {
   renv_infrastructure_write_entry_impl(
     add    = as.character(add$data()),
     remove = as.character(remove$data()),
-    file   = file.path(project, "renv/.gitignore"),
+    file   = renv_paths_renv(".gitignore", project = project),
     create = TRUE
   )
 
@@ -87,7 +93,7 @@ renv_infrastructure_write_activate <- function(project = NULL,
   version <- version %||% renv_activate_version(project)
 
   source <- system.file("resources/activate.R", package = "renv")
-  target <- file.path(project, "renv/activate.R")
+  target <- renv_paths_renv("activate.R", project = project)
 
   if (!create && !file.exists(target))
     return(FALSE)
@@ -173,8 +179,12 @@ renv_infrastructure_remove <- function(project = NULL) {
 
 renv_infrastructure_remove_rprofile <- function(project) {
 
+  # NOTE: intentionally leave project NULL to compute relative path
+  path <- renv_paths_renv("activate.R", project = NULL)
+  line <- sprintf("source(%s)", renv_json_quote(path))
+
   renv_infrastructure_remove_entry_impl(
-    line      = "source(\"renv/activate.R\")",
+    line      = line,
     file      = file.path(project, ".Rprofile"),
     removable = TRUE
   )

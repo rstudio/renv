@@ -277,12 +277,16 @@ renv_scope_git_auth <- function(.envir = NULL) {
 
   .envir <- .envir %||% parent.frame()
 
-  # TODO: not yet implemented for Windows
+  # try and tell git to be non-interactive
+  renv_scope_envvars(
+    GIT_TERMINAL_PROMPT = "0",
+    GIT_ASKPASS         = "/bin/echo",
+    .envir              = .envir
+  )
+
+  # TODO: rest is not yet implemented for Windows
   if (renv_platform_windows())
     return(FALSE)
-
-  # try and tell git to be non-interactive
-  renv_scope_envvars(GIT_TERMINAL_PROMPT = "0")
 
   # use GIT_PAT when provided
   pat <- Sys.getenv("GIT_PAT", unset = NA)

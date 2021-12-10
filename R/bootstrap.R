@@ -471,7 +471,8 @@ renv_bootstrap_library_root <- function(project) {
     return(paste(c(path, prefix, name), collapse = "/"))
   }
 
-  paste(c(project, prefix, "renv/library"), collapse = "/")
+  renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
+  paste(c(project, prefix, renv, "library"), collapse = "/")
 
 }
 
@@ -551,7 +552,8 @@ renv_bootstrap_profile_load <- function(project) {
     return(profile)
 
   # check for a profile file (nothing to do if it doesn't exist)
-  path <- file.path(project, "renv/local/profile")
+  renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
+  path <- file.path(project, renv, "profile")
   if (!file.exists(path))
     return(NULL)
 
@@ -571,8 +573,10 @@ renv_bootstrap_profile_load <- function(project) {
 
 renv_bootstrap_profile_prefix <- function() {
   profile <- renv_bootstrap_profile_get()
-  if (!is.null(profile))
-    return(file.path("renv/profiles", profile))
+  if (!is.null(profile)) {
+    renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
+    return(file.path(renv, "profiles", profile))
+  }
 }
 
 renv_bootstrap_profile_get <- function() {

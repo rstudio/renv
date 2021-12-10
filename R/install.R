@@ -283,7 +283,7 @@ renv_install_staged_library_path_impl <- function() {
   root <- if (!is.na(staging))
     staging
   else if (!is.na(project))
-    file.path(project, "renv/staging")
+    renv_paths_renv("staging", project = project)
   else
     file.path(libpath, ".renv")
 

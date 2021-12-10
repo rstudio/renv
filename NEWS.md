@@ -3,6 +3,11 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* The path to the project-local `renv` folder can now be configured
+  via the `RENV_PATHS_RENV` environment variable. This can be useful
+  if you'd prefer to store your project's `renv` resources within
+  an alternate location in the project. (#472)
+  
 * `renv` now uses an external library by default for R package projects,
   with the library located within `tools::R_user_dir("renv", "cache")`.
   This directory can be configured via the `RENV_PATHS_LIBRARY_ROOT`

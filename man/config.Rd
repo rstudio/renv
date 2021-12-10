@@ -5,7 +5,7 @@
 \alias{config}
 \title{User-Level Configuration of renv}
 \format{
-An object of class \code{list} of length 33.
+An object of class \code{list} of length 34.
 }
 \usage{
 config
@@ -48,6 +48,8 @@ own \verb{~/.Renviron}, or in the R installation's \code{etc/Rprofile.site} file
 The following \code{renv} configuration options are available:
 
 \subsection{renv.config.activate.prompt}{Automatically prompt the user to activate the current project, if it does not appear to already be activated? This is mainly useful to help ensure that calls to \code{renv::snapshot()} and \code{renv::restore()} use the project library. See \code{?renv::activate} for more details.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.autoloader.enabled}{Enable the \code{renv} auto-loader? When \code{FALSE}, \code{renv} will not not automatically load a project containing an \code{renv} autoloader within its \code{.Rprofile}. In addition, \code{renv} will not write out the project auto-loader in calls to \code{renv::init()}.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.auto.snapshot}{Automatically snapshot changes to the project library after a new package is installed?
 Defaults to \code{FALSE}.}

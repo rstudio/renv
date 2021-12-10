@@ -75,11 +75,11 @@ renv_envvars_normalize <- function() {
   Sys.setenv(R_LIBS_SITE = .expand_R_libs_env_var(Sys.getenv("R_LIBS_SITE")))
   Sys.setenv(R_LIBS_USER = .expand_R_libs_env_var(Sys.getenv("R_LIBS_USER")))
 
-  envvars <- Sys.getenv()
+  envvars <- as.list(Sys.getenv())
 
   keys <- grep("^RENV_PATHS_", names(envvars), value = TRUE)
-  keys <- setdiff(keys, c("RENV_PATHS_PREFIX", "RENV_PATHS_PREFIX_AUTO"))
-
+  ignore <- c("RENV_PATHS_PREFIX", "RENV_PATHS_PREFIX_AUTO", "RENV_PATHS_RENV")
+  keys <- setdiff(keys, ignore)
   if (empty(keys))
     return(character())
 

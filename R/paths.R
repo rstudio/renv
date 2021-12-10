@@ -60,15 +60,31 @@ renv_paths_library <- function(..., project = NULL) {
 }
 
 renv_paths_lockfile <- function(project = NULL) {
+
+  # allow override
+  override <- Sys.getenv("RENV_PATHS_LOCKFILE", unset = NA)
+  if (!is.na(override)) {
+    last <- substr(override, nchar(override), nchar(override))
+    if (last %in% c("/", "\\"))
+      override <- paste0(override, "renv.lock")
+    return(override)
+  }
+
+  # otherwise, use default location
   project <- renv_project_resolve(project)
   components <- c(project, renv_profile_prefix(), "renv.lock")
   paste(components, collapse = "/")
+
 }
 
 renv_paths_settings <- function(project = NULL) {
-  project <- renv_project_resolve(project)
-  components <- c(project, renv_profile_prefix(), "renv/settings.dcf")
-  paste(components, collapse = "/")
+  renv_paths_renv("settings.dcf", project = project)
+}
+
+renv_paths_renv <- function(..., project = NULL) {
+  renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
+  prefix <- renv_profile_prefix()
+  paste(c(project, prefix, renv, ...), collapse = "/")
 }
 
 renv_paths_cellar <- function(...) {

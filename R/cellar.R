@@ -1,8 +1,8 @@
 
 renv_cellar_roots <- function(project = NULL) {
   c(
-    renv_paths_project("renv/cellar", project = project),
-    renv_paths_project("renv/local", project = project),
+    renv_paths_renv("cellar", project = project),
+    renv_paths_renv("local", project = project),
     renv_paths_cellar(),
     renv_paths_local()
   )

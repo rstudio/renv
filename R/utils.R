@@ -378,3 +378,11 @@ recursing <- function() {
   FALSE
 
 }
+
+code <- function(x) {
+  paste(deparse(substitute(x)), collapse = "\n")
+}
+
+shcode <- function(x) {
+  shQuote(paste(deparse(substitute(x)), collapse = "\n"))
+}

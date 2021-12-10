@@ -493,7 +493,7 @@ renv_load_switch <- function(project) {
   }
 
   # validate that this project has an activate script
-  script <- file.path(project, "renv/activate.R")
+  script <- renv_paths_renv("activate.R", project = project)
   if (!file.exists(script)) {
     fmt <- "project %s has no activate script and so cannot be activated"
     stopf(fmt, renv_path_pretty(project))
@@ -516,7 +516,7 @@ renv_load_switch <- function(project) {
   on.exit(setwd(owd), add = TRUE)
 
   # source the activate script
-  source("renv/activate.R")
+  source(script)
 
   # check and see if renv was successfully loaded
   if (!"renv" %in% loadedNamespaces()) {

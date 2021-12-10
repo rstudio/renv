@@ -314,13 +314,13 @@ renv_retrieve_git_impl <- function(record, path) {
   ref     <- record$RemoteRef
   sha     <- record$RemoteSha
 
-  template <- c(
-    "cd \"${DIR}\"",
-    "git init --quiet",
-    "git remote add origin \"${ORIGIN}\"",
-    "git fetch --quiet origin \"${REF}\"",
-    "git reset --quiet --hard FETCH_HEAD"
-  )
+  template <- heredoc('
+    cd "${DIR}"
+    git init --quiet
+    git remote add origin "${ORIGIN}"
+    git fetch --quiet origin "${REF}"
+    git reset --quiet --hard FETCH_HEAD
+  ')
 
   data <- list(
     DIR    = renv_path_normalize(path),
@@ -329,10 +329,9 @@ renv_retrieve_git_impl <- function(record, path) {
   )
 
   commands <- renv_template_replace(template, data)
-  command <- paste(commands, collapse = " && ")
+  command <- gsub("\n", " && ", commands, fixed = TRUE)
   if (renv_platform_windows())
     command <- paste(comspec(), "/C", command)
-
 
   vwritef("Cloning '%s' ...", url)
 

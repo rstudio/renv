@@ -281,8 +281,9 @@ renv_project_find <- function(project = NULL) {
 
   project <- project %||% getwd()
 
+  suffix <- renv_paths_renv("activate.R", project = NULL)
   resolved <- renv_file_find(project, function(parent) {
-    lockpath <- file.path(parent, "renv/activate.R")
+    lockpath <- file.path(project, suffix)
     if (file.exists(lockpath))
       return(parent)
   })
