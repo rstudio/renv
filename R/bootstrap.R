@@ -29,12 +29,9 @@ renv_bootstrap_repos <- function() {
     return(repos)
 
   # check for lockfile repositories
-  if (file.exists("renv.lock")) {
-    lockfile <- renv_json_read("renv.lock")
-    repos <- lockfile$R$Repositories
-    if (!is.null(repos))
-      return(repos)
-  }
+  repos <- tryCatch(renv_bootstrap_repos_lockfile(), error = identity)
+  if (!inherits(repos, "error") && length(repos))
+    return(repos)
 
   # if we're testing, re-use the test repositories
   if (renv_bootstrap_tests_running())
@@ -57,6 +54,30 @@ renv_bootstrap_repos <- function() {
   # remove duplicates that might've snuck in
   dupes <- duplicated(repos) | duplicated(names(repos))
   repos[!dupes]
+
+}
+
+renv_bootstrap_repos_lockfile <- function() {
+
+  lockpath <- Sys.getenv("RENV_PATHS_LOCKFILE", unset = "renv.lock")
+  if (!file.exists(lockpath))
+    return(NULL)
+
+  lockfile <- tryCatch(renv_json_read(lockpath), error = identity)
+  if (inherits(lockfile, "error")) {
+    warning(lockfile)
+    return(NULL)
+  }
+
+  repos <- lockfile$R$Repositories
+  if (length(repos) == 0)
+    return(NULL)
+
+  keys <- vapply(repos, `[[`, "Name", FUN.VALUE = character(1))
+  vals <- vapply(repos, `[[`, "URL", FUN.VALUE = character(1))
+  names(vals) <- keys
+
+  return(vals)
 
 }
 
