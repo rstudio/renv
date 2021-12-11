@@ -6,6 +6,9 @@ context <- function(desc) {
 
 test_that <- function(desc, code) {
 
+  # clear RENV_PROFILE
+  Sys.unsetenv("RENV_PROFILE")
+
   # skip tests when run on CRAN's macOS machine
   iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
   testthat::skip_if(iscran && renv_platform_macos())

@@ -5,7 +5,7 @@ test_that("renv.lock is added to .Rbuildignore", {
 
   renv_tests_scope()
   writeLines(c("Type: Package", "Package: test"), con = "DESCRIPTION")
-  renv::init()
+  init()
 
   expect_true(file.exists(".Rbuildignore"))
   contents <- readLines(".Rbuildignore")
@@ -75,6 +75,7 @@ test_that("whitespace in infrastructure file is preserved", {
 })
 
 test_that("lines are commented, uncommented as appropriate", {
+
   renv_tests_scope()
 
   text <- "  # Some pre-existing text"

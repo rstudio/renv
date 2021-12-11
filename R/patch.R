@@ -132,19 +132,21 @@ renv_patch_methods_table_impl <- function() {
 
   # ensure promises in S3 methods table are forced
   # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16644
-  envir <- renv_envir_self()
+  for (envir in list(.BaseNamespaceEnv, renv_namespace_load("utils"))) {
 
-  # unlock binding if it's locked
-  base <- .BaseNamespaceEnv
-  binding <- ".__S3MethodsTable__."
-  if (base$bindingIsLocked(binding, env = envir)) {
-    base$unlockBinding(binding, env = envir)
-    on.exit(base$lockBinding(binding, envir), add = TRUE)
+    # unlock binding if it's locked
+    binding <- ".__S3MethodsTable__."
+    base <- baseenv()
+    if (base$bindingIsLocked(binding, env = envir)) {
+      base$unlockBinding(binding, env = envir)
+      on.exit(base$lockBinding(binding, envir), add = TRUE)
+    }
+
+    # force everything defined in the environment
+    table <- envir[[binding]]
+    for (key in ls(envir = table, all.names = TRUE))
+      table[[key]] <- force(table[[key]])
+
   }
-
-  # force everything defined in the environment
-  table <- envir[[binding]]
-  for (key in ls(envir = table, all.names = TRUE))
-    table[[key]] <- force(table[[key]])
 
 }

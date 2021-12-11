@@ -1,6 +1,30 @@
 
 context("Profile")
 
+test_that("renv/profile is read and used to select a profile", {
+
+  project <- renv_tests_scope()
+  init(profile = "testing")
+  renv_imbue_self(project)
+
+  # check that profile was written
+  expect_true(file.exists("renv/profile"))
+
+  # check that its contents equal 'testing'
+  contents <- readLines("renv/profile")
+  expect_equal(contents, "testing")
+
+  # check that an R session launched here gets that profile
+  renv_scope_envvars(R_PROFILE_USER = NULL)
+  script <- renv_test_code({
+    writeLines(Sys.getenv("RENV_PROFILE"))
+  })
+
+  args <- c("-s", "-f", shQuote(script))
+  output <- renv_system_exec(R(), args, action = "reading profile")
+
+})
+
 test_that("a profile changes the default library / lockfile path", {
 
   renv_tests_scope()
@@ -11,7 +35,7 @@ test_that("a profile changes the default library / lockfile path", {
 
   # NOTE: renv/profile should not be written here as we've only forced
   # activation via an environment variable and not explicitly via API
-  profile <- file.path(project, "renv/local/profile")
+  profile <- file.path(project, "renv/profile")
   expect_false(file.exists(profile))
 
   # however, other paths should resolve relative to the active profile
@@ -43,7 +67,8 @@ test_that("profile-specific dependencies can be written", {
   init()
 
   # have this profile depend on 'toast'
-  path <- file.path(getwd(), renv_profile_prefix(), "deps.R")
+  path <- renv_paths_renv("_dependencies.R")
+  ensure_parent_directory(path)
   writeLines("library(toast)", con = path)
 
   # validate the dependency is included
@@ -51,9 +76,9 @@ test_that("profile-specific dependencies can be written", {
   expect_true("toast" %in% deps$Package)
 
   # switch to other profile
-  Sys.setenv(RENV_PROFILE = "other")
+  renv_scope_envvars(RENV_PROFILE = "other")
 
-  # 'toast' is no longe required
+  # 'toast' is no longer required
   deps <- dependencies(quiet = TRUE)
   expect_false("toast" %in% deps$Package)
 

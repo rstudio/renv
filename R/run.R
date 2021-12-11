@@ -41,7 +41,7 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
   }
 
   # ensure that it has an activate script
-  activate <- renv_paths_renv("activate.R", project = project)
+  activate <- renv_paths_activate(project = project)
   if (!file.exists(activate)) {
     fmt <- "project '%s' does not have an renv activate script"
     stopf(fmt, aliased_path(project))
@@ -67,7 +67,7 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
 
 renv_run_job <- function(script, name, project) {
 
-  activate <- renv_paths_renv("activate.R", project = project)
+  activate <- renv_paths_activate(project = project)
   jobscript <- tempfile("renv-job-", fileext = ".R")
 
   exprs <- substitute(local({

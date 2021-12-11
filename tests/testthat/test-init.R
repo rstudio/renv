@@ -155,10 +155,12 @@ test_that("RENV_PATHS_RENV is respected on init", {
   skip_on_cran()
 
   renv_tests_scope()
-  renv_scope_envvars(RENV_PATHS_LOCKFILE = ".renv/renv.lock")
+  renv_scope_envvars(
+    RENV_PATHS_LOCKFILE = ".renv/renv.lock",
+    RENV_PATHS_RENV = ".renv"
+  )
 
   local({
-    renv_scope_envvars(RENV_PATHS_RENV = ".renv")
     args <- c("-s", "-e", shcode(renv::init()))
     renv_system_exec(R(), args, action = "renv::init()")
     expect_true(file.exists(".renv"))

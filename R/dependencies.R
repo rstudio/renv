@@ -266,17 +266,18 @@ renv_dependencies_find_extra <- function(root) {
     return(NULL)
 
   # only run for root-level dependency checks
-  if (!renv_path_same(root, renv_project_resolve()))
+  project <- renv_project_resolve()
+  if (!renv_path_same(root, project))
     return(NULL)
 
   # only run if we have a custom profile
-  prefix <- renv_profile_prefix()
-  if (is.null(prefix))
+  profile <- renv_profile_get()
+  if (is.null(profile))
     return(NULL)
 
-  # collect deps
-  path <- file.path(root, prefix)
-  renv_dependencies_find_impl(path, root, 0)
+  # look for dependencies in the associated 'renv' folder
+  path <- renv_paths_renv(project = project)
+  renv_dependencies_find_impl(path, root, 0L)
 
 }
 

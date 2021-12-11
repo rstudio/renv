@@ -107,7 +107,7 @@ renv_activate_version <- function(project) {
 
 renv_activate_version_activate <- function(project) {
 
-  activate <- renv_paths_renv("activate.R", project = project)
+  activate <- renv_paths_activate(project = project)
   if (!file.exists(activate))
     return(NULL)
 

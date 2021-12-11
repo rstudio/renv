@@ -15,7 +15,7 @@ renv_infrastructure_write <- function(project = NULL,
 
 renv_infrastructure_write_profile <- function(project, profile = NULL) {
 
-  path <- renv_paths_renv("profile", project = project)
+  path <- renv_paths_renv("profile", profile = FALSE, project = project)
   profile <- renv_profile_normalize(profile)
   if (is.null(profile))
     return(unlink(path))
@@ -31,7 +31,7 @@ renv_infrastructure_write_rprofile <- function(project) {
     return()
 
   # NOTE: intentionally leave project NULL to compute relative path
-  path <- renv_paths_renv("activate.R", project = NULL)
+  path <- renv_paths_activate(project = NULL)
   add <- sprintf("source(%s)", renv_json_quote(path))
 
   renv_infrastructure_write_entry_impl(
@@ -93,7 +93,7 @@ renv_infrastructure_write_activate <- function(project = NULL,
   version <- version %||% renv_activate_version(project)
 
   source <- system.file("resources/activate.R", package = "renv")
-  target <- renv_paths_renv("activate.R", project = project)
+  target <- renv_paths_activate(project = project)
 
   if (!create && !file.exists(target))
     return(FALSE)
@@ -180,7 +180,7 @@ renv_infrastructure_remove <- function(project = NULL) {
 renv_infrastructure_remove_rprofile <- function(project) {
 
   # NOTE: intentionally leave project NULL to compute relative path
-  path <- renv_paths_renv("activate.R", project = NULL)
+  path <- renv_paths_activate(project = NULL)
   line <- sprintf("source(%s)", renv_json_quote(path))
 
   renv_infrastructure_remove_entry_impl(

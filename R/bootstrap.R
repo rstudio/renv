@@ -492,8 +492,7 @@ renv_bootstrap_library_root <- function(project) {
     return(paste(c(path, prefix, name), collapse = "/"))
   }
 
-  renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
-  paste(c(project, prefix, renv, "library"), collapse = "/")
+  renv_bootstrap_paths_renv("library", project = project)
 
 }
 
@@ -573,8 +572,7 @@ renv_bootstrap_profile_load <- function(project) {
     return(profile)
 
   # check for a profile file (nothing to do if it doesn't exist)
-  renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
-  path <- file.path(project, renv, "profile")
+  path <- renv_bootstrap_paths_renv("profile", profile = FALSE)
   if (!file.exists(path))
     return(NULL)
 
@@ -585,7 +583,7 @@ renv_bootstrap_profile_load <- function(project) {
 
   # set RENV_PROFILE
   profile <- contents[[1L]]
-  if (nzchar(profile))
+  if (!profile %in% c("", "default"))
     Sys.setenv(RENV_PROFILE = profile)
 
   profile
@@ -594,10 +592,8 @@ renv_bootstrap_profile_load <- function(project) {
 
 renv_bootstrap_profile_prefix <- function() {
   profile <- renv_bootstrap_profile_get()
-  if (!is.null(profile)) {
-    renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
-    return(file.path(renv, "profiles", profile))
-  }
+  if (!is.null(profile))
+    return(file.path("profiles", profile, "renv"))
 }
 
 renv_bootstrap_profile_get <- function() {
@@ -620,6 +616,23 @@ renv_bootstrap_profile_normalize <- function(profile) {
 
   profile
 
+}
+
+renv_bootstrap_path_absolute <- function(path) {
+
+  substr(path, 1L, 1L) %in% c("~", "/", "\\") || (
+    substr(path, 1L, 1L) %in% c(letters, LETTERS) &&
+    substr(path, 2L, 3L) %in% c(":/", ":\\")
+  )
+
+}
+
+renv_bootstrap_paths_renv <- function(..., profile = TRUE, project = NULL) {
+  renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
+  root <- if (renv_bootstrap_path_absolute(renv)) NULL else project
+  prefix <- if (profile) renv_bootstrap_profile_prefix()
+  components <- c(root, renv, prefix, ...)
+  paste(components, collapse = "/")
 }
 
 renv_bootstrap_project_type <- function(path) {

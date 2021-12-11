@@ -211,12 +211,12 @@ renv_python_restore_impl <- function(python, type, prompt, project) {
 
 renv_python_envpath_virtualenv <- function(version) {
   majmin <- paste(renv_version_components(version, 1L:2L), collapse = ".")
-  fmt <- "renv/python/virtualenvs/renv-python-%s"
+  fmt <- "python/virtualenvs/renv-python-%s"
   sprintf(fmt, majmin)
 }
 
 renv_python_envpath_condaenv <- function(version) {
-  "renv/python/condaenvs/renv-python"
+  "python/condaenvs/renv-python"
 }
 
 renv_python_envpath <- function(project, type, version = NULL) {
@@ -227,8 +227,7 @@ renv_python_envpath <- function(project, type, version = NULL) {
     ~ stopf("internal error: unrecognized environment type '%s'", type)
   )
 
-  components <- c(project, renv_profile_prefix(), suffix)
-  paste(components, collapse = "/")
+  renv_paths_renv(suffix, project = project)
 
 }
 

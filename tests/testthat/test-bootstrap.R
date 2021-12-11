@@ -81,8 +81,8 @@ test_that("bootstrap functions don't depend on non-bootstrap APIs", {
   apis <- grep("^renv_", calls, value = TRUE)
 
   # validate they're all available
-  ok <- grepl(pattern, apis)
-  expect_true(all(ok))
+  bad <- grep(pattern, apis, value = TRUE, invert = TRUE)
+  expect_true(length(bad) == 0, info = paste("Functions:", bad, collapse = ", "))
 
 })
 

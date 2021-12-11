@@ -232,8 +232,7 @@ renv_load_profile <- function(project) {
 
 renv_load_settings <- function(project) {
 
-  components <- c(project, renv_profile_prefix(), "renv/settings.R")
-  settings <- paste(components, collapse = "/")
+  settings <- renv_paths_renv("settings.R", project = project)
   if (!file.exists(settings))
     return(FALSE)
 
@@ -401,8 +400,7 @@ renv_load_python_impl <- function(project, fields) {
     return(python)
 
   # set a default reticulate Python environment path
-  components <- c(project, renv_profile_prefix(), "renv/python/r-reticulate")
-  envpath <- paste(components, collapse = "/")
+  envpath <- renv_paths_renv("python/r-reticulate", project = project)
   Sys.setenv(RETICULATE_MINICONDA_PYTHON_ENVPATH = envpath)
 
   # nothing more to do if no lockfile fields set
@@ -493,7 +491,7 @@ renv_load_switch <- function(project) {
   }
 
   # validate that this project has an activate script
-  script <- renv_paths_renv("activate.R", project = project)
+  script <- renv_paths_activate(project = project)
   if (!file.exists(script)) {
     fmt <- "project %s has no activate script and so cannot be activated"
     stopf(fmt, renv_path_pretty(project))

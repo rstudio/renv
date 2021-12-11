@@ -102,12 +102,9 @@ local({
       return(repos)
   
     # check for lockfile repositories
-    if (file.exists("renv.lock")) {
-      lockfile <- renv_json_read("renv.lock")
-      repos <- lockfile$R$Repositories
-      if (!is.null(repos))
-        return(repos)
-    }
+    repos <- tryCatch(renv_bootstrap_repos_lockfile(), error = identity)
+    if (!inherits(repos, "error") && length(repos))
+      return(repos)
   
     # if we're testing, re-use the test repositories
     if (renv_bootstrap_tests_running())
@@ -130,6 +127,30 @@ local({
     # remove duplicates that might've snuck in
     dupes <- duplicated(repos) | duplicated(names(repos))
     repos[!dupes]
+  
+  }
+  
+  renv_bootstrap_repos_lockfile <- function() {
+  
+    lockpath <- Sys.getenv("RENV_PATHS_LOCKFILE", unset = "renv.lock")
+    if (!file.exists(lockpath))
+      return(NULL)
+  
+    lockfile <- tryCatch(renv_json_read(lockpath), error = identity)
+    if (inherits(lockfile, "error")) {
+      warning(lockfile)
+      return(NULL)
+    }
+  
+    repos <- lockfile$R$Repositories
+    if (length(repos) == 0)
+      return(NULL)
+  
+    keys <- vapply(repos, `[[`, "Name", FUN.VALUE = character(1))
+    vals <- vapply(repos, `[[`, "URL", FUN.VALUE = character(1))
+    names(vals) <- keys
+  
+    return(vals)
   
   }
   
@@ -544,8 +565,7 @@ local({
       return(paste(c(path, prefix, name), collapse = "/"))
     }
   
-    renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
-    paste(c(project, prefix, renv, "library"), collapse = "/")
+    renv_bootstrap_paths_renv("library", project = project)
   
   }
   
@@ -625,8 +645,7 @@ local({
       return(profile)
   
     # check for a profile file (nothing to do if it doesn't exist)
-    renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
-    path <- file.path(project, renv, "profile")
+    path <- renv_bootstrap_paths_renv("profile", profile = FALSE)
     if (!file.exists(path))
       return(NULL)
   
@@ -637,7 +656,7 @@ local({
   
     # set RENV_PROFILE
     profile <- contents[[1L]]
-    if (nzchar(profile))
+    if (!profile %in% c("", "default"))
       Sys.setenv(RENV_PROFILE = profile)
   
     profile
@@ -646,10 +665,8 @@ local({
   
   renv_bootstrap_profile_prefix <- function() {
     profile <- renv_bootstrap_profile_get()
-    if (!is.null(profile)) {
-      renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
-      return(file.path(renv, "profiles", profile))
-    }
+    if (!is.null(profile))
+      return(file.path("profiles", profile, "renv"))
   }
   
   renv_bootstrap_profile_get <- function() {
@@ -672,6 +689,23 @@ local({
   
     profile
   
+  }
+  
+  renv_bootstrap_path_absolute <- function(path) {
+  
+    substr(path, 1L, 1L) %in% c("~", "/", "\\") || (
+      substr(path, 1L, 1L) %in% c(letters, LETTERS) &&
+      substr(path, 2L, 3L) %in% c(":/", ":\\")
+    )
+  
+  }
+  
+  renv_bootstrap_paths_renv <- function(..., profile = TRUE, project = NULL) {
+    renv <- Sys.getenv("RENV_PATHS_RENV", unset = "renv")
+    root <- if (renv_bootstrap_path_absolute(renv)) NULL else project
+    prefix <- if (profile) renv_bootstrap_profile_prefix()
+    components <- c(root, renv, prefix, ...)
+    paste(components, collapse = "/")
   }
   
   renv_bootstrap_project_type <- function(path) {

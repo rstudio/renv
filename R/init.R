@@ -96,6 +96,10 @@ init <- function(project = NULL,
   project <- renv_path_normalize(project %||% getwd())
   renv_scope_lock(project = project)
 
+  # initialize profile
+  if (!is.null(profile))
+    renv_profile_set(profile)
+
   # initialize bioconductor pieces
   repos <- repos %||% getOption("repos")
   biocver <- renv_init_bioconductor(bioconductor, project)
