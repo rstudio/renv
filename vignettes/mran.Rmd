@@ -59,3 +59,51 @@ options(renv.config.mran.enabled = FALSE)
 
 See also the `?renv::equip` function, which can assist you in preparing your
 environment for compilation of packages.
+
+
+## Caveats
+
+While being able to install binary packages from arbitrary MRAN snapshots can
+be useful, one must be aware of potential incompatibility issues. In particular,
+we need to consider:
+
+- ABI compatibility between different versions of binaries;
+- Inadvertent build-time dependencies taken by a package.
+
+### ABI Compatibility
+
+ABI compatibility issues can arise if different packages were built against
+different versions of a shared dependency. For example, one package may have
+been built against Rcpp 1.0.6, and another package might have been built against
+Rcpp 1.0.7. However, because only one version of the Rcpp package can be loaded
+at a time within an R session, mixing of these two packages might cause issues
+either on load or at runtime depending on the version of Rcpp available.
+
+It's worth emphasizing that this is not Rcpp's fault; a package built against
+Rcpp 1.0.7 would reasonably expect newer APIs made available by that version of
+the package would be available at runtime, and that contract would be violated
+if an older version of Rcpp were installed in the project library. The challenge
+for `renv` is that this build-time dependency is not clearly communicated to
+`renv`; in general, it is not possible to know what packages (and their
+versions) a particular package was built against.
+
+
+### Build-time Dependencies
+
+R packages might occasionally (and unintentionally) take a build-time
+dependency on another R package -- for example, a package with the code:
+
+```
+`%>%` <- magrittr::`%>%`
+```
+
+would take the version of `%>%` that was available from the version of magrittr
+that was available at _build_ time, not the one available at _run_ time. This
+could be problematic if, for example, an update to the `magrittr` package
+changed in a way that made old definitions of `%>%` incompatible with newer
+internal functions.
+
+In general, it is a mistake for packages to take a build-time dependency on
+exported objects from another package; rather, such objects should be imported
+at runtime (using e.g. `importFrom()` in the package `NAMESPACE` file).
+
