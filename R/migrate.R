@@ -111,9 +111,7 @@ renv_migrate_packrat_lockfile <- function(project) {
   contents <- read(plock)
   splat <- strsplit(contents, "\n{2,}")[[1]]
   dcf <- lapply(splat, function(section) {
-    conn <- textConnection(section)
-    on.exit(close(conn), add = TRUE)
-    renv_dcf_read(conn)
+    renv_dcf_read(text = section)
   })
 
   # split into header + package fields

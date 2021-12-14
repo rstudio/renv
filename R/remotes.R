@@ -429,10 +429,8 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   # normalize newlines
   contents <- gsub("\r\n", "\n", contents, fixed = TRUE)
 
-  # write to file and read back in
-  descfile <- renv_scope_tempfile("renv-description-")
-  writeLines(contents, con = descfile)
-  renv_dcf_read(descfile)
+  # read as DCF
+  renv_dcf_read(text = contents)
 
 }
 

@@ -3,6 +3,9 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* Fixed an issue that could cause `renv::dependencies()` to fail
+  when a malformed `DESCRIPTION` file was encountered. (#892)
+
 * The path to the project-local `renv` folder can now be configured
   via the `RENV_PATHS_RENV` environment variable. This can be useful
   if you'd prefer to store your project's `renv` resources within

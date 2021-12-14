@@ -377,3 +377,14 @@ test_that("dependencies() doesn't barf on files without read permission", {
   expect_true(NROW(deps) == 0L)
 
 })
+
+test_that("dependencies() doesn't barf on malformed DESCRIPTION files", {
+
+  skip_on_windows()
+  renv_tests_scope()
+
+  writeLines("Depends: A, B\n\nImports: C, D", con = "DESCRIPTION")
+  deps <- dependencies(quiet = TRUE)
+  expect_setequal(deps$Package, c("A", "B", "C", "D"))
+
+})

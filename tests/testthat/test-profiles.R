@@ -7,7 +7,7 @@ test_that("library paths set in a user profile are overridden after load", {
 
   renv_tests_scope()
 
-  renv::init()
+  init()
   renv_imbue_impl(project = getwd(), force = TRUE)
 
   profile <- c(

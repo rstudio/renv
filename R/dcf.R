@@ -1,22 +1,35 @@
 
-renv_dcf_read <- function(file, ...) {
-
-  # if the file is empty, then nothing to do (guard against NA
-  # file sizes if for some reason the filesystem / OS doesn't report it)
-  if (is.character(file)) {
-    info <- renv_file_info(file)
-    if (identical(as.numeric(info$size), 0))
-      return(data.frame())
-  }
-
-  # older versions of R could mutate LC_CTYPE (without resetting it)
-  # when reading DCF files, so be sure to manage that here
-  ctype <- Sys.getlocale("LC_CTYPE")
-  on.exit(Sys.setlocale("LC_CTYPE", ctype), add = TRUE)
+# similar to base::read.dcf(), but:
+# - allows for whitespace between fields
+# - allows for non-indented field continuations
+# - always keeps whitespace
+renv_dcf_read <- function(file, text = NULL, ...) {
 
   # read the file
-  dcf <- as.data.frame(read.dcf(file, ...), stringsAsFactors = FALSE)
-  lapply(dcf, trimws)
+  contents <- text %||% renv_file_read(file)
+
+  # look for tags
+  pattern <- "(?:^|\n)[^\\s][^:\n]*:"
+  matches <- gregexpr(pattern, contents, perl = TRUE)[[1L]]
+
+  # compute substring indices
+  starts <- matches
+  ends   <- c(tail(matches, n = -1L), nchar(contents))
+  parts <- substring(contents, starts, ends)
+
+  # read as property list
+  properties <- renv_properties_read(text = parts, dequote = FALSE)
+
+  # set encoding if necessary
+  if (identical(properties$Encoding, "UTF-8"))
+    properties[] <- lapply(properties, renv_encoding_mark, "UTF-8")
+
+  # return as data.frame
+  as.data.frame(
+    properties,
+    optional = TRUE,
+    stringsAsFactors = FALSE
+  )
 
 }
 
