@@ -643,27 +643,49 @@ renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) 
 
 renv_snapshot_description <- function(path = NULL, package = NULL) {
 
+  # read DESCRIPTION file
   path <- path %||% renv_package_find(package)
   dcf <- catch(renv_description_read(path, package))
   if (inherits(dcf, "error"))
     return(dcf)
 
+  # figure out the package source
   source <- renv_snapshot_description_source(dcf)
   dcf[names(source)] <- source
-  dcf[["Hash"]] <- renv_hash_description(path)
 
-  fields <- c("Package", "Version", "Source")
-  missing <- renv_vector_diff(fields, names(dcf))
+  # check for required fields
+  required <- c("Package", "Version", "Source")
+  missing <- renv_vector_diff(required, names(dcf))
   if (length(missing)) {
     fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
     msg <- sprintf(fmt, paste(shQuote(missing), collapse = ", "), path)
     return(simpleError(msg))
   }
 
+  # generate a hash
+  dcf[["Hash"]] <- renv_hash_description(path)
+
+  # normalize whitespace in some dependency fields
+  # TODO: enable for pak?
+  # fields <- c("Depends", "Imports", "LinkingTo")
+
+  fields <- c()
+  for (field in fields) {
+    if (!is.null(dcf[[field]])) {
+      parts <- strsplit(dcf[[field]], "\\s*,\\s*", perl = TRUE)[[1L]]
+      parts <- gsub("\\s+", " ", parts, perl = TRUE)
+      dcf[[field]] <- parts[nzchar(parts)]
+    }
+  }
+
+  # only keep relevant fields
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
-  all <- c(fields, "Repository", "OS_type", remotes, git, "Hash")
+  extra <- c("Repository", "OS_type")
+  all <- c(required, fields, extra, remotes, git, "Hash")
   keep <- renv_vector_intersect(all, names(dcf))
+
+  # return as list
   as.list(dcf[keep])
 
 }

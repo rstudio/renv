@@ -1,7 +1,16 @@
 
-renv_json_write <- function(object, file = stdout()) {
+# @param box A vector of names, whose values should be boxed. By default,
+#   scalar values are unboxed.
+renv_json_config <- function(box = character()) {
+  list(box = box)
+}
 
-  json <- renv_json_convert(object)
+renv_json_write <- function(object,
+                            config = NULL,
+                            file = stdout())
+{
+  config <- config %||% renv_json_config()
+  json <- renv_json_convert_impl(NULL, object, config, 0L)
   if (is.null(file))
     return(json)
 
@@ -9,64 +18,63 @@ renv_json_write <- function(object, file = stdout()) {
 
 }
 
-renv_json_convert <- function(object, level = 0, unbox = TRUE) {
+renv_json_convert <- function(object, config = renv_json_config()) {
+  renv_json_convert_impl(NULL, object, config, 0L)
+}
 
-  if (is.list(object) || !is.null(names(object)))
-    return(renv_json_convert_list(object, level, unbox))
+renv_json_convert_impl <- function(key, value, config, depth) {
 
-  json <- renv_json_convert_atom(object, level, unbox)
-  indent <- renv_json_convert_indent(level)
+  if (is.list(value) || !is.null(names(value)))
+    return(renv_json_convert_list(key, value, config, depth))
+
+  json <- renv_json_convert_atom(key, value, config, depth)
+  indent <- renv_json_convert_indent(depth)
   paste0(indent, json)
 
 }
 
-renv_json_convert_list <- function(object, level, unbox) {
-  indent <- renv_json_convert_indent(level)
-  if (empty(object)) {
-    json <- if (is.null(names(object))) "[]" else "{}"
+renv_json_convert_list <- function(key, value, config, depth) {
+  indent <- renv_json_convert_indent(depth)
+  if (empty(value)) {
+    json <- if (is.null(names(value))) "[]" else "{}"
     paste0(indent, json)
-  } else if (is.null(names(object))) {
-    json <- map_chr(object, renv_json_convert, level = level + 1, unbox = unbox)
+  } else if (is.null(names(value))) {
+    json <- enum_chr(value, renv_json_convert_impl, config = config, depth = depth + 1L)
     paste0(indent, "[", "\n", paste(json, collapse = ",\n"), "\n", indent, "]")
   } else {
-    keys <- renv_json_quote(names(object))
-    vals <- map_chr(object, renv_json_convert, level = level + 1, unbox = unbox)
+    keys <- renv_json_quote(names(value))
+    vals <- enum_chr(value, renv_json_convert_impl, config = config, depth = depth + 1L)
     idx  <- regexpr("[^[:space:]]", vals)
-    json <- paste0(substring(vals, 1, idx - 1L), keys, ": ", substring(vals, idx))
+    json <- paste0(substring(vals, 1L, idx - 1L), keys, ": ", substring(vals, idx))
     paste0(indent, "{", "\n", paste(json, collapse = ",\n"), "\n", indent, "}")
   }
 }
 
-renv_json_convert_atom <- function(object, level, unbox) {
+renv_json_convert_atom <- function(key, value, config, depth) {
 
-  if (is.null(object))
+  unbox <- is.null(key) || !key %in% config$box || inherits(value, "AsIs")
+  if (is.null(value))
     return(if (unbox) "null" else "[]")
 
-  n <- length(object)
-  if (n == 0)
+  n <- length(value)
+  if (n == 0L)
     return("[]")
 
-  unbox <- unbox || inherits(object, "AsIs")
-
-  if (is.character(object)) {
-    object <- renv_json_quote(object)
-    object[object == "\"NA\""] <- "null"
+  if (is.character(value)) {
+    value <- renv_json_quote(value)
+    value[value == "\"NA\""] <- "null"
   }
 
-  if (is.logical(object)) {
-    object <- ifelse(object, "true", "false")
-    object[is.na(object)] <- "null"
+  if (is.logical(value)) {
+    value <- ifelse(value, "true", "false")
+    value[is.na(value)] <- "null"
   }
 
-  if (unbox && n == 1)
-    return(paste0(object))
+  if (unbox && n == 1L)
+    return(paste0(value))
 
-  json <- paste0(object, collapse = ",")
-  if (nchar(json) <= 80)
-    return(paste0("[", json, "]"))
-
-  indent <- renv_json_convert_indent(level)
-  json <- paste0(renv_json_convert_indent(level + 1), object)
+  indent <- renv_json_convert_indent(depth)
+  json <- paste0(renv_json_convert_indent(depth + 1L), value)
   paste0("[", "\n", paste(json, collapse = ",\n"), "\n", indent, "]")
 
 }

@@ -25,11 +25,7 @@ renv_dcf_read <- function(file, text = NULL, ...) {
     properties[] <- lapply(properties, renv_encoding_mark, "UTF-8")
 
   # return as data.frame
-  as.data.frame(
-    properties,
-    optional = TRUE,
-    stringsAsFactors = FALSE
-  )
+  as.list(properties)
 
 }
 

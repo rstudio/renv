@@ -94,3 +94,15 @@ test_that("some common control characters are escaped", {
   json <- renv_json_convert("\b\f\n\r\t")
   expect_equal(json, "\"\\b\\f\\n\\r\\t\"")
 })
+
+test_that("scalar values are boxed if requested", {
+
+  json <- renv_json_convert(
+    object = list(A = "hello", B = "world"),
+    config = list(box = "B")
+  )
+
+  value <- renv_json_read(text = json)
+  expect_equal(value, list(A = "hello", B = list("world")))
+
+})

@@ -19,6 +19,10 @@ renv_lockfile_diff <- function(old, new, compare = NULL) {
 
   }
 
+  # ensure that these have the same length for comparison
+  if (is.list(old) && is.list(new))
+    length(old) <- length(new) <- max(length(old), length(new))
+
   # check for differences
   diffs <- mapply(
     renv_lockfile_diff_impl, old, new,
