@@ -85,6 +85,7 @@ test_that("lockfiles can be read from either format", {
   file <- renv_scope_tempfile()
   renv_lockfile_write_internal(actual, file = file)
   expected <- renv_lockfile_read(file)
+  expected$Packages <- list()
   expect_equal(actual, expected)
 
   file <- renv_scope_tempfile()

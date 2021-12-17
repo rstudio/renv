@@ -258,7 +258,7 @@ test_that("restore works with explicit Source", {
   renv_test_retrieve(record)
 
   lockfile <- renv_lockfile_init(project = getwd())
-  lockfile$R$Packages <- list(skeleton = record)
+  lockfile$Packages <- list(skeleton = record)
   renv_lockfile_write(lockfile, file = "renv.lock")
   remove("skeleton")
 
