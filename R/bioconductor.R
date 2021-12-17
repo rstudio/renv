@@ -31,7 +31,7 @@ renv_bioconductor_init_biocinstaller <- function() {
 
 }
 
-renv_bioconductor_version <- function(project) {
+renv_bioconductor_version <- function(project = NULL) {
 
   # check and see if we have an override via option
   version <- getOption("renv.bioconductor.version")
@@ -97,11 +97,15 @@ renv_bioconductor_repos_biocinstaller <- function(version) {
 }
 
 renv_bioconductor_installer_package <- function(project = NULL){
+
   bioc_version <- renv_bioconductor_version(project)
-  old <- `if`(
-    is.null(bioc_version),
-    getRversion() < "3.5.0",
-    bioc_version < "3.8"
-  )
-  `if`(old, "BiocInstaller", "BiocManager")
+
+  if(is.null(bioc_version)){
+    old <- utils::compareVersion(getRversion(), "3.5.0") < 0L
+  } else {
+    old <- utils::compareVersion(bioc_version, "3.8") < 0L
+  }
+
+  if(old) "BiocInstaller" else "BiocManager"
+
 }
