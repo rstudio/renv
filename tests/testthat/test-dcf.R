@@ -22,3 +22,19 @@ test_that("we allow for unindented continuations", {
   expect_equal(actual, expected)
 
 })
+
+test_that("we can read a latin-1 DESCRIPTION file", {
+
+  contents <- heredoc({'
+    Encoding: latin1
+    Dessert: crème brûlée
+  '})
+
+  latin1 <- iconv(contents, from = "UTF-8", to = "latin1")
+  file <- tempfile("DESCRIPTION-")
+  writeLines(latin1, con = file, useBytes = TRUE)
+
+  dcf <- renv_dcf_read(file)
+  expect_equal(dcf$Dessert, "crème brûlée")
+
+})

@@ -5,8 +5,8 @@
 # - always keeps whitespace
 renv_dcf_read <- function(file, text = NULL, ...) {
 
-  # read the file
-  contents <- text %||% renv_file_read(file)
+  # read the file as binary first to get encoding
+  contents <- text %||% renv_dcf_read_impl(file, ...)
 
   # look for tags
   pattern <- "(?:^|\n)[^\\s][^:\n]*:"
@@ -26,6 +26,36 @@ renv_dcf_read <- function(file, text = NULL, ...) {
 
   # return as data.frame
   as.list(properties)
+
+}
+
+renv_dcf_read_impl <- function(file, ...) {
+
+  # first, read the file as bytes to get encoding
+  contents <- readBin(
+    con  = file,
+    what = "raw",
+    n    = renv_file_size(file)
+  )
+
+  # try to find encoding -- if none is declared, assume native encoding?
+  start <- grepRaw("(?:^|\n)Encoding:", contents)
+  if (empty(start))
+    return(rawToChar(contents))
+
+  # try to find the end of the encoding field
+  end   <- grepRaw("(?:\r?\n|$)", contents, offset = start + 1L)
+  field <- rawToChar(contents[start:end])
+
+  # parse it
+  properties <- renv_properties_read(text = field)
+
+  # now convert from this encoding to UTF-8
+  iconv(
+    x    = list(contents),
+    from = properties$Encoding,
+    to   = "UTF-8"
+  )
 
 }
 
