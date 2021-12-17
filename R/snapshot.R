@@ -303,7 +303,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     return(ok)
 
   # check for BiocManager or BiocInstaller
-  package <- if (getRversion() >= "3.5.0") "BiocManager" else "BiocInstaller"
+  package <- renv_bioconductor_installer_package(project)
   if (!package %in% names(records)) {
 
     text <- c(
@@ -853,15 +853,7 @@ renv_snapshot_filter_impl <- function(project, records, source) {
   paths <- renv_package_dependencies(used, project = project)
   all <- as.character(names(paths))
   kept <- keep(records, all)
-
-  # add in bioconductor infrastructure packages
-  # if any other bioconductor packages detected
-  sources <- extract_chr(kept, "Source")
-  if ("Bioconductor" %in% sources) {
-    packages <- c("BiocManager", "BiocInstaller", "BiocVersion")
-    for (package in packages)
-      kept[[package]] <- records[[package]]
-  }
+  kept <- renv_add_bioc_packages(kept, records, project)
 
   kept
 
@@ -890,17 +882,26 @@ renv_snapshot_filter_packages <- function(project, records, packages) {
   paths <- renv_package_dependencies(packages, project = project)
   all <- as.character(names(paths))
   kept <- keep(records, all)
-
-  # add in bioconductor infrastructure packages
-  # if any other bioconductor packages detected
-  sources <- extract_chr(kept, "Source")
-  if ("Bioconductor" %in% sources) {
-    packages <- c("BiocManager", "BiocInstaller", "BiocVersion")
-    for (package in packages)
-      kept[[package]] <- records[[package]]
-  }
+  kept <- renv_add_bioc_packages(kept, records, project)
 
   kept
+
+}
+
+renv_add_bioc_packages <- (packages, records, project = NULL){
+  # add in bioconductor infrastructure packages
+  # if any other bioconductor packages detected
+  sources <- extract_chr(packages, "Source")
+  if ("Bioconductor" %in% sources) {
+    bioc_packages <- c(
+      "BiocVersion",
+      renv_bioconductor_installer_package(project = project)
+    )
+    for (package in bioc_packages)
+      packages[[package]] <- records[[package]]
+  }
+
+  packages
 
 }
 
