@@ -30,13 +30,6 @@ renv_lockfile_read_finish_impl <- function(key, val) {
 
 renv_lockfile_read_finish <- function(data) {
 
-  # port old packages format
-  packages <- data$R$Packages %||% data$R$Package
-  if (!is.null(packages)) {
-    renv_records(data) <- packages
-    data$R$Package <- data$R$Packages <- NULL
-  }
-
   # convert repository fields
   data <- enumerate(data, renv_lockfile_read_finish_impl)
 

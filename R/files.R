@@ -559,3 +559,7 @@ renv_file_broken_win32 <- function(paths) {
   info <- renv_file_info(paths)
   file.access(paths, 1L) == 0 & info$isdir %in% TRUE & is.na(info$mtime)
 }
+
+renv_file_size <- function(path) {
+  file.info(path, extra_cols = FALSE)$size
+}

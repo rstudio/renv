@@ -666,10 +666,7 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
   dcf[["Hash"]] <- renv_hash_description(path)
 
   # normalize whitespace in some dependency fields
-  # TODO: enable for pak?
-  # fields <- c("Depends", "Imports", "LinkingTo")
-
-  fields <- c()
+  fields <- c("Depends", "Imports", "LinkingTo")
   for (field in fields) {
     if (!is.null(dcf[[field]])) {
       parts <- strsplit(dcf[[field]], "\\s*,\\s*", perl = TRUE)[[1L]]
