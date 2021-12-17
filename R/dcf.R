@@ -5,8 +5,25 @@
 # - always keeps whitespace
 renv_dcf_read <- function(file, text = NULL, ...) {
 
+  encoding <- "UTF-8"
+
+  if(is.null(text)){
+    path <- `if`(
+      inherits(file, "connection"),
+      unlist(summary(file))["description"],
+      file
+    )
+    raw_contents <- readBin(path, "raw", file.size(path))
+    enc_offset <- grepRaw("Encoding:", raw_contents)
+    if(length(enc_offset)){
+      line_length <- grepRaw("\n", tail(raw_contents, -enc_offset))
+      raw_enc <- head(tail(raw_contents, -enc_offset - 9L), line_length - 10L)
+      encoding <- rawToChar(raw_enc)
+    }
+  }
+
   # read the file
-  contents <- text %||% renv_file_read(file)
+  contents <- text %||% renv_file_read(file, encoding = encoding)
 
   # look for tags
   pattern <- "(?:^|\n)[^\\s][^:\n]*:"
