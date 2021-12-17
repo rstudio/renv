@@ -103,5 +103,5 @@ renv_bioconductor_installer_package <- function(project = NULL){
     getRversion() < "3.5.0",
     bioc_version < "3.8"
   )
-  "BiocInstaller" if old else "BiocManager"
+  `if`(old, "BiocInstaller", "BiocManager")
 }
