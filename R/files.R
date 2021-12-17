@@ -505,8 +505,12 @@ renv_file_find <- function(path, predicate) {
 
 }
 
-renv_file_read <- function(path) {
-  contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
+renv_file_read <- function(path, encoding = "UTF-8") {
+  contents <- readLines(path, warn = FALSE, encoding = encoding)
+
+  if(encoding != 'UTF-8')
+    contents <- iconv(contents, from = encoding, to = "UTF-8")
+
   paste(contents, collapse = "\n")
 }
 
