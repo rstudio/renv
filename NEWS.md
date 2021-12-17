@@ -3,6 +3,14 @@
 
 * The development branch for `renv` has moved from master to main.
 
+* `renv` package records in the lockfile now include a `Requirements`
+  entry, which gives a list of R packages this package depends on
+  in some way. This is primarily for internal use by the `pak`
+  package.
+
+* Fixed an issue where packages containing DESCRIPTION files using
+  a latin1 encoding would not be read correctly by `renv`.
+
 * Fixed an issue that could cause `renv::dependencies()` to fail
   when a malformed `DESCRIPTION` file was encountered. (#892)
 
