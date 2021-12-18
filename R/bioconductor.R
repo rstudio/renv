@@ -109,3 +109,20 @@ renv_bioconductor_installer_package <- function(project = NULL) {
   if (old) "BiocInstaller" else "BiocManager"
 
 }
+
+renv_bioconductor_packages <- function(packages, records, project = NULL){
+  # add in bioconductor infrastructure packages
+  # if any other bioconductor packages detected
+  sources <- extract_chr(packages, "Source")
+  if ("Bioconductor" %in% sources) {
+    bioc_packages <- c(
+      "BiocVersion",
+      renv_bioconductor_installer_package(project = project)
+    )
+    for (package in bioc_packages)
+      packages[[package]] <- records[[package]]
+  }
+
+  packages
+
+}

@@ -888,23 +888,6 @@ renv_snapshot_filter_packages <- function(project, records, packages) {
 
 }
 
-renv_add_bioc_packages <- function(packages, records, project = NULL){
-  # add in bioconductor infrastructure packages
-  # if any other bioconductor packages detected
-  sources <- extract_chr(packages, "Source")
-  if ("Bioconductor" %in% sources) {
-    bioc_packages <- c(
-      "BiocVersion",
-      renv_bioconductor_installer_package(project = project)
-    )
-    for (package in bioc_packages)
-      packages[[package]] <- records[[package]]
-  }
-
-  packages
-
-}
-
 renv_snapshot_filter_custom <- function(project, records) {
 
   option <- "renv.snapshot.filter"
