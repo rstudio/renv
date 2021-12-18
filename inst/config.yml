@@ -277,6 +277,13 @@
     number of packages installed from non-CRAN remotes are installed, as these packages
     can then be checked for updates in parallel.
 
+- name: "user.environ"
+  type: "logical[1]"
+  default: true
+  description: >
+    Load the user R environ (typically located at `~/.Renviron`) when `renv`
+    is loaded?
+
 - name: "user.library"
   type: "logical[1]"
   default: false

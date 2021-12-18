@@ -113,6 +113,8 @@ Defaults to \code{TRUE}.}
 Defaults to \code{FALSE}.}
 \subsection{renv.config.updates.parallel}{Check for package updates in parallel? This can be useful when a large number of packages installed from non-CRAN remotes are installed, as these packages can then be checked for updates in parallel.
 Defaults to \code{2L}.}
+\subsection{renv.config.user.environ}{Load the user R environ (typically located at \verb{~/.Renviron}) when \code{renv} is loaded?
+Defaults to \code{TRUE}.}
 \subsection{renv.config.user.library}{Include the user library on the library paths for your projects? Note that this risks breaking project encapsulation and is not recommended for projects which you intend to share or collaborate on with other users. See also the caveats for the \code{renv.config.external.libraries} option.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.user.profile}{Load the user R profile (typically located at \verb{~/.Rprofile}) when \code{renv} is loaded? This is disabled by default, as running arbitrary code from the the user \verb{~/.Rprofile} could risk breaking project encapsulation. If your goal is to set environment variables that are visible within all \code{renv} projects, then placing those in \verb{~/.Renviron} is often a better choice. Defaults to \code{FALSE}.}

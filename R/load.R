@@ -212,7 +212,8 @@ renv_load_renviron <- function(project) {
 
   environs <- c(
     renv_paths_root(".Renviron"),
-    Sys.getenv("R_ENVIRON_USER", unset = "~/.Renviron"),
+    if (config$user.environ())
+      Sys.getenv("R_ENVIRON_USER", unset = "~/.Renviron"),
     file.path(project, ".Renviron")
   )
 

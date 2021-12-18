@@ -293,6 +293,15 @@ config <- list(
     )
   },
 
+  user.environ = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "user.environ",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   user.library = function(..., default = FALSE) {
     renv_config_get(
       name    = "user.library",
