@@ -110,7 +110,7 @@ renv_bioconductor_installer_package <- function(project = NULL) {
 
 }
 
-renv_bioconductor_packages <- function(packages, records, project = NULL){
+renv_bioconductor_packages <- function(packages, records, project = NULL) {
   # add in bioconductor infrastructure packages
   # if any other bioconductor packages detected
   sources <- extract_chr(packages, "Source")
