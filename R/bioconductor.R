@@ -96,7 +96,7 @@ renv_bioconductor_repos_biocinstaller <- function(version) {
   BiocInstaller$biocinstallRepos(version = version)
 }
 
-renv_bioconductor_installer_package <- function(project = NULL){
+renv_bioconductor_installer_package <- function(project = NULL) {
 
   bioc_version <- renv_bioconductor_version(project)
 
