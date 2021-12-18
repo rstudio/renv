@@ -100,7 +100,7 @@ renv_bioconductor_installer_package <- function(project = NULL) {
 
   bioc_version <- renv_bioconductor_version(project)
 
-  if(is.null(bioc_version)){
+  if (is.null(bioc_version)) {
     old <- utils::compareVersion(getRversion(), "3.5.0") < 0L
   } else {
     old <- utils::compareVersion(bioc_version, "3.8") < 0L
