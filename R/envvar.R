@@ -5,8 +5,15 @@ renv_envvar_get <- function(key, unset = NA) {
 }
 
 renv_envvar_set <- function(key, value) {
-  names(value) <- key
-  do.call(Sys.setenv, key)
+
+  # handle NULL / NA values
+  if (is.null(value) || is.na(value))
+    return(Sys.unsetenv(key))
+
+  # otherwise, delegate
+  args <- structure(list(value), names = key)
+  do.call(Sys.setenv, args)
+
 }
 
 renv_envvar_clear <- function(key) {
