@@ -16,6 +16,7 @@ unload <- function(project = NULL, quiet = FALSE) {
   renv_unload_project(project)
   renv_unload_sandbox(project)
   renv_unload_libpaths(project)
+  renv_unload_profile(project)
 
 }
 
@@ -33,4 +34,8 @@ renv_unload_sandbox <- function(project) {
 
 renv_unload_libpaths <- function(project) {
   renv_libpaths_restore()
+}
+
+renv_unload_profile <- function(project) {
+  Sys.unsetenv("RENV_PROFILE")
 }
