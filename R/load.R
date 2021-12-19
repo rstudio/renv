@@ -189,14 +189,24 @@ renv_load_path <- function(project) {
   # nocov start
   if (renv_platform_macos()) {
 
+    # read the current PATH
+    old <- renv_envvar_get("PATH", unset = "") %>%
+      strsplit(split = .Platform$path.sep, fixed = TRUE) %>%
+      unlist()
+
+    # get the new PATH entries
     files <- c(
-      "/etc/paths",
+      if (file.exists("/etc/paths")) "/etc/paths",
       list.files("/etc/paths.d", full.names = TRUE)
     )
 
-    PATH <- unique(uapply(files, readLines, warn = FALSE))
-    Sys.setenv(PATH = paste(PATH, collapse = .Platform$path.sep))
-    return(TRUE)
+    new <- uapply(files, readLines, warn = FALSE)
+
+    # mix them together, preferring things in /etc/paths
+    mix <- unique(c(new, old))
+
+    # update the PATH
+    Sys.setenv(PATH = paste(mix, collapse = .Platform$path.sep))
 
   }
   # nocov end
