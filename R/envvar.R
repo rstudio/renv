@@ -1,11 +1,16 @@
 
+
+renv_envvar_get <- function(key, unset = NA) {
+  Sys.getenv(key, unset = unset)
+}
+
 renv_envvar_set <- function(key, value) {
   names(value) <- key
   do.call(Sys.setenv, key)
 }
 
-renv_envvar_get <- function(key, unset = NA) {
-  Sys.getenv(key, unset = unset)
+renv_envvar_clear <- function(key) {
+  Sys.unsetenv(key)
 }
 
 renv_envvar_modify <- function(envvar, value, prepend) {

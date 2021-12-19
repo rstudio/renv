@@ -491,6 +491,12 @@ renv_load_switch <- function(project) {
     return(project)
   }
 
+  # unset the RENV_PATHS_RENV environment variable
+  # TODO: is there a path forward if different projects use
+  # different RENV_PATHS_RENV paths?
+  renvpath <- renv_envvar_get("RENV_PATHS_RENV")
+  renv_envvar_clear("RENV_PATHS_RENV")
+
   # validate that this project has an activate script
   script <- renv_paths_activate(project = project)
   if (!file.exists(script)) {
@@ -522,6 +528,7 @@ renv_load_switch <- function(project) {
     fmt <- "could not load renv from project %s; reloading previously-loaded renv"
     warningf(fmt, renv_path_pretty(project))
     loadNamespace("renv", lib.loc = dirname(path))
+    renv_envvar_set("RENV_PATHS_RENV", renvpath)
     if (!is.na(pos)) {
       args <- list(package = "renv", pos = pos, character.only = TRUE)
       do.call(base::library, args)
