@@ -66,9 +66,10 @@ test_that("update() can upgrade Git packages", {
 
   # download old commit from GitHub and track master
   remotes::install_git(
-    url   = "https://github.com/kevinushey/skeleton",
-    ref   = "5fd5d3bc616794f869e47fdf3a8b4bcaa2afcf53",
-    quiet = TRUE
+    url          = "https://github.com/kevinushey/skeleton",
+    ref          = "5fd5d3bc616794f869e47fdf3a8b4bcaa2afcf53",
+    quiet        = TRUE,
+    INSTALL_opts = "--no-multiarch"
   )
 
   pkgpath <- find.package("skeleton")
