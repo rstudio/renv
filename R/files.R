@@ -548,16 +548,17 @@ renv_file_broken <- function(paths) {
 }
 
 renv_file_broken_unix <- function(paths) {
-  nzchar(Sys.readlink(paths)) & !file.exists(paths)
+  # a symlink is broken if:
+  # - the file is a symlink (tested via Sys.readlink)
+  # - the file it points to does not exist (tested via file.exists)
+  !is.na(Sys.readlink(paths)) & !file.exists(paths)
 }
 
 renv_file_broken_win32 <- function(paths) {
-  # on Windows, broken junction points will exist as directories,
-  # but have size 0 and unknown mtime. we could further validate by
-  # checking whether we can setwd() into that directory, but that
-  # seems relatively expensive...
-  info <- renv_file_info(paths)
-  file.access(paths, 1L) == 0 & info$isdir %in% TRUE & is.na(info$mtime)
+  # a junction is broken if:
+  # - the file itself exists (tested via file.access)
+  # - the file it points to does not exist (tested via file.exists)
+  file.access(paths, mode = 0L) == 0L & !file.exists(paths)
 }
 
 renv_file_size <- function(path) {
