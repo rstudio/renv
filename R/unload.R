@@ -14,6 +14,8 @@ unload <- function(project = NULL, quiet = FALSE) {
 
   renv_unload_shims(project)
   renv_unload_project(project)
+  renv_unload_profile(project)
+  renv_unload_envvars(project)
   renv_unload_sandbox(project)
   renv_unload_libpaths(project)
   renv_unload_profile(project)
@@ -26,6 +28,14 @@ renv_unload_shims <- function(project) {
 
 renv_unload_project <- function(project) {
   Sys.unsetenv("RENV_PROJECT")
+}
+
+renv_unload_profile <- function(project) {
+  Sys.unsetenv("RENV_PROFILE")
+}
+
+renv_unload_envvars <- function(project) {
+  renv_envvars_restore()
 }
 
 renv_unload_sandbox <- function(project) {

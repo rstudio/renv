@@ -30,8 +30,6 @@ renv_envvars_save <- function() {
 
 renv_envvars_restore <- function() {
 
-  Sys.unsetenv("RENV_PROJECT")
-
   # read defaults
   keys <- renv_envvars_list()
   defkeys <- paste("RENV_DEFAULT", renv_envvars_list(), sep = "_")
