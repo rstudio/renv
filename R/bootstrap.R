@@ -287,7 +287,7 @@ renv_bootstrap_install <- function(version, tarball, library) {
   bin <- R.home("bin")
   exe <- if (Sys.info()[["sysname"]] == "Windows") "R.exe" else "R"
   r <- file.path(bin, exe)
-  args <- c("--vanilla", "CMD", "INSTALL", "-l", shQuote(library), shQuote(tarball))
+  args <- c("--vanilla", "CMD", "INSTALL", "--no-multiarch", "-l", shQuote(library), shQuote(tarball))
   output <- system2(r, args, stdout = TRUE, stderr = TRUE)
   message("Done!")
 

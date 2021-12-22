@@ -3,6 +3,12 @@ context("R")
 
 test_that("we can use R CMD build to build a package", {
 
+  if (renv_platform_windows()) {
+    zip <- Sys.which("zip")
+    if (!nzchar(zip))
+      skip("test requires 'zip'")
+  }
+
   testdir <- tempfile("renv-r-tests-")
   on.exit(unlink(testdir, recursive = TRUE), add = TRUE)
 
@@ -26,12 +32,12 @@ test_that("we can use R CMD build to build a package", {
   expect_true(all(c("DESCRIPTION", "NAMESPACE", "MD5") %in% basename(files)))
 
   before <- list.files(testdir)
-  args <- c("CMD", "INSTALL", "--build", package)
+  args <- c("CMD", "INSTALL", "--no-multiarch", "--build", package)
   output <- r_exec(args, stdout = TRUE, stderr = TRUE)
   after <- list.files(testdir)
   binball <- renv_vector_diff(after, before)
 
-  expect_true(length(binball) == 1)
+  expect_true(length(binball) == 1L)
   expect_equal(renv_package_type(binball), "binary")
 
 })

@@ -555,12 +555,35 @@ renv_file_broken_unix <- function(paths) {
 }
 
 renv_file_broken_win32 <- function(paths) {
-  # a junction is broken if:
-  # - the file itself exists (tested via file.access)
-  # - the file it points to does not exist (tested via file.exists)
-  file.access(paths, mode = 0L) == 0L & !file.exists(paths)
+  # TODO: the behavior of file.exists() for a broken junction point
+  # appears to have changed in the development version of R;
+  # we have to be extra careful here...
+  if (getRversion() < "4.2.0") {
+    info <- renv_file_info(paths)
+    (info$isdir %in% TRUE) & is.na(info$mtime)
+  } else {
+    file.access(paths, mode = 0L) == 0L & !file.exists(paths)
+  }
 }
 
 renv_file_size <- function(path) {
   file.info(path, extra_cols = FALSE)$size
+}
+
+renv_file_remove <- function(paths) {
+  if (renv_platform_windows())
+    renv_file_remove_win32(paths)
+  else
+    renv_file_remove_unix(paths)
+}
+
+renv_file_remove_win32 <- function(paths) {
+  for (path in paths) {
+    command <- paste("rmdir /S /Q", shQuote(path))
+    shell(command)
+  }
+}
+
+renv_file_remove_unix <- function(paths) {
+  unlink(paths, recursive = TRUE, force = TRUE)
 }

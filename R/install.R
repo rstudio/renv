@@ -528,6 +528,10 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   callback <- renv_file_backup(installpath)
   on.exit(callback(), add = TRUE)
 
+  # if this failed for some reason, just remove it
+  if (renv_file_broken(installpath))
+    renv_file_remove(installpath)
+
   # if this is the path to an unpacked binary archive,
   # we can just copy the folder over
   copyable <-
