@@ -43,7 +43,7 @@ load <- function(project = NULL, quiet = FALSE) {
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
   # https://github.com/rstudio/renv/issues/887
-  if (!is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA)))
+  if (identical(getOption("renv.autoloader.running"), TRUE))
     renv_project_clear()
 
   # if we're loading a project different from the one currently loaded,

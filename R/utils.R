@@ -133,8 +133,10 @@ ask <- function(question, default = FALSE) {
   if (!interactive())
     return(default)
 
-  initializing <- Sys.getenv("RENV_R_INITIALIZING", unset = NA)
-  if (identical(initializing, "true"))
+  # TODO: presumedly we don't want to prompt in the autoloader
+  # because it might cause issues in RStudio?
+  initializing <- getOption("renv.autoloader.running")
+  if (identical(initializing, TRUE))
     return(default)
 
   selection <- if (default) "[Y/n]" else "[y/N]"

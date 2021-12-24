@@ -79,7 +79,7 @@ renv_sandbox_activate_check <- function(libs) {
 
   danger <-
     exists(".First", envir = envir, inherits = FALSE) &&
-    !is.na(Sys.getenv("RENV_R_INITIALIZING", unset = NA))
+    identical(getOption("renv.autoloader.running"), TRUE)
 
   if (!danger)
     return(FALSE)

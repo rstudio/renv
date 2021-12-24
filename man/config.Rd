@@ -5,7 +5,7 @@
 \alias{config}
 \title{User-Level Configuration of renv}
 \format{
-An object of class \code{list} of length 34.
+An object of class \code{list} of length 35.
 }
 \usage{
 config

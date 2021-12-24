@@ -43,12 +43,14 @@ local({
     return(FALSE)
 
   # avoid recursion
-  if (nzchar(Sys.getenv("RENV_R_INITIALIZING")))
+  if (identical(getOption("renv.autoloader.running"), TRUE)) {
+    warning("ignoring recursive attempt to run renv autoloader")
     return(invisible(TRUE))
+  }
 
   # signal that we're loading renv during R startup
-  Sys.setenv("RENV_R_INITIALIZING" = "true")
-  on.exit(Sys.unsetenv("RENV_R_INITIALIZING"), add = TRUE)
+  options(renv.autoloader.running = TRUE)
+  on.exit(options(renv.autoloader.running = NULL), add = TRUE)
 
   # signal that we've consented to use renv
   options(renv.consent = TRUE)
