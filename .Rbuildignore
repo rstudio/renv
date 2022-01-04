@@ -6,6 +6,7 @@
 
 \.covrignore$
 \.renvignore$
+\.vscode
 
 ^appveyor\.yml$
 ^codecov\.yml$

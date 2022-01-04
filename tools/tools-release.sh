@@ -19,6 +19,9 @@ mv DESCRIPTION.tmp DESCRIPTION
 sed "s|.*(UNRELEASED)|# renv ${VERSION}|g" NEWS.md > NEWS.md.tmp
 mv NEWS.md.tmp NEWS.md
 
+# remove inst/doc (these will be rebuilt)
+rm -rf inst/doc
+
 # build and check the package
 cd ..
 R CMD build renv
