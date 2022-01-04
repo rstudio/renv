@@ -4,7 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="renv">
 <title>Package Development with renv • renv</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -12,12 +13,11 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Package Development with renv">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Package Development with renv">
 <meta property="og:description" content="renv">
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -25,189 +25,150 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../articles/renv.html">Get started</a>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-2">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="../articles/renv.html">Get started</a>
 </li>
-<li>
-  <a href="../reference/index.html">Reference</a>
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li class="divider">
-    <li class="dropdown-header">Introduction</li>
-    <li>
-      <a href="../articles/lockfile.html">Anatomy of a Lockfile</a>
-    </li>
-    <li>
-      <a href="../articles/local-sources.html">Installing from Local Sources</a>
-    </li>
-    <li>
-      <a href="../articles/mran.html">Using MRAN Binaries</a>
-    </li>
-    <li>
-      <a href="../articles/faq.html">Frequently Asked Questions</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Collaborating</li>
-    <li>
-      <a href="../articles/collaborating.html">Collaborating with renv</a>
-    </li>
-    <li>
-      <a href="../articles/use.html">Using Use</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Packages</li>
-    <li>
-      <a href="../articles/packages.html">Package Development with renv</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Deployment</li>
-    <li>
-      <a href="../articles/ci.html">Using renv with Continuous Integration</a>
-    </li>
-    <li>
-      <a href="../articles/docker.html">Using renv with Docker</a>
-    </li>
-    <li>
-      <a href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Integration</li>
-    <li>
-      <a href="../articles/python.html">Using Python with renv</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Advanced</li>
-    <li>
-      <a href="../articles/profiles.html">Project Profiles</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/rstudio/renv/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-</div>
-<!--/.nav-collapse -->
+<li class="active nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
+    <a class="dropdown-item" href="../articles/lockfile.html">Anatomy of a Lockfile</a>
+    <a class="dropdown-item" href="../articles/mran.html">Using MRAN Binaries</a>
+    <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Collaborating</h6>
+    <a class="dropdown-item" href="../articles/collaborating.html">Collaborating with renv</a>
+    <a class="dropdown-item" href="../articles/use.html">Using Use</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Packages</h6>
+    <a class="dropdown-item" href="../articles/packages.html">Package Development with renv</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
+    <a class="dropdown-item" href="../articles/ci.html">Using renv with Continuous Integration</a>
+    <a class="dropdown-item" href="../articles/docker.html">Using renv with Docker</a>
+    <a class="dropdown-item" href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Integration</h6>
+    <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Advanced</h6>
+    <a class="dropdown-item" href="../articles/profiles.html">Project Profiles</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/rstudio/renv/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
+    
+  </div>
+</nav><div class="container template-article">
 
-      </header><script src="packages_files/header-attrs-2.9.4/header-attrs.js"></script><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Package Development with renv</h1>
+<div class="row">
+  <main id="main"><div class="page-header">
+      <img src="../logo.svg" class="logo" alt=""><h1>Package Development with renv</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/packages.Rmd" class="external-link"><code>vignettes/packages.Rmd</code></a></small>
-      <div class="hidden name"><code>packages.Rmd</code></div>
-
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/packages.Rmd" class="external-link"><code>vignettes/packages.Rmd</code></a></small>
+      <div class="d-none name"><code>packages.Rmd</code></div>
     </div>
 
     
     
-<div id="development" class="section level2">
-<h2 class="hasAnchor">
-<a href="#development" class="anchor" aria-hidden="true"></a>Development</h2>
+<div class="section level2">
+<h2 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
+</h2>
 <p>Often, R packages will have other R packages as dependencies. For this, one must declare their R package dependencies within the package <code>DESCRIPTION</code> file. If you want to prepare your environment for package development, you can use:</p>
-<pre><code><a href="../reference/install.html">renv::install()</a></code></pre>
+<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="op">)</span></code></pre>
 <p>to install the packages as declared in the package’s <code>DESCRIPTION</code> file. This action is roughly analogous to <code><a href="https://remotes.r-lib.org/reference/install_deps.html" class="external-link">remotes::install_deps()</a></code>.</p>
 <p>If you’re developing a package that you intend to release to CRAN, then you likely want to build and test your package against the latest versions of your dependencies as available on CRAN. For this, you should consider using:</p>
-<pre><code><a href="../reference/update.html">renv::update()</a></code></pre>
+<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/update.html">update</a></span><span class="op">(</span><span class="op">)</span></code></pre>
 <p>to ensure your package dependencies are up-to-date, as appropriate.</p>
 </div>
-<div id="isolation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#isolation" class="anchor" aria-hidden="true"></a>Isolation</h2>
+<div class="section level2">
+<h2 id="isolation">Isolation<a class="anchor" aria-label="anchor" href="#isolation"></a>
+</h2>
 <p>Normally, a package under development should be tested against the latest-available versions of its dependencies on CRAN. However, in some cases, you may need to ensure your package is compatible with other packages also currently under development.</p>
 <p>In these cases, the <code>renv</code> project library can be useful – you can install the development version(s) of your dependencies into the project library, without worrying about clobbering any packages already installed in your user library.</p>
 <p>In these cases, you can declare your development dependencies using the <code>Remotes</code> field of the <code>DESCRIPTION</code> file; e.g.</p>
-<pre><code>Remotes:
-  r-lib/ggplot2</code></pre>
+<pre><code><span class="va">Remotes</span><span class="op">:</span>
+  <span class="va">r</span><span class="op">-</span><span class="va">lib</span><span class="op">/</span><span class="va">ggplot2</span></code></pre>
 <p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration and retrieve the requested package. See the <code>remotes</code> vignette, <a href="https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html" class="external-link">Dependency resolution for R package development</a>, for more details.</p>
 </div>
-<div id="testing" class="section level2">
-<h2 class="hasAnchor">
-<a href="#testing" class="anchor" aria-hidden="true"></a>Testing</h2>
-<p>While developing your package, you may want to use a continuous integration service (such as <a href="https://www.travis-ci.org/" class="external-link">Travis CI</a>) to build and test your package remotely. You can use <code>renv</code> to help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html" class="external-link">Continuous Integration</a> vignette for more information. In particular, clever use of the <code>renv</code> cache can help save time that might normally be spent on package installation.</p>
+<div class="section level2">
+<h2 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a>
+</h2>
+<p>While developing your package, you may want to use a continuous integration service (such as <a href="https://www.travis-ci.org/" class="external-link">Travis CI</a>) to build and test your package remotely. You can use <code>renv</code> to help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html" class="external-link">Continuous Integration</a> vignette for more information. In particular, clever use of the <code>renv</code> cache can help save time that might normally be spent on package installation. See <a href="https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml" class="external-link uri">https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml</a> for an example of how <code>renv</code> uses itself for package management in its own CI tests.</p>
 </div>
-<div id="r-cmd-build-and-the-project-library" class="section level2">
-<h2 class="hasAnchor">
-<a href="#r-cmd-build-and-the-project-library" class="anchor" aria-hidden="true"></a>R CMD build and the Project Library</h2>
-<p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. Unfortunately, this also implies copying the <code>renv</code> library. When that library is large, this can dramatically increase the amount of time it takes to build your package.</p>
-<p>One way to resolve this issue is to force <code>renv</code> to use a library path that lives outside of your project. For example, you might set the following in a start-up <code>.Renviron</code> file:</p>
+<div class="section level2">
+<h2 id="r-cmd-build-and-the-project-library">R CMD build and the Project Library<a class="anchor" aria-label="anchor" href="#r-cmd-build-and-the-project-library"></a>
+</h2>
+<p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. This can be time consuming if your project contains a large number of files. For this reason, <code>renv</code> places the project library for package projects within a separate external directory by default. This directory is:</p>
+<pre><code><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"renv/library"</span>, <span class="st">"cache"</span><span class="op">)</span></code></pre>
+<p>If you want to use your own custom path, you can use, for example:</p>
 <pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
-<p><code>renv</code> will then form library paths within this directory.</p>
+<p>If you’d prefer to keep your project library within the project directory, you can instead set:</p>
+<pre><code><span class="va">RENV_PATHS_LIBRARY</span> <span class="op">=</span> <span class="va">renv</span><span class="op">/</span><span class="va">library</span></code></pre>
+<p>within an appropriate <code>.Renviron</code> startup profile.</p>
 <p>By default, library paths will be formed using the project name, alongside a unique identifier generated from the full project path. These paths are of the form:</p>
 <pre><code>&lt;name&gt;-&lt;id&gt;</code></pre>
 <p>If you’d prefer to omit the <code>&lt;id&gt;</code>, then you can set the environment variable:</p>
-<pre><code>RENV_PATHS_LIBRARY_ROOT_ASIS = TRUE</code></pre>
+<pre><code><span class="va">RENV_PATHS_LIBRARY_ROOT_ASIS</span> <span class="op">=</span> <span class="cn">TRUE</span></code></pre>
 <p>to instruct <code>renv</code> to forego the use of an identifier.</p>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
 <p>Developed by Kevin Ushey.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-
 
   
 

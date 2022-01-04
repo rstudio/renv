@@ -1,12 +1,13 @@
-pandoc: 2.14.0.3
-pkgdown: 1.6.1.9001
-pkgdown_sha: ce9781a15c7ea07df9fb17a11295ba4abec0b54b
+pandoc: 2.16.2
+pkgdown: 2.0.1
+pkgdown_sha: ~
 articles:
+  bioconductor: bioconductor.html
+  cellar: cellar.html
   ci: ci.html
   collaborating: collaborating.html
   docker: docker.html
   faq: faq.html
-  local-sources: local-sources.html
   lockfile: lockfile.html
   mran: mran.html
   packages: packages.html
@@ -15,7 +16,7 @@ articles:
   renv: renv.html
   rsconnect: rsconnect.html
   use: use.html
-last_built: 2021-07-21T21:19Z
+last_built: 2022-01-04T23:45Z
 urls:
   reference: https://rstudio.github.io/renv/reference
   article: https://rstudio.github.io/renv/articles

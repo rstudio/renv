@@ -4,7 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="renv">
 <title>Introduction to renv • renv</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -12,12 +13,11 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to renv">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to renv">
 <meta property="og:description" content="renv">
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -25,131 +25,96 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">renv</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.14.0</span>
-      </span>
-    </div>
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    
+    <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../articles/renv.html">Get started</a>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-2">
+      <ul class="navbar-nav me-auto">
+<li class="active nav-item">
+  <a class="nav-link" href="../articles/renv.html">Get started</a>
 </li>
-<li>
-  <a href="../reference/index.html">Reference</a>
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li class="divider">
-    <li class="dropdown-header">Introduction</li>
-    <li>
-      <a href="../articles/lockfile.html">Anatomy of a Lockfile</a>
-    </li>
-    <li>
-      <a href="../articles/local-sources.html">Installing from Local Sources</a>
-    </li>
-    <li>
-      <a href="../articles/mran.html">Using MRAN Binaries</a>
-    </li>
-    <li>
-      <a href="../articles/faq.html">Frequently Asked Questions</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Collaborating</li>
-    <li>
-      <a href="../articles/collaborating.html">Collaborating with renv</a>
-    </li>
-    <li>
-      <a href="../articles/use.html">Using Use</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Packages</li>
-    <li>
-      <a href="../articles/packages.html">Package Development with renv</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Deployment</li>
-    <li>
-      <a href="../articles/ci.html">Using renv with Continuous Integration</a>
-    </li>
-    <li>
-      <a href="../articles/docker.html">Using renv with Docker</a>
-    </li>
-    <li>
-      <a href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Integration</li>
-    <li>
-      <a href="../articles/python.html">Using Python with renv</a>
-    </li>
-    <li class="divider">
-    <li class="dropdown-header">Advanced</li>
-    <li>
-      <a href="../articles/profiles.html">Project Profiles</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../news/index.html">Changelog</a>
-</li>
-      </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/rstudio/renv/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
-</div>
-<!--/.nav-collapse -->
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
+    <a class="dropdown-item" href="../articles/lockfile.html">Anatomy of a Lockfile</a>
+    <a class="dropdown-item" href="../articles/mran.html">Using MRAN Binaries</a>
+    <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Collaborating</h6>
+    <a class="dropdown-item" href="../articles/collaborating.html">Collaborating with renv</a>
+    <a class="dropdown-item" href="../articles/use.html">Using Use</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Packages</h6>
+    <a class="dropdown-item" href="../articles/packages.html">Package Development with renv</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
+    <a class="dropdown-item" href="../articles/ci.html">Using renv with Continuous Integration</a>
+    <a class="dropdown-item" href="../articles/docker.html">Using renv with Docker</a>
+    <a class="dropdown-item" href="../articles/rsconnect.html">Using renv with RStudio Connect</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Integration</h6>
+    <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
+    <div class="dropdown-divider"></div>
+    <h6 class="dropdown-header" data-toc-skip>Advanced</h6>
+    <a class="dropdown-item" href="../articles/profiles.html">Project Profiles</a>
   </div>
-<!--/.container -->
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../news/index.html">Changelog</a>
+</li>
+      </ul>
+<form class="form-inline my-2 my-lg-0" role="search">
+        <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
+</form>
+
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/rstudio/renv/" aria-label="github">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
-<!--/.navbar -->
 
-      
+    
+  </div>
+</nav><div class="container template-article">
 
-      </header><script src="renv_files/header-attrs-2.9.4/header-attrs.js"></script><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Introduction to renv</h1>
+<div class="row">
+  <main id="main"><div class="page-header">
+      <img src="../logo.svg" class="logo" alt=""><h1>Introduction to renv</h1>
                         <h4 data-toc-skip class="author">Kevin Ushey</h4>
             
-            <h4 data-toc-skip class="date">2021-07-21</h4>
+            <h4 data-toc-skip class="date">2022-01-04</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/master/vignettes/renv.Rmd" class="external-link"><code>vignettes/renv.Rmd</code></a></small>
-      <div class="hidden name"><code>renv.Rmd</code></div>
-
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/renv.Rmd" class="external-link"><code>vignettes/renv.Rmd</code></a></small>
+      <div class="d-none name"><code>renv.Rmd</code></div>
     </div>
 
     
     
 <p>The <code>renv</code> package is a new effort to bring project-local R dependency management to your projects. The goal is for <code>renv</code> to be a robust, stable replacement for the <a href="https://rstudio.github.io/packrat/" class="external-link">Packrat</a> package, with fewer surprises and better default behaviors.</p>
 <p>Underlying the philosophy of <code>renv</code> is that any of your existing workflows should just work as they did before – <code>renv</code> helps manage library paths (and other project-specific state) to help isolate your project’s R dependencies, and the existing tools you’ve used for managing R packages (e.g. <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, <code><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages()</a></code>) should work as they did before.</p>
-<div id="workflow" class="section level2">
-<h2 class="hasAnchor">
-<a href="#workflow" class="anchor" aria-hidden="true"></a>Workflow</h2>
+<div class="section level2">
+<h2 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a>
+</h2>
 <p>The general workflow when working with <code>renv</code> is:</p>
 <ol style="list-style-type: decimal">
 <li><p>Call <code><a href="../reference/init.html">renv::init()</a></code> to initialize a new project-local environment with a private R library,</p></li>
@@ -162,18 +127,18 @@
 <p>Calling <code><a href="../reference/init.html">renv::init()</a></code> will also write out the infrastructure necessary to automatically load and use the private library for new R sessions launched from the project root directory. This is accomplished by creating (or amending) a project-local <code>.Rprofile</code> with the necessary code to load the project when the R session is started.</p>
 <p>If you’d like to initialize a project without attempting dependency discovery and installation – that is, you’d prefer to manually install the packages your project requires on your own – you can use <code>renv::init(bare = TRUE)</code> to initialize a project with an empty project library.</p>
 </div>
-<div id="reproducibility" class="section level2">
-<h2 class="hasAnchor">
-<a href="#reproducibility" class="anchor" aria-hidden="true"></a>Reproducibility</h2>
+<div class="section level2">
+<h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
+</h2>
 <p>Using <code>renv</code>, it’s possible to “save” and “load” the state of your project library. More specifically, you can use:</p>
 <ul>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to save the state of your project to <code>renv.lock</code>; and</p></li>
 <li><p><code><a href="../reference/restore.html">renv::restore()</a></code> to restore the state of your project from <code>renv.lock</code>.</p></li>
 </ul>
 <p>For each package used in your project, <code>renv</code> will record the package version, and (if known) the external source from which that package can be retrieved. <code><a href="../reference/restore.html">renv::restore()</a></code> uses that information to retrieve and reinstall those packages in your project.</p>
-<div id="caveats" class="section level3">
-<h3 class="hasAnchor">
-<a href="#caveats" class="anchor" aria-hidden="true"></a>Caveats</h3>
+<div class="section level3">
+<h3 id="caveats">Caveats<a class="anchor" aria-label="anchor" href="#caveats"></a>
+</h3>
 <p>It is important to emphasize that <strong>renv is not a panacea for reproducibility</strong>. Rather, it is a tool that can help make projects reproducible by solving one small part of the problem: it records the version of R + R packages being used in a project, and provides tools for reinstalling the declared versions of those packages in a project. Ultimately, making a project reproducible requires some thoughtfulness from the user: what does it mean for a particular project to be reproducible, and how can <code>renv</code> (and other tools) be used to accomplish that particular goal of reproducibility?</p>
 <p>There are a still a number of factors that can affect whether this project could truly be reproducible in the future – for example,</p>
 <ol style="list-style-type: decimal">
@@ -184,9 +149,9 @@
 <p>A salient example of this is the <code>rmarkdown</code> package, as it relies heavily on the <a href="https://pandoc.org/" class="external-link"><code>pandoc</code></a> command line utility. However, because pandoc is not bundled with the <code>rmarkdown</code> package (it is normally provided by RStudio, or installed separately by the user), simply restoring an <code>renv</code> project using <code>rmarkdown</code> may not be sufficient – one also needs to ensure the project is run in a environment with the correct version of <code>pandoc</code> available.</p>
 </div>
 </div>
-<div id="infrastructure" class="section level2">
-<h2 class="hasAnchor">
-<a href="#infrastructure" class="anchor" aria-hidden="true"></a>Infrastructure</h2>
+<div class="section level2">
+<h2 id="infrastructure">Infrastructure<a class="anchor" aria-label="anchor" href="#infrastructure"></a>
+</h2>
 <p>The following files are written to and used by projects using <code>renv</code>:</p>
 <table class="table">
 <colgroup>
@@ -214,14 +179,55 @@
 <td><code>renv/library</code></td>
 <td>The private project library.</td>
 </tr>
+<tr class="odd">
+<td><code>renv/settings.dcf</code></td>
+<td>Project settings – see <code><a href="../reference/settings.html">?settings</a></code> for more details.</td>
+</tr>
 </tbody>
 </table>
 <p>In particular, <code>renv/activate.R</code> ensures that the project library is made active for newly launched R sessions. This ensures that any new R processes launched within the project directory will use the project library, and hence are isolated from the regular user library.</p>
 <p>For development and collaboration, the <code>.Rprofile</code>, <code>renv.lock</code> and <code>renv/activate.R</code> files should be committed to your version control system; the <code>renv/library</code> directory should normally be ignored. Note that <code><a href="../reference/init.html">renv::init()</a></code> will attempt to write the requisite ignore statements to the project <code>.gitignore</code>.</p>
 </div>
-<div id="package-sources" class="section level2">
-<h2 class="hasAnchor">
-<a href="#package-sources" class="anchor" aria-hidden="true"></a>Package Sources</h2>
+<div class="section level2">
+<h2 id="dependency-discovery">Dependency Discovery<a class="anchor" aria-label="anchor" href="#dependency-discovery"></a>
+</h2>
+<p>By default, <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> will examine your project’s R files to determine which packages are used in your project, and will include only those packages (alongside their recursive dependencies) in the lockfile. This is done via a call to the <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> function. We call this an “implicit” snapshot, since the packages your project depends on are implicit based on how packages appear to be used in your project. <code>renv</code> uses static analysis to determine which packages appear to be used; e.g. by scanning your code for calls to <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> or <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require()</a></code>.</p>
+<p>While useful, this approach is not 100% reliable in detecting the packages required by your project. If you find that <code>renv</code>’s dependency discovery is failing to discover one or more packages used in your project, one escape hatch is to include a file called <code>_dependencies.R</code> with code of the form:</p>
+<pre><code>library(&lt;pkg&gt;)</code></pre>
+<div class="section level3">
+<h3 id="ignore-files">Ignore Files<a class="anchor" aria-label="anchor" href="#ignore-files"></a>
+</h3>
+<p>By default, <code>renv</code> reads the <code>.gitignore</code> files in your project (if any) to infer which files should be ignored when scanning for dependencies. If you find that <code>renv</code>’s dependency discovery is scanning files you don’t want to be scanned, you can use an <code>.renvignore</code> file to instruct <code>renv</code> to ignore certain patterns of files in the project. For example, you might use:</p>
+<pre><code>/data</code></pre>
+<p>to tell <code>renv</code> not to scan files within the <code>data</code> folder.</p>
+<p>If you’d prefer that <code>renv</code> ignored all folders by default, except for some subset of folders where you place your code files, you could use something like:</p>
+<pre><code>*
+!/code</code></pre>
+<p>In this case, <code>renv</code> will only scan your <code>code</code> folder at the root of the project directory for dependencies.</p>
+</div>
+<div class="section level3">
+<h3 id="explicit-snapshots">Explicit Snapshots<a class="anchor" aria-label="anchor" href="#explicit-snapshots"></a>
+</h3>
+<p>If you’d instead prefer to explicitly declare which packages are used in your project, you can do so by creating a <code>DESCRIPTION</code> file at your project root. These <code>DESCRIPTION</code> files should be formatted similarly to those used by default in R package development – see <a href="https://r-pkgs.org/description.html" class="external-link uri">https://r-pkgs.org/description.html</a> for more details.</p>
+<p>In this case, your <code>DESCRIPTION</code> file might look like:</p>
+<pre><code>Type: project
+Description: My project.
+Depends:
+    tidyverse,
+    devtools,
+    shiny,
+    data.table</code></pre>
+<p>The packages used in your project can be part of either the <code>Depends</code> or <code>Imports</code> fields.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="collaborating">Collaborating<a class="anchor" aria-label="anchor" href="#collaborating"></a>
+</h2>
+<p>When sharing a project with other collaborators, you may want to ensure everyone is working with the same environment – otherwise, code in the project may unexpectedly fail to run because of changes in behavior between different versions of the packages in use. <code>renv</code> can help to make such collaboration easier – see <code><a href="../articles/collaborating.html">vignette("collaborating", package = "renv")</a></code> for more details.</p>
+</div>
+<div class="section level2">
+<h2 id="package-sources">Package Sources<a class="anchor" aria-label="anchor" href="#package-sources"></a>
+</h2>
 <p><code>renv</code> is able to install and restore packages from a variety of sources, including:</p>
 <ul>
 <li>
@@ -233,11 +239,11 @@
 <li><a href="https://bitbucket.org/" class="external-link">Bitbucket</a></li>
 </ul>
 <p><code>renv</code> uses an installed package’s <code>DESCRIPTION</code> file to infer its source. For example, packages installed from the CRAN repositories typically have the field:</p>
-<pre><code>Repository: CRAN</code></pre>
+<pre><code><span class="va">Repository</span><span class="op">:</span> <span class="va">CRAN</span></code></pre>
 <p>set, and <code>renv</code> takes this as a signal that the package was retrieved from CRAN.</p>
-<div id="inferring-package-sources" class="section level3">
-<h3 class="hasAnchor">
-<a href="#inferring-package-sources" class="anchor" aria-hidden="true"></a>Inferring Package Sources</h3>
+<div class="section level3">
+<h3 id="inferring-package-sources">Inferring Package Sources<a class="anchor" aria-label="anchor" href="#inferring-package-sources"></a>
+</h3>
 <p>The following fields are checked, in order, when inferring a package’s source:</p>
 <ol style="list-style-type: decimal">
 <li><p>The <code>RemoteType</code> field; typically written for packages installed by the <code>devtools</code>, <code>remotes</code> and <code>pak</code> packages,</p></li>
@@ -245,11 +251,11 @@
 <li><p>The <code>biocViews</code> field; typically present for packages installed from the Bioconductor repositories,</p></li>
 </ol>
 <p>As a fallback, if <code>renv</code> is unable to determine a package’s source from the <code>DESCRIPTION</code> file directly, but a package of the same name is available in the active R repositories (as specified in <code>getOption("repos")</code>), then the package will be treated as though it was installed from an R package repository.</p>
-<p>If all of the above methods fail, <code>renv</code> will finally check for a package available from local sources. See <a href="local-sources.html">here</a> for more details. Local sources are typically used as an escape hatch, for packages which do not have a well-defined remote source.</p>
+<p>If all of the above methods fail, <code>renv</code> will finally check for a package available from the <em>cellar</em>. See <a href="cellar.html">here</a> for more details. The package cellar is typically used as an escape hatch, for packages which do not have a well-defined remote source, or for packages which might not be remotely accessible from your machine.</p>
 </div>
-<div id="unknown-sources" class="section level3">
-<h3 class="hasAnchor">
-<a href="#unknown-sources" class="anchor" aria-hidden="true"></a>Unknown Sources</h3>
+<div class="section level3">
+<h3 id="unknown-sources">Unknown Sources<a class="anchor" aria-label="anchor" href="#unknown-sources"></a>
+</h3>
 <p>If <code>renv</code> is unable to infer a package’s source, it will inform you during <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> – for example, if we attempted to snapshot a package called <code>skeleton</code> with no known source:</p>
 <pre><code>&gt; renv::snapshot()
 The following package(s) were installed from an unknown source:
@@ -262,26 +268,26 @@ Consider reinstalling these packages from a known source (e.g. CRAN).
 Do you want to proceed? [y/N]:</code></pre>
 <p>While you can still create a lockfile with such packages, <code><a href="../reference/restore.html">restore()</a></code> will likely fail unless you can ensure this package is installed through some other mechanism.</p>
 </div>
-<div id="custom-r-package-repositories" class="section level3">
-<h3 class="hasAnchor">
-<a href="#custom-r-package-repositories" class="anchor" aria-hidden="true"></a>Custom R Package Repositories</h3>
+<div class="section level3">
+<h3 id="custom-r-package-repositories">Custom R Package Repositories<a class="anchor" aria-label="anchor" href="#custom-r-package-repositories"></a>
+</h3>
 <p>Custom and local R package repositories are supported as well. The only requirement is that these repositories are set as part of the <code>repos</code> R option, and that these repositories are named. For example, you might use:</p>
-<pre><code>repos &lt;- c(CRAN = "https://cloud.r-project.org", WORK = "https://work.example.org")
-options(repos = repos)</code></pre>
+<pre><code><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span>, WORK <span class="op">=</span> <span class="st">"https://work.example.org"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="va">repos</span><span class="op">)</span></code></pre>
 <p>to tell <code>renv</code> to work with both the official CRAN package repository, as well as a package repository you have hosted and set up in your work environment.</p>
 </div>
 </div>
-<div id="upgrading-renv" class="section level2">
-<h2 class="hasAnchor">
-<a href="#upgrading-renv" class="anchor" aria-hidden="true"></a>Upgrading renv</h2>
+<div class="section level2">
+<h2 id="upgrading-renv">Upgrading renv<a class="anchor" aria-label="anchor" href="#upgrading-renv"></a>
+</h2>
 <p>After initializing a project with <code>renv</code>, that project will then be ‘bound’ to the particular version of <code>renv</code> that was used to initialize the project. If you need to upgrade (or otherwise change) the version of <code>renv</code> associated with a project, you can use <code><a href="../reference/upgrade.html">renv::upgrade()</a></code>. This will install the latest-available version of <code>renv</code> from your declared package repositories. Alternatively, if you’re currently using a development version of <code>renv</code> as installed from GitHub in your project, then <code>renv</code> will install the latest-available version of <code>renv</code> from GitHub.</p>
 <p>With each commit of <code>renv</code>, we bump the package version and also tag the commit with the associated package version. This implies that you can call, for example:</p>
-<pre><code>renv::upgrade(version = "0.14.0")</code></pre>
+<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.15.0"</span><span class="op">)</span></code></pre>
 <p>to request the installation of that particular version of <code>renv</code> if so required.</p>
 </div>
-<div id="cache" class="section level2">
-<h2 class="hasAnchor">
-<a href="#cache" class="anchor" aria-hidden="true"></a>Cache</h2>
+<div class="section level2">
+<h2 id="cache">Cache<a class="anchor" aria-label="anchor" href="#cache"></a>
+</h2>
 <p>One of <code>renv</code>’s primary features is the use of a global package cache, which is shared across all projects using <code>renv</code>. The <code>renv</code> package cache provides two primary benefits:</p>
 <ol style="list-style-type: decimal">
 <li><p>Future calls to <code><a href="../reference/restore.html">renv::restore()</a></code> and <code><a href="../reference/install.html">renv::install()</a></code> will become much faster, as <code>renv</code> will be able to find and re-use packages already installed in the cache.</p></li>
@@ -321,9 +327,9 @@ options(repos = repos)</code></pre>
 <p>While we recommend enabling the cache by default, if you’re having trouble with <code>renv</code> when the cache is enabled, it can be disabled by setting the project setting <code>renv::settings$use.cache(FALSE)</code>. Doing this will ensure that packages are then installed into your project library directly, without attempting to link and use packages from the <code>renv</code> cache.</p>
 <p>If you find a problematic package has entered the cache (for example, an installed package has become corrupted), that package can be removed with the <code><a href="../reference/purge.html">renv::purge()</a></code> function. See the <code><a href="../reference/purge.html">?purge</a></code> documentation for caveats and things to be aware of when removing packages from the cache.</p>
 </div>
-<div id="installation-from-source" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation-from-source" class="anchor" aria-hidden="true"></a>Installation from Source</h2>
+<div class="section level2">
+<h2 id="installation-from-source">Installation from Source<a class="anchor" aria-label="anchor" href="#installation-from-source"></a>
+</h2>
 <p>In the end, <code>renv</code> still needs to install R packages – either from binaries available from CRAN, or from sources when binaries are not available. Installation from source can be challenging for a few reasons:</p>
 <ol style="list-style-type: decimal">
 <li><p>Your system will need to have a compatible compiler toolchain available. In some cases, R packages may depend on C / C++ features that aren’t available in an older system toolchain, especially in some older Linux enterprise environments.</p></li>
@@ -331,9 +337,9 @@ options(repos = repos)</code></pre>
 </ol>
 <!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb -->
 </div>
-<div id="downloads" class="section level2">
-<h2 class="hasAnchor">
-<a href="#downloads" class="anchor" aria-hidden="true"></a>Downloads</h2>
+<div class="section level2">
+<h2 id="downloads">Downloads<a class="anchor" aria-label="anchor" href="#downloads"></a>
+</h2>
 <p>By default, <code>renv</code> uses <a href="https://curl.se/" class="external-link"><code>curl</code></a> for file downloads when available. This allows <code>renv</code> to support a number of download features across multiple versions of R, including:</p>
 <ul>
 <li>Custom headers (used especially for authentication),</li>
@@ -343,38 +349,38 @@ options(repos = repos)</code></pre>
 <p>If <code>curl</code> is not available on your machine, it is highly recommended that you install it. Newer versions of Windows 10 come with a bundled version of <code>curl.exe</code>; other users on Windows can use <code><a href="../reference/equip.html">renv::equip()</a></code> to download and install a recent copy of <code>curl</code>. Newer versions of macOS come with a bundled version of <code>curl</code> that is adequate for usage with <code>renv</code>, and most Linux package managers have a modern version of <code>curl</code> available in their package repositories.</p>
 <p><code>curl</code> downloads can be configured through <code>renv</code>’s configuration settings – see <code><a href="../reference/config.html">?renv::config</a></code> for more details.</p>
 <p>If you’ve already configured R’s downloader and would like to bypass <code>renv</code>’s attempts to use <code>curl</code>, you can use the R option <code>renv.download.override</code>. For example, executing:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.override <span class="op">=</span> <span class="fu">utils</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">)</span></code></pre></div>
 <p>would instruct <code>renv</code> to use R’s own download machinery when attempting to download files from the internet (respecting the R options <code>download.file.method</code> and <code>download.file.extra</code> as appropriate). Advanced users can also provide their own download function, provided its signature matches that of <code><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">utils::download.file()</a></code>.</p>
 <p>You can also instruct <code>renv</code> to use a different download method by setting the <code>RENV_DOWNLOAD_METHOD</code> environment variable. For example:</p>
-<pre><code># use Windows' internal download machinery
-Sys.setenv(RENV_DOWNLOAD_METHOD = "wininet")
+<pre><code><span class="co"># use Windows' internal download machinery</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_DOWNLOAD_METHOD <span class="op">=</span> <span class="st">"wininet"</span><span class="op">)</span>
 
-# use R's bundled libcurl implementation
-Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")</code></pre>
+<span class="co"># use R's bundled libcurl implementation</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_DOWNLOAD_METHOD <span class="op">=</span> <span class="st">"libcurl"</span><span class="op">)</span></code></pre>
 <p>Note that other features (e.g. authentication) may not be supported when using an alternative download file method – you will have to configure the downloader yourself if that is required. See <code><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">?download.file</a></code> for more details.</p>
-<div id="proxies" class="section level3">
-<h3 class="hasAnchor">
-<a href="#proxies" class="anchor" aria-hidden="true"></a>Proxies</h3>
+<div class="section level3">
+<h3 id="proxies">Proxies<a class="anchor" aria-label="anchor" href="#proxies"></a>
+</h3>
 <p>If your downloads need to go through a proxy server, then there are a variety of approaches you can take to make this work:</p>
 <ol style="list-style-type: decimal">
 <li><p>Set the <code>http_proxy</code> and / or <code>https_proxy</code> environment variables. These environment variables can contain the full URL to your proxy server, including a username + password if necessary.</p></li>
 <li><p>You can use a <code>.curlrc</code> (<code>_curlrc</code> on Windows) to provide information about the proxy server to be used. This file should be placed in your home folder (see <code>Sys.getenv("HOME")</code>, or <code>Sys.getenv("R_USER")</code> on Windows); alternatively, you can set the <code>CURL_HOME</code> environment variable to point to a custom ‘home’ folder to be used by <code>curl</code> when resolving the runtime configuration file. On Windows, you can also place your <code>_curlrc</code> in the same directory where the <code>curl.exe</code> binary is located.</p></li>
 </ol>
-<p>See the curl documentation on <a href="https://everything.curl.dev/usingcurl-proxies.html" class="external-link">proxies</a> and <a href="https://everything.curl.dev/cmdline-configfile.html" class="external-link">config files</a> for more details.</p>
+<p>See the curl documentation on <a href="https://everything.curl.dev/usingcurl/proxies.html" class="external-link">proxies</a> and <a href="https://everything.curl.dev/cmdline/configfile.html" class="external-link">config files</a> for more details.</p>
 <p>As an <a href="https://github.com/rstudio/renv/issues/146" class="external-link">example</a>, the following <code>_curlrc</code> works when using authentication with NTLM and SSPI on Windows:</p>
 <pre><code>--proxy "your.proxy.dns:port"
 --proxy-ntlm
 --proxy-user ":"
 --insecure</code></pre>
 <p>The <a href="https://cran.r-project.org/package=curl" class="external-link">curl</a> R package also has a helper:</p>
-<pre><code><a href="https://rdrr.io/pkg/curl/man/ie_proxy.html" class="external-link">curl::ie_get_proxy_for_url()</a></code></pre>
+<pre><code><span class="fu">curl</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/curl/man/ie_proxy.html" class="external-link">ie_get_proxy_for_url</a></span><span class="op">(</span><span class="op">)</span></code></pre>
 <p>which may be useful when attempting to discover this proxy address.</p>
 </div>
 </div>
-<div id="authentication" class="section level2">
-<h2 class="hasAnchor">
-<a href="#authentication" class="anchor" aria-hidden="true"></a>Authentication</h2>
+<div class="section level2">
+<h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a>
+</h2>
 <p>Your project may make use of packages which are available from remote sources requiring some form of authentication to access – for example, a GitHub enterprise server. Usually, either a personal access token (PAT) or username + password combination is required for authentication. <code>renv</code> is able to authenticate when downloading from such sources, using the same system as the <a href="https://cran.r-project.org/package=remotes" class="external-link">remotes</a> package. In particular, environment variables are used to record and transfer the required authentication information.</p>
 <table class="table">
 <thead><tr class="header">
@@ -406,7 +412,7 @@ Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")</code></pre>
 </table>
 <p>These credentials can be stored in e.g. <code>.Renviron</code>, or can be set in your R session through other means as appropriate.</p>
 <p>If you require custom authentication for different packages (for example, your project makes use of packages available on different GitHub enterprise servers), you can use the <code>renv.auth</code> R option to provide package-specific authentication settings. <code>renv.auth</code> can either be a a named list associating package names with environment variables, or a function accepting a package name + record, and returning a list of environment variables. For example:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># define a function providing authentication</span>
 <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.auth <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">package</span>, <span class="va">record</span><span class="op">)</span> <span class="op">{</span>
   <span class="kw">if</span> <span class="op">(</span><span class="va">package</span> <span class="op">==</span> <span class="st">"MyPackage"</span><span class="op">)</span>
@@ -421,12 +427,12 @@ Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")</code></pre>
 <span class="co"># alternatively, set package-specific option</span>
 <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.auth.MyPackage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>For packages installed from Git remotes, <code>renv</code> will attempt to use <code>git</code> from the command line to download and restore the associated package. Hence, it is recommended that authentication is done through SSH keys when possible.</p>
-<div id="authentication-with-custom-headers" class="section level3">
-<h3 class="hasAnchor">
-<a href="#authentication-with-custom-headers" class="anchor" aria-hidden="true"></a>Authentication with Custom Headers</h3>
+<div class="section level3">
+<h3 id="authentication-with-custom-headers">Authentication with Custom Headers<a class="anchor" aria-label="anchor" href="#authentication-with-custom-headers"></a>
+</h3>
 <p>If you want to set arbitrary headers when downloading files using <code>renv</code>, you can do so using the <code>renv.download.headers</code> R option. It should be a function that accepts a URL, and returns a named character vector indicating the headers which should be supplied when accessing that URL.</p>
 <p>For example, suppose you have a package repository hosted at <code>https://my/repository</code>, and the credentials required to access that repository are stored in the <code>AUTH_HEADER</code> environment variable. You could define <code>renv.download.headers</code> like so:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.headers <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="op">{</span>
   <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^https://my/repository"</span>, <span class="va">url</span><span class="op">)</span><span class="op">)</span>
     <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Authorization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AUTH_HEADER"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
@@ -434,9 +440,9 @@ Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")</code></pre>
 <p>With the above, <code>renv</code> will set the <code>Authorization</code> header whenever it attempts to download files from the repository at URL <code>https://my/repository</code>.</p>
 </div>
 </div>
-<div id="shims" class="section level2">
-<h2 class="hasAnchor">
-<a href="#shims" class="anchor" aria-hidden="true"></a>Shims</h2>
+<div class="section level2">
+<h2 id="shims">Shims<a class="anchor" aria-label="anchor" href="#shims"></a>
+</h2>
 <p>To help you take advantage of the package cache, <code>renv</code> places a couple of shims on the search path:</p>
 <table class="table">
 <thead><tr class="header">
@@ -461,15 +467,15 @@ Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")</code></pre>
 <p>This can be useful when installing packages which have already been cached. For example, if you use <code>renv::install("dplyr")</code>, and <code>renv</code> detects that the latest version on CRAN has already been cached, then <code>renv</code> will just install using the copy available in the cache – thereby skipping some of the installation overhead.</p>
 <p>If you’d prefer not to use the <code>renv</code> shims, they can be disabled by setting the option <code>options(renv.config.shims.enabled = FALSE)</code>. See <code><a href="../reference/config.html">?config</a></code> for more details.</p>
 </div>
-<div id="history" class="section level2">
-<h2 class="hasAnchor">
-<a href="#history" class="anchor" aria-hidden="true"></a>History</h2>
+<div class="section level2">
+<h2 id="history">History<a class="anchor" aria-label="anchor" href="#history"></a>
+</h2>
 <p>If you’re using a version control system with your project, then as you call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> and later commit new lockfiles to your repository, you may find it necessary later to recover older versions of your lockfiles. <code>renv</code> provides the functions <code><a href="../reference/history.html">renv::history()</a></code> to list previous revisions of your lockfile, and <code><a href="../reference/revert.html">renv::revert()</a></code> to recover these older lockfiles.</p>
 <p>Currently, only Git repositories are supported by <code><a href="../reference/history.html">renv::history()</a></code> and <code><a href="../reference/revert.html">renv::revert()</a></code>.</p>
 </div>
-<div id="comparison-with-packrat" class="section level2">
-<h2 class="hasAnchor">
-<a href="#comparison-with-packrat" class="anchor" aria-hidden="true"></a>Comparison with Packrat</h2>
+<div class="section level2">
+<h2 id="comparison-with-packrat">Comparison with Packrat<a class="anchor" aria-label="anchor" href="#comparison-with-packrat"></a>
+</h2>
 <p><code>renv</code> differs from Packrat in the following ways:</p>
 <ol style="list-style-type: decimal">
 <li><p>The <code>renv</code> lockfile <code>renv.lock</code> is formatted as <a href="https://www.json.org/" class="external-link">JSON</a>. This should make the lockfile easier to use and consume with other tools.</p></li>
@@ -479,29 +485,29 @@ Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")</code></pre>
 <li><p><code>renv</code>’s dependency discovery machinery is more configurable. The function <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> is exported, and users can create <code>.renvignore</code> files to instruct <code>renv</code> to ignore specific files and folders in their projects. (See <code><a href="../reference/dependencies.html">?renv::dependencies</a></code> for more information.)</p></li>
 </ol>
 </div>
-<div id="migrating-from-packrat" class="section level2">
-<h2 class="hasAnchor">
-<a href="#migrating-from-packrat" class="anchor" aria-hidden="true"></a>Migrating from Packrat</h2>
+<div class="section level2">
+<h2 id="migrating-from-packrat">Migrating from Packrat<a class="anchor" aria-label="anchor" href="#migrating-from-packrat"></a>
+</h2>
 <p>The <code><a href="../reference/migrate.html">renv::migrate()</a></code> function makes it possible to migrate projects from Packrat to <code>renv</code>. See the <code><a href="../reference/migrate.html">?migrate</a></code> documentation for more details. In essence, calling <code>renv::migrate("&lt;project path&gt;")</code> will be enough to migrate the Packrat library and lockfile such that they can then be used by <code>renv</code>.</p>
 </div>
-<div id="uninstalling-renv" class="section level2">
-<h2 class="hasAnchor">
-<a href="#uninstalling-renv" class="anchor" aria-hidden="true"></a>Uninstalling renv</h2>
+<div class="section level2">
+<h2 id="uninstalling-renv">Uninstalling renv<a class="anchor" aria-label="anchor" href="#uninstalling-renv"></a>
+</h2>
 <p>If you find <code>renv</code> isn’t the right fit for your project, deactivating and uninstalling it is easy.</p>
 <ul>
 <li><p>To deactivate <code>renv</code> in a project, use <code><a href="../reference/deactivate.html">renv::deactivate()</a></code>. This removes the <code>renv</code> auto-loader from the project <code>.Rprofile</code>, but doesn’t touch any other <code>renv</code> files used in the project. If you’d like to later re-activate <code>renv</code>, you can do so with <code><a href="../reference/activate.html">renv::activate()</a></code>.</p></li>
 <li><p>To remove <code>renv</code> from a project, use <code><a href="../reference/deactivate.html">renv::deactivate()</a></code> to first remove the <code>renv</code> auto-loader from the project <code>.Rprofile</code>, then delete the project’s <code>renv</code> folder and <code>renv.lock</code> lockfile as desired.</p></li>
 </ul>
 <p>If you want to completely remove any installed <code>renv</code> infrastructure components from your entire system, you can do so with the following R code:</p>
-<pre><code>root &lt;- renv::paths$root()
-unlink(root, recursive = TRUE)</code></pre>
+<pre><code><span class="va">root</span> <span class="op">&lt;-</span> <span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/paths.html">paths</a></span><span class="op">$</span><span class="fu">root</span><span class="op">(</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">root</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre>
 <p>The <code>renv</code> package can then also be uninstalled via:</p>
-<pre><code>utils::remove.packages("renv")</code></pre>
+<pre><code><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages</a></span><span class="op">(</span><span class="st">"renv"</span><span class="op">)</span></code></pre>
 <p>Note that if you’ve customized any of <code>renv</code>’s infrastructure paths as described in <code><a href="../reference/paths.html">?renv::paths</a></code>, then you’ll need to find and remove those customized folders as well.</p>
 </div>
-<div id="future-work" class="section level2">
-<h2 class="hasAnchor">
-<a href="#future-work" class="anchor" aria-hidden="true"></a>Future Work</h2>
+<div class="section level2">
+<h2 id="future-work">Future Work<a class="anchor" aria-label="anchor" href="#future-work"></a>
+</h2>
 <p><code>renv</code>, like Packrat, is designed to work standalone without the need to depend on any non-base R packages. However, the following (future) integrations are planned:</p>
 <ul>
 <li><p>Use <a href="https://github.com/r-lib/pak" class="external-link">pak</a> for parallel package installation,</p></li>
@@ -509,33 +515,26 @@ unlink(root, recursive = TRUE)</code></pre>
 </ul>
 <p>These integrations will be optional (so that <code>renv</code> can always work standalone) but we hope that they will further improve the speed and reliability of <code>renv</code>.</p>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
-
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
+    <footer><div class="pkgdown-footer-left">
   <p></p>
 <p>Developed by Kevin Ushey.</p>
 </div>
 
-<div class="pkgdown">
+<div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
 
   
-
 
   
 
