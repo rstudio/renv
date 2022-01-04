@@ -497,8 +497,8 @@ approaches you can take to make this work:
    configuration file. On Windows, you can also place your `_curlrc` in the
    same directory where the `curl.exe` binary is located.
 
-See the curl documentation on [proxies](https://everything.curl.dev/usingcurl-proxies.html)
-and [config files](https://everything.curl.dev/cmdline-configfile.html) for more details.
+See the curl documentation on [proxies](https://everything.curl.dev/usingcurl/proxies.html)
+and [config files](https://everything.curl.dev/cmdline/configfile.html) for more details.
 
 As an [example](https://github.com/rstudio/renv/issues/146), the following
 `_curlrc` works when using authentication with NTLM and SSPI on Windows:
