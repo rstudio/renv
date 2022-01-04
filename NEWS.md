@@ -1,5 +1,5 @@
 
-# renv 0.15.0  (UNRELEASED)
+# renv 0.15.0
 
 * The development branch for `renv` has moved from master to main.
 
