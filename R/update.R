@@ -238,6 +238,20 @@ update <- function(packages = NULL,
   # apply exclusions
   packages <- setdiff(packages, exclude)
 
+  # if users have requested the use of pak, delegate there
+  if (config$pak.enabled() && !recursing()) {
+
+    renv_pak_init(
+      library = library,
+      type    = type,
+      rebuild = rebuild,
+      project = project
+    )
+
+    return(renv_pak_install(packages, libpaths))
+
+  }
+
   # check if the user has requested update for packages not installed
   missing <- renv_vector_diff(packages, names(records))
   if (!empty(missing)) {
