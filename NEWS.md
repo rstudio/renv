@@ -62,7 +62,7 @@
   opposed to packages explicitly placed in this ad-hoc repository.
   `RENV_PATHS_LOCAL` remains supported for backwards compatibility.
   
-* The `RENV_PATHS_LOCAL` environment variable can now be set to multiple
+* The `RENV_PATHS_CELLAR` environment variable can now be set to multiple
   paths. Use `;` as a separator between paths; for example,
   `RENV_PATHS_LOCAL=/path/to/sources/v1;/path/to/sources/v2`. (#550)
   
