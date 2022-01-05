@@ -533,7 +533,7 @@ renv_cache_config_enabled <- function(project) {
 renv_cache_config_symlinks <- function(project) {
 
   usesymlinks <-
-    config$cache.symlinks() %||%
+    config$cache.symlinks(default = NULL) %||%
     renv_cache_config_symlinks_default(project = project)
 
   usesymlinks && settings$use.cache(project = project)

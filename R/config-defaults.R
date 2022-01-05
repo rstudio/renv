@@ -77,7 +77,7 @@ config <- list(
     )
   },
 
-  cache.symlinks = function(..., default = NULL) {
+  cache.symlinks = function(..., default = .Platform$OS.type == "unix") {
     renv_config_get(
       name    = "cache.symlinks",
       type    = "logical[1]",

@@ -1,4 +1,9 @@
 
+# renv 0.16.0  (UNRELEASED)
+
+* Fixed an issue where `config$cache.symlinks()` would report `NULL` when
+  unset. (#906)
+  
 # renv 0.15.0
 
 * The development branch for `renv` has moved from master to main.

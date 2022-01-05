@@ -20,14 +20,17 @@ template <- gsub("^\\n+|\\n+$", "", template)
 
 generate <- function(entry) {
 
-  name <- entry$name
-  type <- entry$type
+  name    <- entry$name
+  type    <- entry$type
   default <- entry$default
+  code    <- entry$code
+
+  default <- if (length(code)) trimws(code) else deparse(default)
 
   replacements <- list(
     NAME     = name,
     TYPE     = type,
-    DEFAULT  = renv_deparse(default)
+    DEFAULT  = default
   )
 
   renv_template_replace(template, replacements)

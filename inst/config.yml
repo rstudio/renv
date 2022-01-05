@@ -63,7 +63,8 @@
 
 - name: "cache.symlinks"
   type: "logical[1]"
-  default: ~
+  code: >
+    .Platform$OS.type == "unix"
   description: >
     Symlink packages from the global `renv` package cache into your project
     library? When `TRUE`, `renv` will use symlinks (or, on Windows, junction
