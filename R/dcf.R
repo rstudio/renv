@@ -50,12 +50,17 @@ renv_dcf_read_impl <- function(file, ...) {
   # parse it
   properties <- renv_properties_read(text = field)
 
+  # try converting from the declared encoding to UTF-8
   # now convert from this encoding to UTF-8
-  iconv(
-    x    = list(contents),
-    from = properties$Encoding,
-    to   = "UTF-8"
-  )
+  encodings <- c(properties$Encoding, "UTF-8", "")
+  for (encoding in unique(encodings)) {
+    result <- iconv(list(contents), from = encoding, to = "UTF-8")
+    if (!is.na(result))
+      return(result)
+  }
+
+  # all else fails, just pretend it's in the native encoding
+  rawToChar(contents)
 
 }
 
