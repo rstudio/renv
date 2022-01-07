@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to read mis-encoded
+  DESCRIPTION files. (#908)
+
 * Fixed an issue where `config$cache.symlinks()` would report `NULL` when
   unset. (#906)
   
