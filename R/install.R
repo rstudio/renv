@@ -492,7 +492,9 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
     # rename to true package name
     name <- list.files(dir)
-    renv_file_move(file.path(dir, name), file.path(dir, package))
+    source <- file.path(dir, name)
+    target <- file.path(dir, package)
+    renv_file_move(source, target)
 
     # form new path
     components <- c(dir, package, if (nzchar(subdir)) subdir)

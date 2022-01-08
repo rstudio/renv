@@ -76,19 +76,31 @@ renv::activate(profile = NULL)
 ## Managing Profile-specific Dependencies
 
 Profile-specific package dependencies can be declared within the project's
-top-level `DESCRIPTION` file. For example, to declare a set of dependencies
-for a profile called "shiny":
+top-level `DESCRIPTION` file. For example, to declare that the `shiny`
+profile depends on the [shiny] and [tidyverse] packages:
 
 ```
 Config/renv/profiles/shiny/dependencies: shiny, tidyverse
 ```
 
-The dependencies in this field can be specified in a format similar to that of
-the `Depends` and `Imports` fields of a regular `DESCRIPTION` file. These
-dependencies will be included in addition to the default set of dependencies
-normally discovered in the project. If you'd prefer that only the packages
-enumerated in this field are used, you can opt-in to using `"explicit"`
-snapshots, and leave the `Imports`, `Depends` and `Suggests` fields blank:
+If you'd like to also declare that these packages should be installed from
+a custom remote (analogous to the `Remotes` field for the default profile),
+you can define those remotes with a separate field:
+
+```
+Config/renv/profiles/shiny/remotes: rstudio/shiny, tidyverse/tidyverse
+```
+
+These remotes will then be respected in calls to `renv::install()`.
+
+The packages and remotes must be specified separately, as `renv` cannot
+determine the package name associated with a particular remote without
+explicitly resolving that remote. Remote resolution normally requires a web
+request, which `renv` tries to avoid in "regular" dependency discovery.
+
+If you'd prefer that only the packages enumerated in this field are used, you
+can opt-in to using `"explicit"` snapshots, and leave the `Imports`, `Depends`
+and `Suggests` fields blank:
 
 ```{r}
 renv::settings$snapshot.type("explicit")
@@ -97,3 +109,7 @@ renv::settings$snapshot.type("explicit")
 When set, only the dependencies listed in the project `DESCRIPTION` file will
 be used when the lockfile is generated. See `?renv::snapshot` for more details.
 
+
+
+[shiny]: https://shiny.rstudio.com/
+[tidyverse]: https://www.tidyverse.org/

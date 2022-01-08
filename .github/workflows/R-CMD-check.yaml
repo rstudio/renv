@@ -72,7 +72,7 @@ jobs:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ matrix.config.os }}-renv-${{ hashFiles('ci/version.rds') }}-${{ hashFiles('ci/dependencies.rds') }}
           restore-keys: |
-            ${{ matrix.config.os  }}-renv-${{ hashFiles('ci/version.rds') }}-
+            ${{ matrix.config.os }}-renv-${{ hashFiles('ci/version.rds') }}-
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'

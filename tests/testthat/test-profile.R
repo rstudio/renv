@@ -99,3 +99,24 @@ test_that("profile-specific dependencies can be declared in DESCRIPTION", {
   expect_true("toast" %in% deps$Package)
 
 })
+
+test_that("profile-specific remotes are parsed", {
+  project <- renv_tests_scope()
+
+  renv_scope_envvars(RENV_PROFILE = "testing")
+  init()
+
+  desc <- heredoc('
+    Type: Project
+    Config/renv/profiles/testing/dependencies: bread
+    Config/renv/profiles/testing/remotes: bread@0.1.0
+  ')
+
+  writeLines(desc, con = "DESCRIPTION")
+  remotes <- renv_project_remotes(project)
+
+  actual <- remotes$bread
+  expected <- list(Package = "bread", Version = "0.1.0", Source = "Repository")
+  expect_equal(actual, expected)
+
+})

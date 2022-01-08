@@ -439,7 +439,8 @@ renv_dependencies_discover_renv_lock <- function(path) {
 
 renv_dependencies_discover_description <- function(path,
                                                    fields = NULL,
-                                                   subdir = NULL)
+                                                   subdir = NULL,
+                                                   project = NULL)
 {
   dcf <- catch(renv_description_read(path = path, subdir = subdir))
   if (inherits(dcf, "error"))
@@ -460,9 +461,13 @@ renv_dependencies_discover_description <- function(path,
   # if this is the DESCRIPTION file for the active project, include
   # Suggests since they're often needed as well. such packages will be
   # considered development dependencies, except for package projects
-  state <- renv_dependencies_state()
   type <- "unknown"
-  if (identical(file.path(state$root, "DESCRIPTION"), path)) {
+  project <-
+    project %||%
+    renv_dependencies_state(key = "root") %||%
+    renv_project_resolve()
+
+  if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
 
     # collect profile-specific dependencies as well
     profile <- renv_profile_get()
@@ -1569,8 +1574,9 @@ renv_dependencies_require <- function(package, type) {
 
 }
 
-renv_dependencies_state <- function() {
-  renv_global_get("dependencies.state")
+renv_dependencies_state <- function(key = NULL) {
+  state <- renv_global_get("dependencies.state")
+  if (is.null(key)) state else state[[key]]
 }
 
 renv_dependencies_begin <- function(root = NULL) {

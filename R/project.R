@@ -93,7 +93,12 @@ renv_project_remotes_description <- function(project, descpath) {
 
   # next, find packages mentioned in the DESCRIPTION file
   fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
-  deps <- renv_dependencies_discover_description(descpath, fields)
+  deps <- renv_dependencies_discover_description(
+    path    = descpath,
+    fields  = fields,
+    project = project
+  )
+
   if (empty(deps))
     return(list())
 
@@ -145,11 +150,17 @@ renv_project_remotes_description_remotes <- function(project, descpath) {
 
   desc <- renv_description_read(descpath)
 
-  remotes <- desc$Remotes
-  if (is.null(desc$Remotes))
+  profile <- renv_profile_get()
+  field <- if (is.null(profile))
+    "Remotes"
+  else
+    sprintf("Config/renv/profiles/%s/remotes", profile)
+
+  remotes <- desc[[field]]
+  if (is.null(remotes))
     return(list())
 
-  splat <- strsplit(remotes, "\\s*,\\s*")[[1]]
+  splat <- strsplit(remotes, "[[:space:]]*,[[:space:]]*")[[1]]
   resolved <- lapply(splat, renv_remotes_resolve)
   names(resolved) <- extract_chr(resolved, "Package")
   resolved
