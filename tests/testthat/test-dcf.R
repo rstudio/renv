@@ -40,6 +40,33 @@ test_that("we can read a latin-1 DESCRIPTION file", {
 
 })
 
+test_that("we can read a custom encoded DESCRIPTION file", {
+
+  skip_if(!"CP936" %in% iconvlist())
+
+  nihao <- enc2utf8("\u4f60\u597d")
+
+  # declared CP936, is CP936
+  contents <- heredoc({'
+    Encoding: CP936
+    Greeting: \u4f60\u597d
+  '})
+
+  bytes <- iconv(
+    x = enc2utf8(contents),
+    from = "UTF-8",
+    to = "CP936",
+    toRaw = TRUE
+  )
+
+  file <- tempfile("DESCRIPTION-")
+  writeBin(bytes[[1L]], con = file)
+
+  dcf <- renv_dcf_read(file)
+  expect_equal(dcf$Greeting, nihao)
+
+})
+
 test_that("we can read mis-encoded DESCRIPTION files", {
 
   # declared UTF-8; but latin1

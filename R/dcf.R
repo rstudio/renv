@@ -29,6 +29,23 @@ renv_dcf_read <- function(file, text = NULL, ...) {
 
 }
 
+renv_dcf_read_impl_encoding <- function(contents) {
+
+  # try to find encoding -- if none is declared, assume native encoding?
+  start <- grepRaw("(?:^|\n)Encoding:", contents)
+  if (empty(start))
+    return(NULL)
+
+  # try to find the end of the encoding field
+  end   <- grepRaw("(?:\r?\n|$)", contents, offset = start + 1L)
+  field <- rawToChar(contents[start:end])
+
+  # parse it
+  properties <- renv_properties_read(text = field)
+  properties[["Encoding"]]
+
+}
+
 renv_dcf_read_impl <- function(file, ...) {
 
   # first, read the file as bytes to get encoding
@@ -38,21 +55,14 @@ renv_dcf_read_impl <- function(file, ...) {
     n    = renv_file_size(file)
   )
 
-  # try to find encoding -- if none is declared, assume native encoding?
-  start <- grepRaw("(?:^|\n)Encoding:", contents)
-  if (empty(start))
-    return(rawToChar(contents))
+  # try to guess the encoding
+  encoding <- tryCatch(
+    renv_dcf_read_impl_encoding(contents),
+    error = function(e) NULL
+  )
 
-  # try to find the end of the encoding field
-  end   <- grepRaw("(?:\r?\n|$)", contents, offset = start + 1L)
-  field <- rawToChar(contents[start:end])
-
-  # parse it
-  properties <- renv_properties_read(text = field)
-
-  # try converting from the declared encoding to UTF-8
-  # now convert from this encoding to UTF-8
-  encodings <- c(properties$Encoding, "UTF-8", "")
+  # try a bunch of candidate encodings
+  encodings <- c(encoding, "UTF-8", "latin1", "")
   for (encoding in unique(encodings)) {
     result <- iconv(list(contents), from = encoding, to = "UTF-8")
     if (!is.na(result))
