@@ -45,28 +45,38 @@ renv_sandbox_activate_impl <- function(project) {
   syslibs <- c(renv_libpaths_site(), renv_libpaths_system())
   syslibs <- renv_path_normalize(syslibs, winslash = "/", mustWork = FALSE)
 
-  # generate the sandbox
-  default <- file.path(tempdir(), "renv-system-library")
-  sandbox <- Sys.getenv("RENV_PATHS_SANDBOX", unset = default)
-  ensure_directory(sandbox)
-  renv_sandbox_generate(sandbox)
-
-  # override .Library, .Library.site
+  # override .Library.site
   base <- .BaseNamespaceEnv
-  renv_binding_replace(".Library",      sandbox, envir = base)
-  renv_binding_replace(".Library.site", NULL,    envir = base)
+  renv_binding_replace(".Library.site", NULL, envir = base)
+
+  if (config$sandbox.enabled()) {
+
+    # generate the sandbox
+    default <- file.path(tempdir(), "renv-system-library")
+    sandbox <- Sys.getenv("RENV_PATHS_SANDBOX", unset = default)
+    ensure_directory(sandbox)
+    renv_sandbox_generate(sandbox)
+
+    # override .Library
+    renv_binding_replace(".Library", sandbox, envir = base)
+
+  }
 
   # update library paths
   newlibs <- renv_vector_diff(oldlibs, syslibs)
   renv_libpaths_set(newlibs)
 
-  # protect against user profiles that might try
-  # to update the library paths
-  renv_sandbox_activate_check(newlibs)
+  if (config$sandbox.enabled()) {
 
-  # add a callback that double-checks the sandbox is active
-  # and working as intended
-  addTaskCallback(renv_sandbox_task)
+    # protect against user profiles that might try
+    # to update the library paths
+    renv_sandbox_activate_check(newlibs)
+
+    # add a callback that double-checks the sandbox is active
+    # and working as intended
+    addTaskCallback(renv_sandbox_task)
+
+  }
 
   # return new library paths
   renv_libpaths_all()

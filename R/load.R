@@ -347,8 +347,7 @@ renv_load_libpaths <- function(project = NULL) {
 }
 
 renv_load_sandbox <- function(project) {
-  if (config$sandbox.enabled())
-    renv_sandbox_activate(project)
+  renv_sandbox_activate(project)
 }
 
 renv_load_python <- function(project, fields) {

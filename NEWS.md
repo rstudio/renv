@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where the R site library was visible in `renv` projects with
+  the system library sandbox disabled.
+
 * Fixed an issue where `renv` could update the wrong `.gitignore` in R
   processes launched by `callr` (e.g. in `devtools::install`). (#910)
 

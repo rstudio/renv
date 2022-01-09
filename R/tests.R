@@ -116,6 +116,7 @@ renv_tests_init_working_dir <- function() {
 renv_tests_init_options <- function() {
   options(
     renv.config.user.library = FALSE,
+    renv.config.sandbox.enabled = TRUE,
     restart = NULL,
     warn = 2
   )
