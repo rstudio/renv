@@ -33,6 +33,7 @@ test_that("multiple attempts to activate sandbox are handled", {
 
 test_that(".Library.site isn't used even when sandbox is disabled", {
 
+  skip_if(renv_platform_windows() || empty(.Library.site))
   renv_sandbox_deactivate()
   renv_scope_options(renv.config.sandbox.enabled = FALSE)
   sitelib <- .Library.site
