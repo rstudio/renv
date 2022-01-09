@@ -494,8 +494,8 @@ renv_load_bioconductor <- function(project, bioconductor) {
 renv_load_switch <- function(project) {
 
   # safety check: avoid recursive unload attempts
-  unloading <- getOption("renv.unloading")
-  if (identical(unloading, TRUE)) {
+  unloading <- getOption("renv.unload.project")
+  if (!is.null(unloading)) {
     fmt <- "ignoring recursive attempt to load project '%s'"
     warningf(fmt, renv_path_pretty(project))
     return(project)
@@ -515,7 +515,7 @@ renv_load_switch <- function(project) {
   }
 
   # signal that we're unloading now
-  renv_scope_options(renv.unloading = TRUE)
+  renv_scope_options(renv.unload.project = project)
 
   # perform the unload
   unload()
