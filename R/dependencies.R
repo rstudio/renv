@@ -741,12 +741,15 @@ renv_dependencies_discover_chunks <- function(path, mode) {
 
     # parse params in header
     header <- contents[[lhs]]
-    params <- renv_dependencies_discover_parse_params(header, type)
+    params <- renv_knitr_options_header(header, type)
 
     # extract chunk contents (preserve newlines for nicer error reporting)
     range <- seq.int(lhs + 1, length.out = rhs - lhs - 1)
     code <- rep.int("", length(contents))
     code[range] <- contents[range]
+
+    # also parse chunk options
+    params <- modifyList(params, renv_knitr_options_chunk(code))
 
     # return list of outputs
     list(params = params, code = code)
@@ -1506,53 +1509,6 @@ renv_dependencies_list_empty <- function() {
     Dev     = logical(),
     stringsAsFactors = FALSE
   )
-
-}
-
-
-renv_dependencies_discover_parse_params <- function(header, type) {
-
-  engine <- "r"
-  patterns <- renv_knitr_patterns()
-  rest <- sub(patterns[[type]]$chunk.begin, "\\1", header)
-
-  # if this is an R Markdown document, parse the initial engine chunk
-  if (type == "md") {
-    idx <- regexpr("(?:[ ,]|$)", rest)
-    engine <- substring(rest, 1, idx - 1)
-    rest <- sub("^,*\\s*", "", substring(rest, idx + 1))
-  }
-
-  # extract an unquoted label
-  label <- ""
-  pattern <- "(^\\s*[^=]+)(,|\\s*$)"
-  matches <- regexec(pattern, rest)[[1]]
-  if (!identical(c(matches), -1L)) {
-    submatches <- regmatches(rest, list(matches))[[1]]
-    label <- trimws(submatches[[2L]])
-    rest <- substring(rest, matches[[3L]] + 1L)
-  }
-
-  params <- catch(parse(text = sprintf("alist(%s)", rest))[[1]])
-  if (inherits(params, "error"))
-    return(list(engine = engine))
-
-  # inject the label back in
-  names(params) <- names(params) %||% rep.int("", length(params))
-  if (length(params) > 1 && names(params)[[2L]] == "")
-    names(params)[[2L]] <- "label"
-
-  # fix up 'label' if it's a missing value
-  if (identical(params[["label"]], quote(expr = )))
-    params[["label"]] <- NULL
-
-  if (is.null(params[["label"]]) && nzchar(label))
-    params[["label"]] <- label
-
-  if (is.null(params[["engine"]]))
-    params[["engine"]] <- engine
-
-  eval(params, envir = parent.frame())
 
 }
 

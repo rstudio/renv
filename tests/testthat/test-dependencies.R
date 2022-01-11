@@ -348,6 +348,12 @@ test_that("dependencies in parameterized documents are discovered", {
   expect_false("B" %in% deps$Package)
 })
 
+test_that("we ignore chunks with '#| eval: false'", {
+  deps <- dependencies("resources/yaml-chunks.Rmd", progress = FALSE)
+  expect_false("a" %in% deps$Package)
+  expect_true("A" %in% deps$Package)
+})
+
 test_that("dependencies in hidden folders are not scoured", {
   renv_tests_scope()
 

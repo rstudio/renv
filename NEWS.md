@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` now recognizes YAML chunk options of the form `#| key: value` when
+  used in R Markdown documents. (#912)
+
 * Fixed an issue where the R site library was visible in `renv` projects with
   the system library sandbox disabled.
 

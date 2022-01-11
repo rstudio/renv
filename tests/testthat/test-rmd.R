@@ -82,7 +82,30 @@ test_that("The chunk header parser works as expected", {
   )
 
   for (case in cases) {
-    output <- renv_dependencies_discover_parse_params(case$input, case$type)
+    output <- renv_knitr_options_header(case$input, case$type)
+    expect_same_elements(output, case$expected)
+  }
+
+})
+
+test_that("we can parse chunk YAML options", {
+
+  cases <- list(
+
+    list(
+      input = "#| a: true",
+      expected = list(a = TRUE)
+    ),
+
+    list(
+      input = "#| a=TRUE",
+      expected = list(a = TRUE)
+    )
+
+  )
+
+  for (case in cases) {
+    output <- renv_knitr_options_chunk(case$input)
     expect_same_elements(output, case$expected)
   }
 
