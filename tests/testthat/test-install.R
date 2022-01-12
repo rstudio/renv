@@ -450,3 +450,27 @@ test_that("staging library path has same permissions as library path", {
   expect_equal(file.mode(staging), file.mode(library))
 
 })
+
+test_that("packages installed from a RemoteSubdir can be retrieved from cache", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_sometimes()
+
+  renv_tests_scope()
+  cachepath <- renv_scope_tempfile("renv-cache-")
+  ensure_directory(cachepath)
+  renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
+
+  init()
+
+  # install first from remote
+  install("kevinushey/subdir:subdir")
+
+  # remove, and re-install from cache
+  remove("subdir")
+  install("kevinushey/subdir:subdir")
+
+  expect_true(renv_package_installed("subdir"))
+
+})

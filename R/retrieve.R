@@ -792,10 +792,37 @@ renv_retrieve_package <- function(record, url, path) {
 
 }
 
+renv_retrieve_successful_subdir <- function(record, path) {
+
+  # if it's a file, assume RemoteSubdir needs to be honored
+  info <- file.info(path, extra_cols = FALSE)
+  if (identical(info$isdir, FALSE))
+    return(record$RemoteSubdir)
+
+  # otherwise, respect RemoteSubdir only if it seems to
+  # point at a valid DESCRPITION file
+  if (!is.null(record$RemoteSubdir)) {
+    parts <- c(path, record$RemoteSubdir, "DESCRIPTION")
+    descpath <- paste(parts, collapse = "/")
+    if (file.exists(descpath))
+      return(record$RemoteSubdir)
+  }
+
+}
+
 renv_retrieve_successful <- function(record, path, install = TRUE) {
 
+  # the handling of 'subdir' here is a little awkward, as this function
+  # can receive:
+  #
+  # - archives, whose package might live within a sub-directory;
+  # - folders, whose package might live within a sub-directory;
+  # - cache paths, for which the subdir is no longer relevant
+  #
+  # this warrants a proper cleanup, but for now we we use a hack
+  subdir <- renv_retrieve_successful_subdir(record, path)
+
   # augment record with information from DESCRIPTION file
-  subdir <- record$RemoteSubdir
   desc <- renv_description_read(path, subdir = subdir)
 
   # update the record's package name, version
@@ -820,7 +847,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   })
 
   # read and handle remotes declared by this package
-  renv_retrieve_handle_remotes(record)
+  renv_retrieve_handle_remotes(record, subdir = subdir)
 
   # ensure its dependencies are retrieved as well
   if (state$recursive)
@@ -848,7 +875,7 @@ renv_retrieve_unknown_source <- function(record) {
 
 }
 
-renv_retrieve_handle_remotes <- function(record) {
+renv_retrieve_handle_remotes <- function(record, subdir) {
 
   # TODO: what should we do if we detect incompatible remotes?
   # e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
@@ -857,7 +884,6 @@ renv_retrieve_handle_remotes <- function(record) {
   # check and see if this package declares Remotes -- if so,
   # use those to fill in any missing records
   path <- record$Path
-  subdir <- record$RemoteSubdir
   desc <- renv_description_read(path = path, subdir = subdir)
   if (is.null(desc$Remotes))
     return(NULL)

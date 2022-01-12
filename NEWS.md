@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where packages installed from a remote sub-directory would
+  fail to install when later re-installed from the cache. (#913)
+
 * `renv` now recognizes YAML chunk options of the form `#| key: value` when
   used in R Markdown documents. (#912)
 
@@ -15,7 +18,7 @@
 
 * Fixed an issue where `config$cache.symlinks()` would report `NULL` when
   unset. (#906)
-  
+
 # renv 0.15.0
 
 * The development branch for `renv` has moved from master to main.
