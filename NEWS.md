@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` inadvertently inserted extra newlines into
+  a `DESCRIPTION` file when adding `Remotes` fields after install. (#914)
+
 * Fixed an issue where packages installed from a remote sub-directory would
   fail to install when later re-installed from the cache. (#913)
 

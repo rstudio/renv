@@ -84,3 +84,24 @@ test_that("we can read mis-encoded DESCRIPTION files", {
 
 })
 
+test_that("we can read and write a dcf file", {
+
+  contents <- heredoc('
+    Title: The title.
+    Description: The Description field is quite long.
+        It needs to wrap across multiple lines.
+  ')
+
+  descfile <- renv_scope_tempfile("renv-description-", fileext = "")
+  writeLines(contents, con = descfile)
+
+  old <- renv_dcf_read(descfile)
+  renv_dcf_write(old, file = descfile)
+  new <- read.dcf(descfile, all = TRUE)
+
+  expect_equal(
+    gsub("[[:space:]]+", " ", old$Field),
+    gsub("[[:space:]]+", " ", new$Field)
+  )
+
+})

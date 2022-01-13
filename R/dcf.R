@@ -8,6 +8,9 @@ renv_dcf_read <- function(file, text = NULL, ...) {
   # read the file as binary first to get encoding
   contents <- text %||% renv_dcf_read_impl(file, ...)
 
+  # normalize newlines
+  contents <- gsub("\r\n", "\n", contents, fixed = TRUE)
+
   # look for tags
   pattern <- "(?:^|\n)[^\\s][^:\n]*:"
   matches <- gregexpr(pattern, contents, perl = TRUE)[[1L]]
