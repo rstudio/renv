@@ -82,7 +82,6 @@ renv_retrieve_impl <- function(package) {
     is.null(record$Version)
 
   if (uselatest) {
-    package <- record$Package
     record <- renv_available_packages_latest(package)
     if (is.null(record)) {
       stopf("package '%s' is not available", package)
@@ -99,9 +98,14 @@ renv_retrieve_impl <- function(package) {
   # installation of this package version despite it being incompatible
   compat <- renv_retrieve_incompatible(record)
   if (NROW(compat)) {
+
     replacement <- renv_available_packages_latest(package)
+    if (is.null(replacement))
+      stopf("package '%s' is not available", package)
+
     renv_retrieve_incompatible_report(record, replacement, compat)
     record <- replacement
+
   }
 
   if (!renv_restore_rebuild_required(record)) {
