@@ -16,7 +16,7 @@ articles:
   renv: renv.html
   rsconnect: rsconnect.html
   use: use.html
-last_built: 2022-01-05T00:08Z
+last_built: 2022-01-13T21:46Z
 urls:
   reference: https://rstudio.github.io/renv/reference
   article: https://rstudio.github.io/renv/articles

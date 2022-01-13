@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0-2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,10 +137,14 @@
 <div class="section level2">
 <h2 id="managing-profile-specific-dependencies">Managing Profile-specific Dependencies<a class="anchor" aria-label="anchor" href="#managing-profile-specific-dependencies"></a>
 </h2>
-<p>Profile-specific package dependencies can be declared within the project’s top-level <code>DESCRIPTION</code> file. For example, to declare a set of dependencies for a profile called “shiny”:</p>
+<p>Profile-specific package dependencies can be declared within the project’s top-level <code>DESCRIPTION</code> file. For example, to declare that the <code>shiny</code> profile depends on the <a href="https://shiny.rstudio.com/" class="external-link">shiny</a> and <a href="https://www.tidyverse.org/" class="external-link">tidyverse</a> packages:</p>
 <pre><code>Config/renv/profiles/shiny/dependencies: shiny, tidyverse</code></pre>
-<p>The dependencies in this field can be specified in a format similar to that of the <code>Depends</code> and <code>Imports</code> fields of a regular <code>DESCRIPTION</code> file. These dependencies will be included in addition to the default set of dependencies normally discovered in the project. If you’d prefer that only the packages enumerated in this field are used, you can opt-in to using <code>"explicit"</code> snapshots, and leave the <code>Imports</code>, <code>Depends</code> and <code>Suggests</code> fields blank:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>If you’d like to also declare that these packages should be installed from a custom remote (analogous to the <code>Remotes</code> field for the default profile), you can define those remotes with a separate field:</p>
+<pre><code>Config/renv/profiles/shiny/remotes: rstudio/shiny, tidyverse/tidyverse</code></pre>
+<p>These remotes will then be respected in calls to <code><a href="../reference/install.html">renv::install()</a></code>.</p>
+<p>The packages and remotes must be specified separately, as <code>renv</code> cannot determine the package name associated with a particular remote without explicitly resolving that remote. Remote resolution normally requires a web request, which <code>renv</code> tries to avoid in “regular” dependency discovery.</p>
+<p>If you’d prefer that only the packages enumerated in this field are used, you can opt-in to using <code>"explicit"</code> snapshots, and leave the <code>Imports</code>, <code>Depends</code> and <code>Suggests</code> fields blank:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span><span class="st">"explicit"</span><span class="op">)</span></code></pre></div>
 <p>When set, only the dependencies listed in the project <code>DESCRIPTION</code> file will be used when the lockfile is generated. See <code><a href="../reference/snapshot.html">?renv::snapshot</a></code> for more details.</p>
 </div>

@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0-2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,7 +134,7 @@
 </h2>
 <p>With Docker, <a href="https://docs.docker.com/engine/reference/builder/" class="external-link">Dockerfiles</a> are used to define new images. Dockerfiles can be used to declaratively specify how a Docker image should be created. A Docker image captures the state of a machine at some point in time – e.g., an Ubuntu operating system after downloading and installing R 3.5. Docker containers can be created using that image as a base, allowing isolated applications to run using the same pre-defined machine state.</p>
 <p>First, you’ll need to get <code>renv</code> installed on your Docker image. The easiest way to accomplish this is with the <code>remotes</code> package. For example:</p>
-<pre><code>ENV RENV_VERSION 0.15.0-2
+<pre><code>ENV RENV_VERSION 0.15.1
 RUN R -e "install.packages('remotes', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"</code></pre>
 <p>Now, <code>renv</code> can be used to install packages on the image. If you’d like the <code>renv.lock</code> lockfile to be used to install R packages when the Docker image is built, you can include something of the form:</p>
@@ -157,7 +157,7 @@ RUN R -e 'renv::restore()'</code></pre>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_PATHS_CACHE <span class="op">=</span> <span class="st">"~/path/to/cache"</span><span class="op">)</span>
 <span class="fu">renv</span><span class="fu">:::</span><span class="fu">renv_paths_cache</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; [1] "~/path/to/cache/v5/R-4.1/aarch64-apple-darwin21.2.0"</span></code></pre></div>
+<span class="co">#&gt; [1] "~/path/to/cache/v5/R-4.1/aarch64-apple-darwin21.1.0"</span></code></pre></div>
 <p>Note that the platform and R version in use are appended to the requested cache directory. This ensures that a single directory can act a base of cached packages for multiple different platforms and R versions.</p>
 <p>Next, we need to figure out how to tell the Docker containers we create to use this cache. The most common option here is to mount a directory in the container that maps to persistent storage on the host system, and then set the aforementioned <code>RENV_PATHS_CACHE</code> environment variable to point to this mount. You can specify this when the container is launched. For example, if you had a container running a Shiny application:</p>
 <pre><code># the path to an renv cache on the host machine
