@@ -1,5 +1,5 @@
 
-# renv 0.16.0  (UNRELEASED)
+# renv 0.15.1
 
 * Fixed an issue where `renv` inadvertently inserted extra newlines into
   a `DESCRIPTION` file when adding `Remotes` fields after install. (#914)
