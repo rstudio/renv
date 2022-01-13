@@ -81,8 +81,14 @@ renv_retrieve_impl <- function(package) {
     source %in% c("repository", "bioconductor") &&
     is.null(record$Version)
 
-  if (uselatest)
-    record <- renv_available_packages_latest(record$Package)
+  if (uselatest) {
+    package <- record$Package
+    record <- renv_available_packages_latest(package)
+    if (is.null(record)) {
+      stopf("package '%s' is not available", package)
+      return()
+    }
+  }
 
   # if the requested record is incompatible with the set
   # of requested package versions thus far, request the
