@@ -241,8 +241,8 @@ test_that("exercise chunks are ignored", {
 })
 
 test_that("dependencies in R functions can be found", {
-  deps <- dependencies(function() bread::bread())
-  expect_true("bread" %in% deps$Package)
+  deps <- dependencies(function() renv::init)
+  expect_true("renv" %in% deps$Package)
 })
 
 test_that("dependencies in dotfiles are discovered", {
