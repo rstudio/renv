@@ -1,5 +1,5 @@
 
-# renv 0.16.0  (UNRELEASED)
+# renv 0.15.2
 
 # renv 0.15.1
 
