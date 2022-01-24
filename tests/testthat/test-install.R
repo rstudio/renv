@@ -208,9 +208,9 @@ test_that("renv warns when installing an already-loaded package", {
   skip_on_cran()
   renv_tests_scope()
   install("bread@1.0.0")
-  requireNamespace("bread")
+  renv_namespace_load("bread")
   expect_condition(install("bread@0.1.0"), class = "renv.install.restart_required")
-  unloadNamespace("bread")
+  renv_namespace_unload("bread")
 })
 
 test_that("renv::install() writes out Github fields for backwards compatibility", {

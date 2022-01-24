@@ -17,3 +17,7 @@ renv_namespace_path <- function(package) {
 renv_namespace_load <- function(package) {
   suppressPackageStartupMessages(getNamespace(package))
 }
+
+renv_namespace_unload <- function(package) {
+  unloadNamespace(package)
+}
