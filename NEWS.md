@@ -1,5 +1,9 @@
 
+# renv 0.16.0  (UNRELEASED)
+
 # renv 0.15.2
+
+* Fixed issues encountered in R CMD check.
 
 # renv 0.15.1
 
