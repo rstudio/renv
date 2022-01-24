@@ -34,14 +34,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/renv.html">Get started</a>
@@ -98,6 +98,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>The Package Cellar</h1>
@@ -109,48 +112,80 @@
 
     
     
-<p>In some cases, your project may depend on R packages which are not available from any external source, or that external source may not accessible from the machine calling <code><a href="../reference/restore.html">renv::restore()</a></code>. To help accommodate these scenarios, <code>renv</code> allows you to prepare a package “cellar”, to be used as an ad-hoc repository of packages during restore. This allows you to provide package tarballs that can be used to restore packages which cannot be retrieved from any other source.</p>
-<p>The environment variable <code>RENV_PATHS_CELLAR</code> can be used to customize the package cellar location. It should point to a directory containing package binaries and sources, with a structure of the form:</p>
+<p>In some cases, your project may depend on R packages which are not
+available from any external source, or that external source may not
+accessible from the machine calling <code><a href="../reference/restore.html">renv::restore()</a></code>. To
+help accommodate these scenarios, <code>renv</code> allows you to
+prepare a package “cellar”, to be used as an ad-hoc repository of
+packages during restore. This allows you to provide package tarballs
+that can be used to restore packages which cannot be retrieved from any
+other source.</p>
+<p>The environment variable <code>RENV_PATHS_CELLAR</code> can be used
+to customize the package cellar location. It should point to a directory
+containing package binaries and sources, with a structure of the
+form:</p>
 <ul>
 <li>
-<code>${RENV_PATHS_CELLAR}/&lt;package&gt;_&lt;version&gt;.tar.gz</code>; or</li>
+<code>${RENV_PATHS_CELLAR}/&lt;package&gt;_&lt;version&gt;.tar.gz</code>;
+or</li>
 <li><code>${RENV_PATHS_CELLAR}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
 </ul>
-<p>Alternatively, you can also use a project-local cellar by placing your packages within a folder located at <code>&lt;project&gt;/renv/cellar</code>. Note that this folder does not exist by default; you must create it to opt-in.</p>
+<p>Alternatively, you can also use a project-local cellar by placing
+your packages within a folder located at
+<code>&lt;project&gt;/renv/cellar</code>. Note that this folder does not
+exist by default; you must create it to opt-in.</p>
 <ul>
 <li>
-<code>&lt;project&gt;/renv/cellar/&lt;package&gt;_&lt;version&gt;.tar.gz</code>; or</li>
+<code>&lt;project&gt;/renv/cellar/&lt;package&gt;_&lt;version&gt;.tar.gz</code>;
+or</li>
 <li><code>&lt;project&gt;/renv/cellar/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.tar.gz</code></li>
 </ul>
-<p>As an example, if your project depended on a package <code>skeleton 1.0.0</code>, you could place a tarball for this package in one of the following locations:</p>
+<p>As an example, if your project depended on a package <code>skeleton
+1.0.0</code>, you could place a tarball for this package in one of the
+following locations:</p>
 <ul>
 <li><code>${RENV_PATHS_CELLAR}/skeleton_1.0.0.tar.gz</code></li>
 <li><code>${RENV_PATHS_CELLAR}/skeleton/skeleton_1.0.0.tar.gz</code></li>
 <li>
-<code>&lt;project&gt;/renv/cellar/skeleton_1.0.0.tar.gz</code>; or</li>
+<code>&lt;project&gt;/renv/cellar/skeleton_1.0.0.tar.gz</code>;
+or</li>
 <li><code>&lt;project&gt;/renv/cellar/skeleton/skeleton_1.0.0.tar.gz</code></li>
 </ul>
-<p>Once this is done, <code>renv</code> will consult these directories during future attempts to restore your packages.</p>
-<p>To directly install a package from the cellar, you must specify the package version, or provide the full path to the tarball:</p>
+<p>Once this is done, <code>renv</code> will consult these directories
+during future attempts to restore your packages.</p>
+<p>To directly install a package from the cellar, you must specify the
+package version, or provide the full path to the tarball:</p>
 <ul>
 <li><code>renv::install("&lt;package&gt;@&lt;version&gt;")</code></li>
 <li><code>renv::install("&lt;project&gt;/renv/cellar/&lt;package&gt;_&lt;version&gt;.tar.gz")</code></li>
 </ul>
-<p>During restore, if a compatible package is located within the cellar, that copy of the package will be preferred even if that package might otherwise be accessible from its associated remote source. For example, if <code>skeleton 1.0.0</code> was also available on CRAN, <code><a href="../reference/restore.html">renv::restore()</a></code> would still use the tarball available in the cellar rather than the version available from CRAN.</p>
-<p>If you want to see what paths <code>renv</code> is using for the cellar, you can use:</p>
+<p>During restore, if a compatible package is located within the cellar,
+that copy of the package will be preferred even if that package might
+otherwise be accessible from its associated remote source. For example,
+if <code>skeleton 1.0.0</code> was also available on CRAN,
+<code><a href="../reference/restore.html">renv::restore()</a></code> would still use the tarball available in
+the cellar rather than the version available from CRAN.</p>
+<p>If you want to see what paths <code>renv</code> is using for the
+cellar, you can use:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">renv</span><span class="fu">:::</span><span class="fu">renv_paths_cellar</span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p>See <code><a href="../reference/paths.html">?paths</a></code> for more details.</p>
 <div class="section level2">
 <h2 id="explicit-sources">Explicit Sources<a class="anchor" aria-label="anchor" href="#explicit-sources"></a>
 </h2>
-<p>You can also provide explicit source paths in the lockfile if desired. This is most useful if you are building an <code>renv</code> lockfile “by hand”, or need to tweak an existing lockfile to point at a separate package for installation. For example, you could have a package record in <code>renv.lock</code> of the form:</p>
+<p>You can also provide explicit source paths in the lockfile if
+desired. This is most useful if you are building an <code>renv</code>
+lockfile “by hand”, or need to tweak an existing lockfile to point at a
+separate package for installation. For example, you could have a package
+record in <code>renv.lock</code> of the form:</p>
 <pre><code>{
   "Package": "skeleton",
   "Version": "1.0.1",
   "Source": "/mnt/r/pkg/skeleton_1.0.1.tar.gz"
 }</code></pre>
-<p>Packages should have the following extensions, depending on whether the archive contains a binary copy of the package or the package sources:</p>
+<p>Packages should have the following extensions, depending on whether
+the archive contains a binary copy of the package or the package
+sources:</p>
 <table class="table">
 <thead><tr class="header">
 <th><strong>Platform</strong></th>
@@ -175,7 +210,9 @@
 </tr>
 </tbody>
 </table>
-<p>Note that on Linux, both binaries and sources should have the <code>.tar.gz</code> extension, but R and <code>renv</code> will handle this as appropriate during installation.</p>
+<p>Note that on Linux, both binaries and sources should have the
+<code>.tar.gz</code> extension, but R and <code>renv</code> will handle
+this as appropriate during installation.</p>
 </div>
   </main>
 </div>
@@ -189,7 +226,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

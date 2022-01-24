@@ -34,14 +34,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/renv.html">Get started</a>
@@ -98,6 +98,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Anatomy of a Lockfile</h1>
@@ -109,15 +112,21 @@
 
     
     
-<p><code>renv</code> uses a <strong>lockfile</strong> to capture the state of your library at some point in time. It is stored as a collection of <em>records</em>, with different records defining:</p>
+<p><code>renv</code> uses a <strong>lockfile</strong> to capture the
+state of your library at some point in time. It is stored as a
+collection of <em>records</em>, with different records defining:</p>
 <ul>
-<li>The version of <code>renv</code> used when generating the lockfile;</li>
+<li>The version of <code>renv</code> used when generating the
+lockfile;</li>
 <li>The version of <code>R</code> used in that project;</li>
-<li>The R repositories that were active when the lockfile was created;</li>
+<li>The R repositories that were active when the lockfile was
+created;</li>
 <li>
-<em>Package records</em> defining each R package, their version, and their installation source.</li>
+<em>Package records</em> defining each R package, their version, and
+their installation source.</li>
 </ul>
-<p>Here is an example lockfile, including the packages <code>markdown</code> and <code>mime</code>:</p>
+<p>Here is an example lockfile, including the packages
+<code>markdown</code> and <code>mime</code>:</p>
 <pre><code>{
   "R": {
     "Version": "4.1.2",
@@ -145,7 +154,11 @@
     }
   }
 }</code></pre>
-<p>The function <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is used to create this lockfile, and by default writes these records to the file <code>renv.lock</code>. Later, if you need to reinstall the specific package versions as recorded in <code>renv.lock</code>, you can use <code><a href="../reference/restore.html">renv::restore()</a></code>.</p>
+<p>The function <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> is used to create this
+lockfile, and by default writes these records to the file
+<code>renv.lock</code>. Later, if you need to reinstall the specific
+package versions as recorded in <code>renv.lock</code>, you can use
+<code><a href="../reference/restore.html">renv::restore()</a></code>.</p>
   </main>
 </div>
 
@@ -158,7 +171,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

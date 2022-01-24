@@ -34,14 +34,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/renv.html">Get started</a>
@@ -98,6 +98,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Using renv with Bioconductor</h1>
@@ -109,28 +112,45 @@
 
     
     
-<p><code>renv</code> has been designed to work together as seamlessly as possible with the <a href="https://bioconductor.org/" class="external-link">Bioconductor</a> project. This vignette outlines some of the extra steps that may be required when using <code>renv</code> with packages obtained from Bioconductor.</p>
+<p><code>renv</code> has been designed to work together as seamlessly as
+possible with the <a href="https://bioconductor.org/" class="external-link">Bioconductor</a>
+project. This vignette outlines some of the extra steps that may be
+required when using <code>renv</code> with packages obtained from
+Bioconductor.</p>
 <div class="section level2">
 <h2 id="initializing-a-project">Initializing a Project<a class="anchor" aria-label="anchor" href="#initializing-a-project"></a>
 </h2>
-<p>To initialize <code>renv</code> in a project using Bioconductor, you can pass the <code>bioconductor</code> argument to <code><a href="../reference/init.html">renv::init()</a></code>:</p>
+<p>To initialize <code>renv</code> in a project using Bioconductor, you
+can pass the <code>bioconductor</code> argument to
+<code><a href="../reference/init.html">renv::init()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># use the latest-available Bioconductor release</span>
 <span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
 <span class="co"># use a specific version of Bioconductor</span>
 <span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="st">"3.14"</span><span class="op">)</span></code></pre></div>
-<p>This will tell <code>renv</code> to activate the appropriate Bioconductor repositories, and to use those repositories when attempting to restore packages.</p>
+<p>This will tell <code>renv</code> to activate the appropriate
+Bioconductor repositories, and to use those repositories when attempting
+to restore packages.</p>
 </div>
 <div class="section level2">
 <h2 id="bioconductor-releases">Bioconductor Releases<a class="anchor" aria-label="anchor" href="#bioconductor-releases"></a>
 </h2>
-<p>Bioconductor prepares different versions of its package repositories, for use with different versions of R. The version of Bioconductor used within a particular <code>renv</code> project is stored both as a project setting, and also within the project lockfile. This allows you to “lock” a particular project to a particular Bioconductor release, even as new Bioconductor releases are made available for newer versions of R.</p>
-<p>To set the version of Bioconductor used in a project, you can use:</p>
+<p>Bioconductor prepares different versions of its package repositories,
+for use with different versions of R. The version of Bioconductor used
+within a particular <code>renv</code> project is stored both as a
+project setting, and also within the project lockfile. This allows you
+to “lock” a particular project to a particular Bioconductor release,
+even as new Bioconductor releases are made available for newer versions
+of R.</p>
+<p>To set the version of Bioconductor used in a project, you can
+use:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">bioconductor.version</span><span class="op">(</span><span class="st">"3.14"</span><span class="op">)</span></code></pre></div>
-<p>If you later choose to upgrade R, you may need to upgrade the version of Bioconductor used as well.</p>
-<p>If you want to override the Bioconductor repositories used by <code>renv</code>, you can also explicitly set the following option:</p>
+<p>If you later choose to upgrade R, you may need to upgrade the version
+of Bioconductor used as well.</p>
+<p>If you want to override the Bioconductor repositories used by
+<code>renv</code>, you can also explicitly set the following option:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.bioconductor.repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
@@ -147,7 +167,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

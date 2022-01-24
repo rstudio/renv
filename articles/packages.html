@@ -34,14 +34,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/renv.html">Get started</a>
@@ -98,6 +98,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Package Development with renv</h1>
@@ -112,41 +115,79 @@
 <div class="section level2">
 <h2 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
 </h2>
-<p>Often, R packages will have other R packages as dependencies. For this, one must declare their R package dependencies within the package <code>DESCRIPTION</code> file. If you want to prepare your environment for package development, you can use:</p>
+<p>Often, R packages will have other R packages as dependencies. For
+this, one must declare their R package dependencies within the package
+<code>DESCRIPTION</code> file. If you want to prepare your environment
+for package development, you can use:</p>
 <pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="op">)</span></code></pre>
-<p>to install the packages as declared in the package’s <code>DESCRIPTION</code> file. This action is roughly analogous to <code><a href="https://remotes.r-lib.org/reference/install_deps.html" class="external-link">remotes::install_deps()</a></code>.</p>
-<p>If you’re developing a package that you intend to release to CRAN, then you likely want to build and test your package against the latest versions of your dependencies as available on CRAN. For this, you should consider using:</p>
+<p>to install the packages as declared in the package’s
+<code>DESCRIPTION</code> file. This action is roughly analogous to
+<code><a href="https://remotes.r-lib.org/reference/install_deps.html" class="external-link">remotes::install_deps()</a></code>.</p>
+<p>If you’re developing a package that you intend to release to CRAN,
+then you likely want to build and test your package against the latest
+versions of your dependencies as available on CRAN. For this, you should
+consider using:</p>
 <pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/update.html">update</a></span><span class="op">(</span><span class="op">)</span></code></pre>
-<p>to ensure your package dependencies are up-to-date, as appropriate.</p>
+<p>to ensure your package dependencies are up-to-date, as
+appropriate.</p>
 </div>
 <div class="section level2">
 <h2 id="isolation">Isolation<a class="anchor" aria-label="anchor" href="#isolation"></a>
 </h2>
-<p>Normally, a package under development should be tested against the latest-available versions of its dependencies on CRAN. However, in some cases, you may need to ensure your package is compatible with other packages also currently under development.</p>
-<p>In these cases, the <code>renv</code> project library can be useful – you can install the development version(s) of your dependencies into the project library, without worrying about clobbering any packages already installed in your user library.</p>
-<p>In these cases, you can declare your development dependencies using the <code>Remotes</code> field of the <code>DESCRIPTION</code> file; e.g.</p>
+<p>Normally, a package under development should be tested against the
+latest-available versions of its dependencies on CRAN. However, in some
+cases, you may need to ensure your package is compatible with other
+packages also currently under development.</p>
+<p>In these cases, the <code>renv</code> project library can be useful –
+you can install the development version(s) of your dependencies into the
+project library, without worrying about clobbering any packages already
+installed in your user library.</p>
+<p>In these cases, you can declare your development dependencies using
+the <code>Remotes</code> field of the <code>DESCRIPTION</code> file;
+e.g.</p>
 <pre><code><span class="va">Remotes</span><span class="op">:</span>
   <span class="va">r</span><span class="op">-</span><span class="va">lib</span><span class="op">/</span><span class="va">ggplot2</span></code></pre>
-<p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration and retrieve the requested package. See the <code>remotes</code> vignette, <a href="https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html" class="external-link">Dependency resolution for R package development</a>, for more details.</p>
+<p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration
+and retrieve the requested package. See the <code>remotes</code>
+vignette, <a href="https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html" class="external-link">Dependency
+resolution for R package development</a>, for more details.</p>
 </div>
 <div class="section level2">
 <h2 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a>
 </h2>
-<p>While developing your package, you may want to use a continuous integration service (such as <a href="https://www.travis-ci.org/" class="external-link">Travis CI</a>) to build and test your package remotely. You can use <code>renv</code> to help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html" class="external-link">Continuous Integration</a> vignette for more information. In particular, clever use of the <code>renv</code> cache can help save time that might normally be spent on package installation. See <a href="https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml" class="external-link uri">https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml</a> for an example of how <code>renv</code> uses itself for package management in its own CI tests.</p>
+<p>While developing your package, you may want to use a continuous
+integration service (such as <a href="https://www.travis-ci.org/" class="external-link">Travis
+CI</a>) to build and test your package remotely. You can use
+<code>renv</code> to help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html" class="external-link">Continuous
+Integration</a> vignette for more information. In particular, clever use
+of the <code>renv</code> cache can help save time that might normally be
+spent on package installation. See <a href="https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml" class="external-link uri">https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml</a>
+for an example of how <code>renv</code> uses itself for package
+management in its own CI tests.</p>
 </div>
 <div class="section level2">
 <h2 id="r-cmd-build-and-the-project-library">R CMD build and the Project Library<a class="anchor" aria-label="anchor" href="#r-cmd-build-and-the-project-library"></a>
 </h2>
-<p>By default, when building a package tarball, R will copy all files within the package directory to a temporary build directory before building the package. This can be time consuming if your project contains a large number of files. For this reason, <code>renv</code> places the project library for package projects within a separate external directory by default. This directory is:</p>
+<p>By default, when building a package tarball, R will copy all files
+within the package directory to a temporary build directory before
+building the package. This can be time consuming if your project
+contains a large number of files. For this reason, <code>renv</code>
+places the project library for package projects within a separate
+external directory by default. This directory is:</p>
 <pre><code><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"renv/library"</span>, <span class="st">"cache"</span><span class="op">)</span></code></pre>
-<p>If you want to use your own custom path, you can use, for example:</p>
+<p>If you want to use your own custom path, you can use, for
+example:</p>
 <pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
-<p>If you’d prefer to keep your project library within the project directory, you can instead set:</p>
+<p>If you’d prefer to keep your project library within the project
+directory, you can instead set:</p>
 <pre><code><span class="va">RENV_PATHS_LIBRARY</span> <span class="op">=</span> <span class="va">renv</span><span class="op">/</span><span class="va">library</span></code></pre>
 <p>within an appropriate <code>.Renviron</code> startup profile.</p>
-<p>By default, library paths will be formed using the project name, alongside a unique identifier generated from the full project path. These paths are of the form:</p>
+<p>By default, library paths will be formed using the project name,
+alongside a unique identifier generated from the full project path.
+These paths are of the form:</p>
 <pre><code>&lt;name&gt;-&lt;id&gt;</code></pre>
-<p>If you’d prefer to omit the <code>&lt;id&gt;</code>, then you can set the environment variable:</p>
+<p>If you’d prefer to omit the <code>&lt;id&gt;</code>, then you can set
+the environment variable:</p>
 <pre><code><span class="va">RENV_PATHS_LIBRARY_ROOT_ASIS</span> <span class="op">=</span> <span class="cn">TRUE</span></code></pre>
 <p>to instruct <code>renv</code> to forego the use of an identifier.</p>
 </div>
@@ -163,7 +204,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

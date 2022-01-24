@@ -34,14 +34,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/renv.html">Get started</a>
@@ -98,6 +98,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Using renv with Continuous Integration</h1>
@@ -109,14 +112,30 @@
 
     
     
-<p>When building, deploying, or testing with continuous integration (CI) systems (e.g. <a href="https://github.com/features/actions" class="external-link">GitHub Actions</a>, <a href="https://travis-ci.org/" class="external-link">Travis CI</a>, <a href="https://www.appveyor.com/" class="external-link">AppVeyor</a>, and others), one often needs to download and install a set of R packages before the service can be run. Normally, one will have to download and reinstall these packages on each build, which can often be slow – especially in environments where binary packages are not available from your R package repositories.</p>
-<p><code>renv</code> can often be helpful in these situations. The general idea is:</p>
+<p>When building, deploying, or testing with continuous integration (CI)
+systems (e.g. <a href="https://github.com/features/actions" class="external-link">GitHub
+Actions</a>, <a href="https://travis-ci.org/" class="external-link">Travis CI</a>, <a href="https://www.appveyor.com/" class="external-link">AppVeyor</a>, and others), one often
+needs to download and install a set of R packages before the service can
+be run. Normally, one will have to download and reinstall these packages
+on each build, which can often be slow – especially in environments
+where binary packages are not available from your R package
+repositories.</p>
+<p><code>renv</code> can often be helpful in these situations. The
+general idea is:</p>
 <ol style="list-style-type: decimal">
-<li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> on your local machine, to generate <code>renv.lock</code>;</p></li>
-<li><p>Call <code><a href="../reference/restore.html">renv::restore()</a></code> on your CI service, to restore the project library from <code>renv.lock</code>;</p></li>
-<li><p>Ensure that the project library, as well as the global <code>renv</code> cache, are cached by the CI service.</p></li>
+<li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> on your local machine, to
+generate <code>renv.lock</code>;</p></li>
+<li><p>Call <code><a href="../reference/restore.html">renv::restore()</a></code> on your CI service, to restore
+the project library from <code>renv.lock</code>;</p></li>
+<li><p>Ensure that the project library, as well as the global
+<code>renv</code> cache, are cached by the CI service.</p></li>
 </ol>
-<p>Normally, <code>renv</code> will use the R package repositories as encoded in <code>renv.lock</code> during restore, and this will override any repositories set in other locations (e.g. in <code>.Rprofile</code> or <code>.Rprofile.site</code>). We’ll discuss some strategies for providing an alternate R package repository to use during restore below.</p>
+<p>Normally, <code>renv</code> will use the R package repositories as
+encoded in <code>renv.lock</code> during restore, and this will override
+any repositories set in other locations (e.g. in <code>.Rprofile</code>
+or <code>.Rprofile.site</code>). We’ll discuss some strategies for
+providing an alternate R package repository to use during restore
+below.</p>
 <div class="section level2">
 <h2 id="github-actions">GitHub Actions<a class="anchor" aria-label="anchor" href="#github-actions"></a>
 </h2>
@@ -144,12 +163,14 @@ steps:
   run: |
     if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
     renv::restore()</code></pre>
-<p>See also the <a href="https://github.com/actions/cache/blob/main/examples.md#r---renv" class="external-link">example</a> on GitHub actions.</p>
+<p>See also the <a href="https://github.com/actions/cache/blob/main/examples.md#r---renv" class="external-link">example</a>
+on GitHub actions.</p>
 </div>
 <div class="section level2">
 <h2 id="travis-ci">Travis CI<a class="anchor" aria-label="anchor" href="#travis-ci"></a>
 </h2>
-<p>On Travis CI, one can add the following entries to <code>.travis.yml</code> to accomplish the above:</p>
+<p>On Travis CI, one can add the following entries to
+<code>.travis.yml</code> to accomplish the above:</p>
 <pre><code>cache:
   directories:
   - $HOME/.local/share/renv
@@ -161,20 +182,35 @@ install:
   
 script:
   - Rscript -e '&lt;your-build-action&gt;'</code></pre>
-<p>Note that we provide both <code>install</code> and <code>script</code> steps, as we want to override the default behaviors provided by Travis for R (which might attempt to install different version of R packages than what is currently encoded in <code>renv.lock</code>). See <a href="https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps" class="external-link uri">https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps</a> for more details.</p>
-<p>It’s also possible to override the package repository used during restore by setting the <code>RENV_CONFIG_REPOS_OVERRIDE</code> environment variable. For example:</p>
+<p>Note that we provide both <code>install</code> and
+<code>script</code> steps, as we want to override the default behaviors
+provided by Travis for R (which might attempt to install different
+version of R packages than what is currently encoded in
+<code>renv.lock</code>). See <a href="https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps" class="external-link uri">https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps</a>
+for more details.</p>
+<p>It’s also possible to override the package repository used during
+restore by setting the <code>RENV_CONFIG_REPOS_OVERRIDE</code>
+environment variable. For example:</p>
 <pre><code>env:
   global:
     - RENV_CONFIG_REPOS_OVERRIDE=&lt;cran&gt;</code></pre>
-<p>replacing <code>&lt;cran&gt;</code> with your desired R package repository. This can also be accomplished in a similar way by setting:</p>
+<p>replacing <code>&lt;cran&gt;</code> with your desired R package
+repository. This can also be accomplished in a similar way by
+setting:</p>
 <pre><code>options(renv.config.repos.override = &lt;...&gt;)</code></pre>
-<p>but it is generally more ergonomic to set the associated environment variable. (See <code><a href="../reference/config.html">?config</a></code> for more details.) This can be useful if you’d like to, for example, enforce the usage of a <a href="https://mran.microsoft.com" class="external-link">MRAN</a> checkpoint during restore, or another similarly-equipped repository.</p>
-<p>See <a href="https://docs.travis-ci.com/user/caching" class="external-link uri">https://docs.travis-ci.com/user/caching</a> for more details on how Travis manages caching.</p>
+<p>but it is generally more ergonomic to set the associated environment
+variable. (See <code><a href="../reference/config.html">?config</a></code> for more details.) This can be
+useful if you’d like to, for example, enforce the usage of a <a href="https://mran.microsoft.com" class="external-link">MRAN</a> checkpoint during restore, or
+another similarly-equipped repository.</p>
+<p>See <a href="https://docs.travis-ci.com/user/caching" class="external-link uri">https://docs.travis-ci.com/user/caching</a> for more details
+on how Travis manages caching.</p>
 </div>
 <div class="section level2">
 <h2 id="gitlab-ci">GitLab CI<a class="anchor" aria-label="anchor" href="#gitlab-ci"></a>
 </h2>
-<p>The following template can be used as a base when using <code>renv</code> with <a href="https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/" class="external-link">GitLab CI</a>:</p>
+<p>The following template can be used as a base when using
+<code>renv</code> with <a href="https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/" class="external-link">GitLab
+CI</a>:</p>
 <pre><code>variables:
   RENV_CONFIG_REPOS_OVERRIDE: "http://cran.r-project.org"
   RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/cache
@@ -205,7 +241,8 @@ before_script:
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

@@ -34,14 +34,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/renv.html">Get started</a>
@@ -98,6 +98,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Collaborating with renv</h1>
@@ -109,18 +112,40 @@
 
     
     
-<p>When you want to share a project with other collaborators, you may want to ensure everyone is working with the same environment – otherwise, code in the project may unexpectedly fail to run because of changes in behavior between different versions of the packages in use. You can use <code>renv</code> to help make this possible.</p>
+<p>When you want to share a project with other collaborators, you may
+want to ensure everyone is working with the same environment –
+otherwise, code in the project may unexpectedly fail to run because of
+changes in behavior between different versions of the packages in use.
+You can use <code>renv</code> to help make this possible.</p>
 <div class="section level2">
 <h2 id="collaborating-with-renv">Collaborating with renv<a class="anchor" aria-label="anchor" href="#collaborating-with-renv"></a>
 </h2>
-<p>If you’re planning to collaborate with others using <code>renv</code>, we recommend the following steps to get started:</p>
+<p>If you’re planning to collaborate with others using
+<code>renv</code>, we recommend the following steps to get started:</p>
 <ol style="list-style-type: decimal">
-<li><p>Select a way to share your project sources. We recommend using a version control system alongside a public repository; e.g. <a href="https://git-scm.com/" class="external-link">git</a> with <a href="https://github.com/" class="external-link">GitHub</a>, but many other options are available.</p></li>
-<li><p>One user (perhaps yourself) should explicitly initialize <code>renv</code> in the project, via <code><a href="../reference/init.html">renv::init()</a></code>. This will create the initial <code>renv</code> lockfile, and also write the <code>renv</code> auto-loaders to the project’s <code>.Rprofile</code> and <code>renv/activate.R</code>. These will ensure the right version of <code>renv</code> is downloaded and installed for your collaborators when they start in this project.</p></li>
-<li><p>Share your project sources, alongside the generated lockfile <code>renv.lock</code>. Be sure to also share the generated auto-loaders in <code>.Rprofile</code> and <code>renv/activate.R</code>.</p></li>
-<li><p>When a collaborator first launches in this project, <code>renv</code> should automatically bootstrap itself, thereby downloading and installing the appropriate version of <code>renv</code> into the project library. After this has completed, they can then use <code><a href="../reference/restore.html">renv::restore()</a></code> to restore the project library locally on their machine.</p></li>
+<li><p>Select a way to share your project sources. We recommend using a
+version control system alongside a public repository; e.g. <a href="https://git-scm.com/" class="external-link">git</a> with <a href="https://github.com/" class="external-link">GitHub</a>, but many other options are
+available.</p></li>
+<li><p>One user (perhaps yourself) should explicitly initialize
+<code>renv</code> in the project, via <code><a href="../reference/init.html">renv::init()</a></code>. This
+will create the initial <code>renv</code> lockfile, and also write the
+<code>renv</code> auto-loaders to the project’s <code>.Rprofile</code>
+and <code>renv/activate.R</code>. These will ensure the right version of
+<code>renv</code> is downloaded and installed for your collaborators
+when they start in this project.</p></li>
+<li><p>Share your project sources, alongside the generated lockfile
+<code>renv.lock</code>. Be sure to also share the generated auto-loaders
+in <code>.Rprofile</code> and <code>renv/activate.R</code>.</p></li>
+<li><p>When a collaborator first launches in this project,
+<code>renv</code> should automatically bootstrap itself, thereby
+downloading and installing the appropriate version of <code>renv</code>
+into the project library. After this has completed, they can then use
+<code><a href="../reference/restore.html">renv::restore()</a></code> to restore the project library locally on
+their machine.</p></li>
 </ol>
-<p>If the <code>renv</code> auto-loader is not enabled, or if the project <code>.Rprofile</code> is not shared, your collaborator may see the following after calling <code><a href="../reference/restore.html">renv::restore()</a></code>:</p>
+<p>If the <code>renv</code> auto-loader is not enabled, or if the
+project <code>.Rprofile</code> is not shared, your collaborator may see
+the following after calling <code><a href="../reference/restore.html">renv::restore()</a></code>:</p>
 <pre><code>&gt; renv::restore()
 
 This project has not yet been activated.
@@ -128,21 +153,41 @@ Activating this project will ensure the project library is used during restore.
 Please see `?renv::activate` for more details.
 
 Would you like to activate this project before restore? [Y/n]:</code></pre>
-<p>They can enter <code>Y</code> to ensure the project is activated before restore, thereby ensuring that <code><a href="../reference/restore.html">renv::restore()</a></code> restores package into the project library as expected.</p>
+<p>They can enter <code>Y</code> to ensure the project is activated
+before restore, thereby ensuring that <code><a href="../reference/restore.html">renv::restore()</a></code>
+restores package into the project library as expected.</p>
 <p>For more information on collaboration strategies, please visit <a href="https://environments.rstudio.com/" class="external-link">environments.rstudio.com</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="updating-the-lockfile">Updating the Lockfile<a class="anchor" aria-label="anchor" href="#updating-the-lockfile"></a>
 </h2>
-<p>While working on a project, you or your collaborators may need to update or install new packages in your project. When this occurs, you’ll also want to ensure your collaborators are then using the same newly-installed packages. In general, the process looks like this:</p>
+<p>While working on a project, you or your collaborators may need to
+update or install new packages in your project. When this occurs, you’ll
+also want to ensure your collaborators are then using the same
+newly-installed packages. In general, the process looks like this:</p>
 <ol style="list-style-type: decimal">
-<li><p>A user installs, or updates, one or more packages in their local project library;</p></li>
-<li><p>That user calls <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to update the <code>renv.lock</code> lockfile;</p></li>
-<li><p>That user then shares the updated version of <code>renv.lock</code> with their collaborators;</p></li>
-<li><p>Other collaborators then call <code><a href="../reference/restore.html">renv::restore()</a></code> to install the packages specified in the newly-updated lockfile.</p></li>
+<li><p>A user installs, or updates, one or more packages in their local
+project library;</p></li>
+<li><p>That user calls <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to update the
+<code>renv.lock</code> lockfile;</p></li>
+<li><p>That user then shares the updated version of
+<code>renv.lock</code> with their collaborators;</p></li>
+<li><p>Other collaborators then call <code><a href="../reference/restore.html">renv::restore()</a></code> to
+install the packages specified in the newly-updated lockfile.</p></li>
 </ol>
-<p>A bit of care is required if collaborators wish to update the shared <code>renv.lock</code> lockfile concurrently – in particular, if multiple collaborators are installing new packages and updating their own local copy of the lockfile, then conflicts would need to be sorted out afterwards.</p>
-<p>One way to guard against this it to use a version control system, and have all collaborators work off the same branch. This way, if someone needs to update <code>renv.lock</code> in the public repository, all collaborators will see that updated lockfile and will gain access to it next time they pull those changes. Depending on the size of your team, you may want to ensure any changes to <code>renv.lock</code> are communicated so that everyone knows and understands when and why packages have been installed or updated.</p>
+<p>A bit of care is required if collaborators wish to update the shared
+<code>renv.lock</code> lockfile concurrently – in particular, if
+multiple collaborators are installing new packages and updating their
+own local copy of the lockfile, then conflicts would need to be sorted
+out afterwards.</p>
+<p>One way to guard against this it to use a version control system, and
+have all collaborators work off the same branch. This way, if someone
+needs to update <code>renv.lock</code> in the public repository, all
+collaborators will see that updated lockfile and will gain access to it
+next time they pull those changes. Depending on the size of your team,
+you may want to ensure any changes to <code>renv.lock</code> are
+communicated so that everyone knows and understands when and why
+packages have been installed or updated.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
@@ -157,7 +202,8 @@ Would you like to activate this project before restore? [Y/n]:</code></pre>
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

@@ -34,14 +34,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/renv.html">Get started</a>
@@ -98,6 +98,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Project Profiles</h1>
@@ -112,41 +115,80 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Starting with <code>renv 0.13.0</code>, it is possible to activate and switch between different profiles associated with a project. A profile can be thought of as a different mode in which a project is used. For example:</p>
+<p>Starting with <code>renv 0.13.0</code>, it is possible to activate
+and switch between different profiles associated with a project. A
+profile can be thought of as a different mode in which a project is
+used. For example:</p>
 <ul>
-<li>A “development” profile might be used when developing and testing a project,</li>
-<li>A “production” profile might be used for production deployments,</li>
-<li>A “shiny” profile might be used when running the Shiny application.</li>
+<li>A “development” profile might be used when developing and testing a
+project,</li>
+<li>A “production” profile might be used for production
+deployments,</li>
+<li>A “shiny” profile might be used when running the Shiny
+application.</li>
 </ul>
-<p>At its heart, activating or using a particular profile implies using a different set of paths for the project library and lockfile. With this, it is possible to associate different packages, and different dependencies, with different workflows in a single project using <code>renv</code>.</p>
+<p>At its heart, activating or using a particular profile implies using
+a different set of paths for the project library and lockfile. With
+this, it is possible to associate different packages, and different
+dependencies, with different workflows in a single project using
+<code>renv</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>By default, <code>renv</code> projects use the “default” profile, which implies that library and lockfile paths are set in the typical way. To activate a particular profile, use:</p>
+<p>By default, <code>renv</code> projects use the “default” profile,
+which implies that library and lockfile paths are set in the typical
+way. To activate a particular profile, use:</p>
 <pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></code></pre>
-<p>This creates a profile called <code>"dev"</code>, and sets it as the default for the project, so that newly-launched R sessions will operate using the <code>"dev"</code> profile. After setting this and re-launching R, you should see that the default library and lockfile paths are resolved within the <code>renv/profiles/dev</code> folder from the project root.</p>
-<p>Alternatively, if you want to activate a particular profile for an R session without setting it as the default for new R sessions, you can use:</p>
+<p>This creates a profile called <code>"dev"</code>, and sets it as the
+default for the project, so that newly-launched R sessions will operate
+using the <code>"dev"</code> profile. After setting this and
+re-launching R, you should see that the default library and lockfile
+paths are resolved within the <code>renv/profiles/dev</code> folder from
+the project root.</p>
+<p>Alternatively, if you want to activate a particular profile for an R
+session without setting it as the default for new R sessions, you can
+use:</p>
 <pre><code><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></code></pre>
-<p>and <code>renv</code> will automatically use that profile as appropriate when computing library and lockfile paths. Similarly, from the command line, you might enforce the use of a particular profile in an <code>renv</code> project with:</p>
+<p>and <code>renv</code> will automatically use that profile as
+appropriate when computing library and lockfile paths. Similarly, from
+the command line, you might enforce the use of a particular profile in
+an <code>renv</code> project with:</p>
 <pre><code>export RENV_PROFILE=dev</code></pre>
-<p>With that set, <code>renv</code> would default to using the <code>"dev"</code> profile for any newly-launched R sessions within <code>renv</code> projects.</p>
+<p>With that set, <code>renv</code> would default to using the
+<code>"dev"</code> profile for any newly-launched R sessions within
+<code>renv</code> projects.</p>
 <p>To activate the “default” profile used by a project, use:</p>
 <pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="managing-profile-specific-dependencies">Managing Profile-specific Dependencies<a class="anchor" aria-label="anchor" href="#managing-profile-specific-dependencies"></a>
 </h2>
-<p>Profile-specific package dependencies can be declared within the project’s top-level <code>DESCRIPTION</code> file. For example, to declare that the <code>shiny</code> profile depends on the <a href="https://shiny.rstudio.com/" class="external-link">shiny</a> and <a href="https://www.tidyverse.org/" class="external-link">tidyverse</a> packages:</p>
+<p>Profile-specific package dependencies can be declared within the
+project’s top-level <code>DESCRIPTION</code> file. For example, to
+declare that the <code>shiny</code> profile depends on the <a href="https://shiny.rstudio.com/" class="external-link">shiny</a> and <a href="https://www.tidyverse.org/" class="external-link">tidyverse</a> packages:</p>
 <pre><code>Config/renv/profiles/shiny/dependencies: shiny, tidyverse</code></pre>
-<p>If you’d like to also declare that these packages should be installed from a custom remote (analogous to the <code>Remotes</code> field for the default profile), you can define those remotes with a separate field:</p>
+<p>If you’d like to also declare that these packages should be installed
+from a custom remote (analogous to the <code>Remotes</code> field for
+the default profile), you can define those remotes with a separate
+field:</p>
 <pre><code>Config/renv/profiles/shiny/remotes: rstudio/shiny, tidyverse/tidyverse</code></pre>
-<p>These remotes will then be respected in calls to <code><a href="../reference/install.html">renv::install()</a></code>.</p>
-<p>The packages and remotes must be specified separately, as <code>renv</code> cannot determine the package name associated with a particular remote without explicitly resolving that remote. Remote resolution normally requires a web request, which <code>renv</code> tries to avoid in “regular” dependency discovery.</p>
-<p>If you’d prefer that only the packages enumerated in this field are used, you can opt-in to using <code>"explicit"</code> snapshots, and leave the <code>Imports</code>, <code>Depends</code> and <code>Suggests</code> fields blank:</p>
+<p>These remotes will then be respected in calls to
+<code><a href="../reference/install.html">renv::install()</a></code>.</p>
+<p>The packages and remotes must be specified separately, as
+<code>renv</code> cannot determine the package name associated with a
+particular remote without explicitly resolving that remote. Remote
+resolution normally requires a web request, which <code>renv</code>
+tries to avoid in “regular” dependency discovery.</p>
+<p>If you’d prefer that only the packages enumerated in this field are
+used, you can opt-in to using <code>"explicit"</code> snapshots, and
+leave the <code>Imports</code>, <code>Depends</code> and
+<code>Suggests</code> fields blank:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span><span class="st">"explicit"</span><span class="op">)</span></code></pre></div>
-<p>When set, only the dependencies listed in the project <code>DESCRIPTION</code> file will be used when the lockfile is generated. See <code><a href="../reference/snapshot.html">?renv::snapshot</a></code> for more details.</p>
+<p>When set, only the dependencies listed in the project
+<code>DESCRIPTION</code> file will be used when the lockfile is
+generated. See <code><a href="../reference/snapshot.html">?renv::snapshot</a></code> for more details.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
@@ -161,7 +203,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>

@@ -34,14 +34,14 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item">
   <a class="nav-link" href="../articles/renv.html">Get started</a>
@@ -98,6 +98,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Using Use</h1>
@@ -109,7 +112,9 @@
 
     
     
-<p>The <code><a href="../reference/use.html">renv::use()</a></code> function can make it easier to define stand-alone R scripts that include their R package requirements directly in the script itself. For example:</p>
+<p>The <code><a href="../reference/use.html">renv::use()</a></code> function can make it easier to define
+stand-alone R scripts that include their R package requirements directly
+in the script itself. For example:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># write down the set of packages required by this script</span>
 <span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use.html">use</a></span><span class="op">(</span>
@@ -121,19 +126,34 @@
 <span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>answer <span class="op">=</span> <span class="fl">42</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>Running a script with these contents will:</p>
 <ol style="list-style-type: decimal">
-<li><p>Automatically download the requested packages – in this case, the latest release of <code>digest</code>, alongside <code>rlang 0.3.4</code>,</p></li>
-<li><p>Install the requested packages (plus their recursive package dependencies) to a temporary library path,</p></li>
-<li><p>Activate that library path, so that it’s used subsequently in the script.</p></li>
+<li><p>Automatically download the requested packages – in this case, the
+latest release of <code>digest</code>, alongside <code>rlang
+0.3.4</code>,</p></li>
+<li><p>Install the requested packages (plus their recursive package
+dependencies) to a temporary library path,</p></li>
+<li><p>Activate that library path, so that it’s used subsequently in the
+script.</p></li>
 </ol>
-<p><code><a href="../reference/use.html">renv::use()</a></code> can hence be a useful way of sharing standalone R scripts with a set of specific package requirements. Running these scripts will ensure the requested packages are automatically downloaded and installed.</p>
-<p>In addition, you can also supply the path to a lockfile. For example:</p>
+<p><code><a href="../reference/use.html">renv::use()</a></code> can hence be a useful way of sharing
+standalone R scripts with a set of specific package requirements.
+Running these scripts will ensure the requested packages are
+automatically downloaded and installed.</p>
+<p>In addition, you can also supply the path to a lockfile. For
+example:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># use a particular lockfile in the context of this script</span>
 <span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use.html">use</a></span><span class="op">(</span>lockfile <span class="op">=</span> <span class="st">"/path/to/renv.lock"</span><span class="op">)</span>
 
 <span class="co"># the rest of this script will run with the packages as declared</span>
 <span class="co"># in that lockfile installed into a temporary library path</span></code></pre></div>
-<p>This can be useful in projects where you’d like to associate different lockfiles with different documents – for example, in a <a href="https://bookdown.org/yihui/blogdown/" class="external-link">blog</a> or a website where you’d like to associate a separate lockfile with each post. Once the post is complete, you could use <code>renv::snapshot(lockfile = "/path/to/renv.lock")</code> to “save” the state that was active while authoring that lockfile, and then use <code>renv::use(lockfile = "/path/to/renv.lock")</code> in that document to ensure the blog post is always run using that lockfile on future renders.</p>
+<p>This can be useful in projects where you’d like to associate
+different lockfiles with different documents – for example, in a <a href="https://bookdown.org/yihui/blogdown/" class="external-link">blog</a> or a website where
+you’d like to associate a separate lockfile with each post. Once the
+post is complete, you could use <code>renv::snapshot(lockfile =
+"/path/to/renv.lock")</code> to “save” the state that was active while
+authoring that lockfile, and then use <code>renv::use(lockfile =
+"/path/to/renv.lock")</code> in that document to ensure the blog post is
+always run using that lockfile on future renders.</p>
   </main>
 </div>
 
@@ -146,7 +166,8 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
     </footer>
