@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2-2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,6 +29,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
     <a class="dropdown-item" href="../articles/lockfile.html">Anatomy of a Lockfile</a>
+    <a class="dropdown-item" href="../articles/cellar.html">The Package Cellar</a>
     <a class="dropdown-item" href="../articles/mran.html">Using MRAN Binaries</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
     <div class="dropdown-divider"></div>
@@ -75,8 +76,12 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.15.2" id="renv-0152">renv 0.15.2<a class="anchor" aria-label="anchor" href="#renv-0152"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.16.0" id="renv-0160-unreleased">renv 0.16.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0160-unreleased"></a></h2>
 </div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.15.2" id="renv-0152">renv 0.15.2<a class="anchor" aria-label="anchor" href="#renv-0152"></a></h2><p class="text-muted">CRAN release: 2022-01-24</p>
+<ul><li>Fixed issues encountered in R CMD check.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.15.1" id="renv-0151">renv 0.15.1<a class="anchor" aria-label="anchor" href="#renv-0151"></a></h2><p class="text-muted">CRAN release: 2022-01-13</p>
 <ul><li><p>Fixed an issue where <code>renv</code> inadvertently inserted
@@ -122,8 +127,9 @@ This can be useful if you’d prefer to store your project’s
 package projects, with the library located within
 <code>tools::R_user_dir("renv", "cache")</code>. This directory can be
 configured via the <code>RENV_PATHS_LIBRARY_ROOT</code> environment
-variable if desired. See <code><a href="../articles/packages.html">vignette("packages", package =
-"renv")</a></code> for more details. (<a href="https://github.com/rstudio/renv/issues/384" class="external-link">#384</a>)</p></li>
+variable if desired. See
+<code><a href="../articles/packages.html">vignette("packages", package = "renv")</a></code> for more details.
+(<a href="https://github.com/rstudio/renv/issues/384" class="external-link">#384</a>)</p></li>
 <li><p><code>renv</code> now uses the repositories as defined within the
 project lockfile (if any) when attempting to bootstrap itself in a
 project. (<a href="https://github.com/rstudio/renv/issues/820" class="external-link">#820</a>)</p></li>
@@ -144,9 +150,9 @@ enabled, calls to <code><a href="../reference/install.html">renv::install()</a><
 to download and install packages.</p></li>
 <li><p><code><a href="../reference/init.html">renv::init()</a></code> gains the <code>bioconductor</code>
 argument, to be used to initialize a project with a particular
-Bioconductor release. You can also use <code>renv::init(bioconductor =
-TRUE)</code> to initialize with the latest-available release for the
-version of R being used.</p></li>
+Bioconductor release. You can also use
+<code>renv::init(bioconductor = TRUE)</code> to initialize with the
+latest-available release for the version of R being used.</p></li>
 <li><p>Project settings can now be overridden by setting an R option of
 the same name. For example, one could force a project to use
 Bioconductor 3.14 by setting
@@ -250,10 +256,10 @@ altogether. (<a href="https://github.com/rstudio/renv/issues/804" class="externa
 <li><p>Added dependency discovery support for R utility scripts
 identified by a shebang line instead of a file extension. (<a href="https://github.com/rstudio/renv/issues/801" class="external-link">#801</a>;
 <a href="https://github.com/klmr" class="external-link">@klmr</a>)</p></li>
-<li><p>Fixed an issue where <code>renv::install("&lt;package&gt;", type
-= "both")</code> would attempt to install the package from sources, even
-if the current system did not have the requisite build tools available.
-(<a href="https://github.com/rstudio/renv/issues/800" class="external-link">#800</a>)</p></li>
+<li><p>Fixed an issue where
+<code>renv::install("&lt;package&gt;", type = "both")</code> would
+attempt to install the package from sources, even if the current system
+did not have the requisite build tools available. (<a href="https://github.com/rstudio/renv/issues/800" class="external-link">#800</a>)</p></li>
 <li><p><code><a href="../reference/scaffold.html">renv::scaffold()</a></code> gains the <code>settings</code>
 argument, used to create a project scaffolding with some default project
 options set. (<a href="https://github.com/rstudio/renv/issues/791" class="external-link">#791</a>)</p></li>
@@ -466,10 +472,10 @@ repository is available. (<a href="https://github.com/rstudio/renv/issues/613" c
 <li><p><code>renv::rebuild(&lt;package&gt;)</code> now uses the
 latest-available version of the requested package(s) if those packages
 are not currently installed.</p></li>
-<li><p>Fixed an issue where <code>renv::restore(library =
-"/path/to/lib")</code> would fail to restore packages, if those packages
-were already installed on the active library paths (as reported by
-<code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code>). (<a href="https://github.com/rstudio/renv/issues/612" class="external-link">#612</a>)</p></li>
+<li><p>Fixed an issue where
+<code>renv::restore(library = "/path/to/lib")</code> would fail to
+restore packages, if those packages were already installed on the active
+library paths (as reported by <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code>). (<a href="https://github.com/rstudio/renv/issues/612" class="external-link">#612</a>)</p></li>
 <li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> gains the <code>reprex</code>
 argument. Set this to <code>TRUE</code> if you’d like to embed an
 <code>renv</code> lockfile as part of a reproducible example, as
@@ -547,8 +553,8 @@ packages.</p></li>
 <li><p><code>renv</code> will now attempt to bootstrap itself from CRAN,
 in addition to any repositories declared via
 <code>getOption("repos")</code>. If you’d prefer to disable this
-behavior, you can set <code>options(renv.bootstrap.repos =
-character())</code>.</p></li>
+behavior, you can set
+<code>options(renv.bootstrap.repos = character())</code>.</p></li>
 <li><p>The <code>renv</code> setting <code>r.version</code> has been
 added. This can be set if you’d like to associate a particular project
 with a specific version of R, independent of the version of R actually
@@ -565,9 +571,9 @@ argument, used to control whether <code><a href="../reference/status.html">renv:
 performs diagnostics on the global package cache. (<a href="https://github.com/rstudio/renv/issues/570" class="external-link">#570</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/status.html">renv::status()</a></code> would make an
 un-necessary call to <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>. (<a href="https://github.com/rstudio/renv/issues/570" class="external-link">#570</a>)</p></li>
-<li><p>Fixed an issue where <code>renv::install("bioc::&lt;package&gt;",
-rebuild = TRUE)</code> would fail to install the requested package.
-(<a href="https://github.com/rstudio/renv/issues/565" class="external-link">#565</a>)</p></li>
+<li><p>Fixed an issue where
+<code>renv::install("bioc::&lt;package&gt;", rebuild = TRUE)</code>
+would fail to install the requested package. (<a href="https://github.com/rstudio/renv/issues/565" class="external-link">#565</a>)</p></li>
 <li><p>Fixed an issue where the repository name for a package installed
 from an R package repository was sometimes incorrect. (<a href="https://github.com/rstudio/renv/issues/402" class="external-link">#402</a>)</p></li>
 <li><p>When <code>RENV_PATHS_LIBRARY_ROOT</code> is set,
@@ -641,10 +647,10 @@ version of <code>tar.exe</code> on the <code>PATH</code> exists, but
 does not accept Windows-style paths. The <code>TAR</code> environment
 variable can be set if one needs to explicitly force the use of a
 particular <code>tar.exe</code> executable. (<a href="https://github.com/rstudio/renv/issues/521" class="external-link">#521</a>)</p></li>
-<li><p><code>renv</code> now prepends <code>renv
-(&lt;version&gt;)</code> to the user agent string. This should help
-ensure that package binaries are located when installing packages from
-RSPM outside of RStudio. (<a href="https://github.com/rstudio/renv/issues/520" class="external-link">#520</a>)</p></li>
+<li><p><code>renv</code> now prepends
+<code>renv (&lt;version&gt;)</code> to the user agent string. This
+should help ensure that package binaries are located when installing
+packages from RSPM outside of RStudio. (<a href="https://github.com/rstudio/renv/issues/520" class="external-link">#520</a>)</p></li>
 <li><p><code>renv</code> now uses a task callback to detect mutations to
 the project library when the <code>auto.snapshot</code> configuration
 option is enabled. This will help ensure that automatic snapshots occur
@@ -673,9 +679,9 @@ environment variable was inappropriately normalized when
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.11.0" id="renv-0110">renv 0.11.0<a class="anchor" aria-label="anchor" href="#renv-0110"></a></h2><p class="text-muted">CRAN release: 2020-06-26</p>
-<ul><li><p>Fixed an issue where <code>renv::install(..., type =
-"binary")</code> would still attempt to install packages from sources in
-some cases. (<a href="https://github.com/rstudio/renv/issues/461" class="external-link">#461</a>)</p></li>
+<ul><li><p>Fixed an issue where
+<code>renv::install(..., type = "binary")</code> would still attempt to
+install packages from sources in some cases. (<a href="https://github.com/rstudio/renv/issues/461" class="external-link">#461</a>)</p></li>
 <li><p><code>renv</code> now always writes <code>renv/.gitignore</code>,
 to ensure that the appropriate directories are ignored for projects
 which initialize <code>git</code> after <code>renv</code> itself is
@@ -747,9 +753,9 @@ dependencies. (<a href="https://github.com/rstudio/renv/issues/403" class="exter
 <li><p>Fixed an issue where packages which had only binaries available
 on a package repository were not detected as being from a package
 repository. (<a href="https://github.com/rstudio/renv/issues/402" class="external-link">#402</a>)</p></li>
-<li><p>Fixed an issue where calls of the form <code>p_load(char =
-&lt;vctr&gt;)</code> caused a failure when enumerating dependencies.
-(<a href="https://github.com/rstudio/renv/issues/401" class="external-link">#401</a>)</p></li>
+<li><p>Fixed an issue where calls of the form
+<code>p_load(char = &lt;vctr&gt;)</code> caused a failure when
+enumerating dependencies. (<a href="https://github.com/rstudio/renv/issues/401" class="external-link">#401</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install()</a></code> could fail when
 multiple versions of a package are available from a single repository,
 but some versions of those packages are incompatible with the current
@@ -798,8 +804,8 @@ controls how <code>renv</code> handles and reports errors encountered
 during dependency discovery. The <code>quiet</code> argument is now
 soft-deprecated, but continues to be supported for backwards
 compatibility. Specifying <code>quiet = TRUE</code> is equivalent to
-specifying <code>progress = FALSE</code> and <code>errors =
-"ignored"</code>. Please see the documentation in
+specifying <code>progress = FALSE</code> and
+<code>errors = "ignored"</code>. Please see the documentation in
 <code><a href="../reference/dependencies.html">?dependencies</a></code> for more details. (<a href="https://github.com/rstudio/renv/issues/342" class="external-link">#342</a>)</p></li>
 <li><p>The environment variable <code>RENV_PATHS_LIBRARY_ROOT</code> can
 now be set, to instruct <code>renv</code> to use a particular directory
@@ -853,12 +859,13 @@ accepted before attempting to install R packages from sources.
 (<a href="https://github.com/rstudio/renv/issues/296" class="external-link">#296</a>)</p></li>
 <li><p>The R option <code>renv.download.override</code> can now be used
 to override the machinery used by <code>renv</code> when downloading
-files. For example, setting <code>options(renv.download.override =
-utils::download.file)</code> would instruct <code>renv</code> to use R’s
-own downloader when downloading files from the internet. This can be
-useful when configuration of <code>curl</code> is challenging or
-intractable in your environment, or you’ve already configured the base R
-downloader suitably.</p></li>
+files. For example, setting
+<code>options(renv.download.override = utils::download.file)</code>
+would instruct <code>renv</code> to use R’s own downloader when
+downloading files from the internet. This can be useful when
+configuration of <code>curl</code> is challenging or intractable in your
+environment, or you’ve already configured the base R downloader
+suitably.</p></li>
 <li><p><code>renv::use_python("~/path/to/python")</code> now works as
 expected.</p></li>
 <li><p><code>renv</code> now properly expands <code>R_LIBS_SITE</code>
@@ -930,9 +937,9 @@ the environment variable
 <code>RENV_DOWNLOAD_FILE_METHOD</code>.</p></li>
 <li><p><code>renv</code> no longer sources the user profile (normally
 located at <code>~/.Rprofile</code>) by default. If you desire this
-behavior, you can opt-in by setting <code>RENV_CONFIG_USER_PROFILE =
-TRUE</code>; e.g. within your project or user <code>.Renviron</code>
-file. (<a href="https://github.com/rstudio/renv/issues/261" class="external-link">#261</a>)</p></li>
+behavior, you can opt-in by setting
+<code>RENV_CONFIG_USER_PROFILE = TRUE</code>; e.g. within your project
+or user <code>.Renviron</code> file. (<a href="https://github.com/rstudio/renv/issues/261" class="external-link">#261</a>)</p></li>
 <li><p><code><a href="../reference/restore.html">renv::restore()</a></code> gains the <code>packages</code>
 argument, to be used to restore a subset of packages recorded within the
 lockfile. (<a href="https://github.com/rstudio/renv/issues/260" class="external-link">#260</a>)</p></li>

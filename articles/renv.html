@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2-2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
     <a class="dropdown-item" href="../articles/lockfile.html">Anatomy of a Lockfile</a>
+    <a class="dropdown-item" href="../articles/cellar.html">The Package Cellar</a>
     <a class="dropdown-item" href="../articles/mran.html">Using MRAN Binaries</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
     <div class="dropdown-divider"></div>
@@ -107,7 +108,7 @@
                         <h4 data-toc-skip class="author">Kevin
 Ushey</h4>
             
-            <h4 data-toc-skip class="date">2022-01-24</h4>
+            <h4 data-toc-skip class="date">2022-02-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/renv.Rmd" class="external-link"><code>vignettes/renv.Rmd</code></a></small>
       <div class="d-none name"><code>renv.Rmd</code></div>
@@ -385,8 +386,8 @@ package’s source:</p>
 installed by the <code>devtools</code>, <code>remotes</code> and
 <code>pak</code> packages,</p></li>
 <li><p>The <code>Repository</code> field; for example, packages
-retrieved from CRAN will typically have the <code>Repository:
-CRAN</code> field,</p></li>
+retrieved from CRAN will typically have the
+<code>Repository: CRAN</code> field,</p></li>
 <li><p>The <code>biocViews</code> field; typically present for packages
 installed from the Bioconductor repositories,</p></li>
 </ol>
@@ -451,7 +452,7 @@ then <code>renv</code> will install the latest-available version of
 <p>With each commit of <code>renv</code>, we bump the package version
 and also tag the commit with the associated package version. This
 implies that you can call, for example:</p>
-<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.15.2"</span><span class="op">)</span></code></pre>
+<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.15.2-2"</span><span class="op">)</span></code></pre>
 <p>to request the installation of that particular version of
 <code>renv</code> if so required.</p>
 </div>
@@ -762,8 +763,9 @@ been cached, then <code>renv</code> will just install using the copy
 available in the cache – thereby skipping some of the installation
 overhead.</p>
 <p>If you’d prefer not to use the <code>renv</code> shims, they can be
-disabled by setting the option <code>options(renv.config.shims.enabled =
-FALSE)</code>. See <code><a href="../reference/config.html">?config</a></code> for more details.</p>
+disabled by setting the option
+<code>options(renv.config.shims.enabled = FALSE)</code>. See
+<code><a href="../reference/config.html">?config</a></code> for more details.</p>
 </div>
 <div class="section level2">
 <h2 id="history">History<a class="anchor" aria-label="anchor" href="#history"></a>

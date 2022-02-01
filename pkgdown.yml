@@ -1,4 +1,4 @@
-pandoc: 2.17.0.1
+pandoc: 2.17.1.1
 pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
@@ -16,7 +16,7 @@ articles:
   renv: renv.html
   rsconnect: rsconnect.html
   use: use.html
-last_built: 2022-01-24T22:03Z
+last_built: 2022-02-01T19:07Z
 urls:
   reference: https://rstudio.github.io/renv/reference
   article: https://rstudio.github.io/renv/articles

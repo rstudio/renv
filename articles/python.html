@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2-2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <h6 class="dropdown-header" data-toc-skip>Introduction</h6>
     <a class="dropdown-item" href="../articles/lockfile.html">Anatomy of a Lockfile</a>
+    <a class="dropdown-item" href="../articles/cellar.html">The Package Cellar</a>
     <a class="dropdown-item" href="../articles/mran.html">Using MRAN Binaries</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
     <div class="dropdown-divider"></div>
@@ -129,10 +130,11 @@ environment. Alternatively, you can set the
 <code>renv</code> to use a different version of Python.</p>
 <p>If you’d rather tell <code>renv</code> to use an existing Python
 virtual environment, you can do so by passing the path of that virtual
-environment instead – use <code>renv::use_python(python =
-"/path/to/python")</code> and <code>renv</code> will record and use that
-Python interpreter with your project. This can also be used with
-pre-existing virtual environments and Conda environments.</p>
+environment instead – use
+<code>renv::use_python(python = "/path/to/python")</code> and
+<code>renv</code> will record and use that Python interpreter with your
+project. This can also be used with pre-existing virtual environments
+and Conda environments.</p>
 </div>
 <div class="section level2">
 <h2 id="understanding-python-integration">Understanding Python Integration<a class="anchor" aria-label="anchor" href="#understanding-python-integration"></a>
@@ -151,12 +153,12 @@ package dependencies).</p>
 <p>When using virtual environments, the following extensions are
 provided:</p>
 <ul>
-<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> calls <code>pip freeze &gt;
-requirements.txt</code> to save the set of installed Python
-packages;</p></li>
-<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> calls <code>pip install -r
-requirements.txt</code> to install the previously-recorded set of Python
-packages.</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> calls
+<code>pip freeze &gt; requirements.txt</code> to save the set of
+installed Python packages;</p></li>
+<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> calls
+<code>pip install -r requirements.txt</code> to install the
+previously-recorded set of Python packages.</p></li>
 </ul>
 </div>
 <div class="section level3">
@@ -165,12 +167,12 @@ packages.</p></li>
 <p>When using Conda environments, the following extensions are
 provided:</p>
 <ul>
-<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> calls <code>conda env export &gt;
-environment.yml</code> to save the set of installed Python
-packages;</p></li>
-<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> calls <code>conda env
-[create/update] --file environment.yml</code> to install the
-previously-recorded set of Python packages.</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> calls
+<code>conda env export &gt; environment.yml</code> to save the set of
+installed Python packages;</p></li>
+<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> calls
+<code>conda env [create/update] --file environment.yml</code> to install
+the previously-recorded set of Python packages.</p></li>
 </ul>
 </div>
 </div>
