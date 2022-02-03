@@ -111,3 +111,12 @@ renv_archive_decompress_zip <- function(path, ...) {
 
 }
 
+renv_archive_find <- function(path, pattern) {
+
+  # list files in archive
+  files <- renv_archive_list(path)
+
+  # find those matching the provided pattern
+  grep(pattern, files, value = TRUE)
+
+}

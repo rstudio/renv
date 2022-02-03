@@ -140,6 +140,14 @@
     when attempting to hydrate projects. When empty, the default set of library paths
     (as documented in `?hydrate`) are used instead. See [`hydrate()`] for more details.
 
+- name: "install.build"
+  type: "logical[1]"
+  default: true
+  description: >
+    Should downloaded package archives be built (via `R CMD build`) before installation?
+    When TRUE (the default), package vignettes will also be built as part of package
+    installation.
+
 - name: "install.shortcuts"
   type: "logical[1]"
   default: true

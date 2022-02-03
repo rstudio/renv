@@ -149,6 +149,15 @@ config <- list(
     )
   },
 
+  install.build = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "install.build",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   install.shortcuts = function(..., default = TRUE) {
     renv_config_get(
       name    = "install.shortcuts",

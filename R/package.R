@@ -341,3 +341,27 @@ renv_package_shlib <- function(package) {
   file.path(pkgpath, "libs", libname)
 
 }
+
+renv_package_built <- function(path) {
+
+  info <- renv_file_info(path)
+
+  # list files in package
+  files <- case(
+    identical(info$isdir, TRUE)  ~ list.files(path, recursive = TRUE),
+    identical(info$isdir, FALSE) ~ renv_archive_list(path)
+  )
+
+  # if this package has an MD5 file, we're done
+  matches <- grep("(?:^|/)MD5$", files)
+  if (length(matches))
+    return(TRUE)
+
+  # if this package has a built directory, we're done
+  matches <- grep("(?:^|/)build(?:/|$)", files)
+  if (length(matches))
+    return(TRUE)
+
+  FALSE
+
+}

@@ -377,9 +377,7 @@ renv_install_package <- function(record) {
 
   }
 
-  # report that we're about to start installation
-  renv_install_package_preamble(record)
-
+  # install the package
   withCallingHandlers(
     renv_install_package_impl(record),
     error = function(e) {
@@ -456,6 +454,89 @@ renv_install_package_preamble <- function(record) {
   with(record, vwritef(fmt, Package, Version))
 }
 
+renv_install_package_impl_prebuild <- function(record, quiet) {
+
+  # if this package already appears to be built, nothing to do
+  path <- record$Path
+  if (renv_package_built(path))
+    return(path)
+
+  # if this is an archive, we'll need to unpack it first
+  info <- renv_file_info(path)
+  if (identical(info$isdir, FALSE)) {
+
+    # find the package directory
+    files <- renv_archive_list(path)
+    descpath <- grep("(?:^|/)DESCRIPTION$", files, value = TRUE)
+    pkgpath <- dirname(descpath)[nchar(descpath) == min(nchar(descpath))]
+
+    # extract to temporary directory
+    exdir <- tempfile("renv-build-")
+    ensure_directory(exdir)
+    renv_archive_decompress(path, exdir = exdir)
+
+    # update path to package
+    path <- file.path(exdir, pkgpath)
+
+    # and ensure we build in this directory
+    owd <- setwd(path)
+    on.exit(setwd(owd), add = TRUE)
+
+  }
+
+  fmt <- "Building %s [%s] ..."
+  with(record, vwritef(fmt, Package, Version))
+
+  before <- Sys.time()
+  package <- record$Package
+  newpath <- r_cmd_build(package, path)
+  after <- Sys.time()
+  time <- difftime(after, before, units = "auto")
+
+  fmt <- "\tOK [built package in %s]"
+  vwritef(fmt, renv_difftime_format(time))
+
+  newpath
+
+}
+
+renv_install_package_unpack <- function(package, path) {
+
+  # if this isn't an archive, nothing to do
+  info <- renv_file_info(path)
+  if (identical(info$isdir, TRUE))
+    return(path)
+
+  # list files in the archive
+  files <- renv_archive_list(path)
+
+  # if we have a top-level DESCRIPTION file, nothing to
+  descpaths <- renv_archive_find(path, "(?:^|/)DESCRIPTION$")
+  n <- nchar(descpaths)
+  descpath <- descpaths[n == min(n)]
+
+  # if we already have a top-level DESCRIPTION file, nothing to do
+  if (dirname(descpath) == package)
+    return(path)
+
+  # create extraction directory
+  old <- tempfile("renv-package-old-")
+  new <- tempfile("renv-package-new-")
+  ensure_directory(c(old, new))
+
+  # decompress archive to dir
+  renv_archive_decompress(path, exdir = old)
+
+  # rename (without sub-directory)
+  oldpath <- file.path(old, dirname(descpath))
+  newpath <- file.path(new, package)
+  file.rename(oldpath, newpath)
+
+  # use newpath
+  newpath
+
+}
+
 renv_install_package_impl <- function(record, quiet = TRUE) {
 
   package <- record$Package
@@ -466,6 +547,12 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   # get archive path for package
   path <- record$Path
 
+  # check whether we should build before install
+  path <- renv_install_package_impl_prebuild(record, quiet)
+
+  # report that we're about to start installation
+  renv_install_package_preamble(record)
+
   # for directories, we may need to use subdir to find the package path
   info <- renv_file_info(path)
   subdir <- record$RemoteSubdir %||% ""
@@ -474,33 +561,10 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
     path <- paste(components, collapse = "/")
   }
 
-  # for source packages downloaded as zips,
-  # we need to extract before install
-  unpack <-
-    renv_archive_type(path) %in% c("tar", "zip") &&
-    (renv_package_type(path) == "source" || nzchar(subdir))
-
-  if (unpack) {
-
-    # create extraction directory
-    dir <- tempfile("renv-package-")
-    ensure_directory(dir)
-    on.exit(unlink(dir, recursive = TRUE), add = TRUE)
-
-    # decompress archive to dir
-    renv_archive_decompress(path, exdir = dir)
-
-    # rename to true package name
-    name <- list.files(dir)
-    source <- file.path(dir, name)
-    target <- file.path(dir, package)
-    renv_file_move(source, target)
-
-    # form new path
-    components <- c(dir, package, if (nzchar(subdir)) subdir)
-    path <- paste(components, collapse = "/")
-
-  }
+  # re-pack package archives if they appear to have their package
+  # sources contained as part of a sub-directory
+  # TODO: we should probably do this earlier?
+  path <- renv_install_package_unpack(package, path)
 
   # run user-defined hooks before, after install
   before <- options$before.install %||% identity
