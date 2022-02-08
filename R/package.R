@@ -352,16 +352,12 @@ renv_package_built <- function(path) {
     identical(info$isdir, FALSE) ~ renv_archive_list(path)
   )
 
-  # if this package has an MD5 file, we're done
-  matches <- grep("(?:^|/)MD5$", files)
-  if (length(matches))
-    return(TRUE)
-
-  # if this package has a built directory, we're done
-  matches <- grep("(?:^|/)build(?:/|$)", files)
-  if (length(matches))
-    return(TRUE)
-
-  FALSE
+  # for a source package, the canonical way to determine if it has already
+  # been built is the presence of a 'Packaged:' field in the DESCRIPTION file
+  # ('Built:' for binary packages) but we want to avoid the overhead of
+  # unpacking the package if at all possible
+  pattern <- "(?:^|/)(?:MD5$|INDEX/|Meta/package\\.rds$)"
+  matches <- grep(pattern, files)
+  length(matches) != 0
 
 }
