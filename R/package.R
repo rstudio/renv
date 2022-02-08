@@ -358,6 +358,21 @@ renv_package_built <- function(path) {
   # unpacking the package if at all possible
   pattern <- "(?:^|/)(?:MD5$|INDEX/|Meta/package\\.rds$)"
   matches <- grep(pattern, files)
-  length(matches) != 0
+  if (length(matches) != 0L)
+    return(TRUE)
+
+  # if the above failed, we'll fall back to the "real" version
+  descpaths <- grep("/DESCRIPTION$", files, value = TRUE)
+  descpath <- descpaths[nchar(descpaths) == min(nchar(descpaths))]
+  contents <- renv_archive_read(path, descpath)
+
+  # check for signs it was built
+  pattern <- "^(?:Packaged|Built):"
+  matches <- grep(pattern, contents)
+  if (length(matches) != 0L)
+    return(TRUE)
+
+  # does not appear to be a source package
+  FALSE
 
 }

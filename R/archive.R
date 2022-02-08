@@ -120,3 +120,16 @@ renv_archive_find <- function(path, pattern) {
   grep(pattern, files, value = TRUE)
 
 }
+
+renv_archive_read <- function(path, file) {
+
+  # move to tempdir
+  renv_scope_tempdir()
+
+  # extract the file
+  system2("tar", c("-xf", shQuote(path), shQuote(file)))
+
+  # and read it
+  readLines(file, warn = FALSE)
+
+}
