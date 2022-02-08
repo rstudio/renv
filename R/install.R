@@ -484,6 +484,17 @@ renv_install_package_impl_prebuild <- function(record, quiet) {
 
   }
 
+  # if this package depends on a VignetteBuilder that is not installed,
+  # then we can't proceed
+  descpath <- file.path(path, "DESCRIPTION")
+  desc <- renv_description_read(descpath)
+  builder <- desc[["VignetteBuilder"]]
+  if (!is.null(builder) && !renv_package_installed(builder)) {
+    fmt <- "Skipping package build: vignette builder '%s' is not installed"
+    vwritef(fmt, builder)
+    return(record$Path)
+  }
+
   fmt <- "Building %s [%s] ..."
   with(record, vwritef(fmt, Package, Version))
 
