@@ -123,13 +123,22 @@ renv_archive_find <- function(path, pattern) {
 
 renv_archive_read <- function(path, file) {
 
-  # move to tempdir
+  type <- renv_archive_type(path)
+  case(
+    type == "tar" ~ renv_archive_read_tar(path, file),
+    type == "zip" ~ renv_archive_read_zip(path, file),
+    ~ stopf("don't know how to read file from archive %s", renv_path_pretty(path))
+  )
+
+}
+
+renv_archive_read_tar <- function(path, file) {
+  renv_system_exec("tar", c("-xf", shQuote(path), "-O", shQuote(file)))
+}
+
+renv_archive_read_zip <- function(path, file) {
   renv_scope_tempdir()
-
-  # extract the file
-  system2("tar", c("-xf", shQuote(path), shQuote(file)))
-
-  # and read it
-  readLines(file, warn = FALSE)
-
+  conn <- unz(path, file, encoding = "native.enc")
+  on.exit(close(conn), add = TRUE)
+  readLines(conn, warn = FALSE)
 }

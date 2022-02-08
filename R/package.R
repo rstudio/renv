@@ -347,24 +347,32 @@ renv_package_built <- function(path) {
   info <- renv_file_info(path)
 
   # list files in package
-  files <- case(
-    identical(info$isdir, TRUE)  ~ list.files(path, recursive = TRUE),
-    identical(info$isdir, FALSE) ~ renv_archive_list(path)
-  )
+  isarchive <- identical(info$isdir, FALSE)
+  files <- if (isarchive)
+    renv_archive_list(path)
+  else
+    list.files(path, full.names = TRUE, recursive = TRUE)
 
   # for a source package, the canonical way to determine if it has already
   # been built is the presence of a 'Packaged:' field in the DESCRIPTION file
   # ('Built:' for binary packages) but we want to avoid the overhead of
   # unpacking the package if at all possible
-  pattern <- "(?:^|/)(?:MD5$|INDEX/|Meta/package\\.rds$)"
+  pattern <- "/(?:MD5$|INDEX/|Meta/package\\.rds$)"
   matches <- grep(pattern, files)
   if (length(matches) != 0L)
     return(TRUE)
 
-  # if the above failed, we'll fall back to the "real" version
+  # if the above failed, then we'll use the contents of the DESCRIPTION file
   descpaths <- grep("/DESCRIPTION$", files, value = TRUE)
-  descpath <- descpaths[nchar(descpaths) == min(nchar(descpaths))]
-  contents <- renv_archive_read(path, descpath)
+  if (length(descpaths) == 0L)
+    return(FALSE)
+
+  n <- nchar(descpaths)
+  descpath <- descpaths[n == min(n)]
+  contents <- if (isarchive)
+    renv_archive_read(path, descpath)
+  else
+    readLines(descpath, warn = FALSE)
 
   # check for signs it was built
   pattern <- "^(?:Packaged|Built):"
