@@ -47,5 +47,6 @@ renv_unload_libpaths <- function(project) {
 }
 
 renv_unload_profile <- function(project) {
+  options(renv.project.path = NULL)
   Sys.unsetenv("RENV_PROFILE")
 }
