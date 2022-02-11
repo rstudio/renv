@@ -11,6 +11,15 @@
   addTaskCallback(renv_repos_init_callback)
   addTaskCallback(renv_snapshot_auto_callback)
 
+  # if an renv project already appears to be loaded, then re-activate
+  # the sandbox now -- this is primarily done to support suspend and
+  # resume with RStudio where the user profile might not be run
+  if (renv_rstudio_available()) {
+    project <- getOption("renv.project.path")
+    if (!is.null(project))
+      renv_sandbox_activate(project = project)
+  }
+
 }
 
 .onAttach <- function(libname, pkgname) {

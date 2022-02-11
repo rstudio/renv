@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where the R site library would not be appropriately masked
+  for resumed RStudio sessions. (#936)
+  
 * `renv` now builds packages before install, when installing packages from
   source archives that have not yet been built (as via `R CMD build`). This
   can make package installation slower, but will ensure packages are installed

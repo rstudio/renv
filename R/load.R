@@ -572,6 +572,8 @@ renv_load_quiet <- function() {
 
 renv_load_finish <- function(project, lockfile) {
 
+  options(renv.project.path = project)
+
   if (!renv_load_quiet()) {
     renv_load_report_project(project)
     renv_load_report_python(project)
