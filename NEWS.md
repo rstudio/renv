@@ -1,6 +1,11 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` would incorrectly copy a package from the cache,
+  if the cached version of the package and the requested version of the package
+  had the same package version, even if they were retrieved from different
+  sources. (#938)
+
 * The path to an `renv` tarball can now be set via the environment variable
   `RENV_BOOTSTRAP_TARBALL`, to be used to help `renv` bootstrap from local
   sources. This can either be the path to a directory containing `renv`

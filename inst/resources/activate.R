@@ -327,8 +327,8 @@ local({
     if (!file.exists(tarball))
       return()
   
-    fmt <- "* Using local tarball at path '%s'."
-    msg <- sprintf(fmt, version)
+    fmt <- "* Bootstrapping with tarball at path '%s'."
+    msg <- sprintf(fmt, tarball)
     message(msg)
   
     tarball

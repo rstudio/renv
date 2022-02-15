@@ -49,6 +49,7 @@ renv_cache_find <- function(record) {
   # for something compatible with the requested record
   for (package in packages) {
 
+    # try to read the DESCRIPTION file
     dcf <- catch(as.list(renv_description_read(package)))
     if (inherits(dcf, "error"))
       next
@@ -63,14 +64,20 @@ renv_cache_find <- function(record) {
     if (hasrepo)
       return(package)
 
-    # otherwise, match on other fields
-    fields <- renv_record_names(record, c("Package", "Version"))
+    # check for compatible fields
+    fields <- unique(c(
+      renv_record_names(record, c("Package", "Version")),
+      renv_record_names(dcf, c("Package", "Version"))
+    ))
 
     # drop unnamed fields
-    record <- record[nzchar(record)]; dcf <- dcf[nzchar(dcf)]
+    record <- record[nzchar(record)]
+    dcf <- dcf[nzchar(dcf)]
 
     # check identical
-    if (identical(record[fields], dcf[fields]))
+    lhs <- keep(record, fields)
+    rhs <- keep(dcf, fields)
+    if (identical(lhs, rhs))
       return(package)
 
   }
