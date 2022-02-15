@@ -1,6 +1,11 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* The path to an `renv` tarball can now be set via the environment variable
+  `RENV_BOOTSTRAP_TARBALL`, to be used to help `renv` bootstrap from local
+  sources. This can either be the path to a directory containing `renv`
+  source tarballs, or the path to the tarball itself.
+  
 * Fixed an issue where the R site library would not be appropriately masked
   for resumed RStudio sessions. (#936)
   
