@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv`'s automatic snapshot was not run after calls to
+  `renv::install()` in some cases. (#939)
+  
 * Fixed an issue where `renv` would incorrectly copy a package from the cache,
   if the cached version of the package and the requested version of the package
   had the same package version, even if they were retrieved from different

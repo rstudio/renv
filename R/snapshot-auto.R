@@ -5,6 +5,9 @@
 # nocov start
 renv_snapshot_auto <- function(project) {
 
+  # set some state so we know we're running
+  renv_scope_var("running", TRUE, envir = `_renv_snapshot_auto`)
+
   # passed pre-flight checks; snapshot the library
   # validation messages can be noisy; turn off for auto snapshot
   status <- catch(renv_snapshot_auto_impl(project))
@@ -116,7 +119,15 @@ renv_snapshot_auto_callback_impl <- function() {
 }
 
 renv_snapshot_auto_suppress_next <- function() {
+
+  # if we're currently running an automatic snapshot, then nothing to do
+  running <- `_renv_snapshot_auto`[["running"]]
+  if (identical(running, TRUE))
+    return()
+
+  # otherwise, set the suppressed flag
   `_renv_snapshot_auto`[["suppressed"]] <- TRUE
+
 }
 
 # nocov end
