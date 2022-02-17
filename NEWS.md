@@ -1,6 +1,10 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv::install()` could install into the wrong library
+  path on Windows, if the R installation had a site-wide profile that mutated
+  the library paths. (#941)
+
 * Fixed an issue where `renv::install()` would fail to find a package within
   the cache when using an abbreviated commit hash for installation. (#943)
 
