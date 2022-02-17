@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv::install()` would fail to find a package within
+  the cache when using an abbreviated commit hash for installation. (#943)
+
 * Fixed an issue where `renv`'s automatic snapshot was not run after calls to
   `renv::install()` in some cases. (#939)
   

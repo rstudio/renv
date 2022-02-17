@@ -486,6 +486,10 @@ renv_remotes_resolve_github <- function(remote) {
     nzchar(ref)  ~ renv_remotes_resolve_github_sha_ref(host, user, repo, ref)
   )
 
+  # if an abbreviated sha was provided as the ref, expand it here
+  if (nzchar(ref) && startswith(sha, ref))
+    ref <- sha
+
   # read DESCRIPTION
   subdir <- remote$subdir
   desc <- renv_remotes_resolve_github_description(host, user, repo, subdir, sha)
