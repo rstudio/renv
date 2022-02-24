@@ -135,7 +135,7 @@ renv_archive_read_tar <- function(path, file) {
   tar <- renv_tar_exe()
   if (nzchar(tar) && file.exists(tar)) {
     args <- c("xf", shQuote(path), "-O", shQuote(file))
-    return(renv_system_exec(tar, args))
+    return(renv_system_exec(tar, args, action = "reading file from archive"))
   }
 
   # fall back to unpacking archive and reading file
