@@ -22,10 +22,20 @@ test_that("issues within the cache are reported", {
   bread <- renv_cache_list(packages = "bread")
   descpath <- file.path(bread, "DESCRIPTION")
   unlink(descpath)
+  if (length(descpath) > 1L) {
+    writeLines(descpath)
+    stop("unexpected descpath")
+  }
+
 
   # diagnostics for bad hash
   breakfast <- renv_cache_list(packages = "breakfast")
   descpath <- file.path(breakfast, "DESCRIPTION")
+  if (length(descpath) > 1L) {
+    writeLines(descpath)
+    stop("unexpected descpath")
+  }
+
   desc <- renv_description_read(descpath)
   desc$Version <- "2.0.0"
   renv_dcf_write(desc, file = descpath)

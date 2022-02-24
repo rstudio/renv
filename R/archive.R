@@ -27,74 +27,27 @@ renv_archive_list_impl <- function(path) {
 
 }
 
-renv_archive_decompress <- function(path, exdir = ".", files = NULL, ...) {
+renv_archive_decompress <- function(path, files = NULL, exdir = ".", ...) {
 
   switch(
     renv_archive_type(path),
-    tar = renv_archive_decompress_tar(path, exdir = exdir, files = files, ...),
-    zip = renv_archive_decompress_zip(path, exdir = exdir, files = files, ...),
+    tar = renv_archive_decompress_tar(path, files = files, exdir = exdir, ...),
+    zip = renv_archive_decompress_zip(path, files = files, exdir = exdir, ...),
     stopf("don't know how to decompress archive '%s'", basename(path))
   )
 
 }
 
-renv_archive_decompress_tar_find <- function() {
-
-  # check for tar in envvar -- allow for explicitly-requested
-  # internal tar as well
-  tar <- Sys.getenv("TAR", unset = NA)
-  if (identical(tar, "internal"))
-    return(NULL)
-
-  # if the requested tar exists, use it
-  if (!is.na(tar) && nzchar(Sys.which(tar)))
-    return(tar)
-
-  # no TAR envvar set; try looking for tar on the PATH
-  # TODO: is this safe on Windows? what if a bad tar is on the PATH?
-  tar <- Sys.which("tar")
-  if (nzchar(tar))
-    return(tar)
-
-  # no tar found
-  NULL
-
-}
-
-renv_archive_decompress_tar <- function(path, exdir = ".", files = NULL, ...) {
+renv_archive_decompress_tar <- function(path, files = NULL, exdir = ".", ...) {
 
   # when using internal TAR, we want to suppress warnings
   # (otherwise we get noise about global PAX headers)
-  tar <- renv_archive_decompress_tar_find()
-  if (is.null(tar)) {
-    suppressWarnings(untar(path, exdir = exdir, tar = "internal", ...))
-    return(TRUE)
-  }
-
-  # TODO: is it safe to use an external tar on Windows?
-  # should we validate that the version of tar.exe found
-  # on the PATH is okay?
-
-  # construct arguments for archive extraction
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
-  args <- c("xf", shQuote(path))
-
-  # add in extraction dir
-  if (exdir != ".") {
-    ensure_directory(exdir)
-    exargs <- c("-C", shQuote(renv_path_normalize(exdir, winslash = "/", mustWork = TRUE)))
-    args <- c(args, exargs)
-  }
-
-  # add in requested files
-  args <- c(args, files)
-
-  # execute the command
-  renv_system_exec(tar, args, action = "extracting archive")
+  suppressWarnings(untar(path, files = files, exdir = exdir, tar = "internal", ...))
+  return(TRUE)
 
 }
 
-renv_archive_decompress_zip <- function(path, exdir = ".", files = NULL, ...) {
+renv_archive_decompress_zip <- function(path, files = NULL, exdir = ".", ...) {
 
   # the default unzip tool will give warnings rather than
   # errors if R was unable to extract from a zip archive
@@ -131,19 +84,16 @@ renv_archive_read <- function(path, file) {
 
 renv_archive_read_tar <- function(path, file) {
 
-  # determine path to tar executable
-  tar <- renv_tar_exe()
-  if (nzchar(tar) && file.exists(tar)) {
-    args <- c("xf", shQuote(path), "-O", shQuote(file))
-    return(renv_system_exec(tar, args, action = "reading file from archive"))
-  }
-
-  # fall back to unpacking archive and reading file
-  exdir <- renv_scope_tempfile(pattern = "renv-archive-")
+  # create extraction directory
+  exdir <- renv_scope_tempfile("renv-archive-")
   ensure_directory(exdir)
 
-  renv_archive_decompress_tar(path, exdir = exdir, files = file)
-  readLines(file.path(exdir, file), warn = FALSE)
+  # unpack the requested file
+  suppressWarnings(untar(path, files = file, exdir = exdir, tar = "internal"))
+
+  # and read it
+  path <- file.path(exdir, file)
+  readLines(path, warn = FALSE)
 
 }
 
