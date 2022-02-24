@@ -135,13 +135,27 @@ test_that("init() works in path containing accented characters", {
 
 test_that("we use an external library path for package projects", {
 
+  skip_on_cran()
   renv_tests_scope()
 
+  # use custom userdir
+  userdir <- file.path(tempdir(), "renv-userdir-override")
+  ensure_directory(userdir)
+  userdir <- normalizePath(userdir, winslash = "/", mustWork = TRUE)
+  renv_scope_options(renv.userdir.override = userdir)
+
+  # sanity check
+  userdir <- renv_bootstrap_user_dir()
+  if (!identical(expect_true(renv_path_within(userdir, tempdir())), TRUE))
+    skip("userdir not in tempdir; cannot proceed")
+
+  # initialize a package project
   writeLines("Type: Package", con = "DESCRIPTION")
   init()
 
+  # check for external library path
   library <- renv_libpaths_default()
-  userdir <- renv_bootstrap_user_dir()
+
 
   expect_true(
     object = renv_path_within(library, userdir),

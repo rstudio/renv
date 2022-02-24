@@ -151,6 +151,16 @@ r_cmd_install <- function(package, path, ...) {
   # normalize path to package
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
+  # unpack source packages in zip archives
+  unpack <-
+    renv_archive_type(path) %in% "zip"
+    renv_package_type(path) %in% "source"
+
+  if (unpack) {
+    path <- renv_install_package_unpack(package, path, force = TRUE)
+    on.exit(unlink(path, recursive = TRUE), add = TRUE)
+  }
+
   # resolve default library path
   library <- renv_libpaths_default()
 

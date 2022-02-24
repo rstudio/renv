@@ -263,7 +263,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   renv_scope_options(renv.config.snapshot.validate = FALSE)
 
   # indicate that we're doing an automatic snapshot
-  renv_scope_var("running", TRUE, envir = `_renv_auto_snapshot`)
+  renv_scope_var("running", TRUE, envir = `_renv_snapshot_auto`)
 
   # read current state of project library
   libstate <- snapshot(

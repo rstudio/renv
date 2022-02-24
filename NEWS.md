@@ -1,6 +1,8 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* A variety of fixes for R CMD check.
+
 * Fixed an issue where `renv::install()` could install into the wrong library
   path on Windows, if the R installation had a site-wide profile that mutated
   the library paths. (#941)
@@ -23,12 +25,7 @@
   
 * Fixed an issue where the R site library would not be appropriately masked
   for resumed RStudio sessions. (#936)
-  
-* `renv` now builds packages before install, when installing packages from
-  source archives that have not yet been built (as via `R CMD build`). This
-  can make package installation slower, but will ensure packages are installed
-  with vignettes built. (#585)
-  
+
 
 # renv 0.15.2
 

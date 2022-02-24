@@ -461,6 +461,10 @@ renv_install_package_impl_prebuild <- function(record, quiet) {
   if (renv_package_built(path))
     return(path)
 
+  # check whether user wants us to build before install
+  if (!identical(config$install.build(), TRUE))
+    return(path)
+
   # if this is an archive, we'll need to unpack it first
   info <- renv_file_info(path)
   if (identical(info$isdir, FALSE)) {
@@ -511,7 +515,7 @@ renv_install_package_impl_prebuild <- function(record, quiet) {
 
 }
 
-renv_install_package_unpack <- function(package, path) {
+renv_install_package_unpack <- function(package, path, force = FALSE) {
 
   # if this isn't an archive, nothing to do
   info <- renv_file_info(path)
@@ -527,7 +531,7 @@ renv_install_package_unpack <- function(package, path) {
   descpath <- descpaths[n == min(n)]
 
   # if we already have a top-level DESCRIPTION file, nothing to do
-  if (dirname(descpath) == package)
+  if (!force && dirname(descpath) == package)
     return(path)
 
   # create extraction directory

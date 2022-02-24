@@ -80,8 +80,8 @@ Defaults to \code{"api.github.com"}.}
 Defaults to \code{"gitlab.com"}.}
 \subsection{renv.config.hydrate.libpaths}{A character vector of library paths, to be used by \code{\link[=hydrate]{hydrate()}} when attempting to hydrate projects. When empty, the default set of library paths (as documented in \code{?hydrate}) are used instead. See \code{\link[=hydrate]{hydrate()}} for more details.
 Defaults to \code{NULL}.}
-\subsection{renv.config.install.build}{Should downloaded package archives be built (via \verb{R CMD build}) before installation? When TRUE (the default), package vignettes will also be built as part of package installation.
-Defaults to \code{TRUE}.}
+\subsection{renv.config.install.build}{Should downloaded package archives be built (via \verb{R CMD build}) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
+Defaults to \code{FALSE}.}
 \subsection{renv.config.install.shortcuts}{Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if \code{renv} discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.install.staged}{DEPRECATED: Please use \code{renv.config.install.transactional} instead.

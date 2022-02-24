@@ -149,7 +149,7 @@ config <- list(
     )
   },
 
-  install.build = function(..., default = TRUE) {
+  install.build = function(..., default = FALSE) {
     renv_config_get(
       name    = "install.build",
       type    = "logical[1]",

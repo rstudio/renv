@@ -82,7 +82,11 @@ renv_zzz_docs <- function() {
 
     ensure_directory("inst/doc")
 
-    files <- list.files("vignettes")
+    files <- list.files(
+      path = "vignettes",
+      pattern = "[.](?:R|Rmd|html)$",
+    )
+
     src <- file.path("vignettes", files)
     tgt <- file.path("inst/doc", files)
     file.copy(src, tgt, overwrite = TRUE)
@@ -90,6 +94,7 @@ renv_zzz_docs <- function() {
     writef("Done!")
 
   }, onexit = TRUE)
+
 }
 
 if (identical(.packageName, "renv"))

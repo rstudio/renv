@@ -3,10 +3,25 @@ context("Infrastructure")
 
 test_that("renv.lock is added to .Rbuildignore", {
 
+  skip_on_cran()
   renv_tests_scope()
+
+  # use custom userdir
+  userdir <- file.path(tempdir(), "renv-userdir-override")
+  ensure_directory(userdir)
+  userdir <- normalizePath(userdir, winslash = "/", mustWork = TRUE)
+  renv_scope_options(renv.userdir.override = userdir)
+
+  # sanity check
+  userdir <- renv_bootstrap_user_dir()
+  if (!identical(expect_true(renv_path_within(userdir, tempdir())), TRUE))
+    skip("userdir not in tempdir; cannot proceed")
+
+  # initialize
   writeLines(c("Type: Package", "Package: test"), con = "DESCRIPTION")
   init()
 
+  # check
   expect_true(file.exists(".Rbuildignore"))
   contents <- readLines(".Rbuildignore")
   expect_true("^renv\\.lock$" %in% contents)

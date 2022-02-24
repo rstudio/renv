@@ -142,11 +142,12 @@
 
 - name: "install.build"
   type: "logical[1]"
-  default: true
+  default: false
   description: >
     Should downloaded package archives be built (via `R CMD build`) before installation?
-    When TRUE (the default), package vignettes will also be built as part of package
-    installation.
+    When TRUE, package vignettes will also be built as part of package installation.
+    Because building packages before installation may require packages within 'Suggests'
+    to be available, this option is not enabled by default.
 
 - name: "install.shortcuts"
   type: "logical[1]"
