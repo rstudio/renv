@@ -3,6 +3,9 @@
 
 * A variety of fixes for R CMD check.
 
+* `renv` will now print a warning message when attempting to read a lockfile
+  containing merge conflict markers (as from e.g. a git merge). (#945)
+
 * Fixed an issue where `renv::install()` could install into the wrong library
   path on Windows, if the R installation had a site-wide profile that mutated
   the library paths. (#941)
