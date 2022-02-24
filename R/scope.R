@@ -387,7 +387,7 @@ renv_scope_var <- function(key, value, envir, ..., .envir = NULL) {
 
 renv_scope_tempfile <- function(pattern = "renv-tempfile-",
                                 tmpdir  = tempdir(),
-                                fileext = ".log",
+                                fileext = "",
                                 .envir  = NULL)
 {
   filepath <- tempfile(pattern, tmpdir, fileext)

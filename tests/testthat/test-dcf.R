@@ -92,7 +92,7 @@ test_that("we can read and write a dcf file", {
         It needs to wrap across multiple lines.
   ')
 
-  descfile <- renv_scope_tempfile("renv-description-", fileext = "")
+  descfile <- renv_scope_tempfile("renv-description-")
   writeLines(contents, con = descfile)
 
   old <- renv_dcf_read(descfile)

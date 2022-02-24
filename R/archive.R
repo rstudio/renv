@@ -27,12 +27,12 @@ renv_archive_list_impl <- function(path) {
 
 }
 
-renv_archive_decompress <- function(path, exdir = ".", ...) {
+renv_archive_decompress <- function(path, exdir = ".", files = NULL, ...) {
 
   switch(
     renv_archive_type(path),
-    tar = renv_archive_decompress_tar(path, exdir = exdir, ...),
-    zip = renv_archive_decompress_zip(path, exdir = exdir, ...),
+    tar = renv_archive_decompress_tar(path, exdir = exdir, files = files, ...),
+    zip = renv_archive_decompress_zip(path, exdir = exdir, files = files, ...),
     stopf("don't know how to decompress archive '%s'", basename(path))
   )
 
@@ -61,8 +61,7 @@ renv_archive_decompress_tar_find <- function() {
 
 }
 
-renv_archive_decompress_tar <- function(path, exdir = ".", ...) {
-
+renv_archive_decompress_tar <- function(path, exdir = ".", files = NULL, ...) {
 
   # when using internal TAR, we want to suppress warnings
   # (otherwise we get noise about global PAX headers)
@@ -87,20 +86,23 @@ renv_archive_decompress_tar <- function(path, exdir = ".", ...) {
     args <- c(args, exargs)
   }
 
-  # execute the command
-  status <- system2(tar, args, stdout = FALSE, stderr = FALSE)
-  if (status != 0L)
-    stopf("error decompressing '%s' [error code %i]", basename(path), status)
+  # add in requested files
+  args <- c(args, files)
 
-  TRUE
+  # execute the command
+  renv_system_exec(tar, args, action = "extracting archive")
 
 }
 
-renv_archive_decompress_zip <- function(path, ...) {
+renv_archive_decompress_zip <- function(path, exdir = ".", files = NULL, ...) {
 
   # the default unzip tool will give warnings rather than
   # errors if R was unable to extract from a zip archive
-  status <- tryCatch(unzip(path, ...), condition = identity)
+  status <- tryCatch(
+    unzip(path, files = files, exdir = exdir, ...),
+    condition = identity
+  )
+
   if (inherits(status, "condition")) {
     fmt <- "failed to decompress '%s' [%s]"
     message <- sprintf(fmt, basename(path), conditionMessage(status))
@@ -112,13 +114,8 @@ renv_archive_decompress_zip <- function(path, ...) {
 }
 
 renv_archive_find <- function(path, pattern) {
-
-  # list files in archive
   files <- renv_archive_list(path)
-
-  # find those matching the provided pattern
   grep(pattern, files, value = TRUE)
-
 }
 
 renv_archive_read <- function(path, file) {
@@ -133,7 +130,21 @@ renv_archive_read <- function(path, file) {
 }
 
 renv_archive_read_tar <- function(path, file) {
-  renv_system_exec("tar", c("-xf", shQuote(path), "-O", shQuote(file)))
+
+  # determine path to tar executable
+  tar <- renv_tar_exe()
+  if (nzchar(tar) && file.exists(tar)) {
+    args <- c("xf", shQuote(path), "-O", shQuote(file))
+    return(renv_system_exec(tar, args))
+  }
+
+  # fall back to unpacking archive and reading file
+  exdir <- renv_scope_tempfile(pattern = "renv-archive-")
+  ensure_directory(exdir)
+
+  renv_archive_decompress_tar(path, exdir = exdir, files = file)
+  readLines(file.path(exdir, file), warn = FALSE)
+
 }
 
 renv_archive_read_zip <- function(path, file) {
