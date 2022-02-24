@@ -3,6 +3,10 @@
 
 * A variety of fixes for R CMD check.
 
+* `renv` gains an experimental function, `renv::autoload()`, to be used as a
+  helper for automatically loading a project for R processes launched within a
+  sub-directory of that project. See `?renv::autoload` for more details.
+
 * `renv` will now print a warning message when attempting to read a lockfile
   containing merge conflict markers (as from e.g. a git merge). (#945)
 

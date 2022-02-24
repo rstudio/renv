@@ -54,19 +54,9 @@ local({
   # mask 'utils' packages, will come first on the search path
   library(utils, lib.loc = .Library)
 
-  # check to see if renv has already been loaded
-  if ("renv" %in% loadedNamespaces()) {
-
-    # if renv has already been loaded, and it's the requested version of renv,
-    # nothing to do
-    spec <- .getNamespaceInfo(.getNamespace("renv"), "spec")
-    if (identical(spec[["version"]], version))
-      return(invisible(TRUE))
-
-    # otherwise, unload and attempt to load the correct version of renv
+  # unload renv if it's already been laoded
+  if ("renv" %in% loadedNamespaces())
     unloadNamespace("renv")
-
-  }
 
   # load bootstrap tools ${BOOTSTRAP}
 

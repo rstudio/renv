@@ -12,14 +12,20 @@ Automatically load the \code{renv} project associated with a particular director
 that project will be loaded via \code{\link[=load]{load()}}.
 }
 \details{
-Place \code{renv::autoload()} into your site-wide or user \code{.Rprofile} to ensure
-that \code{renv} projects are automatically loaded for any newly-launched \R
-sessions, even if those \R sessions are launched within the sub-directory
-of an \code{renv} project.
+To enable the \code{renv} auto-loader, you can place:\preformatted{renv::autoload()
+}
+
+into your site-wide or user \code{.Rprofile} to ensure that \code{renv} projects are
+automatically loaded for any newly-launched \R sessions, even if those \R
+sessions are launched within the sub-directory of an \code{renv} project.
 
 If you'd like to launch \R within the sub-directory of an \code{renv} project
 without auto-loading \code{renv}, you can set the environment variable:\preformatted{RENV_AUTOLOAD_ENABLED = FALSE
 }
 
 before starting \R.
+
+Note that \code{renv::autoload()} is only compatible with projects using
+\verb{renv 0.15.3} or newer, as it relies on features within the \code{renv/activate.R}
+script that are only generated with newer versions of \code{renv}.
 }

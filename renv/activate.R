@@ -7,11 +7,6 @@ local({
   # the project directory
   project <- getwd()
 
-  # figure out path to 'renv' folder from this script
-  call <- sys.call(1L)
-  if (is.call(call) && identical(call[[1L]], as.symbol("source")))
-    Sys.setenv(RENV_PATHS_RENV = dirname(call[[2L]]))
-
   # figure out whether the autoloader is enabled
   enabled <- local({
 
@@ -163,16 +158,20 @@ local({
     nv <- numeric_version(version)
     components <- unclass(nv)[[1]]
   
-    methods <- if (length(components) == 4L) {
-      list(
+    # if this appears to be a development version of 'renv', we'll
+    # try to restore from github
+    dev <- length(components) == 4L
+  
+    # begin collecting different methods for finding renv
+    methods <- c(
+      renv_bootstrap_download_tarball,
+      if (dev)
         renv_bootstrap_download_github
-      )
-    } else {
-      list(
+      else c(
         renv_bootstrap_download_cran_latest,
         renv_bootstrap_download_cran_archive
       )
-    }
+    )
   
     for (method in methods) {
       path <- tryCatch(method(version), error = identity)
@@ -306,6 +305,33 @@ local({
   
     message("FAILED")
     return(FALSE)
+  
+  }
+  
+  renv_bootstrap_download_tarball <- function(version) {
+  
+    # if the user has provided the path to a tarball via
+    # an environment variable, then use it
+    tarball <- Sys.getenv("RENV_BOOTSTRAP_TARBALL", unset = NA)
+    if (is.na(tarball))
+      return()
+  
+    # allow directories
+    info <- file.info(tarball, extra_cols = FALSE)
+    if (identical(info$isdir, TRUE)) {
+      name <- sprintf("renv_%s.tar.gz", version)
+      tarball <- file.path(tarball, name)
+    }
+  
+    # bail if it doesn't exist
+    if (!file.exists(tarball))
+      return()
+  
+    fmt <- "* Bootstrapping with tarball at path '%s'."
+    msg <- sprintf(fmt, tarball)
+    message(msg)
+  
+    tarball
   
   }
   
@@ -736,12 +762,16 @@ local({
   
   }
   
-  renv_bootstrap_user_dir <- function(path) {
-    dir <- renv_bootstrap_user_dir_impl(path)
-    chartr("\\", "/", dir)
+  renv_bootstrap_user_dir <- function() {
+    chartr("\\", "/", renv_bootstrap_user_dir_impl())
   }
   
-  renv_bootstrap_user_dir_impl <- function(path) {
+  renv_bootstrap_user_dir_impl <- function() {
+  
+    # use local override if set
+    override <- getOption("renv.userdir.override")
+    if (!is.null(override))
+      return(override)
   
     # use R_user_dir if available
     tools <- asNamespace("tools")
@@ -752,10 +782,8 @@ local({
     envvars <- c("R_USER_CACHE_DIR", "XDG_CACHE_HOME")
     for (envvar in envvars) {
       root <- Sys.getenv(envvar, unset = NA)
-      if (!is.na(root)) {
-        path <- file.path(root, "R/renv")
-        return(path)
-      }
+      if (!is.na(root))
+        return(file.path(root, "R/renv"))
     }
   
     # use platform-specific default fallbacks
@@ -767,6 +795,7 @@ local({
       "~/.cache/R/renv"
   
   }
+  
   
   renv_json_read <- function(file = NULL, text = NULL) {
   

@@ -89,6 +89,8 @@ renv_tests_init_envvars <- function() {
   Sys.unsetenv("RETICULATE_PYTHON_ENV")
   Sys.unsetenv("RETICULATE_PYTHON_FALLBACK")
 
+  Sys.setenv(RENV_AUTOLOAD_ENABLED = "FALSE")
+
   envvars <- Sys.getenv()
   configvars <- grep("^RENV_CONFIG_", names(envvars), value = TRUE)
   Sys.unsetenv(configvars)

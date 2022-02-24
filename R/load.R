@@ -40,6 +40,9 @@ load <- function(project = NULL, quiet = FALSE) {
   project <- project %||% renv_project_find(project)
   renv_scope_lock(project = project)
 
+  # indicate that we're now loading the project
+  renv_scope_options(renv.load.running = TRUE)
+
   # avoid suppressing the next auto snapshot
   renv_scope_var("running", TRUE, envir = `_renv_snapshot_auto`)
 
