@@ -5,7 +5,7 @@ renv_tar_exe <- function() {
   if (renv_platform_unix())
     return(Sys.which("tar"))
 
-  # otherwise, try to use system-default tar
+  # on Windows, use system tar.exe if available
   root <- Sys.getenv("SystemRoot", unset = NA)
   if (is.na(root))
     root <- "C:/Windows"
@@ -15,7 +15,7 @@ renv_tar_exe <- function() {
   if (file.exists(tarpath))
     return(tarpath)
 
-  # otherwise, just try to use whatever is on the PATH
-  Sys.which("tar.exe")
+  # otherwise, give up (don't trust the arbitrary tar on PATH)
+  ""
 
 }

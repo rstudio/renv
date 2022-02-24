@@ -84,6 +84,13 @@ renv_archive_read <- function(path, file) {
 
 renv_archive_read_tar <- function(path, file) {
 
+  # if an appropriate tar is available, use it
+  tar <- renv_tar_exe()
+  if (nzchar(tar)) {
+    args <- c("xf", shQuote(path), "-O", shQuote(file))
+    return(renv_system_exec(tar, args, action = "reading file from archive"))
+  }
+
   # create extraction directory
   exdir <- renv_scope_tempfile("renv-archive-")
   ensure_directory(exdir)
