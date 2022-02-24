@@ -153,7 +153,7 @@ r_cmd_install <- function(package, path, ...) {
 
   # unpack source packages in zip archives
   unpack <-
-    renv_archive_type(path) %in% "zip"
+    renv_archive_type(path) %in% "zip" &&
     renv_package_type(path) %in% "source"
 
   if (unpack) {
