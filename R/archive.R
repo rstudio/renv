@@ -40,6 +40,14 @@ renv_archive_decompress <- function(path, files = NULL, exdir = ".", ...) {
 
 renv_archive_decompress_tar <- function(path, files = NULL, exdir = ".", ...) {
 
+  # if an appropriate system tar is available, use it
+  tar <- renv_tar_exe()
+  if (nzchar(tar)) {
+    ensure_directory(exdir)
+    args <- c("xf", shQuote(path), "-C", shQuote(exdir), shQuote(files))
+    return(renv_system_exec(tar, args, action = "decompressing archive"))
+  }
+
   # when using internal TAR, we want to suppress warnings
   # (otherwise we get noise about global PAX headers)
   suppressWarnings(untar(path, files = files, exdir = exdir, tar = "internal", ...))
