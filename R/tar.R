@@ -19,3 +19,22 @@ renv_tar_exe <- function() {
   ""
 
 }
+
+renv_tar_decompress <- function(tar, archive, files = NULL, exdir = ".", ...) {
+
+  # build argument list
+  args <- c(
+    "xf", shQuote(archive),
+    if (!identical(exdir, "."))
+      c("-C", shQuote(exdir)),
+    if (length(files))
+      shQuote(files)
+  )
+
+  # make sure exdir exists
+  ensure_directory(exdir)
+
+  # perform decompress
+  return(renv_system_exec(tar, args, action = "decompressing archive"))
+
+}
