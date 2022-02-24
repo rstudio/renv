@@ -84,10 +84,18 @@ renv_bioconductor_repos <- function(project, version = NULL) {
 }
 
 renv_bioconductor_repos_biocmanager <- function(version) {
+
   renv_scope_options(BiocManager.check_repositories = FALSE)
   BiocManager <- asNamespace("BiocManager")
   version <- version %||% BiocManager$version()
-  BiocManager$repositories(version = version)
+
+  tryCatch(
+    BiocManager$.repositories(site_repository = character(), version = version),
+    error = function(e) {
+      BiocManager$repositories(version = version)
+    }
+  )
+
 }
 
 renv_bioconductor_repos_biocinstaller <- function(version) {

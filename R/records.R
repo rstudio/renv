@@ -80,7 +80,7 @@ renv_record_source_normalize <- function(record, source) {
   # check for ad-hoc requests to install from bioc
   if (identical(source, "repository")) {
     repos <- record$Repository %||% ""
-    if (repos %in% c("bioc", "bioconductor"))
+    if (tolower(repos) %in% c("bioc", "bioconductor"))
       source <- "bioconductor"
   }
 
