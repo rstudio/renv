@@ -308,6 +308,16 @@ renv_tests_init_sandbox <- function() {
 
 renv_tests_init_finish <- function() {
 
+  # remove any leftover renv-test- directories in the userdir
+  userdir <- renv_bootstrap_user_dir()
+  libdir <- file.path(userdir, "library")
+  testdirs <- list.files(
+    path = libdir,
+    pattern = "^renv-test-",
+    full.names = TRUE
+  )
+  unlink(testdirs, recursive = TRUE)
+
   # don't perform transactional installs by default for now
   # (causes strange CI failures, especially on Windows?)
   options(renv.config.install.transactional = FALSE)
