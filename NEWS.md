@@ -1,4 +1,10 @@
 
+# renv 0.16.0  (UNRELEASED)
+
+* Fixed an issue where package installation could fail when referencing the
+  cache via a tilde-aliased path, e.g. `~/.local/share/renv`. (#953)
+
+
 # renv 0.15.3
 
 * A variety of fixes for R CMD check.

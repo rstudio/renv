@@ -693,7 +693,8 @@ renv_bootstrap_project_type <- function(path) {
 }
 
 renv_bootstrap_user_dir <- function() {
-  chartr("\\", "/", renv_bootstrap_user_dir_impl())
+  dir <- renv_bootstrap_user_dir_impl()
+  path.expand(chartr("\\", "/", dir))
 }
 
 renv_bootstrap_user_dir_impl <- function() {
