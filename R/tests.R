@@ -217,9 +217,6 @@ renv_tests_init_repos <- function(repopath = NULL) {
     renv.tests.repopath = repopath
   )
 
-  # make sure our renv repositories are set too
-  renv_patch_repos()
-
 }
 
 renv_tests_init_packages <- function() {

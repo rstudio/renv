@@ -1,4 +1,7 @@
 
+# simulate running in R CMD check
+Sys.setenv("_R_CHECK_PACKAGE_NAME_" = "renv")
+
 context <- function(desc) {
   renv_tests_init()
   testthat::context(desc)

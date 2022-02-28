@@ -162,17 +162,17 @@ renv_patch_repos <- function() {
   if (!checking)
     return()
 
+  # nothing to do if we're running our own tests
+  name <- Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)
+  if (identical(name, "renv"))
+    return()
+
   # check if we've already set repos
   if ("RENV" %in% names(getOption("repos")))
     return()
 
-  # set a repository path -- unfortunately, we can't use the R tempdir()
-  # because we have no guarantees that this directory will persist as long
-  # as we need it to. this is primarily for jetpack.
-  #
-  # we'll probably need a better way to handle this because I'm sure this will
-  # make CRAN upset
-  userdir <- renv_bootstrap_user_dir()
+  # set a repository path
+  repopath <- tempfile("renv-patch-repos-", tmpdir = tempdir())
   repopath <- file.path(userdir, "repos")
 
   contrib <- file.path(repopath, "src/contrib")
