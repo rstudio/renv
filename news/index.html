@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2-2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,8 +76,37 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.16.0" id="renv-0160-unreleased">renv 0.16.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0160-unreleased"></a></h2>
-</div>
+<h2 class="pkg-version" data-toc-text="0.15.3" id="renv-0153">renv 0.15.3<a class="anchor" aria-label="anchor" href="#renv-0153"></a></h2><p class="text-muted">CRAN release: 2022-02-28</p>
+<ul><li><p>A variety of fixes for R CMD check.</p></li>
+<li><p><code>renv</code> gains an experimental function,
+<code><a href="../reference/autoload.html">renv::autoload()</a></code>, to be used as a helper for automatically
+loading a project for R processes launched within a sub-directory of
+that project. See <code><a href="../reference/autoload.html">?renv::autoload</a></code> for more
+details.</p></li>
+<li><p><code>renv</code> will now print a warning message when
+attempting to read a lockfile containing merge conflict markers (as from
+e.g. a git merge). (<a href="https://github.com/rstudio/renv/issues/945" class="external-link">#945</a>)</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install()</a></code> could install
+into the wrong library path on Windows, if the R installation had a
+site-wide profile that mutated the library paths. (<a href="https://github.com/rstudio/renv/issues/941" class="external-link">#941</a>)</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install()</a></code> would fail to
+find a package within the cache when using an abbreviated commit hash
+for installation. (<a href="https://github.com/rstudio/renv/issues/943" class="external-link">#943</a>)</p></li>
+<li><p>Fixed an issue where <code>renv</code>’s automatic snapshot was
+not run after calls to <code><a href="../reference/install.html">renv::install()</a></code> in some cases.
+(<a href="https://github.com/rstudio/renv/issues/939" class="external-link">#939</a>)</p></li>
+<li><p>Fixed an issue where <code>renv</code> would incorrectly copy a
+package from the cache, if the cached version of the package and the
+requested version of the package had the same package version, even if
+they were retrieved from different sources. (<a href="https://github.com/rstudio/renv/issues/938" class="external-link">#938</a>)</p></li>
+<li><p>The path to an <code>renv</code> tarball can now be set via the
+environment variable <code>RENV_BOOTSTRAP_TARBALL</code>, to be used to
+help <code>renv</code> bootstrap from local sources. This can either be
+the path to a directory containing <code>renv</code> source tarballs, or
+the path to the tarball itself.</p></li>
+<li><p>Fixed an issue where the R site library would not be
+appropriately masked for resumed RStudio sessions. (<a href="https://github.com/rstudio/renv/issues/936" class="external-link">#936</a>)</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.15.2" id="renv-0152">renv 0.15.2<a class="anchor" aria-label="anchor" href="#renv-0152"></a></h2><p class="text-muted">CRAN release: 2022-01-24</p>
 <ul><li>Fixed issues encountered in R CMD check.</li>

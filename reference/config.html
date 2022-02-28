@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2-2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,7 @@
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>An object of class <code>list</code> of length 35.</p>
+    <p>An object of class <code>list</code> of length 36.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -196,6 +196,11 @@ Defaults to <code>"gitlab.com"</code>.</p>
 <h3 id="renv-config-hydrate-libpaths">renv.config.hydrate.libpaths<a class="anchor" aria-label="anchor" href="#renv-config-hydrate-libpaths"></a></h3>
 <p>A character vector of library paths, to be used by <code><a href="hydrate.html">hydrate()</a></code> when attempting to hydrate projects. When empty, the default set of library paths (as documented in <code><a href="hydrate.html">?hydrate</a></code>) are used instead. See <code><a href="hydrate.html">hydrate()</a></code> for more details.
 Defaults to <code>NULL</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-install-build">renv.config.install.build<a class="anchor" aria-label="anchor" href="#renv-config-install-build"></a></h3>
+<p>Should downloaded package archives be built (via <code>R CMD build</code>) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
+Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-shortcuts">renv.config.install.shortcuts<a class="anchor" aria-label="anchor" href="#renv-config-install-shortcuts"></a></h3>
