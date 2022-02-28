@@ -1,5 +1,5 @@
 
-# renv 0.16.0  (UNRELEASED)
+# renv 0.15.3
 
 * A variety of fixes for R CMD check.
 
