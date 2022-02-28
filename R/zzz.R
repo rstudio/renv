@@ -108,6 +108,10 @@ renv_zzz_docs <- function() {
 
 renv_zzz_repos <- function() {
 
+  # don't run if we're running tests
+  if (renv_package_checking())
+    return()
+
   # prevent recursion
   installing <- Sys.getenv("RENV_INSTALLING_REPOS", unset = NA)
   if (!is.na(installing))
@@ -116,6 +120,7 @@ renv_zzz_repos <- function() {
   Sys.setenv("RENV_INSTALLING_REPOS" = "TRUE")
 
   writeLines("** installing renv to package-local repository")
+
   # get package directory
   pkgdir <- getwd()
 
