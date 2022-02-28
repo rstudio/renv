@@ -167,6 +167,12 @@ renv_patch_repos <- function() {
   if (identical(name, "renv"))
     return()
 
+  # nothing to do if this version of 'renv' is already available
+  version <- renv_package_version("renv")
+  entry <- catch(renv_available_packages_entry("renv", filter = version, quiet = TRUE))
+  if (!inherits(entry, "error"))
+    return()
+
   # check if we've already set repos
   if ("RENV" %in% names(getOption("repos")))
     return()
