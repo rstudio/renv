@@ -171,30 +171,9 @@ renv_patch_repos <- function() {
   if ("RENV" %in% names(getOption("repos")))
     return()
 
-  # set a repository path
-  repopath <- tempfile("renv-patch-repos-", tmpdir = tempdir())
+  # use package-local repository path
+  repopath <- system.file("repos", package = "renv")
   contrib <- file.path(repopath, "src/contrib")
-  ensure_directory(contrib)
-
-  # build path to tarfile
-  tarname <- sprintf("renv_%s.tar.gz", renv_package_version("renv"))
-  tarfile <- file.path(contrib, tarname)
-
-  # tar it up -- set working directory so that the relative paths
-  # in the archive are created correctly
-  local({
-    renvpath <- renv_package_find("renv")
-    owd <- setwd(dirname(renvpath))
-    on.exit(setwd(owd), add = TRUE)
-    tar(tarfile = tarfile, files = "renv")
-  })
-
-  # write PACKAGES file
-  tools::write_PACKAGES(
-    dir        = contrib,
-    type       = "source",
-    latestOnly = FALSE
-  )
 
   # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
