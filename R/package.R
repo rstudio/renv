@@ -384,3 +384,10 @@ renv_package_built <- function(path) {
   FALSE
 
 }
+
+renv_package_checking <- function() {
+  "CheckExEnv" %in% search() ||
+    !is.na(Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)) ||
+    !is.na(Sys.getenv("_R_CHECK_SIZE_OF_TARBALL_", unset = NA)) ||
+    !is.na(Sys.getenv("TESTTHAT", unset = NA))
+}

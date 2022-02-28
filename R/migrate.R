@@ -63,6 +63,10 @@ migrate <- function(
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
 
+  # for jetpack
+  if (renv_package_checking())
+    renv_patch_repos()
+
   project <- renv_path_normalize(project, winslash = "/", mustWork = TRUE)
   if (file.exists(file.path(project, "packrat/packrat.lock"))) {
     packrat <- match.arg(packrat, several.ok = TRUE)

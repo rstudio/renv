@@ -21,3 +21,13 @@ renv_namespace_load <- function(package) {
 renv_namespace_unload <- function(package) {
   unloadNamespace(package)
 }
+
+renv_namespace_parse <- function(package) {
+
+  parseNamespaceFile(
+    package     = package,
+    package.lib = dirname(renv_package_find(package)),
+    mustExist   = TRUE
+  )
+
+}

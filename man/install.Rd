@@ -10,6 +10,7 @@ install(
   library = NULL,
   type = NULL,
   rebuild = FALSE,
+  repos = NULL,
   prompt = interactive(),
   project = NULL
 )
@@ -32,6 +33,12 @@ to the value of \code{getOption("pkgType")}.}
 versions of the package available in the cache? This can either be a
 boolean (indicating that all installed packages should be rebuilt), or a
 vector of package names indicating which packages should be rebuilt.}
+
+\item{repos}{The repositories to use during restore, for packages installed
+from CRAN or another similar R package repository. When set, this will
+override any repositories declared in the lockfile. See also the
+\code{repos.override} option in \link{config} for an alternate way to provide a
+repository override.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}

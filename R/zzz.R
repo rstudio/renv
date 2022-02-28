@@ -2,11 +2,12 @@
 .onLoad <- function(libname, pkgname) {
 
   renv_platform_init()
-  renv_methods_init()
-  renv_patch_init()
   renv_envvars_init()
-  renv_libpaths_init()
+  renv_log_init()
+  renv_methods_init()
   renv_filebacked_init()
+  renv_libpaths_init()
+  renv_patch_init()
 
   addTaskCallback(renv_repos_init_callback)
   addTaskCallback(renv_snapshot_auto_callback)

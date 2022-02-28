@@ -149,11 +149,7 @@ renv_paths_root_default <- function() {
   # use tempdir for cache when running tests
   # this check is necessary here to support packages which might use renv
   # during testing (and we don't want those to try to use the user dir)
-  checking <-
-    "CheckExEnv" %in% search() ||
-    !is.na(Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)) ||
-    !is.na(Sys.getenv("_R_CHECK_SIZE_OF_TARBALL_", unset = NA)) ||
-    !is.na(Sys.getenv("TESTTHAT", unset = NA))
+  checking <- renv_package_checking()
 
   # compute the root directory
   root <- if (checking)

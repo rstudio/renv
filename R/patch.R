@@ -2,6 +2,7 @@
 renv_patch_init <- function() {
   renv_patch_rprofile()
   renv_patch_tar()
+  renv_patch_repos()
   renv_patch_golem()
   renv_patch_methods_table()
 }
@@ -148,5 +149,65 @@ renv_patch_methods_table_impl <- function() {
       table[[key]] <- force(table[[key]])
 
   }
+
+}
+
+# puts the current version of renv into an on-disk package repository,
+# so that packages using renv can find this version of renv in tests
+# this helps renv survive CRAN revdep checks (e.g. jetpack)
+renv_patch_repos <- function() {
+
+  # nothing to do if we're not running tests
+  checking <- renv_package_checking()
+  if (!checking)
+    return()
+
+  # check if we've already set repos
+  if ("RENV" %in% names(getOption("repos")))
+    return()
+
+  # set a repository path -- unfortunately, we can't use the R tempdir()
+  # because we have no guarantees that this directory will persist as long
+  # as we need it to. this is primarily for jetpack.
+  #
+  # we'll probably need a better way to handle this because I'm sure this will
+  # make CRAN upset
+  userdir <- renv_bootstrap_user_dir()
+  repopath <- file.path(userdir, "repos")
+
+  contrib <- file.path(repopath, "src/contrib")
+  ensure_directory(contrib)
+
+  # build path to tarfile
+  tarname <- sprintf("renv_%s.tar.gz", renv_package_version("renv"))
+  tarfile <- file.path(contrib, tarname)
+
+  # tar it up -- set working directory so that the relative paths
+  # in the archive are created correctly
+  local({
+    renvpath <- renv_package_find("renv")
+    owd <- setwd(dirname(renvpath))
+    on.exit(setwd(owd), add = TRUE)
+    tar(tarfile = tarfile, files = "renv")
+  })
+
+  # write PACKAGES file
+  tools::write_PACKAGES(
+    dir        = contrib,
+    type       = "source",
+    latestOnly = FALSE
+  )
+
+  # update our repos option
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  repourl <- sprintf(fmt, repopath)
+
+  # renv needs to be first so the right version is found?
+  repos <- c(RENV = repourl, getOption("repos"))
+  names(repos) <- make.names(names(repos))
+  options(repos = repos)
+
+  # make sure these repositories are used in restore too
+  options(renv.config.repos.override = repos)
 
 }

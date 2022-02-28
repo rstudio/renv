@@ -24,6 +24,12 @@
 #'   boolean (indicating that all installed packages should be rebuilt), or a
 #'   vector of package names indicating which packages should be rebuilt.
 #'
+#' @param repos The repositories to use during restore, for packages installed
+#'   from CRAN or another similar R package repository. When set, this will
+#'   override any repositories declared in the lockfile. See also the
+#'   `repos.override` option in [config] for an alternate way to provide a
+#'   repository override.
+#'
 #' @param profile The profile to be activated. When `NULL`, the default
 #'   profile is activated instead. See `vignette("profiles", package = "renv")`
 #'   for more information.

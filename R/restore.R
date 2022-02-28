@@ -39,12 +39,6 @@
 #'  as the recursive dependency of another package, your request will be
 #'  ignored.
 #'
-#' @param repos The repositories to use during restore, for packages installed
-#'   from CRAN or another similar R package repository. When set, this will
-#'   override any repositories declared in the lockfile. See also the
-#'   `repos.override` option in [config] for an alternate way to provide a
-#'   repository override.
-#'
 #' @return A named list of package records which were installed by `renv`.
 #'
 #' @section Library:
@@ -80,6 +74,9 @@ restore <- function(project  = NULL,
   renv_scope_lock(project = project)
 
   renv_activate_prompt("restore", library, prompt, project)
+
+  if (renv_package_checking())
+    renv_patch_repos()
 
   # resolve library, lockfile arguments
   libpaths <- renv_libpaths_resolve(library)
