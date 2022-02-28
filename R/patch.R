@@ -173,8 +173,6 @@ renv_patch_repos <- function() {
 
   # set a repository path
   repopath <- tempfile("renv-patch-repos-", tmpdir = tempdir())
-  repopath <- file.path(userdir, "repos")
-
   contrib <- file.path(repopath, "src/contrib")
   ensure_directory(contrib)
 
