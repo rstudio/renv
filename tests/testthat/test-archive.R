@@ -56,19 +56,33 @@ test_that("we can successfully compress / decompress some sample files", {
 
 test_that("we can decompress an archive with a tilde path", {
   skip_on_cran()
+  skip_on_windows()
 
-  renv_scope_tempdir(".renv-test-", tmpdir = path.expand("~/"))
-  writeLines("hello", con = "a.txt")
-  writeLines("goodbye", con = "b.txt")
-  tar("files.tar.gz", files = c("a.txt", "b.txt"))
+  renv_tests_scope()
+  renv_scope_envvars(HOME = getwd())
+  renv_scope_envvars(tar = Sys.which("tar"))
 
-  archive <- file.path("~", basename(getwd()), "files.tar.gz")
+  # NOTE: in older versions of R, only paths to directory were accepted,
+  # so we run out test by attempting to tar up a directory rather than file
+  dir.create("subdir")
+  writeLines("hello", con = "subdir/a.txt")
+  writeLines("goodbye", con = "subdir/b.txt")
+  tar("files.tar.gz", files = "subdir", compression = "gzip")
+  unlink("subdir", recursive = TRUE)
+
+  # double check the files we have in the archive
+  # (renv_archive_list might report the folder itself so test files individually)
+  files <- renv_archive_list("files.tar.gz")
+  expect_true("subdir/a.txt" %in% files)
+  expect_true("subdir/b.txt" %in% files)
+
+  archive <- "~/files.tar.gz"
   renv_archive_decompress(
     archive = archive,
-    exdir = tempdir()
+    exdir   = getwd()
   )
 
-  expect_true(file.exists(file.path(tempdir(), "a.txt")))
-  expect_true(file.exists(file.path(tempdir(), "b.txt")))
+  expect_true(file.exists("subdir/a.txt"))
+  expect_true(file.exists("subdir/b.txt"))
 
 })
