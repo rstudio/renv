@@ -128,8 +128,8 @@ renv_abi_symbols <- function(path, args = NULL) {
   # invoke nm to read symbols
   output <- renv_system_exec(
     command = "nm",
-    args = c(args, shQuote(path)),
-    action = "reading symbols"
+    args    = c(args, renv_shell_path(path)),
+    action  = "reading symbols"
   )
 
   # parse output

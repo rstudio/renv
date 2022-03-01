@@ -66,7 +66,7 @@ renv_file_copy_dir_robocopy <- function(source, target) {
 renv_file_copy_dir_rsync <- function(source, target) {
   source <- sub("/*$", "/", source)
   flags <- if (renv_platform_macos()) "-aAX" else "-a"
-  args <- c(flags, shQuote(source), shQuote(target))
+  args <- c(flags, renv_shell_path(source), renv_shell_path(target))
   renv_system_exec("rsync", args, action = "copying directory")
 }
 
@@ -79,10 +79,8 @@ renv_file_copy_dir_cp <- function(source, target) {
   source <- path.expand(source)
   target <- path.expand(target)
 
-  # build command arguments
-  args <- c("-pPR", shQuote(source), shQuote(target))
-
-  # execute copy
+  # execute cp
+  args <- c("-pPR", renv_shell_path(source), renv_shell_path(target))
   renv_system_exec("cp", args, action = "copying directory")
 
 }
@@ -193,7 +191,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
   # on unix, try using 'mv' command directly
   # (can handle cross-device copies / moves a bit more efficiently)
   if (renv_platform_unix()) {
-    args <- shQuote(c(source, target))
+    args <- c(renv_shell_path(source), renv_shell_path(target))
     status <- catchall(system2("mv", args, stdout = FALSE, stderr = FALSE))
     if (renv_file_exists(target))
       return(TRUE)
@@ -579,7 +577,7 @@ renv_file_remove <- function(paths) {
 
 renv_file_remove_win32 <- function(paths) {
   for (path in paths) {
-    command <- paste("rmdir /S /Q", shQuote(path))
+    command <- paste("rmdir /S /Q", renv_shell_path(path))
     shell(command)
   }
 }

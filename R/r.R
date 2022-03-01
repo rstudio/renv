@@ -181,9 +181,9 @@ r_cmd_install <- function(package, path, ...) {
     r_cmd_install_option(package, "configure.args", TRUE),
     r_cmd_install_option(package, "configure.vars", TRUE),
     r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE),
-    "-l", shQuote(library),
+    "-l", renv_shell_path(library),
     ...,
-    shQuote(path)
+    renv_shell_path(path)
   )
 
   if (config$install.verbose()) {
@@ -221,7 +221,7 @@ r_cmd_install <- function(package, path, ...) {
 r_cmd_build <- function(package, path, ...) {
 
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
-  args <- c("--vanilla", "CMD", "build", "--md5", ..., shQuote(path))
+  args <- c("--vanilla", "CMD", "build", "--md5", ..., renv_shell_path(path))
 
   output <- r_exec(args, stdout = TRUE, stderr = TRUE)
   status <- attr(output, "status") %||% 0L

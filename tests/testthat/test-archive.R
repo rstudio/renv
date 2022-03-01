@@ -53,3 +53,22 @@ test_that("we can successfully compress / decompress some sample files", {
   }
 
 })
+
+test_that("we can decompress an archive with a tilde path", {
+  skip_on_cran()
+
+  renv_scope_tempdir(".renv-test-", tmpdir = path.expand("~/"))
+  writeLines("hello", con = "a.txt")
+  writeLines("goodbye", con = "b.txt")
+  tar("files.tar.gz", files = c("a.txt", "b.txt"))
+
+  archive <- file.path("~", basename(getwd()), "files.tar.gz")
+  renv_archive_decompress(
+    archive = archive,
+    exdir = tempdir()
+  )
+
+  expect_true(file.exists(file.path(tempdir(), "a.txt")))
+  expect_true(file.exists(file.path(tempdir(), "b.txt")))
+
+})

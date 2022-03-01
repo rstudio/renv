@@ -36,7 +36,7 @@ renv_preflight_compiler <- function(problems) {
   file <- renv_scope_tempfile("renv-test-compile-", fileext = ".c")
   writeLines(program, con = file)
 
-  args <- c("CMD", "SHLIB", shQuote(file))
+  args <- c("CMD", "SHLIB", renv_shell_path(file))
   status <- system2(R(), args, stdout = FALSE, stderr = FALSE)
 
   if (!identical(status, 0L)) {

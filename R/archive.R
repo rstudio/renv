@@ -92,7 +92,7 @@ renv_archive_read_tar <- function(archive, file) {
   # if an appropriate tar is available, use it
   tar <- renv_tar_exe()
   if (nzchar(tar)) {
-    args <- c("xf", shQuote(archive), "-O", shQuote(file))
+    args <- c("xf", renv_shell_path(archive), "-O", renv_shell_path(file))
     return(renv_system_exec(tar, args, action = "reading file from archive"))
   }
 

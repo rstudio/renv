@@ -45,7 +45,7 @@ renv_python_virtualenv_create <- function(python, path) {
   python <- renv_path_canonicalize(python)
   version <- renv_python_version(python)
   module <- if (numeric_version(version) > "3.2") "venv" else "virtualenv"
-  args <- c("-m", module, shQuote(path.expand(path)))
+  args <- c("-m", module, renv_shell_path(path))
   renv_system_exec(python, args, "creating virtual environment")
 
   info <- renv_python_info(path)

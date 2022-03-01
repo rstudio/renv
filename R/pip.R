@@ -26,7 +26,7 @@ pip_install_requirements <- function(requirements, ..., python = NULL) {
 
   renv_scope_envvars(PIP_DISABLE_PIP_VERSION_CHECK = "1")
   python <- renv_path_canonicalize(python)
-  args <- c("-m", "pip", "install", "--upgrade", "-r", shQuote(file))
+  args <- c("-m", "pip", "install", "--upgrade", "-r", renv_shell_path(file))
   action <- "restoring Python packages"
   renv_system_exec(python, args, action, ...)
 

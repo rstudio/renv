@@ -378,7 +378,13 @@ local({
     bin <- R.home("bin")
     exe <- if (Sys.info()[["sysname"]] == "Windows") "R.exe" else "R"
     r <- file.path(bin, exe)
-    args <- c("--vanilla", "CMD", "INSTALL", "--no-multiarch", "-l", shQuote(library), shQuote(tarball))
+  
+    args <- c(
+      "--vanilla", "CMD", "INSTALL", "--no-multiarch",
+      "-l", shQuote(path.expand(library)),
+      shQuote(path.expand(tarball))
+    )
+  
     output <- system2(r, args, stdout = TRUE, stderr = TRUE)
     message("Done!")
   
@@ -753,7 +759,8 @@ local({
   }
   
   renv_bootstrap_user_dir <- function() {
-    chartr("\\", "/", renv_bootstrap_user_dir_impl())
+    dir <- renv_bootstrap_user_dir_impl()
+    path.expand(chartr("\\", "/", dir))
   }
   
   renv_bootstrap_user_dir_impl <- function() {

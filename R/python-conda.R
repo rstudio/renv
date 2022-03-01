@@ -39,7 +39,12 @@ renv_python_conda_snapshot <- function(project, prompt, python) {
   prefix <- info$root
 
   conda <- reticulate::conda_binary()
-  args <- c("env", "export", "--prefix", shQuote(prefix), "--file", shQuote(path))
+  args <- c(
+    "env", "export",
+    "--prefix", renv_shell_path(prefix),
+    "--file", renv_shell_path(path)
+  )
+
   output <- if (renv_tests_running()) FALSE else ""
   system2(conda, args, stdout = output, stderr = output)
 
@@ -64,7 +69,12 @@ renv_python_conda_restore <- function(project, prompt, python) {
 
   conda <- reticulate::conda_binary()
   cmd <- if (file.exists(prefix)) "update" else "create"
-  args <- c("env", cmd, "--prefix", shQuote(prefix), "--file", shQuote(path))
+  args <- c(
+    "env", cmd,
+    "--prefix", renv_shell_path(prefix),
+    "--file", renv_shell_path(path)
+  )
+
   output <- if (renv_tests_running()) FALSE else ""
   system2(conda, args, stdout = output, stderr = output)
 

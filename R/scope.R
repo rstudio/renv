@@ -1,7 +1,9 @@
 
-renv_scope_tempdir <- function(pattern = "renv-tempdir-", .envir = NULL) {
-
-  dir <- tempfile(pattern)
+renv_scope_tempdir <- function(pattern = "renv-tempdir-",
+                               tmpdir = tempdir(),
+                               .envir = NULL)
+{
+  dir <- tempfile(pattern = pattern, tmpdir = tmpdir)
   ensure_directory(dir)
   owd <- setwd(dir)
 

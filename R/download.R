@@ -300,10 +300,10 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
 
   for (entry in userconfig)
     if (file.exists(entry))
-      args$push("--config", shQuote(entry))
+      args$push("--config", renv_shell_path(entry))
 
   # add in our own config file (the actual request)
-  args$push("--config", shQuote(configfile))
+  args$push("--config", renv_shell_path(configfile))
 
   # perform the download
   output <- suppressWarnings(
@@ -394,19 +394,19 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
   if (length(extra))
     args$push(extra)
 
-  args$push("--config", shQuote(configfile))
+  args$push("--config", renv_shell_path(configfile))
 
   # NOTE: '-O' does not write headers to file; we need to manually redirect
   # in that case
   status <- if (request == "HEAD") {
     args$push("--server-response", "--spider")
-    args$push(">", shQuote(destfile), "2>&1")
+    args$push(">", renv_shell_path(destfile), "2>&1")
     cmdline <- paste("wget", paste(args$data(), collapse = " "))
     return(suppressWarnings(system(cmdline)))
   }
 
-  args$push("-O", shQuote(destfile))
-  args$push(shQuote(url))
+  args$push("-O", renv_shell_path(destfile))
+  args$push(renv_shell_quote(url))
 
   output <- suppressWarnings(
     system2("wget", args$data(), stdout = TRUE, stderr = TRUE)

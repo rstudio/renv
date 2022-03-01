@@ -24,11 +24,11 @@ renv_tar_decompress <- function(tar, archive, files = NULL, exdir = ".", ...) {
 
   # build argument list
   args <- c(
-    "xf", shQuote(archive),
+    "xf", renv_shell_path(archive),
     if (!identical(exdir, "."))
-      c("-C", shQuote(exdir)),
+      c("-C", renv_shell_path(exdir)),
     if (length(files))
-      shQuote(files)
+      renv_shell_path(files)
   )
 
   # make sure exdir exists

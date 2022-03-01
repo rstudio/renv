@@ -30,8 +30,8 @@ renv_repos_init_callback <- function(...) {
   script <- system.file("resources/scripts-repos-cache.R", package = "renv")
   args <- c(
     "--vanilla", "-s",
-    "-f", shQuote(script),
-    "--args", shQuote(file), shQuote(tempdir())
+    "-f", renv_shell_path(script),
+    "--args", renv_shell_path(file), renv_shell_path(tempdir())
   )
 
   system2(R(), args, stdout = FALSE, stderr = FALSE, wait = FALSE)

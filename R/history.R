@@ -31,7 +31,7 @@ history <- function(project = NULL) {
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
-  args <- c("log", "--pretty=format:%H\031%at\031%ct\031%s", shQuote(lockpath))
+  args <- c("log", "--pretty=format:%H\031%at\031%ct\031%s", renv_shell_path(lockpath))
   data <- renv_system_exec("git", args, action = "retrieving git log")
 
   parts <- strsplit(data, "\031", fixed = TRUE)
@@ -75,9 +75,9 @@ revert <- function(commit = "HEAD", ..., project = NULL) {
   on.exit(setwd(owd), add = TRUE)
 
   lockpath <- renv_lockfile_path(project = project)
-  system2("git", c("checkout", commit, "--", shQuote(lockpath)))
-  system2("git", c("reset", "HEAD", shQuote(lockpath)), stdout = FALSE, stderr = FALSE)
-  system2("git", c("diff", "--", shQuote(lockpath)))
+  system2("git", c("checkout", commit, "--", renv_shell_path(lockpath)))
+  system2("git", c("reset", "HEAD", renv_shell_path(lockpath)), stdout = FALSE, stderr = FALSE)
+  system2("git", c("diff", "--", renv_shell_path(lockpath)))
 
   vwritef("* renv.lock from commit %s has been checked out.", commit)
   invisible(commit)
