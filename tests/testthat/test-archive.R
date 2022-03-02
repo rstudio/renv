@@ -83,6 +83,9 @@ test_that("we can decompress an archive with a tilde path", {
   expect_false(file.exists("subdir/b.txt"))
 
   archive <- "~/files.tar.gz"
+  if (!file.exists(archive))
+    skip("archive does not exist in home directory")
+
   renv_archive_decompress(
     archive = archive,
     exdir   = getwd()
