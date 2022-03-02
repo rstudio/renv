@@ -62,6 +62,10 @@ test_that("we can decompress an archive with a tilde path", {
   renv_scope_envvars(HOME = getwd())
   renv_scope_envvars(tar = Sys.which("tar"))
 
+  # check that we actually set home correctly?
+  if (!identical(path.expand("~"), getwd()))
+    skip("couldn't override home path")
+
   # NOTE: in older versions of R, only paths to directory were accepted,
   # so we run out test by attempting to tar up a directory rather than file
   dir.create("subdir")
@@ -75,6 +79,8 @@ test_that("we can decompress an archive with a tilde path", {
   files <- renv_archive_list("files.tar.gz")
   expect_true("subdir/a.txt" %in% files)
   expect_true("subdir/b.txt" %in% files)
+  expect_false(file.exists("subdir/a.txt"))
+  expect_false(file.exists("subdir/b.txt"))
 
   archive <- "~/files.tar.gz"
   renv_archive_decompress(
