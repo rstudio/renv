@@ -31,7 +31,7 @@ renv_cran_status_maintainer_email <- function(package = NULL) {
     field   = "Maintainer"
   )
 
-  indices <- gregexpr("[<>]", mtr)[[1L]]
+  indices <- gregexpr("[<>]", mtr, perl = TRUE)[[1L]]
   substring(mtr, indices[[1L]] + 1L, indices[[2L]] - 1L)
 
 }

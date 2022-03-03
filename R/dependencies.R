@@ -804,7 +804,7 @@ renv_dependencies_discover_chunks <- function(path, mode) {
 renv_dependencies_discover_chunks_inline <- function(path, contents) {
 
   pasted <- paste(contents, collapse = "\n")
-  matches <- gregexpr("`r ([^`]+)`", pasted)
+  matches <- gregexpr("`r ([^`]+)`", pasted, perl = TRUE)
   if (identical(c(matches[[1L]]), -1L))
     return(list())
 

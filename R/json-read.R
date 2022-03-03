@@ -5,7 +5,7 @@ renv_json_read <- function(file = NULL, text = NULL) {
 
   # find strings in the JSON
   pattern <- '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
-  locs <- gregexpr(pattern, text)[[1]]
+  locs <- gregexpr(pattern, text, perl = TRUE)[[1]]
 
   # if any are found, replace them with placeholders
   replaced <- text

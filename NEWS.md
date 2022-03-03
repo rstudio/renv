@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to install packages containing
+  multibyte unicode characters in their DESCRIPTION file. (#956)
+
 
 # renv 0.15.4
 

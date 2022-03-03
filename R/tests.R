@@ -54,7 +54,7 @@ renv_tests_root_impl <- function(path = getwd()) {
   }
 
   # construct set of paths we'll hunt through
-  slashes <- gregexpr("(?:/|$)", path)[[1]]
+  slashes <- gregexpr("(?:/|$)", path, perl = TRUE)[[1]]
   parts <- substring(path, 1, slashes - 1)
 
   # begin the search
