@@ -109,12 +109,8 @@ test_that("scalar values are boxed if requested", {
 
 test_that("we can read json with unicode literals", {
 
-  # only run on UCRT windows
-  if (renv_platform_windows()) {
-    crt <- R.version$crt
-    if (!identical(crt, "ucrt"))
-      skip("only run with UCRT on Windows")
-  }
+  skip_on_cran()
+  skip_on_windows()
 
   json <- '{ "\U0001f4c4": "\u2728" }'
   values <- renv_json_read(text = json)

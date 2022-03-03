@@ -31,7 +31,7 @@ jobs:
           - {os: ubuntu-18.04,   r: 'release'}
           - {os: ubuntu-18.04,   r: 'oldrel'}
           - {os: ubuntu-18.04,   r: '3.5'}
-          - {os: ubuntu-18.04,   r: '3.4'}
+            # - {os: ubuntu-18.04,   r: '3.4'}  # needs rmarkdown patch
 
     env:
       _R_CHECK_CRAN_INCOMING_:       "FALSE"
