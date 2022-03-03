@@ -1,5 +1,5 @@
 
-# renv 0.16.0  (UNRELEASED)
+# renv 0.15.4
 
 * Fixed an issue where package installation could fail when referencing the
   cache via a tilde-aliased path, e.g. `~/.local/share/renv`. (#953)
