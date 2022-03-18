@@ -207,6 +207,7 @@ test_that("python environment name is preserved after snapshot", {
 test_that("renv_python_discover() respects PATH ordering", {
 
   skip_on_cran()
+  skip_on_windows()
   renv_tests_scope()
 
   # create a bunch of python directories
