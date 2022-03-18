@@ -204,6 +204,32 @@ test_that("python environment name is preserved after snapshot", {
 
 })
 
+test_that("renv_python_discover() respects PATH ordering", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  # create a bunch of python directories
+  wd <- normalizePath(getwd(), winslash = "/")
+  pythons <- file.path(wd, c("1", "2", "3"), "python")
+  for (python in pythons) {
+    ensure_parent_directory(python)
+    file.create(python)
+    Sys.chmod(python, "0755")
+  }
+
+  # update the path
+  path <- paste(dirname(pythons), collapse = .Platform$path.sep)
+  discovered <- local({
+    renv_scope_envvars(PATH = path)
+    renv_python_discover()
+  })
+
+  # check that we looked at them in the right order
+  expect_equal(tail(discovered, n = 3L), pythons)
+
+})
+
 
 # deactivate reticulate integration
 Sys.unsetenv("RENV_PYTHON")

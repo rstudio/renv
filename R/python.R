@@ -338,7 +338,7 @@ renv_python_discover <- function() {
   # find Python installations on the PATH
   path <- Sys.getenv("PATH", unset = "")
   splat <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1L]]
-  for (entry in rev(splat)) {
+  for (entry in splat) {
     for (exe in c("python3", "python")) {
       python <- Sys.which(file.path(entry, exe))
       if (nzchar(python))
