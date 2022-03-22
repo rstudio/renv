@@ -54,3 +54,17 @@ test_that("renv emits an error if repos option is malformed", {
   expect_equal(lockfile$R$Repositories, repos)
 
 })
+
+test_that("repository names are always set", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  repos <- c(CRAN = "1", "2", "3")
+
+  actual <- renv_repos_normalize(repos)
+  expected <- c(CRAN = "1", V1 = "2", V2 = "3")
+  expect_equal(actual, expected)
+
+})
+

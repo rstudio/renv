@@ -194,3 +194,21 @@ test_that("RENV_PATHS_RENV is respected on init", {
   expect_equal(renv, ".renv")
 
 })
+
+test_that("a project with unnamed repositories can be initialized", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  repos <- c(
+    CRAN = "https://cran.rstudio.com",
+    "https://cloud.r-project.org"
+  )
+
+  renv_scope_options(repos = repos)
+  init()
+
+  repos <- getOption("repos")
+  expect_equal(names(repos), c("CRAN", "V1"))
+
+})

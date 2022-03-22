@@ -158,6 +158,9 @@ renv_load_r_repos <- function(repos) {
   if (renv_rspm_enabled())
     repos <- renv_rspm_transform(repos)
 
+  # normalize option
+  repos <- renv_repos_normalize(repos)
+
   # set sanitized repos
   options(repos = repos)
 

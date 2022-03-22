@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` now sets default placeholder names for the `repos` R option, for
+  any repository URLs which happen to be unnamed. (#964)
+
 * Fixed an issue where `renv` didn't respect the `PATH` ordering when
   discovering Python installations via `renv_python_discover()`. (#961)
 

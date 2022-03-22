@@ -41,14 +41,27 @@ renv_repos_init_callback <- function(...) {
 
 renv_repos_normalize <- function(repos = getOption("repos")) {
 
-  # force a CRAN mirror when needed
-  repos[repos == "@CRAN@"] <- getOption(
-    "renv.repos.cran",
-    "https://cloud.r-project.org"
-  )
-
   # ensure repos are a character vector
-  convert(repos, "character")
+  repos <- convert(repos, "character")
+
+  # force a CRAN mirror when needed
+  cran <- getOption("renv.repos.cran", "https://cloud.r-project.org")
+  repos[repos == "@CRAN@"] <- cran
+
+  # if repos is length 1 but has no names, then assume it's CRAN
+  nms <- names(repos) %||% rep.int("", length(repos))
+  if (identical(nms, ""))
+    nms <- names(repos) <- "CRAN"
+
+  # ensure all values are named
+  unnamed <- !nzchar(nms)
+  if (any(unnamed)) {
+    nms[unnamed] <- paste0("V", seq_len(sum(unnamed)))
+    names(repos) <- nms
+  }
+
+  # return normalized repository
+  repos
 
 }
 
