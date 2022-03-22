@@ -255,8 +255,14 @@ renv_available_packages_record <- function(entry, type) {
     record$Name       <- NULL
   }
 
+  # form url
+  url <- entry$Repository
+  path <- entry$Path
+  if (is.character(path) && !is.na(path))
+    url <- paste(url, path, sep = "/")
+
   attr(record, "type") <- type
-  attr(record, "url")  <- entry$Repository
+  attr(record, "url")  <- url
 
   record
 
@@ -278,7 +284,12 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
     dbs <- c(db, dbs)
   }
 
-  fields <- c("Package", "Version", "OS_type", "NeedsCompilation", "Repository")
+  fields <- c(
+    "Package", "Version",
+    "OS_type", "NeedsCompilation",
+    "Repository", "Path"
+  )
+
   entries <- bapply(dbs, function(db) {
 
     # extract entries for this package
@@ -336,7 +347,7 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
   ordered <- order(version, decreasing = TRUE)
 
   # return newest-available version
-  entry <- as.list(entries[ordered[[1]], ])
+  entry <- as.list(entries[ordered[[1L]], ])
   renv_available_packages_record(entry, type)
 
 }

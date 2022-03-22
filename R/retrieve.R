@@ -944,7 +944,26 @@ renv_retrieve_missing_record <- function(package) {
   #   2. request a package + version to be retrieved,
   #   3. hard error
   #
-  renv_available_packages_latest(package)
+  record <- renv_available_packages_latest(package)
+  if (!is.null(record))
+    return(record)
+
+  fmt <- heredoc("
+    renv was unable to find a compatible version of package '%1$s'.
+
+    The latest-available version %1$s is '%2$s', but that version
+    does not appear to be compatible with this version of R.
+
+    You may need to manually re-install a different version of '%1$s'.
+  ")
+
+  entry <- renv_available_packages_entry(package, type = "source")
+  version <- entry$Version %||% "<unknown>"
+
+  msg <- sprintf(fmt, package, version)
+  writeLines(msg)
+
+  stopf("failed to find a compatible version of the '%s' package", package)
 
 }
 
