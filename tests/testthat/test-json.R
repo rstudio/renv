@@ -106,13 +106,3 @@ test_that("scalar values are boxed if requested", {
   expect_equal(value, list(A = "hello", B = list("world")))
 
 })
-
-test_that("we can read json with unicode literals", {
-
-  skip_on_cran()
-  skip_on_windows()
-
-  # we need this indirection as otherwise R on Windows will barf in CI
-  source("resources/unicode-json.R")
-
-})
