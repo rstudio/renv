@@ -169,6 +169,9 @@ renv_dependencies_impl <- function(
   if (renv_tests_running() && missing(errors))
     errors <- "ignored"
 
+  # resolve errors
+  errors <- match.arg(errors)
+
   # check and see if we've pre-computed dependencies for this path, and
   # retrieve those pre-computed dependencies if so
   if (length(path) == 1)

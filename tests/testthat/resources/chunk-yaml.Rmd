@@ -1,0 +1,10 @@
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig.cap: >
+#|   Here is my really long caption.  It'd be nice to
+#|   split this and other portions across lines
+library(A)
+```
+

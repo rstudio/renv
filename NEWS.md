@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to parse embedded YAML chunk options
+  in R Markdown documents. (#963)
+  
 * `renv` now sets default placeholder names for the `repos` R option, for
   any repository URLs which happen to be unnamed. (#964)
 

@@ -394,3 +394,8 @@ test_that("dependencies() doesn't barf on malformed DESCRIPTION files", {
   expect_setequal(deps$Package, c("A", "B", "C", "D"))
 
 })
+
+test_that("dependencies() handles inline YAML comments", {
+  deps <- dependencies("resources/chunk-yaml.Rmd", quiet = TRUE)
+  expect_true("A" %in% deps$Package)
+})

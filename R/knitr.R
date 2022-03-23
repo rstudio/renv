@@ -63,19 +63,18 @@ renv_knitr_options_header_impl <- function(rest) {
 renv_knitr_options_chunk <- function(code) {
 
   # find chunk option lines
-  pattern <- "^[[:space:]]*#+[|][[:space:]]*"
+  pattern <- "^[[:space:]]*#+[|]"
   matches <- grep(pattern, code[nzchar(code)], value = TRUE)
 
   # remove prefix
   text <- gsub(pattern, "", matches)
 
   # try to guess whether it's YAML
-  isyaml <- any(grepl("^[^[:space:]:]+:", text))
+  isyaml <- any(grepl("^[[:space:]]*[^[:space:]:]+:", text))
 
   # first, try to parse as YAML, then as R code
   params <- if (isyaml) {
-    yaml <- renv_namespace_load("yaml")
-    catch(yaml$yaml.load(text))
+    catch(renv_yaml_load(text))
   } else {
     code <- paste(text, collapse = ", ")
     catch(renv_knitr_options_header_impl(code))
@@ -86,7 +85,7 @@ renv_knitr_options_chunk <- function(code) {
 
     state <- renv_dependencies_state()
     if (!is.null(state)) {
-      problem <- list(file = state$path, error = params)
+      problem <- list(file = state$path %||% "<unknown>", error = params)
       state$problems$push(problem)
     }
 
