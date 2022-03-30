@@ -1,6 +1,8 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv::clean()` now returns the project directory, as documented. (#922)
+
 * Fixed an issue where `renv` could fail to parse embedded YAML chunk options
   in R Markdown documents. (#963)
   

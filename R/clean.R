@@ -96,7 +96,7 @@ clean <- function(project = NULL,
     tryCatch(method(project, prompt), error = warning)
 
   vwritef("* The project has been cleaned.")
-  invisible(status)
+  invisible(project)
 }
 
 renv_clean_actions <- function(prompt) {
