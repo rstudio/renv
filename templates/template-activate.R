@@ -54,7 +54,7 @@ local({
   # mask 'utils' packages, will come first on the search path
   library(utils, lib.loc = .Library)
 
-  # unload renv if it's already been laoded
+  # unload renv if it's already been loaded
   if ("renv" %in% loadedNamespaces())
     unloadNamespace("renv")
 

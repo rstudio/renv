@@ -54,7 +54,7 @@ local({
   # mask 'utils' packages, will come first on the search path
   library(utils, lib.loc = .Library)
 
-  # unload renv if it's already been laoded
+  # unload renv if it's already been loaded
   if ("renv" %in% loadedNamespaces())
     unloadNamespace("renv")
 
@@ -314,8 +314,17 @@ local({
     }
   
     # bail if it doesn't exist
-    if (!file.exists(tarball))
+    if (!file.exists(tarball)) {
+  
+      # let the user know we weren't able to honour their request
+      fmt <- "* RENV_BOOTSTRAP_TARBALL is set (%s) but does not exist."
+      msg <- sprintf(fmt, tarball)
+      warning(msg)
+  
+      # bail
       return()
+  
+    }
   
     fmt <- "* Bootstrapping with tarball at path '%s'."
     msg <- sprintf(fmt, tarball)

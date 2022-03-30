@@ -254,8 +254,17 @@ renv_bootstrap_download_tarball <- function(version) {
   }
 
   # bail if it doesn't exist
-  if (!file.exists(tarball))
+  if (!file.exists(tarball)) {
+
+    # let the user know we weren't able to honour their request
+    fmt <- "* RENV_BOOTSTRAP_TARBALL is set (%s) but does not exist."
+    msg <- sprintf(fmt, tarball)
+    warning(msg)
+
+    # bail
     return()
+
+  }
 
   fmt <- "* Bootstrapping with tarball at path '%s'."
   msg <- sprintf(fmt, tarball)
