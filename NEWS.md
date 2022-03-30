@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv::modify()` gains the `changes` argument, which can be used to modify
+  a project lockfile non-interactively.
+  
 * `renv::clean()` now returns the project directory, as documented. (#922)
 
 * Fixed an issue where `renv` could fail to parse embedded YAML chunk options

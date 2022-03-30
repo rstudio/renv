@@ -2,23 +2,30 @@
 % Please edit documentation in R/modify.R
 \name{modify}
 \alias{modify}
-\title{Open the Lockfile for Editing}
+\title{Modify a Lockfile}
 \usage{
-modify(project = NULL)
+modify(project = NULL, changes = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{changes}{A list of changes to be merged into the lockfile.
+When \code{NULL} (the default), the lockfile is instead opened for
+interactive editing.}
 }
 \value{
 The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Open a project's lockfile (if any) for editing. After edit, if the lockfile
-edited is associated with the active project, any state-related changes
-(e.g. to \R repositories) will be updated in the current session.
+Modify a project's lockfile, either interactively or non-interactively.
+}
+\details{
+After edit, if the lockfile edited is associated with the active project, any
+state-related changes (e.g. to \R repositories) will be updated in the
+current session.
 }
 \examples{
 \dontrun{
