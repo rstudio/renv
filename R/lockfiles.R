@@ -12,7 +12,7 @@
 #' within the lockfile.
 #'
 #' While lockfiles are normally generated and used with [snapshot()] /
-#' [restore()], they can also hand-edited if so desired. Lockfiles are
+#' [restore()], they can also be edited by hand if so desired. Lockfiles are
 #' written as `.json`, to allow for easy consumption by other tools.
 #'
 #' An example lockfile follows:
