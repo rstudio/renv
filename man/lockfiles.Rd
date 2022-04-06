@@ -16,7 +16,7 @@ implies reinstalling packages into the project's private library, as encoded
 within the lockfile.
 
 While lockfiles are normally generated and used with \code{\link[=snapshot]{snapshot()}} /
-\code{\link[=restore]{restore()}}, they can also hand-edited if so desired. Lockfiles are
+\code{\link[=restore]{restore()}}, they can also be edited by hand if so desired. Lockfiles are
 written as \code{.json}, to allow for easy consumption by other tools.
 
 An example lockfile follows:\preformatted{\{

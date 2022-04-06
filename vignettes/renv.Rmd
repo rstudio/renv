@@ -602,14 +602,20 @@ shims on the search path:
 | `remove.packages()`  | `renv::remove()`  |
 | `update.packages()`  | `renv::update()`  |
 
-This can be useful when installing packages which have already been cached.
-For example, if you use `renv::install("dplyr")`, and `renv` detects that
-the latest version on CRAN has already been cached, then `renv` will just
-install using the copy available in the cache -- thereby skipping some of
-the installation overhead.
+In effect, calling `install.packages()` within an `renv` project will call
+`renv::install()` instead. This can be useful when installing packages which
+have already been cached. For example, if you use `renv::install("dplyr")`, and
+`renv` detects that the latest version on CRAN has already been cached, then
+`renv` will just install using the copy available in the cache -- thereby
+skipping some of the installation overhead.
 
-If you'd prefer not to use the `renv` shims, they can be disabled by setting
-the option `options(renv.config.shims.enabled = FALSE)`. See `?config`
+If you'd like to bypass these shims within an \R session, you can explicitly
+call the version of these functions from the `utils` package, e.g. with
+`utils::install.packages(<...>)`.
+
+If you'd prefer not to use the `renv` shims at all, they can be disabled by
+setting the R option `options(renv.config.shims.enabled = FALSE)`, or by setting
+the environment variable `RENV_CONFIG_SHIMS_ENABLED = FALSE`. See `?config`
 for more details.
 
 

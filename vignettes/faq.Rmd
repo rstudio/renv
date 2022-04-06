@@ -165,24 +165,6 @@ approach:
    packages, to generate a new lockfile.
 
 
-<!--
-
-## Why aren't packages installed in the system library visible in my renv projects?
-
-By default, `renv` generates a "sandboxed" version of the system library,
-containing only the base set of packages normally bundled and distributed with
-R. If you'd prefer that packages installed into the system library remain
-visible to `renv` projects, you can set:
-
-```{r eval=FALSE}
-RENV_CONFIG_SANDBOX_ENABLED = FALSE
-```
-
-in an appropriate `.Renviron` file. See the entry for
-`renv.config.sandbox.enabled` in `?renv::config` for more details.
-
--->
-
 ## Why are package downloads failing?
 
 Some issues ultimately boil down to a lack of connectivity between your machine
@@ -222,4 +204,3 @@ Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = getOption("download.file.method"))
 and, if necessary, you could also set this environment variable within e.g. your
 `~/.Renviron`, so that it is visible to all R sessions. See `?Startup` for more
 details.
-
