@@ -204,3 +204,9 @@ Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = getOption("download.file.method"))
 and, if necessary, you could also set this environment variable within e.g. your
 `~/.Renviron`, so that it is visible to all R sessions. See `?Startup` for more
 details.
+
+In addition, by default, `renv` places shims on the R search path that re-routes
+calls from `install.packages()` to `renv::install()`. If you need to bypass
+these shims, you can use `utils::install.packages(<...>)`; that is, with the
+call to `install.packages()` explicitly qualified with the package `utils::`.
+See <https://rstudio.github.io/renv/articles/renv.html#shims> for more details.
