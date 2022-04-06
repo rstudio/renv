@@ -73,15 +73,26 @@ renv_envvars_normalize <- function() {
   Sys.setenv(R_LIBS_SITE = .expand_R_libs_env_var(Sys.getenv("R_LIBS_SITE")))
   Sys.setenv(R_LIBS_USER = .expand_R_libs_env_var(Sys.getenv("R_LIBS_USER")))
 
-  envvars <- as.list(Sys.getenv())
+  keys <- c(
+    "RENV_PATHS_ROOT",
+    "RENV_PATHS_LIBRARY",
+    "RENV_PATHS_LIBRARY_ROOT",
+    "RENV_PATHS_LIBRARY_STAGING",
+    "RENV_PATHS_LOCAL",
+    "RENV_PATHS_CELLAR",
+    "RENV_PATHS_SOURCE",
+    "RENV_PATHS_BINARY",
+    "RENV_PATHS_CACHE",
+    "RENV_PATHS_RTOOLS",
+    "RENV_PATHS_EXTSOFT",
+    "RENV_PATHS_MRAN"
+  )
 
-  keys <- grep("^RENV_PATHS_", names(envvars), value = TRUE)
-  ignore <- c("RENV_PATHS_PREFIX", "RENV_PATHS_PREFIX_AUTO", "RENV_PATHS_RENV")
-  keys <- setdiff(keys, ignore)
-  if (empty(keys))
-    return(character())
+  envvars <- as.list(keep(Sys.getenv(), keys))
+  if (empty(envvars))
+    return()
 
-  args <- lapply(envvars[keys], renv_path_normalize)
+  args <- lapply(envvars, renv_path_normalize)
   do.call(Sys.setenv, args)
 
 }

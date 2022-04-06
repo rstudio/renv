@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `RENV_PATHS_LIBRARY_ROOT_ASIS` was not interpreted
+  correctly. (#976)
+
 * `renv::modify()` gains the `changes` argument, which can be used to modify
   a project lockfile non-interactively.
   
