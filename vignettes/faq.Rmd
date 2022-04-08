@@ -148,9 +148,10 @@ This project already has a lockfile. What would you like to do?
 
 You can select option (2) to instruct `renv` to re-initialize the project,
 effectively discarding the old lockfile and initializing the project with a new
-project library. You may also want to call `renv::upgrade()` to ensure all
+project library. You may also want to call `renv::update()` to ensure all
 packages in the new project library are updated to the latest-available
-versions, as well.
+versions. To update the version of renv itself that manages the project, call
+`renv::upgrade()`.
 
 If you prefer a more managed approach, you might also consider the following
 approach:
