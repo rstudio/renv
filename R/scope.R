@@ -279,16 +279,19 @@ renv_scope_git_auth <- function(.envir = NULL) {
 
   .envir <- .envir %||% parent.frame()
 
-  # try and tell git to be non-interactive
-  renv_scope_envvars(
-    GIT_TERMINAL_PROMPT = "0",
-    GIT_ASKPASS         = "/bin/echo",
-    .envir              = .envir
-  )
-
-  # TODO: rest is not yet implemented for Windows
-  if (renv_platform_windows())
-    return(FALSE)
+  # try and tell git to be non-interactive by default
+  if (renv_platform_windows()) {
+    renv_scope_envvars(
+      GIT_TERMINAL_PROMPT = "0",
+      .envir              = .envir
+    )
+  } else {
+    renv_scope_envvars(
+      GIT_TERMINAL_PROMPT = "0",
+      GIT_ASKPASS         = "/bin/echo",
+      .envir              = .envir
+    )
+  }
 
   # use GIT_PAT when provided
   pat <- Sys.getenv("GIT_PAT", unset = NA)
@@ -312,7 +315,11 @@ renv_scope_git_auth <- function(.envir = NULL) {
   if (is.na(user) || is.na(pass))
     return(FALSE)
 
-  askpass <- system.file("resources/scripts-git-askpass.sh", package = "renv")
+  askpass <- if (renv_platform_windows())
+    system.file("resources/scripts-git-askpass.cmd", package = "renv")
+  else
+    system.file("resources/scripts-git-askpass.sh", package = "renv")
+
   renv_scope_envvars(GIT_ASKPASS = askpass, .envir = .envir)
   return(TRUE)
 
