@@ -51,7 +51,8 @@ enumerated below:
 \code{RENV_PATHS_LIBRARY}         \tab The path to the project library. \cr
 \code{RENV_PATHS_LIBRARY_ROOT}    \tab The parent path for project libraries. \cr
 \code{RENV_PATHS_LIBRARY_STAGING} \tab The parent path used for staged package installs. \cr
-\code{RENV_PATHS_CELLAR}          \tab The cellar, containing local package binaries and sources. \cr
+\code{RENV_PATHS_LOCKFILE}        \tab The path to the \link[=lockfiles]{lockfile}. \cr
+\code{RENV_PATHS_CELLAR}          \tab The path to the cellar, containing local package binaries and sources. \cr
 \code{RENV_PATHS_SOURCE}          \tab The path containing downloaded package sources. \cr
 \code{RENV_PATHS_BINARY}          \tab The path containing downloaded package binaries. \cr
 \code{RENV_PATHS_CACHE}           \tab The path containing cached package installations. \cr

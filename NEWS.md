@@ -1,6 +1,8 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` now reports permission errors during download more clearly. (#985)
+
 * Fixed an issue where `RENV_PATHS_LIBRARY_ROOT_ASIS` was not interpreted
   correctly. (#976)
 

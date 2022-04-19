@@ -585,3 +585,30 @@ renv_file_remove_win32 <- function(paths) {
 renv_file_remove_unix <- function(paths) {
   unlink(paths, recursive = TRUE, force = TRUE)
 }
+
+renv_file_writable <- function(path) {
+
+  # allow users to opt-out just in case
+  override <- getOption("renv.download.check_writable", default = TRUE)
+  if (!identical(override, TRUE))
+    return(FALSE)
+
+  # if we're given the path to a file, use the parent directory instead
+  info <- renv_file_info(path)
+  if (!identical(info$isdir, TRUE))
+    path <- dirname(path)
+
+  # if we still don't have a directory, bail
+  info <- renv_file_info(path)
+  if (!identical(info$isdir, TRUE))
+    return(FALSE)
+
+  # try creating and removing a temporary file in this directory
+  tfile <- tempfile(".renv-write-test-", tmpdir = path)
+  ok <- dir.create(tfile, showWarnings = FALSE)
+  on.exit(unlink(tfile, recursive = TRUE), add = TRUE)
+
+  # return ok if we succeeded
+  ok
+
+}

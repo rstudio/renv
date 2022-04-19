@@ -143,3 +143,23 @@ test_that("we can check that a URL is available", {
   expect_true(renv_download_available_range(url))
   expect_true(renv_download_available_fallback(url))
 })
+
+test_that("download failures are reported if destfile not writable", {
+  skip_on_cran()
+
+  tdir <- tempfile("renv-forbidden-")
+  dir.create(tdir, mode = "0000")
+  expect_true(file.exists(tdir))
+
+  tfile <- tempfile("renv-download-", tmpdir = tdir)
+  expect_error(
+    download(url = "https://cran.r-project.org/", destfile = tfile, quiet = TRUE)
+  )
+
+  Sys.chmod(tdir, mode = "0755")
+  download(url = "https://cran.r-project.org/", destfile = tfile, quiet = TRUE)
+  expect_true(file.exists(tfile))
+
+  unlink(tdir, recursive = TRUE)
+
+})
