@@ -591,7 +591,7 @@ renv_file_writable <- function(path) {
   # allow users to opt-out just in case
   override <- getOption("renv.download.check_writable", default = TRUE)
   if (!identical(override, TRUE))
-    return(FALSE)
+    return(TRUE)
 
   # if we're given the path to a file, use the parent directory instead
   info <- renv_file_info(path)
