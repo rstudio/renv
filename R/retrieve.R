@@ -96,14 +96,14 @@ renv_retrieve_impl <- function(package) {
   # TODO: handle more explicit dependency requirements
   # TODO: report to the user if they have explicitly requested
   # installation of this package version despite it being incompatible
-  compat <- renv_retrieve_incompatible(record)
+  compat <- renv_retrieve_incompatible(package, record)
   if (NROW(compat)) {
 
     replacement <- renv_available_packages_latest(package)
     if (is.null(replacement))
       stopf("package '%s' is not available", package)
 
-    renv_retrieve_incompatible_report(record, replacement, compat)
+    renv_retrieve_incompatible_report(package, record, replacement, compat)
     record <- replacement
 
   }
@@ -970,9 +970,20 @@ renv_retrieve_missing_record <- function(package) {
 # check to see if this requested record is incompatible
 # with the set of required dependencies recorded thus far
 # during the package retrieval process
-renv_retrieve_incompatible <- function(record) {
+renv_retrieve_incompatible <- function(package, record) {
 
   state <- renv_restore_state()
+
+  # sanity check
+  if (is.null(record))
+    stopf("internal error: unexpected null record for package '%s'", package)
+
+  # sanity check 2.0
+  if (is.null(record$Package)) {
+    warningf("internal error: unexpected record format for package '%s'", package)
+    str(record)
+    record <- list(Package = package)
+  }
 
   # check and see if the installed version satisfies all requirements
   requirements <- state$requirements[[record$Package]]
@@ -1004,7 +1015,7 @@ renv_retrieve_incompatible <- function(record) {
 
 }
 
-renv_retrieve_incompatible_report <- function(record, replacement, compat) {
+renv_retrieve_incompatible_report <- function(package, record, replacement, compat) {
 
   # if the record + replacement look the same, bail
   # (nothing useful to report to user; failure will happen later)
