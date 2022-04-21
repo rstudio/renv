@@ -1,6 +1,10 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to download a package from MRAN if
+  a compatible source package of the same version was available from the
+  active R repositories. (#990)
+
 * `renv` now reports permission errors during download more clearly. (#985)
 
 * Fixed an issue where `RENV_PATHS_LIBRARY_ROOT_ASIS` was not interpreted

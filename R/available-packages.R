@@ -363,22 +363,54 @@ renv_available_packages_latest <- function(package,
 
   errors <- stack()
 
-  for (method in methods) {
+  entries <- lapply(methods, function(method) {
 
     entry <- catch(method(package, type, repos))
     if (inherits(entry, "error")) {
       errors$push(entry)
-      next
+      return(NULL)
     }
 
-    return(entry)
+    entry
 
+  })
+
+  # if both entries are null, error
+  if (all(map_lgl(entries, is.null))) {
+    map(errors$data(), warning)
+    stopf("package '%s' is not available", package)
+  } else if (is.null(entries[[2L]])) {
+    return(entries[[1L]])
+  } else if (is.null(entries[[1L]])) {
+    return(entries[[2L]])
   }
 
-  for (error in errors$data())
-    warning(error)
+  # extract both entries
+  lhs <- entries[[1L]]
+  rhs <- entries[[2L]]
 
-  stopf("package '%s' is not available", package)
+  # extract versions
+  lhsv <- package_version(lhs$Version %||% "0.0")
+  rhsv <- package_version(rhs$Version %||% "0.0")
+
+  # if the versions don't match, take the newest one
+  if (lhsv > rhsv)
+    return(lhsv)
+  else if (rhsv > lhsv)
+    return(rhsv)
+
+  # otherwise, if we have a binary from the active package repositories,
+  # use those; otherwise, use the mran binary
+  if (identical(lhsv, rhsv)) {
+    if (identical(attr(lhs, "type", exact = TRUE), "binary"))
+      return(lhs)
+    else
+      return(rhs)
+  }
+
+  # otherwise, return the regular repository entry
+  lhs
+
 }
 
 renv_available_packages_latest_mran <- function(package,
