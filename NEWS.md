@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` no longer infers a dependency on the "quarto" R package in projects
+  containing a `_quarto.yml` file. (#995)
+
 * Fixed an issue where `renv` could fail to download a package from MRAN if
   a compatible source package of the same version was available from the
   active R repositories. (#990)

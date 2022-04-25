@@ -553,7 +553,13 @@ renv_dependencies_discover_pkgdown <- function(path) {
 
 renv_dependencies_discover_quarto <- function(path) {
   # TODO: other dependencies to parse from quarto?
-  renv_dependencies_list(path, "quarto")
+  #
+  # NOTE: we previously inferred a dependency on the R 'quarto' package here,
+  # but quarto is normally invoked directly (rather than via the package) and
+  # so such a dependency is not strictly necessary.
+  #
+  # https://github.com/rstudio/renv/issues/995
+  renv_dependencies_list_empty()
 }
 
 renv_dependencies_discover_rsconnect <- function(path) {
