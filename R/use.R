@@ -12,8 +12,8 @@
 #' `use()`.
 #'
 #' `renv::use()` is inspired in part by the [groundhog](https://groundhogr.com/)
-#' package, which provides an alternate mechanism for specifying a script's
-#' \R package requirements within that same \R script.
+#' package, which also allows one to specify a script's \R package requirements
+#' within that same \R script.
 #'
 #' @param ...
 #'   The \R packages to be used with this script. Ignored if `lockfile` is
