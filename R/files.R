@@ -510,9 +510,12 @@ renv_file_read <- function(path) {
 
 renv_file_shebang <- function(path) {
 
+  # NOTE: we use 'condition' as a cheap way to capture both errors and warnings
+  # since 'file()' may just report a warning rather than an error if it fails
+  # to open a file due to inadequate permissions
   tryCatch(
     renv_file_shebang_impl(path),
-    error = function(e) ""
+    condition = function(e) ""
   )
 
 }
