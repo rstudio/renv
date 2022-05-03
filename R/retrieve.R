@@ -704,12 +704,21 @@ renv_retrieve_repos_archive_path <- function(repo, record) {
   # associated repository
   formatters <- list(
 
+    # default CRAN format
     function(repo, record) {
       with(record, file.path(repo, "src/contrib/Archive", Package))
     },
 
+    # format used by Artifactory
+    # https://github.com/rstudio/renv/issues/602
     function(repo, record) {
       with(record, file.path(repo, "src/contrib/Archive", Package, Version))
+    },
+
+    # format used by Nexus
+    # https://github.com/rstudio/renv/issues/595
+    function(repo, record) {
+      with(record, file.path(repo, "src/contrib"))
     }
 
   )
