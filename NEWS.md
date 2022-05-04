@@ -29,6 +29,8 @@
 
 * Fixed an issue where `renv` could fail to install packages containing
   multibyte unicode characters in their DESCRIPTION file. (#956)
+  
+* Fixed detection of Rtools 4.2 (#1002)
 
 
 # renv 0.15.4

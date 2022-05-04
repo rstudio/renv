@@ -42,10 +42,16 @@ renv_rtools_read <- function(root) {
 
 renv_rtools_version <- function(root) {
 
+
   # detect Rtools40
   mirrors <- file.path(root, "etc/pacman.d/mirrorlist.rtools")
   if (file.exists(mirrors))
     return(numeric_version("4.0"))
+
+  #detect Rtools42
+  mirrors <- file.path(root, "etc/pacman.d/mirrorlist.clang64")
+  if (file.exists(mirrors))
+    return(numeric_version("4.2"))
 
   # detect older Rtools installations
   path <- file.path(root, "VERSION.txt")
@@ -65,7 +71,8 @@ renv_rtools_compatible <- function(spec) {
     return(FALSE)
 
   ranges <- list(
-    "4.0" = c("4.0.0", "9.9.9"),
+    "4.2" = c("4.2.0", "9.9.9"),
+    "4.0" = c("4.0.0", "4.2.0"),
     "3.5" = c("3.3.0", "4.0.0"),
     "3.4" = c("3.3.0", "4.0.0"),
     "3.3" = c("3.2.0", "3.3.0"),
@@ -105,8 +112,10 @@ renv_rtools_envvars <- function(root) {
 
   if (version < "4.0")
     renv_rtools_envvars_default(root)
-  else
+  else if (version < "4.2")
     renv_rtools_envvars_rtools40(root)
+  else
+    renv_rtools_envvars_rtools42(root)
 
 }
 
@@ -128,6 +137,24 @@ renv_rtools_envvars_default <- function(root) {
     "mingw_$(WIN)/bin/",
     sep = "/"
   )
+
+  list(PATH = path, BINPREF = binpref)
+
+}
+
+renv_rtools_envvars_rtools42 <- function(root) {
+
+  # add Rtools utilities to path
+  bin <- normalizePath(
+    file.path(root, "usr/bin"),
+    winslash = "\\",
+    mustWork = FALSE
+  )
+
+  path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
+
+  # set BINPREF
+  binpref <- ""
 
   list(PATH = path, BINPREF = binpref)
 
