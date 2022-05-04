@@ -120,7 +120,7 @@ renv_paths_rtools <- function(...) {
     root <- spec$root
   }
 
-  file.path(spec$root, ...) %||% ""
+  file.path(root, ...) %||% ""
 
 }
 
