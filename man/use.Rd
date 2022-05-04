@@ -52,6 +52,6 @@ easily be shared and re-run with the exact package versions requested via
 \code{use()}.
 
 \code{renv::use()} is inspired in part by the \href{https://groundhogr.com/}{groundhog}
-package, which provides an alternate mechanism for specifying a script's
-\R package requirements within that same \R script.
+package, which also allows one to specify a script's \R package requirements
+within that same \R script.
 }

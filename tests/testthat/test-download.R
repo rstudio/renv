@@ -146,6 +146,7 @@ test_that("we can check that a URL is available", {
 
 test_that("download failures are reported if destfile not writable", {
   skip_on_cran()
+  skip_on_os("windows")
 
   tdir <- tempfile("renv-forbidden-")
   dir.create(tdir, mode = "0000")
