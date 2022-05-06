@@ -70,3 +70,9 @@ vewritef <- function(fmt = "", ..., con = stderr()) {
     writeLines(sprintf(fmt, ...), con = con)
 }
 
+infof <- function(fmt = "", ..., con = stdout()) {
+  if (!is.null(fmt) && renv_tests_verbose()) {
+    fmt <- paste(if (l10n_info()$`UTF-8`) "\u2139" else "i", fmt)
+    writeLines(sprintf(fmt, ...), con = con)
+  }
+}
