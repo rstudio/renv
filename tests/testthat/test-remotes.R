@@ -18,6 +18,15 @@ test_that("we can parse a variety of remotes", {
   expect_equal(remote$url,      "https://github.com/kevinushey/renv.git1/archive/refs/heads/main.zip")
   expect_equal(remote$protocol, "https")
 
+  # https://github.com/rstudio/renv/issues/1004
+  remote <- renv_remotes_parse("git@github.com:abc123/def456.git")
+
+  expect_equal(remote$type,   "git")
+  expect_equal(remote$host,   "github.com")
+  expect_equal(remote$user,   "abc123")
+  expect_equal(remote$repo,   "def456")
+  expect_equal(remote$ext,    "git")
+
 })
 
 test_that("we can parse a variety of remotes", {

@@ -154,7 +154,7 @@ renv_remotes_parse_git <- function(spec) {
       "(?:(https?|git|ssh)://)?",     # protocol
       "(?:([^@]+)@)?",                # login (probably git)
       hostpattern,                    # host
-      "[/:]([-\\.a-zA-Z]+)",          # a username
+      "[/:]([\\w_.-]+)",              # a username
       "(?:/([^@#:]+?))?",             # a repository (allow sub-repositories)
       "(?:\\.(git))?",                # optional .git extension
     ")",                            # URL end

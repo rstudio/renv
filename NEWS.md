@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could fail to parse Git remotes for users
+  whose username contains a number. (#1004)
+
 * `renv` no longer infers a dependency on the "quarto" R package in projects
   containing a `_quarto.yml` file. (#995)
 
