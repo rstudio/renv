@@ -8,7 +8,9 @@ test_that("invalid lockfile entries are reported", {
 
   expect_warning(renv_load_r(getwd(), NULL))
   expect_warning(renv_load_r(getwd(), list()))
-  expect_warning(renv_load_r(getwd(), list(Version = "1.0.0")))
+
+  # this used to be a warning, but now we just write as an info message
+  # expect_warning(renv_load_r(getwd(), list(Version = "1.0.0")))
 
 })
 

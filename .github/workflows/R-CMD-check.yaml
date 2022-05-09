@@ -96,7 +96,6 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: |
-          brew install git
           brew install libgit2
 
       - name: Install renv
