@@ -1,8 +1,14 @@
 
 options(renv.verbose = TRUE)
 
-# iterate through old commits of renv, and update tags for each commit
-devtools::load_all()
+# poor man's load_all()
+envir <- attach(NULL, name = "tools:renv")
+assign(".packageName", "renv", envir = envir)
+files <- list.files("R", full.names = TRUE)
+for (file in files)
+  sys.source(file, envir = envir)
+envir$.onLoad("", "renv")
+envir$.onAttach("", "renv")
 
 # copy package sources to temporary directory
 dir <- tempfile("renv-")
