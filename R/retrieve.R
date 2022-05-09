@@ -999,6 +999,14 @@ renv_retrieve_incompatible <- function(package, record) {
   if (is.null(record))
     stopf("internal error: unexpected null record for package '%s'", package)
 
+  # fix up 'numeric_version' objects that make their way here
+  #
+  # TODO: still don't know how or why this could occur; note that this fix
+  # might not be appropriate if other delimiters are used between the package
+  # version (e.g. '-' instead of '.')
+  if (inherits(record, "numeric_version"))
+    record <- list(Package = package, Version = format(record))
+
   # sanity check 2.0
   if (is.null(record$Package)) {
     warningf("internal error: unexpected record format for package '%s'", package)
