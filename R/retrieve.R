@@ -99,10 +99,22 @@ renv_retrieve_impl <- function(package) {
   compat <- renv_retrieve_incompatible(package, record)
   if (NROW(compat)) {
 
+    # get the latest available package version
     replacement <- renv_available_packages_latest(package)
     if (is.null(replacement))
       stopf("package '%s' is not available", package)
 
+    # if it's not compatible, then we might need to try again with
+    # a source version (assuming type = "both")
+    pkgtype <- getOption("pkgType")
+    if (identical(pkgtype, "both")) {
+      iscompat <- renv_retrieve_incompatible(package, replacement)
+      if (NROW(iscompat)) {
+        replacement <- renv_available_packages_latest(package, type = "source")
+      }
+    }
+
+    # report if we couldn't find a compatible package
     renv_retrieve_incompatible_report(package, record, replacement, compat)
     record <- replacement
 
@@ -1026,19 +1038,16 @@ renv_retrieve_incompatible <- function(package, record) {
 
 renv_retrieve_incompatible_report <- function(package, record, replacement, compat) {
 
-  # if the record + replacement look the same, bail
-  # (nothing useful to report to user; failure will happen later)
-  same <-
-    record$Package == replacement$Package &&
-    record$Version == replacement$Version
-
-  if (same)
+  # only report if the user explicitly requesting installation of a particular
+  # version of a package, but that package isn't actually compatible
+  state <- renv_restore_state()
+  if (!package %in% state$packages)
     return()
 
   fmt <- "%s (requires %s %s %s)"
   values <- with(compat, sprintf(fmt, Source, Package, Require, Version))
 
-  fmt <- "renv tried to install '%s %s', but the following constraints were not met:"
+  fmt <- "Installation of '%s %s' was requested, but the following constraints are not met:"
   preamble <- with(record, sprintf(fmt, Package, Version))
 
   fmt <- "renv will try to install '%s %s' instead."

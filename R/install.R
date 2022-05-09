@@ -170,7 +170,8 @@ install <- function(packages = NULL,
       project = project
     )
 
-    return(renv_pak_install(remotes, libpaths))
+    packages <- if (is.list(remotes)) names(remotes) else remotes
+    return(renv_pak_install(packages, libpaths))
 
   }
 
