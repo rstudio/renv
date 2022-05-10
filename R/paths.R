@@ -30,8 +30,7 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
 
   # split path entries containing a separator
   if (name %in% c("cache", "local", "cellar")) {
-    pattern <- if (renv_platform_windows()) "[;]" else "[;:]"
-    root <- strsplit(root, pattern)[[1L]]
+    root <- strsplit(root, "[;:]")[[1L]]
   }
 
   # form rest of path
