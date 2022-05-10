@@ -997,7 +997,7 @@ renv_retrieve_incompatible <- function(package, record) {
   record <- renv_record_validate(package, record)
 
   # check and see if the installed version satisfies all requirements
-  requirements <- state$requirements[[record$Package]]
+  requirements <- state$requirements[[package]]
   if (is.null(requirements))
     return(NULL)
 

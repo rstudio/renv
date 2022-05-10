@@ -93,7 +93,7 @@ renv_record_validate <- function(package, record) {
 
   # check for a record -- minimally, a list with a package name
   if (is.list(record) && is.character(record$Package))
-    return(TRUE)
+    return(record)
 
   # report if we're running tests
   if (renv_bootstrap_tests_running())
