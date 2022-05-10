@@ -207,6 +207,21 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
 }
 
+renv_restore_state_debug <- function() {
+
+  state <- renv_restore_state()
+  if (is.null(state)) {
+    writeLines("renv_restore_state(): NULL")
+    return()
+  }
+
+  writeLines("renv_restore_state()")
+  data <- renv_envir_unwrap(state)
+  data$install <- data$install$data()
+  str(data)
+
+}
+
 renv_restore_state <- function(key = NULL) {
   state <- renv_global_get("restore.state")
   if (is.null(key)) state else state[[key]]
@@ -318,6 +333,7 @@ renv_restore_find <- function(record) {
 
   # skip packages whose installation was explicitly requested
   state <- renv_restore_state()
+  record <- renv_record_validate(NULL, record)
   if (record$Package %in% state$packages)
     return("")
 

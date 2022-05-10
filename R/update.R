@@ -102,10 +102,6 @@ renv_update_find_github <- function(records) {
 
 renv_update_find_github_impl <- function(record) {
 
-  # validate we have a ref
-  if (!renv_record_validate(record))
-    return(NULL)
-
   # construct and parse record entry
   host   <- record$RemoteHost %||% config$github.host()
   user   <- record$RemoteUsername

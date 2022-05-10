@@ -89,10 +89,22 @@ renv_record_source_normalize <- function(record, source) {
 
 }
 
-renv_record_validate <- function(record, quiet = FALSE) {
+renv_record_validate <- function(package, record) {
 
-  # TODO
-  TRUE
+  # check for a record -- minimally, a list with a package name
+  if (is.list(record) && is.character(record$Package))
+    return(TRUE)
+
+  # report if we're running tests
+  if (renv_bootstrap_tests_running())
+    renv_restore_state_debug()
+
+  # try to recover if we have a numeric_version
+  if (inherits(record, "numeric_version"))
+    record <- list(Package = package, Version = format(record))
+
+  # return record as-is
+  record
 
 }
 
