@@ -102,10 +102,6 @@ renv_record_validate <- function(package, record) {
     print(record)
   }
 
-  # try to recover if we have a numeric_version
-  if (inherits(record, "numeric_version"))
-    record <- list(Package = package, Version = format(record))
-
   # return record as-is
   record
 

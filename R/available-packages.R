@@ -395,9 +395,9 @@ renv_available_packages_latest <- function(package,
 
   # if the versions don't match, take the newest one
   if (lhsv > rhsv)
-    return(lhsv)
+    return(lhs)
   else if (rhsv > lhsv)
-    return(rhsv)
+    return(rhs)
 
   # otherwise, if we have a binary from the active package repositories,
   # use those; otherwise, use the mran binary
