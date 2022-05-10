@@ -95,8 +95,8 @@ renv_record_validate <- function(package, record) {
   if (is.list(record) && is.character(record$Package))
     return(record)
 
-  # report if we're running tests
-  if (renv_bootstrap_tests_running())
+  # if we're running tests, or in CI, then report
+  if (renv_tests_running() || !is.na(Sys.getenv("CI", unset = NA)))
     renv_restore_state_debug()
 
   # try to recover if we have a numeric_version
