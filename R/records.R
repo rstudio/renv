@@ -96,8 +96,11 @@ renv_record_validate <- function(package, record) {
     return(record)
 
   # if we're running tests, or in CI, then report
-  if (renv_tests_running() || !is.na(Sys.getenv("CI", unset = NA)))
-    renv_restore_state_debug()
+  if (renv_tests_running() || !is.na(Sys.getenv("CI", unset = NA))) {
+    fmt <- "! Internal error: unexpected record for package '%s'"
+    writef(fmt, package)
+    print(record)
+  }
 
   # try to recover if we have a numeric_version
   if (inherits(record, "numeric_version"))
