@@ -86,6 +86,9 @@
 #'   Recursive dependencies of the specified packages will be added to the
 #'   lockfile as well.
 #'
+#' @param update Boolean; if the lockfile already exists, then attempt to update
+#'   that lockfile without removing any prior package records.
+#'
 #' @param force Boolean; force generation of a lockfile even when pre-flight
 #'   validation checks have failed?
 #'
@@ -108,6 +111,7 @@ snapshot <- function(project  = NULL,
                      repos    = getOption("repos"),
                      packages = NULL,
                      prompt   = interactive(),
+                     update   = FALSE,
                      force    = FALSE,
                      reprex   = FALSE)
 {
@@ -185,6 +189,12 @@ snapshot <- function(project  = NULL,
 
   # update new reference
   new <- alt
+
+  # if we're only updating the lockfile, then merge any missing records
+  # from 'old' back into 'new'
+  if (update)
+    for (package in names(old$Packages))
+      new$Packages[[package]] <- new$Packages[[package]] %||% old$Packages[[package]]
 
   # report actions to the user
   actions <- renv_lockfile_diff_packages(old, new)

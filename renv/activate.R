@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.14.0-147"
+  version <- "0.15.4-41"
 
   # the project directory
   project <- getwd()
@@ -54,19 +54,9 @@ local({
   # mask 'utils' packages, will come first on the search path
   library(utils, lib.loc = .Library)
 
-  # check to see if renv has already been loaded
-  if ("renv" %in% loadedNamespaces()) {
-
-    # if renv has already been loaded, and it's the requested version of renv,
-    # nothing to do
-    spec <- .getNamespaceInfo(.getNamespace("renv"), "spec")
-    if (identical(spec[["version"]], version))
-      return(invisible(TRUE))
-
-    # otherwise, unload and attempt to load the correct version of renv
+  # unload renv if it's already been loaded
+  if ("renv" %in% loadedNamespaces())
     unloadNamespace("renv")
-
-  }
 
   # load bootstrap tools   
   `%||%` <- function(x, y) {
@@ -324,8 +314,17 @@ local({
     }
   
     # bail if it doesn't exist
-    if (!file.exists(tarball))
+    if (!file.exists(tarball)) {
+  
+      # let the user know we weren't able to honour their request
+      fmt <- "* RENV_BOOTSTRAP_TARBALL is set (%s) but does not exist."
+      msg <- sprintf(fmt, tarball)
+      warning(msg)
+  
+      # bail
       return()
+  
+    }
   
     fmt <- "* Bootstrapping with tarball at path '%s'."
     msg <- sprintf(fmt, tarball)
@@ -388,7 +387,13 @@ local({
     bin <- R.home("bin")
     exe <- if (Sys.info()[["sysname"]] == "Windows") "R.exe" else "R"
     r <- file.path(bin, exe)
-    args <- c("--vanilla", "CMD", "INSTALL", "--no-multiarch", "-l", shQuote(library), shQuote(tarball))
+  
+    args <- c(
+      "--vanilla", "CMD", "INSTALL", "--no-multiarch",
+      "-l", shQuote(path.expand(library)),
+      shQuote(path.expand(tarball))
+    )
+  
     output <- system2(r, args, stdout = TRUE, stderr = TRUE)
     message("Done!")
   
@@ -763,7 +768,8 @@ local({
   }
   
   renv_bootstrap_user_dir <- function() {
-    chartr("\\", "/", renv_bootstrap_user_dir_impl())
+    dir <- renv_bootstrap_user_dir_impl()
+    path.expand(chartr("\\", "/", dir))
   }
   
   renv_bootstrap_user_dir_impl <- function() {
@@ -803,7 +809,7 @@ local({
   
     # find strings in the JSON
     pattern <- '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
-    locs <- gregexpr(pattern, text)[[1]]
+    locs <- gregexpr(pattern, text, perl = TRUE)[[1]]
   
     # if any are found, replace them with placeholders
     replaced <- text

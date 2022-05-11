@@ -13,6 +13,7 @@ snapshot(
   repos = getOption("repos"),
   packages = NULL,
   prompt = interactive(),
+  update = FALSE,
   force = FALSE,
   reprex = FALSE
 )
@@ -48,6 +49,9 @@ lockfile as well.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
+
+\item{update}{Boolean; if the lockfile already exists, then attempt to update
+that lockfile without removing any prior package records.}
 
 \item{force}{Boolean; force generation of a lockfile even when pre-flight
 validation checks have failed?}

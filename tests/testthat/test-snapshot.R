@@ -348,3 +348,33 @@ test_that("snapshot() accepts relative library paths", {
   expect_true(file.exists("renv.lock"))
 
 })
+
+test_that("snapshot(update = TRUE) preserves old records", {
+
+  renv_tests_scope("breakfast")
+  init()
+
+  # remove breakfast, then try to snapshot again
+  old <- renv_lockfile_read("renv.lock")
+  remove("breakfast")
+  snapshot(update = TRUE)
+  new <- renv_lockfile_read("renv.lock")
+
+  expect_identical(names(old$Packages), names(new$Packages))
+
+  # try installing a package
+  old <- renv_lockfile_read("renv.lock")
+  writeLines("library(halloween)", con = "halloween.R")
+  install("halloween")
+  snapshot(update = TRUE)
+  new <- renv_lockfile_read("renv.lock")
+
+  # check that we have our old record names
+  expect_true(all(old$Packages %in% new$Packages))
+
+  # now try removing 'breakfast'
+  snapshot(update = FALSE)
+  new <- renv_lockfile_read("renv.lock")
+  expect_false("breakfast" %in% names(new$Packages))
+
+})

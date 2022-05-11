@@ -31,7 +31,7 @@ renv_bioconductor_init_biocinstaller <- function() {
 
 }
 
-renv_bioconductor_version <- function(project) {
+renv_bioconductor_version <- function(project, refresh = FALSE) {
 
   # check and see if we have an override via option
   version <- getOption("renv.bioconductor.version")
@@ -40,9 +40,11 @@ renv_bioconductor_version <- function(project) {
 
   # check and see if the project has been configured to use a specific
   # Bioconductor release
-  version <- settings$bioconductor.version(project = project)
-  if (length(version))
-    return(version)
+  if (!refresh) {
+    version <- settings$bioconductor.version(project = project)
+    if (length(version))
+      return(version)
+  }
 
   # otherwise, infer the Bioconductor version from installed packages
   case(

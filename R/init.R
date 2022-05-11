@@ -291,7 +291,7 @@ renv_init_bioconductor <- function(bioconductor, project) {
   # resolve bioconductor argument
   case(
     is.character(bioconductor)     ~ bioconductor,
-    identical(bioconductor, TRUE)  ~ renv_bioconductor_version(project),
+    identical(bioconductor, TRUE)  ~ renv_bioconductor_version(project, refresh = TRUE),
     identical(bioconductor, FALSE) ~ NULL
   )
 

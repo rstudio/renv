@@ -1,6 +1,14 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv::init(bioconductor = TRUE)` would not update
+  the version of Bioconductor used if a project setting had already been
+  set.
+
+* It is not possible to "update" an existing lockfile by using
+  `renv::snapshot(update = TRUE)`. When set, any records existing in the
+  old lockfile but not the new lockfile will be preserved. (#727)
+
 * Fixed an issue where `renv` could fail to parse Git remotes for users
   whose username contains a number. (#1004)
 
