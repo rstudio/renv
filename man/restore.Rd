@@ -75,8 +75,10 @@ By default, the package repositories encoded in the lockfile will be used
 during restore, as opposed to the repositories that might already
 be set in the current session (through \code{getOption("repos")}). If you'd like
 to override the repositories used by \code{renv} during restore, you can use,
-for example:\preformatted{renv::restore(repos = c(CRAN = <...>))
-}
+for example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{renv::restore(repos = c(CRAN = <...>))
+}\if{html}{\out{</div>}}
 
 See also the \code{repos.override} option in \link{config} for an alternate way to
 provide a repository override.

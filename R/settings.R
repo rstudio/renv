@@ -196,14 +196,14 @@ renv_settings_updated_cache <- function(project, old, new) {
   if (new) {
     vprintf("* Copying packages into the cache ... ")
     targets <- targets[file.exists(targets)]
-    copy <- renv_progress(renv_cache_move, length(targets))
+    copy <- renv_progress_callback(renv_cache_move, length(targets))
     enumerate(targets, copy, overwrite = TRUE)
     vwritef("Done!")
   } else {
     vprintf("* Copying packages into the private library ... ")
     targets <- targets[file.exists(sources)]
     unlink(targets)
-    copy <- renv_progress(renv_file_copy, length(targets))
+    copy <- renv_progress_callback(renv_file_copy, length(targets))
     enumerate(targets, copy, overwrite = TRUE)
     vwritef("Done!")
   }

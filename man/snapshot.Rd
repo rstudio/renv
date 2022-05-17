@@ -118,8 +118,10 @@ in the lockfile.
 
 By default, \code{"implicit"}-style snapshots are used. The snapshot type can be
 configured on a project-specific basis using the \code{renv} project \link{settings}
-mechanism. For example, to use \code{"explicit"} snapshots in a project:\preformatted{renv::settings$snapshot.type("explicit")
-}
+mechanism. For example, to use \code{"explicit"} snapshots in a project:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{renv::settings$snapshot.type("explicit")
+}\if{html}{\out{</div>}}
 
 When the \code{packages} argument is set, \code{type} is ignored, and instead only the
 requested set of packages, and their recursive dependencies, will be written

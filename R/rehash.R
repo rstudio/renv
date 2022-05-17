@@ -38,7 +38,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   old <- renv_cache_list(cache = cache)
 
   vprintf("* Re-computing package hashes ... ")
-  new <- map_chr(old, renv_progress(renv_cache_path, length(old)))
+  new <- map_chr(old, renv_progress_callback(renv_cache_path, length(old)))
   vwritef("Done!")
 
   changed <- which(old != new & file.exists(old) & !file.exists(new))
@@ -73,7 +73,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   names(targets) <- sources
 
   vprintf("* Re-caching packages ... ")
-  enumerate(targets, renv_progress(action, length(targets)))
+  enumerate(targets, renv_progress_callback(action, length(targets)))
   vwritef("Done!")
 
   n <- length(targets)

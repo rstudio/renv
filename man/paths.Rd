@@ -63,13 +63,17 @@ enumerated below:
 }
 
 Note that \code{renv} will append platform-specific and version-specific entries
-to the set paths as appropriate. For example, if you have set:\preformatted{Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
-}
+to the set paths as appropriate. For example, if you have set:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
+}\if{html}{\out{</div>}}
 
 then the directory used for the cache will still depend on the \code{renv} cache
 version (e.g. \code{v2}), the \R version (e.g. \code{3.5}) and the platform (e.g.
-\code{x86_64-pc-linux-gnu}). For example:\preformatted{/mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
-}
+\code{x86_64-pc-linux-gnu}). For example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{/mnt/shared/renv/cache/v2/R-3.5/x86_64-pc-linux-gnu
+}\if{html}{\out{</div>}}
 
 This ensures that you can set a single \code{RENV_PATHS_CACHE} environment variable
 globally without worry that it may cause collisions or errors if multiple
@@ -79,8 +83,10 @@ If you need to share the same cache with multiple different Linux operating
 systems, you may want to set the \code{RENV_PATHS_PREFIX} environment variable
 to help disambiguate the paths used on Linux. For example, setting
 \code{RENV_PATHS_PREFIX = "ubuntu-bionic"} would instruct \code{renv} to construct a
-cache path like:\preformatted{/mnt/shared/renv/cache/v2/ubuntu-bionic/R-3.5/x86_64-pc-linux-gnu
-}
+cache path like:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{/mnt/shared/renv/cache/v2/ubuntu-bionic/R-3.5/x86_64-pc-linux-gnu
+}\if{html}{\out{</div>}}
 
 If this is required, it's strongly recommended that this environment
 variable is set in your \R installation's \code{Renviron.site} file, typically
@@ -89,8 +95,10 @@ active for any \R sessions launched on that machine.
 
 Starting from \verb{renv 0.13.0}, you can also instruct \code{renv} to auto-generate
 an OS-specific component to include as part of library and cache paths,
-by setting the environment variable:\preformatted{RENV_PATHS_PREFIX_AUTO = TRUE
-}
+by setting the environment variable:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{RENV_PATHS_PREFIX_AUTO = TRUE
+}\if{html}{\out{</div>}}
 
 The prefix will be constructed based on fields within the system's
 \verb{/etc/os-release} file.

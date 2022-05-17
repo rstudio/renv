@@ -210,7 +210,7 @@ renv_migrate_packrat_sources <- function(project) {
   sources <- sources[keep]; targets <- targets[keep]
 
   vprintf("* Migrating package sources from Packrat to renv ... ")
-  copy <- renv_progress(renv_file_copy, length(targets))
+  copy <- renv_progress_callback(renv_file_copy, length(targets))
   mapply(sources, targets, FUN = function(source, target) {
     ensure_parent_directory(target)
     copy(source, target)
@@ -245,7 +245,7 @@ renv_migrate_packrat_library <- function(project) {
   # copy packages from Packrat to renv private library
   vprintf("* Migrating library from Packrat to renv ... ")
   ensure_parent_directory(targets)
-  copy <- renv_progress(renv_file_copy, length(targets))
+  copy <- renv_progress_callback(renv_file_copy, length(targets))
   enumerate(targets, copy)
   vwritef("Done!")
 
@@ -253,7 +253,7 @@ renv_migrate_packrat_library <- function(project) {
   if (renv_cache_config_enabled(project = project)) {
     vprintf("* Moving packages into the renv cache ... ")
     records <- lapply(targets, renv_description_read)
-    sync <- renv_progress(renv_cache_synchronize, length(targets))
+    sync <- renv_progress_callback(renv_cache_synchronize, length(targets))
     lapply(records, sync, linkable = TRUE)
     vwritef("Done!")
   }
@@ -308,7 +308,7 @@ renv_migrate_packrat_cache_impl <- function(targets) {
   # attempt to copy packages from Packrat to renv cache
   vprintf("* Migrating Packrat cache to renv cache ... ")
   ensure_parent_directory(targets)
-  copy <- renv_progress(renv_file_copy, length(targets))
+  copy <- renv_progress_callback(renv_file_copy, length(targets))
 
   result <- enumerate(targets, function(source, target) {
     status <- catch(copy(source, target))

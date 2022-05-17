@@ -334,7 +334,8 @@ renv_clean_cache <- function(project, prompt) {
   # for each project, find packages used in their renv private library,
   # and look for entries in the cache
   projlist <- projlist[!missing]
-  used <- uapply(projlist, renv_progress(action, length(projlist)))
+  callback <- renv_progress_callback(action, length(projlist))
+  used <- uapply(projlist, callback)
 
   # check what packages are actually available in the cache
   available <- renv_cache_list()

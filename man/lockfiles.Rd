@@ -19,7 +19,9 @@ While lockfiles are normally generated and used with \code{\link[=snapshot]{snap
 \code{\link[=restore]{restore()}}, they can also be edited by hand if so desired. Lockfiles are
 written as \code{.json}, to allow for easy consumption by other tools.
 
-An example lockfile follows:\preformatted{\{
+An example lockfile follows:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{\{
   "R": \{
     "Version": "3.6.1",
     "Repositories": [
@@ -46,7 +48,7 @@ An example lockfile follows:\preformatted{\{
     \}
   \}
 \}
-}
+}\if{html}{\out{</div>}}
 
 The sections used within a lockfile are described next.
 }

@@ -23,13 +23,17 @@ that the project can continue to function independently of the \code{renv} cache
 After calling \code{isolate()}, \code{renv} will still be able to use the cache on
 future \code{\link[=install]{install()}}s and \code{\link[=restore]{restore()}}s. If you'd prefer that \code{renv} copy
 packages from the cache, rather than use symlinks, you can set the \code{renv}
-configuration option:\preformatted{options(renv.config.cache.symlinks = FALSE)
-}
+configuration option:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{options(renv.config.cache.symlinks = FALSE)
+}\if{html}{\out{</div>}}
 
 to force \code{renv} to copy packages from the cache, as opposed to symlinking
 them. If you'd like to disable the cache altogether for a project, you can
-use:\preformatted{settings$use.cache(FALSE)
-}
+use:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{settings$use.cache(FALSE)
+}\if{html}{\out{</div>}}
 
 to explicitly disable the cache for the project.
 }

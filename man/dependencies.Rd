@@ -65,16 +65,20 @@ order to crawl dependencies in R Markdown files.
 Depending on how you've structured your code, \code{renv} may emit errors when
 attempting to enumerate dependencies within \code{.Rmd} / \code{.Rnw} documents.
 For code chunks that you'd explicitly like \code{renv} to ignore, you can
-include \code{renv.ignore=TRUE} in the chunk header. For example:\preformatted{```\{r chunk-label, renv.ignore=TRUE\}
+include \code{renv.ignore=TRUE} in the chunk header. For example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{```\{r chunk-label, renv.ignore=TRUE\}
 # code in this chunk will be ignored by renv
 ```
-}
+}\if{html}{\out{</div>}}
 
 Similarly, if you'd like \code{renv} to parse a chunk that is otherwise ignored
-(e.g. because it has \code{eval=FALSE} as a chunk header), you can set:\preformatted{```\{r chunk-label, eval=FALSE, renv.ignore=FALSE\}
+(e.g. because it has \code{eval=FALSE} as a chunk header), you can set:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{```\{r chunk-label, eval=FALSE, renv.ignore=FALSE\}
 # code in this chunk will _not be ignored
 ```
-}
+}\if{html}{\out{</div>}}
 }
 
 \section{Ignoring Files}{
@@ -89,7 +93,9 @@ which files to ignore within a directory. If both \code{.renvignore} and
 the \code{.gitignore}.
 
 See \url{https://git-scm.com/docs/gitignore} for documentation on the
-\code{.gitignore} format. Some simple examples here:\preformatted{# ignore all R Markdown files
+\code{.gitignore} format. Some simple examples here:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{# ignore all R Markdown files
 *.Rmd
 
 # ignore all data folders
@@ -97,7 +103,7 @@ data/
 
 # ignore only data folders from the root of the project
 /data/
-}
+}\if{html}{\out{</div>}}
 }
 
 \section{Errors}{

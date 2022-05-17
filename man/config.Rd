@@ -143,10 +143,12 @@ The following methods are supported:
 \code{rsync}    \tab Use \code{rsync} to copy files. \cr
 }
 
-You can also provide a custom copy method if required; e.g.\preformatted{options(renv.config.copy.method = function(src, dst) \{
+You can also provide a custom copy method if required; e.g.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{options(renv.config.copy.method = function(src, dst) \{
   # copy a file from 'src' to 'dst'
 \})
-}
+}\if{html}{\out{</div>}}
 
 Note that \code{renv} will always first attempt to copy a directory first to a
 temporary path within the target folder, and then rename that temporary path

@@ -1,36 +1,32 @@
 
-# given some function 'f' to be called repeatedly 'max' times,
-# write a small progress counter (using 'emit') if we haven't
-# finished execution after 'wait' seconds. note that we assume
-# that the callback 'f' doesn't also attempt to write output
-# to the same stream used by the progress emitter
-renv_progress <- function(f, max, wait = 1.0, emit = renv_progress_emit) {
+renv_progress_create <- function(max, wait = 1.0) {
 
-  # since we're returning a function need to force all arguments here
-  force(f); force(max); force(wait); force(emit)
-
-  # prepare some state tracking progress
-  count <- 0
-  progress <- ""
+  # local variables for closure
+  count <- 0L
+  max <- max
+  message <- ""
   start <- Sys.time()
 
-  function(...) {
+  function() {
 
     # check for and print progress
-    count <<- count + 1
-    if (Sys.time() - start > wait) {
-      backspaces <- paste(rep("\b", nchar(progress)), collapse = "")
-      progress <<- sprintf("[%i/%i] ", count, max)
-      emit(paste(backspaces, progress, sep = ""))
-    }
+    count <<- count + 1L
 
-    # invoke callback
-    f(...)
+    # if not enough time has elapsed yet, nothing to do
+    if (Sys.time() - start < wait)
+      return()
+
+    # create message
+    backspaces <- paste(rep("\b", nchar(message)), collapse = "")
+    message <<- sprintf("[%i/%i] ", count, max)
+    all <- paste(backspaces, message, sep = "")
+    cat(all, file = stdout(), sep = "")
 
   }
 
 }
 
-renv_progress_emit <- function(...) {
-  cat(..., file = stdout(), sep = "")
+renv_progress_callback <- function(callback, max, wait = 1.0) {
+  tick <- renv_progress_create(max, wait)
+  function(...) { tick(); callback(...) }
 }

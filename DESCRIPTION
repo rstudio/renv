@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project Environments
-Version: 0.15.4-42
+Version: 0.15.4-43
 Authors@R: c(
     person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com"),
     person("RStudio, PBC", role = c("cph"))
@@ -17,6 +17,6 @@ Imports: utils
 Suggests: R6, BiocManager, cli, covr, devtools, knitr, miniUI, packrat, pak,
     remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat, uuid, yaml
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

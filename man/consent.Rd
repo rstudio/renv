@@ -28,8 +28,10 @@ In accordance with the
 \code{renv} must first obtain consent from you, the user, before these actions
 can be taken. Please call \code{renv::consent()} first to provide this consent.
 
-You can also set the \R option:\preformatted{options(renv.consent = TRUE)
-}
+You can also set the \R option:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{options(renv.consent = TRUE)
+}\if{html}{\out{</div>}}
 
 to implicitly provide consent for e.g. non-interactive \R sessions.
 }
