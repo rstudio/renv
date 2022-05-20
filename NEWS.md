@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv::restore()` now supports restoration of packages installed from
+  [R-Forge](https://r-forge.r-project.org/). (#671)
+
 * Fixed an issue where `renv::init(bioconductor = TRUE)` would not update
   the version of Bioconductor used if a project setting had already been
   set.

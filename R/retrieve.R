@@ -74,6 +74,18 @@ renv_retrieve_impl <- function(package) {
     renv_scope_bioconductor(project = project)
   }
 
+  # if this is a package from R-Forge, activate its repository
+  if (source %in% c("repository")) {
+    repository <- record$Repository %||% ""
+    if (tolower(repository) %in% c("rforge", "r-forge")) {
+      repos <- getOption("repos")
+      if (!"R-Forge" %in% names(repos)) {
+        repos[["R-Forge"]] <- "https://R-Forge.R-project.org"
+        renv_scope_options(repos = repos)
+      }
+    }
+  }
+
   # if the record doesn't declare the package version,
   # treat it as a request for the latest version on CRAN
   # TODO: should make this behavior configurable
