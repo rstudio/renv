@@ -77,13 +77,14 @@ test_that("we can restore a lockfile using multiple Bioconductor releases", {
   skip_on_cran()
   skip_on_windows()
   skip_if(getRversion()[1, 1:2] != "4.1")
+  skip_if_not_installed("BiocManager")
 
   project <- renv_tests_scope()
 
   path <- file.path(renv_tests_root(), "resources/bioconductor.lock")
   lockfile <- renv_lockfile_read(path)
 
-  restore(
+  status <- restore(
     lockfile = lockfile,
     packages = c("limma", "BiocGenerics"),
     rebuild  = TRUE

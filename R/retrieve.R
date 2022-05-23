@@ -621,8 +621,10 @@ renv_retrieve_url <- function(record) {
 }
 
 renv_retrieve_repos_archive_name <- function(record, type = "source") {
-  ext <- renv_package_ext(type)
-  paste0(record$Package, "_", record$Version, ext)
+  record$File %||% {
+    ext <- renv_package_ext(type)
+    paste0(record$Package, "_", record$Version, ext)
+  }
 }
 
 renv_retrieve_repos_mran <- function(record) {
@@ -793,6 +795,11 @@ renv_retrieve_repos_impl <- function(record,
     repo <- entry$Repository
     if (!is.null(entry$Path) && !is.na(entry$Path))
       repo <- file.path(repo, entry$Path)
+
+    # update the tarball name if it was declared
+    file <- entry$File
+    if (!is.null(file))
+      name <- file
 
   }
 

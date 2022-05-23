@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where installation of packages from Bioconductor's binary
+  Linux package repositories could fail. (#1013)
+  
 * `renv::restore()` now supports restoration of packages installed from
   [R-Forge](https://r-forge.r-project.org/). (#671)
 

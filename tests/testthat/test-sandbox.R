@@ -36,9 +36,9 @@ test_that(".Library.site isn't used even when sandbox is disabled", {
   skip_if(renv_platform_windows() || empty(.Library.site))
   renv_sandbox_deactivate()
   renv_scope_options(renv.config.sandbox.enabled = FALSE)
-  sitelib <- .Library.site
+  sitelib <- setdiff(.Library.site, .Library)
   renv_sandbox_activate()
-  expect_false(sitelib %in% .libPaths())
+  expect_false(any(sitelib %in% .libPaths()))
   renv_sandbox_deactivate()
 
 })

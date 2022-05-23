@@ -287,7 +287,7 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
   fields <- c(
     "Package", "Version",
     "OS_type", "NeedsCompilation",
-    "Repository", "Path"
+    "Repository", "Path", "File"
   )
 
   entries <- bapply(dbs, function(db) {
