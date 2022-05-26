@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,7 +108,7 @@
                         <h4 data-toc-skip class="author">Kevin
 Ushey</h4>
             
-            <h4 data-toc-skip class="date">2022-02-28</h4>
+            <h4 data-toc-skip class="date">2022-05-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/renv.Rmd" class="external-link"><code>vignettes/renv.Rmd</code></a></small>
       <div class="d-none name"><code>renv.Rmd</code></div>
@@ -452,7 +452,7 @@ then <code>renv</code> will install the latest-available version of
 <p>With each commit of <code>renv</code>, we bump the package version
 and also tag the commit with the associated package version. This
 implies that you can call, for example:</p>
-<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.15.3"</span><span class="op">)</span></code></pre>
+<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.15.5"</span><span class="op">)</span></code></pre>
 <p>to request the installation of that particular version of
 <code>renv</code> if so required.</p>
 </div>
@@ -756,16 +756,23 @@ places a couple of shims on the search path:</p>
 </tr>
 </tbody>
 </table>
-<p>This can be useful when installing packages which have already been
-cached. For example, if you use <code>renv::install("dplyr")</code>, and
-<code>renv</code> detects that the latest version on CRAN has already
-been cached, then <code>renv</code> will just install using the copy
-available in the cache – thereby skipping some of the installation
-overhead.</p>
-<p>If you’d prefer not to use the <code>renv</code> shims, they can be
-disabled by setting the option
-<code>options(renv.config.shims.enabled = FALSE)</code>. See
-<code><a href="../reference/config.html">?config</a></code> for more details.</p>
+<p>In effect, calling <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> within an
+<code>renv</code> project will call <code><a href="../reference/install.html">renv::install()</a></code>
+instead. This can be useful when installing packages which have already
+been cached. For example, if you use
+<code>renv::install("dplyr")</code>, and <code>renv</code> detects that
+the latest version on CRAN has already been cached, then
+<code>renv</code> will just install using the copy available in the
+cache – thereby skipping some of the installation overhead.</p>
+<p>If you’d like to bypass these shims within an session, you can
+explicitly call the version of these functions from the
+<code>utils</code> package, e.g. with
+<code>utils::install.packages(&lt;...&gt;)</code>.</p>
+<p>If you’d prefer not to use the <code>renv</code> shims at all, they
+can be disabled by setting the R option
+<code>options(renv.config.shims.enabled = FALSE)</code>, or by setting
+the environment variable <code>RENV_CONFIG_SHIMS_ENABLED = FALSE</code>.
+See <code><a href="../reference/config.html">?config</a></code> for more details.</p>
 </div>
 <div class="section level2">
 <h2 id="history">History<a class="anchor" aria-label="anchor" href="#history"></a>
@@ -884,8 +891,7 @@ speed and reliability of <code>renv</code>.</p>
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
     </footer>

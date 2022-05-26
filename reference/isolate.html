@@ -12,7 +12,7 @@ that the project can continue to function independently of the renv cache."><met
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,12 +105,12 @@ called for its side effects.</p>
     <p>After calling <code>isolate()</code>, <code>renv</code> will still be able to use the cache on
 future <code><a href="install.html">install()</a></code>s and <code><a href="restore.html">restore()</a></code>s. If you'd prefer that <code>renv</code> copy
 packages from the cache, rather than use symlinks, you can set the <code>renv</code>
-configuration option:</p><div class="sourceCode"><pre><code><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.config.cache.symlinks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-
+configuration option:</p>
+<p></p><div class="sourceCode"><pre><code></code></pre><p></p></div>
 <p>to force <code>renv</code> to copy packages from the cache, as opposed to symlinking
 them. If you'd like to disable the cache altogether for a project, you can
-use:</p><div class="sourceCode"><pre><code><span class="va">settings</span><span class="op">$</span><span class="fu">use.cache</span><span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-
+use:</p>
+<p></p><div class="sourceCode"><pre><code></code></pre><p></p></div>
 <p>to explicitly disable the cache for the project.</p>
     </div>
 
@@ -133,8 +133,7 @@ use:</p><div class="sourceCode"><pre><code><span class="va">settings</span><span
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
     </footer></div>
