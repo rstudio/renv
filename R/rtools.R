@@ -7,6 +7,7 @@ renv_rtools_list <- function() {
 
     renv_rtools_registry(),
 
+    Sys.getenv("RTOOLS42_HOME", unset = file.path(drive, "rtools42")),
     Sys.getenv("RTOOLS40_HOME", unset = file.path(drive, "rtools40")),
     file.path(drive, "Rtools"),
     list.files(file.path(drive, "RBuildTools"), full.names = TRUE),
@@ -42,13 +43,12 @@ renv_rtools_read <- function(root) {
 
 renv_rtools_version <- function(root) {
 
-
   # detect Rtools40
   mirrors <- file.path(root, "etc/pacman.d/mirrorlist.rtools")
   if (file.exists(mirrors))
     return(numeric_version("4.0"))
 
-  #detect Rtools42
+  # detect Rtools42
   mirrors <- file.path(root, "etc/pacman.d/mirrorlist.clang64")
   if (file.exists(mirrors))
     return(numeric_version("4.2"))
@@ -130,8 +130,7 @@ renv_rtools_envvars_default <- function(root) {
 
   path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
-  # set BINPREF (note: trailing slash required but file.path()
-  # drops trailing slashes on Windows)
+  # set BINPREF (note: trailing slash is required)
   binpref <- paste(
     normalizePath(root, winslash = "/", mustWork = FALSE),
     "mingw_$(WIN)/bin/",
