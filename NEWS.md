@@ -1,5 +1,5 @@
 
-# renv 0.16.0  (UNRELEASED)
+# renv 0.15.5
 
 * Fixed an issue where indexing of packages in the package cellar could
   be slow. (#1014)
