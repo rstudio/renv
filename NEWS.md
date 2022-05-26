@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where indexing of packages in the package cellar could
+  be slow. (#1014)
+
 * Fixed an issue where installation of packages from Bioconductor's binary
   Linux package repositories could fail. (#1013)
   

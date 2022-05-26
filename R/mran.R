@@ -1,4 +1,8 @@
 
+renv_mran_enabled <- function() {
+  !identical(getOption("pkgType"), "source") && config$mran.enabled()
+}
+
 renv_mran_database_path <- function() {
   renv_paths_mran("packages.rds")
 }
