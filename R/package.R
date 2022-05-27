@@ -391,3 +391,55 @@ renv_package_checking <- function() {
     !is.na(Sys.getenv("_R_CHECK_SIZE_OF_TARBALL_", unset = NA)) ||
     !is.na(Sys.getenv("TESTTHAT", unset = NA))
 }
+
+renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
+
+  # if this isn't an archive, nothing to do
+  info <- renv_file_info(path)
+  if (identical(info$isdir, TRUE))
+    return(path)
+
+  # find DESCRIPTION files in the archive
+  descpaths <- renv_archive_find(path, "(?:^|/)DESCRIPTION$")
+
+  # check for a top-level DESCRIPTION file
+  # this is done in case the archive has been already been re-packed, so that a
+  # package originally located within a sub-directory is now at the top level
+  if (!force) {
+    descpath <- grep("^[^/]+/DESCRIPTION$", descpaths, perl = TRUE, value = TRUE)
+    if (length(descpath))
+      return(path)
+  }
+
+  # try to resolve the path to the DESCRIPTION file in the archive
+  descpath <- if (nzchar(subdir)) {
+    pattern <- sprintf("(?:^|/)\\Q%s\\E/DESCRIPTION$", subdir)
+    grep(pattern, descpaths, perl = TRUE, value = TRUE)
+  } else {
+    n <- nchar(descpaths)
+    descpaths[n == min(n)]
+  }
+
+  # if this failed, error
+  if (length(descpath) != 1L) {
+    fmt <- "internal error: couldn't find DESCRIPTION file for package '%s' in archive '%s'"
+    stopf(fmt, package, path)
+  }
+
+  # create extraction directory
+  old <- tempfile("renv-package-old-")
+  new <- tempfile("renv-package-new-")
+  ensure_directory(c(old, new))
+
+  # decompress archive to dir
+  renv_archive_decompress(path, exdir = old)
+
+  # rename (without sub-directory)
+  oldpath <- file.path(old, dirname(descpath))
+  newpath <- file.path(new, package)
+  file.rename(oldpath, newpath)
+
+  # use newpath
+  newpath
+
+}

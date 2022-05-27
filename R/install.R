@@ -517,43 +517,6 @@ renv_install_package_impl_prebuild <- function(record, quiet) {
 
 }
 
-renv_install_package_unpack <- function(package, path, force = FALSE) {
-
-  # if this isn't an archive, nothing to do
-  info <- renv_file_info(path)
-  if (identical(info$isdir, TRUE))
-    return(path)
-
-  # list files in the archive
-  files <- renv_archive_list(path)
-
-  # if we have a top-level DESCRIPTION file, nothing to
-  descpaths <- renv_archive_find(path, "(?:^|/)DESCRIPTION$")
-  n <- nchar(descpaths)
-  descpath <- descpaths[n == min(n)]
-
-  # if we already have a top-level DESCRIPTION file, nothing to do
-  if (!force && dirname(descpath) == package)
-    return(path)
-
-  # create extraction directory
-  old <- tempfile("renv-package-old-")
-  new <- tempfile("renv-package-new-")
-  ensure_directory(c(old, new))
-
-  # decompress archive to dir
-  renv_archive_decompress(path, exdir = old)
-
-  # rename (without sub-directory)
-  oldpath <- file.path(old, dirname(descpath))
-  newpath <- file.path(new, package)
-  file.rename(oldpath, newpath)
-
-  # use newpath
-  newpath
-
-}
-
 renv_install_package_impl <- function(record, quiet = TRUE) {
 
   package <- record$Package
@@ -581,7 +544,7 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   # re-pack package archives if they appear to have their package
   # sources contained as part of a sub-directory
   # TODO: we should probably do this earlier?
-  path <- renv_install_package_unpack(package, path)
+  path <- renv_package_unpack(package, path, subdir = subdir)
 
   # run user-defined hooks before, after install
   before <- options$before.install %||% identity

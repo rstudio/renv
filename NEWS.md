@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where repositories containing multiple packages in
+  sub-directories could fail to install. (#1016)
+
 
 # renv 0.15.5
 

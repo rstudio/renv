@@ -157,7 +157,7 @@ r_cmd_install <- function(package, path, ...) {
     renv_package_type(path) %in% "source"
 
   if (unpack) {
-    path <- renv_install_package_unpack(package, path, force = TRUE)
+    path <- renv_package_unpack(package, path, force = TRUE)
     on.exit(unlink(path, recursive = TRUE), add = TRUE)
   }
 

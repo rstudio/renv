@@ -474,3 +474,19 @@ test_that("packages installed from a RemoteSubdir can be retrieved from cache", 
   expect_true(renv_package_installed("subdir"))
 
 })
+
+test_that("repositories containing multiple packages can be installed", {
+
+  skip_on_cran()
+  skip_on_windows()
+  skip_sometimes()
+
+  renv_tests_scope()
+
+  install("kevinushey/subdir:pkgA")
+  expect_true(renv_package_installed("pkgA"))
+
+  install("kevinushey/subdir:pkgB")
+  expect_true(renv_package_installed("pkgB"))
+
+})
