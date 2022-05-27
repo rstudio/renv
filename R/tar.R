@@ -1,6 +1,11 @@
 
 renv_tar_exe <- function() {
 
+  # allow override
+  tar <- getOption("renv.tar.exe")
+  if (!is.null(tar))
+    return(tar)
+
   # on unix, just use default
   if (renv_platform_unix())
     return(Sys.which("tar"))

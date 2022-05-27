@@ -456,10 +456,9 @@ renv_install_package_preamble <- function(record) {
   with(record, vwritef(fmt, Package, Version))
 }
 
-renv_install_package_impl_prebuild <- function(record, quiet) {
+renv_install_package_impl_prebuild <- function(record, path, quiet) {
 
   # if this package already appears to be built, nothing to do
-  path <- record$Path
   if (renv_package_built(path))
     return(path)
 
@@ -498,7 +497,7 @@ renv_install_package_impl_prebuild <- function(record, quiet) {
   if (!is.null(builder) && !renv_package_installed(builder)) {
     fmt <- "Skipping package build: vignette builder '%s' is not installed"
     vwritef(fmt, builder)
-    return(record$Path)
+    return(path)
   }
 
   fmt <- "Building %s [%s] ..."
@@ -521,32 +520,32 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
   package <- record$Package
 
-  # get user-defined options to apply during installation
-  options <- renv_install_package_options(package)
-
-  # get archive path for package
+  # get path for package
   path <- record$Path
 
-  # check whether we should build before install
-  path <- renv_install_package_impl_prebuild(record, quiet)
-
-  # report that we're about to start installation
-  renv_install_package_preamble(record)
-
-  # for directories, we may need to use subdir to find the package path
+  # check if it's an archive (versus an unpacked directory)
   info <- renv_file_info(path)
+  isarchive <- identical(info$isdir, FALSE)
+
   subdir <- record$RemoteSubdir %||% ""
-  if (identical(info$isdir, TRUE) && nzchar(subdir)) {
+  if (isarchive) {
+    # re-pack archives if they appear to have their package
+    # sources contained as part of a sub-directory
+    path <- renv_package_unpack(package, path, subdir = subdir)
+  } else if (nzchar(subdir)) {
+    # for directories, we may need to use subdir to find the package path
     components <- c(path, subdir)
     path <- paste(components, collapse = "/")
   }
 
-  # re-pack package archives if they appear to have their package
-  # sources contained as part of a sub-directory
-  # TODO: we should probably do this earlier?
-  path <- renv_package_unpack(package, path, subdir = subdir)
+  # check whether we should build before install
+  path <- renv_install_package_impl_prebuild(record, path, quiet)
+
+  # report that we're about to start installation
+  renv_install_package_preamble(record)
 
   # run user-defined hooks before, after install
+  options <- renv_install_package_options(package)
   before <- options$before.install %||% identity
   after  <- options$after.install %||% identity
 
