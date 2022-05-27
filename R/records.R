@@ -30,7 +30,7 @@ renv_records_override <- function(records) {
 renv_record_names <- function(record, fields = NULL) {
   fields <- fields %||% c("Package", "Version", "Source")
   remotes <- grep("^Remote", names(record), value = TRUE)
-  nms <- c(fields, remotes)
+  nms <- c(fields, setdiff(remotes, "Remotes"))
   renv_vector_intersect(nms, names(record))
 }
 
