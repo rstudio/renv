@@ -458,12 +458,12 @@ renv_install_package_preamble <- function(record) {
 
 renv_install_package_impl_prebuild <- function(record, path, quiet) {
 
-  # if this package already appears to be built, nothing to do
-  if (renv_package_built(path))
-    return(path)
-
   # check whether user wants us to build before install
   if (!identical(config$install.build(), TRUE))
+    return(path)
+
+  # if this package already appears to be built, nothing to do
+  if (renv_package_built(path))
     return(path)
 
   # if this is an archive, we'll need to unpack it first
