@@ -5,15 +5,12 @@ R <- function() {
   file.path(bin, exe)
 }
 
-r_exec <- function(args, ...) {
+r <- function(args, ...) {
 
-  # ensure R_LIBS is set
-  #
-  # TODO: on Windows, if R_LIBS_USER is empty or unset, R will automatically
-  # set R_LIBS_USER to the user-specific package directory. do we want that
-  # behavior here? if not, we have to set it to a non-existent path
+  # ensure R_LIBS is set; unset R_LIBS_USER and R_LIBS_SITE
+  # so that R_LIBS will always take precedence
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
-  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "", R_LIBS_SITE = "")
+  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
 
   # ensure Rtools is on the PATH for Windows
   renv_scope_rtools()
@@ -188,7 +185,7 @@ r_cmd_install <- function(package, path, ...) {
 
   if (config$install.verbose()) {
 
-    status <- r_exec(args, stdout = "", stderr = "")
+    status <- r(args, stdout = "", stderr = "")
     if (!identical(status, 0L))
       stopf("install of package '%s' failed", package)
 
@@ -202,7 +199,7 @@ r_cmd_install <- function(package, path, ...) {
 
   } else {
 
-    output <- r_exec(args, stdout = TRUE, stderr = TRUE)
+    output <- r(args, stdout = TRUE, stderr = TRUE)
     status <- attr(output, "status") %||% 0L
     if (!identical(status, 0L))
       r_exec_error(package, output, "install", status)
@@ -223,7 +220,7 @@ r_cmd_build <- function(package, path, ...) {
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   args <- c("--vanilla", "CMD", "build", "--md5", ..., renv_shell_path(path))
 
-  output <- r_exec(args, stdout = TRUE, stderr = TRUE)
+  output <- r(args, stdout = TRUE, stderr = TRUE)
   status <- attr(output, "status") %||% 0L
   if (!identical(status, 0L))
     r_exec_error(package, output, "build", status)

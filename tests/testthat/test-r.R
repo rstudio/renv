@@ -33,7 +33,7 @@ test_that("we can use R CMD build to build a package", {
 
   before <- list.files(testdir)
   args <- c("CMD", "INSTALL", "--no-multiarch", "--build", package)
-  output <- r_exec(args, stdout = TRUE, stderr = TRUE)
+  output <- r(args, stdout = TRUE, stderr = TRUE)
   after <- list.files(testdir)
   binball <- renv_vector_diff(after, before)
 
