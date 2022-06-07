@@ -187,6 +187,19 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
     renv_file_copy(path, cache)
   }
 
+  # change the cache owner if set
+  if (renv_platform_unix()) {
+    user <- Sys.getenv("RENV_CACHE_USER", unset = NA)
+    if (!is.na(user)) {
+      renv_system_exec(
+        command = "chown",
+        args    = c("-R", renv_shell_quote(user), renv_shell_path(cache)),
+        action  = "chowning cache folder",
+        quiet   = TRUE
+      )
+    }
+  }
+
   after <- Sys.time()
 
   time <- difftime(after, before, units = "auto")

@@ -1,6 +1,11 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* (Unix only) The `RENV_CACHE_USER` environment variable can now be used to
+  change the ownership of folders copied into the cache. When set, after a
+  package is copied into the cache, `renv` will use `chown -R` to try and
+  change the ownership of that cache entry to the requested user account.
+
 * Fixed an issue where repositories containing multiple packages in
   sub-directories could fail to install. (#1016)
 
