@@ -699,16 +699,25 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
 
 renv_snapshot_description_source <- function(dcf) {
 
+  # first, check for a declared remote type
+  # treat 'standard' remotes as packages installed from a repository
+  # https://github.com/rstudio/renv/issues/998
   type <- dcf[["RemoteType"]]
-  if (!is.null(type))
-    return(list(Source = renv_alias(type)))
+  if (identical(type, "standard"))
+    return(list(Source = "Repository", Repository = dcf[["Repository"]]))
+  else if (!is.null(type))
+    return(list(Source = alias(type)))
 
+  # next, check for a declared repository
   if (!is.null(dcf[["Repository"]]))
     return(list(Source = "Repository", Repository = dcf[["Repository"]]))
 
+  # packages from Bioconductor are normally tagged with a 'biocViews' entry;
+  # use that to infer a Bioconductor source
   if (!is.null(dcf[["biocViews"]]))
     return(list(Source = "Bioconductor"))
 
+  # check for a valid package name
   package <- dcf[["Package"]]
   if (is.null(package))
     return(list(Source = "unknown"))
@@ -739,11 +748,12 @@ renv_snapshot_description_source <- function(dcf) {
       return(list(Source = "Cellar"))
 
     # otherwise, treat as regular entry
-    repos <- entry[["Repository"]]
-    return(list(Source = "Repository", Repository = repos))
+    repository <- entry[["Repository"]]
+    return(list(Source = "Repository", Repository = repository))
 
   }
 
+  # last chance; try to see if this package lives in the cellar
   location <- catch(renv_retrieve_cellar_find(dcf))
   if (!inherits(location, "error"))
     return(list(Source = "Cellar"))

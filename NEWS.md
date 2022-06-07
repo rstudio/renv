@@ -1,6 +1,10 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could report spurious diffs within `renv::status()`
+  when comparing package records installed from `pak` versus the default R
+  package installer. (#998)
+
 * Fixed an issue where `renv::use_python()` could cause the Requirements field
   for packages in the lockfile to be unintentionally dropped. (#974)
 

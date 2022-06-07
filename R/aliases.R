@@ -10,11 +10,11 @@
   gitlab       = "GitLab",
   local        = "Local",
   repository   = "Repository",
-  standard     = "CRAN",
+  standard     = "Repository",
   url          = "URL",
   xgit         = "Git"
 )
 
-renv_alias <- function(text) {
+alias <- function(text) {
   `_renv_aliases`[[text]] %||% text
 }
