@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv::use_python()` could cause the Requirements field
+  for packages in the lockfile to be unintentionally dropped. (#974)
+
 * (Unix only) The `RENV_CACHE_USER` environment variable can now be used to
   change the ownership of folders copied into the cache. When set, after a
   package is copied into the cache, `renv` will use `chown -R` to try and

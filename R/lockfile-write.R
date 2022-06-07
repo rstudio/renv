@@ -55,7 +55,7 @@ renv_lockfile_write <- function(lockfile, file = stdout()) {
   lockfile$Packages <- enumerate(lockfile$Packages, function(package, record) {
 
     # collect package requirements
-    keys <- c("Depends", "Imports", "LinkingTo")
+    keys <- c("Depends", "Imports", "LinkingTo", "Requirements")
     vals <- keep(record, keys)
     record <- drop(record, keys)
 

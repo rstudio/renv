@@ -145,6 +145,10 @@ renv_lockfile_sort <- function(lockfile) {
   sorted <- records[sort(names(records))]
   renv_records(lockfile) <- sorted
 
+  # sort top-level fields
+  fields <- unique(c("R", "Python", "Packages"), names(lockfile))
+  lockfile <- lockfile[intersect(fields, names(lockfile))]
+
   # return post-sort
   lockfile
 
