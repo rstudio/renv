@@ -362,9 +362,9 @@ two primary benefits:
    a global cache.
 
 To understand the `renv` cache, we need to first understand what an R _library_
-is. An R library is, normally, a directory of installed R packages which can be
-loaded and used within an R session. These are the directories reported by e.g.
-`.libPaths()`, and R uses these directories when searching for packages to
+is. An R library is, effectively, a directory of installed R packages which can
+be loaded and used within an R session. These are the directories reported by
+e.g. `.libPaths()`, and R uses these directories when searching for packages to
 load (e.g. in response to a call to `library(dplyr)`).
 
 When using `renv` with the global package cache, the project library is instead
@@ -373,10 +373,28 @@ formed as a directory of symlinks (or, on Windows, junction points) into the
 other projects on your system, they can still re-use the same installed packages
 as required.
 
+The process by which packages enter the cache is roughly as follows:
+
+1. Package installation is requested via e.g. `install.packages()`, or
+   `renv::install()`, or as part of `renv::restore()`.
+
+2. If `renv` is able to find the requested version of the package in the cache,
+   then that package is linked into the project library, and installation
+   is complete.
+
+3. Otherwise, the package is downloaded and installed into the project library.
+
+4. After installation of the package has successfully completed, the package is
+   then copied into the global package cache, and then linked back into the
+   project library.
+
 In some cases, `renv` will be unable to directly link from the global package
 cache to your project library -- for example, if the package cache and your
 project library live on different disk volumes. In such a case, `renv` will
 instead copy the package from the cache into the project library.
+
+
+### Cache Location
 
 By default, `renv` generates its cache in the following folders:
 
@@ -399,6 +417,51 @@ You may also want to set `RENV_PATHS_CACHE` so that the global package cache can
 be stored on the same volume as the projects you normally work on. This is
 especially important when working projects stored on a networked filesystem.
 
+In general, we recommend using the R installation's site-wide `Renviron.site` if
+you'd like to ensure the same cache path is visible to all users of R on a
+system.
+
+
+### Multiple Caches
+
+It is also possible to configure `renv` to use multiple cache locations -- for
+example, you might want to make both a user-local package cache, as well as a
+global administrator-managed cache, visible within an `renv` project. To do so,
+you can specify the paths to the cache separated with a `:` -- for example,
+
+```
+RENV_PATHS_CACHE = /path/to/local/cache:/path/to/global/cache
+```
+
+In such a case, `renv` will iterate over the cache locations in order when
+trying to find a package, and newly-installed packages will enter the first
+writable cache path listed in `RENV_PATHS_CACHE`.
+
+
+### Shared Cache Locations
+
+When the `renv` cache is enabled, if that cache is shared and visible to
+multiple users, then each of those users will have an opportunity to install
+packages into the `renv` cache. However, some care must be taken to ensure that
+these packages can be used by different users in your environment:
+
+1. Packages copied into the cache may have [Access-control Lists][acls], or ACLs,
+   which might prevent others from using packages that have been installed into
+   the cache. If this is the case, it's important that ACLs be set (or updated)
+   on cache entries so that the cache is accessible to each user requiring
+   access. When deploying `renv` in an enterprise environment, the system
+   administrator should take care to ensure ACLs (if any) allow users access
+   to packages within the `renv` cache.
+  
+2. By default, packages copied into the cache will remain "owned" by the user
+   that requested installation of that package. If you'd like `renv` to instead
+   re-assign ownership of the cached package to a separate user account, you
+   can set the `RENV_CACHE_USER` environment variable. When set, `renv` will
+   attempt to run `chown -R <package> <user>` to update cache ownership after
+   the package has been copied into the cache.
+
+### Caveats
+
 While we recommend enabling the cache by default, if you're having trouble with
 `renv` when the cache is enabled, it can be disabled by setting the project
 setting `renv::settings$use.cache(FALSE)`. Doing this will ensure that packages
@@ -409,6 +472,22 @@ If you find a problematic package has entered the cache (for example, an
 installed package has become corrupted), that package can be removed with the
 `renv::purge()` function. See the `?purge` documentation for caveats and things
 to be aware of when removing packages from the cache.
+
+You can also force a package to be re-installed and re-cached with the following
+functions:
+
+```
+# restore packages from the lockfile, bypassing the cache
+renv::restore(rebuild = TRUE)
+
+# re-install a package
+renv::install("<package>", rebuild = TRUE)
+
+# rebuild all packages in the project
+renv::rebuild()
+```
+
+See each function's respective documentation for more details.
 
 
 ## Installation from Source
@@ -720,3 +799,5 @@ are planned:
 These integrations will be optional (so that `renv` can always work standalone)
 but we hope that they will further improve the speed and reliability of `renv`.
 
+
+[acls]: https://en.wikipedia.org/wiki/Access-control_list
