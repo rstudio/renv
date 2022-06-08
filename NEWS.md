@@ -7,7 +7,17 @@
 
 * Fixed an issue where `renv::use_python()` could cause the Requirements field
   for packages in the lockfile to be unintentionally dropped. (#974)
+  
+* The R option `renv.cache.callback` can now be set, to run a user-defined
+  callback after a package has been copied into the cache. This can be useful
+  if you'd like to take some action on the cached package's contents after
+  the package has been moved into the cache.
 
+* (Unix only) The `RENV_CACHE_MODE` environment variable can now be used to
+  change the access permissions of packages copied into the cache. When set,
+  after a package is copied into the cache, `renv` will use `chmod -R` to try
+  and change the permissions of the cache entry to the requested permissions.
+  
 * (Unix only) The `RENV_CACHE_USER` environment variable can now be used to
   change the ownership of folders copied into the cache. When set, after a
   package is copied into the cache, `renv` will use `chown -R` to try and
