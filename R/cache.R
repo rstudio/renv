@@ -171,8 +171,8 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
     return(FALSE)
 
   # if we already have a cache entry, back it up
-  callback <- renv_file_backup(cache)
-  on.exit(callback(), add = TRUE)
+  restore <- renv_file_backup(cache)
+  on.exit(restore(), add = TRUE)
 
   # get ready to copy / move into cache
   fmt <- "%s %s [%s] into the cache ..."
