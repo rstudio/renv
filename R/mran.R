@@ -98,8 +98,9 @@ renv_mran_database_dates <- function(version, all = TRUE) {
     "3.6" = "2019-04-26",
     "4.0" = "2020-04-24",
     "4.1" = "2021-05-18",
-    "4.2" = "2022-05-18",  # projected
-    "4.3" = "2023-05-18",  # projected
+    "4.2" = "2022-04-22",
+    "4.3" = "2023-05-18",  # a guess
+    "4.4" = "2024-05-18",  # a guess
     NULL
   )
 
@@ -113,8 +114,10 @@ renv_mran_database_dates <- function(version, all = TRUE) {
     return(start)
 
   # form end date (ensure not in future)
+  # we look 2 releases in the future as R builds binaries for
+  # the previous releases of R as well
   end <- min(
-    as.Date(releases[[index + 1L]]),
+    as.Date(releases[[index + 2L]]),
     as.Date(Sys.time(), tz = "UTC")
   )
 
