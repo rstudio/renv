@@ -108,13 +108,13 @@ renv_mran_database_dates <- function(version, all = TRUE) {
   if (is.na(index))
     stopf("no known release date for R %s", version)
 
-  start <- as.Date(releases[[index + 0]])
+  start <- as.Date(releases[[index]])
   if (!all)
     return(start)
 
   # form end date (ensure not in future)
   end <- min(
-    as.Date(releases[[index + 2L]]),
+    as.Date(releases[[index + 1L]]),
     as.Date(Sys.time(), tz = "UTC")
   )
 
