@@ -39,7 +39,7 @@ renv_file_copy_file <- function(source, target) {
 
   # copy to temporary path
   tmpfile <- renv_scope_tempfile(".renv-copy-", tmpdir = dirname(target))
-  status <- catchall(file.copy(source, tmpfile))
+  status <- catchall(file.copy(source, tmpfile, copy.mode=FALSE))
   if (inherits(status, "condition"))
     stop(status)
 
@@ -80,7 +80,7 @@ renv_file_copy_dir_cp <- function(source, target) {
   target <- path.expand(target)
 
   # execute cp
-  args <- c("-pPR", renv_shell_path(source), renv_shell_path(target))
+  args <- c("-PR", renv_shell_path(source), renv_shell_path(target))
   renv_system_exec("cp", args, action = "copying directory")
 
 }
@@ -97,7 +97,7 @@ renv_file_copy_dir_r <- function(source, target) {
       source,
       tempdir,
       recursive = TRUE,
-      copy.mode = TRUE,
+      copy.mode = FALSE,
       copy.date = TRUE
     )
   )
