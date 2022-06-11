@@ -34,6 +34,11 @@ Install the latest version of `renv` from CRAN with:
 install.packages("renv")
 ```
 
+You can also install the development version of `renv` from [R-universe](https://r-universe.dev/) with:
+
+```r
+install.packages("renv", repos = "https://rstudio.r-universe.dev")
+```
 
 ## Workflow
 
