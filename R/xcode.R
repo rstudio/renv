@@ -1,4 +1,20 @@
 
+renv_xcode_available <- function() {
+
+  # allow bypass if required
+  check <- getOption("renv.xcode.available", default = NULL)
+  if (!is.null(check))
+    return(check)
+
+  # otherwise, check via xcode-select
+  status <- suppressWarnings(
+    system2("/usr/bin/xcode-select", "-p", stdout = FALSE, stderr = FALSE)
+  )
+
+  identical(status, 0L)
+
+}
+
 renv_xcode_check <- function() {
 
   # allow bypass of xcode check if required
@@ -11,7 +27,7 @@ renv_xcode_check <- function() {
     return()
 
   # only run check once per session
-  if (renv_once())
+  if (once())
     return()
 
   cmd <- "/usr/bin/xcrun --find --show-sdk-path"

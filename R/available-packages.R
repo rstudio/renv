@@ -540,6 +540,11 @@ renv_available_packages_latest_select <- function(src, bin) {
     if (!nzchar(Sys.which(make)))
       ipcfs <- "never"
 
+    # if we're on macOS and command line tools are not available,
+    # then we can't build from sources
+    if (renv_platform_macos() && !renv_xcode_available())
+      ipcfs <- "never"
+
     if (identical(ipcfs, "never"))
       return(renv_available_packages_record(bin, "binary"))
 

@@ -1,9 +1,9 @@
 
 # mechanism for running a block of code only once; e.g.
-# if (renv_once()) { ... }
+# if (once()) { ... }
 `_renv_once` <- new.env(parent = emptyenv())
 
-renv_once <- function() {
+once <- function() {
 
   invoker <- sys.function(sys.parent())
   call    <- sys.call(sys.parent())

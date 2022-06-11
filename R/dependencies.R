@@ -1526,14 +1526,17 @@ renv_dependencies_require <- function(package, type) {
   if (requireNamespace(package, quietly = TRUE))
     return(TRUE)
 
-  fmt <- lines(
-    "The '%1$s' package is required to parse dependencies within %2$s files.",
-    "Consider installing it with `install.packages(\"%1$s\")`."
-  )
-  msg <- sprintf(fmt, package, type)
+  if (once()) {
 
-  if (renv_once())
-    warning(msg, call. = FALSE)
+    fmt <- lines(
+      "The '%1$s' package is required to parse dependencies within %2$s files.",
+      "Consider installing it with `install.packages(\"%1$s\")`."
+    )
+
+    msg <- sprintf(fmt, package, type)
+      warning(msg, call. = FALSE)
+
+  }
 
   return(FALSE)
 
