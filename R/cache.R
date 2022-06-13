@@ -189,6 +189,15 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   if (renv_platform_unix()) {
 
+    # reset ACLs, so that the ACLs on the directory are reset to match
+    # those already set on other parent directories in the cache
+    getfacl <- Sys.which("getfacl"); setfacl <- Sys.which("setfacl")
+    if (nzchar(getfacl) && nzchar(setfacl)) {
+      fmt <- "getfacl %s | setfacl --set-file=- %s"
+      command <- sprintf(fmt, renv_shell_path(cache), renv_shell_path(parent))
+      renv_system_exec(command, args = NULL, action = "resetting cache ACLs", quiet = TRUE)
+    }
+
     # change the cache owner if set
     user <- Sys.getenv("RENV_CACHE_USER", unset = NA)
     if (!is.na(user)) {
@@ -493,7 +502,7 @@ renv_cache_diagnose <- function(verbose = NULL) {
 }
 
 renv_cache_move <- function(source, target, overwrite = FALSE) {
-  file.exists(source) || renv_file_move(target, source)
+  renv_file_move(target, source, overwrite = overwrite)
   renv_file_link(source, target, overwrite = TRUE)
 }
 
