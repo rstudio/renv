@@ -18,7 +18,10 @@ renv_system_exec <- function(command,
 
     # execute command
     status <- suppressWarnings(
-      system2(command, args, stdout = stdout, stderr = stderr)
+      if (is.null(args))
+        system(command, ignore.stdout = quiet, ignore.stderr = quiet)
+      else
+        system2(command, args, stdout = stdout, stderr = stderr)
     )
 
     # check for error
@@ -36,7 +39,10 @@ renv_system_exec <- function(command,
   # suppress warnings as some successful commands may return a non-zero exit
   # code, whereas R will always warn on such error codes
   output <- suppressWarnings(
-    system2(command, args, stdout = TRUE, stderr = TRUE)
+    if (is.null(args))
+      system(command, intern = TRUE)
+    else
+      system2(command, args, stdout = TRUE, stderr = TRUE)
   )
 
   # extract status code from result
