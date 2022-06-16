@@ -182,31 +182,51 @@ renv_settings_updated_cache <- function(project, old, new) {
     return(FALSE)
 
   library <- renv_paths_library(project = project)
-  targets <- list.files(library, full.names = TRUE)
+  pkgpaths <- list.files(library, full.names = TRUE)
+  cachepaths <- map_chr(pkgpaths, renv_cache_path)
+  names(pkgpaths) <- cachepaths
 
-  sources <- map_chr(targets, renv_cache_path)
-  names(targets) <- sources
-
-  if (empty(targets)) {
+  if (empty(pkgpaths)) {
     fmt <- "* The cache has been %s for this project."
     vwritef(fmt, if (new) "enabled" else "disabled")
     return(TRUE)
   }
 
+  vprintf("* Synchronizing project library with the cache ... ")
+
   if (new) {
-    vprintf("* Copying packages into the cache ... ")
-    targets <- targets[file.exists(targets)]
-    copy <- renv_progress_callback(renv_cache_move, length(targets))
-    enumerate(targets, copy, overwrite = TRUE)
-    vwritef("Done!")
+
+    # enabling the cache: for any package in the project library, replace
+    # that copy with a symlink into the cache, moving the associated package
+    # into the cache if appropriate
+
+    # ignore existing symlinks; only copy 'real' packages into the cache
+    pkgtypes <- renv_file_type(pkgpaths)
+    cachepaths <- cachepaths[pkgtypes != "symlink"]
+
+    # move packages from project library into cache
+    callback <- renv_progress_callback(renv_cache_move, length(cachepaths))
+    enumerate(cachepaths, callback, overwrite = FALSE)
+
   } else {
-    vprintf("* Copying packages into the private library ... ")
-    targets <- targets[file.exists(sources)]
-    unlink(targets)
-    copy <- renv_progress_callback(renv_file_copy, length(targets))
-    enumerate(targets, copy, overwrite = TRUE)
-    vwritef("Done!")
+
+    # disabling the cache: for any package which is a symlink into the cache,
+    # replace that symlink with a copy of the cached package
+
+    # figure out which package directories are symlinks
+    pkgtypes <- renv_file_type(pkgpaths)
+    pkgpaths <- pkgpaths[pkgtypes == "symlink"]
+
+    # remove the existing symlinks
+    unlink(pkgpaths)
+
+    # overwrite these symlinks with packages from the cache
+    callback <- renv_progress_callback(renv_file_copy, length(pkgpaths))
+    enumerate(pkgpaths, callback, overwrite = TRUE)
+
   }
+
+  vwritef("Done!")
 
   fmt <- "* The cache has been %s for this project."
   vwritef(fmt, if (new) "enabled" else "disabled")

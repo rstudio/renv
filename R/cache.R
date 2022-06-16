@@ -181,22 +181,12 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
   before <- Sys.time()
 
   if (linkable) {
-    renv_file_move(path, cache)
-    renv_file_link(cache, path, overwrite = TRUE)
+    renv_cache_move(path, cache, overwrite = TRUE)
   } else {
-    renv_file_copy(path, cache)
+    renv_cache_copy(path, cache, overwrite = TRUE)
   }
 
   if (renv_platform_unix()) {
-
-    # reset ACLs, so that the ACLs on the directory are reset to match
-    # those already set on other parent directories in the cache
-    getfacl <- Sys.which("getfacl"); setfacl <- Sys.which("setfacl")
-    if (nzchar(getfacl) && nzchar(setfacl)) {
-      fmt <- "getfacl %s | setfacl --set-file=- %s"
-      command <- sprintf(fmt, renv_shell_path(cache), renv_shell_path(parent))
-      renv_system_exec(command, args = NULL, action = "resetting cache ACLs", quiet = TRUE)
-    }
 
     # change the cache owner if set
     user <- Sys.getenv("RENV_CACHE_USER", unset = NA)
@@ -501,9 +491,29 @@ renv_cache_diagnose <- function(verbose = NULL) {
 
 }
 
+# copies a package at location 'source' to cache location 'target'
+renv_cache_copy <- function(source, target, overwrite = FALSE) {
+  ensure_parent_directory(target)
+  renv_scope_options(renv.cp.flags = "-PR")
+  renv_file_copy(source, target, overwrite = overwrite)
+}
+
+# moves a package from location 'source' to cache location 'target',
+# and then links back from 'target' to 'source'
 renv_cache_move <- function(source, target, overwrite = FALSE) {
-  renv_file_move(target, source, overwrite = overwrite)
-  renv_file_link(source, target, overwrite = TRUE)
+
+  # move package into the cache if requested
+  if (overwrite || !file.exists(target)) {
+    ensure_parent_directory(target)
+    renv_file_move(source, target, overwrite = overwrite)
+  }
+
+  # link from the cache back to the target location
+  renv_file_link(target, source, overwrite = TRUE)
+
+  # reset ACLs on the folder after move if necessary
+  renv_acls_reset(target)
+
 }
 
 # nocov start

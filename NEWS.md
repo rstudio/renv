@@ -2,7 +2,7 @@
 # renv 0.16.0  (UNRELEASED)
 
 * (Linux only) `renv` will now attempt to reset ACLs on packages moved into,
-  or copied into, the `renv` package cache after installation.
+  the `renv` package cache after installation.
   
 * Fixed an issue where `renv` could report spurious diffs within `renv::status()`
   when comparing package records installed from `pak` versus the default R
