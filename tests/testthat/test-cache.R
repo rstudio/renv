@@ -187,6 +187,53 @@ test_that("invalid Built field is detected", {
 
 })
 
+test_that("ACLs set on packages in project library are reset", {
+
+  skip_on_cran()
+  skip_if(!renv_platform_linux())
+
+  # use a custom tracer to set ACLs on a package after it's been installed
+  trace("renv_install_package_impl", exit = quote({
+    system(paste("setfacl -m g::-", renv_shell_path(installpath)))
+  }), where = renv_envir_self(), print = FALSE)
+
+  on.exit(untrace(r_cmd_install), add = TRUE)
+
+  # use a custom cache
+  cachedir <- tempfile("renv-cache-")
+  ensure_directory(cachedir)
+  renv_scope_envvars(RENV_PATHS_CACHE = cachedir)
+  on.exit(unlink(cachedir, recursive = TRUE), add = TRUE)
+
+  # initialize project with bread; don't try to reset ACLs
+  local({
+
+    renv_scope_envvars(RENV_CACHE_ACLS = "FALSE")
+    renv_tests_scope("bread")
+    init()
+
+    # check that the ACLs were not reset
+    pkgpath <- find.package("bread")
+    mode <- file.mode(pkgpath)
+    expect_false(file.mode(pkgpath) == file.mode(dirname(pkgpath)))
+  })
+
+  # try again, but reset ACLs this time
+  local({
+
+    renv_scope_envvars(RENV_CACHE_ACLS = "TRUE")
+    renv_tests_scope("toast")
+    init()
+
+    # check that the ACLs were reset this time
+    pkgpath <- find.package("toast")
+    mode <- file.mode(pkgpath)
+    expect_true(file.mode(pkgpath) == file.mode(dirname(pkgpath)))
+
+  })
+
+})
+
 # test_that("multiple cache directories are used", {
 #   skip_on_cran()
 #   skip_on_os("windows") # setting folder permissions is a bit more complex on windows

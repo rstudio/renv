@@ -1,7 +1,7 @@
 
 renv_system_exec <- function(command,
-                             args,
-                             action,
+                             args    = NULL,
+                             action  = "executing command",
                              success = 0L,
                              stream  = FALSE,
                              quiet   = FALSE)
