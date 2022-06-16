@@ -175,16 +175,18 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
   on.exit(restore(), add = TRUE)
 
   # get ready to copy / move into cache
-  fmt <- "%s %s [%s] into the cache ..."
-  vwritef(fmt, if (linkable) "Moving" else "Copying", record$Package, record$Version)
+  fmt <- "Copying %s [%s] into the cache ..."
+  vwritef(fmt, record$Package, record$Version)
 
   before <- Sys.time()
 
-  if (linkable) {
-    renv_cache_move(path, cache, overwrite = TRUE)
-  } else {
-    renv_cache_copy(path, cache, overwrite = TRUE)
-  }
+  # copy package from source location into the cache
+  renv_cache_copy(path, cache, overwrite = TRUE)
+
+  # if we can symlink this package from the cache into
+  # our project, then update the symlink now
+  if (linkable)
+    renv_file_link(cache, path, overwrite = TRUE)
 
   if (renv_platform_unix()) {
 
@@ -493,26 +495,35 @@ renv_cache_diagnose <- function(verbose = NULL) {
 
 # copies a package at location 'source' to cache location 'target'
 renv_cache_copy <- function(source, target, overwrite = FALSE) {
+
   ensure_parent_directory(target)
-  renv_scope_options(renv.cp.flags = "-PR")
-  renv_file_copy(source, target, overwrite = overwrite)
+
+  # set flags for 'cp'. normally, renv tries to copy permissions when
+  # copying files or directories; we disable that behavior here as
+  # we don't want cache entries to inherit the ACLs they might have
+  # been tagged with as part of their project library
+  #
+  # https://github.com/rstudio/renv/issues/1025
+  renv_scope_options(renv.cp.flags = "-R")
+
+  # perform the copy
+  method <- getOption("renv.cache.copy", default = renv_file_copy)
+  method(source, target, overwrite = overwrite)
+
 }
 
 # moves a package from location 'source' to cache location 'target',
 # and then links back from 'target' to 'source'
 renv_cache_move <- function(source, target, overwrite = FALSE) {
 
-  # move package into the cache if requested
+  # copy package into the cache if requested
   if (overwrite || !file.exists(target)) {
     ensure_parent_directory(target)
-    renv_file_move(source, target, overwrite = overwrite)
+    renv_cache_copy(source, target, overwrite = TRUE)
   }
 
   # link from the cache back to the target location
   renv_file_link(target, source, overwrite = TRUE)
-
-  # reset ACLs on the folder after move if necessary
-  renv_acls_reset(target)
 
 }
 

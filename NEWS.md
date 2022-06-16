@@ -1,12 +1,15 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` will no longer attempt to move packages into the cache via `mv`;
+  instead, packages will be copied via `cp -R`. This should help avoid issues
+  where restrictive ACLs attached to installed packages are copied as-is into
+  packages within the cache. In the future, we will explore whether we can safely
+  reset ACLs on packages moved to the cache via `mv`. (#1025)
+  
 * Fixed an issue where `.gitignore` inclusion rules for sub-directories were
   not parsed correctly by `renv` for dependency discovery. (#403)
 
-* (Linux only) `renv` will now attempt to reset ACLs on packages moved into,
-  the `renv` package cache after installation.
-  
 * Fixed an issue where `renv` could report spurious diffs within `renv::status()`
   when comparing package records installed from `pak` versus the default R
   package installer. (#998)
