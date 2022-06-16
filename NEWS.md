@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `.gitignore` inclusion rules for sub-directories were
+  not parsed correctly by `renv` for dependency discovery. (#403)
+
 * (Linux only) `renv` will now attempt to reset ACLs on packages moved into,
   the `renv` package cache after installation.
   

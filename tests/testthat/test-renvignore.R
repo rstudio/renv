@@ -60,7 +60,7 @@ test_that("ignore patterns are constructed correctly", {
     renv_renvignore_parse(c("abc.R", "!def.R")),
     list(
       exclude = "^\\Q/\\E(?:.*/)?\\Qabc.R\\E(?:/)?$",
-      include = "^\\Q/\\E(?:.*/)?\\Qdef.R\\E(?:/)?$"
+      include = "^\\Q/\\E\\Qdef.R\\E(?:/)?$"
     )
   )
 
@@ -142,5 +142,29 @@ test_that("ignores can be set via option if required", {
 
   deps <- dependencies(progress = FALSE)
   expect_setequal(deps$Package, "C")
+
+})
+
+test_that("sub-directory inclusion rules are handled properly", {
+
+  renv_tests_scope()
+
+  dir.create("dir/ignored", recursive = TRUE)
+  writeLines("library(A)", con = "dir/ignored/script.R")
+
+  dir.create("dir/matched", recursive = TRUE)
+  writeLines("library(B)", con = "dir/matched/script.R")
+
+  rules <- heredoc("
+    dir/*
+    !dir/matched
+  ")
+
+  writeLines(rules, con = ".gitignore")
+
+  # system("git init && git add -A && git status")
+
+  deps <- dependencies(progress = FALSE)
+  expect_setequal(deps$Package, "B")
 
 })

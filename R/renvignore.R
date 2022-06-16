@@ -71,6 +71,32 @@ renv_renvignore_parse <- function(contents, prefix = "") {
   exclude <- contents[!negate]
   include <- substring(contents[negate], 2L)
 
+  # For include rules, if we're explicitly including a file within
+  # a sub-directory, then we need to force all parent directories
+  # to also be included. In other words, a rule like:
+  #
+  #    !a/b/c
+  #
+  # needs to be implicitly treated like
+  #
+  #    !/a
+  #    !/a/b
+  #    !/a/b/c
+  #
+  # so we perform that transformation here.
+  #
+  # Note that this isn't perfect; for example, with the .gitignore file
+  #
+  #    dir
+  #    !dir/matched
+  #
+  # The exclusion of 'dir' will take precedence, and dir/matched won't
+  # get a chance to apply.
+  include <- sort(unique(unlist(map(include, function(rule) {
+    idx <- gregexpr("(?:/|$)", rule)[[1L]]
+    gsub("^/*", "/", substring(rule, 1L, idx))
+  }))))
+
   # parse patterns separately
   list(
     exclude = renv_renvignore_parse_impl(exclude, prefix),
