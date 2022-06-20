@@ -68,7 +68,7 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
   renv_scope_libpaths(library)
 
   vwritef("Installing renv [%s] ...", version)
-  status <- with(record, r_cmd_install(Package, Path, library))
+  with(record, r_cmd_install(Package, Path, library))
   vwritef("\tOK [built source]")
 
   invisible(record)

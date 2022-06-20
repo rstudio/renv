@@ -280,7 +280,7 @@ renv_python_discover <- function() {
   for (root in roots) {
     versions <- sort(list.files(root, full.names = TRUE), decreasing = TRUE)
     exts <- if (renv_platform_windows()) "Scripts/python.exe" else "bin/python"
-    pythons <- file.path(versions, "bin/python")
+    pythons <- file.path(versions, exts)
     all$push(pythons)
   }
 
@@ -421,8 +421,6 @@ renv_python_validate <- function(python) {
     fmt <- "%s does not exist"
     stopf(fmt, renv_path_pretty(python))
   }
-
-  version <- renv_python_version(python)
 
   invisible(python)
 

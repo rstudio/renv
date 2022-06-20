@@ -186,7 +186,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   # perform the install
   records <- retrieve(packages)
-  status <- renv_install_impl(records)
+  renv_install_impl(records)
 
   # detect dependency tree repair
   diff <- renv_lockfile_diff_packages(renv_records(lockfile), records)

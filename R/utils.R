@@ -368,7 +368,7 @@ find <- function(x, f, ...) {
 recursing <- function() {
 
   nf <- sys.nframe()
-  if (nf < 2)
+  if (nf < 2L)
     return(FALSE)
 
   np <- sys.parent()

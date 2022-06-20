@@ -179,7 +179,6 @@ renv_patch_repos <- function() {
 
   # use package-local repository path
   repopath <- system.file("repos", package = "renv")
-  contrib <- file.path(repopath, "src/contrib")
 
   # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"

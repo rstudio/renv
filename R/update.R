@@ -236,16 +236,8 @@ update <- function(packages = NULL,
 
   # if users have requested the use of pak, delegate there
   if (config$pak.enabled() && !recursing()) {
-
-    renv_pak_init(
-      library = library,
-      type    = type,
-      rebuild = rebuild,
-      project = project
-    )
-
+    renv_pak_init()
     return(renv_pak_install(packages, libpaths))
-
   }
 
   # check if the user has requested update for packages not installed

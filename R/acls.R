@@ -16,7 +16,7 @@ renv_acls_reset <- function(source, target = dirname(source)) {
 
   # execute it
   # TODO: Should we report errors? If so, how?
-  status <- catch(
+  catch(
     renv_system_exec(
       command = cmd,
       action = "resetting ACLs",

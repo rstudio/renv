@@ -1210,7 +1210,7 @@ renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
 
   # if the node is just a symbol, then it's the name of a package
   # otherwise, if it's a call to `[`, the first argument is the package name
-  name <- if (is.symbol(node) && ! identical(node, quote(expr = ))) {
+  name <- if (is.symbol(node) && !identical(node, quote(expr = ))) {
     as.character(node)
   } else if (
     is.call(node) &&
@@ -1386,7 +1386,7 @@ renv_dependencies_discover_r_glue_impl <- function(string, node, envir) {
           code <- rawToChar(raw[lhs:rhs])
 
           # parse dependencies
-          deps <- renv_dependencies_discover_r(text = code, envir = envir)
+          renv_dependencies_discover_r(text = code, envir = envir)
 
         }
 

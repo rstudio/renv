@@ -125,7 +125,7 @@ init <- function(project = NULL,
     return(renv_init_fini(project, profile, version, restart, quiet))
 
   # collect dependencies
-  deps <- renv_dependencies_scope(project, action = "init")
+  renv_dependencies_scope(project, action = "init")
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
