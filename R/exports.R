@@ -13,7 +13,7 @@ renv_exports_attach <- function() {
 
   # ignored when running tests and in load_all
   calls <- sys.calls()
-  for (call in calls)
+  for (call in calls[1:length(calls)])
     if (identical(call[[1L]], quote(devtools::test)) ||
         identical(call[[1L]], quote(devtools::document)) ||
         identical(call[[1L]], quote(devtools::load_all)))
