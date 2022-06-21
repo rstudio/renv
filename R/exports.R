@@ -12,12 +12,16 @@ renv_exports_attach <- function() {
     return()
 
   # ignored when running tests and in load_all
+  # we don't iterate over `calls` directly to avoid
+  # https://github.com/rstudio/renv/issues/930
   calls <- sys.calls()
-  for (call in calls)
+  for (i in seq_along(calls)) {
+    call <- calls[[i]]
     if (identical(call[[1L]], quote(devtools::test)) ||
         identical(call[[1L]], quote(devtools::document)) ||
         identical(call[[1L]], quote(devtools::load_all)))
       return()
+  }
 
   # read exports
   exports <- renv$config$exported.functions()
