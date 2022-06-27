@@ -181,15 +181,12 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
   before <- Sys.time()
 
   # copy package from source location into the cache
-  if (linkable)
+  if (linkable) {
     renv_cache_move(path, cache, overwrite = TRUE)
-  else
-    renv_cache_copy(path, cache, overwrite = TRUE)
-
-  # if we can symlink this package from the cache into
-  # our project, then update the symlink now
-  if (linkable)
     renv_file_link(cache, path, overwrite = TRUE)
+  } else {
+    renv_cache_copy(path, cache, overwrite = TRUE)
+  }
 
   if (renv_platform_unix()) {
 
