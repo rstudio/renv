@@ -26,12 +26,12 @@
 
 * (Unix only) The `RENV_CACHE_MODE` environment variable can now be used to
   change the access permissions of packages copied into the cache. When set,
-  after a package is copied into the cache, `renv` will use `chmod -R` to try
+  after a package is copied into the cache, `renv` will use `chmod -Rf` to try
   and change the permissions of the cache entry to the requested permissions.
   
 * (Unix only) The `RENV_CACHE_USER` environment variable can now be used to
   change the ownership of folders copied into the cache. When set, after a
-  package is copied into the cache, `renv` will use `chown -R` to try and
+  package is copied into the cache, `renv` will use `chown -Rf` to try and
   change the ownership of that cache entry to the requested user account.
 
 * Fixed an issue where repositories containing multiple packages in
