@@ -196,9 +196,10 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
     # change the cache owner if set
     user <- Sys.getenv("RENV_CACHE_USER", unset = NA)
     if (!is.na(user)) {
+      parent <- dirname(dirname(dirname(cache)))
       renv_system_exec(
         command = "chown",
-        args    = c("-R", renv_shell_quote(user), renv_shell_path(cache)),
+        args    = c("-Rf", renv_shell_quote(user), renv_shell_path(parent)),
         action  = "chowning cached package",
         quiet   = TRUE
       )
@@ -207,9 +208,10 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
     # change file modes after copy if set
     mode <- Sys.getenv("RENV_CACHE_MODE", unset = NA)
     if (!is.na(mode)) {
+      parent <- dirname(dirname(dirname(cache)))
       renv_system_exec(
         command = "chmod",
-        args    = c("-R", renv_shell_quote(mode), renv_shell_path(cache)),
+        args    = c("-Rf", renv_shell_quote(mode), renv_shell_path(parent)),
         action  = "chmoding cached package",
         quiet   = TRUE
       )
