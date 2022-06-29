@@ -348,7 +348,7 @@ renv_load_rprofile_impl <- function(profile) {
   )
 
   if (inherits(status, "_renv_error")) {
-    fmt <- "an error occurred while sourcing sourcing %s"
+    fmt <- "an error occurred while sourcing %s"
     warningf(fmt, renv_path_pretty(profile))
   }
 
