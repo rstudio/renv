@@ -1,6 +1,10 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue that would cause `renv` to fail to source the user
+  `~/.Rprofile` if it attempted to register global calling handlers,
+  e.g. as `prompt::set_prompt()` does. (#1036)
+
 * (Linux only) `renv` now resets ACLs on packages copied to the cache, to
   avoid persisting default ACLs that might have been inherited on packages
   installed into a local project library. If desired, this behavior can be

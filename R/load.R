@@ -335,14 +335,22 @@ renv_load_rprofile <- function(project = NULL) {
 
 renv_load_rprofile_impl <- function(profile) {
 
-  status <- catch(eval(parse(profile), envir = globalenv()))
-  if (!inherits(status, "error"))
-    return(TRUE)
+  # NOTE: We'd like to use a regular tryCatch() handler here, but
+  # that will cause issues for user profiles which attempt to add
+  # global calling handlers. For that reason, we just register a
+  # bare restart handler, so at least we can catch the jump.
+  #
+  # https://github.com/rstudio/renv/issues/1036
 
-  fmt <- "error sourcing %s: %s"
-  warningf(fmt, renv_path_pretty(profile), conditionMessage(status))
-  if (!renv_tests_running())
-    writeLines(status$traceback, con = stderr())
+  status <- withRestarts(
+    eval(parse(profile), envir = globalenv()),
+    abort = function() { structure(list(), class = "_renv_error") }
+  )
+
+  if (inherits(status, "_renv_error")) {
+    fmt <- "an error occurred while sourcing sourcing %s"
+    warningf(fmt, renv_path_pretty(profile))
+  }
 
   FALSE
 
