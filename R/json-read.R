@@ -1,9 +1,23 @@
 
 renv_json_read <- function(file = NULL, text = NULL) {
 
+  # if jsonlite is loaded, use that instead
+  if ("jsonlite" %in% loadedNamespaces())
+    renv_json_read_jsonlite(file, text)
+  else
+    renv_json_read_default(file, text)
+
+}
+
+renv_json_read_jsonlite <- function(file = NULL, text = NULL) {
   text <- paste(text %||% read(file), collapse = "\n")
+  jsonlite::fromJSON(txt = text, simplifyVector = FALSE)
+}
+
+renv_json_read_default <- function(file = NULL, text = NULL) {
 
   # find strings in the JSON
+  text <- paste(text %||% read(file), collapse = "\n")
   pattern <- '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
   locs <- gregexpr(pattern, text, perl = TRUE)[[1]]
 
@@ -34,8 +48,9 @@ renv_json_read <- function(file = NULL, text = NULL) {
 
   # transform the JSON into something the R parser understands
   transformed <- replaced
-  transformed <- gsub("[[{]", "list(", transformed)
-  transformed <- gsub("[]}]", ")", transformed)
+  transformed <- gsub("{}", "`names<-`(list(), character())", transformed, fixed = TRUE)
+  transformed <- gsub("[[{]", "list(", transformed, perl = TRUE)
+  transformed <- gsub("[]}]", ")", transformed, perl = TRUE)
   transformed <- gsub(":", "=", transformed, fixed = TRUE)
   text <- paste(transformed, collapse = "\n")
 

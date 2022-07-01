@@ -20,7 +20,7 @@ test_that("sample JSON strings can be read", {
 
   expect_identical(
     renv_json_read(text = '[{}, [], {}]'),
-    list(list(), list(), list())
+    list(named(list()), list(), named(list()))
   )
 
   expect_identical(
@@ -104,5 +104,18 @@ test_that("scalar values are boxed if requested", {
 
   value <- renv_json_read(text = json)
   expect_equal(value, list(A = "hello", B = list("world")))
+
+})
+
+test_that("the renv + jsonlite JSON readers are compatible", {
+
+  skip_if_not_installed("jsonlite")
+
+  renv_tests_scope("breakfast")
+  init()
+
+  lhs <- renv_json_read_default("renv.lock")
+  rhs <- renv_json_read_jsonlite("renv.lock")
+  expect_equal(lhs, rhs)
 
 })

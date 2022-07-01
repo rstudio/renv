@@ -1,6 +1,11 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` now uses `jsonlite` for reading lockfiles when loaded. This should
+  help ensure useful errors are provided for manually-edited lockfiles
+  which contain a JSON parsing error. If the `jsonlite` package is not loaded,
+  `renv` will fall back to its own internal JSON parser. (#1027)
+  
 * Fixed an issue that would cause `renv` to fail to source the user
   `~/.Rprofile` if it attempted to register global calling handlers,
   e.g. as `prompt::set_prompt()` does. (#1036)
