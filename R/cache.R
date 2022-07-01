@@ -198,7 +198,8 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
         command = "chown",
         args    = c("-Rf", renv_shell_quote(user), renv_shell_path(parent)),
         action  = "chowning cached package",
-        quiet   = TRUE
+        quiet   = TRUE,
+        success = NULL
       )
     }
 
@@ -210,7 +211,8 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
         command = "chmod",
         args    = c("-Rf", renv_shell_quote(mode), renv_shell_path(parent)),
         action  = "chmoding cached package",
-        quiet   = TRUE
+        quiet   = TRUE,
+        success = NULL
       )
     }
 
