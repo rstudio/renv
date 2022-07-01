@@ -35,3 +35,4 @@ that can be used to create a new \code{renv.lock} file. If \code{lockfile} is se
 character string, a new file will be created with that path -- e.g.
 \code{renv.lock} -- and the lockfile object will be returned.
 }
+\keyword{internal}

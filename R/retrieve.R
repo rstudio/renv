@@ -348,18 +348,30 @@ renv_retrieve_git_impl <- function(record, path) {
   ref     <- record$RemoteRef
   sha     <- record$RemoteSha
 
+  # figure out the default ref
+  gitref <- case(
+    nzchar(sha %||% "") ~ sha,
+    nzchar(ref %||% "") ~ ref,
+    "HEAD"
+  )
+
+  # be quiet if requested
+  quiet <- getOption("renv.git.quiet", default = TRUE)
+  quiet <- if (quiet) "--quiet" else ""
+
   template <- heredoc('
     cd "${DIR}"
-    git init --quiet
+    git init ${QUIET}
     git remote add origin "${ORIGIN}"
-    git fetch --quiet origin "${REF}"
-    git reset --quiet --hard FETCH_HEAD
+    git fetch ${QUIET} --depth=1 origin "${REF}"
+    git reset ${QUIET} --hard FETCH_HEAD
   ')
 
   data <- list(
     DIR    = renv_path_normalize(path),
     ORIGIN = url,
-    REF    = sha %||% ref
+    REF    = gitref,
+    QUIET  = quiet
   )
 
   commands <- renv_template_replace(template, data)

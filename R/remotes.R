@@ -605,10 +605,17 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 
 
 renv_remotes_resolve_git_description <- function(record) {
+
   path <- tempfile("renv-git-")
   ensure_directory(path)
 
-  renv_retrieve_git_impl(record, path)
+  # TODO: is there a cheaper way for us to accomplish this?
+  # it'd be nice if we could retrieve the contents of a single
+  # file, without needing to pull an entire repository branch
+  local({
+    renv_scope_options(renv.verbose = FALSE)
+    renv_retrieve_git_impl(record, path)
+  })
 
   # subdir may be NULL
   subdir <- record$RemoteSubdir

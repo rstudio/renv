@@ -35,3 +35,4 @@ directory is used instead.}
 \code{renv::checkout()} can be used to install the latest packages available from
 the requested repositories.
 }
+\keyword{internal}
