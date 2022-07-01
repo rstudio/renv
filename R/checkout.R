@@ -13,6 +13,7 @@
 #' @param packages The packages to be installed. When `NULL` (the default),
 #'   all packages currently used in the project will be installed.
 #'
+#' @keywords internal
 checkout <- function(repos = getOption("repos"),
                      ...,
                      packages = NULL,

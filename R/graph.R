@@ -37,6 +37,7 @@
 #' graph(leaf = "askpass")
 #' }
 #'
+#' @keywords internal
 graph <- function(root = NULL,
                   leaf = NULL,
                   ...,

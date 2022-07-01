@@ -29,6 +29,8 @@
 #'
 #' @return
 #' An `renv` lockfile.
+#'
+#' @keywords internal
 renv_lockfile_from_manifest <- function(manifest, lockfile = NA) {
 
   renv_scope_error_handler()

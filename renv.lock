@@ -9,7 +9,7 @@
     ]
   },
   "Bioconductor": {
-    "Version": "3.15",
+    "Version": "3.15"
   },
   "Packages": {
     "BiocManager": {

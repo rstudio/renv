@@ -9,20 +9,25 @@ reference:
   - status
   - snapshot
   - restore
+  - embed
+  - use
 
 - title: Library Management
   contents:
   - hydrate
   - refresh
+  - repair
   - clean
 
 - title: Lockfile Management
   contents:
   - lockfiles
   - record
+  - remote
   - modify
   - history
   - revert
+  - scaffold
 
 - title: Package Cache
   contents:
@@ -60,14 +65,25 @@ reference:
 
 - title: Miscellaneous
   contents:
+  - autoload
+  - checkout
   - consent
   - diagnostics
+  - run
+
+- title: internal
+  contents:
+  - imbue
+  - lockfile
+  - graph
+  - renv-package
+  - renv_lockfile_from_manifest
 
 articles:
 
   - title: Introduction to renv
     navbar: Introduction
-    contents: [lockfile, cellar, mran, faq]
+    contents: [renv, lockfile, cellar, bioconductor, mran, faq]
 
   - title: Collaborating using renv
     navbar: Collaborating
