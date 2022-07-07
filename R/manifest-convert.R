@@ -65,6 +65,9 @@ renv_lockfile_from_manifest <- function(manifest, lockfile = NA) {
 
   repos <- as.list(unlist(unique(unname(sources))))
 
+  # https://github.com/rstudio/renv/issues/1043
+  repos <- named(names(repos), unname(repos))
+
   # make updates
   lock$repos(.repos = repos)
   lock$add(.list = packages)
