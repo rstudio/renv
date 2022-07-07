@@ -100,29 +100,42 @@ library path requested via <code>library</code>, and then activate that library 
     <dl><dt>...</dt>
 <dd><p>The <span style="R">R</span> packages to be used with this script. Ignored if <code>lockfile</code> is
 non-<code>NULL</code>.</p></dd>
+
+
 <dt>lockfile</dt>
 <dd><p>The lockfile to use. When supplied, <code>renv</code> will use the packages as
 declared in the lockfile.</p></dd>
+
+
 <dt>library</dt>
 <dd><p>The library path into which the requested packages should be installed.
 When <code>NULL</code> (the default), a library path within the <span style="R">R</span> temporary
 directory will be generated and used. Note that this same library path
 will be re-used on future calls to <code>renv::use()</code>, allowing <code>renv::use()</code>
 to be used multiple times within a single script.</p></dd>
+
+
 <dt>isolate</dt>
 <dd><p>Boolean; should the active library paths be included in the set of library
 paths activated for this script? Set this to <code>TRUE</code> if you only want the
 packages provided to <code>renv::use()</code> to be visible on the library paths.</p></dd>
+
+
 <dt>attach</dt>
 <dd><p>Boolean; should the set of requested packages be automatically attached?
 If <code>TRUE</code>, packages will be loaded and attached via a call
 to <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> after install. Ignored if <code>lockfile</code> is non-<code>NULL</code>.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>Boolean; be verbose while installing packages?</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>This function is normally called for its side effects.</p>
+    
+
+<p>This function is normally called for its side effects.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -146,7 +159,7 @@ within that same <span style="R">R</span> script.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.9000.</p>
 </div>
 
     </footer></div>

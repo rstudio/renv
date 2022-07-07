@@ -99,33 +99,50 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>root</dt>
 <dd><p>The top-most package dependencies of interest in the dependency graph.</p></dd>
+
+
 <dt>leaf</dt>
 <dd><p>The bottom-most package dependencies of interest in the dependency graph.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+
+
 <dt>suggests</dt>
 <dd><p>Should suggested packages be included within
 the dependency graph?</p></dd>
+
+
 <dt>enhances</dt>
 <dd><p>Should enhanced packages be included within
 the dependency graph?</p></dd>
+
+
 <dt>resolver</dt>
 <dd><p>An <span style="R">R</span> function accepting a package name, and returning the
 contents of its <code>DESCRIPTION</code> file (as an <span style="R">R</span> <code>data.frame</code> or <code>list</code>).
 When <code>NULL</code> (the default), an internal resolver is used.</p></dd>
+
+
 <dt>renderer</dt>
 <dd><p>Which package should be used to render the resulting graph?</p></dd>
+
+
 <dt>attributes</dt>
 <dd><p>An <span style="R">R</span> list of graphViz attributes, mapping node names to
 attribute key-value pairs. For example, to ask graphViz to prefer orienting
 the graph from left to right, you can use
 <code>list(graph = c(rankdir = "LR"))</code>. See <a href="https://graphviz.org/doc/info/attrs.html" class="external-link">https://graphviz.org/doc/info/attrs.html</a>
 for a full list of the attributes supported by <code>graphViz</code>.</p></dd>
+
+
 <dt>project</dt>
 <dd><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.</p></dd>
+
 </dl></div>
 
     <div class="section level2">
@@ -150,7 +167,7 @@ directory is used instead.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.9000.</p>
 </div>
 
     </footer></div>

@@ -109,40 +109,59 @@ are then installed to the project's private library.</p>
     <dl><dt>project</dt>
 <dd><p>The project directory. The <span style="R">R</span> working directory will be
 changed to match the requested project directory.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+
+
 <dt>profile</dt>
 <dd><p>The profile to be activated. When <code>NULL</code>, the default
 profile is activated instead. See <code><a href="../articles/profiles.html">vignette("profiles", package = "renv")</a></code>
 for more information.</p></dd>
+
+
 <dt>settings</dt>
 <dd><p>A list of <a href="settings.html">settings</a> to be used with the newly-initialized
 project.</p></dd>
+
+
 <dt>bare</dt>
 <dd><p>Boolean; initialize the project without attempting to discover
 and install R package dependencies?</p></dd>
+
+
 <dt>force</dt>
 <dd><p>Boolean; force initialization? By default, <code>renv</code> will refuse
 to initialize the home directory as a project, to defend against accidental
 mis-usages of <code>init()</code>.</p></dd>
+
+
 <dt>repos</dt>
 <dd><p>The <span style="R">R</span> repositories to be used in this project. By default,
 the active repositories (as determined by <code>getOption("repos")</code>) are used.</p></dd>
+
+
 <dt>bioconductor</dt>
 <dd><p>The version of Bioconductor to be used with this project.
 Setting this may be appropriate if <code>renv</code> is unable to determine that your
 project depends on a package normally available from Bioconductor. Set this
 to <code>TRUE</code> to use the default version of Bioconductor recommended by the
 <code>BiocManager</code> package.</p></dd>
+
+
 <dt>restart</dt>
 <dd><p>Boolean; attempt to restart the <span style="R">R</span> session after initializing
 the project? A session restart will be attempted if the <code>"restart"</code> <span style="R">R</span>
 option is set by the frontend embedding <span style="R">R</span>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The project directory, invisibly. Note that this function is normally
+    
+
+<p>The project directory, invisibly. Note that this function is normally
 called for its side effects.</p>
     </div>
     <div class="section level2">
@@ -223,7 +242,7 @@ using <code>renv</code>.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.9000.</p>
 </div>
 
     </footer></div>

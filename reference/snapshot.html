@@ -109,46 +109,69 @@ project's dependencies as required.</p>
 <dd><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+
+
 <dt>library</dt>
 <dd><p>The <span style="R">R</span> libraries to snapshot. When <code>NULL</code>, the active <span style="R">R</span>
 libraries (as reported by <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code>) are used.</p></dd>
+
+
 <dt>lockfile</dt>
 <dd><p>The location where the generated lockfile should be written.
 By default, the lockfile is written to a file called <code>renv.lock</code> in the
 project directory. When <code>NULL</code>, the lockfile (as an <span style="R">R</span> object) is returned
 directly instead.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>The type of snapshot to perform. See <strong>Snapshot Type</strong> for
 more details.</p></dd>
+
+
 <dt>repos</dt>
 <dd><p>The <span style="R">R</span> repositories to be recorded in the lockfile. Defaults
 to the currently active package repositories, as retrieved by
 <code>getOption("repos")</code>.</p></dd>
+
+
 <dt>packages</dt>
 <dd><p>A vector of packages to be included in the lockfile. When
 <code>NULL</code> (the default), all packages relevant for the type of snapshot being
 performed will be included. When set, the <code>type</code> argument is ignored.
 Recursive dependencies of the specified packages will be added to the
 lockfile as well.</p></dd>
+
+
 <dt>prompt</dt>
 <dd><p>Boolean; prompt the user before taking any action? For backwards
 compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></dd>
+
+
 <dt>update</dt>
 <dd><p>Boolean; if the lockfile already exists, then attempt to update
 that lockfile without removing any prior package records.</p></dd>
+
+
 <dt>force</dt>
 <dd><p>Boolean; force generation of a lockfile even when pre-flight
 validation checks have failed?</p></dd>
+
+
 <dt>reprex</dt>
 <dd><p>Boolean; generate output appropriate for embedding the lockfile
 as part of a <a href="https://www.tidyverse.org/help/#reprex" class="external-link">reprex</a>?</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The generated lockfile, as an <span style="R">R</span> object (invisibly). Note that
+    
+
+<p>The generated lockfile, as an <span style="R">R</span> object (invisibly). Note that
 this function is normally called for its side effects.</p>
     </div>
     <div class="section level2">
@@ -201,7 +224,7 @@ in the lockfile.</p></dd>
 </dl><p>By default, <code>"implicit"</code>-style snapshots are used. The snapshot type can be
 configured on a project-specific basis using the <code>renv</code> project <a href="settings.html">settings</a>
 mechanism. For example, to use <code>"explicit"</code> snapshots in a project:</p>
-<p></p><div class="sourceCode"><pre><code></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>(<span class="st">"explicit"</span>)</span></code></pre><p></p></div>
 <p>When the <code>packages</code> argument is set, <code>type</code> is ignored, and instead only the
 requested set of packages, and their recursive dependencies, will be written
 to the lockfile.</p>
@@ -255,7 +278,7 @@ to the lockfile.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.9000.</p>
 </div>
 
     </footer></div>

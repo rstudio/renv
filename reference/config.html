@@ -313,7 +313,9 @@ when copying files. However, you can select a different method as
 appropriate.</p>
 <p>The following methods are supported:</p>
 <table class="table table"><tr><td><code>auto</code></td><td>Use <code>robocopy</code> on Windows, and <code>cp</code> on Unix-alikes.</td></tr><tr><td><code>R</code></td><td>Use <span style="R">R</span>'s built-in <code><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy()</a></code> function.</td></tr><tr><td><code>cp</code></td><td>Use <code>cp</code> to copy files.</td></tr><tr><td><code>robocopy</code></td><td>Use <code>robocopy</code> to copy files. (Only available on Windows.)</td></tr><tr><td><code>rsync</code></td><td>Use <code>rsync</code> to copy files.</td></tr></table><p>You can also provide a custom copy method if required; e.g.</p>
-<p></p><div class="sourceCode"><pre><code></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">renv.config.copy.method =</span> <span class="cf">function</span>(src, dst) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># copy a file from 'src' to 'dst'</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>})</span></code></pre><p></p></div>
 <p>Note that <code>renv</code> will always first attempt to copy a directory first to a
 temporary path within the target folder, and then rename that temporary path
 to the final target destination. This helps avoid issues where a failed
@@ -349,7 +351,7 @@ various settings available in <a href="settings.html">settings</a> can be used.<
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.9000.</p>
 </div>
 
     </footer></div>

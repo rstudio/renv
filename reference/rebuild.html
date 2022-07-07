@@ -107,29 +107,44 @@ clean slate.</p>
     <dl><dt>packages</dt>
 <dd><p>The package(s) to be rebuilt. When <code>NULL</code>, all packages
 in the library will be reinstalled.</p></dd>
+
+
 <dt>recursive</dt>
 <dd><p>Boolean; should dependencies of packages be rebuilt
 recursively? Defaults to <code>TRUE</code>.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>The type of package to install ("source" or "binary"). Defaults
 to the value of <code>getOption("pkgType")</code>.</p></dd>
+
+
 <dt>prompt</dt>
 <dd><p>Boolean; prompt the user before taking any action? For backwards
 compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></dd>
+
+
 <dt>library</dt>
 <dd><p>The <span style="R">R</span> library to be used. When <code>NULL</code>, the active project
 library will be used instead.</p></dd>
+
+
 <dt>project</dt>
 <dd><p>The project directory. If <code>NULL</code>, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A named list of package records which were installed by <code>renv</code>.</p>
+    
+
+<p>A named list of package records which were installed by <code>renv</code>.</p>
     </div>
 
     <div class="section level2">
@@ -154,7 +169,7 @@ directory is used instead.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.9000.</p>
 </div>
 
     </footer></div>
