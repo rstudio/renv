@@ -40,3 +40,13 @@ test_that("we can serialize lockfiles using unnamed repositories", {
   })
 
 })
+
+test_that("we can create lockfiles from manifests", {
+
+  skip_on_cran()
+  lock <- renv_lockfile_from_manifest("resources/manifest.json")
+
+  expect_equal(lock$R$Version, numeric_version("4.2.1"))
+  expect_equal(lock$R$Repositories, list(CRAN = "https://cloud.r-project.org"))
+
+})

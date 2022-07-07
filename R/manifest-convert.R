@@ -31,14 +31,12 @@
 #' An `renv` lockfile.
 #'
 #' @keywords internal
-renv_lockfile_from_manifest <- function(manifest, lockfile = NA) {
-
+renv_lockfile_from_manifest <- function(manifest,
+                                        lockfile = NA,
+                                        project = NULL)
+{
   renv_scope_error_handler()
-
-  # if the user has provided a lockfile path, verify that it exists
-  lockfile <- renv_type_check(lockfile, "character")
-  if (!is.na(lockfile) && !file.exists(lockfile))
-    file.create(lockfile)
+  project <- renv_project_resolve(project)
 
   # read the manifest (accept both lists and file paths)
   manifest <- case(
@@ -47,40 +45,42 @@ renv_lockfile_from_manifest <- function(manifest, lockfile = NA) {
     TRUE                   ~ renv_type_unexpected(manifest)
   )
 
-  lock <- lockfile(lockfile)
-
-  # read packages from manifest
-  packages <- map(manifest[["packages"]], function(entry) {
-    version <- entry[["description"]][["Version"]]
-    package <- entry[["description"]][["Package"]]
-    paste(package, version, sep = "@")
+  # convert descriptions into records
+  records <- map(manifest[["packages"]], function(entry) {
+    desc <- entry[["description"]]
+    renv_snapshot_description_impl(desc)
   })
 
-  # read repositories from manifest
-  sources <- map(manifest[["packages"]], function(entry) {
-    source <- entry[["Source"]]
-    names(source) <- entry[["Repository"]]
-    source
-  })
+  # extract repositories from descriptions
+  repos <- list()
+  for (entry in manifest[["packages"]]) {
 
-  repos <- as.list(unlist(unique(unname(sources))))
+    if (is.null(entry[["Repository"]]))
+      next
 
-  # https://github.com/rstudio/renv/issues/1043
-  repos <- named(names(repos), unname(repos))
+    src <- entry[["Source"]] %||% "CRAN"
+    repo <- entry[["Repository"]]
 
-  # make updates
-  lock$repos(.repos = repos)
-  lock$add(.list = packages)
-  lock$version(manifest[["platform"]])
+    repos[[src]] <- repo
+
+  }
+
+  # extract version
+  version <- numeric_version(manifest[["platform"]] %||% getRversion())
+
+  # create R field for lockfile
+  r <- list(Version = version, Repositories = repos)
+
+  # create the lockfile
+  lock <- list(R = r, Packages = records)
+  class(lock) <- "renv_lockfile"
 
   # return lockfile as R object if requested
   if (is.na(lockfile))
     return(lock)
 
-  # otherwise, write to file
-  lock$write(lockfile)
-
-  # report to user
+  # otherwise, write to file and report for user
+  renv_lockfile_write(lock, file = lockfile)
   fmt <- "* Lockfile written to %s."
   vwritef(fmt, renv_path_pretty(lockfile))
 

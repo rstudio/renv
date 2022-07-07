@@ -659,6 +659,12 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
   if (inherits(dcf, "error"))
     return(dcf)
 
+  renv_snapshot_description_impl(dcf, path)
+
+}
+
+renv_snapshot_description_impl <- function(dcf, path = NULL) {
+
   # figure out the package source
   source <- renv_snapshot_description_source(dcf)
   dcf[names(source)] <- source
@@ -668,12 +674,15 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
   missing <- renv_vector_diff(required, names(dcf))
   if (length(missing)) {
     fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
-    msg <- sprintf(fmt, paste(shQuote(missing), collapse = ", "), path)
+    msg <- sprintf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
     return(simpleError(msg))
   }
 
-  # generate a hash
-  dcf[["Hash"]] <- renv_hash_description(path)
+  # generate a hash if we can
+  dcf[["Hash"]] <- if (is.null(path))
+    renv_hash_description_impl(dcf)
+  else
+    renv_hash_description(path)
 
   # normalize whitespace in some dependency fields
   fields <- c("Depends", "Imports", "LinkingTo")

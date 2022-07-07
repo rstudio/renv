@@ -4,7 +4,7 @@
 \alias{renv_lockfile_from_manifest}
 \title{Generate \code{renv.lock} from an RStudio Connect \code{manifest.json}}
 \usage{
-renv_lockfile_from_manifest(manifest, lockfile = NA)
+renv_lockfile_from_manifest(manifest, lockfile = NA, project = NULL)
 }
 \arguments{
 \item{manifest}{The path to a \code{manifest.json} file.}

@@ -9,7 +9,11 @@ renv_hash_description <- function(path) {
 
 renv_hash_description_impl <- function(path) {
 
-  dcf <- renv_description_read(path)
+  dcf <- case(
+    is.character(path) ~ renv_description_read(path),
+    is.list(path)      ~ path,
+    ~ stop("unexpected path '%s'", path)
+  )
 
   # include default fields
   fields <- c(
