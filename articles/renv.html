@@ -108,7 +108,7 @@
                         <h4 data-toc-skip class="author">Kevin
 Ushey</h4>
             
-            <h4 data-toc-skip class="date">2022-05-26</h4>
+            <h4 data-toc-skip class="date">2022-07-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/renv.Rmd" class="external-link"><code>vignettes/renv.Rmd</code></a></small>
       <div class="d-none name"><code>renv.Rmd</code></div>
@@ -373,7 +373,7 @@ variety of sources, including:</p>
 <p><code>renv</code> uses an installed package’s
 <code>DESCRIPTION</code> file to infer its source. For example, packages
 installed from the CRAN repositories typically have the field:</p>
-<pre><code><span class="va">Repository</span><span class="op">:</span> <span class="va">CRAN</span></code></pre>
+<pre><code><span><span class="va">Repository</span><span class="op">:</span> <span class="va">CRAN</span></span></code></pre>
 <p>set, and <code>renv</code> takes this as a signal that the package
 was retrieved from CRAN.</p>
 <div class="section level3">
@@ -429,8 +429,8 @@ package is installed through some other mechanism.</p>
 only requirement is that these repositories are set as part of the
 <code>repos</code> R option, and that these repositories are named. For
 example, you might use:</p>
-<pre><code><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span>, WORK <span class="op">=</span> <span class="st">"https://work.example.org"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="va">repos</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="va">repos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span>, WORK <span class="op">=</span> <span class="st">"https://work.example.org"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="va">repos</span><span class="op">)</span></span></code></pre>
 <p>to tell <code>renv</code> to work with both the official CRAN package
 repository, as well as a package repository you have hosted and set up
 in your work environment.</p>
@@ -452,7 +452,7 @@ then <code>renv</code> will install the latest-available version of
 <p>With each commit of <code>renv</code>, we bump the package version
 and also tag the commit with the associated package version. This
 implies that you can call, for example:</p>
-<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.15.5"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.15.5"</span><span class="op">)</span></span></code></pre>
 <p>to request the installation of that particular version of
 <code>renv</code> if so required.</p>
 </div>
@@ -584,7 +584,7 @@ and most Linux package managers have a modern version of
 <code>renv</code>’s attempts to use <code>curl</code>, you can use the R
 option <code>renv.download.override</code>. For example, executing:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.override <span class="op">=</span> <span class="fu">utils</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.override <span class="op">=</span> <span class="fu">utils</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">)</span></span></code></pre></div>
 <p>would instruct <code>renv</code> to use R’s own download machinery
 when attempting to download files from the internet (respecting the R
 options <code>download.file.method</code> and
@@ -594,11 +594,11 @@ that of <code><a href="https://rdrr.io/r/utils/download.file.html" class="extern
 <p>You can also instruct <code>renv</code> to use a different download
 method by setting the <code>RENV_DOWNLOAD_METHOD</code> environment
 variable. For example:</p>
-<pre><code><span class="co"># use Windows' internal download machinery</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_DOWNLOAD_METHOD <span class="op">=</span> <span class="st">"wininet"</span><span class="op">)</span>
-
-<span class="co"># use R's bundled libcurl implementation</span>
-<span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_DOWNLOAD_METHOD <span class="op">=</span> <span class="st">"libcurl"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="co"># use Windows' internal download machinery</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_DOWNLOAD_METHOD <span class="op">=</span> <span class="st">"wininet"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># use R's bundled libcurl implementation</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_DOWNLOAD_METHOD <span class="op">=</span> <span class="st">"libcurl"</span><span class="op">)</span></span></code></pre>
 <p>Note that other features (e.g. authentication) may not be supported
 when using an alternative download file method – you will have to
 configure the downloader yourself if that is required. See
@@ -635,7 +635,7 @@ and SSPI on Windows:</p>
 --insecure</code></pre>
 <p>The <a href="https://cran.r-project.org/package=curl" class="external-link">curl</a> R
 package also has a helper:</p>
-<pre><code><span class="fu">curl</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/curl/man/ie_proxy.html" class="external-link">ie_get_proxy_for_url</a></span><span class="op">(</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu">curl</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/curl/man/ie_proxy.html" class="external-link">ie_get_proxy_for_url</a></span><span class="op">(</span><span class="op">)</span></span></code></pre>
 <p>which may be useful when attempting to discover this proxy
 address.</p>
 </div>
@@ -691,19 +691,19 @@ names with environment variables, or a function accepting a package name
 + record, and returning a list of environment variables. For
 example:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># define a function providing authentication</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.auth <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">package</span>, <span class="va">record</span><span class="op">)</span> <span class="op">{</span>
-  <span class="kw">if</span> <span class="op">(</span><span class="va">package</span> <span class="op">==</span> <span class="st">"MyPackage"</span><span class="op">)</span>
-    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-
-<span class="co"># use a named list directly</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.auth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
-  MyPackage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span>
-<span class="op">)</span><span class="op">)</span>
-
-<span class="co"># alternatively, set package-specific option</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.auth.MyPackage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># define a function providing authentication</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.auth <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">package</span>, <span class="va">record</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">package</span> <span class="op">==</span> <span class="st">"MyPackage"</span><span class="op">)</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># use a named list directly</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.auth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  MyPackage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># alternatively, set package-specific option</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.auth.MyPackage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>GITHUB_PAT <span class="op">=</span> <span class="st">"&lt;pat&gt;"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>For packages installed from Git remotes, <code>renv</code> will
 attempt to use <code>git</code> from the command line to download and
 restore the associated package. Hence, it is recommended that
@@ -722,10 +722,10 @@ access that repository are stored in the <code>AUTH_HEADER</code>
 environment variable. You could define
 <code>renv.download.headers</code> like so:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.headers <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="op">{</span>
-  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^https://my/repository"</span>, <span class="va">url</span><span class="op">)</span><span class="op">)</span>
-    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Authorization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AUTH_HEADER"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.headers <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^https://my/repository"</span>, <span class="va">url</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Authorization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AUTH_HEADER"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 <p>With the above, <code>renv</code> will set the
 <code>Authorization</code> header whenever it attempts to download files
 from the repository at URL <code>https://my/repository</code>.</p>
@@ -853,10 +853,10 @@ as desired.</p></li>
 <p>If you want to completely remove any installed <code>renv</code>
 infrastructure components from your entire system, you can do so with
 the following R code:</p>
-<pre><code><span class="va">root</span> <span class="op">&lt;-</span> <span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/paths.html">paths</a></span><span class="op">$</span><span class="fu">root</span><span class="op">(</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">root</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="va">root</span> <span class="op">&lt;-</span> <span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/paths.html">paths</a></span><span class="op">$</span><span class="fu">root</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">root</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre>
 <p>The <code>renv</code> package can then also be uninstalled via:</p>
-<pre><code><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages</a></span><span class="op">(</span><span class="st">"renv"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages</a></span><span class="op">(</span><span class="st">"renv"</span><span class="op">)</span></span></code></pre>
 <p>Note that if you’ve customized any of <code>renv</code>’s
 infrastructure paths as described in <code><a href="../reference/paths.html">?renv::paths</a></code>, then
 you’ll need to find and remove those customized folders as well.</p>

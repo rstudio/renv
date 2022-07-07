@@ -148,7 +148,7 @@ attempt to install packages from sources.</p>
 <p>If you prefer not to make use of MRAN (e.g. because you are using
 <code>renv</code> in an environment without external internet access),
 you can disable it with:</p>
-<pre><code><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.config.mran.enabled <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.config.mran.enabled <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre>
 <p>See also the <code><a href="../reference/equip.html">?renv::equip</a></code> function, which can assist you
 in preparing your environment for compilation of packages.</p>
 <div class="section level2">
@@ -186,7 +186,7 @@ versions) a particular package was built against.</p>
 <p>R packages might occasionally (and unintentionally) take a build-time
 dependency on another R package – for example, a package with the
 code:</p>
-<pre><code><span class="va">`%&gt;%`</span> <span class="op">&lt;-</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="va">`%&gt;%`</span></code></pre>
+<pre><code><span><span class="va">`%&gt;%`</span> <span class="op">&lt;-</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="va">`%&gt;%`</span></span></code></pre>
 <p>would take the version of <code>%&gt;%</code> that was available from
 the version of magrittr that was available at <em>build</em> time, not
 the one available at <em>run</em> time. This could be problematic if,

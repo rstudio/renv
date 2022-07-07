@@ -125,11 +125,11 @@ Bioconductor.</p>
 can pass the <code>bioconductor</code> argument to
 <code><a href="../reference/init.html">renv::init()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># use the latest-available Bioconductor release</span>
-<span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-<span class="co"># use a specific version of Bioconductor</span>
-<span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="st">"3.14"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># use the latest-available Bioconductor release</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># use a specific version of Bioconductor</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/init.html">init</a></span><span class="op">(</span>bioconductor <span class="op">=</span> <span class="st">"3.14"</span><span class="op">)</span></span></code></pre></div>
 <p>This will tell <code>renv</code> to activate the appropriate
 Bioconductor repositories, and to use those repositories when attempting
 to restore packages.</p>
@@ -147,13 +147,13 @@ of R.</p>
 <p>To set the version of Bioconductor used in a project, you can
 use:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">bioconductor.version</span><span class="op">(</span><span class="st">"3.14"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">bioconductor.version</span><span class="op">(</span><span class="st">"3.14"</span><span class="op">)</span></span></code></pre></div>
 <p>If you later choose to upgrade R, you may need to upgrade the version
 of Bioconductor used as well.</p>
 <p>If you want to override the Bioconductor repositories used by
 <code>renv</code>, you can also explicitly set the following option:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.bioconductor.repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.bioconductor.repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

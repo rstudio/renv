@@ -140,7 +140,7 @@ dependencies, with different workflows in a single project using
 <p>By default, <code>renv</code> projects use the “default” profile,
 which implies that library and lockfile paths are set in the typical
 way. To activate a particular profile, use:</p>
-<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre>
 <p>This creates a profile called <code>"dev"</code>, and sets it as the
 default for the project, so that newly-launched R sessions will operate
 using the <code>"dev"</code> profile. After setting this and
@@ -150,7 +150,7 @@ the project root.</p>
 <p>Alternatively, if you want to activate a particular profile for an R
 session without setting it as the default for new R sessions, you can
 use:</p>
-<pre><code><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre>
 <p>and <code>renv</code> will automatically use that profile as
 appropriate when computing library and lockfile paths. Similarly, from
 the command line, you might enforce the use of a particular profile in
@@ -160,7 +160,7 @@ an <code>renv</code> project with:</p>
 <code>"dev"</code> profile for any newly-launched R sessions within
 <code>renv</code> projects.</p>
 <p>To activate the “default” profile used by a project, use:</p>
-<pre><code><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="managing-profile-specific-dependencies">Managing Profile-specific Dependencies<a class="anchor" aria-label="anchor" href="#managing-profile-specific-dependencies"></a>
@@ -186,7 +186,7 @@ used, you can opt-in to using <code>"explicit"</code> snapshots, and
 leave the <code>Imports</code>, <code>Depends</code> and
 <code>Suggests</code> fields blank:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span><span class="st">"explicit"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span><span class="st">"explicit"</span><span class="op">)</span></span></code></pre></div>
 <p>When set, only the dependencies listed in the project
 <code>DESCRIPTION</code> file will be used when the lockfile is
 generated. See <code><a href="../reference/snapshot.html">?renv::snapshot</a></code> for more details.</p>

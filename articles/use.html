@@ -117,14 +117,14 @@
 stand-alone R scripts that include their R package requirements directly
 in the script itself. For example:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># write down the set of packages required by this script</span>
-<span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use.html">use</a></span><span class="op">(</span>
-  <span class="st">"digest"</span>,         <span class="co"># use the latest-available version of digest</span>
-  <span class="st">"rlang@0.3.4"</span>     <span class="co"># use an older release of rlang (installed from archive)</span>
-<span class="op">)</span>
-
-<span class="co"># use the requested packages</span>
-<span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>answer <span class="op">=</span> <span class="fl">42</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># write down the set of packages required by this script</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use.html">use</a></span><span class="op">(</span></span>
+<span>  <span class="st">"digest"</span>,         <span class="co"># use the latest-available version of digest</span></span>
+<span>  <span class="st">"rlang@0.3.4"</span>     <span class="co"># use an older release of rlang (installed from archive)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># use the requested packages</span></span>
+<span><span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>answer <span class="op">=</span> <span class="fl">42</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Running a script with these contents will:</p>
 <ol style="list-style-type: decimal">
 <li><p>Automatically download the requested packages – in this case, the
@@ -142,11 +142,11 @@ automatically downloaded and installed.</p>
 <p>In addition, you can also supply the path to a lockfile. For
 example:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># use a particular lockfile in the context of this script</span>
-<span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use.html">use</a></span><span class="op">(</span>lockfile <span class="op">=</span> <span class="st">"/path/to/renv.lock"</span><span class="op">)</span>
-
-<span class="co"># the rest of this script will run with the packages as declared</span>
-<span class="co"># in that lockfile installed into a temporary library path</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># use a particular lockfile in the context of this script</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/use.html">use</a></span><span class="op">(</span>lockfile <span class="op">=</span> <span class="st">"/path/to/renv.lock"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># the rest of this script will run with the packages as declared</span></span>
+<span><span class="co"># in that lockfile installed into a temporary library path</span></span></code></pre></div>
 <p>This can be useful in projects where you’d like to associate
 different lockfiles with different documents – for example, in a <a href="https://bookdown.org/yihui/blogdown/" class="external-link">blog</a> or a website where
 you’d like to associate a separate lockfile with each post. Once the

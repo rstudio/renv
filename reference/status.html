@@ -85,7 +85,7 @@ the project's library (if any).</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">status</span><span class="op">(</span>project <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, library <span class="op">=</span> <span class="cn">NULL</span>, lockfile <span class="op">=</span> <span class="cn">NULL</span>, cache <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">status</span><span class="op">(</span>project <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, library <span class="op">=</span> <span class="cn">NULL</span>, lockfile <span class="op">=</span> <span class="cn">NULL</span>, cache <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -116,35 +116,35 @@ hashes used for those storage locations.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># disable automatic snapshots</span></span>
-<span class="r-in"><span class="va">auto.snapshot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"renv.config.auto.snapshot"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.config.auto.snapshot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># initialize a new project (with an empty R library)</span></span>
-<span class="r-in"><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="init.html">init</a></span><span class="op">(</span>bare <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># install digest 0.6.19</span></span>
-<span class="r-in"><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="install.html">install</a></span><span class="op">(</span><span class="st">"digest@0.6.19"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># save library state to lockfile</span></span>
-<span class="r-in"><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="snapshot.html">snapshot</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># remove digest from library</span></span>
-<span class="r-in"><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="remove.html">remove</a></span><span class="op">(</span><span class="st">"digest"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># check library status</span></span>
-<span class="r-in"><span class="fu">renv</span><span class="fu">::</span><span class="fu">status</span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># restore lockfile, thereby reinstalling digest 0.6.19</span></span>
-<span class="r-in"><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># restore automatic snapshots</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.config.auto.snapshot <span class="op">=</span> <span class="va">auto.snapshot</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># disable automatic snapshots</span></span></span>
+<span class="r-in"><span><span class="va">auto.snapshot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"renv.config.auto.snapshot"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.config.auto.snapshot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># initialize a new project (with an empty R library)</span></span></span>
+<span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="init.html">init</a></span><span class="op">(</span>bare <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># install digest 0.6.19</span></span></span>
+<span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="install.html">install</a></span><span class="op">(</span><span class="st">"digest@0.6.19"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># save library state to lockfile</span></span></span>
+<span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="snapshot.html">snapshot</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># remove digest from library</span></span></span>
+<span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="remove.html">remove</a></span><span class="op">(</span><span class="st">"digest"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># check library status</span></span></span>
+<span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu">status</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># restore lockfile, thereby reinstalling digest 0.6.19</span></span></span>
+<span class="r-in"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># restore automatic snapshots</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.config.auto.snapshot <span class="op">=</span> <span class="va">auto.snapshot</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

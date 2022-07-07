@@ -82,17 +82,17 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">graph</span><span class="op">(</span>
-  root <span class="op">=</span> <span class="cn">NULL</span>,
-  leaf <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>,
-  suggests <span class="op">=</span> <span class="cn">FALSE</span>,
-  enhances <span class="op">=</span> <span class="cn">FALSE</span>,
-  resolver <span class="op">=</span> <span class="cn">NULL</span>,
-  renderer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DiagrammeR"</span>, <span class="st">"visNetwork"</span><span class="op">)</span>,
-  attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  project <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">graph</span><span class="op">(</span></span>
+<span>  root <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  leaf <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  suggests <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  enhances <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  resolver <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  renderer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DiagrammeR"</span>, <span class="st">"visNetwork"</span><span class="op">)</span>,</span>
+<span>  attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -130,15 +130,15 @@ directory is used instead.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co"># graph the relationship between devtools and rlang</span></span>
-<span class="r-in"><span class="fu">graph</span><span class="op">(</span>root <span class="op">=</span> <span class="st">"devtools"</span>, leaf <span class="op">=</span> <span class="st">"rlang"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># figure out why a project depends on 'askpass'</span></span>
-<span class="r-in"><span class="fu">graph</span><span class="op">(</span>leaf <span class="op">=</span> <span class="st">"askpass"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># graph the relationship between devtools and rlang</span></span></span>
+<span class="r-in"><span><span class="fu">graph</span><span class="op">(</span>root <span class="op">=</span> <span class="st">"devtools"</span>, leaf <span class="op">=</span> <span class="st">"rlang"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># figure out why a project depends on 'askpass'</span></span></span>
+<span class="r-in"><span><span class="fu">graph</span><span class="op">(</span>leaf <span class="op">=</span> <span class="st">"askpass"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
