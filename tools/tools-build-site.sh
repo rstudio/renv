@@ -8,6 +8,9 @@ if [ -z "${VERSION}" ]; then
   exit 0
 fi
 
+# Use our own fork so https://github.com/r-lib/pkgdown/issues/2152 doesn't break us
+R -s -e 'renv::install("kevinushey/pkgdown@renv")'
+
 cd "${TMPDIR}"
 
 rm -rf renv-deploy
