@@ -304,9 +304,11 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   args <- stack()
 
   # include anything provided explicitly in 'download.file.extra' here
-  extra <- getOption("download.file.extra")
-  if (length(extra))
-    args$push(extra)
+  if (identical(getOption("download.file.method"), "curl")) {
+    extra <- getOption("download.file.extra")
+    if (length(extra))
+      args$push(extra)
+  }
 
   # add in any user configuration files
   userconfig <- getOption(
@@ -406,9 +408,11 @@ renv_download_wget <- function(url, destfile, type, request, headers) {
 
   args <- stack()
 
-  extra <- getOption("download.file.extra")
-  if (length(extra))
-    args$push(extra)
+  if (identical(getOption("download.file.method"), "wget")) {
+    extra <- getOption("download.file.extra")
+    if (length(extra))
+      args$push(extra)
+  }
 
   args$push("--config", renv_shell_path(configfile))
 
@@ -812,7 +816,12 @@ renv_download_available_range <- function(url) {
   destfile <- renv_scope_tempfile("renv-download-")
 
   # instruct curl to request only first byte
-  extra <- c(getOption("download.file.extra"), "-r 0-0")
+  extra <- c(
+    if (identical(getOption("download.file.method"), "curl"))
+      getOption("download.file.extra"),
+    "-r 0-0"
+  )
+
   renv_scope_options(download.file.extra = paste(extra, collapse = " "))
 
   # perform the download
