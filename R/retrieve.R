@@ -527,11 +527,17 @@ renv_retrieve_repos <- function(record) {
   if (all(c("type", "url") %in% names(attributes(record))))
     return(renv_retrieve_repos_impl(record))
 
+  # figure out what package sources are okay to use here
+  pkgtype <- getOption("pkgType", default = "source")
+
+  srcok <- pkgtype %in% c("both", "source")
+  binok <- pkgtype %in% c("both") || grepl("binary", pkgtype, fixed = TRUE)
+
   # collect list of 'methods' for retrieval
   methods <- stack(mode = "list")
 
-  # only attempt to retrieve binaries when explicitly requested by user
-  if (!identical(getOption("pkgType"), "source")) {
+  # add binary package methods
+  if (binok) {
 
     # prefer repository binaries if available
     methods$push(renv_retrieve_repos_binary)
@@ -543,15 +549,20 @@ renv_retrieve_repos <- function(record) {
   }
 
   # next, try to retrieve from sources
-  methods$push(renv_retrieve_repos_source)
+  if (srcok) {
 
-  # if this is a package from r-universe, try restoring from github
-  # (currently inferred from presence for RemoteUrl field)
-  unifields <- c("RemoteUrl", "RemoteRef", "RemoteSha")
-  if (all(unifields %in% names(record)))
-    methods$push(renv_retrieve_git)
-  else
-    methods$push(renv_retrieve_repos_archive)
+    # retrieve from source repositories
+    methods$push(renv_retrieve_repos_source)
+
+    # if this is a package from r-universe, try restoring from github
+    # (currently inferred from presence for RemoteUrl field)
+    unifields <- c("RemoteUrl", "RemoteRef", "RemoteSha")
+    if (all(unifields %in% names(record)))
+      methods$push(renv_retrieve_git)
+    else
+      methods$push(renv_retrieve_repos_archive)
+
+  }
 
   # capture errors for reporting
   errors <- stack()

@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could attempt to install a package from the
+  repository archives even when `type = "binary"` was set. (#1046)
+
 * Fixed an issue where package installation could fail when the R session
   is configured to use multiple repositories, some of which do not provide
   any information on available packages for certain binary arms of the
