@@ -1,6 +1,11 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where package installation could fail when the R session
+  is configured to use multiple repositories, some of which do not provide
+  any information on available packages for certain binary arms of the
+  repository. (#1045)
+
 * `renv` now uses `jsonlite` for reading lockfiles when loaded. This should
   help ensure useful errors are provided for manually-edited lockfiles
   which contain a JSON parsing error. If the `jsonlite` package is not loaded,

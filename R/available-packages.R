@@ -346,8 +346,15 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
   version <- numeric_version(entries$Version)
   ordered <- order(version, decreasing = TRUE)
 
-  # return newest-available version
+  # extract newest entry
   entry <- as.list(entries[ordered[[1L]], ])
+
+  # remove an NA file entry if necessary
+  # https://github.com/rstudio/renv/issues/1045
+  if (length(entry$File) && is.na(entry$File))
+    entry$File <- NULL
+
+  # return newest-available version
   renv_available_packages_record(entry, type)
 
 }
