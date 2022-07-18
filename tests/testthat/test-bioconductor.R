@@ -3,6 +3,8 @@ context("Bioconductor")
 
 test_that("packages can be installed, restored from Bioconductor", {
 
+  # TODO: This test was failing because BiocGenerics couldn't be loaded
+  # while Biobase was loaded during installation?
   skip_on_cran()
   skip_on_os("windows")
   skip_if(getRversion() < "3.5.0")
