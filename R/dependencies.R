@@ -537,7 +537,7 @@ renv_dependencies_discover_description_fields <- function() {
 
   # all else fails, use the active project
   project <- project %||% renv_project()
-  renv::settings$package.dependency.fields(project = project)
+  settings$package.dependency.fields(project = project)
 
 }
 
