@@ -54,10 +54,9 @@ test_that(".First is executed; library paths are restored after", {
 
   })
 
-  writeLines(profile, con = ".Rprofile")
-
   # ensure profile is executed
   renv_scope_envvars(R_PROFILE_USER = NULL)
+  writeLines(profile, con = ".Rprofile")
 
   # invoke R
   script <- renv_test_code({

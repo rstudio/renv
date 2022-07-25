@@ -46,10 +46,7 @@ renv_addins_embed_server <- function(input, output, session) {
 
     # save document and run embed
     rstudioapi::documentSave(id = context$id)
-
-    renv::embed(path     = path,
-                lockfile = lockfile,
-                project  = project)
+    embed(path = path, lockfile = lockfile, project = project)
 
     # stop app
     invisible(shiny::stopApp())

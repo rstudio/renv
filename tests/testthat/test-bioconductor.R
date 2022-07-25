@@ -3,8 +3,6 @@ context("Bioconductor")
 
 test_that("packages can be installed, restored from Bioconductor", {
 
-  # TODO: This test was failing because BiocGenerics couldn't be loaded
-  # while Biobase was loaded during installation?
   skip_on_cran()
   skip_on_os("windows")
   skip_if(getRversion() < "3.5.0")
@@ -17,7 +15,22 @@ test_that("packages can be installed, restored from Bioconductor", {
   cran <- "https://cloud.r-project.org"
   install.packages("BiocManager", repos = cran, quiet = TRUE)
   BiocManager <- asNamespace("BiocManager")
-  BiocManager$install("Biobase", quiet = TRUE)
+
+  # TODO: Running this directly from 'renv' seems to fail, at least
+  # on R 4.2-arm64 macOS?
+  local({
+    renv_scope_envvars(R_LIBS = .libPaths()[1])
+
+    lines <- c(
+      sprintf(".libPaths('%s')", .libPaths()[1L]),
+      "options(pkgType = 'source')",
+      "BiocManager::install('Biobase', quiet = TRUE)"
+    )
+
+    code <- paste(lines, collapse = "; ")
+    args <- c("--vanilla", "-s", "-e", renv_shell_quote(code))
+    renv_system_exec(R(), args, action = "installing Biobase", quiet = TRUE)
+  })
 
   expect_true(renv_package_installed("BiocManager"))
   expect_true(renv_package_installed("BiocVersion"))
@@ -34,9 +47,6 @@ test_that("packages can be installed, restored from Bioconductor", {
   expect_true("BiocManager" %in% names(records))
   expect_true("BiocVersion" %in% names(records))
   expect_true("Biobase" %in% names(records))
-
-  if (!renv_platform_linux())
-    renv_scope_options(pkgType = .Platform$pkgType)
 
   remove("Biobase")
   restore()
