@@ -147,9 +147,11 @@ The following files are written to and used by projects using `renv`:
 | `renv/settings.dcf` | Project settings -- see `?settings` for more details.                               |
 
 In particular, `renv/activate.R` ensures that the project library is made active
-for newly launched R sessions. This ensures that any new R processes launched
-within the project directory will use the project library, and hence are
-isolated from the regular user library.
+for newly launched R sessions. It is automatically sourced via a call to
+`source("renv/activate.R")`, which is inserted into the project `.Rprofile` when
+`renv::init()` or `renv::activate()` is called. This ensures that any new R
+processes launched within the project directory will use the project library,
+and hence are isolated from the regular user library.
  
 For development and collaboration, the `.Rprofile`, `renv.lock` and
 `renv/activate.R` files should be committed to your version control system; the
