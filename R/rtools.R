@@ -44,9 +44,12 @@ renv_rtools_read <- function(root) {
 renv_rtools_version <- function(root) {
 
   # detect Rtools40
-  mirrors <- file.path(root, "etc/pacman.d/mirrorlist.rtools")
-  if (file.exists(mirrors))
-    return(numeric_version("4.0"))
+  files <- c("mirrorlist.rtools", "rtools.mingw32", "rtools.mingw64")
+  for (file in files) {
+    path <- file.path(root, "etc/pacman.d", file)
+    if (file.exists(path))
+      return(numeric_version("4.0"))
+  }
 
   # detect Rtools42
   mirrors <- file.path(root, "etc/pacman.d/mirrorlist.clang64")
