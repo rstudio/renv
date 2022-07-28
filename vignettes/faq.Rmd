@@ -199,7 +199,7 @@ renv:::renv_download_method()
 You can force `renv` to use the same download method as R by setting:
 
 ```{r eval=FALSE}
-Sys.setenv(RENV_DOWNLOAD_FILE_METHOD = getOption("download.file.method"))
+Sys.setenv(RENV_DOWNLOAD_METHOD = getOption("download.file.method"))
 ```
 
 and, if necessary, you could also set this environment variable within e.g. your
