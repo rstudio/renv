@@ -216,3 +216,40 @@ test_that("remote specs referencing packages in sub-sub-directories are parsed c
   expect_equal(remote, expected)
 
 })
+
+test_that("custom github package names are supported", {
+
+  spec <- "test.1pkg=user/repo"
+  remote <- renv_remotes_parse(spec)
+
+  expected <- list(
+    spec   = spec,
+    type   = "github",
+    host   = NULL,
+    user   = "user",
+    repo   = "repo",
+    subdir = NULL,
+    pull   = NULL,
+    ref    = NULL
+  )
+
+  expect_equal(remote, expected)
+
+
+  spec <- "test.1pkg=github::user/repo"
+  remote <- renv_remotes_parse(spec)
+
+  expected <- list(
+    spec   = spec,
+    type   = "github",
+    host   = NULL,
+    user   = "user",
+    repo   = "repo",
+    subdir = NULL,
+    pull   = NULL,
+    ref    = NULL
+  )
+
+  expect_equal(remote, expected)
+
+})
