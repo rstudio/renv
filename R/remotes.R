@@ -118,6 +118,7 @@ renv_remotes_parse_remote <- function(spec) {
 
   pattern <- paste0(
     "^",
+    "(?:[a-zA-Z.]+=)?",                # optional package name + "="
     "(?:([^@:]+)(?:@([^:]+))?::)?",    # optional prefix, providing type + host
     "([^/#@:]+)",                      # a username
     "(?:/([^@#:]+))?",                 # a repository (allow sub-repositories)
