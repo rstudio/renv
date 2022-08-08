@@ -213,7 +213,7 @@ renv_status_check_synchronized <- function(project,
 
       renv_pretty_print_records(
         records[unused],
-        "The following package(s) are no longer used in this project:",
+        "The following package(s) do not appear to be used in this project:",
         "Use `renv::snapshot()` to remove them from the lockfile."
       )
 

@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv::restore()` now also ensures the project activate script is updated
+  after a successful restore. (#1066)
+
 * Fixed an issue where `renv` could attempt to install a package from the
   repository archives even when `type = "binary"` was set. (#1046)
 
