@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* Fixed an issue where `renv::status()` could report spurious changes when
+  comparing packages installed using `pak` in some cases. (#1070)
+
 * `renv::restore()` now also ensures the project activate script is updated
   after a successful restore. (#1066)
 

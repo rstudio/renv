@@ -81,3 +81,42 @@ test_that("we can format records in various ways", {
   )
 
 })
+
+test_that("compatible records from pak are handled correctly", {
+
+  lhs <- list(
+    Package           = "anytime",
+    Version           = "0.3.9",
+    Source            = "Repository",
+    Depends           = "R (>= 3.2.0)",
+    Imports           = "Rcpp (>= 0.12.9)",
+    LinkingTo         = c("Rcpp (>= 0.12.9)", "BH"),
+    Repository        = "CRAN",
+    RemoteType        = "standard",
+    RemotePkgRef      = "anytime",
+    RemoteRef         = "anytime",
+    RemoteRepos       = "https=//cran.rstudio.com",
+    RemotePkgPlatform = "aarch64-apple-darwin20",
+    RemoteSha         = "0.3.9",
+    Hash              = "74a64813f17b492da9c6afda6b128e3d"
+  )
+
+  rhs <- list(
+    Package           = "anytime",
+    Version           = "0.3.9",
+    Source            = "CRAN",
+    Repository        = "CRAN",
+    RemoteType        = "standard",
+    RemotePkgRef      = "anytime",
+    RemoteRef         = "anytime",
+    RemoteRepos       = "https://cran.rstudio.com",
+    RemotePkgPlatform = "aarch64-apple-darwin20",
+    RemoteSha         = "0.3.9",
+    Hash              = "74a64813f17b492da9c6afda6b128e3d",
+    Requirements      = list()
+  )
+
+  change <- renv_lockfile_diff_record(lhs, rhs)
+  expect_null(change)
+
+})

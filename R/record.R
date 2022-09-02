@@ -78,10 +78,22 @@ record <- function(records,
 
 renv_record_normalize <- function(record) {
 
+  # normalize source
+  source <- record$Source %||% "unknown"
+  if (source %in% c("CRAN", "RSPM"))
+    record$Source <- "Repository"
+
   # drop remotes from records with a repository source
-  if (identical(record$Source, "Repository"))
+  if (identical(record$Source, "Repository") ||
+      identical(record$RemoteType, "standard"))
     record <- record[grep("^Remote", names(record), invert = TRUE)]
 
+  # keep only specific records for comparison
+  remotes <- grep("^Remote", names(record), value = TRUE)
+  keep <- c("Package", "Version", "Source", remotes)
+  record <- record[intersect(names(record), keep)]
+
+  # return normalized record
   record
 
 }
