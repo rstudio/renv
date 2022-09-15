@@ -86,6 +86,34 @@ renv_paths_activate <- function(project = NULL) {
   renv_paths_renv("activate.R", profile = FALSE, project = project)
 }
 
+renv_paths_sandbox <- function(project = NULL) {
+  if (renv_platform_unix())
+    renv_paths_sandbox_unix(project)
+  else
+    renv_paths_sandbox_win32(project)
+}
+
+renv_paths_sandbox_unix <- function(project = NULL) {
+
+  # construct a platform prefix
+  hash <- substring(renv_hash_text(R()), 1L, 8L)
+  prefix <- paste(renv_platform_prefix(), hash, sep = "/")
+
+  # check for override
+  root <- Sys.getenv("RENV_PATHS_SANDBOX", unset = NA)
+  if (!is.na(root))
+    return(paste(root, prefix, sep = "/"))
+
+  # otherwise, build path in renv folder
+  project <- renv_project_resolve(project)
+  renv_paths_renv("sandbox", prefix, profile = FALSE, project = project)
+
+}
+
+renv_paths_sandbox_win32 <- function(project = NULL) {
+  file.path(tempdir(), "renv-system-library")
+}
+
 renv_paths_renv <- function(..., profile = TRUE, project = NULL) {
   renv_bootstrap_paths_renv(..., profile = profile, project = project)
 }
@@ -278,6 +306,7 @@ renv_paths_root_default_tempdir <- function() {
 #' \code{RENV_PATHS_LIBRARY}         \tab The path to the project library. \cr
 #' \code{RENV_PATHS_LIBRARY_ROOT}    \tab The parent path for project libraries. \cr
 #' \code{RENV_PATHS_LIBRARY_STAGING} \tab The parent path used for staged package installs. \cr
+#' \code{RENV_PATHS_SANDBOX}         \tab The path to the sandboxed \R system library. \cr
 #' \code{RENV_PATHS_LOCKFILE}        \tab The path to the [lockfile][lockfiles]. \cr
 #' \code{RENV_PATHS_CELLAR}          \tab The path to the cellar, containing local package binaries and sources. \cr
 #' \code{RENV_PATHS_SOURCE}          \tab The path containing downloaded package sources. \cr

@@ -17,10 +17,10 @@ renv_path_within <- function(path, parent) {
 }
 
 renv_path_normalize <- function(path, winslash = "/", mustWork = FALSE) {
-  if (renv_platform_windows())
-    renv_path_normalize_win32(path, winslash, mustWork)
-  else
+  if (renv_platform_unix())
     renv_path_normalize_unix(path, winslash, mustWork)
+  else
+    renv_path_normalize_win32(path, winslash, mustWork)
 }
 
 renv_path_normalize_unix <- function(path,

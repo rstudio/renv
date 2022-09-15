@@ -102,7 +102,7 @@ Defaults to \code{NULL}.}
 Defaults to \code{TRUE}.}
 \subsection{renv.config.sandbox.enabled}{Enable sandboxing for \code{renv} projects? When active, \code{renv} will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in \code{renv} projects. (That is, only packages with priority \code{"base"} or \code{"recommended"}, as reported by \code{installed.packages()}, are made available.)
 Sandboxing is done by linking or copying system packages into a separate library path, and then instructing R to use that library path as the system library path. In some environments, this action can take a large amount of time -- in such a case, you may want to disable the renv sandbox.
-Defaults to \code{FALSE}.}
+Defaults to \code{TRUE}.}
 \subsection{renv.config.shims.enabled}{Should \code{renv} shims be installed on package load? When enabled, \code{renv} will install its own shims over the functions \code{install.packages()}, \code{update.packages()} and \code{remove.packages()}, delegating these functions to \code{\link[=install]{install()}}, \code{\link[=update]{update()}} and \code{\link[=remove]{remove()}} as appropriate.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.snapshot.validate}{Validate \R package dependencies when calling snapshot? When \code{TRUE}, \code{renv} will attempt to diagnose potential issues in the project library before creating \code{renv.lock} -- for example, if a package installed in the project library depends on a package which is not currently installed.

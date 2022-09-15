@@ -304,6 +304,7 @@ renv_tests_init_sandbox <- function() {
   .libPaths(dummy)
 
   # now sandbox the libpaths
+  Sys.setenv(RENV_PATHS_SANDBOX = tempdir())
   renv_sandbox_activate()
 
 }

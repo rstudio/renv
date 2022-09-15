@@ -239,7 +239,7 @@ config <- list(
     )
   },
 
-  sandbox.enabled = function(..., default = FALSE) {
+  sandbox.enabled = function(..., default = TRUE) {
     renv_config_get(
       name    = "sandbox.enabled",
       type    = "logical[1]",

@@ -1,6 +1,12 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* The `renv` sandbox is once again enabled by default. On Unix, the sandbox
+  is now created by default within the project's `renv/sandbox` library.
+  On Windows, the sandbox is created within the R session's `tempdir()`.
+  The path to the `renv` sandbox can be customized via the `RENV_PATHS_SANDBOX`
+  environment variable if required.
+
 * Fixed an issue where `renv::status()` could report spurious changes when
   comparing packages installed using `pak` in some cases. (#1070)
 

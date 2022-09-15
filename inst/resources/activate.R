@@ -678,7 +678,7 @@ local({
       return(profile)
   
     # check for a profile file (nothing to do if it doesn't exist)
-    path <- renv_bootstrap_paths_renv("profile", profile = FALSE)
+    path <- renv_bootstrap_paths_renv("profile", profile = FALSE, project = project)
     if (!file.exists(path))
       return(NULL)
   

@@ -52,8 +52,7 @@ renv_sandbox_activate_impl <- function(project) {
   if (config$sandbox.enabled()) {
 
     # generate the sandbox
-    default <- file.path(tempdir(), "renv-system-library")
-    sandbox <- Sys.getenv("RENV_PATHS_SANDBOX", unset = default)
+    sandbox <- renv_sandbox_path(project = project)
     ensure_directory(sandbox)
     renv_sandbox_generate(sandbox)
 
@@ -172,4 +171,8 @@ renv_sandbox_task <- function(...) {
 
   TRUE
 
+}
+
+renv_sandbox_path <- function(project) {
+  renv_paths_sandbox(project = project)
 }

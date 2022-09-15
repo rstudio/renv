@@ -383,10 +383,10 @@ renv_file_list <- function(path, full.names = TRUE) {
 }
 
 renv_file_list_impl <- function(path) {
-  if (renv_platform_windows())
-    renv_file_list_impl_win32(path)
-  else
+  if (renv_platform_unix())
     renv_file_list_impl_unix(path)
+  else
+    renv_file_list_impl_win32(path)
 }
 
 renv_file_list_impl_unix <- function(path) {

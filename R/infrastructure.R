@@ -74,7 +74,7 @@ renv_infrastructure_write_gitignore <- function(project) {
   stk <- if (settings$vcs.ignore.cellar()) add else remove
   stk$push("cellar/")
 
-  add$push("lock/", "python/", "staging/")
+  add$push("lock/", "python/", "sandbox/", "staging/")
 
   renv_infrastructure_write_entry_impl(
     add    = as.character(add$data()),
