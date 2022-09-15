@@ -60,3 +60,18 @@ The function `renv::snapshot()` is used to create this lockfile, and by default
 writes these records to the file `renv.lock`. Later, if you need to reinstall
 the specific package versions as recorded in `renv.lock`, you can use
 `renv::restore()`.
+
+
+## Package Records
+
+Package records are created using the currently-installed copies of packages as
+a "source of truth". The fields written into each package record are derived
+from the installed package's `DESCRIPTION` file.
+
+Note that the package records created from packages installed using
+`pak::pkg_install()` may have a format different from a package installed with
+`utils::install.packages()`. This is because `pak` writes out a variety of
+other metadata into the package `DESCRIPTION` file after installation, including
+a number of `Remote` fields that further describe where the package was
+retrieved from, and the type of package that was installed.
+
