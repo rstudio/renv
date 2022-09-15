@@ -156,10 +156,34 @@ renv_retrieve_impl <- function(package) {
   }
 
   # if this is a URL source, then it should already have a local path
-  path <- record$Path %||% record$Source %||% ""
-  if (grepl("[/\\]", path) && file.exists(path)) {
+  # check for the Path and Source fields and see if they resolve
+  fields <- c("Path", "Source")
+  for (field in fields) {
+
+    # check for a valid field
+    path <- record[[field]]
+    if (is.null(path))
+      next
+
+    # check whether it looks like an explicit source
+    isurl <-
+      is.character(path) &&
+      nzchar(path) &&
+      grepl("[/\\]|[.](?:zip|tgz|gz)$", path)
+
+    if (!isurl)
+      next
+
+    # error if the field is declared but doesn't exist
+    if (!file.exists(path)) {
+      fmt <- "record for package '%s' declares local source '%s', but that file does not exist"
+      stopf(fmt, record$Package, path)
+    }
+
+    # otherwise, success
     path <- normalizePath(path, winslash = "/", mustWork = TRUE)
     return(renv_retrieve_successful(record, path))
+
   }
 
   if (!renv_restore_rebuild_required(record)) {

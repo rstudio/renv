@@ -353,3 +353,25 @@ test_that("renv can retrieve the latest release associated with a project", {
   remote <- renv_remotes_resolve("rstudio/keras@*release")
   expect_true(is.list(remote))
 })
+
+test_that("retrieve handles local sources", {
+  skip_on_cran()
+
+  renv_tests_scope()
+
+  record <- list(
+    Package   = "bread",
+    Version   = "1.0.0",
+    Source    = "bread_1.0.0.tar.gz"
+  )
+
+  expect_error(renv_test_retrieve(record))
+
+  # call download.packages once to get URL
+  url <- download.packages("bread", destdir = getwd())
+  if (!file.exists(record$Source))
+    file.copy(url[1, 2], record$Source)
+
+  renv_test_retrieve(record)
+
+})
