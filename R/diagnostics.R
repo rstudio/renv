@@ -125,7 +125,7 @@ renv_diagnostics_packages <- function(project) {
 
   # print it out
   renv_scope_options(width = 9000)
-  print(data)
+  print(data, max = 10000)
 
   # print library codes
   fmt <- "[%s]: %s"
