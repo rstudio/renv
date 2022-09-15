@@ -403,6 +403,32 @@ renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
 
 }
 
+renv_remotes_resolve_github_modules <- function(host, user, repo, subdir, sha) {
+
+  # form path to .gitmodules file
+  subdir <- subdir %||% ""
+  parts <- c(
+    if (nzchar(subdir)) URLencode(subdir),
+    ".gitmodules"
+  )
+
+  path <- paste(parts, collapse = "/")
+
+  # scope authentication
+  renv_scope_auth(repo)
+
+  # get the file contents
+  fmt <- "%s/repos/%s/%s/contents/%s?ref=%s"
+  origin <- renv_retrieve_origin(host)
+  url <- sprintf(fmt, origin, user, repo, path, sha)
+  jsonfile <- renv_scope_tempfile("renv-json-")
+  status <- catch(download(url, destfile = jsonfile, type = "github", quiet = TRUE))
+
+  # just return a status code whether or not submodules are included
+  !inherits(status, "error")
+
+}
+
 renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sha) {
 
   # form DESCRIPTION path
@@ -469,11 +495,14 @@ renv_remotes_resolve_github_ref_impl <- function(host, user, repo) {
 renv_remotes_resolve_github <- function(remote) {
 
   # resolve the reference associated with this repository
-  host <- remote$host %||% config$github.host()
-  user <- remote$user
-  repo <- remote$repo
-  spec <- remote$spec
-  ref  <- remote$ref %||% renv_remotes_resolve_github_ref(host, user, repo)
+  host   <- remote$host %||% config$github.host()
+  user   <- remote$user
+  repo   <- remote$repo
+  spec   <- remote$spec
+  subdir <- remote$subdir
+
+  # resolve ref
+  ref <- remote$ref %||% renv_remotes_resolve_github_ref(host, user, repo)
 
   # handle '*release' refs
   if (identical(ref, "*release"))
@@ -490,15 +519,24 @@ renv_remotes_resolve_github <- function(remote) {
   if (nzchar(ref) && startswith(sha, ref))
     ref <- sha
 
+  # check whether the repository has a .gitmodules file; if so, then we'll have
+  # to use a plain 'git' client to retrieve the package
+  modules <- renv_remotes_resolve_github_modules(host, user, repo, subdir, sha)
+  url <- if (modules) {
+    origin <- fsub("api.github.com", "github.com", renv_retrieve_origin(host))
+    parts <- c(origin, user, repo)
+    paste(parts, collapse = "/")
+  }
+
   # read DESCRIPTION
-  subdir <- remote$subdir
   desc <- renv_remotes_resolve_github_description(host, user, repo, subdir, sha)
 
   list(
     Package        = desc$Package,
     Version        = desc$Version,
-    Source         = "GitHub",
-    RemoteType     = "github",
+    Source         = if (modules) "git" else "GitHub",
+    RemoteType     = if (modules) "git" else "github",
+    RemoteUrl      = if (modules) url,
     RemoteHost     = host,
     RemoteUsername = user,
     RemoteRepo     = repo,

@@ -393,3 +393,7 @@ csort <- function(x, decreasing = FALSE, ...) {
   renv_scope_locale("LC_COLLATE", "C")
   sort(x, decreasing, ...)
 }
+
+fsub <- function(pattern, replacement, x, ignore.case = FALSE, useBytes = FALSE) {
+  sub(pattern, replacement, x, ignore.case = ignore.case, useBytes = useBytes, fixed = TRUE)
+}

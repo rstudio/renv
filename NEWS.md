@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` better handles packages containing git submodules when installed
+  from GitHub remotes. (#1075)
+
 * `renv` now handles local sources within the current working directory. (#1079)
 
 * The `renv` sandbox is once again enabled by default. On Unix, the sandbox
