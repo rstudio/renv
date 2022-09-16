@@ -566,6 +566,10 @@ renv_retrieve_repos <- function(record) {
     # prefer repository binaries if available
     methods$push(renv_retrieve_repos_binary)
 
+    # also try fallback binary locations (for Nexus)
+    if (renv_nexus_enabled())
+      methods$push(renv_retrieve_repos_binary_fallback)
+
     # if MRAN is enabled, check those binaries as well
     if (config$mran.enabled())
       methods$push(renv_retrieve_repos_mran)
@@ -577,6 +581,10 @@ renv_retrieve_repos <- function(record) {
 
     # retrieve from source repositories
     methods$push(renv_retrieve_repos_source)
+
+    # also try fallback source locations (for Nexus)
+    if (renv_nexus_enabled())
+      methods$push(renv_retrieve_repos_source_fallback)
 
     # if this is a package from r-universe, try restoring from github
     # (currently inferred from presence for RemoteUrl field)
@@ -727,8 +735,31 @@ renv_retrieve_repos_binary <- function(record) {
   renv_retrieve_repos_impl(record, "binary")
 }
 
+renv_retrieve_repos_binary_fallback <- function(record) {
+
+  for (repo in getOption("repos")) {
+    status <- catch(renv_retrieve_repos_impl(record, "binary", repo = repo))
+    if (!inherits(status, "error"))
+      return(status)
+  }
+
+  stop("couldn't retrieve package using fallback binary URL")
+
+}
+
 renv_retrieve_repos_source <- function(record) {
   renv_retrieve_repos_impl(record, "source")
+}
+
+renv_retrieve_repos_source_fallback <- function(record, repo) {
+
+  for (repo in getOption("repos")) {
+    status <- catch(renv_retrieve_repos_impl(record, "source", repo = repo))
+    if (!inherits(status, "error"))
+      return(status)
+  }
+
+  stop("couldn't retrieve package using fallback source URL")
 }
 
 renv_retrieve_repos_archive <- function(record) {
