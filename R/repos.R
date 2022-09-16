@@ -1,4 +1,6 @@
 
+`_renv_repos` <- new.env(parent = emptyenv())
+
 renv_repos_encode <- function(x) {
   if (length(x) == 1)
     paste(names(x), as.character(x), sep = "=")
@@ -93,5 +95,38 @@ renv_repos_validate <- function(repos = getOption("repos")) {
 
   # normalize the repos option
   renv_repos_normalize(repos)
+
+}
+
+renv_repos_info <- function(url) {
+
+  memoize(
+    key   = url,
+    expr  = renv_repos_info_impl(url),
+    envir = `_renv_repos`
+  )
+
+}
+
+renv_repos_info_impl <- function(url) {
+
+  # try to force the use of curl for header downloads
+  curl <- Sys.which("curl")
+  if (!nzchar(curl))
+    return(NULL)
+
+  # download the headers
+  renv_scope_envvars(RENV_DOWNLOAD_METHOD = "curl")
+
+  # make sure the repository URL includes a trailing slash
+  url <- gsub("/*$", "/", url)
+
+  catch(
+    renv_download_headers(
+      url     = url,
+      type    = NULL,
+      headers = NULL
+    )
+  )
 
 }

@@ -1,6 +1,10 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` now supports the `install.packages.check.source` R option, which
+  is used to allow R to query source repositories even if the option
+  `options(pkgType = "binary")` is set. (#1074)
+
 * `renv` better handles packages containing git submodules when installed
   from GitHub remotes. (#1075)
 

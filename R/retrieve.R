@@ -554,7 +554,9 @@ renv_retrieve_repos <- function(record) {
   # figure out what package sources are okay to use here
   pkgtype <- getOption("pkgType", default = "source")
 
-  srcok <- pkgtype %in% c("both", "source")
+  srcok <- pkgtype %in% c("both", "source") ||
+    getOption("install.packages.check.source", default = "yes") %in% "yes"
+
   binok <- pkgtype %in% c("both") || grepl("binary", pkgtype, fixed = TRUE)
 
   # collect list of 'methods' for retrieval
@@ -567,8 +569,7 @@ renv_retrieve_repos <- function(record) {
     methods$push(renv_retrieve_repos_binary)
 
     # also try fallback binary locations (for Nexus)
-    if (renv_nexus_enabled())
-      methods$push(renv_retrieve_repos_binary_fallback)
+    methods$push(renv_retrieve_repos_binary_fallback)
 
     # if MRAN is enabled, check those binaries as well
     if (config$mran.enabled())
@@ -583,8 +584,7 @@ renv_retrieve_repos <- function(record) {
     methods$push(renv_retrieve_repos_source)
 
     # also try fallback source locations (for Nexus)
-    if (renv_nexus_enabled())
-      methods$push(renv_retrieve_repos_source_fallback)
+    methods$push(renv_retrieve_repos_source_fallback)
 
     # if this is a package from r-universe, try restoring from github
     # (currently inferred from presence for RemoteUrl field)
@@ -738,12 +738,15 @@ renv_retrieve_repos_binary <- function(record) {
 renv_retrieve_repos_binary_fallback <- function(record) {
 
   for (repo in getOption("repos")) {
-    status <- catch(renv_retrieve_repos_impl(record, "binary", repo = repo))
-    if (!inherits(status, "error"))
-      return(status)
+    if (renv_nexus_enabled(repo)) {
+      repourl <- contrib.url(repo, type = "binary")
+      status <- catch(renv_retrieve_repos_impl(record, "binary", repo = repourl))
+      if (!inherits(status, "error"))
+        return(status)
+    }
   }
 
-  stop("couldn't retrieve package using fallback binary URL")
+  FALSE
 
 }
 
@@ -754,12 +757,16 @@ renv_retrieve_repos_source <- function(record) {
 renv_retrieve_repos_source_fallback <- function(record, repo) {
 
   for (repo in getOption("repos")) {
-    status <- catch(renv_retrieve_repos_impl(record, "source", repo = repo))
-    if (!inherits(status, "error"))
-      return(status)
+    if (renv_nexus_enabled(repo)) {
+      repourl <- contrib.url(repo, type = "source")
+      status <- catch(renv_retrieve_repos_impl(record, "source", repo = repourl))
+      if (!inherits(status, "error"))
+        return(status)
+    }
   }
 
-  stop("couldn't retrieve package using fallback source URL")
+  FALSE
+
 }
 
 renv_retrieve_repos_archive <- function(record) {
@@ -839,6 +846,9 @@ renv_retrieve_repos_archive_path <- function(repo, record) {
 
 }
 
+# NOTE: If 'repo' is provided, it should be the path to the appropriate 'arm'
+# of a repository, which is normally generated from the repository URL via
+# 'contrib.url()'.
 renv_retrieve_repos_impl <- function(record,
                                      type = NULL,
                                      name = NULL,
