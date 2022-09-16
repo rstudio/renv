@@ -110,23 +110,29 @@ renv_repos_info <- function(url) {
 
 renv_repos_info_impl <- function(url) {
 
-  # try to force the use of curl for header downloads
-  curl <- Sys.which("curl")
-  if (!nzchar(curl))
-    return(NULL)
-
-  # download the headers
-  renv_scope_envvars(RENV_DOWNLOAD_METHOD = "curl")
-
   # make sure the repository URL includes a trailing slash
   url <- gsub("/*$", "/", url)
 
-  catch(
-    renv_download_headers(
-      url     = url,
-      type    = NULL,
-      headers = NULL
-    )
+  # if this is a file repository, return early
+  if (grepl("^file:", url))
+    return(list(nexus = FALSE))
+
+  # try to download it
+  destfile <- renv_scope_tempfile("renv-repos-")
+  status <- catch(download(url, destfile = destfile, quiet = TRUE))
+  if (inherits(status, "error"))
+    return(status)
+
+  # read the contents of the page
+  contents <- renv_file_read(destfile)
+
+  # determine if this is a Nexus repository
+  nexus <-
+    grepl("Nexus Repository Manager", contents, fixed = TRUE) ||
+    grepl("<div class=\"nexus-header\">", contents, fixed = TRUE)
+
+  list(
+    nexus = nexus
   )
 
 }

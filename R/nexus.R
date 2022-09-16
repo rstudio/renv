@@ -6,13 +6,8 @@ renv_nexus_enabled <- function(repo) {
   if (enabled)
     return(TRUE)
 
-  # next, check repository headers
-  headers <- renv_repos_info(repo)
-  if (inherits(headers, "error"))
-    return(FALSE)
-
-  # check for server header
-  server <- headers$server %||% "(unknown)"
-  grepl("Nexus", server, ignore.case = TRUE)
+  # otherwise, check cached repository information
+  info <- renv_repos_info(repo)
+  identical(info$nexus, TRUE)
 
 }
