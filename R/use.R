@@ -69,7 +69,7 @@ use <- function(...,
   # if we were supplied a lockfile, use it
   if (!is.null(lockfile)) {
     renv_scope_options(renv.verbose = verbose)
-    records <- restore(lockfile = lockfile, clean = FALSE)
+    records <- restore(lockfile = lockfile, clean = FALSE, prompt = FALSE)
     return(invisible(records))
   }
 
