@@ -1018,6 +1018,7 @@ renv_retrieve_handle_remotes <- function(record, subdir) {
   # TODO: what should we do if we detect incompatible remotes?
   # e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
   # 'r-lib/rlang@0.2'.
+  state <- renv_restore_state()
 
   # check and see if this package declares Remotes -- if so,
   # use those to fill in any missing records
@@ -1037,28 +1038,24 @@ renv_retrieve_handle_remotes <- function(record, subdir) {
       next
     }
 
-
-    # if installation of this package was not specifically requested by
-    # the user (ie: it's been requested as it's a dependency of this package)
-    # then update the record. note that we don't want to update in explicit
-    # installs as we don't want to override what was reported / requested
-    # in e.g. `renv::restore()`.
-    #
-    # allow override if a non-specific version of the package was requested
+    # if we don't have a record already, then use the declared remote
     package <- remote$Package
-    state <- renv_restore_state()
+    record <- state$records[[package]]
+    if (is.null(record)) {
+      state$records[[package]] <- remote
+      next
+    }
+
+    # if the user has explicitly requested installation of a particular package,
+    # and that package already has a defined non-repository remote, then use
+    # the pre-existing record rather than the one requested via Remotes.
     if (package %in% state$packages) {
-      record <- state$records[[package]]
       if (!identical(record, list(Package = package, Source = "Repository")))
         next
     }
 
-    # only update the record if we don't have an existing instance
-    # of the record. the intention here is that remotes specified in,
-    # say, the project DESCRIPTION file should take precedence over
-    # remotes defined by packages themselves. there is some obvious
-    # potential for breakage here though
-    state$records[[package]] <- state$records[[package]] %||% remote
+    # update the requested record
+    state$records[[package]] <- remote
 
   }
 
