@@ -37,6 +37,11 @@
 #' as described in <https://remotes.r-lib.org/articles/dependencies.html>. See
 #' the examples below for more details.
 #'
+#' If you wish to install packages from an external source requiring authentication
+#' (e.g. a private GitHub repository), see the **Authentication** documentation
+#' online at <https://rstudio.github.io/renv/articles/renv.html#authentication>,
+#' or view the documentation locally in the **Getting Started** vignette with
+#' `vignette("renv", package = "renv")`.
 #'
 #' @section Bioconductor:
 #'

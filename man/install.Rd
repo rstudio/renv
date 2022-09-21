@@ -88,6 +88,12 @@ Otherwise, you can declare the package sources in your \code{DESCRIPTION}'s
 \code{renv} supports a subset of the \code{remotes} syntax used for package installation,
 as described in \url{https://remotes.r-lib.org/articles/dependencies.html}. See
 the examples below for more details.
+
+If you wish to install packages from an external source requiring authentication
+(e.g. a private GitHub repository), see the \strong{Authentication} documentation
+online at \url{https://rstudio.github.io/renv/articles/renv.html#authentication},
+or view the documentation locally in the \strong{Getting Started} vignette with
+\code{vignette("renv", package = "renv")}.
 }
 
 \section{Bioconductor}{
