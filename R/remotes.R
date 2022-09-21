@@ -378,7 +378,7 @@ renv_remotes_resolve_github_sha_ref <- function(host, user, repo, ref) {
   url <- sprintf(fmt, origin, user, repo, ref %||% "master")
 
   # prepare headers
-  headers <- c(Accept = "application/vnd.github.v2.sha")
+  headers <- c(Accept = "application/vnd.github.sha")
 
   # make request to endpoint
   shafile <- renv_scope_tempfile("renv-sha-")
@@ -417,12 +417,19 @@ renv_remotes_resolve_github_modules <- function(host, user, repo, subdir, sha) {
   # scope authentication
   renv_scope_auth(repo)
 
+  # add headers
+  headers <- c(Accept = "application/vnd.github.raw")
+
   # get the file contents
   fmt <- "%s/repos/%s/%s/contents/%s?ref=%s"
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, path, sha)
   jsonfile <- renv_scope_tempfile("renv-json-")
-  status <- catch(download(url, destfile = jsonfile, type = "github", quiet = TRUE))
+  status <- suppressWarnings(
+    catch(
+      download(url, destfile = jsonfile, type = "github", quiet = TRUE, headers = headers)
+    )
+  )
 
   # just return a status code whether or not submodules are included
   !inherits(status, "error")
@@ -443,14 +450,23 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   # scope authentication
   renv_scope_auth(repo)
 
+  # add headers
+  headers <- c(Accept = "application/vnd.github.raw")
+
   # get the DESCRIPTION contents
   fmt <- "%s/repos/%s/%s/contents/%s?ref=%s"
   origin <- renv_retrieve_origin(host)
   url <- sprintf(fmt, origin, user, repo, descpath, sha)
-  jsonfile <- renv_scope_tempfile("renv-json-")
-  download(url, destfile = jsonfile, type = "github", quiet = TRUE)
-  json <- renv_json_read(jsonfile)
-  contents <- renv_base64_decode(json$content)
+  destfile <- renv_scope_tempfile("renv-json-")
+  download(url, destfile = destfile, type = "github", quiet = TRUE, headers = headers)
+
+  # try to read the file; detect JSON versus raw content in case
+  # headers were not sent for some reason
+  contents <- renv_file_read(destfile)
+  if (substring(contents, 1L, 1L) == "{") {
+    json <- renv_json_read(text = contents)
+    contents <- renv_base64_decode(json$content)
+  }
 
   # normalize newlines
   contents <- gsub("\r\n", "\n", contents, fixed = TRUE)
@@ -558,7 +574,7 @@ renv_remotes_resolve_github_release <- function(host, user, repo, spec) {
   url <- sprintf(fmt, origin, user, repo)
 
   # prepare headers
-  headers <- c(Accept = "application/vnd.github.v3+json")
+  headers <- c(Accept = "application/vnd.github.raw+json")
 
   # make request to endpoint
   releases <- renv_scope_tempfile("renv-releases-")
