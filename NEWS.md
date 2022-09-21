@@ -1,6 +1,9 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` now reports if `renv::snapshot()` will change or update the
+  version of R recorded in the lockfile. (#1069)
+
 * `renv` now supports the `install.packages.check.source` R option, which
   is used to allow R to query source repositories even if the option
   `options(pkgType = "binary")` is set. (#1074)

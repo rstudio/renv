@@ -785,6 +785,17 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     "The following package(s) will be updated in the lockfile:"
   )
 
+  oldr <- old$R$Version
+  newr <- new$R$Version
+  rdiff <- renv_version_compare(oldr %||% "0", newr %||% "0")
+
+  if (rdiff != 0L) {
+    n <- max(nchar(names(actions)))
+    fmt <- paste("-", format("R", width = n), " ", "[%s] -> [%s]")
+    msg <- sprintf(fmt, oldr %||% "*", newr %||% "*")
+    writeLines(c("The version of R recorded in the lockfile will be updated:", msg, ""))
+  }
+
 }
 # nocov end
 
