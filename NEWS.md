@@ -1,8 +1,8 @@
 
 # renv 0.16.0  (UNRELEASED)
 
-* `renv` now passes along `headers = getOption("renv.download.headers")`
-  when bootstrapping itself in the call to `utils::download.file()`.
+* `renv` now passes along the headers produced by the `renv.download.headers`
+  option when bootstrapping itself in the call to `utils::download.file()`.
   (#1084)
 
 * `renv` now reports if `renv::snapshot()` will change or update the
