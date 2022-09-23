@@ -1,6 +1,10 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` now passes along `headers = getOption("renv.download.headers")`
+  when bootstrapping itself in the call to `utils::download.file()`.
+  (#1084)
+
 * `renv` now reports if `renv::snapshot()` will change or update the
   version of R recorded in the lockfile. (#1069)
 

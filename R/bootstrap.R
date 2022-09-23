@@ -125,43 +125,80 @@ renv_bootstrap_download_impl <- function(url, destfile) {
   if (fixup)
     mode <- "w+b"
 
-  utils::download.file(
+  args <- list(
     url      = url,
     destfile = destfile,
     mode     = mode,
     quiet    = TRUE
   )
 
+  if ("headers" %in% names(formals(utils::download.file)))
+    args$headers <- renv_bootstrap_download_custom_headers(url)
+
+  do.call(utils::download.file, args)
+
+}
+
+renv_bootstrap_download_custom_headers <- function(url) {
+
+  headers <- getOption("renv.download.headers")
+  if (is.null(headers))
+    return(character())
+
+  if (!is.function(headers))
+    stopf("'renv.download.headers' is not a function")
+
+  headers <- headers(url)
+  if (length(headers) == 0L)
+    return(character())
+
+  if (is.list(headers))
+    headers <- unlist(headers, recursive = FALSE, use.names = TRUE)
+
+  ok <-
+    is.character(headers) &&
+    is.character(names(headers)) &&
+    all(nzchar(names(headers)))
+
+  if (!ok)
+    stop("invocation of 'renv.download.headers' did not return a named character vector")
+
+  headers
+
 }
 
 renv_bootstrap_download_cran_latest <- function(version) {
 
   spec <- renv_bootstrap_download_cran_latest_find(version)
-
-  message("* Downloading renv ", version, " ... ", appendLF = FALSE)
-
   type  <- spec$type
   repos <- spec$repos
 
-  info <- tryCatch(
-    utils::download.packages(
-      pkgs    = "renv",
-      destdir = tempdir(),
-      repos   = repos,
-      type    = type,
-      quiet   = TRUE
-    ),
+  message("* Downloading renv ", version, " ... ", appendLF = FALSE)
+
+  baseurl <- utils::contrib.url(repos = repos, type = type)
+  ext <- if (identical(type, "source"))
+    ".tar.gz"
+  else if (Sys.info()[["sysname"]] == "Windows")
+    ".zip"
+  else
+    ".tgz"
+  name <- sprintf("renv_%s%s", version, ext)
+  url <- paste(baseurl, name, sep = "/")
+
+  destfile <- file.path(tempdir(), name)
+  status <- tryCatch(
+    renv_bootstrap_download_impl(url, destfile),
     condition = identity
   )
 
-  if (inherits(info, "condition")) {
+  if (inherits(status, "condition")) {
     message("FAILED")
     return(FALSE)
   }
 
   # report success and return
   message("OK (downloaded ", type, ")")
-  info[1, 2]
+  destfile
 
 }
 

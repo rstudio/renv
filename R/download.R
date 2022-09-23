@@ -742,26 +742,7 @@ renv_download_local_default <- function(url, destfile, headers) {
 }
 
 renv_download_custom_headers <- function(url) {
-
-  headers <- getOption("renv.download.headers")
-  if (is.null(headers))
-    return(character())
-
-  if (!is.function(headers))
-    stopf("'renv.download.headers' is not a function")
-
-  headers <- invoke(headers, url)
-  if (empty(headers))
-    return(character())
-
-  if (is.list(headers))
-    headers <- unlist(headers, recursive = FALSE, use.names = TRUE)
-
-  if (!is.character(headers) || is.null(names(headers)))
-    stop("invocation of 'renv.download.headers' did not return a named character vector")
-
-  headers
-
+  renv_bootstrap_download_custom_headers(url)
 }
 
 renv_download_available <- function(url) {
