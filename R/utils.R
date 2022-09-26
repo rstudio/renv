@@ -308,8 +308,8 @@ drop <- function(x, keys) {
   x[setdiff(names(x), keys)]
 }
 
-invoke <- function(f, ...) {
-  f(...)
+invoke <- function(callback, ...) {
+  callback(...)
 }
 
 dequote <- function(strings) {
