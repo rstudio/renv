@@ -1,6 +1,10 @@
 
 # renv 0.16.0  (UNRELEASED)
 
+* `renv` now supports installation of packages with remotes of the form
+  `<package>=<remote>`. However, the provided package name is ignored
+  and is instead parsed from the remote itself. (#1064)
+
 * `renv` now passes along the headers produced by the `renv.download.headers`
   option when bootstrapping itself in the call to `utils::download.file()`.
   (#1084)

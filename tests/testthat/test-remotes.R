@@ -99,6 +99,11 @@ test_that("we can parse a variety of remotes", {
   expect_equal(record$Package, "skeleton")
   expect_equal(record$RemoteRef, "v1.0.1")
 
+  # git + prefix
+  record <- renv_remotes_resolve("skeleton=kevinushey/skeleton@*release")
+  expect_equal(record$Package, "skeleton")
+  expect_equal(record$RemoteRef, "v1.0.1")
+
   # url
   record <- renv_remotes_resolve("url::https://github.com/kevinushey/renv.git1/archive/refs/heads/main.zip")
   expect_equal(record$Package, "renv.git1")

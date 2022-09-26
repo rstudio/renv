@@ -241,6 +241,9 @@ renv_remotes_parse_finalize_github <- function(remote) {
 
 renv_remotes_parse <- function(spec) {
 
+  # https://github.com/rstudio/renv/issues/1064
+  spec <- sub("^[a-zA-Z0-9.]+=", "", spec)
+
   remote <- catch(renv_remotes_parse_repos(spec))
   if (!inherits(remote, "error")) {
     remote$type <- "repository"
