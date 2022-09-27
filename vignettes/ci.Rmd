@@ -125,7 +125,7 @@ manages caching.
 ## GitLab CI
 
 The following template can be used as a base when using `renv` with
-[GitLab CI](https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/):
+[GitLab CI][gitlab-ci]:
 
 ```
 variables:
@@ -147,7 +147,8 @@ before_script:
 ```
 
 
-[github-actions]: https://github.com/features/actions
-[travis-ci]: https://travis-ci.org/
 [appveyor]: https://www.appveyor.com/
+[gitlab-ci]: https://about.gitlab.com/features/continuous-integration/
+[github-actions]: https://github.com/features/actions
 [github-actions-renv]: https://github.com/actions/cache/blob/main/examples.md#r---renv
+[travis-ci]: https://www.travis-ci.com/
