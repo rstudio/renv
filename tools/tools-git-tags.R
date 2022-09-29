@@ -7,8 +7,8 @@ assign(".packageName", "renv", envir = envir)
 files <- list.files("R", full.names = TRUE)
 for (file in files)
   sys.source(file, envir = envir)
-envir$.onLoad("", "renv")
-envir$.onAttach("", "renv")
+invisible(envir$.onLoad("", "renv"))
+invisible(envir$.onAttach("", "renv"))
 
 # copy package sources to temporary directory
 dir <- tempfile("renv-")
