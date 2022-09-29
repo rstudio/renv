@@ -1,4 +1,6 @@
 
+# renv 0.17.0  (UNRELEASED)
+
 # renv 0.16.0
 
 * `renv` now supports installation of packages with remotes of the form
