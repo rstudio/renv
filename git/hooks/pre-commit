@@ -23,25 +23,28 @@ fi
 
 # Get version line
 LINE="$(grep "^Version:" DESCRIPTION)"
-VERSION="$(echo "${LINE}" | cut -d' ' -f2)"
-if [ -z "${VERSION}" ]; then
+OLD="$(echo "${LINE}" | cut -d' ' -f2)"
+if [ -z "${OLD}" ]; then
 	exit 0
 fi
 
 # Construct new version
-LHS="$(echo "${VERSION}" | cut -d'-' -f1)"
-RHS="$(echo "${VERSION}" | cut -d'-' -f2)"
+LHS="$(echo "${OLD}" | cut -d'-' -f1)"
+RHS="$(echo "${OLD}" | cut -d'-' -f2)"
 if [ "${LHS}" = "${RHS}" ]; then
   RHS="0"
 fi
 
 # Bump the patch number
 : $((RHS+=1))
+NEW="${LHS}-${RHS}"
 
 # Replace the line in the DESCRIPTION
-REPLACEMENT="Version: ${LHS}-${RHS}"
+REPLACEMENT="Version: ${NEW}"
 sed -i.backup "s/${LINE}/${REPLACEMENT}/g" DESCRIPTION
 rm DESCRIPTION.backup
-
 git add DESCRIPTION
+
+# Let the user know we did some work
+echo "[i] Updated version in DESCRIPTION file: '${OLD}' -> '${NEW}'"
 
