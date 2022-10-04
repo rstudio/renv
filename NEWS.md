@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Fixed an issue where the `renv` sandbox location did not respect the
+  active `renv` profile. (#1088)
+
 # renv 0.16.0
 
 * `renv` now supports installation of packages with remotes of the form

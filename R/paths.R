@@ -106,7 +106,7 @@ renv_paths_sandbox_unix <- function(project = NULL) {
 
   # otherwise, build path in renv folder
   project <- renv_project_resolve(project)
-  renv_paths_renv("sandbox", prefix, profile = FALSE, project = project)
+  renv_paths_renv("sandbox", prefix, profile = TRUE, project = project)
 
 }
 
