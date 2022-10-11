@@ -23,13 +23,25 @@ renv_python_conda_select <- function(name, version = NULL) {
 
 }
 
+renv_python_conda_export_path <- function(project) {
+
+  # check override
+  override <- renv_paths_override("CONDA_EXPORT")
+  if (!is.null(override))
+    return(override)
+
+  # use default
+  file.path(project, "environment.yml")
+
+}
+
 # TODO: support prompt
 renv_python_conda_snapshot <- function(project, prompt, python) {
 
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
-  path <- file.path(project, "environment.yml")
+  path <- renv_python_conda_export_path(project = project)
 
   # find the root of the associated conda environment
   lockfile <- renv_lockfile_load(project = project)
@@ -58,7 +70,7 @@ renv_python_conda_restore <- function(project, prompt, python) {
   owd <- setwd(project)
   on.exit(setwd(owd), add = TRUE)
 
-  path <- file.path(project, "environment.yml")
+  path <- renv_python_conda_export_path(project = project)
 
   # find the root of the associated conda environment
   lockfile <- renv_lockfile_load(project = project)

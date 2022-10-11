@@ -1,6 +1,11 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* The path to the Conda `environment.yml` file created by `renv` can
+  now be customized via the `RENV_PATHS_CONDA_EXPORT` environment
+  variable. We recommend setting this within your project-local
+  `.Renviron` file as appropriate. (#1089)
+
 * Fixed an issue where the `renv` sandbox location did not respect the
   active `renv` profile. (#1088)
 
