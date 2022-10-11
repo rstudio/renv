@@ -273,23 +273,24 @@ renv_paths_root_default_tempdir <- function() {
 #'
 #' \tabular{ll}{
 #' **Platform** \tab **Location** \cr
+#' Linux        \tab `~/.cache/R/renv` \cr
+#' macOS        \tab `~/Library/Caches/org.R-project.R/R/renv` \cr
+#' Windows      \tab `%LOCALAPPDATA%/R/cache/R/renv` \cr
+#' }
+#'
+#' Note that older version of `renv` used a different default cache location.
+#' Those cache locations are:
+#'
+#' \tabular{ll}{
+#' **Platform** \tab **Location** \cr
 #' Linux        \tab `~/.local/share/renv` \cr
 #' macOS        \tab `~/Library/Application Support/renv` \cr
 #' Windows      \tab `%LOCALAPPDATA%/renv` \cr
 #' }
 #'
-#' For new installations of `renv` using R (>= 4.0.0), `renv` will use
-#' [tools::R_user_dir()] to resolve the root directory. If an `renv` root
-#' directory has already been created in one of the old locations, that will
-#' still be used. This change was made to comply with the CRAN policy
-#' requirements of \R packages. By default, these paths resolve as:
-#'
-#' \tabular{ll}{
-#' **Platform** \tab **Location** \cr
-#' Linux        \tab `~/.cache/R/renv` \cr
-#' macOS        \tab `~/Library/Caches/org.R-project.R/R/renv` \cr
-#' Windows      \tab `%LOCALAPPDATA%/R/cache/R/renv` \cr
-#' }
+#' If an `renv` root directory has already been created in one of the old
+#' locations, that will still be used. This change was made to comply with the
+#' CRAN policy requirements of \R packages.
 #'
 #' If desired, this path can be customized by setting the `RENV_PATHS_ROOT`
 #' environment variable. This can be useful if you'd like, for example, multiple

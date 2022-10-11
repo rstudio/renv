@@ -18,23 +18,24 @@ By default, \code{renv} collects state into these folders:
 
 \tabular{ll}{
 \strong{Platform} \tab \strong{Location} \cr
+Linux        \tab \verb{~/.cache/R/renv} \cr
+macOS        \tab \verb{~/Library/Caches/org.R-project.R/R/renv} \cr
+Windows      \tab \verb{\%LOCALAPPDATA\%/R/cache/R/renv} \cr
+}
+
+Note that older version of \code{renv} used a different default cache location.
+Those cache locations are:
+
+\tabular{ll}{
+\strong{Platform} \tab \strong{Location} \cr
 Linux        \tab \verb{~/.local/share/renv} \cr
 macOS        \tab \verb{~/Library/Application Support/renv} \cr
 Windows      \tab \verb{\%LOCALAPPDATA\%/renv} \cr
 }
 
-For new installations of \code{renv} using R (>= 4.0.0), \code{renv} will use
-\code{\link[tools:userdir]{tools::R_user_dir()}} to resolve the root directory. If an \code{renv} root
-directory has already been created in one of the old locations, that will
-still be used. This change was made to comply with the CRAN policy
-requirements of \R packages. By default, these paths resolve as:
-
-\tabular{ll}{
-\strong{Platform} \tab \strong{Location} \cr
-Linux        \tab \verb{~/.cache/R/renv} \cr
-macOS        \tab \verb{~/Library/Caches/org.R-project.R/R/renv} \cr
-Windows      \tab \verb{\%LOCALAPPDATA\%/R/cache/R/renv} \cr
-}
+If an \code{renv} root directory has already been created in one of the old
+locations, that will still be used. This change was made to comply with the
+CRAN policy requirements of \R packages.
 
 If desired, this path can be customized by setting the \code{RENV_PATHS_ROOT}
 environment variable. This can be useful if you'd like, for example, multiple
