@@ -102,7 +102,7 @@ hydrate <- function(packages = NULL,
     renv_hydrate_copy_packages(packages, library)
 
   # attempt to install missing packages (if any)
-  missing <- renv_hydrate_resolve_missing(project, na)
+  missing <- renv_hydrate_resolve_missing(project, library, na)
 
   # we're done!
   result <- list(packages = packages, missing = missing)
@@ -271,16 +271,15 @@ renv_hydrate_copy_packages <- function(packages, library) {
   copied
 }
 
-renv_hydrate_resolve_missing <- function(project, na) {
+renv_hydrate_resolve_missing <- function(project, library, na) {
 
-  # resolve library paths
-  library <- renv_paths_library(project = project)
-  libpaths <- renv_libpaths_resolve(library)
-  renv_scope_libpaths(libpaths)
+  # make sure requested library is made active
+  ensure_directory(library)
+  renv_scope_libpaths(unique(c(library, .libPaths())))
 
   # figure out which packages are missing (if any)
   packages <- names(na)
-  installed <- renv_installed_packages(lib.loc = libpaths)
+  installed <- renv_installed_packages()
   if (all(packages %in% installed$Package))
     return()
 
