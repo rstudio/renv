@@ -1,6 +1,10 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv::use()` gains the `sandbox` argument, which allows one to control
+  whether the system library is sandboxed after a call to `renv::use()`.
+  (#1083)
+
 * The path to the Conda `environment.yml` file created by `renv` can
   now be customized via the `RENV_PATHS_CONDA_EXPORT` environment
   variable. We recommend setting this within your project-local

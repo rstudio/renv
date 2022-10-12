@@ -35,6 +35,12 @@
 #'   paths activated for this script? Set this to `TRUE` if you only want the
 #'   packages provided to `renv::use()` to be visible on the library paths.
 #'
+#' @param sandbox
+#'   Should the system library be sandboxed? See the sandbox documentation in
+#'   [renv::config] for more details. You can also provide an explicit sandbox
+#'   path if you want to configure where `renv::use()` generates its sandbox.
+#'   By default, the sandbox is generated within the \R temporary directory.
+#'
 #' @param attach
 #'   Boolean; should the set of requested packages be automatically attached?
 #'   If `TRUE`, packages will be loaded and attached via a call
@@ -51,12 +57,16 @@ use <- function(...,
                 lockfile = NULL,
                 library  = NULL,
                 isolate  = FALSE,
+                sandbox  = TRUE,
                 attach   = FALSE,
                 verbose  = TRUE)
 {
 
   # allow use of the cache in this context
   renv_scope_options(renv.cache.linkable = TRUE)
+
+  # set up sandbox if requested
+  renv_use_sandbox(sandbox)
 
   # prepare library and activate library
   library <- library %||% renv_use_libpath()
@@ -106,4 +116,22 @@ use <- function(...,
 
 renv_use_libpath <- function() {
   renv_global("use.library", tempfile("renv-library-"))
+}
+
+renv_use_sandbox <- function(sandbox) {
+
+  if (identical(sandbox, FALSE))
+    return(FALSE)
+
+  if (renv_sandbox_activated())
+    return(TRUE)
+
+  path <- if (is.character(sandbox))
+    sandbox
+  else
+    file.path(tempdir(), "renv-sandbox")
+
+  renv_scope_options(renv.config.sandbox.enabled = TRUE)
+  renv_sandbox_activate_impl(path = path)
+
 }

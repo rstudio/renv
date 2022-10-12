@@ -9,6 +9,7 @@ use(
   lockfile = NULL,
   library = NULL,
   isolate = FALSE,
+  sandbox = TRUE,
   attach = FALSE,
   verbose = TRUE
 )
@@ -29,6 +30,11 @@ to be used multiple times within a single script.}
 \item{isolate}{Boolean; should the active library paths be included in the set of library
 paths activated for this script? Set this to \code{TRUE} if you only want the
 packages provided to \code{renv::use()} to be visible on the library paths.}
+
+\item{sandbox}{Should the system library be sandboxed? See the sandbox documentation in
+\link{config} for more details. You can also provide an explicit sandbox
+path if you want to configure where \code{renv::use()} generates its sandbox.
+By default, the sandbox is generated within the \R temporary directory.}
 
 \item{attach}{Boolean; should the set of requested packages be automatically attached?
 If \code{TRUE}, packages will be loaded and attached via a call

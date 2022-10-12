@@ -38,7 +38,7 @@ renv_sandbox_activate <- function(project = NULL) {
 
 }
 
-renv_sandbox_activate_impl <- function(project) {
+renv_sandbox_activate_impl <- function(project = NULL, path = NULL) {
 
   # get current library paths
   oldlibs <- .libPaths()
@@ -52,12 +52,12 @@ renv_sandbox_activate_impl <- function(project) {
   if (config$sandbox.enabled()) {
 
     # generate the sandbox
-    sandbox <- renv_sandbox_path(project = project)
-    ensure_directory(sandbox)
-    renv_sandbox_generate(sandbox)
+    path <- path %||% renv_sandbox_path(project = project)
+    ensure_directory(path)
+    renv_sandbox_generate(path)
 
     # override .Library
-    renv_binding_replace(".Library", sandbox, envir = base)
+    renv_binding_replace(".Library", path, envir = base)
 
   }
 
@@ -80,6 +80,10 @@ renv_sandbox_activate_impl <- function(project) {
   # return new library paths
   renv_libpaths_all()
 
+}
+
+renv_sandbox_activated <- function() {
+  !identical(.Library, renv_libpaths_system())
 }
 
 renv_sandbox_activate_check <- function(libs) {
