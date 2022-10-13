@@ -164,37 +164,6 @@ test_that("we use an external library path for package projects", {
 
 })
 
-test_that("RENV_PATHS_RENV is respected on init", {
-
-  skip_on_cran()
-
-  renv_tests_scope()
-  renv_scope_envvars(
-    RENV_PATHS_LOCKFILE = ".renv/renv.lock",
-    RENV_PATHS_RENV = ".renv"
-  )
-
-  local({
-    args <- c("-s", "-e", shcode(renv::init()))
-    renv_system_exec(R(), args, action = "renv::init()")
-    expect_true(file.exists(".renv"))
-    expect_true(file.exists(".renv/renv.lock"))
-  })
-
-  script <- renv_test_code({
-    writeLines(Sys.getenv("RENV_PATHS_RENV"))
-  })
-
-  args <- c("-s", "-f", script)
-  renv <- local({
-    renv_scope_envvars(R_PROFILE_USER = NULL)
-    renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
-  })
-
-  expect_equal(renv, ".renv")
-
-})
-
 test_that("a project with unnamed repositories can be initialized", {
 
   skip_on_cran()
@@ -210,5 +179,47 @@ test_that("a project with unnamed repositories can be initialized", {
 
   repos <- getOption("repos")
   expect_equal(names(repos), c("CRAN", "V1"))
+
+})
+
+test_that("RENV_PATHS_RENV is respected on init", {
+
+  skip_on_cran()
+
+  renv_tests_scope()
+  renv_scope_envvars(
+    RENV_PATHS_LOCKFILE = ".renv/renv.lock",
+    RENV_PATHS_RENV     = ".renv"
+  )
+
+  local({
+
+    # don't execute user profile, and make sure we can find renv
+    renv_scope_envvars(
+      R_LIBS         = Sys.getenv("RENV_DEFAULT_R_LIBS"),
+      R_PROFILE_USER = ""
+    )
+
+    # perform init in sub-process
+    args <- c("-s", "-e", shcode(renv::init()))
+    renv_system_exec(R(), args, action = "executing renv::init()")
+
+    # check that the requisite files were created
+    expect_true(file.exists(".renv"))
+    expect_true(file.exists(".renv/renv.lock"))
+
+  })
+
+  script <- renv_test_code({
+    writeLines(Sys.getenv("RENV_PATHS_RENV"))
+  })
+
+  renv <- local({
+    renv_scope_envvars(R_PROFILE_USER = NULL)
+    args <- c("-s", "-f", script)
+    renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
+  })
+
+  expect_equal(renv, ".renv")
 
 })
