@@ -1,6 +1,10 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv` now marks the sandbox as non-writable, which should hopefully
+  alleviate issues where attempts to update installed packages would
+  inadvertently install the updated package into the sandbox. (#1090)
+
 * `renv::use()` gains the `sandbox` argument, which allows one to control
   whether the system library is sandboxed after a call to `renv::use()`.
   (#1083)

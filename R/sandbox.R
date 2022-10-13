@@ -123,19 +123,25 @@ renv_sandbox_activate_check <- function(libs) {
 
 renv_sandbox_generate <- function(sandbox) {
 
+  # make the library temporarily writable
+  Sys.chmod(sandbox, "0755")
+
   # find system packages in the system library
   syspkgs <- renv_installed_packages(
     lib.loc = renv_libpaths_system(),
     priority = c("base", "recommended")
   )
 
-  # link into temporary library
+  # link into sandbox
   sources <- with(syspkgs, file.path(LibPath, Package))
   targets <- with(syspkgs, file.path(sandbox, Package))
   names(targets) <- sources
   enumerate(targets, function(source, target) {
     renv_file_link(source, target)
   })
+
+  # make the library unwritable again
+  Sys.chmod(sandbox, "0555")
 
   # return sandbox path
   sandbox
