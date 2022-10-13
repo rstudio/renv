@@ -137,7 +137,7 @@ renv_sandbox_generate <- function(sandbox) {
   targets <- with(syspkgs, file.path(sandbox, Package))
   names(targets) <- sources
   enumerate(targets, function(source, target) {
-    renv_file_link(source, target)
+    renv_file_link(source, target, overwrite = TRUE)
   })
 
   # make the library unwritable again
