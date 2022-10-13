@@ -29,7 +29,7 @@ renv_envvar_modify <- function(envvar, value, prepend) {
   else
     c(if (!is.na(old)) old, value)
 
-  new <- paste(parts, collapse = .Platform$path.sep)
+  new <- paste(unique(parts), collapse = .Platform$path.sep)
 
   names(new) <- envvar
   do.call(Sys.setenv, as.list(new))
