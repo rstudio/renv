@@ -429,10 +429,11 @@ system.
 It is also possible to configure `renv` to use multiple cache locations -- for
 example, you might want to make both a user-local package cache, as well as a
 global administrator-managed cache, visible within an `renv` project. To do so,
-you can specify the paths to the cache separated with a `:` -- for example,
+you can specify the paths to the cache separated with a `;` (or `:` on Unix
+if preferred). For example:
 
 ```
-RENV_PATHS_CACHE = /path/to/local/cache:/path/to/global/cache
+RENV_PATHS_CACHE = /path/to/local/cache;/path/to/global/cache
 ```
 
 In such a case, `renv` will iterate over the cache locations in order when
