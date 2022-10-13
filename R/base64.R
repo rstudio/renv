@@ -1,10 +1,5 @@
 
-renv_base64_encode_table <- function() {
-  renv_global("base64.encode.table", {
-    text <- "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
-    as.integer(charToRaw(text))
-  })
-}
+`_renv_base64_table` <- as.integer(charToRaw("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="))
 
 renv_base64_encode_main <- function(input) {
 
@@ -24,21 +19,19 @@ renv_base64_encode_main <- function(input) {
   o2 <- seq.int(3L, no - 1L, by = 4L)
   o3 <- seq.int(4L, no - 0L, by = 4L)
 
-  t <- renv_base64_encode_table()
+  output[o0] <- `_renv_base64_table`[1L + bitwShiftR(input[i0], 2L)]
 
-  output[o0] <- t[1L + bitwShiftR(input[i0], 2L)]
-
-  output[o1] <- t[1L + bitwOr(
+  output[o1] <- `_renv_base64_table`[1L + bitwOr(
     bitwShiftL(bitwAnd(input[i0], 0x03L), 4L),
     bitwShiftR(bitwAnd(input[i1], 0xF0L), 4L)
   )]
 
-  output[o2] <- t[1L + bitwOr(
+  output[o2] <- `_renv_base64_table`[1L + bitwOr(
     bitwShiftL(bitwAnd(input[i1], 0x0FL), 2L),
     bitwShiftR(bitwAnd(input[i2], 0xC0L), 6L)
   )]
 
-  output[o3] <- t[1L + bitwAnd(input[i2], 0x3FL)]
+  output[o3] <- `_renv_base64_table`[1L + bitwAnd(input[i2], 0x3FL)]
 
   output
 
@@ -53,22 +46,21 @@ renv_base64_encode_rest <- function(input) {
 
   output <- rep.int(61L, 4L)
   i <- ni - remaining + 1
-  t <- renv_base64_encode_table()
 
-  output[1L] <- t[1L + bitwShiftR(input[i + 0L], 2L)]
+  output[1L] <- `_renv_base64_table`[1L + bitwShiftR(input[i + 0L], 2L)]
 
   if (remaining == 1L) {
 
-    output[2L] <- t[1L + bitwShiftL(bitwAnd(input[i + 0L], 0x03L), 4L)]
+    output[2L] <- `_renv_base64_table`[1L + bitwShiftL(bitwAnd(input[i + 0L], 0x03L), 4L)]
 
   } else if (remaining == 2L) {
 
-    output[2L] <- t[1L + bitwOr(
+    output[2L] <- `_renv_base64_table`[1L + bitwOr(
       bitwShiftL(bitwAnd(input[i + 0L], 0x03L), 4L),
       bitwShiftR(bitwAnd(input[i + 1L], 0xF0L), 4L)
     )]
 
-    output[3L] <- t[1L + bitwShiftL(bitwAnd(input[i + 1L], 0x0FL), 2L)]
+    output[3L] <- `_renv_base64_table`[1L + bitwShiftL(bitwAnd(input[i + 1L], 0x0FL), 2L)]
 
   }
 
