@@ -119,3 +119,23 @@ test_that("the renv + jsonlite JSON readers are compatible", {
   expect_equal(lhs, rhs)
 
 })
+
+test_that("NA values are properly serialized", {
+
+  expect_equal(renv_json_write(NA, file = NULL), "null")
+  expect_equal(renv_json_write(NA_character_, file = NULL), "null")
+
+  expect_equal(renv_json_write(NA_real_, file = NULL), "null")
+  expect_equal(renv_json_write(NA_integer_, file = NULL), "null")
+  expect_equal(renv_json_write(NA_complex_, file = NULL), "null")
+  expect_equal(renv_json_write(NaN, file = NULL), "null")
+
+})
+
+test_that("we fall back to the internal JSON reader if jsonlite fails", {
+
+  skip_if_not_installed("jsonlite")
+  json <- renv_json_read(text = "[key: NA]")
+  expect_equal(json, list(key = NA))
+
+})

@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Fixed an issue where `renv` could emit JSON lockfiles which could not
+  be parsed by external JSON readers. (#1102)
+
 * `renv` now marks the sandbox as non-writable, which should hopefully
   alleviate issues where attempts to update installed packages would
   inadvertently install the updated package into the sandbox. (#1090)

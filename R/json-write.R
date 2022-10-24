@@ -62,7 +62,7 @@ renv_json_convert_atom <- function(key, value, config, depth) {
 
   if (is.character(value)) {
     value <- renv_json_quote(value)
-    value[value == "\"NA\""] <- "null"
+    value[value %in% c("NA")] <- "null"
   }
 
   if (is.logical(value)) {
@@ -71,7 +71,7 @@ renv_json_convert_atom <- function(key, value, config, depth) {
   }
 
   if (unbox && n == 1L)
-    return(paste0(value))
+    return(if (is.na(value)) "null" else paste0(value))
 
   indent <- renv_json_convert_indent(depth)
   json <- paste0(renv_json_convert_indent(depth + 1L), value)
