@@ -328,6 +328,13 @@ renv_tests_init_finish <- function() {
   # mark tests as running
   options(renv.tests.running = TRUE)
 
+  # make sure the sandbox is writable on shutdown so R can clean it up
+  reg.finalizer(renv_envir_self(), function(object) {
+    sandbox <- renv_sandbox_path()
+    if (file.exists(sandbox))
+      Sys.chmod(sandbox, "0755")
+  }, onexit = TRUE)
+
 }
 
 renv_tests_init <- function() {

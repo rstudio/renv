@@ -113,8 +113,8 @@ renv_description_type <- function(path = NULL, desc = NULL) {
 renv_description_parse_field <- function(field) {
 
   # check for invalid / unexpected inputs
-  if (is.na(field) || !nzchar(field))
-    return(data.frame())
+  if (is.null(field) || is.na(field) || !nzchar(field))
+    return(NULL)
 
   pattern <- paste0(
     "([a-zA-Z0-9._]+)",                      # package name
@@ -131,7 +131,7 @@ renv_description_parse_field <- function(field) {
   m <- regexec(pattern, x)
   matches <- regmatches(x, m)
   if (empty(matches))
-    return(data.frame())
+    return(NULL)
 
   data.frame(
     Package = extract_chr(matches, 2L),

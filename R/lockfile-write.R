@@ -50,27 +50,6 @@ renv_lockfile_write <- function(lockfile, file = stdout()) {
       lockfile <- renv_lockfile_write_preflight(old, lockfile)
   }
 
-  # specify the dependencies for each package, so that
-  # pak can figure out the correct installation order
-  lockfile$Packages <- enumerate(lockfile$Packages, function(package, record) {
-
-    # collect package requirements
-    keys <- c("Depends", "Imports", "LinkingTo", "Requirements")
-    vals <- keep(record, keys)
-    record <- drop(record, keys)
-
-    # normalize required packages
-    record$Requirements <- vals %>%
-      unlist(use.names = FALSE) %>%
-      gsub(pattern = "\\s*\\(.*", replacement = "", perl = TRUE) %>%
-      intersect(names(lockfile$Packages)) %>%
-      csort()
-
-    # return updated record
-    record
-
-  })
-
   lockfile <- renv_lockfile_sort(lockfile)
   renv_lockfile_write_json(lockfile, file)
 
@@ -90,7 +69,7 @@ renv_lockfile_write_json_prepare <- function(key, val) {
 
   if (key == "Repositories")
     renv_lockfile_write_json_prepare_repos(val)
-  else if (is.list(val))
+  else if (is.list(val) && !is.null(names(val)))
     enumerate(val, renv_lockfile_write_json_prepare)
   else
     val

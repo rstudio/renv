@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project Environments
-Version: 0.16.0-16
+Version: 0.16.0-17
 Authors@R: c(
     person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com"),
     person("RStudio, PBC", role = c("cph"))

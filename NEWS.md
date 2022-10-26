@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Fixed an issue where `renv::snapshot()` could fail to detect when
+  no changes had been made to the lockfile.
+
 * Fixed an issue where `renv` could emit JSON lockfiles which could not
   be parsed by external JSON readers. (#1102)
 

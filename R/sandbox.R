@@ -183,6 +183,6 @@ renv_sandbox_task <- function(...) {
 
 }
 
-renv_sandbox_path <- function(project) {
+renv_sandbox_path <- function(project = NULL) {
   renv_paths_sandbox(project = project)
 }

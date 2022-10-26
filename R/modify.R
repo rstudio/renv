@@ -102,7 +102,9 @@ renv_modify_noninteractive <- function(project, changes) {
   renv_lockfile_write(merged, file = templock)
 
   # try reading it once more
-  renv_lockfile_read(file = templock)
+  newlock <- renv_lockfile_read(file = templock)
+  if (!identical(merged, newlock))
+    stop("modify produced an invalid lockfile")
 
   # overwrite the original lockfile
   file.rename(templock, lockpath)

@@ -312,9 +312,13 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
         return(FALSE)
       }
 
+      # check for NULL
+      if (is.null(parsed))
+        return(TRUE)
+
       # read requirements for R
       r <- parsed[parsed$Package == "R", ]
-      if (nrow(r) == 0)
+      if (is.null(r) || nrow(r) == 0)
         return(TRUE)
 
       # build code to validate requirements

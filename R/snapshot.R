@@ -684,21 +684,17 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   else
     renv_hash_description(path)
 
-  # normalize whitespace in some dependency fields
+  # generate a Requirements field -- primarily for use by 'pak'
   fields <- c("Depends", "Imports", "LinkingTo")
-  for (field in fields) {
-    if (!is.null(dcf[[field]])) {
-      parts <- strsplit(dcf[[field]], "\\s*,\\s*", perl = TRUE)[[1L]]
-      parts <- gsub("\\s+", " ", parts, perl = TRUE)
-      dcf[[field]] <- parts[nzchar(parts)]
-    }
-  }
+  deps <- bind(map(dcf[fields], renv_description_parse_field))
+  all <- as.list(unique(csort(unlist(deps$Package))))
+  dcf[["Requirements"]] <- all
 
   # only keep relevant fields
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
   extra <- c("Repository", "OS_type")
-  all <- c(required, fields, extra, remotes, git, "Hash")
+  all <- c(required, extra, remotes, git, "Requirements", "Hash")
   keep <- renv_vector_intersect(all, names(dcf))
 
   # return as list
