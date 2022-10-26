@@ -933,8 +933,11 @@ renv_snapshot_filter_explicit_report <- function(missing) {
     postamble = postamble
   )
 
-  if (interactive() && !proceed())
-    stop("* Operation canceled.")
+  if (interactive() && !proceed()) {
+    renv_report_user_cancel()
+    invokeRestart("abort")
+  }
+
 
   TRUE
 
