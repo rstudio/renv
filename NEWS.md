@@ -1,6 +1,10 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* For projects using "explicit" snapshots, `renv` now reports if
+  a package is required by the project, but the package is not
+  currently installed. (#949)
+
 * Fixed an issue where `renv::snapshot()` could fail to detect when
   no changes had been made to the lockfile.
 

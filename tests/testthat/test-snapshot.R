@@ -378,3 +378,16 @@ test_that("snapshot(update = TRUE) preserves old records", {
   expect_false("breakfast" %in% names(new$Packages))
 
 })
+
+test_that("renv reports missing packages in explicit snapshots", {
+
+  renv_tests_scope()
+  init()
+
+  writeLines("Depends: breakfast", con = "DESCRIPTION")
+  expect_condition(
+    snapshot(type = "explicit"),
+    class = "renv.snapshot.missing_packages"
+  )
+
+})
