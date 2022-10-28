@@ -1,6 +1,8 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv` now reports the elapsed time when installing packages. (#1104)
+
 * For projects using "explicit" snapshots, `renv` now reports if
   a package is required by the project, but the package is not
   currently installed. (#949)

@@ -68,8 +68,11 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
   renv_scope_libpaths(library)
 
   vwritef("Installing renv [%s] ...", version)
+  before <- Sys.time()
   with(record, r_cmd_install(Package, Path, library))
-  vwritef("\tOK [built source]")
+  after <- Sys.time()
+  elapsed <- difftime(after, before, units = "auto")
+  vwritef("\tOK [built source in %s]", renv_difftime_format(elapsed))
 
   invisible(record)
 

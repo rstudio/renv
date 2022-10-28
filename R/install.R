@@ -385,6 +385,7 @@ renv_install_package <- function(record) {
   }
 
   # install the package
+  before <- Sys.time()
   withCallingHandlers(
     renv_install_package_impl(record),
     error = function(e) {
@@ -392,25 +393,30 @@ renv_install_package <- function(record) {
       writef(e$output)
     }
   )
+  after <- Sys.time()
 
   path <- record$Path
   type <- renv_package_type(path, quiet = TRUE)
+  feedback <- renv_install_package_feedback(path, type)
 
-  feedback <- if (type == "binary") {
-    if (renv_file_type(path, symlinks = FALSE) == "directory") {
-      "copied local binary"
-    } else {
-      "installed binary"
-    }
-  } else {
-    "built from source"
-  }
-
-  vwritef("\tOK [%s]", feedback)
+  elapsed <- difftime(after, before, units = "auto")
+  vwritef("\tOK [%s in %s]", feedback, renv_difftime_format(elapsed))
 
   # link into cache
   if (renv_cache_config_enabled(project = project))
     renv_cache_synchronize(record, linkable = linkable)
+
+}
+
+renv_install_package_feedback <- function(path, type) {
+
+  if (identical(type, "source"))
+    return("built from source")
+
+  if (renv_file_type(path, symlinks = FALSE) == "directory")
+    return("copied local binary")
+
+  "installed binary"
 
 }
 
@@ -429,14 +435,18 @@ renv_install_package_cache <- function(record, cache, linker) {
   # report successful link to user
   fmt <- "Installing %s [%s] ..."
   with(record, vwritef(fmt, Package, Version))
+
+  before <- Sys.time()
   linker(cache, target)
+  after <- Sys.time()
 
   type <- case(
     identical(linker, renv_file_copy) ~ "copied",
     identical(linker, renv_file_link) ~ "linked"
   )
 
-  vwritef("\tOK [%s cache]", type)
+  elapsed <- difftime(after, before, units = "auto")
+  vwritef("\tOK [%s cache in %s]", type, renv_difftime_format(elapsed))
 
   return(TRUE)
 
@@ -512,10 +522,10 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
   package <- record$Package
   newpath <- r_cmd_build(package, path)
   after <- Sys.time()
-  time <- difftime(after, before, units = "auto")
+  elapsed <- difftime(after, before, units = "auto")
 
   fmt <- "\tOK [built package in %s]"
-  vwritef(fmt, renv_difftime_format(time))
+  vwritef(fmt, renv_difftime_format(elapsed))
 
   newpath
 

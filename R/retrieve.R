@@ -421,7 +421,8 @@ renv_retrieve_git_impl <- function(record, path) {
   }
 
   fmt <- "\tOK [cloned repository in %s]"
-  vwritef(fmt, renv_difftime_format(after - before))
+  elapsed <- difftime(after, before, units = "auto")
+  vwritef(fmt, renv_difftime_format(elapsed))
 
   TRUE
 

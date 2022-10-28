@@ -98,7 +98,8 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
     renv_download_error(url, "%s", "archive cannot be read")
 
   # everything looks ok: report success
-  renv_download_report(after - before, tempfile)
+  elapsed <- difftime(after, before, units = "auto")
+  renv_download_report(elapsed, tempfile)
 
   # move the file to the requested location
   renv_file_move(tempfile, destfile)
@@ -639,13 +640,11 @@ renv_download_report <- function(elapsed, file) {
   if (!renv_verbose())
     return()
 
-  time <- round(elapsed, 1)
-
   info <- renv_file_info(file)
   size <- structure(info$size, class = "object_size")
 
   fmt <- "\tOK [downloaded %s in %s]"
-  vwritef(fmt, format(size, units = "auto"), format(time, units = "auto"))
+  vwritef(fmt, format(size, units = "auto"), renv_difftime_format(elapsed))
 
 }
 
@@ -692,7 +691,8 @@ renv_download_local <- function(url, destfile, headers) {
       next
 
     # report download summary
-    renv_download_report(after - before, destfile)
+    elapsed <- difftime(after, before, units = "auto")
+    renv_download_report(elapsed, destfile)
 
     return(TRUE)
 
