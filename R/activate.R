@@ -9,7 +9,7 @@
 #'
 #' 1. Load the requested project via [renv::load()],
 #'
-#' 2. Add `source("renv/init.R")` to the project `.Rprofile`, thereby
+#' 2. Add `source("renv/activate.R")` to the project `.Rprofile`, thereby
 #'    instructing newly-launched \R sessions to automatically load the
 #'    current project.
 #'

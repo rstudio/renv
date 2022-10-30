@@ -28,7 +28,7 @@ for newly-launched \R sessions.
 Using \code{activate()} will:
 \enumerate{
 \item Load the requested project via \code{\link[=load]{load()}},
-\item Add \code{source("renv/init.R")} to the project \code{.Rprofile}, thereby
+\item Add \code{source("renv/activate.R")} to the project \code{.Rprofile}, thereby
 instructing newly-launched \R sessions to automatically load the
 current project.
 }
