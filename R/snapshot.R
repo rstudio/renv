@@ -57,7 +57,7 @@
 #'
 #' ```
 #' renv::settings$snapshot.type("explicit")
-#' ````
+#' ```
 #'
 #' When the `packages` argument is set, `type` is ignored, and instead only the
 #' requested set of packages, and their recursive dependencies, will be written
