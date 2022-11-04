@@ -1,5 +1,13 @@
 
 .onLoad <- function(libname, pkgname) {
+  renv_zzz_load()
+}
+
+.onAttach <- function(libname, pkgname) {
+  renv_zzz_attach()
+}
+
+renv_zzz_load <- function() {
 
   renv_platform_init()
   renv_envvars_init()
@@ -23,7 +31,7 @@
 
 }
 
-.onAttach <- function(libname, pkgname) {
+renv_zzz_attach <- function() {
   renv_rstudio_fixup()
   renv_exports_attach()
 }
@@ -146,5 +154,13 @@ renv_zzz_repos <- function() {
 
 }
 
-if (identical(.packageName, "renv"))
+if (identical(.packageName, "renv")) {
   renv_zzz_run()
+}
+
+# if renv is being embedded in another package, make sure we
+# run our load / attach hooks so internal state is initialized
+if (!identical(.packageName, "renv")) {
+  renv_zzz_load()
+  renv_zzz_attach()
+}
