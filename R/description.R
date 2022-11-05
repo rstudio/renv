@@ -1,6 +1,10 @@
 
-renv_description_read <- function(path = NULL, package = NULL, subdir = NULL, ...) {
-
+renv_description_read <- function(path = NULL,
+                                  package = NULL,
+                                  subdir = NULL,
+                                  field = NULL,
+                                  ...)
+{
   # if given a package name, construct path to that package
   path <- path %||% find.package(package)
   if (!file.exists(path)) {
@@ -20,13 +24,18 @@ renv_description_read <- function(path = NULL, package = NULL, subdir = NULL, ..
   }
 
   # read value with filebacked cache
-  filebacked(
+  description <- filebacked(
     scope    = "DESCRIPTION",
     path     = path,
     callback = renv_description_read_impl,
     subdir   = subdir,
     ...
   )
+
+  if (!is.null(field))
+    return(description[[field]])
+
+  description
 
 }
 
