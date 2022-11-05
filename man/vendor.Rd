@@ -12,7 +12,9 @@ vendor(
 )
 }
 \arguments{
-\item{version}{The version of \code{renv} to vendor. Ignored if \code{sources} is non-\code{NULL}.}
+\item{version}{The version of \code{renv} to vendor. If \code{NULL} (the default),
+the current version of \code{renv} will be used. Ignored if \code{sources}
+is non-\code{NULL}.}
 
 \item{repository}{The Git repository from which \code{renv} should be retrieved.
 \code{renv} will use \verb{git clone <repository> --branch <version>} to download

@@ -21,7 +21,9 @@
 #' need to rely on `renv` internal functions, we strongly recommend testing
 #' your usages of these functions to avoid potential breakage.
 #'
-#' @param version The version of `renv` to vendor. Ignored if `sources` is non-`NULL`.
+#' @param version The version of `renv` to vendor. If `NULL` (the default),
+#'   the current version of `renv` will be used. Ignored if `sources`
+#'   is non-`NULL`.
 #'
 #' @param repository The Git repository from which `renv` should be retrieved.
 #'   `renv` will use `git clone <repository> --branch <version>` to download
@@ -154,9 +156,12 @@ renv_vendor_sources <- function(version, repository) {
   # move to temporary directory
   renv_scope_tempdir()
 
+  # resolve version
+  version <- version %||% renv_package_version("renv")
+
   printf("# Cloning renv %s from %s ...", version, repository)
   args <- c("clone", "--branch", version, "--depth", "1", repository)
-  renv_system_exec(git(), args, action = "cloning renv", quiet = TRUE)
+  renv_system_exec(git(), args, action = "cloning renv")
   writef("Done!")
   path <- normalizePath("renv", winslash = "/", mustWork = TRUE)
 
