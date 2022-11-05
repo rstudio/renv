@@ -40,6 +40,8 @@ vendor <- function(version    = NULL,
                    sources    = NULL,
                    project    = getwd())
 {
+  renv_scope_error_handler()
+
   # validate project is a package
   descpath <- file.path(project, "DESCRIPTION")
   if (!file.exists(descpath)) {
@@ -154,7 +156,8 @@ renv_vendor_imports <- function() {
 renv_vendor_sources <- function(version, repository) {
 
   # move to temporary directory
-  renv_scope_tempdir()
+  owd <- setwd(tempdir())
+  on.exit(setwd(owd), add = TRUE)
 
   # resolve version
   version <- version %||% renv_package_version("renv")
