@@ -34,14 +34,13 @@ Calling \code{renv::vendor()} will:
 
 Using this, projects can take a dependency on \code{renv}, and use \code{renv}
 internals, in a CRAN-compliant way. After vendoring \code{renv}, you can
-for example, you could call the \code{dependencies()} function with:
+for example, you could call the \code{\link[=dependencies]{dependencies()}} function with:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{renv$dependencies()
 }\if{html}{\out{</div>}}
 
-Be aware that \code{renv} internals might change in future releases of \code{renv},
-so if you choose to rely on \code{renv} internal functions, we strongly
-recommend unit-testing your usages of these functions to avoid
-future unintended breakage.
+Be aware that \code{renv} internals might change in future releases, so if you
+need to rely on \code{renv} internal functions, we strongly recommend testing
+your usages of these functions to avoid potential breakage.
 }
 \keyword{internal}

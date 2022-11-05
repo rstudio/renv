@@ -11,16 +11,15 @@
 #' Using this, projects can take a dependency on `renv`, and use `renv`
 #' internals, in a CRAN-compliant way. After vendoring `renv`, you can
 #  use `renv` APIs in your package via the embedded  `renv` environment;
-#' for example, you could call the `dependencies()` function with:
+#' for example, you could call the [renv::dependencies()] function with:
 #'
 #' ```
 #' renv$dependencies()
 #' ```
 #'
-#' Be aware that `renv` internals might change in future releases of `renv`,
-#' so if you choose to rely on `renv` internal functions, we strongly
-#' recommend unit-testing your usages of these functions to avoid
-#' future unintended breakage.
+#' Be aware that `renv` internals might change in future releases, so if you
+#' need to rely on `renv` internal functions, we strongly recommend testing
+#' your usages of these functions to avoid potential breakage.
 #'
 #' @param version The version of `renv` to vendor. Ignored if `sources` is non-`NULL`.
 #'
