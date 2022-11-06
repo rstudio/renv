@@ -36,6 +36,7 @@ Calling \code{renv::vendor()} will:
 
 Using this, projects can take a dependency on \code{renv}, and use \code{renv}
 internals, in a CRAN-compliant way. After vendoring \code{renv}, you can
+use \code{renv} APIs in your package via the embedded \code{renv} environment;
 for example, you could call the \code{\link[=dependencies]{dependencies()}} function with:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{renv$dependencies()

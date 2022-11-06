@@ -10,7 +10,7 @@
 #'
 #' Using this, projects can take a dependency on `renv`, and use `renv`
 #' internals, in a CRAN-compliant way. After vendoring `renv`, you can
-#  use `renv` APIs in your package via the embedded  `renv` environment;
+#' use `renv` APIs in your package via the embedded `renv` environment;
 #' for example, you could call the [renv::dependencies()] function with:
 #'
 #' ```
