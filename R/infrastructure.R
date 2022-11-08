@@ -4,6 +4,10 @@ renv_infrastructure_write <- function(project = NULL,
                                       profile = NULL,
                                       version = NULL)
 {
+  # don't do anything in embedded mode
+  if (renv_metadata_embedded())
+    return()
+
   project <- renv_project_resolve(project)
 
   renv_infrastructure_write_profile(project, profile = profile)

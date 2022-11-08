@@ -1,19 +1,32 @@
 
 renv <- new.env(parent = new.env())
 
-renv$imports <- ..imports..
-
 renv$initialize <- function() {
 
+  # set up metadata environment
+  metadata <- list(
+    embedded = TRUE,
+    version  = "..version.."
+  )
+
+  # assign into renv
+  assign("_renv_metadata", as.environment(metadata), envir = renv)
+
+  # get imports
+  imports <- ..imports..
+
+  # set up renv + imports environments
   attr(renv, "name") <- "embedded:renv"
   attr(parent.env(renv), "name") <- "imports:renv"
 
-  for (package in names(renv$imports)) {
+  # load the imports required by renv
+  for (package in names(imports)) {
     namespace <- asNamespace(package)
-    functions <- renv$imports[[package]]
+    functions <- imports[[package]]
     list2env(mget(functions, envir = namespace), envir = parent.env(renv))
   }
 
+  # source renv into the aforementioned environment
   script <- system.file("vendor/renv.R", package = .packageName)
   sys.source(script, envir = renv)
 

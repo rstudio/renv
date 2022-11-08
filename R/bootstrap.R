@@ -599,8 +599,8 @@ renv_bootstrap_validate_version <- function(version) {
   if (version == loadedversion)
     return(TRUE)
 
-  # assume four-component versions are from GitHub; three-component
-  # versions are from CRAN
+  # assume four-component versions are from GitHub;
+  # three-component versions are from CRAN
   components <- strsplit(loadedversion, "[.-]")[[1]]
   remote <- if (length(components) == 4L)
     paste("rstudio/renv", loadedversion, sep = "@")

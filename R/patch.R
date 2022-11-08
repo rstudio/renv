@@ -168,7 +168,7 @@ renv_patch_repos <- function() {
     return()
 
   # nothing to do if this version of 'renv' is already available
-  version <- renv_package_version("renv")
+  version <- renv_metadata_version()
   entry <- catch(renv_available_packages_entry("renv", filter = version, quiet = TRUE))
   if (!inherits(entry, "error"))
     return()

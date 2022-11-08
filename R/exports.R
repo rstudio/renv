@@ -2,8 +2,8 @@
 
 renv_exports_attach <- function() {
 
-  # only done if we're renv
-  if (!identical(.packageName, "renv"))
+  # only done when not embedded
+  if (!renv_metadata_embedded())
     return()
 
   # guard against intermediate case where config hasn't been generated

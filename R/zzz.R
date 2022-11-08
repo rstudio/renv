@@ -1,4 +1,6 @@
 
+`_renv_spec` <- new.env(parent = emptyenv())
+
 .onLoad <- function(libname, pkgname) {
   renv_zzz_load()
 }
@@ -9,6 +11,7 @@
 
 renv_zzz_load <- function() {
 
+  renv_metadata_init()
   renv_platform_init()
   renv_envvars_init()
   renv_log_init()

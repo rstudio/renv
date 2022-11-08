@@ -55,6 +55,7 @@ load <- function(project = NULL, quiet = FALSE) {
   # if we're loading a project different from the one currently loaded,
   # then unload the current project and reload the requested one
   switch <-
+    !renv_metadata_embedded() &&
     !is.na(Sys.getenv("RENV_PROJECT", unset = NA)) &&
     !identical(project, renv_project())
 
@@ -606,14 +607,14 @@ renv_load_finish <- function(project, lockfile) {
 renv_load_report_project <- function(project) {
 
   profile <- renv_profile_get()
-  version <- renv_package_version("renv")
+  version <- renv_metadata_version()
 
   if (length(profile)) {
     fmt <- "* (%s) Project '%s' loaded. [renv %s]"
     vwritef(fmt, profile, aliased_path(project), version)
   } else {
     fmt <- "* Project '%s' loaded. [renv %s]"
-    vwritef(fmt, aliased_path(project), renv_package_version("renv"))
+    vwritef(fmt, aliased_path(project), version)
   }
 
 }

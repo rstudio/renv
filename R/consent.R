@@ -30,6 +30,10 @@
 #' @export
 consent <- function(provided = FALSE) {
 
+  # assume consent if embedded
+  if (renv_metadata_embedded())
+    return(TRUE)
+
   # compute path to root directory
   root <- renv_paths_root()
   if (renv_file_type(root) == "directory") {

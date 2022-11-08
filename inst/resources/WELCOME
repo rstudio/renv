@@ -1,16 +1,10 @@
 
-Welcome to renv!
+renv: Project Environments for R
 
-It looks like this is your first time using renv. This is a one-time message,
-briefly describing some of renv's functionality.
+Welcome to renv! It looks like this is your first time using renv.
+This is a one-time message, briefly describing some of renv's functionality.
 
-renv maintains a local cache of data on the filesystem, located at:
-
-  - ${RENV_PATHS_ROOT}
-
-This path can be customized: please see the documentation in `?renv::paths`.
-
-renv will also write to files within the active project folder, including:
+renv will write to files within the active project folder, including:
 
   - A folder 'renv' in the project directory, and
   - A lockfile called 'renv.lock' in the project directory.
@@ -24,6 +18,12 @@ In addition, renv will update files within your project directory, including:
   - .gitignore
   - .Rbuildignore
   - .Rprofile
+
+Finally, renv maintains a local cache of data on the filesystem, located at:
+
+  - ${RENV_PATHS_ROOT}
+
+This path can be customized: please see the documentation in `?renv::paths`.
 
 Please read the introduction vignette with `vignette("renv")` for more information.
 You can browse the package documentation online at https://rstudio.github.io/renv/.

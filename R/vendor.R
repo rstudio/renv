@@ -118,7 +118,7 @@ renv_vendor_loader <- function(project, header) {
 
   # replace '..imports..' with the 'utils' imports we use
   imports <- renv_vendor_imports()
-  replacements <- list(imports = imports)
+  replacements <- list(imports = imports, version = renv_metadata_version())
   contents <- renv_template_replace(template, replacements, format = "..%s..")
 
   all <- c("", header, "", contents)
@@ -143,13 +143,13 @@ renv_vendor_imports <- function() {
 
   # format nicely
   entries <- enum_chr(table, function(package, functions) {
-    lines <- sprintf("    \"%s\"", functions)
+    lines <- sprintf("      \"%s\"", functions)
     body <- paste(lines, collapse = ",\n")
-    parts <- c(sprintf("  %s = c(", package), body, "  )")
+    parts <- c(sprintf("    %s = c(", package), body, "    )")
     paste(parts, collapse = "\n")
   })
 
-  paste(c("list(", entries, ")"), collapse = "\n")
+  paste(c("list(", entries, "  )"), collapse = "\n")
 
 }
 

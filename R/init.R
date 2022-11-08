@@ -160,7 +160,7 @@ init <- function(project = NULL,
 
 renv_init_fini <- function(project, profile, version, restart, quiet) {
 
-  version <- renv_package_version("renv")
+  version <- renv_metadata_version()
 
   renv_activate_impl(
     project = project,

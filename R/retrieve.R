@@ -23,7 +23,7 @@ retrieve <- function(packages) {
   # ensure HTTPUserAgent is set (required for RSPM binaries)
   agent <- renv_http_useragent()
   if (!grepl("renv", agent)) {
-    renv <- sprintf("renv (%s)", renv_package_version("renv"))
+    renv <- sprintf("renv (%s)", renv_metadata_version())
     agent <- paste(renv, agent, sep = "; ")
   }
   renv_scope_options(HTTPUserAgent = agent)

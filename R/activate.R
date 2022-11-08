@@ -130,7 +130,7 @@ renv_activate_version_lockfile <- function(project) {
 }
 
 renv_activate_version_default <- function(project) {
-  renv_namespace_version("renv")
+  renv_metadata_version()
 }
 
 renv_activate_prompt <- function(action, library, prompt, project) {
