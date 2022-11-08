@@ -910,6 +910,7 @@ renv_snapshot_filter_implicit <- function(project, records) {
 
 renv_snapshot_filter_explicit_report <- function(missing) {
 
+  missing <- setdiff(missing, "renv")
   if (empty(missing))
     return(TRUE)
 

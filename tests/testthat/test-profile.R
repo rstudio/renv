@@ -2,6 +2,7 @@
 context("Profile")
 
 test_that("renv/profile is read and used to select a profile", {
+  skip_on_cran()
 
   project <- renv_tests_scope()
   init(profile = "testing")
@@ -26,6 +27,7 @@ test_that("renv/profile is read and used to select a profile", {
 })
 
 test_that("a profile changes the default library / lockfile path", {
+  skip_on_cran()
 
   renv_tests_scope()
   renv_scope_envvars(RENV_PROFILE = "testing")
