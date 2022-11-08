@@ -157,6 +157,10 @@ renv_patch_methods_table_impl <- function() {
 # this helps renv survive CRAN revdep checks (e.g. jetpack)
 renv_patch_repos <- function() {
 
+  # nothing to do in embedded mode
+  if (renv_metadata_embedded())
+    return()
+
   # nothing to do if we're not running tests
   checking <- renv_package_checking()
   if (!checking)
@@ -179,6 +183,8 @@ renv_patch_repos <- function() {
 
   # use package-local repository path
   repopath <- system.file("repos", package = "renv")
+  if (!file.exists(repopath))
+    return()
 
   # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
