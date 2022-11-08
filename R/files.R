@@ -317,8 +317,6 @@ renv_file_same <- function(source, target) {
 # to restore the file if the attempt to update the file failed
 renv_file_backup <- function(path) {
 
-  force(path)
-
   # if no file exists then nothing to backup
   if (!renv_file_exists(path))
     return(function() {})
@@ -346,11 +344,6 @@ renv_file_backup <- function(path) {
 
   }
 
-}
-
-renv_file_normalize <- function(path, winslash = "\\", mustWork = NA) {
-  parent <- renv_path_normalize(dirname(path), winslash = winslash, mustWork = mustWork)
-  file.path(parent, basename(path))
 }
 
 renv_file_info <- function(paths, extra_cols = FALSE) {

@@ -33,7 +33,7 @@
 #' (e.g. because it has `eval=FALSE` as a chunk header), you can set:
 #'
 #'     ```{r chunk-label, eval=FALSE, renv.ignore=FALSE}
-#'     # code in this chunk will _not be ignored
+#'     # code in this chunk will _not_ be ignored
 #'     ```
 #'
 #' @section Ignoring Files:
@@ -88,8 +88,9 @@
 #' @section Errors:
 #'
 #' `renv`'s attempts to enumerate package dependencies in your project can fail
-#' -- most commonly, because of parse errors in your \R code. The `errors`
-#' parameter can be used to control how `renv` responds to errors that occur.
+#' -- most commonly, because of failures when attempting to parse your \R code.
+#' The `errors` parameter can be used to control how `renv` responds to errors
+#' that occur.
 #'
 #' \tabular{ll}{
 #' **Name** \tab **Action** \cr

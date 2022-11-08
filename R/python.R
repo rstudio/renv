@@ -418,7 +418,7 @@ renv_python_active <- function() {
 renv_python_validate <- function(python) {
 
   if (!file.exists(python)) {
-    fmt <- "%s does not exist"
+    fmt <- "python %s does not exist"
     stopf(fmt, renv_path_pretty(python))
   }
 
