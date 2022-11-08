@@ -162,7 +162,7 @@ renv_vendor_sources <- function(version, repository) {
   # resolve version
   version <- version %||% renv_package_version("renv")
 
-  printf("# Cloning renv %s from %s ...", version, repository)
+  printf("# Cloning renv %s from %s ... ", version, repository)
   args <- c("clone", "--branch", version, "--depth", "1", repository)
   renv_system_exec(git(), args, action = "cloning renv")
   writef("Done!")

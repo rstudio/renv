@@ -118,12 +118,21 @@ renv_tests_init_working_dir <- function() {
 }
 
 renv_tests_init_options <- function() {
+
+  # save path to renv sources
+  sources <- getwd()
+  if (grepl("tests/testthat", sources))
+    sources <- dirname(dirname(sources))
+
+  # set it so we can find the sources
   options(
+    renv.test.sources = sources,
     renv.config.user.library = FALSE,
     renv.config.sandbox.enabled = TRUE,
     restart = NULL,
     warn = 2
   )
+
 }
 
 renv_tests_init_repos <- function(repopath = NULL) {
