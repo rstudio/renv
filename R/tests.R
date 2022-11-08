@@ -119,10 +119,12 @@ renv_tests_init_working_dir <- function() {
 
 renv_tests_init_options <- function() {
 
-  # save path to renv sources
-  sources <- getwd()
-  if (grepl("tests/testthat", sources))
-    sources <- dirname(dirname(sources))
+  # find path to renv sources
+  sources <- renv_file_find(getwd(), function(parent) {
+    descpath <- file.path(parent, "DESCRIPTION")
+    if (file.exists(descpath))
+      return(parent)
+  })
 
   # set it so we can find the sources
   options(
