@@ -56,21 +56,25 @@ test_that("update() can upgrade Git packages", {
 
   skip_on_cran()
   skip_if(getRversion() < "3.5.3")
+  skip_if(is.na(Sys.getenv("GITHUB_PAT", unset = NA)))
   skip_sometimes()
 
-  # # this test appears to fail on CI (ssh clone from GitHub disallowed?)
+  # this test appears to fail on CI (ssh clone from GitHub disallowed?)
   testthat::skip_on_ci()
 
   renv_tests_scope()
   renv::init()
 
   # download old commit from GitHub and track master
-  remotes::install_git(
-    url          = "https://github.com/kevinushey/skeleton",
-    ref          = "5fd5d3bc616794f869e47fdf3a8b4bcaa2afcf53",
-    quiet        = TRUE,
-    INSTALL_opts = "--no-multiarch"
-  )
+  local({
+    renv_scope_envvars(RENV_AUTOLOADER_ENABLED = FALSE)
+    remotes::install_git(
+      url          = "https://github.com/kevinushey/skeleton",
+      ref          = "5fd5d3bc616794f869e47fdf3a8b4bcaa2afcf53",
+      quiet        = TRUE,
+      INSTALL_opts = "--no-multiarch"
+    )
+  })
 
   pkgpath <- find.package("skeleton")
   descpath <- file.path(pkgpath, "DESCRIPTION")

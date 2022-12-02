@@ -111,7 +111,26 @@ renv_paths_sandbox_unix <- function(project = NULL) {
 }
 
 renv_paths_sandbox_win32 <- function(project = NULL) {
-  file.path(tempdir(), "renv-system-library")
+
+  # NOTE: We previously used the R temporary directory here, but
+  # a number of users reported issues with the base R packages being
+  # deleted by over-aggressive temporary directory cleaners.
+  #
+  # https://github.com/rstudio/renv/issues/835
+
+  # construct a platform prefix
+  hash <- substring(renv_hash_text(R()), 1L, 8L)
+  prefix <- paste(renv_platform_prefix(), hash, sep = "/")
+
+  # check for override
+  root <- Sys.getenv("RENV_PATHS_SANDBOX", unset = NA)
+  if (!is.na(root))
+    return(paste(root, prefix, sep = "/"))
+
+  # otherwise, build path in user data directory
+  userdir <- renv_bootstrap_user_dir()
+  paste(userdir, "sandbox", prefix, sep = "/")
+
 }
 
 renv_paths_renv <- function(..., profile = TRUE, project = NULL) {
@@ -426,5 +445,6 @@ paths <- list(
   library  = renv_paths_library,
   lockfile = renv_paths_lockfile,
   settings = renv_paths_settings,
-  cache    = renv_paths_cache
+  cache    = renv_paths_cache,
+  sandbox  = renv_paths_sandbox
 )

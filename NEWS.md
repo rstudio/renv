@@ -1,6 +1,10 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv` no longer uses the R temporary directory on Windows for the
+  sandbox. The sandbox directory can be customized via the
+  `RENV_PATHS_SANDBOX` environment variable if required. (#835)
+  
 * `renv` now reports the elapsed time when installing packages. (#1104)
 
 * For projects using "explicit" snapshots, `renv` now reports if
@@ -28,6 +32,7 @@
 
 * Fixed an issue where the `renv` sandbox location did not respect the
   active `renv` profile. (#1088)
+
 
 # renv 0.16.0
 

@@ -136,9 +136,7 @@ renv_sandbox_generate <- function(sandbox) {
   sources <- with(syspkgs, file.path(LibPath, Package))
   targets <- with(syspkgs, file.path(sandbox, Package))
   names(targets) <- sources
-  enumerate(targets, function(source, target) {
-    renv_file_link(source, target, overwrite = TRUE)
-  })
+  enumerate(targets, renv_file_link, overwrite = TRUE)
 
   # make the library unwritable again
   Sys.chmod(sandbox, "0555")
