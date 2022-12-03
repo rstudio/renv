@@ -158,26 +158,17 @@ install <- function(packages = NULL,
   if (length(repos))
     renv_scope_options(repos = repos)
 
+  # if users have requested the use of pak, delegate there
+  if (config$pak.enabled() && !recursing()) {
+    renv_pak_init()
+    return(renv_pak_install(packages, libpaths, project))
+  }
+
   # get and resolve the packages / remotes to be installed
   remotes <- packages %||% renv_project_remotes(project)
   if (empty(remotes)) {
     vwritef("* There are no packages to install.")
     return(invisible(list()))
-  }
-
-  # if users have requested the use of pak, delegate there
-  if (config$pak.enabled() && !recursing()) {
-
-    renv_pak_init(
-      library = library,
-      type    = type,
-      rebuild = rebuild,
-      project = project
-    )
-
-    packages <- if (is.list(remotes)) names(remotes) else remotes
-    return(renv_pak_install(packages, libpaths))
-
   }
 
   # resolve remotes
