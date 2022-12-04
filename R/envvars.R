@@ -56,7 +56,7 @@ renv_envvars_init <- function() {
 
   renv_envvars_normalize()
 
-  if (renv_platform_macos()) {
+  if (renv_platform_macos_x86()) {
 
     # set SDKROOT so older R installations can find command line tools
     sdk <- "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"

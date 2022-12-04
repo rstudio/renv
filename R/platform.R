@@ -17,6 +17,14 @@ renv_platform_macos <- function() {
   `_renv_sysinfo`[["sysname"]] == "Darwin"
 }
 
+renv_platform_macos_x86 <- function() {
+  `_renv_sysinfo`[["sysname"]] == "Darwin" & grepl("x86", `_renv_sysinfo`[["machine"]])
+}
+
+renv_platform_macos_arm64 <- function() {
+  `_renv_sysinfo`[["sysname"]] == "Darwin" & `_renv_sysinfo`[["machine"]] == "arm64"
+}
+
 renv_platform_linux <- function() {
   `_renv_sysinfo`[["sysname"]] == "Linux"
 }
