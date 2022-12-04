@@ -1,4 +1,6 @@
 
+.docker <- FALSE
+
 .onLoad <- function(libname, pkgname) {
   renv_zzz_load()
 }
@@ -20,6 +22,9 @@ renv_zzz_load <- function() {
 
   addTaskCallback(renv_repos_init_callback)
   addTaskCallback(renv_snapshot_auto_callback)
+
+  # record whether we're in a docker environment
+  assign(".docker", file.exists("/.dockerenv"), envir = renv_envir_self())
 
   # if an renv project already appears to be loaded, then re-activate
   # the sandbox now -- this is primarily done to support suspend and

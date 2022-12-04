@@ -479,7 +479,7 @@ renv_file_find <- function(path, predicate) {
 
   # compute number of slashes (avoid searching beyond home directory)
   slashes <- gregexpr("/", path, fixed = TRUE)[[1L]]
-  n <- length(slashes) - 2L
+  n <- length(slashes) - if (.docker) 0L else 2L
 
   for (i in 1:n) {
 

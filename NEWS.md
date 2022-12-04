@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv_file_find()` can now scan up to the root directory in Docker containers.
+  (#1115)
+
 * `renv` no longer uses the R temporary directory on Windows for the
   sandbox. The sandbox directory can be customized via the
   `RENV_PATHS_SANDBOX` environment variable if required. (#835)
