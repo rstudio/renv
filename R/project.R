@@ -112,7 +112,8 @@ renv_project_remotes_description <- function(project, descpath) {
   # if any Roxygen fields are included,
   # infer a dependency on roxygen2 and devtools
   desc <- renv_description_read(descpath)
-  if (any(grepl("^Roxygen", names(desc)))) {
+  snapshot_type <- settings$snapshot.type()
+  if (snapshot_type != "explicit" && any(grepl("^Roxygen", names(desc)))) {
     for (package in c("devtools", "roxygen2")) {
       specs[[package]] <-
         specs[[package]] %||%
