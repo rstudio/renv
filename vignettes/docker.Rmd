@@ -112,21 +112,114 @@ With this, `renv` will download and install the requisite packages as
 appropriate when the image is created. Any new containers created from this
 image will hence have those R packages installed and visible at run-time.
 
-
-## Dynamically Provisioning R Libraries with renv
+## Speeding up package installations
 
 The aforementioned approach is useful if you have multiple applications with
-identical package requirements. However, on occasion, one will have multiple
-applications built from a single base image, but each application will have
-its own independent R package requirements. In this case, rather than including
-the package dependencies in the image itself, it would be preferable for each
-container to provision its own library at run-time, based on that application's
-`renv.lock` lockfile.
+identical package requirements. In this case, a single image containing this
+identical package library could serve as the parent image for several 
+containerized applications.
+
+However, `renv::restore()` is slow -- it needs to download and install packages, 
+which can take some time. Thus, some care is required to efficiently make use
+of the `renv` cache for projects that require: 
+
+1. Building an image multiple times (e.g., to debug the production application
+   as source code is updated), or
+
+2. Calling `renv::restore()` each time the container is run (as described 
+   below).
+
+### Multi-stage builds
+
+For projects that require repeatedly building an image, 
+[multi-stage builds](https://docs.docker.com/build/building/multi-stage/) 
+can be used to speed up the build process. With multi-stage builds, multiple 
+FROM statements are used in the Dockerfile and files can be copied across 
+build stages. 
+
+This approach can be leveraged to generate more efficient builds
+by dedicating a first stage build to package synchronization and a second stage
+build to copying files and executing code that may need to be updated often 
+across builds (e.g., code that needs to be debugged in the container).
+
+To implement a two stage build, the following code could be used as part of a
+Dockerfile.
+
+```
+# STAGE 1: renv-related code
+FROM <parent_image> AS base
+
+WORKDIR /project
+
+# using approach 2 above
+RUN mkdir -p renv
+COPY renv.lock renv.lock
+COPY .Rprofile .Rprofile
+COPY renv/activate.R renv/activate.R
+COPY renv/settings.dcf renv/settings.dcf
+
+# change default location of cache to project folder
+RUN mkdir renv/.cache
+ENV RENV_PATHS_CACHE renv/.cache
+
+# restore 
+RUN R -e "renv::restore()"
+```
+
+The above code uses `FROM <parent_image> AS <name>` to name the first stage of 
+the build `base`. Here, `<parent_image>` should be replaced with an appropriate 
+image name. 
+
+Subsequently, the code uses approach 2 (described above) to copy the auto-loader
+to the project directory in the image. It additionally creates the `renv/.cache`
+directory that is to be used as the `renv` cache.
+
+The second stage of the build is defined by adding the following code to the 
+same Dockerfile, below the previous code chunk.
+
+```
+FROM <parent_image>
+
+WORKDIR /project
+COPY --from=base /project .
+
+# add commands that need to be debugged below
+```
+
+Here, `<parent_image>` could be the same as the parent image of `base`, but does 
+not have to be (see 
+[documentation](https://docs.docker.com/build/building/multi-stage/) for more 
+details).
+
+The key line is the `COPY` command, which specifies that the contents of 
+`/project` directory from the `base` image are copied into the `/project` 
+directory of this image. 
+
+Any commands that will change frequently across builds could be included below
+the `COPY` command. If only this code associated with the second stage 
+build is updated then `renv::restore()` will not be called again at build time.
+Instead, the layers associated with the `base` image will be loaded from 
+Docker's cache, thereby saving significant time in build process.
+
+In fact, `renv::restore()` will only be called when the `base` image needs to be 
+rebuilt (e.g., when changes are made to `renv.lock`). Docker's cache system is
+generally good at understanding the dependencies of images. However, if you find
+that the `base` image is not updating as expected, it is possible to manually 
+enforce a clean build by including the `--no-cache` option in the call to 
+`docker build`.
+
+### Dynamically Provisioning R Libraries with renv
+
+On occasion, one will have multiple applications built from a single base image, 
+but each application will have its own independent R package requirements. In 
+this case, rather than including the package dependencies in the image itself, 
+it would be preferable for each container to provision its own library at 
+run-time, based on that application's `renv.lock` lockfile.
 
 In effect, this is as simple as ensuring that `renv::restore()` happens at
-container run-time, rather than image build time. However, on its own,
-`renv::restore()` is slow -- it needs to download and install packages, which
-could take prohibitively long if an application needs to be run repeatedly.
+container run-time, rather than image build time. However, as mentioned above,
+calls to `renv::restore()` may be time prohibitive if an application needs to 
+be run repeatedly.
 
 The `renv` package cache can be used to help ameliorate this issue. When
 the cache is enabled, whenever `renv` attempts to install or restore an
