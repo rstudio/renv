@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Fixed an issue where package installation using `pak` could  fail
+  in some cases.
+
 * `renv_file_find()` can now scan up to the root directory in Docker containers.
   (#1115)
 
