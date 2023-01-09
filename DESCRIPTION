@@ -1,10 +1,10 @@
 Package: renv
 Type: Package
 Title: Project Environments
-Version: 0.16.0-40
+Version: 0.16.0-41
 Authors@R: c(
     person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com"),
-    person("RStudio, PBC", role = c("cph"))
+    person("Posit, PBC", role = c("cph"))
     )
 Description: A dependency management toolkit for R. Using 'renv', you can create
     and manage project-local R libraries, save the state of these libraries to
