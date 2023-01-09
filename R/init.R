@@ -111,9 +111,18 @@ init <- function(project = NULL,
   # initialize bioconductor pieces
   biocver <- renv_init_bioconductor(bioconductor, project)
   if (!is.null(biocver)) {
+
+    # make sure a Bioconductor package manager is installed
+    renv_bioconductor_init(library = library)
+
+    # retrieve bioconductor repositories appropriate for this project
+    biocrepos <- renv_bioconductor_repos(project = project, version = biocver)
+    options(repos = biocrepos)
+
+    # notify user
     vwritef("* Using Bioconductor version '%s'.", biocver)
-    renv_scope_bioconductor(version = biocver)
     settings[["bioconductor.version"]] <- biocver
+
   }
 
   # prepare and move into project directory
