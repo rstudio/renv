@@ -130,14 +130,16 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   record$Hash <- record$Hash %||% renv_hash_description(path)
 
   # construct cache entry
-  cache <- renv_cache_find(record)
+  caches <- renv_cache_find(record)
 
+  # try to synchronize
   copied <- FALSE
-  for (cachePath in cache) {
-    copied <- renv_cache_synchronize_impl(cachePath, record, linkable, path)
+  for (cache in caches) {
+    copied <- renv_cache_synchronize_impl(cache, record, linkable, path)
     if (copied)
       return(TRUE)
   }
+
   return(FALSE)
 
 }
