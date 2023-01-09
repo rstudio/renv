@@ -52,7 +52,10 @@ renv_mran_database_decode_impl <- function(entry) {
   vals <- as.list(entry$Date)
   names(vals) <- keys
 
-  list2env(vals, parent = emptyenv())
+  envir <- list2env(vals, parent = emptyenv())
+  attr(envir, "keys") <- ls(envir, all.names = TRUE)
+
+  envir
 
 }
 

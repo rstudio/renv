@@ -454,7 +454,7 @@ renv_available_packages_latest_mran <- function(package,
     stopf("no MRAN records available from repository URL '%s'", suffix)
 
   # find all available packages
-  keys <- ls(envir = entry)
+  keys <- attr(entry, "keys")
   pattern <- paste0("^", package, " ")
   matching <- grep(pattern, keys, perl = TRUE, value = TRUE)
   if (empty(matching))

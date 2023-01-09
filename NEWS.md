@@ -1,11 +1,14 @@
 
 # renv 0.17.0  (UNRELEASED)
 
-* Fixed an issue where package installation using `pak` could  fail
+* Fixed the performance of `renv::update()` in cases where
+  integration with MRAN is enabled.
+
+* Fixed an issue where package installation using `pak` could fail
   in some cases.
 
-* `renv_file_find()` can now scan up to the root directory in Docker containers.
-  (#1115)
+* `renv_file_find()` can now scan up to the root directory in Docker
+  containers. (#1115)
 
 * `renv` no longer uses the R temporary directory on Windows for the
   sandbox. The sandbox directory can be customized via the
