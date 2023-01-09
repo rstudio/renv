@@ -583,6 +583,40 @@ renv_load_cache <- function(project) {
 
 }
 
+renv_load_check <- function(project) {
+  renv_load_check_description(project)
+}
+
+renv_load_check_description <- function(project) {
+
+  descpath <- file.path(project, "DESCRIPTION")
+  if (!file.exists(descpath))
+    return(TRUE)
+
+  contents <- readLines(descpath, warn = FALSE)
+  bad <- which(grepl("^\\s*$", contents, perl = TRUE))
+  if (empty(bad))
+    return(TRUE)
+
+  values <- sprintf("[line %i is blank]", bad)
+
+  renv_pretty_print(
+    values    = values,
+    preamble  = sprintf(
+      "%s contains blank lines:",
+      renv_path_pretty(descpath)
+    ),
+    postamble = c(
+      "DESCRIPTION files cannot contain blank lines between fields.",
+      "Please remove these blank lines from the file."
+    ),
+    wrap = FALSE
+  )
+
+  return(FALSE)
+
+}
+
 renv_load_quiet <- function() {
   default <- identical(renv_verbose(), FALSE) || renv_session_quiet()
   config$startup.quiet(default = default)
@@ -591,6 +625,8 @@ renv_load_quiet <- function() {
 renv_load_finish <- function(project, lockfile) {
 
   options(renv.project.path = project)
+
+  renv_load_check(project)
 
   if (!renv_load_quiet()) {
     renv_load_report_project(project)
