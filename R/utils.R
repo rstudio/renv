@@ -397,3 +397,8 @@ csort <- function(x, decreasing = FALSE, ...) {
 fsub <- function(pattern, replacement, x, ignore.case = FALSE, useBytes = FALSE) {
   sub(pattern, replacement, x, ignore.case = ignore.case, useBytes = useBytes, fixed = TRUE)
 }
+
+# catch erroneous usages of unique
+unique <- function(x) {
+  base::unique(x)
+}
