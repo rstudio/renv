@@ -98,6 +98,12 @@ renv_lockfile_fini <- function(lockfile, project) {
 
 renv_lockfile_fini_bioconductor <- function(lockfile, project) {
 
+  # check for explicit version in settings
+  version <- settings$bioconductor.version(project = project)
+  if (length(version))
+    return(list(Version = version))
+
+  # otherwise, check for a package which required Bioconductor
   records <- renv_records(lockfile)
   if (empty(records))
     return(NULL)
@@ -109,6 +115,9 @@ renv_lockfile_fini_bioconductor <- function(lockfile, project) {
   sources <- extract_chr(records, "Source")
   if ("Bioconductor" %in% sources)
     return(list(Version = renv_bioconductor_version(project = project)))
+
+  # nothing found; return NULL
+  NULL
 
 }
 
@@ -146,7 +155,7 @@ renv_lockfile_sort <- function(lockfile) {
   renv_records(lockfile) <- sorted
 
   # sort top-level fields
-  fields <- unique(c("R", "Python", "Packages", names(lockfile)))
+  fields <- unique(c("R", "Bioconductor", "Python", "Packages", names(lockfile)))
   lockfile <- lockfile[intersect(fields, names(lockfile))]
 
   # return post-sort

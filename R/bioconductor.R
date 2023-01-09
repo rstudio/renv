@@ -1,24 +1,26 @@
 
-renv_bioconductor_init <- function() {
+renv_bioconductor_init <- function(library = NULL) {
   if (getRversion() >= "3.5.0")
-    renv_bioconductor_init_biocmanager()
+    renv_bioconductor_init_biocmanager(library)
   else
-    renv_bioconductor_init_biocinstaller()
+    renv_bioconductor_init_biocinstaller(library)
 }
 
-renv_bioconductor_init_biocmanager <- function() {
+renv_bioconductor_init_biocmanager <- function(library = NULL) {
 
-  if (renv_package_available("BiocManager"))
+  library <- library %||% renv_libpaths_default()
+  if (renv_package_installed("BiocManager", lib.loc = library))
     return(TRUE)
 
-  install("BiocManager")
+  install("BiocManager", library = library)
   TRUE
 
 }
 
-renv_bioconductor_init_biocinstaller <- function() {
+renv_bioconductor_init_biocinstaller <- function(library = NULL) {
 
-  if (renv_package_available("BiocInstaller"))
+  library <- library %||% renv_libpaths_default()
+  if (renv_package_installed("BiocInstaller", lib.loc = library))
     return(TRUE)
 
   url <- "https://bioconductor.org/biocLite.R"
@@ -26,6 +28,7 @@ renv_bioconductor_init_biocinstaller <- function() {
   on.exit(unlink(destfile), add = TRUE)
   download(url, destfile = destfile, quiet = TRUE)
 
+  renv_scope_libpaths(library)
   source(destfile)
   TRUE
 

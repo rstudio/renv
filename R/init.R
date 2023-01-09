@@ -104,6 +104,10 @@ init <- function(project = NULL,
   repos <- renv_repos_normalize(repos %||% getOption("repos"))
   options(repos = repos)
 
+  # form path to lockfile, library
+  library  <- renv_paths_library(project = project)
+  lockfile <- renv_lockfile_path(project)
+
   # initialize bioconductor pieces
   biocver <- renv_init_bioconductor(bioconductor, project)
   if (!is.null(biocver)) {
@@ -126,10 +130,6 @@ init <- function(project = NULL,
 
   # collect dependencies
   renv_dependencies_scope(project, action = "init")
-
-  # form path to lockfile, library
-  library  <- renv_paths_library(project = project)
-  lockfile <- renv_lockfile_path(project)
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile, bioconductor)

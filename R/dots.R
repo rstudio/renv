@@ -2,11 +2,19 @@
 renv_dots_check <- function(...) {
 
   dots <- list(...)
+  parent <- parent.frame()
+
+  # accept 'bioc' as an alias for 'bioconductor'
+  bioc <- dots[["bioc"]]
+  if (!is.null("bioc") && exists("bioconductor", envir = parent)) {
+    assign("bioconductor", bioc, envir = parent)
+    dots[["bioc"]] <- NULL
+  }
 
   # allow 'confirm' as an alias for 'prompt'
   confirm <- dots[["confirm"]]
-  if (!is.null(confirm) && exists("prompt", envir = parent.frame())) {
-    assign("prompt", confirm, envir = parent.frame())
+  if (!is.null(confirm) && exists("prompt", envir = parent)) {
+    assign("prompt", confirm, envir = parent)
     dots[["confirm"]] <- NULL
   }
 

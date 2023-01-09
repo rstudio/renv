@@ -487,7 +487,13 @@ renv_load_python_condaenv <- function(project, fields) {
 
 renv_load_bioconductor <- function(project, bioconductor) {
 
-  if (is.null(bioconductor) || getRversion() < "3.4")
+  # we don't try to support older R anymore
+  if (getRversion() < "3.4")
+    return()
+
+  # if we don't have a valid Bioconductor version, bail
+  version <- bioconductor$Version
+  if (is.null(version))
     return()
 
   renv_bioconductor_init()
@@ -495,16 +501,27 @@ renv_load_bioconductor <- function(project, bioconductor) {
   if (is.null(BiocManager$.version_validate))
     return()
 
-  status <- catch(BiocManager$.version_validate(bioconductor))
-  if (!inherits(status, "error"))
-    return()
+  # check for valid version of Bioconductor
+  status <- catch(BiocManager$.version_validate(version))
+  if (inherits(status, "error")) {
 
-  fmt <- lines(
-    "This project is configured to use Bioconductor '%s', which is not compatible with R '%s'.",
-    "Use 'renv::init(bioconductor = TRUE)' to re-initialize this project with the latest Bioconductor release."
-  )
+    fmt <- lines(
+      "This project is configured to use Bioconductor '%s', which is not compatible with R '%s'.",
+      "Use 'renv::init(bioconductor = TRUE)' to re-initialize this project with the latest Bioconductor release.",
+      if (renv_package_installed("BiocVersion"))
+        "Please uninstall the 'BiocVersion' package first, with `remove.packages(\"BiocVersion\")`."
+    )
 
-  warningf(fmt, bioconductor, getRversion())
+    warningf(fmt, version, getRversion())
+
+  }
+
+  # update the R repositories
+  repos <- renv_bioconductor_repos(project, version)
+  options(repos = repos)
+
+  # notify the user
+  sprintf("* Using Bioconductor '%s'.", version)
 
 }
 

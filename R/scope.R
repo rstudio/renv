@@ -341,9 +341,6 @@ renv_scope_bioconductor <- function(project = NULL,
 {
   .envir <- .envir %||% parent.frame()
 
-  # ensure bioconductor support infrastructure initialized
-  renv_bioconductor_init()
-
   # get current repository
   repos <- getOption("repos")
 
@@ -351,7 +348,7 @@ renv_scope_bioconductor <- function(project = NULL,
   stale <- grepl("Bioc", names(repos))
   repos <- repos[!stale]
 
-  # retrieve bioconductor repositories appropriate for this record
+  # retrieve bioconductor repositories appropriate for this project
   biocrepos <- renv_bioconductor_repos(project = project, version = version)
 
   # put it all together
