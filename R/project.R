@@ -114,9 +114,11 @@ renv_project_remotes_description <- function(project, descpath) {
   desc <- renv_description_read(descpath)
   if (any(grepl("^Roxygen", names(desc)))) {
     for (package in c("devtools", "roxygen2")) {
-      specs[[package]] <-
-        specs[[package]] %||%
-        renv_dependencies_list(descpath, package, dev = TRUE)
+      if (!package %in% ignored) {
+        specs[[package]] <-
+          specs[[package]] %||%
+          renv_dependencies_list(descpath, package, dev = TRUE)
+      }
     }
   }
 
