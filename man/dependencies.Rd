@@ -55,6 +55,12 @@ parsing the code and looking for calls of the form:
 \item \code{package::method()}
 }
 
+A subset of popular \R packages used for package management are also supported:
+\itemize{
+\item \href{https://cran.r-project.org/web/packages/pacman/index.html}{\code{pacman}}: \code{pacman::p_load(...)}
+\item \href{https://cran.r-project.org/web/packages/box/index.html}{\code{box}}: \code{box::use(...)}
+}
+
 For \R package projects, dependencies expressed in the \code{DESCRIPTION} file
 will also be discovered. Note that the \code{rmarkdown} package is required in
 order to crawl dependencies in R Markdown files.
