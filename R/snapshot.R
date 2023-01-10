@@ -690,9 +690,14 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   all <- as.list(unique(csort(unlist(deps$Package))))
   dcf[["Requirements"]] <- all
 
-  # only keep relevant fields
+  # get remotes fields
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
+
+  # https://github.com/rstudio/renv/issues/736
+  remotes <- grep("[.]\\d+$", remotes, perl = TRUE, invert = TRUE, value = TRUE)
+
+  # only keep relevant fields
   extra <- c("Repository", "OS_type")
   all <- c(required, extra, remotes, git, "Requirements", "Hash")
   keep <- renv_vector_intersect(all, names(dcf))
