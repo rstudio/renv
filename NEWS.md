@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Fixed an issue where fields of the form `Remotes.1` could
+  enter lockfile records for older versions of R. (#736)
+
 * Fixed the performance of `renv::update()` in cases where
   integration with MRAN is enabled.
 
