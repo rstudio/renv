@@ -1,6 +1,10 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* The `RENV_CACHE_MODE` environment variable can now also be used
+  to adjust the permissions set on downloaded package tarballs / binaries.
+  (#988)
+
 * Fixed an issue where fields of the form `Remotes.1` could
   enter lockfile records for older versions of R. (#736)
 

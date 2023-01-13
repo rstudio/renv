@@ -951,6 +951,14 @@ renv_retrieve_successful_subdir <- function(record, path) {
 
 renv_retrieve_successful <- function(record, path, install = TRUE) {
 
+  # if we downloaded an archive, adjust its permissions here
+  mode <- Sys.getenv("RENV_CACHE_MODE", unset = NA)
+  if (!is.na(mode)) {
+    info <- file.info(path, extra_cols = FALSE)
+    if (identical(info$isdir, FALSE))
+      Sys.chmod(path, mode)
+  }
+
   # the handling of 'subdir' here is a little awkward, as this function
   # can receive:
   #
