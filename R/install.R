@@ -92,6 +92,10 @@
 #' # may require the `--no-lock` flag to be set during install
 #' options(install.opts = "--no-lock")
 #' renv::install("xml2")
+#'
+#' # alternatively, you can set such options for specific packages with e.g.
+#' options(install.opts = list(xml2 = "--no-lock"))
+#' renv::install("xml2")
 #' ```
 #'
 #' @inherit renv-params
