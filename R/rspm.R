@@ -214,5 +214,21 @@ renv_rspm_os <- function() {
 
 
 renv_rspm_enabled <- function() {
+
+  # allow environment variable override
+  enabled <- Sys.getenv("RENV_RSPM_ENABLED", unset = NA)
+  if (!is.na(enabled))
+    return(truthy(enabled, default = TRUE))
+
+  # binaries not available for Linux on arm64
+  disabled <-
+    renv_platform_linux() &&
+    identical(renv_platform_machine(), "aarch64")
+
+  if (disabled)
+    return(FALSE)
+
+  # otherwise, use configuration option
   config$rspm.enabled()
+
 }

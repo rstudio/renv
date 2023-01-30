@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Integration with the RStudio (Posit) Package Manager is now disabled
+  by default on aarch64 Linux instances.
+
 * The `RENV_CACHE_MODE` environment variable can now also be used
   to adjust the permissions set on downloaded package tarballs / binaries.
   (#988)
