@@ -955,8 +955,16 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   mode <- Sys.getenv("RENV_CACHE_MODE", unset = NA)
   if (!is.na(mode)) {
     info <- file.info(path, extra_cols = FALSE)
-    if (identical(info$isdir, FALSE))
-      Sys.chmod(path, mode)
+    if (identical(info$isdir, FALSE)) {
+      parent <- dirname(path)
+      renv_system_exec(
+        command = "chmod",
+        args    = c("-Rf", renv_shell_quote(mode), renv_shell_path(parent)),
+        action  = "chmoding cached package",
+        quiet   = TRUE,
+        success = NULL
+      )
+    }
   }
 
   # the handling of 'subdir' here is a little awkward, as this function
