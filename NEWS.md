@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv::install()` now supports remotes with a trailing slash -- such slashes
+  are now removed. (#1135)
+
 * Integration with the RStudio (Posit) Package Manager is now disabled
   by default on aarch64 Linux instances.
 

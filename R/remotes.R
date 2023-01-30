@@ -21,6 +21,13 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
   if (is.null(spec) || is.list(spec))
     return(spec)
 
+  # remove a trailing slash
+  # https://github.com/rstudio/renv/issues/1135
+  spec <- gsub("/+$", "", spec, perl = TRUE)
+
+  # remove github prefixes
+  spec <- gsub("^https?://(?:www\\.)?github\\.com/", "", spec, perl = TRUE)
+
   # check for URLs
   if (grepl("^(?:file|https?)://", spec))
     return(renv_remotes_resolve_url(spec, quiet = TRUE))
