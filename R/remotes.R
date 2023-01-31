@@ -25,12 +25,12 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
   # https://github.com/rstudio/renv/issues/1135
   spec <- gsub("/+$", "", spec, perl = TRUE)
 
-  # remove github prefixes
-  spec <- gsub("^https?://(?:www\\.)?github\\.com/", "", spec, perl = TRUE)
-
   # check for URLs
-  if (grepl("^(?:file|https?)://", spec))
+  if (grepl("^(?:file|https?)://.*(?:\\.zip|\\.tar\\.gz|\\.tgz)$", spec))
     return(renv_remotes_resolve_url(spec, quiet = TRUE))
+
+  # remove github prefix
+  spec <- gsub("^https?://(?:www\\.)?github\\.com/", "", spec)
 
   # check for paths to existing local files
   first <- substring(spec, 1L, 1L)
