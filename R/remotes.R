@@ -25,9 +25,12 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
   # https://github.com/rstudio/renv/issues/1135
   spec <- gsub("/+$", "", spec, perl = TRUE)
 
-  # check for URLs
-  if (grepl("^(?:file|https?)://.*(?:\\.zip|\\.tar\\.gz|\\.tgz)$", spec))
-    return(renv_remotes_resolve_url(spec, quiet = TRUE))
+  # check for archive URLs -- this is a bit hacky
+  if (grepl("^(?:file|https?)://", spec)) {
+    for (suffix in c(".zip", ".tar.gz", ".tgz", "/tarball"))
+      if (endswith(spec, suffix))
+        return(renv_remotes_resolve_url(spec, quiet = TRUE))
+  }
 
   # remove github prefix
   spec <- gsub("^https?://(?:www\\.)?github\\.com/", "", spec)
