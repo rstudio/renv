@@ -490,3 +490,18 @@ test_that("repositories containing multiple packages can be installed", {
   expect_true(renv_package_installed("pkgB"))
 
 })
+
+test_that("custom dependency fields in install are supported", {
+
+  skip_on_cran()
+  skip_on_windows()
+
+  renv_tests_scope()
+
+  install("breakfast", dependencies = "strong")
+  expect_false(renv_package_installed("egg"))
+
+  install("breakfast", dependencies = c("strong", "Config/Needs/protein"))
+  expect_true(renv_package_installed("egg"))
+
+})

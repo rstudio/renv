@@ -1,6 +1,11 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv::install()` gains the `dependencies` argument, which behaves similarly
+  to the equivalent argument in `remotes::install_*()`. In particular, this can
+  be set to fields like `Config/Needs/dev` to tell `renv` to use custom
+  DESCRIPTION fields for dependency resolution in installation.
+
 * Fixed an issue where the function variant of the `renv.auth` option was not
   resolved correctly. (#667)
 

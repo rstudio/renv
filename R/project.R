@@ -66,12 +66,12 @@ renv_project_type <- function(path) {
   renv_bootstrap_project_type(path)
 }
 
-renv_project_remotes <- function(project) {
+renv_project_remotes <- function(project, fields = NULL) {
 
   # if this project has a DESCRIPTION file, use it to provide records
   descpath <- file.path(project, "DESCRIPTION")
   if (file.exists(descpath))
-    return(renv_project_remotes_description(project, descpath))
+    return(renv_project_remotes_description(project, descpath, fields))
 
   # otherwise, use the set of (non-base) packages used in the project
   deps <- dependencies(
@@ -86,13 +86,13 @@ renv_project_remotes <- function(project) {
 
 }
 
-renv_project_remotes_description <- function(project, descpath) {
+renv_project_remotes_description <- function(project, descpath, fields = NULL) {
 
   # first, parse remotes (if any)
   remotes <- renv_project_remotes_description_remotes(project, descpath)
 
   # next, find packages mentioned in the DESCRIPTION file
-  fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
+  fields <- fields %||% c("Depends", "Imports", "LinkingTo", "Suggests")
   deps <- renv_dependencies_discover_description(
     path    = descpath,
     fields  = fields,

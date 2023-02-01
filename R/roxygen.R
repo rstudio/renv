@@ -34,6 +34,12 @@
 #'   profile is activated instead. See `vignette("profiles", package = "renv")`
 #'   for more information.
 #'
+#' @param dependencies A vector of DESCRIPTION field names that should be used
+#'   for package dependency resolution. When `NULL` (the default), the value
+#'   of `renv::settings$package.dependency.fields` is used. The aliases
+#'   "strong", "most", and "all" are also supported.
+#'   See [tools::package_dependencies()] for more details.
+#'
 #' @return The project directory, invisibly. Note that this function is normally
 #'   called for its side effects.
 #'

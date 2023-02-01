@@ -12,6 +12,7 @@ install(
   rebuild = FALSE,
   repos = NULL,
   prompt = interactive(),
+  dependencies = NULL,
   project = NULL
 )
 }
@@ -42,6 +43,12 @@ repository override.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
+
+\item{dependencies}{A vector of DESCRIPTION field names that should be used
+for package dependency resolution. When \code{NULL} (the default), the value
+of \code{renv::settings$package.dependency.fields} is used. The aliases
+"strong", "most", and "all" are also supported.
+See \code{\link[tools:package_dependencies]{tools::package_dependencies()}} for more details.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working

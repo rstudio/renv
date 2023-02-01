@@ -204,3 +204,33 @@ renv_description_built_version <- function(desc = NULL) {
 
   substring(built, 3L, regexpr(";", built, fixed = TRUE) - 1L)
 }
+
+renv_description_dependency_fields <- function(fields, project) {
+
+  fields <- fields %||% settings$package.dependency.fields(project = project)
+
+  expanded <- map(fields, function(field) {
+
+    case(
+
+      identical(field, FALSE)
+        ~ NULL,
+
+      identical(field, "strong") || is.na(field)
+        ~ c("Depends", "Imports", "LinkingTo"),
+
+      identical(field, "most") || identical(field, TRUE)
+        ~ c("Depends", "Imports", "LinkingTo", "Suggests"),
+
+      identical(field, "all") ~
+        c("Depends", "Imports", "LinkingTo", "Suggests", "Enhances"),
+
+      field
+
+    )
+
+  })
+
+  unique(unlist(expanded, recursive = FALSE, use.names = FALSE))
+
+}

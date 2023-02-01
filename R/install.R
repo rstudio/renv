@@ -133,12 +133,13 @@
 #' }
 install <- function(packages = NULL,
                     ...,
-                    library = NULL,
-                    type    = NULL,
-                    rebuild = FALSE,
-                    repos   = NULL,
-                    prompt  = interactive(),
-                    project = NULL)
+                    library      = NULL,
+                    type         = NULL,
+                    rebuild      = FALSE,
+                    repos        = NULL,
+                    prompt       = interactive(),
+                    dependencies = NULL,
+                    project      = NULL)
 {
   renv_consent_check()
   renv_scope_error_handler()
@@ -150,6 +151,11 @@ install <- function(packages = NULL,
 
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
+
+  if (!is.null(dependencies)) {
+    fields <- renv_description_dependency_fields(dependencies, project = project)
+    renv_scope_options(renv.settings.package.dependency.fields = fields)
+  }
 
   libpaths <- renv_libpaths_resolve(library)
   renv_scope_libpaths(libpaths)
@@ -169,7 +175,7 @@ install <- function(packages = NULL,
   }
 
   # get and resolve the packages / remotes to be installed
-  remotes <- packages %||% renv_project_remotes(project)
+  remotes <- packages %||% renv_project_remotes(project, dependencies)
   if (empty(remotes)) {
     vwritef("* There are no packages to install.")
     return(invisible(list()))
