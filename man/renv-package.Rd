@@ -27,7 +27,7 @@ Useful links:
 
 Other contributors:
 \itemize{
-  \item Posit, PBC [copyright holder]
+  \item Posit Software, PBC [copyright holder, funder]
 }
 
 }

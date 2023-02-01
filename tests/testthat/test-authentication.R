@@ -47,5 +47,23 @@ test_that("renv.auth is respected in various contexts", {
 
   })
 
+  # using an auth function
+  local({
+
+    record <- list(Package = "dplyr")
+    renv_scope_options(renv.auth = function(package, record) {
+      if (package == "dplyr")
+        return(list(GITHUB_PAT = "<pat>"))
+    })
+
+    local({
+      renv_scope_auth(record = record)
+      expect_true(Sys.getenv("GITHUB_PAT") == "<pat>")
+    })
+
+    expect_false(Sys.getenv("GITHUB_PAT") == "<pat>")
+
+  })
+
 })
 

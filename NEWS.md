@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Fixed an issue where the function variant of the `renv.auth` option was not
+  resolved correctly. (#667)
+
 * `renv::install()` now supports remotes with a trailing slash -- such slashes
   are now removed. (#1135)
 
