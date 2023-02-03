@@ -1,6 +1,9 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Fixed an issue that could prevent `renv::restore()` from functioning when
+  attempting to install packages which had been archived on CRAN. (#1141)
+
 * `renv::install()` gains the `dependencies` argument, which behaves similarly
   to the equivalent argument in `remotes::install_*()`. In particular, this can
   be set to fields like `Config/Needs/dev` to tell `renv` to use custom

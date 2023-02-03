@@ -612,7 +612,7 @@ renv_retrieve_repos <- function(record) {
     )
 
     if (inherits(status, "error")) {
-      warning(status)
+      errors$push(status)
       next
     }
 

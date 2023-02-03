@@ -83,7 +83,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   after <- Sys.time()
 
   # check for failure
-  if (inherits(status, "error"))
+  if (inherits(status, "condition"))
     renv_download_error(url, "%s", conditionMessage(status))
 
   if (status != 0L)
@@ -140,8 +140,8 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
     renv_download_default
   )
 
-  # run downloader, catching errors
-  catch(downloader(url, destfile, type, request, headers))
+  # run downloader, catching errors and warnings
+  catchall(downloader(url, destfile, type, request, headers))
 
 }
 
@@ -848,7 +848,8 @@ renv_download_available_fallback <- function(url) {
 
 renv_download_error <- function(url, fmt, ...) {
   msg <- sprintf(fmt, ...)
-  stopf("failed to retrieve '%s' [%s]", url, msg, call. = FALSE)
+  vwritef("\tERROR [%s]", msg)
+  stopf("error downloading '%s' [%s]", url, msg, call. = FALSE)
 }
 
 renv_download_trace <- function() {

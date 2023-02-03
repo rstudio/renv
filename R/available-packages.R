@@ -46,15 +46,16 @@ renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
 
   # propagate errors
   errors <- as.list(errors)
-  enumerate(errors, function(url, output) {
+  enumerate(errors, function(url, errors) {
 
-    warnings <- output$warnings
-    messages <- output$messages
-    if (empty(warnings) && empty(messages))
+    if (empty(errors))
       return()
 
+    for (error in errors)
+      warning(error)
+
     fmt <- "could not retrieve available packages for url %s"
-    warningf(fmt, shQuote(url))
+    stopf(fmt, shQuote(url))
 
   })
 
@@ -102,34 +103,32 @@ renv_available_packages_query <- function(url, errors) {
     renv_available_packages_query_packages
   )
 
-  seize <- function(stack, restart) {
+  stack <- stack()
+  seize <- function(restart) {
     function(condition) {
       stack$push(condition)
       invokeRestart(restart)
     }
   }
 
-  warnings <- stack()
-  messages <- stack()
   for (method in methods) {
 
     db <- withCallingHandlers(
       catch(method(url)),
-      warning = seize(warnings, "muffleWarning"),
-      message = seize(messages, "muffleMessage")
+      warning = seize(restart = "muffleWarning"),
+      message = seize(restart = "muffleMessage")
     )
 
-    if (!inherits(db, "error"))
-      return(renv_available_packages_success(db, url))
+    if (inherits(db, "error")) {
+      stack$push(db)
+      next
+    }
+
+    return(renv_available_packages_success(db, url))
 
   }
 
-  data <- list(
-    warnings = warnings$data(),
-    messages = messages$data()
-  )
-
-  assign(url, data, envir = errors)
+  assign(url, stack$data(), envir = errors)
   NULL
 
 }
