@@ -27,6 +27,10 @@ test_that("we can parse a variety of remotes", {
   expect_equal(remote$repo,   "def456")
   expect_equal(remote$ext,    "git")
 
+  # https://github.com/rstudio/renv/issues/667
+  remote <- renv_remotes_parse("package=git@github.com:abc123/def456.git")
+  expect_equal(remote$package, "package")
+
 })
 
 test_that("we can parse a variety of remotes", {
@@ -130,14 +134,15 @@ test_that("subdirectories are parsed in remotes", {
   remote <- renv_remotes_parse(spec)
 
   expected <- list(
-    spec   = spec,
-    type   = "gitlab",
-    host   = NULL,
-    user   = "user",
-    repo   = "repo",
-    subdir = "subdir",
-    pull   = NULL,
-    ref    = "ref"
+    spec    = spec,
+    package = NULL,
+    type    = "gitlab",
+    host    = NULL,
+    user    = "user",
+    repo    = "repo",
+    subdir  = "subdir",
+    pull    = NULL,
+    ref     = "ref"
   )
 
   expect_equal(remote, expected)
@@ -150,14 +155,15 @@ test_that("custom hosts can be supplied", {
   remote <- renv_remotes_parse(spec)
 
   expected <- list(
-    spec   = spec,
-    type   = "gitlab",
-    host   = "localhost",
-    user   = "user",
-    repo   = "repo",
-    subdir = NULL,
-    pull   = NULL,
-    ref    = NULL
+    spec    = spec,
+    package = NULL,
+    type    = "gitlab",
+    host    = "localhost",
+    user    = "user",
+    repo    = "repo",
+    subdir  = NULL,
+    pull    = NULL,
+    ref     = NULL
   )
 
   expect_equal(remote, expected)
@@ -187,14 +193,15 @@ test_that("packages can be installed from GitLab groups", {
   remote <- renv_remotes_parse(spec)
 
   expected <- list(
-    spec   = spec,
-    type   = "gitlab",
-    host   = NULL,
-    user   = "renv-group",
-    repo   = "renv-subgroup/subpackage",
-    subdir = NULL,
-    pull   = NULL,
-    ref    = NULL
+    spec    = spec,
+    package = NULL,
+    type    = "gitlab",
+    host    = NULL,
+    user    = "renv-group",
+    repo    = "renv-subgroup/subpackage",
+    subdir  = NULL,
+    pull    = NULL,
+    ref     = NULL
   )
 
   expect_equal(remote, expected)
@@ -213,14 +220,15 @@ test_that("remote specs referencing packages in sub-sub-directories are parsed c
   remote <- renv_remotes_parse(spec)
 
   expected <- list(
-    spec   = spec,
-    type   = "github",
-    host   = NULL,
-    user   = "user",
-    repo   = "repo",
-    subdir = "subdir/subsubdir",
-    pull   = NULL,
-    ref    = NULL
+    spec    = spec,
+    package = NULL,
+    type    = "github",
+    host    = NULL,
+    user    = "user",
+    repo    = "repo",
+    subdir  = "subdir/subsubdir",
+    pull    = NULL,
+    ref     = NULL
   )
 
   expect_equal(remote, expected)

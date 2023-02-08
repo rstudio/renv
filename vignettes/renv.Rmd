@@ -649,6 +649,16 @@ For packages installed from Git remotes, `renv` will attempt to use `git` from
 the command line to download and restore the associated package. Hence, it is
 recommended that authentication is done through SSH keys when possible.
 
+Authentication may be required when resolving a package from a remote
+specification. If the package name cannot be inferred directly from the remote,
+it can be supplied with a prefix of the form `<package>=`. For example, the
+`igraph` package on GitHub at https://github.com/igraph/rigraph could be
+installed with:
+
+```
+renv::install("igraph=igraph/rigraph")
+```
+
 
 ### Authentication with Custom Headers
 

@@ -1,6 +1,12 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Package names can now be associated with remotes in `renv::install()`; for
+  example, you can use `renv::install("igraph=igraph/rigraph")` to install
+  the `igraph` package. This is mainly important when using the `renv.auth`
+  authentication tools, where the package name of a remote needs to be
+  declared explicitly. (#667)
+  
 * Fixed an issue that could prevent `renv::restore()` from functioning when
   attempting to install packages which had been archived on CRAN. (#1141)
 
