@@ -496,25 +496,13 @@ renv_load_bioconductor <- function(project, bioconductor) {
   if (is.null(version))
     return()
 
+  # initialize bioconductor
   renv_bioconductor_init()
-  BiocManager <- renv_namespace_load("BiocManager")
-  if (is.null(BiocManager$.version_validate))
-    return()
 
-  # check for valid version of Bioconductor
-  status <- catch(BiocManager$.version_validate(version))
-  if (inherits(status, "error")) {
-
-    fmt <- lines(
-      "This project is configured to use Bioconductor '%s', which is not compatible with R '%s'.",
-      "Use 'renv::init(bioconductor = TRUE)' to re-initialize this project with the latest Bioconductor release.",
-      if (renv_package_installed("BiocVersion"))
-        "Please uninstall the 'BiocVersion' package first, with `remove.packages(\"BiocVersion\")`."
-    )
-
-    warningf(fmt, version, getRversion())
-
-  }
+  # validate version if necessary
+  validate <- getOption("renv.bioconductor.validate")
+  if (truthy(validate, default = TRUE))
+    renv_load_bioconductor_validate(project, version)
 
   # update the R repositories
   repos <- renv_bioconductor_repos(project, version)
@@ -522,6 +510,29 @@ renv_load_bioconductor <- function(project, bioconductor) {
 
   # notify the user
   sprintf("* Using Bioconductor '%s'.", version)
+
+}
+
+renv_load_bioconductor_validate <- function(version) {
+
+  BiocManager <- renv_namespace_load("BiocManager")
+  if (!is.function(BiocManager$.version_validity))
+    return()
+
+  # check for valid version of Bioconductor
+  # https://github.com/rstudio/renv/issues/1148
+  status <- catch(BiocManager$.version_validity(version))
+  if (!is.character(status))
+    return()
+
+  fmt <- lines(
+    "This project is configured to use Bioconductor %1$s, which is not compatible with R %2$s.",
+    "Use 'renv::init(bioconductor = \"%1$s\")' to re-initialize this project with the appropriate Bioconductor release.",
+    if (renv_package_installed("BiocVersion"))
+      "Please uninstall the 'BiocVersion' package first, with `remove.packages(\"BiocVersion\")`."
+  )
+
+  warningf(fmt, version, getRversion())
 
 }
 

@@ -1,6 +1,12 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Improved handling of R version validation when using projects with
+  Bioconductor. If you find `renv` is erroneously reporting that your version
+  of R is incompatible with the version of Bioconductor you are using, you can
+  set `options(renv.bioconductor.validate = FALSE)` to disable this validation
+  behaviour. (#1148)
+
 * Package names can now be associated with remotes in `renv::install()`; for
   example, you can use `renv::install("igraph=igraph/rigraph")` to install
   the `igraph` package. This is mainly important when using the `renv.auth`
