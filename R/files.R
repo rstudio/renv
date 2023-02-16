@@ -49,11 +49,12 @@ renv_file_copy_file <- function(source, target) {
     stop(status)
 
   # validate that the target file exists
-  if (renv_file_exists(target))
-    return(TRUE)
+  if (!renv_file_exists(target)) {
+    fmt <- "attempt to copy file %s to %s failed (unknown reason)"
+    stopf(fmt, renv_path_pretty(source), renv_path_pretty(target))
+  }
 
-  fmt <- "attempt to copy file %s to %s failed (unknown reason)"
-  stopf(fmt, renv_path_pretty(source), renv_path_pretty(target))
+  invisible(TRUE)
 
 }
 
@@ -163,11 +164,12 @@ renv_file_copy_dir <- function(source, target) {
     stop(status)
 
   # validate that the target file exists
-  if (renv_file_exists(target))
-    return(TRUE)
+  if (!renv_file_exists(target)) {
+    fmt <- "attempt to copy directory %s to %s failed (unknown reason)"
+    stopf(fmt, renv_path_pretty(source), renv_path_pretty(target))
+  }
 
-  fmt <- "attempt to copy directory %s to %s failed (unknown reason)"
-  stopf(fmt, renv_path_pretty(source), renv_path_pretty(target))
+  invisible(TRUE)
 
 }
 
