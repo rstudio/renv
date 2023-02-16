@@ -138,12 +138,48 @@ renv_remotes_parse_remote <- function(spec) {
     "$"
   )
 
-  fields <- c("spec", "package", "type", "host", "user", "repo", "subdir", "pull", "ref")
-  remote <- renv_remotes_parse_impl(spec, pattern, fields)
+  fields <- c(
+    "spec", "package", "type",
+    "host", "user", "repo",
+    "subdir", "pull", "ref"
+  )
 
+  remote <- renv_remotes_parse_impl(spec, pattern, fields)
   if (!nzchar(remote$repo))
     stopf("'%s' is not a valid remote", spec)
 
+  renv_remotes_parse_finalize(remote)
+
+}
+
+renv_remotes_parse_gitssh <- function(spec) {
+
+  pattern <- paste0(
+    "^",
+    "(?:([[:alpha:]][[:alnum:].]*[[:alnum:]])=)?",  # optional package name
+    "(?:(git)::)?",                                 # optional git prefix
+    "(",                                            # url start
+      "([^@]+)@",                                   # user (typically, 'git')
+      "([^:]+):",                                   # host
+      "([^:#@]+)",                                  # the rest of the repo url
+    ")",                                            # url end
+    "(?::([^@#:]+))?",                              # optional sub-directory
+    "(?:#([^@#:]+))?",                              # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?",                              # optional ref (e.g. branch or commit)
+    "$"
+  )
+
+  fields <- c(
+    "spec", "package", "type", "url",
+    "user", "host", "repo",
+    "subdir", "pull", "ref"
+  )
+
+  remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
+  if (!nzchar(remote$repo))
+    stopf("'%s' is not a valid remote", spec)
+
+  remote$type <- remote$type %||% "git"
   renv_remotes_parse_finalize(remote)
 
 }
@@ -189,7 +225,7 @@ renv_remotes_parse_git <- function(spec) {
   # If type has not been found & repo looks like a git repo, set it as git
   # (note that this parser also accepts entries which are not truly git
   # references, so we try to "fix up" after the fact)
-  if ("git" %in% c(remote$type, remote$ext, remote$protocol))
+  if ("git" %in% c(remote$login, remote$type, remote$ext, remote$protocol))
     remote$type <- tolower(remote$type %||% "git")
 
   renv_remotes_parse_finalize(remote)
@@ -258,6 +294,12 @@ renv_remotes_parse <- function(spec) {
   remote <- catch(renv_remotes_parse_remote(spec))
   if (!inherits(remote, "error")) {
     remote$type <- remote$type %||% "github"
+    return(remote)
+  }
+
+  remote <- catch(renv_remotes_parse_gitssh(spec))
+  if (!inherits(remote, "error")) {
+    remote$type <- remote$type %||% "git"
     return(remote)
   }
 

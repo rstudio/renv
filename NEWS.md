@@ -1,6 +1,8 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* Improved handling of package installation via SSH URLs with `git`. (#667)
+
 * Improved handling of R version validation when using projects with
   Bioconductor. If you find `renv` is erroneously reporting that your version
   of R is incompatible with the version of Bioconductor you are using, you can
