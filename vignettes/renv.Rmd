@@ -375,6 +375,9 @@ formed as a directory of symlinks (or, on Windows, junction points) into the
 other projects on your system, they can still re-use the same installed packages
 as required.
 
+Note that junction points are (unfortunately) not supported on Windows network
+shares. See [Hard links and junctions][hlaj] for more details.
+
 The process by which packages enter the cache is roughly as follows:
 
 1. Package installation is requested via e.g. `install.packages()`, or
@@ -814,5 +817,6 @@ but we hope that they will further improve the speed and reliability of `renv`.
 
 
 [acls]: https://en.wikipedia.org/wiki/Access-control_list
+[hlaj]: https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions
 [r-pkgs:description]: https://r-pkgs.org/Metadata.html#sec-description
 
