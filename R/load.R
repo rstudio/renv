@@ -513,7 +513,7 @@ renv_load_bioconductor <- function(project, bioconductor) {
 
 }
 
-renv_load_bioconductor_validate <- function(version) {
+renv_load_bioconductor_validate <- function(project, version) {
 
   BiocManager <- renv_namespace_load("BiocManager")
   if (!is.function(BiocManager$.version_validity))
