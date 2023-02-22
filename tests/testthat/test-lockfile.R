@@ -50,3 +50,30 @@ test_that("we can create lockfiles from manifests", {
   expect_equal(lock$R$Repositories, list(CRAN = "https://cloud.r-project.org"))
 
 })
+
+test_that("the Requirements field is read as character", {
+
+  lockfile <- renv_lockfile_read(text = '
+{
+  "R": {
+    "Version": "2.15.2",
+    "Repositories": []
+  },
+  "Packages": {
+    "morning": {
+      "Package": "morning",
+      "Version": "0.1.0",
+      "Requirements": [
+        "coffee",
+        "toast"
+      ]
+    }
+  }
+}
+')
+
+  actual <- lockfile$Packages$morning$Requirements
+  expected <- c("coffee", "toast")
+  expect_identical(actual, expected)
+
+})

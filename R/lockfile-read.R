@@ -19,6 +19,10 @@ renv_lockfile_read_finish_impl <- function(key, val) {
 
   }
 
+  # convert the "Requirements" field to a character vector
+  if (identical(key, "Requirements"))
+    return(unlist(val))
+
   # recurse for lists
   if (is.list(val))
     return(enumerate(val, renv_lockfile_read_finish_impl))
@@ -29,14 +33,9 @@ renv_lockfile_read_finish_impl <- function(key, val) {
 }
 
 renv_lockfile_read_finish <- function(data) {
-
-  # convert repository fields
   data <- enumerate(data, renv_lockfile_read_finish_impl)
-
-  # set class
   class(data) <- "renv_lockfile"
   data
-
 }
 
 renv_lockfile_read_preflight <- function(contents) {
