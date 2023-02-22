@@ -18,6 +18,22 @@ renv_repos_decode <- function(x) {
 
 renv_repos_init_callback <- function(...) {
 
+  status <- tryCatch(
+    renv_repos_init_callback_impl(...),
+    error = identity
+  )
+
+  if (inherits(status, "error")) {
+    warning(status)
+    return(FALSE)
+  }
+
+  identical(status, TRUE)
+
+}
+
+renv_repos_init_callback_impl <- function(...) {
+
   # bail unless opted in
   config <- renv_config_get("eager.repos", default = FALSE)
   if (!identical(config, TRUE))

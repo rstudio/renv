@@ -96,8 +96,19 @@ renv_snapshot_auto_update <- function(project) {
 }
 
 renv_snapshot_auto_callback <- function(...) {
-  renv_snapshot_auto_callback_impl()
-  TRUE
+
+  status <- tryCatch(
+    renv_snapshot_auto_callback_impl(),
+    error = identity
+  )
+
+  if (inherits(status, "error")) {
+    warning(status)
+    return(FALSE)
+  }
+
+  identical(status, TRUE)
+
 }
 
 renv_snapshot_auto_callback_impl <- function() {

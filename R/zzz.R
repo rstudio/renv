@@ -20,8 +20,15 @@ renv_zzz_load <- function() {
   renv_libpaths_init()
   renv_patch_init()
 
-  addTaskCallback(renv_repos_init_callback)
-  addTaskCallback(renv_snapshot_auto_callback)
+  addTaskCallback(
+    renv_repos_init_callback,
+    name = "renv:::renv_repos_init_callback"
+  )
+
+  addTaskCallback(
+    renv_snapshot_auto_callback,
+    name = "renv:::renv_snapshot_auto_callback"
+  )
 
   # record whether we're in a docker environment
   assign(".docker", file.exists("/.dockerenv"), envir = renv_envir_self())
