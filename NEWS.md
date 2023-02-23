@@ -1,6 +1,10 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv::hydrate()` gains the `prompt` parameter. When `TRUE` (the default),
+  `renv` will prompt for confirmation before attempting to hydrate the active
+  library.
+  
 * Improved handling of package installation via SSH URLs with `git`. (#667)
 
 * Improved handling of R version validation when using projects with

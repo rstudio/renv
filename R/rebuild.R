@@ -78,7 +78,7 @@ rebuild <- function(packages  = NULL,
 
   if (prompt && !proceed()) {
     renv_report_user_cancel()
-    return(invisible(records))
+    invokeRestart("abort")
   }
 
   # figure out rebuild parameter

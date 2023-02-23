@@ -62,7 +62,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
 
     if (prompt && !proceed()) {
       renv_report_user_cancel()
-      return(FALSE)
+      invokeRestart("abort")
     }
 
   }
@@ -77,8 +77,8 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   vwritef("Done!")
 
   n <- length(targets)
-  fmt <- "Successfully re-cached %i %s."
-  vwritef(fmt, n, plural("package", n))
+  fmt <- "Successfully re-cached %s."
+  vwritef(fmt, nplural("package", n))
 
   renv_cache_clean_empty()
 

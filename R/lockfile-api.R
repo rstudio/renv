@@ -97,8 +97,8 @@ print.renv_lockfile_api <- function(x, ...) {
   lockfile <- x$data()
   records <- renv_records(lockfile)
   n <- length(records)
-  fmt <- "A lockfile containing %i package %s."
-  msg <- sprintf(fmt, n, plural("record", n))
+  fmt <- "A lockfile containing %s."
+  msg <- sprintf(fmt, nplural("package record", n))
   writeLines(msg)
 }
 

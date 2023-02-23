@@ -109,7 +109,7 @@ renv_purge_impl <- function(package,
 
     if (prompt && !proceed()) {
       renv_report_user_cancel()
-      return(paths)
+      invokeRestart("abort")
     }
 
   }
@@ -119,7 +119,7 @@ renv_purge_impl <- function(package,
   renv_cache_clean_empty()
 
   n <- length(paths)
-  vwritef("* Removed %i %s from the cache.", n, plural("package", n))
+  vwritef("* Removed %s from the cache.", nplural("package", n))
 
   invisible(paths)
 

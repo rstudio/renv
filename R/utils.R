@@ -141,7 +141,16 @@ ask <- function(question, default = FALSE) {
 
   selection <- if (default) "[Y/n]" else "[y/N]"
   prompt <- sprintf("%s %s: ", question, selection)
-  response <- tolower(trimws(readline(prompt)))
+  response <- tryCatch(
+    tolower(trimws(readline(prompt))),
+    interrupt = identity
+  )
+
+  if (inherits(response, "interrupt")) {
+    renv_report_user_cancel()
+    invokeRestart("abort")
+  }
+
   if (!nzchar(response))
     return(default)
 
@@ -197,6 +206,10 @@ read <- function(file) {
 
 plural <- function(word, n) {
   if (n == 1) word else paste(word, "s", sep = "")
+}
+
+nplural <- function(word, n) {
+  paste(n, plural(word, n))
 }
 
 trunc <- function(text, n = 78) {

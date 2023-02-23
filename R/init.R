@@ -125,6 +125,7 @@ init <- function(project = NULL,
 
   }
 
+
   # prepare and move into project directory
   renv_init_validate_project(project, force)
   renv_init_settings(project, settings)
@@ -144,7 +145,7 @@ init <- function(project = NULL,
   action <- renv_init_action(project, library, lockfile, bioconductor)
   if (empty(action) || identical(action, "cancel")) {
     renv_report_user_cancel()
-    return(invisible(FALSE))
+    invokeRestart("abort")
   }
 
   # activate library paths for this project
@@ -152,12 +153,10 @@ init <- function(project = NULL,
 
   # perform the action
   if (action == "init") {
-    vwritef("* Initializing project ...")
     renv_imbue_impl(project)
-    hydrate(project = project, library = library)
+    hydrate(project = project, library = library, prompt = FALSE, report = FALSE)
     snapshot(project = project, library = libpaths, repos = repos, prompt = FALSE)
   } else if (action == "restore") {
-    vwritef("* Restoring project ... ")
     ensure_directory(library)
     restore(project = project, library = libpaths, prompt = FALSE)
   }

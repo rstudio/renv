@@ -262,7 +262,7 @@ update <- function(packages = NULL,
 
     if (prompt && !proceed()) {
       renv_report_user_cancel()
-      return(invisible(FALSE))
+      invokeRestart("abort")
     }
 
   }
@@ -353,7 +353,7 @@ update <- function(packages = NULL,
 
   if (prompt && !proceed()) {
     renv_report_user_cancel()
-    return(invisible(FALSE))
+    invokeRestart("abort")
   }
 
   # perform the install

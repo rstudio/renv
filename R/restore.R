@@ -145,7 +145,7 @@ restore <- function(project  = NULL,
 
   if (!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt)) {
     renv_report_user_cancel()
-    return(FALSE)
+    invokeRestart("abort")
   }
 
   if (prompt || renv_verbose())
@@ -153,7 +153,7 @@ restore <- function(project  = NULL,
 
   if (prompt && !proceed()) {
     renv_report_user_cancel()
-    return(invisible(diff))
+    invokeRestart("abort")
   }
 
   # perform the restore

@@ -435,7 +435,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
 
   if (interactive() && !proceed()) {
     renv_report_user_cancel()
-    return(FALSE)
+    invokeRestart("abort")
   }
 
   TRUE

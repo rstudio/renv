@@ -262,6 +262,10 @@ renv_package_dependencies_impl <- function(package,
   # default to unknown path for visited packages
   assign(package, NA, envir = visited, inherits = FALSE)
 
+  # short-circuit for NA case
+  if (length(libpaths) == 1L && is.na(libpaths))
+    return()
+
   # find the package
   libpaths <- libpaths %||% renv_libpaths_all()
   location <- renv_package_find(package, libpaths)

@@ -61,8 +61,8 @@ record <- function(records,
   renv_lockfile_write(new, lockfile)
 
   n <- length(records)
-  fmt <- "* Updated %i %s in %s."
-  vwritef(fmt, n, plural("record", n), renv_path_pretty(lockfile))
+  fmt <- "* Updated %s in %s."
+  vwritef(fmt, nplural("record", n), renv_path_pretty(lockfile))
 
   renv <- records[["renv"]]
   if (!is.null(renv) && !is.null(renv[["Version"]])) {

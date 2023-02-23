@@ -104,7 +104,7 @@ renv_python_virtualenv_snapshot <- function(project, prompt, python) {
 
   if (prompt && !proceed()) {
     renv_report_user_cancel()
-    return(FALSE)
+    invokeRestart("abort")
   }
 
   writeLines(after, con = path)
@@ -140,7 +140,7 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
 
   if (prompt && !proceed()) {
     renv_report_user_cancel()
-    return(FALSE)
+    invokeRestart("abort")
   }
 
   pip_install_requirements(diff, python = python, stream = TRUE)

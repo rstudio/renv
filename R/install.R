@@ -195,7 +195,7 @@ install <- function(packages = NULL,
 
   if (!renv_install_preflight(project, libpaths, remotes, prompt)) {
     renv_report_user_cancel()
-    return(invisible(list()))
+    invokeRestart("abort")
   }
 
   # ensure package names are resolved if provided
@@ -217,15 +217,22 @@ install <- function(packages = NULL,
   }
 
   # install retrieved records
+  before <- Sys.time()
   renv_install_impl(records)
+  after <- Sys.time()
+
+  if (!renv_tests_running()) {
+    time <- renv_difftime_format(difftime(after, before))
+    n <- length(records)
+    vwritef("* Installed %s in %s.", nplural("package", n), time)
+  }
 
   # a bit of extra test reporting
   if (renv_tests_running()) {
-    fmt <- "Installed %i %s into library at path %s."
+    fmt <- "Installed %s into library at path %s."
     vwritef(
       fmt,
-      length(records),
-      plural("package", length(records)),
+      nplural("package", length(records)),
       renv_path_pretty(renv_libpaths_default())
     )
   }

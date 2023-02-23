@@ -29,13 +29,9 @@ renv_dots_check <- function(...) {
   start <- regexpr("(", dotcall, fixed = TRUE)
   end <- nchar(dotcall) - 2L
   args <- substring(dotcall, start, end)
+  n <- length(matched[["..."]])
 
-  message <- paste(
-    "unused",
-    plural("argument", length(matched[["..."]])),
-    args
-  )
-
+  message <- paste("unused", plural("argument", n), args)
   err <- simpleError(message = message, call = call)
   stop(err)
 

@@ -138,10 +138,10 @@ renv_status_check_used_packages <- function(project, lockfile, libstate) {
 
   renv_pretty_print(
     missing,
-    "The following package(s) are used in the project, but are not installed:",
+    "The following package(s) are used in this project, but are not installed:",
     c(
-      "Consider installing these packages, and then using `renv::snapshot()`",
-      "to record these packages in the lockfile."
+      "Consider installing these packages (for example, using `renv::install()`).",
+      "Then, use `renv::snapshot()` to record these packages in the lockfile."
     ),
     wrap = FALSE
   )

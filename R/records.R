@@ -117,13 +117,16 @@ renv_record_format_remote <- function(record) {
 
 }
 
-renv_record_format_short <- function(record) {
+renv_record_format_short <- function(record, versioned = FALSE) {
 
   remotes <- c("RemoteUsername", "RemoteRepo")
-  if (all(remotes %in% names(record)))
-    return(renv_record_format_short_remote(record))
+  if (all(remotes %in% names(record))) {
+    remote <- renv_record_format_short_remote(record)
+    if (versioned)
+      remote <- sprintf("%s  [%s]", record$Version %||% "<NA>", remote)
+    return(remote)
+  }
 
-  # TODO: include other information (e.g. repository name)?
   record$Version
 
 }

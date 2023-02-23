@@ -70,12 +70,14 @@ renv_pretty_print_records_pair <- function(old,
                                            new,
                                            preamble  = NULL,
                                            postamble = NULL,
+                                           formatter = NULL,
                                            emitter   = NULL)
 {
+  formatter <- formatter %||% renv_record_format_pair
 
   all <- c(
     if (length(preamble)) c(preamble, ""),
-    renv_pretty_print_records_pair_impl(old, new),
+    renv_pretty_print_records_pair_impl(old, new, formatter),
     if (length(postamble)) c(postamble, "")
   )
 
@@ -83,10 +85,9 @@ renv_pretty_print_records_pair <- function(old,
   emitter(all)
 
   invisible(NULL)
-
 }
 
-renv_pretty_print_records_pair_impl <- function(old, new) {
+renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
 
   renv_scope_locale("LC_COLLATE", "C")
   all <- sort(union(names(old), names(new)))
@@ -114,7 +115,7 @@ renv_pretty_print_records_pair_impl <- function(old, new) {
 
     nms <- union(names(lhs), names(rhs))
     text <- map_chr(nms, function(nm) {
-      renv_record_format_pair(lhs[[nm]], rhs[[nm]])
+      formatter(lhs[[nm]], rhs[[nm]])
     })
 
     if (group == "unknown")

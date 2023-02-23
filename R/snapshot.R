@@ -181,7 +181,7 @@ snapshot <- function(project  = NULL,
   if (!validated && !force) {
     if (prompt && !proceed()) {
       renv_report_user_cancel()
-      return(invisible(alt))
+      invokeRestart("abort")
     } else if (!interactive()) {
       stop("aborting snapshot due to pre-flight validation failure")
     }
@@ -206,7 +206,7 @@ snapshot <- function(project  = NULL,
   # nocov start
   if (length(actions) && prompt && !proceed()) {
     renv_report_user_cancel()
-    return(invisible(new))
+    invokeRestart("abort")
   }
   # nocov end
 
@@ -420,10 +420,10 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
 
     revdeps <- sort(unique(basename(deps$Source)[deps$Package == package]))
 
-    items <- revdeps; limit <- 3
+    items <- revdeps; limit <- 3L
     if (length(revdeps) > limit) {
       rest <- length(revdeps) - limit
-      suffix <- paste("and", length(revdeps) - 3, plural("other", rest))
+      suffix <- paste("and", length(revdeps) - 3L, plural("other", rest))
       items <- c(revdeps[seq_len(limit)], suffix)
     }
 

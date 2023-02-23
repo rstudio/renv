@@ -76,7 +76,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   if (prompt && !proceed()) {
     renv_report_user_cancel()
-    return(FALSE)
+    invokeRestart("abort")
   }
 
   renv_scope_restore(

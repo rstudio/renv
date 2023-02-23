@@ -10,6 +10,8 @@ hydrate(
   library = NULL,
   update = FALSE,
   sources = NULL,
+  prompt = interactive(),
+  report = TRUE,
   project = NULL
 )
 }
@@ -31,6 +33,12 @@ from the source library if possible.}
 \item{sources}{A set of library paths from which \code{renv} should attempt to
 draw packages. See \strong{Sources} for more details.}
 
+\item{prompt}{Boolean; prompt the user before taking any action? Ignored
+when \code{report = FALSE}.}
+
+\item{report}{Boolean; display a report of what packages will be installed
+by \code{renv::hydrate()}?}
+
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
@@ -46,10 +54,10 @@ state of your default \R libraries for use within a project library.
 }
 \details{
 It may occasionally be useful to use \code{renv::hydrate()} to update the packages
-used within a project that has already been initialized. However, be warned
+used within a project that has already been initialized. However, be aware
 that it's possible that the packages pulled in may not actually be compatible
-with the packages installed in the project library, so you should exercise
-caution when doing so.
+with the packages already installed in the project library, so you should
+exercise caution when doing so.
 }
 \section{Sources}{
 

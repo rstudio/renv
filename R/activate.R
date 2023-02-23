@@ -149,7 +149,7 @@ renv_activate_prompt <- function(action, library, prompt, project) {
   fmt <- lines(
     "",
     "This project has not yet been activated.",
-    "Activating this project will ensure the project library is used during %s.",
+    "Activating this project will ensure the project library is used when %s() is called.",
     "Please see `?renv::activate` for more details.",
     ""
   )
@@ -157,7 +157,7 @@ renv_activate_prompt <- function(action, library, prompt, project) {
   notice <- sprintf(fmt, action)
   vwritef(notice)
 
-  fmt <- "Would you like to activate this project before %s?"
+  fmt <- "Would you like to activate this project before %s() is called?"
   question <- sprintf(fmt, action)
   response <- ask(question, default = TRUE)
   if (!response)

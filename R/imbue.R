@@ -96,11 +96,10 @@ renv_imbue_self <- function(project) {
     return(TRUE)
 
   type <- renv_package_type(source, quiet = TRUE)
-  switch(type,
-         source = renv_imbue_self_source(source, target),
-         binary = renv_imbue_self_binary(source, target))
-
-  renv_snapshot_description(target)
+  case(
+    type == "source" ~ renv_imbue_self_source(source, target),
+    type == "binary" ~ renv_imbue_self_binary(source, target)
+  )
 
 }
 

@@ -6,10 +6,10 @@
 #' state of your default \R libraries for use within a project library.
 #'
 #' It may occasionally be useful to use `renv::hydrate()` to update the packages
-#' used within a project that has already been initialized. However, be warned
+#' used within a project that has already been initialized. However, be aware
 #' that it's possible that the packages pulled in may not actually be compatible
-#' with the packages installed in the project library, so you should exercise
-#' caution when doing so.
+#' with the packages already installed in the project library, so you should
+#' exercise caution when doing so.
 #'
 #' @section Sources:
 #'
@@ -48,6 +48,12 @@
 #' @param sources A set of library paths from which `renv` should attempt to
 #'   draw packages. See **Sources** for more details.
 #'
+#' @param prompt Boolean; prompt the user before taking any action? Ignored
+#'   when `report = FALSE`.
+#'
+#' @param report Boolean; display a report of what packages will be installed
+#'   by `renv::hydrate()`?
+#'
 #' @return A named \R list, giving the packages that were used for hydration
 #'   as well as the set of packages which were not found.
 #'
@@ -65,6 +71,8 @@ hydrate <- function(packages = NULL,
                     library = NULL,
                     update  = FALSE,
                     sources = NULL,
+                    prompt  = interactive(),
+                    report  = TRUE,
                     project = NULL)
 {
   renv_scope_error_handler()
@@ -72,6 +80,8 @@ hydrate <- function(packages = NULL,
 
   project <- renv_project_resolve(project)
   renv_scope_lock(project = project)
+
+  renv_activate_prompt("hydrate", library, prompt, project)
 
   library <- renv_path_normalize(library %||% renv_libpaths_default())
   packages <- packages %||% renv_hydrate_packages(project)
@@ -87,6 +97,9 @@ hydrate <- function(packages = NULL,
   na <- deps[is.na(deps)]
   packages <- deps[renv_vector_diff(names(deps), c(names(na), base))]
 
+  # figure out if we will copy or link
+  linkable <- renv_cache_linkable(project = project, library = library)
+
   # get and construct path to library
   ensure_directory(library)
 
@@ -94,12 +107,39 @@ hydrate <- function(packages = NULL,
   # or (if update = TRUE) the version in the library is newer
   packages <- renv_hydrate_filter(packages, library, update)
 
+  # inform user about changes
+  if (report) {
+    renv_hydrate_report(packages, na, linkable)
+    if (length(packages) || length(na)) {
+      if (prompt && !proceed()) {
+        renv_report_user_cancel()
+        invokeRestart("abort")
+      }
+    }
+  }
+
+  # check for nothing to be done
+  if (empty(packages) && empty(na)) {
+    if (report)
+      writef("* No new packages were discovered in this project; nothing to do.")
+    return(invisible(list(packages = list(), missing = list())))
+  }
+
   # copy packages from user library to cache
-  linkable <- renv_cache_linkable(project = project, library = library)
-  if (linkable)
-    renv_hydrate_link_packages(packages, library)
-  else
-    renv_hydrate_copy_packages(packages, library)
+  before <- Sys.time()
+  if (length(packages)) {
+    if (linkable)
+      renv_hydrate_link_packages(packages, library, project)
+    else
+      renv_hydrate_copy_packages(packages, library, project)
+  }
+  after <- Sys.time()
+
+  if (report) {
+    time <- difftime(after, before, units = "auto")
+    fmt <- "* Hydrated %s packages in %s."
+    vwritef(fmt, length(packages), renv_difftime_format(time))
+  }
 
   # attempt to install missing packages (if any)
   missing <- renv_hydrate_resolve_missing(project, library, na)
@@ -248,12 +288,19 @@ renv_hydrate_link_package <- function(package, location, library) {
 
 }
 
-renv_hydrate_link_packages <- function(packages, library) {
-  vprintf("* Copying packages into the cache ... ")
+renv_hydrate_link_packages <- function(packages, library, project) {
+
+  header <- if (renv_path_same(library, renv_paths_library(project = project)))
+    "* Linking packages into the project library ... "
+  else
+    sprintf("* Linking packages into %s ... ", renv_path_pretty(library))
+
+  vprintf(header)
   callback <- renv_progress_callback(renv_hydrate_link_package, length(packages))
   cached <- enumerate(packages, callback, library = library)
   vwritef("Done!")
   cached
+
 }
 
 # takes a package called 'package' installed at location 'location',
@@ -263,8 +310,14 @@ renv_hydrate_copy_package <- function(package, location, library) {
   renv_file_copy(location, target, overwrite = TRUE)
 }
 
-renv_hydrate_copy_packages <- function(packages, library) {
-  vprintf("* Copying packages into the library ... ")
+renv_hydrate_copy_packages <- function(packages, library, project) {
+
+  header <- if (renv_path_same(library, renv_paths_library(project = project)))
+    "* Copying packages into the project library ... "
+  else
+    sprintf("* Copying packages into %s ... ", renv_path_pretty(library))
+
+  vprintf(header)
   callback <- renv_progress_callback(renv_hydrate_copy_package, length(packages))
   copied <- enumerate(packages, callback, library = library)
   vwritef("Done!")
@@ -329,5 +382,52 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
   }
 
   invisible(data)
+
+}
+
+renv_hydrate_report <- function(packages, na, linkable) {
+
+  if (renv_bootstrap_tests_running())
+    return()
+
+  if (length(packages)) {
+
+    # this is mostly a hacky way to get a list of records that the existing
+    # record pretty-printer can handle in a clean way
+    records <- enumerate(packages, function(package, library) {
+      descpath <- file.path(library, "DESCRIPTION")
+      record <- renv_snapshot_description(descpath)
+      record$Repository <- NULL
+      record$Source <- aliased_path(dirname(library))
+      record
+    })
+
+    preamble <- "The following packages were discovered:"
+    postamble <- sprintf(
+      "They will be %s into the project library.",
+      if (linkable) "linked" else "copied"
+    )
+
+    formatter <- function(lhs, rhs) {
+      renv_record_format_short(rhs, versioned = TRUE)
+    }
+
+    renv_pretty_print_records_pair(
+      old = list(),
+      new = records,
+      preamble  = preamble,
+      postamble = postamble,
+      formatter = formatter
+    )
+
+  }
+
+  if (length(na)) {
+    renv_pretty_print(
+      values    = csort(names(na)),
+      preamble  = "The following packages are used in this project, but not available locally:",
+      postamble = "renv will attempt to download and install these packages."
+    )
+  }
 
 }
