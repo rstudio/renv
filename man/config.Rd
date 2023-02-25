@@ -31,8 +31,8 @@ configuration option \code{auto.snapshot} could be configured as:
 \item \verb{Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = <...>)}
 }
 
-Note that if both the R option and the environment variable are defined, the
-R option will be used instead. Environment variables can be more useful when
+Note that if both the \R option and the environment variable are defined, the
+\R option will be used instead. Environment variables can be more useful when
 you want a particular configuration to be automatically inherited by child
 processes; if that behavior is not desired, then the R option may be
 preferred.
@@ -41,6 +41,10 @@ If you want to set and persist these options across multiple projects, it is
 recommended that you set them in a a startup \code{.Renviron} file; e.g. in your
 own \verb{~/.Renviron}, or in the R installation's \code{etc/Rprofile.site} file. See
 \link{Startup} for more details.
+
+Configuration options can also be set within the project \code{.Rprofile}, but
+be aware the options should be set before \code{source("renv/activate.R")} is
+called.
 }
 \section{Configuration}{
 
