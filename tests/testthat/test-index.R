@@ -3,6 +3,10 @@ context("Index")
 
 test_that("the available packages index is updated and cleaned", {
 
+  index <- tempfile("renv-index-")
+  ensure_directory(index)
+  renv_scope_envvars(RENV_PATHS_INDEX = index)
+
   renv_tests_scope()
 
   # request available packages
