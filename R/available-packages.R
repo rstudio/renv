@@ -2,8 +2,11 @@
 # tools for querying information about packages available on CRAN.
 # note that this does _not_ merge package entries from multiple repositories;
 # rather, a list of databases is returned (one for each repository)
-renv_available_packages <- function(type, repos = NULL, limit = NULL, quiet = FALSE) {
-
+renv_available_packages <- function(type,
+                                    repos = NULL,
+                                    limit = NULL,
+                                    quiet = FALSE)
+{
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
   repos <- renv_repos_normalize(repos %||% getOption("repos"))
   if (empty(repos))
@@ -18,13 +21,12 @@ renv_available_packages <- function(type, repos = NULL, limit = NULL, quiet = FA
   headers <- getOption("renv.download.headers")
   key <- list(repos = repos, type = type, headers = headers, envvals)
 
-  timecache(
-    key     = key,
-    value   = renv_available_packages_impl(type, repos, quiet),
-    limit   = as.integer(limit),
-    timeout = renv_available_packages_timeout
+  index(
+    scope = "available-packages",
+    key   = key,
+    value = renv_available_packages_impl(type, repos, quiet),
+    limit = as.integer(limit)
   )
-
 }
 
 renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
@@ -222,15 +224,6 @@ renv_available_packages_entry <- function(package,
   fmt <- "failed to find %s for '%s' in package repositories"
   stopf(fmt, type, pkgver)
 
-}
-
-renv_available_packages_timeout <- function(data) {
-  urls <- contrib.url(data$repos, data$type)
-  for (url in urls) {
-    name <- sprintf("repos_%s.rds", URLencode(url, reserved = TRUE))
-    path <- file.path(tempdir(), name)
-    unlink(path)
-  }
 }
 
 renv_available_packages_record <- function(entry, type) {

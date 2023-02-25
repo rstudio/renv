@@ -179,6 +179,9 @@ renv_paths_mran <- function(...) {
   renv_paths_common("mran", c(), ...)
 }
 
+renv_paths_index <- function(...) {
+  renv_paths_common("index", c(), ...)
+}
 
 
 renv_paths_root <- function(...) {

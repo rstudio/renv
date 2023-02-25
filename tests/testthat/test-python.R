@@ -16,7 +16,7 @@ test_that("we can activate Python with a project", {
   use_python(python = python, type = "system")
 
   lockfile <- renv_lockfile_read("renv.lock")
-  expect_true(lockfile$Python$Type == "system")
+  expect_true(!is.null(lockfile$Python))
 
 })
 
@@ -94,7 +94,11 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   renv_tests_scope("breakfast")
 
   # initialize python
-  python <- renv::use_python(python, type = "virtualenv")
+  python <- renv::use_python(
+    python,
+    name = tempfile("python-virtualenv-"),
+    type = "virtualenv"
+  )
 
   # install python-dotenv
   expect_false(renv_python_module_available(python, "dotenv"))

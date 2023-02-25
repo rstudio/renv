@@ -1,6 +1,11 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* `renv` now maintains an index of available packages, as retrieved from the
+  active package repositories, that is shared across `R` sessions. This should
+  improve `renv`'s performance when querying for available packages across
+  multiple different `R` sessions.
+  
 * `renv::hydrate()` gains the `prompt` parameter. When `TRUE` (the default),
   `renv` will prompt for confirmation before attempting to hydrate the active
   library.
