@@ -34,7 +34,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
     renv_pretty_print(
       files,
       "The following external software tools will be installed:",
-      sprintf("Tools will be installed into '%s'.", aliased_path(extsoft)),
+      sprintf("Tools will be installed into %s.", renv_path_pretty(extsoft)),
       wrap = FALSE
     )
 

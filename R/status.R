@@ -12,6 +12,10 @@
 #' @param lockfile The path to a lockfile. By default, the project lockfile
 #'   (called `renv.lock`) is used.
 #'
+#' @param sources Boolean; check that each of the recorded packages have a
+#'   known installation source? If a package has an unknown source, `renv`
+#'   may be unable to restore it.
+#'
 #' @param cache Boolean; perform diagnostics on the global package cache?
 #'   When `TRUE`, `renv` will validate that the packages installed into the
 #'   cache are installed at the expected + proper locations, and validate the
@@ -26,6 +30,7 @@ status <- function(project = NULL,
                    ...,
                    library = NULL,
                    lockfile = NULL,
+                   sources = TRUE,
                    cache = FALSE)
 {
   renv_scope_error_handler()
@@ -39,10 +44,10 @@ status <- function(project = NULL,
   libpaths <- renv_libpaths_resolve(library)
   lockpath <- lockfile %||% renv_lockfile_path(project)
 
-  invisible(renv_status_impl(project, libpaths, lockpath, cache))
+  invisible(renv_status_impl(project, libpaths, lockpath, sources, cache))
 }
 
-renv_status_impl <- function(project, libpaths, lockpath, cache) {
+renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
@@ -53,18 +58,27 @@ renv_status_impl <- function(project, libpaths, lockpath, cache) {
   libstate <- renv_status_check_missing_library(project, libpaths)
   lockfile <- renv_status_check_missing_lockfile(project, lockpath)
 
-  synchronized <- renv_status_check_synchronized(
-    project  = project,
-    lockfile = lockfile,
-    libpaths = libpaths,
-    libstate = libstate
-  )
+  synchronized <- all(
 
-  renv_status_check_unknown_sources(project, lockfile)
-  renv_status_check_used_packages(project, lockfile, libstate)
+    renv_status_check_used_packages(project, lockfile, libstate),
+
+    renv_status_check_synchronized(
+      project  = project,
+      lockfile = lockfile,
+      libpaths = libpaths,
+      libstate = libstate
+    ),
+
+    if (sources)
+      renv_status_check_unknown_sources(project, lockfile)
+
+  )
 
   if (cache)
     renv_status_check_cache(project)
+
+  if (synchronized)
+    vwritef("* The project is already synchronized with the lockfile.")
 
   list(
     library      = libstate,
@@ -141,7 +155,8 @@ renv_status_check_used_packages <- function(project, lockfile, libstate) {
     "The following package(s) are used in this project, but are not installed:",
     c(
       "Consider installing these packages (for example, using `renv::install()`).",
-      "Then, use `renv::snapshot()` to record these packages in the lockfile."
+      "Then, use `renv::snapshot()` to record these packages in the lockfile.",
+      "Use `renv::dependencies()` to see where these packages appear to be used."
     ),
     wrap = FALSE
   )
@@ -165,10 +180,8 @@ renv_status_check_synchronized <- function(project,
 {
   # diff packages
   actions <- renv_lockfile_diff_packages(lockfile, libstate)
-  if (empty(actions)) {
-    vwritef("* The project is already synchronized with the lockfile.")
+  if (empty(actions))
     return(TRUE)
-  }
 
   if ("install" %in% actions) {
 
@@ -181,8 +194,8 @@ renv_status_check_synchronized <- function(project,
 
     renv_pretty_print_records(
       records,
-      "The following package(s) are installed but not recorded in the lockfile:",
-      "Use `renv::snapshot()` to add these packages to your lockfile."
+      "The following package(s) are installed, but not recorded in the lockfile:",
+      "Use `renv::snapshot()` to add these packages to the lockfile."
     )
 
   }
@@ -298,4 +311,8 @@ renv_status_check_cache <- function(project) {
   if (renv_cache_config_enabled(project = project))
     renv_cache_diagnose()
 
+}
+
+renv_status_signal_unsynchronized <- function() {
+  renv_condition_signal("status.unsynchronized", list())
 }

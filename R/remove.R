@@ -38,7 +38,7 @@ remove <- function(packages,
     vwritef("* Removing package(s) from project library ...")
   } else {
     fmt <- "* Removing package(s) from library '%s' ..."
-    vwritef(fmt, aliased_path(library))
+    vwritef(fmt, renv_path_aliased(library))
   }
 
   if (length(packages) == 1) {

@@ -380,7 +380,7 @@ renv_python_select_error <- function() {
 
 renv_python_select <- function(candidates = NULL) {
 
-  candidates <- aliased_path(candidates %||% renv_python_discover())
+  candidates <- renv_path_aliased(candidates %||% renv_python_discover())
   if (empty(candidates))
     return(renv_python_select_error())
 

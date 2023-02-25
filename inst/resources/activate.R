@@ -703,6 +703,12 @@ local({
     # warn if the version of renv loaded does not match
     renv_bootstrap_validate_version(version)
   
+    # execute renv load hooks, if any
+    hooks <- getHook("renv::autoload")
+    for (hook in hooks)
+      if (is.function(hook))
+        tryCatch(hook(), error = warning)
+  
     # load the project
     renv::load(project)
   

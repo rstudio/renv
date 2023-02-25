@@ -58,7 +58,7 @@ renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
     descs <- grep(pattern, files, value = TRUE)
     if (empty(descs)) {
       fmt <- "archive '%s' does not appear to contain a DESCRIPTION file"
-      stopf(fmt, aliased_path(path))
+      stopf(fmt, renv_path_aliased(path))
     }
 
     # choose the shortest DESCRPITION file matching

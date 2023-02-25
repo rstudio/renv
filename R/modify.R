@@ -52,7 +52,7 @@ renv_modify_interactive <- function(project) {
   # resolve path to lockfile
   lockpath <- renv_lockfile_path(project)
   if (!file.exists(lockpath))
-    stopf("lockfile '%s' does not exist", aliased_path(lockpath))
+    stopf("lockfile '%s' does not exist", renv_path_aliased(lockpath))
 
   # copy the lockfile to a temporary file
   dir <- tempfile("renv-lockfile-")
@@ -89,7 +89,7 @@ renv_modify_noninteractive <- function(project, changes) {
   # resolve path to lockfile
   lockpath <- renv_lockfile_path(project)
   if (!file.exists(lockpath))
-    stopf("lockfile '%s' does not exist", aliased_path(lockpath))
+    stopf("lockfile '%s' does not exist", renv_path_aliased(lockpath))
 
   # read it
   lockfile <- renv_lockfile_read(file = lockpath)

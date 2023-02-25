@@ -213,7 +213,7 @@ snapshot <- function(project  = NULL,
   # write it out
   ensure_parent_directory(lockfile)
   renv_lockfile_write(new, file = lockfile)
-  vwritef("* Lockfile written to '%s'.", aliased_path(lockfile))
+  vwritef("* Lockfile written to '%s'.", renv_path_aliased(lockfile))
 
   # ensure the lockfile is .Rbuildignore-d
   renv_infrastructure_write_rbuildignore(project)
@@ -261,18 +261,18 @@ renv_snapshot_preflight_library_exists <- function(project, library) {
   # if the file exists but isn't a directory, fail
   if (nzchar(type)) {
     fmt <- "library '%s' exists but is not a directory"
-    stopf(fmt, aliased_path(library))
+    stopf(fmt, renv_path_aliased(library))
   }
 
   # the directory doesn't exist; perhaps the user hasn't called init
   if (identical(library, renv_paths_library(project = project))) {
     fmt <- "project '%s' has no private library -- have you called `renv::init()`?"
-    stopf(fmt, aliased_path(project))
+    stopf(fmt, renv_path_aliased(project))
   }
 
   # user tried to snapshot arbitrary but missing path
   fmt <- "library '%s' does not exist; cannot proceed"
-  stopf(fmt, aliased_path(library))
+  stopf(fmt, renv_path_aliased(library))
 
 }
 
@@ -535,7 +535,8 @@ renv_snapshot_r_packages <- function(libpaths = NULL,
 }
 
 renv_snapshot_r_packages_impl <- function(library = NULL,
-                                          project = NULL)
+                                          project = NULL,
+                                          snapshot = TRUE)
 {
   # list packages in the library
   library <- renv_path_normalize(library %||% renv_libpaths_default())
@@ -558,6 +559,10 @@ renv_snapshot_r_packages_impl <- function(library = NULL,
   # remove duplicates (so only first package entry discovered in library wins)
   duplicated <- duplicated(basename(valid))
   packages <- valid[!duplicated]
+
+  # early exit if we're just collecting the list of packages
+  if (!snapshot)
+    return(packages)
 
   # snapshot description files
   descriptions <- file.path(packages, "DESCRIPTION")
@@ -730,6 +735,13 @@ renv_snapshot_description_source <- function(dcf) {
   # check for a valid package name
   package <- dcf[["Package"]]
   if (is.null(package))
+    return(list(Source = "unknown"))
+
+  # bail here if we're currently loading; we don't want the below hack
+  # (which requires querying the active package repositories) to make this
+  # expensive call
+  loading <- getOption("renv.load.running", default = FALSE)
+  if (loading)
     return(list(Source = "unknown"))
 
   # NOTE: this is sort of a hack that allows renv to declare packages which

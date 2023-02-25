@@ -100,8 +100,8 @@ renv_activate_version <- function(project) {
       return(version)
   }
 
-  fmt <- "failed to determine renv version for project '%s'"
-  stopf(fmt, aliased_path(project))
+  fmt <- "failed to determine renv version for project %s"
+  stopf(fmt, renv_path_pretty(project))
 
 }
 

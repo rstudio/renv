@@ -675,10 +675,10 @@ renv_load_report_project <- function(project) {
 
   if (length(profile)) {
     fmt <- "* (%s) Project '%s' loaded. [renv %s]"
-    vwritef(fmt, profile, aliased_path(project), version)
+    vwritef(fmt, profile, renv_path_aliased(project), version)
   } else {
     fmt <- "* Project '%s' loaded. [renv %s]"
-    vwritef(fmt, aliased_path(project), version)
+    vwritef(fmt, renv_path_aliased(project), version)
   }
 
 }
@@ -735,6 +735,12 @@ renv_load_report_synchronized <- function(project, lockfile) {
   if (!enabled)
     return(FALSE)
 
+  # TODO: This can be slow. I wonder if there's a sensible way to farm this
+  # out to a separate R process, and then collect the results later on?
+  #
+  # Just using 'system(..., wait = FALSE)' feels a bit awkward, as we might
+  # end up emitting output while the user is typing in the terminal, which
+  # feels disruptive.
   callback <- function(...) renv_project_synchronized_check(project, lockfile)
   renv_load_invoke(callback)
   # nocov end

@@ -31,10 +31,10 @@ test_that("inject inserts text at expected anchor point", {
 
 })
 
-test_that("aliased_path() correctly forms aliased path", {
+test_that("renv_path_aliased() correctly forms aliased path", {
   path <- "~/some/path"
   expanded <- path.expand(path)
-  expect_equal(path, aliased_path(expanded))
+  expect_equal(path, renv_path_aliased(expanded))
 })
 
 test_that("memoize avoids evaluating expression multiple times", {

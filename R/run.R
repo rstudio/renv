@@ -37,14 +37,14 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
 
   if (is.null(project)) {
     fmt <- "could not determine project root for script '%s'"
-    stopf(fmt, aliased_path(script))
+    stopf(fmt, renv_path_aliased(script))
   }
 
   # ensure that it has an activate script
   activate <- renv_paths_activate(project = project)
   if (!file.exists(activate)) {
     fmt <- "project '%s' does not have an renv activate script"
-    stopf(fmt, aliased_path(project))
+    stopf(fmt, renv_path_aliased(project))
   }
 
   # run as a job when possible in RStudio

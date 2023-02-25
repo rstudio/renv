@@ -55,7 +55,7 @@ empty <- function(x) {
   length(x) == 0
 }
 
-aliased_path <- function(path) {
+renv_path_aliased <- function(path) {
 
   home <-
     Sys.getenv("HOME") %""%

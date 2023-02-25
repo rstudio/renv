@@ -121,7 +121,7 @@ hydrate <- function(packages = NULL,
   # check for nothing to be done
   if (empty(packages) && empty(na)) {
     if (report)
-      writef("* No new packages were discovered in this project; nothing to do.")
+      vwritef("* No new packages were discovered in this project; nothing to do.")
     return(invisible(list(packages = list(), missing = list())))
   }
 
@@ -398,7 +398,7 @@ renv_hydrate_report <- function(packages, na, linkable) {
       descpath <- file.path(library, "DESCRIPTION")
       record <- renv_snapshot_description(descpath)
       record$Repository <- NULL
-      record$Source <- aliased_path(dirname(library))
+      record$Source <- renv_path_aliased(dirname(library))
       record
     })
 

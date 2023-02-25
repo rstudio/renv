@@ -191,7 +191,7 @@ renv_use_python_virtualenv <- function(python,
   # virtual environment, then we'll use a local virtual environment
   local <- is.null(name) && identical(info$type, "virtualenv")
   if (local) {
-    name <- aliased_path(info$root)
+    name <- renv_path_aliased(info$root)
     if (renv_path_same(dirname(name), renv_python_virtualenv_home()))
       name <- basename(name)
   } else {
@@ -278,10 +278,10 @@ renv_use_python_fini <- function(info,
   if (!renv_tests_running()) {
     if (is.null(info$type)) {
       fmt <- "* Activated Python %s (%s)."
-      vwritef(fmt, version, aliased_path(info$python))
+      vwritef(fmt, version, renv_path_aliased(info$python))
     } else {
       fmt <- "* Activated Python %s [%s; %s]"
-      vwritef(fmt, version, info$type, aliased_path(name))
+      vwritef(fmt, version, info$type, renv_path_aliased(name))
     }
   }
 

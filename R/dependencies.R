@@ -180,7 +180,7 @@ renv_dependencies_impl <- function(
 
   # check and see if we've pre-computed dependencies for this path, and
   # retrieve those pre-computed dependencies if so
-  if (length(path) == 1)
+  if (length(path) == 1L)
     if (exists(path, envir = `_renv_dependencies`))
       return(get(path, envir = `_renv_dependencies`))
 
@@ -375,7 +375,7 @@ renv_dependencies_find_dir_children <- function(path, root, depth) {
 renv_dependencies_discover <- function(paths, progress, errors) {
 
   if (!renv_dependencies_discover_preflight(paths, errors))
-    return(invisible(NULL))
+    return(invisible(list()))
 
   # short path if we're not showing progress
   if (identical(progress, FALSE))
@@ -1598,7 +1598,7 @@ renv_dependencies_report <- function(errors) {
 
   # bind into list
   bound <- bapply(problems, function(problem) {
-    fields <- c(aliased_path(problem$file), problem$line, problem$column)
+    fields <- c(renv_path_aliased(problem$file), problem$line, problem$column)
     header <- paste(fields, collapse = ":")
     message <- conditionMessage(problem$error)
     c(file = problem$file, header = header, message = message)

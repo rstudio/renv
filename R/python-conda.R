@@ -60,7 +60,7 @@ renv_python_conda_snapshot <- function(project, prompt, python) {
   output <- if (renv_tests_running()) FALSE else ""
   system2(conda, args, stdout = output, stderr = output)
 
-  vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
+  vwritef("* Wrote Python packages to '%s'.", renv_path_aliased(path))
   return(TRUE)
 }
 

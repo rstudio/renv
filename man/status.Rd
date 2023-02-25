@@ -4,7 +4,14 @@
 \alias{status}
 \title{Status}
 \usage{
-status(project = NULL, ..., library = NULL, lockfile = NULL, cache = FALSE)
+status(
+  project = NULL,
+  ...,
+  library = NULL,
+  lockfile = NULL,
+  sources = TRUE,
+  cache = FALSE
+)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -19,6 +26,10 @@ with the requested project are used.}
 
 \item{lockfile}{The path to a lockfile. By default, the project lockfile
 (called \code{renv.lock}) is used.}
+
+\item{sources}{Boolean; check that each of the recorded packages have a
+known installation source? If a package has an unknown source, \code{renv}
+may be unable to restore it.}
 
 \item{cache}{Boolean; perform diagnostics on the global package cache?
 When \code{TRUE}, \code{renv} will validate that the packages installed into the

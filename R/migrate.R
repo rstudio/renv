@@ -99,7 +99,7 @@ renv_migrate_packrat <- function(project = NULL, components = NULL) {
   renv_imbue_impl(project)
 
   fmt <- "* Project '%s' has been migrated from Packrat to renv."
-  vwritef(fmt, aliased_path(project))
+  vwritef(fmt, renv_path_aliased(project))
 
   vwritef("* Consider deleting the project 'packrat' folder if it is no longer needed.")
   invisible(TRUE)
