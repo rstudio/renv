@@ -142,3 +142,23 @@ test_that("available packages prefer tagged repository", {
 
 })
 
+test_that("we're compatible with R", {
+
+  skip_on_cran()
+
+  repos <- getOption("repos")[1L]
+
+  lhs <- as.data.frame(
+    available.packages(type = "source", repos = repos),
+    stringsAsFactors = FALSE
+  )
+
+  rhs <- renv_available_packages(type = "source", repos = repos)[[1L]]
+
+  # TODO: where does R handle these 'Older' packages?
+  rhs <- rhs[is.na(rhs$Path) | rhs$Path != "Older", ]
+
+  fields <- c("Package", "Version")
+  expect_equal(lhs[fields], rhs[fields])
+
+})

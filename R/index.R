@@ -1,21 +1,21 @@
 
-index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
+index <- function(scope, key = NULL, callback = NULL, limit = 3600L) {
 
   enabled <- renv_index_enabled(scope, key)
   if (!enabled)
-    return(value)
+    return(callback())
 
   now <- as.integer(Sys.time())
   key <- if (!is.null(key)) renv_index_encode(key)
 
   tryCatch(
-    renv_index_impl(scope, key, value, now, limit),
-    error = function(e) value
+    renv_index_impl(scope, key, callback, now, limit),
+    error = function(e) callback()
   )
 
 }
 
-renv_index_impl <- function(scope, key, value, now, limit) {
+renv_index_impl <- function(scope, key, callback, now, limit) {
 
   # load the index file
   root <- renv_paths_index(scope)
@@ -31,7 +31,7 @@ renv_index_impl <- function(scope, key, value, now, limit) {
     return(item)
 
   # otherwise, update the index
-  renv_index_set(root, scope, index, key, value, now, limit)
+  renv_index_set(root, scope, index, key, callback, now, limit)
 
 }
 
@@ -72,7 +72,10 @@ renv_index_get <- function(root, scope, index, key, now, limit) {
 
 }
 
-renv_index_set <- function(root, scope, index, key, value, now, limit) {
+renv_index_set <- function(root, scope, index, key, callback, now, limit) {
+
+  # force value
+  value <- callback()
 
   # write data into index
   data <- tempfile("data-", tmpdir = root, fileext = ".rds")
@@ -91,7 +94,7 @@ renv_index_set <- function(root, scope, index, key, value, now, limit) {
   renv_json_write(index, file = path)
 
   # return value
-  invisible(value)
+  value
 
 }
 

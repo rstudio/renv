@@ -21,12 +21,14 @@ renv_available_packages <- function(type,
   headers <- getOption("renv.download.headers")
   key <- list(repos = repos, type = type, headers = headers, envvals)
 
+  # retrieve available packages
   index(
-    scope = "available-packages",
-    key   = key,
-    value = renv_available_packages_impl(type, repos, quiet),
-    limit = as.integer(limit)
+    scope    = "available-packages",
+    key      = key,
+    callback = function() renv_available_packages_impl(type, repos, quiet),
+    limit    = as.integer(limit)
   )
+
 }
 
 renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
@@ -137,13 +139,18 @@ renv_available_packages_query <- function(url, errors) {
 
 renv_available_packages_success <- function(db, url) {
 
+  # convert to data.frame
   db <- as.data.frame(db, stringsAsFactors = FALSE)
   if (nrow(db) == 0L)
     return(db)
 
+  # filter as appropriate
+  db <- renv_available_packages_filter(db)
+
   # tag with repository
   db$Repository <- url
 
+  # ok
   db
 
 }
@@ -192,14 +199,6 @@ renv_available_packages_entry <- function(package,
   for (i in seq_along(dbs)) {
 
     db <- dbs[[i]]
-
-    # remove packages which won't work on this OS
-    ostype <- db$OS_type
-    if (is.character(ostype)) {
-      ok <- is.na(ostype) | ostype %in% .Platform$OS.type
-      db <- db[ok, ]
-    }
-
     matches <- which(db$Package == package)
     if (empty(matches))
       next
@@ -284,61 +283,13 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
 
   entries <- bapply(dbs, function(db) {
 
-    # remove packages which won't work on this OS
-    ostype <- db$OS_type
-    if (is.character(ostype)) {
-      ok <- is.na(ostype) | ostype %in% .Platform$OS.type
-      db <- db[ok, ]
-    }
-
     # extract entries for this package
     rows <- db[db$Package == package, ]
     if (nrow(rows) == 0L)
       return(rows)
 
-    # only keep entries for which this version of R is compatible
-    deps <- rows$Depends %||% rep.int("", nrow(rows))
-    compatible <- map_lgl(deps, function(dep) {
-
-      # skip NAs
-      if (is.na(dep))
-        return(TRUE)
-
-      # read 'R' entries from Depends (if any)
-      parsed <- catch(renv_description_parse_field(dep))
-      if (inherits(parsed, "error")) {
-        warning(parsed)
-        return(FALSE)
-      }
-
-      # check for NULL
-      if (is.null(parsed))
-        return(TRUE)
-
-      # read requirements for R
-      r <- parsed[parsed$Package == "R", ]
-      if (is.null(r) || nrow(r) == 0)
-        return(TRUE)
-
-      # build code to validate requirements
-      fmt <- "getRversion() %s \"%s\""
-      all <- sprintf(fmt, r$Require, r$Version)
-      code <- paste(all, collapse = " && ")
-
-      # evaluate it
-      status <- catch(eval(parse(text = code), envir = baseenv()))
-      if (inherits(status, "error")) {
-        warning(status)
-        return(TRUE)
-      }
-
-      # all done
-      status
-
-    })
-
     # keep only compatible rows + the required fields
-    rows[compatible, intersect(fields, names(db))]
+    rows[, intersect(fields, names(db)), drop = FALSE]
 
   }, index = "Name")
 
@@ -610,4 +561,71 @@ renv_available_packages_cellar <- function(type, project = NULL) {
 
   bind(records)
 
+}
+
+renv_available_packages_filter <- function(db) {
+
+  # sanity check
+  if (is.null(db) || nrow(db) == 0L)
+    return(db)
+
+  # TODO: subarch? duplicates?
+  # remove packages which won't work on this OS
+  db <- renv_available_packages_filter_ostype(db)
+  db <- renv_available_packages_filter_version(db)
+
+  # return filtered database
+  db
+
+}
+
+renv_available_packages_filter_ostype <- function(db) {
+  ostype <- db$OS_type
+  ok <- is.na(ostype) | ostype %in% .Platform$OS.type
+  db[ok, ]
+}
+
+renv_available_packages_filter_version <- function(db) {
+
+  depends <- db$Depends
+
+  # find the packages which express an R dependency
+  splat <- strsplit(depends, "\\s*,\\s*", perl = TRUE)
+
+  # remove the non-R dependencies
+  table <- c("R ", "R\n", "R(")
+  splat <- map(splat, function(requirements) {
+    requirements[match(substr(requirements, 1L, 2L), table, 0L) != 0L]
+  })
+
+  # collect the unique R dependencies
+  dependencies <- unique(unlist(splat))
+
+  # convert this to a simpler form
+  pattern <- "^R\\s*\\(([^\\d\\s+]+)\\s*([^\\)]+)\\)$"
+  matches <- gsub(pattern, "\\1 \\2", dependencies, perl = TRUE)
+
+  # split into operator and version
+  idx <- regexpr(" ", matches, fixed = TRUE)
+  ops <- substring(matches, 1L, idx - 1L)
+  version <- numeric_version(substring(matches, idx + 1L))
+
+  # bundle the calls for efficiency
+  ok <- rep.int(NA, length(ops))
+  names(ok) <- dependencies
+
+  # iterate over the operations, and update our vector
+  rversion <- getRversion()
+  for (op in unique(ops)) {
+    idx <- ops == op
+    ok[idx] <- do.call(op, list(rversion, version[idx]))
+  }
+
+  # now, map the names back to their computed values, and check whether
+  # all requirements were satisfied
+  ok <- map_lgl(splat, function(requirements) {
+    all(ok[requirements])
+  })
+
+  db[ok, ]
 }
