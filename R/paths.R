@@ -180,7 +180,7 @@ renv_paths_mran <- function(...) {
 }
 
 renv_paths_index <- function(...) {
-  renv_paths_common("index", c(renv_platform_prefix()), ...)
+  renv_paths_common("index", c(), ...)
 }
 
 
