@@ -87,7 +87,7 @@ renv_base64_encode <- function(text) {
 }
 
 renv_base64_decode_table <- function() {
-  renv_global("base64.decode.table", {
+  global("base64.decode.table", {
     table <- integer(255)
     text <- "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
     table[utf8ToInt(text)] <- seq_len(nchar(text)) - 1L

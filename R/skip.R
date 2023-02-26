@@ -3,7 +3,7 @@ skip_if_no_python <- function(python = NULL) {
 
   python <- python %||% "python3"
   key <- paste("tests", python, "installed", sep = ".")
-  installed <- renv_global(key, {
+  installed <- global(key, {
     python <- Sys.which(python)
     nzchar(python)
   })
@@ -20,7 +20,7 @@ skip_if_no_virtualenv <- function(python = NULL) {
   skip_if_no_python(python)
 
   key <- paste("tests", python, "virtualenv.installed", sep = ".")
-  installed <- renv_global(key, {
+  installed <- global(key, {
     version <- renv_python_version(python)
     module <- if (numeric_version(version) >= "3.2") "venv" else "virtualenv"
     renv_python_module_available(python, module)

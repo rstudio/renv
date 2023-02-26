@@ -1474,7 +1474,7 @@ renv_dependencies_discover_r_database <- function(node, stack, envir) {
 
 renv_dependencies_database <- function() {
   # TODO: make this user-accessible?
-  renv_global(
+  global(
     "dependencies.database",
     renv_dependencies_database_impl()
   )

@@ -115,7 +115,7 @@ use <- function(...,
 }
 
 renv_use_libpath <- function() {
-  renv_global("use.library", tempfile("renv-library-"))
+  global("use.library", tempfile("renv-library-"))
 }
 
 renv_use_sandbox <- function(sandbox) {

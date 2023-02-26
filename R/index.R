@@ -1,6 +1,4 @@
 
-`_renv_index` <- new.env(parent = emptyenv())
-
 index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
 
   enabled <- renv_index_enabled(scope, key)
@@ -47,18 +45,11 @@ renv_index_load <- function(root, scope) {
 
 renv_index_load_impl <- function(root, scope) {
 
-  # use index if it already exists
-  if (exists(scope, envir = `_renv_index`, inherits = FALSE))
-    return(get(scope, envir = `_renv_index`, inherits = FALSE))
-
-  # read the index from file
-  index <- renv_json_read(file.path(root, "index.json"))
-
-  # update in-memory cache
-  assign(root, index, envir = `_renv_index`)
-
-  # return index
-  index
+  filebacked(
+    scope = paste("index", scope, sep = "."),
+    path = file.path(root, "index.json"),
+    callback = function(path) renv_json_read(path)
+  )
 
 }
 
@@ -94,9 +85,6 @@ renv_index_set <- function(root, scope, index, key, value, now, limit) {
   # add index entry
   index[[key]] <- list(time = now, data = basename(data))
 
-  # update in-memory cache
-  assign(scope, index, envir = `_renv_index`)
-
   # update index file
   path <- file.path(root, "index.json")
   ensure_parent_directory(path)
@@ -124,10 +112,6 @@ renv_index_clean <- function(root, index, now, limit) {
   # return the existing cache entries
   index[!expired]
 
-}
-
-renv_index_clear <- function(scope) {
-  assign(scope, NULL, envir = `_renv_index`)
 }
 
 renv_index_expired <- function(entry, now, limit) {

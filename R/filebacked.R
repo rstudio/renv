@@ -5,25 +5,6 @@
 # that value, or NULL of the file mtime has changed
 `_renv_filebacked` <- new.env(parent = emptyenv())
 
-renv_filebacked_init <- function() {
-
-  scopes <- c(
-    "DESCRIPTION",
-    "dependencies",
-    "hash",
-    "mran",
-    "python.versions",
-    "settings",
-    "test"
-  )
-
-  for (scope in scopes) {
-    envir <- new.env(parent = emptyenv())
-    assign(scope, envir, envir = `_renv_filebacked`)
-  }
-
-}
-
 renv_filebacked_clear <- function(scope, path = NULL) {
 
   # get cache associated with this scope
@@ -93,7 +74,9 @@ renv_filebacked_get <- function(scope, path) {
 }
 
 renv_filebacked_envir <- function(scope) {
-  get(scope, envir = `_renv_filebacked`)
+  `_renv_filebacked`[[scope]] <-
+    `_renv_filebacked`[[scope]] %||%
+    new.env(parent = emptyenv())
 }
 
 filebacked <- function(scope, path, callback, ...) {

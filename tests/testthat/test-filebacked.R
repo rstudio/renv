@@ -1,7 +1,7 @@
 
-context("File-backed")
+context("Filebacked")
 
-test_that("file-backed entries are discarded after the file is modified", {
+test_that("filebacked entries are discarded after the file is modified", {
 
   file <- renv_scope_tempfile("renv-test-")
 
@@ -16,7 +16,7 @@ test_that("file-backed entries are discarded after the file is modified", {
 
 })
 
-test_that("file-backed entries are discarded after the file is deleted", {
+test_that("filebacked entries are discarded after the file is deleted", {
 
   file <- renv_scope_tempfile("renv-test-")
 

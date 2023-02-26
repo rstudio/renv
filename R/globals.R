@@ -1,8 +1,8 @@
 
 `_renv_globals` <- new.env(parent = emptyenv())
 
-renv_global <- function(name, value) {
-  (`_renv_globals`[[name]]) %||% (`_renv_globals`[[name]] <- value)
+global <- function(name, value) {
+  `_renv_globals`[[name]] <- `_renv_globals`[[name]] %||% value
 }
 
 renv_global_get <- function(name) {

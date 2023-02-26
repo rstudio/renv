@@ -42,7 +42,7 @@ renv_tests_scope <- function(packages = character(), project = NULL) {
 }
 
 renv_tests_root <- function(path = getwd()) {
-  renv_global("tests.root", renv_tests_root_impl(path))
+  global("tests.root", renv_tests_root_impl(path))
 }
 
 renv_tests_root_impl <- function(path = getwd()) {
