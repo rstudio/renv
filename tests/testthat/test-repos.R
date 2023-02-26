@@ -3,9 +3,7 @@ context("Repositories")
 
 test_that("we can query our local repository during tests", {
 
-  exclude <- if (renv_platform_unix()) "windowsonly" else "unixonly"
-  expected <- setdiff(list.files("packages"), exclude)
-
+  expected <- list.files("packages")
   renv_tests_scope()
   ap <- renv_available_packages(type = "source")[[1]]
   expect_setequal(ap$Package, expected)
