@@ -138,16 +138,8 @@ renv_available_packages_query <- function(url, errors) {
 renv_available_packages_success <- function(db, url) {
 
   db <- as.data.frame(db, stringsAsFactors = FALSE)
-  if (nrow(db) == 0)
+  if (nrow(db) == 0L)
     return(db)
-
-  # remove packages which won't work on this OS
-  ostype <- db$OS_type
-  if (is.character(ostype)) {
-    ok <- is.na(ostype) | ostype %in% .Platform$OS.type
-    db <- db[ok, ]
-  }
-
 
   # tag with repository
   db$Repository <- url
@@ -200,6 +192,14 @@ renv_available_packages_entry <- function(package,
   for (i in seq_along(dbs)) {
 
     db <- dbs[[i]]
+
+    # remove packages which won't work on this OS
+    ostype <- db$OS_type
+    if (is.character(ostype)) {
+      ok <- is.na(ostype) | ostype %in% .Platform$OS.type
+      db <- db[ok, ]
+    }
+
     matches <- which(db$Package == package)
     if (empty(matches))
       next
@@ -283,6 +283,13 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
   )
 
   entries <- bapply(dbs, function(db) {
+
+    # remove packages which won't work on this OS
+    ostype <- db$OS_type
+    if (is.character(ostype)) {
+      ok <- is.na(ostype) | ostype %in% .Platform$OS.type
+      db <- db[ok, ]
+    }
 
     # extract entries for this package
     rows <- db[db$Package == package, ]

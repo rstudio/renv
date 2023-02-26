@@ -32,13 +32,17 @@
 #' }
 refresh <- function() {
 
-  dbs <- list()
+  pkgtype <- getOption("pkgType", default = "source")
 
-  if (!renv_platform_linux())
-    dbs[["binary"]] <- renv_available_packages("binary", limit = 0L)
+  srcok <- pkgtype %in% c("both", "source") ||
+    getOption("install.packages.check.source", default = "yes") %in% "yes"
 
-  dbs[["source"]] <- renv_available_packages("source", limit = 0L)
+  binok <- pkgtype %in% "both" ||
+    grepl("binary", pkgtype, fixed = TRUE)
 
-  invisible(dbs)
+  list(
+    binary = if (binok) renv_available_packages(type = "binary", limit = 0L),
+    source = if (srcok) renv_available_packages(type = "source", limit = 0L)
+  )
 
 }
