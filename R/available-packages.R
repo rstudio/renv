@@ -23,10 +23,10 @@ available_packages <- function(type,
 
   # retrieve available packages
   index(
-    scope    = "available-packages",
-    key      = key,
-    callback = function() renv_available_packages_impl(type, repos, quiet),
-    limit    = as.integer(limit)
+    scope = "available-packages",
+    key   = key,
+    value = renv_available_packages_impl(type, repos, quiet),
+    limit = as.integer(limit)
   )
 
 }
@@ -38,6 +38,12 @@ renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
 
   fmt <- "* Querying repositories for available %s packages ... "
   vprintf(fmt, type)
+
+  # exclude repositories which are known to not have packages available
+  if (type == "binary") {
+    ignored <- setdiff(grep("^BioC", names(repos), value = TRUE), "BioCsoft")
+    repos <- repos[setdiff(names(repos), ignored)]
+  }
 
   # request repositories
   urls <- contrib.url(repos, type)
@@ -90,15 +96,6 @@ renv_available_packages_query_packages <- function(url) {
 }
 
 renv_available_packages_query <- function(url, errors) {
-
-  # check for a cached value
-  name <- sprintf("repos_%s.rds.cache", URLencode(url, reserved = TRUE))
-  path <- file.path(tempdir(), name)
-  if (file.exists(path)) {
-    db <- readRDS(path)
-    unlink(path)
-    return(as.data.frame(db, stringsAsFactors = FALSE))
-  }
 
   # define query methods for the different PACKAGES
   methods <- list(

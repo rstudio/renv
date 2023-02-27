@@ -298,9 +298,11 @@ update <- function(packages = NULL,
     renv_scope_bioconductor(project = project)
 
   # ensure database of available packages is current
-  if (repo)
-    for (type in renv_package_pkgtypes())
+  if (repo) {
+    for (type in renv_package_pkgtypes()) {
       available_packages(type = type)
+    }
+  }
 
   vprintf("* Checking for updated packages ... ")
 

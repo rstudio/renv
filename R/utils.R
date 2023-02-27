@@ -139,22 +139,38 @@ ask <- function(question, default = FALSE) {
   if (identical(initializing, TRUE))
     return(default)
 
-  selection <- if (default) "[Y/n]" else "[y/N]"
-  prompt <- sprintf("%s %s: ", question, selection)
-  response <- tryCatch(
-    tolower(trimws(readline(prompt))),
-    interrupt = identity
-  )
+  repeat {
 
-  if (inherits(response, "interrupt")) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    # solicit user's answer
+    selection <- if (default) "[Y/n]" else "[y/N]"
+    prompt <- sprintf("%s %s: ", question, selection)
+    response <- tryCatch(
+      tolower(trimws(readline(prompt))),
+      interrupt = identity
+    )
+
+    # check for interrupts; treat as abort request
+    if (inherits(response, "interrupt")) {
+      renv_report_user_cancel()
+      invokeRestart("abort")
+    }
+
+    # use default when no response
+    if (!nzchar(response))
+      return(default)
+
+    # check for 'yes' responses
+    if (response %in% c("y", "yes"))
+      return(TRUE)
+
+    # check for 'no' responses
+    if (response %in% c("n", "no"))
+      return(FALSE)
+
+    # ask the user again
+    writef("* Unrecognized response: please enter 'y' or 'n', or type Ctrl + C to cancel.")
+
   }
-
-  if (!nzchar(response))
-    return(default)
-
-  substring(response, 1L, 1L) == "y"
 
 }
 
