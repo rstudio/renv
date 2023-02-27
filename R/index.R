@@ -83,7 +83,7 @@ renv_index_set <- function(root, scope, index, key, callback, now, limit) {
   saveRDS(value, file = data, version = 2L)
 
   # clean up stale entries
-  index <- renv_index_clean(root, index, limit, now)
+  index <- renv_index_clean(root, index, now, limit)
 
   # add index entry
   index[[key]] <- list(time = now, data = basename(data))
