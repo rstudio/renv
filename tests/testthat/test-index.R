@@ -12,7 +12,7 @@ test_that("the available packages index is updated and cleaned", {
   renv_tests_scope()
 
   # request available packages
-  db <- renv_available_packages(type = "source")
+  db <- available_packages(type = "source")
 
   # check that an index entry was created
   idx <- index(scope)

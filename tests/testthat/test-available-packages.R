@@ -1,27 +1,27 @@
 
 context("Available Packages")
 
-test_that("renv_available_packages() returns NULL when no repos set", {
+test_that("available_packages() returns NULL when no repos set", {
   skip_on_cran()
 
   local({
     renv_scope_options(repos = character())
-    expect_null(renv_available_packages(type = "source"))
+    expect_null(available_packages(type = "source"))
   })
 
   local({
     renv_scope_options(repos = list())
-    expect_null(renv_available_packages(type = "source"))
+    expect_null(available_packages(type = "source"))
   })
 
   local({
     renv_scope_options(repos = NULL)
-    expect_null(renv_available_packages(type = "source"))
+    expect_null(available_packages(type = "source"))
   })
 
 })
 
-test_that("renv_available_packages() errs on incorrect repository", {
+test_that("available_packages() errs on incorrect repository", {
   skip_on_cran()
 
   renv_scope_options(
@@ -30,7 +30,7 @@ test_that("renv_available_packages() errs on incorrect repository", {
     repos = c(CRAN = "https://www.example.com/no/such/repository")
   )
 
-  expect_error(renv_available_packages(type = "source"))
+  expect_error(available_packages(type = "source"))
 })
 
 test_that("renv handles multiple available source packages", {
@@ -41,7 +41,7 @@ test_that("renv handles multiple available source packages", {
   repos <- tempfile("renv-test-repos-")
   renv_tests_init_repos(repos)
 
-  dbs <- renv_available_packages(type = "source")
+  dbs <- available_packages(type = "source")
   cran <- dbs[["CRAN"]]
   entries <- cran[cran$Package == "breakfast", ]
   expect_true(nrow(entries) == 3)
@@ -57,7 +57,7 @@ test_that("renv handles multiple available source packages", {
 
 })
 
-test_that("renv_available_packages() succeeds with unnamed repositories", {
+test_that("available_packages() succeeds with unnamed repositories", {
   skip_on_cran()
   renv_tests_scope()
   renv_scope_options(repos = unname(getOption("repos")))
@@ -116,7 +116,7 @@ test_that("available packages database refreshed on http_proxy change", {
   )
 
   Sys.setenv("https_proxy" = "")
-  renv_available_packages(type = "source")
+  available_packages(type = "source")
   expect_identical(count, 1L)
 
 })
@@ -145,19 +145,25 @@ test_that("available packages prefer tagged repository", {
 test_that("we're compatible with R", {
 
   skip_on_cran()
-
+  renv_tests_scope()
   repos <- getOption("repos")[1L]
 
   lhs <- as.data.frame(
-    available.packages(type = "source", repos = repos),
+    available.packages(
+      type = "source",
+      repos = repos,
+      filters = c("R_version", "OS_type")
+    ),
+    row.names = FALSE,
     stringsAsFactors = FALSE
   )
 
-  rhs <- renv_available_packages(type = "source", repos = repos)[[1L]]
+  rhs <- available_packages(
+    type = "source",
+    repos = repos
+  )[[1L]]
 
-  # TODO: where does R handle these 'Older' packages?
-  rhs <- rhs[is.na(rhs$Path) | rhs$Path != "Older", ]
-
+  row.names(lhs) <- row.names(rhs) <- NULL
   fields <- c("Package", "Version")
   expect_equal(lhs[fields], rhs[fields])
 

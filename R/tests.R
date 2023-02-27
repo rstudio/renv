@@ -465,7 +465,7 @@ renv_tests_diagnostics <- function() {
   writeLines("The following packages are available in the test repositories:")
 
   dbs <-
-    renv_available_packages(type = "source", quiet = TRUE) %>%
+    available_packages(type = "source", quiet = TRUE) %>%
     map(function(db) {
       rownames(db) <- NULL
       db[c("Package", "Version", "Path")]

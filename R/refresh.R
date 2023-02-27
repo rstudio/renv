@@ -41,8 +41,8 @@ refresh <- function() {
     grepl("binary", pkgtype, fixed = TRUE)
 
   list(
-    binary = if (binok) renv_available_packages(type = "binary", limit = 0L),
-    source = if (srcok) renv_available_packages(type = "source", limit = 0L)
+    binary = if (binok) available_packages(type = "binary", limit = 0L),
+    source = if (srcok) available_packages(type = "source", limit = 0L)
   )
 
 }

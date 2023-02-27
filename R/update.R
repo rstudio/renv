@@ -300,7 +300,7 @@ update <- function(packages = NULL,
   # ensure database of available packages is current
   if (repo)
     for (type in renv_package_pkgtypes())
-      renv_available_packages(type = type)
+      available_packages(type = type)
 
   vprintf("* Checking for updated packages ... ")
 

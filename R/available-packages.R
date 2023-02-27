@@ -2,10 +2,10 @@
 # tools for querying information about packages available on CRAN.
 # note that this does _not_ merge package entries from multiple repositories;
 # rather, a list of databases is returned (one for each repository)
-renv_available_packages <- function(type,
-                                    repos = NULL,
-                                    limit = NULL,
-                                    quiet = FALSE)
+available_packages <- function(type,
+                               repos = NULL,
+                               limit = NULL,
+                               quiet = FALSE)
 {
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
   repos <- renv_repos_normalize(repos %||% getOption("repos"))
@@ -140,7 +140,7 @@ renv_available_packages_query <- function(url, errors) {
 renv_available_packages_success <- function(db, url) {
 
   # convert to data.frame
-  db <- as.data.frame(db, stringsAsFactors = FALSE)
+  db <- as.data.frame(db, row.names = FALSE, stringsAsFactors = FALSE)
   if (nrow(db) == 0L)
     return(db)
 
@@ -149,6 +149,9 @@ renv_available_packages_success <- function(db, url) {
 
   # tag with repository
   db$Repository <- url
+
+  # remove row names
+  row.names(db) <- NULL
 
   # ok
   db
@@ -182,7 +185,7 @@ renv_available_packages_entry <- function(package,
   }
 
   # read available packages
-  dbs <- renv_available_packages(
+  dbs <- available_packages(
     type  = type,
     repos = repos,
     quiet = quiet
@@ -262,7 +265,7 @@ renv_available_packages_record <- function(entry, type) {
 renv_available_packages_latest_repos_impl <- function(package, type, repos) {
 
   # get available packages
-  dbs <- renv_available_packages(
+  dbs <- available_packages(
     type  = type,
     repos = repos,
     quiet = TRUE
