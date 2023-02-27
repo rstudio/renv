@@ -270,7 +270,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   # otherwise, use status to detect if we're synchronized
   info <- quietly({
     renv_scope_options(renv.verbose = FALSE)
-    status(project = project, sources = FALSE, cache =  FALSE)
+    status(project = project, sources = FALSE)
   })
 
   if (!identical(info$synchronized, TRUE)) {

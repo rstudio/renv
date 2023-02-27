@@ -737,13 +737,6 @@ renv_snapshot_description_source <- function(dcf) {
   if (is.null(package))
     return(list(Source = "unknown"))
 
-  # bail here if we're currently loading; we don't want the below hack
-  # (which requires querying the active package repositories) to make this
-  # expensive call
-  loading <- getOption("renv.load.running", default = FALSE)
-  if (loading)
-    return(list(Source = "unknown"))
-
   # NOTE: this is sort of a hack that allows renv to declare packages which
   # appear to be installed from sources, but are actually available on the
   # active R package repositories, as though they were retrieved from that
@@ -757,32 +750,39 @@ renv_snapshot_description_source <- function(dcf) {
   #
   # NOTE: local sources are also searched here as part of finding the 'latest'
   # available package, so we need to handle local packages discovered here
-  entry <- local({
-    renv_scope_options(renv.verbose = FALSE)
-    catch(renv_available_packages_latest(package))
-  })
+  tryCatch(
+    renv_snapshot_description_source_hack(package),
+    error = function(e) list(Source = "unknown")
+  )
 
-  if (!inherits(entry, "error")) {
+}
 
-    # check for entry in cellar
-    source <- entry[["Source"]]
-    if (identical(source, "Cellar"))
+renv_snapshot_description_source_hack <- function(package) {
+
+  for (type in renv_package_pkgtypes()) {
+
+    # check cellar
+    cellar <- renv_available_packages_cellar(type)
+    if (package %in% cellar$Package)
       return(list(Source = "Cellar"))
 
-    # otherwise, treat as regular entry
-    repository <- entry[["Repository"]]
-    return(list(Source = "Repository", Repository = repository))
+    # check available packages
+    dbs <- available_packages(type = type, quiet = TRUE)
+    for (i in seq_along(dbs)) {
+      if (package %in% dbs[[i]]$Package) {
+        return(list(
+          Source = "Repository",
+          Repository = names(dbs)[[i]]
+        ))
+      }
+    }
 
   }
-
-  # last chance; try to see if this package lives in the cellar
-  location <- catch(renv_retrieve_cellar_find(dcf))
-  if (!inherits(location, "error"))
-    return(list(Source = "Cellar"))
 
   list(Source = "unknown")
 
 }
+
 
 # nocov start
 renv_snapshot_report_actions <- function(actions, old, new) {

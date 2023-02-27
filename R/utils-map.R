@@ -18,19 +18,19 @@ enumerate <- function(x, f, ..., FUN.VALUE = NULL) {
 }
 
 enum_chr <- function(x, f, ...) {
-  enumerate(x, f, ..., FUN.VALUE = "character")
+  enumerate(x, f, ..., FUN.VALUE = character(1))
 }
 
 enum_int <- function(x, f, ...) {
-  enumerate(x, f, ..., FUN.VALUE = "integer")
+  enumerate(x, f, ..., FUN.VALUE = integer(1))
 }
 
 enum_dbl <- function(x, f, ...) {
-  enumerate(x, f, ..., FUN.VALUE = "double")
+  enumerate(x, f, ..., FUN.VALUE = double(1))
 }
 
 enum_lgl <- function(x, f, ...) {
-  enumerate(x, f, ..., FUN.VALUE = "logical")
+  enumerate(x, f, ..., FUN.VALUE = logical(1))
 }
 
 

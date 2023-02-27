@@ -585,7 +585,7 @@ renv_available_packages_filter <- function(db) {
 renv_available_packages_filter_ostype <- function(db) {
   ostype <- db$OS_type
   ok <- is.na(ostype) | ostype %in% .Platform$OS.type
-  db[ok, ]
+  rows(db, ok)
 }
 
 renv_available_packages_filter_version <- function(db) {
@@ -630,5 +630,6 @@ renv_available_packages_filter_version <- function(db) {
     all(ok[requirements])
   })
 
-  db[ok, ]
+  rows(db, ok)
+
 }

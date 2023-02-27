@@ -1,6 +1,8 @@
 
 # renv 0.17.0  (UNRELEASED)
 
+* The performance of `renv::snapshot()` has improved.
+
 * `renv` now maintains an index of available packages, as retrieved from the
   active package repositories, that is shared across `R` sessions. This should
   improve `renv`'s performance when querying for available packages across

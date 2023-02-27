@@ -415,3 +415,35 @@ fsub <- function(pattern, replacement, x, ignore.case = FALSE, useBytes = FALSE)
 unique <- function(x) {
   base::unique(x)
 }
+
+rows <- function(data, columns) {
+
+  # evaluate columns in data
+  columns <- eval(
+    expr   = substitute(columns),
+    envir  = data,
+    enclos = parent.frame()
+  )
+
+  # convert logical values
+  if (is.logical(columns)) {
+    if (length(columns) < nrow(data))
+      columns <- rep(columns, length.out = nrow(data))
+    columns <- which(columns, useNames = FALSE)
+  }
+
+  # build output list
+  output <- vector("list", length(data))
+  for (i in seq_along(data))
+    output[[i]] <- .subset(.subset2(data, i), columns)
+
+  # copy relevant attributes
+  attrs <- attributes(data)
+  attrs[["row.names"]] <- .set_row_names(length(columns))
+  attributes(output) <- attrs
+
+  # return new data.frame
+  output
+
+}
+
