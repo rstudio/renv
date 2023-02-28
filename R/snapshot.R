@@ -140,7 +140,7 @@ snapshot <- function(project  = NULL,
 
     if (!missing(type)) {
       fmt <- "packages argument is set; type argument %s will be ignored"
-      warningf(fmt, renv_deparse(type))
+      warningf(fmt, stringify(type))
     }
 
     type <- "packages"

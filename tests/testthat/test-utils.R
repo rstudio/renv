@@ -102,3 +102,10 @@ test_that("recursing() reports if we're recursing", {
 
 })
 
+test_that("sys.call(sys.parent()) does what we think it does", {
+
+  inner <- function() { as.character(sys.call(sys.parent())[[1L]]) }
+  outer <- function() { inner() }
+  expect_equal(outer(), "outer")
+
+})

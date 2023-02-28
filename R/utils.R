@@ -55,25 +55,6 @@ empty <- function(x) {
   length(x) == 0
 }
 
-renv_path_aliased <- function(path) {
-
-  home <-
-    Sys.getenv("HOME") %""%
-    Sys.getenv("R_USER")
-
-  if (!nzchar(home))
-    return(path)
-
-  home <- gsub("\\", "/", home, fixed = TRUE)
-  path <- gsub("\\", "/", path, fixed = TRUE)
-
-  match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
-  path[match == 1] <- file.path("~", substring(path[match == 1], nchar(home) + 2L))
-
-  path
-
-}
-
 trimws <- function(x) {
   gsub("^\\s+|\\s+$", "", x)
 }
@@ -455,4 +436,8 @@ rows <- function(data, columns) {
   # return new data.frame
   output
 
+}
+
+stringify <- function(object, collapse = " ") {
+  paste(deparse(object, width.cutoff = 500L), collapse = collapse)
 }

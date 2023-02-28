@@ -195,7 +195,7 @@ renv_config_validate <- function(name, value, type, default, args) {
   converted <- catchall(convert(value, mode))
   if (any(is.na(converted)) || inherits(converted, "condition")) {
     fmt <- "'%s' does not satisfy constraint '%s' for config '%s'; using default '%s' instead"
-    warningf(fmt, renv_deparse(value), type, name, renv_deparse(default))
+    warningf(fmt, stringify(value), type, name, stringify(default))
     return(default)
   }
 

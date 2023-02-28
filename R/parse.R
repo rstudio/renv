@@ -65,7 +65,3 @@ renv_parse_impl_utf8 <- function(text, ...) {
   parse(text = enc2utf8(text), encoding = "UTF-8", ...)
 }
 
-
-renv_deparse <- function(expr, width.cutoff = 500L, ...) {
-  paste(deparse(expr = expr, width.cutoff = width.cutoff, ...), collapse = " ")
-}

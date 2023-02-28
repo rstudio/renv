@@ -621,7 +621,7 @@ renv_retrieve_repos <- function(record) {
 
     if (!is.logical(status)) {
       fmt <- "internal error: unexpected status code '%s'"
-      warningf(fmt, renv_deparse(status))
+      warningf(fmt, stringify(status))
     }
 
   }
