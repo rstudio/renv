@@ -7,18 +7,13 @@ renv_description_read <- function(path = NULL,
 {
   # if given a package name, construct path to that package
   path <- path %||% find.package(package)
-  if (!file.exists(path)) {
-    fmt <- "%s does not exist"
-    stopf(fmt, renv_path_pretty(path))
-  }
 
   # normalize non-absolute paths
   if (!renv_path_absolute(path))
     path <- renv_path_normalize(path)
 
   # if 'path' refers to a directory, try to resolve the DESCRIPTION file
-  info <- renv_file_info(path)
-  if (identical(info$isdir, TRUE)) {
+  if (dir.exists(path)) {
     components <- c(path, if (nzchar(subdir %||% "")) subdir, "DESCRIPTION")
     path <- paste(components, collapse = "/")
   }

@@ -347,8 +347,7 @@ local({
       return()
   
     # allow directories
-    info <- file.info(tarball, extra_cols = FALSE)
-    if (identical(info$isdir, TRUE)) {
+    if (dir.exists(tarball)) {
       name <- sprintf("renv_%s.tar.gz", version)
       tarball <- file.path(tarball, name)
     }
