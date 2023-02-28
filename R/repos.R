@@ -1,6 +1,4 @@
 
-`_renv_repos` <- new.env(parent = emptyenv())
-
 renv_repos_encode <- function(x) {
   if (length(x) == 1)
     paste(names(x), as.character(x), sep = "=")
@@ -118,8 +116,7 @@ renv_repos_info <- function(url) {
 
   memoize(
     key   = url,
-    expr  = renv_repos_info_impl(url),
-    envir = `_renv_repos`
+    value = renv_repos_info_impl(url)
   )
 
 }

@@ -37,20 +37,6 @@ test_that("renv_path_aliased() correctly forms aliased path", {
   expect_equal(path, renv_path_aliased(expanded))
 })
 
-test_that("memoize avoids evaluating expression multiple times", {
-
-  envir <- new.env(parent = emptyenv())
-  key <- "test"
-
-  value <- 0
-  memoize(key, { value <- value + 1 }, envir)
-  memoize(key, { value <- value + 1 }, envir)
-
-  expect_equal(envir$test, 1)
-  expect_equal(value, 1)
-
-})
-
 test_that("sink captures both stdout and stderr", {
 
   file <- tempfile("renv-sink-", fileext = ".log")

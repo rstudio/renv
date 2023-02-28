@@ -1,6 +1,4 @@
 
-`_renv_rspm_status` <- new.env(parent = emptyenv())
-
 renv_rspm_transform <- function(repos) {
   map_chr(repos, function(url) {
     tryCatch(
@@ -93,8 +91,7 @@ renv_rspm_transform_impl <- function(url) {
 renv_rspm_status <- function(base) {
   memoize(
     key   = base,
-    expr  = catch(renv_rspm_status_impl(base)),
-    envir = `_renv_rspm_status`
+    value = catch(renv_rspm_status_impl(base))
   )
 }
 

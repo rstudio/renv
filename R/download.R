@@ -579,6 +579,15 @@ renv_download_headers <- function(url, type, headers) {
 
 renv_download_size <- function(url, type = NULL, headers = NULL) {
 
+  memoize(
+    key   = url,
+    value = renv_download_size_impl(url, type, headers)
+  )
+
+}
+
+renv_download_size_impl <- function(url, type = NULL, headers = NULL) {
+
   headers <- catch(renv_download_headers(url, type, headers))
   if (inherits(headers, "error"))
     return(-1L)

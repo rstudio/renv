@@ -363,12 +363,6 @@ dequote <- function(strings) {
 
 }
 
-memoize <- function(key, expr, envir) {
-  value <- envir[[key]] %||% expr
-  envir[[key]] <- value
-  value
-}
-
 nth <- function(x, i) {
   x[[i]]
 }
