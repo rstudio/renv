@@ -16,8 +16,8 @@
 #'
 #' A subset of popular \R packages used for package management are also supported:
 #'
-#' - [`pacman`](https://cran.r-project.org/web/packages/pacman/index.html): `pacman::p_load(...)`
-#' - [`box`](https://cran.r-project.org/web/packages/box/index.html): `box::use(...)`
+#' - [`box`](https://cran.r-project.org/package=box): `box::use(...)`
+#' - [`pacman`](https://cran.r-project.org/package=pacman): `pacman::p_load(...)`
 #'
 #' For \R package projects, dependencies expressed in the `DESCRIPTION` file
 #' will also be discovered. Note that the `rmarkdown` package is required in

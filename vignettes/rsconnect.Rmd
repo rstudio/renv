@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-[RStudio Connect](https://www.rstudio.com/products/connect/) is a publication
+[RStudio Connect](https://posit.co/products/enterprise/connect/) is a publication
 platform for deploying content built in R and Python to share with a broad
 audience. R users may want to develop content (like [Shiny
 applications](https://shiny.rstudio.com/) or [RMarkdown

@@ -57,8 +57,8 @@ parsing the code and looking for calls of the form:
 
 A subset of popular \R packages used for package management are also supported:
 \itemize{
-\item \href{https://cran.r-project.org/web/packages/pacman/index.html}{\code{pacman}}: \code{pacman::p_load(...)}
-\item \href{https://cran.r-project.org/web/packages/box/index.html}{\code{box}}: \code{box::use(...)}
+\item \href{https://cran.r-project.org/package=box}{\code{box}}: \code{box::use(...)}
+\item \href{https://cran.r-project.org/package=pacman}{\code{pacman}}: \code{pacman::p_load(...)}
 }
 
 For \R package projects, dependencies expressed in the \code{DESCRIPTION} file
