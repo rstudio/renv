@@ -2,7 +2,7 @@
 context("R")
 
 test_that("we can use R CMD build to build a package", {
-
+  skip_on_cran()
   if (renv_platform_windows()) {
     zip <- Sys.which("zip")
     if (!nzchar(zip))
@@ -43,7 +43,7 @@ test_that("we can use R CMD build to build a package", {
 })
 
 test_that("we can supply custom options to R CMD INSTALL", {
-
+  skip_on_cran()
   renv_tests_scope()
 
   # work in new renv context (don't re-use cache)
@@ -52,5 +52,4 @@ test_that("we can supply custom options to R CMD INSTALL", {
   # make install 'fail' with bad option
   renv_scope_options(install.opts = list(oatmeal = "--version"))
   expect_error(renv::install("oatmeal"))
-
 })
