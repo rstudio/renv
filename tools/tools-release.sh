@@ -1,5 +1,23 @@
 #!/usr/bin/env sh
 
+set -e
+
+_exit () {
+
+  cd "${OWD}"
+  if [ -n "${OK}" ]; then
+    rm -f DESCRIPTION.backup
+    rm -f NEWS.md.backup
+  else
+    mv DESCRIPTION.backup DESCRIPTION
+    mv NEWS.md.backup NEWS.md
+  fi
+
+}
+
+trap _exit EXIT
+
+OWD="$(pwd)"
 if [ -z "${VERSION}" ]; then
   echo "Usage: VERSION=<version> make release"
   exit 1
@@ -12,10 +30,12 @@ if [ -n "$(git diff --stat)" ]; then
 fi
 
 # update the version in the DESCRIPTION
+cp DESCRIPTION DESCRIPTION.backup
 sed "s|Version:.*|Version: ${VERSION}|g" DESCRIPTION > DESCRIPTION.tmp
 mv DESCRIPTION.tmp DESCRIPTION
 
 # remove UNRELEASED from NEWS
+cp NEWS.md NEWS.md.backup
 sed "s|.*(UNRELEASED)|# renv ${VERSION}|g" NEWS.md > NEWS.md.tmp
 mv NEWS.md.tmp NEWS.md
 
@@ -27,3 +47,5 @@ cd ..
 R CMD build renv
 R CMD check "renv_${VERSION}.tar.gz"
 cd renv
+
+OK=1

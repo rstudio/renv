@@ -4,6 +4,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
+^.*\.backup$
 \.covrignore$
 \.renvignore$
 \.vscode
