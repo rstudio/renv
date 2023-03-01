@@ -1,4 +1,11 @@
 
+renv_tests_program <- function(name) {
+  program <- Sys.which(name)
+  if (!nzchar(program))
+    testthat::skip(paste("required program", name, "is not available"))
+  program
+}
+
 renv_tests_scope <- function(packages = character(), project = NULL) {
 
   renv_tests_init()
