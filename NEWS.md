@@ -1,4 +1,6 @@
 
+# renv 0.18.0  (UNRELEASED)
+
 # renv 0.17.0
 
 * The performance of `renv::snapshot()` has improved.
