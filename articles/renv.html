@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Introduction to renv">
@@ -34,7 +34,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,7 +109,7 @@
                         <h4 data-toc-skip class="author">Kevin
 Ushey</h4>
             
-            <h4 data-toc-skip class="date">2022-09-29</h4>
+            <h4 data-toc-skip class="date">2023-03-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/renv.Rmd" class="external-link"><code>vignettes/renv.Rmd</code></a></small>
       <div class="d-none name"><code>renv.Rmd</code></div>
@@ -335,8 +335,8 @@ folder at the root of the project directory for dependencies.</p>
 in your project, you can do so by creating a <code>DESCRIPTION</code>
 file at your project root. These <code>DESCRIPTION</code> files should
 be formatted similarly to those used by default in R package development
-– see <a href="https://r-pkgs.org/Metadata.html#sec-description" class="external-link">the
-R-pkgs book</a> for more details.</p>
+– see <a href="https://r-pkgs.org/description.html" class="external-link">the R-pkgs book</a>
+for more details.</p>
 <p>In this case, your <code>DESCRIPTION</code> file might look like:</p>
 <pre><code>Type: project
 Description: My project.
@@ -456,7 +456,7 @@ then <code>renv</code> will install the latest-available version of
 <p>With each commit of <code>renv</code>, we bump the package version
 and also tag the commit with the associated package version. This
 implies that you can call, for example:</p>
-<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.16.0"</span><span class="op">)</span></span></code></pre>
+<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/upgrade.html">upgrade</a></span><span class="op">(</span>version <span class="op">=</span> <span class="st">"0.17.0"</span><span class="op">)</span></span></code></pre>
 <p>to request the installation of that particular version of
 <code>renv</code> if so required.</p>
 </div>
@@ -490,6 +490,9 @@ Windows, junction points) into the <code>renv</code> global package
 cache. Hence, while each <code>renv</code> project is isolated from
 other projects on your system, they can still re-use the same installed
 packages as required.</p>
+<p>Note that junction points are (unfortunately) not supported on
+Windows network shares. See <a href="https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions" class="external-link">Hard
+links and junctions</a> for more details.</p>
 <p>The process by which packages enter the cache is roughly as
 follows:</p>
 <ol style="list-style-type: decimal">
@@ -560,8 +563,9 @@ is visible to all users of R on a system.</p>
 cache locations – for example, you might want to make both a user-local
 package cache, as well as a global administrator-managed cache, visible
 within an <code>renv</code> project. To do so, you can specify the paths
-to the cache separated with a <code>:</code> – for example,</p>
-<pre><code>RENV_PATHS_CACHE = /path/to/local/cache:/path/to/global/cache</code></pre>
+to the cache separated with a <code>;</code> (or <code>:</code> on Unix
+if preferred). For example:</p>
+<pre><code>RENV_PATHS_CACHE = /path/to/local/cache;/path/to/global/cache</code></pre>
 <p>In such a case, <code>renv</code> will iterate over the cache
 locations in order when trying to find a package, and newly-installed
 packages will enter the first writable cache path listed in
@@ -789,6 +793,13 @@ example:</p>
 attempt to use <code>git</code> from the command line to download and
 restore the associated package. Hence, it is recommended that
 authentication is done through SSH keys when possible.</p>
+<p>Authentication may be required when resolving a package from a remote
+specification. If the package name cannot be inferred directly from the
+remote, it can be supplied with a prefix of the form
+<code>&lt;package&gt;=</code>. For example, the <code>igraph</code>
+package on GitHub at <a href="https://github.com/igraph/rigraph" class="external-link uri">https://github.com/igraph/rigraph</a> could be installed
+with:</p>
+<pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="st">"igraph=igraph/rigraph"</span><span class="op">)</span></span></code></pre>
 <div class="section level3">
 <h3 id="authentication-with-custom-headers">Authentication with Custom Headers<a class="anchor" aria-label="anchor" href="#authentication-with-custom-headers"></a>
 </h3>
@@ -802,7 +813,7 @@ headers which should be supplied when accessing that URL.</p>
 access that repository are stored in the <code>AUTH_HEADER</code>
 environment variable. You could define
 <code>renv.download.headers</code> like so:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.headers <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^https://my/repository"</span>, <span class="va">url</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Authorization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AUTH_HEADER"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -967,7 +978,7 @@ speed and reliability of <code>renv</code>.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Kevin Ushey.</p>
+<p>Developed by Kevin Ushey, Posit Software, PBC.</p>
 </div>
 
 <div class="pkgdown-footer-right">

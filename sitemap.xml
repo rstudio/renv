@@ -204,4 +204,7 @@
   <url>
     <loc>https://rstudio.github.io/renv/reference/use_python.html</loc>
   </url>
+  <url>
+    <loc>https://rstudio.github.io/renv/reference/vendor.html</loc>
+  </url>
 </urlset>
