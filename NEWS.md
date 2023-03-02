@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Fixed an issue where the amount of time elapsed reported by `renv::install()`
+  failed to include the time spent retrieving packages.
+
+
 # renv 0.17.0
 
 * The performance of `renv::snapshot()` has improved.

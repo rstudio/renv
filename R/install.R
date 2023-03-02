@@ -201,6 +201,7 @@ install <- function(packages = NULL,
   # ensure package names are resolved if provided
   packages <- if (length(packages)) names(remotes)
 
+  before <- Sys.time()
   renv_scope_restore(
     project  = project,
     library  = renv_libpaths_default(),
@@ -217,10 +218,9 @@ install <- function(packages = NULL,
   }
 
   # install retrieved records
-  before <- Sys.time()
   renv_install_impl(records)
-  after <- Sys.time()
 
+  after <- Sys.time()
   if (!renv_tests_running()) {
     time <- renv_difftime_format(difftime(after, before))
     n <- length(records)
