@@ -83,13 +83,13 @@ renv_lock_release_impl <- function(path) {
 
 renv_lock_orphaned <- function(path) {
 
-  info <- renv_file_info(path)
-  if (is.na(info$isdir))
-    return(FALSE)
-
   timeout <- getOption("renv.lock.timeout", default = 3600L)
   if (timeout <= 0L)
     return(TRUE)
+
+  info <- renv_file_info(path)
+  if (is.na(info$isdir))
+    return(FALSE)
 
   difftime(Sys.time(), info$ctime, units = "secs") >= timeout
 
