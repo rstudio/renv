@@ -426,7 +426,7 @@ rows <- function(data, columns) {
   # build output list
   output <- vector("list", length(data))
   for (i in seq_along(data))
-    output[[i]] <- .subset(.subset2(data, i), columns)
+    output[[i]] <- .subset2(data, i)[columns]
 
   # copy relevant attributes
   attrs <- attributes(data)
