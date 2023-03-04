@@ -223,7 +223,7 @@ update <- function(packages = NULL,
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   # resolve library path
   libpaths <- renv_libpaths_resolve(library)

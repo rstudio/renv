@@ -79,7 +79,7 @@ hydrate <- function(packages = NULL,
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   renv_activate_prompt("hydrate", library, prompt, project)
 

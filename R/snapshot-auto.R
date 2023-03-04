@@ -6,7 +6,7 @@
 renv_snapshot_auto <- function(project) {
 
   # set some state so we know we're running
-  renv_scope_var("running", TRUE, envir = `_renv_snapshot_auto`)
+  renv_scope_var("running", TRUE, frame = `_renv_snapshot_auto`)
 
   # passed pre-flight checks; snapshot the library
   # validation messages can be noisy; turn off for auto snapshot
@@ -95,10 +95,10 @@ renv_snapshot_auto_update <- function(project) {
 
 }
 
-renv_snapshot_auto_callback <- function(...) {
+renv_snapshot_task <- function(...) {
 
   status <- tryCatch(
-    renv_snapshot_auto_callback_impl(),
+    renv_snapshot_task_impl(),
     error = identity
   )
 
@@ -111,7 +111,7 @@ renv_snapshot_auto_callback <- function(...) {
 
 }
 
-renv_snapshot_auto_callback_impl <- function() {
+renv_snapshot_task_impl <- function() {
 
   # check for active renv project
   project <- Sys.getenv("RENV_PROJECT", unset = NA)

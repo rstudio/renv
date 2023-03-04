@@ -11,7 +11,7 @@ actions <- function(action = c("snapshot", "restore"),
   project  <- renv_project_resolve(project)
   lockfile <- lockfile %||% renv_lockfile_path(project = project)
 
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   switch(
     action,

@@ -1,34 +1,26 @@
 
 context("Lock")
 
-test_that("lockfiles can be created, destroyed", {
+test_that("locks can be acquired, released", {
 
+  renv_scope_options(renv.config.locking.enabled = TRUE)
   path <- renv_path_canonicalize(tempfile())
 
-  callback <- renv_lock_create(path)
-  expect_true(is.function(callback))
+  renv_lock_acquire(path)
   expect_true(file.exists(path))
 
-  idpath <- file.path(path, "id")
-  expect_true(file.exists(idpath))
-
-  id <- readLines(idpath)
-  expect_equal(`_renv_locks`[[path]], id)
-
-  renv_lock_destroy(path)
+  renv_lock_release(path)
   expect_false(file.exists(path))
-  expect_false(file.exists(idpath))
-  expect_null(`_renv_locks`[[path]])
 
 })
 
-test_that("lockfile locks are removed via callback", {
+test_that("scoped locks are released appropriately", {
 
+  renv_scope_options(renv.config.locking.enabled = TRUE)
   path <- renv_path_canonicalize(tempfile())
 
   local({
-    callback <- renv_lock_create(path)
-    on.exit(callback(), add = TRUE)
+    renv_scope_lock(path)
     expect_true(file.exists(path))
   })
 
@@ -36,54 +28,94 @@ test_that("lockfile locks are removed via callback", {
 
 })
 
-test_that("nested locks are handled correctly", {
-
-  path <- renv_path_canonicalize(tempfile())
-
-  local({
-    callback <- renv_lock_create(path)
-    on.exit(callback(), add = TRUE)
-    local({
-      callback <- renv_lock_create(path)
-      on.exit(callback(), add = TRUE)
-      expect_true(file.exists(path))
-    })
-    expect_true(file.exists(path))
-  })
-
-  expect_false(file.exists(path))
-
-})
-
-test_that("multiple calls to renv_scope_lock() do the right thing", {
+test_that("we can recursively acquire locks", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
   path <- renv_path_canonicalize(tempfile())
 
   local({
 
-    # this entry creates the lock
-    expect_false(file.exists(path))
     renv_scope_lock(path)
     expect_true(file.exists(path))
 
     local({
-
-      # a lock already exists, but it's owned by us,
-      # so we still treat this as a success
-      expect_true(file.exists(path))
       renv_scope_lock(path)
       expect_true(file.exists(path))
-
     })
 
-    # the previous renv_scope_lock should not have cleaned up the lock yet
     expect_true(file.exists(path))
 
   })
 
-  # all renv_scope_lock() functions are out of scope now;
-  # the lock should have been removed
+  expect_false(file.exists(path))
+
+})
+
+test_that("other processes cannot lock our owned locks", {
+
+  renv_scope_options(renv.config.locking.enabled = TRUE)
+  path <- renv_path_canonicalize(tempfile())
+
+  renv_lock_acquire(path)
+
+  code <- substitute(
+    print(renv:::renv_lock_acquire(path)),
+    list(path = path)
+  )
+
+  args <- c("--vanilla", "-s", "-e", shQuote(stringify(code)))
+  output <- suppressWarnings(
+    system2(R(), args, stdout = FALSE, stderr = FALSE, timeout = 1L)
+  )
+
+  expect_equal(output, 124L)
+
+})
+
+test_that("locks are released on process exit", {
+
+  renv_scope_options(renv.config.locking.enabled = TRUE)
+  path <- renv_path_canonicalize(tempfile())
+
+  code <- substitute({
+    renv:::renv_lock_acquire(path)
+    stopifnot(file.exists(path))
+  }, list(path = path))
+
+  args <- c("--vanilla", "-s", "-e", shQuote(stringify(code)))
+  status <- suppressWarnings(
+    system2(R(), args, stdout = FALSE, stderr = FALSE, timeout = 1L)
+  )
+
+  expect_equal(status, 1L)
+  expect_false(file.exists(path))
+
+})
+
+test_that("old locks are considered 'orphaned'", {
+
+  renv_scope_options(renv.config.locking.enabled = TRUE)
+  path <- renv_path_canonicalize(tempfile())
+
+  renv_scope_options(renv.lock.timeout = 0L)
+  renv_lock_acquire(path)
+
+  expect_true(renv_lock_orphaned(path))
+  expect_true(file.exists(path))
+
+  script <- renv_test_code({
+    options(renv.config.locking.enabled = TRUE)
+    options(renv.lock.timeout = 0L)
+    stopifnot(renv:::renv_lock_acquire(path))
+    stopifnot(file.exists(path))
+  }, list(path = path))
+
+  output <- renv_system_exec(
+    command = R(),
+    args    = c("--vanilla", "-s", "-f", shQuote(script)),
+    action  = "checking for orphaned locks",
+  )
+
   expect_false(file.exists(path))
 
 })

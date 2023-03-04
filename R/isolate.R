@@ -37,7 +37,7 @@
 isolate <- function(project = NULL) {
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   if (renv_platform_windows())
     renv_isolate_windows(project)

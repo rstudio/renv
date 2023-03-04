@@ -31,7 +31,7 @@ record <- function(records,
   renv_scope_error_handler()
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   lockfile <- lockfile %||% renv_lockfile_path(project)
 

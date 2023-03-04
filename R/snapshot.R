@@ -122,7 +122,7 @@ snapshot <- function(project  = NULL,
   renv_snapshot_auto_suppress_next()
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   repos <- renv_repos_validate(repos)
   renv_scope_options(repos = repos)

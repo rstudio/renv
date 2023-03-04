@@ -52,7 +52,7 @@ upgrade <- function(project = NULL,
 renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   reload <- reload %||% identical(project, renv_project())
 

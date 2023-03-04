@@ -1,22 +1,22 @@
 
 renv_scope_tempdir <- function(pattern = "renv-tempdir-",
                                tmpdir = tempdir(),
-                               .envir = NULL)
+                               envir = NULL)
 {
   dir <- tempfile(pattern = pattern, tmpdir = tmpdir)
   ensure_directory(dir)
   owd <- setwd(dir)
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
   defer({
     setwd(owd)
     unlink(dir, recursive = TRUE)
-  }, envir = .envir)
+  }, envir = envir)
 
 }
 
-renv_scope_auth <- function(record, .envir = NULL) {
+renv_scope_auth <- function(record, envir = NULL) {
 
   package <- if (is.list(record)) record$Package else record
   auth <- renv_options_override("renv.auth", package, extra = record)
@@ -40,43 +40,43 @@ renv_scope_auth <- function(record, .envir = NULL) {
   if (empty(envvars))
     return(FALSE)
 
-  .envir <- .envir %||% parent.frame()
-  renv_scope_envvars(.list = as.list(envvars), .envir = .envir)
+  envir <- envir %||% parent.frame()
+  renv_scope_envvars(list = as.list(envvars), envir = envir)
   return(TRUE)
 
 }
 
-renv_scope_libpaths <- function(new = .libPaths(), .envir = NULL) {
-  .envir <- .envir %||% parent.frame()
+renv_scope_libpaths <- function(new = .libPaths(), envir = NULL) {
+  envir <- envir %||% parent.frame()
   old <- renv_libpaths_set(new)
-  defer(renv_libpaths_set(old), envir = .envir)
+  defer(renv_libpaths_set(old), envir = envir)
 }
 
-renv_scope_options <- function(..., .envir = NULL) {
+renv_scope_options <- function(..., envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
   new <- list(...)
   old <- lapply(names(new), getOption)
   names(old) <- names(new)
 
   do.call(base::options, new)
-  defer(do.call(base::options, old), envir = .envir)
+  defer(do.call(base::options, old), envir = envir)
 
 }
 
-renv_scope_locale <- function(category = "LC_ALL", locale = "", .envir = NULL) {
-  .envir <- .envir %||% parent.frame()
+renv_scope_locale <- function(category = "LC_ALL", locale = "", envir = NULL) {
+  envir <- envir %||% parent.frame()
   saved <- Sys.getlocale(category)
   Sys.setlocale(category, locale)
-  defer(Sys.setlocale(category, saved), envir = .envir)
+  defer(Sys.setlocale(category, saved), envir = envir)
 }
 
-renv_scope_envvars <- function(..., .list = NULL, .envir = NULL) {
+renv_scope_envvars <- function(..., list = NULL, envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
-  dots <- .list %||% list(...)
+  dots <- list %||% list(...)
   old <- as.list(Sys.getenv(names(dots), unset = NA))
   names(old) <- names(dots)
 
@@ -90,13 +90,13 @@ renv_scope_envvars <- function(..., .list = NULL, .envir = NULL) {
     Sys.unsetenv(names(old[na]))
     if (length(old[!na]))
       do.call(Sys.setenv, old[!na])
-  }, envir = .envir)
+  }, envir = envir)
 
 }
 
-renv_scope_sink <- function(file = nullfile(), ..., .envir = NULL) {
+renv_scope_sink <- function(file = nullfile(), envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
   # redirect stdout to file, and redirect stderr back to stdout
   # this ensures that both stdout, stderr are redirected to the same place
@@ -106,11 +106,11 @@ renv_scope_sink <- function(file = nullfile(), ..., .envir = NULL) {
   defer({
     sink(type = "output")
     sink(type = "message")
-  }, envir = .envir)
+  }, envir = envir)
 
 }
 
-renv_scope_error_handler <- function(.envir = NULL) {
+renv_scope_error_handler <- function(envir = NULL) {
 
   error <- getOption("error")
   if (!is.null(error))
@@ -119,11 +119,11 @@ renv_scope_error_handler <- function(.envir = NULL) {
   call <- renv_error_handler_call()
   options(error = call)
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
   defer({
     if (identical(getOption("error"), call))
       options(error = error)
-  }, envir = .envir)
+  }, envir = envir)
 
   TRUE
 
@@ -133,7 +133,7 @@ renv_scope_error_handler <- function(.envir = NULL) {
 # renv_paths_extsoft folder when available on Windows
 
 # nocov start
-renv_scope_downloader <- function(.envir = NULL) {
+renv_scope_downloader <- function(envir = NULL) {
 
   if (!renv_platform_windows())
     return(FALSE)
@@ -152,14 +152,14 @@ renv_scope_downloader <- function(.envir = NULL) {
 
   new <- paste(renv_path_normalize(dirname(curl)), old, sep = .Platform$path.sep)
 
-  .envir <- .envir %||% parent.frame()
-  renv_scope_envvars(PATH = new, .envir = .envir)
+  envir <- envir %||% parent.frame()
+  renv_scope_envvars(PATH = new, envir = envir)
 
 }
 # nocov end
 
 # nocov start
-renv_scope_rtools <- function(.envir = NULL) {
+renv_scope_rtools <- function(envir = NULL) {
 
   if (!renv_platform_windows())
     return(FALSE)
@@ -173,28 +173,28 @@ renv_scope_rtools <- function(.envir = NULL) {
   vars <- renv_rtools_envvars(root)
 
   # scope envvars in parent
-  .envir <- .envir %||% parent.frame()
-  renv_scope_envvars(.list = vars, .envir = .envir)
+  envir <- envir %||% parent.frame()
+  renv_scope_envvars(list = vars, envir = envir)
 
 }
 # nocov end
 
 # nocov start
-renv_scope_install <- function(.envir = NULL) {
+renv_scope_install <- function(envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
   if (renv_platform_macos())
-    renv_scope_install_macos(.envir)
+    renv_scope_install_macos(envir)
 
   if (renv_platform_wsl())
-    renv_scope_install_wsl(.envir)
+    renv_scope_install_wsl(envir)
 
 }
 
-renv_scope_install_macos <- function(.envir = NULL) {
+renv_scope_install_macos <- function(envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
   # check that we have command line tools available before invoking
   # R CMD config, as this might fail otherwise
@@ -230,7 +230,7 @@ renv_scope_install_macos <- function(.envir = NULL) {
   spec <- renv_equip_macos_spec()
   if (sysclang && !is.null(spec) && file.exists(spec$dst)) {
     path <- paste(file.path(spec$dst, "bin"), Sys.getenv("PATH"), sep = ":")
-    renv_scope_envvars(PATH = path, .envir = .envir)
+    renv_scope_envvars(PATH = path, envir = envir)
   }
 
   # generate a custom makevars that should better handle compilation
@@ -266,40 +266,40 @@ renv_scope_install_macos <- function(.envir = NULL) {
   contents <- unlist(makevars$data(), recursive = TRUE, use.names = FALSE)
   if (length(contents)) {
     writeLines(contents, con = path)
-    renv_scope_envvars(R_MAKEVARS_SITE = path, .envir = .envir)
+    renv_scope_envvars(R_MAKEVARS_SITE = path, envir = envir)
   }
 
   TRUE
 
 }
 
-renv_scope_install_wsl <- function(.envir = NULL) {
-  .envir <- .envir %||% parent.frame()
+renv_scope_install_wsl <- function(envir = NULL) {
+  envir <- envir %||% parent.frame()
   renv_scope_envvars(R_INSTALL_STAGED = "FALSE")
 }
 # nocov end
 
-renv_scope_restore <- function(..., .envir = NULL) {
-  .envir <- .envir %||% parent.frame()
+renv_scope_restore <- function(..., envir = NULL) {
+  envir <- envir %||% parent.frame()
   state <- renv_restore_begin(...)
-  defer(renv_restore_end(state), envir = .envir)
+  defer(renv_restore_end(state), envir = envir)
 }
 
-renv_scope_git_auth <- function(.envir = NULL) {
+renv_scope_git_auth <- function(envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
   # try and tell git to be non-interactive by default
   if (renv_platform_windows()) {
     renv_scope_envvars(
       GIT_TERMINAL_PROMPT = "0",
-      .envir              = .envir
+      envir              = envir
     )
   } else {
     renv_scope_envvars(
       GIT_TERMINAL_PROMPT = "0",
       GIT_ASKPASS         = "/bin/echo",
-      .envir              = .envir
+      envir              = envir
     )
   }
 
@@ -309,7 +309,7 @@ renv_scope_git_auth <- function(.envir = NULL) {
     renv_scope_envvars(
       GIT_USERNAME = pat,
       GIT_PASSWORD = "x-oauth-basic",
-      .envir = .envir
+      envir = envir
     )
   }
 
@@ -330,16 +330,16 @@ renv_scope_git_auth <- function(.envir = NULL) {
   else
     system.file("resources/scripts-git-askpass.sh", package = "renv")
 
-  renv_scope_envvars(GIT_ASKPASS = askpass, .envir = .envir)
+  renv_scope_envvars(GIT_ASKPASS = askpass, envir = envir)
   return(TRUE)
 
 }
 
 renv_scope_bioconductor <- function(project = NULL,
                                     version = NULL,
-                                    .envir = NULL)
+                                    envir = NULL)
 {
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
   # get current repository
   repos <- getOption("repos")
@@ -355,48 +355,39 @@ renv_scope_bioconductor <- function(project = NULL,
   allrepos <- c(repos, biocrepos)
 
   # activate repositories in this context
-  renv_scope_options(repos = renv_vector_unique(allrepos), .envir = .envir)
+  renv_scope_options(repos = renv_vector_unique(allrepos), envir = envir)
 }
 
-renv_scope_lock <- function(path = NULL,
-                            ...,
-                            project = NULL) {
-
-  if (!config$locking.enabled())
-    return(TRUE)
-
-  path <- path %||% renv_lock_path(project)
+renv_scope_lock <- function(path = NULL, envir = NULL) {
+  envir <- envir %||% parent.frame()
   ensure_parent_directory(path)
-
-  callback <- renv_lock_create(path)
-  defer(callback(), envir = parent.frame())
-
+  renv_lock_acquire(path)
+  defer(renv_lock_release(path), envir = envir)
 }
 
-renv_scope_trace <- function(what, tracer, ..., .envir = NULL) {
+renv_scope_trace <- function(what, tracer, envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
 
   call <- sys.call()
   call[[1L]] <- base::trace
   call[["print"]] <- FALSE
   eval(call, envir = parent.frame())
 
-  defer(untrace(substitute(what)), envir = .envir)
+  defer(untrace(substitute(what)), envir = envir)
 
 }
 
-renv_scope_var <- function(key, value, envir, ..., .envir = NULL) {
+renv_scope_var <- function(key, value, frame, envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
-
-  if (exists(key, envir = envir, inherits = FALSE)) {
-    saved <- get(key, envir = envir, inherits = FALSE)
-    assign(key, value, envir = envir, inherits = FALSE)
-    defer(assign(key, saved, envir = envir, inherits = FALSE), envir = .envir)
+  envir <- envir %||% parent.frame()
+  if (exists(key, envir = frame, inherits = FALSE)) {
+    saved <- get(key, envir = frame, inherits = FALSE)
+    assign(key, value, envir = frame, inherits = FALSE)
+    defer(assign(key, saved, envir = frame, inherits = FALSE), envir = envir)
   } else {
-    assign(key, value, envir = envir, inherits = FALSE)
-    defer(rm(list = key, envir = envir, inherits = FALSE), envir = .envir)
+    assign(key, value, envir = frame, inherits = FALSE)
+    defer(rm(list = key, envir = frame, inherits = FALSE), envir = envir)
   }
 
 }
@@ -404,12 +395,12 @@ renv_scope_var <- function(key, value, envir, ..., .envir = NULL) {
 renv_scope_tempfile <- function(pattern = "renv-tempfile-",
                                 tmpdir  = tempdir(),
                                 fileext = "",
-                                .envir  = NULL)
+                                envir  = NULL)
 {
   filepath <- tempfile(pattern, tmpdir, fileext)
 
-  .envir <- .envir %||% parent.frame()
-  defer(unlink(filepath, recursive = TRUE, force = TRUE), envir = .envir)
+  envir <- envir %||% parent.frame()
+  defer(unlink(filepath, recursive = TRUE, force = TRUE), envir = envir)
 
   invisible(filepath)
 }

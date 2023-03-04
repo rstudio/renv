@@ -310,3 +310,14 @@ renv_project_find <- function(project = NULL) {
   resolved
 
 }
+
+renv_project_lock <- function(project = NULL) {
+
+  if (!config$locking.enabled())
+    return()
+
+  project <- renv_project_resolve(project)
+  path <- file.path(project, "renv/lock")
+  renv_scope_lock(path, envir = parent.frame())
+
+}

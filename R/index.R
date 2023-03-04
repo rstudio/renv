@@ -107,7 +107,11 @@ renv_index_set <- function(root, scope, index, key, value, now, limit) {
   # update index file
   path <- file.path(root, "index.json")
   ensure_parent_directory(path)
-  renv_json_write(index, file = path)
+
+  # write to tempfile and then copy to minimize risk of collisions
+  tempfile <- tempfile(".index-", tmpdir = dirname(path), fileext = ".json")
+  renv_json_write(index, file = tempfile)
+  file.rename(tempfile, path)
 
   # return value
   value

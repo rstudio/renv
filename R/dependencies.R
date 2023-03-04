@@ -909,7 +909,7 @@ renv_dependencies_discover_r <- function(path = NULL,
   # update current path
   state <- renv_dependencies_state()
   if (!is.null(state))
-    renv_scope_var("path", path, envir = state)
+    renv_scope_var("path", path, frame = state)
 
   methods <- c(
     renv_dependencies_discover_r_methods,
@@ -1628,7 +1628,7 @@ renv_dependencies_report <- function(errors) {
 
 }
 
-renv_dependencies_scope <- function(path, action, .envir = NULL) {
+renv_dependencies_scope <- function(path, action, envir = NULL) {
 
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
   if (exists(path, envir = `_renv_dependencies`))
@@ -1644,7 +1644,7 @@ renv_dependencies_scope <- function(path, action, .envir = NULL) {
 
   assign(path, deps, envir = `_renv_dependencies`)
 
-  envir <- .envir %||% parent.frame()
+  envir <- envir %||% parent.frame()
   defer(rm(list = path, envir = `_renv_dependencies`), envir = envir)
 
   invisible(deps)

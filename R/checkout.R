@@ -25,7 +25,7 @@ checkout <- function(repos = getOption("repos"),
   renv_dots_check(...)
 
   project  <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   # set new repositories
   options(repos = repos)

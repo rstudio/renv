@@ -150,7 +150,7 @@ install <- function(packages = NULL,
   packages <- c(packages, dots[!nzchar(names(dots))])
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   if (!is.null(dependencies)) {
     fields <- renv_description_dependency_fields(dependencies, project = project)
