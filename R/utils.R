@@ -164,28 +164,28 @@ proceed <- function(default = FALSE) {
 inject <- function(contents,
                    pattern,
                    replacement,
-                   anchor = NULL)
+                   anchor = NULL,
+                   fixed  = FALSE)
 {
   # first, check to see if the pattern matches a line
-  index <- grep(pattern, contents)
+  index <- grep(pattern, contents, perl = !fixed, fixed = fixed)
   if (length(index)) {
     contents[index] <- replacement
     return(contents)
   }
 
   # otherwise, check for the anchor, and insert after
-  index <- if (!is.null(anchor)) grep(anchor, contents)
-  if (length(index)) {
-    contents <- c(
-      head(contents, n = index),
-      replacement,
-      tail(contents, n = -index)
-    )
-    return(contents)
-  }
+  index <- if (!is.null(anchor))
+    grep(anchor, contents, perl = !fixed, fixed = fixed)
 
-  # otherwise, just append the new line
-  c(contents, replacement)
+  if (!length(index))
+    return(c(contents, replacement))
+
+  c(
+    head(contents, n = index),
+    replacement,
+    tail(contents, n = -index)
+  )
 }
 
 env <- function(...) {

@@ -16,7 +16,9 @@
 #'
 #' Use [renv::activate()] to activate (or re-activate) an `renv` project, so
 #' that newly-launched \R sessions can automatically load the associated
-#' project.
+#' project. Similarly, use [renv::deactivate()] to disable the project
+#' auto-loader, so that `renv` is no longer automatically activated for new
+#' \R sessions in this project.
 #'
 #' @inherit renv-params
 #'
