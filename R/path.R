@@ -112,7 +112,8 @@ renv_path_normalize_win32_impl <- function(path,
   normalizePath(short, winslash, mustWork)
 }
 
-# TODO: this is a lie; for existing paths symlinks will be resolved
+# TODO: this is a lie; for existing paths symlinks will be resolved.
+# don't use this for paths that need to be uniquely resolved!
 renv_path_canonicalize <- function(path) {
   parent <- dirname(path)
   root <- renv_path_normalize(parent, winslash = "/", mustWork = FALSE)

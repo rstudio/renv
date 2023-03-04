@@ -22,7 +22,7 @@ ensure_directory <- function(paths) {
 
   # collect file info as list
   fileinfo <- renv_file_info(paths)
-  infos <- lapply(1:nrow(fileinfo), function(i) fileinfo[i, ])
+  infos <- lapply(seq_len(nrow(fileinfo)), function(i) fileinfo[i, ])
 
   # check for existing files that aren't directories
   for (info in infos)

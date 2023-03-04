@@ -13,3 +13,13 @@ test_that("global() only evaluates value once", {
   expect_equal(global(name, value <<- value + 1L), 1L)
 
 })
+
+test_that("global values can be get, set", {
+
+  name <- basename(tempfile("renv-example-"))
+  on.exit(renv_global_clear(name), add = TRUE)
+
+  renv_global_set(name, 42L)
+  expect_equal(renv_global_get(name), 42L)
+
+})

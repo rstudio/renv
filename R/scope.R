@@ -360,7 +360,6 @@ renv_scope_bioconductor <- function(project = NULL,
 
 renv_scope_lock <- function(path = NULL, envir = NULL) {
   envir <- envir %||% parent.frame()
-  ensure_parent_directory(path)
   renv_lock_acquire(path)
   defer(renv_lock_release(path), envir = envir)
 }

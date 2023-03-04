@@ -7,20 +7,29 @@ index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
   if (!enabled)
     return(value)
 
-  now <- as.integer(Sys.time())
+  # resolve variables of interest
+  root <- renv_paths_index(scope)
   key <- if (!is.null(key)) renv_index_encode(key)
+  now <- as.integer(Sys.time())
 
+  # make sure the directory we're indexing exists
+  ensure_directory(root)
+
+  # acquire index lock
+  lockfile <- file.path(root, "index.lock")
+  renv_scope_lock(lockfile)
+
+  # perform operation
   tryCatch(
-    renv_index_impl(scope, key, value, now, limit),
+    renv_index_impl(root, scope, key, value, now, limit),
     error = function(e) value
   )
 
 }
 
-renv_index_impl <- function(scope, key, value, now, limit) {
+renv_index_impl <- function(root, scope, key, value, now, limit) {
 
   # load the index file
-  root <- renv_paths_index(scope)
   index <- renv_index_load(root, scope)
 
   # return index as-is when key is NULL
