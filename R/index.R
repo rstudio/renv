@@ -59,7 +59,15 @@ renv_index_load_impl <- function(root, scope) {
   filebacked(
     scope = paste("index", scope, sep = "."),
     path = file.path(root, "index.json"),
-    callback = function(path) renv_json_read(path)
+    callback = function(path) {
+      tryCatch(
+        renv_json_read(path),
+        error = function(e) {
+          unlink(path)
+          list()
+        }
+      )
+    }
   )
 
 }
@@ -169,7 +177,7 @@ renv_index_clean_impl <- function(key, entry, root, scope, index, now, limit) {
 }
 
 renv_index_expired <- function(entry, now, limit) {
-  now - entry$time > limit
+  now - entry$time >= limit
 }
 
 renv_index_enabled <- function(scope, key) {

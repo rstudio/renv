@@ -441,3 +441,5 @@ rows <- function(data, columns) {
 stringify <- function(object, collapse = " ") {
   paste(deparse(object, width.cutoff = 500L), collapse = collapse)
 }
+
+
