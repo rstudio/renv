@@ -88,6 +88,9 @@ renv_lock_orphaned <- function(path) {
     return(FALSE)
 
   timeout <- getOption("renv.lock.timeout", default = 3600L)
+  if (timeout) <= 0L
+    return(TRUE)
+
   difftime(Sys.time(), info$ctime, units = "secs") >= timeout
 
 }
