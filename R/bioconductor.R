@@ -51,12 +51,15 @@ renv_bioconductor_version <- function(project, refresh = FALSE) {
       return(version)
   }
 
+  # if BiocVersion is installed, use it
+  if (renv_package_available("BiocVersion"))
+    return(format(packageVersion("BiocVersion")[1, 1:2]))
+
+  # make sure the required bioc package is available
+  renv_bioconductor_init()
+
   # otherwise, infer the Bioconductor version from installed packages
   case(
-
-    renv_package_available("BiocVersion") ~ {
-      format(packageVersion("BiocVersion")[1, 1:2])
-    },
 
     renv_package_available("BiocManager") ~ {
       BiocManager <- renv_namespace_load("BiocManager")
@@ -78,6 +81,9 @@ renv_bioconductor_repos <- function(project, version = NULL) {
   repos <- getOption("renv.bioconductor.repos")
   if (!is.null(repos))
     return(repos)
+
+  # make sure the required bioc package is available
+  renv_bioconductor_init()
 
   # read Bioconductor version (normally set during restore)
   version <- version %||% renv_bioconductor_version(project = project)
