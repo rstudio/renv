@@ -8,6 +8,9 @@ renv_bioconductor_init <- function(library = NULL) {
 
 renv_bioconductor_init_biocmanager <- function(library = NULL) {
 
+  if ("BiocManager" %in% loadedNamespaces())
+    return(TRUE)
+
   library <- library %||% renv_libpaths_default()
   if (renv_package_installed("BiocManager", lib.loc = library))
     return(TRUE)
@@ -19,6 +22,9 @@ renv_bioconductor_init_biocmanager <- function(library = NULL) {
 }
 
 renv_bioconductor_init_biocinstaller <- function(library = NULL) {
+
+  if ("BiocInstaller" %in% loadedNamespaces())
+    return(TRUE)
 
   library <- library %||% renv_libpaths_default()
   if (renv_package_installed("BiocInstaller", lib.loc = library))
