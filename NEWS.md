@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Fixed an issue where installation of Bioconductor packages could fail
+  when `BiocManager` was not installed. (#1156, #1155)
+
 * Fixed an issue where the amount of time elapsed reported by `renv::install()`
   failed to include the time spent retrieving packages.
 

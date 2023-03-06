@@ -4,21 +4,24 @@ renv_difftime_format <- function(time, digits = 2L) {
   units <- attr(time, "units") %||% ""
   if (units == "secs" && time < 0.1) {
     time  <- time * 1000
-    units <- "millisecond"
+    units <- "milliseconds"
   }
 
   units <- switch(
     units,
-    secs  = "second",
-    mins  = "minute",
-    hours = "hour",
-    days  = "day",
-    weeks = "week",
+    secs  = "seconds",
+    mins  = "minutes",
+    hours = "hours",
+    days  = "days",
+    weeks = "weeks",
     units
   )
 
   elapsed <- format(unclass(signif(time, digits = digits)))
-  paste(elapsed, plural(units, as.integer(elapsed)))
+  if (elapsed %in% c("1", "1.0"))
+    units <- substring(units, 1L, nchar(units) - 1L)
+
+  paste(elapsed, units)
 
 }
 
