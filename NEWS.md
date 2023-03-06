@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv` no longer tries to set the `SDKROOT` environment variable on
+  macOS for R (>= 4.0.0).
+
 * Fixed an issue where installation of Bioconductor packages could fail
   when `BiocManager` was not installed. (#1156, #1155)
 
