@@ -27,11 +27,10 @@ jobs:
           - {os: macOS-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
           - {os: windows-latest, r: 'oldrel'}
-          - {os: ubuntu-18.04,   r: 'devel'}
-          - {os: ubuntu-18.04,   r: 'release'}
-          - {os: ubuntu-18.04,   r: 'oldrel'}
-          - {os: ubuntu-18.04,   r: '3.5'}
-            # - {os: ubuntu-18.04,   r: '3.4'}  # needs rmarkdown patch
+          - {os: ubuntu-latest,  r: 'devel'}
+          - {os: ubuntu-latest,  r: 'release'}
+          - {os: ubuntu-latest,  r: 'oldrel'}
+          - {os: ubuntu-latest,  r: '3.5'}
 
     env:
       _R_CHECK_CRAN_INCOMING_:       "FALSE"
