@@ -124,7 +124,11 @@ renv_sandbox_activate_check <- function(libs) {
 renv_sandbox_generate <- function(sandbox) {
 
   # make the library temporarily writable
-  if (!renv_package_checking())
+  chmod <-
+    !renv_package_checking() &&
+    !renv_path_within(sandbox, tempdir())
+
+  if (chmod)
     Sys.chmod(sandbox, "0755")
 
   # find system packages in the system library
@@ -140,7 +144,7 @@ renv_sandbox_generate <- function(sandbox) {
   enumerate(targets, renv_file_link, overwrite = TRUE)
 
   # make the library unwritable again
-  if (!renv_package_checking())
+  if (chmod)
     Sys.chmod(sandbox, "0555")
 
   # return sandbox path
@@ -176,6 +180,7 @@ renv_sandbox_task <- function(...) {
   sandbox <- tail(.libPaths(), n = 1L)
   if (!file.exists(sandbox)) {
     warning("the renv sandbox was deleted; it will be re-generated", call. = FALSE)
+    ensure_directory(sandbox)
     renv_sandbox_generate(sandbox)
   }
 
