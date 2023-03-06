@@ -479,9 +479,11 @@ renv_file_find <- function(path, predicate) {
   path <- renv_path_canonicalize(path)
   parent <- dirname(path)
 
-  # compute number of slashes (avoid searching beyond home directory)
+  # compute number of slashes
+  # (avoid searching beyond home directory, unless we're virtualized)
+  virtualized <- renv_virtualization_type() != "native"
   slashes <- gregexpr("/", path, fixed = TRUE)[[1L]]
-  n <- length(slashes) - if (.docker) 0L else 2L
+  n <- length(slashes) - if (virtualized) 0L else 2L
 
   for (i in 1:n) {
 
