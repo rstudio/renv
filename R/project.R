@@ -318,6 +318,7 @@ renv_project_lock <- function(project = NULL) {
 
   project <- renv_project_resolve(project)
   path <- file.path(project, "renv/lock")
+  ensure_parent_directory(path)
   renv_scope_lock(path, envir = parent.frame())
 
 }
