@@ -136,8 +136,8 @@ renv_index_set <- function(root, scope, index, key, value, now, limit) {
 }
 
 renv_index_encode <- function(key) {
-  text <- deparse(key)
-  renv_hash_text(text)
+  key <- stringify(key)
+  memoize(key, renv_hash_text(key))
 }
 
 renv_index_clean <- function(root, scope, index, now, limit) {
