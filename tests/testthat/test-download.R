@@ -144,7 +144,7 @@ test_that("we can check that a URL is available", {
   renv_scope_options(warn = 0L)
   status <- system2(
     command = timeout,
-    args    = c("3s", python, c("-m", "http.server", port)),
+    args    = c("5s", python, c("-m", "http.server", port)),
     stdout  = FALSE,
     stderr  = FALSE,
     wait    = FALSE
@@ -155,7 +155,7 @@ test_that("we can check that a URL is available", {
 
   # sleep for a bit, since it seems like the server can take a little bit
   # of time to get ready to accept connections
-  Sys.sleep(0.1)
+  Sys.sleep(1)
 
   # okay, try to talk to the web server now
   url <- paste("http://localhost", port, sep = ":")

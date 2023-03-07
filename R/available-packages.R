@@ -263,7 +263,7 @@ renv_available_packages_record <- function(entry, type) {
   # form url
   url <- entry$Repository
   path <- entry$Path
-  if (is.character(path) && !is.na(path))
+  if (length(path) && !is.na(path))
     url <- paste(url, path, sep = "/")
 
   attr(record, "type") <- type
@@ -319,7 +319,7 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
 
   # remove an NA file entry if necessary
   # https://github.com/rstudio/renv/issues/1045
-  if (length(entry$File) && is.na(entry$File))
+  if (length(entry$File) && !is.na(entry$File))
     entry$File <- NULL
 
   # return newest-available version
