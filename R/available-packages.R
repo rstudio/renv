@@ -48,7 +48,7 @@ renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
   # request repositories
   urls <- contrib.url(repos, type)
   errors <- new.env(parent = emptyenv())
-  dbs <- lapply(urls, renv_available_packages_query, errors = errors)
+  dbs <- map(urls, renv_available_packages_query, type = type, errors = errors)
   names(dbs) <- names(repos)
 
   # notify finished
@@ -95,7 +95,7 @@ renv_available_packages_query_packages <- function(url) {
   suppressWarnings(read.dcf(destfile))
 }
 
-renv_available_packages_query <- function(url, errors) {
+renv_available_packages_query <- function(url, type, errors) {
 
   # define query methods for the different PACKAGES
   methods <- list(
@@ -125,7 +125,7 @@ renv_available_packages_query <- function(url, errors) {
       next
     }
 
-    return(renv_available_packages_success(db, url))
+    return(renv_available_packages_success(db, url, type))
 
   }
 
@@ -134,12 +134,26 @@ renv_available_packages_query <- function(url, errors) {
 
 }
 
-renv_available_packages_success <- function(db, url) {
+renv_available_packages_success <- function(db, url, type) {
 
   # convert to data.frame
   db <- as.data.frame(db, row.names = FALSE, stringsAsFactors = FALSE)
   if (nrow(db) == 0L)
     return(db)
+
+  # add in necessary missing columns
+  required <- c(
+    "Package", "Version", "Priority",
+    "Depends", "Imports", "LinkingTo", "Suggests", "Enhances",
+    "License", "License_is_FOSS", "License_restricts_use",
+    "OS_type", "Archs", "MD5sum",
+    if (type %in% "source") "NeedsCompilation",
+    "File"
+  )
+
+  missing <- setdiff(required, names(db))
+  db[missing] <- NA_character_
+  db <- db[required]
 
   # filter as appropriate
   db <- renv_available_packages_filter(db)

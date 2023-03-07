@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Fixed an issue where `renv` would fail to query [r-universe](https://r-universe.dev/)
+  repositories. (#1156)
+
 * `renv` no longer tries to set the `SDKROOT` environment variable on
   macOS for R (>= 4.0.0).
 

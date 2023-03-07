@@ -168,3 +168,24 @@ test_that("we're compatible with R", {
   expect_equal(lhs[fields], rhs[fields])
 
 })
+
+test_that("we can query the R universe", {
+  skip_on_cran()
+  skip_sometimes()
+
+  lhs <- as.data.frame(
+    available.packages(
+      type = "source",
+      repos = "https://rstudio.r-universe.dev"
+    )
+  )
+
+  rhs <- available_packages(
+    type = "source",
+    repos = "https://rstudio.r-universe.dev/"
+  )[[1L]]
+
+  rownames(lhs) <- rownames(rhs) <- NULL
+  expect_identical(lhs, rhs)
+
+})
