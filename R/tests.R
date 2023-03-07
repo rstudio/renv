@@ -388,7 +388,7 @@ renv_tests_verbose <- function() {
 }
 
 renv_test_code <- function(code, data = list(), fileext = ".R") {
-  code <- substituteDirect(substitute(code), frame = data)
+  code <- do.call(substitute, list(substitute(code), data))
   file <- tempfile("renv-code-", fileext = fileext)
   writeLines(deparse(code), con = file)
   file
