@@ -10,11 +10,11 @@ sprintf <- function(fmt, ...) {
 }
 
 stopf <- function(fmt = "", ..., call. = FALSE) {
-  stop(sprintf(fmt, ...), call. = call.)
+  stop(sprintf(fmt, ...), call. = call)
 }
 
 warningf <- function(fmt = "", ..., call. = FALSE, immediate. = FALSE) {
-  warning(sprintf(fmt, ...), call. = call., immediate. = immediate.)
+  warning(sprintf(fmt, ...), call. = call, immediate. = immediate)
 }
 
 messagef <- function(fmt = "", ..., appendLF = TRUE) {
