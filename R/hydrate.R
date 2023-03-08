@@ -176,9 +176,11 @@ renv_hydrate_filter_impl <- function(package, path, library, update) {
   # if so, we'll want to compare the version first and
   # hydrate only if the requested version is newer than the current
   descpath <- file.path(library, package, "DESCRIPTION")
-  desc <- catch(renv_description_read(path = descpath))
-  if (inherits(desc, "error"))
-    return(TRUE)
+  if (file.exists(descpath)) {
+    desc <- catch(renv_description_read(path = descpath))
+    if (inherits(desc, "error"))
+      return(TRUE)
+  }
 
   # get the current package version
   current <- catch(numeric_version(desc[["Version"]]))
