@@ -1,6 +1,8 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Fixed an issue where `renv::hydrate()` would print spurious warnings. (#1160)
+
 * `renv::status()` now suggests running `renv::restore()` if there are no
   packages installed in the project library. (#1060)
   
