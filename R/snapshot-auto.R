@@ -107,25 +107,23 @@ renv_snapshot_task <- function(...) {
     return(FALSE)
   }
 
-  identical(status, TRUE)
+  TRUE
 
 }
 
 renv_snapshot_task_impl <- function() {
 
   # check for active renv project
-  project <- Sys.getenv("RENV_PROJECT", unset = NA)
-  if (is.na(project))
-    return(FALSE)
+  if (!renv_project_active())
+    return()
 
   # see if library state has updated
   updated <- renv_snapshot_auto_update(project = project)
   if (!updated)
-    return(FALSE)
+    return()
 
   # library has updated; perform auto snapshot
   renv_snapshot_auto(project = project)
-  TRUE
 
 }
 

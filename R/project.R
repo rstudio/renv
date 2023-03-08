@@ -322,3 +322,7 @@ renv_project_lock <- function(project = NULL) {
   renv_scope_lock(path, envir = parent.frame())
 
 }
+
+renv_project_active <- function() {
+  !is.null(getOption("renv.project.path"))
+}

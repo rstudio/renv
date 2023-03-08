@@ -4,11 +4,10 @@ renv_system_exec <- function(command,
                              action  = "executing command",
                              success = 0L,
                              stream  = FALSE,
-                             quiet   = FALSE)
+                             quiet   = NULL)
 {
   # be quiet when running tests by default
-  if (!interactive() && renv_tests_running())
-    quiet <- TRUE
+  quiet <- quiet %||% renv_tests_running()
 
   # handle 'stream' specially
   if (stream) {

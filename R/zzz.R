@@ -18,6 +18,7 @@ renv_zzz_load <- function() {
   renv_libpaths_init()
   renv_patch_init()
   renv_lock_init()
+  renv_sandbox_init()
 
   # TODO: It's not clear if these callbacks are safe to use when renv is
   # embedded, but it's unlikely that clients would want them anyhow.
@@ -26,6 +27,11 @@ renv_zzz_load <- function() {
     addTaskCallback(
       renv_snapshot_task,
       name = "renv:::renv_snapshot_task"
+    )
+
+    addTaskCallback(
+      renv_sandbox_task,
+      name = "renv:::renv_sandbox_task"
     )
 
   }

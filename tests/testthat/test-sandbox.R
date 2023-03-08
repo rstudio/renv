@@ -46,6 +46,43 @@ test_that(".Library.site isn't used even when sandbox is disabled", {
 
 })
 
+test_that("the sandbox is unlocked on process exit", {
+  skip_on_cran()
+
+  renv_scope_envvars(RENV_SANDBOX_LOCKING_ENABLED = "TRUE")
+
+  project <- tempfile("renv-project-")
+
+  script <- renv_test_code({
+    renv::init(project)
+  }, list(project = project))
+
+  output <- renv_system_exec(
+    command = R(),
+    args    = c("--vanilla", "-s", "-f", shQuote(script)),
+    action  = "initializing project"
+  )
+
+  sandbox <- renv_paths_sandbox(project)
+  expect_false(renv_sandbox_locked(sandbox))
+
+  script <- renv_test_code({
+    renv::load(project)
+    locked <- renv:::renv_sandbox_locked(.Library)
+    cat(locked, sep = "\n")
+  }, list(project = project))
+
+  output <- renv_system_exec(
+    command = R(),
+    args    = c("-s", "-f", shQuote(script)),
+    action  = "checking sandbox state"
+  )
+
+  expect_equal(output, "TRUE")
+  expect_false(renv_sandbox_locked(sandbox))
+
+})
+
 test_that("re-activate sandbox when all is said and done", {
   options(renv.config.sandbox.enabled = TRUE)
   renv_sandbox_activate()

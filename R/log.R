@@ -1,40 +1,39 @@
 
-log <- function(level, fmt, ...) {
-
-  if (level >= getOption("renv.log.level", default = 4L)) {
-    msg <- sprintf(fmt, ...)
-    renv_log_impl(msg)
-  }
-
+log <- function(level, scope, fmt, ...) {
+  if (level >= getOption("renv.log.level", default = 4L))
+    renv_log_impl(scope, fmt, ...)
 }
 
-elog <- function(fmt, ...) {
-  log(4L, fmt, ...)
+elog <- function(scope, fmt, ...) {
+  log(4L, scope, fmt, ...)
 }
 
-wlog <- function(fmt, ...) {
-  log(3L, fmt, ...)
+wlog <- function(scope, fmt, ...) {
+  log(3L, scope, fmt, ...)
 }
 
-ilog <- function(fmt, ...) {
-  log(2L, fmt, ...)
+ilog <- function(scope, fmt, ...) {
+  log(2L, scope, fmt, ...)
 }
 
-dlog <- function(fmt, ...) {
-  log(1L, fmt, ...)
+dlog <- function(scope, fmt, ...) {
+  log(1L, scope, fmt, ...)
 }
 
 
-renv_log_impl <- function(msg) {
+renv_log_impl <- function(scope, fmt, ...) {
 
-  # build log message
-  fmt <- "[%s] renv: %s"
+  # build message
+  message <- sprintf(fmt, ...)
+
+  # annotate message
+  fmt <- "[%s] [renv-%s]: %s"
   now <- format(Sys.time(), tz = "UTC")
-  all <- sprintf(fmt, now, msg)
+  all <- sprintf(fmt, now, scope, message)
 
   # write it out
-  con <- getOption("renv.log.file", default = stdout())
-  cat(all, file = con, sep = "\n", append = TRUE)
+  file <- getOption("renv.log.file", default = stdout())
+  cat(all, file = file, sep = "\n", append = TRUE)
 
 }
 
@@ -52,10 +51,10 @@ renv_log_init_level <- function() {
 
   # read and assign
   override <- case(
-    level %in% c("error",   "ERROR")   ~ 4L,
-    level %in% c("warning", "WARNING") ~ 3L,
-    level %in% c("info",    "INFO")    ~ 2L,
-    level %in% c("debug",   "DEBUG")   ~ 1L,
+    level %in% c("4", "error",   "ERROR")   ~ 4L,
+    level %in% c("3", "warning", "WARNING") ~ 3L,
+    level %in% c("2", "info",    "INFO")    ~ 2L,
+    level %in% c("1", "debug",   "DEBUG")   ~ 1L,
     ~ warningf("ignoring invalid RENV_LOG_LEVEL environment variable")
   )
 

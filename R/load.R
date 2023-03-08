@@ -101,6 +101,7 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_load_rprofile(project)
   renv_load_cache(project)
 
+  # load components encoded in lockfile
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {
     renv_load_r(project, lockfile$R)
