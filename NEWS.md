@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::status()` now suggests running `renv::restore()` if there are no
+  packages installed in the project library. (#1060)
+  
 * Fixed an issue where `renv` would fail to query [r-universe](https://r-universe.dev/)
   repositories. (#1156)
 

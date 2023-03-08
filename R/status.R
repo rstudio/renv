@@ -183,6 +183,20 @@ renv_status_check_synchronized <- function(project,
   if (empty(actions))
     return(TRUE)
 
+  # short-circuit for case where no packages (except renv) are installed
+  if (all(actions[setdiff(names(actions), "renv")] == "remove")) {
+
+    records <- renv_records_select(lockfile, actions, "remove")
+    renv_pretty_print_records(
+      records,
+      "The following package(s) are recorded in the lockfile, but not installed:",
+      "Use `renv::restore()` to install these packages."
+    )
+
+    return(FALSE)
+
+  }
+
   if ("install" %in% actions) {
 
     records <- renv_records_select(libstate, actions, "install")
@@ -207,6 +221,7 @@ renv_status_check_synchronized <- function(project,
     # installed in the project library anymore
     records <- renv_records_select(lockfile, actions, "remove")
 
+    unused <- NULL
     if (settings$snapshot.type() %in% c("implicit", "packrat")) {
 
       deps <- dependencies(project, progress = FALSE)
@@ -217,19 +232,7 @@ renv_status_check_synchronized <- function(project,
       )
 
       used <- intersect(names(records), names(pkgpaths))
-      unused <- setdiff(names(records), used)
-
-      if (renv_tests_running()) {
-        condition <- "renv.status.recorded_but_no_longer_used"
-        renv_condition_signal(condition, records[unused])
-      }
-
-      renv_pretty_print_records(
-        records[unused],
-        "The following package(s) do not appear to be used in this project:",
-        "Use `renv::snapshot()` to remove them from the lockfile."
-      )
-
+      unused <- keep(records, setdiff(names(records), used))
       records <- records[used]
 
     }
@@ -271,6 +274,29 @@ renv_status_check_synchronized <- function(project,
           "Use `renv::snapshot()` to remove these packages from the lockfile."
         )
 
+      )
+
+    }
+
+    if (length(unused)) {
+
+      if (renv_tests_running()) {
+        condition <- "renv.status.recorded_but_no_longer_used"
+        renv_condition_signal(condition, unused)
+      }
+
+      preamble <- "The following package(s) do not appear to be used in this project:"
+      postamble <- if (length(records)) c(
+        "Consider using `renv::restore()` to synchronize the library with the lockfile.",
+        "After, you may want to use `renv::snapshot()` to remove unused packages (if any)."
+      ) else c(
+        "Use `renv::snapshot()` to remove them from the lockfile."
+      )
+
+      renv_pretty_print_records(
+        records   = unused,
+        preamble  = preamble,
+        postamble = postamble
       )
 
     }
