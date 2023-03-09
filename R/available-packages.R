@@ -566,8 +566,6 @@ renv_available_packages_cellar <- function(type, project = NULL) {
     list(
       Package = package,
       Version = version,
-      OS_type = NA,
-      NeedsCompilation = NA,
       Repository = repository
     )
 

@@ -7,6 +7,10 @@
   renv_zzz_attach()
 }
 
+.onUnload <- function(libpath) {
+  renv_task_unload()
+}
+
 renv_zzz_load <- function() {
 
   renv_metadata_init()
