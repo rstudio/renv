@@ -134,7 +134,7 @@ renv_status_check_used_packages <- function(project, lockfile, libstate) {
   # only done when using implicit snapshots in a project
   type <- settings$snapshot.type(project = project)
   if (!type %in% c("implicit", "packrat"))
-    return(FALSE)
+    return(TRUE)
 
   deps <- dependencies(project, progress = FALSE)
   used <- sort(unique(deps$Package))
