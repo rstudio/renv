@@ -325,6 +325,12 @@ renv_tests_init_sandbox <- function() {
   Sys.setenv(RENV_PATHS_SANDBOX = tempdir())
   renv_sandbox_activate()
 
+  # make sure we make the sandbox writable on exit
+  reg.finalizer(renv_envir_self(), function(self) {
+    sandbox <- .Library
+    self$renv_sandbox_unlock(sandbox)
+  }, onexit = TRUE)
+
 }
 
 renv_tests_init_finish <- function() {
