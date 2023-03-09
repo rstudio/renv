@@ -55,8 +55,12 @@ empty <- function(x) {
   length(x) == 0
 }
 
+trim <- function(x) {
+  gsub("^\\s+|\\s+$", "", x, perl = TRUE)
+}
+
 trimws <- function(x) {
-  gsub("^\\s+|\\s+$", "", x)
+  gsub("^\\s+|\\s+$", "", x, perl = TRUE)
 }
 
 case <- function(...) {
@@ -110,6 +114,10 @@ ask <- function(question, default = FALSE) {
 
   if (renv_tests_running())
     return(TRUE)
+
+  enabled <- getOption("renv.prompt.enabled", default = TRUE)
+  if (!enabled)
+    return(default)
 
   if (!interactive())
     return(default)
@@ -444,4 +452,8 @@ stringify <- function(object, collapse = " ") {
 
 env2list <- function(env) {
   as.list.environment(env, all.names = TRUE)
+}
+
+chop <- function(x, split = "\n", fixed = TRUE, perl = FALSE, useBytes = FALSE) {
+  strsplit(x, split, !perl, perl, useBytes)[[1L]]
 }

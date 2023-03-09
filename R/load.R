@@ -687,7 +687,8 @@ renv_load_check_description <- function(project) {
   if (!file.exists(descpath))
     return(TRUE)
 
-  contents <- readLines(descpath, warn = FALSE)
+  # read description file, with whitespace trimmed
+  contents <- read(descpath) %>% trim() %>% chop()
   bad <- which(grepl("^\\s*$", contents, perl = TRUE))
   if (empty(bad))
     return(TRUE)

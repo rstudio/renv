@@ -965,10 +965,8 @@ renv_snapshot_filter_explicit <- function(project, records) {
 
   # keep only packages mentioned in the project DESCRIPTION file
   descpath <- file.path(project, "DESCRIPTION")
-  if (!file.exists(descpath)) {
-    fmt <- "%s does not exist; cannot perform explicit snapshot"
-    stopf(fmt, renv_path_pretty(descpath))
-  }
+  if (!file.exists(descpath))
+    return(records["renv"])
 
   # get the requested dependencies
   deps <- renv_snapshot_dependencies(project, descpath)
