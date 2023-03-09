@@ -391,3 +391,25 @@ test_that("renv reports missing packages in explicit snapshots", {
   )
 
 })
+
+test_that("a project using explicit snapshots is marked in sync appropriately", {
+
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(
+    renv.config.snapshot.type = "explicit",
+    renv.tests.verbose = FALSE
+  )
+
+  init()
+
+  writeLines("Depends: breakfast", con = "DESCRIPTION")
+  expect_false(status()$synchronized)
+
+  install("breakfast")
+  expect_false(status()$synchronized)
+
+  snapshot()
+  expect_true(status()$synchronized)
+
+})

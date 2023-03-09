@@ -44,6 +44,9 @@ renv_pretty_print_records <- function(records,
   if (empty(records))
     return(invisible(NULL))
 
+  if (renv_tests_running() && !renv_tests_verbose())
+    return(invisible(NULL))
+
   packages <- extract_chr(records, "Package")
   descs <- map_chr(records, renv_record_format_short)
 

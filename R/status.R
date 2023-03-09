@@ -55,6 +55,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     return(list(library = list(), lockfile = list(), synchronized = FALSE))
   }
 
+  # collect library, lockfile state
   libstate <- renv_status_check_missing_library(project, libpaths)
   lockfile <- renv_status_check_missing_lockfile(project, lockpath)
 
@@ -143,7 +144,8 @@ renv_status_check_used_packages <- function(project, lockfile, libstate) {
     renv_packages_base(),
     renv_project_ignored_packages(project),
     names(renv_records(lockfile)),
-    names(renv_records(libstate))
+    names(renv_records(libstate)),
+    "renv"
   )
 
   missing <- setdiff(used, ignored)
