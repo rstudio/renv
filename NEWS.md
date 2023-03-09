@@ -1,6 +1,8 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* The `renv` sandbox is now placed within the `renv` cache directory. (#1158)
+
 * Fixed an issue where `renv::status()` could erroneously report a project was
   out-of-sync when using explicit snapshots. (#1159)
 

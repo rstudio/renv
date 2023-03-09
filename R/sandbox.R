@@ -8,28 +8,6 @@ renv_sandbox_init <- function() {
     options(renv.sandbox.locking_enabled = enabled)
   }
 
-  # ensure sandbox is unlocked on exit
-  reg.finalizer(
-    renv_envir_self(),
-    renv_sandbox_finalize,
-    onexit = TRUE
-  )
-
-}
-
-renv_sandbox_finalize <- function(self) {
-
-  # check if we're enabled
-  if (!renv_sandbox_activated())
-    return()
-
-  sandbox <- .Library
-  if (!file.exists(sandbox))
-    return()
-
-  dlog("sandbox", "Unlocking sandbox in finalizer.")
-  renv_sandbox_unlock(sandbox)
-
 }
 
 renv_sandbox_activate <- function(project = NULL) {
@@ -227,12 +205,6 @@ renv_sandbox_task <- function(...) {
     warning("the renv sandbox was deleted; it will be re-generated", call. = FALSE)
     ensure_directory(sandbox)
     renv_sandbox_generate(sandbox)
-  }
-
-  # make sure the sandbox is locked
-  if (!renv_sandbox_locked(sandbox)) {
-    dlog("sandbox", "Locking sandbox in task callback.")
-    renv_sandbox_lock(sandbox)
   }
 
 }

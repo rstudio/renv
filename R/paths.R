@@ -104,9 +104,9 @@ renv_paths_sandbox_unix <- function(project = NULL) {
   if (!is.na(root))
     return(paste(root, prefix, sep = "/"))
 
-  # otherwise, build path in renv folder
-  project <- renv_project_resolve(project)
-  renv_paths_renv("sandbox", prefix, profile = TRUE, project = project)
+  # otherwise, build path in user data directory
+  userdir <- renv_bootstrap_user_dir()
+  paste(userdir, "sandbox", prefix, sep = "/")
 
 }
 
