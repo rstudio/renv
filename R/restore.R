@@ -168,7 +168,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   renv_scope_restore(
     project  = project,
-    library  = renv_libpaths_default(),
+    library  = renv_libpaths_active(),
     records  = renv_records(lockfile),
     packages = packages,
     rebuild  = rebuild

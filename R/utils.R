@@ -442,4 +442,6 @@ stringify <- function(object, collapse = " ") {
   paste(deparse(object, width.cutoff = 500L), collapse = collapse)
 }
 
-
+env2list <- function(env) {
+  as.list.environment(env, all.names = TRUE)
+}

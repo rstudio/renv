@@ -9,8 +9,8 @@ renv_libpaths_init <- function() {
   assign(".Library.site", .Library.site, envir = `_renv_libpaths`)
 }
 
-renv_libpaths_default <- function() {
-  .libPaths()[1]
+renv_libpaths_active <- function() {
+  .libPaths()[[1L]]
 }
 
 renv_libpaths_all <- function() {
@@ -48,8 +48,8 @@ renv_libpaths_safe <- function(libpaths) {
 
 renv_libpaths_safe_check <- function(libpaths) {
 
-  # if any of the paths have single quotes, then
-  # we need to use a safe path
+  # if any of the paths have single quotes,
+  # then we need to use a safe path
   # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17973
   if (any(grepl("'", libpaths, fixed = TRUE)))
     return(FALSE)
@@ -139,6 +139,10 @@ renv_libpaths_set <- function(libpaths) {
   oldlibpaths
 }
 
+renv_libpaths_default <- function() {
+  `_renv_libpaths`$`.libPaths()`
+}
+
 # NOTE: may return more than one library path!
 renv_libpaths_user <- function() {
 
@@ -147,16 +151,17 @@ renv_libpaths_user <- function() {
   for (envvar in envvars) {
 
     value <- Sys.getenv(envvar, unset = NA)
-    if (is.na(value) || value == "<NA>" || value == "NULL" || !nzchar(value))
+    if (is.na(value) || value %in% c("", "<NA>", "NULL"))
       next
 
-    parts <- strsplit(value, .Platform$path.sep, fixed = TRUE)[[1]]
+    parts <- strsplit(value, .Platform$path.sep, fixed = TRUE)[[1L]]
     return(parts)
 
   }
 
-  # otherwise, default to active library (shouldn't happen but best be safe)
-  renv_libpaths_default()
+  # otherwise, default to active library
+  # (shouldn't happen but best be safe)
+  renv_libpaths_active()
 
 }
 

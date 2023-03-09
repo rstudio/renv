@@ -54,7 +54,7 @@ renv_snapshot_auto_enabled <- function(project) {
     return(FALSE)
 
   # don't auto-snapshot unless the active library is the project library
-  if (!renv_file_same(renv_libpaths_default(), library))
+  if (!renv_file_same(renv_libpaths_active(), library))
     return(FALSE)
 
   TRUE

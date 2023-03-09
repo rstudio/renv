@@ -539,7 +539,7 @@ renv_snapshot_r_packages_impl <- function(library = NULL,
                                           snapshot = TRUE)
 {
   # list packages in the library
-  library <- renv_path_normalize(library %||% renv_libpaths_default())
+  library <- renv_path_normalize(library %||% renv_libpaths_active())
   paths <- list.files(library, full.names = TRUE)
 
   # remove 'base' packages

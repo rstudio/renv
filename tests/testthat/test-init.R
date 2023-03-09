@@ -75,7 +75,7 @@ test_that("the remotes field in a DESCRIPTION is honored", {
   renv_tests_scope("halloween")
   renv::install("halloween")
 
-  ip <- renv_installed_packages(lib.loc = renv_libpaths_default())
+  ip <- renv_installed_packages(lib.loc = renv_libpaths_active())
   expect_true("halloween" %in% rownames(ip))
   expect_true("skeleton" %in% rownames(ip))
 
@@ -154,7 +154,7 @@ test_that("we use an external library path for package projects", {
   init()
 
   # check for external library path
-  library <- renv_libpaths_default()
+  library <- renv_libpaths_active()
 
 
   expect_true(

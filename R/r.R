@@ -159,7 +159,7 @@ r_cmd_install <- function(package, path, ...) {
   }
 
   # resolve default library path
-  library <- renv_libpaths_default()
+  library <- renv_libpaths_active()
 
   # validate that we have command line tools installed and
   # available for e.g. macOS

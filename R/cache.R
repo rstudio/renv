@@ -110,7 +110,7 @@ renv_cache_path_components <- function(path) {
 renv_cache_synchronize <- function(record, linkable = FALSE) {
 
   # construct path to package in library
-  library <- renv_libpaths_default()
+  library <- renv_libpaths_active()
   path <- file.path(library, record$Package)
   if (!file.exists(path))
     return(FALSE)
