@@ -213,24 +213,12 @@ renv_sandbox_deactivate <- function() {
 
 renv_sandbox_task <- function(...) {
 
-  status <- tryCatch(
-    renv_sandbox_task_impl(),
-    error = identity
-  )
-
-  if (inherits(status, "error")) {
-    warning(status)
-    return(FALSE)
-  }
-
-  TRUE
-
-}
-
-renv_sandbox_task_impl <- function() {
-
   # check if we're enabled
   if (!renv_sandbox_activated())
+    return()
+
+  enabled <- getOption("renv.sandbox.task", default = TRUE)
+  if (!enabled)
     return()
 
   # make sure the sandbox exists

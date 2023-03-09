@@ -268,8 +268,7 @@
   type: "logical[1]"
   default: true
   description: >
-    Check that the project library is synchronized with the lockfile on
-    load?
+    Check that the project library is synchronized with the lockfile on load?
 
 - name: "updates.check"
   type: "logical[1]"

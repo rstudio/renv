@@ -23,17 +23,8 @@ renv_zzz_load <- function() {
   # TODO: It's not clear if these callbacks are safe to use when renv is
   # embedded, but it's unlikely that clients would want them anyhow.
   if (!renv_metadata_embedded()) {
-
-    addTaskCallback(
-      renv_snapshot_task,
-      name = "renv:::renv_snapshot_task"
-    )
-
-    addTaskCallback(
-      renv_sandbox_task,
-      name = "renv:::renv_sandbox_task"
-    )
-
+    renv_task_create(renv_snapshot_task)
+    renv_task_create(renv_sandbox_task)
   }
 
   # if an renv project already appears to be loaded, then re-activate

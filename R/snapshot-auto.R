@@ -95,23 +95,7 @@ renv_snapshot_auto_update <- function(project) {
 
 }
 
-renv_snapshot_task <- function(...) {
-
-  status <- tryCatch(
-    renv_snapshot_task_impl(),
-    error = identity
-  )
-
-  if (inherits(status, "error")) {
-    warning(status)
-    return(FALSE)
-  }
-
-  TRUE
-
-}
-
-renv_snapshot_task_impl <- function() {
+renv_snapshot_task <- function() {
 
   # check for active renv project
   if (!renv_project_active())
