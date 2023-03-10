@@ -13,7 +13,11 @@ index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
   now <- as.integer(Sys.time())
 
   # make sure the directory we're indexing exists
-  ensure_directory(root)
+  memoize(
+    key   = root,
+    value = ensure_directory(root),
+    scope = "index"
+  )
 
   # acquire index lock
   lockfile <- file.path(root, "index.lock")

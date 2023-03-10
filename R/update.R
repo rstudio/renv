@@ -308,7 +308,7 @@ update <- function(packages = NULL,
 
   # remove records that appear to be from an R package repository,
   # but are not actually available in the current repositories
-  selected <- Filter(function(record) {
+  selected <- filter(selected, function(record) {
 
     source <- renv_record_source(record, normalize = TRUE)
     if (!source %in% c("bioconductor", "cran", "repository"))
@@ -319,7 +319,7 @@ update <- function(packages = NULL,
     entry <- catch(renv_available_packages_latest(package))
     !inherits(entry, "error")
 
-  }, selected)
+  })
 
   updates <- renv_update_find(selected)
   vwritef("Done!")

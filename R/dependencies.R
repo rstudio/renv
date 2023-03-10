@@ -1527,7 +1527,7 @@ renv_dependencies_list_empty <- function() {
 
 }
 
-renv_dependencies_require <- function(package, type) {
+renv_dependencies_require <- function(package, type = NULL) {
 
   if (requireNamespace(package, quietly = TRUE))
     return(TRUE)
@@ -1535,12 +1535,13 @@ renv_dependencies_require <- function(package, type) {
   if (once()) {
 
     fmt <- lines(
-      "The '%1$s' package is required to parse dependencies within %2$s files.",
+      "The '%1$s' package is required to parse dependencies within %2$s",
       "Consider installing it with `install.packages(\"%1$s\")`."
     )
 
-    msg <- sprintf(fmt, package, type)
-      warning(msg, call. = FALSE)
+    within <- if (is.null(type)) "this file" else paste(type, "files")
+    msg <- sprintf(fmt, package, within)
+    warning(msg, call. = FALSE)
 
   }
 

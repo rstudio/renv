@@ -316,6 +316,10 @@ renv_project_lock <- function(project = NULL) {
   if (!config$locking.enabled())
     return()
 
+  path <- getOption("renv.project.path")
+  if (!identical(project, path))
+    return()
+
   project <- renv_project_resolve(project)
   path <- file.path(project, "renv/lock")
   ensure_parent_directory(path)

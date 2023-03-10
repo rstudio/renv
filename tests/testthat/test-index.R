@@ -64,7 +64,6 @@ test_that("a timeout of 0 forces index to be re-computed", {
 
 test_that("other processes can use the index", {
 
-  renv_scope_envvars(RENV_PATHS_INDEX = renv_paths_index())
   key <- renv_id_generate()
 
   index(
@@ -78,11 +77,15 @@ test_that("other processes can use the index", {
     writeLines(as.character(indexed))
   }, list(scope = scope, key = key, value = FALSE))
 
-  output <- renv_system_exec(
-    command = R(),
-    args    = c("--vanilla", "-s", "-f", shQuote(script)),
-    action  = "testing renv index"
-  )
+  output <- local({
+    renv_scope_envvars(RENV_PATHS_ROOT = renv_paths_root())
+    renv_system_exec(
+      command = R(),
+      args    = c("--vanilla", "-s", "-f", shQuote(script)),
+      action  = "testing renv index",
+      quiet   = FALSE
+    )
+  })
 
   expect_equal(output, "TRUE")
 

@@ -720,7 +720,6 @@ renv_load_quiet <- function() {
 renv_load_finish <- function(project, lockfile) {
 
   options(renv.project.path = project)
-
   renv_load_check(project)
 
   if (!renv_load_quiet()) {

@@ -128,3 +128,25 @@ test_that("new() creates objects", {
   expect_equal(data, 42L)
 
 })
+
+test_that("rows(), cols() does what we want", {
+
+  indices <- list(
+    c(1, 3, 5),
+    c(TRUE, FALSE)
+  )
+
+  for (index in indices) {
+
+    lhs <- mtcars[index, ]
+    rhs <- rows(mtcars, index)
+    rownames(lhs) <- rownames(rhs) <- NULL
+    expect_equal(lhs, rhs)
+
+    lhs <- mtcars[index]
+    rhs <- cols(mtcars, index)
+    expect_equal(lhs, rhs)
+
+  }
+
+})

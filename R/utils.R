@@ -415,30 +415,23 @@ unique <- function(x) {
   base::unique(x)
 }
 
-rows <- function(data, columns) {
-
-  # evaluate columns in data
-  columns <- eval(
-    expr   = substitute(columns),
-    envir  = data,
-    enclos = parent.frame()
-  )
+rows <- function(data, indices) {
 
   # convert logical values
-  if (is.logical(columns)) {
-    if (length(columns) < nrow(data))
-      columns <- rep(columns, length.out = nrow(data))
-    columns <- which(columns, useNames = FALSE)
+  if (is.logical(indices)) {
+    if (length(indices) < nrow(data))
+      indices <- rep(indices, length.out = nrow(data))
+    indices <- which(indices, useNames = FALSE)
   }
 
   # build output list
   output <- vector("list", length(data))
   for (i in seq_along(data))
-    output[[i]] <- .subset2(data, i)[columns]
+    output[[i]] <- .subset2(data, i)[indices]
 
   # copy relevant attributes
   attrs <- attributes(data)
-  attrs[["row.names"]] <- .set_row_names(length(columns))
+  attrs[["row.names"]] <- .set_row_names(length(indices))
   attributes(output) <- attrs
 
   # return new data.frame
@@ -446,8 +439,31 @@ rows <- function(data, columns) {
 
 }
 
+cols <- function(data, indices) {
+
+  # perform subset
+  output <- .subset(data, indices)
+
+  # copy relevant attributes
+  attrs <- attributes(data)
+  attrs[["names"]] <- attr(output, "names", exact = TRUE)
+  attributes(output) <- attrs
+
+  # return output
+  output
+
+}
+
 stringify <- function(object, collapse = " ") {
-  paste(deparse(object, width.cutoff = 500L), collapse = collapse)
+
+  if (is.symbol(object))
+    return(as.character(object))
+
+  paste(
+    deparse(object, width.cutoff = 500L),
+    collapse = collapse
+  )
+
 }
 
 env2list <- function(env) {

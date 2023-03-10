@@ -298,12 +298,12 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
   entries <- bapply(dbs, function(db) {
 
     # extract entries for this package
-    rows <- db[db$Package == package, ]
-    if (nrow(rows) == 0L)
-      return(rows)
+    entries <- rows(db, db$Package == package)
+    if (nrow(entries) == 0L)
+      return(entries)
 
     # keep only compatible rows + the required fields
-    rows[, intersect(fields, names(db)), drop = FALSE]
+    cols(entries, intersect(fields, names(db)))
 
   }, index = "Name")
 

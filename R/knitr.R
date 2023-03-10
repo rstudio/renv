@@ -74,7 +74,13 @@ renv_knitr_options_chunk <- function(code) {
 
   # first, try to parse as YAML, then as R code
   params <- if (isyaml) {
+
+    # validate that we actually have the yaml package available
+    if (!renv_dependencies_require("yaml"))
+      return(list())
+
     catch(renv_yaml_load(text))
+
   } else {
     code <- paste(text, collapse = ", ")
     catch(renv_knitr_options_header_impl(code))
