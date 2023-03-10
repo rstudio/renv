@@ -1539,7 +1539,7 @@ renv_dependencies_require <- function(package, type = NULL) {
       "Consider installing it with `install.packages(\"%1$s\")`."
     )
 
-    within <- if (is.null(type)) "this file" else paste(type, "files")
+    within <- if (is.null(type)) "this project" else paste(type, "files")
     msg <- sprintf(fmt, package, within)
     warning(msg, call. = FALSE)
 
