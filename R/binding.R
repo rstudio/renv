@@ -1,4 +1,14 @@
 
+renv_binding_init <- function(...) {
+
+  self <- renv_envir_self()
+
+  for (var in ls(envir = self))
+    if (startswith(var, "_"))
+      unlockBinding(var, self)
+
+}
+
 renv_binding_replace <- function(symbol, replacement, envir) {
 
   base <- .BaseNamespaceEnv

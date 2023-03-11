@@ -4,6 +4,9 @@ library(renv)
 
 run <- function() {
 
+  # disable locking in this scope
+  Sys.setenv(RENV_CONFIG_LOCKING_ENABLED = FALSE)
+
   # check whether we can run tests here
   if (!renv:::renv_tests_supported()) {
     message("renv does not support running tests on this platform.")

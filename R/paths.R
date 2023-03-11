@@ -192,26 +192,20 @@ renv_paths_root <- function(...) {
 # nocov start
 renv_paths_root_default <- function() {
 
-  # if we have a cached root value, use it
-  if (!is.null(`_renv_root`))
-    return(`_renv_root`)
+  `_renv_root` <<- `_renv_root` %||% {
 
-  # use tempdir for cache when running tests
-  # this check is necessary here to support packages which might use renv
-  # during testing (and we don't want those to try to use the user dir)
-  checking <- renv_package_checking()
+    # use tempdir for cache when running tests
+    # this check is necessary here to support packages which might use renv
+    # during testing (and we don't want those to try to use the user dir)
+    checking <- renv_package_checking()
 
-  # compute the root directory
-  root <- if (checking)
-    renv_paths_root_default_tempdir()
-  else
-    renv_paths_root_default_impl()
+    # compute the root directory
+    if (checking)
+      renv_paths_root_default_tempdir()
+    else
+      renv_paths_root_default_impl()
 
-  # cache the value
-  renv_binding_replace("_renv_root", root, renv_envir_self())
-
-  # return it
-  invisible(`_renv_root`)
+  }
 
 }
 

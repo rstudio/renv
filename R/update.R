@@ -241,6 +241,7 @@ update <- function(packages = NULL,
   }
 
   # get package records
+  renv_scope_var("_renv_snapshot_hash", FALSE)
   records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
   packages <- packages %||% names(records)
 
@@ -345,8 +346,8 @@ update <- function(packages = NULL,
     )
 
     vwritef(fmt, length(diff))
-    updates <- renv_updates(diff = diff, old = old, new = new)
-    return(updates)
+    renv_updates_report(diff, old, new)
+    return(invisible(renv_updates_create(diff, old, new)))
 
   }
 

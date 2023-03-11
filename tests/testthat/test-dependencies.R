@@ -66,7 +66,9 @@ test_that("import:: usages are understood", {
 
 test_that("box::use() usages are handled", {
   deps <- dependencies("resources/box.R")
-  expect_setequal(deps$Package, c("A", "B", "C", "D", "box"))
+  actual <- deps$Package
+  expected <- c("A", "B", "C", "D", "box")
+  expect_setequal(actual, expected)
 })
 
 test_that("targets::tar_option_set() dependencies are handled", {

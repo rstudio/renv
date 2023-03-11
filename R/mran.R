@@ -173,7 +173,7 @@ renv_mran_database_update_impl <- function(date, url, entry) {
 
   # retrieve available packages
   errors <- new.env(parent = emptyenv())
-  db <- renv_available_packages_query(url, errors)
+  db <- renv_available_packages_query_impl(url, errors)
   if (is.null(db)) {
     vwritef("ERROR")
     return(FALSE)
@@ -216,6 +216,13 @@ renv_mran_database_refresh <- function(explicit = TRUE) {
 }
 
 renv_mran_database_refresh_required <- function() {
+  dynamic(
+    key   = list(),
+    value = renv_mran_database_refresh_required_impl()
+  )
+}
+
+renv_mran_database_refresh_required_impl <- function() {
 
   # if the cache doesn't exist, we must refresh
   path <- renv_mran_database_path()

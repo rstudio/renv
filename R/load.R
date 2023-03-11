@@ -61,7 +61,8 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_scope_options(renv.load.running = TRUE)
 
   # avoid suppressing the next auto snapshot
-  renv_scope_var("running", TRUE, frame = `_renv_snapshot_auto`)
+  `_renv_snapshot_running` <<- TRUE
+  on.exit(`_renv_snapshot_running` <<- FALSE, add = TRUE)
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset

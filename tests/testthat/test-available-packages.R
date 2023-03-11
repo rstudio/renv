@@ -111,7 +111,7 @@ test_that("available packages database refreshed on http_proxy change", {
 
   count <- 0L
   renv_scope_trace(
-    what   = renv:::renv_available_packages_impl,
+    what   = renv:::renv_available_packages_query,
     tracer = function() { count <<- count + 1L }
   )
 

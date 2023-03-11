@@ -182,7 +182,7 @@ renv_patch_repos <- function() {
     return()
 
   # use package-local repository path
-  repopath <- system.file("repos", package = "renv")
+  repopath <- system.file("repos", package = "renv", mustWork = FALSE)
   if (!file.exists(repopath))
     return()
 

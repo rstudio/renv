@@ -2,6 +2,9 @@
 # simulate running in R CMD check
 Sys.setenv("_R_CHECK_PACKAGE_NAME_" = "renv")
 
+# disable locking in this scope
+Sys.setenv(RENV_CONFIG_LOCKING_ENABLED = FALSE)
+
 context <- function(desc) {
   renv_tests_init()
   testthat::context(desc)

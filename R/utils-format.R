@@ -1,11 +1,12 @@
 
+`_sprintf` <- base::sprintf
+
 sprintf <- function(fmt, ...) {
 
-  dots <- eval(substitute(alist(...)))
-  if (length(dots) == 0)
+  if (nargs() == 1L)
     return(fmt)
 
-  base::sprintf(fmt, ...)
+  `_sprintf`(fmt, ...)
 
 }
 

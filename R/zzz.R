@@ -15,6 +15,7 @@ renv_zzz_load <- function() {
 
   renv_metadata_init()
   renv_platform_init()
+  renv_binding_init()
   renv_virtualization_init()
   renv_envvars_init()
   renv_log_init()
@@ -24,11 +25,20 @@ renv_zzz_load <- function() {
   renv_lock_init()
   renv_sandbox_init()
 
-  # TODO: It's not clear if these callbacks are safe to use when renv is
-  # embedded, but it's unlikely that clients would want them anyhow.
   if (!renv_metadata_embedded()) {
+
+    # TODO: It's not clear if these callbacks are safe to use when renv is
+    # embedded, but it's unlikely that clients would want them anyhow.
     renv_task_create(renv_snapshot_task)
     renv_task_create(renv_sandbox_task)
+
+    # pkgload likes to lock all bindings in a package, even if we might
+    # try to unlock those in .onLoad(). Sneak around that.
+    setHook(
+      packageEvent("renv", "onLoad"),
+      renv_binding_init,
+    )
+
   }
 
   # if an renv project already appears to be loaded, then re-activate

@@ -4,20 +4,23 @@ context("Dynamic")
 test_that("dynamic variables are cool and good", {
 
   a <- 0L
+  envir <- environment()
+
   example <- function() {
-    dynamic(expr = a <<- a + 1L)
+    dynamic(
+      key   = list(),
+      value = a <<- a + 1L,
+      envir = envir
+    )
   }
 
-  # NOTE: If running the test interactively, you must run this
-  # as an entire block as the value is cleared in a task callback!
   local({
 
     example()
-    expect_true(a == 1L)
+    expect_equal(a, 1L)
 
     example()
-    expected <- if (interactive()) 1L else 2L
-    expect_equal(a, expected)
+    expect_equal(a, 1L)
 
   })
 

@@ -5,12 +5,36 @@
 available_packages <- function(type,
                                repos = NULL,
                                limit = NULL,
-                               quiet = FALSE)
+                               quiet = FALSE,
+                               cellar = FALSE)
+{
+  dynamic(
+
+    key = list(
+      type = type,
+      repos = repos,
+      cellar = cellar
+    ),
+
+    value = renv_available_packages_impl(
+      type   = type,
+      repos  = repos,
+      limit  = limit,
+      quiet  = quiet,
+      cellar = cellar
+    )
+
+  )
+}
+
+renv_available_packages_impl <- function(type,
+                                         repos = NULL,
+                                         limit = NULL,
+                                         quiet = FALSE,
+                                         cellar = FALSE)
 {
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
   repos <- renv_repos_normalize(repos %||% getOption("repos"))
-  if (empty(repos))
-    return(NULL)
 
   # invalidate cache if http_proxy or https_proxy environment variables change,
   # since those could effect (or even re-direct?) repository URLs
@@ -22,16 +46,22 @@ available_packages <- function(type,
   key <- list(repos = repos, type = type, headers = headers, envvals)
 
   # retrieve available packages
-  index(
+  dbs <- if (length(repos)) index(
     scope = "available-packages",
     key   = key,
-    value = renv_available_packages_impl(type, repos, quiet),
+    value = renv_available_packages_query(type, repos, quiet),
     limit = as.integer(limit)
   )
 
+  # include cellar if requested
+  dbs[["__renv_cellar__"]] <- if (cellar)
+    renv_available_packages_cellar(type = type)
+
+  dbs
+
 }
 
-renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
+renv_available_packages_query <- function(type, repos, quiet = FALSE) {
 
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
@@ -48,7 +78,7 @@ renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
   # request repositories
   urls <- contrib.url(repos, type)
   errors <- new.env(parent = emptyenv())
-  dbs <- map(urls, renv_available_packages_query, type = type, errors = errors)
+  dbs <- map(urls, renv_available_packages_query_impl, type = type, errors = errors)
   names(dbs) <- names(repos)
 
   # notify finished
@@ -74,34 +104,34 @@ renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
 
 }
 
-renv_available_packages_query_packages_rds <- function(url) {
+renv_available_packages_query_impl_packages_rds <- function(url) {
   path <- file.path(url, "PACKAGES.rds")
   destfile <- tempfile("renv-packages-", fileext = ".rds")
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(readRDS(destfile))
 }
 
-renv_available_packages_query_packages_gz <- function(url) {
+renv_available_packages_query_impl_packages_gz <- function(url) {
   path <- file.path(url, "PACKAGES.gz")
   destfile <- tempfile("renv-packages-", fileext = ".gz")
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(read.dcf(destfile))
 }
 
-renv_available_packages_query_packages <- function(url) {
+renv_available_packages_query_impl_packages <- function(url) {
   path <- file.path(url, "PACKAGES")
   destfile <- tempfile("renv-packages-")
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(read.dcf(destfile))
 }
 
-renv_available_packages_query <- function(url, type, errors) {
+renv_available_packages_query_impl <- function(url, type, errors) {
 
-  # define query methods for the different PACKAGES
+  # define query_impl methods for the different PACKAGES
   methods <- list(
-    renv_available_packages_query_packages_rds,
-    renv_available_packages_query_packages_gz,
-    renv_available_packages_query_packages
+    renv_available_packages_query_impl_packages_rds,
+    renv_available_packages_query_impl_packages_gz,
+    renv_available_packages_query_impl_packages
   )
 
   stack <- stack()
@@ -277,17 +307,11 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
 
   # get available packages
   dbs <- available_packages(
-    type  = type,
-    repos = repos,
-    quiet = TRUE
+    type   = type,
+    repos  = repos,
+    quiet  = TRUE,
+    cellar = TRUE
   )
-
-  # prepend local sources if available
-  cellar <- renv_available_packages_cellar(type = type)
-  if (!is.null(cellar)) {
-    db <- list("__renv_cellar__" = cellar)
-    dbs <- c(db, dbs)
-  }
 
   fields <- c(
     "Package", "Version",

@@ -1,4 +1,6 @@
 
+`_renv_snapshot_hash` <- TRUE
+
 #' Snapshot a Project
 #'
 #' Call `snapshot()` to create a **lockfile** capturing the state of a project's
@@ -684,10 +686,12 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   }
 
   # generate a hash if we can
-  dcf[["Hash"]] <- if (is.null(path))
-    renv_hash_description_impl(dcf)
-  else
-    renv_hash_description(path)
+  dcf[["Hash"]] <- if (`_renv_snapshot_hash`) {
+    if (is.null(path))
+      renv_hash_description_impl(dcf)
+    else
+      renv_hash_description(path)
+  }
 
   # generate a Requirements field -- primarily for use by 'pak'
   fields <- c("Depends", "Imports", "LinkingTo")

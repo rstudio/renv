@@ -196,10 +196,6 @@ inject <- function(contents,
   )
 }
 
-env <- function(...) {
-  list2env(list(...), envir = new.env(parent = emptyenv()))
-}
-
 deparsed <- function(value, width = 60L) {
   paste(deparse(value, width.cutoff = width), collapse = "\n")
 }
@@ -466,6 +462,10 @@ stringify <- function(object, collapse = " ") {
 
 }
 
+env <- function(...) {
+  list2env(list(...), envir = new.env(parent = emptyenv()))
+}
+
 env2list <- function(env) {
   as.list.environment(env, all.names = TRUE)
 }
@@ -473,3 +473,4 @@ env2list <- function(env) {
 chop <- function(x, split = "\n", fixed = TRUE, perl = FALSE, useBytes = FALSE) {
   strsplit(x, split, !perl, perl, useBytes)[[1L]]
 }
+
