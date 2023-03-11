@@ -332,12 +332,12 @@ dequote <- function(strings) {
 
     # find strings matching pattern
     pattern <- paste0(quote, "(.*)", quote)
-    matches <- grep(pattern, strings)
+    matches <- grep(pattern, strings, perl = TRUE)
     if (empty(matches))
       next
 
     # remove outer quotes
-    strings[matches] <- gsub(pattern, "\\1", strings[matches])
+    strings[matches] <- gsub(pattern, "\\1", strings[matches], perl = TRUE)
 
     # un-escape inner quotes
     pattern <- paste0("\\", quote)

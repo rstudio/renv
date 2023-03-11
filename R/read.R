@@ -9,15 +9,15 @@ renv_properties_read <- function(path = NULL,
 
   # drop empty lines, commented values
   text <- text[nzchar(text)]
-  text <- grep("^\\s*[#;]", text, value = TRUE, invert = TRUE)
+  text <- grep("^\\s*[#;]", text, value = TRUE, invert = TRUE, perl = TRUE)
 
   # find the delimiter for each line
   text <- grep(delimiter, text, fixed = TRUE, value = TRUE)
   index <- regexpr(delimiter, text, fixed = TRUE)
-  index <- index[index != -1]
+  index <- index[index != -1L]
 
   # separate into keys, values
-  keys <- substring(text, 1, index - 1)
+  keys <- substring(text, 1L, index - 1L)
   vals <- substring(text, index + nchar(delimiter))
 
   # trim whitespace when requested
