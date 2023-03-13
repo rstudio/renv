@@ -55,7 +55,7 @@ test_that("a profile changes the default library / lockfile path", {
 
   expect_equal(
     paths$settings(project = project),
-    file.path(project, prefix, "renv/settings.dcf")
+    file.path(project, prefix, "renv/settings.json")
   )
 
 })

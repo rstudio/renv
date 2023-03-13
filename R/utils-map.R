@@ -10,6 +10,9 @@ enumerate <- function(x, f, ..., FUN.VALUE = NULL) {
   idx <- named(seq_along(x), n)
   callback <- function(i) f(n[[i]], x[[i]], ...)
 
+  if (is.environment(x))
+    x <- as.list(x, all.names = TRUE)
+
   if (is.null(FUN.VALUE))
     lapply(idx, callback)
   else

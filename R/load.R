@@ -320,6 +320,10 @@ renv_load_profile <- function(project) {
 
 renv_load_settings <- function(project) {
 
+  # migrate settings.dcf => settings.json
+  renv_settings_migrate(project = project)
+
+  # load settings.R
   settings <- renv_paths_renv("settings.R", project = project)
   if (!file.exists(settings))
     return(FALSE)

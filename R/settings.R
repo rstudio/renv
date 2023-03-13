@@ -21,7 +21,10 @@ renv_settings_validate <- function(name, value) {
   if (is.null(value))
     return(renv_settings_default(name))
 
-  # otherwise, validate the user-provided value
+  # run coercion method
+  value <- `_renv_settings`[[name]]$coerce(value)
+
+  # validate the user-provided value
   validate <- `_renv_settings`[[name]]$validate
   ok <- case(
     is.character(validate) ~ value %in% validate,
@@ -40,22 +43,6 @@ renv_settings_validate <- function(name, value) {
 
 }
 
-renv_settings_decode <- function(name, value) {
-
-  # TODO: consider custom decoders per-setting
-  decoded <- case(
-    value == "NULL"  ~ NULL,
-    value == "NA"    ~ NA,
-    value == "NaN"   ~ NaN,
-    value == "TRUE"  ~ TRUE,
-    value == "FALSE" ~ FALSE,
-    ~ strsplit(value, "\\s*,\\s*")[[1]]
-  )
-
-  renv_settings_validate(name, decoded)
-
-}
-
 renv_settings_read <- function(path) {
   filebacked("settings", path, renv_settings_read_impl)
 }
@@ -66,19 +53,19 @@ renv_settings_read_impl <- function(path) {
   if (!file.exists(path))
     return(NULL)
 
-  # try to read it
-  dcf <- catch(renv_dcf_read(path))
-  if (inherits(dcf, "error")) {
-    warning(dcf)
-    return(NULL)
-  }
+  # read settings
+  settings <- case(
+    endswith(path, ".dcf")  ~ renv_settings_read_impl_dcf(path),
+    endswith(path, ".json") ~ renv_settings_read_impl_json(path),
+    ~ stopf("don't know how to read settings file %s", renv_path_pretty(path))
+  )
 
   # keep only known settings
   known <- ls(envir = `_renv_settings`, all.names = TRUE)
-  dcf <- keep(dcf, known)
+  settings <- keep(settings, known)
 
-  # decode encoded values
-  settings <- enumerate(dcf, renv_settings_decode)
+  # validate
+  settings <- enumerate(settings, renv_settings_validate)
 
   # merge in defaults
   defaults <- renv_settings_defaults()
@@ -87,6 +74,43 @@ renv_settings_read_impl <- function(path) {
 
   # and return
   settings
+
+}
+
+renv_settings_read_impl_dcf <- function(path) {
+
+  # try to read it
+  dcf <- catch(renv_dcf_read(path))
+  if (inherits(dcf, "error")) {
+    warning(dcf)
+    return(NULL)
+  }
+
+  # decode encoded values
+  enumerate(dcf, function(name, value) {
+
+    case(
+      value == "NULL"  ~ NULL,
+      value == "NA"    ~ NA,
+      value == "NaN"   ~ NaN,
+      value == "TRUE"  ~ TRUE,
+      value == "FALSE" ~ FALSE,
+      ~ strsplit(value, "\\s*,\\s*")[[1]]
+    )
+
+  })
+
+}
+
+renv_settings_read_impl_json <- function(path) {
+
+  json <- catch(renv_json_read(path))
+  if (inherits(json, "error")) {
+    warning(json)
+    return(NULL)
+  }
+
+  json
 
 }
 
@@ -152,11 +176,22 @@ renv_settings_persist <- function(project, settings) {
 
   path <- renv_settings_path(project)
   settings <- settings[order(names(settings))]
-  settings <- lapply(settings, paste, collapse = ", ")
 
+  # figure out which settings are scalar
+  scalar <- map_lgl(names(settings), function(name) {
+    `_renv_settings`[[name]]$scalar
+  })
+
+  # use that to determine which objects should be boxed
+  config <- renv_json_config(box = names(settings)[!scalar])
+
+  # write json
   ensure_parent_directory(path)
-  dcf <- as.data.frame(settings, stringsAsFactors = FALSE)
-  renv_dcf_write(dcf, path)
+  renv_json_write(
+    object = settings,
+    config = config,
+    file   = path
+  )
 
 }
 
@@ -239,14 +274,16 @@ renv_settings_updated_ignore <- function(project, old, new) {
 
 
 
-renv_settings_impl <- function(name, validate, default, update) {
+renv_settings_impl <- function(name, default, scalar, validate, coerce, update) {
 
   force(name)
 
   `_renv_settings`[[name]] <- list(
+    default  = default,
+    coerce   = coerce,
+    scalar   = scalar,
     validate = validate,
-    default = default,
-    update = update
+    update   = update
   )
 
   function(value, project = NULL, persist = TRUE) {
@@ -256,6 +293,22 @@ renv_settings_impl <- function(name, validate, default, update) {
     else
       renv_settings_set(project, name, value, persist)
   }
+
+}
+
+renv_settings_migrate <- function(project) {
+
+  old <- renv_paths_renv("settings.dcf",  project = project)
+  if (!file.exists(old))
+    return()
+
+  new <- renv_paths_renv("settings.json", project = project)
+  if (file.exists(new))
+    return()
+
+  # update settings
+  settings <- renv_settings_read(old)
+  renv_settings_persist(project, settings)
 
 }
 
@@ -393,71 +446,91 @@ settings <- list(
 
   bioconductor.version = renv_settings_impl(
     name     = "bioconductor.version",
-    validate = is.character,
     default  = character(),
+    scalar   = TRUE,
+    validate = is.character,
+    coerce   = as.character,
     update   = NULL
   ),
 
   ignored.packages = renv_settings_impl(
     name     = "ignored.packages",
-    validate = is.character,
     default  = character(),
+    scalar   = FALSE,
+    validate = is.character,
+    coerce   = as.character,
     update   = NULL
   ),
 
   external.libraries = renv_settings_impl(
     name     = "external.libraries",
-    validate = is.character,
     default  = character(),
+    scalar   = FALSE,
+    validate = is.character,
+    coerce   = as.character,
     update   = NULL
   ),
 
   package.dependency.fields = renv_settings_impl(
     name     = "package.dependency.fields",
-    validate = is.character,
     default  = c("Imports", "Depends", "LinkingTo"),
+    scalar   = FALSE,
+    validate = is.character,
+    coerce   = as.character,
     update   = NULL
   ),
 
   r.version = renv_settings_impl(
     name     = "r.version",
-    validate = is.character,
     default  = character(),
+    scalar   = TRUE,
+    validate = is.character,
+    coerce   = as.character,
     update   = NULL
   ),
 
   snapshot.type = renv_settings_impl(
     name     = "snapshot.type",
-    validate = c("all", "custom", "implicit", "explicit", "packrat", "simple"),
     default  = "implicit",
+    scalar   = TRUE,
+    validate = c("all", "custom", "implicit", "explicit", "packrat", "simple"),
+    coerce   = as.character,
     update   = NULL
   ),
 
   use.cache = renv_settings_impl(
     name     = "use.cache",
-    validate = is.logical,
     default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = renv_settings_updated_cache
   ),
 
   vcs.ignore.cellar = renv_settings_impl(
     name     = "vcs.ignore.cellar",
-    validate = is.logical,
     default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = renv_settings_updated_ignore
   ),
 
   vcs.ignore.library = renv_settings_impl(
     name     = "vcs.ignore.library",
-    validate = is.logical,
     default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = renv_settings_updated_ignore
   ),
 
   vcs.ignore.local = renv_settings_impl(
     name     = "vcs.ignore.local",
-    validate = is.logical,
     default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = renv_settings_updated_ignore
   )
 

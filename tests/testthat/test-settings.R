@@ -25,7 +25,7 @@ test_that("non-persistent settings exist in R session; not in file", {
   expect_equal(settings$snapshot.type(), "implicit")
 
   project <- getwd()
-  path <- "renv/settings.dcf"
+  path <- "renv/settings.json"
   before <- renv_settings_read_impl(path)
   settings$snapshot.type("all", persist = FALSE)
   after <- renv_settings_read_impl(path)
@@ -50,5 +50,36 @@ test_that("users can request specific versions of R for lockfile", {
 
   lockfile <- renv_lockfile_load(getwd())
   expect_identical(lockfile$R$Version, "4.0")
+
+})
+
+test_that("project settings are migrated from dcf to json", {
+
+  project <- renv_tests_scope()
+  init()
+
+  settings <- heredoc("
+    bioconductor.version: 3.16
+    external.libraries:
+    ignored.packages:
+    package.dependency.fields: Imports, Depends, LinkingTo
+    r.version:
+    snapshot.type: implicit
+    use.cache: TRUE
+    vcs.ignore.cellar: TRUE
+    vcs.ignore.library: TRUE
+    vcs.ignore.local: TRUE
+  ")
+
+  writeLines(settings, con = "renv/settings.dcf")
+  unlink("renv/settings.json")
+
+  renv_settings_migrate(project)
+  expect_true(file.exists("renv/settings.json"))
+
+  old <- renv_settings_read(file.path(getwd(), "renv/settings.dcf"))
+  new <- renv_settings_read(file.path(getwd(), "renv/settings.json"))
+
+  expect_equal(old, new)
 
 })

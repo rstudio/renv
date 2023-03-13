@@ -98,7 +98,7 @@ ENV RENV_PATHS_LIBRARY renv/library
 RUN mkdir -p renv
 COPY .Rprofile .Rprofile
 COPY renv/activate.R renv/activate.R
-COPY renv/settings.dcf renv/settings.dcf
+COPY renv/settings.json renv/settings.json
 ```
 
 Finally, you can run `renv::restore()` to restore packages as defined in

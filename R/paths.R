@@ -79,7 +79,7 @@ renv_paths_lockfile <- function(project = NULL) {
 }
 
 renv_paths_settings <- function(project = NULL) {
-  renv_paths_renv("settings.dcf", project = project)
+  renv_paths_renv("settings.json", project = project)
 }
 
 renv_paths_activate <- function(project = NULL) {

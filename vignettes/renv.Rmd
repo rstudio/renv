@@ -144,7 +144,7 @@ The following files are written to and used by projects using `renv`:
 | `renv.lock`         | The lockfile, describing the state of your project's library at some point in time. |
 | `renv/activate.R`   | The activation script run by the project `.Rprofile`.                               |
 | `renv/library`      | The private project library.                                                        |
-| `renv/settings.dcf` | Project settings -- see `?settings` for more details.                               |
+| `renv/settings.json` | Project settings -- see `?settings` for more details.                              |
 
 In particular, `renv/activate.R` ensures that the project library is made active
 for newly launched R sessions. It is automatically sourced via a call to
