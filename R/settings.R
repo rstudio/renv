@@ -272,7 +272,21 @@ renv_settings_updated_ignore <- function(project, old, new) {
   renv_infrastructure_write_gitignore(project = project)
 }
 
+renv_settings_migrate <- function(project) {
 
+  old <- renv_paths_renv("settings.dcf",  project = project)
+  if (!file.exists(old))
+    return()
+
+  new <- renv_paths_renv("settings.json", project = project)
+  if (file.exists(new))
+    return()
+
+  # update settings
+  settings <- renv_settings_read(old)
+  renv_settings_persist(project, settings)
+
+}
 
 renv_settings_impl <- function(name, default, scalar, validate, coerce, update) {
 
@@ -296,21 +310,6 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 
 }
 
-renv_settings_migrate <- function(project) {
-
-  old <- renv_paths_renv("settings.dcf",  project = project)
-  if (!file.exists(old))
-    return()
-
-  new <- renv_paths_renv("settings.json", project = project)
-  if (file.exists(new))
-    return()
-
-  # update settings
-  settings <- renv_settings_read(old)
-  renv_settings_persist(project, settings)
-
-}
 
 # nocov end
 
@@ -390,6 +389,15 @@ renv_settings_migrate <- function(project) {
 #'
 #' }
 #'
+#' \item{\code{vcs.manage.ignores}}{
+#'
+#'   Should `renv` attempt to manage the version control system's ignore files
+#'   (e.g. `.gitignore`) within this project? Set this to `FALSE` if you'd
+#'   prefer to take control. Note that if this setting is enabled, you will
+#'   need to manually ensure internal data in the project's `renv/` folder
+#'   is explicitly ignored.
+#' }
+#'
 #' \item{\code{vcs.ignore.cellar}}{
 #'
 #'   Set whether packages within a project-local package cellar are excluded
@@ -413,6 +421,14 @@ renv_settings_migrate <- function(project) {
 #'
 #' }
 #'
+#' @section Persistence:
+#'
+#' Project settings are persisted within the project at `renv/settings.json`.
+#' These settings can also be edited by hand with a text editor, but you may
+#' need to restart any running \R sessions using this project for those
+#' changes to be detected.
+#'
+#'
 #' @section Defaults:
 #'
 #' You can change the default values of these settings for newly-created `renv`
@@ -428,6 +444,9 @@ renv_settings_migrate <- function(project) {
 #' for a particular key, the option associated with `renv.settings.<name>` is
 #' used instead. We recommend setting these in an appropriate startup profile,
 #' e.g. `~/.Rprofile` or similar.
+#'
+#' @return
+#'   A named list of `renv` settings.
 #'
 #' @export
 #'
@@ -505,6 +524,15 @@ settings <- list(
     validate = is.logical,
     coerce   = as.logical,
     update   = renv_settings_updated_cache
+  ),
+
+  vcs.manage.ignores = renv_settings_impl(
+    name     = "vcs.manage.ignores",
+    default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
+    update   = NULL
   ),
 
   vcs.ignore.cellar = renv_settings_impl(

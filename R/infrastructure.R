@@ -68,6 +68,9 @@ renv_infrastructure_write_rbuildignore <- function(project) {
 
 renv_infrastructure_write_gitignore <- function(project) {
 
+  if (!settings$vcs.manage.ignores())
+    return()
+
   add    <- stack(mode = "character")
   remove <- stack(mode = "character")
 

@@ -29,8 +29,8 @@ renv_zzz_load <- function() {
 
     # TODO: It's not clear if these callbacks are safe to use when renv is
     # embedded, but it's unlikely that clients would want them anyhow.
-    renv_task_create(renv_snapshot_task)
     renv_task_create(renv_sandbox_task)
+    renv_task_create(renv_snapshot_task)
 
     # pkgload likes to lock all bindings in a package, even if we might
     # try to unlock those in .onLoad(). Sneak around that.

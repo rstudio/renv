@@ -5,10 +5,13 @@
 \alias{settings}
 \title{Project Settings}
 \format{
-An object of class \code{list} of length 10.
+An object of class \code{list} of length 11.
 }
 \usage{
 settings
+}
+\value{
+A named list of \code{renv} settings.
 }
 \description{
 Define project-local settings that can be used to adjust the behavior of
@@ -86,6 +89,15 @@ projects in the same environment.
 
 }
 
+\item{\code{vcs.manage.ignores}}{
+
+Should \code{renv} attempt to manage the version control system's ignore files
+(e.g. \code{.gitignore}) within this project? Set this to \code{FALSE} if you'd
+prefer to take control. Note that if this setting is enabled, you will
+need to manually ensure internal data in the project's \verb{renv/} folder
+is explicitly ignored.
+}
+
 \item{\code{vcs.ignore.cellar}}{
 
 Set whether packages within a project-local package cellar are excluded
@@ -108,6 +120,15 @@ control.
 }
 
 }
+}
+
+\section{Persistence}{
+
+
+Project settings are persisted within the project at \code{renv/settings.json}.
+These settings can also be edited by hand with a text editor, but you may
+need to restart any running \R sessions using this project for those
+changes to be detected.
 }
 
 \section{Defaults}{
