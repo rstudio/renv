@@ -203,8 +203,6 @@ renv_record_format_pair <- function(lhs, rhs) {
     return(sprintf(fmt, lhsf, rhsf))
   }
 
-  if (identical(lhs$Repository, rhs$R))
-
   # check for only sha changed
   usesha <-
     setequal(changed, "RemoteSha") ||
