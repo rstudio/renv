@@ -18,7 +18,7 @@ test_that("we can read different types of DCFs", {
 test_that("we allow for unindented continuations", {
 
   actual <- renv_dcf_read(text = "A: This field\nisn't indented.\nB: 42")
-  expected <- list(A = "This field\nisn't indented.", B = "42")
+  expected <- list(A = "This field isn't indented.", B = "42")
   expect_equal(actual, expected)
 
 })
