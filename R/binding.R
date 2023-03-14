@@ -2,24 +2,33 @@
 renv_binding_init <- function(...) {
 
   self <- renv_envir_self()
-
-  for (var in ls(envir = self))
-    if (startswith(var, "_"))
-      unlockBinding(var, self)
+  for (symbol in ls(envir = self))
+    if (startswith(symbol, "_"))
+      renv_binding_unlock(symbol, self)
 
 }
 
-renv_binding_replace <- function(symbol, replacement, envir) {
+renv_binding_lock <- function(symbol, envir) {
+  .BaseNamespaceEnv$lockBinding(symbol, envir)
+}
 
-  base <- .BaseNamespaceEnv
+renv_binding_locked <- function(symbol, envir) {
+  .BaseNamespaceEnv$bindingIsLocked(symbol, envir)
+}
+
+renv_binding_unlock <- function(symbol, envir) {
+  .BaseNamespaceEnv$unlockBinding(symbol, envir)
+}
+
+renv_binding_replace <- function(symbol, replacement, envir) {
 
   # get the original definition
   original <- envir[[symbol]]
 
   # if the binding is locked, temporarily unlock it
-  if (base$bindingIsLocked(symbol, envir)) {
-    base$unlockBinding(symbol, envir)
-    on.exit(base$lockBinding(symbol, envir), add = TRUE)
+  if (renv_binding_locked(symbol, envir)) {
+    renv_binding_unlock(symbol, envir)
+    on.exit(renv_binding_lock(symbol, envir), add = TRUE)
   }
 
   # update the binding

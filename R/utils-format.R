@@ -1,12 +1,10 @@
 
-`_sprintf` <- base::sprintf
-
 sprintf <- function(fmt, ...) {
 
   if (nargs() == 1L)
     return(fmt)
 
-  `_sprintf`(fmt, ...)
+  base::sprintf(fmt, ...)
 
 }
 
