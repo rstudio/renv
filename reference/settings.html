@@ -4,7 +4,7 @@ renv with your particular project."><title>Project Settings — settings • ren
 renv with your particular project."><meta property="og:image" content="https://rstudio.github.io/renv/logo.svg"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]--></head><body>
+<![endif]--><!-- Google Tag Manager --><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KHBDBW7');</script><!-- End Google Tag Manager --></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
@@ -12,7 +12,7 @@ renv with your particular project."><meta property="og:image" content="https://r
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.0-54</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,13 @@ renv with your particular project."><meta property="og:image" content="https://r
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>An object of class <code>list</code> of length 10.</p>
+    <p>An object of class <code>list</code> of length 11.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>A named list of <code>renv</code> settings.</p>
     </div>
     <div class="section level2">
     <h2 id="settings">Settings<a class="anchor" aria-label="anchor" href="#settings"></a></h2>
@@ -165,6 +171,16 @@ and install time when for <span style="R">R</span> packages which are used acros
 projects in the same environment.</p></dd>
 
 
+<dt><code>vcs.manage.ignores</code></dt>
+<dd>
+
+<p>Should <code>renv</code> attempt to manage the version control system's ignore files
+(e.g. <code>.gitignore</code>) within this project? Set this to <code>FALSE</code> if you'd
+prefer to take control. Note that if this setting is enabled, you will
+need to manually ensure internal data in the project's <code>renv/</code> folder
+is explicitly ignored.</p></dd>
+
+
 <dt><code>vcs.ignore.cellar</code></dt>
 <dd>
 
@@ -188,6 +204,16 @@ control.</p></dd>
 
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="persistence">Persistence<a class="anchor" aria-label="anchor" href="#persistence"></a></h2>
+    
+
+
+<p>Project settings are persisted within the project at <code>renv/settings.json</code>.
+These settings can also be edited by hand with a text editor, but you may
+need to restart any running <span style="R">R</span> sessions using this project for those
+changes to be detected.</p>
+    </div>
     <div class="section level2">
     <h2 id="defaults">Defaults<a class="anchor" aria-label="anchor" href="#defaults"></a></h2>
     
@@ -236,7 +262,10 @@ e.g. <code>~/.Rprofile</code> or similar.</p>
 
   
 
-  
+  <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
 
   </body></html>
 
