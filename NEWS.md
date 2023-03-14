@@ -1,6 +1,12 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv` gains the configuration option `install.remotes`, which can be used
+  to control whether `renv` attempts to read and use the `Remotes:` field
+  included with installed packages. This can be set to `FALSE` if you'd
+  like to ignore this field; e.g. because you know they will not be
+  accessible. (#1133)
+
 * General performance optimizations. In particular, `renv::update(check = TRUE)`
   should now execute much faster.
 

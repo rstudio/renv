@@ -158,6 +158,15 @@ config <- list(
     )
   },
 
+  install.remotes = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "install.remotes",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   install.shortcuts = function(..., default = TRUE) {
     renv_config_get(
       name    = "install.shortcuts",

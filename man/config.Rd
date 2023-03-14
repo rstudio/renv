@@ -5,7 +5,7 @@
 \alias{config}
 \title{User-Level Configuration of renv}
 \format{
-An object of class \code{list} of length 36.
+An object of class \code{list} of length 37.
 }
 \usage{
 config
@@ -86,6 +86,8 @@ Defaults to \code{"gitlab.com"}.}
 Defaults to \code{NULL}.}
 \subsection{renv.config.install.build}{Should downloaded package archives be built (via \verb{R CMD build}) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
 Defaults to \code{FALSE}.}
+\subsection{renv.config.install.remotes}{Should \code{renv} read a package's \verb{Remotes:} field when determining how package dependencies should be installed?
+Defaults to \code{TRUE}.}
 \subsection{renv.config.install.shortcuts}{Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if \code{renv} discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.install.staged}{DEPRECATED: Please use \code{renv.config.install.transactional} instead.

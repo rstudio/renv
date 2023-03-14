@@ -1009,7 +1009,8 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   })
 
   # read and handle remotes declared by this package
-  renv_retrieve_handle_remotes(record, subdir = subdir)
+  if (config$install.remotes())
+    renv_retrieve_handle_remotes(record, subdir = subdir)
 
   # ensure its dependencies are retrieved as well
   if (state$recursive)

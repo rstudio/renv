@@ -149,6 +149,13 @@
     Because building packages before installation may require packages within 'Suggests'
     to be available, this option is not enabled by default.
 
+- name: "install.remotes"
+  type: "logical[1]"
+  default: true
+  description: >
+    Should `renv` read a package's `Remotes:` field when determining how
+    package dependencies should be installed?
+
 - name: "install.shortcuts"
   type: "logical[1]"
   default: true
