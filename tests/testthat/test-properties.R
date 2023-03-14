@@ -23,7 +23,8 @@ test_that("quoted properties are unquoted", {
   props <- renv_properties_read(
     path      = "resources/properties.txt",
     delimiter = "=",
-    dequote   = TRUE
+    dequote   = TRUE,
+    trim      = TRUE
   )
 
   expected <- list(
@@ -32,6 +33,7 @@ test_that("quoted properties are unquoted", {
     Key3 = "Value '3'"
   )
 
-  expect_identical(props, expected)
+  expect_identical(props[names(expected)], expected)
+  expect_equal(props$Key4, "This value spans multiple lines.")
 
 })

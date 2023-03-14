@@ -1,3 +1,6 @@
 Key1="Value 1"
 Key2="Value \"2\""
 Key3='Value \'3\''
+Key4=This value
+  spans multiple
+  lines.

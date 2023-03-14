@@ -5,16 +5,32 @@ renv_properties_read <- function(path = NULL,
                                  dequote = TRUE,
                                  trim = TRUE)
 {
-  text <- text %||% readLines(path, warn = FALSE)
+  text <- paste(text %||% readLines(path, warn = FALSE), collapse = "\n")
 
-  # drop empty lines, commented values
-  text <- text[nzchar(text)]
-  text <- grep("^\\s*[#;]", text, value = TRUE, invert = TRUE, perl = TRUE)
+  # remove comments
+  text <- gsub("(?:^|\n)\\s*#[^\\n]\\n", "\n", text, perl = TRUE)
+
+  # remove blank lines
+  text <- gsub("\n\\s*\n", "\n", text, perl = TRUE)
+
+  # find the locations of fields
+  fmt <- "(?:^|\n)[^%1$s\n]+%1$s"
+  pattern <- sprintf(fmt, delimiter)
+  locations <- gregexpr(pattern, text, perl = TRUE)[[1L]]
+
+  # pull each part out
+  starts <- locations
+  ends   <- c(tail(locations - 1L, n = -1L), nchar(text))
+
+  # fix up start locations
+  newlines <- substring(text, starts, starts) == "\n"
+  starts[newlines] <- starts[newlines] + 1L
+
+  # pull everything out
+  text <- substring(text, starts, ends)
 
   # find the delimiter for each line
-  text <- grep(delimiter, text, fixed = TRUE, value = TRUE)
   index <- regexpr(delimiter, text, fixed = TRUE)
-  index <- index[index != -1L]
 
   # separate into keys, values
   keys <- substring(text, 1L, index - 1L)
@@ -23,7 +39,7 @@ renv_properties_read <- function(path = NULL,
   # trim whitespace when requested
   if (trim) {
     keys <- trimws(keys)
-    vals <- trimws(vals)
+    vals <- gsub("\n\\s*", " ", trimws(vals), perl = TRUE)
   }
 
   # strip quotes if requested
