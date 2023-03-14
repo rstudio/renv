@@ -98,11 +98,10 @@ renv_cache_path <- function(path) {
 
 renv_cache_path_components <- function(path) {
 
-  data.frame(
+  data_frame(
     Package = renv_path_component(path, 1L),
     Hash    = renv_path_component(path, 2L),
-    Version = renv_path_component(path, 3L),
-    stringsAsFactors = FALSE
+    Version = renv_path_component(path, 3L)
   )
 
 }
@@ -263,12 +262,11 @@ renv_cache_list_impl <- function(cache, packages) {
 
 renv_cache_problems <- function(paths, reason) {
 
-  data.frame(
+  data_frame(
     Package = renv_path_component(paths, 1L),
     Version = renv_path_component(paths, 3L),
     Path    = paths,
-    Reason  = reason,
-    stringsAsFactors = FALSE
+    Reason  = reason
   )
 
 }

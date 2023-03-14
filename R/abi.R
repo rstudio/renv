@@ -138,11 +138,7 @@ renv_abi_symbols <- function(path, args = NULL) {
   names(data) <- c("offset", "type", "symbol")
 
   # join into data.frame
-  as.data.frame(
-    data,
-    row.names = NULL,
-    stringsAsFactors = FALSE
-  )
+  as_data_frame(data)
 
 }
 

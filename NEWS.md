@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* General performance optimizations. In particular, `renv::update(check = TRUE)`
+  should now execute much faster.
+
 * `renv` now stores project settings within `renv/settings.json` rather than
   `renv/settings.dcf`. Old settings will be automatically migrated.
 

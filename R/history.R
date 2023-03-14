@@ -24,7 +24,7 @@ history <- function(project = NULL) {
 
   lockpath <- renv_lockfile_path(project)
   if (!file.exists(lockpath))
-    return(data.frame())
+    return(data_frame())
 
   renv_git_preflight()
 

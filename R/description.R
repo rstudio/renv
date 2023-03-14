@@ -137,11 +137,10 @@ renv_description_parse_field <- function(field) {
   if (empty(matches))
     return(NULL)
 
-  data.frame(
+  data_frame(
     Package = extract_chr(matches, 2L),
     Require = extract_chr(matches, 3L),
-    Version = extract_chr(matches, 4L),
-    stringsAsFactors = FALSE
+    Version = extract_chr(matches, 4L)
   )
 
 }

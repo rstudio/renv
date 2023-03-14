@@ -187,6 +187,24 @@ renv_record_format_pair <- function(lhs, rhs) {
     return(sprintf(fmt, lhsf))
   }
 
+  # check for CRAN packages; in such cases, we typically want to ignore
+  # the Remote fields which might've been added by 'pak' or other tools
+  isrepo <-
+    nzchar(lhs$Version %||% "") &&
+    nzchar(rhs$Version %||% "") &&
+    nzchar(lhs$Repository %||% "") &&
+    nzchar(rhs$Repository %||% "") &&
+    identical(lhs$Repository, rhs$Repository)
+
+  if (isrepo) {
+    fmt <- "[%s -> %s]"
+    lhsf <- renv_record_format_short(lhs)
+    rhsf <- renv_record_format_short(rhs)
+    return(sprintf(fmt, lhsf, rhsf))
+  }
+
+  if (identical(lhs$Repository, rhs$R))
+
   # check for only sha changed
   usesha <-
     setequal(changed, "RemoteSha") ||

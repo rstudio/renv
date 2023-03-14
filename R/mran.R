@@ -21,11 +21,10 @@ renv_mran_database_encode_impl <- function(entry) {
 
   splat <- strsplit(keys, " ", fixed = TRUE)
 
-  encoded <- data.frame(
+  encoded <- data_frame(
     Package          = map_chr(splat, `[[`, 1L),
     Version          = map_chr(splat, `[[`, 2L),
-    Date             = as.integer(vals),
-    stringsAsFactors = FALSE
+    Date             = as.integer(vals)
   )
 
   encoded <- encoded[order(encoded$Package, encoded$Version), ]

@@ -1507,26 +1507,24 @@ renv_dependencies_list <- function(source,
 
   source <- source %||% rep.int(NA_character_, length(packages))
 
-  data.frame(
+  data_frame(
     Source  = as.character(source),
     Package = as.character(packages),
     Require = require,
     Version = version,
-    Dev     = dev,
-    stringsAsFactors = FALSE
+    Dev     = dev
   )
 
 }
 
 renv_dependencies_list_empty <- function() {
 
-  data.frame(
+  data_frame(
     Source  = character(),
     Package = character(),
     Require = character(),
     Version = character(),
-    Dev     = logical(),
-    stringsAsFactors = FALSE
+    Dev     = logical()
   )
 
 }

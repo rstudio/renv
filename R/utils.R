@@ -474,3 +474,34 @@ chop <- function(x, split = "\n", fixed = TRUE, perl = FALSE, useBytes = FALSE) 
   strsplit(x, split, !perl, perl, useBytes)[[1L]]
 }
 
+prof <- function(expr) {
+
+  profile <- tempfile("renv-profile-", fileext = ".Rprof")
+
+  Rprof(profile)
+  result <- expr
+  Rprof(NULL)
+  print(summaryRprof(profile))
+
+  invisible(result)
+
+}
+
+recycle <- function(data) {
+
+  # compute number of columns
+  n <- lengths(data, use.names = FALSE)
+  nrow <- max(n)
+
+  # start recycling
+  for (i in seq_along(data)) {
+    if (n[[i]] == 0L) {
+      length(data[[i]]) <- nrow
+    } else if (n[[i]] != nrow) {
+      data[[i]] <- rep.int(data[[i]], nrow / n[[i]])
+    }
+  }
+
+  data
+
+}

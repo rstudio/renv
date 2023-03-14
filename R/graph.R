@@ -222,7 +222,7 @@ renv_graph_roots <- function(project) {
 
 renv_graph_dependencies <- function(package, fields, resolver) {
 
-  base <- renv_installed_packages_base()
+  base <- installed_packages(priority = "base")
 
   desc <- local({
 

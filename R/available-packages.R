@@ -167,7 +167,7 @@ renv_available_packages_query_impl <- function(url, type, errors) {
 renv_available_packages_success <- function(db, url, type) {
 
   # convert to data.frame
-  db <- as.data.frame(db, row.names = FALSE, stringsAsFactors = FALSE)
+  db <- as_data_frame(db)
   if (nrow(db) == 0L)
     return(db)
 

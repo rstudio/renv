@@ -51,7 +51,7 @@ renv_ci_repair <- function() {
 
   # get installed packages
   library <- renv_libpaths_active()
-  db <- renv_installed_packages(lib.loc = library)
+  db <- installed_packages(lib.loc = library)
 
   # attempt to load these packages
   packages <- db$Package

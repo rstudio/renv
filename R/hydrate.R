@@ -338,7 +338,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
 
   # figure out which packages are missing (if any)
   packages <- names(na)
-  installed <- renv_installed_packages()
+  installed <- installed_packages()
   if (all(packages %in% installed$Package))
     return()
 

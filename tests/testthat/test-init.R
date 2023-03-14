@@ -75,9 +75,9 @@ test_that("the remotes field in a DESCRIPTION is honored", {
   renv_tests_scope("halloween")
   renv::install("halloween")
 
-  ip <- renv_installed_packages(lib.loc = renv_libpaths_active())
-  expect_true("halloween" %in% rownames(ip))
-  expect_true("skeleton" %in% rownames(ip))
+  ip <- installed_packages(lib.loc = renv_libpaths_active())
+  expect_true("halloween" %in% ip$Package)
+  expect_true("skeleton" %in% ip$Package)
 
 })
 

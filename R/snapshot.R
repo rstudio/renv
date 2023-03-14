@@ -1,4 +1,6 @@
 
+# controls whether hashes are computed when computing a snapshot
+# can be scoped to FALSE when hashing is not necessary
 `_renv_snapshot_hash` <- TRUE
 
 #' Snapshot a Project
