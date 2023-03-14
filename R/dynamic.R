@@ -20,6 +20,17 @@ dynamic <- function(key, value, envir = NULL) {
   if (!enabled)
     return(value)
 
+  # get a unique id for the scope where this function was invoked
+  caller <- sys.call(sys.parent())[[1L]]
+  if (is.call(caller) && identical(caller[[1L]], as.symbol(":::")))
+    caller <- caller[[3L]]
+
+  # just return value if this isn't a valid dynamic scope
+  if (!is.symbol(caller)) {
+    dlog("dynamic", "invalid dynamic scope %s", stringify(sys.call(sys.parent())))
+    return(value)
+  }
+
   # make sure we have a dynamic scope active
   `_renv_dynamic_envir` <<-
     `_renv_dynamic_envir` %||%
@@ -29,11 +40,12 @@ dynamic <- function(key, value, envir = NULL) {
   key <- paste(
     names(key),
     map_chr(key, stringify),
-    sep = " = ", collapse = ", "
+    sep = " = ",
+    collapse = ", "
   )
 
-  parent <- as.character(sys.call(sys.parent())[[1L]])
-  id <- sprintf("%s(%s)", parent, key)
+  # put it together
+  id <- sprintf("%s(%s)", as.character(caller), key)
 
   # memoize the result of the expression
   `_renv_dynamic_objects`[[id]] <-
@@ -48,7 +60,7 @@ renv_dynamic_envir <- function(envir = NULL) {
   envir
 }
 
-renv_dynamic_envir_impl <- function(envir) {
+renv_dynamic_envir_impl <- function() {
 
   self <- renv_envir_self()
 

@@ -48,22 +48,21 @@ rebuild <- function(packages  = NULL,
 
   # get collection of packages currently installed
   records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
+  packages <- setdiff(packages %||% names(records), "renv")
+
+  # add in missing packages
+  for (package in packages) {
+    records[[package]] <- records[[package]] %||%
+      renv_available_packages_latest(package)
+  }
+
+  # make sure records are named
+  names(records) <- map_chr(records, `[[`, "Package")
   if (empty(records)) {
     vwritef("* There are no packages currently installed -- nothing to rebuild.")
     return(invisible(records))
   }
 
-  # subset packages based on user request
-  packages <- setdiff(packages %||% names(records), "renv")
-  records <- named(records[packages], packages)
-
-  # for any packages that are missing, use the latest available instead
-  records <- enumerate(records, function(package, record) {
-    record %||% renv_available_packages_latest(package) %||% {
-      fmt <- "package '%s' is not available"
-      stopf(fmt, package)
-    }
-  })
 
   # apply any overrides
   records <- renv_records_override(records)
