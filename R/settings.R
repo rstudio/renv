@@ -44,7 +44,13 @@ renv_settings_validate <- function(name, value) {
 }
 
 renv_settings_read <- function(path) {
-  filebacked("settings", path, renv_settings_read_impl)
+
+  filebacked(
+    scope    = "renv_settings_read",
+    path     = path,
+    callback = renv_settings_read_impl
+  )
+
 }
 
 renv_settings_read_impl <- function(path) {

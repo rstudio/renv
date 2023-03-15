@@ -51,28 +51,31 @@ renv_index_impl <- function(root, scope, key, value, now, limit) {
 }
 
 renv_index_load <- function(root, scope) {
-  tryCatch(
-    expr    = renv_index_load_impl(root, scope),
-    error   = function(e) NULL,
-    warning = function(e) NULL
-  )
-}
-
-renv_index_load_impl <- function(root, scope) {
 
   filebacked(
-    scope = paste("index", scope, sep = "."),
-    path = file.path(root, "index.json"),
-    callback = function(path) {
-      tryCatch(
-        renv_json_read(path),
-        error = function(e) {
-          unlink(path)
-          list()
-        }
-      )
-    }
+    scope    = "renv_index_load",
+    path     = file.path(root, "index.json"),
+    callback = renv_index_load_impl
   )
+
+}
+
+renv_index_load_impl <- function(path) {
+
+  json <- tryCatch(
+    withCallingHandlers(
+      renv_json_read(path),
+      warning = function(w) invokeRestart("muffleWarning")
+    ),
+    error = identity
+  )
+
+  if (inherits(json, "error")) {
+    unlink(path)
+    return(list())
+  }
+
+  json
 
 }
 

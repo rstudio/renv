@@ -104,8 +104,13 @@ renv_python_exe <- function(path) {
 }
 
 renv_python_version <- function(python) {
-  python <- normalizePath(python, winslash = "/", mustWork = TRUE)
-  filebacked("python.versions", python, renv_python_version_impl)
+
+  filebacked(
+    scope    = "renv_python_version",
+    path     = renv_path_normalize(python),
+    callback = renv_python_version_impl
+  )
+
 }
 
 renv_python_version_impl <- function(python) {

@@ -63,7 +63,37 @@ renv_project_initialized <- function(project) {
 }
 
 renv_project_type <- function(path) {
-  renv_bootstrap_project_type(path)
+
+  path <- renv_path_normalize(path)
+
+  filebacked(
+    scope    = "renv_project_type",
+    path     = file.path(path, "DESCRIPTION"),
+    callback = renv_project_type_impl
+  )
+
+}
+
+renv_project_type_impl <- function(path) {
+
+  desc <- tryCatch(
+    renv_dcf_read(path),
+    error = identity
+  )
+
+  if (inherits(desc, "error"))
+    return("unknown")
+
+  type <- desc$Type
+  if (!is.null(type))
+    return(tolower(type))
+
+  package <- desc$Package
+  if (!is.null(package))
+    return("package")
+
+  "unknown"
+
 }
 
 renv_project_remotes <- function(project, fields = NULL) {

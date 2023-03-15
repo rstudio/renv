@@ -20,7 +20,7 @@ renv_description_read <- function(path = NULL,
 
   # read value with filebacked cache
   description <- filebacked(
-    scope    = "DESCRIPTION",
+    scope    = "renv_description_read",
     path     = path,
     callback = renv_description_read_impl,
     subdir   = subdir,

@@ -474,11 +474,11 @@ chop <- function(x, split = "\n", fixed = TRUE, perl = FALSE, useBytes = FALSE) 
   strsplit(x, split, !perl, perl, useBytes)[[1L]]
 }
 
-prof <- function(expr) {
+prof <- function(expr, ...) {
 
   profile <- tempfile("renv-profile-", fileext = ".Rprof")
 
-  Rprof(profile)
+  Rprof(profile, ...)
   result <- expr
   Rprof(NULL)
   print(summaryRprof(profile))

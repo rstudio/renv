@@ -91,16 +91,11 @@ use <- function(...,
   remotes <- lapply(dots, renv_remotes_resolve)
   names(remotes) <- map_chr(remotes, `[[`, "Package")
 
-  fmt <- "* renv is installing %i package(s) and their dependencies ... "
-  vprintf(fmt, length(remotes), sep = if (verbose) "\n" else "")
-
   # install packages
   records <- local({
     renv_scope_options(renv.verbose = verbose)
     install(packages = remotes, library = library, prompt = FALSE)
   })
-
-  vwritef("Done!")
 
   # automatically load the requested remotes
   if (attach) {
