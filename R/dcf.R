@@ -52,7 +52,7 @@ renv_dcf_read_impl_encoding <- function(contents) {
 renv_dcf_read_impl <- function(file, ...) {
 
   # suppress warnings in this scope
-  renv_scope_options(warn = 0L)
+  renv_scope_options(warn = -1L)
 
   # first, read the file as bytes to get encoding
   n <- renv_file_size(file)
