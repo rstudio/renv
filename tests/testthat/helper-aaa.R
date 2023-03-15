@@ -21,6 +21,7 @@ test_that <- function(desc, code) {
 
   oldlibpaths <- .libPaths()
   oldrepos <- getOption("repos")
+  oldconns <- getAllConnections()
 
   repopath <- getOption("renv.tests.repopath")
   oldrepofiles <- list.files(
@@ -72,6 +73,12 @@ test_that <- function(desc, code) {
     writeLines(setdiff(oldrepofiles, newrepofiles))
     writeLines(setdiff(newrepofiles, oldrepofiles))
     stopf("test %s has corrupted packages in repository", shQuote(desc))
+  }
+
+  newconns <- getAllConnections()
+  if (!identical(oldconns, newconns)) {
+    print(newconns)
+    stopf("test %s has leaked connections", shQuote(desc))
   }
 
   newuserfiles <- list.files(

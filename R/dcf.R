@@ -55,10 +55,11 @@ renv_dcf_read_impl <- function(file, ...) {
   renv_scope_options(warn = 2L)
 
   # first, read the file as bytes to get encoding
+  n <- renv_file_size(file)
   contents <- readBin(
     con  = file,
     what = "raw",
-    n    = renv_file_size(file)
+    n    = n
   )
 
   # try to guess the encoding

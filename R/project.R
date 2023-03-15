@@ -76,6 +76,9 @@ renv_project_type <- function(path) {
 
 renv_project_type_impl <- function(path) {
 
+  if (!file.exists(path))
+    return("unknown")
+
   desc <- tryCatch(
     renv_dcf_read(path),
     error = identity

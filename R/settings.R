@@ -162,7 +162,7 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
 
   # save session-cached value
   path <- renv_settings_path(project)
-  value <- renv_filebacked_set("settings", path, settings)
+  value <- renv_filebacked_set("renv_settings_read", path, settings)
 
   # invoke update callback if value changed
   if (!identical(old, new))
