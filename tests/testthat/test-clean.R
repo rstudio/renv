@@ -5,7 +5,7 @@ test_that("clean removes stale lockfiles", {
 
   renv_tests_scope("bread")
 
-  renv::init()
+  init()
   library <- renv_paths_library()
 
   # old temporary directory
@@ -25,7 +25,7 @@ test_that("clean removes stale lockfiles", {
 
   # clean up the project
   actions <- c("package.locks", "library.tempdirs", "unused.packages")
-  renv::clean(actions = actions)
+  clean(actions = actions)
 
   # check the project has been cleaned
   expect_false(file.exists(tmpdir))

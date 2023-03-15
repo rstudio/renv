@@ -52,7 +52,7 @@ remove <- function(packages,
       count <- count + 1
   }
 
-  vwritef("* Done! Removed %s.", count, nplural("package", count))
+  vwritef("* Done! Removed %s.", nplural("package", count))
   invisible(records)
 }
 

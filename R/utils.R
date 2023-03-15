@@ -201,6 +201,7 @@ deparsed <- function(value, width = 60L) {
 }
 
 read <- function(file) {
+  renv_scope_options(warn = 0L)
   contents <- readLines(file, warn = FALSE)
   paste(contents, collapse = "\n")
 }

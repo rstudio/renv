@@ -31,6 +31,7 @@ renv_platform_wsl <- function() {
   if (!file.exists(pv))
     return(FALSE)
 
+  renv_scope_options(warn = 0L)
   contents <- catch(readLines(pv, warn = FALSE))
   if (inherits(contents, "error"))
     return(FALSE)

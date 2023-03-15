@@ -1,6 +1,7 @@
 
 renv_parse_file <- function(file = "", ...) {
   if (nzchar(file)) {
+    renv_scope_options(warn = 0L)
     text <- readLines(file, warn = FALSE, encoding = "UTF-8")
     renv_parse_impl(text, srcfile = file, ...)
   }

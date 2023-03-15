@@ -51,16 +51,12 @@ renv_dcf_read_impl_encoding <- function(contents) {
 
 renv_dcf_read_impl <- function(file, ...) {
 
-  # make sure warnings are treated as errors
-  renv_scope_options(warn = 2L)
+  # suppress warnings in this scope
+  renv_scope_options(warn = 0L)
 
   # first, read the file as bytes to get encoding
   n <- renv_file_size(file)
-  contents <- readBin(
-    con  = file,
-    what = "raw",
-    n    = n
-  )
+  contents <- readBin(con = file, what = "raw", n = n)
 
   # try to guess the encoding
   encoding <- tryCatch(
