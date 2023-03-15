@@ -13,6 +13,8 @@
 
 renv_zzz_load <- function() {
 
+  # registerS3method("[<-", "__renv_dotty__", dotty, envir = .BaseNamespaceEnv)
+
   renv_metadata_init()
   renv_platform_init()
   renv_binding_init()
