@@ -171,6 +171,19 @@ renv_available_packages_success <- function(db, url, type) {
   if (nrow(db) == 0L)
     return(db)
 
+  # build repository url
+  repository <- rep.int(url, nrow(db))
+
+  # update with path
+  path <- db$Path
+  if (length(path)) {
+    set <- !is.na(path)
+    repository[set] <- paste(url, path[set], sep = "/")
+  }
+
+  # set it
+  db$Repository <- repository
+
   # add in necessary missing columns
   required <- c(
     "Package", "Version", "Priority",
@@ -178,7 +191,7 @@ renv_available_packages_success <- function(db, url, type) {
     "License", "License_is_FOSS", "License_restricts_use",
     "OS_type", "Archs", "MD5sum",
     if (type %in% "source") "NeedsCompilation",
-    "File"
+    "File", "Repository"
   )
 
   missing <- setdiff(required, names(db))
@@ -187,9 +200,6 @@ renv_available_packages_success <- function(db, url, type) {
 
   # filter as appropriate
   db <- renv_available_packages_filter(db)
-
-  # tag with repository
-  db$Repository <- url
 
   # remove row names
   row.names(db) <- NULL
@@ -343,7 +353,7 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
 
   # remove an NA file entry if necessary
   # https://github.com/rstudio/renv/issues/1045
-  if (length(entry$File) && !is.na(entry$File))
+  if (length(entry$File) && is.na(entry$File))
     entry$File <- NULL
 
   # return newest-available version

@@ -525,12 +525,21 @@ renv_snapshot_validate_sources <- function(project, lockfile, libpaths) {
 # NOTE: if packages are found in multiple libraries,
 # then the first package found in the library paths is
 # kept and others are discarded
-renv_snapshot_r_packages <- function(libpaths = NULL,
-                                     project  = NULL)
+renv_snapshot_libpaths <- function(libpaths = NULL,
+                                   project  = NULL)
+{
+  dynamic(
+    key   = list(libpaths, project),
+    value = renv_snapshot_libpaths_impl(libpaths, project)
+  )
+}
+
+renv_snapshot_libpaths_impl <- function(libpaths = NULL,
+                                        project  = NULL)
 {
   records <- uapply(
     libpaths,
-    renv_snapshot_r_packages_impl,
+    renv_snapshot_library,
     project = project
   )
 
@@ -538,9 +547,9 @@ renv_snapshot_r_packages <- function(libpaths = NULL,
   records[!dupes]
 }
 
-renv_snapshot_r_packages_impl <- function(library = NULL,
-                                          project = NULL,
-                                          snapshot = TRUE)
+renv_snapshot_library <- function(library = NULL,
+                                  records = TRUE,
+                                  project = NULL)
 {
   # list packages in the library
   library <- renv_path_normalize(library %||% renv_libpaths_active())
@@ -558,15 +567,15 @@ renv_snapshot_r_packages_impl <- function(library = NULL,
   paths <- paths[grep(pattern, basename(paths))]
 
   # validate the remaining set of packages
-  valid <- renv_snapshot_r_library_diagnose(library, paths)
+  valid <- renv_snapshot_library_diagnose(library, paths)
 
   # remove duplicates (so only first package entry discovered in library wins)
   duplicated <- duplicated(basename(valid))
   packages <- valid[!duplicated]
 
   # early exit if we're just collecting the list of packages
-  if (!snapshot)
-    return(packages)
+  if (!records)
+    return(basename(packages))
 
   # snapshot description files
   descriptions <- file.path(packages, "DESCRIPTION")
@@ -596,17 +605,17 @@ renv_snapshot_r_packages_impl <- function(library = NULL,
 
 }
 
-renv_snapshot_r_library_diagnose <- function(library, pkgs) {
+renv_snapshot_library_diagnose <- function(library, pkgs) {
 
   pkgs <- grep("00LOCK", pkgs, invert = TRUE, value = TRUE)
-  pkgs <- renv_snapshot_r_library_diagnose_broken_link(library, pkgs)
-  pkgs <- renv_snapshot_r_library_diagnose_tempfile(library, pkgs)
-  pkgs <- renv_snapshot_r_library_diagnose_missing_description(library, pkgs)
+  pkgs <- renv_snapshot_library_diagnose_broken_link(library, pkgs)
+  pkgs <- renv_snapshot_library_diagnose_tempfile(library, pkgs)
+  pkgs <- renv_snapshot_library_diagnose_missing_description(library, pkgs)
   pkgs
 
 }
 
-renv_snapshot_r_library_diagnose_broken_link <- function(library, pkgs) {
+renv_snapshot_library_diagnose_broken_link <- function(library, pkgs) {
 
   broken <- !file.exists(pkgs)
   if (!any(broken))
@@ -622,7 +631,7 @@ renv_snapshot_r_library_diagnose_broken_link <- function(library, pkgs) {
 
 }
 
-renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
+renv_snapshot_library_diagnose_tempfile <- function(library, pkgs) {
 
   names <- basename(pkgs)
   missing <- grepl("^file(?:\\w){12}", names)
@@ -639,7 +648,7 @@ renv_snapshot_r_library_diagnose_tempfile <- function(library, pkgs) {
 
 }
 
-renv_snapshot_r_library_diagnose_missing_description <- function(library, pkgs) {
+renv_snapshot_library_diagnose_missing_description <- function(library, pkgs) {
 
   desc <- file.path(pkgs, "DESCRIPTION")
   missing <- !file.exists(desc)

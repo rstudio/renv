@@ -237,11 +237,15 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
 
   # check for packages referenced in the lockfile which are not installed
   lockpkgs <- names(lockfile$Packages)
-  libpkgs <- renv_snapshot_r_packages_impl(
-    library  = renv_libpaths_all(),
-    project  = project,
-    snapshot = FALSE
+  libpkgs <- renv_snapshot_library(
+    library = renv_libpaths_all(),
+    project = project,
+    records = FALSE
   )
+
+  # ignore renv
+  lockpkgs <- setdiff(lockpkgs, "renv")
+  libpkgs <- setdiff(libpkgs, "renv")
 
   # check for case where no packages are installed (except renv)
   if (length(lockpkgs) > 1L) {

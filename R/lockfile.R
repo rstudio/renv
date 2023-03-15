@@ -169,11 +169,11 @@ renv_lockfile_create <- function(project, libpaths, type, packages) {
 
   renv_records(lockfile) <-
 
-    renv_snapshot_r_packages(libpaths = libpaths,
-                             project  = project) %>%
+    renv_snapshot_libpaths(libpaths = libpaths,
+                           project  = project) %>%
 
-    renv_snapshot_filter(project = project,
-                         type = type,
+    renv_snapshot_filter(project  = project,
+                         type     = type,
                          packages = packages) %>%
 
     renv_snapshot_fixup()

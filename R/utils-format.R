@@ -27,24 +27,24 @@ vmessagef <- function(fmt = "", ..., appendLF = TRUE) {
 
 
 
-printf <- function(fmt = "", ..., file = stdout()) {
+printf <- function(fmt = "", ..., file = stdout(), sep = "") {
   if (!is.null(fmt) && renv_tests_verbose())
-    cat(sprintf(fmt, ...), file = file, sep = "")
+    cat(sprintf(fmt, ...), file = file, sep = sep)
 }
 
-eprintf <- function(fmt = "", ..., file = stderr()) {
+eprintf <- function(fmt = "", ..., file = stderr(), sep = "") {
   if (!is.null(fmt) && renv_tests_verbose())
-    cat(sprintf(fmt, ...), file = file, sep = "")
+    cat(sprintf(fmt, ...), file = file, sep = sep)
 }
 
-vprintf <- function(fmt = "", ..., file = stdout()) {
+vprintf <- function(fmt = "", ..., file = stdout(), sep = "") {
   if (!is.null(fmt) && renv_verbose())
-    cat(sprintf(fmt, ...), file = file, sep = "")
+    cat(sprintf(fmt, ...), file = file, sep = sep)
 }
 
-veprintf <- function(fmt = "", ..., file = stderr()) {
+veprintf <- function(fmt = "", ..., file = stderr(), sep = "") {
   if (!is.null(fmt) && renv_verbose())
-    cat(sprintf(fmt, ...), file = file, sep = "")
+    cat(sprintf(fmt, ...), file = file, sep = sep)
 }
 
 

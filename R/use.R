@@ -92,7 +92,7 @@ use <- function(...,
   names(remotes) <- map_chr(remotes, `[[`, "Package")
 
   fmt <- "* renv is installing %i package(s) and their dependencies ... "
-  vprintf(fmt, length(remotes))
+  vprintf(fmt, length(remotes), sep = if (verbose) "\n" else "")
 
   # install packages
   records <- local({

@@ -186,7 +186,7 @@ install <- function(packages = NULL,
   names(remotes) <- extract_chr(remotes, "Package")
 
   # update records with requested remotes
-  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
+  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   records[names(remotes)] <- remotes
 
   # read remotes from the package DESCRIPTION file and use those to

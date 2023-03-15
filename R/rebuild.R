@@ -47,7 +47,7 @@ rebuild <- function(packages  = NULL,
   library <- nth(libpaths, 1L)
 
   # get collection of packages currently installed
-  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
+  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   packages <- setdiff(packages %||% names(records), "renv")
 
   # add in missing packages
@@ -73,7 +73,7 @@ rebuild <- function(packages  = NULL,
   else
     "The following package(s) will be reinstalled:"
 
-  renv_pretty_print_records(records, preamble)
+  renv_pretty_print_records(records[packages], preamble)
 
   if (prompt && !proceed()) {
     renv_report_user_cancel()
@@ -85,7 +85,7 @@ rebuild <- function(packages  = NULL,
 
   # perform the install
   install(
-    packages = records,
+    packages = records[packages],
     library  = libpaths,
     type     = type,
     rebuild  = rebuild,

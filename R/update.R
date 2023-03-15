@@ -242,7 +242,7 @@ update <- function(packages = NULL,
 
   # get package records
   renv_scope_var("_renv_snapshot_hash", FALSE)
-  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
+  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   packages <- packages %||% names(records)
 
   # apply exclusions
