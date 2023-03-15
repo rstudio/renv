@@ -503,7 +503,7 @@ renv_file_find <- function(path, predicate) {
 }
 
 renv_file_read <- function(path) {
-  renv_scope_options(warn = 0L)
+  renv_scope_options(warn = -1L)
   contents <- readLines(path, warn = FALSE, encoding = "UTF-8")
   paste(contents, collapse = "\n")
 }
@@ -522,7 +522,7 @@ renv_file_shebang <- function(path) {
 
 renv_file_shebang_impl <- function(path) {
 
-  renv_scope_options(warn = 0L)
+  renv_scope_options(warn = -1L)
 
   # open connection to file
   con <- file(path, open = "rb", encoding = "native.enc")

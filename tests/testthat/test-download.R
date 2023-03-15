@@ -141,7 +141,7 @@ test_that("we can check that a URL is available", {
 
   # start a local HTTP server using python, and then try to talk to it
   port <- "60128"
-  renv_scope_options(warn = 0L)
+  renv_scope_options(warn = -1L)
   status <- system2(
     command = timeout,
     args    = c("5s", python, c("-m", "http.server", port)),

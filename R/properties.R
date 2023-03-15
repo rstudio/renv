@@ -5,7 +5,7 @@ renv_properties_read <- function(path = NULL,
                                  dequote = TRUE,
                                  trim = TRUE)
 {
-  renv_scope_options(warn = 0L)
+  renv_scope_options(warn = -1L)
   text <- paste(text %||% readLines(path, warn = FALSE), collapse = "\n")
 
   # remove comments
