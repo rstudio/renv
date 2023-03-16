@@ -471,7 +471,7 @@ settings <- list(
 
   bioconductor.version = renv_settings_impl(
     name     = "bioconductor.version",
-    default  = character(),
+    default  = NULL,
     scalar   = TRUE,
     validate = is.character,
     coerce   = as.character,
@@ -507,7 +507,7 @@ settings <- list(
 
   r.version = renv_settings_impl(
     name     = "r.version",
-    default  = character(),
+    default  = NULL,
     scalar   = TRUE,
     validate = is.character,
     coerce   = as.character,
