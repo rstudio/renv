@@ -64,8 +64,10 @@ renv_project_initialized <- function(project) {
 
 renv_project_type <- function(path) {
 
-  path <- renv_path_normalize(path)
+  if (!nzchar(path))
+    return("unknown")
 
+  path <- renv_path_normalize(path)
   filebacked(
     scope    = "renv_project_type",
     path     = file.path(path, "DESCRIPTION"),

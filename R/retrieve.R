@@ -149,7 +149,7 @@ renv_retrieve_impl <- function(package) {
 
       # try to find the record in the cache
       path <- renv_cache_find(record)
-      if (renv_cache_package_validate(path))
+      if (nzchar(path) && renv_cache_package_validate(path))
         return(renv_retrieve_successful(record, path))
     }
 
@@ -534,9 +534,11 @@ renv_retrieve_explicit <- function(record) {
 
   # try parsing as a local remote
   source <- record$Path %||% record$RemoteUrl %||% ""
-  resolved <- catch(renv_remotes_resolve_path(source))
-  if (inherits(resolved, "error"))
-    return(FALSE)
+  if (nzchar(source)) {
+    resolved <- catch(renv_remotes_resolve_path(source))
+    if (inherits(resolved, "error"))
+      return(FALSE)
+  }
 
   # treat as 'local' source but extract path
   normalized <- renv_path_normalize(source, winslash = "/", mustWork = TRUE)
