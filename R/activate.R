@@ -113,8 +113,8 @@ renv_activate_version_activate <- function(project) {
 
   contents <- readLines(activate, warn = FALSE)
   line <- grep("^\\s*version", contents, value = TRUE)
-  parsed <- parse(text = line)[[1]]
-  parsed[[3]]
+  parsed <- parse(text = line)[[1L]]
+  parsed[[3L]]
 
 }
 

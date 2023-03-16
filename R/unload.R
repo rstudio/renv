@@ -27,6 +27,7 @@ renv_unload_shims <- function(project) {
 }
 
 renv_unload_project <- function(project) {
+  options(renv.project.path = NULL)
   Sys.unsetenv("RENV_PROJECT")
 }
 
@@ -47,6 +48,5 @@ renv_unload_libpaths <- function(project) {
 }
 
 renv_unload_profile <- function(project) {
-  options(renv.project.path = NULL)
   Sys.unsetenv("RENV_PROFILE")
 }

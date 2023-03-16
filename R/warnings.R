@@ -4,8 +4,9 @@ renv_warnings_unknown_sources <- function(records) {
   if (empty(records))
     return(FALSE)
 
+  # TODO: Should this be documented?
   enabled <- renv_config_get(
-    name    = "unknown_sources",
+    name    = "unknown.sources",
     scope   = "warnings",
     type    = "logical[1]",
     default = TRUE

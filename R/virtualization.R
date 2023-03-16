@@ -1,15 +1,19 @@
 
+`_renv_virtualization_type` <- NULL
+
 renv_virtualization_init <- function() {
 
-  `_renv_globals`[["virtualization.type"]] <- tryCatch(
+  type <- tryCatch(
     renv_virtualization_type_impl(),
     error = function(e) "unknown"
   )
 
+  `_renv_virtualization_type` <<- type
+
 }
 
 renv_virtualization_type <- function() {
-  `_renv_globals`[["virtualization.type"]]
+  `_renv_virtualization_type`
 }
 
 renv_virtualization_type_impl <- function() {
