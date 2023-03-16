@@ -1,4 +1,7 @@
 
+# renv 0.18.0  (UNRELEASED)
+
+
 # renv 0.17.1
 
 * `renv` gains the configuration option `install.remotes`, which can be used
