@@ -20,3 +20,11 @@ test_that("whitespace does not affect hash", {
   }
 
 })
+
+test_that("hash outputs do not change over time", {
+
+  descpath <- file.path(getwd(), "resources/DESCRIPTION")
+  hash <- renv_hash_description(descpath)
+  expect_equal(hash, "2edf28b7db72297da02d913babfc1ef3")
+
+})

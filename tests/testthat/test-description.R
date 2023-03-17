@@ -16,3 +16,29 @@ test_that("snapshotting broken DESCRIPTION files is an error", {
   expect_s3_class(renv_snapshot_description(file), "error")
 
 })
+
+test_that("we read DESCRIPTION files correctly", {
+
+  contents <- heredoc("
+    Package: example
+    Description: This is a description.
+      Indented fields might have colons: that's fine.
+    Depends: apple
+  ")
+
+  descfile <- renv_scope_tempfile()
+  writeLines(contents, con = descfile)
+  actual <- renv_description_read(path = descfile)
+
+  expected <- list(
+    Package = "example",
+    Description = paste(
+      "This is a description.",
+      "Indented fields might have colons: that's fine."
+    ),
+    Depends = "apple"
+  )
+
+  expect_equal(actual, expected)
+
+})

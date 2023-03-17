@@ -15,7 +15,7 @@ renv_properties_read <- function(path = NULL,
   text <- gsub("\n\\s*\n", "\n", text, perl = TRUE)
 
   # find the locations of fields
-  fmt <- "(?:^|\n)[^%1$s\n]+%1$s"
+  fmt <- "(?:^|\n)(?!\\s)[^%1$s\n]+%1$s"
   pattern <- sprintf(fmt, delimiter)
   locations <- gregexpr(pattern, text, perl = TRUE)[[1L]]
 

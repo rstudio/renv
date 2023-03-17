@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Fixed a regression that caused package hashes to be computed incorrectly
+  in some cases. This was a regression in the 0.17.1 release. (#1168)
+
 
 # renv 0.17.1
 
