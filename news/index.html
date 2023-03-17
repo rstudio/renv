@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.0-54</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,8 +77,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p>General performance optimizations. In particular, <code>renv::update(check = TRUE)</code> should now execute much faster.</p></li>
+<h2 class="pkg-version" data-toc-text="0.17.1" id="renv-0171">renv 0.17.1<a class="anchor" aria-label="anchor" href="#renv-0171"></a></h2><p class="text-muted">CRAN release: 2023-03-16</p>
+<ul><li><p><code>renv</code> gains the configuration option <code>install.remotes</code>, which can be used to control whether <code>renv</code> attempts to read and use the <code>Remotes:</code> field included with installed packages. This can be set to <code>FALSE</code> if you’d like to ignore this field; e.g. because you know they will not be accessible. (<a href="https://github.com/rstudio/renv/issues/1133" class="external-link">#1133</a>)</p></li>
+<li><p>General performance optimizations. In particular, <code>renv::update(check = TRUE)</code> should now execute much faster.</p></li>
 <li><p><code>renv</code> now stores project settings within <code>renv/settings.json</code> rather than <code>renv/settings.dcf</code>. Old settings will be automatically migrated.</p></li>
 <li><p>The <code>renv</code> sandbox is now placed within the <code>renv</code> cache directory. (<a href="https://github.com/rstudio/renv/issues/1158" class="external-link">#1158</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/status.html">renv::status()</a></code> could erroneously report a project was out-of-sync when using explicit snapshots. (<a href="https://github.com/rstudio/renv/issues/1159" class="external-link">#1159</a>)</p></li>
@@ -131,7 +132,7 @@
 <li><p>Fixed an issue where <code>renv</code> could attempt to install a package from the repository archives even when <code>type = "binary"</code> was set. (<a href="https://github.com/rstudio/renv/issues/1046" class="external-link">#1046</a>)</p></li>
 <li><p>Fixed an issue where package installation could fail when the R session is configured to use multiple repositories, some of which do not provide any information on available packages for certain binary arms of the repository. (<a href="https://github.com/rstudio/renv/issues/1045" class="external-link">#1045</a>)</p></li>
 <li><p><code>renv</code> now uses <code>jsonlite</code> for reading lockfiles when loaded. This should help ensure useful errors are provided for manually-edited lockfiles which contain a JSON parsing error. If the <code>jsonlite</code> package is not loaded, <code>renv</code> will fall back to its own internal JSON parser. (<a href="https://github.com/rstudio/renv/issues/1027" class="external-link">#1027</a>)</p></li>
-<li><p>Fixed an issue that would cause <code>renv</code> to fail to source the user <code>~/.Rprofile</code> if it attempted to register global calling handlers, e.g. as <code><a href="https://rdrr.io/pkg/prompt/man/set_prompt.html" class="external-link">prompt::set_prompt()</a></code> does. (<a href="https://github.com/rstudio/renv/issues/1036" class="external-link">#1036</a>)</p></li>
+<li><p>Fixed an issue that would cause <code>renv</code> to fail to source the user <code>~/.Rprofile</code> if it attempted to register global calling handlers, e.g. as <code>prompt::set_prompt()</code> does. (<a href="https://github.com/rstudio/renv/issues/1036" class="external-link">#1036</a>)</p></li>
 <li><p>(Linux only) <code>renv</code> now resets ACLs on packages copied to the cache, to avoid persisting default ACLs that might have been inherited on packages installed into a local project library. If desired, this behavior can be disabled by setting the <code>RENV_CACHE_ACLS</code> environment variable to <code>FALSE</code>. If you need finer control over ACLs set on packages moved into the cache, consider defining a custom callback via the <code>renv.cache.callback</code> R option. (<a href="https://github.com/rstudio/renv/issues/1025" class="external-link">#1025</a>)</p></li>
 <li><p>Fixed an issue where <code>.gitignore</code> inclusion rules for sub-directories were not parsed correctly by <code>renv</code> for dependency discovery. (<a href="https://github.com/rstudio/renv/issues/403" class="external-link">#403</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> could report spurious diffs within <code><a href="../reference/status.html">renv::status()</a></code> when comparing package records installed from <code>pak</code> versus the default R package installer. (<a href="https://github.com/rstudio/renv/issues/998" class="external-link">#998</a>)</p></li>
@@ -250,7 +251,7 @@
 <li><p><code><a href="../reference/use.html">renv::use()</a></code> gains the lockfile argument. This can be useful for R Markdown documents and scripts that you’d like to run with the context for a particular lockfile applied.</p></li>
 <li><p><code><a href="../reference/rebuild.html">renv::rebuild()</a></code> gains the <code>type</code> parameter, for parity with <code><a href="../reference/install.html">renv::install()</a></code>.</p></li>
 <li><p>Fixed an issue where <code>renv</code> could incorrectly copy an incompatible version of an R package from a site library into the project library during install. (<a href="https://github.com/rstudio/renv/issues/750" class="external-link">#750</a>)</p></li>
-<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> can now parse (some) usages of <code><a href="https://parsnip.tidymodels.org/reference/set_engine.html" class="external-link">parsnip::set_engine()</a></code>.</p></li>
+<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> can now parse (some) usages of <code>parsnip::set_engine()</code>.</p></li>
 <li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now has improved handling for piped expressions.</p></li>
 <li><p>Fixed crash during dependency discovery when encountering <code>box::use()</code> declarations that use a trailing comma, and no longer treat <code>.</code> and <code>..</code> as package names. (<a href="https://github.com/klmr" class="external-link">@klmr</a>)</p></li>
 <li><p><code><a href="../reference/clean.html">renv::clean()</a></code> no longer attempts to clean the system library by default. (<a href="https://github.com/rstudio/renv/issues/737" class="external-link">#737</a>)</p></li>
