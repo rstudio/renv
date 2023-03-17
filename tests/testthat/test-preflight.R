@@ -23,14 +23,18 @@ test_that("snapshot preflight tests catch common issues", {
 
 test_that("renv warns when snapshotting missing dependencies", {
   skip_on_cran()
-  renv_tests_scope("breakfast")
-  renv::init()
 
-  remove.packages("oatmeal")
+  project <- renv_tests_scope("breakfast")
+  init()
+
+  remove("oatmeal")
 
   local({
     renv_scope_sink()
     expect_error(renv::snapshot())
   })
+
+  lockfile <- renv_lockfile_load(project)
+  expect_true(!is.null(lockfile$Packages$oatmeal))
 
 })

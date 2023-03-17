@@ -186,7 +186,7 @@ snapshot <- function(project  = NULL,
     if (prompt && !proceed()) {
       renv_report_user_cancel()
       invokeRestart("abort")
-    } else if (!interactive()) {
+    } else {
       stop("aborting snapshot due to pre-flight validation failure")
     }
   }

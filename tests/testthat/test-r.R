@@ -35,7 +35,7 @@ test_that("we can use R CMD build to build a package", {
   args <- c("CMD", "INSTALL", "--no-multiarch", "--build", package)
   output <- r(args, stdout = TRUE, stderr = TRUE)
   after <- list.files(testdir)
-  binball <- renv_vector_diff(after, before)
+  binball <- renv_vector_diff(after, c("NULL", before))
 
   expect_true(length(binball) == 1L)
   expect_equal(renv_package_type(binball), "binary")
@@ -51,5 +51,5 @@ test_that("we can supply custom options to R CMD INSTALL", {
 
   # make install 'fail' with bad option
   renv_scope_options(install.opts = list(oatmeal = "--version"))
-  expect_error(renv::install("oatmeal"))
+  expect_error(install("oatmeal"))
 })

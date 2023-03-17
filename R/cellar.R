@@ -40,8 +40,8 @@ renv_cellar_database <- function(project = NULL) {
 renv_cellar_latest <- function(package, project) {
 
   db <- renv_cellar_database(project = project)
-  db <- db[db$Package == package, ]
-  db <- db[order(package_version(db$Version), decreasing = TRUE), ]
+  db <- rows(db, db$Package == package)
+  db <- rows(db, order(package_version(db$Version), decreasing = TRUE))
   if (nrow(db) == 0L)
     return(record)
 
