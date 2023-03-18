@@ -57,11 +57,8 @@ renv_scope_options <- function(..., envir = NULL) {
   envir <- envir %||% parent.frame()
 
   new <- list(...)
-  old <- lapply(names(new), getOption)
-  names(old) <- names(new)
-
-  do.call(base::options, new)
-  defer(do.call(base::options, old), envir = envir)
+  old <- options(new)
+  defer(options(old), envir = envir)
 
 }
 

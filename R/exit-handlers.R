@@ -1,8 +1,22 @@
 
-`_renv_exit_handlers` <- new.env(parent = emptyenv())
+`_renv_exit_handlers` <- vector("list", 128L)
+`_renv_exit_handlers_key` <- 1L
+
+renv_exit_handlers_key <- function(envir) {
+
+  key <- attr(envir, "__renv_exit_handlers_key__")
+  if (is.null(key)) {
+    key <- (`_renv_exit_handlers_key` %% 127L) + 1L
+    attr(envir, "__renv_exit_handlers_key__") <- key
+    `_renv_exit_handlers_key` <<- key
+  }
+
+  key
+
+}
 
 renv_exit_handlers_get <- function(envir) {
-  key <- format(envir)
+  key <- renv_exit_handlers_key(envir)
   `_renv_exit_handlers`[[key]]
 }
 
@@ -14,14 +28,14 @@ renv_exit_handlers_set <- function(envir, handlers) {
     do.call(base::on.exit, list(substitute(call), TRUE), envir = envir)
   }
 
-  key <- format(envir)
-  `_renv_exit_handlers`[[key]] <- handlers
+  key <- renv_exit_handlers_key(envir)
+  `_renv_exit_handlers`[[key]] <<- handlers
 
 }
 
 renv_exit_handlers_remove <- function(envir) {
-  key <- format(envir)
-  `_renv_exit_handlers`[[key]] <- NULL
+  key <- renv_exit_handlers_key(envir)
+  `_renv_exit_handlers`[key] <<- list(NULL)
 }
 
 renv_exit_handlers_execute <- function(envir) {

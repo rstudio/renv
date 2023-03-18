@@ -32,20 +32,20 @@ renv_dcf_read <- function(file, text = NULL, ...) {
 
 }
 
-renv_dcf_read_impl_encoding <- function(contents) {
+renv_dcf_read_impl_encoding <- function(bytes) {
 
   # try to find encoding -- if none is declared, assume native encoding?
-  start <- grepRaw("(?:^|\n)Encoding:", contents)
+  start <- grepRaw("(?:^|\n)Encoding:", bytes)
   if (empty(start))
     return(NULL)
 
   # try to find the end of the encoding field
-  end   <- grepRaw("(?:\r?\n|$)", contents, offset = start + 1L)
-  field <- rawToChar(contents[start:end])
+  end   <- grepRaw("(?:\r?\n|$)", bytes, offset = start + 1L)
+  field <- rawToChar(bytes[start:end])
 
-  # parse it
-  properties <- renv_properties_read(text = field)
-  properties[["Encoding"]]
+  # strip out the interior
+  index <- regexpr(":", field, fixed = TRUE)[[1L]]
+  trimws(substring(field, index + 1L))
 
 }
 
@@ -55,25 +55,27 @@ renv_dcf_read_impl <- function(file, ...) {
   renv_scope_options(warn = -1L)
 
   # first, read the file as bytes to get encoding
-  n <- renv_file_size(file)
-  contents <- readBin(con = file, what = "raw", n = n)
+  # use a guess for the file size to avoid expensive lookup, but fallback
+  # if necessary
+  bytes <- readBin(file, what = "raw", n = 8192L)
+  if (length(bytes) == 8192L) {
+    n <- renv_file_size(file)
+    bytes <- readBin(con = file, what = "raw", n = n)
+  }
 
   # try to guess the encoding
-  encoding <- tryCatch(
-    renv_dcf_read_impl_encoding(contents),
-    error = function(e) NULL
-  )
+  encoding <- renv_dcf_read_impl_encoding(bytes)
 
   # try a bunch of candidate encodings
   encodings <- c(encoding, "UTF-8", "latin1", "")
   for (encoding in unique(encodings)) {
-    result <- iconv(list(contents), from = encoding, to = "UTF-8")
+    result <- iconv(list(bytes), from = encoding, to = "UTF-8")
     if (!is.na(result))
       return(result)
   }
 
   # all else fails, just pretend it's in the native encoding
-  rawToChar(contents)
+  rawToChar(bytes)
 
 }
 
