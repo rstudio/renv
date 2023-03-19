@@ -231,7 +231,7 @@ endswith <- function(string, suffix) {
 # like tools::file_ext, but includes leading '.', and preserves
 # '.tar.gz', '.tar.bz' and so on
 fileext <- function(path, default = "") {
-  indices <- regexpr("[.]((?:tar[.])?[[:alnum:]]+)$", path)
+  indices <- regexpr("[.]((?:tar[.])?[[:alnum:]]+)$", path, perl = TRUE)
   ifelse(indices > -1L, substring(path, indices), default)
 }
 

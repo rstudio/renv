@@ -5,47 +5,75 @@
 # - always keeps whitespace
 renv_dcf_read <- function(file, text = NULL, ...) {
 
-  # read the file as binary first to get encoding
+  # read file
   contents <- text %||% renv_dcf_read_impl(file, ...)
 
-  # normalize newlines
-  contents <- gsub("\r\n", "\n", contents, fixed = TRUE)
+  # split on newlines
+  parts <- strsplit(contents, "\\n(?=\\S)", perl = TRUE)[[1L]]
 
-  # look for tags
-  pattern <- "(?:^|\n)[^\\s][^:\n]*:"
-  matches <- gregexpr(pattern, contents, perl = TRUE)[[1L]]
+  # remove embedded newlines
+  parts <- gsub("\\n\\s*", " ", parts, perl = TRUE)
 
-  # compute substring indices
-  starts <- matches
-  ends   <- c(tail(matches, n = -1L), nchar(contents))
-  parts <- substring(contents, starts, ends)
+  # split into key / value pairs
+  index <- regexpr(":", parts, fixed = TRUE)
+  keys <- substring(parts, 1L, index - 1L)
+  vals <- substring(parts, index + 1L)
 
-  # read as property list
-  properties <- renv_properties_read(text = parts, dequote = FALSE)
+  # trim whitespace
+  vals <- trimws(vals)
 
-  # set encoding if necessary
-  if (identical(properties$Encoding, "UTF-8"))
-    properties[] <- lapply(properties, renv_encoding_mark, "UTF-8")
+  # return early if everything looks fine
+  ok <- nzchar(keys)
+  if (all(ok)) {
+    storage.mode(vals) <- "list"
+    names(vals) <- keys
+    return(vals)
+  }
 
-  # return as data.frame
-  as.list(properties)
+  # otherwise, fix up bad continuations
+  starts <- which(ok)
+  ends <- c(tail(starts - 1L, n = -1L), length(keys))
+  vals <- .mapply(
+    function(start, end) paste(vals[start:end], collapse = " "),
+    list(starts, ends),
+    NULL
+  )
+
+  # set up names
+  names(vals) <- keys[ok]
+
+  # done
+  vals
 
 }
 
 renv_dcf_read_impl_encoding <- function(bytes) {
 
   # try to find encoding -- if none is declared, assume native encoding?
-  start <- grepRaw("(?:^|\n)Encoding:", bytes)
-  if (empty(start))
-    return(NULL)
+  start <- 0L
+  while (TRUE) {
 
-  # try to find the end of the encoding field
-  end   <- grepRaw("(?:\r?\n|$)", bytes, offset = start + 1L)
+    # find 'Encoding'
+    start <- grepRaw("Encoding:", bytes, fixed = TRUE, offset = start + 1L)
+    if (length(start) == 0L)
+      return(NULL)
+
+    # check for preceding newline, or start of file
+    if (start == 1L || bytes[[start - 1L]] == 0x0A) {
+      start <- start + 9L
+      break
+    }
+
+  }
+
+  # find the end of the encoding field
+  end <- grepRaw("\n", bytes, fixed = TRUE, offset = start + 1L)
+  if (length(end) == 0L)
+    end <- length(bytes)
+
+  # pull it out
   field <- rawToChar(bytes[start:end])
-
-  # strip out the interior
-  index <- regexpr(":", field, fixed = TRUE)[[1L]]
-  trimws(substring(field, index + 1L))
+  trimws(field)
 
 }
 
