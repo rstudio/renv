@@ -87,10 +87,21 @@ local({
   
   renv_bootstrap_repos <- function() {
   
+    # get CRAN repository
+    cran <- getOption("renv.repos.cran", "https://cloud.r-project.org")
+  
     # check for repos override
     repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
-    if (!is.na(repos))
+    if (!is.na(repos)) {
+  
+      # check for RSPM; if set, use a fallback repository for renv
+      rspm <- Sys.getenv("RSPM", unset = NA)
+      if (identical(rspm, repos))
+        repos <- c(RSPM = rspm, CRAN = cran)
+  
       return(repos)
+  
+    }
   
     # check for lockfile repositories
     repos <- tryCatch(renv_bootstrap_repos_lockfile(), error = identity)
@@ -108,10 +119,7 @@ local({
     repos <- getOption("repos")
   
     # ensure @CRAN@ entries are resolved
-    repos[repos == "@CRAN@"] <- getOption(
-      "renv.repos.cran",
-      "https://cloud.r-project.org"
-    )
+    repos[repos == "@CRAN@"] <- cran
   
     # add in renv.bootstrap.repos if set
     default <- c(FALLBACK = "https://cloud.r-project.org")
