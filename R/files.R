@@ -352,6 +352,10 @@ renv_file_info <- function(paths, extra_cols = FALSE) {
   suppressWarnings(file.info(paths, extra_cols = extra_cols))
 }
 
+renv_file_mode <- function(paths) {
+  suppressWarnings(file.mode(paths))
+}
+
 # NOTE: returns true for files that are broken symlinks
 renv_file_exists <- function(path) {
 

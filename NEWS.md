@@ -1,6 +1,15 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv` now checks that the index directory is writable before attempting to
+  use it, e.g. for the `R` available packages index maintained by `renv`. (#1171)
+  
+* `renv` now checks that the version of `curl` used for downloads appears to
+  be functional, and reports a warning if it does not (for example, because
+  a requisite system library is missing). The version of `curl` used for
+  downloads can also be configured via the `RENV_CURL_EXECUTABLE` environment
+  variable.
+  
 
 # renv 0.17.2
 

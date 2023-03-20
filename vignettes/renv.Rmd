@@ -529,7 +529,8 @@ install it. Newer versions of Windows 10 come with a bundled version of
 install a recent copy of `curl`. Newer versions of macOS come with a bundled
 version of `curl` that is adequate for usage with `renv`, and most Linux package
 managers have a modern version of `curl` available in their package
-repositories.
+repositories. You can also configure which `curl` executable is used by setting
+the `RENV_CURL_EXECUTABLE` environment variable, if necessary.
 
 `curl` downloads can be configured through `renv`'s configuration settings --
 see `?renv::config` for more details.

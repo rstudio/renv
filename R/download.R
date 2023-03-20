@@ -325,8 +325,9 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   args$push("--config", renv_shell_path(configfile))
 
   # perform the download
+  curl <- renv_curl_exe()
   output <- suppressWarnings(
-    system2("curl", args$data(), stdout = TRUE, stderr = TRUE)
+    system2(curl, args$data(), stdout = TRUE, stderr = TRUE)
   )
 
   renv_download_trace_result(output)

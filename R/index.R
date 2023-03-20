@@ -7,17 +7,24 @@ index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
   if (!enabled)
     return(value)
 
-  # resolve variables of interest
+  # resolve the root directory
   root <- renv_paths_index(scope)
-  key <- if (!is.null(key)) renv_index_encode(key)
-  now <- as.integer(Sys.time())
 
   # make sure the directory we're indexing exists
   memoize(
     key   = root,
-    value = ensure_directory(root),
-    scope = "index"
+    value = ensure_directory(root)
   )
+
+  # make sure the directory is readable / writable
+  # otherwise, attempts to lock will fail
+  # https://github.com/rstudio/renv/issues/1171
+  if (!renv_index_writable(root))
+    return(value)
+
+  # resolve other variables
+  key <- if (!is.null(key)) renv_index_encode(key)
+  now <- as.integer(Sys.time())
 
   # acquire index lock
   lockfile <- file.path(root, "index.lock")
@@ -189,4 +196,11 @@ renv_index_expired <- function(entry, now, limit) {
 
 renv_index_enabled <- function(scope, key) {
   getOption("renv.index.enabled", default = TRUE)
+}
+
+renv_index_writable <- function(root) {
+  memoize(
+    key   = root,
+    value = unname(file.access(root, 7L) == 0L)
+  )
 }
