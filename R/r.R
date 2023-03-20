@@ -285,3 +285,13 @@ r_cmd_install_option_impl <- function(package, option, configure) {
   paste(value, collapse = " ")
 
 }
+
+r_cmd_config <- function(...) {
+
+  renv_system_exec(
+    command = R(),
+    args    = c("--vanilla", "CMD", "config", ...),
+    action  = "reading R CMD config"
+  )
+
+}

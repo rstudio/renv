@@ -30,6 +30,7 @@ renv_zzz_load <- function() {
   renv_patch_init()
   renv_lock_init()
   renv_sandbox_init()
+  renv_sdkroot_init()
 
   renv_task_create(renv_exit_handlers_task)
 

@@ -53,19 +53,7 @@ renv_envvars_restore <- function() {
 }
 
 renv_envvars_init <- function() {
-
   renv_envvars_normalize()
-
-  # set SDKROOT so older R installations can find command line tools
-  # this was necessary for R installations built using a custom LLVM toolchain
-  # which did not set '-isysroot <...>' within their etc/Makevars file
-  if (renv_platform_macos() && getRversion() < "4.0.0") {
-    sdk <- "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
-    sdkroot <- Sys.getenv("SDKROOT", unset = NA)
-    if (is.na(sdkroot) && file.exists(sdk))
-      Sys.setenv(SDKROOT = sdk)
-  }
-
 }
 
 renv_envvars_normalize <- function() {
