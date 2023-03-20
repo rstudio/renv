@@ -1,11 +1,9 @@
 
 renv_binding_init <- function(...) {
-
   self <- renv_envir_self()
   for (symbol in ls(envir = self))
     if (startswith(symbol, "_"))
       renv_binding_unlock(symbol, self)
-
 }
 
 renv_binding_lock <- function(symbol, envir) {

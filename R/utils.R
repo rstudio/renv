@@ -246,13 +246,9 @@ git <- function() {
 }
 
 visited <- function(name, envir) {
-
-  if (exists(name, envir = envir))
-    return(TRUE)
-
+  value <- envir[[name]] %??% FALSE
   envir[[name]] <- TRUE
-  FALSE
-
+  value
 }
 
 rowapply <- function(X, FUN, ...) {

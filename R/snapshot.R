@@ -529,7 +529,7 @@ renv_snapshot_libpaths <- function(libpaths = NULL,
                                    project  = NULL)
 {
   dynamic(
-    key   = list(libpaths, project),
+    key   = list(libpaths = libpaths, project = project),
     value = renv_snapshot_libpaths_impl(libpaths, project)
   )
 }

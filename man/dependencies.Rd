@@ -39,7 +39,9 @@ dependencies are returned.}
 }
 \value{
 An \R \code{data.frame} of discovered dependencies, mapping inferred
-package names to the files in which they were discovered.
+package names to the files in which they were discovered. Note that the
+\code{Package} field might name a package remote, rather than just a plain
+package name.
 }
 \description{
 Find \R packages used within a project.

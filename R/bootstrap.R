@@ -3,6 +3,10 @@
   if (is.environment(x) || length(x)) x else y
 }
 
+`%??%` <- function(x, y) {
+  if (is.null(x)) y else x
+}
+
 bootstrap <- function(version, library) {
 
   # attempt to download renv

@@ -88,7 +88,9 @@
 #'   dependencies are returned.
 #'
 #' @return An \R `data.frame` of discovered dependencies, mapping inferred
-#'   package names to the files in which they were discovered.
+#'   package names to the files in which they were discovered. Note that the
+#'   `Package` field might name a package remote, rather than just a plain
+#'   package name.
 #'
 #' @section Errors:
 #'
@@ -461,12 +463,6 @@ renv_dependencies_discover_description <- function(path,
     renv_dependencies_discover_description_fields() %||%
     c("Depends", "Imports", "LinkingTo")
 
-  # build pattern used to split DESCRIPTION fields
-  pattern <- paste0(
-    "([a-zA-Z0-9._]+)",                      # package name
-    "(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"  # optional version specification
-  )
-
   # if this is the DESCRIPTION file for the active project, include
   # Suggests since they're often needed as well. such packages will be
   # considered development dependencies, except for package projects
@@ -488,38 +484,51 @@ renv_dependencies_discover_description <- function(path,
 
   }
 
-  data <- lapply(fields, function(field) {
-
-    # read field
-    contents <- dcf[[field]]
-    if (!is.character(contents))
-      return(list())
-
-    # split on commas
-    parts <- strsplit(dcf[[field]], "\\s*,\\s*")[[1]]
-
-    # drop any empty fields
-    x <- parts[nzchar(parts)]
-
-    # match to split on package name, version
-    m <- regexec(pattern, x)
-    matches <- regmatches(x, m)
-    if (empty(matches))
-      return(list())
-
-    # create dependency list
-    dev <- field == "Suggests" && type != "package"
-    renv_dependencies_list(
-      path,
-      extract_chr(matches, 2L),
-      extract_chr(matches, 3L),
-      extract_chr(matches, 4L),
-      dev
-    )
-
-  })
+  data <- map(
+    fields,
+    renv_dependencies_discover_description_impl,
+    dcf  = dcf,
+    path = path,
+    type = type
+  )
 
   bind(data)
+
+}
+
+renv_dependencies_discover_description_impl <- function(dcf, field, path, type) {
+
+  # read field
+  contents <- dcf[[field]]
+  if (!is.character(contents))
+    return(list())
+
+  # split on commas
+  parts <- strsplit(dcf[[field]], "\\s*,\\s*")[[1]]
+
+  # drop any empty fields
+  x <- parts[nzchar(parts)]
+
+  # match to split on remote, version
+  pattern <- paste0(
+    "([^,\\([:space:]]+)",                    # remote name
+    "(?:\\s*\\(([><=]+)\\s*([0-9.-]+)\\))?"   # optional version specification
+  )
+
+  m <- regexec(pattern, x)
+  matches <- regmatches(x, m)
+  if (empty(matches))
+    return(list())
+
+  # create dependency list
+  dev <- field == "Suggests" && type != "package"
+  renv_dependencies_list(
+    path,
+    extract_chr(matches, 2L),
+    extract_chr(matches, 3L),
+    extract_chr(matches, 4L),
+    dev
+  )
 
 }
 

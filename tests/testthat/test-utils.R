@@ -150,3 +150,16 @@ test_that("rows(), cols() does what we want", {
   }
 
 })
+
+test_that("visited() works as expected", {
+
+  envir <- new.env(parent = emptyenv())
+  expect_false(visited("hello", envir))
+  expect_true(visited("hello", envir))
+  expect_true(visited("hello", envir))
+
+  envir$hello <- FALSE
+  expect_false(visited("hello", envir))
+  expect_true(visited("hello", envir))
+
+})

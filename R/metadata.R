@@ -1,12 +1,10 @@
 
 renv_metadata_version <- function() {
-  metadata <- get("_renv_metadata", envir = renv_envir_self())
-  get("version", envir = metadata)
+  `_renv_metadata`[["version"]]
 }
 
 renv_metadata_embedded <- function() {
-  metadata <- get("_renv_metadata", envir = renv_envir_self())
-  get("embedded", envir = metadata)
+  `_renv_metadata`[["embedded"]]
 }
 
 renv_metadata_init <- function() {

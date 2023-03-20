@@ -1,5 +1,8 @@
 
+`__self__` <- NULL
+
 .onLoad <- function(libname, pkgname) {
+  `__self__` <<- renv_envir_self()
   renv_zzz_load()
 }
 
@@ -8,6 +11,7 @@
 }
 
 .onUnload <- function(libpath) {
+  `__self__` <<- NULL
   renv_task_unload()
 }
 
@@ -26,6 +30,8 @@ renv_zzz_load <- function() {
   renv_patch_init()
   renv_lock_init()
   renv_sandbox_init()
+
+  renv_task_create(renv_exit_handlers_task)
 
   if (!renv_metadata_embedded()) {
 

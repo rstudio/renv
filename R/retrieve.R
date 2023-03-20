@@ -1016,14 +1016,52 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # ensure its dependencies are retrieved as well
   if (state$recursive)
-    for (package in unique(deps$Package))
-      retrieve(package)
+    renv_retrieve_successful_recurse(deps)
 
   # mark package as requiring install if needed
   if (install)
     state$install$push(record)
 
   TRUE
+
+}
+
+renv_retrieve_successful_recurse <- function(deps) {
+  remotes <- unique(deps$Package)
+  for (remote in remotes)
+    renv_retrieve_successful_recurse_impl(remote)
+}
+
+renv_retrieve_successful_recurse_impl <- function(remote) {
+
+  dynamic(
+    key   = list(remote = remote),
+    value = renv_retrieve_successful_recurse_impl_one(remote)
+  )
+
+}
+
+renv_retrieve_successful_recurse_impl_one <- function(remote) {
+
+  # ignore base packages
+  base <- renv_packages_base()
+  if (remote %in% base)
+    return(list())
+
+  # if this is a 'plain' package remote, retrieve it
+  if (grepl(renv_regexps_package_name(), remote)) {
+    renv_retrieve_impl(remote)
+    return(list())
+  }
+
+  # otherwise, handle custom remotes
+  record <- renv_retrieve_handle_remotes_impl(remote)
+  if (length(record)) {
+    renv_retrieve_impl(record$Package)
+    return(list())
+  }
+
+  list()
 
 }
 
@@ -1045,7 +1083,6 @@ renv_retrieve_handle_remotes <- function(record, subdir) {
   # TODO: what should we do if we detect incompatible remotes?
   # e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
   # 'r-lib/rlang@0.2'.
-  state <- renv_restore_state()
 
   # check and see if this package declares Remotes -- if so,
   # use those to fill in any missing records
@@ -1054,37 +1091,57 @@ renv_retrieve_handle_remotes <- function(record, subdir) {
   if (is.null(desc$Remotes))
     return(NULL)
 
-  fields <- strsplit(desc$Remotes, "\\s*,\\s*")[[1]]
-  for (field in fields) {
+  remotes <- strsplit(desc$Remotes, "\\s*,\\s*")[[1]]
+  for (remote in remotes)
+    renv_retrieve_handle_remotes_impl(remote)
 
-    # TODO: allow customization of behavior when remote parsing fails?
-    remote <- catch(renv_remotes_resolve(field))
-    if (inherits(remote, "error")) {
-      fmt <- "failed to resolve remote '%s' declared by package '%s'; skipping"
-      warningf(fmt, field, record$Package)
-      next
-    }
+}
 
-    # if we don't have a record already, then use the declared remote
-    package <- remote$Package
-    record <- state$records[[package]]
-    if (is.null(record)) {
-      state$records[[package]] <- remote
-      next
-    }
+renv_retrieve_handle_remotes_impl <- function(remote) {
 
-    # if the user has explicitly requested installation of a particular package,
-    # and that package already has a defined non-repository remote, then use
-    # the pre-existing record rather than the one requested via Remotes.
-    if (package %in% state$packages) {
-      if (!identical(record, list(Package = package, Source = "Repository")))
-        next
-    }
+  dynamic(
+    key   = list(remote = remote),
+    value = renv_retrieve_handle_remotes_impl_one(remote)
+  )
 
-    # update the requested record
-    state$records[[package]] <- remote
+}
 
+renv_retrieve_handle_remotes_impl_one <- function(remote) {
+
+  # TODO: allow customization of behavior when remote parsing fails?
+  resolved <- catch(renv_remotes_resolve(remote))
+  if (inherits(resolved, "error")) {
+    fmt <- "failed to resolve remote '%s' declared by package '%s'; skipping"
+    warningf(fmt, remote, record$Package)
+    return(invisible(NULL))
   }
+
+  # get the current package record
+  state <- renv_restore_state()
+  package <- resolved$Package
+  record <- state$records[[package]]
+
+  # if we already have a package record, and it's not a 'plain'
+  # repository record, skip
+  skip <-
+    !is.null(record) &&
+    !identical(record, list(Package = package, Source = "Repository"))
+
+  if (skip) {
+    dlog("retrieve", "Skipping remote '%s'; it's already been declared.", remote)
+    dlog("retrieve", "Using existing remote '%s'.", stringify(record))
+    return(invisible(NULL))
+  }
+
+  # update the requested record
+  dlog("retrieve", "Using remote '%s'.", remote)
+  state$records[[package]] <- resolved
+
+  # mark the record as needing retrieval
+  state$retrieved[[package]] <- FALSE
+
+  # return new record
+  invisible(resolved)
 
 }
 
