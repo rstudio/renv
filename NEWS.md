@@ -1,6 +1,12 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv` now sets the `SDKROOT` environment variable on macOS if it detects
+  that R was built using an LLVM build of `clang` on macOS.
+
+* `renv::install()` now parses the remotes included within, for example,
+  a `DESCRIPTION` file's `Config/Needs/...` field.
+  
 * `renv` now checks that the index directory is writable before attempting to
   use it, e.g. for the `R` available packages index maintained by `renv`. (#1171)
   

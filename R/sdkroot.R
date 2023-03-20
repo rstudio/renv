@@ -25,7 +25,7 @@ renv_sdkroot_init <- function() {
   if (length(cxx) == 0L)
     return()
 
-  if (!grepl("/usr/local|/opt/homebrew", cxx))
+  if (!grepl("(?:/usr/local|/opt/homebrew)/opt/llvm", cxx))
     return()
 
   Sys.setenv(SDKROOT = sdk)
