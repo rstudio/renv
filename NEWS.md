@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Fixed an issue where `renv` was passing the wrong argument name to
+  `installed.packages()`, causing usages of `renv` to fail with
+  R (<= 3.4.0). (#1173)
+  
 * `renv` now sets the `SDKROOT` environment variable on macOS if it detects
   that R was built using an LLVM build of `clang` on macOS.
 
