@@ -184,7 +184,7 @@ renv_index_clean_impl <- function(key, entry, root, scope, index, now, limit) {
   cache[[key]] <- NULL
 
   # remove from disk
-  unlink(file.path(root, entry$data))
+  unlink(file.path(root, entry$data), force = TRUE)
 
   FALSE
 
