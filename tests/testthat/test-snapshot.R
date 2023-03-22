@@ -131,7 +131,8 @@ test_that("a custom snapshot filter can be used", {
   renv_tests_scope("breakfast")
 
   settings$snapshot.type("custom")
-  options(renv.snapshot.filter = function(project) c("bread", "toast"))
+  filter <- function(project) c("bread", "toast")
+  renv_scope_options(renv.snapshot.filter = filter)
 
   renv::init()
   lockfile <- renv_lockfile_load(project = getwd())

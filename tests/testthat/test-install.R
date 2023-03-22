@@ -355,7 +355,7 @@ test_that("issue #609", {
 
   renv_tests_scope()
 
-  options(configure.vars = c(breakfast = ""))
+  renv_scope_options(configure.vars = c(breakfast = ""))
   install("bread")
   expect_true(renv_package_installed("bread"))
 })

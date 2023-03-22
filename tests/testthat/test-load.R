@@ -20,6 +20,7 @@ test_that("renv/settings.R is sourced on load if available", {
   writeLines("options(renv.test.dummy = 1)", con = "renv/settings.R")
   renv_load_settings(getwd())
   expect_equal(getOption("renv.test.dummy"), 1)
+  options(renv.test.dummy = NULL)
 })
 
 test_that("errors when sourcing user profile are reported", {

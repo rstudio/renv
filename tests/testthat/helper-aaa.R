@@ -22,6 +22,9 @@ test_that <- function(desc, code) {
   oldlibpaths <- .libPaths()
   oldrepos <- getOption("repos")
   oldconns <- getAllConnections()
+  oldopts <- options()
+  oldopts <- oldopts[grep("^renv", names(oldopts), invert = TRUE)]
+  oldopts$restart <- NULL
 
   repopath <- getOption("renv.tests.repopath")
   oldrepofiles <- list.files(
@@ -77,8 +80,21 @@ test_that <- function(desc, code) {
 
   newconns <- getAllConnections()
   if (!identical(oldconns, newconns)) {
+    writeLines("")
     print(newconns)
     stopf("test %s has leaked connections", shQuote(desc))
+  }
+
+  newopts <- options()
+  newopts <- newopts[grep("^renv", names(newopts), invert = TRUE)]
+  newopts$restart <- NULL
+  if (!identical(oldopts, newopts)) {
+    writeLines("")
+    if (renv_package_available("waldo")) {
+      waldo <- renv_namespace_load("waldo")
+      waldo$compare(oldopts, newopts)
+    }
+    stop("text %s has modified global options", shQuote(desc))
   }
 
   newuserfiles <- list.files(
