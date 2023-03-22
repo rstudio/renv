@@ -14,11 +14,15 @@ ensure_existing_file <- function(path) {
   invisible(path)
 }
 
-ensure_directory <- function(paths) {
+ensure_directory <- function(paths, umask = NULL) {
 
   # handle zero-path case
   if (empty(paths))
     return(invisible(paths))
+
+  # set umask if necessary
+  if (!is.null(umask))
+    renv_scope_umask("0")
 
   # collect file info as list
   fileinfo <- renv_file_info(paths)

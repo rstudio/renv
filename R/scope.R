@@ -401,3 +401,10 @@ renv_scope_tempfile <- function(pattern = "renv-tempfile-",
 
   invisible(filepath)
 }
+
+renv_scope_umask <- function(umask, envir = NULL) {
+  envir <- envir %||% parent.frame()
+  oldmask <- Sys.umask(umask)
+  defer(Sys.umask(oldmask), envir = envir)
+  invisible(oldmask)
+}

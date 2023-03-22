@@ -13,7 +13,7 @@ index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
   # make sure the directory we're indexing exists
   memoize(
     key   = root,
-    value = ensure_directory(root)
+    value = ensure_directory(root, umask = "0")
   )
 
   # make sure the directory is readable / writable
@@ -123,6 +123,9 @@ renv_index_get <- function(root, scope, index, key, now, limit) {
 }
 
 renv_index_set <- function(root, scope, index, key, value, now, limit) {
+
+  # files being written here should be shared
+  renv_scope_umask("0")
 
   # write data into index
   data <- tempfile("data-", tmpdir = root, fileext = ".rds")
