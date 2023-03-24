@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* The clarity of the message printed by `renv::status()` has been improved;
+  in particular, `renv` should better report the recommended actions when
+  a package required by the project is not installed.
+
 * `renv::snapshot()` gains the `exclude` argument, for explicitly
   excluding certain packages from the generated lockfile.
 
