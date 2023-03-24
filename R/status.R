@@ -177,22 +177,63 @@ renv_status_check_synchronized <- function(project,
                                            library,
                                            packages)
 {
+  # flag set to FALSE if any of the below checks report out-of-sync
   ok <- TRUE
 
   # extract record components
   lockfile <- renv_lockfile_records(lockfile)
   library  <- renv_lockfile_records(library)
 
-  # Case 1.
-  #
-  # - Recorded in the lockfile.
-  # - Installed in the library.
-  # - Used in the project.
-  #
-  # Nothing to do here; this is a consistent state.
+  # NOTE: If we have some packages which are required by the project,
+  # but are presently not installed, then the 'packages' vector
+  # (which tries to enumerate all transitive dependencies) may be
+  # incomplete. In this scenario, we need to avoid certain reports which
+  # might be misleading to the user.
+  missing <- setdiff(packages, c(names(library)))
+  if (length(missing)) {
 
-  # Case 2.
-  #
+    if (renv_tests_running()) {
+      condition <- "renv.status.used_but_not_installed"
+      renv_condition_signal(condition, missing)
+    }
+
+    preamble <- "The following packages are used in this project, but not installed:"
+    restoremsg <- "Use `renv::restore()` to restore the packages recorded in the lockfile."
+    installmsg <- "Consider installing these packages -- for example, with `renv::install()`."
+    statusmsg <- "Use `renv::status()` after installation to re-assess the project state."
+
+    # if these packages are in the lockfile, report those records
+    if (all(missing %in% names(lockfile))) {
+
+      records <- keep(lockfile, missing)
+      renv_pretty_print_records(
+        records,
+        preamble  = preamble,
+        postamble = restoremsg
+      )
+
+      return(FALSE)
+
+    }
+
+    # otherwise, try to report intelligently
+    postamble <- if (any(missing %in% names(lockfile))) {
+      c(restoremsg, statusmsg)
+    } else {
+      c(installmsg, statusmsg)
+    }
+
+    renv_pretty_print(
+      missing,
+      preamble  = preamble,
+      postamble = postamble
+    )
+
+    return(FALSE)
+
+  }
+
+
   # - Recorded in the lockfile.
   # - Not installed in the library.
   # - Used in the project.
@@ -241,34 +282,6 @@ renv_status_check_synchronized <- function(project,
       records,
       "The following package(s) are installed, but not recorded in the lockfile:",
       "Use `renv::snapshot()` to add these packages to the lockfile."
-    )
-
-    ok <- FALSE
-
-  }
-
-  # Case 4.
-  #
-  # - Not recorded in the lockfile.
-  # - Not installed in the library.
-  # - Used in the project.
-  #
-  # Consider installing these packages.
-  missing <- setdiff(packages, c(names(library), names(lockfile)))
-  if (length(missing)) {
-
-    if (renv_tests_running()) {
-      condition <- "renv.status.used_but_not_installed"
-      renv_condition_signal(condition, missing)
-    }
-
-    renv_pretty_print(
-      missing,
-      preamble  = "The following packages are used in this project, but not installed:",
-      postamble = c(
-        "Consider installing these packages; for example, with `renv::install()`.",
-        "Use `renv::snapshot()` to update the lockfile after installation."
-      )
     )
 
     ok <- FALSE
