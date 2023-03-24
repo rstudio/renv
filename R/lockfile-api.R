@@ -58,7 +58,7 @@ renv_lockfile_api <- function(lockfile = NULL) {
 
   .self$add <- function(..., .list = NULL) {
 
-    records <- renv_records(.lockfile)
+    records <- renv_lockfile_records(.lockfile)
 
     dots <- .list %||% list(...)
     enumerate(dots, function(package, remote) {
@@ -66,15 +66,14 @@ renv_lockfile_api <- function(lockfile = NULL) {
       records[[package]] <<- resolved
     })
 
-    renv_records(.lockfile) <<- records
+    renv_lockfile_records(.lockfile) <<- records
     invisible(.self)
 
   }
 
   .self$remove <- function(packages) {
-    records <- renv_records(.lockfile)
-    records <- drop(records, packages)
-    renv_records(.lockfile) <<- records
+    records <- renv_lockfile_records(.lockfile) %>% exclude(packages)
+    renv_lockfile_records(.lockfile) <<- records
     invisible(.self)
   }
 

@@ -387,7 +387,7 @@ renv_use_python_condaenv_impl <- function(project,
 
     # retrieve reticulate record
     lockfile <- renv_lockfile_load(project = project)
-    records <- renv_records(lockfile)
+    records <- renv_lockfile_records(lockfile)
     reticulate <- records[["reticulate"]]
 
     # if we have a reticulate record, then attempt to restore

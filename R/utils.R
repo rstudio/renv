@@ -52,7 +52,11 @@ named <- function(object, names = object) {
 }
 
 empty <- function(x) {
-  length(x) == 0
+  length(x) == 0L
+}
+
+zlength <- function(x) {
+  length(x) != 0L
 }
 
 trim <- function(x) {
@@ -315,7 +319,7 @@ keep <- function(x, keys) {
   x[intersect(keys, names(x))]
 }
 
-drop <- function(x, keys) {
+exclude <- function(x, keys) {
   x[setdiff(names(x), keys)]
 }
 

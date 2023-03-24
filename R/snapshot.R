@@ -90,6 +90,8 @@
 #'   Recursive dependencies of the specified packages will be added to the
 #'   lockfile as well.
 #'
+#' @param exclude A vector of packages to be explicitly excluded from the lockfile.
+#'
 #' @param update Boolean; if the lockfile already exists, then attempt to update
 #'   that lockfile without removing any prior package records.
 #'
@@ -114,6 +116,7 @@ snapshot <- function(project  = NULL,
                      type     = settings$snapshot.type(project = project),
                      repos    = getOption("repos"),
                      packages = NULL,
+                     exclude  = NULL,
                      prompt   = interactive(),
                      update   = FALSE,
                      force    = FALSE,
@@ -151,7 +154,7 @@ snapshot <- function(project  = NULL,
 
   }
 
-  alt <- new <- renv_lockfile_create(project, libpaths, type, packages)
+  alt <- new <- renv_lockfile_create(project, libpaths, type, packages, exclude)
   if (is.null(lockfile))
     return(new)
 
@@ -311,7 +314,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
   ok <- TRUE
 
   # check whether any packages are installed from Bioconductor
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   sources <- extract_chr(records, "Source")
   if (!"Bioconductor" %in% sources)
     return(ok)
@@ -397,7 +400,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
 renv_snapshot_validate_dependencies_available <- function(project, lockfile, libpaths) {
 
   # use library to collect package dependency versions
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   packages <- extract_chr(records, "Package")
   locs <- find.package(packages, lib.loc = libpaths, quiet = TRUE)
   deps <- bapply(locs, renv_dependencies_discover_description)
@@ -451,7 +454,7 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
 renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, libpaths) {
 
   # use library to collect package dependency versions
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   packages <- extract_chr(records, "Package")
   locs <- find.package(packages, lib.loc = libpaths, quiet = TRUE)
   deps <- bapply(locs, renv_dependencies_discover_description)
@@ -518,7 +521,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 }
 
 renv_snapshot_validate_sources <- function(project, lockfile, libpaths) {
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   renv_check_unknown_source(records, project)
 }
 
@@ -805,8 +808,8 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   if (!renv_verbose() || empty(actions))
     return(invisible())
 
-  lhs <- renv_records(old)
-  rhs <- renv_records(new)
+  lhs <- renv_lockfile_records(old)
+  rhs <- renv_lockfile_records(new)
   renv_pretty_print_records_pair(
     lhs[names(lhs) %in% names(actions)],
     rhs[names(rhs) %in% names(actions)],
@@ -847,7 +850,7 @@ renv_snapshot_dependencies <- function(project, source = project) {
 
 }
 
-renv_snapshot_filter <- function(project, records, type, packages) {
+renv_snapshot_filter <- function(project, records, type, packages, exclude) {
 
   start <- Sys.time()
 
@@ -864,6 +867,9 @@ renv_snapshot_filter <- function(project, records, type, packages) {
     packages = renv_snapshot_filter_packages(project, records, packages),
     stopf("unknown snapshot type '%s'", type)
   )
+
+  if (length(exclude))
+    result <- exclude(result, exclude)
 
   if (type %in% c("all", "explicit"))
     return(result)

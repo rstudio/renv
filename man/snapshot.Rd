@@ -12,6 +12,7 @@ snapshot(
   type = settings$snapshot.type(project = project),
   repos = getOption("repos"),
   packages = NULL,
+  exclude = NULL,
   prompt = interactive(),
   update = FALSE,
   force = FALSE,
@@ -46,6 +47,8 @@ to the currently active package repositories, as retrieved by
 performed will be included. When set, the \code{type} argument is ignored.
 Recursive dependencies of the specified packages will be added to the
 lockfile as well.}
+
+\item{exclude}{A vector of packages to be explicitly excluded from the lockfile.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}

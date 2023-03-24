@@ -170,7 +170,7 @@ renv_migrate_packrat_lockfile <- function(project) {
   # update fields
   lockfile$R$Version <- header$RVersion
   lockfile$R$Repositories <- as.list(repos)
-  renv_records(lockfile) <- records
+  renv_lockfile_records(lockfile) <- records
 
   # finish
   lockfile <- renv_lockfile_fini(lockfile, project)

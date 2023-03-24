@@ -93,9 +93,9 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   # update the lockfile
   lockfile <- renv_lockfile_load(project = project)
-  records <- renv_records(lockfile) %||% list()
+  records <- renv_lockfile_records(lockfile) %||% list()
   records$renv <- new
-  renv_records(lockfile) <- records
+  renv_lockfile_records(lockfile) <- records
   renv_lockfile_save(lockfile, project = project)
 
   # now update the infrastructure to use this version of renv

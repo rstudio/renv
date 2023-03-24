@@ -8,8 +8,8 @@ renv_updates_create <- function(diff, old, new) {
 
 renv_updates_report <- function(diff, old, new) {
 
-  lhs <- renv_records(old)
-  rhs <- renv_records(new)
+  lhs <- renv_lockfile_records(old)
+  rhs <- renv_lockfile_records(new)
   renv_pretty_print_records_pair(
     lhs[names(lhs) %in% names(diff)],
     rhs[names(rhs) %in% names(diff)]

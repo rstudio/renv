@@ -104,7 +104,7 @@ renv_lockfile_fini_bioconductor <- function(lockfile, project) {
     return(list(Version = version))
 
   # otherwise, check for a package which required Bioconductor
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   if (empty(records))
     return(NULL)
 
@@ -146,13 +146,13 @@ renv_lockfile_sort <- function(lockfile) {
   renv_scope_locale("LC_COLLATE", "C")
 
   # extract R records (nothing to do if empty)
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   if (empty(records))
     return(lockfile)
 
   # sort the records
   sorted <- records[sort(names(records))]
-  renv_records(lockfile) <- sorted
+  renv_lockfile_records(lockfile) <- sorted
 
   # sort top-level fields
   fields <- unique(c("R", "Bioconductor", "Python", "Packages", names(lockfile)))
@@ -163,18 +163,19 @@ renv_lockfile_sort <- function(lockfile) {
 
 }
 
-renv_lockfile_create <- function(project, libpaths, type, packages) {
+renv_lockfile_create <- function(project, libpaths, type, packages, exclude) {
 
   lockfile <- renv_lockfile_init(project)
 
-  renv_records(lockfile) <-
+  renv_lockfile_records(lockfile) <-
 
     renv_snapshot_libpaths(libpaths = libpaths,
                            project  = project) %>%
 
     renv_snapshot_filter(project  = project,
                          type     = type,
-                         packages = packages) %>%
+                         packages = packages,
+                         exclude  = exclude) %>%
 
     renv_snapshot_fixup()
 
@@ -191,7 +192,7 @@ renv_lockfile_create <- function(project, libpaths, type, packages) {
 renv_lockfile_modify <- function(lockfile, records) {
 
   enumerate(records, function(package, record) {
-    renv_records(lockfile)[[package]] <<- record
+    renv_lockfile_records(lockfile)[[package]] <<- record
   })
 
   lockfile
@@ -200,7 +201,7 @@ renv_lockfile_modify <- function(lockfile, records) {
 
 renv_lockfile_compact <- function(lockfile) {
 
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   remotes <- map_chr(records, renv_record_format_remote)
 
   renv_scope_locale("LC_COLLATE", "C")
@@ -212,4 +213,13 @@ renv_lockfile_compact <- function(lockfile) {
   all <- c("renv::use(", joined, ")")
   paste(all, collapse = "\n")
 
+}
+
+renv_lockfile_records <- function(lockfile) {
+  as.list(lockfile$Packages %??% lockfile)
+}
+
+`renv_lockfile_records<-` <- function(x, value) {
+  x$Packages <- filter(value, zlength)
+  invisible(x)
 }

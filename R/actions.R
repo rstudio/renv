@@ -33,11 +33,11 @@ renv_actions_merge <- function(snap, lock, diff) {
     stringsAsFactors = FALSE
   )
 
-  lhs <- bapply(unname(renv_records(snap)), `[`, fields)
+  lhs <- bapply(unname(renv_lockfile_records(snap)), `[`, fields)
   if (length(lhs))
     names(lhs) <- c("Package", paste("Library",  names(lhs)[-1L]))
 
-  rhs <- bapply(unname(renv_records(lock)), `[`, fields)
+  rhs <- bapply(unname(renv_lockfile_records(lock)), `[`, fields)
   if (length(rhs))
     names(rhs) <- c("Package", paste("Lockfile", names(rhs)[-1L]))
 

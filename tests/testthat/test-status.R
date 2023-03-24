@@ -13,8 +13,8 @@ test_that("status() works when there is no library", {
     renv::status()
   })
 
-  expect_length(renv_records(info$library), 4)
-  expect_length(renv_records(info$lockfile), 4)
+  expect_length(renv_lockfile_records(info$library), 4)
+  expect_length(renv_lockfile_records(info$lockfile), 4)
 
   unlink("renv/library", recursive = TRUE)
 
@@ -23,8 +23,8 @@ test_that("status() works when there is no library", {
     renv::status()
   })
 
-  expect_length(renv_records(info$library), 0)
-  expect_length(renv_records(info$lockfile), 4)
+  expect_length(renv_lockfile_records(info$library), 0)
+  expect_length(renv_lockfile_records(info$lockfile), 4)
 
 })
 

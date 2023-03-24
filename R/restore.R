@@ -169,7 +169,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   renv_scope_restore(
     project  = project,
     library  = renv_libpaths_active(),
-    records  = renv_records(lockfile),
+    records  = renv_lockfile_records(lockfile),
     packages = packages,
     rebuild  = rebuild
   )
@@ -189,7 +189,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   renv_install_impl(records)
 
   # detect dependency tree repair
-  diff <- renv_lockfile_diff_packages(renv_records(lockfile), records)
+  diff <- renv_lockfile_diff_packages(renv_lockfile_records(lockfile), records)
   diff <- diff[diff != "remove"]
   if (!empty(diff)) {
     renv_pretty_print_records(
@@ -300,8 +300,8 @@ renv_restore_report_actions <- function(actions, current, lockfile) {
   if (!renv_verbose() || empty(actions))
     return(invisible(NULL))
 
-  lhs <- renv_records(current)
-  rhs <- renv_records(lockfile)
+  lhs <- renv_lockfile_records(current)
+  rhs <- renv_lockfile_records(lockfile)
   renv_pretty_print_records_pair(
     lhs[names(lhs) %in% names(actions)],
     rhs[names(rhs) %in% names(actions)],
@@ -313,7 +313,7 @@ renv_restore_report_actions <- function(actions, current, lockfile) {
 # nocov end
 
 renv_restore_remove <- function(project, package, lockfile) {
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   record <- records[[package]]
   vwritef("Removing %s [%s] ...", package, record$Version)
   paths <- renv_paths_library(project = project, package)
@@ -324,7 +324,7 @@ renv_restore_remove <- function(project, package, lockfile) {
 }
 
 renv_restore_preflight <- function(project, libpaths, actions, current, lockfile, prompt) {
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   matching <- keep(records, names(actions))
   renv_install_preflight(project, libpaths, matching, prompt)
 }

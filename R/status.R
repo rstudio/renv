@@ -144,8 +144,8 @@ renv_status_check_used_packages <- function(project, lockfile, libstate) {
   ignored <- c(
     renv_packages_base(),
     renv_project_ignored_packages(project),
-    names(renv_records(lockfile)),
-    names(renv_records(libstate)),
+    names(renv_lockfile_records(lockfile)),
+    names(renv_lockfile_records(libstate)),
     "renv"
   )
 
@@ -172,7 +172,7 @@ renv_status_check_used_packages <- function(project, lockfile, libstate) {
 }
 
 renv_status_check_unknown_sources <- function(project, lockfile) {
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   renv_check_unknown_source(records, project)
 }
 
@@ -311,8 +311,8 @@ renv_status_check_synchronized <- function(project,
 
     matches <- actions[actions %in% rest]
 
-    rlock <- renv_records(lockfile)[names(matches)]
-    rlibs <- renv_records(libstate)[names(matches)]
+    rlock <- renv_lockfile_records(lockfile)[names(matches)]
+    rlibs <- renv_lockfile_records(libstate)[names(matches)]
 
     data <- data.frame(
       "  Package"          = names(matches),

@@ -66,7 +66,7 @@ checkout <- function(repos = getOption("repos"),
 
   # create lockfile matching this request
   lockfile <- renv_lockfile_init(project = project)
-  renv_records(lockfile) <- records
+  renv_lockfile_records(lockfile) <- records
 
   # perform restore
   restore(

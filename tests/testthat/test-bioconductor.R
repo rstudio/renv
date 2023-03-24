@@ -43,7 +43,7 @@ test_that("packages can be installed, restored from Bioconductor", {
   expect_equal(names(lockfile)[2], "Bioconductor")
   expect_equal(lockfile$Bioconductor$Version, format(BiocManager$version()))
 
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_true("BiocManager" %in% names(records))
   expect_true("BiocVersion" %in% names(records))
   expect_true("Biobase" %in% names(records))

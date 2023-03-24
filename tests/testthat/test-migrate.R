@@ -53,7 +53,7 @@ test_that("a sample Packrat project can be migrated", {
 
   # check the lockfile
   lockfile <- renv_lockfile_read("renv.lock")
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_setequal(expected, names(records))
 
 })
@@ -93,7 +93,7 @@ test_that("a Packrat project with no library can be migrated", {
 
   # check the lockfile
   lockfile <- renv_lockfile_read("renv.lock")
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_setequal(expected, names(records))
 
 })

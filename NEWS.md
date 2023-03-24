@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::snapshot()` gains the `exclude` argument, for explicitly
+  excluding certain packages from the generated lockfile.
+
 * Fixed an issue where `renv` was passing the wrong argument name to
   `installed.packages()`, causing usages of `renv` to fail with
   R (<= 3.4.0). (#1173)
