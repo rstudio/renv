@@ -333,12 +333,18 @@ renv_hydrate_copy_packages <- function(packages, library, project) {
 renv_hydrate_resolve_missing <- function(project, library, na) {
 
   # make sure requested library is made active
+  #
+  # note that we only want to place the requested library on the library path;
+  # we want to ensure that all required packages are hydrated into the
+  # reqeusted library
+  #
+  # https://github.com/rstudio/renv/issues/1177
   ensure_directory(library)
-  renv_scope_libpaths(unique(c(library, .libPaths())))
+  renv_scope_libpaths(library)
 
   # figure out which packages are missing (if any)
   packages <- names(na)
-  installed <- installed_packages()
+  installed <- installed_packages(lib.loc = library)
   if (all(packages %in% installed$Package))
     return()
 
