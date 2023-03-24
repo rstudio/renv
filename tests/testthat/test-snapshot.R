@@ -426,3 +426,18 @@ test_that("we can explicitly exclude some packages from snapshot", {
   expect_null(lockfile$Packages$oatmeal)
 
 })
+
+test_that("snapshot() warns when required package is not installed", {
+
+  project <- renv_tests_scope("breakfast")
+  init()
+
+  remove("breakfast")
+  value <- tryCatch(snapshot(), renv.snapshot.missing_packages = identity)
+  expect_s3_class(value, "renv.snapshot.missing_packages")
+  install("breakfast")
+
+  remove("toast")
+  expect_error(snapshot())
+
+})

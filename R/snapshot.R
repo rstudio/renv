@@ -908,13 +908,17 @@ renv_snapshot_filter <- function(project, records, type, packages, exclude) {
 }
 
 renv_snapshot_filter_all <- function(project, records) {
-  records
+  renv_snapshot_filter_impl(project, records, names(records), "all")
 }
 
-renv_snapshot_filter_impl <- function(project, records, packages) {
+renv_snapshot_filter_impl <- function(project, records, packages, type) {
+
+  # warn if some required packages are missing
+  ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
+  missing <- setdiff(packages, c(names(records), ignored))
+  renv_snapshot_filter_report_missing(missing, type)
 
   # ignore packages as defined by project
-  ignored <- renv_project_ignored_packages(project = project)
   used <- setdiff(packages, ignored)
 
   # include transitive dependencies
@@ -935,18 +939,7 @@ renv_snapshot_filter_impl <- function(project, records, packages) {
 
 }
 
-renv_snapshot_filter_implicit <- function(project, records) {
-
-  # get the requested dependencies
-  deps <- renv_snapshot_dependencies(project)
-  packages <- unique(c(deps$Package, "renv"))
-
-  # execute the filter
-  renv_snapshot_filter_impl(project, records, packages)
-
-}
-
-renv_snapshot_filter_explicit_report <- function(missing) {
+renv_snapshot_filter_report_missing <- function(missing, type) {
 
   missing <- setdiff(missing, "renv")
   if (empty(missing))
@@ -955,30 +948,42 @@ renv_snapshot_filter_explicit_report <- function(missing) {
   if (renv_tests_running())
     renv_condition_signal("renv.snapshot.missing_packages", missing)
 
-  preamble <- paste(
-    "The following packages are required by this project,",
-    "but are not installed:"
-  )
+  preamble <- "The following required packages are not installed:"
 
   postamble <- c(
     "Packages must first be installed before `renv` can snapshot them.",
     "Consider installing these packages using `renv::install()`.",
-    "Alternatively, remove these packages from the project DESCRIPTION file."
+    if (type %in% "explicit")
+      "If these packages are no longer required, consider removing them from your DESCRIPTION file."
+    else
+      "Use `renv::dependencies()` to see where this package is used in your project."
   )
 
-  renv_pretty_print(
-    values = csort(unique(missing)),
-    preamble = preamble,
-    postamble = postamble
-  )
+  if (!renv_tests_running()) {
+    renv_pretty_print(
+      values = csort(unique(missing)),
+      preamble = preamble,
+      postamble = postamble
+    )
+  }
 
   if (interactive() && !proceed()) {
     renv_report_user_cancel()
     invokeRestart("abort")
   }
 
-
   TRUE
+
+}
+
+renv_snapshot_filter_implicit <- function(project, records) {
+
+  # get the requested dependencies
+  deps <- renv_snapshot_dependencies(project)
+  packages <- unique(c(deps$Package, "renv"))
+
+  # execute the filter
+  renv_snapshot_filter_impl(project, records, packages, "implicit")
 
 }
 
@@ -993,12 +998,8 @@ renv_snapshot_filter_explicit <- function(project, records) {
   deps <- renv_snapshot_dependencies(project, descpath)
   packages <- unique(c(deps$Package, "renv"))
 
-  # warn if requested packages are missing
-  missing <- setdiff(packages, c(names(records), renv_packages_base()))
-  renv_snapshot_filter_explicit_report(missing)
-
   # filter records
-  renv_snapshot_filter_impl(project, records, packages)
+  renv_snapshot_filter_impl(project, records, packages, "explicit")
 
 }
 

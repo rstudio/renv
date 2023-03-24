@@ -163,8 +163,12 @@ renv_lockfile_sort <- function(lockfile) {
 
 }
 
-renv_lockfile_create <- function(project, libpaths, type, packages, exclude) {
-
+renv_lockfile_create <- function(project,
+                                 libpaths,
+                                 type,
+                                 packages = NULL,
+                                 exclude = NULL)
+{
   lockfile <- renv_lockfile_init(project)
 
   renv_lockfile_records(lockfile) <-
@@ -186,7 +190,6 @@ renv_lockfile_create <- function(project, libpaths, type, packages, exclude) {
 
   class(lockfile) <- "renv_lockfile"
   lockfile
-
 }
 
 renv_lockfile_modify <- function(lockfile, records) {
