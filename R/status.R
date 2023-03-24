@@ -1,4 +1,6 @@
 
+`_renv_status_running` <- FALSE
+
 #' Status
 #'
 #' Report differences between the project's lockfile and the current state of
@@ -50,25 +52,69 @@ status <- function(project = NULL,
 
 renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
+  default <- list(library = list(), lockfile = list(), synchronized = FALSE)
+
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
     vwritef("* This project has not yet been initialized.")
-    return(list(library = list(), lockfile = list(), synchronized = FALSE))
+    return(default)
   }
 
-  # collect library, lockfile state
-  libstate <- renv_status_check_missing_library(project, libpaths)
-  lockfile <- renv_status_check_missing_lockfile(project, lockpath)
+  # mark status as running
+  `_renv_status_running` <<- TRUE
+  on.exit(`_renv_status_running` <<- FALSE, add = TRUE)
+
+  # check for existing lockfile, library
+  ok <-
+    renv_status_check_missing_library(project, libpaths) &&
+    renv_status_check_missing_lockfile(project, lockpath)
+
+  if (!ok)
+    return(default)
+
+  # get lockfile state
+  lockfile <- renv_lockfile_read(lockpath)
+
+  # get library state
+  library <- local({
+    renv_scope_options(renv.verbose = FALSE)
+    snapshot(project  = project,
+             library  = libpaths,
+             lockfile = NULL,
+             type     = "all",
+             force    = TRUE)
+  })
+
+  # get dependencies
+  dependencies <- renv_snapshot_dependencies(
+    project = project,
+    type    = settings$snapshot.type(project = project)
+  )
+
+  # include transitive dependencies
+  packages <- sort(unique(c(dependencies$Package, "renv")))
+  paths <- renv_package_dependencies(packages, project = project)
+  packages <- as.character(names(paths))
+
+  # remove ignored packages
+  ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
+  library$Packages <- exclude(library$Packages, ignored)
+  packages <- setdiff(packages, ignored)
+
+  # ignore renv when testing
+  if (renv_tests_running()) {
+    packages <- setdiff(packages, "renv")
+    lockfile$Packages[["renv"]] <- NULL
+    library$Packages[["renv"]] <- NULL
+  }
 
   synchronized <- all(
 
-    renv_status_check_used_packages(project, lockfile, libstate),
-
     renv_status_check_synchronized(
-      project  = project,
-      lockfile = lockfile,
-      libpaths = libpaths,
-      libstate = libstate
+      project      = project,
+      lockfile     = lockfile,
+      library      = library,
+      packages     = packages
     ),
 
     if (sources)
@@ -83,7 +129,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     vwritef("* The project is already synchronized with the lockfile.")
 
   list(
-    library      = libstate,
+    library      = library,
     lockfile     = lockfile,
     synchronized = synchronized
   )
@@ -93,80 +139,30 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 renv_status_check_missing_lockfile <- function(project, lockpath) {
 
   if (file.exists(lockpath))
-    return(renv_lockfile_read(lockpath))
+    return(TRUE)
 
-  if (identical(lockpath, renv_lockfile_path(project))) {
-    text <- "* This project has not yet been snapshotted -- 'renv.lock' does not exist."
-    vwritef(text)
-  } else {
-    fmt <- "* Lockfile %s does not exist."
-    vwritef(fmt, renv_path_pretty(lockpath))
-  }
+  text <- if (identical(lockpath, renv_lockfile_path(project)))
+    "* This project has not yet been snapshotted -- 'renv.lock' does not exist."
+  else
+    sprintf("* Lockfile %s does not exist.", renv_path_pretty(lockpath))
 
-  list()
+  vwritef(text)
+  FALSE
 
 }
 
 renv_status_check_missing_library <- function(project, libpaths) {
 
   projlib <- nth(libpaths, 1L)
-  if (file.exists(projlib)) {
-    renv_scope_options(renv.verbose = FALSE)
-    snapshotted <- snapshot(project  = project,
-                            library  = libpaths,
-                            lockfile = NULL,
-                            force    = TRUE)
-    return(snapshotted)
-  }
-
-  if (identical(projlib, renv_paths_library(project = project))) {
-    text <- "* This project's private library is empty or does not exist."
-    vwritef(text)
-  } else {
-    fmt <- "* Library %s is empty or does not exist."
-    vwritef(fmt, renv_paths_project(projlib))
-  }
-
-  list()
-
-}
-
-renv_status_check_used_packages <- function(project, lockfile, libstate) {
-
-  # only done when using implicit snapshots in a project
-  type <- settings$snapshot.type(project = project)
-  if (!type %in% c("implicit", "packrat"))
+  if (file.exists(projlib))
     return(TRUE)
 
-  deps <- dependencies(project, progress = FALSE)
-  used <- sort(unique(deps$Package))
+  text <- if (identical(projlib, renv_paths_library(project = project)))
+    "* This project's private library is empty or does not exist."
+  else
+    sprintf("* Library %s is empty or does not exist.", renv_path_pretty(projlib))
 
-  ignored <- c(
-    renv_packages_base(),
-    renv_project_ignored_packages(project),
-    names(renv_lockfile_records(lockfile)),
-    names(renv_lockfile_records(libstate)),
-    "renv"
-  )
-
-  missing <- setdiff(used, ignored)
-  if (empty(missing))
-    return(TRUE)
-
-  renv_pretty_print(
-    missing,
-    "The following package(s) are used in this project, but are not installed:",
-    c(
-      "Consider installing these packages (for example, using `renv::install()`).",
-      "Then, use `renv::snapshot()` to record these packages in the lockfile.",
-      "Use `renv::dependencies()` to see where these packages appear to be used."
-    ),
-    wrap = FALSE
-  )
-
-  if (renv_tests_running())
-    renv_condition_signal("renv.status.used_but_not_installed", missing)
-
+  vwritef(text)
   FALSE
 
 }
@@ -178,31 +174,63 @@ renv_status_check_unknown_sources <- function(project, lockfile) {
 
 renv_status_check_synchronized <- function(project,
                                            lockfile,
-                                           libpaths,
-                                           libstate)
+                                           library,
+                                           packages)
 {
-  # diff packages
-  actions <- renv_lockfile_diff_packages(lockfile, libstate)
-  if (empty(actions))
-    return(TRUE)
+  ok <- TRUE
 
-  # short-circuit for case where no packages (except renv) are installed
-  if (all(actions[setdiff(names(actions), "renv")] == "remove")) {
+  # extract record components
+  lockfile <- renv_lockfile_records(lockfile)
+  library  <- renv_lockfile_records(library)
 
-    records <- renv_records_select(lockfile, actions, "remove")
+  # Case 1.
+  #
+  # - Recorded in the lockfile.
+  # - Installed in the library.
+  # - Used in the project.
+  #
+  # Nothing to do here; this is a consistent state.
+
+  # Case 2.
+  #
+  # - Recorded in the lockfile.
+  # - Not installed in the library.
+  # - Used in the project.
+  #
+  # Use `renv::restore()` to install these packages.
+  records <- lockfile %>%
+    exclude(names(library)) %>%
+    keep(packages)
+
+  if (length(records)) {
+
+    if (renv_tests_running()) {
+      condition <- "renv.status.recorded_but_not_installed"
+      renv_condition_signal(condition, records)
+    }
+
     renv_pretty_print_records(
       records,
       "The following package(s) are recorded in the lockfile, but not installed:",
       "Use `renv::restore()` to install these packages."
     )
 
-    return(FALSE)
+    ok <- FALSE
 
   }
 
-  if ("install" %in% actions) {
+  # Case 3.
+  #
+  # - Installed in the library.
+  # - Not recorded in the lockfile.
+  # - Used in the project.
+  #
+  # Use `renv::snapshot()` to add these packages to the lockfile.
+  records <- library %>%
+    exclude(names(lockfile)) %>%
+    keep(packages)
 
-    records <- renv_records_select(libstate, actions, "install")
+  if (length(records)) {
 
     if (renv_tests_running()) {
       condition <- "renv.status.installed_but_not_recorded"
@@ -215,104 +243,82 @@ renv_status_check_synchronized <- function(project,
       "Use `renv::snapshot()` to add these packages to the lockfile."
     )
 
+    ok <- FALSE
+
   }
 
-  if ("remove" %in% actions) {
-
-    # we need to differentiate between packages that are 'removed' because they
-    # are no longer used in the project, versus packages which are simply not
-    # installed in the project library anymore
-    records <- renv_records_select(lockfile, actions, "remove")
-
-    unused <- NULL
-    if (settings$snapshot.type() %in% c("implicit", "packrat")) {
-
-      deps <- dependencies(project, progress = FALSE)
-      pkgpaths <- renv_package_dependencies(
-        packages = unique(deps$Package),
-        project  = project,
-        libpaths = libpaths
-      )
-
-      used <- intersect(names(records), names(pkgpaths))
-      unused <- keep(records, setdiff(names(records), used))
-      records <- records[used]
-
-    }
+  # Case 4.
+  #
+  # - Not recorded in the lockfile.
+  # - Not installed in the library.
+  # - Used in the project.
+  #
+  # Consider installing these packages.
+  missing <- setdiff(packages, c(names(library), names(lockfile)))
+  if (length(missing)) {
 
     if (renv_tests_running()) {
-      condition <- "renv.status.recorded_but_not_installed"
+      condition <- "renv.status.used_but_not_installed"
+      renv_condition_signal(condition, missing)
+    }
+
+    renv_pretty_print(
+      missing,
+      preamble  = "The following packages are used in this project, but not installed:",
+      postamble = c(
+        "Consider installing these packages; for example, with `renv::install()`.",
+        "Use `renv::snapshot()` to update the lockfile after installation."
+      )
+    )
+
+    ok <- FALSE
+
+  }
+
+  # Case 5 and 6.
+  #
+  # - Recorded in the lockfile
+  # - Installed (or not?) in the library.
+  # - Not used in the project
+  #
+  # Use renv::snapshot() to remove from the lockfile.
+  records <- lockfile %>% exclude(packages)
+  if (length(records)) {
+
+    if (renv_tests_running()) {
+      condition <- "renv.status.recorded_but_not_used"
       renv_condition_signal(condition, records)
     }
 
-    if (settings$snapshot.type() %in% c("all", "implicit", "packrat")) {
+    renv_pretty_print_records(
+      records,
+      preamble =
+        "The following packages are recorded in the lockfile, but do not appear to be used in this project:",
+      postamble =
+        "Use `renv::snapshot()` if you'd like to remove these packages from the lockfile."
+    )
 
-      renv_pretty_print_records(
-        records,
-        "The following package(s) are recorded in the lockfile, but not installed:",
-        "Use `renv::restore()` to install these packages."
-      )
-
-    } else if (settings$snapshot.type() %in% c("explicit")) {
-
-      renv_pretty_print_records(
-        records,
-        "The following unused package(s) are recorded in the lockfile:",
-        "Use `renv::snapshot()` to remove these packages from the lockfile."
-      )
-
-    } else {
-
-      renv_pretty_print_records(
-
-        records = records,
-
-        preamble = c(
-          "The following package(s) are recorded in the lockfile, ",
-          "but do not appear to be required by the project:"
-        ),
-
-        postamble = c(
-          "Use `renv::restore()` to install these packages.",
-          "Use `renv::snapshot()` to remove these packages from the lockfile."
-        )
-
-      )
-
-    }
-
-    if (length(unused)) {
-
-      if (renv_tests_running()) {
-        condition <- "renv.status.recorded_but_no_longer_used"
-        renv_condition_signal(condition, unused)
-      }
-
-      preamble <- "The following package(s) do not appear to be used in this project:"
-      postamble <- if (length(records)) c(
-        "Consider using `renv::restore()` to synchronize the library with the lockfile.",
-        "After, you may want to use `renv::snapshot()` to remove unused packages (if any)."
-      ) else c(
-        "Use `renv::snapshot()` to remove them from the lockfile."
-      )
-
-      renv_pretty_print_records(
-        records   = unused,
-        preamble  = preamble,
-        postamble = postamble
-      )
-
-    }
+    ok <- FALSE
 
   }
 
+  # Case 7 and 8.
+  #
+  # - Not recorded in the lockfile.
+  # - Installed (or not?) in the library.
+  # - Not used in the project.
+  #
+  # No action; it's okay if some auxiliary packages are installed.
+
+  # Report about other changes.
+  actions <- renv_lockfile_diff_packages(lockfile, library)
   rest <- c("upgrade", "downgrade", "crossgrade")
   if (any(rest %in% actions)) {
 
     matches <- actions[actions %in% rest]
 
     rlock <- renv_lockfile_records(lockfile)[names(matches)]
-    rlibs <- renv_lockfile_records(libstate)[names(matches)]
+    rlibs <- renv_lockfile_records(library)[names(matches)]
 
     data <- data.frame(
       "  Package"          = names(matches),
@@ -330,9 +336,12 @@ renv_status_check_synchronized <- function(project,
     writeLines("Use `renv::snapshot()` to save the state of your library to the lockfile.")
     writeLines("Use `renv::restore()` to restore your library from the lockfile.")
     writeLines("")
+
+    ok <- FALSE
+
   }
 
-  FALSE
+  ok
 }
 
 renv_status_check_cache <- function(project) {

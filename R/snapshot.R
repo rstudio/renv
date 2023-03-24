@@ -830,18 +830,27 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 }
 # nocov end
 
-renv_snapshot_dependencies <- function(project, source = project) {
+renv_snapshot_dependencies <- function(project, type) {
 
   message <- "snapshot aborted"
   errors <- config$dependency.errors()
 
+  path <- case(
+    type %in% "implicit" ~ project,
+    type %in% "explicit" ~ file.path(project, "DESCRIPTION"),
+    ~ {
+      fmt <- "internal error: unhandled snapshot type '%s' in %s"
+      stopf(fmt, type, stringify(sys.call()))
+    }
+  )
+
   withCallingHandlers(
 
     dependencies(
-      path = source,
-      root = project,
+      path     = path,
+      root     = project,
       progress = FALSE,
-      errors = errors
+      errors   = errors
     ),
 
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
@@ -916,7 +925,8 @@ renv_snapshot_filter_impl <- function(project, records, packages, type) {
   # warn if some required packages are missing
   ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
   missing <- setdiff(packages, c(names(records), ignored))
-  renv_snapshot_filter_report_missing(missing, type)
+  if (!`_renv_status_running`)
+    renv_snapshot_filter_report_missing(missing, type)
 
   # ignore packages as defined by project
   used <- setdiff(packages, ignored)
@@ -977,30 +987,15 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
 }
 
 renv_snapshot_filter_implicit <- function(project, records) {
-
-  # get the requested dependencies
-  deps <- renv_snapshot_dependencies(project)
+  deps <- renv_snapshot_dependencies(project, "implicit")
   packages <- unique(c(deps$Package, "renv"))
-
-  # execute the filter
   renv_snapshot_filter_impl(project, records, packages, "implicit")
-
 }
 
 renv_snapshot_filter_explicit <- function(project, records) {
-
-  # keep only packages mentioned in the project DESCRIPTION file
-  descpath <- file.path(project, "DESCRIPTION")
-  if (!file.exists(descpath))
-    return(records["renv"])
-
-  # get the requested dependencies
-  deps <- renv_snapshot_dependencies(project, descpath)
+  deps <- renv_snapshot_dependencies(project, "explicit")
   packages <- unique(c(deps$Package, "renv"))
-
-  # filter records
   renv_snapshot_filter_impl(project, records, packages, "explicit")
-
 }
 
 renv_snapshot_filter_packages <- function(project, records, packages) {
