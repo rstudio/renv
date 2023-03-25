@@ -197,7 +197,8 @@ renv_status_check_synchronized <- function(project,
       renv_condition_signal(condition, missing)
     }
 
-    preamble <- "The following packages are used in this project, but not installed:"
+    lockmsg <- "The following packages are recorded in the lockfile, but not installed:"
+    usedmsg <- "The following packages are used in this project, but not installed:"
     restoremsg <- "Use `renv::restore()` to restore the packages recorded in the lockfile."
     installmsg <- "Consider installing these packages -- for example, with `renv::install()`."
     statusmsg <- "Use `renv::status()` afterwards to re-assess the project state."
@@ -208,7 +209,7 @@ renv_status_check_synchronized <- function(project,
       records <- keep(lockfile, missing)
       renv_pretty_print_records(
         records,
-        preamble  = preamble,
+        preamble  = lockmsg,
         postamble = restoremsg
       )
 
@@ -225,7 +226,7 @@ renv_status_check_synchronized <- function(project,
 
     renv_pretty_print(
       missing,
-      preamble  = preamble,
+      preamble  = usedmsg,
       postamble = postamble
     )
 
