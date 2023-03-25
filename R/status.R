@@ -200,7 +200,7 @@ renv_status_check_synchronized <- function(project,
     preamble <- "The following packages are used in this project, but not installed:"
     restoremsg <- "Use `renv::restore()` to restore the packages recorded in the lockfile."
     installmsg <- "Consider installing these packages -- for example, with `renv::install()`."
-    statusmsg <- "Use `renv::status()` after installation to re-assess the project state."
+    statusmsg <- "Use `renv::status()` afterwards to re-assess the project state."
 
     # if these packages are in the lockfile, report those records
     if (all(missing %in% names(lockfile))) {
