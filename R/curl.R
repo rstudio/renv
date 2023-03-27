@@ -25,23 +25,39 @@ renv_curl_validate <- function(curl) {
 renv_curl_validate_impl <- function(curl) {
 
   # make sure we can run this copy of curl
+  # note that 'system2()' will give an error if curl isn't runnable at all
   output <- suppressWarnings(
-    system2(
-      command = curl,
-      args = "--version",
-      stdout = TRUE,
-      stderr = TRUE
+    tryCatch(
+      system2(
+        command = curl,
+        args = "--version",
+        stdout = TRUE,
+        stderr = TRUE
+      ),
+      error = identity
     )
   )
 
-  status <- attr(output, "status") %??% 0L
-  if (status == 0L)
-    return(curl)
+  if (!inherits(output, "error")) {
+    status <- attr(output, "status") %??% 0L
+    if (status == 0L)
+      return(curl)
+  }
+
+  message <- if (inherits(output, "error"))
+    conditionMessage(output)
+  else
+    output
 
   fmt <- "Error executing '%s --version': is your copy of curl functional?"
   footer <- sprintf(fmt, curl)
-  all <- c("", header(paste(curl, "--version"), prefix = "$"), output, "", footer)
-  message(paste(all, collapse = "\n"))
+  all <- c("", header(paste(curl, "--version"), prefix = "$"), message, "", footer)
+
+  envir <- renv_dynamic_envir()
+  defer(
+    message(paste(all, collapse = "\n")),
+    envir = envir
+  )
 
   return(curl)
 
