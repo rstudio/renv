@@ -184,15 +184,8 @@ snapshot <- function(project  = NULL,
   # check for missing dependencies and warn if any are discovered
   # (note: use 'new' rather than 'alt' here as we don't want to attempt
   # validation on uninstalled packages)
-  validated <- renv_snapshot_validate(project, new, libpaths)
-  if (!validated && !force) {
-    if (prompt && !proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    } else {
-      stop("aborting snapshot due to pre-flight validation failure")
-    }
-  }
+  valid <- renv_snapshot_validate(project, new, libpaths)
+  renv_snapshot_validate_report(valid, prompt, force)
 
   # update new reference
   new <- alt
@@ -305,6 +298,34 @@ renv_snapshot_validate <- function(project, lockfile, libpaths) {
   })
 
   all(ok)
+
+}
+
+renv_snapshot_validate_report <- function(valid, prompt, force) {
+
+  # nothing to do if everything is valid
+  if (valid) {
+    dlog("snapshot", "passed pre-flight validation checks")
+    return(TRUE)
+  }
+
+  # if we're forcing snapshot, ignore the failures
+  if (force) {
+    dlog("snapshot", "ignoring error in pre-flight validation checks as 'force = TRUE'")
+    return(TRUE)
+  }
+
+  # in interactive sessions, ask the user what they want to do
+  if (interactive() && prompt && !proceed()) {
+    renv_report_user_cancel()
+    invokeRestart("abort")
+  }
+
+  # in non-interactive sessions, throw an error (user will need to use force)
+  if (!interactive())
+    stop("aborting snapshot due to pre-flight validation failure")
+
+  TRUE
 
 }
 

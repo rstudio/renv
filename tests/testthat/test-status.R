@@ -9,19 +9,14 @@ test_that("status reports packages to be installed / changed", {
 
   init(bare = TRUE)
   snapshot()
+  expect_signal(status(), class = "renv.status.used_but_not_installed")
 
-  install("toast")
+  install("breakfast")
   expect_signal(status(), class = "renv.status.installed_but_not_recorded")
   snapshot()
 
-  install("breakfast")
-  remove("toast")
-  expect_signal(status(), class = "renv.status.installed_but_not_recorded")
-  expect_signal(status(), class = "renv.status.recorded_but_not_installed")
-  snapshot(force = TRUE)
-
-  install("breakfast@0.1.0")
-  expect_signal(status(), class = "renv.status.installed_but_not_recorded")
+  record("egg")
+  expect_signal(status(), class = "renv.status.recorded_but_not_used")
   snapshot()
 
 })
