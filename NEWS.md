@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Fixed an issue where package names were not included in the output
+  of `renv::diagnostics()`. (#1182)
+
 * The clarity of the message printed by `renv::status()` has been improved;
   in particular, `renv` should better report the recommended actions when
   a package required by the project is not installed.

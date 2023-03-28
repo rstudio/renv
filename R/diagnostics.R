@@ -118,6 +118,9 @@ renv_diagnostics_packages <- function(project) {
     Dependency = deps
   )
 
+  # we explicitly want to use rownames here
+  row.names(data) <- names(deps)
+
   # print it out
   renv_scope_options(width = 9000)
   print(data, max = 10000)
@@ -284,9 +287,9 @@ renv_diagnostics_cache <- function(project) {
 
   vwritef(header("Cache"))
 
-  fmt <- "There are a total of %i package(s) installed in the renv cache."
+  fmt <- "There are a total of %s installed in the renv cache."
   cachelist <- renv_cache_list()
-  vwritef(fmt, length(cachelist))
+  vwritef(fmt, nplural("package", length(cachelist)))
   vwritef("Cache path: %s", renv_path_pretty(renv_paths_cache()))
 
 }
