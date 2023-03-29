@@ -270,6 +270,10 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   project  <- renv_project_resolve(project)
   lockfile <- lockfile %||% renv_lockfile_load(project)
 
+  # be quiet when checking for dependencies in this scope
+  # https://github.com/rstudio/renv/issues/1181
+  renv_scope_options(renv.config.dependency.errors = "ignored")
+
   # check for packages referenced in the lockfile which are not installed
   lockpkgs <- names(lockfile$Packages)
   libpkgs <- renv_snapshot_library(
