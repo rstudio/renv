@@ -65,6 +65,10 @@
 #' /data/
 #' ```
 #'
+#' Using ignore files is important if your project contains a large number
+#' of files; for example, if you have a 'data' directory containing many
+#' text files.
+#'
 #' @inheritParams renv-params
 #'
 #' @param path The path to a (possibly multi-mode) \R file, or a directory
@@ -358,6 +362,15 @@ renv_dependencies_find_dir_children <- function(path, root, depth) {
   # list files in the folder
   children <- renv_file_list(path, full.names = TRUE)
 
+  # skip if this contains too many files
+  # https://github.com/rstudio/renv/issues/1186
+  limit <- getOption("renv.dependencies.limit", default = 1000L)
+  count <- length(children)
+  if (count >= limit) {
+    relpath <- renv_path_relative(path, dirname(root))
+    renv_dependencies_find_dir_children_overload(relpath, count)
+  }
+
   # remove files which are broken symlinks
   children <- children[file.exists(children)]
 
@@ -371,6 +384,23 @@ renv_dependencies_find_dir_children <- function(path, root, depth) {
 
   # keep only non-excluded children
   children[!excluded]
+
+}
+
+renv_dependencies_find_dir_children_overload <- function(path, count) {
+
+  # check for missing state (e.g. if internal method called directly)
+  state <- renv_dependencies_state()
+  if (is.null(state))
+    return()
+
+  fmt <- "directory %s contains %s; consider ignoring this directory"
+  msg <- sprintf(fmt, renv_path_pretty(path), nplural("file", count))
+  error <- simpleError(message = msg)
+
+  path <- path %||% state$path
+  problem <- list(file = path, error = error)
+  state$problems$push(problem)
 
 }
 

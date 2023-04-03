@@ -112,6 +112,10 @@ data/
 # ignore only data folders from the root of the project
 /data/
 }\if{html}{\out{</div>}}
+
+Using ignore files is important if your project contains a large number
+of files; for example, if you have a 'data' directory containing many
+text files.
 }
 
 \section{Errors}{

@@ -134,3 +134,10 @@ renv_path_component <- function(path, index = 1) {
 renv_path_pretty <- function(path) {
   renv_json_quote(renv_path_aliased(path))
 }
+
+renv_path_relative <- function(path, root) {
+  within <- startswith(path, root)
+  path[within] <- substring(path[within], nchar(root) + 2L)
+  path
+}
+

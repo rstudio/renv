@@ -414,3 +414,10 @@ test_that("we can parse remotes from a DESCRIPTION file", {
   expect_equal(deps$Package, "r-dbi/DBItest")
 
 })
+
+test_that("renv warns when parsing dependencies from a folder with too many files", {
+  renv_tests_scope()
+  file.create(letters)
+  renv_scope_options(renv.dependencies.limit = 10L)
+  expect_error(dependencies(progress = FALSE, errors = "fatal"))
+})
