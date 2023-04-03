@@ -12,7 +12,7 @@ available_packages <- function(type,
 
     key = list(
       type = type,
-      repos = repos,
+      repos = repos %??% getOption("repos"),
       cellar = cellar
     ),
 
@@ -495,7 +495,8 @@ renv_available_packages_latest_repos <- function(package,
                                                  type = NULL,
                                                  repos = NULL)
 {
-  type <- type %||% getOption("pkgType")
+  type  <- type %??% getOption("pkgType")
+  repos <- repos %??% getOption("repos")
 
   # detect requests for only source packages
   if (identical(type, "source"))
