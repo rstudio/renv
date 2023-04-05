@@ -7,6 +7,7 @@ renv_rtools_list <- function() {
 
     renv_rtools_registry(),
 
+    Sys.getenv("RTOOLS43_HOME", unset = file.path(drive, "rtools43")),
     Sys.getenv("RTOOLS42_HOME", unset = file.path(drive, "rtools42")),
     Sys.getenv("RTOOLS40_HOME", unset = file.path(drive, "rtools40")),
     file.path(drive, "Rtools"),
