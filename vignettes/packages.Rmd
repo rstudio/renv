@@ -68,7 +68,7 @@ for more details.
 ## Testing
 
 While developing your package, you may want to use a continuous integration
-service (such as [Travis CI](https://www.travis-ci.org/)) to build and test
+service (such as [Travis CI](https://www.travis-ci.com)) to build and test
 your package remotely. You can use `renv` to help facilitate this testing --
 see the [Continuous Integration][ci] vignette for more information. In
 particular, clever use of the `renv` cache can help save time that might
