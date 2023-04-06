@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -137,7 +137,9 @@ dependencies are returned.</p></dd>
 <p>An <span style="R">R</span></p>
 <p></p>
 <p><code>data.frame</code> of discovered dependencies, mapping inferred
-package names to the files in which they were discovered.</p>
+package names to the files in which they were discovered. Note that the
+<code>Package</code> field might name a package remote, rather than just a plain
+package name.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -191,6 +193,9 @@ the <code>.gitignore</code>.</p>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># ignore only data folders from the root of the project</span></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="er">/</span>data<span class="sc">/</span></span></code></pre><p></p></div>
+<p>Using ignore files is important if your project contains a large number
+of files; for example, if you have a 'data' directory containing many
+text files.</p>
     </div>
     <div class="section level2">
     <h2 id="errors">Errors<a class="anchor" aria-label="anchor" href="#errors"></a></h2>

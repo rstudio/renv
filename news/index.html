@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +76,22 @@
       <small>Source: <a href="https://github.com/rstudio/renv/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.17.3" id="renv-0173">renv 0.17.3<a class="anchor" aria-label="anchor" href="#renv-0173"></a></h2>
+<ul><li><p>Fixed an issue where <code>renv::install("bioc::&lt;package&gt;")</code> could fail if <code>BiocManager</code> was not already installed. (<a href="https://github.com/rstudio/renv/issues/1184" class="external-link">#1184</a>)</p></li>
+<li><p>Fixed an issue where package names were not included in the output of <code><a href="../reference/diagnostics.html">renv::diagnostics()</a></code>. (<a href="https://github.com/rstudio/renv/issues/1182" class="external-link">#1182</a>)</p></li>
+<li><p>The clarity of the message printed by <code><a href="../reference/status.html">renv::status()</a></code> has been improved; in particular, <code>renv</code> should better report the recommended actions when a package required by the project is not installed.</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> gains the <code>exclude</code> argument, for explicitly excluding certain packages from the generated lockfile.</p></li>
+<li><p>Fixed an issue where <code>renv</code> was passing the wrong argument name to <code><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages()</a></code>, causing usages of <code>renv</code> to fail with R (&lt;= 3.4.0). (<a href="https://github.com/rstudio/renv/issues/1173" class="external-link">#1173</a>)</p></li>
+<li><p><code>renv</code> now sets the <code>SDKROOT</code> environment variable on macOS if it detects that R was built using an LLVM build of <code>clang</code> on macOS.</p></li>
+<li><p><code><a href="../reference/install.html">renv::install()</a></code> now parses the remotes included within, for example, a <code>DESCRIPTION</code> file’s <code>Config/Needs/...</code> field.</p></li>
+<li><p><code>renv</code> now checks that the index directory is writable before attempting to use it, e.g. for the <code>R</code> available packages index maintained by <code>renv</code>. (<a href="https://github.com/rstudio/renv/issues/1171" class="external-link">#1171</a>)</p></li>
+<li><p><code>renv</code> now checks that the version of <code>curl</code> used for downloads appears to be functional, and reports a warning if it does not (for example, because a requisite system library is missing). The version of <code>curl</code> used for downloads can also be configured via the <code>RENV_CURL_EXECUTABLE</code> environment variable.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.17.2" id="renv-0172">renv 0.17.2<a class="anchor" aria-label="anchor" href="#renv-0172"></a></h2><p class="text-muted">CRAN release: 2023-03-17</p>
+<ul><li>Fixed a regression that caused package hashes to be computed incorrectly in some cases. This was a regression in the 0.17.1 release. (<a href="https://github.com/rstudio/renv/issues/1168" class="external-link">#1168</a>)</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.17.1" id="renv-0171">renv 0.17.1<a class="anchor" aria-label="anchor" href="#renv-0171"></a></h2><p class="text-muted">CRAN release: 2023-03-16</p>
 <ul><li><p><code>renv</code> gains the configuration option <code>install.remotes</code>, which can be used to control whether <code>renv</code> attempts to read and use the <code>Remotes:</code> field included with installed packages. This can be set to <code>FALSE</code> if you’d like to ignore this field; e.g. because you know they will not be accessible. (<a href="https://github.com/rstudio/renv/issues/1133" class="external-link">#1133</a>)</p></li>

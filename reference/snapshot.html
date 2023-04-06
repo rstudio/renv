@@ -14,7 +14,7 @@ project's dependencies as required."><meta property="og:image" content="https://
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,6 +97,7 @@ project's dependencies as required.</p>
 <span>  type <span class="op">=</span> <span class="va">settings</span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span>project <span class="op">=</span> <span class="va">project</span><span class="op">)</span>,</span>
 <span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span>,</span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  update <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -146,6 +147,10 @@ to the currently active package repositories, as retrieved by
 performed will be included. When set, the <code>type</code> argument is ignored.
 Recursive dependencies of the specified packages will be added to the
 lockfile as well.</p></dd>
+
+
+<dt>exclude</dt>
+<dd><p>A vector of packages to be explicitly excluded from the lockfile.</p></dd>
 
 
 <dt>prompt</dt>

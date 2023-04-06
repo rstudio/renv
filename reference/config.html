@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.17.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -178,7 +178,7 @@ Defaults to <code>"*"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-external-libraries">renv.config.external.libraries<a class="anchor" aria-label="anchor" href="#renv-config-external-libraries"></a></h3>
-<p>A character vector of external libraries, to be used in tandem with your projects. Be careful when using external libraries: it's possible that things can break within a project if the version(s) of packages used in your project library happen to be incompatible with packages in your external libraries; for example, if your project required <code>xyz 1.0</code> but <code>xyz 1.1</code> was present and loaded from an external library. Can also be an <span style="R">R</span> function that provides the paths to external libraries. Library paths will be expanded via <code><a href="https://rdrr.io/r/base/base-internal.html" class="external-link">.expand_R_libs_env_var()</a></code> as necessary.
+<p>A character vector of external libraries, to be used in tandem with your projects. Be careful when using external libraries: it's possible that things can break within a project if the version(s) of packages used in your project library happen to be incompatible with packages in your external libraries; for example, if your project required <code>xyz 1.0</code> but <code>xyz 1.1</code> was present and loaded from an external library. Can also be an <span style="R">R</span> function that provides the paths to external libraries. Library paths will be expanded via <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.expand_R_libs_env_var()</a></code> as necessary.
 Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
