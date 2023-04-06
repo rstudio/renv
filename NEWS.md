@@ -1,5 +1,5 @@
 
-# renv 0.18.0  (UNRELEASED)
+# renv 0.17.3
 
 * Fixed an issue where `renv::install("bioc::<package>")` could fail if
   `BiocManager` was not already installed. (#1184)
