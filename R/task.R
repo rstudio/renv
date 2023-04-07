@@ -51,6 +51,6 @@ renv_task_callback <- function(callback, name) {
 renv_task_unload <- function() {
   callbacks <- getTaskCallbackNames()
   for (callback in callbacks)
-    if (startswith(callback, "renv:::"))
+    if (startswith(callback, "renv_"))
       removeTaskCallback(callback)
 }
