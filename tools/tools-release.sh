@@ -42,10 +42,15 @@ mv NEWS.md.tmp NEWS.md
 # remove inst/doc (these will be rebuilt)
 rm -rf inst/doc
 
+# preform other pre-flight checks
+R -e 'devtools::load_all(); renv:::renv_release_preflight()'
+
 # build and check the package
 cd ..
 R CMD build renv
 R CMD check "renv_${VERSION}.tar.gz"
 cd renv
 
+# set OK flag for exit handler
 OK=1
+
