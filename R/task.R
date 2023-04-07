@@ -2,28 +2,17 @@
 renv_task_create <- function(callback, name = NULL) {
 
   # create name for task callback
-  name <- name %||% as.character(substitute(callback))
-  id <- paste("renv", name, sep = ":::")
+  name <- name %??% as.character(substitute(callback))
+  name <- paste("renv", name, sep = ":::")
 
   # remove an already-existing task of the same name
-  removeTaskCallback(id)
+  removeTaskCallback(name)
 
   # otherwise, add our new task
   addTaskCallback(
     renv_task_callback(callback, name),
     name = name
   )
-
-}
-
-renv_task_remove <- function(callback, name = NULL) {
-
-  # create name for task callback
-  name <- name %||% as.character(substitute(callback))
-  id <- paste("renv", name, sep = ":::")
-
-  # remove it
-  removeTaskCallback(id)
 
 }
 
@@ -51,6 +40,7 @@ renv_task_callback <- function(callback, name) {
 renv_task_unload <- function() {
   callbacks <- getTaskCallbackNames()
   for (callback in callbacks)
-    if (startswith(callback, "renv_"))
-      removeTaskCallback(callback)
+    for (prefix in c("renv_", "renv:::"))
+      if (startswith(callback, prefix))
+        removeTaskCallback(callback)
 }
