@@ -47,7 +47,9 @@ renv_pretty_print_records <- function(records,
   if (renv_tests_running() && !renv_tests_verbose())
     return(invisible(NULL))
 
-  packages <- extract_chr(records, "Package")
+  names(records) <- names(records) %??% map_chr(records, `[[`, "Package")
+  records <- records[csort(names(records))]
+  packages <- names(records)
   descs <- map_chr(records, renv_record_format_short)
 
   lhs <- paste(" ", format(packages))
