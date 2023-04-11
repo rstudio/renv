@@ -4,8 +4,8 @@
 * `renv::restore()` can now use `pak::pkg_install()` to install packages
   when `pak` integration is enabled. Set `RENV_CONFIG_PAK_ENABLED = TRUE`
   in your project's `.Renviron` if you'd like to opt-in to this behavior.
-  Note that this currently required a nightly build of `pak`; see
-  https://pak.r-lib.org/dev/reference/install.html for more details.
+  Note that this requires a nightly build of `pak` (>= 0.4.0-9000);
+  see https://pak.r-lib.org/dev/reference/install.html for more details.
   
 
 # renv 0.17.3
