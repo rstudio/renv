@@ -1,17 +1,47 @@
 
-renv_pak_init <- function(stream = c("stable", "rc", "devel"),
-                          force  = FALSE)
-{
-  stream <- match.arg(stream)
-  if (force || !renv_package_installed("pak"))
+`_renv_pak_version` <- numeric_version("0.4.0-9000")
+
+renv_pak_init <- function(stream = NULL, force = FALSE) {
+
+  stream <- stream %??% renv_pak_stream()
+  if (force || !renv_pak_available("pak"))
     renv_pak_init_impl(stream)
+
   renv_namespace_load("pak")
+
+}
+
+renv_pak_stream <- function() {
+
+  # check if stable is new enough
+  streams <- c("stable", "rc", "devel")
+  for (stream in streams) {
+    repos <- renv_pak_repos(stream)
+    latest <- renv_available_packages_latest("pak", repos = repos)
+    version <- numeric_version(latest$Version)
+    if (version >= `_renv_pak_version`)
+      return(stream)
+  }
+
+  fmt <- "internal error: pak (>= %s) is not available"
+  stopf(fmt, format(`_renv_pak_version`))
+
+}
+
+renv_pak_available <- function() {
+  tryCatch(
+    packageVersion("pak") >= `_renv_pak_version`,
+    error = function(e) FALSE
+  )
+}
+
+renv_pak_repos <- function(stream) {
+  fmt <- "https://r-lib.github.io/p/pak/%s/%s/%s/%s"
+  sprintf(fmt, stream, .Platform$pkgType, version$os, version$arch)
 }
 
 renv_pak_init_impl <- function(stream) {
-  fmt <- "https://r-lib.github.io/p/pak/%s/%s/%s/%s"
-  repos <- sprintf(fmt, stream, .Platform$pkgType, version$os, version$arch)
-  utils::install.packages("pak", repos = repos)
+  utils::install.packages("pak", repos = renv_pak_repos(stream))
 }
 
 renv_pak_install <- function(packages, library, project) {

@@ -1516,23 +1516,16 @@ renv_dependencies_discover_r_database <- function(node, stack, envir) {
 }
 
 renv_dependencies_database <- function() {
-  # TODO: make this user-accessible?
-  global(
-    "dependencies.database",
-    renv_dependencies_database_impl()
+  dynamic(
+    key   = list(),
+    value = renv_dependencies_database_impl()
   )
 }
 
 renv_dependencies_database_impl <- function() {
-
-  db <- list()
-
-  db$ggplot2 <- list(
-    geom_hex = "hexbin"
-  )
-
+  db <- getOption("renv.dependencies.database", default = list())
+  db$ggplot2$geom_hex <- "hexbin"
   db
-
 }
 
 renv_dependencies_list <- function(source,
