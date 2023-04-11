@@ -1,6 +1,11 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::restore()` can now use `pak::pkg_install()` to install packages
+  when `pak` integration is enabled. Set `RENV_CONFIG_PAK_ENABLED = TRUE`
+  in your project's `.Renviron` if you'd like to opt-in to this behavior.
+  
+
 # renv 0.17.3
 
 * Fixed an issue where `renv::install("bioc::<package>")` could fail if

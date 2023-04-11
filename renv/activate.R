@@ -2,7 +2,7 @@
 local({
 
   # the requested version of renv
-  version <- "0.15.4-41"
+  version <- "0.17.3-6"
 
   # the project directory
   project <- getwd()
@@ -63,6 +63,10 @@ local({
     if (is.environment(x) || length(x)) x else y
   }
   
+  `%??%` <- function(x, y) {
+    if (is.null(x)) y else x
+  }
+  
   bootstrap <- function(version, library) {
   
     # attempt to download renv
@@ -83,10 +87,21 @@ local({
   
   renv_bootstrap_repos <- function() {
   
+    # get CRAN repository
+    cran <- getOption("renv.repos.cran", "https://cloud.r-project.org")
+  
     # check for repos override
     repos <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = NA)
-    if (!is.na(repos))
+    if (!is.na(repos)) {
+  
+      # check for RSPM; if set, use a fallback repository for renv
+      rspm <- Sys.getenv("RSPM", unset = NA)
+      if (identical(rspm, repos))
+        repos <- c(RSPM = rspm, CRAN = cran)
+  
       return(repos)
+  
+    }
   
     # check for lockfile repositories
     repos <- tryCatch(renv_bootstrap_repos_lockfile(), error = identity)
@@ -94,17 +109,17 @@ local({
       return(repos)
   
     # if we're testing, re-use the test repositories
-    if (renv_bootstrap_tests_running())
-      return(getOption("renv.tests.repos"))
+    if (renv_bootstrap_tests_running()) {
+      repos <- getOption("renv.tests.repos")
+      if (!is.null(repos))
+        return(repos)
+    }
   
     # retrieve current repos
     repos <- getOption("repos")
   
     # ensure @CRAN@ entries are resolved
-    repos[repos == "@CRAN@"] <- getOption(
-      "renv.repos.cran",
-      "https://cloud.r-project.org"
-    )
+    repos[repos == "@CRAN@"] <- cran
   
     # add in renv.bootstrap.repos if set
     default <- c(FALLBACK = "https://cloud.r-project.org")
@@ -185,43 +200,80 @@ local({
     if (fixup)
       mode <- "w+b"
   
-    utils::download.file(
+    args <- list(
       url      = url,
       destfile = destfile,
       mode     = mode,
       quiet    = TRUE
     )
   
+    if ("headers" %in% names(formals(utils::download.file)))
+      args$headers <- renv_bootstrap_download_custom_headers(url)
+  
+    do.call(utils::download.file, args)
+  
+  }
+  
+  renv_bootstrap_download_custom_headers <- function(url) {
+  
+    headers <- getOption("renv.download.headers")
+    if (is.null(headers))
+      return(character())
+  
+    if (!is.function(headers))
+      stopf("'renv.download.headers' is not a function")
+  
+    headers <- headers(url)
+    if (length(headers) == 0L)
+      return(character())
+  
+    if (is.list(headers))
+      headers <- unlist(headers, recursive = FALSE, use.names = TRUE)
+  
+    ok <-
+      is.character(headers) &&
+      is.character(names(headers)) &&
+      all(nzchar(names(headers)))
+  
+    if (!ok)
+      stop("invocation of 'renv.download.headers' did not return a named character vector")
+  
+    headers
+  
   }
   
   renv_bootstrap_download_cran_latest <- function(version) {
   
     spec <- renv_bootstrap_download_cran_latest_find(version)
-  
-    message("* Downloading renv ", version, " ... ", appendLF = FALSE)
-  
     type  <- spec$type
     repos <- spec$repos
   
-    info <- tryCatch(
-      utils::download.packages(
-        pkgs    = "renv",
-        destdir = tempdir(),
-        repos   = repos,
-        type    = type,
-        quiet   = TRUE
-      ),
+    message("* Downloading renv ", version, " ... ", appendLF = FALSE)
+  
+    baseurl <- utils::contrib.url(repos = repos, type = type)
+    ext <- if (identical(type, "source"))
+      ".tar.gz"
+    else if (Sys.info()[["sysname"]] == "Windows")
+      ".zip"
+    else
+      ".tgz"
+    name <- sprintf("renv_%s%s", version, ext)
+    url <- paste(baseurl, name, sep = "/")
+  
+    destfile <- file.path(tempdir(), name)
+    status <- tryCatch(
+      renv_bootstrap_download_impl(url, destfile),
       condition = identity
     )
   
-    if (inherits(info, "condition")) {
+    if (inherits(status, "condition")) {
       message("FAILED")
       return(FALSE)
     }
   
     # report success and return
     message("OK (downloaded ", type, ")")
-    info[1, 2]
+    destfile
   
   }
   
@@ -307,8 +359,7 @@ local({
       return()
   
     # allow directories
-    info <- file.info(tarball, extra_cols = FALSE)
-    if (identical(info$isdir, TRUE)) {
+    if (dir.exists(tarball)) {
       name <- sprintf("renv_%s.tar.gz", version)
       tarball <- file.path(tarball, name)
     }
@@ -622,8 +673,8 @@ local({
     if (version == loadedversion)
       return(TRUE)
   
-    # assume four-component versions are from GitHub; three-component
-    # versions are from CRAN
+    # assume four-component versions are from GitHub;
+    # three-component versions are from CRAN
     components <- strsplit(loadedversion, "[.-]")[[1]]
     remote <- if (length(components) == 4L)
       paste("rstudio/renv", loadedversion, sep = "@")
@@ -662,6 +713,12 @@ local({
   
     # warn if the version of renv loaded does not match
     renv_bootstrap_validate_version(version)
+  
+    # execute renv load hooks, if any
+    hooks <- getHook("renv::autoload")
+    for (hook in hooks)
+      if (is.function(hook))
+        tryCatch(hook(), error = warning)
   
     # load the project
     renv::load(project)
@@ -805,11 +862,29 @@ local({
   
   renv_json_read <- function(file = NULL, text = NULL) {
   
+    jlerr <- NULL
+  
     # if jsonlite is loaded, use that instead
-    if ("jsonlite" %in% loadedNamespaces())
-      renv_json_read_jsonlite(file, text)
+    if ("jsonlite" %in% loadedNamespaces()) {
+  
+      json <- catch(renv_json_read_jsonlite(file, text))
+      if (!inherits(json, "error"))
+        return(json)
+  
+      jlerr <- json
+  
+    }
+  
+    # otherwise, fall back to the default JSON reader
+    json <- catch(renv_json_read_default(file, text))
+    if (!inherits(json, "error"))
+      return(json)
+  
+    # report an error
+    if (!is.null(jlerr))
+      stop(jlerr)
     else
-      renv_json_read_default(file, text)
+      stop(json)
   
   }
   

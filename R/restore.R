@@ -72,7 +72,7 @@ restore <- function(project  = NULL,
   renv_scope_error_handler()
   renv_dots_check(...)
 
-  project  <- renv_project_resolve(project)
+  project <- renv_project_resolve(project)
   renv_project_lock(project = project)
 
   renv_activate_prompt("restore", library, prompt, project)
@@ -104,6 +104,17 @@ restore <- function(project  = NULL,
   repos <- repos %||% config$repos.override() %||% lockfile$R$Repositories
   if (length(repos))
     renv_scope_options(repos = convert(repos, "character"))
+
+  # if users have requested the use of pak, delegate there
+  if (config$pak.enabled() && !recursing()) {
+    renv_pak_init()
+    renv_pak_restore(
+      lockfile = lockfile,
+      package  = packages,
+      exclude  = exclude,
+      project  = project
+    )
+  }
 
   # set up Bioconductor version + repositories
   biocversion <- lockfile$Bioconductor$Version
