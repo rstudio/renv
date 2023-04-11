@@ -4,7 +4,7 @@
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
   stream <- stream %??% renv_pak_stream()
-  if (force || !renv_pak_available("pak"))
+  if (force || !renv_pak_available())
     renv_pak_init_impl(stream)
 
   renv_namespace_load("pak")
