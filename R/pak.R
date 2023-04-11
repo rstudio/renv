@@ -1,14 +1,17 @@
 
-renv_pak_init <- function() {
+renv_pak_init <- function(stream = c("stable", "rc", "devel"),
+                          force  = FALSE)
+{
+  stream <- match.arg(stream)
+  if (force || !renv_package_installed("pak"))
+    renv_pak_init_impl(stream)
+  renv_namespace_load("pak")
+}
 
-  if (requireNamespace("pak", quietly = TRUE))
-    return(renv_namespace_load("pak"))
-
-  # prefer using prebuilt binaries
-  fmt <- "https://r-lib.github.io/p/pak/stable/%s/%s/%s"
-  repos <- sprintf(fmt, .Platform$pkgType, version$os, version$arch)
+renv_pak_init_impl <- function(stream) {
+  fmt <- "https://r-lib.github.io/p/pak/%s/%s/%s/%s"
+  repos <- sprintf(fmt, stream, .Platform$pkgType, version$os, version$arch)
   utils::install.packages("pak", repos = repos)
-
 }
 
 renv_pak_install <- function(packages, library, project) {
@@ -65,6 +68,19 @@ renv_pak_restore <- function(lockfile,
 
   # convert into specs compatible with pak, and install
   remotes <- map_chr(records, renv_record_format_remote)
+
+  # convert any remotes that happen to be current into plain package names
+  types <- renv_package_pkgtypes()
+  for (type in types) {
+    dbs <- available_packages(type = type)
+    for (db in dbs) {
+      dbremotes <- paste(db$Package, db$Version, sep = "@")
+      matches <- remotes %in% dbremotes
+      remotes[matches] <- names(remotes[matches])
+    }
+  }
+
+  # perform installation
   pak$pkg_install(remotes)
 }
 
