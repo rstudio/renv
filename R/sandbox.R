@@ -213,16 +213,30 @@ renv_sandbox_path <- function(project = NULL) {
   renv_paths_sandbox(project = project)
 }
 
-renv_sandbox_lock <- function(sandbox) {
+renv_sandbox_lock <- function(sandbox = NULL, project = NULL) {
+  sandbox <- sandbox %??% renv_sandbox_path(project = project)
   Sys.chmod(sandbox, mode = "0555")
 }
 
-renv_sandbox_locked <- function(sandbox) {
+renv_sandbox_locked <- function(sandbox = NULL, project = NULL) {
+  sandbox <- sandbox %??% renv_sandbox_path(project = project)
   mode <- suppressWarnings(file.mode(sandbox))
   mode == 365L  # as.integer(as.octmode("0555"))
 }
 
-renv_sandbox_unlock <- function(sandbox) {
+renv_sandbox_unlock <- function(sandbox = NULL, project = NULL) {
+  sandbox <- sandbox %??% renv_sandbox_path(project = project)
   Sys.chmod(sandbox, mode = "0755")
 }
 
+#' Interact with the renv Sandbox
+#'
+#' Internal tools for interacting with the `renv` sandbox.
+#'
+#' @export
+sandbox <- list(
+  path   = renv_sandbox_path,
+  lock   = renv_sandbox_lock,
+  locked = renv_sandbox_locked,
+  unlock = renv_sandbox_unlock
+)
