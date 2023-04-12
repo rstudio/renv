@@ -330,6 +330,7 @@ renv_paths_root_default_tempdir <- function() {
 #' \code{RENV_PATHS_BINARY}          \tab The path containing downloaded package binaries. \cr
 #' \code{RENV_PATHS_CACHE}           \tab The path containing cached package installations. \cr
 #' \code{RENV_PATHS_PREFIX}          \tab An optional prefix to prepend to the constructed library / cache paths. \cr
+#' \code{RENV_PATHS_RENV}            \tab The path to the project's `renv` folder. For advanced users only. \cr
 #' \code{RENV_PATHS_RTOOLS}          \tab (Windows only) The path to [Rtools](https://cran.r-project.org/bin/windows/Rtools/). \cr
 #' \code{RENV_PATHS_EXTSOFT}         \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
 #' \code{RENV_PATHS_MRAN}            \tab The path containing MRAN-related metadata. See `vignette("mran", package = "renv")` for more details. \cr
