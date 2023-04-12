@@ -49,6 +49,10 @@ renv_pak_install <- function(packages, library, project) {
   pak <- renv_namespace_load("pak")
   lib <- library[[1L]]
 
+  # transform repositories
+  if (renv_rspm_enabled())
+    renv_scope_options(repos = renv_rspm_transform())
+
   # make sure pak::pkg_install() still works even if we're
   # running in renv with devtools::load_all()
   name <- Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)

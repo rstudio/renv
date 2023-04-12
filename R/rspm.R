@@ -1,5 +1,5 @@
 
-renv_rspm_transform <- function(repos) {
+renv_rspm_transform <- function(repos = getOption("repos")) {
   map_chr(repos, function(url) {
     tryCatch(
       renv_rspm_transform_impl(url),
