@@ -166,6 +166,7 @@ renv_dependencies_impl <- function(
   path = getwd(),
   root = NULL,
   ...,
+  field = NULL,
   progress = TRUE,
   errors = c("reported", "fatal", "ignored"),
   dev = FALSE)
@@ -186,9 +187,12 @@ renv_dependencies_impl <- function(
 
   # check and see if we've pre-computed dependencies for this path, and
   # retrieve those pre-computed dependencies if so
-  if (length(path) == 1L)
-    if (exists(path, envir = `_renv_dependencies`))
-      return(get(path, envir = `_renv_dependencies`))
+  if (length(path) == 1L) {
+    if (exists(path, envir = `_renv_dependencies`)) {
+      cache <- get(path, envir = `_renv_dependencies`)
+      return(take(cache, field))
+    }
+  }
 
   renv_dependencies_begin(root = root)
   on.exit(renv_dependencies_end(), add = TRUE)
@@ -203,7 +207,7 @@ renv_dependencies_impl <- function(
   deps <- renv_dependencies_discover(files, progress, errors)
   renv_dependencies_report(errors)
 
-  deps
+  take(deps, field)
 }
 
 renv_dependencies_root <- function(path = getwd()) {

@@ -92,7 +92,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   )
 
   # include transitive dependencies
-  packages <- sort(unique(c(dependencies$Package, "renv")))
+  packages <- sort(unique(c(dependencies, "renv")))
   paths <- renv_package_dependencies(packages, project = project)
   packages <- as.character(names(paths))
 

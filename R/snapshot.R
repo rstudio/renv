@@ -856,6 +856,14 @@ renv_snapshot_dependencies <- function(project, type) {
   message <- "snapshot aborted"
   errors <- config$dependency.errors()
 
+  if (type %in% "all")
+    return(installed_packages(field = "Package"))
+
+  if (type %in% "custom") {
+    filter <- renv_snapshot_filter_custom_resolve()
+    return(filter(project))
+  }
+
   path <- case(
     type %in% "implicit" ~ project,
     type %in% "explicit" ~ file.path(project, "DESCRIPTION"),
@@ -867,10 +875,11 @@ renv_snapshot_dependencies <- function(project, type) {
 
   withCallingHandlers(
 
-    dependencies(
+    renv_dependencies_impl(
       path     = path,
       root     = project,
       progress = FALSE,
+      field    = "Package",
       errors   = errors
     ),
 
@@ -1008,14 +1017,12 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
 }
 
 renv_snapshot_filter_implicit <- function(project, records) {
-  deps <- renv_snapshot_dependencies(project, "implicit")
-  packages <- unique(c(deps$Package, "renv"))
+  packages <- renv_snapshot_dependencies(project, "implicit")
   renv_snapshot_filter_impl(project, records, packages, "implicit")
 }
 
 renv_snapshot_filter_explicit <- function(project, records) {
-  deps <- renv_snapshot_dependencies(project, "explicit")
-  packages <- unique(c(deps$Package, "renv"))
+  packages <- renv_snapshot_dependencies(project, "explicit")
   renv_snapshot_filter_impl(project, records, packages, "explicit")
 }
 
@@ -1039,10 +1046,14 @@ renv_snapshot_filter_packages <- function(project, records, packages) {
 
 }
 
-renv_snapshot_filter_custom <- function(project, records) {
+renv_snapshot_filter_custom_resolve <- function() {
 
-  option <- "renv.snapshot.filter"
-  filter <- getOption(option, default = NULL)
+  # check for custom filter
+  filter <- getOption("renv.snapshot.filter", default = NULL)
+  if (is.null(filter)) {
+    fmt <- "snapshot of type '%s' requested, but '%s' is not registered"
+    stopf(fmt, "custom", "renv.snapshot.filter")
+  }
 
   # allow for filter naming a function to use
   if (is.character(filter))
@@ -1051,18 +1062,29 @@ renv_snapshot_filter_custom <- function(project, records) {
   # check we got a function
   if (!is.function(filter)) {
     fmt <- "snapshot of type '%s' requested, but '%s' is not a function"
-    stopf(fmt, "custom", option)
+    stopf(fmt, "custom", "renv.snapshot.filter")
   }
 
-  # invoke the filter to get package list
-  packages <- filter(project)
+  # return resolved function
+  filter
 
+}
+
+renv_snapshot_filter_custom <- function(project, records) {
+
+  # get user-defined snapshot filter
+  filter <- renv_snapshot_filter_custom_resolve()
+
+  # invoke the custom filter
+  packages <- filter(project)
   if (empty(packages))
     return(records)
 
+  # sanity check the result
   if (!is.character(packages))
     stop("custom snapshot filter did not return a character vector")
 
+  # return matching records
   keep(records, packages)
 
 }

@@ -177,7 +177,7 @@ renv_libpaths_activate <- function(project) {
   lapply(libpaths, ensure_directory)
   renv_libpaths_set(libpaths)
 
-  libpaths
+  .libPaths()
 
 }
 

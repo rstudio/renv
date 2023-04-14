@@ -148,9 +148,10 @@ renv_sandbox_generate <- function(sandbox) {
   }
 
   # find system packages in the system library
+  priority <- getOption("renv.sandbox.priority", default = c("base", "recommended"))
   syspkgs <- installed_packages(
     lib.loc = renv_libpaths_system(),
-    priority = c("base", "recommended")
+    priority = priority
   )
 
   # link into sandbox

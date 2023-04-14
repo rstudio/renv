@@ -506,3 +506,7 @@ recycle <- function(data) {
   data
 
 }
+
+take <- function(data, index = NULL) {
+  if (is.null(index)) data else .subset2(data, index)
+}

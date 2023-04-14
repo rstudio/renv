@@ -429,8 +429,7 @@ renv_load_rprofile_impl <- function(profile) {
 }
 
 renv_load_libpaths <- function(project = NULL) {
-  renv_libpaths_activate(project)
-  libpaths <- renv_libpaths_all()
+  libpaths <- renv_libpaths_activate(project)
   lapply(libpaths, renv_library_diagnose, project = project)
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
 }
