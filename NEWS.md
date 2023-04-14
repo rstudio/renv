@@ -1,6 +1,11 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::install()` now supports Bioconductor remotes of the form
+  `bioc::<BiocVersion>/<Package>`, for installing packages from
+  a particular version of Bioconductor. Aliases like 'release' and
+  'devel' are also supported. (#1195)
+
 * `renv::restore()` can now use `pak::pkg_install()` to install packages
   when `pak` integration is enabled. Set `RENV_CONFIG_PAK_ENABLED = TRUE`
   in your project's `.Renviron` if you'd like to opt-in to this behavior.

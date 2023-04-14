@@ -81,7 +81,7 @@ renv_bioconductor_version <- function(project, refresh = FALSE) {
 
 }
 
-renv_bioconductor_repos <- function(project, version = NULL) {
+renv_bioconductor_repos <- function(project = NULL, version = NULL) {
 
   # allow bioconductor repos override
   repos <- getOption("renv.bioconductor.repos")

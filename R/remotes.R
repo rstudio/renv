@@ -78,8 +78,17 @@ renv_remotes_resolve_impl <- function(spec, latest = FALSE) {
 
   remote <- renv_remotes_parse(spec)
 
+  # fixup for bioconductor
+  isbioc <-
+    identical(remote$type, "repository") &&
+    identical(remote$repository, "bioc")
+
+  if (isbioc)
+    remote$type <- "bioc"
+
   resolved <- switch(
     remote$type,
+    bioc       = renv_remotes_resolve_bioc(remote),
     bitbucket  = renv_remotes_resolve_bitbucket(remote),
     gitlab     = renv_remotes_resolve_gitlab(remote),
     github     = renv_remotes_resolve_github(remote),
@@ -89,7 +98,12 @@ renv_remotes_resolve_impl <- function(spec, latest = FALSE) {
     stopf("unknown remote type '%s'", remote$type %||% "<NA>")
   )
 
-  reject(resolved, is.null)
+  # ensure that attributes on the record are preserved, but drop NULL entries
+  for (key in names(resolved))
+    if (is.null(resolved[[key]]))
+      resolved[[key]] <- NULL
+
+  resolved
 
 }
 
@@ -316,6 +330,55 @@ renv_remotes_parse <- function(spec) {
   }
 
   stopf("failed to parse remote spec '%s'", spec)
+
+}
+
+renv_remotes_resolve_bioc_version <- function(version) {
+
+  # initialize Bioconductor
+  renv_bioconductor_init()
+  BiocManager <- renv_namespace_load("BiocManager")
+
+  # handle versions like 'release' and 'devel'
+  versions <- BiocManager$.version_map()
+  row <- versions[versions$BiocStatus == version, ]
+  if (nrow(row))
+    return(row$Bioc)
+
+  # otherwise, use the default version
+  BiocManager$version()
+
+}
+
+renv_remotes_resolve_bioc_plain <- function(remote) {
+
+  list(
+    Package = remote$package,
+    Version = remote$version,
+    Source  = "Bioconductor"
+  )
+
+}
+
+renv_remotes_resolve_bioc <- function(remote) {
+
+  # if we parsed this as a repository remote, use that directly
+  if (!is.null(remote$package))
+    return(renv_remotes_resolve_bioc_plain(remote))
+
+  # otherwise, this was parsed as a regular remote, declaring the package
+  # should be obtained from a particular Bioconductor release
+  package <- remote$repo
+  biocversion <- renv_remotes_resolve_bioc_version(remote$user)
+  biocrepos <- renv_bioconductor_repos(version = biocversion)
+  record <- renv_available_packages_latest(package, repos = biocrepos)
+
+  # update fields
+  record$Source <- "Bioconductor"
+  record$Repository <- NULL
+
+  # return the resolved record
+  record
 
 }
 
