@@ -924,7 +924,6 @@ renv_snapshot_filter <- function(project, records, type, packages, exclude) {
     lines <- c(
       "NOTE: Dependency discovery took %s %s during snapshot.",
       "Consider using .renvignore to ignore files -- see `?dependencies` for more information.",
-      "Use `renv::settings$snapshot.type(\"all\")` to disable dependency discovery during snapshot."
     )
 
     time <- difftime(end, start, units = "auto")

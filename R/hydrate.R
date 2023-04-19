@@ -348,7 +348,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
   if (all(packages %in% installed$Package))
     return()
 
-  vwritef("* Resolving missing dependencies  ... ")
+  vwritef("* Resolving missing dependencies ... ")
 
   # define a custom error handler for packages which
   # we failed to retrieve
