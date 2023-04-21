@@ -40,14 +40,21 @@ providing an alternate R package repository to use during restore below.
 
 ## GitHub Actions
 
-When using GitHub Actions, you typically need two steps:
+Using `renv` in a Github actions workflow can be done in two ways: 
 
-1. Cache any packages installed by `renv`,
-2. Use `renv::restore()` to restore packages.
+* Using directly the cache mechanism of Github action and running `renv` functions,
+* Using an helper action from `r-lib` organization that will do everything for you
+
+### Using the Github actions cache with renv
+
+To benefit from `renv` value in a Github action, you typically need two steps:
+
+1. Cache any packages installed by `renv` across runs, 
+2. Use `renv::restore()` to restore packages using this cache to speed up installation
 
 As an example, these steps might look like:
 
-```
+```yaml
 env:
   RENV_PATHS_ROOT: ~/.local/share/renv
 
@@ -70,6 +77,27 @@ steps:
 
 See also the [example][github-actions-renv] on GitHub actions.
 
+### Simplify using a extenral helper Github action
+
+`r-lib` organization offers some actions for R users, and among them a [`setup-renv`][r-lib-actions-renv] action. To use this action, just add a `uses` step in your workflow: 
+
+```yaml
+steps:
+- uses: actions/checkout@v3
+- uses: r-lib/actions/setup-r@v2
+- uses: r-lib/actions/setup-renv@v2
+  with:
+    profile: '"shiny"'
+```
+
+The `r-lib/actions/setup-renv` will do all that is needed to befenit from `renv` value in a Github action workflow: 
+
+* Install `renv` package
+* Setting up the cache 
+* Activate the right `renv` profile
+* Restore the environment with `renv::restore()`
+
+Unless you need more control, this actions is all you need for using `renv` with Github action.
 
 ## Travis CI
 
@@ -151,4 +179,5 @@ before_script:
 [gitlab-ci]: https://about.gitlab.com/features/continuous-integration/
 [github-actions]: https://github.com/features/actions
 [github-actions-renv]: https://github.com/actions/cache/blob/main/examples.md#r---renv
+[r-lib-actions-renv]: https://github.com/r-lib/actions/tree/v2-branch/setup-renv
 [travis-ci]: https://www.travis-ci.com/
