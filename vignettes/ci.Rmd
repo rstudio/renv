@@ -40,14 +40,14 @@ providing an alternate R package repository to use during restore below.
 
 ## GitHub Actions
 
-Using `renv` in a Github actions workflow can be done in two ways: 
+Here, we describe two common approaches for integrating `renv` with a [GitHub Actions](https://github.com/features/actions) workflow.
 
-* Using directly the cache mechanism of Github action and running `renv` functions,
-* Using an helper action from `r-lib` organization that will do everything for you
+* Use GitHub's built-in cache action together with existing `renv` functionality;
+* Use the `setup-renv` action maintained by the `r-lib` organization.
 
-### Using the Github actions cache with renv
+### Using the GitHub Actions Cache with renv
 
-To benefit from `renv` value in a Github action, you typically need two steps:
+When using `renv` in your own custom GitHub action workflow, there are two main requirements:
 
 1. Cache any packages installed by `renv` across runs, 
 2. Use `renv::restore()` to restore packages using this cache to speed up installation
@@ -77,27 +77,25 @@ steps:
 
 See also the [example][github-actions-renv] on GitHub actions.
 
-### Simplify using a extenral helper Github action
+### Using r-lib/actions/setup-renv
 
-`r-lib` organization offers some actions for R users, and among them a [`setup-renv`][r-lib-actions-renv] action. To use this action, just add a `uses` step in your workflow: 
+The `r-lib` organization offers some actions for R users, and among them a [`setup-renv`][r-lib-actions-renv] action is provided for projects using `renv`. To use this action, you can add the following steps to your workflow: 
 
 ```yaml
 steps:
 - uses: actions/checkout@v3
 - uses: r-lib/actions/setup-r@v2
 - uses: r-lib/actions/setup-renv@v2
-  with:
-    profile: '"shiny"'
 ```
 
-The `r-lib/actions/setup-renv` will do all that is needed to befenit from `renv` value in a Github action workflow: 
+Using these steps, the following actions will then be performed in your workflow:
 
-* Install `renv` package
-* Setting up the cache 
-* Activate the right `renv` profile
-* Restore the environment with `renv::restore()`
+* `renv` will be installed, via `install.packages("renv")`,
+* `renv` will be configured to use the GitHub cache,
+* If provided via a `with: profile:` key, that `renv` profile will be activated,
+* The project will be restored via `renv::restore()`.
 
-Unless you need more control, this actions is all you need for using `renv` with Github action.
+After this, any steps using R will use the active `renv` project by default.
 
 ## Travis CI
 
