@@ -315,17 +315,21 @@ renv_snapshot_validate_report <- function(valid, prompt, force) {
     return(TRUE)
   }
 
-  # in interactive sessions, ask the user what they want to do
-  if (interactive() && prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+  # in interactive sessions, if 'prompt' is set, then ask the user
+  # how they'd like to proceed
+  if (interactive() && prompt) {
+
+    if (!proceed()) {
+      renv_report_user_cancel()
+      invokeRestart("abort")
+    }
+
+    return(TRUE)
+
   }
 
-  # in non-interactive sessions, throw an error (user will need to use force)
-  if (!interactive())
-    stop("aborting snapshot due to pre-flight validation failure")
-
-  TRUE
+  # otherwise, bail on error (need to use 'force = TRUE')
+  stop("aborting snapshot due to pre-flight validation failure")
 
 }
 
