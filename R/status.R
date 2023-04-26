@@ -184,6 +184,12 @@ renv_status_check_synchronized <- function(project,
   lockfile <- renv_lockfile_records(lockfile)
   library  <- renv_lockfile_records(library)
 
+  # projects will implicitly depend on BiocManager if any Bioconductor
+  # packages are in use
+  sources <- extract_chr(library, "Source")
+  if ("Bioconductor" %in% sources)
+    packages <- unique(c(packages, "BiocManager"))
+
   # NOTE: If we have some packages which are required by the project,
   # but are presently not installed, then the 'packages' vector
   # (which tries to enumerate all transitive dependencies) may be
