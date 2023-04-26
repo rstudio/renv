@@ -30,7 +30,6 @@ jobs:
           - {os: ubuntu-latest,  r: 'devel'}
           - {os: ubuntu-latest,  r: 'release'}
           - {os: ubuntu-latest,  r: 'oldrel'}
-          - {os: ubuntu-latest,  r: '3.5'}
 
     env:
       _R_CHECK_CRAN_INCOMING_:       "FALSE"
