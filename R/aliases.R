@@ -1,6 +1,7 @@
 
 # aliases used primarily for nicer / normalized text output
 `_renv_aliases` <- list(
+  bioc         = "Bioconductor",
   bioconductor = "Bioconductor",
   bitbucket    = "Bitbucket",
   cellar       = "Cellar",

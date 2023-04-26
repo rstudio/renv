@@ -441,3 +441,29 @@ test_that("snapshot() warns when required package is not installed", {
   expect_error(snapshot())
 
 })
+
+test_that("packages installed from CRAN using pak are handled", {
+  skip_on_cran()
+  skip_if_not_installed("pak")
+
+  renv_tests_scope()
+  pak <- renv_namespace_load("pak")
+  pak$pkg_install("toast")
+  record <- renv_snapshot_description(package = "toast")
+
+  expect_identical(record$Source, "Repository")
+  expect_identical(record$Repository, "CRAN")
+})
+
+
+test_that("packages installed from Bioconductor using pak are handled", {
+  skip_on_cran()
+  skip_if_not_installed("pak")
+
+  renv_tests_scope()
+  pak <- renv_namespace_load("pak")
+  pak$pkg_install("bioc::Biobase")
+
+  record <- renv_snapshot_description(package = "Biobase")
+  expect_identical(record$Source, "Bioconductor")
+})

@@ -761,19 +761,20 @@ renv_snapshot_description_source <- function(dcf) {
   # treat 'standard' remotes as packages installed from a repository
   # https://github.com/rstudio/renv/issues/998
   type <- dcf[["RemoteType"]]
-  if (identical(type, "standard"))
-    return(list(Source = "Repository", Repository = dcf[["Repository"]]))
+  repository <- dcf[["Repository"]]
+  if (identical(type, "standard") && !is.null(repository))
+    return(list(Source = "Repository", Repository = repository))
   else if (!is.null(type))
     return(list(Source = alias(type)))
-
-  # next, check for a declared repository
-  if (!is.null(dcf[["Repository"]]))
-    return(list(Source = "Repository", Repository = dcf[["Repository"]]))
 
   # packages from Bioconductor are normally tagged with a 'biocViews' entry;
   # use that to infer a Bioconductor source
   if (!is.null(dcf[["biocViews"]]))
     return(list(Source = "Bioconductor"))
+
+  # check for a declared repository
+  if (!is.null(repository))
+    return(list(Source = "Repository", Repository = repository))
 
   # check for a valid package name
   package <- dcf[["Package"]]
