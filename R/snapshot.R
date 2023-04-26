@@ -955,6 +955,9 @@ renv_snapshot_filter_all <- function(project, records) {
 
 renv_snapshot_filter_impl <- function(project, records, packages, type) {
 
+  # make sure we include renv
+  packages <- unique(c(packages, "renv"))
+
   # warn if some required packages are missing
   ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
   missing <- setdiff(packages, c(names(records), ignored))
