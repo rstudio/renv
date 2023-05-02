@@ -79,36 +79,42 @@ checkout <- function(repos = NULL,
 }
 
 renv_checkout_packages <- function(project) {
-  deps <- dependencies(project, progress = FALSE)
-  unique(deps$Package)
+  renv_dependencies_impl(project, progress = FALSE, field = "Package")
 }
 
 renv_checkout_remotes <- function(packages, project) {
 
-  # keep only packages which appear to be available in the repositories
+  # get available packages
   dbs <- available_packages(type = "source")
   if (is.null(dbs))
     stop("no package repositories are available")
 
+  # flatten so we only see the latest version of a package
   db <- renv_available_packages_flatten(dbs)
+
+  # keep only packages which appear to be available in the repositories
   packages <- intersect(packages, db$Package)
 
-  # get recursive dependencies
-  recdeps <- renv_checkout_recdeps(packages, db)
-
-  # remove ignored packages
+  # remove ignored packages -- note we intentionally do this before
+  # computing recursive dependencies as we don't want to allow users
+  # to ignore a recursive dependency of a required package
   ignored <- c("renv", renv_project_ignored_packages(project))
-  packages <- recdeps[setdiff(names(recdeps), ignored)]
+  packages <- setdiff(packages, ignored)
 
-  # and return
-  packages
+  # compute recursive dependencies for these packages
+  renv_checkout_recdeps(packages, db)
 
 }
 
 renv_checkout_recdeps <- function(packages, db) {
 
-  # iterate through dependencies
+  # initialize environment (will map package names to discovered remotes)
   envir <- new.env(parent = emptyenv())
+
+  # set R to NA since it's a common non-package 'dependency' for packages
+  envir$R <- NA
+
+  # iterate through dependencies
   for (package in packages)
     renv_checkout_recdeps_impl(package, db, envir)
 
