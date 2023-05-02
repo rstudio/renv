@@ -5,23 +5,30 @@
 \title{Checkout a Repository}
 \usage{
 checkout(
-  repos = getOption("repos"),
+  repos = NULL,
   ...,
   packages = NULL,
+  date = NULL,
   clean = FALSE,
   project = NULL
 )
 }
 \arguments{
-\item{repos}{The \R package repositories to check out. When \code{NULL} (the default),
-\code{renv} will attempt to determine the packages used in the project via
-a call to \code{\link[=dependencies]{dependencies()}}.}
+\item{repos}{The \R package repositories to check out.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
 
 \item{packages}{The packages to be installed. When \code{NULL} (the default),
-all packages currently used in the project will be installed.}
+all packages currently used in the project will be installed, as
+determined by \code{\link[=dependencies]{dependencies()}}. The recursive dependencies of these
+packages will be included as well.}
+
+\item{date}{The snapshot date to use. When set, the associated snapshot as
+available from the Posit's public
+\href{https://packagemanager.rstudio.com/}{Package Manager} instance will be
+used. The repository path can be adjusted using the \code{renv.checkout.repos}
+option. Ignored if \code{repos} is non-\code{NULL}.}
 
 \item{clean}{Boolean; remove packages not recorded in the lockfile from
 the target library? Use \code{clean = TRUE} if you'd like the library state
@@ -33,6 +40,27 @@ directory is used instead.}
 }
 \description{
 \code{renv::checkout()} can be used to install the latest packages available from
-the requested repositories.
+a (set of) package repositories.
 }
-\keyword{internal}
+\details{
+\code{renv::checkout()} is most useful with services like the Posit's
+\href{https://packagemanager.rstudio.com/}{Package Manager}, as it
+can be used to switch between different repository snapshots within an
+\code{renv} project. In this way, you can upgrade (or downgrade) all of the
+packages used in a particular \code{renv} project to the package versions
+provided by a particular snapshot.
+}
+\examples{
+\dontrun{
+
+# check out packages from PPM using the date '2023-01-02'
+renv::checkout(date = "2023-01-02")
+
+# alternatively, supply the full repository path
+renv::checkout(repos = "https://packagemanager.rstudio.com/cran/2023-01-02")
+
+# only check out some subset of packages (and their recursive dependencies)
+renv::checkout(packages = "dplyr", date = "2023-01-02")
+
+}
+}
