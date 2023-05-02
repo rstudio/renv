@@ -1,5 +1,5 @@
 
-`_renv_pak_version` <- numeric_version("0.4.0-9000")
+`_renv_pak_version` <- numeric_version("0.5.1")
 
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
