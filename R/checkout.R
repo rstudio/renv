@@ -11,6 +11,14 @@
 #' packages used in a particular `renv` project to the package versions
 #' provided by a particular snapshot.
 #'
+#' If your library contains packages installed from other remote sources (e.g.
+#' GitHub), but a version of a package of the same name is provided by the
+#' repositories being checked out, then please be aware that the package will be
+#' replaced with the version provided by the requested repositories. This could
+#' be a concern if your project uses \R packages from GitHub whose name matches
+#' that of an existing CRAN package, but is otherwise unrelated to the package
+#' on CRAN.
+#'
 #' @inheritParams renv-params
 #'
 #' @param repos The \R package repositories to use.

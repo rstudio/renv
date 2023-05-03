@@ -49,6 +49,14 @@ can be used to switch between different repository snapshots within an
 \code{renv} project. In this way, you can upgrade (or downgrade) all of the
 packages used in a particular \code{renv} project to the package versions
 provided by a particular snapshot.
+
+If your library contains packages installed from other remote sources (e.g.
+GitHub), but a version of a package of the same name is provided by the
+repositories being checked out, then please be aware that the package will be
+replaced with the version provided by the requested repositories. This could
+be a concern if your project uses \R packages from GitHub whose name matches
+that of an existing CRAN package, but is otherwise unrelated to the package
+on CRAN.
 }
 \examples{
 \dontrun{
