@@ -1,6 +1,9 @@
 
 url: https://rstudio.github.io/renv/
 
+development:
+  mode: auto
+
 reference:
 
 - title: Basic Workflows
