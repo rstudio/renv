@@ -23,7 +23,12 @@
 #'   cache are installed at the expected + proper locations, and validate the
 #'   hashes used for those storage locations.
 #'
-#' @return This function is normally called for its side effects.
+#' @return This function is normally called for its side effects, but
+#'   it invisibly returns a list containing the following components:
+#'
+#'   * `library`: packages in your library.
+#'   * `lockfile`: packages in the lockfile.
+#'   * `synchronized`: are the library and lockfile in sync?
 #'
 #' @export
 #'
