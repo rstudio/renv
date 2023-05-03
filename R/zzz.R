@@ -81,7 +81,6 @@ renv_zzz_run <- function() {
   # if so, then create some files
   if (documenting) {
     renv_zzz_bootstrap()
-    renv_zzz_docs()
   }
 
   # check if we're running as part of R CMD build
@@ -118,29 +117,6 @@ renv_zzz_bootstrap <- function() {
   printf("* Generating 'inst/resources/activate.R' ... ")
   writeLines(replaced, con = target)
   writef("Done!")
-
-}
-
-renv_zzz_docs <- function() {
-
-  reg.finalizer(globalenv(), function(object) {
-
-    printf("* Copying vignettes to 'inst/doc' ... ")
-
-    ensure_directory("inst/doc")
-
-    files <- list.files(
-      path = "vignettes",
-      pattern = "[.](?:R|Rmd|html)$",
-    )
-
-    src <- file.path("vignettes", files)
-    tgt <- file.path("inst/doc", files)
-    file.copy(src, tgt, overwrite = TRUE)
-
-    writef("Done!")
-
-  }, onexit = TRUE)
 
 }
 
