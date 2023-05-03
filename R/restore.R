@@ -110,7 +110,7 @@ restore <- function(project  = NULL,
     renv_pak_init()
     renv_pak_restore(
       lockfile = lockfile,
-      package  = packages,
+      packages = packages,
       exclude  = exclude,
       project  = project
     )
