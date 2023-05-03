@@ -13,7 +13,7 @@
 #'
 #' @inheritParams renv-params
 #'
-#' @param repos The \R package repositories to check out.
+#' @param repos The \R package repositories to use.
 #'
 #' @param packages The packages to be installed. When `NULL` (the default),
 #'   all packages currently used in the project will be installed, as
