@@ -2,21 +2,56 @@
 #' Checkout a Repository
 #'
 #' `renv::checkout()` can be used to install the latest packages available from
-#' the requested repositories.
+#' a (set of) package repositories.
+#'
+#' `renv::checkout()` is most useful with services like the Posit's
+#' [Package Manager](https://packagemanager.rstudio.com/), as it
+#' can be used to switch between different repository snapshots within an
+#' `renv` project. In this way, you can upgrade (or downgrade) all of the
+#' packages used in a particular `renv` project to the package versions
+#' provided by a particular snapshot.
+#'
+#' If your library contains packages installed from other remote sources (e.g.
+#' GitHub), but a version of a package of the same name is provided by the
+#' repositories being checked out, then please be aware that the package will be
+#' replaced with the version provided by the requested repositories. This could
+#' be a concern if your project uses \R packages from GitHub whose name matches
+#' that of an existing CRAN package, but is otherwise unrelated to the package
+#' on CRAN.
 #'
 #' @inheritParams renv-params
 #'
-#' @param repos The \R package repositories to check out. When `NULL` (the default),
-#'   `renv` will attempt to determine the packages used in the project via
-#'   a call to [renv::dependencies()].
+#' @param repos The \R package repositories to use.
 #'
 #' @param packages The packages to be installed. When `NULL` (the default),
-#'   all packages currently used in the project will be installed.
+#'   all packages currently used in the project will be installed, as
+#'   determined by [renv::dependencies()]. The recursive dependencies of these
+#'   packages will be included as well.
 #'
-#' @keywords internal
-checkout <- function(repos = getOption("repos"),
+#' @param date The snapshot date to use. When set, the associated snapshot as
+#'   available from the Posit's public
+#'   [Package Manager](https://packagemanager.rstudio.com/) instance will be
+#'   used. The repository path can be adjusted using the `renv.checkout.repos`
+#'   option. Ignored if `repos` is non-`NULL`.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # check out packages from PPM using the date '2023-01-02'
+#' renv::checkout(date = "2023-01-02")
+#'
+#' # alternatively, supply the full repository path
+#' renv::checkout(repos = "https://packagemanager.rstudio.com/cran/2023-01-02")
+#'
+#' # only check out some subset of packages (and their recursive dependencies)
+#' renv::checkout(packages = "dplyr", date = "2023-01-02")
+#'
+#' }
+#' @export
+checkout <- function(repos = NULL,
                      ...,
                      packages = NULL,
+                     date     = NULL,
                      clean    = FALSE,
                      project  = NULL)
 {
@@ -28,64 +63,148 @@ checkout <- function(repos = getOption("repos"),
   renv_project_lock(project = project)
 
   # set new repositories
+  repos <- repos %??% renv_checkout_repos(date)
   options(repos = repos)
 
+  # TODO: Activate Bioconductor if it appears to be used by this project
+
   # select packages to install
-  packages <- packages %||% renv_checkout_packages(project = project)
-  names(packages) <- packages
+  packages <- packages %??% renv_checkout_packages(project = project)
 
-  # install all of these packages, effectively attempting to update
-  # to the latest version of each package
-  latest <- lapply(packages, function(package) {
+  # get the associated remotes for these packages
+  remotes <- renv_checkout_remotes(packages, project)
 
-    # ignore base packages (these are never distributed on CRAN)
-    priority <- renv_package_priority(package)
-    if (identical(priority, "base"))
-      return(NULL)
+  # parse these into package records
+  records <- map(remotes, renv_remotes_resolve)
 
-    # try to get latest package record
-    catch(renv_available_packages_latest(package))
+  # create a lockfile matching this request
+  lockfile <- renv_lockfile_init(project)
+  lockfile$Packages <- records
 
-  })
-
-  # notify user if packages are unavailable
-  unavailable <- filter(latest, inherits, "error")
-  renv_pretty_print(
-    values    = names(unavailable),
-    preamble  = "The following package(s) are not available:",
-    postamble = "These packages will be ignored.",
-    wrap      = FALSE
-  )
-
-  # take only 'real' records
-  records <- filter(latest, is.list)
-
-  # ignore renv (just because someone might be using the development version
-  # of renv to perform this action; we wouldn't want to downgrade here)
-  records[["renv"]] <- NULL
-
-  # create lockfile matching this request
-  lockfile <- renv_lockfile_init(project = project)
-  renv_lockfile_records(lockfile) <- records
-
-  # perform restore
-  restore(
-    project  = project,
-    lockfile = lockfile,
-    repos    = repos,
-    clean    = clean
-  )
-
-  invisible(project)
+  # restore from that lockfile
+  restore(lockfile = lockfile, clean = clean)
 
 }
 
 renv_checkout_packages <- function(project) {
+  renv_dependencies_impl(project, progress = FALSE, field = "Package")
+}
 
-  # TODO: how should we select which packages are checked out?
-  deps <- dependencies(project, progress = FALSE)
-  packages <- unique(deps$Package)
-  all <- renv_package_dependencies(packages, project = project)
-  names(all)
+renv_checkout_remotes <- function(packages, project) {
+
+  # get available packages
+  dbs <- available_packages(type = "source")
+  if (is.null(dbs))
+    stop("no package repositories are available")
+
+  # flatten so we only see the latest version of a package
+  db <- renv_available_packages_flatten(dbs)
+
+  # keep only packages which appear to be available in the repositories
+  packages <- intersect(packages, db$Package)
+
+  # remove ignored packages -- note we intentionally do this before
+  # computing recursive dependencies as we don't want to allow users
+  # to ignore a recursive dependency of a required package
+  ignored <- c("renv", renv_project_ignored_packages(project))
+  packages <- setdiff(packages, ignored)
+
+  # compute recursive dependencies for these packages
+  renv_checkout_recdeps(packages, db)
+
+}
+
+renv_checkout_recdeps <- function(packages, db) {
+
+  # initialize environment (will map package names to discovered remotes)
+  envir <- new.env(parent = emptyenv())
+
+  # set R to NA since it's a common non-package 'dependency' for packages
+  envir$R <- NA
+
+  # iterate through dependencies
+  for (package in packages)
+    renv_checkout_recdeps_impl(package, db, envir)
+
+  # get list of discovered dependencies
+  recdeps <- as.list.environment(envir, all.names = TRUE)
+
+  # drop any NA values
+  recdeps <- filter(recdeps, Negate(is.na))
+
+  # return sorted vector
+  recdeps[csort(names(recdeps))]
+
+}
+
+renv_checkout_recdeps_impl <- function(package, db, envir) {
+
+  # check if we've already visited this package
+  if (!is.null(envir[[package]]))
+    return()
+
+  # get entry from database
+  entry <- rows(db, db$Package == package)
+  if (nrow(entry) == 0L) {
+    envir[[package]] <- NA_character_
+    return()
+  }
+
+  # set discovered remote
+  envir[[package]] <- with(entry, paste(Package, Version, sep = "@"))
+
+  # iterate through hard dependencies
+  fields <- c("Depends", "Imports", "LinkingTo")
+  for (field in fields) {
+    value <- entry[[field]]
+    if (!is.null(value) && !is.na(value)) {
+      value <- renv_description_parse_field(entry[[field]])
+      for (package in value$Package)
+        if (is.null(envir[[package]]))
+          renv_checkout_recdeps_impl(package, db, envir)
+    }
+  }
+
+  # for soft dependencies, only include those if they're currently installed
+  # TODO: or check if it's in the lockfile?
+  value <- entry[["Suggests"]]
+  if (!is.null(value) && !is.na(value)) {
+    value <- renv_description_parse_field(value)
+    for (package in value$Package)
+      if (is.null(envir[[package]]))
+        if (renv_package_installed(package))
+          renv_checkout_recdeps_impl(package, db, envir)
+  }
+
+}
+
+renv_checkout_repos <- function(date) {
+
+  # if no date was provided, just use default repositories
+  if (is.null(date))
+    return(getOption("repos"))
+
+  # build path to root of repository
+  default <- "https://packagemanager.rstudio.com/cran"
+  root <- getOption("renv.checkout.repos", default = default)
+
+  # try forming path to date
+  url <- file.path(root, date)
+  if (renv_download_available(file.path(url, "src/contrib/PACKAGES")))
+    return(url)
+
+  # requested date not available; try to search a bit
+  candidate <- date
+  for (i in 1:7) {
+    candidate <- format(as.Date(candidate) - 1L)
+    url <- file.path(root, candidate)
+    if (renv_download_available(file.path(url, "src/contrib/PACKAGES"))) {
+      fmt <- "* Snapshot date '%s' not available; using '%s' instead"
+      messagef(fmt, date, candidate)
+      return(url)
+    }
+  }
+
+  stopf("repository snapshot '%s' not available", date)
 
 }
