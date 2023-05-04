@@ -7,12 +7,6 @@
     <loc>https://rstudio.github.io/renv/dev/TODO.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/dev/articles/bioconductor.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/dev/articles/cellar.html</loc>
-  </url>
-  <url>
     <loc>https://rstudio.github.io/renv/dev/articles/ci.html</loc>
   </url>
   <url>
@@ -28,10 +22,10 @@
     <loc>https://rstudio.github.io/renv/dev/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/dev/articles/lockfile.html</loc>
+    <loc>https://rstudio.github.io/renv/dev/articles/package-install.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/dev/articles/mran.html</loc>
+    <loc>https://rstudio.github.io/renv/dev/articles/package-sources.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/articles/packages.html</loc>
