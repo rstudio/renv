@@ -1,8 +1,8 @@
 ---
-title: "package-sources"
+title: "Package sources"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{package-sources}
+  %\VignetteIndexEntry{Package sources}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -106,7 +106,7 @@ obtained from Bioconductor.
 To initialize `renv` in a project using Bioconductor, you can pass the
 `bioconductor` argument to `renv::init()`:
 
-```{r}
+```{r, eval = FALSE}
 # use the latest-available Bioconductor release
 renv::init(bioconductor = TRUE)
 
@@ -128,7 +128,7 @@ available for newer versions of R.
 
 To set the version of Bioconductor used in a project, you can use:
 
-```{r}
+```{r, eval = FALSE}
 renv::settings$bioconductor.version("3.14")
 ```
 
@@ -138,7 +138,7 @@ of Bioconductor used as well.
 If you want to override the Bioconductor repositories used by `renv`, you can
 also explicitly set the following option:
 
-```{r}
+```{r, eval = FALSE}
 options(renv.bioconductor.repos = c(...))
 ```
 

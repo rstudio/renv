@@ -1,8 +1,8 @@
 ---
-title: "package-install"
+title: "Installing packages"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{package-install}
+  %\VignetteIndexEntry{Installing packages}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
