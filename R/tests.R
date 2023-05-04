@@ -99,8 +99,6 @@ renv_tests_init_envvars <- function() {
   Sys.unsetenv("RETICULATE_PYTHON_FALLBACK")
 
   Sys.setenv(RENV_AUTOLOAD_ENABLED = "FALSE")
-  Sys.setenv(R_USER_CACHE_DIR = file.path(tempdir(), "usr-cache"))
-  Sys.setenv(R_PKG_CACHE_DIR  = file.path(tempdir(), "pkg-cache"))
 
   envvars <- Sys.getenv()
   configvars <- grep("^RENV_CONFIG_", names(envvars), value = TRUE)
@@ -290,8 +288,16 @@ renv_tests_init_packages_load_impl <- function(package, envir) {
 
   # if this is 'pak', we need to do some extra stuff
   if (identical(package, "pak")) {
-    Sys.setenv(R_USER_CACHE_DIR = file.path(tempdir(), "usr-cache"))
-    Sys.setenv(R_PKG_CACHE_DIR  = file.path(tempdir(), "pkg-cache"))
+
+    # make pak happy
+    usr <- file.path(tempdir(), "usr-cache")
+    ensure_directory(file.path(usr, "R/renv"))
+    Sys.setenv(R_USER_CACHE_DIR = usr)
+
+    pkg <- file.path(tempdir(), "pkg-cache")
+    ensure_directory(pkg)
+    Sys.setenv(R_PKG_CACHE_DIR = pkg)
+
     if (requireNamespace("pak", quietly = TRUE)) {
       pak <- renv_namespace_load("pak")
       pak$remote(function() {})

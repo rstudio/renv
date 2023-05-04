@@ -177,11 +177,7 @@ place a tarball for this package in one of the following locations:
 Once this is done, `renv` will consult these directories during future attempts
 to restore your packages.
 
-To directly install a package from the cellar, you must specify the
-package version, or provide the full path to the tarball:
-
-- `renv::install("<package>@<version>")`
-- `renv::install("<project>/renv/cellar/<package>_<version>.tar.gz")`
+You can install a package from the cellar like any other package, i.e. `renv::install("skeleton")`.
 
 During restore, if a compatible package is located within the cellar, that copy
 of the package will be preferred even if that package might otherwise be

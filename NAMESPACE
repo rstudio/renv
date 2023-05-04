@@ -2,6 +2,7 @@
 
 export(activate)
 export(autoload)
+export(checkout)
 export(clean)
 export(config)
 export(consent)

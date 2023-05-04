@@ -677,3 +677,23 @@ renv_available_packages_filter_version <- function(db) {
   rows(db, ok)
 
 }
+
+# flattens available packages, keeping only the newest version
+renv_available_packages_flatten <- function(dbs) {
+
+  # stack the databases together
+  stacked <- bind(dbs)
+
+  # order by package + version
+  # TODO: 'order()' is kind of slow for numeric versions; can we do better?
+  index <- with(stacked, order(Package, numeric_version(Version), decreasing = TRUE))
+  ordered <- rows(stacked, index)
+
+  # remove duplicates
+  dupes <- duplicated(ordered$Package)
+  filtered <- rows(ordered, !dupes)
+
+  # ready to return
+  filtered
+
+}
