@@ -2,7 +2,9 @@
 #' Checkout a Repository
 #'
 #' `renv::checkout()` can be used to install the latest packages available from
-#' a (set of) package repositories.
+#' a (set of) package repositories. This can be useful as a tool to get your
+#' \R library into a consistent state, as ensuring all packages are installed
+#' from the same repository should ensure they are compatible with each other.
 #'
 #' `renv::checkout()` is most useful with services like the Posit's
 #' [Package Manager](https://packagemanager.rstudio.com/), as it
@@ -50,8 +52,8 @@
 #' @export
 checkout <- function(repos = NULL,
                      ...,
-                     packages = NULL,
                      date     = NULL,
+                     packages = NULL,
                      clean    = FALSE,
                      project  = NULL)
 {
@@ -64,7 +66,7 @@ checkout <- function(repos = NULL,
 
   # set new repositories
   repos <- repos %??% renv_checkout_repos(date)
-  options(repos = repos)
+  renv_options_set("repos", repos)
 
   # TODO: Activate Bioconductor if it appears to be used by this project
 

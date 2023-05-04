@@ -4,8 +4,7 @@
 * `renv` gains a new function `renv::checkout()`, for installing the
   latest-available packages from a repository. For example, one can
   use `renv::checkout(date = "2023-02-08")` to install the packages available
-  on 2023-02-08 from the Posit [Package Manager](https://packagemanager.rstudio.com/) instance.
-  repository.
+  on 2023-02-08 from Posit's [Package Manager](https://packagemanager.rstudio.com/)
   
 * `renv::install()` now supports Bioconductor remotes of the form
   `bioc::<BiocVersion>/<Package>`, for installing packages from

@@ -184,6 +184,9 @@ renv_update_find <- function(records) {
 #' project setting. Use the `exclude` argument to further refine the exclusion
 #' criteria if desired.
 #'
+#' If you'd like to instead install the latest-available packages from a
+#' different repository, you might consider using [renv::checkout()].
+#'
 #' @inherit renv-params
 #' @inheritParams install-params
 #'
