@@ -81,6 +81,7 @@ reference:
   - graph
   - renv-package
   - renv_lockfile_from_manifest
+  - sandbox
 
 articles:
 
@@ -109,7 +110,9 @@ articles:
     contents: [profiles]
 
 template:
+  package: tidytemplate
   bootstrap: 5
+
   includes:
     in_header: |
       <!-- Google Tag Manager -->
