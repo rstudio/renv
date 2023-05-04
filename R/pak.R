@@ -1,5 +1,5 @@
 
-`_renv_pak_version` <- numeric_version("0.4.0-9000")
+`_renv_pak_version` <- numeric_version("0.5.1")
 
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
@@ -103,16 +103,10 @@ renv_pak_restore <- function(lockfile,
   # convert into specs compatible with pak, and install
   remotes <- map_chr(records, renv_record_format_remote)
 
-  # convert any remotes that happen to be current into plain package names
-  types <- renv_package_pkgtypes()
-  for (type in types) {
-    dbs <- available_packages(type = type)
-    for (db in dbs) {
-      dbremotes <- paste(db$Package, db$Version, sep = "@")
-      matches <- remotes %in% dbremotes
-      remotes[matches] <- names(remotes[matches])
-    }
-  }
+  # TODO: We previously tried converting version-ed remotes into "plain" remotes
+  # if the package version happened to be current, but then 'pak' would choose
+  # not to install the package if a newer version was available. Hence, we need
+  # to preserve the exact remote we wish to install here.
 
   # perform installation
   pak$pkg_install(remotes)
