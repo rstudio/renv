@@ -2,9 +2,9 @@
 # renv 0.18.0  (UNRELEASED)
 
 * `renv::snapshot()` no longer prompts to `activate()` the project, and only
-  prompts before creation if an existing lockfile would be changed (#1218).
-  This makes it easier to use `snapshot()` to capture your current library
-  state, without creating a project-specific library.
+  prompts before creation if `renv/library` present (#1218). This makes it 
+  easier to use `snapshot()` to capture your current library state, without 
+  creating a project-specific library.
 
 * `renv::install()` now supports Bioconductor remotes of the form
   `bioc::<BiocVersion>/<Package>`, for installing packages from

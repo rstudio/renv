@@ -201,7 +201,8 @@ snapshot <- function(project  = NULL,
   # request user confirmation
 
   # nocov start
-  if (length(actions) && length(old) && prompt && !proceed()) {
+  hasLibrary <- file.exists(file.path(project, "renv", "library"))
+  if (length(actions) && hasLibrary && prompt && !proceed()) {
     renv_report_user_cancel()
     invokeRestart("abort")
   }
