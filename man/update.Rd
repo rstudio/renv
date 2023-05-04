@@ -49,8 +49,8 @@ directory is used instead.}
 A named list of package records which were installed by \code{renv}.
 }
 \description{
-Update packages which are currently out-of-date. Currently, only
-CRAN and GitHub package sources are supported.
+Update packages which are currently out-of-date. Currently supports CRAN,
+Bioconductor, other CRAN-like repositories, GitHub and Git.
 }
 \details{
 Updates will only be checked from the same source -- for example,
