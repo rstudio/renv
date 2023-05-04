@@ -1,8 +1,8 @@
 ---
-title: "Package Development with renv"
+title: "Package development with renv"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Package Development with renv}
+  %\VignetteIndexEntry{Package development with renv}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

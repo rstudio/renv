@@ -1,8 +1,8 @@
 ---
-title: "Using renv with RStudio Connect"
+title: "Using renv with Posit Connect"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using renv with RStudio Connect}
+  %\VignetteIndexEntry{Using renv with Posit Connect}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
