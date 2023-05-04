@@ -1,5 +1,8 @@
 .PHONY: config tags
 
+bump:
+	@tools/tools-bump.sh
+
 config: R/config-defaults.R
 
 release:
