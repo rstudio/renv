@@ -37,7 +37,13 @@ cache are installed at the expected + proper locations, and validate the
 hashes used for those storage locations.}
 }
 \value{
-This function is normally called for its side effects.
+This function is normally called for its side effects, but
+it invisibly returns a list containing the following components:
+\itemize{
+\item \code{library}: packages in your library.
+\item \code{lockfile}: packages in the lockfile.
+\item \code{synchronized}: are the library and lockfile in sync?
+}
 }
 \description{
 Report differences between the project's lockfile and the current state of
