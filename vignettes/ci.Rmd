@@ -1,8 +1,8 @@
 ---
-title: "Using renv with Continuous Integration"
+title: "Using renv with continuous integration"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using renv with Continuous Integration}
+  %\VignetteIndexEntry{Using renv with continuous integration}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -1,8 +1,8 @@
 ---
-title: "Using Use"
+title: "Using use()"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using Use}
+  %\VignetteIndexEntry{Using use()}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
