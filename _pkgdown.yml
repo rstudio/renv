@@ -52,7 +52,6 @@ reference:
   contents:
   - project
   - activate
-  - deactivate
   - migrate
   - load
   - upgrade

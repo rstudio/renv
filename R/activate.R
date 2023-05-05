@@ -1,23 +1,25 @@
 
-#' Activate a Project
+#' Activate or Deactivate a Project
 #'
-#' Activate a project, thereby loading it in the current session and also
-#' writing the infrastructure necessary to ensure the project is auto-loaded
-#' for newly-launched \R sessions.
+#' @description
+#' `activate()` enables `renv` for a project in both the current session and
+#' in all future sessions. You should not generally need to call `activate()`
+#' yourself as it's called automatically by [renv::init()], which is the best
+#' way to start using `renv` in a new project.
 #'
-#' Using `activate()` will:
+#' `activate()` does two things. It:
 #'
-#' 1. Load the requested project via [renv::load()],
+#' 1. Loads the requested project via [renv::load()].
 #'
-#' 2. Add `source("renv/activate.R")` to the project `.Rprofile`, thereby
-#'    instructing newly-launched \R sessions to automatically load the
-#'    current project.
+#' 2. Adds `source("renv/activate.R")`, the "auto-loader", to the project
+#'    `.Rprofile`. This script ensures that the correct version of renv is
+#'    installed then calls [renv::load()], ensuring that future \R sessions
+#'    launched from the project automatically load that project, without
+#'    explicit user action.
 #'
-#' Normally, `activate()` is called as part of [renv::init()] when a project
-#' is first initialized. However, `activate()` can be used to activate
-#' (or re-activate) an `renv` project -- for example, if the project was shared
-#' without the auto-loader included in the project `.Rprofile`, or because
-#' that project was previously deactivated (via [renv::deactivate()]).
+#' `deactivate()` removes the infrastructure automatically activate `renv` in
+#' new session. This removes the auto-loader from the `.Rprofile`; it does
+#' not delete the lockfile or the project library.
 #'
 #' @inherit renv-params
 #'
@@ -33,6 +35,9 @@
 #'
 #' # activate a separate project
 #' renv::activate("~/projects/analysis")
+#'
+#' # deactivate the currently-activated project
+#' renv::deactivate()
 #'
 #' }
 activate <- function(project = NULL, profile = NULL) {
