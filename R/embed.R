@@ -44,6 +44,8 @@
 #' package, which also allows one to specify a script's \R package requirements
 #' within that same \R script.
 #'
+#' @inherit renv-params
+#'
 #' @param path
 #'   The path to an \R or R Markdown script. The default will use the current
 #'   document, if running within RStudio.

@@ -27,6 +27,10 @@ non-\code{NULL}.}
 \item{lockfile}{The lockfile to use. When supplied, \code{renv} will use the packages as
 declared in the lockfile.}
 
+\item{project}{The project directory. If \code{NULL}, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.}
+
 \item{library}{The library path into which the requested packages should be installed.
 When \code{NULL} (the default), a library path within the \R temporary
 directory will be generated and used. Note that this same library path
