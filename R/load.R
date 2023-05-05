@@ -1,24 +1,14 @@
 
 #' Load a Project
 #'
-#' Load an `renv` project.
+#' @description
+#' `renv::load()` sets the library paths to use a project-local library, and
+#' setting up the system library [sandbox], if needed.
 #'
-#' Calling `renv::load()` will set the session's library paths to use a
-#' project-local library, and perform some other work to ensure the project is
-#' properly isolated from other packages on the system.
-#'
-#' Normally, `renv::load()` is called automatically by the project auto-loader
-#' written to the project `.Rprofile` by [renv::init()]. This allows \R sessions
-#' launched from the root of an `renv` project directory to automatically load
-#' that project, without requiring explicit action from the user. However, if
-#' preferred or necessary, one can call `renv::load("<project>")` to explicitly
-#' load an `renv` project located at a particular path.
-#'
-#' Use [renv::activate()] to activate (or re-activate) an `renv` project, so
-#' that newly-launched \R sessions can automatically load the associated
-#' project. Similarly, use [renv::deactivate()] to disable the project
-#' auto-loader, so that `renv` is no longer automatically activated for new
-#' \R sessions in this project.
+#' You should not generally need to call `renv::load()` yourself, as it's
+#' called automatically by the project auto-loader created by [renv::init()]/
+#' [renv::activate()]. However, if needed, you can use `renv::load("<project>")`
+#' to explicitly load an `renv` project located at a particular path.
 #'
 #' @inherit renv-params
 #'
