@@ -3,7 +3,7 @@
 \name{embed}
 \alias{embed}
 \alias{use}
-\title{Capture and use dependencies within a \code{.R} or \code{.Rmd}}
+\title{Capture and re-use dependencies within a \code{.R} or \code{.Rmd}}
 \usage{
 embed(path = NULL, ..., lockfile = NULL, project = NULL)
 
