@@ -12,7 +12,6 @@ reference:
   - status
   - snapshot
   - restore
-  - embed
   - use
 
 - title: Library Management
@@ -92,7 +91,7 @@ articles:
 
   - title: Collaborating using renv
     navbar: Collaborating
-    contents: [collaborating, use]
+    contents: [collaborating]
 
   - title: Deploy Applications with renv
     navbar: Deployment
