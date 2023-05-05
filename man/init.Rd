@@ -2,7 +2,7 @@
 % Please edit documentation in R/init.R
 \name{init}
 \alias{init}
-\title{Initialize a Project}
+\title{Start Using renv in a Project}
 \usage{
 init(
   project = NULL,
@@ -55,32 +55,19 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Discover packages used within the current project, and then initialize a
-project-local private \R library with those packages. The currently-installed
-versions of any packages in use (as detected within the default R libraries)
-are then installed to the project's private library.
-}
-\details{
-The primary steps taken when initializing a new project are:
+Use \code{init()} to start using renv in the current project. This will:
 \enumerate{
-\item \R package dependencies are discovered within the \R files used within
-the project with \code{\link[=dependencies]{dependencies()}};
-\item Discovered packages are copied into the \code{renv} global package cache, so
-these packages can be re-used across future projects as necessary;
-\item Any missing \R package dependencies discovered are then installed into
-the project's private library;
-\item A lockfile capturing the state of the project's library is created
-with \code{\link[=snapshot]{snapshot()}};
-\item The project is activated with \code{\link[=activate]{activate()}}.
+\item Discover the packages that you currently and install them into a
+project library (with \code{\link[=hydrate]{hydrate()}}).
+\item Create a lockfile that records the state of the project library so it
+can be restored by others (with \code{\link[=snapshot]{snapshot()}}).
+\item Activate the project to use the project library in both the current and
+all future sessions (with \code{\link[=activate]{activate()}}).
 }
 
-If \code{renv} sees that the associated project has already been initialized and
-has a lockfile, then it will attempt to infer the appropriate action to take
-based on the presence of a private library. If no library is available,
-\code{renv} will restore the private library from the lockfile; if one is
-available, \code{renv} will ask if you want to perform a 'standard' init,
-restore from the lockfile, or activate the project without taking any
-further action.
+If you call \code{init()} on a project that already uses \code{renv}, it will attempt
+to do the right thing; it will restore the project library if it's missing,
+or otherwise prompt you what to do.
 }
 \section{Infrastructure}{
 
