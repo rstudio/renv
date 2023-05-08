@@ -19,8 +19,6 @@
 #'
 #' @inherit renv-params
 #'
-#' @family renv
-#'
 #' @export
 #'
 #' @examples

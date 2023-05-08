@@ -1,7 +1,7 @@
-#' Generate renv Project Infrastructure
+#' Generate Project Infrastructure
 #'
 #' @description
-#' Write the `renv` project infrastructure for a project. This will:
+#' Create the `renv` project infrastructure. This will:
 #'
 #' - Create a project library, `renv/library`.
 #'

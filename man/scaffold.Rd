@@ -2,7 +2,7 @@
 % Please edit documentation in R/scaffold.R
 \name{scaffold}
 \alias{scaffold}
-\title{Generate renv Project Infrastructure}
+\title{Generate Project Infrastructure}
 \usage{
 scaffold(
   project = NULL,
@@ -26,7 +26,7 @@ after creation. These should map setting names to the desired values.
 See \link{settings} for more details.}
 }
 \description{
-Write the \code{renv} project infrastructure for a project. This will:
+Create the \code{renv} project infrastructure. This will:
 \itemize{
 \item Create a project library, \code{renv/library}.
 \item Install \code{renv} into the project library.
