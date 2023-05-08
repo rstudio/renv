@@ -43,9 +43,6 @@
     <loc>https://rstudio.github.io/renv/dev/articles/rsconnect.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/dev/articles/use.html</loc>
-  </url>
-  <url>
     <loc>https://rstudio.github.io/renv/dev/authors.html</loc>
   </url>
   <url>
@@ -71,9 +68,6 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/reference/consent.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/dev/reference/deactivate.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/reference/dependencies.html</loc>
@@ -191,9 +185,6 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/reference/upgrade.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/dev/reference/use.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/reference/use_python.html</loc>

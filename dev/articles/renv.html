@@ -63,7 +63,6 @@
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Collaborating</h6>
     <a class="dropdown-item" href="../articles/collaborating.html">Collaborating with renv</a>
-    <a class="dropdown-item" href="../articles/use.html">Using use()</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="../articles/ci.html">Using renv with continuous integration</a>
@@ -103,10 +102,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Introduction to renv</h1>
-                        <h4 data-toc-skip class="author">Kevin
-Ushey</h4>
             
-            <h4 data-toc-skip class="date">2023-05-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/renv.Rmd" class="external-link"><code>vignettes/renv.Rmd</code></a></small>
       <div class="d-none name"><code>renv.Rmd</code></div>
@@ -428,61 +424,6 @@ Depends:
 </div>
 </div>
 <div class="section level2">
-<h2 id="isolation">Isolation<a class="anchor" aria-label="anchor" href="#isolation"></a>
-</h2>
-<p>A typical installation might have three kinds of library paths
-available to the user:</p>
-<ul>
-<li><p>The <em>user library</em>, where packages downloaded and
-installed by the current user are installed. This library path is only
-visible to that specific user.</p></li>
-<li><p>The <em>site library</em>, where packages maintained by
-administrators of a system are installed. This library path, if it
-exists, is visible to all users on the system.</p></li>
-<li><p>The <em>system library</em>, where packages distributed with
-itself are installed. This library path is visible to all users on the
-system.</p></li>
-</ul>
-<p>Normally, only so-called “base” and “recommended” packages should be
-installed in the system library. These package can be queried with:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span>priority <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"base"</span>, <span class="st">"recommended"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">pkgs</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Package"</span>, <span class="st">"Version"</span>, <span class="st">"Priority"</span>, <span class="st">"LibPath"</span><span class="op">)</span><span class="op">]</span>, row.names <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
-<p>However, it is possible for users and administrators to install
-packages into the system library, if the filesystem permissions permit
-them to do so. (This is, for example, the default behavior on
-macOS.)</p>
-<p>Because the site and system libraries are visible to all users,
-having those accessible in <code>renv</code> projects can potentially
-break isolation – that is, if a package were updated in the system
-library, that update would be visible to all projects on the system.</p>
-<p>To help defend against this, <code>renv</code> uses something it
-calls the “system library sandbox”, or the “sandbox”, to isolate
-<code>renv</code> projects from non-“base” packages that are installed
-into the system library. To accomplish this, when an <code>renv</code>
-project is loaded, <code>renv</code> will:</p>
-<ul>
-<li><p>Create a new, empty library path (called the “sandbox”),</p></li>
-<li><p>Link only the “base” packages from the system library into the
-sandbox,</p></li>
-<li><p>Mark the sandbox as read-only, so that users are unable to
-install packages into this library,</p></li>
-<li><p>Instruct the session to use the “sandbox” as the system
-library.</p></li>
-</ul>
-<p>This process is mostly transparent to the user. However, because the
-sandbox is read-only, if you later need to remove the sandbox, you’ll
-need to reset file permissions manually; for example, with:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/sandbox.html">sandbox</a></span><span class="op">$</span><span class="fu">unlock</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>If you’d prefer to keep the sandbox unlocked, you can also set:</p>
-<pre><code><span><span class="va">RENV_SANDBOX_LOCKING_ENABLED</span> <span class="op">=</span> <span class="cn">FALSE</span></span></code></pre>
-<p>in an appropriate startup <code>.Renviron</code> or
-<code>Renviron.site</code> file.</p>
-<p>The sandbox can also be disabled entirely with:</p>
-<pre><code><span><span class="va">RENV_CONFIG_SANDBOX_ENABLED</span> <span class="op">=</span> <span class="cn">FALSE</span></span></code></pre>
-</div>
-<div class="section level2">
 <h2 id="collaborating">Collaborating<a class="anchor" aria-label="anchor" href="#collaborating"></a>
 </h2>
 <p>When sharing a project with other collaborators, you may want to
@@ -595,13 +536,13 @@ then be used by <code>renv</code>.</p>
 deactivating and uninstalling it is easy.</p>
 <ul>
 <li><p>To deactivate <code>renv</code> in a project, use
-<code><a href="../reference/deactivate.html">renv::deactivate()</a></code>. This removes the <code>renv</code>
+<code><a href="../reference/activate.html">renv::deactivate()</a></code>. This removes the <code>renv</code>
 auto-loader from the project <code>.Rprofile</code>, but doesn’t touch
 any other <code>renv</code> files used in the project. If you’d like to
 later re-activate <code>renv</code>, you can do so with
 <code><a href="../reference/activate.html">renv::activate()</a></code>.</p></li>
 <li><p>To remove <code>renv</code> from a project, use
-<code><a href="../reference/deactivate.html">renv::deactivate()</a></code> to first remove the <code>renv</code>
+<code><a href="../reference/activate.html">renv::deactivate()</a></code> to first remove the <code>renv</code>
 auto-loader from the project <code>.Rprofile</code>, then delete the
 project’s <code>renv</code> folder and <code>renv.lock</code> lockfile
 as desired.</p></li>
