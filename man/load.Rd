@@ -18,25 +18,13 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Load an \code{renv} project.
-}
-\details{
-Calling \code{renv::load()} will set the session's library paths to use a
-project-local library, and perform some other work to ensure the project is
-properly isolated from other packages on the system.
+\code{renv::load()} sets the library paths to use a project-local library, and
+setting up the system library \link{sandbox}, if needed.
 
-Normally, \code{renv::load()} is called automatically by the project auto-loader
-written to the project \code{.Rprofile} by \code{\link[=init]{init()}}. This allows \R sessions
-launched from the root of an \code{renv} project directory to automatically load
-that project, without requiring explicit action from the user. However, if
-preferred or necessary, one can call \code{renv::load("<project>")} to explicitly
-load an \code{renv} project located at a particular path.
-
-Use \code{\link[=activate]{activate()}} to activate (or re-activate) an \code{renv} project, so
-that newly-launched \R sessions can automatically load the associated
-project. Similarly, use \code{\link[=deactivate]{deactivate()}} to disable the project
-auto-loader, so that \code{renv} is no longer automatically activated for new
-\R sessions in this project.
+You should not generally need to call \code{renv::load()} yourself, as it's
+called automatically by the project auto-loader created by \code{\link[=init]{init()}}/
+\code{\link[=activate]{activate()}}. However, if needed, you can use \code{renv::load("<project>")}
+to explicitly load an \code{renv} project located at a particular path.
 }
 \examples{
 \dontrun{

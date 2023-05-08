@@ -1,19 +1,5 @@
 
-#' Use a set of Packages
-#'
-#' Given a set of \R package requirements, install those packages into the
-#' library path requested via `library`, and then activate that library path.
-#'
-#' `renv::use()` is intended to be used within standalone \R scripts. It can
-#' be useful when you'd like to specify an \R script's dependencies directly
-#' within that script, and have those packages automatically installed and
-#' loaded when the associated script is run. In this way, an \R script can more
-#' easily be shared and re-run with the exact package versions requested via
-#' `use()`.
-#'
-#' `renv::use()` is inspired in part by the [groundhog](https://groundhogr.com/)
-#' package, which also allows one to specify a script's \R package requirements
-#' within that same \R script.
+#' @rdname embed
 #'
 #' @param ...
 #'   The \R packages to be used with this script. Ignored if `lockfile` is

@@ -1,23 +1,21 @@
 
-#' Activate a Project
+#' Activate or Deactivate a Project
 #'
-#' Activate a project, thereby loading it in the current session and also
-#' writing the infrastructure necessary to ensure the project is auto-loaded
-#' for newly-launched \R sessions.
+#' @description
+#' `activate()` enables `renv` for a project in both the current session and
+#' in all future sessions. You should not generally need to call `activate()`
+#' yourself as it's called automatically by [renv::init()], which is the best
+#' way to start using `renv` in a new project.
 #'
-#' Using `activate()` will:
+#' `activate()` first calls [renv::scaffold()] to set up the project
+#' infrastructure. Most importantly, this creates a project library and adds a
+#' `.Rprofile` to ensure that the project library is automatically used for all
+#' future instances of the project. It then calls [renv::load()] to use the
+#' project library for the current session.
 #'
-#' 1. Load the requested project via [renv::load()],
-#'
-#' 2. Add `source("renv/activate.R")` to the project `.Rprofile`, thereby
-#'    instructing newly-launched \R sessions to automatically load the
-#'    current project.
-#'
-#' Normally, `activate()` is called as part of [renv::init()] when a project
-#' is first initialized. However, `activate()` can be used to activate
-#' (or re-activate) an `renv` project -- for example, if the project was shared
-#' without the auto-loader included in the project `.Rprofile`, or because
-#' that project was previously deactivated (via [renv::deactivate()]).
+#' `deactivate()` removes the infrastructure automatically activate `renv` in
+#' new session. This removes the auto-loader from the `.Rprofile`; it does
+#' not delete the lockfile or the project library.
 #'
 #' @inherit renv-params
 #'
@@ -33,6 +31,9 @@
 #'
 #' # activate a separate project
 #' renv::activate("~/projects/analysis")
+#'
+#' # deactivate the currently-activated project
+#' renv::deactivate()
 #'
 #' }
 activate <- function(project = NULL, profile = NULL) {

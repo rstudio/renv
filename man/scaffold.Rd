@@ -26,15 +26,14 @@ after creation. These should map setting names to the desired values.
 See \link{settings} for more details.}
 }
 \description{
-Write the \code{renv} project infrastructure for a project.
-}
-\details{
-Invoking \code{renv::scaffold()} will:
+Write the \code{renv} project infrastructure for a project. This will:
 \itemize{
-\item Install \code{renv} into the project library,
-\item Update the project \code{.Rprofile} so that \code{renv} is automatically loaded
-for new \R sessions launched in this project, and
-\item Write a bare lockfile \code{renv.lock}.
+\item Create a project library, \code{renv/library}.
+\item Install \code{renv} into the project library.
+\item Update the project \code{.Rprofile} to call \code{source("renv/activate.R")} so
+that \code{renv} is automatically loaded for new \R sessions launched in
+this project.
+\item Write a (bare) lockfile, \code{renv.lock}.
 }
 }
 \examples{
