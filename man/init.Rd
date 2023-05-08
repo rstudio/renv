@@ -57,12 +57,12 @@ called for its side effects.
 \description{
 Use \code{init()} to start using renv in the current project. This will:
 \enumerate{
+\item Activate the project to use the project library in both the current and
+all future sessions (with \code{\link[=activate]{activate()}}).
 \item Discover the packages that you currently and install them into a
 project library (with \code{\link[=hydrate]{hydrate()}}).
 \item Create a lockfile that records the state of the project library so it
 can be restored by others (with \code{\link[=snapshot]{snapshot()}}).
-\item Activate the project to use the project library in both the current and
-all future sessions (with \code{\link[=activate]{activate()}}).
 }
 
 If you call \code{init()} on a project that already uses \code{renv}, it will attempt

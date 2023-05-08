@@ -1,15 +1,17 @@
 #' Generate renv Project Infrastructure
 #'
-#' Write the `renv` project infrastructure for a project.
+#' @description
+#' Write the `renv` project infrastructure for a project. This will:
 #'
-#' Invoking `renv::scaffold()` will:
+#' - Create a project library, `renv/library`.
 #'
-#' - Install `renv` into the project library,
+#' - Install `renv` into the project library.
 #'
-#' - Update the project `.Rprofile` so that `renv` is automatically loaded
-#'   for new \R sessions launched in this project, and
+#' - Update the project `.Rprofile` to call `source("renv/activate.R")` so
+#'   that `renv` is automatically loaded for new \R sessions launched in
+#'   this project.
 #'
-#' - Write a bare lockfile `renv.lock`.
+#' - Write a (bare) lockfile, `renv.lock`.
 #'
 #' @inheritParams renv-params
 #'

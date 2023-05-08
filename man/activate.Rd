@@ -28,15 +28,11 @@ in all future sessions. You should not generally need to call \code{activate()}
 yourself as it's called automatically by \code{\link[=init]{init()}}, which is the best
 way to start using \code{renv} in a new project.
 
-\code{activate()} does two things. It:
-\enumerate{
-\item Loads the requested project via \code{\link[=load]{load()}}.
-\item Adds \code{source("renv/activate.R")}, the "auto-loader", to the project
-\code{.Rprofile}. This script ensures that the correct version of renv is
-installed then calls \code{\link[=load]{load()}}, ensuring that future \R sessions
-launched from the project automatically load that project, without
-explicit user action.
-}
+\code{activate()} first calls \code{\link[=scaffold]{scaffold()}} to set up the project
+infrastructure. Most importantly, this creates a project library and adds a
+\code{.Rprofile} to ensure that the project library is automatically used for all
+future instances of the project. It then calls \code{\link[=load]{load()}} to use the
+project library for the current session.
 
 \code{deactivate()} removes the infrastructure automatically activate \code{renv} in
 new session. This removes the auto-loader from the \code{.Rprofile}; it does

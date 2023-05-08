@@ -4,14 +4,14 @@
 #' @description
 #' Use `init()` to start using renv in the current project. This will:
 #'
+#' 1. Activate the project to use the project library in both the current and
+#'    all future sessions (with [activate()]).
+#'
 #' 1. Discover the packages that you currently and install them into a
 #'    project library (with [hydrate()]).
 #'
 #' 1. Create a lockfile that records the state of the project library so it
 #'    can be restored by others (with [snapshot()]).
-#'
-#' 1. Activate the project to use the project library in both the current and
-#'    all future sessions (with [activate()]).
 #'
 #' If you call `init()` on a project that already uses `renv`, it will attempt
 #' to do the right thing; it will restore the project library if it's missing,

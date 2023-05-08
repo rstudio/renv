@@ -7,15 +7,11 @@
 #' yourself as it's called automatically by [renv::init()], which is the best
 #' way to start using `renv` in a new project.
 #'
-#' `activate()` does two things. It:
-#'
-#' 1. Loads the requested project via [renv::load()].
-#'
-#' 2. Adds `source("renv/activate.R")`, the "auto-loader", to the project
-#'    `.Rprofile`. This script ensures that the correct version of renv is
-#'    installed then calls [renv::load()], ensuring that future \R sessions
-#'    launched from the project automatically load that project, without
-#'    explicit user action.
+#' `activate()` first calls [renv::scaffold()] to set up the project
+#' infrastructure. Most importantly, this creates a project library and adds a
+#' `.Rprofile` to ensure that the project library is automatically used for all
+#' future instances of the project. It then calls [renv::load()] to use the
+#' project library for the current session.
 #'
 #' `deactivate()` removes the infrastructure automatically activate `renv` in
 #' new session. This removes the auto-loader from the `.Rprofile`; it does
