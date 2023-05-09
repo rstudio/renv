@@ -34,8 +34,6 @@ This scans your R code to discover what packages you are currently using[^1], re
 
 [^2]: If you'd like to skip the dependency discovery you can call `renv::init(bare = TRUE)` to initialize a project with an empty project library.
 
-    ### 
-
 The next important `renv` tool is `renv::snapshot()`.
 This updates the lockfile with the currently installed package versions, and means that other people on other computers can easily reproduce your current environment by running `renv::restore()`.
 This pair of functions give you the benefits of **reproducibility** and **portability**: you are now tracking exactly which package versions you have installed, and can recreate them on other machines.
