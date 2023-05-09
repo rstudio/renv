@@ -10,7 +10,7 @@
 #'
 #' @param version The version of `renv` to be installed.
 #'
-#'   The default, `NULL`, will installed the latest version of `renv` as
+#'   When `NULL` (the default), the latest version of `renv` will be installed as
 #'   available from CRAN (or whatever active package repositories are active)
 #'   Alternatively, you can install the latest development version with
 #'   `"main"`, or a specific version from GitHub with (e.g.) `"0.17.3"` or

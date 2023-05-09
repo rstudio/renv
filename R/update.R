@@ -182,7 +182,7 @@ renv_update_find <- function(records) {
 #' @inherit renv-params
 #'
 #' @param packages A character vector of \R packages to update. When `NULL`
-#'   (the default), all packages (apart from any listed in `ignored.packages`
+#'   (the default), all packages (apart from any listed in the `ignored.packages`
 #'   project setting) will be updated.
 #'
 #' @param check Boolean; check for package updates without actually

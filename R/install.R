@@ -62,7 +62,7 @@
 #'  below for more details.
 #'
 #'  Alternatively, if the package contains a `DESCRIPTION` you can omit this
-#'  argument to install all packages
+#'  argument to install all packages.
 #'
 #' @return A named list of package records which were installed by `renv`.
 #'
