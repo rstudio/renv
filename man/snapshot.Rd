@@ -2,7 +2,7 @@
 % Please edit documentation in R/snapshot.R
 \name{snapshot}
 \alias{snapshot}
-\title{Snapshot a Project}
+\title{Update the lockfile with packages installed in the project library}
 \usage{
 snapshot(
   project = NULL,
@@ -67,11 +67,10 @@ The generated lockfile, as an \R object (invisibly). Note that
 this function is normally called for its side effects.
 }
 \description{
-Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a project's
-\R package dependencies. The lockfile can be used to later restore these
-project's dependencies as required.
-}
-\details{
+Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a
+project's dependencies. The lockfile can be used to later \code{\link[=restore]{restore()}}
+these project's dependencies as required.
+
 See the \link{lockfile} documentation for more details on the structure of a
 lockfile.
 }

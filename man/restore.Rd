@@ -2,7 +2,7 @@
 % Please edit documentation in R/restore.R
 \name{restore}
 \alias{restore}
-\title{Restore a Project}
+\title{Restore project library from the lockfile}
 \usage{
 restore(
   project = NULL,

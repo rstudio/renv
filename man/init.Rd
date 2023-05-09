@@ -2,7 +2,7 @@
 % Please edit documentation in R/init.R
 \name{init}
 \alias{init}
-\title{Start Using renv in a Project}
+\title{Start using renv in a project}
 \usage{
 init(
   project = NULL,

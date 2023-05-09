@@ -6,7 +6,7 @@ development:
 
 reference:
 
-- title: Basic Workflows
+- title: Basic workflows
   desc: >
     These functions are the bread and butter of `renv` usage, and make up
     the bulk of day-to-day renv usage.

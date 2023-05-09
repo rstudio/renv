@@ -1,7 +1,7 @@
 
 `_renv_status_running` <- FALSE
 
-#' Status
+#' Report differences between lockfile and project library
 #'
 #' Report differences between the project's lockfile and the current state of
 #' the project's library (if any).

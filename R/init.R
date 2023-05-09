@@ -1,5 +1,5 @@
 
-#' Start Using renv in a Project
+#' Start using renv in a project
 #'
 #' @description
 #' Use `init()` to start using renv in the current project. This will:

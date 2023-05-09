@@ -3,11 +3,12 @@
 # can be scoped to FALSE when hashing is not necessary
 `_renv_snapshot_hash` <- TRUE
 
-#' Snapshot a Project
+#' Update the lockfile with packages installed in the project library
 #'
-#' Call `snapshot()` to create a **lockfile** capturing the state of a project's
-#' \R package dependencies. The lockfile can be used to later restore these
-#' project's dependencies as required.
+#' @description
+#' Call `snapshot()` to create a **lockfile** capturing the state of a
+#' project's dependencies. The lockfile can be used to later [restore()]
+#' these project's dependencies as required.
 #'
 #' See the [lockfile] documentation for more details on the structure of a
 #' lockfile.

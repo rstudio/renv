@@ -2,7 +2,7 @@
 % Please edit documentation in R/status.R
 \name{status}
 \alias{status}
-\title{Status}
+\title{Report differences between lockfile and project library}
 \usage{
 status(
   project = NULL,
