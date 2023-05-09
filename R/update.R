@@ -172,23 +172,18 @@ renv_update_find <- function(records) {
 
 #' Update Packages
 #'
+#' @description
 #' Update packages which are currently out-of-date. Currently supports CRAN,
 #' Bioconductor, other CRAN-like repositories, GitHub and Git.
-#'
 #' Updates will only be checked from the same source -- for example,
 #' if a package was installed from GitHub, but a newer version is
 #' available on CRAN, that updated version will not be seen.
 #'
-#' You can call `renv::update()` with no arguments to update all packages within
-#' the project, excluding any packages ignored via the `ignored.packages`
-#' project setting. Use the `exclude` argument to further refine the exclusion
-#' criteria if desired.
-#'
 #' @inherit renv-params
-#' @inheritParams install-params
 #'
 #' @param packages A character vector of \R packages to update. When `NULL`
-#'   (the default), all packages will be updated.
+#'   (the default), all packages (apart from any listed in `ignored.packages`
+#'   project setting) will be updated.
 #'
 #' @param check Boolean; check for package updates without actually
 #'   installing available updates? This is useful when you'd like to determine

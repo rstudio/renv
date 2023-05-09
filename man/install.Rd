@@ -17,9 +17,22 @@ install(
 )
 }
 \arguments{
-\item{packages}{A character vector of \R packages to install. Required
-package dependencies (\code{Depends}, \code{Imports}, \code{LinkingTo}) will be installed
-as required.}
+\item{packages}{A character vector of \R packages to install.
+
+\code{renv} supports a subset of the \code{remotes} syntax used for package
+installation, e.g:
+\itemize{
+\item \code{pkg}: install latest version of \code{pkg} from CRAN.
+\item \code{pkg@version}: install specified version of \code{pkg} from CRAN.
+\item \code{username/repo}: install package from GitHub
+\item \code{bioc::pkg}: install pkg from Bioconductor.
+}
+
+See \url{https://remotes.r-lib.org/articles/dependencies.html} and the examples
+below for more details.
+
+Alternatively, if the package contains a \code{DESCRIPTION} you can omit this
+argument to install all packages}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}
@@ -59,13 +72,13 @@ A named list of package records which were installed by \code{renv}.
 }
 \description{
 Install one or more \R packages, from a variety of remote sources.
-}
-\details{
-\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} when installing packages.
+\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} for installing packages.
 In particular, this means that the local cache of package installations is
 used when possible. This helps to avoid re-downloading packages that have
 already been downloaded before, and re-compiling packages from source when
 a binary copy of that package is already available.
+
+See \code{vignette("package-install")} for more details.
 }
 \section{Project DESCRIPTION Files}{
 
@@ -87,20 +100,6 @@ sources for packages to be installed. If you want to install packages using
 the sources declared in the lockfile, consider using \code{restore()} instead.
 Otherwise, you can declare the package sources in your \code{DESCRIPTION}'s
 \verb{Remotes:} field.
-}
-
-\section{Remotes Syntax}{
-
-
-\code{renv} supports a subset of the \code{remotes} syntax used for package installation,
-as described in \url{https://remotes.r-lib.org/articles/dependencies.html}. See
-the examples below for more details.
-
-If you wish to install packages from an external source requiring authentication
-(e.g. a private GitHub repository), see the \strong{Authentication} documentation
-online at \url{https://rstudio.github.io/renv/articles/renv.html#authentication},
-or view the documentation locally in the \strong{Getting Started} vignette with
-\code{vignette("renv", package = "renv")}.
 }
 
 \section{Bioconductor}{

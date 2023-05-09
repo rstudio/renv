@@ -46,15 +46,6 @@
 #' @name renv-params
 NULL
 
-#' @param library The library into which packages should be installed.
-#'
-#' @param packages A character vector of \R packages to install. Required
-#'   package dependencies (`Depends`, `Imports`, `LinkingTo`) will be installed
-#'   as required.
-#'
-#' @name install-params
-NULL
-
 renv_roxygen_config_section <- function() {
 
   # read config

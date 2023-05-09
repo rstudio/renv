@@ -53,11 +53,14 @@ If you're using git, this is particularly simple because `renv` will create a `.
 Now when one of your collaborators opens this project, `renv` will automatically bootstrap itself, downloading and installing the appropriate version of `renv`.
 It will not, however, install the packages automatically --- you'll need to tell your collaborators to call `renv::restore()` to get all the packages they need.
 
-### Installing new packages
+### Installing packages
 
 Over time, your project will need more packages.
 One of the philosophies of `renv` is that your existing package management workflows should continue to work, can you can continue to use `install.packages()`.
 But you can also use `renv::install()`, which is a little less typing and supports installing and updating packages from GitHub, Bioconductor, and more, not just CRAN.
+
+Because you'll often need to install the same package in multiple projects, renv uses a cache to make future installations much faster.
+You can learn more about how the cache works, and other aspects of package installation, in `vignette("package-install")`.
 
 After installing the package and checking that your code still works, call `renv::snapshot()` to record the latest versions in your lockfile.
 If you're collaborating with others, you'll need to commit those changes to git, and let them know that you've update the lockfile.

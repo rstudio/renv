@@ -1,14 +1,15 @@
 
 #' Install Packages
 #'
+#' @description
 #' Install one or more \R packages, from a variety of remote sources.
-#'
-#' `install()` uses the same machinery as [restore()] when installing packages.
+#' `install()` uses the same machinery as [restore()] for installing packages.
 #' In particular, this means that the local cache of package installations is
 #' used when possible. This helps to avoid re-downloading packages that have
 #' already been downloaded before, and re-compiling packages from source when
 #' a binary copy of that package is already available.
 #'
+#' See `vignette("package-install")` for more details.
 #'
 #' @section Project DESCRIPTION Files:
 #'
@@ -30,19 +31,7 @@
 #' Otherwise, you can declare the package sources in your `DESCRIPTION`'s
 #' `Remotes:` field.
 #'
-#'
-#' @section Remotes Syntax:
-#'
-#' `renv` supports a subset of the `remotes` syntax used for package installation,
-#' as described in <https://remotes.r-lib.org/articles/dependencies.html>. See
-#' the examples below for more details.
-#'
-#' If you wish to install packages from an external source requiring authentication
-#' (e.g. a private GitHub repository), see the **Authentication** documentation
-#' online at <https://rstudio.github.io/renv/articles/renv.html#authentication>,
-#' or view the documentation locally in the **Getting Started** vignette with
-#' `vignette("renv", package = "renv")`.
-#'
+
 #' @section Bioconductor:
 #'
 #' Packages from Bioconductor can be installed by using the `bioc::` prefix.
@@ -58,7 +47,6 @@
 #' for the installation of packages from Bioconductor. If these packages are
 #' not available, `renv` will attempt to automatically install them before
 #' fulfilling the installation request.
-#'
 #'
 #' @section Package Configuration:
 #'
@@ -99,7 +87,21 @@
 #' ```
 #'
 #' @inherit renv-params
-#' @inheritParams install-params
+#' @param packages A character vector of \R packages to install.
+#'
+#'  `renv` supports a subset of the `remotes` syntax used for package
+#'  installation, e.g:
+#'
+#'  * `pkg`: install latest version of `pkg` from CRAN.
+#'  * `pkg@version`: install specified version of `pkg` from CRAN.
+#'  * `username/repo`: install package from GitHub
+#'  * `bioc::pkg`: install pkg from Bioconductor.
+#'
+#'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
+#'  below for more details.
+#'
+#'  Alternatively, if the package contains a `DESCRIPTION` you can omit this
+#'  argument to install all packages
 #'
 #' @return A named list of package records which were installed by `renv`.
 #'
