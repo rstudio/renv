@@ -70,13 +70,13 @@ If you're unsure how your library and lockfile differ, call `renv::status()`.
 ### Package updates
 
 It's worth noting that there's a small risk associated with isolation: while you\'re no longer vulnerable to breakages, but you also don\'t benefit from fixes.
-So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^4] to get the latest version of all packages.
-Similarly, if you pick up a project that you haven\'t worked on for a while, we think it's a good idea to start with an `renv::update()` before making any changes to the code.
+So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^4] to get the latest version of all dependencies.
+Similarly, if you're making major changes to a project that you haven\'t worked on for a while, it's often a good idea to start with an `renv::update()` before making any changes to the code.
 
 [^4]: You can also use `update.packages()`, but `renv::update()` also works for packages installed from Bioconductor, GitHub, and Git.
 
 After calling `renv::update()`, you should run the code in your project and make sure it works.
-Then call `renv::snapshot()`, to make sure the versions of the new dependencies are included in the lockfile.
+Then call `renv::snapshot()` to record the news versions in the lockfile.
 If you get stuck, and can't get the project to work with the new versions, you can always call `renv::restore()` to revert to the last known good state.
 If you need to roll back to an even older version, take a look at `renv::history()` and `renv::revert()`.
 
