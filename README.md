@@ -25,19 +25,12 @@ project depends on.
 **Reproducible**: `renv` records the exact package versions you depend on, and
 ensures those exact versions are the ones that get installed wherever you go.
 
-
 ## Installation
 
 Install the latest version of `renv` from CRAN with:
 
 ```r
 install.packages("renv")
-```
-
-You can also install the development version of `renv` from [R-universe](https://r-universe.dev/) with:
-
-```r
-install.packages("renv", repos = "https://rstudio.r-universe.dev")
 ```
 
 ## Workflow
@@ -48,18 +41,14 @@ all of the packages you're using into that library. The packages used in your
 project will be recorded into a *lockfile*, called `renv.lock`.
 
 As you work in your project, you may need to install or upgrade different
-packages. As these packages are installed, `renv` will automatically write
-`renv.lock` for you. The `renv.lock` lockfile records the state of your project's
-private library, and can be used to restore the state of that library as required.
+packages. After you've confirmed your code works as expected, call 
+`renv::snasphot()` to record their versions in the lockfile.
 
-Later, if you need to port your project to a new machine, you can call
-`renv::restore()` to reinstall all of the packages as declared in the lockfile.
-
+Later, if you need to share your code with someone else or run your code on 
+new machine, you can call `renv::restore()` to reinstall all of the packages 
+declared in the lockfile.
 
 ## Learning More
-
-You can browse the package documentation online at
-<https://rstudio.github.io/renv/>.
 
 If this is your first time using `renv`, we strongly recommend reading the
 [Introduction to renv](https://rstudio.github.io/renv/articles/renv.html)
