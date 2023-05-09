@@ -114,17 +114,15 @@ You typically won't touch any of these files directly, but it's good to understa
 -   `renv/settings.json`: Project settings -- see `?settings` for more details.
 
 For development and collaboration, `renv/library` directory should be ignored and all others checked in.
-`renv::init()` will help by automatically writing requisite ignore statements to the project `.gitignore`.
+`renv` will help by automatically creating the needed `.gitignore`.
 
-### Anatomy of a lockfile
-
-Of these files, `renv.lock` is most important, and will change the most over the life of a project, so it's good to know exactly what's going on.
-A lockfile is json file that records all the information need to recreate your package in the future.
+Of these files, `renv.lock` is probably the most important to understand as it will change the most over the life of a project.
+A `renv.lock` is json file that records all the information need to recreate your package in the future.
 It includes:
 
 -   The version of `R` used.
 -   Your R repositories.
--   **Package records** defining each R package, their version, and their installation source.
+-   Package records defining each R package, their version, and their installation source.
 
 Here is an example lockfile, including the packages `markdown` and `mime`:
 
@@ -158,14 +156,9 @@ Here is an example lockfile, including the packages `markdown` and `mime`:
 }
 ```
 
-### Package records
-
 The package records are created using the currently-installed copies of packages as a "source of truth".
 The fields written into each package record are derived from the installed package's `DESCRIPTION` file, and include the data required to recreate installation, regardless of whether the package was installed from [CRAN](https://cran.r-project.org/), [Bioconductor](https://www.bioconductor.org/), [GitHub](https://github.com/), [Gitlab](https://about.gitlab.com/), [Bitbucket](https://bitbucket.org/), or elsewhere.
-You can learn more about what souces renv supports in `vignette("package-sources")`.
-
-Note that the package records created from packages installed using `pak::pkg_install()` may have a format different from a package installed with `utils::install.packages()`.
-This is because `pak` writes out a variety of other metadata into the package `DESCRIPTION` file after installation, including a number of `Remote` fields that further describe where the package was retrieved from, and the type of package that was installed.
+You can learn more about the sources `renv` supports in `vignette("package-sources")`.
 
 ## Uninstalling renv
 
@@ -175,7 +168,7 @@ If you find `renv` isn't the right fit for your project, deactivating and uninst
     This removes the `renv` auto-loader from the project `.Rprofile`, but doesn't touch any other `renv` files used in the project.
     If you'd like to later re-activate `renv`, you can do so with `renv::activate()`.
 
--   To remove `renv` from a project, first call `renv::deactivate()` then delete the `renv/` folder and `renv.lock` lockfile.
+-   To completely remove `renv` from a project, first call `renv::deactivate()` then delete the `renv/` folder and `renv.lock` lockfile.
 
 If you want to completely remove any installed `renv` infrastructure components from your entire system, you can do so with the following R code:
 
@@ -195,10 +188,7 @@ Note that if you've customized any of `renv`'s infrastructure paths as described
 ## Packrat
 
 `renv` is our second attempt at solving this problem, using what we learned from [packrat](https://rstudio.github.io/packrat/) to create a system with fewer surprises and better default behaviors.
-
-### Differences
-
-`renv` differs from Packrat in the following ways:
+If you're an existing packrat user, you can call `renv::migrate()` to switch renv, then read on to learn about the main differences:
 
 1.  The `renv` lockfile `renv.lock` is formatted as [JSON](https://www.json.org/).
     This should make the lockfile easier to use and consume with other tools.
@@ -217,9 +207,3 @@ Note that if you've customized any of `renv`'s infrastructure paths as described
 5.  `renv`'s dependency discovery machinery is more configurable.
     The function `renv::dependencies()` is exported, and users can create `.renvignore` files to instruct `renv` to ignore specific files and folders in their projects.
     (See `?renv::dependencies` for more information.)
-
-### Migrating from Packrat
-
-The `renv::migrate()` function makes it possible to migrate projects from Packrat to `renv`.
-See the `?migrate` documentation for more details.
-In essence, calling `renv::migrate("<project path>")` will be enough to migrate the Packrat library and lockfile such that they can then be used by `renv`.
