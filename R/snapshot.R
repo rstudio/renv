@@ -3,7 +3,7 @@
 # can be scoped to FALSE when hashing is not necessary
 `_renv_snapshot_hash` <- TRUE
 
-#' Update the lockfile with packages installed in the project library
+#' Record current state of the package library in the lockfile
 #'
 #' @description
 #' Call `snapshot()` to create a **lockfile** capturing the state of a
@@ -13,36 +13,33 @@
 #' See the [lockfile] documentation for more details on the structure of a
 #' lockfile.
 #'
-#' @section Snapshot Type:
+#' # Snapshot types
 #'
 #' Depending on how you prefer to manage dependencies, you might prefer
 #' selecting a different snapshot mode. The modes available are as follows:
 #'
 #' \describe{
 #'
-#' \item{`"all"`}{
-#' Capture all packages within the active \R libraries in the lockfile.
-#' This is the quickest and simplest method, but may lead to undesired
-#' packages (e.g. development dependencies) entering the lockfile.
-#' }
-#'
 #' \item{`"implicit"`}{
-#' Only capture packages which appear to be used in your project in the
-#' lockfile. The intersection of packages installed in your \R libraries,
-#' alongside those used in your \R code as inferred by `renv::dependencies()`,
-#' will enter the lockfile. This helps ensure that only the packages your
-#' project requires will enter the lockfile, but may be slower if your project
-#' contains a large number of files. If this becomes an issue, you might
-#' consider using `.renvignore` files to limit which files `renv` uses for
-#' dependency discovery, or explicitly declaring your required dependencies in a
-#' `DESCRIPTION` file. You can also force a dependency on a particular package
-#' by writing e.g. `library(<package>)` into a file called `dependencies.R`.
+#' (The default) Capture only packages which appear to be used in your project,
+#' as determined by `renv::dependencies()`. This ensures that only the packages
+#' actually required by your project will enter the lockfile; the downside
+#' if it might be slow if your project contains a large number of files.
+#' If speed becomes an issue, you might consider using `.renvignore` files to
+#' limit which files `renv` uses for dependency discovery, or switching to
+#' explicit mode, as described next.
 #' }
 #'
 #' \item{`"explicit"`}{
 #' Only capture packages which are explicitly listed in the project
 #' `DESCRIPTION` file. This workflow is recommended for users who wish to
 #' manage their project's \R package dependencies directly.
+#' }
+#'
+#' \item{`"all"`}{
+#' Capture all packages within the active \R libraries in the lockfile.
+#' This is the quickest and simplest method, but may lead to undesired
+#' packages (e.g. development dependencies) entering the lockfile.
 #' }
 #'
 #' \item{`"custom"`}{
@@ -56,9 +53,8 @@
 #'
 #' }
 #'
-#' By default, `"implicit"`-style snapshots are used. The snapshot type can be
-#' configured on a project-specific basis using the `renv` project [settings]
-#' mechanism. For example, to use `"explicit"` snapshots in a project:
+#' You can change the snapshot type for the current project with [settings()].
+#' For example, the following code will switch to using `"explicit"` snapshots:
 #'
 #' ```
 #' renv::settings$snapshot.type("explicit")
@@ -78,8 +74,8 @@
 #'   project directory. When `NULL`, the lockfile (as an \R object) is returned
 #'   directly instead.
 #'
-#' @param type The type of snapshot to perform. See **Snapshot Type** for
-#'   more details.
+#' @param type The type of snapshot to perform. See **Snapshot type** below
+#'   for more details.
 #'
 #' @param repos The \R repositories to be recorded in the lockfile. Defaults
 #'   to the currently active package repositories, as retrieved by

@@ -2,7 +2,7 @@
 % Please edit documentation in R/snapshot.R
 \name{snapshot}
 \alias{snapshot}
-\title{Update the lockfile with packages installed in the project library}
+\title{Record current state of the package library in the lockfile}
 \usage{
 snapshot(
   project = NULL,
@@ -35,8 +35,8 @@ By default, the lockfile is written to a file called \code{renv.lock} in the
 project directory. When \code{NULL}, the lockfile (as an \R object) is returned
 directly instead.}
 
-\item{type}{The type of snapshot to perform. See \strong{Snapshot Type} for
-more details.}
+\item{type}{The type of snapshot to perform. See \strong{Snapshot type} below
+for more details.}
 
 \item{repos}{The \R repositories to be recorded in the lockfile. Defaults
 to the currently active package repositories, as retrieved by
@@ -74,37 +74,32 @@ these project's dependencies as required.
 See the \link{lockfile} documentation for more details on the structure of a
 lockfile.
 }
-\section{Snapshot Type}{
-
-
+\section{Snapshot types}{
 Depending on how you prefer to manage dependencies, you might prefer
 selecting a different snapshot mode. The modes available are as follows:
 
 \describe{
 
-\item{\code{"all"}}{
-Capture all packages within the active \R libraries in the lockfile.
-This is the quickest and simplest method, but may lead to undesired
-packages (e.g. development dependencies) entering the lockfile.
-}
-
 \item{\code{"implicit"}}{
-Only capture packages which appear to be used in your project in the
-lockfile. The intersection of packages installed in your \R libraries,
-alongside those used in your \R code as inferred by \code{renv::dependencies()},
-will enter the lockfile. This helps ensure that only the packages your
-project requires will enter the lockfile, but may be slower if your project
-contains a large number of files. If this becomes an issue, you might
-consider using \code{.renvignore} files to limit which files \code{renv} uses for
-dependency discovery, or explicitly declaring your required dependencies in a
-\code{DESCRIPTION} file. You can also force a dependency on a particular package
-by writing e.g. \verb{library(<package>)} into a file called \code{dependencies.R}.
+(The default) Capture only packages which appear to be used in your project,
+as determined by \code{renv::dependencies()}. This ensures that only the packages
+actually required by your project will enter the lockfile; the downside
+if it might be slow if your project contains a large number of files.
+If speed becomes an issue, you might consider using \code{.renvignore} files to
+limit which files \code{renv} uses for dependency discovery, or switching to
+explicit mode, as described next.
 }
 
 \item{\code{"explicit"}}{
 Only capture packages which are explicitly listed in the project
 \code{DESCRIPTION} file. This workflow is recommended for users who wish to
 manage their project's \R package dependencies directly.
+}
+
+\item{\code{"all"}}{
+Capture all packages within the active \R libraries in the lockfile.
+This is the quickest and simplest method, but may lead to undesired
+packages (e.g. development dependencies) entering the lockfile.
 }
 
 \item{\code{"custom"}}{
@@ -118,9 +113,8 @@ in the lockfile.
 
 }
 
-By default, \code{"implicit"}-style snapshots are used. The snapshot type can be
-configured on a project-specific basis using the \code{renv} project \link{settings}
-mechanism. For example, to use \code{"explicit"} snapshots in a project:
+You can change the snapshot type for the current project with \code{\link[=settings]{settings()}}.
+For example, the following code will switch to using \code{"explicit"} snapshots:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{renv::settings$snapshot.type("explicit")
 }\if{html}{\out{</div>}}
