@@ -1,21 +1,20 @@
 
 #' Upgrade renv
 #'
-#' Upgrade the version of `renv` associated with a project.
-#'
-#' By default, this function will attempt to install the latest version of
-#' `renv` as available on the active R package repositories. If you'd instead
-#' like to try out a development version of `renv`, you can explicitly request a
-#' different version of `renv` and that version of the package will be
-#' downloaded and installed from GitHub. Use `version = "main"` to install the
-#' latest development version of `renv`, as from the `renv` project's [GitHub
-#' page](https://github.com/rstudio/renv).
+#' Upgrade the version of `renv` associated with a project. [renv::update()]
+#' will update renv to the latest version from CRAN, meaning that
+#' `renv::upgrade()` is best using for updating just `renv`, or for using
+#' a development version.
 #'
 #' @inherit renv-params
 #'
-#' @param version The version of `renv` to be installed. By default, the latest
-#'   version of `renv` as available on the active R package repositories is
-#'   used.
+#' @param version The version of `renv` to be installed.
+#'
+#'   The default, `NULL`, will installed the latest version of `renv` as
+#'   available from CRAN (or whatever active package repositories are active)
+#'   Alternatively, you can install the latest development version with
+#'   `"main"`, or a specific version from GitHub with (e.g.) `"0.17.3"` or
+#'   `"0.17.3-29"`.
 #'
 #' @param prompt Boolean; prompt upgrade before proceeding?
 #'

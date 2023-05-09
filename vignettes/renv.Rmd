@@ -53,19 +53,32 @@ If you're using git, this is particularly simple because `renv` will create a `.
 Now when one of your collaborators opens this project, `renv` will automatically bootstrap itself, downloading and installing the appropriate version of `renv`.
 It will not, however, install the packages automatically --- you'll need to tell your collaborators to call `renv::restore()` to get all the packages they need.
 
-### Updates
+### Installing new packages
 
-Over time, the versions of packages used by the project will change.
-One of the philosophies of `renv` is that your existing package management workflows should continue to work as they before: you can continue to use `install.packages()`, `update.packages()`, and `remove.packages()`.
-But you can also use renv functions `renv::install()`, `renv::update()`, and `renv::remove()`; these are a little less typing and support installing and updating packages from GitHub, Biocondcutor, and more, not just CRAN.
+Over time, your project will need more packages.
+One of the philosophies of `renv` is that your existing package management workflows should continue to work, can you can continue to use `install.packages()`.
+But you can also use `renv::install()`, which is a little less typing and supports installing and updating packages from GitHub, Bioconductor, and more, not just CRAN.
 
-After modifying your library and checking that your code still works, call `renv::snapshot()` to record the latest versions in your lockfile.
+After installing the package and checking that your code still works, call `renv::snapshot()` to record the latest versions in your lockfile.
 If you're collaborating with others, you'll need to commit those changes to git, and let them know that you've update the lockfile.
 
-If your code fails with the updated packages, and you want to rollback to the last known good version, you can call `renv::restore()` to roll back to the last known good state.
+If you're unsure how your library and lockfile differ, call `renv::status()`.
+
+### Package updates
+
+It's worth noting that there's a small risk associated with isolation: while you\'re no longer vulnerable to breakages, but you also don\'t benefit from fixes.
+So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^4] to get the latest version of all packages.
+Similarly, if you pick up a project that you haven\'t worked on for a while, we think it's a good idea to start with an `renv::update()` before making any changes to the code.
+
+[^4]: You can also use `update.packages()`, but `renv::update()` also works for packages installed from Bioconductor, GitHub, and Git.
+
+After calling `renv::update()`, you should run the code in your project and make sure it works.
+Then call `renv::snapshot()`, to make sure the versions of the new dependencies are included in the lockfile.
+If you get stuck, and can't get the project to work with the new versions, you can always call `renv::restore()` to revert to the last known good state.
 If you need to roll back to an even older version, take a look at `renv::history()` and `renv::revert()`.
 
-If you're unsure how your library and lockfile differ, call `renv::status()`.
+`renv::update()` will also update `renv` itself.
+See `renv::upgrade()` if you ever want to upgrade just `renv`, or you need to install a development version from GitHub.
 
 ### Caveats
 
@@ -150,22 +163,6 @@ You can learn more about what souces renv supports in `vignette("package-sources
 
 Note that the package records created from packages installed using `pak::pkg_install()` may have a format different from a package installed with `utils::install.packages()`.
 This is because `pak` writes out a variety of other metadata into the package `DESCRIPTION` file after installation, including a number of `Remote` fields that further describe where the package was retrieved from, and the type of package that was installed.
-
-## Upgrading renv
-
-After initializing a project with `renv`, that project will then be bound to the particular version of `renv` that was used to initialize the project.
-If you need to upgrade (or otherwise change) the version of `renv` associated with a project, you can use `renv::upgrade()`.
-This will install the latest-available version of `renv` from your declared package repositories.
-
-Alternatively, if you're currently using a development version of `renv` as installed from GitHub in your project, then `renv` will install the latest-available version of `renv` from GitHub.
-With each commit of `renv`, we bump the package version and also tag the commit with the associated package version.
-This implies that you can call, for example:
-
-```         
-renv::upgrade(version = "`r renv:::renv_package_version("renv")`")
-```
-
-to request the installation of that particular version of `renv` if so required.
 
 ## Uninstalling renv
 
