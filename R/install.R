@@ -31,7 +31,6 @@
 #' Otherwise, you can declare the package sources in your `DESCRIPTION`'s
 #' `Remotes:` field.
 #'
-
 #' @section Bioconductor:
 #'
 #' Packages from Bioconductor can be installed by using the `bioc::` prefix.
@@ -47,44 +46,6 @@
 #' for the installation of packages from Bioconductor. If these packages are
 #' not available, `renv` will attempt to automatically install them before
 #' fulfilling the installation request.
-#'
-#' @section Package Configuration:
-#'
-#' Many \R packages have a `configure` script that needs to be run to prepare
-#' the package for installation. Arguments and environment variables can be
-#' passed through to those scripts in a manner similar to [install.packages].
-#' In particular, the \R options `configure.args` and `configure.vars` can be
-#' used to map package names to their appropriate configuration. For example:
-#'
-#' ```
-#' # installation of RNetCDF may require us to set include paths for netcdf
-#' configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
-#' options(configure.args = configure.args)
-#' renv::install("RNetCDF")
-#' ```
-#'
-#' This could also be specified as, for example,
-#'
-#' ```
-#' options(
-#'   configure.args.RNetCDF = "--with-netcdf-include=/usr/include/udunits2"
-#' )
-#' renv::install("RNetCDF")
-#' ```
-#'
-#' Similarly, additional flags that should be passed to `R CMD INSTALL` can
-#' be set via the `install.opts` \R option:
-#'
-#' ```
-#' # installation of R packages using the Windows Subsystem for Linux
-#' # may require the `--no-lock` flag to be set during install
-#' options(install.opts = "--no-lock")
-#' renv::install("xml2")
-#'
-#' # alternatively, you can set such options for specific packages with e.g.
-#' options(install.opts = list(xml2 = "--no-lock"))
-#' renv::install("xml2")
-#' ```
 #'
 #' @inherit renv-params
 #' @param packages A character vector of \R packages to install.

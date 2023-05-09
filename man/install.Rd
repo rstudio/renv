@@ -119,43 +119,6 @@ not available, \code{renv} will attempt to automatically install them before
 fulfilling the installation request.
 }
 
-\section{Package Configuration}{
-
-
-Many \R packages have a \code{configure} script that needs to be run to prepare
-the package for installation. Arguments and environment variables can be
-passed through to those scripts in a manner similar to \link{install.packages}.
-In particular, the \R options \code{configure.args} and \code{configure.vars} can be
-used to map package names to their appropriate configuration. For example:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{# installation of RNetCDF may require us to set include paths for netcdf
-configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
-options(configure.args = configure.args)
-renv::install("RNetCDF")
-}\if{html}{\out{</div>}}
-
-This could also be specified as, for example,
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{options(
-  configure.args.RNetCDF = "--with-netcdf-include=/usr/include/udunits2"
-)
-renv::install("RNetCDF")
-}\if{html}{\out{</div>}}
-
-Similarly, additional flags that should be passed to \verb{R CMD INSTALL} can
-be set via the \code{install.opts} \R option:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{# installation of R packages using the Windows Subsystem for Linux
-# may require the `--no-lock` flag to be set during install
-options(install.opts = "--no-lock")
-renv::install("xml2")
-
-# alternatively, you can set such options for specific packages with e.g.
-options(install.opts = list(xml2 = "--no-lock"))
-renv::install("xml2")
-}\if{html}{\out{</div>}}
-}
-
 \examples{
 \dontrun{
 
