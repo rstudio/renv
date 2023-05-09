@@ -22,6 +22,21 @@ This means that different projects can use different versions of packages, keepi
 This vignette assumes that you're are already living a project centric lifestyle and are familiar with a version control system like Git and GitHub; we believe these are table stakes for reproducible data science.
 If you're not already using projects, we recommend starting by reading [Workflow: Projects](https://r4ds.had.co.nz/workflow-projects.html) from *R for Data Science*; if you're unfamiliar with [Git](https://git-scm.com/) and [GitHub](https://github.com/), we recommend [Happy Git and GitHub for useR](https://happygitwithr.com).
 
+## Libraries and repositories
+
+Before we continue there are two important bits of terminology you'll need to fully gro to understand renv: libraries and repositories.
+Both words are R jargon whose precise meaning differs from our every day usage.
+
+A **library** is a directory containing installed packages.
+It's easy to think of (e.g.) dplyr as a library, because we load it with `library(dplyr)`, but technically dplyr is a package.
+You can see your current libraries with `.libPaths()` and see which packages are available in each library with `lapply(.libPaths(), list.files)`.
+One of the big ideas of `renv` is that you can isolate projects by giving each project it's own library, rather than relying on a single global library for every project.
+
+A **repository** is a source of packages; `install.packages()` takes a package from a repository (usually somewhere on the internet) and puts it in a library (a directory on your computer).
+The most important repository is CRAN which is available in just about every R session.
+Other freely available repositories include [Bioconductor](https://bioconductor.org), the [Posit Public Package Manager](https://packagemanager.rstudio.com/client/#/), and [R Universe](https://r-universe.dev/search/) (which turns GitHub organisations into repositories).
+You can see which repositories are currently set up in your session with `getOptions("repos")`.
+
 ## Getting started
 
 To convert a project to use `renv`, call `renv::init()`.
@@ -56,8 +71,11 @@ It will not, however, install the packages automatically --- you'll need to tell
 ### Installing packages
 
 Over time, your project will need more packages.
-One of the philosophies of `renv` is that your existing package management workflows should continue to work, can you can continue to use `install.packages()`.
+One of the philosophies of `renv` is that your existing package management workflows should continue to work, can you can continue to use `install.packages()`[^4].
 But you can also use `renv::install()`, which is a little less typing and supports installing and updating packages from GitHub, Bioconductor, and more, not just CRAN.
+
+[^4]: Behind the scene, renv shims `install.packages()`, `update.packages(),` and `remove.packages()` to call the `renv` equivalents.
+    Learn more in `?renv::load.`
 
 Because you'll often need to install the same package in multiple projects, renv uses a cache to make future installations much faster.
 You can learn more about how the cache works, and other aspects of package installation, in `vignette("package-install")`.
@@ -69,11 +87,11 @@ If you're unsure how your library and lockfile differ, call `renv::status()`.
 
 ### Package updates
 
-It's worth noting that there's a small risk associated with isolation: while you\'re no longer vulnerable to breakages, but you also don\'t benefit from fixes.
-So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^4] to get the latest version of all dependencies.
-Similarly, if you're making major changes to a project that you haven\'t worked on for a while, it's often a good idea to start with an `renv::update()` before making any changes to the code.
+It's worth noting that there's a small risk associated with isolation: while you're no longer vulnerable to breakages, but you also don't benefit from fixes.
+So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^5] to get the latest version of all dependencies.
+Similarly, if you're making major changes to a project that you haven't worked on for a while, it's often a good idea to start with an `renv::update()` before making any changes to the code.
 
-[^4]: You can also use `update.packages()`, but `renv::update()` also works for packages installed from Bioconductor, GitHub, and Git.
+[^5]: You can also use `update.packages()`, but `renv::update()` also works for packages installed from Bioconductor, GitHub, and Git.
 
 After calling `renv::update()`, you should run the code in your project and make sure it works.
 Then call `renv::snapshot()` to record the news versions in the lockfile.

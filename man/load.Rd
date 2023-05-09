@@ -18,14 +18,38 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-\code{renv::load()} sets the library paths to use a project-local library, and
-setting up the system library \link{sandbox}, if needed.
+\code{renv::load()} sets the library paths to use a project-local library,
+sets up the system library \link{sandbox}, if needed, and creates shims
+for \code{install.pacakges()}, \code{update.packages()}, and \code{remove.packages()}.
 
 You should not generally need to call \code{renv::load()} yourself, as it's
 called automatically by the project auto-loader created by \code{\link[=init]{init()}}/
 \code{\link[=activate]{activate()}}. However, if needed, you can use \code{renv::load("<project>")}
 to explicitly load an \code{renv} project located at a particular path.
 }
+\section{Shims}{
+To help you take advantage of the package cache, \code{renv} places a couple of
+shims on the search path:
+\itemize{
+\item \code{install.packages()} instead calls \code{renv::install()}.
+\item \code{remove.packages()} instead calls \code{renv::remove()}.
+\item \code{update.packages()} instead calls \code{renv::update()}.
+}
+
+This allows you to keep using your existing muscle memory for installing,
+updating, and remove packages, while taking advantage of \code{renv} features
+like the package cache.
+
+If you'd like to bypass these shims within an \R session, you can explicitly
+call the version of these functions from the \code{utils} package, e.g. with
+\verb{utils::install.packages(<...>)}.
+
+If you'd prefer not to use the \code{renv} shims at all, they can be disabled by
+setting the R option \code{options(renv.config.shims.enabled = FALSE)} or by
+setting the environment variable \code{RENV_CONFIG_SHIMS_ENABLED = FALSE}. See
+\code{?config} for more details.
+}
+
 \examples{
 \dontrun{
 
