@@ -1,10 +1,10 @@
 
 #' Upgrade renv
 #'
-#' Upgrade the version of `renv` associated with a project. [renv::update()]
-#' will update renv to the latest version from CRAN, meaning that
-#' `renv::upgrade()` is best using for updating just `renv`, or for using
-#' a development version.
+#' Upgrade the version of `renv` associated with a project, including using
+#' a development version from GitHub. If you want to update all
+#' packages (including renv) to their latest CRAN versions, use
+#' [renv::update()].
 #'
 #' @inherit renv-params
 #'
