@@ -36,19 +36,19 @@ install.packages("renv")
 ## Workflow
 
 Use `renv::init()` to initialize `renv` with a new or existing project. This
-will set up your project with a private library, and also make sure to install
-all of the packages you're using into that library. The packages used in your
-project will be recorded into a *lockfile*, called `renv.lock`.
+will set up your project with a private library, containing all the packages
+you're currently using. The packages (and all the metadata needed to reinstall
+them) are also recorded into a *lockfile*, `renv.lock`.
 
-As you work in your project, you may need to install or upgrade different
-packages. After you've confirmed your code works as expected, call 
-`renv::snasphot()` to record their versions in the lockfile.
+As you work in your project, you will install and upgrade packages. After 
+you've confirmed your code works as expected, call `renv::snasphot()` to record 
+their versions in the lockfile.
 
 Later, if you need to share your code with someone else or run your code on 
-new machine, you can call `renv::restore()` to reinstall all of the packages 
-declared in the lockfile.
+new machine, you can call `renv::restore()` to reinstall the specific
+package versions recorded in the lockfile.
 
-## Learning More
+## Learning more
 
 If this is your first time using `renv`, we strongly recommend reading the
 [Introduction to renv](https://rstudio.github.io/renv/articles/renv.html)
