@@ -28,7 +28,6 @@ reference:
   - remote
   - modify
   - history
-  - revert
   - scaffold
 
 - title: Package Cache
@@ -87,10 +86,6 @@ articles:
   - title: renv basics
     navbar: Basics
     contents: [renv, package-sources, package-install, python, faq]
-
-  - title: Collaborating using renv
-    navbar: Collaborating
-    contents: [collaborating]
 
   - title: Deploy Applications with renv
     navbar: Deployment

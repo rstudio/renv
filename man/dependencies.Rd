@@ -30,7 +30,13 @@ are matched to \code{...}, \code{renv} will signal an error.}
 dependencies?}
 
 \item{errors}{How should errors that occur during dependency enumeration be
-handled? See \strong{Errors} for more details.}
+handled?
+\itemize{
+\item \code{"reported"} (the default): errors are reported to the user, but
+otherwise ignored.
+\item \code{"fatal"}: errors are fatal and stop execution.
+\item \code{"ignored"}: errors are ignored and not reported to the user.
+}}
 
 \item{dev}{Boolean; include 'development' dependencies as well? That is,
 packages which may be required during development but are unlikely to be
@@ -44,55 +50,33 @@ package names to the files in which they were discovered. Note that the
 package name.
 }
 \description{
-Find \R packages used within a project.
-}
-\details{
 \code{dependencies()} will crawl files within your project, looking for \R files
 and the packages used within those \R files. This is done primarily by
-parsing the code and looking for calls of the form:
-\itemize{
-\item \code{library(package)}
-\item \code{require(package)}
-\item \code{requireNamespace("package")}
-\item \code{package::method()}
-}
-
-A subset of popular \R packages used for package management are also supported:
-\itemize{
-\item \href{https://cran.r-project.org/package=box}{\code{box}}: \code{box::use(...)}
-\item \href{https://cran.r-project.org/package=pacman}{\code{pacman}}: \code{pacman::p_load(...)}
-}
+parsing the code and looking for calls of the form \code{library(package)},
+\code{require(package)}, \code{requireNamespace("package")}, and \code{package::method()}.
+renv also supports package loading with
+\href{https://cran.r-project.org/package=box}{\code{box}} (\code{box::use(...)}) and
+\href{https://cran.r-project.org/package=pacman}{\code{pacman}} (\code{pacman::p_load(...)})
+.
 
 For \R package projects, dependencies expressed in the \code{DESCRIPTION} file
-will also be discovered. Note that the \code{rmarkdown} package is required in
-order to crawl dependencies in R Markdown files.
+will also be discovered.
+
+Note that the \code{rmarkdown} package is required in order to crawl dependencies
+in R Markdown files.
 }
-\section{Suppressing Errors}{
+\section{Missing dependencies}{
+While useful, this approach is not 100\% reliable in detecting the packages
+required by your project. If you find that renv's dependency discovery is
+failing to discover one or more packages used in your project, one escape
+hatch is to include a file called \verb{_dependencies.R} with code of the form:
 
-
-Depending on how you've structured your code, \code{renv} may emit errors when
-attempting to enumerate dependencies within \code{.Rmd} / \code{.Rnw} documents.
-For code chunks that you'd explicitly like \code{renv} to ignore, you can
-include \code{renv.ignore=TRUE} in the chunk header. For example:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{```\{r chunk-label, renv.ignore=TRUE\}
-# code in this chunk will be ignored by renv
-```
-}\if{html}{\out{</div>}}
-
-Similarly, if you'd like \code{renv} to parse a chunk that is otherwise ignored
-(e.g. because it has \code{eval=FALSE} as a chunk header), you can set:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{```\{r chunk-label, eval=FALSE, renv.ignore=FALSE\}
-# code in this chunk will _not_ be ignored
-```
+\if{html}{\out{<div class="sourceCode">}}\preformatted{library(<pkg>)
 }\if{html}{\out{</div>}}
 }
 
-\section{Ignoring Files}{
-
-
-By default, \code{renv} will read your project's \code{.gitignore}s (if any) to
+\section{Ignoring files}{
+By default, \code{renv} will read your project's \code{.gitignore}s (if present) to
 determine whether certain files or folders should be included when traversing
 directories. If preferred, you can also create a \code{.renvignore} file (with
 entries of the same format as a standard \code{.gitignore} file) to tell \code{renv}
@@ -114,31 +98,49 @@ data/
 }\if{html}{\out{</div>}}
 
 Using ignore files is important if your project contains a large number
-of files; for example, if you have a 'data' directory containing many
+of files; for example, if you have a \verb{data/} directory containing many
 text files.
 }
 
-\section{Errors}{
+\section{Explicit dependencies}{
+Alternatively, you can suppress dependency discover and instead rely
+on an explicit set of packages recorded in a project \code{DESCRIPTION} file.
+Call \code{renv::settings$snapshot.type("explicit")} to enable "explicit" mode,
+then enumerate your dependencies in a project \code{DESCRIPTION} file.
 
+In that case, your \code{DESCRIPTION} might look something like this:
 
-\code{renv}'s attempts to enumerate package dependencies in your project can fail
--- most commonly, because of failures when attempting to parse your \R code.
-The \code{errors} parameter can be used to control how \code{renv} responds to errors
-that occur.
-
-\tabular{ll}{
-\strong{Name} \tab \strong{Action} \cr
-\code{"reported"} \tab Errors are reported to the user, but are otherwise ignored. \cr
-\code{"fatal"}    \tab Errors are fatal and stop execution. \cr
-\code{"ignored"}  \tab Errors are ignored and not reported to the user. \cr
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Type: project
+Description: My project.
+Depends:
+    tidyverse,
+    devtools,
+    shiny,
+    data.table
+}\if{html}{\out{</div>}}
 }
 
-Depending on the structure of your project, you may want \code{renv} to ignore
-errors that occur when attempting to enumerate dependencies. However, a more
-robust solution would be to use an \code{.renvignore} file to tell \code{renv} not to
-scan such files for dependencies, or to configure the project to require
-explicit dependency management (\code{renv::settings$snapshot.type("explicit")})
-and enumerate your dependencies in a project \code{DESCRIPTION} file.
+\section{Errors}{
+\code{renv}'s attempts to enumerate package dependencies in your project can fail
+-- most commonly, because of failures when attempting to parse your \R code.
+You can use the \code{errors} argument to suppress these problems, but a
+more robust solution is tell \code{renv} not too look at the problematic code.
+As well as using \code{.renvignore}, as described above, you can also suppress
+discovered within individual \code{.Rmd} chunks by including \code{renv.ignore=TRUE}
+in the chunk header. For example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{```\{r chunk-label, renv.ignore=TRUE\}
+# code in this chunk will be ignored by renv
+```
+}\if{html}{\out{</div>}}
+
+Similarly, if you'd like \code{renv} to parse a chunk that is otherwise ignored
+(e.g. because it has \code{eval=FALSE} as a chunk header), you can set:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{```\{r chunk-label, eval=FALSE, renv.ignore=FALSE\}
+# code in this chunk will _not_ be ignored
+```
+}\if{html}{\out{</div>}}
 }
 
 \section{Development Dependencies}{
