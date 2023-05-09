@@ -13,7 +13,7 @@ directory is used instead.}
 
 \item{version}{The version of \code{renv} to be installed.
 
-The default, \code{NULL}, will installed the latest version of \code{renv} as
+When \code{NULL} (the default), the latest version of \code{renv} will be installed as
 available from CRAN (or whatever active package repositories are active)
 Alternatively, you can install the latest development version with
 \code{"main"}, or a specific version from GitHub with (e.g.) \code{"0.17.3"} or

@@ -17,7 +17,7 @@ update(
 }
 \arguments{
 \item{packages}{A character vector of \R packages to update. When \code{NULL}
-(the default), all packages (apart from any listed in \code{ignored.packages}
+(the default), all packages (apart from any listed in the \code{ignored.packages}
 project setting) will be updated.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments

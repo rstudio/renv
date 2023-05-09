@@ -32,7 +32,7 @@ See \url{https://remotes.r-lib.org/articles/dependencies.html} and the examples
 below for more details.
 
 Alternatively, if the package contains a \code{DESCRIPTION} you can omit this
-argument to install all packages}
+argument to install all packages.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}

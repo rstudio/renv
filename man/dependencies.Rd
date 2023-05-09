@@ -140,8 +140,8 @@ Depends:
 \code{renv}'s attempts to enumerate package dependencies in your project can fail
 -- most commonly, because of failures when attempting to parse your \R code.
 You can use the \code{errors} argument to suppress these problems, but a
-more robust solution is tell \code{renv} not too look at the problematic code.
-As well as using \code{.renvignore}, as described above, you can also suppress
+more robust solution is tell \code{renv} not to look at the problematic code.
+As well as using \code{.renvignore}, as described above, you can also suppress errors
 discovered within individual \code{.Rmd} chunks by including \code{renv.ignore=TRUE}
 in the chunk header. For example:
 
