@@ -7,6 +7,9 @@ development:
 reference:
 
 - title: Basic Workflows
+  desc: >
+    These functions are the bread and butter of `renv` usage, and make up
+    the bulk of day-to-day renv usage.
   contents:
   - init
   - status
@@ -14,10 +17,30 @@ reference:
   - restore
   - use
 
+- title: Package Management
+  contents:
+  - install
+  - update
+  - remove
+
+- title: Project Management
+  contents:
+  - dependencies
+  - project
+  - activate
+  - migrate
+  - load
+  - upgrade
+  - paths
+  - equip
+  - settings
+  - config
+
 - title: Library Management
   contents:
   - hydrate
   - refresh
+  - rebuild
   - repair
   - clean
 
@@ -35,29 +58,6 @@ reference:
   - isolate
   - rehash
   - purge
-
-- title: Package Installation
-  contents:
-  - install
-  - update
-  - rebuild
-  - remove
-
-- title: Dependency Discovery
-  contents:
-  - dependencies
-
-- title: Project Management
-  contents:
-  - project
-  - activate
-  - migrate
-  - load
-  - upgrade
-  - paths
-  - equip
-  - settings
-  - config
 
 - title: Python Integration
   contents:
