@@ -66,12 +66,28 @@ Note that the \code{rmarkdown} package is required in order to crawl dependencie
 in R Markdown files.
 }
 \section{Missing dependencies}{
-While useful, this approach is not 100\% reliable in detecting the packages
-required by your project. If you find that renv's dependency discovery is
-failing to discover one or more packages used in your project, one escape
-hatch is to include a file called \verb{_dependencies.R} with code of the form:
+\code{dependencies()} uses static analysis to determine which packages are used
+by your project. This means that it inspects, but doesn't run, your
+source. Static analysis generally works well, but is not 100\% reliable in
+detecting the packages required by your project. For example, \code{renv} is
+unable to detect this kind of usage:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{library(<pkg>)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{for (package in c("dplyr", "ggplot2")) \{
+  library(package, character.only = TRUE)
+\}
+}\if{html}{\out{</div>}}
+
+It also can't generally tell if one of the packages you use, uses one of
+its suggested packages. For example, \code{tidyr::separate_wider_delim()}
+uses the stringr package which is only suggested, not required by tidyr.
+
+If you find that renv's dependency discovery misses one or more packages
+that you actually use in your project, one escape hatch is to include a file
+called \verb{_dependencies.R} that includes straightforward library calls:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{library(dplyr)
+library(ggplot2)
+library(stringr)
 }\if{html}{\out{</div>}}
 }
 

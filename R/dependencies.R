@@ -21,13 +21,30 @@
 #'
 #' # Missing dependencies
 #'
-#' While useful, this approach is not 100% reliable in detecting the packages
-#' required by your project. If you find that renv's dependency discovery is
-#' failing to discover one or more packages used in your project, one escape
-#' hatch is to include a file called `_dependencies.R` with code of the form:
+#' `dependencies()` uses static analysis to determine which packages are used
+#' by your project. This means that it inspects, but doesn't run, your
+#' source. Static analysis generally works well, but is not 100% reliable in
+#' detecting the packages required by your project. For example, `renv` is
+#' unable to detect this kind of usage:
+#'
+#' ```{r eval=FALSE}
+#' for (package in c("dplyr", "ggplot2")) {
+#'   library(package, character.only = TRUE)
+#' }
+#' ```
+#'
+#' It also can't generally tell if one of the packages you use, uses one of
+#' its suggested packages. For example, `tidyr::separate_wider_delim()`
+#' uses the stringr package which is only suggested, not required by tidyr.
+#'
+#' If you find that renv's dependency discovery misses one or more packages
+#' that you actually use in your project, one escape hatch is to include a file
+#' called `_dependencies.R` that includes straightforward library calls:
 #'
 #' ```
-#' library(<pkg>)
+#' library(dplyr)
+#' library(ggplot2)
+#' library(stringr)
 #' ```
 #'
 #' # Ignoring files

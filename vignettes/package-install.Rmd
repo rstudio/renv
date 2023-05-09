@@ -185,6 +185,8 @@ You can also configure which `curl` executable is used by setting the `RENV_CURL
 
 `curl` downloads can be configured through `renv`'s configuration settings -- see `?renv::config` for more details.
 
+### Alternative downloaders
+
 If you've already configured R's downloader and would like to bypass `renv`'s attempts to use `curl`, you can use the R option `renv.download.override`.
 For example, executing:
 
@@ -205,6 +207,28 @@ Sys.setenv(RENV_DOWNLOAD_METHOD = "wininet")
 # use R's bundled libcurl implementation
 Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")
 ```
+
+If you find that downloads work outside of `renv` projects, but not within `renv` projects, you may need to tell `renv` to use the same download file method that R has been configured to use.
+You can check which download method R is currently configured to use with:
+
+```{r eval=FALSE}
+getOption("download.file.method")
+```
+
+And the downloader currently used by `renv` can be queried with:
+
+```{r eval=FALSE}
+renv:::renv_download_method()
+```
+
+You can force `renv` to use the same download method as R by setting:
+
+```{r eval=FALSE}
+Sys.setenv(RENV_DOWNLOAD_METHOD = getOption("download.file.method"))
+```
+
+and, if necessary, you could also set this environment variable within e.g. your `~/.Renviron`, so that it is visible to all R sessions.
+See `?Startup` for more details.
 
 Note that other features (e.g. authentication) may not be supported when using an alternative download file method -- you will have to configure the downloader yourself if that is required.
 See `?download.file` for more details.
