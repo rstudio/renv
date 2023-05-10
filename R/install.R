@@ -48,10 +48,10 @@
 #' fulfilling the installation request.
 #'
 #' @inherit renv-params
-#' @param packages A character vector of \R packages to install.
-#'
-#'  `renv` supports a subset of the `remotes` syntax used for package
-#'  installation, e.g:
+#' @param packages Either `NULL`, the default, to install all packages required
+#'  by the project, or a character vector of packages to install. `renv`
+#'  supports a subset of the `remotes` syntax used for package installation,
+#'  e.g:
 #'
 #'  * `pkg`: install latest version of `pkg` from CRAN.
 #'  * `pkg@version`: install specified version of `pkg` from CRAN.
@@ -60,9 +60,6 @@
 #'
 #'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
 #'  below for more details.
-#'
-#'  Alternatively, if the package contains a `DESCRIPTION` you can omit this
-#'  argument to install all packages.
 #'
 #' @return A named list of package records which were installed by `renv`.
 #'
