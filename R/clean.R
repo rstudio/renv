@@ -130,7 +130,7 @@ renv_clean_library_tempdirs <- function(project, prompt) {
     return(ntd())
 
   # nocov start
-  if (prompt || renv_verbose()) {
+  if (renv_verbose(prompt)) {
 
     renv_pretty_print(
       bad,
@@ -138,7 +138,7 @@ renv_clean_library_tempdirs <- function(project, prompt) {
       wrap = FALSE
     )
 
-    if (prompt && !proceed())
+    if (!proceed(prompt))
       return(FALSE)
 
   }
@@ -180,7 +180,7 @@ renv_clean_system_library <- function(project, prompt) {
     return(ntd())
 
   # nocov start
-  if (prompt || renv_verbose()) {
+  if (renv_verbose(prompt)) {
 
     renv_pretty_print(
       packages,
@@ -192,7 +192,7 @@ renv_clean_system_library <- function(project, prompt) {
       )
     )
 
-    if (prompt && !proceed())
+    if (!proceed(prompt))
       return(FALSE)
 
   }
@@ -227,7 +227,7 @@ renv_clean_unused_packages <- function(project, prompt) {
     return(ntd())
 
   # nocov start
-  if (prompt || renv_verbose()) {
+  if (renv_verbose(prompt)) {
 
     renv_pretty_print(
       removable,
@@ -238,7 +238,7 @@ renv_clean_unused_packages <- function(project, prompt) {
       "These packages will be removed."
     )
 
-    if (prompt && !proceed())
+    if (!proceed(prompt))
       return(FALSE)
 
   }
@@ -272,7 +272,7 @@ renv_clean_package_locks <- function(project, prompt) {
     return(ntd())
 
   # nocov start
-  if (prompt || renv_verbose()) {
+  if (renv_verbose(prompt)) {
 
     renv_pretty_print(
       basename(old),
@@ -281,7 +281,7 @@ renv_clean_package_locks <- function(project, prompt) {
       wrap = FALSE
     )
 
-    if (prompt && !proceed())
+    if (!proceed(prompt))
       return(FALSE)
 
   }
@@ -316,7 +316,7 @@ renv_clean_cache <- function(project, prompt) {
       wrap = FALSE
     )
 
-    if (prompt && !proceed())
+    if (!proceed(prompt))
       return(FALSE)
 
     writeLines(projlist[!missing], projects, useBytes = TRUE)
@@ -344,7 +344,7 @@ renv_clean_cache <- function(project, prompt) {
   if (empty(diff))
     return(ntd())
 
-  if (prompt || renv_verbose()) {
+  if (renv_verbose(prompt)) {
 
     renv_pretty_print(
       renv_cache_format_path(diff),
@@ -353,7 +353,7 @@ renv_clean_cache <- function(project, prompt) {
       wrap = FALSE
     )
 
-    if (prompt && !proceed())
+    if (!proceed(prompt))
       return(FALSE)
 
   }

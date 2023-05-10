@@ -162,12 +162,9 @@ restore <- function(project  = NULL,
     invokeRestart("abort")
   }
 
-  if (prompt || renv_verbose())
+  if (renv_verbose(prompt)) {
     renv_restore_report_actions(diff, current, lockfile)
-
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    check_can_proceed(prompt)
   }
 
   # perform the restore

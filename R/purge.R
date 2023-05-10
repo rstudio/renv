@@ -99,20 +99,17 @@ renv_purge_impl <- function(package,
   }
 
   # nocov start
-  if (prompt || renv_verbose()) {
+  if (renv_verbose(prompt)) {
 
     renv_pretty_print(
       renv_cache_format_path(paths),
       "The following packages will be purged from the cache:",
       wrap = FALSE
     )
-
-    if (prompt && !proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    check_can_proceed(prompt)
 
   }
+
   # nocov end
 
   unlink(paths, recursive = TRUE)

@@ -47,7 +47,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
     return(TRUE)
   }
 
-  if (prompt) {
+  if (renv_verbose(prompt)) {
 
     fmt <- "%s [%s -> %s]"
     packages <- basename(old)[changed]
@@ -59,11 +59,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
       sprintf("Packages will be %s to their new locations in the cache.", label),
       wrap = FALSE
     )
-
-    if (prompt && !proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    check_can_proceed(prompt)
 
   }
 

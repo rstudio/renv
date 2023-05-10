@@ -1,5 +1,5 @@
 
-renv_verbose <- function() {
+renv_verbose <- function(prompt = interactive()) {
 
   verbose <- getOption("renv.verbose")
   if (!is.null(verbose))
@@ -9,6 +9,6 @@ renv_verbose <- function() {
   if (!is.na(verbose))
     return(as.logical(verbose))
 
-  interactive() || !renv_tests_running()
+  prompt || !renv_tests_running()
 
 }

@@ -198,17 +198,13 @@ snapshot <- function(project  = NULL,
 
   # report actions to the user
   actions <- renv_lockfile_diff_packages(old, new)
-  if (prompt || renv_verbose())
+  if (length(actions) && renv_verbose(prompt)) {
     renv_snapshot_report_actions(actions, old, new)
 
-  # request user confirmation
-
-  # nocov start
-  if (length(actions) && prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    # nocov start
+    check_can_proceed(prompt)
+    # nocov end
   }
-  # nocov end
 
   # write it out
   ensure_parent_directory(lockfile)
@@ -315,21 +311,23 @@ renv_snapshot_validate_report <- function(valid, prompt, force) {
     return(TRUE)
   }
 
+  if (interactive()) {
+    check_can_proceed(prompt)
+  } else {
+    # otherwise, bail on error (need to use 'force = TRUE')
+    stop("aborting snapshot due to pre-flight validation failure")
+  }
+
+
   # in interactive sessions, if 'prompt' is set, then ask the user
   # how they'd like to proceed
   if (interactive() && prompt) {
-
-    if (!proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    check_can_proceed(TRUE)
 
     return(TRUE)
 
   }
 
-  # otherwise, bail on error (need to use 'force = TRUE')
-  stop("aborting snapshot due to pre-flight validation failure")
 
 }
 
@@ -831,9 +829,6 @@ renv_snapshot_description_source_hack <- function(package) {
 # nocov start
 renv_snapshot_report_actions <- function(actions, old, new) {
 
-  if (!renv_verbose() || empty(actions))
-    return(invisible())
-
   lhs <- renv_lockfile_records(old)
   rhs <- renv_lockfile_records(new)
   renv_pretty_print_records_pair(
@@ -1014,11 +1009,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     )
   }
 
-  if (interactive() && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
-
+  check_can_proceed()
   TRUE
 
 }

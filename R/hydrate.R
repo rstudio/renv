@@ -111,10 +111,7 @@ hydrate <- function(packages = NULL,
   if (report) {
     renv_hydrate_report(packages, na, linkable)
     if (length(packages) || length(na)) {
-      if (prompt && !proceed()) {
-        renv_report_user_cancel()
-        invokeRestart("abort")
-      }
+      check_can_proceed(prompt)
     }
   }
 

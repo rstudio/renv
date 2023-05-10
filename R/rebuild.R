@@ -74,11 +74,7 @@ rebuild <- function(packages  = NULL,
     "The following package(s) will be reinstalled:"
 
   renv_pretty_print_records(records[packages], preamble)
-
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  check_can_proceed(prompt)
 
   # figure out rebuild parameter
   rebuild <- if (recursive) NA else packages

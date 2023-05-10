@@ -167,10 +167,20 @@ ask <- function(question, default = FALSE) {
 
 }
 
-proceed <- function(default = FALSE) {
-  ask("Do you want to proceed?", default = default)
+proceed <- function(prompt = interactive(), default = TRUE) {
+  if (prompt) {
+    ask("Do you want to proceed?", default = default)
+  } else {
+    default
+  }
 }
 
+check_can_proceed <- function(prompt = interactive()) {
+  if (!proceed(prompt)) {
+    renv_report_user_cancel()
+    invokeRestart("abort")
+  }
+}
 # nocov end
 
 inject <- function(contents,

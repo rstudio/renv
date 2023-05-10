@@ -66,17 +66,13 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
     return(TRUE)
   }
 
-  if (prompt || renv_verbose()) {
+  if (renv_verbose(prompt)) {
     renv_pretty_print_records_pair(
       list(renv = old), list(renv = new),
       "A new version of the renv package will be installed:",
       "This project will use the newly-installed version of renv."
     )
-  }
-
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    check_can_proceed(prompt)
   }
 
   renv_scope_restore(

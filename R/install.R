@@ -681,7 +681,7 @@ renv_install_preflight_requirements <- function(records) {
     )
   }
 
-  if (interactive() && !proceed())
+  if (!proceed())
     return(FALSE)
 
   TRUE
@@ -796,7 +796,7 @@ renv_install_preflight <- function(project, libpaths, records, prompt) {
   if (ok)
     return(TRUE)
 
-  if (prompt && !proceed())
+  if (!proceed(prompt))
     return(FALSE)
 
   TRUE

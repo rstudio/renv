@@ -252,18 +252,14 @@ update <- function(packages = NULL,
   missing <- renv_vector_diff(packages, names(records))
   if (!empty(missing)) {
 
-    if (prompt || renv_verbose()) {
+    if (renv_verbose(prompt)) {
       renv_pretty_print(
         missing,
         "The following package(s) are not currently installed:",
         "The latest available versions of these packages will be installed instead.",
         wrap = FALSE
       )
-    }
-
-    if (prompt && !proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
+      check_can_proceed(prompt)
     }
 
   }
@@ -351,12 +347,9 @@ update <- function(packages = NULL,
 
   }
 
-  if (prompt || renv_verbose())
+  if (renv_verbose(prompt)) {
     renv_restore_report_actions(diff, old, new)
-
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    check_can_proceed(prompt)
   }
 
   # perform the install

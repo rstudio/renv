@@ -469,10 +469,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
   if (identical(errors, "reported"))
     return(TRUE)
 
-  if (interactive() && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  check_can_proceed()
 
   TRUE
 
@@ -1697,7 +1694,7 @@ renv_dependencies_error_handler <- function(message, errors) {
 
   function(condition) {
 
-    if (identical(errors, "fatal") || interactive() && !proceed()) {
+    if (identical(errors, "fatal") || !proceed()) {
 
       condition <- structure(
         list(message = message, call = NULL, traceback = FALSE),

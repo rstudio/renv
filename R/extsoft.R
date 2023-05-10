@@ -29,7 +29,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
     return(TRUE)
   }
 
-  if (interactive()) {
+  if (renv_verbose()) {
 
     renv_pretty_print(
       files,
@@ -37,11 +37,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
       sprintf("Tools will be installed into %s.", renv_path_pretty(extsoft)),
       wrap = FALSE
     )
-
-    if (!proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    check_can_proceed()
 
   }
 
@@ -137,21 +133,13 @@ renv_extsoft_use <- function(quiet = FALSE) {
   if (identical(original, contents))
     return(TRUE)
 
-  if (interactive()) {
-
-    renv_pretty_print(
-      c(localsoft, libxml, localcpp, locallibs),
-      "The following entries will be added to ~/.R/Makevars:",
-      "These tools will be used when compiling R packages from source.",
-      wrap = FALSE
-    )
-
-    if (!proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
-
-  }
+  renv_pretty_print(
+    c(localsoft, libxml, localcpp, locallibs),
+    "The following entries will be added to ~/.R/Makevars:",
+    "These tools will be used when compiling R packages from source.",
+    wrap = FALSE
+  )
+  check_can_proceed()
 
   if (!quiet) vwritef("* '%s' has been updated.", path)
   writeLines(contents, path)
