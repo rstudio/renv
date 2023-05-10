@@ -33,7 +33,10 @@ Create the \code{renv} project infrastructure. This will:
 \item Update the project \code{.Rprofile} to call \code{source("renv/activate.R")} so
 that \code{renv} is automatically loaded for new \R sessions launched in
 this project.
-\item Write a (bare) lockfile, \code{renv.lock}.
+\item Create \code{renv/.gitignore}, which tells git to ignore the project library.
+\item Create \code{.Rbuildignore} which tells \verb{R CMD build} to ignore the \code{renv}
+infrastructure.
+\item Write a (bare) \link{lockfile}, \code{renv.lock}.
 }
 }
 \examples{

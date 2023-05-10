@@ -11,7 +11,12 @@
 #'   that `renv` is automatically loaded for new \R sessions launched in
 #'   this project.
 #'
-#' - Write a (bare) lockfile, `renv.lock`.
+#' - Create `renv/.gitignore`, which tells git to ignore the project library.
+#'
+#' - Create `.Rbuildignore` which tells `R CMD build` to ignore the `renv`
+#'   infrastructure.
+#'
+#' - Write a (bare) [lockfile], `renv.lock`.
 #'
 #' @inheritParams renv-params
 #'

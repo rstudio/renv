@@ -2,7 +2,7 @@
 % Please edit documentation in R/init.R
 \name{init}
 \alias{init}
-\title{Start using renv in a project}
+\title{Use renv in a project}
 \usage{
 init(
   project = NULL,
@@ -55,10 +55,11 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Use \code{init()} to start using renv in the current project. This will:
+Call \code{renv::init()} to start using renv in the current project. This will:
 \enumerate{
 \item Activate the project to use the project library in both the current and
-all future sessions (with \code{\link[=activate]{activate()}}).
+all future sessions (with \code{\link[=activate]{activate()}}). This includese setting up
+project infrastructure as described in \code{\link[=scaffold]{scaffold()}}.
 \item Discover the packages that you currently and install them into a
 project library (with \code{\link[=hydrate]{hydrate()}}).
 \item Create a lockfile that records the state of the project library so it
@@ -69,24 +70,6 @@ If you call \code{init()} on a project that already uses \code{renv}, it will at
 to do the right thing; it will restore the project library if it's missing,
 or otherwise prompt you what to do.
 }
-\section{Infrastructure}{
-
-
-\code{renv} will write or amend the following files in the project:
-\itemize{
-\item \code{.Rprofile}: An auto-loader will be installed, so that new R sessions
-launched within the project are automatically loaded.
-\item \code{renv/activate.R}: This script is run by the previously-mentioned
-\code{.Rprofile} to load the project.
-\item \code{renv/.gitignore}: This is used to instruct Git to ignore the project's
-private library, as it should normally not be committed to a version
-control repository.
-\item \code{.Rbuildignore}: to ensure that the \code{renv} directory is ignored during
-package development; e.g. when attempting to build or install a package
-using \code{renv}.
-}
-}
-
 \examples{
 
 \dontrun{

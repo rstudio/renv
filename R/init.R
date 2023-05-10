@@ -1,11 +1,12 @@
 
-#' Start using renv in a project
+#' Use renv in a project
 #'
 #' @description
-#' Use `init()` to start using renv in the current project. This will:
+#' Call `renv::init()` to start using renv in the current project. This will:
 #'
 #' 1. Activate the project to use the project library in both the current and
-#'    all future sessions (with [activate()]).
+#'    all future sessions (with [activate()]). This includese setting up
+#'    project infrastructure as described in [scaffold()].
 #'
 #' 1. Discover the packages that you currently and install them into a
 #'    project library (with [hydrate()]).
@@ -16,24 +17,6 @@
 #' If you call `init()` on a project that already uses `renv`, it will attempt
 #' to do the right thing; it will restore the project library if it's missing,
 #' or otherwise prompt you what to do.
-#'
-#' @section Infrastructure:
-#'
-#' `renv` will write or amend the following files in the project:
-#'
-#' - `.Rprofile`: An auto-loader will be installed, so that new R sessions
-#'   launched within the project are automatically loaded.
-#'
-#' - `renv/activate.R`: This script is run by the previously-mentioned
-#'   `.Rprofile` to load the project.
-#'
-#' - `renv/.gitignore`: This is used to instruct Git to ignore the project's
-#'   private library, as it should normally not be committed to a version
-#'   control repository.
-#'
-#' - `.Rbuildignore`: to ensure that the `renv` directory is ignored during
-#'   package development; e.g. when attempting to build or install a package
-#'   using `renv`.
 #'
 #' @inherit renv-params
 #'
