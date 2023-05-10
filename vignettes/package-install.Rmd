@@ -60,17 +60,11 @@ By default, it will be in one of the following folders:
 -   Windows: `%LOCALAPPDATA%/renv`
 
 If you'd like to share the package cache across multiple users, you can do so by setting the `RENV_PATHS_CACHE` environment variable to a shared path.
-This variable can be set in an R startup file to make it apply to all R sessions.
-For example, it could be set within:
-
--   A project-local `.Renviron`.
--   The user-level `~/.Renviron`.
--   A site-wide file at `$(R HOME)/etc/Renviron.site`.
+This variable should be set in an R startup file to make it apply to all R sessions.
+While you can set it in a project-local `.Renviron`, or the user-level `~/.Renviron`, we generally recommend using the R installation's site-wide `Renviron.site` if you'd like to ensure the same cache path is visible to all users of R on a system.
 
 You may also want to set `RENV_PATHS_CACHE` so that the global package cache can be stored on the same volume as the projects you normally work on.
 This is especially important when working projects stored on a networked filesystem.
-
-In general, we recommend using the R installation's site-wide `Renviron.site` if you'd like to ensure the same cache path is visible to all users of R on a system.
 
 ### Multiple caches
 

@@ -85,7 +85,7 @@ articles:
 
   - title: renv basics
     navbar: Basics
-    contents: [renv, package-sources, package-install, python, faq]
+    contents: [renv, package-sources, package-install, python, faq, packrat]
 
   - title: Deploy Applications with renv
     navbar: Deployment

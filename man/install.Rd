@@ -17,10 +17,10 @@ install(
 )
 }
 \arguments{
-\item{packages}{A character vector of \R packages to install.
-
-\code{renv} supports a subset of the \code{remotes} syntax used for package
-installation, e.g:
+\item{packages}{Either \code{NULL}, the default, to install all packages required
+by the project, or a character vector of packages to install. \code{renv}
+supports a subset of the \code{remotes} syntax used for package installation,
+e.g:
 \itemize{
 \item \code{pkg}: install latest version of \code{pkg} from CRAN.
 \item \code{pkg@version}: install specified version of \code{pkg} from CRAN.
@@ -29,10 +29,7 @@ installation, e.g:
 }
 
 See \url{https://remotes.r-lib.org/articles/dependencies.html} and the examples
-below for more details.
-
-Alternatively, if the package contains a \code{DESCRIPTION} you can omit this
-argument to install all packages.}
+below for more details.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, \code{renv} will signal an error.}

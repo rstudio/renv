@@ -15,53 +15,59 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `renv` package provides project-local R dependency management to your projects.
-This means that instead of having a single library containing the packages that you use for every project, you have a separate library for each project.
-This means that different projects can use different versions of packages, keeping the dependencies of each project isolated so that upgrading the packages in one project, doesn't affect your other projects.
+The `renv` package helps you create create **r**eproducible **env**ironments for your R projects.
+This vignette introduces you to the basic workflow of `renv`, showing you how to use the most important functions: `renv::init()`, `renv::snapshot()`, and `renv::restore()`.
+You'll also learn about some of the infrastructure that makes `renv` tick, some problems that `renv` doens't help with, and how to uninstall it, if you no longer want to use it.
 
-This vignette assumes that you're are already living a project centric lifestyle and are familiar with a version control system like Git and GitHub; we believe these are table stakes for reproducible data science.
-If you're not already using projects, we recommend starting by reading [Workflow: Projects](https://r4ds.had.co.nz/workflow-projects.html) from *R for Data Science*; if you're unfamiliar with [Git](https://git-scm.com/) and [GitHub](https://github.com/), we recommend [Happy Git and GitHub for useR](https://happygitwithr.com).
+This vignette assumes that you're are already living a project-centric lifestyle and are familiar with a version control system, like Git and GitHub: we believe these are table stakes for reproducible data science.
+If you're not already using projects, we recommend [Workflow: Projects](https://r4ds.had.co.nz/workflow-projects.html) from *R for Data Science*; if you're unfamiliar with [Git](https://git-scm.com/) and [GitHub](https://github.com/), we recommend [Happy Git and GitHub for useR](https://happygitwithr.com).
 
 ## Libraries and repositories
 
-Before we continue there are two important bits of terminology you'll need to fully gro to understand renv: libraries and repositories.
-Both words are R jargon whose precise meaning differs from our every day usage.
+Before we get started there are two important pieces of R jargon that you'll need to fully understand: libraries and repositories.
 
 A **library** is a directory containing installed packages.
-It's easy to think of (e.g.) dplyr as a library, because we load it with `library(dplyr)`, but technically dplyr is a package.
+This term is confusing because you write `library(dplyr)`, making it easy to think of dplyr as a library, not a package.
+And that confusing doesn't normally matter because you don't usually think too much about libraries.
+But a project-specific library is a critical part of the way `renv` works, so you'll now need to get the distinction clear in your head.
 You can see your current libraries with `.libPaths()` and see which packages are available in each library with `lapply(.libPaths(), list.files)`.
-One of the big ideas of `renv` is that you can isolate projects by giving each project it's own library, rather than relying on a single global library for every project.
 
-A **repository** is a source of packages; `install.packages()` takes a package from a repository (usually somewhere on the internet) and puts it in a library (a directory on your computer).
+A **repository** is a source of packages; `install.packages()` gets a package from a repository (usually somewhere on the internet) and puts it in a library (a directory on your computer).
 The most important repository is CRAN which is available in just about every R session.
 Other freely available repositories include [Bioconductor](https://bioconductor.org), the [Posit Public Package Manager](https://packagemanager.rstudio.com/client/#/), and [R Universe](https://r-universe.dev/search/) (which turns GitHub organisations into repositories).
-You can see which repositories are currently set up in your session with `getOptions("repos")`.
+You can see which repositories are currently set up in your session with `getOptions("repos")`; when you call `install.packages("{pkgname}")`, R will look for that package in each repository in turn.
 
 ## Getting started
 
 To convert a project to use `renv`, call `renv::init()`.
-This scans your R code to discover what packages you are currently using[^1], records the packages and their versions in a **lockfile**, `renv.lock`, and creates a project-specific library, `renv/library`, containing the installed packages[^2]
-. It also creates a project `.Rprofile` which will automatically load `renv` when you use this project again in the future
-. This immediately gives you the benefit of **isolation**: now when you install, update, or remove packages, it only affects this project, not every project on your computer
+This scans your R code to discover what packages you are currently using[^1], records the packages and their versions in a **lockfile**, `renv.lock`, and creates a project-specific library, `renv/library`, containing those packages[^2]
+. This project library is the key magic that makes `renv` work: instead of having a single library containing the packages that you use everywhere, `renv` gives you a separate library for each project
+. This gives you the benefits of **isolation**: different projects can use different versions of packages, and installing, updating, or removing packages in one project doesn't affect any other project
 .
 
 [^1]: See `?dependencies` for the details and how to customise.
 
 [^2]: If you'd like to skip the dependency discovery you can call `renv::init(bare = TRUE)` to initialize a project with an empty project library.
 
-The next important `renv` tool is `renv::snapshot()`.
-This updates the lockfile with the currently installed package versions, and means that other people on other computers can easily reproduce your current environment by running `renv::restore()`.
+`renv::init()` also creates a project `.Rprofile`.
+This file is run automatically every time you start R (in that project), and `renv` uses it to configure your R session to use the project library.
+This ensures that once turn on `renv` on for a project, it stays on, until you deliberately turn it off.
+
+The next important pair of tools are `renv::snapshot()` and `renv::restore()`.
+`snapshot()` updates the lockfile with metadata about the currently used packages in the project library.
+This is useful because you can then share the lockfile and other people or other computers can easily reproduce your current environment by running `renv::restore()`.
 This pair of functions give you the benefits of **reproducibility** and **portability**: you are now tracking exactly which package versions you have installed, and can recreate them on other machines.
 
-These three functions form the heart of `renv`'s most important workflows, but there are other important functions like `renv::status()`, `renv::install()`, `renv::update()`, and `renv::remove()` that we'll learn more about below.
+Now that you've got the a high-level lay of the land, we'll show a couple of specific workflows before discussing some of the reproducibility challenges that `renv` doesn't currently help with.
 
 ### Collaboration
 
-One of the reasons that you might be interested in `renv` is that you want to share your code with other people and have them get the same results as you because they're using the same versions of the packages that you have installed.
+One of the reasons to use `renv` is to make it easier to share your code in such way that other people get the same results as you because they're using the same versions of the packages that you have installed.
+This
 
 As above, you'll start by calling `renv::init()`.
-You'll then need to commit the correct files to a version control system.
-If you're using git, this is particularly simple because `renv` will create a `.gitignore` for you, and you can just commit the suggested files: `renv.lock`, `.Rprofile`, `renv/settings.json` and `renv/activate.R`[^3].
+You'll then need to commit `renv.lock`, `.Rprofile`, `renv/settings.json` and `renv/activate.R` to git.
+If you're using git, this is particularly simple because `renv` will create a `.gitignore` for you, and you can just commit the suggested files[^3].
 
 [^3]: If you're using another version control system, you'll need to ignore `renv/library`.
 
@@ -71,52 +77,35 @@ It will not, however, install the packages automatically --- you'll need to tell
 ### Installing packages
 
 Over time, your project will need more packages.
-One of the philosophies of `renv` is that your existing package management workflows should continue to work, can you can continue to use `install.packages()`[^4].
-But you can also use `renv::install()`, which is a little less typing and supports installing and updating packages from GitHub, Bioconductor, and more, not just CRAN.
+One of the philosophies of `renv` is that your existing package management workflows should continue to work, so you can continue to use familiar tools like `install.packages()`[^4].
+But you can also use `renv::install()`: it's a little less typing and supports installing packages from GitHub, Bioconductor, and more, not just CRAN.
 
 [^4]: Behind the scene, renv shims `install.packages()`, `update.packages(),` and `remove.packages()` to call the `renv` equivalents.
     Learn more in `?renv::load.`
 
-Because you'll often need to install the same package in multiple projects, renv uses a cache to make future installations much faster.
-You can learn more about how the cache works, and other aspects of package installation, in `vignette("package-install")`.
+When you use `renv`, you'll typically end up with many libraries, so you'll often need to install the same package multiple times.
+It would be annoying if you had to download (or worse, compile) the package repeatedly, so `renv` uses a global package cache.
+That means you only ever have to download and install a package once, and for each subsequent install, `renv` will just link add a link from the project library to the global cache.
+You can learn more about the cache in `vignette("package-install")`.
 
-After installing the package and checking that your code still works, call `renv::snapshot()` to record the latest versions in your lockfile.
-If you're collaborating with others, you'll need to commit those changes to git, and let them know that you've update the lockfile.
+After installing the package and checking that your code still works, you should call `renv::snapshot()` to record the latest versions in your lockfile.
+If you're collaborating with others, you'll need to commit those changes to git, and let them know that you've update the lockfile and they should call `renv::restore()` when they're next working on a package.
 
-If you're unsure how your library and lockfile differ, call `renv::status()`.
+### Updating packages
 
-### Package updates
-
-It's worth noting that there's a small risk associated with isolation: while you're no longer vulnerable to breakages, but you also don't benefit from fixes.
+It's worth noting that there's a small risk associated with isolation: while your code will never break due to a change in another package, it will also never benefit from bug fixes.
 So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^5] to get the latest version of all dependencies.
 Similarly, if you're making major changes to a project that you haven't worked on for a while, it's often a good idea to start with an `renv::update()` before making any changes to the code.
 
 [^5]: You can also use `update.packages()`, but `renv::update()` also works for packages installed from Bioconductor, GitHub, and Git.
 
-After calling `renv::update()`, you should run the code in your project and make sure it works.
+After calling `renv::update()`, you should run the code in your project and make sure it still works (or make any changes needed to get it working).
 Then call `renv::snapshot()` to record the news versions in the lockfile.
-If you get stuck, and can't get the project to work with the new versions, you can always call `renv::restore()` to revert to the last known good state.
+If you get stuck, and can't get the project to work with the new versions, you can call `renv::restore()` to roll back changes to the project library and revert to the known good state recorded in your lockfile.
 If you need to roll back to an even older version, take a look at `renv::history()` and `renv::revert()`.
 
-`renv::update()` will also update `renv` itself.
+`renv::update()` will also update `renv` itself, ensuring that you get all the latest features.
 See `renv::upgrade()` if you ever want to upgrade just `renv`, or you need to install a development version from GitHub.
-
-### Caveats
-
-It is important to emphasize that `renv` is not a panacea for reproducibility.
-Rather, it is a tool that can help make projects reproducible by solving one small part of the problem: R packages.
-Ultimately, making a project reproducible will always require thought, not just mechanical usage of a tool: what does it mean for a particular project to be reproducible, and how can you use tools to meet that particular goal of reproducibility?
-
-In particular, the results produced by a particular project might depend on other components of the system it's being run on, e.g. the operating system itself, the versions of system libraries in use, the compilers used to build R and R packages, and so on.
-Keeping a 'stable' machine image is a separate challenge, but [Docker](https://www.docker.com/) is one popular solution.
-See also `vignette("docker", package = "renv")` for recommendations on how Docker can be used together with `renv`.
-
-A salient example of this is the `rmarkdown` package, as it relies heavily on [`pandoc`](https://pandoc.org/).
-However, because pandoc is not bundled with the `rmarkdown` package simply restoring an `renv` project using `rmarkdown` may not be sufficient: you also needs to ensure the project is run in a environment with the correct version of `pandoc` available.
-
-You also need to be aware that package installation may fail if a package was originally installed through a binary, but that binary is no longer available.
-`renv` will attempt to install the package from source, but this can (and often will) fail due to missing system prerequisites.
-`renv::equip()` can provide some help here, particularly on Windows, because it will download external software commonly used when compiling R packages from sources.
 
 ## Infrastructure
 
@@ -178,6 +167,23 @@ The package records are created using the currently-installed copies of packages
 The fields written into each package record are derived from the installed package's `DESCRIPTION` file, and include the data required to recreate installation, regardless of whether the package was installed from [CRAN](https://cran.r-project.org/), [Bioconductor](https://www.bioconductor.org/), [GitHub](https://github.com/), [Gitlab](https://about.gitlab.com/), [Bitbucket](https://bitbucket.org/), or elsewhere.
 You can learn more about the sources `renv` supports in `vignette("package-sources")`.
 
+## Caveats
+
+It is important to emphasize that `renv` is not a panacea for reproducibility.
+Rather, it is a tool that can help make projects reproducible by solving one small part of the problem: R packages.
+Ultimately, making a project reproducible will always require thought, not just mechanical usage of a tool: what does it mean for a particular project to be reproducible, and how can you use tools to meet that particular goal of reproducibility?
+
+In particular, the results produced by a particular project might depend on other components of the system it's being run on, e.g. the operating system itself, the versions of system libraries in use, the compilers used to build R and R packages, and so on.
+Keeping a 'stable' machine image is a separate challenge, but [Docker](https://www.docker.com/) is one popular solution.
+See also `vignette("docker", package = "renv")` for recommendations on how Docker can be used together with `renv`.
+
+A salient example of this is the `rmarkdown` package, as it relies heavily on [`pandoc`](https://pandoc.org/).
+However, because pandoc is not bundled with the `rmarkdown` package simply restoring an `renv` project using `rmarkdown` may not be sufficient: you also needs to ensure the project is run in a environment with the correct version of `pandoc` available.
+
+You also need to be aware that package installation may fail if a package was originally installed through a binary, but that binary is no longer available.
+`renv` will attempt to install the package from source, but this can (and often will) fail due to missing system prerequisites.
+`renv::equip()` can provide some help here, particularly on Windows, because it will download external software commonly used when compiling R packages from sources.
+
 ## Uninstalling renv
 
 If you find `renv` isn't the right fit for your project, deactivating and uninstalling it is easy.
@@ -188,40 +194,15 @@ If you find `renv` isn't the right fit for your project, deactivating and uninst
 
 -   To completely remove `renv` from a project, first call `renv::deactivate()` then delete the `renv/` folder and `renv.lock` lockfile.
 
-If you want to completely remove any installed `renv` infrastructure components from your entire system, you can do so with the following R code:
+If you want to stop using `renv` for all your projects, you'll also want to remove the
 
-```         
+If you want to completely remove any installed `renv` infrastructure components from your entire system, you can do so with the following R code[^6]:
+
+[^6]: If you've customized any of `renv`'s infrastructure paths as described in `?renv::paths`, then you'll need to find and remove those customized folders as well.
+
+```{r, eval = FALSE}
 root <- renv::paths$root()
 unlink(root, recursive = TRUE)
 ```
 
-The `renv` package can then also be uninstalled via:
-
-```         
-utils::remove.packages("renv")
-```
-
-Note that if you've customized any of `renv`'s infrastructure paths as described in `?renv::paths`, then you'll need to find and remove those customized folders as well.
-
-## Packrat
-
-`renv` is our second attempt at solving this problem, using what we learned from [packrat](https://rstudio.github.io/packrat/) to create a system with fewer surprises and better default behaviors.
-If you're an existing packrat user, you can call `renv::migrate()` to switch renv, then read on to learn about the main differences:
-
-1.  The `renv` lockfile `renv.lock` is formatted as [JSON](https://www.json.org/).
-    This should make the lockfile easier to use and consume with other tools.
-
-2.  `renv` no longer attempts to explicitly download and track R package source tarballs within your project.
-    This was a frustrating default that operated under the assumption that you might later want to be able to restore a project's private library without access to a CRAN repository.
-    In practice, this is almost never the case, and the time spent downloading + storing the package sources seemed to outweigh the potential reproducibility benefits.
-
-3.  Packrat tried to maintain the distinction between so-called 'stale' packages; that is, R packages which were installed by Packrat but were not recorded in the lockfile for some reason.
-    This distinction was (1) overall not useful, and (2) confusing.
-    `renv` no longer makes this distinction: `snapshot()` saves the state of your project library to `renv.lock`, `restore()` loads the state of your project library from `renv.lock`, and that's all.
-
-4.  In `renv`, the global package cache is enabled by default.
-    This should reduce overall disk-space usage as packages can effectively be shared across each project using `renv`.
-
-5.  `renv`'s dependency discovery machinery is more configurable.
-    The function `renv::dependencies()` is exported, and users can create `.renvignore` files to instruct `renv` to ignore specific files and folders in their projects.
-    (See `?renv::dependencies` for more information.)
+You can then uninstall the `renv` package with `utils::remove.packages("renv")`.
