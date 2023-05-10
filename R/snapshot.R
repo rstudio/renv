@@ -3,7 +3,7 @@
 # can be scoped to FALSE when hashing is not necessary
 `_renv_snapshot_hash` <- TRUE
 
-#' Record current state of the package library in the lockfile
+#' Record current state of the project library in the lockfile
 #'
 #' @description
 #' Call `snapshot()` to create a **lockfile** capturing the state of a

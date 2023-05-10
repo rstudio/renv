@@ -2,7 +2,7 @@
 % Please edit documentation in R/snapshot.R
 \name{snapshot}
 \alias{snapshot}
-\title{Record current state of the package library in the lockfile}
+\title{Record current state of the project library in the lockfile}
 \usage{
 snapshot(
   project = NULL,
