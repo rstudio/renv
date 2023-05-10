@@ -36,7 +36,7 @@ this project.
 \item Create \code{renv/.gitignore}, which tells git to ignore the project library.
 \item Create \code{.Rbuildignore} which tells \verb{R CMD build} to ignore the \code{renv}
 infrastructure.
-\item Write a (bare) \link{lockfile}, \code{renv.lock}.
+\item Write a (bare) \link[=lockfiles]{lockfile}, \code{renv.lock}.
 }
 }
 \examples{

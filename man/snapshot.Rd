@@ -35,8 +35,15 @@ By default, the lockfile is written to a file called \code{renv.lock} in the
 project directory. When \code{NULL}, the lockfile (as an \R object) is returned
 directly instead.}
 
-\item{type}{The type of snapshot to perform. See \strong{Snapshot type} below
-for more details.}
+\item{type}{The type of snapshot to perform:
+\itemize{
+\item \code{"implict"}, (the default), uses all packages captured by \code{\link[=dependencies]{dependencies()}}.
+\item \code{"explicit"} uses packages recorded in \code{DESCRIPTION}.
+\item \code{"all"} uses all packages in the project library.
+\item \verb{"custom} uses a custom filter.
+}
+
+See \strong{Snapshot type} below for more details.}
 
 \item{repos}{The \R repositories to be recorded in the lockfile. Defaults
 to the currently active package repositories, as retrieved by
@@ -67,12 +74,14 @@ The generated lockfile, as an \R object (invisibly). Note that
 this function is normally called for its side effects.
 }
 \description{
-Call \code{snapshot()} to create a \strong{lockfile} capturing the state of a
-project's dependencies. The lockfile can be used to later \code{\link[=restore]{restore()}}
-these project's dependencies as required.
+Call \code{renv::snapshot()} to update a \link[=lockfiles]{lockfile} with the current
+state of dependences in the project library. The lockfile can be used to
+later \link{restore} these dependencies as required.
 
-See the \link{lockfile} documentation for more details on the structure of a
-lockfile.
+It's also possible to call \code{renv::snapshot()} with a non-\code{renv} project,
+in which case it will record the current state of dependencies in the
+system library. This makes it possible to \link{restore} the current packages,
+providing lightweight portability and reproducibility without isolation.
 }
 \section{Snapshot types}{
 Depending on how you prefer to manage dependencies, you might prefer

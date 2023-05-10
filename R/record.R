@@ -19,9 +19,6 @@
 #' @param records A list of named records, mapping package names to a definition
 #'   of their source. See **Records** for more details.
 #'
-#' @param lockfile The path to a lockfile. By default, the project lockfile
-#'   is used.
-#'
 #' @example examples/examples-record.R
 #' @export
 record <- function(records,

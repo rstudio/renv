@@ -2,21 +2,23 @@
 #' Use renv in a project
 #'
 #' @description
-#' Call `renv::init()` to start using renv in the current project. This will:
+#' Call `renv::init()` to start using `renv` in the current project. This will:
 #'
-#' 1. Activate the project to use the project library in both the current and
-#'    all future sessions (with [activate()]). This includese setting up
-#'    project infrastructure as described in [scaffold()].
+#' 1. Set up project infrastructure (as described in [scaffold()]) including
+#'    the project library and the `.Rprofile` that ensures `renv` will be
+#'    used in all future sessions.
 #'
-#' 1. Discover the packages that you currently and install them into a
-#'    project library (with [hydrate()]).
+#' 1. Discover the packages that you currently and install them into am
+#'    project library (as described in [hydrate()]).
 #'
 #' 1. Create a lockfile that records the state of the project library so it
-#'    can be restored by others (with [snapshot()]).
+#'    can be restored by others (as described in [snapshot()]).
+#'
+#' 1. Restarts R (if running inside RStudio).
 #'
 #' If you call `init()` on a project that already uses `renv`, it will attempt
-#' to do the right thing; it will restore the project library if it's missing,
-#' or otherwise prompt you what to do.
+#' to do the right thing: it will restore the project library if it's missing,
+#' or otherwise ask you what to do.
 #'
 #' @inherit renv-params
 #'

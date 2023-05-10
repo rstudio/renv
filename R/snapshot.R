@@ -6,12 +6,14 @@
 #' Record current state of the project library in the lockfile
 #'
 #' @description
-#' Call `snapshot()` to create a **lockfile** capturing the state of a
-#' project's dependencies. The lockfile can be used to later [restore()]
-#' these project's dependencies as required.
+#' Call `renv::snapshot()` to update a [lockfile][lockfiles] with the current
+#' state of dependences in the project library. The lockfile can be used to
+#' later [restore] these dependencies as required.
 #'
-#' See the [lockfile] documentation for more details on the structure of a
-#' lockfile.
+#' It's also possible to call `renv::snapshot()` with a non-`renv` project,
+#' in which case it will record the current state of dependencies in the
+#' system library. This makes it possible to [restore] the current packages,
+#' providing lightweight portability and reproducibility without isolation.
 #'
 #' # Snapshot types
 #'
@@ -74,8 +76,13 @@
 #'   project directory. When `NULL`, the lockfile (as an \R object) is returned
 #'   directly instead.
 #'
-#' @param type The type of snapshot to perform. See **Snapshot type** below
-#'   for more details.
+#' @param type The type of snapshot to perform:
+#'   * `"implict"`, (the default), uses all packages captured by [dependencies()].
+#'   * `"explicit"` uses packages recorded in `DESCRIPTION`.
+#'   * `"all"` uses all packages in the project library.
+#'   * `"custom` uses a custom filter.
+#'
+#'   See **Snapshot type** below for more details.
 #'
 #' @param repos The \R repositories to be recorded in the lockfile. Defaults
 #'   to the currently active package repositories, as retrieved by

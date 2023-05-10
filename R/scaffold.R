@@ -16,7 +16,7 @@
 #' - Create `.Rbuildignore` which tells `R CMD build` to ignore the `renv`
 #'   infrastructure.
 #'
-#' - Write a (bare) [lockfile], `renv.lock`.
+#' - Write a (bare) [lockfile][lockfiles], `renv.lock`.
 #'
 #' @inheritParams renv-params
 #'

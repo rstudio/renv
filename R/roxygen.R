@@ -6,6 +6,9 @@
 #' @param type The type of package to install ("source" or "binary"). Defaults
 #'   to the value of `getOption("pkgType")`.
 #'
+#' @param lockfile Path to a lockfile. When `NULL`, the default, will use
+#'   `renv.lock` in the root of the current project.
+#'
 #' @param library The \R library to be used. When `NULL`, the active project
 #'  library will be used instead.
 #'
@@ -24,11 +27,14 @@
 #'   boolean (indicating that all installed packages should be rebuilt), or a
 #'   vector of package names indicating which packages should be rebuilt.
 #'
-#' @param repos The repositories to use during restore, for packages installed
-#'   from CRAN or another similar R package repository. When set, this will
-#'   override any repositories declared in the lockfile. See also the
-#'   `repos.override` option in [config] for an alternate way to provide a
-#'   repository override.
+#' @param repos The repositories to use when restoring packages installed
+#'   from CRAN or a CRAN-like repository. By default, will use repositories
+#'   recorded in the lockfile, ensuring that CRAN packages are re-installed
+#'   from the same place.
+#'
+#'   Use `repos = getOptions(repos)` to overide with the repositories set
+#'   in the current session, or see the `repos.override` option in [config] for
+#'   an alternate way override.
 #'
 #' @param profile The profile to be activated. When `NULL`, the default
 #'   profile is activated instead. See `vignette("profiles", package = "renv")`

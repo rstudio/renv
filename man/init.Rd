@@ -55,20 +55,21 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Call \code{renv::init()} to start using renv in the current project. This will:
+Call \code{renv::init()} to start using \code{renv} in the current project. This will:
 \enumerate{
-\item Activate the project to use the project library in both the current and
-all future sessions (with \code{\link[=activate]{activate()}}). This includese setting up
-project infrastructure as described in \code{\link[=scaffold]{scaffold()}}.
-\item Discover the packages that you currently and install them into a
-project library (with \code{\link[=hydrate]{hydrate()}}).
+\item Set up project infrastructure (as described in \code{\link[=scaffold]{scaffold()}}) including
+the project library and the \code{.Rprofile} that ensures \code{renv} will be
+used in all future sessions.
+\item Discover the packages that you currently and install them into am
+project library (as described in \code{\link[=hydrate]{hydrate()}}).
 \item Create a lockfile that records the state of the project library so it
-can be restored by others (with \code{\link[=snapshot]{snapshot()}}).
+can be restored by others (as described in \code{\link[=snapshot]{snapshot()}}).
+\item Restarts R (if running inside RStudio).
 }
 
 If you call \code{init()} on a project that already uses \code{renv}, it will attempt
-to do the right thing; it will restore the project library if it's missing,
-or otherwise prompt you what to do.
+to do the right thing: it will restore the project library if it's missing,
+or otherwise ask you what to do.
 }
 \examples{
 
