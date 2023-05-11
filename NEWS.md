@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::load()` no longer duplicates entries on the `PATH` environment variable
+  (#1095).
+
 * `renv` gains a new function `renv::checkout()`, for installing the
   latest-available packages from a repository. For example, one can
   use `renv::checkout(date = "2023-02-08")` to install the packages available

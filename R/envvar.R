@@ -22,20 +22,15 @@ renv_envvar_clear <- function(key) {
 
 renv_envvar_modify <- function(envvar, value, prepend) {
 
-  old <- Sys.getenv(envvar, unset = NA)
+  old <- Sys.getenv(envvar, unset = "")
+  old <- strsplit(old, .Platform$path.sep)[[1]]
 
-  parts <- if (prepend)
-    c(value, if (!is.na(old)) old)
-  else
-    c(if (!is.na(old)) old, value)
+  parts <- if (prepend) union(value, old) else union(old, value)
+  new <- paste(parts, collapse = .Platform$path.sep)
 
-  new <- paste(unique(parts), collapse = .Platform$path.sep)
+  do.call(Sys.setenv, as.list(setNames(new, envvar)))
 
-  names(new) <- envvar
-  do.call(Sys.setenv, as.list(new))
-
-  new
-
+  invisible(new)
 }
 
 renv_envvar_prepend <- function(envvar, value) {
