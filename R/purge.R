@@ -107,10 +107,7 @@ renv_purge_impl <- function(package,
       wrap = FALSE
     )
 
-    if (prompt && !proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    cancel_if(prompt && !proceed())
 
   }
   # nocov end

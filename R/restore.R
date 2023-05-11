@@ -157,17 +157,14 @@ restore <- function(project  = NULL,
     return(renv_restore_successful(diff, prompt, project))
   }
 
-  if (!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt)) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  # TODO: should we avoid double-prompting here?
+  # we prompt once here for the preflight check, and then again below based
+  # on the actions we'll perform.
+  cancel_if(!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt))
 
-  if (prompt || renv_verbose())
+  if (prompt || renv_verbose()) {
     renv_restore_report_actions(diff, current, lockfile)
-
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    cancel_if(prompt && !proceed())
   }
 
   # perform the restore

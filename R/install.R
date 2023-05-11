@@ -193,10 +193,9 @@ install <- function(packages = NULL,
   # update non-specific package requests
   records <- renv_install_remotes_update(records, project)
 
-  if (!renv_install_preflight(project, libpaths, remotes, prompt)) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  # run install preflight checks
+  validated <- renv_install_preflight(project, libpaths, remotes, prompt)
+  cancel_if(!validated)
 
   # ensure package names are resolved if provided
   packages <- if (length(packages)) names(remotes)
@@ -783,6 +782,7 @@ renv_install_preflight_permissions <- function(library) {
 
 }
 
+# TODO: should the prompt + proceed checks below be pulled out?
 renv_install_preflight <- function(project, libpaths, records, prompt) {
 
   # check for packages installed from an unknown source
