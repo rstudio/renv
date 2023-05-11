@@ -194,8 +194,8 @@ install <- function(packages = NULL,
   records <- renv_install_remotes_update(records, project)
 
   # run install preflight checks
-  validated <- renv_install_preflight(project, libpaths, remotes, prompt)
-  cancel_if(!validated)
+  if (!renv_install_preflight(project, libpaths, remotes))
+    cancel_if(prompt && !proceed())
 
   # ensure package names are resolved if provided
   packages <- if (length(packages)) names(remotes)
@@ -782,24 +782,14 @@ renv_install_preflight_permissions <- function(library) {
 
 }
 
-# TODO: should the prompt + proceed checks below be pulled out?
-renv_install_preflight <- function(project, libpaths, records, prompt) {
+renv_install_preflight <- function(project, libpaths, records) {
 
-  # check for packages installed from an unknown source
   library <- nth(libpaths, 1L)
 
-  ok <- all(
+  all(
     renv_install_preflight_unknown_source(records),
     renv_install_preflight_permissions(library)
   )
-
-  if (ok)
-    return(TRUE)
-
-  if (prompt && !proceed())
-    return(FALSE)
-
-  TRUE
 
 }
 

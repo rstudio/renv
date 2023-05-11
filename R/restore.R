@@ -160,7 +160,8 @@ restore <- function(project  = NULL,
   # TODO: should we avoid double-prompting here?
   # we prompt once here for the preflight check, and then again below based
   # on the actions we'll perform.
-  cancel_if(!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt))
+  if (!renv_restore_preflight(project, libpaths, diff, current, lockfile, prompt))
+    cancel_if(prompt && !proceed())
 
   if (prompt || renv_verbose()) {
     renv_restore_report_actions(diff, current, lockfile)
@@ -323,10 +324,10 @@ renv_restore_remove <- function(project, package, lockfile) {
   TRUE
 }
 
-renv_restore_preflight <- function(project, libpaths, actions, current, lockfile, prompt) {
+renv_restore_preflight <- function(project, libpaths, actions, current, lockfile) {
   records <- renv_lockfile_records(lockfile)
   matching <- keep(records, names(actions))
-  renv_install_preflight(project, libpaths, matching, prompt)
+  renv_install_preflight(project, libpaths, matching)
 }
 
 renv_restore_find <- function(package, record) {
