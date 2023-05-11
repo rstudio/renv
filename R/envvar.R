@@ -28,9 +28,10 @@ renv_envvar_modify <- function(envvar, value, prepend) {
   parts <- if (prepend) union(value, old) else union(old, value)
   new <- paste(parts, collapse = .Platform$path.sep)
 
-  do.call(Sys.setenv, as.list(setNames(new, envvar)))
+  names(new) <- envvar
+  do.call(Sys.setenv, as.list(new))
 
-  invisible(new)
+  new
 }
 
 renv_envvar_prepend <- function(envvar, value) {
