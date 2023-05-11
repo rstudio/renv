@@ -28,7 +28,7 @@ renv_unload_shims <- function(project) {
 
 renv_unload_project <- function(project) {
   options(renv.project.path = NULL)
-  Sys.unsetenv("RENV_PROJECT")
+  renv_project_clear()
 }
 
 renv_unload_profile <- function(project) {

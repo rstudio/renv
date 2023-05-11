@@ -23,7 +23,7 @@ renv_tests_scope <- function(packages = character(), project = NULL) {
   owd <- setwd(dir)
 
   # set as active project
-  Sys.setenv(RENV_PROJECT = dir)
+  renv_project_set(dir)
 
   # create empty renv directory
   dir.create(file.path(dir, "renv"))
@@ -85,7 +85,7 @@ renv_tests_root_impl <- function(path = getwd()) {
 renv_tests_init_envvars <- function() {
 
   Sys.unsetenv("RENV_PROFILE")
-  Sys.unsetenv("RENV_PROJECT")
+  Sys.unsetenv("RENV_PROJECT") # renv_project_clear()
   Sys.unsetenv("RENV_PATHS_ROOT")
   Sys.unsetenv("RENV_PATHS_LIBRARY")
   Sys.unsetenv("RENV_PATHS_LIBRARY_ROOT")

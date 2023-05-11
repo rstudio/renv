@@ -44,7 +44,7 @@ renv_snapshot_auto_enabled <- function(project) {
     return(FALSE)
 
   # only automatically snapshot the current project
-  if (!identical(project, renv_project(default = NULL)))
+  if (!renv_project_is_active(project))
     return(FALSE)
 
   # don't auto-snapshot if the project hasn't been initialized
@@ -99,8 +99,10 @@ renv_snapshot_auto_update <- function(project) {
 
 renv_snapshot_task <- function() {
 
+  project <- renv_project_get(default = NULL)
+
   # check for active renv project
-  if (!renv_project_active())
+  if (is.null(project))
     return()
 
   # see if library state has updated

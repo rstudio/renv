@@ -214,7 +214,7 @@ renv_dependencies_root <- function(path = getwd()) {
 
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
-  project <- Sys.getenv("RENV_PROJECT", unset = NA)
+  project <- renv_project_get(default = NA)
   if (!is.na(project) && all(renv_path_within(path, project)))
     return(project)
 
@@ -585,7 +585,7 @@ renv_dependencies_discover_description_fields <- function() {
     project <- state$project
 
   # all else fails, use the active project
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   settings$package.dependency.fields(project = project)
 
 }

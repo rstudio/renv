@@ -291,7 +291,7 @@ renv_install_staged_library_path_impl <- function() {
 
   # retrieve current project, library path
   staging <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
-  project <- Sys.getenv("RENV_PROJECT", unset = NA)
+  project <- renv_project_get(default = NA)
   libpath <- renv_libpaths_active()
 
   # determine root directory for staging

@@ -19,7 +19,7 @@ cite <- function(type = c("plain", "bibtex"),
   renv_scope_error_handler()
   renv_dots_check(...)
 
-  project <- project %||% renv_project()
+  project <- renv_project_resolve(project)
   type <- match.arg(type)
 
   packages <- sort(.packages(all.available = TRUE))

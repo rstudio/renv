@@ -29,11 +29,7 @@ load <- function(project = NULL, quiet = FALSE) {
 
   renv_scope_error_handler()
 
-  project <- normalizePath(
-    project %||% renv_project_find(project),
-    winslash = "/",
-    mustWork = TRUE
-  )
+  project <- renv_project_resolve(project)
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
@@ -64,8 +60,7 @@ load <- function(project = NULL, quiet = FALSE) {
   # then unload the current project and reload the requested one
   switch <-
     !renv_metadata_embedded() &&
-    !is.na(Sys.getenv("RENV_PROJECT", unset = NA)) &&
-    !identical(project, renv_project())
+    !renv_project_is_active(project)
 
   if (switch)
     return(renv_load_switch(project))
@@ -331,7 +326,7 @@ renv_load_project <- function(project) {
 
   # record the active project in this session
   project <- renv_path_normalize(project, winslash = "/")
-  Sys.setenv(RENV_PROJECT = project)
+  renv_project_set(project)
 
   # update project list if enabled
   enabled <- renv_cache_config_enabled(project = project)
