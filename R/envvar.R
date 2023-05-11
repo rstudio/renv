@@ -32,6 +32,7 @@ renv_envvar_modify <- function(envvar, value, prepend) {
   do.call(Sys.setenv, as.list(new))
 
   new
+
 }
 
 renv_envvar_prepend <- function(envvar, value) {
