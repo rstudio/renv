@@ -324,33 +324,6 @@ renv_tests_init_packages_load_impl <- function(package, envir) {
 
 }
 
-renv_tests_init_sandbox <- function() {
-
-  # eagerly load packages that we'll need during tests
-  # (as the sandbox will otherwise 'hide' these packages)
-  testthat <- find.package("testthat")
-  descpath <- file.path(testthat, "DESCRIPTION")
-  deps <- renv_dependencies_discover_description(descpath)
-  for (package in deps$Package)
-    requireNamespace(package, quietly = TRUE)
-
-  # set up a dummy library path
-  dummy <- tempfile("renv-library-")
-  dir.create(dummy)
-  .libPaths(dummy)
-
-  # now sandbox the libpaths
-  Sys.setenv(RENV_PATHS_SANDBOX = tempdir())
-  renv_sandbox_activate()
-
-  # make sure we make the sandbox writable on exit
-  reg.finalizer(renv_envir_self(), function(self) {
-    sandbox <- .Library
-    self$renv_sandbox_unlock(sandbox)
-  }, onexit = TRUE)
-
-}
-
 renv_tests_init_finish <- function() {
 
   # remove any leftover renv-test- directories in the userdir
@@ -383,7 +356,6 @@ renv_tests_init <- function() {
   renv_tests_init_options()
   renv_tests_init_repos()
   renv_tests_init_packages()
-  renv_tests_init_sandbox()
   renv_tests_init_finish()
 
 }

@@ -22,12 +22,10 @@ test_that("we can check out packages from our local repository", {
 test_that("we can check out packages from the package manager instance", {
   skip_on_cran()
 
+  renv_tests_scope()
+
   # ensure we reset repos on exit
   renv_scope_options(repos = getOption("repos"))
-
-  # set up temporary library paths
-  libpaths <- renv_scope_tempfile(pattern = "renv-libpaths-")
-  renv_scope_libpaths(libpaths)
 
   # install rlang from an old snapshot
   checkout(date = "2023-01-02", packages = "rlang")
