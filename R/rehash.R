@@ -60,10 +60,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
       wrap = FALSE
     )
 
-    if (prompt && !proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    cancel_if(prompt && !proceed())
 
   }
 

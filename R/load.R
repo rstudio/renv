@@ -37,8 +37,7 @@ load <- function(project = NULL, quiet = FALSE) {
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    cancel()
   } else if (action[[1L]] == "init") {
     return(init(project))
   } else if (action[[1L]] == "alt") {

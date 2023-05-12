@@ -469,10 +469,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
   if (identical(errors, "reported"))
     return(TRUE)
 
-  if (interactive() && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  cancel_if(interactive() && !proceed())
 
   TRUE
 
