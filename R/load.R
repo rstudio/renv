@@ -64,8 +64,7 @@ load <- function(project = NULL, quiet = FALSE) {
   # then unload the current project and reload the requested one
   switch <-
     !renv_metadata_embedded() &&
-    !is.na(Sys.getenv("RENV_PROJECT", unset = NA)) &&
-    !identical(project, renv_project())
+    !identical(project, renv_project_get(default = NULL))
 
   if (switch)
     return(renv_load_switch(project))
@@ -714,7 +713,7 @@ renv_load_quiet <- function() {
 
 renv_load_finish <- function(project, lockfile) {
 
-  options(renv.project.path = project)
+  renv_project_set(project)
   renv_load_check(project)
 
   if (!renv_load_quiet()) {
