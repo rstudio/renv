@@ -27,11 +27,11 @@
 #'   vector of package names indicating which packages should be rebuilt.
 #'
 #' @param repos The repositories to use when restoring packages installed
-#'   from CRAN or a CRAN-like repository. By default, will use repositories
-#'   recorded in the lockfile, ensuring that CRAN packages are re-installed
-#'   from the same place.
+#'   from CRAN or a CRAN-like repository. By default, the repositories recorded
+#'   in the lockfile will be, ensuring that (e.g.) CRAN packages are
+#'   re-installed from the same CRAN mirror.
 #'
-#'   Use `repos = getOptions(repos)` to overide with the repositories set
+#'   Use `repos = getOptions(repos)` to override with the repositories set
 #'   in the current session, or see the `repos.override` option in [config] for
 #'   an alternate way override.
 #'

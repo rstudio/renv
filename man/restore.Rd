@@ -47,11 +47,11 @@ boolean (indicating that all installed packages should be rebuilt), or a
 vector of package names indicating which packages should be rebuilt.}
 
 \item{repos}{The repositories to use when restoring packages installed
-from CRAN or a CRAN-like repository. By default, will use repositories
-recorded in the lockfile, ensuring that CRAN packages are re-installed
-from the same place.
+from CRAN or a CRAN-like repository. By default, the repositories recorded
+in the lockfile will be, ensuring that (e.g.) CRAN packages are
+re-installed from the same CRAN mirror.
 
-Use \code{repos = getOptions(repos)} to overide with the repositories set
+Use \code{repos = getOptions(repos)} to override with the repositories set
 in the current session, or see the \code{repos.override} option in \link{config} for
 an alternate way override.}
 
