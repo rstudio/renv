@@ -284,7 +284,7 @@ renv_paths_root_default_tempdir <- function() {
 #' Path for storing global state
 #'
 #' @description
-#' By default, `renv` storese global state in the following OS-specific folders:
+#' By default, `renv` stores global state in the following OS-specific folders:
 #'
 #' \tabular{ll}{
 #' **Platform** \tab **Location** \cr

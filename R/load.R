@@ -4,7 +4,7 @@
 #' @description
 #' `renv::load()` sets the library paths to use a project-local library,
 #' sets up the system library [sandbox], if needed, and creates shims
-#' for `install.pacakges()`, `update.packages()`, and `remove.packages()`.
+#' for `install.packages()`, `update.packages()`, and `remove.packages()`.
 #'
 #' You should not generally need to call `renv::load()` yourself, as it's
 #' called automatically by the project auto-loader created by [renv::init()]/

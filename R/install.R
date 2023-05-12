@@ -3,7 +3,7 @@
 #'
 #' @description
 #' Install one or more \R packages, from a variety of remote sources.
-#' `install()` uses the same machinery as [restore()] for installing packages.
+#' `install()` uses the same machinery as [restore()] for package installation.
 #' In particular, this means that the local cache of package installations is
 #' used when possible. This helps to avoid re-downloading packages that have
 #' already been downloaded before, and re-compiling packages from source when
@@ -48,7 +48,7 @@
 #' fulfilling the installation request.
 #'
 #' @inherit renv-params
-#' @param packages Either `NULL`, the default, to install all packages required
+#' @param packages Either `NULL` (the default) to install all packages required
 #'  by the project, or a character vector of packages to install. `renv`
 #'  supports a subset of the `remotes` syntax used for package installation,
 #'  e.g:

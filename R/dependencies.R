@@ -78,7 +78,7 @@
 #' # Explicit dependencies
 #'
 #' Alternatively, you can suppress dependency discover and instead rely
-#' on an explicit set of packages recorded in a project `DESCRIPTION` file.
+#' on an explicit set of packages recorded by you in a project `DESCRIPTION` file.
 #' Call `renv::settings$snapshot.type("explicit")` to enable "explicit" mode,
 #' then enumerate your dependencies in a project `DESCRIPTION` file.
 #'
