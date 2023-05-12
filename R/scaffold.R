@@ -13,8 +13,8 @@
 #'
 #' - Create `renv/.gitignore`, which tells git to ignore the project library.
 #'
-#' - Create `.Rbuildignore` which tells `R CMD build` to ignore the `renv`
-#'   infrastructure.
+#' - Create `.Rbuildignore`, if the project is also a package. This tells
+#'   `R CMD build` to ignore the `renv` infrastructure,
 #'
 #' - Write a (bare) [lockfile][lockfiles], `renv.lock`.
 #'

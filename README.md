@@ -43,6 +43,6 @@ Later, if you need to share your code with someone else or run your code on new 
 If this is your first time using `renv`, we strongly recommend reading the [Introduction to renv](https://rstudio.github.io/renv/articles/renv.html) vignette.
 
 If you have a question about `renv`, please first check the [FAQ](https://rstudio.github.io/renv/articles/faq.html) to see whether your question has already been addressed.
-If it hasn't, please feel free to either ask on the [RStudio Community forums](https://community.rstudio.com).
+If it hasn't, please feel free to ask on the [RStudio Community forums](https://community.rstudio.com).
 
 If you believe you've found a bug in `renv`, please file a bug (and, if possible, a [reproducible example](https://reprex.tidyverse.org)) at <https://github.com/rstudio/renv/issues>.
