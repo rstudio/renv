@@ -509,7 +509,8 @@ take <- function(data, index = NULL) {
 }
 
 cancel <- function() {
-  renv_report_cancelled()
+  message("* Operation canceled.")
+  renv_snapshot_auto_suppress_next()
   invokeRestart("abort")
 }
 
