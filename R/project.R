@@ -332,12 +332,12 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
 
 # TODO: this gets really dicey once the user starts configuring where
 # renv places its project-local state ...
-renv_project_find <- function(project = NULL) {
+renv_project_find <- function(path = NULL) {
 
-  project <- project %||% getwd()
+  path <- path %??% getwd()
 
   anchors <- c("renv.lock", "renv/activate.R")
-  resolved <- renv_file_find(project, function(parent) {
+  resolved <- renv_file_find(path, function(parent) {
     for (anchor in anchors)
       if (file.exists(file.path(parent, anchor)))
         return(parent)
@@ -345,7 +345,7 @@ renv_project_find <- function(project = NULL) {
 
   if (is.null(resolved)) {
     fmt <- "couldn't resolve renv project associated with path %s"
-    stopf(fmt, renv_path_pretty(project))
+    stopf(fmt, renv_path_pretty(path))
   }
 
   resolved

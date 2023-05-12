@@ -30,7 +30,7 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_scope_error_handler()
 
   project <- normalizePath(
-    project %||% renv_project_find(project),
+    project %??% renv_project_find(project),
     winslash = "/",
     mustWork = TRUE
   )
