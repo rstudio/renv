@@ -164,7 +164,7 @@ ask <- function(question, default = FALSE) {
 
 }
 
-proceed <- function(default = FALSE) {
+proceed <- function(default = TRUE) {
   ask("Do you want to proceed?", default = default)
 }
 
