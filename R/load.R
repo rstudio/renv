@@ -325,14 +325,11 @@ renv_load_settings <- function(project) {
 
 renv_load_project <- function(project) {
 
-  # record the active project in this session
-  project <- renv_path_normalize(project, winslash = "/")
-  Sys.setenv(RENV_PROJECT = project)
-
   # update project list if enabled
-  enabled <- renv_cache_config_enabled(project = project)
-  if (enabled)
+  if (renv_cache_config_enabled(project = project)) {
+    project <- renv_path_normalize(project, winslash = "/")
     renv_load_project_projlist(project)
+  }
 
   TRUE
 
