@@ -199,14 +199,8 @@ snapshot <- function(project  = NULL,
     renv_snapshot_report_actions(actions, old, new)
 
   # request user confirmation
-
-  # nocov start
   hasLibrary <- file.exists(file.path(project, "renv", "library"))
-  if (length(actions) && hasLibrary && prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
-  # nocov end
+  cancel_if(length(actions) && hasLibrary && prompt && !proceed())
 
   # write it out
   ensure_parent_directory(lockfile)
@@ -314,16 +308,10 @@ renv_snapshot_validate_report <- function(valid, prompt, force) {
   }
 
   # in interactive sessions, if 'prompt' is set, then ask the user
-  # how they'd like to proceed
+  # if they would like to proceed
   if (interactive() && prompt) {
-
-    if (!proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
-
+    cancel_if(!proceed())
     return(TRUE)
-
   }
 
   # otherwise, bail on error (need to use 'force = TRUE')
@@ -1012,11 +1000,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     )
   }
 
-  if (interactive() && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
-
+  cancel_if(interactive() && !proceed())
   TRUE
 
 }

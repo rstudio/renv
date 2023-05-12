@@ -193,10 +193,9 @@ install <- function(packages = NULL,
   # update non-specific package requests
   records <- renv_install_remotes_update(records, project)
 
-  if (!renv_install_preflight(project, libpaths, remotes, prompt)) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  # run install preflight checks
+  if (!renv_install_preflight(project, libpaths, remotes))
+    cancel_if(prompt && !proceed())
 
   # ensure package names are resolved if provided
   packages <- if (length(packages)) names(remotes)
@@ -287,35 +286,43 @@ renv_install_staged <- function(records) {
 
 renv_install_staged_library_path_impl <- function() {
 
-  # allow user configuration of staged library location
-
-  # retrieve current project, library path
-  staging <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
-  project <- Sys.getenv("RENV_PROJECT", unset = NA)
+  # get current library path
   libpath <- renv_libpaths_active()
 
-  # determine root directory for staging
-  root <- if (!is.na(staging))
-    staging
-  else if (!is.na(project))
-    renv_paths_renv("staging", project = project)
-  else
+  # retrieve current project, library path
+  stagedlib <- local({
+
+    # allow user configuration of staged library location
+    override <- Sys.getenv("RENV_PATHS_LIBRARY_STAGING", unset = NA)
+    if (!is.na(override))
+      return(override)
+
+    # if we have an active project, use that path
+    project <- renv_project_get(default = NULL)
+    if (!is.null(project))
+      return(renv_paths_renv("staging", project = project))
+
+    # otherwise, stage within library path
     file.path(libpath, ".renv")
 
+  })
+
   # attempt to create it
-  ok <- catch(ensure_directory(root))
+  ok <- catch(ensure_directory(stagedlib))
   if (inherits(ok, "error"))
-    return(tempfile("renv-staging"))
+    return(tempfile("renv-staging-"))
 
   # resolve a unique staging directory in this path
+  # we want to keep paths short just in case; it's easy to blow up the
+  # path length limit (hence we don't use tempfile below)
   for (i in 1:100) {
-    path <- file.path(root, i)
+    path <- file.path(stagedlib, i)
     if (dir.create(path, showWarnings = FALSE))
       return(path)
   }
 
   # all else fails, use tempfile
-  tempfile("renv-staging")
+  tempfile("renv-staging-")
 
 }
 
@@ -783,23 +790,14 @@ renv_install_preflight_permissions <- function(library) {
 
 }
 
-renv_install_preflight <- function(project, libpaths, records, prompt) {
+renv_install_preflight <- function(project, libpaths, records) {
 
-  # check for packages installed from an unknown source
   library <- nth(libpaths, 1L)
 
-  ok <- all(
+  all(
     renv_install_preflight_unknown_source(records),
     renv_install_preflight_permissions(library)
   )
-
-  if (ok)
-    return(TRUE)
-
-  if (prompt && !proceed())
-    return(FALSE)
-
-  TRUE
 
 }
 

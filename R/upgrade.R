@@ -54,7 +54,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
 
-  reload <- reload %||% identical(project, renv_project())
+  reload <- reload %||% renv_project_loaded(project)
 
   old <- renv_snapshot_description(package = "renv")
   new <- renv_upgrade_find_record(version)
@@ -74,10 +74,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
     )
   }
 
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  cancel_if(prompt && !proceed())
 
   renv_scope_restore(
     project   = project,

@@ -229,3 +229,6 @@ renv_lockfile_records <- function(lockfile) {
   x$Packages <- filter(value, zlength)
   invisible(x)
 }
+
+# for compatibility with older versions of RStudio
+renv_records <- renv_lockfile_records

@@ -1,24 +1,14 @@
 
 #' Load a Project
 #'
-#' Load an `renv` project.
+#' @description
+#' `renv::load()` sets the library paths to use a project-local library, and
+#' setting up the system library [sandbox], if needed.
 #'
-#' Calling `renv::load()` will set the session's library paths to use a
-#' project-local library, and perform some other work to ensure the project is
-#' properly isolated from other packages on the system.
-#'
-#' Normally, `renv::load()` is called automatically by the project auto-loader
-#' written to the project `.Rprofile` by [renv::init()]. This allows \R sessions
-#' launched from the root of an `renv` project directory to automatically load
-#' that project, without requiring explicit action from the user. However, if
-#' preferred or necessary, one can call `renv::load("<project>")` to explicitly
-#' load an `renv` project located at a particular path.
-#'
-#' Use [renv::activate()] to activate (or re-activate) an `renv` project, so
-#' that newly-launched \R sessions can automatically load the associated
-#' project. Similarly, use [renv::deactivate()] to disable the project
-#' auto-loader, so that `renv` is no longer automatically activated for new
-#' \R sessions in this project.
+#' You should not generally need to call `renv::load()` yourself, as it's
+#' called automatically by the project auto-loader created by [renv::init()]/
+#' [renv::activate()]. However, if needed, you can use `renv::load("<project>")`
+#' to explicitly load an `renv` project located at a particular path.
 #'
 #' @inherit renv-params
 #'
@@ -40,15 +30,14 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_scope_error_handler()
 
   project <- normalizePath(
-    project %||% renv_project_find(project),
+    project %??% renv_project_find(project),
     winslash = "/",
     mustWork = TRUE
   )
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    cancel()
   } else if (action[[1L]] == "init") {
     return(init(project))
   } else if (action[[1L]] == "alt") {
@@ -72,11 +61,7 @@ load <- function(project = NULL, quiet = FALSE) {
 
   # if we're loading a project different from the one currently loaded,
   # then unload the current project and reload the requested one
-  switch <-
-    !renv_metadata_embedded() &&
-    !is.na(Sys.getenv("RENV_PROJECT", unset = NA)) &&
-    !identical(project, renv_project())
-
+  switch <- !renv_metadata_embedded() && !renv_project_loaded(project)
   if (switch)
     return(renv_load_switch(project))
 
@@ -339,14 +324,11 @@ renv_load_settings <- function(project) {
 
 renv_load_project <- function(project) {
 
-  # record the active project in this session
-  project <- renv_path_normalize(project, winslash = "/")
-  Sys.setenv(RENV_PROJECT = project)
-
   # update project list if enabled
-  enabled <- renv_cache_config_enabled(project = project)
-  if (enabled)
+  if (renv_cache_config_enabled(project = project)) {
+    project <- renv_path_normalize(project, winslash = "/")
     renv_load_project_projlist(project)
+  }
 
   TRUE
 
@@ -724,7 +706,7 @@ renv_load_quiet <- function() {
 
 renv_load_finish <- function(project, lockfile) {
 
-  options(renv.project.path = project)
+  renv_project_set(project)
   renv_load_check(project)
 
   if (!renv_load_quiet()) {

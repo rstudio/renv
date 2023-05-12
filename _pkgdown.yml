@@ -12,7 +12,6 @@ reference:
   - status
   - snapshot
   - restore
-  - embed
   - use
 
 - title: Library Management
@@ -53,7 +52,6 @@ reference:
   contents:
   - project
   - activate
-  - deactivate
   - migrate
   - load
   - upgrade
@@ -76,6 +74,7 @@ reference:
 
 - title: internal
   contents:
+  - sandbox
   - imbue
   - lockfile
   - graph
@@ -85,29 +84,21 @@ reference:
 
 articles:
 
-  - title: Introduction to renv
-    navbar: Introduction
-    contents: [renv, lockfile, cellar, bioconductor, mran, faq]
+  - title: renv basics
+    navbar: Basics
+    contents: [renv, package-sources, package-install, python, faq]
 
   - title: Collaborating using renv
     navbar: Collaborating
-    contents: [collaborating, use]
-
-  - title: Packages Development with renv
-    navbar: Packages
-    contents: [packages]
+    contents: [collaborating]
 
   - title: Deploy Applications with renv
     navbar: Deployment
     contents: [ci, docker, rsconnect]
 
-  - title: Integrating other projects with renv
-    navbar: Integration
-    contents: [python]
-
   - title: Advanced Usages of renv
     navbar: Advanced
-    contents: [profiles]
+    contents: [packages, profiles]
 
 template:
   package: tidytemplate

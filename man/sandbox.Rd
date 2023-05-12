@@ -3,14 +3,62 @@
 \docType{data}
 \name{sandbox}
 \alias{sandbox}
-\title{Interact with the renv Sandbox}
-\format{
-An object of class \code{list} of length 4.
-}
+\title{The system library sandbox}
 \usage{
 sandbox
 }
 \description{
-Internal tools for interacting with the \code{renv} sandbox.
+An \R installation can have up to three types of library paths available
+to the user:
+\itemize{
+\item The \emph{user library}, where \R packages downloaded and installed by the
+current user are installed. This library path is only visible to that
+specific user.
+\item The \emph{site library}, where \R packages maintained by administrators of a
+system are installed. This library path, if it exists, is visible to all
+users on the system.
+\item The \emph{system library}, where \R packages distributed with \R itself are
+installed. This library path is visible to all users on the system.
+}
+
+Normally, only so-called "base" and "recommended" packages should be installed
+in the system library (You can get a list of these packages with
+\code{installed.packages(priority = c("base", "recommended"))}). However, it is
+possible for users and administrators to install packages into the system
+library, if the filesystem permissions permit them to do so. (This, for
+example, is the default behavior on macOS.)
+
+Because the site and system libraries are visible to all users, having those
+accessible in \code{renv} projects can potentially break isolation -- that is,
+if a package were updated in the system library, that update would be visible
+to all \R projects on the system.
+
+To help defend against this, \code{renv} uses something it calls the "system library
+sandbox", or the "sandbox", to isolate \code{renv} projects from non-"base" packages
+that are installed into the system library. To accomplish this, when an \code{renv}
+project is loaded, \code{renv} will:
+\itemize{
+\item Create a new, empty library path (called the "sandbox"),
+\item Link only the "base" packages from the system library into the sandbox,
+\item Mark the sandbox as read-only, so that users are unable to install packages
+into this library,
+\item Instruct the \R session to use the "sandbox" as the system library.
+}
+
+This process is mostly transparent to the user. However, because the sandbox
+is read-only, if you later need to remove the sandbox, you'll need to reset
+file permissions manually; for example, with \code{renv::sandbox$unlock()}
+
+If you'd prefer to keep the sandbox unlocked, you can also set:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{RENV_SANDBOX_LOCKING_ENABLED = FALSE
+}\if{html}{\out{</div>}}
+
+in an appropriate startup \code{.Renviron} or \code{Renviron.site} file.
+
+The sandbox can also be disabled entirely with:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{RENV_CONFIG_SANDBOX_ENABLED = FALSE
+}\if{html}{\out{</div>}}
 }
 \keyword{datasets}

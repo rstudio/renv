@@ -1,34 +1,21 @@
 
-#' Initialize a Project
+#' Start Using renv in a Project
 #'
-#' Discover packages used within the current project, and then initialize a
-#' project-local private \R library with those packages. The currently-installed
-#' versions of any packages in use (as detected within the default R libraries)
-#' are then installed to the project's private library.
+#' @description
+#' Use `init()` to start using renv in the current project. This will:
 #'
-#' The primary steps taken when initializing a new project are:
+#' 1. Activate the project to use the project library in both the current and
+#'    all future sessions (with [activate()]).
 #'
-#' 1. \R package dependencies are discovered within the \R files used within
-#'    the project with [dependencies()];
+#' 1. Discover the packages that you currently and install them into a
+#'    project library (with [hydrate()]).
 #'
-#' 2. Discovered packages are copied into the `renv` global package cache, so
-#'    these packages can be re-used across future projects as necessary;
+#' 1. Create a lockfile that records the state of the project library so it
+#'    can be restored by others (with [snapshot()]).
 #'
-#' 3. Any missing \R package dependencies discovered are then installed into
-#'    the project's private library;
-#'
-#' 4. A lockfile capturing the state of the project's library is created
-#'    with [snapshot()];
-#'
-#' 5. The project is activated with [activate()].
-#'
-#' If `renv` sees that the associated project has already been initialized and
-#' has a lockfile, then it will attempt to infer the appropriate action to take
-#' based on the presence of a private library. If no library is available,
-#' `renv` will restore the private library from the lockfile; if one is
-#' available, `renv` will ask if you want to perform a 'standard' init,
-#' restore from the lockfile, or activate the project without taking any
-#' further action.
+#' If you call `init()` on a project that already uses `renv`, it will attempt
+#' to do the right thing; it will restore the project library if it's missing,
+#' or otherwise prompt you what to do.
 #'
 #' @section Infrastructure:
 #'
@@ -143,10 +130,7 @@ init <- function(project = NULL,
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile, bioconductor)
-  if (empty(action) || identical(action, "cancel")) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  cancel_if(empty(action) || identical(action, "cancel"))
 
   # activate library paths for this project
   libpaths <- renv_libpaths_activate(project = project)

@@ -261,10 +261,7 @@ update <- function(packages = NULL,
       )
     }
 
-    if (prompt && !proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    cancel_if(prompt && !proceed())
 
   }
 
@@ -351,12 +348,9 @@ update <- function(packages = NULL,
 
   }
 
-  if (prompt || renv_verbose())
+  if (prompt || renv_verbose()) {
     renv_restore_report_actions(diff, old, new)
-
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    cancel_if(prompt && !proceed())
   }
 
   # perform the install
