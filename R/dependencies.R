@@ -47,6 +47,25 @@
 #' library(stringr)
 #' ```
 #'
+#' # Explicit dependencies
+#'
+#' Alternatively, you can suppress dependency discover and instead rely
+#' on an explicit set of packages recorded by you in a project `DESCRIPTION` file.
+#' Call `renv::settings$snapshot.type("explicit")` to enable "explicit" mode,
+#' then enumerate your dependencies in a project `DESCRIPTION` file.
+#'
+#' In that case, your `DESCRIPTION` might look something like this:
+#'
+#' ```
+#' Type: project
+#' Description: My project.
+#' Depends:
+#'     tidyverse,
+#'     devtools,
+#'     shiny,
+#'     data.table
+#' ```
+#'
 #' # Ignoring files
 #'
 #' By default, `renv` will read your project's `.gitignore`s (if present) to
@@ -74,26 +93,7 @@
 #' Using ignore files is important if your project contains a large number
 #' of files; for example, if you have a `data/` directory containing many
 #' text files.
-#'
-#' # Explicit dependencies
-#'
-#' Alternatively, you can suppress dependency discover and instead rely
-#' on an explicit set of packages recorded by you in a project `DESCRIPTION` file.
-#' Call `renv::settings$snapshot.type("explicit")` to enable "explicit" mode,
-#' then enumerate your dependencies in a project `DESCRIPTION` file.
-#'
-#' In that case, your `DESCRIPTION` might look something like this:
-#'
-#' ```
-#' Type: project
-#' Description: My project.
-#' Depends:
-#'     tidyverse,
-#'     devtools,
-#'     shiny,
-#'     data.table
-#' ```
-#'
+
 #' # Errors
 #'
 #' `renv`'s attempts to enumerate package dependencies in your project can fail
