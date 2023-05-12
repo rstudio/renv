@@ -91,6 +91,24 @@ library(stringr)
 }\if{html}{\out{</div>}}
 }
 
+\section{Explicit dependencies}{
+Alternatively, you can suppress dependency discover and instead rely
+on an explicit set of packages recorded by you in a project \code{DESCRIPTION} file.
+Call \code{renv::settings$snapshot.type("explicit")} to enable "explicit" mode,
+then enumerate your dependencies in a project \code{DESCRIPTION} file.
+
+In that case, your \code{DESCRIPTION} might look something like this:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Type: project
+Description: My project.
+Depends:
+    tidyverse,
+    devtools,
+    shiny,
+    data.table
+}\if{html}{\out{</div>}}
+}
+
 \section{Ignoring files}{
 By default, \code{renv} will read your project's \code{.gitignore}s (if present) to
 determine whether certain files or folders should be included when traversing
@@ -116,24 +134,6 @@ data/
 Using ignore files is important if your project contains a large number
 of files; for example, if you have a \verb{data/} directory containing many
 text files.
-}
-
-\section{Explicit dependencies}{
-Alternatively, you can suppress dependency discover and instead rely
-on an explicit set of packages recorded in a project \code{DESCRIPTION} file.
-Call \code{renv::settings$snapshot.type("explicit")} to enable "explicit" mode,
-then enumerate your dependencies in a project \code{DESCRIPTION} file.
-
-In that case, your \code{DESCRIPTION} might look something like this:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Type: project
-Description: My project.
-Depends:
-    tidyverse,
-    devtools,
-    shiny,
-    data.table
-}\if{html}{\out{</div>}}
 }
 
 \section{Errors}{

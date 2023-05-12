@@ -20,7 +20,7 @@ called for its side effects.
 \description{
 \code{renv::load()} sets the library paths to use a project-local library,
 sets up the system library \link{sandbox}, if needed, and creates shims
-for \code{install.pacakges()}, \code{update.packages()}, and \code{remove.packages()}.
+for \code{install.packages()}, \code{update.packages()}, and \code{remove.packages()}.
 
 You should not generally need to call \code{renv::load()} yourself, as it's
 called automatically by the project auto-loader created by \code{\link[=init]{init()}}/

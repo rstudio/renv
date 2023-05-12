@@ -17,7 +17,7 @@ install(
 )
 }
 \arguments{
-\item{packages}{Either \code{NULL}, the default, to install all packages required
+\item{packages}{Either \code{NULL} (the default) to install all packages required
 by the project, or a character vector of packages to install. \code{renv}
 supports a subset of the \code{remotes} syntax used for package installation,
 e.g:
@@ -72,7 +72,7 @@ A named list of package records which were installed by \code{renv}.
 }
 \description{
 Install one or more \R packages, from a variety of remote sources.
-\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} for installing packages.
+\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} for package installation.
 In particular, this means that the local cache of package installations is
 used when possible. This helps to avoid re-downloading packages that have
 already been downloaded before, and re-compiling packages from source when

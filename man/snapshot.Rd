@@ -75,12 +75,12 @@ this function is normally called for its side effects.
 }
 \description{
 Call \code{renv::snapshot()} to update a \link[=lockfiles]{lockfile} with the current
-state of dependences in the project library. The lockfile can be used to
+state of dependencies in the project library. The lockfile can be used to
 later \link{restore} these dependencies as required.
 
 It's also possible to call \code{renv::snapshot()} with a non-\code{renv} project,
 in which case it will record the current state of dependencies in the
-system library. This makes it possible to \link{restore} the current packages,
+current library paths. This makes it possible to \link{restore} the current packages,
 providing lightweight portability and reproducibility without isolation.
 }
 \section{Snapshot types}{

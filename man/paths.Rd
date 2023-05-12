@@ -8,7 +8,7 @@
 paths
 }
 \description{
-By default, \code{renv} storese global state in the following OS-specific folders:
+By default, \code{renv} stores global state in the following OS-specific folders:
 
 \tabular{ll}{
 \strong{Platform} \tab \strong{Location} \cr
