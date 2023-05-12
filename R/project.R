@@ -1,4 +1,8 @@
 
+# The path to the currently-loaded project, if any.
+# NULL when no project is currently loaded.
+`_renv_project_path` <- NULL
+
 #' Retrieve the Active Project
 #'
 #' Retrieve the path to the active project (if any).
@@ -18,33 +22,27 @@
 #'
 #' }
 project <- function(default = NULL) {
-  renv_project(default = default)
-}
-
-renv_project_get <- function(default = NULL) {
-
-  project <- Sys.getenv("RENV_PROJECT", unset = NA)
-  if (is.na(project))
-    return(default)
-
-  project
-
-}
-
-renv_project_set <- function(project) {
-  Sys.setenv(RENV_PROJECT = project)
-}
-
-renv_project_clear <- function() {
-  Sys.unsetenv("RENV_PROJECT")
-}
-
-renv_project <- function(default = getwd()) {
   renv_project_get(default = default)
 }
 
-renv_project_resolve <- function(project = NULL) {
-  project <- project %||% renv_project()
+renv_project_get <- function(default = NULL) {
+  `_renv_project_path` %??% default
+}
+
+# NOTE: RENV_PROJECT kept for backwards compatibility with RStudio
+renv_project_set <- function(project) {
+  `_renv_project_path` <<- project
+  Sys.setenv(RENV_PROJECT = project)
+}
+
+# NOTE: 'RENV_PROJECT' kept for backwards compatibility with RStudio
+renv_project_clear <- function() {
+  `_renv_project_path` <<- NULL
+  Sys.unsetenv("RENV_PROJECT")
+}
+
+renv_project_resolve <- function(project = NULL, default = getwd()) {
+  project <- project %??% renv_project_get(default = default)
   normalizePath(project, winslash = "/", mustWork = FALSE)
 }
 
@@ -334,12 +332,12 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
 
 # TODO: this gets really dicey once the user starts configuring where
 # renv places its project-local state ...
-renv_project_find <- function(project = NULL) {
+renv_project_find <- function(path = NULL) {
 
-  project <- project %||% getwd()
+  path <- path %??% getwd()
 
   anchors <- c("renv.lock", "renv/activate.R")
-  resolved <- renv_file_find(project, function(parent) {
+  resolved <- renv_file_find(path, function(parent) {
     for (anchor in anchors)
       if (file.exists(file.path(parent, anchor)))
         return(parent)
@@ -347,7 +345,7 @@ renv_project_find <- function(project = NULL) {
 
   if (is.null(resolved)) {
     fmt <- "couldn't resolve renv project associated with path %s"
-    stopf(fmt, renv_path_pretty(project))
+    stopf(fmt, renv_path_pretty(path))
   }
 
   resolved
@@ -359,7 +357,7 @@ renv_project_lock <- function(project = NULL) {
   if (!config$locking.enabled())
     return()
 
-  path <- getOption("renv.project.path")
+  path <- `_renv_project_path`
   if (!identical(project, path))
     return()
 
@@ -370,6 +368,6 @@ renv_project_lock <- function(project = NULL) {
 
 }
 
-renv_project_active <- function() {
-  !is.null(getOption("renv.project.path"))
+renv_project_loaded <- function(project) {
+  !is.null(project) && identical(project, `_renv_project_path`)
 }
