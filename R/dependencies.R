@@ -585,10 +585,10 @@ renv_dependencies_discover_description_fields <- function() {
       return(state$project)
 
     # all else fails, use the active project
-    renv_project_resolve(default = getwd())
+    renv_project_find(project = getwd())
   })
 
-  # get the settings
+  # we've figured out the correct project; get the settings
   settings$package.dependency.fields(project = project)
 
 }

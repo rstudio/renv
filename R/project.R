@@ -22,7 +22,7 @@
 #'
 #' }
 project <- function(default = NULL) {
-  renv_project_resolve(default = default)
+  renv_project_get(default = default)
 }
 
 renv_project_get <- function(default = NULL) {

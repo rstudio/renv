@@ -100,7 +100,7 @@ renv_snapshot_auto_update <- function(project) {
 renv_snapshot_task <- function() {
 
   # check for active renv project
-  project <- renv_project_active()
+  project <- renv_project_get()
   if (is.null(project))
     return()
 
