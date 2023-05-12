@@ -112,7 +112,6 @@ hydrate <- function(packages = NULL,
     renv_hydrate_report(packages, na, linkable)
     if (length(packages) || length(na))
       cancel_if(prompt && !proceed())
-    }
   }
 
   # check for nothing to be done
