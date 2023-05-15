@@ -38,6 +38,7 @@ run <- function() {
   #   return(FALSE)
   # }
 
+  renv:::renv_tests_init()
   renv:::renv_tests_diagnostics()
 
   # run the tests
