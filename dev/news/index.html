@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-33</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-34</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/load.html">renv::load()</a></code> no longer duplicates entries on the <code>PATH</code> environment variable (<a href="https://github.com/rstudio/renv/issues/1095" class="external-link">#1095</a>).</p></li>
+<ul><li><p>Fixed an issue causing “restarting interrupted promise evaluation” warnings to be displayed when querying available packages failed. (<a href="https://github.com/rstudio/renv/issues/1260" class="external-link">#1260</a>)</p></li>
+<li><p><code><a href="../reference/load.html">renv::load()</a></code> no longer duplicates entries on the <code>PATH</code> environment variable (<a href="https://github.com/rstudio/renv/issues/1095" class="external-link">#1095</a>).</p></li>
 <li><p><code>renv</code> gains a new function <code><a href="../reference/checkout.html">renv::checkout()</a></code>, for installing the latest-available packages from a repository. For example, one can use <code>renv::checkout(date = "2023-02-08")</code> to install the packages available on 2023-02-08 from the Posit <a href="https://packagemanager.rstudio.com/" class="external-link">Package Manager</a> instance. repository.</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> now supports Bioconductor remotes of the form <code>bioc::&lt;BiocVersion&gt;/&lt;Package&gt;</code>, for installing packages from a particular version of Bioconductor. Aliases like ‘release’ and ‘devel’ are also supported. (<a href="https://github.com/rstudio/renv/issues/1195" class="external-link">#1195</a>)</p></li>
 <li><p><code><a href="../reference/restore.html">renv::restore()</a></code> can now use <code><a href="http://pak.r-lib.org/reference/pkg_install.html" class="external-link">pak::pkg_install()</a></code> to install packages when <code>pak</code> integration is enabled. Set <code>RENV_CONFIG_PAK_ENABLED = TRUE</code> in your project’s <code>.Renviron</code> if you’d like to opt-in to this behavior. Note that this requires a nightly build of <code>pak</code> (&gt;= 0.4.0-9000); see <a href="https://pak.r-lib.org/dev/reference/install.html" class="external-link uri">https://pak.r-lib.org/dev/reference/install.html</a> for more details.</p></li>
