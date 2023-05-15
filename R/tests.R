@@ -463,7 +463,7 @@ renv_tests_diagnostics <- function() {
     available_packages(type = "source", quiet = TRUE) %>%
     map(function(db) {
       rownames(db) <- NULL
-      db[c("Package", "Version", "Path")]
+      db[c("Package", "Version", "File")]
     })
 
   print(dbs)

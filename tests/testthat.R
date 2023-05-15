@@ -25,17 +25,8 @@ run <- function() {
     return(FALSE)
   }
 
-  # run test diagnostics
-  status <- tryCatch(
-    renv:::renv_tests_diagnostics(),
-    error = identity
-  )
-
-  if (inherits(status, "error")) {
-    message("renv encountered one or more problems while printing diagnostics.")
-    message(status$message)
-    return(FALSE)
-  }
+  # Show diagnostics
+  renv:::renv_tests_diagnostics()
 
   # run the tests
   reporter <- renv:::renv_tests_reporter()
