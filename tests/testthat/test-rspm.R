@@ -1,6 +1,18 @@
 
 context("RSPM")
 
+test_that("we can transform binary URLs into source URLs", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  url <- "https://packagemanager.rstudio.com/cran/__linux__/centos7/latest"
+
+  actual <- renv_rspm_normalize(url)
+  expected <- "https://packagemanager.rstudio.com/cran/latest"
+  expect_identical(actual, expected)
+
+})
+
 test_that("repository URLs are properly transformed for different platforms", {
   skip_on_cran()
   skip_on_os("windows")

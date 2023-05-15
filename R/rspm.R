@@ -1,4 +1,8 @@
 
+renv_rspm_normalize <- function(url) {
+  sub("/__[^_]+__/[^/]+/", "/", url)
+}
+
 renv_rspm_transform <- function(repos = getOption("repos")) {
   map_chr(repos, function(url) {
     tryCatch(
