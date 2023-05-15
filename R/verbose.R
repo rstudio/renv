@@ -9,6 +9,14 @@ renv_verbose <- function() {
   if (!is.na(verbose))
     return(as.logical(verbose))
 
+  if (is_testing()) {
+    return(FALSE)
+  }
+
   interactive() || !renv_tests_running()
 
+}
+
+is_testing <- function() {
+  identical(Sys.getenv("TESTTHAT"), "true")
 }

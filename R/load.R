@@ -53,15 +53,14 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_scope_error_handler()
 
   project <- normalizePath(
-    project %||% renv_project_find(project),
+    project %??% renv_project_find(project),
     winslash = "/",
     mustWork = TRUE
   )
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
-    renv_report_user_cancel()
-    invokeRestart("abort")
+    cancel()
   } else if (action[[1L]] == "init") {
     return(init(project))
   } else if (action[[1L]] == "alt") {
@@ -85,11 +84,9 @@ load <- function(project = NULL, quiet = FALSE) {
 
   # if we're loading a project different from the one currently loaded,
   # then unload the current project and reload the requested one
-  switch <-
-    !renv_metadata_embedded() &&
-    !is.na(Sys.getenv("RENV_PROJECT", unset = NA)) &&
-    !identical(project, renv_project())
-
+  switch <- !renv_metadata_embedded() &&
+    !is.null(`_renv_project_path`) &&
+    !identical(project, `_renv_project_path`)
   if (switch)
     return(renv_load_switch(project))
 
@@ -352,14 +349,11 @@ renv_load_settings <- function(project) {
 
 renv_load_project <- function(project) {
 
-  # record the active project in this session
-  project <- renv_path_normalize(project, winslash = "/")
-  Sys.setenv(RENV_PROJECT = project)
-
   # update project list if enabled
-  enabled <- renv_cache_config_enabled(project = project)
-  if (enabled)
+  if (renv_cache_config_enabled(project = project)) {
+    project <- renv_path_normalize(project, winslash = "/")
     renv_load_project_projlist(project)
+  }
 
   TRUE
 
@@ -475,14 +469,14 @@ renv_load_python <- function(project, fields) {
 
   # place python + relevant utilities on the PATH
   bindir <- normalizePath(dirname(python), mustWork = FALSE)
-  renv_envvar_prepend("PATH", bindir)
+  renv_envvar_path_add("PATH", bindir)
 
   # on Windows, for conda environments, we may also have a Scripts directory
   # which will need to be pre-pended to the PATH
   if (renv_platform_windows()) {
     scriptsdir <- file.path(bindir, "Scripts")
     if (file.exists(scriptsdir))
-      renv_envvar_prepend("PATH", scriptsdir)
+      renv_envvar_path_add("PATH", scriptsdir)
   }
 
   # for conda environments, we should try to find conda and place the conda
@@ -495,7 +489,7 @@ renv_load_python <- function(project, fields) {
   if (identical(info$type, "conda")) {
     conda <- renv_conda_find(python)
     if (file.exists(conda)) {
-      renv_envvar_prepend("PATH", dirname(conda))
+      renv_envvar_path_add("PATH", dirname(conda))
       Sys.setenv(CONDA_PREFIX = info$root)
     }
   }
@@ -737,7 +731,7 @@ renv_load_quiet <- function() {
 
 renv_load_finish <- function(project, lockfile) {
 
-  options(renv.project.path = project)
+  renv_project_set(project)
   renv_load_check(project)
 
   if (!renv_load_quiet()) {

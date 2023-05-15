@@ -38,10 +38,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
       wrap = FALSE
     )
 
-    if (!proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    cancel_if(!proceed())
 
   }
 
@@ -146,10 +143,7 @@ renv_extsoft_use <- function(quiet = FALSE) {
       wrap = FALSE
     )
 
-    if (!proceed()) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    cancel_if(!proceed())
 
   }
 

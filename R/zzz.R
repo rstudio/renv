@@ -2,7 +2,6 @@
 `__self__` <- NULL
 
 .onLoad <- function(libname, pkgname) {
-  `__self__` <<- renv_envir_self()
   renv_zzz_load()
 }
 
@@ -11,13 +10,13 @@
 }
 
 .onUnload <- function(libpath) {
-  `__self__` <<- NULL
   renv_task_unload()
 }
 
 renv_zzz_load <- function() {
 
-  # registerS3method("[<-", "__renv_dotty__", dotty, envir = .BaseNamespaceEnv)
+  # NOTE: needs to be visible to embedded instances of renv as well
+  `__self__` <<- renv_envir_self()
 
   renv_metadata_init()
   renv_platform_init()

@@ -143,10 +143,7 @@ ask <- function(question, default = FALSE) {
     )
 
     # check for interrupts; treat as abort request
-    if (inherits(response, "interrupt")) {
-      renv_report_user_cancel()
-      invokeRestart("abort")
-    }
+    cancel_if(inherits(response, "interrupt"))
 
     # use default when no response
     if (!nzchar(response))
@@ -167,7 +164,7 @@ ask <- function(question, default = FALSE) {
 
 }
 
-proceed <- function(default = FALSE) {
+proceed <- function(default = TRUE) {
   ask("Do you want to proceed?", default = default)
 }
 
@@ -509,4 +506,14 @@ recycle <- function(data) {
 
 take <- function(data, index = NULL) {
   if (is.null(index)) data else .subset2(data, index)
+}
+
+cancel <- function() {
+  message("* Operation canceled.")
+  renv_snapshot_auto_suppress_next()
+  invokeRestart("abort")
+}
+
+cancel_if <- function(cnd) {
+  if (cnd) cancel()
 }

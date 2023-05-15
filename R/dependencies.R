@@ -244,8 +244,8 @@ renv_dependencies_root <- function(path = getwd()) {
 
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
-  project <- Sys.getenv("RENV_PROJECT", unset = NA)
-  if (!is.na(project) && all(renv_path_within(path, project)))
+  project <- renv_project_get(default = NULL)
+  if (!is.null(project) && all(renv_path_within(path, project)))
     return(project)
 
   roots <- uapply(path, renv_dependencies_root_impl)
@@ -499,10 +499,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
   if (identical(errors, "reported"))
     return(TRUE)
 
-  if (interactive() && !proceed()) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  cancel_if(interactive() && !proceed())
 
   TRUE
 
@@ -599,23 +596,27 @@ renv_dependencies_discover_description_impl <- function(dcf, field, path, type) 
 renv_dependencies_discover_description_fields <- function() {
 
   # this is all very gross -- the project should be passed
-  # along by the caller instead
-  project <- NULL
+  # along by the caller instead, but doing so is annoying
+  project <- local({
 
-  # are we being called as part of renv::dependencies()?
-  # if so, then use the root directory as the project root
-  state <- renv_dependencies_state()
-  if (!is.null(state))
-    project <- state$root
+    # are we being called as part of renv::dependencies()?
+    # if so, then use the root directory as the project root
+    state <- renv_dependencies_state()
+    if (!is.null(state))
+      return(state$root)
 
-  # are we being called as part of renv::restore()?
-  # if so, then use the associated project directory
-  state <- renv_restore_state()
-  if (!is.null(state))
-    project <- state$project
+    # are we being called as part of renv::restore()?
+    # if so, then use the associated project directory
+    state <- renv_restore_state()
+    if (!is.null(state))
+      return(state$project)
 
-  # all else fails, use the active project
-  project <- project %||% renv_project()
+    # all else fails, use the current directory
+    getwd()
+
+  })
+
+  # we've figured out the correct project; get the settings
   settings$package.dependency.fields(project = project)
 
 }

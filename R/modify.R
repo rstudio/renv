@@ -38,7 +38,7 @@ renv_modify_impl <- function(project, changes) {
   else
     renv_modify_noninteractive(project, changes)
 
-  if (identical(renv_project(), project))
+  if (renv_project_loaded(project))
     renv_modify_fini(lockfile)
 
 }

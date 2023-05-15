@@ -1,12 +1,12 @@
 
-context("Embedding")
+context("Vendor")
 
 test_that("renv itself doesn't mark itself as embedded", {
   expect_false(renv_metadata_embedded())
   expect_equal(renv_metadata_version(), renv_namespace_version("renv"))
 })
 
-test_that("renv can be embedded in a separate R package", {
+test_that("renv can be vendored in a separate R package", {
   skip_on_cran()
 
   # create a dummy R package
@@ -72,5 +72,26 @@ test_that("renv can be embedded in a separate R package", {
   # attempt to run script
   output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)))
   expect_equal(output, "TRUE")
+
+  # test that we can use the embedded renv to run snapshot
+  code <- substitute({
+
+    # make sure renv isn't visible on library paths
+    base <- .BaseNamespaceEnv
+    base$.libPaths(path)
+
+    # try to list
+    ns <- base$asNamespace("test.renv.embedding")
+    deps <- ns$renv$dependencies()
+    saveRDS(deps, file = "dependencies.rds")
+
+  }, list(path = .libPaths()[1]))
+
+  script <- renv_scope_tempfile("renv-script-", fileext = ".R")
+  writeLines(deparse(code), con = script)
+
+  # attempt to run script
+  output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)), quiet = FALSE)
+  expect_true(file.exists("dependencies.rds"))
 
 })

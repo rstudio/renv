@@ -140,7 +140,7 @@ renv_activate_prompt <- function(action, library, prompt, project) {
     prompt &&
     interactive() &&
     is.null(library) &&
-    !identical(project, Sys.getenv("RENV_PROJECT"))
+    !renv_project_loaded(project)
 
   if (!ask)
     return(FALSE)

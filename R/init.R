@@ -115,10 +115,7 @@ init <- function(project = NULL,
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile, bioconductor)
-  if (empty(action) || identical(action, "cancel")) {
-    renv_report_user_cancel()
-    invokeRestart("abort")
-  }
+  cancel_if(empty(action) || identical(action, "cancel"))
 
   # activate library paths for this project
   libpaths <- renv_libpaths_activate(project = project)
