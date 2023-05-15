@@ -20,7 +20,7 @@ renv_envvar_clear <- function(key) {
   Sys.unsetenv(key)
 }
 
-renv_envvar_modify <- function(envvar, value, prepend) {
+renv_envvar_path_add <- function(envvar, value, prepend = TRUE) {
 
   old <- Sys.getenv(envvar, unset = "")
   old <- strsplit(old, .Platform$path.sep)[[1]]
@@ -33,12 +33,4 @@ renv_envvar_modify <- function(envvar, value, prepend) {
 
   new
 
-}
-
-renv_envvar_prepend <- function(envvar, value) {
-  renv_envvar_modify(envvar, value, TRUE)
-}
-
-renv_envvar_append <- function(envvar, value) {
-  renv_envvar_modify(envvar, value, FALSE)
 }
