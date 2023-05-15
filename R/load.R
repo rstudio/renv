@@ -444,14 +444,14 @@ renv_load_python <- function(project, fields) {
 
   # place python + relevant utilities on the PATH
   bindir <- normalizePath(dirname(python), mustWork = FALSE)
-  renv_envvar_prepend("PATH", bindir)
+  renv_envvar_path_add("PATH", bindir)
 
   # on Windows, for conda environments, we may also have a Scripts directory
   # which will need to be pre-pended to the PATH
   if (renv_platform_windows()) {
     scriptsdir <- file.path(bindir, "Scripts")
     if (file.exists(scriptsdir))
-      renv_envvar_prepend("PATH", scriptsdir)
+      renv_envvar_path_add("PATH", scriptsdir)
   }
 
   # for conda environments, we should try to find conda and place the conda
@@ -464,7 +464,7 @@ renv_load_python <- function(project, fields) {
   if (identical(info$type, "conda")) {
     conda <- renv_conda_find(python)
     if (file.exists(conda)) {
-      renv_envvar_prepend("PATH", dirname(conda))
+      renv_envvar_path_add("PATH", dirname(conda))
       Sys.setenv(CONDA_PREFIX = info$root)
     }
   }
