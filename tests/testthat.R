@@ -13,29 +13,32 @@ run <- function() {
     return(FALSE)
   }
 
-  # try to initialize for testing
-  status <- tryCatch(
-    renv:::renv_tests_init(),
-    error = identity
-  )
 
-  if (inherits(status, "error")) {
-    message("renv encountered one or more problems while initializing tests.")
-    message(status$message)
-    return(FALSE)
-  }
+  # # try to initialize for testing
+  # status <- tryCatch(
+  #   renv:::renv_tests_init(),
+  #   error = identity
+  # )
+  #
+  # if (inherits(status, "error")) {
+  #   message("renv encountered one or more problems while initializing tests.")
+  #   message(status$message)
+  #   return(FALSE)
+  # }
 
   # run test diagnostics
-  status <- tryCatch(
-    renv:::renv_tests_diagnostics(),
-    error = identity
-  )
+  # status <- tryCatch(
+  #   renv:::renv_tests_diagnostics(),
+  #   error = identity
+  # )
 
-  if (inherits(status, "error")) {
-    message("renv encountered one or more problems while printing diagnostics.")
-    message(status$message)
-    return(FALSE)
-  }
+  # if (inherits(status, "error")) {
+  #   message("renv encountered one or more problems while printing diagnostics.")
+  #   message(status$message)
+  #   return(FALSE)
+  # }
+
+  renv:::renv_tests_diagnostics()
 
   # run the tests
   reporter <- renv:::renv_tests_reporter()
