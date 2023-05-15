@@ -498,50 +498,6 @@ renv_tests_diagnostics <- function() {
 
 }
 
-renv_tests_report <- function(test, elapsed, expectations) {
-
-  # figure out overall test result
-  status <- "PASS"
-  for (expectation in expectations) {
-
-    errors <- c("expectation_error", "expectation_failure")
-    if (inherits(expectation, errors)) {
-      status <- "FAIL"
-      break
-    }
-
-    if (inherits(expectation, "expectation_skip")) {
-      status <- "SKIP"
-      break
-    }
-
-  }
-
-  # get console width
-  width <- max(getOption("width"), 78L)
-
-  # write out text with line
-  left <- trunc(test, width - 23L)
-
-  # figure out how long tests took to run
-  time <- if (elapsed < 0.1)
-    "<0.1s"
-  else
-    format(renv_difftime_format_short(elapsed), width = 5L, justify = "right")
-
-  # write formatted
-  fmt <- "[%s / %s]"
-  right <- sprintf(fmt, status, time)
-
-  # fill space between with dots
-  dots <- rep.int(".", max(0L, width - nchar(left) - nchar(right) - 4L))
-  all <- paste(left, paste(dots, collapse = ""), right)
-
-  # write it out
-  cli::cat_bullet(all)
-
-}
-
 renv_tests_path <- function(path) {
   root <- renv_tests_root()
   file.path(root, path)
