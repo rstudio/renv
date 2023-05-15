@@ -94,7 +94,7 @@ test_that <- function(desc, code) {
       waldo <- renv_namespace_load("waldo")
       waldo$compare(oldopts, newopts)
     }
-    stop("text %s has modified global options", shQuote(desc))
+    stopf("text %s has modified global options", shQuote(desc))
   }
 
   newuserfiles <- list.files(

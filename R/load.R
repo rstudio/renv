@@ -61,7 +61,9 @@ load <- function(project = NULL, quiet = FALSE) {
 
   # if we're loading a project different from the one currently loaded,
   # then unload the current project and reload the requested one
-  switch <- !renv_metadata_embedded() && !renv_project_loaded(project)
+  switch <- !renv_metadata_embedded() &&
+    !is.null(`_renv_project_path`) &&
+    !identical(project, `_renv_project_path`)
   if (switch)
     return(renv_load_switch(project))
 

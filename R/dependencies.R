@@ -581,8 +581,8 @@ renv_dependencies_discover_description_fields <- function() {
     if (!is.null(state))
       return(state$project)
 
-    # all else fails, use the active project
-    renv_project_find(path = getwd())
+    # all else fails, use the current directory
+    getwd()
 
   })
 

@@ -16,6 +16,7 @@ BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
 Suggests: BiocManager, cli, covr, devtools, jsonlite, knitr, miniUI, packrat, pak,
     R6, remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat, uuid, withr, yaml
+Remotes: r-lib/pkgload#241
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)

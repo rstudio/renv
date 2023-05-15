@@ -11,36 +11,22 @@ test_that("packages can be installed, restored from Bioconductor", {
   renv_scope_options(renv.tests.verbose = FALSE)
 
   renv_tests_scope("Biobase")
+  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
 
-  cran <- "https://cloud.r-project.org"
-  install.packages("BiocManager", repos = cran, quiet = TRUE)
-  BiocManager <- asNamespace("BiocManager")
-
-  # TODO: Running this directly from 'renv' seems to fail, at least
-  # on R 4.2-arm64 macOS?
-  local({
-    renv_scope_envvars(R_LIBS = .libPaths()[1])
-
-    lines <- c(
-      sprintf(".libPaths('%s')", .libPaths()[1L]),
-      "options(pkgType = 'source')",
-      "BiocManager::install('Biobase', quiet = TRUE)"
-    )
-
-    code <- paste(lines, collapse = "; ")
-    args <- c("--vanilla", "-s", "-e", renv_shell_quote(code))
-    renv_system_exec(R(), args, action = "installing Biobase", quiet = TRUE)
-  })
+  install.packages("BiocManager", quiet = TRUE)
+  BiocManager::install('Biobase', quiet = TRUE, ask = FALSE)
 
   expect_true(renv_package_installed("BiocManager"))
   expect_true(renv_package_installed("BiocVersion"))
   expect_true(renv_package_installed("Biobase"))
 
-  snapshot()
+  snapshot(prompt = FALSE)
 
   lockfile <- snapshot(lockfile = NULL)
   expect_true("Bioconductor" %in% names(lockfile))
   expect_equal(names(lockfile)[2], "Bioconductor")
+
+  BiocManager <- asNamespace("BiocManager")
   expect_equal(lockfile$Bioconductor$Version, format(BiocManager$version()))
 
   records <- renv_lockfile_records(lockfile)
@@ -68,6 +54,7 @@ test_that("renv::install(<bioc>, rebuild = TRUE) works", {
   on.exit(unloadNamespace("BiocManager"), add = TRUE)
 
   renv_tests_scope()
+  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
   install("bioc::Biobase", rebuild = TRUE)
 
   expect_true(renv_package_installed("Biobase"))
