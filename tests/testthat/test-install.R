@@ -313,10 +313,9 @@ test_that("install() prefers cellar when available", {
   skip_on_cran()
   renv_tests_scope()
 
-  root <- renv_tests_root()
   locals <- paste(
-    file.path(root, "nowhere"),
-    file.path(root, "local"),
+    renv_tests_path("nowhere"),
+    renv_tests_path("local"),
     sep = ";"
   )
 
@@ -412,10 +411,9 @@ test_that("packages installed from cellar via direct path", {
   skip_on_cran()
   renv_tests_scope("skeleton")
 
-  root <- renv_tests_root()
   locals <- paste(
-    file.path(root, "nowhere"),
-    file.path(root, "local"),
+    frenv_tests_path("nowhere"),
+    frenv_tests_path("local"),
     sep = ";"
   )
 

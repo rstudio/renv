@@ -6,7 +6,7 @@ test <- function() {
 
   # run tests
   testthat::test_dir(
-    path     = renv_tests_root(),
+    path     = renv_tests_path(),
     reporter = renv_tests_reporter()
   )
 

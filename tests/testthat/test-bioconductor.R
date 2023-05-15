@@ -93,7 +93,7 @@ test_that("we can restore a lockfile using multiple Bioconductor releases", {
 
   project <- renv_tests_scope()
 
-  path <- file.path(renv_tests_root(), "resources/bioconductor.lock")
+  path <- renv_tests_path("resources/bioconductor.lock")
   lockfile <- renv_lockfile_read(path)
 
   status <- restore(
