@@ -30,18 +30,10 @@ index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
   lockfile <- file.path(root, "index.lock")
   renv_scope_lock(lockfile)
 
-  # perform operation
-  tryCatch(
-    renv_index_impl(root, scope, key, value, now, limit),
-    error = function(e) value
-  )
-
-}
-
-renv_index_impl <- function(root, scope, key, value, now, limit) {
-
   # load the index file
-  index <- renv_index_load(root, scope)
+  index <- tryCatch(renv_index_load(root, scope), error = identity)
+  if (inherits(index, "error"))
+    return(value)
 
   # return index as-is when key is NULL
   if (is.null(key))
@@ -123,6 +115,9 @@ renv_index_get <- function(root, scope, index, key, now, limit) {
 }
 
 renv_index_set <- function(root, scope, index, key, value, now, limit) {
+
+  # force promises
+  force(value)
 
   # files being written here should be shared
   renv_scope_umask("0")
