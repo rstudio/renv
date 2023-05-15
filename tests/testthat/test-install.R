@@ -328,7 +328,7 @@ test_that("install() prefers cellar when available", {
   expect_equal(record$Source, "Cellar")
 
   prefix <- if (renv_platform_windows()) "file:///" else "file://"
-  uri <- paste0(prefix, renv_tests_path("/local/skeleton")
+  uri <- paste0(prefix, renv_tests_path("/local/skeleton"))
   expect_equal(attr(record, "url"), uri)
 
 })
