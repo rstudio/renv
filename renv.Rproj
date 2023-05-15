@@ -21,4 +21,3 @@ PackageInstallArgs: --no-multiarch --no-byte-compile --with-keep.source
 PackageRoxygenize: rd,collate,namespace
 
 MarkdownWrap: Sentence
-MarkdownCanonical: Yes
