@@ -369,18 +369,6 @@ renv_tests_running <- function() {
   getOption("renv.tests.running", default = FALSE)
 }
 
-renv_tests_verbose <- function() {
-
-  # if we're not running tests, mark as true
-  if (!renv_tests_running())
-    return(TRUE)
-
-  # otherwise, respect option
-  # (we might set this to FALSE to silence output from expected errors)
-  getOption("renv.tests.verbose", default = TRUE)
-
-}
-
 renv_test_code <- function(code, data = list(), fileext = ".R") {
   code <- do.call(substitute, list(substitute(code), data))
   file <- tempfile("renv-code-", fileext = fileext)

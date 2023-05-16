@@ -4,7 +4,6 @@ context("Repair")
 test_that("we can repair a broken project library", {
 
   skip_on_cran()
-  renv_scope_options(renv.tests.verbose = FALSE)
   renv_tests_scope("breakfast")
 
   init()
@@ -28,7 +27,6 @@ test_that("we can repair a broken project library", {
 test_that("repair() uses the package version recorded in the lockfile", {
 
   skip_on_cran()
-  renv_scope_options(renv.tests.verbose = FALSE)
   renv_tests_scope("breakfast")
 
   init()

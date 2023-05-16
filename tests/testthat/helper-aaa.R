@@ -114,13 +114,3 @@ test_that <- function(desc, code) {
   }
 
 }
-
-expect_error <- function(...) {
-  renv_scope_options(renv.tests.verbose = FALSE)
-  testthat::expect_error(...)
-}
-
-expect_warning <- function(...) {
-  renv_scope_options(renv.tests.verbose = FALSE)
-  testthat::expect_warning(...)
-}
