@@ -44,6 +44,7 @@ renv_test_state <- function() {
 
   opts <- options()
   opts <- opts[grep("^diffobj", names(opts), invert = TRUE)]
+  opts$ambiguousMethodSelection <- NULL
   opts$restart <- NULL
 
   list(
