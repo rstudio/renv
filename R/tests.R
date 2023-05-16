@@ -11,7 +11,8 @@ renv_tests_scope <- function(packages = character(), project = NULL) {
   renv_tests_init()
 
   # ensure that attempts to restart are a no-op
-  options(restart = function(...) TRUE)
+  if (renv_rstudio_available())
+    options(restart = function(...) TRUE)
 
   # save local repositories
   Sys.setenv(RENV_PATHS_LOCAL = file.path(renv_tests_root(), "local"))

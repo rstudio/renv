@@ -55,14 +55,14 @@ test_that <- function(desc, code) {
 
   if (!ok) {
     writeLines(c("", oldlibpaths, "", newlibpaths))
-    stopf("test %s has corrupted libpaths", shQuote(desc))
+    stopf("test %s has modified libpaths", shQuote(desc))
   }
 
   newrepos <- getOption("repos")
   ok <- identical(oldrepos, newrepos)
   if (!ok) {
     writeLines(c("", oldrepos, "", newrepos))
-    stopf("test %s has corrupted repos", shQuote(desc))
+    stopf("test %s has modified repos", shQuote(desc))
   }
 
   newrepofiles <- list.files(
@@ -75,7 +75,7 @@ test_that <- function(desc, code) {
   if (!setequal(oldrepofiles, newrepofiles)) {
     writeLines(setdiff(oldrepofiles, newrepofiles))
     writeLines(setdiff(newrepofiles, oldrepofiles))
-    stopf("test %s has corrupted packages in repository", shQuote(desc))
+    stopf("test %s has modified packages in repository", shQuote(desc))
   }
 
   newconns <- getAllConnections()
@@ -88,11 +88,14 @@ test_that <- function(desc, code) {
   newopts <- options()
   newopts <- newopts[grep("^renv", names(newopts), invert = TRUE)]
   newopts$restart <- NULL
+
   if (!identical(oldopts, newopts)) {
     writeLines("")
     if (renv_package_available("waldo")) {
       waldo <- renv_namespace_load("waldo")
       waldo$compare(oldopts, newopts)
+    } else {
+      str(renv_lockfile_diff(oldopts, newopts))
     }
     stopf("test %s has modified global options", shQuote(desc))
   }
