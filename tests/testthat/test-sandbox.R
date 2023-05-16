@@ -47,8 +47,10 @@ test_that(".Library.site isn't used even when sandbox is disabled", {
 })
 
 test_that("re-activate sandbox when all is said and done", {
-  options(renv.config.sandbox.enabled = TRUE)
+  renv_scope_options(renv.config.sandbox.enabled = TRUE)
   renv_sandbox_activate()
+  defer(renv_sandbox_deactivate())
+
   expect_false(.Library == renv_libpaths_system())
 })
 

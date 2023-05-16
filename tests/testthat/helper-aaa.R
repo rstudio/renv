@@ -19,14 +19,13 @@ test_that <- function(desc, code) {
   iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
   testthat::skip_if(iscran && renv_platform_macos())
 
-  track_libpaths = identical(testthat::get_reporter()$.context, "Sandbox")
-  state_old <- renv_test_state(track_libpaths)
+  state_old <- renv_test_state()
 
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)
   eval(call, envir = parent.frame())
 
-  state_new <- renv_test_state(track_libpaths)
+  state_new <- renv_test_state()
   state_difff <- renv_namespace_load("waldo")$compare(state_old, state_new)
   if (length(state_difff) > 0) {
     stopf("Test '%s' modified global state\n%s", desc, format(state_difff))
@@ -38,7 +37,7 @@ test_list_files <- function(path) {
   list.files(path = path, all.files  = TRUE, full.names = TRUE, no.. = TRUE)
 }
 
-renv_test_state <- function(libpaths = TRUE) {
+renv_test_state <- function() {
   repopath <- getOption("renv.tests.repopath")
   userpath <- file.path(renv_bootstrap_user_dir(), "library")
 
@@ -48,7 +47,7 @@ renv_test_state <- function(libpaths = TRUE) {
   opts$restart <- NULL
 
   list(
-    libpaths = if (libpaths) .libPaths(),
+    libpaths = .libPaths(),
     connection = getAllConnections(),
     options = opts,
     repo_files = test_list_files(repopath),
