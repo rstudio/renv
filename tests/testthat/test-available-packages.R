@@ -36,10 +36,7 @@ test_that("available_packages() errs on incorrect repository", {
 test_that("renv handles multiple available source packages", {
   skip_on_cran()
 
-  renv_scope_options(repos = getOption("repos"))
   renv_tests_scope()
-  repos <- tempfile("renv-test-repos-")
-  renv_tests_init_repos(repos)
 
   dbs <- available_packages(type = "source")
   cran <- dbs[["CRAN"]]
