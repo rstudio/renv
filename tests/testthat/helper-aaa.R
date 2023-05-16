@@ -43,7 +43,7 @@ test_that <- function(desc, code) {
   )
 
   call <- sys.call()
-  call[[1]] <- quote(testthat::test_that)
+  call[[1L]] <- quote(testthat::test_that)
   eval(call, envir = parent.frame())
 
   newlibpaths <- .libPaths()
@@ -94,7 +94,7 @@ test_that <- function(desc, code) {
       waldo <- renv_namespace_load("waldo")
       waldo$compare(oldopts, newopts)
     }
-    stopf("text %s has modified global options", shQuote(desc))
+    stopf("test %s has modified global options", shQuote(desc))
   }
 
   newuserfiles <- list.files(
