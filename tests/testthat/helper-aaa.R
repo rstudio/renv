@@ -28,7 +28,7 @@ test_that <- function(desc, code) {
   state_new <- renv_test_state()
   state_diff <- renv_namespace_load("waldo")$compare(state_old, state_new)
   if (length(state_diff) > 0) {
-    diffs <- paste0(format(state_diff, collapse = "\n\n"))
+    diffs <- paste0(format(state_diff), collapse = "\n\n")
     stopf("Test '%s' modified global state\n%s", desc, diffs)
   }
 
