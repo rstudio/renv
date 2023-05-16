@@ -8,8 +8,6 @@ test_that("packages can be installed, restored from Bioconductor", {
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
 
-  renv_scope_options(renv.tests.verbose = FALSE)
-
   renv_tests_scope("Biobase")
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
 
@@ -47,8 +45,6 @@ test_that("renv::install(<bioc>, rebuild = TRUE) works", {
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
   skip_if_not_installed("BiocManager")
-
-  renv_scope_options(renv.tests.verbose = FALSE)
 
   requireNamespace("BiocManager", quietly = TRUE)
   on.exit(unloadNamespace("BiocManager"), add = TRUE)

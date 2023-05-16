@@ -56,7 +56,6 @@ test_that("installation failure is well-reported", {
 
   # try to build it and confirm error
   record <- list(Package = package, Path = package)
-  renv_scope_options(renv.verbose = FALSE)
   expect_error(renv_install_package_impl(record))
 
 })

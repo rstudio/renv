@@ -661,7 +661,7 @@ renv_retrieve_repos_error_report <- function(record, errors) {
     wrap     = FALSE
   )
 
-  if (renv_tests_running() && renv_tests_verbose())
+  if (renv_verbose())
     str(errors)
 
 }
