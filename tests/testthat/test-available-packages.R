@@ -173,7 +173,8 @@ test_that("we can query the R universe", {
     available.packages(
       type = "source",
       repos = "https://rstudio.r-universe.dev"
-    )
+    ),
+    stringsAsFactors = FALSE
   )
 
   rhs <- available_packages(
