@@ -60,9 +60,7 @@
     <a class="dropdown-item" href="../articles/package-install.html">Installing packages</a>
     <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently asked questions</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Collaborating</h6>
-    <a class="dropdown-item" href="../articles/collaborating.html">Collaborating with renv</a>
+    <a class="dropdown-item" href="../articles/packrat.html">packrat vs renv</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="../articles/ci.html">Using renv with continuous integration</a>
@@ -70,7 +68,7 @@
     <a class="dropdown-item" href="../articles/rsconnect.html">Using renv with Posit Connect</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Advanced</h6>
-    <a class="dropdown-item" href="../articles/packages.html">Package development with renv</a>
+    <a class="dropdown-item" href="../articles/packages.html">Package development</a>
     <a class="dropdown-item" href="../articles/profiles.html">Project profiles</a>
   </div>
 </li>
@@ -223,7 +221,7 @@ for use in the project.</p>
 <p>In effect, if the <code>renv</code> cache is available, you should
 only need to pay the cost of package installation once – after that, the
 newly-installed package will be available for re-use across different
-projects. At the same time, each project’s package library will remain
+projects. At the same time, each project’s library will remain
 independent and isolated from one another, so installing a package
 within one container won’t affect another container.</p>
 <p>However, by default, each Docker container will have its own

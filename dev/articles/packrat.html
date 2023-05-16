@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="renv">
-<title>Using Python with renv • renv</title>
+<title>packrat vs renv • renv</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -20,7 +20,7 @@
 <!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Using Python with renv">
+<meta property="og:title" content="packrat vs renv">
 <meta property="og:description" content="renv">
 <meta property="og:image" content="https://rstudio.github.io/renv/logo.svg">
 <meta name="robots" content="noindex">
@@ -99,80 +99,66 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>Using Python with renv</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>packrat vs renv</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/python.Rmd" class="external-link"><code>vignettes/python.Rmd</code></a></small>
-      <div class="d-none name"><code>python.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/renv/blob/HEAD/vignettes/packrat.Rmd" class="external-link"><code>vignettes/packrat.Rmd</code></a></small>
+      <div class="d-none name"><code>packrat.Rmd</code></div>
     </div>
 
     
     
-<p>If you’re using <code>renv</code> with an R project that also depends
-on some Python packages (say, through the <a href="https://rstudio.github.io/reticulate/" class="external-link">reticulate</a> package),
-then you may find <code>renv</code>’s Python integration useful.</p>
-<div class="section level2">
-<h2 id="activating-python-integration">Activating Python Integration<a class="anchor" aria-label="anchor" href="#activating-python-integration"></a>
-</h2>
-<p>Python integration can be activated on a project-by-project basis.
-Use <code><a href="../reference/use_python.html">renv::use_python()</a></code> to tell <code>renv</code> to create
-and use a project-local Python environment with your project. If the
-<code>reticulate</code> package is installed and active, then
-<code>renv</code> will use the same version of Python that
-<code>reticulate</code> normally would when generating the virtual
-environment. Alternatively, you can set the
-<code>RETICULATE_PYTHON</code> environment variable to instruct
-<code>renv</code> to use a different version of Python.</p>
-<p>If you’d rather tell <code>renv</code> to use an existing Python
-virtual environment, you can do so by passing the path of that virtual
-environment instead – use
-<code>renv::use_python(python = "/path/to/python")</code> and
-<code>renv</code> will record and use that Python interpreter with your
-project. This can also be used with pre-existing virtual environments
-and Conda environments.</p>
-</div>
-<div class="section level2">
-<h2 id="understanding-python-integration">Understanding Python Integration<a class="anchor" aria-label="anchor" href="#understanding-python-integration"></a>
-</h2>
-<p>Once Python integration is active, <code>renv</code> will attempt to
-manage the state of your Python virtual environment when
-<code><a href="../reference/snapshot.html">snapshot()</a></code> / <code><a href="../reference/restore.html">restore()</a></code> is called. With this,
-projects that use <code>renv</code> and Python can ensure that Python
-dependencies are tracked in addition to R package dependencies. Note
-that future restores will require both <code>renv.lock</code> (for R
-package dependencies) and <code>requirements.txt</code> (for Python
-package dependencies).</p>
-<div class="section level3">
-<h3 id="virtual-environments">Virtual Environments<a class="anchor" aria-label="anchor" href="#virtual-environments"></a>
-</h3>
-<p>When using virtual environments, the following extensions are
-provided:</p>
-<ul>
-<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> calls
-<code>pip freeze &gt; requirements.txt</code> to save the set of
-installed Python packages;</p></li>
-<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> calls
-<code>pip install -r requirements.txt</code> to install the
-previously-recorded set of Python packages.</p></li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="conda-environments">Conda Environments<a class="anchor" aria-label="anchor" href="#conda-environments"></a>
-</h3>
-<p>When using Conda environments, the following extensions are
-provided:</p>
-<ul>
-<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> calls
-<code>conda env export &gt; environment.yml</code> to save the set of
-installed Python packages;</p></li>
-<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> calls
-<code>conda env [create/update] --file environment.yml</code> to install
-the previously-recorded set of Python packages.</p></li>
-</ul>
-</div>
-</div>
-  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
-    </nav></aside>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/renv/">renv</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'renv'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     embed, update</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:utils':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     history, upgrade</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     autoload, load, remove</span></span></code></pre></div>
+<p>Our first attempt at solving the problem of reproducible environments
+was <a href="https://rstudio.github.io/packrat/" class="external-link">packrat</a>. While we
+learned a lot from packrat, it ultimately proved challenging to use in
+ways that were difficult to fix. This led us to create
+<code>renv</code>, a system with fewer surprises and better defaults. If
+you’re an existing packrat user, you can call
+<code><a href="../reference/migrate.html">renv::migrate()</a></code> to switch renv, then read on to learn about
+the main differences:</p>
+<ol style="list-style-type: decimal">
+<li><p>The <code>renv</code> lockfile <code>renv.lock</code> is
+formatted as <a href="https://www.json.org/" class="external-link">JSON</a>. This should make
+the lockfile easier to use and consume with other tools.</p></li>
+<li><p><code>renv</code> no longer attempts to explicitly download and
+track R package source tarballs within your project. This was a
+frustrating default that operated under the assumption that you might
+later want to be able to restore a project’s private library without
+access to a CRAN repository. In practice, this is almost never the case,
+and the time spent downloading + storing the package sources seemed to
+outweigh the potential reproducibility benefits.</p></li>
+<li><p>Packrat tried to maintain the distinction between so-called
+<em>stale</em> packages; that is, R packages which were installed by
+Packrat but were not recorded in the lockfile for some reason. This
+distinction was (1) overall not useful, and (2) confusing.
+<code>renv</code> no longer makes this distinction:
+<code><a href="../reference/snapshot.html">snapshot()</a></code> saves the state of your project library to
+<code>renv.lock</code>, <code><a href="../reference/restore.html">restore()</a></code> loads the state of your
+project library from <code>renv.lock</code>, and that’s all.</p></li>
+<li><p>In <code>renv</code>, the global package cache is enabled by
+default. This should reduce overall disk-space usage as packages can
+effectively be shared across each project using
+<code>renv</code>.</p></li>
+<li><p><code>renv</code>’s dependency discovery machinery is more
+configurable. The function <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> is
+exported, and users can create <code>.renvignore</code> files to
+instruct <code>renv</code> to ignore specific files and folders in their
+projects. (See <code><a href="../reference/dependencies.html">?renv::dependencies</a></code> for more
+information.)</p></li>
+</ol></main>
 </div>
 
 

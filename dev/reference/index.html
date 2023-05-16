@@ -32,9 +32,7 @@
     <a class="dropdown-item" href="../articles/package-install.html">Installing packages</a>
     <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently asked questions</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Collaborating</h6>
-    <a class="dropdown-item" href="../articles/collaborating.html">Collaborating with renv</a>
+    <a class="dropdown-item" href="../articles/packrat.html">packrat vs renv</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="../articles/ci.html">Using renv with continuous integration</a>
@@ -42,7 +40,7 @@
     <a class="dropdown-item" href="../articles/rsconnect.html">Using renv with Posit Connect</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Advanced</h6>
-    <a class="dropdown-item" href="../articles/packages.html">Package development with renv</a>
+    <a class="dropdown-item" href="../articles/packages.html">Package development</a>
     <a class="dropdown-item" href="../articles/profiles.html">Project profiles</a>
   </div>
 </li>
@@ -69,9 +67,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="basic-workflows">Basic Workflows<a class="anchor" aria-label="anchor" href="#basic-workflows"></a></h2>
+      <h2 id="basic-workflows">Basic workflows<a class="anchor" aria-label="anchor" href="#basic-workflows"></a></h2>
       
-      
+      <p class="section-desc"></p><p>These functions are the bread and butter of <code>renv</code> usage, and make up the bulk of day-to-day renv usage.</p>
 
       
     </div><div id="" class="section level2">
@@ -83,27 +81,114 @@
           
           <code><a href="init.html">init()</a></code> 
         </dt>
-        <dd>Start Using renv in a Project</dd>
+        <dd>Use renv in a project</dd>
       </dl><dl><dt>
           
           <code><a href="status.html">status()</a></code> 
         </dt>
-        <dd>Status</dd>
+        <dd>Report differences between lockfile and project library</dd>
       </dl><dl><dt>
           
           <code><a href="snapshot.html">snapshot()</a></code> 
         </dt>
-        <dd>Snapshot a Project</dd>
+        <dd>Record current state of the project library in the lockfile</dd>
       </dl><dl><dt>
           
           <code><a href="restore.html">restore()</a></code> 
         </dt>
-        <dd>Restore a Project</dd>
+        <dd>Restore project library from a lockfile</dd>
       </dl><dl><dt>
           
           <code><a href="embed.html">embed()</a></code> <code><a href="embed.html">use()</a></code> 
         </dt>
         <dd>Capture and re-use dependencies within a <code>.R</code> or <code>.Rmd</code></dd>
+      </dl></div><div class="section level2">
+      <h2 id="package-management">Package Management<a class="anchor" aria-label="anchor" href="#package-management"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="install.html">install()</a></code> 
+        </dt>
+        <dd>Install Packages</dd>
+      </dl><dl><dt>
+          
+          <code><a href="update.html">update()</a></code> 
+        </dt>
+        <dd>Update Packages</dd>
+      </dl><dl><dt>
+          
+          <code><a href="remove.html">remove()</a></code> 
+        </dt>
+        <dd>Remove Packages</dd>
+      </dl></div><div class="section level2">
+      <h2 id="project-management">Project Management<a class="anchor" aria-label="anchor" href="#project-management"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="dependencies.html">dependencies()</a></code> 
+        </dt>
+        <dd>Find R Package Dependencies in a Project</dd>
+      </dl><dl><dt>
+          
+          <code><a href="project.html">project()</a></code> 
+        </dt>
+        <dd>Retrieve the Active Project</dd>
+      </dl><dl><dt>
+          
+          <code><a href="activate.html">activate()</a></code> <code><a href="activate.html">deactivate()</a></code> 
+        </dt>
+        <dd>Activate or Deactivate a Project</dd>
+      </dl><dl><dt>
+          
+          <code><a href="migrate.html">migrate()</a></code> 
+        </dt>
+        <dd>Migrate a Project from Packrat to renv</dd>
+      </dl><dl><dt>
+          
+          <code><a href="load.html">load()</a></code> 
+        </dt>
+        <dd>Load a Project</dd>
+      </dl><dl><dt>
+          
+          <code><a href="upgrade.html">upgrade()</a></code> 
+        </dt>
+        <dd>Upgrade renv</dd>
+      </dl><dl><dt>
+          
+          <code><a href="paths.html">paths</a></code> 
+        </dt>
+        <dd>Path for storing global state</dd>
+      </dl><dl><dt>
+          
+          <code><a href="equip.html">equip()</a></code> 
+        </dt>
+        <dd>Install Required System Libraries</dd>
+      </dl><dl><dt>
+          
+          <code><a href="settings.html">settings</a></code> 
+        </dt>
+        <dd>Project Settings</dd>
+      </dl><dl><dt>
+          
+          <code><a href="config.html">config</a></code> 
+        </dt>
+        <dd>User-Level Configuration of renv</dd>
       </dl></div><div class="section level2">
       <h2 id="library-management">Library Management<a class="anchor" aria-label="anchor" href="#library-management"></a></h2>
       
@@ -125,6 +210,11 @@
           <code><a href="refresh.html">refresh()</a></code> 
         </dt>
         <dd>Refresh the Local Cache of Available Packages</dd>
+      </dl><dl><dt>
+          
+          <code><a href="rebuild.html">rebuild()</a></code> 
+        </dt>
+        <dd>Rebuild the Packages in your Project Library</dd>
       </dl><dl><dt>
           
           <code><a href="repair.html">repair()</a></code> 
@@ -168,19 +258,14 @@
         <dd>Modify a Lockfile</dd>
       </dl><dl><dt>
           
-          <code><a href="history.html">history()</a></code> 
+          <code><a href="history.html">history()</a></code> <code><a href="history.html">revert()</a></code> 
         </dt>
-        <dd>View Lockfile History</dd>
-      </dl><dl><dt>
-          
-          <code><a href="revert.html">revert()</a></code> 
-        </dt>
-        <dd>Revert Lockfile</dd>
+        <dd>View and Revert to a Historical Lockfile</dd>
       </dl><dl><dt>
           
           <code><a href="scaffold.html">scaffold()</a></code> 
         </dt>
-        <dd>Generate renv Project Infrastructure</dd>
+        <dd>Generate Project Infrastructure</dd>
       </dl></div><div class="section level2">
       <h2 id="package-cache">Package Cache<a class="anchor" aria-label="anchor" href="#package-cache"></a></h2>
       
@@ -207,109 +292,6 @@
           <code><a href="purge.html">purge()</a></code> 
         </dt>
         <dd>Purge Packages from the Cache</dd>
-      </dl></div><div class="section level2">
-      <h2 id="package-installation">Package Installation<a class="anchor" aria-label="anchor" href="#package-installation"></a></h2>
-      
-      
-
-      
-    </div><div id="" class="section level2">
-      
-      
-      
-
-      <dl><dt>
-          
-          <code><a href="install.html">install()</a></code> 
-        </dt>
-        <dd>Install Packages</dd>
-      </dl><dl><dt>
-          
-          <code><a href="update.html">update()</a></code> 
-        </dt>
-        <dd>Update Packages</dd>
-      </dl><dl><dt>
-          
-          <code><a href="rebuild.html">rebuild()</a></code> 
-        </dt>
-        <dd>Rebuild the Packages in your Project Library</dd>
-      </dl><dl><dt>
-          
-          <code><a href="remove.html">remove()</a></code> 
-        </dt>
-        <dd>Remove Packages</dd>
-      </dl></div><div class="section level2">
-      <h2 id="dependency-discovery">Dependency Discovery<a class="anchor" aria-label="anchor" href="#dependency-discovery"></a></h2>
-      
-      
-
-      
-    </div><div id="" class="section level2">
-      
-      
-      
-
-      <dl><dt>
-          
-          <code><a href="dependencies.html">dependencies()</a></code> 
-        </dt>
-        <dd>Find R Package Dependencies in a Project</dd>
-      </dl></div><div class="section level2">
-      <h2 id="project-management">Project Management<a class="anchor" aria-label="anchor" href="#project-management"></a></h2>
-      
-      
-
-      
-    </div><div id="" class="section level2">
-      
-      
-      
-
-      <dl><dt>
-          
-          <code><a href="project.html">project()</a></code> 
-        </dt>
-        <dd>Retrieve the Active Project</dd>
-      </dl><dl><dt>
-          
-          <code><a href="activate.html">activate()</a></code> <code><a href="activate.html">deactivate()</a></code> 
-        </dt>
-        <dd>Activate or Deactivate a Project</dd>
-      </dl><dl><dt>
-          
-          <code><a href="migrate.html">migrate()</a></code> 
-        </dt>
-        <dd>Migrate a Project from Packrat to renv</dd>
-      </dl><dl><dt>
-          
-          <code><a href="load.html">load()</a></code> 
-        </dt>
-        <dd>Load a Project</dd>
-      </dl><dl><dt>
-          
-          <code><a href="upgrade.html">upgrade()</a></code> 
-        </dt>
-        <dd>Upgrade renv</dd>
-      </dl><dl><dt>
-          
-          <code><a href="paths.html">paths</a></code> 
-        </dt>
-        <dd>Path Customization</dd>
-      </dl><dl><dt>
-          
-          <code><a href="equip.html">equip()</a></code> 
-        </dt>
-        <dd>Install Required System Libraries</dd>
-      </dl><dl><dt>
-          
-          <code><a href="settings.html">settings</a></code> 
-        </dt>
-        <dd>Project Settings</dd>
-      </dl><dl><dt>
-          
-          <code><a href="config.html">config</a></code> 
-        </dt>
-        <dd>User-Level Configuration of renv</dd>
       </dl></div><div class="section level2">
       <h2 id="python-integration">Python Integration<a class="anchor" aria-label="anchor" href="#python-integration"></a></h2>
       

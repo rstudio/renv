@@ -10,9 +10,6 @@
     <loc>https://rstudio.github.io/renv/dev/articles/ci.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/dev/articles/collaborating.html</loc>
-  </url>
-  <url>
     <loc>https://rstudio.github.io/renv/dev/articles/docker.html</loc>
   </url>
   <url>
@@ -29,6 +26,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/articles/packages.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/renv/dev/articles/packrat.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/articles/profiles.html</loc>
@@ -158,9 +158,6 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/reference/restore.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/dev/reference/revert.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/dev/reference/run.html</loc>

@@ -32,9 +32,7 @@
     <a class="dropdown-item" href="articles/package-install.html">Installing packages</a>
     <a class="dropdown-item" href="articles/python.html">Using Python with renv</a>
     <a class="dropdown-item" href="articles/faq.html">Frequently asked questions</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Collaborating</h6>
-    <a class="dropdown-item" href="articles/collaborating.html">Collaborating with renv</a>
+    <a class="dropdown-item" href="articles/packrat.html">packrat vs renv</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="articles/ci.html">Using renv with continuous integration</a>
@@ -42,7 +40,7 @@
     <a class="dropdown-item" href="articles/rsconnect.html">Using renv with Posit Connect</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Advanced</h6>
-    <a class="dropdown-item" href="articles/packages.html">Package development with renv</a>
+    <a class="dropdown-item" href="articles/packages.html">Package development</a>
     <a class="dropdown-item" href="articles/profiles.html">Project profiles</a>
   </div>
 </li>
@@ -126,8 +124,8 @@
 <li><p><input type="checkbox" disabled>Use <code>pkgdepends</code> to validate dependency list before snapshot.</p></li>
 <li><p><input type="checkbox" disabled>API to allow <code>pak</code> to use the cache?</p></li>
 <li><p><input type="checkbox" disabled>Record usage time for packages (as alternate scheme for finding unused packages)</p></li>
-<li><p><input type="checkbox" disabled checked><code><a href="reference/revert.html">renv::revert()</a></code> should tell the user what it did.</p></li>
-<li><p><input type="checkbox" disabled checked><code><a href="reference/revert.html">renv::revert()</a></code> should have project argument last.</p></li>
+<li><p><input type="checkbox" disabled checked><code><a href="reference/history.html">renv::revert()</a></code> should tell the user what it did.</p></li>
+<li><p><input type="checkbox" disabled checked><code><a href="reference/history.html">renv::revert()</a></code> should have project argument last.</p></li>
 <li><p><input type="checkbox" disabled checked>Warn when installing a package currently loaded? (so that user knows they must restart R to get newly-installed package)</p></li>
 <li><p><input type="checkbox" disabled>Implement a smarter static analysis scheme that can handle simple variable assignments. Do this by implementing our own shims for some common functions (assignment, control flow, etc) with only a very small subset of base symbols defined (e.g. “c” and “list”).</p></li>
 </ul></div>

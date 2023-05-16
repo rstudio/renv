@@ -60,9 +60,7 @@
     <a class="dropdown-item" href="../articles/package-install.html">Installing packages</a>
     <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently asked questions</a>
-    <div class="dropdown-divider"></div>
-    <h6 class="dropdown-header" data-toc-skip>Collaborating</h6>
-    <a class="dropdown-item" href="../articles/collaborating.html">Collaborating with renv</a>
+    <a class="dropdown-item" href="../articles/packrat.html">packrat vs renv</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="../articles/ci.html">Using renv with continuous integration</a>
@@ -70,7 +68,7 @@
     <a class="dropdown-item" href="../articles/rsconnect.html">Using renv with Posit Connect</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Advanced</h6>
-    <a class="dropdown-item" href="../articles/packages.html">Package development with renv</a>
+    <a class="dropdown-item" href="../articles/packages.html">Package development</a>
     <a class="dropdown-item" href="../articles/profiles.html">Project profiles</a>
   </div>
 </li>
@@ -113,48 +111,31 @@
 <div class="section level2">
 <h2 id="why-isnt-my-package-being-snapshotted-into-the-lockfile">Why isn’t my package being snapshotted into the lockfile?<a class="anchor" aria-label="anchor" href="#why-isnt-my-package-being-snapshotted-into-the-lockfile"></a>
 </h2>
-<p>By default, <code>renv</code> uses the intersection of:</p>
+<p>For a package to be recorded in the lockfile, it must be both:</p>
 <ol style="list-style-type: decimal">
-<li><p>Packages installed into your project library, and</p></li>
-<li><p>Packages which appear to be used in your project, as discovered
-by <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>,</p></li>
+<li><p>Installed your project library, <em>and</em></p></li>
+<li><p>Used by the project, as determined by
+<code><a href="../reference/dependencies.html">renv::dependencies()</a></code>.</p></li>
 </ol>
-<p>in determining which packages should enter the lockfile. The
-intention is that only the packages you truly require for your project
-should enter the lockfile; development dependencies
+<p>This ensures that only the packages you truly require for your
+project will enter the lockfile; development dependencies
 (e.g. <code>devtools</code>) normally should not.</p>
-<p>If you find a package is not entering the lockfile, you can check the
-output of:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/dependencies.html">dependencies</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>and see whether usages of your package are reported in the
-output.</p>
-<p>Note that <code>renv</code>’s dependency discovery machinery relies
-on static analysis of your R code, and does not understand all of the
-different ways in which a package might be used in a project. For
-example, <code>renv</code> will detect the following usages:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
-<p>But it will be unable to detect these kinds of usages:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">package</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">package</span>, character.only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>If you use a custom package loader in your project that
-<code>renv</code> could feasibly support, please feel free to <a href="https://github.com/rstudio/renv/issues" class="external-link">file a feature
-request</a>.</p>
+<p>So if you find a package is not entering the lockfile, check the
+output of <code><a href="../reference/dependencies.html">renv::dependencies()</a></code>. If an expected package is
+not listed, it’s likely because <code><a href="../reference/dependencies.html">dependencies()</a></code> uses static
+analysis and does not understand all of the different ways in which a
+package might be used in a project. See the docs for more details.</p>
 <div class="section level3">
 <h3 id="capturing-all-dependencies">Capturing all dependencies<a class="anchor" aria-label="anchor" href="#capturing-all-dependencies"></a>
 </h3>
 <p>If you’d instead prefer to capture <em>all</em> packages installed
 into your project library (and eschew dependency discovery altogether),
 you can do so with:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span><span class="st">"all"</span><span class="op">)</span></span></code></pre></div>
 <p>Packages can also be explicitly ignored through a project setting,
 e.g. with:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">ignored.packages</span><span class="op">(</span><span class="st">"&lt;package&gt;"</span><span class="op">)</span></span></code></pre></div>
 <p>You might also want to double-check the set of ignored packages
 (<code>renv::settings$ignored.packages()</code>) and confirm that you
@@ -167,7 +148,7 @@ aren’t unintentionally ignoring a package you actually require.</p>
 <p>If you’d like to explicitly declare which packages your project
 depends on, you can do so by telling <code>renv</code> to form
 “explicit” snapshots:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span><span class="st">"explicit"</span><span class="op">)</span></span></code></pre></div>
 <p>In this mode, <code>renv</code> will only include packages which are
 explicitly listed in the project’s <code>DESCRIPTION</code> file as
@@ -210,7 +191,7 @@ trying to restore a project library.</p>
 <p>For cases like these, we recommend tracking these packages in a
 project DESCRIPTION file; typically, within the <code>Suggests:</code>
 field. Then, you can execute:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>to request that <code>renv</code> install the packages as described
 in the DESCRIPTION file. In addition, the <code>Remotes:</code> fields
@@ -228,39 +209,25 @@ work on this project – what do you do?</p>
 want to treat it as a “time capsule”, with dependencies frozen in time?
 Or are the dependencies in this project fluid, and you are primarily
 using <code>renv</code> just for isolation of project dependencies?</p>
-<p>For time capsules, the solution is to use
-<code><a href="../reference/restore.html">renv::restore()</a></code> to reinstall the exact packages as declared
-in the project lockfile <code>renv.lock</code>. You may also need to
-find and install the older version of R used previously with that
-project, unless your intention is to upgrade R.</p>
-<p>For projects with fluid dependencies, one solution is to use
-<code><a href="../reference/init.html">renv::init()</a></code> to re-initialize the project with a brand new
-project library. When <code><a href="../reference/init.html">renv::init()</a></code> is invoked, you may see
-a question such as:</p>
-<pre><code>&gt; renv::init()
-This project already has a lockfile. What would you like to do?
-
-1: Restore the project from the lockfile.
-2: Discard the lockfile and re-initialize the project.
-3: Activate the project without snapshotting or installing any packages.
-4: Abort project initialization.</code></pre>
-<p>You can select option (2) to instruct <code>renv</code> to
-re-initialize the project, effectively discarding the old lockfile and
-initializing the project with a new project library. You may also want
-to call <code><a href="../reference/update.html">renv::update()</a></code> to ensure all packages in the new
-project library are updated to the latest-available versions. To update
-the version of renv itself that manages the project, call
-<code><a href="../reference/upgrade.html">renv::upgrade()</a></code>.</p>
-<p>If you prefer a more managed approach, you might also consider the
-following approach:</p>
+<p>For time capsules, use <code><a href="../reference/restore.html">renv::restore()</a></code> to reinstall the
+exact packages as declared in the project lockfile
+<code>renv.lock</code>. You may also need to find and install the older
+version of R used previously with that project, unless your intention is
+to upgrade R.</p>
+<p>For projects with fluid dependencies, call
+<code><a href="../reference/update.html">renv::update()</a></code> to get the latest versions of the
+dependencies. Once you’ve verified that the code still works (or made
+the changes needed to get it working), call
+<code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to record the latest versions.</p>
+<p>You can also take a more managed approach, that’s somewhat in between
+the two extremes:</p>
 <ol style="list-style-type: decimal">
 <li><p>Use <code><a href="../reference/restore.html">renv::restore()</a></code> to restore the project state as
-defined in the lockfile,</p></li>
-<li><p>Install and update packages deliberately, e.g. via
-<code><a href="../reference/install.html">renv::install()</a></code>, <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, or other
-relevant tools,</p></li>
-<li><p>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> after you’ve finished updating
-the requisite packages, to generate a new lockfile.</p></li>
+defined in the lockfile.</p></li>
+<li><p>Install and update packages deliberately with
+<code><a href="../reference/install.html">renv::install()</a></code> and friends.</p></li>
+<li><p>Verify your code works, then call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>
+to update the new lockfile.</p></li>
 </ol>
 </div>
 <div class="section level2">
@@ -273,38 +240,15 @@ worth confirming whether you have a corporate proxy in place inhibiting
 internet access, or whether R and <code>renv</code> need to be
 configured in a way compatible with your working environment. This is
 often true on Windows machines in enterprise environments, where the
-default “wininet” download method may work more reliably than
-others.</p>
-<p>Note that by default <code>renv</code> attempts to use the
-<code>curl</code> command line utility in order to download files and
-communicate with remote web services. This is done to enable
-authentication with private web services (e.g. private GitHub
-repositories).</p>
-<p>If you find that downloads work outside of <code>renv</code>
-projects, but not within <code>renv</code> projects, you may need to
-tell <code>renv</code> to use the same download file method that R has
-been configured to use. You can check which download method R is
-currently configured to use with:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"download.file.method"</span><span class="op">)</span></span></code></pre></div>
-<p>And the downloader currently used by <code>renv</code> can be queried
-with:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">:::</span><span class="fu">renv_download_method</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>You can force <code>renv</code> to use the same download method as R
-by setting:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_DOWNLOAD_METHOD <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"download.file.method"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>and, if necessary, you could also set this environment variable
-within e.g. your <code>~/.Renviron</code>, so that it is visible to all
-R sessions. See <code><a href="https://rdrr.io/r/base/Startup.html" class="external-link">?Startup</a></code> for more details.</p>
-<p>In addition, by default, <code>renv</code> places shims on the R
-search path that re-routes calls from <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> to
+default “wininet” download method may work more reliably than others.
+Learn more in <code><a href="../articles/package-install.html">vignette("package-install")</a></code>.</p>
+<p>In addition, note that <code>renv</code> places shims on the R search
+path that re-routes calls from <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> to
 <code><a href="../reference/install.html">renv::install()</a></code>. If you need to bypass these shims, you can
 use <code>utils::install.packages(&lt;...&gt;)</code>; that is, with the
 call to <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> explicitly qualified with the
-package <code>utils::</code>. See <a href="https://rstudio.github.io/renv/articles/renv.html#shims" class="uri">https://rstudio.github.io/renv/articles/renv.html#shims</a>
-for more details.</p>
+package <code>utils::</code>. See <code><a href="../reference/load.html">?renv::load</a></code> more
+details.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
