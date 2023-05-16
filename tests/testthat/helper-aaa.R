@@ -93,7 +93,7 @@ test_that <- function(desc, code) {
     writeLines("")
     if (renv_package_available("waldo")) {
       waldo <- renv_namespace_load("waldo")
-      waldo$compare(oldopts, newopts)
+      print(waldo$compare(oldopts, newopts))
     } else {
       str(renv_lockfile_diff(oldopts, newopts))
     }
