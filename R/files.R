@@ -374,7 +374,7 @@ renv_file_list <- function(path, full.names = TRUE) {
   # NOTE: paths may be marked with UTF-8 encoding;
   # if that's the case we need to use paste rather
   # than file.path to preserve the encoding
-  if (full.names)
+  if (full.names && length(files))
     files <- paste(path, files, sep = "/")
 
   files

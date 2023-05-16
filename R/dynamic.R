@@ -67,7 +67,7 @@ dynamic <- function(key, value, envir = NULL) {
 
 renv_dynamic_envir <- function(envir = NULL) {
 
-  envir <- envir %||% renv_dynamic_envir_impl()
+  envir <- envir %??% renv_dynamic_envir_impl()
   defer(renv_dynamic_reset(), envir = envir)
 
   dlog("dynamic", "using dynamic environment '%s'", format(envir))
@@ -87,5 +87,5 @@ renv_dynamic_envir_impl <- function() {
 renv_dynamic_reset <- function() {
   dlog("dynamic", "resetting dynamic objects")
   `_renv_dynamic_envir` <<- NULL
-  `_renv_dynamic_objects` <<- new.env(parent = emptyenv())
+  renv_envir_clear(`_renv_dynamic_objects`)
 }
