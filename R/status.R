@@ -1,7 +1,7 @@
 
 `_renv_status_running` <- FALSE
 
-#' Status
+#' Report differences between lockfile and project library
 #'
 #' Report differences between the project's lockfile and the current state of
 #' the project's library (if any).
@@ -10,9 +10,6 @@
 #'
 #' @param library The library paths. By default, the library paths associated
 #'   with the requested project are used.
-#'
-#' @param lockfile The path to a lockfile. By default, the project lockfile
-#'   (called `renv.lock`) is used.
 #'
 #' @param sources Boolean; check that each of the recorded packages have a
 #'   known installation source? If a package has an unknown source, `renv`

@@ -19,8 +19,6 @@
 #'
 #' @inherit renv-params
 #'
-#' @family renv
-#'
 #' @export
 #'
 #' @examples
@@ -143,6 +141,14 @@ renv_activate_prompt <- function(action, library, prompt, project) {
     interactive() &&
     is.null(library) &&
     !renv_project_loaded(project)
+
+  # for snapshot, since users might want to snapshot their global library
+  # in an renv-lite configuration, only prompt if it looks like they're
+  # working within an renv project that hasn't been loaded
+  if ("snapshot" %in% action) {
+    libpath <- renv_paths_library(project = project)
+    ask <- ask && file.exists(libpath)
+  }
 
   if (!ask)
     return(FALSE)

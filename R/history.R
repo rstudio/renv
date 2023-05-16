@@ -1,20 +1,33 @@
 
-#' View Lockfile History
+#' View and Revert to a Historical Lockfile
 #'
-#' Use your version control system to find prior versions of the `renv.lock`
-#' file that have been used in your project.
+#' @description
+#' `history()` uses your version control system to show prior versions of the
+#' lockfile and `revert()` allows you to restore one of them.
 #'
-#' The `history()` function is currently only implemented for projects using
-#' `git` for version control.
+#' These functions are currently only implemented for projects that use git.
 #'
 #' @inherit renv-params
 #'
 #' @export
 #'
-#' @return An \R `data.frame`, summarizing the commits in which `renv.lock`
-#'   has been mutated.
+#' @return `history()` returns a `data.frame` summarizing the commits in which
+#'   `renv.lock` has been changed. `revert()` is usually called for its
+#'   side-effect but also invisibly returns the `commit` used.
 #'
-#' @example examples/examples-history.R
+#' @examples
+#' \dontrun{
+#'
+#' # get history of previous versions of renv.lock in VCS
+#' db <- renv::history()
+#'
+#' # choose an older commit
+#' commit <- db$commit[5]
+#'
+#' # revert to that version of the lockfile
+#' renv::revert(commit = commit)
+#'
+#' }
 history <- function(project = NULL) {
 
   renv_scope_error_handler()
@@ -43,24 +56,10 @@ history <- function(project = NULL) {
 
 }
 
-#' Revert Lockfile
-#'
-#' Revert the lockfile to its contents at a prior commit.
-#'
-#' The `revert()` function is currently only implemented for projects using
-#' `git` for version control.
-#'
-#' @inherit renv-params
-#'
 #' @param commit The commit associated with a prior version of the lockfile.
 #' @param ... Optional arguments; currently unused.
-#'
-#' @return The commit used when reverting `renv.lock`. Note that this function
-#'   is normally called for its side effects.
-#'
 #' @export
-#'
-#' @example examples/examples-history.R
+#' @rdname history
 revert <- function(commit = "HEAD", ..., project = NULL) {
 
   renv_scope_error_handler()

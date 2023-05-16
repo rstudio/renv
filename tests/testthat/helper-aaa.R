@@ -54,13 +54,3 @@ renv_test_state <- function() {
     user_files = test_list_files(userpath)
   )
 }
-
-expect_error <- function(...) {
-  renv_scope_options(renv.tests.verbose = FALSE)
-  testthat::expect_error(...)
-}
-
-expect_warning <- function(...) {
-  renv_scope_options(renv.tests.verbose = FALSE)
-  testthat::expect_warning(...)
-}

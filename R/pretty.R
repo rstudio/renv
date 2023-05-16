@@ -5,7 +5,7 @@ renv_pretty_print <- function(values,
                               emitter   = NULL,
                               wrap      = TRUE)
 {
-  if (renv_tests_running() && !renv_tests_verbose())
+  if (!renv_verbose())
     return()
 
   msg <- stack()
@@ -44,7 +44,7 @@ renv_pretty_print_records <- function(records,
   if (empty(records))
     return(invisible(NULL))
 
-  if (renv_tests_running() && !renv_tests_verbose())
+  if (!renv_verbose())
     return(invisible(NULL))
 
   names(records) <- names(records) %??% map_chr(records, `[[`, "Package")

@@ -15,7 +15,7 @@ renv_tests_scope <- function(packages = character(), project = NULL) {
     options(restart = function(...) TRUE)
 
   # save local repositories
-  Sys.setenv(RENV_PATHS_LOCAL = file.path(renv_tests_root(), "local"))
+  Sys.setenv(RENV_PATHS_LOCAL = renv_tests_path("local"))
 
   # move to own test directory
   dir <- project %||% tempfile("renv-test-")
@@ -49,39 +49,6 @@ renv_tests_scope <- function(packages = character(), project = NULL) {
 
 }
 
-renv_tests_root <- function(path = getwd()) {
-  global("tests.root", renv_tests_root_impl(path))
-}
-
-renv_tests_root_impl <- function(path = getwd()) {
-
-  # if we're working in an RStudio project, we can cheat
-  if (exists(".rs.getProjectDirectory")) {
-    projroot <- get(".rs.getProjectDirectory")
-    return(file.path(projroot(), "tests/testthat"))
-  }
-
-  # construct set of paths we'll hunt through
-  slashes <- gregexpr("(?:/|$)", path, perl = TRUE)[[1]]
-  parts <- substring(path, 1, slashes - 1)
-
-  # begin the search
-  for (part in rev(parts)) {
-
-    # required to find test directory during R CMD check
-    if (file.exists(file.path(part, "testthat.R")))
-      return(file.path(part, "testthat"))
-
-    # required for other general testing
-    anchor <- file.path(part, "DESCRIPTION")
-    if (file.exists(anchor))
-      return(file.path(part, "tests/testthat"))
-
-  }
-
-  stop("could not determine root directory for test files")
-
-}
 
 renv_tests_init_envvars <- function() {
 
@@ -118,13 +85,6 @@ renv_tests_init_workarounds <- function() {
 
 }
 
-renv_tests_init_working_dir <- function() {
-  if (exists(".rs.getProjectDirectory")) {
-    home <- get(".rs.getProjectDirectory")
-    setwd(home())
-  }
-}
-
 renv_tests_init_options <- function() {
 
   # find path to renv sources
@@ -147,9 +107,6 @@ renv_tests_init_options <- function() {
 
 renv_tests_init_repos <- function(repopath = NULL) {
 
-  # find root directory
-  root <- renv_tests_root()
-
   # generate our dummy repository
   repopath <- repopath %||% tempfile("renv-tests-repos-")
   contrib <- file.path(repopath, "src/contrib")
@@ -160,7 +117,7 @@ renv_tests_init_repos <- function(repopath = NULL) {
   on.exit(setwd(owd), add = TRUE)
 
   # copy package stuff to tempdir (because we'll mutate them a bit)
-  source <- file.path(root, "packages")
+  source <- renv_tests_path("packages")
   target <- tempfile("renv-packages-")
   renv_file_copy(source, target)
   setwd(target)
@@ -239,58 +196,11 @@ renv_tests_init_repos <- function(repopath = NULL) {
 }
 
 renv_tests_init_packages <- function() {
+  # Force loading of packages from current .libPaths(); needed for packages
+  # that would otherwise loaded in a renv_tests_scope()
+  requireNamespace("waldo")
 
-  # don't treat warnings as errors in this scope
-  renv_scope_options(warn = 1)
-
-  # find packages to load
-  packages <- renv_tests_init_packages_find()
-
-  # load those packages
-  envir <- new.env(parent = emptyenv())
-  renv_tests_init_packages_load(packages, envir)
-
-}
-
-renv_tests_init_packages_find <- function() {
-  fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
-  descpath <- system.file("DESCRIPTION", package = "renv")
-  deps <- renv_dependencies_discover_description(descpath, fields)
-  deps[["Package"]]
-}
-
-renv_tests_init_packages_load <- function(packages, envir) {
-  for (package in packages) {
-    tryCatch(
-      renv_tests_init_packages_load_impl(package, envir),
-      error = warning
-    )
-  }
-}
-
-renv_tests_init_packages_load_impl <- function(package, envir) {
-
-  # skip the 'R' package
-  if (identical(package, "R"))
-    return()
-
-  # if we've already tried to load this package, skip it
-  if (visited(package, envir = envir))
-    return()
-
-  # try to load the package
-  if (!package %in% loadedNamespaces()) {
-    if (!requireNamespace(package, quietly = TRUE)) {
-      fmt <- "Failed to load package '%s' (required for testing)"
-      writef(fmt, package)
-      return()
-    }
-  }
-
-  # if this is 'pak', we need to do some extra stuff
-  if (identical(package, "pak")) local({
-
-    # make pak happy
+  if (!isNamespaceLoaded("pak")) {
     usr <- file.path(tempdir(), "usr-cache")
     ensure_directory(file.path(usr, "R/renv"))
 
@@ -302,31 +212,11 @@ renv_tests_init_packages_load_impl <- function(package, envir) {
       R_PKG_CACHE_DIR  = pkg
     )
 
-    if (requireNamespace("pak", quietly = TRUE)) {
-      pak <- renv_namespace_load("pak")
-      pak$remote(function() {})
-    }
-  })
-
-
-  # try to find this package
-  pkgpath <- renv_package_find(package)
-  if (!file.exists(pkgpath))
-    return()
-
-  # try to read the package DESCRIPTION and load its dependencies
-  descpath <- file.path(pkgpath, "DESCRIPTION")
-  deps <- renv_dependencies_discover_description(
-    path   = descpath,
-    fields = c("Depends", "Imports", "LinkingTo")
-  )
-
-  map(
-    deps$Package,
-    renv_tests_init_packages_load,
-    envir = envir
-  )
-
+    requireNamespace("pak")
+    # trigger package load in pak subprocess
+    pak <- renv_namespace_load("pak")
+    pak$remote(function() {})
+  }
 }
 
 renv_tests_init_finish <- function() {
@@ -356,8 +246,12 @@ renv_tests_init <- function() {
     return()
 
   renv_tests_init_envvars()
+
+  # cache path before working directory gets changed
+  renv_tests_root()
+
+  renv_tests_init_envvars()
   renv_tests_init_workarounds()
-  renv_tests_init_working_dir()
   renv_tests_init_options()
   renv_tests_init_repos()
   renv_tests_init_packages()
@@ -367,18 +261,6 @@ renv_tests_init <- function() {
 
 renv_tests_running <- function() {
   getOption("renv.tests.running", default = FALSE)
-}
-
-renv_tests_verbose <- function() {
-
-  # if we're not running tests, mark as true
-  if (!renv_tests_running())
-    return(TRUE)
-
-  # otherwise, respect option
-  # (we might set this to FALSE to silence output from expected errors)
-  getOption("renv.tests.verbose", default = TRUE)
-
 }
 
 renv_test_code <- function(code, data = list(), fileext = ".R") {
@@ -503,9 +385,17 @@ renv_tests_diagnostics <- function() {
 
 }
 
-renv_tests_path <- function(path) {
-  root <- renv_tests_root()
-  file.path(root, path)
+# Cache absolute path to tests/testthat
+renv_tests_root <- function() {
+  global("tests.root", normalizePath(testthat::test_path(".")))
+}
+
+renv_tests_path <- function(path = NULL) {
+  if (is.null(path)) {
+    renv_tests_root()
+  } else {
+    file.path(renv_tests_root(), path)
+  }
 }
 
 renv_tests_supported <- function() {
