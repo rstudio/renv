@@ -46,6 +46,7 @@ renv_test_state <- function() {
   opts <- opts[grep("^diffobj", names(opts), invert = TRUE)]
   opts$ambiguousMethodSelection <- NULL
   opts$restart <- NULL
+  opts <- opts[csort(names(opts))]
 
   list(
     libpaths = .libPaths(),
