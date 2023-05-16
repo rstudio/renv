@@ -3,7 +3,7 @@ context("Hash")
 
 test_that("whitespace does not affect hash", {
 
-  descpath <- file.path(renv_tests_root(), "packages/breakfast/DESCRIPTION")
+  descpath <- renv_tests_path("packages/breakfast/DESCRIPTION")
   contents <- readLines(descpath)
   hash <- renv_hash_description(descpath)
 
