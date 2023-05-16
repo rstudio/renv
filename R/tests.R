@@ -239,58 +239,11 @@ renv_tests_init_repos <- function(repopath = NULL) {
 }
 
 renv_tests_init_packages <- function() {
+  # Force loading of packages from current .libPaths(); needed for packages
+  # that would otherwise loaded in a renv_tests_scope()
+  requireNamespace("waldo")
 
-  # don't treat warnings as errors in this scope
-  renv_scope_options(warn = 1)
-
-  # find packages to load
-  packages <- renv_tests_init_packages_find()
-
-  # load those packages
-  envir <- new.env(parent = emptyenv())
-  renv_tests_init_packages_load(packages, envir)
-
-}
-
-renv_tests_init_packages_find <- function() {
-  fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
-  descpath <- system.file("DESCRIPTION", package = "renv")
-  deps <- renv_dependencies_discover_description(descpath, fields)
-  deps[["Package"]]
-}
-
-renv_tests_init_packages_load <- function(packages, envir) {
-  for (package in packages) {
-    tryCatch(
-      renv_tests_init_packages_load_impl(package, envir),
-      error = warning
-    )
-  }
-}
-
-renv_tests_init_packages_load_impl <- function(package, envir) {
-
-  # skip the 'R' package
-  if (identical(package, "R"))
-    return()
-
-  # if we've already tried to load this package, skip it
-  if (visited(package, envir = envir))
-    return()
-
-  # try to load the package
-  if (!package %in% loadedNamespaces()) {
-    if (!requireNamespace(package, quietly = TRUE)) {
-      fmt <- "Failed to load package '%s' (required for testing)"
-      writef(fmt, package)
-      return()
-    }
-  }
-
-  # if this is 'pak', we need to do some extra stuff
-  if (identical(package, "pak")) local({
-
-    # make pak happy
+  if (!isNamespaceLoaded("pak")) {
     usr <- file.path(tempdir(), "usr-cache")
     ensure_directory(file.path(usr, "R/renv"))
 
@@ -302,31 +255,11 @@ renv_tests_init_packages_load_impl <- function(package, envir) {
       R_PKG_CACHE_DIR  = pkg
     )
 
-    if (requireNamespace("pak", quietly = TRUE)) {
-      pak <- renv_namespace_load("pak")
-      pak$remote(function() {})
-    }
-  })
-
-
-  # try to find this package
-  pkgpath <- renv_package_find(package)
-  if (!file.exists(pkgpath))
-    return()
-
-  # try to read the package DESCRIPTION and load its dependencies
-  descpath <- file.path(pkgpath, "DESCRIPTION")
-  deps <- renv_dependencies_discover_description(
-    path   = descpath,
-    fields = c("Depends", "Imports", "LinkingTo")
-  )
-
-  map(
-    deps$Package,
-    renv_tests_init_packages_load,
-    envir = envir
-  )
-
+    requireNamespace("pak")
+    # trigger package load in pak subprocess
+    pak <- renv_namespace_load("pak")
+    pak$remote(function() {})
+  }
 }
 
 renv_tests_init_finish <- function() {
