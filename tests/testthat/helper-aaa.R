@@ -42,7 +42,6 @@ renv_test_state <- function() {
   userpath <- file.path(renv_bootstrap_user_dir(), "library")
 
   opts <- options()
-  opts <- opts[grep("^renv", names(opts), invert = TRUE)]
   opts <- opts[grep("^diffobj", names(opts), invert = TRUE)]
   opts$restart <- NULL
 
