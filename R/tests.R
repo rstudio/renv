@@ -287,22 +287,26 @@ renv_tests_init_packages_load_impl <- function(package, envir) {
   }
 
   # if this is 'pak', we need to do some extra stuff
-  if (identical(package, "pak")) {
+  if (identical(package, "pak")) local({
 
     # make pak happy
     usr <- file.path(tempdir(), "usr-cache")
     ensure_directory(file.path(usr, "R/renv"))
-    Sys.setenv(R_USER_CACHE_DIR = usr)
 
     pkg <- file.path(tempdir(), "pkg-cache")
     ensure_directory(pkg)
-    Sys.setenv(R_PKG_CACHE_DIR = pkg)
+
+    renv_scope_envvars(
+      R_USER_CACHE_DIR = usr,
+      R_PKG_CACHE_DIR  = pkg
+    )
 
     if (requireNamespace("pak", quietly = TRUE)) {
       pak <- renv_namespace_load("pak")
       pak$remote(function() {})
     }
-  }
+  })
+
 
   # try to find this package
   pkgpath <- renv_package_find(package)

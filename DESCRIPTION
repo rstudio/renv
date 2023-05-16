@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project Environments
-Version: 0.17.3-39
+Version: 0.17.3-40
 Authors@R: c(
     person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com"),
     person("Posit Software, PBC", role = c("cph", "fnd"))
@@ -14,9 +14,9 @@ License: MIT + file LICENSE
 URL: https://rstudio.github.io/renv/
 BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
-Suggests: BiocManager, cli, covr, devtools, jsonlite, knitr, miniUI, packrat, pak,
-    R6, remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat, uuid, waldo,
-    withr, yaml
+Suggests: BiocManager, cli, covr, cpp11, devtools, jsonlite, knitr, miniUI,
+    packrat, pak, R6, remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat,
+    uuid, waldo, withr, yaml
 Remotes: r-lib/pkgload#241
 Encoding: UTF-8
 RoxygenNote: 7.2.3
