@@ -355,7 +355,7 @@ renv_tests_init <- function() {
   if (renv_tests_running())
     return()
 
-  renv_tests_init_envvars()
+  # renv_tests_init_envvars()
   renv_tests_init_workarounds()
   renv_tests_init_working_dir()
   renv_tests_init_options()
