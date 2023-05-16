@@ -28,6 +28,7 @@ test_that("we can restore packages after init", {
 
 test_that("restore can recover when required packages are missing", {
   skip_on_cran()
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
   renv::init()
 
@@ -138,6 +139,7 @@ test_that("renv::restore(lockfile = '/path/to/lockfile') works", {
 })
 
 test_that("renv::restore(packages = <...>) works", {
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
   renv::init()
   unlink(paths$library(), recursive = TRUE)
@@ -151,6 +153,7 @@ test_that("restore ignores packages of incompatible architecture", {
 
   renv_scope_options(renv.tests.verbose = FALSE)
 
+  renv_tests_scope_repos()
   renv_tests_scope(c("unixonly", "windowsonly"))
   renv::init()
 
@@ -186,6 +189,7 @@ test_that("restore ignores packages of incompatible architecture", {
 
 test_that("restore handled records without version set", {
 
+  renv_tests_scope_repos()
   renv_tests_scope()
 
   # create dummy lockfile

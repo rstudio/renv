@@ -20,6 +20,7 @@ skip_if_no_packrat <- function() {
 }
 
 test_that("a sample Packrat project can be migrated", {
+  renv_tests_scope_repos()
   skip_if_no_packrat()
 
   # use dummy caches for this test
@@ -28,6 +29,7 @@ test_that("a sample Packrat project can be migrated", {
     RENV_PATHS_ROOT     = tempfile("renv-cache-")
   )
 
+  requireNamespace("packrat")
   renv_tests_scope("breakfast")
 
   # initialize packrat
@@ -59,6 +61,7 @@ test_that("a sample Packrat project can be migrated", {
 })
 
 test_that("a Packrat project with no library can be migrated", {
+  renv_tests_scope_repos()
   skip_if_no_packrat()
 
   # TODO: skip tests if non-CRAN packrat is installed
@@ -97,3 +100,4 @@ test_that("a Packrat project with no library can be migrated", {
   expect_setequal(expected, names(records))
 
 })
+

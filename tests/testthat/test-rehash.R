@@ -10,6 +10,7 @@ test_that("rehash() migrates cached packages as expected", {
   renv_scope_envvars(RENV_PATHS_CACHE = tempcache)
 
   Sys.setenv(RENV_CACHE_VERSION = "v4")
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
   init()
 

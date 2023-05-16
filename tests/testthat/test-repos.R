@@ -3,6 +3,8 @@ context("Repositories")
 
 test_that("we can query our local repository during tests", {
 
+  renv_tests_scope_repos()
+
   expected <- list.files("packages")
   drop <- if (.Platform$OS.type == "unix") "windowsonly" else "unixonly"
   expected <- setdiff(expected, drop)

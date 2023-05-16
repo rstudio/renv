@@ -13,6 +13,7 @@ test_that("init() automatically installs referenced packages", {
 test_that("we can initialize a project using 'breakfast'", {
   skip_on_cran()
   skip_on_covr()
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
 
   renv::init()
@@ -29,6 +30,7 @@ test_that("we can initialize a project using 'breakfast'", {
 test_that("we can initialize a project using 'toast'", {
 
   skip_on_covr()
+  renv_tests_scope_repos()
   renv_tests_scope("toast")
 
   renv::init()
@@ -72,6 +74,7 @@ test_that("attempts to initialize a project with a missing package is okay", {
 test_that("the remotes field in a DESCRIPTION is honored", {
   skip_on_cran()
 
+  renv_tests_scope_repos()
   renv_tests_scope("halloween")
   renv::install("halloween")
 
@@ -118,8 +121,9 @@ test_that("init() works in path containing accented characters", {
     skip("project cannot be represented in native encoding")
 
   native <- enc2native(project)
-  renv_tests_scope(project = paste(tempdir(), native, sep = "/"))
 
+  renv_tests_scope_repos()
+  renv_tests_scope(project = paste(tempdir(), native, sep = "/"))
   init()
 
   install("toast")

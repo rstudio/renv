@@ -1,6 +1,6 @@
 Package: packrat
 Type: Package
-Version: 0.6.0
+Version: 0.9.1
 Repository: CRAN
 License: GPL
 Description: renv test package

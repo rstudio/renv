@@ -3,6 +3,7 @@ context("Snapshot")
 
 test_that("snapshot is idempotent", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("oatmeal")
 
   init(bare = TRUE)
@@ -18,6 +19,7 @@ test_that("snapshot is idempotent", {
 test_that("snapshot failures are reported", {
 
   renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_tests_scope_repos()
   renv_tests_scope("oatmeal")
   renv::init()
 
@@ -39,6 +41,7 @@ test_that("broken symlinks are reported", {
   skip_on_os("windows")
 
   renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_tests_scope_repos()
   renv_tests_scope("oatmeal")
   renv::init()
 
@@ -59,6 +62,7 @@ test_that("broken symlinks are reported", {
 test_that("multiple libraries can be used when snapshotting", {
 
   renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_tests_scope_repos()
   renv_tests_scope()
 
   renv::init()
@@ -91,6 +95,7 @@ test_that("multiple libraries can be used when snapshotting", {
 
 test_that("implicit snapshots only include packages currently used", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("oatmeal")
   renv::init()
 
@@ -112,6 +117,7 @@ test_that("implicit snapshots only include packages currently used", {
 
 test_that("explicit snapshots only capture packages in DESCRIPTION", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
   renv::init()
 
@@ -128,6 +134,7 @@ test_that("explicit snapshots only capture packages in DESCRIPTION", {
 
 test_that("a custom snapshot filter can be used", {
   skip_on_cran()
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
 
   settings$snapshot.type("custom")
@@ -142,6 +149,7 @@ test_that("a custom snapshot filter can be used", {
 
 test_that("snapshotted packages from CRAN include the Repository field", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("bread")
   init()
 
@@ -183,6 +191,7 @@ test_that("snapshot ignores own package in package development scenarios", {
 
 test_that("snapshot warns about unsatisfied dependencies", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("toast")
   init(settings = list(use.cache = FALSE))
 
@@ -204,6 +213,7 @@ test_that("snapshot records packages discovered in cellar", {
 
   renv_scope_options(renv.tests.verbose = FALSE)
 
+  renv_tests_scope_repos()
   renv_tests_scope("skeleton")
   renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
 
@@ -260,6 +270,8 @@ test_that("parse errors cause snapshot to abort", {
 
 test_that("records for packages available on other OSes are preserved", {
   skip_on_os("windows")
+
+  renv_tests_scope_repos()
   renv_tests_scope("unixonly")
 
   init()
@@ -283,6 +295,7 @@ test_that("records for packages available on other OSes are preserved", {
 
 test_that(".renvignore works during snapshot without an explicit root", {
 
+  renv_tests_scope_repos()
   renv_tests_scope()
 
   # pretend we don't know the project root
@@ -307,6 +320,7 @@ test_that(".renvignore works during snapshot without an explicit root", {
 
 test_that("snapshot(packages = ...) captures package dependencies", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
 
   # init to install required packages
@@ -331,6 +345,7 @@ test_that("snapshot(packages = ...) captures package dependencies", {
 
 test_that("snapshot() accepts relative library paths", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
 
   # initialize project
@@ -352,6 +367,7 @@ test_that("snapshot() accepts relative library paths", {
 
 test_that("snapshot(update = TRUE) preserves old records", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
   init()
 
@@ -382,6 +398,7 @@ test_that("snapshot(update = TRUE) preserves old records", {
 
 test_that("renv reports missing packages in explicit snapshots", {
 
+  renv_tests_scope_repos()
   renv_tests_scope()
   init()
 
@@ -418,6 +435,7 @@ test_that("a project using explicit snapshots is marked in sync appropriately", 
 test_that("we can explicitly exclude some packages from snapshot", {
 
   skip_on_cran()
+  renv_tests_scope_repos()
   project <- renv_tests_scope("breakfast")
   init()
 
@@ -429,6 +447,7 @@ test_that("we can explicitly exclude some packages from snapshot", {
 
 test_that("snapshot() warns when required package is not installed", {
 
+  renv_tests_scope_repos()
   project <- renv_tests_scope("breakfast")
   init()
 
@@ -446,6 +465,7 @@ test_that("packages installed from CRAN using pak are handled", {
   skip_on_cran()
   skip_if_not_installed("pak")
 
+  renv_tests_scope_repos()
   renv_tests_scope()
   pak <- renv_namespace_load("pak")
   pak$pkg_install("toast")
@@ -460,6 +480,7 @@ test_that("packages installed from Bioconductor using pak are handled", {
   skip_on_cran()
   skip_if_not_installed("pak")
 
+  renv_tests_scope_repos()
   renv_tests_scope()
   pak <- renv_namespace_load("pak")
   pak$pkg_install("bioc::Biobase")

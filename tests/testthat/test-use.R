@@ -5,6 +5,7 @@ test_that("use() works as intended", {
 
   skip_on_cran()
 
+  renv_tests_scope_repos()
   renv_tests_scope()
   init()
 

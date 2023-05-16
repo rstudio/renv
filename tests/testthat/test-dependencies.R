@@ -198,6 +198,7 @@ test_that("Suggest dependencies are ignored by default", {
 })
 
 test_that("Suggest dependencies are used when requested", {
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
   fields <- c("Imports", "Depends", "LinkingTo", "Suggests")
   settings$package.dependency.fields(fields)

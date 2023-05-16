@@ -5,6 +5,7 @@ test_that("we can repair a broken project library", {
 
   skip_on_cran()
   renv_scope_options(renv.tests.verbose = FALSE)
+  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
 
   init()

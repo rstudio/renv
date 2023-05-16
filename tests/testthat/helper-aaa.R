@@ -27,12 +27,14 @@ test_that <- function(desc, code) {
   oldopts$restart <- NULL
 
   repopath <- getOption("renv.tests.repopath")
-  oldrepofiles <- list.files(
-    path = repopath,
-    all.files = TRUE,
-    full.names = TRUE,
-    recursive = TRUE
-  )
+  if (!is.null(repopath)) {
+    oldrepofiles <- list.files(
+      path = repopath,
+      all.files = TRUE,
+      full.names = TRUE,
+      recursive = TRUE
+    )
+  }
 
   olduserdir <- file.path(renv_bootstrap_user_dir(), "library")
   olduserfiles <- list.files(
@@ -65,17 +67,18 @@ test_that <- function(desc, code) {
     stopf("test %s has modified repos", shQuote(desc))
   }
 
-  newrepofiles <- list.files(
-    path = repopath,
-    all.files = TRUE,
-    full.names = TRUE,
-    recursive = TRUE
-  )
-
-  if (!setequal(oldrepofiles, newrepofiles)) {
-    writeLines(setdiff(oldrepofiles, newrepofiles))
-    writeLines(setdiff(newrepofiles, oldrepofiles))
-    stopf("test %s has modified packages in repository", shQuote(desc))
+  if (!is.null(repopath)) {
+    newrepofiles <- list.files(
+      path = repopath,
+      all.files = TRUE,
+      full.names = TRUE,
+      recursive = TRUE
+    )
+    if (!setequal(oldrepofiles, newrepofiles)) {
+      writeLines(setdiff(oldrepofiles, newrepofiles))
+      writeLines(setdiff(newrepofiles, oldrepofiles))
+      stopf("test %s has modified packages in repository", shQuote(desc))
+    }
   }
 
   newconns <- getAllConnections()

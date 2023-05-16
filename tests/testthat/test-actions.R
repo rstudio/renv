@@ -3,7 +3,9 @@ context("Actions")
 
 test_that("we can query actions for a sample project", {
 
+  renv_tests_scope_repos()
   project <- renv_tests_scope("breakfast")
+
   renv_scope_options(renv.config.auto.snapshot = FALSE)
   init(bare = TRUE)
   install("breakfast")
@@ -28,7 +30,9 @@ test_that("we can query actions for a sample project", {
 })
 
 test_that("we can query actions when no lockfile has yet been generated", {
+  renv_tests_scope_repos()
   renv_tests_scope("bread")
+
   init(bare = TRUE)
   install("bread")
   actions <- actions("snapshot")
@@ -38,6 +42,7 @@ test_that("we can query actions when no lockfile has yet been generated", {
 test_that("bare usages of actions work as expected", {
 
   # set up project with 3 packages that need to be snapshotted
+  renv_tests_scope_repos()
   renv_tests_scope("bread")
   renv_scope_options(renv.config.auto.snapshot = FALSE)
 

@@ -3,10 +3,8 @@ context("Checkout")
 
 test_that("we can check out packages from our local repository", {
 
-  # ensure we reset repos on exit
-  renv_scope_options(repos = getOption("repos"))
-
   # enter test scope
+  renv_tests_scope_repos()
   project <- renv_tests_scope("breakfast")
 
   # check out a package + its depndencies; this invocation is

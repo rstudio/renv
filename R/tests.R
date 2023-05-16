@@ -145,27 +145,28 @@ renv_tests_init_options <- function() {
 
 }
 
-renv_tests_init_repos <- function(repopath = NULL) {
+renv_tests_scope_repos <- function(envir = parent.frame()) {
   repopath <- global("test.repo.path", renv_tests_init_repos_impl())
 
   # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
   repos <- c(CRAN = sprintf(fmt, repopath))
 
-  options(
+  renv_scope_options(
     pkgType             = "source",
     repos               = repos,
     renv.tests.repos    = repos,
-    renv.tests.repopath = repopath
+    renv.tests.repopath = repopath,
+    envir = envir
   )
 }
 
-renv_tests_init_repos_impl <- function(repopath = NULL) {
+renv_tests_init_repos_impl <- function() {
   # find root directory
   root <- renv_tests_root()
 
   # generate our dummy repository
-  repopath <- repopath %||% tempfile("renv-tests-repos-")
+  repopath <- tempfile("renv-tests-repos-")
   contrib <- file.path(repopath, "src/contrib")
   ensure_directory(contrib)
 
@@ -363,7 +364,6 @@ renv_tests_init <- function() {
   renv_tests_init_workarounds()
   renv_tests_init_working_dir()
   renv_tests_init_options()
-  renv_tests_init_repos()
   renv_tests_init_packages()
   renv_tests_init_finish()
 

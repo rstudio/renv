@@ -36,10 +36,9 @@ test_that("available_packages() errs on incorrect repository", {
 test_that("renv handles multiple available source packages", {
   skip_on_cran()
 
-  renv_scope_options(repos = getOption("repos"))
+  renv_tests_scope_repos()
   renv_tests_scope()
   repos <- tempfile("renv-test-repos-")
-  renv_tests_init_repos(repos)
 
   dbs <- available_packages(type = "source")
   cran <- dbs[["CRAN"]]
@@ -59,8 +58,8 @@ test_that("renv handles multiple available source packages", {
 
 test_that("available_packages() succeeds with unnamed repositories", {
   skip_on_cran()
+  renv_tests_scope_repos()
   renv_tests_scope()
-  renv_scope_options(repos = unname(getOption("repos")))
 
   entry <- renv_available_packages_entry(
     package = "breakfast",
@@ -85,6 +84,7 @@ test_that("renv_available_packages_latest() respects pkgType option", {
   expect_identical(attr(record, "type"), "source")
 
   # NOTE: this fails because we don't populate binary repositories during tests
+  renv_tests_scope_repos()
   renv_scope_options(renv.config.mran.enabled = FALSE)
   renv_scope_options(pkgType = "binary")
   expect_error(renv_available_packages_latest("breakfast"))
@@ -108,6 +108,10 @@ test_that("available packages database refreshed on http_proxy change", {
 
   skip_on_cran()
   skip_on_os("windows")
+  renv_tests_scope_repos()
+
+  renv_scope_envvars("https_proxy" = "123")
+  available_packages(type = "source")
 
   count <- 0L
   renv_scope_trace(
@@ -115,7 +119,7 @@ test_that("available packages database refreshed on http_proxy change", {
     tracer = function() { count <<- count + 1L }
   )
 
-  Sys.setenv("https_proxy" = "")
+  renv_scope_envvars("https_proxy" = "")
   available_packages(type = "source")
   expect_identical(count, 1L)
 

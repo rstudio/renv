@@ -19,6 +19,7 @@ test_that("hydrate does not change library paths", {
 
 test_that("hydrate(update = FALSE) does not update older packages", {
 
+  renv_tests_scope_repos()
   renv_tests_scope("bread")
   init()
 
