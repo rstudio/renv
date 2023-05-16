@@ -146,7 +146,21 @@ renv_tests_init_options <- function() {
 }
 
 renv_tests_init_repos <- function(repopath = NULL) {
+  repopath <- global("test.repo.path", renv_tests_init_repos_impl())
 
+  # update our repos option
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  repos <- c(CRAN = sprintf(fmt, repopath))
+
+  options(
+    pkgType             = "source",
+    repos               = repos,
+    renv.tests.repos    = repos,
+    renv.tests.repopath = repopath
+  )
+}
+
+renv_tests_init_repos_impl <- function(repopath = NULL) {
   # find root directory
   root <- renv_tests_root()
 
@@ -225,17 +239,7 @@ renv_tests_init_repos <- function(repopath = NULL) {
     latestOnly = FALSE
   )
 
-  # update our repos option
-  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
-  repos <- c(CRAN = sprintf(fmt, repopath))
-
-  options(
-    pkgType             = "source",
-    repos               = repos,
-    renv.tests.repos    = repos,
-    renv.tests.repopath = repopath
-  )
-
+  repopath
 }
 
 renv_tests_init_packages <- function() {
