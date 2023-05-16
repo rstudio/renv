@@ -1,39 +1,24 @@
 
-#' Start Using renv in a Project
+#' Use renv in a project
 #'
 #' @description
-#' Use `init()` to start using renv in the current project. This will:
+#' Call `renv::init()` to start using `renv` in the current project. This will:
 #'
-#' 1. Activate the project to use the project library in both the current and
-#'    all future sessions (with [activate()]).
+#' 1. Set up project infrastructure (as described in [scaffold()]) including
+#'    the project library and the `.Rprofile` that ensures `renv` will be
+#'    used in all future sessions.
 #'
-#' 1. Discover the packages that you currently and install them into a
-#'    project library (with [hydrate()]).
+#' 1. Discover the packages that you currently and install them into an
+#'    project library (as described in [hydrate()]).
 #'
 #' 1. Create a lockfile that records the state of the project library so it
-#'    can be restored by others (with [snapshot()]).
+#'    can be restored by others (as described in [snapshot()]).
+#'
+#' 1. Restarts R (if running inside RStudio).
 #'
 #' If you call `init()` on a project that already uses `renv`, it will attempt
-#' to do the right thing; it will restore the project library if it's missing,
-#' or otherwise prompt you what to do.
-#'
-#' @section Infrastructure:
-#'
-#' `renv` will write or amend the following files in the project:
-#'
-#' - `.Rprofile`: An auto-loader will be installed, so that new R sessions
-#'   launched within the project are automatically loaded.
-#'
-#' - `renv/activate.R`: This script is run by the previously-mentioned
-#'   `.Rprofile` to load the project.
-#'
-#' - `renv/.gitignore`: This is used to instruct Git to ignore the project's
-#'   private library, as it should normally not be committed to a version
-#'   control repository.
-#'
-#' - `.Rbuildignore`: to ensure that the `renv` directory is ignored during
-#'   package development; e.g. when attempting to build or install a package
-#'   using `renv`.
+#' to do the right thing: it will restore the project library if it's missing,
+#' or otherwise ask you what to do.
 #'
 #' @inherit renv-params
 #'

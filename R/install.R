@@ -1,14 +1,15 @@
 
 #' Install Packages
 #'
+#' @description
 #' Install one or more \R packages, from a variety of remote sources.
-#'
-#' `install()` uses the same machinery as [restore()] when installing packages.
+#' `install()` uses the same machinery as [restore()] for package installation.
 #' In particular, this means that the local cache of package installations is
 #' used when possible. This helps to avoid re-downloading packages that have
 #' already been downloaded before, and re-compiling packages from source when
 #' a binary copy of that package is already available.
 #'
+#' See `vignette("package-install")` for more details.
 #'
 #' @section Project DESCRIPTION Files:
 #'
@@ -30,19 +31,6 @@
 #' Otherwise, you can declare the package sources in your `DESCRIPTION`'s
 #' `Remotes:` field.
 #'
-#'
-#' @section Remotes Syntax:
-#'
-#' `renv` supports a subset of the `remotes` syntax used for package installation,
-#' as described in <https://remotes.r-lib.org/articles/dependencies.html>. See
-#' the examples below for more details.
-#'
-#' If you wish to install packages from an external source requiring authentication
-#' (e.g. a private GitHub repository), see the **Authentication** documentation
-#' online at <https://rstudio.github.io/renv/articles/renv.html#authentication>,
-#' or view the documentation locally in the **Getting Started** vignette with
-#' `vignette("renv", package = "renv")`.
-#'
 #' @section Bioconductor:
 #'
 #' Packages from Bioconductor can be installed by using the `bioc::` prefix.
@@ -59,47 +47,19 @@
 #' not available, `renv` will attempt to automatically install them before
 #' fulfilling the installation request.
 #'
-#'
-#' @section Package Configuration:
-#'
-#' Many \R packages have a `configure` script that needs to be run to prepare
-#' the package for installation. Arguments and environment variables can be
-#' passed through to those scripts in a manner similar to [install.packages].
-#' In particular, the \R options `configure.args` and `configure.vars` can be
-#' used to map package names to their appropriate configuration. For example:
-#'
-#' ```
-#' # installation of RNetCDF may require us to set include paths for netcdf
-#' configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
-#' options(configure.args = configure.args)
-#' renv::install("RNetCDF")
-#' ```
-#'
-#' This could also be specified as, for example,
-#'
-#' ```
-#' options(
-#'   configure.args.RNetCDF = "--with-netcdf-include=/usr/include/udunits2"
-#' )
-#' renv::install("RNetCDF")
-#' ```
-#'
-#' Similarly, additional flags that should be passed to `R CMD INSTALL` can
-#' be set via the `install.opts` \R option:
-#'
-#' ```
-#' # installation of R packages using the Windows Subsystem for Linux
-#' # may require the `--no-lock` flag to be set during install
-#' options(install.opts = "--no-lock")
-#' renv::install("xml2")
-#'
-#' # alternatively, you can set such options for specific packages with e.g.
-#' options(install.opts = list(xml2 = "--no-lock"))
-#' renv::install("xml2")
-#' ```
-#'
 #' @inherit renv-params
-#' @inheritParams install-params
+#' @param packages Either `NULL` (the default) to install all packages required
+#'  by the project, or a character vector of packages to install. `renv`
+#'  supports a subset of the `remotes` syntax used for package installation,
+#'  e.g:
+#'
+#'  * `pkg`: install latest version of `pkg` from CRAN.
+#'  * `pkg@version`: install specified version of `pkg` from CRAN.
+#'  * `username/repo`: install package from GitHub
+#'  * `bioc::pkg`: install pkg from Bioconductor.
+#'
+#'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
+#'  below for more details.
 #'
 #' @return A named list of package records which were installed by `renv`.
 #'

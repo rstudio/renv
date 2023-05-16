@@ -3,18 +3,12 @@
 \docType{data}
 \name{paths}
 \alias{paths}
-\title{Path Customization}
-\format{
-An object of class \code{list} of length 6.
-}
+\title{Path for storing global state}
 \usage{
 paths
 }
 \description{
-Access the paths that \code{renv} uses for global state storage.
-}
-\details{
-By default, \code{renv} collects state into these folders:
+By default, \code{renv} stores global state in the following OS-specific folders:
 
 \tabular{ll}{
 \strong{Platform} \tab \strong{Location} \cr
@@ -23,24 +17,11 @@ macOS        \tab \verb{~/Library/Caches/org.R-project.R/R/renv} \cr
 Windows      \tab \verb{\%LOCALAPPDATA\%/R/cache/R/renv} \cr
 }
 
-Note that older version of \code{renv} used a different default cache location.
-Those cache locations are:
-
-\tabular{ll}{
-\strong{Platform} \tab \strong{Location} \cr
-Linux        \tab \verb{~/.local/share/renv} \cr
-macOS        \tab \verb{~/Library/Application Support/renv} \cr
-Windows      \tab \verb{\%LOCALAPPDATA\%/renv} \cr
-}
-
-If an \code{renv} root directory has already been created in one of the old
-locations, that will still be used. This change was made to comply with the
-CRAN policy requirements of \R packages.
-
 If desired, this path can be customized by setting the \code{RENV_PATHS_ROOT}
 environment variable. This can be useful if you'd like, for example, multiple
 users to be able to share a single global cache.
-
+}
+\section{Customising individual paths}{
 The various state sub-directories can also be individually adjusted, if so
 desired (e.g. you'd prefer to keep the cache of package installations on a
 separate volume). The various environment variables that can be set are
@@ -65,6 +46,12 @@ enumerated below:
 \code{RENV_PATHS_MRAN}            \tab The path containing MRAN-related metadata. See \code{vignette("mran", package = "renv")} for more details. \cr
 }
 
+(If you want these settings to persist in your project, it is recommended that
+you add these to an appropriate \R startup file. For example, these could be
+set in: a project-local \code{.Renviron}, the user-level \code{.Renviron}, or a
+site-wide file at \code{file.path(R.home("etc"), "Renviron.site")}. See
+\link{Startup} for more details).
+
 Note that \code{renv} will append platform-specific and version-specific entries
 to the set paths as appropriate. For example, if you have set:
 
@@ -82,6 +69,13 @@ This ensures that you can set a single \code{RENV_PATHS_CACHE} environment varia
 globally without worry that it may cause collisions or errors if multiple
 versions of \R needed to interact with the same cache.
 
+If reproducibility of a project is desired on a particular machine, it is
+highly recommended that the \code{renv} cache of installed packages + binary
+packages is backed up and persisted, so that packages can be easily restored
+in the future -- installation of packages from source can often be arduous.
+}
+
+\section{Sharing state across operating systems}{
 If you need to share the same cache with multiple different Linux operating
 systems, you may want to set the \code{RENV_PATHS_PREFIX} environment variable
 to help disambiguate the paths used on Linux. For example, setting
@@ -105,26 +99,9 @@ by setting the environment variable:
 
 The prefix will be constructed based on fields within the system's
 \verb{/etc/os-release} file.
-
-If reproducibility of a project is desired on a particular machine, it is
-highly recommended that the \code{renv} cache of installed packages + binary
-packages is backed up and persisted, so that packages can be easily restored
-in the future -- installation of packages from source can often be arduous.
-
-If you want these settings to persist in your project, it is recommended that
-you add these to an appropriate \R startup file. For example, these could be
-set in:
-\itemize{
-\item A project-local \code{.Renviron};
-\item The user-level \code{.Renviron};
-\item A file at \code{file.path(R.home("etc"), "Renviron.site")}.
 }
 
-Please see ?\link{Startup} for more details.
-}
-\section{Package Cellar}{
-
-
+\section{Package cellar}{
 If your project depends on one or \R packages that are not available in any
 remote location, you can still provide a locally-available tarball for \code{renv}
 to use during restore. By default, these packages should be made available in
@@ -143,23 +120,20 @@ search the cellar for a compatible package, and prefer installation with
 that copy of the package if appropriate.
 }
 
-\section{Projects}{
+\section{Older versions}{
+Older version of \code{renv} used a different default cache location.
+Those cache locations are:
 
-
-In order to determine whether a package can safely be removed from the cache,
-\code{renv} needs to know which projects are using packages from the cache. Since
-packages may be symlinked from the cache, and symlinks are by nature a one-way
-link, projects need to also report that they're using the \code{renv} cache.
-
-To accomplish this, whenever \code{renv} is used with a project, it will record
-itself as being used within a file located at:
-\itemize{
-\item \verb{$\{RENV_PATHS_ROOT\}/projects}
+\tabular{ll}{
+\strong{Platform} \tab \strong{Location} \cr
+Linux        \tab \verb{~/.local/share/renv} \cr
+macOS        \tab \verb{~/Library/Application Support/renv} \cr
+Windows      \tab \verb{\%LOCALAPPDATA\%/renv} \cr
 }
 
-This file is list of projects currently using the \code{renv} cache. With this,
-\code{renv} can crawl projects registered with \code{renv} and use that to determine if
-any packages within the cache are no longer in use, and can be removed.
+If an \code{renv} root directory has already been created in one of the old
+locations, that will still be used. This change was made to comply with the
+CRAN policy requirements of \R packages.
 }
 
 \examples{

@@ -3,47 +3,72 @@
 
 #' Find R Package Dependencies in a Project
 #'
-#' Find \R packages used within a project.
-#'
+#' @description
 #' `dependencies()` will crawl files within your project, looking for \R files
 #' and the packages used within those \R files. This is done primarily by
-#' parsing the code and looking for calls of the form:
-#'
-#' - `library(package)`
-#' - `require(package)`
-#' - `requireNamespace("package")`
-#' - `package::method()`
-#'
-#' A subset of popular \R packages used for package management are also supported:
-#'
-#' - [`box`](https://cran.r-project.org/package=box): `box::use(...)`
-#' - [`pacman`](https://cran.r-project.org/package=pacman): `pacman::p_load(...)`
+#' parsing the code and looking for calls of the form `library(package)`,
+#' `require(package)`, `requireNamespace("package")`, and `package::method()`.
+#' renv also supports package loading with
+#' [`box`](https://cran.r-project.org/package=box) (`box::use(...)`) and
+#' [`pacman`](https://cran.r-project.org/package=pacman) (`pacman::p_load(...)`)
+#' .
 #'
 #' For \R package projects, dependencies expressed in the `DESCRIPTION` file
-#' will also be discovered. Note that the `rmarkdown` package is required in
-#' order to crawl dependencies in R Markdown files.
+#' will also be discovered.
 #'
-#' @section Suppressing Errors:
+#' Note that the `rmarkdown` package is required in order to crawl dependencies
+#' in R Markdown files.
 #'
-#' Depending on how you've structured your code, `renv` may emit errors when
-#' attempting to enumerate dependencies within `.Rmd` / `.Rnw` documents.
-#' For code chunks that you'd explicitly like `renv` to ignore, you can
-#' include `renv.ignore=TRUE` in the chunk header. For example:
+#' # Missing dependencies
 #'
-#'     ```{r chunk-label, renv.ignore=TRUE}
-#'     # code in this chunk will be ignored by renv
-#'     ```
+#' `dependencies()` uses static analysis to determine which packages are used
+#' by your project. This means that it inspects, but doesn't run, your
+#' source. Static analysis generally works well, but is not 100% reliable in
+#' detecting the packages required by your project. For example, `renv` is
+#' unable to detect this kind of usage:
 #'
-#' Similarly, if you'd like `renv` to parse a chunk that is otherwise ignored
-#' (e.g. because it has `eval=FALSE` as a chunk header), you can set:
+#' ```{r eval=FALSE}
+#' for (package in c("dplyr", "ggplot2")) {
+#'   library(package, character.only = TRUE)
+#' }
+#' ```
 #'
-#'     ```{r chunk-label, eval=FALSE, renv.ignore=FALSE}
-#'     # code in this chunk will _not_ be ignored
-#'     ```
+#' It also can't generally tell if one of the packages you use, uses one of
+#' its suggested packages. For example, `tidyr::separate_wider_delim()`
+#' uses the stringr package which is only suggested, not required by tidyr.
 #'
-#' @section Ignoring Files:
+#' If you find that renv's dependency discovery misses one or more packages
+#' that you actually use in your project, one escape hatch is to include a file
+#' called `_dependencies.R` that includes straightforward library calls:
 #'
-#' By default, `renv` will read your project's `.gitignore`s (if any) to
+#' ```
+#' library(dplyr)
+#' library(ggplot2)
+#' library(stringr)
+#' ```
+#'
+#' # Explicit dependencies
+#'
+#' Alternatively, you can suppress dependency discover and instead rely
+#' on an explicit set of packages recorded by you in a project `DESCRIPTION` file.
+#' Call `renv::settings$snapshot.type("explicit")` to enable "explicit" mode,
+#' then enumerate your dependencies in a project `DESCRIPTION` file.
+#'
+#' In that case, your `DESCRIPTION` might look something like this:
+#'
+#' ```
+#' Type: project
+#' Description: My project.
+#' Depends:
+#'     tidyverse,
+#'     devtools,
+#'     shiny,
+#'     data.table
+#' ```
+#'
+#' # Ignoring files
+#'
+#' By default, `renv` will read your project's `.gitignore`s (if present) to
 #' determine whether certain files or folders should be included when traversing
 #' directories. If preferred, you can also create a `.renvignore` file (with
 #' entries of the same format as a standard `.gitignore` file) to tell `renv`
@@ -66,9 +91,38 @@
 #' ```
 #'
 #' Using ignore files is important if your project contains a large number
-#' of files; for example, if you have a 'data' directory containing many
+#' of files; for example, if you have a `data/` directory containing many
 #' text files.
+
+#' # Errors
 #'
+#' `renv`'s attempts to enumerate package dependencies in your project can fail
+#' -- most commonly, because of failures when attempting to parse your \R code.
+#' You can use the `errors` argument to suppress these problems, but a
+#' more robust solution is tell `renv` not to look at the problematic code.
+#' As well as using `.renvignore`, as described above, you can also suppress errors
+#' discovered within individual `.Rmd` chunks by including `renv.ignore=TRUE`
+#' in the chunk header. For example:
+#'
+#'     ```{r chunk-label, renv.ignore=TRUE}
+#'     # code in this chunk will be ignored by renv
+#'     ```
+#'
+#' Similarly, if you'd like `renv` to parse a chunk that is otherwise ignored
+#' (e.g. because it has `eval=FALSE` as a chunk header), you can set:
+#'
+#'     ```{r chunk-label, eval=FALSE, renv.ignore=FALSE}
+#'     # code in this chunk will _not_ be ignored
+#'     ```
+#'
+#' @section Development Dependencies:
+#'
+#' `renv` attempts to distinguish between 'development' dependencies and
+#' 'runtime' dependencies. For example, you might rely on e.g.
+#' [devtools](https://cran.r-project.org/package=devtools) and
+#' [roxygen2](https://cran.r-project.org/package=roxygen2) during development
+#' for a project, but may not actually require these packages at runtime.
+
 #' @inheritParams renv-params
 #'
 #' @param path The path to a (possibly multi-mode) \R file, or a directory
@@ -84,7 +138,12 @@
 #'   dependencies?
 #'
 #' @param errors How should errors that occur during dependency enumeration be
-#'   handled? See **Errors** for more details.
+#'   handled?
+#'
+#'   * `"reported"` (the default): errors are reported to the user, but
+#'      otherwise ignored.
+#'   * `"fatal"`: errors are fatal and stop execution.
+#'   *  `"ignored"`: errors are ignored and not reported to the user.
 #'
 #' @param dev Boolean; include 'development' dependencies as well? That is,
 #'   packages which may be required during development but are unlikely to be
@@ -95,35 +154,6 @@
 #'   package names to the files in which they were discovered. Note that the
 #'   `Package` field might name a package remote, rather than just a plain
 #'   package name.
-#'
-#' @section Errors:
-#'
-#' `renv`'s attempts to enumerate package dependencies in your project can fail
-#' -- most commonly, because of failures when attempting to parse your \R code.
-#' The `errors` parameter can be used to control how `renv` responds to errors
-#' that occur.
-#'
-#' \tabular{ll}{
-#' **Name** \tab **Action** \cr
-#' `"reported"` \tab Errors are reported to the user, but are otherwise ignored. \cr
-#' `"fatal"`    \tab Errors are fatal and stop execution. \cr
-#' `"ignored"`  \tab Errors are ignored and not reported to the user. \cr
-#' }
-#'
-#' Depending on the structure of your project, you may want `renv` to ignore
-#' errors that occur when attempting to enumerate dependencies. However, a more
-#' robust solution would be to use an `.renvignore` file to tell `renv` not to
-#' scan such files for dependencies, or to configure the project to require
-#' explicit dependency management (`renv::settings$snapshot.type("explicit")`)
-#' and enumerate your dependencies in a project `DESCRIPTION` file.
-#'
-#' @section Development Dependencies:
-#'
-#' `renv` attempts to distinguish between 'development' dependencies and
-#' 'runtime' dependencies. For example, you might rely on e.g.
-#' [devtools](https://cran.r-project.org/package=devtools) and
-#' [roxygen2](https://cran.r-project.org/package=roxygen2) during development
-#' for a project, but may not actually require these packages at runtime.
 #'
 #' @export
 #'

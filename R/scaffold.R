@@ -1,7 +1,7 @@
-#' Generate renv Project Infrastructure
+#' Generate Project Infrastructure
 #'
 #' @description
-#' Write the `renv` project infrastructure for a project. This will:
+#' Create the `renv` project infrastructure. This will:
 #'
 #' - Create a project library, `renv/library`.
 #'
@@ -11,7 +11,12 @@
 #'   that `renv` is automatically loaded for new \R sessions launched in
 #'   this project.
 #'
-#' - Write a (bare) lockfile, `renv.lock`.
+#' - Create `renv/.gitignore`, which tells git to ignore the project library.
+#'
+#' - Create `.Rbuildignore`, if the project is also a package. This tells
+#'   `R CMD build` to ignore the `renv` infrastructure,
+#'
+#' - Write a (bare) [lockfile][lockfiles], `renv.lock`.
 #'
 #' @inheritParams renv-params
 #'
