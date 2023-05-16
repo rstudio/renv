@@ -9,7 +9,10 @@ test_that("use() works as intended", {
   init()
 
   oldpaths <- .libPaths()
+
   use("toast", isolate = FALSE, attach = FALSE, verbose = FALSE)
+  defer(renv_sandbox_deactivate())
+
   newpaths <- .libPaths()
 
   expect_true(length(newpaths) == length(oldpaths) + 1)
