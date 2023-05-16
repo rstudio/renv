@@ -19,66 +19,42 @@ test_that <- function(desc, code) {
   iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
   testthat::skip_if(iscran && renv_platform_macos())
 
-  repopath <- getOption("renv.tests.repopath")
-  userpath <- file.path(renv_bootstrap_user_dir(), "library")
-
-  oldlibpaths <- .libPaths()
-  oldrepos <- getOption("repos")
-  oldconns <- getAllConnections()
-  oldopts <- test_options()
-  oldrepofiles <- test_list_files(repopath)
-  olduserfiles <- test_list_files(userpath)
+  track_libpaths = identical(testthat::get_reporter()$.context, "Sandbox")
+  state_old <- renv_test_state(track_libpaths)
 
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)
   eval(call, envir = parent.frame())
 
-  reporter <- testthat::get_reporter()
-
-  newlibpaths <- .libPaths()
-  if (!identical(reporter$.context, "Sandbox")) {
-    test_state_change(desc, "modified libpaths", oldlibpaths, newlibpaths)
+  state_new <- renv_test_state(track_libpaths)
+  state_difff <- renv_namespace_load("waldo")$compare(state_old, state_new)
+  if (length(state_difff) > 0) {
+    stopf("Test '%s' modified global state\n%s", desc, format(state_difff))
   }
 
-  newrepos <- getOption("repos")
-  test_state_change(desc, "modified `repos` option", oldrepos, newrepos)
-
-  newrepofiles <- test_list_files(repopath)
-  test_state_change(desc, "modified packages in repository", oldrepofiles, newrepofiles)
-
-  newconns <- getAllConnections()
-  test_state_change(desc, "leaked connections", oldconns, newconns)
-
-  newopts <- test_options()
-  test_state_change(desc, "modified global options", oldopts, newopts)
-
-  newuserfiles <- test_list_files(userpath)
-  test_state_change(desc, "left files in user cache directory", olduserfiles, newuserfiles)
 }
 
 test_list_files <- function(path) {
   list.files(path = path, all.files  = TRUE, full.names = TRUE, no.. = TRUE)
 }
 
-test_options <- function() {
-  out <- options()
-  out <- out[grep("^renv", names(out), invert = TRUE)]
-  out$restart <- NULL
-  out
+renv_test_state <- function(libpaths = TRUE) {
+  repopath <- getOption("renv.tests.repopath")
+  userpath <- file.path(renv_bootstrap_user_dir(), "library")
+
+  opts <- options()
+  opts <- opts[grep("^renv", names(opts), invert = TRUE)]
+  opts <- opts[grep("^diffobj", names(opts), invert = TRUE)]
+  opts$restart <- NULL
+
+  list(
+    libpaths = if (libpaths) .libPaths(),
+    connection = getAllConnections(),
+    options = opts,
+    repo_files = test_list_files(repopath),
+    user_files = test_list_files(userpath)
+  )
 }
-
-test_state_change <- function(desc, msg, old, new) {
-  if (!renv_package_available("waldo")) {
-    stopf("Test '%s' %s", desc, msg)
-  }
-
-  diff <- renv_namespace_load("waldo")$compare(old, new)
-  if (length(diff) == 0) {
-    return()
-  }
-  stopf("Test '%s' %s:\n%s", desc, msg, format(diff))
-}
-
 
 expect_error <- function(...) {
   renv_scope_options(renv.tests.verbose = FALSE)
