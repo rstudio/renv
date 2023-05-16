@@ -19,101 +19,66 @@ test_that <- function(desc, code) {
   iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
   testthat::skip_if(iscran && renv_platform_macos())
 
+  repopath <- getOption("renv.tests.repopath")
+  userpath <- file.path(renv_bootstrap_user_dir(), "library")
+
   oldlibpaths <- .libPaths()
   oldrepos <- getOption("repos")
   oldconns <- getAllConnections()
-  oldopts <- options()
-  oldopts <- oldopts[grep("^renv", names(oldopts), invert = TRUE)]
-  oldopts$restart <- NULL
-
-  repopath <- getOption("renv.tests.repopath")
-  oldrepofiles <- list.files(
-    path = repopath,
-    all.files = TRUE,
-    full.names = TRUE,
-    recursive = TRUE
-  )
-
-  olduserdir <- file.path(renv_bootstrap_user_dir(), "library")
-  olduserfiles <- list.files(
-    path       = olduserdir,
-    all.files  = TRUE,
-    full.names = TRUE,
-    no..       = TRUE
-  )
+  oldopts <- test_options()
+  oldrepofiles <- test_list_files(repopath)
+  olduserfiles <- test_list_files(userpath)
 
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)
   eval(call, envir = parent.frame())
 
-  newlibpaths <- .libPaths()
   reporter <- testthat::get_reporter()
 
-  ok <-
-    identical(reporter$.context, "Sandbox") ||
-    identical(oldlibpaths, newlibpaths)
-
-  if (!ok) {
-    writeLines(c("", oldlibpaths, "", newlibpaths))
-    stopf("test %s has modified libpaths", shQuote(desc))
+  newlibpaths <- .libPaths()
+  if (!identical(reporter$.context, "Sandbox")) {
+    test_state_change(desc, "modified libpaths", oldlibpaths, newlibpaths)
   }
 
   newrepos <- getOption("repos")
-  ok <- identical(oldrepos, newrepos)
-  if (!ok) {
-    writeLines(c("", oldrepos, "", newrepos))
-    stopf("test %s has modified repos", shQuote(desc))
-  }
+  test_state_change(desc, "modified `repos` option", oldrepos, newrepos)
 
-  newrepofiles <- list.files(
-    path = repopath,
-    all.files = TRUE,
-    full.names = TRUE,
-    recursive = TRUE
-  )
-
-  if (!setequal(oldrepofiles, newrepofiles)) {
-    writeLines(setdiff(oldrepofiles, newrepofiles))
-    writeLines(setdiff(newrepofiles, oldrepofiles))
-    stopf("test %s has modified packages in repository", shQuote(desc))
-  }
+  newrepofiles <- test_list_files(repopath)
+  test_state_change(desc, "modified packages in repository", oldrepofiles, newrepofiles)
 
   newconns <- getAllConnections()
-  if (!identical(oldconns, newconns)) {
-    writeLines("")
-    print(newconns)
-    stopf("test %s has leaked connections", shQuote(desc))
-  }
+  test_state_change(desc, "leaked connections", oldconns, newconns)
 
-  newopts <- options()
-  newopts <- newopts[grep("^renv", names(newopts), invert = TRUE)]
-  newopts$restart <- NULL
+  newopts <- test_options()
+  test_state_change(desc, "modified global options", oldopts, newopts)
 
-  if (!identical(oldopts, newopts)) {
-    writeLines("")
-    if (renv_package_available("waldo")) {
-      waldo <- renv_namespace_load("waldo")
-      waldo$compare(oldopts, newopts)
-    } else {
-      str(renv_lockfile_diff(oldopts, newopts))
-    }
-    stopf("test %s has modified global options", shQuote(desc))
-  }
-
-  newuserfiles <- list.files(
-    path       = olduserdir,
-    all.files  = TRUE,
-    full.names = TRUE,
-    no..       = TRUE
-  )
-
-  if (!setequal(olduserfiles, newuserfiles)) {
-    writeLines(setdiff(olduserfiles, newuserfiles))
-    writeLines(setdiff(newuserfiles, olduserfiles))
-    stopf("test %s did not clean up in user cache directory", shQuote(desc))
-  }
-
+  newuserfiles <- test_list_files(userpath)
+  test_state_change(desc, "left files in user cache directory", olduserfiles, newuserfiles)
 }
+
+test_list_files <- function(path) {
+  list.files(path = path, all.files  = TRUE, full.names = TRUE, no.. = TRUE)
+}
+
+test_options <- function() {
+  out <- options()
+  out <- out[grep("^renv", names(out), invert = TRUE)]
+  out$restart <- NULL
+  out
+}
+
+test_state_change <- function(desc, msg, old, new) {
+  if (!renv_package_available("waldo")) {
+    stopf("Test '%s' %s", desc, msg)
+  }
+
+  diff <- renv_namespace_load("waldo")$compare(old, new)
+  if (length(diff) == 0) {
+    return()
+  }
+  stopf("Test '%s' %s:\n%s", desc, msg, format(diff))
+}
+
 
 expect_error <- function(...) {
   renv_scope_options(renv.tests.verbose = FALSE)
