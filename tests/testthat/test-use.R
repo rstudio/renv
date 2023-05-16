@@ -10,8 +10,7 @@ test_that("use() works as intended", {
 
   oldpaths <- .libPaths()
 
-  use("toast", isolate = FALSE, attach = FALSE, verbose = FALSE)
-  defer(renv_sandbox_deactivate())
+  use("toast", isolate = FALSE, attach = FALSE, verbose = FALSE, sandbox = FALSE)
 
   newpaths <- .libPaths()
 
@@ -31,8 +30,7 @@ test_that("use(lockfile) works as intended", {
   init()
 
   renv_scope_libpaths()
-  use(lockfile = "renv.lock", isolate = TRUE, verbose = FALSE)
-  defer(renv_sandbox_deactivate())
+  use(lockfile = "renv.lock", isolate = TRUE, verbose = FALSE, sandbox = FALSE)
 
   libpath <- renv_use_libpath()
   pkgpath <- renv_package_find("bread")
