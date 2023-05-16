@@ -32,6 +32,7 @@ test_that("use(lockfile) works as intended", {
 
   renv_scope_libpaths()
   use(lockfile = "renv.lock", isolate = TRUE, verbose = FALSE)
+  defer(renv_sandbox_deactivate())
 
   libpath <- renv_use_libpath()
   pkgpath <- renv_package_find("bread")
