@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-43</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -164,7 +164,7 @@ applications to run using the same pre-defined machine state.</p>
 image. The easiest way to accomplish this is with the
 <code>remotes</code> package. For example, if you wanted to install a
 specific version of <code>renv</code> from GitHub:</p>
-<pre><code>ENV RENV_VERSION 0.17.3-43
+<pre><code>ENV RENV_VERSION 0.17.3-44
 RUN R -e "install.packages('remotes', repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"</code></pre>
 <p>Next, if you’d like the <code>renv.lock</code> lockfile to be used to
