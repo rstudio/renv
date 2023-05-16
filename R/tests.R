@@ -85,13 +85,6 @@ renv_tests_init_workarounds <- function() {
 
 }
 
-renv_tests_init_working_dir <- function() {
-  if (exists(".rs.getProjectDirectory")) {
-    home <- get(".rs.getProjectDirectory")
-    setwd(home())
-  }
-}
-
 renv_tests_init_options <- function() {
 
   # find path to renv sources
@@ -326,7 +319,6 @@ renv_tests_init <- function() {
 
   renv_tests_init_envvars()
   renv_tests_init_workarounds()
-  renv_tests_init_working_dir()
   renv_tests_init_options()
   renv_tests_init_repos()
   renv_tests_init_packages()
