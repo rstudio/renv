@@ -57,7 +57,6 @@ test_that("renv handles multiple available source packages", {
 test_that("available_packages() succeeds with unnamed repositories", {
   skip_on_cran()
   renv_tests_scope()
-  renv_scope_options(repos = unname(getOption("repos")))
 
   entry <- renv_available_packages_entry(
     package = "breakfast",
@@ -105,13 +104,17 @@ test_that("available packages database refreshed on http_proxy change", {
   skip_on_cran()
   skip_on_os("windows")
 
+  renv_tests_scope_repos()
+  renv_scope_envvars("https_proxy" = "123")
+  available_packages(type = "source")
+
   count <- 0L
   renv_scope_trace(
     what   = renv:::renv_available_packages_query,
     tracer = function() { count <<- count + 1L }
   )
 
-  Sys.setenv("https_proxy" = "")
+  renv_scope_envvars("https_proxy" = "")
   available_packages(type = "source")
   expect_identical(count, 1L)
 

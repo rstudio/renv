@@ -28,6 +28,7 @@ test_that("a sample Packrat project can be migrated", {
     RENV_PATHS_ROOT     = tempfile("renv-cache-")
   )
 
+  requireNamespace("packrat")
   renv_tests_scope("breakfast")
 
   # initialize packrat

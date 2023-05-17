@@ -6,9 +6,10 @@ renv_tests_program <- function(name) {
   program
 }
 
-renv_tests_scope <- function(packages = character(), project = NULL) {
+renv_tests_scope <- function(packages = character(), project = NULL, envir = parent.frame()) {
 
   renv_tests_init()
+  renv_tests_scope_repos(envir = envir)
 
   # ensure that attempts to restart are a no-op
   if (renv_rstudio_available())
@@ -39,7 +40,7 @@ renv_tests_scope <- function(packages = character(), project = NULL) {
   libpaths <- .libPaths()
   .libPaths(lib)
 
-  defer(envir = parent.frame(), {
+  defer(envir = envir, {
     setwd(owd)
     unlink(lib, recursive = TRUE)
     .libPaths(libpaths)
@@ -105,10 +106,25 @@ renv_tests_init_options <- function() {
 
 }
 
-renv_tests_init_repos <- function(repopath = NULL) {
+renv_tests_scope_repos <- function(envir = parent.frame()) {
+  repopath <- global("test.repo.path", renv_tests_init_repos_impl())
 
+  # update our repos option
+  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
+  repos <- c(CRAN = sprintf(fmt, repopath))
+
+  renv_scope_options(
+    pkgType             = "source",
+    repos               = repos,
+    renv.tests.repos    = repos,
+    renv.tests.repopath = repopath,
+    envir = envir
+  )
+}
+
+renv_tests_init_repos_impl <- function() {
   # generate our dummy repository
-  repopath <- repopath %||% tempfile("renv-tests-repos-")
+  repopath <- tempfile("renv-tests-repos-")
   contrib <- file.path(repopath, "src/contrib")
   ensure_directory(contrib)
 
@@ -182,17 +198,7 @@ renv_tests_init_repos <- function(repopath = NULL) {
     latestOnly = FALSE
   )
 
-  # update our repos option
-  fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
-  repos <- c(CRAN = sprintf(fmt, repopath))
-
-  options(
-    pkgType             = "source",
-    repos               = repos,
-    renv.tests.repos    = repos,
-    renv.tests.repopath = repopath
-  )
-
+  repopath
 }
 
 renv_tests_init_packages <- function() {
@@ -254,7 +260,6 @@ renv_tests_init <- function() {
   renv_tests_init_envvars()
   renv_tests_init_workarounds()
   renv_tests_init_options()
-  renv_tests_init_repos()
   renv_tests_init_packages()
   renv_tests_init_finish()
 

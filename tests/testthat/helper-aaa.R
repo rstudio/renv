@@ -57,13 +57,14 @@ renv_test_state <- function() {
   opts <- opts[grep("^diffobj", names(opts), invert = TRUE)]
   opts$ambiguousMethodSelection <- NULL
   opts$restart <- NULL
+  opts$repos[opts$repos == "@CRAN@"] <- "https://cloud.r-project.org"
   opts <- opts[csort(names(opts))]
 
   list(
     libpaths     = .libPaths(),
     connections  = getAllConnections(),
     options      = opts,
-    repofiles    = list_files(repopath),
+    repofiles    = if (!is.null(repopath)) list_files(repopath),
     userfiles    = list_files(userpath)
   )
 }
