@@ -199,7 +199,6 @@ renv_tests_init_packages <- function() {
   # Force loading of packages from current .libPaths(); needed for packages
   # that would otherwise loaded in a renv_tests_scope()
   requireNamespace("waldo")
-  requireNamespace("BiocManager")
   renv_namespace_load("crayon")
 
   if (!isNamespaceLoaded("pak")) {
