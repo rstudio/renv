@@ -1,7 +1,11 @@
-
-context("Environment Variables")
-
 test_that("renv_envvars_save() is idempotent", {
+
+  renv_scope_envvars(
+    R_LIBS = NA,
+    R_LIBS_SITE = NA,
+    R_LIBS_USER = NA,
+    RENV_DEFAULT_R_LIBS_USER = NA
+  )
 
   renv_envvars_restore()
   before <- Sys.getenv()
@@ -14,7 +18,6 @@ test_that("renv_envvars_save() is idempotent", {
   during <- Sys.getenv()
   expect_false(identical(before, during))
 
-  Sys.setenv("R_LIBS_USER" = "")
   renv_envvars_restore()
   expect_equal(userlib, Sys.getenv("R_LIBS_USER"))
 
@@ -24,4 +27,10 @@ test_that("renv_envvars_save() is idempotent", {
   nms <- union(names(before), names(after))
   expect_equal(before[nms], after[nms])
 
+})
+
+test_that("RENV_PATHS_PREFIX is not normalized", {
+  renv_scope_envvars(RENV_PATHS_PREFIX = ".")
+  renv_envvars_normalize()
+  expect_identical(Sys.getenv("RENV_PATHS_PREFIX"), ".")
 })

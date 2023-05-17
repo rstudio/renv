@@ -12,9 +12,6 @@ context <- function(desc) {
 
 test_that <- function(desc, code) {
 
-  # clear RENV_PROFILE
-  Sys.unsetenv("RENV_PROFILE")
-
   # skip tests when run on CRAN's macOS machine
   iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
   testthat::skip_if(iscran && renv_platform_macos())
@@ -60,11 +57,21 @@ renv_test_state <- function() {
   opts$repos[opts$repos == "@CRAN@"] <- "https://cloud.r-project.org"
   opts <- opts[csort(names(opts))]
 
+  envvars <- as.list(Sys.getenv())
+  envvars <- envvars[grep("^RENV_DEFAULT_", names(envvars), invert = TRUE)]
+  envvars <- envvars[grep("^R_PACKRAT_", names(envvars), invert = TRUE)]
+  envvars <- envvars[grep("^_R_", names(envvars), invert = TRUE)]
+  envvars$RETICULATE_MINICONDA_PYTHON_ENVPATH <- NULL
+  envvars$OMP_NUM_THREADS <- NULL
+  envvars$OPENBLAS <- NULL
+  envvars <- envvars[csort(names(envvars))]
+
   list(
     libpaths     = .libPaths(),
     connections  = getAllConnections(),
     options      = opts,
     repofiles    = if (!is.null(repopath)) list_files(repopath),
-    userfiles    = list_files(userpath)
+    userfiles    = list_files(userpath),
+    envvars      = envvars
   )
 }

@@ -33,3 +33,4 @@ test_that("renv_envvar_path_modify works if var isn't set", {
   renv_envvar_path_add("TESTPATH", "a")
   expect_equal(Sys.getenv("TESTPATH"), "a")
 })
+
