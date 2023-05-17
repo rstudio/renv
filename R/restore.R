@@ -26,7 +26,7 @@
 #'  as the recursive dependency of another package, your request will be
 #'  ignored.
 #'
-#' @return A named list of package records which were installed by `renv`.
+#' @return A named list of package records which were installed by renv.
 #'
 #' @family reproducibility
 #'

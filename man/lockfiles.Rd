@@ -55,10 +55,10 @@ The sections used within a lockfile are described next.
 \section{[renv]}{
 
 
-Information about the version of \code{renv} used to manage this project.
+Information about the version of renv used to manage this project.
 
 \tabular{ll}{
-\strong{Version}     \tab The version of the \code{renv} package used with this project. \cr
+\strong{Version}     \tab The version of the renv package used with this project. \cr
 }
 }
 

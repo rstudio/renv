@@ -11,28 +11,28 @@ upgrade(project = NULL, version = NULL, reload = NULL, prompt = interactive())
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{version}{The version of \code{renv} to be installed.
+\item{version}{The version of renv to be installed.
 
-When \code{NULL} (the default), the latest version of \code{renv} will be installed as
+When \code{NULL} (the default), the latest version of renv will be installed as
 available from CRAN (or whatever active package repositories are active)
 Alternatively, you can install the latest development version with
 \code{"main"}, or a specific version from GitHub with (e.g.) \code{"0.17.3"} or
 \code{"0.17.3-29"}.}
 
-\item{reload}{Boolean; reload \code{renv} after install? When \code{NULL} (the
-default), \code{renv} will be re-loaded only if updating \code{renv} for the
+\item{reload}{Boolean; reload renv after install? When \code{NULL} (the
+default), renv will be re-loaded only if updating renv for the
 active project. Note that this may fail if you've loaded packages
-which also depend on \code{renv}.}
+which also depend on renv.}
 
 \item{prompt}{Boolean; prompt upgrade before proceeding?}
 }
 \value{
 A boolean value, indicating whether the requested version of
-\code{renv} was successfully installed. Note that this function is normally
+renv was successfully installed. Note that this function is normally
 called for its side effects.
 }
 \description{
-Upgrade the version of \code{renv} associated with a project, including using
+Upgrade the version of renv associated with a project, including using
 a development version from GitHub. If you want to update all
 packages (including renv) to their latest CRAN versions, use
 \code{\link[=update]{update()}}.

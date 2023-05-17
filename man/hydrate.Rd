@@ -20,7 +20,7 @@ hydrate(
 set of packages as reported by \code{\link[=dependencies]{dependencies()}} is used.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{library}{The \R library to be hydrated. When \code{NULL}, the active
 library as reported by \code{.libPaths()} is used.}
@@ -30,7 +30,7 @@ packages if the requested package is already installed in the project
 library? Set this to \code{"all"} if you'd like \emph{all} packages to be refreshed
 from the source library if possible.}
 
-\item{sources}{A set of library paths from which \code{renv} should attempt to
+\item{sources}{A set of library paths from which renv should attempt to
 draw packages. See \strong{Sources} for more details.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? Ignored
@@ -70,17 +70,17 @@ packages from the following sources (in order):
 \item The user library,
 \item The site library,
 \item The system library,
-\item The \code{renv} cache.
+\item The renv cache.
 }
 
-If package is discovered in one of these locations, \code{renv} will attempt to
+If package is discovered in one of these locations, renv will attempt to
 copy or link that package into the requested library as appropriate.
 }
 
 \section{Missing Packages}{
 
 
-If \code{renv} discovers that your project depends on \R packages not currently
+If renv discovers that your project depends on \R packages not currently
 installed in your user library, then it will attempt to install those
 packages from the active R repositories.
 }

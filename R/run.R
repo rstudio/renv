@@ -1,7 +1,7 @@
 
 #' Run a Script
 #'
-#' Run an \R script, in the context of a project using `renv`. The script will
+#' Run an \R script, in the context of a project using renv. The script will
 #' be run within an \R sub-process.
 #'
 #' @inherit renv-params
@@ -9,14 +9,14 @@
 #' @param script The path to an \R script.
 #'
 #' @param job Run the requested script as an RStudio job? Requires a recent
-#'   version of both RStudio and the `rstudioapi` packages. When `NULL`, the
+#'   version of both RStudio and the rstudioapi packages. When `NULL`, the
 #'   script will be run as a job if possible, and as a regular \R process
 #'   launched by [system2()] if not.
 #'
 #' @param name The name to associate with the job, for scripts run as a job.
 #'
-#' @param project The path to the `renv` project. This project will be loaded
-#'   before the requested script is executed. When `NULL` (the default), `renv`
+#' @param project The path to the renv project. This project will be loaded
+#'   before the requested script is executed. When `NULL` (the default), renv
 #'   will automatically determine the project root for the associated script
 #'   if possible.
 #'

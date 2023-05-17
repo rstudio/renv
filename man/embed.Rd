@@ -24,7 +24,7 @@ document, if running within RStudio.}
 \item{...}{The \R packages to be used with this script. Ignored if \code{lockfile} is
 non-\code{NULL}.}
 
-\item{lockfile}{The lockfile to use. When supplied, \code{renv} will use the packages as
+\item{lockfile}{The lockfile to use. When supplied, renv will use the packages as
 declared in the lockfile.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will

@@ -255,14 +255,14 @@ renv_sandbox_unlock <- function(sandbox = NULL, project = NULL) {
 #' example, is the default behavior on macOS.)
 #'
 #' Because the site and system libraries are visible to all users, having those
-#' accessible in `renv` projects can potentially break isolation -- that is,
+#' accessible in renv projects can potentially break isolation -- that is,
 #' if a package were updated in the system library, that update would be visible
 #' to all \R projects on the system.
 #'
-#' To help defend against this, `renv` uses something it calls the "system library
-#' sandbox", or the "sandbox", to isolate `renv` projects from non-"base" packages
-#' that are installed into the system library. To accomplish this, when an `renv`
-#' project is loaded, `renv` will:
+#' To help defend against this, renv uses something it calls the "system library
+#' sandbox", or the "sandbox", to isolate renv projects from non-"base" packages
+#' that are installed into the system library. To accomplish this, when an renv
+#' project is loaded, renv will:
 #'
 #' - Create a new, empty library path (called the "sandbox"),
 #'

@@ -51,7 +51,7 @@
 #'   document, if running within RStudio.
 #'
 #' @param lockfile
-#'   The path to an `renv` lockfile. When `NULL` (the default), the project
+#'   The path to an renv lockfile. When `NULL` (the default), the project
 #'   lockfile will be read (if any); otherwise, a new lockfile will be generated
 #'   from the current library paths.
 #'

@@ -12,7 +12,7 @@
 - [x] `renv::init()` should report dependency errors, but otherwise initialize
       the project.
 
-- [x] `renv` APIs that might call `dependencies()` should avoid re-reporting
+- [x] renv APIs that might call `dependencies()` should avoid re-reporting
       dependency errors multiple times. Potential fix: `renv_dependencies_scope()`
       could call dependencies once at the top level, and then `renv::dependencies()`
       could re-use the result of that object when requested.
@@ -73,10 +73,10 @@
       not on CRAN)
       
 - [x] Consider `.renvignore` or similar for controlling what files / directories
-      `renv` will crawl when discovering dependencies.
+      renv will crawl when discovering dependencies.
 
 - [x] Properly handle `RENV_DEFAULTS` case (they get lost if the user attempts
-      to build and reload a package managed by `renv`, which screws up RStudio's
+      to build and reload a package managed by renv, which screws up RStudio's
       notion of the library paths if the project is later deactivated)
 
 - [ ] Audit usages of `renv_file_exists()`. When do we care about broken symlinks?
@@ -99,7 +99,7 @@
       sources, binaries, or even the library itself for restoration on a new
       machine (potentially lacking internet access).
 
-- [x] Provide tools for upgrading version of `renv` used to manage a project.
+- [x] Provide tools for upgrading version of renv used to manage a project.
       [`renv::upgrade()`]
 
 - [ ] Think about how we might discover 'stale' entries in the cache.
@@ -119,7 +119,7 @@
 
 - [x] Warn when lockfile contains packages from unknown source?
 
-- [x] Automatically bootstrap an `renv` installation when loading a project
+- [x] Automatically bootstrap an renv installation when loading a project
       if none is available locally?
 
 - [ ] Should `renv::install()` auto-update packages?
@@ -129,20 +129,20 @@
 
 - [x] Include current session's R version when computing hash for DESCRIPTION
 
-- [ ] Install of `keras` failed to install `reticulate`?
+- [ ] Install of keras failed to install reticulate?
 
-- [ ] API for activating project and upgrading `renv`, rather than using
-      previously-recorded version of `renv`?
+- [ ] API for activating project and upgrading renv, rather than using
+      previously-recorded version of renv?
 
 - [ ] Treat user library as a source when restoring projects?
 
-- [ ] `renv` should build packages before install, especially for packages from GitHub.
+- [ ] renv should build packages before install, especially for packages from GitHub.
 
-- [ ] Use `pkgcache` for package installation?
+- [ ] Use pkgcache for package installation?
 
-- [ ] Use `pkgdepends` to validate dependency list before snapshot.
+- [ ] Use pkgdepends to validate dependency list before snapshot.
 
-- [ ] API to allow `pak` to use the cache?
+- [ ] API to allow pak to use the cache?
 
 - [ ] Record usage time for packages (as alternate scheme for finding unused packages)
 

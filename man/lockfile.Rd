@@ -16,7 +16,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-This function provides an API for creating and modifying \code{renv} lockfiles.
+This function provides an API for creating and modifying renv lockfiles.
 This can be useful when you'd like to programmatically generate or modify
 a lockfile -- for example, because you want to update or change a package
 record in an existing lockfile.
@@ -40,5 +40,5 @@ lock$write("renv.lock")
 }
 \seealso{
 \code{\link{lockfiles}}, for a description of the structure of an
-\code{renv} lockfile.
+renv lockfile.
 }

@@ -1,7 +1,7 @@
 
 #' User-Level Configuration of renv
 #'
-#' Configure different behaviors of `renv`.
+#' Configure different behaviors of renv.
 #'
 #' For a given configuration option:
 #'
@@ -39,11 +39,11 @@
 #'
 #' @section Copy Methods:
 #'
-#' If you find that `renv` is unable to copy some directories in your
+#' If you find that renv is unable to copy some directories in your
 #' environment, you may want to try setting the `copy.method` option. By
-#' default, `renv` will try to choose a system tool that is likely to succeed in
+#' default, renv will try to choose a system tool that is likely to succeed in
 #' copying files on your system -- `robocopy` on Windows, and `cp` on Unix.
-#' `renv` will also instruct these tools to preserve timestamps and attributes
+#' renv will also instruct these tools to preserve timestamps and attributes
 #' when copying files. However, you can select a different method as
 #' appropriate.
 #'
@@ -65,7 +65,7 @@
 #' })
 #' ```
 #'
-#' Note that `renv` will always first attempt to copy a directory first to a
+#' Note that renv will always first attempt to copy a directory first to a
 #' temporary path within the target folder, and then rename that temporary path
 #' to the final target destination. This helps avoid issues where a failed
 #' attempt to copy a directory could leave a half-copied directory behind

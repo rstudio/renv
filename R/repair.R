@@ -2,11 +2,11 @@
 #' Repair a Project Library
 #'
 #' Repair a project library whose cache symlinks have become broken.
-#' `renv` will attempt to reinstall the requisite packages.
+#' renv will attempt to reinstall the requisite packages.
 #'
 #' @inheritParams renv-params
 #'
-#' @param lockfile The path to a lockfile (if any). When available, `renv`
+#' @param lockfile The path to a lockfile (if any). When available, renv
 #'   will use the lockfile when attempting to infer the remote associated
 #'   with the inaccessible version of each missing package.
 #'

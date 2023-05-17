@@ -1,11 +1,11 @@
 
 #' Migrate a Project from Packrat to renv
 #'
-#' Migrate a project's infrastructure from Packrat to `renv`.
+#' Migrate a project's infrastructure from Packrat to renv.
 #'
 #' @section Migration:
 #'
-#' When migrating Packrat projects to `renv`, the set of components migrated
+#' When migrating Packrat projects to renv, the set of components migrated
 #' can be customized using the `packrat` argument. The set of components that
 #' can be migrated are as follows:
 #'
@@ -14,26 +14,26 @@
 #' **Name** \tab **Description** \cr
 #'
 #' `lockfile` \tab
-#'   Migrate the Packrat lockfile (`packrat/packrat.lock`) to the `renv` lockfile
+#'   Migrate the Packrat lockfile (`packrat/packrat.lock`) to the renv lockfile
 #'   (`renv.lock`). \cr
 #'
 #' `sources` \tab
-#'   Migrate package sources from the `packrat/src` folder to the `renv`
-#'   sources folder. Currently, only CRAN packages are migrated to `renv` --
+#'   Migrate package sources from the `packrat/src` folder to the renv
+#'   sources folder. Currently, only CRAN packages are migrated to renv --
 #'   packages retrieved from other sources (e.g. GitHub) are ignored.
 #'   \cr
 #'
 #' `library` \tab
-#'   Migrate installed packages from the Packrat library to the `renv` project
+#'   Migrate installed packages from the Packrat library to the renv project
 #'   library.
 #'   \cr
 #'
 #' `options` \tab
-#'   Migrate compatible Packrat options to the `renv` project.
+#'   Migrate compatible Packrat options to the renv project.
 #'   \cr
 #'
 #' `cache` \tab
-#'   Migrate packages from the Packrat cache to the `renv` cache.
+#'   Migrate packages from the Packrat cache to the renv cache.
 #'   \cr
 #'
 #' }

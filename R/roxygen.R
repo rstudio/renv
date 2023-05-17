@@ -15,7 +15,7 @@
 #'   compatibility, `confirm` is accepted as an alias for `prompt`.
 #'
 #' @param ... Unused arguments, reserved for future expansion. If any arguments
-#'   are matched to `...`, `renv` will signal an error.
+#'   are matched to `...`, renv will signal an error.
 #'
 #' @param clean Boolean; remove packages not recorded in the lockfile from
 #'   the target library? Use `clean = TRUE` if you'd like the library state
@@ -80,7 +80,7 @@ renv_roxygen_config_section <- function() {
   c(
     "@section Configuration:",
     "",
-    "The following `renv` configuration options are available:",
+    "The following renv configuration options are available:",
     "",
     items,
     ""

@@ -1,20 +1,20 @@
 
 #' Imbue an renv Installation
 #'
-#' Imbue an `renv` installation into a project, thereby making the requested
-#' version of `renv` available within.
+#' Imbue an renv installation into a project, thereby making the requested
+#' version of renv available within.
 #'
 #' Normally, this function does not need to be called directly by the user; it
 #' will be invoked as required by [init()] and [activate()].
 #'
 #' @inherit renv-params
 #'
-#' @param version The version of `renv` to install. If `NULL`, the version
-#'   of `renv` currently installed will be used. The requested version of
-#'   `renv` will be retrieved from the `renv` public GitHub repository,
+#' @param version The version of renv to install. If `NULL`, the version
+#'   of renv currently installed will be used. The requested version of
+#'   renv will be retrieved from the renv public GitHub repository,
 #'   at <https://github.com/rstudio/renv>.
 #'
-#' @param quiet Boolean; avoid printing output during install of `renv`?
+#' @param quiet Boolean; avoid printing output during install of renv?
 #'
 imbue <- function(project = NULL,
                   version = NULL,

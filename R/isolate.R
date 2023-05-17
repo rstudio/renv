@@ -1,19 +1,19 @@
 
 #' Isolate a Project
 #'
-#' Copy packages from the `renv` cache directly into the project library, so
-#' that the project can continue to function independently of the `renv` cache.
+#' Copy packages from the renv cache directly into the project library, so
+#' that the project can continue to function independently of the renv cache.
 #'
-#' After calling `isolate()`, `renv` will still be able to use the cache on
-#' future [install()]s and [restore()]s. If you'd prefer that `renv` copy
-#' packages from the cache, rather than use symlinks, you can set the `renv`
+#' After calling `isolate()`, renv will still be able to use the cache on
+#' future [install()]s and [restore()]s. If you'd prefer that renv copy
+#' packages from the cache, rather than use symlinks, you can set the renv
 #' configuration option:
 #'
 #' ```
 #' options(renv.config.cache.symlinks = FALSE)
 #' ```
 #'
-#' to force `renv` to copy packages from the cache, as opposed to symlinking
+#' to force renv to copy packages from the cache, as opposed to symlinking
 #' them. If you'd like to disable the cache altogether for a project, you can
 #' use:
 #'

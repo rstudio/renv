@@ -193,7 +193,7 @@ renv_update_find <- function(records) {
 #'   Use `renv::update(exclude = <...>)` to update all packages except for
 #'   a specific set of excluded packages.
 #'
-#' @return A named list of package records which were installed by `renv`.
+#' @return A named list of package records which were installed by renv.
 #'
 #' @export
 #'

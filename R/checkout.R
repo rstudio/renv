@@ -7,8 +7,8 @@
 #' `renv::checkout()` is most useful with services like the Posit's
 #' [Package Manager](https://packagemanager.rstudio.com/), as it
 #' can be used to switch between different repository snapshots within an
-#' `renv` project. In this way, you can upgrade (or downgrade) all of the
-#' packages used in a particular `renv` project to the package versions
+#' renv project. In this way, you can upgrade (or downgrade) all of the
+#' packages used in a particular renv project to the package versions
 #' provided by a particular snapshot.
 #'
 #' If your library contains packages installed from other remote sources (e.g.

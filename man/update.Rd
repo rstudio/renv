@@ -21,7 +21,7 @@ update(
 project setting) will be updated.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{exclude}{A set of packages to explicitly exclude from updating.
 Use \verb{renv::update(exclude = <...>)} to update all packages except for
@@ -47,7 +47,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \value{
-A named list of package records which were installed by \code{renv}.
+A named list of package records which were installed by renv.
 }
 \description{
 Update packages which are currently out-of-date. Currently supports CRAN,

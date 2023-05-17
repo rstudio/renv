@@ -2,10 +2,10 @@
 #' Activate or Deactivate a Project
 #'
 #' @description
-#' `activate()` enables `renv` for a project in both the current session and
+#' `activate()` enables renv for a project in both the current session and
 #' in all future sessions. You should not generally need to call `activate()`
 #' yourself as it's called automatically by [renv::init()], which is the best
-#' way to start using `renv` in a new project.
+#' way to start using renv in a new project.
 #'
 #' `activate()` first calls [renv::scaffold()] to set up the project
 #' infrastructure. Most importantly, this creates a project library and adds a
@@ -13,7 +13,7 @@
 #' future instances of the project. It then calls [renv::load()] to use the
 #' project library for the current session.
 #'
-#' `deactivate()` removes the infrastructure automatically activate `renv` in
+#' `deactivate()` removes the infrastructure automatically activate renv in
 #' new session. This removes the auto-loader from the `.Rprofile`; it does
 #' not delete the lockfile or the project library.
 #'

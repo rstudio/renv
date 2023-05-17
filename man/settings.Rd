@@ -8,11 +8,11 @@
 settings
 }
 \value{
-A named list of \code{renv} settings.
+A named list of renv settings.
 }
 \description{
 Define project-local settings that can be used to adjust the behavior of
-\code{renv} with your particular project.
+renv with your particular project.
 \itemize{
 \item Get the current value of a setting with (e.g.) \code{settings$snapshot.type()}
 \item Set current value of a setting with (e.g.)
@@ -26,8 +26,8 @@ to restart the session for those changes to take effect.
 
 The Bioconductor version to be used with this project. Use this if you'd
 like to lock the version of Bioconductor used on a per-project basis.
-When unset, \code{renv} will try to infer the appropriate Bioconductor release
-using the \code{BiocVersion} package if installed; if not, \code{renv} uses
+When unset, renv will try to infer the appropriate Bioconductor release
+using the BiocVersion package if installed; if not, renv uses
 \code{BiocManager::version()} to infer the appropriate Bioconductor version.
 }
 
@@ -35,7 +35,7 @@ using the \code{BiocVersion} package if installed; if not, \code{renv} uses
 
 A vector of library paths, to be used in addition to the project's own
 private library. This can be useful if you have a package available for use
-in some global library, but for some reason \code{renv} is not able to install
+in some global library, but for some reason renv is not able to install
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).
@@ -50,10 +50,10 @@ added to the lockfile, that entry in the lockfile will not be ignored.
 
 \subsection{\code{package.dependency.fields}}{
 
-During dependency discovery, \code{renv} uses the fields of an installed
+During dependency discovery, renv uses the fields of an installed
 package's \code{DESCRIPTION} file to determine that package's recursive
 dependencies. By default, the \code{Imports}, \code{Depends} and \code{LinkingTo} fields
-are used. If you'd prefer that \code{renv} also captures the \code{Suggests}
+are used. If you'd prefer that renv also captures the \code{Suggests}
 dependencies for a package, you can set this to
 \code{c("Imports", "Depends", "LinkingTo", "Suggests")}.
 }
@@ -62,7 +62,7 @@ dependencies for a package, you can set this to
 
 The version of \R to encode within the lockfile. This can be set as a
 project-specific option if you'd like to allow multiple users to use
-the same \code{renv} project with different versions of \R. \code{renv} will
+the same renv project with different versions of \R. renv will
 still warn the user if the major + minor version of \R used in a project
 does not match what is encoded in the lockfile.
 }
@@ -75,16 +75,16 @@ details.
 
 \subsection{\code{use.cache}}{
 
-Enable the \code{renv} package cache with this project. When active, \code{renv} will
+Enable the renv package cache with this project. When active, renv will
 install packages into a global cache, and link packages from the cache into
-your \code{renv} projects as appropriate. This can greatly save on disk space
+your renv projects as appropriate. This can greatly save on disk space
 and install time when for \R packages which are used across multiple
 projects in the same environment.
 }
 
 \subsection{\code{vcs.manage.ignores}}{
 
-Should \code{renv} attempt to manage the version control system's ignore files
+Should renv attempt to manage the version control system's ignore files
 (e.g. \code{.gitignore}) within this project? Set this to \code{FALSE} if you'd
 prefer to take control. Note that if this setting is enabled, you will
 need to manually ensure internal data in the project's \verb{renv/} folder
@@ -100,17 +100,17 @@ more information.
 
 \subsection{\code{vcs.ignore.library}}{
 
-Set whether the \code{renv} project library is excluded from version control.
+Set whether the renv project library is excluded from version control.
 }
 
 \subsection{\code{vcs.ignore.local}}{
 
-Set whether \code{renv} project-specific local sources are excluded from version
+Set whether renv project-specific local sources are excluded from version
 control.
 }
 }
 \section{Defaults}{
-You can change the default values of these settings for newly-created \code{renv}
+You can change the default values of these settings for newly-created renv
 projects by setting \R options for \code{renv.settings} or \verb{renv.settings.<name>}.
 For example:
 

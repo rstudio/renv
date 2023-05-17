@@ -1,10 +1,10 @@
 
 #' Update Package Records in a Lockfile
 #'
-#' Use `record()` to record a new entry within an existing `renv` lockfile.
+#' Use `record()` to record a new entry within an existing renv lockfile.
 #'
 #' This function can be useful when you need to change one or more of the
-#' package records within an `renv` lockfile -- for example, because a recorded
+#' package records within an renv lockfile -- for example, because a recorded
 #' package cannot be restored in a particular environment, and you know of a
 #' suitable alternative.
 #'

@@ -1,37 +1,37 @@
 
 #' Vendor renv in an R Package
 #'
-#' Vendor a copy of `renv` in an \R package.
+#' Vendor a copy of renv in an \R package.
 #'
 #' Calling `renv::vendor()` will:
 #'
-#' - Compile a vendored copy of `renv` to `inst/vendor/renv.R`,
-#' - Generate an `renv` auto-loader at `R/renv.R`.
+#' - Compile a vendored copy of renv to `inst/vendor/renv.R`,
+#' - Generate an renv auto-loader at `R/renv.R`.
 #'
-#' Using this, projects can take a dependency on `renv`, and use `renv`
-#' internals, in a CRAN-compliant way. After vendoring `renv`, you can
-#' use `renv` APIs in your package via the embedded `renv` environment;
+#' Using this, projects can take a dependency on renv, and use renv
+#' internals, in a CRAN-compliant way. After vendoring renv, you can
+#' use renv APIs in your package via the embedded renv environment;
 #' for example, you could call the [renv::dependencies()] function with:
 #'
 #' ```
 #' renv$dependencies()
 #' ```
 #'
-#' Be aware that `renv` internals might change in future releases, so if you
-#' need to rely on `renv` internal functions, we strongly recommend testing
+#' Be aware that renv internals might change in future releases, so if you
+#' need to rely on renv internal functions, we strongly recommend testing
 #' your usages of these functions to avoid potential breakage.
 #'
-#' @param version The version of `renv` to vendor. If `NULL` (the default),
-#'   the current version of `renv` will be used. Ignored if `sources`
+#' @param version The version of renv to vendor. If `NULL` (the default),
+#'   the current version of renv will be used. Ignored if `sources`
 #'   is non-`NULL`.
 #'
-#' @param repository The Git repository from which `renv` should be retrieved.
-#'   `renv` will use `git clone <repository> --branch <version>` to download
-#'   the required `renv` sources. Ignored if `sources` is non-`NULL`.
+#' @param repository The Git repository from which renv should be retrieved.
+#'   renv will use `git clone <repository> --branch <version>` to download
+#'   the required renv sources. Ignored if `sources` is non-`NULL`.
 #'
-#' @param sources The path to local `renv` sources to be vendored.
+#' @param sources The path to local renv sources to be vendored.
 #'
-#' @param project The project in which `renv` should be vendored.
+#' @param project The project in which renv should be vendored.
 #'
 #' @keywords internal
 #'
@@ -69,11 +69,11 @@ vendor <- function(version    = NULL,
   # let the user know what just happened
   template <- heredoc("
     #
-    # A vendored copy of `renv` was created at: %s
-    # The `renv` auto-loader was generated at:  %s
+    # A vendored copy of renv was created at: %s
+    # The renv auto-loader was generated at:  %s
     #
     # Please add `renv$initialize()` to your package's `.onLoad()`
-    # to ensure that `renv` is initialized on package load.
+    # to ensure that renv is initialized on package load.
     #
   ")
 
