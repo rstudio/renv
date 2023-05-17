@@ -1,6 +1,5 @@
 renv_tests_scope <- function(packages = character(), project = NULL, envir = parent.frame()) {
 
-  renv_tests_init()
   renv_tests_scope_repos(envir = envir)
 
   # most tests will call init() which changes `R_LIBS_USER`;
@@ -41,7 +40,7 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
 }
 
 renv_tests_scope_repos <- function(envir = parent.frame()) {
-  repopath <- global("test.repo.path", renv_tests_init_repos_impl())
+  repopath <- global("test.repo.path", renv_tests_repos_impl())
 
   # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
@@ -56,7 +55,7 @@ renv_tests_scope_repos <- function(envir = parent.frame()) {
   )
 }
 
-renv_tests_init_repos_impl <- function() {
+renv_tests_repos_impl <- function() {
   # generate our dummy repository
   repopath <- tempfile("renv-tests-repos-")
   contrib <- file.path(repopath, "src/contrib")
