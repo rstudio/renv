@@ -163,6 +163,13 @@ options(install.opts = list(xml2 = "--no-lock"))
 renv::install("xml2")
 ```
 
+### Vignettes
+
+renv does build vignettes when installing a package from source.
+This is because vignettes option require suggested packages, and installing all suggested packages (particularly from source) is often a large burden.
+
+If you want to distribute vignettes for your own packages, we suggest creating your own repository of binaries, either with [R Universe](https://r-universe.dev/search/) (for publicly hosted packages on Github), with [Posit Package Manager](https://posit.co/products/enterprise/package-manager/), or with [drat](https://eddelbuettel.github.io/drat/).
+
 ## Downloads
 
 By default, `renv` uses [`curl`](https://curl.se/) for file downloads when available.
