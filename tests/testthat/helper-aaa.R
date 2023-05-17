@@ -62,6 +62,8 @@ renv_test_state <- function() {
   envvars <- envvars[grep("^R_PACKRAT_", names(envvars), invert = TRUE)]
   envvars <- envvars[grep("^_R_", names(envvars), invert = TRUE)]
   envvars$RETICULATE_MINICONDA_PYTHON_ENVPATH <- NULL
+  envvars$OMP_NUM_THREADS <- NULL
+  envvars$OPENBLAS <- NULL
   envvars <- envvars[csort(names(envvars))]
 
   list(
