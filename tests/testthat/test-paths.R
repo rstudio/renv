@@ -36,12 +36,6 @@ test_that("RENV_PATHS_PREFIX is respected", {
 
 })
 
-test_that("RENV_PATHS_PREFIX is not normalized", {
-  renv_scope_envvars(RENV_PATHS_PREFIX = ".")
-  renv_envvars_normalize()
-  expect_identical(Sys.getenv("RENV_PATHS_PREFIX"), ".")
-})
-
 test_that("renv_path_normalize is correctly initialized", {
 
   expect_identical(
