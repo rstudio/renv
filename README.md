@@ -8,7 +8,7 @@
 
 ## Overview
 
-The renv package helps you create **r**eproducible **env**ironments for your R projects.
+The renv package (pronounced "R" "env") helps you create **r**eproducible **env**ironments for your R projects.
 Use renv to make your R projects more:
 
 **Isolated**: Installing a new or updated package for one project won't break your other projects, and vice versa.

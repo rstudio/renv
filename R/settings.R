@@ -319,132 +319,106 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 
 # nocov end
 
-#' Project Settings
+#' Project settings
 #'
+#' @description
 #' Define project-local settings that can be used to adjust the behavior of
 #' renv with your particular project.
 #'
-#' @section Settings:
+#' * Get the current value of a setting with (e.g.) `settings$snapshot.type()`
+#' * Set current value of a setting with (e.g.)
+#'   `settings$snapshot.type("explicit")`.
 #'
-#' \describe{
+#' Settings are automatically persisted across project sessions by writing to
+#' `renv/settings.json`. You can also edit this file by hand, but you'll need
+#' to restart the session for those changes to take effect.
 #'
-#' \item{\code{bioconductor.version}}{
+#' ## `bioconductor.version`
 #'
-#'   The Bioconductor version to be used with this project. Use this if you'd
-#'   like to lock the version of Bioconductor used on a per-project basis.
-#'   When unset, renv will try to infer the appropriate Bioconductor release
-#'   using the BiocVersion package if installed; if not, renv uses
-#'   `BiocManager::version()` to infer the appropriate Bioconductor version.
+#' The Bioconductor version to be used with this project. Use this if you'd
+#' like to lock the version of Bioconductor used on a per-project basis.
+#' When unset, renv will try to infer the appropriate Bioconductor release
+#' using the BiocVersion package if installed; if not, renv uses
+#' `BiocManager::version()` to infer the appropriate Bioconductor version.
 #'
-#' }
+#' ## `external.libraries`
 #'
-#' \item{\code{external.libraries}}{
+#' A vector of library paths, to be used in addition to the project's own
+#' private library. This can be useful if you have a package available for use
+#' in some global library, but for some reason renv is not able to install
+#' that package (e.g. sources or binaries for that package are not publicly
+#' available, or you have been unable to orchestrate the pre-requisites for
+#' installing some packages from source on your machine).
 #'
-#'   A vector of library paths, to be used in addition to the project's own
-#'   private library. This can be useful if you have a package available for use
-#'   in some global library, but for some reason renv is not able to install
-#'   that package (e.g. sources or binaries for that package are not publicly
-#'   available, or you have been unable to orchestrate the pre-requisites for
-#'   installing some packages from source on your machine).
+#' ## `ignored.packages`
 #'
-#' }
+#' A vector of packages, which should be ignored when attempting to snapshot
+#' the project's private library. Note that if a package has already been
+#' added to the lockfile, that entry in the lockfile will not be ignored.
 #'
-#' \item{\code{ignored.packages}}{
+#' ## `package.dependency.fields`
 #'
-#'   A vector of packages, which should be ignored when attempting to snapshot
-#'   the project's private library. Note that if a package has already been
-#'   added to the lockfile, that entry in the lockfile will not be ignored.
+#' During dependency discovery, renv uses the fields of an installed
+#' package's `DESCRIPTION` file to determine that package's recursive
+#' dependencies. By default, the `Imports`, `Depends` and `LinkingTo` fields
+#' are used. If you'd prefer that renv also captures the `Suggests`
+#' dependencies for a package, you can set this to
+#' `c("Imports", "Depends", "LinkingTo", "Suggests")`.
 #'
-#' }
+#' ## `r.version`
 #'
-#' \item{\code{package.dependency.fields}}{
+#' The version of \R to encode within the lockfile. This can be set as a
+#' project-specific option if you'd like to allow multiple users to use
+#' the same renv project with different versions of \R. renv will
+#' still warn the user if the major + minor version of \R used in a project
+#' does not match what is encoded in the lockfile.
 #'
-#'   During dependency discovery, renv uses the fields of an installed
-#'   package's `DESCRIPTION` file to determine that package's recursive
-#'   dependencies. By default, the `Imports`, `Depends` and `LinkingTo` fields
-#'   are used. If you'd prefer that renv also captures the `Suggests`
-#'   dependencies for a package, you can set this to
-#'   `c("Imports", "Depends", "LinkingTo", "Suggests")`.
+#' ## `snapshot.type`
 #'
-#' }
+#' The type of snapshot to perform by default. See [snapshot] for more
+#' details.
 #'
-#' \item{\code{r.version}}{
+#' ## `use.cache`
 #'
-#'   The version of \R to encode within the lockfile. This can be set as a
-#'   project-specific option if you'd like to allow multiple users to use
-#'   the same \code{renv} project with different versions of \R. renv will
-#'   still warn the user if the major + minor version of \R used in a project
-#'   does not match what is encoded in the lockfile.
+#' Enable the renv package cache with this project. When active, renv will
+#' install packages into a global cache, and link packages from the cache into
+#' your renv projects as appropriate. This can greatly save on disk space
+#' and install time when for \R packages which are used across multiple
+#' projects in the same environment.
 #'
-#' }
+#' ## `vcs.manage.ignores`
 #'
-#' \item{\code{snapshot.type}}{
+#' Should renv attempt to manage the version control system's ignore files
+#' (e.g. `.gitignore`) within this project? Set this to `FALSE` if you'd
+#' prefer to take control. Note that if this setting is enabled, you will
+#' need to manually ensure internal data in the project's `renv/` folder
+#' is explicitly ignored.
 #'
-#'   The type of snapshot to perform by default. See [snapshot] for more
-#'   details.
+#' ## `vcs.ignore.cellar`
 #'
-#' }
+#' Set whether packages within a project-local package cellar are excluded
+#' from version control. See `vignette("cellar", package = "renv")` for
+#' more information.
 #'
-#' \item{\code{use.cache}}{
+#' ## `vcs.ignore.library`
 #'
-#'   Enable the renv package cache with this project. When active, renv will
-#'   install packages into a global cache, and link packages from the cache into
-#'   your renv projects as appropriate. This can greatly save on disk space
-#'   and install time when for \R packages which are used across multiple
-#'   projects in the same environment.
+#' Set whether the renv project library is excluded from version control.
 #'
-#' }
+#' ## `vcs.ignore.local`
 #'
-#' \item{\code{vcs.manage.ignores}}{
+#' Set whether renv project-specific local sources are excluded from version
+#' control.
 #'
-#'   Should renv attempt to manage the version control system's ignore files
-#'   (e.g. `.gitignore`) within this project? Set this to `FALSE` if you'd
-#'   prefer to take control. Note that if this setting is enabled, you will
-#'   need to manually ensure internal data in the project's `renv/` folder
-#'   is explicitly ignored.
-#' }
-#'
-#' \item{\code{vcs.ignore.cellar}}{
-#'
-#'   Set whether packages within a project-local package cellar are excluded
-#'   from version control. See `vignette("cellar", package = "renv")` for
-#'   more information.
-#'
-#' }
-#'
-#' \item{\code{vcs.ignore.library}}{
-#'
-#'   Set whether the renv project library is excluded from version control.
-#'
-#' }
-#'
-#' \item{\code{vcs.ignore.local}}{
-#'
-#'   Set whether renv project-specific local sources are excluded from version
-#'   control.
-#'
-#' }
-#'
-#' }
-#'
-#' @section Persistence:
-#'
-#' Project settings are persisted within the project at `renv/settings.json`.
-#' These settings can also be edited by hand with a text editor, but you may
-#' need to restart any running \R sessions using this project for those
-#' changes to be detected.
-#'
-#'
-#' @section Defaults:
+#' # Defaults
 #'
 #' You can change the default values of these settings for newly-created renv
 #' projects by setting \R options for `renv.settings` or `renv.settings.<name>`.
 #' For example:
 #'
-#' \preformatted{
+#' ```R
 #' options(renv.settings = list(snapshot.type = "all"))
 #' options(renv.settings.snapshot.type = "all")
-#' }
+#' ```
 #'
 #' If both of the `renv.settings` and `renv.settings.<name>` options are set
 #' for a particular key, the option associated with `renv.settings.<name>` is
@@ -453,6 +427,8 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 #'
 #' @return
 #'   A named list of renv settings.
+#'
+#' @format NULL
 #'
 #' @export
 #'
