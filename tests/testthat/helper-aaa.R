@@ -36,6 +36,7 @@ test_that <- function(desc, code) {
     fdiffs <- paste(format(diffs), collapse = "\n\n")
     stopf("Test '%s' has modified global state:\n%s\n", desc, fdiffs)
   }
+
 }
 
 renv_test_state <- function() {
@@ -59,9 +60,9 @@ renv_test_state <- function() {
   opts <- opts[csort(names(opts))]
 
   list(
-    libpaths = .libPaths(),
+    libpaths =   .libPaths(),
     connection = getAllConnections(),
-    options = opts,
+    options =    opts,
     repo_files = if (!is.null(repopath)) list_files(repopath),
     user_files = list_files(userpath)
   )

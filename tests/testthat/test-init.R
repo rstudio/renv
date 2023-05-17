@@ -108,8 +108,8 @@ test_that("init() works in path containing accented characters", {
     skip("project cannot be represented in native encoding")
 
   native <- enc2native(project)
-
   renv_tests_scope(project = paste(tempdir(), native, sep = "/"))
+
   init()
 
   install("toast")

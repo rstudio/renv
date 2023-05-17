@@ -257,7 +257,6 @@ test_that("parse errors cause snapshot to abort", {
 
 test_that("records for packages available on other OSes are preserved", {
   skip_on_os("windows")
-
   renv_tests_scope("unixonly")
 
   init()
