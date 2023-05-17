@@ -55,7 +55,7 @@ renv_tests_init_options <- function() {
 # that would otherwise loaded in a renv_tests_scope()
 renv_tests_init_packages <- function() {
   requireNamespace("waldo", quietly = TRUE)
-  renv_namespace_load("crayon", quietly = TRUE)
+  renv_namespace_load("crayon")
 
   if (!isNamespaceLoaded("pak")) {
     usr <- file.path(tempdir(), "usr-cache")
@@ -69,7 +69,7 @@ renv_tests_init_packages <- function() {
       R_PKG_CACHE_DIR  = pkg
     )
 
-    requireNamespace("pak")
+    requireNamespace("pak", quietly = TRUE)
     # trigger package load in pak subprocess
     pak <- renv_namespace_load("pak")
     pak$remote(function() {})
