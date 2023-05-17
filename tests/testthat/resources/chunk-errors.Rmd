@@ -1,7 +1,7 @@
 
 ## Parse Errors
 
-`renv` should still be able to recover dependencies from the chunks without
+renv should still be able to recover dependencies from the chunks without
 parse errors.
 
 ```{r}

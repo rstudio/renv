@@ -28,7 +28,7 @@
 #' `renv.lock` -- and the lockfile object will be returned.
 #'
 #' @return
-#' An `renv` lockfile.
+#' An renv lockfile.
 #'
 #' @keywords internal
 renv_lockfile_from_manifest <- function(manifest,

@@ -10,7 +10,7 @@
 #' state of dependencies in the project library. The lockfile can be used to
 #' later [restore] these dependencies as required.
 #'
-#' It's also possible to call `renv::snapshot()` with a non-`renv` project,
+#' It's also possible to call `renv::snapshot()` with a non-renv project,
 #' in which case it will record the current state of dependencies in the
 #' current library paths. This makes it possible to [restore] the current packages,
 #' providing lightweight portability and reproducibility without isolation.
@@ -28,7 +28,7 @@
 #' actually required by your project will enter the lockfile; the downside
 #' if it might be slow if your project contains a large number of files.
 #' If speed becomes an issue, you might consider using `.renvignore` files to
-#' limit which files `renv` uses for dependency discovery, or switching to
+#' limit which files renv uses for dependency discovery, or switching to
 #' explicit mode, as described next.
 #' }
 #'
@@ -990,7 +990,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
   preamble <- "The following required packages are not installed:"
 
   postamble <- c(
-    "Packages must first be installed before `renv` can snapshot them.",
+    "Packages must first be installed before renv can snapshot them.",
     "Consider installing these packages using `renv::install()`.",
     if (type %in% "explicit")
       "If these packages are no longer required, consider removing them from your DESCRIPTION file."

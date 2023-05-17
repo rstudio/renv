@@ -3,7 +3,7 @@
 #'
 #' Associate a version of Python with your project.
 #'
-#' When Python integration is active, `renv` will:
+#' When Python integration is active, renv will:
 #'
 #' - Save metadata about the requested version of Python in `renv.lock` -- in
 #'   particular, the Python version, and the Python type ("virtualenv", "conda",
@@ -19,7 +19,7 @@
 #'   of Python currently active for this sessions,
 #'
 #' - The `RETICULATE_PYTHON` environment variable will be set, so that the
-#'   `reticulate` package can automatically use the requested copy of Python
+#'   reticulate package can automatically use the requested copy of Python
 #'   as appropriate,
 #'
 #' - The requested version of Python will be placed on the `PATH`, so that
@@ -27,7 +27,7 @@
 #'
 #' You can override the version of Python used in a particular project by
 #' setting the `RENV_PYTHON` environment variable; e.g. as part of the
-#' project's `.Renviron` file. This can be useful if you find that `renv`
+#' project's `.Renviron` file. This can be useful if you find that renv
 #' is unable to automatically discover a compatible version of Python to
 #' be used in the project.
 #'
@@ -53,8 +53,8 @@
 #'
 #' @section Finding Python:
 #'
-#' In interactive sessions, when `python = NULL`, `renv` will prompt for an
-#' appropriate version of Python. `renv` will search a pre-defined set of
+#' In interactive sessions, when `python = NULL`, renv will prompt for an
+#' appropriate version of Python. renv will search a pre-defined set of
 #' locations when attempting to find Python installations on the system:
 #'
 #' - `getOption("renv.python.root")`,
@@ -66,8 +66,8 @@
 #' - `~/.pyenv/versions`,
 #' - Python instances available on the `PATH`.
 #'
-#' In non-interactive sessions, `renv` will first check the `RETICULATE_PYTHON`
-#' environment variable; if that is unset, `renv` will look for Python on the
+#' In non-interactive sessions, renv will first check the `RETICULATE_PYTHON`
+#' environment variable; if that is unset, renv will look for Python on the
 #' `PATH`. It is recommended that the version of Python to be used is explicitly
 #' supplied for non-interactive usages of `use_python()`.
 #'

@@ -51,10 +51,10 @@
 #'
 #' @section \[renv\]:
 #'
-#' Information about the version of `renv` used to manage this project.
+#' Information about the version of renv used to manage this project.
 #'
 #' \tabular{ll}{
-#' \strong{Version}     \tab The version of the `renv` package used with this project. \cr
+#' \strong{Version}     \tab The version of the renv package used with this project. \cr
 #' }
 #'
 #' @section \[R\]:

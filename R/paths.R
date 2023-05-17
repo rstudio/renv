@@ -284,7 +284,7 @@ renv_paths_root_default_tempdir <- function() {
 #' Path for storing global state
 #'
 #' @description
-#' By default, `renv` stores global state in the following OS-specific folders:
+#' By default, renv stores global state in the following OS-specific folders:
 #'
 #' \tabular{ll}{
 #' **Platform** \tab **Location** \cr
@@ -317,7 +317,7 @@ renv_paths_root_default_tempdir <- function() {
 #' \code{RENV_PATHS_BINARY}          \tab The path containing downloaded package binaries. \cr
 #' \code{RENV_PATHS_CACHE}           \tab The path containing cached package installations. \cr
 #' \code{RENV_PATHS_PREFIX}          \tab An optional prefix to prepend to the constructed library / cache paths. \cr
-#' \code{RENV_PATHS_RENV}            \tab The path to the project's `renv` folder. For advanced users only. \cr
+#' \code{RENV_PATHS_RENV}            \tab The path to the project's renv folder. For advanced users only. \cr
 #' \code{RENV_PATHS_RTOOLS}          \tab (Windows only) The path to [Rtools](https://cran.r-project.org/bin/windows/Rtools/). \cr
 #' \code{RENV_PATHS_EXTSOFT}         \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
 #' \code{RENV_PATHS_MRAN}            \tab The path containing MRAN-related metadata. See `vignette("mran", package = "renv")` for more details. \cr
@@ -329,14 +329,14 @@ renv_paths_root_default_tempdir <- function() {
 #' site-wide file at `file.path(R.home("etc"), "Renviron.site")`. See
 #' [Startup] for more details).
 #'
-#' Note that `renv` will append platform-specific and version-specific entries
+#' Note that renv will append platform-specific and version-specific entries
 #' to the set paths as appropriate. For example, if you have set:
 #'
 #' ```
 #' Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
 #' ```
 #'
-#' then the directory used for the cache will still depend on the `renv` cache
+#' then the directory used for the cache will still depend on the renv cache
 #' version (e.g. `v2`), the \R version (e.g. `3.5`) and the platform (e.g.
 #' `x86_64-pc-linux-gnu`). For example:
 #'
@@ -349,7 +349,7 @@ renv_paths_root_default_tempdir <- function() {
 #' versions of \R needed to interact with the same cache.
 #'
 #' If reproducibility of a project is desired on a particular machine, it is
-#' highly recommended that the `renv` cache of installed packages + binary
+#' highly recommended that the renv cache of installed packages + binary
 #' packages is backed up and persisted, so that packages can be easily restored
 #' in the future -- installation of packages from source can often be arduous.
 #'
@@ -358,7 +358,7 @@ renv_paths_root_default_tempdir <- function() {
 #' If you need to share the same cache with multiple different Linux operating
 #' systems, you may want to set the `RENV_PATHS_PREFIX` environment variable
 #' to help disambiguate the paths used on Linux. For example, setting
-#' `RENV_PATHS_PREFIX = "ubuntu-bionic"` would instruct `renv` to construct a
+#' `RENV_PATHS_PREFIX = "ubuntu-bionic"` would instruct renv to construct a
 #' cache path like:
 #'
 #' ```
@@ -370,7 +370,7 @@ renv_paths_root_default_tempdir <- function() {
 #' located at `file.path(R.home("etc"), "Renviron.site")`, so that it can be
 #' active for any \R sessions launched on that machine.
 #'
-#' Starting from `renv 0.13.0`, you can also instruct `renv` to auto-generate
+#' Starting from `renv 0.13.0`, you can also instruct renv to auto-generate
 #' an OS-specific component to include as part of library and cache paths,
 #' by setting the environment variable:
 #'
@@ -384,7 +384,7 @@ renv_paths_root_default_tempdir <- function() {
 #' # Package cellar
 #'
 #' If your project depends on one or \R packages that are not available in any
-#' remote location, you can still provide a locally-available tarball for `renv`
+#' remote location, you can still provide a locally-available tarball for renv
 #' to use during restore. By default, these packages should be made available in
 #' the folder as specified by the `RENV_PATHS_CELLAR` environment variable. The
 #' package sources should be placed in a file at one of these locations:
@@ -395,13 +395,13 @@ renv_paths_root_default_tempdir <- function() {
 #' - `<project>/renv/cellar/<package>/<package>_<version>.<ext>`
 #'
 #' where `.<ext>` is `.tar.gz` for source packages, or `.tgz` for binaries on
-#' macOS and `.zip` for binaries on Windows. During `restore()`, `renv` will
+#' macOS and `.zip` for binaries on Windows. During `restore()`, renv will
 #' search the cellar for a compatible package, and prefer installation with
 #' that copy of the package if appropriate.
 #'
 #' # Older versions
 #'
-#' Older version of `renv` used a different default cache location.
+#' Older version of renv used a different default cache location.
 #' Those cache locations are:
 #'
 #' \tabular{ll}{
@@ -411,7 +411,7 @@ renv_paths_root_default_tempdir <- function() {
 #' Windows      \tab `%LOCALAPPDATA%/renv` \cr
 #' }
 #'
-#' If an `renv` root directory has already been created in one of the old
+#' If an renv root directory has already been created in one of the old
 #' locations, that will still be used. This change was made to comply with the
 #' CRAN policy requirements of \R packages.
 #'

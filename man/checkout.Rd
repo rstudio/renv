@@ -17,7 +17,7 @@ checkout(
 \item{repos}{The \R package repositories to use.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{packages}{The packages to be installed. When \code{NULL} (the default),
 all packages currently used in the project will be installed, as
@@ -46,8 +46,8 @@ a (set of) package repositories.
 \code{renv::checkout()} is most useful with services like the Posit's
 \href{https://packagemanager.rstudio.com/}{Package Manager}, as it
 can be used to switch between different repository snapshots within an
-\code{renv} project. In this way, you can upgrade (or downgrade) all of the
-packages used in a particular \code{renv} project to the package versions
+renv project. In this way, you can upgrade (or downgrade) all of the
+packages used in a particular renv project to the package versions
 provided by a particular snapshot.
 
 If your library contains packages installed from other remote sources (e.g.

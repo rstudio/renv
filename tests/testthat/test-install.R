@@ -57,7 +57,6 @@ test_that("installation failure is well-reported", {
 
   # try to build it and confirm error
   record <- list(Package = package, Path = package)
-  renv_scope_options(renv.verbose = FALSE)
   expect_error(renv_install_package_impl(record))
 
 })
@@ -318,10 +317,9 @@ test_that("install() prefers cellar when available", {
   skip_on_cran()
   renv_tests_scope()
 
-  root <- renv_tests_root()
   locals <- paste(
-    file.path(root, "nowhere"),
-    file.path(root, "local"),
+    renv_tests_path("nowhere"),
+    renv_tests_path("local"),
     sep = ";"
   )
 
@@ -333,8 +331,10 @@ test_that("install() prefers cellar when available", {
   record <- records$skeleton
   expect_equal(record$Source, "Cellar")
 
+  path <- normalizePath(renv_tests_path("local/skeleton"), winslash = "/", mustWork = FALSE)
   prefix <- if (renv_platform_windows()) "file:///" else "file://"
-  uri <- paste0(prefix, root, "/local/skeleton")
+  uri <- paste0(prefix, path)
+
   expect_equal(attr(record, "url"), uri)
 
 })
@@ -417,17 +417,16 @@ test_that("packages installed from cellar via direct path", {
   skip_on_cran()
   renv_tests_scope("skeleton")
 
-  root <- renv_tests_root()
   locals <- paste(
-    file.path(root, "nowhere"),
-    file.path(root, "local"),
+    renv_tests_path("nowhere"),
+    renv_tests_path("local"),
     sep = ";"
   )
 
   renv_scope_options(renv.config.cache.enabled = FALSE)
   renv_scope_envvars(RENV_PATHS_CELLAR = locals)
 
-  path <- file.path(root, "local/skeleton/skeleton_1.0.1.tar.gz")
+  path <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
   records <- install(path, rebuild = TRUE)
   expect_equal(records$skeleton$Source, "Cellar")
 

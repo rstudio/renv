@@ -21,14 +21,14 @@
 #' - The user library,
 #' - The site library,
 #' - The system library,
-#' - The `renv` cache.
+#' - The renv cache.
 #'
-#' If package is discovered in one of these locations, `renv` will attempt to
+#' If package is discovered in one of these locations, renv will attempt to
 #' copy or link that package into the requested library as appropriate.
 #'
 #' @section Missing Packages:
 #'
-#' If `renv` discovers that your project depends on \R packages not currently
+#' If renv discovers that your project depends on \R packages not currently
 #' installed in your user library, then it will attempt to install those
 #' packages from the active R repositories.
 #'
@@ -45,7 +45,7 @@
 #'   library? Set this to `"all"` if you'd like _all_ packages to be refreshed
 #'   from the source library if possible.
 #'
-#' @param sources A set of library paths from which `renv` should attempt to
+#' @param sources A set of library paths from which renv should attempt to
 #'   draw packages. See **Sources** for more details.
 #'
 #' @param prompt Boolean; prompt the user before taking any action? Ignored

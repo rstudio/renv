@@ -5,7 +5,6 @@ test_that("library permissions are validated before restore", {
   skip_on_os("windows")
   inaccessible <- renv_scope_tempfile()
   dir.create(inaccessible, mode = "0100")
-  renv_scope_options(renv.verbose = FALSE)
   expect_false(renv_install_preflight_permissions(inaccessible))
 })
 
@@ -151,8 +150,6 @@ test_that("renv::restore(packages = <...>) works", {
 
 test_that("restore ignores packages of incompatible architecture", {
 
-  renv_scope_options(renv.tests.verbose = FALSE)
-
   renv_tests_scope_repos()
   renv_tests_scope(c("unixonly", "windowsonly"))
   renv::init()
@@ -277,7 +274,6 @@ test_that("restore() restores packages with broken symlinks", {
 
   skip_on_cran()
   renv_scope_options(renv.settings.cache.enabled = TRUE)
-  renv_scope_options(renv.tests.verbose = FALSE)
   renv_tests_scope("breakfast")
   init()
 

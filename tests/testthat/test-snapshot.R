@@ -28,6 +28,7 @@ test_that("snapshot failures are reported", {
 
   output <- tempfile("renv-snapshot-output-")
   local({
+    renv_scope_options(renv.verbose = TRUE)
     renv_scope_sink(file = output)
     renv::snapshot(prompt = FALSE)
   })
@@ -50,6 +51,7 @@ test_that("broken symlinks are reported", {
 
   output <- tempfile("renv-snapshot-output-")
   local({
+    renv_scope_options(renv.verbose = TRUE)
     renv_scope_sink(file = output)
     renv::snapshot(prompt = FALSE)
   })
@@ -211,8 +213,6 @@ test_that("snapshot warns about unsatisfied dependencies", {
 
 test_that("snapshot records packages discovered in cellar", {
 
-  renv_scope_options(renv.tests.verbose = FALSE)
-
   renv_tests_scope_repos()
   renv_tests_scope("skeleton")
   renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
@@ -257,10 +257,7 @@ test_that("parse errors cause snapshot to abort", {
   writeLines("parse error", con = "parse-error.R")
 
   # init should succeed even with parse errors
-  local({
-    renv_scope_options(renv.tests.verbose = FALSE)
-    init(bare = TRUE)
-  })
+  init(bare = TRUE)
 
   # snapshots should fail when configured to do so
   renv_scope_options(renv.config.dependency.errors = "fatal")
@@ -414,10 +411,7 @@ test_that("a project using explicit snapshots is marked in sync appropriately", 
 
   skip_on_cran()
   renv_tests_scope()
-  renv_scope_options(
-    renv.config.snapshot.type = "explicit",
-    renv.tests.verbose = FALSE
-  )
+  renv_scope_options(renv.config.snapshot.type = "explicit")
 
   init()
 

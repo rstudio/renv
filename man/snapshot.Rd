@@ -25,7 +25,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{library}{The \R libraries to snapshot. When \code{NULL}, the active \R
 libraries (as reported by \code{.libPaths()}) are used.}
@@ -78,7 +78,7 @@ Call \code{renv::snapshot()} to update a \link[=lockfiles]{lockfile} with the cu
 state of dependencies in the project library. The lockfile can be used to
 later \link{restore} these dependencies as required.
 
-It's also possible to call \code{renv::snapshot()} with a non-\code{renv} project,
+It's also possible to call \code{renv::snapshot()} with a non-renv project,
 in which case it will record the current state of dependencies in the
 current library paths. This makes it possible to \link{restore} the current packages,
 providing lightweight portability and reproducibility without isolation.
@@ -95,7 +95,7 @@ as determined by \code{renv::dependencies()}. This ensures that only the package
 actually required by your project will enter the lockfile; the downside
 if it might be slow if your project contains a large number of files.
 If speed becomes an issue, you might consider using \code{.renvignore} files to
-limit which files \code{renv} uses for dependency discovery, or switching to
+limit which files renv uses for dependency discovery, or switching to
 explicit mode, as described next.
 }
 

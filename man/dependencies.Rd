@@ -24,7 +24,7 @@ explicitly to ensure that your project's \code{.renvignore}s (if any) are
 properly handled.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{progress}{Boolean; report progress output while enumerating
 dependencies?}
@@ -55,21 +55,21 @@ and the packages used within those \R files. This is done primarily by
 parsing the code and looking for calls of the form \code{library(package)},
 \code{require(package)}, \code{requireNamespace("package")}, and \code{package::method()}.
 renv also supports package loading with
-\href{https://cran.r-project.org/package=box}{\code{box}} (\code{box::use(...)}) and
-\href{https://cran.r-project.org/package=pacman}{\code{pacman}} (\code{pacman::p_load(...)})
+\href{https://cran.r-project.org/package=box}{box} (\code{box::use(...)}) and
+\href{https://cran.r-project.org/package=pacman}{pacman} (\code{pacman::p_load(...)})
 .
 
 For \R package projects, dependencies expressed in the \code{DESCRIPTION} file
 will also be discovered.
 
-Note that the \code{rmarkdown} package is required in order to crawl dependencies
+Note that the rmarkdown package is required in order to crawl dependencies
 in R Markdown files.
 }
 \section{Missing dependencies}{
 \code{dependencies()} uses static analysis to determine which packages are used
 by your project. This means that it inspects, but doesn't run, your
 source. Static analysis generally works well, but is not 100\% reliable in
-detecting the packages required by your project. For example, \code{renv} is
+detecting the packages required by your project. For example, renv is
 unable to detect this kind of usage:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{for (package in c("dplyr", "ggplot2")) \{
@@ -110,10 +110,10 @@ Depends:
 }
 
 \section{Ignoring files}{
-By default, \code{renv} will read your project's \code{.gitignore}s (if present) to
+By default, renv will read your project's \code{.gitignore}s (if present) to
 determine whether certain files or folders should be included when traversing
 directories. If preferred, you can also create a \code{.renvignore} file (with
-entries of the same format as a standard \code{.gitignore} file) to tell \code{renv}
+entries of the same format as a standard \code{.gitignore} file) to tell renv
 which files to ignore within a directory. If both \code{.renvignore} and
 \code{.gitignore} exist within a folder, the \code{.renvignore} will be used in lieu of
 the \code{.gitignore}.
@@ -137,10 +137,10 @@ text files.
 }
 
 \section{Errors}{
-\code{renv}'s attempts to enumerate package dependencies in your project can fail
+renv's attempts to enumerate package dependencies in your project can fail
 -- most commonly, because of failures when attempting to parse your \R code.
 You can use the \code{errors} argument to suppress these problems, but a
-more robust solution is tell \code{renv} not to look at the problematic code.
+more robust solution is tell renv not to look at the problematic code.
 As well as using \code{.renvignore}, as described above, you can also suppress errors
 discovered within individual \code{.Rmd} chunks by including \code{renv.ignore=TRUE}
 in the chunk header. For example:
@@ -150,7 +150,7 @@ in the chunk header. For example:
 ```
 }\if{html}{\out{</div>}}
 
-Similarly, if you'd like \code{renv} to parse a chunk that is otherwise ignored
+Similarly, if you'd like renv to parse a chunk that is otherwise ignored
 (e.g. because it has \code{eval=FALSE} as a chunk header), you can set:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{```\{r chunk-label, eval=FALSE, renv.ignore=FALSE\}
@@ -162,7 +162,7 @@ Similarly, if you'd like \code{renv} to parse a chunk that is otherwise ignored
 \section{Development Dependencies}{
 
 
-\code{renv} attempts to distinguish between 'development' dependencies and
+renv attempts to distinguish between 'development' dependencies and
 'runtime' dependencies. For example, you might rely on e.g.
 \href{https://cran.r-project.org/package=devtools}{devtools} and
 \href{https://cran.r-project.org/package=roxygen2}{roxygen2} during development

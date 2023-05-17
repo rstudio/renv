@@ -21,7 +21,7 @@ init(
 changed to match the requested project directory.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{profile}{The profile to be activated. When \code{NULL}, the default
 profile is activated instead. See \code{vignette("profiles", package = "renv")}
@@ -33,7 +33,7 @@ project.}
 \item{bare}{Boolean; initialize the project without attempting to discover
 and install R package dependencies?}
 
-\item{force}{Boolean; force initialization? By default, \code{renv} will refuse
+\item{force}{Boolean; force initialization? By default, renv will refuse
 to initialize the home directory as a project, to defend against accidental
 mis-usages of \code{init()}.}
 
@@ -41,10 +41,10 @@ mis-usages of \code{init()}.}
 the active repositories (as determined by \code{getOption("repos")}) are used.}
 
 \item{bioconductor}{The version of Bioconductor to be used with this project.
-Setting this may be appropriate if \code{renv} is unable to determine that your
+Setting this may be appropriate if renv is unable to determine that your
 project depends on a package normally available from Bioconductor. Set this
 to \code{TRUE} to use the default version of Bioconductor recommended by the
-\code{BiocManager} package.}
+BiocManager package.}
 
 \item{restart}{Boolean; attempt to restart the \R session after initializing
 the project? A session restart will be attempted if the \code{"restart"} \R
@@ -55,10 +55,10 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Call \code{renv::init()} to start using \code{renv} in the current project. This will:
+Call \code{renv::init()} to start using renv in the current project. This will:
 \enumerate{
 \item Set up project infrastructure (as described in \code{\link[=scaffold]{scaffold()}}) including
-the project library and the \code{.Rprofile} that ensures \code{renv} will be
+the project library and the \code{.Rprofile} that ensures renv will be
 used in all future sessions.
 \item Discover the packages that you currently and install them into an
 project library (as described in \code{\link[=hydrate]{hydrate()}}).
@@ -67,7 +67,7 @@ can be restored by others (as described in \code{\link[=snapshot]{snapshot()}}).
 \item Restarts R (if running inside RStudio).
 }
 
-If you call \code{init()} on a project that already uses \code{renv}, it will attempt
+If you call \code{init()} on a project that already uses renv, it will attempt
 to do the right thing: it will restore the project library if it's missing,
 or otherwise ask you what to do.
 }

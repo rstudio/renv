@@ -6,7 +6,7 @@
 #'   non-`NULL`.
 #'
 #' @param lockfile
-#'   The lockfile to use. When supplied, `renv` will use the packages as
+#'   The lockfile to use. When supplied, renv will use the packages as
 #'   declared in the lockfile.
 #'
 #' @param library

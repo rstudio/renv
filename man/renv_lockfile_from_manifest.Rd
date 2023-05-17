@@ -15,7 +15,7 @@ object; otherwise, the lockfile will be written to the path specified by
 \code{lockfile}.}
 }
 \value{
-An \code{renv} lockfile.
+An renv lockfile.
 }
 \description{
 Use \code{renv_lockfile_from_manifest()} to convert a \code{manifest.json} file from

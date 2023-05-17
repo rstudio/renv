@@ -96,8 +96,7 @@ test_that("local sources are preferred when available", {
   skip_on_cran()
   renv_tests_scope()
 
-  root <- renv_tests_root()
-  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(root, "local"))
+  renv_scope_envvars(RENV_PATHS_LOCAL = renv_tests_path("local"))
 
   record <- renv_available_packages_latest(package = "skeleton", type = "source")
   expect_identical(record$Source, "Cellar")
@@ -181,7 +180,8 @@ test_that("we can query the R universe", {
     available.packages(
       type = "source",
       repos = "https://rstudio.r-universe.dev"
-    )
+    ),
+    stringsAsFactors = FALSE
   )
 
   rhs <- available_packages(

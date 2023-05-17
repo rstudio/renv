@@ -1,7 +1,7 @@
 
 #' Resolve a Remote
 #'
-#' Given a remote specification, resolve it into an `renv` package record that
+#' Given a remote specification, resolve it into an renv package record that
 #' can be used for download and installation (e.g. with [install]).
 #'
 #' @param spec A remote specification. This should be a string, conforming

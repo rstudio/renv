@@ -23,10 +23,10 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-\code{activate()} enables \code{renv} for a project in both the current session and
+\code{activate()} enables renv for a project in both the current session and
 in all future sessions. You should not generally need to call \code{activate()}
 yourself as it's called automatically by \code{\link[=init]{init()}}, which is the best
-way to start using \code{renv} in a new project.
+way to start using renv in a new project.
 
 \code{activate()} first calls \code{\link[=scaffold]{scaffold()}} to set up the project
 infrastructure. Most importantly, this creates a project library and adds a
@@ -34,7 +34,7 @@ infrastructure. Most importantly, this creates a project library and adds a
 future instances of the project. It then calls \code{\link[=load]{load()}} to use the
 project library for the current session.
 
-\code{deactivate()} removes the infrastructure automatically activate \code{renv} in
+\code{deactivate()} removes the infrastructure automatically activate renv in
 new session. This removes the auto-loader from the \code{.Rprofile}; it does
 not delete the lockfile or the project library.
 }

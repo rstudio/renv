@@ -29,14 +29,14 @@ library, if the filesystem permissions permit them to do so. (This, for
 example, is the default behavior on macOS.)
 
 Because the site and system libraries are visible to all users, having those
-accessible in \code{renv} projects can potentially break isolation -- that is,
+accessible in renv projects can potentially break isolation -- that is,
 if a package were updated in the system library, that update would be visible
 to all \R projects on the system.
 
-To help defend against this, \code{renv} uses something it calls the "system library
-sandbox", or the "sandbox", to isolate \code{renv} projects from non-"base" packages
-that are installed into the system library. To accomplish this, when an \code{renv}
-project is loaded, \code{renv} will:
+To help defend against this, renv uses something it calls the "system library
+sandbox", or the "sandbox", to isolate renv projects from non-"base" packages
+that are installed into the system library. To accomplish this, when an renv
+project is loaded, renv will:
 \itemize{
 \item Create a new, empty library path (called the "sandbox"),
 \item Link only the "base" packages from the system library into the sandbox,

@@ -19,111 +19,39 @@ test_that <- function(desc, code) {
   iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
   testthat::skip_if(iscran && renv_platform_macos())
 
-  oldlibpaths <- .libPaths()
-  oldrepos <- getOption("repos")
-  oldconns <- getAllConnections()
-  oldopts <- options()
-  oldopts <- oldopts[grep("^renv", names(oldopts), invert = TRUE)]
-  oldopts$restart <- NULL
-
-  repopath <- getOption("renv.tests.repopath")
-  if (!is.null(repopath)) {
-    oldrepofiles <- list.files(
-      path = repopath,
-      all.files = TRUE,
-      full.names = TRUE,
-      recursive = TRUE
-    )
-  }
-
-  olduserdir <- file.path(renv_bootstrap_user_dir(), "library")
-  olduserfiles <- list.files(
-    path       = olduserdir,
-    all.files  = TRUE,
-    full.names = TRUE,
-    no..       = TRUE
-  )
+  state_old <- renv_test_state()
 
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)
   eval(call, envir = parent.frame())
 
-  newlibpaths <- .libPaths()
-  reporter <- testthat::get_reporter()
-
-  ok <-
-    identical(reporter$.context, "Sandbox") ||
-    identical(oldlibpaths, newlibpaths)
-
-  if (!ok) {
-    writeLines(c("", oldlibpaths, "", newlibpaths))
-    stopf("test %s has modified libpaths", shQuote(desc))
+  state_new <- renv_test_state()
+  state_diff <- renv_namespace_load("waldo")$compare(state_old, state_new)
+  if (length(state_diff) > 0) {
+    diffs <- paste0(format(state_diff), collapse = "\n\n")
+    stopf("Test '%s' modified global state\n%s", desc, diffs)
   }
+}
 
-  newrepos <- getOption("repos")
-  ok <- identical(oldrepos, newrepos)
-  if (!ok) {
-    writeLines(c("", oldrepos, "", newrepos))
-    stopf("test %s has modified repos", shQuote(desc))
-  }
+test_list_files <- function(path) {
+  list.files(path = path, all.files  = TRUE, full.names = TRUE, no.. = TRUE)
+}
 
-  if (!is.null(repopath)) {
-    newrepofiles <- list.files(
-      path = repopath,
-      all.files = TRUE,
-      full.names = TRUE,
-      recursive = TRUE
-    )
-    if (!setequal(oldrepofiles, newrepofiles)) {
-      writeLines(setdiff(oldrepofiles, newrepofiles))
-      writeLines(setdiff(newrepofiles, oldrepofiles))
-      stopf("test %s has modified packages in repository", shQuote(desc))
-    }
-  }
+renv_test_state <- function() {
+  repopath <- getOption("renv.tests.repopath")
+  userpath <- file.path(renv_bootstrap_user_dir(), "library")
 
-  newconns <- getAllConnections()
-  if (!identical(oldconns, newconns)) {
-    writeLines("")
-    print(newconns)
-    stopf("test %s has leaked connections", shQuote(desc))
-  }
+  opts <- options()
+  opts <- opts[grep("^diffobj", names(opts), invert = TRUE)]
+  opts$ambiguousMethodSelection <- NULL
+  opts$restart <- NULL
+  opts <- opts[csort(names(opts))]
 
-  newopts <- options()
-  newopts <- newopts[grep("^renv", names(newopts), invert = TRUE)]
-  newopts$restart <- NULL
-
-  if (!identical(oldopts, newopts)) {
-    writeLines("")
-    if (renv_package_available("waldo")) {
-      waldo <- renv_namespace_load("waldo")
-      waldo$compare(oldopts, newopts)
-    } else {
-      str(renv_lockfile_diff(oldopts, newopts))
-    }
-    stopf("test %s has modified global options", shQuote(desc))
-  }
-
-  newuserfiles <- list.files(
-    path       = olduserdir,
-    all.files  = TRUE,
-    full.names = TRUE,
-    no..       = TRUE
+  list(
+    libpaths = .libPaths(),
+    connection = getAllConnections(),
+    options = opts,
+    repo_files = if (!is.null(repopath)) test_list_files(repopath),
+    user_files = test_list_files(userpath)
   )
-
-  if (!setequal(olduserfiles, newuserfiles)) {
-    writeLines(setdiff(olduserfiles, newuserfiles))
-    writeLines(setdiff(newuserfiles, olduserfiles))
-    stopf("test %s did not clean up in user cache directory", shQuote(desc))
-  }
-
-}
-
-expect_error <- function(...) {
-  renv_scope_options(renv.tests.verbose = FALSE)
-  testthat::expect_error(...)
-}
-
-expect_warning <- function(...) {
-  renv_scope_options(renv.tests.verbose = FALSE)
-  testthat::expect_warning(...)
 }

@@ -138,7 +138,7 @@ test_that("ignores can be set via option if required", {
   writeLines("library(C)", con = "ok/script.R")
 
   exclude <- structure(c("/data/", "/inst/"), asis = TRUE)
-  options(renv.renvignore.exclude = exclude)
+  renv_scope_options(renv.renvignore.exclude = exclude)
 
   deps <- dependencies(progress = FALSE)
   expect_setequal(deps$Package, "C")

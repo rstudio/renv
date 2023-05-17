@@ -2,10 +2,10 @@
 #' Use renv in a project
 #'
 #' @description
-#' Call `renv::init()` to start using `renv` in the current project. This will:
+#' Call `renv::init()` to start using renv in the current project. This will:
 #'
 #' 1. Set up project infrastructure (as described in [scaffold()]) including
-#'    the project library and the `.Rprofile` that ensures `renv` will be
+#'    the project library and the `.Rprofile` that ensures renv will be
 #'    used in all future sessions.
 #'
 #' 1. Discover the packages that you currently and install them into an
@@ -16,7 +16,7 @@
 #'
 #' 1. Restarts R (if running inside RStudio).
 #'
-#' If you call `init()` on a project that already uses `renv`, it will attempt
+#' If you call `init()` on a project that already uses renv, it will attempt
 #' to do the right thing: it will restore the project library if it's missing,
 #' or otherwise ask you what to do.
 #'
@@ -31,7 +31,7 @@
 #' @param bare Boolean; initialize the project without attempting to discover
 #'   and install R package dependencies?
 #'
-#' @param force Boolean; force initialization? By default, `renv` will refuse
+#' @param force Boolean; force initialization? By default, renv will refuse
 #'   to initialize the home directory as a project, to defend against accidental
 #'   mis-usages of `init()`.
 #'
@@ -39,10 +39,10 @@
 #'   the active repositories (as determined by `getOption("repos")`) are used.
 #'
 #' @param bioconductor The version of Bioconductor to be used with this project.
-#'   Setting this may be appropriate if `renv` is unable to determine that your
+#'   Setting this may be appropriate if renv is unable to determine that your
 #'   project depends on a package normally available from Bioconductor. Set this
 #'   to `TRUE` to use the default version of Bioconductor recommended by the
-#'   `BiocManager` package.
+#'   BiocManager package.
 #'
 #' @param restart Boolean; attempt to restart the \R session after initializing
 #'   the project? A session restart will be attempted if the `"restart"` \R

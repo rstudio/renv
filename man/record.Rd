@@ -17,11 +17,11 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-Use \code{record()} to record a new entry within an existing \code{renv} lockfile.
+Use \code{record()} to record a new entry within an existing renv lockfile.
 }
 \details{
 This function can be useful when you need to change one or more of the
-package records within an \code{renv} lockfile -- for example, because a recorded
+package records within an renv lockfile -- for example, because a recorded
 package cannot be restored in a particular environment, and you know of a
 suitable alternative.
 }

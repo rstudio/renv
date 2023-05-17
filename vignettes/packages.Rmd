@@ -47,7 +47,7 @@ latest-available versions of its dependencies on CRAN. However, in some cases,
 you may need to ensure your package is compatible with other packages also
 currently under development.
 
-In these cases, the `renv` project library can be useful -- you can install the
+In these cases, the renv project library can be useful -- you can install the
 development version(s) of your dependencies into the project library, without
 worrying about clobbering any packages already installed in your user library.
 
@@ -60,7 +60,7 @@ Remotes:
 ```
 
 and `renv::install()` will parse that remotes declaration and retrieve the
-requested package. See the `remotes` vignette,
+requested package. See the remotes vignette,
 [Dependency resolution for R package development][dependencies],
 for more details.
 
@@ -69,12 +69,12 @@ for more details.
 
 While developing your package, you may want to use a continuous integration
 service (such as [Travis CI](https://www.travis-ci.com)) to build and test
-your package remotely. You can use `renv` to help facilitate this testing --
+your package remotely. You can use renv to help facilitate this testing --
 see the [Continuous Integration][ci] vignette for more information. In
-particular, clever use of the `renv` cache can help save time that might
+particular, clever use of the renv cache can help save time that might
 normally be spent on package installation. See
 <https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml>
-for an example of how `renv` uses itself for package management in its own
+for an example of how renv uses itself for package management in its own
 CI tests.
 
 
@@ -83,7 +83,7 @@ CI tests.
 By default, when building a package tarball, R will copy all files within the
 package directory to a temporary build directory before building the package.
 This can be time consuming if your project contains a large number of files.
-For this reason, `renv` places the project library for package projects within
+For this reason, renv places the project library for package projects within
 a separate external directory by default. This directory is:
 
 ```
@@ -119,7 +119,7 @@ If you'd prefer to omit the `<id>`, then you can set the environment variable:
 RENV_PATHS_LIBRARY_ROOT_ASIS = TRUE
 ```
 
-to instruct `renv` to forego the use of an identifier.
+to instruct renv to forego the use of an identifier.
 
 
 
