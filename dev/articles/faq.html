@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -146,12 +146,12 @@ aren’t unintentionally ignoring a package you actually require.</p>
 <h3 id="capturing-explicit-dependencies">Capturing explicit dependencies<a class="anchor" aria-label="anchor" href="#capturing-explicit-dependencies"></a>
 </h3>
 <p>If you’d like to explicitly declare which packages your project
-depends on, you can do so by telling <code>renv</code> to form
-“explicit” snapshots:</p>
+depends on, you can do so by telling renv to form “explicit”
+snapshots:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/settings.html">settings</a></span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span><span class="st">"explicit"</span><span class="op">)</span></span></code></pre></div>
-<p>In this mode, <code>renv</code> will only include packages which are
-explicitly listed in the project’s <code>DESCRIPTION</code> file as
+<p>In this mode, renv will only include packages which are explicitly
+listed in the project’s <code>DESCRIPTION</code> file as
 dependencies.</p>
 </div>
 </div>
@@ -163,7 +163,7 @@ dependencies.</p>
 point in time when <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> was called. In that
 sense, the “right” way to update the lockfile is to:</p>
 <ol style="list-style-type: decimal">
-<li>Load the <code>renv</code> project,</li>
+<li>Load the renv project,</li>
 <li>Make the changes you want; e.g. install packages; call
 <code>options(repos = &lt;...&gt;)</code>; …</li>
 <li>Call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to update the lockfile.</li>
@@ -176,8 +176,8 @@ schema is provided, you should be able to infer the structure from the
 existing fields.</p>
 <p>The main downside to editing a package record in the lockfile
 directly is that you won’t be able to provide a <code>Hash</code> for
-that package, and so <code>renv</code> won’t be able to use its global
-package cache when installing that package.</p>
+that package, and so renv won’t be able to use its global package cache
+when installing that package.</p>
 </div>
 <div class="section level2">
 <h2 id="how-should-i-handle-development-dependencies">How should I handle development dependencies?<a class="anchor" aria-label="anchor" href="#how-should-i-handle-development-dependencies"></a>
@@ -193,22 +193,22 @@ project DESCRIPTION file; typically, within the <code>Suggests:</code>
 field. Then, you can execute:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>to request that <code>renv</code> install the packages as described
-in the DESCRIPTION file. In addition, the <code>Remotes:</code> fields
-will be parsed and used, to ensure packages are installed from their
-declared remote source as appropriate.</p>
+<p>to request that renv install the packages as described in the
+DESCRIPTION file. In addition, the <code>Remotes:</code> fields will be
+parsed and used, to ensure packages are installed from their declared
+remote source as appropriate.</p>
 </div>
 <div class="section level2">
 <h2 id="im-returning-to-an-older-renv-project--what-do-i-do">I’m returning to an older renv project. What do I do?<a class="anchor" aria-label="anchor" href="#im-returning-to-an-older-renv-project--what-do-i-do"></a>
 </h2>
-<p>Suppose you were using <code>renv</code> to manage an older project’s
+<p>Suppose you were using renv to manage an older project’s
 dependencies. You have an older lockfile, capturing the dependencies in
 use when you were last working with that project. You now need to resume
 work on this project – what do you do?</p>
 <p>The answer depends on how exactly you want to use the project. Do you
 want to treat it as a “time capsule”, with dependencies frozen in time?
 Or are the dependencies in this project fluid, and you are primarily
-using <code>renv</code> just for isolation of project dependencies?</p>
+using renv just for isolation of project dependencies?</p>
 <p>For time capsules, use <code><a href="../reference/restore.html">renv::restore()</a></code> to reinstall the
 exact packages as declared in the project lockfile
 <code>renv.lock</code>. You may also need to find and install the older
@@ -237,13 +237,13 @@ to update the new lockfile.</p></li>
 your machine and the R package repositories and remote sources you are
 trying to use. If you are working in a corporate environment, it may be
 worth confirming whether you have a corporate proxy in place inhibiting
-internet access, or whether R and <code>renv</code> need to be
-configured in a way compatible with your working environment. This is
-often true on Windows machines in enterprise environments, where the
-default “wininet” download method may work more reliably than others.
-Learn more in <code><a href="../articles/package-install.html">vignette("package-install")</a></code>.</p>
-<p>In addition, note that <code>renv</code> places shims on the R search
-path that re-routes calls from <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> to
+internet access, or whether R and renv need to be configured in a way
+compatible with your working environment. This is often true on Windows
+machines in enterprise environments, where the default “wininet”
+download method may work more reliably than others. Learn more in
+<code><a href="../articles/package-install.html">vignette("package-install")</a></code>.</p>
+<p>In addition, note that renv places shims on the R search path that
+re-routes calls from <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> to
 <code><a href="../reference/install.html">renv::install()</a></code>. If you need to bypass these shims, you can
 use <code>utils::install.packages(&lt;...&gt;)</code>; that is, with the
 call to <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> explicitly qualified with the

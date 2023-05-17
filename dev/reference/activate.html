@@ -32,7 +32,7 @@ not delete the lockfile or the project library."><meta property="og:image" conte
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,16 +91,16 @@ not delete the lockfile or the project library."><meta property="og:image" conte
     </div>
 
     <div class="ref-description section level2">
-    <p><code>activate()</code> enables <code>renv</code> for a project in both the current session and
+    <p><code>activate()</code> enables renv for a project in both the current session and
 in all future sessions. You should not generally need to call <code>activate()</code>
 yourself as it's called automatically by <code><a href="init.html">init()</a></code>, which is the best
-way to start using <code>renv</code> in a new project.</p>
+way to start using renv in a new project.</p>
 <p><code>activate()</code> first calls <code><a href="scaffold.html">scaffold()</a></code> to set up the project
 infrastructure. Most importantly, this creates a project library and adds a
 <code>.Rprofile</code> to ensure that the project library is automatically used for all
 future instances of the project. It then calls <code><a href="load.html">load()</a></code> to use the
 project library for the current session.</p>
-<p><code>deactivate()</code> removes the infrastructure automatically activate <code>renv</code> in
+<p><code>deactivate()</code> removes the infrastructure automatically activate renv in
 new session. This removes the auto-loader from the <code>.Rprofile</code>; it does
 not delete the lockfile or the project library.</p>
     </div>

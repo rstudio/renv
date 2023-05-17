@@ -12,7 +12,7 @@ be run within an R sub-process."><meta property="og:image" content="https://rstu
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@ be run within an R sub-process."><meta property="og:image" content="https://rstu
     </div>
 
     <div class="ref-description section level2">
-    <p>Run an <span style="R">R</span> script, in the context of a project using <code>renv</code>. The script will
+    <p>Run an <span style="R">R</span> script, in the context of a project using renv. The script will
 be run within an <span style="R">R</span> sub-process.</p>
     </div>
 
@@ -88,12 +88,12 @@ be run within an <span style="R">R</span> sub-process.</p>
 
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
-are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+are matched to <code>...</code>, renv will signal an error.</p></dd>
 
 
 <dt>job</dt>
 <dd><p>Run the requested script as an RStudio job? Requires a recent
-version of both RStudio and the <code>rstudioapi</code> packages. When <code>NULL</code>, the
+version of both RStudio and the rstudioapi packages. When <code>NULL</code>, the
 script will be run as a job if possible, and as a regular <span style="R">R</span> process
 launched by <code><a href="https://rdrr.io/r/base/system2.html" class="external-link">system2()</a></code> if not.</p></dd>
 
@@ -103,8 +103,8 @@ launched by <code><a href="https://rdrr.io/r/base/system2.html" class="external-
 
 
 <dt>project</dt>
-<dd><p>The path to the <code>renv</code> project. This project will be loaded
-before the requested script is executed. When <code>NULL</code> (the default), <code>renv</code>
+<dd><p>The path to the renv project. This project will be loaded
+before the requested script is executed. When <code>NULL</code> (the default), renv
 will automatically determine the project root for the associated script
 if possible.</p></dd>
 

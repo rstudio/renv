@@ -32,7 +32,7 @@ users to be able to share a single global cache."><meta property="og:image" cont
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,7 @@ users to be able to share a single global cache."><meta property="og:image" cont
     </div>
 
     <div class="ref-description section level2">
-    <p>By default, <code>renv</code> stores global state in the following OS-specific folders:</p>
+    <p>By default, renv stores global state in the following OS-specific folders:</p>
 <table class="table table"><tr><td><strong>Platform</strong></td><td><strong>Location</strong></td></tr><tr><td>Linux</td><td><code>~/.cache/R/renv</code></td></tr><tr><td>macOS</td><td><code>~/Library/Caches/org.R-project.R/R/renv</code></td></tr><tr><td>Windows</td><td><code>%LOCALAPPDATA%/R/cache/R/renv</code></td></tr></table><p>If desired, this path can be customized by setting the <code>RENV_PATHS_ROOT</code>
 environment variable. This can be useful if you'd like, for example, multiple
 users to be able to share a single global cache.</p>
@@ -108,15 +108,15 @@ users to be able to share a single global cache.</p>
 desired (e.g. you'd prefer to keep the cache of package installations on a
 separate volume). The various environment variables that can be set are
 enumerated below:</p>
-<table class="table table"><tr><td><strong>Environment Variable</strong></td><td><strong>Description</strong></td></tr><tr><td><code>RENV_PATHS_ROOT</code></td><td>The root path used for global state storage.</td></tr><tr><td><code>RENV_PATHS_LIBRARY</code></td><td>The path to the project library.</td></tr><tr><td><code>RENV_PATHS_LIBRARY_ROOT</code></td><td>The parent path for project libraries.</td></tr><tr><td><code>RENV_PATHS_LIBRARY_STAGING</code></td><td>The parent path used for staged package installs.</td></tr><tr><td><code>RENV_PATHS_SANDBOX</code></td><td>The path to the sandboxed <span style="R">R</span> system library.</td></tr><tr><td><code>RENV_PATHS_LOCKFILE</code></td><td>The path to the <a href="lockfiles.html">lockfile</a>.</td></tr><tr><td><code>RENV_PATHS_CELLAR</code></td><td>The path to the cellar, containing local package binaries and sources.</td></tr><tr><td><code>RENV_PATHS_SOURCE</code></td><td>The path containing downloaded package sources.</td></tr><tr><td><code>RENV_PATHS_BINARY</code></td><td>The path containing downloaded package binaries.</td></tr><tr><td><code>RENV_PATHS_CACHE</code></td><td>The path containing cached package installations.</td></tr><tr><td><code>RENV_PATHS_PREFIX</code></td><td>An optional prefix to prepend to the constructed library / cache paths.</td></tr><tr><td><code>RENV_PATHS_RENV</code></td><td>The path to the project's <code>renv</code> folder. For advanced users only.</td></tr><tr><td><code>RENV_PATHS_RTOOLS</code></td><td>(Windows only) The path to <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">Rtools</a>.</td></tr><tr><td><code>RENV_PATHS_EXTSOFT</code></td><td>(Windows only) The path containing external software needed for compilation of Windows source packages.</td></tr><tr><td><code>RENV_PATHS_MRAN</code></td><td>The path containing MRAN-related metadata. See <code><a href="https://rstudio.github.io/renv/articles/mran.html">vignette("mran", package = "renv")</a></code> for more details.</td></tr></table><p>(If you want these settings to persist in your project, it is recommended that
+<table class="table table"><tr><td><strong>Environment Variable</strong></td><td><strong>Description</strong></td></tr><tr><td><code>RENV_PATHS_ROOT</code></td><td>The root path used for global state storage.</td></tr><tr><td><code>RENV_PATHS_LIBRARY</code></td><td>The path to the project library.</td></tr><tr><td><code>RENV_PATHS_LIBRARY_ROOT</code></td><td>The parent path for project libraries.</td></tr><tr><td><code>RENV_PATHS_LIBRARY_STAGING</code></td><td>The parent path used for staged package installs.</td></tr><tr><td><code>RENV_PATHS_SANDBOX</code></td><td>The path to the sandboxed <span style="R">R</span> system library.</td></tr><tr><td><code>RENV_PATHS_LOCKFILE</code></td><td>The path to the <a href="lockfiles.html">lockfile</a>.</td></tr><tr><td><code>RENV_PATHS_CELLAR</code></td><td>The path to the cellar, containing local package binaries and sources.</td></tr><tr><td><code>RENV_PATHS_SOURCE</code></td><td>The path containing downloaded package sources.</td></tr><tr><td><code>RENV_PATHS_BINARY</code></td><td>The path containing downloaded package binaries.</td></tr><tr><td><code>RENV_PATHS_CACHE</code></td><td>The path containing cached package installations.</td></tr><tr><td><code>RENV_PATHS_PREFIX</code></td><td>An optional prefix to prepend to the constructed library / cache paths.</td></tr><tr><td><code>RENV_PATHS_RENV</code></td><td>The path to the project's renv folder. For advanced users only.</td></tr><tr><td><code>RENV_PATHS_RTOOLS</code></td><td>(Windows only) The path to <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">Rtools</a>.</td></tr><tr><td><code>RENV_PATHS_EXTSOFT</code></td><td>(Windows only) The path containing external software needed for compilation of Windows source packages.</td></tr><tr><td><code>RENV_PATHS_MRAN</code></td><td>The path containing MRAN-related metadata. See <code><a href="https://rstudio.github.io/renv/articles/mran.html">vignette("mran", package = "renv")</a></code> for more details.</td></tr></table><p>(If you want these settings to persist in your project, it is recommended that
 you add these to an appropriate <span style="R">R</span> startup file. For example, these could be
 set in: a project-local <code>.Renviron</code>, the user-level <code>.Renviron</code>, or a
 site-wide file at <code>file.path(R.home("etc"), "Renviron.site")</code>. See
 <a href="https://rdrr.io/r/base/Startup.html" class="external-link">Startup</a> for more details).</p>
-<p>Note that <code>renv</code> will append platform-specific and version-specific entries
+<p>Note that renv will append platform-specific and version-specific entries
 to the set paths as appropriate. For example, if you have set:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">RENV_PATHS_CACHE =</span> <span class="st">"/mnt/shared/renv/cache"</span>)</span></code></pre><p></p></div>
-<p>then the directory used for the cache will still depend on the <code>renv</code> cache
+<p>then the directory used for the cache will still depend on the renv cache
 version (e.g. <code>v2</code>), the <span style="R">R</span> version (e.g. <code>3.5</code>) and the platform (e.g.
 <code>x86_64-pc-linux-gnu</code>). For example:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">/</span>mnt<span class="sc">/</span>shared<span class="sc">/</span>renv<span class="sc">/</span>cache<span class="sc">/</span>v2<span class="sc">/</span>R<span class="fl">-3.5</span><span class="sc">/</span>x86_64<span class="sc">-</span>pc<span class="sc">-</span>linux<span class="sc">-</span>gnu</span></code></pre><p></p></div>
@@ -124,7 +124,7 @@ version (e.g. <code>v2</code>), the <span style="R">R</span> version (e.g. <code
 globally without worry that it may cause collisions or errors if multiple
 versions of <span style="R">R</span> needed to interact with the same cache.</p>
 <p>If reproducibility of a project is desired on a particular machine, it is
-highly recommended that the <code>renv</code> cache of installed packages + binary
+highly recommended that the renv cache of installed packages + binary
 packages is backed up and persisted, so that packages can be easily restored
 in the future -- installation of packages from source can often be arduous.</p>
     </div>
@@ -133,14 +133,14 @@ in the future -- installation of packages from source can often be arduous.</p>
     <p>If you need to share the same cache with multiple different Linux operating
 systems, you may want to set the <code>RENV_PATHS_PREFIX</code> environment variable
 to help disambiguate the paths used on Linux. For example, setting
-<code>RENV_PATHS_PREFIX = "ubuntu-bionic"</code> would instruct <code>renv</code> to construct a
+<code>RENV_PATHS_PREFIX = "ubuntu-bionic"</code> would instruct renv to construct a
 cache path like:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">/</span>mnt<span class="sc">/</span>shared<span class="sc">/</span>renv<span class="sc">/</span>cache<span class="sc">/</span>v2<span class="sc">/</span>ubuntu<span class="sc">-</span>bionic<span class="sc">/</span>R<span class="fl">-3.5</span><span class="sc">/</span>x86_64<span class="sc">-</span>pc<span class="sc">-</span>linux<span class="sc">-</span>gnu</span></code></pre><p></p></div>
 <p>If this is required, it's strongly recommended that this environment
 variable is set in your <span style="R">R</span> installation's <code>Renviron.site</code> file, typically
 located at <code>file.path(R.home("etc"), "Renviron.site")</code>, so that it can be
 active for any <span style="R">R</span> sessions launched on that machine.</p>
-<p>Starting from <code>renv 0.13.0</code>, you can also instruct <code>renv</code> to auto-generate
+<p>Starting from <code>renv 0.13.0</code>, you can also instruct renv to auto-generate
 an OS-specific component to include as part of library and cache paths,
 by setting the environment variable:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>RENV_PATHS_PREFIX_AUTO <span class="ot">=</span> <span class="cn">TRUE</span></span></code></pre><p></p></div>
@@ -150,7 +150,7 @@ by setting the environment variable:</p>
     <div class="section level2">
     <h2 id="package-cellar">Package cellar<a class="anchor" aria-label="anchor" href="#package-cellar"></a></h2>
     <p>If your project depends on one or <span style="R">R</span> packages that are not available in any
-remote location, you can still provide a locally-available tarball for <code>renv</code>
+remote location, you can still provide a locally-available tarball for renv
 to use during restore. By default, these packages should be made available in
 the folder as specified by the <code>RENV_PATHS_CELLAR</code> environment variable. The
 package sources should be placed in a file at one of these locations:</p><ul><li><p><code>${RENV_PATHS_CELLAR}/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
@@ -158,15 +158,15 @@ package sources should be placed in a file at one of these locations:</p><ul><li
 <li><p><code>&lt;project&gt;/renv/cellar/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 <li><p><code>&lt;project&gt;/renv/cellar/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code></p></li>
 </ul><p>where <code>.&lt;ext&gt;</code> is <code>.tar.gz</code> for source packages, or <code>.tgz</code> for binaries on
-macOS and <code>.zip</code> for binaries on Windows. During <code><a href="restore.html">restore()</a></code>, <code>renv</code> will
+macOS and <code>.zip</code> for binaries on Windows. During <code><a href="restore.html">restore()</a></code>, renv will
 search the cellar for a compatible package, and prefer installation with
 that copy of the package if appropriate.</p>
     </div>
     <div class="section level2">
     <h2 id="older-versions">Older versions<a class="anchor" aria-label="anchor" href="#older-versions"></a></h2>
-    <p>Older version of <code>renv</code> used a different default cache location.
+    <p>Older version of renv used a different default cache location.
 Those cache locations are:</p>
-<table class="table table"><tr><td><strong>Platform</strong></td><td><strong>Location</strong></td></tr><tr><td>Linux</td><td><code>~/.local/share/renv</code></td></tr><tr><td>macOS</td><td><code>~/Library/Application Support/renv</code></td></tr><tr><td>Windows</td><td><code>%LOCALAPPDATA%/renv</code></td></tr></table><p>If an <code>renv</code> root directory has already been created in one of the old
+<table class="table table"><tr><td><strong>Platform</strong></td><td><strong>Location</strong></td></tr><tr><td>Linux</td><td><code>~/.local/share/renv</code></td></tr><tr><td>macOS</td><td><code>~/Library/Application Support/renv</code></td></tr><tr><td>Windows</td><td><code>%LOCALAPPDATA%/renv</code></td></tr></table><p>If an renv root directory has already been created in one of the old
 locations, that will still be used. This change was made to comply with the
 CRAN policy requirements of <span style="R">R</span> packages.</p>
     </div>

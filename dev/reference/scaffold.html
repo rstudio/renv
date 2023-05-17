@@ -32,7 +32,7 @@ Write a (bare) lockfile, renv.lock.
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,14 +91,14 @@ Write a (bare) lockfile, renv.lock.
     </div>
 
     <div class="ref-description section level2">
-    <p>Create the <code>renv</code> project infrastructure. This will:</p><ul><li><p>Create a project library, <code>renv/library</code>.</p></li>
-<li><p>Install <code>renv</code> into the project library.</p></li>
+    <p>Create the renv project infrastructure. This will:</p><ul><li><p>Create a project library, <code>renv/library</code>.</p></li>
+<li><p>Install renv into the project library.</p></li>
 <li><p>Update the project <code>.Rprofile</code> to call <code>source("renv/activate.R")</code> so
-that <code>renv</code> is automatically loaded for new <span style="R">R</span> sessions launched in
+that renv is automatically loaded for new <span style="R">R</span> sessions launched in
 this project.</p></li>
 <li><p>Create <code>renv/.gitignore</code>, which tells git to ignore the project library.</p></li>
 <li><p>Create <code>.Rbuildignore</code>, if the project is also a package. This tells
-<code>R CMD build</code> to ignore the <code>renv</code> infrastructure,</p></li>
+<code>R CMD build</code> to ignore the renv infrastructure,</p></li>
 <li><p>Write a (bare) <a href="lockfiles.html">lockfile</a>, <code>renv.lock</code>.</p></li>
 </ul></div>
 
@@ -121,8 +121,8 @@ directory is used instead.</p></dd>
 
 
 <dt>version</dt>
-<dd><p>The version of <code>renv</code> to associate with this project. By
-default, the version of <code>renv</code> currently installed is used.</p></dd>
+<dd><p>The version of renv to associate with this project. By
+default, the version of renv currently installed is used.</p></dd>
 
 
 <dt>repos</dt>
@@ -130,7 +130,7 @@ default, the version of <code>renv</code> currently installed is used.</p></dd>
 
 
 <dt>settings</dt>
-<dd><p>A list of <code>renv</code> settings, to be applied to the project
+<dd><p>A list of renv settings, to be applied to the project
 after creation. These should map setting names to the desired values.
 See <a href="settings.html">settings</a> for more details.</p></dd>
 

@@ -22,7 +22,7 @@ See vignette("package-install") for more details.'><meta property="og:image" con
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,19 +109,19 @@ a binary copy of that package is already available.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>packages</dt>
 <dd><p>Either <code>NULL</code> (the default) to install all packages required
-by the project, or a character vector of packages to install. <code>renv</code>
-supports a subset of the <code>remotes</code> syntax used for package installation,
+by the project, or a character vector of packages to install. renv
+supports a subset of the remotes syntax used for package installation,
 e.g:</p><ul><li><p><code>pkg</code>: install latest version of <code>pkg</code> from CRAN.</p></li>
 <li><p><code>pkg@version</code>: install specified version of <code>pkg</code> from CRAN.</p></li>
 <li><p><code>username/repo</code>: install package from GitHub</p></li>
-<li><p><code>bioc::pkg</code>: install pkg from Bioconductor.</p></li>
+<li><p><code>bioc::pkg</code>: install <code>pkg</code> from Bioconductor.</p></li>
 </ul><p>See <a href="https://remotes.r-lib.org/articles/dependencies.html" class="external-link">https://remotes.r-lib.org/articles/dependencies.html</a> and the examples
 below for more details.</p></dd>
 
 
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
-are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+are matched to <code>...</code>, renv will signal an error.</p></dd>
 
 
 <dt>library</dt>
@@ -174,7 +174,7 @@ directory is used instead.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A named list of package records which were installed by <code>renv</code>.</p>
+<p>A named list of package records which were installed by renv.</p>
     </div>
     <div class="section level2">
     <h2 id="project-description-files">Project DESCRIPTION Files<a class="anchor" aria-label="anchor" href="#project-description-files"></a></h2>
@@ -182,7 +182,7 @@ directory is used instead.</p></dd>
 
 
 <p>If your project contains a <code>DESCRIPTION</code> file, then calling <code>install()</code>
-without any arguments will instruct <code>renv</code> to install the latest versions of
+without any arguments will instruct renv to install the latest versions of
 all packages as declared within that <code>DESCRIPTION</code> file's <code>Depends</code>,
 <code>Imports</code> and <code>LinkingTo</code> fields; similar to how an <span style="R">R</span> package might declare
 its dependencies.</p>
@@ -205,10 +205,10 @@ Otherwise, you can declare the package sources in your <code>DESCRIPTION</code>'
 <p>Packages from Bioconductor can be installed by using the <code>bioc::</code> prefix.
 For example,</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"bioc::Biobase"</span>)</span></code></pre><p></p></div>
-<p>will install the latest-available version of <code>Biobase</code> from Bioconductor.</p>
-<p><code>renv</code> depends on <code>BiocManager</code> (or, for older versions of <span style="R">R</span>, <code>BiocInstaller</code>)
+<p>will install the latest-available version of Biobase from Bioconductor.</p>
+<p>renv depends on BiocManager (or, for older versions of <span style="R">R</span>, BiocInstaller)
 for the installation of packages from Bioconductor. If these packages are
-not available, <code>renv</code> will attempt to automatically install them before
+not available, renv will attempt to automatically install them before
 fulfilling the installation request.</p>
     </div>
 

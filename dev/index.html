@@ -43,7 +43,7 @@
     
     <a class="navbar-brand me-2" href="index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,31 +112,31 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>The <code>renv</code> package (pronounced “R” “env”) helps you create <strong>r</strong>eproducible <strong>env</strong>ironments for your R projects. Use <code>renv</code> to make your R projects more:</p>
-<p><strong>Isolated</strong>: Installing a new or updated package for one project won’t break your other projects, and vice versa. That’s because <code>renv</code> gives each project its own private library.</p>
-<p><strong>Portable</strong>: Easily transport your projects from one computer to another, even across different platforms. <code>renv</code> makes it easy to install the packages your project depends on.</p>
-<p><strong>Reproducible</strong>: <code>renv</code> records the exact package versions you depend on, and ensures those exact versions are the ones that get installed wherever you go.</p>
+<p>The renv package (pronounced “R” “env”) helps you create <strong>r</strong>eproducible <strong>env</strong>ironments for your R projects. Use renv to make your R projects more:</p>
+<p><strong>Isolated</strong>: Installing a new or updated package for one project won’t break your other projects, and vice versa. That’s because renv gives each project its own private library.</p>
+<p><strong>Portable</strong>: Easily transport your projects from one computer to another, even across different platforms. renv makes it easy to install the packages your project depends on.</p>
+<p><strong>Reproducible</strong>: renv records the exact package versions you depend on, and ensures those exact versions are the ones that get installed wherever you go.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the latest version of <code>renv</code> from CRAN with:</p>
+<p>Install the latest version of renv from CRAN with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"renv"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a>
 </h2>
-<p>Use <code><a href="reference/init.html">renv::init()</a></code> to initialize <code>renv</code> with a new or existing project. This will set up your project with a private library, containing all the packages you’re currently using. The packages (and all the metadata needed to reinstall them) are also recorded into a <em>lockfile</em>, <code>renv.lock</code>.</p>
+<p>Use <code><a href="reference/init.html">renv::init()</a></code> to initialize renv with a new or existing project. This will set up your project with a private library, containing all the packages you’re currently using. The packages (and all the metadata needed to reinstall them) are also recorded into a <em>lockfile</em>, <code>renv.lock</code>.</p>
 <p>As you work in your project, you will install and upgrade packages. After you’ve confirmed your code works as expected, call <code>renv::snasphot()</code> to record their versions in the lockfile.</p>
 <p>Later, if you need to share your code with someone else or run your code on new machine, you can call <code><a href="reference/restore.html">renv::restore()</a></code> to reinstall the specific package versions recorded in the lockfile.</p>
 </div>
 <div class="section level2">
 <h2 id="learning-more">Learning more<a class="anchor" aria-label="anchor" href="#learning-more"></a>
 </h2>
-<p>If this is your first time using <code>renv</code>, we strongly recommend reading the <a href="https://rstudio.github.io/renv/articles/renv.html">Introduction to renv</a> vignette.</p>
-<p>If you have a question about <code>renv</code>, please first check the <a href="https://rstudio.github.io/renv/articles/faq.html">FAQ</a> to see whether your question has already been addressed. If it hasn’t, please feel free to ask on the <a href="https://community.rstudio.com" class="external-link">RStudio Community forums</a>.</p>
-<p>If you believe you’ve found a bug in <code>renv</code>, please file a bug (and, if possible, a <a href="https://reprex.tidyverse.org" class="external-link">reproducible example</a>) at <a href="https://github.com/rstudio/renv/issues" class="external-link uri">https://github.com/rstudio/renv/issues</a>.</p>
+<p>If this is your first time using renv, we strongly recommend reading the <a href="https://rstudio.github.io/renv/articles/renv.html">Introduction to renv</a> vignette.</p>
+<p>If you have a question about renv, please first check the <a href="https://rstudio.github.io/renv/articles/faq.html">FAQ</a> to see whether your question has already been addressed. If it hasn’t, please feel free to ask on the <a href="https://community.rstudio.com" class="external-link">RStudio Community forums</a>.</p>
+<p>If you believe you’ve found a bug in renv, please file a bug (and, if possible, a <a href="https://reprex.tidyverse.org" class="external-link">reproducible example</a>) at <a href="https://github.com/rstudio/renv/issues" class="external-link uri">https://github.com/rstudio/renv/issues</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

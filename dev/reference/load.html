@@ -22,7 +22,7 @@ to explicitly load an renv project located at a particular path."><meta property
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,7 @@ for <code><a href="https://rdrr.io/r/utils/install.packages.html" class="externa
 <p>You should not generally need to call <code>renv::load()</code> yourself, as it's
 called automatically by the project auto-loader created by <code><a href="init.html">init()</a></code>/
 <code><a href="activate.html">activate()</a></code>. However, if needed, you can use <code>renv::load("&lt;project&gt;")</code>
-to explicitly load an <code>renv</code> project located at a particular path.</p>
+to explicitly load an renv project located at a particular path.</p>
     </div>
 
     <div class="section level2">
@@ -116,17 +116,17 @@ called for its side effects.</p>
     </div>
     <div class="section level2">
     <h2 id="shims">Shims<a class="anchor" aria-label="anchor" href="#shims"></a></h2>
-    <p>To help you take advantage of the package cache, <code>renv</code> places a couple of
+    <p>To help you take advantage of the package cache, renv places a couple of
 shims on the search path:</p><ul><li><p><code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> instead calls <code><a href="install.html">renv::install()</a></code>.</p></li>
 <li><p><code><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages()</a></code> instead calls <code><a href="remove.html">renv::remove()</a></code>.</p></li>
 <li><p><code><a href="https://rdrr.io/r/utils/update.packages.html" class="external-link">update.packages()</a></code> instead calls <code><a href="update.html">renv::update()</a></code>.</p></li>
 </ul><p>This allows you to keep using your existing muscle memory for installing,
-updating, and remove packages, while taking advantage of <code>renv</code> features
+updating, and remove packages, while taking advantage of renv features
 like the package cache.</p>
 <p>If you'd like to bypass these shims within an <span style="R">R</span> session, you can explicitly
-call the version of these functions from the <code>utils</code> package, e.g. with
+call the version of these functions from the utils package, e.g. with
 <code>utils::install.packages(&lt;...&gt;)</code>.</p>
-<p>If you'd prefer not to use the <code>renv</code> shims at all, they can be disabled by
+<p>If you'd prefer not to use the renv shims at all, they can be disabled by
 setting the R option <code>options(renv.config.shims.enabled = FALSE)</code> or by
 setting the environment variable <code>RENV_CONFIG_SHIMS_ENABLED = FALSE</code>. See
 <code><a href="config.html">?config</a></code> for more details.</p>

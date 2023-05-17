@@ -32,7 +32,7 @@ in R Markdown files.'><meta property="og:image" content="https://rstudio.github.
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,12 +96,12 @@ and the packages used within those <span style="R">R</span> files. This is done 
 parsing the code and looking for calls of the form <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(package)</a></code>,
 <code><a href="https://rdrr.io/r/base/library.html" class="external-link">require(package)</a></code>, <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace("package")</a></code>, and <code>package::method()</code>.
 renv also supports package loading with
-<a href="https://cran.r-project.org/package=box" class="external-link"><code>box</code></a> (<code>box::use(...)</code>) and
-<a href="https://cran.r-project.org/package=pacman" class="external-link"><code>pacman</code></a> (<code>pacman::p_load(...)</code>)
+<a href="https://cran.r-project.org/package=box" class="external-link">box</a> (<code>box::use(...)</code>) and
+<a href="https://cran.r-project.org/package=pacman" class="external-link">pacman</a> (<code>pacman::p_load(...)</code>)
 .</p>
 <p>For <span style="R">R</span> package projects, dependencies expressed in the <code>DESCRIPTION</code> file
 will also be discovered.</p>
-<p>Note that the <code>rmarkdown</code> package is required in order to crawl dependencies
+<p>Note that the rmarkdown package is required in order to crawl dependencies
 in R Markdown files.</p>
     </div>
 
@@ -134,7 +134,7 @@ properly handled.</p></dd>
 
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
-are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+are matched to <code>...</code>, renv will signal an error.</p></dd>
 
 
 <dt>progress</dt>
@@ -174,7 +174,7 @@ package name.</p>
     <p><code>dependencies()</code> uses static analysis to determine which packages are used
 by your project. This means that it inspects, but doesn't run, your
 source. Static analysis generally works well, but is not 100% reliable in
-detecting the packages required by your project. For example, <code>renv</code> is
+detecting the packages required by your project. For example, renv is
 unable to detect this kind of usage:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="kw">for</span> <span class="op">(</span><span class="va">package</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">package</span>, character.only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -206,10 +206,10 @@ then enumerate your dependencies in a project <code>DESCRIPTION</code> file.</p>
     </div>
     <div class="section level2">
     <h2 id="ignoring-files">Ignoring files<a class="anchor" aria-label="anchor" href="#ignoring-files"></a></h2>
-    <p>By default, <code>renv</code> will read your project's <code>.gitignore</code>s (if present) to
+    <p>By default, renv will read your project's <code>.gitignore</code>s (if present) to
 determine whether certain files or folders should be included when traversing
 directories. If preferred, you can also create a <code>.renvignore</code> file (with
-entries of the same format as a standard <code>.gitignore</code> file) to tell <code>renv</code>
+entries of the same format as a standard <code>.gitignore</code> file) to tell renv
 which files to ignore within a directory. If both <code>.renvignore</code> and
 <code>.gitignore</code> exist within a folder, the <code>.renvignore</code> will be used in lieu of
 the <code>.gitignore</code>.</p>
@@ -229,17 +229,17 @@ text files.</p>
     </div>
     <div class="section level2">
     <h2 id="errors">Errors<a class="anchor" aria-label="anchor" href="#errors"></a></h2>
-    <p><code>renv</code>'s attempts to enumerate package dependencies in your project can fail
+    <p>renv's attempts to enumerate package dependencies in your project can fail
 -- most commonly, because of failures when attempting to parse your <span style="R">R</span> code.
 You can use the <code>errors</code> argument to suppress these problems, but a
-more robust solution is tell <code>renv</code> not to look at the problematic code.
+more robust solution is tell renv not to look at the problematic code.
 As well as using <code>.renvignore</code>, as described above, you can also suppress errors
 discovered within individual <code>.Rmd</code> chunks by including <code>renv.ignore=TRUE</code>
 in the chunk header. For example:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="st">```</span><span class="at">{r chunk-label, renv.ignore=TRUE}</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at"># code in this chunk will be ignored by renv</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">```</span></span></code></pre><p></p></div>
-<p>Similarly, if you'd like <code>renv</code> to parse a chunk that is otherwise ignored
+<p>Similarly, if you'd like renv to parse a chunk that is otherwise ignored
 (e.g. because it has <code>eval=FALSE</code> as a chunk header), you can set:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="st">```</span><span class="at">{r chunk-label, eval=FALSE, renv.ignore=FALSE}</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at"># code in this chunk will _not_ be ignored</span></span>
@@ -250,7 +250,7 @@ in the chunk header. For example:</p>
     
 
 
-<p><code>renv</code> attempts to distinguish between 'development' dependencies and
+<p>renv attempts to distinguish between 'development' dependencies and
 'runtime' dependencies. For example, you might rely on e.g.
 <a href="https://cran.r-project.org/package=devtools" class="external-link">devtools</a> and
 <a href="https://cran.r-project.org/package=roxygen2" class="external-link">roxygen2</a> during development

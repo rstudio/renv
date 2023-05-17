@@ -36,7 +36,7 @@ or otherwise ask you what to do."><meta property="og:image" content="https://rst
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,15 +95,15 @@ or otherwise ask you what to do."><meta property="og:image" content="https://rst
     </div>
 
     <div class="ref-description section level2">
-    <p>Call <code>renv::init()</code> to start using <code>renv</code> in the current project. This will:</p><ol><li><p>Set up project infrastructure (as described in <code><a href="scaffold.html">scaffold()</a></code>) including
-the project library and the <code>.Rprofile</code> that ensures <code>renv</code> will be
+    <p>Call <code>renv::init()</code> to start using renv in the current project. This will:</p><ol><li><p>Set up project infrastructure (as described in <code><a href="scaffold.html">scaffold()</a></code>) including
+the project library and the <code>.Rprofile</code> that ensures renv will be
 used in all future sessions.</p></li>
 <li><p>Discover the packages that you currently and install them into an
 project library (as described in <code><a href="hydrate.html">hydrate()</a></code>).</p></li>
 <li><p>Create a lockfile that records the state of the project library so it
 can be restored by others (as described in <code><a href="snapshot.html">snapshot()</a></code>).</p></li>
 <li><p>Restarts R (if running inside RStudio).</p></li>
-</ol><p>If you call <code>init()</code> on a project that already uses <code>renv</code>, it will attempt
+</ol><p>If you call <code>init()</code> on a project that already uses renv, it will attempt
 to do the right thing: it will restore the project library if it's missing,
 or otherwise ask you what to do.</p>
     </div>
@@ -132,7 +132,7 @@ changed to match the requested project directory.</p></dd>
 
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
-are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+are matched to <code>...</code>, renv will signal an error.</p></dd>
 
 
 <dt>profile</dt>
@@ -152,7 +152,7 @@ and install R package dependencies?</p></dd>
 
 
 <dt>force</dt>
-<dd><p>Boolean; force initialization? By default, <code>renv</code> will refuse
+<dd><p>Boolean; force initialization? By default, renv will refuse
 to initialize the home directory as a project, to defend against accidental
 mis-usages of <code>init()</code>.</p></dd>
 
@@ -164,10 +164,10 @@ the active repositories (as determined by <code>getOption("repos")</code>) are u
 
 <dt>bioconductor</dt>
 <dd><p>The version of Bioconductor to be used with this project.
-Setting this may be appropriate if <code>renv</code> is unable to determine that your
+Setting this may be appropriate if renv is unable to determine that your
 project depends on a package normally available from Bioconductor. Set this
 to <code>TRUE</code> to use the default version of Bioconductor recommended by the
-<code>BiocManager</code> package.</p></dd>
+BiocManager package.</p></dd>
 
 
 <dt>restart</dt>

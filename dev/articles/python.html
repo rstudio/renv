@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,40 +108,38 @@
 
     
     
-<p>If you’re using <code>renv</code> with an R project that also depends
-on some Python packages (say, through the <a href="https://rstudio.github.io/reticulate/" class="external-link">reticulate</a> package),
-then you may find <code>renv</code>’s Python integration useful.</p>
+<p>If you’re using renv with an R project that also depends on some
+Python packages (say, through the <a href="https://rstudio.github.io/reticulate/" class="external-link">reticulate</a> package),
+then you may find renv’s Python integration useful.</p>
 <div class="section level2">
 <h2 id="activating-python-integration">Activating Python Integration<a class="anchor" aria-label="anchor" href="#activating-python-integration"></a>
 </h2>
 <p>Python integration can be activated on a project-by-project basis.
-Use <code><a href="../reference/use_python.html">renv::use_python()</a></code> to tell <code>renv</code> to create
-and use a project-local Python environment with your project. If the
-<code>reticulate</code> package is installed and active, then
-<code>renv</code> will use the same version of Python that
-<code>reticulate</code> normally would when generating the virtual
+Use <code><a href="../reference/use_python.html">renv::use_python()</a></code> to tell renv to create and use a
+project-local Python environment with your project. If the reticulate
+package is installed and active, then renv will use the same version of
+Python that reticulate normally would when generating the virtual
 environment. Alternatively, you can set the
-<code>RETICULATE_PYTHON</code> environment variable to instruct
-<code>renv</code> to use a different version of Python.</p>
-<p>If you’d rather tell <code>renv</code> to use an existing Python
-virtual environment, you can do so by passing the path of that virtual
+<code>RETICULATE_PYTHON</code> environment variable to instruct renv to
+use a different version of Python.</p>
+<p>If you’d rather tell renv to use an existing Python virtual
+environment, you can do so by passing the path of that virtual
 environment instead – use
-<code>renv::use_python(python = "/path/to/python")</code> and
-<code>renv</code> will record and use that Python interpreter with your
-project. This can also be used with pre-existing virtual environments
-and Conda environments.</p>
+<code>renv::use_python(python = "/path/to/python")</code> and renv will
+record and use that Python interpreter with your project. This can also
+be used with pre-existing virtual environments and Conda
+environments.</p>
 </div>
 <div class="section level2">
 <h2 id="understanding-python-integration">Understanding Python Integration<a class="anchor" aria-label="anchor" href="#understanding-python-integration"></a>
 </h2>
-<p>Once Python integration is active, <code>renv</code> will attempt to
-manage the state of your Python virtual environment when
-<code><a href="../reference/snapshot.html">snapshot()</a></code> / <code><a href="../reference/restore.html">restore()</a></code> is called. With this,
-projects that use <code>renv</code> and Python can ensure that Python
-dependencies are tracked in addition to R package dependencies. Note
-that future restores will require both <code>renv.lock</code> (for R
-package dependencies) and <code>requirements.txt</code> (for Python
-package dependencies).</p>
+<p>Once Python integration is active, renv will attempt to manage the
+state of your Python virtual environment when <code><a href="../reference/snapshot.html">snapshot()</a></code> /
+<code><a href="../reference/restore.html">restore()</a></code> is called. With this, projects that use renv and
+Python can ensure that Python dependencies are tracked in addition to R
+package dependencies. Note that future restores will require both
+<code>renv.lock</code> (for R package dependencies) and
+<code>requirements.txt</code> (for Python package dependencies).</p>
 <div class="section level3">
 <h3 id="virtual-environments">Virtual Environments<a class="anchor" aria-label="anchor" href="#virtual-environments"></a>
 </h3>

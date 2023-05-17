@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,40 +124,36 @@
 <p>Our first attempt at solving the problem of reproducible environments
 was <a href="https://rstudio.github.io/packrat/" class="external-link">packrat</a>. While we
 learned a lot from packrat, it ultimately proved challenging to use in
-ways that were difficult to fix. This led us to create
-<code>renv</code>, a system with fewer surprises and better defaults. If
-you’re an existing packrat user, you can call
-<code><a href="../reference/migrate.html">renv::migrate()</a></code> to switch renv, then read on to learn about
-the main differences:</p>
+ways that were difficult to fix. This led us to create renv, a system
+with fewer surprises and better defaults. If you’re an existing packrat
+user, you can call <code><a href="../reference/migrate.html">renv::migrate()</a></code> to switch renv, then
+read on to learn about the main differences:</p>
 <ol style="list-style-type: decimal">
-<li><p>The <code>renv</code> lockfile <code>renv.lock</code> is
-formatted as <a href="https://www.json.org/" class="external-link">JSON</a>. This should make
-the lockfile easier to use and consume with other tools.</p></li>
-<li><p><code>renv</code> no longer attempts to explicitly download and
-track R package source tarballs within your project. This was a
-frustrating default that operated under the assumption that you might
-later want to be able to restore a project’s private library without
-access to a CRAN repository. In practice, this is almost never the case,
-and the time spent downloading + storing the package sources seemed to
-outweigh the potential reproducibility benefits.</p></li>
+<li><p>The renv lockfile <code>renv.lock</code> is formatted as <a href="https://www.json.org/" class="external-link">JSON</a>. This should make the lockfile
+easier to use and consume with other tools.</p></li>
+<li><p>renv no longer attempts to explicitly download and track R
+package source tarballs within your project. This was a frustrating
+default that operated under the assumption that you might later want to
+be able to restore a project’s private library without access to a CRAN
+repository. In practice, this is almost never the case, and the time
+spent downloading + storing the package sources seemed to outweigh the
+potential reproducibility benefits.</p></li>
 <li><p>Packrat tried to maintain the distinction between so-called
 <em>stale</em> packages; that is, R packages which were installed by
 Packrat but were not recorded in the lockfile for some reason. This
-distinction was (1) overall not useful, and (2) confusing.
-<code>renv</code> no longer makes this distinction:
-<code><a href="../reference/snapshot.html">snapshot()</a></code> saves the state of your project library to
-<code>renv.lock</code>, <code><a href="../reference/restore.html">restore()</a></code> loads the state of your
-project library from <code>renv.lock</code>, and that’s all.</p></li>
-<li><p>In <code>renv</code>, the global package cache is enabled by
-default. This should reduce overall disk-space usage as packages can
-effectively be shared across each project using
-<code>renv</code>.</p></li>
-<li><p><code>renv</code>’s dependency discovery machinery is more
-configurable. The function <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> is
-exported, and users can create <code>.renvignore</code> files to
-instruct <code>renv</code> to ignore specific files and folders in their
-projects. (See <code><a href="../reference/dependencies.html">?renv::dependencies</a></code> for more
-information.)</p></li>
+distinction was (1) overall not useful, and (2) confusing. renv no
+longer makes this distinction: <code><a href="../reference/snapshot.html">snapshot()</a></code> saves the state
+of your project library to <code>renv.lock</code>,
+<code><a href="../reference/restore.html">restore()</a></code> loads the state of your project library from
+<code>renv.lock</code>, and that’s all.</p></li>
+<li><p>In renv, the global package cache is enabled by default. This
+should reduce overall disk-space usage as packages can effectively be
+shared across each project using renv.</p></li>
+<li><p>renv’s dependency discovery machinery is more configurable. The
+function <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> is exported, and users can
+create <code>.renvignore</code> files to instruct renv to ignore
+specific files and folders in their projects. (See
+<code><a href="../reference/dependencies.html">?renv::dependencies</a></code> for more information.)</p></li>
 </ol></main>
 </div>
 

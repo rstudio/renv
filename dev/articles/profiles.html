@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,14 +127,14 @@ application.</li>
 a different set of paths for the project library and lockfile. With
 this, it is possible to associate different packages, and different
 dependencies, with different workflows in a single project using
-<code>renv</code>.</p>
+renv.</p>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>By default, <code>renv</code> projects use the “default” profile,
-which implies that library and lockfile paths are set in the typical
-way. To activate a particular profile, use:</p>
+<p>By default, renv projects use the “default” profile, which implies
+that library and lockfile paths are set in the typical way. To activate
+a particular profile, use:</p>
 <pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre>
 <p>This creates a profile called <code>"dev"</code>, and sets it as the
 default for the project, so that newly-launched R sessions will operate
@@ -146,14 +146,13 @@ the project root.</p>
 session without setting it as the default for new R sessions, you can
 use:</p>
 <pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>RENV_PROFILE <span class="op">=</span> <span class="st">"dev"</span><span class="op">)</span></span></code></pre>
-<p>and <code>renv</code> will automatically use that profile as
-appropriate when computing library and lockfile paths. Similarly, from
-the command line, you might enforce the use of a particular profile in
-an <code>renv</code> project with:</p>
+<p>and renv will automatically use that profile as appropriate when
+computing library and lockfile paths. Similarly, from the command line,
+you might enforce the use of a particular profile in an renv project
+with:</p>
 <pre><code>export RENV_PROFILE=dev</code></pre>
-<p>With that set, <code>renv</code> would default to using the
-<code>"dev"</code> profile for any newly-launched R sessions within
-<code>renv</code> projects.</p>
+<p>With that set, renv would default to using the <code>"dev"</code>
+profile for any newly-launched R sessions within renv projects.</p>
 <p>To activate the “default” profile used by a project, use:</p>
 <pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/activate.html">activate</a></span><span class="op">(</span>profile <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre>
 </div>
@@ -162,7 +161,7 @@ an <code>renv</code> project with:</p>
 </h2>
 <p>Profile-specific package dependencies can be declared within the
 project’s top-level <code>DESCRIPTION</code> file. For example, to
-declare that the <code>shiny</code> profile depends on the <a href="https://shiny.rstudio.com/" class="external-link">shiny</a> and <a href="https://www.tidyverse.org/" class="external-link">tidyverse</a> packages:</p>
+declare that the shiny profile depends on the <a href="https://shiny.rstudio.com/" class="external-link">shiny</a> and <a href="https://www.tidyverse.org/" class="external-link">tidyverse</a> packages:</p>
 <pre><code>Config/renv/profiles/shiny/dependencies: shiny, tidyverse</code></pre>
 <p>If you’d like to also declare that these packages should be installed
 from a custom remote (analogous to the <code>Remotes</code> field for
@@ -171,11 +170,11 @@ field:</p>
 <pre><code>Config/renv/profiles/shiny/remotes: rstudio/shiny, tidyverse/tidyverse</code></pre>
 <p>These remotes will then be respected in calls to
 <code><a href="../reference/install.html">renv::install()</a></code>.</p>
-<p>The packages and remotes must be specified separately, as
-<code>renv</code> cannot determine the package name associated with a
-particular remote without explicitly resolving that remote. Remote
-resolution normally requires a web request, which <code>renv</code>
-tries to avoid in “regular” dependency discovery.</p>
+<p>The packages and remotes must be specified separately, as renv cannot
+determine the package name associated with a particular remote without
+explicitly resolving that remote. Remote resolution normally requires a
+web request, which renv tries to avoid in “regular” dependency
+discovery.</p>
 <p>If you’d prefer that only the packages enumerated in this field are
 used, you can opt-in to using <code>"explicit"</code> snapshots, and
 leave the <code>Imports</code>, <code>Depends</code> and

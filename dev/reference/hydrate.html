@@ -14,7 +14,7 @@ state of your default R libraries for use within a project library."><meta prope
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,7 +101,7 @@ set of packages as reported by <code><a href="dependencies.html">dependencies()<
 
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
-are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+are matched to <code>...</code>, renv will signal an error.</p></dd>
 
 
 <dt>library</dt>
@@ -117,7 +117,7 @@ from the source library if possible.</p></dd>
 
 
 <dt>sources</dt>
-<dd><p>A set of library paths from which <code>renv</code> should attempt to
+<dd><p>A set of library paths from which renv should attempt to
 draw packages. See <strong>Sources</strong> for more details.</p></dd>
 
 
@@ -163,8 +163,8 @@ sources. When <code>NULL</code> (the default), <code>hydrate()</code> will attem
 packages from the following sources (in order):</p><ul><li><p>The user library,</p></li>
 <li><p>The site library,</p></li>
 <li><p>The system library,</p></li>
-<li><p>The <code>renv</code> cache.</p></li>
-</ul><p>If package is discovered in one of these locations, <code>renv</code> will attempt to
+<li><p>The renv cache.</p></li>
+</ul><p>If package is discovered in one of these locations, renv will attempt to
 copy or link that package into the requested library as appropriate.</p>
     </div>
     <div class="section level2">
@@ -172,7 +172,7 @@ copy or link that package into the requested library as appropriate.</p>
     
 
 
-<p>If <code>renv</code> discovers that your project depends on <span style="R">R</span> packages not currently
+<p>If renv discovers that your project depends on <span style="R">R</span> packages not currently
 installed in your user library, then it will attempt to install those
 packages from the active R repositories.</p>
     </div>

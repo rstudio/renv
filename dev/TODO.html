@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,7 +77,7 @@
 <h1 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a></h1>
 <ul class="task-list"><li><p><input type="checkbox" disabled checked>User should be able to control whether errors encountered during depenency enumeration are fatal, reported, or ignored.</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/init.html">renv::init()</a></code> should report dependency errors, but otherwise initialize the project.</p></li>
-<li><p><input type="checkbox" disabled checked><code>renv</code> APIs that might call <code><a href="reference/dependencies.html">dependencies()</a></code> should avoid re-reporting dependency errors multiple times. Potential fix: <code>renv_dependencies_scope()</code> could call dependencies once at the top level, and then <code><a href="reference/dependencies.html">renv::dependencies()</a></code> could re-use the result of that object when requested.</p></li>
+<li><p><input type="checkbox" disabled checked>renv APIs that might call <code><a href="reference/dependencies.html">dependencies()</a></code> should avoid re-reporting dependency errors multiple times. Potential fix: <code>renv_dependencies_scope()</code> could call dependencies once at the top level, and then <code><a href="reference/dependencies.html">renv::dependencies()</a></code> could re-use the result of that object when requested.</p></li>
 <li><p><input type="checkbox" disabled checked>Audit other internal usages of <code><a href="reference/snapshot.html">renv::snapshot()</a></code> for the appropriate value of the <code>errors</code> argument.</p></li>
 </ul></div>
 <div class="section level1">
@@ -95,15 +95,15 @@
 <li><p><input type="checkbox" disabled checked><code><a href="reference/hydrate.html">hydrate()</a></code> as a general function to discover dependencies and then install any missing packages into the active library. (Companion function to <code><a href="reference/init.html">init()</a></code>)</p></li>
 <li><p><input type="checkbox" disabled checked>Should we provide for project-specific options? What about download method management? [Motivation: users might require <code>curl</code> + <code>http_proxy</code> settings to download packages from CRAN; authentication for GitHub]</p></li>
 <li><p><input type="checkbox" disabled checked>Allow users to ignore certain packages in a project (e.g. those that are not on CRAN)</p></li>
-<li><p><input type="checkbox" disabled checked>Consider <code>.renvignore</code> or similar for controlling what files / directories <code>renv</code> will crawl when discovering dependencies.</p></li>
-<li><p><input type="checkbox" disabled checked>Properly handle <code>RENV_DEFAULTS</code> case (they get lost if the user attempts to build and reload a package managed by <code>renv</code>, which screws up RStudio’s notion of the library paths if the project is later deactivated)</p></li>
+<li><p><input type="checkbox" disabled checked>Consider <code>.renvignore</code> or similar for controlling what files / directories renv will crawl when discovering dependencies.</p></li>
+<li><p><input type="checkbox" disabled checked>Properly handle <code>RENV_DEFAULTS</code> case (they get lost if the user attempts to build and reload a package managed by renv, which screws up RStudio’s notion of the library paths if the project is later deactivated)</p></li>
 <li><p><input type="checkbox" disabled>Audit usages of <code>renv_file_exists()</code>. When do we care about broken symlinks? <code><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists()</a></code> returns FALSE for broken symlinks; <code>renv_file_exists()</code> returns TRUE.</p></li>
 <li><p><input type="checkbox" disabled checked>De-couple the ‘retrieve’ + ‘install’ steps during restore.</p></li>
 <li><p><input type="checkbox" disabled checked>Include recommended packages in the lockfile? (Since R installations on Linux may not have these packages available). Or at least confirm that packages which depend on recommended packages enter the lockfile.</p></li>
 <li><p><input type="checkbox" disabled checked>Use a single lockfile file, but provide a <code><a href="reference/history.html">history()</a></code> function to dig out old versions of the lockfile. (Make it clearer to users what needs to be committed)</p></li>
 <li><p><input type="checkbox" disabled checked>Handle <code>NA</code> mtime in filecached APIs.</p></li>
 <li><p><input type="checkbox" disabled>Implement <code>bundle()</code> for packaging up a project, potentially with package sources, binaries, or even the library itself for restoration on a new machine (potentially lacking internet access).</p></li>
-<li><p><input type="checkbox" disabled checked>Provide tools for upgrading version of <code>renv</code> used to manage a project. [<code><a href="reference/upgrade.html">renv::upgrade()</a></code>]</p></li>
+<li><p><input type="checkbox" disabled checked>Provide tools for upgrading version of renv used to manage a project. [<code><a href="reference/upgrade.html">renv::upgrade()</a></code>]</p></li>
 <li><p><input type="checkbox" disabled>Think about how we might discover ‘stale’ entries in the cache.</p></li>
 <li><p><input type="checkbox" disabled checked>Handle <code><a href="reference/init.html">renv::init()</a></code> case when another project already active (want to make sure we use the user library rather than active library)</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/status.html">renv::status()</a></code> function reporting differences between lockfile + library.</p></li>
@@ -112,17 +112,17 @@
 <li><p><input type="checkbox" disabled checked>Python: properly handle conda environments vs. pip.</p></li>
 <li><p><input type="checkbox" disabled checked>Python: teach reticulate how to load virtual environments within renv dir.</p></li>
 <li><p><input type="checkbox" disabled checked>Warn when lockfile contains packages from unknown source?</p></li>
-<li><p><input type="checkbox" disabled checked>Automatically bootstrap an <code>renv</code> installation when loading a project if none is available locally?</p></li>
+<li><p><input type="checkbox" disabled checked>Automatically bootstrap an renv installation when loading a project if none is available locally?</p></li>
 <li><p><input type="checkbox" disabled>Should <code><a href="reference/install.html">renv::install()</a></code> auto-update packages?</p></li>
 <li><p><input type="checkbox" disabled checked>Only report R package entries that have changed if they exist both before and after (ie: only report upgrades / downgrades / crossgrades)</p></li>
 <li><p><input type="checkbox" disabled checked>Include current session’s R version when computing hash for DESCRIPTION</p></li>
-<li><p><input type="checkbox" disabled>Install of <code>keras</code> failed to install <code>reticulate</code>?</p></li>
-<li><p><input type="checkbox" disabled>API for activating project and upgrading <code>renv</code>, rather than using previously-recorded version of <code>renv</code>?</p></li>
+<li><p><input type="checkbox" disabled>Install of keras failed to install reticulate?</p></li>
+<li><p><input type="checkbox" disabled>API for activating project and upgrading renv, rather than using previously-recorded version of renv?</p></li>
 <li><p><input type="checkbox" disabled>Treat user library as a source when restoring projects?</p></li>
-<li><p><input type="checkbox" disabled><code>renv</code> should build packages before install, especially for packages from GitHub.</p></li>
-<li><p><input type="checkbox" disabled>Use <code>pkgcache</code> for package installation?</p></li>
-<li><p><input type="checkbox" disabled>Use <code>pkgdepends</code> to validate dependency list before snapshot.</p></li>
-<li><p><input type="checkbox" disabled>API to allow <code>pak</code> to use the cache?</p></li>
+<li><p><input type="checkbox" disabled>renv should build packages before install, especially for packages from GitHub.</p></li>
+<li><p><input type="checkbox" disabled>Use pkgcache for package installation?</p></li>
+<li><p><input type="checkbox" disabled>Use pkgdepends to validate dependency list before snapshot.</p></li>
+<li><p><input type="checkbox" disabled>API to allow pak to use the cache?</p></li>
 <li><p><input type="checkbox" disabled>Record usage time for packages (as alternate scheme for finding unused packages)</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/history.html">renv::revert()</a></code> should tell the user what it did.</p></li>
 <li><p><input type="checkbox" disabled checked><code><a href="reference/history.html">renv::revert()</a></code> should have project argument last.</p></li>

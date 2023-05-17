@@ -16,7 +16,7 @@ update()."><meta property="og:image" content="https://rstudio.github.io/renv/log
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@ update()."><meta property="og:image" content="https://rstudio.github.io/renv/log
     </div>
 
     <div class="ref-description section level2">
-    <p>Upgrade the version of <code>renv</code> associated with a project, including using
+    <p>Upgrade the version of renv associated with a project, including using
 a development version from GitHub. If you want to update all
 packages (including renv) to their latest CRAN versions, use
 <code><a href="update.html">update()</a></code>.</p>
@@ -95,8 +95,8 @@ directory is used instead.</p></dd>
 
 
 <dt>version</dt>
-<dd><p>The version of <code>renv</code> to be installed.</p>
-<p>When <code>NULL</code> (the default), the latest version of <code>renv</code> will be installed as
+<dd><p>The version of renv to be installed.</p>
+<p>When <code>NULL</code> (the default), the latest version of renv will be installed as
 available from CRAN (or whatever active package repositories are active)
 Alternatively, you can install the latest development version with
 <code>"main"</code>, or a specific version from GitHub with (e.g.) <code>"0.17.3"</code> or
@@ -104,10 +104,10 @@ Alternatively, you can install the latest development version with
 
 
 <dt>reload</dt>
-<dd><p>Boolean; reload <code>renv</code> after install? When <code>NULL</code> (the
-default), <code>renv</code> will be re-loaded only if updating <code>renv</code> for the
+<dd><p>Boolean; reload renv after install? When <code>NULL</code> (the
+default), renv will be re-loaded only if updating renv for the
 active project. Note that this may fail if you've loaded packages
-which also depend on <code>renv</code>.</p></dd>
+which also depend on renv.</p></dd>
 
 
 <dt>prompt</dt>
@@ -119,7 +119,7 @@ which also depend on <code>renv</code>.</p></dd>
     
 
 <p>A boolean value, indicating whether the requested version of
-<code>renv</code> was successfully installed. Note that this function is normally
+renv was successfully installed. Note that this function is normally
 called for its side effects.</p>
     </div>
 

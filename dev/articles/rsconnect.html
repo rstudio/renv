@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,10 +113,10 @@ Connect</a> is a publication platform for deploying content built in R
 and Python to share with a broad audience. R users may want to develop
 content (like <a href="https://shiny.rstudio.com/" class="external-link">Shiny
 applications</a> or <a href="https://rmarkdown.rstudio.com/index.html" class="external-link">RMarkdown documents</a>)
-using <code>renv</code> and then publish that content to RStudio
-Connect. This is a supported pattern where <code>renv</code> is used to
-manage the local project environment and then RStudio Connect recreates
-and manages the deployment environment.</p>
+using renv and then publish that content to RStudio Connect. This is a
+supported pattern where renv is used to manage the local project
+environment and then RStudio Connect recreates and manages the
+deployment environment.</p>
 <div class="section level2">
 <h2 id="publishing-from-the-rstudio-ide">Publishing from the RStudio IDE<a class="anchor" aria-label="anchor" href="#publishing-from-the-rstudio-ide"></a>
 </h2>
@@ -125,9 +125,9 @@ RStudio Connect: <img src="ide-publish.png" alt="RStudio IDE Publish Button"></p
 <p>When this option is used to deploy content to RStudio Connect, a
 manifest file is automatically generated and sent to RStudio Connect
 describing the project environment. This manifest file will reflect the
-project environment create and managed by <code>renv</code>. The
-<code>renv</code> generated <code>.Rprofile</code> file should
-<strong>not</strong> be included in deployments to RStudio Connect.</p>
+project environment create and managed by renv. The renv generated
+<code>.Rprofile</code> file should <strong>not</strong> be included in
+deployments to RStudio Connect.</p>
 </div>
 <div class="section level2">
 <h2 id="publishing-programatically">Publishing programatically<a class="anchor" aria-label="anchor" href="#publishing-programatically"></a>
@@ -135,31 +135,28 @@ project environment create and managed by <code>renv</code>. The
 <p>When publishing content to RStudio Connect programatically, it is
 necessary to generate a manifest file describing the project
 environment. This can be done with the <code>writeManifest()</code>
-function from the <a href="https://github.com/rstudio/rsconnect" class="external-link"><code>rsconnect</code></a>
-package. When using <code>renv</code>, the only thing that needs to be
-considered is that <code>rsconnect</code> should be installed and
-executed from within the <code>renv</code> environment so that it
-recognizes the local project library when generating the manifest file.
-As long as <code>rsconnect</code> is run from within the
-<code>renv</code> created environment, it will capture project
-dependencies from the local <code>renv</code> library. This can be
-accomplished by opening the project in RStudio or by starting the R
-session from the project root directory. The <code>renv</code> generated
-<code>.Rprofile</code> file should <strong>not</strong> be included in
-deployments to RStudio Connect.</p>
+function from the <a href="https://github.com/rstudio/rsconnect" class="external-link">rsconnect</a> package. When
+using renv, the only thing that needs to be considered is that rsconnect
+should be installed and executed from within the renv environment so
+that it recognizes the local project library when generating the
+manifest file. As long as rsconnect is run from within the renv created
+environment, it will capture project dependencies from the local renv
+library. This can be accomplished by opening the project in RStudio or
+by starting the R session from the project root directory. The renv
+generated <code>.Rprofile</code> file should <strong>not</strong> be
+included in deployments to RStudio Connect.</p>
 </div>
 <div class="section level2">
 <h2 id="a-word-about-packrat">A word about packrat<a class="anchor" aria-label="anchor" href="#a-word-about-packrat"></a>
 </h2>
-<p>RStudio Connect uses <a href="https://rstudio.github.io/packrat/" class="external-link"><code>packrat</code></a> to
-restore project environments on the RStudio Connect server. This should
-have no impact on how the user develops content for RStudio Connect. It
-is not necessary for the user to use <code>packrat</code> instead of
-<code>renv</code> when developing content, as the environment management
-tool used locally has no impact on the tools RStudio Connect uses for
-environment management. Therefore, there should be no concerns with
-using <code>renv</code> to develop content that will be deployed to
-RStudio Connect.</p>
+<p>RStudio Connect uses <a href="https://rstudio.github.io/packrat/" class="external-link">packrat</a> to restore project
+environments on the RStudio Connect server. This should have no impact
+on how the user develops content for RStudio Connect. It is not
+necessary for the user to use packrat instead of renv when developing
+content, as the environment management tool used locally has no impact
+on the tools RStudio Connect uses for environment management. Therefore,
+there should be no concerns with using renv to develop content that will
+be deployed to RStudio Connect.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

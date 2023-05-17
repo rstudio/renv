@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,7 +123,7 @@ side effects.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>When Python integration is active, <code>renv</code> will:</p><ul><li><p>Save metadata about the requested version of Python in <code>renv.lock</code> -- in
+    <p>When Python integration is active, renv will:</p><ul><li><p>Save metadata about the requested version of Python in <code>renv.lock</code> -- in
 particular, the Python version, and the Python type ("virtualenv", "conda",
 "system"),</p></li>
 <li><p>Capture the set of installed Python packages during <code><a href="snapshot.html">renv::snapshot()</a></code>,</p></li>
@@ -131,13 +131,13 @@ particular, the Python version, and the Python type ("virtualenv", "conda",
 </ul><p>In addition, when the project is loaded, the following actions will be taken:</p><ul><li><p>The <code>RENV_PYTHON</code> environment variable will be set, indicating the version
 of Python currently active for this sessions,</p></li>
 <li><p>The <code>RETICULATE_PYTHON</code> environment variable will be set, so that the
-<code>reticulate</code> package can automatically use the requested copy of Python
+reticulate package can automatically use the requested copy of Python
 as appropriate,</p></li>
 <li><p>The requested version of Python will be placed on the <code>PATH</code>, so that
 attempts to invoke Python will resolve to the expected version of Python.</p></li>
 </ul><p>You can override the version of Python used in a particular project by
 setting the <code>RENV_PYTHON</code> environment variable; e.g. as part of the
-project's <code>.Renviron</code> file. This can be useful if you find that <code>renv</code>
+project's <code>.Renviron</code> file. This can be useful if you find that renv
 is unable to automatically discover a compatible version of Python to
 be used in the project.</p>
     </div>
@@ -146,8 +146,8 @@ be used in the project.</p>
     
 
 
-<p>In interactive sessions, when <code>python = NULL</code>, <code>renv</code> will prompt for an
-appropriate version of Python. <code>renv</code> will search a pre-defined set of
+<p>In interactive sessions, when <code>python = NULL</code>, renv will prompt for an
+appropriate version of Python. renv will search a pre-defined set of
 locations when attempting to find Python installations on the system:</p><ul><li><p><code>getOption("renv.python.root")</code>,</p></li>
 <li><p><code>/opt/python</code>,</p></li>
 <li><p><code>/opt/local/python</code>,</p></li>
@@ -156,8 +156,8 @@ locations when attempting to find Python installations on the system:</p><ul><li
 <li><p><code>/opt/homebrew/opt</code> (for M1 macOS Homebrew-installed copies of Python),</p></li>
 <li><p><code>~/.pyenv/versions</code>,</p></li>
 <li><p>Python instances available on the <code>PATH</code>.</p></li>
-</ul><p>In non-interactive sessions, <code>renv</code> will first check the <code>RETICULATE_PYTHON</code>
-environment variable; if that is unset, <code>renv</code> will look for Python on the
+</ul><p>In non-interactive sessions, renv will first check the <code>RETICULATE_PYTHON</code>
+environment variable; if that is unset, renv will look for Python on the
 <code>PATH</code>. It is recommended that the version of Python to be used is explicitly
 supplied for non-interactive usages of <code>use_python()</code>.</p>
     </div>

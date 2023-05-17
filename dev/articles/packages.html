@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,9 +134,9 @@ appropriate.</p>
 latest-available versions of its dependencies on CRAN. However, in some
 cases, you may need to ensure your package is compatible with other
 packages also currently under development.</p>
-<p>In these cases, the <code>renv</code> project library can be useful –
-you can install the development version(s) of your dependencies into the
-project library, without worrying about clobbering any packages already
+<p>In these cases, the renv project library can be useful – you can
+install the development version(s) of your dependencies into the project
+library, without worrying about clobbering any packages already
 installed in your user library.</p>
 <p>In these cases, you can declare your development dependencies using
 the <code>Remotes</code> field of the <code>DESCRIPTION</code> file;
@@ -144,8 +144,7 @@ e.g.</p>
 <pre><code><span><span class="va">Remotes</span><span class="op">:</span></span>
 <span>  <span class="va">r</span><span class="op">-</span><span class="va">lib</span><span class="op">/</span><span class="va">ggplot2</span></span></code></pre>
 <p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration
-and retrieve the requested package. See the <code>remotes</code>
-vignette, <a href="https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html" class="external-link">Dependency
+and retrieve the requested package. See the remotes vignette, <a href="https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html" class="external-link">Dependency
 resolution for R package development</a>, for more details.</p>
 </div>
 <div class="section level2">
@@ -153,13 +152,13 @@ resolution for R package development</a>, for more details.</p>
 </h2>
 <p>While developing your package, you may want to use a continuous
 integration service (such as <a href="https://www.travis-ci.com" class="external-link">Travis
-CI</a>) to build and test your package remotely. You can use
-<code>renv</code> to help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html" class="external-link">Continuous
+CI</a>) to build and test your package remotely. You can use renv to
+help facilitate this testing – see the <a href="https://CRAN.R-project.org/package=renv/vignettes/ci.html" class="external-link">Continuous
 Integration</a> vignette for more information. In particular, clever use
-of the <code>renv</code> cache can help save time that might normally be
-spent on package installation. See <a href="https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml" class="external-link uri">https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml</a>
-for an example of how <code>renv</code> uses itself for package
-management in its own CI tests.</p>
+of the renv cache can help save time that might normally be spent on
+package installation. See <a href="https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml" class="external-link uri">https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml</a>
+for an example of how renv uses itself for package management in its own
+CI tests.</p>
 </div>
 <div class="section level2">
 <h2 id="r-cmd-build-and-the-project-library">R CMD build and the Project Library<a class="anchor" aria-label="anchor" href="#r-cmd-build-and-the-project-library"></a>
@@ -167,9 +166,9 @@ management in its own CI tests.</p>
 <p>By default, when building a package tarball, R will copy all files
 within the package directory to a temporary build directory before
 building the package. This can be time consuming if your project
-contains a large number of files. For this reason, <code>renv</code>
-places the project library for package projects within a separate
-external directory by default. This directory is:</p>
+contains a large number of files. For this reason, renv places the
+project library for package projects within a separate external
+directory by default. This directory is:</p>
 <pre><code><span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"renv/library"</span>, <span class="st">"cache"</span><span class="op">)</span></span></code></pre>
 <p>If you want to use your own custom path, you can use, for
 example:</p>
@@ -185,7 +184,7 @@ These paths are of the form:</p>
 <p>If you’d prefer to omit the <code>&lt;id&gt;</code>, then you can set
 the environment variable:</p>
 <pre><code><span><span class="va">RENV_PATHS_LIBRARY_ROOT_ASIS</span> <span class="op">=</span> <span class="cn">TRUE</span></span></code></pre>
-<p>to instruct <code>renv</code> to forego the use of an identifier.</p>
+<p>to instruct renv to forego the use of an identifier.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

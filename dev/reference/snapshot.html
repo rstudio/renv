@@ -22,7 +22,7 @@ providing lightweight portability and reproducibility without isolation."><meta 
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,7 +84,7 @@ providing lightweight portability and reproducibility without isolation."><meta 
     <p>Call <code>renv::snapshot()</code> to update a <a href="lockfiles.html">lockfile</a> with the current
 state of dependencies in the project library. The lockfile can be used to
 later <a href="restore.html">restore</a> these dependencies as required.</p>
-<p>It's also possible to call <code>renv::snapshot()</code> with a non-<code>renv</code> project,
+<p>It's also possible to call <code>renv::snapshot()</code> with a non-renv project,
 in which case it will record the current state of dependencies in the
 current library paths. This makes it possible to <a href="restore.html">restore</a> the current packages,
 providing lightweight portability and reproducibility without isolation.</p>
@@ -118,7 +118,7 @@ directory is used instead.</p></dd>
 
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
-are matched to <code>...</code>, <code>renv</code> will signal an error.</p></dd>
+are matched to <code>...</code>, renv will signal an error.</p></dd>
 
 
 <dt>library</dt>
@@ -196,7 +196,7 @@ as determined by <code><a href="dependencies.html">renv::dependencies()</a></cod
 actually required by your project will enter the lockfile; the downside
 if it might be slow if your project contains a large number of files.
 If speed becomes an issue, you might consider using <code>.renvignore</code> files to
-limit which files <code>renv</code> uses for dependency discovery, or switching to
+limit which files renv uses for dependency discovery, or switching to
 explicit mode, as described next.</p></dd>
 
 

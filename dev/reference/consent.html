@@ -12,7 +12,7 @@ on your filesystem."><meta property="og:image" content="https://rstudio.github.i
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@ on your filesystem."><meta property="og:image" content="https://rstudio.github.i
     </div>
 
     <div class="ref-description section level2">
-    <p>Provide consent to <code>renv</code>, allowing it to write and update certain files
+    <p>Provide consent to renv, allowing it to write and update certain files
 on your filesystem.</p>
     </div>
 
@@ -96,12 +96,12 @@ consent from a non-interactive <span style="R">R</span> session, you can invoke
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>As part of its normal operation, <code>renv</code> will write and update some files
+    <p>As part of its normal operation, renv will write and update some files
 in your project directory, as well as an application-specific cache
 directory. These paths are documented within <a href="paths.html">paths</a>.</p>
 <p>In accordance with the
 <a href="https://cran.r-project.org/web/packages/policies.html" class="external-link">CRAN Repository Policy</a>,
-<code>renv</code> must first obtain consent from you, the user, before these actions
+renv must first obtain consent from you, the user, before these actions
 can be taken. Please call <code>renv::consent()</code> first to provide this consent.</p>
 <p>You can also set the <span style="R">R</span> option:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">renv.consent =</span> <span class="cn">TRUE</span>)</span></code></pre><p></p></div>

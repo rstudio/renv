@@ -12,7 +12,7 @@ that the project can continue to function independently of the renv cache."><met
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,8 +71,8 @@ that the project can continue to function independently of the renv cache."><met
     </div>
 
     <div class="ref-description section level2">
-    <p>Copy packages from the <code>renv</code> cache directly into the project library, so
-that the project can continue to function independently of the <code>renv</code> cache.</p>
+    <p>Copy packages from the renv cache directly into the project library, so
+that the project can continue to function independently of the renv cache.</p>
     </div>
 
     <div class="section level2">
@@ -97,12 +97,12 @@ called for its side effects.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>After calling <code>isolate()</code>, <code>renv</code> will still be able to use the cache on
-future <code><a href="install.html">install()</a></code>s and <code><a href="restore.html">restore()</a></code>s. If you'd prefer that <code>renv</code> copy
-packages from the cache, rather than use symlinks, you can set the <code>renv</code>
+    <p>After calling <code>isolate()</code>, renv will still be able to use the cache on
+future <code><a href="install.html">install()</a></code>s and <code><a href="restore.html">restore()</a></code>s. If you'd prefer that renv copy
+packages from the cache, rather than use symlinks, you can set the renv
 configuration option:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">renv.config.cache.symlinks =</span> <span class="cn">FALSE</span>)</span></code></pre><p></p></div>
-<p>to force <code>renv</code> to copy packages from the cache, as opposed to symlinking
+<p>to force renv to copy packages from the cache, as opposed to symlinking
 them. If you'd like to disable the cache altogether for a project, you can
 use:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>settings<span class="sc">$</span><span class="fu">use.cache</span>(<span class="cn">FALSE</span>)</span></code></pre><p></p></div>

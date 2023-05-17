@@ -37,7 +37,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,8 +118,8 @@ to restore the same packages that you’re using locally.</p>
 generate <code>renv.lock</code>.</p></li>
 <li><p>Call <code><a href="../reference/restore.html">renv::restore()</a></code> on your CI service to restore
 the project library from <code>renv.lock</code>.</p></li>
-<li><p>Cache the project library and global <code>renv</code> cache on
-the CI service.</p></li>
+<li><p>Cache the project library and global renv cache on the CI
+service.</p></li>
 </ol>
 <p>Note that this workflow is not generally a good fit for CRAN
 packages, because CRAN itself runs <code>R CMD check</code> using the
@@ -127,21 +127,21 @@ latest version of all dependencies.</p>
 <div class="section level2">
 <h2 id="github-actions">GitHub Actions<a class="anchor" aria-label="anchor" href="#github-actions"></a>
 </h2>
-<p>Here, we describe two common approaches for integrating
-<code>renv</code> with a <a href="https://github.com/features/actions" class="external-link">GitHub Actions</a>
+<p>Here, we describe two common approaches for integrating renv with a
+<a href="https://github.com/features/actions" class="external-link">GitHub Actions</a>
 workflow:</p>
 <ul>
 <li>Use the <code>r-lib/setup-renv</code> action.</li>
-<li>Use GitHub’s built-in cache action together with existing
-<code>renv</code> functionality;</li>
+<li>Use GitHub’s built-in cache action together with existing renv
+functionality;</li>
 </ul>
 <div class="section level3">
 <h3 id="using-r-libactionssetup-renv">Using r-lib/actions/setup-renv<a class="anchor" aria-label="anchor" href="#using-r-libactionssetup-renv"></a>
 </h3>
 <p>The r-lib organization offers some actions for R users, and among
 them a <a href="https://github.com/r-lib/actions/tree/v2-branch/setup-renv" class="external-link"><code>setup-renv</code></a>
-action is provided for projects using <code>renv</code>. To use this
-action, you can add the following steps to your workflow:</p>
+action is provided for projects using renv. To use this action, you can
+add the following steps to your workflow:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">steps</span><span class="kw">:</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v3</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r@v2</span></span>
@@ -149,25 +149,23 @@ action, you can add the following steps to your workflow:</p>
 <p>Using these steps will automatically perform the following
 actions:</p>
 <ul>
-<li>
-<code>renv</code> will be installed, via
+<li>renv will be installed, via
 <code>install.packages("renv")</code>,</li>
-<li>
-<code>renv</code> will be configured to use the GitHub cache,</li>
-<li>If provided via a <code>with: profile:</code> key, that
-<code>renv</code> profile will be activated,</li>
+<li>renv will be configured to use the GitHub cache,</li>
+<li>If provided via a <code>with: profile:</code> key, that renv profile
+will be activated,</li>
 <li>The project will be restored via <code><a href="../reference/restore.html">renv::restore()</a></code>.</li>
 </ul>
-<p>After this, any steps using R will use the active <code>renv</code>
-project by default.</p>
+<p>After this, any steps using R will use the active renv project by
+default.</p>
 </div>
 <div class="section level3">
 <h3 id="using-the-github-actions-cache-with-renv">Using the GitHub Actions Cache with renv<a class="anchor" aria-label="anchor" href="#using-the-github-actions-cache-with-renv"></a>
 </h3>
-<p>When using <code>renv</code> in your own custom GitHub action
-workflow, there are two main requirements:</p>
+<p>When using renv in your own custom GitHub action workflow, there are
+two main requirements:</p>
 <ol style="list-style-type: decimal">
-<li>Cache any packages installed by <code>renv</code> across runs,</li>
+<li>Cache any packages installed by renv across runs,</li>
 <li>Use <code><a href="../reference/restore.html">renv::restore()</a></code> to restore packages using this
 cache to speed up installation</li>
 </ol>
@@ -197,8 +195,7 @@ on GitHub actions.</p>
 <div class="section level2">
 <h2 id="gitlab-ci">GitLab CI<a class="anchor" aria-label="anchor" href="#gitlab-ci"></a>
 </h2>
-<p>The following template can be used as a base when using
-<code>renv</code> with <a href="https://about.gitlab.com/features/continuous-integration/" class="external-link">GitLab
+<p>The following template can be used as a base when using renv with <a href="https://about.gitlab.com/features/continuous-integration/" class="external-link">GitLab
 CI</a>:</p>
 <pre><code>variables:
   RENV_CONFIG_REPOS_OVERRIDE: "http://cran.r-project.org"

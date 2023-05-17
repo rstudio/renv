@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,7 @@
     </div>
 
     <div class="ref-description section level2">
-    <p>Migrate a project's infrastructure from Packrat to <code>renv</code>.</p>
+    <p>Migrate a project's infrastructure from Packrat to renv.</p>
     </div>
 
     <div class="section level2">
@@ -106,14 +106,14 @@ called for its side effects.</p>
     
 
 
-<p>When migrating Packrat projects to <code>renv</code>, the set of components migrated
+<p>When migrating Packrat projects to renv, the set of components migrated
 can be customized using the <code>packrat</code> argument. The set of components that
 can be migrated are as follows:</p>
-<table class="table table"><tr><td><strong>Name</strong></td><td><strong>Description</strong></td></tr><tr><td><code>lockfile</code></td><td>Migrate the Packrat lockfile (<code>packrat/packrat.lock</code>) to the <code>renv</code> lockfile
-(<code>renv.lock</code>).</td></tr><tr><td><code>sources</code></td><td>Migrate package sources from the <code>packrat/src</code> folder to the <code>renv</code>
-sources folder. Currently, only CRAN packages are migrated to <code>renv</code> --
-packages retrieved from other sources (e.g. GitHub) are ignored.</td></tr><tr><td><code>library</code></td><td>Migrate installed packages from the Packrat library to the <code>renv</code> project
-library.</td></tr><tr><td><code>options</code></td><td>Migrate compatible Packrat options to the <code>renv</code> project.</td></tr><tr><td><code>cache</code></td><td>Migrate packages from the Packrat cache to the <code>renv</code> cache.</td></tr></table></div>
+<table class="table table"><tr><td><strong>Name</strong></td><td><strong>Description</strong></td></tr><tr><td><code>lockfile</code></td><td>Migrate the Packrat lockfile (<code>packrat/packrat.lock</code>) to the renv lockfile
+(<code>renv.lock</code>).</td></tr><tr><td><code>sources</code></td><td>Migrate package sources from the <code>packrat/src</code> folder to the renv
+sources folder. Currently, only CRAN packages are migrated to renv --
+packages retrieved from other sources (e.g. GitHub) are ignored.</td></tr><tr><td><code>library</code></td><td>Migrate installed packages from the Packrat library to the renv project
+library.</td></tr><tr><td><code>options</code></td><td>Migrate compatible Packrat options to the renv project.</td></tr><tr><td><code>cache</code></td><td>Migrate packages from the Packrat cache to the renv cache.</td></tr></table></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

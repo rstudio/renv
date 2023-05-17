@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-44</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-46</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,7 @@
     </div>
 
     <div class="ref-description section level2">
-    <p>Configure different behaviors of <code>renv</code>.</p>
+    <p>Configure different behaviors of renv.</p>
     </div>
 
     <div class="section level2">
@@ -110,7 +110,7 @@ called.</p>
     
 
 
-<p>The following <code>renv</code> configuration options are available:</p>
+<p>The following renv configuration options are available:</p>
 <div class="section">
 <h3 id="renv-config-activate-prompt">renv.config.activate.prompt<a class="anchor" aria-label="anchor" href="#renv-config-activate-prompt"></a></h3>
 <p>Automatically prompt the user to activate the current project, if it does not appear to already be activated? This is mainly useful to help ensure that calls to <code><a href="snapshot.html">renv::snapshot()</a></code> and <code><a href="restore.html">renv::restore()</a></code> use the project library. See <code><a href="activate.html">?renv::activate</a></code> for more details.
@@ -118,7 +118,7 @@ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-autoloader-enabled">renv.config.autoloader.enabled<a class="anchor" aria-label="anchor" href="#renv-config-autoloader-enabled"></a></h3>
-<p>Enable the <code>renv</code> auto-loader? When <code>FALSE</code>, <code>renv</code> will not not automatically load a project containing an <code>renv</code> autoloader within its <code>.Rprofile</code>. In addition, <code>renv</code> will not write out the project auto-loader in calls to <code><a href="init.html">renv::init()</a></code>.
+<p>Enable the renv auto-loader? When <code>FALSE</code>, renv will not not automatically load a project containing an renv autoloader within its <code>.Rprofile</code>. In addition, renv will not write out the project auto-loader in calls to <code><a href="init.html">renv::init()</a></code>.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
@@ -148,23 +148,23 @@ Defaults to <code>3L</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-cache-enabled">renv.config.cache.enabled<a class="anchor" aria-label="anchor" href="#renv-config-cache-enabled"></a></h3>
-<p>Enable the global <code>renv</code> package cache? When active, <code>renv</code> will install packages into a global cache, and link or copy packages from the cache into your <span style="R">R</span> library as appropriate. This can greatly save on disk space and install time when <span style="R">R</span> packages are shared across multiple projects in the same environment.
+<p>Enable the global renv package cache? When active, renv will install packages into a global cache, and link or copy packages from the cache into your <span style="R">R</span> library as appropriate. This can greatly save on disk space and install time when <span style="R">R</span> packages are shared across multiple projects in the same environment.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-cache-symlinks">renv.config.cache.symlinks<a class="anchor" aria-label="anchor" href="#renv-config-cache-symlinks"></a></h3>
-<p>Symlink packages from the global <code>renv</code> package cache into your project library? When <code>TRUE</code>, <code>renv</code> will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to <code>FALSE</code> if you'd prefer to copy packages from the cache into your project library. Enabled by default, except on Windows where this feature is only enabled if the project library and global package cache are on the same volume.
+<p>Symlink packages from the global renv package cache into your project library? When <code>TRUE</code>, renv will use symlinks (or, on Windows, junction points) to reference packages installed in the cache. Set this to <code>FALSE</code> if you'd prefer to copy packages from the cache into your project library. Enabled by default, except on Windows where this feature is only enabled if the project library and global package cache are on the same volume.
 Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-dependency-errors">renv.config.dependency.errors<a class="anchor" aria-label="anchor" href="#renv-config-dependency-errors"></a></h3>
-<p>Many <code>renv</code> APIs require the enumeration of your project's <span style="R">R</span> package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to <code>"fatal"</code> to force errors to be fatal, and <code>"ignored"</code> to ignore errors altogether. See <code><a href="dependencies.html">dependencies()</a></code> for more details.
+<p>Many renv APIs require the enumeration of your project's <span style="R">R</span> package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to <code>"fatal"</code> to force errors to be fatal, and <code>"ignored"</code> to ignore errors altogether. See <code><a href="dependencies.html">dependencies()</a></code> for more details.
 Defaults to <code>"reported"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-exported-functions">renv.config.exported.functions<a class="anchor" aria-label="anchor" href="#renv-config-exported-functions"></a></h3>
-<p>When <code><a href="https://rstudio.github.io/renv/">library(renv)</a></code> is called, should its exports be placed on the search path? Set this to <code>FALSE</code> to avoid issues that can arise with, for example, <code><a href="load.html">renv::load()</a></code> masking <code><a href="https://rdrr.io/r/base/load.html" class="external-link">base::load()</a></code>. In general, we recommend referencing <code>renv</code> functions from its namespace explicitly; e.g. prefer <code><a href="snapshot.html">renv::snapshot()</a></code> over <code><a href="snapshot.html">snapshot()</a></code>.
-By default, all exported <code>renv</code> functions are attached and placed on the search path, for backwards compatibility with existing scripts using <code>renv</code>.
+<p>When <code><a href="https://rstudio.github.io/renv/">library(renv)</a></code> is called, should its exports be placed on the search path? Set this to <code>FALSE</code> to avoid issues that can arise with, for example, <code><a href="load.html">renv::load()</a></code> masking <code><a href="https://rdrr.io/r/base/load.html" class="external-link">base::load()</a></code>. In general, we recommend referencing renv functions from its namespace explicitly; e.g. prefer <code><a href="snapshot.html">renv::snapshot()</a></code> over <code><a href="snapshot.html">snapshot()</a></code>.
+By default, all exported renv functions are attached and placed on the search path, for backwards compatibility with existing scripts using renv.
 Defaults to <code>"*"</code>.</p>
 </div>
 <div class="section">
@@ -174,7 +174,7 @@ Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-filebacked-cache">renv.config.filebacked.cache<a class="anchor" aria-label="anchor" href="#renv-config-filebacked-cache"></a></h3>
-<p>Enable the <code>renv</code> file-backed cache? When enabled, <code>renv</code> will cache the contents of files that are read (e.g. DESCRIPTION files) in memory, thereby avoiding re-reading the file contents from the filesystem if the file has not changed. <code>renv</code> uses the file <code>mtime</code> to determine if the file has changed; consider disabling this if <code>mtime</code> is unreliable on your system.
+<p>Enable the renv file-backed cache? When enabled, renv will cache the contents of files that are read (e.g. DESCRIPTION files) in memory, thereby avoiding re-reading the file contents from the filesystem if the file has not changed. renv uses the file <code>mtime</code> to determine if the file has changed; consider disabling this if <code>mtime</code> is unreliable on your system.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
@@ -199,12 +199,12 @@ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-remotes">renv.config.install.remotes<a class="anchor" aria-label="anchor" href="#renv-config-install-remotes"></a></h3>
-<p>Should <code>renv</code> read a package's <code>Remotes:</code> field when determining how package dependencies should be installed?
+<p>Should renv read a package's <code>Remotes:</code> field when determining how package dependencies should be installed?
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-shortcuts">renv.config.install.shortcuts<a class="anchor" aria-label="anchor" href="#renv-config-install-shortcuts"></a></h3>
-<p>Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if <code>renv</code> discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
+<p>Allow for a set of 'shortcuts' when installing packages with renv? When enabled, if renv discovers that a package to be installed is already available within the user or site libraries, then it will install a local copy of that package.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
@@ -214,17 +214,17 @@ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-transactional">renv.config.install.transactional<a class="anchor" aria-label="anchor" href="#renv-config-install-transactional"></a></h3>
-<p>Perform a transactional install of packages during install and restore? When enabled, <code>renv</code> will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
+<p>Perform a transactional install of packages during install and restore? When enabled, renv will first install packages into a temporary library, and later copy or move those packages back into the project library only if all packages were successfully downloaded and installed. This can be useful if you'd like to avoid mutating your project library if installation of one or more packages fails.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-install-verbose">renv.config.install.verbose<a class="anchor" aria-label="anchor" href="#renv-config-install-verbose"></a></h3>
-<p>Be verbose when installing R packages from sources? When <code>TRUE</code>, <code>renv</code> will stream any output generated during package build + installation to the console.
+<p>Be verbose when installing R packages from sources? When <code>TRUE</code>, renv will stream any output generated during package build + installation to the console.
 Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-locking-enabled">renv.config.locking.enabled<a class="anchor" aria-label="anchor" href="#renv-config-locking-enabled"></a></h3>
-<p>Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same <code>renv</code> project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at <code>renv/lock</code>; if you need to manually remove a stale lock you can do so via <code>unlink("renv/lock", recursive = TRUE)</code>.
+<p>Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at <code>renv/lock</code>; if you need to manually remove a stale lock you can do so via <code>unlink("renv/lock", recursive = TRUE)</code>.
 Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
@@ -244,28 +244,28 @@ Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-rspm-enabled">renv.config.rspm.enabled<a class="anchor" aria-label="anchor" href="#renv-config-rspm-enabled"></a></h3>
-<p>Boolean; enable RSPM integration for <code>renv</code> projects? When <code>TRUE</code>, <code>renv</code> will attempt to transform the repository URLs used by RSPM into binary URLs as appropriate for the current platform. Set this to <code>FALSE</code> if you'd like to continue using source-only RSPM URLs, or if you find that <code>renv</code> is improperly transforming your repository URLs.
+<p>Boolean; enable RSPM integration for renv projects? When <code>TRUE</code>, renv will attempt to transform the repository URLs used by RSPM into binary URLs as appropriate for the current platform. Set this to <code>FALSE</code> if you'd like to continue using source-only RSPM URLs, or if you find that renv is improperly transforming your repository URLs.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-sandbox-enabled">renv.config.sandbox.enabled<a class="anchor" aria-label="anchor" href="#renv-config-sandbox-enabled"></a></h3>
-<p>Enable sandboxing for <code>renv</code> projects? When active, <code>renv</code> will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in <code>renv</code> projects. (That is, only packages with priority <code>"base"</code> or <code>"recommended"</code>, as reported by <code><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages()</a></code>, are made available.)
+<p>Enable sandboxing for renv projects? When active, renv will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in renv projects. (That is, only packages with priority <code>"base"</code> or <code>"recommended"</code>, as reported by <code><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages()</a></code>, are made available.)
 Sandboxing is done by linking or copying system packages into a separate library path, and then instructing R to use that library path as the system library path. In some environments, this action can take a large amount of time -- in such a case, you may want to disable the renv sandbox.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-shims-enabled">renv.config.shims.enabled<a class="anchor" aria-label="anchor" href="#renv-config-shims-enabled"></a></h3>
-<p>Should <code>renv</code> shims be installed on package load? When enabled, <code>renv</code> will install its own shims over the functions <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, <code><a href="https://rdrr.io/r/utils/update.packages.html" class="external-link">update.packages()</a></code> and <code><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages()</a></code>, delegating these functions to <code><a href="install.html">install()</a></code>, <code><a href="update.html">update()</a></code> and <code><a href="remove.html">remove()</a></code> as appropriate.
+<p>Should renv shims be installed on package load? When enabled, renv will install its own shims over the functions <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, <code><a href="https://rdrr.io/r/utils/update.packages.html" class="external-link">update.packages()</a></code> and <code><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages()</a></code>, delegating these functions to <code><a href="install.html">install()</a></code>, <code><a href="update.html">update()</a></code> and <code><a href="remove.html">remove()</a></code> as appropriate.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-snapshot-validate">renv.config.snapshot.validate<a class="anchor" aria-label="anchor" href="#renv-config-snapshot-validate"></a></h3>
-<p>Validate <span style="R">R</span> package dependencies when calling snapshot? When <code>TRUE</code>, <code>renv</code> will attempt to diagnose potential issues in the project library before creating <code>renv.lock</code> -- for example, if a package installed in the project library depends on a package which is not currently installed.
+<p>Validate <span style="R">R</span> package dependencies when calling snapshot? When <code>TRUE</code>, renv will attempt to diagnose potential issues in the project library before creating <code>renv.lock</code> -- for example, if a package installed in the project library depends on a package which is not currently installed.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-startup-quiet">renv.config.startup.quiet<a class="anchor" aria-label="anchor" href="#renv-config-startup-quiet"></a></h3>
-<p>Be quiet during startup? When set, <code>renv</code> will not display the typical <code>Project &lt;path&gt; loaded. [renv &lt;version&gt;]</code> banner on startup.
+<p>Be quiet during startup? When set, renv will not display the typical <code>Project &lt;path&gt; loaded. [renv &lt;version&gt;]</code> banner on startup.
 Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
@@ -285,7 +285,7 @@ Defaults to <code>2L</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-user-environ">renv.config.user.environ<a class="anchor" aria-label="anchor" href="#renv-config-user-environ"></a></h3>
-<p>Load the user R environ (typically located at <code>~/.Renviron</code>) when <code>renv</code> is loaded?
+<p>Load the user R environ (typically located at <code>~/.Renviron</code>) when renv is loaded?
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
@@ -295,7 +295,7 @@ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-user-profile">renv.config.user.profile<a class="anchor" aria-label="anchor" href="#renv-config-user-profile"></a></h3>
-<p>Load the user R profile (typically located at <code>~/.Rprofile</code>) when <code>renv</code> is loaded? This is disabled by default, as running arbitrary code from the the user <code>~/.Rprofile</code> could risk breaking project encapsulation. If your goal is to set environment variables that are visible within all <code>renv</code> projects, then placing those in <code>~/.Renviron</code> is often a better choice. Defaults to <code>FALSE</code>.</p>
+<p>Load the user R profile (typically located at <code>~/.Rprofile</code>) when renv is loaded? This is disabled by default, as running arbitrary code from the the user <code>~/.Rprofile</code> could risk breaking project encapsulation. If your goal is to set environment variables that are visible within all renv projects, then placing those in <code>~/.Renviron</code> is often a better choice. Defaults to <code>FALSE</code>.</p>
 </div>
 
     </div>
@@ -304,11 +304,11 @@ Defaults to <code>FALSE</code>.</p>
     
 
 
-<p>If you find that <code>renv</code> is unable to copy some directories in your
+<p>If you find that renv is unable to copy some directories in your
 environment, you may want to try setting the <code>copy.method</code> option. By
-default, <code>renv</code> will try to choose a system tool that is likely to succeed in
+default, renv will try to choose a system tool that is likely to succeed in
 copying files on your system -- <code>robocopy</code> on Windows, and <code>cp</code> on Unix.
-<code>renv</code> will also instruct these tools to preserve timestamps and attributes
+renv will also instruct these tools to preserve timestamps and attributes
 when copying files. However, you can select a different method as
 appropriate.</p>
 <p>The following methods are supported:</p>
@@ -316,7 +316,7 @@ appropriate.</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">renv.config.copy.method =</span> <span class="cf">function</span>(src, dst) {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># copy a file from 'src' to 'dst'</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>})</span></code></pre><p></p></div>
-<p>Note that <code>renv</code> will always first attempt to copy a directory first to a
+<p>Note that renv will always first attempt to copy a directory first to a
 temporary path within the target folder, and then rename that temporary path
 to the final target destination. This helps avoid issues where a failed
 attempt to copy a directory could leave a half-copied directory behind
