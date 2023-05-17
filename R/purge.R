@@ -20,7 +20,7 @@
 #' @param hash The specific hashes to be removed. When `NULL`, all hashes
 #'   associated with a particular package's version will be removed.
 #'
-#' @return The set of packages removed from the `renv` global cache,
+#' @return The set of packages removed from the renv global cache,
 #'   as a character vector of file paths.
 #'
 #' @export

@@ -93,7 +93,7 @@ renv_lockfile_api <- function(lockfile = NULL) {
 
 #' Programmatically Create and Modify a Lockfile
 #'
-#' This function provides an API for creating and modifying `renv` lockfiles.
+#' This function provides an API for creating and modifying renv lockfiles.
 #' This can be useful when you'd like to programmatically generate or modify
 #' a lockfile -- for example, because you want to update or change a package
 #' record in an existing lockfile.
@@ -105,7 +105,7 @@ renv_lockfile_api <- function(lockfile = NULL) {
 #'   want to create a blank lockfile, use `file = NA` instead.
 #'
 #' @seealso \code{\link{lockfiles}}, for a description of the structure of an
-#'   `renv` lockfile.
+#'   renv lockfile.
 #'
 #' @examples
 #'

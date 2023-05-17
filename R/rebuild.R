@@ -14,7 +14,7 @@
 #' @param recursive Boolean; should dependencies of packages be rebuilt
 #'   recursively? Defaults to `TRUE`.
 #'
-#' @return A named list of package records which were installed by `renv`.
+#' @return A named list of package records which were installed by renv.
 #'
 #' @export
 #'

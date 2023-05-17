@@ -18,21 +18,21 @@ install(
 }
 \arguments{
 \item{packages}{Either \code{NULL} (the default) to install all packages required
-by the project, or a character vector of packages to install. \code{renv}
-supports a subset of the \code{remotes} syntax used for package installation,
+by the project, or a character vector of packages to install. renv
+supports a subset of the remotes syntax used for package installation,
 e.g:
 \itemize{
 \item \code{pkg}: install latest version of \code{pkg} from CRAN.
 \item \code{pkg@version}: install specified version of \code{pkg} from CRAN.
 \item \code{username/repo}: install package from GitHub
-\item \code{bioc::pkg}: install pkg from Bioconductor.
+\item \code{bioc::pkg}: install \code{pkg} from Bioconductor.
 }
 
 See \url{https://remotes.r-lib.org/articles/dependencies.html} and the examples
 below for more details.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}
@@ -68,7 +68,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \value{
-A named list of package records which were installed by \code{renv}.
+A named list of package records which were installed by renv.
 }
 \description{
 Install one or more \R packages, from a variety of remote sources.
@@ -84,7 +84,7 @@ See \code{vignette("package-install")} for more details.
 
 
 If your project contains a \code{DESCRIPTION} file, then calling \code{install()}
-without any arguments will instruct \code{renv} to install the latest versions of
+without any arguments will instruct renv to install the latest versions of
 all packages as declared within that \code{DESCRIPTION} file's \code{Depends},
 \code{Imports} and \code{LinkingTo} fields; similar to how an \R package might declare
 its dependencies.
@@ -111,11 +111,11 @@ For example,
 \if{html}{\out{<div class="sourceCode">}}\preformatted{renv::install("bioc::Biobase")
 }\if{html}{\out{</div>}}
 
-will install the latest-available version of \code{Biobase} from Bioconductor.
+will install the latest-available version of Biobase from Bioconductor.
 
-\code{renv} depends on \code{BiocManager} (or, for older versions of \R, \code{BiocInstaller})
+renv depends on BiocManager (or, for older versions of \R, BiocInstaller)
 for the installation of packages from Bioconductor. If these packages are
-not available, \code{renv} will attempt to automatically install them before
+not available, renv will attempt to automatically install them before
 fulfilling the installation request.
 }
 

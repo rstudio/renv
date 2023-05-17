@@ -12,7 +12,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{actions}{The set of clean actions to take. See the documentation in
 \strong{Actions} for a list of available actions, and the default actions

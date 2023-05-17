@@ -12,11 +12,11 @@
 #'   with the requested project are used.
 #'
 #' @param sources Boolean; check that each of the recorded packages have a
-#'   known installation source? If a package has an unknown source, `renv`
+#'   known installation source? If a package has an unknown source, renv
 #'   may be unable to restore it.
 #'
 #' @param cache Boolean; perform diagnostics on the global package cache?
-#'   When `TRUE`, `renv` will validate that the packages installed into the
+#'   When `TRUE`, renv will validate that the packages installed into the
 #'   cache are installed at the expected + proper locations, and validate the
 #'   hashes used for those storage locations.
 #'

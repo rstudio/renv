@@ -14,7 +14,7 @@
 #' @section Project DESCRIPTION Files:
 #'
 #' If your project contains a `DESCRIPTION` file, then calling `install()`
-#' without any arguments will instruct `renv` to install the latest versions of
+#' without any arguments will instruct renv to install the latest versions of
 #' all packages as declared within that `DESCRIPTION` file's `Depends`,
 #' `Imports` and `LinkingTo` fields; similar to how an \R package might declare
 #' its dependencies.
@@ -40,28 +40,28 @@
 #' renv::install("bioc::Biobase")
 #' ```
 #'
-#' will install the latest-available version of `Biobase` from Bioconductor.
+#' will install the latest-available version of Biobase from Bioconductor.
 #'
-#' `renv` depends on `BiocManager` (or, for older versions of \R, `BiocInstaller`)
+#' renv depends on BiocManager (or, for older versions of \R, BiocInstaller)
 #' for the installation of packages from Bioconductor. If these packages are
-#' not available, `renv` will attempt to automatically install them before
+#' not available, renv will attempt to automatically install them before
 #' fulfilling the installation request.
 #'
 #' @inherit renv-params
 #' @param packages Either `NULL` (the default) to install all packages required
-#'  by the project, or a character vector of packages to install. `renv`
-#'  supports a subset of the `remotes` syntax used for package installation,
+#'  by the project, or a character vector of packages to install. renv
+#'  supports a subset of the remotes syntax used for package installation,
 #'  e.g:
 #'
 #'  * `pkg`: install latest version of `pkg` from CRAN.
 #'  * `pkg@version`: install specified version of `pkg` from CRAN.
 #'  * `username/repo`: install package from GitHub
-#'  * `bioc::pkg`: install pkg from Bioconductor.
+#'  * `bioc::pkg`: install `pkg` from Bioconductor.
 #'
 #'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
 #'  below for more details.
 #'
-#' @return A named list of package records which were installed by `renv`.
+#' @return A named list of package records which were installed by renv.
 #'
 #' @export
 #'

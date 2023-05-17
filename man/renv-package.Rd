@@ -9,8 +9,8 @@
 Project-local environments for \R.
 }
 \details{
-You can use \code{renv} to construct isolated, project-local \R libraries.
-Each project using \code{renv} will share package installations from a global
+You can use renv to construct isolated, project-local \R libraries.
+Each project using renv will share package installations from a global
 cache of packages, helping to avoid wasting disk space on multiple
 installations of a package that might otherwise be shared across projects.
 }

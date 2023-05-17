@@ -11,20 +11,20 @@ imbue(project = NULL, version = NULL, quiet = FALSE)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{version}{The version of \code{renv} to install. If \code{NULL}, the version
-of \code{renv} currently installed will be used. The requested version of
-\code{renv} will be retrieved from the \code{renv} public GitHub repository,
+\item{version}{The version of renv to install. If \code{NULL}, the version
+of renv currently installed will be used. The requested version of
+renv will be retrieved from the renv public GitHub repository,
 at \url{https://github.com/rstudio/renv}.}
 
-\item{quiet}{Boolean; avoid printing output during install of \code{renv}?}
+\item{quiet}{Boolean; avoid printing output during install of renv?}
 }
 \value{
 The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Imbue an \code{renv} installation into a project, thereby making the requested
-version of \code{renv} available within.
+Imbue an renv installation into a project, thereby making the requested
+version of renv available within.
 }
 \details{
 Normally, this function does not need to be called directly by the user; it

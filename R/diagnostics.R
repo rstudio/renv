@@ -1,8 +1,8 @@
 
 #' Print a Diagnostics Report
 #'
-#' Print a diagnostics report, summarizing the state of a project using `renv`.
-#' This report can occasionally be useful when diagnosing issues with `renv`.
+#' Print a diagnostics report, summarizing the state of a project using renv.
+#' This report can occasionally be useful when diagnosing issues with renv.
 #'
 #' @inheritParams renv-params
 #'

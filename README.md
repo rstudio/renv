@@ -8,20 +8,20 @@
 
 ## Overview
 
-The `renv` package helps you create **r**eproducible **env**ironments for your R projects.
-Use `renv` to make your R projects more:
+The renv package helps you create **r**eproducible **env**ironments for your R projects.
+Use renv to make your R projects more:
 
 **Isolated**: Installing a new or updated package for one project won't break your other projects, and vice versa.
-That's because `renv` gives each project its own private library.
+That's because renv gives each project its own private library.
 
 **Portable**: Easily transport your projects from one computer to another, even across different platforms.
-`renv` makes it easy to install the packages your project depends on.
+renv makes it easy to install the packages your project depends on.
 
-**Reproducible**: `renv` records the exact package versions you depend on, and ensures those exact versions are the ones that get installed wherever you go.
+**Reproducible**: renv records the exact package versions you depend on, and ensures those exact versions are the ones that get installed wherever you go.
 
 ## Installation
 
-Install the latest version of `renv` from CRAN with:
+Install the latest version of renv from CRAN with:
 
 ``` r
 install.packages("renv")
@@ -29,7 +29,7 @@ install.packages("renv")
 
 ## Workflow
 
-Use `renv::init()` to initialize `renv` with a new or existing project.
+Use `renv::init()` to initialize renv with a new or existing project.
 This will set up your project with a private library, containing all the packages you're currently using.
 The packages (and all the metadata needed to reinstall them) are also recorded into a *lockfile*, `renv.lock`.
 
@@ -40,9 +40,9 @@ Later, if you need to share your code with someone else or run your code on new 
 
 ## Learning more
 
-If this is your first time using `renv`, we strongly recommend reading the [Introduction to renv](https://rstudio.github.io/renv/articles/renv.html) vignette.
+If this is your first time using renv, we strongly recommend reading the [Introduction to renv](https://rstudio.github.io/renv/articles/renv.html) vignette.
 
-If you have a question about `renv`, please first check the [FAQ](https://rstudio.github.io/renv/articles/faq.html) to see whether your question has already been addressed.
+If you have a question about renv, please first check the [FAQ](https://rstudio.github.io/renv/articles/faq.html) to see whether your question has already been addressed.
 If it hasn't, please feel free to ask on the [RStudio Community forums](https://community.rstudio.com).
 
-If you believe you've found a bug in `renv`, please file a bug (and, if possible, a [reproducible example](https://reprex.tidyverse.org)) at <https://github.com/rstudio/renv/issues>.
+If you believe you've found a bug in renv, please file a bug (and, if possible, a [reproducible example](https://reprex.tidyverse.org)) at <https://github.com/rstudio/renv/issues>.

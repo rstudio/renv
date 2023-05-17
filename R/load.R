@@ -9,11 +9,11 @@
 #' You should not generally need to call `renv::load()` yourself, as it's
 #' called automatically by the project auto-loader created by [renv::init()]/
 #' [renv::activate()]. However, if needed, you can use `renv::load("<project>")`
-#' to explicitly load an `renv` project located at a particular path.
+#' to explicitly load an renv project located at a particular path.
 #'
 #' # Shims
 #'
-#' To help you take advantage of the package cache, `renv` places a couple of
+#' To help you take advantage of the package cache, renv places a couple of
 #' shims on the search path:
 #'
 #' * `install.packages()` instead calls `renv::install()`.
@@ -21,14 +21,14 @@
 #' * `update.packages()` instead calls `renv::update()`.
 #'
 #' This allows you to keep using your existing muscle memory for installing,
-#' updating, and remove packages, while taking advantage of `renv` features
+#' updating, and remove packages, while taking advantage of renv features
 #' like the package cache.
 #'
 #' If you'd like to bypass these shims within an \R session, you can explicitly
-#' call the version of these functions from the `utils` package, e.g. with
+#' call the version of these functions from the utils package, e.g. with
 #' `utils::install.packages(<...>)`.
 #'
-#' If you'd prefer not to use the `renv` shims at all, they can be disabled by
+#' If you'd prefer not to use the renv shims at all, they can be disabled by
 #' setting the R option `options(renv.config.shims.enabled = FALSE)` or by
 #' setting the environment variable `RENV_CONFIG_SHIMS_ENABLED = FALSE`. See
 #' `?config` for more details.
