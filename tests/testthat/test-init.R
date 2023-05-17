@@ -107,8 +107,9 @@ test_that("init() works in path containing accented characters", {
   if (!identical(project, roundtrip))
     skip("project cannot be represented in native encoding")
 
-  native <- enc2native(project)
-  renv_tests_scope(project = paste(tempdir(), native, sep = "/"))
+  path <- paste0(tempdir(), enc2native(project), sep = "/")
+  renv_tests_scope(project = path)
+  defer(unlink(path, recursive = TRUE))
 
   init()
 
@@ -179,36 +180,26 @@ test_that("RENV_PATHS_RENV is respected on init", {
   renv_tests_scope()
   renv_scope_envvars(
     RENV_PATHS_LOCKFILE = ".renv/renv.lock",
-    RENV_PATHS_RENV     = ".renv"
+    RENV_PATHS_RENV     = ".renv",
+    # don't execute user profile
+    R_PROFILE_USER = ""
   )
 
-  local({
+  # perform init in sub-process
+  args <- c("-s", "-e", shcode(renv::init()))
+  renv_system_exec(R(), args, action = "executing renv::init()")
 
-    # don't execute user profile, and make sure we can find renv
-    renv_scope_envvars(
-      R_LIBS         = Sys.getenv("RENV_DEFAULT_R_LIBS"),
-      R_PROFILE_USER = ""
-    )
-
-    # perform init in sub-process
-    args <- c("-s", "-e", shcode(renv::init()))
-    renv_system_exec(R(), args, action = "executing renv::init()", quiet = FALSE)
-
-    # check that the requisite files were created
-    expect_true(file.exists(".renv"))
-    expect_true(file.exists(".renv/renv.lock"))
-
-  })
+  # check that the requisite files were created
+  expect_true(file.exists(".renv"))
+  expect_true(file.exists(".renv/renv.lock"))
 
   script <- renv_test_code({
     writeLines(Sys.getenv("RENV_PATHS_RENV"))
   })
 
-  renv <- local({
-    renv_scope_envvars(R_PROFILE_USER = NULL)
-    args <- c("-s", "-f", script)
-    renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
-  })
+  renv_scope_envvars(R_PROFILE_USER = NULL)
+  args <- c("-s", "-f", script)
+  renv <- renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
 
   expect_equal(renv, ".renv")
 
