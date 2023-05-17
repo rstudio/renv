@@ -3,10 +3,7 @@
 \docType{data}
 \name{settings}
 \alias{settings}
-\title{Project Settings}
-\format{
-An object of class \code{list} of length 11.
-}
+\title{Project settings}
 \usage{
 settings
 }
@@ -16,23 +13,25 @@ A named list of \code{renv} settings.
 \description{
 Define project-local settings that can be used to adjust the behavior of
 \code{renv} with your particular project.
+\itemize{
+\item Get the current value of a setting with (e.g.) \code{settings$snapshot.type()}
+\item Set current value of a setting with (e.g.)
+\code{settings$snapshot.type("explicit")}.
 }
-\section{Settings}{
 
-
-\describe{
-
-\item{\code{bioconductor.version}}{
+Settings are automatically persisted across project sessions by writing to
+\code{renv/settings.json}. You can also edit this file by hand, but you'll need
+to restart the session for those changes to take effect.
+\subsection{\code{bioconductor.version}}{
 
 The Bioconductor version to be used with this project. Use this if you'd
 like to lock the version of Bioconductor used on a per-project basis.
 When unset, \code{renv} will try to infer the appropriate Bioconductor release
 using the \code{BiocVersion} package if installed; if not, \code{renv} uses
 \code{BiocManager::version()} to infer the appropriate Bioconductor version.
-
 }
 
-\item{\code{external.libraries}}{
+\subsection{\code{external.libraries}}{
 
 A vector of library paths, to be used in addition to the project's own
 private library. This can be useful if you have a package available for use
@@ -40,18 +39,16 @@ in some global library, but for some reason \code{renv} is not able to install
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).
-
 }
 
-\item{\code{ignored.packages}}{
+\subsection{\code{ignored.packages}}{
 
 A vector of packages, which should be ignored when attempting to snapshot
 the project's private library. Note that if a package has already been
 added to the lockfile, that entry in the lockfile will not be ignored.
-
 }
 
-\item{\code{package.dependency.fields}}{
+\subsection{\code{package.dependency.fields}}{
 
 During dependency discovery, \code{renv} uses the fields of an installed
 package's \code{DESCRIPTION} file to determine that package's recursive
@@ -59,37 +56,33 @@ dependencies. By default, the \code{Imports}, \code{Depends} and \code{LinkingTo
 are used. If you'd prefer that \code{renv} also captures the \code{Suggests}
 dependencies for a package, you can set this to
 \code{c("Imports", "Depends", "LinkingTo", "Suggests")}.
-
 }
 
-\item{\code{r.version}}{
+\subsection{\code{r.version}}{
 
 The version of \R to encode within the lockfile. This can be set as a
 project-specific option if you'd like to allow multiple users to use
 the same \code{renv} project with different versions of \R. \code{renv} will
 still warn the user if the major + minor version of \R used in a project
 does not match what is encoded in the lockfile.
-
 }
 
-\item{\code{snapshot.type}}{
+\subsection{\code{snapshot.type}}{
 
 The type of snapshot to perform by default. See \link{snapshot} for more
 details.
-
 }
 
-\item{\code{use.cache}}{
+\subsection{\code{use.cache}}{
 
 Enable the \code{renv} package cache with this project. When active, \code{renv} will
 install packages into a global cache, and link packages from the cache into
 your \code{renv} projects as appropriate. This can greatly save on disk space
 and install time when for \R packages which are used across multiple
 projects in the same environment.
-
 }
 
-\item{\code{vcs.manage.ignores}}{
+\subsection{\code{vcs.manage.ignores}}{
 
 Should \code{renv} attempt to manage the version control system's ignore files
 (e.g. \code{.gitignore}) within this project? Set this to \code{FALSE} if you'd
@@ -98,50 +91,32 @@ need to manually ensure internal data in the project's \verb{renv/} folder
 is explicitly ignored.
 }
 
-\item{\code{vcs.ignore.cellar}}{
+\subsection{\code{vcs.ignore.cellar}}{
 
 Set whether packages within a project-local package cellar are excluded
 from version control. See \code{vignette("cellar", package = "renv")} for
 more information.
-
 }
 
-\item{\code{vcs.ignore.library}}{
+\subsection{\code{vcs.ignore.library}}{
 
 Set whether the \code{renv} project library is excluded from version control.
-
 }
 
-\item{\code{vcs.ignore.local}}{
+\subsection{\code{vcs.ignore.local}}{
 
 Set whether \code{renv} project-specific local sources are excluded from version
 control.
-
-}
-
 }
 }
-
-\section{Persistence}{
-
-
-Project settings are persisted within the project at \code{renv/settings.json}.
-These settings can also be edited by hand with a text editor, but you may
-need to restart any running \R sessions using this project for those
-changes to be detected.
-}
-
 \section{Defaults}{
-
-
 You can change the default values of these settings for newly-created \code{renv}
 projects by setting \R options for \code{renv.settings} or \verb{renv.settings.<name>}.
 For example:
 
-\preformatted{
-options(renv.settings = list(snapshot.type = "all"))
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{options(renv.settings = list(snapshot.type = "all"))
 options(renv.settings.snapshot.type = "all")
-}
+}\if{html}{\out{</div>}}
 
 If both of the \code{renv.settings} and \verb{renv.settings.<name>} options are set
 for a particular key, the option associated with \verb{renv.settings.<name>} is
