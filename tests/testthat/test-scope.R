@@ -32,10 +32,7 @@ test_that("options() scoping works as expected", {
 })
 
 test_that("environment variable scoping works as expected", {
-
-  Sys.unsetenv("RENV_TEST_ENVVAR_A")
-  Sys.setenv("RENV_TEST_ENVVAR_B" = "0")
-  on.exit(Sys.unsetenv("RENV_TEST_ENVVAR_B"), add = TRUE)
+  renv_scope_envvars("RENV_TEST_ENVVAR_B" = "0")
 
   # set and later unset a variable
   local({
