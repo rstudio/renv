@@ -98,4 +98,3 @@ test_that("a Packrat project with no library can be migrated", {
   expect_setequal(expected, names(records))
 
 })
-
