@@ -1,11 +1,9 @@
 test_that("renv_envvars_save() is idempotent", {
 
-  renv_scope_envvars(
-    R_LIBS = NA,
-    R_LIBS_SITE = NA,
-    R_LIBS_USER = NA,
-    RENV_DEFAULT_R_LIBS_USER = NA
-  )
+  envs <- rep(list(NULL), length(renv_envvars_list()))
+  names(envs) <- renv_envvars_list()
+  renv_scope_envvars(list = envs)
+  renv_scope_envvars(RENV_DEFAULT_R_LIBS_USER = "")
 
   renv_envvars_restore()
   before <- Sys.getenv()
