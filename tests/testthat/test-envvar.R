@@ -5,11 +5,11 @@ test_that("can add before or after", {
     paste(c(...), collapse = .Platform$path.sep)
   }
 
-  withr::local_envvar(TESTPATH = "a")
+  renv_scope_envvars(TESTPATH = "a")
   renv_envvar_path_add("TESTPATH", "b", prepend = TRUE)
   expect_equal(Sys.getenv("TESTPATH"), path_string(c("b", "a")))
 
-  withr::local_envvar(TESTPATH = "a")
+  renv_scope_envvars(TESTPATH = "a")
   renv_envvar_path_add("TESTPATH", "b", prepend = FALSE)
   expect_equal(Sys.getenv("TESTPATH"), path_string(c("a", "b")))
 })
@@ -18,7 +18,7 @@ test_that("renv_envvar_path_modify doesn't duplicate paths", {
   path_string <- function(...) {
     paste(c(...), collapse = .Platform$path.sep)
   }
-  withr::local_envvar(TESTPATH = path_string("a", "b", "c"))
+  renv_scope_envvars(TESTPATH = path_string("a", "b", "c"))
 
   renv_envvar_path_add("TESTPATH", "a")
   expect_equal(Sys.getenv("TESTPATH"), path_string("a", "b", "c"))
@@ -28,7 +28,7 @@ test_that("renv_envvar_path_modify doesn't duplicate paths", {
 })
 
 test_that("renv_envvar_path_modify works if var isn't set", {
-  withr::local_envvar(TESTPATH = NA)
+  renv_scope_envvars(TESTPATH = NULL)
 
   renv_envvar_path_add("TESTPATH", "a")
   expect_equal(Sys.getenv("TESTPATH"), "a")
