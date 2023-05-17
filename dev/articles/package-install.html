@@ -278,7 +278,7 @@ packages contain compiled C / C++ code that depend on and link to these
 packages.</p></li>
 </ol>
 <!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb --><div class="section level3">
-<h3 id="configure">Configure<a class="anchor" aria-label="anchor" href="#configure"></a>
+<h3 id="configure-flags">Configure flags<a class="anchor" aria-label="anchor" href="#configure-flags"></a>
 </h3>
 <p>Many packages have a <code>configure</code> script that needs to be
 run to prepare the package for installation. Arguments and environment
@@ -297,6 +297,10 @@ example:</p>
 <span>  configure.args.RNetCDF <span class="op">=</span> <span class="st">"--with-netcdf-include=/usr/include/udunits2"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="st">"RNetCDF"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="install-flags">Install flags<a class="anchor" aria-label="anchor" href="#install-flags"></a>
+</h3>
 <p>Similarly, additional flags that should be passed to
 <code>R CMD INSTALL</code> can be set via the <code>install.opts</code>
 option:</p>
