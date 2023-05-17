@@ -10,6 +10,9 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
 
   renv_tests_init()
   renv_tests_scope_repos(envir = envir)
+
+  # most tests will call init() which changes `R_LIBS_USER`;
+  # this ensures we reset to the original value when the test is done
   renv_scope_envvars(R_LIBS_USER = NULL, envir = envir)
 
   # ensure that attempts to restart are a no-op
