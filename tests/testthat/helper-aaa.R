@@ -61,10 +61,10 @@ renv_test_state <- function() {
   opts <- opts[csort(names(opts))]
 
   list(
-    libpaths   = .libPaths(),
-    connection = getAllConnections(),
-    options    = opts,
-    repo_files = if (!is.null(repopath)) list_files(repopath),
-    user_files = list_files(userpath)
+    libpaths     = .libPaths(),
+    connections  = getAllConnections(),
+    options      = opts,
+    repo_files   = if (!is.null(repopath)) list_files(repopath),
+    user_files   = list_files(userpath)
   )
 }
