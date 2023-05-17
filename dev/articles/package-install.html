@@ -314,6 +314,18 @@ option:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>install.opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>xml2 <span class="op">=</span> <span class="st">"--no-lock"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="st">"xml2"</span><span class="op">)</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
+</h3>
+<p>renv does not build vignettes when installing a package from source.
+This is because vignettes often require suggested packages, and
+installing all suggested packages (particularly from source) can be
+arduous.</p>
+<p>If you want to distribute vignettes for your own packages, we suggest
+creating your own repository of binaries, either with <a href="https://r-universe.dev/search/" class="external-link">R Universe</a> (for publicly
+hosted packages on GitHub), with <a href="https://posit.co/products/enterprise/package-manager/" class="external-link">Posit
+Package Manager</a>, or with <a href="https://eddelbuettel.github.io/drat/" class="external-link">drat</a>.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="downloads">Downloads<a class="anchor" aria-label="anchor" href="#downloads"></a>
