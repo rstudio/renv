@@ -60,11 +60,17 @@ renv_test_state <- function() {
   opts$repos[opts$repos == "@CRAN@"] <- "https://cloud.r-project.org"
   opts <- opts[csort(names(opts))]
 
+  envvars <- as.list(Sys.getenv())
+  envvars <- envvars[grep("^RENV_DEFAULT_", names(envvars), invert = TRUE)]
+  envvars <- envvars[grep("^R_PACKRAT_", names(envvars), invert = TRUE)]
+  envvars$RETICULATE_MINICONDA_PYTHON_ENVPATH <- NULL
+
   list(
     libpaths     = .libPaths(),
     connections  = getAllConnections(),
     options      = opts,
     repofiles    = if (!is.null(repopath)) list_files(repopath),
-    userfiles    = list_files(userpath)
+    userfiles    = list_files(userpath),
+    envvars      = envvars
   )
 }

@@ -10,22 +10,17 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
 
   renv_tests_init()
   renv_tests_scope_repos(envir = envir)
+  renv_scope_envvars(R_LIBS_USER = NULL, envir = envir)
 
   # ensure that attempts to restart are a no-op
   if (renv_rstudio_available())
     options(restart = function(...) TRUE)
-
-  # save local repositories
-  Sys.setenv(RENV_PATHS_LOCAL = renv_tests_path("local"))
 
   # move to own test directory
   dir <- project %||% tempfile("renv-test-")
   ensure_directory(dir)
   dir <- renv_path_normalize(dir, winslash = "/")
   owd <- setwd(dir)
-
-  # set as active project
-  Sys.setenv(RENV_PROJECT = dir)
 
   # create empty renv directory
   dir.create(file.path(dir, "renv"))
@@ -53,19 +48,12 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
 
 renv_tests_init_envvars <- function() {
 
-  Sys.unsetenv("RENV_PROFILE")
-  Sys.unsetenv("RENV_PROJECT")
   Sys.unsetenv("RENV_PATHS_ROOT")
   Sys.unsetenv("RENV_PATHS_LIBRARY")
   Sys.unsetenv("RENV_PATHS_LIBRARY_ROOT")
   Sys.unsetenv("RENV_PATHS_LOCAL")
   Sys.unsetenv("RENV_PATHS_LOCKFILE")
   Sys.unsetenv("RENV_PATHS_RENV")
-
-  Sys.unsetenv("RENV_PYTHON")
-  Sys.unsetenv("RETICULATE_PYTHON")
-  Sys.unsetenv("RETICULATE_PYTHON_ENV")
-  Sys.unsetenv("RETICULATE_PYTHON_FALLBACK")
 
   Sys.setenv(RENV_AUTOLOAD_ENABLED = "FALSE")
 

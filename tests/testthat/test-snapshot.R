@@ -205,7 +205,10 @@ test_that("snapshot warns about unsatisfied dependencies", {
 test_that("snapshot records packages discovered in cellar", {
 
   renv_tests_scope("skeleton")
-  renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+  renv_scope_envvars(
+    RENV_PATHS_CACHE = tempfile(),
+    RENV_PATHS_LOCAL = renv_tests_path("local")
+  )
 
   init(bare = TRUE)
 
@@ -281,9 +284,6 @@ test_that("records for packages available on other OSes are preserved", {
 test_that(".renvignore works during snapshot without an explicit root", {
 
   renv_tests_scope()
-
-  # pretend we don't know the project root
-  renv_scope_envvars(RENV_PROJECT = NULL)
 
   # install bread
   install("bread")

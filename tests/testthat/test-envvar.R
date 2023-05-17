@@ -36,6 +36,13 @@ test_that("renv_envvar_path_modify works if var isn't set", {
 
 test_that("renv_envvars_save() is idempotent", {
 
+  renv_scope_envvars(
+    R_LIBS = NA,
+    R_LIBS_SITE = NA,
+    R_LIBS_USER = NA,
+    RENV_DEFAULT_R_LIBS_USER = NA
+  )
+
   renv_envvars_restore()
   before <- Sys.getenv()
 
@@ -47,7 +54,6 @@ test_that("renv_envvars_save() is idempotent", {
   during <- Sys.getenv()
   expect_false(identical(before, during))
 
-  Sys.setenv("R_LIBS_USER" = "")
   renv_envvars_restore()
   expect_equal(userlib, Sys.getenv("R_LIBS_USER"))
 

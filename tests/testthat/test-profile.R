@@ -5,6 +5,8 @@ test_that("renv/profile is read and used to select a profile", {
   skip_on_cran()
 
   project <- renv_tests_scope()
+
+  renv_scope_envvars(RENV_PROFILE = NULL)
   init(profile = "testing")
   renv_imbue_self(project)
 

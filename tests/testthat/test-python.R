@@ -1,6 +1,16 @@
 
 context("Python")
 
+renv_test_scope_python <- function(envir = parent.frame()) {
+  renv_scope_envvars(
+    PATH = Sys.getenv("PATH"),
+    RENV_PYTHON = NULL,
+    RETICULATE_PYTHON = NULL,
+    RETICULATE_PYTHON_ENV = NULL,
+    envir = envir
+  )
+}
+
 python <-
   Sys.which("python3") %""%
   Sys.which("python")  %""%
@@ -11,6 +21,7 @@ test_that("we can activate Python with a project", {
   skip_on_os("windows")
   skip_on_cran()
   skip_if_no_python(python)
+  renv_test_scope_python()
 
   renv_tests_scope("breakfast")
   use_python(python = python, type = "system")
@@ -25,6 +36,7 @@ test_that("we can activate Python with a virtualenv in a project", {
   skip_on_os("windows")
   skip_on_cran()
   skip_if_no_virtualenv(python)
+  renv_test_scope_python()
 
   renv_tests_scope("breakfast")
   use_python(python = python, type = "virtualenv")
@@ -39,6 +51,7 @@ test_that("renv uses local virtual environment for names beginning with '.'", {
   skip_on_os("windows")
   skip_on_cran()
   skip_if_no_virtualenv(python)
+  renv_test_scope_python()
 
   renv_tests_scope("breakfast")
   renv::use_python(python = python, name = ".venv")
@@ -56,6 +69,7 @@ test_that("renv can bind to virtualenvs in WORKON_HOME", {
   skip_on_os("windows")
   skip_on_cran()
   skip_if_no_virtualenv(python)
+  renv_test_scope_python()
 
   # work with temporary virtualenv home
   renv_scope_envvars(WORKON_HOME = tempdir())
@@ -86,10 +100,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   skip_on_os("windows")
   skip_on_cran()
   skip_if_no_virtualenv(python)
-
-  Sys.unsetenv("RENV_PYTHON")
-  Sys.unsetenv("RETICULATE_PYTHON")
-  Sys.unsetenv("RETICULATE_PYTHON_ENV")
+  renv_test_scope_python()
 
   renv_tests_scope("breakfast")
 
@@ -140,10 +151,7 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
   skip_on_cran()
   skip_if_no_miniconda(python)
   skip_if(renv_version_lt(renv_python_version(python), "3.6"))
-
-  Sys.unsetenv("RENV_PYTHON")
-  Sys.unsetenv("RETICULATE_PYTHON")
-  Sys.unsetenv("RETICULATE_PYTHON_ENV")
+  renv_test_scope_python()
 
   renv_tests_scope("breakfast")
 
@@ -187,6 +195,7 @@ test_that("python environment name is preserved after snapshot", {
   skip_on_cran()
   skip_if_no_miniconda(python)
   skip_if(renv_version_lt(renv_python_version(python), "3.6"))
+  renv_test_scope_python()
 
   # create and use local python environment
   renv_tests_scope()
@@ -213,6 +222,7 @@ test_that("renv_python_discover() respects PATH ordering", {
   skip_on_cran()
   skip_on_windows()
   renv_tests_scope()
+  renv_test_scope_python()
 
   # create a bunch of python directories
   wd <- normalizePath(getwd(), winslash = "/")
@@ -234,15 +244,3 @@ test_that("renv_python_discover() respects PATH ordering", {
   expect_equal(tail(discovered, n = 3L), pythons)
 
 })
-
-
-# deactivate reticulate integration
-Sys.unsetenv("RENV_PYTHON")
-Sys.unsetenv("RETICULATE_PYTHON")
-Sys.unsetenv("RETICULATE_PYTHON_ENV")
-
-
-
-
-
-

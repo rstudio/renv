@@ -237,10 +237,6 @@ test_that("restore works with explicit Source", {
   renv_tests_scope("breakfast")
   init()
 
-  locals <- Sys.getenv("RENV_PATHS_LOCAL", unset = NA)
-  if (is.na(locals))
-    stop("internal error: RENV_PATHS_LOCAL unset in tests")
-
   renv_scope_envvars(
     RENV_PATHS_LOCAL = "",
     RENV_PATHS_CACHE = ""
@@ -249,7 +245,7 @@ test_that("restore works with explicit Source", {
   record <- list(
     Package = "skeleton",
     Version = "1.0.0",
-    Source  = file.path(locals, "skeleton/skeleton_1.0.0.tar.gz")
+    Source  = renv_tests_path("local/skeleton/skeleton_1.0.0.tar.gz")
   )
 
   renv_test_retrieve(record)
