@@ -60,7 +60,9 @@ renv_test_state <- function() {
   envvars <- as.list(Sys.getenv())
   envvars <- envvars[grep("^RENV_DEFAULT_", names(envvars), invert = TRUE)]
   envvars <- envvars[grep("^R_PACKRAT_", names(envvars), invert = TRUE)]
+  envvars <- envvars[grep("^_R_", names(envvars), invert = TRUE)]
   envvars$RETICULATE_MINICONDA_PYTHON_ENVPATH <- NULL
+  envvars <- envvars[csort(names(envvars))]
 
   list(
     libpaths     = .libPaths(),
