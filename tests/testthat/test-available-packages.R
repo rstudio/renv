@@ -37,7 +37,6 @@ test_that("renv handles multiple available source packages", {
   skip_on_cran()
 
   renv_tests_scope()
-  repos <- tempfile("renv-test-repos-")
 
   dbs <- available_packages(type = "source")
   cran <- dbs[["CRAN"]]

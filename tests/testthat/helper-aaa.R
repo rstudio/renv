@@ -64,7 +64,7 @@ renv_test_state <- function() {
     libpaths     = .libPaths(),
     connections  = getAllConnections(),
     options      = opts,
-    repo_files   = if (!is.null(repopath)) list_files(repopath),
-    user_files   = list_files(userpath)
+    repofiles    = if (!is.null(repopath)) list_files(repopath),
+    userfiles    = list_files(userpath)
   )
 }
