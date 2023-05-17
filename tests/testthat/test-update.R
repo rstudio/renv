@@ -6,7 +6,6 @@ test_that("update() finds packages requiring updates from CRAN", {
   skip_on_cran()
 
   renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
-  renv_tests_scope_repos()
   renv_tests_scope()
   renv::init()
 

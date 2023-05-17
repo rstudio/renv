@@ -4,7 +4,6 @@ context("Repair")
 test_that("we can repair a broken project library", {
 
   skip_on_cran()
-  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
 
   init()

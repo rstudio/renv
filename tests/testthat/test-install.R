@@ -10,7 +10,6 @@ test_that("install works when DESCRIPTION contains no dependencies", {
 
 test_that("requested version in DESCRIPTION file is honored", {
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   desc <- c(
@@ -67,7 +66,6 @@ test_that("install forces update of dependencies as needed", {
   # version of the breakfast package is searched for; need
   # to figure out where the repositories are getting changed.
   skip_on_cran()
-  renv_tests_scope_repos()
   renv_tests_scope("breakfast")
 
   # install the breakfast package
@@ -99,7 +97,6 @@ test_that("install forces update of dependencies as needed", {
 
 test_that("packages can be installed from sources", {
 
-  renv_tests_scope_repos()
   renv_tests_scope()
   renv::init()
 
@@ -116,7 +113,6 @@ test_that("packages can be installed from sources", {
 test_that("various remote styles can be used during install", {
   skip_on_cran()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
   renv::init()
 
@@ -281,7 +277,6 @@ test_that("renv can install packages from GitHub using remotes subdir syntax", {
 
 test_that("install via version succeeds", {
   skip_on_cran()
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   install("bread@0.0.1")
@@ -500,7 +495,6 @@ test_that("custom dependency fields in install are supported", {
   skip_on_cran()
   skip_on_windows()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   install("breakfast", dependencies = "strong")

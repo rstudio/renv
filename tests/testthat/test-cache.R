@@ -3,7 +3,6 @@ context("Cache")
 
 test_that("issues within the cache are reported", {
   skip_on_cran()
-  renv_tests_scope_repos()
 
   # use a temporary cache for this test as we're going
   # to mutate and invalidate it
@@ -130,7 +129,6 @@ test_that("malformed folders in the cache are ignored", {
 
 test_that("corrupt Meta/package.rds is detected", {
   skip_on_cran()
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   cachepath <- tempfile("renv-cache-")
@@ -161,7 +159,6 @@ test_that("invalid Built field is detected", {
 
   skip_on_cran()
   renv_tests_scope()
-  renv_tests_scope_repos()
 
   cachepath <- tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)

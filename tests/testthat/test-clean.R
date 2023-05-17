@@ -3,7 +3,6 @@ context("Clean")
 
 test_that("clean removes stale lockfiles", {
 
-  renv_tests_scope_repos()
   renv_tests_scope("bread")
 
   init()

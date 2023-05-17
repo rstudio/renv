@@ -4,7 +4,6 @@ context("Checkout")
 test_that("we can check out packages from our local repository", {
 
   # enter test scope
-  renv_tests_scope_repos()
   project <- renv_tests_scope("breakfast")
 
   # check out a package + its depndencies; this invocation is

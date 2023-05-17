@@ -4,7 +4,6 @@ context("Cellar")
 test_that("renv can find packages located in the cellar", {
   skip_on_cran()
   renv_tests_scope()
-  renv_tests_scope_repos()
 
   # copy some packages into the cellar
   cellar <- renv_paths_cellar()

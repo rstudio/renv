@@ -6,7 +6,6 @@ test_that("we can retrieve packages from CRAN", {
   skip_on_cran()
   skip_sometimes()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   record <- list(
@@ -24,7 +23,6 @@ test_that("we can retrieve packages from the CRAN archive", {
   skip_on_cran()
   skip_sometimes()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   record <- list(
@@ -42,7 +40,6 @@ test_that("packages with an unknown source are retrieved from CRAN", {
   skip_on_cran()
   skip_sometimes()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   record <- list(
@@ -331,7 +328,6 @@ test_that("we can retrieve files using file URIs", {
 
 test_that("records with RemoteSha successfully retrieved from archives", {
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   record <- list(
@@ -361,7 +357,6 @@ test_that("renv can retrieve the latest release associated with a project", {
 test_that("retrieve handles local sources", {
   skip_on_cran()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   record <- list(

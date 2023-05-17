@@ -6,9 +6,10 @@ renv_tests_program <- function(name) {
   program
 }
 
-renv_tests_scope <- function(packages = character(), project = NULL) {
+renv_tests_scope <- function(packages = character(), project = NULL, envir = parent.frame()) {
 
   renv_tests_init()
+  renv_tests_scope_repos(envir = envir)
 
   # ensure that attempts to restart are a no-op
   if (renv_rstudio_available())
@@ -39,7 +40,7 @@ renv_tests_scope <- function(packages = character(), project = NULL) {
   libpaths <- .libPaths()
   .libPaths(lib)
 
-  defer(envir = parent.frame(), {
+  defer(envir = envir, {
     setwd(owd)
     unlink(lib, recursive = TRUE)
     .libPaths(libpaths)

@@ -3,7 +3,6 @@ context("Record")
 
 test_that("an existing lockfile can be updated", {
 
-  renv_tests_scope_repos()
   renv_tests_scope("bread")
   renv::init()
 
@@ -42,7 +41,6 @@ test_that("an existing lockfile can be updated", {
 
 test_that("renv::record(<package>) also records version", {
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   # create empty lockfile

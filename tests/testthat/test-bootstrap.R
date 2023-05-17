@@ -6,7 +6,6 @@ test_that("we can bootstrap the current version of renv", {
   skip_on_cran()
   skip_on_ci()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   library <- renv_libpaths_active()
@@ -21,7 +20,6 @@ test_that("we can bootstrap an archived version of renv", {
   skip_on_cran()
   skip_on_ci()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   library <- renv_libpaths_active()
@@ -36,7 +34,6 @@ test_that("we can install a version of renv from GitHub", {
   skip_on_cran()
   skip_on_ci()
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   library <- renv_libpaths_active()
@@ -51,7 +48,6 @@ test_that("bootstrap succeeds with empty repos", {
   skip_on_cran()
   skip_on_os("windows")
 
-  renv_tests_scope_repos()
   renv_tests_scope()
   renv_scope_options(repos = character())
 
@@ -92,7 +88,6 @@ test_that("bootstrap functions don't depend on non-bootstrap APIs", {
 
 test_that("bootstrapping functions standalone", {
 
-  renv_tests_scope_repos()
   renv_tests_scope()
 
   # get all bootstrap APIs in package

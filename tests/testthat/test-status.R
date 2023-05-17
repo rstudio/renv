@@ -3,7 +3,6 @@ context("Status")
 
 test_that("status reports packages to be installed / changed", {
 
-  renv_tests_scope_repos()
   renv_tests_scope(c("toast", "breakfast"))
   renv_scope_options(renv.config.auto.snapshot = FALSE)
   renv_scope_sink()
@@ -24,7 +23,6 @@ test_that("status reports packages to be installed / changed", {
 
 test_that("status reports packages which are used but not installed", {
 
-  renv_tests_scope_repos()
   renv_tests_scope()
   renv_scope_sink()
   init()
