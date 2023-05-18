@@ -1,6 +1,4 @@
 
-context("Setup")
-
 renv_tests_init()
 
 test_that("RENV_PATHS_ROOT resolves to the temporary directory", {

@@ -1,6 +1,4 @@
 
-context("R Markdown")
-
 test_that("The chunk header parser works as expected", {
 
   cases <- list(

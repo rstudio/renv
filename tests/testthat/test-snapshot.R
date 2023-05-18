@@ -1,6 +1,4 @@
 
-context("Snapshot")
-
 test_that("snapshot is idempotent", {
 
   renv_tests_scope("oatmeal")

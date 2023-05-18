@@ -1,5 +1,3 @@
-context("Scope")
-
 test_that(".libPaths() scoping works as expected", {
 
   libpaths <- .libPaths()

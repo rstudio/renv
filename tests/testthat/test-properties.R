@@ -1,6 +1,4 @@
 
-context("Properties")
-
 test_that("properties can be read successfully", {
 
   data <- '# This is a comment.\nKey: Value'

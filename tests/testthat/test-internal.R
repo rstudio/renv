@@ -1,6 +1,4 @@
 
-context("Internal")
-
 test_that("R files have balanced covr exclusions", {
 
   owd <- setwd("../..")

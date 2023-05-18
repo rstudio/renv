@@ -1,6 +1,4 @@
 
-context("Infrastructure")
-
 test_that("renv.lock is added to .Rbuildignore", {
 
   skip_on_cran()

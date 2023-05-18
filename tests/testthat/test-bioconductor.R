@@ -1,6 +1,4 @@
 
-context("Bioconductor")
-
 test_that("packages can be installed, restored from Bioconductor", {
 
   skip_on_cran()

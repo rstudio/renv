@@ -1,6 +1,4 @@
 
-context("Download")
-
 test_that("we avoid downloading files twice", {
   skip_on_cran()
 

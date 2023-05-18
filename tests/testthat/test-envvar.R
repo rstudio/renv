@@ -1,5 +1,3 @@
-context("envvar")
-
 test_that("can add before or after", {
   path_string <- function(...) {
     paste(c(...), collapse = .Platform$path.sep)

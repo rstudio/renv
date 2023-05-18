@@ -1,6 +1,4 @@
 
-context("Hash")
-
 test_that("whitespace does not affect hash", {
 
   descpath <- renv_tests_path("packages/breakfast/DESCRIPTION")

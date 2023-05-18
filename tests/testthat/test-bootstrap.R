@@ -1,6 +1,4 @@
 
-context("Bootstrap")
-
 test_that("we can bootstrap the current version of renv", {
 
   skip_on_cran()

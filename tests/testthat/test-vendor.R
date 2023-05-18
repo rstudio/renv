@@ -1,6 +1,4 @@
 
-context("Vendor")
-
 test_that("renv itself doesn't mark itself as embedded", {
   expect_false(renv_metadata_embedded())
   expect_equal(renv_metadata_version(), renv_namespace_version("renv"))

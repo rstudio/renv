@@ -1,6 +1,4 @@
 
-context("ID")
-
 test_that("we can generate a unique ID", {
   skip_on_cran()
   id <- renv_id_generate()

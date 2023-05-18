@@ -1,6 +1,4 @@
 
-context("Memoize")
-
 test_that("memoization works as expected", {
 
   global <- 0L

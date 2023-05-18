@@ -1,6 +1,4 @@
 
-context("Settings")
-
 test_that("renv.settings can be used to provide defaults", {
 
   renv_tests_scope()

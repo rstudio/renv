@@ -1,6 +1,4 @@
 
-context("Available Packages")
-
 test_that("available_packages() returns NULL when no repos set", {
   skip_on_cran()
 

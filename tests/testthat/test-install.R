@@ -1,6 +1,4 @@
 
-context("Install")
-
 test_that("install works when DESCRIPTION contains no dependencies", {
   renv_tests_scope()
   desc <- c("Type: Package", "Package: test")

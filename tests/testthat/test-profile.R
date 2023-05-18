@@ -1,6 +1,4 @@
 
-context("Profile")
-
 test_that("renv/profile is read and used to select a profile", {
   skip_on_cran()
 

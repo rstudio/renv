@@ -1,6 +1,4 @@
 
-context("MRAN")
-
 test_that("older binaries are installed from MRAN on Windows / macOS", {
   skip_on_cran()
   skip_on_os("linux")
