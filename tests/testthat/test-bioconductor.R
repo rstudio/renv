@@ -1,6 +1,4 @@
 
-context("Bioconductor")
-
 test_that("packages can be installed, restored from Bioconductor", {
 
   skip_on_cran()
@@ -12,7 +10,7 @@ test_that("packages can be installed, restored from Bioconductor", {
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
 
   install.packages("BiocManager", quiet = TRUE)
-  BiocManager::install('Biobase', quiet = TRUE, ask = FALSE)
+  suppressMessages(BiocManager::install("Biobase", quiet = TRUE, ask = FALSE))
 
   expect_true(renv_package_installed("BiocManager"))
   expect_true(renv_package_installed("BiocVersion"))

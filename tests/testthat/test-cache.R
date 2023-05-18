@@ -1,6 +1,4 @@
 
-context("Cache")
-
 test_that("issues within the cache are reported", {
   skip_on_cran()
 

@@ -1,6 +1,4 @@
 
-context("Retrieve")
-
 test_that("we can retrieve packages from CRAN", {
 
   skip_on_cran()

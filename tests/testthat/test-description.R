@@ -1,6 +1,4 @@
 
-context("DESCRIPTION")
-
 test_that("snapshotting broken DESCRIPTION files is an error", {
 
   # empty file

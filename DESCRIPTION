@@ -23,3 +23,4 @@ RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Config/Needs/website: tidyverse/tidytemplate
+Config/testthat/edition: 3

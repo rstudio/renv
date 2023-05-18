@@ -1,6 +1,4 @@
 
-context("Defer")
-
 test_that("defer evaluates in appropriate environment", {
 
   foo <- function() {

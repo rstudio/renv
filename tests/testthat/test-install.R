@@ -1,6 +1,4 @@
 
-context("Install")
-
 test_that("install works when DESCRIPTION contains no dependencies", {
   renv_tests_scope()
   desc <- c("Type: Package", "Package: test")
@@ -45,7 +43,7 @@ test_that("installation failure is well-reported", {
   # prepare dummy package
   package <- "renv.dummy.package"
   unlink(package, recursive = TRUE)
-  utils::package.skeleton(package, environment = envir)
+  suppressMessages(utils::package.skeleton(package, environment = envir))
 
   # remove broken man files
   unlink("renv.dummy.package/Read-and-delete-me")

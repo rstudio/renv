@@ -1,6 +1,4 @@
 
-context("Rehash")
-
 test_that("rehash() migrates cached packages as expected", {
 
   on.exit(Sys.unsetenv("RENV_CACHE_VERSION"), add = TRUE)

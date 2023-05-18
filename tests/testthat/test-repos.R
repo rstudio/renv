@@ -1,6 +1,4 @@
 
-context("Repositories")
-
 test_that("we can query our local repository during tests", {
 
   expected <- list.files("packages")

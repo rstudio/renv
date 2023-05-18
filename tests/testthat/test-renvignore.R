@@ -1,6 +1,4 @@
 
-context("renvignore")
-
 test_that(".renvignore ignores files, directories", {
 
   renv_tests_scope("oatmeal")

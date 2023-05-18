@@ -1,6 +1,4 @@
 
-context("Cellar")
-
 test_that("renv can find packages located in the cellar", {
   skip_on_cran()
   renv_tests_scope()

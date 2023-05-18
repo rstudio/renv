@@ -1,6 +1,4 @@
 
-context("Checkout")
-
 test_that("we can check out packages from our local repository", {
 
   # enter test scope

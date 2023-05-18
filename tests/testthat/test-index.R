@@ -1,6 +1,4 @@
 
-context("Index")
-
 scope <- renv_id_generate()
 
 counter <- (function() {

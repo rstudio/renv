@@ -1,6 +1,4 @@
 
-context("JSON")
-
 test_that("sample JSON strings can be read", {
 
   expect_identical(

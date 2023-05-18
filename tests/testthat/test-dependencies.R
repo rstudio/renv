@@ -1,6 +1,4 @@
 
-context("Dependencies")
-
 test_that(".Rproj files requesting devtools is handled", {
   renv_tests_scope()
   writeLines("PackageUseDevtools: Yes", "project.Rproj")

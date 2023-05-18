@@ -1,6 +1,4 @@
 
-context("Records")
-
 test_that("renv_records_select() handles missing packages gracefully", {
 
   # simulate what happens during printing of records during install

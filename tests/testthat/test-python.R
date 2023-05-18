@@ -1,6 +1,4 @@
 
-context("Python")
-
 renv_test_scope_python <- function(envir = parent.frame()) {
   renv_scope_envvars(
     PATH = Sys.getenv("PATH"),
