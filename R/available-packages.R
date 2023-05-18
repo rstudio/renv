@@ -107,6 +107,8 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
 renv_available_packages_query_impl_packages_rds <- function(url) {
   path <- file.path(url, "PACKAGES.rds")
   destfile <- tempfile("renv-packages-", fileext = ".rds")
+  defer(unlink(destfile))
+
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(readRDS(destfile))
 }
@@ -114,6 +116,8 @@ renv_available_packages_query_impl_packages_rds <- function(url) {
 renv_available_packages_query_impl_packages_gz <- function(url) {
   path <- file.path(url, "PACKAGES.gz")
   destfile <- tempfile("renv-packages-", fileext = ".gz")
+  defer(unlink(destfile))
+
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(read.dcf(destfile))
 }
@@ -121,6 +125,8 @@ renv_available_packages_query_impl_packages_gz <- function(url) {
 renv_available_packages_query_impl_packages <- function(url) {
   path <- file.path(url, "PACKAGES")
   destfile <- tempfile("renv-packages-")
+  defer(unlink(destfile))
+
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(read.dcf(destfile))
 }
