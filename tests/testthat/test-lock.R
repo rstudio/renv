@@ -1,6 +1,4 @@
 
-context("Lock")
-
 test_that("locks can be acquired, released", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)

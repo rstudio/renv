@@ -1,6 +1,4 @@
 
-context("Path")
-
 test_that("renv_path_absolute() reports common absolute paths", {
 
   abs <- c(

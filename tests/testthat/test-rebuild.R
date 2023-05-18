@@ -1,6 +1,4 @@
 
-context("Rebuild")
-
 test_that("rebuild forces a package to rebuilt, bypassing cache", {
 
   renv_tests_scope("bread")

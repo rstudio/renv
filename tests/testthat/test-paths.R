@@ -1,6 +1,4 @@
 
-context("Paths")
-
 test_that("all renv paths live within tempdir() during tests", {
   renv_tests_scope()
   info <- c(root = renv_paths_root(), tempdir = tempdir())

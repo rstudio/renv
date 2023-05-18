@@ -1,6 +1,4 @@
 
-context("Dotty")
-
 registerS3method("[<-", "__renv_dotty__", dotty, envir = renv_envir_self())
 
 test_that("index-based destructuring works", {

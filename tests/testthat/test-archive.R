@@ -1,6 +1,4 @@
 
-context("Archives")
-
 test_that("renv reports errors when decompressing invalid archives", {
 
   badtar <- renv_scope_tempfile(fileext = ".tar")

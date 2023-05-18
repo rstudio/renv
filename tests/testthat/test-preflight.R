@@ -1,6 +1,4 @@
 
-context("Preflight")
-
 test_that("snapshot preflight tests catch common issues", {
 
   renv_tests_scope()

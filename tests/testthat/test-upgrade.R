@@ -1,6 +1,4 @@
 
-context("Upgrade")
-
 test_that("the version of renv in a project can be changed (upgraded)", {
 
   skip_on_cran()

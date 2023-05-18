@@ -1,6 +1,4 @@
 
-context("R")
-
 test_that("we can use R CMD build to build a package", {
   skip_on_cran()
   if (renv_platform_windows()) {

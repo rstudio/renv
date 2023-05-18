@@ -1,6 +1,4 @@
 
-context("Migrate")
-
 skip_if_no_packrat <- function() {
 
   skip_on_cran()

@@ -1,6 +1,4 @@
 
-context("Load")
-
 test_that("invalid lockfile entries are reported", {
 
   renv_tests_scope()

@@ -1,6 +1,4 @@
 
-context("Activate")
-
 test_that("renv can bootstrap itself if not installed", {
 
   skip_on_cran()

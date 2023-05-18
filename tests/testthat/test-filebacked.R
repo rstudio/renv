@@ -1,6 +1,4 @@
 
-context("Filebacked")
-
 test_that("filebacked entries are discarded after the file is modified", {
 
   file <- renv_scope_tempfile("renv-test-")

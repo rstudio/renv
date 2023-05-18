@@ -1,6 +1,4 @@
 
-context("Restore")
-
 test_that("library permissions are validated before restore", {
   skip_on_os("windows")
   inaccessible <- renv_scope_tempfile()

@@ -1,6 +1,4 @@
 
-context("Config")
-
 test_that("config variables read from appropriate scope", {
 
   local({

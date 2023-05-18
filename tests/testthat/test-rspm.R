@@ -1,6 +1,4 @@
 
-context("RSPM")
-
 test_that("we can transform binary URLs into source URLs", {
   skip_on_cran()
   skip_on_os("windows")

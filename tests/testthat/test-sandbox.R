@@ -1,5 +1,3 @@
-context("Sandbox")
-
 renv_scoped_sandbox <- function(envir = parent.frame()) {
   renv_scope_options(renv.config.sandbox.enabled = TRUE, envir = envir)
 

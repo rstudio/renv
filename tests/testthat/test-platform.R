@@ -1,6 +1,4 @@
 
-context("Platform")
-
 test_that("/etc/os-release files can be parsed", {
 
   contents <- '

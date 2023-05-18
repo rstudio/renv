@@ -1,6 +1,4 @@
 
-context("Global")
-
 test_that("global() only evaluates value once", {
 
   name <- basename(renv_scope_tempfile("renv-example-"))

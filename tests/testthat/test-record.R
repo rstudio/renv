@@ -1,6 +1,4 @@
 
-context("Record")
-
 test_that("an existing lockfile can be updated", {
 
   renv_tests_scope("bread")

@@ -1,6 +1,4 @@
 
-context("Authentication")
-
 test_that("renv.auth is respected in various contexts", {
 
   # using local 'renv.auth.<package>'

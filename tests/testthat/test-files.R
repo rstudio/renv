@@ -1,6 +1,4 @@
 
-context("Files")
-
 test_that("directories can be copied", {
 
   source <- renv_scope_tempfile("renv-source-")

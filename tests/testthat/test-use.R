@@ -1,6 +1,4 @@
 
-context("Use")
-
 test_that("use() works as intended", {
 
   skip_on_cran()

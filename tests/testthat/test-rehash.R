@@ -1,6 +1,4 @@
 
-context("Rehash")
-
 test_that("rehash() migrates cached packages as expected", {
 
   tempcache <- renv_scope_tempfile("renv-cache-")
