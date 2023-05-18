@@ -89,8 +89,7 @@ renv_diagnostics_packages <- function(project) {
   )
 
   # sort
-  renv_scope_locale(category = "LC_COLLATE", locale = "C")
-  all <- sort(unique(all))
+  all <- csort(unique(all))
 
   # check which packages are direct, indirect requirements
   deps <- rep.int(NA_character_, length(all))

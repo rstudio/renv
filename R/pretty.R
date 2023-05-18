@@ -94,8 +94,7 @@ renv_pretty_print_records_pair <- function(old,
 
 renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
 
-  renv_scope_locale("LC_COLLATE", "C")
-  all <- sort(union(names(old), names(new)))
+  all <- csort(union(names(old), names(new)))
 
   # compute groups
   groups <- map_chr(all, function(package) {
@@ -113,7 +112,7 @@ renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
   n <- max(nchar(all))
 
   # iterate over each group and print
-  uapply(sort(unique(groups)), function(group) {
+  uapply(csort(unique(groups)), function(group) {
 
     lhs <- renv_records_select(old, groups, group)
     rhs <- renv_records_select(new, groups, group)
