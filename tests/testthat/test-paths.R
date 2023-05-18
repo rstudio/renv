@@ -1,6 +1,11 @@
 
 context("Paths")
 
+test_that("RENV_PATHS_ROOT resolves to the temporary directory", {
+  root <- renv_paths_root()
+  expect_equal(root, file.path(tempdir(), "renv"))
+})
+
 test_that("all renv paths live within tempdir() during tests", {
   renv_tests_scope()
   info <- c(root = renv_paths_root(), tempdir = tempdir())
