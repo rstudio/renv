@@ -32,7 +32,7 @@ renv_bioconductor_init_biocinstaller <- function(library = NULL) {
 
   url <- "https://bioconductor.org/biocLite.R"
   destfile <- tempfile("renv-bioclite-", fileext = ".R")
-  on.exit(unlink(destfile), add = TRUE)
+  defer(unlink(destfile))
   download(url, destfile = destfile, quiet = TRUE)
 
   ensure_directory(library)

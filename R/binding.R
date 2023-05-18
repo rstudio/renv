@@ -26,7 +26,7 @@ renv_binding_replace <- function(symbol, replacement, envir) {
   # if the binding is locked, temporarily unlock it
   if (renv_binding_locked(symbol, envir)) {
     renv_binding_unlock(symbol, envir)
-    on.exit(renv_binding_lock(symbol, envir), add = TRUE)
+    defer(renv_binding_lock(symbol, envir))
   }
 
   # update the binding

@@ -63,7 +63,7 @@ renv_tests_repos_impl <- function() {
 
   # save current directory
   owd <- getwd()
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # copy package stuff to tempdir (because we'll mutate them a bit)
   source <- renv_tests_path("packages")

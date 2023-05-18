@@ -74,7 +74,7 @@ load <- function(project = NULL, quiet = FALSE) {
 
   # avoid suppressing the next auto snapshot
   `_renv_snapshot_running` <<- TRUE
-  on.exit(`_renv_snapshot_running` <<- FALSE, add = TRUE)
+  defer(`_renv_snapshot_running` <<- FALSE)
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
@@ -651,7 +651,7 @@ renv_load_switch <- function(project) {
 
   # move to new project directory
   owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # source the activate script
   source(script)

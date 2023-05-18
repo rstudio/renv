@@ -270,7 +270,7 @@ quietly <- function(expr, sink = TRUE) {
 
   if (sink) {
     sink(file = nullfile())
-    on.exit(sink(NULL), add = TRUE)
+    defer(sink(NULL))
   }
 
   withCallingHandlers(

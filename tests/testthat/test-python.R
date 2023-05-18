@@ -79,7 +79,7 @@ test_that("renv can bind to virtualenvs in WORKON_HOME", {
   path <- file.path(home, name)
 
   # clean up when we're done
-  on.exit(unlink(path, recursive = TRUE), add = TRUE)
+  defer(unlink(path, recursive = TRUE))
 
   # create a test project
   renv_tests_scope("breakfast")

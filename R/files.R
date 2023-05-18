@@ -25,7 +25,7 @@ renv_file_copy <- function(source, target, overwrite = FALSE) {
     return(TRUE)
 
   callback <- renv_file_preface(source, target, overwrite)
-  on.exit(callback(), add = TRUE)
+  defer(callback())
 
   # check to see if we're copying a plain file -- if so, things are simpler
   if (dir.exists(source))
@@ -179,7 +179,7 @@ renv_file_move <- function(source, target, overwrite = FALSE) {
     return(TRUE)
 
   callback <- renv_file_preface(source, target, overwrite)
-  on.exit(callback(), add = TRUE)
+  defer(callback())
 
   # first, attempt to do a plain rename
   # use catchall since this might fail for e.g. cross-device links
@@ -238,7 +238,7 @@ renv_file_link <- function(source, target, overwrite = FALSE) {
     return(TRUE)
 
   callback <- renv_file_preface(source, target, overwrite)
-  on.exit(callback(), add = TRUE)
+  defer(callback())
 
   if (renv_platform_windows()) {
 
@@ -315,7 +315,7 @@ renv_file_same <- function(source, target) {
 
 }
 
-# NOTE: returns a callback which should be used in e.g. an on.exit handler
+# NOTE: returns a callback which should be used in e.g. an defer handler
 # to restore the file if the attempt to update the file failed
 renv_file_backup <- function(path) {
 
@@ -405,13 +405,13 @@ renv_file_list_impl_win32 <- function(path) {
   # change working directory (done just to avoid encoding issues
   # when submitting path to cmd shell)
   owd <- setwd(path)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # NOTE: a sub-shell is required here in some contexts; e.g. when running
   # tests non-interactively or building in the RStudio pane
   command <- paste(comspec(), "/U /C dir /B")
   conn <- pipe(command, open = "rb", encoding = "native.enc")
-  on.exit(close(conn), add = TRUE)
+  defer(close(conn))
 
   # read binary output from connection
   output <- stack()
@@ -530,7 +530,7 @@ renv_file_shebang_impl <- function(path) {
 
   # open connection to file
   con <- file(path, open = "rb", encoding = "native.enc")
-  on.exit(close(con), add = TRUE)
+  defer(close(con))
 
   # validate file starts with '#!' -- read using 'raw' vector to avoid
   # issues which files that might start with null bytes
@@ -615,7 +615,7 @@ renv_file_writable <- function(path) {
   # try creating and removing a temporary file in this directory
   tempfile <- tempfile(".renv-write-test-", tmpdir = path)
   ok <- dir.create(tempfile, showWarnings = FALSE)
-  on.exit(unlink(tempfile, recursive = TRUE, force = TRUE), add = TRUE)
+  defer(unlink(tempfile, recursive = TRUE, force = TRUE))
 
   # return ok if we succeeded
   ok

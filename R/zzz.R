@@ -141,7 +141,7 @@ renv_zzz_repos <- function() {
   tdir <- tempfile("renv-build-")
   ensure_directory(tdir)
   owd <- setwd(tdir)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # build renv again
   r_cmd_build("renv", path = pkgdir)

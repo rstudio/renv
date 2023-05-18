@@ -112,6 +112,6 @@ renv_archive_read_tar <- function(archive, file) {
 renv_archive_read_zip <- function(archive, file) {
   renv_scope_tempdir()
   conn <- unz(archive, file, encoding = "native.enc")
-  on.exit(close(conn), add = TRUE)
+  defer(close(conn))
   readLines(conn, warn = FALSE)
 }

@@ -45,7 +45,7 @@ test_that("renv::install(<bioc>, rebuild = TRUE) works", {
   skip_if_not_installed("BiocManager")
 
   requireNamespace("BiocManager", quietly = TRUE)
-  on.exit(unloadNamespace("BiocManager"), add = TRUE)
+  defer(unloadNamespace("BiocManager"))
 
   renv_tests_scope()
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))

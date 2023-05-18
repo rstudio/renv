@@ -9,7 +9,7 @@ renv_snapshot_auto <- function(project) {
 
   # set some state so we know we're running
   `_renv_snapshot_running` <<- TRUE
-  on.exit(`_renv_snapshot_running` <<- FALSE, add = TRUE)
+  defer(`_renv_snapshot_running` <<- FALSE)
 
   # passed pre-flight checks; snapshot the library
   # validation messages can be noisy; turn off for auto snapshot

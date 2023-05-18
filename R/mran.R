@@ -66,7 +66,7 @@ renv_mran_database_save <- function(database, path = NULL) {
   encoded <- renv_mran_database_encode(database)
 
   conn <- xzfile(path)
-  on.exit(close(conn), add = TRUE)
+  defer(close(conn))
   saveRDS(encoded, file = conn, version = 2L)
 
 }
