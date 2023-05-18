@@ -10,9 +10,11 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
   if (renv_rstudio_available())
     options(restart = function(...) TRUE)
 
-  # move to own test directory
+  # use own test directory
   dir <- project %||% tempfile("renv-test-")
   ensure_directory(dir)
+  defer(unlink(dir, recursive = TRUE), envir = envir)
+
   dir <- renv_path_normalize(dir, winslash = "/")
   owd <- setwd(dir)
 
@@ -40,7 +42,7 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
 }
 
 renv_tests_scope_repos <- function(envir = parent.frame()) {
-  repopath <- global("test.repo.path", renv_tests_repos_impl())
+  repopath <- renv_tests_repos()
 
   # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
@@ -55,6 +57,9 @@ renv_tests_scope_repos <- function(envir = parent.frame()) {
   )
 }
 
+renv_tests_repos <- function() {
+  global("test.repo.path", renv_tests_repos_impl())
+}
 renv_tests_repos_impl <- function() {
   # generate our dummy repository
   repopath <- tempfile("renv-tests-repos-")

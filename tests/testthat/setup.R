@@ -79,8 +79,9 @@ renv_tests_init_packages <- function() {
 
 # cache path before working directory gets changed
 renv_tests_root()
-# force creation of temporary root path
+# force creation of temporary paths before tests are run
 renv_paths_root()
+renv_tests_repos()
 
 renv_tests_init_envvars()
 renv_tests_init_options()
