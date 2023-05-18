@@ -7,7 +7,7 @@ test_that("we can bootstrap the current version of renv", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  bootstrap(version = "1.0.0", library = library)
+  suppressMessages(bootstrap(version = "1.0.0", library = library))
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "1.0.0")
 
@@ -21,7 +21,7 @@ test_that("we can bootstrap an archived version of renv", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  bootstrap(version = "0.1.0", library = library)
+  suppressMessages(bootstrap(version = "0.1.0", library = library))
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "0.1.0")
 
@@ -35,7 +35,7 @@ test_that("we can install a version of renv from GitHub", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  bootstrap(version = "0.12.3-1", library = library)
+  suppressMessages(bootstrap(version = "0.12.3-1", library = library))
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "0.12.3-1")
 
@@ -50,7 +50,7 @@ test_that("bootstrap succeeds with empty repos", {
   renv_scope_options(repos = character())
 
   library <- renv_libpaths_active()
-  bootstrap(version = "1.0.0", library = library)
+  suppressMessages(bootstrap(version = "1.0.0", library = library))
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "1.0.0")
 
@@ -111,7 +111,7 @@ test_that("bootstrapping functions standalone", {
     code <- call("bootstrap", version = version, library = library)
 
     # run that call
-    eval(code, envir = envir)
+    suppressMessages(eval(code, envir = envir))
 
     # validate that renv was successfully installed
     expect_true(renv_package_installed("renv", lib.loc = library))
