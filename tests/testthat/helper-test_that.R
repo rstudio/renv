@@ -60,6 +60,7 @@ renv_test_state <- function() {
     options      = opts,
     repofiles    = if (!is.null(repopath)) list_files(repopath),
     userfiles    = list_files(userpath),
+    tempfiles    = list_files(tempdir()),
     envvars      = envvars
   )
 }
