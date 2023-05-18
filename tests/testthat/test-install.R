@@ -43,7 +43,7 @@ test_that("installation failure is well-reported", {
   # prepare dummy package
   package <- "renv.dummy.package"
   unlink(package, recursive = TRUE)
-  utils::package.skeleton(package, environment = envir)
+  suppressMessages(utils::package.skeleton(package, environment = envir))
 
   # remove broken man files
   unlink("renv.dummy.package/Read-and-delete-me")
