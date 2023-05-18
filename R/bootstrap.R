@@ -188,7 +188,7 @@ renv_bootstrap_download_cran_latest <- function(version) {
   type  <- spec$type
   repos <- spec$repos
 
-  message("* Downloading renv ", version, " ... ", appendLF = FALSE)
+  vmessagef("* Downloading renv %s ...", version, appendLF = FALSE)
 
   baseurl <- utils::contrib.url(repos = repos, type = type)
   ext <- if (identical(type, "source"))
@@ -207,12 +207,12 @@ renv_bootstrap_download_cran_latest <- function(version) {
   )
 
   if (inherits(status, "condition")) {
-    message("FAILED")
+    vmessagef("FAILED")
     return(FALSE)
   }
 
   # report success and return
-  message("OK (downloaded ", type, ")")
+  vmessagef("OK (downloaded %s)", type)
   destfile
 
 }
@@ -269,7 +269,7 @@ renv_bootstrap_download_cran_archive <- function(version) {
   urls <- file.path(repos, "src/contrib/Archive/renv", name)
   destfile <- file.path(tempdir(), name)
 
-  message("* Downloading renv ", version, " ... ", appendLF = FALSE)
+  vmessagef("* Downloading renv %s ... ", appendLF = FALSE)
 
   for (url in urls) {
 
@@ -279,13 +279,13 @@ renv_bootstrap_download_cran_archive <- function(version) {
     )
 
     if (identical(status, 0L)) {
-      message("OK")
+      vmessagef("OK")
       return(destfile)
     }
 
   }
 
-  message("FAILED")
+  vmessagef("FAILED")
   return(FALSE)
 
 }
@@ -317,9 +317,7 @@ renv_bootstrap_download_tarball <- function(version) {
 
   }
 
-  fmt <- "* Bootstrapping with tarball at path '%s'."
-  msg <- sprintf(fmt, tarball)
-  message(msg)
+  vmessagef("* Bootstrapping with tarball at path '%s'.", tarball)
 
   tarball
 
@@ -347,7 +345,7 @@ renv_bootstrap_download_github <- function(version) {
     on.exit(do.call(base::options, saved), add = TRUE)
   }
 
-  message("* Downloading renv ", version, " from GitHub ... ", appendLF = FALSE)
+  vmessagef("* Downloading renv %s from GitHub ... ", version, appendLF = FALSE)
 
   url <- file.path("https://api.github.com/repos/rstudio/renv/tarball", version)
   name <- sprintf("renv_%s.tar.gz", version)
@@ -359,11 +357,11 @@ renv_bootstrap_download_github <- function(version) {
   )
 
   if (!identical(status, 0L)) {
-    message("FAILED")
+    vmessagef("FAILED")
     return(FALSE)
   }
 
-  message("OK")
+  vmessagef("OK")
   return(destfile)
 
 }
@@ -371,7 +369,7 @@ renv_bootstrap_download_github <- function(version) {
 renv_bootstrap_install <- function(version, tarball, library) {
 
   # attempt to install it into project library
-  message("* Installing renv ", version, " ... ", appendLF = FALSE)
+  vmessagef("* Installing renv %s ... ", version, appendLF = FALSE)
   dir.create(library, showWarnings = FALSE, recursive = TRUE)
 
   # invoke using system2 so we can capture and report output
@@ -386,7 +384,7 @@ renv_bootstrap_install <- function(version, tarball, library) {
   )
 
   output <- system2(r, args, stdout = TRUE, stderr = TRUE)
-  message("Done!")
+  vmessagef("Done!")
 
   # check for successful install
   status <- attr(output, "status")
