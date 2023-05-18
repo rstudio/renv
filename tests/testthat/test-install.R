@@ -31,8 +31,7 @@ test_that("installation failure is well-reported", {
   # left open by utils::package.skeleton()
   skip_on_os("windows")
 
-  owd <- setwd(tempdir())
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_tempdir()
 
   # init dummy library
   library <- renv_scope_tempfile("renv-library-")
@@ -179,14 +178,7 @@ test_that("source packages in .zip files can be installed", {
 
   renv_tests_scope()
 
-  dir <- tempfile("renv-ziptest-")
-  dir.create(dir)
-  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
-
-  owd <- setwd(dir)
-  on.exit(setwd(owd), add = TRUE)
-
-  location <- download.packages("bread", destdir = tempdir())
+  location <- download.packages("bread", destdir = renv_scope_tempfile())
   path <- location[1, 2]
   renv_archive_decompress(path, exdir = "bread")
 

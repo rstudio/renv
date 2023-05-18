@@ -91,7 +91,7 @@ test_that("install.staged works as expected", {
       install.opts = install.opts
     )
 
-    renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+    renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
 
     unlink(renv_paths_library(), recursive = TRUE)
     expect_error(renv::restore())
@@ -108,7 +108,7 @@ test_that("install.staged works as expected", {
       install.opts = install.opts
     )
 
-    renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+    renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
 
     unlink(renv_paths_library(), recursive = TRUE)
     expect_error(renv::restore())
@@ -207,8 +207,8 @@ test_that("restore doesn't re-use active library paths", {
   renv_tests_scope()
   renv_scope_options(renv.settings.snapshot.type = "all")
 
-  lib1 <- file.path(tempdir(), "lib1")
-  lib2 <- file.path(tempdir(), "lib2")
+  lib1 <- renv_scope_tempfile("lib1")
+  lib2 <- renv_scope_tempfile("lib2")
   ensure_directory(c(lib1, lib2))
   .libPaths(c(lib2, .libPaths()))
 

@@ -446,6 +446,8 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
   old <- tempfile("renv-package-old-")
   new <- tempfile("renv-package-new-")
   ensure_directory(c(old, new))
+  defer(unlink(old, recursive = TRUE))
+  defer(unlink(new, recursive = TRUE), envir = parent.frame())
 
   # decompress archive to dir
   renv_archive_decompress(path, exdir = old)

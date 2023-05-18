@@ -13,6 +13,7 @@ bootstrap <- function(version, library) {
   tarball <- tryCatch(renv_bootstrap_download(version), error = identity)
   if (inherits(tarball, "error"))
     stop("failed to download renv ", version)
+  on.exit(unlink(tarball), add = TRUE)
 
   # now attempt to install
   status <- tryCatch(renv_bootstrap_install(version, tarball, library), error = identity)

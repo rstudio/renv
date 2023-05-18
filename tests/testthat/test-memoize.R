@@ -4,7 +4,7 @@ context("Memoize")
 test_that("memoization works as expected", {
 
   global <- 0L
-  scope <- basename(tempfile("renv-memoize-"))
+  scope <- basename(renv_scope_tempfile("renv-memoize-"))
 
   value <- memoize(
     scope = scope,
@@ -38,7 +38,7 @@ test_that("memoization works as expected", {
 test_that("memoize avoids evaluating expression multiple times", {
 
   value <- 0L
-  scope <- basename(tempfile("renv-memoize-"))
+  scope <- basename(renv_scope_tempfile("renv-memoize-"))
 
   memoize("example", { value <- value + 1L }, scope = scope)
   memoize("example", { value <- value + 1L }, scope = scope)

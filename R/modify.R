@@ -98,7 +98,7 @@ renv_modify_noninteractive <- function(project, changes) {
   merged <- modifyList(lockfile, changes)
 
   # write updated lockfile to a temporary file
-  templock <- tempfile("renv-lock-")
+  templock <- renv_scope_tempfile("renv-lock-")
   renv_lockfile_write(merged, file = templock)
 
   # try reading it once more

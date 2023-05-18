@@ -17,14 +17,14 @@ test_that("snapshot is idempotent", {
 
 test_that("snapshot failures are reported", {
 
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope("oatmeal")
   renv::init()
 
   descpath <- system.file("DESCRIPTION", package = "oatmeal")
   unlink(descpath)
 
-  output <- tempfile("renv-snapshot-output-")
+  output <- renv_scope_tempfile("renv-snapshot-output-")
   local({
     renv_scope_options(renv.verbose = TRUE)
     renv_scope_sink(file = output)
@@ -39,14 +39,14 @@ test_that("snapshot failures are reported", {
 test_that("broken symlinks are reported", {
   skip_on_os("windows")
 
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope("oatmeal")
   renv::init()
 
   oatmeal <- renv_path_normalize(system.file(package = "oatmeal"), winslash = "/")
   unlink(oatmeal, recursive = TRUE)
 
-  output <- tempfile("renv-snapshot-output-")
+  output <- renv_scope_tempfile("renv-snapshot-output-")
   local({
     renv_scope_options(renv.verbose = TRUE)
     renv_scope_sink(file = output)
@@ -60,13 +60,13 @@ test_that("broken symlinks are reported", {
 
 test_that("multiple libraries can be used when snapshotting", {
 
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope()
 
   renv::init()
 
-  lib1 <- tempfile("renv-lib1-")
-  lib2 <- tempfile("renv-lib2-")
+  lib1 <- renv_scope_tempfile("renv-lib1-")
+  lib2 <- renv_scope_tempfile("renv-lib2-")
   ensure_directory(c(lib1, lib2))
 
   oldlibpaths <- .libPaths()
@@ -206,7 +206,7 @@ test_that("snapshot records packages discovered in cellar", {
 
   renv_tests_scope("skeleton")
   renv_scope_envvars(
-    RENV_PATHS_CACHE = tempfile(),
+    RENV_PATHS_CACHE = renv_scope_tempfile(),
     RENV_PATHS_LOCAL = renv_tests_path("local")
   )
 
@@ -235,7 +235,7 @@ test_that("snapshot prefers RemoteType to biocViews", {
     biocViews = "Biology"
   )
 
-  descfile <- tempfile()
+  descfile <- renv_scope_tempfile()
   renv_dcf_write(desc, file = descfile)
   record <- renv_snapshot_description(descfile)
   expect_identical(record$Source, "GitHub")

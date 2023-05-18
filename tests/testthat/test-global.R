@@ -3,7 +3,7 @@ context("Global")
 
 test_that("global() only evaluates value once", {
 
-  name <- basename(tempfile("renv-example-"))
+  name <- basename(renv_scope_tempfile("renv-example-"))
   on.exit(renv_global_clear(name), add = TRUE)
 
   value <- 0L
@@ -16,7 +16,7 @@ test_that("global() only evaluates value once", {
 
 test_that("global values can be get, set", {
 
-  name <- basename(tempfile("renv-example-"))
+  name <- basename(renv_scope_tempfile("renv-example-"))
   on.exit(renv_global_clear(name), add = TRUE)
 
   renv_global_set(name, 42L)

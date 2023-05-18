@@ -1,10 +1,11 @@
 
 renv_scope_tempdir <- function(pattern = "renv-tempdir-",
                                tmpdir = tempdir(),
+                               umask = NULL,
                                envir = NULL)
 {
   dir <- tempfile(pattern = pattern, tmpdir = tmpdir)
-  ensure_directory(dir)
+  ensure_directory(dir, umask = umask)
   owd <- setwd(dir)
 
   envir <- envir %||% parent.frame()

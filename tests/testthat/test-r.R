@@ -9,9 +9,7 @@ test_that("we can use R CMD build to build a package", {
       skip("test requires 'zip'")
   }
 
-  testdir <- tempfile("renv-r-tests-")
-  on.exit(unlink(testdir, recursive = TRUE), add = TRUE)
-
+  testdir <- renv_scope_tempfile("renv-r-tests-")
   ensure_directory(testdir)
   owd <- setwd(testdir)
   on.exit(setwd(owd), add = TRUE)
@@ -47,7 +45,7 @@ test_that("we can supply custom options to R CMD INSTALL", {
   renv_tests_scope()
 
   # work in new renv context (don't re-use cache)
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
 
   # make install 'fail' with bad option
   renv_scope_options(install.opts = list(oatmeal = "--version"))

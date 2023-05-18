@@ -100,7 +100,7 @@ test_that("renv tempfiles are deleted at end of scope", {
 
 test_that("renv_file_find finds parent files", {
 
-  base <- tempfile("renv-files-")
+  base <- renv_scope_tempfile("renv-files-")
   rest <- c("alpha/beta/gamma")
   tip <- file.path(base, rest)
   ensure_directory(tip)
@@ -174,8 +174,7 @@ test_that("renv can list files not representable in the native encoding", {
 
 test_that("renv can detect broken junctions / symlinks", {
 
-  owd <- setwd(tempdir())
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_tempdir()
 
   if (renv_platform_windows()) {
 

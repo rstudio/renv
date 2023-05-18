@@ -55,28 +55,28 @@ test_that("we can successfully download files with different downloaders", {
 
   # download a small sample file
   url <- "https://cloud.r-project.org/src/base/THANKS"
-  destfile <- tempfile("r-thanks-")
+  destfile <- renv_scope_tempfile("r-thanks-")
   method <- renv_download_method()
   download.file(url, destfile = destfile, quiet = TRUE, method = method)
   thanks <- readLines(destfile)
 
   if (nzchar(Sys.which("curl"))) local({
     renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "curl")
-    destfile <- tempfile("r-curl-thanks-")
+    destfile <- renv_scope_tempfile("r-curl-thanks-")
     download(url, destfile, quiet = TRUE)
     expect_equal(readLines(destfile), thanks)
   })
 
   if (renv_platform_windows()) local({
     renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wininet")
-    destfile <- tempfile("r-wininet-thanks-")
+    destfile <- renv_scope_tempfile("r-wininet-thanks-")
     download(url, destfile, quiet = TRUE)
     expect_equal(readLines(destfile), thanks)
   })
 
   if (capabilities("libcurl") %||% FALSE) local({
     renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "libcurl")
-    destfile <- tempfile("r-libcurl-thanks-")
+    destfile <- renv_scope_tempfile("r-libcurl-thanks-")
     download(url, destfile, quiet = TRUE)
     expect_equal(readLines(destfile), thanks)
   })
@@ -84,7 +84,7 @@ test_that("we can successfully download files with different downloaders", {
   # TODO: fails on winbuilder
   # if (nzchar(Sys.which("wget"))) local({
   #   renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wget")
-  #   destfile <- tempfile("r-wget-thanks-")
+  #   destfile <- renv_scope_tempfile("r-wget-thanks-")
   #   download(url, destfile, quiet = TRUE)
   #   expect_equal(readLines(destfile), thanks)
   # })
@@ -98,7 +98,7 @@ test_that("downloads work with file URIs", {
   repos <- getOption("repos")[["CRAN"]]
   url <- file.path(repos, "src/contrib/PACKAGES")
 
-  destfile <- tempfile("packages-")
+  destfile <- renv_scope_tempfile("packages-")
   download(url, destfile = destfile)
 
   expect_true(file.exists(destfile))

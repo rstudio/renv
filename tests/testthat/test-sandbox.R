@@ -2,7 +2,9 @@ context("Sandbox")
 
 renv_scoped_sandbox <- function(envir = parent.frame()) {
   renv_scope_options(renv.config.sandbox.enabled = TRUE, envir = envir)
-  renv_scope_envvars(RENV_PATHS_SANDBOX = tempdir(), envir = envir)
+
+  sandbox <- renv_scope_tempfile(envir = envir)
+  renv_scope_envvars(RENV_PATHS_SANDBOX = sandbox, envir = envir)
 
   old <- list(.Library.site, .Library, .libPaths())
   defer(envir = envir, {

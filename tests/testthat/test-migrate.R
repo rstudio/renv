@@ -24,8 +24,8 @@ test_that("a sample Packrat project can be migrated", {
 
   # use dummy caches for this test
   renv_scope_envvars(
-    R_PACKRAT_CACHE_DIR = tempfile("packrat-cache-"),
-    RENV_PATHS_ROOT     = tempfile("renv-cache-")
+    R_PACKRAT_CACHE_DIR = renv_scope_tempfile("packrat-cache-"),
+    RENV_PATHS_ROOT     = renv_scope_tempfile("renv-cache-")
   )
 
   requireNamespace("packrat")
@@ -66,8 +66,8 @@ test_that("a Packrat project with no library can be migrated", {
 
   # use dummy caches for this test
   renv_scope_envvars(
-    R_PACKRAT_CACHE_DIR = tempfile("packrat-cache-"),
-    RENV_PATHS_ROOT     = tempfile("renv-cache-")
+    R_PACKRAT_CACHE_DIR = renv_scope_tempfile("packrat-cache-"),
+    RENV_PATHS_ROOT     = renv_scope_tempfile("renv-cache-")
   )
 
   renv_tests_scope("breakfast")

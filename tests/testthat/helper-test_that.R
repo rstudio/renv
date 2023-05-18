@@ -26,11 +26,11 @@ test_that <- function(desc, code) {
 
 renv_test_state <- function() {
 
-  list_files <- function(path) {
+  list_files <- function(path, full.names = TRUE) {
     list.files(
       path = path,
       all.files = TRUE,
-      full.names = TRUE,
+      full.names = full.names,
       no.. = TRUE
     )
   }
@@ -54,13 +54,18 @@ renv_test_state <- function() {
   envvars$OPENBLAS <- NULL
   envvars <- envvars[csort(names(envvars))]
 
+  tempfiles <- list_files(tempdir(), full.names = FALSE)
+  tempfiles <- tempfiles[grep("^libloc_", tempfiles, invert = TRUE)]
+  tempfiles <- tempfiles[grep("^repos_http(s?)", tempfiles, invert = TRUE)]
+  tempfiles <- tempfiles[tempfiles != "downloaded_packages"]
+
   list(
     libpaths     = .libPaths(),
     connections  = getAllConnections(),
     options      = opts,
     repofiles    = if (!is.null(repopath)) list_files(repopath),
     userfiles    = list_files(userpath),
-    tempfiles    = list_files(tempdir()),
+    tempfiles    = tempfiles,
     envvars      = envvars
   )
 }
