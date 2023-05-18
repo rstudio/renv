@@ -440,7 +440,7 @@ test_that("packages installed from CRAN using pak are handled", {
 
   renv_tests_scope()
   pak <- renv_namespace_load("pak")
-  pak$pkg_install("toast")
+  suppressMessages(pak$pkg_install("toast"))
   record <- renv_snapshot_description(package = "toast")
 
   expect_identical(record$Source, "Repository")
@@ -454,7 +454,7 @@ test_that("packages installed from Bioconductor using pak are handled", {
 
   renv_tests_scope()
   pak <- renv_namespace_load("pak")
-  pak$pkg_install("bioc::Biobase")
+  suppressMessages(pak$pkg_install("bioc::Biobase"))
 
   record <- renv_snapshot_description(package = "Biobase")
   expect_identical(record$Source, "Bioconductor")
