@@ -56,6 +56,8 @@ renv_tests_init_options <- function() {
 renv_tests_init_packages <- function() {
   requireNamespace("waldo", quietly = TRUE)
   renv_namespace_load("crayon")
+  renv_namespace_load("diffobj")
+  renv_namespace_load("ellipsis")
 
   if (!isNamespaceLoaded("pak")) {
     usr <- file.path(tempdir(), "usr-cache")
