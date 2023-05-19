@@ -1,6 +1,4 @@
 
-context("Version")
-
 test_that("various versions can be compared", {
 
   expect_equal(renv_version_compare("3.5",   "3.5.7"), -1L)

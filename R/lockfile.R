@@ -142,16 +142,13 @@ renv_lockfile_load <- function(project) {
 
 renv_lockfile_sort <- function(lockfile) {
 
-  # ensure C locale for consistent sorting
-  renv_scope_locale("LC_COLLATE", "C")
-
   # extract R records (nothing to do if empty)
   records <- renv_lockfile_records(lockfile)
   if (empty(records))
     return(lockfile)
 
   # sort the records
-  sorted <- records[sort(names(records))]
+  sorted <- records[csort(names(records))]
   renv_lockfile_records(lockfile) <- sorted
 
   # sort top-level fields
@@ -210,8 +207,7 @@ renv_lockfile_compact <- function(lockfile) {
   records <- renv_lockfile_records(lockfile)
   remotes <- map_chr(records, renv_record_format_remote)
 
-  renv_scope_locale("LC_COLLATE", "C")
-  remotes <- sort(remotes)
+  remotes <- csort(remotes)
 
   formatted <- sprintf("  \"%s\"", remotes)
   joined <- paste(formatted, collapse = ",\n")

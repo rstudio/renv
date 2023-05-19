@@ -1,6 +1,4 @@
 
-context("Remotes")
-
 test_that("we can parse a variety of remotes", {
 
   remote <- renv_remotes_parse("git@github.com:kevinushey/repo.git:subdir")

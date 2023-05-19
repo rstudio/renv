@@ -157,7 +157,7 @@ renv_vendor_sources <- function(version, repository) {
 
   # move to temporary directory
   owd <- setwd(tempdir())
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # resolve version
   version <- version %||% renv_package_version("renv")

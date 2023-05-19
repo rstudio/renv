@@ -1,6 +1,4 @@
 
-context("Archives")
-
 test_that("renv reports errors when decompressing invalid archives", {
 
   badtar <- tempfile(fileext = ".tar")
@@ -17,10 +15,10 @@ test_that("we can successfully compress / decompress some sample files", {
 
   dir <- tempfile()
   ensure_directory(dir)
-  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  defer(unlink(dir, recursive = TRUE))
 
   owd <- setwd(dir)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   for (letter in letters)
     writeLines(letter, con = letter)

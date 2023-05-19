@@ -64,11 +64,11 @@ renv_id_generate_cscript <- function() {
   # create temporary directory
   dir <- tempfile("renv-id-")
   dir.create(dir)
-  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  defer(unlink(dir, recursive = TRUE))
 
   # move to it
   owd <- setwd(dir)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # write helper script
   script <- c(

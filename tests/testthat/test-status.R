@@ -1,6 +1,4 @@
 
-context("Status")
-
 test_that("status reports packages to be installed / changed", {
 
   renv_tests_scope(c("toast", "breakfast"))

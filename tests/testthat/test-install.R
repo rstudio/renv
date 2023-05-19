@@ -1,6 +1,4 @@
 
-context("Install")
-
 test_that("install works when DESCRIPTION contains no dependencies", {
   renv_tests_scope()
   desc <- c("Type: Package", "Package: test")
@@ -32,7 +30,7 @@ test_that("installation failure is well-reported", {
   skip_on_os("windows")
 
   owd <- setwd(tempdir())
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # init dummy library
   library <- renv_scope_tempfile("renv-library-")
@@ -45,7 +43,7 @@ test_that("installation failure is well-reported", {
   # prepare dummy package
   package <- "renv.dummy.package"
   unlink(package, recursive = TRUE)
-  utils::package.skeleton(package, environment = envir)
+  suppressMessages(utils::package.skeleton(package, environment = envir))
 
   # remove broken man files
   unlink("renv.dummy.package/Read-and-delete-me")
@@ -181,10 +179,10 @@ test_that("source packages in .zip files can be installed", {
 
   dir <- tempfile("renv-ziptest-")
   dir.create(dir)
-  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  defer(unlink(dir, recursive = TRUE))
 
   owd <- setwd(dir)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   location <- download.packages("bread", destdir = tempdir())
   path <- location[1, 2]

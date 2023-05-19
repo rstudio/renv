@@ -1,6 +1,4 @@
 
-context("Dynamic")
-
 test_that("dynamic variables are cool and good", {
 
   a <- 0L

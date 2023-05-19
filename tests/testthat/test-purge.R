@@ -1,6 +1,4 @@
 
-context("Purge")
-
 test_that("we can purge packages from the cache", {
 
   renv_tests_scope("breakfast")

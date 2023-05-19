@@ -1,6 +1,4 @@
 
-context("Lockfile")
-
 test_that("lockfiles can be diffed", {
 
   lhs <- list(A = 1, B = 2, C = "a", D = list(E = 1, F = 2))

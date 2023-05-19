@@ -1,6 +1,4 @@
 
-context("Cache")
-
 test_that("issues within the cache are reported", {
   skip_on_cran()
 
@@ -8,7 +6,7 @@ test_that("issues within the cache are reported", {
   # to mutate and invalidate it
   tempcache <- tempfile("renv-tempcache-")
   ensure_directory(tempcache)
-  on.exit(unlink(tempcache, recursive = TRUE), add = TRUE)
+  defer(unlink(tempcache, recursive = TRUE))
   renv_scope_envvars(RENV_PATHS_CACHE = tempcache)
 
   # initialize project
@@ -113,7 +111,7 @@ test_that("malformed folders in the cache are ignored", {
 
   cachepath <- tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
+  defer(unlink(cachepath, recursive = TRUE))
 
   badpath <- renv_paths_cache("a-b/c-d/e-f/g-h/i-j")
   dir.create(dirname(badpath), recursive = TRUE)
@@ -133,7 +131,7 @@ test_that("corrupt Meta/package.rds is detected", {
 
   cachepath <- tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
+  defer(unlink(cachepath, recursive = TRUE))
 
   init()
   install("bread")
@@ -162,7 +160,7 @@ test_that("invalid Built field is detected", {
 
   cachepath <- tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
+  defer(unlink(cachepath, recursive = TRUE))
 
   init()
   install("bread")
@@ -197,13 +195,13 @@ test_that("ACLs set on packages in project library are reset", {
     system(paste("setfacl -m g::-", renv_shell_path(installpath)))
   }), where = renv_envir_self(), print = FALSE)
 
-  on.exit(untrace("renv_install_package_impl", where = renv_envir_self()), add = TRUE)
+  defer(untrace("renv_install_package_impl", where = renv_envir_self()))
 
   # use a custom cache
   cachedir <- tempfile("renv-cache-")
   ensure_directory(cachedir)
   renv_scope_envvars(RENV_PATHS_CACHE = cachedir)
-  on.exit(unlink(cachedir, recursive = TRUE), add = TRUE)
+  defer(unlink(cachedir, recursive = TRUE))
 
   # initialize project with bread; don't try to reset ACLs
   local({
@@ -254,10 +252,10 @@ test_that("ACLs set on packages in project library are reset", {
 #   tempcache2 <- tempfile("renv-tempcache-")
 #   ensure_directory(tempcache2)
 #
-#   on.exit({
+#   defer({
 #     unlink(tempcache1, recursive = TRUE)
 #     unlink(tempcache2, recursive = TRUE)
-#   }, add = TRUE)
+#   })
 #
 #   # add both packages to the cache
 #   renv_scope_envvars(RENV_PATHS_CACHE = paste(tempcache1, tempcache2, sep = ";"))

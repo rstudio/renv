@@ -71,7 +71,7 @@ renv_run_job <- function(script, name, project) {
   jobscript <- tempfile("renv-job-", fileext = ".R")
 
   exprs <- substitute(local({
-    on.exit(unlink(jobscript), add = TRUE)
+    defer(unlink(jobscript))
     source(activate)
     source(script)
   }), list(activate = activate, script = script, jobscript = jobscript))
@@ -89,6 +89,6 @@ renv_run_job <- function(script, name, project) {
 
 renv_run_impl <- function(script, name, project) {
   owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
   system2(R(), c("-s", "-f", renv_shell_path(script)))
 }

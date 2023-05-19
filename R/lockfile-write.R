@@ -97,14 +97,14 @@ renv_lockfile_write_internal <- function(lockfile,
 {
   if (is.character(file)) {
     file <- textfile(file)
-    on.exit(close(file), add = TRUE)
+    defer(close(file))
   }
 
   emitter <- emitter %||% function(text) writeLines(text, con = file)
 
   renv_lockfile_state_set("delim", delim)
   renv_lockfile_state_set("emitter", emitter)
-  on.exit(renv_lockfile_state_clear(), add = TRUE)
+  defer(renv_lockfile_state_clear())
 
   renv_lockfile_write_list(lockfile, section = character())
   invisible(lockfile)

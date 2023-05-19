@@ -1,6 +1,4 @@
 
-context("Bind")
-
 test_that("bind() handles named lists", {
 
     data <- list(

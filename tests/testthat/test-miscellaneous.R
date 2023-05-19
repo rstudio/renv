@@ -1,6 +1,4 @@
 
-context("Miscellaneous")
-
 # base::sprintf will fail if you pass a format string that's too
 # long even if no arguments are used, so renv provides its own
 # override that handles this case and then delegates to base::sprintf

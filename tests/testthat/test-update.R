@@ -1,6 +1,4 @@
 
-context("Update")
-
 test_that("update() finds packages requiring updates from CRAN", {
 
   skip_on_cran()

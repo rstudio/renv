@@ -225,7 +225,7 @@ renv_dependencies_impl <- function(
   }
 
   renv_dependencies_begin(root = root)
-  on.exit(renv_dependencies_end(), add = TRUE)
+  defer(renv_dependencies_end())
 
   dots <- list(...)
   if (identical(dots[["quiet"]], TRUE)) {

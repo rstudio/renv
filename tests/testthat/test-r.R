@@ -1,6 +1,4 @@
 
-context("R")
-
 test_that("we can use R CMD build to build a package", {
   skip_on_cran()
   if (renv_platform_windows()) {
@@ -10,11 +8,11 @@ test_that("we can use R CMD build to build a package", {
   }
 
   testdir <- tempfile("renv-r-tests-")
-  on.exit(unlink(testdir, recursive = TRUE), add = TRUE)
+  defer(unlink(testdir, recursive = TRUE))
 
   ensure_directory(testdir)
   owd <- setwd(testdir)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   package <- "sample.package"
   pkgdir <- file.path(testdir, package)

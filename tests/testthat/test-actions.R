@@ -1,6 +1,4 @@
 
-context("Actions")
-
 test_that("we can query actions for a sample project", {
 
   project <- renv_tests_scope("breakfast")

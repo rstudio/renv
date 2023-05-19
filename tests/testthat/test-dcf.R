@@ -1,6 +1,4 @@
 
-context("DCF")
-
 test_that("we can read different types of DCFs", {
 
   expected <- list(A = "1", B = "2")

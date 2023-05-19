@@ -1,6 +1,4 @@
 
-context("Retrieve")
-
 test_that("we can retrieve packages from CRAN", {
 
   skip_on_cran()
@@ -226,7 +224,7 @@ test_that("an explicitly-provided local source path can be used", {
   source <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
 
   owd <- setwd(tempdir())
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   record <- list(
     Package = "skeleton",
@@ -237,6 +235,8 @@ test_that("an explicitly-provided local source path can be used", {
   renv_test_retrieve(record)
 
 })
+
+
 
 test_that("explicit path to binary packages work", {
 

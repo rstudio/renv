@@ -1,6 +1,4 @@
 
-context("Files")
-
 test_that("directories can be copied", {
 
   source <- renv_scope_tempfile("renv-source-")
@@ -59,7 +57,7 @@ test_that("scoped backups are cleared as necessary", {
 
   local({
     callback <- renv_file_backup(target)
-    on.exit(callback(), add = TRUE)
+    defer(callback())
     expect_true(!file.exists(target))
   })
 
@@ -68,7 +66,7 @@ test_that("scoped backups are cleared as necessary", {
 
   local({
     callback <- renv_file_backup(target)
-    on.exit(callback(), add = TRUE)
+    defer(callback())
     writeLines("mutate", target)
   })
 
@@ -165,7 +163,7 @@ test_that("renv can list files not representable in the native encoding", {
   evil <- "\u9b3c"
 
   file.create(evil)
-  on.exit(unlink(evil), add = TRUE)
+  defer(unlink(evil))
 
   files <- renv_file_list(getwd(), full.names = FALSE)
   expect_true(evil %in% files)
@@ -175,7 +173,7 @@ test_that("renv can list files not representable in the native encoding", {
 test_that("renv can detect broken junctions / symlinks", {
 
   owd <- setwd(tempdir())
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   if (renv_platform_windows()) {
 
