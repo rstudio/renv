@@ -1,4 +1,3 @@
-
 `__self__` <- NULL
 
 .onLoad <- function(libname, pkgname) {

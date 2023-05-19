@@ -87,12 +87,12 @@ renv_base64_encode <- function(text) {
 }
 
 renv_base64_decode_table <- function() {
-  global("base64.decode.table", {
+  the$base64.decode.table <- the$base64.decode.table %??% {
     table <- integer(255)
     text <- "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
     table[utf8ToInt(text)] <- seq_len(nchar(text)) - 1L
     table
-  })
+  }
 }
 
 renv_base64_decode_main <- function(input) {

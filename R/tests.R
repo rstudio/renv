@@ -136,7 +136,8 @@ renv_tests_diagnostics <- function() {
 
 # Cache absolute path to tests/testthat
 renv_tests_root <- function() {
-  global("tests.root", normalizePath(testthat::test_path(".")))
+  the$tests.root <- the$tests.root %??% normalizePath(testthat::test_path("."))
+  the$tests.root
 }
 
 renv_tests_path <- function(path = NULL) {

@@ -40,17 +40,17 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
 }
 
 renv_tests_scope_repos <- function(envir = parent.frame()) {
-  repopath <- global("test.repo.path", renv_tests_repos_impl())
+  the$test.repo.path <- the$test.repo.path %||% renv_tests_repos_impl()
 
   # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
-  repos <- c(CRAN = sprintf(fmt, repopath))
+  repos <- c(CRAN = sprintf(fmt, the$test.repo.path))
 
   renv_scope_options(
     pkgType             = "source",
     repos               = repos,
     renv.tests.repos    = repos,
-    renv.tests.repopath = repopath,
+    renv.tests.repopath = the$test.repo.path,
     envir = envir
   )
 }
