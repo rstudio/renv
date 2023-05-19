@@ -347,7 +347,7 @@ renv_scope_trace <- function(what, tracer, envir = parent.frame()) {
 
 }
 
-renv_scope_var <- function(key, value, frame = NULL, envir = parent.frame()) {
+renv_scope_var <- function(key, value, frame, envir = parent.frame()) {
 
   if (exists(key, envir = frame, inherits = FALSE)) {
     saved <- get(key, envir = frame, inherits = FALSE)
