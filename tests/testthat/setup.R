@@ -58,6 +58,7 @@ renv_tests_init_packages <- function() {
   renv_namespace_load("crayon")
   renv_namespace_load("diffobj")
   renv_namespace_load("ellipsis")
+  renv_namespace_load("rematch2")
 
   if (!isNamespaceLoaded("pak")) {
     usr <- file.path(tempdir(), "usr-cache")
