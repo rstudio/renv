@@ -222,7 +222,7 @@ renv_install_staged <- function(records) {
 
   # set up a dummy library path for installation
   templib <- renv_install_staged_library_path()
-  on.exit(unlink(templib, recursive = TRUE), add = TRUE)
+  defer(unlink(templib, recursive = TRUE))
   renv_scope_libpaths(c(templib, libpaths))
 
   # perform the install
@@ -313,7 +313,7 @@ renv_install_staged_library_path <- function() {
   if (!renv_platform_windows()) {
     libpath <- renv_libpaths_active()
     umask <- Sys.umask("0")
-    on.exit(Sys.umask(umask), add = TRUE)
+    defer(Sys.umask(umask))
     info <- renv_file_info(libpath)
     Sys.chmod(path, info$mode)
   }
@@ -405,7 +405,7 @@ renv_install_package_cache <- function(record, cache, linker) {
 
   # back up the previous installation if needed
   callback <- renv_file_backup(target)
-  on.exit(callback(), add = TRUE)
+  defer(callback())
 
   # report successful link to user
   fmt <- "Installing %s [%s] ..."
@@ -475,7 +475,7 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
 
     # and ensure we build in this directory
     owd <- setwd(path)
-    on.exit(setwd(owd), add = TRUE)
+    defer(setwd(owd))
 
   }
 
@@ -540,13 +540,13 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   after  <- options$after.install %||% identity
 
   before(package)
-  on.exit(after(package), add = TRUE)
+  defer(after(package))
 
   # backup an existing installation of the package if it exists
   library <- renv_libpaths_active()
   destination <- file.path(library, package)
   callback <- renv_file_backup(destination)
-  on.exit(callback(), add = TRUE)
+  defer(callback())
 
   # normalize paths
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
@@ -561,7 +561,7 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   # https://github.com/rstudio/renv/issues/611
   installpath <- file.path(library, package)
   callback <- renv_file_backup(installpath)
-  on.exit(callback(), add = TRUE)
+  defer(callback())
 
   # if this failed for some reason, just remove it
   if (renv_file_broken(installpath))
@@ -717,7 +717,7 @@ renv_install_preflight_permissions <- function(library) {
   # try creating and deleting a directory in the library folder
   file <- tempfile(".renv-write-test-", tmpdir = library)
   dir.create(file, recursive = TRUE, showWarnings = FALSE)
-  on.exit(unlink(file, recursive = TRUE), add = TRUE)
+  defer(unlink(file, recursive = TRUE))
 
   # check if we created the directory successfully
   info <- renv_file_info(file)

@@ -163,7 +163,7 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
   # double-check that the cache is writable
   writable <- local({
     file <- tempfile("renv-tempfile-", tmpdir = parent)
-    on.exit(unlink(file, force = TRUE), add = TRUE)
+    defer(unlink(file, force = TRUE))
     status <- catchall(file.create(file))
     file.exists(file)
   })
@@ -173,7 +173,7 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   # if we already have a cache entry, back it up
   restore <- renv_file_backup(cache)
-  on.exit(restore(), add = TRUE)
+  defer(restore())
 
   # get ready to copy / move into cache
   fmt <- "%s %s [%s] into the cache ..."
@@ -564,7 +564,7 @@ renv_cache_clean_empty_impl <- function(cache) {
 
   # move to cache directory
   owd <- setwd(cache)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # construct system command for removing empty directories
   action <- "removing empty directories"

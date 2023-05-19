@@ -2,7 +2,7 @@
 test_that("global() only evaluates value once", {
 
   name <- basename(tempfile("renv-example-"))
-  on.exit(renv_global_clear(name), add = TRUE)
+  defer(renv_global_clear(name))
 
   value <- 0L
   global(name, value <<- value + 1L)
@@ -15,7 +15,7 @@ test_that("global() only evaluates value once", {
 test_that("global values can be get, set", {
 
   name <- basename(tempfile("renv-example-"))
-  on.exit(renv_global_clear(name), add = TRUE)
+  defer(renv_global_clear(name))
 
   renv_global_set(name, 42L)
   expect_equal(renv_global_get(name), 42L)

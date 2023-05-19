@@ -155,7 +155,7 @@ r_cmd_install <- function(package, path, ...) {
 
   if (unpack) {
     path <- renv_package_unpack(package, path, force = TRUE)
-    on.exit(unlink(path, recursive = TRUE), add = TRUE)
+    defer(unlink(path, recursive = TRUE))
   }
 
   # resolve default library path

@@ -372,7 +372,7 @@ renv_update_errors_clear <- function() {
 renv_update_errors_emit <- function() {
 
   # clear errors when we're done
-  on.exit(renv_update_errors_clear(), add = TRUE)
+  defer(renv_update_errors_clear())
 
   # if we have any errors, start by emitting a single newline
   all <- ls(envir = `_renv_update_errors`, all.names = TRUE)

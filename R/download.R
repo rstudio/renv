@@ -64,7 +64,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 
   # back up a pre-existing file if necessary
   callback <- renv_file_backup(destfile)
-  on.exit(callback(), add = TRUE)
+  defer(callback())
 
   # form path to temporary file
   tempfile <- renv_scope_tempfile(tmpdir = dirname(destfile))

@@ -62,7 +62,7 @@ cite <- function(type = c("plain", "bibtex"),
   dir <- tempfile("renv-cite-")
   dir.create(dir, recursive = TRUE)
   owd <- setwd(dir)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   writeLines(paste(bibtex, collapse = "\n"), con = "bibliography.bib")
 

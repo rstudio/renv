@@ -226,7 +226,7 @@ test_that("recursive symlinks are handled", {
   ensure_directory(project)
 
   owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   symlink <- file.path(project, "symlink")
   file.symlink(dirname(symlink), symlink)

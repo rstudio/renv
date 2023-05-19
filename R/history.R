@@ -42,7 +42,7 @@ history <- function(project = NULL) {
   renv_git_preflight()
 
   owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   args <- c("log", "--pretty=format:%H\031%at\031%ct\031%s", renv_shell_path(lockpath))
   data <- renv_system_exec("git", args, action = "retrieving git log")
@@ -71,7 +71,7 @@ revert <- function(commit = "HEAD", ..., project = NULL) {
   renv_git_preflight()
 
   owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   lockpath <- renv_lockfile_path(project = project)
   system2("git", c("checkout", commit, "--", renv_shell_path(lockpath)))
