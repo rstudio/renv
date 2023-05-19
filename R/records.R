@@ -6,8 +6,7 @@ renv_records_select <- function(records, actions, action) {
 }
 
 renv_records_sort <- function(records) {
-  renv_scope_locale("LC_COLLATE", "C")
-  records[order(names(records))]
+  records[csort(names(records))]
 }
 
 renv_records_override <- function(records) {

@@ -372,10 +372,7 @@ renv_load_project_projlist <- function(project) {
     return(TRUE)
 
   # sort with C locale (ensure consistent sorting across OSes)
-  projlist <- local({
-    renv_scope_locale("LC_COLLATE", "C")
-    sort(c(projlist, project))
-  })
+  projlist <- csort(c(projlist, project))
 
   # update the project list
   ensure_parent_directory(projects)
