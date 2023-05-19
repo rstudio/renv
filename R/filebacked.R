@@ -75,7 +75,7 @@ renv_filebacked_get <- function(scope, path) {
 
 renv_filebacked_envir <- function(scope) {
   `_renv_filebacked`[[scope]] <-
-    `_renv_filebacked`[[scope]] %||%
+    `_renv_filebacked`[[scope]] %??%
     new.env(parent = emptyenv())
 }
 
