@@ -1,8 +1,6 @@
 
 `%||%` <- function(x, y) {
-  if (is.environment(x)) warning("An environment!")
-
-  if (is.environment(x) || length(x)) x else y
+  if (length(x)) x else y
 }
 
 `%??%` <- function(x, y) {
