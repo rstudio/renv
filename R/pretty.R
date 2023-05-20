@@ -94,7 +94,10 @@ renv_pretty_print_records_pair <- function(old,
 
 renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
 
-  all <- csort(union(names(old), names(new)))
+  # NOTE: use 'sort()' rather than 'csort()' here so that
+  # printed output is sorted in the expected way in the users locale
+  # https://github.com/rstudio/renv/issues/1289
+  all <- sort(union(names(old), names(new)))
 
   # compute groups
   groups <- map_chr(all, function(package) {
