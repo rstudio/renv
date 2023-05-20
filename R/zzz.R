@@ -44,8 +44,6 @@ renv_zzz_load <- function() {
   renv_sandbox_init()
   renv_sdkroot_init()
 
-  renv_task_create(renv_exit_handlers_task)
-
   if (!renv_metadata_embedded()) {
 
     # TODO: It's not clear if these callbacks are safe to use when renv is
