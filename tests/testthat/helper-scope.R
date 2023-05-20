@@ -1,5 +1,16 @@
-renv_tests_scope <- function(packages = character(), project = NULL, envir = parent.frame()) {
 
+renv_tests_scope <- function(packages = character(),
+                             project = NULL,
+                             envir = parent.frame())
+{
+  # source setup.R if necessary (for interactive scenarios)
+  running <- getOption("renv.tests.running", default = FALSE)
+  if (!running) {
+    path <- test_path("setup.R")
+    sys.source(path, envir = globalenv())
+  }
+
+  # use local repositories in this scope
   renv_tests_scope_repos(envir = envir)
 
   # most tests will call init() which changes `R_LIBS_USER`;
@@ -36,7 +47,6 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
   })
 
   invisible(dir)
-
 }
 
 renv_tests_scope_repos <- function(envir = parent.frame()) {

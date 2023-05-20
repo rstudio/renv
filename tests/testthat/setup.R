@@ -1,3 +1,19 @@
+
+`_renv_tests_envir` <- NULL
+
+# TODO: This is a hack to deal with interactive running of tests when
+# testthat::teardown_env() hasn't been initialized for some reason
+renv_tests_envir <- function() {
+
+  `_renv_tests_envir` <<- `_renv_tests_envir` %||% {
+    tryCatch(
+      testthat::teardown_env(),
+      error = function(e) globalenv()
+    )
+  }
+
+}
+
 renv_tests_init_envvars <- function() {
   renv_scope_envvars(
     # simulate running in R CMD check
@@ -11,14 +27,14 @@ renv_tests_init_envvars <- function() {
     RENV_PATHS_LOCKFILE = NULL,
     RENV_PATHS_RENV = NULL,
     RENV_AUTOLOAD_ENABLED = FALSE,
-    envir = testthat::teardown_env()
+    envir = renv_tests_envir()
   )
 
   needs_tz <- renv_platform_macos() && !nzchar(Sys.getenv("TZ"))
   if (needs_tz) {
     renv_scope_envvars(
       TZ = "America/Los_Angeles",
-      envir = testthat::teardown_env()
+      envir = renv_tests_envir()
     )
   }
 
@@ -47,7 +63,7 @@ renv_tests_init_options <- function() {
     renv.config.install.transactional = FALSE,
     # mark tests as running
     renv.tests.running = TRUE,
-    envir = testthat::teardown_env()
+    envir = renv_tests_envir()
   )
 }
 
