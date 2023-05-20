@@ -519,14 +519,19 @@ cancel_if <- function(cnd) {
 }
 
 # a wrapper for 'utils::untar()' that throws an error if untar fails
-untar <- function(tarfile, files = NULL, list = FALSE, exdir = ".") {
-
+untar <- function(tarfile,
+                  files = NULL,
+                  list = FALSE,
+                  exdir = ".",
+                  tar = Sys.getenv("TAR"))
+{
   # delegate to utils::untar()
   result <- utils::untar(
     tarfile = tarfile,
     files   = files,
     list    = list,
-    exdir   = exdir
+    exdir   = exdir,
+    tar     = tar
   )
 
   # check for errors (tar returns a status code)
@@ -537,5 +542,4 @@ untar <- function(tarfile, files = NULL, list = FALSE, exdir = ".") {
 
   # return other results as-is
   result
-
 }
