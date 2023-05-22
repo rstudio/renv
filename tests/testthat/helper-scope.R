@@ -150,13 +150,15 @@ renv_tests_repos_impl <- function() {
 # This function is designed to be run once before all tests are run in
 # setup.R. It's also provided here in case you need to step through a
 # test line by line.
-renv_test_scope_setup <- function(envir = parent.frame()) {
+renv_tests_scope_setup <- function(envir = parent.frame()) {
+
   # cache path before working directory gets changed
   renv_tests_root()
 
   renv_tests_scope_envvars(envir = envir)
   renv_tests_scope_options(envir = envir)
   renv_tests_init_packages()
+
 }
 
 renv_tests_scope_envvars <- function(envir = parent.frame()) {
@@ -206,6 +208,7 @@ renv_tests_scope_envvars <- function(envir = parent.frame()) {
 }
 
 renv_tests_scope_options <- function(envir = parent.frame()) {
+
   # find path to renv sources
   sources <- renv_file_find(getwd(), function(parent) {
     descpath <- file.path(parent, "DESCRIPTION")
@@ -214,6 +217,7 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
   })
 
   renv_scope_options(
+    renv.bootstrap.quiet = TRUE,
     # set it so we can find the sources
     renv.test.sources = sources,
     renv.config.user.library = FALSE,
@@ -225,6 +229,7 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
     # mark tests as running
     renv.tests.running = TRUE,
     envir = envir
+
   )
 }
 

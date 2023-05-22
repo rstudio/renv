@@ -5,7 +5,6 @@ test_that("we can bootstrap the current version of renv", {
   skip_on_ci()
 
   renv_tests_scope()
-  renv_scope_options(renv.bootstrap.quiet = TRUE)
 
   library <- renv_libpaths_active()
   bootstrap(version = "1.0.0", library = library)
@@ -20,7 +19,6 @@ test_that("we can bootstrap an archived version of renv", {
   skip_on_ci()
 
   renv_tests_scope()
-  renv_scope_options(renv.bootstrap.quiet = TRUE)
 
   library <- renv_libpaths_active()
   bootstrap(version = "0.1.0", library = library)
@@ -35,7 +33,6 @@ test_that("we can install a version of renv from GitHub", {
   skip_on_ci()
 
   renv_tests_scope()
-  renv_scope_options(renv.bootstrap.quiet = TRUE)
 
   library <- renv_libpaths_active()
   bootstrap(version = "0.12.3-1", library = library)
@@ -51,7 +48,6 @@ test_that("bootstrap succeeds with empty repos", {
 
   renv_tests_scope()
   renv_scope_options(repos = character())
-  renv_scope_options(renv.bootstrap.quiet = TRUE)
 
   library <- renv_libpaths_active()
   bootstrap(version = "1.0.0", library = library)
@@ -110,9 +106,6 @@ test_that("bootstrapping functions standalone", {
 
   # try running 'sandboxed' version of bootstrap
   run <- function(version) {
-
-    # be quiet
-    renv_scope_options(renv.bootstrap.quiet = TRUE)
 
     # construct bootstrap call
     code <- call("bootstrap", version = version, library = library)

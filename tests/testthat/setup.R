@@ -75,8 +75,10 @@ renv_tests_init_options <- function() {
   )
 }
 
-renv_test_scope_setup(renv_tests_envir())
+# perform setup
+renv_tests_scope_setup(renv_tests_envir())
 
+# verify that RENV_PATHS_ROOT has been set appropriately, and bail if not
 local({
   rootdir <- normalizePath(dirname(renv_paths_root()), winslash = "/", mustWork = FALSE)
   tempdir <- normalizePath(tempdir(), winslash = "/")
