@@ -25,7 +25,7 @@ renv_repos_normalize <- function(repos = getOption("repos")) {
   repos[repos == "@CRAN@"] <- cran
 
   # if repos is length 1 but has no names, then assume it's CRAN
-  nms <- names(repos) %||% rep.int("", length(repos))
+  nms <- names(repos) %??% rep.int("", length(repos))
   if (identical(nms, ""))
     nms <- names(repos) <- "CRAN"
 

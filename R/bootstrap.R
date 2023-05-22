@@ -1,11 +1,20 @@
 
 `%||%` <- function(x, y) {
+  if (!is.null(x) && length(x) == 0) {
+    warning("Length 0")
+  }
+
   if (length(x)) x else y
 }
 
 `%??%` <- function(x, y) {
   if (is.null(x)) y else x
 }
+
+`%|0|%` <- function(x, y) {
+  if (length(x)) x else y
+}
+
 
 bootstrap <- function(version, library) {
 

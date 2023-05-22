@@ -114,7 +114,7 @@ restore <- function(project  = NULL,
 
   # only remove packages from the project library
   difflocs <- map_chr(names(diff), function(package) {
-    find.package(package, lib.loc = libpaths, quiet = TRUE) %||% ""
+    find.package(package, lib.loc = libpaths, quiet = TRUE) %|0|% ""
   })
 
   diff <- diff[!(diff == "remove" & dirname(difflocs) != library)]
