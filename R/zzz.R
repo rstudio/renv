@@ -9,7 +9,20 @@
 }
 
 .onUnload <- function(libpath) {
+
   renv_task_unload()
+
+  # flush the help db to avoid errors on reload
+  # https://github.com/rstudio/renv/issues/1294
+  helpdb <- system.file(package = "renv", "help/renv.rdb")
+  .Internal <- .Internal
+  lazyLoadDBflush <- function(...) {}
+
+  tryCatch(
+    .Internal(lazyLoadDBflush(helpdb)),
+    error = function(e) NULL
+  )
+
 }
 
 renv_zzz_load <- function() {
