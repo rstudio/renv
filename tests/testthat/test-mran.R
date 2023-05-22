@@ -2,13 +2,10 @@
 test_that("older binaries are installed from MRAN on Windows / macOS", {
   skip_on_cran()
   skip_on_os("linux")
+  skip_if_not_R35()
 
   renv_tests_scope()
   renv_scope_options(pkgType = "binary")
-
-  version <- getRversion()[1, 1:2]
-  if (version != "3.5")
-    skip("only run on R 3.5")
 
   install("digest@0.6.17")
 
@@ -23,7 +20,7 @@ test_that("older binaries are installed from MRAN on Windows / macOS", {
 test_that("we can install packages from MRAN", {
   skip_on_cran()
   skip_on_os("linux")
-  skip_if(getRversion() <= "3.5" || getRversion() > "3.6")
+  skip_if_not_R35()
   skip_sometimes()
 
   renv_tests_scope()
