@@ -150,12 +150,19 @@ renv_test_scope_setup <- function(envir = parent.frame()) {
 }
 
 renv_tests_scope_envvars <- function(envir = parent.frame()) {
+
+  renv_root <- normalizePath(
+    ensure_directory(renv_scope_tempfile(envir = envir)),
+    mustWork = FALSE,
+    winslash = "/"
+  )
+
   renv_scope_envvars(
     # simulate running in R CMD check
     "_R_CHECK_PACKAGE_NAME_" = "renv",
     # disable locking in this scope
     RENV_CONFIG_LOCKING_ENABLED = FALSE,
-    RENV_PATHS_ROOT = NULL,
+    RENV_PATHS_ROOT = renv_root,
     RENV_PATHS_LIBRARY = NULL,
     RENV_PATHS_LIBRARY_ROOT = NULL,
     RENV_PATHS_LOCAL = NULL,
