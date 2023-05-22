@@ -10,3 +10,6 @@ defer <- function(expr, envir = parent.frame()) {
 
 }
 
+deferred_run <- function(envir = parent.frame()) {
+  renv_exit_handlers_execute(envir)
+}
