@@ -20,9 +20,8 @@ test_that("update() finds packages requiring updates from CRAN", {
 
 test_that("update() can upgrade GitHub packages", {
 
-  skip_on_cran()
   skip_if(getRversion() < "3.5.3")
-  skip_if(is.na(Sys.getenv("GITHUB_PAT", unset = NA)))
+  skip_if_no_github_auth()
   skip_sometimes()
 
   renv_tests_scope()
@@ -52,9 +51,8 @@ test_that("update() can upgrade GitHub packages", {
 
 test_that("update() can upgrade Git packages", {
 
-  skip_on_cran()
   skip_if(getRversion() < "3.5.3")
-  skip_if(is.na(Sys.getenv("GITHUB_PAT", unset = NA)))
+  skip_if_no_github_auth()
   skip_sometimes()
 
   # this test appears to fail on CI (ssh clone from GitHub disallowed?)

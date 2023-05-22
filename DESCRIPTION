@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project Environments
-Version: 0.17.3-51
+Version: 0.17.3-52
 Authors@R: c(
     person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com"),
     person("Posit Software, PBC", role = c("cph", "fnd"))
@@ -14,9 +14,9 @@ License: MIT + file LICENSE
 URL: https://rstudio.github.io/renv/
 BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
-Suggests: BiocManager, cli, covr, cpp11, devtools, jsonlite, knitr, miniUI,
+Suggests: BiocManager, cli, covr, cpp11, devtools, gitcreds, jsonlite, knitr, miniUI,
     packrat, pak, R6, remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat,
-    uuid, waldo, yaml
+    uuid, waldo, yaml, webfakes
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
@@ -24,4 +24,4 @@ VignetteBuilder: knitr
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Config/testthat/parallel: true
-Config/testthat/start-first: bioconductor,python,restore,snapshot
+Config/testthat/start-first: bioconductor,python,restore,snapshot,install

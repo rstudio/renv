@@ -28,10 +28,6 @@
   if (length(x) && is.na(x)) y else x
 }
 
-`%NULL%` <- function(x, y) {
-  if (is.null(x)) y else x
-}
-
 `%&&%` <- function(x, y) {
   if (length(x)) y
 }
@@ -542,4 +538,8 @@ untar <- function(tarfile,
 
   # return other results as-is
   result
+}
+
+rep_named <- function(names, x) {
+  stats::setNames(rep_len(x, length(names)), names)
 }
