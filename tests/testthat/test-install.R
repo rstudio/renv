@@ -109,7 +109,7 @@ test_that("packages can be installed from sources", {
 })
 
 test_that("various remote styles can be used during install", {
-  skip_on_cran()
+  skip_if_no_github_auth()
 
   renv_tests_scope()
   renv::init()
@@ -152,7 +152,7 @@ test_that("various remote styles can be used during install", {
 })
 
 test_that("Remotes fields in a project DESCRIPTION are respected", {
-  skip_on_cran()
+  skip_if_no_github_auth()
 
   renv_tests_scope()
   renv_scope_options(repos = character())
@@ -211,7 +211,7 @@ test_that("renv warns when installing an already-loaded package", {
 })
 
 test_that("renv::install() writes out Github fields for backwards compatibility", {
-  skip_on_cran()
+  skip_if_no_github_auth()
   renv_tests_scope()
 
   install("rstudio/packrat")
@@ -265,9 +265,10 @@ test_that("renv can install packages from Bitbucket", {
 })
 
 test_that("renv can install packages from GitHub using remotes subdir syntax", {
-  skip_on_cran()
   skip_sometimes()
+  skip_if_no_github_auth()
   renv_tests_scope()
+
   install("kevinushey/skeleton/subdir")
   expect_true(renv_package_installed("skeleton"))
   expect_true(renv_package_version("skeleton") == "1.1.0")

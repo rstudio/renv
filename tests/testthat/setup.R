@@ -75,35 +75,21 @@ renv_tests_init_options <- function() {
   )
 }
 
-# Force loading of packages from current .libPaths(); needed for packages
-# that would otherwise loaded in a renv_tests_scope()
-renv_tests_init_packages <- function() {
-  requireNamespace("waldo", quietly = TRUE)
-  renv_namespace_load("crayon")
+renv_test_scope_setup(renv_tests_envir())
 
-  if (!isNamespaceLoaded("pak")) {
-    usr <- file.path(tempdir(), "usr-cache")
-    ensure_directory(file.path(usr, "R/renv"))
+local({
+  rootdir <- normalizePath(dirname(renv_paths_root()), winslash = "/", mustWork = FALSE)
+  tempdir <- normalizePath(tempdir(), winslash = "/")
 
-    pkg <- file.path(tempdir(), "pkg-cache")
-    ensure_directory(pkg)
-
-    renv_scope_envvars(
-      R_USER_CACHE_DIR = usr,
-      R_PKG_CACHE_DIR  = pkg
+  if (rootdir != tempdir) {
+    stopf(
+      paste0(
+        "`renv_paths_root()` ('%s') not set to temporary directory ('%s')\n",
+        "* running the tests may mutate system renv state"
+      ),
+      rootdir,
+      tempdir
     )
-
-    requireNamespace("pak", quietly = TRUE)
-    # trigger package load in pak subprocess
-    pak <- renv_namespace_load("pak")
-    pak$remote(function() {})
   }
-}
+})
 
-
-# cache path before working directory gets changed
-renv_tests_root()
-
-renv_tests_init_envvars()
-renv_tests_init_options()
-renv_tests_init_packages()
