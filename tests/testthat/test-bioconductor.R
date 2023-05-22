@@ -1,7 +1,7 @@
 
 test_that("packages can be installed, restored from Bioconductor", {
 
-  skip_on_cran()
+  skip_slow()
   skip_on_os("windows")
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
@@ -57,7 +57,7 @@ test_that("renv::install(<bioc>, rebuild = TRUE) works", {
 
 test_that("bioconductor.version can be used to freeze version", {
 
-  skip_on_cran()
+  skip_slow()
   project <- renv_tests_scope()
 
   settings$bioconductor.version("3.14", project = project)

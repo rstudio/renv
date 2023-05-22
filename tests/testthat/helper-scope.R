@@ -1,4 +1,15 @@
 
+# helper to interactively reset scoped modifications on globalenv
+if (interactive()) {
+  makeActiveBinding(
+    "done",
+    function(value) {
+      renv_exit_handlers_execute(envir = globalenv())
+    },
+    env = globalenv()
+  )
+}
+
 renv_tests_scope <- function(packages = character(),
                              project = NULL,
                              envir = parent.frame())
@@ -236,12 +247,13 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
 # Force loading of packages from current .libPaths(); needed for packages
 # that would otherwise loaded in a renv_tests_scope()
 renv_tests_init_packages <- function() {
-
   # All recursive testthat deps
   pkgs <- global("testthat_deps", renv_tests_testthat_dependencies_impl())
   for (pkg in pkgs) {
     renv_namespace_load(pkg)
   }
+
+  renv_namespace_load("remotes")
 
   # pak needs a little special handling
   if (!isNamespaceLoaded("pak")) {
