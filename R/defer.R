@@ -9,4 +9,3 @@ defer <- function(expr, envir = parent.frame()) {
   invisible(handler)
 
 }
-
