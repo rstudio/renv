@@ -207,7 +207,8 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
 renv_tests_init_packages <- function() {
 
   # All recursive testthat deps
-  for (pkg in renv_tests_testthat_dependencies()) {
+  pkgs <- global("testthat_deps", renv_tests_testthat_dependencies_impl())
+  for (pkg in pkgs) {
     renv_namespace_load(pkg)
   }
 
@@ -231,9 +232,8 @@ renv_tests_init_packages <- function() {
   }
 }
 
-renv_tests_testthat_dependencies <- function() {
-  (global(
-    "testthat_deps",
-    sort(tools::package_dependencies("testthat", recursive = TRUE)[[1]])
-  ))
+renv_tests_testthat_dependencies_impl <- function() {
+  db <- available_packages(type = "source")[[1]]
+  sort(tools::package_dependencies("testthat", db, recursive = TRUE)[[1]])
 }
+
