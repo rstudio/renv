@@ -152,7 +152,7 @@ renv_test_scope_setup <- function(envir = parent.frame()) {
 renv_tests_scope_envvars <- function(envir = parent.frame()) {
 
   renv_root <- normalizePath(
-    renv_scope_tempfile(envir = envir),
+    ensure_directory(renv_scope_tempfile(envir = envir)),
     mustWork = FALSE,
     winslash = "/"
   )
