@@ -135,7 +135,12 @@ install <- function(packages = NULL,
   }
 
   # get and resolve the packages / remotes to be installed
-  remotes <- packages %|0|% renv_project_remotes(project, dependencies)
+  if (length(packages) == 0) {
+    remotes <- renv_project_remotes(project, dependencies)
+  } else {
+    remotes <- packages
+  }
+
   if (empty(remotes)) {
     vwritef("* There are no packages to install.")
     return(invisible(list()))

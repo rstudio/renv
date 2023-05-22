@@ -11,11 +11,6 @@
   if (is.null(x)) y else x
 }
 
-`%|0|%` <- function(x, y) {
-  if (length(x)) x else y
-}
-
-
 bootstrap <- function(version, library) {
 
   # attempt to download renv
