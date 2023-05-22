@@ -545,5 +545,5 @@ untar <- function(tarfile,
 }
 
 rep_named <- function(names, x) {
-  setNames(rep_len(x, length(names)), names)
+  stats::setNames(rep_len(x, length(names)), names)
 }
