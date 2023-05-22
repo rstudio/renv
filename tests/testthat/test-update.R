@@ -20,10 +20,9 @@ test_that("update() finds packages requiring updates from CRAN", {
 
 test_that("update() can upgrade GitHub packages", {
 
-  skip_on_cran()
   skip_if(getRversion() < "3.5.3")
   skip_if(is.na(Sys.getenv("GITHUB_PAT", unset = NA)))
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
   renv::init()
@@ -52,10 +51,9 @@ test_that("update() can upgrade GitHub packages", {
 
 test_that("update() can upgrade Git packages", {
 
-  skip_on_cran()
   skip_if(getRversion() < "3.5.3")
   skip_if(is.na(Sys.getenv("GITHUB_PAT", unset = NA)))
-  skip_sometimes()
+  skip_slow()
 
   # this test appears to fail on CI (ssh clone from GitHub disallowed?)
   testthat::skip_on_ci()

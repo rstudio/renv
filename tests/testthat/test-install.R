@@ -265,8 +265,7 @@ test_that("renv can install packages from Bitbucket", {
 })
 
 test_that("renv can install packages from GitHub using remotes subdir syntax", {
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
   renv_tests_scope()
   install("kevinushey/skeleton/subdir")
   expect_true(renv_package_installed("skeleton"))
@@ -450,9 +449,8 @@ test_that("staging library path has same permissions as library path", {
 
 test_that("packages installed from a RemoteSubdir can be retrieved from cache", {
 
-  skip_on_cran()
   skip_on_windows()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
   cachepath <- renv_scope_tempfile("renv-cache-")
@@ -474,9 +472,8 @@ test_that("packages installed from a RemoteSubdir can be retrieved from cache", 
 
 test_that("repositories containing multiple packages can be installed", {
 
-  skip_on_cran()
   skip_on_windows()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
 
