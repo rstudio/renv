@@ -348,7 +348,7 @@ test_that("we respect the default branch for gitlab repositories", {
 })
 
 test_that("renv can retrieve the latest release associated with a project", {
-  skip_if_no_GitHub_auth()
+  skip_if_no_github_auth()
 
   remote <- renv_remotes_resolve("rstudio/keras@*release")
   expect_true(is.list(remote))
