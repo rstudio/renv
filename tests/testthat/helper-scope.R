@@ -205,9 +205,13 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
 # Force loading of packages from current .libPaths(); needed for packages
 # that would otherwise loaded in a renv_tests_scope()
 renv_tests_init_packages <- function() {
-  requireNamespace("waldo", quietly = TRUE)
-  renv_namespace_load("crayon")
 
+  # All recursive testthat deps
+  for (pkg in renv_tests_testthat_dependencies()) {
+    renv_namespace_load(pkg)
+  }
+
+  # pak needs a little special handling
   if (!isNamespaceLoaded("pak")) {
     usr <- file.path(tempdir(), "usr-cache")
     ensure_directory(file.path(usr, "R/renv"))
@@ -226,4 +230,12 @@ renv_tests_init_packages <- function() {
     pak$remote(function() {})
   }
 }
+
+renv_tests_testthat_dependencies <- function() {
+  (global(
+    "testthat_deps",
+    sort(tools::package_dependencies("testthat", recursive = TRUE)[[1]])
+  ))
+}
+
 
