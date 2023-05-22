@@ -40,8 +40,8 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
   else
     root
 
-  file.path(prefixed, ...) %|0|% ""
-
+  path <- file.path(prefixed, ...)
+  if (length(path)) path else ""
 }
 
 renv_paths_library_root <- function(project) {
