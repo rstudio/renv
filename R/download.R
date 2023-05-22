@@ -206,7 +206,7 @@ renv_download_default <- function(url, destfile, type, request, headers) {
 
 }
 
-renv_download_default_agent_scope <- function(headers) {
+renv_download_default_agent_scope <- function(headers, envir = parent.frame()) {
 
   if (empty(headers))
     return(FALSE)
@@ -214,14 +214,10 @@ renv_download_default_agent_scope <- function(headers) {
   if (getRversion() >= "3.6.0")
     return(FALSE)
 
-  envir <- parent.frame()
   renv_download_default_agent_scope_impl(headers, envir)
-
 }
 
-renv_download_default_agent_scope_impl <- function(headers, envir = NULL) {
-
-  envir <- envir %||% parent.frame()
+renv_download_default_agent_scope_impl <- function(headers, envir = parent.frame()) {
 
   utils <- asNamespace("utils")
   makeUserAgent <- utils$makeUserAgent
@@ -233,16 +229,15 @@ renv_download_default_agent_scope_impl <- function(headers, envir = NULL) {
   if (!ok)
     return(FALSE)
 
-  do.call("unlockBinding", list("makeUserAgent", utils))
-  defer(do.call("lockBinding", list("makeUserAgent", utils)), envir = envir)
-
   agent <- makeUserAgent(FALSE)
   all <- c("User-Agent" = agent, headers)
   headertext <- paste0(names(all), ": ", all, "\r\n", collapse = "")
 
-  assign("makeUserAgent", envir = utils, function(format = TRUE) {
+  renv_binding_replace("makeUserAgent", envir = utils, function(format = TRUE) {
     if (format) headertext else agent
   })
+
+  defer(renv_binding_replace("makeUserAgent", makeUserAgent, envir = utils), envir = envir)
 
   return(TRUE)
 
