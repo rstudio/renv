@@ -53,14 +53,6 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
     prefix <- sprintf(fmt, spec)
     message <- paste(prefix, e$message, sep = " -- ")
 
-    # if the error occurred while running tests, and the error appears
-    # to be due to an HTTP error (unauthorized), then just skip instead
-    if (renv_tests_running()) {
-      unauth <- any(grepl("403", e$message %||% ""))
-      if (unauth)
-        testthat::skip("Ignoring transient 403 error")
-    }
-
     # otherwise, propagate the error
     stop(simpleError(message = message, call = e$call))
 
