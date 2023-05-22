@@ -14,7 +14,7 @@ memoize <- function(key, value, scope = NULL) {
   # initialize memoized environment
   envir <-
     `_renv_memoize`[[scope]] <-
-    `_renv_memoize`[[scope]] %??%
+    `_renv_memoize`[[scope]] %||%
     new.env(parent = emptyenv())
 
   # retrieve, or compute, memoized value

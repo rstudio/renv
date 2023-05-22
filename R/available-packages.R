@@ -12,7 +12,7 @@ available_packages <- function(type,
 
     key = list(
       type = type,
-      repos = repos %??% getOption("repos"),
+      repos = repos %||% getOption("repos"),
       cellar = cellar
     ),
 
@@ -34,7 +34,7 @@ renv_available_packages_impl <- function(type,
                                          cellar = FALSE)
 {
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
-  repos <- renv_repos_normalize(repos %??% getOption("repos"))
+  repos <- renv_repos_normalize(repos %||% getOption("repos"))
 
   # invalidate cache if http_proxy or https_proxy environment variables change,
   # since those could effect (or even re-direct?) repository URLs
@@ -495,8 +495,8 @@ renv_available_packages_latest_repos <- function(package,
                                                  type = NULL,
                                                  repos = NULL)
 {
-  type  <- type %??% getOption("pkgType")
-  repos <- repos %??% getOption("repos")
+  type  <- type %||% getOption("pkgType")
+  repos <- repos %||% getOption("repos")
 
   # detect requests for only source packages
   if (identical(type, "source"))

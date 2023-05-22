@@ -26,7 +26,7 @@ project <- function(default = NULL) {
 }
 
 renv_project_get <- function(default = NULL) {
-  `_renv_project_path` %??% default
+  `_renv_project_path` %||% default
 }
 
 # NOTE: RENV_PROJECT kept for backwards compatibility with RStudio
@@ -42,7 +42,7 @@ renv_project_clear <- function() {
 }
 
 renv_project_resolve <- function(project = NULL, default = getwd()) {
-  project <- project %??% renv_project_get(default = default)
+  project <- project %||% renv_project_get(default = default)
   normalizePath(project, winslash = "/", mustWork = FALSE)
 }
 
@@ -334,7 +334,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
 # renv places its project-local state ...
 renv_project_find <- function(path = NULL) {
 
-  path <- path %??% getwd()
+  path <- path %||% getwd()
 
   anchors <- c("renv.lock", "renv/activate.R")
   resolved <- renv_file_find(path, function(parent) {

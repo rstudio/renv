@@ -1001,7 +1001,7 @@ renv_dependencies_discover_r <- function(path = NULL,
     renv_dependencies_discover_r_database
   )
 
-  envir <- envir %??% new.env(parent = emptyenv())
+  envir <- envir %||% new.env(parent = emptyenv())
   recurse(expr, function(node, stack) {
 
     # normalize calls (handle magrittr pipes)

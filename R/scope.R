@@ -64,7 +64,7 @@ renv_scope_locale <- function(category = "LC_ALL", locale = "", envir = parent.f
 
 renv_scope_envvars <- function(..., list = NULL, envir = parent.frame()) {
 
-  dots <- list %??% list(...)
+  dots <- list %||% list(...)
   old <- as.list(Sys.getenv(names(dots), unset = NA))
   names(old) <- names(dots)
 
