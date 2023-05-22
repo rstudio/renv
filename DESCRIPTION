@@ -14,7 +14,7 @@ License: MIT + file LICENSE
 URL: https://rstudio.github.io/renv/
 BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
-Suggests: BiocManager, cli, covr, cpp11, devtools, jsonlite, knitr, miniUI,
+Suggests: BiocManager, cli, covr, cpp11, devtools, gitcreds, jsonlite, knitr, miniUI,
     packrat, pak, R6, remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat,
     uuid, waldo, yaml
 Remotes: r-lib/pkgload#241
