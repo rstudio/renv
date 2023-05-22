@@ -1,15 +1,4 @@
 
-# helper to interactively reset scoped modifications on globalenv
-if (interactive()) {
-  makeActiveBinding(
-    "done",
-    function(value) {
-      renv_exit_handlers_execute(envir = globalenv())
-    },
-    env = globalenv()
-  )
-}
-
 renv_tests_scope <- function(packages = character(),
                              project = NULL,
                              envir = parent.frame())
