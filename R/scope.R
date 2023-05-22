@@ -347,17 +347,15 @@ renv_scope_trace <- function(what, tracer, envir = parent.frame()) {
 
 }
 
-renv_scope_var <- function(key, value, frame, envir = parent.frame()) {
 
-  if (exists(key, envir = frame, inherits = FALSE)) {
-    saved <- get(key, envir = frame, inherits = FALSE)
-    assign(key, value, envir = frame, inherits = FALSE)
-    defer(assign(key, saved, envir = frame, inherits = FALSE), envir = envir)
+renv_scope_binding <- function(envir, symbol, replacement, frame = parent.frame()) {
+  if (exists(symbol, envir, inherits = FALSE)) {
+    old <- renv_binding_replace(symbol, replacement, envir)
+    defer(renv_binding_replace(symbol, old, envir), envir = frame)
   } else {
-    assign(key, value, envir = frame, inherits = FALSE)
-    defer(rm(list = key, envir = frame, inherits = FALSE), envir = envir)
+    assign(symbol, replacement, envir = envir)
+    defer(rm(list = symbol, envir = envir, inherits = FALSE), envir = frame)
   }
-
 }
 
 renv_scope_tempfile <- function(pattern = "renv-tempfile-",
