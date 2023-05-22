@@ -159,7 +159,7 @@ renv_paths_cache <- function(..., version = NULL) {
   renv_paths_common("cache", c(version, platform), ...)
 }
 
-renv_paths_rtools <- function(...) {
+renv_paths_rtools <- function() {
 
   root <- renv_paths_override("rtools")
   if (is.null(root)) {
@@ -167,8 +167,7 @@ renv_paths_rtools <- function(...) {
     root <- spec$root
   }
 
-  file.path(root, ...) %||% ""
-
+  root %||% ""
 }
 
 renv_paths_extsoft <- function(...) {
