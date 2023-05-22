@@ -40,13 +40,8 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
   else
     root
 
-  file.path(prefixed, ...) %||% ""
-
-}
-
-renv_paths_project <- function(..., project = NULL) {
-  project <- renv_project_resolve(project)
-  file.path(project, ...) %||% ""
+  path <- file.path(prefixed, ...)
+  if (length(path)) path else ""
 }
 
 renv_paths_library_root <- function(project) {
@@ -159,7 +154,7 @@ renv_paths_cache <- function(..., version = NULL) {
   renv_paths_common("cache", c(version, platform), ...)
 }
 
-renv_paths_rtools <- function(...) {
+renv_paths_rtools <- function() {
 
   root <- renv_paths_override("rtools")
   if (is.null(root)) {
@@ -167,8 +162,7 @@ renv_paths_rtools <- function(...) {
     root <- spec$root
   }
 
-  file.path(root, ...) %||% ""
-
+  root %||% ""
 }
 
 renv_paths_extsoft <- function(...) {
