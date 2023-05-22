@@ -116,7 +116,11 @@ e.g:</p><ul><li><p><code>pkg</code>: install latest version of <code>pkg</code> 
 <li><p><code>username/repo</code>: install package from GitHub</p></li>
 <li><p><code>bioc::pkg</code>: install <code>pkg</code> from Bioconductor.</p></li>
 </ul><p>See <a href="https://remotes.r-lib.org/articles/dependencies.html" class="external-link">https://remotes.r-lib.org/articles/dependencies.html</a> and the examples
-below for more details.</p></dd>
+below for more details.</p>
+<p>renv deviates from the remotes spec in one important way: subdirectories
+are separated from the main repository specification with a <code>:</code>, not <code>/</code>.
+So to install from the <code>subdir</code> subdirectory of GitHub package
+<code>username/repo</code> you'd use <code>"username/repo:subdir</code>.</p></dd>
 
 
 <dt>...</dt>
