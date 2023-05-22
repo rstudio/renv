@@ -188,7 +188,7 @@ test_that("invalid Built field is detected", {
 test_that("ACLs set on packages in project library are reset", {
 
   skip_on_cran()
-  skip_if(!renv_platform_linux())
+  skip_on_os(c("windows", "mac"))
 
   # use a custom tracer to set ACLs on a package after it's been installed
   trace("renv_install_package_impl", exit = quote({

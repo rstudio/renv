@@ -2,7 +2,7 @@
 test_that("renv_acls_reset() can reset ACLs", {
 
   skip_on_cran()
-  skip_if(!renv_platform_linux())
+  skip_on_os(c("windows", "mac"))
   skip_if(!nzchar(Sys.which("getfacl")))
   skip_if(!nzchar(Sys.which("setfacl")))
 

@@ -70,7 +70,6 @@ test_that("available_packages() succeeds with unnamed repositories", {
 test_that("renv_available_packages_latest() respects pkgType option", {
 
   skip_on_cran()
-  skip_if(.Platform$pkgType == "source")
 
   renv_tests_scope()
 

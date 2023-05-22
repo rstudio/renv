@@ -226,7 +226,7 @@ test_that("renv::install() writes out Github fields for backwards compatibility"
 })
 
 test_that("renv uses safe library paths on Windows", {
-  skip_if_not(renv_platform_windows())
+  skip_on_os(c("linux", "mac"))
   renv_tests_scope()
 
   goodlib <- "Research and Development"

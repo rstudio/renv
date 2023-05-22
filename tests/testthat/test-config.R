@@ -89,7 +89,7 @@ test_that("multiple library paths can be set in RENV_CONFIG_EXTERNAL_LIBRARIES",
 test_that("cache symlinks are disabled if the cache and project library lie in different volumes", {
 
   skip_on_cran()
-  skip_if(renv_platform_unix())
+  skip_on_os(c("linux", "mac"))
 
   project <- renv_tests_scope()
 

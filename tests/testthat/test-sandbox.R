@@ -42,7 +42,8 @@ test_that("multiple attempts to activate sandbox are handled", {
 
 test_that(".Library.site isn't used even when sandbox is disabled", {
 
-  skip_if(renv_platform_windows() || empty(.Library.site))
+  skip_on_os("windows")
+  skip_if(empty(.Library.site))
 
   renv_scoped_library_restore()
   renv_scope_options(renv.config.sandbox.enabled = FALSE)
