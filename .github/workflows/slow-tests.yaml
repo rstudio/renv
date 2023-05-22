@@ -12,8 +12,6 @@ jobs:
   slow-tests:
     runs-on: ubuntu-latest
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
-
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
