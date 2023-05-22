@@ -1,14 +1,6 @@
 
 `_renv_tests_envir` <- NULL
 
-# helper function for running exit handlers registered on globalenv;
-# mainly for interactive use
-if (interactive()) {
-  makeActiveBinding("done", function(value) {
-    renv_defer_execute(envir = globalenv())
-  }, env = globalenv())
-}
-
 # TODO: This is a hack to deal with interactive running of tests when
 # testthat::teardown_env() hasn't been initialized for some reason
 renv_tests_envir <- function() {
