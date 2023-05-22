@@ -10,7 +10,7 @@ test_that("packages can be installed, restored from Bioconductor", {
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
 
   install.packages("BiocManager", quiet = TRUE)
-  suppressMessages(BiocManager::install("Biobase", quiet = TRUE, ask = FALSE))
+  suppressMessages(BiocManager::install("Biobase", quiet = TRUE, update = FALSE, ask = FALSE))
 
   expect_true(renv_package_installed("BiocManager"))
   expect_true(renv_package_installed("BiocVersion"))
