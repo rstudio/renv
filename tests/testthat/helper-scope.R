@@ -238,6 +238,8 @@ renv_tests_init_packages <- function() {
     renv_namespace_load(pkg)
   }
 
+  renv_namespace_load("remotes")
+
   # pak needs a little special handling
   if (!isNamespaceLoaded("pak")) {
     usr <- file.path(tempdir(), "usr-cache")
