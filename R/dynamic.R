@@ -42,7 +42,6 @@ dynamic <- function(key, value, envir = NULL) {
 
   # make sure we have a dynamic scope active
   `_renv_dynamic_envir` <<- `_renv_dynamic_envir` %??% {
-    dlog("dynamic", "initializing dynamic environment '%s'", format(envir))
     renv_dynamic_envir(envir)
   }
 
