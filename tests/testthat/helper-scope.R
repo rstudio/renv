@@ -175,7 +175,10 @@ renv_tests_scope_envvars <- function(envir = parent.frame()) {
 
   envvars <- Sys.getenv()
   configvars <- grep("^RENV_CONFIG_", names(envvars), value = TRUE)
-  Sys.unsetenv(configvars)
+  renv_scope_envvars(
+    list = rep_named(configvars, list(NULL)),
+    envir = envir
+  )
 }
 
 renv_tests_scope_options <- function(envir = parent.frame()) {

@@ -543,3 +543,7 @@ untar <- function(tarfile,
   # return other results as-is
   result
 }
+
+rep_named <- function(names, x) {
+  setNames(rep_len(x, length(names)), names)
+}
