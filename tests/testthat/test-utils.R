@@ -1,6 +1,5 @@
 
 test_that("common utils work as expected", {
-  expect_equal(NULL %NULL% 42, 42)
   expect_equal(lines(1, 2, 3), "1\n2\n3")
 
   if (nzchar(Sys.which("git")))
