@@ -150,12 +150,19 @@ renv_test_scope_setup <- function(envir = parent.frame()) {
 }
 
 renv_tests_scope_envvars <- function(envir = parent.frame()) {
+
+  renv_root <- normalizePath(
+    ensure_directory(renv_scope_tempfile(envir = envir)),
+    mustWork = FALSE,
+    winslash = "/"
+  )
+
   renv_scope_envvars(
     # simulate running in R CMD check
     "_R_CHECK_PACKAGE_NAME_" = "renv",
     # disable locking in this scope
     RENV_CONFIG_LOCKING_ENABLED = FALSE,
-    RENV_PATHS_ROOT = NULL,
+    RENV_PATHS_ROOT = renv_root,
     RENV_PATHS_LIBRARY = NULL,
     RENV_PATHS_LIBRARY_ROOT = NULL,
     RENV_PATHS_LOCAL = NULL,
@@ -195,7 +202,6 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
     renv.config.user.library = FALSE,
     renv.config.sandbox.enabled = TRUE,
     restart = NULL,
-    warn = 2,
     # don't perform transactional installs by default for now
     # (causes strange CI failures, especially on Windows?)
     renv.config.install.transactional = FALSE,
@@ -208,9 +214,14 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
 # Force loading of packages from current .libPaths(); needed for packages
 # that would otherwise loaded in a renv_tests_scope()
 renv_tests_init_packages <- function() {
-  requireNamespace("waldo", quietly = TRUE)
-  renv_namespace_load("crayon")
 
+  # All recursive testthat deps
+  pkgs <- global("testthat_deps", renv_tests_testthat_dependencies_impl())
+  for (pkg in pkgs) {
+    renv_namespace_load(pkg)
+  }
+
+  # pak needs a little special handling
   if (!isNamespaceLoaded("pak")) {
     usr <- file.path(tempdir(), "usr-cache")
     ensure_directory(file.path(usr, "R/renv"))
@@ -228,5 +239,10 @@ renv_tests_init_packages <- function() {
     pak <- renv_namespace_load("pak")
     pak$remote(function() {})
   }
+}
+
+renv_tests_testthat_dependencies_impl <- function() {
+  db <- available_packages(type = "source")[[1]]
+  sort(tools::package_dependencies("testthat", db, recursive = TRUE)[[1]])
 }
 
