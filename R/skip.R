@@ -3,12 +3,12 @@ skip_if_no_python <- function(python = NULL) {
 
   python <- python %||% "python3"
   key <- paste("tests", python, "installed", sep = ".")
-  installed <- the[[key]] %??% {
+  the[[key]] <- the[[key]] %??% {
     python <- Sys.which(python)
     nzchar(python)
   }
 
-  if (installed)
+  if (the[[key]])
     return(TRUE)
 
   testthat::skip("python is not installed")
@@ -20,13 +20,13 @@ skip_if_no_virtualenv <- function(python = NULL) {
   skip_if_no_python(python)
 
   key <- paste("tests", python, "virtualenv.installed", sep = ".")
-  installed <- the[[key]] %??% {
+  the[[key]] <- the[[key]] %??% {
     version <- renv_python_version(python)
     module <- if (numeric_version(version) >= "3.2") "venv" else "virtualenv"
     renv_python_module_available(python, module)
   }
 
-  if (!installed)
+  if (!the[[key]])
     testthat::skip("virtualenv module not installed")
 
   TRUE
