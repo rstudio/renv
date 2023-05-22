@@ -81,7 +81,7 @@ test_that("locks are released on process exit", {
   path <- renv_lock_path(tempfile())
 
   code <- substitute({
-    renv:::renv_lock_acquire(path)
+    renv_lock_acquire(path)
     stopifnot(file.exists(path))
   }, list(path = path))
 

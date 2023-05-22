@@ -37,7 +37,7 @@ test_that("a sample Packrat project can be migrated", {
   )
 
   # try to migrate
-  renv::migrate()
+  migrate()
 
   # packages we expect to find
   expected <- c("bread", "breakfast", "oatmeal", "toast", "packrat")
@@ -81,7 +81,7 @@ test_that("a Packrat project with no library can be migrated", {
   unlink("packrat/lib", recursive = TRUE)
 
   # try to migrate
-  renv::migrate()
+  migrate()
 
   # packages we expect to find
   expected <- c("bread", "breakfast", "oatmeal", "toast", "packrat")

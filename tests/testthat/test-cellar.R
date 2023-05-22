@@ -27,6 +27,6 @@ test_that("renv can find packages located in the cellar", {
   )
 
   # check that we can install it
-  renv::install("bread")
+  install("bread")
 
 })

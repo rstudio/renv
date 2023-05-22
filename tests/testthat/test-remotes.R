@@ -204,7 +204,7 @@ test_that("packages can be installed from GitLab groups", {
   # test installation
   skip_sometimes()
   renv_tests_scope()
-  renv::install(spec)
+  install(spec)
   expect_true(renv_package_installed("subpackage"))
 
 })

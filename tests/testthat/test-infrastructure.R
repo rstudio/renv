@@ -47,7 +47,7 @@ test_that("library/ is excluded from .gitignore as appropriate", {
 
   renv_tests_scope()
   system("git init", ignore.stdout = TRUE, ignore.stderr = TRUE)
-  renv::init(bare = TRUE)
+  init(bare = TRUE)
 
   contents <- readLines("renv/.gitignore")
   expect_true("library/" %in% contents)

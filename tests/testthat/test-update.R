@@ -4,14 +4,14 @@ test_that("update() finds packages requiring updates from CRAN", {
   skip_on_cran()
 
   renv_tests_scope()
-  renv::init()
+  init()
 
-  renv::install("breakfast@0.1.0")
+  install("breakfast@0.1.0")
   expect_true(renv_package_version("breakfast") == "0.1.0")
 
   local({
     renv_scope_sink()
-    renv::update()
+    update()
   })
 
   expect_true(renv_package_version("breakfast") == "1.0.0")
@@ -25,10 +25,10 @@ test_that("update() can upgrade GitHub packages", {
   skip_sometimes()
 
   renv_tests_scope()
-  renv::init()
+  init()
 
   # download old commit from GitHub and track master
-  renv::install("kevinushey/skeleton@5fd5d3bc616794f869e47fdf3a8b4bcaa2afcf53")
+  install("kevinushey/skeleton@5fd5d3bc616794f869e47fdf3a8b4bcaa2afcf53")
 
   pkgpath <- find.package("skeleton")
   descpath <- file.path(pkgpath, "DESCRIPTION")
@@ -59,7 +59,7 @@ test_that("update() can upgrade Git packages", {
   testthat::skip_on_ci()
 
   renv_tests_scope()
-  renv::init()
+  init()
 
   # download old commit from GitHub and track master
   local({
