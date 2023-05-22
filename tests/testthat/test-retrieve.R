@@ -53,7 +53,6 @@ test_that("packages with an unknown source are retrieved from CRAN", {
 test_that("we can retrieve packages from Bitbucket", {
 
   skip_on_cran()
-  skip("unreliable test")
 
   record <- list(
     Package        = "skeleton",
@@ -71,7 +70,7 @@ test_that("we can retrieve packages from Bitbucket", {
 test_that("we can retrieve packages from git", {
 
   skip_on_cran()
-  skip("unreliable test")
+  skip_if_no_github_auth()
 
   record <- list(
     Package   = "skeleton",
