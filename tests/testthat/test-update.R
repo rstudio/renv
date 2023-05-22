@@ -22,7 +22,7 @@ test_that("update() can upgrade GitHub packages", {
 
   skip_if(getRversion() < "3.5.3")
   skip_if_no_github_auth()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
   init()
@@ -53,7 +53,7 @@ test_that("update() can upgrade Git packages", {
 
   skip_if(getRversion() < "3.5.3")
   skip_if_no_github_auth()
-  skip_sometimes()
+  skip_slow()
 
   # this test appears to fail on CI (ssh clone from GitHub disallowed?)
   testthat::skip_on_ci()

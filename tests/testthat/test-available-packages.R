@@ -168,7 +168,6 @@ test_that("we're compatible with R", {
 
 test_that("we can query the R universe", {
   skip_on_cran()
-  skip_sometimes()
 
   lhs <- as.data.frame(
     available.packages(
