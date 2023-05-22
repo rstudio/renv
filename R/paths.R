@@ -44,11 +44,6 @@ renv_paths_common <- function(name, prefixes = NULL, ...) {
 
 }
 
-renv_paths_project <- function(..., project = NULL) {
-  project <- renv_project_resolve(project)
-  file.path(project, ...) %|0|% ""
-}
-
 renv_paths_library_root <- function(project) {
   renv_bootstrap_library_root(project)
 }
