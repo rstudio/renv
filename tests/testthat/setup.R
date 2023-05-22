@@ -11,8 +11,8 @@ local({
         "`renv_paths_root()` ('%s') not set to temporary directory ('%s')\n",
         "* running the tests may mutate system renv state"
       ),
-      root,
-      temp
+      rootdir,
+      tempdir
     )
   }
 })
