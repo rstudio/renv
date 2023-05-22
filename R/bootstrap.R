@@ -1,9 +1,5 @@
 
 `%||%` <- function(x, y) {
-  if (!is.null(x) && length(x) == 0) {
-    warning("Length 0")
-  }
-
   if (length(x)) x else y
 }
 
