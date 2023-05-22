@@ -152,7 +152,7 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
   settings <- renv_settings_get(project)
 
   # update setting value
-  old <- settings[[name]] %||% renv_settings_default(name)
+  old <- settings[[name]] %??% renv_settings_default(name)
   new <- renv_settings_validate(name, value)
   settings[[name]] <- new
 

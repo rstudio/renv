@@ -61,6 +61,11 @@
 #'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
 #'  below for more details.
 #'
+#'  renv deviates from the remotes spec in one important way: subdirectories
+#'  are separated from the main repository specification with a `:`, not `/`.
+#'  So to install from the `subdir` subdirectory of GitHub package
+#'  `username/repo` you'd use `"username/repo:subdir`.
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @export
@@ -105,9 +110,12 @@ install <- function(packages = NULL,
   renv_scope_error_handler()
 
   # allow user to provide additional package names as part of '...'
-  dots <- list(...)
-  names(dots) <- names(dots) %||% rep.int("", length(dots))
-  packages <- c(packages, dots[!nzchar(names(dots))])
+  if (!missing(...)) {
+    dots <- list(...)
+    names(dots) <- names(dots) %||% rep.int("", length(dots))
+
+    packages <- c(packages, dots[!nzchar(names(dots))])
+  }
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
@@ -135,7 +143,7 @@ install <- function(packages = NULL,
   }
 
   # get and resolve the packages / remotes to be installed
-  remotes <- packages %||% renv_project_remotes(project, dependencies)
+  remotes <- packages %??% renv_project_remotes(project, dependencies)
   if (empty(remotes)) {
     vwritef("* There are no packages to install.")
     return(invisible(list()))

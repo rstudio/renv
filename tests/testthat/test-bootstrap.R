@@ -7,7 +7,7 @@ test_that("we can bootstrap the current version of renv", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  suppressMessages(bootstrap(version = "1.0.0", library = library))
+  bootstrap(version = "1.0.0", library = library)
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "1.0.0")
 
@@ -21,7 +21,7 @@ test_that("we can bootstrap an archived version of renv", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  suppressMessages(bootstrap(version = "0.1.0", library = library))
+  bootstrap(version = "0.1.0", library = library)
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "0.1.0")
 
@@ -35,7 +35,7 @@ test_that("we can install a version of renv from GitHub", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  suppressMessages(bootstrap(version = "0.12.3-1", library = library))
+  bootstrap(version = "0.12.3-1", library = library)
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "0.12.3-1")
 
@@ -50,7 +50,7 @@ test_that("bootstrap succeeds with empty repos", {
   renv_scope_options(repos = character())
 
   library <- renv_libpaths_active()
-  suppressMessages(bootstrap(version = "1.0.0", library = library))
+  bootstrap(version = "1.0.0", library = library)
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "1.0.0")
 
@@ -91,7 +91,7 @@ test_that("bootstrapping functions standalone", {
   # get all bootstrap APIs in package
   renv <- asNamespace("renv")
   keys <- ls(envir = renv, pattern = "^renv_bootstrap_", all.names = TRUE)
-  vals <- mget(c("bootstrap", keys), envir = renv)
+  vals <- mget(c("catf", "%||%", "bootstrap", keys), envir = renv)
 
   # put those into a separate environment inheriting only from base, and
   # re-mark those as inheriting from base (so they only 'see' each-other)
@@ -111,7 +111,7 @@ test_that("bootstrapping functions standalone", {
     code <- call("bootstrap", version = version, library = library)
 
     # run that call
-    suppressMessages(eval(code, envir = envir))
+    eval(code, envir = envir)
 
     # validate that renv was successfully installed
     expect_true(renv_package_installed("renv", lib.loc = library))
