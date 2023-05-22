@@ -61,6 +61,11 @@
 #'  See <https://remotes.r-lib.org/articles/dependencies.html> and the examples
 #'  below for more details.
 #'
+#'  renv deviates from the remotes spec in one important way: subdirectories
+#'  are separated from the main repository specification with a `:`, not `/`.
+#'  So to install from the `subdir` subdirectory of GitHub package
+#'  `username/repo` you'd use `"username/repo:subdir`.
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @export
