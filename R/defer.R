@@ -9,7 +9,3 @@ defer <- function(expr, envir = parent.frame()) {
   invisible(handler)
 
 }
-
-deferred_run <- function(envir = parent.frame()) {
-  renv_exit_handlers_execute(envir)
-}
