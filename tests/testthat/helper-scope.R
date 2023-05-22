@@ -237,5 +237,3 @@ renv_tests_testthat_dependencies <- function() {
     sort(tools::package_dependencies("testthat", recursive = TRUE)[[1]])
   ))
 }
-
-
