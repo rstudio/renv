@@ -192,7 +192,6 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
     renv.config.user.library = FALSE,
     renv.config.sandbox.enabled = TRUE,
     restart = NULL,
-    warn = 2,
     # don't perform transactional installs by default for now
     # (causes strange CI failures, especially on Windows?)
     renv.config.install.transactional = FALSE,
