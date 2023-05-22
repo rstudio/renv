@@ -144,7 +144,7 @@ renv_mran_database_update <- function(platform, version, dates = NULL) {
 
   # get reference to entry in database (initialize if not yet created)
   suffix <- renv_mran_database_key(platform, version)
-  database[[suffix]] <- database[[suffix]] %||% new.env(parent = emptyenv())
+  database[[suffix]] <- database[[suffix]] %??% new.env(parent = emptyenv())
   entry <- database[[suffix]]
 
   # rough release dates for R releases
