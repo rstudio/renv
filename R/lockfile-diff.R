@@ -7,7 +7,7 @@ renv_lockfile_diff <- function(old, new, compare = NULL) {
 
   # ensure both lists have the same names, inserting missing
   # entries for those without any value
-  nms <- union(names(old), names(new)) %??% character()
+  nms <- union(names(old), names(new)) %||% character()
   if (length(nms)) {
 
     nms <- sort(nms)

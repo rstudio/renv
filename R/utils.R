@@ -243,7 +243,7 @@ git <- function() {
 }
 
 visited <- function(name, envir) {
-  value <- envir[[name]] %??% FALSE
+  value <- envir[[name]] %||% FALSE
   envir[[name]] <- TRUE
   value
 }

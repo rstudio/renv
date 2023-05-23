@@ -16,7 +16,7 @@ renv_curl_exe <- function() {
 
 renv_curl_validate <- function(curl) {
 
-  `_renv_curl_valid`[[curl]] <- `_renv_curl_valid`[[curl]] %??% {
+  `_renv_curl_valid`[[curl]] <- `_renv_curl_valid`[[curl]] %||% {
     renv_curl_validate_impl(curl)
   }
 
@@ -39,7 +39,7 @@ renv_curl_validate_impl <- function(curl) {
   )
 
   if (!inherits(output, "error")) {
-    status <- attr(output, "status") %??% 0L
+    status <- attr(output, "status") %||% 0L
     if (status == 0L)
       return(curl)
   }

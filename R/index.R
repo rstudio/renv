@@ -104,7 +104,7 @@ renv_index_get <- function(root, scope, index, key, now, limit) {
 
   # add to in-memory cache
   `_renv_index`[[scope]] <-
-    `_renv_index`[[scope]] %??%
+    `_renv_index`[[scope]] %||%
     new.env(parent = emptyenv())
 
   `_renv_index`[[scope]][[key]] <- value
