@@ -34,21 +34,24 @@
       * Downloading binary from CRAN ... FAILED
       * Downloading from CRAN archive ... FAILED
     Error <simpleError>
-      Failed to download 
+      failed to download:
+      All download methods failed
     Code
       bootstrap(version = "1.0.0", library = library)
     Output
       Bootstrapping renv 1.0.0:
       * Downloading from CRAN archive ... FAILED
     Error <simpleError>
-      Failed to download 
+      failed to download:
+      All download methods failed
     Code
       bootstrap(version = "1.0.0.1", library = library)
     Output
       Bootstrapping renv 1.0.0.1:
       * Downloading from GitHub ... FAILED
     Error <simpleError>
-      Failed to download 
+      failed to download:
+      All download methods failed
 
 # bootstrapping gives informative output when install fails
 
@@ -60,7 +63,8 @@
       * Installing ... FAILED
       Error installing renv:
       ======================
-      Failed to install
+      test failure
     Error <simpleError>
-      Failed to install
+      failed to install:
+      Failed
 

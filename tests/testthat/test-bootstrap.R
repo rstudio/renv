@@ -163,7 +163,7 @@ test_that("bootstrapping gives informative output when succesful", {
 test_that("bootstrapping gives informative output when download fails", {
   local_mocked_bindings(
     renv_bootstrap_download_impl = function(...) {
-      stop("Download failed")
+      stop("test failure")
     },
     renv_bootstrap_download_cran_latest_find = function(version) {
       if (package_version(version) < "1.0.0") {
@@ -189,7 +189,7 @@ test_that("bootstrapping gives informative output when install fails", {
       0L
     },
     renv_bootstrap_install_impl = function(...) {
-      structure("Failed to install", status = 123L)
+      structure("test failure", status = 123L)
     }
   )
   renv_scope_options(renv.bootstrap.quiet = FALSE)

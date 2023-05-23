@@ -22,14 +22,20 @@ bootstrap <- function(version, library) {
   catf("Bootstrapping renv %s:", version)
 
   # attempt to download renv
-  tarball <- tryCatch(renv_bootstrap_download(version), error = identity)
-  if (inherits(tarball, "error"))
-    stop("Failed to download ")
+  withCallingHandlers(
+    tarball <- renv_bootstrap_download(version),
+    error = function(err) {
+      stop("failed to download:\n", conditionMessage(err))
+    }
+  )
 
   # now attempt to install
-  status <- tryCatch(renv_bootstrap_install(version, tarball, library), error = identity)
-  if (inherits(status, "error"))
-    stop("Failed to install")
+  withCallingHandlers(
+    status <- renv_bootstrap_install(version, tarball, library),
+    error = function(err) {
+      stop("failed to install:\n", conditionMessage(err))
+    }
+  )
 
   # add empty line to break up bootstrapping from normal output
   catf("\n")
@@ -140,7 +146,7 @@ renv_bootstrap_download <- function(version) {
       return(path)
   }
 
-  stop("failed to download renv ", version)
+  stop("All download methods failed")
 
 }
 
