@@ -22,9 +22,8 @@ renv_tests_scope <- function(packages = character(),
     options(restart = function(...) TRUE)
 
   # use own test directory
-  dir <- project %||% tempfile("renv-test-")
+  dir <- project %||% renv_scope_tempfile("renv-test-", envir = envir)
   ensure_directory(dir)
-  defer(unlink(dir, recursive = TRUE), envir = envir)
 
   dir <- renv_path_normalize(dir, winslash = "/")
   owd <- setwd(dir)
@@ -37,14 +36,13 @@ renv_tests_scope <- function(packages = character(),
   writeLines(code, "dependencies.R")
 
   # use temporary library
-  lib <- tempfile("renv-library-")
+  lib <- renv_scope_tempfile("renv-library-", envir = envir)
   ensure_directory(lib)
   libpaths <- .libPaths()
   .libPaths(lib)
 
   defer(envir = envir, {
     setwd(owd)
-    unlink(lib, recursive = TRUE)
     .libPaths(libpaths)
   })
 
@@ -169,6 +167,7 @@ renv_tests_scope_setup <- function(envir = parent.frame()) {
 
   # force creation of temporary paths before tests are run
   renv_paths_root()
+  renv_tests_repos()
 }
 
 renv_tests_scope_envvars <- function(envir = parent.frame()) {

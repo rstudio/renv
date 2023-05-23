@@ -723,9 +723,8 @@ renv_install_preflight_unknown_source <- function(records) {
 renv_install_preflight_permissions <- function(library) {
 
   # try creating and deleting a directory in the library folder
-  file <- tempfile(".renv-write-test-", tmpdir = library)
+  file <- renv_scope_tempfile(".renv-write-test-", tmpdir = library)
   dir.create(file, recursive = TRUE, showWarnings = FALSE)
-  defer(unlink(file, recursive = TRUE))
 
   # check if we created the directory successfully
   info <- renv_file_info(file)

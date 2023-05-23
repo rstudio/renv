@@ -613,9 +613,8 @@ renv_file_writable <- function(path) {
     return(FALSE)
 
   # try creating and removing a temporary file in this directory
-  tempfile <- tempfile(".renv-write-test-", tmpdir = path)
+  tempfile <- renv_scope_tempfile(".renv-write-test-", tmpdir = path)
   ok <- dir.create(tempfile, showWarnings = FALSE)
-  defer(unlink(tempfile, recursive = TRUE, force = TRUE))
 
   # return ok if we succeeded
   ok

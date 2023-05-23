@@ -39,8 +39,7 @@ test_that("we can successfully compress / decompress some sample files", {
     expected <- basename(renv_archive_list(zipfile))
     expect_setequal(actual, expected)
 
-    exdir <- tempfile()
-    defer(unlink(exdir, recursive = TRUE))
+    exdir <- renv_scope_tempfile()
     renv_archive_decompress(zipfile, exdir = exdir)
     expect_setequal(list.files(exdir), list.files())
 
