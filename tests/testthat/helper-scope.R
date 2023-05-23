@@ -155,15 +155,19 @@ renv_tests_scope_setup <- function(envir = parent.frame()) {
   # cache path before working directory gets changed
   renv_tests_root()
 
+  # scope relevant environment variables
   renv_tests_scope_envvars(envir = envir)
   renv_tests_scope_options(envir = envir)
+
+  # make sure required packages are loaded
   renv_tests_init_packages()
 
 }
 
 renv_tests_scope_envvars <- function(envir = parent.frame()) {
 
-  renv_root <- normalizePath(
+  # set up root directory
+  root <- normalizePath(
     ensure_directory(renv_scope_tempfile(envir = envir)),
     mustWork = FALSE,
     winslash = "/"
@@ -174,7 +178,7 @@ renv_tests_scope_envvars <- function(envir = parent.frame()) {
     "_R_CHECK_PACKAGE_NAME_" = "renv",
     # disable locking in this scope
     RENV_CONFIG_LOCKING_ENABLED = FALSE,
-    RENV_PATHS_ROOT = renv_root,
+    RENV_PATHS_ROOT = root,
     RENV_PATHS_LIBRARY = NULL,
     RENV_PATHS_LIBRARY_ROOT = NULL,
     RENV_PATHS_LOCAL = NULL,
@@ -236,16 +240,20 @@ renv_tests_scope_options <- function(envir = parent.frame()) {
 # Force loading of packages from current .libPaths(); needed for packages
 # that would otherwise loaded in a renv_tests_scope()
 renv_tests_init_packages <- function() {
+
   # All recursive testthat deps
   pkgs <- global("testthat_deps", renv_tests_testthat_dependencies_impl())
   for (pkg in pkgs) {
     renv_namespace_load(pkg)
   }
 
+  # Also load remotes
   renv_namespace_load("remotes")
 
   # pak needs a little special handling
-  if (!isNamespaceLoaded("pak")) {
+  if (config$pak.enabled() && renv_package_installed("pak")) {
+
+    # set environment variables that influence pak
     usr <- file.path(tempdir(), "usr-cache")
     ensure_directory(file.path(usr, "R/renv"))
 
@@ -257,11 +265,15 @@ renv_tests_init_packages <- function() {
       R_PKG_CACHE_DIR  = pkg
     )
 
+    # load pak now
     requireNamespace("pak", quietly = TRUE)
+
     # trigger package load in pak subprocess
     pak <- renv_namespace_load("pak")
     pak$remote(function() {})
+
   }
+
 }
 
 renv_tests_testthat_dependencies_impl <- function() {

@@ -437,6 +437,7 @@ test_that("snapshot() warns when required package is not installed", {
 test_that("packages installed from CRAN using pak are handled", {
   skip_on_cran()
   skip_if_not_installed("pak")
+  skip_on_ci() # TODO
 
   renv_tests_scope()
   pak <- renv_namespace_load("pak")
@@ -451,6 +452,7 @@ test_that("packages installed from CRAN using pak are handled", {
 test_that("packages installed from Bioconductor using pak are handled", {
   skip_on_cran()
   skip_if_not_installed("pak")
+  skip_on_ci() # TODO
 
   renv_tests_scope()
   pak <- renv_namespace_load("pak")

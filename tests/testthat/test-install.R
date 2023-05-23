@@ -1,7 +1,8 @@
 
+# TODO: This test assumes 'pak' integration is disabled?
 test_that("install works when DESCRIPTION contains no dependencies", {
   renv_tests_scope()
-  desc <- c("Type: Package", "Package: test")
+  desc <- c("Type: Package", "Package: test", "Version: 1.0")
   writeLines(desc, con = "DESCRIPTION")
   expect_length(install(), 0L)
 })
