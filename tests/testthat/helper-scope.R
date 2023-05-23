@@ -251,7 +251,7 @@ renv_tests_init_packages <- function() {
   renv_namespace_load("remotes")
 
   # pak needs a little special handling
-  if (config$pak.enabled() && renv_package_installed("pak")) {
+  if (renv_package_installed("pak")) {
 
     # set environment variables that influence pak
     usr <- file.path(tempdir(), "usr-cache")
