@@ -1,15 +1,6 @@
 
-# TODO: This is a hack to deal with interactive running of tests when
-# testthat::teardown_env() hasn't been initialized for some reason
-renv_tests_envir <- function() {
-  tryCatch(
-    testthat::teardown_env(),
-    error = function(e) globalenv()
-  )
-}
-
 # perform setup
-renv_tests_scope_setup(envir = renv_tests_envir())
+renv_tests_scope_setup(envir = testthat::teardown_env())
 
 # verify that RENV_PATHS_ROOT has been set appropriately, and bail if not
 local({
