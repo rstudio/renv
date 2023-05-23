@@ -78,16 +78,23 @@ local({
   
   bootstrap <- function(version, library) {
   
+    # load failed; inform user we're about to bootstrap
+    catf("Bootstrapping renv %s:", version)
+  
     # attempt to download renv
     tarball <- tryCatch(renv_bootstrap_download(version), error = identity)
     if (inherits(tarball, "error"))
-      stop("failed to download renv ", version)
+      stop("Failed to download ")
   
     # now attempt to install
     status <- tryCatch(renv_bootstrap_install(version, tarball, library), error = identity)
     if (inherits(status, "error"))
-      stop("failed to install renv ", version)
+      stop("Failed to install")
   
+    # add empty line to break up bootstrapping from normal output
+    cat("\n")
+  
+    return(invisible())
   }
   
   renv_bootstrap_tests_running <- function() {
@@ -257,7 +264,7 @@ local({
     type  <- spec$type
     repos <- spec$repos
   
-    catf("* Downloading renv %s ... ", version, appendLF = FALSE)
+    catf("* Downloading %s from CRAN ... ", type, appendLF = FALSE)
   
     baseurl <- utils::contrib.url(repos = repos, type = type)
     ext <- if (identical(type, "source"))
@@ -281,7 +288,7 @@ local({
     }
   
     # report success and return
-    catf("OK (downloaded %s)", type)
+    catf("OK")
     destfile
   
   }
@@ -338,7 +345,7 @@ local({
     urls <- file.path(repos, "src/contrib/Archive/renv", name)
     destfile <- file.path(tempdir(), name)
   
-    catf("* Downloading renv %s ... ", version, appendLF = FALSE)
+    catf("* Downloading from CRAN archive ... ", appendLF = FALSE)
   
     for (url in urls) {
   
@@ -386,7 +393,7 @@ local({
   
     }
   
-    catf("* Bootstrapping with tarball at path '%s'.", tarball)
+    catf("* Using local tarball '%s'", tarball)
     tarball
   
   }
@@ -413,7 +420,7 @@ local({
       on.exit(do.call(base::options, saved), add = TRUE)
     }
   
-    catf("* Downloading renv %s from GitHub ... ", version, appendLF = FALSE)
+    catf("* Downloading from GitHub ... ", appendLF = FALSE)
   
     url <- file.path("https://api.github.com/repos/rstudio/renv/tarball", version)
     name <- sprintf("renv_%s.tar.gz", version)
@@ -437,9 +444,30 @@ local({
   renv_bootstrap_install <- function(version, tarball, library) {
   
     # attempt to install it into project library
-    catf("* Installing renv %s ... ", version, appendLF = FALSE)
+    catf("* Installing ... ", appendLF = FALSE)
     dir.create(library, showWarnings = FALSE, recursive = TRUE)
   
+    output <- renv_bootstrap_install_impl(library, tarball)
+  
+    # check for successful install
+    status <- attr(output, "status")
+    if (is.numeric(status) && !identical(status, 0L)) {
+      catf("FAILED")
+  
+      header <- "Error installing renv:"
+      lines <- paste(rep.int("=", nchar(header)), collapse = "")
+      text <- c(header, lines, output)
+      writeLines(text, con = stdout())
+      stop("Failed")
+    } else {
+      catf("OK")
+    }
+  
+    status
+  
+  }
+  
+  renv_bootstrap_install_impl <- function(library, tarball) {
     # invoke using system2 so we can capture and report output
     bin <- R.home("bin")
     exe <- if (Sys.info()[["sysname"]] == "Windows") "R.exe" else "R"
@@ -451,19 +479,7 @@ local({
       shQuote(path.expand(tarball))
     )
   
-    output <- system2(r, args, stdout = TRUE, stderr = TRUE)
-    catf("Done!")
-  
-    # check for successful install
-    status <- attr(output, "status")
-    if (is.numeric(status) && !identical(status, 0L)) {
-      header <- "Error installing renv:"
-      lines <- paste(rep.int("=", nchar(header)), collapse = "")
-      text <- c(header, lines, output)
-      writeLines(text, con = stderr())
-    }
-  
-    status
+    system2(r, args, stdout = TRUE, stderr = TRUE)
   
   }
   
@@ -1008,12 +1024,6 @@ local({
   if (renv_bootstrap_load(project, libpath, version))
     return(TRUE)
 
-  # load failed; inform user we're about to bootstrap
-  prefix <- paste("# Bootstrapping renv", version)
-  postfix <- paste(rep.int("-", 77L - nchar(prefix)), collapse = "")
-  header <- paste(prefix, postfix)
-  message(header)
-
   # perform bootstrap
   bootstrap(version, libpath)
 
@@ -1023,7 +1033,6 @@ local({
 
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-    message("* Successfully installed and loaded renv ", version, ".")
     return(renv::load())
   }
 
