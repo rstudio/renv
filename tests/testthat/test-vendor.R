@@ -7,6 +7,20 @@ test_that("renv itself doesn't mark itself as embedded", {
 test_that("renv can be vendored in a separate R package", {
   skip_on_cran()
 
+  # find path to renv sources before changing working directory
+  if (file.exists("DESCRIPTION")) {
+    # interactive
+    sources <- "."
+  } else if (file.exists("../../DESCRIPTION")) {
+    # testthat::test_file() and friends
+    sources <- "../.."
+  } else {
+    # R CMD check
+    skip("path to renv sources not available")
+  }
+  sources <- normalizePath(sources, winslash = "/")
+
+
   # create a dummy R package
   renv_tests_scope()
 
@@ -20,10 +34,6 @@ test_that("renv can be vendored in a separate R package", {
   file.create("NAMESPACE")
 
   # vendor renv
-  sources <- getOption("renv.test.sources")
-  if (is.null(sources) || !file.exists(sources))
-    skip("path to renv sources not available")
-
   local({
     renv_scope_sink()
     vendor(sources = sources)
@@ -68,7 +78,7 @@ test_that("renv can be vendored in a separate R package", {
   writeLines(deparse(code), con = script)
 
   # attempt to run script
-  output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)))
+  output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)), quiet = F)
   expect_equal(output, "TRUE")
 
   # test that we can use the embedded renv to run snapshot

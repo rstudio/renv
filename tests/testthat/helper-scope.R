@@ -213,17 +213,9 @@ renv_tests_scope_envvars <- function(envir = parent.frame()) {
 
 renv_tests_scope_options <- function(envir = parent.frame()) {
 
-  # find path to renv sources
-  sources <- renv_file_find(getwd(), function(parent) {
-    descpath <- file.path(parent, "DESCRIPTION")
-    if (file.exists(descpath))
-      return(parent)
-  })
-
   renv_scope_options(
     renv.bootstrap.quiet = TRUE,
     # set it so we can find the sources
-    renv.test.sources = sources,
     renv.config.user.library = FALSE,
     renv.config.sandbox.enabled = TRUE,
     restart = NULL,
