@@ -6,7 +6,7 @@ test_that("renv can bootstrap itself if not installed", {
 
   # initialize bare project
   renv_tests_scope()
-  renv::init(bare = TRUE)
+  init(bare = TRUE)
 
   # simulate bootstrap of renv from mock library
   renv_infrastructure_write_activate(version = "1.0.0")
