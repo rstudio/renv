@@ -6,9 +6,11 @@ renv_dots_check <- function(...) {
 
   # accept 'bioc' as an alias for 'bioconductor'
   bioc <- dots[["bioc"]]
-  if (!is.null("bioc") && exists("bioconductor", envir = parent)) {
-    assign("bioconductor", bioc, envir = parent)
-    dots[["bioc"]] <- NULL
+  if (!is.null(bioc) && exists("bioconductor", envir = parent)) {
+    if (is.null(parent$bioconductor)) {
+      assign("bioconductor", bioc, envir = parent)
+      dots[["bioc"]] <- NULL
+    }
   }
 
   # allow 'confirm' as an alias for 'prompt'

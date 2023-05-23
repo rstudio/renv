@@ -1,7 +1,8 @@
 
+# TODO: This test assumes 'pak' integration is disabled?
 test_that("install works when DESCRIPTION contains no dependencies", {
   renv_tests_scope()
-  desc <- c("Type: Package", "Package: test")
+  desc <- c("Type: Package", "Package: test", "Version: 1.0")
   writeLines(desc, con = "DESCRIPTION")
   expect_length(install(), 0L)
 })
@@ -108,7 +109,7 @@ test_that("packages can be installed from sources", {
 })
 
 test_that("various remote styles can be used during install", {
-  skip_on_cran()
+  skip_if_no_github_auth()
 
   renv_tests_scope()
   renv::init()
@@ -151,7 +152,7 @@ test_that("various remote styles can be used during install", {
 })
 
 test_that("Remotes fields in a project DESCRIPTION are respected", {
-  skip_on_cran()
+  skip_if_no_github_auth()
 
   renv_tests_scope()
   renv_scope_options(repos = character())
@@ -177,6 +178,7 @@ test_that("source packages in .zip files can be installed", {
   renv_tests_scope()
 
   location <- download.packages("bread", destdir = renv_scope_tempfile())
+
   path <- location[1, 2]
   renv_archive_decompress(path, exdir = "bread")
 
@@ -203,7 +205,7 @@ test_that("renv warns when installing an already-loaded package", {
 })
 
 test_that("renv::install() writes out Github fields for backwards compatibility", {
-  skip_on_cran()
+  skip_if_no_github_auth()
   renv_tests_scope()
 
   install("rstudio/packrat")
@@ -254,15 +256,6 @@ test_that("renv can install packages from Bitbucket", {
   renv_tests_scope()
   install("bitbucket::kevinushey/skeleton")
   expect_true(renv_package_installed("skeleton"))
-})
-
-test_that("renv can install packages from GitHub using remotes subdir syntax", {
-  skip_on_cran()
-  skip_sometimes()
-  renv_tests_scope()
-  install("kevinushey/skeleton/subdir")
-  expect_true(renv_package_installed("skeleton"))
-  expect_true(renv_package_version("skeleton") == "1.1.0")
 })
 
 test_that("install via version succeeds", {
@@ -442,9 +435,8 @@ test_that("staging library path has same permissions as library path", {
 
 test_that("packages installed from a RemoteSubdir can be retrieved from cache", {
 
-  skip_on_cran()
   skip_on_windows()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
   cachepath <- renv_scope_tempfile("renv-cache-")
@@ -466,9 +458,8 @@ test_that("packages installed from a RemoteSubdir can be retrieved from cache", 
 
 test_that("repositories containing multiple packages can be installed", {
 
-  skip_on_cran()
   skip_on_windows()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
 

@@ -47,6 +47,15 @@ test_that("we can successfully tweak the user agent string", {
 
 })
 
+test_that("renv_download_default_agent_scope_impl resets itself", {
+
+  before <- asNamespace("utils")$makeUserAgent
+  local(renv_download_default_agent_scope_impl(c("Key" = "Value")))
+  expect_equal(asNamespace("utils")$makeUserAgent, before)
+
+})
+
+
 test_that("we can successfully download files with different downloaders", {
   skip_on_cran()
   skip_on_os("windows")
@@ -132,31 +141,10 @@ test_that("downloads work with UNC paths on Windows", {
 
 test_that("we can check that a URL is available", {
   skip_on_cran()
-  skip_on_windows()
 
-  python <- renv_tests_program("python3")
-  timeout <- renv_tests_program("timeout")
+  app <- webfakes::new_app_process(webfakes::httpbin_app())
 
-  # start a local HTTP server using python, and then try to talk to it
-  port <- "60128"
-  renv_scope_options(warn = -1L)
-  status <- system2(
-    command = timeout,
-    args    = c("5s", python, c("-m", "http.server", port)),
-    stdout  = FALSE,
-    stderr  = FALSE,
-    wait    = FALSE
-  )
-
-  if (status != 0L)
-    skip("couldn't start HTTP server")
-
-  # sleep for a bit, since it seems like the server can take a little bit
-  # of time to get ready to accept connections
-  Sys.sleep(1)
-
-  # okay, try to talk to the web server now
-  url <- paste("http://localhost", port, sep = ":")
+  url <- paste0(app$url(), "/bytes/100")
   expect_true(renv_download_available(url))
 
   # also test the different methods

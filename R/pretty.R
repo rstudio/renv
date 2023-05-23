@@ -47,7 +47,7 @@ renv_pretty_print_records <- function(records,
   if (!renv_verbose())
     return(invisible(NULL))
 
-  names(records) <- names(records) %??% map_chr(records, `[[`, "Package")
+  names(records) <- names(records) %||% map_chr(records, `[[`, "Package")
   records <- records[csort(names(records))]
   packages <- names(records)
   descs <- map_chr(records, renv_record_format_short)
@@ -94,7 +94,9 @@ renv_pretty_print_records_pair <- function(old,
 
 renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
 
-  renv_scope_locale("LC_COLLATE", "C")
+  # NOTE: use 'sort()' rather than 'csort()' here so that
+  # printed output is sorted in the expected way in the users locale
+  # https://github.com/rstudio/renv/issues/1289
   all <- sort(union(names(old), names(new)))
 
   # compute groups
@@ -113,7 +115,7 @@ renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
   n <- max(nchar(all))
 
   # iterate over each group and print
-  uapply(sort(unique(groups)), function(group) {
+  uapply(csort(unique(groups)), function(group) {
 
     lhs <- renv_records_select(old, groups, group)
     rhs <- renv_records_select(new, groups, group)

@@ -10,7 +10,20 @@
 }
 
 .onUnload <- function(libpath) {
+
   renv_task_unload()
+
+  # flush the help db to avoid errors on reload
+  # https://github.com/rstudio/renv/issues/1294
+  helpdb <- system.file(package = "renv", "help/renv.rdb")
+  .Internal <- .Internal
+  lazyLoadDBflush <- function(...) {}
+
+  tryCatch(
+    .Internal(lazyLoadDBflush(helpdb)),
+    error = function(e) NULL
+  )
+
 }
 
 renv_zzz_load <- function() {
@@ -30,8 +43,6 @@ renv_zzz_load <- function() {
   renv_lock_init()
   renv_sandbox_init()
   renv_sdkroot_init()
-
-  renv_task_create(renv_exit_handlers_task)
 
   if (!renv_metadata_embedded()) {
 
@@ -141,7 +152,7 @@ renv_zzz_repos <- function() {
   tdir <- tempfile("renv-build-")
   ensure_directory(tdir)
   owd <- setwd(tdir)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # build renv again
   r_cmd_build("renv", path = pkgdir)

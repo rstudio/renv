@@ -1,5 +1,16 @@
-renv_tests_scope <- function(packages = character(), project = NULL, envir = parent.frame()) {
 
+renv_tests_scope <- function(packages = character(),
+                             project = NULL,
+                             envir = parent.frame())
+{
+  # source setup.R if necessary (for interactive scenarios)
+  running <- getOption("renv.tests.running", default = FALSE)
+  if (!running) {
+    path <- test_path("setup.R")
+    sys.source(path, envir = globalenv())
+  }
+
+  # use local repositories in this scope
   renv_tests_scope_repos(envir = envir)
 
   # most tests will call init() which changes `R_LIBS_USER`;
@@ -38,7 +49,6 @@ renv_tests_scope <- function(packages = character(), project = NULL, envir = par
   })
 
   invisible(dir)
-
 }
 
 renv_tests_scope_repos <- function(envir = parent.frame()) {
@@ -68,7 +78,7 @@ renv_tests_repos_impl <- function() {
 
   # save current directory
   owd <- getwd()
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # copy package stuff to tempdir (because we'll mutate them a bit)
   source <- renv_tests_path("packages")
@@ -138,3 +148,135 @@ renv_tests_repos_impl <- function() {
 
   repopath
 }
+
+
+# overall infrastructure --------------------------------------------------
+
+# This function is designed to be run once before all tests are run in
+# setup.R. It's also provided here in case you need to step through a
+# test line by line.
+renv_tests_scope_setup <- function(envir = parent.frame()) {
+
+  # cache path before working directory gets changed
+  renv_tests_root()
+
+  # scope relevant environment variables
+  renv_tests_scope_envvars(envir = envir)
+  renv_tests_scope_options(envir = envir)
+
+  # make sure required packages are loaded
+  renv_tests_init_packages()
+
+  # force creation of temporary paths before tests are run
+  renv_paths_root()
+}
+
+renv_tests_scope_envvars <- function(envir = parent.frame()) {
+
+  # set up root directory
+  root <- normalizePath(
+    ensure_directory(renv_scope_tempfile(envir = envir)),
+    mustWork = FALSE,
+    winslash = "/"
+  )
+
+  renv_scope_envvars(
+    # simulate running in R CMD check
+    "_R_CHECK_PACKAGE_NAME_" = "renv",
+    # disable locking in this scope
+    RENV_CONFIG_LOCKING_ENABLED = FALSE,
+    RENV_PATHS_ROOT = root,
+    RENV_PATHS_LIBRARY = NULL,
+    RENV_PATHS_LIBRARY_ROOT = NULL,
+    RENV_PATHS_LOCAL = NULL,
+    RENV_PATHS_LOCKFILE = NULL,
+    RENV_PATHS_RENV = NULL,
+    RENV_AUTOLOAD_ENABLED = FALSE,
+    envir = envir
+  )
+
+  if (is.na(Sys.getenv("GITHUB_PATH", unset = NA))) {
+    token <- tryCatch(gitcreds::gitcreds_get(), error = function(e) NULL)
+    if (!is.null(token)) {
+      renv_scope_envvars(GITHUB_PAT = token$password, envir = envir)
+    }
+  }
+
+  needs_tz <- renv_platform_macos() && !nzchar(Sys.getenv("TZ"))
+  if (needs_tz) {
+    renv_scope_envvars(
+      TZ = "America/Los_Angeles",
+      envir = envir
+    )
+  }
+
+  envvars <- Sys.getenv()
+  configvars <- grep("^RENV_CONFIG_", names(envvars), value = TRUE)
+  renv_scope_envvars(
+    list = rep_named(configvars, list(NULL)),
+    envir = envir
+  )
+}
+
+renv_tests_scope_options <- function(envir = parent.frame()) {
+
+  renv_scope_options(
+    renv.bootstrap.quiet = TRUE,
+    # set it so we can find the sources
+    renv.config.user.library = FALSE,
+    renv.config.sandbox.enabled = TRUE,
+    restart = NULL,
+    # don't perform transactional installs by default for now
+    # (causes strange CI failures, especially on Windows?)
+    renv.config.install.transactional = FALSE,
+    # mark tests as running
+    renv.tests.running = TRUE,
+    envir = envir
+
+  )
+}
+
+# Force loading of packages from current .libPaths(); needed for packages
+# that would otherwise loaded in a renv_tests_scope()
+renv_tests_init_packages <- function() {
+
+  # All recursive testthat deps
+  pkgs <- global("testthat_deps", renv_tests_testthat_dependencies_impl())
+  for (pkg in pkgs) {
+    renv_namespace_load(pkg)
+  }
+
+  # Also load remotes
+  renv_namespace_load("remotes")
+
+  # pak needs a little special handling
+  if (renv_package_installed("pak")) {
+
+    # set environment variables that influence pak
+    usr <- file.path(tempdir(), "usr-cache")
+    ensure_directory(file.path(usr, "R/renv"))
+
+    pkg <- file.path(tempdir(), "pkg-cache")
+    ensure_directory(pkg)
+
+    renv_scope_envvars(
+      R_USER_CACHE_DIR = usr,
+      R_PKG_CACHE_DIR  = pkg
+    )
+
+    # load pak now
+    requireNamespace("pak", quietly = TRUE)
+
+    # trigger package load in pak subprocess
+    pak <- renv_namespace_load("pak")
+    pak$remote(function() {})
+
+  }
+
+}
+
+renv_tests_testthat_dependencies_impl <- function() {
+  db <- available_packages(type = "source")[[1]]
+  sort(tools::package_dependencies("testthat", db, recursive = TRUE)[[1]])
+}
+

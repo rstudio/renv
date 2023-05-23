@@ -53,7 +53,7 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_scope_error_handler()
 
   project <- normalizePath(
-    project %??% renv_project_find(project),
+    project %||% renv_project_find(project),
     winslash = "/",
     mustWork = TRUE
   )
@@ -74,7 +74,7 @@ load <- function(project = NULL, quiet = FALSE) {
 
   # avoid suppressing the next auto snapshot
   `_renv_snapshot_running` <<- TRUE
-  on.exit(`_renv_snapshot_running` <<- FALSE, add = TRUE)
+  defer(`_renv_snapshot_running` <<- FALSE)
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
@@ -372,10 +372,7 @@ renv_load_project_projlist <- function(project) {
     return(TRUE)
 
   # sort with C locale (ensure consistent sorting across OSes)
-  projlist <- local({
-    renv_scope_locale("LC_COLLATE", "C")
-    sort(c(projlist, project))
-  })
+  projlist <- csort(c(projlist, project))
 
   # update the project list
   ensure_parent_directory(projects)
@@ -651,7 +648,7 @@ renv_load_switch <- function(project) {
 
   # move to new project directory
   owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   # source the activate script
   source(script)

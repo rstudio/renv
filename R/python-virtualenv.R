@@ -83,7 +83,7 @@ renv_python_virtualenv_update <- function(python) {
 renv_python_virtualenv_snapshot <- function(project, prompt, python) {
 
   owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   path <- file.path(project, "requirements.txt")
   before <- character()
@@ -115,7 +115,7 @@ renv_python_virtualenv_snapshot <- function(project, prompt, python) {
 renv_python_virtualenv_restore <- function(project, prompt, python) {
 
   owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   path <- file.path(project, "requirements.txt")
   if (!file.exists(path))

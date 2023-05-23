@@ -31,8 +31,8 @@ test_that("we can activate Python with a project", {
 
 test_that("we can activate Python with a virtualenv in a project", {
 
+  skip_slow()
   skip_on_os("windows")
-  skip_on_cran()
   skip_if_no_virtualenv(python)
   renv_test_scope_python()
 
@@ -79,7 +79,7 @@ test_that("renv can bind to virtualenvs in WORKON_HOME", {
   path <- file.path(home, name)
 
   # clean up when we're done
-  on.exit(unlink(path, recursive = TRUE), add = TRUE)
+  defer(unlink(path, recursive = TRUE))
 
   # create a test project
   renv_tests_scope("breakfast")
@@ -95,8 +95,8 @@ test_that("renv can bind to virtualenvs in WORKON_HOME", {
 
 test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
+  skip_slow()
   skip_on_os("windows")
-  skip_on_cran()
   skip_if_no_virtualenv(python)
   renv_test_scope_python()
 

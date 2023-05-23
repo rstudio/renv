@@ -41,8 +41,7 @@ dynamic <- function(key, value, envir = NULL) {
   }
 
   # make sure we have a dynamic scope active
-  `_renv_dynamic_envir` <<- `_renv_dynamic_envir` %??% {
-    dlog("dynamic", "initializing dynamic environment '%s'", format(envir))
+  `_renv_dynamic_envir` <<- `_renv_dynamic_envir` %||% {
     renv_dynamic_envir(envir)
   }
 
@@ -58,7 +57,7 @@ dynamic <- function(key, value, envir = NULL) {
   id <- sprintf("%s(%s)", as.character(caller), key)
 
   # memoize the result of the expression
-  `_renv_dynamic_objects`[[id]] <- `_renv_dynamic_objects`[[id]] %??% {
+  `_renv_dynamic_objects`[[id]] <- `_renv_dynamic_objects`[[id]] %||% {
     dlog("dynamic", "memoizing dynamic value for '%s'", id)
     value
   }
@@ -67,7 +66,7 @@ dynamic <- function(key, value, envir = NULL) {
 
 renv_dynamic_envir <- function(envir = NULL) {
 
-  envir <- envir %??% renv_dynamic_envir_impl()
+  envir <- envir %||% renv_dynamic_envir_impl()
   defer(renv_dynamic_reset(), envir = envir)
 
   dlog("dynamic", "using dynamic environment '%s'", format(envir))

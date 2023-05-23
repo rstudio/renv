@@ -28,10 +28,6 @@
   if (length(x) && is.na(x)) y else x
 }
 
-`%NULL%` <- function(x, y) {
-  if (is.null(x)) y else x
-}
-
 `%&&%` <- function(x, y) {
   if (length(x)) y
 }
@@ -247,7 +243,7 @@ git <- function() {
 }
 
 visited <- function(name, envir) {
-  value <- envir[[name]] %??% FALSE
+  value <- envir[[name]] %||% FALSE
   envir[[name]] <- TRUE
   value
 }
@@ -270,7 +266,7 @@ quietly <- function(expr, sink = TRUE) {
 
   if (sink) {
     sink(file = nullfile())
-    on.exit(sink(NULL), add = TRUE)
+    defer(sink(NULL))
   }
 
   withCallingHandlers(
@@ -509,11 +505,41 @@ take <- function(data, index = NULL) {
 }
 
 cancel <- function() {
-  message("* Operation canceled.")
   renv_snapshot_auto_suppress_next()
+  message("* Operation canceled.")
   invokeRestart("abort")
 }
 
 cancel_if <- function(cnd) {
   if (cnd) cancel()
+}
+
+# a wrapper for 'utils::untar()' that throws an error if untar fails
+untar <- function(tarfile,
+                  files = NULL,
+                  list = FALSE,
+                  exdir = ".",
+                  tar = Sys.getenv("TAR"))
+{
+  # delegate to utils::untar()
+  result <- utils::untar(
+    tarfile = tarfile,
+    files   = files,
+    list    = list,
+    exdir   = exdir,
+    tar     = tar
+  )
+
+  # check for errors (tar returns a status code)
+  if (is.integer(result) && result != 0L) {
+    call <- stringify(sys.call())
+    stopf("'%s' returned status code %i", call, result)
+  }
+
+  # return other results as-is
+  result
+}
+
+rep_named <- function(names, x) {
+  stats::setNames(rep_len(x, length(names)), names)
 }

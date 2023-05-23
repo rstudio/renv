@@ -140,7 +140,7 @@ renv_patch_methods_table_impl <- function() {
     base <- baseenv()
     if (base$bindingIsLocked(binding, env = envir)) {
       base$unlockBinding(binding, env = envir)
-      on.exit(base$lockBinding(binding, envir), add = TRUE)
+      defer(base$lockBinding(binding, envir))
     }
 
     # force everything defined in the environment

@@ -402,10 +402,10 @@ renv_package_checking_impl <- function() {
     return(TRUE)
 
   # otherwise, check other things
-  "CheckExEnv" %in% search() ||
+  is_testing() ||
+    "CheckExEnv" %in% search()
     !is.na(Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)) ||
-    !is.na(Sys.getenv("_R_CHECK_SIZE_OF_TARBALL_", unset = NA)) ||
-    !is.na(Sys.getenv("TESTTHAT", unset = NA))
+    !is.na(Sys.getenv("_R_CHECK_SIZE_OF_TARBALL_", unset = NA))
 }
 
 renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {

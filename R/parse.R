@@ -45,24 +45,24 @@ renv_parse_impl <- function(text, ...) {
 
   # if these all fail, then just try the default
   # parse and let the error propagate
-  on.exit(Sys.setlocale(), add = TRUE)
+  defer(Sys.setlocale())
   Encoding(text) <- enc
   parse(text = text, ...)
 
 }
 
 renv_parse_impl_asis <- function(text, ...) {
-  on.exit(Sys.setlocale(), add = TRUE)
+  defer(Sys.setlocale())
   parse(text = text, ...)
 }
 
 renv_parse_impl_native <- function(text, ...) {
-  on.exit(Sys.setlocale(), add = TRUE)
+  defer(Sys.setlocale())
   parse(text = enc2native(text), encoding = "unknown", ...)
 }
 
 renv_parse_impl_utf8 <- function(text, ...) {
-  on.exit(Sys.setlocale(), add = TRUE)
+  defer(Sys.setlocale())
   parse(text = enc2utf8(text), encoding = "UTF-8", ...)
 }
 

@@ -9,8 +9,10 @@ test_that("we can use R CMD build to build a package", {
 
   testdir <- renv_scope_tempfile("renv-r-tests-")
   ensure_directory(testdir)
+
+  # R CMD install creates file in working directory
   owd <- setwd(testdir)
-  on.exit(setwd(owd), add = TRUE)
+  defer(setwd(owd))
 
   package <- "sample.package"
   pkgdir <- file.path(testdir, package)
@@ -35,7 +37,6 @@ test_that("we can use R CMD build to build a package", {
 
   expect_true(length(binball) == 1L)
   expect_equal(renv_package_type(binball), "binary")
-
 })
 
 test_that("we can supply custom options to R CMD INSTALL", {

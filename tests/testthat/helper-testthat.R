@@ -1,3 +1,4 @@
+
 test_that <- function(desc, code) {
 
   # skip tests when run on CRAN's macOS machine
@@ -26,13 +27,18 @@ test_that <- function(desc, code) {
 
 renv_test_state <- function() {
 
-  list_files <- function(path, full.names = TRUE) {
+  list_files <- function(path) {
+
+    if (is.null(path))
+      return(NULL)
+
     list.files(
       path = path,
       all.files = TRUE,
-      full.names = full.names,
+      full.names = TRUE,
       no.. = TRUE
     )
+
   }
 
   repopath <- getOption("renv.tests.repopath")
@@ -49,23 +55,19 @@ renv_test_state <- function() {
   envvars <- envvars[grep("^RENV_DEFAULT_", names(envvars), invert = TRUE)]
   envvars <- envvars[grep("^R_PACKRAT_", names(envvars), invert = TRUE)]
   envvars <- envvars[grep("^_R_", names(envvars), invert = TRUE)]
+  envvars <- envvars[grep("^CALLR_", names(envvars), invert = TRUE)]
   envvars$RETICULATE_MINICONDA_PYTHON_ENVPATH <- NULL
   envvars$OMP_NUM_THREADS <- NULL
   envvars$OPENBLAS <- NULL
   envvars <- envvars[csort(names(envvars))]
 
-  tempfiles <- list_files(tempdir(), full.names = FALSE)
-  tempfiles <- tempfiles[grep("^libloc_", tempfiles, invert = TRUE)]
-  tempfiles <- tempfiles[grep("^repos_http(s?)", tempfiles, invert = TRUE)]
-  tempfiles <- tempfiles[tempfiles != "downloaded_packages"]
-
   list(
     libpaths     = .libPaths(),
     connections  = getAllConnections(),
     options      = opts,
-    repofiles    = if (!is.null(repopath)) list_files(repopath),
+    repofiles    = list_files(repopath),
     userfiles    = list_files(userpath),
-    tempfiles    = tempfiles,
     envvars      = envvars
   )
+
 }

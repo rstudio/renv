@@ -57,7 +57,7 @@ renv_modify_interactive <- function(project) {
   # copy the lockfile to a temporary file
   dir <- tempfile("renv-lockfile-")
   ensure_directory(dir)
-  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  defer(unlink(dir, recursive = TRUE))
 
   templock <- file.path(dir, "renv.lock")
   file.copy(lockpath, templock)

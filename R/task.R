@@ -2,7 +2,7 @@
 renv_task_create <- function(callback, name = NULL) {
 
   # create name for task callback
-  name <- name %??% as.character(substitute(callback))
+  name <- name %||% as.character(substitute(callback))
   name <- paste("renv", name, sep = ":::")
 
   # remove an already-existing task of the same name

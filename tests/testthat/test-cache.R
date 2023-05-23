@@ -191,7 +191,7 @@ test_that("ACLs set on packages in project library are reset", {
     system(paste("setfacl -m g::-", renv_shell_path(installpath)))
   }), where = renv_envir_self(), print = FALSE)
 
-  on.exit(untrace("renv_install_package_impl", where = renv_envir_self()), add = TRUE)
+  defer(untrace("renv_install_package_impl", where = renv_envir_self()))
 
   # use a custom cache
   cachedir <- renv_scope_tempfile("renv-cache-")
@@ -247,10 +247,10 @@ test_that("ACLs set on packages in project library are reset", {
 #   tempcache2 <- tempfile("renv-tempcache-")
 #   ensure_directory(tempcache2)
 #
-#   on.exit({
+#   defer({
 #     unlink(tempcache1, recursive = TRUE)
 #     unlink(tempcache2, recursive = TRUE)
-#   }, add = TRUE)
+#   })
 #
 #   # add both packages to the cache
 #   renv_scope_envvars(RENV_PATHS_CACHE = paste(tempcache1, tempcache2, sep = ";"))

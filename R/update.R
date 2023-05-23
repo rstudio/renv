@@ -236,7 +236,7 @@ update <- function(packages = NULL,
   }
 
   # get package records
-  renv_scope_var("_renv_snapshot_hash", FALSE)
+  renv_scope_var("_renv_snapshot_hash", FALSE, frame = renv_envir_self())
   records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   packages <- packages %||% names(records)
 
@@ -372,7 +372,7 @@ renv_update_errors_clear <- function() {
 renv_update_errors_emit <- function() {
 
   # clear errors when we're done
-  on.exit(renv_update_errors_clear(), add = TRUE)
+  defer(renv_update_errors_clear())
 
   # if we have any errors, start by emitting a single newline
   all <- ls(envir = `_renv_update_errors`, all.names = TRUE)

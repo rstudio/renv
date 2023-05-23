@@ -63,13 +63,13 @@ checkout <- function(repos = NULL,
   renv_project_lock(project = project)
 
   # set new repositories
-  repos <- repos %??% renv_checkout_repos(date)
+  repos <- repos %||% renv_checkout_repos(date)
   options(repos = repos)
 
   # TODO: Activate Bioconductor if it appears to be used by this project
 
   # select packages to install
-  packages <- packages %??% renv_checkout_packages(project = project)
+  packages <- packages %||% renv_checkout_packages(project = project)
 
   # get the associated remotes for these packages
   remotes <- renv_checkout_remotes(packages, project)

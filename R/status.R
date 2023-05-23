@@ -64,7 +64,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
   # mark status as running
   `_renv_status_running` <<- TRUE
-  on.exit(`_renv_status_running` <<- FALSE, add = TRUE)
+  defer(`_renv_status_running` <<- FALSE)
 
   # check for existing lockfile, library
   ok <-
