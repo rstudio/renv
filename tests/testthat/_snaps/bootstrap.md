@@ -4,7 +4,7 @@
       bootstrap(version = "0.9.0", library = library)
     Output
       Bootstrapping renv 0.9.0:
-      * Downloading binary from CRAN ... OK
+      * Downloading binary from <https://cran.rstudio.com> ... OK
       * Installing ... OK
       
       
@@ -12,7 +12,7 @@
       bootstrap(version = "1.0.0", library = library)
     Output
       Bootstrapping renv 1.0.0:
-      * Downloading from CRAN archive ... OK
+      * Downloading from archive ... OK
       * Installing ... OK
       
       
@@ -31,8 +31,8 @@
       bootstrap(version = "0.9.0", library = library)
     Output
       Bootstrapping renv 0.9.0:
-      * Downloading binary from CRAN ... FAILED
-      * Downloading from CRAN archive ... FAILED
+      * Downloading binary from <https://cran.rstudio.com> ... FAILED
+      * Downloading from archive ... FAILED
     Error <simpleError>
       failed to download:
       All download methods failed
@@ -40,7 +40,7 @@
       bootstrap(version = "1.0.0", library = library)
     Output
       Bootstrapping renv 1.0.0:
-      * Downloading from CRAN archive ... FAILED
+      * Downloading from archive ... FAILED
     Error <simpleError>
       failed to download:
       All download methods failed

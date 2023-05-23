@@ -210,7 +210,7 @@ renv_bootstrap_download_cran_latest <- function(version) {
   type  <- spec$type
   repos <- spec$repos
 
-  catf("* Downloading %s from CRAN ... ", type, appendLF = FALSE)
+  catf("* Downloading %s from <%s> ... ", type, repos, appendLF = FALSE)
 
   baseurl <- utils::contrib.url(repos = repos, type = type)
   ext <- if (identical(type, "source"))
@@ -291,7 +291,7 @@ renv_bootstrap_download_cran_archive <- function(version) {
   urls <- file.path(repos, "src/contrib/Archive/renv", name)
   destfile <- file.path(tempdir(), name)
 
-  catf("* Downloading from CRAN archive ... ", appendLF = FALSE)
+  catf("* Downloading from archive ... ", appendLF = FALSE)
 
   for (url in urls) {
 
