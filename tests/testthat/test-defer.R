@@ -38,6 +38,17 @@ test_that("defer evaluates in appropriate environment", {
 
 })
 
+test_that("defer runs handles in LIFO order", {
+  x <- double()
+  local({
+    defer(x <<- c(x, 1))
+    defer(x <<- c(x, 2))
+    defer(x <<- c(x, 3))
+  })
+
+  expect_equal(x, c(3, 2, 1))
+})
+
 test_that("defer captures arguments properly", {
 
   foo <- function(x) {
@@ -75,4 +86,18 @@ test_that("defer works with arbitrary expressions", {
   expected <- c("+ bar", "- bar", "> foo")
   expect_identical(output, expected)
 
+})
+
+
+test_that("deferred_run can run handlers earlier", {
+  x <- 1
+  defer(rm(list = "x"))
+  deferred_run()
+  expect_equal(exists("x", inherits = FALSE), FALSE)
+
+  # even on global env
+  env <- globalenv()
+  env$x <- 1
+  defer(rm(list = "x", envir = env), envir = env)
+  expect_equal(exists("x", inherits = FALSE), FALSE)
 })

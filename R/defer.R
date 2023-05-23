@@ -5,15 +5,7 @@
 # counter used for mapping environments to the callbacks
 `_renv_defer_id` <- 1L
 
-# stand-in for the global environment
-`_renv_defer_placeholder` <- new.env(parent = emptyenv())
-
 defer <- function(expr, envir = parent.frame()) {
-
-  # exit handlers set on the global environment might get run unexpectedly,
-  # so put those handlers on a placeholder that's under our control
-  if (identical(envir, globalenv()))
-    envir <- `_renv_defer_placeholder`
 
   handler <- renv_defer_add(
     list(expr = substitute(expr), envir = parent.frame()),
@@ -24,12 +16,17 @@ defer <- function(expr, envir = parent.frame()) {
 
 }
 
+deferred_run <- function(envir = parent.frame()) {
+  renv_defer_execute(envir)
+}
+
 renv_defer_id <- function(envir) {
 
   # check for existing id
   id <- attr(envir, "__renv_defer_id__", exact = TRUE)
-  if (!is.null(id))
+  if (!is.null(id)) {
     return(id)
+  }
 
   # no id; bump the global count and add a new id
   `_renv_defer_id` <<- `_renv_defer_id` + 1L
@@ -67,10 +64,7 @@ renv_defer_remove <- function(envir) {
     stopf("internal error: %s has no id", format(envir))
 
   # remove our stored handlers
-  rm(list = id, envir = `_renv_defer_callbacks`)
-
-  # unset the handler id on the environment
-  attr(envir, "__renv_defer_id__") <- NULL
+  `_renv_defer_callbacks`[[id]] <- NULL
 
 }
 
