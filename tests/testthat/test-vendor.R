@@ -78,7 +78,7 @@ test_that("renv can be vendored in a separate R package", {
   writeLines(deparse(code), con = script)
 
   # attempt to run script
-  output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)), quiet = F)
+  output <- renv_system_exec(R(), c("--vanilla", "-s", "-f", renv_shell_path(script)))
   expect_equal(output, "TRUE")
 
   # test that we can use the embedded renv to run snapshot
