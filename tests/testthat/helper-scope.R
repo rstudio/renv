@@ -1,14 +1,26 @@
 
+# helper for resetting scope
+if (interactive()) {
+  envir <- attach(NULL, name = "renv:tools")
+  envir$done <- structure(list(), class = "renv_done")
+  registerS3method("print", "renv_done", function(x, ...) {
+    renv:::renv_defer_execute(globalenv())
+  })
+}
+
 renv_tests_scope <- function(packages = character(),
                              project = NULL,
                              envir = parent.frame())
 {
-  # source setup.R if necessary (for interactive scenarios)
-  running <- getOption("renv.tests.running", default = FALSE)
-  if (!running) {
-    path <- test_path("setup.R")
-    sys.source(path, envir = globalenv())
-  }
+  # cache path before working directory gets changed
+  renv_tests_root()
+
+  # scope relevant environment variables
+  renv_tests_scope_envvars(envir = envir)
+  renv_tests_scope_options(envir = envir)
+
+  # make sure required packages are loaded
+  renv_tests_init_packages()
 
   # use local repositories in this scope
   renv_tests_scope_repos(envir = envir)
@@ -152,17 +164,7 @@ renv_tests_repos_impl <- function() {
 # test line by line.
 renv_tests_scope_setup <- function(envir = parent.frame()) {
 
-  # cache path before working directory gets changed
-  renv_tests_root()
-
-  # scope relevant environment variables
-  renv_tests_scope_envvars(envir = envir)
-  renv_tests_scope_options(envir = envir)
-
-  # make sure required packages are loaded
-  renv_tests_init_packages()
-
-}
+  }
 
 renv_tests_scope_envvars <- function(envir = parent.frame()) {
 

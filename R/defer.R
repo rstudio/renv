@@ -22,6 +22,11 @@ deferred_run <- function(envir = parent.frame()) {
 
 renv_defer_id <- function(envir) {
 
+  # use hard-coded name for global environment,
+  # so we can avoid need to set attribute on it
+  if (identical(envir, globalenv()))
+    return("R_GlobalEnv")
+
   # check for existing id
   id <- attr(envir, "__renv_defer_id__", exact = TRUE)
   if (!is.null(id)) {
@@ -68,7 +73,7 @@ renv_defer_remove <- function(envir) {
 
 }
 
-renv_defer_execute <- function(envir) {
+renv_defer_execute <- function(envir = parent.frame()) {
   handlers <- renv_defer_get(envir)
   for (handler in handlers)
     tryCatch(eval(handler$expr, handler$envir), error = identity)
