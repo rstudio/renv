@@ -76,12 +76,6 @@ local({
   if (renv_bootstrap_load(project, libpath, version))
     return(TRUE)
 
-  # load failed; inform user we're about to bootstrap
-  prefix <- paste("# Bootstrapping renv", version)
-  postfix <- paste(rep.int("-", 77L - nchar(prefix)), collapse = "")
-  header <- paste(prefix, postfix)
-  message(header)
-
   # perform bootstrap
   bootstrap(version, libpath)
 
@@ -91,7 +85,6 @@ local({
 
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-    message("* Successfully installed and loaded renv ", version, ".")
     return(renv::load())
   }
 
