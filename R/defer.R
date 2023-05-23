@@ -24,8 +24,9 @@ renv_defer_id <- function(envir) {
 
   # check for existing id
   id <- attr(envir, "__renv_defer_id__", exact = TRUE)
-  if (!is.null(id))
+  if (!is.null(id)) {
     return(id)
+  }
 
   # no id; bump the global count and add a new id
   `_renv_defer_id` <<- `_renv_defer_id` + 1L
@@ -63,12 +64,7 @@ renv_defer_remove <- function(envir) {
     stopf("internal error: %s has no id", format(envir))
 
   # remove our stored handlers
-  if (exists(id, envir = `_renv_defer_callbacks`, inherits = FALSE)) {
-    rm(list = id, envir = `_renv_defer_callbacks`)
-  }
-
-  # unset the handler id on the environment
-  attr(envir, "__renv_defer_id__") <- NULL
+  `_renv_defer_callbacks`[[id]] <- NULL
 
 }
 
