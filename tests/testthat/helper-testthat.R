@@ -73,7 +73,7 @@ renv_test_state <- function() {
     options      = opts,
     repofiles    = list_files(repopath),
     userfiles    = list_files(userpath),
-    tempfiles    = tempfiles,
+    # tempfiles    = tempfiles,
     envvars      = envvars
   )
 
