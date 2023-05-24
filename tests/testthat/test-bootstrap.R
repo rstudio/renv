@@ -53,6 +53,8 @@ test_that("we can install a version of renv with a sha", {
   expect_true(renv_package_installed("renv", library))
 
   desc <- utils::packageDescription("renv", library)
+  expect_equal(desc$RemoteType, "github")
+  expect_equal(desc$RemotePkgRef, "rstudio/renv")
   expect_equal(desc$RemoteSha, "5049cef8a94591b802f9766a0da092780f59f7e4")
 })
 
