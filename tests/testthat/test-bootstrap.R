@@ -211,3 +211,22 @@ test_that("renv_bootstrap_version_is_dev() works", {
   expect_false(renv_bootstrap_version_is_dev("1.2.3"))
 })
 
+test_that("renv_boostrap_version_validate() recognises when versions are the same", {
+
+  expect_true(
+    renv_bootstrap_validate_version("abcd123", list(RemoteSha = "abcd1234567"))
+  )
+  expect_true(
+    renv_bootstrap_validate_version("1.2.3", list(Version = "1.2.3"))
+  )
+})
+
+
+test_that("renv_boostrap_version_validate() gives good warnings", {
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+
+  expect_snapshot({
+    . <- renv_bootstrap_validate_version("abcd", list(RemoteSha = "efgh"))
+    . <- renv_bootstrap_validate_version("1.2.3", list(Version = "2.3.4"))
+  })
+})
