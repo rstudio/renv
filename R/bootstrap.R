@@ -404,7 +404,7 @@ renv_bootstrap_download_augment <- function(destfile) {
     paste("RemoteRef: ", sha),
     paste("RemoteSha: ", sha)
   )
-  writeLines(c(desc_lines, remotes_fields), desc_path)
+  writeLines(c(desc_lines[desc_lines != ""], remotes_fields), desc_path)
 
   # Re-tar
   local({
