@@ -888,6 +888,6 @@ renv_bootstrap_version_is_dev <- function(version) {
     TRUE
   } else {
     components <- strsplit(version, "[.-]")[[1]]
-    length(components) > 3
+    length(components) != 3
   }
 }

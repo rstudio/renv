@@ -7,7 +7,7 @@ renv_metadata_is_dev <- function(metadata = `_renv_metadata`) {
   if (!is.null(metadata$sha)) {
     TRUE
   } else {
-    renv_version_length(metadata$version) == 4L
+    renv_version_length(metadata$version) != 3L
   }
 }
 
