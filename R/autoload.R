@@ -59,8 +59,7 @@ renv_autoload_impl <- function() {
     return(FALSE)
 
   # move to project directory
-  owd <- setwd(project)
-  defer(setwd(owd))
+  renv_scope_wd(project)
 
   # if we have a project profile, source it
   profile <- file.path(project, ".Rprofile")

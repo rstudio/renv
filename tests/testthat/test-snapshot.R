@@ -168,7 +168,7 @@ test_that("snapshot ignores own package in package development scenarios", {
 
   renv_tests_scope()
   ensure_directory("bread")
-  setwd("bread")
+  renv_scope_wd("bread")
 
   writeLines(c("Type: Package", "Package: bread"), con = "DESCRIPTION")
 

@@ -1,8 +1,7 @@
 
 test_that("R files have balanced covr exclusions", {
 
-  owd <- setwd("../..")
-  defer(setwd(owd))
+  renv_scope_wd("../..")
 
   errors <- stack()
 

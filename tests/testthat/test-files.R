@@ -172,8 +172,7 @@ test_that("renv can list files not representable in the native encoding", {
 
 test_that("renv can detect broken junctions / symlinks", {
 
-  owd <- setwd(tempdir())
-  defer(setwd(owd))
+  renv_scope_wd(tempdir())
 
   if (renv_platform_windows()) {
 

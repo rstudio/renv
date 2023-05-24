@@ -647,8 +647,7 @@ renv_load_switch <- function(project) {
   unloadNamespace("renv")
 
   # move to new project directory
-  owd <- setwd(project)
-  defer(setwd(owd))
+  renv_scope_wd(project)
 
   # source the activate script
   source(script)
