@@ -231,7 +231,7 @@ test_that("recursive symlinks are handled", {
   symlink <- file.path(project, "symlink")
   file.symlink(dirname(symlink), symlink)
 
-  renv:::dependencies()
+  dependencies()
 
 })
 

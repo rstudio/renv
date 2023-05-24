@@ -47,7 +47,7 @@ test_that("renv uses local virtual environment for names beginning with '.'", {
   renv_test_scope_python()
 
   renv_tests_scope("breakfast")
-  renv::use_python(python = sys_python(), name = ".venv")
+  use_python(python = sys_python(), name = ".venv")
 
   expect_true(renv_file_exists(".venv"))
 
@@ -78,7 +78,7 @@ test_that("renv can bind to virtualenvs in WORKON_HOME", {
 
   # create a test project
   renv_tests_scope("breakfast")
-  renv::use_python(python = sys_python(), name = "renv-test-environment")
+  use_python(python = sys_python(), name = "renv-test-environment")
 
   expect_true(renv_file_exists(path))
 
@@ -99,7 +99,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
   python <- sys_python()
   # initialize python
-  python <- renv::use_python(
+  python <- use_python(
     python,
     name = tempfile("python-virtualenv-"),
     type = "virtualenv"
@@ -113,7 +113,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   # snapshot changes
   local({
     renv_scope_sink()
-    renv::snapshot()
+    snapshot()
   })
 
   # check requirements.txt for install
@@ -129,7 +129,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   # try to restore
   local({
     renv_scope_sink()
-    renv::restore()
+    restore()
   })
 
   # check that we can load python-dotenv now
@@ -149,7 +149,7 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
   renv_tests_scope("breakfast")
 
   # initialize python
-  quietly(renv::use_python(type = "conda"))
+  quietly(use_python(type = "conda"))
   python <- Sys.getenv("RETICULATE_PYTHON")
 
   # install numpy
@@ -157,7 +157,7 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
 
   # snapshot changes
-  renv::snapshot()
+  snapshot()
 
   # check requirements.txt for install
   expect_true(file.exists("environment.yml"))
@@ -172,7 +172,7 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
   expect_false(status == 0L)
 
   # try to restore
-  renv::restore()
+  restore()
 
   # check that we can load numpy now
   cmd <- paste(shQuote(python), "-c 'import numpy'")
@@ -191,17 +191,17 @@ test_that("python environment name is preserved after snapshot", {
 
   # create and use local python environment
   renv_tests_scope()
-  renv::init()
+  init()
 
   system2(python, c("-m", "venv", "virtualenv"))
-  renv::use_python(name = "./virtualenv")
+  use_python(name = "./virtualenv")
 
   # check that the lockfile has been updated
   lockfile <- renv_lockfile_read("renv.lock")
   expect_equal(lockfile$Python$Name, "./virtualenv")
 
   # try to snapshot
-  renv::snapshot()
+  snapshot()
 
   # check that the virtual environment name was preserved
   lockfile <- renv_lockfile_read("renv.lock")

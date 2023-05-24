@@ -18,7 +18,7 @@ test_that("clean removes stale lockfiles", {
   # installed but unused package
   local({
     renv_scope_sink()
-    suppressWarnings(renv::install("toast"))
+    suppressWarnings(install("toast"))
   })
 
   # clean up the project

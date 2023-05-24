@@ -36,7 +36,7 @@ test_that("packages can be installed, restored from Bioconductor", {
 
 })
 
-test_that("renv::install(<bioc>, rebuild = TRUE) works", {
+test_that("install(<bioc>, rebuild = TRUE) works", {
 
   skip_on_cran()
   skip_on_os("windows")
