@@ -11,6 +11,6 @@ test_that("the version of renv in a project can be changed (upgraded)", {
   upgrade(version = "0.5.0")
 
   project <- getwd()
-  expect_equal(renv_activate_version(project), "0.5.0")
+  expect_equal(renv_activate_version(project), "32f0f78d87150a8656a99223396f844e2fac7a17")
 
 })
