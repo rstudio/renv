@@ -1,6 +1,11 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Development versions of renv are now tracked using the Git SHA of the 
+  current commit, rather than a version number that's incremented on every
+  change (#1327). This shouldn't have any user facing impact, but makes
+  renv maintenance a little easier.
+
 * Fixed an issue causing "restarting interrupted promise evaluation" warnings
   to be displayed when querying available packages failed. (#1260)
 
