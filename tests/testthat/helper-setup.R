@@ -7,10 +7,6 @@ renv_tests_setup <- function(envir = parent.frame()) {
   if (!once())
     return()
 
-  # ensure that attempts to restart are a no-op
-  if (renv_rstudio_available())
-    options(restart = function(...) NULL)
-
   # cache path before working directory gets changed
   renv_tests_root()
 
