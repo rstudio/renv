@@ -374,9 +374,75 @@ renv_bootstrap_download_github <- function(version) {
     return(FALSE)
   }
 
+  renv_bootstrap_download_augment(destfile)
+
   catf("OK")
   return(destfile)
 
+}
+
+# Add Sha to DESCRIPTION. This is stop gap until #890, after which we
+# can use renv::install() to fully capture metadata.
+renv_bootstrap_download_augment <- function(destfile) {
+  sha <- renv_bootstrap_git_extract_sha1_tar(destfile)
+  if (is.null(sha)) {
+    return()
+  }
+
+  # Untar
+  tempdir <- renv_scope_tempfile("renv-github-")
+  untar(destfile, exdir = tempdir)
+  pkgdir <- dir(tempdir, full.names = TRUE)[[1]]
+
+  # Modify description
+  desc_path <- file.path(pkgdir, "DESCRIPTION")
+  desc_lines <- readLines(desc_path)
+  remotes_fields <- c(
+    "RemoteType: github",
+    "RemoteHost: api.github.com",
+    "RemoteRepo: renv",
+    "RemoteUsername: rstudio",
+    "RemotePkgRef: rstudio/renv",
+    paste("RemoteRef: ", sha),
+    paste("RemoteSha: ", sha)
+  )
+  writeLines(c(desc_lines, remotes_fields), desc_path)
+
+  # Re-tar
+  local({
+    old <- setwd(tempdir)
+    defer(setwd(old))
+
+    tar(destfile, compression = "gzip")
+  })
+  invisible()
+}
+
+# Extract the commit hash from a git archive. Git archives include the SHA1
+# hash as the comment field of the tarball pax extended header
+# (see https://www.kernel.org/pub/software/scm/git/docs/git-archive.html)
+# For GitHub archives this should be the first header after the default one
+# (512 byte) header.
+renv_bootstrap_git_extract_sha1_tar <- function(bundle) {
+
+  # open the bundle for reading
+  # We use gzcon for everything because (from ?gzcon)
+  # > Reading from a connection which does not supply a ‘gzip’ magic
+  # > header is equivalent to reading from the original connection
+  conn <- gzcon(file(bundle, open = "rb", raw = TRUE))
+  on.exit(close(conn))
+
+  # The default pax header is 512 bytes long and the first pax extended header
+  # with the comment should be 51 bytes long
+  # `52 comment=` (11 chars) + 40 byte SHA1 hash
+  len <- 0x200 + 0x33
+  res <- rawToChar(readBin(conn, "raw", n = len)[0x201:len])
+
+  if (grepl("^52 comment=", res)) {
+    sub("52 comment=", "", res)
+  } else {
+    NULL
+  }
 }
 
 renv_bootstrap_install <- function(version, tarball, library) {

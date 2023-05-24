@@ -27,7 +27,7 @@ test_that("we can bootstrap an archived version of renv", {
 
 })
 
-test_that("we can install a version dev version of renv", {
+test_that("we can install a dev version of renv", {
 
   skip_on_cran()
   skip_on_ci()
@@ -49,11 +49,11 @@ test_that("we can install a version of renv with a sha", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  bootstrap(version = "5049cef8a94591b", library = library)
+  bootstrap(version = "5049cef8a", library = library)
   expect_true(renv_package_installed("renv", library))
 
   desc <- utils::packageDescription("renv", library)
-  expect_equal(desc$RemoteSha, "5049cef8a94591b")
+  expect_equal(desc$RemoteSha, "5049cef8a94591b802f9766a0da092780f59f7e4")
 })
 
 
