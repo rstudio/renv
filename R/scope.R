@@ -49,11 +49,9 @@ renv_scope_libpaths <- function(new = .libPaths(), envir = parent.frame()) {
 }
 
 renv_scope_options <- function(..., envir = parent.frame()) {
-
   new <- list(...)
   old <- options(new)
   defer(options(old), envir = envir)
-
 }
 
 renv_scope_locale <- function(category = "LC_ALL", locale = "", envir = parent.frame()) {
@@ -374,4 +372,16 @@ renv_scope_umask <- function(umask, envir = parent.frame()) {
   oldmask <- Sys.umask(umask)
   defer(Sys.umask(oldmask), envir = envir)
   invisible(oldmask)
+}
+
+renv_scope_setwd <- function(dir, envir = parent.frame()) {
+  owd <- setwd(dir)
+  defer(setwd(owd), envir = envir)
+  invisible(owd)
+}
+
+renv_scope_sandbox <- function(envir = parent.frame()) {
+  sandbox <- renv_sandbox_activate()
+  defer(renv_sandbox_deactivate(), envir = envir)
+  invisible(sandbox)
 }

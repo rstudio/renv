@@ -2,9 +2,6 @@
 # environment hosting exit callbacks
 `_renv_defer_callbacks` <- new.env(parent = emptyenv())
 
-# counter used for mapping environments to the callbacks
-`_renv_defer_id` <- 1L
-
 defer <- function(expr, envir = parent.frame()) {
 
   handler <- renv_defer_add(
@@ -16,27 +13,8 @@ defer <- function(expr, envir = parent.frame()) {
 
 }
 
-deferred_run <- function(envir = parent.frame()) {
-  renv_defer_execute(envir)
-}
-
 renv_defer_id <- function(envir) {
-
-  # use hard-coded name for global environment,
-  # so we can avoid need to set attribute on it
-  if (identical(envir, globalenv()))
-    return("R_GlobalEnv")
-
-  # check for existing id
-  id <- attr(envir, "__renv_defer_id__", exact = TRUE)
-  if (!is.null(id)) {
-    return(id)
-  }
-
-  # no id; bump the global count and add a new id
-  `_renv_defer_id` <<- `_renv_defer_id` + 1L
-  attr(envir, "__renv_defer_id__") <- as.character(`_renv_defer_id`)
-
+  format(envir)
 }
 
 renv_defer_get <- function(envir) {

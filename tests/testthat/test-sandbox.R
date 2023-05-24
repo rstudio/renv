@@ -1,3 +1,4 @@
+
 renv_scoped_sandbox <- function(envir = parent.frame()) {
   renv_scope_options(renv.config.sandbox.enabled = TRUE, envir = envir)
   renv_scope_envvars(RENV_PATHS_SANDBOX = tempdir(), envir = envir)

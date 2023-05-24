@@ -1,4 +1,6 @@
 
+# a wrapper around testthat::test_that(), which also tries
+# to confirm that the test hasn't mutated any global state
 test_that <- function(desc, code) {
 
   # skip tests when run on CRAN's macOS machine
