@@ -171,6 +171,11 @@ renv_patch_repos <- function() {
   if (identical(name, "renv"))
     return()
 
+  # presumably this will never happen when the dev version of renv is
+  # installed, so we skip to avoid parsing a sha as version
+  if (renv_metadata_is_dev())
+    return()
+
   # nothing to do if this version of 'renv' is already available
   version <- renv_metadata_version()
   entry <- catch(renv_available_packages_entry("renv", filter = version, quiet = TRUE))

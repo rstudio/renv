@@ -82,17 +82,23 @@ local({
     catf("Bootstrapping renv %s:", version)
   
     # attempt to download renv
-    tarball <- tryCatch(renv_bootstrap_download(version), error = identity)
-    if (inherits(tarball, "error"))
-      stop("Failed to download ")
+    withCallingHandlers(
+      tarball <- renv_bootstrap_download(version),
+      error = function(err) {
+        stop("failed to download:\n", conditionMessage(err))
+      }
+    )
   
     # now attempt to install
-    status <- tryCatch(renv_bootstrap_install(version, tarball, library), error = identity)
-    if (inherits(status, "error"))
-      stop("Failed to install")
+    withCallingHandlers(
+      status <- renv_bootstrap_install(version, tarball, library),
+      error = function(err) {
+        stop("failed to install:\n", conditionMessage(err))
+      }
+    )
   
     # add empty line to break up bootstrapping from normal output
-    cat("\n")
+    catf("\n")
   
     return(invisible())
   }
@@ -174,14 +180,15 @@ local({
   
   renv_bootstrap_download <- function(version) {
   
-    # if the renv version number has 4 components, assume it must
+    # if the renv version number is a sha, or has 4 components, it must
     # be retrieved via github
-    nv <- numeric_version(version)
-    components <- unclass(nv)[[1]]
-  
-    # if this appears to be a development version of 'renv', we'll
-    # try to restore from github
-    dev <- length(components) == 4L
+    if (!grepl(version, "[-.]")) {
+      # not . or -, so must be a sha
+      dev <- TRUE
+    } else {
+      components <- unclass(package_version(version))[[1]]
+      dev <- length(components) == 4
+    }
   
     # begin collecting different methods for finding renv
     methods <- c(
@@ -200,7 +207,7 @@ local({
         return(path)
     }
   
-    stop("failed to download renv ", version)
+    stop("All download methods failed")
   
   }
   
@@ -264,7 +271,7 @@ local({
     type  <- spec$type
     repos <- spec$repos
   
-    catf("* Downloading %s from CRAN ... ", type, appendLF = FALSE)
+    catf("* Downloading %s from <%s> ... ", type, repos, appendLF = FALSE)
   
     baseurl <- utils::contrib.url(repos = repos, type = type)
     ext <- if (identical(type, "source"))
@@ -345,7 +352,7 @@ local({
     urls <- file.path(repos, "src/contrib/Archive/renv", name)
     destfile <- file.path(tempdir(), name)
   
-    catf("* Downloading from CRAN archive ... ", appendLF = FALSE)
+    catf("* Downloading from archive ... ", appendLF = FALSE)
   
     for (url in urls) {
   

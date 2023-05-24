@@ -56,11 +56,11 @@ activate <- function(project = NULL, profile = NULL) {
 
 }
 
-renv_activate_impl <- function(project,
-                               profile,
-                               version,
-                               restart,
-                               quiet)
+renv_activate_impl <- function(project = ".",
+                               profile = NULL,
+                               version = NULL,
+                               restart = FALSE,
+                               quiet = FALSE)
 {
   # prepare renv infrastructure
   renv_infrastructure_write(
@@ -94,8 +94,8 @@ renv_activate_version <- function(project) {
   )
 
   for (method in methods) {
-    version <- catch(method(project))
-    if (is.character(version))
+    version <- tryCatch(method(project), error = function(err) NULL)
+    if (!is.null(version))
       return(version)
   }
 

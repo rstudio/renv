@@ -120,14 +120,15 @@ renv_bootstrap_repos_lockfile <- function() {
 
 renv_bootstrap_download <- function(version) {
 
-  # if the renv version number has 4 components, assume it must
+  # if the renv version number is a sha, or has 4 components, it must
   # be retrieved via github
-  nv <- numeric_version(version)
-  components <- unclass(nv)[[1]]
-
-  # if this appears to be a development version of 'renv', we'll
-  # try to restore from github
-  dev <- length(components) == 4L
+  if (!grepl(version, "[-.]")) {
+    # not . or -, so must be a sha
+    dev <- TRUE
+  } else {
+    components <- unclass(package_version(version))[[1]]
+    dev <- length(components) == 4
+  }
 
   # begin collecting different methods for finding renv
   methods <- c(
