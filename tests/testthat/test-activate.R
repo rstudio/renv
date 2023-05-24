@@ -22,15 +22,3 @@ test_that("renv can bootstrap itself if not installed", {
   expect_equal(status, 0L)
 
 })
-
-test_that("renv can activate using a github sha", {
-  sha <- "5049cef8a94591b"
-
-  renv_tests_scope()
-  renv_activate_impl(version = sha, quiet = TRUE)
-  expect_no_error(source("renv/activate.R"))
-
-  snapshot()
-  expect_equal(renv_activate_version_lockfile("."), sha)
-
-})

@@ -698,17 +698,18 @@ local({
   
   renv_bootstrap_validate_version <- function(version) {
   
-    loadedversion <- utils::packageDescription("renv", fields = "Version")
-    if (version == loadedversion)
+    loaded_version <- utils::packageDescription("renv", fields = "Version")
+    loaded_sha <- utils::packageDescription("renv", fields = "RemoteSha")
+    if (identical(version, loaded_version) || identical(version, loaded_sha))
       return(TRUE)
   
     # assume four-component versions are from GitHub;
     # three-component versions are from CRAN
-    components <- strsplit(loadedversion, "[.-]")[[1]]
-    remote <- if (length(components) == 4L)
+    remote <- if (renv_bootstrap_version_is_dev(version)) {
       paste("rstudio/renv", loadedversion, sep = "@")
-    else
+    } else {
       paste("renv", loadedversion, sep = "@")
+    }
   
     fmt <- paste(
       "renv %1$s was loaded from project library, but this project is configured to use renv %2$s.",
@@ -717,7 +718,7 @@ local({
       sep = "\n"
     )
   
-    msg <- sprintf(fmt, loadedversion, version, remote)
+    msg <- sprintf(fmt, loaded_version, version, remote)
     warning(msg, call. = FALSE)
   
     FALSE
@@ -888,6 +889,17 @@ local({
   
   }
   
+  renv_bootstrap_version_is_dev <- function(version) {
+    # if the renv version number is a sha, or has 4 components, it must
+    # be retrieved via github
+    if (!grepl("[.-]", version)) {
+      # not . or -, so must be a sha
+      TRUE
+    } else {
+      components <- strsplit(version, "[.-]")[[1]]
+      length(components) > 3
+    }
+  }
   
   renv_json_read <- function(file = NULL, text = NULL) {
   

@@ -27,7 +27,7 @@ test_that("we can bootstrap an archived version of renv", {
 
 })
 
-test_that("we can install a version of renv from GitHub", {
+test_that("we can install a version dev version of renv", {
 
   skip_on_cran()
   skip_on_ci()
@@ -40,6 +40,22 @@ test_that("we can install a version of renv from GitHub", {
   expect_true(renv_package_version("renv") == "0.12.3-1")
 
 })
+
+test_that("we can install a version of renv with a sha", {
+
+  skip_on_cran()
+  skip_on_ci()
+
+  renv_tests_scope()
+
+  library <- renv_libpaths_active()
+  bootstrap(version = "5049cef8a94591b", library = library)
+  expect_true(renv_package_installed("renv", library))
+
+  desc <- utils::packageDescription("renv", library)
+  expect_equal(desc$RemoteSha, "5049cef8a94591b")
+})
+
 
 test_that("bootstrap succeeds with empty repos", {
 
@@ -197,5 +213,15 @@ test_that("bootstrapping gives informative output when install fails", {
 
   expect_snapshot(bootstrap(version = "1.0.0.1", library = library), error = TRUE)
 
+})
+
+
+
+# helpers -----------------------------------------------------------------
+
+test_that("renv_bootstrap_version_is_dev() works", {
+  expect_true(renv_bootstrap_version_is_dev("abc123"))
+  expect_true(renv_bootstrap_version_is_dev("1.2.3-4"))
+  expect_false(renv_bootstrap_version_is_dev("1.2.3"))
 })
 
