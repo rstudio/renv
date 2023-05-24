@@ -21,9 +21,6 @@ renv_tests_setup <- function(envir = parent.frame()) {
   renv_tests_setup_envvars(envir = envir)
   renv_tests_setup_options(envir = envir)
 
-  # set up interactive tools
-  renv_tests_setup_tools(envir)
-
 }
 
 
@@ -77,25 +74,6 @@ renv_tests_setup_options <- function(envir = parent.frame()) {
     renv.tests.running = TRUE,
     envir = envir
   )
-
-}
-
-renv_tests_setup_tools <- function(envir) {
-
-  if (interactive()) {
-
-    # create a 'done' object that, when printed, will
-    # run any pending defer handlers
-    envir <- attach(NULL, name = "renv:tools")
-    envir$done <- structure(list(), class = "renv_done")
-    registerS3method("print", "renv_done", function(x, ...) {
-      renv:::renv_defer_execute(globalenv())
-    })
-
-    # detach when we're done
-    defer(detach("renv:tools"), envir = envir)
-
-  }
 
 }
 
