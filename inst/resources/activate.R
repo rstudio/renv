@@ -450,7 +450,8 @@ local({
     }
   
     # Untar
-    tempdir <- renv_scope_tempfile("renv-github-")
+    tempdir <- tempfile("renv-github-")
+    on.exit(unlink(tempdir, recursive = TRUE), add = TRUE)
     untar(destfile, exdir = tempdir)
     pkgdir <- dir(tempdir, full.names = TRUE)[[1]]
   
@@ -471,7 +472,7 @@ local({
     # Re-tar
     local({
       old <- setwd(tempdir)
-      defer(setwd(old))
+      on.exit(setwd(old), add = TRUE)
   
       tar(destfile, compression = "gzip")
     })
