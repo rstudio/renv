@@ -44,18 +44,18 @@ test_that("a profile changes the default library / lockfile path", {
   prefix <- "renv/profiles/testing"
 
   expect_equal(
-    paths$lockfile(project = project),
-    file.path(project, prefix, "renv.lock")
+    normalizePath(paths$lockfile(project = project)),
+    normalizePath(file.path(project, prefix, "renv.lock"))
   )
 
   expect_equal(
-    paths$library(project = project),
-    file.path(project, prefix, "renv/library", renv_platform_prefix())
+    normalizePath(paths$library(project = project)),
+    normalizePath(file.path(project, prefix, "renv/library", renv_platform_prefix()))
   )
 
   expect_equal(
-    paths$settings(project = project),
-    file.path(project, prefix, "renv/settings.json")
+    normalizePath(paths$settings(project = project)),
+    normalizePath(file.path(project, prefix, "renv/settings.json"))
   )
 
 })

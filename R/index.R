@@ -202,3 +202,10 @@ renv_index_writable <- function(root) {
     value = unname(file.access(root, 7L) == 0L)
   )
 }
+
+# in case of emergency, break glass
+renv_index_reset <- function(root = NULL) {
+  root <- root %||% renv_paths_index()
+  lockfiles <- list.files(root, pattern = "^index\\.lock$", full.names = TRUE)
+  unlink(lockfiles)
+}

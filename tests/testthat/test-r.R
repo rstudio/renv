@@ -17,6 +17,7 @@ test_that("we can use R CMD build to build a package", {
   package <- "sample.package"
   pkgdir <- file.path(testdir, package)
   ensure_directory(pkgdir)
+  defer(unlink(pkgdir, recursive = TRUE))
 
   data <- list(Package = package, Type = "Package", Version = "0.1.0")
   renv_dcf_write(data, file = file.path(pkgdir, "DESCRIPTION"))

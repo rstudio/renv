@@ -49,11 +49,9 @@ renv_scope_libpaths <- function(new = .libPaths(), envir = parent.frame()) {
 }
 
 renv_scope_options <- function(..., envir = parent.frame()) {
-
   new <- list(...)
   old <- options(new)
   defer(options(old), envir = envir)
-
 }
 
 renv_scope_locale <- function(category = "LC_ALL", locale = "", envir = parent.frame()) {
@@ -363,15 +361,25 @@ renv_scope_tempfile <- function(pattern = "renv-tempfile-",
                                 fileext = "",
                                 envir  = parent.frame())
 {
-  filepath <- tempfile(pattern, tmpdir, fileext)
-
-  defer(unlink(filepath, recursive = TRUE, force = TRUE), envir = envir)
-
-  invisible(filepath)
+  path <- tempfile(pattern, tmpdir, fileext)
+  defer(unlink(path, recursive = TRUE, force = TRUE), envir = envir)
+  invisible(path)
 }
 
 renv_scope_umask <- function(umask, envir = parent.frame()) {
   oldmask <- Sys.umask(umask)
   defer(Sys.umask(oldmask), envir = envir)
   invisible(oldmask)
+}
+
+renv_scope_wd <- function(dir = getwd(), envir = parent.frame()) {
+  owd <- setwd(dir)
+  defer(setwd(owd), envir = envir)
+  invisible(owd)
+}
+
+renv_scope_sandbox <- function(envir = parent.frame()) {
+  sandbox <- renv_sandbox_activate()
+  defer(renv_sandbox_deactivate(), envir = envir)
+  invisible(sandbox)
 }

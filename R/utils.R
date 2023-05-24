@@ -32,7 +32,6 @@
   if (length(x)) y
 }
 
-
 lines <- function(...) {
   paste(..., sep = "\n")
 }
@@ -541,5 +540,7 @@ untar <- function(tarfile,
 }
 
 rep_named <- function(names, x) {
-  stats::setNames(rep_len(x, length(names)), names)
+  values <- rep_len(x, length(names))
+  names(values) <- names
+  values
 }

@@ -2,9 +2,6 @@
 # environment hosting exit callbacks
 `_renv_defer_callbacks` <- new.env(parent = emptyenv())
 
-# counter used for mapping environments to the callbacks
-`_renv_defer_id` <- 1L
-
 defer <- function(expr, envir = parent.frame()) {
 
   handler <- renv_defer_add(
@@ -16,22 +13,8 @@ defer <- function(expr, envir = parent.frame()) {
 
 }
 
-deferred_run <- function(envir = parent.frame()) {
-  renv_defer_execute(envir)
-}
-
 renv_defer_id <- function(envir) {
-
-  # check for existing id
-  id <- attr(envir, "__renv_defer_id__", exact = TRUE)
-  if (!is.null(id)) {
-    return(id)
-  }
-
-  # no id; bump the global count and add a new id
-  `_renv_defer_id` <<- `_renv_defer_id` + 1L
-  attr(envir, "__renv_defer_id__") <- as.character(`_renv_defer_id`)
-
+  format.default(envir)
 }
 
 renv_defer_get <- function(envir) {
@@ -57,22 +40,25 @@ renv_defer_set <- function(envir, handlers) {
 }
 
 renv_defer_remove <- function(envir) {
-
-  # get environment id
   id <- renv_defer_id(envir)
-  if (is.null(id))
-    stopf("internal error: %s has no id", format(envir))
-
-  # remove our stored handlers
-  `_renv_defer_callbacks`[[id]] <- NULL
-
+  rm(list = id, envir = `_renv_defer_callbacks`)
 }
 
-renv_defer_execute <- function(envir) {
+renv_defer_execute <- function(envir = parent.frame()) {
+
+  # check for handlers -- may be NULL if they were intentionally executed
+  # early via a call to `renv_defer_execute()`
   handlers <- renv_defer_get(envir)
+  if (is.null(handlers))
+    return()
+
+  # execute the existing handlers
   for (handler in handlers)
     tryCatch(eval(handler$expr, handler$envir), error = identity)
+
+  # remove the handlers
   renv_defer_remove(envir)
+
 }
 
 renv_defer_add <- function(envir, handler) {
