@@ -20,7 +20,7 @@ renv_tests_scope <- function(packages = character(),
   # move to own test directory
   dir <- project %||% tempfile("renv-test-")
   ensure_directory(dir)
-  renv_scope_setwd(dir, envir = envir)
+  renv_scope_wd(dir, envir = envir)
 
   # create empty renv directory
   dir.create(file.path(dir, "renv"))

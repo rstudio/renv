@@ -374,7 +374,7 @@ renv_scope_umask <- function(umask, envir = parent.frame()) {
   invisible(oldmask)
 }
 
-renv_scope_setwd <- function(dir, envir = parent.frame()) {
+renv_scope_wd <- function(dir, envir = parent.frame()) {
   owd <- setwd(dir)
   defer(setwd(owd), envir = envir)
   invisible(owd)
