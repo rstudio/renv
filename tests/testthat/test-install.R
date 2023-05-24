@@ -100,7 +100,7 @@ test_that("packages can be installed from sources", {
   init()
 
   # get path to package sources in local repos
-  repos <- getOption("renv.tests.repos")
+  repos <- getOption("repos")[["CRAN"]]
   tarball <- file.path(repos, "src/contrib/bread_1.0.0.tar.gz")
 
   # try to install it

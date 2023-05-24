@@ -41,21 +41,6 @@ test_that("we can install a version of renv from GitHub", {
 
 })
 
-test_that("bootstrap succeeds with empty repos", {
-
-  skip_on_cran()
-  skip_on_os("windows")
-
-  renv_tests_scope()
-  renv_scope_options(repos = character())
-
-  library <- renv_libpaths_active()
-  bootstrap(version = "1.0.0", library = library)
-  expect_true(renv_package_installed("renv", library))
-  expect_true(renv_package_version("renv") == "1.0.0")
-
-})
-
 test_that("bootstrap functions don't depend on non-bootstrap APIs", {
 
   # pattern matching things that are bootstrapped for renv

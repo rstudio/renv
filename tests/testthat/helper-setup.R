@@ -126,10 +126,10 @@ renv_tests_setup_packages <- function() {
 
 }
 
-renv_tests_setup_repos <- function(envir = parent.frame()) {
+renv_tests_setup_repos <- function( envir = parent.frame()) {
 
   # generate our dummy repository
-  repopath <- file.path(tempdir(), "repos")
+  repopath <- renv_tests_repopath()
   contrib <- file.path(repopath, "src/contrib")
   ensure_directory(contrib)
 
@@ -201,9 +201,6 @@ renv_tests_setup_repos <- function(envir = parent.frame()) {
     type = "source",
     latestOnly = FALSE
   )
-
-  # clean up when we're done
-  defer(unlink(repopath, recursive = TRUE), envir = envir)
 
   # return path to on-disk repository
   repopath

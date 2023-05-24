@@ -1,11 +1,4 @@
 
-# The following tests assume the sandbox is deactivated while running;
-# deactivate the sandbox within this scope if necessary
-if (renv_sandbox_activated()) {
-  renv_sandbox_deactivate()
-  defer(renv_sandbox_activate())
-}
-
 test_that("the sandbox can be activated and deactivated", {
 
   renv_scope_options(renv.config.sandbox.enabled = TRUE)

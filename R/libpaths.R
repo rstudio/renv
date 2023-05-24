@@ -94,7 +94,7 @@ renv_libpaths_safe_impl <- function(libpath) {
 }
 
 renv_libpaths_safe_tempdir <- function(libpath) {
-  safelib <- tempfile("renv-library-")
+  safelib <- tempfile("renv-safelib-")
 
   if (renv_platform_windows())
     renv_file_junction(libpath, safelib)

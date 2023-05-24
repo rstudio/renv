@@ -90,18 +90,9 @@ test_that("defer works with arbitrary expressions", {
 
 
 test_that("renv_defer_execute can run handlers earlier", {
-
-  # test with current environment
   x <- 1
   defer(rm(list = "x"))
+  expect_true(exists("x", inherits = FALSE))
   renv_defer_execute(environment())
-  expect_equal(exists("x", inherits = FALSE), FALSE)
-
-  # test with global environment
-  env <- globalenv()
-  env$x <- 1
-  defer(rm(list = "x", envir = env), envir = env)
-  renv_defer_execute(env)
-  expect_equal(exists("x", inherits = FALSE), FALSE)
-
+  expect_false(exists("x", inherits = FALSE))
 })

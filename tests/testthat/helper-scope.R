@@ -6,8 +6,8 @@ renv_tests_scope <- function(packages = character(),
   # use private repositories in this scope
   renv_tests_scope_repos(envir = envir)
 
-  # use sandbox in this scope
-  # TODO(Kevin): Without this, tests fail trying to install BiocManager?
+  # use sandbox in this scope, to guard against packages like 'bread'
+  # being installed into the system library
   renv_scope_sandbox(envir = envir)
 
   # most tests will call init() which changes `R_LIBS_USER`;
@@ -30,7 +30,7 @@ renv_tests_scope <- function(packages = character(),
   writeLines(code, "dependencies.R")
 
   # use temporary library
-  lib <- renv_scope_tempfile("renv-library-")
+  lib <- renv_scope_tempfile("renv-library-", envir = envir)
   ensure_directory(lib)
   renv_scope_libpaths(lib, envir = envir)
 
@@ -40,18 +40,17 @@ renv_tests_scope <- function(packages = character(),
 
 renv_tests_scope_repos <- function(envir = parent.frame()) {
 
-  repopath <- file.path(tempdir(), "repos")
+  # get path to on-disk repository
+  repopath <- renv_tests_repopath()
 
   # update our repos option
   fmt <- if (renv_platform_windows()) "file:///%s" else "file://%s"
   repos <- c(CRAN = sprintf(fmt, repopath))
 
   renv_scope_options(
-    pkgType             = "source",
-    repos               = repos,
-    renv.tests.repos    = repos,
-    renv.tests.repopath = repopath,
-    envir = envir
+    pkgType = "source",
+    repos   = repos,
+    envir   = envir
   )
 
 }

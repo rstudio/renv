@@ -43,7 +43,7 @@ renv_test_state <- function() {
 
   }
 
-  repopath <- getOption("renv.tests.repopath")
+  repopath <- renv_tests_repopath()
   userpath <- file.path(renv_bootstrap_user_dir(), "library")
 
   opts <- options()
