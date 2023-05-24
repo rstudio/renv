@@ -51,7 +51,7 @@ renv_tests_setup_envvars <- function(envir = parent.frame()) {
     envir = envir
   )
 
-  if (is.na(Sys.getenv("GITHUB_PATH", unset = NA))) {
+  if (is.na(Sys.getenv("GITHUB_PAT", unset = NA))) {
     token <- tryCatch(gitcreds::gitcreds_get(), error = function(e) NULL)
     if (!is.null(token)) {
       renv_scope_envvars(GITHUB_PAT = token$password, envir = envir)
