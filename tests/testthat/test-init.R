@@ -105,9 +105,15 @@ test_that("init() works in path containing accented characters", {
   if (!identical(project, roundtrip))
     skip("project cannot be represented in native encoding")
 
-  path <- paste0(tempdir(), enc2native(project), sep = "/")
-  renv_tests_scope(project = path)
-  defer(unlink(path, recursive = TRUE))
+  # TODO(Kevin): Windows tests on CI had the following NOTE
+  #
+  # Found the following files/directories:
+  # 'RtmpKIUpGHprøject'
+  #
+  # so we should run this down.
+  project <- paste(tempdir(), enc2native(project), sep = "/")
+  renv_tests_scope(project = project)
+  defer(unlink(project, recursive = TRUE))
 
   init()
 

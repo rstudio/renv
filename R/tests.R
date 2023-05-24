@@ -1,3 +1,6 @@
+
+`_renv_tests_root` <- NULL
+
 renv_tests_running <- function() {
   getOption("renv.tests.running", default = FALSE)
 }
@@ -124,17 +127,21 @@ renv_tests_diagnostics <- function() {
 
 }
 
-# Cache absolute path to tests/testthat
 renv_tests_root <- function() {
-  global("tests.root", normalizePath(testthat::test_path(".")))
+  `_renv_tests_root` <<- `_renv_tests_root` %||% {
+    normalizePath(testthat::test_path("."), winslash = "/")
+  }
 }
 
 renv_tests_path <- function(path = NULL) {
-  if (is.null(path)) {
-    renv_tests_root()
-  } else {
-    file.path(renv_tests_root(), path)
-  }
+
+  # special case for NULL path
+  if (is.null(path))
+    return(renv_tests_root())
+
+  # otherwise, form path from root
+  file.path(renv_tests_root(), path)
+
 }
 
 renv_tests_supported <- function() {

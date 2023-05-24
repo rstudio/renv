@@ -251,7 +251,7 @@ renv_hydrate_libpaths <- function() {
     conf <- unlist(strsplit(conf, ":", fixed = TRUE))
 
   libpaths <- case(
-    renv_tests_running() ~ renv_libpaths_all(),
+    renv_tests_running() ~ character(),
     length(conf) ~ conf,
     ~ c(
       renv_libpaths_default(),

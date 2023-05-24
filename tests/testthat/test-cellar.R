@@ -7,7 +7,7 @@ test_that("renv can find packages located in the cellar", {
   cellar <- renv_paths_cellar()
   ensure_directory(cellar)
 
-  repopath <- getOption("renv.tests.repopath")
+  repopath <- renv_tests_repopath()
   packages <- list.files(
     path = file.path(repopath, "src/contrib"),
     pattern = ".tar.gz$",
