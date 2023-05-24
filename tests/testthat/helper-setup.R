@@ -3,6 +3,10 @@
 # Here, "suite of tests" might also mean "a single test" interactively.
 renv_tests_setup <- function(envir = parent.frame()) {
 
+  # make sure this only runs once
+  if (!once())
+    return()
+
   # ensure that attempts to restart are a no-op
   if (renv_rstudio_available())
     options(restart = function(...) NULL)
