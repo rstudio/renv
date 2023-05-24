@@ -361,11 +361,9 @@ renv_scope_tempfile <- function(pattern = "renv-tempfile-",
                                 fileext = "",
                                 envir  = parent.frame())
 {
-  filepath <- tempfile(pattern, tmpdir, fileext)
-
-  defer(unlink(filepath, recursive = TRUE, force = TRUE), envir = envir)
-
-  invisible(filepath)
+  path <- tempfile(pattern, tmpdir, fileext)
+  defer(unlink(path, recursive = TRUE, force = TRUE), envir = envir)
+  invisible(path)
 }
 
 renv_scope_umask <- function(umask, envir = parent.frame()) {
