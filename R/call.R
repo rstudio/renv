@@ -76,3 +76,22 @@ renv_call_normalize <- function(node, stack) {
   as.call(c(args[[1L]], lhs, args[-1L]))
 
 }
+
+
+renv_is_call <- function(call, name = NULL, n_args = NULL) {
+  if (!is.call(call))
+    return(FALSE)
+
+  if (!is.null(name)) {
+    if (!is.name(call[[1]]))
+      return(FALSE)
+
+    if (!as.character(call[[1]]) %in% name)
+      return(FALSE)
+  }
+
+  if (!is.null(n_args) && length(call) != n_args + 1L)
+    return(FALSE)
+
+  TRUE
+}
