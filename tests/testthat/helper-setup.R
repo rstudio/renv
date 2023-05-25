@@ -130,7 +130,7 @@ renv_tests_repopath <- function() {
   getOption("renv.tests.repopath")
 }
 
-renv_tests_setup_repos <- function( envir = parent.frame()) {
+renv_tests_setup_repos <- function(envir = parent.frame()) {
 
   # generate our dummy repository
   repopath <- getOption("renv.tests.repopath")
@@ -139,7 +139,7 @@ renv_tests_setup_repos <- function( envir = parent.frame()) {
   }
 
   repopath <- renv_scope_tempfile("renv-repos-", envir = envir)
-  options(renv.tests.repopath = repopath)
+  renv_scope_options(renv.tests.repopath = repopath, envir = envir)
 
   repopath <- renv_tests_repopath()
   contrib <- file.path(repopath, "src/contrib")
