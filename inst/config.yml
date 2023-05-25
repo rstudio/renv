@@ -216,11 +216,11 @@
   type: "logical[1]"
   default: true
   description: >
-    Boolean; enable integration with [Posit Package Manager](https://packagemanager.posit.co/)
+    Boolean; enable integration with [Posit Public Package Manager](https://packagemanager.posit.co/)
     for renv projects? When `TRUE`, renv will attempt to transform the
-    repository URLs used by PPM into binary URLs as appropriate for the
+    repository URLs used by PPPM into binary URLs as appropriate for the
     current platform. Set this to `FALSE` if you'd like to continue using
-    source-only PPM URLs, or if you find that renv is improperly transforming
+    source-only PPPM URLs, or if you find that renv is improperly transforming
     your repository URLs.
 
 - name: "ppm.default"
