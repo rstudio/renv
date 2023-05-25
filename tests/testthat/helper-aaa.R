@@ -1,4 +1,8 @@
 
 teardown_env <- function() {
-  if (interactive()) globalenv() else testthat::teardown_env()
+  if (is.null(renv_namespace_load("testthat")$testthat_env$teardown_env)) {
+    globalenv()
+  } else {
+    testthat::teardown_env()
+  }
 }
