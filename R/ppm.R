@@ -232,7 +232,8 @@ renv_ppm_enabled <- function() {
   if (!is.na(enabled))
     return(truthy(enabled, default = TRUE))
 
-  # binaries not available for Linux on arm64
+  # TODO: can we remove this check?
+  # https://github.com/rstudio/renv/issues/1132
   disabled <-
     renv_platform_linux() &&
     identical(renv_platform_machine(), "aarch64")
