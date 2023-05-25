@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::snapshot()` now shows if the R version changes, even if no packages
+  change (#962).
+  
 * Development versions of renv are now tracked using the Git SHA of the 
   current commit, rather than a version number that's incremented on every
   change (#1327). This shouldn't have any user facing impact, but makes
