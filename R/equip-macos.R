@@ -28,9 +28,7 @@ renv_equip_macos_specs <- function() {
 }
 
 renv_equip_macos_spec <- function(version = getRversion()) {
-  specs <- renv_equip_macos_specs()
-  majmin <- numeric_version(version)[1, 1:2]
-  specs[[format(majmin)]]
+  renv_equip_macos_specs()[[renv_version_maj_min(version)]]
 }
 
 renv_equip_macos <- function() {
