@@ -1,13 +1,14 @@
 
 renv_scope_tempdir <- function(pattern = "renv-tempdir-",
                                tmpdir = tempdir(),
+                               umask = NULL,
                                envir = parent.frame())
 {
-  dir <- tempfile(pattern = pattern, tmpdir = tmpdir)
-  ensure_directory(dir)
-  defer(unlink(dir, recursive = TRUE), envir = envir)
+  dir <- renv_scope_tempfile(pattern = pattern, tmpdir = tmpdir, envir = envir)
+  ensure_directory(dir, umask = umask)
 
   renv_scope_wd(dir, envir = envir)
+  dir
 }
 
 renv_scope_auth <- function(record, envir = parent.frame()) {

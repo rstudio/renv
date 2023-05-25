@@ -57,6 +57,7 @@ test_that("UTF-8 paths can be normalized", {
   name <- enc2utf8("\u4f60\u597d")  # nihao
   root <- normalizePath(tempdir(), winslash = "/", mustWork = TRUE)
   path <- paste(root, name, sep = "/")
+  defer(unlink(path))
   expect_true(file.create(path))
 
   expected <- path

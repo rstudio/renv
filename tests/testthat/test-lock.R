@@ -2,7 +2,7 @@
 test_that("locks can be acquired, released", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
-  path <- renv_lock_path(tempfile())
+  path <- renv_lock_path(renv_scope_tempfile())
 
   renv_lock_acquire(path)
   expect_true(file.exists(path))
@@ -15,7 +15,7 @@ test_that("locks can be acquired, released", {
 test_that("scoped locks are released appropriately", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
-  path <- renv_lock_path(tempfile())
+  path <- renv_lock_path(renv_scope_tempfile())
 
   local({
     renv_scope_lock(path)
@@ -29,7 +29,7 @@ test_that("scoped locks are released appropriately", {
 test_that("we can recursively acquire locks", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
-  path <- renv_lock_path(tempfile())
+  path <- renv_lock_path(renv_scope_tempfile())
 
   local({
 
@@ -57,7 +57,7 @@ test_that("other processes cannot lock our owned locks", {
   )
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
-  path <- renv_lock_path(tempfile())
+  path <- renv_lock_path(renv_scope_tempfile())
 
   renv_lock_acquire(path)
 
@@ -78,7 +78,7 @@ test_that("other processes cannot lock our owned locks", {
 test_that("locks are released on process exit", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
-  path <- renv_lock_path(tempfile())
+  path <- renv_lock_path(renv_scope_tempfile())
 
   code <- substitute({
     renv_lock_acquire(path)
@@ -98,7 +98,7 @@ test_that("locks are released on process exit", {
 test_that("old locks are considered 'orphaned'", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
-  path <- renv_lock_path(tempfile())
+  path <- renv_lock_path(renv_scope_tempfile())
 
   renv_scope_options(renv.lock.timeout = 0L)
   renv_lock_acquire(path)

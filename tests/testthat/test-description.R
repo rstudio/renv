@@ -2,7 +2,7 @@
 test_that("snapshotting broken DESCRIPTION files is an error", {
 
   # empty file
-  file <- tempfile()
+  file <- renv_scope_tempfile()
   file.create(file)
   expect_s3_class(renv_snapshot_description(file), "error")
 

@@ -765,7 +765,7 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 
 renv_remotes_resolve_git_description <- function(record) {
 
-  path <- tempfile("renv-git-")
+  path <- renv_scope_tempfile("renv-git-")
   ensure_directory(path)
 
   # TODO: is there a cheaper way for us to accomplish this?

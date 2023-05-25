@@ -7,16 +7,14 @@ test_that("we can use R CMD build to build a package", {
       skip("test requires 'zip'")
   }
 
-  testdir <- tempfile("renv-r-tests-")
-  defer(unlink(testdir, recursive = TRUE))
-
+  testdir <- renv_scope_tempfile("renv-r-tests-")
   ensure_directory(testdir)
+  # R CMD install creates file in working directory
   renv_scope_wd(testdir)
 
   package <- "sample.package"
   pkgdir <- file.path(testdir, package)
   ensure_directory(pkgdir)
-  defer(unlink(pkgdir, recursive = TRUE))
 
   data <- list(Package = package, Type = "Package", Version = "0.1.0")
   renv_dcf_write(data, file = file.path(pkgdir, "DESCRIPTION"))
@@ -37,7 +35,6 @@ test_that("we can use R CMD build to build a package", {
 
   expect_true(length(binball) == 1L)
   expect_equal(renv_package_type(binball), "binary")
-
 })
 
 test_that("we can supply custom options to R CMD INSTALL", {
@@ -45,7 +42,7 @@ test_that("we can supply custom options to R CMD INSTALL", {
   renv_tests_scope()
 
   # work in new renv context (don't re-use cache)
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
 
   # make install 'fail' with bad option
   renv_scope_options(install.opts = list(oatmeal = "--version"))

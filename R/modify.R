@@ -55,9 +55,8 @@ renv_modify_interactive <- function(project) {
     stopf("lockfile '%s' does not exist", renv_path_aliased(lockpath))
 
   # copy the lockfile to a temporary file
-  dir <- tempfile("renv-lockfile-")
+  dir <- renv_scope_tempfile("renv-lockfile-")
   ensure_directory(dir)
-  defer(unlink(dir, recursive = TRUE))
 
   templock <- file.path(dir, "renv.lock")
   file.copy(lockpath, templock)
@@ -98,7 +97,7 @@ renv_modify_noninteractive <- function(project, changes) {
   merged <- modifyList(lockfile, changes)
 
   # write updated lockfile to a temporary file
-  templock <- tempfile("renv-lock-")
+  templock <- renv_scope_tempfile("renv-lock-")
   renv_lockfile_write(merged, file = templock)
 
   # try reading it once more
