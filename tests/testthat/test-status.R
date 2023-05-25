@@ -10,14 +10,11 @@ test_that("status reports packages to be installed / changed", {
   })
 
   install("breakfast")
-  expect_snapshot({
-    snapshot()
-  })
+  expect_snapshot(status())
+  snapshot()
 
   record("egg")
-  expect_snapshot({
-    snapshot()
-  })
+  expect_snapshot(status())
 
 })
 
@@ -27,8 +24,6 @@ test_that("status reports packages which are used but not installed", {
   init()
 
   writeLines("library(bread)", con = "script.R")
-  expect_snapshot(
-    status()
-  )
+  expect_snapshot(status())
 
 })

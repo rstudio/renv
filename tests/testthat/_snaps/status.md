@@ -19,29 +19,29 @@
 ---
 
     Code
-      snapshot()
+      status()
     Output
-      The following package(s) will be updated in the lockfile:
+      The following package(s) are installed, but not recorded in the lockfile:
+                  _
+        bread       [1.0.0]
+        breakfast   [1.0.0]
+        oatmeal     [1.0.0]
+        toast       [1.0.0]
       
-      # CRAN ===============================
-      - bread       [* -> 1.0.0]
-      - breakfast   [* -> 1.0.0]
-      - oatmeal     [* -> 1.0.0]
-      - toast       [* -> 1.0.0]
+      Use `renv::snapshot()` to add these packages to the lockfile.
       
-      * Lockfile written to '<wd>/renv.lock'.
 
 ---
 
     Code
-      snapshot()
+      status()
     Output
-      The following package(s) will be updated in the lockfile:
+      The following packages are recorded in the lockfile, but do not appear to be used in this project:
+            _
+        egg   [1.0.0]
       
-      # Repository =========================
-      - egg   [1.0.0 -> *]
+      Use `renv::snapshot()` if you'd like to remove these packages from the lockfile.
       
-      * Lockfile written to '<wd>/renv.lock'.
 
 # status reports packages which are used but not installed
 
