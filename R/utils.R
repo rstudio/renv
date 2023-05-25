@@ -216,10 +216,6 @@ trunc <- function(text, n = 78) {
   text
 }
 
-startswith <- function(string, prefix) {
-  substring(string, 1, nchar(prefix)) == prefix
-}
-
 endswith <- function(string, suffix) {
   substring(string, nchar(string) - nchar(suffix) + 1) == suffix
 }

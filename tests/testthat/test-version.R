@@ -19,3 +19,10 @@ test_that("version matching works as expected", {
   expect_equal(renv_version_match(versions, "2"), "2.7.10")
 
 })
+
+test_that("renv_version_length works as expected", {
+  expect_equal(renv_version_length("1"), 1)
+  expect_equal(renv_version_length("1.2"), 2)
+  expect_equal(renv_version_length("1.2-3"), 3)
+  expect_equal(renv_version_length("1.2.3-4"), 4)
+})

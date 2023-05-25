@@ -59,6 +59,10 @@ local({
     unloadNamespace("renv")
 
   # load bootstrap tools   
+  startswith <- function(string, prefix) {
+    substring(string, 1, nchar(prefix)) == prefix
+  }
+  
   `%||%` <- function(x, y) {
     if (is.null(x)) y else x
   }
@@ -82,17 +86,23 @@ local({
     catf("Bootstrapping renv %s:", version)
   
     # attempt to download renv
-    tarball <- tryCatch(renv_bootstrap_download(version), error = identity)
-    if (inherits(tarball, "error"))
-      stop("Failed to download ")
+    withCallingHandlers(
+      tarball <- renv_bootstrap_download(version),
+      error = function(err) {
+        stop("failed to download:\n", conditionMessage(err))
+      }
+    )
   
     # now attempt to install
-    status <- tryCatch(renv_bootstrap_install(version, tarball, library), error = identity)
-    if (inherits(status, "error"))
-      stop("Failed to install")
+    withCallingHandlers(
+      status <- renv_bootstrap_install(version, tarball, library),
+      error = function(err) {
+        stop("failed to install:\n", conditionMessage(err))
+      }
+    )
   
     # add empty line to break up bootstrapping from normal output
-    cat("\n")
+    catf("\n")
   
     return(invisible())
   }
@@ -123,13 +133,6 @@ local({
     repos <- tryCatch(renv_bootstrap_repos_lockfile(), error = identity)
     if (!inherits(repos, "error") && length(repos))
       return(repos)
-  
-    # if we're testing, re-use the test repositories
-    if (renv_bootstrap_tests_running()) {
-      repos <- getOption("renv.tests.repos")
-      if (!is.null(repos))
-        return(repos)
-    }
   
     # retrieve current repos
     repos <- getOption("repos")
@@ -174,19 +177,11 @@ local({
   
   renv_bootstrap_download <- function(version) {
   
-    # if the renv version number has 4 components, assume it must
-    # be retrieved via github
-    nv <- numeric_version(version)
-    components <- unclass(nv)[[1]]
-  
-    # if this appears to be a development version of 'renv', we'll
-    # try to restore from github
-    dev <- length(components) == 4L
-  
     # begin collecting different methods for finding renv
     methods <- c(
       renv_bootstrap_download_tarball,
-      if (dev)
+      # dev versions can only come from GitHub
+      if (renv_bootstrap_version_is_dev(version))
         renv_bootstrap_download_github
       else c(
         renv_bootstrap_download_cran_latest,
@@ -200,7 +195,7 @@ local({
         return(path)
     }
   
-    stop("failed to download renv ", version)
+    stop("All download methods failed")
   
   }
   
@@ -264,7 +259,7 @@ local({
     type  <- spec$type
     repos <- spec$repos
   
-    catf("* Downloading %s from CRAN ... ", type, appendLF = FALSE)
+    catf("* Downloading %s from <%s> ... ", type, repos, appendLF = FALSE)
   
     baseurl <- utils::contrib.url(repos = repos, type = type)
     ext <- if (identical(type, "source"))
@@ -345,7 +340,7 @@ local({
     urls <- file.path(repos, "src/contrib/Archive/renv", name)
     destfile <- file.path(tempdir(), name)
   
-    catf("* Downloading from CRAN archive ... ", appendLF = FALSE)
+    catf("* Downloading from archive ... ", appendLF = FALSE)
   
     for (url in urls) {
   
@@ -436,9 +431,76 @@ local({
       return(FALSE)
     }
   
+    renv_bootstrap_download_augment(destfile)
+  
     catf("OK")
     return(destfile)
   
+  }
+  
+  # Add Sha to DESCRIPTION. This is stop gap until #890, after which we
+  # can use renv::install() to fully capture metadata.
+  renv_bootstrap_download_augment <- function(destfile) {
+    sha <- renv_bootstrap_git_extract_sha1_tar(destfile)
+    if (is.null(sha)) {
+      return()
+    }
+  
+    # Untar
+    tempdir <- tempfile("renv-github-")
+    on.exit(unlink(tempdir, recursive = TRUE), add = TRUE)
+    untar(destfile, exdir = tempdir)
+    pkgdir <- dir(tempdir, full.names = TRUE)[[1]]
+  
+    # Modify description
+    desc_path <- file.path(pkgdir, "DESCRIPTION")
+    desc_lines <- readLines(desc_path)
+    remotes_fields <- c(
+      "RemoteType: github",
+      "RemoteHost: api.github.com",
+      "RemoteRepo: renv",
+      "RemoteUsername: rstudio",
+      "RemotePkgRef: rstudio/renv",
+      paste("RemoteRef: ", sha),
+      paste("RemoteSha: ", sha)
+    )
+    writeLines(c(desc_lines, remotes_fields), desc_path)
+  
+    # Re-tar
+    local({
+      old <- setwd(tempdir)
+      on.exit(setwd(old), add = TRUE)
+  
+      tar(destfile, compression = "gzip")
+    })
+    invisible()
+  }
+  
+  # Extract the commit hash from a git archive. Git archives include the SHA1
+  # hash as the comment field of the tarball pax extended header
+  # (see https://www.kernel.org/pub/software/scm/git/docs/git-archive.html)
+  # For GitHub archives this should be the first header after the default one
+  # (512 byte) header.
+  renv_bootstrap_git_extract_sha1_tar <- function(bundle) {
+  
+    # open the bundle for reading
+    # We use gzcon for everything because (from ?gzcon)
+    # > Reading from a connection which does not supply a ‘gzip’ magic
+    # > header is equivalent to reading from the original connection
+    conn <- gzcon(file(bundle, open = "rb", raw = TRUE))
+    on.exit(close(conn))
+  
+    # The default pax header is 512 bytes long and the first pax extended header
+    # with the comment should be 51 bytes long
+    # `52 comment=` (11 chars) + 40 byte SHA1 hash
+    len <- 0x200 + 0x33
+    res <- rawToChar(readBin(conn, "raw", n = len)[0x201:len])
+  
+    if (grepl("^52 comment=", res)) {
+      sub("52 comment=", "", res)
+    } else {
+      NULL
+    }
   }
   
   renv_bootstrap_install <- function(version, tarball, library) {
@@ -689,29 +751,37 @@ local({
   
   }
   
-  renv_bootstrap_validate_version <- function(version) {
+  renv_bootstrap_validate_version <- function(version, description = NULL) {
+    version_is_version <- grepl("[.-]", version)
+    description <- description %||% utils::packageDescription("renv")
   
-    loadedversion <- utils::packageDescription("renv", fields = "Version")
-    if (version == loadedversion)
-      return(TRUE)
+    if (version_is_version) {
+      loaded <- description$Version
+      if (identical(loaded, version)) {
+        return(TRUE)
+      }
+    } else {
+      loaded <- description$RemoteSha
+      if (startswith(loaded, version)) {
+        return(TRUE)
+      }
+    }
   
     # assume four-component versions are from GitHub;
     # three-component versions are from CRAN
-    components <- strsplit(loadedversion, "[.-]")[[1]]
-    remote <- if (length(components) == 4L)
-      paste("rstudio/renv", loadedversion, sep = "@")
-    else
-      paste("renv", loadedversion, sep = "@")
+    remote <- if (renv_bootstrap_version_is_dev(version)) {
+      paste("rstudio/renv", loaded, sep = "@")
+    } else {
+      paste("renv", loaded, sep = "@")
+    }
   
     fmt <- paste(
       "renv %1$s was loaded from project library, but this project is configured to use renv %2$s.",
-      "Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.",
-      "Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
+      "* Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.",
+      "* Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
       sep = "\n"
     )
-  
-    msg <- sprintf(fmt, loadedversion, version, remote)
-    warning(msg, call. = FALSE)
+    catf(fmt, loaded, version, remote)
   
     FALSE
   
@@ -881,6 +951,17 @@ local({
   
   }
   
+  renv_bootstrap_version_is_dev <- function(version) {
+    # if the renv version number is a sha, or has 4 components, it must
+    # be retrieved via github
+    if (!grepl("[.-]", version)) {
+      # not . or -, so must be a sha
+      TRUE
+    } else {
+      components <- strsplit(version, "[.-]")[[1]]
+      length(components) != 3
+    }
+  }
   
   renv_json_read <- function(file = NULL, text = NULL) {
   
