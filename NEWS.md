@@ -1,7 +1,7 @@
 
 # renv 0.18.0  (UNRELEASED)
 
-* `renv::init()` now uses [Posit Package Manager](https://packagemanager.posit.co)
+* `renv::init()` now uses [Posit Public Package Manager](https://packagemanager.posit.co)
   by default, for new projects where the repositories have not already been
   configured externally (#430).
 
