@@ -1109,7 +1109,7 @@ local({
   bootstrap(version, libpath)
 
   # exit early if we're just testing bootstrap
-  if (renv_envir_exists("RENV_BOOTSTRAP_INSTALL_ONLY"))
+  if (renv_envvar_exists("RENV_BOOTSTRAP_INSTALL_ONLY"))
     return(TRUE)
 
   # try again to load

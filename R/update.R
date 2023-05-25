@@ -72,7 +72,7 @@ renv_update_find_git_impl <- function(record) {
 renv_update_find_github <- function(records) {
 
   # check for GITHUB_PAT
-  if (!renv_envir_exists("GITHUB_PAT")) {
+  if (!renv_envvar_exists("GITHUB_PAT")) {
 
     msg <- paste(
       "GITHUB_PAT is unset. Updates may fail due to GitHub's API rate limit.",

@@ -3,7 +3,7 @@
 renv_license_generate <- function() {
 
   isbuild <-
-    renv_envir_exists("R_CMD") &&
+    renv_envvar_exists("R_CMD") &&
     grepl("Rbuild", basename(dirname(getwd())))
 
   if (!isbuild)

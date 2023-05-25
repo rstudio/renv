@@ -34,8 +34,8 @@ test_that("renv_envvar_path_modify works if var isn't set", {
 
 test_that("renv_envvar_exists behaves as expected", {
   renv_scope_envvars(RENV_TEST = NULL)
-  expect_false(renv_envir_exists("RENV_TEST"))
+  expect_false(renv_envvar_exists("RENV_TEST"))
   renv_scope_envvars(RENV_TEST = 1)
-  expect_true(renv_envir_exists("RENV_TEST"))
+  expect_true(renv_envvar_exists("RENV_TEST"))
 })
 

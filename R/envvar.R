@@ -35,6 +35,6 @@ renv_envvar_path_add <- function(envvar, value, prepend = TRUE) {
 
 }
 
-renv_envir_exists <- function(key) {
+renv_envvar_exists <- function(key) {
   !is.na(Sys.getenv(key, unset = NA))
 }
