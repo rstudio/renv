@@ -8,7 +8,7 @@
 * MRAN integration is now disabled by default, pending the upcoming shutdown
   of Microsoft's MRAN service. Users who require binaries of older R packages
   on Windows + macOS can consider using the instance of CRAN mirrored by the
-  [Posit Package Manager](https://packagemanager.posit.co). (#1343)
+  [Posit Public Package Manager](https://packagemanager.posit.co) (#1343).
 
 * `renv::dependencies()` only extracts dependencies from text in YAML
   headers that looks like valid R code (#1288).
