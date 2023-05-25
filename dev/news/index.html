@@ -69,7 +69,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> now shows if the R version changes, even if no packages change (<a href="https://github.com/rstudio/renv/issues/962" class="external-link">#962</a>).</p></li>
+<ul><li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> only extracts dependencies from text in YAML headers that looks like valid R code (<a href="https://github.com/rstudio/renv/issues/1288" class="external-link">#1288</a>).</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> no longer requires confirmation when writing the first snapshot, since that’s an action that can easily be undone (by deleting <code>renv.lock</code>) (<a href="https://github.com/rstudio/renv/issues/1281" class="external-link">#1281</a>).</p></li>
+<li><p><code><a href="../reference/snapshot.html">renv::snapshot()</a></code> now shows if the R version changes, even if no packages change (<a href="https://github.com/rstudio/renv/issues/962" class="external-link">#962</a>).</p></li>
 <li><p>Development versions of renv are now tracked using the Git SHA of the current commit, rather than a version number that’s incremented on every change (<a href="https://github.com/rstudio/renv/issues/1327" class="external-link">#1327</a>). This shouldn’t have any user facing impact, but makes renv maintenance a little easier.</p></li>
 <li><p>Fixed an issue causing “restarting interrupted promise evaluation” warnings to be displayed when querying available packages failed. (<a href="https://github.com/rstudio/renv/issues/1260" class="external-link">#1260</a>)</p></li>
 <li><p><code><a href="../reference/load.html">renv::load()</a></code> no longer duplicates entries on the <code>PATH</code> environment variable (<a href="https://github.com/rstudio/renv/issues/1095" class="external-link">#1095</a>).</p></li>
