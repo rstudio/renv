@@ -73,7 +73,7 @@ init <- function(project = NULL,
     renv_profile_set(profile)
 
   # normalize repos
-  repos <- renv_repos_normalize(repos %||% getOption("repos"))
+  repos <- renv_repos_normalize(repos %||% renv_init_repos())
   options(repos = repos)
 
   # form path to lockfile, library
@@ -269,5 +269,37 @@ renv_init_bioconductor <- function(bioconductor, project) {
     identical(bioconductor, TRUE)  ~ renv_bioconductor_version(project, refresh = TRUE),
     identical(bioconductor, FALSE) ~ NULL
   )
+
+}
+
+renv_init_repos <- function() {
+
+  # if PPM is disabled, just use default repositories
+  # (use 'convert' to preserve attributes)
+  repos <- convert(getOption("repos"), "list")
+  if (!renv_ppm_enabled())
+    return(repos)
+
+  enabled <- config$ppm.default()
+  if (!enabled)
+    return(repos)
+
+  # if we're using the global CDN from RStudio, use PPM instead
+  rstudio <- attr(repos, "RStudio", exact = TRUE)
+  if (identical(rstudio, TRUE)) {
+    cran <- repos[["CRAN"]]
+    if (startswith(cran, "https://cran.rstudio.") ||
+        startswith(cran, "https://cran.posit."))
+    {
+      return(config$ppm.url())
+    }
+  }
+
+  # if no repository was set, use PPM
+  if (identical(repos, list(CRAN = "@CRAN@")))
+    return(config$ppm.url())
+
+  # repos appears to have been configured separately; just use it
+  repos
 
 }

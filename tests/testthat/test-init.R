@@ -208,3 +208,13 @@ test_that("RENV_PATHS_RENV is respected on init", {
   expect_equal(renv, ".renv")
 
 })
+
+test_that("init() uses PPM by default", {
+  skip_on_cran()
+
+  # simulate "fresh" R session with unset repositories
+  renv_scope_options(repos = c(CRAN = "@CRAN@"))
+  repos <- renv_init_repos()
+  expect_equal(repos, "https://packagemanager.posit.co/cran/latest")
+
+})

@@ -239,6 +239,24 @@ config <- list(
     )
   },
 
+  ppm.default = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "ppm.default",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
+  ppm.url = function(..., default = "https://packagemanager.posit.co/cran/latest") {
+    renv_config_get(
+      name    = "ppm.url",
+      type    = "character[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   repos.override = function(..., default = NULL) {
     renv_config_get(
       name    = "repos.override",

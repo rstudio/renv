@@ -5,7 +5,7 @@
 \alias{config}
 \title{User-Level Configuration of renv}
 \format{
-An object of class \code{list} of length 37.
+An object of class \code{list} of length 40.
 }
 \usage{
 config
@@ -104,6 +104,10 @@ Defaults to \code{FALSE}.}
 Defaults to \code{FALSE}.}
 \subsection{renv.config.ppm.enabled}{Boolean; enable integration with \href{https://packagemanager.posit.co/}{Posit Package Manager} for renv projects? When \code{TRUE}, renv will attempt to transform the repository URLs used by PPM into binary URLs as appropriate for the current platform. Set this to \code{FALSE} if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs.
 Defaults to \code{TRUE}.}
+\subsection{renv.config.ppm.default}{Boolean; should new projects use \href{https://packagemanager.posit.co/}{Posit Package Manager} by default? When \code{TRUE} (the default), projects initialized with \code{renv::init()} will use the public Posit Package Manager instance if the \code{repos} R option has not already been set or changed by the user.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.ppm.url}{The default Package Manager URL to be used for new renv projects.
+Defaults to \code{"https://packagemanager.posit.co/cran/latest"}.}
 \subsection{renv.config.repos.override}{Override the R package repositories used during \code{\link[=restore]{restore()}}? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
 Defaults to \code{NULL}.}
 \subsection{renv.config.rspm.enabled}{DEPRECATED: Please use \code{renv.config.ppm.enabled} instead.

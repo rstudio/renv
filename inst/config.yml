@@ -223,6 +223,21 @@
     source-only PPM URLs, or if you find that renv is improperly transforming
     your repository URLs.
 
+- name: "ppm.default"
+  type: "logical[1]"
+  default: true
+  description: >
+    Boolean; should new projects use [Posit Package Manager](https://packagemanager.posit.co/)
+    by default? When `TRUE` (the default), projects initialized with
+    `renv::init()` will use the public Posit Package Manager instance if the
+    `repos` R option has not already been set or changed by the user.
+
+- name: "ppm.url"
+  type: "character[1]"
+  default: "https://packagemanager.posit.co/cran/latest"
+  description: >
+    The default Package Manager URL to be used for new renv projects.
+
 - name: "repos.override"
   type: "character[*]"
   default: ~

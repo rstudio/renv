@@ -575,7 +575,7 @@ renv_retrieve_repos <- function(record) {
     methods$push(renv_retrieve_repos_binary_fallback)
 
     # if MRAN is enabled, check those binaries as well
-    if (config$mran.enabled())
+    if (renv_mran_enabled())
       methods$push(renv_retrieve_repos_mran)
 
   }

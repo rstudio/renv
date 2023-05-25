@@ -57,18 +57,20 @@ test_that("RSPM is confirmed not supported on trusty", {
 
 test_that("renv correctly detects RHEL as CentOS for RSPM", {
 
-  release <- 'NAME="Red Hat Enterprise Linux Server"
-VERSION="7.9 (Maipo)"
-ID="rhel"
-ID_LIKE="fedora"
-VARIANT="Server"
-VARIANT_ID="server"
-VERSION_ID="7.9"
-PRETTY_NAME="Red Hat Enterprise Linux Server 7.9 (Maipo)"
-ANSI_COLOR="0;31"
-CPE_NAME="cpe:/o:redhat:enterprise_linux:7.9:GA:server"
-HOME_URL="https://www.redhat.com/"
-BUG_REPORT_URL="https://bugzilla.redhat.com/"'
+  release <- heredoc('
+    NAME="Red Hat Enterprise Linux Server"
+    VERSION="7.9 (Maipo)"
+    ID="rhel"
+    ID_LIKE="fedora"
+    VARIANT="Server"
+    VARIANT_ID="server"
+    VERSION_ID="7.9"
+    PRETTY_NAME="Red Hat Enterprise Linux Server 7.9 (Maipo)"
+    ANSI_COLOR="0;31"
+    CPE_NAME="cpe:/o:redhat:enterprise_linux:7.9:GA:server"
+    HOME_URL="https://www.redhat.com/"
+    BUG_REPORT_URL="https://bugzilla.redhat.com/"
+  ')
 
   file <- renv_scope_tempfile()
   writeLines(release, con = file)
