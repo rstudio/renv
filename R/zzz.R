@@ -96,7 +96,7 @@ renv_zzz_run <- function() {
   # check if we're running as part of R CMD build
   # if so, build our local repository with a copy of ourselves
   building <-
-    !is.na(Sys.getenv("R_CMD", unset = NA)) &&
+    renv_envvar_exists("R_CMD") &&
     grepl("Rbuild", basename(dirname(getwd())))
 
   if (building) {
