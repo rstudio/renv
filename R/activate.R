@@ -124,7 +124,9 @@ renv_activate_version_lockfile <- function(project) {
     return(NULL)
 
   lockfile <- renv_lockfile_read(path)
-  lockfile$Packages[["renv"]]$Version %||% lockfile[["renv"]]$Version
+  lockfile$Packages[["renv"]]$RemoteSha %||%
+    lockfile$Packages[["renv"]]$Version %||%
+    lockfile[["renv"]]$Version
 
 }
 

@@ -482,8 +482,7 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
     path <- file.path(exdir, pkgpath)
 
     # and ensure we build in this directory
-    owd <- setwd(path)
-    defer(setwd(owd))
+    renv_scope_wd(path)
 
   }
 

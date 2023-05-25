@@ -4,15 +4,11 @@ renv_scope_tempdir <- function(pattern = "renv-tempdir-",
                                umask = NULL,
                                envir = parent.frame())
 {
-  dir <- tempfile(pattern = pattern, tmpdir = tmpdir)
+  dir <- renv_scope_tempfile(pattern = pattern, tmpdir = tmpdir, envir = envir)
   ensure_directory(dir, umask = umask)
-  owd <- setwd(dir)
 
-  defer({
-    setwd(owd)
-    unlink(dir, recursive = TRUE)
-  }, envir = envir)
-
+  renv_scope_wd(dir, envir = envir)
+  dir
 }
 
 renv_scope_auth <- function(record, envir = parent.frame()) {
@@ -50,11 +46,9 @@ renv_scope_libpaths <- function(new = .libPaths(), envir = parent.frame()) {
 }
 
 renv_scope_options <- function(..., envir = parent.frame()) {
-
   new <- list(...)
   old <- options(new)
   defer(options(old), envir = envir)
-
 }
 
 renv_scope_locale <- function(category = "LC_ALL", locale = "", envir = parent.frame()) {
@@ -348,17 +342,15 @@ renv_scope_trace <- function(what, tracer, envir = parent.frame()) {
 
 }
 
-renv_scope_var <- function(key, value, frame, envir = parent.frame()) {
 
-  if (exists(key, envir = frame, inherits = FALSE)) {
-    saved <- get(key, envir = frame, inherits = FALSE)
-    assign(key, value, envir = frame, inherits = FALSE)
-    defer(assign(key, saved, envir = frame, inherits = FALSE), envir = envir)
+renv_scope_binding <- function(envir, symbol, replacement, frame = parent.frame()) {
+  if (exists(symbol, envir, inherits = FALSE)) {
+    old <- renv_binding_replace(symbol, replacement, envir)
+    defer(renv_binding_replace(symbol, old, envir), envir = frame)
   } else {
-    assign(key, value, envir = frame, inherits = FALSE)
-    defer(rm(list = key, envir = frame, inherits = FALSE), envir = envir)
+    assign(symbol, replacement, envir = envir)
+    defer(rm(list = symbol, envir = envir, inherits = FALSE), envir = frame)
   }
-
 }
 
 renv_scope_tempfile <- function(pattern = "renv-tempfile-",
@@ -366,15 +358,25 @@ renv_scope_tempfile <- function(pattern = "renv-tempfile-",
                                 fileext = "",
                                 envir  = parent.frame())
 {
-  filepath <- tempfile(pattern, tmpdir, fileext)
-
-  defer(unlink(filepath, recursive = TRUE, force = TRUE), envir = envir)
-
-  invisible(filepath)
+  path <- tempfile(pattern, tmpdir, fileext)
+  defer(unlink(path, recursive = TRUE, force = TRUE), envir = envir)
+  invisible(path)
 }
 
 renv_scope_umask <- function(umask, envir = parent.frame()) {
   oldmask <- Sys.umask(umask)
   defer(Sys.umask(oldmask), envir = envir)
   invisible(oldmask)
+}
+
+renv_scope_wd <- function(dir = getwd(), envir = parent.frame()) {
+  owd <- setwd(dir)
+  defer(setwd(owd), envir = envir)
+  invisible(owd)
+}
+
+renv_scope_sandbox <- function(envir = parent.frame()) {
+  sandbox <- renv_sandbox_activate()
+  defer(renv_sandbox_deactivate(), envir = envir)
+  invisible(sandbox)
 }

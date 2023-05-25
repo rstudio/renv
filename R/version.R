@@ -82,3 +82,8 @@ renv_version_components <- function(version, n) {
   parts[n]
 
 }
+
+renv_version_length <- function(version) {
+  nv <- numeric_version(version)
+  length(unclass(nv)[[1]])
+}

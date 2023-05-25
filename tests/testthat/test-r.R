@@ -9,10 +9,8 @@ test_that("we can use R CMD build to build a package", {
 
   testdir <- renv_scope_tempfile("renv-r-tests-")
   ensure_directory(testdir)
-
   # R CMD install creates file in working directory
-  owd <- setwd(testdir)
-  defer(setwd(owd))
+  renv_scope_wd(testdir)
 
   package <- "sample.package"
   pkgdir <- file.path(testdir, package)

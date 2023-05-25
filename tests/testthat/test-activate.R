@@ -6,7 +6,7 @@ test_that("renv can bootstrap itself if not installed", {
 
   # initialize bare project
   renv_tests_scope()
-  renv::init(bare = TRUE)
+  init(bare = TRUE)
 
   # simulate bootstrap of renv from mock library
   renv_infrastructure_write_activate(version = "1.0.0")
@@ -21,4 +21,23 @@ test_that("renv can bootstrap itself if not installed", {
   status <- system2(R(), args, stdout = stdout, stderr = stderr)
   expect_equal(status, 0L)
 
+})
+
+
+test_that("renv can bootstrap a dev version", {
+
+  skip_slow()
+
+  renv_tests_scope()
+  init(bare = TRUE, restart = FALSE)
+  renv_infrastructure_write_activate(version = "5049cef8a")
+
+  args <- c("-s", "-e", shQuote("library(renv, warn.conflicts = FALSE)"))
+  stdout <- stderr <- if (interactive()) "" else FALSE
+  status <- system2(R(), args, stdout = stdout, stderr = stderr)
+  expect_equal(status, 0L)
+
+  # And should be fine if we run it again
+  status <- system2(R(), args, stdout = stdout, stderr = stderr)
+  expect_equal(status, 0L)
 })

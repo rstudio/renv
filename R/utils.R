@@ -32,7 +32,6 @@
   if (length(x)) y
 }
 
-
 lines <- function(...) {
   paste(..., sep = "\n")
 }
@@ -215,10 +214,6 @@ trunc <- function(text, n = 78) {
   long <- nchar(text) > n
   text[long] <- sprintf("%s <...>", substring(text[long], 1, n - 6))
   text
-}
-
-startswith <- function(string, prefix) {
-  substring(string, 1, nchar(prefix)) == prefix
 }
 
 endswith <- function(string, suffix) {
@@ -541,5 +536,7 @@ untar <- function(tarfile,
 }
 
 rep_named <- function(names, x) {
-  stats::setNames(rep_len(x, length(names)), names)
+  values <- rep_len(x, length(names))
+  names(values) <- names
+  values
 }

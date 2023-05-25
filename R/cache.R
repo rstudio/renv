@@ -562,8 +562,7 @@ renv_cache_clean_empty <- function(cache = NULL) {
 renv_cache_clean_empty_impl <- function(cache) {
 
   # move to cache directory
-  owd <- setwd(cache)
-  defer(setwd(owd))
+  renv_scope_wd(cache)
 
   # construct system command for removing empty directories
   action <- "removing empty directories"

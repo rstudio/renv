@@ -108,7 +108,7 @@ init <- function(project = NULL,
 
   # for bare inits, just activate the project
   if (bare)
-    return(renv_init_fini(project, profile, version, restart, quiet))
+    return(renv_init_fini(project, profile, restart, quiet))
 
   # collect dependencies
   renv_dependencies_scope(project, action = "init")
@@ -131,18 +131,16 @@ init <- function(project = NULL,
   }
 
   # activate the newly-hydrated project
-  renv_init_fini(project, profile, version, restart, quiet)
+  renv_init_fini(project, profile, restart, quiet)
 
 }
 
-renv_init_fini <- function(project, profile, version, restart, quiet) {
-
-  version <- renv_metadata_version()
+renv_init_fini <- function(project, profile, restart, quiet) {
 
   renv_activate_impl(
     project = project,
     profile = profile,
-    version = version,
+    version = renv_metadata_version(),
     restart = restart,
     quiet   = quiet
   )

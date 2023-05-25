@@ -108,7 +108,7 @@ test_that("downloads work with file URIs", {
   destfile <- renv_scope_tempfile("packages-")
   download(url, destfile = destfile)
 
-  expect_true(file.exists(destfile))
+  expect_true(file.exists(!!destfile))
 
 })
 

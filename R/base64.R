@@ -86,13 +86,14 @@ renv_base64_encode <- function(text) {
 
 }
 
+`_renv_base64_decode_table` <- NULL
 renv_base64_decode_table <- function() {
-  global("base64.decode.table", {
+  `_renv_base64_decode_table` <<- `_renv_base64_decode_table` %||% {
     table <- integer(255)
     text <- "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
     table[utf8ToInt(text)] <- seq_len(nchar(text)) - 1L
     table
-  })
+  }
 }
 
 renv_base64_decode_main <- function(input) {

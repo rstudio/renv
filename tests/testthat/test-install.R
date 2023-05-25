@@ -67,7 +67,7 @@ test_that("install forces update of dependencies as needed", {
   renv_tests_scope("breakfast")
 
   # install the breakfast package
-  renv::install("breakfast")
+  install("breakfast")
 
   # ensure its dependencies were installed
   packages <- c("bread", "oatmeal", "toast")
@@ -75,7 +75,7 @@ test_that("install forces update of dependencies as needed", {
     expect_true(file.exists(renv_package_find(package)))
 
   # remove breakfast
-  renv::remove("breakfast")
+  remove("breakfast")
 
   # modify 'toast' so that it's now too old
   path <- renv_package_find("toast")
@@ -85,7 +85,7 @@ test_that("install forces update of dependencies as needed", {
   renv_dcf_write(desc, file = descpath)
 
   # try to install 'breakfast' again
-  renv::install("breakfast")
+  install("breakfast")
 
   # validate that 'toast' was updated to 1.0.0
   desc <- renv_description_read(package = "toast")
@@ -96,14 +96,14 @@ test_that("install forces update of dependencies as needed", {
 test_that("packages can be installed from sources", {
 
   renv_tests_scope()
-  renv::init()
+  init()
 
   # get path to package sources in local repos
-  repos <- getOption("renv.tests.repos")
+  repos <- getOption("repos")[["CRAN"]]
   tarball <- file.path(repos, "src/contrib/bread_1.0.0.tar.gz")
 
   # try to install it
-  renv::install(tarball)
+  install(tarball)
   expect_true(renv_package_version("bread") == "1.0.0")
 
 })
@@ -112,40 +112,40 @@ test_that("various remote styles can be used during install", {
   skip_if_no_github_auth()
 
   renv_tests_scope()
-  renv::init()
+  init()
 
   # install CRAN latest
-  renv::install("bread")
+  install("bread")
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_version("bread") == "1.0.0")
 
   # install from archive
-  renv::install("bread@0.1.0")
+  install("bread@0.1.0")
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_version("bread") == "0.1.0")
 
   # install from github
-  renv::install("kevinushey/skeleton")
+  install("kevinushey/skeleton")
   expect_true(renv_package_installed("skeleton"))
   expect_true(renv_package_version("skeleton") == "1.0.1")
 
   # install from github PR
-  renv::install("kevinushey/skeleton#1")
+  install("kevinushey/skeleton#1")
   expect_true(renv_package_installed("skeleton"))
   expect_true(renv_package_version("skeleton") == "1.0.2")
 
   # install from branch
-  renv::install("kevinushey/skeleton@feature/version-bump")
+  install("kevinushey/skeleton@feature/version-bump")
   expect_true(renv_package_installed("skeleton"))
   expect_true(renv_package_version("skeleton") == "1.0.2")
 
   # install from subdir
-  renv::install("kevinushey/subdir:subdir")
+  install("kevinushey/subdir:subdir")
   expect_true(renv_package_installed("subdir"))
   expect_true(renv_package_version("subdir") == "0.0.0.9000")
 
   # install from URL to zip
-  renv::install("https://github.com/kevinushey/skeleton/archive/master.zip")
+  install("https://github.com/kevinushey/skeleton/archive/master.zip")
   expect_true(renv_package_installed("skeleton"))
   expect_true(renv_package_version("skeleton") == "1.0.1")
 
@@ -156,7 +156,7 @@ test_that("Remotes fields in a project DESCRIPTION are respected", {
 
   renv_tests_scope()
   renv_scope_options(repos = character())
-  renv::init()
+  init()
 
   desc <- c(
     "Type: Package",
@@ -166,7 +166,7 @@ test_that("Remotes fields in a project DESCRIPTION are respected", {
   )
 
   writeLines(desc, con = "DESCRIPTION")
-  renv::install()
+  install()
 
   record <- renv_snapshot_description(package = "skeleton")
   expect_true(record$Source == "GitHub")
@@ -204,7 +204,7 @@ test_that("renv warns when installing an already-loaded package", {
   renv_namespace_unload("bread")
 })
 
-test_that("renv::install() writes out Github fields for backwards compatibility", {
+test_that("install() writes out Github fields for backwards compatibility", {
   skip_if_no_github_auth()
   renv_tests_scope()
 

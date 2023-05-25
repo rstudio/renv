@@ -66,8 +66,7 @@ renv_id_generate_cscript <- function() {
   dir.create(dir)
 
   # move to it
-  owd <- setwd(dir)
-  defer(setwd(owd))
+  renv_scope_wd(dir)
 
   # write helper script
   script <- c(

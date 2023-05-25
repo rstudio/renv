@@ -27,7 +27,7 @@ test_that("we can bootstrap an archived version of renv", {
 
 })
 
-test_that("we can install a version of renv from GitHub", {
+test_that("we can install a dev version of renv", {
 
   skip_on_cran()
   skip_on_ci()
@@ -41,19 +41,21 @@ test_that("we can install a version of renv from GitHub", {
 
 })
 
-test_that("bootstrap succeeds with empty repos", {
+test_that("we can install a version of renv with a sha", {
 
   skip_on_cran()
-  skip_on_os("windows")
+  skip_on_ci()
 
   renv_tests_scope()
-  renv_scope_options(repos = character())
 
   library <- renv_libpaths_active()
-  bootstrap(version = "1.0.0", library = library)
+  bootstrap(version = "5049cef8a", library = library)
   expect_true(renv_package_installed("renv", library))
-  expect_true(renv_package_version("renv") == "1.0.0")
 
+  desc <- utils::packageDescription("renv", library)
+  expect_equal(desc$RemoteType, "github")
+  expect_equal(desc$RemotePkgRef, "rstudio/renv")
+  expect_equal(desc$RemoteSha, "5049cef8a94591b802f9766a0da092780f59f7e4")
 })
 
 test_that("bootstrap functions don't depend on non-bootstrap APIs", {
@@ -201,3 +203,32 @@ test_that("bootstrapping gives informative output when install fails", {
 
 })
 
+
+
+# helpers -----------------------------------------------------------------
+
+test_that("renv_bootstrap_version_is_dev() works", {
+  expect_true(renv_bootstrap_version_is_dev("abc123"))
+  expect_true(renv_bootstrap_version_is_dev("1.2.3-4"))
+  expect_false(renv_bootstrap_version_is_dev("1.2.3"))
+})
+
+test_that("renv_boostrap_version_validate() recognises when versions are the same", {
+
+  expect_true(
+    renv_bootstrap_validate_version("abcd123", list(RemoteSha = "abcd1234567"))
+  )
+  expect_true(
+    renv_bootstrap_validate_version("1.2.3", list(Version = "1.2.3"))
+  )
+})
+
+
+test_that("renv_boostrap_version_validate() gives good warnings", {
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+
+  expect_snapshot({
+    . <- renv_bootstrap_validate_version("abcd", list(RemoteSha = "efgh"))
+    . <- renv_bootstrap_validate_version("1.2.3", list(Version = "2.3.4"))
+  })
+})

@@ -9,20 +9,15 @@ renv_test_scope_python <- function(envir = parent.frame()) {
   )
 }
 
-python <-
-  Sys.which("python3") %""%
-  Sys.which("python")  %""%
-  skip("python is not available")
-
 test_that("we can activate Python with a project", {
 
   skip_on_os("windows")
   skip_on_cran()
-  skip_if_no_python(python)
+  skip_if_no_python()
   renv_test_scope_python()
 
   renv_tests_scope("breakfast")
-  use_python(python = python, type = "system")
+  use_python(python = sys_python(), type = "system")
 
   lockfile <- renv_lockfile_read("renv.lock")
   expect_true(!is.null(lockfile$Python))
@@ -33,11 +28,11 @@ test_that("we can activate Python with a virtualenv in a project", {
 
   skip_slow()
   skip_on_os("windows")
-  skip_if_no_virtualenv(python)
+  skip_if_no_virtualenv()
   renv_test_scope_python()
 
   renv_tests_scope("breakfast")
-  use_python(python = python, type = "virtualenv")
+  use_python(python = sys_python(), type = "virtualenv")
 
   lockfile <- renv_lockfile_read("renv.lock")
   expect_equal(lockfile$Python$Type, "virtualenv")
@@ -48,11 +43,11 @@ test_that("renv uses local virtual environment for names beginning with '.'", {
 
   skip_on_os("windows")
   skip_on_cran()
-  skip_if_no_virtualenv(python)
+  skip_if_no_virtualenv()
   renv_test_scope_python()
 
   renv_tests_scope("breakfast")
-  renv::use_python(python = python, name = ".venv")
+  use_python(python = sys_python(), name = ".venv")
 
   expect_true(renv_file_exists(".venv"))
 
@@ -66,7 +61,7 @@ test_that("renv can bind to virtualenvs in WORKON_HOME", {
 
   skip_on_os("windows")
   skip_on_cran()
-  skip_if_no_virtualenv(python)
+  skip_if_no_virtualenv()
   renv_test_scope_python()
 
   # work with temporary virtualenv home
@@ -83,7 +78,7 @@ test_that("renv can bind to virtualenvs in WORKON_HOME", {
 
   # create a test project
   renv_tests_scope("breakfast")
-  renv::use_python(python = python, name = "renv-test-environment")
+  use_python(python = sys_python(), name = "renv-test-environment")
 
   expect_true(renv_file_exists(path))
 
@@ -97,13 +92,14 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
 
   skip_slow()
   skip_on_os("windows")
-  skip_if_no_virtualenv(python)
+  skip_if_no_virtualenv()
   renv_test_scope_python()
 
   renv_tests_scope("breakfast")
 
+  python <- sys_python()
   # initialize python
-  python <- renv::use_python(
+  python <- use_python(
     python,
     name = renv_scope_tempfile("python-virtualenv-"),
     type = "virtualenv"
@@ -117,7 +113,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   # snapshot changes
   local({
     renv_scope_sink()
-    renv::snapshot()
+    snapshot()
   })
 
   # check requirements.txt for install
@@ -133,7 +129,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   # try to restore
   local({
     renv_scope_sink()
-    renv::restore()
+    restore()
   })
 
   # check that we can load python-dotenv now
@@ -147,14 +143,13 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
   skip_if_local()
   skip_on_os("windows")
   skip_on_cran()
-  skip_if_no_miniconda(python)
-  skip_if(renv_version_lt(renv_python_version(python), "3.6"))
+  skip_if_no_miniconda("3.6")
   renv_test_scope_python()
 
   renv_tests_scope("breakfast")
 
   # initialize python
-  quietly(renv::use_python(type = "conda"))
+  quietly(use_python(type = "conda"))
   python <- Sys.getenv("RETICULATE_PYTHON")
 
   # install numpy
@@ -162,7 +157,7 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
 
   # snapshot changes
-  renv::snapshot()
+  snapshot()
 
   # check requirements.txt for install
   expect_true(file.exists("environment.yml"))
@@ -177,7 +172,7 @@ test_that("installed Python packages are snapshotted / restored [conda]", {
   expect_false(status == 0L)
 
   # try to restore
-  renv::restore()
+  restore()
 
   # check that we can load numpy now
   cmd <- paste(shQuote(python), "-c 'import numpy'")
@@ -191,23 +186,22 @@ test_that("python environment name is preserved after snapshot", {
   skip_if_local()
   skip_on_os("windows")
   skip_on_cran()
-  skip_if_no_miniconda(python)
-  skip_if(renv_version_lt(renv_python_version(python), "3.6"))
+  skip_if_no_miniconda("3.6")
   renv_test_scope_python()
 
   # create and use local python environment
   renv_tests_scope()
-  renv::init()
+  init()
 
   system2(python, c("-m", "venv", "virtualenv"))
-  renv::use_python(name = "./virtualenv")
+  use_python(name = "./virtualenv")
 
   # check that the lockfile has been updated
   lockfile <- renv_lockfile_read("renv.lock")
   expect_equal(lockfile$Python$Name, "./virtualenv")
 
   # try to snapshot
-  renv::snapshot()
+  snapshot()
 
   # check that the virtual environment name was preserved
   lockfile <- renv_lockfile_read("renv.lock")

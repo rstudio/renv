@@ -8,14 +8,14 @@ test_that("snapshot preflight tests catch common issues", {
 
   # library is a file, not directory
   file.create(libpath)
-  expect_error(renv::snapshot(library = libpath))
+  expect_error(snapshot(library = libpath))
   unlink(libpath)
 
   # project library does not exist
-  expect_error(renv::snapshot(library = libpath))
+  expect_error(snapshot(library = libpath))
 
   # arbitrary library does not exist
-  expect_error(renv::snapshot(library = tempfile()))
+  expect_error(snapshot(library = tempfile()))
 
 })
 
@@ -29,7 +29,7 @@ test_that("renv warns when snapshotting missing dependencies", {
 
   local({
     renv_scope_sink()
-    expect_error(renv::snapshot())
+    expect_error(snapshot())
   })
 
   lockfile <- renv_lockfile_load(project)

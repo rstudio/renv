@@ -225,13 +225,12 @@ test_that("recursive symlinks are handled", {
   project <- renv_scope_tempfile()
   ensure_directory(project)
 
-  owd <- setwd(project)
-  defer(setwd(owd))
+  renv_scope_wd(project)
 
   symlink <- file.path(project, "symlink")
   file.symlink(dirname(symlink), symlink)
 
-  renv:::dependencies()
+  dependencies()
 
 })
 

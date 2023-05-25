@@ -215,8 +215,7 @@ test_that("an explicitly-provided local source path can be used", {
 
   source <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
 
-  owd <- setwd(tempdir())
-  defer(setwd(owd))
+  renv_scope_wd(tempdir())
 
   record <- list(
     Package = "skeleton",

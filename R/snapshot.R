@@ -823,23 +823,25 @@ renv_snapshot_description_source_hack <- function(package) {
 # nocov start
 renv_snapshot_report_actions <- function(actions, old, new) {
 
-  if (!renv_verbose() || empty(actions))
+  if (!renv_verbose())
     return(invisible())
 
-  lhs <- renv_lockfile_records(old)
-  rhs <- renv_lockfile_records(new)
-  renv_pretty_print_records_pair(
-    lhs[names(lhs) %in% names(actions)],
-    rhs[names(rhs) %in% names(actions)],
-    "The following package(s) will be updated in the lockfile:"
-  )
+  if (length(actions)) {
+    lhs <- renv_lockfile_records(old)
+    rhs <- renv_lockfile_records(new)
+    renv_pretty_print_records_pair(
+      lhs[names(lhs) %in% names(actions)],
+      rhs[names(rhs) %in% names(actions)],
+      "The following package(s) will be updated in the lockfile:"
+    )
+  }
 
   oldr <- old$R$Version
   newr <- new$R$Version
   rdiff <- renv_version_compare(oldr %||% "0", newr %||% "0")
 
   if (rdiff != 0L) {
-    n <- max(nchar(names(actions)))
+    n <- max(nchar(names(actions)), 0)
     fmt <- paste("-", format("R", width = n), " ", "[%s -> %s]")
     msg <- sprintf(fmt, oldr %||% "*", newr %||% "*")
     writeLines(c("The version of R recorded in the lockfile will be updated:", msg, ""))
@@ -1108,8 +1110,7 @@ renv_snapshot_fixup_renv <- function(records) {
 
   # no valid record available; construct a synthetic one
   version <- renv_metadata_version()
-  components <- unclass(numeric_version(version))[[1]]
-  remote <- if (length(components) == 4L)
+  remote <- if (renv_metadata_is_dev())
     paste("rstudio/renv", version, sep = "@")
   else
     paste("renv", version, sep = "@")

@@ -10,13 +10,13 @@ test_that("we can restore packages after init", {
   skip_on_cran()
   renv_tests_scope("breakfast")
 
-  renv::init()
+  init()
 
   libpath <- renv_paths_library()
   before <- list.files(libpath)
 
   unlink(renv_paths_library(), recursive = TRUE)
-  renv::restore()
+  restore()
 
   after <- list.files(libpath)
   expect_setequal(before, after)
@@ -26,14 +26,14 @@ test_that("we can restore packages after init", {
 test_that("restore can recover when required packages are missing", {
   skip_on_cran()
   renv_tests_scope("breakfast")
-  renv::init()
+  init()
 
   local({
     renv_scope_sink()
-    renv::remove("oatmeal")
-    renv::snapshot(force = TRUE)
+    remove("oatmeal")
+    snapshot(force = TRUE)
     unlink(renv_paths_library(), recursive = TRUE)
-    renv::restore()
+    restore()
   })
 
   expect_true(renv_package_installed("oatmeal"))
@@ -43,13 +43,13 @@ test_that("restore can recover when required packages are missing", {
 test_that("restore(clean = TRUE) removes packages not in the lockfile", {
 
   renv_tests_scope("oatmeal")
-  renv::init()
+  init()
 
   renv_scope_options(renv.config.auto.snapshot = FALSE)
-  renv::install("bread")
+  install("bread")
   expect_true(renv_package_installed("bread"))
 
-  renv::restore(clean = TRUE)
+  restore(clean = TRUE)
   expect_false(renv_package_installed("bread"))
 
 })
@@ -57,17 +57,17 @@ test_that("restore(clean = TRUE) removes packages not in the lockfile", {
 test_that("renv.records can be used to override records during restore", {
 
   renv_tests_scope("bread")
-  renv::init()
+  init()
 
-  renv::install("bread@0.1.0")
-  renv::snapshot()
+  install("bread@0.1.0")
+  snapshot()
   expect_equal(renv_package_version("bread"), "0.1.0")
 
   bread <- list(Package = "bread", Version = "1.0.0", Source = "CRAN")
   overrides <- list(bread = bread)
   renv_scope_options(renv.records = overrides)
 
-  renv::restore()
+  restore()
   expect_equal(renv_package_version("bread"), "1.0.0")
 
 })
@@ -92,7 +92,7 @@ test_that("install.staged works as expected", {
     renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
 
     unlink(renv_paths_library(), recursive = TRUE)
-    expect_error(renv::restore())
+    expect_error(restore())
     files <- list.files(library)
     expect_true(length(files) == 0L)
 
@@ -109,7 +109,7 @@ test_that("install.staged works as expected", {
     renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
 
     unlink(renv_paths_library(), recursive = TRUE)
-    expect_error(renv::restore())
+    expect_error(restore())
     files <- list.files(library)
     expect_true(length(files) != 0L)
 
@@ -117,28 +117,28 @@ test_that("install.staged works as expected", {
 
 })
 
-test_that("renv::restore(lockfile = '/path/to/lockfile') works", {
+test_that("restore(lockfile = '/path/to/lockfile') works", {
 
   renv_tests_scope("bread")
 
-  renv::init()
+  init()
 
   unlink(paths$library(), recursive = TRUE)
-  renv::restore(lockfile = "renv.lock")
+  restore(lockfile = "renv.lock")
   expect_true(renv_package_installed("bread"))
 
   unlink(paths$library(), recursive = TRUE)
   lockfile <- renv_lockfile_load(project = getwd())
-  renv::restore(lockfile = "renv.lock")
+  restore(lockfile = "renv.lock")
   expect_true(renv_package_installed("bread"))
 
 })
 
-test_that("renv::restore(packages = <...>) works", {
+test_that("restore(packages = <...>) works", {
   renv_tests_scope("breakfast")
-  renv::init()
+  init()
   unlink(paths$library(), recursive = TRUE)
-  renv::restore(packages = "toast")
+  restore(packages = "toast")
   expect_length(list.files(paths$library()), 2L)
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_installed("toast"))
@@ -147,7 +147,7 @@ test_that("renv::restore(packages = <...>) works", {
 test_that("restore ignores packages of incompatible architecture", {
 
   renv_tests_scope(c("unixonly", "windowsonly"))
-  renv::init()
+  init()
 
   if (renv_platform_unix()) {
 
@@ -210,10 +210,10 @@ test_that("restore doesn't re-use active library paths", {
   ensure_directory(c(lib1, lib2))
   .libPaths(c(lib2, .libPaths()))
 
-  renv::install("bread", library = lib2)
+  install("bread", library = lib2)
   expect_true(renv_package_installed("bread", lib.loc = lib2))
 
-  lockfile <- renv::snapshot(library = lib2, lockfile = NULL)
+  lockfile <- snapshot(library = lib2, lockfile = NULL)
   restore(library = lib1, lockfile = lockfile)
   expect_true(renv_package_installed("bread", lib.loc = lib1))
 

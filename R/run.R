@@ -88,7 +88,6 @@ renv_run_job <- function(script, name, project) {
 }
 
 renv_run_impl <- function(script, name, project) {
-  owd <- setwd(project)
-  defer(setwd(owd))
+  renv_scope_wd(project)
   system2(R(), c("-s", "-f", renv_shell_path(script)))
 }

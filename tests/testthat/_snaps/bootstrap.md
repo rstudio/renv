@@ -68,3 +68,18 @@
       failed to install:
       Failed
 
+# renv_boostrap_version_validate() gives good warnings
+
+    Code
+      . <- renv_bootstrap_validate_version("abcd", list(RemoteSha = "efgh"))
+    Output
+      renv efgh was loaded from project library, but this project is configured to use renv abcd.
+      * Use `renv::record("rstudio/renv@efgh")` to record renv efgh in the lockfile.
+      * Use `renv::restore(packages = "renv")` to install renv abcd into the project library.
+    Code
+      . <- renv_bootstrap_validate_version("1.2.3", list(Version = "2.3.4"))
+    Output
+      renv 2.3.4 was loaded from project library, but this project is configured to use renv 1.2.3.
+      * Use `renv::record("renv@2.3.4")` to record renv 2.3.4 in the lockfile.
+      * Use `renv::restore(packages = "renv")` to install renv 1.2.3 into the project library.
+

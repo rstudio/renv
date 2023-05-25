@@ -404,8 +404,7 @@ renv_file_list_impl_win32 <- function(path) {
   #
   # change working directory (done just to avoid encoding issues
   # when submitting path to cmd shell)
-  owd <- setwd(path)
-  defer(setwd(owd))
+  renv_scope_wd(path)
 
   # NOTE: a sub-shell is required here in some contexts; e.g. when running
   # tests non-interactively or building in the RStudio pane

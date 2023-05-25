@@ -17,7 +17,7 @@ test_that("snapshot failures are reported", {
 
   renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope("oatmeal")
-  renv::init()
+  init()
 
   descpath <- system.file("DESCRIPTION", package = "oatmeal")
   unlink(descpath)
@@ -26,7 +26,7 @@ test_that("snapshot failures are reported", {
   local({
     renv_scope_options(renv.verbose = TRUE)
     renv_scope_sink(file = output)
-    renv::snapshot(prompt = FALSE)
+    snapshot(prompt = FALSE)
   })
 
   contents <- readLines(output)
@@ -39,7 +39,7 @@ test_that("broken symlinks are reported", {
 
   renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope("oatmeal")
-  renv::init()
+  init()
 
   oatmeal <- renv_path_normalize(system.file(package = "oatmeal"), winslash = "/")
   unlink(oatmeal, recursive = TRUE)
@@ -48,7 +48,7 @@ test_that("broken symlinks are reported", {
   local({
     renv_scope_options(renv.verbose = TRUE)
     renv_scope_sink(file = output)
-    renv::snapshot(prompt = FALSE)
+    snapshot(prompt = FALSE)
   })
 
   contents <- readLines(output)
@@ -61,7 +61,7 @@ test_that("multiple libraries can be used when snapshotting", {
   renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope()
 
-  renv::init()
+  init()
 
   lib1 <- renv_scope_tempfile("renv-lib1-")
   lib2 <- renv_scope_tempfile("renv-lib2-")
@@ -70,16 +70,16 @@ test_that("multiple libraries can be used when snapshotting", {
   oldlibpaths <- .libPaths()
   .libPaths(c(lib1, lib2))
 
-  renv::install("bread", library = lib1)
+  install("bread", library = lib1)
   breadloc <- find.package("bread")
   expect_true(renv_file_same(dirname(breadloc), lib1))
 
-  renv::install("toast", library = lib2)
+  install("toast", library = lib2)
   toastloc <- find.package("toast")
   expect_true(renv_file_same(dirname(toastloc), lib2))
 
   libs <- c(lib1, lib2)
-  lockfile <- renv::snapshot(lockfile = NULL, library = libs, type = "all")
+  lockfile <- snapshot(lockfile = NULL, library = libs, type = "all")
   records <- renv_lockfile_records(lockfile)
 
   expect_length(records, 2L)
@@ -92,10 +92,10 @@ test_that("multiple libraries can be used when snapshotting", {
 test_that("implicit snapshots only include packages currently used", {
 
   renv_tests_scope("oatmeal")
-  renv::init()
+  init()
 
   # install toast, but don't declare that we use it
-  renv::install("toast")
+  install("toast")
   lockfile <- snapshot(type = "implicit", lockfile = NULL)
   records <- renv_lockfile_records(lockfile)
   expect_length(records, 1L)
@@ -113,7 +113,7 @@ test_that("implicit snapshots only include packages currently used", {
 test_that("explicit snapshots only capture packages in DESCRIPTION", {
 
   renv_tests_scope("breakfast")
-  renv::init()
+  init()
 
   desc <- list(Type = "Project", Depends = "toast")
 
@@ -134,7 +134,7 @@ test_that("a custom snapshot filter can be used", {
   filter <- function(project) c("bread", "toast")
   renv_scope_options(renv.snapshot.filter = filter)
 
-  renv::init()
+  init()
   lockfile <- renv_lockfile_load(project = getwd())
   expect_setequal(names(renv_lockfile_records(lockfile)), c("bread", "toast"))
 
@@ -168,7 +168,7 @@ test_that("snapshot ignores own package in package development scenarios", {
 
   renv_tests_scope()
   ensure_directory("bread")
-  setwd("bread")
+  renv_scope_wd("bread")
 
   writeLines(c("Type: Package", "Package: bread"), con = "DESCRIPTION")
 
@@ -460,4 +460,14 @@ test_that("packages installed from Bioconductor using pak are handled", {
 
   record <- renv_snapshot_description(package = "Biobase")
   expect_identical(record$Source, "Bioconductor")
+})
+
+test_that("snapshot always reports on R version changes", {
+  renv_scope_options(renv.verbose = TRUE)
+
+  R4.1 <- list(R = list(Version = 4.1))
+  R4.2 <- list(R = list(Version = 4.2))
+  expect_snapshot({
+    renv_snapshot_report_actions(list(), R4.1, R4.2)
+  })
 })
