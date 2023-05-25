@@ -2,7 +2,7 @@
 # renv 0.18.0  (UNRELEASED)
 
 * `renv::dependencies()` only extracts dependencies from text in YAML
-  headers that looksl like valid R code (#1288).
+  headers that looks like valid R code (#1288).
   
 * Development versions of renv are now tracked using the Git SHA of the 
   current commit, rather than a version number that's incremented on every
