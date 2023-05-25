@@ -265,10 +265,6 @@ environment without external internet access), you can disable it with:
 options(renv.config.mran.enabled = FALSE)
 ```
 
-See also the `?renv::equip` function, which can assist you in preparing your
-environment for compilation of packages.
-
-
 ### Caveats
 
 While being able to install binary packages from arbitrary MRAN snapshots can

@@ -2,11 +2,11 @@
 #' Install Required System Libraries
 #'
 #' Equip your system with libraries commonly-used during compilation of
-#' \R packages. Currently only supported on Windows.
+#' base and recommended \R packages.
 #'
 #' @return This function is normally called for its side effects.
 #' @export
-#'
+#' @keywords internal
 #' @examples
 #' \dontrun{
 #'
