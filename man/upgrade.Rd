@@ -16,8 +16,7 @@ directory is used instead.}
 When \code{NULL} (the default), the latest version of renv will be installed as
 available from CRAN (or whatever active package repositories are active)
 Alternatively, you can install the latest development version with
-\code{"main"}, or a specific version from GitHub with (e.g.) \code{"0.17.3"} or
-\code{"0.17.3-29"}.}
+\code{"main"}, or a specific commit with a SHA, e.g. \code{"5049cef8a"}.}
 
 \item{reload}{Boolean; reload renv after install? When \code{NULL} (the
 default), renv will be re-loaded only if updating renv for the

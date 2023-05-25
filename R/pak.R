@@ -3,7 +3,7 @@
 
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
-  stream <- stream %??% renv_pak_stream()
+  stream <- stream %||% renv_pak_stream()
   if (force || !renv_pak_available())
     renv_pak_init_impl(stream)
 
@@ -91,7 +91,7 @@ renv_pak_restore <- function(lockfile,
 
   # get records to install
   records <- renv_lockfile_records(lockfile)
-  packages <- setdiff(packages %??% names(records), c(exclude, "pak", "renv"))
+  packages <- setdiff(packages %||% names(records), c(exclude, "pak", "renv"))
   records <- records[packages]
 
   # attempt to link packages that have cache entries

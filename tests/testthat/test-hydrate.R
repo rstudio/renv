@@ -8,7 +8,7 @@ test_that("hydrate does not change library paths", {
   .libPaths(lib)
 
   before <- .libPaths()
-  renv::hydrate()
+  hydrate()
   after <- .libPaths()
 
   expect_identical(before, after)

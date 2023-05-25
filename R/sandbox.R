@@ -215,18 +215,18 @@ renv_sandbox_path <- function(project = NULL) {
 }
 
 renv_sandbox_lock <- function(sandbox = NULL, project = NULL) {
-  sandbox <- sandbox %??% renv_sandbox_path(project = project)
+  sandbox <- sandbox %||% renv_sandbox_path(project = project)
   Sys.chmod(sandbox, mode = "0555")
 }
 
 renv_sandbox_locked <- function(sandbox = NULL, project = NULL) {
-  sandbox <- sandbox %??% renv_sandbox_path(project = project)
+  sandbox <- sandbox %||% renv_sandbox_path(project = project)
   mode <- suppressWarnings(file.mode(sandbox))
   mode == 365L  # as.integer(as.octmode("0555"))
 }
 
 renv_sandbox_unlock <- function(sandbox = NULL, project = NULL) {
-  sandbox <- sandbox %??% renv_sandbox_path(project = project)
+  sandbox <- sandbox %||% renv_sandbox_path(project = project)
   Sys.chmod(sandbox, mode = "0755")
 }
 

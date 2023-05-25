@@ -29,7 +29,12 @@ e.g:
 }
 
 See \url{https://remotes.r-lib.org/articles/dependencies.html} and the examples
-below for more details.}
+below for more details.
+
+renv deviates from the remotes spec in one important way: subdirectories
+are separated from the main repository specification with a \code{:}, not \code{/}.
+So to install from the \code{subdir} subdirectory of GitHub package
+\code{username/repo} you'd use \verb{"username/repo:subdir}.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}

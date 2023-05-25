@@ -1108,8 +1108,7 @@ renv_snapshot_fixup_renv <- function(records) {
 
   # no valid record available; construct a synthetic one
   version <- renv_metadata_version()
-  components <- unclass(numeric_version(version))[[1]]
-  remote <- if (length(components) == 4L)
+  remote <- if (renv_metadata_is_dev())
     paste("rstudio/renv", version, sep = "@")
   else
     paste("renv", version, sep = "@")

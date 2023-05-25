@@ -7,7 +7,7 @@ test_that("we can bootstrap the current version of renv", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  suppressMessages(bootstrap(version = "1.0.0", library = library))
+  bootstrap(version = "1.0.0", library = library)
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "1.0.0")
 
@@ -21,13 +21,13 @@ test_that("we can bootstrap an archived version of renv", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  suppressMessages(bootstrap(version = "0.1.0", library = library))
+  bootstrap(version = "0.1.0", library = library)
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "0.1.0")
 
 })
 
-test_that("we can install a version of renv from GitHub", {
+test_that("we can install a dev version of renv", {
 
   skip_on_cran()
   skip_on_ci()
@@ -35,25 +35,27 @@ test_that("we can install a version of renv from GitHub", {
   renv_tests_scope()
 
   library <- renv_libpaths_active()
-  suppressMessages(bootstrap(version = "0.12.3-1", library = library))
+  bootstrap(version = "0.12.3-1", library = library)
   expect_true(renv_package_installed("renv", library))
   expect_true(renv_package_version("renv") == "0.12.3-1")
 
 })
 
-test_that("bootstrap succeeds with empty repos", {
+test_that("we can install a version of renv with a sha", {
 
   skip_on_cran()
-  skip_on_os("windows")
+  skip_on_ci()
 
   renv_tests_scope()
-  renv_scope_options(repos = character())
 
   library <- renv_libpaths_active()
-  suppressMessages(bootstrap(version = "1.0.0", library = library))
+  bootstrap(version = "5049cef8a", library = library)
   expect_true(renv_package_installed("renv", library))
-  expect_true(renv_package_version("renv") == "1.0.0")
 
+  desc <- utils::packageDescription("renv", library)
+  expect_equal(desc$RemoteType, "github")
+  expect_equal(desc$RemotePkgRef, "rstudio/renv")
+  expect_equal(desc$RemoteSha, "5049cef8a94591b802f9766a0da092780f59f7e4")
 })
 
 test_that("bootstrap functions don't depend on non-bootstrap APIs", {
@@ -91,7 +93,7 @@ test_that("bootstrapping functions standalone", {
   # get all bootstrap APIs in package
   renv <- asNamespace("renv")
   keys <- ls(envir = renv, pattern = "^renv_bootstrap_", all.names = TRUE)
-  vals <- mget(c("bootstrap", keys), envir = renv)
+  vals <- mget(c("catf", "%||%", "bootstrap", keys), envir = renv)
 
   # put those into a separate environment inheriting only from base, and
   # re-mark those as inheriting from base (so they only 'see' each-other)
@@ -111,7 +113,7 @@ test_that("bootstrapping functions standalone", {
     code <- call("bootstrap", version = version, library = library)
 
     # run that call
-    suppressMessages(eval(code, envir = envir))
+    eval(code, envir = envir)
 
     # validate that renv was successfully installed
     expect_true(renv_package_installed("renv", lib.loc = library))
@@ -130,4 +132,101 @@ test_that("bootstrapping functions standalone", {
   # in the CRAN archive (test repository version)
   run("0.1.0")
 
+})
+
+test_that("bootstrapping gives informative output when succesful", {
+
+  local_mocked_bindings(
+    renv_bootstrap_download_impl = function(url, destfile) {
+      file.create(destfile)
+      0L
+    },
+    renv_bootstrap_install_impl = function(cmd, args, ...) {
+      structure("", status = 0L)
+    },
+    renv_bootstrap_download_cran_latest_find = function(version) {
+      if (package_version(version) < "1.0.0") {
+        list(type = "binary", repos = "https://cran.rstudio.com")
+      }
+    },
+    load = function(...) invisible()
+  )
+
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+  library <- renv_scope_tempfile()
+
+  expect_snapshot({
+    bootstrap(version = "0.9.0", library = library)
+    bootstrap(version = "1.0.0", library = library)
+    bootstrap(version = "1.0.0.1", library = library)
+  })
+})
+
+test_that("bootstrapping gives informative output when download fails", {
+  local_mocked_bindings(
+    renv_bootstrap_download_impl = function(...) {
+      stop("test failure")
+    },
+    renv_bootstrap_download_cran_latest_find = function(version) {
+      if (package_version(version) < "1.0.0") {
+        list(type = "binary", repos = "https://cran.rstudio.com")
+      }
+    }
+  )
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+  library <- renv_scope_tempfile()
+
+  expect_snapshot(error = TRUE, {
+    bootstrap(version = "0.9.0", library = library)
+    bootstrap(version = "1.0.0", library = library)
+    bootstrap(version = "1.0.0.1", library = library)
+  })
+})
+
+
+test_that("bootstrapping gives informative output when install fails", {
+  local_mocked_bindings(
+    renv_bootstrap_download_impl = function(url, destfile) {
+      file.create(destfile)
+      0L
+    },
+    renv_bootstrap_install_impl = function(...) {
+      structure("test failure", status = 123L)
+    }
+  )
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+  library <- renv_scope_tempfile()
+
+  expect_snapshot(bootstrap(version = "1.0.0.1", library = library), error = TRUE)
+
+})
+
+
+
+# helpers -----------------------------------------------------------------
+
+test_that("renv_bootstrap_version_is_dev() works", {
+  expect_true(renv_bootstrap_version_is_dev("abc123"))
+  expect_true(renv_bootstrap_version_is_dev("1.2.3-4"))
+  expect_false(renv_bootstrap_version_is_dev("1.2.3"))
+})
+
+test_that("renv_boostrap_version_validate() recognises when versions are the same", {
+
+  expect_true(
+    renv_bootstrap_validate_version("abcd123", list(RemoteSha = "abcd1234567"))
+  )
+  expect_true(
+    renv_bootstrap_validate_version("1.2.3", list(Version = "1.2.3"))
+  )
+})
+
+
+test_that("renv_boostrap_version_validate() gives good warnings", {
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+
+  expect_snapshot({
+    . <- renv_bootstrap_validate_version("abcd", list(RemoteSha = "efgh"))
+    . <- renv_bootstrap_validate_version("1.2.3", list(Version = "2.3.4"))
+  })
 })

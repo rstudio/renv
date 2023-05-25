@@ -113,11 +113,11 @@ restore <- function(project  = NULL,
   diff <- renv_vector_diff(diff, if (!clean) "remove")
 
   # only remove packages from the project library
-  difflocs <- map_chr(names(diff), function(package) {
-    find.package(package, lib.loc = libpaths, quiet = TRUE) %||% ""
+  is_package <- map_lgl(names(diff), function(package) {
+    path <- find.package(package, lib.loc = libpaths, quiet = TRUE)
+    identical(dirname(path), library)
   })
-
-  diff <- diff[!(diff == "remove" & dirname(difflocs) != library)]
+  diff <- diff[!(diff == "remove" & !is_package)]
 
   # don't take any actions with ignored packages
   ignored <- renv_project_ignored_packages(project = project)

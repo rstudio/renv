@@ -13,12 +13,10 @@ test_that("renv reports errors when decompressing invalid archives", {
 
 test_that("we can successfully compress / decompress some sample files", {
 
-  dir <- tempfile()
+  dir <- renv_scope_tempfile()
   ensure_directory(dir)
-  defer(unlink(dir, recursive = TRUE))
 
-  owd <- setwd(dir)
-  defer(setwd(owd))
+  renv_scope_wd(dir)
 
   for (letter in letters)
     writeLines(letter, con = letter)

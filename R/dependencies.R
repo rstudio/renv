@@ -983,7 +983,7 @@ renv_dependencies_discover_r <- function(path = NULL,
   # update current path
   state <- renv_dependencies_state()
   if (!is.null(state))
-    renv_scope_var("path", path, frame = state)
+    renv_scope_binding(state, "path", path)
 
   methods <- c(
     renv_dependencies_discover_r_methods,
@@ -1001,7 +1001,7 @@ renv_dependencies_discover_r <- function(path = NULL,
     renv_dependencies_discover_r_database
   )
 
-  envir <- envir %??% new.env(parent = emptyenv())
+  envir <- envir %||% new.env(parent = emptyenv())
   recurse(expr, function(node, stack) {
 
     # normalize calls (handle magrittr pipes)

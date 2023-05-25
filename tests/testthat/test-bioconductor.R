@@ -1,7 +1,7 @@
 
 test_that("packages can be installed, restored from Bioconductor", {
 
-  skip_on_cran()
+  skip_slow()
   skip_on_os("windows")
   skip_if(getRversion() < "3.5.0")
   skip_if(R.version$nickname == "Unsuffered Consequences")
@@ -10,7 +10,7 @@ test_that("packages can be installed, restored from Bioconductor", {
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
 
   install.packages("BiocManager", quiet = TRUE)
-  suppressMessages(BiocManager::install("Biobase", quiet = TRUE, ask = FALSE))
+  suppressMessages(BiocManager::install("Biobase", quiet = TRUE, update = FALSE, ask = FALSE))
 
   expect_true(renv_package_installed("BiocManager"))
   expect_true(renv_package_installed("BiocVersion"))
@@ -36,7 +36,7 @@ test_that("packages can be installed, restored from Bioconductor", {
 
 })
 
-test_that("renv::install(<bioc>, rebuild = TRUE) works", {
+test_that("install(<bioc>, rebuild = TRUE) works", {
 
   skip_on_cran()
   skip_on_os("windows")
@@ -57,7 +57,7 @@ test_that("renv::install(<bioc>, rebuild = TRUE) works", {
 
 test_that("bioconductor.version can be used to freeze version", {
 
-  skip_on_cran()
+  skip_slow()
   project <- renv_tests_scope()
 
   settings$bioconductor.version("3.14", project = project)

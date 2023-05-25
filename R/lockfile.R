@@ -166,8 +166,8 @@ renv_lockfile_create <- function(project,
                                  packages = NULL,
                                  exclude = NULL)
 {
-  libpaths <- libpaths %??% renv_libpaths_all()
-  type <- type %??% settings$snapshot.type(project = project)
+  libpaths <- libpaths %||% renv_libpaths_all()
+  type <- type %||% settings$snapshot.type(project = project)
 
   lockfile <- renv_lockfile_init(project)
 
@@ -218,7 +218,7 @@ renv_lockfile_compact <- function(lockfile) {
 }
 
 renv_lockfile_records <- function(lockfile) {
-  as.list(lockfile$Packages %??% lockfile)
+  as.list(lockfile$Packages %||% lockfile)
 }
 
 `renv_lockfile_records<-` <- function(x, value) {

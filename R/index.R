@@ -104,7 +104,7 @@ renv_index_get <- function(root, scope, index, key, now, limit) {
 
   # add to in-memory cache
   `_renv_index`[[scope]] <-
-    `_renv_index`[[scope]] %??%
+    `_renv_index`[[scope]] %||%
     new.env(parent = emptyenv())
 
   `_renv_index`[[scope]][[key]] <- value
@@ -201,4 +201,11 @@ renv_index_writable <- function(root) {
     key   = root,
     value = unname(file.access(root, 7L) == 0L)
   )
+}
+
+# in case of emergency, break glass
+renv_index_reset <- function(root = NULL) {
+  root <- root %||% renv_paths_index()
+  lockfiles <- list.files(root, pattern = "^index\\.lock$", full.names = TRUE)
+  unlink(lockfiles)
 }

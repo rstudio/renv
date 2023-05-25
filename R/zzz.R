@@ -44,8 +44,6 @@ renv_zzz_load <- function() {
   renv_sandbox_init()
   renv_sdkroot_init()
 
-  renv_task_create(renv_exit_handlers_task)
-
   if (!renv_metadata_embedded()) {
 
     # TODO: It's not clear if these callbacks are safe to use when renv is
@@ -153,8 +151,7 @@ renv_zzz_repos <- function() {
   # move to build directory
   tdir <- tempfile("renv-build-")
   ensure_directory(tdir)
-  owd <- setwd(tdir)
-  defer(setwd(owd))
+  renv_scope_wd(tdir)
 
   # build renv again
   r_cmd_build("renv", path = pkgdir)

@@ -1,3 +1,6 @@
+
+# a wrapper around testthat::test_that(), which also tries
+# to confirm that the test hasn't mutated any global state
 test_that <- function(desc, code) {
 
   # skip tests when run on CRAN's macOS machine
@@ -27,15 +30,20 @@ test_that <- function(desc, code) {
 renv_test_state <- function() {
 
   list_files <- function(path) {
+
+    if (is.null(path))
+      return(NULL)
+
     list.files(
       path = path,
       all.files = TRUE,
       full.names = TRUE,
       no.. = TRUE
     )
+
   }
 
-  repopath <- getOption("renv.tests.repopath")
+  repopath <- renv_tests_repopath()
   userpath <- file.path(renv_bootstrap_user_dir(), "library")
 
   opts <- options()
@@ -49,6 +57,7 @@ renv_test_state <- function() {
   envvars <- envvars[grep("^RENV_DEFAULT_", names(envvars), invert = TRUE)]
   envvars <- envvars[grep("^R_PACKRAT_", names(envvars), invert = TRUE)]
   envvars <- envvars[grep("^_R_", names(envvars), invert = TRUE)]
+  envvars <- envvars[grep("^CALLR_", names(envvars), invert = TRUE)]
   envvars$RETICULATE_MINICONDA_PYTHON_ENVPATH <- NULL
   envvars$OMP_NUM_THREADS <- NULL
   envvars$OPENBLAS <- NULL
@@ -58,8 +67,9 @@ renv_test_state <- function() {
     libpaths     = .libPaths(),
     connections  = getAllConnections(),
     options      = opts,
-    repofiles    = if (!is.null(repopath)) list_files(repopath),
+    repofiles    = list_files(repopath),
     userfiles    = list_files(userpath),
     envvars      = envvars
   )
+
 }

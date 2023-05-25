@@ -18,10 +18,9 @@ test_that("older binaries are installed from MRAN on Windows / macOS", {
 })
 
 test_that("we can install packages from MRAN", {
-  skip_on_cran()
   skip_on_os("linux")
   skip_if_not_Rversion("3.5")
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
   renv_scope_options(repos = character(), pkgType = "binary")

@@ -1,8 +1,7 @@
 
 test_that("we can retrieve packages from CRAN", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
 
@@ -18,8 +17,7 @@ test_that("we can retrieve packages from CRAN", {
 
 test_that("we can retrieve packages from the CRAN archive", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
 
@@ -35,8 +33,7 @@ test_that("we can retrieve packages from the CRAN archive", {
 
 test_that("packages with an unknown source are retrieved from CRAN", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
 
@@ -85,7 +82,7 @@ test_that("we can retrieve packages from git", {
 
 test_that("we can retrieve packages with git dependencies", {
   skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   # GitHub doesn't like ssh (used as remote field in renv.git1)
   skip_on_ci()
@@ -93,7 +90,7 @@ test_that("we can retrieve packages with git dependencies", {
   record <- list(
     Package   = "renv.git1",
     Source    = "git",
-    RemoteUrl = "https://github.com/kevinushey/renv.git1.git",
+    RemoteUrl = "https://github.com/kevinushey/renv.git1",
     RemoteRef = "main"
   )
 
@@ -103,8 +100,7 @@ test_that("we can retrieve packages with git dependencies", {
 
 test_that("we can retrieve packages from GitHub", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   record <- list(
     Package        = "skeleton",
@@ -120,8 +116,7 @@ test_that("we can retrieve packages from GitHub", {
 
 test_that("we can retrieve packages from GitHub (in a sub-directory)", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   record <- list(
     Package        = "subdir",
@@ -139,8 +134,7 @@ test_that("we can retrieve packages from GitHub (in a sub-directory)", {
 
 test_that("we can retrieve packages from GitLab", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   record <- list(
     Package        = "skeleton",
@@ -155,8 +149,7 @@ test_that("we can retrieve packages from GitLab", {
 })
 
 test_that("we can retrieve packages with URLs", {
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
   url <- "https://api.github.com/repos/kevinushey/skeleton/tarball"
   record <- renv_remotes_resolve(url)
   renv_test_retrieve(record)
@@ -164,8 +157,7 @@ test_that("we can retrieve packages with URLs", {
 
 test_that("we can retrieve packages from URL sources", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   renv_tests_scope()
   renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
@@ -222,8 +214,7 @@ test_that("an explicitly-provided local source path can be used", {
 
   source <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
 
-  owd <- setwd(tempdir())
-  defer(setwd(owd))
+  renv_scope_wd(tempdir())
 
   record <- list(
     Package = "skeleton",
@@ -268,8 +259,7 @@ test_that("remotes::install_local() records are handled", {
 
 test_that("we can retrieve packages from GitHub", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   record <- list(
     Package        = "skeleton",

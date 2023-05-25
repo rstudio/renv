@@ -32,7 +32,6 @@
   if (length(x)) y
 }
 
-
 lines <- function(...) {
   paste(..., sep = "\n")
 }
@@ -217,10 +216,6 @@ trunc <- function(text, n = 78) {
   text
 }
 
-startswith <- function(string, prefix) {
-  substring(string, 1, nchar(prefix)) == prefix
-}
-
 endswith <- function(string, suffix) {
   substring(string, nchar(string) - nchar(suffix) + 1) == suffix
 }
@@ -243,7 +238,7 @@ git <- function() {
 }
 
 visited <- function(name, envir) {
-  value <- envir[[name]] %??% FALSE
+  value <- envir[[name]] %||% FALSE
   envir[[name]] <- TRUE
   value
 }
@@ -541,5 +536,7 @@ untar <- function(tarfile,
 }
 
 rep_named <- function(names, x) {
-  stats::setNames(rep_len(x, length(names)), names)
+  values <- rep_len(x, length(names))
+  names(values) <- names
+  values
 }

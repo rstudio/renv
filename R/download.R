@@ -221,7 +221,6 @@ renv_download_default_agent_scope_impl <- function(headers, envir = parent.frame
 
   utils <- asNamespace("utils")
   makeUserAgent <- utils$makeUserAgent
-
   ok <-
     is.function(makeUserAgent) &&
     identical(formals(makeUserAgent), pairlist(format = TRUE))
@@ -233,11 +232,9 @@ renv_download_default_agent_scope_impl <- function(headers, envir = parent.frame
   all <- c("User-Agent" = agent, headers)
   headertext <- paste0(names(all), ": ", all, "\r\n", collapse = "")
 
-  renv_binding_replace("makeUserAgent", envir = utils, function(format = TRUE) {
+  renv_scope_binding(utils, "makeUserAgent", function(format = TRUE) {
     if (format) headertext else agent
-  })
-
-  defer(renv_binding_replace("makeUserAgent", makeUserAgent, envir = utils), envir = envir)
+  }, frame = envir)
 
   return(TRUE)
 
