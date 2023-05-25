@@ -1,9 +1,6 @@
 
 skip_if_no_github_auth <- function() {
-  skip_if(
-    is.na(Sys.getenv("GITHUB_PAT", unset = NA)),
-    "GITHUB_PAT is not set"
-  )
+  skip_if_not(renv_envir_exists("GITHUB_PAT"), "GITHUB_PAT is not set")
 }
 
 skip_if_no_python <- function() {

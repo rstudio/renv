@@ -148,7 +148,7 @@ renv_tests_supported <- function() {
 
   # supported when running locally + on CI
   for (envvar in c("NOT_CRAN", "CI"))
-    if (!is.na(Sys.getenv(envvar, unset = NA)))
+    if (renv_envir_exists(envvar))
       return(TRUE)
 
   # disabled on older macOS releases (credentials fails to load)

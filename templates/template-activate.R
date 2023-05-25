@@ -80,7 +80,7 @@ local({
   bootstrap(version, libpath)
 
   # exit early if we're just testing bootstrap
-  if (!is.na(Sys.getenv("RENV_BOOTSTRAP_INSTALL_ONLY", unset = NA)))
+  if (renv_envir_exists("RENV_BOOTSTRAP_INSTALL_ONLY"))
     return(TRUE)
 
   # try again to load

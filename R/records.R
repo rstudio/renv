@@ -82,7 +82,7 @@ renv_record_validate <- function(package, record) {
     return(record)
 
   # if we're running tests, or in CI, then report
-  if (renv_tests_running() || !is.na(Sys.getenv("CI", unset = NA))) {
+  if (renv_tests_running() || renv_envir_exists("CI")) {
     fmt <- "! Internal error: unexpected record for package '%s'"
     writef(fmt, package)
     print(record)

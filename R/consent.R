@@ -81,9 +81,9 @@ renv_consent_check <- function() {
   # check for implicit consent
   consented <-
     !interactive() ||
-    !is.na(Sys.getenv("CI", unset = NA)) ||
-    !is.na(Sys.getenv("GITHUB_ACTION", unset = NA)) ||
-    !is.na(Sys.getenv("RENV_PATHS_ROOT", unset = NA)) ||
+    renv_envir_exists("CI") ||
+    renv_envir_exists("GITHUB_ACTION") ||
+    renv_envir_exists("RENV_PATHS_ROOT") ||
     file.exists("/.singularity.d") ||
     renv_virtualization_type() != "native"
 
