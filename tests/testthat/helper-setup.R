@@ -69,6 +69,7 @@ renv_tests_setup_options <- function(envir = parent.frame()) {
     renv.bootstrap.quiet = TRUE,
     renv.config.user.library = FALSE,
     renv.config.sandbox.enabled = TRUE,
+    renv.consent = TRUE,
     restart = NULL,
     renv.config.install.transactional = FALSE,
     renv.tests.running = TRUE,

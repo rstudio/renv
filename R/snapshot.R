@@ -348,7 +348,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
       ""
     )
 
-    if (!renv_tests_running())
+    if (renv_verbose())
       writeLines(sprintf(text, package))
 
     ok <- FALSE
@@ -394,7 +394,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     fmt <- "%s [installed %s != latest %s]"
     msg <- sprintf(fmt, format(bad$Package), format(bad$Version), bad$Latest)
 
-    if (!renv_tests_running()) {
+    if (renv_verbose()) {
       renv_pretty_print(
         msg,
         "The following Bioconductor packages appear to be from a separate Bioconductor release:",
@@ -455,7 +455,7 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
 
   })
 
-  if (!renv_tests_running()) {
+  if (renv_verbose()) {
     renv_pretty_print(
       sprintf("%s  [required by %s]", format(missing), usedby),
       "The following required packages are not installed:",
@@ -523,7 +523,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   fmt <- "%s requires %s, but version %s is installed"
   txt <- sprintf(fmt, format(package), format(requires), format(request))
 
-  if (!renv_tests_running()) {
+  if (renv_verbose()) {
     renv_pretty_print(
       txt,
       "The following package(s) have unsatisfied dependencies:",
@@ -1000,7 +1000,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
       "Use `renv::dependencies()` to see where this package is used in your project."
   )
 
-  if (!renv_tests_running()) {
+  if (renv_verbose()) {
     renv_pretty_print(
       values = csort(unique(missing)),
       preamble = preamble,
