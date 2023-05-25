@@ -38,8 +38,7 @@ renv_python_conda_export_path <- function(project) {
 # TODO: support prompt
 renv_python_conda_snapshot <- function(project, prompt, python) {
 
-  owd <- setwd(project)
-  defer(setwd(owd))
+  renv_scope_wd(project)
 
   path <- renv_python_conda_export_path(project = project)
 
@@ -67,8 +66,7 @@ renv_python_conda_snapshot <- function(project, prompt, python) {
 # TODO: support prompt
 renv_python_conda_restore <- function(project, prompt, python) {
 
-  owd <- setwd(project)
-  defer(setwd(owd))
+  renv_scope_wd(project)
 
   path <- renv_python_conda_export_path(project = project)
 

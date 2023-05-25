@@ -11,8 +11,7 @@ test_that("we can use R CMD build to build a package", {
   defer(unlink(testdir, recursive = TRUE))
 
   ensure_directory(testdir)
-  owd <- setwd(testdir)
-  defer(setwd(owd))
+  renv_scope_wd(testdir)
 
   package <- "sample.package"
   pkgdir <- file.path(testdir, package)

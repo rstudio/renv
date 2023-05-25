@@ -59,10 +59,9 @@ cite <- function(type = c("plain", "bibtex"),
     bibtex[[i]] <- sub("title = \\{(.*)\\}", "title = {{\\1}}", bibtex[[i]])
   }
 
-  dir <- tempfile("renv-cite-")
+  dir <- renv_scope_tempfile("renv-cite-")
   dir.create(dir, recursive = TRUE)
-  owd <- setwd(dir)
-  defer(setwd(owd))
+  renv_scope_wd(dir)
 
   writeLines(paste(bibtex, collapse = "\n"), con = "bibliography.bib")
 

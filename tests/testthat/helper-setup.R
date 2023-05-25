@@ -133,14 +133,11 @@ renv_tests_setup_repos <- function( envir = parent.frame()) {
   contrib <- file.path(repopath, "src/contrib")
   ensure_directory(contrib)
 
-  # make sure we restore working directory when done
-  renv_scope_wd()
-
   # copy package stuff to tempdir (because we'll mutate them a bit)
   source <- renv_tests_path("packages")
   target <- renv_scope_tempfile("renv-packages-", envir = envir)
   renv_file_copy(source, target)
-  setwd(target)
+  renv_scope_wd(target)
 
   # helper function for 'uploading' a package to our test repo
   upload <- function(path, root, subdir = FALSE) {
