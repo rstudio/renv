@@ -99,12 +99,14 @@ Defaults to \code{FALSE}.}
 \subsection{renv.config.locking.enabled}{Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at \code{renv/lock}; if you need to manually remove a stale lock you can do so via \code{unlink("renv/lock", recursive = TRUE)}.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.mran.enabled}{Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN} during restore? See \code{vignette("mran", package = "renv")} for more details.
-Defaults to \code{TRUE}.}
+Defaults to \code{FALSE}.}
 \subsection{renv.config.pak.enabled}{Use the \href{https://pak.r-lib.org/}{pak} package to install packages?
 Defaults to \code{FALSE}.}
+\subsection{renv.config.ppm.enabled}{Boolean; enable integration with \href{https://packagemanager.posit.co/}{Posit Package Manager} for renv projects? When \code{TRUE}, renv will attempt to transform the repository URLs used by PPM into binary URLs as appropriate for the current platform. Set this to \code{FALSE} if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs.
+Defaults to \code{TRUE}.}
 \subsection{renv.config.repos.override}{Override the R package repositories used during \code{\link[=restore]{restore()}}? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
 Defaults to \code{NULL}.}
-\subsection{renv.config.rspm.enabled}{Boolean; enable RSPM integration for renv projects? When \code{TRUE}, renv will attempt to transform the repository URLs used by RSPM into binary URLs as appropriate for the current platform. Set this to \code{FALSE} if you'd like to continue using source-only RSPM URLs, or if you find that renv is improperly transforming your repository URLs.
+\subsection{renv.config.rspm.enabled}{DEPRECATED: Please use \code{renv.config.ppm.enabled} instead.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.sandbox.enabled}{Enable sandboxing for renv projects? When active, renv will attempt to sandbox the system library, preventing non-system packages installed in the system library from becoming available in renv projects. (That is, only packages with priority \code{"base"} or \code{"recommended"}, as reported by \code{installed.packages()}, are made available.)
 Sandboxing is done by linking or copying system packages into a separate library path, and then instructing R to use that library path as the system library path. In some environments, this action can take a large amount of time -- in such a case, you may want to disable the renv sandbox.

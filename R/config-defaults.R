@@ -212,7 +212,7 @@ config <- list(
     )
   },
 
-  mran.enabled = function(..., default = TRUE) {
+  mran.enabled = function(..., default = FALSE) {
     renv_config_get(
       name    = "mran.enabled",
       type    = "logical[1]",
@@ -224,6 +224,15 @@ config <- list(
   pak.enabled = function(..., default = FALSE) {
     renv_config_get(
       name    = "pak.enabled",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
+  ppm.enabled = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "ppm.enabled",
       type    = "logical[1]",
       default = default,
       args    = list(...)

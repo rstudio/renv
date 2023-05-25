@@ -212,6 +212,17 @@
   description: >
     Use the [pak](https://pak.r-lib.org/) package to install packages?
 
+- name: "ppm.enabled"
+  type: "logical[1]"
+  default: true
+  description: >
+    Boolean; enable integration with [Posit Package Manager](https://packagemanager.posit.co/)
+    for renv projects? When `TRUE`, renv will attempt to transform the
+    repository URLs used by PPM into binary URLs as appropriate for the
+    current platform. Set this to `FALSE` if you'd like to continue using
+    source-only PPM URLs, or if you find that renv is improperly transforming
+    your repository URLs.
+
 - name: "repos.override"
   type: "character[*]"
   default: ~
@@ -225,11 +236,7 @@
   type: "logical[1]"
   default: true
   description: >
-    Boolean; enable RSPM integration for renv projects? When `TRUE`,
-    renv will attempt to transform the repository URLs used by RSPM into binary
-    URLs as appropriate for the current platform. Set this to `FALSE` if you'd like
-    to continue using source-only RSPM URLs, or if you find that renv is improperly
-    transforming your repository URLs.
+    DEPRECATED: Please use `renv.config.ppm.enabled` instead.
 
 - name: "sandbox.enabled"
   type: "logical[1]"

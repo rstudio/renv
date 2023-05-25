@@ -233,8 +233,8 @@ renv_load_r_repos <- function(repos) {
   names(repos) <- nms
 
   # convert to rspm if enabled
-  if (renv_rspm_enabled())
-    repos <- renv_rspm_transform(repos)
+  if (renv_ppm_enabled())
+    repos <- renv_ppm_transform(repos)
 
   # normalize option
   repos <- renv_repos_normalize(repos)

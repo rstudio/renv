@@ -1,6 +1,11 @@
 
 teardown_env <- function() {
-  if (interactive()) globalenv() else testthat::teardown_env()
+
+  if (testthat::is_testing())
+    return(testthat::teardown_env())
+
+  globalenv()
+
 }
 
 `_renv_tests_repopath` <- renv_scope_tempfile("renv-repos-", envir = teardown_env())
