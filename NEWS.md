@@ -3,7 +3,7 @@
 
 * `renv::init()` now uses [Posit Package Manager](https://packagemanager.posit.co)
   by default, for new projects where the repositories have not already been
-  configured externally.
+  configured externally (#430).
 
 * MRAN integration is now disabled by default, pending the upcoming shutdown
   of Microsoft's MRAN service. Users who require binaries of older R packages
