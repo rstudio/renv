@@ -1,8 +1,9 @@
 
-#' Install Required System Libraries
+#' Install required system libraries
 #'
 #' Equip your system with libraries commonly-used during compilation of
-#' base and recommended \R packages.
+#' base and recommended \R packages. This was previously useful with older
+#' versions of R on windows, but is no longer terribly helpful.
 #'
 #' @return This function is normally called for its side effects.
 #' @export
