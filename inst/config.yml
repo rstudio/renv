@@ -201,7 +201,7 @@
 
 - name: "mran.enabled"
   type: "logical[1]"
-  default: true
+  default: false
   description: >
     Attempt to download binaries from [MRAN](https://mran.microsoft.com/)
     during restore? See `vignette("mran", package = "renv")` for more details.
