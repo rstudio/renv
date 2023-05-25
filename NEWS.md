@@ -1,6 +1,11 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* MRAN integration is now disabled by default, pending the upcoming shutdown
+  of Microsoft's MRAN service. Users who require binaries of older R packages
+  on Windows + macOS can consider using the instance of CRAN mirrored by the
+  [Posit Package Manager](https://packagemanager.posit.co). (#1343)
+
 * `renv::snapshot()` now shows if the R version changes, even if no packages
   change (#962).
   
@@ -18,7 +23,7 @@
 * renv gains a new function `renv::checkout()`, for installing the
   latest-available packages from a repository. For example, one can
   use `renv::checkout(date = "2023-02-08")` to install the packages available
-  on 2023-02-08 from the Posit [Package Manager](https://packagemanager.rstudio.com/) instance.
+  on 2023-02-08 from the Posit [Package Manager](https://packagemanager.rstudio.com/)
   repository.
   
 * `renv::install()` now supports Bioconductor remotes of the form
