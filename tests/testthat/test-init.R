@@ -134,7 +134,7 @@ test_that("we use an external library path for package projects", {
   renv_tests_scope()
 
   # use custom userdir
-  userdir <- file.path(tempdir(), "renv-userdir-override")
+  userdir <- renv_scope_tempfile("renv-userdir-override")
   ensure_directory(userdir)
   userdir <- normalizePath(userdir, winslash = "/", mustWork = TRUE)
   renv_scope_options(renv.userdir.override = userdir)

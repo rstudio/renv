@@ -5,9 +5,10 @@ renv_tests_running <- function() {
   getOption("renv.tests.running", default = FALSE)
 }
 
-renv_test_code <- function(code, data = list(), fileext = ".R") {
+renv_test_code <- function(code, data = list(), fileext = ".R", envir = parent.frame()) {
   code <- do.call(substitute, list(substitute(code), data))
-  file <- tempfile("renv-code-", fileext = fileext)
+  file <- renv_scope_tempfile("renv-code-", fileext = fileext, envir = envir)
+
   writeLines(deparse(code), con = file)
   file
 }
@@ -17,7 +18,8 @@ renv_test_retrieve <- function(record) {
   renv_scope_error_handler()
 
   # avoid using cache
-  renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+  cache_path <- renv_scope_tempfile()
+  renv_scope_envvars(RENV_PATHS_CACHE = cache_path)
 
   # construct records
   package <- record$Package
@@ -148,7 +150,7 @@ renv_tests_supported <- function() {
 
   # supported when running locally + on CI
   for (envvar in c("NOT_CRAN", "CI"))
-    if (!is.na(Sys.getenv(envvar, unset = NA)))
+    if (renv_envvar_exists(envvar))
       return(TRUE)
 
   # disabled on older macOS releases (credentials fails to load)

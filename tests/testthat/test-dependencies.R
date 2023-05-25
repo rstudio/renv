@@ -342,7 +342,7 @@ test_that("we parse package references from arbitrary yaml fields", {
 })
 
 test_that("dependencies in parameterized documents are discovered", {
-  deps <- dependencies("resources/params.Rmd", progress = FALSE)
+  deps <- dependencies(test_path("resources/params.Rmd"), progress = FALSE)
   expect_true(all(c("shiny", "A") %in% deps$Package))
   expect_false("B" %in% deps$Package)
 })
@@ -417,4 +417,18 @@ test_that("renv warns when parsing dependencies from a folder with too many file
   file.create(letters)
   renv_scope_options(renv.dependencies.limit = 10L)
   expect_error(dependencies(progress = FALSE, errors = "fatal"))
+})
+
+test_that("dependencies ignore pseudo-code in YAML metadata", {
+  path <- renv_scope_tempfile()
+  writeLines(con = path, c(
+    '---',
+    'title: "RStudio::conf reflections"',
+    '---',
+    '',
+    'Hello!'
+  ))
+
+  deps <- renv_dependencies_discover_rmd_yaml_header(path, "rmd")
+  expect_equal(deps$Package, "rmarkdown")
 })

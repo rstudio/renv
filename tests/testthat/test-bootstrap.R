@@ -135,10 +135,12 @@ test_that("bootstrapping functions standalone", {
 })
 
 test_that("bootstrapping gives informative output when succesful", {
+  env <- environment()
 
   local_mocked_bindings(
     renv_bootstrap_download_impl = function(url, destfile) {
       file.create(destfile)
+      defer(unlink(destfile), env)
       0L
     },
     renv_bootstrap_install_impl = function(cmd, args, ...) {

@@ -712,15 +712,12 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
 
   # check recursively for package usages of the form 'package::method'
   recurse(yaml, function(node, stack) {
-
     # look for keys of the form 'package::method'
     values <- c(names(node), if (pstring(node)) node)
     for (value in values) {
-      parts <- strsplit(value, ":{2,3}")[[1L]]
-      if (length(parts) == 2L) {
-        name <- parts[[1L]]
-        if (grepl(pattern, name))
-          deps$push(parts[[1L]])
+      call <- tryCatch(parse(text = value)[[1]], error = function(err) NULL)
+      if (renv_call_matches(call, name = c("::", ":::"), n_args = 2)) {
+        deps$push(as.character(call[[2L]]))
       }
     }
 
@@ -1117,11 +1114,7 @@ renv_dependencies_discover_r_require_namespace <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_colon <- function(node, stack, envir) {
 
-  ok <-
-    is.call(node) &&
-    length(node) == 3 &&
-    is.name(node[[1]]) &&
-    as.character(node[[1]]) %in% c("::", ":::")
+  ok <- renv_call_matches(node, name = c("::", ":::"), n_args = 2)
 
   if (!ok)
     return(FALSE)
@@ -1154,7 +1147,7 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
   char <- node[["char"]]
 
   # detect vector of packages passed as vector
-  if (is.call(char) && identical(char[[1L]], as.name("c")))
+  if (renv_call_matches(char, name = "c"))
     parts <- c(parts, as.list(char[-1L]))
 
   # detect plain old package name
@@ -1193,10 +1186,7 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
 renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 
   # check for call of the form 'pkg::foo(a, b, c)'
-  colon <-
-    is.call(node[[1L]]) &&
-    is.name(node[[1L]][[1L]]) &&
-    as.character(node[[1L]][[1L]]) %in% c("::", ":::")
+  colon <- renv_call_matches(node[[1]], name = c("::", ":::"), n_args = 2)
 
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))
@@ -1289,7 +1279,7 @@ renv_dependencies_discover_r_box <- function(node, stack, envir) {
 renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
 
   # if we're referencing a package via '/', try to extract those
-  while (is.call(node) && identical(node[[1L]], as.name("/")))
+  while (renv_call_matches(node, name = "/"))
     node <- node[[2L]]
 
   # if the node is just a symbol, then it's the name of a package
@@ -1297,9 +1287,8 @@ renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
   name <- if (is.symbol(node) && !identical(node, quote(expr = ))) {
     as.character(node)
   } else if (
-    is.call(node) &&
+    renv_call_matches(node, name = "[") &&
       length(node) > 1L &&
-      identical(node[[1L]], as.name("[")) &&
       is.symbol(node[[2L]])) {
     as.character(node[[2L]])
   }

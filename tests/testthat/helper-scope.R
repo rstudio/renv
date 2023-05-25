@@ -18,7 +18,7 @@ renv_tests_scope <- function(packages = character(),
   renv_scope_envvars(RENV_PROJECT = "", envir = envir)
 
   # move to own test directory
-  dir <- project %||% tempfile("renv-test-")
+  dir <- project %||% renv_scope_tempfile("renv-test-", envir = envir)
   ensure_directory(dir)
   renv_scope_wd(dir, envir = envir)
 

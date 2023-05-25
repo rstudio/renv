@@ -178,7 +178,6 @@ However, because pandoc is not bundled with the rmarkdown package simply restori
 
 You also need to be aware that package installation may fail if a package was originally installed through a binary, but that binary is no longer available.
 renv will attempt to install the package from source, but this can (and often will) fail due to missing system prerequisites.
-`renv::equip()` can provide some help here, particularly on Windows, because it will download external software commonly used when compiling R packages from sources.
 
 ## Uninstalling renv
 

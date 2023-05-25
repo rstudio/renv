@@ -101,7 +101,7 @@ test_that("installed Python packages are snapshotted / restored [virtualenv]", {
   # initialize python
   python <- use_python(
     python,
-    name = tempfile("python-virtualenv-"),
+    name = renv_scope_tempfile("python-virtualenv-"),
     type = "virtualenv"
   )
 

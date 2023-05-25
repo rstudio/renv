@@ -62,9 +62,8 @@ renv_id_generate_cscript <- function() {
   }
 
   # create temporary directory
-  dir <- tempfile("renv-id-")
+  dir <- renv_scope_tempfile("renv-id-")
   dir.create(dir)
-  defer(unlink(dir, recursive = TRUE))
 
   # move to it
   renv_scope_wd(dir)

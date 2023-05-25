@@ -32,6 +32,7 @@ bootstrap <- function(version, library) {
       stop("failed to download:\n", conditionMessage(err))
     }
   )
+  on.exit(unlink(tarball), add = TRUE)
 
   # now attempt to install
   withCallingHandlers(

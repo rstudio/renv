@@ -162,8 +162,7 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   # double-check that the cache is writable
   writable <- local({
-    file <- tempfile("renv-tempfile-", tmpdir = parent)
-    defer(unlink(file, force = TRUE))
+    file <- renv_scope_tempfile("renv-tempfile-", tmpdir = parent)
     status <- catchall(file.create(file))
     file.exists(file)
   })

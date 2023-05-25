@@ -4,9 +4,8 @@ test_that("issues within the cache are reported", {
 
   # use a temporary cache for this test as we're going
   # to mutate and invalidate it
-  tempcache <- tempfile("renv-tempcache-")
+  tempcache <- renv_scope_tempfile("renv-tempcache-")
   ensure_directory(tempcache)
-  defer(unlink(tempcache, recursive = TRUE))
   renv_scope_envvars(RENV_PATHS_CACHE = tempcache)
 
   # initialize project
@@ -74,7 +73,7 @@ test_that("package installation does not fail with non-writable cache", {
 
   renv_tests_scope()
 
-  cache <- tempfile("renv-cache-")
+  cache <- renv_scope_tempfile("renv-cache-")
   dir.create(cache, mode = "0555")
   renv_scope_envvars(RENV_PATHS_CACHE = cache)
 
@@ -109,9 +108,8 @@ test_that("malformed folders in the cache are ignored", {
   skip_on_cran()
   renv_tests_scope()
 
-  cachepath <- tempfile("renv-cache-")
+  cachepath <- renv_scope_tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  defer(unlink(cachepath, recursive = TRUE))
 
   badpath <- renv_paths_cache("a-b/c-d/e-f/g-h/i-j")
   dir.create(dirname(badpath), recursive = TRUE)
@@ -129,9 +127,8 @@ test_that("corrupt Meta/package.rds is detected", {
   skip_on_cran()
   renv_tests_scope()
 
-  cachepath <- tempfile("renv-cache-")
+  cachepath <- renv_scope_tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  defer(unlink(cachepath, recursive = TRUE))
 
   init()
   install("bread")
@@ -158,9 +155,8 @@ test_that("invalid Built field is detected", {
   skip_on_cran()
   renv_tests_scope()
 
-  cachepath <- tempfile("renv-cache-")
+  cachepath <- renv_scope_tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  defer(unlink(cachepath, recursive = TRUE))
 
   init()
   install("bread")
@@ -198,10 +194,9 @@ test_that("ACLs set on packages in project library are reset", {
   defer(untrace("renv_install_package_impl", where = renv_envir_self()))
 
   # use a custom cache
-  cachedir <- tempfile("renv-cache-")
+  cachedir <- renv_scope_tempfile("renv-cache-")
   ensure_directory(cachedir)
   renv_scope_envvars(RENV_PATHS_CACHE = cachedir)
-  defer(unlink(cachedir, recursive = TRUE))
 
   # initialize project with bread; don't try to reset ACLs
   local({

@@ -32,7 +32,6 @@ reference:
   - load
   - upgrade
   - paths
-  - equip
   - settings
   - config
 

@@ -10,9 +10,16 @@
   on Windows + macOS can consider using the instance of CRAN mirrored by the
   [Posit Package Manager](https://packagemanager.posit.co). (#1343)
 
+* `renv::dependencies()` only extracts dependencies from text in YAML
+  headers that looks like valid R code (#1288).
+
+* `renv::snapshot()` no longer requires confirmation when writing the first
+  snapshot, since that's an action that can easily be undone (by deleting
+  `renv.lock`) (#1281).
+
 * `renv::snapshot()` now shows if the R version changes, even if no packages
   change (#962).
-  
+
 * Development versions of renv are now tracked using the Git SHA of the 
   current commit, rather than a version number that's incremented on every
   change (#1327). This shouldn't have any user facing impact, but makes

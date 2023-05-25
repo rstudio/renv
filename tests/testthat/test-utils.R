@@ -36,7 +36,7 @@ test_that("renv_path_aliased() correctly forms aliased path", {
 
 test_that("sink captures both stdout and stderr", {
 
-  file <- tempfile("renv-sink-", fileext = ".log")
+  file <- renv_scope_tempfile("renv-sink-", fileext = ".log")
 
   osinks <- sink.number(type = "output")
   msinks <- sink.number(type = "message")

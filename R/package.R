@@ -404,8 +404,8 @@ renv_package_checking_impl <- function() {
   # otherwise, check other things
   is_testing() ||
     "CheckExEnv" %in% search()
-    !is.na(Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)) ||
-    !is.na(Sys.getenv("_R_CHECK_SIZE_OF_TARBALL_", unset = NA))
+    renv_envvar_exists("_R_CHECK_PACKAGE_NAME_") ||
+    renv_envvar_exists("_R_CHECK_SIZE_OF_TARBALL_")
 }
 
 renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
@@ -443,8 +443,8 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
   }
 
   # create extraction directory
-  old <- tempfile("renv-package-old-")
-  new <- tempfile("renv-package-new-")
+  old <- renv_scope_tempfile("renv-package-old-")
+  new <- renv_scope_tempfile("renv-package-new-", envir = parent.frame())
   ensure_directory(c(old, new))
 
   # decompress archive to dir
