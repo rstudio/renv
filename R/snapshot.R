@@ -206,7 +206,7 @@ snapshot <- function(project  = NULL,
     renv_snapshot_report_actions(actions, old, new)
 
   # request user confirmation
-  cancel_if(length(actions) && prompt && !proceed())
+  cancel_if(length(actions) && file.exists(lockfile) && prompt && !proceed())
 
   # write it out
   ensure_parent_directory(lockfile)
