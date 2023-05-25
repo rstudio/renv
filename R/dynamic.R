@@ -23,7 +23,7 @@ dynamic <- function(key, value, envir = NULL) {
 
   # get a unique id for the scope where this function was invoked
   caller <- sys.call(sys.parent())[[1L]]
-  if (is.call(caller) && identical(caller[[1L]], as.symbol(":::")))
+  if (renv_call_matches(caller, name = ":::"))
     caller <- caller[[3L]]
 
   # handle cases like FUN
