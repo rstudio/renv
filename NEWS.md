@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::dependencies()` only extracts dependencies from text in YAML
+  headers that looks like valid R code (#1288).
+
 * `renv::snapshot()` no longer requires confirmation when writing the first
   snapshot, since that's an action that can easily be undone (by deleting
   `renv.lock`) (#1281).
