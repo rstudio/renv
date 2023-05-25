@@ -78,7 +78,7 @@ renv_call_normalize <- function(node, stack) {
 }
 
 
-renv_is_call <- function(call, name = NULL, n_args = NULL) {
+renv_call_matches <- function(call, name = NULL, n_args = NULL) {
   if (!is.call(call))
     return(FALSE)
 
