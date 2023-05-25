@@ -19,19 +19,18 @@ sys_python <- function() {
 
 skip_if_no_virtualenv <- function() {
   skip_if_no_python()
+  skip_if_not(has_virtualenv(), "virtualenv module not installed")
+  TRUE
+}
 
-  python <- sys_python()
-
-  installed <- global("tests.virtualenv.installed", {
+`_renv_has_virtualenv` <- NULL
+has_virtualenv <- function() {
+  `_renv_has_virtualenv` <<- `_renv_has_virtualenv` %||% {
+    python <- sys_python()
     version <- renv_python_version(python)
     module <- if (numeric_version(version) >= "3.2") "venv" else "virtualenv"
     renv_python_module_available(python, module)
-  })
-
-  skip_if_not(installed, "virtualenv module not installed")
-
-  TRUE
-
+  }
 }
 
 skip_if_no_miniconda <- function(min_version = NULL) {

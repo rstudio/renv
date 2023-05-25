@@ -3,6 +3,9 @@
 
 * `renv::dependencies()` only extracts dependencies from text in YAML
   headers that looks like valid R code (#1288).
+
+* `renv::snapshot()` now shows if the R version changes, even if no packages
+  change (#962).
   
 * Development versions of renv are now tracked using the Git SHA of the 
   current commit, rather than a version number that's incremented on every

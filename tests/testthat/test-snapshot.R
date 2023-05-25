@@ -461,3 +461,13 @@ test_that("packages installed from Bioconductor using pak are handled", {
   record <- renv_snapshot_description(package = "Biobase")
   expect_identical(record$Source, "Bioconductor")
 })
+
+test_that("snapshot always reports on R version changes", {
+  renv_scope_options(renv.verbose = TRUE)
+
+  R4.1 <- list(R = list(Version = 4.1))
+  R4.2 <- list(R = list(Version = 4.2))
+  expect_snapshot({
+    renv_snapshot_report_actions(list(), R4.1, R4.2)
+  })
+})

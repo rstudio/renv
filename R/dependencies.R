@@ -1607,18 +1607,20 @@ renv_dependencies_require <- function(package, type = NULL) {
 
 }
 
+`_renv_dependencies_state` <- NULL
+
 renv_dependencies_state <- function(key = NULL) {
-  state <- renv_global_get("dependencies.state")
+  state <- `_renv_dependencies_state`
   if (is.null(key)) state else state[[key]]
 }
 
 renv_dependencies_begin <- function(root = NULL) {
   state <- env(root = root, scanned = env(), problems = stack())
-  renv_global_set("dependencies.state", state)
+  `_renv_dependencies_state` <<- state
 }
 
 renv_dependencies_end <- function() {
-  renv_global_clear("dependencies.state")
+  `_renv_dependencies_state` <<- NULL
 }
 
 renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
