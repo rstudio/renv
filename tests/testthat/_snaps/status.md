@@ -12,7 +12,7 @@
       Use `renv::dependencies()` to see where this package is used in your project.
       
       The version of R recorded in the lockfile will be updated:
-      - R   [* -> 4.2.3]
+      - R   [* -> <r-version>]
       
       * Lockfile written to '<wd>/renv.lock'.
 

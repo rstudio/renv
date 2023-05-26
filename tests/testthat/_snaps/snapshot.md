@@ -5,7 +5,7 @@
     Output
       The following package(s) are missing their DESCRIPTION files:
       
-      	oatmeal [<wd>/renv/library/R-4.2/aarch64-apple-darwin20/oatmeal]
+      	oatmeal [<wd>/renv/library/<platform-prefix>/oatmeal]
       
       These may be left over from a prior, failed installation attempt.
       Consider removing or reinstalling these packages.
