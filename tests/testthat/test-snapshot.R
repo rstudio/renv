@@ -407,7 +407,7 @@ test_that("snapshot() warns when required package is not installed", {
 
   install("breakfast")
   remove("toast")
-  expect_snapshot(snapshot())
+  expect_snapshot(snapshot(), error = TRUE)
 
 })
 

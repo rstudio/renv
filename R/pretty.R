@@ -144,9 +144,9 @@ renv_pretty_print_emitter <- function() {
   if (!is.null(emitter))
     return(emitter)
 
-  if (interactive())
+  # if (interactive())
     function(text, ...) writeLines(text, con = stdout(), ...)
-  else
-    function(text, ...) writeLines(text, con = stderr(), ...)
+  # else
+  #   function(text, ...) writeLines(text, con = stderr(), ...)
 
 }

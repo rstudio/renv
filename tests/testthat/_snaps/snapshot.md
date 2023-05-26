@@ -85,13 +85,8 @@
       
       Consider reinstalling these packages before snapshotting the lockfile.
       
-      The following package(s) will be updated in the lockfile:
-      
-      # CRAN ===============================
-      - breakfast   [* -> 1.0.0]
-      - oatmeal     [* -> 1.0.0]
-      
-      * Lockfile written to '<wd>/renv.lock'.
+    Error <simpleError>
+      aborting snapshot due to pre-flight validation failure
 
 # snapshot always reports on R version changes
 
