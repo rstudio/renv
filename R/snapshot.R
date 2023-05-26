@@ -315,7 +315,7 @@ renv_snapshot_validate_report <- function(valid, prompt, force) {
 
   # in interactive sessions, if 'prompt' is set, then ask the user
   # if they would like to proceed
-  if (interactive() && prompt) {
+  if (interactive() && !is_testing() && prompt) {
     cancel_if(!proceed())
     return(TRUE)
   }
@@ -347,9 +347,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
       "Consider installing %s before snapshot.",
       ""
     )
-
-    if (!renv_tests_running())
-      writef(text, package)
+    writef(text, package)
 
     ok <- FALSE
   }
@@ -393,18 +391,15 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
 
     fmt <- "%s [installed %s != latest %s]"
     msg <- sprintf(fmt, format(bad$Package), format(bad$Version), bad$Latest)
-
-    if (!renv_tests_running()) {
-      renv_pretty_print(
-        msg,
-        "The following Bioconductor packages appear to be from a separate Bioconductor release:",
-        c(
-          "renv may be unable to restore these packages.",
-          paste("Bioconductor version:", version)
-        ),
-        wrap = FALSE
-      )
-    }
+    renv_pretty_print(
+      msg,
+      "The following Bioconductor packages appear to be from a separate Bioconductor release:",
+      c(
+        "renv may be unable to restore these packages.",
+        paste("Bioconductor version:", version)
+      ),
+      wrap = FALSE
+    )
 
     ok <- FALSE
   }
@@ -455,14 +450,12 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
 
   })
 
-  if (!renv_tests_running()) {
-    renv_pretty_print(
-      sprintf("%s  [required by %s]", format(missing), usedby),
-      "The following required packages are not installed:",
-      "Consider reinstalling these packages before snapshotting the lockfile.",
-      wrap = FALSE
-    )
-  }
+  renv_pretty_print(
+    sprintf("%s  [required by %s]", format(missing), usedby),
+    "The following required packages are not installed:",
+    "Consider reinstalling these packages before snapshotting the lockfile.",
+    wrap = FALSE
+  )
 
   FALSE
 
@@ -522,15 +515,12 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 
   fmt <- "%s requires %s, but version %s is installed"
   txt <- sprintf(fmt, format(package), format(requires), format(request))
-
-  if (!renv_tests_running()) {
-    renv_pretty_print(
-      txt,
-      "The following package(s) have unsatisfied dependencies:",
-      "Consider updating the required dependencies as appropriate.",
-      wrap = FALSE
-    )
-  }
+  renv_pretty_print(
+    txt,
+    "The following package(s) have unsatisfied dependencies:",
+    "Consider updating the required dependencies as appropriate.",
+    wrap = FALSE
+  )
 
   renv_condition_signal("renv.snapshot.unsatisfied_dependencies")
   FALSE
@@ -608,7 +598,6 @@ renv_snapshot_library <- function(library = NULL,
 
     messages <- map_chr(broken, conditionMessage)
     text <- sprintf("'%s': %s", names(broken), messages)
-
     renv_pretty_print(
       text,
       "renv was unable to snapshot the following packages:",
@@ -844,7 +833,9 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     n <- max(nchar(names(actions)), 0)
     fmt <- paste("-", format("R", width = n), " ", "[%s -> %s]")
     msg <- sprintf(fmt, oldr %||% "*", newr %||% "*")
-    writef(c("The version of R recorded in the lockfile will be updated:", msg, ""))
+    writef(
+      c("The version of R recorded in the lockfile will be updated:", msg, "")
+    )
   }
 
 }
@@ -999,14 +990,11 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     else
       "Use `renv::dependencies()` to see where this package is used in your project."
   )
-
-  if (!renv_tests_running()) {
-    renv_pretty_print(
-      values = csort(unique(missing)),
-      preamble = preamble,
-      postamble = postamble
-    )
-  }
+  renv_pretty_print(
+    values = csort(unique(missing)),
+    preamble = preamble,
+    postamble = postamble
+  )
 
   cancel_if(interactive() && !proceed())
   TRUE
