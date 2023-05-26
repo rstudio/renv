@@ -99,9 +99,9 @@ renv_migrate_packrat <- function(project = NULL, components = NULL) {
   renv_imbue_impl(project)
 
   fmt <- "* Project '%s' has been migrated from Packrat to renv."
-  vwritef(fmt, renv_path_aliased(project))
+  writef(fmt, renv_path_aliased(project))
 
-  vwritef("* Consider deleting the project 'packrat' folder if it is no longer needed.")
+  writef("* Consider deleting the project 'packrat' folder if it is no longer needed.")
   invisible(TRUE)
 }
 
@@ -209,13 +209,13 @@ renv_migrate_packrat_sources <- function(project) {
   keep <- !file.exists(targets)
   sources <- sources[keep]; targets <- targets[keep]
 
-  vprintf("* Migrating package sources from Packrat to renv ... ")
+  printf("* Migrating package sources from Packrat to renv ... ")
   copy <- renv_progress_callback(renv_file_copy, length(targets))
   mapply(sources, targets, FUN = function(source, target) {
     ensure_parent_directory(target)
     copy(source, target)
   })
-  vwritef("Done!")
+  writef("Done!")
 
   TRUE
 
@@ -238,24 +238,24 @@ renv_migrate_packrat_library <- function(project) {
   names(targets) <- sources
   targets <- targets[!file.exists(targets)]
   if (empty(targets)) {
-    vwritef("* The renv library is already synchronized with the Packrat library.")
+    writef("* The renv library is already synchronized with the Packrat library.")
     return(TRUE)
   }
 
   # copy packages from Packrat to renv private library
-  vprintf("* Migrating library from Packrat to renv ... ")
+  printf("* Migrating library from Packrat to renv ... ")
   ensure_parent_directory(targets)
   copy <- renv_progress_callback(renv_file_copy, length(targets))
   enumerate(targets, copy)
-  vwritef("Done!")
+  writef("Done!")
 
   # move packages into the cache
   if (renv_cache_config_enabled(project = project)) {
-    vprintf("* Moving packages into the renv cache ... ")
+    printf("* Moving packages into the renv cache ... ")
     records <- lapply(targets, renv_description_read)
     sync <- renv_progress_callback(renv_cache_synchronize, length(targets))
     lapply(records, sync, linkable = TRUE)
-    vwritef("Done!")
+    writef("Done!")
   }
 
   TRUE
@@ -291,7 +291,7 @@ renv_migrate_packrat_cache <- function(project) {
   # only copy to cache target paths that don't exist
   targets <- targets[!file.exists(targets)]
   if (empty(targets)) {
-    vwritef("* The renv cache is already synchronized with the Packrat cache.")
+    writef("* The renv cache is already synchronized with the Packrat cache.")
     return(TRUE)
   }
 
@@ -306,7 +306,7 @@ renv_migrate_packrat_cache <- function(project) {
 renv_migrate_packrat_cache_impl <- function(targets) {
 
   # attempt to copy packages from Packrat to renv cache
-  vprintf("* Migrating Packrat cache to renv cache ... ")
+  printf("* Migrating Packrat cache to renv cache ... ")
   ensure_parent_directory(targets)
   copy <- renv_progress_callback(renv_file_copy, length(targets))
 
@@ -317,7 +317,7 @@ renv_migrate_packrat_cache_impl <- function(targets) {
     list(source = source, target = target, broken = broken, reason = reason)
   })
 
-  vwritef("Done!")
+  writef("Done!")
 
   # report failures
   status <- bind(result)
@@ -336,6 +336,6 @@ renv_migrate_packrat_cache_impl <- function(targets) {
 renv_migrate_packrat_infrastructure <- function(project) {
   unlink(file.path(project, ".Rprofile"))
   renv_infrastructure_write(project)
-  vwritef("* renv support infrastructure has been written.")
+  writef("* renv support infrastructure has been written.")
   TRUE
 }

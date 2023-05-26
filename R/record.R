@@ -59,7 +59,7 @@ record <- function(records,
 
   n <- length(records)
   fmt <- "* Updated %s in %s."
-  vwritef(fmt, nplural("record", n), renv_path_pretty(lockfile))
+  writef(fmt, nplural("record", n), renv_path_pretty(lockfile))
 
   renv <- records[["renv"]]
   if (!is.null(renv) && !is.null(renv[["Version"]])) {

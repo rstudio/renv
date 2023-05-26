@@ -200,7 +200,7 @@ renv_checkout_repos <- function(date) {
     url <- file.path(root, candidate)
     if (renv_download_available(file.path(url, "src/contrib/PACKAGES"))) {
       fmt <- "* Snapshot date '%s' not available; using '%s' instead"
-      messagef(fmt, date, candidate)
+      printf(fmt, date, candidate)
       return(url)
     }
   }

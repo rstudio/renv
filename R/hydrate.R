@@ -117,7 +117,7 @@ hydrate <- function(packages = NULL,
   # check for nothing to be done
   if (empty(packages) && empty(na)) {
     if (report)
-      vwritef("* No new packages were discovered in this project; nothing to do.")
+      writef("* No new packages were discovered in this project; nothing to do.")
     return(invisible(list(packages = list(), missing = list())))
   }
 
@@ -134,7 +134,7 @@ hydrate <- function(packages = NULL,
   if (report) {
     time <- difftime(after, before, units = "auto")
     fmt <- "* Hydrated %s packages in %s."
-    vwritef(fmt, length(packages), renv_difftime_format(time))
+    writef(fmt, length(packages), renv_difftime_format(time))
   }
 
   # attempt to install missing packages (if any)
@@ -231,12 +231,12 @@ renv_hydrate_dependencies <- function(project,
                                       packages = NULL,
                                       libpaths = NULL)
 {
-  vprintf("* Discovering package dependencies ... ")
+  printf("* Discovering package dependencies ... ")
   ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- libpaths %||% renv_hydrate_libpaths()
   all <- renv_package_dependencies(packages, project = project, libpaths = libpaths)
-  vwritef("Done!")
+  writef("Done!")
 
   all
 }
@@ -292,15 +292,14 @@ renv_hydrate_link_package <- function(package, location, library) {
 
 renv_hydrate_link_packages <- function(packages, library, project) {
 
-  header <- if (renv_path_same(library, renv_paths_library(project = project)))
-    "* Linking packages into the project library ... "
+  if (renv_path_same(library, renv_paths_library(project = project)))
+    printf("* Linking packages into the project library ... ")
   else
-    sprintf("* Linking packages into %s ... ", renv_path_pretty(library))
+    printf("* Linking packages into %s ... ", renv_path_pretty(library))
 
-  vprintf(header)
   callback <- renv_progress_callback(renv_hydrate_link_package, length(packages))
   cached <- enumerate(packages, callback, library = library)
-  vwritef("Done!")
+  writef("Done!")
   cached
 
 }
@@ -314,15 +313,14 @@ renv_hydrate_copy_package <- function(package, location, library) {
 
 renv_hydrate_copy_packages <- function(packages, library, project) {
 
-  header <- if (renv_path_same(library, renv_paths_library(project = project)))
-    "* Copying packages into the project library ... "
+  if (renv_path_same(library, renv_paths_library(project = project)))
+    printf("* Copying packages into the project library ... ")
   else
-    sprintf("* Copying packages into %s ... ", renv_path_pretty(library))
+    printf("* Copying packages into %s ... ", renv_path_pretty(library))
 
-  vprintf(header)
   callback <- renv_progress_callback(renv_hydrate_copy_package, length(packages))
   copied <- enumerate(packages, callback, library = library)
-  vwritef("Done!")
+  writef("Done!")
   copied
 }
 
@@ -344,7 +342,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
   if (all(packages %in% installed$Package))
     return()
 
-  vwritef("* Resolving missing dependencies ... ")
+  writef("* Resolving missing dependencies ... ")
 
   # define a custom error handler for packages which
   # we failed to retrieve

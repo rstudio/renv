@@ -26,9 +26,9 @@ imbue <- function(project = NULL,
   renv_scope_options(renv.verbose = !quiet)
 
   vtext <- version %||% renv_metadata_version()
-  vwritef("Installing renv [%s] ...", vtext)
+  writef("Installing renv [%s] ...", vtext)
   status <- renv_imbue_impl(project, version)
-  vwritef("* Done! renv has been successfully installed.")
+  writef("* Done! renv has been successfully installed.")
 
   invisible(status)
 
@@ -67,12 +67,12 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
   ensure_directory(library)
   renv_scope_libpaths(library)
 
-  vwritef("Installing renv [%s] ...", version)
+  writef("Installing renv [%s] ...", version)
   before <- Sys.time()
   with(record, r_cmd_install(Package, Path, library))
   after <- Sys.time()
   elapsed <- difftime(after, before, units = "auto")
-  vwritef("\tOK [built source in %s]", renv_difftime_format(elapsed))
+  writef("\tOK [built source in %s]", renv_difftime_format(elapsed))
 
   invisible(record)
 

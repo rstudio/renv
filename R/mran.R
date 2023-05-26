@@ -162,15 +162,15 @@ renv_mran_database_update <- function(platform, version, dates = NULL) {
   }
 
   # save at end
-  vprintf("[%s]: saving database ... ", date)
+  printf("[%s]: saving database ... ", date)
   renv_mran_database_save(database)
-  vwritef("DONE")
+  writef("DONE")
 
 }
 
 renv_mran_database_update_impl <- function(date, url, entry) {
 
-  vprintf("[%s]: reading package database ... ", date)
+  printf("[%s]: reading package database ... ", date)
 
   # get date as number of days since epoch
   idate <- as.integer(date)
@@ -179,7 +179,7 @@ renv_mran_database_update_impl <- function(date, url, entry) {
   errors <- new.env(parent = emptyenv())
   db <- renv_available_packages_query_impl(url, errors)
   if (is.null(db)) {
-    vwritef("ERROR")
+    writef("ERROR")
     return(FALSE)
   }
 
@@ -196,7 +196,7 @@ renv_mran_database_update_impl <- function(date, url, entry) {
 
   }
 
-  vwritef("OK")
+  writef("OK")
   TRUE
 
 }
@@ -297,10 +297,10 @@ renv_mran_database_sync <- function(platform, version) {
     return(FALSE)
 
   # invoke update for missing dates
-  vwritef("==> Synchronizing MRAN database (%s/%s)", platform, version)
+  writef("==> Synchronizing MRAN database (%s/%s)", platform, version)
   dates <- as.Date(seq(last + 1L, now, by = 1L), origin = "1970-01-01")
   renv_mran_database_update(platform, version, dates)
-  vwritef("Finished synchronizing MRAN database (%s/%s)", platform, version)
+  writef("Finished synchronizing MRAN database (%s/%s)", platform, version)
 
   # return TRUE to indicate update occurred
   return(TRUE)

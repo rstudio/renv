@@ -129,7 +129,7 @@ restore <- function(project  = NULL,
 
   if (!length(diff)) {
     name <- if (!missing(library)) "library" else "project"
-    vwritef("* The %s is already synchronized with the lockfile.", name)
+    writef("* The %s is already synchronized with the lockfile.", name)
     return(renv_restore_successful(diff, prompt, project))
   }
 
@@ -292,11 +292,11 @@ renv_restore_report_actions <- function(actions, current, lockfile) {
 renv_restore_remove <- function(project, package, lockfile) {
   records <- renv_lockfile_records(lockfile)
   record <- records[[package]]
-  vwritef("Removing %s [%s] ...", package, record$Version)
+  writef("Removing %s [%s] ...", package, record$Version)
   paths <- renv_paths_library(project = project, package)
   recursive <- renv_file_type(paths) == "directory"
   unlink(paths, recursive = recursive)
-  vwritef("\tOK [removed from library]")
+  writef("\tOK [removed from library]")
   TRUE
 }
 

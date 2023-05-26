@@ -18,7 +18,7 @@ renv_snapshot_auto <- function(project) {
     return(FALSE)
 
   lockfile <- renv_lockfile_path(project = project)
-  vwritef("* Automatic snapshot has updated '%s'.", renv_path_aliased(lockfile))
+  writef("* Automatic snapshot has updated '%s'.", renv_path_aliased(lockfile))
   TRUE
 
 }

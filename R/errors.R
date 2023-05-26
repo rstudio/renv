@@ -133,7 +133,7 @@ renv_error_handler <- function(...) {
     return(character())
 
   formatted <- renv_error_format(calls, frames)
-  writeLines(formatted, con = stderr())
+  writef(formatted)
 
   formatted
 

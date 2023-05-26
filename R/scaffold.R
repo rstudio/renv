@@ -69,7 +69,7 @@ scaffold <- function(project  = NULL,
 
   # notify user
   fmt <- "* renv infrastructure has been generated for project %s."
-  vwritef(fmt, renv_path_pretty(project))
+  writef(fmt, renv_path_pretty(project))
 
   # return project invisibly
   invisible(project)

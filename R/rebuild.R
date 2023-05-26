@@ -59,7 +59,7 @@ rebuild <- function(packages  = NULL,
   # make sure records are named
   names(records) <- map_chr(records, `[[`, "Package")
   if (empty(records)) {
-    vwritef("* There are no packages currently installed -- nothing to rebuild.")
+    writef("* There are no packages currently installed -- nothing to rebuild.")
     return(invisible(records))
   }
 

@@ -179,7 +179,7 @@ snapshot <- function(project  = NULL,
     # check if there are any changes in the lockfile
     diff <- renv_lockfile_diff(old, alt)
     if (empty(diff)) {
-      vwritef("* The lockfile is already up to date.")
+      writef("* The lockfile is already up to date.")
       return(renv_snapshot_successful(alt, prompt, project))
     }
 
@@ -211,7 +211,7 @@ snapshot <- function(project  = NULL,
   # write it out
   ensure_parent_directory(lockfile)
   renv_lockfile_write(new, file = lockfile)
-  vwritef("* Lockfile written to '%s'.", renv_path_aliased(lockfile))
+  writef("* Lockfile written to '%s'.", renv_path_aliased(lockfile))
 
   # ensure the lockfile is .Rbuildignore-d
   renv_infrastructure_write_rbuildignore(project)
@@ -927,7 +927,7 @@ renv_snapshot_filter <- function(project, records, type, packages, exclude) {
       weeks = "weeks"
     )
 
-    vwritef(lines, elapsed, units)
+    writef(lines, elapsed, units)
 
   }
 
