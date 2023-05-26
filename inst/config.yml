@@ -216,27 +216,33 @@
   type: "logical[1]"
   default: true
   description: >
-    Boolean; enable integration with [Posit Public Package Manager](https://packagemanager.posit.co/)
-    for renv projects? When `TRUE`, renv will attempt to transform the
-    repository URLs used by PPPM into binary URLs as appropriate for the
-    current platform. Set this to `FALSE` if you'd like to continue using
-    source-only PPPM URLs, or if you find that renv is improperly transforming
-    your repository URLs.
+    Boolean; enable [Posit Package Manager](https://packagemanager.posit.co/)
+    integration in renv projects? When `TRUE`, renv will attempt to transform
+    repository URLs used by PPM into binary URLs as appropriate for the
+    current Linux platform. Set this to `FALSE` if you'd like to continue using
+    source-only PPM URLs, or if you find that renv is improperly transforming
+    your repository URLs. You can still set and use PPM repositories with this
+    option disabled; it only controls whether renv tries to transform source
+    repository URLs into binary URLs on your behalf.
 
 - name: "ppm.default"
   type: "logical[1]"
   default: true
   description: >
-    Boolean; should new projects use [Posit Package Manager](https://packagemanager.posit.co/)
-    by default? When `TRUE` (the default), projects initialized with
-    `renv::init()` will use the public Posit Package Manager instance if the
-    `repos` R option has not already been set or changed by the user.
+    Boolean; should new projects use the
+    [Posit Public Package Manager](https://packagemanager.posit.co/)
+    instance by default? When `TRUE` (the default), projects initialized with
+    `renv::init()` will use the P3M instance if the `repos` R option has not
+    already been set by some other means (for example, in a startup `.Rprofile`).
 
 - name: "ppm.url"
   type: "character[1]"
   default: "https://packagemanager.posit.co/cran/latest"
   description: >
-    The default Package Manager URL to be used for new renv projects.
+    The default PPM URL to be used for new renv projects. Defaults to the
+    [CRAN mirror](https://packagemanager.posit.co/cran/latest) maintained by
+    Posit. This option can be changed if you'd like renv to use a separate
+    package manager instance.
 
 - name: "repos.override"
   type: "character[*]"

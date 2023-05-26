@@ -102,11 +102,11 @@ Defaults to \code{FALSE}.}
 Defaults to \code{FALSE}.}
 \subsection{renv.config.pak.enabled}{Use the \href{https://pak.r-lib.org/}{pak} package to install packages?
 Defaults to \code{FALSE}.}
-\subsection{renv.config.ppm.enabled}{Boolean; enable integration with \href{https://packagemanager.posit.co/}{Posit Package Manager} for renv projects? When \code{TRUE}, renv will attempt to transform the repository URLs used by PPM into binary URLs as appropriate for the current platform. Set this to \code{FALSE} if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs.
+\subsection{renv.config.ppm.enabled}{Boolean; enable \href{https://packagemanager.posit.co/}{Posit Package Manager} integration in renv projects? When \code{TRUE}, renv will attempt to transform repository URLs used by PPM into binary URLs as appropriate for the current Linux platform. Set this to \code{FALSE} if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs. You can still set and use PPM repositories with this option disabled; it only controls whether renv tries to transform source repository URLs into binary URLs on your behalf.
 Defaults to \code{TRUE}.}
-\subsection{renv.config.ppm.default}{Boolean; should new projects use \href{https://packagemanager.posit.co/}{Posit Package Manager} by default? When \code{TRUE} (the default), projects initialized with \code{renv::init()} will use the public Posit Package Manager instance if the \code{repos} R option has not already been set or changed by the user.
+\subsection{renv.config.ppm.default}{Boolean; should new projects use the \href{https://packagemanager.posit.co/}{Posit Public Package Manager} instance by default? When \code{TRUE} (the default), projects initialized with \code{renv::init()} will use the P3M instance if the \code{repos} R option has not already been set by some other means (for example, in a startup \code{.Rprofile}).
 Defaults to \code{TRUE}.}
-\subsection{renv.config.ppm.url}{The default Package Manager URL to be used for new renv projects.
+\subsection{renv.config.ppm.url}{The default PPM URL to be used for new renv projects. Defaults to the \href{https://packagemanager.posit.co/cran/latest}{CRAN mirror} maintained by Posit. This option can be changed if you'd like renv to use a separate package manager instance.
 Defaults to \code{"https://packagemanager.posit.co/cran/latest"}.}
 \subsection{renv.config.repos.override}{Override the R package repositories used during \code{\link[=restore]{restore()}}? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
 Defaults to \code{NULL}.}
