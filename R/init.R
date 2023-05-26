@@ -301,7 +301,8 @@ renv_init_repos <- function() {
     if (startswith(cran, "https://cran.rstudio.") ||
         startswith(cran, "https://cran.posit."))
     {
-      return(config$ppm.url())
+      repos[["CRAN"]] <- config$ppm.url()
+      return(repos)
     }
   }
 
