@@ -82,7 +82,7 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
   names(dbs) <- names(repos)
 
   # notify finished
-  vwritef("Done!")
+  writef("Done!")
 
   # propagate errors
   errors <- as.list(errors)

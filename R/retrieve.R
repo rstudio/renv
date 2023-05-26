@@ -403,7 +403,7 @@ renv_retrieve_git_impl <- function(record, path) {
   if (renv_platform_windows())
     command <- paste(comspec(), "/C", command)
 
-  vwritef("Cloning '%s' ...", url)
+  writef("Cloning '%s' ...", url)
 
   before <- Sys.time()
 
@@ -422,7 +422,7 @@ renv_retrieve_git_impl <- function(record, path) {
 
   fmt <- "\tOK [cloned repository in %s]"
   elapsed <- difftime(after, before, units = "auto")
-  vwritef(fmt, renv_difftime_format(elapsed))
+  writef(fmt, renv_difftime_format(elapsed))
 
   TRUE
 
@@ -474,7 +474,7 @@ renv_retrieve_cellar_report <- function(record) {
     return(record)
 
   fmt <- "* Package %s [%s] will be installed from the cellar."
-  with(record, vwritef(fmt, Package, Version))
+  with(record, writef(fmt, Package, Version))
 
   record
 

@@ -31,10 +31,6 @@ ewritef <- function(fmt = "", ..., con = stderr()) {
     writeLines(sprintf(fmt, ...), con = con)
 }
 
-vwritef <- function(fmt = "", ..., con = stdout()) {
-  if (!is.null(fmt) && renv_verbose())
-    writeLines(sprintf(fmt, ...), con = con)
-}
 
 infof <- function(fmt = "", ..., con = stdout()) {
   if (!is.null(fmt) && renv_verbose()) {

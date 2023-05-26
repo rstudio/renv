@@ -65,7 +65,7 @@ renv_isolate_unix <- function(project) {
     unlink(targets)
     copy <- renv_progress_callback(renv_file_copy, length(targets))
     enumerate(targets, copy, overwrite = TRUE)
-    vwritef("Done!")
+    writef("Done!")
   }
 
   writef("* This project has been isolated from the cache.")
@@ -87,7 +87,7 @@ renv_isolate_windows <- function(project) {
     unlink(targets)
     copy <- renv_progress_callback(renv_file_copy, length(targets))
     enumerate(targets, copy, overwrite = TRUE)
-    vwritef("Done!")
+    writef("Done!")
   }
 
   writef("* This project has been isolated from the cache.")

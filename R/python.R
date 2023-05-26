@@ -18,7 +18,7 @@ renv_python_resolve <- function(python = NULL) {
     python <- renv_python_select()
 
     fmt <- "* Selected %s [Python %s]."
-    vwritef(fmt, renv_path_pretty(python), renv_python_version(python))
+    writef(fmt, renv_path_pretty(python), renv_python_version(python))
 
     return(path.expand(python))
 

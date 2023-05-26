@@ -28,7 +28,7 @@ cite <- function(type = c("plain", "bibtex"),
   citations <- lapply(packages, function(package) {
     catchall(citation(package))
   })
-  vwritef("Done!")
+  writef("Done!")
 
   erridx <- map_lgl(citations, inherits, what = "condition")
   errs <- citations[erridx]

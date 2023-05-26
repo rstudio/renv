@@ -60,7 +60,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   # check for some form of change
   if (renv_records_equal(old, new)) {
     fmt <- "* renv [%s] is already installed and active for this project."
-    vwritef(fmt, new$Version)
+    writef(fmt, new$Version)
     return(TRUE)
   }
 

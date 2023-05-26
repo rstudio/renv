@@ -39,7 +39,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   destfile <- chartr("\\", "/", destfile)
 
   # notify user we're about to try downloading
-  vwritef("Retrieving '%s' ...", url)
+  writef("Retrieving '%s' ...", url)
 
   # add custom headers as appropriate for the URL
   headers <- c(headers, renv_download_custom_headers(url))
@@ -57,7 +57,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   if (identical(info$isdir, FALSE)) {
     size <- renv_download_size(url, type, headers)
     if (info$size == size) {
-      vwritef("\tOK [file is up to date]")
+      writef("\tOK [file is up to date]")
       return(destfile)
     }
   }
@@ -646,7 +646,7 @@ renv_download_report <- function(elapsed, file) {
   size <- structure(info$size, class = "object_size")
 
   fmt <- "\tOK [downloaded %s in %s]"
-  vwritef(fmt, format(size, units = "auto"), renv_difftime_format(elapsed))
+  writef(fmt, format(size, units = "auto"), renv_difftime_format(elapsed))
 
 }
 
@@ -850,7 +850,7 @@ renv_download_available_fallback <- function(url) {
 
 renv_download_error <- function(url, fmt, ...) {
   msg <- sprintf(fmt, ...)
-  vwritef("\tERROR [%s]", msg)
+  writef("\tERROR [%s]", msg)
   stopf("error downloading '%s' [%s]", url, msg, call. = FALSE)
 }
 

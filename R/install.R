@@ -145,7 +145,7 @@ install <- function(packages = NULL,
   # get and resolve the packages / remotes to be installed
   remotes <- packages %||% renv_project_remotes(project, dependencies)
   if (empty(remotes)) {
-    vwritef("* There are no packages to install.")
+    writef("* There are no packages to install.")
     return(invisible(list()))
   }
 
@@ -180,7 +180,7 @@ install <- function(packages = NULL,
   # retrieve packages
   records <- retrieve(names(remotes))
   if (empty(records)) {
-    vwritef("* There are no packages to install.")
+    writef("* There are no packages to install.")
     return(invisible(list()))
   }
 
@@ -191,13 +191,13 @@ install <- function(packages = NULL,
   if (!renv_tests_running()) {
     time <- renv_difftime_format(difftime(after, before))
     n <- length(records)
-    vwritef("* Installed %s in %s.", nplural("package", n), time)
+    writef("* Installed %s in %s.", nplural("package", n), time)
   }
 
   # a bit of extra test reporting
   if (renv_tests_running()) {
     fmt <- "Installed %s into library at path %s."
-    vwritef(
+    writef(
       fmt,
       nplural("package", length(records)),
       renv_path_pretty(renv_libpaths_active())
@@ -372,7 +372,7 @@ renv_install_package <- function(record) {
   withCallingHandlers(
     renv_install_package_impl(record),
     error = function(e) {
-      vwritef("\tFAILED")
+      writef("\tFAILED")
       writef(e$output)
     }
   )
@@ -383,7 +383,7 @@ renv_install_package <- function(record) {
   feedback <- renv_install_package_feedback(path, type)
 
   elapsed <- difftime(after, before, units = "auto")
-  vwritef("\tOK [%s in %s]", feedback, renv_difftime_format(elapsed))
+  writef("\tOK [%s in %s]", feedback, renv_difftime_format(elapsed))
 
   # link into cache
   if (renv_cache_config_enabled(project = project))
@@ -417,7 +417,7 @@ renv_install_package_cache <- function(record, cache, linker) {
 
   # report successful link to user
   fmt <- "Installing %s [%s] ..."
-  with(record, vwritef(fmt, Package, Version))
+  with(record, writef(fmt, Package, Version))
 
   before <- Sys.time()
   linker(cache, target)
@@ -429,7 +429,7 @@ renv_install_package_cache <- function(record, cache, linker) {
   )
 
   elapsed <- difftime(after, before, units = "auto")
-  vwritef("\tOK [%s cache in %s]", type, renv_difftime_format(elapsed))
+  writef("\tOK [%s cache in %s]", type, renv_difftime_format(elapsed))
 
   return(TRUE)
 
@@ -451,7 +451,7 @@ renv_install_package_cache_skip <- function(record, cache) {
 
 renv_install_package_preamble <- function(record) {
   fmt <- "Installing %s [%s] ..."
-  with(record, vwritef(fmt, Package, Version))
+  with(record, writef(fmt, Package, Version))
 }
 
 renv_install_package_impl_prebuild <- function(record, path, quiet) {
@@ -493,12 +493,12 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
   builder <- desc[["VignetteBuilder"]]
   if (!is.null(builder) && !renv_package_installed(builder)) {
     fmt <- "Skipping package build: vignette builder '%s' is not installed"
-    vwritef(fmt, builder)
+    writef(fmt, builder)
     return(path)
   }
 
   fmt <- "Building %s [%s] ..."
-  with(record, vwritef(fmt, Package, Version))
+  with(record, writef(fmt, Package, Version))
 
   before <- Sys.time()
   package <- record$Package
@@ -507,7 +507,7 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
   elapsed <- difftime(after, before, units = "auto")
 
   fmt <- "\tOK [built package in %s]"
-  vwritef(fmt, renv_difftime_format(elapsed))
+  writef(fmt, renv_difftime_format(elapsed))
 
   newpath
 

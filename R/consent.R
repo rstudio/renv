@@ -37,7 +37,7 @@ consent <- function(provided = FALSE) {
   # compute path to root directory
   root <- renv_paths_root()
   if (renv_file_type(root) == "directory") {
-    vwritef("* Consent to use renv has already been provided -- nothing to do.")
+    writef("* Consent to use renv has already been provided -- nothing to do.")
     return(invisible(TRUE))
   }
 
@@ -58,7 +58,7 @@ consent <- function(provided = FALSE) {
   # cache the user response
   options(renv.consent = TRUE)
   ensure_directory(root)
-  vwritef("* %s has been created.", renv_path_pretty(root))
+  writef("* %s has been created.", renv_path_pretty(root))
 
   invisible(TRUE)
 

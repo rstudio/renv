@@ -453,7 +453,7 @@ renv_dependencies_discover <- function(paths, progress, errors) {
   printf("Finding R package dependencies ... ")
   callback <- renv_progress_callback(renv_dependencies_discover_impl, length(paths))
   deps <- lapply(paths, callback)
-  vwritef("Done!")
+  writef("Done!")
 
   bind(deps)
   # nocov end
@@ -494,7 +494,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
     "Set `options(renv.config.dependencies.limit = Inf)` to disable this warning.",
     ""
   )
-  vwritef(lines, length(paths))
+  writef(lines, length(paths))
 
   if (identical(errors, "reported"))
     return(TRUE)

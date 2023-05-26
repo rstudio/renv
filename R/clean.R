@@ -95,7 +95,7 @@ clean <- function(project = NULL,
   for (method in methods)
     tryCatch(method(project, prompt), error = warning)
 
-  vwritef("* The project has been cleaned.")
+  writef("* The project has been cleaned.")
   invisible(project)
 }
 
@@ -118,7 +118,7 @@ renv_clean_actions <- function(prompt) {
 renv_clean_library_tempdirs <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No temporary directories were found in the project library.")
+    writef("* No temporary directories were found in the project library.")
     FALSE
   }
 
@@ -154,7 +154,7 @@ renv_clean_library_tempdirs <- function(project, prompt) {
 renv_clean_system_library <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No non-system packages were discovered in the system library.")
+    writef("* No non-system packages were discovered in the system library.")
     FALSE
   }
 
@@ -206,7 +206,7 @@ renv_clean_system_library <- function(project, prompt) {
 renv_clean_unused_packages <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No unused packages were found in the project library.")
+    writef("* No unused packages were found in the project library.")
     FALSE
   }
 
@@ -252,7 +252,7 @@ renv_clean_unused_packages <- function(project, prompt) {
 renv_clean_package_locks <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No stale package locks were found.")
+    writef("* No stale package locks were found.")
     FALSE
   }
 
@@ -295,7 +295,7 @@ renv_clean_package_locks <- function(project, prompt) {
 renv_clean_cache <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No unused packages were found in the renv cache.")
+    writef("* No unused packages were found in the renv cache.")
     FALSE
   }
 
@@ -361,7 +361,7 @@ renv_clean_cache <- function(project, prompt) {
   # remove the directories
   unlink(diff, recursive = TRUE)
   renv_cache_clean_empty()
-  vwritef("* %i package(s) have been removed.", length(diff))
+  writef("* %i package(s) have been removed.", length(diff))
   TRUE
 
 }

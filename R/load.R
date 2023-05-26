@@ -748,10 +748,10 @@ renv_load_report_project <- function(project) {
 
   if (length(profile)) {
     fmt <- "* (%s) Project '%s' loaded. [renv %s]"
-    vwritef(fmt, profile, renv_path_aliased(project), version)
+    writef(fmt, profile, renv_path_aliased(project), version)
   } else {
     fmt <- "* Project '%s' loaded. [renv %s]"
-    vwritef(fmt, renv_path_aliased(project), version)
+    writef(fmt, renv_path_aliased(project), version)
   }
 
 }
@@ -763,7 +763,7 @@ renv_load_report_python <- function(project) {
     return(FALSE)
 
   # fmt <- "* Using Python %s. [%s]"
-  # vwritef(fmt, renv_python_version(python), renv_python_type(python))
+  # writef(fmt, renv_python_version(python), renv_python_type(python))
 
 }
 
@@ -792,7 +792,7 @@ renv_load_report_updates_impl <- function(project) {
   if (!available)
     return(FALSE)
 
-  vwritef("* Use `renv::update()` to install updated packages.")
+  writef("* Use `renv::update()` to install updated packages.")
   if (!interactive())
     print(status)
 

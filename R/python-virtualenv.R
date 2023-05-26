@@ -91,7 +91,7 @@ renv_python_virtualenv_snapshot <- function(project, prompt, python) {
 
   after <- pip_freeze(python = python)
   if (setequal(before, after)) {
-    vwritef("* Python requirements are already up to date.")
+    writef("* Python requirements are already up to date.")
     return(FALSE)
   }
 
@@ -106,7 +106,7 @@ renv_python_virtualenv_snapshot <- function(project, prompt, python) {
   writeLines(after, con = path)
 
   fmt <- "* Wrote Python packages to %s."
-  vwritef(fmt, renv_path_pretty(path))
+  writef(fmt, renv_path_pretty(path))
   return(TRUE)
 
 }
@@ -123,7 +123,7 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
   after <- pip_freeze(python = python)
   diff <- renv_vector_diff(before, after)
   if (empty(diff)) {
-    vwritef("* The Python library is already up to date.")
+    writef("* The Python library is already up to date.")
     return(FALSE)
   }
 

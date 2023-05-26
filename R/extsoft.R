@@ -25,7 +25,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
   # check for missing installs
   files <- Filter(renv_extsoft_install_required, files)
   if (empty(files)) {
-    if (!quiet) vwritef("* External software is up to date.")
+    if (!quiet) writef("* External software is up to date.")
     return(TRUE)
   }
 
@@ -86,7 +86,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
 
   }
 
-  vwritef("* External software successfully updated.")
+  writef("* External software successfully updated.")
   TRUE
 
 }
@@ -147,7 +147,7 @@ renv_extsoft_use <- function(quiet = FALSE) {
 
   }
 
-  if (!quiet) vwritef("* '%s' has been updated.", path)
+  if (!quiet) writef("* '%s' has been updated.", path)
   writeLines(contents, path)
   TRUE
 
