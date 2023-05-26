@@ -9,11 +9,7 @@ test_that("update() finds packages requiring updates from CRAN", {
   install("breakfast@0.1.0")
   expect_true(renv_package_version("breakfast") == "0.1.0")
 
-  local({
-    renv_scope_sink()
-    update()
-  })
-
+  update()
   expect_true(renv_package_version("breakfast") == "1.0.0")
 
 })

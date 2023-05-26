@@ -77,20 +77,6 @@ renv_scope_envvars <- function(..., list = NULL, envir = parent.frame()) {
 
 }
 
-renv_scope_sink <- function(file = nullfile(), envir = parent.frame()) {
-
-  # redirect stdout to file, and redirect stderr back to stdout
-  # this ensures that both stdout, stderr are redirected to the same place
-  sink(file = file,     type = "output")
-  sink(file = stdout(), type = "message")
-
-  defer({
-    sink(type = "output")
-    sink(type = "message")
-  }, envir = envir)
-
-}
-
 renv_scope_error_handler <- function(envir = parent.frame()) {
 
   error <- getOption("error")

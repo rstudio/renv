@@ -34,10 +34,7 @@ test_that("renv can be vendored in a separate R package", {
   file.create("NAMESPACE")
 
   # vendor renv
-  local({
-    renv_scope_sink()
-    vendor(sources = sources)
-  })
+  vendor(sources = sources)
 
   # make sure renv is initializes in .onLoad()
   code <- heredoc('

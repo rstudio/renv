@@ -34,28 +34,6 @@ test_that("renv_path_aliased() correctly forms aliased path", {
   expect_equal(path, renv_path_aliased(expanded))
 })
 
-test_that("sink captures both stdout and stderr", {
-
-  file <- renv_scope_tempfile("renv-sink-", fileext = ".log")
-
-  osinks <- sink.number(type = "output")
-  msinks <- sink.number(type = "message")
-
-  local({
-    renv_scope_sink(file)
-    writeLines("stdout", con = stdout())
-    writeLines("stderr", con = stderr())
-  })
-
-  contents <- readLines(file)
-  expect_equal(contents, c("stdout", "stderr"))
-
-  expect_equal(sink.number(type = "output"),  osinks)
-  expect_equal(sink.number(type = "message"), msinks)
-
-
-})
-
 test_that("find() returns first non-null matching value", {
 
   data <- list(x = 1, y = 2, z = 3)
