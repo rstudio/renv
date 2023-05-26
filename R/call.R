@@ -8,10 +8,7 @@ renv_call_expect <- function(node, package, methods) {
     return(NULL)
 
   # check for call of the form 'pkg::foo(a, b, c)'
-  colon <-
-    is.call(node[[1L]]) &&
-    is.name(node[[1L]][[1L]]) &&
-    as.character(node[[1L]][[1L]]) %in% c("::", ":::")
+  colon <- renv_call_matches(node[[1L]], name = c("::", ":::"), n_args = 2)
 
   if (colon) {
 
@@ -41,10 +38,7 @@ renv_call_normalize <- function(node, stack) {
 
   # check for magrittr pipe -- if this part of the expression is
   # being piped into, then we need to munge the call
-  ispipe <-
-    is.call(node) &&
-    is.symbol(node[[1L]]) &&
-    as.character(node[[1L]]) %in% c("%>%", "%T>%", "%<>%")
+  ispipe <- renv_call_matches(node, name = c("%>%", "%T>%", "%<>%"))
 
   if (!ispipe)
     return(node)

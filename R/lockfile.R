@@ -41,8 +41,8 @@ renv_lockfile_init_r_repos <- function(project) {
     "https://cloud.r-project.org"
   )
 
-  # remove RSPM bits from URL
-  if (config$rspm.enabled()) {
+  # remove PPM bits from URL
+  if (renv_ppm_enabled()) {
     pattern <- "/__[^_]+__/[^/]+/"
     repos <- sub(pattern, "/", repos)
   }

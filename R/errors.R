@@ -49,11 +49,7 @@ renv_error_simplify_function <- function(object) {
 
 renv_error_simplify_recursive <- function(object) {
 
-  longcall <-
-    is.call(object) &&
-    is.symbol(object[[1]]) &&
-    object[[1]] == as.name("{") &&
-    length(object) >= 8
+  longcall <- renv_call_matches(object, name = "{") && length(object) >= 8
 
   if (longcall)
     return(quote(...))

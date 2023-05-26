@@ -20,9 +20,19 @@
 #' to do the right thing: it will restore the project library if it's missing,
 #' or otherwise ask you what to do.
 #'
+#' # Repositories
+#'
+#' If the default \R repositories have not already been set, renv will use
+#' the [Posit Public Package Manager](https://packagemanager.posit.co/) CRAN
+#' mirror for package installation. The primary benefit to using this mirror is
+#' that it can provide pre-built binaries for \R packages on a variety of
+#' commonly-used Linux distributions. This behavior can be configured or
+#' disabled if desired -- see the options in [renv::config()] for more details.
+#'
 #' @inherit renv-params
 #'
-#' @param project The project directory. The \R working directory will be
+#' @param project The project directory. When `NULL` (the default), the current
+#'   working directory will be used. The \R working directory will be
 #'   changed to match the requested project directory.
 #'
 #' @param settings A list of [settings] to be used with the newly-initialized
@@ -35,8 +45,8 @@
 #'   to initialize the home directory as a project, to defend against accidental
 #'   mis-usages of `init()`.
 #'
-#' @param repos The \R repositories to be used in this project. By default,
-#'   the active repositories (as determined by `getOption("repos")`) are used.
+#' @param repos The \R repositories to be used in this project.
+#'   See **Repositories** for more details.
 #'
 #' @param bioconductor The version of Bioconductor to be used with this project.
 #'   Setting this may be appropriate if renv is unable to determine that your
@@ -73,7 +83,7 @@ init <- function(project = NULL,
     renv_profile_set(profile)
 
   # normalize repos
-  repos <- renv_repos_normalize(repos %||% getOption("repos"))
+  repos <- renv_repos_normalize(repos %||% renv_init_repos())
   options(repos = repos)
 
   # form path to lockfile, library
@@ -269,5 +279,37 @@ renv_init_bioconductor <- function(bioconductor, project) {
     identical(bioconductor, TRUE)  ~ renv_bioconductor_version(project, refresh = TRUE),
     identical(bioconductor, FALSE) ~ NULL
   )
+
+}
+
+renv_init_repos <- function() {
+
+  # if PPM is disabled, just use default repositories
+  repos <- convert(getOption("repos"), "list")
+  if (!renv_ppm_enabled())
+    return(repos)
+
+  enabled <- config$ppm.default()
+  if (!enabled)
+    return(repos)
+
+  # if we're using the global CDN from RStudio, use PPM instead
+  rstudio <- attr(repos, "RStudio", exact = TRUE)
+  if (identical(rstudio, TRUE)) {
+    cran <- repos[["CRAN"]]
+    if (startswith(cran, "https://cran.rstudio.") ||
+        startswith(cran, "https://cran.posit."))
+    {
+      repos[["CRAN"]] <- config$ppm.url()
+      return(repos)
+    }
+  }
+
+  # if no repository was set, use PPM
+  if (identical(repos, list(CRAN = "@CRAN@")))
+    return(config$ppm.url())
+
+  # repos appears to have been configured separately; just use it
+  repos
 
 }

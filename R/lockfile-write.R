@@ -34,6 +34,14 @@ renv_lockfile_write_preflight <- function(old, new) {
     if (spurious)
       new$Packages[[package]]$Repository <<- old$Packages[[package]]$Repository
 
+    # avoid spurious changes between CRAN and PPM
+    spurious <-
+      identical(changes, list(Repository = list(before = "CRAN", after = "PPM"))) ||
+      identical(changes, list(Repository = list(before = "PPM", after = "CRAN")))
+
+    if (spurious)
+      new$Packages[[package]]$Repository <<- old$Packages[[package]]$Repository
+
   })
 
   new

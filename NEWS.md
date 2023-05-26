@@ -1,6 +1,17 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::init()` now uses [Posit Public Package Manager](https://packagemanager.posit.co)
+  by default, for new projects where the repositories have not already been
+  configured externally. See the options `renv.config.ppm.enabled`,
+  `renv.config.ppm.default`, and `renv.config.ppm.url` in `?config` for more
+  details. (#430)
+
+* MRAN integration is now disabled by default, pending the upcoming shutdown
+  of Microsoft's MRAN service. Users who require binaries of older R packages
+  on Windows + macOS can consider using the instance of CRAN mirrored by the
+  [Posit Public Package Manager](https://packagemanager.posit.co) (#1343).
+
 * `renv::dependencies()` only extracts dependencies from text in YAML
   headers that looks like valid R code (#1288).
 
@@ -25,7 +36,7 @@
 * renv gains a new function `renv::checkout()`, for installing the
   latest-available packages from a repository. For example, one can
   use `renv::checkout(date = "2023-02-08")` to install the packages available
-  on 2023-02-08 from the Posit [Package Manager](https://packagemanager.rstudio.com/) instance.
+  on 2023-02-08 from the Posit [Package Manager](https://packagemanager.rstudio.com/)
   repository.
   
 * `renv::install()` now supports Bioconductor remotes of the form
