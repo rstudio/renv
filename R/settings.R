@@ -233,7 +233,7 @@ renv_settings_updated_cache <- function(project, old, new) {
     return(TRUE)
   }
 
-  vprintf("* Synchronizing project library with the cache ... ")
+  printf("* Synchronizing project library with the cache ... ")
 
   if (new) {
 

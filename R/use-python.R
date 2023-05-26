@@ -364,11 +364,11 @@ renv_use_python_virtualenv_impl <- function(project,
       return(exe)
   }
 
-  vprintf("* Creating virtual environment '%s' ... ", basename(name))
+  printf("* Creating virtual environment '%s' ... ", basename(name))
   vpython <- renv_python_virtualenv_create(python, path)
   vwritef("Done!")
 
-  vprintf("* Updating Python packages ... ")
+  printf("* Updating Python packages ... ")
   renv_python_virtualenv_update(vpython)
   vwritef("Done!")
 

@@ -24,7 +24,7 @@ cite <- function(type = c("plain", "bibtex"),
 
   packages <- sort(.packages(all.available = TRUE))
   names(packages) <- packages
-  vprintf("Generating citations ... ")
+  printf("Generating citations ... ")
   citations <- lapply(packages, function(package) {
     catchall(citation(package))
   })

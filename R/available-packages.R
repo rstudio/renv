@@ -67,7 +67,7 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
     renv_scope_options(renv.verbose = FALSE)
 
   fmt <- "* Querying repositories for available %s packages ... "
-  vprintf(fmt, type)
+  printf(fmt, type)
 
   # exclude repositories which are known to not have packages available
   if (type == "binary") {

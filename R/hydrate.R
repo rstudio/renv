@@ -231,7 +231,7 @@ renv_hydrate_dependencies <- function(project,
                                       packages = NULL,
                                       libpaths = NULL)
 {
-  vprintf("* Discovering package dependencies ... ")
+  printf("* Discovering package dependencies ... ")
   ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- libpaths %||% renv_hydrate_libpaths()
@@ -297,7 +297,7 @@ renv_hydrate_link_packages <- function(packages, library, project) {
   else
     sprintf("* Linking packages into %s ... ", renv_path_pretty(library))
 
-  vprintf(header)
+  printf(header)
   callback <- renv_progress_callback(renv_hydrate_link_package, length(packages))
   cached <- enumerate(packages, callback, library = library)
   vwritef("Done!")
@@ -319,7 +319,7 @@ renv_hydrate_copy_packages <- function(packages, library, project) {
   else
     sprintf("* Copying packages into %s ... ", renv_path_pretty(library))
 
-  vprintf(header)
+  printf(header)
   callback <- renv_progress_callback(renv_hydrate_copy_package, length(packages))
   copied <- enumerate(packages, callback, library = library)
   vwritef("Done!")

@@ -297,7 +297,7 @@ update <- function(packages = NULL,
     }
   }
 
-  vprintf("* Checking for updated packages ... ")
+  printf("* Checking for updated packages ... ")
 
   # remove records that appear to be from an R package repository,
   # but are not actually available in the current repositories

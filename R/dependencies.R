@@ -450,7 +450,7 @@ renv_dependencies_discover <- function(paths, progress, errors) {
   # otherwise, run with progress reporting
 
   # nocov start
-  vprintf("Finding R package dependencies ... ")
+  printf("Finding R package dependencies ... ")
   callback <- renv_progress_callback(renv_dependencies_discover_impl, length(paths))
   deps <- lapply(paths, callback)
   vwritef("Done!")

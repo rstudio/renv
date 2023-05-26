@@ -162,7 +162,7 @@ renv_mran_database_update <- function(platform, version, dates = NULL) {
   }
 
   # save at end
-  vprintf("[%s]: saving database ... ", date)
+  printf("[%s]: saving database ... ", date)
   renv_mran_database_save(database)
   vwritef("DONE")
 
@@ -170,7 +170,7 @@ renv_mran_database_update <- function(platform, version, dates = NULL) {
 
 renv_mran_database_update_impl <- function(date, url, entry) {
 
-  vprintf("[%s]: reading package database ... ", date)
+  printf("[%s]: reading package database ... ", date)
 
   # get date as number of days since epoch
   idate <- as.integer(date)

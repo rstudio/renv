@@ -65,7 +65,7 @@ renv_remove_impl <- function(package, library) {
   }
 
   recursive <- renv_file_type(path) == "directory"
-  vprintf("Removing package '%s' ... ", package)
+  printf("Removing package '%s' ... ", package)
   unlink(path, recursive = recursive)
   vwritef("Done!")
 
