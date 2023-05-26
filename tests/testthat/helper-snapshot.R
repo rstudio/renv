@@ -13,6 +13,7 @@ strip_dirs <- function(x) {
   x <- gsub(getwd(), "<wd>", x, fixed = TRUE)
   x <- gsub(renv_paths_cache(), "<cache>", x, fixed = TRUE)
   x <- gsub(normalizePath(tempdir()), "<tempdir>", x, fixed = TRUE)
+  x <- gsub(tempdir(), "<tempdir>", x, fixed = TRUE)
   x <- gsub("renv-library-\\w+", "<renv-library>", x)
   x <- gsub(getRversion(), "<r-version>", x, fixed = TRUE)
   x <- gsub(renv_tests_repopath(), "<test-repo>", x, fixed = TRUE)
