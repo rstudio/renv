@@ -21,22 +21,10 @@ printf <- function(fmt = "", ..., file = stdout(), sep = "") {
     cat(sprintf(fmt, ...), file = file, sep = sep)
 }
 
-eprintf <- function(fmt = "", ..., file = stderr(), sep = "") {
-  if (!is.null(fmt) && renv_verbose())
-    cat(sprintf(fmt, ...), file = file, sep = sep)
-}
-
 vprintf <- function(fmt = "", ..., file = stdout(), sep = "") {
   if (!is.null(fmt) && renv_verbose())
     cat(sprintf(fmt, ...), file = file, sep = sep)
 }
-
-veprintf <- function(fmt = "", ..., file = stderr(), sep = "") {
-  if (!is.null(fmt) && renv_verbose())
-    cat(sprintf(fmt, ...), file = file, sep = sep)
-}
-
-
 
 writef <- function(fmt = "", ..., con = stdout()) {
   if (!is.null(fmt) && renv_verbose())
@@ -49,11 +37,6 @@ ewritef <- function(fmt = "", ..., con = stderr()) {
 }
 
 vwritef <- function(fmt = "", ..., con = stdout()) {
-  if (!is.null(fmt) && renv_verbose())
-    writeLines(sprintf(fmt, ...), con = con)
-}
-
-vewritef <- function(fmt = "", ..., con = stderr()) {
   if (!is.null(fmt) && renv_verbose())
     writeLines(sprintf(fmt, ...), con = con)
 }
