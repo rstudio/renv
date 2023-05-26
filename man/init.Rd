@@ -17,7 +17,8 @@ init(
 )
 }
 \arguments{
-\item{project}{The project directory. The \R working directory will be
+\item{project}{The project directory. When \code{NULL} (the default), the current
+working directory will be used. The \R working directory will be
 changed to match the requested project directory.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
@@ -37,8 +38,8 @@ and install R package dependencies?}
 to initialize the home directory as a project, to defend against accidental
 mis-usages of \code{init()}.}
 
-\item{repos}{The \R repositories to be used in this project. By default,
-the active repositories (as determined by \code{getOption("repos")}) are used.}
+\item{repos}{The \R repositories to be used in this project.
+See \strong{Repositories} for more details.}
 
 \item{bioconductor}{The version of Bioconductor to be used with this project.
 Setting this may be appropriate if renv is unable to determine that your
@@ -71,6 +72,15 @@ If you call \code{init()} on a project that already uses renv, it will attempt
 to do the right thing: it will restore the project library if it's missing,
 or otherwise ask you what to do.
 }
+\section{Repositories}{
+If the default \R repositories have not already been set, renv will use
+the \href{https://packagemanager.posit.co/}{Posit Public Package Manager} CRAN
+mirror for package installation. The primary benefit to using this mirror is
+that it can provide pre-built binaries for \R packages on a variety of
+commonly-used Linux distributions. This behavior can be configured or
+disabled if desired -- see the options in \code{\link[=config]{config()}} for more details.
+}
+
 \examples{
 
 \dontrun{

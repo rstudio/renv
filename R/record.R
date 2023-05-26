@@ -77,7 +77,7 @@ renv_record_normalize <- function(record) {
 
   # normalize source
   source <- record$Source %||% "unknown"
-  if (source %in% c("CRAN", "RSPM"))
+  if (source %in% c("CRAN", "PPM", "RSPM"))
     record$Source <- "Repository"
 
   # drop remotes from records with a repository source

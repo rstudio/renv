@@ -212,7 +212,7 @@ config <- list(
     )
   },
 
-  mran.enabled = function(..., default = TRUE) {
+  mran.enabled = function(..., default = FALSE) {
     renv_config_get(
       name    = "mran.enabled",
       type    = "logical[1]",
@@ -225,6 +225,33 @@ config <- list(
     renv_config_get(
       name    = "pak.enabled",
       type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
+  ppm.enabled = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "ppm.enabled",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
+  ppm.default = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "ppm.default",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
+  ppm.url = function(..., default = "https://packagemanager.posit.co/cran/latest") {
+    renv_config_get(
+      name    = "ppm.url",
+      type    = "character[1]",
       default = default,
       args    = list(...)
     )

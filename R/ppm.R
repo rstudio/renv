@@ -1,26 +1,26 @@
 
-renv_rspm_normalize <- function(url) {
+renv_ppm_normalize <- function(url) {
   sub("/__[^_]+__/[^/]+/", "/", url)
 }
 
-renv_rspm_transform <- function(repos = getOption("repos")) {
+renv_ppm_transform <- function(repos = getOption("repos")) {
   map_chr(repos, function(url) {
     tryCatch(
-      renv_rspm_transform_impl(url),
+      renv_ppm_transform_impl(url),
       error = function(e) url
     )
   })
 }
 
-renv_rspm_transform_impl <- function(url) {
+renv_ppm_transform_impl <- function(url) {
 
   # repository URL transformation is only necessary on Linux
-  os <- renv_rspm_os()
+  os <- renv_ppm_os()
   if (!identical(os, "__linux__"))
     return(url)
 
   # check for a known platform
-  platform <- renv_rspm_platform()
+  platform <- renv_ppm_platform()
   if (is.null(platform))
     return(url)
 
@@ -33,10 +33,9 @@ renv_rspm_transform_impl <- function(url) {
   if (grepl("/__[^_]+__/", url))
     return(url)
 
-  # only attempt to transform URLs that are formatted like
-  # RSPM urls -- for example:
+  # only attempt to transform URLs that are formatted like PPM urls:
   #
-  #   https://rspm.company.org/cran/checkpoint/id
+  #   https://ppm.company.org/cran/checkpoint/id
   #
   # in particular, there should be at least two trailing
   # alphanumeric path components
@@ -66,9 +65,9 @@ renv_rspm_transform_impl <- function(url) {
     return(url)
 
   # try to query the status endpoint
-  # TODO: this could fail if the URL is a proxy back to RSPM
+  # TODO: this could fail if the URL is a proxy back to PPM?
   base <- dirname(dirname(url))
-  status <- catch(renv_rspm_status(base))
+  status <- catch(renv_ppm_status(base))
   if (inherits(status, "error"))
     return(url)
 
@@ -92,14 +91,14 @@ renv_rspm_transform_impl <- function(url) {
 
 }
 
-renv_rspm_status <- function(base) {
+renv_ppm_status <- function(base) {
   memoize(
     key   = base,
-    value = catch(renv_rspm_status_impl(base))
+    value = catch(renv_ppm_status_impl(base))
   )
 }
 
-renv_rspm_status_impl <- function(base) {
+renv_ppm_status_impl <- function(base) {
 
   # use a shorter delay to avoid hanging a session
   renv_scope_options(
@@ -109,7 +108,7 @@ renv_rspm_status_impl <- function(base) {
 
   # attempt the download
   endpoint <- file.path(base, "__api__/status")
-  destfile <- renv_scope_tempfile("renv-rspm-status-", fileext = ".json")
+  destfile <- renv_scope_tempfile("renv-ppm-status-", fileext = ".json")
   quietly(download(endpoint, destfile))
 
   # read the downloaded JSON
@@ -117,7 +116,11 @@ renv_rspm_status_impl <- function(base) {
 
 }
 
-renv_rspm_platform <- function(file = "/etc/os-release") {
+renv_ppm_platform <- function(file = "/etc/os-release") {
+
+  platform <- Sys.getenv("RENV_PPM_PLATFORM", unset = NA)
+  if (!is.na(platform))
+    return(platform)
 
   platform <- Sys.getenv("RENV_RSPM_PLATFORM", unset = NA)
   if (!is.na(platform))
@@ -129,11 +132,11 @@ renv_rspm_platform <- function(file = "/etc/os-release") {
   if (renv_platform_macos())
     return("macos")
 
-  renv_rspm_platform_impl(file)
+  renv_ppm_platform_impl(file)
 
 }
 
-renv_rspm_platform_impl <- function(file = "/etc/os-release") {
+renv_ppm_platform_impl <- function(file = "/etc/os-release") {
 
   if (file.exists(file)) {
 
@@ -146,17 +149,17 @@ renv_rspm_platform_impl <- function(file = "/etc/os-release") {
     id <- properties$ID %||% ""
 
     case(
-      identical(id, "ubuntu") ~ renv_rspm_platform_ubuntu(properties),
-      identical(id, "centos") ~ renv_rspm_platform_centos(properties),
-      identical(id, "rhel")   ~ renv_rspm_platform_rhel(properties),
-      grepl("\\bsuse\\b", id) ~ renv_rspm_platform_suse(properties)
+      identical(id, "ubuntu") ~ renv_ppm_platform_ubuntu(properties),
+      identical(id, "centos") ~ renv_ppm_platform_centos(properties),
+      identical(id, "rhel")   ~ renv_ppm_platform_rhel(properties),
+      grepl("\\bsuse\\b", id) ~ renv_ppm_platform_suse(properties)
     )
 
   }
 
 }
 
-renv_rspm_platform_ubuntu <- function(properties) {
+renv_ppm_platform_ubuntu <- function(properties) {
 
   codename <- properties$VERSION_CODENAME
   if (is.null(codename))
@@ -166,7 +169,7 @@ renv_rspm_platform_ubuntu <- function(properties) {
 
 }
 
-renv_rspm_platform_centos <- function(properties) {
+renv_ppm_platform_centos <- function(properties) {
 
   id <- properties$VERSION_ID
   if (is.null(id))
@@ -176,7 +179,7 @@ renv_rspm_platform_centos <- function(properties) {
 
 }
 
-renv_rspm_platform_rhel <- function(properties) {
+renv_ppm_platform_rhel <- function(properties) {
 
   id <- properties$VERSION_ID
   if (is.null(id))
@@ -187,7 +190,7 @@ renv_rspm_platform_rhel <- function(properties) {
 }
 
 
-renv_rspm_platform_suse <- function(properties) {
+renv_ppm_platform_suse <- function(properties) {
 
   id <- properties$VERSION_ID
   if (is.null(id))
@@ -198,7 +201,11 @@ renv_rspm_platform_suse <- function(properties) {
 
 }
 
-renv_rspm_os <- function() {
+renv_ppm_os <- function() {
+
+  os <- Sys.getenv("RENV_PPM_OS", unset = NA)
+  if (!is.na(os))
+    return(os)
 
   os <- Sys.getenv("RENV_RSPM_OS", unset = NA)
   if (!is.na(os))
@@ -214,14 +221,19 @@ renv_rspm_os <- function() {
 }
 
 
-renv_rspm_enabled <- function() {
+renv_ppm_enabled <- function() {
 
   # allow environment variable override
+  enabled <- Sys.getenv("RENV_PPM_ENABLED", unset = NA)
+  if (!is.na(enabled))
+    return(truthy(enabled, default = TRUE))
+
   enabled <- Sys.getenv("RENV_RSPM_ENABLED", unset = NA)
   if (!is.na(enabled))
     return(truthy(enabled, default = TRUE))
 
-  # binaries not available for Linux on arm64
+  # TODO: can we remove this check?
+  # https://github.com/rstudio/renv/issues/1132
   disabled <-
     renv_platform_linux() &&
     identical(renv_platform_machine(), "aarch64")
@@ -230,6 +242,6 @@ renv_rspm_enabled <- function() {
     return(FALSE)
 
   # otherwise, use configuration option
-  config$rspm.enabled()
+  config$ppm.enabled()
 
 }
