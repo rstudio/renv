@@ -143,12 +143,11 @@ renv_status_check_missing_lockfile <- function(project, lockpath) {
   if (file.exists(lockpath))
     return(TRUE)
 
-  text <- if (identical(lockpath, renv_lockfile_path(project)))
-    "* This project has not yet been snapshotted -- 'renv.lock' does not exist."
+  if (identical(lockpath, renv_lockfile_path(project)))
+    writef("* This project has not yet been snapshotted -- 'renv.lock' does not exist.")
   else
-    sprintf("* Lockfile %s does not exist.", renv_path_pretty(lockpath))
+    writef("* Lockfile %s does not exist.", renv_path_pretty(lockpath))
 
-  writef(text)
   FALSE
 
 }
@@ -159,12 +158,11 @@ renv_status_check_missing_library <- function(project, libpaths) {
   if (file.exists(projlib))
     return(TRUE)
 
-  text <- if (identical(projlib, renv_paths_library(project = project)))
-    "* This project's private library is empty or does not exist."
+  if (identical(projlib, renv_paths_library(project = project)))
+    writef("* This project's private library is empty or does not exist.")
   else
-    sprintf("* Library %s is empty or does not exist.", renv_path_pretty(projlib))
+    writef("* Library %s is empty or does not exist.", renv_path_pretty(projlib))
 
-  writef(text)
   FALSE
 
 }

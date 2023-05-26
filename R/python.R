@@ -68,8 +68,7 @@ renv_python_find_impl <- function(version, path = NULL) {
       "See `?renv::use_python` for more details."
     )
 
-    msg <- sprintf(fmt, version)
-    stop(msg)
+    stopf(fmt, version)
 
   }
 

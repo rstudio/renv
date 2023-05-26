@@ -349,7 +349,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     )
 
     if (!renv_tests_running())
-      writeLines(sprintf(text, package))
+      writef(text, package)
 
     ok <- FALSE
   }

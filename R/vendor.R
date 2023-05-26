@@ -77,8 +77,7 @@ vendor <- function(version    = NULL,
     #
   ")
 
-  blurb <- sprintf(template, renv_path_pretty(embed), renv_path_pretty(loader))
-  writeLines(blurb)
+  writef(template, renv_path_pretty(embed), renv_path_pretty(loader))
 
   invisible(TRUE)
 

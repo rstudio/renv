@@ -1598,8 +1598,7 @@ renv_dependencies_require <- function(package, type = NULL) {
     )
 
     within <- if (is.null(type)) "this project" else paste(type, "files")
-    msg <- sprintf(fmt, package, within)
-    warning(msg, call. = FALSE)
+    warningf(fmt, package, within)
 
   }
 

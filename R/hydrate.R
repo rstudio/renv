@@ -292,12 +292,11 @@ renv_hydrate_link_package <- function(package, location, library) {
 
 renv_hydrate_link_packages <- function(packages, library, project) {
 
-  header <- if (renv_path_same(library, renv_paths_library(project = project)))
-    "* Linking packages into the project library ... "
+  if (renv_path_same(library, renv_paths_library(project = project)))
+    printf("* Linking packages into the project library ... ")
   else
-    sprintf("* Linking packages into %s ... ", renv_path_pretty(library))
+    printf("* Linking packages into %s ... ", renv_path_pretty(library))
 
-  printf(header)
   callback <- renv_progress_callback(renv_hydrate_link_package, length(packages))
   cached <- enumerate(packages, callback, library = library)
   writef("Done!")
@@ -314,12 +313,11 @@ renv_hydrate_copy_package <- function(package, location, library) {
 
 renv_hydrate_copy_packages <- function(packages, library, project) {
 
-  header <- if (renv_path_same(library, renv_paths_library(project = project)))
-    "* Copying packages into the project library ... "
+  if (renv_path_same(library, renv_paths_library(project = project)))
+    printf("* Copying packages into the project library ... ")
   else
-    sprintf("* Copying packages into %s ... ", renv_path_pretty(library))
+    printf("* Copying packages into %s ... ", renv_path_pretty(library))
 
-  printf(header)
   callback <- renv_progress_callback(renv_hydrate_copy_package, length(packages))
   copied <- enumerate(packages, callback, library = library)
   writef("Done!")
