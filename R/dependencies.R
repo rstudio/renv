@@ -1655,7 +1655,7 @@ renv_dependencies_report <- function(errors) {
   if (empty(problems))
     return(TRUE)
 
-  ewritef("WARNING: One or more problems were discovered while enumerating dependencies.\n")
+  writef("WARNING: One or more problems were discovered while enumerating dependencies.\n")
 
   # bind into list
   bound <- bapply(problems, function(problem) {
@@ -1674,10 +1674,10 @@ renv_dependencies_report <- function(errors) {
     prefix <- format(paste("ERROR", seq_along(problem$message)))
     messages <- paste(prefix, problem$message, sep = ": ", collapse = "\n\n")
     text <- c(file, lines, "", messages, "")
-    ewritef(text)
+    writef(text)
   })
 
-  ewritef("Please see `?renv::dependencies` for more information.")
+  writef("Please see `?renv::dependencies` for more information.")
 
   if (identical(errors, "fatal")) {
     fmt <- "one or more errors occurred while enumerating dependencies"

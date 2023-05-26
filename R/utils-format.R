@@ -26,12 +26,6 @@ writef <- function(fmt = "", ..., con = stdout()) {
     writeLines(sprintf(fmt, ...), con = con)
 }
 
-ewritef <- function(fmt = "", ..., con = stderr()) {
-  if (!is.null(fmt) && renv_verbose())
-    writeLines(sprintf(fmt, ...), con = con)
-}
-
-
 infof <- function(fmt = "", ..., con = stdout()) {
   if (!is.null(fmt) && renv_verbose()) {
     fmt <- paste(if (l10n_info()$`UTF-8`) "\u2139" else "i", fmt)
