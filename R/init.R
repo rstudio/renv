@@ -285,7 +285,6 @@ renv_init_bioconductor <- function(bioconductor, project) {
 renv_init_repos <- function() {
 
   # if PPM is disabled, just use default repositories
-  # (use 'convert' to preserve attributes)
   repos <- convert(getOption("repos"), "list")
   if (!renv_ppm_enabled())
     return(repos)

@@ -273,6 +273,8 @@ quietly <- function(expr, sink = TRUE) {
 
 }
 
+# NOTE: This function can be used in preference to `as.*()` if you'd like
+# to preserve attributes on the incoming object 'x'.
 convert <- function(x, type) {
   storage.mode(x) <- type
   x
