@@ -169,12 +169,7 @@ test_that("snapshot warns about unsatisfied dependencies", {
   toast$Depends <- "bread (> 1.0.0)"
   renv_dcf_write(toast, file = descpath)
 
-  condition <- tryCatch(
-    snapshot(),
-    renv.snapshot.unsatisfied_dependencies = identity
-  )
-
-  expect_s3_class(condition, "renv.snapshot.unsatisfied_dependencies")
+  expect_snapshot(snapshot(), error = TRUE)
 
 })
 
@@ -359,10 +354,7 @@ test_that("renv reports missing packages in explicit snapshots", {
   init()
 
   writeLines("Depends: breakfast", con = "DESCRIPTION")
-  expect_condition(
-    snapshot(type = "explicit"),
-    class = "renv.snapshot.missing_packages"
-  )
+  expect_snapshot(snapshot(type = "explicit"))
 
 })
 

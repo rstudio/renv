@@ -51,6 +51,35 @@
       
       * Lockfile written to '<wd>/renv.lock'.
 
+# snapshot warns about unsatisfied dependencies
+
+    Code
+      snapshot()
+    Output
+      The following package(s) have unsatisfied dependencies:
+      
+      	toast requires bread (> 1.0.0), but version 1.0.0 is installed
+      
+      Consider updating the required dependencies as appropriate.
+      
+    Error <simpleError>
+      aborting snapshot due to pre-flight validation failure
+
+# renv reports missing packages in explicit snapshots
+
+    Code
+      snapshot(type = "explicit")
+    Output
+      The following required packages are not installed:
+      
+      	breakfast
+      
+      Packages must first be installed before renv can snapshot them.
+      Consider installing these packages using `renv::install()`.
+      If these packages are no longer required, consider removing them from your DESCRIPTION file.
+      
+      * The lockfile is already up to date.
+
 # snapshot() warns when required package is not installed
 
     Code
