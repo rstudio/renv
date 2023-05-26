@@ -33,7 +33,7 @@ repeat {
     break
 
   # attempt to tag this commit
-  vwritef("* Tagging version '%s'", version)
+  writef("* Tagging version '%s'", version)
   system(paste("git tag", version))
 
   # go to the previous commit
@@ -44,6 +44,6 @@ repeat {
 
 }
 
-vwritef("* Updating tags")
+writef("* Updating tags")
 system("git push --tags")
 setwd(owd)

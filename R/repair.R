@@ -30,7 +30,7 @@ repair <- function(library  = NULL,
   packages <- basename(paths[broken])
   if (empty(packages)) {
     fmt <- "* The project library has no broken links -- nothing to do."
-    vwritef(fmt)
+    writef(fmt)
     return(invisible(packages))
   }
 

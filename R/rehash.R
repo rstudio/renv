@@ -37,13 +37,13 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   # re-compute package hashes
   old <- renv_cache_list(cache = cache)
 
-  vprintf("* Re-computing package hashes ... ")
+  printf("* Re-computing package hashes ... ")
   new <- map_chr(old, renv_progress_callback(renv_cache_path, length(old)))
-  vwritef("Done!")
+  writef("Done!")
 
   changed <- which(old != new & file.exists(old) & !file.exists(new))
   if (empty(changed)) {
-    vwritef("* Your cache is already up-to-date -- nothing to do.")
+    writef("* Your cache is already up-to-date -- nothing to do.")
     return(TRUE)
   }
 
@@ -69,13 +69,13 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   names(sources) <- targets
   names(targets) <- sources
 
-  vprintf("* Re-caching packages ... ")
+  printf("* Re-caching packages ... ")
   enumerate(targets, renv_progress_callback(action, length(targets)))
-  vwritef("Done!")
+  writef("Done!")
 
   n <- length(targets)
   fmt <- "Successfully re-cached %s."
-  vwritef(fmt, nplural("package", n))
+  writef(fmt, nplural("package", n))
 
   renv_cache_clean_empty()
 

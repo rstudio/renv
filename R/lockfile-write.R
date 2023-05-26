@@ -100,15 +100,14 @@ renv_lockfile_write_json <- function(lockfile, file = stdout()) {
 
 renv_lockfile_write_internal <- function(lockfile,
                                          file = stdout(),
-                                         delim = "=",
-                                         emitter = NULL)
+                                         delim = "=")
 {
   if (is.character(file)) {
     file <- textfile(file)
     defer(close(file))
   }
 
-  emitter <- emitter %||% function(text) writeLines(text, con = file)
+  emitter <- function(text) writeLines(text, con = file)
 
   renv_lockfile_state_set("delim", delim)
   renv_lockfile_state_set("emitter", emitter)

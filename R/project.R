@@ -292,7 +292,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
         "* This project contains a lockfile, but none of the recorded packages are installed.",
         "* Use `renv::restore()` to restore the project library."
       )
-      ewritef(msg)
+      writef(msg)
       return(FALSE)
     }
   }
@@ -304,7 +304,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
       "* One or more packages recorded in the lockfile are not installed.",
       "* Use `renv::status()` for more details."
     )
-    ewritef(msg)
+    writef(msg)
     return(FALSE)
   }
 
@@ -321,7 +321,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
       "* Use `renv::status()` for more details."
     )
 
-    ewritef(msg)
+    writef(msg)
     return(FALSE)
 
   }

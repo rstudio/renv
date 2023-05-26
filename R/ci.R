@@ -61,7 +61,7 @@ renv_ci_repair <- function() {
   # check which failed to load
   broken <- packages[!ok]
   if (empty(broken)) {
-    vwritef("* All installed packages can be successfully loaded.")
+    writef("* All installed packages can be successfully loaded.")
     return(broken)
   }
 

@@ -65,7 +65,7 @@ renv_system_exec <- function(command,
       output
 
     # write to stderr
-    writeLines(c(header, "", body), con = stderr())
+    writef(c(header, "", body))
 
   }
 

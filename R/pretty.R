@@ -32,14 +32,12 @@ renv_pretty_print <- function(values,
   msg$push("")
   text <- paste(as.character(msg$data()), collapse = "\n")
 
-  emitter <- emitter %||% renv_pretty_print_emitter()
-  emitter(text)
+  writef(text)
 }
 
 renv_pretty_print_records <- function(records,
                                       preamble  = NULL,
-                                      postamble = NULL,
-                                      emitter   = NULL)
+                                      postamble = NULL)
 {
   if (empty(records))
     return(invisible(NULL))
@@ -65,8 +63,7 @@ renv_pretty_print_records <- function(records,
     if (length(postamble)) c(postamble, "")
   )
 
-  emitter <- emitter %||% renv_pretty_print_emitter()
-  emitter(all)
+  writef(all)
 
   invisible(NULL)
 }
@@ -75,8 +72,7 @@ renv_pretty_print_records_pair <- function(old,
                                            new,
                                            preamble  = NULL,
                                            postamble = NULL,
-                                           formatter = NULL,
-                                           emitter   = NULL)
+                                           formatter = NULL)
 {
   formatter <- formatter %||% renv_record_format_pair
 
@@ -86,8 +82,7 @@ renv_pretty_print_records_pair <- function(old,
     if (length(postamble)) c(postamble, "")
   )
 
-  emitter <- emitter %||% renv_pretty_print_emitter()
-  emitter(all)
+  writef(all)
 
   invisible(NULL)
 }
@@ -135,18 +130,5 @@ renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
     )
 
   })
-
-}
-
-renv_pretty_print_emitter <- function() {
-
-  emitter <- getOption("renv.pretty.print.emitter", default = NULL)
-  if (!is.null(emitter))
-    return(emitter)
-
-  if (interactive())
-    function(text, ...) writeLines(text, con = stdout(), ...)
-  else
-    function(text, ...) writeLines(text, con = stderr(), ...)
 
 }

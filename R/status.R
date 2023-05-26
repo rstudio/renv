@@ -58,7 +58,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
-    vwritef("* This project has not yet been initialized.")
+    writef("* This project has not yet been initialized.")
     return(default)
   }
 
@@ -128,7 +128,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     renv_status_check_cache(project)
 
   if (synchronized)
-    vwritef("* The project is already synchronized with the lockfile.")
+    writef("* The project is already synchronized with the lockfile.")
 
   list(
     library      = library,
@@ -143,12 +143,11 @@ renv_status_check_missing_lockfile <- function(project, lockpath) {
   if (file.exists(lockpath))
     return(TRUE)
 
-  text <- if (identical(lockpath, renv_lockfile_path(project)))
-    "* This project has not yet been snapshotted -- 'renv.lock' does not exist."
+  if (identical(lockpath, renv_lockfile_path(project)))
+    writef("* This project has not yet been snapshotted -- 'renv.lock' does not exist.")
   else
-    sprintf("* Lockfile %s does not exist.", renv_path_pretty(lockpath))
+    writef("* Lockfile %s does not exist.", renv_path_pretty(lockpath))
 
-  vwritef(text)
   FALSE
 
 }
@@ -159,12 +158,11 @@ renv_status_check_missing_library <- function(project, libpaths) {
   if (file.exists(projlib))
     return(TRUE)
 
-  text <- if (identical(projlib, renv_paths_library(project = project)))
-    "* This project's private library is empty or does not exist."
+  if (identical(projlib, renv_paths_library(project = project)))
+    writef("* This project's private library is empty or does not exist.")
   else
-    sprintf("* Library %s is empty or does not exist.", renv_path_pretty(projlib))
+    writef("* Library %s is empty or does not exist.", renv_path_pretty(projlib))
 
-  vwritef(text)
   FALSE
 
 }
@@ -351,13 +349,14 @@ renv_status_check_synchronized <- function(project,
       check.names          = FALSE
     )
 
-    writeLines("The following package(s) are out of sync:")
-    writeLines("")
-    print(data, row.names = FALSE)
-    writeLines("")
-    writeLines("Use `renv::snapshot()` to save the state of your library to the lockfile.")
-    writeLines("Use `renv::restore()` to restore your library from the lockfile.")
-    writeLines("")
+    writef("The following package(s) are out of sync:")
+    writef("")
+    if (renv_verbose())
+      print(data, row.names = FALSE)
+    writef("")
+    writef("Use `renv::snapshot()` to save the state of your library to the lockfile.")
+    writef("Use `renv::restore()` to restore your library from the lockfile.")
+    writef("")
 
     ok <- FALSE
 
