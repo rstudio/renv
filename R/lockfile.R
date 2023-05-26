@@ -14,9 +14,9 @@ renv_lockfile_init <- function(project) {
 
 renv_lockfile_init_r_version <- function(project) {
 
-  version <-
-    settings$r.version(project = project) %||%
-    getRversion()
+  version <- settings$r.version(project = project)
+  if (!pstring(version))
+    version <- getRversion()
 
   format(version)
 
