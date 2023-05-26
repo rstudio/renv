@@ -4,8 +4,8 @@
       install("bread@0.1.0")
     Output
       Installing bread [0.1.0] ...
-      	OK [copied cache in 22 milliseconds]
-      Installed 1 package into library at path "/private/tmp/RtmpRjr7Nb/renv-library-a8a75e187b3d".
+      	OK [copied cache in XXXX seconds]
+      Installed 1 package into library at path "<tempdir>/<renv-library>".
       The following package(s) have been updated:
       
       	bread [installed version 0.1.0 != loaded version 1.0.0]
