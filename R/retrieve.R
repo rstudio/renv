@@ -1169,8 +1169,7 @@ renv_retrieve_missing_record <- function(package) {
   entry <- renv_available_packages_entry(package, type = "source")
   version <- entry$Version %||% "<unknown>"
 
-  msg <- sprintf(fmt, package, version)
-  writeLines(msg)
+  writef(fmt, package, version)
 
   stopf("failed to find a compatible version of the '%s' package", package)
 

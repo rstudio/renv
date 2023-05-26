@@ -148,7 +148,7 @@ renv_extsoft_use <- function(quiet = FALSE) {
   }
 
   if (!quiet) writef("* '%s' has been updated.", path)
-  writeLines(contents, path)
+  writeLines(contents, con = path)
   TRUE
 
 }

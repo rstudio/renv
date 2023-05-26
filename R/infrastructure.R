@@ -132,7 +132,7 @@ renv_infrastructure_write_entry_impl <- function(add, remove, file, create) {
 
     # otherwise, write the file
     ensure_parent_directory(file)
-    writeLines(add, file)
+    writeLines(add, con = file)
     return(TRUE)
 
   }
@@ -168,7 +168,7 @@ renv_infrastructure_write_entry_impl <- function(add, remove, file, create) {
 
   # write to file if we have changes
   if (!identical(before, after))
-    writeLines(after, file)
+    writeLines(after, con = file)
 
   TRUE
 
@@ -232,7 +232,7 @@ renv_infrastructure_remove_entry_impl <- function(line, file, removable) {
   # otherwise, just mutate the file
   replacement <- gsub("^(\\s*)", "\\1# ", contents[matches], perl = TRUE)
   contents[matches] <- replacement
-  writeLines(contents, file)
+  writeLines(contents, con = file)
 
   TRUE
 

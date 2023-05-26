@@ -867,7 +867,7 @@ renv_download_trace_begin <- function(url, type) {
   msg <- sprintf(fmt, url, type)
 
   title <- header(msg, n = 78L)
-  writeLines(c(title, ""))
+  writef(c(title, ""))
 
 }
 
@@ -877,7 +877,7 @@ renv_download_trace_request <- function(text) {
     return()
 
   title <- header("Request", n = 78L, prefix = "##")
-  writeLines(c(title, text, ""))
+  writef(c(title, text, ""))
 
 }
 
@@ -889,11 +889,11 @@ renv_download_trace_result <- function(output) {
   title <- header("Output", prefix = "##", n = 78L)
   text <- if (empty(output)) "[no output generated]" else output
   all <- c(title, text, "")
-  writeLines(all)
+  writef(all)
 
   status <- attr(output, "status", exact = TRUE) %||% 0L
   title <- header("Status", prefix = "##", n = 78L)
   all <- c(title, status, "")
-  writeLines(all)
+  writef(all)
 
 }

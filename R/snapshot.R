@@ -844,7 +844,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     n <- max(nchar(names(actions)), 0)
     fmt <- paste("-", format("R", width = n), " ", "[%s -> %s]")
     msg <- sprintf(fmt, oldr %||% "*", newr %||% "*")
-    writeLines(c("The version of R recorded in the lockfile will be updated:", msg, ""))
+    writef(c("The version of R recorded in the lockfile will be updated:", msg, ""))
   }
 
 }

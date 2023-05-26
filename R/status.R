@@ -349,13 +349,14 @@ renv_status_check_synchronized <- function(project,
       check.names          = FALSE
     )
 
-    writeLines("The following package(s) are out of sync:")
-    writeLines("")
-    print(data, row.names = FALSE)
-    writeLines("")
-    writeLines("Use `renv::snapshot()` to save the state of your library to the lockfile.")
-    writeLines("Use `renv::restore()` to restore your library from the lockfile.")
-    writeLines("")
+    writef("The following package(s) are out of sync:")
+    writef("")
+    if (renv_verbose())
+      print(data, row.names = FALSE)
+    writef("")
+    writef("Use `renv::snapshot()` to save the state of your library to the lockfile.")
+    writef("Use `renv::restore()` to restore your library from the lockfile.")
+    writef("")
 
     ok <- FALSE
 

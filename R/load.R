@@ -376,7 +376,7 @@ renv_load_project_projlist <- function(project) {
 
   # update the project list
   ensure_parent_directory(projects)
-  catchall(writeLines(enc2utf8(projlist), projects, useBytes = TRUE))
+  catchall(writeLines(enc2utf8(projlist), con = projects, useBytes = TRUE))
 
   TRUE
 

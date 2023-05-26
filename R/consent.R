@@ -46,7 +46,7 @@ consent <- function(provided = FALSE) {
   contents <- readLines(template)
   replacements <- list(RENV_PATHS_ROOT = renv_path_pretty(root))
   welcome <- renv_template_replace(contents, replacements)
-  writeLines(welcome)
+  writef(welcome)
 
   # ask user if they want to proceed
   response <- catchall(proceed(default = provided))

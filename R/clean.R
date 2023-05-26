@@ -319,7 +319,7 @@ renv_clean_cache <- function(project, prompt) {
     if (prompt && !proceed())
       return(FALSE)
 
-    writeLines(projlist[!missing], projects, useBytes = TRUE)
+    writeLines(projlist[!missing], con = projects, useBytes = TRUE)
 
   }
 
