@@ -126,7 +126,8 @@ or otherwise ask you what to do.</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>project</dt>
-<dd><p>The project directory. The <span style="R">R</span> working directory will be
+<dd><p>The project directory. When <code>NULL</code> (the default), the current
+working directory will be used. The <span style="R">R</span> working directory will be
 changed to match the requested project directory.</p></dd>
 
 
@@ -158,8 +159,8 @@ mis-usages of <code>init()</code>.</p></dd>
 
 
 <dt>repos</dt>
-<dd><p>The <span style="R">R</span> repositories to be used in this project. By default,
-the active repositories (as determined by <code>getOption("repos")</code>) are used.</p></dd>
+<dd><p>The <span style="R">R</span> repositories to be used in this project.
+See <strong>Repositories</strong> for more details.</p></dd>
 
 
 <dt>bioconductor</dt>
@@ -182,6 +183,15 @@ option is set by the frontend embedding <span style="R">R</span>.</p></dd>
 
 <p>The project directory, invisibly. Note that this function is normally
 called for its side effects.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="repositories">Repositories<a class="anchor" aria-label="anchor" href="#repositories"></a></h2>
+    <p>If the default <span style="R">R</span> repositories have not already been set, renv will use
+the <a href="https://packagemanager.posit.co/" class="external-link">Posit Public Package Manager</a> CRAN
+mirror for package installation. The primary benefit to using this mirror is
+that it can provide pre-built binaries for <span style="R">R</span> packages on a variety of
+commonly-used Linux distributions. This behavior can be configured or
+disabled if desired -- see the options in <code><a href="config.html">config()</a></code> for more details.</p>
     </div>
 
     <div class="section level2">

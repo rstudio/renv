@@ -79,7 +79,7 @@
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>An object of class <code>list</code> of length 37.</p>
+    <p>An object of class <code>list</code> of length 40.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -230,12 +230,27 @@ Defaults to <code>FALSE</code>.</p>
 <div class="section">
 <h3 id="renv-config-mran-enabled">renv.config.mran.enabled<a class="anchor" aria-label="anchor" href="#renv-config-mran-enabled"></a></h3>
 <p>Attempt to download binaries from <a href="https://mran.microsoft.com/" class="external-link">MRAN</a> during restore? See <code><a href="https://rstudio.github.io/renv/articles/mran.html">vignette("mran", package = "renv")</a></code> for more details.
-Defaults to <code>TRUE</code>.</p>
+Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-pak-enabled">renv.config.pak.enabled<a class="anchor" aria-label="anchor" href="#renv-config-pak-enabled"></a></h3>
 <p>Use the <a href="https://pak.r-lib.org/" class="external-link">pak</a> package to install packages?
 Defaults to <code>FALSE</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-ppm-enabled">renv.config.ppm.enabled<a class="anchor" aria-label="anchor" href="#renv-config-ppm-enabled"></a></h3>
+<p>Boolean; enable <a href="https://packagemanager.posit.co/" class="external-link">Posit Package Manager</a> integration in renv projects? When <code>TRUE</code>, renv will attempt to transform repository URLs used by PPM into binary URLs as appropriate for the current Linux platform. Set this to <code>FALSE</code> if you'd like to continue using source-only PPM URLs, or if you find that renv is improperly transforming your repository URLs. You can still set and use PPM repositories with this option disabled; it only controls whether renv tries to transform source repository URLs into binary URLs on your behalf.
+Defaults to <code>TRUE</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-ppm-default">renv.config.ppm.default<a class="anchor" aria-label="anchor" href="#renv-config-ppm-default"></a></h3>
+<p>Boolean; should new projects use the <a href="https://packagemanager.posit.co/" class="external-link">Posit Public Package Manager</a> instance by default? When <code>TRUE</code> (the default), projects initialized with <code><a href="init.html">renv::init()</a></code> will use the P3M instance if the <code>repos</code> R option has not already been set by some other means (for example, in a startup <code>.Rprofile</code>).
+Defaults to <code>TRUE</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-ppm-url">renv.config.ppm.url<a class="anchor" aria-label="anchor" href="#renv-config-ppm-url"></a></h3>
+<p>The default PPM URL to be used for new renv projects. Defaults to the <a href="https://packagemanager.posit.co/cran/latest" class="external-link">CRAN mirror</a> maintained by Posit. This option can be changed if you'd like renv to use a separate package manager instance.
+Defaults to <code>"https://packagemanager.posit.co/cran/latest"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-repos-override">renv.config.repos.override<a class="anchor" aria-label="anchor" href="#renv-config-repos-override"></a></h3>
@@ -244,7 +259,7 @@ Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-rspm-enabled">renv.config.rspm.enabled<a class="anchor" aria-label="anchor" href="#renv-config-rspm-enabled"></a></h3>
-<p>Boolean; enable RSPM integration for renv projects? When <code>TRUE</code>, renv will attempt to transform the repository URLs used by RSPM into binary URLs as appropriate for the current platform. Set this to <code>FALSE</code> if you'd like to continue using source-only RSPM URLs, or if you find that renv is improperly transforming your repository URLs.
+<p>DEPRECATED: Please use <code>renv.config.ppm.enabled</code> instead.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
