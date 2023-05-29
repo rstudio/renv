@@ -34,7 +34,7 @@ This will set up your project with a private library, containing all the package
 The packages (and all the metadata needed to reinstall them) are also recorded into a *lockfile*, `renv.lock`.
 
 As you work in your project, you will install and upgrade packages.
-After you've confirmed your code works as expected, call `renv::snasphot()` to record their versions in the lockfile.
+After you've confirmed your code works as expected, call `renv::snapshot()` to record their versions in the lockfile.
 
 Later, if you need to share your code with someone else or run your code on new machine, you can call `renv::restore()` to reinstall the specific package versions recorded in the lockfile.
 
