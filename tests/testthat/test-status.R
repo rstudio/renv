@@ -42,6 +42,16 @@ test_that("*/recorded/not used", {
 
 })
 
+test_that("installed/*/not used", {
+
+  renv_tests_scope()
+  init()
+  install("egg")
+
+  expect_snapshot(status())
+
+})
+
 test_that("other changes", {
 
   renv_tests_scope(c("egg", "oatmeal"))

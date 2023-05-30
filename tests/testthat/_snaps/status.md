@@ -59,6 +59,16 @@
       Use `renv::snapshot()` if you'd like to remove these packages from the lockfile.
       
 
+# installed/*/not used
+
+    Code
+      status()
+    Output
+      The following packages are installed but not used.
+      - egg [1.0.0]
+      
+      * The project is already synchronized with the lockfile.
+
 # other changes
 
     Code

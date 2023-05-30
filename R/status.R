@@ -283,8 +283,19 @@ renv_status_check_synchronized <- function(project,
 
   }
 
-  # */not recorded/not used ----------------------------------------------------
-  # No action; it's okay if some auxiliary packages are installed.
+  # installed/*/not used -------------------------------------------------------
+  records <- library %>%
+    exclude(packages) %>%
+    exclude(renv_packages_recommended())
+
+  if (length(records)) {
+    renv_pretty_print_records(
+      records,
+      preamble = "The following packages are installed but not used."
+    )
+
+    # it's okay if some auxiliary packages are installed.
+  }
 
   # other changes, i.e. different version/source -------------------------------
   actions <- renv_lockfile_diff_packages(lockfile, library)

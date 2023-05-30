@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::status()` now reports on packages that are installed but not used. 
+  This is normal and there's nothing you need to do about it, but it can
+  be useful to see these packages when debugging dependency problems (#749).
+
 * `renv::init()` now uses [Posit Public Package Manager](https://packagemanager.posit.co)
   by default, for new projects where the repositories have not already been
   configured externally. See the options `renv.config.ppm.enabled`,
