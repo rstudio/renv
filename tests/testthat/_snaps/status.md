@@ -1,37 +1,53 @@
-# status reports packages to be installed / changed
+# not installed/recorded/used
 
     Code
-      snapshot()
+      status()
     Output
-      The following required packages are not installed:
+      The following packages are recorded in the lockfile, but not installed:
+              _
+        bread   [1.0.0]
       
-      	breakfast, toast
+      Use `renv::restore()` to restore the packages recorded in the lockfile.
       
-      Packages must first be installed before renv can snapshot them.
-      Consider installing these packages using `renv::install()`.
-      Use `renv::dependencies()` to see where this package is used in your project.
+
+# installed/not recorded/used
+
+    Code
+      status()
+    Output
+      The following package(s) are installed, but not recorded in the lockfile:
+              _
+        bread   [1.0.0]
       
-      The version of R recorded in the lockfile will be updated:
-      - R   [* -> <r-version>]
+      Use `renv::snapshot()` to add these packages to the lockfile.
       
-      * Lockfile written to '<wd>/renv.lock'.
+
+# not installed/*/used
+
+    Code
+      status()
+    Output
+      The following packages are used in this project, but not installed:
+      
+      	bread
+      
+      Consider installing these packages -- for example, with `renv::install()`.
+      Use `renv::status()` afterwards to re-assess the project state.
+      
 
 ---
 
     Code
       status()
     Output
-      The following package(s) are installed, but not recorded in the lockfile:
-                  _
-        bread       [1.0.0]
-        breakfast   [1.0.0]
-        oatmeal     [1.0.0]
-        toast       [1.0.0]
+      The following packages are recorded in the lockfile, but not installed:
+              _
+        bread   [1.0.0]
       
-      Use `renv::snapshot()` to add these packages to the lockfile.
+      Use `renv::restore()` to restore the packages recorded in the lockfile.
       
 
----
+# */recorded/not used
 
     Code
       status()
@@ -43,16 +59,18 @@
       Use `renv::snapshot()` if you'd like to remove these packages from the lockfile.
       
 
-# status reports packages which are used but not installed
+# other changes
 
     Code
       status()
     Output
-      The following packages are used in this project, but not installed:
+      The following package(s) are out of sync:
       
-      	bread
+         Package   Lockfile Version   Library Version
+             egg              2.0.0             1.0.0
+         oatmeal              0.9.0             1.0.0
       
-      Consider installing these packages -- for example, with `renv::install()`.
-      Use `renv::status()` afterwards to re-assess the project state.
+      Use `renv::snapshot()` to save the state of your library to the lockfile.
+      Use `renv::restore()` to restore your library from the lockfile.
       
 

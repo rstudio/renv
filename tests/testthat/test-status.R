@@ -1,29 +1,54 @@
+test_that("not installed/recorded/used", {
 
-test_that("status reports packages to be installed / changed", {
-
-  renv_tests_scope(c("toast", "breakfast"))
-  renv_scope_options(renv.config.auto.snapshot = FALSE)
-
-  init(bare = TRUE)
-  expect_snapshot({
-    snapshot()
-  })
-
-  install("breakfast")
-  expect_snapshot(status())
+  renv_tests_scope("bread")
+  init()
   snapshot()
+  remove("bread")
 
-  record("egg")
   expect_snapshot(status())
 
 })
 
-test_that("status reports packages which are used but not installed", {
+test_that("installed/not recorded/used", {
 
   renv_tests_scope()
   init()
-
+  install("bread")
   writeLines("library(bread)", con = "script.R")
+
+  expect_snapshot(status())
+
+})
+
+test_that("not installed/*/used", {
+
+  renv_tests_scope()
+  init()
+  writeLines("library(bread)", con = "script.R")
+  expect_snapshot(status())
+
+  record("bread")
+  expect_snapshot(status())
+
+})
+
+test_that("*/recorded/not used", {
+
+  renv_tests_scope()
+  init()
+  record("egg")
+
+  expect_snapshot(status())
+
+})
+
+test_that("other changes", {
+
+  renv_tests_scope(c("egg", "oatmeal"))
+  init()
+  record("egg@2.0.0")
+  record("oatmeal@0.9.0")
+
   expect_snapshot(status())
 
 })
