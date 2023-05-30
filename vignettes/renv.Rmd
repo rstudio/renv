@@ -79,9 +79,9 @@ But you can also use `renv::install()`: it's a little less typing and supports i
 [^3]: Behind the scene, renv shims `install.packages()`, `update.packages(),` and `remove.packages()` to call the renv equivalents.
     Learn more in `?renv::load.`
 
-When you use renv, you'll typically end up with many libraries, so you'll often need to install the same package multiple times.
+When you use renv, you'll typically end up with many libraries across your different projects, so you'll often need to install the same package multiple times.
 It would be annoying if you had to download (or worse, compile) the package repeatedly, so renv uses a global package cache.
-That means you only ever have to download and install a package once, and for each subsequent install, renv will just link add a link from the project library to the global cache.
+That means you only ever have to download and install a package once, and for each subsequent install, renv will just add a link from the project library to the global cache.
 You can learn more about the cache in `vignette("package-install")`.
 
 After installing the package and checking that your code still works, you should call `renv::snapshot()` to record the latest versions in your lockfile.
@@ -96,7 +96,7 @@ Similarly, if you're making major changes to a project that you haven't worked o
 [^4]: You can also use `update.packages()`, but `renv::update()` also works for packages installed from Bioconductor, GitHub, and Git.
 
 After calling `renv::update()`, you should run the code in your project and make sure it still works (or make any changes needed to get it working).
-Then call `renv::snapshot()` to record the news versions in the lockfile.
+Then call `renv::snapshot()` to record the new versions in the lockfile.
 If you get stuck, and can't get the project to work with the new versions, you can call `renv::restore()` to roll back changes to the project library and revert to the known good state recorded in your lockfile.
 If you need to roll back to an even older version, take a look at `renv::history()` and `renv::revert()`.
 
@@ -112,15 +112,15 @@ You typically won't touch any of these files directly, but it's good to understa
 
 -   `.Rprofile:` Used to activate renv for new R sessions launched in the project by calling `source("renv/activate.R")`.
 -   `renv/activate.R`: The activation script run by the project `.Rprofile`. This ensures that the project library is made active for newly launched R sessions. This ensures that any new R processes launched within the project directory will use the project library, and hence are isolated from the regular user library.
--   `renv.lock`: The lockfile, describing the state of your project's library at some point in time.
+-   `renv.lock`: The lockfile, describing the state of your project's library at a particular point in time.
 -   `renv/library`: The private project library.
 -   `renv/settings.json`: Project settings -- see `?settings` for more details.
 
-For development and collaboration, `renv/library` directory should be ignored and all others checked in.
+For development and collaboration, the `renv/library` directory should be ignored and all others checked in to version control.
 renv will help by automatically creating the needed `.gitignore`.
 
 Of these files, `renv.lock` is probably the most important to understand as it will change the most over the life of a project.
-A `renv.lock` is json file that records all the information need to recreate your package in the future.
+An `renv.lock` is a json file that records all the information needed to recreate your project in the future.
 It includes:
 
 -   The version of R used.
