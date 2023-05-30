@@ -148,7 +148,7 @@ generated;</li>
 </ol>
 <p>We’ll also explore the pros and cons of each strategy.</p>
 <div class="section level2">
-<h2 id="creating-docker-images-with-renv">Creating Docker Images with renv<a class="anchor" aria-label="anchor" href="#creating-docker-images-with-renv"></a>
+<h2 id="creating-docker-images-with-renv">Creating Docker images with renv<a class="anchor" aria-label="anchor" href="#creating-docker-images-with-renv"></a>
 </h2>
 <p>With Docker, <a href="https://docs.docker.com/engine/reference/builder/" class="external-link">Dockerfiles</a>
 are used to define new images. Dockerfiles can be used to declaratively
@@ -192,7 +192,7 @@ this image will hence have those R packages installed and visible at
 run-time.</p>
 </div>
 <div class="section level2">
-<h2 id="dynamically-provisioning-r-libraries-with-renv">Dynamically Provisioning R Libraries with renv<a class="anchor" aria-label="anchor" href="#dynamically-provisioning-r-libraries-with-renv"></a>
+<h2 id="dynamically-provisioning-r-libraries-with-renv">Dynamically provisioning R libraries with renv<a class="anchor" aria-label="anchor" href="#dynamically-provisioning-r-libraries-with-renv"></a>
 </h2>
 <p>The aforementioned approach is useful if you have multiple
 applications with identical package requirements. However, on occasion,
@@ -266,7 +266,7 @@ as a base for a myriad of different containers and applications, each
 with their own independent package dependencies.</p>
 </div>
 <div class="section level2">
-<h2 id="handling-the-renv-autoloader">Handling the renv Autoloader<a class="anchor" aria-label="anchor" href="#handling-the-renv-autoloader"></a>
+<h2 id="handling-the-renv-autoloader">Handling the renv autoloader<a class="anchor" aria-label="anchor" href="#handling-the-renv-autoloader"></a>
 </h2>
 <p>When is launched within a project folder, the renv auto-loader (if
 present) will attempt to download and install renv into the project

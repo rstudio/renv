@@ -122,7 +122,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     autoload, load, remove</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="package-sources">Package Sources<a class="anchor" aria-label="anchor" href="#package-sources"></a>
+<h2 id="package-sources">Package sources<a class="anchor" aria-label="anchor" href="#package-sources"></a>
 </h2>
 <p>renv uses an installed package’s <code>DESCRIPTION</code> file to
 infer its source. For example, packages installed from the CRAN
@@ -131,7 +131,7 @@ repositories typically have the field:</p>
 <p>set, and renv takes this as a signal that the package was retrieved
 from CRAN.</p>
 <div class="section level3">
-<h3 id="inferring-package-sources">Inferring Package Sources<a class="anchor" aria-label="anchor" href="#inferring-package-sources"></a>
+<h3 id="inferring-package-sources">Inferring package sources<a class="anchor" aria-label="anchor" href="#inferring-package-sources"></a>
 </h3>
 <p>The following fields are checked, in order, when inferring a
 package’s source:</p>
@@ -156,7 +156,7 @@ well-defined remote source, or for packages which might not be remotely
 accessible from your machine.</p>
 </div>
 <div class="section level3">
-<h3 id="unknown-sources">Unknown Sources<a class="anchor" aria-label="anchor" href="#unknown-sources"></a>
+<h3 id="unknown-sources">Unknown sources<a class="anchor" aria-label="anchor" href="#unknown-sources"></a>
 </h3>
 <p>If renv is unable to infer a package’s source, it will inform you
 during <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> – for example, if we attempted to
@@ -176,7 +176,7 @@ Do you want to proceed? [y/N]:</code></pre>
 package is installed through some other mechanism.</p>
 </div>
 <div class="section level3">
-<h3 id="custom-r-package-repositories">Custom R Package Repositories<a class="anchor" aria-label="anchor" href="#custom-r-package-repositories"></a>
+<h3 id="custom-r-package-repositories">Custom R package repositories<a class="anchor" aria-label="anchor" href="#custom-r-package-repositories"></a>
 </h3>
 <p>Custom and local R package repositories are supported as well. The
 only requirement is that these repositories are set as part of the
@@ -197,7 +197,7 @@ This vignette outlines some of the extra steps that may be required when
 using renv with packages obtained from Bioconductor.</p>
 </div>
 <div class="section level3">
-<h3 id="initializing-a-project">Initializing a Project<a class="anchor" aria-label="anchor" href="#initializing-a-project"></a>
+<h3 id="initializing-a-project">Initializing a project<a class="anchor" aria-label="anchor" href="#initializing-a-project"></a>
 </h3>
 <p>To initialize renv in a project using Bioconductor, you can pass the
 <code>bioconductor</code> argument to <code><a href="../reference/init.html">renv::init()</a></code>:</p>
@@ -211,7 +211,7 @@ using renv with packages obtained from Bioconductor.</p>
 repositories, and to use those repositories when attempting to restore
 packages.</p>
 <div class="section level4">
-<h4 id="bioconductor-releases">Bioconductor Releases<a class="anchor" aria-label="anchor" href="#bioconductor-releases"></a>
+<h4 id="bioconductor-releases">Bioconductor releases<a class="anchor" aria-label="anchor" href="#bioconductor-releases"></a>
 </h4>
 <p>Bioconductor prepares different versions of its package repositories,
 for use with different versions of R. The version of Bioconductor used
@@ -232,7 +232,7 @@ you can also explicitly set the following option:</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="the-package-cellar">The Package Cellar<a class="anchor" aria-label="anchor" href="#the-package-cellar"></a>
+<h3 id="the-package-cellar">The package cellar<a class="anchor" aria-label="anchor" href="#the-package-cellar"></a>
 </h3>
 <p>In some cases, your project may depend on R packages which are not
 available from any external source, or that external source may not be
@@ -288,7 +288,7 @@ use:</p>
 <code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">:::</span><span class="fu">renv_paths_cellar</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>See <code><a href="../reference/paths.html">?paths</a></code> for more details.</p>
 <div class="section level4">
-<h4 id="explicit-sources">Explicit Sources<a class="anchor" aria-label="anchor" href="#explicit-sources"></a>
+<h4 id="explicit-sources">Explicit sources<a class="anchor" aria-label="anchor" href="#explicit-sources"></a>
 </h4>
 <p>You can also provide explicit source paths in the lockfile if
 desired. This is most useful if you are building an renv lockfile “by
@@ -381,7 +381,7 @@ issues. In particular, we need to consider:</p>
 <li>Inadvertent build-time dependencies taken by a package.</li>
 </ul>
 <div class="section level5">
-<h5 id="abi-compatibility">ABI Compatibility<a class="anchor" aria-label="anchor" href="#abi-compatibility"></a>
+<h5 id="abi-compatibility">ABI compatibility<a class="anchor" aria-label="anchor" href="#abi-compatibility"></a>
 </h5>
 <p>ABI compatibility issues can arise if different packages were built
 against different versions of a shared dependency. For example, one
@@ -400,7 +400,7 @@ possible to know what packages (and their versions) a particular package
 was built against.</p>
 </div>
 <div class="section level5">
-<h5 id="build-time-dependencies">Build-time Dependencies<a class="anchor" aria-label="anchor" href="#build-time-dependencies"></a>
+<h5 id="build-time-dependencies">Build-time dependencies<a class="anchor" aria-label="anchor" href="#build-time-dependencies"></a>
 </h5>
 <p>R packages might occasionally (and unintentionally) take a build-time
 dependency on another R package – for example, a package with the

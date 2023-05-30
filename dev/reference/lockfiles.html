@@ -112,25 +112,22 @@ written as <code>.json</code>, to allow for easy consumption by other tools.</p>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>}</span></code></pre><p></p></div>
-<p>The sections used within a lockfile are described next.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="-renv-">[renv]<a class="anchor" aria-label="anchor" href="#-renv-"></a></h2>
-    
+<p>The sections used within a lockfile are described next.</p><div class="section">
+<h3 id="renv">renv<a class="anchor" aria-label="anchor" href="#renv"></a></h3>
 
 
 <p>Information about the version of renv used to manage this project.</p>
 <table class="table table"><tr><td><strong>Version</strong></td><td>The version of the renv package used with this project.</td></tr></table></div>
-    <div class="section level2">
-    <h2 id="-r-">[R]<a class="anchor" aria-label="anchor" href="#-r-"></a></h2>
-    
+
+<div class="section">
+<h3 id="r">R<a class="anchor" aria-label="anchor" href="#r"></a></h3>
 
 
 <p>Properties related to the version of <span style="R">R</span> associated with this project.</p>
 <table class="table table"><tr><td><strong>Version</strong></td><td>The version of <span style="R">R</span> used.</td></tr><tr><td><strong>Repositories</strong></td><td>The <span style="R">R</span> repositories used in this project.</td></tr></table></div>
-    <div class="section level2">
-    <h2 id="-packages-">[Packages]<a class="anchor" aria-label="anchor" href="#-packages-"></a></h2>
-    
+
+<div class="section">
+<h3 id="packages">Packages<a class="anchor" aria-label="anchor" href="#packages"></a></h3>
 
 
 <p><span style="R">R</span> package records, capturing the packages used or required by a project
@@ -138,15 +135,17 @@ at the time when the lockfile was generated.</p>
 <table class="table table"><tr><td><strong>Package</strong></td><td>The package name.</td></tr><tr><td><strong>Version</strong></td><td>The package version.</td></tr><tr><td><strong>Source</strong></td><td>The location from which this package was retrieved.</td></tr><tr><td><strong>Repository</strong></td><td>The name of the repository (if any) from which this package was retrieved.</td></tr><tr><td><strong>Hash</strong></td><td>(Optional) A unique hash for this package, used for package caching.</td></tr></table><p>Additional remote fields, further describing how the package can be
 retrieved from its corresponding source, will also be included as
 appropriate (e.g. for packages installed from GitHub).</p>
-    </div>
-    <div class="section level2">
-    <h2 id="-python-">[Python]<a class="anchor" aria-label="anchor" href="#-python-"></a></h2>
-    
+</div>
+
+<div class="section">
+<h3 id="python">Python<a class="anchor" aria-label="anchor" href="#python"></a></h3>
 
 
 <p>Metadata related to the version of Python used with this project (if any).</p>
 <table class="table table"><tr><td><strong>Version</strong></td><td>The version of Python being used.</td></tr><tr><td><strong>Type</strong></td><td>The type of Python environment being used ("virtualenv", "conda", "system")</td></tr><tr><td><strong>Name</strong></td><td>The (optional) name of the environment being used.</td></tr></table><p>Note that the <code>Name</code> field may be empty. In that case, a project-local Python
 environment will be used instead (when not directly using a system copy of Python).</p>
+</div>
+
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
