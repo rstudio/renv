@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
+  all renv files/directories, leaving the project the way it was found.
+
 * renv functions give a clearer error if `renv.lock` has somehow become 
   corrupted (#1027).
 
