@@ -70,9 +70,7 @@ renv_version_match <- function(versions, request) {
 
 renv_version_maj_min <- function(version) {
 
-  if (!inherits(version, "numeric_version")) {
-    version <- numeric_version(version)
-  }
+  version <- as.numeric_version(version)
 
   # split version into parts
   parts <- unclass(version)[[1L]]
