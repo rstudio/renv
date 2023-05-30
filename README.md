@@ -36,7 +36,7 @@ The packages (and all the metadata needed to reinstall them) are also recorded i
 As you work in your project, you will install and upgrade packages.
 After you've confirmed your code works as expected, call `renv::snapshot()` to record their versions in the lockfile.
 
-Later, if you need to share your code with someone else or run your code on new machine, you can call `renv::restore()` to reinstall the specific package versions recorded in the lockfile.
+Later, if you need to share your code with someone else or run your code on new machine, your collaborator (or you) can call `renv::restore()` to reinstall the specific package versions recorded in the lockfile.
 
 ## Learning more
 

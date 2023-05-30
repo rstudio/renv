@@ -26,12 +26,12 @@ This vignette gives you the details, starting with an overview of renv's cache, 
 One of renv's primary features is the global package cache, which shared across all projects.
 The renv package cache provides two primary benefits:
 
-1.  Installing and restoring packages is much faster, as renv call find and re-use previously installed packages from the cache.
+1.  Installing and restoring packages is much faster, as renv can find and re-use previously installed packages from the cache.
 
 2.  Projects take up less disk space, because each project doesn't need to contain it's own copy of every package.
 
 When installing a package, renv installs into the global cache and then adds a symlink[^1] to that directory in the project library.
-That way each renv project remains isolated from other projects on your system, they can still re-use the same installed packages.
+That way each renv project remains isolated from other projects on your system, but they can still re-use the same installed packages.
 
 [^1]: Or junction points, on Windows.
     Junction points are unfortunately not supported on Windows network shares; see [Hard links and junctions](https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions) for more details.

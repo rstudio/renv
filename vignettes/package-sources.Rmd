@@ -146,7 +146,7 @@ options(renv.bioconductor.repos = c(...))
 ## The Package Cellar
 
 In some cases, your project may depend on R packages which are not available
-from any external source, or that external source may not accessible from the
+from any external source, or that external source may not be accessible from the
 machine calling `renv::restore()`. To help accommodate these scenarios, renv
 allows you to prepare a package "cellar", to be used as an ad-hoc repository of
 packages during restore. This allows you to provide package tarballs that can be
