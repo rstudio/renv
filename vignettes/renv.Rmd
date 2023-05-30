@@ -32,8 +32,8 @@ And that confusion doesn't normally matter because you don't usually think too m
 But a project-specific library is a critical part of the way renv works, so you'll now need to get the distinction clear in your head.
 You can see your current libraries with `.libPaths()` and see which packages are available in each library with `lapply(.libPaths(), list.files)`.
 
-A **repository** is a source of packages; `install.packages()` gets a package from a repository (usually somewhere on the internet) and puts it in a library (a directory on your computer).
-The most important repository is CRAN which is available in just about every R session.
+A **repository** is a source of packages; `install.packages()` gets a package from a *repository* (usually somewhere on the internet) and puts it in a *library* (a directory on your computer).
+The most important repository is CRAN which is available to install packages from in just about every R session.
 Other freely available repositories include [Bioconductor](https://bioconductor.org), the [Posit Public Package Manager](https://packagemanager.rstudio.com/client/#/), and [R Universe](https://r-universe.dev/search/) (which turns GitHub organisations into repositories).
 You can see which repositories are currently set up in your session with `getOptions("repos")`; when you call `install.packages("{pkgname}")`, R will look for that package in each repository in turn.
 
