@@ -2,7 +2,7 @@
 % Please edit documentation in R/rebuild.R
 \name{rebuild}
 \alias{rebuild}
-\title{Rebuild the Packages in your Project Library}
+\title{Rebuild the packages in your project library}
 \usage{
 rebuild(
   packages = NULL,

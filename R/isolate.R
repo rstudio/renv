@@ -1,5 +1,5 @@
 
-#' Isolate a Project
+#' Isolate a project
 #'
 #' Copy packages from the renv cache directly into the project library, so
 #' that the project can continue to function independently of the renv cache.

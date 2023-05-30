@@ -1,5 +1,5 @@
 
-#' View and Revert to a Historical Lockfile
+#' View and revert to a historical lockfile
 #'
 #' @description
 #' `history()` uses your version control system to show prior versions of the

@@ -1,5 +1,5 @@
 
-#' Re-Hash Packages in the renv Cache
+#' Re-hash packages in the renv cache
 #'
 #' Re-hash packages in the renv cache, ensuring that any previously-cached
 #' packages are copied to a new cache location appropriate for this version of

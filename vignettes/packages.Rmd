@@ -78,7 +78,7 @@ for an example of how renv uses itself for package management in its own
 CI tests.
 
 
-## R CMD build and the Project Library
+## `R CMD build` and the project library
 
 By default, when building a package tarball, R will copy all files within the
 package directory to a temporary build directory before building the package.

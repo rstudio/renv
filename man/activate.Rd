@@ -3,7 +3,7 @@
 \name{activate}
 \alias{activate}
 \alias{deactivate}
-\title{Activate or Deactivate a Project}
+\title{Activate or deactivate a project}
 \usage{
 activate(project = NULL, profile = NULL)
 

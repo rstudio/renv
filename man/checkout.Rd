@@ -2,7 +2,7 @@
 % Please edit documentation in R/checkout.R
 \name{checkout}
 \alias{checkout}
-\title{Checkout a Repository}
+\title{Checkout a repository}
 \usage{
 checkout(
   repos = NULL,

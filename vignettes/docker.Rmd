@@ -46,7 +46,7 @@ We'll discuss two strategies for using renv with Docker:
 
 We'll also explore the pros and cons of each strategy.
 
-## Creating Docker Images with renv
+## Creating Docker images with renv
 
 With Docker, [Dockerfiles](https://docs.docker.com/engine/reference/builder/) are used to define new images.
 Dockerfiles can be used to declaratively specify how a Docker image should be created.
@@ -93,7 +93,7 @@ RUN R -e "renv::restore()"
 With this, renv will download and install the requisite packages as appropriate when the image is created.
 Any new containers created from this image will hence have those R packages installed and visible at run-time.
 
-## Dynamically Provisioning R Libraries with renv
+## Dynamically provisioning R libraries with renv
 
 The aforementioned approach is useful if you have multiple applications with identical package requirements.
 However, on occasion, one will have multiple applications built from a single base image, but each application will have its own independent R package requirements.
@@ -145,7 +145,7 @@ Subsequent runs will be much faster, as renv will be able to reuse the global pa
 The primary downside with this approach compared to the image-based approach is that it requires you to modify how containers are created, and requires a bit of extra orchestration in how containers are launched.
 However, once the renv cache is active, newly-created containers will launch very quickly, and a single image can then be used as a base for a myriad of different containers and applications, each with their own independent package dependencies.
 
-## Handling the renv Autoloader
+## Handling the renv autoloader
 
 When \R is launched within a project folder, the renv auto-loader (if present) will attempt to download and install renv into the project library.
 Depending on how your Docker container is configured, this could fail.

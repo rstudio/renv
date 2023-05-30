@@ -2,7 +2,7 @@
 % Please edit documentation in R/run.R
 \name{run}
 \alias{run}
-\title{Run a Script}
+\title{Run a script}
 \usage{
 run(script, ..., job = NULL, name = NULL, project = NULL)
 }
