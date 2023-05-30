@@ -132,7 +132,7 @@ and downloading with proxies or authentication.</p>
 shared across all projects. The renv package cache provides two primary
 benefits:</p>
 <ol style="list-style-type: decimal">
-<li><p>Installing and restoring packages is much faster, as renv call
+<li><p>Installing and restoring packages is much faster, as renv can
 find and re-use previously installed packages from the cache.</p></li>
 <li><p>Projects take up less disk space, because each project doesn’t
 need to contain it’s own copy of every package.</p></li>
@@ -142,7 +142,7 @@ then adds a symlink<a class="footnote-ref" tabindex="0" data-bs-toggle="popover"
 unfortunately not supported on Windows network shares; see &lt;a href="https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions" class="external-link"&gt;Hard
 links and junctions&lt;/a&gt; for more details.&lt;/p&gt;'><sup>1</sup></a> to that directory in the project library.
 That way each renv project remains isolated from other projects on your
-system, they can still re-use the same installed packages.</p>
+system, but they can still re-use the same installed packages.</p>
 <p>The process by which packages enter the cache is roughly as
 follows:</p>
 <ol style="list-style-type: decimal">

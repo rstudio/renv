@@ -115,14 +115,15 @@ showing you how to use the most important functions:
 <code><a href="../reference/init.html">renv::init()</a></code>, <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>, and
 <code><a href="../reference/restore.html">renv::restore()</a></code>. You’ll also learn about some of the
 infrastructure that makes renv tick, some problems that renv doesn’t
-help with, and how to uninstall it, if you no longer want to use it.</p>
+help with, and how to uninstall it if you no longer want to use it.</p>
 <p>This vignette assumes that you’re are already living a
 project-centric lifestyle and are familiar with a version control
 system, like Git and GitHub: we believe these are table stakes for
 reproducible data science. If you’re not already using projects, we
 recommend <a href="https://r4ds.had.co.nz/workflow-projects.html" class="external-link">Workflow:
 Projects</a> from <em>R for Data Science</em>; if you’re unfamiliar with
-<a href="https://git-scm.com/" class="external-link">Git</a> and <a href="https://github.com/" class="external-link">GitHub</a>, we recommend <a href="https://happygitwithr.com" class="external-link">Happy Git and GitHub for useR</a>.</p>
+<a href="https://git-scm.com/" class="external-link">Git</a> and <a href="https://github.com/" class="external-link">GitHub</a>, we recommend <a href="https://happygitwithr.com" class="external-link">Happy Git and GitHub for the
+useR</a>.</p>
 <div class="section level2">
 <h2 id="libraries-and-repositories">Libraries and repositories<a class="anchor" aria-label="anchor" href="#libraries-and-repositories"></a>
 </h2>
@@ -139,11 +140,11 @@ your current libraries with <code><a href="https://rdrr.io/r/base/libPaths.html"
 packages are available in each library with
 <code>lapply(.libPaths(), list.files)</code>.</p>
 <p>A <strong>repository</strong> is a source of packages;
-<code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> gets a package from a repository
-(usually somewhere on the internet) and puts it in a library (a
-directory on your computer). The most important repository is CRAN which
-is available in just about every R session. Other freely available
-repositories include <a href="https://bioconductor.org" class="external-link">Bioconductor</a>, the <a href="https://packagemanager.rstudio.com/client/#/" class="external-link">Posit Public Package
+<code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> gets a package from a
+<em>repository</em> (usually somewhere on the internet) and puts it in a
+<em>library</em> (a directory on your computer). The most important
+repository is CRAN which is available to install packages from in just
+about every R session. Other freely available repositories include <a href="https://bioconductor.org" class="external-link">Bioconductor</a>, the <a href="https://packagemanager.rstudio.com/client/#/" class="external-link">Posit Public Package
 Manager</a>, and <a href="https://r-universe.dev/search/" class="external-link">R Universe</a>
 (which turns GitHub organisations into repositories). You can see which
 repositories are currently set up in your session with
@@ -171,15 +172,16 @@ removing packages in one project doesn’t affect any other project.</p>
 <p><code><a href="../reference/init.html">renv::init()</a></code> also creates a project
 <code>.Rprofile</code>. This file is run automatically every time you
 start R (in that project), and renv uses it to configure your R session
-to use the project library. This ensures that once turn on renv on for a
-project, it stays on, until you deliberately turn it off.</p>
+to use the project library. This ensures that once you turn on renv for
+a project, it stays on, until you deliberately turn it off.</p>
 <p>The next important pair of tools are <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>
 and <code><a href="../reference/restore.html">renv::restore()</a></code>. <code><a href="../reference/snapshot.html">snapshot()</a></code> updates the
 lockfile with metadata about the currently-used packages in the project
 library. This is useful because you can then share the lockfile and
 other people or other computers can easily reproduce your current
-environment by running <code><a href="../reference/restore.html">renv::restore()</a></code>. This pair of
-functions give you the benefits of <strong>reproducibility</strong> and
+environment by running <code><a href="../reference/restore.html">renv::restore()</a></code>, which reads that
+metadata from the lockfile. This pair of functions gives you the
+benefits of <strong>reproducibility</strong> and
 <strong>portability</strong>: you are now tracking exactly which package
 versions you have installed, and can recreate them on other
 machines.</p>
@@ -190,13 +192,14 @@ reproducibility challenges that renv doesn’t currently help with.</p>
 <h3 id="collaboration">Collaboration<a class="anchor" aria-label="anchor" href="#collaboration"></a>
 </h3>
 <p>One of the reasons to use renv is to make it easier to share your
-code in such way that everyone gets same versions of the packages that
-you have. As above, you’ll start by calling <code><a href="../reference/init.html">renv::init()</a></code>.
-You’ll then need to commit <code>renv.lock</code>,
-<code>.Rprofile</code>, <code>renv/settings.json</code> and
-<code>renv/activate.R</code> to git. If you’re using git, this is
-particularly simple because renv will create a <code>.gitignore</code>
-for you, and you can just commit the suggested files<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If you’re using another version control system, you’ll
+code in such way that everyone gets the same versions of the packages
+that you have. As above, you’ll start by calling
+<code><a href="../reference/init.html">renv::init()</a></code>. You’ll then need to commit
+<code>renv.lock</code>, <code>.Rprofile</code>,
+<code>renv/settings.json</code> and <code>renv/activate.R</code> to
+version control. If you’re using git, this is particularly simple
+because renv will create a <code>.gitignore</code> for you, and you can
+just commit the suggested files<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If you’re using another version control system, you’ll
 need to ignore &lt;code&gt;renv/library&lt;/code&gt; and any other directories in
 &lt;code&gt;renv/&lt;/code&gt;.&lt;/p&gt;"><sup>2</sup></a>.</p>
 <p>Now when one of your collaborators opens this project, renv will
@@ -218,19 +221,19 @@ in &lt;code&gt;?renv::load.&lt;/code&gt;&lt;/p&gt;'><sup>3</sup></a>. But you ca
 <code><a href="../reference/install.html">renv::install()</a></code>: it’s a little less typing and supports
 installing packages from GitHub, Bioconductor, and more, not just
 CRAN.</p>
-<p>When you use renv, you’ll typically end up with many libraries, so
-you’ll often need to install the same package multiple times. It would
-be annoying if you had to download (or worse, compile) the package
-repeatedly, so renv uses a global package cache. That means you only
-ever have to download and install a package once, and for each
-subsequent install, renv will just link add a link from the project
-library to the global cache. You can learn more about the cache in
-<code><a href="../articles/package-install.html">vignette("package-install")</a></code>.</p>
+<p>When you use renv, you’ll typically end up with many libraries across
+your different projects, so you’ll often need to install the same
+package multiple times. It would be annoying if you had to download (or
+worse, compile) the package repeatedly, so renv uses a global package
+cache. That means you only ever have to download and install a package
+once, and for each subsequent install, renv will just add a link from
+the project library to the global cache. You can learn more about the
+cache in <code><a href="../articles/package-install.html">vignette("package-install")</a></code>.</p>
 <p>After installing the package and checking that your code still works,
 you should call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to record the latest
 versions in your lockfile. If you’re collaborating with others, you’ll
 need to commit those changes to git, and let them know that you’ve
-update the lockfile and they should call <code><a href="../reference/restore.html">renv::restore()</a></code>
+updated the lockfile and they should call <code><a href="../reference/restore.html">renv::restore()</a></code>
 when they’re next working on a package.</p>
 </div>
 <div class="section level3">
@@ -243,14 +246,14 @@ under active development, we recommend that you regularly (at least once
 a year) use <code><a href="../reference/update.html">renv::update()</a></code><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;You can also use &lt;code&gt;&lt;a href="https://rdrr.io/r/utils/update.packages.html" class="external-link"&gt;update.packages()&lt;/a&gt;&lt;/code&gt;, but
 &lt;code&gt;&lt;a href="../reference/update.html"&gt;renv::update()&lt;/a&gt;&lt;/code&gt; also works for packages installed from
 Bioconductor, GitHub, and Git.&lt;/p&gt;'><sup>4</sup></a> to get the latest
-version of all dependencies. Similarly, if you’re making major changes
+versions of all dependencies. Similarly, if you’re making major changes
 to a project that you haven’t worked on for a while, it’s often a good
 idea to start with an <code><a href="../reference/update.html">renv::update()</a></code> before making any
 changes to the code.</p>
 <p>After calling <code><a href="../reference/update.html">renv::update()</a></code>, you should run the code in
 your project and make sure it still works (or make any changes needed to
 get it working). Then call <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> to record the
-news versions in the lockfile. If you get stuck, and can’t get the
+new versions in the lockfile. If you get stuck, and can’t get the
 project to work with the new versions, you can call
 <code><a href="../reference/restore.html">renv::restore()</a></code> to roll back changes to the project library
 and revert to the known good state recorded in your lockfile. If you
@@ -265,7 +268,7 @@ development version from GitHub.</p>
 <div class="section level2">
 <h2 id="infrastructure">Infrastructure<a class="anchor" aria-label="anchor" href="#infrastructure"></a>
 </h2>
-<p>Now that you’ve got the basics usage of renv under your belt, it’s
+<p>Now that you’ve got the basic usage of renv under your belt, it’s
 time to learn a bit more about the underlying infrastructure. You
 typically won’t touch any of these files directly, but it’s good to
 understand what they do because you will see them in git diffs.</p>
@@ -284,20 +287,21 @@ processes launched within the project directory will use the project
 library, and hence are isolated from the regular user library.</li>
 <li>
 <code>renv.lock</code>: The lockfile, describing the state of your
-project’s library at some point in time.</li>
+project’s library at a particular point in time.</li>
 <li>
 <code>renv/library</code>: The private project library.</li>
 <li>
 <code>renv/settings.json</code>: Project settings – see
 <code><a href="../reference/settings.html">?settings</a></code> for more details.</li>
 </ul>
-<p>For development and collaboration, <code>renv/library</code>
-directory should be ignored and all others checked in. renv will help by
-automatically creating the needed <code>.gitignore</code>.</p>
+<p>For development and collaboration, the <code>renv/library</code>
+directory should be ignored and all others checked in to version
+control. renv will help by automatically creating the needed
+<code>.gitignore</code>.</p>
 <p>Of these files, <code>renv.lock</code> is probably the most important
-to understand as it will change the most over the life of a project. A
-<code>renv.lock</code> is json file that records all the information
-need to recreate your package in the future. It includes:</p>
+to understand as it will change the most over the life of a project. An
+<code>renv.lock</code> is a json file that records all the information
+needed to recreate your project in the future. It includes:</p>
 <ul>
 <li>The version of R used.</li>
 <li>Your R repositories.</li>
