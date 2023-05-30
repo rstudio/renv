@@ -63,8 +63,7 @@ renv_archive_decompress_zip <- function(archive, files = NULL, exdir = ".", ...)
 
   if (inherits(status, "condition")) {
     fmt <- "failed to decompress '%s' [%s]"
-    message <- sprintf(fmt, basename(archive), conditionMessage(status))
-    stop(simpleError(message))
+    stopf(fmt, basename(archive), conditionMessage(status))
   }
 
   TRUE

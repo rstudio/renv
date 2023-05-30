@@ -21,16 +21,7 @@ test_that("snapshot failures are reported", {
 
   descpath <- system.file("DESCRIPTION", package = "oatmeal")
   unlink(descpath)
-
-  output <- renv_scope_tempfile("renv-snapshot-output-")
-  local({
-    renv_scope_options(renv.verbose = TRUE)
-    renv_scope_sink(file = output)
-    snapshot(prompt = FALSE)
-  })
-
-  contents <- readLines(output)
-  expect_true(length(contents) > 1)
+  expect_snapshot(snapshot())
 
 })
 
@@ -43,16 +34,7 @@ test_that("broken symlinks are reported", {
 
   oatmeal <- renv_path_normalize(system.file(package = "oatmeal"), winslash = "/")
   unlink(oatmeal, recursive = TRUE)
-
-  output <- renv_scope_tempfile("renv-snapshot-output-")
-  local({
-    renv_scope_options(renv.verbose = TRUE)
-    renv_scope_sink(file = output)
-    snapshot(prompt = FALSE)
-  })
-
-  contents <- readLines(output)
-  expect_true(length(contents) > 1)
+  expect_snapshot(snapshot())
 
 })
 
@@ -156,11 +138,7 @@ test_that("snapshot failures due to bad library / packages are reported", {
   renv_tests_scope()
   ensure_directory("badlib/badpkg")
   writeLines("invalid", "badlib/badpkg/DESCRIPTION")
-  local({
-    renv_scope_sink()
-    expect_error(snapshot(library = "badlib"))
-  })
-
+  expect_error(snapshot(library = "badlib"))
 
 })
 
@@ -191,12 +169,7 @@ test_that("snapshot warns about unsatisfied dependencies", {
   toast$Depends <- "bread (> 1.0.0)"
   renv_dcf_write(toast, file = descpath)
 
-  condition <- tryCatch(
-    snapshot(),
-    renv.snapshot.unsatisfied_dependencies = identity
-  )
-
-  expect_s3_class(condition, "renv.snapshot.unsatisfied_dependencies")
+  expect_snapshot(snapshot(), error = TRUE)
 
 })
 
@@ -381,10 +354,7 @@ test_that("renv reports missing packages in explicit snapshots", {
   init()
 
   writeLines("Depends: breakfast", con = "DESCRIPTION")
-  expect_condition(
-    snapshot(type = "explicit"),
-    class = "renv.snapshot.missing_packages"
-  )
+  expect_snapshot(snapshot(type = "explicit"))
 
 })
 
@@ -421,16 +391,15 @@ test_that("we can explicitly exclude some packages from snapshot", {
 
 test_that("snapshot() warns when required package is not installed", {
 
-  project <- renv_tests_scope("breakfast")
+  renv_tests_scope("breakfast")
   init()
 
   remove("breakfast")
-  value <- tryCatch(snapshot(), renv.snapshot.missing_packages = identity)
-  expect_s3_class(value, "renv.snapshot.missing_packages")
-  install("breakfast")
+  expect_snapshot(snapshot())
 
+  install("breakfast")
   remove("toast")
-  expect_error(snapshot())
+  expect_snapshot(snapshot(), error = TRUE)
 
 })
 

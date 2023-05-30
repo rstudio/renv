@@ -179,7 +179,7 @@ snapshot <- function(project  = NULL,
     # check if there are any changes in the lockfile
     diff <- renv_lockfile_diff(old, alt)
     if (empty(diff)) {
-      vwritef("* The lockfile is already up to date.")
+      writef("* The lockfile is already up to date.")
       return(renv_snapshot_successful(alt, prompt, project))
     }
 
@@ -211,7 +211,7 @@ snapshot <- function(project  = NULL,
   # write it out
   ensure_parent_directory(lockfile)
   renv_lockfile_write(new, file = lockfile)
-  vwritef("* Lockfile written to '%s'.", renv_path_aliased(lockfile))
+  writef("* Lockfile written to '%s'.", renv_path_aliased(lockfile))
 
   # ensure the lockfile is .Rbuildignore-d
   renv_infrastructure_write_rbuildignore(project)
@@ -315,7 +315,7 @@ renv_snapshot_validate_report <- function(valid, prompt, force) {
 
   # in interactive sessions, if 'prompt' is set, then ask the user
   # if they would like to proceed
-  if (interactive() && prompt) {
+  if (interactive() && !is_testing() && prompt) {
     cancel_if(!proceed())
     return(TRUE)
   }
@@ -347,9 +347,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
       "Consider installing %s before snapshot.",
       ""
     )
-
-    if (!renv_tests_running())
-      writeLines(sprintf(text, package))
+    writef(text, package)
 
     ok <- FALSE
   }
@@ -393,18 +391,15 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
 
     fmt <- "%s [installed %s != latest %s]"
     msg <- sprintf(fmt, format(bad$Package), format(bad$Version), bad$Latest)
-
-    if (!renv_tests_running()) {
-      renv_pretty_print(
-        msg,
-        "The following Bioconductor packages appear to be from a separate Bioconductor release:",
-        c(
-          "renv may be unable to restore these packages.",
-          paste("Bioconductor version:", version)
-        ),
-        wrap = FALSE
-      )
-    }
+    renv_pretty_print(
+      msg,
+      "The following Bioconductor packages appear to be from a separate Bioconductor release:",
+      c(
+        "renv may be unable to restore these packages.",
+        paste("Bioconductor version:", version)
+      ),
+      wrap = FALSE
+    )
 
     ok <- FALSE
   }
@@ -455,14 +450,12 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
 
   })
 
-  if (!renv_tests_running()) {
-    renv_pretty_print(
-      sprintf("%s  [required by %s]", format(missing), usedby),
-      "The following required packages are not installed:",
-      "Consider reinstalling these packages before snapshotting the lockfile.",
-      wrap = FALSE
-    )
-  }
+  renv_pretty_print(
+    sprintf("%s  [required by %s]", format(missing), usedby),
+    "The following required packages are not installed:",
+    "Consider reinstalling these packages before snapshotting the lockfile.",
+    wrap = FALSE
+  )
 
   FALSE
 
@@ -522,17 +515,13 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
 
   fmt <- "%s requires %s, but version %s is installed"
   txt <- sprintf(fmt, format(package), format(requires), format(request))
+  renv_pretty_print(
+    txt,
+    "The following package(s) have unsatisfied dependencies:",
+    "Consider updating the required dependencies as appropriate.",
+    wrap = FALSE
+  )
 
-  if (!renv_tests_running()) {
-    renv_pretty_print(
-      txt,
-      "The following package(s) have unsatisfied dependencies:",
-      "Consider updating the required dependencies as appropriate.",
-      wrap = FALSE
-    )
-  }
-
-  renv_condition_signal("renv.snapshot.unsatisfied_dependencies")
   FALSE
 
 }
@@ -608,7 +597,6 @@ renv_snapshot_library <- function(library = NULL,
 
     messages <- map_chr(broken, conditionMessage)
     text <- sprintf("'%s': %s", names(broken), messages)
-
     renv_pretty_print(
       text,
       "renv was unable to snapshot the following packages:",
@@ -844,7 +832,9 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     n <- max(nchar(names(actions)), 0)
     fmt <- paste("-", format("R", width = n), " ", "[%s -> %s]")
     msg <- sprintf(fmt, oldr %||% "*", newr %||% "*")
-    writeLines(c("The version of R recorded in the lockfile will be updated:", msg, ""))
+    writef(
+      c("The version of R recorded in the lockfile will be updated:", msg, "")
+    )
   }
 
 }
@@ -936,7 +926,7 @@ renv_snapshot_filter <- function(project, records, type, packages, exclude) {
       weeks = "weeks"
     )
 
-    vwritef(lines, elapsed, units)
+    writef(lines, elapsed, units)
 
   }
 
@@ -986,9 +976,6 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
   if (empty(missing))
     return(TRUE)
 
-  if (renv_tests_running())
-    renv_condition_signal("renv.snapshot.missing_packages", missing)
-
   preamble <- "The following required packages are not installed:"
 
   postamble <- c(
@@ -999,14 +986,11 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     else
       "Use `renv::dependencies()` to see where this package is used in your project."
   )
-
-  if (!renv_tests_running()) {
-    renv_pretty_print(
-      values = csort(unique(missing)),
-      preamble = preamble,
-      postamble = postamble
-    )
-  }
+  renv_pretty_print(
+    values = csort(unique(missing)),
+    preamble = preamble,
+    postamble = postamble
+  )
 
   cancel_if(interactive() && !proceed())
   TRUE

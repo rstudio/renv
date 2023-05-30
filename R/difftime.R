@@ -1,6 +1,10 @@
 
 renv_difftime_format <- function(time, digits = 2L) {
 
+  if (is_testing()) {
+    return ("XXXX seconds")
+  }
+
   units <- attr(time, "units") %||% ""
   if (units == "secs" && time < 0.1) {
     time  <- time * 1000

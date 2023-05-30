@@ -216,8 +216,8 @@ renv_load_r <- function(project, fields) {
 
   # only compare major, minor versions
   if (!identical(requested, current)) {
-    fmt <- "Using R %s (lockfile was generated with R %s)"
-    infof(fmt, getRversion(), version)
+    fmt <- "%s Using R %s (lockfile was generated with R %s)"
+    writef(fmt, info_bullet(), getRversion(), version)
   }
 
 }
@@ -233,8 +233,8 @@ renv_load_r_repos <- function(repos) {
   names(repos) <- nms
 
   # convert to rspm if enabled
-  if (renv_rspm_enabled())
-    repos <- renv_rspm_transform(repos)
+  if (renv_ppm_enabled())
+    repos <- renv_ppm_transform(repos)
 
   # normalize option
   repos <- renv_repos_normalize(repos)
@@ -376,7 +376,7 @@ renv_load_project_projlist <- function(project) {
 
   # update the project list
   ensure_parent_directory(projects)
-  catchall(writeLines(enc2utf8(projlist), projects, useBytes = TRUE))
+  catchall(writeLines(enc2utf8(projlist), con = projects, useBytes = TRUE))
 
   TRUE
 
@@ -680,8 +680,7 @@ renv_load_cache <- function(project) {
     "* The cache version has been updated in this version of renv.",
     "* Use `renv::rehash()` to migrate packages from the old renv cache."
   )
-
-  vmessagef(msg)
+  printf(msg)
 
 }
 
@@ -749,10 +748,10 @@ renv_load_report_project <- function(project) {
 
   if (length(profile)) {
     fmt <- "* (%s) Project '%s' loaded. [renv %s]"
-    vwritef(fmt, profile, renv_path_aliased(project), version)
+    writef(fmt, profile, renv_path_aliased(project), version)
   } else {
     fmt <- "* Project '%s' loaded. [renv %s]"
-    vwritef(fmt, renv_path_aliased(project), version)
+    writef(fmt, renv_path_aliased(project), version)
   }
 
 }
@@ -764,7 +763,7 @@ renv_load_report_python <- function(project) {
     return(FALSE)
 
   # fmt <- "* Using Python %s. [%s]"
-  # vwritef(fmt, renv_python_version(python), renv_python_type(python))
+  # writef(fmt, renv_python_version(python), renv_python_type(python))
 
 }
 
@@ -793,7 +792,7 @@ renv_load_report_updates_impl <- function(project) {
   if (!available)
     return(FALSE)
 
-  vwritef("* Use `renv::update()` to install updated packages.")
+  writef("* Use `renv::update()` to install updated packages.")
   if (!interactive())
     print(status)
 

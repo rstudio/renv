@@ -176,7 +176,7 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   # get ready to copy / move into cache
   fmt <- "%s %s [%s] into the cache ..."
-  vwritef(fmt, if (linkable) "Moving" else "Copying", record$Package, record$Version)
+  writef(fmt, if (linkable) "Moving" else "Copying", record$Package, record$Version)
 
   before <- Sys.time()
 
@@ -229,7 +229,7 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   # report status to user
   fmt <- "\tOK [%s to cache in %s]"
-  vwritef(fmt, if (linkable) "moved" else "copied", renv_difftime_format(time))
+  writef(fmt, if (linkable) "moved" else "copied", renv_difftime_format(time))
 
   TRUE
 

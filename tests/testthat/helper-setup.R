@@ -3,6 +3,11 @@
 # Here, "suite of tests" might also mean "a single test" interactively.
 renv_tests_setup <- function(envir = parent.frame()) {
 
+  # only run if interactive, or if testing
+  ok <- interactive() || testthat::is_testing()
+  if (!ok)
+    return()
+
   # make sure this only runs once
   if (!once())
     return()
@@ -69,6 +74,7 @@ renv_tests_setup_options <- function(envir = parent.frame()) {
     renv.bootstrap.quiet = TRUE,
     renv.config.user.library = FALSE,
     renv.config.sandbox.enabled = TRUE,
+    renv.consent = TRUE,
     restart = NULL,
     renv.config.install.transactional = FALSE,
     renv.tests.running = TRUE,
@@ -126,9 +132,21 @@ renv_tests_setup_packages <- function() {
 
 }
 
-renv_tests_setup_repos <- function( envir = parent.frame()) {
+renv_tests_repopath <- function() {
+  getOption("renv.tests.repopath")
+}
+
+renv_tests_setup_repos <- function(envir = parent.frame()) {
 
   # generate our dummy repository
+  repopath <- getOption("renv.tests.repopath")
+  if (!is.null(repopath)) {
+    return()
+  }
+
+  repopath <- renv_scope_tempfile("renv-repos-", envir = envir)
+  renv_scope_options(renv.tests.repopath = repopath, envir = envir)
+
   repopath <- renv_tests_repopath()
   contrib <- file.path(repopath, "src/contrib")
   ensure_directory(contrib)

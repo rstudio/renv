@@ -39,7 +39,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   destfile <- chartr("\\", "/", destfile)
 
   # notify user we're about to try downloading
-  vwritef("Retrieving '%s' ...", url)
+  writef("Retrieving '%s' ...", url)
 
   # add custom headers as appropriate for the URL
   headers <- c(headers, renv_download_custom_headers(url))
@@ -57,7 +57,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   if (identical(info$isdir, FALSE)) {
     size <- renv_download_size(url, type, headers)
     if (info$size == size) {
-      vwritef("\tOK [file is up to date]")
+      writef("\tOK [file is up to date]")
       return(destfile)
     }
   }
@@ -646,7 +646,7 @@ renv_download_report <- function(elapsed, file) {
   size <- structure(info$size, class = "object_size")
 
   fmt <- "\tOK [downloaded %s in %s]"
-  vwritef(fmt, format(size, units = "auto"), renv_difftime_format(elapsed))
+  writef(fmt, format(size, units = "auto"), renv_difftime_format(elapsed))
 
 }
 
@@ -850,7 +850,7 @@ renv_download_available_fallback <- function(url) {
 
 renv_download_error <- function(url, fmt, ...) {
   msg <- sprintf(fmt, ...)
-  vwritef("\tERROR [%s]", msg)
+  writef("\tERROR [%s]", msg)
   stopf("error downloading '%s' [%s]", url, msg, call. = FALSE)
 }
 
@@ -867,7 +867,7 @@ renv_download_trace_begin <- function(url, type) {
   msg <- sprintf(fmt, url, type)
 
   title <- header(msg, n = 78L)
-  writeLines(c(title, ""))
+  writef(c(title, ""))
 
 }
 
@@ -877,7 +877,7 @@ renv_download_trace_request <- function(text) {
     return()
 
   title <- header("Request", n = 78L, prefix = "##")
-  writeLines(c(title, text, ""))
+  writef(c(title, text, ""))
 
 }
 
@@ -889,11 +889,11 @@ renv_download_trace_result <- function(output) {
   title <- header("Output", prefix = "##", n = 78L)
   text <- if (empty(output)) "[no output generated]" else output
   all <- c(title, text, "")
-  writeLines(all)
+  writef(all)
 
   status <- attr(output, "status", exact = TRUE) %||% 0L
   title <- header("Status", prefix = "##", n = 78L)
   all <- c(title, status, "")
-  writeLines(all)
+  writef(all)
 
 }

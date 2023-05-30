@@ -142,7 +142,8 @@ renv_activate_prompt <- function(action, library, prompt, project) {
     prompt &&
     interactive() &&
     is.null(library) &&
-    !renv_project_loaded(project)
+    !renv_project_loaded(project) &&
+    !is_testing()
 
   # for snapshot, since users might want to snapshot their global library
   # in an renv-lite configuration, only prompt if it looks like they're
@@ -162,9 +163,7 @@ renv_activate_prompt <- function(action, library, prompt, project) {
     "Please see `?renv::activate` for more details.",
     ""
   )
-
-  notice <- sprintf(fmt, action)
-  vwritef(notice)
+  writef(fmt, action)
 
   fmt <- "Would you like to activate this project before %s() is called?"
   question <- sprintf(fmt, action)

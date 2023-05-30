@@ -53,4 +53,4 @@ all <- c(
 )
 
 writeLines(all, con = target)
-vwritef("* 'R/config-defaults.R' has been updated.")
+writef("* 'R/config-defaults.R' has been updated.")

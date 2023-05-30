@@ -28,13 +28,10 @@ test_that("restore can recover when required packages are missing", {
   renv_tests_scope("breakfast")
   init()
 
-  local({
-    renv_scope_sink()
-    remove("oatmeal")
-    snapshot(force = TRUE)
-    unlink(renv_paths_library(), recursive = TRUE)
-    restore()
-  })
+  remove("oatmeal")
+  snapshot(force = TRUE)
+  unlink(renv_paths_library(), recursive = TRUE)
+  restore()
 
   expect_true(renv_package_installed("oatmeal"))
 

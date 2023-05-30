@@ -14,13 +14,13 @@ retrieve <- function(packages) {
   # normalize repositories (ensure @CRAN@ is resolved)
   options(repos = renv_repos_normalize())
 
-  # transform repository URLs for RSPM
-  if (renv_rspm_enabled()) {
+  # transform repository URLs for PPM
+  if (renv_ppm_enabled()) {
     repos <- getOption("repos")
-    renv_scope_options(repos = renv_rspm_transform(repos))
+    renv_scope_options(repos = renv_ppm_transform(repos))
   }
 
-  # ensure HTTPUserAgent is set (required for RSPM binaries)
+  # ensure HTTPUserAgent is set (required for PPM binaries)
   agent <- renv_http_useragent()
   if (!grepl("renv", agent)) {
     renv <- sprintf("renv (%s)", renv_metadata_version())
@@ -232,9 +232,9 @@ renv_retrieve_path <- function(record, type = "source", ext = NULL) {
   name <- renv_retrieve_name(record, type, ext)
   source <- renv_record_source(record)
 
-  # check for packages from an RSPM binary URL, and
+  # check for packages from an PPM binary URL, and
   # update the package type if known
-  if (renv_rspm_enabled()) {
+  if (renv_ppm_enabled()) {
     url <- attr(record, "url")
     if (is.character(url) && grepl("/__[^_]+__/", url))
       type <- "binary"
@@ -403,7 +403,7 @@ renv_retrieve_git_impl <- function(record, path) {
   if (renv_platform_windows())
     command <- paste(comspec(), "/C", command)
 
-  vwritef("Cloning '%s' ...", url)
+  writef("Cloning '%s' ...", url)
 
   before <- Sys.time()
 
@@ -422,7 +422,7 @@ renv_retrieve_git_impl <- function(record, path) {
 
   fmt <- "\tOK [cloned repository in %s]"
   elapsed <- difftime(after, before, units = "auto")
-  vwritef(fmt, renv_difftime_format(elapsed))
+  writef(fmt, renv_difftime_format(elapsed))
 
   TRUE
 
@@ -474,7 +474,7 @@ renv_retrieve_cellar_report <- function(record) {
     return(record)
 
   fmt <- "* Package %s [%s] will be installed from the cellar."
-  with(record, vwritef(fmt, Package, Version))
+  with(record, writef(fmt, Package, Version))
 
   record
 
@@ -575,7 +575,7 @@ renv_retrieve_repos <- function(record) {
     methods$push(renv_retrieve_repos_binary_fallback)
 
     # if MRAN is enabled, check those binaries as well
-    if (config$mran.enabled())
+    if (renv_mran_enabled())
       methods$push(renv_retrieve_repos_mran)
 
   }
@@ -1169,8 +1169,7 @@ renv_retrieve_missing_record <- function(package) {
   entry <- renv_available_packages_entry(package, type = "source")
   version <- entry$Version %||% "<unknown>"
 
-  msg <- sprintf(fmt, package, version)
-  writeLines(msg)
+  writef(fmt, package, version)
 
   stopf("failed to find a compatible version of the '%s' package", package)
 

@@ -59,7 +59,7 @@ record <- function(records,
 
   n <- length(records)
   fmt <- "* Updated %s in %s."
-  vwritef(fmt, nplural("record", n), renv_path_pretty(lockfile))
+  writef(fmt, nplural("record", n), renv_path_pretty(lockfile))
 
   renv <- records[["renv"]]
   if (!is.null(renv) && !is.null(renv[["Version"]])) {
@@ -77,7 +77,7 @@ renv_record_normalize <- function(record) {
 
   # normalize source
   source <- record$Source %||% "unknown"
-  if (source %in% c("CRAN", "RSPM"))
+  if (source %in% c("CRAN", "PPM", "RSPM"))
     record$Source <- "Repository"
 
   # drop remotes from records with a repository source
