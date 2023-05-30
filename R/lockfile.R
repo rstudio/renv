@@ -14,6 +14,9 @@ renv_lockfile_init <- function(project) {
 
 renv_lockfile_init_r_version <- function(project) {
 
+  # NOTE: older versions of renv may have written out an empty array
+  # for the R version in some cases, so we explicitly check that we
+  # receive a length-one string here.
   version <- settings$r.version(project = project)
   if (!pstring(version))
     version <- getRversion()
