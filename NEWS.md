@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::status()` now works more like `renv::restore()` when package versions
+  are different (#675).
+
 * `renv::init()` now uses [Posit Public Package Manager](https://packagemanager.posit.co)
   by default, for new projects where the repositories have not already been
   configured externally. See the options `renv.config.ppm.enabled`,

@@ -46,21 +46,19 @@ renv_pretty_print_records <- function(records,
     return(invisible(NULL))
 
   names(records) <- names(records) %||% map_chr(records, `[[`, "Package")
-  records <- records[csort(names(records))]
+  # NOTE: use 'sort()' rather than 'csort()' here so that
+  # printed output is sorted in the expected way in the users locale
+  # https://github.com/rstudio/renv/issues/1289
+  records <- records[sort(names(records))]
   packages <- names(records)
   descs <- map_chr(records, renv_record_format_short)
 
-  lhs <- paste(" ", format(packages))
-  rhs <- descs
-
-  n <- max(nchar(lhs))
-  header <- paste(c(rep.int(" ", n + 1), "_"), collapse = "")
-  text <- sprintf("%s   [%s]", lhs, rhs)
+  text <- sprintf("- %s [%s]", format(packages), descs)
 
   all <- c(
-    if (length(preamble)) preamble,
-    c(header, text, ""),
-    if (length(postamble)) c(postamble, "")
+    preamble, if (length(postamble)) "",
+    text, "",
+    postamble, if (length(postamble)) ""
   )
 
   writef(all)

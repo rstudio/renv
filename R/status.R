@@ -296,23 +296,15 @@ renv_status_check_synchronized <- function(project,
     rlock <- renv_lockfile_records(lockfile)[names(matches)]
     rlibs <- renv_lockfile_records(library)[names(matches)]
 
-    data <- data.frame(
-      "  Package"          = names(matches),
-      "  Lockfile Version" = extract_chr(rlock, "Version"),
-      "  Library Version"  = extract_chr(rlibs, "Version"),
-      row.names            = NULL,
-      stringsAsFactors     = FALSE,
-      check.names          = FALSE
+    renv_pretty_print_records_pair(
+      rlock,
+      rlibs,
+      preamble = "The following package(s) are out of sync [lockfile -> library]:",
+      postamble = c(
+        "Use `renv::snapshot()` to save the state of your library to the lockfile.",
+        "Use `renv::restore()` to restore your library from the lockfile."
+      )
     )
-
-    writef("The following package(s) are out of sync:")
-    writef("")
-    if (renv_verbose())
-      print(data, row.names = FALSE)
-    writef("")
-    writef("Use `renv::snapshot()` to save the state of your library to the lockfile.")
-    writef("Use `renv::restore()` to restore your library from the lockfile.")
-    writef("")
 
     ok <- FALSE
 
