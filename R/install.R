@@ -556,7 +556,7 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   defer(callback())
 
   # normalize paths
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
 
   # get library path
   library <- renv_libpaths_active()

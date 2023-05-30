@@ -351,7 +351,7 @@ renv_load_project <- function(project) {
 
   # update project list if enabled
   if (renv_cache_config_enabled(project = project)) {
-    project <- renv_path_normalize(project, winslash = "/")
+    project <- renv_path_normalize(project)
     renv_load_project_projlist(project)
   }
 

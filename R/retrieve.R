@@ -437,7 +437,7 @@ renv_retrieve_cellar_find <- function(record, project = NULL) {
   # have a RemoteUrl entry that we can use
   url <- record$RemoteUrl %||% ""
   if (file.exists(url)) {
-    path <- renv_path_normalize(url, winslash = "/", mustWork = TRUE)
+    path <- renv_path_normalize(url, mustWork = TRUE)
     type <- if (fileext(path) %in% c(".tgz", ".zip")) "binary" else "source"
     return(named(path, type))
   }
@@ -541,7 +541,7 @@ renv_retrieve_explicit <- function(record) {
   }
 
   # treat as 'local' source but extract path
-  normalized <- renv_path_normalize(source, winslash = "/", mustWork = TRUE)
+  normalized <- renv_path_normalize(source, mustWork = TRUE)
   resolved$Source <- "Local"
   renv_retrieve_successful(resolved, normalized)
 

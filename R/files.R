@@ -294,8 +294,8 @@ renv_file_same <- function(source, target) {
 
   # check to see if they're equal after normalization
   # (e.g. for symlinks pointing to same file)
-  source <- renv_path_normalize(source, mustWork = FALSE)
-  target <- renv_path_normalize(target, mustWork = FALSE)
+  source <- renv_path_normalize(source)
+  target <- renv_path_normalize(target)
   if (identical(source, target))
     return(TRUE)
 
@@ -327,7 +327,7 @@ renv_file_backup <- function(path) {
   # by the time the callback is invoked). note that the file may
   # be a broken symlink so construct the path by normalizing the
   # parent directory and building path relative to that
-  parent <- renv_path_normalize(dirname(path), winslash = "/", mustWork = TRUE)
+  parent <- renv_path_normalize(dirname(path), mustWork = TRUE)
   path <- file.path(parent, basename(path))
 
   # attempt to rename the file

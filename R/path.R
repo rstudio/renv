@@ -116,7 +116,7 @@ renv_path_normalize_win32_impl <- function(path,
 # don't use this for paths that need to be uniquely resolved!
 renv_path_canonicalize <- function(path) {
   parent <- dirname(path)
-  root <- renv_path_normalize(parent, winslash = "/", mustWork = FALSE)
+  root <- renv_path_normalize(parent)
   trimmed <- sub("/+$", "", root)
   file.path(trimmed, basename(path))
 }

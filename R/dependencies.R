@@ -205,7 +205,7 @@ renv_dependencies_impl <- function(
   if (is.function(path))
     return(renv_dependencies_discover_r(expr = body(path)))
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
 
   # ignore errors when testing, unless explicitly asked for
@@ -242,7 +242,7 @@ renv_dependencies_impl <- function(
 
 renv_dependencies_root <- function(path = getwd()) {
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
 
   project <- renv_project_get(default = NULL)
   if (!is.null(project) && all(renv_path_within(path, project)))
@@ -366,7 +366,7 @@ renv_dependencies_find_dir <- function(path, root, depth) {
   # check if we've already scanned this directory
   # (necessary to guard against recursive symlinks)
   if (!renv_platform_windows()) {
-    norm <- renv_path_normalize(path, mustWork = FALSE)
+    norm <- renv_path_normalize(path)
     state <- renv_dependencies_state()
     if (visited(norm, state$scanned))
       return(character())
@@ -1690,7 +1690,7 @@ renv_dependencies_report <- function(errors) {
 
 renv_dependencies_scope <- function(path, action, envir = NULL) {
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
   if (exists(path, envir = `_renv_dependencies`))
     return(get(path, envir = `_renv_dependencies`))
 
