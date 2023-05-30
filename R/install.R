@@ -695,11 +695,6 @@ renv_install_postamble <- function(packages) {
     sprintf(fmt, format(Package), format(Installed), format(Loaded))
   })
 
-  if (renv_tests_running()) {
-    condition <- "renv.install.restart_required"
-    renv_condition_signal(condition)
-  }
-
   # nocov start
   if (renv_verbose()) {
     renv_pretty_print(

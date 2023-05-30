@@ -522,7 +522,6 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
     wrap = FALSE
   )
 
-  renv_condition_signal("renv.snapshot.unsatisfied_dependencies")
   FALSE
 
 }
@@ -976,9 +975,6 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
   missing <- setdiff(missing, "renv")
   if (empty(missing))
     return(TRUE)
-
-  if (renv_tests_running())
-    renv_condition_signal("renv.snapshot.missing_packages", missing)
 
   preamble <- "The following required packages are not installed:"
 

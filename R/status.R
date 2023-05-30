@@ -198,11 +198,6 @@ renv_status_check_synchronized <- function(project,
   missing <- setdiff(packages, c(names(library)))
   if (length(missing)) {
 
-    if (renv_tests_running()) {
-      condition <- "renv.status.used_but_not_installed"
-      renv_condition_signal(condition, missing)
-    }
-
     lockmsg <- "The following packages are recorded in the lockfile, but not installed:"
     usedmsg <- "The following packages are used in this project, but not installed:"
     restoremsg <- "Use `renv::restore()` to restore the packages recorded in the lockfile."
@@ -252,11 +247,6 @@ renv_status_check_synchronized <- function(project,
 
   if (length(records)) {
 
-    if (renv_tests_running()) {
-      condition <- "renv.status.recorded_but_not_installed"
-      renv_condition_signal(condition, records)
-    }
-
     renv_pretty_print_records(
       records,
       "The following package(s) are recorded in the lockfile, but not installed:",
@@ -280,11 +270,6 @@ renv_status_check_synchronized <- function(project,
 
   if (length(records)) {
 
-    if (renv_tests_running()) {
-      condition <- "renv.status.installed_but_not_recorded"
-      renv_condition_signal(condition, records)
-    }
-
     renv_pretty_print_records(
       records,
       "The following package(s) are installed, but not recorded in the lockfile:",
@@ -304,11 +289,6 @@ renv_status_check_synchronized <- function(project,
   # Use renv::snapshot() to remove from the lockfile.
   records <- lockfile %>% exclude(packages)
   if (length(records)) {
-
-    if (renv_tests_running()) {
-      condition <- "renv.status.recorded_but_not_used"
-      renv_condition_signal(condition, records)
-    }
 
     renv_pretty_print_records(
       records,
@@ -372,6 +352,3 @@ renv_status_check_cache <- function(project) {
 
 }
 
-renv_status_signal_unsynchronized <- function() {
-  renv_condition_signal("status.unsynchronized", list())
-}
