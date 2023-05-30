@@ -73,7 +73,7 @@ renv::activate(profile = NULL)
 ```
 
 
-## Managing Profile-specific Dependencies
+## Managing profile-specific dependencies
 
 Profile-specific package dependencies can be declared within the project's
 top-level `DESCRIPTION` file. For example, to declare that the shiny
