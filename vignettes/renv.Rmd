@@ -17,10 +17,10 @@ knitr::opts_chunk$set(
 
 The renv package helps you create create **r**eproducible **env**ironments for your R projects.
 This vignette introduces you to the basic workflow of renv, showing you how to use the most important functions: `renv::init()`, `renv::snapshot()`, and `renv::restore()`.
-You'll also learn about some of the infrastructure that makes renv tick, some problems that renv doesn't help with, and how to uninstall it, if you no longer want to use it.
+You'll also learn about some of the infrastructure that makes renv tick, some problems that renv doesn't help with, and how to uninstall it if you no longer want to use it.
 
 This vignette assumes that you're are already living a project-centric lifestyle and are familiar with a version control system, like Git and GitHub: we believe these are table stakes for reproducible data science.
-If you're not already using projects, we recommend [Workflow: Projects](https://r4ds.had.co.nz/workflow-projects.html) from *R for Data Science*; if you're unfamiliar with [Git](https://git-scm.com/) and [GitHub](https://github.com/), we recommend [Happy Git and GitHub for useR](https://happygitwithr.com).
+If you're not already using projects, we recommend [Workflow: Projects](https://r4ds.had.co.nz/workflow-projects.html) from *R for Data Science*; if you're unfamiliar with [Git](https://git-scm.com/) and [GitHub](https://github.com/), we recommend [Happy Git and GitHub for the useR](https://happygitwithr.com).
 
 ## Libraries and repositories
 
@@ -49,18 +49,18 @@ This gives you the benefits of **isolation**: different projects can use differe
 
 `renv::init()` also creates a project `.Rprofile`.
 This file is run automatically every time you start R (in that project), and renv uses it to configure your R session to use the project library.
-This ensures that once turn on renv on for a project, it stays on, until you deliberately turn it off.
+This ensures that once you turn on renv for a project, it stays on, until you deliberately turn it off.
 
 The next important pair of tools are `renv::snapshot()` and `renv::restore()`.
 `snapshot()` updates the lockfile with metadata about the currently-used packages in the project library.
-This is useful because you can then share the lockfile and other people or other computers can easily reproduce your current environment by running `renv::restore()`.
-This pair of functions give you the benefits of **reproducibility** and **portability**: you are now tracking exactly which package versions you have installed, and can recreate them on other machines.
+This is useful because you can then share the lockfile and other people or other computers can easily reproduce your current environment by running `renv::restore()`, which reads that metadata from the lockfile.
+This pair of functions gives you the benefits of **reproducibility** and **portability**: you are now tracking exactly which package versions you have installed, and can recreate them on other machines.
 
 Now that you've got the a high-level lay of the land, we'll show a couple of specific workflows before discussing some of the reproducibility challenges that renv doesn't currently help with.
 
 ### Collaboration
 
-One of the reasons to use renv is to make it easier to share your code in such way that everyone gets same versions of the packages that you have.
+One of the reasons to use renv is to make it easier to share your code in such way that everyone gets the same versions of the packages that you have.
 As above, you'll start by calling `renv::init()`.
 You'll then need to commit `renv.lock`, `.Rprofile`, `renv/settings.json` and `renv/activate.R` to version control.
 If you're using git, this is particularly simple because renv will create a `.gitignore` for you, and you can just commit the suggested files[^2].
@@ -85,12 +85,12 @@ That means you only ever have to download and install a package once, and for ea
 You can learn more about the cache in `vignette("package-install")`.
 
 After installing the package and checking that your code still works, you should call `renv::snapshot()` to record the latest versions in your lockfile.
-If you're collaborating with others, you'll need to commit those changes to git, and let them know that you've update the lockfile and they should call `renv::restore()` when they're next working on a package.
+If you're collaborating with others, you'll need to commit those changes to git, and let them know that you've updated the lockfile and they should call `renv::restore()` when they're next working on a package.
 
 ### Updating packages
 
 It's worth noting that there's a small risk associated with isolation: while your code will never break due to a change in another package, it will also never benefit from bug fixes.
-So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^4] to get the latest version of all dependencies.
+So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^4] to get the latest versions of all dependencies.
 Similarly, if you're making major changes to a project that you haven't worked on for a while, it's often a good idea to start with an `renv::update()` before making any changes to the code.
 
 [^4]: You can also use `update.packages()`, but `renv::update()` also works for packages installed from Bioconductor, GitHub, and Git.
@@ -105,7 +105,7 @@ See `renv::upgrade()` if you ever want to upgrade just renv, or you need to inst
 
 ## Infrastructure
 
-Now that you've got the basics usage of renv under your belt, it's time to learn a bit more about the underlying infrastructure.
+Now that you've got the basic usage of renv under your belt, it's time to learn a bit more about the underlying infrastructure.
 You typically won't touch any of these files directly, but it's good to understand what they do because you will see them in git diffs.
 
 `renv::init()` creates the following important files and directories:
