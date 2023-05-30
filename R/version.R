@@ -68,24 +68,27 @@ renv_version_match <- function(versions, request) {
 
 }
 
-renv_version_maj_min <- function(version) {
-
-  version <- as.numeric_version(version)
+renv_version_parts <- function(version, n) {
 
   # split version into parts
-  parts <- unclass(version)[[1L]]
+  parts <- unclass(as.numeric_version(version))[[1L]]
 
   # extend parts to size of n
-  diff <- 2 - length(parts)
+  diff <- max(n) - length(parts)
   if (diff > 0)
     parts <- c(parts, rep.int(0L, diff))
 
-  # retrieve components
-  paste0(parts[1:2], collapse = ".")
+  # retrieve possibly-extended parts
+  parts[1:n]
 
 }
 
+renv_version_maj_min <- function(version) {
+  parts <- renv_version_parts(version, 2L)
+  paste(parts, collapse = ".")
+}
+
 renv_version_length <- function(version) {
-  nv <- numeric_version(version)
-  length(unclass(nv)[[1]])
+  nv <- as.numeric_version(version)
+  length(unclass(nv)[[1L]])
 }
