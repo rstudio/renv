@@ -1,41 +1,24 @@
 
-#' Hydrate a Project
+#' Copy packages from user libraries to a project library
 #'
-#' Discover the \R packages used within a project, and then install those
-#' packages into the active library. This effectively allows you to fork the
-#' state of your default \R libraries for use within a project library.
+#' @description
+#' Copy/link the packages currently used by the project from a user library
+#' to the project library. This synchronises a project library with you have
+#' installed globally.
 #'
-#' It may occasionally be useful to use `renv::hydrate()` to update the packages
-#' used within a project that has already been initialized. However, be aware
-#' that it's possible that the packages pulled in may not actually be compatible
-#' with the packages already installed in the project library, so you should
-#' exercise caution when doing so.
+#' You generally don't need to call `hydrate()` directly as [init()] will call
+#' it for you. However, you may want to call it directly if you want to update
+#' project packages to match those installed in your global library (as opposed
+#' to using [update()] which will get the latest versions from CRAN).
 #'
-#' @section Sources:
-#'
-#' `hydrate()` attempts to re-use packages already installed on your system,
-#' to avoid unnecessary attempts to download and install packages from remote
-#' sources. When `NULL` (the default), `hydrate()` will attempt to discover \R
-#' packages from the following sources (in order):
-#'
-#' - The user library,
-#' - The site library,
-#' - The system library,
-#' - The renv cache.
-#'
-#' If package is discovered in one of these locations, renv will attempt to
-#' copy or link that package into the requested library as appropriate.
-#'
-#' @section Missing Packages:
-#'
-#' If renv discovers that your project depends on \R packages not currently
-#' installed in your user library, then it will attempt to install those
-#' packages from the active R repositories.
+#' After calling `hydrate()`, it's good practice to verify that your code
+#' continues to work, then call [snapshot()] to record all package versions
+#' in the lockfile.
 #'
 #' @inherit renv-params
 #'
 #' @param packages The set of \R packages to install. When `NULL`, the
-#'   set of packages as reported by [dependencies()] is used.
+#'   packages found by [dependencies()] are used.
 #'
 #' @param library The \R library to be hydrated. When `NULL`, the active
 #'   library as reported by `.libPaths()` is used.
@@ -45,8 +28,17 @@
 #'   library? Set this to `"all"` if you'd like _all_ packages to be refreshed
 #'   from the source library if possible.
 #'
-#' @param sources A set of library paths from which renv should attempt to
-#'   draw packages. See **Sources** for more details.
+#' @param sources A vector of library paths where renv should look for packages.
+#'   When `NULL` (the default), `hydrate()` will look in the following locations
+#'   (in order):
+#'
+#'   - The user library.
+#'   - The site library (`.Library.site`).
+#'   - The system library (`.Library`).
+#'   - The renv cache.
+#'
+#'   If a package is not found in any of these locations, `hydrate()`
+#'   will try to install it from the active R repositories.
 #'
 #' @param prompt Boolean; prompt the user before taking any action? Ignored
 #'   when `report = FALSE`.
