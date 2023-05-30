@@ -380,9 +380,9 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     if (identical(latest, "<NA>"))
       return(TRUE)
 
-    current <- unclass(package_version(current))[[1]]
-    latest <- unclass(package_version(latest))[[1]]
-    current[[1]] != latest[[1]] || current[[2]] != latest[[2]]
+    current <- renv_version_maj_min(current)
+    latest <- renv_version_maj_min(latest)
+    current != latest
 
   }, bioc$Version, bioc$Latest)
 
