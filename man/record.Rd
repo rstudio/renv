@@ -26,8 +26,6 @@ package cannot be restored in a particular environment, and you know of a
 suitable alternative.
 }
 \section{Records}{
-
-
 Records can be provided either using the \strong{remotes} short-hand syntax,
 or by using an \R list of entries to record within the lockfile. See
 \code{?lockfiles} for more information on the structure of a package record.

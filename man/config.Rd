@@ -134,7 +134,7 @@ Defaults to \code{FALSE}.}
 \subsection{renv.config.user.profile}{Load the user R profile (typically located at \verb{~/.Rprofile}) when renv is loaded? This is disabled by default, as running arbitrary code from the the user \verb{~/.Rprofile} could risk breaking project encapsulation. If your goal is to set environment variables that are visible within all renv projects, then placing those in \verb{~/.Renviron} is often a better choice. Defaults to \code{FALSE}.}
 }
 
-\section{Copy Methods}{
+\section{Copy methods}{
 
 
 If you find that renv is unable to copy some directories in your
@@ -169,7 +169,7 @@ attempt to copy a directory could leave a half-copied directory behind
 in the final location.
 }
 
-\section{Project-Local Settings}{
+\section{Project-local settings}{
 
 
 For settings that should persist alongside a particular project, the

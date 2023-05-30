@@ -115,7 +115,7 @@
 #'     # code in this chunk will _not_ be ignored
 #'     ```
 #'
-#' @section Development Dependencies:
+#' # Development dependencies
 #'
 #' renv attempts to distinguish between 'development' dependencies and
 #' 'runtime' dependencies. For example, you might rely on e.g.

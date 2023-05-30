@@ -26,8 +26,6 @@ called for its side effects.
 Migrate a project's infrastructure from packrat to renv.
 }
 \section{Migration}{
-
-
 When migrating Packrat projects to renv, the set of components migrated
 can be customized using the \code{packrat} argument. The set of components that
 can be migrated are as follows:

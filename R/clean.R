@@ -3,7 +3,7 @@
 #'
 #' Clean up a project and its associated \R libraries.
 #'
-#' @section Actions:
+#' # Actions
 #'
 #' The following clean actions are available:
 #'

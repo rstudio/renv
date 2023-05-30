@@ -85,9 +85,7 @@ a binary copy of that package is already available.
 
 See \code{vignette("package-install")} for more details.
 }
-\section{Project DESCRIPTION Files}{
-
-
+\section{Project \code{DESCRIPTION} files}{
 If your project contains a \code{DESCRIPTION} file, then calling \code{install()}
 without any arguments will instruct renv to install the latest versions of
 all packages as declared within that \code{DESCRIPTION} file's \code{Depends},
@@ -108,8 +106,6 @@ Otherwise, you can declare the package sources in your \code{DESCRIPTION}'s
 }
 
 \section{Bioconductor}{
-
-
 Packages from Bioconductor can be installed by using the \verb{bioc::} prefix.
 For example,
 

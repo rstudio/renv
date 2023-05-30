@@ -50,8 +50,8 @@
 #'   a project-local environment will be created instead, using a name
 #'   generated from the associated version of Python.
 #'
-#'
-#' @section Finding Python:
+#' @details
+#' # Finding Python
 #'
 #' In interactive sessions, when `python = NULL`, renv will prompt for an
 #' appropriate version of Python. renv will search a pre-defined set of
@@ -72,7 +72,7 @@
 #' supplied for non-interactive usages of `use_python()`.
 #'
 #'
-#' @section Warning:
+#' # Warning
 #'
 #' We strongly recommend using Python virtual environments, for a few reasons:
 #'

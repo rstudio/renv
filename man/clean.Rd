@@ -29,8 +29,6 @@ called for its side effects.
 Clean up a project and its associated \R libraries.
 }
 \section{Actions}{
-
-
 The following clean actions are available:
 
 \describe{

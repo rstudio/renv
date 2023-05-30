@@ -67,8 +67,6 @@ is unable to automatically discover a compatible version of Python to
 be used in the project.
 }
 \section{Finding Python}{
-
-
 In interactive sessions, when \code{python = NULL}, renv will prompt for an
 appropriate version of Python. renv will search a pre-defined set of
 locations when attempting to find Python installations on the system:
@@ -90,8 +88,6 @@ supplied for non-interactive usages of \code{use_python()}.
 }
 
 \section{Warning}{
-
-
 We strongly recommend using Python virtual environments, for a few reasons:
 \enumerate{
 \item If something goes wrong with a local virtual environment, you can safely
