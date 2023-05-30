@@ -26,11 +26,7 @@ test_that("renv warns when snapshotting missing dependencies", {
   init()
 
   remove("oatmeal")
-
-  local({
-    renv_scope_sink()
-    expect_error(snapshot())
-  })
+  expect_snapshot(snapshot(), error = TRUE)
 
   lockfile <- renv_lockfile_load(project)
   expect_true(!is.null(lockfile$Packages$oatmeal))
