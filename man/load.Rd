@@ -2,7 +2,7 @@
 % Please edit documentation in R/load.R
 \name{load}
 \alias{load}
-\title{Load a Project}
+\title{Load a project}
 \usage{
 load(project = NULL, quiet = FALSE)
 }

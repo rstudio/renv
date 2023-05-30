@@ -2,7 +2,7 @@
 % Please edit documentation in R/dependencies.R
 \name{dependencies}
 \alias{dependencies}
-\title{Find R Package Dependencies in a Project}
+\title{Find R package dependencies in a project}
 \usage{
 dependencies(
   path = getwd(),

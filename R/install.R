@@ -1,5 +1,5 @@
 
-#' Install Packages
+#' Install packages
 #'
 #' @description
 #' Install one or more \R packages, from a variety of remote sources.

@@ -1,5 +1,5 @@
 
-#' Use Python
+#' Use python
 #'
 #' Associate a version of Python with your project.
 #'

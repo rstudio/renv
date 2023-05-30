@@ -1,7 +1,7 @@
 
-#' Migrate a Project from Packrat to renv
+#' Migrate a project from packrat to renv
 #'
-#' Migrate a project's infrastructure from Packrat to renv.
+#' Migrate a project's infrastructure from packrat to renv.
 #'
 #' @section Migration:
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/update.R
 \name{update}
 \alias{update}
-\title{Update Packages}
+\title{Update packages}
 \usage{
 update(
   packages = NULL,

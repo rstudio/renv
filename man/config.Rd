@@ -3,7 +3,7 @@
 \docType{data}
 \name{config}
 \alias{config}
-\title{User-Level Configuration of renv}
+\title{User-level settings}
 \format{
 An object of class \code{list} of length 40.
 }

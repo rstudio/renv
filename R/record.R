@@ -1,5 +1,5 @@
 
-#' Update Package Records in a Lockfile
+#' Update package records in a lockfile
 #'
 #' Use `record()` to record a new entry within an existing renv lockfile.
 #'

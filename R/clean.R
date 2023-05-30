@@ -1,5 +1,5 @@
 
-#' Clean a Project
+#' Clean a project
 #'
 #' Clean up a project and its associated \R libraries.
 #'

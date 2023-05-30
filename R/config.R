@@ -1,5 +1,5 @@
 
-#' User-Level Configuration of renv
+#' User-level settings
 #'
 #' Configure different behaviors of renv.
 #'

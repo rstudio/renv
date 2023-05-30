@@ -2,7 +2,7 @@
 % Please edit documentation in R/scaffold.R
 \name{scaffold}
 \alias{scaffold}
-\title{Generate Project Infrastructure}
+\title{Generate project infrastructure}
 \usage{
 scaffold(
   project = NULL,

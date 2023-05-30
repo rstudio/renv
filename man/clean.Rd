@@ -2,7 +2,7 @@
 % Please edit documentation in R/clean.R
 \name{clean}
 \alias{clean}
-\title{Clean a Project}
+\title{Clean a project}
 \usage{
 clean(project = NULL, ..., actions = NULL, prompt = interactive())
 }

@@ -1,5 +1,5 @@
 
-#' Activate or Deactivate a Project
+#' Activate or deactivate a project
 #'
 #' @description
 #' `activate()` enables renv for a project in both the current session and

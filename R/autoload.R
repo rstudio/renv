@@ -1,5 +1,5 @@
 
-#' Auto-load the Active Project
+#' Auto-load the active project
 #'
 #' Automatically load the renv project associated with a particular directory.
 #' renv will search parent directories for the renv project root; if found,

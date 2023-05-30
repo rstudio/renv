@@ -2,7 +2,7 @@
 % Please edit documentation in R/record.R
 \name{record}
 \alias{record}
-\title{Update Package Records in a Lockfile}
+\title{Update package records in a lockfile}
 \usage{
 record(records, lockfile = NULL, project = NULL)
 }

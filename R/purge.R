@@ -1,5 +1,5 @@
 
-#' Purge Packages from the Cache
+#' Purge packages from the cache
 #'
 #' Purge packages from the cache. This can be useful if a package which had
 #' previously been installed in the cache has become corrupted or unusable,

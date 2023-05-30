@@ -2,7 +2,7 @@
 % Please edit documentation in R/install.R
 \name{install}
 \alias{install}
-\title{Install Packages}
+\title{Install packages}
 \usage{
 install(
   packages = NULL,

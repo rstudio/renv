@@ -2,7 +2,7 @@
 % Please edit documentation in R/use-python.R
 \name{use_python}
 \alias{use_python}
-\title{Use Python}
+\title{Use python}
 \usage{
 use_python(
   python = NULL,

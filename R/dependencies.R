@@ -1,7 +1,7 @@
 
 `_renv_dependencies` <- new.env(parent = emptyenv())
 
-#' Find R Package Dependencies in a Project
+#' Find R package dependencies in a project
 #'
 #' @description
 #' `dependencies()` will crawl files within your project, looking for \R files
