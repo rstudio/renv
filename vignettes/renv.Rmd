@@ -62,7 +62,7 @@ Now that you've got the a high-level lay of the land, we'll show a couple of spe
 
 One of the reasons to use renv is to make it easier to share your code in such way that everyone gets same versions of the packages that you have.
 As above, you'll start by calling `renv::init()`.
-You'll then need to commit `renv.lock`, `.Rprofile`, `renv/settings.json` and `renv/activate.R` to git.
+You'll then need to commit `renv.lock`, `.Rprofile`, `renv/settings.json` and `renv/activate.R` to version control.
 If you're using git, this is particularly simple because renv will create a `.gitignore` for you, and you can just commit the suggested files[^2].
 
 [^2]: If you're using another version control system, you'll need to ignore `renv/library` and any other directories in `renv/`.
