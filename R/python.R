@@ -333,7 +333,7 @@ renv_python_discover <- function() {
 
     if (length(dirs)) {
       exes <- file.path(dirs, "python.exe")
-      pythons <- normalizePath(exes, winslash = "/", mustWork = FALSE)
+      pythons <- renv_path_normalize(exes)
       all$push(pythons)
     }
 

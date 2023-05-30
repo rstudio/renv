@@ -131,7 +131,7 @@ renv_tests_diagnostics <- function() {
 
 renv_tests_root <- function() {
   `_renv_tests_root` <<- `_renv_tests_root` %||% {
-    normalizePath(testthat::test_path("."), winslash = "/")
+    renv_path_normalize(testthat::test_path("."))
   }
 }
 

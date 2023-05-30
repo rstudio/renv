@@ -181,7 +181,7 @@ renv_retrieve_impl <- function(package) {
     }
 
     # otherwise, success
-    path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+    path <- renv_path_normalize(path, mustWork = TRUE)
     return(renv_retrieve_successful(record, path))
 
   }

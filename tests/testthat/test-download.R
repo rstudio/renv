@@ -122,7 +122,7 @@ test_that("downloads work with UNC paths on Windows", {
   repos <- getOption("repos")[["CRAN"]]
   base <- sub("^file:/*", "", repos)
   url <- file.path(base, "src/contrib/PACKAGES")
-  norm <- normalizePath(url, winslash = "/")
+  norm <- renv_path_normalize(url)
 
   # create server-style path to localhost
   unc <- sub("^([a-zA-Z]):", "//localhost/\\1$", norm)

@@ -164,7 +164,7 @@ renv_vendor_sources <- function(version, repository) {
   args <- c("clone", "--branch", version, "--depth", "1", repository)
   renv_system_exec(git(), args, action = "cloning renv")
   writef("Done!")
-  path <- normalizePath("renv", winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize("renv", mustWork = TRUE)
 
   # make sure we clean up when we're done
   defer(unlink(path, recursive = TRUE), envir = parent.frame())

@@ -18,7 +18,7 @@ renv_package_find_impl <- function(package,
 {
   # if we've been given the path to an existing package, use it as-is
   if (file.exists(file.path(package, "DESCRIPTION")))
-    return(normalizePath(package, winslash = "/", mustWork = TRUE))
+    return(renv_path_normalize(package, mustWork = TRUE))
 
   # first, look in the library paths
   for (libpath in lib.loc) {
