@@ -149,9 +149,8 @@ r_cmd_install <- function(package, path, ...) {
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
   # unpack source packages in zip archives
-  iszip <- renv_archive_type(path) %in% "zip"
   unpack <-
-    iszip &&
+    renv_archive_type(path) %in% "zip" &&
     renv_package_type(path) %in% "source"
 
   if (unpack) {
@@ -159,26 +158,27 @@ r_cmd_install <- function(package, path, ...) {
     defer(unlink(path, recursive = TRUE))
   }
 
-  # on Windows, if we're given the path to a '.zip' file with a hash
-  # instead of a version, we'll need to fix that up first
-  #
+  # on Windows, just unpack binary archives directly into the library tree
   # https://github.com/rstudio/renv/issues/1359
-  if (renv_platform_windows() && iszip) {
+  unpack <-
+    renv_file_type(path) == "file" &&
+    renv_archive_type(path) %in% "zip" &&
+    renv_package_type(path) %in% "binary"
 
-    # build expected pattern
-    fmt <- "^%s(?:_%s)?\\.zip$"
-    regexps <- .standard_regexps()
-    pattern <- sprintf(fmt, regexps$valid_package_name, regexps$valid_package_version)
-    matches <- grepl(pattern, basename(path), perl = TRUE)
+  if (unpack) {
 
-    # if we don't have a match, then we'll have to install it ourselves
-    if (!matches) {
-      dir <- renv_scope_tempfile("r-cmd-install-")
-      ensure_directory(dir)
-      newpath <- file.path(dir, paste(package, "zip", sep = "."))
-      file.copy(path, newpath)
-      path <- newpath
-    }
+    # unpack into temporary directory in library path
+    library <- renv_libpaths_active()
+    exdir <- renv_scope_tempfile(package, tmpdir = library)
+    unzip(path, exdir = exdir)
+
+    # move into library tree
+    source <- file.path(exdir, package)
+    target <- file.path(library, package)
+    renv_file_move(source, target, overwrite = TRUE)
+
+    # we're done
+    return(target)
 
   }
 
