@@ -174,6 +174,8 @@ renv_lockfile_create <- function(project,
 
   lockfile <- renv_lockfile_init(project)
 
+  # Repeat with restarts so that renv_snapshot_filter() can install packages
+  # if requested by the user
   repeat {
     withRestarts(
       {
@@ -185,6 +187,7 @@ renv_lockfile_create <- function(project,
           packages = packages,
           exclude  = exclude
         )
+        # skipped if recomputeRecords restart is used
         break
       },
       recomputeRecords = function() {
