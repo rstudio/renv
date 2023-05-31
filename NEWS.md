@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* When prompting to activate a project, you now get three options that hopefully
+  make your choices more clear.
+  
 * `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
   all renv files/directories, leaving the project the way it was found.
 

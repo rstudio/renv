@@ -41,3 +41,14 @@ test_that("renv can bootstrap a dev version", {
   status <- system2(R(), args, stdout = stdout, stderr = stderr)
   expect_equal(status, 0L)
 })
+
+test_that("activate_prompt behaves as expected", {
+  renv_scope_options(renv_menu_choice = 2)
+  expect_snapshot(val <- renv_activate_prompt_impl())
+  expect_false(val)
+
+  renv_tests_scope()
+  renv_scope_options(renv_menu_choice = 1)
+  expect_snapshot(val <- renv_activate_prompt_impl())
+  expect_true(val)
+})

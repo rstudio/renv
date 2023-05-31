@@ -156,22 +156,27 @@ renv_activate_prompt <- function(action, library, prompt, project) {
   if (!ask)
     return(FALSE)
 
-  fmt <- lines(
-    "",
-    "This project has not yet been activated.",
-    "Activating this project will ensure the project library is used when %s() is called.",
-    "Please see `?renv::activate` for more details.",
-    ""
+  renv_activate_prompt_impl(project)
+
+
+}
+
+renv_activate_prompt_impl <- function(project = NULL) {
+  choices <- c(
+    "Activate the project, setting up a project library",
+    "Continue, using the system library",
+    "Cancel"
   )
-  writef(fmt, action)
 
-  fmt <- "Would you like to activate this project before %s() is called?"
-  question <- sprintf(fmt, action)
-  response <- ask(question, default = TRUE)
-  if (!response)
-    return(FALSE)
+  writef("This project has not yet been activated.")
+  choice <- menu(choices, "What do you want to do?", default = 2)
+  cancel_if(choice %in% c(0, 3L))
 
-  activate(project = project)
-  return(TRUE)
+  if (choice == 1) {
+    activate(project = project)
+    TRUE
+  } else {
+    FALSE
+  }
 
 }
