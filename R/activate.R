@@ -163,20 +163,16 @@ renv_activate_prompt <- function(action, library, prompt, project) {
 
 renv_activate_prompt_impl <- function(project = NULL) {
   choices <- c(
-    "Activate the project and use the project library.",
-    "Do not activate the project; use the current library paths.",
-    "Cancel."
+    activate = "Activate the project and use the project library.",
+    continue = "Do not activate the project and use the current library paths.",
+    cancel = "Cancel and resolve the problem another way."
   )
 
   writef("This project has not yet been activated.")
   choice <- menu(choices, "How would you like to proceed?", default = 2)
-  cancel_if(choice %in% c(0, 3L))
-
-  if (choice == 1) {
-    activate(project = project)
-    TRUE
-  } else {
-    FALSE
-  }
-
+  switch(choice,
+    activate = {activate(project = project); TRUE},
+    continue = FALSE,
+    cancel = cancel(),
+  )
 }
