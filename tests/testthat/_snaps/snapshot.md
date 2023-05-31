@@ -55,8 +55,15 @@
 
     Code
       snapshot()
+    Output
+      The following package(s) have unsatisfied dependencies:
+      
+      - toast requires bread (> 1.0.0), but version 1.0.0 is installed
+      
+      Consider updating the required dependencies as appropriate.
+      
     Error <simpleError>
-      unused argument (alist())
+      aborting snapshot due to pre-flight validation failure
 
 # renv reports missing packages in explicit snapshots
 
