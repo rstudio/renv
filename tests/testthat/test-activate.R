@@ -44,11 +44,11 @@ test_that("renv can bootstrap a dev version", {
 
 test_that("activate_prompt behaves as expected", {
   renv_scope_options(renv.menu.choice = 2)
-  expect_snapshot(val <- renv_activate_prompt_impl())
+  expect_snapshot(val <- renv_activate_prompt_impl("snapshot"))
   expect_false(val)
 
   renv_tests_scope()
   renv_scope_options(renv.menu.choice = 1)
-  expect_snapshot(val <- renv_activate_prompt_impl())
+  expect_snapshot(val <- renv_activate_prompt_impl("snapshot"))
   expect_true(val)
 })

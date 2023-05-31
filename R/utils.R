@@ -192,7 +192,7 @@ menu <- function(choices, title, default = 1L) {
   }
 
   tryCatch(
-    idx <- utils::menu(choices, title, graphics = FALSE),
+    idx <- utils::menu(choices, paste(title, collapse = "\n"), graphics = FALSE),
     interrupt = function(cnd) 0L
   )
   if (idx == 0L) {

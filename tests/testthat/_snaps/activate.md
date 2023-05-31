@@ -1,9 +1,9 @@
 # activate_prompt behaves as expected
 
     Code
-      val <- renv_activate_prompt_impl()
+      val <- renv_activate_prompt_impl("snapshot")
     Output
-      This project has not yet been activated.
+      It looks like you've called renv::snapshot() in a non-renv project.
       How would you like to proceed?
       
       1: Activate the project and use the project library.
@@ -16,9 +16,9 @@
 ---
 
     Code
-      val <- renv_activate_prompt_impl()
+      val <- renv_activate_prompt_impl("snapshot")
     Output
-      This project has not yet been activated.
+      It looks like you've called renv::snapshot() in a non-renv project.
       How would you like to proceed?
       
       1: Activate the project and use the project library.
