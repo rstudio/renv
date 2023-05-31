@@ -650,8 +650,7 @@ renv_install_preflight_requirements <- function(records) {
     renv_pretty_print(
       text,
       "The following issues were discovered while preparing for installation:",
-      "Installation of these packages may not succeed.",
-      wrap = FALSE
+      "Installation of these packages may not succeed."
     )
   }
 
@@ -700,8 +699,7 @@ renv_install_postamble <- function(packages) {
     renv_pretty_print(
       text,
       "The following package(s) have been updated:",
-      "Consider restarting the R session and loading the newly-installed packages.",
-      wrap = FALSE
+      "Consider restarting the R session and loading the newly-installed packages."
     )
   }
   # nocov end
@@ -740,8 +738,7 @@ renv_install_preflight_permissions <- function(library) {
     renv_pretty_print(
       values = library,
       preamble = preamble,
-      postamble = postamble,
-      wrap = FALSE
+      postamble = postamble
     )
 
   }

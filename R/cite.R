@@ -42,8 +42,7 @@ cite <- function(type = c("plain", "bibtex"),
     renv_pretty_print(
       msg,
       "renv could not generate citations for the following packages:",
-      "You may need to manually form a citation for these packages.",
-      wrap = FALSE
+      "You may need to manually form a citation for these packages."
     )
 
   }

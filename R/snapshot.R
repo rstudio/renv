@@ -397,8 +397,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
       c(
         "renv may be unable to restore these packages.",
         paste("Bioconductor version:", version)
-      ),
-      wrap = FALSE
+      )
     )
 
     ok <- FALSE
@@ -453,8 +452,7 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
   renv_pretty_print(
     sprintf("%s  [required by %s]", format(missing), usedby),
     "The following required packages are not installed:",
-    "Consider reinstalling these packages before snapshotting the lockfile.",
-    wrap = FALSE
+    "Consider reinstalling these packages before snapshotting the lockfile."
   )
 
   FALSE
@@ -518,8 +516,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   renv_pretty_print(
     txt,
     "The following package(s) have unsatisfied dependencies:",
-    "Consider updating the required dependencies as appropriate.",
-    wrap = FALSE
+    "Consider updating the required dependencies as appropriate."
   )
 
   FALSE
@@ -669,8 +666,7 @@ renv_snapshot_library_diagnose_missing_description <- function(library, pkgs) {
     c(
       "These may be left over from a prior, failed installation attempt.",
       "Consider removing or reinstalling these packages."
-    ),
-    wrap = FALSE
+    )
   )
 
   pkgs[!missing]
