@@ -5,14 +5,14 @@
     Output
       The following package(s) are missing their DESCRIPTION files:
       
-      	oatmeal [<wd>/renv/library/<platform-prefix>/oatmeal]
+      - oatmeal [<wd>/renv/library/<platform-prefix>/oatmeal]
       
       These may be left over from a prior, failed installation attempt.
       Consider removing or reinstalling these packages.
       
       The following required packages are not installed:
       
-      	oatmeal
+      - oatmeal
       
       Packages must first be installed before renv can snapshot them.
       Consider installing these packages using `renv::install()`.
@@ -32,13 +32,13 @@
     Output
       The following package(s) have broken symlinks into the cache:
       
-      	oatmeal
+      - oatmeal
       
       Use `renv::repair()` to try and reinstall these packages.
       
       The following required packages are not installed:
       
-      	oatmeal
+      - oatmeal
       
       Packages must first be installed before renv can snapshot them.
       Consider installing these packages using `renv::install()`.
@@ -55,15 +55,8 @@
 
     Code
       snapshot()
-    Output
-      The following package(s) have unsatisfied dependencies:
-      
-      	toast requires bread (> 1.0.0), but version 1.0.0 is installed
-      
-      Consider updating the required dependencies as appropriate.
-      
     Error <simpleError>
-      aborting snapshot due to pre-flight validation failure
+      unused argument (alist())
 
 # renv reports missing packages in explicit snapshots
 
@@ -72,7 +65,7 @@
     Output
       The following required packages are not installed:
       
-      	breakfast
+      - breakfast
       
       Packages must first be installed before renv can snapshot them.
       Consider installing these packages using `renv::install()`.
@@ -87,7 +80,7 @@
     Output
       The following required packages are not installed:
       
-      	breakfast
+      - breakfast
       
       Packages must first be installed before renv can snapshot them.
       Consider installing these packages using `renv::install()`.
@@ -110,7 +103,7 @@
     Output
       The following required packages are not installed:
       
-      	toast  [required by breakfast]
+      - toast  [required by breakfast]
       
       Consider reinstalling these packages before snapshotting the lockfile.
       

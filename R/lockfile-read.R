@@ -60,9 +60,7 @@ renv_lockfile_read_preflight <- function(contents) {
     renv_pretty_print(
       values    = head(all, n = -1L),
       preamble  = "The lockfile contains one or more merge conflict markers:",
-      postamble = "You will need to resolve these merge conflicts before the file can be read.",
-      emitter   = message,
-      wrap      = FALSE
+      postamble = "You will need to resolve these merge conflicts before the file can be read."
     )
 
     stop("lockfile contains merge conflict markers; cannot proceed", call. = FALSE)

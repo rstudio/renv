@@ -373,8 +373,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
     renv_pretty_print(
       text,
       "The following package(s) were not installed successfully:",
-      "You may need to manually download and install these packages.",
-      wrap = FALSE
+      "You may need to manually download and install these packages."
     )
 
   }

@@ -65,19 +65,16 @@ renv_modify_interactive <- function(project) {
   renv_file_edit(templock)
 
   # check that the new lockfile can be read
-  lockfile <- catch(renv_lockfile_read(file = templock))
-  if (inherits(lockfile, "error")) {
-
-    renv_pretty_print(
-      conditionMessage(lockfile),
-      preamble  = "renv was uanble to parse the modified lockfile:",
-      postamble = "Your changes will be discarded.",
-      wrap = FALSE
-    )
-
-    stop("error modifying lockfile")
-
-  }
+  withCallingHandlers(
+    lockfile <- catch(renv_lockfile_read(file = templock)),
+    error = function(cnd) {
+      stop(lines(
+        "renv was unable to parse the modified lockfile:",
+        conditionMessage(cnd),
+        "Your changes will be discarded"
+      ))
+    }
+  )
 
   lockfile
 

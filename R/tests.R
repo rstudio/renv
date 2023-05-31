@@ -62,30 +62,26 @@ renv_tests_diagnostics <- function() {
   # print library paths
   renv_pretty_print(
     paste("-", .libPaths()),
-    "The following R libraries are set:",
-    wrap = FALSE
+    "The following R libraries are set:"
   )
 
   # print repositories
   repos <- getOption("repos")
   renv_pretty_print(
     paste(names(repos), repos, sep = ": "),
-    "The following repositories are set:",
-    wrap = FALSE
+    "The following repositories are set:"
   )
 
   # print renv root
   renv_pretty_print(
     paste("-", paths$root()),
-    "The following renv root directory is being used:",
-    wrap = FALSE
+    "The following renv root directory is being used:"
   )
 
   # print cache root
   renv_pretty_print(
     paste("-", paths$cache()),
     "The following renv cache directory is being used:",
-    wrap = FALSE
   )
 
   writeLines("The following packages are available in the test repositories:")
@@ -104,8 +100,7 @@ renv_tests_diagnostics <- function() {
 
   renv_pretty_print(
     paste("-", splat),
-    "The following PATH is set:",
-    wrap = FALSE
+    "The following PATH is set:"
   )
 
   envvars <- c(
@@ -123,8 +118,7 @@ renv_tests_diagnostics <- function() {
 
   renv_pretty_print(
     paste(keys, vals, sep = " : "),
-    "The following environment variables of interest are set:",
-    wrap = FALSE
+    "The following environment variables of interest are set:"
   )
 
 }
