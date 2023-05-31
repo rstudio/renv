@@ -4,8 +4,8 @@
       status()
     Output
       The following packages are recorded in the lockfile, but not installed:
-              _
-        bread   [1.0.0]
+      
+      - bread [1.0.0]
       
       Use `renv::restore()` to restore the packages recorded in the lockfile.
       
@@ -16,8 +16,8 @@
       status()
     Output
       The following package(s) are installed, but not recorded in the lockfile:
-              _
-        bread   [1.0.0]
+      
+      - bread [1.0.0]
       
       Use `renv::snapshot()` to add these packages to the lockfile.
       
@@ -41,8 +41,8 @@
       status()
     Output
       The following packages are recorded in the lockfile, but not installed:
-              _
-        bread   [1.0.0]
+      
+      - bread [1.0.0]
       
       Use `renv::restore()` to restore the packages recorded in the lockfile.
       
@@ -53,8 +53,8 @@
       status()
     Output
       The following packages are recorded in the lockfile, but do not appear to be used in this project:
-            _
-        egg   [1.0.0]
+      
+      - egg [1.0.0]
       
       Use `renv::snapshot()` if you'd like to remove these packages from the lockfile.
       
@@ -64,11 +64,11 @@
     Code
       status()
     Output
-      The following package(s) are out of sync:
+      The following package(s) are out of sync [lockfile -> library]:
       
-         Package   Lockfile Version   Library Version
-             egg              2.0.0             1.0.0
-         oatmeal              0.9.0             1.0.0
+      # CRAN ===============================
+      - egg       [repo: * -> CRAN; ver: 2.0.0 -> 1.0.0]
+      - oatmeal   [repo: * -> CRAN; ver: 0.9.0 -> 1.0.0]
       
       Use `renv::snapshot()` to save the state of your library to the lockfile.
       Use `renv::restore()` to restore your library from the lockfile.

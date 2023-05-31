@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::status()` now works more like `renv::restore()` when package versions
+  are different (#675).
+
 * renv functions give a clearer error if `renv.lock` has somehow become 
   corrupted (#1027).
 
