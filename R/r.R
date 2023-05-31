@@ -148,38 +148,18 @@ r_cmd_install <- function(package, path, ...) {
   # normalize path to package
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
-  # unpack source packages in zip archives
-  unpack <-
-    renv_archive_type(path) %in% "zip" &&
-    renv_package_type(path) %in% "source"
-
-  if (unpack) {
-    path <- renv_package_unpack(package, path, force = TRUE)
-    defer(unlink(path, recursive = TRUE))
-  }
-
-  # on Windows, just unpack binary archives directly into the library tree
+  # unpack .zip archives before install
   # https://github.com/rstudio/renv/issues/1359
   unpack <-
     renv_file_type(path) == "file" &&
-    renv_archive_type(path) %in% "zip" &&
-    renv_package_type(path) %in% "binary"
+    renv_archive_type(path) %in% "zip"
 
   if (unpack) {
-
-    # unpack into temporary directory in library path
-    library <- renv_libpaths_active()
-    exdir <- renv_scope_tempfile(package, tmpdir = library)
-    unzip(path, exdir = exdir)
-
-    # move into library tree
-    source <- file.path(exdir, package)
-    target <- file.path(library, package)
-    renv_file_move(source, target, overwrite = TRUE)
-
-    # we're done
-    return(target)
-
+    newpath <- renv_package_unpack(package, path, force = TRUE)
+    if (!identical(newpath, path)) {
+      path <- newpath
+      defer(unlink(path, recursive = TRUE))
+    }
   }
 
   # resolve default library path
