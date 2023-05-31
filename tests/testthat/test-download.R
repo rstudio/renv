@@ -141,6 +141,7 @@ test_that("downloads work with UNC paths on Windows", {
 
 test_that("we can check that a URL is available", {
   skip_on_cran()
+  skip_if_not_installed("webfakes")
 
   app <- webfakes::new_app_process(webfakes::httpbin_app())
 
