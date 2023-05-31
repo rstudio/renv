@@ -2,7 +2,7 @@
 % Please edit documentation in R/remove.R
 \name{remove}
 \alias{remove}
-\title{Remove Packages}
+\title{Remove packages}
 \usage{
 remove(packages, ..., library = NULL, project = NULL)
 }

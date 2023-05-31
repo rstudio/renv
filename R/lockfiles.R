@@ -49,7 +49,7 @@
 #'
 #' The sections used within a lockfile are described next.
 #'
-#' @section \[renv\]:
+#' ## renv
 #'
 #' Information about the version of renv used to manage this project.
 #'
@@ -57,7 +57,7 @@
 #' \strong{Version}     \tab The version of the renv package used with this project. \cr
 #' }
 #'
-#' @section \[R\]:
+#' ## R
 #'
 #' Properties related to the version of \R associated with this project.
 #'
@@ -66,7 +66,7 @@
 #' \strong{Repositories} \tab The \R repositories used in this project. \cr
 #' }
 #'
-#' @section \[Packages\]:
+#' ## Packages
 #'
 #' \R package records, capturing the packages used or required by a project
 #' at the time when the lockfile was generated.
@@ -83,7 +83,7 @@
 #' retrieved from its corresponding source, will also be included as
 #' appropriate (e.g. for packages installed from GitHub).
 #'
-#' @section \[Python\]:
+#' ## Python
 #'
 #' Metadata related to the version of Python used with this project (if any).
 #'

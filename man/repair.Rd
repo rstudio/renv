@@ -2,7 +2,7 @@
 % Please edit documentation in R/repair.R
 \name{repair}
 \alias{repair}
-\title{Repair a Project Library}
+\title{Repair a project library}
 \usage{
 repair(library = NULL, lockfile = NULL, project = NULL)
 }

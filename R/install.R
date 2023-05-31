@@ -1,5 +1,5 @@
 
-#' Install Packages
+#' Install packages
 #'
 #' @description
 #' Install one or more \R packages, from a variety of remote sources.
@@ -11,7 +11,7 @@
 #'
 #' See `vignette("package-install")` for more details.
 #'
-#' @section Project DESCRIPTION Files:
+#' # Project `DESCRIPTION` files
 #'
 #' If your project contains a `DESCRIPTION` file, then calling `install()`
 #' without any arguments will instruct renv to install the latest versions of
@@ -31,7 +31,7 @@
 #' Otherwise, you can declare the package sources in your `DESCRIPTION`'s
 #' `Remotes:` field.
 #'
-#' @section Bioconductor:
+#' # Bioconductor
 #'
 #' Packages from Bioconductor can be installed by using the `bioc::` prefix.
 #' For example,

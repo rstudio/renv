@@ -51,9 +51,7 @@ An example lockfile follows:
 }\if{html}{\out{</div>}}
 
 The sections used within a lockfile are described next.
-}
-\section{[renv]}{
-
+\subsection{renv}{
 
 Information about the version of renv used to manage this project.
 
@@ -62,8 +60,7 @@ Information about the version of renv used to manage this project.
 }
 }
 
-\section{[R]}{
-
+\subsection{R}{
 
 Properties related to the version of \R associated with this project.
 
@@ -73,8 +70,7 @@ Properties related to the version of \R associated with this project.
 }
 }
 
-\section{[Packages]}{
-
+\subsection{Packages}{
 
 \R package records, capturing the packages used or required by a project
 at the time when the lockfile was generated.
@@ -92,8 +88,7 @@ retrieved from its corresponding source, will also be included as
 appropriate (e.g. for packages installed from GitHub).
 }
 
-\section{[Python]}{
-
+\subsection{Python}{
 
 Metadata related to the version of Python used with this project (if any).
 
@@ -106,7 +101,7 @@ Metadata related to the version of Python used with this project (if any).
 Note that the \code{Name} field may be empty. In that case, a project-local Python
 environment will be used instead (when not directly using a system copy of Python).
 }
-
+}
 \seealso{
 Other reproducibility: 
 \code{\link{restore}()},

@@ -1,5 +1,5 @@
 
-#' Run a Script
+#' Run a script
 #'
 #' Run an \R script, in the context of a project using renv. The script will
 #' be run within an \R sub-process.

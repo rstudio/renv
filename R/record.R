@@ -1,5 +1,5 @@
 
-#' Update Package Records in a Lockfile
+#' Update package records in a lockfile
 #'
 #' Use `record()` to record a new entry within an existing renv lockfile.
 #'
@@ -8,7 +8,7 @@
 #' package cannot be restored in a particular environment, and you know of a
 #' suitable alternative.
 #'
-#' @section Records:
+#' # Records
 #'
 #' Records can be provided either using the **remotes** short-hand syntax,
 #' or by using an \R list of entries to record within the lockfile. See

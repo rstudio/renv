@@ -1,5 +1,5 @@
 
-#' Remove Packages
+#' Remove packages
 #'
 #' Remove (uninstall) \R packages.
 #'

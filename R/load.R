@@ -1,5 +1,5 @@
 
-#' Load a Project
+#' Load a project
 #'
 #' @description
 #' `renv::load()` sets the library paths to use a project-local library,
@@ -209,12 +209,12 @@ renv_load_r <- function(project, fields) {
     return(NULL)
   }
 
-  # normalize versions as plain old vectors
-  requested <- unclass(numeric_version(version))[[1]]
-  current <- unclass(numeric_version(getRversion()))[[1]]
+  # normalize versions as strings
+  requested <- renv_version_maj_min(version)
+  current <- renv_version_maj_min(getRversion())
 
   # only compare major, minor versions
-  if (!identical(requested[1:2], current[1:2])) {
+  if (!identical(requested, current)) {
     fmt <- "%s Using R %s (lockfile was generated with R %s)"
     writef(fmt, info_bullet(), getRversion(), version)
   }

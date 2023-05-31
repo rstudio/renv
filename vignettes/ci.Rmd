@@ -31,7 +31,7 @@ The general idea is:
 Note that this workflow is not generally a good fit for CRAN packages, because 
 CRAN itself runs `R CMD check` using the latest version of all dependencies.
 
-## GitHub Actions
+## GitHub actions
 
 Here, we describe two common approaches for integrating renv with a [GitHub Actions](https://github.com/features/actions) workflow:
 

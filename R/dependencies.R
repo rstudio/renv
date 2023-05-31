@@ -1,7 +1,7 @@
 
 `_renv_dependencies` <- new.env(parent = emptyenv())
 
-#' Find R Package Dependencies in a Project
+#' Find R package dependencies in a project
 #'
 #' @description
 #' `dependencies()` will crawl files within your project, looking for \R files
@@ -115,7 +115,7 @@
 #'     # code in this chunk will _not_ be ignored
 #'     ```
 #'
-#' @section Development Dependencies:
+#' # Development dependencies
 #'
 #' renv attempts to distinguish between 'development' dependencies and
 #' 'runtime' dependencies. For example, you might rely on e.g.

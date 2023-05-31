@@ -2,7 +2,7 @@
 % Please edit documentation in R/migrate.R
 \name{migrate}
 \alias{migrate}
-\title{Migrate a Project from Packrat to renv}
+\title{Migrate a project from packrat to renv}
 \usage{
 migrate(
   project = NULL,
@@ -23,11 +23,9 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Migrate a project's infrastructure from Packrat to renv.
+Migrate a project's infrastructure from packrat to renv.
 }
 \section{Migration}{
-
-
 When migrating Packrat projects to renv, the set of components migrated
 can be customized using the \code{packrat} argument. The set of components that
 can be migrated are as follows:

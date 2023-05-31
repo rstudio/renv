@@ -2,7 +2,7 @@
 % Please edit documentation in R/dependencies.R
 \name{dependencies}
 \alias{dependencies}
-\title{Find R Package Dependencies in a Project}
+\title{Find R package dependencies in a project}
 \usage{
 dependencies(
   path = getwd(),
@@ -159,9 +159,7 @@ Similarly, if you'd like renv to parse a chunk that is otherwise ignored
 }\if{html}{\out{</div>}}
 }
 
-\section{Development Dependencies}{
-
-
+\section{Development dependencies}{
 renv attempts to distinguish between 'development' dependencies and
 'runtime' dependencies. For example, you might rely on e.g.
 \href{https://cran.r-project.org/package=devtools}{devtools} and

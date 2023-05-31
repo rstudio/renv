@@ -214,9 +214,7 @@ renv_python_restore_impl <- function(python, type, prompt, project) {
 }
 
 renv_python_envpath_virtualenv <- function(version) {
-  majmin <- paste(renv_version_components(version, 1L:2L), collapse = ".")
-  fmt <- "python/virtualenvs/renv-python-%s"
-  sprintf(fmt, majmin)
+  sprintf("python/virtualenvs/renv-python-%s", renv_version_maj_min(version))
 }
 
 renv_python_envpath_condaenv <- function(version) {

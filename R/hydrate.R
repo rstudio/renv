@@ -11,7 +11,7 @@
 #' with the packages already installed in the project library, so you should
 #' exercise caution when doing so.
 #'
-#' @section Sources:
+#' # Sources
 #'
 #' `hydrate()` attempts to re-use packages already installed on your system,
 #' to avoid unnecessary attempts to download and install packages from remote
@@ -26,7 +26,7 @@
 #' If package is discovered in one of these locations, renv will attempt to
 #' copy or link that package into the requested library as appropriate.
 #'
-#' @section Missing Packages:
+#' # Missing packages
 #'
 #' If renv discovers that your project depends on \R packages not currently
 #' installed in your user library, then it will attempt to install those
