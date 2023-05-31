@@ -37,7 +37,6 @@ reference:
 
 - title: Library Management
   contents:
-  - hydrate
   - refresh
   - rebuild
   - repair

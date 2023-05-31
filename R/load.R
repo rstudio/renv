@@ -711,8 +711,7 @@ renv_load_check_description <- function(project) {
     postamble = c(
       "DESCRIPTION files cannot contain blank lines between fields.",
       "Please remove these blank lines from the file."
-    ),
-    wrap = FALSE
+    )
   )
 
   return(FALSE)

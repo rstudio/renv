@@ -66,7 +66,7 @@ renv_ci_repair <- function() {
   }
 
   # notify the user
-  renv_pretty_bullets(
+  renv_pretty_print(
     values    = packages,
     preamble  = "The following package(s) could not be successfully loaded:",
     postamble = "These packages will be removed and later reinstalled."

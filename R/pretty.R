@@ -1,9 +1,7 @@
 
 renv_pretty_print <- function(values,
                               preamble  = NULL,
-                              postamble = NULL,
-                              emitter   = NULL,
-                              wrap      = TRUE)
+                              postamble = NULL)
 {
   if (!renv_verbose())
     return()
@@ -17,12 +15,7 @@ renv_pretty_print <- function(values,
     msg$push("")
   }
 
-  formatted <- if (wrap)
-    strwrap(paste(values, collapse = ", "), width = 60)
-  else
-    values
-
-  msg$push(paste("\t", formatted, sep = "", collapse = "\n"))
+  msg$push(paste0("- ", values, collapse = "\n"))
 
   if (!is.null(postamble)) {
     msg$push("")
