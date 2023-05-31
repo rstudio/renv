@@ -487,3 +487,54 @@ test_that("custom dependency fields in install are supported", {
   expect_true(renv_package_installed("egg"))
 
 })
+
+test_that("package sources of the form <pkg>_<sha>.zip can be installed", {
+  skip_on_cran()
+  renv_tests_scope()
+  renv_tests_scope_repos()
+
+  # get path to .tar.gz
+  source <- download.packages("bread", type = "source")[1, 2]
+
+  # repack as a .zip archive
+  exdir <- renv_scope_tempfile("bread-")
+  ensure_directory(exdir)
+  renv_archive_decompress(source, exdir = exdir)
+
+  zipfile <- file.path(tempdir(), "bread_f96a78e23d44d68d329c2dbf168a4dee1882a1c6.zip")
+  local({
+    renv_scope_wd(exdir)
+    zip(zipfile, files = "bread")
+  })
+
+  # now try to install it
+  install(zipfile)
+  expect_true(renv_package_installed("bread"))
+
+})
+
+test_that("package binaries of the form <pkg>_<sha>.zip can be installed", {
+  skip_on_cran()
+  renv_tests_scope()
+  renv_tests_scope_repos()
+
+  # install bread
+  install("bread")
+
+  # create a zipfile from the installed package
+  library <- renv_libpaths_active()
+  zipfile <- file.path(tempdir(), "bread_f96a78e23d44d68d329c2dbf168a4dee1882a1c6.zip")
+  local({
+    renv_scope_wd(library)
+    zip(zipfile, files = "bread")
+  })
+
+  # remove bread
+  remove("bread")
+  expect_false(renv_package_installed("bread"))
+
+  # now try to install from zipfile
+  install(zipfile)
+  expect_true(renv_package_installed("bread"))
+
+})
