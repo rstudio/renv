@@ -2,7 +2,7 @@
 % Please edit documentation in R/isolate.R
 \name{isolate}
 \alias{isolate}
-\title{Isolate a Project}
+\title{Isolate a project}
 \usage{
 isolate(project = NULL)
 }

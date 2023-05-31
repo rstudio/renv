@@ -1,5 +1,5 @@
 
-#' User-Level Configuration of renv
+#' User-level settings
 #'
 #' Configure different behaviors of renv.
 #'
@@ -37,7 +37,7 @@
 #'
 #' @eval renv_roxygen_config_section()
 #'
-#' @section Copy Methods:
+#' @section Copy methods:
 #'
 #' If you find that renv is unable to copy some directories in your
 #' environment, you may want to try setting the `copy.method` option. By
@@ -71,7 +71,7 @@
 #' attempt to copy a directory could leave a half-copied directory behind
 #' in the final location.
 #'
-#' @section Project-Local Settings:
+#' @section Project-local settings:
 #'
 #' For settings that should persist alongside a particular project, the
 #' various settings available in [settings] can be used.

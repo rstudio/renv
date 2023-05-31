@@ -3,7 +3,7 @@
 \name{history}
 \alias{history}
 \alias{revert}
-\title{View and Revert to a Historical Lockfile}
+\title{View and revert to a historical lockfile}
 \usage{
 history(project = NULL)
 

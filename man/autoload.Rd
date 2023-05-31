@@ -2,7 +2,7 @@
 % Please edit documentation in R/autoload.R
 \name{autoload}
 \alias{autoload}
-\title{Auto-load the Active Project}
+\title{Auto-load the active project}
 \usage{
 autoload()
 }

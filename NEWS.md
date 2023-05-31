@@ -4,6 +4,9 @@
 * `renv::status()` now works more like `renv::restore()` when package versions
   are different (#675).
 
+* renv functions give a clearer error if `renv.lock` has somehow become 
+  corrupted (#1027).
+
 * `renv::init()` now uses [Posit Public Package Manager](https://packagemanager.posit.co)
   by default, for new projects where the repositories have not already been
   configured externally. See the options `renv.config.ppm.enabled`,

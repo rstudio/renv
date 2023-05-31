@@ -1,5 +1,5 @@
 
-#' Repair a Project Library
+#' Repair a project library
 #'
 #' Repair a project library whose cache symlinks have become broken.
 #' renv will attempt to reinstall the requisite packages.

@@ -81,7 +81,13 @@ renv_lockfile_read <- function(file = NULL, text = NULL) {
 
   # check and report some potential errors (e.g. merge conflicts)
   renv_lockfile_read_preflight(contents)
-  json <- renv_json_read(text = contents)
+  withCallingHandlers(
+    json <- renv_json_read(text = contents),
+    error = function(err) {
+      stop("Failed to parse 'renv.lock':\n", conditionMessage(err))
+    }
+  )
+
   renv_lockfile_read_finish(json)
 
 }
