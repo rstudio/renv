@@ -63,10 +63,10 @@ library. \code{hydrate()} is called automatically by \code{\link[=init]{init()}}
 that you should need it otherwise, as it can easily get your project into
 an inconsistent state.
 
-However, it may be useful to call it \code{hydate(update = "all")} if you want to
-update project packages to match those installed in your global library
-(as opposed to using \code{\link[=update]{update()}} which will get the latest versions from
-CRAN). In this case, you should verify that your code continues to work,
+It may very occasionally be useful to call \code{hydate(update = "all")} if you
+want to update project packages to match those installed in your global
+library (as opposed to using \code{\link[=update]{update()}} which will get the latest versions
+from CRAN). In this case, you should verify that your code continues to work,
 then call \code{\link[=snapshot]{snapshot()}} to record updated package versions in the lockfile.
 }
 \examples{
@@ -77,3 +77,4 @@ renv::hydrate()
 
 }
 }
+\keyword{internal}
