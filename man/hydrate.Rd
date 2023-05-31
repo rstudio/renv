@@ -58,18 +58,16 @@ A named \R list, giving the packages that were used for hydration
 as well as the set of packages which were not found.
 }
 \description{
-Copy/link the packages currently used by the project from a user library
-to the project library. This synchronises a project library with you have
-installed globally.
+\code{hydrate()} installs missing packages from a user library into the project
+library. \code{hydrate()} is called automatically by \code{\link[=init]{init()}}, and it is rare
+that you should need it otherwise, as it can easily get your project into
+an inconsistent state.
 
-You generally don't need to call \code{hydrate()} directly as \code{\link[=init]{init()}} will call
-it for you. However, you may want to call it directly if you want to update
-project packages to match those installed in your global library (as opposed
-to using \code{\link[=update]{update()}} which will get the latest versions from CRAN).
-
-After calling \code{hydrate()}, it's good practice to verify that your code
-continues to work, then call \code{\link[=snapshot]{snapshot()}} to record all package versions
-in the lockfile.
+However, it may be useful to call it \code{hydate(update = "all")} if you want to
+update project packages to match those installed in your global library
+(as opposed to using \code{\link[=update]{update()}} which will get the latest versions from
+CRAN). In this case, you should verify that your code continues to work,
+then call \code{\link[=snapshot]{snapshot()}} to record updated package versions in the lockfile.
 }
 \examples{
 \dontrun{

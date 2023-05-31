@@ -2,18 +2,16 @@
 #' Copy packages from user libraries to a project library
 #'
 #' @description
-#' Copy/link the packages currently used by the project from a user library
-#' to the project library. This synchronises a project library with you have
-#' installed globally.
+#' `hydrate()` installs missing packages from a user library into the project
+#' library. `hydrate()` is called automatically by [init()], and it is rare
+#' that you should need it otherwise, as it can easily get your project into
+#' an inconsistent state.
 #'
-#' You generally don't need to call `hydrate()` directly as [init()] will call
-#' it for you. However, you may want to call it directly if you want to update
-#' project packages to match those installed in your global library (as opposed
-#' to using [update()] which will get the latest versions from CRAN).
-#'
-#' After calling `hydrate()`, it's good practice to verify that your code
-#' continues to work, then call [snapshot()] to record all package versions
-#' in the lockfile.
+#' However, it may be useful to call it `hydate(update = "all")` if you want to
+#' update project packages to match those installed in your global library
+#' (as opposed to using [update()] which will get the latest versions from
+#' CRAN). In this case, you should verify that your code continues to work,
+#' then call [snapshot()] to record updated package versions in the lockfile.
 #'
 #' @inherit renv-params
 #'
