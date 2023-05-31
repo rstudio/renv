@@ -110,12 +110,16 @@
     
 <p>The renv package helps you create create
 <strong>r</strong>eproducible <strong>env</strong>ironments for your R
-projects. This vignette introduces you to the basic workflow of renv,
-showing you how to use the most important functions:
-<code><a href="../reference/init.html">renv::init()</a></code>, <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>, and
+projects. This vignette introduces you to the basic nouns and verbs of
+renv, like the user and project libraries, and key functions like
+<code><a href="../reference/init.html">renv::init()</a></code>, <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> and
 <code><a href="../reference/restore.html">renv::restore()</a></code>. You’ll also learn about some of the
 infrastructure that makes renv tick, some problems that renv doesn’t
 help with, and how to uninstall it if you no longer want to use it.</p>
+<div class="figure">
+<img src="renv.png" width="306" alt=""><p class="caption">The basic nouns and verbs of renv, which you’ll learn
+more about below.</p>
+</div>
 <p>This vignette assumes that you’re are already living a
 project-centric lifestyle and are familiar with a version control
 system, like Git and GitHub: we believe these are table stakes for
@@ -132,13 +136,17 @@ you’ll need to fully understand: libraries and repositories.</p>
 <p>A <strong>library</strong> is a directory containing installed
 packages. This term is confusing because you write
 <code><a href="https://dplyr.tidyverse.org" class="external-link">library(dplyr)</a></code>, making it easy to think of dplyr as a
-library, not a package. And that confusion doesn’t normally matter
-because you don’t usually think too much about libraries. But a
-project-specific library is a critical part of the way renv works, so
-you’ll now need to get the distinction clear in your head. You can see
-your current libraries with <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code> and see which
-packages are available in each library with
-<code>lapply(.libPaths(), list.files)</code>.</p>
+library, not a package. And that confusion doesn’t usually matter
+because you don’t usually think too much about libraries, simply
+installing all packages to a <strong>system library</strong><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;More precisely, there can be up to three system
+libraries: an (optional) &lt;strong&gt;user&lt;/strong&gt; library, an (optional)
+&lt;strong&gt;site&lt;/strong&gt; library, and a &lt;strong&gt;default&lt;/strong&gt; library
+(where base R packages are installed).&lt;/p&gt;"><sup>1</sup></a> that’s
+shared across all projects. With renv, you’ll start using
+<strong>project libraries,</strong> so that each project has its own
+independent collection of packages. You can see your current libraries
+with <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code> and see which packages are available in
+each library with <code>lapply(.libPaths(), list.files)</code>.</p>
 <p>A <strong>repository</strong> is a source of packages;
 <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> gets a package from a
 <em>repository</em> (usually somewhere on the internet) and puts it in a
@@ -155,36 +163,40 @@ in each repository in turn.</p>
 <div class="section level2">
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
-<p>To convert a project to use renv, call <code><a href="../reference/init.html">renv::init()</a></code>.
-This first uses <code><a href="../reference/dependencies.html">renv::dependencies()</a></code> to scan your R code
-and discover what packages you are using<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If you’d like to skip dependency discovery, you can call
+<p>To convert a project to use renv, call <code><a href="../reference/init.html">renv::init()</a></code>. It
+adds three new files and directories to your project:</p>
+<ul>
+<li>The project library, <code>renv/library</code>, is a library that
+contains all packages currently used by your code<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If you’d like to skip dependency discovery, you can call
 &lt;code&gt;renv::init(bare = TRUE)&lt;/code&gt; to initialize a project with an
-empty project library.&lt;/p&gt;"><sup>1</sup></a>. It then records the
-packages and their versions in a <strong>lockfile</strong>,
-<code>renv.lock</code>, and creates a project-specific library,
-<code>renv/library</code>, using the packages you currently have
-installed. This project library is the key magic that makes renv work:
-instead of having a single library containing the packages that you use
-everywhere, renv gives you a separate library for each project. This
-gives you the benefits of <strong>isolation</strong>: different projects
-can use different versions of packages, and installing, updating, or
-removing packages in one project doesn’t affect any other project.</p>
-<p><code><a href="../reference/init.html">renv::init()</a></code> also creates a project
-<code>.Rprofile</code>. This file is run automatically every time you
-start R (in that project), and renv uses it to configure your R session
-to use the project library. This ensures that once you turn on renv for
-a project, it stays on, until you deliberately turn it off.</p>
-<p>The next important pair of tools are <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>
-and <code><a href="../reference/restore.html">renv::restore()</a></code>. <code><a href="../reference/snapshot.html">snapshot()</a></code> updates the
+empty project library.&lt;/p&gt;"><sup>2</sup></a>. This is the key magic
+that makes renv work: instead of having a single library containing the
+packages that you use everywhere, renv gives you a separate library for
+each project. This gives you the benefits of <strong>isolation</strong>:
+different projects can use different versions of packages, and
+installing, updating, or removing packages in one project doesn’t affect
+any other project.</li>
+<li>The <strong>lockfile</strong>, <code>renv.lock</code>, records
+enough metadata about every package that it can be re-installed on a new
+machine. We’ll come back to the lockfile shortly when we talk about
+<code><a href="../reference/snapshot.html">renv::snapshot()</a></code> and <code><a href="../reference/restore.html">renv::restore()</a></code>.</li>
+<li>A project R profile, <code>.Rprofile</code>. This file is run
+automatically every time you start R (in that project), and renv uses it
+to configure your R session to use the project library. This ensures
+that once you turn on renv for a project, it stays on, until you
+deliberately turn it off.</li>
+</ul>
+<p>The next important pair of tools is <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> and
+<code><a href="../reference/restore.html">renv::restore()</a></code>. <code><a href="../reference/snapshot.html">snapshot()</a></code> updates the
 lockfile with metadata about the currently-used packages in the project
 library. This is useful because you can then share the lockfile and
 other people or other computers can easily reproduce your current
-environment by running <code><a href="../reference/restore.html">renv::restore()</a></code>, which reads that
-metadata from the lockfile. This pair of functions gives you the
-benefits of <strong>reproducibility</strong> and
-<strong>portability</strong>: you are now tracking exactly which package
-versions you have installed, and can recreate them on other
-machines.</p>
+environment by running <code><a href="../reference/restore.html">restore()</a></code>, which uses the metadata
+from the lockfile to install exactly the same version of every package.
+This pair of functions gives you the benefits of
+<strong>reproducibility</strong> and <strong>portability</strong>: you
+are now tracking exactly which package versions you have installed, and
+can recreate them on other machines.</p>
 <p>Now that you’ve got the a high-level lay of the land, we’ll show a
 couple of specific workflows before discussing some of the
 reproducibility challenges that renv doesn’t currently help with.</p>
@@ -197,16 +209,18 @@ that you have. As above, you’ll start by calling
 <code><a href="../reference/init.html">renv::init()</a></code>. You’ll then need to commit
 <code>renv.lock</code>, <code>.Rprofile</code>,
 <code>renv/settings.json</code> and <code>renv/activate.R</code> to
-version control. If you’re using git, this is particularly simple
-because renv will create a <code>.gitignore</code> for you, and you can
-just commit the suggested files<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If you’re using another version control system, you’ll
+version control, ensuring that others can recreate your project
+environment. If you’re using git, this is particularly simple because
+renv will create a <code>.gitignore</code> for you, and you can just
+commit all suggested files<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If you’re using another version control system, you’ll
 need to ignore &lt;code&gt;renv/library&lt;/code&gt; and any other directories in
-&lt;code&gt;renv/&lt;/code&gt;.&lt;/p&gt;"><sup>2</sup></a>.</p>
+&lt;code&gt;renv/&lt;/code&gt;.&lt;/p&gt;"><sup>3</sup></a>.</p>
 <p>Now when one of your collaborators opens this project, renv will
 automatically bootstrap itself, downloading and installing the
 appropriate version of renv. It will not, however, install the packages
 automatically — you’ll need to tell your collaborators to call
-<code><a href="../reference/restore.html">renv::restore()</a></code> to get all the packages they need.</p>
+<code><a href="../reference/restore.html">renv::restore()</a></code> to get all the packages they need (renv
+will also remind them to do this when they open the project).</p>
 </div>
 <div class="section level3">
 <h3 id="installing-packages">Installing packages<a class="anchor" aria-label="anchor" href="#installing-packages"></a>
@@ -217,7 +231,7 @@ should continue to work, so you can continue to use familiar tools like
 <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Behind the scene, renv shims
 &lt;code&gt;&lt;a href="https://rdrr.io/r/utils/install.packages.html" class="external-link"&gt;install.packages()&lt;/a&gt;&lt;/code&gt;, &lt;code&gt;update.packages(),&lt;/code&gt; and
 &lt;code&gt;&lt;a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link"&gt;remove.packages()&lt;/a&gt;&lt;/code&gt; to call the renv equivalents. Learn more
-in &lt;code&gt;?renv::load.&lt;/code&gt;&lt;/p&gt;'><sup>3</sup></a>. But you can also use
+in &lt;code&gt;?renv::load.&lt;/code&gt;&lt;/p&gt;'><sup>4</sup></a>. But you can also use
 <code><a href="../reference/install.html">renv::install()</a></code>: it’s a little less typing and supports
 installing packages from GitHub, Bioconductor, and more, not just
 CRAN.</p>
@@ -245,7 +259,7 @@ package, it will also never benefit from bug fixes. So for packages
 under active development, we recommend that you regularly (at least once
 a year) use <code><a href="../reference/update.html">renv::update()</a></code><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;You can also use &lt;code&gt;&lt;a href="https://rdrr.io/r/utils/update.packages.html" class="external-link"&gt;update.packages()&lt;/a&gt;&lt;/code&gt;, but
 &lt;code&gt;&lt;a href="../reference/update.html"&gt;renv::update()&lt;/a&gt;&lt;/code&gt; also works for packages installed from
-Bioconductor, GitHub, and Git.&lt;/p&gt;'><sup>4</sup></a> to get the latest
+Bioconductor, GitHub, and Git.&lt;/p&gt;'><sup>5</sup></a> to get the latest
 versions of all dependencies. Similarly, if you’re making major changes
 to a project that you haven’t worked on for a while, it’s often a good
 idea to start with an <code><a href="../reference/update.html">renv::update()</a></code> before making any
@@ -284,7 +298,7 @@ launched in the project by calling
 project <code>.Rprofile</code>. This ensures that the project library is
 made active for newly launched R sessions. This ensures that any new R
 processes launched within the project directory will use the project
-library, and hence are isolated from the regular user library.</li>
+library, and hence are isolated from the regular system library.</li>
 <li>
 <code>renv.lock</code>: The lockfile, describing the state of your
 project’s library at a particular point in time.</li>
@@ -294,10 +308,6 @@ project’s library at a particular point in time.</li>
 <code>renv/settings.json</code>: Project settings – see
 <code><a href="../reference/settings.html">?settings</a></code> for more details.</li>
 </ul>
-<p>For development and collaboration, the <code>renv/library</code>
-directory should be ignored and all others checked in to version
-control. renv will help by automatically creating the needed
-<code>.gitignore</code>.</p>
 <p>Of these files, <code>renv.lock</code> is probably the most important
 to understand as it will change the most over the life of a project. An
 <code>renv.lock</code> is a json file that records all the information
@@ -338,10 +348,13 @@ mime:</p>
   }
 }</code></pre>
 <p>The package records are created using the currently-installed copies
-of packages as a “source of truth”. The fields written into each package
-record are derived from the installed package’s <code>DESCRIPTION</code>
-file, and include the data required to recreate installation, regardless
-of whether the package was installed from <a href="https://cran.r-project.org/" class="external-link">CRAN</a>, <a href="https://www.bioconductor.org/" class="external-link">Bioconductor</a>, <a href="https://github.com/" class="external-link">GitHub</a>, <a href="https://about.gitlab.com/" class="external-link">Gitlab</a>, <a href="https://bitbucket.org/" class="external-link">Bitbucket</a>, or elsewhere. You can learn
+of packages as a “source of truth”. When you first do
+<code><a href="../reference/init.html">renv::init()</a></code>, they’ll be the same as the versions installed
+in your system library, but as the project progresses they’ll evolve
+independently. The fields written into each package record are derived
+from the installed package’s <code>DESCRIPTION</code> file, and include
+the data required to recreate installation, regardless of whether the
+package was installed from <a href="https://cran.r-project.org/" class="external-link">CRAN</a>, <a href="https://www.bioconductor.org/" class="external-link">Bioconductor</a>, <a href="https://github.com/" class="external-link">GitHub</a>, <a href="https://about.gitlab.com/" class="external-link">Gitlab</a>, <a href="https://bitbucket.org/" class="external-link">Bitbucket</a>, or elsewhere. You can learn
 more about the sources renv supports in
 <code><a href="../articles/package-sources.html">vignette("package-sources")</a></code>.</p>
 </div>
@@ -355,11 +368,14 @@ Ultimately, making a project reproducible will always require thought,
 not just mechanical usage of a tool: what does it mean for a particular
 project to be reproducible, and how can you use tools to meet that
 particular goal of reproducibility?</p>
-<p>In particular, the results produced by a particular project might
-depend on other components of the system it’s being run on, e.g. the
-operating system itself, the versions of system libraries in use, the
-compilers used to build R and R packages, and so on. Keeping a ‘stable’
-machine image is a separate challenge, but <a href="https://www.docker.com/" class="external-link">Docker</a> is one popular solution. See
+<p>The most important piece of the puzzle that renv tracks, but doesn’t
+help with, is the version of R. renv can’t easily help with this because
+it’s run inside of R, but you might find tools like <a href="https://github.com/r-lib/rig" class="external-link">rig</a> helpful, as they make it
+easier to switch between multiple version of R on one computer.</p>
+<p>Other components of the system that can cause differences in output
+are the operating system, versions of system libraries, the compilers
+used to build R and R packages, and so on. Keeping a ‘stable’ machine
+image is a separate challenge, but <a href="https://www.docker.com/" class="external-link">Docker</a> is one popular solution. See
 also <code><a href="../articles/docker.html">vignette("docker", package = "renv")</a></code> for
 recommendations on how Docker can be used together with renv.</p>
 <p>A salient example of this is the rmarkdown package, as it relies
@@ -394,7 +410,7 @@ renv for this project, you’ll need to start from scratch with
 want to remove <code>renv'</code>s global infrastructure with the
 following R code<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;If you’ve customized any of renv’s infrastructure paths
 as described in &lt;code&gt;&lt;a href="../reference/paths.html"&gt;?renv::paths&lt;/a&gt;&lt;/code&gt;, then you’ll need to find and
-remove those customized folders as well.&lt;/p&gt;'><sup>5</sup></a>:</p>
+remove those customized folders as well.&lt;/p&gt;'><sup>6</sup></a>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">root</span> <span class="op">&lt;-</span> <span class="fu">renv</span><span class="fu">::</span><span class="va"><a href="../reference/paths.html">paths</a></span><span class="op">$</span><span class="fu">root</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">root</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
