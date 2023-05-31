@@ -516,7 +516,7 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   renv_pretty_print(
     txt,
     "The following package(s) have unsatisfied dependencies:",
-    "Consider updating the required dependencies as appropriate.",
+    "Consider updating the required dependencies as appropriate."
   )
 
   FALSE
