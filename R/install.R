@@ -184,6 +184,10 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  if (prompt || renv_verbose())
+    renv_install_report(records)
+  cancel_if(prompt && !proceed())
+
   # install retrieved records
   renv_install_impl(records)
 
@@ -791,4 +795,11 @@ renv_install_remotes_update <- function(records, project) {
   # return updated set of records
   records
 
+}
+
+renv_install_report <- function(records) {
+  renv_pretty_print_records(
+    records,
+    preamble = "The following package(s) will be installed into the library"
+  )
 }

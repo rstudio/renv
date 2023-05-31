@@ -487,3 +487,10 @@ test_that("custom dependency fields in install are supported", {
   expect_true(renv_package_installed("egg"))
 
 })
+
+test_that("install reports on packages about to be installed", {
+
+  renv_tests_scope("breakfast")
+  expect_snapshot(install())
+
+})
