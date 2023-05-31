@@ -28,36 +28,6 @@ renv_pretty_print <- function(values,
   writef(text)
 }
 
-renv_pretty_bullets <- function(values,
-                                preamble  = NULL,
-                                postamble = NULL,
-                                sort = TRUE)
-{
-  if (!renv_verbose() || empty(values))
-    return()
-
-  msg <- stack()
-
-  if (!is.null(preamble)) {
-    msg$push(paste(preamble, collapse = "\n"))
-    msg$push("")
-  }
-
-  if (sort) {
-    values <- sort(values)
-  }
-  msg$push(paste("- ", values, sep = "", collapse = "\n"))
-
-  if (!is.null(postamble)) {
-    msg$push("")
-    msg$push(paste(postamble, collapse = "\n"))
-  }
-
-  msg$push("")
-  text <- paste(as.character(msg$data()), collapse = "\n")
-  writef(text)
-}
-
 renv_pretty_print_records <- function(records,
                                       preamble  = NULL,
                                       postamble = NULL)

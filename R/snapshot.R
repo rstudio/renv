@@ -985,7 +985,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     else
       "Use `renv::dependencies()` to see where this package is used in your project."
   )
-  renv_pretty_bullets(
+  renv_pretty_print(
     values = unique(missing),
     preamble = preamble,
     postamble = postamble
