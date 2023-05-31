@@ -1,5 +1,5 @@
 
-#' Rebuild the Packages in your Project Library
+#' Rebuild the packages in your project library
 #'
 #' Rebuild and reinstall packages in your library. This can be useful as a
 #' diagnostic tool -- for example, if you find that one or more of your

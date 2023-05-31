@@ -2,7 +2,7 @@
 % Please edit documentation in R/clean.R
 \name{clean}
 \alias{clean}
-\title{Clean a Project}
+\title{Clean a project}
 \usage{
 clean(project = NULL, ..., actions = NULL, prompt = interactive())
 }
@@ -29,8 +29,6 @@ called for its side effects.
 Clean up a project and its associated \R libraries.
 }
 \section{Actions}{
-
-
 The following clean actions are available:
 
 \describe{

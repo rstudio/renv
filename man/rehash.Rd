@@ -2,7 +2,7 @@
 % Please edit documentation in R/rehash.R
 \name{rehash}
 \alias{rehash}
-\title{Re-Hash Packages in the renv Cache}
+\title{Re-hash packages in the renv cache}
 \usage{
 rehash(prompt = interactive(), ...)
 }

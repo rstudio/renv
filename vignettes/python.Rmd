@@ -19,7 +19,7 @@ packages (say, through the [reticulate](https://rstudio.github.io/reticulate/)
 package), then you may find renv's Python integration useful.
 
 
-## Activating Python Integration
+## Activating Python integration
 
 Python integration can be activated on a project-by-project basis. Use
 `renv::use_python()` to tell renv to create and use a project-local Python
@@ -36,7 +36,7 @@ use that Python interpreter with your project. This can also be used with
 pre-existing virtual environments and Conda environments.
 
 
-## Understanding Python Integration
+## Understanding Python integration
 
 Once Python integration is active, renv will attempt to manage the state of
 your Python virtual environment when `snapshot()` / `restore()` is called. With
@@ -46,7 +46,7 @@ will require both `renv.lock` (for R package dependencies) and
 `requirements.txt` (for Python package dependencies).
 
 
-### Virtual Environments
+### Virtual environments
 
 When using virtual environments, the following extensions are provided:
 
@@ -57,7 +57,7 @@ When using virtual environments, the following extensions are provided:
   the previously-recorded set of Python packages.
 
 
-### Conda Environments
+### Conda environments
 
 When using Conda environments, the following extensions are provided:
 

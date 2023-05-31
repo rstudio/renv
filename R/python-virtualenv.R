@@ -26,9 +26,9 @@ renv_python_virtualenv_validate <- function(path, version) {
 
   # compare requested + actual versions
   if (!is.null(version)) {
-    request <- version
-    current <- renv_python_version(python)
-    if (!renv_version_eq(request, current, 2L)) {
+    request <- renv_version_maj_min(version)
+    current <- renv_version_maj_min(renv_python_version(python))
+    if (request != current) {
       fmt <- "Project requested Python version '%s' but '%s' is currently being used"
       warningf(fmt, request, current)
     }

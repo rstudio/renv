@@ -3,7 +3,7 @@
 # NULL when no project is currently loaded.
 `_renv_project_path` <- NULL
 
-#' Retrieve the Active Project
+#' Retrieve the active project
 #'
 #' Retrieve the path to the active project (if any).
 #'

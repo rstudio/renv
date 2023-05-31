@@ -1,5 +1,5 @@
 
-#' Refresh the Local Cache of Available Packages
+#' Refresh the local cache of available packages
 #'
 #' Query the active R package repositories for available packages, and
 #' update the in-memory cache of those packages.

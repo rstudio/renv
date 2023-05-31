@@ -2,7 +2,7 @@
 % Please edit documentation in R/purge.R
 \name{purge}
 \alias{purge}
-\title{Purge Packages from the Cache}
+\title{Purge packages from the cache}
 \usage{
 purge(package, ..., version = NULL, hash = NULL, prompt = interactive())
 }
