@@ -971,6 +971,9 @@ renv_snapshot_filter_impl <- function(project, records, packages, type) {
 }
 
 renv_snapshot_filter_report_missing <- function(missing, type) {
+  if (!interactive() || !renv_verbose()) {
+    return(TRUE)
+  }
 
   missing <- setdiff(missing, "renv")
   if (empty(missing))
@@ -986,15 +989,29 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     else
       "Use `renv::dependencies()` to see where this package is used in your project."
   )
-  renv_pretty_print(
-    values = csort(unique(missing)),
+  renv_pretty_bullets(
+    values = unique(missing),
     preamble = preamble,
     postamble = postamble
   )
 
-  cancel_if(interactive() && !proceed())
-  TRUE
+  choices <- c(
+    "Install the packages, then snapshot",
+    "Snapshot, just using the currently installed packages",
+    "Cancel"
+  )
+  choice <- tryCatch(
+    menu(choices, graphics = FALSE, title = "What do you want to do?"),
+    interrupt = function(cnd) 0
+  )
+  cancel_if(choice %in% c(0, 3))
 
+  if (choice == 1) {
+    install(missing, prompt = FALSE)
+    invokeRestart("recomputeRecords")
+  }
+
+  TRUE
 }
 
 renv_snapshot_filter_implicit <- function(project, records) {

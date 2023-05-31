@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* If `renv::snapshot()` finds missing packages, it will prompt you to first
+  install them (#1198).
+
 * `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
   all renv files/directories, leaving the project the way it was found.
 
