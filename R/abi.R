@@ -54,8 +54,7 @@ renv_abi_check <- function(packages = NULL,
           "however, Rcpp", renv_package_version("Rcpp"), "is currently installed."
         ),
         "Consider installing a new version of Rcpp with 'install.packages(\"Rcpp\")'."
-      ),
-      wrap = FALSE
+      )
     )
   }
 

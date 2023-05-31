@@ -56,8 +56,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
     renv_pretty_print(
       sprintf(fmt, format(packages), format(oldhash), format(newhash)),
       "The following packages will be re-cached:",
-      sprintf("Packages will be %s to their new locations in the cache.", label),
-      wrap = FALSE
+      sprintf("Packages will be %s to their new locations in the cache.", label)
     )
 
     cancel_if(prompt && !proceed())

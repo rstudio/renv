@@ -83,8 +83,7 @@ renv_equip_macos_toolchain <- function() {
   renv_pretty_print(
     command,
     "The R LLVM toolchain has been successfully downloaded. Please execute:",
-    "in a separate terminal to complete installation.",
-    wrap = FALSE
+    "in a separate terminal to complete installation."
   )
 
   TRUE
@@ -127,8 +126,7 @@ renv_equip_macos_rstudio <- function(spec, destfile) {
   renv_pretty_print(
     spec$dst,
     "The R LLVM toolchain has been downloaded and installed to:",
-    "This toolchain will be used by renv when installing packages from source.",
-    wrap = FALSE
+    "This toolchain will be used by renv when installing packages from source."
   )
 
   return(TRUE)

@@ -27,13 +27,9 @@
 #'   from the source library if possible.
 #'
 #' @param sources A vector of library paths where renv should look for packages.
-#'   When `NULL` (the default), `hydrate()` will look in the following locations
-#'   (in order):
-#'
-#'   - The user library.
-#'   - The site library (`.Library.site`).
-#'   - The system library (`.Library`).
-#'   - The renv cache.
+#'   When `NULL` (the default), `hydrate()` will look in the system libraries
+#'   (the user library, the site library and the default library) then the
+#'   renv cache.
 #'
 #'   If a package is not found in any of these locations, `hydrate()`
 #'   will try to install it from the active R repositories.
@@ -373,8 +369,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
     renv_pretty_print(
       text,
       "The following package(s) were not installed successfully:",
-      "You may need to manually download and install these packages.",
-      wrap = FALSE
+      "You may need to manually download and install these packages."
     )
 
   }
