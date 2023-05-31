@@ -54,7 +54,7 @@ remove such left-over directories.
 \item{\code{system.library}}{
 
 In general, it is recommended that only packages distributed with \R
-are installed into the system library (the library path referred to
+are installed into the default library (the library path referred to
 by \code{.Library}). Use this action to remove any user-installed packages
 that have been installed to the system library.
 

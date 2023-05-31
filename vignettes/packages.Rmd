@@ -49,7 +49,7 @@ currently under development.
 
 In these cases, the renv project library can be useful -- you can install the
 development version(s) of your dependencies into the project library, without
-worrying about clobbering any packages already installed in your user library.
+worrying about clobbering any packages already installed in your system library.
 
 In these cases, you can declare your development dependencies using the
 `Remotes` field of the `DESCRIPTION` file; e.g.
