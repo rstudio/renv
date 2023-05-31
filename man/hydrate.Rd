@@ -31,14 +31,9 @@ library? Set this to \code{"all"} if you'd like \emph{all} packages to be refres
 from the source library if possible.}
 
 \item{sources}{A vector of library paths where renv should look for packages.
-When \code{NULL} (the default), \code{hydrate()} will look in the following locations
-(in order):
-\itemize{
-\item The user library.
-\item The site library (\code{.Library.site}).
-\item The system library (\code{.Library}).
-\item The renv cache.
-}
+When \code{NULL} (the default), \code{hydrate()} will look in the system libraries
+(the user library, the site library and the default library) then the
+renv cache.
 
 If a package is not found in any of these locations, \code{hydrate()}
 will try to install it from the active R repositories.}

@@ -35,7 +35,7 @@ using the BiocVersion package if installed; if not, renv uses
 
 A vector of library paths, to be used in addition to the project's own
 private library. This can be useful if you have a package available for use
-in some global library, but for some reason renv is not able to install
+in some system library, but for some reason renv is not able to install
 that package (e.g. sources or binaries for that package are not publicly
 available, or you have been unable to orchestrate the pre-requisites for
 installing some packages from source on your machine).

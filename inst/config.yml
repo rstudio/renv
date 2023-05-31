@@ -332,7 +332,7 @@
   type: "logical[1]"
   default: false
   description: >
-    Include the user library on the library paths for your projects? Note
+    Include the system library on the library paths for your projects? Note
     that this risks breaking project encapsulation and is not recommended for projects
     which you intend to share or collaborate on with other users. See also the caveats
     for the `renv.config.external.libraries` option.
