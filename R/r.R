@@ -148,14 +148,18 @@ r_cmd_install <- function(package, path, ...) {
   # normalize path to package
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
-  # unpack source packages in zip archives
+  # unpack .zip archives before install
+  # https://github.com/rstudio/renv/issues/1359
   unpack <-
-    renv_archive_type(path) %in% "zip" &&
-    renv_package_type(path) %in% "source"
+    renv_file_type(path) == "file" &&
+    renv_archive_type(path) %in% "zip"
 
   if (unpack) {
-    path <- renv_package_unpack(package, path, force = TRUE)
-    defer(unlink(path, recursive = TRUE))
+    newpath <- renv_package_unpack(package, path, force = TRUE)
+    if (!identical(newpath, path)) {
+      path <- newpath
+      defer(unlink(path, recursive = TRUE))
+    }
   }
 
   # resolve default library path

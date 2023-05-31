@@ -4,6 +4,9 @@
 * `renv::install()` now requires interactive confirmation that you want to 
   install packages (#587).
 
+* Fixed an issue where `renv::restore()` could fail to restore packages
+  downloaded and installed from [r-universe](https://r-universe.dev/). (#1359)
+
 * `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
   all renv files/directories, leaving the project the way it was found.
 

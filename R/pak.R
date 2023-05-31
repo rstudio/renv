@@ -1,5 +1,6 @@
 
-`_renv_pak_version` <- numeric_version("0.5.1")
+# the minimum-required version of 'pak' for renv integration
+`_renv_pak_minver` <- numeric_version("0.5.1")
 
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
@@ -19,25 +20,32 @@ renv_pak_stream <- function() {
     repos <- renv_pak_repos(stream)
     latest <- renv_available_packages_latest("pak", repos = repos)
     version <- numeric_version(latest$Version)
-    if (version >= `_renv_pak_version`)
+    if (version >= `_renv_pak_minver`)
       return(stream)
   }
 
   fmt <- "internal error: pak (>= %s) is not available"
-  stopf(fmt, format(`_renv_pak_version`))
+  stopf(fmt, format(`_renv_pak_minver`))
 
 }
 
 renv_pak_available <- function() {
   tryCatch(
-    packageVersion("pak") >= `_renv_pak_version`,
+    packageVersion("pak") >= `_renv_pak_minver`,
     error = function(e) FALSE
   )
 }
 
 renv_pak_repos <- function(stream) {
+
+  # on macOS, we can only use pak binaries with CRAN R
+  if (renv_platform_macos() && .Platform$pkgType == "source")
+    return(getOption("repos"))
+
+  # otherwise, use pre-built pak binaries
   fmt <- "https://r-lib.github.io/p/pak/%s/%s/%s/%s"
   sprintf(fmt, stream, .Platform$pkgType, version$os, version$arch)
+
 }
 
 renv_pak_init_impl <- function(stream) {
