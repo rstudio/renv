@@ -163,6 +163,33 @@ proceed <- function(default = TRUE) {
   ask("Do you want to proceed?", default = default)
 }
 
+menu <- function(choices, title, default = 1L) {
+  testing <- getOption("renv_menu_choice", character())
+  if (length(testing) > 0) {
+    selected <- testing[[1]]
+    options(renv_menu_choice = testing[-1])
+
+    writef(c(
+      title,
+      "",
+      paste0(seq_along(choices), ": ", choices),
+      "",
+      paste0("Selection: ", selected)
+    ))
+    return(selected)
+  }
+
+  if (!interactive()) {
+    writef(c("Not interactive. Will:", choices[[default]]))
+    return(default)
+  }
+
+  tryCatch(
+    utils::menu(choices, title, graphics = FALSE),
+    interrupt = function(cnd) 0
+  )
+}
+
 # nocov end
 
 inject <- function(contents,

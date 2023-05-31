@@ -967,10 +967,6 @@ renv_snapshot_filter_impl <- function(project, records, packages, type) {
 }
 
 renv_snapshot_filter_report_missing <- function(missing, type) {
-  if (!interactive() || !renv_verbose()) {
-    return(TRUE)
-  }
-
   missing <- setdiff(missing, "renv")
   if (empty(missing))
     return(TRUE)
@@ -996,10 +992,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     "Snapshot, just using the currently installed packages",
     "Cancel"
   )
-  choice <- tryCatch(
-    menu(choices, graphics = FALSE, title = "What do you want to do?"),
-    interrupt = function(cnd) 0
-  )
+  choice <- menu(choices, title = "What do you want to do?")
   cancel_if(choice %in% c(0, 3))
 
   if (choice == 1) {
