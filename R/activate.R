@@ -145,7 +145,7 @@ renv_activate_prompt <- function(action, library, prompt, project) {
     !renv_project_loaded(project) &&
     !is_testing()
 
-  # for snapshot, since users might want to snapshot their global library
+  # for snapshot, since users might want to snapshot their system library
   # in an renv-lite configuration, only prompt if it looks like they're
   # working within an renv project that hasn't been loaded
   if ("snapshot" %in% action) {

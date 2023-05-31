@@ -45,7 +45,7 @@ renv::activate(profile = "dev")
 This creates a profile called `"dev"`, and sets it as the default for the
 project, so that newly-launched R sessions will operate using the `"dev"`
 profile. After setting this and re-launching R, you should see that the
-default library and lockfile paths are resolved within the `renv/profiles/dev`
+project library and lockfile paths are resolved within the `renv/profiles/dev`
 folder from the project root.
 
 Alternatively, if you want to activate a particular profile for an R session

@@ -34,8 +34,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
     renv_pretty_print(
       files,
       "The following external software tools will be installed:",
-      sprintf("Tools will be installed into %s.", renv_path_pretty(extsoft)),
-      wrap = FALSE
+      sprintf("Tools will be installed into %s.", renv_path_pretty(extsoft))
     )
 
     cancel_if(!proceed())
@@ -139,8 +138,7 @@ renv_extsoft_use <- function(quiet = FALSE) {
     renv_pretty_print(
       c(localsoft, libxml, localcpp, locallibs),
       "The following entries will be added to ~/.R/Makevars:",
-      "These tools will be used when compiling R packages from source.",
-      wrap = FALSE
+      "These tools will be used when compiling R packages from source."
     )
 
     cancel_if(!proceed())

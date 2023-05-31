@@ -5,7 +5,7 @@
     Output
       The following required packages are not installed:
       
-      	oatmeal  [required by breakfast]
+      - oatmeal  [required by breakfast]
       
       Consider reinstalling these packages before snapshotting the lockfile.
       

@@ -251,8 +251,7 @@ update <- function(packages = NULL,
       renv_pretty_print(
         missing,
         "The following package(s) are not currently installed:",
-        "The latest available versions of these packages will be installed instead.",
-        wrap = FALSE
+        "The latest available versions of these packages will be installed instead."
       )
     }
 
@@ -399,8 +398,7 @@ renv_update_errors_emit_impl <- function(key, preamble, postamble) {
   renv_pretty_print(
     values = messages,
     preamble = preamble,
-    postamble = postamble,
-    wrap = FALSE
+    postamble = postamble
   )
 
 }

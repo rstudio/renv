@@ -284,8 +284,7 @@ renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
       renv_pretty_print(
         renv_cache_format_path(bad),
         "The following package(s) are missing 'Meta/package.rds':",
-        "These packages should be purged and reinstalled.",
-        wrap = FALSE
+        "These packages should be purged and reinstalled."
       )
     }
     # nocov end
@@ -314,8 +313,7 @@ renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
       renv_pretty_print(
         renv_cache_format_path(bad),
         "The following package(s) have corrupt 'Meta/package.rds' files:",
-        "These packages should be purged and reinstalled.",
-        wrap = FALSE
+        "These packages should be purged and reinstalled."
       )
     }
     # nocov end
@@ -346,8 +344,7 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
     renv_pretty_print(
       renv_cache_format_path(bad),
       "The following packages are missing DESCRIPTION files in the cache:",
-      "These packages should be purged and reinstalled.",
-      wrap = FALSE
+      "These packages should be purged and reinstalled."
     )
   }
   # nocov end
@@ -381,8 +378,7 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
     renv_pretty_print(
       entries,
       "The following packages have incorrect hashes:",
-      "Consider using `renv::rehash()` to re-hash these packages.",
-      wrap = FALSE
+      "Consider using `renv::rehash()` to re-hash these packages."
     )
   }
   # nocov end
@@ -425,8 +421,7 @@ renv_cache_diagnose_wrong_built_version <- function(paths, problems, verbose) {
       renv_pretty_print(
         paths[isna],
         "The following packages have no 'Built' field recorded in their DESCRIPTION file:",
-        "renv is unable to validate the version of R this package was built for.",
-        wrap = FALSE
+        "renv is unable to validate the version of R this package was built for."
       )
 
     }
@@ -464,8 +459,7 @@ renv_cache_diagnose_wrong_built_version <- function(paths, problems, verbose) {
     renv_pretty_print(
       renv_cache_format_path(paths[wrong]),
       "The following packages in the cache were built for a different version of R:",
-      "These packages will need to be purged and reinstalled.",
-      wrap = FALSE
+      "These packages will need to be purged and reinstalled."
     )
 
   }

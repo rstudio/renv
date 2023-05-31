@@ -30,7 +30,7 @@
 #' \item{`system.library`}{
 #'
 #'   In general, it is recommended that only packages distributed with \R
-#'   are installed into the system library (the library path referred to
+#'   are installed into the default library (the library path referred to
 #'   by `.Library`). Use this action to remove any user-installed packages
 #'   that have been installed to the system library.
 #'
@@ -134,8 +134,7 @@ renv_clean_library_tempdirs <- function(project, prompt) {
 
     renv_pretty_print(
       bad,
-      "The following directories will be removed:",
-      wrap = FALSE
+      "The following directories will be removed:"
     )
 
     if (prompt && !proceed())
@@ -277,8 +276,7 @@ renv_clean_package_locks <- function(project, prompt) {
     renv_pretty_print(
       basename(old),
       "The following stale package locks were discovered in your library:",
-      "These locks will be removed.",
-      wrap = FALSE
+      "These locks will be removed."
     )
 
     if (prompt && !proceed())
@@ -312,8 +310,7 @@ renv_clean_cache <- function(project, prompt) {
     renv_pretty_print(
       projlist[missing],
       "The following projects are monitored by renv, but no longer exist:",
-      "These projects will be removed from renv's project list.",
-      wrap = FALSE
+      "These projects will be removed from renv's project list."
     )
 
     if (prompt && !proceed())
@@ -349,8 +346,7 @@ renv_clean_cache <- function(project, prompt) {
     renv_pretty_print(
       renv_cache_format_path(diff),
       "The following packages are installed in the cache but no longer used:",
-      "These packages will be removed.",
-      wrap = FALSE
+      "These packages will be removed."
     )
 
     if (prompt && !proceed())

@@ -4,6 +4,9 @@
 * When prompting to activate a project, you now get three options that hopefully
   make your choices more clear.
   
+* Fixed an issue where `renv::restore()` could fail to restore packages
+  downloaded and installed from [r-universe](https://r-universe.dev/). (#1359)
+
 * `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
   all renv files/directories, leaving the project the way it was found.
 
