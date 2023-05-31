@@ -26,3 +26,10 @@ test_that("renv_version_length works as expected", {
   expect_equal(renv_version_length("1.2-3"), 3)
   expect_equal(renv_version_length("1.2.3-4"), 4)
 })
+
+test_that("renv_version_parts works as expected", {
+  expect_equal(renv_version_parts("1.0", 1L), c(1L))
+  expect_equal(renv_version_parts("1.0", 2L), c(1L, 0L))
+  expect_equal(renv_version_parts("1.0", 3L), c(1L, 0L, 0L))
+  expect_equal(renv_version_parts("1.1-4", 3L), c(1L, 1L, 4L))
+})
