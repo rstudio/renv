@@ -15,8 +15,15 @@
       - oatmeal
       
       Packages must first be installed before renv can snapshot them.
-      Consider installing these packages using `renv::install()`.
       Use `renv::dependencies()` to see where this package is used in your project.
+      
+      What do you want to do?
+      
+      1: Snapshot, just using the currently installed packages
+      2: Install the packages, then snapshot
+      3: Cancel
+      
+      Selection: 1
       
       The following package(s) will be updated in the lockfile:
       
@@ -41,8 +48,15 @@
       - oatmeal
       
       Packages must first be installed before renv can snapshot them.
-      Consider installing these packages using `renv::install()`.
       Use `renv::dependencies()` to see where this package is used in your project.
+      
+      What do you want to do?
+      
+      1: Snapshot, just using the currently installed packages
+      2: Install the packages, then snapshot
+      3: Cancel
+      
+      Selection: 1
       
       The following package(s) will be updated in the lockfile:
       
@@ -75,8 +89,15 @@
       - breakfast
       
       Packages must first be installed before renv can snapshot them.
-      Consider installing these packages using `renv::install()`.
       If these packages are no longer required, consider removing them from your DESCRIPTION file.
+      
+      What do you want to do?
+      
+      1: Snapshot, just using the currently installed packages
+      2: Install the packages, then snapshot
+      3: Cancel
+      
+      Selection: 1
       
       * The lockfile is already up to date.
 
@@ -90,8 +111,15 @@
       - breakfast
       
       Packages must first be installed before renv can snapshot them.
-      Consider installing these packages using `renv::install()`.
       Use `renv::dependencies()` to see where this package is used in your project.
+      
+      What do you want to do?
+      
+      1: Snapshot, just using the currently installed packages
+      2: Install the packages, then snapshot
+      3: Cancel
+      
+      Selection: 1
       
       The following package(s) will be updated in the lockfile:
       
@@ -125,4 +153,41 @@
       The version of R recorded in the lockfile will be updated:
       - R   [4.1 -> 4.2]
       
+
+# user can choose to install missing packages
+
+    Code
+      snapshot()
+    Output
+      The following required packages are not installed:
+      
+      - egg
+      
+      Packages must first be installed before renv can snapshot them.
+      Use `renv::dependencies()` to see where this package is used in your project.
+      
+      What do you want to do?
+      
+      1: Snapshot, just using the currently installed packages
+      2: Install the packages, then snapshot
+      3: Cancel
+      
+      Selection: 2
+      
+      Retrieving 'file://<tempdir>/renv-repos-519265f184d7/src/contrib/egg_1.0.0.tar.gz' ...
+      	OK [downloaded 260 bytes in XXXX seconds]
+      Installing egg [1.0.0] ...
+      	OK [built from source in XXXX seconds]
+      Copying egg [1.0.0] into the cache ...
+      	OK [copied to cache in XXXX seconds]
+      Installed 1 package into library at path "<tempdir>/<renv-library>".
+      The following package(s) will be updated in the lockfile:
+      
+      # CRAN ===============================
+      - egg   [* -> 1.0.0]
+      
+      The version of R recorded in the lockfile will be updated:
+      - R     [* -> <r-version>]
+      
+      * Lockfile written to '<wd>/renv.lock'.
 

@@ -164,17 +164,24 @@ proceed <- function(default = TRUE) {
 }
 
 menu <- function(choices, title, default = 1L) {
-  testing <- getOption("renv_menu_choice", character())
-  if (length(testing) > 0) {
+  testing <- getOption("renv.menu.choice", integer())
+  if (length(testing)) {
     selected <- testing[[1]]
-    options(renv_menu_choice = testing[-1])
+    options(renv.menu.choice = testing[-1])
+  } else if (is_testing()) {
+    selected <- default
+  } else {
+    selected <- NULL
+  }
 
+  if (!is.null(selected)) {
     writef(c(
       title,
       "",
       paste0(seq_along(choices), ": ", choices),
       "",
-      paste0("Selection: ", selected)
+      paste0("Selection: ", selected),
+      ""
     ))
     return(selected)
   }

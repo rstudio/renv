@@ -975,7 +975,6 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
 
   postamble <- c(
     "Packages must first be installed before renv can snapshot them.",
-    "Consider installing these packages using `renv::install()`.",
     if (type %in% "explicit")
       "If these packages are no longer required, consider removing them from your DESCRIPTION file."
     else
@@ -988,14 +987,14 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
   )
 
   choices <- c(
-    "Install the packages, then snapshot",
     "Snapshot, just using the currently installed packages",
+    "Install the packages, then snapshot",
     "Cancel"
   )
   choice <- menu(choices, title = "What do you want to do?")
   cancel_if(choice %in% c(0, 3))
 
-  if (choice == 1) {
+  if (choice == 2L) {
     install(missing, prompt = FALSE)
     invokeRestart("recomputeRecords")
   }
