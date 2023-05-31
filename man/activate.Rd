@@ -7,7 +7,7 @@
 \usage{
 activate(project = NULL, profile = NULL)
 
-deactivate(project = NULL)
+deactivate(project = NULL, clean = FALSE)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -17,6 +17,9 @@ directory is used instead.}
 \item{profile}{The profile to be activated. When \code{NULL}, the default
 profile is activated instead. See \code{vignette("profiles", package = "renv")}
 for more information.}
+
+\item{clean}{If \code{TRUE}, will also remove the \verb{renv/} directory and the
+lockfile.}
 }
 \value{
 The project directory, invisibly. Note that this function is normally
@@ -35,8 +38,8 @@ future instances of the project. It then calls \code{\link[=load]{load()}} to us
 project library for the current session.
 
 \code{deactivate()} removes the infrastructure automatically activate renv in
-new session. This removes the auto-loader from the \code{.Rprofile}; it does
-not delete the lockfile or the project library.
+new session. By default it will remove the auto-loader from the \code{.Rprofile};
+use \code{clean = TRUE} to also delete the lockfile and the project library.
 }
 \examples{
 \dontrun{

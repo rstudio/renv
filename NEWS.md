@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
+  all renv files/directories, leaving the project the way it was found.
+
 * `renv::status()` now works more like `renv::restore()` when package versions
   are different (#675).
 

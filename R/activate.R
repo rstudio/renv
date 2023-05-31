@@ -14,8 +14,8 @@
 #' project library for the current session.
 #'
 #' `deactivate()` removes the infrastructure automatically activate renv in
-#' new session. This removes the auto-loader from the `.Rprofile`; it does
-#' not delete the lockfile or the project library.
+#' new session. By default it will remove the auto-loader from the `.Rprofile`;
+#' use `clean = TRUE` to also delete the lockfile and the project library.
 #'
 #' @inherit renv-params
 #'
