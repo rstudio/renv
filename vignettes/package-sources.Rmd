@@ -19,7 +19,7 @@ library(renv)
 ```
 
 
-# Package Sources
+# Package sources
 
 renv uses an installed package's `DESCRIPTION` file to infer its source. For
 example, packages installed from the CRAN repositories typically have the field:
@@ -30,7 +30,7 @@ Repository: CRAN
 
 set, and renv takes this as a signal that the package was retrieved from CRAN.
 
-## Inferring Package Sources
+## Inferring package sources
 
 The following fields are checked, in order, when inferring a package's source:
 
@@ -55,7 +55,7 @@ not have a well-defined remote source, or for packages which might not be
 remotely accessible from your machine.
 
 
-## Unknown Sources
+## Unknown sources
 
 If renv is unable to infer a package's source, it will inform you during
 `renv::snapshot()` -- for example, if we attempted to snapshot a package
@@ -78,7 +78,7 @@ likely fail unless you can ensure this package is installed through some
 other mechanism.
 
 
-## Custom R Package Repositories
+## Custom R package repositories
 
 Custom and local R package repositories are supported as well. The only
 requirement is that these repositories are set as part of the `repos` R
@@ -101,7 +101,7 @@ some of the extra steps that may be required when using renv with packages
 obtained from Bioconductor.
 
 
-## Initializing a Project
+## Initializing a project
 
 To initialize renv in a project using Bioconductor, you can pass the
 `bioconductor` argument to `renv::init()`:
@@ -117,7 +117,7 @@ renv::init(bioconductor = "3.14")
 This will tell renv to activate the appropriate Bioconductor repositories,
 and to use those repositories when attempting to restore packages.
 
-### Bioconductor Releases
+### Bioconductor releases
 
 Bioconductor prepares different versions of its package repositories, for use
 with different versions of R. The version of Bioconductor used within a
@@ -143,7 +143,7 @@ options(renv.bioconductor.repos = c(...))
 ```
 
 
-## The Package Cellar
+## The package cellar
 
 In some cases, your project may depend on R packages which are not available
 from any external source, or that external source may not be accessible from the
@@ -193,7 +193,7 @@ renv:::renv_paths_cellar()
 
 See `?paths` for more details.
 
-### Explicit Sources
+### Explicit sources
 
 You can also provide explicit source paths in the lockfile if desired. This is
 most useful if you are building an renv lockfile "by hand", or need to tweak
@@ -274,7 +274,7 @@ we need to consider:
 - ABI compatibility between different versions of binaries;
 - Inadvertent build-time dependencies taken by a package.
 
-#### ABI Compatibility
+#### ABI compatibility
 
 ABI compatibility issues can arise if different packages were built against
 different versions of a shared dependency. For example, one package may have
@@ -291,7 +291,7 @@ for renv is that this build-time dependency is not clearly communicated to
 renv; in general, it is not possible to know what packages (and their
 versions) a particular package was built against.
 
-#### Build-time Dependencies
+#### Build-time dependencies
 
 R packages might occasionally (and unintentionally) take a build-time
 dependency on another R package -- for example, a package with the code:

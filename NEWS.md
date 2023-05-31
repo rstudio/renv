@@ -4,6 +4,9 @@
 * `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
   all renv files/directories, leaving the project the way it was found.
 
+* `renv::status()` now works more like `renv::restore()` when package versions
+  are different (#675).
+
 * renv functions give a clearer error if `renv.lock` has somehow become 
   corrupted (#1027).
 

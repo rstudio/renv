@@ -177,9 +177,6 @@ renv_status_check_synchronized <- function(project,
                                            library,
                                            packages)
 {
-  # flag set to FALSE if any of the below checks report out-of-sync
-  ok <- TRUE
-
   # extract record components
   lockfile <- renv_lockfile_records(lockfile)
   library  <- renv_lockfile_records(library)
@@ -190,12 +187,10 @@ renv_status_check_synchronized <- function(project,
   if ("Bioconductor" %in% sources)
     packages <- unique(c(packages, "BiocManager"))
 
-  # NOTE: If we have some packages which are required by the project,
-  # but are presently not installed, then the 'packages' vector
-  # (which tries to enumerate all transitive dependencies) may be
-  # incomplete. In this scenario, we need to avoid certain reports which
-  # might be misleading to the user.
-  missing <- setdiff(packages, c(names(library)))
+  # missing dependencies -------------------------------------------------------
+  # Must return early because `packages` will be incomplete making later
+  # reports confusing
+  missing <- setdiff(packages, names(library))
   if (length(missing)) {
 
     lockmsg <- "The following packages are recorded in the lockfile, but not installed:"
@@ -235,12 +230,10 @@ renv_status_check_synchronized <- function(project,
 
   }
 
+  # flag set to FALSE if any of the below checks report out-of-sync
+  ok <- TRUE
 
-  # - Recorded in the lockfile.
-  # - Not installed in the library.
-  # - Used in the project.
-  #
-  # Use `renv::restore()` to install these packages.
+  # not installed/recorded/used ------------------------------------------------
   records <- lockfile %>%
     exclude(names(library)) %>%
     keep(packages)
@@ -257,13 +250,7 @@ renv_status_check_synchronized <- function(project,
 
   }
 
-  # Case 3.
-  #
-  # - Installed in the library.
-  # - Not recorded in the lockfile.
-  # - Used in the project.
-  #
-  # Use `renv::snapshot()` to add these packages to the lockfile.
+  # installed/not recorded/used ------------------------------------------------
   records <- library %>%
     exclude(names(lockfile)) %>%
     keep(packages)
@@ -280,13 +267,7 @@ renv_status_check_synchronized <- function(project,
 
   }
 
-  # Case 5 and 6.
-  #
-  # - Recorded in the lockfile
-  # - Installed (or not?) in the library.
-  # - Not used in the project
-  #
-  # Use renv::snapshot() to remove from the lockfile.
+  # */recorded/not used --------------------------------------------------------
   records <- lockfile %>% exclude(packages)
   if (length(records)) {
 
@@ -302,15 +283,10 @@ renv_status_check_synchronized <- function(project,
 
   }
 
-  # Case 7 and 8.
-  #
-  # - Not recorded in the lockfile.
-  # - Installed (or not?) in the library.
-  # - Not used in the project.
-  #
+  # */not recorded/not used ----------------------------------------------------
   # No action; it's okay if some auxiliary packages are installed.
 
-  # Report about other changes.
+  # other changes, i.e. different version/source -------------------------------
   actions <- renv_lockfile_diff_packages(lockfile, library)
   rest <- c("upgrade", "downgrade", "crossgrade")
   if (any(rest %in% actions)) {
@@ -320,23 +296,15 @@ renv_status_check_synchronized <- function(project,
     rlock <- renv_lockfile_records(lockfile)[names(matches)]
     rlibs <- renv_lockfile_records(library)[names(matches)]
 
-    data <- data.frame(
-      "  Package"          = names(matches),
-      "  Lockfile Version" = extract_chr(rlock, "Version"),
-      "  Library Version"  = extract_chr(rlibs, "Version"),
-      row.names            = NULL,
-      stringsAsFactors     = FALSE,
-      check.names          = FALSE
+    renv_pretty_print_records_pair(
+      rlock,
+      rlibs,
+      preamble = "The following package(s) are out of sync [lockfile -> library]:",
+      postamble = c(
+        "Use `renv::snapshot()` to save the state of your library to the lockfile.",
+        "Use `renv::restore()` to restore your library from the lockfile."
+      )
     )
-
-    writef("The following package(s) are out of sync:")
-    writef("")
-    if (renv_verbose())
-      print(data, row.names = FALSE)
-    writef("")
-    writef("Use `renv::snapshot()` to save the state of your library to the lockfile.")
-    writef("Use `renv::restore()` to restore your library from the lockfile.")
-    writef("")
 
     ok <- FALSE
 

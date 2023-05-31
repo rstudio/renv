@@ -2,7 +2,7 @@
 % Please edit documentation in R/refresh.R
 \name{refresh}
 \alias{refresh}
-\title{Refresh the Local Cache of Available Packages}
+\title{Refresh the local cache of available packages}
 \usage{
 refresh()
 }

@@ -170,7 +170,7 @@ renv_update_find <- function(records) {
 
 
 
-#' Update Packages
+#' Update packages
 #'
 #' @description
 #' Update packages which are currently out-of-date. Currently supports CRAN,

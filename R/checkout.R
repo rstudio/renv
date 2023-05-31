@@ -1,5 +1,5 @@
 
-#' Checkout a Repository
+#' Checkout a repository
 #'
 #' `renv::checkout()` can be used to install the latest packages available from
 #' a (set of) package repositories.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/diagnostics.R
 \name{diagnostics}
 \alias{diagnostics}
-\title{Print a Diagnostics Report}
+\title{Print a diagnostics report}
 \usage{
 diagnostics(project = NULL)
 }

@@ -1,4 +1,4 @@
-#' Generate Project Infrastructure
+#' Generate project infrastructure
 #'
 #' @description
 #' Create the renv project infrastructure. This will:

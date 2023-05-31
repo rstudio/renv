@@ -1,5 +1,5 @@
 
-#' Load a Project
+#' Load a project
 #'
 #' @description
 #' `renv::load()` sets the library paths to use a project-local library,

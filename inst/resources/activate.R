@@ -465,7 +465,7 @@ local({
       paste("RemoteRef: ", sha),
       paste("RemoteSha: ", sha)
     )
-    writeLines(c(desc_lines[desc_lines != ""], remotes_fields), desc_path)
+    writeLines(c(desc_lines[desc_lines != ""], remotes_fields), con = desc_path)
   
     # Re-tar
     local({
