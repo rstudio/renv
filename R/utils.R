@@ -191,14 +191,14 @@ menu <- function(choices, title, default = 1L) {
     return(default)
   }
 
-  tryCatch(
-    idx <- utils::menu(choices, paste(title, collapse = "\n"), graphics = FALSE),
+  idx <- tryCatch(
+    utils::menu(choices, paste(title, collapse = "\n"), graphics = FALSE),
     interrupt = function(cnd) 0L
   )
   if (idx == 0L) {
     "cancel"
   } else {
-    names(choices)[selected]
+    names(choices)[idx]
   }
 }
 
