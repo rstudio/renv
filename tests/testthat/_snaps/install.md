@@ -12,8 +12,7 @@
       
       Packages will be installed into "<tempdir>/<renv-library>"
       
-      Installing bread [0.1.0] ...
-      	OK [copied cache in XXXX seconds]
+      Installing bread ... OK [copied from cache]
       Installed 1 package in XXXX seconds.
       
       The following package(s) have been updated:
@@ -40,13 +39,9 @@
       
       Packages will be installed into "<tempdir>/<renv-library>"
       
-      Installing oatmeal [1.0.0] ...
-      	OK [copied cache in XXXX seconds]
-      Installing bread [1.0.0] ...
-      	OK [copied cache in XXXX seconds]
-      Installing toast [1.0.0] ...
-      	OK [copied cache in XXXX seconds]
-      Installing breakfast [1.0.0] ...
-      	OK [copied cache in XXXX seconds]
+      Installing oatmeal   ... OK [copied from cache]
+      Installing bread     ... OK [copied from cache]
+      Installing toast     ... OK [copied from cache]
+      Installing breakfast ... OK [copied from cache]
       Installed 4 packages in XXXX seconds.
 
