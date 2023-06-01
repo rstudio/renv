@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::dependencies()` no longer treats `box::use(module/file)` as using
+  package `module` (#1377).
+
 * `renv::install()` now requires interactive confirmation that you want to 
   install packages (#587).
 
