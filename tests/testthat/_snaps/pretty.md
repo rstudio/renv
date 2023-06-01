@@ -11,7 +11,6 @@
       renv_pretty_print(letters[1:3], preamble = "before")
     Output
       before
-      
       - a
       - b
       - c
@@ -22,7 +21,6 @@
       - a
       - b
       - c
-      
       after
       
 

@@ -12,13 +12,11 @@ renv_pretty_print <- function(values,
 
   if (!is.null(preamble)) {
     msg$push(paste(preamble, collapse = "\n"))
-    msg$push("")
   }
 
   msg$push(paste0("- ", values, collapse = "\n"))
 
   if (!is.null(postamble)) {
-    msg$push("")
     msg$push(paste(postamble, collapse = "\n"))
   }
 

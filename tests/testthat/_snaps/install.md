@@ -17,9 +17,7 @@
       Installed 1 package in XXXX seconds.
       
       The following package(s) have been updated:
-      
       - bread [installed version 0.1.0 != loaded version 1.0.0]
-      
       Consider restarting the R session and loading the newly-installed packages.
       
 

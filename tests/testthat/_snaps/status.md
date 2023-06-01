@@ -28,9 +28,7 @@
       status()
     Output
       The following packages are used in this project, but not installed:
-      
       - bread
-      
       Consider installing these packages -- for example, with `renv::install()`.
       Use `renv::status()` afterwards to re-assess the project state.
       
