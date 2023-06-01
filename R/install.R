@@ -327,15 +327,16 @@ renv_install_default <- function(records) {
   state <- renv_restore_state()
   handler <- state$handler
 
-  max_width <- max(nchar(map_chr(records, function(x) x$Package)), 1)
+  pkg_width <- max(nchar(map_chr(records, function(x) x$Package)), 1)
+  renv_scope_options(renv.package.width = pkg_width)
 
   for (record in records) {
     package <- record$Package
-    handler(package, renv_install_package(record, max_width))
+    handler(package, renv_install_package(record))
   }
 }
 
-renv_install_package <- function(record, max_width = NULL) {
+renv_install_package <- function(record) {
 
   # get active project (if any)
   state <- renv_restore_state()
@@ -358,14 +359,14 @@ renv_install_package <- function(record, max_width = NULL) {
     # check for cache entry and install if there
     path <- renv_cache_find(record)
     if (renv_cache_package_validate(path))
-      return(renv_install_package_cache(record, path, linker, max_width))
+      return(renv_install_package_cache(record, path, linker))
 
   }
 
   # install the package
   before <- Sys.time()
   withCallingHandlers(
-    renv_install_package_impl(record, max_width = max_width),
+    renv_install_package_impl(record),
     error = function(e) {
       writef(" FAILED")
       writef(e$output)
@@ -378,11 +379,11 @@ renv_install_package <- function(record, max_width = NULL) {
   feedback <- renv_install_package_feedback(path, type)
 
   elapsed <- difftime(after, before, units = "auto")
-  writef(" OK [%s%s]", feedback, renv_difftime_format_slow(elapsed, " in "))
+  renv_install_step_ok(feedback, time = elapsed)
 
   # link into cache
   if (renv_cache_config_enabled(project = project))
-    renv_cache_synchronize(record, linkable = linkable, max_width = max_width)
+    renv_cache_synchronize(record, linkable = linkable)
 
 }
 
@@ -398,7 +399,7 @@ renv_install_package_feedback <- function(path, type) {
 
 }
 
-renv_install_package_cache <- function(record, cache, linker, max_width = NULL) {
+renv_install_package_cache <- function(record, cache, linker) {
 
   if (renv_install_package_cache_skip(record, cache))
     return(TRUE)
@@ -411,24 +412,19 @@ renv_install_package_cache <- function(record, cache, linker, max_width = NULL) 
   defer(callback())
 
   # report successful link to user
-  fmt <- "Installing %s ..."
-  printf(fmt, format(record$Package, width = max_width))
+  renv_install_step_start("Installing", record$Package)
 
   before <- Sys.time()
   linker(cache, target)
   after <- Sys.time()
 
   type <- case(
-    identical(linker, renv_file_copy) ~ "copied",
-    identical(linker, renv_file_link) ~ "linked"
+    identical(linker, renv_file_copy) ~ "copied from cache",
+    identical(linker, renv_file_link) ~ "linked from cache"
   )
 
   elapsed <- difftime(after, before, units = "auto")
-  writef(
-    " OK [%s from cache%s]",
-    type,
-    renv_difftime_format_slow(elapsed, prefix = " in ")
-  )
+  renv_install_step_ok(type, time = elapsed)
 
   return(TRUE)
 
@@ -448,7 +444,7 @@ renv_install_package_cache_skip <- function(record, cache) {
 
 }
 
-renv_install_package_impl_prebuild <- function(record, path, quiet, max_width = NULL) {
+renv_install_package_impl_prebuild <- function(record, path, quiet) {
 
   # check whether user wants us to build before install
   if (!identical(config$install.build(), TRUE))
@@ -491,7 +487,7 @@ renv_install_package_impl_prebuild <- function(record, path, quiet, max_width = 
     return(path)
   }
 
-  printf("Building %s   ...", format(record$Package, max_width = NULL))
+  renv_install_step_start("Building", record$Package)
 
   before <- Sys.time()
   package <- record$Package
@@ -499,13 +495,13 @@ renv_install_package_impl_prebuild <- function(record, path, quiet, max_width = 
   after <- Sys.time()
   elapsed <- difftime(after, before, units = "auto")
 
-  writef(" OK [from source%s]", renv_difftime_format_slow(elapsed, prefix = " in "))
+  renv_install_step_ok("from source", time = elapsed)
 
   newpath
 
 }
 
-renv_install_package_impl <- function(record, quiet = TRUE, max_width = NULL) {
+renv_install_package_impl <- function(record, quiet = TRUE) {
 
   package <- record$Package
 
@@ -528,9 +524,8 @@ renv_install_package_impl <- function(record, quiet = TRUE, max_width = NULL) {
   }
 
   # check whether we should build before install
-  path <- renv_install_package_impl_prebuild(record, path, quiet, max_width)
-
-  printf("Installing %s ...", format(record$Package, width = max_width))
+  path <- renv_install_package_impl_prebuild(record, path, quiet)
+  renv_install_step_start("Installing", record$Package)
 
   # run user-defined hooks before, after install
   options <- renv_install_package_options(package)
@@ -788,5 +783,21 @@ renv_install_report <- function(records) {
     postamble = sprintf(
       "Packages will be installed into %s", renv_path_pretty(renv_libpaths_active())
     )
+  )
+}
+
+renv_install_step_start <- function(action, package) {
+  printf(
+    "%s %s ... ",
+    format(action, width = nchar("Installing")),
+    format(package, width = getOption("renv.package.width"))
+  )
+}
+
+renv_install_step_ok <- function(..., time = NULL) {
+  writef(
+    "OK [%s%s]",
+    paste(..., collapse = ""),
+    renv_difftime_format_slow(time, prefix = " in ")
   )
 }

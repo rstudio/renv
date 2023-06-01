@@ -106,7 +106,7 @@ renv_cache_path_components <- function(path) {
 
 }
 
-renv_cache_synchronize <- function(record, linkable = FALSE, max_width = NULL) {
+renv_cache_synchronize <- function(record, linkable = FALSE) {
 
   # construct path to package in library
   library <- renv_libpaths_active()
@@ -134,7 +134,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE, max_width = NULL) {
   # try to synchronize
   copied <- FALSE
   for (cache in caches) {
-    copied <- renv_cache_synchronize_impl(cache, record, linkable, path, max_width)
+    copied <- renv_cache_synchronize_impl(cache, record, linkable, path)
     if (copied)
       return(TRUE)
   }
@@ -143,7 +143,7 @@ renv_cache_synchronize <- function(record, linkable = FALSE, max_width = NULL) {
 
 }
 
-renv_cache_synchronize_impl <- function(cache, record, linkable, path, max_width = NULL) {
+renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   # double-check we have a valid cache path
   if (!nzchar(cache))
@@ -175,8 +175,7 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path, max_width
   defer(restore())
 
   # get ready to copy / move into cache
-  fmt <- "Caching %s    ..."
-  printf(fmt, format(record$Package, width = max_width))
+  renv_install_step_start("Caching", record$Package)
 
   before <- Sys.time()
 
@@ -228,10 +227,9 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path, max_width
   time <- difftime(after, before, units = "auto")
 
   # report status to user
-  writef(
-    " OK [%s%s]",
+  renv_install_step_ok(
     if (linkable) "moved" else "copied",
-    renv_difftime_format_slow(time, prefix = " in ")
+    time = time
   )
 
   TRUE
