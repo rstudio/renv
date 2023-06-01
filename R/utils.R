@@ -20,10 +20,6 @@
 
 }
 
-`%""%` <- function(x, y) {
-  if (length(x) && nzchar(x)) x else y
-}
-
 `%NA%` <- function(x, y) {
   if (length(x) && is.na(x)) y else x
 }
