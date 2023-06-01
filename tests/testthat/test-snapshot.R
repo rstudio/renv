@@ -446,7 +446,7 @@ test_that("useful error message if implicit dep discovery is slow", {
 
   renv_tests_scope()
 
-  renv_scope_options(renv.snapshot.filter.timelimit = 0)
+  renv_scope_options(renv.snapshot.filter.timelimit = -1)
   expect_snapshot(
     . <- renv_snapshot_filter_implicit(getwd(), NULL)
   )
