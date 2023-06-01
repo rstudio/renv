@@ -440,3 +440,15 @@ test_that("snapshot always reports on R version changes", {
     renv_snapshot_report_actions(list(), R4.1, R4.2)
   })
 })
+
+
+test_that("useful error message if implicit dep discovery is slow", {
+
+  renv_tests_scope()
+
+  renv_scope_options(renv.snapshot.filter.timelimit = -1)
+  expect_snapshot(
+    . <- renv_snapshot_filter_implicit(getwd(), NULL)
+  )
+
+})

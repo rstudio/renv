@@ -63,7 +63,7 @@ test_that("import:: usages are understood", {
 })
 
 test_that("box::use() usages are handled", {
-  deps <- dependencies("resources/box.R")
+  deps <- dependencies(test_path("resources/box.R"))
   actual <- deps$Package
   expected <- c("A", "B", "C", "D", "box")
   expect_setequal(actual, expected)
