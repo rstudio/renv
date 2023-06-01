@@ -658,43 +658,15 @@ renv_install_postamble <- function(packages) {
 
   # only diagnose packages currently loaded
   packages <- renv_vector_intersect(packages, loadedNamespaces())
-  if (empty(packages))
-    return(TRUE)
 
-  # get version of package in library
   installed <- map_chr(packages, renv_package_version)
-
-  # get version of package currently loaded
   loaded <- map_chr(packages, renv_namespace_version)
 
-  # collect into data.frame
-  data <- data.frame(
-    Package   = packages,
-    Installed = installed,
-    Loaded    = loaded,
-    stringsAsFactors = FALSE
+  renv_pretty_print(
+    packages[installed != loaded],
+    c("", "The following loaded package(s) have been updated:"),
+    "Restart your R session to use the new versions."
   )
-
-  # only keep mismatches
-  mismatches <- data[data$Installed != data$Loaded, ]
-  if (nrow(mismatches) == 0)
-    return(TRUE)
-
-  # format and print
-  text <- with(mismatches, {
-    fmt <- "%s [installed version %s != loaded version %s]"
-    sprintf(fmt, format(Package), format(Installed), format(Loaded))
-  })
-
-  # nocov start
-  if (renv_verbose()) {
-    renv_pretty_print(
-      text,
-      c("", "The following package(s) have been updated:"),
-      "Consider restarting the R session and loading the newly-installed packages."
-    )
-  }
-  # nocov end
 
   TRUE
 

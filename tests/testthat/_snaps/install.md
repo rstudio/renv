@@ -16,11 +16,11 @@
       	OK [copied cache in XXXX seconds]
       Installed 1 package in XXXX seconds.
       
-      The following package(s) have been updated:
+      The following loaded package(s) have been updated:
       
-      - bread [installed version 0.1.0 != loaded version 1.0.0]
+      - bread
       
-      Consider restarting the R session and loading the newly-installed packages.
+      Restart your R session to use the new versions.
       
 
 # install reports on packages about to be installed
