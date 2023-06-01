@@ -73,7 +73,10 @@ renv_patch_tar <- function() {
 
   # TAR appears to be set but invalid; override it
   # and warn the user
-  newtar <- Sys.which("tar") %""% "internal"
+  newtar <- Sys.which("tar")
+  if (!nzchar(newtar))
+    newtar <- "internal"
+
   Sys.setenv(TAR = newtar)
 
   # report to the user

@@ -9,9 +9,15 @@ skip_if_no_python <- function() {
 }
 
 sys_python <- function() {
-  Sys.which("python3") %""%
-    Sys.which("python")  %""%
-    skip("python is not available")
+
+  for (python in c("python3", "python")) {
+    python <- Sys.which(python)
+    if (nzchar(python))
+      return(python)
+  }
+
+  skip("python is not available")
+
 }
 
 skip_if_no_virtualenv <- function() {
