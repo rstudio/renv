@@ -12,10 +12,7 @@ renv_path_absolute <- function(path) {
 
 renv_path_aliased <- function(path) {
 
-  home <-
-    Sys.getenv("HOME") %""%
-    Sys.getenv("R_USER")
-
+  home <- Sys.getenv("HOME", unset = Sys.getenv("R_USER"))
   if (!nzchar(home))
     return(path)
 
