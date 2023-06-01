@@ -184,25 +184,17 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  if (prompt || renv_verbose())
+    renv_install_report(records)
+  cancel_if(prompt && !proceed())
+
   # install retrieved records
   renv_install_impl(records)
 
   after <- Sys.time()
-  if (!renv_tests_running()) {
-    time <- renv_difftime_format(difftime(after, before))
-    n <- length(records)
-    writef("* Installed %s in %s.", nplural("package", n), time)
-  }
-
-  # a bit of extra test reporting
-  if (renv_tests_running()) {
-    fmt <- "Installed %s into library at path %s."
-    writef(
-      fmt,
-      nplural("package", length(records)),
-      renv_path_pretty(renv_libpaths_active())
-    )
-  }
+  time <- renv_difftime_format(difftime(after, before))
+  n <- length(records)
+  writef("Installed %s in %s.", nplural("package", n), time)
 
   # check loaded packages and inform user if out-of-sync
   renv_install_postamble(names(records))
@@ -698,7 +690,7 @@ renv_install_postamble <- function(packages) {
   if (renv_verbose()) {
     renv_pretty_print(
       text,
-      "The following package(s) have been updated:",
+      c("", "The following package(s) have been updated:"),
       "Consider restarting the R session and loading the newly-installed packages."
     )
   }
@@ -788,4 +780,14 @@ renv_install_remotes_update <- function(records, project) {
   # return updated set of records
   records
 
+}
+
+renv_install_report <- function(records) {
+  renv_pretty_print_records(
+    records,
+    preamble = "The following package(s) will be installed:",
+    postamble = sprintf(
+      "Packages will be installed into %s", renv_path_pretty(renv_libpaths_active())
+    )
+  )
 }

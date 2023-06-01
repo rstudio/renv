@@ -488,6 +488,13 @@ test_that("custom dependency fields in install are supported", {
 
 })
 
+test_that("install reports on packages about to be installed", {
+
+  renv_tests_scope("breakfast")
+  expect_snapshot(install())
+
+})
+
 test_that("package sources of the form <pkg>_<sha>.zip can be installed", {
   skip_on_cran()
   skip_if(!renv_platform_windows())

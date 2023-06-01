@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::install()` now requires interactive confirmation that you want to 
+  install packages (#587).
+
 * Fixed an issue where `renv::restore()` could fail to restore packages
   downloaded and installed from [r-universe](https://r-universe.dev/). (#1359)
 
