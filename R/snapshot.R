@@ -876,8 +876,6 @@ renv_snapshot_dependencies <- function(project, type) {
 
 renv_snapshot_filter <- function(project, records, type, packages, exclude) {
 
-  start <- Sys.time()
-
   type <- type %||% settings$snapshot.type(project = project)
 
   aliases <- list(packrat = "implicit", simple = "all")
@@ -897,34 +895,6 @@ renv_snapshot_filter <- function(project, records, type, packages, exclude) {
 
   if (type %in% c("all", "explicit"))
     return(result)
-
-  end <- Sys.time()
-
-  # report if dependency discovery took a long time
-  limit <- getOption("renv.snapshot.filter.timelimit", default = 10L)
-  diff <- difftime(end, start, units = "secs")
-
-  if (diff > limit) {
-
-    lines <- c(
-      "NOTE: Dependency discovery took %s %s during snapshot.",
-      "Consider using .renvignore to ignore files -- see `?dependencies` for more information."
-    )
-
-    time <- difftime(end, start, units = "auto")
-    elapsed <- format(unclass(signif(time, digits = 2L)))
-    units <- switch(
-      attr(time, "units"),
-      secs  = "seconds",
-      mins  = "minutes",
-      hours = "hours",
-      days  = "days",
-      weeks = "weeks"
-    )
-
-    writef(lines, elapsed, units)
-
-  }
 
   result
 
@@ -994,7 +964,26 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
 }
 
 renv_snapshot_filter_implicit <- function(project, records) {
+  start <- Sys.time()
   packages <- renv_snapshot_dependencies(project, "implicit")
+  end <- Sys.time()
+
+  # report if dependency discovery took a long time
+  limit <- getOption("renv.snapshot.filter.timelimit", default = 10L)
+  diff <- difftime(end, start, units = "secs")
+
+  if (diff > limit) {
+
+    time <- difftime(end, start, units = "auto")
+    lines <- c(
+      "NOTE: Dependency discovery took %s during snapshot.",
+      "Consider using .renvignore to ignore files or switching to explicit snapshots",
+      "See `?dependencies` for more information."
+    )
+    writef(lines, renv_difftime_format(time))
+
+  }
+
   renv_snapshot_filter_impl(project, records, packages, "implicit")
 }
 
