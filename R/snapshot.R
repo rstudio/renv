@@ -893,9 +893,6 @@ renv_snapshot_filter <- function(project, records, type, packages, exclude) {
   if (length(exclude))
     result <- exclude(result, exclude)
 
-  if (type %in% c("all", "explicit"))
-    return(result)
-
   result
 
 }
