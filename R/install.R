@@ -664,8 +664,8 @@ renv_install_postamble <- function(packages) {
 
   renv_pretty_print(
     packages[installed != loaded],
-    c("", "The following package(s) have been updated:"),
-    "Restart your R session to use the newly installed packages."
+    c("", "The following loaded package(s) have been updated:"),
+    "Restart your R session to use the new versions."
   )
 
   TRUE
