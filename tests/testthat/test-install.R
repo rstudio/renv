@@ -526,7 +526,7 @@ test_that("package binaries of the form <pkg>_<sha>.zip can be installed", {
   zipfile <- file.path(tempdir(), "bread_f96a78e23d44d68d329c2dbf168a4dee1882a1c6.zip")
   local({
     renv_scope_wd(library)
-    zip(zipfile, files = "bread")
+    zip(zipfile, files = "bread", extras = "-q")
   })
 
   # remove bread
