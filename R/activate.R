@@ -174,7 +174,7 @@ renv_activate_prompt_impl <- function(action, project = NULL) {
 
   choice <- menu(choices, title, default = 2)
   switch(choice,
-    activate = {activate(project = project); TRUE},
+    activate = { activate(project = project); TRUE },
     continue = FALSE,
     cancel = cancel(),
   )
