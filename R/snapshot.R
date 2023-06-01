@@ -858,19 +858,21 @@ renv_snapshot_dependencies <- function(project, type) {
     }
   )
 
-  withCallingHandlers(
+  deps <- withCallingHandlers(
 
-    renv_dependencies_impl(
+    dependencies(
       path     = path,
       root     = project,
       progress = FALSE,
-      field    = "Package",
-      errors   = errors
+      errors   = errors,
+      dev      = FALSE
     ),
 
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
 
   )
+
+  deps$Package
 
 }
 

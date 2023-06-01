@@ -549,3 +549,19 @@ test_that("package binaries of the form <pkg>_<sha>.zip can be installed", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("renv_install_dependencies() includes suggested packages by default", {
+  renv_tests_scope()
+
+  writeLines(con = "DESCRIPTION", c(
+    "Type: Package",
+    "Imports: a, b",
+    "Depends: c, d",
+    "Suggests: e, f"
+  ))
+
+  expect_equal(renv_install_dependencies(), c("a", "b", "c", "d", "e", "f"))
+  expect_equal(renv_install_dependencies(dev = FALSE), c("a", "b", "c", "d"))
+  expect_equal(renv_install_dependencies(dependencies = "Imports"), c("a", "b", "e", "f"))
+
+})

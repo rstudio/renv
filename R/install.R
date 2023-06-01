@@ -66,6 +66,9 @@
 #'  So to install from the `subdir` subdirectory of GitHub package
 #'  `username/repo` you'd use `"username/repo:subdir`.
 #'
+#' @param dev Should development dependencies be installed when installing
+#'   all packages?
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @export
@@ -104,6 +107,7 @@ install <- function(packages = NULL,
                     repos        = NULL,
                     prompt       = interactive(),
                     dependencies = NULL,
+                    dev          = TRUE,
                     project      = NULL)
 {
   renv_consent_check()
@@ -119,11 +123,6 @@ install <- function(packages = NULL,
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
-
-  if (!is.null(dependencies)) {
-    fields <- renv_description_dependency_fields(dependencies, project = project)
-    renv_scope_options(renv.settings.package.dependency.fields = fields)
-  }
 
   libpaths <- renv_libpaths_resolve(library)
   renv_scope_libpaths(libpaths)
@@ -143,14 +142,14 @@ install <- function(packages = NULL,
   }
 
   # get and resolve the packages / remotes to be installed
-  remotes <- packages %||% renv_project_remotes(project, dependencies)
-  if (empty(remotes)) {
+  packages <- packages %||% renv_install_dependencies(project, dependencies, dev)
+  if (empty(packages)) {
     writef("* There are no packages to install.")
     return(invisible(list()))
   }
 
   # resolve remotes
-  remotes <- lapply(remotes, renv_remotes_resolve)
+  remotes <- lapply(packages, renv_remotes_resolve)
   names(remotes) <- extract_chr(remotes, "Package")
 
   # update records with requested remotes
@@ -762,4 +761,32 @@ renv_install_report <- function(records) {
       "Packages will be installed into %s", renv_path_pretty(renv_libpaths_active())
     )
   )
+}
+
+renv_install_dependencies <- function(project = getwd(), dependencies = NULL, dev = TRUE) {
+
+  if (!is.null(dependencies)) {
+    renv_scope_options(renv.settings.package.dependency.fields = dependencies)
+  }
+
+  errors <- config$dependency.errors()
+
+  deps <- withCallingHandlers(
+
+    dependencies(
+      path     = project,
+      progress = FALSE,
+      errors   = errors,
+      dev      = dev
+    ),
+
+    renv.dependencies.error = renv_dependencies_error_handler(
+      message = "install aborted",
+      errors = errors
+    )
+
+  )
+
+  deps$Package
+
 }

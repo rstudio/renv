@@ -1,6 +1,13 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::install()` gains a new `dev = TRUE` argument which controls whether or
+  not development dependencies are installed when you call `renv::install()` 
+  without specifying a specific package.
+
+* `renv::status()` and `renv::snapshot()` no longer track development 
+  dependencies (#1019).
+
 * `renv::dependencies()` no longer treats `box::use(module/file)` as using
   package `module` (#1377).
 
