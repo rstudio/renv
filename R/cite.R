@@ -84,7 +84,7 @@ cite <- function(type = c("plain", "bibtex"),
     "output.html"
   )
 
-  system2("pandoc", args)
+  system2(pandoc_path(), args)
   system("open output.html")
 
 }

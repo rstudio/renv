@@ -5,7 +5,9 @@ renv_lockfile_init <- function(project) {
 
   lockfile$R        <- renv_lockfile_init_r(project)
   lockfile$Python   <- renv_lockfile_init_python(project)
-  lockfile$Packages <- list()
+  lockfile$quarto   <- renv_lockfile_quarto()
+  lockfile$pandoc   <- renv_lockfile_pandoc()
+  lockfile$Packages <- list(ver)
 
   class(lockfile) <- "renv_lockfile"
   lockfile
