@@ -99,14 +99,14 @@ renv_project_type_impl <- function(path) {
 
 }
 
-renv_project_remotes_description <- function(project, fields = NULL) {
+renv_project_remotes <- function(project, fields = NULL) {
 
   descpath <- file.path(project, "DESCRIPTION")
   if (!file.exists(descpath))
     return(NULL)
 
   # first, parse remotes (if any)
-  remotes <- renv_project_remotes_description_remotes(project, descpath)
+  remotes <- renv_project_remotes_field(project, descpath)
 
   # next, find packages mentioned in the DESCRIPTION file
   fields <- fields %||% c("Depends", "Imports", "LinkingTo", "Suggests")
@@ -165,7 +165,7 @@ renv_project_remotes_description <- function(project, fields = NULL) {
 
 }
 
-renv_project_remotes_description_remotes <- function(project, descpath) {
+renv_project_remotes_field <- function(project, descpath) {
 
   desc <- renv_description_read(descpath)
 

@@ -719,7 +719,7 @@ renv_install_preflight <- function(project, libpaths, records) {
 
 renv_install_remotes_update <- function(records, project, all = TRUE) {
 
-  remotes <- renv_project_remotes_description(project)
+  remotes <- renv_project_remotes(project)
   if (empty(remotes))
     return(records)
 
