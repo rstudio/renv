@@ -116,6 +116,8 @@ install <- function(packages = NULL,
 
     packages <- c(packages, dots[!nzchar(names(dots))])
   }
+  install_all <- is.null(packages)
+
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
@@ -142,24 +144,22 @@ install <- function(packages = NULL,
     return(renv_pak_install(packages, libpaths, project))
   }
 
-  # get and resolve the packages / remotes to be installed
-  remotes <- packages %||% renv_project_remotes(project, dependencies)
-  if (empty(remotes)) {
+  packages <- packages %||% renv_snapshot_dependencies(project, "implicit")
+  if (empty(packages)) {
     writef("* There are no packages to install.")
     return(invisible(list()))
   }
 
   # resolve remotes
-  remotes <- lapply(remotes, renv_remotes_resolve)
+  remotes <- lapply(packages, renv_remotes_resolve)
   names(remotes) <- extract_chr(remotes, "Package")
 
-  # update records with requested remotes
+  # apply version specifications and Remotes from DESCRIPTION
+  remotes <- renv_install_remotes_update(remotes, project, all = install_all)
+
+  # update existing records with requested remotes
   records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   records[names(remotes)] <- remotes
-
-  # read remotes from the package DESCRIPTION file and use those to
-  # update non-specific package requests
-  records <- renv_install_remotes_update(records, project)
 
   # run install preflight checks
   if (!renv_install_preflight(project, libpaths, remotes))
@@ -717,15 +717,9 @@ renv_install_preflight <- function(project, libpaths, records) {
 
 }
 
-renv_install_remotes_update <- function(records, project) {
+renv_install_remotes_update <- function(records, project, all = TRUE) {
 
-  # check for DESCRIPTION file
-  descpath <- file.path(project, "DESCRIPTION")
-  if (!file.exists(descpath))
-    return(records)
-
-  # read Remotes field (if any)
-  remotes <- renv_description_remotes(descpath)
+  remotes <- renv_project_remotes_description(project)
   if (empty(remotes))
     return(records)
 
@@ -734,7 +728,7 @@ renv_install_remotes_update <- function(records, project) {
 
     record <- records[[package]]
 
-    update <-
+    update <- all ||
       is.null(record) ||
       identical(record, list(Package = package, Source = "Repository"))
 
