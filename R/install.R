@@ -729,7 +729,6 @@ renv_install_remotes_update <- function(records, project, all = TRUE) {
     record <- records[[package]]
 
     update <- all ||
-      is.null(record) ||
       identical(record, list(Package = package, Source = "Repository"))
 
     if (update)
