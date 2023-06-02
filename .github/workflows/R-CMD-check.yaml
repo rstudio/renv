@@ -40,7 +40,6 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      RENV_CONFIG_INSTALL_VERBOSE: true
 
     steps:
       - uses: actions/checkout@v3
