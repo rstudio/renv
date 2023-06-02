@@ -155,7 +155,6 @@ test_that("Remotes fields in a project DESCRIPTION are respected", {
   skip_if_no_github_auth()
 
   renv_tests_scope()
-  renv_scope_options(repos = character())
   init()
 
   desc <- c(
@@ -275,15 +274,11 @@ test_that("install() installs inferred dependencies", {
   skip_on_cran()
   renv_tests_scope("breakfast")
 
-  # use dummy library path
-  templib <- renv_scope_tempfile("renv-library-")
-  ensure_directory(templib)
-  renv_scope_libpaths(templib)
-
   # try installing packages
-  install()
+  records <- install()
 
   # validate that we've installed breakfast + deps
+  expect_length(records, 4L)
   expect_true(renv_package_installed("breakfast"))
 
   # try calling install once more; nothing should happen
