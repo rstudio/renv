@@ -445,9 +445,7 @@ test_that("user can choose to install missing packages", {
 
   renv_tests_scope("egg")
   renv_scope_options(renv.menu.choice = 2)
-
   expect_snapshot(snapshot())
-  writeLines("library(egg)", "deps.R")
 
 })
 

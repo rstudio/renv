@@ -159,8 +159,6 @@ proceed <- function(default = TRUE) {
   ask("Do you want to proceed?", default = default)
 }
 
-# nocov end
-
 menu <- function(choices, title, default = 1L) {
   testing <- getOption("renv.menu.choice", integer())
   if (length(testing)) {
@@ -199,6 +197,8 @@ menu <- function(choices, title, default = 1L) {
     names(choices)[idx]
   }
 }
+
+# nocov end
 
 inject <- function(contents,
                    pattern,
