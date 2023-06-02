@@ -278,7 +278,7 @@ test_that("install() installs inferred dependencies", {
   records <- install()
 
   # validate that we've installed breakfast + deps
-  expect_length(records, 2L)
+  expect_length(records, 4L)
   expect_true(renv_package_installed("breakfast"))
 
   # try calling install once more; nothing should happen
