@@ -174,13 +174,20 @@
       
       Selection: 2
       
-      Retrieving 'file://<tempdir>/renv-repos-519265f184d7/src/contrib/egg_1.0.0.tar.gz' ...
+      Downloading 1 package(s) and their dependencies
+      Retrieving 'file://<tempdir>/renv-repos-c5e6523589b2/src/contrib/egg_1.0.0.tar.gz' ...
       	OK [downloaded 260 bytes in XXXX seconds]
-      Installing egg [1.0.0] ...
-      	OK [built from source in XXXX seconds]
-      Copying egg [1.0.0] into the cache ...
-      	OK [copied to cache in XXXX seconds]
-      Installed 1 package into library at path "<tempdir>/<renv-library>".
+      Done
+      
+      The following package(s) will be installed:
+      
+      - egg [1.0.0]
+      
+      Packages will be installed into "<tempdir>/<renv-library>"
+      
+      Installing egg ... OK [built from source]
+      Caching    egg ... OK [copied]
+      Installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
       
       # CRAN ===============================
@@ -190,4 +197,13 @@
       - R     [* -> <r-version>]
       
       * Lockfile written to '<wd>/renv.lock'.
+
+# useful error message if implicit dep discovery is slow
+
+    Code
+      . <- renv_snapshot_filter_implicit(getwd(), NULL)
+    Output
+      NOTE: Dependency discovery took XXXX seconds during snapshot.
+      Consider using .renvignore to ignore files or switching to explicit snapshots
+      See `?dependencies` for more information.
 

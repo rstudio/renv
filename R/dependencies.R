@@ -1278,9 +1278,9 @@ renv_dependencies_discover_r_box <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_box_impl <- function(node, stack, envir) {
 
-  # if we're referencing a package via '/', try to extract those
+  # if the call uses /, it's a path, not a package
   while (renv_call_matches(node, name = "/"))
-    node <- node[[2L]]
+    return(FALSE)
 
   # if the node is just a symbol, then it's the name of a package
   # otherwise, if it's a call to `[`, the first argument is the package name

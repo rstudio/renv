@@ -47,3 +47,11 @@ renv_difftime_format_short <- function(time, digits = 2L) {
   paste(elapsed, units, sep = "")
 
 }
+
+renv_difftime_format_slow <- function(time, prefix = "", threshold = 1) {
+  if (as.difftime(time, units = "secs") < threshold) {
+    return("")
+  }
+
+  paste0(prefix, renv_difftime_format(time))
+}

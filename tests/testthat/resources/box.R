@@ -1,7 +1,7 @@
-box::use(
-    .,
-    A,
-    b = B,
-    C[...],
-    D[c, d]
-)
+box::use(.)
+box::use(A)
+box::use(b = B)
+box::use(C[...])
+box::use(D[c, d])
+box::use(E/abc)
+box::use(F/def[g, h])

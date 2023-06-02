@@ -148,14 +148,42 @@ r_cmd_install <- function(package, path, ...) {
   # normalize path to package
   path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
 
-  # unpack source packages in zip archives
+  # unpack .zip source archives before install
+  # https://github.com/rstudio/renv/issues/1359
+  ftype <- renv_file_type(path)
+  atype <- renv_archive_type(path)
+  ptype <- renv_package_type(path)
+
   unpack <-
-    renv_archive_type(path) %in% "zip" &&
-    renv_package_type(path) %in% "source"
+    ftype == "file" &&
+    atype == "zip" &&
+    ptype == "source"
 
   if (unpack) {
-    path <- renv_package_unpack(package, path, force = TRUE)
-    defer(unlink(path, recursive = TRUE))
+    newpath <- renv_package_unpack(package, path, force = TRUE)
+    if (!identical(newpath, path)) {
+      path <- newpath
+      defer(unlink(path, recursive = TRUE))
+    }
+  }
+
+  # rename binary .zip files if necessary
+  rename <-
+    ftype == "file" &&
+    atype == "zip" &&
+    ptype == "binary"
+
+  if (rename) {
+    regexps <- .standard_regexps()
+    fmt <- "^%s(?:_%s)?\\.zip$"
+    pattern <- sprintf(fmt, regexps$valid_package_name, regexps$valid_package_version)
+    if (!grepl(pattern, basename(path), perl = TRUE)) {
+      dir <- renv_scope_tempfile(package)
+      ensure_directory(dir)
+      newpath <- file.path(dir, paste(package, "zip", sep = "."))
+      renv_file_copy(path, newpath)
+      path <- newpath
+    }
   }
 
   # resolve default library path

@@ -450,3 +450,14 @@ test_that("user can choose to install missing packages", {
   writeLines(library(egg), "deps.R")
 
 })
+
+test_that("useful error message if implicit dep discovery is slow", {
+
+  renv_tests_scope()
+
+  renv_scope_options(renv.snapshot.filter.timelimit = -1)
+  expect_snapshot(
+    . <- renv_snapshot_filter_implicit(getwd(), NULL)
+  )
+
+})
