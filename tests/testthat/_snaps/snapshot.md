@@ -176,7 +176,7 @@
       
       Downloading 1 package(s) and their dependencies
       Retrieving 'file://<test-repo>/src/contrib/egg_1.0.0.tar.gz' ...
-      	OK [downloaded 260 bytes in XXXX seconds]
+      	OK [downloaded XXXX bytes in XXXX seconds]
       Done
       
       The following package(s) will be installed:
