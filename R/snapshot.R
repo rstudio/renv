@@ -996,7 +996,12 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
 
   if (choice == 2L) {
     install(missing, prompt = FALSE)
-    invokeRestart("recomputeRecords")
+    # User will only see this in exceptional circumstances as it is
+    # caught once by renv_lockfile_create()
+    stop(errorCondition(
+      message = "Failed to restart snapshotting after install",
+      class = "renv_recompute_records"
+    ))
   }
 
   TRUE

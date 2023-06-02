@@ -174,25 +174,31 @@ renv_lockfile_create <- function(project,
 
   lockfile <- renv_lockfile_init(project)
 
-  # Repeat with restarts so that renv_snapshot_filter() can install packages
-  # if requested by the user
-  repeat {
-    withRestarts(
-      {
-        records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
-        records <- renv_snapshot_filter(
-          project  = project,
-          records  = records,
-          type     = type,
-          packages = packages,
-          exclude  = exclude
-        )
-        # skipped if recomputeRecords restart is used
-        break
-      },
-      recomputeRecords = function() {
-        renv_dynamic_reset()
-      }
+  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+
+  records <- tryCatch(
+    renv_snapshot_filter(
+      project  = project,
+      records  = records,
+      type     = type,
+      packages = packages,
+      exclude  = exclude
+    ),
+    renv_recompute_records = function(cnd) {
+      NULL
+    }
+  )
+
+  # We re-computing and re-filtering records once, if requested by user
+  if (is.null(records)) {
+    renv_dynamic_reset()
+    records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+    records <- renv_snapshot_filter(
+      project  = project,
+      records  = records,
+      type     = type,
+      packages = packages,
+      exclude  = exclude
     )
   }
 
