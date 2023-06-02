@@ -955,9 +955,9 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
   )
 
   choices <- c(
-    "Snapshot, just using the currently installed packages",
-    "Install the packages, then snapshot",
-    "Cancel"
+    "Snapshot, just using the currently installed packages.",
+    "Install the packages, then snapshot.",
+    "Cancel, and resolve the situation on your own."
   )
   choice <- menu(choices, title = "What do you want to do?")
   cancel_if(choice %in% c(0, 3))

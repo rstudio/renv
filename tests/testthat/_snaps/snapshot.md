@@ -19,9 +19,9 @@
       
       What do you want to do?
       
-      1: Snapshot, just using the currently installed packages
-      2: Install the packages, then snapshot
-      3: Cancel
+      1: Snapshot, just using the currently installed packages.
+      2: Install the packages, then snapshot.
+      3: Cancel, and resolve the situation on your own.
       
       Selection: 1
       
@@ -52,9 +52,9 @@
       
       What do you want to do?
       
-      1: Snapshot, just using the currently installed packages
-      2: Install the packages, then snapshot
-      3: Cancel
+      1: Snapshot, just using the currently installed packages.
+      2: Install the packages, then snapshot.
+      3: Cancel, and resolve the situation on your own.
       
       Selection: 1
       
@@ -93,9 +93,9 @@
       
       What do you want to do?
       
-      1: Snapshot, just using the currently installed packages
-      2: Install the packages, then snapshot
-      3: Cancel
+      1: Snapshot, just using the currently installed packages.
+      2: Install the packages, then snapshot.
+      3: Cancel, and resolve the situation on your own.
       
       Selection: 1
       
@@ -115,9 +115,9 @@
       
       What do you want to do?
       
-      1: Snapshot, just using the currently installed packages
-      2: Install the packages, then snapshot
-      3: Cancel
+      1: Snapshot, just using the currently installed packages.
+      2: Install the packages, then snapshot.
+      3: Cancel, and resolve the situation on your own.
       
       Selection: 1
       
@@ -168,9 +168,9 @@
       
       What do you want to do?
       
-      1: Snapshot, just using the currently installed packages
-      2: Install the packages, then snapshot
-      3: Cancel
+      1: Snapshot, just using the currently installed packages.
+      2: Install the packages, then snapshot.
+      3: Cancel, and resolve the situation on your own.
       
       Selection: 2
       
