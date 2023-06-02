@@ -185,10 +185,9 @@ r_cmd_install <- function(package, path, ...) {
 
   if (config$install.verbose()) {
 
-    output <- r(args, stdout = "", stderr = "")
-    status <- attr(output, "status")
+    status <- r(args, stdout = "", stderr = "")
     if (!identical(status, 0L))
-      stopf("install of package '%s' failed:\n%s", package, output)
+      stopf("install of package '%s' failed", package)
 
     installpath <- file.path(library, package)
     if (!file.exists(installpath)) {
