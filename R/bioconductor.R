@@ -16,7 +16,7 @@ renv_bioconductor_init_biocmanager <- function(library = NULL) {
     return(TRUE)
 
   ensure_directory(library)
-  install("BiocManager", library = library)
+  install("BiocManager", library = library, prompt = FALSE)
   TRUE
 
 }
