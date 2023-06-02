@@ -18,13 +18,8 @@ test_that("requested version in DESCRIPTION file is honored", {
   )
   writeLines(desc, con = "DESCRIPTION")
 
-  records <- install()
-  expect_length(records, 2L)
+  install()
   expect_true(renv_package_version("bread") == "0.1.0")
-
-  # try calling install once more; nothing should happen
-  records <- install()
-  expect_length(records, 0L)
 
 })
 
@@ -279,10 +274,16 @@ test_that("install() installs inferred dependencies", {
   renv_tests_scope("breakfast")
 
   # try installing packages
-  install()
+  records <- install()
 
   # validate that we've installed breakfast + deps
+  expect_length(records, 2L)
   expect_true(renv_package_installed("breakfast"))
+
+  # try calling install once more; nothing should happen
+  records <- install()
+  expect_length(records, 0L)
+
 
 })
 
