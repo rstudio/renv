@@ -836,7 +836,9 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 }
 # nocov end
 
-renv_snapshot_dependencies <- function(project, type) {
+renv_snapshot_dependencies <- function(project, type = NULL) {
+
+  type <- type %||% settings$snapshot.type(project = project)
 
   message <- "snapshot aborted"
   errors <- config$dependency.errors()
