@@ -118,7 +118,6 @@ install <- function(packages = NULL,
   }
   install_all <- is.null(packages)
 
-
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
 
@@ -150,15 +149,23 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
-  # resolve remotes
+  # retrieve currently installed packages
+  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+
+  # generate package records to install
   remotes <- lapply(packages, renv_remotes_resolve)
   names(remotes) <- extract_chr(remotes, "Package")
 
-  # apply version specifications and Remotes from DESCRIPTION
-  remotes <- renv_install_remotes_update(remotes, project, all = install_all)
+  if (install_all) {
+    # apply version specifications and Remotes from DESCRIPTION
+    pkg_remotes <- renv_project_remotes(project)
+    remotes <- c(exclude(remotes, names(pkg_remotes)), pkg_remotes)
+
+    # only install packages that aren't already installed
+    remotes <- exclude(remotes, names(records))
+  }
 
   # update existing records with requested remotes
-  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   records[names(remotes)] <- remotes
 
   # run install preflight checks
@@ -714,30 +721,6 @@ renv_install_preflight <- function(project, libpaths, records) {
     renv_install_preflight_unknown_source(records),
     renv_install_preflight_permissions(library)
   )
-
-}
-
-renv_install_remotes_update <- function(records, project, all = TRUE) {
-
-  remotes <- renv_project_remotes(project)
-  if (empty(remotes))
-    return(records)
-
-  # update records as appropriate
-  enumerate(remotes, function(package, remote) {
-
-    record <- records[[package]]
-
-    update <- all ||
-      identical(record, list(Package = package, Source = "Repository"))
-
-    if (update)
-      records[[package]] <<- remote
-
-  })
-
-  # return updated set of records
-  records
 
 }
 

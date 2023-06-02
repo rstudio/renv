@@ -18,9 +18,13 @@ test_that("requested version in DESCRIPTION file is honored", {
   )
   writeLines(desc, con = "DESCRIPTION")
 
-  install()
-
+  records <- install()
+  expect_length(records, 2L)
   expect_true(renv_package_version("bread") == "0.1.0")
+
+  # try calling install once more; nothing should happen
+  records <- install()
+  expect_length(records, 0L)
 
 })
 
