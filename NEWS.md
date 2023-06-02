@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* When prompting to activate a project, you now get three options that hopefully
+  make your choices more clear.
+  
 * `renv::dependencies()` no longer treats `box::use(module/file)` as using
   package `module` (#1377).
 
