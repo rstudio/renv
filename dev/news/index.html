@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> no longer treats <code>box::use(module/file)</code> as using package <code>module</code> (<a href="https://github.com/rstudio/renv/issues/1377" class="external-link">#1377</a>).</p></li>
+<ul><li><p>When prompting to activate a project, you now get three options that hopefully make your choices more clear.</p></li>
+<li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> no longer treats <code>box::use(module/file)</code> as using package <code>module</code> (<a href="https://github.com/rstudio/renv/issues/1377" class="external-link">#1377</a>).</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> now requires interactive confirmation that you want to install packages (<a href="https://github.com/rstudio/renv/issues/587" class="external-link">#587</a>).</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/restore.html">renv::restore()</a></code> could fail to restore packages downloaded and installed from <a href="https://r-universe.dev/" class="external-link">r-universe</a>. (<a href="https://github.com/rstudio/renv/issues/1359" class="external-link">#1359</a>)</p></li>
 <li><p><code><a href="../reference/activate.html">renv::deactivate()</a></code> gains a <code>clean</code> argument: when <code>TRUE</code> it will delete all renv files/directories, leaving the project the way it was found.</p></li>
