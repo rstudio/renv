@@ -159,6 +159,8 @@ proceed <- function(default = TRUE) {
   ask("Do you want to proceed?", default = default)
 }
 
+# nocov end
+
 menu <- function(choices, title, default = 1L) {
   testing <- getOption("renv.menu.choice", integer())
   if (length(testing)) {
@@ -179,7 +181,7 @@ menu <- function(choices, title, default = 1L) {
       paste0("Selection: ", selected),
       ""
     ))
-    return(selected)
+    return(names(choices)[selected])
   }
 
   if (!interactive()) {
@@ -187,13 +189,16 @@ menu <- function(choices, title, default = 1L) {
     return(default)
   }
 
-  tryCatch(
-    utils::menu(choices, title, graphics = FALSE),
-    interrupt = function(cnd) 0
+  idx <- tryCatch(
+    utils::menu(choices, paste(title, collapse = "\n"), graphics = FALSE),
+    interrupt = function(cnd) 0L
   )
+  if (idx == 0L) {
+    "cancel"
+  } else {
+    names(choices)[idx]
+  }
 }
-
-# nocov end
 
 inject <- function(contents,
                    pattern,
@@ -533,8 +538,12 @@ take <- function(data, index = NULL) {
 
 cancel <- function() {
   renv_snapshot_auto_suppress_next()
-  message("* Operation canceled.")
-  invokeRestart("abort")
+  if (is_testing()) {
+    stop("Operation canceled", call. = FALSE)
+  } else {
+    message("* Operation canceled.")
+    invokeRestart("abort")
+  }
 }
 
 cancel_if <- function(cnd) {

@@ -836,7 +836,9 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 }
 # nocov end
 
-renv_snapshot_dependencies <- function(project, type) {
+renv_snapshot_dependencies <- function(project, type = NULL) {
+
+  type <- type %||% settings$snapshot.type(project = project)
 
   message <- "snapshot aborted"
   errors <- config$dependency.errors()
@@ -955,14 +957,16 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
   )
 
   choices <- c(
-    "Snapshot, just using the currently installed packages.",
-    "Install the packages, then snapshot.",
-    "Cancel, and resolve the situation on your own."
+    snapshot = "Snapshot, just using the currently installed packages.",
+    install = "Install the packages, then snapshot.",
+    cancel = "Cancel, and resolve the situation on your own."
   )
-  choice <- menu(choices, title = "What do you want to do?")
-  cancel_if(choice %in% c(0, 3))
 
-  if (choice == 2L) {
+  choice <- menu(choices, title = "What do you want to do?")
+
+  if (choice == "snapshot") {
+    # do nothing
+  } else if (choice == "install") {
     install(missing, prompt = FALSE)
     # User will only see this in exceptional circumstances as it is
     # caught once by renv_lockfile_create()
@@ -970,6 +974,8 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
       message = "Failed to restart snapshotting after install",
       class = "renv_recompute_records"
     ))
+  } else {
+    cancel()
   }
 
   TRUE

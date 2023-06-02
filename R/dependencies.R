@@ -518,31 +518,28 @@ renv_dependencies_discover_description <- function(path,
   if (inherits(dcf, "error"))
     return(renv_dependencies_error(path, error = dcf))
 
-  # read fields from project options if available
-  fields <-
-    fields %||%
-    renv_dependencies_discover_description_fields() %||%
-    c("Depends", "Imports", "LinkingTo")
-
-  # if this is the DESCRIPTION file for the active project, include
-  # Suggests since they're often needed as well. such packages will be
-  # considered development dependencies, except for package projects
-  type <- "unknown"
-  project <-
-    project %||%
+  # Most callers don't pass in project so we need to get it from global state
+  project <- project %||%
     renv_dependencies_state(key = "root") %||%
+    renv_restore_state(key = "root") %||%
     renv_project_resolve()
 
+  fields <- fields %||% settings$package.dependency.fields(project = project)
+
+  # if this is the DESCRIPTION file for the active project, include
+  # the dependencies for the active profile (if any) and Suggested fields.
   if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
 
     # collect profile-specific dependencies as well
     profile <- renv_profile_get()
-    field <- if (length(profile))
+    profile_field <- if (length(profile))
       sprintf("Config/renv/profiles/%s/dependencies", profile)
 
-    fields <- c(fields, "Suggests", field)
+    fields <- c(fields, "Suggests", profile_field)
     type <- renv_description_type(desc = dcf)
 
+  } else {
+    type <- "unknown"
   }
 
   data <- map(
@@ -590,34 +587,6 @@ renv_dependencies_discover_description_impl <- function(dcf, field, path, type) 
     extract_chr(matches, 4L),
     dev
   )
-
-}
-
-renv_dependencies_discover_description_fields <- function() {
-
-  # this is all very gross -- the project should be passed
-  # along by the caller instead, but doing so is annoying
-  project <- local({
-
-    # are we being called as part of renv::dependencies()?
-    # if so, then use the root directory as the project root
-    state <- renv_dependencies_state()
-    if (!is.null(state))
-      return(state$root)
-
-    # are we being called as part of renv::restore()?
-    # if so, then use the associated project directory
-    state <- renv_restore_state()
-    if (!is.null(state))
-      return(state$project)
-
-    # all else fails, use the current directory
-    getwd()
-
-  })
-
-  # we've figured out the correct project; get the settings
-  settings$package.dependency.fields(project = project)
 
 }
 

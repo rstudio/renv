@@ -48,7 +48,7 @@ renv_difftime_format_short <- function(time, digits = 2L) {
 
 }
 
-renv_difftime_format_slow <- function(time, prefix = "", threshold = NULL) {
+renv_difftime_format_slow <- function(time, prefix = "", threshold = 1) {
   if (renv_tests_running()) {
     return("")
   }
