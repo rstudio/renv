@@ -934,6 +934,7 @@ renv_snapshot_filter_impl <- function(project, records, packages, type) {
 }
 
 renv_snapshot_filter_report_missing <- function(missing, type) {
+
   missing <- setdiff(missing, "renv")
   if (empty(missing))
     return(TRUE)
@@ -948,7 +949,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
       "Use `renv::dependencies()` to see where this package is used in your project."
   )
   renv_pretty_print(
-    values = unique(missing),
+    values = sort(unique(missing)),
     preamble = preamble,
     postamble = postamble
   )

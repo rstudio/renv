@@ -1,8 +1,8 @@
 
 # renv 0.18.0  (UNRELEASED)
 
-* If `renv::snapshot()` finds missing packages, it will prompt you to first
-  install them (#1198).
+* If `renv::snapshot()` finds missing packages, a new prompt allows you to 
+  install them before continuing (#1198).
 
 * `renv::dependencies()` no longer treats `box::use(module/file)` as using
   package `module` (#1377).

@@ -175,7 +175,7 @@
       Selection: 2
       
       Downloading 1 package(s) and their dependencies
-      Retrieving 'file://<tempdir>/renv-repos-c5e6523589b2/src/contrib/egg_1.0.0.tar.gz' ...
+      Retrieving 'file://<test-repo>/src/contrib/egg_1.0.0.tar.gz' ...
       	OK [downloaded 260 bytes in XXXX seconds]
       Done
       
