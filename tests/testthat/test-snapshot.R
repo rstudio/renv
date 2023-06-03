@@ -443,6 +443,10 @@ test_that("snapshot always reports on R version changes", {
 
 test_that("user can choose to install missing packages", {
 
+  # use a temporary cache to guarantee packages are fully installed
+  # regardless of order other tests are run in
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-tempcache-"))
+
   renv_tests_scope("egg")
   renv_scope_options(renv.menu.choice = 2)
   expect_snapshot(snapshot())
