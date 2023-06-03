@@ -3,7 +3,7 @@ test_that(".libPaths() scoping works as expected", {
   libpaths <- .libPaths()
 
   local({
-    dir <- renv_path_normalize(tempdir(), winslash = "/")
+    dir <- renv_path_normalize(tempdir())
     renv_scope_libpaths(dir)
     expect_true(.libPaths()[1] == dir)
   })
@@ -62,7 +62,7 @@ test_that("nested attempts to scope libpaths are properly handled", {
   libpaths <- .libPaths()
 
   local({
-    dir <- renv_path_normalize(tempdir(), winslash = "/")
+    dir <- renv_path_normalize(tempdir())
     renv_scope_libpaths(dir)
     renv_scope_libpaths(dir)
     expect_true(.libPaths()[1] == dir)

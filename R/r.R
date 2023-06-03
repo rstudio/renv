@@ -146,7 +146,7 @@ r_exec_error_diagnostics <- function(package, output) {
 r_cmd_install <- function(package, path, ...) {
 
   # normalize path to package
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
 
   # unpack .zip source archives before install
   # https://github.com/rstudio/renv/issues/1359
@@ -245,7 +245,7 @@ r_cmd_install <- function(package, path, ...) {
 
 r_cmd_build <- function(package, path, ...) {
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
   args <- c("--vanilla", "CMD", "build", "--md5", ..., renv_shell_path(path))
 
   output <- r(args, stdout = TRUE, stderr = TRUE)

@@ -56,7 +56,7 @@ renv_sandbox_activate_impl <- function(project = NULL, path = NULL) {
   # get current library paths
   oldlibs <- .libPaths()
   syslibs <- c(renv_libpaths_site(), renv_libpaths_system())
-  syslibs <- renv_path_normalize(syslibs, winslash = "/", mustWork = FALSE)
+  syslibs <- renv_path_normalize(syslibs)
 
   # override .Library.site
   base <- .BaseNamespaceEnv

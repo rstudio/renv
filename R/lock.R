@@ -113,7 +113,7 @@ renv_lock_init <- function() {
 renv_lock_path <- function(path) {
 
   file.path(
-    normalizePath(dirname(path), winslash = "/", mustWork = TRUE),
+    renv_path_normalize(dirname(path), mustWork = TRUE),
     basename(path)
   )
 

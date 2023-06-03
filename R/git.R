@@ -6,7 +6,7 @@ renv_git_preflight <- function() {
 
 renv_git_root <- function(project) {
 
-  project <- normalizePath(project, winslash = "/", mustWork = FALSE)
+  project <- renv_path_normalize(project)
   renv_file_find(project, function(parent) {
     gitroot <- file.path(parent, ".git")
     if (file.exists(gitroot))

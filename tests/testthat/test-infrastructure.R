@@ -7,7 +7,7 @@ test_that("renv.lock is added to .Rbuildignore", {
   # use custom userdir
   userdir <- renv_scope_tempfile("renv-userdir-override")
   ensure_directory(userdir)
-  userdir <- normalizePath(userdir, winslash = "/", mustWork = TRUE)
+  userdir <- renv_path_normalize(userdir, mustWork = TRUE)
   renv_scope_options(renv.userdir.override = userdir)
 
   # sanity check
