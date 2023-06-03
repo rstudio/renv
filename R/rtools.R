@@ -106,7 +106,7 @@ renv_rtools_registry <- function() {
 
   path <- status$InstallPath %||% ""
   if (file.exists(path))
-    return(normalizePath(path, winslash = "/"))
+    return(renv_path_normalize(path))
 
 }
 
@@ -126,20 +126,11 @@ renv_rtools_envvars <- function(root) {
 renv_rtools_envvars_default <- function(root) {
 
   # add Rtools utilities to path
-  bin <- normalizePath(
-    file.path(root, "bin"),
-    winslash = "\\",
-    mustWork = FALSE
-  )
-
+  bin <- normalizePath(file.path(root, "bin"), mustWork = FALSE)
   path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
   # set BINPREF (note: trailing slash is required)
-  binpref <- paste(
-    normalizePath(root, winslash = "/", mustWork = FALSE),
-    "mingw_$(WIN)/bin/",
-    sep = "/"
-  )
+  binpref <- paste(renv_path_normalize(root), "mingw_$(WIN)/bin/", sep = "/")
 
   list(PATH = path, BINPREF = binpref)
 
@@ -148,11 +139,7 @@ renv_rtools_envvars_default <- function(root) {
 renv_rtools_envvars_rtools42 <- function(root) {
 
   # add Rtools utilities to path
-  bin <- normalizePath(
-    file.path(root, "usr/bin"),
-    winslash = "\\",
-    mustWork = FALSE
-  )
+  bin <- normalizePath(file.path(root, "usr/bin"), mustWork = FALSE)
 
   path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
@@ -166,15 +153,11 @@ renv_rtools_envvars_rtools42 <- function(root) {
 renv_rtools_envvars_rtools40 <- function(root) {
 
   # add Rtools utilities to path
-  bin <- normalizePath(
-    file.path(root, "usr/bin"),
-    winslash = "\\",
-    mustWork = FALSE
-  )
+  bin <- normalizePath(file.path(root, "usr/bin"), mustWork = FALSE)
 
   path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
-  # set BINPREF
+  # set BINPREF (note: trailing slash is required)
   binpref <- "/mingw$(WIN)/bin/"
 
   list(PATH = path, BINPREF = binpref)

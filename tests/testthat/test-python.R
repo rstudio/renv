@@ -211,7 +211,7 @@ test_that("renv_python_discover() respects PATH ordering", {
   renv_test_scope_python()
 
   # create a bunch of python directories
-  wd <- normalizePath(getwd(), winslash = "/")
+  wd <- renv_path_normalize(getwd())
   pythons <- file.path(wd, c("1", "2", "3"), "python")
   for (python in pythons) {
     ensure_parent_directory(python)

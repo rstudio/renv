@@ -158,7 +158,7 @@ renv_clean_system_library <- function(project, prompt) {
   }
 
   # explicitly query for packages
-  syslib <- renv_path_normalize(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
+  syslib <- renv_path_normalize(renv_libpaths_system())
   db <- installed_packages(lib.loc = syslib, priority = "NA")
   packages <- setdiff(db$Package, "translations")
 

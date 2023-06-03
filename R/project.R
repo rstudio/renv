@@ -43,7 +43,7 @@ renv_project_clear <- function() {
 
 renv_project_resolve <- function(project = NULL, default = getwd()) {
   project <- project %||% renv_project_get(default = default)
-  normalizePath(project, winslash = "/", mustWork = FALSE)
+  renv_path_normalize(project)
 }
 
 renv_project_initialized <- function(project) {

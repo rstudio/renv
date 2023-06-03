@@ -18,7 +18,7 @@ test_that("renv can be vendored in a separate R package", {
     # R CMD check
     skip("path to renv sources not available")
   }
-  sources <- normalizePath(sources, winslash = "/")
+  sources <- renv_path_normalize(sources)
 
 
   # create a dummy R package
