@@ -175,7 +175,7 @@
       Selection: 2
       
       Downloading 1 package(s) and their dependencies
-      Retrieving 'file://<test-repo>/src/contrib/egg_1.0.0.tar.gz' ...
+      Retrieving '<test-repo>/src/contrib/egg_1.0.0.tar.gz' ...
       	OK [downloaded XXXX bytes in XXXX seconds]
       Done
       
