@@ -145,10 +145,14 @@
 #'   * `"fatal"`: errors are fatal and stop execution.
 #'   *  `"ignored"`: errors are ignored and not reported to the user.
 #'
-#' @param dev Boolean; include 'development' dependencies as well? That is,
-#'   packages which may be required during development but are unlikely to be
-#'   required during runtime for your project. By default, only runtime
-#'   dependencies are returned.
+#' @param dev Boolean; include development dependencies? These packages are
+#'   typically required when developing the project, but not when running it
+#'   (i.e. you want them installed when humans are working on the project but
+#'   not when computers are deploying it).
+#'
+#'   Development dependencies include packages listed in the `Suggests` field
+#'   of a `DESCRIPTION` found in the project root, and roxygen2 or devtools if
+#'   their use is implied by other project metadata.
 #'
 #' @return An \R `data.frame` of discovered dependencies, mapping inferred
 #'   package names to the files in which they were discovered. Note that the
@@ -536,10 +540,10 @@ renv_dependencies_discover_description <- function(path,
       sprintf("Config/renv/profiles/%s/dependencies", profile)
 
     fields <- c(fields, "Suggests", profile_field)
-    type <- renv_description_type(desc = dcf)
+    proj_desc <- TRUE
 
   } else {
-    type <- "unknown"
+    proj_desc <- FALSE
   }
 
   data <- map(
@@ -547,14 +551,23 @@ renv_dependencies_discover_description <- function(path,
     renv_dependencies_discover_description_impl,
     dcf  = dcf,
     path = path,
-    type = type
+    proj_desc = proj_desc
   )
+
+  # Infer a dependency on roxygen2 and devtools if RoxygenNote present
+  if (!is.null(dcf$RoxygenNote)) {
+    data <- c(
+      data,
+      list(renv_dependencies_list(path, c("roxygen2", "devtools"), dev = TRUE))
+    )
+  }
+
 
   bind(data)
 
 }
 
-renv_dependencies_discover_description_impl <- function(dcf, field, path, type) {
+renv_dependencies_discover_description_impl <- function(dcf, field, path, proj_desc) {
 
   # read field
   contents <- dcf[[field]]
@@ -579,13 +592,12 @@ renv_dependencies_discover_description_impl <- function(dcf, field, path, type) 
     return(list())
 
   # create dependency list
-  dev <- field == "Suggests" && type != "package"
   renv_dependencies_list(
     path,
     extract_chr(matches, 2L),
     extract_chr(matches, 3L),
     extract_chr(matches, 4L),
-    dev
+    dev = proj_desc && field == "Suggests"
   )
 
 }

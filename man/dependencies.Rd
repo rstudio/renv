@@ -38,10 +38,14 @@ otherwise ignored.
 \item \code{"ignored"}: errors are ignored and not reported to the user.
 }}
 
-\item{dev}{Boolean; include 'development' dependencies as well? That is,
-packages which may be required during development but are unlikely to be
-required during runtime for your project. By default, only runtime
-dependencies are returned.}
+\item{dev}{Boolean; include development dependencies? These packages are
+typically required when developing the project, but not when running it
+(i.e. you want them installed when humans are working on the project but
+not when computers are deploying it).
+
+Development dependencies include packages listed in the \code{Suggests} field
+of a \code{DESCRIPTION} found in the project root, and roxygen2 or devtools if
+their use is implied by other project metadata.}
 }
 \value{
 An \R \code{data.frame} of discovered dependencies, mapping inferred

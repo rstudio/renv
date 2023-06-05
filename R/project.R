@@ -126,19 +126,6 @@ renv_project_remotes <- function(project, fields = NULL) {
   ignored <- renv_project_ignored_packages(project = project)
   specs <- specs[setdiff(names(specs), c("R", ignored))]
 
-  # if any Roxygen fields are included,
-  # infer a dependency on roxygen2 and devtools
-  desc <- renv_description_read(descpath)
-  if (any(grepl("^Roxygen", names(desc)))) {
-    for (package in c("devtools", "roxygen2")) {
-      if (!package %in% ignored) {
-        specs[[package]] <-
-          specs[[package]] %||%
-          renv_dependencies_list(descpath, package, dev = TRUE)
-      }
-    }
-  }
-
   # now, try to resolve the packages
   records <- enumerate(specs, function(package, spec) {
 

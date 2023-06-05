@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `dependencies()` now marks `Suggested` packages listed in `DESCRIPTION` files
+  as development dependencies regardless of whether or not they're in 
+  "package" project.
+
 * If `renv::snapshot()` finds missing packages, a new prompt allows you to 
   install them before continuing (#1198).
 
