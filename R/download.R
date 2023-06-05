@@ -643,7 +643,12 @@ renv_download_report <- function(elapsed, file) {
     return()
 
   info <- renv_file_info(file)
-  size <- structure(info$size, class = "object_size")
+  if (renv_tests_running()) {
+    size <- "XXXX bytes"
+  } else {
+    size <- structure(info$size, class = "object_size")
+  }
+
 
   fmt <- "\tOK [downloaded %s in %s]"
   writef(fmt, format(size, units = "auto"), renv_difftime_format(elapsed))

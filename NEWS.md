@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* If `renv::snapshot()` finds missing packages, a new prompt allows you to 
+  install them before continuing (#1198).
+
 * When prompting to activate a project, you now get three options that hopefully
   make your choices more clear.
   

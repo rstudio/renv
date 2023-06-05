@@ -945,21 +945,40 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
 
   postamble <- c(
     "Packages must first be installed before renv can snapshot them.",
-    "Consider installing these packages using `renv::install()`.",
     if (type %in% "explicit")
       "If these packages are no longer required, consider removing them from your DESCRIPTION file."
     else
       "Use `renv::dependencies()` to see where this package is used in your project."
   )
   renv_pretty_print(
-    values = csort(unique(missing)),
+    values = sort(unique(missing)),
     preamble = preamble,
     postamble = postamble
   )
 
-  cancel_if(interactive() && !proceed())
-  TRUE
+  choices <- c(
+    snapshot = "Snapshot, just using the currently installed packages.",
+    install = "Install the packages, then snapshot.",
+    cancel = "Cancel, and resolve the situation on your own."
+  )
 
+  choice <- menu(choices, title = "What do you want to do?")
+
+  if (choice == "snapshot") {
+    # do nothing
+  } else if (choice == "install") {
+    install(missing, prompt = FALSE)
+    # User will only see this in exceptional circumstances as it is
+    # caught once by renv_lockfile_create()
+    stop(errorCondition(
+      message = "Failed to restart snapshotting after install",
+      class = "renv_recompute_records"
+    ))
+  } else {
+    cancel()
+  }
+
+  TRUE
 }
 
 renv_snapshot_filter_implicit <- function(project, records) {

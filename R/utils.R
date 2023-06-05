@@ -198,7 +198,6 @@ menu <- function(choices, title, default = 1L) {
   }
 }
 
-
 # nocov end
 
 inject <- function(contents,

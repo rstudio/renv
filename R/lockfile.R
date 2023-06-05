@@ -174,17 +174,36 @@ renv_lockfile_create <- function(project,
 
   lockfile <- renv_lockfile_init(project)
 
-  renv_lockfile_records(lockfile) <-
+  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
 
-    renv_snapshot_libpaths(libpaths = libpaths,
-                           project  = project) %>%
+  records <- tryCatch(
+    renv_snapshot_filter(
+      project  = project,
+      records  = records,
+      type     = type,
+      packages = packages,
+      exclude  = exclude
+    ),
+    renv_recompute_records = function(cnd) {
+      NULL
+    }
+  )
 
-    renv_snapshot_filter(project  = project,
-                         type     = type,
-                         packages = packages,
-                         exclude  = exclude) %>%
+  # We re-computing and re-filtering records once, if requested by user
+  if (is.null(records)) {
+    renv_dynamic_reset()
+    records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+    records <- renv_snapshot_filter(
+      project  = project,
+      records  = records,
+      type     = type,
+      packages = packages,
+      exclude  = exclude
+    )
+  }
 
-    renv_snapshot_fixup()
+  records <- renv_snapshot_fixup(records)
+  renv_lockfile_records(lockfile) <- records
 
   lockfile <- renv_lockfile_fini(lockfile, project)
 

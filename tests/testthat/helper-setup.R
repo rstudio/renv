@@ -32,9 +32,7 @@ renv_tests_setup <- function(envir = parent.frame()) {
 renv_tests_setup_envvars <- function(envir = parent.frame()) {
 
   # set up root directory
-  root <- renv_path_normalize(
-    ensure_directory(renv_scope_tempfile(envir = envir))
-  )
+  root <- ensure_directory(renv_scope_tempfile(envir = envir))
 
   renv_scope_envvars(
     # simulate running in R CMD check

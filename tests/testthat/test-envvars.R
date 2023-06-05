@@ -26,7 +26,7 @@ test_that("renv_envvars_save() is idempotent", {
 })
 
 test_that("RENV_PATHS_PREFIX is not normalized", {
-  renv_scope_envvars(RENV_PATHS_PREFIX = ".")
+  renv_scope_envvars(RENV_PATHS_PREFIX = ".", RENV_PATHS_ROOT = "")
   renv_envvars_normalize()
   expect_identical(Sys.getenv("RENV_PATHS_PREFIX"), ".")
 })
