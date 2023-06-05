@@ -299,7 +299,12 @@ options(renv.auth = list(
 ))
 
 # alternatively, set package-specific option
+# as a list
 options(renv.auth.MyPackage = list(GITHUB_PAT = "<pat>"))
+# as a function
+options(renv.auth.MyPackage = function(record) {
+   list(GITHUB_PAT = "<pat>")
+})
 ```
 
 For packages installed from Git remotes, renv will attempt to use `git` from the command line to download and restore the associated package.
