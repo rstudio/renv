@@ -12,15 +12,18 @@ expect_snapshot <- function(x, ...) {
 strip_dirs <- function(x) {
 
   # TODO: we might want to map multiple strings to the same
-  # placeholder, so this should probably be flipped
+  # placeholder, so this should probably be flipped?
+  #
+  # note also that order matters for snapshot tests; the least-specific
+  # paths should go at the end of this list
   filters <- list(
-    "<cache>"          = renv_paths_cache(),
+    "<cache>"           = renv_paths_cache(),
     "<platform-prefix>" = renv_platform_prefix(),
     "<r-version>"       = getRversion(),
-    "<root>"            = renv_paths_root(),
-    "<tempdir>"         = renv_path_normalize(tempdir()),
     "<test-repo>"       = getOption("repos")[[1L]],
-    "<wd>"              = renv_path_normalize(getwd())
+    "<root>"            = renv_path_normalize(renv_paths_root()),
+    "<wd>"              = renv_path_normalize(getwd()),
+    "<tempdir>"         = renv_path_normalize(tempdir())
   )
 
   # apply filters
