@@ -11,16 +11,26 @@ expect_snapshot <- function(x, ...) {
 
 strip_dirs <- function(x) {
 
-  x <- gsub(normalizePath(getwd()), "<wd>", x, fixed = TRUE)
+  # TODO: we might want to map multiple strings to the same
+  # placeholder, so this should probably be flipped
+  filters <- list(
+    "<cache>"          = renv_paths_cache(),
+    "<platform-prefix>" = renv_platform_prefix(),
+    "<r-version>"       = getRversion(),
+    "<root>"            = renv_paths_root(),
+    "<tempdir>"         = renv_path_normalize(tempdir()),
+    "<test-repo>"       = getOption("repos")[[1L]],
+    "<wd>"              = renv_path_normalize(getwd())
+  )
 
-  x <- gsub(renv_paths_cache(), "<cache>", x, fixed = TRUE)
-  x <- gsub(Sys.getenv("RENV_PATHS_ROOT"), "<root>", x, fixed = TRUE)
-  x <- gsub(getOption("repos")[[1]], "<test-repo>", x, fixed = TRUE)
-  x <- gsub(renv_path_normalize(tempdir()), "<tempdir>", x, fixed = TRUE)
+  # apply filters
+  enumerate(filters, function(target, source) {
+    x <<- gsub(source, target, x, fixed = TRUE)
+  })
 
+  # other pattern-based filters here
   x <- gsub("renv-library-\\w+", "<renv-library>", x)
 
-  x <- gsub(getRversion(), "<r-version>", x, fixed = TRUE)
-  x <- gsub(renv_platform_prefix(), "<platform-prefix>", x, fixed = TRUE)
   x
+
 }

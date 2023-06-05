@@ -15,7 +15,6 @@ test_that("snapshot is idempotent", {
 
 test_that("snapshot failures are reported", {
 
-  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope("oatmeal")
   init()
 
