@@ -276,8 +276,15 @@ renv_package_dependencies_impl <- function(package,
   assign(package, location, envir = visited, inherits = FALSE)
 
   # find its dependencies from the DESCRIPTION file
-  deps <- renv_dependencies_discover_description(location, fields)
-  subpackages <- deps$Package
+  desc <- tryCatch(
+    renv_description_read(location),
+    error = function(err) renv_dependencies_error(path, error = path)
+  )
+
+  fields <- c("Depends", "Imports", "LinkingTo")
+  deps <- bind(map(desc[fields], renv_description_parse_field))
+  subpackages <- setdiff(unique(unlist(deps$Package)), "R")
+
   for (subpackage in subpackages)
     renv_package_dependencies_impl(subpackage, visited, libpaths, fields)
 }
