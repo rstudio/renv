@@ -1,12 +1,7 @@
-expect_snapshot <- function(x, ...) {
+expect_snapshot <- function(...) {
   renv_scope_options(renv.verbose = TRUE)
 
-  # This shouldn't be so hard
-  eval.parent(
-    substitute(
-      testthat::expect_snapshot(x, ..., transform = strip_dirs)
-    )
-  )
+  testthat::expect_snapshot(..., transform = strip_dirs)
 }
 
 strip_dirs <- function(x) {
