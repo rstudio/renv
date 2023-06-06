@@ -958,9 +958,13 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     postamble = postamble
   )
 
+  # only prompt the user to install if a restart is available
+  restart <- findRestart("renv_recompute_records")
+
   choices <- c(
     snapshot = "Snapshot, just using the currently installed packages.",
-    install = "Install the packages, then snapshot.",
+    install = if (isRestart(restart))
+      "Install the packages, then snapshot.",
     cancel = "Cancel, and resolve the situation on your own."
   )
 
@@ -970,7 +974,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     # do nothing
   } else if (choice == "install") {
     install(missing, prompt = FALSE)
-    renv_condition_signal("renv_recompute_records")
+    invokeRestart(restart)
   } else {
     cancel()
   }

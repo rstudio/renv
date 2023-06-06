@@ -172,33 +172,29 @@ renv_lockfile_create <- function(project,
   libpaths <- libpaths %||% renv_libpaths_all()
   type <- type %||% settings$snapshot.type(project = project)
 
+  # use a restart, so we can allow the user to install packages before snapshot
+  lockfile <- withRestarts(
+    renv_lockfile_create_impl(project, libpaths, type, packages, exclude),
+    renv_recompute_records = function() {
+      renv_dynamic_reset()
+      renv_lockfile_create_impl(project, libpaths, type, packages, exclude)
+    }
+  )
+}
+
+renv_lockfile_create_impl <- function(project, libpaths, type, packages, exclude) {
+
   lockfile <- renv_lockfile_init(project)
 
   records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
 
-  records <- tryCatch(
-    renv_snapshot_filter(
-      project  = project,
-      records  = records,
-      type     = type,
-      packages = packages,
-      exclude  = exclude
-    ),
-    renv_recompute_records = identity
+  records <- renv_snapshot_filter(
+    project  = project,
+    records  = records,
+    type     = type,
+    packages = packages,
+    exclude  = exclude
   )
-
-  # We re-computing and re-filtering records once, if requested by user
-  if (inherits(records, "renv_recompute_records")) {
-    renv_dynamic_reset()
-    records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
-    records <- renv_snapshot_filter(
-      project  = project,
-      records  = records,
-      type     = type,
-      packages = packages,
-      exclude  = exclude
-    )
-  }
 
   records <- renv_snapshot_fixup(records)
   renv_lockfile_records(lockfile) <- records
@@ -210,6 +206,7 @@ renv_lockfile_create <- function(project,
 
   class(lockfile) <- "renv_lockfile"
   lockfile
+
 }
 
 renv_lockfile_modify <- function(lockfile, records) {
