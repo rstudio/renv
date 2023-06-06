@@ -112,6 +112,28 @@ renv_description_type <- function(path = NULL, desc = NULL) {
 
 }
 
+renv_description_dependencies <- function(path, subdir = NULL, fields = NULL) {
+
+  fields <- fields %||% c("Depends", "Imports", "LinkingTo")
+
+  desc <- tryCatch(
+    renv_description_read(path = path, subdir = subdir),
+    error = function(err) renv_dependencies_error(path, error = path)
+  )
+
+  out <- bind(map(desc[fields], renv_description_parse_field))
+  if (is.null(out)) {
+    data_frame(
+      Package = character(),
+      Require = character(),
+      Version = character()
+    )
+  } else {
+    out[out$Package != "R", , drop = FALSE]
+  }
+
+}
+
 # parse the dependency requirements normally presented in
 # Depends, Imports, Suggests, and so on
 renv_description_parse_field <- function(field) {
