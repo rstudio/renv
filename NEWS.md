@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* Fixed an issue where `renv::snapshot(exclude = <...>)` could warn when
+  attempting to exclude a package which was not already installed. (#1396)
+
 * If `renv::snapshot()` finds missing packages, a new prompt allows you to 
   install them before continuing (#1198).
 
