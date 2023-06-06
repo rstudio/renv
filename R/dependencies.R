@@ -516,7 +516,8 @@ renv_dependencies_discover_renv_lock <- function(path) {
 renv_dependencies_discover_description <- function(path,
                                                    fields = NULL,
                                                    subdir = NULL,
-                                                   project = NULL)
+                                                   project = NULL,
+                                                   include_dev = TRUE)
 {
   dcf <- catch(renv_description_read(path = path, subdir = subdir))
   if (inherits(dcf, "error"))
@@ -559,7 +560,12 @@ renv_dependencies_discover_description <- function(path,
     data <- c(data, list(renv_dependencies_list(path, "roxygen2", dev = TRUE)))
   }
 
-  bind(data)
+  out <- bind(data)
+
+  if (!is.null(out) && !include_dev) {
+    out <- out[!out$Dev, , drop = FALSE]
+  }
+  out
 
 }
 

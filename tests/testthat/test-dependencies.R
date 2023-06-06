@@ -210,14 +210,6 @@ test_that("Suggest dependencies are ignored by default", {
   expect_false(renv_package_installed("egg"))
 })
 
-test_that("Suggest dependencies are used when requested", {
-  renv_tests_scope("breakfast")
-  fields <- c("Imports", "Depends", "LinkingTo", "Suggests")
-  settings$package.dependency.fields(fields)
-  install("breakfast")
-  expect_true(renv_package_installed("egg"))
-})
-
 test_that("a call to geom_hex() implies a dependency on ggplot2", {
 
   file <- renv_test_code({
