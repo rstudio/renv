@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p>If <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> finds missing packages, a new prompt allows you to install them before continuing (<a href="https://github.com/rstudio/renv/issues/1198" class="external-link">#1198</a>).</p></li>
+<ul><li><p>Fixed an issue where <code>renv::snapshot(exclude = &lt;...&gt;)</code> could warn when attempting to exclude a package which was not already installed. (<a href="https://github.com/rstudio/renv/issues/1396" class="external-link">#1396</a>)</p></li>
+<li><p>If <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> finds missing packages, a new prompt allows you to install them before continuing (<a href="https://github.com/rstudio/renv/issues/1198" class="external-link">#1198</a>).</p></li>
 <li><p>When prompting to activate a project, you now get three options that hopefully make your choices more clear.</p></li>
 <li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> no longer treats <code>box::use(module/file)</code> as using package <code>module</code> (<a href="https://github.com/rstudio/renv/issues/1377" class="external-link">#1377</a>).</p></li>
 <li><p><code><a href="../reference/install.html">renv::install()</a></code> now requires interactive confirmation that you want to install packages (<a href="https://github.com/rstudio/renv/issues/587" class="external-link">#587</a>).</p></li>

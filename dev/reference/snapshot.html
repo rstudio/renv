@@ -156,7 +156,9 @@ lockfile as well.</p></dd>
 
 
 <dt>exclude</dt>
-<dd><p>A vector of packages to be explicitly excluded from the lockfile.</p></dd>
+<dd><p>A vector of packages to be explicitly excluded from the lockfile.
+Note that transitive package dependencies will always be included, to avoid
+potentially creating an incomplete / non-functional lockfile.</p></dd>
 
 
 <dt>prompt</dt>
