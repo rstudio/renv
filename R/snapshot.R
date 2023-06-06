@@ -885,33 +885,30 @@ renv_snapshot_filter <- function(project, records, type, packages, exclude) {
   type <- aliases[[type]] %||% type
 
   result <- switch(type,
-    all      = renv_snapshot_filter_all(project, records),
-    custom   = renv_snapshot_filter_custom(project, records),
-    explicit = renv_snapshot_filter_explicit(project, records),
-    implicit = renv_snapshot_filter_implicit(project, records),
-    packages = renv_snapshot_filter_packages(project, records, packages),
+    all      = renv_snapshot_filter_all(project, records, exclude),
+    custom   = renv_snapshot_filter_custom(project, records, exclude),
+    explicit = renv_snapshot_filter_explicit(project, records, exclude),
+    implicit = renv_snapshot_filter_implicit(project, records, exclude),
+    packages = renv_snapshot_filter_packages(project, records, packages, exclude),
     stopf("unknown snapshot type '%s'", type)
   )
-
-  if (length(exclude))
-    result <- exclude(result, exclude)
 
   result
 
 }
 
-renv_snapshot_filter_all <- function(project, records) {
-  renv_snapshot_filter_impl(project, records, names(records), "all")
+renv_snapshot_filter_all <- function(project, records, exclude) {
+  renv_snapshot_filter_impl(project, records, names(records), "all", exclude)
 }
 
-renv_snapshot_filter_impl <- function(project, records, packages, type) {
+renv_snapshot_filter_impl <- function(project, records, packages, type, exclude) {
 
   # make sure we include renv
   packages <- unique(c(packages, "renv"))
 
   # warn if some required packages are missing
   ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
-  missing <- setdiff(packages, c(names(records), ignored))
+  missing <- setdiff(packages, c(names(records), ignored, exclude))
   if (!`_renv_status_running`)
     renv_snapshot_filter_report_missing(missing, type)
 
@@ -919,6 +916,9 @@ renv_snapshot_filter_impl <- function(project, records, packages, type) {
   used <- setdiff(packages, ignored)
 
   # include transitive dependencies
+  #
+  # TODO: what if a package that a user requested be ignored pops up here; should
+  # we notify them that they cannot ignore a required dependency?
   paths <- renv_package_dependencies(used, project = project)
   all <- as.character(names(paths))
   kept <- keep(records, all)
@@ -951,6 +951,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     else
       "Use `renv::dependencies()` to see where this package is used in your project."
   )
+
   renv_pretty_print(
     values = sort(unique(missing)),
     preamble = preamble,
@@ -969,12 +970,7 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
     # do nothing
   } else if (choice == "install") {
     install(missing, prompt = FALSE)
-    # User will only see this in exceptional circumstances as it is
-    # caught once by renv_lockfile_create()
-    stop(errorCondition(
-      message = "Failed to restart snapshotting after install",
-      class = "renv_recompute_records"
-    ))
+    renv_condition_signal("renv_recompute_records")
   } else {
     cancel()
   }
@@ -982,7 +978,9 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
   TRUE
 }
 
-renv_snapshot_filter_implicit <- function(project, records) {
+renv_snapshot_filter_implicit <- function(project, records, exclude) {
+
+  # compute snapshot dependencies
   start <- Sys.time()
   packages <- renv_snapshot_dependencies(project, "implicit")
   end <- Sys.time()
@@ -1003,19 +1001,21 @@ renv_snapshot_filter_implicit <- function(project, records) {
 
   }
 
-  renv_snapshot_filter_impl(project, records, packages, "implicit")
+  renv_snapshot_filter_impl(project, records, packages, "implicit", exclude)
+
 }
 
-renv_snapshot_filter_explicit <- function(project, records) {
+renv_snapshot_filter_explicit <- function(project, records, exclude) {
   packages <- renv_snapshot_dependencies(project, "explicit")
-  renv_snapshot_filter_impl(project, records, packages, "explicit")
+  renv_snapshot_filter_impl(project, records, packages, "explicit", exclude)
 }
 
-renv_snapshot_filter_packages <- function(project, records, packages) {
+renv_snapshot_filter_packages <- function(project, records, packages, exclude) {
 
+  # TODO: do we want to respect other ignores here?
   # include transitive dependencies
   paths <- renv_package_dependencies(packages, project = project)
-  all <- as.character(names(paths))
+  all <- setdiff(as.character(names(paths)), exclude)
   kept <- keep(records, all)
 
   # add in bioconductor infrastructure packages
@@ -1055,7 +1055,7 @@ renv_snapshot_filter_custom_resolve <- function() {
 
 }
 
-renv_snapshot_filter_custom <- function(project, records) {
+renv_snapshot_filter_custom <- function(project, records, exclude) {
 
   # get user-defined snapshot filter
   filter <- renv_snapshot_filter_custom_resolve()
@@ -1068,6 +1068,9 @@ renv_snapshot_filter_custom <- function(project, records) {
   # sanity check the result
   if (!is.character(packages))
     stop("custom snapshot filter did not return a character vector")
+
+  # remove excluded packages
+  packages <- setdiff(packages, exclude)
 
   # return matching records
   keep(records, packages)

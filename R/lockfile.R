@@ -184,13 +184,11 @@ renv_lockfile_create <- function(project,
       packages = packages,
       exclude  = exclude
     ),
-    renv_recompute_records = function(cnd) {
-      NULL
-    }
+    renv_recompute_records = identity
   )
 
   # We re-computing and re-filtering records once, if requested by user
-  if (is.null(records)) {
+  if (inherits(records, "renv_recompute_records")) {
     renv_dynamic_reset()
     records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
     records <- renv_snapshot_filter(
