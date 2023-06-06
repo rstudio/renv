@@ -95,6 +95,8 @@
 #'   lockfile as well.
 #'
 #' @param exclude A vector of packages to be explicitly excluded from the lockfile.
+#'   Note that transitive package dependencies will always be included, to avoid
+#'   potentially creating an incomplete / non-functional lockfile.
 #'
 #' @param update Boolean; if the lockfile already exists, then attempt to update
 #'   that lockfile without removing any prior package records.
@@ -916,9 +918,6 @@ renv_snapshot_filter_impl <- function(project, records, packages, type, exclude)
   used <- setdiff(packages, ignored)
 
   # include transitive dependencies
-  #
-  # TODO: what if a package that a user requested be ignored pops up here; should
-  # we notify them that they cannot ignore a required dependency?
   paths <- renv_package_dependencies(used, project = project)
   all <- as.character(names(paths))
   kept <- keep(records, all)
