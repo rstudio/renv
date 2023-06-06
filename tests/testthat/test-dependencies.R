@@ -4,7 +4,7 @@ test_that(".Rproj files requesting devtools is handled", {
   writeLines("PackageUseDevtools: Yes", "project.Rproj")
   deps <- dependencies(dev = TRUE)
   packages <- deps$Package
-  expect_setequal(packages, "devtools")
+  expect_setequal(packages, c("devtools", "roxygen2"))
 })
 
 test_that("usages of library, etc. are properly handled", {
