@@ -276,7 +276,7 @@ renv_package_dependencies_impl <- function(package,
   assign(package, location, envir = visited, inherits = FALSE)
 
   # find its dependencies from the DESCRIPTION file
-  deps <- renv_dependencies_discover_description(location, is_dependency = TRUE)
+  deps <- renv_dependencies_discover_description(location, fields = "strong")
   subpackages <- deps$Package
   for (subpackage in subpackages)
     renv_package_dependencies_impl(subpackage, visited, libpaths, fields)

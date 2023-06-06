@@ -516,23 +516,20 @@ renv_dependencies_discover_renv_lock <- function(path) {
 renv_dependencies_discover_description <- function(path,
                                                    fields = NULL,
                                                    subdir = NULL,
-                                                   project = NULL,
-                                                   is_dependency = FALSE)
+                                                   project = NULL)
 {
   dcf <- catch(renv_description_read(path = path, subdir = subdir))
   if (inherits(dcf, "error"))
     return(renv_dependencies_error(path, error = dcf))
 
-  if (is_dependency) {
-    fields <- c("Imports", "Depends", "LinkingTo")
-  } else {
+  if (is.null(fields)) {
     # Most callers don't pass in project so we need to get it from global state
     project <- project %||%
       renv_dependencies_state(key = "root") %||%
       renv_restore_state(key = "root") %||%
       renv_project_resolve()
 
-    fields <- fields %||% settings$package.dependency.fields(project = project)
+    fields <- settings$package.dependency.fields(project = project)
 
     # if this is the DESCRIPTION file for the active project, include
     # the dependencies for the active profile (if any) and Suggested fields.
@@ -545,6 +542,8 @@ renv_dependencies_discover_description <- function(path,
 
       fields <- c(fields, "Suggests", profile_field)
     }
+  } else {
+    fields <- renv_description_dependency_fields(fields)
   }
 
   data <- map(
