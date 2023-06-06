@@ -251,7 +251,6 @@ renv_package_dependencies_impl <- function(package,
                                            libpaths = NULL,
                                            fields = NULL)
 {
-
   # skip the 'R' package
   if (package == "R")
     return()
@@ -276,6 +275,7 @@ renv_package_dependencies_impl <- function(package,
   # we know the path, so set it now
   assign(package, location, envir = visited, inherits = FALSE)
 
+  # find its dependencies from the DESCRIPTION file
   deps <- renv_dependencies_discover_description(location, include_dev = FALSE)
   subpackages <- deps$Package
   for (subpackage in subpackages)
