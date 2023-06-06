@@ -50,11 +50,10 @@ added to the lockfile, that entry in the lockfile will not be ignored.
 
 \subsection{\code{package.dependency.fields}}{
 
-During dependency discovery, renv uses the fields of an installed
-package's \code{DESCRIPTION} file to determine that package's recursive
-dependencies. By default, the \code{Imports}, \code{Depends} and \code{LinkingTo} fields
-are used. If you'd prefer that renv also captures the \code{Suggests}
-dependencies for a package, you can set this to
+When explicitly installing a package with \code{install()}, what fields
+should be used to determine that packages dependencies? The default
+uses \code{Imports}, \code{Depends} and \code{LinkingTo} fields, but you also want
+to install \code{Suggests} dependencies for a package, you can set this to
 \code{c("Imports", "Depends", "LinkingTo", "Suggests")}.
 }
 

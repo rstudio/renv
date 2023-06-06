@@ -517,7 +517,7 @@ renv_dependencies_discover_description <- function(path,
                                                    fields = NULL,
                                                    subdir = NULL,
                                                    project = NULL,
-                                                   include_dev = TRUE)
+                                                   is_dependency = FALSE)
 {
   dcf <- catch(renv_description_read(path = path, subdir = subdir))
   if (inherits(dcf, "error"))
@@ -541,35 +541,23 @@ renv_dependencies_discover_description <- function(path,
       sprintf("Config/renv/profiles/%s/dependencies", profile)
 
     fields <- c(fields, "Suggests", profile_field)
-    proj_desc <- TRUE
-
-  } else {
-    proj_desc <- FALSE
   }
+
+  if (is_dependency)
+    fields <- setdiff(fields, "Suggests")
 
   data <- map(
     fields,
     renv_dependencies_discover_description_impl,
     dcf  = dcf,
-    path = path,
-    proj_desc = proj_desc
+    path = path
   )
 
-  # Infer a dependency on roxygen2 if RoxygenNote present
-  if (!is.null(dcf$RoxygenNote)) {
-    data <- c(data, list(renv_dependencies_list(path, "roxygen2", dev = TRUE)))
-  }
-
-  out <- bind(data)
-
-  if (!is.null(out) && !include_dev) {
-    out <- out[!out$Dev, , drop = FALSE]
-  }
-  out
+  bind(data)
 
 }
 
-renv_dependencies_discover_description_impl <- function(dcf, field, path, proj_desc) {
+renv_dependencies_discover_description_impl <- function(dcf, field, path) {
 
   # read field
   contents <- dcf[[field]]
@@ -599,7 +587,7 @@ renv_dependencies_discover_description_impl <- function(dcf, field, path, proj_d
     extract_chr(matches, 2L),
     extract_chr(matches, 3L),
     extract_chr(matches, 4L),
-    dev = proj_desc && field == "Suggests"
+    dev = field == "Suggests"
   )
 
 }

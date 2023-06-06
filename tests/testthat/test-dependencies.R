@@ -170,19 +170,6 @@ test_that("Suggests are dev. deps for all projects", {
 
 })
 
-test_that("roxygen2 is dev dep if needed", {
-
-  renv_tests_scope()
-
-  writeLines(c("RoxygenNote: 7.0.0"), con = "DESCRIPTION")
-  deps <- dependencies(dev = TRUE)
-  expect_equal(
-    deps[c("Package", "Dev")],
-    data.frame(Package = "roxygen2", Dev = TRUE, stringsAsFactors = FALSE)
-  )
-
-})
-
 test_that("packages referenced by modules::import() are discovered", {
   deps <- dependencies("resources/modules.R")
   expect_setequal(deps$Package, c("A", "B", "C", "D", "G", "H", "modules"))

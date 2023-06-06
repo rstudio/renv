@@ -1004,7 +1004,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   deps <- renv_dependencies_discover_description(
     path,
     subdir = subdir,
-    include_dev = FALSE
+    is_dependency = !record$Package %in% state$packages
   )
   if (length(deps$Source))
     deps$Source <- record$Package
