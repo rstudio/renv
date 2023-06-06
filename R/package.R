@@ -252,6 +252,10 @@ renv_package_dependencies_impl <- function(package,
                                            fields = NULL)
 {
 
+  # skip the 'R' package
+  if (package == "R")
+    return()
+
   # if we've already visited this package, bail
   if (exists(package, envir = visited, inherits = FALSE))
     return()
