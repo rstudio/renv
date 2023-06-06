@@ -523,28 +523,29 @@ renv_dependencies_discover_description <- function(path,
   if (inherits(dcf, "error"))
     return(renv_dependencies_error(path, error = dcf))
 
-  # Most callers don't pass in project so we need to get it from global state
-  project <- project %||%
-    renv_dependencies_state(key = "root") %||%
-    renv_restore_state(key = "root") %||%
-    renv_project_resolve()
+  if (is_dependency) {
+    fields <- c("Imports", "Depends", "LinkingTo")
+  } else {
+    # Most callers don't pass in project so we need to get it from global state
+    project <- project %||%
+      renv_dependencies_state(key = "root") %||%
+      renv_restore_state(key = "root") %||%
+      renv_project_resolve()
 
-  fields <- fields %||% settings$package.dependency.fields(project = project)
+    fields <- fields %||% settings$package.dependency.fields(project = project)
 
-  # if this is the DESCRIPTION file for the active project, include
-  # the dependencies for the active profile (if any) and Suggested fields.
-  if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
+    # if this is the DESCRIPTION file for the active project, include
+    # the dependencies for the active profile (if any) and Suggested fields.
+    if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
 
-    # collect profile-specific dependencies as well
-    profile <- renv_profile_get()
-    profile_field <- if (length(profile))
-      sprintf("Config/renv/profiles/%s/dependencies", profile)
+      # collect profile-specific dependencies as well
+      profile <- renv_profile_get()
+      profile_field <- if (length(profile))
+        sprintf("Config/renv/profiles/%s/dependencies", profile)
 
-    fields <- c(fields, "Suggests", profile_field)
+      fields <- c(fields, "Suggests", profile_field)
+    }
   }
-
-  if (is_dependency)
-    fields <- setdiff(fields, "Suggests")
 
   data <- map(
     fields,
