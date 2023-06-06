@@ -554,14 +554,10 @@ renv_dependencies_discover_description <- function(path,
     proj_desc = proj_desc
   )
 
-  # Infer a dependency on roxygen2 and devtools if RoxygenNote present
+  # Infer a dependency on roxygen2 if RoxygenNote present
   if (!is.null(dcf$RoxygenNote)) {
-    data <- c(
-      data,
-      list(renv_dependencies_list(path, c("roxygen2", "devtools"), dev = TRUE))
-    )
+    data <- c(data, list(renv_dependencies_list(path, "roxygen2", dev = TRUE)))
   }
-
 
   bind(data)
 
@@ -934,7 +930,6 @@ renv_dependencies_discover_rproj <- function(path) {
   deps <- stack()
   if (identical(props$PackageUseDevtools, "Yes")) {
     deps$push("devtools")
-    deps$push("roxygen2")
   }
 
   renv_dependencies_list(path, deps$data(), dev = TRUE)

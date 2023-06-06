@@ -4,7 +4,7 @@ test_that(".Rproj files requesting devtools is handled", {
   writeLines("PackageUseDevtools: Yes", "project.Rproj")
   deps <- dependencies(dev = TRUE)
   packages <- deps$Package
-  expect_setequal(packages, c("devtools", "roxygen2"))
+  expect_setequal(packages, "devtools")
 })
 
 test_that("usages of library, etc. are properly handled", {
@@ -167,6 +167,19 @@ test_that("Suggests are dev. deps for all projects", {
   writeLines(c("Type: Package", "Suggests: bread"), con = "DESCRIPTION")
   deps <- dependencies(dev = TRUE)
   expect_equal(deps[c("Package", "Dev")], expected)
+
+})
+
+test_that("roxygen2 is dev dep if needed", {
+
+  renv_tests_scope()
+
+  writeLines(c("RoxygenNote: 7.0.0"), con = "DESCRIPTION")
+  deps <- dependencies(dev = TRUE)
+  expect_equal(
+    deps[c("Package", "Dev")],
+    data.frame(Package = "roxygen2", Dev = TRUE, stringsAsFactors = FALSE)
+  )
 
 })
 
