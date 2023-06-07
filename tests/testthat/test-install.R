@@ -584,7 +584,7 @@ test_that("install() reports failure when a 'bad' binary is installed", {
   renv_scope_options(INSTALL_opts = c(bread = "--no-test-load"))
   install(tgt)
   expect_true(renv_package_installed("bread"))
-  expect_error(library(bread))
+  expect_error(renv_namespace_load(bread))
   remove("bread")
 
 })
