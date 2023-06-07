@@ -1,3 +1,10 @@
+renv_lockfile_external <- function() {
+  list(
+    quarto = quarto_version(),
+    pandoc = pandoc_version()
+  )
+}
+
 pandoc_path <- function() {
   if (!is.na(path <- Sys.getenv("RSTUDIO_PANDOC", unset = NA))) {
     return(file.path(path, "pandoc"))
