@@ -49,7 +49,7 @@ renv_pretty_print_records <- function(records,
   text <- sprintf("- %s [%s]", format(packages), descs)
 
   all <- c(
-    preamble, if (length(postamble)) "",
+    preamble, if (length(preamble)) "",
     text, "",
     postamble, if (length(postamble)) ""
   )

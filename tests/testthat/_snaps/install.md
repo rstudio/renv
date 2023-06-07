@@ -3,14 +3,13 @@
     Code
       install("bread@0.1.0")
     Output
-      Downloading 1 package(s) and their dependencies
-      Done
+      # Downloading package(s) =============
+      Nothing needed
       
+      # Installing package(s) into "<tempdir>/<renv-library>"
       The following package(s) will be installed:
       
       - bread [0.1.0]
-      
-      Packages will be installed into "<tempdir>/<renv-library>"
       
       Installing bread ... OK [copied from cache]
       Installed 1 package in XXXX seconds.
@@ -27,17 +26,16 @@
     Code
       install()
     Output
-      Downloading 1 package(s) and their dependencies
-      Done
+      # Downloading package(s) =============
+      Nothing needed
       
+      # Installing package(s) into "<tempdir>/<renv-library>"
       The following package(s) will be installed:
       
       - bread     [1.0.0]
       - breakfast [1.0.0]
       - oatmeal   [1.0.0]
       - toast     [1.0.0]
-      
-      Packages will be installed into "<tempdir>/<renv-library>"
       
       Installing oatmeal   ... OK [copied from cache]
       Installing bread     ... OK [copied from cache]
