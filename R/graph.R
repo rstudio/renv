@@ -215,7 +215,7 @@ renv_graph_revdeps_impl <- function(package, envir, revdeps) {
 
 renv_graph_roots <- function(project) {
 
-  deps <- dependencies(project, quiet = TRUE)
+  deps <- renv_dependencies_impl(project, quiet = TRUE)
   sort(unique(deps$Package))
 
 }

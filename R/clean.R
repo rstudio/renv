@@ -158,7 +158,7 @@ renv_clean_system_library <- function(project, prompt) {
   }
 
   # explicitly query for packages
-  syslib <- renv_path_normalize(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
+  syslib <- renv_path_normalize(renv_libpaths_system())
   db <- installed_packages(lib.loc = syslib, priority = "NA")
   packages <- setdiff(db$Package, "translations")
 
@@ -216,7 +216,7 @@ renv_clean_unused_packages <- function(project, prompt) {
     return(ntd())
 
   # find packages used in the project and their dependencies
-  deps <- dependencies(project, progress = FALSE)
+  deps <- renv_dependencies_impl(project, progress = FALSE)
   paths <- renv_package_dependencies(deps$Package, project = project)
   packages <- names(paths)
 

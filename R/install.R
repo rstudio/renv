@@ -116,6 +116,7 @@ install <- function(packages = NULL,
 
     packages <- c(packages, dots[!nzchar(names(dots))])
   }
+  install_all <- is.null(packages)
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
@@ -142,24 +143,30 @@ install <- function(packages = NULL,
     return(renv_pak_install(packages, libpaths, project))
   }
 
-  # get and resolve the packages / remotes to be installed
-  remotes <- packages %||% renv_project_remotes(project, dependencies)
-  if (empty(remotes)) {
+  packages <- packages %||% renv_snapshot_dependencies(project, "implicit")
+  if (empty(packages)) {
     writef("* There are no packages to install.")
     return(invisible(list()))
   }
 
-  # resolve remotes
-  remotes <- lapply(remotes, renv_remotes_resolve)
+  # retrieve currently installed packages
+  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+
+  # generate package records to install
+  remotes <- lapply(packages, renv_remotes_resolve)
   names(remotes) <- extract_chr(remotes, "Package")
 
-  # update records with requested remotes
-  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
-  records[names(remotes)] <- remotes
+  if (install_all) {
+    # apply version specifications and Remotes from DESCRIPTION
+    pkg_remotes <- renv_project_remotes(project)
+    remotes <- c(exclude(remotes, names(pkg_remotes)), pkg_remotes)
 
-  # read remotes from the package DESCRIPTION file and use those to
-  # update non-specific package requests
-  records <- renv_install_remotes_update(records, project)
+    # only install packages that aren't already installed
+    remotes <- exclude(remotes, names(records))
+  }
+
+  # update existing records with requested remotes
+  records[names(remotes)] <- remotes
 
   # run install preflight checks
   if (!renv_install_preflight(project, libpaths, remotes))
@@ -542,7 +549,7 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   defer(callback())
 
   # normalize paths
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
 
   # get library path
   library <- renv_libpaths_active()
@@ -714,37 +721,6 @@ renv_install_preflight <- function(project, libpaths, records) {
     renv_install_preflight_unknown_source(records),
     renv_install_preflight_permissions(library)
   )
-
-}
-
-renv_install_remotes_update <- function(records, project) {
-
-  # check for DESCRIPTION file
-  descpath <- file.path(project, "DESCRIPTION")
-  if (!file.exists(descpath))
-    return(records)
-
-  # read Remotes field (if any)
-  remotes <- renv_description_remotes(descpath)
-  if (empty(remotes))
-    return(records)
-
-  # update records as appropriate
-  enumerate(remotes, function(package, remote) {
-
-    record <- records[[package]]
-
-    update <-
-      is.null(record) ||
-      identical(record, list(Package = package, Source = "Repository"))
-
-    if (update)
-      records[[package]] <<- remote
-
-  })
-
-  # return updated set of records
-  records
 
 }
 

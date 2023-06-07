@@ -1,22 +1,34 @@
-expect_snapshot <- function(x, ...) {
+expect_snapshot <- function(...) {
   renv_scope_options(renv.verbose = TRUE)
 
-  # This shouldn't be so hard
-  eval.parent(
-    substitute(
-      testthat::expect_snapshot(x, ..., transform = strip_dirs)
-    )
-  )
+  testthat::expect_snapshot(..., transform = strip_dirs)
 }
 
 strip_dirs <- function(x) {
-  x <- gsub(getwd(), "<wd>", x, fixed = TRUE)
-  x <- gsub(renv_paths_cache(), "<cache>", x, fixed = TRUE)
-  x <- gsub(normalizePath(tempdir(), winslash = "/"), "<tempdir>", x, fixed = TRUE)
-  x <- gsub(tempdir(), "<tempdir>", x, fixed = TRUE)
+
+  # TODO: we might want to map multiple strings to the same
+  # placeholder, so this should probably be flipped?
+  #
+  # note also that order matters for snapshot tests; the least-specific
+  # paths should go at the end of this list
+  filters <- list(
+    "<cache>"           = renv_paths_cache(),
+    "<platform-prefix>" = renv_platform_prefix(),
+    "<r-version>"       = getRversion(),
+    "<test-repo>"       = getOption("repos")[[1L]],
+    "<root>"            = renv_path_normalize(renv_paths_root()),
+    "<wd>"              = renv_path_normalize(getwd()),
+    "<tempdir>"         = renv_path_normalize(tempdir())
+  )
+
+  # apply filters
+  enumerate(filters, function(target, source) {
+    x <<- gsub(source, target, x, fixed = TRUE)
+  })
+
+  # other pattern-based filters here
   x <- gsub("renv-library-\\w+", "<renv-library>", x)
-  x <- gsub(getRversion(), "<r-version>", x, fixed = TRUE)
-  x <- gsub(renv_tests_repopath(), "<test-repo>", x, fixed = TRUE)
-  x <- gsub(renv_platform_prefix(), "<platform-prefix>", x, fixed = TRUE)
+
   x
+
 }

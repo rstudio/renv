@@ -87,7 +87,12 @@ checkout <- function(repos = NULL,
 }
 
 renv_checkout_packages <- function(project) {
-  renv_dependencies_impl(project, progress = FALSE, field = "Package")
+  renv_dependencies_impl(
+    project,
+    progress = FALSE,
+    field = "Package",
+    dev = TRUE
+  )
 }
 
 renv_checkout_remotes <- function(packages, project) {

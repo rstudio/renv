@@ -34,8 +34,8 @@ test_that("use(lockfile) works as intended", {
   pkgpath <- renv_package_find("bread")
 
   expect_equal(
-    normalizePath(pkgpath),
-    normalizePath(file.path(libpath, "bread"))
+    renv_path_normalize(pkgpath),
+    renv_path_normalize(file.path(libpath, "bread"))
   )
 
 })

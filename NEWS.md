@@ -4,6 +4,22 @@
 * `renv::snapshot()` now records quarto (#1143) and pandoc (#615) versions in 
   the lockfile.
 
+* `dependencies()` now marks `Suggested` packages listed in `DESCRIPTION` files
+  as development dependencies regardless of whether or not they're a "package" 
+  project.
+
+* `settings$package.dependency.fields()` now only affects packages installed
+  directly by the user, not downstream dependencies of those packages.
+
+* Fixed an issue where `renv::snapshot(exclude = <...>)` could warn when
+  attempting to exclude a package which was not already installed. (#1396)
+
+* If `renv::snapshot()` finds missing packages, a new prompt allows you to 
+  install them before continuing (#1198).
+
+* When prompting to activate a project, you now get three options that hopefully
+  make your choices more clear.
+  
 * `renv::dependencies()` no longer treats `box::use(module/file)` as using
   package `module` (#1377).
 

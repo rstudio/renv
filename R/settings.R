@@ -358,11 +358,10 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 #'
 #' ## `package.dependency.fields`
 #'
-#' During dependency discovery, renv uses the fields of an installed
-#' package's `DESCRIPTION` file to determine that package's recursive
-#' dependencies. By default, the `Imports`, `Depends` and `LinkingTo` fields
-#' are used. If you'd prefer that renv also captures the `Suggests`
-#' dependencies for a package, you can set this to
+#' When explicitly installing a package with `install()`, what fields
+#' should be used to determine that packages dependencies? The default
+#' uses `Imports`, `Depends` and `LinkingTo` fields, but you also want
+#' to install `Suggests` dependencies for a package, you can set this to
 #' `c("Imports", "Depends", "LinkingTo", "Suggests")`.
 #'
 #' ## `r.version`

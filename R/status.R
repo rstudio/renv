@@ -74,55 +74,39 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   if (!ok)
     return(default)
 
-  # get lockfile state
-  lockfile <- renv_lockfile_read(lockpath)
-
-  # get library state
-  library <- local({
-    renv_scope_options(renv.verbose = FALSE)
-    snapshot(project  = project,
-             library  = libpaths,
-             lockfile = NULL,
-             type     = "all",
-             force    = TRUE)
-  })
-
-  # get dependencies
-  dependencies <- renv_snapshot_dependencies(
-    project = project,
-    type    = settings$snapshot.type(project = project)
-  )
-
-  # include transitive dependencies
-  packages <- sort(unique(c(dependencies, "renv")))
+  # get all dependencies, including transitive
+  dependencies <- renv_snapshot_dependencies(project)
+  packages <- sort(union(dependencies, "renv"))
   paths <- renv_package_dependencies(packages, project = project)
   packages <- as.character(names(paths))
 
+  # get lockfile records
+  lockfile <- renv_lockfile_records(renv_lockfile_read(lockpath))
+
+  # get library records
+  library <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+
   # remove ignored packages
-  ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
-  library$Packages <- exclude(library$Packages, ignored)
-  packages <- setdiff(packages, ignored)
-
-  # ignore renv when testing
-  if (renv_tests_running()) {
-    packages <- setdiff(packages, "renv")
-    lockfile$Packages[["renv"]] <- NULL
-    library$Packages[["renv"]] <- NULL
-  }
-
-  synchronized <- all(
-
-    renv_status_check_synchronized(
-      project      = project,
-      lockfile     = lockfile,
-      library      = library,
-      packages     = packages
-    ),
-
-    if (sources)
-      renv_status_check_unknown_sources(project, lockfile)
-
+  ignored <- c(
+    renv_project_ignored_packages(project),
+    renv_packages_base(),
+    if (renv_tests_running()) "renv"
   )
+  packages <- setdiff(packages, ignored)
+  lockfile <- exclude(lockfile, ignored)
+  library <- exclude(library, ignored)
+
+  synchronized <- renv_status_check_synchronized(
+    project      = project,
+    lockfile     = lockfile,
+    library      = library,
+    packages     = packages
+  )
+
+  if (sources) {
+    synchronized <- synchronized &&
+      renv_status_check_unknown_sources(project, lockfile)
+  }
 
   if (cache)
     renv_status_check_cache(project)
@@ -168,8 +152,7 @@ renv_status_check_missing_library <- function(project, libpaths) {
 }
 
 renv_status_check_unknown_sources <- function(project, lockfile) {
-  records <- renv_lockfile_records(lockfile)
-  renv_check_unknown_source(records, project)
+  renv_check_unknown_source(lockfile, project)
 }
 
 renv_status_check_synchronized <- function(project,
@@ -177,10 +160,6 @@ renv_status_check_synchronized <- function(project,
                                            library,
                                            packages)
 {
-  # extract record components
-  lockfile <- renv_lockfile_records(lockfile)
-  library  <- renv_lockfile_records(library)
-
   # projects will implicitly depend on BiocManager if any Bioconductor
   # packages are in use
   sources <- extract_chr(library, "Source")
@@ -221,7 +200,7 @@ renv_status_check_synchronized <- function(project,
     }
 
     renv_pretty_print(
-      missing,
+      sort(missing),
       preamble  = usedmsg,
       postamble = postamble
     )

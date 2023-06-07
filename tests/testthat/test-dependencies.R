@@ -1,4 +1,14 @@
 
+test_that("can select fields", {
+
+  renv_tests_scope()
+  expect_equal(renv_dependencies_impl(field = "Package"), character())
+
+  writeLines("library(utils)", "deps.R")
+  expect_equal(renv_dependencies_impl(field = "Package"), "utils")
+
+})
+
 test_that(".Rproj files requesting devtools is handled", {
   renv_tests_scope()
   writeLines("PackageUseDevtools: Yes", "project.Rproj")
@@ -150,22 +160,24 @@ test_that("no warnings are produced when crawling dependencies", {
 
 })
 
-test_that("Suggests are dev. deps for non-package projects", {
+test_that("Suggests are dev. deps for all projects", {
+
   renv_tests_scope()
+
+  expected <- data.frame(
+    Package = "bread",
+    Dev = TRUE,
+    stringsAsFactors = FALSE
+  )
+
   writeLines(c("Type: Project", "Suggests: bread"), con = "DESCRIPTION")
   deps <- dependencies(dev = TRUE)
-  expect_true(nrow(deps) == 1)
-  expect_true(deps$Package == "bread")
-  expect_true(deps$Dev)
-})
+  expect_equal(deps[c("Package", "Dev")], expected)
 
-test_that("Suggests are _not_ dev. deps for package projects", {
-  renv_tests_scope()
   writeLines(c("Type: Package", "Suggests: bread"), con = "DESCRIPTION")
-  deps <- dependencies(dev = FALSE)
-  expect_true(nrow(deps) == 1)
-  expect_true(deps$Package == "bread")
-  expect_false(deps$Dev)
+  deps <- dependencies(dev = TRUE)
+  expect_equal(deps[c("Package", "Dev")], expected)
+
 })
 
 test_that("packages referenced by modules::import() are discovered", {
@@ -193,14 +205,6 @@ test_that("Suggest dependencies are ignored by default", {
   renv_tests_scope("breakfast")
   install("breakfast")
   expect_false(renv_package_installed("egg"))
-})
-
-test_that("Suggest dependencies are used when requested", {
-  renv_tests_scope("breakfast")
-  fields <- c("Imports", "Depends", "LinkingTo", "Suggests")
-  settings$package.dependency.fields(fields)
-  install("breakfast")
-  expect_true(renv_package_installed("egg"))
 })
 
 test_that("a call to geom_hex() implies a dependency on ggplot2", {

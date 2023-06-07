@@ -15,7 +15,6 @@ test_that("snapshot is idempotent", {
 
 test_that("snapshot failures are reported", {
 
-  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope("oatmeal")
   init()
 
@@ -32,7 +31,7 @@ test_that("broken symlinks are reported", {
   renv_tests_scope("oatmeal")
   init()
 
-  oatmeal <- renv_path_normalize(system.file(package = "oatmeal"), winslash = "/")
+  oatmeal <- renv_path_normalize(system.file(package = "oatmeal"))
   unlink(oatmeal, recursive = TRUE)
   expect_snapshot(snapshot())
 
@@ -377,18 +376,6 @@ test_that("a project using explicit snapshots is marked in sync appropriately", 
 
 })
 
-test_that("we can explicitly exclude some packages from snapshot", {
-
-  skip_on_cran()
-  project <- renv_tests_scope("breakfast")
-  init()
-
-  snapshot(exclude = "oatmeal", force = TRUE)
-  lockfile <- renv_lockfile_load(project)
-  expect_null(lockfile$Packages$oatmeal)
-
-})
-
 test_that("snapshot() warns when required package is not installed", {
 
   renv_tests_scope("breakfast")
@@ -406,7 +393,6 @@ test_that("snapshot() warns when required package is not installed", {
 test_that("packages installed from CRAN using pak are handled", {
   skip_on_cran()
   skip_if_not_installed("pak")
-  skip_on_ci() # TODO
 
   renv_tests_scope()
   pak <- renv_namespace_load("pak")
@@ -421,7 +407,6 @@ test_that("packages installed from CRAN using pak are handled", {
 test_that("packages installed from Bioconductor using pak are handled", {
   skip_on_cran()
   skip_if_not_installed("pak")
-  skip_on_ci() # TODO
 
   renv_tests_scope()
   pak <- renv_namespace_load("pak")
@@ -441,6 +426,17 @@ test_that("snapshot always reports on R version changes", {
   })
 })
 
+test_that("user can choose to install missing packages", {
+
+  # use a temporary cache to guarantee packages are fully installed
+  # regardless of order other tests are run in
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-tempcache-"))
+
+  renv_tests_scope("egg")
+  renv_scope_options(renv.menu.choice = 2)
+  expect_snapshot(snapshot())
+
+})
 
 test_that("useful error message if implicit dep discovery is slow", {
 
@@ -448,7 +444,14 @@ test_that("useful error message if implicit dep discovery is slow", {
 
   renv_scope_options(renv.snapshot.filter.timelimit = -1)
   expect_snapshot(
-    . <- renv_snapshot_filter_implicit(getwd(), NULL)
+    . <- renv_snapshot_filter_implicit(getwd(), NULL, NULL)
   )
 
+})
+
+test_that("exclude handles uninstalled packages", {
+  project <- renv_tests_scope("bread")
+  snapshot(exclude = "bread")
+  lockfile <- renv_lockfile_load(project)
+  expect_null(lockfile$Packages$bread)
 })

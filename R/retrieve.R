@@ -183,7 +183,7 @@ renv_retrieve_impl <- function(package) {
     }
 
     # otherwise, success
-    path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+    path <- renv_path_normalize(path, mustWork = TRUE)
     return(renv_retrieve_successful(record, path))
 
   }
@@ -439,7 +439,7 @@ renv_retrieve_cellar_find <- function(record, project = NULL) {
   # have a RemoteUrl entry that we can use
   url <- record$RemoteUrl %||% ""
   if (file.exists(url)) {
-    path <- renv_path_normalize(url, winslash = "/", mustWork = TRUE)
+    path <- renv_path_normalize(url, mustWork = TRUE)
     type <- if (fileext(path) %in% c(".tgz", ".zip")) "binary" else "source"
     return(named(path, type))
   }
@@ -543,7 +543,7 @@ renv_retrieve_explicit <- function(record) {
   }
 
   # treat as 'local' source but extract path
-  normalized <- renv_path_normalize(source, winslash = "/", mustWork = TRUE)
+  normalized <- renv_path_normalize(source, mustWork = TRUE)
   resolved$Source <- "Local"
   renv_retrieve_successful(resolved, normalized)
 
@@ -1001,7 +1001,11 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   # record this package's requirements
   state <- renv_restore_state()
   requirements <- state$requirements
-  deps <- renv_dependencies_discover_description(path, subdir = subdir)
+  deps <- renv_dependencies_discover_description(
+    path,
+    subdir = subdir,
+    fields = if (!record$Package %in% state$packages) "strong"
+  )
   if (length(deps$Source))
     deps$Source <- record$Package
 

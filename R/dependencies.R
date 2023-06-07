@@ -145,10 +145,14 @@
 #'   * `"fatal"`: errors are fatal and stop execution.
 #'   *  `"ignored"`: errors are ignored and not reported to the user.
 #'
-#' @param dev Boolean; include 'development' dependencies as well? That is,
-#'   packages which may be required during development but are unlikely to be
-#'   required during runtime for your project. By default, only runtime
-#'   dependencies are returned.
+#' @param dev Boolean; include development dependencies? These packages are
+#'   typically required when developing the project, but not when running it
+#'   (i.e. you want them installed when humans are working on the project but
+#'   not when computers are deploying it).
+#'
+#'   Development dependencies include packages listed in the `Suggests` field
+#'   of a `DESCRIPTION` found in the project root, and roxygen2 or devtools if
+#'   their use is implied by other project metadata.
 #'
 #' @return An \R `data.frame` of discovered dependencies, mapping inferred
 #'   package names to the files in which they were discovered. Note that the
@@ -174,7 +178,7 @@ dependencies <- function(
 {
   renv_scope_error_handler()
 
-  deps <- renv_dependencies_impl(
+  renv_dependencies_impl(
     path     = path,
     root     = root,
     progress = progress,
@@ -182,14 +186,6 @@ dependencies <- function(
     dev      = dev,
     ...
   )
-
-  if (empty(deps) || nrow(deps) == 0L)
-    return(renv_dependencies_list_empty())
-
-  # drop NAs, and only keep 'dev' dependencies if requested
-  deps <- deps[deps$Dev %in% c(dev, FALSE), ]
-
-  deps
 }
 
 renv_dependencies_impl <- function(
@@ -205,7 +201,7 @@ renv_dependencies_impl <- function(
   if (is.function(path))
     return(renv_dependencies_discover_r(expr = body(path)))
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
 
   # ignore errors when testing, unless explicitly asked for
@@ -237,12 +233,19 @@ renv_dependencies_impl <- function(
   deps <- renv_dependencies_discover(files, progress, errors)
   renv_dependencies_report(errors)
 
+  if (empty(deps) || nrow(deps) == 0L) {
+    deps <- renv_dependencies_list_empty()
+  } else {
+    # drop NAs, and only keep 'dev' dependencies if requested
+    deps <- deps[deps$Dev %in% c(dev, FALSE), ]
+  }
+
   take(deps, field)
 }
 
 renv_dependencies_root <- function(path = getwd()) {
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
 
   project <- renv_project_get(default = NULL)
   if (!is.null(project) && all(renv_path_within(path, project)))
@@ -366,7 +369,7 @@ renv_dependencies_find_dir <- function(path, root, depth) {
   # check if we've already scanned this directory
   # (necessary to guard against recursive symlinks)
   if (!renv_platform_windows()) {
-    norm <- renv_path_normalize(path, mustWork = FALSE)
+    norm <- renv_path_normalize(path)
     state <- renv_dependencies_state()
     if (visited(norm, state$scanned))
       return(character())
@@ -518,43 +521,42 @@ renv_dependencies_discover_description <- function(path,
   if (inherits(dcf, "error"))
     return(renv_dependencies_error(path, error = dcf))
 
-  # Most callers don't pass in project so we need to get it from global state
-  project <- project %||%
-    renv_dependencies_state(key = "root") %||%
-    renv_restore_state(key = "root") %||%
-    renv_project_resolve()
+  if (is.null(fields)) {
+    # Most callers don't pass in project so we need to get it from global state
+    project <- project %||%
+      renv_dependencies_state(key = "root") %||%
+      renv_restore_state(key = "root") %||%
+      renv_project_resolve()
 
-  fields <- fields %||% settings$package.dependency.fields(project = project)
+    fields <- settings$package.dependency.fields(project = project)
 
-  # if this is the DESCRIPTION file for the active project, include
-  # the dependencies for the active profile (if any) and Suggested fields.
-  if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
+    # if this is the DESCRIPTION file for the active project, include
+    # the dependencies for the active profile (if any) and Suggested fields.
+    if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
 
-    # collect profile-specific dependencies as well
-    profile <- renv_profile_get()
-    profile_field <- if (length(profile))
-      sprintf("Config/renv/profiles/%s/dependencies", profile)
+      # collect profile-specific dependencies as well
+      profile <- renv_profile_get()
+      profile_field <- if (length(profile))
+        sprintf("Config/renv/profiles/%s/dependencies", profile)
 
-    fields <- c(fields, "Suggests", profile_field)
-    type <- renv_description_type(desc = dcf)
-
+      fields <- c(fields, "Suggests", profile_field)
+    }
   } else {
-    type <- "unknown"
+    fields <- renv_description_dependency_fields(fields)
   }
 
   data <- map(
     fields,
     renv_dependencies_discover_description_impl,
     dcf  = dcf,
-    path = path,
-    type = type
+    path = path
   )
 
   bind(data)
 
 }
 
-renv_dependencies_discover_description_impl <- function(dcf, field, path, type) {
+renv_dependencies_discover_description_impl <- function(dcf, field, path) {
 
   # read field
   contents <- dcf[[field]]
@@ -579,13 +581,12 @@ renv_dependencies_discover_description_impl <- function(dcf, field, path, type) 
     return(list())
 
   # create dependency list
-  dev <- field == "Suggests" && type != "package"
   renv_dependencies_list(
     path,
     extract_chr(matches, 2L),
     extract_chr(matches, 3L),
     extract_chr(matches, 4L),
-    dev
+    dev = field == "Suggests"
   )
 
 }
@@ -1659,7 +1660,7 @@ renv_dependencies_report <- function(errors) {
 
 renv_dependencies_scope <- function(path, action, envir = NULL) {
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
   if (exists(path, envir = `_renv_dependencies`))
     return(get(path, envir = `_renv_dependencies`))
 
@@ -1667,7 +1668,7 @@ renv_dependencies_scope <- function(path, action, envir = NULL) {
   message <- paste(action, "aborted")
 
   deps <- withCallingHandlers(
-    dependencies(path, progress = FALSE, errors = errors, dev = TRUE),
+    renv_dependencies_impl(path, progress = FALSE, errors = errors, dev = TRUE),
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
   )
 

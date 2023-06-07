@@ -52,9 +52,8 @@ load <- function(project = NULL, quiet = FALSE) {
 
   renv_scope_error_handler()
 
-  project <- normalizePath(
+  project <- renv_path_normalize(
     project %||% renv_project_find(project),
-    winslash = "/",
     mustWork = TRUE
   )
 
@@ -187,6 +186,10 @@ renv_load_minimal <- function(project) {
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile))
     renv_load_python(project, lockfile$Python)
+
+  # TODO: Should this be set in non-interactive cases too?
+  if (interactive())
+    renv_project_set(project)
 
   invisible(project)
 
@@ -351,7 +354,7 @@ renv_load_project <- function(project) {
 
   # update project list if enabled
   if (renv_cache_config_enabled(project = project)) {
-    project <- renv_path_normalize(project, winslash = "/")
+    project <- renv_path_normalize(project)
     renv_load_project_projlist(project)
   }
 
@@ -612,6 +615,10 @@ renv_load_bioconductor_validate <- function(project, version) {
 }
 
 renv_load_switch <- function(project) {
+
+  # skip when testing
+  if (is_testing())
+    return(project)
 
   # safety check: avoid recursive unload attempts
   unloading <- getOption("renv.unload.project")
