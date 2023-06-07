@@ -455,3 +455,16 @@ test_that("exclude handles uninstalled packages", {
   lockfile <- renv_lockfile_load(project)
   expect_null(lockfile$Packages$bread)
 })
+
+test_that("snapshot doesn't include development dependencies", {
+
+  renv_tests_scope()
+  writeLines(c("Imports: egg", "Suggests: bread"), "DESCRIPTION")
+
+  inst <- install()
+  expect_named(inst, c("bread", "egg"), ignore.order = TRUE)
+
+  snap <- snapshot()
+  expect_named(snap$Packages, "egg")
+
+})
