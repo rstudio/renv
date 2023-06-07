@@ -334,3 +334,11 @@ options(renv.download.headers = function(url) {
 ```
 
 With the above, renv will set the `Authorization` header whenever it attempts to download files from the repository at URL `https://my/repository`.
+
+### Debugging
+
+If having problems with downloads, you can get more debugging information (including raw requests and responses) by setting:
+
+```R
+options(renv.download.trace = TRUE) 
+```
