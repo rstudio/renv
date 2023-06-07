@@ -28,12 +28,16 @@ retrieve <- function(packages) {
   }
   renv_scope_options(HTTPUserAgent = agent)
 
-  writef("Downloading %s package(s) and their dependencies", length(packages))
+  writef(header("Downloading packages"))
   # TODO: parallel?
   handler <- state$handler
   for (package in packages)
     handler(package, renv_retrieve_impl(package))
-  writef(c("Done", ""))
+
+  if (is.null(state$downloaded)) {
+    writef("[no downloads required]")
+  }
+  writef("")
 
   state <- renv_restore_state()
   data <- state$install$data()
@@ -206,6 +210,7 @@ renv_retrieve_impl <- function(package) {
 
   }
 
+  state$downloaded <- TRUE
   # time to retrieve -- delegate based on previously-determined source
   switch(source,
          bioconductor = renv_retrieve_bioconductor(record),

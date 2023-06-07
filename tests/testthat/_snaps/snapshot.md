@@ -174,16 +174,14 @@
       
       Selection: 2
       
-      Downloading 1 package(s) and their dependencies
+      # Downloading packages ===============
       Retrieving '<test-repo>/src/contrib/egg_1.0.0.tar.gz' ...
       	OK [downloaded XXXX bytes in XXXX seconds]
-      Done
       
+      # Installing packages into "<tempdir>/<renv-library>"
       The following package(s) will be installed:
       
       - egg [1.0.0]
-      
-      Packages will be installed into "<tempdir>/<renv-library>"
       
       Installing egg ... OK [built from source]
       Caching    egg ... OK [copied]

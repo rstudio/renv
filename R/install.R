@@ -191,6 +191,8 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  libpath <- renv_path_pretty(renv_libpaths_active())
+  writef(header(sprintf("Installing packages into %s", libpath)))
   if (prompt || renv_verbose())
     renv_install_report(records)
   cancel_if(prompt && !proceed())
@@ -727,10 +729,7 @@ renv_install_preflight <- function(project, libpaths, records) {
 renv_install_report <- function(records) {
   renv_pretty_print_records(
     records,
-    preamble = "The following package(s) will be installed:",
-    postamble = sprintf(
-      "Packages will be installed into %s", renv_path_pretty(renv_libpaths_active())
-    )
+    preamble = "The following package(s) will be installed:"
   )
 }
 
