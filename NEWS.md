@@ -2,8 +2,8 @@
 # renv 0.18.0  (UNRELEASED)
 
 * `dependencies()` now marks `Suggested` packages listed in `DESCRIPTION` files
-  as development dependencies regardless of whether or not they're in 
-  "package" project.
+  as development dependencies regardless of whether or not they're a "package" 
+  project.
 
 * `settings$package.dependency.fields()` now only affects packages installed
   directly by the user, not downstream dependencies of those packages.
