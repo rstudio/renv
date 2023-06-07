@@ -66,7 +66,7 @@
     Output
       The following package(s) are out of sync [lockfile -> library]:
       
-      # CRAN ===============================
+      # CRAN -----------------------------------------------------------------------
       - egg       [repo: * -> CRAN; ver: 2.0.0 -> 1.0.0]
       - oatmeal   [repo: * -> CRAN; ver: 0.9.0 -> 1.0.0]
       

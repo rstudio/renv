@@ -3,7 +3,7 @@
     Code
       install("bread@0.1.0")
     Output
-      # Downloading packages ===============
+      # Downloading packages -------------------------------------------------------
       [no downloads required]
       
       # Installing packages into "<tempdir>/<renv-library>"
@@ -26,7 +26,7 @@
     Code
       install()
     Output
-      # Downloading packages ===============
+      # Downloading packages -------------------------------------------------------
       [no downloads required]
       
       # Installing packages into "<tempdir>/<renv-library>"
