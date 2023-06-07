@@ -36,6 +36,9 @@ pandoc_version <- function() {
   }
 
   out <- system2(path, "--version", stdout = TRUE)
+  if (!is.null(attr(out, "status"))) {
+    return(NULL)
+  }
 
   # From pandoc::pandoc_version()
   re <- "^pandoc(?:\\.exe)? ([\\d.]+).*$"
@@ -57,5 +60,10 @@ quarto_version <- function() {
   }
 
   # from quarto::quarto_version
-  system2(path, "--version", stdout = TRUE)
+  out <- system2(path, "--version", stdout = TRUE)
+    if (!is.null(attr(out, "status"))) {
+    return(NULL)
+  }
+
+  out
 }
