@@ -178,7 +178,7 @@ dependencies <- function(
 {
   renv_scope_error_handler()
 
-  deps <- renv_dependencies_impl(
+  renv_dependencies_impl(
     path     = path,
     root     = root,
     progress = progress,
@@ -186,14 +186,6 @@ dependencies <- function(
     dev      = dev,
     ...
   )
-
-  if (empty(deps) || nrow(deps) == 0L)
-    return(renv_dependencies_list_empty())
-
-  # drop NAs, and only keep 'dev' dependencies if requested
-  deps <- deps[deps$Dev %in% c(dev, FALSE), ]
-
-  deps
 }
 
 renv_dependencies_impl <- function(
@@ -240,6 +232,13 @@ renv_dependencies_impl <- function(
   files <- renv_dependencies_find(path, root)
   deps <- renv_dependencies_discover(files, progress, errors)
   renv_dependencies_report(errors)
+
+  if (empty(deps) || nrow(deps) == 0L) {
+    deps <- renv_dependencies_list_empty()
+  } else {
+    # drop NAs, and only keep 'dev' dependencies if requested
+    deps <- deps[deps$Dev %in% c(dev, FALSE), ]
+  }
 
   take(deps, field)
 }
@@ -1669,7 +1668,7 @@ renv_dependencies_scope <- function(path, action, envir = NULL) {
   message <- paste(action, "aborted")
 
   deps <- withCallingHandlers(
-    dependencies(path, progress = FALSE, errors = errors, dev = TRUE),
+    renv_dependencies_impl(path, progress = FALSE, errors = errors, dev = TRUE),
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
   )
 

@@ -376,18 +376,6 @@ test_that("a project using explicit snapshots is marked in sync appropriately", 
 
 })
 
-test_that("we can explicitly exclude some packages from snapshot", {
-
-  skip_on_cran()
-  project <- renv_tests_scope("breakfast")
-  init()
-
-  snapshot(exclude = "oatmeal", force = TRUE)
-  lockfile <- renv_lockfile_load(project)
-  expect_null(lockfile$Packages$oatmeal)
-
-})
-
 test_that("snapshot() warns when required package is not installed", {
 
   renv_tests_scope("breakfast")
@@ -458,7 +446,14 @@ test_that("useful error message if implicit dep discovery is slow", {
 
   renv_scope_options(renv.snapshot.filter.timelimit = -1)
   expect_snapshot(
-    . <- renv_snapshot_filter_implicit(getwd(), NULL)
+    . <- renv_snapshot_filter_implicit(getwd(), NULL, NULL)
   )
 
+})
+
+test_that("exclude handles uninstalled packages", {
+  project <- renv_tests_scope("bread")
+  snapshot(exclude = "bread")
+  lockfile <- renv_lockfile_load(project)
+  expect_null(lockfile$Packages$bread)
 })

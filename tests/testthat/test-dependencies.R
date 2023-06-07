@@ -1,4 +1,14 @@
 
+test_that("can select fields", {
+
+  renv_tests_scope()
+  expect_equal(renv_dependencies_impl(field = "Package"), character())
+
+  writeLines("library(utils)", "deps.R")
+  expect_equal(renv_dependencies_impl(field = "Package"), "utils")
+
+})
+
 test_that(".Rproj files requesting devtools is handled", {
   renv_tests_scope()
   writeLines("PackageUseDevtools: Yes", "project.Rproj")

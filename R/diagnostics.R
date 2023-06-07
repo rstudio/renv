@@ -183,10 +183,12 @@ renv_diagnostics_packages_library <- function(project) {
 
 renv_diagnostics_packages_dependencies <- function(project) {
 
-  dependencies(project,
-               progress = FALSE,
-               errors = "reported",
-               dev = TRUE)
+  renv_dependencies_impl(
+    project,
+    progress = FALSE,
+    errors = "reported",
+    dev = TRUE
+  )
 
 }
 
@@ -210,10 +212,12 @@ renv_diagnostics_profile <- function(project) {
   if (!file.exists(userprofile))
     return(writef("[no user profile detected]"))
 
-  deps <- dependencies(userprofile,
-                       progress = FALSE,
-                       errors = "reported",
-                       dev = TRUE)
+  deps <- renv_dependencies_impl(
+    userprofile,
+    progress = FALSE,
+    errors = "reported",
+    dev = TRUE
+  )
 
   if (empty(deps))
     return(writef("[no R packages referenced in user profile"))

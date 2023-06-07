@@ -201,7 +201,7 @@
 # useful error message if implicit dep discovery is slow
 
     Code
-      . <- renv_snapshot_filter_implicit(getwd(), NULL)
+      . <- renv_snapshot_filter_implicit(getwd(), NULL, NULL)
     Output
       NOTE: Dependency discovery took XXXX seconds during snapshot.
       Consider using .renvignore to ignore files or switching to explicit snapshots

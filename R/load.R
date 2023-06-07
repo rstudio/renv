@@ -187,6 +187,10 @@ renv_load_minimal <- function(project) {
   if (length(lockfile))
     renv_load_python(project, lockfile$Python)
 
+  # TODO: Should this be set in non-interactive cases too?
+  if (interactive())
+    renv_project_set(project)
+
   invisible(project)
 
 }
@@ -611,6 +615,10 @@ renv_load_bioconductor_validate <- function(project, version) {
 }
 
 renv_load_switch <- function(project) {
+
+  # skip when testing
+  if (is_testing())
+    return(project)
 
   # safety check: avoid recursive unload attempts
   unloading <- getOption("renv.unload.project")
