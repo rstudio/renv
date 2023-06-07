@@ -41,6 +41,12 @@ project library for the current session.
 new session. By default it will remove the auto-loader from the \code{.Rprofile};
 use \code{clean = TRUE} to also delete the lockfile and the project library.
 }
+\section{Temporary deactivation}{
+If you need to temporarily disable autoload activation you can set
+the \code{RENV_CONFIG_AUTOLOADER_ENABLED} envvar, e.g.
+\code{Sys.setenv(RENV_CONFIG_AUTOLOADER_ENABLED = "false")}.
+}
+
 \examples{
 \dontrun{
 
