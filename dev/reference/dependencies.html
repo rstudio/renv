@@ -152,10 +152,13 @@ otherwise ignored.</p></li>
 
 
 <dt>dev</dt>
-<dd><p>Boolean; include 'development' dependencies as well? That is,
-packages which may be required during development but are unlikely to be
-required during runtime for your project. By default, only runtime
-dependencies are returned.</p></dd>
+<dd><p>Boolean; include development dependencies? These packages are
+typically required when developing the project, but not when running it
+(i.e. you want them installed when humans are working on the project but
+not when computers are deploying it).</p>
+<p>Development dependencies include packages listed in the <code>Suggests</code> field
+of a <code>DESCRIPTION</code> found in the project root, and roxygen2 or devtools if
+their use is implied by other project metadata.</p></dd>
 
 </dl></div>
     <div class="section level2">

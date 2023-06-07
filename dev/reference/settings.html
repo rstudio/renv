@@ -44,11 +44,10 @@ added to the lockfile, that entry in the lockfile will not be ignored.
 package.dependency.fields
 
 
-During dependency discovery, renv uses the fields of an installed
-package's DESCRIPTION file to determine that package's recursive
-dependencies. By default, the Imports, Depends and LinkingTo fields
-are used. If you'd prefer that renv also captures the Suggests
-dependencies for a package, you can set this to
+When explicitly installing a package with install(), what fields
+should be used to determine that packages dependencies? The default
+uses Imports, Depends and LinkingTo fields, but you also want
+to install Suggests dependencies for a package, you can set this to
 c(&quot;Imports&quot;, &quot;Depends&quot;, &quot;LinkingTo&quot;, &quot;Suggests&quot;).
 
 
@@ -161,11 +160,10 @@ added to the lockfile, that entry in the lockfile will not be ignored.
 package.dependency.fields
 
 
-During dependency discovery, renv uses the fields of an installed
-package's DESCRIPTION file to determine that package's recursive
-dependencies. By default, the Imports, Depends and LinkingTo fields
-are used. If you'd prefer that renv also captures the Suggests
-dependencies for a package, you can set this to
+When explicitly installing a package with install(), what fields
+should be used to determine that packages dependencies? The default
+uses Imports, Depends and LinkingTo fields, but you also want
+to install Suggests dependencies for a package, you can set this to
 c(&quot;Imports&quot;, &quot;Depends&quot;, &quot;LinkingTo&quot;, &quot;Suggests&quot;).
 
 
@@ -345,11 +343,10 @@ added to the lockfile, that entry in the lockfile will not be ignored.</p>
 <h3 id="package-dependency-fields"><code>package.dependency.fields</code><a class="anchor" aria-label="anchor" href="#package-dependency-fields"></a></h3>
 
 
-<p>During dependency discovery, renv uses the fields of an installed
-package's <code>DESCRIPTION</code> file to determine that package's recursive
-dependencies. By default, the <code>Imports</code>, <code>Depends</code> and <code>LinkingTo</code> fields
-are used. If you'd prefer that renv also captures the <code>Suggests</code>
-dependencies for a package, you can set this to
+<p>When explicitly installing a package with <code><a href="install.html">install()</a></code>, what fields
+should be used to determine that packages dependencies? The default
+uses <code>Imports</code>, <code>Depends</code> and <code>LinkingTo</code> fields, but you also want
+to install <code>Suggests</code> dependencies for a package, you can set this to
 <code>c("Imports", "Depends", "LinkingTo", "Suggests")</code>.</p>
 </div>
 
