@@ -1004,7 +1004,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   deps <- renv_dependencies_discover_description(
     path,
     subdir = subdir,
-    fields = if (!record$Package %in% state$packages) "most"
+    fields = if (!record$Package %in% state$packages) "strong"
   )
   if (length(deps$Source))
     deps$Source <- record$Package
