@@ -192,7 +192,7 @@ install <- function(packages = NULL,
   }
 
   libpath <- renv_path_pretty(renv_libpaths_active())
-  writef(header(sprintf("Installing package(s) into %s", libpath)))
+  writef(header(sprintf("Installing packages into %s", libpath)))
   if (prompt || renv_verbose())
     renv_install_report(records)
   cancel_if(prompt && !proceed())
