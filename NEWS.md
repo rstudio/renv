@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::snapshot()` now records quarto (#1143) and pandoc (#615) versions in 
+  the lockfile.
+
 * `renv::dependencies()` no longer treats `box::use(module/file)` as using
   package `module` (#1377).
 
