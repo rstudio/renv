@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `snapshot()` and `status()` no longer track development dependencies.
+  `install()` will continue to install them (#1019).
+
 * `dependencies()` now marks `Suggested` packages listed in `DESCRIPTION` files
   as development dependencies regardless of whether or not they're a "package" 
   project.

@@ -143,7 +143,7 @@ install <- function(packages = NULL,
     return(renv_pak_install(packages, libpaths, project))
   }
 
-  packages <- packages %||% renv_snapshot_dependencies(project, "implicit")
+  packages <- packages %||% renv_snapshot_dependencies(project, include_dev = TRUE)
   if (empty(packages)) {
     writef("* There are no packages to install.")
     return(invisible(list()))

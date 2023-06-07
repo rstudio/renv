@@ -838,7 +838,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 }
 # nocov end
 
-renv_snapshot_dependencies <- function(project, type = NULL) {
+renv_snapshot_dependencies <- function(project, type = NULL, include_dev = FALSE) {
 
   type <- type %||% settings$snapshot.type(project = project)
 
@@ -870,7 +870,7 @@ renv_snapshot_dependencies <- function(project, type = NULL) {
       progress = FALSE,
       field    = "Package",
       errors   = errors,
-      dev      = TRUE
+      dev      = include_dev
     ),
 
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
