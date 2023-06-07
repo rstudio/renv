@@ -870,7 +870,7 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
       progress = FALSE,
       field    = "Package",
       errors   = errors,
-      dev      = include_dev
+      dev      = dev
     ),
 
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
