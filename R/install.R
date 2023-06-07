@@ -615,14 +615,13 @@ renv_install_test <- function(package) {
 
   # write it to a tempfile
   script <- renv_scope_tempfile("renv-install-")
-  writeLines(stringify(code), con = script)
+  writeLines(deparse(code), con = script)
 
   # check that the package can be loaded in a separate process
   renv_system_exec(
     command = R(),
     args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
-    action  = sprintf("testing if '%s' can be loaded", package),
-    quiet   = TRUE
+    action  = sprintf("testing if '%s' can be loaded", package)
   )
 
 }

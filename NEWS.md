@@ -7,6 +7,9 @@
 
 * `install()` now keeps source when installing packages from source (#522).
 
+* `renv::install()` now validates that binary packages can be loaded after
+  installation, in a manner similar to source packages. (#1275)
+
 * `snapshot()` and `status()` no longer track development dependencies.
   `install()` will continue to install them (#1019).
 
