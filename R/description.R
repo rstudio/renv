@@ -83,35 +83,6 @@ renv_description_path <- function(path) {
   path
 }
 
-renv_description_type <- function(path = NULL, desc = NULL) {
-
-  # read DESCRIPTION file when 'desc' not explicitly supplied
-  if (is.null(desc)) {
-
-    # read DESCRIPTION file
-    desc <- catch(renv_description_read(path))
-    if (inherits(desc, "error")) {
-      warning(desc)
-      return("unknown")
-    }
-
-  }
-
-  # check for explicitly recorded type
-  type <- desc$Type
-  if (!is.null(type))
-    return(tolower(type))
-
-  # infer otherwise from 'Package' field otherwise
-  package <- desc$Package
-  if (!is.null(package))
-    return("package")
-
-  # default to unknown
-  "unknown"
-
-}
-
 # parse the dependency requirements normally presented in
 # Depends, Imports, Suggests, and so on
 renv_description_parse_field <- function(field) {

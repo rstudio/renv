@@ -468,6 +468,16 @@ test_that("repositories containing multiple packages can be installed", {
 
 })
 
+test_that("Suggest dependencies are used when requested", {
+
+  renv_tests_scope("breakfast")
+  fields <- c("Imports", "Depends", "LinkingTo", "Suggests")
+  settings$package.dependency.fields(fields)
+  install("breakfast")
+  expect_true(renv_package_installed("egg"))
+
+})
+
 test_that("custom dependency fields in install are supported", {
 
   skip_on_cran()

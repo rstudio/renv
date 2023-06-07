@@ -109,10 +109,8 @@ renv_project_remotes <- function(project, fields = NULL) {
   remotes <- renv_project_remotes_field(project, descpath)
 
   # next, find packages mentioned in the DESCRIPTION file
-  fields <- fields %||% c("Depends", "Imports", "LinkingTo", "Suggests")
   deps <- renv_dependencies_discover_description(
     path    = descpath,
-    fields  = fields,
     project = project
   )
 

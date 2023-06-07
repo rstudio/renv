@@ -1001,7 +1001,11 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   # record this package's requirements
   state <- renv_restore_state()
   requirements <- state$requirements
-  deps <- renv_dependencies_discover_description(path, subdir = subdir)
+  deps <- renv_dependencies_discover_description(
+    path,
+    subdir = subdir,
+    fields = if (!record$Package %in% state$packages) "strong"
+  )
   if (length(deps$Source))
     deps$Source <- record$Package
 

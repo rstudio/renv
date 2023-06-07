@@ -145,10 +145,14 @@
 #'   * `"fatal"`: errors are fatal and stop execution.
 #'   *  `"ignored"`: errors are ignored and not reported to the user.
 #'
-#' @param dev Boolean; include 'development' dependencies as well? That is,
-#'   packages which may be required during development but are unlikely to be
-#'   required during runtime for your project. By default, only runtime
-#'   dependencies are returned.
+#' @param dev Boolean; include development dependencies? These packages are
+#'   typically required when developing the project, but not when running it
+#'   (i.e. you want them installed when humans are working on the project but
+#'   not when computers are deploying it).
+#'
+#'   Development dependencies include packages listed in the `Suggests` field
+#'   of a `DESCRIPTION` found in the project root, and roxygen2 or devtools if
+#'   their use is implied by other project metadata.
 #'
 #' @return An \R `data.frame` of discovered dependencies, mapping inferred
 #'   package names to the files in which they were discovered. Note that the
@@ -517,43 +521,42 @@ renv_dependencies_discover_description <- function(path,
   if (inherits(dcf, "error"))
     return(renv_dependencies_error(path, error = dcf))
 
-  # Most callers don't pass in project so we need to get it from global state
-  project <- project %||%
-    renv_dependencies_state(key = "root") %||%
-    renv_restore_state(key = "root") %||%
-    renv_project_resolve()
+  if (is.null(fields)) {
+    # Most callers don't pass in project so we need to get it from global state
+    project <- project %||%
+      renv_dependencies_state(key = "root") %||%
+      renv_restore_state(key = "root") %||%
+      renv_project_resolve()
 
-  fields <- fields %||% settings$package.dependency.fields(project = project)
+    fields <- settings$package.dependency.fields(project = project)
 
-  # if this is the DESCRIPTION file for the active project, include
-  # the dependencies for the active profile (if any) and Suggested fields.
-  if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
+    # if this is the DESCRIPTION file for the active project, include
+    # the dependencies for the active profile (if any) and Suggested fields.
+    if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
 
-    # collect profile-specific dependencies as well
-    profile <- renv_profile_get()
-    profile_field <- if (length(profile))
-      sprintf("Config/renv/profiles/%s/dependencies", profile)
+      # collect profile-specific dependencies as well
+      profile <- renv_profile_get()
+      profile_field <- if (length(profile))
+        sprintf("Config/renv/profiles/%s/dependencies", profile)
 
-    fields <- c(fields, "Suggests", profile_field)
-    type <- renv_description_type(desc = dcf)
-
+      fields <- c(fields, "Suggests", profile_field)
+    }
   } else {
-    type <- "unknown"
+    fields <- renv_description_dependency_fields(fields)
   }
 
   data <- map(
     fields,
     renv_dependencies_discover_description_impl,
     dcf  = dcf,
-    path = path,
-    type = type
+    path = path
   )
 
   bind(data)
 
 }
 
-renv_dependencies_discover_description_impl <- function(dcf, field, path, type) {
+renv_dependencies_discover_description_impl <- function(dcf, field, path) {
 
   # read field
   contents <- dcf[[field]]
@@ -578,13 +581,12 @@ renv_dependencies_discover_description_impl <- function(dcf, field, path, type) 
     return(list())
 
   # create dependency list
-  dev <- field == "Suggests" && type != "package"
   renv_dependencies_list(
     path,
     extract_chr(matches, 2L),
     extract_chr(matches, 3L),
     extract_chr(matches, 4L),
-    dev
+    dev = field == "Suggests"
   )
 
 }
