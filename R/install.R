@@ -602,6 +602,11 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
 renv_install_test <- function(package) {
 
+  # check whether we should skip installation testing
+  opts <- r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE)
+  if (any(grepl("--no-test-load", as.character(opts))))
+    return(TRUE)
+
   # make sure we use the current library paths in the launched process
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
   renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
@@ -627,6 +632,8 @@ renv_install_test <- function(package) {
     args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
     action  = sprintf("testing if '%s' can be loaded", package)
   )
+
+  TRUE
 
 }
 
