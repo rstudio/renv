@@ -331,7 +331,7 @@ renv_file_backup <- function(path) {
   path <- file.path(parent, basename(path))
 
   # attempt to rename the file
-  pattern <- sprintf(".renv-backup-%s", basename(path))
+  pattern <- sprintf(".renv-backup-%i-%s", Sys.getpid(), basename(path))
   tempfile <- tempfile(pattern, tmpdir = dirname(path))
   if (!renv_file_move(path, tempfile))
     return(function() {})
