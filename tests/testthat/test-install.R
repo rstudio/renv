@@ -580,4 +580,11 @@ test_that("install() reports failure when a 'bad' binary is installed", {
   expect_error(install(tgt))
   expect_false(renv_package_installed("bread"))
 
+  # try skipping the load test
+  renv_scope_options(INSTALL_opts = c(bread = "--no-test-load"))
+  install(tgt)
+  expect_true(renv_package_installed("bread"))
+  expect_error(library(bread))
+  remove("bread")
+
 })

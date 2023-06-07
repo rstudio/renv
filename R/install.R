@@ -604,8 +604,11 @@ renv_install_test <- function(package) {
 
   # check whether we should skip installation testing
   opts <- r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE)
-  if (any(grepl("--no-test-load", as.character(opts))))
-    return(TRUE)
+  if (is.character(opts)) {
+    flags <- unlist(strsplit(opts, "\\s+", perl = TRUE))
+    if ("--no-test-load" %in% flags)
+      return(TRUE)
+  }
 
   # make sure we use the current library paths in the launched process
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
