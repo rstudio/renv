@@ -5,6 +5,9 @@ renv_lockfile_external <- function() {
   )
 }
 
+
+# pandoc ------------------------------------------------------------------
+
 pandoc_path <- function() {
   if (!is.na(path <- Sys.getenv("RSTUDIO_PANDOC", unset = NA))) {
     return(file.path(path, "pandoc"))
@@ -17,17 +20,6 @@ pandoc_path <- function() {
   NULL
 }
 
-quarto_path <- function() {
-  if (!is.na(path <- Sys.getenv("QUARTO_PATH", unset = NA))) {
-    return(path)
-  }
-
-  if (nzchar(path <- Sys.which("quarto"))) {
-    return(unname(path))
-  }
-
-  NULL
-}
 
 pandoc_version <- function() {
   path <- pandoc_path()
@@ -35,6 +27,7 @@ pandoc_version <- function() {
     return(NULL)
   }
 
+  local_pandoc_safe_environment()
   out <- system2(path, "--version", stdout = TRUE)
   if (!is.null(attr(out, "status"))) {
     return(NULL)
@@ -51,6 +44,43 @@ pandoc_version <- function() {
     version <- paste(version, "9999", sep = ".")
 
   version
+}
+
+# https://github.com/rstudio/rmarkdown/blob/10863429024e236/R/pandoc.R#L720-L758
+local_pandoc_safe_environment <- function(code, envir = parent.frame()) {
+
+  if (renv_envvar_exists("LC_ALL")) {
+    renv_scope_envvars(LC_ALL = NULL, envir = envir)
+  }
+
+  if (renv_envvar_exists("LC_CTYPE")) {
+    renv_scope_envvars(LC_CTYPE = NULL, envir = envir)
+  }
+
+  if (renv_platform_linux()) {
+    if (!renv_envvar_exists("HOME"))
+      stop("The 'HOME' environment variable must be set before running Pandoc.")
+
+    if (!renv_envvar_exists("LANG") || identical(Sys.getenv("LANG"), "en_US"))
+      renv_scope_envvars(LANG = "en_US.UTF-8", envir = envir)
+  }
+
+  invisible()
+}
+
+
+# quarto ------------------------------------------------------------------
+
+quarto_path <- function() {
+  if (!is.na(path <- Sys.getenv("QUARTO_PATH", unset = NA))) {
+    return(path)
+  }
+
+  if (nzchar(path <- Sys.which("quarto"))) {
+    return(unname(path))
+  }
+
+  NULL
 }
 
 quarto_version <- function() {
