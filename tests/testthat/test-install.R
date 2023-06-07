@@ -554,3 +554,30 @@ test_that("package binaries of the form <pkg>_<sha>.zip can be installed", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("install() reports failure when a 'bad' binary is installed", {
+
+  skip_on_cran()
+  renv_tests_scope()
+
+  # install bread
+  install("bread")
+
+  # copy the installed package, and create a 'broken' binary
+  src <- renv_package_find("bread")
+  tgt <- file.path(tempdir(), "bread")
+  renv_file_copy(src, tgt)
+
+  local({
+    renv_scope_wd(tgt)
+    dir.create("R")
+    writeLines("stop('oh no')", con = "R/bread")
+  })
+
+  # try installing the broken binary
+  remove("bread")
+  expect_false(renv_package_installed("bread"))
+  expect_error(install(tgt))
+  expect_false(renv_package_installed("bread"))
+
+})

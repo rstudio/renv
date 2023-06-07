@@ -571,9 +571,9 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
   # if this is the path to an unpacked binary archive,
   # we can just copy the folder over
-  copyable <-
-    renv_file_type(path, symlinks = FALSE) == "directory" &&
-    renv_package_type(path, quiet = TRUE) == "binary"
+  isdir <- renv_file_type(path, symlinks = FALSE) == "directory"
+  isbin <- renv_package_type(path, quiet = TRUE) == "binary"
+  copyable <- isdir && isbin
 
   # shortcut via copying a binary directory if possible,
   # otherwise, install the package
@@ -582,11 +582,48 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   else
     r_cmd_install(package, path)
 
+  # if we just installed a binary package, check that it can be loaded
+  # (source packages are checked by default on install)
+  if (isbin) {
+    status <- catch(renv_install_test(package))
+    if (inherits(status, "error")) {
+      unlink(installpath, recursive = TRUE)
+      stop(status)
+    }
+  }
+
   # augment package metadata after install
   renv_package_augment(installpath, record)
 
   # return the path to the package
   invisible(installpath)
+
+}
+
+renv_install_test <- function(package) {
+
+  # make sure we use the current library paths in the launched process
+  rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
+  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
+
+  # the actual code we'll run in the other process
+  code <- substitute({
+    setTimeLimit(60)
+    options(warn = 1)
+    library(package)
+  }, list(package = package))
+
+  # write it to a tempfile
+  script <- renv_scope_tempfile("renv-install-")
+  writeLines(stringify(code), con = script)
+
+  # check that the package can be loaded in a separate process
+  renv_system_exec(
+    command = R(),
+    args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+    action  = sprintf("testing if '%s' can be loaded", package),
+    quiet   = TRUE
+  )
 
 }
 
