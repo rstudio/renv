@@ -3,10 +3,10 @@
     Code
       install("bread@0.1.0")
     Output
-      # Downloading package(s) =============
-      Nothing needed
+      # Downloading packages ===============
+      [no downloads required]
       
-      # Installing package(s) into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>"
       The following package(s) will be installed:
       
       - bread [0.1.0]
@@ -26,10 +26,10 @@
     Code
       install()
     Output
-      # Downloading package(s) =============
-      Nothing needed
+      # Downloading packages ===============
+      [no downloads required]
       
-      # Installing package(s) into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>"
       The following package(s) will be installed:
       
       - bread     [1.0.0]

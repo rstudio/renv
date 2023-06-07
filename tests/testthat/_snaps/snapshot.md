@@ -174,11 +174,11 @@
       
       Selection: 2
       
-      # Downloading package(s) =============
+      # Downloading packages ===============
       Retrieving '<test-repo>/src/contrib/egg_1.0.0.tar.gz' ...
       	OK [downloaded XXXX bytes in XXXX seconds]
       
-      # Installing package(s) into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>"
       The following package(s) will be installed:
       
       - egg [1.0.0]
