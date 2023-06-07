@@ -606,6 +606,10 @@ renv_install_test <- function(package) {
   rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
   renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
 
+  # make sure R_TESTS is unset here, just in case
+  # https://github.com/wch/r-source/blob/1c0a2dc8ce6c05f68e1959ffbe6318a309277df3/src/library/tools/R/install.R#L76-L79
+  renv_scope_envvars(R_TESTS = NULL)
+
   # the actual code we'll run in the other process
   code <- substitute({
     setTimeLimit(60)
