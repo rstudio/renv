@@ -69,7 +69,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/dependencies.html">dependencies()</a></code> now marks <code>Suggested</code> packages listed in <code>DESCRIPTION</code> files as development dependencies regardless of whether or not they’re a “package” project.</p></li>
+<ul><li><p><code><a href="../reference/snapshot.html">snapshot()</a></code> and <code><a href="../reference/status.html">status()</a></code> no longer track development dependencies. <code><a href="../reference/install.html">install()</a></code> will continue to install them (<a href="https://github.com/rstudio/renv/issues/1019" class="external-link">#1019</a>).</p></li>
+<li><p><code><a href="../reference/install.html">install()</a></code> respects the project snapshot type, if set.</p></li>
+<li><p><code><a href="../reference/dependencies.html">dependencies()</a></code> now marks <code>Suggested</code> packages listed in <code>DESCRIPTION</code> files as development dependencies regardless of whether or not they’re a “package” project.</p></li>
 <li><p><code>settings$package.dependency.fields()</code> now only affects packages installed directly by the user, not downstream dependencies of those packages.</p></li>
 <li><p>Fixed an issue where <code>renv::snapshot(exclude = &lt;...&gt;)</code> could warn when attempting to exclude a package which was not already installed. (<a href="https://github.com/rstudio/renv/issues/1396" class="external-link">#1396</a>)</p></li>
 <li><p>If <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> finds missing packages, a new prompt allows you to install them before continuing (<a href="https://github.com/rstudio/renv/issues/1198" class="external-link">#1198</a>).</p></li>
