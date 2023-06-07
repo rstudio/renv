@@ -200,7 +200,7 @@ renv_status_check_synchronized <- function(project,
     }
 
     renv_pretty_print(
-      missing,
+      sort(missing),
       preamble  = usedmsg,
       postamble = postamble
     )
