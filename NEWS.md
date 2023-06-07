@@ -4,6 +4,8 @@
 * `snapshot()` and `status()` no longer track development dependencies.
   `install()` will continue to install them (#1019).
 
+* `install()` respects the project snapshot type, if set.
+
 * `dependencies()` now marks `Suggested` packages listed in `DESCRIPTION` files
   as development dependencies regardless of whether or not they're a "package" 
   project.
