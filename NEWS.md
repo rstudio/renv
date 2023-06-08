@@ -1,6 +1,8 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `install()` now keeps source when installing packages from source (#522).
+
 * `snapshot()` and `status()` no longer track development dependencies.
   `install()` will continue to install them (#1019).
 
