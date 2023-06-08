@@ -83,9 +83,11 @@ load <- function(project = NULL, quiet = FALSE) {
 
   # if we're loading a project different from the one currently loaded,
   # then unload the current project and reload the requested one
-  switch <- !renv_metadata_embedded() &&
+  switch <-
+    !renv_metadata_embedded() &&
     !is.null(`_renv_project_path`) &&
     !identical(project, `_renv_project_path`)
+
   if (switch)
     return(renv_load_switch(project))
 
@@ -187,10 +189,7 @@ renv_load_minimal <- function(project) {
   if (length(lockfile))
     renv_load_python(project, lockfile$Python)
 
-  # TODO: Should this be set in non-interactive cases too?
-  if (interactive())
-    renv_project_set(project)
-
+  renv_project_set(project)
   invisible(project)
 
 }

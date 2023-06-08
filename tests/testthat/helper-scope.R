@@ -18,12 +18,15 @@ renv_tests_scope <- function(packages = character(),
   renv_scope_envvars(RENV_PROJECT = "", envir = envir)
 
   # move to own test directory
-  dir <- project %||% renv_scope_tempfile("renv-test-", envir = envir)
-  ensure_directory(dir)
-  renv_scope_wd(dir, envir = envir)
+  project <- project %||% renv_scope_tempfile("renv-test-", envir = envir)
+  ensure_directory(project)
+  renv_scope_wd(project, envir = envir)
+
+  # scope project here so that it's unset after load, just in case
+  defer(renv_project_clear(), envir = envir)
 
   # create empty renv directory
-  dir.create(file.path(dir, "renv"))
+  dir.create("renv")
 
   # create file with dependencies
   code <- sprintf("library(%s)", packages)
@@ -35,7 +38,7 @@ renv_tests_scope <- function(packages = character(),
   renv_scope_libpaths(lib, envir = envir)
 
   # return path to project directory
-  invisible(dir)
+  invisible(project)
 }
 
 renv_tests_scope_repos <- function(envir = parent.frame()) {
