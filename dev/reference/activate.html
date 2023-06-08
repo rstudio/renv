@@ -138,6 +138,12 @@ lockfile.</p></dd>
 <p>The project directory, invisibly. Note that this function is normally
 called for its side effects.</p>
     </div>
+    <div class="section level2">
+    <h2 id="temporary-deactivation">Temporary deactivation<a class="anchor" aria-label="anchor" href="#temporary-deactivation"></a></h2>
+    <p>If you need to temporarily disable autoload activation you can set
+the <code>RENV_CONFIG_AUTOLOADER_ENABLED</code> envvar, e.g.
+<code>Sys.setenv(RENV_CONFIG_AUTOLOADER_ENABLED = "false")</code>.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
