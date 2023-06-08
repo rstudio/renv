@@ -158,7 +158,7 @@ renv_vendor_sources <- function(version, repository) {
   renv_scope_wd(tempdir())
 
   # resolve version
-  version <- version %||% renv_package_version("renv")
+  version <- version %||% renv_metadata_version()
 
   printf("# Cloning renv %s from %s ... ", version, repository)
   args <- c("clone", "--branch", version, "--depth", "1", repository)
