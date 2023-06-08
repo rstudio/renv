@@ -328,15 +328,15 @@ remap <- function(x, map) {
 
 header <- function(label,
                    prefix = "#",
-                   suffix = "=",
-                   n = 38L)
+                   suffix = "-",
+                   n = min(getOption("width"), 78))
 {
   n <- n - nchar(label) - nchar(prefix) - 2L
   if (n <= 0)
     return(paste(prefix, label))
 
   tail <- paste(rep.int(suffix, n), collapse = "")
-  paste(prefix, label, tail)
+  paste0(prefix, " ", label, " ", tail)
 
 }
 
