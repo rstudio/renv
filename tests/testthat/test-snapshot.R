@@ -399,6 +399,11 @@ test_that("packages installed from CRAN using pak are handled", {
   suppressMessages(pak$pkg_install("toast"))
   record <- renv_snapshot_description(package = "toast")
 
+  expect_named(
+    record,
+    c("Package", "Version", "Source", "Repository", "Requirements", "Hash")
+  )
+
   expect_identical(record$Source, "Repository")
   expect_identical(record$Repository, "CRAN")
 })
