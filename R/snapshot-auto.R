@@ -11,14 +11,19 @@ renv_snapshot_auto <- function(project) {
   `_renv_snapshot_running` <<- TRUE
   defer(`_renv_snapshot_running` <<- FALSE)
 
+  lockfile <- renv_lockfile_path(project = project)
+  old <- file.info(lockfile)$mtime
+
   # passed pre-flight checks; snapshot the library
   # validation messages can be noisy; turn off for auto snapshot
   status <- catch(renv_snapshot_auto_impl(project))
   if (inherits(status, "error"))
     return(FALSE)
 
-  lockfile <- renv_lockfile_path(project = project)
-  writef("* Automatic snapshot has updated '%s'.", renv_path_aliased(lockfile))
+  new <- file.info(lockfile)$mtime
+  if (old != new)
+    writef("* Automatic snapshot has updated '%s'.", renv_path_aliased(lockfile))
+
   TRUE
 
 }
@@ -36,7 +41,7 @@ renv_snapshot_auto_impl <- function(project) {
 
 }
 
-renv_snapshot_auto_enabled <- function(project) {
+renv_snapshot_auto_enabled <- function(project = renv_project_get()) {
 
   # don't auto-snapshot if disabled by user
   enabled <- config$auto.snapshot()
@@ -44,7 +49,7 @@ renv_snapshot_auto_enabled <- function(project) {
     return(FALSE)
 
   # only automatically snapshot the current project
-  if (renv_project_loaded(project))
+  if (!renv_project_loaded(project))
     return(FALSE)
 
   # don't auto-snapshot if the project hasn't been initialized
@@ -64,18 +69,14 @@ renv_snapshot_auto_enabled <- function(project) {
 
 }
 
-renv_snapshot_auto_update <- function(project) {
+renv_snapshot_auto_update <- function(project = renv_project_get() ) {
 
   # check for enabled
   if (!renv_snapshot_auto_enabled(project = project))
     return(FALSE)
 
-  # get path to project library
-  libpath <- renv_paths_library(project = project)
-  if (!file.exists(libpath))
-    return(FALSE)
-
   # list files + get file info for files in project library
+  libpath <- renv_paths_library(project = project)
   info <- renv_file_info(libpath)
 
   # only keep relevant fields
@@ -102,15 +103,17 @@ renv_snapshot_task <- function() {
   # check for active renv project
   project <- renv_project_get()
   if (is.null(project))
-    return()
+    return(invisible())
 
   # see if library state has updated
   updated <- renv_snapshot_auto_update(project = project)
   if (!updated)
-    return()
+    return(invisible())
 
   # library has updated; perform auto snapshot
   renv_snapshot_auto(project = project)
+
+  invisible()
 
 }
 

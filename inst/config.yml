@@ -21,8 +21,8 @@
   type: "logical[1]"
   default: false
   description: >
-    Automatically snapshot changes to the project library after a new package
-    is installed?
+    Automatically snapshot changes to the project library when the project
+    dependencies change?
 
 - name: "bitbucket.host"
   type: "character[1]"

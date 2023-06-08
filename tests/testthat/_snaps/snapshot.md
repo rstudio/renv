@@ -205,3 +205,10 @@
       Consider using .renvignore to ignore files or switching to explicit snapshots
       See `?dependencies` for more information.
 
+# autosnapshot works as expected
+
+    Code
+      renv_snapshot_task()
+    Output
+      * Automatic snapshot has updated '<wd>/renv.lock'.
+
