@@ -149,11 +149,11 @@ renv_vendor_imports <- function() {
 
 renv_vendor_sources <- function(version = renv_metadata_version()) {
 
-  path <- renv_bootstrap_download_github(version)
+  tarball <- renv_bootstrap_download_github(version)
   defer(unlink(tarball))
 
   untarred <- tempfile("renv-vendor-")
-  untar(path, exdir = untarred)
+  untar(tarball, exdir = untarred)
 
   dir(untarred, full.names = TRUE)[[1]]
 }
