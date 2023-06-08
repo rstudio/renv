@@ -17,6 +17,12 @@
 #' new session. By default it will remove the auto-loader from the `.Rprofile`;
 #' use `clean = TRUE` to also delete the lockfile and the project library.
 #'
+#' # Temporary deactivation
+#'
+#' If you need to temporarily disable autoload activation you can set
+#' the `RENV_CONFIG_AUTOLOADER_ENABLED` envvar, e.g.
+#' `Sys.setenv(RENV_CONFIG_AUTOLOADER_ENABLED = "false")`.
+#'
 #' @inherit renv-params
 #'
 #' @export
