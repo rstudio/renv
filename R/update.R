@@ -138,6 +138,49 @@ renv_update_find_github_impl <- function(record) {
 
 }
 
+
+renv_update_find_remote <- function(records, type) {
+
+  update <- switch(type,
+    "gitlab" = renv_remotes_resolve_gitlab,
+    "bitbucket" = renv_remotes_resolve_bitbucket,
+    stopf("Unsupported type %s", type)
+  )
+
+  names(records) <- map_chr(records, `[[`, "Package")
+  results <- renv_parallel_exec(records, function(record) {
+    catch(renv_update_find_remote_impl(record, update))
+  })
+
+  failed <- map_lgl(results, inherits, "error")
+  if (any(failed))
+    renv_update_errors_set(type, results[failed])
+
+  results[!failed]
+
+}
+
+renv_update_find_remote_impl <- function(record, update) {
+
+  remote <- list(
+    host = record$RemoteHost,
+    user = record$RemoteUsername,
+    repo = record$RemoteRepo,
+    ref = record$RemoteRef
+  )
+  current <- update(remote)
+
+  # check that the version has actually updated
+  updated <-
+    current$RemoteSha != record$RemoteSha &&
+    numeric_version(current$Version) >= numeric_version(record$Version)
+
+  if (updated)
+    return(current)
+
+}
+
+
 renv_update_find <- function(records) {
 
   sources <- extract_chr(records, "Source")
@@ -149,7 +192,9 @@ renv_update_find <- function(records) {
       source == "Bioconductor" ~ renv_update_find_repos(records),
       source == "Repository"   ~ renv_update_find_repos(records),
       source == "GitHub"       ~ renv_update_find_github(records),
-      source == "Git"          ~ renv_update_find_git(records)
+      source == "Git"          ~ renv_update_find_git(records),
+      source == "GitLab"       ~ renv_update_find_remote(records, "gitlab"),
+      source == "Bitbucket"    ~ renv_update_find_remote(records, "bitbucket")
     )
   })
 
@@ -174,7 +219,9 @@ renv_update_find <- function(records) {
 #'
 #' @description
 #' Update packages which are currently out-of-date. Currently supports CRAN,
-#' Bioconductor, other CRAN-like repositories, GitHub and Git.
+#' Bioconductor, other CRAN-like repositories, GitHub, GitLab, Git, and
+#' BitBucket.
+#'
 #' Updates will only be checked from the same source -- for example,
 #' if a package was installed from GitHub, but a newer version is
 #' available on CRAN, that updated version will not be seen.
@@ -380,7 +427,9 @@ renv_update_errors_emit <- function() {
 
   # then emit errors for each class
   renv_update_errors_emit_repos()
-  renv_update_errors_emit_github()
+  renv_update_errors_emit_remote("github", "GitHub")
+  renv_update_errors_emit_remote("gitlab", "GitLab")
+  renv_update_errors_emit_remote("bitbucket", "BitBucket")
 
 }
 
@@ -413,12 +462,12 @@ renv_update_errors_emit_repos <- function() {
 
 }
 
-renv_update_errors_emit_github <- function() {
+renv_update_errors_emit_remote <- function(key, label) {
 
   renv_update_errors_emit_impl(
-    key       = "github",
-    preamble  = "One or more errors occurred while finding updates for the following GitHub packages:",
-    postamble = "Ensure that these packages were installed from an accessible GitHub remote."
+    key       = key,
+    preamble  = sprintf("One or more errors occurred while finding updates for the following %s packages:", label),
+    postamble = sprintf("Ensure that these packages were installed from an accessible %s remote.", label)
   )
 
 }

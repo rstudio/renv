@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+
+* `update()` can now update packages installed from GitLab (#136) and 
+  BitBucket (#1194).
+
 * `snapshot()` now standardises pak metadata so CRAN packages installed via
   pak look the same as CRAN packages installed with renv or `install.packages()`
   (#1239).

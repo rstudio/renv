@@ -51,7 +51,9 @@ A named list of package records which were installed by renv.
 }
 \description{
 Update packages which are currently out-of-date. Currently supports CRAN,
-Bioconductor, other CRAN-like repositories, GitHub and Git.
+Bioconductor, other CRAN-like repositories, GitHub, GitLab, Git, and
+BitBucket.
+
 Updates will only be checked from the same source -- for example,
 if a package was installed from GitHub, but a newer version is
 available on CRAN, that updated version will not be seen.
