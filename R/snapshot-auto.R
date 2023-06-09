@@ -75,8 +75,12 @@ renv_snapshot_auto_update <- function(project = renv_project_get() ) {
   if (!renv_snapshot_auto_enabled(project = project))
     return(FALSE)
 
-  # list files + get file info for files in project library
+  # get path to project library
   libpath <- renv_paths_library(project = project)
+  if (!file.exists(libpath))
+    return(FALSE)
+
+  # list files + get file info for files in project library
   info <- renv_file_info(libpath)
 
   # only keep relevant fields
