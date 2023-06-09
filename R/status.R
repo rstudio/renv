@@ -160,11 +160,11 @@ renv_status_check_synchronized <- function(project,
                                            library,
                                            packages)
 {
-  # projects will implicitly depend on BiocManager if any Bioconductor
-  # packages are in use
-  sources <- extract_chr(library, "Source")
+  # projects will implicitly depend on BiocManager & BiocVersion if any
+  # Bioconductor packages are in use
+  sources <- extract_chr(keep(library, packages), "Source")
   if ("Bioconductor" %in% sources)
-    packages <- unique(c(packages, "BiocManager"))
+    packages <- union(packages, "BiocManager")
 
   # missing dependencies -------------------------------------------------------
   # Must return early because `packages` will be incomplete making later

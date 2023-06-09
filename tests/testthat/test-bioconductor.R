@@ -9,7 +9,10 @@ test_that("packages can be installed, restored from Bioconductor", {
   renv_tests_scope("Biobase")
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
 
-  install.packages("BiocManager", quiet = TRUE)
+  local({
+    renv_tests_scope_system_cache()
+    install("BiocManager")
+  })
   suppressMessages(BiocManager::install("Biobase", quiet = TRUE, update = FALSE, ask = FALSE))
 
   expect_true(renv_package_installed("BiocManager"))
@@ -85,5 +88,33 @@ test_that("we can restore a lockfile using multiple Bioconductor releases", {
 
   expect_true(renv_package_version("limma") == "3.50.0")
   expect_true(renv_package_version("BiocGenerics") == "0.38.0")
+
+})
+
+test_that("Bioconductor packages add BiocManager as a dependency", {
+
+  renv_tests_scope()
+  init()
+  local({
+    renv_tests_scope_system_cache()
+    install("BiocManager")
+    install("bioc::BiocGenerics")
+  })
+
+  snapshot()
+  writeLines("library(BiocGenerics)", "dependencies.R")
+
+  expect_snapshot(
+    status(),
+    transform = function(x) gsub("\\[.*\\]", "[<version>]", x)
+  )
+  snap <- snapshot()
+  expect_setequal(names(snap$Packages), c("BiocManager", "BiocGenerics"))
+
+  # And it goes away when we remove the dependency
+  unlink("dependencies.R")
+  snap <- snapshot()
+  expect_named(snap$Packages, character())
+  expect_snapshot(status())
 
 })

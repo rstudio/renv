@@ -57,3 +57,10 @@ renv_tests_scope_repos <- function(envir = parent.frame()) {
   )
 
 }
+
+renv_tests_scope_system_cache <- function(envir = parent.frame()) {
+  skip_on_cran()
+
+  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"), envir = envir)
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_paths_root_default_impl(), envir = envir)
+}
