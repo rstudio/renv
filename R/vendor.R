@@ -1,9 +1,8 @@
 
-#' Vendor renv in an R Package
+#' Vendor renv in an R package
 #'
-#' Vendor a copy of renv in an \R package.
-#'
-#' Calling `renv::vendor()` will:
+#' @description
+#' Calling `renv:::vendor()` will:
 #'
 #' - Compile a vendored copy of renv to `inst/vendor/renv.R`,
 #' - Generate an renv auto-loader at `R/renv.R`.

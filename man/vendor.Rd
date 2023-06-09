@@ -2,7 +2,7 @@
 % Please edit documentation in R/vendor.R
 \name{vendor}
 \alias{vendor}
-\title{Vendor renv in an R Package}
+\title{Vendor renv in an R package}
 \usage{
 vendor(version = NULL, sources = NULL, project = getwd())
 }
@@ -16,10 +16,7 @@ is non-\code{NULL}.}
 \item{project}{The project in which renv should be vendored.}
 }
 \description{
-Vendor a copy of renv in an \R package.
-}
-\details{
-Calling \code{renv::vendor()} will:
+Calling \code{renv:::vendor()} will:
 \itemize{
 \item Compile a vendored copy of renv to \code{inst/vendor/renv.R},
 \item Generate an renv auto-loader at \code{R/renv.R}.
