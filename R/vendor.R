@@ -20,9 +20,10 @@
 #' need to rely on renv internal functions, we strongly recommend testing
 #' your usages of these functions to avoid potential breakage.
 #'
-#' @param version The version of renv to vendor. If `NULL` (the default),
-#'   the current version of renv will be used. Ignored if `sources`
-#'   is non-`NULL`.
+#' @param version The version of renv to vendor. A Git tag targets a CRAN
+#'   version and "main" references the latest development version of renv. Use
+#'   a Git branch name or commit SHA to target other versions. Ignored when
+#'   `sources` is non-`NULL`.
 #'
 #' @param sources The path to local renv sources to be vendored.
 #'
@@ -44,7 +45,12 @@ vendor <- function(version    = NULL,
   }
 
   # get renv sources
-  sources <- sources %||% renv_vendor_sources(version %||% renv_metadata_version())
+  if (is.null(sources)) {
+    if (is.null(version)) {
+      stop("Specify an renv version or a path to renv sources")
+    }
+    sources <- renv_vendor_sources(version)
+  }
 
   # re-compute renv version from sources
   version <- renv_description_read(path = sources, field = "Version")
@@ -146,7 +152,7 @@ renv_vendor_imports <- function() {
 
 }
 
-renv_vendor_sources <- function(version = renv_metadata_version()) {
+renv_vendor_sources <- function(version) {
 
   tarball <- renv_bootstrap_download_github(version)
   if (!is.character(tarball) || !file.exists(tarball)) {
