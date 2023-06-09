@@ -396,11 +396,6 @@ renv_package_checking <- function() {
 
 renv_package_checking_impl <- function() {
 
-  # check for devtools
-  calls <- sys.calls()
-  if (identical(calls[[1L]], quote(devtools::test())))
-    return(TRUE)
-
   # otherwise, check other things
   is_testing() ||
     "CheckExEnv" %in% search()
