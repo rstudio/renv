@@ -44,7 +44,7 @@ vendor <- function(version    = NULL,
   }
 
   # get renv sources
-  sources <- sources %||% renv_vendor_sources(version)
+  sources <- sources %||% renv_vendor_sources(version %||% renv_metadata_version())
 
   # re-compute renv version from sources
   version <- renv_description_read(path = sources, field = "Version")
