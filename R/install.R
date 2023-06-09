@@ -602,6 +602,11 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
 renv_install_test <- function(package) {
 
+  # add escape hatch, just in case
+  enabled <- Sys.getenv("RENV_INSTALL_TEST_LOAD", unset = renv_platform_linux())
+  if (enabled)
+    return(TRUE)
+
   # check whether we should skip installation testing
   opts <- r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE)
   if (is.character(opts)) {
