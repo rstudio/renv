@@ -7,7 +7,7 @@ renv_system_exec <- function(command,
                              quiet   = NULL)
 {
   # be quiet when running tests by default
-  quiet <- quiet %||% FALSE
+  quiet <- quiet %||% renv_tests_running()
 
   # handle 'stream' specially
   if (stream) {
