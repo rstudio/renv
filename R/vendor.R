@@ -149,6 +149,9 @@ renv_vendor_imports <- function() {
 renv_vendor_sources <- function(version = renv_metadata_version()) {
 
   tarball <- renv_bootstrap_download_github(version)
+  if (!is.character(tarball) || !file.exists(tarball)) {
+    stop("Download failed")
+  }
   defer(unlink(tarball))
 
   untarred <- tempfile("renv-vendor-")
