@@ -49,8 +49,8 @@ renv_rtools_version <- function(root) {
   # check for 'rtools<xyz>' folder
   # e.g. C:/rtools42
   pattern <- "^rtools(\\d)(\\d)$"
-  if (grepl(pattern, name, perl = TRUE))
-    return(gsub(pattern, "\\1.\\2", name, perl = TRUE))
+  if (grepl(pattern, name, perl = TRUE, ignore.case = TRUE))
+    return(gsub(pattern, "\\1.\\2", name, perl = TRUE, ignore.case = TRUE))
 
   # check for versioned installation path
   # e.g. C:/RBuildTools/4.2
