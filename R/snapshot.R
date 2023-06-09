@@ -15,6 +15,9 @@
 #' current library paths. This makes it possible to [restore] the current packages,
 #' providing lightweight portability and reproducibility without isolation.
 #'
+#' If you want to automatically snapshot after each change, you can
+#' set `config$config$auto.snapshot(TRUE)`, see `?config` for more details.
+#'
 #' # Snapshot types
 #'
 #' Depending on how you prefer to manage dependencies, you might prefer

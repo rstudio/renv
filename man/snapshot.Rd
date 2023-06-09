@@ -84,6 +84,9 @@ It's also possible to call \code{renv::snapshot()} with a non-renv project,
 in which case it will record the current state of dependencies in the
 current library paths. This makes it possible to \link{restore} the current packages,
 providing lightweight portability and reproducibility without isolation.
+
+If you want to automatically snapshot after each change, you can
+set \code{config$config$auto.snapshot(TRUE)}, see \code{?config} for more details.
 }
 \section{Snapshot types}{
 Depending on how you prefer to manage dependencies, you might prefer

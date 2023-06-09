@@ -473,3 +473,22 @@ test_that("snapshot doesn't include development dependencies", {
   expect_named(snap$Packages, "egg")
 
 })
+
+test_that("autosnapshot works as expected", {
+
+  renv_scope_options(renv.config.auto.snapshot = TRUE)
+  defer(`_renv_library_info` <- NULL)
+
+  renv_tests_scope("oatmeal")
+  init()
+  expect_silent(renv_snapshot_task())
+
+  # bread isn't used so snapshot shouldn't change
+  install("bread")
+  expect_silent(renv_snapshot_task())
+
+  writeLines("library(egg)", "dependencies.R")
+  install("egg")
+  expect_snapshot(renv_snapshot_task())
+
+})
