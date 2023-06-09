@@ -1,7 +1,7 @@
-expect_snapshot <- function(...) {
+expect_snapshot <- function(..., transform = strip_dirs) {
   renv_scope_options(renv.verbose = TRUE)
 
-  testthat::expect_snapshot(..., transform = strip_dirs)
+  testthat::expect_snapshot(..., transform = transform)
 }
 
 strip_dirs <- function(x) {

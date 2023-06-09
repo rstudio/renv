@@ -399,6 +399,11 @@ test_that("packages installed from CRAN using pak are handled", {
   suppressMessages(pak$pkg_install("toast"))
   record <- renv_snapshot_description(package = "toast")
 
+  expect_named(
+    record,
+    c("Package", "Version", "Source", "Repository", "Requirements", "Hash")
+  )
+
   expect_identical(record$Source, "Repository")
   expect_identical(record$Repository, "CRAN")
 })
@@ -466,5 +471,24 @@ test_that("snapshot doesn't include development dependencies", {
 
   snap <- snapshot()
   expect_named(snap$Packages, "egg")
+
+})
+
+test_that("autosnapshot works as expected", {
+
+  renv_scope_options(renv.config.auto.snapshot = TRUE)
+  defer(`_renv_library_info` <- NULL)
+
+  renv_tests_scope("oatmeal")
+  init()
+  expect_silent(renv_snapshot_task())
+
+  # bread isn't used so snapshot shouldn't change
+  install("bread")
+  expect_silent(renv_snapshot_task())
+
+  writeLines("library(egg)", "dependencies.R")
+  install("egg")
+  expect_snapshot(renv_snapshot_task())
 
 })

@@ -12,6 +12,9 @@ renv_tests_setup <- function(envir = parent.frame()) {
   if (!once())
     return()
 
+  # remove automatic tasks so we can capture explicitly in tests
+  renv_task_unload()
+
   # cache path before working directory gets changed
   renv_tests_root()
 

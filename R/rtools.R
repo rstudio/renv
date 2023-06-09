@@ -44,18 +44,19 @@ renv_rtools_read <- function(root) {
 
 renv_rtools_version <- function(root) {
 
-  # detect Rtools40
-  files <- c("mirrorlist.rtools", "rtools.mingw32", "rtools.mingw64")
-  for (file in files) {
-    path <- file.path(root, "etc/pacman.d", file)
-    if (file.exists(path))
-      return(numeric_version("4.0"))
-  }
+  name <- basename(root)
 
-  # detect Rtools42
-  mirrors <- file.path(root, "etc/pacman.d/mirrorlist.clang64")
-  if (file.exists(mirrors))
-    return(numeric_version("4.2"))
+  # check for 'rtools<xyz>' folder
+  # e.g. C:/rtools42
+  pattern <- "^rtools(\\d)(\\d)$"
+  if (grepl(pattern, name, perl = TRUE, ignore.case = TRUE))
+    return(gsub(pattern, "\\1.\\2", name, perl = TRUE, ignore.case = TRUE))
+
+  # check for versioned installation path
+  # e.g. C:/RBuildTools/4.2
+  version <- catch(numeric_version(name))
+  if (!inherits(version, "error"))
+    return(format(version))
 
   # detect older Rtools installations
   path <- file.path(root, "VERSION.txt")
@@ -64,7 +65,6 @@ renv_rtools_version <- function(root) {
 
   contents <- readLines(path, warn = FALSE)
   version <- gsub("[^[:digit:].]", "", contents)
-
   numeric_version(version)
 
 }
@@ -75,7 +75,8 @@ renv_rtools_compatible <- function(spec) {
     return(FALSE)
 
   ranges <- list(
-    "4.2" = c("4.2.0", "9.9.9"),
+    "4.3" = c("4.3.0", "9.9.9"),
+    "4.2" = c("4.2.0", "4.3.0"),
     "4.0" = c("4.0.0", "4.2.0"),
     "3.5" = c("3.3.0", "4.0.0"),
     "3.4" = c("3.3.0", "4.0.0"),
@@ -118,8 +119,10 @@ renv_rtools_envvars <- function(root) {
     renv_rtools_envvars_default(root)
   else if (version < "4.2")
     renv_rtools_envvars_rtools40(root)
-  else
+  else if (version < "4.3")
     renv_rtools_envvars_rtools42(root)
+  else
+    renv_rtools_envvars_rtools43(root)
 
 }
 
@@ -130,7 +133,21 @@ renv_rtools_envvars_default <- function(root) {
   path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
   # set BINPREF (note: trailing slash is required)
+  # file.path drops trailing separators on Windows, so we use paste
   binpref <- paste(renv_path_normalize(root), "mingw_$(WIN)/bin/", sep = "/")
+
+  list(PATH = path, BINPREF = binpref)
+
+}
+
+renv_rtools_envvars_rtools43 <- function(root) {
+
+  # add Rtools utilities to path
+  bin <- normalizePath(file.path(root, "usr/bin"), mustWork = FALSE)
+  path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
+
+  # set BINPREF
+  binpref <- ""
 
   list(PATH = path, BINPREF = binpref)
 
@@ -154,7 +171,6 @@ renv_rtools_envvars_rtools40 <- function(root) {
 
   # add Rtools utilities to path
   bin <- normalizePath(file.path(root, "usr/bin"), mustWork = FALSE)
-
   path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
   # set BINPREF (note: trailing slash is required)

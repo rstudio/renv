@@ -15,6 +15,9 @@
 #' current library paths. This makes it possible to [restore] the current packages,
 #' providing lightweight portability and reproducibility without isolation.
 #'
+#' If you want to automatically snapshot after each change, you can
+#' set `config$config$auto.snapshot(TRUE)`, see `?config` for more details.
+#'
 #' # Snapshot types
 #'
 #' Depending on how you prefer to manage dependencies, you might prefer
@@ -720,12 +723,16 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
 
-  # https://github.com/rstudio/renv/issues/736
-  remotes <- grep("[.]\\d+$", remotes, perl = TRUE, invert = TRUE, value = TRUE)
+  is_repo <- is.null(dcf[["RemoteType"]]) ||
+    identical(dcf[["RemoteType"]], "standard")
 
   # only keep relevant fields
   extra <- c("Repository", "OS_type")
-  all <- c(required, extra, remotes, git, "Requirements", "Hash")
+  all <- c(
+    required, extra,
+    if (!is_repo) c(remotes, git),
+    "Requirements", "Hash"
+  )
   keep <- renv_vector_intersect(all, names(dcf))
 
   # return as list

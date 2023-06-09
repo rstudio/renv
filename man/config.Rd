@@ -55,7 +55,7 @@ The following renv configuration options are available:
 Defaults to \code{TRUE}.}
 \subsection{renv.config.autoloader.enabled}{Enable the renv auto-loader? When \code{FALSE}, renv will not not automatically load a project containing an renv autoloader within its \code{.Rprofile}. In addition, renv will not write out the project auto-loader in calls to \code{renv::init()}.
 Defaults to \code{TRUE}.}
-\subsection{renv.config.auto.snapshot}{Automatically snapshot changes to the project library after a new package is installed?
+\subsection{renv.config.auto.snapshot}{Automatically snapshot changes to the project library when the project dependencies change?
 Defaults to \code{FALSE}.}
 \subsection{renv.config.bitbucket.host}{The default Bitbucket host to be used during package retrieval.
 Defaults to \code{"api.bitbucket.org/2.0"}.}
