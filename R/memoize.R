@@ -3,7 +3,7 @@
 
 memo <- function(value, scope = NULL) {
   scope <- scope %||% stringify(sys.call(sys.parent())[[1L]])
-  `_renv_memoize`[[scope]] <- `_renv_memoize`[[scope]] %||% value
+  (`_renv_memoize`[[scope]] <- `_renv_memoize`[[scope]] %||% value)
 }
 
 memoize <- function(key, value, scope = NULL) {
