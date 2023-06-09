@@ -3,8 +3,8 @@ abort <- function(message, ..., details = NULL, class = NULL) {
 
   # create condition object
   cnd <- if (is.character(message)) {
-    cnd <- list(message = cnd, details = details, ...)
-    class(cnd) <- c(class, "error", "condition")
+    data <- list(message = message, details = details, ...)
+    structure(data, class = c(class, "error", "condition"))
   } else if (inherits(message, "condition")) {
     message
   } else {
