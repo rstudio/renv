@@ -391,12 +391,6 @@ renv_package_built <- function(path) {
 }
 
 renv_package_checking <- function() {
-  memo(renv_package_checking_impl())
-}
-
-renv_package_checking_impl <- function() {
-
-  # otherwise, check other things
   is_testing() ||
     "CheckExEnv" %in% search() ||
     renv_envvar_exists("_R_CHECK_PACKAGE_NAME_") ||
