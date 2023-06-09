@@ -25,10 +25,6 @@
 #'   the current version of renv will be used. Ignored if `sources`
 #'   is non-`NULL`.
 #'
-#' @param repository The Git repository from which renv should be retrieved.
-#'   renv will use `git clone <repository> --branch <version>` to download
-#'   the required renv sources. Ignored if `sources` is non-`NULL`.
-#'
 #' @param sources The path to local renv sources to be vendored.
 #'
 #' @param project The project in which renv should be vendored.
@@ -36,7 +32,6 @@
 #' @keywords internal
 #'
 vendor <- function(version    = NULL,
-                   repository = "https://github.com/rstudio/renv",
                    sources    = NULL,
                    project    = getwd())
 {
@@ -50,7 +45,7 @@ vendor <- function(version    = NULL,
   }
 
   # get renv sources
-  sources <- sources %||% renv_vendor_sources(version, repository)
+  sources <- sources %||% renv_vendor_sources(version)
 
   # re-compute renv version from sources
   version <- renv_description_read(path = sources, field = "Version")
@@ -152,25 +147,15 @@ renv_vendor_imports <- function() {
 
 }
 
-renv_vendor_sources <- function(version, repository) {
+renv_vendor_sources <- function(version = renv_metadata_version()) {
 
-  # move to temporary directory
-  renv_scope_wd(tempdir())
+  tarball <- renv_bootstrap_download_github(version)
+  defer(unlink(tarball))
 
-  # resolve version
-  version <- version %||% renv_package_version("renv")
+  untarred <- tempfile("renv-vendor-")
+  untar(tarball, exdir = untarred)
 
-  printf("# Cloning renv %s from %s ... ", version, repository)
-  args <- c("clone", "--branch", version, "--depth", "1", repository)
-  renv_system_exec(git(), args, action = "cloning renv")
-  writef("Done!")
-  path <- renv_path_normalize("renv", mustWork = TRUE)
-
-  # make sure we clean up when we're done
-  defer(unlink(path, recursive = TRUE), envir = parent.frame())
-
-  path
-
+  dir(untarred, full.names = TRUE)[[1]]
 }
 
 renv_vendor_header <- function(version) {

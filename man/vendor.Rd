@@ -4,21 +4,12 @@
 \alias{vendor}
 \title{Vendor renv in an R Package}
 \usage{
-vendor(
-  version = NULL,
-  repository = "https://github.com/rstudio/renv",
-  sources = NULL,
-  project = getwd()
-)
+vendor(version = NULL, sources = NULL, project = getwd())
 }
 \arguments{
 \item{version}{The version of renv to vendor. If \code{NULL} (the default),
 the current version of renv will be used. Ignored if \code{sources}
 is non-\code{NULL}.}
-
-\item{repository}{The Git repository from which renv should be retrieved.
-renv will use \verb{git clone <repository> --branch <version>} to download
-the required renv sources. Ignored if \code{sources} is non-\code{NULL}.}
 
 \item{sources}{The path to local renv sources to be vendored.}
 
