@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `snapshot()` now standardises pak metadata so CRAN packages installed via
+  pak look the same as CRAN packages installed with renv or `install.packages()`
+  (#1239).
+
 * `install()` now keeps source when installing packages from source (#522).
 
 * `snapshot()` and `status()` no longer track development dependencies.
