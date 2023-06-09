@@ -559,7 +559,7 @@ untar <- function(tarfile,
 {
   # delegate to utils::untar()
   result <- utils::untar(
-    tarfile = tarfile,
+    tarfile,
     files   = files,
     list    = list,
     exdir   = exdir,
