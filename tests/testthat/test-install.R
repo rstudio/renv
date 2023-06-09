@@ -560,6 +560,9 @@ test_that("install() reports failure when a 'bad' binary is installed", {
   skip_on_cran()
   renv_tests_scope()
 
+  # test package load in this scope on all platforms
+  renv_scope_envvars(RENV_INSTALL_TEST_LOAD = TRUE)
+
   # install bread
   install("bread")
 

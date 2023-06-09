@@ -584,12 +584,10 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
   # if we just installed a binary package, check that it can be loaded
   # (source packages are checked by default on install)
-  if (isbin) {
-    withCallingHandlers(
-      renv_install_test(package),
-      error = function(err) unlink(installpath, recursive = TRUE)
-    )
-  }
+  withCallingHandlers(
+    if (isbin) renv_install_test(package),
+    error = function(err) unlink(installpath, recursive = TRUE)
+  )
 
   # augment package metadata after install
   renv_package_augment(installpath, record)
@@ -602,8 +600,9 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 renv_install_test <- function(package) {
 
   # add escape hatch, just in case
+  # (test binaries by default on Linux, but not Windows or macOS)
   enabled <- Sys.getenv("RENV_INSTALL_TEST_LOAD", unset = renv_platform_linux())
-  if (enabled)
+  if (!truthy(enabled))
     return(TRUE)
 
   # check whether we should skip installation testing
@@ -628,7 +627,7 @@ renv_install_test <- function(package) {
 
   # the actual code we'll run in the other process
   code <- substitute({
-    options(warn = 1)
+    options(warn = 1L)
     library(package)
   }, list(package = package))
 
@@ -643,6 +642,7 @@ renv_install_test <- function(package) {
     action  = sprintf("testing if '%s' can be loaded", package)
   )
 
+  # return TRUE to indicate successful validation
   TRUE
 
 }
