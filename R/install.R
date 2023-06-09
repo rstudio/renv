@@ -129,6 +129,7 @@ install <- function(packages = NULL,
   libpaths <- renv_libpaths_resolve(library)
   renv_scope_libpaths(libpaths)
 
+  is_binary <- !identical(type, "source")
   type <- type %||% getOption("pkgType")
   renv_scope_options(pkgType = type)
 
@@ -185,7 +186,7 @@ install <- function(packages = NULL,
   )
 
   # retrieve packages
-  records <- retrieve(names(remotes))
+  records <- retrieve(names(remotes), is_binary = is_binary)
   if (empty(records)) {
     writef("* There are no packages to install.")
     return(invisible(list()))

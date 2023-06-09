@@ -4,7 +4,7 @@
 # this routine retrieves a package + its dependencies, and as a side
 # effect populates the restore state's `retrieved` member with a
 # list of package records which can later be used for install
-retrieve <- function(packages) {
+retrieve <- function(packages, is_binary = TRUE) {
 
   # confirm that we have restore state set up
   state <- renv_restore_state()
@@ -15,7 +15,7 @@ retrieve <- function(packages) {
   options(repos = renv_repos_normalize())
 
   # transform repository URLs for PPM
-  if (renv_ppm_enabled()) {
+  if (is_binary && renv_ppm_enabled()) {
     repos <- getOption("repos")
     renv_scope_options(repos = renv_ppm_transform(repos))
   }
