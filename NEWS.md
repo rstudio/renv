@@ -5,6 +5,8 @@
   pak look the same as CRAN packages installed with renv or `install.packages()`
   (#1239).
 
+* `install()` now keeps source when installing packages from source (#522).
+
 * `snapshot()` and `status()` no longer track development dependencies.
   `install()` will continue to install them (#1019).
 
