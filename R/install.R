@@ -585,11 +585,10 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   # if we just installed a binary package, check that it can be loaded
   # (source packages are checked by default on install)
   if (isbin) {
-    status <- catch(renv_install_test(package))
-    if (inherits(status, "error")) {
-      unlink(installpath, recursive = TRUE)
-      stop(status)
-    }
+    withCallingHandlers(
+      renv_install_test(package),
+      error = function(err) unlink(installpath, recursive = TRUE)
+    )
   }
 
   # augment package metadata after install
