@@ -86,3 +86,29 @@ test_that("update() can upgrade Git packages", {
   expect_true(dcf$Version == "1.0.1")
 
 })
+
+test_that("can upgrade bitbucket", {
+
+  latest <- outdated <- renv_remotes_resolve("bitbucket::kevinushey/skeleton")
+  outdated$Version <- "1.0.0"
+  outdated$RemoteSha <- "5fd5d3b"
+
+  updated <- renv_update_find(list(outdated))
+
+  expect_equal(updated$skeleton$Version, latest$Version)
+  expect_equal(updated$skeleton$RemoteSha, latest$RemoteSha)
+
+})
+
+test_that("can upgrade gitlab", {
+
+  latest <- outdated <- renv_remotes_resolve("gitlab::kevinushey/skeleton")
+  outdated$Version <- "1.0.0"
+  outdated$RemoteSha <- "5fd5d3b"
+
+  updated <- renv_update_find(list(outdated))
+
+  expect_equal(updated$skeleton$Version, latest$Version)
+  expect_equal(updated$skeleton$RemoteSha, latest$RemoteSha)
+
+})

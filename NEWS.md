@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `update()` can now update packages installed from GitLab (#136) and 
+  BitBucket (#1194).
+
 * `install()` now keeps source when installing packages from source (#522).
 
 * `snapshot()` and `status()` no longer track development dependencies.
