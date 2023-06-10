@@ -35,6 +35,9 @@ renv_lock_acquire <- function(path) {
   # mark this path as locked by us
   `_renv_lock`[[path]] <- 1L
 
+  # notify the watchdog
+  renv_watchdog_notify("LockAcquired", list(path = path))
+
   # TRUE to mark successful lock
   dlog("lock", "%s: acquired lock", renv_path_pretty(path))
   TRUE
@@ -79,6 +82,7 @@ renv_lock_release <- function(path) {
 
 renv_lock_release_impl <- function(path) {
   unlink(path, recursive = TRUE, force = TRUE)
+  renv_watchdog_notify("LockReleased", list(path = path))
 }
 
 renv_lock_orphaned <- function(path) {

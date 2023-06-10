@@ -12,6 +12,7 @@
 .onUnload <- function(libpath) {
 
   renv_task_unload()
+  renv_watchdog_unload()
 
   # flush the help db to avoid errors on reload
   # https://github.com/rstudio/renv/issues/1294
@@ -43,6 +44,7 @@ renv_zzz_load <- function() {
   renv_lock_init()
   renv_sandbox_init()
   renv_sdkroot_init()
+  renv_watchdog_init()
 
   if (!renv_metadata_embedded()) {
 

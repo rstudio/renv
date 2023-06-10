@@ -619,3 +619,17 @@ renv_file_writable <- function(path) {
   ok
 
 }
+
+renv_file_wait <- function(path, timeout = 10) {
+
+  ticks <-  timeout * 10
+  for (i in seq_len(ticks)) {
+    if (file.exists(path)) {
+      return(TRUE)
+    }
+    Sys.sleep(0.1)
+  }
+
+  stopf("timeout in renv_file_wait('%s')", path)
+
+}
