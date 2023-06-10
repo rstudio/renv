@@ -21,7 +21,7 @@ test_that("the watchdog process releases locks from killed processes", {
   )
 
   # wait for the file to exist
-  renv_file_wait(path)
+  wait_until(file.exists, path)
   expect_true(file.exists(path))
 
   # give the watchdog some time to run

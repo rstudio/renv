@@ -581,3 +581,7 @@ rep_named <- function(names, x) {
   names(values) <- names
   values
 }
+
+wait_until <- function(callback, ...) {
+  repeat if (callback(...)) return(TRUE)
+}
