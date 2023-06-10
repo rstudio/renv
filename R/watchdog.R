@@ -59,12 +59,16 @@ renv_watchdog_enabled_impl <- function() {
 renv_watchdog_start <- function() {
 
   # create socket for reading initialization data
-  repeat {
+  for (i in 1:100) {
     port <- sample(49152:65536, size = 1L)
     socket <- tryCatch(serverSocket(port), error = identity)
     if (!inherits(socket, "error"))
       break
   }
+
+  # check that we got a valid socket
+  if (inherits(socket, "error"))
+    stop("couldn't create socket server")
 
   # store the socket
   `_renv_watchdog_server` <<- list(
@@ -107,6 +111,9 @@ renv_watchdog_start <- function() {
     `_renv_watchdog_process` <<- unserialize(conn)
   }
 
+  # function is called for side effects
+  invisible()
+
 }
 
 renv_watchdog_notify <- function(method, data) {
@@ -136,6 +143,9 @@ renv_watchdog_socket <- function() {
   `_renv_watchdog_server`$socket
 }
 
+# NOTE: We use 'psnice()' here as R also supports using that
+# for process detection on Windows; on all platforms R returns
+# NA if you request information about a non-existent process
 renv_watchdog_running <- function(pid = NULL) {
   pid <- pid %||% `_renv_watchdog_process`$pid
   !is.null(pid) && !is.na(tools::psnice(pid))
@@ -143,6 +153,6 @@ renv_watchdog_running <- function(pid = NULL) {
 
 renv_watchdog_unload <- function() {
   pid <- `_renv_watchdog_process`$pid
-  if (!is.null(pid))
+  if (renv_watchdog_running(pid))
     tools::pskill(pid)
 }
