@@ -13,17 +13,12 @@ ppid <- as.integer(Sys.getenv("RENV_WATCHDOG_PPID", unset = NA))
 if (is.na(ppid))
   stop("internal error: RENV_WATCHDOG_PPID is unset")
 
-# read initialization script path
-init <- Sys.getenv("RENV_WATCHDOG_INIT", unset = NA)
-if (is.na(init))
-  stop("internal error: RENV_WATCHDOG_INIT is unset")
-
 # open server socket on random port
 catf("[watchdog] Searching for open port for server socket.")
 
 repeat {
 
-  port <- floor(runif(1, min = 49152, max = 65535))
+  port <- sample(49152:65536, size = 1L)
   socket <- tryCatch(serverSocket(port), error = identity)
   if (inherits(socket, "error"))
     next
@@ -36,7 +31,10 @@ catf("[watchdog] Listening on port %i", port)
 
 # communicate information about this process to parent
 metadata <- list(pid = Sys.getpid(), port = port)
-saveRDS(metadata, file = init)
+pport <- as.integer(Sys.getenv("RENV_WATCHDOG_PORT"))
+conn <- socketConnection(port = pport, blocking = TRUE)
+serialize(metadata, connection = conn)
+close(conn)
 
 # start listening for connections
 repeat {

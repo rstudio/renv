@@ -55,14 +55,21 @@ renv_watchdog_enabled_impl <- function() {
 
 renv_watchdog_start <- function() {
 
-  # set up path for initialization data
-  pattern <- sprintf("renv-watchdog-%i-", Sys.getpid())
-  init <- renv_scope_tempfile(pattern, fileext = ".rds")
+  # create socket for reading initialization data
+  repeat {
+    port <- sample(49152:65536, size = 1L)
+    socket <- tryCatch(serverSocket(port), error = identity)
+    if (!inherits(socket, "error"))
+      break
+  }
+
+  # close socket on exit
+  defer(close(socket))
 
   # set up envvars
   renv_scope_envvars(
     RENV_WATCHDOG_PPID = Sys.getpid(),
-    RENV_WATCHDOG_INIT = init
+    RENV_WATCHDOG_PORT = port
   )
 
   # get path to watchdog script
@@ -81,9 +88,12 @@ renv_watchdog_start <- function() {
     wait = FALSE
   )
 
-  # wait for metadata
-  renv_file_wait(init, timeout = 10L)
-  `_renv_watchdog_metadata` <<- readRDS(init)
+  # wait for connection from watchdog server
+  conn <- socketAccept(socket, blocking = TRUE)
+  defer(close(conn))
+
+  # read initialization data
+  `_renv_watchdog_metadata` <<- unserialize(conn)
 
 }
 
