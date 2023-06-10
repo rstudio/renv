@@ -1,5 +1,5 @@
 
-`_renv_lock` <- new.env(parent = emptyenv())
+`_renv_lock_registry` <- new.env(parent = emptyenv())
 
 renv_lock_acquire <- function(path) {
 
@@ -8,10 +8,10 @@ renv_lock_acquire <- function(path) {
   path <- renv_lock_path(path)
 
   # if we already have this lock, increment our counter
-  count <- `_renv_lock`[[path]] %||% 0L
+  count <- `_renv_lock_registry`[[path]] %||% 0L
   if (count > 0L) {
     dlog("lock", "%s: incrementing lock count to %i", renv_path_pretty(path), count + 1L)
-    `_renv_lock`[[path]] <- count + 1L
+    `_renv_lock_registry`[[path]] <- count + 1L
     return(TRUE)
   }
 
@@ -33,7 +33,7 @@ renv_lock_acquire <- function(path) {
   }
 
   # mark this path as locked by us
-  `_renv_lock`[[path]] <- 1L
+  `_renv_lock_registry`[[path]] <- 1L
 
   # notify the watchdog
   renv_watchdog_notify("LockAcquired", list(path = path))
@@ -49,14 +49,14 @@ renv_lock_acquire_impl <- function(path) {
   # check for orphaned locks
   if (renv_lock_orphaned(path)) {
     dlog("lock", "%s: removing orphaned lock", path)
-    unlink(path, recursive = TRUE)
+    unlink(path, recursive = TRUE, force = TRUE)
   }
 
   # make sure parent directory exists
   ensure_parent_directory(path)
 
   # https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
-  dir.create(path)
+  dir.create(path, mode = "0755")
 
 }
 
@@ -67,9 +67,7 @@ renv_lock_release <- function(path) {
   path <- renv_lock_path(path)
 
   # decrement our lock count
-  count <- `_renv_lock`[[path]]
-  count <- count - 1L
-  `_renv_lock`[[path]] <- count
+  count <- `_renv_lock_registry`[[path]] <- `_renv_lock_registry`[[path]] - 1L
   dlog("lock", "%s: decrementing lock count to %i", renv_path_pretty(path), count)
 
   # remove the lock if we have no more locks
@@ -87,7 +85,7 @@ renv_lock_release_impl <- function(path) {
 
 renv_lock_orphaned <- function(path) {
 
-  timeout <- getOption("renv.lock.timeout", default = 3600L)
+  timeout <- getOption("renv.lock.timeout", default = 60L)
   if (timeout <= 0L)
     return(TRUE)
 
@@ -95,7 +93,8 @@ renv_lock_orphaned <- function(path) {
   if (is.na(info$isdir))
     return(FALSE)
 
-  difftime(Sys.time(), info$ctime, units = "secs") >= timeout
+  diff <- difftime(Sys.time(), info$mtime, units = "secs")
+  diff >= timeout
 
 }
 
@@ -107,7 +106,7 @@ renv_lock_refresh <- function(path) {
 renv_lock_init <- function() {
 
   # make sure we clean up locks on exit
-  reg.finalizer(`_renv_lock`, function(envir) {
+  reg.finalizer(`_renv_lock_registry`, function(envir) {
     locks <- ls(envir = envir, all.names = TRUE)
     unlink(locks, recursive = TRUE, force = TRUE)
   }, onexit = TRUE)

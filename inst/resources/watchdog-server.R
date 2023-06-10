@@ -20,7 +20,7 @@ if (is.na(port))
 
 # communicate information about this process to parent
 metadata <- list(pid = Sys.getpid())
-conn <- socketConnection(port = port, open = "w+b", timeout = 5)
+conn <- socketConnection(port = port, open = "w+b", timeout = 10)
 serialize(metadata, connection = conn)
 close(conn)
 
@@ -35,9 +35,13 @@ repeat {
     break
   }
 
+  # set file time on owned locks, so we can see they're not orphaned
+  now <- Sys.time()
+  lapply(names(..locks..), Sys.setFileTime, time = now)
+
   # wait for connection
   conn <- tryCatch(
-    socketConnection(port = port, server = FALSE, open = "rb", blocking = TRUE),
+    socketConnection(port = port, open = "rb", blocking = TRUE, timeout = 1),
     error = identity
   )
 

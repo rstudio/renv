@@ -11,7 +11,7 @@ test_that("the watchdog process releases locks from killed processes", {
   script <- renv_test_code({
     renv:::renv_scope_lock(path)
     Sys.sleep(1)
-    system(paste("kill -9", Sys.getpid()))
+    system(paste("kill -TERM", Sys.getpid()))
   }, list(path = path))
 
   system2(

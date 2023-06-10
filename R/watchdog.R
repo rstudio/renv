@@ -9,7 +9,15 @@
 `_renv_watchdog_process` <- NULL
 
 renv_watchdog_init <- function() {
+
   `_renv_watchdog_enabled` <<- renv_watchdog_enabled_impl()
+
+  reg.finalizer(renv_envir_self(), function(envir) {
+    socket <- `_renv_watchdog_server`$socket
+    if (!is.null(socket) && isOpen(socket))
+      close(socket)
+  }, onexit = TRUE)
+
 }
 
 renv_watchdog_enabled <- function() {
@@ -71,8 +79,6 @@ renv_watchdog_start <- function() {
       break
   }
 
-  stop("watchdog listening on port ", port)
-
   # check that we got a valid socket
   if (inherits(socket, "error"))
     stop("couldn't create socket server")
@@ -106,17 +112,14 @@ renv_watchdog_start <- function() {
   )
 
   # wait for connection from watchdog server
-  conn <- tryCatch(
-    socketAccept(socket, open = "r+b", blocking = TRUE),
-    error = warning
-  )
-
-  # TODO: Why does communication over the socket hang when running tests?
-  # And only with the parallel test reporter; single tests seem fine?
-  if (isOpen(conn)) {
+  status <- catch({
+    conn <- socketAccept(socket, open = "r+b", blocking = TRUE, timeout = 10)
     defer(close(conn))
     `_renv_watchdog_process` <<- unserialize(conn)
-  }
+  })
+
+  if (inherits(status, "error"))
+    warning(status)
 
   # function is called for side effects
   invisible()
@@ -124,6 +127,15 @@ renv_watchdog_start <- function() {
 }
 
 renv_watchdog_notify <- function(method, data) {
+
+  tryCatch(
+    renv_watchdog_notify_impl(method, data),
+    error = warning
+  )
+
+}
+
+renv_watchdog_notify_impl <- function(method, data) {
 
   # make sure the watchdog is running
   renv_watchdog_check()
