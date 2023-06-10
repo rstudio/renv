@@ -6,9 +6,14 @@
 `_renv_watchdog_metadata` <- NULL
 
 renv_watchdog_init <- function() {
+
   `_renv_watchdog_enabled` <<- renv_watchdog_enabled_impl()
+  if (!`_renv_watchdog_enabled`)
+    return()
+
   if (!renv_watchdog_running())
     renv_watchdog_start()
+
 }
 
 renv_watchdog_enabled <- function() {
