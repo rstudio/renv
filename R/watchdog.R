@@ -9,18 +9,23 @@
 `_renv_watchdog_process` <- NULL
 
 renv_watchdog_init <- function() {
-
   `_renv_watchdog_enabled` <<- renv_watchdog_enabled_impl()
-  if (!`_renv_watchdog_enabled`)
-    return()
-
-  if (!renv_watchdog_running())
-    renv_watchdog_start()
-
 }
 
 renv_watchdog_enabled <- function() {
   `_renv_watchdog_enabled`
+}
+
+renv_watchdog_check <- function() {
+
+  if (!renv_watchdog_enabled())
+    return(FALSE)
+
+  if (renv_watchdog_running())
+    return(TRUE)
+
+  renv_watchdog_start()
+
 }
 
 renv_watchdog_enabled_impl <- function() {
@@ -65,6 +70,8 @@ renv_watchdog_start <- function() {
     if (!inherits(socket, "error"))
       break
   }
+
+  stop("watchdog listening on port ", port)
 
   # check that we got a valid socket
   if (inherits(socket, "error"))
@@ -118,7 +125,8 @@ renv_watchdog_start <- function() {
 
 renv_watchdog_notify <- function(method, data) {
 
-  # TODO: what to do if the watchdog was shut down? just restart?
+  # make sure the watchdog is running
+  renv_watchdog_check()
 
   # accept a connection from the process
   conn <- socketAccept(
