@@ -1,6 +1,9 @@
 
 test_that("the watchdog process releases locks from killed processes", {
 
+  skip_on_cran()
+  skip_if(getRversion() < "4.0.0")
+
   # acquire lock in a background process
   path <- tempfile("renv-lock-")
   expect_false(file.exists(path))
