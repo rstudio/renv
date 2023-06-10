@@ -1,17 +1,30 @@
 
+# whether or not the user has enabled the renv watchdog in this session
+`_renv_watchdog_enabled` <- NULL
+
+# metadata related to the running watchdog process, if any
 `_renv_watchdog_metadata` <- NULL
 
 renv_watchdog_init <- function() {
+  `_renv_watchdog_enabled` <<- renv_watchdog_enabled_impl()
   if (!renv_watchdog_running())
     renv_watchdog_start()
 }
 
-renv_watchdog_start <- function() {
+renv_watchdog_enabled <- function() {
+  `_renv_watchdog_enabled`
+}
+
+renv_watchdog_enabled_impl <- function() {
+
+  # skip in older versions of R; we require newer APIs
+  if (getRversion() < "4.0.0")
+    return(FALSE)
 
   # skip if disabled
   enabled <- Sys.getenv("RENV_WATCHDOG_ENABLED", unset = "TRUE")
   if (!truthy(enabled))
-    return()
+    return(FALSE)
 
   # skip during R CMD build or R CMD INSTALL
   building <-
@@ -19,7 +32,14 @@ renv_watchdog_start <- function() {
     renv_envvar_exists("R_PACKAGE_DIR")
 
   if (building)
-    return()
+    return(FALSE)
+
+  # ok, we're enabled
+  TRUE
+
+}
+
+renv_watchdog_start <- function() {
 
   # set up path for initialization data
   pattern <- sprintf("renv-watchdog-%i-", Sys.getpid())
