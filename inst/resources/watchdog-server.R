@@ -13,37 +13,19 @@ ppid <- as.integer(Sys.getenv("RENV_WATCHDOG_PPID", unset = NA))
 if (is.na(ppid))
   stop("internal error: RENV_WATCHDOG_PPID is unset")
 
-# open server socket on random port
-catf("[watchdog] Searching for open port for server socket.")
-
-repeat {
-
-  port <- sample(49152:65536, size = 1L)
-  socket <- tryCatch(serverSocket(port), error = identity)
-  if (inherits(socket, "error"))
-    next
-
-  break
-
-}
-
-catf("[watchdog] Listening on port %i", port)
+# read port
+port <- as.integer(Sys.getenv("RENV_WATCHDOG_PORT", unset = NA))
+if (is.na(port))
+  stop("internal error: RENV_WATCHDOG_PORT is unset")
 
 # communicate information about this process to parent
-metadata <- list(pid = Sys.getpid(), port = port)
-pport <- as.integer(Sys.getenv("RENV_WATCHDOG_PORT"))
-conn <- socketConnection(port = pport, blocking = TRUE)
+metadata <- list(pid = Sys.getpid())
+conn <- socketConnection(port = port, open = "w+b", timeout = 5)
 serialize(metadata, connection = conn)
 close(conn)
 
 # start listening for connections
 repeat {
-
-  # check for broken socket
-  if (!isOpen(socket)) {
-    catf("[watchdog] Socket was unexpectedly closed; exiting now.")
-    break
-  }
 
   # check for parent exit
   nice <- tools::psnice(ppid)
@@ -55,7 +37,7 @@ repeat {
 
   # wait for connection
   conn <- tryCatch(
-    socketAccept(socket, blocking = TRUE, timeout = 1L),
+    socketConnection(port = port, server = FALSE, open = "rb", blocking = TRUE),
     error = identity
   )
 
@@ -66,7 +48,11 @@ repeat {
 
   # read the request
   catf("[watchdog] Received connection; reading data.")
-  request <- unserialize(conn)
+  request <- tryCatch(unserialize(conn), error = identity)
+  if (inherits(request, "error")) {
+    warning(request)
+    next
+  }
 
   catf("[watchdog] Received request.")
   str(request)

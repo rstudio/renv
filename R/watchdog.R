@@ -2,8 +2,11 @@
 # whether or not the user has enabled the renv watchdog in this session
 `_renv_watchdog_enabled` <- NULL
 
+# metadata related to the running watchdog server
+`_renv_watchdog_server` <- NULL
+
 # metadata related to the running watchdog process, if any
-`_renv_watchdog_metadata` <- NULL
+`_renv_watchdog_process` <- NULL
 
 renv_watchdog_init <- function() {
 
@@ -63,8 +66,11 @@ renv_watchdog_start <- function() {
       break
   }
 
-  # close socket on exit
-  defer(close(socket))
+  # store the socket
+  `_renv_watchdog_server` <<- list(
+    socket = socket,
+    port   = port
+  )
 
   # set up envvars
   renv_scope_envvars(
@@ -89,40 +95,54 @@ renv_watchdog_start <- function() {
   )
 
   # wait for connection from watchdog server
-  conn <- socketAccept(socket, blocking = TRUE)
-  defer(close(conn))
+  conn <- tryCatch(
+    socketAccept(socket, open = "r+b", blocking = TRUE),
+    error = warning
+  )
 
-  # read initialization data
-  `_renv_watchdog_metadata` <<- unserialize(conn)
+  # TODO: Why does communication over the socket hang when running tests?
+  # And only with the parallel test reporter; single tests seem fine?
+  if (isOpen(conn)) {
+    defer(close(conn))
+    `_renv_watchdog_process` <<- unserialize(conn)
+  }
 
 }
 
 renv_watchdog_notify <- function(method, data) {
 
-  # establish connection
-  port <- renv_watchdog_port()
-  conn <- socketConnection(port = renv_watchdog_port())
-  on.exit(close(conn), add = TRUE)
+  # TODO: what to do if the watchdog was shut down? just restart?
 
-  # write data
-  serialize(
-    list(method = method, data = data),
-    connection = conn
+  # accept a connection from the process
+  conn <- socketAccept(
+    socket = renv_watchdog_socket(),
+    blocking = TRUE
   )
+
+  # close the connection on exit
+  defer(close(conn))
+
+  # write message
+  message <- list(method = method, data = data)
+  serialize(message, connection = conn)
 
 }
 
 renv_watchdog_port <- function() {
-  `_renv_watchdog_metadata`$port
+  `_renv_watchdog_server`$port
+}
+
+renv_watchdog_socket <- function() {
+  `_renv_watchdog_server`$socket
 }
 
 renv_watchdog_running <- function(pid = NULL) {
-  pid <- pid %||% `_renv_watchdog_metadata`$pid
+  pid <- pid %||% `_renv_watchdog_process`$pid
   !is.null(pid) && !is.na(tools::psnice(pid))
 }
 
 renv_watchdog_unload <- function() {
-  pid <- `_renv_watchdog_metadata`$pid
+  pid <- `_renv_watchdog_process`$pid
   if (!is.null(pid))
     tools::pskill(pid)
 }
