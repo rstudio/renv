@@ -42,7 +42,7 @@ renv_watchdog_enabled_impl <- function() {
   if (getRversion() < "4.0.0")
     return(FALSE)
 
-  # skip if disabled
+  # skip if explicitly disabled via envvar
   enabled <- Sys.getenv("RENV_WATCHDOG_ENABLED", unset = "TRUE")
   if (!truthy(enabled))
     return(FALSE)
@@ -80,8 +80,10 @@ renv_watchdog_start <- function() {
   }
 
   # check that we got a valid socket
-  if (inherits(socket, "error"))
-    stop("couldn't create socket server")
+  if (inherits(socket, "error")) {
+    warning("couldn't create watchdog socket sever")
+    return(FALSE)
+  }
 
   # store the socket
   `_renv_watchdog_server` <<- list(
@@ -118,11 +120,12 @@ renv_watchdog_start <- function() {
     `_renv_watchdog_process` <<- unserialize(conn)
   })
 
-  if (inherits(status, "error"))
+  if (inherits(status, "error")) {
     warning(status)
+    return(FALSE)
+  }
 
-  # function is called for side effects
-  invisible()
+  TRUE
 
 }
 
@@ -138,7 +141,8 @@ renv_watchdog_notify <- function(method, data) {
 renv_watchdog_notify_impl <- function(method, data) {
 
   # make sure the watchdog is running
-  renv_watchdog_check()
+  if (!renv_watchdog_check())
+    return(FALSE)
 
   # accept a connection from the process
   conn <- socketAccept(
@@ -153,6 +157,9 @@ renv_watchdog_notify_impl <- function(method, data) {
   message <- list(method = method, data = data)
   serialize(message, connection = conn)
 
+  # TRUE indicates message was written
+  TRUE
+
 }
 
 renv_watchdog_port <- function() {
@@ -166,13 +173,26 @@ renv_watchdog_socket <- function() {
 # NOTE: We use 'psnice()' here as R also supports using that
 # for process detection on Windows; on all platforms R returns
 # NA if you request information about a non-existent process
-renv_watchdog_running <- function(pid = NULL) {
-  pid <- pid %||% `_renv_watchdog_process`$pid
-  !is.null(pid) && !is.na(tools::psnice(pid))
+renv_watchdog_running <- function() {
+
+  # check for running process
+  pid <- `_renv_watchdog_process`$pid
+  if (is.null(pid) || is.na(tools::psnice(pid)))
+    return(FALSE)
+
+  # check for open / functional socket
+  socket <- renv_watchdog_socket()
+  ok <- tryCatch(isOpen(socket), error = function(e) FALSE)
+  if (!ok)
+    return(FALSE)
+
+  TRUE
+
 }
 
 renv_watchdog_unload <- function() {
-  pid <- `_renv_watchdog_process`$pid
-  if (renv_watchdog_running(pid))
+  if (renv_watchdog_running()) {
+    pid <- `_renv_watchdog_process`$pid
     tools::pskill(pid)
+  }
 }

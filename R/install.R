@@ -626,14 +626,16 @@ renv_install_test <- function(package) {
   renv_scope_envvars(R_TESTS = NULL)
 
   # the actual code we'll run in the other process
-  code <- substitute({
+  fmt <- heredoc("
     options(warn = 1L)
-    library(package)
-  }, list(package = package))
+    library(%s)
+  ")
+
+  code <- sprintf(fmt, package)
 
   # write it to a tempfile
   script <- renv_scope_tempfile("renv-install-")
-  writeLines(deparse(code), con = script)
+  writeLines(code, con = script)
 
   # check that the package can be loaded in a separate process
   renv_system_exec(
