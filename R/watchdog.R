@@ -2,23 +2,11 @@
 # whether or not the user has enabled the renv watchdog in this session
 `_renv_watchdog_enabled` <- NULL
 
-# metadata related to the running watchdog server
-`_renv_watchdog_server` <- NULL
-
 # metadata related to the running watchdog process, if any
 `_renv_watchdog_process` <- NULL
 
 renv_watchdog_init <- function() {
-
   `_renv_watchdog_enabled` <<- renv_watchdog_enabled_impl()
-
-  reg.finalizer(renv_envir_self(), function(envir) {
-    tryCatch(
-      close(`_renv_watchdog_server`$socket),
-      error = identity
-    )
-  }, onexit = TRUE)
-
 }
 
 renv_watchdog_enabled <- function() {
@@ -72,7 +60,20 @@ renv_watchdog_enabled_impl <- function() {
 
 renv_watchdog_start <- function() {
 
-  # create socket for reading initialization data
+  tryCatch(
+    renv_watchdog_start_impl(),
+    error = function(e) {
+      `_renv_watchdog_enabled` <<- FALSE
+      warning(e)
+    }
+  )
+
+}
+
+renv_watchdog_start_impl <- function() {
+
+  # create a socket server -- this is used so the watchdog process
+  # can communicate what port it'll be listening on for messages
   for (i in 1:100) {
     port <- sample(49152:65536, size = 1L)
     socket <- tryCatch(serverSocket(port), error = identity)
@@ -81,16 +82,8 @@ renv_watchdog_start <- function() {
   }
 
   # check that we got a valid socket
-  if (inherits(socket, "error")) {
-    warning("couldn't create watchdog socket sever")
-    return(FALSE)
-  }
-
-  # store the socket
-  `_renv_watchdog_server` <<- list(
-    socket = socket,
-    port   = port
-  )
+  if (inherits(socket, "error"))
+    stop("couldn't create socket server")
 
   # set up envvars
   renv_scope_envvars(
@@ -99,10 +92,10 @@ renv_watchdog_start <- function() {
   )
 
   # get path to watchdog script
-  script <- system.file("resources/watchdog-server.R", package = "renv")
+  script <- system.file("resources/watchdog-process.R", package = "renv")
 
   # debug logging
-  debugging <- Sys.getenv("RENV_WATCHDOG_DEBUG", unset = "FALSE")
+  debugging <- Sys.getenv("RENV_WATCHDOG_DEBUG", unset = "TRUE")
   stdout <- stderr <- if (truthy(debugging)) "" else FALSE
 
   # launch the watchdog
@@ -115,16 +108,12 @@ renv_watchdog_start <- function() {
   )
 
   # wait for connection from watchdog server
-  status <- catch({
-    conn <- socketAccept(socket, open = "a+b", blocking = TRUE, timeout = 10)
-    defer(close(conn))
-    `_renv_watchdog_process` <<- unserialize(conn)
-  })
+  conn <- socketAccept(socket, open = "a+b", blocking = TRUE, timeout = 10)
+  defer(close(conn))
+  `_renv_watchdog_process` <<- unserialize(conn)
 
-  if (inherits(status, "error")) {
-    warning(status)
-    return(FALSE)
-  }
+  # debugging
+  print(`_renv_watchdog_process`)
 
   TRUE
 
@@ -145,9 +134,9 @@ renv_watchdog_notify_impl <- function(method, data) {
   if (!renv_watchdog_check())
     return(FALSE)
 
-  # accept a connection from the process
-  conn <- socketAccept(
-    socket = renv_watchdog_socket(),
+  # connect to the running server
+  conn <- socketConnection(
+    port = renv_watchdog_port(),
     open = "a+b",
     blocking = TRUE
   )
@@ -165,31 +154,15 @@ renv_watchdog_notify_impl <- function(method, data) {
 }
 
 renv_watchdog_port <- function() {
-  `_renv_watchdog_server`$port
-}
-
-renv_watchdog_socket <- function() {
-  `_renv_watchdog_server`$socket
+  `_renv_watchdog_process`$port
 }
 
 # NOTE: We use 'psnice()' here as R also supports using that
 # for process detection on Windows; on all platforms R returns
 # NA if you request information about a non-existent process
 renv_watchdog_running <- function() {
-
-  # check for running process
   pid <- `_renv_watchdog_process`$pid
-  if (is.null(pid) || is.na(tools::psnice(pid)))
-    return(FALSE)
-
-  # check for open / functional socket
-  socket <- renv_watchdog_socket()
-  ok <- tryCatch(isOpen(socket), error = function(e) FALSE)
-  if (!ok)
-    return(FALSE)
-
-  TRUE
-
+  !is.null(pid) && !is.na(tools::psnice(pid))
 }
 
 renv_watchdog_unload <- function() {

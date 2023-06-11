@@ -3,7 +3,7 @@
 options(warn = 1)
 
 # list of acquired locks
-..locks.. <- list()
+locks <- list()
 
 # utility
 catf <- function(fmt, ...) {
@@ -11,19 +11,25 @@ catf <- function(fmt, ...) {
   cat(msg, sep = "\n")
 }
 
-# read parent process ID
-ppid <- as.integer(Sys.getenv("RENV_WATCHDOG_PPID", unset = NA))
-if (is.na(ppid))
-  stop("internal error: RENV_WATCHDOG_PPID is unset")
+# information passed from the parent
+parent <- list(
+  pid  = as.integer(Sys.getenv("RENV_WATCHDOG_PPID", unset = NA)),
+  port = as.integer(Sys.getenv("RENV_WATCHDOG_PORT", unset = NA))
+)
 
-# read port
-port <- as.integer(Sys.getenv("RENV_WATCHDOG_PORT", unset = NA))
-if (is.na(port))
-  stop("internal error: RENV_WATCHDOG_PORT is unset")
+# create socket server
+for (i in 1:100) {
+  port <- sample(49152:65536, size = 1L)
+  socket <- tryCatch(serverSocket(port), error = identity)
+  if (!inherits(socket, "error"))
+    break
+}
+
+catf("[watchdog] Listening on port %i.", port)
 
 # communicate information about this process to parent
-metadata <- list(pid = Sys.getpid())
-conn <- socketConnection(port = port, open = "a+b", blocking = TRUE)
+metadata <- list(port = port, pid = Sys.getpid())
+conn <- socketConnection(port = parent$port, blocking = TRUE, open = "a+b")
 serialize(metadata, connection = conn)
 close(conn)
 
@@ -31,27 +37,27 @@ close(conn)
 repeat {
 
   # check for parent exit
-  nice <- tools::psnice(ppid)
+  nice <- tools::psnice(parent$pid)
   if (is.na(nice)) {
     catf("[watchdog] Parent exited; shutting down.")
-    lapply(names(..locks..), unlink, recursive = TRUE, force = TRUE)
+    lapply(names(locks), unlink, recursive = TRUE, force = TRUE)
     break
   }
 
   # set file time on owned locks, so we can see they're not orphaned
   now <- Sys.time()
-  lapply(names(..locks..), Sys.setFileTime, time = now)
+  lapply(names(locks), Sys.setFileTime, time = now)
 
   # wait for connection
   conn <- tryCatch(
-    socketConnection(port = port, open = "a+b", blocking = TRUE, timeout = 1),
+    socketAccept(socket, open = "a+b", blocking = TRUE, timeout = 1),
     condition = identity
   )
 
   # unfortunately, we don't get nicely-classed errors for timeouts,
   # so we just suppress logging of errors altogether
   if (inherits(conn, "condition")) {
-    catf("[watchdog] Error connecting to server: %s", conditionMessage(conn))
+    catf("[watchdog] Error waiting for connection: %s", conditionMessage(conn))
     next
   }
 
@@ -68,20 +74,20 @@ repeat {
   str(request)
 
   if (identical(request$method, "ListLocks")) {
-    catf("[watchdog] %i lock(s) are currently held.", length(..locks..))
-    str(..locks..)
+    catf("[watchdog] %i lock(s) are currently held.", length(locks))
+    str(locks)
     next
   }
 
   if (identical(request$method, "LockAcquired")) {
     catf("[watchdog] Acquired lock on path '%s'.", request$data$path)
-    ..locks..[[request$data$path]] <- TRUE
+    locks[[request$data$path]] <- TRUE
     next
   }
 
   if (identical(request$method, "LockReleased")) {
     catf("[watchdog] Released lock on path '%s'.", request$data$path)
-    ..locks..[[request$data$path]] <- FALSE
+    locks[[request$data$path]] <- FALSE
     next
   }
 
