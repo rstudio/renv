@@ -13,9 +13,10 @@ renv_watchdog_init <- function() {
   `_renv_watchdog_enabled` <<- renv_watchdog_enabled_impl()
 
   reg.finalizer(renv_envir_self(), function(envir) {
-    socket <- `_renv_watchdog_server`$socket
-    if (!is.null(socket) && isOpen(socket))
-      close(socket)
+    tryCatch(
+      close(`_renv_watchdog_server`$socket),
+      error = identity
+    )
   }, onexit = TRUE)
 
 }
@@ -115,7 +116,7 @@ renv_watchdog_start <- function() {
 
   # wait for connection from watchdog server
   status <- catch({
-    conn <- socketAccept(socket, open = "r+b", blocking = TRUE, timeout = 10)
+    conn <- socketAccept(socket, open = "a+b", blocking = TRUE, timeout = 10)
     defer(close(conn))
     `_renv_watchdog_process` <<- unserialize(conn)
   })
@@ -147,6 +148,7 @@ renv_watchdog_notify_impl <- function(method, data) {
   # accept a connection from the process
   conn <- socketAccept(
     socket = renv_watchdog_socket(),
+    open = "a+b",
     blocking = TRUE
   )
 

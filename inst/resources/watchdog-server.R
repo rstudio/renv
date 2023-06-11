@@ -1,4 +1,7 @@
 
+# don't defer warnings
+options(warn = 1)
+
 # list of acquired locks
 ..locks.. <- list()
 
@@ -20,7 +23,7 @@ if (is.na(port))
 
 # communicate information about this process to parent
 metadata <- list(pid = Sys.getpid())
-conn <- socketConnection(port = port, open = "w+b", timeout = 10)
+conn <- socketConnection(port = port, open = "a+b", blocking = TRUE)
 serialize(metadata, connection = conn)
 close(conn)
 
@@ -41,20 +44,23 @@ repeat {
 
   # wait for connection
   conn <- tryCatch(
-    socketConnection(port = port, open = "rb", blocking = TRUE, timeout = 1),
-    error = identity
+    socketConnection(port = port, open = "a+b", blocking = TRUE, timeout = 1),
+    condition = identity
   )
 
   # unfortunately, we don't get nicely-classed errors for timeouts,
   # so we just suppress logging of errors altogether
-  if (inherits(conn, "error"))
+  if (inherits(conn, "condition")) {
+    catf("[watchdog] Error connecting to server: %s", conditionMessage(conn))
     next
+  }
 
   # read the request
   catf("[watchdog] Received connection; reading data.")
   request <- tryCatch(unserialize(conn), error = identity)
   if (inherits(request, "error")) {
-    warning(request)
+    catf("[watchdog] Error reading from connection: %s", conditionMessage(request))
+    close(conn)
     next
   }
 
