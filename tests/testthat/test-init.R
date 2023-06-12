@@ -212,6 +212,9 @@ test_that("RENV_PATHS_RENV is respected on init", {
 test_that("init() uses PPM by default", {
   skip_on_cran()
 
+  # not enabled on aarch64 linux
+  skip_if(renv_platform_linux() && Sys.info()[["machine"]] == "aarch64")
+
   # simulate "fresh" R session with unset repositories
   renv_scope_options(repos = c(CRAN = "@CRAN@"))
   repos <- renv_init_repos()

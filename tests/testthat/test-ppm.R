@@ -25,6 +25,7 @@ test_that("repository URLs are properly transformed for different platforms", {
 
 test_that("a binary-specific URL is transformed before writing a lockfile", {
   skip_on_cran()
+  skip_if(renv_platform_linux() && Sys.info()[["machine"]] == "aarch64")
 
   renv_tests_scope()
   renv_scope_options(repos = c(RSPM = "https://cluster.rstudiopm.com/cran/__os__/platform/latest"))
@@ -37,6 +38,7 @@ test_that("a binary-specific URL is transformed before writing a lockfile", {
 
 test_that("RSPM bits are preserved when writing lockfile", {
   skip_on_cran()
+  skip_if(renv_platform_linux() && Sys.info()[["machine"]] == "aarch64")
 
   renv_tests_scope()
   renv_scope_options(repos = c(RSPM = "https://cluster.rstudiopm.com/curated/__linux__/bionic/12"))

@@ -19,7 +19,7 @@ test_that("library paths set in a user profile are overridden after load", {
 
   # invoke R
   args <- c("-s", "-e", shQuote("writeLines(.libPaths(), 'libpaths.txt')"))
-  output <- system2(R(), args, stdout = FALSE, stderr = FALSE)
+  renv_system_exec(command = R(), args = args, action = "reading libpaths.txt")
 
   actual <- readLines("libpaths.txt")
   expected <- renv_libpaths_all()

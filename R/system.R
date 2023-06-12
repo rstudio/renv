@@ -6,11 +6,11 @@ renv_system_exec <- function(command,
                              stream  = FALSE,
                              quiet   = NULL)
 {
-  # be quiet when running tests by default
-  quiet <- quiet %||% renv_tests_running()
-
   # handle 'stream' specially
   if (stream) {
+
+    # be quiet when running tests by default
+    quiet <- quiet %||% renv_tests_running()
 
     # form stdout, stderr
     stdout <- stderr <- if (quiet) FALSE else ""
@@ -52,6 +52,7 @@ renv_system_exec <- function(command,
     return(output)
 
   # otherwise, notify the user that things went wrong
+  quiet <- quiet %||% FALSE
   message <- sprintf("error %s [error code %i]", action, status)
   details <- if (!quiet) renv_system_exec_details(command, args, output)
 
