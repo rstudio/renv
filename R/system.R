@@ -52,25 +52,26 @@ renv_system_exec <- function(command,
     return(output)
 
   # otherwise, notify the user that things went wrong
-  if (!quiet) {
+  message <- sprintf("error %s [error code %i]", action, status)
+  details <- if (!quiet) renv_system_exec_details(command, args, output)
 
-    cmdline <- paste(command, paste(args, collapse = " "))
-    underline <- paste(rep.int("=", min(80L, nchar(cmdline))), collapse = "")
-    header <- c(cmdline, underline)
+  abort(message, details = details)
 
-    # truncate output (avoid overwhelming console)
-    body <- if (length(output) > 200L)
-      c(head(output, n = 100L), "< ... >", tail(output, n = 100L))
-    else
-      output
-
-    # write to stderr
-    writef(c(header, "", body))
-
-  }
-
-  # throw error
-  fmt <- "error %s [error code %i]"
-  stopf(fmt, action, status)
 }
 
+renv_system_exec_details <- function(command, args, output) {
+
+  # get header, giving the command that was run
+  cmdline <- paste(command, paste(args, collapse = " "))
+  underline <- paste(rep.int("=", min(80L, nchar(cmdline))), collapse = "")
+  header <- c(cmdline, underline)
+
+  # truncate output (avoid overwhelming console)
+  body <- if (length(output) > 200L)
+    c(head(output, n = 100L), "< ... >", tail(output, n = 100L))
+  else
+    output
+
+  c(header, "", body)
+
+}

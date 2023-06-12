@@ -376,10 +376,7 @@ renv_install_package <- function(record) {
   before <- Sys.time()
   withCallingHandlers(
     renv_install_package_impl(record),
-    error = function(e) {
-      writef(" FAILED")
-      writef(e$output)
-    }
+    error = function(e) writef("FAILED")
   )
   after <- Sys.time()
 
