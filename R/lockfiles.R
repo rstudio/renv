@@ -96,7 +96,48 @@
 #' Note that the `Name` field may be empty. In that case, a project-local Python
 #' environment will be used instead (when not directly using a system copy of Python).
 #'
+#' @inheritParams renv-params
+#' @inheritParams snapshot
+#'
+#' @param lockfile An `renv` lockfile, typically created either by
+#'   [lockfile_read()] or [snapshot(file = NULL)].
+#'
 #' @family reproducibility
-#' @name lockfiles
-#' @rdname lockfiles
+#' @name lockfile
+#' @rdname lockfile
 NULL
+
+#' @param libpaths The library paths to be used when generating the lockfile.
+#' @rdname lockfile
+#' @export
+lockfile_create <- function(type = settings$snapshot.type(project = project),
+                            libpaths = .libPaths(),
+                            packages = NULL,
+                            exclude = NULL,
+                            ...,
+                            project = NULL)
+{
+  renv_lockfile_create(
+    project = project,
+    libpaths = libpaths,
+    type = type,
+    packages = packages,
+    exclude = exclude
+  )
+}
+
+#' @rdname lockfile
+#' @export
+lockfile_read <- function(file = NULL, ..., project = NULL) {
+  project <- renv_project_resolve(project)
+  file <- file %||% renv_paths_lockfile(project = project)
+  renv_lockfile_read(file = file)
+}
+
+#' @rdname lockfile
+#' @export
+lockfile_write <- function(lockfile, file = NULL, ..., project = NULL) {
+  project <- renv_project_resolve(project)
+  file <- file %||% renv_paths_lockfile(project = project)
+  renv_lockfile_write(lockfile, file = file)
+}

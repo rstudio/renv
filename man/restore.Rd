@@ -106,7 +106,7 @@ options(renv.config.auto.snapshot = auto.snapshot)
 }
 \seealso{
 Other reproducibility: 
-\code{\link{lockfiles}},
+\code{\link{lockfile}},
 \code{\link{snapshot}()}
 }
 \concept{reproducibility}

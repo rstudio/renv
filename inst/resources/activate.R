@@ -416,7 +416,7 @@ local({
       on.exit(do.call(base::options, saved), add = TRUE)
     }
   
-    catf("* Downloading from GitHub ... ", appendLF = FALSE)
+    catf("* Downloading version %s from GitHub ... ", version, appendLF = FALSE)
   
     url <- file.path("https://api.github.com/repos/rstudio/renv/tarball", version)
     name <- sprintf("renv_%s.tar.gz", version)
