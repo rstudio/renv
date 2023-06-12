@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv` now attempts to infer remote dependencies for GitHub packages that
+  appear to be installed from sources; that is, for packages without a
+  recognizable remote source encoded in its DESCRIPTION file. (#841)
+
 * `renv` no longer attempts to query package repositories when checking
   if a project is synchronzied on startup. (#812)
 
