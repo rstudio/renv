@@ -1,6 +1,13 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* **Breaking Change**: `renv` now includes platform prefix in library paths
+  by default. This is primarily useful on Linux platforms, which can be used
+  to disambiguate library paths for different Linux distributions from one
+  another. To revert to the old behavior, you can set
+  `RENV_PATHS_PREFIX_AUTO = FALSE` in your project `.Renviron` file.
+  See the documentation in `?paths` for more details. (#1211)
+
 * `renv` no longer attempts to query package repositories when checking
   if a project is synchronzied on startup. (#812)
 

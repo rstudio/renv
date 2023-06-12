@@ -98,7 +98,8 @@ by setting the environment variable:
 }\if{html}{\out{</div>}}
 
 The prefix will be constructed based on fields within the system's
-\verb{/etc/os-release} file.
+\verb{/etc/os-release} file. Note that this is the default behavior in
+\verb{renv (>= 1.0.0)}.
 }
 
 \section{Package cellar}{

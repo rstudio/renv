@@ -522,7 +522,7 @@ renv_bootstrap_platform_prefix_impl <- function() {
     return(prefix)
 
   # if the user has requested an automatic prefix, generate it
-  auto <- Sys.getenv("RENV_PATHS_PREFIX_AUTO", unset = NA)
+  auto <- Sys.getenv("RENV_PATHS_PREFIX_AUTO", unset = "TRUE")
   if (auto %in% c("TRUE", "True", "true", "1"))
     return(renv_bootstrap_platform_prefix_auto())
 
