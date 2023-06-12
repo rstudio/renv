@@ -1,4 +1,8 @@
 
+# Like 'stop()', but gives us an opportunity to attach extra information
+# to an error, and control how that information is presented to the user.
+#
+# Inspired by `rlang::abort()`: https://github.com/r-lib/rlang/blob/main/R/cnd-abort.R#L839-L883
 abort <- function(message, ..., details = NULL, class = NULL) {
 
   # create condition object
