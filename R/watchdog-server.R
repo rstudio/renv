@@ -48,9 +48,18 @@ renv_watchdog_server_run <- function(server, client, lockenv) {
   catf("[watchdog] Received request.")
   str(request)
 
+  # handle the request
   switch(
 
     request$method %||% "<missing>",
+
+    ListLocks = {
+      catf("[watchdog] Executing 'ListLocks' request.")
+      conn <- renv_socket_connect(port = request$port, open = "w+b")
+      defer(close(conn))
+      locks <- ls(envir = lockenv, all.names = TRUE)
+      serialize(locks, connection = conn)
+    },
 
     LockAcquired = {
       catf("[watchdog] Acquired lock on path '%s'.", request$data$path)

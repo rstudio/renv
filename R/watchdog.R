@@ -161,6 +161,42 @@ renv_watchdog_notify_impl <- function(method, data = list()) {
 
 }
 
+renv_watchdog_request <- function(method, data = list()) {
+
+  tryCatch(
+    renv_watchdog_request_impl(method, data),
+    error = warning
+  )
+}
+
+renv_watchdog_request_impl <- function(method, data = list()) {
+
+  # make sure the watchdog is running
+  if (!renv_watchdog_check())
+    return(FALSE)
+
+  # connect to the running server
+  port <- renv_watchdog_port()
+  outgoing <- renv_socket_connect(port, open = "w+b")
+  defer(close(outgoing))
+
+  # create our own socket server
+  server <- renv_socket_server()
+  defer(close(server$socket))
+
+  # write message
+  message <- list(method = method, data = data, port = server$port)
+  serialize(message, connection = outgoing)
+
+  # now, open a new connection to get the response
+  incoming <- renv_socket_accept(server$socket, open = "r+b")
+  defer(close(incoming))
+
+  # read the response
+  unserialize(connection = incoming)
+
+}
+
 renv_watchdog_port <- function() {
   `_renv_watchdog_process`$port
 }

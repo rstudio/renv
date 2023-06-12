@@ -1,4 +1,21 @@
 
+test_that("the watchdog process acquires and releases locks as expected", {
+
+  skip_on_cran()
+  skip_if(!renv_watchdog_enabled())
+
+  path <- tempfile()
+  renv_watchdog_notify("LockAcquired", list(path = path))
+  locks <- renv_watchdog_request("ListLocks")
+  expect_equal(locks, path)
+
+  renv_watchdog_notify("LockReleased", list(path = path))
+  locks <- renv_watchdog_request("ListLocks")
+  expect_equal(locks, character())
+
+})
+
+
 test_that("the watchdog process releases locks from killed processes", {
 
   skip_on_cran()
@@ -30,7 +47,6 @@ test_that("the watchdog process releases locks from killed processes", {
     Sys.sleep(0.1)
     !file.exists(path) || clock$elapsed() > 3
   })
-
 
   # check that the file no longer exists
   expect_false(file.exists(path))
