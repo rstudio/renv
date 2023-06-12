@@ -53,9 +53,6 @@ restore <- function(project  = NULL,
 
   renv_activate_prompt("restore", library, prompt, project)
 
-  if (renv_package_checking())
-    renv_patch_repos()
-
   # resolve library, lockfile arguments
   libpaths <- renv_libpaths_resolve(library)
   lockfile <- lockfile %||% renv_lockfile_load(project = project)
