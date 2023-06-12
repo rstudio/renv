@@ -167,7 +167,7 @@ renv_zzz_repos <- function() {
 
   # write PACKAGES
   renv_scope_envvars(R_DEFAULT_SERIALIZE_VERSION = "2")
-  tools::write_PACKAGES(tgt, type = "source")
+  write_PACKAGES(tgt, type = "source")
 
 }
 

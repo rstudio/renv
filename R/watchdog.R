@@ -97,11 +97,11 @@ renv_watchdog_start_impl <- function() {
   socket <- server$socket; port <- server$port
   defer(close(socket))
 
-  # get path to watchdog script
+  # generate script to invoke watchdog
   script <- renv_scope_tempfile("renv-watchdog-", fileext = ".R")
   code <- substitute({
     client <- list(pid = pid, port = port)
-    renv:::renv_watchdog_server_start(client)
+    asNamespace("renv")$renv_watchdog_server_start(client)
   }, list(pid = Sys.getpid(), port = port))
   writeLines(deparse(code), con = script)
 
@@ -197,21 +197,22 @@ renv_watchdog_request_impl <- function(method, data = list()) {
 
 }
 
+renv_watchdog_pid <- function() {
+  `_renv_watchdog_process`$pid
+}
+
 renv_watchdog_port <- function() {
   `_renv_watchdog_process`$port
 }
 
-# NOTE: We use 'psnice()' here as R also supports using that
-# for process detection on Windows; on all platforms R returns
-# NA if you request information about a non-existent process
 renv_watchdog_running <- function() {
-  pid <- `_renv_watchdog_process`$pid
-  !is.null(pid) && !is.na(tools::psnice(pid))
+  pid <- renv_watchdog_pid()
+  !is.null(pid) && renv_process_exists(pid)
 }
 
 renv_watchdog_unload <- function() {
   if (renv_watchdog_running()) {
-    pid <- `_renv_watchdog_process`$pid
-    tools::pskill(pid)
+    pid <- renv_watchdog_pid()
+    renv_process_kill(pid)
   }
 }

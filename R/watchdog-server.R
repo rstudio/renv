@@ -29,8 +29,10 @@ renv_watchdog_server_start <- function(client) {
 renv_watchdog_server_run <- function(server, client, lockenv) {
 
   # check for parent exit
-  if (is.na(tools::psnice(client$pid)))
+  if (!renv_process_exists(client$pid)) {
+    catf("[watchdog] Client process has exited; shutting down.")
     renv_watchdog_server_exit(server, client, lockenv)
+  }
 
   # set file time on owned locks, so we can see they're not orphaned
   locks <- ls(envir = lockenv, all.names = TRUE)
