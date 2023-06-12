@@ -305,7 +305,7 @@ renv_paths_root_default_tempdir <- function() {
 #' \code{RENV_PATHS_LIBRARY_ROOT}    \tab The parent path for project libraries. \cr
 #' \code{RENV_PATHS_LIBRARY_STAGING} \tab The parent path used for staged package installs. \cr
 #' \code{RENV_PATHS_SANDBOX}         \tab The path to the sandboxed \R system library. \cr
-#' \code{RENV_PATHS_LOCKFILE}        \tab The path to the [lockfile][lockfiles]. \cr
+#' \code{RENV_PATHS_LOCKFILE}        \tab The path to the [lockfile]. \cr
 #' \code{RENV_PATHS_CELLAR}          \tab The path to the cellar, containing local package binaries and sources. \cr
 #' \code{RENV_PATHS_SOURCE}          \tab The path containing downloaded package sources. \cr
 #' \code{RENV_PATHS_BINARY}          \tab The path containing downloaded package binaries. \cr

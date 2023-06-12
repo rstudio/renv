@@ -96,11 +96,13 @@
 #' Note that the `Name` field may be empty. In that case, a project-local Python
 #' environment will be used instead (when not directly using a system copy of Python).
 #'
-#' @inheritParams renv-params
 #' @inheritParams snapshot
+#' @inheritParams renv-params
 #'
-#' @param lockfile An `renv` lockfile, typically created either by
-#'   [lockfile_read()] or [snapshot(file = NULL)].
+#' @param lockfile An `renv` lockfile; typically created by either
+#'   `lockfile_create()` or `lockfile_read()`.
+#'
+#' @param file A file path, or \R connection.
 #'
 #' @family reproducibility
 #' @name lockfile
@@ -146,6 +148,8 @@ lockfile_write <- function(lockfile, file = NULL, ..., project = NULL) {
 
 #' @param remotes A named \R list, mapping package names to the remote
 #'   specifications to be recorded in the lockfile.
+#'
+#' @param repos A named vector, mapping \R repository names to their URLs.
 #'
 #' @rdname lockfile
 #' @export

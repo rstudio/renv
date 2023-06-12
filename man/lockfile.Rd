@@ -24,8 +24,15 @@ lockfile_write(lockfile, file = NULL, ..., project = NULL)
 lockfile_modify(lockfile, ..., remotes = NULL, repos = NULL)
 }
 \arguments{
-\item{type}{The type of package to install ("source" or "binary"). Defaults
-to the value of \code{getOption("pkgType")}.}
+\item{type}{The type of snapshot to perform:
+\itemize{
+\item \code{"implict"}, (the default), uses all packages captured by \code{\link[=dependencies]{dependencies()}}.
+\item \code{"explicit"} uses packages recorded in \code{DESCRIPTION}.
+\item \code{"all"} uses all packages in the project library.
+\item \verb{"custom} uses a custom filter.
+}
+
+See \strong{Snapshot type} below for more details.}
 
 \item{libpaths}{The library paths to be used when generating the lockfile.}
 
@@ -46,20 +53,13 @@ are matched to \code{...}, renv will signal an error.}
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{lockfile}{An \code{renv} lockfile, typically created either by
-\code{\link[=lockfile_read]{lockfile_read()}} or \link{snapshot(file = NULL)}.}
+\item{lockfile}{An \code{renv} lockfile; typically created by either
+\code{lockfile_create()} or \code{lockfile_read()}.}
 
 \item{remotes}{A named \R list, mapping package names to the remote
 specifications to be recorded in the lockfile.}
 
-\item{repos}{The repositories to use when restoring packages installed
-from CRAN or a CRAN-like repository. By default, the repositories recorded
-in the lockfile will be, ensuring that (e.g.) CRAN packages are
-re-installed from the same CRAN mirror.
-
-Use \code{repos = getOptions(repos)} to override with the repositories set
-in the current session, or see the \code{repos.override} option in \link{config} for
-an alternate way override.}
+\item{repos}{A named vector, mapping \R repository names to their URLs.}
 }
 \description{
 A \strong{lockfile} records the state of a project at some point in time.
