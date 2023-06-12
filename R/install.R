@@ -387,12 +387,17 @@ renv_install_package <- function(record) {
   type <- renv_package_type(path, quiet = TRUE)
   feedback <- renv_install_package_feedback(path, type)
 
+
+  # link into cache
+  if (renv_cache_config_enabled(project = project)) {
+    renv_cache_synchronize(record, linkable = linkable)
+    feedback <- paste0(feedback, " and cached")
+  }
+
   elapsed <- difftime(after, before, units = "auto")
   renv_install_step_ok(feedback, time = elapsed)
 
-  # link into cache
-  if (renv_cache_config_enabled(project = project))
-    renv_cache_synchronize(record, linkable = linkable)
+  invisible()
 
 }
 

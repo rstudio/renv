@@ -493,7 +493,13 @@ test_that("custom dependency fields in install are supported", {
 
 })
 
-test_that("install reports on packages about to be installed", {
+test_that("install has user-friendly output", {
+
+  renv_scope_libpaths()
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-tempcache-"))
+
+  renv_tests_scope("breakfast")
+  expect_snapshot(install())
 
   renv_tests_scope("breakfast")
   expect_snapshot(install())
