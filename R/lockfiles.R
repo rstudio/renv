@@ -117,6 +117,8 @@ lockfile_create <- function(type = settings$snapshot.type(project = project),
                             ...,
                             project = NULL)
 {
+  project <- renv_project_resolve(project)
+
   renv_lockfile_create(
     project = project,
     libpaths = libpaths,
@@ -140,4 +142,30 @@ lockfile_write <- function(lockfile, file = NULL, ..., project = NULL) {
   project <- renv_project_resolve(project)
   file <- file %||% renv_paths_lockfile(project = project)
   renv_lockfile_write(lockfile, file = file)
+}
+
+#' @param remotes A named \R list, mapping package names to the remote
+#'   specifications to be recorded in the lockfile.
+#'
+#' @rdname lockfile
+#' @export
+lockfile_modify <- function(lockfile,
+                            ...,
+                            remotes = NULL,
+                            repos = NULL)
+{
+  if (!is.null(repos)) {
+    lockfile$R$Repositories <- as.list(repos)
+  }
+
+  if (!is.null(remotes)) {
+    remotes <- renv_records_resolve(remotes)
+    enumerate(remotes, function(package, remote) {
+      record <- renv_remotes_resolve(remote)
+      renv_lockfile_records(lockfile)[[package]] <<- record
+    })
+  }
+
+  lockfile
+
 }
