@@ -80,6 +80,9 @@ renv_bioconductor_version <- function(project, refresh = FALSE) {
 
 }
 
+# Returns the union of the inferred Bioconductor repositories, together with the
+# current value of the 'repos' R option. The Bioconductor repositories are
+# placed first in the repository list.
 renv_bioconductor_repos <- function(project = NULL, version = NULL) {
 
   # allow bioconductor repos override
