@@ -177,6 +177,7 @@ test_that("we can retrieve packages from URL sources", {
 
 test_that("we can retrieve packages from local sources", {
 
+  renv_scope_libpaths()
   renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
 
   record <- list(
@@ -191,6 +192,7 @@ test_that("we can retrieve packages from local sources", {
 
 test_that("compatible local sources are preferred when available", {
 
+  renv_scope_libpaths()
   renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
 
   record <- list(
@@ -245,6 +247,7 @@ test_that("explicit path to binary packages work", {
 
 test_that("remotes::install_local() records are handled", {
 
+  renv_scope_libpaths()
   renv_scope_envvars(RENV_PATHS_LOCAL = "")
 
   record <- list(
