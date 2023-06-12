@@ -232,9 +232,9 @@ renv_download_default_agent_scope_impl <- function(headers, envir = parent.frame
   all <- c("User-Agent" = agent, headers)
   headertext <- paste0(names(all), ": ", all, "\r\n", collapse = "")
 
-  renv_scope_binding(utils, "makeUserAgent", function(format = TRUE) {
+  renv_scope_binding("makeUserAgent", function(format = TRUE) {
     if (format) headertext else agent
-  }, frame = envir)
+  }, frame = utils, envir = envir)
 
   return(TRUE)
 

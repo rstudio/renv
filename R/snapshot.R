@@ -766,6 +766,11 @@ renv_snapshot_description_source <- function(dcf) {
   if (is.null(package))
     return(list(Source = "unknown"))
 
+  # if this is running as part of the synchronization check, skip CRAN queries
+  # https://github.com/rstudio/renv/issues/812
+  if (`_renv_project_synchronized_check_running`)
+    return(list(Source = "unknown"))
+
   # NOTE: this is sort of a hack that allows renv to declare packages which
   # appear to be installed from sources, but are actually available on the
   # active R package repositories, as though they were retrieved from that
