@@ -1,6 +1,8 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv` no longer attempts to query package repositories when checking
+  if a project is synchronzied on startup. (#812)
 
 * `update()` can now update packages installed from GitLab (#136) and 
   BitBucket (#1194).
