@@ -805,11 +805,16 @@ renv_snapshot_description_infer <- function(dcf) {
     }
   )
 
+  # if the inferred package version appears to be less than the source one,
+  # don't use it
+  if (renv_version_lt(inferred[["Version"]], dcf[["Version"]]))
+    return(dcf)
+
   # notify the user if we inferred a different package remote
-  if (identical(dcf, inferred)) {
+  if (!identical(dcf, inferred)) {
     package <- dcf[["Package"]]
-    remote <- renv_record_format_remote(dcf)
-    catf("'%s' inferred to have been installed from remote '%s'", package, remote)
+    remote <- renv_record_format_remote(inferred)
+    writef("* '%s' inferred to have been installed from remote '%s'.", package, remote)
   }
 
   inferred

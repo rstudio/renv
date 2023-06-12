@@ -498,14 +498,20 @@ test_that("we can infer github remotes from packages installed from sources", {
 
   desc <- heredoc("
     Package: renv
-    Version: 1.0.0-9000
+    Version: 0.1.0-9000
     BugReports: https://github.com/rstudio/renv/issues
   ")
 
   descfile <- renv_scope_tempfile("description-")
   writeLines(desc, con = descfile)
 
-  remote <- renv_snapshot_description(path = descfile)
+  remote <- local({
+    renv_scope_options(renv.verbose = FALSE)
+    renv_snapshot_description(path = descfile)
+  })
+
   expect_equal(remote$RemoteType, "github")
+
+  expect_snapshot(invisible(renv_snapshot_description(path = descfile)))
 
 })
