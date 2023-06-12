@@ -952,7 +952,7 @@ renv_dependencies_discover_r <- function(path = NULL,
   # update current path
   state <- renv_dependencies_state()
   if (!is.null(state))
-    renv_scope_binding(state, "path", path)
+    renv_scope_binding("path", path, frame = state)
 
   methods <- c(
     renv_dependencies_discover_r_methods,
