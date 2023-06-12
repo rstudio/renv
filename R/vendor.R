@@ -110,7 +110,7 @@ renv_vendor_loader <- function(project, header) {
   source <- system.file("resources/vendor/renv.R", package = "renv")
   template <- readLines(source, warn = FALSE)
 
-  # replace '..imports..' with the 'utils' imports we use
+  # replace '..imports..' with the imports we use
   imports <- renv_vendor_imports()
   replacements <- list(imports = imports, version = renv_metadata_version())
   contents <- renv_template_replace(template, replacements, format = "..%s..")
@@ -143,7 +143,7 @@ renv_vendor_imports <- function() {
     paste(parts, collapse = "\n")
   })
 
-  paste(c("list(", entries, "  )"), collapse = "\n")
+  paste(c("list(", paste(entries, collapse = ",\n"), "  )"), collapse = "\n")
 
 }
 
