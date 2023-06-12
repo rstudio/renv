@@ -25,7 +25,12 @@ test_that("the watchdog process releases locks from killed processes", {
   expect_true(file.exists(path))
 
   # give the watchdog some time to run
-  Sys.sleep(2)
+  clock <- timer(units = "secs")
+  wait_until(function() {
+    Sys.sleep(0.1)
+    !file.exists(path) || clock$elapsed() > 3
+  })
+
 
   # check that the file no longer exists
   expect_false(file.exists(path))

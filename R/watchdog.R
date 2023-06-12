@@ -6,7 +6,26 @@
 `_renv_watchdog_process` <- NULL
 
 renv_watchdog_init <- function() {
+
   `_renv_watchdog_enabled` <<- renv_watchdog_enabled_impl()
+
+  reg.finalizer(renv_envir_self(), function(envir) {
+
+    # tell watchdog to shutdown
+    renv_watchdog_notify("Shutdown")
+    renv_watchdog_unload()
+
+    # wait for process to exit (avoid RStudio bomb)
+    for (i in 1:10) {
+      if (renv_watchdog_running()) {
+        Sys.sleep(0.1)
+      } else {
+        break
+      }
+    }
+
+  }, onexit = TRUE)
+
 }
 
 renv_watchdog_enabled <- function() {
@@ -74,31 +93,24 @@ renv_watchdog_start_impl <- function() {
 
   # create a socket server -- this is used so the watchdog process
   # can communicate what port it'll be listening on for messages
-  for (i in 1:100) {
-    port <- sample(49152:65536, size = 1L)
-    socket <- tryCatch(serverSocket(port), error = identity)
-    if (!inherits(socket, "error"))
-      break
-  }
-
-  # check that we got a valid socket
-  if (inherits(socket, "error"))
-    stop("couldn't create socket server")
-
-  # set up envvars
-  renv_scope_envvars(
-    RENV_WATCHDOG_PPID = Sys.getpid(),
-    RENV_WATCHDOG_PORT = port
-  )
+  server <- renv_socket_server()
+  socket <- server$socket; port <- server$port
+  defer(close(socket))
 
   # get path to watchdog script
-  script <- system.file("resources/watchdog-process.R", package = "renv")
+  script <- renv_scope_tempfile("renv-watchdog-", fileext = ".R")
+  code <- substitute({
+    client <- list(pid = pid, port = port)
+    renv:::renv_watchdog_server_start(client)
+  }, list(pid = Sys.getpid(), port = port))
+  writeLines(deparse(code), con = script)
 
   # debug logging
-  debugging <- Sys.getenv("RENV_WATCHDOG_DEBUG", unset = "TRUE")
+  debugging <- Sys.getenv("RENV_WATCHDOG_DEBUG", unset = "FALSE")
   stdout <- stderr <- if (truthy(debugging)) "" else FALSE
 
   # launch the watchdog
+  # TODO: How do we make this work when running tests?
   system2(
     command = R(),
     args = c("--vanilla", "-s", "-f", renv_shell_path(script)),
@@ -108,18 +120,17 @@ renv_watchdog_start_impl <- function() {
   )
 
   # wait for connection from watchdog server
-  conn <- socketAccept(socket, open = "a+b", blocking = TRUE, timeout = 10)
+  conn <- renv_socket_accept(socket, open = "r+b", timeout = 10)
   defer(close(conn))
+
+  # store information about the running process
   `_renv_watchdog_process` <<- unserialize(conn)
 
-  # debugging
-  print(`_renv_watchdog_process`)
-
-  TRUE
+  invisible(TRUE)
 
 }
 
-renv_watchdog_notify <- function(method, data) {
+renv_watchdog_notify <- function(method, data = list()) {
 
   tryCatch(
     renv_watchdog_notify_impl(method, data),
@@ -128,18 +139,15 @@ renv_watchdog_notify <- function(method, data) {
 
 }
 
-renv_watchdog_notify_impl <- function(method, data) {
+renv_watchdog_notify_impl <- function(method, data = list()) {
 
   # make sure the watchdog is running
   if (!renv_watchdog_check())
     return(FALSE)
 
   # connect to the running server
-  conn <- socketConnection(
-    port = renv_watchdog_port(),
-    open = "a+b",
-    blocking = TRUE
-  )
+  port <- renv_watchdog_port()
+  conn <- renv_socket_connect(port, open = "w+b")
 
   # close the connection on exit
   defer(close(conn))

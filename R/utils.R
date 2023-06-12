@@ -585,3 +585,21 @@ rep_named <- function(names, x) {
 wait_until <- function(callback, ...) {
   repeat if (callback(...)) return(TRUE)
 }
+
+timer <- function(units = "secs") {
+
+  .time <- Sys.time()
+  .units <- units
+
+  list(
+
+    now = function() {
+      Sys.time()
+    },
+
+    elapsed = function() {
+      difftime(Sys.time(), .time, units = .units)
+    }
+  )
+
+}
