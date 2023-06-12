@@ -53,6 +53,8 @@ are matched to \code{...}, renv will signal an error.}
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
+\item{file}{A file path, or \R connection.}
+
 \item{lockfile}{An \code{renv} lockfile; typically created by either
 \code{lockfile_create()} or \code{lockfile_read()}.}
 
