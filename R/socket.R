@@ -27,8 +27,7 @@ renv_socket_connect <- function(port, open, timeout = getOption("timeout")) {
     open = open,
     blocking = TRUE,
     encoding = "native.enc",
-    timeout = timeout,
-    options = "no-delay"
+    timeout = timeout
   )
 }
 
@@ -38,7 +37,6 @@ renv_socket_accept <- function(socket, open, timeout = getOption("timeout")) {
     open = open,
     blocking = TRUE,
     encoding = "native.enc",
-    timeout = timeout,
-    options = "no-delay"
+    timeout = timeout
   )
 }
