@@ -118,3 +118,27 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
   expect_snapshot(status())
 
 })
+
+test_that("remotes which depend on Bioconductor packages can be installed", {
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+  # create a dummy package which has a Bioconductor dependency
+  pkgdir <- file.path(tempdir(), "bioc.example")
+  ensure_directory(pkgdir)
+
+  desc <- heredoc("
+    Package: bioc.example
+    Version: 1.0.0
+    Imports: Biobase
+    biocViews: Biology
+  ")
+  writeLines(desc, con = file.path(tempdir(), "bioc.example/DESCRIPTION"))
+
+  # try to install it
+  install(pkgdir)
+  expect_true(renv_package_installed("Biobase"))
+  expect_true(renv_package_installed("BiocGenerics"))
+
+})
