@@ -576,9 +576,9 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
   # if this is the path to an unpacked binary archive,
   # we can just copy the folder over
-  copyable <-
-    renv_file_type(path, symlinks = FALSE) == "directory" &&
-    renv_package_type(path, quiet = TRUE) == "binary"
+  isdir <- renv_file_type(path, symlinks = FALSE) == "directory"
+  isbin <- renv_package_type(path, quiet = TRUE) == "binary"
+  copyable <- isdir && isbin
 
   # shortcut via copying a binary directory if possible,
   # otherwise, install the package
@@ -587,11 +587,68 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
   else
     r_cmd_install(package, path)
 
+  # if we just installed a binary package, check that it can be loaded
+  # (source packages are checked by default on install)
+  withCallingHandlers(
+    if (isbin) renv_install_test(package),
+    error = function(err) unlink(installpath, recursive = TRUE)
+  )
+
   # augment package metadata after install
   renv_package_augment(installpath, record)
 
   # return the path to the package
   invisible(installpath)
+
+}
+
+renv_install_test <- function(package) {
+
+  # add escape hatch, just in case
+  # (test binaries by default on Linux, but not Windows or macOS)
+  enabled <- Sys.getenv("RENV_INSTALL_TEST_LOAD", unset = renv_platform_linux())
+  if (!truthy(enabled))
+    return(TRUE)
+
+  # check whether we should skip installation testing
+  opts <- r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE)
+  if (is.character(opts)) {
+    flags <- unlist(strsplit(opts, "\\s+", perl = TRUE))
+    if ("--no-test-load" %in% flags)
+      return(TRUE)
+  }
+
+  # make sure we use the current library paths in the launched process
+  rlibs <- paste(renv_libpaths_all(), collapse = .Platform$path.sep)
+  renv_scope_envvars(R_LIBS = rlibs, R_LIBS_USER = "NULL", R_LIBS_SITE = "NULL")
+
+  # also hide from user .Renviron files
+  # https://github.com/wch/r-source/blob/1c0a2dc8ce6c05f68e1959ffbe6318a309277df3/src/library/tools/R/check.R#L273-L276
+  renv_scope_envvars(R_ENVIRON_USER = "NULL")
+
+  # make sure R_TESTS is unset here, just in case
+  # https://github.com/wch/r-source/blob/1c0a2dc8ce6c05f68e1959ffbe6318a309277df3/src/library/tools/R/install.R#L76-L79
+  renv_scope_envvars(R_TESTS = NULL)
+
+  # the actual code we'll run in the other process
+  code <- substitute({
+    options(warn = 1L)
+    library(package)
+  }, list(package = package))
+
+  # write it to a tempfile
+  script <- renv_scope_tempfile("renv-install-")
+  writeLines(deparse(code), con = script)
+
+  # check that the package can be loaded in a separate process
+  renv_system_exec(
+    command = R(),
+    args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+    action  = sprintf("testing if '%s' can be loaded", package)
+  )
+
+  # return TRUE to indicate successful validation
+  TRUE
 
 }
 

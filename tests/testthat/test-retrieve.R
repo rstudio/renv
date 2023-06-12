@@ -161,7 +161,7 @@ test_that("we can retrieve packages from URL sources", {
   skip_slow()
 
   renv_tests_scope()
-  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
+  renv_scope_local()
 
   record <- list(
     Package    = "skeleton",
@@ -177,8 +177,8 @@ test_that("we can retrieve packages from URL sources", {
 
 test_that("we can retrieve packages from local sources", {
 
-  renv_scope_libpaths()
-  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
+  renv_tests_scope()
+  renv_scope_local()
 
   record <- list(
     Package = "skeleton",
@@ -192,8 +192,8 @@ test_that("we can retrieve packages from local sources", {
 
 test_that("compatible local sources are preferred when available", {
 
-  renv_scope_libpaths()
-  renv_scope_envvars(RENV_PATHS_LOCAL = file.path(getwd(), "local"))
+  renv_tests_scope()
+  renv_scope_local()
 
   record <- list(
     Package = "skeleton",
@@ -215,8 +215,10 @@ test_that("compatible local sources are preferred when available", {
 
 test_that("an explicitly-provided local source path can be used", {
 
-  source <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
+  renv_tests_scope()
+  renv_scope_local()
 
+  source <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
   renv_scope_wd(tempdir())
 
   record <- list(
@@ -235,10 +237,25 @@ test_that("explicit path to binary packages work", {
 
   skip_if_not(renv_platform_macos())
 
+  renv_tests_scope()
+  renv_scope_local()
+
+  # make sure we have a binary package in the cellar to test with
+  srcpath <- renv_tests_path("local/skeleton/skeleton_1.0.1.tar.gz")
+  binpath <- renv_tests_path("local/skeleton/skeleton_1.0.1.tgz")
+  defer(unlink(binpath))
+
+  # create the binary
+  local({
+    renv_scope_wd(dirname(srcpath))
+    args <- c("CMD", "INSTALL", "--build", basename(srcpath))
+    renv_system_exec(R(), args)
+  })
+
   record <- list(
     Package = "skeleton",
     Version = "1.0.1",
-    Source  = "local/skeleton/skeleton_1.0.1.tgz"
+    Source  = binpath
   )
 
   renv_test_retrieve(record)
@@ -247,7 +264,6 @@ test_that("explicit path to binary packages work", {
 
 test_that("remotes::install_local() records are handled", {
 
-  renv_scope_libpaths()
   renv_scope_envvars(RENV_PATHS_LOCAL = "")
 
   record <- list(

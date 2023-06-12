@@ -471,9 +471,11 @@ renv_dependencies_discover_impl <- function(path) {
     warningf(fmt, renv_path_pretty(path))
   }
 
-  result <- tryCatch(callback(path), error = warning)
-  if (inherits(result, "condition"))
+  result <- catch(callback(path))
+  if (inherits(result, "error")) {
+    warning(result)
     return(NULL)
+  }
 
   result
 

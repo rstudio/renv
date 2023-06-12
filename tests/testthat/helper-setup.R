@@ -22,6 +22,9 @@ renv_tests_setup <- function(envir = parent.frame()) {
   # (not scoped to the environment since packages can't reliably be unloaded)
   renv_tests_setup_packages()
 
+  # fix up the library paths if needed for testing
+  renv_tests_setup_libpaths(envir = envir)
+
   # initialize test repositories
   renv_tests_setup_repos(envir = envir)
 
@@ -133,6 +136,16 @@ renv_tests_setup_packages <- function() {
 
 renv_tests_repopath <- function() {
   getOption("renv.tests.repopath")
+}
+
+renv_tests_setup_libpaths <- function(envir = parent.frame()) {
+
+  # remove the sandbox from the library paths, just in case we tried
+  # to run tests from an R session where the sandbox was active
+  old <- .libPaths()
+  new <- grep("renv/sandbox", old, fixed = TRUE, invert = TRUE, value = TRUE)
+  renv_scope_libpaths(new, envir = envir)
+
 }
 
 renv_tests_setup_repos <- function(envir = parent.frame()) {
