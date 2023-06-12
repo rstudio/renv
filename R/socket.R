@@ -1,4 +1,9 @@
 
+# avoid R CMD check errors with older R
+if (getRversion() < "4.0") {
+  utils::globalVariables(c("serverSocket", "socketAccept"))
+}
+
 renv_socket_server <- function(min = 49152, max = 65535) {
 
   # create the socket server
