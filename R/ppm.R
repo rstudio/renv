@@ -64,6 +64,18 @@ renv_ppm_transform_impl <- function(url) {
   if (sub("/+$", "", url) %in% sub("/+$", "", urls))
     return(url)
 
+  # if this is a 'known' PPM instance, then skip the query step
+  known <- c(
+    dirname(dirname(config$ppm.url())),
+    getOption("renv.ppm.repos", default = NULL)
+  )
+
+  if (any(startswith(url, known))) {
+    parts <- c(dirname(url), "__linux__", platform, basename(url))
+    binurl <- paste(parts, collapse = "/")
+    return(binurl)
+  }
+
   # try to query the status endpoint
   # TODO: this could fail if the URL is a proxy back to PPM?
   base <- dirname(dirname(url))
