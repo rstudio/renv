@@ -2,6 +2,10 @@
 renv_dots_check <- function(...) {
 
   dots <- list(...)
+  if (length(dots) == 0)
+    return(TRUE)
+
+  # get parent frame
   parent <- parent.frame()
 
   # accept 'bioc' as an alias for 'bioconductor'
@@ -20,9 +24,6 @@ renv_dots_check <- function(...) {
     dots[["confirm"]] <- NULL
   }
 
-  if (length(dots) == 0)
-    return(TRUE)
-
   call <- sys.call(sys.parent())
   func <- sys.function(sys.parent())
   matched <- match.call(func, call, expand.dots = FALSE)
@@ -34,7 +35,6 @@ renv_dots_check <- function(...) {
   n <- length(matched[["..."]])
 
   message <- paste("unused", plural("argument", n), args)
-  err <- simpleError(message = message, call = call)
-  stop(err)
+  stop(simpleError(message = message, call = call))
 
 }

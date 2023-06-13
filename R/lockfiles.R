@@ -164,6 +164,8 @@ lockfile_modify <- function(lockfile,
                             remotes = NULL,
                             repos = NULL)
 {
+  renv_dots_check(...)
+
   if (!is.null(repos)) {
     lockfile$R$Repositories <- as.list(repos)
   }
