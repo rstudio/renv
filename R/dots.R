@@ -2,10 +2,6 @@
 renv_dots_check <- function(...) {
 
   dots <- list(...)
-  if (length(dots) == 0)
-    return(TRUE)
-
-  # get parent frame
   parent <- parent.frame()
 
   # accept 'bioc' as an alias for 'bioconductor'
@@ -23,6 +19,10 @@ renv_dots_check <- function(...) {
     assign("prompt", confirm, envir = parent)
     dots[["confirm"]] <- NULL
   }
+
+  # check for empty dots
+  if (length(dots) == 0)
+    return(TRUE)
 
   call <- sys.call(sys.parent())
   func <- sys.function(sys.parent())
