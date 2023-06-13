@@ -94,19 +94,10 @@ test_that("URLs like http://foo/bar aren't queried", {
   ))
 
   # should exit early
-  status <- tryCatch(
-    renv_ppm_transform_impl("http://foo/bar"),
-    bail = identity
-  )
-
-  expect_identical(status, "http://foo/bar")
+  status <- expect_no_condition(renv_ppm_transform_impl("http://foo/bar"), class = "bail")
+  expect_equal(status, "http://foo/bar")
 
   # should emit a condition now
-  status <- tryCatch(
-    renv_ppm_transform_impl("http://foo/bar/baz"),
-    bail = identity
-  )
-
-  expect_s3_class(status, "bail")
+  expect_condition(renv_ppm_transform_impl("http://foo/bar/baz"), class = "bail"))
 
 })
