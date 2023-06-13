@@ -32,3 +32,7 @@ strip_dirs <- function(x) {
   x
 
 }
+
+strip_versions <- function(x) {
+  gsub("\\[[0-9.-]*\\]", "[<version>]", x)
+}

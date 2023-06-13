@@ -29,8 +29,8 @@
       # Installing packages into "<tempdir>/<renv-library>"
       The following package(s) will be installed:
       
-      - Biobase      [2.58.0]
-      - BiocGenerics [0.44.0]
+      - Biobase      [<version>]
+      - BiocGenerics [<version>]
       
       Installing BiocGenerics ... OK [copied from cache]
       Installing Biobase      ... OK [copied from cache]

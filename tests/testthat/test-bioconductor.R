@@ -104,10 +104,7 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
   snapshot()
   writeLines("library(BiocGenerics)", "dependencies.R")
 
-  expect_snapshot(
-    status(),
-    transform = function(x) gsub("\\[.*\\]", "[<version>]", x)
-  )
+  expect_snapshot(status(), transform = strip_versions)
   snap <- snapshot()
   expect_setequal(names(snap$Packages), c("BiocManager", "BiocGenerics"))
 
@@ -148,6 +145,9 @@ test_that("auto-bioc install happens silently", {
 
   renv_tests_scope()
   renv_tests_scope_system_cache()
-  expect_snapshot(install("bioc::Biobase"))
+  expect_snapshot(
+    install("bioc::Biobase"),
+    transform = function(x) strip_versions(strip_dirs(x))
+  )
 
 })
