@@ -800,7 +800,7 @@ renv_snapshot_description_infer <- function(dcf) {
   inferred <- tryCatch(
     renv_snapshot_description_infer_impl(dcf),
     error = function(err) {
-      warningf("Error inferring package remote: %s", conditionMessage(err))
+      warningf("Failed to infer remote for %s which was installed from source:\n%s", dcf$Package, conditionMessage(err))
       dcf
     }
   )

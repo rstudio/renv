@@ -512,6 +512,6 @@ test_that("we can infer github remotes from packages installed from sources", {
 
   expect_equal(remote$RemoteType, "github")
 
-  expect_snapshot(invisible(renv_snapshot_description(path = descfile)))
+  expect_snapshot(. <- renv_snapshot_description(path = descfile))
 
 })

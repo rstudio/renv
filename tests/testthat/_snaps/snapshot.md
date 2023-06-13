@@ -216,5 +216,5 @@
     Code
       invisible(renv_snapshot_description(path = descfile))
     Output
-      * 'renv' inferred to have been installed from remote 'rstudio/renv@main'.
+      * 'renv' was installed from source; inferring install from 'rstudio/renv@main'.
 
