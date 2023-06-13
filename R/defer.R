@@ -2,11 +2,11 @@
 # environment hosting exit callbacks
 `_renv_defer_callbacks` <- new.env(parent = emptyenv())
 
-defer <- function(expr, envir = parent.frame()) {
+defer <- function(expr, scope = parent.frame()) {
 
   handler <- renv_defer_add(
     list(expr = substitute(expr), envir = parent.frame()),
-    envir = envir
+    envir = scope
   )
 
   invisible(handler)

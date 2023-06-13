@@ -44,7 +44,7 @@ reference:
 
 - title: Lockfile Management
   contents:
-  - lockfiles
+  - lockfile
   - record
   - remote
   - modify

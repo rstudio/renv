@@ -38,7 +38,7 @@ diagnostics <- function(project = NULL) {
   )
 
   fmt <- "Diagnostics Report [renv %s]"
-  title <- sprintf(fmt, renv_metadata_version())
+  title <- sprintf(fmt, renv_metadata_version_friendly())
   lines <- paste(rep.int("=", nchar(title)), collapse = "")
   writef(c(title, lines, ""))
 

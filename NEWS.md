@@ -5,6 +5,10 @@
   appear to be installed from sources; that is, for packages without a
   recognizable remote source encoded in its DESCRIPTION file. (#841)
 
+* `renv` now activates the Bioconductor repositories when installing a package
+  from a remote (e.g. GitHub) which declares a Bioconductor dependency (via
+  a non-empty 'biocViews' field). (#934)
+
 * `renv` no longer attempts to query package repositories when checking
   if a project is synchronzied on startup. (#812)
 

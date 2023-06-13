@@ -7,8 +7,6 @@ test_that("packages can be installed, restored from Bioconductor", {
   skip_if(R.version$nickname == "Unsuffered Consequences")
 
   renv_tests_scope("Biobase")
-  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
-
   local({
     renv_tests_scope_system_cache()
     install("BiocManager")
@@ -47,12 +45,12 @@ test_that("install(<bioc>, rebuild = TRUE) works", {
   skip_if(R.version$nickname == "Unsuffered Consequences")
   skip_if_not_installed("BiocManager")
 
-  requireNamespace("BiocManager", quietly = TRUE)
-  defer(unloadNamespace("BiocManager"))
-
   renv_tests_scope()
-  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
-  install("bioc::Biobase", rebuild = TRUE)
+
+  local({
+    renv_tests_scope_system_cache()
+    install("bioc::Biobase", rebuild = TRUE)
+  })
 
   expect_true(renv_package_installed("Biobase"))
 
@@ -60,7 +58,6 @@ test_that("install(<bioc>, rebuild = TRUE) works", {
 
 test_that("bioconductor.version can be used to freeze version", {
 
-  skip_slow()
   project <- renv_tests_scope()
 
   settings$bioconductor.version("3.14", project = project)
@@ -97,17 +94,13 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
   init()
   local({
     renv_tests_scope_system_cache()
-    install("BiocManager")
     install("bioc::BiocGenerics")
   })
 
   snapshot()
   writeLines("library(BiocGenerics)", "dependencies.R")
 
-  expect_snapshot(
-    status(),
-    transform = function(x) gsub("\\[.*\\]", "[<version>]", x)
-  )
+  expect_snapshot(status(), transform = strip_versions)
   snap <- snapshot()
   expect_setequal(names(snap$Packages), c("BiocManager", "BiocGenerics"))
 
@@ -117,4 +110,45 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
   expect_named(snap$Packages, character())
   expect_snapshot(status())
 
+})
+
+test_that("remotes which depend on Bioconductor packages can be installed", {
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+  # create a dummy package which has a Bioconductor dependency
+  pkgdir <- file.path(tempdir(), "bioc.example")
+  ensure_directory(pkgdir)
+
+  desc <- heredoc("
+    Package: bioc.example
+    Version: 1.0.0
+    Imports: Biobase
+    biocViews: Biology
+  ")
+  writeLines(desc, con = file.path(tempdir(), "bioc.example/DESCRIPTION"))
+
+  # try to install it
+  local({
+    renv_tests_scope_system_cache()
+    install(pkgdir)
+  })
+
+  expect_true(renv_package_installed("Biobase"))
+  expect_true(renv_package_installed("BiocGenerics"))
+
+})
+
+
+test_that("auto-bioc install happens silently", {
+
+  renv_tests_scope()
+  renv_tests_scope_system_cache()
+  expect_snapshot(
+    install("bioc::BiocGenerics"),
+    transform = function(x) strip_versions(strip_dirs(x))
+  )
+
+  expect_true(renv_package_installed("BiocManager"))
 })
