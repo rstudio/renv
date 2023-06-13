@@ -776,7 +776,7 @@ renv_dependencies_discover_chunks_ignore <- function(chunk) {
 renv_dependencies_discover_chunks <- function(path, mode) {
 
   # figure out the appropriate begin, end patterns
-  type <- tolower(tools::file_ext(path))
+  type <- tolower(file_ext(path))
   if (type %in% c("rmd", "qmd", "rmarkdown"))
     type <- "md"
 

@@ -1,4 +1,7 @@
 
+#' @importFrom tools
+#'   file_ext pskill psnice write_PACKAGES
+#'
 #' @importFrom utils
 #'   adist available.packages browseURL citation contrib.url download.file
 #'   download.packages file.edit getCRANmirrors head help install.packages
