@@ -18,3 +18,21 @@
     Output
       * The project is already synchronized with the lockfile.
 
+# auto-bioc install happens silently
+
+    Code
+      install("bioc::Biobase")
+    Output
+      # Downloading packages -------------------------------------------------------
+      [no downloads required]
+      
+      # Installing packages into "<tempdir>/<renv-library>"
+      The following package(s) will be installed:
+      
+      - Biobase      [2.58.0]
+      - BiocGenerics [0.44.0]
+      
+      Installing BiocGenerics ... OK [copied from cache]
+      Installing Biobase      ... OK [copied from cache]
+      Installed 2 packages in XXXX seconds.
+

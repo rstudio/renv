@@ -142,3 +142,12 @@ test_that("remotes which depend on Bioconductor packages can be installed", {
   expect_true(renv_package_installed("BiocGenerics"))
 
 })
+
+
+test_that("auto-bioc install happens silently", {
+
+  renv_tests_scope()
+  renv_tests_scope_system_cache()
+  expect_snapshot(install("bioc::Biobase"))
+
+})
