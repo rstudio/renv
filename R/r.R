@@ -44,10 +44,10 @@ r_exec_error <- function(package, output, label, extra) {
     paste(renv_path_pretty(extra), "does not exist")
 
   # stop with an error
-  message <- sprintf("%s of package '%s' failed [%s]", label, package, extra)
-  error <- simpleError(message = message)
-  error$output <- all
-  stop(error)
+  abort(
+    message = sprintf("%s of package '%s' failed [%s]", label, package, extra),
+    detail = all
+  )
 
 }
 

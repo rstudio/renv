@@ -67,7 +67,7 @@ dynamic <- function(key, value, envir = NULL) {
 renv_dynamic_envir <- function(envir = NULL) {
 
   envir <- envir %||% renv_dynamic_envir_impl()
-  defer(renv_dynamic_reset(), envir = envir)
+  defer(renv_dynamic_reset(), scope = envir)
 
   dlog("dynamic", "using dynamic environment '%s'", format(envir))
   envir

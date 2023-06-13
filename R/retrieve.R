@@ -1025,8 +1025,11 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
     renv_retrieve_handle_remotes(record, subdir = subdir)
 
   # ensure its dependencies are retrieved as well
-  if (state$recursive)
+  if (state$recursive) local({
+    repos <- if (is.null(desc$biocViews)) getOption("repos") else renv_bioconductor_repos()
+    renv_scope_options(repos = repos)
     renv_retrieve_successful_recurse(deps)
+  })
 
   # mark package as requiring install if needed
   if (install)

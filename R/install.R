@@ -175,7 +175,6 @@ install <- function(packages = NULL,
   # ensure package names are resolved if provided
   packages <- if (length(packages)) names(remotes)
 
-  before <- Sys.time()
   renv_scope_restore(
     project  = project,
     library  = renv_libpaths_active(),
@@ -198,9 +197,10 @@ install <- function(packages = NULL,
   cancel_if(prompt && !proceed())
 
   # install retrieved records
+  before <- Sys.time()
   renv_install_impl(records)
-
   after <- Sys.time()
+
   time <- renv_difftime_format(difftime(after, before))
   n <- length(records)
   writef("Installed %s in %s.", nplural("package", n), time)
@@ -376,10 +376,7 @@ renv_install_package <- function(record) {
   before <- Sys.time()
   withCallingHandlers(
     renv_install_package_impl(record),
-    error = function(e) {
-      writef(" FAILED")
-      writef(e$output)
-    }
+    error = function(e) writef("FAILED")
   )
   after <- Sys.time()
 
@@ -387,12 +384,17 @@ renv_install_package <- function(record) {
   type <- renv_package_type(path, quiet = TRUE)
   feedback <- renv_install_package_feedback(path, type)
 
+
+  # link into cache
+  if (renv_cache_config_enabled(project = project)) {
+    renv_cache_synchronize(record, linkable = linkable)
+    feedback <- paste0(feedback, " and cached")
+  }
+
   elapsed <- difftime(after, before, units = "auto")
   renv_install_step_ok(feedback, time = elapsed)
 
-  # link into cache
-  if (renv_cache_config_enabled(project = project))
-    renv_cache_synchronize(record, linkable = linkable)
+  invisible()
 
 }
 

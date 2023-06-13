@@ -391,19 +391,8 @@ renv_package_built <- function(path) {
 }
 
 renv_package_checking <- function() {
-  memo(renv_package_checking_impl())
-}
-
-renv_package_checking_impl <- function() {
-
-  # check for devtools
-  calls <- sys.calls()
-  if (identical(calls[[1L]], quote(devtools::test())))
-    return(TRUE)
-
-  # otherwise, check other things
   is_testing() ||
-    "CheckExEnv" %in% search()
+    "CheckExEnv" %in% search() ||
     renv_envvar_exists("_R_CHECK_PACKAGE_NAME_") ||
     renv_envvar_exists("_R_CHECK_SIZE_OF_TARBALL_")
 }
@@ -444,7 +433,7 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
 
   # create extraction directory
   old <- renv_scope_tempfile("renv-package-old-")
-  new <- renv_scope_tempfile("renv-package-new-", envir = parent.frame())
+  new <- renv_scope_tempfile("renv-package-new-", scope = parent.frame())
   ensure_directory(c(old, new))
 
   # decompress archive to dir

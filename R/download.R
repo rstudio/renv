@@ -206,7 +206,7 @@ renv_download_default <- function(url, destfile, type, request, headers) {
 
 }
 
-renv_download_default_agent_scope <- function(headers, envir = parent.frame()) {
+renv_download_default_agent_scope <- function(headers, scope = parent.frame()) {
 
   if (empty(headers))
     return(FALSE)
@@ -214,10 +214,10 @@ renv_download_default_agent_scope <- function(headers, envir = parent.frame()) {
   if (getRversion() >= "3.6.0")
     return(FALSE)
 
-  renv_download_default_agent_scope_impl(headers, envir)
+  renv_download_default_agent_scope_impl(headers, scope)
 }
 
-renv_download_default_agent_scope_impl <- function(headers, envir = parent.frame()) {
+renv_download_default_agent_scope_impl <- function(headers, scope = parent.frame()) {
 
   utils <- asNamespace("utils")
   makeUserAgent <- utils$makeUserAgent
@@ -234,7 +234,7 @@ renv_download_default_agent_scope_impl <- function(headers, envir = parent.frame
 
   renv_scope_binding(utils, "makeUserAgent", function(format = TRUE) {
     if (format) headertext else agent
-  }, frame = envir)
+  }, scope = scope)
 
   return(TRUE)
 

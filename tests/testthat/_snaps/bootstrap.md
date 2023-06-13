@@ -20,7 +20,7 @@
       bootstrap(version = "1.0.0.1", library = library)
     Output
       Bootstrapping renv 1.0.0.1:
-      * Downloading from GitHub ... OK
+      * Downloading version 1.0.0.1 from GitHub ... OK
       * Installing ... OK
       
       
@@ -48,7 +48,7 @@
       bootstrap(version = "1.0.0.1", library = library)
     Output
       Bootstrapping renv 1.0.0.1:
-      * Downloading from GitHub ... FAILED
+      * Downloading version 1.0.0.1 from GitHub ... FAILED
     Error <simpleError>
       failed to download:
       All download methods failed
@@ -59,7 +59,7 @@
       bootstrap(version = "1.0.0.1", library = library)
     Output
       Bootstrapping renv 1.0.0.1:
-      * Downloading from GitHub ... OK
+      * Downloading version 1.0.0.1 from GitHub ... OK
       * Installing ... FAILED
       Error installing renv:
       ======================

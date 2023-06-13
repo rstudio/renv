@@ -1,13 +1,13 @@
-renv_scoped_sandbox <- function(envir = parent.frame()) {
-  renv_scope_options(renv.config.sandbox.enabled = TRUE, envir = envir)
+renv_scoped_sandbox <- function(scope = parent.frame()) {
+  renv_scope_options(renv.config.sandbox.enabled = TRUE, scope = scope)
 
-  sandbox <- renv_scope_tempfile(envir = envir)
-  renv_scope_envvars(RENV_PATHS_SANDBOX = sandbox, envir = envir)
+  sandbox <- renv_scope_tempfile(scope = scope)
+  renv_scope_envvars(RENV_PATHS_SANDBOX = sandbox, scope = scope)
 
   old <- list(.Library.site, .Library, .libPaths())
-  defer(envir = envir, {
-    renv_binding_replace(".Library.site", old[[1]], envir = base)
-    renv_binding_replace(".Library", old[[2]], envir = base)
+  defer(scope = scope, {
+    renv_binding_replace(base, ".Library.site", old[[1]])
+    renv_binding_replace(base, ".Library", old[[2]])
     .libPaths(old[[3]])
   })
 }

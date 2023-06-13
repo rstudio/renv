@@ -183,8 +183,7 @@
       
       - egg [1.0.0]
       
-      Installing egg ... OK [built from source]
-      Caching    egg ... OK [copied]
+      Installing egg ... OK [built from source and cached]
       Installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
       

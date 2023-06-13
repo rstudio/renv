@@ -21,7 +21,36 @@
       Restart your R session to use the new versions.
       
 
-# install reports on packages about to be installed
+# install has user-friendly output
+
+    Code
+      install()
+    Output
+      # Downloading packages -------------------------------------------------------
+      Retrieving '<test-repo>/src/contrib/breakfast_1.0.0.tar.gz' ...
+      	OK [downloaded XXXX bytes in XXXX seconds]
+      Retrieving '<test-repo>/src/contrib/oatmeal_1.0.0.tar.gz' ...
+      	OK [downloaded XXXX bytes in XXXX seconds]
+      Retrieving '<test-repo>/src/contrib/toast_1.0.0.tar.gz' ...
+      	OK [downloaded XXXX bytes in XXXX seconds]
+      Retrieving '<test-repo>/src/contrib/bread_1.0.0.tar.gz' ...
+      	OK [downloaded XXXX bytes in XXXX seconds]
+      
+      # Installing packages into "<tempdir>/<renv-library>"
+      The following package(s) will be installed:
+      
+      - bread     [1.0.0]
+      - breakfast [1.0.0]
+      - oatmeal   [1.0.0]
+      - toast     [1.0.0]
+      
+      Installing oatmeal   ... OK [built from source and cached]
+      Installing bread     ... OK [built from source and cached]
+      Installing toast     ... OK [built from source and cached]
+      Installing breakfast ... OK [built from source and cached]
+      Installed 4 packages in XXXX seconds.
+
+---
 
     Code
       install()

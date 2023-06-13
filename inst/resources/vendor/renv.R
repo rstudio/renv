@@ -8,10 +8,7 @@ renv$initialize <- function() {
   attr(parent.env(renv), "name") <- "imports:renv"
 
   # set up metadata environment
-  metadata <- list(
-    embedded = TRUE,
-    version  = "..version.."
-  )
+  metadata <- ..metadata..
 
   # assign into renv
   assign("_renv_metadata", as.environment(metadata), envir = renv)

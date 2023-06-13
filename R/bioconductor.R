@@ -1,5 +1,7 @@
 
 renv_bioconductor_init <- function(library = NULL) {
+  renv_scope_options(renv.verbose = FALSE)
+
   if (getRversion() >= "3.5.0")
     renv_bioconductor_init_biocmanager(library)
   else
@@ -8,23 +10,17 @@ renv_bioconductor_init <- function(library = NULL) {
 
 renv_bioconductor_init_biocmanager <- function(library = NULL) {
 
-  if (renv_package_checking())
-    return(TRUE)
-
   library <- library %||% renv_libpaths_active()
   if (renv_package_installed("BiocManager", lib.loc = library))
     return(TRUE)
 
   ensure_directory(library)
-  install("BiocManager", library = library, prompt = FALSE)
+  install("BiocManager", library = library)
   TRUE
 
 }
 
 renv_bioconductor_init_biocinstaller <- function(library = NULL) {
-
-  if (renv_package_checking())
-    return(TRUE)
 
   library <- library %||% renv_libpaths_active()
   if (renv_package_installed("BiocInstaller", lib.loc = library))
@@ -80,6 +76,9 @@ renv_bioconductor_version <- function(project, refresh = FALSE) {
 
 }
 
+# Returns the union of the inferred Bioconductor repositories, together with the
+# current value of the 'repos' R option. The Bioconductor repositories are
+# placed first in the repository list.
 renv_bioconductor_repos <- function(project = NULL, version = NULL) {
 
   # allow bioconductor repos override

@@ -33,36 +33,47 @@ renv_ppm_transform_impl <- function(url) {
   if (grepl("/__[^_]+__/", url))
     return(url)
 
+  # try to parse the repository URL
+  parts <- catch(renv_url_parse(url))
+  if (inherits(parts, "error"))
+    return(url)
+
   # only attempt to transform URLs that are formatted like PPM urls:
   #
   #   https://ppm.company.org/cran/checkpoint/id
   #
   # in particular, there should be at least two trailing
   # alphanumeric path components
-  pattern <- "/[^/]+/[^/]+/"
-  if (!grepl(pattern, url))
+  pattern <- "/[^/]+/[^/]+"
+  if (!grepl(pattern, parts$path))
     return(url)
 
-  # begin building list of URLs
-  urls <- character()
-
-  # ignore some known CRAN mirrors
-  # (note that getCRANmirrors can fail if R is not installed with
-  # any local knowledge of available CRAN repositories)
+  # check if this is an 'ignored' URL; that is, a repository which we
+  # know is not a PPM URL
   mirrors <- catch(getCRANmirrors(local.only = TRUE))
-  urls <- c(urls, mirrors$URL)
-
-  # also ignore some RStudio URLs
-  rstudio <- c(
+  ignored <- c(
+    getOption("renv.ppm.ignoredUrls", default = character()),
+    mirrors$URL,
     "http://cran.rstudio.com",
     "http://cran.rstudio.org",
     "https://cran.rstudio.com",
     "https://cran.rstudio.org"
   )
-  urls <- c(urls, rstudio)
 
-  if (sub("/+$", "", url) %in% sub("/+$", "", urls))
+  if (sub("/+$", "", url) %in% sub("/+$", "", ignored))
     return(url)
+
+  # if this is a 'known' PPM instance, then skip the query step
+  known <- c(
+    dirname(dirname(config$ppm.url())),
+    getOption("renv.ppm.repos", default = NULL)
+  )
+
+  if (any(startswith(url, known))) {
+    parts <- c(dirname(url), "__linux__", platform, basename(url))
+    binurl <- paste(parts, collapse = "/")
+    return(binurl)
+  }
 
   # try to query the status endpoint
   # TODO: this could fail if the URL is a proxy back to PPM?

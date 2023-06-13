@@ -174,11 +174,6 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
   restore <- renv_file_backup(cache)
   defer(restore())
 
-  # get ready to copy / move into cache
-  renv_install_step_start("Caching", record$Package)
-
-  before <- Sys.time()
-
   # copy package from source location into the cache
   if (linkable) {
     renv_cache_move(path, cache, overwrite = TRUE)
@@ -221,16 +216,6 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
       callback(cache)
 
   }
-
-  after <- Sys.time()
-
-  time <- difftime(after, before, units = "auto")
-
-  # report status to user
-  renv_install_step_ok(
-    if (linkable) "moved" else "copied",
-    time = time
-  )
 
   TRUE
 
