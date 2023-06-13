@@ -800,7 +800,8 @@ renv_snapshot_description_infer <- function(dcf) {
   inferred <- tryCatch(
     renv_snapshot_description_infer_impl(dcf),
     error = function(err) {
-      warningf("Failed to infer remote for %s which was installed from source:\n%s", dcf$Package, conditionMessage(err))
+      fmt <- "Failed to infer remote for %s which was installed from source:\n%s"
+      warningf(fmt, dcf$Package, conditionMessage(err))
       dcf
     }
   )
@@ -823,17 +824,44 @@ renv_snapshot_description_infer <- function(dcf) {
 
 renv_snapshot_description_infer_impl <- function(dcf) {
 
-  # if this package appears to have a declared remote, use it
+  # if this package appears to have a declared remote, use as-is
   for (field in c("RemoteType", "Repository", "biocViews"))
     if (!is.null(dcf[[field]]))
       return(dcf)
 
-  # only continue if this appears to be a dev version of a package
-  package <- dcf[["Package"]]
-  version <- unclass(numeric_version(dcf[["Version"]]))[[1]]
-  if (identical(package, "renv") && length(version) <= 3L)
+  # skip in project synchronization checks
+  if (`_renv_project_synchronized_check_running`)
     return(dcf)
-  else if (tail(version, n = 1L) < 9000)
+
+  # check and see if this package is available from package repositories.
+  # if it is, then assume this is a dev. package the installed copy is newer,
+  # or if it has more version components than the published package
+  trydev <- local({
+
+    # check for record
+    package <- dcf[["Package"]]
+    record <- catch(renv_available_packages_latest(package))
+    if (inherits(record, "error"))
+      return(TRUE)
+
+    # pull out versions
+    lhs <- dcf[["Version"]]
+    rhs <- record[["Version"]]
+
+    # check for local record being newer than the remote record
+    if (renv_version_gt(lhs, rhs))
+      return(TRUE)
+
+    # check for local record having more version components
+    if (renv_version_length(lhs) > renv_version_length(rhs))
+      return(TRUE)
+
+    # the source copy seems older than CRAN; don't try to use it
+    FALSE
+
+  })
+
+  if (!trydev)
     return(dcf)
 
   # ok, this is a package installed from sources that "looks" like
@@ -850,13 +878,13 @@ renv_snapshot_description_infer_impl <- function(dcf) {
   }
 
   # first, check bug reports
-  remote <- guess("^https://github\\.com/([^/]+)/([^/]+)/issues$", "BugReports")
+  remote <- guess("^https://(?:www\\.)?github\\.com/([^/]+)/([^/]+)/issues$", "BugReports")
   if (!is.null(remote))
     return(remote)
 
 
   # next, check the URL field
-  remote <- guess("^https://github\\.com/([^/]+)/([^/]+)", "URL")
+  remote <- guess("^https://(?:www\\.)?github\\.com/([^/]+)/([^/]+)", "URL")
   if (!is.null(remote))
     return(remote)
 
