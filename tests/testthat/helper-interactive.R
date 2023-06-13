@@ -10,6 +10,6 @@ if (interactive()) {
   })
 
   # detach when we're done
-  defer(detach("renv:tools"), envir = globalenv())
+  defer(detach("renv:tools"), scope = globalenv())
 
 }

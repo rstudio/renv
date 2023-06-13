@@ -52,7 +52,7 @@ test_that("defer runs handles in LIFO order", {
 test_that("defer captures arguments properly", {
 
   foo <- function(x) {
-    defer(writeLines(x), envir = parent.frame())
+    defer(writeLines(x), scope = parent.frame())
   }
 
   bar <- function(y) {
@@ -73,7 +73,7 @@ test_that("defer works with arbitrary expressions", {
     defer({
       x + 1
       writeLines("> foo")
-    }, envir = parent.frame())
+    }, scope = parent.frame())
   }
 
   bar <- function() {

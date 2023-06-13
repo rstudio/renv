@@ -120,11 +120,7 @@ renv_patch_golem_impl <- function(...) {
   if ("compiler" %in% loadedNamespaces())
     replacement <- compiler::cmpfun(replacement)
 
-  renv_binding_replace(
-    symbol = "replace_word",
-    envir  = golem,
-    replacement = replacement
-  )
+  renv_binding_replace(golem, "replace_word", replacement)
 
 }
 

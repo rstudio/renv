@@ -89,11 +89,11 @@ test_that("renv_scope_trace works", {
 })
 
 test_that("can temporarily replace binding", {
-  frame <- environment()
+  envir <- environment()
   x <- 10
 
   local({
-    renv_scope_binding("x", 20, frame = frame)
+    renv_scope_binding(envir, "x", 20)
     expect_equal(x, 20)
   })
 
@@ -101,10 +101,10 @@ test_that("can temporarily replace binding", {
 })
 
 test_that("can temporarily create binding", {
-  frame <- environment()
+  envir <- environment()
 
   local({
-    renv_scope_binding("x", 20, frame = frame)
+    renv_scope_binding(envir, "x", 20)
     expect_equal(x, 20)
   })
 
@@ -116,7 +116,7 @@ test_that("can temporarily replace locked binding", {
 
   utils <- asNamespace("utils")
   local({
-    renv_scope_binding("adist", 20, frame = utils)
+    renv_scope_binding(utils, "adist", 20)
     expect_equal(utils::adist, 20)
   })
 

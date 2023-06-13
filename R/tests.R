@@ -5,9 +5,9 @@ renv_tests_running <- function() {
   getOption("renv.tests.running", default = FALSE)
 }
 
-renv_test_code <- function(code, data = list(), fileext = ".R", envir = parent.frame()) {
+renv_test_code <- function(code, data = list(), fileext = ".R", scope = parent.frame()) {
   code <- do.call(substitute, list(substitute(code), data))
-  file <- renv_scope_tempfile("renv-code-", fileext = fileext, envir = envir)
+  file <- renv_scope_tempfile("renv-code-", fileext = fileext, scope = scope)
 
   writeLines(deparse(code), con = file)
   file

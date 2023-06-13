@@ -253,7 +253,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   lockfile <- lockfile %||% renv_lockfile_load(project)
 
   # signal that we're running synchronization checks
-  renv_scope_binding("_renv_project_synchronized_check_running", TRUE)
+  renv_scope_binding(renv_envir_self(), "_renv_project_synchronized_check_running", TRUE)
 
   # be quiet when checking for dependencies in this scope
   # https://github.com/rstudio/renv/issues/1181
@@ -351,7 +351,7 @@ renv_project_lock <- function(project = NULL) {
   project <- renv_project_resolve(project)
   path <- file.path(project, "renv/lock")
   ensure_parent_directory(path)
-  renv_scope_lock(path, envir = parent.frame())
+  renv_scope_lock(path, scope = parent.frame())
 
 }
 
