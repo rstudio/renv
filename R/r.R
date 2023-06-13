@@ -48,7 +48,6 @@ r_exec_error <- function(package, output, label, extra) {
     message = sprintf("%s of package '%s' failed [%s]", label, package, extra),
     detail = all
   )
-  stop(error)
 
 }
 

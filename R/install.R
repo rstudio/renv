@@ -630,7 +630,7 @@ renv_install_test <- function(package) {
   # the actual code we'll run in the other process
   code <- substitute({
     options(warn = 1L)
-    library(package)
+    library(package, character.only = TRUE)
   }, list(package = package))
 
   # write it to a tempfile
