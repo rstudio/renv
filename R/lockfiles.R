@@ -96,6 +96,12 @@
 #' Note that the `Name` field may be empty. In that case, a project-local Python
 #' environment will be used instead (when not directly using a system copy of Python).
 #'
+#' # Caveats
+#'
+#' These functions are primarily intended for expert users -- in most cases,
+#' [snapshot()] and [restore()] are the primariy tools you will need when
+#' creating and using lockfiles.
+#'
 #' @inheritParams snapshot
 #' @inheritParams renv-params
 #'

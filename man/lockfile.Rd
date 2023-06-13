@@ -162,6 +162,12 @@ Note that the \code{Name} field may be empty. In that case, a project-local Pyth
 environment will be used instead (when not directly using a system copy of Python).
 }
 }
+\section{Caveats}{
+These functions are primarily intended for expert users -- in most cases,
+\code{\link[=snapshot]{snapshot()}} and \code{\link[=restore]{restore()}} are the primariy tools you will need when
+creating and using lockfiles.
+}
+
 \seealso{
 Other reproducibility: 
 \code{\link{restore}()},
