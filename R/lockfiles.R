@@ -96,7 +96,86 @@
 #' Note that the `Name` field may be empty. In that case, a project-local Python
 #' environment will be used instead (when not directly using a system copy of Python).
 #'
+#' # Caveats
+#'
+#' These functions are primarily intended for expert users -- in most cases,
+#' [snapshot()] and [restore()] are the primariy tools you will need when
+#' creating and using lockfiles.
+#'
+#' @inheritParams snapshot
+#' @inheritParams renv-params
+#'
+#' @param lockfile An `renv` lockfile; typically created by either
+#'   `lockfile_create()` or `lockfile_read()`.
+#'
+#' @param file A file path, or \R connection.
+#'
 #' @family reproducibility
-#' @name lockfiles
-#' @rdname lockfiles
+#' @name lockfile
+#' @rdname lockfile
 NULL
+
+#' @param libpaths The library paths to be used when generating the lockfile.
+#' @rdname lockfile
+#' @export
+lockfile_create <- function(type = settings$snapshot.type(project = project),
+                            libpaths = .libPaths(),
+                            packages = NULL,
+                            exclude = NULL,
+                            ...,
+                            project = NULL)
+{
+  project <- renv_project_resolve(project)
+
+  renv_lockfile_create(
+    project = project,
+    libpaths = libpaths,
+    type = type,
+    packages = packages,
+    exclude = exclude
+  )
+}
+
+#' @rdname lockfile
+#' @export
+lockfile_read <- function(file = NULL, ..., project = NULL) {
+  project <- renv_project_resolve(project)
+  file <- file %||% renv_paths_lockfile(project = project)
+  renv_lockfile_read(file = file)
+}
+
+#' @rdname lockfile
+#' @export
+lockfile_write <- function(lockfile, file = NULL, ..., project = NULL) {
+  project <- renv_project_resolve(project)
+  file <- file %||% renv_paths_lockfile(project = project)
+  renv_lockfile_write(lockfile, file = file)
+}
+
+#' @param remotes A named \R list, mapping package names to the remote
+#'   specifications to be recorded in the lockfile.
+#'
+#' @param repos A named vector, mapping \R repository names to their URLs.
+#'
+#' @rdname lockfile
+#' @export
+lockfile_modify <- function(lockfile,
+                            ...,
+                            remotes = NULL,
+                            repos = NULL)
+{
+  if (!is.null(repos)) {
+    lockfile$R$Repositories <- as.list(repos)
+  }
+
+  if (!is.null(remotes)) {
+    remotes <- renv_records_resolve(remotes)
+    enumerate(remotes, function(package, remote) {
+      record <- renv_remotes_resolve(remote)
+      renv_lockfile_records(lockfile)[[package]] <<- record
+    })
+  }
+
+  lockfile
+
+}
