@@ -631,7 +631,7 @@ renv_install_test <- function(package) {
   code <- substitute({
     options(warn = 1L)
     library(package, character.only = TRUE)
-  }, list(package))
+  }, list(package = package))
 
   # write it to a tempfile
   script <- renv_scope_tempfile("renv-install-")
