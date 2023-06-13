@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-85</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-87</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p><code>renv</code> now activates the Bioconductor repositories when installing a package from a remote (e.g. GitHub) which declares a Bioconductor dependency (via a non-empty ‘biocViews’ field). (<a href="https://github.com/rstudio/renv/issues/934" class="external-link">#934</a>)</p></li>
+<ul><li><p><code>renv</code> now provides a small family of functions for interacting with <code>renv</code> lockfiles – see <code><a href="../reference/lockfile.html">?lockfile</a></code> for more details. (<a href="https://github.com/rstudio/renv/issues/1438" class="external-link">#1438</a>)</p></li>
+<li><p><code>renv</code> now activates the Bioconductor repositories when installing a package from a remote (e.g. GitHub) which declares a Bioconductor dependency (via a non-empty ‘biocViews’ field). (<a href="https://github.com/rstudio/renv/issues/934" class="external-link">#934</a>)</p></li>
 <li><p><code>renv</code> no longer attempts to query package repositories when checking if a project is synchronzied on startup. (<a href="https://github.com/rstudio/renv/issues/812" class="external-link">#812</a>)</p></li>
 <li><p><code><a href="../reference/update.html">update()</a></code> can now update packages installed from GitLab (<a href="https://github.com/rstudio/renv/issues/136" class="external-link">#136</a>) and BitBucket (<a href="https://github.com/rstudio/renv/issues/1194" class="external-link">#1194</a>).</p></li>
 <li><p><code><a href="../reference/snapshot.html">snapshot()</a></code> now standardises pak metadata so CRAN packages installed via pak look the same as CRAN packages installed with renv or <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> (<a href="https://github.com/rstudio/renv/issues/1239" class="external-link">#1239</a>).</p></li>
