@@ -57,6 +57,26 @@ to install \code{Suggests} dependencies for a package, you can set this to
 \code{c("Imports", "Depends", "LinkingTo", "Suggests")}.
 }
 
+\subsection{\code{ppm.enabled}}{
+
+Enable \href{https://packagemanager.posit.co/}{Posit Package Manager}
+integration in this project? When \code{TRUE}, renv will attempt to transform
+repository URLs used by PPM into binary URLs as appropriate for the
+current Linux platform. Set this to \code{FALSE} if you'd like to continue using
+source-only PPM URLs, or if you find that renv is improperly transforming
+your repository URLs. You can still set and use PPM repositories with this
+option disabled; it only controls whether renv tries to transform source
+repository URLs into binary URLs on your behalf.
+}
+
+\subsection{\code{ppm.ignored.urls}}{
+
+When \href{https://packagemanager.posit.co/}{Posit Package Manager} integration
+is enabled, \code{renv} will attempt to transform source repository URLs into
+binary repository URLs. This setting can be used if you'd like to avoid this
+transformation with some subset of repository URLs.
+}
+
 \subsection{\code{r.version}}{
 
 The version of \R to encode within the lockfile. This can be set as a

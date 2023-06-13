@@ -53,6 +53,7 @@ renv_ppm_transform_impl <- function(url) {
   mirrors <- catch(getCRANmirrors(local.only = TRUE))
   ignored <- c(
     getOption("renv.ppm.ignoredUrls", default = character()),
+    settings$ppm.ignored.urls(),
     mirrors$URL,
     "http://cran.rstudio.com",
     "http://cran.rstudio.org",
@@ -239,6 +240,7 @@ renv_ppm_enabled <- function() {
   if (!is.na(enabled))
     return(truthy(enabled, default = TRUE))
 
+  # support older options as well
   enabled <- Sys.getenv("RENV_RSPM_ENABLED", unset = NA)
   if (!is.na(enabled))
     return(truthy(enabled, default = TRUE))
@@ -251,6 +253,11 @@ renv_ppm_enabled <- function() {
 
   if (disabled)
     return(FALSE)
+
+  # check for project setting
+  enabled <- settings$ppm.enabled()
+  if (!is.null(enabled))
+    return(enabled)
 
   # otherwise, use configuration option
   config$ppm.enabled()

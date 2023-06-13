@@ -364,6 +364,24 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 #' to install `Suggests` dependencies for a package, you can set this to
 #' `c("Imports", "Depends", "LinkingTo", "Suggests")`.
 #'
+#' ## `ppm.enabled`
+#'
+#' Enable [Posit Package Manager](https://packagemanager.posit.co/)
+#' integration in this project? When `TRUE`, renv will attempt to transform
+#' repository URLs used by PPM into binary URLs as appropriate for the
+#' current Linux platform. Set this to `FALSE` if you'd like to continue using
+#' source-only PPM URLs, or if you find that renv is improperly transforming
+#' your repository URLs. You can still set and use PPM repositories with this
+#' option disabled; it only controls whether renv tries to transform source
+#' repository URLs into binary URLs on your behalf.
+#'
+#' ## `ppm.ignored.urls`
+#'
+#' When [Posit Package Manager](https://packagemanager.posit.co/) integration
+#' is enabled, `renv` will attempt to transform source repository URLs into
+#' binary repository URLs. This setting can be used if you'd like to avoid this
+#' transformation with some subset of repository URLs.
+#'
 #' ## `r.version`
 #'
 #' The version of \R to encode within the lockfile. This can be set as a
@@ -474,6 +492,24 @@ settings <- list(
   package.dependency.fields = renv_settings_impl(
     name     = "package.dependency.fields",
     default  = c("Imports", "Depends", "LinkingTo"),
+    scalar   = FALSE,
+    validate = is.character,
+    coerce   = as.character,
+    update   = NULL
+  ),
+
+  ppm.enabled = renv_settings_impl(
+    name     = "ppm.enabled",
+    default  = NULL,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
+    update   = FALSE
+  ),
+
+  ppm.ignored.urls = renv_settings_impl(
+    name     = "ppm.ignored.urls",
+    default  = NULL,
     scalar   = FALSE,
     validate = is.character,
     coerce   = as.character,
