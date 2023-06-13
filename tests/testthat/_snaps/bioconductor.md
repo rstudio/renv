@@ -21,7 +21,7 @@
 # auto-bioc install happens silently
 
     Code
-      install("bioc::Biobase")
+      install("bioc::BiocGenerics")
     Output
       # Downloading packages -------------------------------------------------------
       [no downloads required]
@@ -29,10 +29,8 @@
       # Installing packages into "<tempdir>/<renv-library>"
       The following package(s) will be installed:
       
-      - Biobase      [<version>]
       - BiocGenerics [<version>]
       
       Installing BiocGenerics ... OK [copied from cache]
-      Installing Biobase      ... OK [copied from cache]
-      Installed 2 packages in XXXX seconds.
+      Installed 1 package in XXXX seconds.
 
