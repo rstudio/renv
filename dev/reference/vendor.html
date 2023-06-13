@@ -115,9 +115,10 @@ your usages of these functions to avoid potential breakage.</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>version</dt>
-<dd><p>The version of renv to vendor. If <code>NULL</code> (the default),
-the current version of renv will be used. Ignored if <code>sources</code>
-is non-<code>NULL</code>.</p></dd>
+<dd><p>The version of renv to vendor. A Git tag targets a CRAN
+version and "main" references the latest development version of renv. Use
+a Git branch name or commit SHA to target other versions. Ignored when
+<code>sources</code> is non-<code>NULL</code>.</p></dd>
 
 
 <dt>sources</dt>
