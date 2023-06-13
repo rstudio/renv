@@ -3,6 +3,16 @@ renv_metadata_version <- function() {
   `_renv_metadata`$sha %||% `_renv_metadata`$version
 }
 
+renv_metadata_version_friendly <- function(metadata = `_renv_metadata`) {
+  ver <- metadata$version
+
+  if (renv_metadata_is_dev(metadata)) {
+    ver <- paste0(ver, "; rstudio/renv@", substr(metadata$sha, 1, 7))
+  }
+
+  ver
+}
+
 renv_metadata_is_dev <- function(metadata = `_renv_metadata`) {
   if (!is.null(metadata$sha)) {
     TRUE

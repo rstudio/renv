@@ -749,7 +749,7 @@ renv_load_finish <- function(project, lockfile) {
 renv_load_report_project <- function(project) {
 
   profile <- renv_profile_get()
-  version <- renv_metadata_version()
+  version <- renv_metadata_version_friendly()
 
   if (length(profile)) {
     fmt <- "* (%s) Project '%s' loaded. [renv %s]"

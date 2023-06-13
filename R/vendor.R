@@ -117,7 +117,14 @@ renv_vendor_loader <- function(project, header) {
 
   # replace '..imports..' with the 'utils' imports we use
   imports <- renv_vendor_imports()
-  replacements <- list(imports = imports, version = renv_metadata_version())
+
+  metadata <- as.list(`_renv_metadata`)
+  metadata$embedded <- TRUE
+
+  replacements <- list(
+    imports = imports,
+    metadata = deparse(metadata)
+  )
   contents <- renv_template_replace(template, replacements, format = "..%s..")
 
   all <- c("", header, "", contents)
