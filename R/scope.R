@@ -322,9 +322,9 @@ renv_scope_trace <- function(what, tracer, envir = parent.frame()) {
   call <- sys.call()
   call[[1L]] <- base::trace
   call[["print"]] <- FALSE
-  suppressMessages(eval(call, envir = parent.frame()))
-
   defer(suppressMessages(untrace(substitute(what))), envir = envir)
+
+  suppressMessages(eval(call, envir = parent.frame()))
 
 }
 

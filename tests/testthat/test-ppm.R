@@ -79,3 +79,34 @@ test_that("renv correctly detects RHEL as CentOS for RSPM", {
   expect_equal(platform, "centos7")
 
 })
+
+test_that("URLs like http://foo/bar aren't queried", {
+
+  # pretend to be Ubuntu
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "ubuntu"
+  )
+
+  # emit a condition that we can catch on
+  renv_scope_trace(renv:::renv_ppm_status, quote(
+    renv_condition_signal("bail")
+  ))
+
+  # should exit early
+  status <- tryCatch(
+    renv_ppm_transform_impl("http://foo/bar"),
+    bail = identity
+  )
+
+  expect_identical(status, "http://foo/bar")
+
+  # should emit a condition now
+  status <- tryCatch(
+    renv_ppm_transform_impl("http://foo/bar/baz"),
+    bail = identity
+  )
+
+  expect_s3_class(status, "bail")
+
+})
