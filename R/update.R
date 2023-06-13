@@ -283,7 +283,7 @@ update <- function(packages = NULL,
   }
 
   # get package records
-  renv_scope_binding("_renv_snapshot_hash", FALSE, frame = renv_envir_self())
+  renv_scope_binding(renv_envir_self(), "_renv_snapshot_hash", FALSE)
   records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   packages <- packages %||% names(records)
 

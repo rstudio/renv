@@ -329,13 +329,13 @@ renv_scope_trace <- function(what, tracer, scope = parent.frame()) {
 }
 
 
-renv_scope_binding <- function(symbol, replacement, frame = renv_envir_self(), scope = parent.frame()) {
-  if (exists(symbol, frame, inherits = FALSE)) {
-    old <- renv_binding_replace(symbol, replacement, frame)
-    defer(renv_binding_replace(symbol, old, frame), scope = scope)
+renv_scope_binding <- function(envir, symbol, replacement, scope = parent.frame()) {
+  if (exists(symbol, envir, inherits = FALSE)) {
+    old <- renv_binding_replace(symbol, replacement, envir)
+    defer(renv_binding_replace(symbol, old, envir), scope = scope)
   } else {
-    assign(symbol, replacement, frame)
-    defer(rm(list = symbol, envir = frame, inherits = FALSE), scope = scope)
+    assign(symbol, replacement, envir)
+    defer(rm(list = symbol, envir = envir, inherits = FALSE), scope = scope)
   }
 }
 
