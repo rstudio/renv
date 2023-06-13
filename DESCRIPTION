@@ -1,7 +1,7 @@
 Package: renv
 Type: Package
 Title: Project Environments
-Version: 0.17.3-86
+Version: 0.17.3-87
 Authors@R: c(
     person("Kevin", "Ushey", role = c("aut", "cre"), email = "kevin@rstudio.com",
            comment = c(ORCID = "0000-0003-2880-7407")),
