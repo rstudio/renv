@@ -243,19 +243,5 @@ renv_lockfile_records <- function(lockfile) {
   invisible(x)
 }
 
-renv_lockfile_resolve <- function(lockfile) {
-
-  if (is.character(lockfile)) {
-    if (any(grepl("\n", lockfile)))
-      renv_lockfile_read(text = lockfile)
-    else
-      renv_lockfile_read(file = lockfile)
-  } else {
-    lockfile
-  }
-
-}
-
-
 # for compatibility with older versions of RStudio
 renv_records <- renv_lockfile_records

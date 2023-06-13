@@ -48,7 +48,6 @@ repair <- function(library  = NULL,
 renv_repair_records <- function(packages, lockfile, project) {
 
   lockfile <- lockfile %||% renv_paths_lockfile(project = project)
-  lockfile <- renv_lockfile_resolve(lockfile)
   if (is.null(lockfile))
     return(packages)
 
