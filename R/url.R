@@ -3,7 +3,7 @@ renv_url_parse <- function(url) {
 
   pattern <- paste0(
     "^",
-    "(https?://)?",       # protocol
+    "([^:]+://)?",        # protocol
     "([^/?#]+)",          # domain
     "(?:(/[^?#]*))?",     # path
     "(?:[?]([^#]+))?",    # parameters
