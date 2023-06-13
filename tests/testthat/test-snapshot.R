@@ -395,6 +395,8 @@ test_that("packages installed from CRAN using pak are handled", {
   skip_if_not_installed("pak")
 
   renv_tests_scope()
+  library <- renv_paths_library()
+  ensure_directory(library)
   pak <- renv_namespace_load("pak")
   suppressMessages(pak$pkg_install("toast"))
   record <- renv_snapshot_description(package = "toast")
@@ -414,6 +416,8 @@ test_that("packages installed from Bioconductor using pak are handled", {
   skip_if_not_installed("pak")
 
   renv_tests_scope()
+  library <- renv_paths_library()
+  ensure_directory(library)
   pak <- renv_namespace_load("pak")
   suppressMessages(pak$pkg_install("bioc::Biobase"))
 
