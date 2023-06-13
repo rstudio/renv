@@ -6,9 +6,9 @@
 #' Record current state of the project library in the lockfile
 #'
 #' @description
-#' Call `renv::snapshot()` to update a [lockfile][lockfiles] with the current
-#' state of dependencies in the project library. The lockfile can be used to
-#' later [restore] these dependencies as required.
+#' Call `renv::snapshot()` to update a [lockfile] with the current state of
+#' dependencies in the project library. The lockfile can be used to later
+#' [restore] these dependencies as required.
 #'
 #' It's also possible to call `renv::snapshot()` with a non-renv project,
 #' in which case it will record the current state of dependencies in the

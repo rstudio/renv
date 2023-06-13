@@ -56,7 +56,6 @@ restore <- function(project  = NULL,
   # resolve library, lockfile arguments
   libpaths <- renv_libpaths_resolve(library)
   lockfile <- lockfile %||% renv_lockfile_load(project = project)
-  lockfile <- renv_lockfile_resolve(lockfile)
 
   # activate the requested library (place at front of library paths)
   library <- nth(libpaths, 1L)
