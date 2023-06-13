@@ -1,11 +1,11 @@
 
-renv_test_scope_python <- function(envir = parent.frame()) {
+renv_test_scope_python <- function(scope = parent.frame()) {
   renv_scope_envvars(
     PATH = Sys.getenv("PATH"),
     RENV_PYTHON = NULL,
     RETICULATE_PYTHON = NULL,
     RETICULATE_PYTHON_ENV = NULL,
-    envir = envir
+    scope = scope
   )
 }
 
