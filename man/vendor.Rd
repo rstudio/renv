@@ -7,9 +7,10 @@
 vendor(version = NULL, sources = NULL, project = getwd())
 }
 \arguments{
-\item{version}{The version of renv to vendor. If \code{NULL} (the default),
-the current version of renv will be used. Ignored if \code{sources}
-is non-\code{NULL}.}
+\item{version}{The version of renv to vendor. A Git tag targets a CRAN
+version and "main" references the latest development version of renv. Use
+a Git branch name or commit SHA to target other versions. Ignored when
+\code{sources} is non-\code{NULL}.}
 
 \item{sources}{The path to local renv sources to be vendored.}
 
