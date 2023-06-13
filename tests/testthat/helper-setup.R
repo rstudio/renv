@@ -1,7 +1,7 @@
 
 # Code that needs to run once, before a suite of tests is run.
 # Here, "suite of tests" might also mean "a single test" interactively.
-renv_tests_setup <- function(envir = parent.frame()) {
+renv_tests_setup <- function(scope = parent.frame()) {
 
   # only run if interactive, or if testing
   ok <- interactive() || testthat::is_testing()
@@ -23,22 +23,22 @@ renv_tests_setup <- function(envir = parent.frame()) {
   renv_tests_setup_packages()
 
   # fix up the library paths if needed for testing
-  renv_tests_setup_libpaths(envir = envir)
+  renv_tests_setup_libpaths(scope = scope)
 
   # initialize test repositories
-  renv_tests_setup_repos(envir = envir)
+  renv_tests_setup_repos(scope = scope)
 
   # scope relevant environment variables
-  renv_tests_setup_envvars(envir = envir)
-  renv_tests_setup_options(envir = envir)
+  renv_tests_setup_envvars(scope = scope)
+  renv_tests_setup_options(scope = scope)
 
 }
 
 
-renv_tests_setup_envvars <- function(envir = parent.frame()) {
+renv_tests_setup_envvars <- function(scope = parent.frame()) {
 
   # set up root directory
-  root <- ensure_directory(renv_scope_tempfile(envir = envir))
+  root <- ensure_directory(renv_scope_tempfile(scope = scope))
 
   renv_scope_envvars(
     # disable locking in this scope
@@ -50,13 +50,13 @@ renv_tests_setup_envvars <- function(envir = parent.frame()) {
     RENV_PATHS_LOCKFILE = NULL,
     RENV_PATHS_RENV = NULL,
     RENV_AUTOLOAD_ENABLED = FALSE,
-    envir = envir
+    scope = scope
   )
 
   if (!renv_envvar_exists("GITHUB_PAT")) {
     token <- tryCatch(gitcreds::gitcreds_get(), error = function(e) NULL)
     if (!is.null(token)) {
-      renv_scope_envvars(GITHUB_PAT = token$password, envir = envir)
+      renv_scope_envvars(GITHUB_PAT = token$password, scope = scope)
     }
   }
 
@@ -64,11 +64,11 @@ renv_tests_setup_envvars <- function(envir = parent.frame()) {
   configvars <- grep("^RENV_CONFIG_", names(envvars), value = TRUE)
   renv_scope_envvars(
     list = rep_named(configvars, list(NULL)),
-    envir = envir
+    scope = scope
   )
 }
 
-renv_tests_setup_options <- function(envir = parent.frame()) {
+renv_tests_setup_options <- function(scope = parent.frame()) {
 
   renv_scope_options(
     renv.bootstrap.quiet = TRUE,
@@ -78,7 +78,7 @@ renv_tests_setup_options <- function(envir = parent.frame()) {
     restart = NULL,
     renv.config.install.transactional = FALSE,
     renv.tests.running = TRUE,
-    envir = envir
+    scope = scope
   )
 
 }
@@ -136,17 +136,17 @@ renv_tests_repopath <- function() {
   getOption("renv.tests.repopath")
 }
 
-renv_tests_setup_libpaths <- function(envir = parent.frame()) {
+renv_tests_setup_libpaths <- function(scope = parent.frame()) {
 
   # remove the sandbox from the library paths, just in case we tried
   # to run tests from an R session where the sandbox was active
   old <- .libPaths()
   new <- grep("renv/sandbox", old, fixed = TRUE, invert = TRUE, value = TRUE)
-  renv_scope_libpaths(new, envir = envir)
+  renv_scope_libpaths(new, scope = scope)
 
 }
 
-renv_tests_setup_repos <- function(envir = parent.frame()) {
+renv_tests_setup_repos <- function(scope = parent.frame()) {
 
   # generate our dummy repository
   repopath <- getOption("renv.tests.repopath")
@@ -154,8 +154,8 @@ renv_tests_setup_repos <- function(envir = parent.frame()) {
     return()
   }
 
-  repopath <- renv_scope_tempfile("renv-repos-", envir = envir)
-  renv_scope_options(renv.tests.repopath = repopath, envir = envir)
+  repopath <- renv_scope_tempfile("renv-repos-", scope = scope)
+  renv_scope_options(renv.tests.repopath = repopath, scope = scope)
 
   repopath <- renv_tests_repopath()
   contrib <- file.path(repopath, "src/contrib")
@@ -163,7 +163,7 @@ renv_tests_setup_repos <- function(envir = parent.frame()) {
 
   # copy package stuff to tempdir (because we'll mutate them a bit)
   source <- renv_tests_path("packages")
-  target <- renv_scope_tempfile("renv-packages-", envir = envir)
+  target <- renv_scope_tempfile("renv-packages-", scope = scope)
   renv_file_copy(source, target)
   renv_scope_wd(target)
 

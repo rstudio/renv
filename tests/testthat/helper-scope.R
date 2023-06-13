@@ -1,29 +1,29 @@
 
 renv_tests_scope <- function(packages = character(),
                              project = NULL,
-                             envir = parent.frame())
+                             scope = parent.frame())
 {
   # use private repositories in this scope
-  renv_tests_scope_repos(envir = envir)
+  renv_tests_scope_repos(scope = scope)
 
   # use sandbox in this scope, to guard against packages like 'bread'
   # being installed into the system library
-  renv_scope_sandbox(envir = envir)
+  renv_scope_sandbox(scope = scope)
 
   # most tests will call init() which changes `R_LIBS_USER`;
   # this ensures we reset to the original value when the test is done
-  renv_scope_envvars(R_LIBS_USER = NULL, envir = envir)
+  renv_scope_envvars(R_LIBS_USER = NULL, scope = scope)
 
   # also ensure we 'exit' the current project after completion
-  renv_scope_envvars(RENV_PROJECT = "", envir = envir)
+  renv_scope_envvars(RENV_PROJECT = "", scope = scope)
 
   # move to own test directory
-  project <- project %||% renv_scope_tempfile("renv-test-", envir = envir)
+  project <- project %||% renv_scope_tempfile("renv-test-", scope = scope)
   ensure_directory(project)
-  renv_scope_wd(project, envir = envir)
+  renv_scope_wd(project, scope = scope)
 
   # scope project here so that it's unset after load, just in case
-  defer(renv_project_clear(), envir = envir)
+  defer(renv_project_clear(), scope = scope)
 
   # create empty renv directory
   dir.create("renv")
@@ -33,15 +33,15 @@ renv_tests_scope <- function(packages = character(),
   writeLines(code, "dependencies.R")
 
   # use temporary library
-  lib <- renv_scope_tempfile("renv-library-", envir = envir)
+  lib <- renv_scope_tempfile("renv-library-", scope = scope)
   ensure_directory(lib)
-  renv_scope_libpaths(lib, envir = envir)
+  renv_scope_libpaths(lib, scope = scope)
 
   # return path to project directory
   invisible(project)
 }
 
-renv_tests_scope_repos <- function(envir = parent.frame()) {
+renv_tests_scope_repos <- function(scope = parent.frame()) {
 
   # get path to on-disk repository
   repopath <- renv_tests_repopath()
@@ -53,18 +53,18 @@ renv_tests_scope_repos <- function(envir = parent.frame()) {
   renv_scope_options(
     pkgType = "source",
     repos   = repos,
-    envir   = envir
+    scope   = scope
   )
 
 }
 
-renv_tests_scope_system_cache <- function(envir = parent.frame()) {
+renv_tests_scope_system_cache <- function(scope = parent.frame()) {
   skip_on_cran()
-  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"), envir = envir)
-  renv_scope_envvars(RENV_PATHS_ROOT = renv_paths_root_default_impl(), envir = envir)
+  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"), scope = scope)
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_paths_root_default_impl(), scope = scope)
 }
 
 renv_scope_local <- function() {
   path <- renv_tests_path("local")
-  renv_scope_envvars(RENV_PATHS_LOCAL = path, envir = parent.frame())
+  renv_scope_envvars(RENV_PATHS_LOCAL = path, scope = parent.frame())
 }

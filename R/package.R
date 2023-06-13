@@ -433,7 +433,7 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
 
   # create extraction directory
   old <- renv_scope_tempfile("renv-package-old-")
-  new <- renv_scope_tempfile("renv-package-new-", envir = parent.frame())
+  new <- renv_scope_tempfile("renv-package-new-", scope = parent.frame())
   ensure_directory(c(old, new))
 
   # decompress archive to dir

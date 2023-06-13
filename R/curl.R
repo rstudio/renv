@@ -53,10 +53,9 @@ renv_curl_validate_impl <- function(curl) {
   footer <- sprintf(fmt, curl)
   all <- c("", header(paste(curl, "--version"), prefix = "$"), message, "", footer)
 
-  envir <- renv_dynamic_envir()
   defer(
     message(paste(all, collapse = "\n")),
-    envir = envir
+    scope = renv_dynamic_envir()
   )
 
   return(curl)
