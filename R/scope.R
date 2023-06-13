@@ -331,8 +331,8 @@ renv_scope_trace <- function(what, tracer, scope = parent.frame()) {
 
 renv_scope_binding <- function(envir, symbol, replacement, scope = parent.frame()) {
   if (exists(symbol, envir, inherits = FALSE)) {
-    old <- renv_binding_replace(symbol, replacement, envir)
-    defer(renv_binding_replace(symbol, old, envir), scope = scope)
+    old <- renv_binding_replace(envir, symbol, replacement)
+    defer(renv_binding_replace(envir, symbol, old), scope = scope)
   } else {
     assign(symbol, replacement, envir)
     defer(rm(list = symbol, envir = envir, inherits = FALSE), scope = scope)

@@ -60,7 +60,7 @@ renv_sandbox_activate_impl <- function(project = NULL, path = NULL) {
 
   # override .Library.site
   base <- .BaseNamespaceEnv
-  renv_binding_replace(".Library.site", NULL, envir = base)
+  renv_binding_replace(base, ".Library.site", NULL)
 
   if (config$sandbox.enabled()) {
 
@@ -70,7 +70,7 @@ renv_sandbox_activate_impl <- function(project = NULL, path = NULL) {
     renv_sandbox_generate(path)
 
     # override .Library
-    renv_binding_replace(".Library", path, envir = base)
+    renv_binding_replace(base, ".Library", path)
 
   }
 
@@ -178,8 +178,8 @@ renv_sandbox_deactivate <- function() {
 
   # restore old bindings
   base <- .BaseNamespaceEnv
-  renv_binding_replace(".Library",      renv_libpaths_system(), envir = base)
-  renv_binding_replace(".Library.site", renv_libpaths_site(),   envir = base)
+  renv_binding_replace(base, ".Library",      renv_libpaths_system())
+  renv_binding_replace(base, ".Library.site", renv_libpaths_site())
 
   # update library paths
   new <- renv_vector_diff(old, syslibs)

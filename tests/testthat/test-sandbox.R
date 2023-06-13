@@ -6,8 +6,8 @@ renv_scoped_sandbox <- function(scope = parent.frame()) {
 
   old <- list(.Library.site, .Library, .libPaths())
   defer(scope = scope, {
-    renv_binding_replace(".Library.site", old[[1]], envir = base)
-    renv_binding_replace(".Library", old[[2]], envir = base)
+    renv_binding_replace(base, ".Library.site", old[[1]])
+    renv_binding_replace(base, ".Library", old[[2]])
     .libPaths(old[[3]])
   })
 }
