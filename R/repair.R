@@ -2,7 +2,7 @@
 #' Repair a project library
 #'
 #' Repair a project library whose cache symlinks have become broken.
-#' renv will attempt to reinstall the requisite packages.
+#' renv will attempt to re-install the requisite packages.
 #'
 #' @inheritParams renv-params
 #'
@@ -35,6 +35,8 @@ repair <- function(library  = NULL,
   }
 
   # try to find records for these packages in the lockfile
+  # TODO: what if one of the requested packages isn't in the lockfile?
+  lockfile <- lockfile %||% renv_lockfile_load(project = project)
   records <- renv_repair_records(packages, lockfile, project)
 
   # install these records
@@ -46,13 +48,7 @@ repair <- function(library  = NULL,
 }
 
 renv_repair_records <- function(packages, lockfile, project) {
-
-  lockfile <- lockfile %||% renv_paths_lockfile(project = project)
-  if (is.null(lockfile))
-    return(packages)
-
   map(packages, function(package) {
     lockfile$Packages[[package]] %||% package
   })
-
 }
