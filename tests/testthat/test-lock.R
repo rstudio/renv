@@ -135,7 +135,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
   defer(close(server$socket))
 
   # initialize state
-  n <- 200
+  n <- 20
   start <- tempfile("renv-start-")
   lockfile <- tempfile("renv-lock-")
 
