@@ -76,24 +76,12 @@ local({
   if (renv_bootstrap_load(project, libpath, version))
     return(TRUE)
 
-  # perform bootstrap
-  bootstrap(version, libpath)
-
-  # exit early if we're just testing bootstrap
-  if (!is.na(Sys.getenv("RENV_BOOTSTRAP_INSTALL_ONLY", unset = NA)))
-    return(TRUE)
-
-  # try again to load
-  if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-    return(renv::load())
+  if (renv_bootstrap_in_rstudio()) {
+    setHook("rstudio.sessionInit", function(...) {
+      renv_bootstrap_bootstrap(version, libpath)
+    })
+  } else {
+    renv_bootstrap_bootstrap(version, libpath)
   }
-
-  # failed to download or load renv; warn the user
-  msg <- c(
-    "Failed to find an renv installation: the project will not be loaded.",
-    "Use `renv::activate()` to re-initialize the project."
-  )
-
-  warning(paste(msg, collapse = "\n"), call. = FALSE)
 
 })
