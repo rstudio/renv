@@ -29,6 +29,9 @@ local({
         return(tolower(envval) %in% c("true", "t", "1"))
     }
 
+    # add empty line to break up bootstrapping from normal output
+    catf("")
+
     # enable by default
     TRUE
 
