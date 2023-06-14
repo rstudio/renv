@@ -112,7 +112,7 @@ test_that("we can refresh locks", {
   new <- file.info(path, extra_cols = FALSE)
 
   # check for updated time
-  expect_gt(new$ctime, old$ctime)
+  expect_gt(new$mtime, old$mtime)
 
 })
 
@@ -173,9 +173,6 @@ test_that("multiple renv processes successfully acquire, release locks", {
 
     code = {
 
-      # use rlang error handler
-      options(error = rlang::entrace)
-
       # wait for start file
       renv:::wait_until(file.exists, start)
 
@@ -190,19 +187,9 @@ test_that("multiple renv processes successfully acquire, release locks", {
       }
 
       # update shared file with lock acquired
-      number <- tryCatch(
-
-        withCallingHandlers(
-          increment(),
-          error = rlang::entrace
-        ),
-
-        error = function(cnd) {
-          print(cnd)
-          -1
-        }
-
-      )
+      number <- renv:::catch(increment())
+      if (inherits(number, "error"))
+        number <- -1L
 
       # notify parent
       conn <- socketConnection(port = port, open = "w+b", blocking = TRUE)
@@ -238,7 +225,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
   # wait for all the processes to communicate
   responses <- stack()
   for (i in 1:n) {
-    conn <- renv_socket_accept(server$socket, open = "r+b", timeout = 10)
+    conn <- renv_socket_accept(server$socket, open = "r+b", timeout = 60)
     data <- unserialize(conn)
     close(conn)
     responses$push(data)
