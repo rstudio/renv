@@ -11,6 +11,10 @@ renv_watchdog_init <- function() {
 
   reg.finalizer(renv_envir_self(), function(envir) {
 
+    # nothing to do if watchdog isn't running
+    if (!renv_watchdog_running())
+      return()
+
     # tell watchdog to shutdown
     renv_watchdog_notify("Shutdown")
     renv_watchdog_unload()
@@ -126,7 +130,8 @@ renv_watchdog_start_impl <- function() {
   # store information about the running process
   `_renv_watchdog_process` <<- unserialize(conn)
 
-  invisible(TRUE)
+  # return TRUE to indicate process was started
+  TRUE
 
 }
 
@@ -162,7 +167,6 @@ renv_watchdog_notify_impl <- function(method, data = list()) {
 }
 
 renv_watchdog_request <- function(method, data = list()) {
-
   tryCatch(
     renv_watchdog_request_impl(method, data),
     error = warning

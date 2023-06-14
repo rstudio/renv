@@ -603,3 +603,11 @@ timer <- function(units = "secs") {
   )
 
 }
+
+renv <- function() {
+  envir <- do.call(attach, list(what = NULL, name = "renv"))
+  renv <- renv_namespace_load("renv")
+  list2env(as.list(renv), envir = envir)
+}
+
+assert <- function(...) stopifnot(...)
