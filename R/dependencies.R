@@ -1,5 +1,5 @@
 
-`_renv_dependencies` <- new.env(parent = emptyenv())
+the$dependencies <- new.env(parent = emptyenv())
 
 #' Find R package dependencies in a project
 #'
@@ -214,8 +214,8 @@ renv_dependencies_impl <- function(
   # check and see if we've pre-computed dependencies for this path, and
   # retrieve those pre-computed dependencies if so
   if (length(path) == 1L) {
-    if (exists(path, envir = `_renv_dependencies`)) {
-      cache <- get(path, envir = `_renv_dependencies`)
+    if (exists(path, envir = the$dependencies)) {
+      cache <- get(path, envir = the$dependencies)
       return(take(cache, field))
     }
   }
@@ -1578,20 +1578,20 @@ renv_dependencies_require <- function(package, type = NULL) {
 
 }
 
-`_renv_dependencies_state` <- NULL
+the$dependencies_state <- NULL
 
 renv_dependencies_state <- function(key = NULL) {
-  state <- `_renv_dependencies_state`
+  state <- the$dependencies_state
   if (is.null(key)) state else state[[key]]
 }
 
 renv_dependencies_begin <- function(root = NULL) {
   state <- env(root = root, scanned = env(), problems = stack())
-  `_renv_dependencies_state` <<- state
+  the$dependencies_state <- state
 }
 
 renv_dependencies_end <- function() {
-  `_renv_dependencies_state` <<- NULL
+  the$dependencies_state <- NULL
 }
 
 renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
@@ -1663,8 +1663,8 @@ renv_dependencies_report <- function(errors) {
 renv_dependencies_scope <- function(path, action, scope = parent.frame()) {
 
   path <- renv_path_normalize(path, mustWork = TRUE)
-  if (exists(path, envir = `_renv_dependencies`))
-    return(get(path, envir = `_renv_dependencies`))
+  if (exists(path, envir = the$dependencies))
+    return(get(path, envir = the$dependencies))
 
   errors <- config$dependency.errors()
   message <- paste(action, "aborted")
@@ -1674,8 +1674,8 @@ renv_dependencies_scope <- function(path, action, scope = parent.frame()) {
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
   )
 
-  assign(path, deps, envir = `_renv_dependencies`)
-  defer(rm(list = path, envir = `_renv_dependencies`), scope = scope)
+  assign(path, deps, envir = the$dependencies)
+  defer(rm(list = path, envir = the$dependencies), scope = scope)
 
   invisible(deps)
 

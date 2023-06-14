@@ -1,6 +1,6 @@
 
 # aliases used primarily for nicer / normalized text output
-`_renv_aliases` <- list(
+the$aliases <- list(
   bioc         = "Bioconductor",
   bioconductor = "Bioconductor",
   bitbucket    = "Bitbucket",
@@ -17,5 +17,5 @@
 )
 
 alias <- function(text) {
-  `_renv_aliases`[[text]] %||% text
+  the$aliases[[text]] %||% text
 }

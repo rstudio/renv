@@ -1,10 +1,10 @@
 
 # The path to the currently-loaded project, if any.
 # NULL when no project is currently loaded.
-`_renv_project_path` <- NULL
+the$project_path <- NULL
 
 # Flag indicating whether we're checking if the project is synchronized.
-`_renv_project_synchronized_check_running` <- FALSE
+the$project_synchronized_check_running <- FALSE
 
 #' Retrieve the active project
 #'
@@ -29,18 +29,18 @@ project <- function(default = NULL) {
 }
 
 renv_project_get <- function(default = NULL) {
-  `_renv_project_path` %||% default
+  the$project_path %||% default
 }
 
 # NOTE: RENV_PROJECT kept for backwards compatibility with RStudio
 renv_project_set <- function(project) {
-  `_renv_project_path` <<- project
+  the$project_path <- project
   Sys.setenv(RENV_PROJECT = project)
 }
 
 # NOTE: 'RENV_PROJECT' kept for backwards compatibility with RStudio
 renv_project_clear <- function() {
-  `_renv_project_path` <<- NULL
+  the$project_path <- NULL
   Sys.unsetenv("RENV_PROJECT")
 }
 
@@ -253,7 +253,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   lockfile <- lockfile %||% renv_lockfile_load(project)
 
   # signal that we're running synchronization checks
-  renv_scope_binding(renv_envir_self(), "_renv_project_synchronized_check_running", TRUE)
+  renv_scope_binding(the, "project_synchronized_check_running", TRUE)
 
   # be quiet when checking for dependencies in this scope
   # https://github.com/rstudio/renv/issues/1181
@@ -344,7 +344,7 @@ renv_project_lock <- function(project = NULL) {
   if (!config$locking.enabled())
     return()
 
-  path <- `_renv_project_path`
+  path <- the$project_path
   if (!identical(project, path))
     return()
 
@@ -356,5 +356,5 @@ renv_project_lock <- function(project = NULL) {
 }
 
 renv_project_loaded <- function(project) {
-  !is.null(project) && identical(project, `_renv_project_path`)
+  !is.null(project) && identical(project, the$project_path)
 }

@@ -1,9 +1,9 @@
 
 renv_metadata_version <- function() {
-  `_renv_metadata`$sha %||% `_renv_metadata`$version
+  the$metadata$sha %||% the$metadata$version
 }
 
-renv_metadata_version_friendly <- function(metadata = `_renv_metadata`) {
+renv_metadata_version_friendly <- function(metadata = the$metadata) {
   ver <- metadata$version
 
   if (renv_metadata_is_dev(metadata)) {
@@ -13,7 +13,7 @@ renv_metadata_version_friendly <- function(metadata = `_renv_metadata`) {
   ver
 }
 
-renv_metadata_is_dev <- function(metadata = `_renv_metadata`) {
+renv_metadata_is_dev <- function(metadata = the$metadata) {
   if (!is.null(metadata$sha)) {
     TRUE
   } else {
@@ -22,27 +22,19 @@ renv_metadata_is_dev <- function(metadata = `_renv_metadata`) {
 }
 
 renv_metadata_embedded <- function() {
-  `_renv_metadata`[["embedded"]]
+  the$metadata$embedded
 }
 
 renv_metadata_init <- function() {
 
   # only done for non-embedded renv
-  if (exists("_renv_metadata", envir = renv_envir_self()))
+  if (exists("metadata", envir = the))
     return()
 
-  # set up metadata
-  metadata <- list(
+  the$metadata <- list(
     embedded = FALSE,
     version  = renv_namespace_version("renv"),
     sha = packageDescription("renv")[["RemoteSha"]]
-  )
-
-  # create in namespace
-  assign(
-    x     = "_renv_metadata",
-    value = as.environment(metadata),
-    envir = renv_envir_self()
   )
 
 }

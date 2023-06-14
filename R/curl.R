@@ -1,5 +1,5 @@
 
-`_renv_curl_valid` <- new.env(parent = emptyenv())
+the$curl_valid <- new.env(parent = emptyenv())
 
 renv_curl_exe <- function() {
 
@@ -16,7 +16,7 @@ renv_curl_exe <- function() {
 
 renv_curl_validate <- function(curl) {
 
-  `_renv_curl_valid`[[curl]] <- `_renv_curl_valid`[[curl]] %||% {
+  the$curl_valid[[curl]] <- the$curl_valid[[curl]] %||% {
     renv_curl_validate_impl(curl)
   }
 

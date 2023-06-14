@@ -1,5 +1,5 @@
 
-`_renv_dotdot` <- as.symbol("..")
+the$dotdot <- as.symbol("..")
 
 . <- structure(list(), class = "__renv_dotty__")
 
@@ -82,6 +82,6 @@ renv_dotty_eval <- function(parts, value, envir) {
 
 renv_dotty_find <- function(parts) {
   for (i in seq_along(parts))
-    if (is.symbol(parts[[i]]) && parts[[i]] == `_renv_dotdot`)
+    if (is.symbol(parts[[i]]) && parts[[i]] == the$dotdot)
       return(i)
 }

@@ -1,14 +1,14 @@
 
-`_renv_settings` <- new.env(parent = emptyenv())
+the$settings <- new.env(parent = emptyenv())
 
 renv_settings_default <- function(name) {
-  default <- `_renv_settings`[[name]]$default
+  default <- the$settings[[name]]$default
   renv_options_override("renv.settings", name, default)
 }
 
 renv_settings_defaults <- function() {
 
-  keys <- ls(envir = `_renv_settings`, all.names = TRUE)
+  keys <- ls(envir = the$settings, all.names = TRUE)
   vals <- lapply(keys, renv_settings_default)
   names(vals) <- keys
   vals[order(names(vals))]
@@ -22,10 +22,10 @@ renv_settings_validate <- function(name, value) {
     return(renv_settings_default(name))
 
   # run coercion method
-  value <- `_renv_settings`[[name]]$coerce(value)
+  value <- the$settings[[name]]$coerce(value)
 
   # validate the user-provided value
-  validate <- `_renv_settings`[[name]]$validate
+  validate <- the$settings[[name]]$validate
   ok <- case(
     is.character(validate) ~ value %in% validate,
     is.function(validate)  ~ validate(value),
@@ -67,7 +67,7 @@ renv_settings_read_impl <- function(path) {
   )
 
   # keep only known settings
-  known <- ls(envir = `_renv_settings`, all.names = TRUE)
+  known <- ls(envir = the$settings, all.names = TRUE)
   settings <- keep(settings, known)
 
   # validate
@@ -124,7 +124,7 @@ renv_settings_get <- function(project, name = NULL) {
 
   # when 'name' is NULL, return all settings
   if (is.null(name)) {
-    names <- ls(envir = `_renv_settings`, all.names = TRUE)
+    names <- ls(envir = the$settings, all.names = TRUE)
     settings <- lapply(names, renv_settings_get, project = project)
     names(settings) <- names
     return(settings[order(names(settings))])
@@ -174,7 +174,7 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
 }
 
 renv_settings_updated <- function(project, name, old, new) {
-  update <- `_renv_settings`[[name]]$update %||% function(...) {}
+  update <- the$settings[[name]]$update %||% function(...) {}
   update(project, old, new)
 }
 
@@ -185,7 +185,7 @@ renv_settings_persist <- function(project, settings) {
 
   # figure out which settings are scalar
   scalar <- map_lgl(names(settings), function(name) {
-    `_renv_settings`[[name]]$scalar
+    the$settings[[name]]$scalar
   })
 
   # use that to determine which objects should be boxed
@@ -298,7 +298,7 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 
   force(name)
 
-  `_renv_settings`[[name]] <- list(
+  the$settings[[name]] <- list(
     default  = default,
     coerce   = coerce,
     scalar   = scalar,
