@@ -192,7 +192,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
         number <- -1L
 
       # notify parent
-      conn <- socketConnection(port = port, open = "w+b", blocking = TRUE)
+      conn <- socketConnection(port = port, open = "wb", blocking = TRUE)
       serialize(number, connection = conn)
       close(conn)
 
@@ -225,7 +225,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
   # wait for all the processes to communicate
   responses <- stack()
   for (i in 1:n) {
-    conn <- renv_socket_accept(server$socket, open = "r+b", timeout = 60)
+    conn <- renv_socket_accept(server$socket, open = "rb", timeout = 60)
     data <- unserialize(conn)
     close(conn)
     responses$push(data)
