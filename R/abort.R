@@ -16,12 +16,15 @@ abort <- function(message, ..., class = NULL) {
 
   # if we got here, then there wasn't any tryCatch() handler on the stack
   # handle printing of the error ourselves, and then stop with fallback
-  writeLines(conditionMessage(cnd), con = stderr())
+  writeLines(paste("Error:", conditionMessage(cnd)), con = stderr())
 
   # create the fallback, but 'dodge' the existing error handlers
   fallback <- cnd
   fallback$message <- ""
   class(fallback) <- "condition"
+
+  # disable error printing for the empty error
+  renv_scope_options(show.error.messages = FALSE)
 
   # now throw the error
   stop(fallback)
