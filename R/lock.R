@@ -44,6 +44,7 @@ renv_lock_acquire <- function(path) {
 
 }
 
+# https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
 renv_lock_acquire_impl <- function(path) {
 
   # check for orphaned locks
@@ -55,8 +56,16 @@ renv_lock_acquire_impl <- function(path) {
   # make sure parent directory exists
   ensure_parent_directory(path)
 
-  # https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
-  dir.create(path, mode = "0755")
+  # write id to proxy file
+  proxy <- tempfile("renv-", tmpdir = dirname(path), fileext = ".lock")
+  id <- paste(Sys.getpid(), as.numeric(Sys.time()), sep = "-")
+  writeLines(id, con = proxy)
+
+  # attempt to link to the target path location
+  ok <- file.link(proxy, path)
+
+  # check that we successfully linked _and_ the file contents match
+  ok && identical(readLines(path), id)
 
 }
 

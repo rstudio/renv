@@ -126,6 +126,7 @@ test_that("old locks are considered 'orphaned'", {
 test_that("multiple renv processes successfully acquire, release locks", {
 
   skip_on_cran()
+  skip_if(getRversion() < "4.0.0")
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
   renv_scope_envvars(RENV_WATCHDOG_ENABLED = "FALSE")
@@ -135,7 +136,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
   defer(close(server$socket))
 
   # initialize state
-  n <- 20
+  n <- 50
   start <- tempfile("renv-start-")
   lockfile <- tempfile("renv-lock-")
 
