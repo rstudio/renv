@@ -120,7 +120,7 @@ renv_watchdog_start_impl <- function() {
   )
 
   # wait for connection from watchdog server
-  conn <- renv_socket_accept(socket, open = "r+b", timeout = 10)
+  conn <- renv_socket_accept(socket, open = "rb", timeout = 10)
   defer(close(conn))
 
   # store information about the running process
@@ -147,7 +147,7 @@ renv_watchdog_notify_impl <- function(method, data = list()) {
 
   # connect to the running server
   port <- renv_watchdog_port()
-  conn <- renv_socket_connect(port, open = "w+b")
+  conn <- renv_socket_connect(port, open = "wb")
 
   # close the connection on exit
   defer(close(conn))
@@ -177,7 +177,7 @@ renv_watchdog_request_impl <- function(method, data = list()) {
 
   # connect to the running server
   port <- renv_watchdog_port()
-  outgoing <- renv_socket_connect(port, open = "w+b")
+  outgoing <- renv_socket_connect(port, open = "wb")
   defer(close(outgoing))
 
   # create our own socket server
@@ -189,7 +189,7 @@ renv_watchdog_request_impl <- function(method, data = list()) {
   serialize(message, connection = outgoing)
 
   # now, open a new connection to get the response
-  incoming <- renv_socket_accept(server$socket, open = "r+b")
+  incoming <- renv_socket_accept(server$socket, open = "rb")
   defer(close(incoming))
 
   # read the response
