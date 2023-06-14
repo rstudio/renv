@@ -1,7 +1,7 @@
 test_that("renv_project_synchronized_check() reports if no packages installed", {
 
   renv_tests_scope("breakfast")
-  install()
+  install("bread")
   init()
   unlink("renv/library", recursive = TRUE)
 
