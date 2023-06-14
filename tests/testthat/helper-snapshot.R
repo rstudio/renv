@@ -28,6 +28,8 @@ strip_dirs <- function(x) {
 
   # other pattern-based filters here
   x <- gsub("renv-library-\\w+", "<renv-library>", x)
+  x <- gsub(renv_path_aliased(getwd()), "<wd>", x, fixed = TRUE)
+  x <- gsub(renv_path_aliased(tempdir()), "<tempdir>", x, fixed = TRUE)
 
   x
 
