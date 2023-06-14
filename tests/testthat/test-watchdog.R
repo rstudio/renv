@@ -86,6 +86,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
       # notify parent
       conn <- socketConnection(port = port, open = "w+b", blocking = TRUE)
       serialize(number, connection = conn)
+      close(conn)
 
       # we're done
       invisible()
