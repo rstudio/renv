@@ -9,10 +9,6 @@
   renv_zzz_attach()
 }
 
-if (identical(.packageName, "renv")) {
-  renv_zzz_run()
-}
-
 .onUnload <- function(libpath) {
 
   renv_task_unload()
@@ -171,6 +167,10 @@ renv_zzz_repos <- function() {
   renv_scope_envvars(R_DEFAULT_SERIALIZE_VERSION = "2")
   write_PACKAGES(tgt, type = "source")
 
+}
+
+if (identical(.packageName, "renv")) {
+  renv_zzz_run()
 }
 
 # if renv is being embedded in another package, make sure we
