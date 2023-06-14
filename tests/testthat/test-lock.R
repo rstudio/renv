@@ -136,9 +136,9 @@ test_that("multiple renv processes successfully acquire, release locks", {
   defer(close(server$socket))
 
   # initialize state
-  n <- 50
+  n <- 100
   start <- tempfile("renv-start-")
-  lockfile <- tempfile("renv-lock-")
+  lockfile <- renv_lock_path(tempfile("renv-lock-"))
 
   # initialize shared file
   shared <- renv_scope_tempfile("renv-file-")
@@ -149,14 +149,36 @@ test_that("multiple renv processes successfully acquire, release locks", {
 
     code = {
 
+      # use rlang error handler
+      options(error = rlang::entrace)
+
       # wait for start file
       renv:::wait_until(file.exists, start)
 
+      # helper function
+      increment <- function() {
+        renv:::renv_lock_acquire(lockfile)
+        stopifnot(file.exists(lockfile))
+        number <- as.integer(readLines(shared))
+        writeLines(as.character(number + 1L), con = shared)
+        renv:::renv_lock_release(lockfile)
+        number
+      }
+
       # update shared file with lock acquired
-      lock <- renv:::renv_lock_acquire(lockfile)
-      number <- as.integer(readLines(shared))
-      writeLines(as.character(number + 1L), con = shared)
-      renv:::renv_lock_release(lockfile)
+      number <- tryCatch(
+
+        withCallingHandlers(
+          increment(),
+          error = rlang::entrace
+        ),
+
+        error = function(cnd) {
+          print(cnd)
+          -1
+        }
+
+      )
 
       # notify parent
       conn <- socketConnection(port = port, open = "w+b", blocking = TRUE)
@@ -185,8 +207,6 @@ test_that("multiple renv processes successfully acquire, release locks", {
     system2(
       command = R(),
       args = c("--vanilla", "-s", "-f", renv_shell_path(script)),
-      stdout = FALSE,
-      stderr = FALSE,
       wait = FALSE
     )
   }

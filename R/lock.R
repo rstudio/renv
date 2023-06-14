@@ -4,33 +4,26 @@
 renv_lock_acquire <- function(path) {
 
   # normalize path
-  dlog("lock", "%s: acquiring lock", renv_path_pretty(path))
   path <- renv_lock_path(path)
 
   # if we already have this lock, increment our counter
   count <- `_renv_lock_registry`[[path]] %||% 0L
   if (count > 0L) {
-    dlog("lock", "%s: incrementing lock count to %i", renv_path_pretty(path), count + 1L)
     `_renv_lock_registry`[[path]] <- count + 1L
     return(TRUE)
   }
 
+  # make sure parent directory exists
+  ensure_parent_directory(path)
+
+  # make sure warnings are errors here
+  renv_scope_options(warn = 2L)
+
   # loop until we acquire the lock
-  repeat {
-
-    acquired <- tryCatch(
-      renv_lock_acquire_impl(path),
-      condition = function(e) FALSE
-    )
-
-    if (!acquired) {
-      Sys.sleep(0.1)
-      next
-    }
-
-    break
-
-  }
+  repeat tryCatch(
+    renv_lock_acquire_impl(path) && break,
+    error = function(cnd) Sys.sleep(0.2)
+  )
 
   # mark this path as locked by us
   `_renv_lock_registry`[[path]] <- 1L
@@ -39,7 +32,7 @@ renv_lock_acquire <- function(path) {
   renv_watchdog_notify("LockAcquired", list(path = path))
 
   # TRUE to mark successful lock
-  dlog("lock", "%s: acquired lock", renv_path_pretty(path))
+  dlog("lock", "%s [lock acquired]", renv_path_pretty(path))
   TRUE
 
 }
@@ -53,49 +46,37 @@ renv_lock_acquire_impl <- function(path) {
     unlink(path, recursive = TRUE, force = TRUE)
   }
 
-  # make sure parent directory exists
-  ensure_parent_directory(path)
-
-  # write id to proxy file
-  pattern <- paste("renv", Sys.getpid(), sep = "-")
-  proxy <- renv_scope_tempfile(pattern, tmpdir = dirname(path), fileext = ".lock")
-  id <- paste(Sys.getpid(), as.numeric(Sys.time()), sep = "-")
-  writeLines(id, con = proxy)
-
-  # attempt to link to the target path location
-  ok <- file.link(proxy, path)
-
-  # check that we successfully linked _and_ the file contents match
-  ok && identical(readLines(path), id)
+  # attempt to create the lock
+  dir.create(path, mode = "0755")
 
 }
 
 renv_lock_release <- function(path) {
 
   # normalize path
-  dlog("lock", "%s: releasing lock", renv_path_pretty(path))
   path <- renv_lock_path(path)
 
   # decrement our lock count
   count <- `_renv_lock_registry`[[path]] <- `_renv_lock_registry`[[path]] - 1L
-  dlog("lock", "%s: decrementing lock count to %i", renv_path_pretty(path), count)
 
   # remove the lock if we have no more locks
   if (count == 0L) {
-    dlog("lock", "%s: removing lock", renv_path_pretty(path))
+    dlog("lock", "%s [lock released]", renv_path_pretty(path))
     renv_lock_release_impl(path)
   }
 
 }
 
 renv_lock_release_impl <- function(path) {
+  renv_scope_options(warn = -1L)
+  rm(list = path, envir = `_renv_lock_registry`)
   unlink(path, recursive = TRUE, force = TRUE)
   renv_watchdog_notify("LockReleased", list(path = path))
 }
 
 renv_lock_orphaned <- function(path) {
 
-  timeout <- getOption("renv.lock.timeout", default = 60L)
+  timeout <- getOption("renv.lock.timeout", default = 3600L)
   if (timeout <= 0L)
     return(TRUE)
 
@@ -106,11 +87,6 @@ renv_lock_orphaned <- function(path) {
   diff <- difftime(Sys.time(), info$mtime, units = "secs")
   diff >= timeout
 
-}
-
-renv_lock_refresh <- function(path) {
-  dlog("lock", "%s: refreshing lock", renv_path_pretty(path))
-  Sys.chmod(path)
 }
 
 renv_lock_init <- function() {

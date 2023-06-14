@@ -36,7 +36,7 @@ renv_watchdog_server_run <- function(server, client, lockenv) {
 
   # set file time on owned locks, so we can see they're not orphaned
   locks <- ls(envir = lockenv, all.names = TRUE)
-  Sys.setFileTime(locks, time = Sys.time())
+  Sys.chmod(locks, mode = "0755")
 
   # wait for connection
   catf("[watchdog] Waiting for connection...")
