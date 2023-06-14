@@ -59,7 +59,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
 
   # initialize server
   server <- renv_socket_server()
-  defer(close(serve$socket))
+  defer(close(server$socket))
 
   # initialize state
   n <- 200
