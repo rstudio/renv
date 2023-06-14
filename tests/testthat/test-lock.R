@@ -120,9 +120,11 @@ test_that("we can refresh locks", {
 test_that("old locks are considered 'orphaned'", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
+  renv_scope_envvars(RENV_WATCHDOG_ENABLED = "FALSE")
+
   path <- renv_lock_path(renv_scope_tempfile())
 
-  renv_scope_options(renv.lock.timeout = 0L)
+  renv_scope_options(renv.lock.timeout = -1L)
   renv_lock_acquire(path)
 
   expect_true(renv_lock_orphaned(path))
@@ -130,7 +132,7 @@ test_that("old locks are considered 'orphaned'", {
 
   script <- renv_test_code({
     options(renv.config.locking.enabled = TRUE)
-    options(renv.lock.timeout = 0L)
+    options(renv.lock.timeout = -1L)
     stopifnot(renv:::renv_lock_acquire(path))
     stopifnot(file.exists(path))
   }, list(path = path))

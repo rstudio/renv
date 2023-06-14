@@ -76,10 +76,7 @@ renv_lock_release_impl <- function(path) {
 
 renv_lock_orphaned <- function(path) {
 
-  # NOTE: The best we can likely hope for is 1-second accuracy in file
-  # modification timestamps, so the timeout we select should be at least
-  # 1 second (and probably a bit more, just in case)
-  timeout <- max(getOption("renv.lock.timeout", default = 300L), 300L)
+  timeout <- getOption("renv.lock.timeout", default = 60L)
   if (timeout <= 0L)
     return(TRUE)
 
