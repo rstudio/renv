@@ -42,9 +42,6 @@ bootstrap <- function(version, library) {
     }
   )
 
-  # add empty line to break up bootstrapping from normal output
-  catf("\n")
-
   return(invisible())
 }
 

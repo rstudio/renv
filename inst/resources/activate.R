@@ -102,9 +102,6 @@ local({
       }
     )
   
-    # add empty line to break up bootstrapping from normal output
-    catf("\n")
-  
     return(invisible())
   }
   
@@ -1142,5 +1139,7 @@ local({
   } else {
     renv_bootstrap_bootstrap(version, libpath)
   }
+
+  invisible()
 
 })

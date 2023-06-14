@@ -84,4 +84,6 @@ local({
     renv_bootstrap_bootstrap(version, libpath)
   }
 
+  invisible()
+
 })
