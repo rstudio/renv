@@ -144,7 +144,7 @@ renv_zzz_bootstrap_config <- function() {
   if (target_mtime > source_mtime)
     return()
 
-  template <- renv_template_create('
+  template <- renv_template_create(heredoc(leave = 2, '
     ${NAME} = function(..., default = ${DEFAULT}) {
       renv_config_get(
         name    = "${NAME}",
@@ -153,7 +153,7 @@ renv_zzz_bootstrap_config <- function() {
         args    = list(...)
       )
     }
-  ')
+  '))
 
   template <- gsub("^\\n+|\\n+$", "", template)
 
