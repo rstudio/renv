@@ -9,6 +9,10 @@
   renv_zzz_attach()
 }
 
+if (identical(.packageName, "renv")) {
+  renv_zzz_run()
+}
+
 .onUnload <- function(libpath) {
 
   renv_task_unload()
@@ -80,18 +84,9 @@ renv_zzz_attach <- function() {
 
 renv_zzz_run <- function() {
 
-  # check if we're running devtools::document()
-  documenting <- FALSE
-  document <- parse(text = "devtools::document")[[1]]
-  for (call in sys.calls()) {
-    if (identical(call[[1]], document)) {
-      documenting <- TRUE
-      break
-    }
-  }
-
+  # check if we're in pkgload::load_all()
   # if so, then create some files
-  if (documenting) {
+  if (renv_envvar_exists("DEVTOOLS_LOAD")) {
     renv_zzz_bootstrap()
   }
 
@@ -111,9 +106,16 @@ renv_zzz_bootstrap <- function() {
 
   source <- "templates/template-activate.R"
   target <- "inst/resources/activate.R"
+  scripts <- c("R/bootstrap.R", "R/json-read.R")
+
+  # Do we need an update
+  source_mtime <- max(renv_file_info(c(source, scripts))$mtime)
+  target_mtime <- renv_file_info(target)$mtime
+
+  if (target_mtime > source_mtime)
+    return()
 
   # read the necessary bootstrap scripts
-  scripts <- c("R/bootstrap.R", "R/json-read.R")
   contents <- map(scripts, readLines)
   bootstrap <- unlist(contents)
 
@@ -169,10 +171,6 @@ renv_zzz_repos <- function() {
   renv_scope_envvars(R_DEFAULT_SERIALIZE_VERSION = "2")
   write_PACKAGES(tgt, type = "source")
 
-}
-
-if (identical(.packageName, "renv")) {
-  renv_zzz_run()
 }
 
 # if renv is being embedded in another package, make sure we
