@@ -95,6 +95,28 @@ test_that("locks are released on process exit", {
 
 })
 
+test_that("we can refresh locks", {
+
+  # create a file
+  path <- renv_scope_tempfile("renv-lock-")
+  file.create(path)
+
+  # get current info
+  old <- file.info(path, extra_cols = FALSE)
+
+  # wait a bit
+  Sys.sleep(2)
+
+  # refresh the 'lock'
+  renv_lock_refresh(path)
+  new <- file.info(path, extra_cols = FALSE)
+
+  # check for updated time
+  expect_gt(new$ctime, old$ctime)
+
+})
+
+
 test_that("old locks are considered 'orphaned'", {
 
   renv_scope_options(renv.config.locking.enabled = TRUE)

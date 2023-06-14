@@ -87,9 +87,13 @@ renv_lock_orphaned <- function(path) {
   if (is.na(info$isdir))
     return(FALSE)
 
-  diff <- difftime(Sys.time(), info$mtime, units = "secs")
+  diff <- difftime(Sys.time(), info$ctime, units = "secs")
   diff >= timeout
 
+}
+
+renv_lock_refresh <- function(lock) {
+  Sys.setFileTime(lock, Sys.time())
 }
 
 renv_lock_init <- function() {
