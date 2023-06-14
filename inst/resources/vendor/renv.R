@@ -26,7 +26,6 @@ renv$initialize <- function() {
 
   # run our load / attach hooks so internal state is initialized
   renv$renv_zzz_load()
-  renv$renv_zzz_attach()
 
   # remove our initialize method when we're done
   rm(list = "initialize", envir = renv)
