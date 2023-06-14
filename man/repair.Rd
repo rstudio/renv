@@ -20,5 +20,5 @@ directory is used instead.}
 }
 \description{
 Repair a project library whose cache symlinks have become broken.
-renv will attempt to reinstall the requisite packages.
+renv will attempt to re-install the requisite packages.
 }

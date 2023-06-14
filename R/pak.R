@@ -1,6 +1,6 @@
 
 # the minimum-required version of 'pak' for renv integration
-`_renv_pak_minver` <- numeric_version("0.5.1")
+the$pak_minver <- numeric_version("0.5.1")
 
 renv_pak_init <- function(stream = NULL, force = FALSE) {
 
@@ -20,18 +20,18 @@ renv_pak_stream <- function() {
     repos <- renv_pak_repos(stream)
     latest <- renv_available_packages_latest("pak", repos = repos)
     version <- numeric_version(latest$Version)
-    if (version >= `_renv_pak_minver`)
+    if (version >= the$pak_minver)
       return(stream)
   }
 
   fmt <- "internal error: pak (>= %s) is not available"
-  stopf(fmt, format(`_renv_pak_minver`))
+  stopf(fmt, format(the$pak_minver))
 
 }
 
 renv_pak_available <- function() {
   tryCatch(
-    packageVersion("pak") >= `_renv_pak_minver`,
+    packageVersion("pak") >= the$pak_minver,
     error = function(e) FALSE
   )
 }

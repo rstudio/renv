@@ -6,7 +6,7 @@ teardown_env <- function() {
     globalenv()
 }
 
-`_renv_tests_repopath` <- renv_scope_tempfile("renv-repos-", scope = teardown_env())
+the$tests_repopath <- renv_scope_tempfile("renv-repos-", scope = teardown_env())
 renv_tests_repopath <- function() {
-  `_renv_tests_repopath`
+  the$tests_repopath
 }

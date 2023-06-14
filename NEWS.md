@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `load()` gives a more informative message if a lockfile is present but 
+  no packages are installed (#353).
+
 * `renv` now provides a small family of functions for interacting with `renv`
   lockfiles -- see `?lockfile` for more details. (#1438)
 

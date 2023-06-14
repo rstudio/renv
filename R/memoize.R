@@ -1,9 +1,9 @@
 
-`_renv_memoize` <- new.env(parent = emptyenv())
+the$memoize <- new.env(parent = emptyenv())
 
 memo <- function(value, scope = NULL) {
   scope <- scope %||% stringify(sys.call(sys.parent())[[1L]])
-  (`_renv_memoize`[[scope]] <- `_renv_memoize`[[scope]] %||% value)
+  (the$memoize[[scope]] <- the$memoize[[scope]] %||% value)
 }
 
 memoize <- function(key, value, scope = NULL) {
@@ -13,8 +13,8 @@ memoize <- function(key, value, scope = NULL) {
 
   # initialize memoized environment
   envir <-
-    `_renv_memoize`[[scope]] <-
-    `_renv_memoize`[[scope]] %||%
+    the$memoize[[scope]] <-
+    the$memoize[[scope]] %||%
     new.env(parent = emptyenv())
 
   # retrieve, or compute, memoized value

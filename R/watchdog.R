@@ -1,13 +1,13 @@
 
 # whether or not the user has enabled the renv watchdog in this session
-`_renv_watchdog_enabled` <- NULL
+the$watchdog_enabled <- NULL
 
 # metadata related to the running watchdog process, if any
-`_renv_watchdog_process` <- NULL
+the$watchdog_process <- NULL
 
 renv_watchdog_init <- function() {
 
-  `_renv_watchdog_enabled` <<- renv_watchdog_enabled_impl()
+  the$watchdog_enabled <- renv_watchdog_enabled_impl()
 
   reg.finalizer(renv_envir_self(), function(envir) {
 
@@ -33,7 +33,7 @@ renv_watchdog_init <- function() {
 }
 
 renv_watchdog_enabled <- function() {
-  `_renv_watchdog_enabled`
+  the$watchdog_enabled
 }
 
 renv_watchdog_check <- function() {
@@ -86,7 +86,7 @@ renv_watchdog_start <- function() {
   tryCatch(
     renv_watchdog_start_impl(),
     error = function(e) {
-      `_renv_watchdog_enabled` <<- FALSE
+      the$watchdog_enabled <- FALSE
       warning(e)
     }
   )
@@ -128,7 +128,7 @@ renv_watchdog_start_impl <- function() {
   defer(close(conn))
 
   # store information about the running process
-  `_renv_watchdog_process` <<- unserialize(conn)
+  the$watchdog_process <- unserialize(conn)
 
   # return TRUE to indicate process was started
   TRUE
@@ -202,11 +202,11 @@ renv_watchdog_request_impl <- function(method, data = list()) {
 }
 
 renv_watchdog_pid <- function() {
-  `_renv_watchdog_process`$pid
+  the$watchdog_process$pid
 }
 
 renv_watchdog_port <- function() {
-  `_renv_watchdog_process`$port
+  the$watchdog_process$port
 }
 
 renv_watchdog_running <- function() {

@@ -378,7 +378,7 @@ nth <- function(x, i) {
   x[[i]]
 }
 
-heredoc <- function(text) {
+heredoc <- function(text, leave = 0) {
 
   # remove leading, trailing whitespace
   trimmed <- gsub("^\\s*\\n|\\n\\s*$", "", text)
@@ -388,7 +388,7 @@ heredoc <- function(text) {
 
   # compute common indent
   indent <- regexpr("[^[:space:]]", lines)
-  common <- min(setdiff(indent, -1L))
+  common <- min(setdiff(indent, -1L)) - leave
   paste(substring(lines, common), collapse = "\n")
 
 }

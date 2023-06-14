@@ -1,5 +1,5 @@
 
-`_renv_lock_registry` <- new.env(parent = emptyenv())
+the$lock_registry <- new.env(parent = emptyenv())
 
 renv_lock_acquire <- function(path) {
 
@@ -7,9 +7,9 @@ renv_lock_acquire <- function(path) {
   path <- renv_lock_path(path)
 
   # if we already have this lock, increment our counter
-  count <- `_renv_lock_registry`[[path]] %||% 0L
+  count <- the$lock_registry[[path]] %||% 0L
   if (count > 0L) {
-    `_renv_lock_registry`[[path]] <- count + 1L
+    the$lock_registry[[path]] <- count + 1L
     return(TRUE)
   }
 
@@ -26,7 +26,7 @@ renv_lock_acquire <- function(path) {
   )
 
   # mark this path as locked by us
-  `_renv_lock_registry`[[path]] <- 1L
+  the$lock_registry[[path]] <- 1L
 
   # notify the watchdog
   renv_watchdog_notify("LockAcquired", list(path = path))
@@ -57,7 +57,7 @@ renv_lock_release <- function(path) {
   path <- renv_lock_path(path)
 
   # decrement our lock count
-  count <- `_renv_lock_registry`[[path]] <- `_renv_lock_registry`[[path]] - 1L
+  count <- the$lock_registry[[path]] <- the$lock_registry[[path]] - 1L
 
   # remove the lock if we have no more locks
   if (count == 0L) {
@@ -96,7 +96,7 @@ renv_lock_refresh <- function(lock) {
 renv_lock_init <- function() {
 
   # make sure we clean up locks on exit
-  reg.finalizer(`_renv_lock_registry`, function(envir) {
+  reg.finalizer(the$lock_registry, function(envir) {
     locks <- ls(envir = envir, all.names = TRUE)
     unlink(locks, recursive = TRUE, force = TRUE)
   }, onexit = TRUE)

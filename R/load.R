@@ -72,8 +72,8 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_scope_options(renv.load.running = TRUE)
 
   # avoid suppressing the next auto snapshot
-  `_renv_snapshot_running` <<- TRUE
-  defer(`_renv_snapshot_running` <<- FALSE)
+  the$snapshot_running <- TRUE
+  defer(the$snapshot_running <- FALSE)
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
@@ -85,8 +85,8 @@ load <- function(project = NULL, quiet = FALSE) {
   # then unload the current project and reload the requested one
   switch <-
     !renv_metadata_embedded() &&
-    !is.null(`_renv_project_path`) &&
-    !identical(project, `_renv_project_path`)
+    !is.null(the$project_path) &&
+    !identical(project, the$project_path)
 
   if (switch)
     return(renv_load_switch(project))

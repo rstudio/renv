@@ -1,10 +1,10 @@
 
-`_renv_alpha` <- c(letters, LETTERS)
+the$alpha <- c(letters, LETTERS)
 
 renv_path_absolute <- function(path) {
 
   substr(path, 1L, 1L) %in% c("~", "/", "\\") || (
-    substr(path, 1L, 1L) %in% `_renv_alpha` &&
+    substr(path, 1L, 1L) %in% the$alpha &&
     substr(path, 2L, 3L) %in% c(":/", ":\\")
   )
 
