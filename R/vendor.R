@@ -123,7 +123,7 @@ renv_vendor_loader <- function(project, header) {
 
   replacements <- list(
     imports = imports,
-    metadata = deparse(metadata)
+    metadata = deparse(metadata, width.cutoff = 500L)
   )
   contents <- renv_template_replace(template, replacements, format = "..%s..")
 
