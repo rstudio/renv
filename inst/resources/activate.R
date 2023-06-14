@@ -964,7 +964,7 @@ local({
     }
   }
   
-  renv_bootstrap_bootstrap <- function(version, library) {
+  renv_bootstrap_run <- function(version, library) {
   
     # perform bootstrap
     bootstrap(version, libpath)
@@ -1137,10 +1137,10 @@ local({
 
   if (renv_bootstrap_in_rstudio()) {
     setHook("rstudio.sessionInit", function(...) {
-      renv_bootstrap_bootstrap(version, libpath)
+      renv_bootstrap_run(version, libpath)
     })
   } else {
-    renv_bootstrap_bootstrap(version, libpath)
+    renv_bootstrap_run(version, libpath)
   }
 
   invisible()

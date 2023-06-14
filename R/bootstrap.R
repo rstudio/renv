@@ -904,7 +904,7 @@ renv_bootstrap_version_is_dev <- function(version) {
   }
 }
 
-renv_bootstrap_bootstrap <- function(version, library) {
+renv_bootstrap_run <- function(version, library) {
 
   # perform bootstrap
   bootstrap(version, libpath)
