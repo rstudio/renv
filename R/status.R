@@ -1,5 +1,5 @@
 
-`_renv_status_running` <- FALSE
+the$status_running <- FALSE
 
 #' Report differences between lockfile and project library
 #'
@@ -63,8 +63,8 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   }
 
   # mark status as running
-  `_renv_status_running` <<- TRUE
-  defer(`_renv_status_running` <<- FALSE)
+  the$status_running <- TRUE
+  defer(the$status_running <- FALSE)
 
   # check for existing lockfile, library
   ok <-

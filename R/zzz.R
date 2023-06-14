@@ -1,6 +1,4 @@
 
-`__self__` <- NULL
-
 .onLoad <- function(libname, pkgname) {
   renv_zzz_load()
 }
@@ -30,11 +28,10 @@
 renv_zzz_load <- function() {
 
   # NOTE: needs to be visible to embedded instances of renv as well
-  `__self__` <<- renv_envir_self()
+  the$envir_self <<- renv_envir_self()
 
   renv_metadata_init()
   renv_platform_init()
-  renv_binding_init()
   renv_virtualization_init()
   renv_envvars_init()
   renv_log_init()
@@ -52,14 +49,6 @@ renv_zzz_load <- function() {
     # embedded, but it's unlikely that clients would want them anyhow.
     renv_task_create(renv_sandbox_task)
     renv_task_create(renv_snapshot_task)
-
-    # pkgload likes to lock all bindings in a package, even if we might
-    # try to unlock those in .onLoad(). Sneak around that.
-    setHook(
-      packageEvent("renv", "onLoad"),
-      renv_binding_init,
-    )
-
   }
 
   # if an renv project already appears to be loaded, then re-activate
@@ -236,11 +225,4 @@ renv_zzz_repos <- function() {
 
 if (identical(.packageName, "renv")) {
   renv_zzz_run()
-}
-
-# if renv is being embedded in another package, make sure we
-# run our load / attach hooks so internal state is initialized
-if (!identical(.packageName, "renv")) {
-  renv_zzz_load()
-  renv_zzz_attach()
 }

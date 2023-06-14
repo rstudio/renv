@@ -26,9 +26,9 @@ skip_if_no_virtualenv <- function() {
   TRUE
 }
 
-`_renv_has_virtualenv` <- NULL
+the$has_virtualenv <- NULL
 has_virtualenv <- function() {
-  `_renv_has_virtualenv` <<- `_renv_has_virtualenv` %||% {
+  the$has_virtualenv <- the$has_virtualenv %||% {
     python <- sys_python()
     version <- renv_python_version(python)
     module <- if (numeric_version(version) >= "3.2") "venv" else "virtualenv"

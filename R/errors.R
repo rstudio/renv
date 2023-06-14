@@ -139,17 +139,17 @@ renv_error_handler <- function(...) {
 
 }
 
-`_renv_traceback` <- NULL
+the$traceback <- NULL
 
 renv_error_capture <- function(e) {
   calls <- head(sys.calls(), n = -2L)
   frames <- head(sys.frames(), n = -2L)
   traceback <- renv_error_format(calls, frames)
-  `_renv_traceback` <<- traceback
+  the$traceback <- traceback
 }
 
 renv_error_tag <- function(e) {
-  e$traceback <- `_renv_traceback`
+  e$traceback <- the$traceback
   e
 }
 

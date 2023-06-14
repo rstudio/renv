@@ -2,10 +2,6 @@
 
 renv_exports_attach <- function() {
 
-  # only done when not embedded
-  if (renv_metadata_embedded())
-    return()
-
   # guard against intermediate case where config hasn't been generated
   renv <- asNamespace("renv")
   if (!exists("config", envir = renv))
