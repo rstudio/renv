@@ -80,18 +80,9 @@ renv_zzz_attach <- function() {
 
 renv_zzz_run <- function() {
 
-  # check if we're running devtools::document()
-  documenting <- FALSE
-  document <- parse(text = "devtools::document")[[1]]
-  for (call in sys.calls()) {
-    if (identical(call[[1]], document)) {
-      documenting <- TRUE
-      break
-    }
-  }
-
+  # check if we're in pkgload::load_all()
   # if so, then create some files
-  if (documenting) {
+  if (renv_envvar_exists("DEVTOOLS_LOAD")) {
     renv_zzz_bootstrap_activate()
     renv_zzz_bootstrap_config()
   }
@@ -112,9 +103,16 @@ renv_zzz_bootstrap_activate <- function() {
 
   source <- "templates/template-activate.R"
   target <- "inst/resources/activate.R"
+  scripts <- c("R/bootstrap.R", "R/json-read.R")
+
+  # Do we need an update
+  source_mtime <- max(renv_file_info(c(source, scripts))$mtime)
+  target_mtime <- renv_file_info(target)$mtime
+
+  if (target_mtime > source_mtime)
+    return()
 
   # read the necessary bootstrap scripts
-  scripts <- c("R/bootstrap.R", "R/json-read.R")
   contents <- map(scripts, readLines)
   bootstrap <- unlist(contents)
 
