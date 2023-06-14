@@ -24,7 +24,7 @@ renv_lock_acquire <- function(path) {
     )
 
     if (!acquired) {
-      Sys.sleep(1)
+      Sys.sleep(0.1)
       next
     }
 
@@ -55,14 +55,8 @@ renv_lock_acquire_impl <- function(path) {
   # make sure parent directory exists
   ensure_parent_directory(path)
 
-  # create a proxy file
-  proxy <- tempfile("renv-proxy-", fileext = ".lock")
-  file.create(proxy)
-  defer(unlink(proxy))
-
-  # attempt to link to final location
   # https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
-  file.link(proxy, path)
+  dir.create(path, mode = "0755")
 
 }
 

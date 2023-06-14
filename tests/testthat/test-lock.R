@@ -122,3 +122,89 @@ test_that("old locks are considered 'orphaned'", {
   expect_false(file.exists(path))
 
 })
+
+test_that("multiple renv processes successfully acquire, release locks", {
+
+  skip_on_cran()
+
+  renv_scope_options(renv.config.locking.enabled = TRUE)
+  renv_scope_envvars(RENV_WATCHDOG_ENABLED = "FALSE")
+
+  # initialize server
+  server <- renv_socket_server()
+  defer(close(server$socket))
+
+  # initialize state
+  n <- 200
+  start <- tempfile("renv-start-")
+  lockfile <- tempfile("renv-lock-")
+
+  # initialize shared file
+  shared <- renv_scope_tempfile("renv-file-")
+  writeLines("0", con = shared)
+
+  # generate runner script
+  script <- renv_test_code(
+
+    code = {
+
+      # wait for start file
+      renv:::wait_until(file.exists, start)
+
+      # update shared file with lock acquired
+      lock <- renv:::renv_lock_acquire(lockfile)
+      number <- as.integer(readLines(shared))
+      writeLines(as.character(number + 1L), con = shared)
+      renv:::renv_lock_release(lockfile)
+
+      # notify parent
+      conn <- socketConnection(port = port, open = "w+b", blocking = TRUE)
+      serialize(number, connection = conn)
+      close(conn)
+
+      # we're done
+      invisible()
+
+    },
+
+    data = list(
+      start = start,
+      lockfile = lockfile,
+      shared = shared,
+      port = server$port
+    )
+
+  )
+
+  # create start file
+  file.create(start)
+
+  # create a bunch of processes that try to update the shared file
+  for (i in 1:n) {
+    system2(
+      command = R(),
+      args = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+      stdout = FALSE,
+      stderr = FALSE,
+      wait = FALSE
+    )
+  }
+
+  # wait for all the processes to communicate
+  responses <- stack()
+  for (i in 1:n) {
+    conn <- renv_socket_accept(server$socket, open = "r+b", timeout = 10)
+    data <- unserialize(conn)
+    close(conn)
+    responses$push(data)
+  }
+
+  # check that the count is correct
+  contents <- readLines(shared)
+  expect_equal(contents, as.character(n))
+
+  # check that each process saw a unique value
+  numbers <- unlist(responses$data())
+  expect_equal(sort(numbers), 0:(n - 1))
+
+})
