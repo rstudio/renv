@@ -57,7 +57,8 @@ renv_lock_acquire_impl <- function(path) {
   ensure_parent_directory(path)
 
   # write id to proxy file
-  proxy <- tempfile("renv-", tmpdir = dirname(path), fileext = ".lock")
+  pattern <- paste("renv", Sys.getpid(), sep = "-")
+  proxy <- renv_scope_tempfile(pattern, tmpdir = dirname(path), fileext = ".lock")
   id <- paste(Sys.getpid(), as.numeric(Sys.time()), sep = "-")
   writeLines(id, con = proxy)
 
