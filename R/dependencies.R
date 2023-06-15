@@ -194,6 +194,7 @@ dependencies <- function(
 
 renv_dependencies_impl <- function(
   path = getwd(),
+  ...,
   root = NULL,
   field = NULL,
   progress = FALSE,
@@ -202,6 +203,7 @@ renv_dependencies_impl <- function(
 {
 
   path <- renv_path_normalize(path, mustWork = TRUE)
+  renv_dots_check(...)
   root <- root %||% renv_dependencies_root(path)
 
   # ignore errors when testing, unless explicitly asked for
