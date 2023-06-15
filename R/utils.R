@@ -415,14 +415,6 @@ recursing <- function() {
 
 }
 
-code <- function(x) {
-  paste(deparse(substitute(x)), collapse = "\n")
-}
-
-shcode <- function(x) {
-  shQuote(paste(deparse(substitute(x)), collapse = "\n"))
-}
-
 csort <- function(x, decreasing = FALSE, ...) {
   renv_scope_locale("LC_COLLATE", "C")
   sort(x, decreasing, ...)

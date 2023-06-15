@@ -190,7 +190,7 @@ test_that("RENV_PATHS_RENV is respected on init", {
   )
 
   # perform init in sub-process
-  args <- c("-s", "-e", shcode(renv::init()))
+  args <- c("-s", "-e", renv_shell_quote("renv::init()"))
   renv_system_exec(R(), args, action = "executing init()")
 
   # check that the requisite files were created
