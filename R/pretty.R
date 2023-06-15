@@ -30,6 +30,8 @@ renv_pretty_print <- function(values,
   emitter <- getOption("renv.pretty.print.emitter", default = writef)
   emitter(text)
 
+  invisible(NULL)
+
 }
 
 renv_pretty_print_records <- function(records,
