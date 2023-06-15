@@ -23,9 +23,21 @@ renv_pretty_print <- function(values,
   }
 
   msg$push("")
-  text <- paste(as.character(msg$data()), collapse = "\n")
 
-  writef(text)
+  text <- paste(as.character(msg$data()), collapse = "\n")
+  renv_pretty_print_impl(text)
+
+}
+
+renv_pretty_print_impl <- function(text) {
+
+  # NOTE: Used by vetiver, so perhaps is part of the API
+  # https://github.com/rstudio/renv/issues/1413
+  emitter <- getOption("renv.pretty.print.emitter", default = writef)
+  emitter(text)
+
+  invisible(NULL)
+
 }
 
 renv_pretty_print_records <- function(records,
@@ -38,10 +50,10 @@ renv_pretty_print_records <- function(records,
   if (!renv_verbose())
     return(invisible(NULL))
 
-  names(records) <- names(records) %||% map_chr(records, `[[`, "Package")
   # NOTE: use 'sort()' rather than 'csort()' here so that
   # printed output is sorted in the expected way in the users locale
   # https://github.com/rstudio/renv/issues/1289
+  names(records) <- names(records) %||% map_chr(records, `[[`, "Package")
   records <- records[sort(names(records))]
   packages <- names(records)
   descs <- map_chr(records, renv_record_format_short)
@@ -54,9 +66,7 @@ renv_pretty_print_records <- function(records,
     postamble, if (length(postamble)) ""
   )
 
-  writef(all)
-
-  invisible(NULL)
+  renv_pretty_print_impl(all)
 }
 
 renv_pretty_print_records_pair <- function(old,
@@ -73,9 +83,7 @@ renv_pretty_print_records_pair <- function(old,
     if (length(postamble)) c(postamble, "")
   )
 
-  writef(all)
-
-  invisible(NULL)
+  renv_pretty_print_impl(all)
 }
 
 renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
