@@ -27,7 +27,7 @@
       
       The following package(s) will be updated in the lockfile:
       
-      # CRAN -----------------------------------------------------------------------
+      # CRAN ---
       - oatmeal   [1.0.0 -> *]
       
       * Lockfile written to '<wd>/renv.lock'.
@@ -60,7 +60,7 @@
       
       The following package(s) will be updated in the lockfile:
       
-      # CRAN -----------------------------------------------------------------------
+      # CRAN ---
       - oatmeal   [1.0.0 -> *]
       
       * Lockfile written to '<wd>/renv.lock'.
@@ -123,7 +123,7 @@
       
       The following package(s) will be updated in the lockfile:
       
-      # CRAN -----------------------------------------------------------------------
+      # CRAN ---
       - bread       [1.0.0 -> *]
       - breakfast   [1.0.0 -> *]
       - oatmeal     [1.0.0 -> *]
@@ -174,7 +174,7 @@
       
       Selection: 2
       
-      # Downloading packages -------------------------------------------------------
+      # Downloading packages ---
       Retrieving '<test-repo>/src/contrib/egg_1.0.0.tar.gz' ...
       	OK [downloaded XXXX bytes in XXXX seconds]
       
@@ -187,7 +187,7 @@
       Installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
       
-      # CRAN -----------------------------------------------------------------------
+      # CRAN ---
       - egg   [* -> 1.0.0]
       
       The version of R recorded in the lockfile will be updated:

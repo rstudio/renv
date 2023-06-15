@@ -25,7 +25,7 @@
       Finding R package dependencies ... Done!
       WARNING: One or more problems were discovered while enumerating dependencies.
       
-      # <project-dir> ----------------------------------------------------
+      # <project-dir> ---
       Error: directory contains 12 files; consider ignoring this directory
       
       Please see `?renv::dependencies` for more information.
