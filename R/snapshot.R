@@ -692,6 +692,9 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
 
 renv_snapshot_description_impl <- function(dcf, path = NULL) {
 
+  # infer remotes for packages installed from sources
+  dcf <- renv_snapshot_description_infer(dcf)
+
   # figure out the package source
   source <- renv_snapshot_description_source(dcf)
   dcf[names(source)] <- source
@@ -723,7 +726,8 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
 
-  is_repo <- is.null(dcf[["RemoteType"]]) ||
+  is_repo <-
+    is.null(dcf[["RemoteType"]]) ||
     identical(dcf[["RemoteType"]], "standard")
 
   # only keep relevant fields
@@ -788,6 +792,104 @@ renv_snapshot_description_source <- function(dcf) {
     renv_snapshot_description_source_hack(package),
     error = function(e) list(Source = "unknown")
   )
+
+}
+
+renv_snapshot_description_infer <- function(dcf) {
+
+  inferred <- tryCatch(
+    renv_snapshot_description_infer_impl(dcf),
+    error = function(err) {
+      fmt <- "Failed to infer remote for %s which was installed from source:\n%s"
+      warningf(fmt, dcf$Package, conditionMessage(err))
+      dcf
+    }
+  )
+
+  # if the inferred package version appears to be less than the source one,
+  # don't use it
+  if (renv_version_lt(inferred[["Version"]], dcf[["Version"]]))
+    return(dcf)
+
+  # notify the user if we inferred a different package remote
+  if (!identical(dcf, inferred)) {
+    package <- dcf[["Package"]]
+    remote <- renv_record_format_remote(inferred)
+    writef("* '%s' inferred to have been installed from remote '%s'.", package, remote)
+  }
+
+  inferred
+
+}
+
+renv_snapshot_description_infer_impl <- function(dcf) {
+
+  # if this package appears to have a declared remote, use as-is
+  for (field in c("RemoteType", "Repository", "biocViews"))
+    if (!is.null(dcf[[field]]))
+      return(dcf)
+
+  # skip in project synchronization checks
+  if (the$project_synchronized_check_running)
+    return(dcf)
+
+  # check and see if this package is available from package repositories.
+  # if it is, then assume this is a dev. package the installed copy is newer,
+  # or if it has more version components than the published package
+  trydev <- local({
+
+    # check for record
+    package <- dcf[["Package"]]
+    record <- catch(renv_available_packages_latest(package))
+    if (inherits(record, "error"))
+      return(TRUE)
+
+    # pull out versions
+    lhs <- dcf[["Version"]]
+    rhs <- record[["Version"]]
+
+    # check for local record being newer than the remote record
+    if (renv_version_gt(lhs, rhs))
+      return(TRUE)
+
+    # check for local record having more version components
+    if (renv_version_length(lhs) > renv_version_length(rhs))
+      return(TRUE)
+
+    # the source copy seems older than CRAN; don't try to use it
+    FALSE
+
+  })
+
+  if (!trydev)
+    return(dcf)
+
+  # ok, this is a package installed from sources that "looks" like
+  # the development version of a package; try to guess its remote
+  guess <- function(pattern, field) {
+    urls <- strsplit(dcf[[field]] %||% "", "\\s*,\\s*")[[1L]]
+    for (url in urls) {
+      matches <- regmatches(url, regexec(pattern, url, perl = TRUE))[[1L]]
+      if (length(matches) == 3L) {
+        remote <- paste(matches[[2L]], matches[[3L]], sep = "/")
+        return(renv_remotes_resolve(remote))
+      }
+    }
+  }
+
+  # first, check bug reports
+  remote <- guess("^https://(?:www\\.)?github\\.com/([^/]+)/([^/]+)/issues$", "BugReports")
+  if (!is.null(remote))
+    return(remote)
+
+
+  # next, check the URL field
+  remote <- guess("^https://(?:www\\.)?github\\.com/([^/]+)/([^/]+)", "URL")
+  if (!is.null(remote))
+    return(remote)
+
+  # no match; fall back to default
+  dcf
 
 }
 

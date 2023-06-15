@@ -211,3 +211,10 @@
     Output
       * Automatic snapshot has updated '<wd>/renv.lock'.
 
+# we can infer github remotes from packages installed from sources
+
+    Code
+      . <- renv_snapshot_description(path = descfile)
+    Output
+      * 'renv' inferred to have been installed from remote 'rstudio/renv@main'.
+

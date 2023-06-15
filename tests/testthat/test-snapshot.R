@@ -496,3 +496,26 @@ test_that("autosnapshot works as expected", {
   expect_snapshot(renv_snapshot_task())
 
 })
+
+test_that("we can infer github remotes from packages installed from sources", {
+  skip_on_cran()
+
+  desc <- heredoc("
+    Package: renv
+    Version: 0.1.0-9000
+    BugReports: https://github.com/rstudio/renv/issues
+  ")
+
+  descfile <- renv_scope_tempfile("description-")
+  writeLines(desc, con = descfile)
+
+  remote <- local({
+    renv_scope_options(renv.verbose = FALSE)
+    renv_snapshot_description(path = descfile)
+  })
+
+  expect_equal(remote$RemoteType, "github")
+
+  expect_snapshot(. <- renv_snapshot_description(path = descfile))
+
+})
