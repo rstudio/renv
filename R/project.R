@@ -280,7 +280,7 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
     ))
 
     if (proceed()) {
-      restore(project, prompt = FALSE)
+      restore(project, prompt = FALSE, exclude = "renv")
       return(TRUE)
     } else {
       return(FALSE)
