@@ -78,10 +78,6 @@
     </div>
 
     <div class="section level2">
-    <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>An object of class <code>list</code> of length 40.</p>
-    </div>
-    <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>For a given configuration option:</p><ol><li><p>If an <span style="R">R</span> option of the form <code>renv.config.&lt;name&gt;</code> is available,
 then that option's value will be used;</p></li>
@@ -160,6 +156,11 @@ Defaults to <code>NULL</code>.</p>
 <h3 id="renv-config-dependency-errors">renv.config.dependency.errors<a class="anchor" aria-label="anchor" href="#renv-config-dependency-errors"></a></h3>
 <p>Many renv APIs require the enumeration of your project's <span style="R">R</span> package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to <code>"fatal"</code> to force errors to be fatal, and <code>"ignored"</code> to ignore errors altogether. See <code><a href="dependencies.html">dependencies()</a></code> for more details.
 Defaults to <code>"reported"</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-dependencies-limit">renv.config.dependencies.limit<a class="anchor" aria-label="anchor" href="#renv-config-dependencies-limit"></a></h3>
+<p>By default, renv reports if it discovers more than this many files when looking for dependencies, as that may indicate you are running <code><a href="dependencies.html">dependencies()</a></code> in the wrong place. Set to <code>Inf</code> to disable this warning.
+Defaults to <code>1000L</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-exported-functions">renv.config.exported.functions<a class="anchor" aria-label="anchor" href="#renv-config-exported-functions"></a></h3>
