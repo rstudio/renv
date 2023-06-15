@@ -6,10 +6,10 @@
       Finding R package dependencies ... Done!
       WARNING: One or more problems were discovered while enumerating dependencies.
       
-      renv-test-ecd07ec4e426
-      ----------------------
+      <project-directory>
+      -----------------------
       
-      ERROR 1: directory "renv-test-ecd07ec4e426" contains 28 files; consider ignoring this directory
+      ERROR 1: directory "<project-directory>" contains 28 files; consider ignoring this directory
       
       Please see `?renv::dependencies` for more information.
     Error <simpleError>
