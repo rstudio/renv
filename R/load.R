@@ -739,8 +739,13 @@ renv_load_finish <- function(project, lockfile) {
     renv_load_report_python(project)
   }
 
-  renv_load_report_updates(project)
-  renv_load_report_synchronized(project, lockfile)
+  if (interactive()) {
+    if (config$updates.check())
+      renv_load_report_updates(project)
+
+    if (config$synchronized.check())
+      renv_project_synchronized_check(project, lockfile)
+  }
 
   renv_snapshot_auto_update(project = project)
 
@@ -772,21 +777,8 @@ renv_load_report_python <- function(project) {
 
 }
 
-renv_load_report_updates <- function(project) {
-
-  # nocov start
-  enabled <- interactive() && config$updates.check()
-  if (!enabled)
-    return(FALSE)
-
-  callback <- function(...) renv_load_report_updates_impl(project = project)
-  renv_load_invoke(callback)
-  # nocov end
-
-}
-
 # nocov start
-renv_load_report_updates_impl <- function(project) {
+renv_load_report_updates <- function(project) {
 
   lockpath <- renv_lockfile_path(project = project)
   if (!file.exists(lockpath))
@@ -805,34 +797,4 @@ renv_load_report_updates_impl <- function(project) {
 
 }
 # nocov end
-
-renv_load_report_synchronized <- function(project, lockfile) {
-
-  # nocov start
-  enabled <- interactive() && config$synchronized.check()
-  if (!enabled)
-    return(FALSE)
-
-  # TODO: This can be slow. I wonder if there's a sensible way to farm this
-  # out to a separate R process, and then collect the results later on?
-  #
-  # Just using 'system(..., wait = FALSE)' feels a bit awkward, as we might
-  # end up emitting output while the user is typing in the terminal, which
-  # feels disruptive.
-  callback <- function(...) renv_project_synchronized_check(project, lockfile)
-  renv_load_invoke(callback)
-  # nocov end
-
-}
-
-renv_load_invoke <- function(callback) {
-
-  # helper function for running code that might need to
-  # wait until RStudio has finished initializing
-  if (renv_rstudio_loading())
-    setHook("rstudio.sessionInit", callback, action = "append")
-  else
-    callback()
-
-}
 
