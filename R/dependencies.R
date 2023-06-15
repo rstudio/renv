@@ -125,9 +125,9 @@ the$dependencies <- new.env(parent = emptyenv())
 
 #' @inheritParams renv-params
 #'
-#' @param path The path to a (possibly multi-mode) \R file, or a directory
-#'   containing such files. By default, all files within the current working
-#'   directory are checked, recursively.
+#' @param path The path to a `.R`, `.Rmd`, `.qmd`, `DESCRIPTION`, a directory
+#'   containing such files, or an R function. The default uses all files
+#'   found within the current working directory and its children.
 #'
 #' @param root The root directory to be used for dependency discovery.
 #'   Defaults to the active project directory. You may need to set this
@@ -178,6 +178,10 @@ dependencies <- function(
 {
   renv_scope_error_handler()
 
+  # special case: if 'path' is a function, parse its body for dependencies
+  if (is.function(path))
+    return(renv_dependencies_discover_r(expr = body(path)))
+
   renv_dependencies_impl(
     path     = path,
     root     = root,
@@ -197,9 +201,6 @@ renv_dependencies_impl <- function(
   errors = c("reported", "fatal", "ignored"),
   dev = FALSE)
 {
-  # special case: if 'path' is a function, parse its body for dependencies
-  if (is.function(path))
-    return(renv_dependencies_discover_r(expr = body(path)))
 
   path <- renv_path_normalize(path, mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)

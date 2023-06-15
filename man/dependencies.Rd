@@ -14,9 +14,9 @@ dependencies(
 )
 }
 \arguments{
-\item{path}{The path to a (possibly multi-mode) \R file, or a directory
-containing such files. By default, all files within the current working
-directory are checked, recursively.}
+\item{path}{The path to a \code{.R}, \code{.Rmd}, \code{.qmd}, \code{DESCRIPTION}, a directory
+containing such files, or an R function. The default uses all files
+found within the current working directory and its children.}
 
 \item{root}{The root directory to be used for dependency discovery.
 Defaults to the active project directory. You may need to set this
