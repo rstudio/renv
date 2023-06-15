@@ -106,7 +106,7 @@ renv_embed_create <- function(path = NULL,
   lockfile <- renv_embed_lockfile_resolve(lockfile, project)
 
   # figure out recursive package dependencies
-  deps <- renv_dependencies_impl(path, progress = FALSE)
+  deps <- renv_dependencies_impl(path)
   packages <- sort(unique(deps$Package))
   all <- renv_package_dependencies(packages)
 

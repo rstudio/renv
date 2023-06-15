@@ -194,15 +194,16 @@ dependencies <- function(
 
 renv_dependencies_impl <- function(
   path = getwd(),
-  root = NULL,
   ...,
+  root = NULL,
   field = NULL,
-  progress = TRUE,
+  progress = FALSE,
   errors = c("reported", "fatal", "ignored"),
   dev = FALSE)
 {
 
   path <- renv_path_normalize(path, mustWork = TRUE)
+  renv_dots_check(...)
   root <- root %||% renv_dependencies_root(path)
 
   # ignore errors when testing, unless explicitly asked for
@@ -223,12 +224,6 @@ renv_dependencies_impl <- function(
 
   renv_dependencies_begin(root = root)
   defer(renv_dependencies_end())
-
-  dots <- list(...)
-  if (identical(dots[["quiet"]], TRUE)) {
-    progress <- FALSE
-    errors <- "ignored"
-  }
 
   files <- renv_dependencies_find(path, root)
   deps <- renv_dependencies_discover(files, progress, errors)
@@ -1662,7 +1657,6 @@ renv_dependencies_confirm <- function(action, path, ...) {
     renv_dependencies_impl(
       path = path,
       ...,
-      progress = FALSE,
       errors = config$dependency.errors()
     ),
     renv.dependencies.problem = function(cnd) {
