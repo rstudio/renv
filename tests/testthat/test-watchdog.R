@@ -37,16 +37,31 @@ test_that("the watchdog process releases locks from killed processes", {
   skip_on_cran()
   skip_if(getRversion() < "4.0.0")
 
+  # start a socket server
+  server <- renv_socket_server()
+  defer(close(server$socket))
+
   # acquire lock in a background process
   path <- tempfile("renv-lock-")
   expect_false(file.exists(path))
 
   script <- renv_test_code({
+
     renv:::renv()
+
+    # acquire lock in child process
     renv_scope_lock(path)
+
+    # let parent know we have the lock
+    conn <- renv_socket_connect(port, open = "wb")
+    defer(close(conn))
+    serialize(Sys.getpid(), connection = conn)
+
+    # commit seppuku
     command <- paste("kill -TERM", Sys.getpid())
     system(command)
-  }, list(path = path))
+
+  }, list(path = path, port = server$port))
 
   renv_scope_envvars(RENV_WATCHDOG_ENABLED = "TRUE")
   system2(
@@ -57,16 +72,16 @@ test_that("the watchdog process releases locks from killed processes", {
     wait = FALSE
   )
 
-  # wait for the file to exist
-  wait_until(file.exists, path)
-  expect_true(file.exists(path))
-
-  # give the watchdog some time to run
-  clock <- timer(units = "secs")
-  wait_until(function() {
-    Sys.sleep(0.1)
-    !file.exists(path) || clock$elapsed() > 3
+  # get PID of child process
+  pid <- local({
+    conn <- renv_socket_accept(server$socket, open = "rb")
+    defer(close(conn))
+    unserialize(conn)
   })
+
+  # wait for watchdog to try and remove the process
+  clock <- timer()
+  wait_until(function() { !file.exists(path) || clock$elapsed() > 3 })
 
   # check that the file no longer exists
   expect_false(file.exists(path))
