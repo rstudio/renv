@@ -41,7 +41,7 @@ renv_tests_setup_envvars <- function(scope = parent.frame()) {
   root <- ensure_directory(renv_scope_tempfile(scope = scope))
 
   renv_scope_envvars(
-    # disable locking in this scope
+    RENV_AUTOLOAD_ENABLED = FALSE,
     RENV_CONFIG_LOCKING_ENABLED = FALSE,
     RENV_PATHS_ROOT = root,
     RENV_PATHS_LIBRARY = NULL,
@@ -49,7 +49,8 @@ renv_tests_setup_envvars <- function(scope = parent.frame()) {
     RENV_PATHS_LOCAL = NULL,
     RENV_PATHS_LOCKFILE = NULL,
     RENV_PATHS_RENV = NULL,
-    RENV_AUTOLOAD_ENABLED = FALSE,
+    RENV_WATCHDOG_ENABLED = FALSE,
+    RENV_WATCHDOG_DEBUG = FALSE,
     scope = scope
   )
 

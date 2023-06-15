@@ -1,7 +1,7 @@
 
 # controls whether hashes are computed when computing a snapshot
 # can be scoped to FALSE when hashing is not necessary
-`_renv_snapshot_hash` <- TRUE
+the$snapshot_hash <- TRUE
 
 #' Record current state of the project library in the lockfile
 #'
@@ -709,7 +709,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   }
 
   # generate a hash if we can
-  dcf[["Hash"]] <- if (`_renv_snapshot_hash`) {
+  dcf[["Hash"]] <- if (the$snapshot_hash) {
     if (is.null(path))
       renv_hash_description_impl(dcf)
     else
@@ -772,7 +772,7 @@ renv_snapshot_description_source <- function(dcf) {
 
   # if this is running as part of the synchronization check, skip CRAN queries
   # https://github.com/rstudio/renv/issues/812
-  if (`_renv_project_synchronized_check_running`)
+  if (the$project_synchronized_check_running)
     return(list(Source = "unknown"))
 
   # NOTE: this is sort of a hack that allows renv to declare packages which
@@ -1025,7 +1025,7 @@ renv_snapshot_filter_impl <- function(project, records, packages, type, exclude)
   # warn if some required packages are missing
   ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
   missing <- setdiff(packages, c(names(records), ignored, exclude))
-  if (!`_renv_status_running`)
+  if (!the$status_running)
     renv_snapshot_filter_report_missing(missing, type)
 
   # ignore packages as defined by project

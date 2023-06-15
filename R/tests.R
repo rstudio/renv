@@ -1,5 +1,5 @@
 
-`_renv_tests_root` <- NULL
+the$tests_root <- NULL
 
 renv_tests_running <- function() {
   getOption("renv.tests.running", default = FALSE)
@@ -124,7 +124,7 @@ renv_tests_diagnostics <- function() {
 }
 
 renv_tests_root <- function() {
-  `_renv_tests_root` <<- `_renv_tests_root` %||% {
+  the$tests_root <- the$tests_root %||% {
     renv_path_normalize(testthat::test_path("."))
   }
 }

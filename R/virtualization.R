@@ -1,5 +1,5 @@
 
-`_renv_virtualization_type` <- NULL
+the$virtualization_type <- NULL
 
 renv_virtualization_init <- function() {
 
@@ -8,12 +8,12 @@ renv_virtualization_init <- function() {
     error = function(e) "unknown"
   )
 
-  `_renv_virtualization_type` <<- type
+  the$virtualization_type <- type
 
 }
 
 renv_virtualization_type <- function() {
-  `_renv_virtualization_type`
+  the$virtualization_type
 }
 
 renv_virtualization_type_impl <- function() {

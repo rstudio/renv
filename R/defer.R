@@ -1,6 +1,6 @@
 
 # environment hosting exit callbacks
-`_renv_defer_callbacks` <- new.env(parent = emptyenv())
+the$defer_callbacks <- new.env(parent = emptyenv())
 
 defer <- function(expr, scope = parent.frame()) {
 
@@ -19,7 +19,7 @@ renv_defer_id <- function(envir) {
 
 renv_defer_get <- function(envir) {
   id <- renv_defer_id(envir)
-  `_renv_defer_callbacks`[[id]]
+  the$defer_callbacks[[id]]
 }
 
 renv_defer_set <- function(envir, handlers) {
@@ -35,13 +35,13 @@ renv_defer_set <- function(envir, handlers) {
 
   # register the newly-set handlers
   id <- renv_defer_id(envir)
-  `_renv_defer_callbacks`[[id]] <- handlers
+  the$defer_callbacks[[id]] <- handlers
 
 }
 
 renv_defer_remove <- function(envir) {
   id <- renv_defer_id(envir)
-  rm(list = id, envir = `_renv_defer_callbacks`)
+  rm(list = id, envir = the$defer_callbacks)
 }
 
 renv_defer_execute <- function(envir = parent.frame()) {

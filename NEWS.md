@@ -5,6 +5,12 @@
   appear to be installed from sources; that is, for packages without a
   recognizable remote source encoded in its DESCRIPTION file. (#841)
 
+* `load()` gives a more informative message if a lockfile is present but 
+  no packages are installed (#353).
+
+* `renv` now provides a small family of functions for interacting with `renv`
+  lockfiles -- see `?lockfile` for more details. (#1438)
+
 * `renv` now activates the Bioconductor repositories when installing a package
   from a remote (e.g. GitHub) which declares a Bioconductor dependency (via
   a non-empty 'biocViews' field). (#934)

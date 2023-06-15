@@ -205,7 +205,7 @@ test_that("RENV_PATHS_RENV is respected on init", {
   args <- c("-s", "-f", script)
   renv <- renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
 
-  expect_equal(renv, ".renv")
+  expect_equal(tail(renv, n = 1L), ".renv")
 
 })
 

@@ -34,7 +34,6 @@ renv_dots_check <- function(...) {
   n <- length(matched[["..."]])
 
   message <- paste("unused", plural("argument", n), args)
-  err <- simpleError(message = message, call = call)
-  stop(err)
+  stop(simpleError(message = message, call = call))
 
 }

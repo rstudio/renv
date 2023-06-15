@@ -1,5 +1,5 @@
 
-`_renv_update_errors` <- new.env(parent = emptyenv())
+the$update_errors <- new.env(parent = emptyenv())
 
 renv_update_find_repos <- function(records) {
 
@@ -283,7 +283,7 @@ update <- function(packages = NULL,
   }
 
   # get package records
-  renv_scope_binding(renv_envir_self(), "_renv_snapshot_hash", FALSE)
+  renv_scope_binding(the, "snapshot_hash", FALSE)
   records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
   packages <- packages %||% names(records)
 
@@ -405,13 +405,13 @@ update <- function(packages = NULL,
 }
 
 renv_update_errors_set <- function(key, errors) {
-  assign(key, errors, envir = `_renv_update_errors`)
+  assign(key, errors, envir = the$update_errors)
 }
 
 renv_update_errors_clear <- function() {
   rm(
-    list = ls(envir = `_renv_update_errors`, all.names = TRUE),
-    envir = `_renv_update_errors`
+    list = ls(envir = the$update_errors, all.names = TRUE),
+    envir = the$update_errors
   )
 }
 
@@ -421,7 +421,7 @@ renv_update_errors_emit <- function() {
   defer(renv_update_errors_clear())
 
   # if we have any errors, start by emitting a single newline
-  all <- ls(envir = `_renv_update_errors`, all.names = TRUE)
+  all <- ls(envir = the$update_errors, all.names = TRUE)
   if (!empty(all))
     writef()
 
@@ -435,7 +435,7 @@ renv_update_errors_emit <- function() {
 
 renv_update_errors_emit_impl <- function(key, preamble, postamble) {
 
-  errors <- `_renv_update_errors`[[key]]
+  errors <- the$update_errors[[key]]
   if (empty(errors))
     return()
 

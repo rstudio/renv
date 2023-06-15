@@ -1,15 +1,15 @@
 
-`_renv_library_info` <- NULL
+the$library_info <- NULL
 
-`_renv_snapshot_running` <- FALSE
-`_renv_snapshot_suppressed` <- FALSE
+the$snapshot_running <- FALSE
+the$snapshot_suppressed <- FALSE
 
 # nocov start
 renv_snapshot_auto <- function(project) {
 
   # set some state so we know we're running
-  `_renv_snapshot_running` <<- TRUE
-  defer(`_renv_snapshot_running` <<- FALSE)
+  the$snapshot_running <- TRUE
+  defer(the$snapshot_running <- FALSE)
 
   # passed pre-flight checks; snapshot the library
   updated <- tryCatch(
@@ -93,12 +93,12 @@ renv_snapshot_auto_update <- function(project = renv_project_get() ) {
   new <- c(info[fields])
 
   # update our cached info
-  old <- `_renv_library_info`
-  `_renv_library_info` <<- new
+  old <- the$library_info
+  the$library_info <- new
 
   # if we've suppressed the next automatic snapshot, bail here
-  if (`_renv_snapshot_suppressed`) {
-    `_renv_snapshot_suppressed` <<- FALSE
+  if (the$snapshot_suppressed) {
+    the$snapshot_suppressed <- FALSE
     return(FALSE)
   }
 
@@ -127,11 +127,11 @@ renv_snapshot_task <- function() {
 renv_snapshot_auto_suppress_next <- function() {
 
   # if we're currently running an automatic snapshot, then nothing to do
-  if (`_renv_snapshot_running`)
+  if (the$snapshot_running)
     return()
 
   # otherwise, set the suppressed flag
-  `_renv_snapshot_suppressed` <<- TRUE
+  the$snapshot_suppressed <- TRUE
 
 }
 

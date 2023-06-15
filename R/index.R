@@ -1,5 +1,5 @@
 
-`_renv_index` <- new.env(parent = emptyenv())
+the$index <- new.env(parent = emptyenv())
 
 index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
 
@@ -90,7 +90,7 @@ renv_index_get <- function(root, scope, index, key, now, limit) {
     return(NULL)
 
   # check for in-memory cached value
-  value <- `_renv_index`[[scope]][[key]]
+  value <- the$index[[scope]][[key]]
   if (!is.null(value))
     return(value)
 
@@ -103,11 +103,11 @@ renv_index_get <- function(root, scope, index, key, now, limit) {
   value <- readRDS(data)
 
   # add to in-memory cache
-  `_renv_index`[[scope]] <-
-    `_renv_index`[[scope]] %||%
+  the$index[[scope]] <-
+    the$index[[scope]] %||%
     new.env(parent = emptyenv())
 
-  `_renv_index`[[scope]][[key]] <- value
+  the$index[[scope]][[key]] <- value
 
   # return value
   value
@@ -178,7 +178,7 @@ renv_index_clean_impl <- function(key, entry, root, scope, index, now, limit) {
     return(TRUE)
 
   # remove from in-memory cache
-  cache <- `_renv_index`[[scope]]
+  cache <- the$index[[scope]]
   cache[[key]] <- NULL
 
   # remove from disk

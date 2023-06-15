@@ -1,5 +1,5 @@
 
-`_renv_restore_state` <- NULL
+the$restore_state <- NULL
 
 #' Restore project library from a lockfile
 #'
@@ -191,7 +191,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 }
 
 renv_restore_state <- function(key = NULL) {
-  state <- `_renv_restore_state`
+  state <- the$restore_state
   if (is.null(key)) state else state[[key]]
 }
 
@@ -212,10 +212,10 @@ renv_restore_begin <- function(project = NULL,
   )
 
   # get previous restore state (so we can restore it after if needed)
-  oldstate <- `_renv_restore_state`
+  oldstate <- the$restore_state
 
   # set new restore state
-  `_renv_restore_state` <<- env(
+  the$restore_state <- env(
 
     # the active project (if any) used for restore
     project = project,
@@ -263,7 +263,7 @@ renv_restore_begin <- function(project = NULL,
 }
 
 renv_restore_end <- function(state) {
-  `_renv_restore_state` <<- state
+  the$restore_state <- state
 }
 
 # nocov start
