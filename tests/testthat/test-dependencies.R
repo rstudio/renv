@@ -84,27 +84,31 @@ test_that("targets::tar_option_set() dependencies are handled", {
   expect_setequal(deps$Package, c("A", "B", "targets"))
 })
 
-test_that("renv warns when large number of files found", {
+test_that("renv warns when large number of files found in total", {
+
+  renv_scope_options(renv.config.dependencies.limit = 5L)
+  strip_dir <- function(x) gsub(basename(getwd()), "<project-dir>", x)
 
   renv_tests_scope()
-
-  files <- sprintf("%.3i.R", 1:10)
-  file.create(files)
-
-  output <- local({
-
-    renv_scope_options(
-      renv.verbose = TRUE,
-      renv.config.dependencies.limit = 5L
-    )
-
-    capture.output(invisible(dependencies()))
-
-  })
-
-  expect_true(length(output) > 0)
+  dir.create("a")
+  dir.create("b")
+  file.create(sprintf("a/%.3i.R", 1:3))
+  file.create(sprintf("b/%.3i.R", 1:3))
+  expect_snapshot(. <- dependencies())
 
 })
+
+test_that("renv warns when large number of files found in one directory", {
+
+  renv_scope_options(renv.config.dependencies.limit = 5L)
+  strip_dir <- function(x) gsub(basename(getwd()), "<project-dir>", x)
+
+  renv_tests_scope()
+  file.create(sprintf("%.3i.R", 1:10))
+  expect_snapshot(. <- dependencies(), transform = strip_dir)
+
+})
+
 
 test_that("evil knitr chunks are handled", {
   deps <- dependencies("resources/evil.Rmd")
@@ -414,13 +418,6 @@ test_that("we can parse remotes from a DESCRIPTION file", {
   deps <- renv_dependencies_discover_description(descfile, fields = "Remotes")
   expect_equal(deps$Package, "r-dbi/DBItest")
 
-})
-
-test_that("renv warns when parsing dependencies from a folder with too many files", {
-  renv_tests_scope()
-  file.create(letters)
-  renv_scope_options(renv.dependencies.limit = 10L)
-  expect_error(dependencies(progress = FALSE, errors = "fatal"))
 })
 
 test_that("dependencies ignore pseudo-code in YAML metadata", {
