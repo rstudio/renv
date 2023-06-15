@@ -20,6 +20,7 @@ renv_dots_check <- function(...) {
     dots[["confirm"]] <- NULL
   }
 
+  # check for empty dots
   if (length(dots) == 0)
     return(TRUE)
 
