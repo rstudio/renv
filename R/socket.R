@@ -8,7 +8,7 @@ renv_socket_server <- function(min = 49152, max = 65535) {
 
   # create the socket server
   port <- socket <- NULL
-  for (i in 1:100) catch({
+  for (i in 1:2000) catch({
     port <- sample(min:max, size = 1L)
     socket <- serverSocket(port)
     break

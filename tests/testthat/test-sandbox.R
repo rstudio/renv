@@ -68,3 +68,40 @@ test_that(".Library.site isn't used even when sandbox is disabled", {
   renv_sandbox_deactivate()
 
 })
+
+test_that("multiple processes can attempt to acquire the sandbox", {
+
+  # number of processes
+  n <- 20
+
+  server <- tryCatch(renv_socket_server(), error = skip)
+  defer(close(server$socket))
+
+  project <- renv_tests_scope()
+
+  script <- renv_test_code({
+    renv:::renv()
+    renv_sandbox_activate(project)
+    conn <- renv_socket_connect(port = port, open = "wb")
+    defer(close(conn))
+    writeLines(paste(Sys.getpid()), con = conn)
+  }, list(project = project, file = file, port = server$port))
+
+  for (i in seq_len(n)) {
+    system2(
+      command = R(),
+      args = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+      wait = FALSE
+    )
+  }
+
+  stk <- stack()
+  for (i in seq_len(n)) local({
+    conn <- renv_socket_accept(server$socket, open = "rb", timeout = 10)
+    defer(close(conn))
+    stk$push(readLines(conn))
+  })
+
+  expect_length(stk$data(), n)
+
+})
