@@ -31,6 +31,8 @@
       
       - BiocGenerics [<version>]
       
+      
       Installing BiocGenerics ... OK [copied from cache]
-      Installed 1 package in XXXX seconds.
+      
+      Successfully installed 1 package in XXXX seconds.
 
