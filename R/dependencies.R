@@ -1,6 +1,4 @@
 
-the$dependencies <- new.env(parent = emptyenv())
-
 #' Find R package dependencies in a project
 #'
 #' @description
@@ -212,17 +210,7 @@ renv_dependencies_impl <- function(
   # resolve errors
   errors <- match.arg(errors)
 
-  # check and see if we've pre-computed dependencies for this path, and
-  # retrieve those pre-computed dependencies if so
-  if (length(path) == 1L) {
-    if (exists(path, envir = the$dependencies)) {
-      cache <- get(path, envir = the$dependencies)
-      return(take(cache, field))
-    }
-  }
-
-  renv_dependencies_begin(root = root)
-  defer(renv_dependencies_end())
+  renv_dependencies_scope(root = root)
 
   dots <- list(...)
   if (identical(dots[["quiet"]], TRUE)) {
@@ -1583,13 +1571,10 @@ renv_dependencies_state <- function(key = NULL) {
   if (is.null(key)) state else state[[key]]
 }
 
-renv_dependencies_begin <- function(root = NULL) {
+renv_dependencies_scope <- function(root = NULL, scope = parent.frame()) {
   state <- env(root = root, scanned = env(), problems = stack())
   the$dependencies_state <- state
-}
-
-renv_dependencies_end <- function() {
-  the$dependencies_state <- NULL
+  defer(the$dependencies_state <- NULL, scope = scope)
 }
 
 renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
