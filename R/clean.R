@@ -80,8 +80,6 @@ clean <- function(project = NULL,
 
   renv_activate_prompt("clean", NULL, prompt, project)
 
-  renv_dependencies_scope(project, action = "clean")
-
   actions <- actions %||% renv_clean_actions(prompt)
 
   all <- list(
@@ -216,7 +214,7 @@ renv_clean_unused_packages <- function(project, prompt) {
     return(ntd())
 
   # find packages used in the project and their dependencies
-  deps <- renv_dependencies_impl(project, progress = FALSE)
+  deps <- renv_dependencies_confirm("clean", project, dev = TRUE)
   paths <- renv_package_dependencies(deps$Package, project = project)
   packages <- names(paths)
 

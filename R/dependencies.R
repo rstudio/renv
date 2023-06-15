@@ -1655,53 +1655,27 @@ renv_dependencies_report <- function(errors) {
     stopf(fmt)
   }
 
-  renv_condition_signal("renv.dependencies.error", problems)
+  renv_condition_signal("renv.dependencies.problem", problems)
   TRUE
 
 }
 
-renv_dependencies_scope <- function(path, action, scope = parent.frame()) {
+renv_dependencies_confirm <- function(action, path, ...) {
 
-  path <- renv_path_normalize(path, mustWork = TRUE)
-  if (exists(path, envir = the$dependencies))
-    return(get(path, envir = the$dependencies))
-
-  errors <- config$dependency.errors()
-  message <- paste(action, "aborted")
-
-  deps <- withCallingHandlers(
-    renv_dependencies_impl(path, progress = FALSE, errors = errors, dev = TRUE),
-    renv.dependencies.error = renv_dependencies_error_handler(message, errors)
-  )
-
-  assign(path, deps, envir = the$dependencies)
-  defer(rm(list = path, envir = the$dependencies), scope = scope)
-
-  invisible(deps)
-
-}
-
-renv_dependencies_error_handler <- function(message, errors) {
-
-  force(message)
-  force(errors)
-
-  function(condition) {
-
-    if (identical(errors, "fatal") || interactive() && !proceed()) {
-
-      condition <- structure(
-        list(message = message, call = NULL, traceback = FALSE),
-        class = c("renv.dependencies.error", "error", "condition")
-      )
-
-      stop(condition)
-
+  withCallingHandlers(
+    renv_dependencies_impl(
+      path = path,
+      ...,
+      progress = FALSE,
+      errors = config$dependency.errors()
+    ),
+    renv.dependencies.problem = function(cnd) {
+      # Require user confirmation to proceed if there's a reported error
+      if (interactive() && !proceed()) {
+        cancel()
+      }
     }
-
-    renv_condition_data(condition)
-
-  }
+  )
 }
 
 renv_dependencies_eval <- function(expr) {
