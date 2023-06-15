@@ -331,7 +331,7 @@ header <- function(label,
                    suffix = "-",
                    n = min(getOption("width"), 78))
 {
-  n <- max(n - nchar(label) - nchar(prefix) - 2L, 3)
+  n <- max(n - nchar(label) - nchar(prefix) - 2L, 8L)
   if (n <= 0)
     return(paste(prefix, label))
 

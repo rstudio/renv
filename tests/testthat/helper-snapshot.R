@@ -25,14 +25,14 @@ strip_dirs <- function(x) {
   # note also that order matters for snapshot tests; the least-specific
   # paths should go at the end of this list
   filters <- list(
+    "<R>"               = file.path(R.home("bin"), "R"),
     "<cache>"           = renv_paths_cache(),
     "<platform-prefix>" = renv_platform_prefix(),
     "<r-version>"       = getRversion(),
     "<test-repo>"       = getOption("repos")[[1L]],
     "<root>"            = renv_path_normalize(renv_paths_root()),
     "<wd>"              = renv_path_normalize(getwd()),
-    "<tempdir>"         = renv_path_normalize(tempdir()),
-    "<R>"               = file.path(R.home("bin"), "R")
+    "<tempdir>"         = renv_path_normalize(tempdir())
   )
 
   # apply filters
@@ -46,7 +46,7 @@ strip_dirs <- function(x) {
   x <- gsub(renv_path_aliased(tempdir()), "<tempdir>", x, fixed = TRUE)
 
   # Standardise the dashes produced by header()
-  x <- gsub("-{3,}", "---", x, perl = TRUE)
+  x <- gsub("-{3,}\\s*$", "---", x, perl = TRUE)
 
   x
 

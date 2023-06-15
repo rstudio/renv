@@ -6,13 +6,15 @@
       # Downloading packages ---
       [no downloads required]
       
-      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread [0.1.0]
       
+      These packages will be installed into "<tempdir>/<renv-library>".
       
-      Installing bread ... OK [copied from cache]
+      # Installing packages ---
+      
+      - Installing bread ... OK [copied from cache]
       
       Successfully installed 1 package in XXXX seconds.
       
@@ -38,7 +40,6 @@
       Retrieving '<test-repo>/src/contrib/bread_1.0.0.tar.gz' ...
       	OK [downloaded XXXX bytes in XXXX seconds]
       
-      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread     [1.0.0]
@@ -46,6 +47,9 @@
       - oatmeal   [1.0.0]
       - toast     [1.0.0]
       
+      These packages will be installed into "<tempdir>/<renv-library>".
+      
+      # Installing packages ---
       
       Installing oatmeal   ... OK [built from source and cached]
       Installing bread     ... OK [built from source and cached]
@@ -62,7 +66,6 @@
       # Downloading packages ---
       [no downloads required]
       
-      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread     [1.0.0]
@@ -70,11 +73,14 @@
       - oatmeal   [1.0.0]
       - toast     [1.0.0]
       
+      These packages will be installed into "<tempdir>/<renv-library>".
       
-      Installing oatmeal   ... OK [copied from cache]
-      Installing bread     ... OK [copied from cache]
-      Installing toast     ... OK [copied from cache]
-      Installing breakfast ... OK [copied from cache]
+      # Installing packages ---
+      
+      - Installing oatmeal   ... OK [copied from cache]
+      - Installing bread     ... OK [copied from cache]
+      - Installing toast     ... OK [copied from cache]
+      - Installing breakfast ... OK [copied from cache]
       
       Successfully installed 4 packages in XXXX seconds.
 

@@ -190,13 +190,15 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
-  libpath <- renv_path_pretty(renv_libpaths_active())
-  writef(header(sprintf("Installing packages into %s", libpath)))
-  if (prompt || renv_verbose())
-    renv_install_report(records)
-  cancel_if(prompt && !proceed())
+  if (prompt || renv_verbose()) {
+    renv_install_report(records, library = renv_libpaths_active())
+    cancel_if(prompt && !proceed())
+    if (prompt && interactive())
+      writef("")
+  }
 
   # install retrieved records
+  writef(header("Installing packages"))
   writef("")
   before <- Sys.time()
   renv_install_impl(records)
@@ -338,8 +340,8 @@ renv_install_default <- function(records) {
   state <- renv_restore_state()
   handler <- state$handler
 
-  pkg_width <- max(nchar(map_chr(records, function(x) x$Package)), 1)
-  renv_scope_options(renv.package.width = pkg_width)
+  width <- max(nchar(map_chr(records, function(x) x$Package)), 1)
+  renv_scope_binding(the, "package_width", width)
 
   for (record in records) {
     package <- record$Package
@@ -789,18 +791,19 @@ renv_install_preflight <- function(project, libpaths, records) {
 
 }
 
-renv_install_report <- function(records) {
+renv_install_report <- function(records, library) {
   renv_pretty_print_records(
     records,
-    preamble = "The following package(s) will be installed:"
+    preamble  = "The following package(s) will be installed:",
+    postamble = sprintf("These packages will be installed into %s.", renv_path_pretty(library))
   )
 }
 
 renv_install_step_start <- function(action, package) {
   printf(
-    "%s %s ... ",
-    format(action, width = nchar("Installing")),
-    format(package, width = getOption("renv.package.width"))
+    "- %s %s ... ",
+    format(action, width = nchar(action)),
+    format(package, width = the$package_width %||% 12)
   )
 }
 

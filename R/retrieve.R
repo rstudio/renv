@@ -29,7 +29,6 @@ retrieve <- function(packages) {
   renv_scope_options(HTTPUserAgent = agent)
 
   writef(header("Downloading packages"))
-  # TODO: parallel?
   handler <- state$handler
   for (package in packages)
     handler(package, renv_retrieve_impl(package))
