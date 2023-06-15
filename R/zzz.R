@@ -170,6 +170,7 @@ renv_zzz_bootstrap_config <- function() {
     "",
     "#' @rdname config",
     "#' @export",
+    "#' @format NULL",
     "config <- list(",
     "",
     paste(code, collapse = ",\n\n"),

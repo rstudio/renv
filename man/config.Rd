@@ -4,9 +4,6 @@
 \name{config}
 \alias{config}
 \title{User-level settings}
-\format{
-An object of class \code{list} of length 40.
-}
 \usage{
 config
 }
@@ -71,6 +68,8 @@ Defaults to \code{TRUE}.}
 Defaults to \code{NULL}.}
 \subsection{renv.config.dependency.errors}{Many renv APIs require the enumeration of your project's \R package dependencies. This option controls how errors that occur during this enumeration are handled. By default, errors are reported but are non-fatal. Set this to \code{"fatal"} to force errors to be fatal, and \code{"ignored"} to ignore errors altogether. See \code{\link[=dependencies]{dependencies()}} for more details.
 Defaults to \code{"reported"}.}
+\subsection{renv.config.dependencies.limit}{By default, renv reports if it discovers more than this many files when looking for dependencies, as that may indicate you are running \code{dependencies()} in the wrong place. Set to \code{Inf} to disable this warning.
+Defaults to \code{1000L}.}
 \subsection{renv.config.exported.functions}{When \code{library(renv)} is called, should its exports be placed on the search path? Set this to \code{FALSE} to avoid issues that can arise with, for example, \code{renv::load()} masking \code{base::load()}. In general, we recommend referencing renv functions from its namespace explicitly; e.g. prefer \code{renv::snapshot()} over \code{snapshot()}.
 By default, all exported renv functions are attached and placed on the search path, for backwards compatibility with existing scripts using renv.
 Defaults to \code{"*"}.}

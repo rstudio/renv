@@ -3,6 +3,7 @@
 
 #' @rdname config
 #' @export
+#' @format NULL
 config <- list(
 
   activate.prompt = function(..., default = TRUE) {
