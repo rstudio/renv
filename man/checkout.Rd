@@ -58,9 +58,9 @@ that of an existing CRAN package, but is otherwise unrelated to the package
 on CRAN.
 
 Note that \code{renv::checkout()} does not update the project lockfile; it only
-installs the packages from the provided repository. You can call \code{\link[=snapshot]{snapshot()}}
-after you've confirmed that the installed packages function as expected in
-your project.
+installs the packages from the provided repository. You should call
+\code{\link[=snapshot]{snapshot()}} after you've confirmed that the installed packages function as
+expected in your project.
 }
 \examples{
 \dontrun{

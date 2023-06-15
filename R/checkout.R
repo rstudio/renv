@@ -20,9 +20,9 @@
 #' on CRAN.
 #'
 #' Note that `renv::checkout()` does not update the project lockfile; it only
-#' installs the packages from the provided repository. You can call [snapshot()]
-#' after you've confirmed that the installed packages function as expected in
-#' your project.
+#' installs the packages from the provided repository. You should call
+#' [snapshot()] after you've confirmed that the installed packages function as
+#' expected in your project.
 #'
 #' @inheritParams renv-params
 #'
