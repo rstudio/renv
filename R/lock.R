@@ -4,33 +4,26 @@ the$lock_registry <- new.env(parent = emptyenv())
 renv_lock_acquire <- function(path) {
 
   # normalize path
-  dlog("lock", "%s: acquiring lock", renv_path_pretty(path))
   path <- renv_lock_path(path)
 
   # if we already have this lock, increment our counter
   count <- the$lock_registry[[path]] %||% 0L
   if (count > 0L) {
-    dlog("lock", "%s: incrementing lock count to %i", renv_path_pretty(path), count + 1L)
     the$lock_registry[[path]] <- count + 1L
     return(TRUE)
   }
 
+  # make sure parent directory exists
+  ensure_parent_directory(path)
+
+  # make sure warnings are errors here
+  renv_scope_options(warn = 2L)
+
   # loop until we acquire the lock
-  repeat {
-
-    acquired <- tryCatch(
-      renv_lock_acquire_impl(path),
-      condition = function(e) FALSE
-    )
-
-    if (!acquired) {
-      Sys.sleep(1)
-      next
-    }
-
-    break
-
-  }
+  repeat tryCatch(
+    renv_lock_acquire_impl(path) && break,
+    error = function(cnd) Sys.sleep(0.2)
+  )
 
   # mark this path as locked by us
   the$lock_registry[[path]] <- 1L
@@ -39,11 +32,12 @@ renv_lock_acquire <- function(path) {
   renv_watchdog_notify("LockAcquired", list(path = path))
 
   # TRUE to mark successful lock
-  dlog("lock", "%s: acquired lock", renv_path_pretty(path))
+  dlog("lock", "%s [lock acquired]", renv_path_pretty(path))
   TRUE
 
 }
 
+# https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
 renv_lock_acquire_impl <- function(path) {
 
   # check for orphaned locks
@@ -52,10 +46,7 @@ renv_lock_acquire_impl <- function(path) {
     unlink(path, recursive = TRUE, force = TRUE)
   }
 
-  # make sure parent directory exists
-  ensure_parent_directory(path)
-
-  # https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
+  # attempt to create the lock
   dir.create(path, mode = "0755")
 
 }
@@ -63,23 +54,23 @@ renv_lock_acquire_impl <- function(path) {
 renv_lock_release <- function(path) {
 
   # normalize path
-  dlog("lock", "%s: releasing lock", renv_path_pretty(path))
   path <- renv_lock_path(path)
 
   # decrement our lock count
   count <- the$lock_registry[[path]] <- the$lock_registry[[path]] - 1L
-  dlog("lock", "%s: decrementing lock count to %i", renv_path_pretty(path), count)
 
   # remove the lock if we have no more locks
   if (count == 0L) {
-    dlog("lock", "%s: removing lock", renv_path_pretty(path))
+    dlog("lock", "%s [lock released]", renv_path_pretty(path))
     renv_lock_release_impl(path)
   }
 
 }
 
 renv_lock_release_impl <- function(path) {
+  renv_scope_options(warn = -1L)
   unlink(path, recursive = TRUE, force = TRUE)
+  rm(list = path, envir = the$lock_registry)
   renv_watchdog_notify("LockReleased", list(path = path))
 }
 
@@ -98,9 +89,8 @@ renv_lock_orphaned <- function(path) {
 
 }
 
-renv_lock_refresh <- function(path) {
-  dlog("lock", "%s: refreshing lock", renv_path_pretty(path))
-  Sys.chmod(path)
+renv_lock_refresh <- function(lock) {
+  Sys.setFileTime(lock, Sys.time())
 }
 
 renv_lock_init <- function() {

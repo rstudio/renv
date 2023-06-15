@@ -1,6 +1,6 @@
 
 # whether or not the user has enabled the renv watchdog in this session
-the$watchdog_enabled <- NULL
+the$watchdog_enabled <- FALSE
 
 # metadata related to the running watchdog process, if any
 the$watchdog_process <- NULL
@@ -10,20 +10,7 @@ renv_watchdog_init <- function() {
   the$watchdog_enabled <- renv_watchdog_enabled_impl()
 
   reg.finalizer(renv_envir_self(), function(envir) {
-
-    # tell watchdog to shutdown
-    renv_watchdog_notify("Shutdown")
-    renv_watchdog_unload()
-
-    # wait for process to exit (avoid RStudio bomb)
-    for (i in 1:10) {
-      if (renv_watchdog_running()) {
-        Sys.sleep(0.1)
-      } else {
-        break
-      }
-    }
-
+    renv_watchdog_shutdown()
   }, onexit = TRUE)
 
 }
@@ -51,8 +38,13 @@ renv_watchdog_enabled_impl <- function() {
     return(FALSE)
 
   # skip if explicitly disabled via envvar
-  enabled <- Sys.getenv("RENV_WATCHDOG_ENABLED", unset = "TRUE")
-  if (!truthy(enabled))
+  enabled <- Sys.getenv("RENV_WATCHDOG_ENABLED", unset = NA)
+  if (!is.na(enabled))
+    return(truthy(enabled))
+
+  # disable on Windows; need to understand CI test failures
+  # https://github.com/rstudio/renv/actions/runs/5273668333/jobs/9537353788#step:6:242
+  if (renv_platform_windows())
     return(FALSE)
 
   # skip during R CMD check (but not when running tests)
@@ -120,13 +112,14 @@ renv_watchdog_start_impl <- function() {
   )
 
   # wait for connection from watchdog server
-  conn <- renv_socket_accept(socket, open = "r+b", timeout = 10)
+  conn <- renv_socket_accept(socket, open = "rb", timeout = 10)
   defer(close(conn))
 
   # store information about the running process
   the$watchdog_process <- unserialize(conn)
 
-  invisible(TRUE)
+  # return TRUE to indicate process was started
+  TRUE
 
 }
 
@@ -147,7 +140,7 @@ renv_watchdog_notify_impl <- function(method, data = list()) {
 
   # connect to the running server
   port <- renv_watchdog_port()
-  conn <- renv_socket_connect(port, open = "w+b")
+  conn <- renv_socket_connect(port, open = "wb")
 
   # close the connection on exit
   defer(close(conn))
@@ -162,7 +155,6 @@ renv_watchdog_notify_impl <- function(method, data = list()) {
 }
 
 renv_watchdog_request <- function(method, data = list()) {
-
   tryCatch(
     renv_watchdog_request_impl(method, data),
     error = warning
@@ -177,7 +169,7 @@ renv_watchdog_request_impl <- function(method, data = list()) {
 
   # connect to the running server
   port <- renv_watchdog_port()
-  outgoing <- renv_socket_connect(port, open = "w+b")
+  outgoing <- renv_socket_connect(port, open = "wb")
   defer(close(outgoing))
 
   # create our own socket server
@@ -189,7 +181,7 @@ renv_watchdog_request_impl <- function(method, data = list()) {
   serialize(message, connection = outgoing)
 
   # now, open a new connection to get the response
-  incoming <- renv_socket_accept(server$socket, open = "r+b")
+  incoming <- renv_socket_accept(server$socket, open = "rb")
   defer(close(incoming))
 
   # read the response
@@ -211,8 +203,41 @@ renv_watchdog_running <- function() {
 }
 
 renv_watchdog_unload <- function() {
+  renv_watchdog_terminate()
+}
+
+renv_watchdog_terminate <- function() {
   if (renv_watchdog_running()) {
     pid <- renv_watchdog_pid()
     renv_process_kill(pid)
   }
+}
+
+renv_watchdog_shutdown <- function() {
+
+  # nothing to do if watchdog isn't running
+  if (!renv_watchdog_running())
+    return(TRUE)
+
+  # tell watchdog to shutdown
+  renv_watchdog_notify("Shutdown")
+
+  # wait for process to exit (avoid RStudio bomb)
+  clock <- timer()
+  wait_until(function() {
+    !renv_watchdog_running() || clock$elapsed() > 1
+  })
+
+  if (!renv_watchdog_running())
+    return(TRUE)
+
+  # if it's still running, explicitly terminate it
+  renv_watchdog_terminate()
+
+  # wait for process to exit (avoid RStudio bomb)
+  clock <- timer()
+  wait_until(function() {
+    !renv_watchdog_running() || clock$elapsed() > 1
+  })
+
 }

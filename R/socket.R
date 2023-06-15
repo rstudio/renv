@@ -7,12 +7,12 @@ if (getRversion() < "4.0") {
 renv_socket_server <- function(min = 49152, max = 65535) {
 
   # create the socket server
-  socket <- NULL
-  for (i in 1:100) tryCatch({
+  port <- socket <- NULL
+  for (i in 1:100) catch({
     port <- sample(min:max, size = 1L)
     socket <- serverSocket(port)
     break
-  }, error = identity)
+  })
 
   # if we still don't have a socket here, we failed
   if (is.null(socket))
@@ -28,6 +28,7 @@ renv_socket_server <- function(min = 49152, max = 65535) {
 
 renv_socket_connect <- function(port, open, timeout = getOption("timeout")) {
   socketConnection(
+    host = "127.0.0.1",
     port = port,
     open = open,
     blocking = TRUE,
