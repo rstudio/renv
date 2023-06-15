@@ -45,7 +45,8 @@ not when computers are deploying it).
 
 Development dependencies include packages listed in the \code{Suggests} field
 of a \code{DESCRIPTION} found in the project root, and roxygen2 or devtools if
-their use is implied by other project metadata.}
+their use is implied by other project metadata. They also include packages
+used in \verb{~/.Rprofile} if \code{config$user.profile()} is \code{TRUE}.}
 }
 \value{
 An \R \code{data.frame} of discovered dependencies, mapping inferred
