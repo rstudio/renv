@@ -23,9 +23,15 @@ renv_pretty_print <- function(values,
   }
 
   msg$push("")
-  text <- paste(as.character(msg$data()), collapse = "\n")
 
-  # NOTE: Used by vetiver, so is part of the API
+  text <- paste(as.character(msg$data()), collapse = "\n")
+  renv_pretty_print_impl(text)
+
+}
+
+renv_pretty_print_impl <- function(text) {
+
+  # NOTE: Used by vetiver, so perhaps is part of the API
   # https://github.com/rstudio/renv/issues/1413
   emitter <- getOption("renv.pretty.print.emitter", default = writef)
   emitter(text)
@@ -60,12 +66,7 @@ renv_pretty_print_records <- function(records,
     postamble, if (length(postamble)) ""
   )
 
-  # NOTE: Used by vetiver, so is part of the API
-  # https://github.com/rstudio/renv/issues/1413
-  emitter <- getOption("renv.pretty.print.emitter", default = writef)
-  emitter(all)
-
-  invisible(NULL)
+  renv_pretty_print_impl(all)
 }
 
 renv_pretty_print_records_pair <- function(old,
@@ -82,12 +83,7 @@ renv_pretty_print_records_pair <- function(old,
     if (length(postamble)) c(postamble, "")
   )
 
-  # NOTE: Used by vetiver, so is part of the API
-  # https://github.com/rstudio/renv/issues/1413
-  emitter <- getOption("renv.pretty.print.emitter", default = writef)
-  emitter(all)
-
-  invisible(NULL)
+  renv_pretty_print_impl(all)
 }
 
 renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
