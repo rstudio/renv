@@ -25,7 +25,8 @@ test_that("the watchdog process acquires and releases locks as expected", {
       command = R(),
       args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
       stdout = FALSE,
-      stderr = FALSE
+      stderr = FALSE,
+      timeout = 10
     )
   )
 

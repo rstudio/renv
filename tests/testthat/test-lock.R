@@ -174,28 +174,30 @@ test_that("multiple renv processes successfully acquire, release locks", {
 
     code = {
 
+      renv:::renv()
+
       # wait for start file
-      renv:::wait_until(file.exists, start)
+      wait_until(file.exists, start)
 
       # helper function
       increment <- function() {
-        renv:::renv_lock_acquire(lockfile)
+        renv_lock_acquire(lockfile)
         stopifnot(file.exists(lockfile))
         number <- as.integer(readLines(shared))
         writeLines(as.character(number + 1L), con = shared)
-        renv:::renv_lock_release(lockfile)
+        renv_lock_release(lockfile)
         number
       }
 
       # update shared file with lock acquired
-      number <- renv:::catch(increment())
+      number <- catch(increment())
       if (inherits(number, "error"))
         number <- -1L
 
       # notify parent
-      conn <- socketConnection(port = port, open = "wb", blocking = TRUE)
+      conn <- renv_socket_connect(port = port, open = "wb")
+      defer(close(conn))
       serialize(number, connection = conn)
-      close(conn)
 
       # we're done
       invisible()
@@ -225,12 +227,11 @@ test_that("multiple renv processes successfully acquire, release locks", {
 
   # wait for all the processes to communicate
   responses <- stack()
-  for (i in 1:n) {
+  for (i in 1:n) local({
     conn <- renv_socket_accept(server$socket, open = "rb", timeout = 60)
-    data <- unserialize(conn)
-    close(conn)
-    responses$push(data)
-  }
+    defer(close(conn))
+    responses$push(unserialize(conn))
+  })
 
   # check that the count is correct
   contents <- readLines(shared)
