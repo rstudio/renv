@@ -158,7 +158,8 @@ typically required when developing the project, but not when running it
 not when computers are deploying it).</p>
 <p>Development dependencies include packages listed in the <code>Suggests</code> field
 of a <code>DESCRIPTION</code> found in the project root, and roxygen2 or devtools if
-their use is implied by other project metadata.</p></dd>
+their use is implied by other project metadata. They also include packages
+used in <code>~/.Rprofile</code> if <code>config$user.profile()</code> is <code>TRUE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
