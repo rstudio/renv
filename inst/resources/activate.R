@@ -964,7 +964,7 @@ local({
     }
   }
   
-  renv_bootstrap_run <- function(version, library) {
+  renv_bootstrap_run <- function(version, libpath) {
   
     # perform bootstrap
     bootstrap(version, libpath)

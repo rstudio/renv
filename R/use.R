@@ -109,12 +109,12 @@ renv_use_sandbox <- function(sandbox) {
   if (renv_sandbox_activated())
     return(TRUE)
 
-  path <- if (is.character(sandbox))
+  sandbox <- if (is.character(sandbox))
     sandbox
   else
     file.path(tempdir(), "renv-sandbox")
 
   renv_scope_options(renv.config.sandbox.enabled = TRUE)
-  renv_sandbox_activate_impl(path = path)
+  renv_sandbox_activate_impl(sandbox = sandbox)
 
 }

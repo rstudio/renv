@@ -51,7 +51,11 @@ renv_sandbox_activate <- function(project = NULL) {
 
 }
 
-renv_sandbox_activate_impl <- function(project = NULL, path = NULL) {
+renv_sandbox_activate_impl <- function(project = NULL, sandbox = NULL) {
+
+  # lock access to the sandbox
+  lockfile <- paste(sandbox, "lock", sep = ".")
+  renv_scope_lock(lockfile)
 
   # get current library paths
   oldlibs <- .libPaths()
@@ -65,12 +69,12 @@ renv_sandbox_activate_impl <- function(project = NULL, path = NULL) {
   if (config$sandbox.enabled()) {
 
     # generate the sandbox
-    path <- path %||% renv_sandbox_path(project = project)
-    ensure_directory(path)
-    renv_sandbox_generate(path)
+    sandbox <- sandbox %||% renv_sandbox_path(project = project)
+    ensure_directory(sandbox)
+    renv_sandbox_generate(sandbox)
 
     # override .Library
-    renv_binding_replace(base, ".Library", path)
+    renv_binding_replace(base, ".Library", sandbox)
 
   }
 
@@ -132,10 +136,6 @@ renv_sandbox_activate_check <- function(libs) {
 
 renv_sandbox_generate <- function(sandbox) {
 
-  # lock access to the sandbox
-  lockfile <- paste(sandbox, "lock", sep = ".")
-  renv_scope_lock(lockfile)
-
   # make the library temporarily writable
   lock <- getOption("renv.sandbox.locking_enabled") %||% {
     !renv_package_checking() && !renv_path_within(sandbox, tempdir())
@@ -157,7 +157,10 @@ renv_sandbox_generate <- function(sandbox) {
   sources <- with(syspkgs, file.path(LibPath, Package))
   targets <- with(syspkgs, file.path(sandbox, Package))
   names(targets) <- sources
-  enumerate(targets, renv_file_link, overwrite = TRUE)
+  enumerate(targets, function(source, target) {
+    if (!renv_file_same(source, target))
+      renv_file_link(source, target, overwrite = TRUE)
+  })
 
   # make the library unwritable again
   if (lock) {
