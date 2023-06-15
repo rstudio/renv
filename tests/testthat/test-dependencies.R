@@ -30,7 +30,7 @@ test_that("usages of library, etc. are properly handled", {
 })
 
 test_that("parse errors are okay in .Rmd documents", {
-  deps <- dependencies("resources/chunk-errors.Rmd", quiet = TRUE)
+  deps <- dependencies("resources/chunk-errors.Rmd")
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "dplyr"))
 })
@@ -132,19 +132,7 @@ test_that("dependencies can accept multiple files", {
 
   deps <- dependencies(
     path = c("packages/bread", "packages/breakfast"),
-    root = getwd(),
-    quiet = TRUE
-  )
-
-  expect_setequal(deps$Package, c("oatmeal", "toast"))
-
-})
-
-test_that("dependencies can infer the root directory", {
-
-  deps <- dependencies(
-    path = c("packages/bread", "packages/breakfast"),
-    quiet = TRUE
+    root = getwd()
   )
 
   expect_setequal(deps$Package, c("oatmeal", "toast"))
@@ -157,8 +145,7 @@ test_that("no warnings are produced when crawling dependencies", {
     regexp = NA,
     dependencies(
       "resources",
-      root = file.path(getwd(), "resources"),
-      quiet = TRUE
+      root = file.path(getwd(), "resources")
     )
   )
 
@@ -223,7 +210,7 @@ test_that("a call to geom_hex() implies a dependency on ggplot2", {
 })
 
 test_that("empty fields are handled in DESCRIPTION", {
-  deps <- dependencies("resources/DESCRIPTION", progress = FALSE)
+  deps <- dependencies("resources/DESCRIPTION")
   expect_setequal(deps$Package, c("a", "b", "c"))
 })
 
@@ -255,7 +242,7 @@ test_that("dependencies in R functions can be found", {
 test_that("dependencies in dotfiles are discovered", {
   renv_tests_scope()
   writeLines("library(A)", con = ".Rprofile")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true(nrow(deps) == 1L)
   expect_true(basename(deps$Source) == ".Rprofile")
   expect_true(deps$Package == "A")
@@ -267,7 +254,7 @@ test_that("reused knitr chunks are handled", {
 })
 
 test_that("empty / missing labels are handled", {
-  deps <- dependencies("resources/empty-label.Rmd", progress = FALSE)
+  deps <- dependencies("resources/empty-label.Rmd")
   expect_true(all(c("A", "B") %in% deps$Package))
 })
 
@@ -278,85 +265,85 @@ test_that("only dependencies in a top-level DESCRIPTION file are used", {
   writeLines("Depends: toast", con = "DESCRIPTION")
   writeLines("Depends: oatmeal", con = "a/DESCRIPTION")
 
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true("toast" %in% deps$Package)
   expect_false("oatmeal" %in% deps$Package)
 
 })
 
 test_that("multiple output formats are handled", {
-  deps <- dependencies("resources/multiple-output-formats.Rmd", progress = FALSE)
+  deps <- dependencies("resources/multiple-output-formats.Rmd")
   expect_true("bookdown" %in% deps$Package)
 })
 
 test_that("glue::glue() package usages are found", {
-  deps <- dependencies("resources/glue.R", progress = FALSE)
+  deps <- dependencies("resources/glue.R")
   expect_true(all(c("A", "B", "C", "D", "E", "F", "G") %in% deps$Package))
   expect_false(any(letters %in% deps$Package))
 })
 
 test_that("set_engine() package usages are found", {
-  deps <- dependencies("resources/parsnip.R", progress = FALSE)
+  deps <- dependencies("resources/parsnip.R")
   expect_setequal(deps$Package, c("glmnet"))
 })
 
 test_that("eval=F does not trip up dependencies", {
-  deps <- dependencies("resources/eval.Rmd", progress = FALSE)
+  deps <- dependencies("resources/eval.Rmd")
   expect_true("A" %in% deps$Package)
   expect_false("a" %in% deps$Package)
 })
 
 test_that("renv.ignore=FALSE, eval=TRUE is handled", {
-  deps <- dependencies("resources/ignore.Rmd", progress = FALSE)
+  deps <- dependencies("resources/ignore.Rmd")
   expect_true("A" %in% deps$Package)
   expect_false("a" %in% deps$Package)
 })
 
 test_that("piped expressions can be parsed for dependencies", {
-  deps <- dependencies("resources/magrittr.R", progress = FALSE)
+  deps <- dependencies("resources/magrittr.R")
   expect_setequal(deps$Package, c("A", "B", "C"))
 })
 
 test_that("bslib dependencies are discovered", {
-  deps <- dependencies("resources/bslib.Rmd", progress = FALSE)
+  deps <- dependencies("resources/bslib.Rmd")
   expect_true("bslib" %in% deps$Package)
 })
 
 test_that("utility script dependencies are discovered", {
-  deps <- dependencies("resources/utility", progress = FALSE)
+  deps <- dependencies("resources/utility")
   expect_false(is.null(deps))
   expect_setequal(deps$Package, c("A", "B"))
 })
 
 test_that("we handle shiny_prerendered documents", {
-  deps <- dependencies("resources/shiny-prerendered.Rmd", progress = FALSE)
+  deps <- dependencies("resources/shiny-prerendered.Rmd")
   expect_true("shiny" %in% deps$Package)
 })
 
 test_that("we don't infer a dependency on rmarkdown for empty .qmd", {
-  deps <- dependencies("resources/quarto-empty.qmd", progress = FALSE)
+  deps <- dependencies("resources/quarto-empty.qmd")
   expect_true(is.null(deps) || !"rmarkdown" %in% deps$Package)
 })
 
 test_that("we do infer dependency on rmarkdown for .qmd with R chunks", {
-  deps <- dependencies("resources/quarto-r-chunks.qmd", progress = FALSE)
+  deps <- dependencies("resources/quarto-r-chunks.qmd")
   expect_true("rmarkdown" %in% deps$Package)
 })
 
 test_that("we parse package references from arbitrary yaml fields", {
-  deps <- dependencies("resources/rmd-base-format.Rmd", progress = FALSE)
+  deps <- dependencies("resources/rmd-base-format.Rmd")
   expect_true("bookdown" %in% deps$Package)
   expect_true("rticles" %in% deps$Package)
 })
 
 test_that("dependencies in parameterized documents are discovered", {
-  deps <- dependencies(test_path("resources/params.Rmd"), progress = FALSE)
+  deps <- dependencies(test_path("resources/params.Rmd"))
   expect_true(all(c("shiny", "A") %in% deps$Package))
   expect_false("B" %in% deps$Package)
 })
 
 test_that("we ignore chunks with '#| eval: false'", {
-  deps <- dependencies("resources/yaml-chunks.Rmd", progress = FALSE)
+  deps <- dependencies("resources/yaml-chunks.Rmd")
   expect_false("a" %in% deps$Package)
   expect_true("A" %in% deps$Package)
 })
@@ -367,11 +354,11 @@ test_that("dependencies in hidden folders are not scoured", {
   dir.create(".hidden")
   writeLines("library(A)", con = ".hidden/deps.R")
 
-  deps <- dependencies(progress = FALSE)
+  deps <- dependencies()
   expect_false("A" %in% deps$Package)
 
   writeLines("!.hidden", con = ".renvignore")
-  deps <- dependencies(progress = FALSE)
+  deps <- dependencies()
   expect_true("A" %in% deps$Package)
 
 })
@@ -386,7 +373,7 @@ test_that("dependencies() doesn't barf on files without read permission", {
   Sys.chmod("secrets/secrets.R", mode = "0000")
 
   expect_error(renv_file_read("secrets/secrets.R"))
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true(NROW(deps) == 0L)
 
 })
@@ -397,13 +384,13 @@ test_that("dependencies() doesn't barf on malformed DESCRIPTION files", {
   renv_tests_scope()
 
   writeLines("Depends: A, B\n\nImports: C, D", con = "DESCRIPTION")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_setequal(deps$Package, c("A", "B", "C", "D"))
 
 })
 
 test_that("dependencies() handles inline YAML comments", {
-  deps <- dependencies("resources/chunk-yaml.Rmd", quiet = TRUE)
+  deps <- dependencies("resources/chunk-yaml.Rmd")
   expect_true("A" %in% deps$Package)
 })
 

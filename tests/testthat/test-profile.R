@@ -74,14 +74,14 @@ test_that("profile-specific dependencies can be written", {
   writeLines("library(toast)", con = path)
 
   # validate the dependency is included
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true("toast" %in% deps$Package)
 
   # switch to other profile
   renv_scope_envvars(RENV_PROFILE = "other")
 
   # 'toast' is no longer required
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_false("toast" %in% deps$Package)
 
 })

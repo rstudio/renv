@@ -185,7 +185,6 @@ renv_diagnostics_packages_dependencies <- function(project) {
 
   renv_dependencies_impl(
     project,
-    progress = FALSE,
     errors = "reported",
     dev = TRUE
   )
@@ -214,7 +213,6 @@ renv_diagnostics_profile <- function(project) {
 
   deps <- renv_dependencies_impl(
     userprofile,
-    progress = FALSE,
     errors = "reported",
     dev = TRUE
   )
