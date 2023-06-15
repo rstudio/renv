@@ -52,6 +52,30 @@ c(&quot;Imports&quot;, &quot;Depends&quot;, &quot;LinkingTo&quot;, &quot;Suggest
 
 
 
+ppm.enabled
+
+
+Enable Posit Package Manager
+integration in this project? When TRUE, renv will attempt to transform
+repository URLs used by PPM into binary URLs as appropriate for the
+current Linux platform. Set this to FALSE if you'd like to continue using
+source-only PPM URLs, or if you find that renv is improperly transforming
+your repository URLs. You can still set and use PPM repositories with this
+option disabled; it only controls whether renv tries to transform source
+repository URLs into binary URLs on your behalf.
+
+
+
+ppm.ignored.urls
+
+
+When Posit Package Manager integration
+is enabled, renv will attempt to transform source repository URLs into
+binary repository URLs. This setting can be used if you'd like to avoid this
+transformation with some subset of repository URLs.
+
+
+
 r.version
 
 
@@ -165,6 +189,30 @@ should be used to determine that packages dependencies? The default
 uses Imports, Depends and LinkingTo fields, but you also want
 to install Suggests dependencies for a package, you can set this to
 c(&quot;Imports&quot;, &quot;Depends&quot;, &quot;LinkingTo&quot;, &quot;Suggests&quot;).
+
+
+
+ppm.enabled
+
+
+Enable Posit Package Manager
+integration in this project? When TRUE, renv will attempt to transform
+repository URLs used by PPM into binary URLs as appropriate for the
+current Linux platform. Set this to FALSE if you'd like to continue using
+source-only PPM URLs, or if you find that renv is improperly transforming
+your repository URLs. You can still set and use PPM repositories with this
+option disabled; it only controls whether renv tries to transform source
+repository URLs into binary URLs on your behalf.
+
+
+
+ppm.ignored.urls
+
+
+When Posit Package Manager integration
+is enabled, renv will attempt to transform source repository URLs into
+binary repository URLs. This setting can be used if you'd like to avoid this
+transformation with some subset of repository URLs.
 
 
 
@@ -348,6 +396,30 @@ should be used to determine that packages dependencies? The default
 uses <code>Imports</code>, <code>Depends</code> and <code>LinkingTo</code> fields, but you also want
 to install <code>Suggests</code> dependencies for a package, you can set this to
 <code>c("Imports", "Depends", "LinkingTo", "Suggests")</code>.</p>
+</div>
+
+<div class="section">
+<h3 id="ppm-enabled"><code>ppm.enabled</code><a class="anchor" aria-label="anchor" href="#ppm-enabled"></a></h3>
+
+
+<p>Enable <a href="https://packagemanager.posit.co/" class="external-link">Posit Package Manager</a>
+integration in this project? When <code>TRUE</code>, renv will attempt to transform
+repository URLs used by PPM into binary URLs as appropriate for the
+current Linux platform. Set this to <code>FALSE</code> if you'd like to continue using
+source-only PPM URLs, or if you find that renv is improperly transforming
+your repository URLs. You can still set and use PPM repositories with this
+option disabled; it only controls whether renv tries to transform source
+repository URLs into binary URLs on your behalf.</p>
+</div>
+
+<div class="section">
+<h3 id="ppm-ignored-urls"><code>ppm.ignored.urls</code><a class="anchor" aria-label="anchor" href="#ppm-ignored-urls"></a></h3>
+
+
+<p>When <a href="https://packagemanager.posit.co/" class="external-link">Posit Package Manager</a> integration
+is enabled, <code>renv</code> will attempt to transform source repository URLs into
+binary repository URLs. This setting can be used if you'd like to avoid this
+transformation with some subset of repository URLs.</p>
 </div>
 
 <div class="section">
