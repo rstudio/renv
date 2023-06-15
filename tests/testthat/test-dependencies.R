@@ -420,3 +420,15 @@ test_that("dependencies ignore pseudo-code in YAML metadata", {
   deps <- renv_dependencies_discover_rmd_yaml_header(path, "rmd")
   expect_equal(deps$Package, "rmarkdown")
 })
+
+test_that("~/.Rprofile included in dev dependencies when config$user.profile()", {
+  path <- renv_scope_tempfile("renv-profile")
+  writeLines("library(utils)", path)
+  renv_scope_envvars(R_PROFILE_USER = path)
+  renv_scope_options(renv.config.user.profile = TRUE)
+
+  renv_tests_scope()
+  deps <- renv_dependencies_impl(dev = TRUE)
+  expect_equal(deps$Package, "utils")
+  expect_equal(deps$Dev, TRUE)
+})

@@ -186,31 +186,10 @@ renv_hydrate_filter_impl <- function(package, path, library, update) {
 
 }
 
-renv_hydrate_packages_rprofile <- function() {
-
-  enabled <-
-    identical(config$user.profile(), TRUE) &&
-    !renv_tests_running()
-
-  if (!enabled)
-    return()
-
-  rprofile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
-  if (!file.exists(rprofile))
-    return()
-
-  dependencies(rprofile, progress = FALSE, errors = "ignored", dev = TRUE)
-
-}
-
 renv_hydrate_packages <- function(project) {
 
   deps <- the$init_dependencies %||%
     renv_dependencies_impl(project, errors = "ignored", dev = TRUE)
-
-  profdeps <- renv_hydrate_packages_rprofile()
-  if (length(deps) && length(profdeps))
-    deps <- bind(list(deps, profdeps))
 
   unique(deps$Package)
 

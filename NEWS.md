@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* If `config$user.profile()` is `TRUE`, the packages it uses are now included
+  in the development dependencies, which means that they will be installed 
+  by `install()` but not recorded in the snapshot.
+
 * `renv` now attempts to infer remote dependencies for GitHub packages that
   appear to be installed from sources; that is, for packages without a
   recognizable remote source encoded in its DESCRIPTION file. (#841)
