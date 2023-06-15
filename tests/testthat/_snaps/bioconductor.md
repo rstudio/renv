@@ -23,7 +23,7 @@
     Code
       install("bioc::BiocGenerics")
     Output
-      # Downloading packages -------------------------------------------------------
+      # Downloading packages ---
       [no downloads required]
       
       # Installing packages into "<tempdir>/<renv-library>" ---

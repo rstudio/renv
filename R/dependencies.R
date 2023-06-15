@@ -402,9 +402,8 @@ renv_dependencies_find_dir_children <- function(path, root, depth) {
 
   # skip if this contains too many files
   # https://github.com/rstudio/renv/issues/1186
-  limit <- getOption("renv.dependencies.limit", default = 1000L)
   count <- length(children)
-  if (count >= limit) {
+  if (count >= config$dependencies.limit()) {
     relpath <- renv_path_relative(path, dirname(root))
     renv_dependencies_find_dir_children_overload(relpath, count)
   }
@@ -432,8 +431,8 @@ renv_dependencies_find_dir_children_overload <- function(path, count) {
   if (is.null(state))
     return()
 
-  fmt <- "directory %s contains %s; consider ignoring this directory"
-  msg <- sprintf(fmt, renv_path_pretty(path), nplural("file", count))
+  fmt <- "directory contains %s; consider ignoring this directory"
+  msg <- sprintf(fmt, nplural("file", count))
   error <- simpleError(message = msg)
 
   path <- path %||% state$path
@@ -487,9 +486,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
   if (identical(errors, "ignored"))
     return(TRUE)
 
-  # TODO: worth customizing?
-  limit <- 1000L
-  if (length(paths) < limit)
+  if (length(paths) < config$dependencies.limit())
     return(TRUE)
 
   lines <- c(
@@ -1642,10 +1639,8 @@ renv_dependencies_report <- function(errors) {
 
   # emit messages
   enumerate(splat, function(file, problem) {
-    lines <- paste(rep.int("-", nchar(file)), collapse = "")
-    prefix <- format(paste("ERROR", seq_along(problem$message)))
-    messages <- paste(prefix, problem$message, sep = ": ", collapse = "\n\n")
-    text <- c(file, lines, "", messages, "")
+    messages <- paste("Error", problem$message, sep = ": ", collapse = "\n\n")
+    text <- c(header(file), messages, "")
     writef(text)
   })
 

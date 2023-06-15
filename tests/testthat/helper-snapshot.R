@@ -46,7 +46,7 @@ strip_dirs <- function(x) {
   x <- gsub(renv_path_aliased(tempdir()), "<tempdir>", x, fixed = TRUE)
 
   # Standardise the dashes produced by header()
-  x <- gsub("-{3,}", "---", x, fixed = TRUE)
+  x <- gsub("-{3,}", "---", x, perl = TRUE)
 
   x
 
