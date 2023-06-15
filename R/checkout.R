@@ -89,7 +89,6 @@ checkout <- function(repos = NULL,
 renv_checkout_packages <- function(project) {
   renv_dependencies_impl(
     project,
-    progress = FALSE,
     field = "Package",
     dev = TRUE
   )

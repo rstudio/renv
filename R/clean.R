@@ -216,7 +216,7 @@ renv_clean_unused_packages <- function(project, prompt) {
     return(ntd())
 
   # find packages used in the project and their dependencies
-  deps <- renv_dependencies_impl(project, progress = FALSE)
+  deps <- renv_dependencies_impl(project)
   paths <- renv_package_dependencies(deps$Package, project = project)
   packages <- names(paths)
 

@@ -191,9 +191,8 @@ dependencies <- function(
 renv_dependencies_impl <- function(
   path = getwd(),
   root = NULL,
-  ...,
   field = NULL,
-  progress = TRUE,
+  progress = FALSE,
   errors = c("reported", "fatal", "ignored"),
   dev = FALSE)
 {
@@ -222,12 +221,6 @@ renv_dependencies_impl <- function(
 
   renv_dependencies_begin(root = root)
   defer(renv_dependencies_end())
-
-  dots <- list(...)
-  if (identical(dots[["quiet"]], TRUE)) {
-    progress <- FALSE
-    errors <- "ignored"
-  }
 
   files <- renv_dependencies_find(path, root)
   deps <- renv_dependencies_discover(files, progress, errors)
@@ -1670,7 +1663,7 @@ renv_dependencies_scope <- function(path, action, scope = parent.frame()) {
   message <- paste(action, "aborted")
 
   deps <- withCallingHandlers(
-    renv_dependencies_impl(path, progress = FALSE, errors = errors, dev = TRUE),
+    renv_dependencies_impl(path, errors = errors, dev = TRUE),
     renv.dependencies.error = renv_dependencies_error_handler(message, errors)
   )
 

@@ -879,7 +879,6 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
     renv_dependencies_impl(
       path     = path,
       root     = project,
-      progress = FALSE,
       field    = "Package",
       errors   = errors,
       dev      = dev

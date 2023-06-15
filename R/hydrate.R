@@ -199,13 +199,13 @@ renv_hydrate_packages_rprofile <- function() {
   if (!file.exists(rprofile))
     return()
 
-  dependencies(rprofile, quiet = TRUE, dev = TRUE)
+  dependencies(rprofile, progress = FALSE, errors = "ignored", dev = TRUE)
 
 }
 
 renv_hydrate_packages <- function(project) {
 
-  deps <- dependencies(project, quiet = TRUE, dev = TRUE)
+  deps <- dependencies(project, progress = FALSE, errors = "ignored", dev = TRUE)
 
   profdeps <- renv_hydrate_packages_rprofile()
   if (length(deps) && length(profdeps))
