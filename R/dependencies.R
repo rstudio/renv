@@ -125,9 +125,9 @@ the$dependencies <- new.env(parent = emptyenv())
 
 #' @inheritParams renv-params
 #'
-#' @param path The path to a (possibly multi-mode) \R file, or a directory
-#'   containing such files. By default, all files within the current working
-#'   directory are checked, recursively.
+#' @param path The path to a `.R`, `.Rmd`, `.qmd`, `DESCRIPTION`, a directory
+#'   containing such files, or an R function. The default uses all files
+#'   found within the current working directory and its children.
 #'
 #' @param root The root directory to be used for dependency discovery.
 #'   Defaults to the active project directory. You may need to set this
@@ -178,6 +178,10 @@ dependencies <- function(
 {
   renv_scope_error_handler()
 
+  # special case: if 'path' is a function, parse its body for dependencies
+  if (is.function(path))
+    return(renv_dependencies_discover_r(expr = body(path)))
+
   renv_dependencies_impl(
     path     = path,
     root     = root,
@@ -196,9 +200,6 @@ renv_dependencies_impl <- function(
   errors = c("reported", "fatal", "ignored"),
   dev = FALSE)
 {
-  # special case: if 'path' is a function, parse its body for dependencies
-  if (is.function(path))
-    return(renv_dependencies_discover_r(expr = body(path)))
 
   path <- renv_path_normalize(path, mustWork = TRUE)
   root <- root %||% renv_dependencies_root(path)
@@ -394,9 +395,8 @@ renv_dependencies_find_dir_children <- function(path, root, depth) {
 
   # skip if this contains too many files
   # https://github.com/rstudio/renv/issues/1186
-  limit <- getOption("renv.dependencies.limit", default = 1000L)
   count <- length(children)
-  if (count >= limit) {
+  if (count >= config$dependencies.limit()) {
     relpath <- renv_path_relative(path, dirname(root))
     renv_dependencies_find_dir_children_overload(relpath, count)
   }
@@ -424,8 +424,8 @@ renv_dependencies_find_dir_children_overload <- function(path, count) {
   if (is.null(state))
     return()
 
-  fmt <- "directory %s contains %s; consider ignoring this directory"
-  msg <- sprintf(fmt, renv_path_pretty(path), nplural("file", count))
+  fmt <- "directory contains %s; consider ignoring this directory"
+  msg <- sprintf(fmt, nplural("file", count))
   error <- simpleError(message = msg)
 
   path <- path %||% state$path
@@ -479,9 +479,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
   if (identical(errors, "ignored"))
     return(TRUE)
 
-  # TODO: worth customizing?
-  limit <- 1000L
-  if (length(paths) < limit)
+  if (length(paths) < config$dependencies.limit())
     return(TRUE)
 
   lines <- c(
@@ -1634,10 +1632,8 @@ renv_dependencies_report <- function(errors) {
 
   # emit messages
   enumerate(splat, function(file, problem) {
-    lines <- paste(rep.int("-", nchar(file)), collapse = "")
-    prefix <- format(paste("ERROR", seq_along(problem$message)))
-    messages <- paste(prefix, problem$message, sep = ": ", collapse = "\n\n")
-    text <- c(file, lines, "", messages, "")
+    messages <- paste("Error", problem$message, sep = ": ", collapse = "\n\n")
+    text <- c(header(file), messages, "")
     writef(text)
   })
 
@@ -1648,53 +1644,26 @@ renv_dependencies_report <- function(errors) {
     stopf(fmt)
   }
 
-  renv_condition_signal("renv.dependencies.error", problems)
+  renv_condition_signal("renv.dependencies.problem", problems)
   TRUE
 
 }
 
-renv_dependencies_scope <- function(path, action, scope = parent.frame()) {
+renv_dependencies_confirm <- function(action, path, ...) {
 
-  path <- renv_path_normalize(path, mustWork = TRUE)
-  if (exists(path, envir = the$dependencies))
-    return(get(path, envir = the$dependencies))
-
-  errors <- config$dependency.errors()
-  message <- paste(action, "aborted")
-
-  deps <- withCallingHandlers(
-    renv_dependencies_impl(path, errors = errors, dev = TRUE),
-    renv.dependencies.error = renv_dependencies_error_handler(message, errors)
-  )
-
-  assign(path, deps, envir = the$dependencies)
-  defer(rm(list = path, envir = the$dependencies), scope = scope)
-
-  invisible(deps)
-
-}
-
-renv_dependencies_error_handler <- function(message, errors) {
-
-  force(message)
-  force(errors)
-
-  function(condition) {
-
-    if (identical(errors, "fatal") || interactive() && !proceed()) {
-
-      condition <- structure(
-        list(message = message, call = NULL, traceback = FALSE),
-        class = c("renv.dependencies.error", "error", "condition")
-      )
-
-      stop(condition)
-
+  withCallingHandlers(
+    renv_dependencies_impl(
+      path = path,
+      ...,
+      errors = config$dependency.errors()
+    ),
+    renv.dependencies.problem = function(cnd) {
+      # Require user confirmation to proceed if there's a reported error
+      if (interactive() && !proceed()) {
+        cancel()
+      }
     }
-
-    renv_condition_data(condition)
-
-  }
+  )
 }
 
 renv_dependencies_eval <- function(expr) {

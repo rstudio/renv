@@ -852,10 +852,11 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
 
-  type <- type %||% settings$snapshot.type(project = project)
+  if (!is.null(the$init_dependencies)) {
+    return(the$init_dependencies$Package)
+  }
 
-  message <- "snapshot aborted"
-  errors <- config$dependency.errors()
+  type <- type %||% settings$snapshot.type(project = project)
 
   if (type %in% "all")
     return(installed_packages(field = "Package"))
@@ -874,18 +875,12 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
     }
   )
 
-  withCallingHandlers(
-
-    renv_dependencies_impl(
-      path     = path,
-      root     = project,
-      field    = "Package",
-      errors   = errors,
-      dev      = dev
-    ),
-
-    renv.dependencies.error = renv_dependencies_error_handler(message, errors)
-
+  renv_dependencies_confirm(
+    "snapshot",
+    path = path,
+    root = project,
+    field = "Package",
+    dev = dev
   )
 
 }

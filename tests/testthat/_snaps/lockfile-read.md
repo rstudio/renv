@@ -6,5 +6,5 @@
       Failed to parse 'renv.lock':
       parse error: premature EOF
                                              {
-                           (right here) ------^
+                           (right here) ---^
 

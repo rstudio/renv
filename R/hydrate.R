@@ -205,7 +205,8 @@ renv_hydrate_packages_rprofile <- function() {
 
 renv_hydrate_packages <- function(project) {
 
-  deps <- dependencies(project, progress = FALSE, errors = "ignored", dev = TRUE)
+  deps <- the$init_dependencies %||%
+    renv_dependencies_impl(project, errors = "ignored", dev = TRUE)
 
   profdeps <- renv_hydrate_packages_rprofile()
   if (length(deps) && length(profdeps))

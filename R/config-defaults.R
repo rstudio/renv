@@ -3,6 +3,7 @@
 
 #' @rdname config
 #' @export
+#' @format NULL
 config <- list(
 
   activate.prompt = function(..., default = TRUE) {
@@ -90,6 +91,15 @@ config <- list(
     renv_config_get(
       name    = "dependency.errors",
       type    = "character[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
+  dependencies.limit = function(..., default = 1000L) {
+    renv_config_get(
+      name    = "dependencies.limit",
+      type    = "integer[1]",
       default = default,
       args    = list(...)
     )

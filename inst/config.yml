@@ -83,6 +83,14 @@
     to force errors to be fatal, and `"ignored"` to ignore errors altogether. See
     [`dependencies()`] for more details.
 
+- name: "dependencies.limit"
+  type: "integer[1]"
+  default: 1000
+  description: >
+    By default, renv reports if it discovers more than this many files when
+    looking for dependencies, as that may indicate you are running
+    `dependencies()` in the wrong place. Set to `Inf` to disable this warning.
+
 - name: "exported.functions"
   type: "character[*]"
   default: "*"

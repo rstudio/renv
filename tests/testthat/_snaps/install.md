@@ -3,10 +3,10 @@
     Code
       install("bread@0.1.0")
     Output
-      # Downloading packages -------------------------------------------------------
+      # Downloading packages ---
       [no downloads required]
       
-      # Installing packages into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread [0.1.0]
@@ -26,7 +26,7 @@
     Code
       install()
     Output
-      # Downloading packages -------------------------------------------------------
+      # Downloading packages ---
       Retrieving '<test-repo>/src/contrib/breakfast_1.0.0.tar.gz' ...
       	OK [downloaded XXXX bytes in XXXX seconds]
       Retrieving '<test-repo>/src/contrib/oatmeal_1.0.0.tar.gz' ...
@@ -36,7 +36,7 @@
       Retrieving '<test-repo>/src/contrib/bread_1.0.0.tar.gz' ...
       	OK [downloaded XXXX bytes in XXXX seconds]
       
-      # Installing packages into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread     [1.0.0]
@@ -55,10 +55,10 @@
     Code
       install()
     Output
-      # Downloading packages -------------------------------------------------------
+      # Downloading packages ---
       [no downloads required]
       
-      # Installing packages into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread     [1.0.0]
