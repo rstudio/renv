@@ -197,13 +197,15 @@ install <- function(packages = NULL,
   cancel_if(prompt && !proceed())
 
   # install retrieved records
+  writef("")
   before <- Sys.time()
   renv_install_impl(records)
   after <- Sys.time()
+  writef("")
 
   time <- renv_difftime_format(difftime(after, before))
   n <- length(records)
-  writef("Installed %s in %s.", nplural("package", n), time)
+  writef("Successfully installed %s in %s.", nplural("package", n), time)
 
   # check loaded packages and inform user if out-of-sync
   renv_install_postamble(names(records))
