@@ -69,8 +69,8 @@ renv_lock_release <- function(path) {
 
 renv_lock_release_impl <- function(path) {
   renv_scope_options(warn = -1L)
-  rm(list = path, envir = `_renv_lock_registry`)
   unlink(path, recursive = TRUE, force = TRUE)
+  rm(list = path, envir = the$lock_registry)
   renv_watchdog_notify("LockReleased", list(path = path))
 }
 

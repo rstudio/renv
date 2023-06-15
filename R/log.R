@@ -1,9 +1,9 @@
 
-`_renv_log_level` <- 4L
-`_renv_log_file` <- NULL
+the$log_level <- 4L
+the$log_file <- NULL
 
 log <- function(level, scope, fmt, ...) {
-  if (level >= `_renv_log_level`)
+  if (level >= the$log_level)
     renv_log_impl(scope, fmt, ...)
 }
 
@@ -35,7 +35,7 @@ renv_log_impl <- function(scope, fmt, ...) {
   all <- sprintf(fmt, now, Sys.getpid(), scope, message)
 
   # write it out
-  file <- `_renv_log_file` %||% stderr()
+  file <- the$log_file %||% stderr()
   cat(all, file = file, sep = "\n", append = TRUE)
 
 }
@@ -61,13 +61,13 @@ renv_log_init_level <- function() {
     ~ warningf("ignoring invalid RENV_LOG_LEVEL environment variable")
   )
 
-  `_renv_log_level` <<- override
+  the$log_level <<- override
 
 }
 
 renv_log_init_file <- function() {
 
-  `_renv_log_file` <<- local({
+  the$log_file <<- local({
 
     # check for log file
     file <- Sys.getenv("RENV_LOG_FILE", unset = NA)

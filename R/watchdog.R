@@ -1,6 +1,6 @@
 
 # whether or not the user has enabled the renv watchdog in this session
-the$watchdog_enabled <- NULL
+the$watchdog_enabled <- FALSE
 
 # metadata related to the running watchdog process, if any
 the$watchdog_process <- NULL
@@ -10,24 +10,7 @@ renv_watchdog_init <- function() {
   the$watchdog_enabled <- renv_watchdog_enabled_impl()
 
   reg.finalizer(renv_envir_self(), function(envir) {
-
-    # nothing to do if watchdog isn't running
-    if (!renv_watchdog_running())
-      return()
-
-    # tell watchdog to shutdown
-    renv_watchdog_notify("Shutdown")
-    renv_watchdog_unload()
-
-    # wait for process to exit (avoid RStudio bomb)
-    for (i in 1:10) {
-      if (renv_watchdog_running()) {
-        Sys.sleep(0.1)
-      } else {
-        break
-      }
-    }
-
+    renv_watchdog_shutdown()
   }, onexit = TRUE)
 
 }
@@ -215,8 +198,41 @@ renv_watchdog_running <- function() {
 }
 
 renv_watchdog_unload <- function() {
+  renv_watchdog_terminate()
+}
+
+renv_watchdog_terminate <- function() {
   if (renv_watchdog_running()) {
     pid <- renv_watchdog_pid()
     renv_process_kill(pid)
   }
+}
+
+renv_watchdog_shutdown <- function() {
+
+  # nothing to do if watchdog isn't running
+  if (!renv_watchdog_running())
+    return(TRUE)
+
+  # tell watchdog to shutdown
+  renv_watchdog_notify("Shutdown")
+
+  # wait for process to exit (avoid RStudio bomb)
+  clock <- timer()
+  wait_until(function() {
+    !renv_watchdog_running() || clock$elapsed() > 1
+  })
+
+  if (!renv_watchdog_running())
+    return(TRUE)
+
+  # if it's still running, explicitly terminate it
+  renv_watchdog_terminate()
+
+  # wait for process to exit (avoid RStudio bomb)
+  clock <- timer()
+  wait_until(function() {
+    !renv_watchdog_running() || clock$elapsed() > 1
+  })
+
 }
