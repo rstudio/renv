@@ -38,8 +38,13 @@ renv_watchdog_enabled_impl <- function() {
     return(FALSE)
 
   # skip if explicitly disabled via envvar
-  enabled <- Sys.getenv("RENV_WATCHDOG_ENABLED", unset = "TRUE")
-  if (!truthy(enabled))
+  enabled <- Sys.getenv("RENV_WATCHDOG_ENABLED", unset = NA)
+  if (!is.na(enabled))
+    return(truthy(enabled))
+
+  # disable on Windows; need to understand CI test failures
+  # https://github.com/rstudio/renv/actions/runs/5273668333/jobs/9537353788#step:6:242
+  if (renv_platform_windows())
     return(FALSE)
 
   # skip during R CMD check (but not when running tests)
