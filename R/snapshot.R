@@ -830,7 +830,7 @@ renv_snapshot_description_infer_impl <- function(dcf) {
       return(dcf)
 
   # skip in project synchronization checks
-  if (`_renv_project_synchronized_check_running`)
+  if (the$project_synchronized_check_running)
     return(dcf)
 
   # check and see if this package is available from package repositories.

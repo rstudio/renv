@@ -214,7 +214,7 @@
 # we can infer github remotes from packages installed from sources
 
     Code
-      invisible(renv_snapshot_description(path = descfile))
+      . <- renv_snapshot_description(path = descfile)
     Output
-      * 'renv' was installed from source; inferring install from 'rstudio/renv@main'.
+      * 'renv' inferred to have been installed from remote 'rstudio/renv@main'.
 
