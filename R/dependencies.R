@@ -454,13 +454,13 @@ renv_dependencies_discover_impl <- function(path) {
     warningf(fmt, renv_path_pretty(path))
   }
 
-  result <- catch(callback(path))
-  if (inherits(result, "error")) {
-    warning(result)
-    return(NULL)
-  }
-
-  result
+  tryCatch(
+    filebacked("dependencies", path, callback),
+    error = function(cnd) {
+      warning(cnd)
+      NULL
+    }
+  )
 
 }
 
