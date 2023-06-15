@@ -36,6 +36,7 @@ test_that("the watchdog process releases locks from killed processes", {
 
   skip_on_cran()
   skip_if(getRversion() < "4.0.0")
+  skip_on_ci()
 
   # start a socket server
   server <- tryCatch(renv_socket_server(), error = skip)

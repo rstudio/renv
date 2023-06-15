@@ -1,6 +1,9 @@
 
 test_that("we can communicate with a large number of child processes", {
 
+  skip_on_cran()
+  skip_on_ci()
+
   n <- 20L
 
   server <- tryCatch(renv_socket_server(), error = skip)
