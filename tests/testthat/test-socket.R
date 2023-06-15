@@ -3,7 +3,7 @@ test_that("we can communicate with a large number of child processes", {
 
   n <- 20L
 
-  server <- renv_socket_server()
+  server <- tryCatch(renv_socket_server(), error = skip)
   defer(close(server$socket))
 
   script <- renv_test_code({

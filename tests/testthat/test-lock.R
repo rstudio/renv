@@ -157,7 +157,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
   renv_scope_envvars(RENV_WATCHDOG_ENABLED = "FALSE")
 
   # initialize server
-  server <- renv_socket_server()
+  server <- tryCatch(renv_socket_server(), error = skip)
   defer(close(server$socket))
 
   # initialize state

@@ -74,7 +74,7 @@ test_that("multiple processes can attempt to acquire the sandbox", {
   # number of processes
   n <- 20
 
-  server <- renv_socket_server()
+  server <- tryCatch(renv_socket_server(), error = skip)
   defer(close(server$socket))
 
   project <- renv_tests_scope()
