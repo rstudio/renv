@@ -51,10 +51,10 @@
       
       # Installing packages ---
       
-      Installing oatmeal   ... OK [built from source and cached]
-      Installing bread     ... OK [built from source and cached]
-      Installing toast     ... OK [built from source and cached]
-      Installing breakfast ... OK [built from source and cached]
+      - Installing oatmeal   ... OK [built from source and cached]
+      - Installing bread     ... OK [built from source and cached]
+      - Installing toast     ... OK [built from source and cached]
+      - Installing breakfast ... OK [built from source and cached]
       
       Successfully installed 4 packages in XXXX seconds.
 

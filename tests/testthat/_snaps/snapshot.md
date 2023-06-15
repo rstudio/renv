@@ -186,7 +186,7 @@
       
       # Installing packages ---
       
-      Installing egg ... OK [built from source and cached]
+      - Installing egg ... OK [built from source and cached]
       
       Successfully installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
