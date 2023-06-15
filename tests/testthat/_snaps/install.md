@@ -6,7 +6,7 @@
       # Downloading packages -------------------------------------------------------
       [no downloads required]
       
-      # Installing packages into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread [0.1.0]
@@ -36,7 +36,7 @@
       Retrieving '<test-repo>/src/contrib/bread_1.0.0.tar.gz' ...
       	OK [downloaded XXXX bytes in XXXX seconds]
       
-      # Installing packages into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread     [1.0.0]
@@ -58,7 +58,7 @@
       # Downloading packages -------------------------------------------------------
       [no downloads required]
       
-      # Installing packages into "<tempdir>/<renv-library>"
+      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - bread     [1.0.0]
