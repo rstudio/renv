@@ -20,7 +20,6 @@ test_that("renv can be vendored in a separate R package", {
   }
   sources <- renv_path_normalize(sources)
 
-
   # create a dummy R package
   renv_tests_scope()
 

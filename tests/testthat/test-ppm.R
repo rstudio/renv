@@ -98,6 +98,6 @@ test_that("URLs like http://foo/bar aren't queried", {
   expect_equal(status, "http://foo/bar")
 
   # should emit a condition now
-  expect_condition(renv_ppm_transform_impl("http://foo/bar/baz"), class = "bail"))
+  expect_condition(renv_ppm_transform_impl("http://foo/bar/baz"), class = "bail")
 
 })

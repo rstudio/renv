@@ -1,5 +1,5 @@
 
-`_renv_repos_archive` <- new.env(parent = emptyenv())
+the$repos_archive <- new.env(parent = emptyenv())
 
 # this routine retrieves a package + its dependencies, and as a side
 # effect populates the restore state's `retrieved` member with a
@@ -817,8 +817,8 @@ renv_retrieve_repos_archive_path <- function(repo, record) {
   }
 
   # if we already know the format of the repository, use that
-  if (exists(repo, envir = `_renv_repos_archive`)) {
-    formatter <- get(repo, envir = `_renv_repos_archive`)
+  if (exists(repo, envir = the$repos_archive)) {
+    formatter <- get(repo, envir = the$repos_archive)
     root <- formatter(repo, record)
     return(root)
   }
@@ -852,7 +852,7 @@ renv_retrieve_repos_archive_path <- function(repo, record) {
     root <- formatter(repo, record)
     url <- file.path(root, name)
     if (renv_download_available(url)) {
-      assign(repo, formatter, envir = `_renv_repos_archive`)
+      assign(repo, formatter, envir = the$repos_archive)
       return(root)
     }
   }

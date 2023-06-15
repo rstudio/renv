@@ -7,7 +7,6 @@
       * Downloading binary from <https://cran.rstudio.com> ... OK
       * Installing ... OK
       
-      
     Code
       bootstrap(version = "1.0.0", library = library)
     Output
@@ -15,14 +14,12 @@
       * Downloading from archive ... OK
       * Installing ... OK
       
-      
     Code
       bootstrap(version = "1.0.0.1", library = library)
     Output
       Bootstrapping renv 1.0.0.1:
       * Downloading version 1.0.0.1 from GitHub ... OK
       * Installing ... OK
-      
       
 
 # bootstrapping gives informative output when download fails

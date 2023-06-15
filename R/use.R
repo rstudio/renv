@@ -1,5 +1,5 @@
 
-`_renv_use_libpath` <- NULL
+the$use_libpath <- NULL
 
 #' @rdname embed
 #'
@@ -98,7 +98,7 @@ use <- function(...,
 }
 
 renv_use_libpath <- function() {
-  `_renv_use_libpath` <<- `_renv_use_libpath` %||% tempfile("renv-use-libpath-")
+  (the$use_libpath <- the$use_libpath %||% tempfile("renv-use-libpath-"))
 }
 
 renv_use_sandbox <- function(sandbox) {

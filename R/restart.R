@@ -1,5 +1,7 @@
 
-renv_restart_request <- function(project, reason, ...) {
+renv_restart_request <- function(project = NULL, reason = "", ...) {
+
+  project <- renv_project_resolve(project)
 
   # if we're running in RStudio, explicitly open the project
   # if it differs from the current project

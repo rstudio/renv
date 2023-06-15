@@ -1,17 +1,17 @@
 
-`_renv_lockfile_state` <- new.env(parent = emptyenv())
+the$lockfile_state <- new.env(parent = emptyenv())
 
 renv_lockfile_state_get <- function(key) {
-  if (exists(key, envir = `_renv_lockfile_state`))
-    get(key, envir = `_renv_lockfile_state`, inherits = FALSE)
+  if (exists(key, envir = the$lockfile_state))
+    get(key, envir = the$lockfile_state, inherits = FALSE)
 }
 
 renv_lockfile_state_set <- function(key, value) {
-  assign(key, value, envir = `_renv_lockfile_state`, inherits = FALSE)
+  assign(key, value, envir = the$lockfile_state, inherits = FALSE)
 }
 
 renv_lockfile_state_clear <- function() {
-  rm(list = ls(`_renv_lockfile_state`), envir = `_renv_lockfile_state`)
+  rm(list = ls(the$lockfile_state), envir = the$lockfile_state)
 }
 
 renv_lockfile_write_preflight <- function(old, new) {

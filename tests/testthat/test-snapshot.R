@@ -481,7 +481,7 @@ test_that("snapshot doesn't include development dependencies", {
 test_that("autosnapshot works as expected", {
 
   renv_scope_options(renv.config.auto.snapshot = TRUE)
-  defer(`_renv_library_info` <- NULL)
+  defer(the$library_info <- NULL)
 
   renv_tests_scope("oatmeal")
   init()

@@ -1,5 +1,5 @@
 
-`_renv_root` <- NULL
+the$root <- NULL
 
 renv_paths_override <- function(name) {
 
@@ -186,7 +186,7 @@ renv_paths_root <- function(...) {
 # nocov start
 renv_paths_root_default <- function() {
 
-  (`_renv_root` <<- `_renv_root` %||% {
+  (the$root <- the$root %||% {
 
     # use tempdir for cache when running tests
     # this check is necessary here to support packages which might use renv

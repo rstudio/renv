@@ -1,5 +1,5 @@
 
-`_renv_shims` <- new.env(parent = emptyenv())
+the$shims <- new.env(parent = emptyenv())
 
 renv_shim_install_packages <- function(pkgs, ...) {
 
@@ -58,15 +58,15 @@ renv_shims_activate <- function() {
   renv_shims_deactivate()
 
   install_shim <- renv_shim_create(renv_shim_install_packages, utils::install.packages)
-  assign("install.packages", install_shim, envir = `_renv_shims`)
+  assign("install.packages", install_shim, envir = the$shims)
 
   update_shim <- renv_shim_create(renv_shim_update_packages, utils::update.packages)
-  assign("update.packages", update_shim, envir = `_renv_shims`)
+  assign("update.packages", update_shim, envir = the$shims)
 
   remove_shim <- renv_shim_create(renv_shim_remove_packages, utils::remove.packages)
-  assign("remove.packages", remove_shim, envir = `_renv_shims`)
+  assign("remove.packages", remove_shim, envir = the$shims)
 
-  args <- list(`_renv_shims`, name = "renv:shims", warn.conflicts = FALSE)
+  args <- list(the$shims, name = "renv:shims", warn.conflicts = FALSE)
   do.call(base::attach, args)
 
 }
