@@ -27,14 +27,13 @@ r_exec_error <- function(package, output, label, extra) {
   header <- sprintf(fmt, label, package)
 
   lines <- paste(rep("=", nchar(header)), collapse = "")
-  all <- c(header, lines, "", output)
 
   # try to add diagnostic information if possible
   diagnostics <- r_exec_error_diagnostics(package, output)
   if (!empty(diagnostics)) {
     size <- min(getOption("width"), 78L)
     dividers <- paste(rep.int("-", size), collapse = "")
-    all <- c(all, paste(dividers, diagnostics, collapse = "\n\n"))
+    output <- c(output, paste(dividers, diagnostics, collapse = "\n\n"))
   }
 
   # normalize 'extra'
@@ -44,10 +43,9 @@ r_exec_error <- function(package, output, label, extra) {
     paste(renv_path_pretty(extra), "does not exist")
 
   # stop with an error
-  abort(
-    message = sprintf("%s of package '%s' failed [%s]", label, package, extra),
-    detail = all
-  )
+  footer <- sprintf("%s of package '%s' failed [%s]", label, package, extra)
+  all <- c(header, lines, "", output, footer)
+  abort(all)
 
 }
 

@@ -52,10 +52,10 @@ renv_system_exec <- function(command,
     return(output)
 
   # otherwise, notify the user that things went wrong
-  message <- sprintf("error %s [error code %i]", action, status)
-  details <- if (!quiet) renv_system_exec_details(command, args, output)
-
-  abort(message, details = details)
+  abort(
+    sprintf("error %s [error code %i]", action, status),
+    body = if (!quiet) renv_system_exec_details(command, args, output)
+  )
 
 }
 

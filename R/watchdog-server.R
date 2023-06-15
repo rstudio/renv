@@ -8,7 +8,7 @@ renv_watchdog_server_start <- function(client) {
   # communicate information back to client
   catf("[watchdog] Waiting for client...")
   metadata <- list(port = server$port, pid = server$pid)
-  conn <- renv_socket_connect(port = client$port, open = "w+b")
+  conn <- renv_socket_connect(port = client$port, open = "wb")
   serialize(metadata, connection = conn)
   close(conn)
   catf("[watchdog] Synchronized with client.")
@@ -35,12 +35,13 @@ renv_watchdog_server_run <- function(server, client, lockenv) {
   }
 
   # set file time on owned locks, so we can see they're not orphaned
+  catf("[watchdog] Refreshing lock times.")
   locks <- ls(envir = lockenv, all.names = TRUE)
-  Sys.setFileTime(locks, time = Sys.time())
+  renv_lock_refresh(locks)
 
   # wait for connection
   catf("[watchdog] Waiting for connection...")
-  conn <- renv_socket_accept(server$socket, open = "r+b", timeout = 1)
+  conn <- renv_socket_accept(server$socket, open = "rb", timeout = 1)
   defer(close(conn))
 
   # read the request
@@ -57,7 +58,7 @@ renv_watchdog_server_run <- function(server, client, lockenv) {
 
     ListLocks = {
       catf("[watchdog] Executing 'ListLocks' request.")
-      conn <- renv_socket_connect(port = request$port, open = "w+b")
+      conn <- renv_socket_connect(port = request$port, open = "wb")
       defer(close(conn))
       locks <- ls(envir = lockenv, all.names = TRUE)
       serialize(locks, connection = conn)

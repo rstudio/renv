@@ -1,6 +1,9 @@
 
+the$log_level <- 4L
+the$log_file <- NULL
+
 log <- function(level, scope, fmt, ...) {
-  if (level >= getOption("renv.log.level", default = 4L))
+  if (level >= the$log_level)
     renv_log_impl(scope, fmt, ...)
 }
 
@@ -27,12 +30,12 @@ renv_log_impl <- function(scope, fmt, ...) {
   message <- sprintf(fmt, ...)
 
   # annotate message
-  fmt <- "[%s] [renv-%s]: %s"
-  now <- format(Sys.time(), tz = "UTC")
-  all <- sprintf(fmt, now, scope, message)
+  fmt <- "%sZ [renv-%i] %s: %s"
+  now <- format(Sys.time(), format = "%Y-%m-%d %H:%M:%OS6", tz = "UTC")
+  all <- sprintf(fmt, now, Sys.getpid(), scope, message)
 
   # write it out
-  file <- getOption("renv.log.file", default = stdout())
+  file <- the$log_file %||% stderr()
   cat(all, file = file, sep = "\n", append = TRUE)
 
 }
@@ -58,16 +61,22 @@ renv_log_init_level <- function() {
     ~ warningf("ignoring invalid RENV_LOG_LEVEL environment variable")
   )
 
-  options(renv.log.level = override)
+  the$log_level <<- override
 
 }
 
 renv_log_init_file <- function() {
 
-  file <- Sys.getenv("RENV_LOG_FILE", unset = NA)
-  if (is.na(file))
-    return()
+  the$log_file <<- local({
 
-  options(renv.log.file = file)
+    # check for log file
+    file <- Sys.getenv("RENV_LOG_FILE", unset = NA)
+    if (!is.na(file))
+      return(file)
+
+    # default to stderr, since it's unbuffered
+    stderr()
+
+  })
 
 }
