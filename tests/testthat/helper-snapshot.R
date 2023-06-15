@@ -1,7 +1,20 @@
-expect_snapshot <- function(..., transform = strip_dirs) {
-  renv_scope_options(renv.verbose = TRUE)
 
-  testthat::expect_snapshot(..., transform = transform)
+expect_snapshot <- function(...,
+                            cran = FALSE,
+                            error = FALSE,
+                            transform = strip_dirs,
+                            variant = NULL,
+                            cnd_class = FALSE)
+{
+  renv_scope_options(renv.verbose = TRUE)
+  testthat::expect_snapshot(
+    ...,
+    cran = cran,
+    error = error,
+    transform = transform,
+    variant = variant,
+    cnd_class = cnd_class
+  )
 }
 
 strip_dirs <- function(x) {
@@ -18,7 +31,8 @@ strip_dirs <- function(x) {
     "<test-repo>"       = getOption("repos")[[1L]],
     "<root>"            = renv_path_normalize(renv_paths_root()),
     "<wd>"              = renv_path_normalize(getwd()),
-    "<tempdir>"         = renv_path_normalize(tempdir())
+    "<tempdir>"         = renv_path_normalize(tempdir()),
+    "<R>"               = file.path(R.home("bin"), "R")
   )
 
   # apply filters
