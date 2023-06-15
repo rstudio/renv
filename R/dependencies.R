@@ -486,9 +486,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
   if (identical(errors, "ignored"))
     return(TRUE)
 
-  # TODO: worth customizing?
-  limit <- 1000L
-  if (length(paths) < limit)
+  if (length(paths) < config$dependencies.limit())
     return(TRUE)
 
   lines <- c(
