@@ -120,8 +120,9 @@ init <- function(project = NULL,
   if (bare)
     return(renv_init_fini(project, profile, restart, quiet))
 
-  # collect dependencies
-  renv_dependencies_scope(project, action = "init")
+  # compute and cache dependencies to (a) reveal problems early and (b) compute once
+  the$init_dependencies <- renv_dependencies_confirm("init", path = project, dev = TRUE)
+  defer(the$init_dependencies <- NULL)
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile, bioconductor)
