@@ -169,6 +169,7 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
 
   # perform the install
   records <- retrieve(packages)
+  writef(header("Restoring packages from lockfile"))
   renv_install_impl(records)
 
   # detect dependency tree repair
