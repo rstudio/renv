@@ -341,7 +341,7 @@ renv_install_default <- function(records) {
   handler <- state$handler
 
   width <- max(nchar(map_chr(records, function(x) x$Package)), 1)
-  renv_scope_binding(the, "package_width", width)
+  renv_scope_binding(the, "package_format_width", width)
 
   for (record in records) {
     package <- record$Package
@@ -803,7 +803,7 @@ renv_install_step_start <- function(action, package) {
   printf(
     "- %s %s ... ",
     format(action, width = nchar(action)),
-    format(package, width = the$package_width %||% 12)
+    format(package, width = the$package_format_width %||% 12)
   )
 }
 
