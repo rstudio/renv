@@ -34,7 +34,7 @@
       
       # Installing packages ---
       
-      - Installing BiocGenerics ... OK [copied from cache]
+      - Installing BiocGenerics ...                   OK [copied from cache]
       
       Successfully installed 1 package in XXXX seconds.
 

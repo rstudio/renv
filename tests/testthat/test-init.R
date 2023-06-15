@@ -151,7 +151,6 @@ test_that("we use an external library path for package projects", {
   # check for external library path
   library <- renv_libpaths_active()
 
-
   expect_true(
     object = renv_path_within(library, userdir),
     info = sprintf("- %s\n- %s\n", library, userdir)

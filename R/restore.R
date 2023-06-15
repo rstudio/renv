@@ -288,11 +288,11 @@ renv_restore_report_actions <- function(actions, current, lockfile) {
 renv_restore_remove <- function(project, package, lockfile) {
   records <- renv_lockfile_records(lockfile)
   record <- records[[package]]
-  writef("Removing %s [%s] ...", package, record$Version)
+  printf("- Removing %s [%s] ... ", package, record$Version)
   paths <- renv_paths_library(project = project, package)
   recursive <- renv_file_type(paths) == "directory"
   unlink(paths, recursive = recursive)
-  writef("\tOK [removed from library]")
+  writef("OK [removed from library]")
   TRUE
 }
 

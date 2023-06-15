@@ -14,7 +14,7 @@
       
       # Installing packages ---
       
-      - Installing bread ... OK [copied from cache]
+      - Installing bread ...                          OK [copied from cache]
       
       Successfully installed 1 package in XXXX seconds.
       
@@ -31,14 +31,11 @@
       install()
     Output
       # Downloading packages ---
-      Retrieving '<test-repo>/src/contrib/breakfast_1.0.0.tar.gz' ...
-      	OK [downloaded XXXX bytes in XXXX seconds]
-      Retrieving '<test-repo>/src/contrib/oatmeal_1.0.0.tar.gz' ...
-      	OK [downloaded XXXX bytes in XXXX seconds]
-      Retrieving '<test-repo>/src/contrib/toast_1.0.0.tar.gz' ...
-      	OK [downloaded XXXX bytes in XXXX seconds]
-      Retrieving '<test-repo>/src/contrib/bread_1.0.0.tar.gz' ...
-      	OK [downloaded XXXX bytes in XXXX seconds]
+      
+      - Downloading breakfast from CRAN ...           OK [XXXX bytes in 0.0023s]
+      - Downloading oatmeal from CRAN ...             OK [XXXX bytes in 0.002s]
+      - Downloading toast from CRAN ...               OK [XXXX bytes in 0.002s]
+      - Downloading bread from CRAN ...               OK [XXXX bytes in 0.002s]
       
       The following package(s) will be installed:
       
@@ -51,10 +48,10 @@
       
       # Installing packages ---
       
-      - Installing oatmeal   ... OK [built from source and cached]
-      - Installing bread     ... OK [built from source and cached]
-      - Installing toast     ... OK [built from source and cached]
-      - Installing breakfast ... OK [built from source and cached]
+      - Installing oatmeal ...                        OK [built from source and cached]
+      - Installing bread ...                          OK [built from source and cached]
+      - Installing toast ...                          OK [built from source and cached]
+      - Installing breakfast ...                      OK [built from source and cached]
       
       Successfully installed 4 packages in XXXX seconds.
 
@@ -77,10 +74,10 @@
       
       # Installing packages ---
       
-      - Installing oatmeal   ... OK [copied from cache]
-      - Installing bread     ... OK [copied from cache]
-      - Installing toast     ... OK [copied from cache]
-      - Installing breakfast ... OK [copied from cache]
+      - Installing oatmeal ...                        OK [copied from cache]
+      - Installing bread ...                          OK [copied from cache]
+      - Installing toast ...                          OK [copied from cache]
+      - Installing breakfast ...                      OK [copied from cache]
       
       Successfully installed 4 packages in XXXX seconds.
 

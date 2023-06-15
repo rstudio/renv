@@ -4,8 +4,13 @@
 # what form of authentication is appropriate; the 'quiet'
 # argument is used to display / suppress output. use 'headers'
 # (as a named character vector) to supply additional headers
-download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) {
-
+download <- function(url,
+                     destfile,
+                     preamble = NULL,
+                     type = NULL,
+                     quiet = FALSE,
+                     headers = NULL)
+{
   # allow for user-defined overrides
   override <- getOption("renv.download.override")
   if (is.function(override)) {
@@ -39,7 +44,8 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   destfile <- chartr("\\", "/", destfile)
 
   # notify user we're about to try downloading
-  writef("Retrieving '%s' ...", url)
+  preamble <- preamble %||% sprintf("- Downloading '%s' ... ", url)
+  printf(preamble)
 
   # add custom headers as appropriate for the URL
   headers <- c(headers, renv_download_custom_headers(url))
@@ -57,7 +63,7 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
   if (identical(info$isdir, FALSE)) {
     size <- renv_download_size(url, type, headers)
     if (info$size == size) {
-      writef("\tOK [file is up to date]")
+      writef("OK [file is up to date]")
       return(destfile)
     }
   }
@@ -113,7 +119,6 @@ download <- function(url, destfile, type = NULL, quiet = FALSE, headers = NULL) 
 
   # and return path to successfully retrieved file
   destfile
-
 }
 
 # NOTE: only 'GET' and 'HEAD' are supported
@@ -643,15 +648,13 @@ renv_download_report <- function(elapsed, file) {
     return()
 
   info <- renv_file_info(file)
-  if (renv_tests_running()) {
-    size <- "XXXX bytes"
-  } else {
-    size <- structure(info$size, class = "object_size")
-  }
+  size <- if (renv_tests_running())
+    "XXXX bytes"
+  else
+    structure(info$size, class = "object_size")
 
-
-  fmt <- "\tOK [downloaded %s in %s]"
-  writef(fmt, format(size, units = "auto"), renv_difftime_format(elapsed))
+  fmt <- "OK [%s in %s]"
+  writef(fmt, format(size, units = "auto"), renv_difftime_format_short(elapsed))
 
 }
 

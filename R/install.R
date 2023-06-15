@@ -1,4 +1,6 @@
 
+the$install_step_width <- 48L
+
 #' Install packages
 #'
 #' @description
@@ -193,8 +195,6 @@ install <- function(packages = NULL,
   if (prompt || renv_verbose()) {
     renv_install_report(records, library = renv_libpaths_active())
     cancel_if(prompt && !proceed())
-    if (prompt && interactive())
-      writef("")
   }
 
   # install retrieved records
@@ -340,8 +340,8 @@ renv_install_default <- function(records) {
   state <- renv_restore_state()
   handler <- state$handler
 
-  width <- max(nchar(map_chr(records, function(x) x$Package)), 1)
-  renv_scope_binding(the, "package_format_width", width)
+  # width <- max(nchar(map_chr(records, function(x) x$Package)), 1)
+  # renv_scope_binding(the, "package_format_width", width)
 
   for (record in records) {
     package <- record$Package
@@ -800,11 +800,8 @@ renv_install_report <- function(records, library) {
 }
 
 renv_install_step_start <- function(action, package) {
-  printf(
-    "- %s %s ... ",
-    format(action, width = nchar(action)),
-    format(package, width = the$package_format_width %||% 12)
-  )
+  message <- sprintf("- %s %s ... ", action, package)
+  printf(format(message, width = the$install_step_width))
 }
 
 renv_install_step_ok <- function(..., time = NULL) {

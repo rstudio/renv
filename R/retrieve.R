@@ -33,9 +33,9 @@ retrieve <- function(packages) {
   for (package in packages)
     handler(package, renv_retrieve_impl(package))
 
-  if (is.null(state$downloaded)) {
+  if (is.null(state$downloaded))
     writef("[no downloads required]")
-  }
+
   writef("")
 
   state <- renv_restore_state()
@@ -210,6 +210,7 @@ renv_retrieve_impl <- function(package) {
   }
 
   state$downloaded <- TRUE
+
   # time to retrieve -- delegate based on previously-determined source
   switch(source,
          bioconductor = renv_retrieve_bioconductor(record),
@@ -409,7 +410,7 @@ renv_retrieve_git_impl <- function(record, path) {
   if (renv_platform_windows())
     command <- paste(comspec(), "/C", command)
 
-  writef("Cloning '%s' ...", url)
+  printf("- Cloning '%s' ... ", url)
 
   before <- Sys.time()
 
@@ -426,7 +427,7 @@ renv_retrieve_git_impl <- function(record, path) {
     stopf(fmt, package, url, status)
   }
 
-  fmt <- "\tOK [cloned repository in %s]"
+  fmt <- "OK [cloned repository in %s]"
   elapsed <- difftime(after, before, units = "auto")
   writef(fmt, renv_difftime_format(elapsed))
 
@@ -916,11 +917,18 @@ renv_retrieve_repos_impl <- function(record,
 
 renv_retrieve_package <- function(record, url, path) {
 
+  state <- renv_restore_state()
+  count <- state$retrieve_package_count %||% 0L
+  state$retrieve_package_count <- count + 1L
+  if (count == 0L)
+    writef("")
+
   ensure_parent_directory(path)
   type <- renv_record_source(record)
   status <- local({
     renv_scope_auth(record)
-    catch(download(url, destfile = path, type = type))
+    preamble <- renv_retrieve_package_preamble(record, url)
+    catch(download(url, preamble = preamble, destfile = path, type = type))
   })
 
   # report error for logging upstream
@@ -942,6 +950,18 @@ renv_retrieve_package <- function(record, url, path) {
 
   # handle success
   renv_retrieve_successful(record, path)
+
+}
+
+renv_retrieve_package_preamble <- function(record, url) {
+
+  message <- sprintf(
+    "- Downloading %s from %s ... ",
+    record$Package,
+    record$Repository %||% record$Source
+  )
+
+  format(message, width = the$install_step_width)
 
 }
 

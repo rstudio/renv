@@ -175,8 +175,8 @@
       Selection: 2
       
       # Downloading packages ---
-      Retrieving '<test-repo>/src/contrib/egg_1.0.0.tar.gz' ...
-      	OK [downloaded XXXX bytes in XXXX seconds]
+      
+      - Downloading egg from CRAN ...                 OK [XXXX bytes in 0.0012s]
       
       The following package(s) will be installed:
       
@@ -186,7 +186,7 @@
       
       # Installing packages ---
       
-      - Installing egg ... OK [built from source and cached]
+      - Installing egg ...                            OK [built from source and cached]
       
       Successfully installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
@@ -219,6 +219,4 @@
 
     Code
       . <- renv_snapshot_description(path = descfile)
-    Output
-      * 'renv' inferred to have been installed from remote 'rstudio/renv@main'.
 
