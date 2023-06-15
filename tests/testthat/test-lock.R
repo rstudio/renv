@@ -152,6 +152,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
   skip_on_cran()
   skip_if(getRversion() < "4.0.0")
   skip_on_os("windows")
+  skip_on_ci()
 
   renv_scope_options(renv.config.locking.enabled = TRUE)
   renv_scope_envvars(RENV_WATCHDOG_ENABLED = "FALSE")

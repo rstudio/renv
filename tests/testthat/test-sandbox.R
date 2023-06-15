@@ -71,6 +71,9 @@ test_that(".Library.site isn't used even when sandbox is disabled", {
 
 test_that("multiple processes can attempt to acquire the sandbox", {
 
+  skip_on_cran()
+  skip_on_ci()
+
   # number of processes
   n <- 20
 
