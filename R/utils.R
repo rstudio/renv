@@ -89,6 +89,10 @@ case <- function(...) {
 
 }
 
+compose <- function(wrapper, callback) {
+  function(...) wrapper(callback(...))
+}
+
 catch <- function(expr) {
   tryCatch(
     withCallingHandlers(expr, error = renv_error_capture),

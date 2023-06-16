@@ -18,6 +18,10 @@ renv_description_read <- function(path = NULL,
     path <- paste(components, collapse = "/")
   }
 
+  # if the DESCRIPTION file doesn't exist, bail
+  if (!file.exists(path))
+    stopf("DESCRIPTION file %s does not exist", renv_path_pretty(path))
+
   # read value with filebacked cache
   description <- filebacked(
     scope    = "renv_description_read",

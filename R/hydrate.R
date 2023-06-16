@@ -240,7 +240,10 @@ renv_hydrate_libpaths <- function() {
 renv_hydrate_link_package <- function(package, location, library) {
 
   # construct path to cache
-  record <- renv_snapshot_description(location)
+  record <- catch(renv_snapshot_description(location))
+  if (inherits(record, "error"))
+    return(FALSE)
+
   cache <- renv_cache_find(record)
   if (!nzchar(cache))
     return(FALSE)

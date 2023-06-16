@@ -96,9 +96,10 @@ renv_retrieve_impl <- function(package) {
     is.null(record$Version)
 
   if (uselatest) {
-    record <- catch(renv_available_packages_latest(package))
-    if (inherits(record, "error"))
-      stopf("package '%s' is not available", package)
+    record <- withCallingHandlers(
+      renv_available_packages_latest(package),
+      error = function(err) stopf("package '%s' is not available", package)
+    )
   }
 
   # if the requested record is incompatible with the set
