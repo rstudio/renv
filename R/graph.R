@@ -96,7 +96,7 @@ graph <- function(root = NULL,
   }
 
   defaults <- renv_graphviz_defaults(renderer)
-  attributes <- modifyList(defaults, attributes)
+  attributes <- overlay(defaults, attributes)
 
   # render attributes
   attrtext <- renv_graphviz_render(attributes, TRUE)

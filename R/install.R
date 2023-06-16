@@ -122,17 +122,16 @@ install <- function(packages = NULL,
     packages <- c(packages, dots[!nzchar(names(dots))])
   }
 
-  # check whether this is a request to install 'all' packages
-  all <- is.null(packages)
-
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
 
+  # handle 'dependencies'
   if (!is.null(dependencies)) {
     fields <- renv_description_dependency_fields(dependencies, project = project)
     renv_scope_options(renv.settings.package.dependency.fields = fields)
   }
 
+  # set up library paths
   libpaths <- renv_libpaths_resolve(library)
   renv_scope_libpaths(libpaths)
 
@@ -153,48 +152,46 @@ install <- function(packages = NULL,
     return(renv_pak_install(packages, libpaths, project))
   }
 
-  packages <- packages %||% renv_snapshot_dependencies(project, dev = TRUE)
+  # resolve remotes from explicitly-requested packages
+  remotes <- if (length(packages)) {
+    remotes <- map(packages, renv_remotes_resolve)
+    names(remotes) <- map_chr(remotes, `[[`, "Package")
+    remotes
+  }
+
+  # figure out which packages we should install
+  packages <- names(remotes) %||% renv_snapshot_dependencies(project, dev = TRUE)
   if (empty(packages)) {
     writef("* There are no packages to install.")
     return(invisible(list()))
   }
 
-  # retrieve currently installed packages
-  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
-
-  # generate package records to install
-  remotes <- lapply(packages, renv_remotes_resolve)
-  names(remotes) <- extract_chr(remotes, "Package")
-
-  if (all) {
-    # apply version specifications and Remotes from DESCRIPTION
-    pkg_remotes <- renv_project_remotes(project)
-    remotes <- c(exclude(remotes, names(pkg_remotes)), pkg_remotes)
-
-    # only install packages that aren't already installed
-    remotes <- exclude(remotes, names(records))
-  }
-
-  # update existing records with requested remotes
-  records[names(remotes)] <- remotes
+  # start building a list of records; they should be resolved this priority:
+  #
+  # 1. explicit requests from the user
+  # 2. remotes declarations from the DESCRIPTION file
+  # 3. existing version in library, if any
+  # 4. fallback to package repositories
+  #
+  # we overlay 1 and 2 here, and then do 3 and 4 dynamically if required
+  # during the retrieve + install stages
+  records <- overlay(renv_project_remotes(project), remotes)
 
   # run install preflight checks
-  if (!renv_install_preflight(project, libpaths, remotes))
+  if (!renv_install_preflight(project, libpaths, records))
     cancel_if(prompt && !proceed())
 
-  # ensure package names are resolved if provided
-  packages <- if (length(packages)) names(remotes)
-
+  # we're now ready to start installation
   renv_scope_restore(
     project  = project,
     library  = renv_libpaths_active(),
+    packages = names(remotes),
     records  = records,
-    packages = packages,
     rebuild  = rebuild
   )
 
   # retrieve packages
-  records <- retrieve(names(remotes))
+  records <- retrieve(packages)
   if (empty(records)) {
     writef("* There are no packages to install.")
     return(invisible(list()))

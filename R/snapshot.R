@@ -590,11 +590,11 @@ renv_snapshot_library <- function(library = NULL,
 
   # snapshot description files
   descriptions <- file.path(packages, "DESCRIPTION")
-  records <- lapply(descriptions, renv_snapshot_description)
+  records <- lapply(descriptions, compose(catch, renv_snapshot_description))
   names(records) <- basename(packages)
 
   # report any snapshot failures
-  broken <- Filter(function(record) inherits(record, "error"), records)
+  broken <- filter(records, inherits, what = "error")
   if (length(broken)) {
 
     messages <- map_chr(broken, conditionMessage)
@@ -680,12 +680,15 @@ renv_snapshot_library_diagnose_missing_description <- function(library, pkgs) {
 
 renv_snapshot_description <- function(path = NULL, package = NULL) {
 
-  # read DESCRIPTION file
-  path <- path %||% renv_package_find(package)
-  dcf <- catch(renv_description_read(path, package))
-  if (inherits(dcf, "error"))
-    return(dcf)
+  # resolve path
+  path <- path %||% {
+    path <- renv_package_find(package)
+    if (!nzchar(path))
+      stopf("package '%s' is not installed", package)
+  }
 
+  # read and snapshot DESCRIPTION file
+  dcf <- renv_description_read(path, package)
   renv_snapshot_description_impl(dcf, path)
 
 }
@@ -704,8 +707,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   missing <- renv_vector_diff(required, names(dcf))
   if (length(missing)) {
     fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
-    msg <- sprintf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
-    return(simpleError(msg))
+    stopf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
   }
 
   # generate a hash if we can

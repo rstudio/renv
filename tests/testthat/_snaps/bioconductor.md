@@ -23,9 +23,6 @@
     Code
       install("bioc::BiocGenerics")
     Output
-      # Downloading packages ---
-      [no downloads required]
-      
       The following package(s) will be installed:
       
       - BiocGenerics [<version>]

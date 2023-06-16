@@ -89,6 +89,10 @@ case <- function(...) {
 
 }
 
+compose <- function(wrapper, callback) {
+  function(...) wrapper(callback(...))
+}
+
 catch <- function(expr) {
   tryCatch(
     withCallingHandlers(expr, error = renv_error_capture),
@@ -419,14 +423,6 @@ recursing <- function() {
 
 }
 
-code <- function(x) {
-  paste(deparse(substitute(x)), collapse = "\n")
-}
-
-shcode <- function(x) {
-  shQuote(paste(deparse(substitute(x)), collapse = "\n"))
-}
-
 csort <- function(x, decreasing = FALSE, ...) {
   renv_scope_locale("LC_COLLATE", "C")
   sort(x, decreasing, ...)
@@ -615,3 +611,7 @@ renv <- function() {
 }
 
 assert <- function(...) stopifnot(...)
+
+overlay <- function(lhs, rhs) {
+  modifyList(as.list(lhs), as.list(rhs))
+}
