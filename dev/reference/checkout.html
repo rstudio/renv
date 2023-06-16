@@ -109,8 +109,7 @@ packages will be included as well.</p></dd>
 <dd><p>The snapshot date to use. When set, the associated snapshot as
 available from the Posit's public
 <a href="https://packagemanager.rstudio.com/" class="external-link">Package Manager</a> instance will be
-used. The repository path can be adjusted using the <code>renv.checkout.repos</code>
-option. Ignored if <code>repos</code> is non-<code>NULL</code>.</p></dd>
+used. Ignored if <code>repos</code> is non-<code>NULL</code>.</p></dd>
 
 
 <dt>clean</dt>
@@ -140,6 +139,10 @@ replaced with the version provided by the requested repositories. This could
 be a concern if your project uses <span style="R">R</span> packages from GitHub whose name matches
 that of an existing CRAN package, but is otherwise unrelated to the package
 on CRAN.</p>
+<p>Note that <code>renv::checkout()</code> does not update the project lockfile; it only
+installs the packages from the provided repository. You should call
+<code><a href="snapshot.html">snapshot()</a></code> after you've confirmed that the installed packages function as
+expected in your project.</p>
     </div>
 
     <div class="section level2">
