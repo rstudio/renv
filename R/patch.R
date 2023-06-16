@@ -172,7 +172,7 @@ renv_patch_repos <- function() {
 
   # presumably this will never happen when the dev version of renv is
   # installed, so we skip to avoid parsing a sha as version
-  if (renv_metadata_is_dev())
+  if (!is.null(the$metadata$sha))
     return()
 
   # nothing to do if this version of 'renv' is already available

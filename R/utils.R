@@ -334,20 +334,6 @@ remap <- function(x, map) {
 
 }
 
-header <- function(label,
-                   prefix = "#",
-                   suffix = "-",
-                   n = min(getOption("width"), 78))
-{
-  n <- max(n - nchar(label) - nchar(prefix) - 2L, 8L)
-  if (n <= 0)
-    return(paste(prefix, label))
-
-  tail <- paste(rep.int(suffix, n), collapse = "")
-  paste0(prefix, " ", label, " ", tail)
-
-}
-
 keep <- function(x, keys) {
   x[intersect(keys, names(x))]
 }

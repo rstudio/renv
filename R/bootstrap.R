@@ -1,8 +1,4 @@
 
-startswith <- function(string, prefix) {
-  substring(string, 1, nchar(prefix)) == prefix
-}
-
 `%||%` <- function(x, y) {
   if (is.null(x)) y else x
 }
@@ -20,27 +16,56 @@ catf <- function(fmt, ..., appendLF = TRUE) {
 
 }
 
+header <- function(label,
+                   prefix = "#",
+                   suffix = "-",
+                   n = min(getOption("width"), 78))
+{
+  n <- max(n - nchar(label) - nchar(prefix) - 2L, 8L)
+  if (n <= 0)
+    return(paste(prefix, label))
+
+  tail <- paste(rep.int(suffix, n), collapse = "")
+  paste0(prefix, " ", label, " ", tail)
+
+}
+
+startswith <- function(string, prefix) {
+  substring(string, 1, nchar(prefix)) == prefix
+}
+
 bootstrap <- function(version, library) {
 
   # load failed; inform user we're about to bootstrap
-  catf("Bootstrapping renv %s:", version)
+  friendly <- version
+  if (nchar(friendly) >= 40)
+    friendly <- sprintf("rstudio/renv@%s", substring(version, 1L, 7L))
+
+  section <- header(paste("Bootstrapping renv", friendly))
+  catf(section)
 
   # attempt to download renv
+  catf("- Downloading renv ... ", appendLF = FALSE)
   withCallingHandlers(
     tarball <- renv_bootstrap_download(version),
     error = function(err) {
+      catf("FAILED")
       stop("failed to download:\n", conditionMessage(err))
     }
   )
+  catf("OK")
   on.exit(unlink(tarball), add = TRUE)
 
   # now attempt to install
+  catf("- Installing renv  ... ", appendLF = FALSE)
   withCallingHandlers(
     status <- renv_bootstrap_install(version, tarball, library),
     error = function(err) {
+      catf("FAILED")
       stop("failed to install:\n", conditionMessage(err))
     }
   )
+  catf("OK")
 
   # add empty line to break up bootstrapping from normal output
   catf("")
@@ -200,8 +225,6 @@ renv_bootstrap_download_cran_latest <- function(version) {
   type  <- spec$type
   repos <- spec$repos
 
-  catf("* Downloading %s from <%s> ... ", type, repos, appendLF = FALSE)
-
   baseurl <- utils::contrib.url(repos = repos, type = type)
   ext <- if (identical(type, "source"))
     ".tar.gz"
@@ -218,13 +241,10 @@ renv_bootstrap_download_cran_latest <- function(version) {
     condition = identity
   )
 
-  if (inherits(status, "condition")) {
-    catf("FAILED")
+  if (inherits(status, "condition"))
     return(FALSE)
-  }
 
   # report success and return
-  catf("OK")
   destfile
 
 }
@@ -281,8 +301,6 @@ renv_bootstrap_download_cran_archive <- function(version) {
   urls <- file.path(repos, "src/contrib/Archive/renv", name)
   destfile <- file.path(tempdir(), name)
 
-  catf("* Downloading from archive ... ", appendLF = FALSE)
-
   for (url in urls) {
 
     status <- tryCatch(
@@ -290,14 +308,11 @@ renv_bootstrap_download_cran_archive <- function(version) {
       condition = identity
     )
 
-    if (identical(status, 0L)) {
-      catf("OK")
+    if (identical(status, 0L))
       return(destfile)
-    }
 
   }
 
-  catf("FAILED")
   return(FALSE)
 
 }
@@ -329,7 +344,7 @@ renv_bootstrap_download_tarball <- function(version) {
 
   }
 
-  catf("* Using local tarball '%s'", tarball)
+  catf("- Using local tarball '%s'.", tarball)
   tarball
 
 }
@@ -356,8 +371,6 @@ renv_bootstrap_download_github <- function(version) {
     on.exit(do.call(base::options, saved), add = TRUE)
   }
 
-  catf("* Downloading version %s from GitHub ... ", version, appendLF = FALSE)
-
   url <- file.path("https://api.github.com/repos/rstudio/renv/tarball", version)
   name <- sprintf("renv_%s.tar.gz", version)
   destfile <- file.path(tempdir(), name)
@@ -367,14 +380,11 @@ renv_bootstrap_download_github <- function(version) {
     condition = identity
   )
 
-  if (!identical(status, 0L)) {
-    catf("FAILED")
+  if (!identical(status, 0L))
     return(FALSE)
-  }
 
   renv_bootstrap_download_augment(destfile)
 
-  catf("OK")
   return(destfile)
 
 }
@@ -447,34 +457,28 @@ renv_bootstrap_git_extract_sha1_tar <- function(bundle) {
 renv_bootstrap_install <- function(version, tarball, library) {
 
   # attempt to install it into project library
-  catf("* Installing ... ", appendLF = FALSE)
   dir.create(library, showWarnings = FALSE, recursive = TRUE)
-
   output <- renv_bootstrap_install_impl(library, tarball)
 
   # check for successful install
   status <- attr(output, "status")
-  if (is.numeric(status) && !identical(status, 0L)) {
-    catf("FAILED")
+  if (is.null(status) || identical(status, 0L))
+    return(status)
 
-    header <- "Error installing renv:"
-    lines <- paste(rep.int("=", nchar(header)), collapse = "")
-    text <- c(header, lines, output)
-    writeLines(text, con = stdout())
-    stop("Failed")
-  } else {
-    catf("OK")
-  }
-
-  status
+  # an error occurred; report it
+  header <- "installation of renv failed"
+  lines <- paste(rep.int("=", nchar(header)), collapse = "")
+  text <- paste(c(header, lines, output), collapse = "\n")
+  stop(text)
 
 }
 
 renv_bootstrap_install_impl <- function(library, tarball) {
+
   # invoke using system2 so we can capture and report output
   bin <- R.home("bin")
   exe <- if (Sys.info()[["sysname"]] == "Windows") "R.exe" else "R"
-  r <- file.path(bin, exe)
+  R <- file.path(bin, exe)
 
   args <- c(
     "--vanilla", "CMD", "INSTALL", "--no-multiarch",
@@ -482,7 +486,7 @@ renv_bootstrap_install_impl <- function(library, tarball) {
     shQuote(path.expand(tarball))
   )
 
-  system2(r, args, stdout = TRUE, stderr = TRUE)
+  system2(R, args, stdout = TRUE, stderr = TRUE)
 
 }
 

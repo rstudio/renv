@@ -1207,11 +1207,7 @@ renv_snapshot_fixup_renv <- function(records) {
     return(records)
 
   # no valid record available; construct a synthetic one
-  version <- renv_metadata_version()
-  remote <- if (renv_metadata_is_dev())
-    paste("rstudio/renv", version, sep = "@")
-  else
-    paste("renv", version, sep = "@")
+  remote <- renv_metadata_remote()
 
   # add it to the set of records
   records$renv <- renv_remotes_resolve(remote)
