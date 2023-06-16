@@ -234,7 +234,9 @@ renv_load_r_repos <- function(repos) {
   repos <- sub("/+$", "", repos)
   names(repos) <- nms
 
-  # convert to rspm if enabled
+  # transform PPM URLs if enabled
+  # this ensures that install.packages() uses binaries by default on Linux,
+  # where 'getOption("pkgType")' is "source" by default
   if (renv_ppm_enabled())
     repos <- renv_ppm_transform(repos)
 

@@ -58,8 +58,10 @@ renv_pak_install <- function(packages, library, project) {
   lib <- library[[1L]]
 
   # transform repositories
-  if (renv_ppm_enabled())
-    renv_scope_options(repos = renv_ppm_transform())
+  if (renv_ppm_enabled()) {
+    repos <- getOption("repos")
+    renv_scope_options(repos = renv_ppm_transform(repos))
+  }
 
   # make sure pak::pkg_install() still works even if we're
   # running in renv with devtools::load_all()

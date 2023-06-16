@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::install(type = "source")` now ensures source repositories are used
+  in projects using [PPM](https://packagemanager.posit.co/). (#927)
+  
 * `renv::restore()` now emits an error if called in a project that
   does not contain a lockfile. (#1474)
 
