@@ -111,14 +111,10 @@ init <- function(project = NULL,
   # prepare and move into project directory
   renv_init_validate_project(project, force)
   renv_init_settings(project, settings)
-  setwd(project)
-
-  # be quiet in RStudio projects (as we will normally restart automatically)
-  quiet <- !is.null(getOption("restart"))
 
   # for bare inits, just activate the project
   if (bare)
-    return(renv_init_fini(project, profile, restart, quiet))
+    return(renv_init_fini(project, profile, restart))
 
   # compute and cache dependencies to (a) reveal problems early and (b) compute once
   the$init_dependencies <- renv_dependencies_confirm("init", path = project, dev = TRUE)
@@ -142,18 +138,17 @@ init <- function(project = NULL,
   }
 
   # activate the newly-hydrated project
-  renv_init_fini(project, profile, restart, quiet)
+  renv_init_fini(project, profile, restart)
 
 }
 
-renv_init_fini <- function(project, profile, restart, quiet) {
+renv_init_fini <- function(project, profile, restart) {
 
   renv_activate_impl(
     project = project,
     profile = profile,
     version = renv_metadata_version(),
-    restart = restart,
-    quiet   = quiet
+    restart = restart
   )
 
   invisible(project)

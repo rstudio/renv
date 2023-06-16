@@ -150,7 +150,8 @@
 #'
 #'   Development dependencies include packages listed in the `Suggests` field
 #'   of a `DESCRIPTION` found in the project root, and roxygen2 or devtools if
-#'   their use is implied by other project metadata.
+#'   their use is implied by other project metadata. They also include packages
+#'   used in `~/.Rprofile` if `config$user.profile()` is `TRUE`.
 #'
 #' @return An \R `data.frame` of discovered dependencies, mapping inferred
 #'   package names to the files in which they were discovered. Note that the
@@ -260,6 +261,11 @@ renv_dependencies_root_impl <- function(path) {
 
 renv_dependencies_callback <- function(path) {
 
+  # user .Rprofile
+  if (renv_path_same(path, Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile"))) {
+    return(function(path) renv_dependencies_discover_r(path, dev = TRUE))
+  }
+
   cbname <- list(
     ".Rprofile"     = function(path) renv_dependencies_discover_r(path),
     "DESCRIPTION"   = function(path) renv_dependencies_discover_description(path),
@@ -320,6 +326,14 @@ renv_dependencies_find_extra <- function(root) {
 renv_dependencies_find <- function(path = getwd(), root = getwd()) {
   files <- lapply(path, renv_dependencies_find_impl, root = root, depth = 0)
   extra <- renv_dependencies_find_extra(root)
+
+  if (config$user.profile()) {
+    rprofile_path <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
+    if (file.exists(rprofile_path)) {
+      extra <- c(extra, rprofile_path)
+    }
+  }
+
   unlist(c(files, extra), recursive = TRUE, use.names = FALSE)
 }
 
@@ -336,11 +350,7 @@ renv_dependencies_find_impl <- function(path, root, depth) {
   if (info$isdir)
     return(renv_dependencies_find_dir(path, root, depth))
 
-  # otherwise, check and see if we have a registered callback
-  callback <- renv_dependencies_callback(path)
-  if (is.function(callback))
-    return(path)
-
+  path
 }
 
 renv_dependencies_find_dir <- function(path, root, depth) {
@@ -450,17 +460,16 @@ renv_dependencies_discover_impl <- function(path) {
 
   callback <- renv_dependencies_callback(path)
   if (is.null(callback)) {
-    fmt <- "internal error: no callback registered for file %s"
-    warningf(fmt, renv_path_pretty(path))
-  }
-
-  result <- catch(callback(path))
-  if (inherits(result, "error")) {
-    warning(result)
     return(NULL)
   }
 
-  result
+  tryCatch(
+    filebacked("dependencies", path, callback),
+    error = function(cnd) {
+      warning(cnd)
+      NULL
+    }
+  )
 
 }
 
@@ -916,7 +925,8 @@ renv_dependencies_discover_rproj <- function(path) {
 renv_dependencies_discover_r <- function(path = NULL,
                                          text = NULL,
                                          expr = NULL,
-                                         envir = NULL)
+                                         envir = NULL,
+                                         dev = FALSE)
 {
   expr <- case(
     is.function(expr)  ~ body(expr),
@@ -968,7 +978,7 @@ renv_dependencies_discover_r <- function(path = NULL,
   })
 
   packages <- ls(envir = envir, all.names = TRUE)
-  renv_dependencies_list(path, packages)
+  renv_dependencies_list(path, packages, dev = dev)
 }
 
 renv_dependencies_discover_r_methods <- function(node, stack, envir) {

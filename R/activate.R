@@ -9,13 +9,14 @@
 #'
 #' `activate()` first calls [renv::scaffold()] to set up the project
 #' infrastructure. Most importantly, this creates a project library and adds a
-#' `.Rprofile` to ensure that the project library is automatically used for all
-#' future instances of the project. It then calls [renv::load()] to use the
-#' project library for the current session.
+#' an auto-loader to `.Rprofile` to ensure that the project library is
+#' automatically used for all future instances of the project. It then restarts
+#' the session to use that auto-loader.
 #'
-#' `deactivate()` removes the infrastructure automatically activate renv in
-#' new session. By default it will remove the auto-loader from the `.Rprofile`;
-#' use `clean = TRUE` to also delete the lockfile and the project library.
+#' `deactivate()` removes the infrastructure added by `activate()`, and
+#' restarts the session. By default it will remove the auto-loader from the
+#' `.Rprofile`; use `clean = TRUE` to also delete the lockfile and the project
+#' library.
 #'
 #' # Temporary deactivation
 #'
@@ -53,9 +54,7 @@ activate <- function(project = NULL, profile = NULL) {
   renv_activate_impl(
     project = project,
     profile = profile,
-    version = NULL,
-    restart = FALSE,
-    quiet   = FALSE
+    version = NULL
   )
 
   invisible(project)
@@ -65,8 +64,7 @@ activate <- function(project = NULL, profile = NULL) {
 renv_activate_impl <- function(project,
                                profile,
                                version,
-                               restart,
-                               quiet)
+                               restart = TRUE)
 {
   # prepare renv infrastructure
   renv_infrastructure_write(
@@ -75,18 +73,22 @@ renv_activate_impl <- function(project,
     version = version
   )
 
-  # try to load the project
-  load(project, quiet = quiet)
-
   # ensure renv is imbued into the new library path if necessary
   if (!renv_tests_running())
     renv_imbue_self(project)
 
   # restart session if requested
-  if (restart)
+  if (restart) {
     renv_restart_request(project, reason = "renv activated")
-  else if (renv_rstudio_available())
-    renv_rstudio_initialize(project)
+  } else {
+    if (renv_rstudio_available())
+      renv_rstudio_initialize(project)
+
+    setwd(project)
+
+    # try to load the project
+    load(project)
+  }
 
 }
 

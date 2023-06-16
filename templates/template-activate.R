@@ -79,6 +79,15 @@ local({
   if (renv_bootstrap_in_rstudio()) {
     setHook("rstudio.sessionInit", function(...) {
       renv_bootstrap_run(version, libpath)
+
+      # Work around buglet in RStudio if hook uses readline
+      tryCatch(
+        {
+          tools <- as.environment("tools:rstudio")
+          tools$.rs.api.sendToConsole("", echo = FALSE, focus = FALSE)
+        },
+        error = function(cnd) {}
+      )
     })
   } else {
     renv_bootstrap_run(version, libpath)
