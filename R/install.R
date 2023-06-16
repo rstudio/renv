@@ -345,9 +345,6 @@ renv_install_default <- function(records) {
   state <- renv_restore_state()
   handler <- state$handler
 
-  # width <- max(nchar(map_chr(records, function(x) x$Package)), 1)
-  # renv_scope_binding(the, "package_format_width", width)
-
   for (record in records) {
     package <- record$Package
     handler(package, renv_install_package(record))
