@@ -3,23 +3,23 @@
     Code
       bootstrap(version = "0.9.0", library = library)
     Output
-      Bootstrapping renv 0.9.0:
-      * Downloading binary from <https://cran.rstudio.com> ... OK
-      * Installing ... OK
+      # Bootstrapping renv 0.9.0 ---
+      - Downloading renv ... OK
+      - Installing renv  ... OK
       
     Code
       bootstrap(version = "1.0.0", library = library)
     Output
-      Bootstrapping renv 1.0.0:
-      * Downloading from archive ... OK
-      * Installing ... OK
+      # Bootstrapping renv 1.0.0 ---
+      - Downloading renv ... OK
+      - Installing renv  ... OK
       
     Code
       bootstrap(version = "1.0.0.1", library = library)
     Output
-      Bootstrapping renv 1.0.0.1:
-      * Downloading version 1.0.0.1 from GitHub ... OK
-      * Installing ... OK
+      # Bootstrapping renv 1.0.0.1 ---
+      - Downloading renv ... OK
+      - Installing renv  ... OK
       
 
 # bootstrapping gives informative output when download fails
@@ -27,25 +27,24 @@
     Code
       bootstrap(version = "0.9.0", library = library)
     Output
-      Bootstrapping renv 0.9.0:
-      * Downloading binary from <https://cran.rstudio.com> ... FAILED
-      * Downloading from archive ... FAILED
+      # Bootstrapping renv 0.9.0 ---
+      - Downloading renv ... FAILED
     Error <simpleError>
       failed to download:
       All download methods failed
     Code
       bootstrap(version = "1.0.0", library = library)
     Output
-      Bootstrapping renv 1.0.0:
-      * Downloading from archive ... FAILED
+      # Bootstrapping renv 1.0.0 ---
+      - Downloading renv ... FAILED
     Error <simpleError>
       failed to download:
       All download methods failed
     Code
       bootstrap(version = "1.0.0.1", library = library)
     Output
-      Bootstrapping renv 1.0.0.1:
-      * Downloading version 1.0.0.1 from GitHub ... FAILED
+      # Bootstrapping renv 1.0.0.1 ---
+      - Downloading renv ... FAILED
     Error <simpleError>
       failed to download:
       All download methods failed
@@ -55,15 +54,14 @@
     Code
       bootstrap(version = "1.0.0.1", library = library)
     Output
-      Bootstrapping renv 1.0.0.1:
-      * Downloading version 1.0.0.1 from GitHub ... OK
-      * Installing ... FAILED
-      Error installing renv:
-      ======================
-      test failure
+      # Bootstrapping renv 1.0.0.1 ---
+      - Downloading renv ... OK
+      - Installing renv  ... FAILED
     Error <simpleError>
       failed to install:
-      Failed
+      installation of renv failed
+      ===========================
+      test failure
 
 # renv_boostrap_version_validate() gives good warnings
 
