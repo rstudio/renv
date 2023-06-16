@@ -152,7 +152,7 @@ install <- function(packages = NULL,
     return(renv_pak_install(packages, libpaths, project))
   }
 
-  # resolve remotes from provided user packages
+  # resolve remotes from explicitly-requested packages
   remotes <- if (length(packages)) {
     remotes <- map(packages, renv_remotes_resolve)
     names(remotes) <- map_chr(remotes, `[[`, "Package")
