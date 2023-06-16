@@ -27,8 +27,7 @@ packages will be included as well.}
 \item{date}{The snapshot date to use. When set, the associated snapshot as
 available from the Posit's public
 \href{https://packagemanager.rstudio.com/}{Package Manager} instance will be
-used. The repository path can be adjusted using the \code{renv.checkout.repos}
-option. Ignored if \code{repos} is non-\code{NULL}.}
+used. Ignored if \code{repos} is non-\code{NULL}.}
 
 \item{clean}{Boolean; remove packages not recorded in the lockfile from
 the target library? Use \code{clean = TRUE} if you'd like the library state
@@ -57,6 +56,11 @@ replaced with the version provided by the requested repositories. This could
 be a concern if your project uses \R packages from GitHub whose name matches
 that of an existing CRAN package, but is otherwise unrelated to the package
 on CRAN.
+
+Note that \code{renv::checkout()} does not update the project lockfile; it only
+installs the packages from the provided repository. You should call
+\code{\link[=snapshot]{snapshot()}} after you've confirmed that the installed packages function as
+expected in your project.
 }
 \examples{
 \dontrun{

@@ -4,7 +4,7 @@ test_that("we can check out packages from our local repository", {
   # enter test scope
   project <- renv_tests_scope("breakfast")
 
-  # check out a package + its depndencies; this invocation is
+  # check out a package + its dependencies; this invocation is
   # similar in spirit to a plain `install()` call
   checkout(packages = "breakfast")
 
@@ -16,8 +16,8 @@ test_that("we can check out packages from our local repository", {
 
 test_that("we can check out packages from the package manager instance", {
   skip_on_cran()
-
   renv_tests_scope()
+  init()
 
   # ensure we reset repos on exit
   renv_scope_options(repos = getOption("repos"))
