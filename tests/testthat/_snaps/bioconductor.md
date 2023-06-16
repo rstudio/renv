@@ -26,11 +26,15 @@
       # Downloading packages ---
       [no downloads required]
       
-      # Installing packages into "<tempdir>/<renv-library>" ---
       The following package(s) will be installed:
       
       - BiocGenerics [<version>]
       
-      Installing BiocGenerics ... OK [copied from cache]
-      Installed 1 package in XXXX seconds.
+      These packages will be installed into "<tempdir>/<renv-library>".
+      
+      # Installing packages ---
+      
+      - Installing BiocGenerics ...                   OK [copied from cache]
+      
+      Successfully installed 1 package in XXXX seconds.
 

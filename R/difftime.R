@@ -1,9 +1,8 @@
 
 renv_difftime_format <- function(time, digits = 2L) {
 
-  if (is_testing()) {
-    return ("XXXX seconds")
-  }
+  if (is_testing())
+    return("XXXX seconds")
 
   units <- attr(time, "units") %||% ""
   if (units == "secs" && time < 0.1) {
@@ -31,6 +30,9 @@ renv_difftime_format <- function(time, digits = 2L) {
 
 renv_difftime_format_short <- function(time, digits = 2L) {
 
+  if (is_testing())
+    return("XXs")
+
   elapsed <- signif(time, digits = digits)
   if (nchar(elapsed) == 1L)
     elapsed <- paste(elapsed, ".0", sep = "")
@@ -49,13 +51,12 @@ renv_difftime_format_short <- function(time, digits = 2L) {
 }
 
 renv_difftime_format_slow <- function(time, prefix = "", threshold = 1) {
-  if (renv_tests_running()) {
-    return("")
-  }
 
-  if (as.difftime(time, units = "secs") < threshold) {
+  if (renv_tests_running())
     return("")
-  }
+
+  if (as.difftime(time, units = "secs") < threshold)
+    return("")
 
   paste0(prefix, renv_difftime_format(time))
 }

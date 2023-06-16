@@ -141,12 +141,16 @@ ask <- function(question, default = FALSE) {
       return(default)
 
     # check for 'yes' responses
-    if (response %in% c("y", "yes"))
+    if (response %in% c("y", "yes")) {
+      writef("")
       return(TRUE)
+    }
 
     # check for 'no' responses
-    if (response %in% c("n", "no"))
+    if (response %in% c("n", "no")) {
+      writef("")
       return(FALSE)
+    }
 
     # ask the user again
     writef("* Unrecognized response: please enter 'y' or 'n', or type Ctrl + C to cancel.")
@@ -331,7 +335,7 @@ header <- function(label,
                    suffix = "-",
                    n = min(getOption("width"), 78))
 {
-  n <- max(n - nchar(label) - nchar(prefix) - 2L, 3)
+  n <- max(n - nchar(label) - nchar(prefix) - 2L, 8L)
   if (n <= 0)
     return(paste(prefix, label))
 
