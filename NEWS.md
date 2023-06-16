@@ -4,6 +4,9 @@
 * `renv::install(type = "source")` now ensures source repositories are used
   in projects using [PPM](https://packagemanager.posit.co/). (#927)
   
+* `renv::restore()` now emits an error if called in a project that
+  does not contain a lockfile. (#1474)
+
 * If `config$user.profile()` is `TRUE`, the packages it uses are now included
   in the development dependencies, which means that they will be installed 
   by `install()` but not recorded in the snapshot.

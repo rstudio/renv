@@ -421,10 +421,8 @@ renv_load_rprofile_impl <- function(profile) {
   # bare restart handler, so at least we can catch the jump.
   #
   # https://github.com/rstudio/renv/issues/1036
-  #
-  # TODO: Why not sys.source()?
   status <- withRestarts(
-    eval(parse(profile), envir = globalenv()),
+    sys.source(profile, envir = globalenv()),
     abort = function() { structure(list(), class = "_renv_error") }
   )
 

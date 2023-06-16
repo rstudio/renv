@@ -6,6 +6,12 @@ test_that("library permissions are validated before restore", {
   expect_false(renv_install_preflight_permissions(inaccessible))
 })
 
+test_that("restore() gives an error if no lockfile exists", {
+  renv_tests_scope()
+  expect_false(file.exists("renv.lock"))
+  expect_error(restore())
+})
+
 test_that("we can restore packages after init", {
   skip_on_cran()
   renv_tests_scope("breakfast")

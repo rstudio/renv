@@ -133,11 +133,18 @@ renv_lockfile_save <- function(lockfile, project) {
   renv_lockfile_write(lockfile, file = file)
 }
 
-renv_lockfile_load <- function(project) {
+renv_lockfile_load <- function(project, strict = FALSE) {
 
   path <- renv_lockfile_path(project)
   if (file.exists(path))
     return(renv_lockfile_read(path))
+
+  if (strict) {
+    abort(c(
+      "This project does not contain a lockfile.",
+      i = "Have you called `snapshot()` yet?"
+    ))
+  }
 
   renv_lockfile_init(project = project)
 
