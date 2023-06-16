@@ -75,7 +75,7 @@ renv_watchdog_start <- function() {
     renv_watchdog_start_impl(),
     error = function(e) {
       the$watchdog_enabled <- FALSE
-      warning(e)
+      NULL
     }
   )
 
