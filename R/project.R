@@ -273,12 +273,18 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
 
   # check for case where no packages are installed (except renv)
   if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
-    msg <- lines(
+
+    writef(lines(
       "* None of the packages recorded in the lockfile are installed.",
-      "* Use `renv::restore()` to restore the project library."
-    )
-    writef(msg)
-    return(FALSE)
+      "* Using `renv::restore()` to restore the project library."
+    ))
+
+    if (proceed()) {
+      restore(project, prompt = FALSE, exclude = "renv")
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
   }
 
   # check for case where one or more packages are missing

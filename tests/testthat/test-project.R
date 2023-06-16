@@ -1,4 +1,4 @@
-test_that("renv_project_synchronized_check() reports if no packages installed", {
+test_that("renv_project_synchronized_check() installs packages if needed", {
 
   renv_tests_scope("breakfast")
   install("bread")
@@ -7,5 +7,5 @@ test_that("renv_project_synchronized_check() reports if no packages installed", 
 
   renv_scope_options(renv.verbose = TRUE)
   expect_snapshot(ok <- renv_project_synchronized_check())
-  expect_false(ok)
+  expect_true(ok)
 })

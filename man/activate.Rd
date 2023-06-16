@@ -33,13 +33,14 @@ way to start using renv in a new project.
 
 \code{activate()} first calls \code{\link[=scaffold]{scaffold()}} to set up the project
 infrastructure. Most importantly, this creates a project library and adds a
-\code{.Rprofile} to ensure that the project library is automatically used for all
-future instances of the project. It then calls \code{\link[=load]{load()}} to use the
-project library for the current session.
+an auto-loader to \code{.Rprofile} to ensure that the project library is
+automatically used for all future instances of the project. It then restarts
+the session to use that auto-loader.
 
-\code{deactivate()} removes the infrastructure automatically activate renv in
-new session. By default it will remove the auto-loader from the \code{.Rprofile};
-use \code{clean = TRUE} to also delete the lockfile and the project library.
+\code{deactivate()} removes the infrastructure added by \code{activate()}, and
+restarts the session. By default it will remove the auto-loader from the
+\code{.Rprofile}; use \code{clean = TRUE} to also delete the lockfile and the project
+library.
 }
 \section{Temporary deactivation}{
 If you need to temporarily disable autoload activation you can set
