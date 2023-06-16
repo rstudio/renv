@@ -1,8 +1,6 @@
 
 abort <- function(message, ..., body = NULL, class = NULL) {
 
-  renv_dots_check(...)
-
   # create condition object
   cnd <- if (is.character(message)) {
     structure(class = c(class, "error", "condition"), list(
@@ -26,8 +24,13 @@ abort <- function(message, ..., body = NULL, class = NULL) {
 
   # if we got here, then there wasn't any tryCatch() handler on the stack.
   # handle printing of the error ourselves, and then stop with fallback.
-  parts <- c(cnd$meta$body, "", paste("Error:", cnd$meta$message))
-  writeLines(paste(parts, collapse = "\n"), con = stderr())
+  all <- c(
+    cnd$meta$body, if (length(cnd$meta$body)) "",
+    paste("Error:", paste(cnd$meta$message, collapse = "\n"))
+  )
+
+  # write error message to stderr, as errors might normally do
+  writeLines(all, con = stderr())
 
   # create the fallback, but 'dodge' the existing error handlers
   fallback <- cnd

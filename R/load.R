@@ -234,7 +234,9 @@ renv_load_r_repos <- function(repos) {
   repos <- sub("/+$", "", repos)
   names(repos) <- nms
 
-  # convert to rspm if enabled
+  # transform PPM URLs if enabled
+  # this ensures that install.packages() uses binaries by default on Linux,
+  # where 'getOption("pkgType")' is "source" by default
   if (renv_ppm_enabled())
     repos <- renv_ppm_transform(repos)
 
@@ -419,10 +421,8 @@ renv_load_rprofile_impl <- function(profile) {
   # bare restart handler, so at least we can catch the jump.
   #
   # https://github.com/rstudio/renv/issues/1036
-  #
-  # TODO: Why not sys.source()?
   status <- withRestarts(
-    eval(parse(profile), envir = globalenv()),
+    sys.source(profile, envir = globalenv()),
     abort = function() { structure(list(), class = "_renv_error") }
   )
 

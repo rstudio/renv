@@ -14,6 +14,11 @@ renv_ppm_transform <- function(repos = getOption("repos")) {
 
 renv_ppm_transform_impl <- function(url) {
 
+  # if this function is being called as part of `install(..., type = "source')`
+  # then we want to transform binary URLs to source URLs here
+  if (identical(the$install_pkg_type, "source"))
+    return(renv_ppm_normalize(url))
+
   # repository URL transformation is only necessary on Linux
   os <- renv_ppm_os()
   if (!identical(os, "__linux__"))
