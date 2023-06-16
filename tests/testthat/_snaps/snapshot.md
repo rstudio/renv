@@ -176,7 +176,7 @@
       
       # Downloading packages ---
       
-      - Downloading egg from CRAN ...                 OK [XXXX bytes in 0.0012s]
+      - Downloading egg from CRAN ...                 OK [XXXX bytes in XXs]
       
       The following package(s) will be installed:
       

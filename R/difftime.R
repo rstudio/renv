@@ -30,6 +30,9 @@ renv_difftime_format <- function(time, digits = 2L) {
 
 renv_difftime_format_short <- function(time, digits = 2L) {
 
+  if (is_testing())
+    return("XXs")
+
   elapsed <- signif(time, digits = digits)
   if (nchar(elapsed) == 1L)
     elapsed <- paste(elapsed, ".0", sep = "")

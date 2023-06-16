@@ -32,10 +32,10 @@
     Output
       # Downloading packages ---
       
-      - Downloading breakfast from CRAN ...           OK [XXXX bytes in 0.0023s]
-      - Downloading oatmeal from CRAN ...             OK [XXXX bytes in 0.002s]
-      - Downloading toast from CRAN ...               OK [XXXX bytes in 0.002s]
-      - Downloading bread from CRAN ...               OK [XXXX bytes in 0.002s]
+      - Downloading breakfast from CRAN ...           OK [XXXX bytes in XXs]
+      - Downloading oatmeal from CRAN ...             OK [XXXX bytes in XXs]
+      - Downloading toast from CRAN ...               OK [XXXX bytes in XXs]
+      - Downloading bread from CRAN ...               OK [XXXX bytes in XXs]
       
       The following package(s) will be installed:
       
