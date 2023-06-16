@@ -312,8 +312,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
 
   writef("* Resolving missing dependencies ... ")
 
-  # define a custom error handler for packages which
-  # we failed to retrieve
+  # define a custom error handler for packages which we cannot retrieve
   errors <- stack()
   handler <- function(package, action) {
     error <- catch(action)

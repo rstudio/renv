@@ -3,13 +3,10 @@ renv_pretty_print <- function(values,
                               preamble  = NULL,
                               postamble = NULL)
 {
-  if (!renv_verbose())
+  if (!renv_verbose() || empty(values))
     return()
 
   msg <- stack()
-  if (empty(values))
-    return()
-
   if (!is.null(preamble)) {
     msg$push(paste(preamble, collapse = "\n"))
     msg$push("")

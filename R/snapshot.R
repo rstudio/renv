@@ -681,7 +681,12 @@ renv_snapshot_library_diagnose_missing_description <- function(library, pkgs) {
 renv_snapshot_description <- function(path = NULL, package = NULL) {
 
   # read DESCRIPTION file
-  path <- path %||% renv_package_find(package)
+  path <- path %||% {
+    path <- renv_package_find(package)
+    if (!nzchar(path))
+      stopf("package '%s' is not installed", package)
+  }
+
   dcf <- catch(renv_description_read(path, package))
   if (inherits(dcf, "error"))
     return(dcf)

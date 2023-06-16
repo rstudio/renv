@@ -3,9 +3,6 @@
     Code
       install("bread@0.1.0")
     Output
-      # Downloading packages ---
-      [no downloads required]
-      
       The following package(s) will be installed:
       
       - bread [0.1.0]
@@ -60,9 +57,6 @@
     Code
       install()
     Output
-      # Downloading packages ---
-      [no downloads required]
-      
       The following package(s) will be installed:
       
       - bread     [1.0.0]

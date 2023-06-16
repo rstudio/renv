@@ -165,3 +165,27 @@ renv_description_dependency_fields <- function(fields, project) {
   unique(unlist(expanded, recursive = FALSE, use.names = FALSE))
 
 }
+
+renv_description_remotes <- function(path) {
+
+  desc <- catch(renv_description_read(path))
+  if (inherits(desc, "error"))
+    return(list())
+
+  profile <- renv_profile_get()
+  field <- if (is.null(profile))
+    "Remotes"
+  else
+    sprintf("Config/renv/profiles/%s/remotes", profile)
+
+  remotes <- desc[[field]]
+  if (is.null(remotes))
+    return(list())
+
+  splat <- strsplit(remotes, "[[:space:]]*,[[:space:]]*")[[1]]
+  resolved <- lapply(splat, renv_remotes_resolve)
+  names(resolved) <- extract_chr(resolved, "Package")
+  resolved
+
+}
+

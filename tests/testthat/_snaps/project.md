@@ -13,9 +13,6 @@
       - oatmeal     [* -> 1.0.0]
       - toast       [* -> 1.0.0]
       
-      # Downloading packages ---
-      [no downloads required]
-      
       # Installing packages ---
       - Installing bread ...                          OK [linked from cache]
       - Installing oatmeal ...                        OK [linked from cache]
