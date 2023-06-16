@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::install(type = "source")` now ensures source repositories are used
+  in projects using [PPM](https://packagemanager.posit.co/). (#927)
+  
 * If `config$user.profile()` is `TRUE`, the packages it uses are now included
   in the development dependencies, which means that they will be installed 
   by `install()` but not recorded in the snapshot.

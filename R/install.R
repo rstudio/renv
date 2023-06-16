@@ -1,4 +1,8 @@
 
+# an explicitly-requested package type in a call to 'install()'
+the$install_pkg_type <- NULL
+
+# the formatted width of installation steps printed to the console
 the$install_step_width <- 48L
 
 #' Install packages
@@ -115,10 +119,11 @@ install <- function(packages = NULL,
   if (!missing(...)) {
     dots <- list(...)
     names(dots) <- names(dots) %||% rep.int("", length(dots))
-
     packages <- c(packages, dots[!nzchar(names(dots))])
   }
-  install_all <- is.null(packages)
+
+  # check whether this is a request to install 'all' packages
+  all <- is.null(packages)
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
@@ -131,8 +136,11 @@ install <- function(packages = NULL,
   libpaths <- renv_libpaths_resolve(library)
   renv_scope_libpaths(libpaths)
 
-  type <- type %||% getOption("pkgType")
-  renv_scope_options(pkgType = type)
+  # check for explicitly-provided type -- we handle this specially for PPM
+  if (!is.null(type)) {
+    renv_scope_binding(the, "install_pkg_type", type)
+    renv_scope_options(pkgType = type)
+  }
 
   # override repositories if requested
   repos <- repos %||% config$repos.override()
@@ -158,7 +166,7 @@ install <- function(packages = NULL,
   remotes <- lapply(packages, renv_remotes_resolve)
   names(remotes) <- extract_chr(remotes, "Package")
 
-  if (install_all) {
+  if (all) {
     # apply version specifications and Remotes from DESCRIPTION
     pkg_remotes <- renv_project_remotes(project)
     remotes <- c(exclude(remotes, names(pkg_remotes)), pkg_remotes)

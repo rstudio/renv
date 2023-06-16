@@ -101,3 +101,26 @@ test_that("URLs like http://foo/bar aren't queried", {
   expect_condition(renv_ppm_transform_impl("http://foo/bar/baz"), class = "bail")
 
 })
+
+test_that("renv_ppm_transform() uses source URLs when appropriate", {
+
+  # pretend to be Ubuntu
+  renv_scope_envvars(
+    RENV_PPM_OS = "__linux__",
+    RENV_PPM_PLATFORM = "jammy"
+  )
+
+  binurl <- "https://packagemanager.rstudio.com/cran/__linux__/jammy/latest"
+  srcurl <- "https://packagemanager.rstudio.com/cran/latest"
+
+  # prefer source URLs
+  renv_scope_binding(the, "install_pkg_type", "source")
+  expect_equal(unname(renv_ppm_transform(binurl)), srcurl)
+  expect_equal(unname(renv_ppm_transform(srcurl)), srcurl)
+
+  # prefer binary URLs
+  renv_scope_binding(the, "install_pkg_type", "binary")
+  expect_equal(unname(renv_ppm_transform(binurl)), binurl)
+  expect_equal(unname(renv_ppm_transform(srcurl)), binurl)
+
+})
