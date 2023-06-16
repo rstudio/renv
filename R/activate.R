@@ -138,8 +138,10 @@ renv_activate_version_lockfile <- function(project) {
 
 }
 
+# TODO: can we unravel this, and just record the metadata structure
+# into the activate script?
 renv_activate_version_default <- function(project) {
-  renv_metadata_version()
+  the$metadata$sha %||% the$metadata$version
 }
 
 renv_activate_prompt <- function(action, library, prompt, project) {
