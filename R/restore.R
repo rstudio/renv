@@ -51,11 +51,12 @@ restore <- function(project  = NULL,
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
 
-  renv_activate_prompt("restore", library, prompt, project)
-
   # resolve library, lockfile arguments
   libpaths <- renv_libpaths_resolve(library)
-  lockfile <- lockfile %||% renv_lockfile_load(project = project)
+  lockfile <- lockfile %||% renv_lockfile_load(project = project, strict = TRUE)
+
+  # check and ask user if they need to activate first
+  renv_activate_prompt("restore", library, prompt, project)
 
   # activate the requested library (place at front of library paths)
   library <- nth(libpaths, 1L)
