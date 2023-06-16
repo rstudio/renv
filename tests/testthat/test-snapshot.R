@@ -460,6 +460,7 @@ test_that("useful error message if implicit dep discovery is slow", {
 
 test_that("exclude handles uninstalled packages", {
   project <- renv_tests_scope("bread")
+  init()
   snapshot(exclude = "bread")
   lockfile <- renv_lockfile_load(project)
   expect_null(lockfile$Packages$bread)

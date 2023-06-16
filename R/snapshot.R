@@ -1013,8 +1013,8 @@ renv_snapshot_filter_impl <- function(project, records, packages, type, exclude)
   packages <- unique(c(packages, "renv"))
 
   # warn if some required packages are missing
-  ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
-  missing <- setdiff(packages, c(names(records), ignored, exclude))
+  ignored <- c(renv_project_ignored_packages(project), renv_packages_base(), exclude)
+  missing <- setdiff(packages, c(names(records), ignored))
   if (!the$status_running)
     renv_snapshot_filter_report_missing(missing, type)
 
