@@ -233,10 +233,13 @@ renv_restore_begin <- function(project = NULL,
     records = records,
 
     # the set of packages to be installed in this restore session;
-    # as explicitly requested by the user / front-end API call
+    # as explicitly requested by the user / front-end API call.
+    # packages in this list should be re-installed even if a compatible
+    # version appears to be already installed
     packages = packages,
 
     # an optional handler, to be used during retrieve / restore
+    # TODO: should we split this into separate handlers?
     handler = handler %||% function(package, action) action,
 
     # packages which should be rebuilt (skipping the cache)
