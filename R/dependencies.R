@@ -282,7 +282,8 @@ renv_dependencies_callback <- function(path) {
     ".qmd"         = function(path) renv_dependencies_discover_multimode(path, "qmd"),
     ".rmd"         = function(path) renv_dependencies_discover_multimode(path, "rmd"),
     ".rmarkdown"   = function(path) renv_dependencies_discover_multimode(path, "rmd"),
-    ".rnw"         = function(path) renv_dependencies_discover_multimode(path, "rnw")
+    ".rnw"         = function(path) renv_dependencies_discover_multimode(path, "rnw"),
+    ".ipynb"       = function(path) renv_dependencies_discover_ipynb(path)
   )
 
   name <- basename(path)
@@ -905,6 +906,28 @@ renv_dependencies_discover_chunks_ranges <- function(path, contents, patterns) {
   }
 
   bind(output)
+
+}
+
+renv_dependencies_discover_ipynb <- function(path) {
+
+  json <- renv_json_read(path)
+  if (json$metadata$kernelspec$language != "R")
+    return()
+
+  deps <- stack()
+  if (json$metadata$kernelspec$name == "ir")
+    deps$push(renv_dependencies_list(path, "IRKernel"))
+
+  for (cell in json$cells) {
+    if (cell$cell_type != "code")
+      next
+
+    code <- paste0(cell$source, collapse = "")
+    deps$push(renv_dependencies_discover_r(path, text = code))
+  }
+
+  bind(deps$data())
 
 }
 

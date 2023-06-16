@@ -1,6 +1,8 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `dependencies()` now discovers R dependencies inside jupyter notebooks (#929).
+
 * `renv::install(type = "source")` now ensures source repositories are used
   in projects using [PPM](https://packagemanager.posit.co/). (#927)
   
