@@ -18,8 +18,8 @@ URL: https://rstudio.github.io/renv/
 BugReports: https://github.com/rstudio/renv/issues
 Imports: utils
 Suggests: BiocManager, cli, covr, cpp11, devtools, gitcreds, jsonlite, knitr, miniUI,
-    packrat, pak, R6, remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat,
-    uuid, waldo, yaml, webfakes
+    packrat, pak, R6, remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat (>= 3.1.9),
+    uuid, yaml, webfakes
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)

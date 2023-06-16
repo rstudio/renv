@@ -1,32 +1,3 @@
-
-# a wrapper around testthat::test_that(), which also tries
-# to confirm that the test hasn't mutated any global state
-test_that <- function(desc, code) {
-
-  # skip tests when run on CRAN's macOS machine
-  iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
-  testthat::skip_if(iscran && renv_platform_macos())
-
-  # record global state before test execution
-  before <- renv_test_state()
-
-  # run the test
-  call <- sys.call()
-  call[[1L]] <- quote(testthat::test_that)
-  eval(call, envir = parent.frame())
-
-  # record global state after test execution
-  after <- renv_test_state()
-
-  # check for unexpected changes
-  diffs <- waldo::compare(before, after)
-  if (length(diffs)) {
-    fdiffs <- paste(format(diffs), collapse = "\n\n")
-    stopf("Test '%s' has modified global state:\n%s\n", desc, fdiffs)
-  }
-
-}
-
 renv_test_state <- function() {
 
   list_files <- function(path, full.names = TRUE) {
@@ -80,3 +51,4 @@ renv_test_state <- function() {
   )
 
 }
+set_state_inspector(renv_test_state)
