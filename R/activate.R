@@ -63,7 +63,7 @@ activate <- function(project = NULL, profile = NULL) {
 
 renv_activate_impl <- function(project,
                                profile,
-                               version,
+                               version = NULL,
                                restart = TRUE)
 {
   # prepare renv infrastructure
