@@ -39,9 +39,9 @@ bootstrap <- function(version, library) {
   # load failed; inform user we're about to bootstrap
   friendly <- version
   if (nchar(friendly) >= 40)
-    friendly <- sprintf("rstudio/renv@%s", substring(version, 1L, 7L))
+    friendly <- sprintf("[rstudio/renv@%s]", substring(version, 1L, 7L))
 
-  section <- header(paste("Bootstrapping renv", friendly))
+  section <- header(sprintf("Bootstrapping renv %s", friendly))
   catf(section)
 
   # attempt to download renv
