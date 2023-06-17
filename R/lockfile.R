@@ -193,7 +193,13 @@ renv_lockfile_create_impl <- function(project, libpaths, type, packages, exclude
 
   lockfile <- renv_lockfile_init(project)
 
-  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+  packages <- packages %||% renv_snapshot_dependencies(project, type)
+
+  records <- renv_snapshot_packages(
+    packages = setdiff(packages, exclude),
+    libpaths = libpaths,
+    project  = project
+  )
 
   records <- renv_snapshot_filter(
     project  = project,

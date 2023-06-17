@@ -137,8 +137,10 @@ renv_retrieve_impl <- function(package) {
 
     # if we have an installed package matching the requested record, finish early
     path <- renv_restore_find(package, record)
-    if (file.exists(path))
-      return(renv_retrieve_successful(record, path, install = FALSE))
+    if (file.exists(path)) {
+      install <- !dirname(path) %in% renv_libpaths_all()
+      return(renv_retrieve_successful(record, path, install = install))
+    }
 
     # if the requested record already exists in the cache,
     # we'll use that package for install
@@ -1050,6 +1052,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   })
 
   # mark package as requiring install if needed
+  browser()
   if (install)
     state$install$push(record)
 

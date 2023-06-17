@@ -166,6 +166,10 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  # add bioconductor packages if necessary
+  if (renv_bioconductor_required(remotes))
+    packages <- unique(c(packages, c("BiocVersion", "BiocManager")))
+
   # start building a list of records; they should be resolved this priority:
   #
   # 1. explicit requests from the user

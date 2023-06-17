@@ -232,35 +232,40 @@ renv_package_augment_metadata <- function(path, remotes) {
 renv_package_dependencies <- function(packages,
                                       project = NULL,
                                       libpaths = NULL,
-                                      fields = NULL)
+                                      fields = NULL,
+                                      callback = NULL)
 {
   visited <- new.env(parent = emptyenv())
   ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- libpaths %||% renv_libpaths_all()
   fields <- fields %||% settings$package.dependency.fields(project = project)
+  callback <- callback %||% function(package, location, project) location
 
   for (package in packages)
-    renv_package_dependencies_impl(package, visited, libpaths, fields)
+    renv_package_dependencies_impl(package, visited, libpaths, fields, callback, project)
 
-  as.list(visited)
+  records <- as.list(visited)
+  renv_bioconductor_augment(records, project)
 }
 
 renv_package_dependencies_impl <- function(package,
                                            visited,
                                            libpaths = NULL,
-                                           fields = NULL)
+                                           fields = NULL,
+                                           callback = NULL,
+                                           project = NULL)
 {
   # skip the 'R' package
   if (package == "R")
     return()
 
   # if we've already visited this package, bail
-  if (exists(package, envir = visited, inherits = FALSE))
+  if (!is.null(visited[[package]]))
     return()
 
   # default to unknown path for visited packages
-  assign(package, NA, envir = visited, inherits = FALSE)
+  visited[[package]] <- ""
 
   # short-circuit for NA case
   if (length(libpaths) == 1L && is.na(libpaths))
@@ -270,16 +275,16 @@ renv_package_dependencies_impl <- function(package,
   libpaths <- libpaths %||% renv_libpaths_all()
   location <- renv_package_find(package, libpaths)
   if (!file.exists(location))
-    return(location)
+    return(callback(package, location, project))
 
   # we know the path, so set it now
-  assign(package, location, envir = visited, inherits = FALSE)
+  visited[[package]] <- callback(package, location, project)
 
   # find its dependencies from the DESCRIPTION file
   deps <- renv_dependencies_discover_description(location, fields = "strong")
   subpackages <- deps$Package
   for (subpackage in subpackages)
-    renv_package_dependencies_impl(subpackage, visited, libpaths, fields)
+    renv_package_dependencies_impl(subpackage, visited, libpaths, fields, callback, project)
 }
 
 renv_package_reload <- function(package, library = NULL) {

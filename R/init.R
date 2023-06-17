@@ -107,7 +107,6 @@ init <- function(project = NULL,
 
   }
 
-
   # prepare and move into project directory
   renv_init_validate_project(project, force)
   renv_init_settings(project, settings)
@@ -130,8 +129,9 @@ init <- function(project = NULL,
   # perform the action
   if (action == "init") {
     renv_imbue_impl(project)
-    hydrate(project = project, library = library, prompt = FALSE, report = FALSE)
-    snapshot(project = project, library = libpaths, repos = repos, prompt = FALSE)
+    packages <- unique(the$init_dependencies$Package)
+    hydrate(packages = packages, library = library, prompt = FALSE, report = FALSE, project = project)
+    snapshot(packages = packages, library = libpaths, repos = repos, prompt = FALSE, project = project)
   } else if (action == "restore") {
     ensure_directory(library)
     restore(project = project, library = libpaths, prompt = FALSE)

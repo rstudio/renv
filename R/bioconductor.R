@@ -120,3 +120,35 @@ renv_bioconductor_repos_biocinstaller <- function(version) {
   version <- version %||% BiocInstaller$biocVersion()
   BiocInstaller$biocinstallRepos(version = version)
 }
+
+renv_bioconductor_required <- function(records) {
+
+  for (record in records)
+    if (identical(record$Source, "Bioconductor"))
+      return(TRUE)
+
+  FALSE
+
+}
+
+renv_bioconductor_augment <- function(records, project) {
+
+  # NOTE: BiocVersion is available on Bioconductor, so we need to ensure
+  # the Bioconductor repositories are activated here
+  sources <- records %>% filter(is.list) %>% extract_chr("Source")
+  if ("Bioconductor" %in% sources) {
+    renv_scope_bioconductor(project = project)
+    packages <- c("BiocManager", "BiocVersion")
+    for (package in packages) {
+      records[[package]] <- records[[package]] %||% {
+        tryCatch(
+          renv_snapshot_description(package = package),
+          error = function(e) renv_available_packages_latest(package)
+        )
+      }
+    }
+  }
+
+  records
+
+}

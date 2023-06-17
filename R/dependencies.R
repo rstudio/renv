@@ -513,29 +513,32 @@ renv_dependencies_discover_description <- function(path,
   if (inherits(dcf, "error"))
     return(renv_dependencies_error(path, error = dcf))
 
-  if (is.null(fields)) {
-    # Most callers don't pass in project so we need to get it from global state
+  fields <- fields %||% {
+
+    # most callers don't pass in project so we need to get it from global state
     project <- project %||%
       renv_dependencies_state(key = "root") %||%
       renv_restore_state(key = "root") %||%
       renv_project_resolve()
 
+    # get fields from settings
     fields <- settings$package.dependency.fields(project = project)
 
     # if this is the DESCRIPTION file for the active project, include
     # the dependencies for the active profile (if any) and Suggested fields.
+    # collect profile-specific dependencies as well
     if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
-
-      # collect profile-specific dependencies as well
+      fmt <- "Config/renv/profiles/%s/dependencies"
       profile <- renv_profile_get()
-      profile_field <- if (length(profile))
-        sprintf("Config/renv/profiles/%s/dependencies", profile)
-
-      fields <- c(fields, "Suggests", profile_field)
+      fields <- c(fields, "Suggests", sprintf(fmt, profile))
     }
-  } else {
-    fields <- renv_description_dependency_fields(fields)
+
+    fields
+
   }
+
+  # make sure dependency fields are expanded
+  fields <- renv_description_dependency_fields(fields)
 
   data <- map(
     fields,
@@ -543,6 +546,14 @@ renv_dependencies_discover_description <- function(path,
     dcf  = dcf,
     path = path
   )
+
+  # if this is a bioconductor package, add their implicit dependencies
+  if ("biocViews" %in% names(dcf)) {
+    data[[length(data) + 1L]] <- renv_dependencies_list(
+      source = path,
+      packages = c("BiocManager", "BiocVersion")
+    )
+  }
 
   bind(data)
 

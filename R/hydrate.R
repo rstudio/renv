@@ -82,8 +82,8 @@ hydrate <- function(packages = NULL,
 
   # remove base + missing packages
   base <- renv_packages_base()
-  na <- deps[is.na(deps)]
-  packages <- deps[renv_vector_diff(names(deps), c(names(na), base))]
+  missing <- deps[!nzchar(deps)]
+  packages <- deps[renv_vector_diff(names(deps), c(names(missing), base))]
 
   # figure out if we will copy or link
   linkable <- renv_cache_linkable(project = project, library = library)
@@ -97,13 +97,13 @@ hydrate <- function(packages = NULL,
 
   # inform user about changes
   if (report) {
-    renv_hydrate_report(packages, na, linkable)
-    if (length(packages) || length(na))
+    renv_hydrate_report(packages, missing, linkable)
+    if (length(packages) || length(missing))
       cancel_if(prompt && !proceed())
   }
 
   # check for nothing to be done
-  if (empty(packages) && empty(na)) {
+  if (empty(packages) && empty(missing)) {
     if (report)
       writef("* No new packages were discovered in this project; nothing to do.")
     return(invisible(list(packages = list(), missing = list())))
@@ -126,7 +126,7 @@ hydrate <- function(packages = NULL,
   }
 
   # attempt to install missing packages (if any)
-  missing <- renv_hydrate_resolve_missing(project, library, na)
+  missing <- renv_hydrate_resolve_missing(project, library, missing)
 
   # we're done!
   result <- list(packages = packages, missing = missing)

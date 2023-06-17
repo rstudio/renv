@@ -92,6 +92,7 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
 
   renv_tests_scope()
   init()
+
   local({
     renv_tests_scope_system_cache()
     install("bioc::BiocGenerics")
@@ -101,8 +102,8 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
   writeLines("library(BiocGenerics)", "dependencies.R")
 
   expect_snapshot(status(), transform = strip_versions)
-  snap <- snapshot()
-  expect_setequal(names(snap$Packages), c("BiocManager", "BiocGenerics"))
+  lockfile <- snapshot()
+  expect_setequal(names(lockfile$Packages), c("BiocManager", "BiocGenerics", "BiocVersion"))
 
   # And it goes away when we remove the dependency
   unlink("dependencies.R")
@@ -145,10 +146,12 @@ test_that("auto-bioc install happens silently", {
 
   renv_tests_scope()
   renv_tests_scope_system_cache()
+
   expect_snapshot(
     install("bioc::BiocGenerics"),
     transform = function(x) strip_versions(strip_dirs(x))
   )
 
   expect_true(renv_package_installed("BiocManager"))
+
 })

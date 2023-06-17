@@ -146,7 +146,7 @@ snapshot <- function(project  = NULL,
   if (!is.null(lockfile))
     renv_activate_prompt("snapshot", library, prompt, project)
 
-  libpaths <- library %||% renv_libpaths_all()
+  libpaths <- renv_path_normalize(library %||% renv_libpaths_all())
   if (config$snapshot.validate())
     renv_snapshot_preflight(project, libpaths)
 
@@ -950,14 +950,15 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
 
-  if (!is.null(the$init_dependencies)) {
+  if (!is.null(the$init_dependencies))
     return(the$init_dependencies$Package)
-  }
 
   type <- type %||% settings$snapshot.type(project = project)
 
-  if (type %in% "all")
-    return(installed_packages(field = "Package"))
+  if (type %in% "all") {
+    packages <- installed_packages(field = "Package")
+    return(setdiff(packages, renv_packages_base()))
+  }
 
   if (type %in% "custom") {
     filter <- renv_snapshot_filter_custom_resolve()
@@ -973,13 +974,56 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
     }
   )
 
-  renv_dependencies_confirm(
+  packages <- renv_dependencies_confirm(
     "snapshot",
     path = path,
     root = project,
     field = "Package",
     dev = dev
   )
+
+  unique(packages)
+
+}
+
+renv_snapshot_packages <- function(packages, libpaths, project) {
+
+  # compute package records
+  records <- renv_package_dependencies(
+    packages = packages,
+    libpaths = libpaths,
+    callback = renv_snapshot_packages_callback
+  )
+
+  # drop non-list records (these represent packages which weren't available)
+  records <- filter(records, is.list)
+
+  # add in bioconductor infrastructure packages
+  records <- renv_bioconductor_augment(records, project)
+
+}
+
+renv_snapshot_packages_callback <- function(package, location, project) {
+
+  # skip if package doesn't appear to be installed
+  if (!nzchar(location))
+    return(NULL)
+
+  # skip renv if we're testing
+  if (package == "renv" && is_testing())
+    return(NULL)
+
+  # skip ignored packages
+  ignored <- c(
+    renv_packages_base(),
+    renv_project_ignored_packages(project = project)
+  )
+
+  if (package %in% ignored)
+    return(NULL)
+
+  # ok, we can snapshot
+  renv_snapshot_description(path = file.path(location, "DESCRIPTION"))
 
 }
 
@@ -1025,17 +1069,6 @@ renv_snapshot_filter_impl <- function(project, records, packages, type, exclude)
   paths <- renv_package_dependencies(used, project = project)
   all <- as.character(names(paths))
   kept <- keep(records, all)
-
-  # add in bioconductor infrastructure packages
-  # if any other bioconductor packages detected
-  sources <- extract_chr(kept, "Source")
-  if ("Bioconductor" %in% sources) {
-    packages <- c("BiocManager", "BiocInstaller", "BiocVersion")
-    for (package in packages)
-      kept[[package]] <- records[[package]]
-  }
-
-  kept
 
 }
 

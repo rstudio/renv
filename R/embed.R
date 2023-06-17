@@ -111,8 +111,7 @@ renv_embed_create <- function(path = NULL,
   all <- renv_package_dependencies(packages)
 
   # keep only matched records
-  lockfile$Packages <-
-    keep(lockfile$Packages, c("renv", names(all)))
+  lockfile$Packages <- keep(lockfile$Packages, c("renv", names(all)))
 
   # write compact use statement
   renv_lockfile_compact(lockfile)
