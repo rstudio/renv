@@ -615,13 +615,13 @@ renv_snapshot_library <- function(library = NULL,
 
 }
 
-renv_snapshot_library_diagnose <- function(library, pkgs) {
+renv_snapshot_library_diagnose <- function(library, packages) {
 
-  pkgs <- grep("00LOCK", pkgs, invert = TRUE, value = TRUE)
-  pkgs <- renv_snapshot_library_diagnose_broken_link(library, pkgs)
-  pkgs <- renv_snapshot_library_diagnose_tempfile(library, pkgs)
-  pkgs <- renv_snapshot_library_diagnose_missing_description(library, pkgs)
-  pkgs
+  packages <- grep("00LOCK", packages, invert = TRUE, value = TRUE)
+  packages <- renv_snapshot_library_diagnose_broken_link(library, packages)
+  packages <- renv_snapshot_library_diagnose_tempfile(library, packages)
+  packages <- renv_snapshot_library_diagnose_missing_description(library, packages)
+  packages
 
 }
 
@@ -950,9 +950,6 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 
 renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
 
-  if (!is.null(the$init_dependencies))
-    return(the$init_dependencies$Package)
-
   type <- type %||% settings$snapshot.type(project = project)
 
   if (type %in% "all") {
@@ -966,7 +963,7 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
   }
 
   path <- case(
-    type %in% "implicit" ~ project,
+    type %in% c("packrat", "implicit") ~ project,
     type %in% "explicit" ~ file.path(project, "DESCRIPTION"),
     ~ {
       fmt <- "internal error: unhandled snapshot type '%s' in %s"

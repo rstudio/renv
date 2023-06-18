@@ -17,7 +17,7 @@ renv_package_find_impl <- function(package,
                                    check.loaded = TRUE)
 {
   # if we've been given the path to an existing package, use it as-is
-  if (file.exists(file.path(package, "DESCRIPTION")))
+  if (grepl("/", package) && file.exists(file.path(package, "DESCRIPTION")))
     return(renv_path_normalize(package, mustWork = TRUE))
 
   # first, look in the library paths
@@ -245,8 +245,7 @@ renv_package_dependencies <- function(packages,
   for (package in packages)
     renv_package_dependencies_impl(package, visited, libpaths, fields, callback, project)
 
-  records <- as.list(visited)
-  renv_bioconductor_augment(records, project)
+  as.list(visited)
 }
 
 renv_package_dependencies_impl <- function(package,
@@ -266,10 +265,6 @@ renv_package_dependencies_impl <- function(package,
 
   # default to unknown path for visited packages
   visited[[package]] <- ""
-
-  # short-circuit for NA case
-  if (length(libpaths) == 1L && is.na(libpaths))
-    return()
 
   # find the package
   libpaths <- libpaths %||% renv_libpaths_all()

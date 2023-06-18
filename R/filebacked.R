@@ -3,7 +3,7 @@
 # the file mtime changes. use `renv_filebacked_set()` to associate some value
 # with a file at a particular point in time; `renv_filebacked_get()` will return
 # that value, or NULL of the file mtime has changed
-the$filebacked <- new.env(parent = emptyenv())
+the$filebacked_cache <- new.env(parent = emptyenv())
 
 renv_filebacked_clear <- function(scope, path = NULL) {
 
@@ -74,8 +74,8 @@ renv_filebacked_get <- function(scope, path) {
 }
 
 renv_filebacked_envir <- function(scope) {
-  the$filebacked[[scope]] <-
-    the$filebacked[[scope]] %||%
+  the$filebacked_cache[[scope]] <-
+    the$filebacked_cache[[scope]] %||%
     new.env(parent = emptyenv())
 }
 
@@ -97,4 +97,11 @@ filebacked <- function(scope, path, callback, ...) {
 
   result
 
+}
+
+renv_filebacked_invalidate <- function(path) {
+  renv_scope_options(warn = -1L)
+  eapply(the$filebacked_cache, function(scope) {
+    rm(list = path, envir = scope)
+  })
 }

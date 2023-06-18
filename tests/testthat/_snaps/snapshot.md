@@ -3,13 +3,6 @@
     Code
       snapshot()
     Output
-      The following package(s) are missing their DESCRIPTION files:
-      
-      - oatmeal [<wd>/renv/library/<platform-prefix>/oatmeal]
-      
-      These may be left over from a prior, failed installation attempt.
-      Consider removing or reinstalling these packages.
-      
       The following required packages are not installed:
       
       - oatmeal
@@ -37,12 +30,6 @@
     Code
       snapshot()
     Output
-      The following package(s) have broken symlinks into the cache:
-      
-      - oatmeal
-      
-      Use `renv::repair()` to try and reinstall these packages.
-      
       The following required packages are not installed:
       
       - oatmeal
@@ -186,7 +173,7 @@
       
       # Installing packages ---
       
-      - Installing egg ...                            OK [built from source and cached]
+      - Installing egg ...                            OK [built source and cached]
       
       Successfully installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:

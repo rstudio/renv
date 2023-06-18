@@ -129,9 +129,8 @@ init <- function(project = NULL,
   # perform the action
   if (action == "init") {
     renv_imbue_impl(project)
-    packages <- unique(the$init_dependencies$Package)
-    hydrate(packages = packages, library = library, prompt = FALSE, report = FALSE, project = project)
-    snapshot(packages = packages, library = libpaths, repos = repos, prompt = FALSE, project = project)
+    hydrate(library = library, prompt = FALSE, report = FALSE, project = project)
+    snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
   } else if (action == "restore") {
     ensure_directory(library)
     restore(project = project, library = libpaths, prompt = FALSE)

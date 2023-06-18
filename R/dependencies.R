@@ -538,7 +538,7 @@ renv_dependencies_discover_description <- function(path,
   }
 
   # make sure dependency fields are expanded
-  fields <- renv_description_dependency_fields(fields)
+  fields <- renv_description_dependency_fields_expand(fields)
 
   data <- map(
     fields,

@@ -207,12 +207,9 @@ install <- function(packages = NULL,
   }
 
   # install retrieved records
-  writef(header("Installing packages"))
-  writef("")
   before <- Sys.time()
   renv_install_impl(records)
   after <- Sys.time()
-  writef("")
 
   time <- renv_difftime_format(difftime(after, before))
   n <- length(records)
@@ -228,10 +225,15 @@ renv_install_impl <- function(records) {
 
   staged <- renv_config_install_staged()
 
+  writef(header("Installing packages"))
+  writef("")
+
   if (staged)
     renv_install_staged(records)
   else
     renv_install_default(records)
+
+  writef("")
 
   invisible(TRUE)
 
@@ -411,10 +413,10 @@ renv_install_package <- function(record) {
 renv_install_package_feedback <- function(path, type) {
 
   if (identical(type, "source"))
-    return("built from source")
+    return("built source")
 
   if (renv_file_type(path, symlinks = FALSE) == "directory")
-    return("copied local binary")
+    return("copied binary")
 
   "installed binary"
 
@@ -440,8 +442,8 @@ renv_install_package_cache <- function(record, cache, linker) {
   after <- Sys.time()
 
   type <- case(
-    identical(linker, renv_file_copy) ~ "copied from cache",
-    identical(linker, renv_file_link) ~ "linked from cache"
+    identical(linker, renv_file_copy) ~ "copied cache",
+    identical(linker, renv_file_link) ~ "linked cache"
   )
 
   elapsed <- difftime(after, before, units = "auto")

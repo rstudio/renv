@@ -1052,7 +1052,6 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   })
 
   # mark package as requiring install if needed
-  browser()
   if (install)
     state$install$push(record)
 
