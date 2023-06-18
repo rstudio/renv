@@ -912,11 +912,11 @@ renv_dependencies_discover_chunks_ranges <- function(path, contents, patterns) {
 renv_dependencies_discover_ipynb <- function(path) {
 
   json <- renv_json_read(path)
-  if (json$metadata$kernelspec$language != "R")
+  if (!identical(json$metadata$kernelspec$language, "R"))
     return()
 
   deps <- stack()
-  if (json$metadata$kernelspec$name == "ir")
+  if (identical(json$metadata$kernelspec$name, "ir"))
     deps$push(renv_dependencies_list(path, "IRKernel"))
 
   for (cell in json$cells) {
