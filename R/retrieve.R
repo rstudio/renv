@@ -28,17 +28,14 @@ retrieve <- function(packages) {
   }
   renv_scope_options(HTTPUserAgent = agent)
 
-  writef(header("Downloading packages"))
   handler <- state$handler
   for (package in packages)
     handler(package, renv_retrieve_impl(package))
 
-  if (is.null(state$downloaded))
-    writef("[no downloads required]")
-
-  writef("")
-
   state <- renv_restore_state()
+  if (identical(state$downloaded, TRUE))
+    writef("")
+
   data <- state$install$data()
   names(data) <- extract_chr(data, "Package")
   data
@@ -58,7 +55,7 @@ renv_retrieve_impl <- function(package) {
 
   # extract record for package
   records <- state$records
-  record <- records[[package]] %||% renv_retrieve_missing_record(package)
+  record <- records[[package]] %||% renv_retrieve_resolve(package)
 
   # normalize the record source
   source <- renv_record_source(record, normalize = TRUE)
@@ -99,11 +96,10 @@ renv_retrieve_impl <- function(package) {
     is.null(record$Version)
 
   if (uselatest) {
-    record <- renv_available_packages_latest(package)
-    if (is.null(record)) {
-      stopf("package '%s' is not available", package)
-      return()
-    }
+    record <- withCallingHandlers(
+      renv_available_packages_latest(package),
+      error = function(err) stopf("package '%s' is not available", package)
+    )
   }
 
   # if the requested record is incompatible with the set
@@ -209,7 +205,10 @@ renv_retrieve_impl <- function(package) {
 
   }
 
-  state$downloaded <- TRUE
+  if (!identical(state$downloaded, TRUE)) {
+    writef(header("Downloading packages"))
+    state$downloaded <- TRUE
+  }
 
   # time to retrieve -- delegate based on previously-determined source
   switch(source,
@@ -1175,6 +1174,15 @@ renv_retrieve_handle_remotes_impl_one <- function(remote) {
   # return new record
   invisible(resolved)
 
+}
+
+renv_retrieve_resolve <- function(package) {
+  tryCatch(
+    renv_snapshot_description(package = package),
+    error = function(e) {
+      renv_retrieve_missing_record(package)
+    }
+  )
 }
 
 renv_retrieve_missing_record <- function(package) {

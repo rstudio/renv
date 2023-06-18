@@ -240,7 +240,10 @@ renv_hydrate_libpaths <- function() {
 renv_hydrate_link_package <- function(package, location, library) {
 
   # construct path to cache
-  record <- renv_snapshot_description(location)
+  record <- catch(renv_snapshot_description(location))
+  if (inherits(record, "error"))
+    return(FALSE)
+
   cache <- renv_cache_find(record)
   if (!nzchar(cache))
     return(FALSE)
@@ -312,8 +315,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
 
   writef("* Resolving missing dependencies ... ")
 
-  # define a custom error handler for packages which
-  # we failed to retrieve
+  # define a custom error handler for packages which we cannot retrieve
   errors <- stack()
   handler <- function(package, action) {
     error <- catch(action)

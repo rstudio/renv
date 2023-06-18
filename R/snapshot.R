@@ -590,11 +590,11 @@ renv_snapshot_library <- function(library = NULL,
 
   # snapshot description files
   descriptions <- file.path(packages, "DESCRIPTION")
-  records <- lapply(descriptions, renv_snapshot_description)
+  records <- lapply(descriptions, compose(catch, renv_snapshot_description))
   names(records) <- basename(packages)
 
   # report any snapshot failures
-  broken <- Filter(function(record) inherits(record, "error"), records)
+  broken <- filter(records, inherits, what = "error")
   if (length(broken)) {
 
     messages <- map_chr(broken, conditionMessage)
@@ -680,12 +680,15 @@ renv_snapshot_library_diagnose_missing_description <- function(library, pkgs) {
 
 renv_snapshot_description <- function(path = NULL, package = NULL) {
 
-  # read DESCRIPTION file
-  path <- path %||% renv_package_find(package)
-  dcf <- catch(renv_description_read(path, package))
-  if (inherits(dcf, "error"))
-    return(dcf)
+  # resolve path
+  path <- path %||% {
+    path <- renv_package_find(package)
+    if (!nzchar(path))
+      stopf("package '%s' is not installed", package)
+  }
 
+  # read and snapshot DESCRIPTION file
+  dcf <- renv_description_read(path, package)
   renv_snapshot_description_impl(dcf, path)
 
 }
@@ -704,8 +707,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   missing <- renv_vector_diff(required, names(dcf))
   if (length(missing)) {
     fmt <- "required fields %s missing from DESCRIPTION at path '%s'"
-    msg <- sprintf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
-    return(simpleError(msg))
+    stopf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
   }
 
   # generate a hash if we can
@@ -1011,8 +1013,8 @@ renv_snapshot_filter_impl <- function(project, records, packages, type, exclude)
   packages <- unique(c(packages, "renv"))
 
   # warn if some required packages are missing
-  ignored <- c(renv_project_ignored_packages(project), renv_packages_base())
-  missing <- setdiff(packages, c(names(records), ignored, exclude))
+  ignored <- c(renv_project_ignored_packages(project), renv_packages_base(), exclude)
+  missing <- setdiff(packages, c(names(records), ignored))
   if (!the$status_running)
     renv_snapshot_filter_report_missing(missing, type)
 
@@ -1205,11 +1207,7 @@ renv_snapshot_fixup_renv <- function(records) {
     return(records)
 
   # no valid record available; construct a synthetic one
-  version <- renv_metadata_version()
-  remote <- if (renv_metadata_is_dev())
-    paste("rstudio/renv", version, sep = "@")
-  else
-    paste("renv", version, sep = "@")
+  remote <- renv_metadata_remote()
 
   # add it to the set of records
   records$renv <- renv_remotes_resolve(remote)

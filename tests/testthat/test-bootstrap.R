@@ -93,7 +93,7 @@ test_that("bootstrapping functions standalone", {
   # get all bootstrap APIs in package
   renv <- asNamespace("renv")
   keys <- ls(envir = renv, pattern = "^renv_bootstrap_", all.names = TRUE)
-  vals <- mget(c("catf", "%||%", "bootstrap", keys), envir = renv)
+  vals <- mget(c("catf", "%||%", "header", "bootstrap", keys), envir = renv)
 
   # put those into a separate environment inheriting only from base, and
   # re-mark those as inheriting from base (so they only 'see' each-other)

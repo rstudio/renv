@@ -89,6 +89,10 @@ case <- function(...) {
 
 }
 
+compose <- function(wrapper, callback) {
+  function(...) wrapper(callback(...))
+}
+
 catch <- function(expr) {
   tryCatch(
     withCallingHandlers(expr, error = renv_error_capture),
@@ -330,20 +334,6 @@ remap <- function(x, map) {
 
 }
 
-header <- function(label,
-                   prefix = "#",
-                   suffix = "-",
-                   n = min(getOption("width"), 78))
-{
-  n <- max(n - nchar(label) - nchar(prefix) - 2L, 8L)
-  if (n <= 0)
-    return(paste(prefix, label))
-
-  tail <- paste(rep.int(suffix, n), collapse = "")
-  paste0(prefix, " ", label, " ", tail)
-
-}
-
 keep <- function(x, keys) {
   x[intersect(keys, names(x))]
 }
@@ -417,14 +407,6 @@ recursing <- function() {
 
   FALSE
 
-}
-
-code <- function(x) {
-  paste(deparse(substitute(x)), collapse = "\n")
-}
-
-shcode <- function(x) {
-  shQuote(paste(deparse(substitute(x)), collapse = "\n"))
 }
 
 csort <- function(x, decreasing = FALSE, ...) {
@@ -615,3 +597,7 @@ renv <- function() {
 }
 
 assert <- function(...) stopifnot(...)
+
+overlay <- function(lhs, rhs) {
+  modifyList(as.list(lhs), as.list(rhs))
+}

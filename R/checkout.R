@@ -19,6 +19,11 @@
 #' that of an existing CRAN package, but is otherwise unrelated to the package
 #' on CRAN.
 #'
+#' Note that `renv::checkout()` does not update the project lockfile; it only
+#' installs the packages from the provided repository. You should call
+#' [snapshot()] after you've confirmed that the installed packages function as
+#' expected in your project.
+#'
 #' @inheritParams renv-params
 #'
 #' @param repos The \R package repositories to use.
@@ -31,8 +36,7 @@
 #' @param date The snapshot date to use. When set, the associated snapshot as
 #'   available from the Posit's public
 #'   [Package Manager](https://packagemanager.rstudio.com/) instance will be
-#'   used. The repository path can be adjusted using the `renv.checkout.repos`
-#'   option. Ignored if `repos` is non-`NULL`.
+#'   used. Ignored if `repos` is non-`NULL`.
 #'
 #' @examples
 #' \dontrun{
@@ -188,11 +192,8 @@ renv_checkout_repos <- function(date) {
   if (is.null(date))
     return(getOption("repos"))
 
-  # build path to root of repository
-  default <- "https://packagemanager.rstudio.com/cran"
-  root <- getOption("renv.checkout.repos", default = default)
-
-  # try forming path to date
+  # build path to repository snapshot location
+  root <- dirname(config$ppm.url())
   url <- file.path(root, date)
   if (renv_download_available(file.path(url, "src/contrib/PACKAGES")))
     return(url)

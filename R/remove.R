@@ -29,8 +29,10 @@ remove <- function(packages,
 
   library <- renv_path_normalize(library %||% renv_libpaths_active())
 
+  # NOTE: users might request that we remove packages which aren't currently
+  # installed, so we need to catch errors when trying to snapshot those packages
   descpaths <- file.path(library, packages, "DESCRIPTION")
-  records <- lapply(descpaths, renv_snapshot_description)
+  records <- lapply(descpaths, compose(catch, renv_snapshot_description))
   names(records) <- packages
   records <- Filter(function(record) !inherits(record, "error"), records)
 

@@ -798,7 +798,7 @@ renv_dependencies_discover_chunks <- function(path, mode) {
     code[range] <- contents[range]
 
     # also parse chunk options
-    params <- modifyList(params, renv_knitr_options_chunk(code))
+    params <- overlay(params, renv_knitr_options_chunk(code))
 
     # return list of outputs
     list(params = params, code = code)

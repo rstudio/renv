@@ -147,7 +147,7 @@ renv_init_fini <- function(project, profile, restart) {
   renv_activate_impl(
     project = project,
     profile = profile,
-    version = renv_metadata_version(),
+    version = the$metadata$sha %||% the$metadata$version,
     restart = restart
   )
 
