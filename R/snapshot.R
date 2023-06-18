@@ -995,9 +995,6 @@ renv_snapshot_packages <- function(packages, libpaths, project) {
   # drop non-list records (these represent packages which weren't available)
   records <- filter(records, is.list)
 
-  # add in bioconductor infrastructure packages
-  records <- renv_bioconductor_augment(records, project)
-
 }
 
 renv_snapshot_packages_callback <- function(package, location, project) {
