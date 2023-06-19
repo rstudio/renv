@@ -643,7 +643,7 @@ renv_snapshot_library_diagnose_broken_link <- function(library, paths) {
   renv_pretty_print(
     basename(paths)[broken],
     "The following package(s) have broken symlinks into the cache:",
-    "Use `renv::repair()` to try and reinstall these paths."
+    "Use `renv::repair()` to try and reinstall these packages."
   )
 
   paths[!broken]
@@ -679,7 +679,7 @@ renv_snapshot_library_diagnose_missing_description <- function(library, paths) {
     "The following package(s) are missing their DESCRIPTION files:",
     c(
       "These may be left over from a prior, failed installation attempt.",
-      "Consider removing or reinstalling these paths."
+      "Consider removing or reinstalling these packages."
     )
   )
 

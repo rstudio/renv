@@ -8,7 +8,7 @@
       - oatmeal [<wd>/renv/library/<platform-prefix>/oatmeal]
       
       These may be left over from a prior, failed installation attempt.
-      Consider removing or reinstalling these paths.
+      Consider removing or reinstalling these packages.
       
       The following required packages are not installed:
       
@@ -41,7 +41,7 @@
       
       - oatmeal
       
-      Use `renv::repair()` to try and reinstall these paths.
+      Use `renv::repair()` to try and reinstall these packages.
       
       The following required packages are not installed:
       
