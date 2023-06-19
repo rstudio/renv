@@ -254,8 +254,8 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
 
     writef(lines(
-      "* None of the packages recorded in the lockfile are installed.",
-      "* Using `renv::restore()` to restore the project library."
+      "- None of the packages recorded in the lockfile are installed.",
+      "- Using `renv::restore()` to restore the project library."
     ))
 
     if (proceed()) {
@@ -270,15 +270,15 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   missing <- setdiff(lockpkgs, basename(libpkgs))
   if (length(missing)) {
     msg <- lines(
-      "* One or more packages recorded in the lockfile are not installed.",
-      "* Use `renv::status()` for more details."
+      "- One or more packages recorded in the lockfile are not installed.",
+      "- Use `renv::status()` for more details."
     )
     writef(msg)
     return(FALSE)
   }
 
   # otherwise, use status to detect if we're synchronized
-  info <- quietly({
+  info <- local({
     renv_scope_options(renv.verbose = FALSE)
     status(project = project, sources = FALSE)
   })
@@ -286,8 +286,8 @@ renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
   if (!identical(info$synchronized, TRUE)) {
 
     msg <- lines(
-      "* The project is currently out-of-sync.",
-      "* Use `renv::status()` for more details."
+      "- The project is currently out-of-sync.",
+      "- Use `renv::status()` for more details."
     )
 
     writef(msg)

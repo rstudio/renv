@@ -91,9 +91,10 @@ load <- function(project = NULL, quiet = FALSE) {
   if (switch)
     return(renv_load_switch(project))
 
-  if (quiet)
+  if (quiet || renv_session_quiet())
     renv_scope_options(renv.verbose = FALSE)
 
+  writef(header("Loading renv [%s]", renv_metadata_version_friendly()))
   renv_envvars_save()
 
   # load a minimal amount of state when testing
@@ -189,7 +190,7 @@ renv_load_minimal <- function(project) {
   if (length(lockfile))
     renv_load_python(project, lockfile$Python)
 
-  renv_project_set(project)
+  renv_load_finish(project)
   invisible(project)
 
 }
@@ -729,15 +730,13 @@ renv_load_quiet <- function() {
   config$startup.quiet(default = default)
 }
 
-renv_load_finish <- function(project, lockfile) {
+renv_load_finish <- function(project = NULL, lockfile = NULL) {
 
   renv_project_set(project)
-  renv_load_check(project)
 
-  if (!renv_load_quiet()) {
-    renv_load_report_project(project)
-    renv_load_report_python(project)
-  }
+  renv_load_check(project)
+  renv_load_report_project(project)
+  renv_load_report_python(project)
 
   if (interactive()) {
     if (config$updates.check())
@@ -757,11 +756,11 @@ renv_load_report_project <- function(project) {
   version <- renv_metadata_version_friendly()
 
   if (length(profile)) {
-    fmt <- "* (%s) Project '%s' loaded. [renv %s]"
-    writef(fmt, profile, renv_path_aliased(project), version)
+    fmt <- "- Project '%s' loaded with %s profile."
+    writef(fmt, renv_path_aliased(project), profile)
   } else {
-    fmt <- "* Project '%s' loaded. [renv %s]"
-    writef(fmt, renv_path_aliased(project), version)
+    fmt <- "- Project '%s' loaded."
+    writef(fmt, renv_path_aliased(project))
   }
 
 }
