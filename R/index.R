@@ -52,7 +52,7 @@ index <- function(scope, key = NULL, value = NULL, limit = 3600L) {
 renv_index_load <- function(root, scope) {
 
   filebacked(
-    scope    = "renv_index_load",
+    context  = "renv_index_load",
     path     = file.path(root, "index.json"),
     callback = renv_index_load_impl
   )

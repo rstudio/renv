@@ -70,7 +70,7 @@ renv_project_type <- function(path) {
 
   path <- renv_path_normalize(path)
   filebacked(
-    scope    = "renv_project_type",
+    context  = "renv_project_type",
     path     = file.path(path, "DESCRIPTION"),
     callback = renv_project_type_impl
   )
