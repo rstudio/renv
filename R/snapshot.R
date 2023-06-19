@@ -948,9 +948,21 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 }
 # nocov end
 
+# compute the package dependencies inferred for a project,
+# respecting the snapshot type selected (or currently configured)
+# for the associated project
 renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
 
   type <- type %||% settings$snapshot.type(project = project)
+
+  dynamic(
+    list(project = project, type = type, dev = dev),
+    renv_snapshot_dependencies_impl(project, type, dev)
+  )
+
+}
+
+renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
 
   if (type %in% "all") {
     packages <- installed_packages(field = "Package")
@@ -971,18 +983,30 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
     }
   )
 
-  packages <- renv_dependencies_confirm(
-    "snapshot",
-    path = path,
-    root = project,
-    field = "Package",
-    dev = dev
+  packages <- withCallingHandlers(
+
+    renv_dependencies_impl(
+      path = path,
+      root = project,
+      field = "Package",
+      errors = config$dependency.errors(),
+      dev = dev
+    ),
+
+    # require user confirmation to proceed if there's a reported error
+    renv.dependencies.problem = function(cnd) {
+      if (interactive() && !proceed())
+        cancel()
+    }
+
   )
 
   unique(packages)
 
 }
 
+# compute package records from the provided library paths,
+# normally to be included as part of an renv lockfile
 renv_snapshot_packages <- function(packages, libpaths, project) {
 
   # compute package records

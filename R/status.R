@@ -75,7 +75,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     return(default)
 
   # get all dependencies, including transitive
-  dependencies <- renv_snapshot_dependencies(project)
+  dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
   packages <- sort(union(dependencies, "renv"))
   paths <- renv_package_dependencies(packages, project = project)
   packages <- as.character(names(paths))

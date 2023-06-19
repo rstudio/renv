@@ -1657,23 +1657,6 @@ renv_dependencies_report <- function(errors) {
 
 }
 
-renv_dependencies_confirm <- function(action, path, ...) {
-
-  withCallingHandlers(
-    renv_dependencies_impl(
-      path = path,
-      ...,
-      errors = config$dependency.errors()
-    ),
-    renv.dependencies.problem = function(cnd) {
-      # Require user confirmation to proceed if there's a reported error
-      if (interactive() && !proceed()) {
-        cancel()
-      }
-    }
-  )
-}
-
 renv_dependencies_eval <- function(expr) {
 
   # create environment with small subset of symbols

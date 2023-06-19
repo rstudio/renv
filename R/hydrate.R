@@ -187,12 +187,7 @@ renv_hydrate_filter_impl <- function(package, path, library, update) {
 }
 
 renv_hydrate_packages <- function(project) {
-
-  deps <- the$init_dependencies %||%
-    renv_dependencies_impl(project, errors = "ignored", dev = TRUE)
-
-  unique(deps$Package)
-
+  renv_snapshot_dependencies(project, dev = TRUE)
 }
 
 renv_hydrate_dependencies <- function(project,
