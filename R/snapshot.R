@@ -1030,7 +1030,7 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
         ""
       )
 
-      writef(lines, renv_difftime_format(time))
+      writef(lines, renv_difftime_format(elapsed))
 
     }
 
