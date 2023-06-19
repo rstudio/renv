@@ -1006,6 +1006,32 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
     renv.dependencies.problem = function(cnd) {
       if (interactive() && !proceed())
         cancel()
+    },
+
+    # notify the user if we took a long time to discover dependencies
+    renv.dependencies.elapsed_time = function(cnd) {
+
+      # only relevant for implicit-type snapshots
+      if (!type %in% c("packrat", "implicit"))
+        return()
+
+      # check for timeout
+      elapsed <- cnd$data
+      limit <- getOption("renv.dependencies.elapsed_time_threshold", default = 10L)
+      if (elapsed < limit)
+        return()
+
+      # report to user
+      lines <- c(
+        "",
+        "NOTE: Dependency discovery took %s during snapshot.",
+        "Consider using .renvignore to ignore files or switching to explicit snapshots",
+        "See `?dependencies` for more information.",
+        ""
+      )
+
+      writef(lines, renv_difftime_format(time))
+
     }
 
   )

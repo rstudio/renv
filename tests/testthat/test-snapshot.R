@@ -508,3 +508,13 @@ test_that("we can infer github remotes from packages installed from sources", {
   expect_snapshot(. <- renv_snapshot_description(path = descfile))
 
 })
+
+test_that("we report if dependency discover during snapshot() is slow", {
+
+  renv_tests_scope()
+  init()
+
+  renv_scope_options(renv.dependencies.elapsed_time_threshold = -1)
+  expect_snapshot(. <- snapshot())
+
+})

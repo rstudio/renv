@@ -212,17 +212,22 @@ renv_dependencies_impl <- function(
   # resolve errors
   errors <- match.arg(errors)
 
+  before <- Sys.time()
   renv_dependencies_scope(root = root)
-
   files <- renv_dependencies_find(path, root)
   deps <- renv_dependencies_discover(files, progress, errors)
+  after <- Sys.time()
+  elapsed <- difftime(after, before, units = "secs")
+
+  renv_condition_signal("renv.dependencies.elapsed_time", elapsed)
+
   renv_dependencies_report(errors)
 
-  if (empty(deps) || nrow(deps) == 0L) {
-    deps <- renv_dependencies_list_empty()
+  deps <- if (empty(deps) || nrow(deps) == 0L) {
+    renv_dependencies_list_empty()
   } else {
     # drop NAs, and only keep 'dev' dependencies if requested
-    deps <- deps[deps$Dev %in% c(dev, FALSE), ]
+    rows(deps, deps$Dev %in% c(dev, FALSE))
   }
 
   take(deps, field)
@@ -1648,11 +1653,11 @@ renv_dependencies_report <- function(errors) {
   writef("Please see `?renv::dependencies` for more information.")
 
   if (identical(errors, "fatal")) {
-    fmt <- "one or more errors occurred while enumerating dependencies"
+    fmt <- "one or more problems were encountered while enumerating dependencies"
     stopf(fmt)
   }
 
-  renv_condition_signal("renv.dependencies.problem", problems)
+  renv_condition_signal("renv.dependencies.problems", problems)
   TRUE
 
 }
