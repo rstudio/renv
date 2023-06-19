@@ -163,13 +163,28 @@ snapshot <- function(project  = NULL,
 
   }
 
-  alt <- new <- renv_lockfile_create(project, libpaths, type, packages, exclude)
+  alt <- new <- renv_lockfile_create(
+    project  = project,
+    type     = type,
+    libpaths = libpaths,
+    packages = packages,
+    exclude  = exclude,
+    prompt   = prompt,
+    force    = force
+  )
+
   if (is.null(lockfile))
     return(new)
 
   # if running as part of 'reprex', then render output inline
   if (reprex)
     return(renv_snapshot_reprex(new))
+
+  # check for missing dependencies and warn if any are discovered
+  # (note: use 'new' rather than 'alt' here as we don't want to attempt
+  # validation on uninstalled packages)
+  valid <- renv_snapshot_validate(project, new, libpaths)
+  renv_snapshot_validate_report(valid, prompt, force)
 
   # get prior lockfile state
   old <- list()
@@ -189,12 +204,6 @@ snapshot <- function(project  = NULL,
     }
 
   }
-
-  # check for missing dependencies and warn if any are discovered
-  # (note: use 'new' rather than 'alt' here as we don't want to attempt
-  # validation on uninstalled packages)
-  valid <- renv_snapshot_validate(project, new, libpaths)
-  renv_snapshot_validate_report(valid, prompt, force)
 
   # update new reference
   new <- alt
@@ -615,66 +624,66 @@ renv_snapshot_library <- function(library = NULL,
 
 }
 
-renv_snapshot_library_diagnose <- function(library, packages) {
+renv_snapshot_library_diagnose <- function(library, paths) {
 
-  packages <- grep("00LOCK", packages, invert = TRUE, value = TRUE)
-  packages <- renv_snapshot_library_diagnose_broken_link(library, packages)
-  packages <- renv_snapshot_library_diagnose_tempfile(library, packages)
-  packages <- renv_snapshot_library_diagnose_missing_description(library, packages)
-  packages
+  paths <- grep("00LOCK", paths, invert = TRUE, value = TRUE)
+  paths <- renv_snapshot_library_diagnose_broken_link(library, paths)
+  paths <- renv_snapshot_library_diagnose_tempfile(library, paths)
+  paths <- renv_snapshot_library_diagnose_missing_description(library, paths)
+  paths
 
 }
 
-renv_snapshot_library_diagnose_broken_link <- function(library, pkgs) {
+renv_snapshot_library_diagnose_broken_link <- function(library, paths) {
 
-  broken <- !file.exists(pkgs)
+  broken <- !file.exists(paths)
   if (!any(broken))
-    return(pkgs)
+    return(paths)
 
   renv_pretty_print(
-    basename(pkgs)[broken],
+    basename(paths)[broken],
     "The following package(s) have broken symlinks into the cache:",
-    "Use `renv::repair()` to try and reinstall these packages."
+    "Use `renv::repair()` to try and reinstall these paths."
   )
 
-  pkgs[!broken]
+  paths[!broken]
 
 }
 
-renv_snapshot_library_diagnose_tempfile <- function(library, pkgs) {
+renv_snapshot_library_diagnose_tempfile <- function(library, paths) {
 
-  names <- basename(pkgs)
+  names <- basename(paths)
   missing <- grepl("^file(?:\\w){12}", names)
   if (!any(missing))
-    return(pkgs)
+    return(paths)
 
   renv_pretty_print(
-    map_chr(pkgs[missing], renv_path_pretty),
+    map_chr(paths[missing], renv_path_pretty),
     "The following folder(s) appear to be left-over temporary directories:",
     "Consider removing these folders from your R library."
   )
 
-  pkgs[!missing]
+  paths[!missing]
 
 }
 
-renv_snapshot_library_diagnose_missing_description <- function(library, pkgs) {
+renv_snapshot_library_diagnose_missing_description <- function(library, paths) {
 
-  desc <- file.path(pkgs, "DESCRIPTION")
+  desc <- file.path(paths, "DESCRIPTION")
   missing <- !file.exists(desc)
   if (!any(missing))
-    return(pkgs)
+    return(paths)
 
   renv_pretty_print(
-    sprintf("%s [%s]", format(basename(pkgs[missing])), pkgs[missing]),
+    sprintf("%s [%s]", format(basename(paths[missing])), paths[missing]),
     "The following package(s) are missing their DESCRIPTION files:",
     c(
       "These may be left over from a prior, failed installation attempt.",
-      "Consider removing or reinstalling these packages."
+      "Consider removing or reinstalling these paths."
     )
   )
 
-  pkgs[!missing]
+  paths[!missing]
 
 }
 
@@ -1009,39 +1018,37 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
 # normally to be included as part of an renv lockfile
 renv_snapshot_packages <- function(packages, libpaths, project) {
 
-  # compute package records
-  records <- renv_package_dependencies(
-    packages = packages,
-    libpaths = libpaths,
-    callback = renv_snapshot_packages_callback
-  )
-
-  # drop non-list records (these represent packages which weren't available)
-  records <- filter(records, is.list)
-
-}
-
-renv_snapshot_packages_callback <- function(package, location, project) {
-
-  # skip if package doesn't appear to be installed
-  if (!nzchar(location))
-    return(NULL)
-
-  # skip renv if we're testing
-  if (package == "renv" && is_testing())
-    return(NULL)
-
-  # skip ignored packages
   ignored <- c(
     renv_packages_base(),
-    renv_project_ignored_packages(project = project)
+    renv_project_ignored_packages(project = project),
+    if (is_testing()) "renv"
   )
 
-  if (package %in% ignored)
-    return(NULL)
+  callback <- function(package, location, project) {
+    if (nzchar(location) && !package %in% ignored)
+      return(location)
+  }
 
-  # ok, we can snapshot
-  renv_snapshot_description(path = file.path(location, "DESCRIPTION"))
+  # expand package dependency tree
+  paths <- renv_package_dependencies(
+    packages = packages,
+    libpaths = libpaths,
+    callback = callback,
+    project = project
+  )
+
+  # keep only packages with known locations
+  paths <- convert(filter(paths, is.character), "character")
+
+  # diagnose issues with the scanned packages
+  paths <- uapply(libpaths, function(library) {
+    renv_snapshot_library_diagnose(
+      library = library,
+      paths   = filter(paths, startswith, prefix = library))
+  })
+
+  # now, snapshot the remaining packages
+  records <- map(paths, renv_snapshot_description)
 
 }
 

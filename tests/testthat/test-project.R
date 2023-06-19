@@ -1,3 +1,4 @@
+
 test_that("renv_project_synchronized_check() installs packages if needed", {
 
   renv_tests_scope("breakfast")

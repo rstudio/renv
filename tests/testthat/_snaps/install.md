@@ -11,7 +11,7 @@
       
       # Installing packages ---
       
-      - Installing bread ...                          OK [copied cache]
+      - Installing bread ...                          OK [copied from cache]
       
       Successfully installed 1 package in XXXX seconds.
       
@@ -68,10 +68,10 @@
       
       # Installing packages ---
       
-      - Installing oatmeal ...                        OK [copied cache]
-      - Installing bread ...                          OK [copied cache]
-      - Installing toast ...                          OK [copied cache]
-      - Installing breakfast ...                      OK [copied cache]
+      - Installing oatmeal ...                        OK [copied from cache]
+      - Installing bread ...                          OK [copied from cache]
+      - Installing toast ...                          OK [copied from cache]
+      - Installing breakfast ...                      OK [copied from cache]
       
       Successfully installed 4 packages in XXXX seconds.
 

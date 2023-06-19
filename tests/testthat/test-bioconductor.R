@@ -107,8 +107,9 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
 
   # And it goes away when we remove the dependency
   unlink("dependencies.R")
-  snap <- snapshot()
-  expect_named(snap$Packages, character())
+  lockfile <- snapshot()
+  records <- renv_lockfile_records(lockfile)
+  expect_length(records, 0L)
   expect_snapshot(status())
 
 })

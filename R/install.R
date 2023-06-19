@@ -442,8 +442,8 @@ renv_install_package_cache <- function(record, cache, linker) {
   after <- Sys.time()
 
   type <- case(
-    identical(linker, renv_file_copy) ~ "copied cache",
-    identical(linker, renv_file_link) ~ "linked cache"
+    identical(linker, renv_file_copy) ~ "copied from cache",
+    identical(linker, renv_file_link) ~ "linked from cache"
   )
 
   elapsed <- difftime(after, before, units = "auto")

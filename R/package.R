@@ -230,10 +230,10 @@ renv_package_augment_metadata <- function(path, remotes) {
 # to the path where they were discovered, or NA if those packages are not
 # installed
 renv_package_dependencies <- function(packages,
-                                      project = NULL,
                                       libpaths = NULL,
                                       fields = NULL,
-                                      callback = NULL)
+                                      callback = NULL,
+                                      project = NULL)
 {
   visited <- new.env(parent = emptyenv())
   ignored <- renv_project_ignored_packages(project = project)
@@ -241,6 +241,7 @@ renv_package_dependencies <- function(packages,
   libpaths <- libpaths %||% renv_libpaths_all()
   fields <- fields %||% settings$package.dependency.fields(project = project)
   callback <- callback %||% function(package, location, project) location
+  project <- renv_project_resolve(project)
 
   for (package in packages)
     renv_package_dependencies_impl(package, visited, libpaths, fields, callback, project)
@@ -250,7 +251,7 @@ renv_package_dependencies <- function(packages,
 
 renv_package_dependencies_impl <- function(package,
                                            visited,
-                                           libpaths = NULL,
+                                           libpaths,
                                            fields = NULL,
                                            callback = NULL,
                                            project = NULL)
@@ -266,11 +267,18 @@ renv_package_dependencies_impl <- function(package,
   # default to unknown path for visited packages
   visited[[package]] <- ""
 
-  # find the package
-  libpaths <- libpaths %||% renv_libpaths_all()
-  location <- renv_package_find(package, libpaths)
-  if (!file.exists(location))
-    return(callback(package, location, project))
+  # find the package -- note that we perform a permissive lookup here
+  # because we want to capture potentially invalid / broken package installs
+  # (that is, the 'package' we find might be an incomplete or broken package
+  # installation at this point)
+  location <- find(libpaths, function(libpath) {
+    candidate <- file.path(libpath, package)
+    if (renv_file_exists(candidate))
+      return(candidate)
+  })
+
+  if (is.null(location))
+    return(callback(package, "", project))
 
   # we know the path, so set it now
   visited[[package]] <- callback(package, location, project)

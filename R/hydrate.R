@@ -198,7 +198,7 @@ renv_hydrate_dependencies <- function(project,
   ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- libpaths %||% renv_hydrate_libpaths()
-  all <- renv_package_dependencies(packages, project = project, libpaths = libpaths)
+  all <- renv_package_dependencies(packages, libpaths = libpaths, project = project)
   writef("Done!")
 
   all

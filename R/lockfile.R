@@ -171,36 +171,45 @@ renv_lockfile_sort <- function(lockfile) {
 }
 
 renv_lockfile_create <- function(project,
-                                 libpaths = NULL,
                                  type = NULL,
+                                 libpaths = NULL,
                                  packages = NULL,
-                                 exclude = NULL)
+                                 exclude = NULL,
+                                 prompt = NULL,
+                                 force = NULL)
 {
   libpaths <- libpaths %||% renv_libpaths_all()
   type <- type %||% settings$snapshot.type(project = project)
 
   # use a restart, so we can allow the user to install packages before snapshot
   lockfile <- withRestarts(
-    renv_lockfile_create_impl(project, libpaths, type, packages, exclude),
+    renv_lockfile_create_impl(project, type, libpaths, packages, exclude, prompt, force),
     renv_recompute_records = function() {
       renv_dynamic_reset()
-      renv_lockfile_create_impl(project, libpaths, type, packages, exclude)
+      renv_lockfile_create_impl(project, type, libpaths, packages, exclude, prompt, force)
     }
   )
 }
 
-renv_lockfile_create_impl <- function(project, libpaths, type, packages, exclude) {
+renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude, prompt, force) {
 
   lockfile <- renv_lockfile_init(project)
 
-  packages <- packages %||% renv_snapshot_dependencies(project, type, dev = FALSE)
+  # compute the project's top-level package dependencies
+  packages <- packages %||% renv_snapshot_dependencies(
+    project = project,
+    type = type,
+    dev = FALSE
+  )
 
+  # expand the recursive dependencies of these packages
   records <- renv_snapshot_packages(
     packages = setdiff(packages, exclude),
     libpaths = libpaths,
     project  = project
   )
 
+  # only keep records relevant for this snapshot type
   records <- renv_snapshot_filter(
     project  = project,
     records  = records,
