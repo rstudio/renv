@@ -91,7 +91,7 @@ load <- function(project = NULL, quiet = FALSE) {
   if (switch)
     return(renv_load_switch(project))
 
-  if (quiet || renv_session_quiet())
+  if (quiet || renv_load_quiet())
     renv_scope_options(renv.verbose = FALSE)
 
   writef(header("Loading renv [%s]", renv_metadata_version_friendly()))
@@ -190,7 +190,7 @@ renv_load_minimal <- function(project) {
   if (length(lockfile))
     renv_load_python(project, lockfile$Python)
 
-  renv_load_finish(project)
+  renv_load_finish(project, lockfile)
   invisible(project)
 
 }
@@ -738,13 +738,11 @@ renv_load_finish <- function(project = NULL, lockfile = NULL) {
   renv_load_report_project(project)
   renv_load_report_python(project)
 
-  if (interactive()) {
-    if (config$updates.check())
-      renv_load_report_updates(project)
+  if (config$updates.check())
+    renv_load_report_updates(project)
 
-    if (config$synchronized.check())
-      renv_project_synchronized_check(project, lockfile)
-  }
+  if (config$synchronized.check())
+    renv_project_synchronized_check(project, lockfile)
 
   renv_snapshot_auto_update(project = project)
 

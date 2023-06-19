@@ -78,7 +78,7 @@ renv_activate_impl <- function(project,
     renv_imbue_self(project)
 
   # restart session if requested
-  if (restart) {
+  if (restart && !renv_tests_running()) {
     renv_restart_request(project, reason = "renv activated")
   } else {
     if (renv_rstudio_available())

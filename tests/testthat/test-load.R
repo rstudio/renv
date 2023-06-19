@@ -35,6 +35,7 @@ test_that("load() reports on problems", {
 
   renv_scope_libpaths()
   renv_tests_scope()
+  renv_scope_envvars(RENV_CONFIG_STARTUP_QUIET = "FALSE")
 
   renv_tests_scope("egg")
   init()

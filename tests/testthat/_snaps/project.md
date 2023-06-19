@@ -3,8 +3,8 @@
     Code
       ok <- renv_project_synchronized_check()
     Output
-      * None of the packages recorded in the lockfile are installed.
-      * Using `renv::restore()` to restore the project library.
+      - None of the packages recorded in the lockfile are installed.
+      - Using `renv::restore()` to restore the project library.
       The following package(s) will be updated:
       
       # CRAN ---
