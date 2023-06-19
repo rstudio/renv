@@ -8,7 +8,7 @@ test_that("packages can be installed, restored from Bioconductor", {
 
   renv_tests_scope("Biobase")
   local({
-    renv_tests_scope_system_cache()
+    renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
     install("BiocManager")
   })
   suppressMessages(BiocManager::install("Biobase", quiet = TRUE, update = FALSE, ask = FALSE))
@@ -48,7 +48,7 @@ test_that("install(<bioc>, rebuild = TRUE) works", {
   renv_tests_scope()
 
   local({
-    renv_tests_scope_system_cache()
+    renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
     install("bioc::Biobase", rebuild = TRUE)
   })
 
@@ -94,7 +94,7 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
   init()
 
   local({
-    renv_tests_scope_system_cache()
+    renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
     install("bioc::BiocGenerics")
   })
 
@@ -133,7 +133,7 @@ test_that("remotes which depend on Bioconductor packages can be installed", {
 
   # try to install it
   local({
-    renv_tests_scope_system_cache()
+    renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
     install(pkgdir)
   })
 
@@ -146,7 +146,7 @@ test_that("remotes which depend on Bioconductor packages can be installed", {
 test_that("auto-bioc install happens silently", {
 
   renv_tests_scope()
-  renv_tests_scope_system_cache()
+  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
 
   expect_snapshot(
     install("bioc::BiocGenerics"),

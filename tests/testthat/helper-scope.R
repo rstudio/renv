@@ -58,12 +58,6 @@ renv_tests_scope_repos <- function(scope = parent.frame()) {
 
 }
 
-renv_tests_scope_system_cache <- function(scope = parent.frame()) {
-  skip_on_cran()
-  renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"), scope = scope)
-  renv_scope_envvars(RENV_PATHS_ROOT = renv_paths_root_default_impl(), scope = scope)
-}
-
 renv_scope_local <- function() {
   path <- renv_tests_path("local")
   renv_scope_envvars(RENV_PATHS_LOCAL = path, scope = parent.frame())
