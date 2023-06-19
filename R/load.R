@@ -742,7 +742,7 @@ renv_load_finish <- function(project = NULL, lockfile = NULL) {
     renv_load_report_updates(project)
 
   if (config$synchronized.check())
-    renv_project_synchronized_check(project, lockfile)
+    renv_load_report_synchronized(project, lockfile)
 
   renv_snapshot_auto_update(project = project)
 
@@ -795,3 +795,76 @@ renv_load_report_updates <- function(project) {
 }
 # nocov end
 
+
+renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
+
+  project  <- renv_project_resolve(project)
+  lockfile <- lockfile %||% renv_lockfile_load(project)
+
+  # signal that we're running synchronization checks
+  renv_scope_binding(the, "project_synchronized_check_running", TRUE)
+
+  # be quiet when checking for dependencies in this scope
+  # https://github.com/rstudio/renv/issues/1181
+  renv_scope_options(renv.config.dependency.errors = "ignored")
+
+  # check for packages referenced in the lockfile which are not installed
+  lockpkgs <- names(lockfile$Packages)
+  libpkgs <- renv_snapshot_library(
+    library = renv_libpaths_all(),
+    project = project,
+    records = FALSE
+  )
+
+  # ignore renv
+  lockpkgs <- setdiff(lockpkgs, "renv")
+  libpkgs <- setdiff(libpkgs, "renv")
+
+  # check for case where no packages are installed (except renv)
+  if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
+
+    writef(lines(
+      "- None of the packages recorded in the lockfile are installed.",
+      "- Using `renv::restore()` to restore the project library."
+    ))
+
+    if (proceed()) {
+      restore(project, prompt = FALSE, exclude = "renv")
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
+  }
+
+  # check for case where one or more packages are missing
+  missing <- setdiff(lockpkgs, basename(libpkgs))
+  if (length(missing)) {
+    msg <- lines(
+      "- One or more packages recorded in the lockfile are not installed.",
+      "- Use `renv::status()` for more details."
+    )
+    writef(msg)
+    return(FALSE)
+  }
+
+  # otherwise, use status to detect if we're synchronized
+  info <- local({
+    renv_scope_options(renv.verbose = FALSE)
+    status(project = project, sources = FALSE)
+  })
+
+  if (!identical(info$synchronized, TRUE)) {
+
+    msg <- lines(
+      "- The project is currently out-of-sync.",
+      "- Use `renv::status()` for more details."
+    )
+
+    writef(msg)
+    return(FALSE)
+
+  }
+
+  TRUE
+
+}
