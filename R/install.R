@@ -413,10 +413,10 @@ renv_install_package <- function(record) {
 renv_install_package_feedback <- function(path, type) {
 
   if (identical(type, "source"))
-    return("built source")
+    return("built from source")
 
   if (renv_file_type(path, symlinks = FALSE) == "directory")
-    return("copied binary")
+    return("copied local binary")
 
   "installed binary"
 

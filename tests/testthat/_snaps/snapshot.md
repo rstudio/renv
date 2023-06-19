@@ -186,7 +186,7 @@
       
       # Installing packages ---
       
-      - Installing egg ...                            OK [built source and cached]
+      - Installing egg ...                            OK [built from source and cached]
       
       Successfully installed 1 package in XXXX seconds.
       The following package(s) will be updated in the lockfile:
@@ -198,15 +198,6 @@
       - R     [* -> <r-version>]
       
       * Lockfile written to '<wd>/renv.lock'.
-
-# useful error message if implicit dep discovery is slow
-
-    Code
-      . <- renv_snapshot_filter_implicit(getwd(), NULL, NULL)
-    Output
-      NOTE: Dependency discovery took XXXX seconds during snapshot.
-      Consider using .renvignore to ignore files or switching to explicit snapshots
-      See `?dependencies` for more information.
 
 # autosnapshot works as expected
 

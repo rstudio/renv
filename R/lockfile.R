@@ -209,14 +209,11 @@ renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude
     project  = project
   )
 
-  # only keep records relevant for this snapshot type
-  records <- renv_snapshot_filter(
-    project  = project,
-    records  = records,
-    type     = type,
-    packages = packages,
-    exclude  = exclude
-  )
+  # warn if some required packages are missing
+  ignored <- c(renv_project_ignored_packages(project), renv_packages_base(), exclude)
+  missing <- setdiff(packages, c(names(records), ignored))
+  if (!the$status_running)
+    renv_snapshot_report_missing(missing, type)
 
   records <- renv_snapshot_fixup(records)
   renv_lockfile_records(lockfile) <- records
