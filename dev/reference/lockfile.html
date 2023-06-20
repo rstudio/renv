@@ -79,6 +79,8 @@
 <span>  libpaths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
@@ -116,6 +118,16 @@ lockfile as well.</p></dd>
 <dd><p>A vector of packages to be explicitly excluded from the lockfile.
 Note that transitive package dependencies will always be included, to avoid
 potentially creating an incomplete / non-functional lockfile.</p></dd>
+
+
+<dt>prompt</dt>
+<dd><p>Boolean; prompt the user before taking any action? For backwards
+compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></dd>
+
+
+<dt>force</dt>
+<dd><p>Boolean; force generation of a lockfile even when pre-flight
+validation checks have failed?</p></dd>
 
 
 <dt>...</dt>
