@@ -164,7 +164,7 @@ renv_status_check_synchronized <- function(project,
   # Bioconductor packages are in use
   sources <- extract_chr(keep(library, packages), "Source")
   if ("Bioconductor" %in% sources)
-    packages <- union(packages, "BiocManager")
+    packages <- union(packages, renv_bioconductor_manager())
 
   # missing dependencies -------------------------------------------------------
   # Must return early because `packages` will be incomplete making later

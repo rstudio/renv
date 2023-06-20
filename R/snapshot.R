@@ -351,7 +351,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     return(ok)
 
   # check for BiocManager or BiocInstaller
-  package <- if (getRversion() >= "3.5.0") "BiocManager" else "BiocInstaller"
+  package <- renv_bioconductor_manager()
   if (!package %in% names(records)) {
 
     text <- c(

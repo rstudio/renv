@@ -556,7 +556,7 @@ renv_dependencies_discover_description <- function(path,
   if ("biocViews" %in% names(dcf)) {
     data[[length(data) + 1L]] <- renv_dependencies_list(
       source = path,
-      packages = c("BiocManager", "BiocVersion")
+      packages = c(renv_bioconductor_manager(), "BiocVersion")
     )
   }
 

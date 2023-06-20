@@ -1,8 +1,15 @@
 
+renv_bioconductor_manager <- function() {
+  if (getRversion() >= "3.5.0")
+    "BiocManager"
+  else
+    "BiocInstaller"
+}
+
 renv_bioconductor_init <- function(library = NULL) {
   renv_scope_options(renv.verbose = FALSE)
 
-  if (getRversion() >= "3.5.0")
+  if (identical(renv_bioconductor_manager(), "BiocManager"))
     renv_bioconductor_init_biocmanager(library)
   else
     renv_bioconductor_init_biocinstaller(library)
@@ -93,10 +100,10 @@ renv_bioconductor_repos <- function(project = NULL, version = NULL) {
   version <- version %||% renv_bioconductor_version(project = project)
 
   # read Bioconductor repositories (prefer BiocInstaller for older R)
-  if (getRversion() < "3.5.0")
-    renv_bioconductor_repos_biocinstaller(version)
-  else
+  if (identical(renv_bioconductor_manager(), "BiocManager"))
     renv_bioconductor_repos_biocmanager(version)
+  else
+    renv_bioconductor_repos_biocinstaller(version)
 
 }
 
