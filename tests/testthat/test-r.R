@@ -27,8 +27,15 @@ test_that("we can use R CMD build to build a package", {
   files <- renv_archive_list(tarball)
   expect_true(all(c("DESCRIPTION", "NAMESPACE", "MD5") %in% basename(files)))
 
+  # NOTE: R 3.6 seems to check the permissions of the target library,
+  # even when you just want to build a binary?
   before <- list.files(testdir)
-  args <- c("CMD", "INSTALL", "--no-multiarch", "--build", package)
+  args <- c(
+    "CMD", "INSTALL",
+    "-l", renv_shell_path(tempdir()),
+    "--no-multiarch",
+    "--build", package
+  )
   output <- r(args, stdout = TRUE, stderr = TRUE)
   after <- list.files(testdir)
   binball <- renv_vector_diff(after, c("NULL", before))
