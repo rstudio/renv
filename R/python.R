@@ -105,7 +105,7 @@ renv_python_exe <- function(path) {
 renv_python_version <- function(python) {
 
   filebacked(
-    scope    = "renv_python_version",
+    context  = "renv_python_version",
     path     = renv_path_normalize(python),
     callback = renv_python_version_impl
   )

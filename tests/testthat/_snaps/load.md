@@ -16,10 +16,12 @@
       - toast       [* -> 1.0.0]
       
       # Installing packages ---
+      
       - Installing bread ...                          OK [linked from cache]
       - Installing oatmeal ...                        OK [linked from cache]
       - Installing toast ...                          OK [linked from cache]
       - Installing breakfast ...                      OK [linked from cache]
+      
 
 # load() reports on problems
 

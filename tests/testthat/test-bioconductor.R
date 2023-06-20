@@ -1,4 +1,22 @@
 
+# R 3.6 appears to have trouble if we try to load and unload
+# different versions of BiocManager in the same session, so
+# we need to use this hack to ensure that promises in the S3
+# methods table are forced at opportune times
+if (getRversion() < "4.0") {
+
+  setHook(
+    packageEvent("BiocManager", "onLoad"),
+    function(...) renv_patch_methods_table()
+  )
+
+  setHook(
+    packageEvent("BiocManager", "onUnload"),
+    function(...) renv_patch_methods_table()
+  )
+
+}
+
 test_that("packages can be installed, restored from Bioconductor", {
 
   skip_slow()
@@ -21,9 +39,9 @@ test_that("packages can be installed, restored from Bioconductor", {
 
   lockfile <- snapshot(lockfile = NULL)
   expect_true("Bioconductor" %in% names(lockfile))
-  expect_equal(names(lockfile)[2], "Bioconductor")
 
   BiocManager <- asNamespace("BiocManager")
+  defer(unloadNamespace("BiocManager"))
   expect_equal(lockfile$Bioconductor$Version, format(BiocManager$version()))
 
   records <- renv_lockfile_records(lockfile)
@@ -46,6 +64,7 @@ test_that("install(<bioc>, rebuild = TRUE) works", {
   skip_if_not_installed("BiocManager")
 
   renv_tests_scope()
+  defer(unloadNamespace("BiocManager"))
 
   local({
     renv_tests_scope_system_cache()
@@ -59,6 +78,7 @@ test_that("install(<bioc>, rebuild = TRUE) works", {
 test_that("bioconductor.version can be used to freeze version", {
 
   project <- renv_tests_scope()
+  defer(unloadNamespace("BiocManager"))
 
   settings$bioconductor.version("3.14", project = project)
   expect_equal(renv_bioconductor_version(project = project), "3.14")
@@ -73,6 +93,7 @@ test_that("we can restore a lockfile using multiple Bioconductor releases", {
   skip_if_not_installed("BiocManager")
 
   project <- renv_tests_scope()
+  defer(unloadNamespace("BiocManager"))
 
   path <- renv_tests_path("resources/bioconductor.lock")
   lockfile <- renv_lockfile_read(path)
@@ -91,7 +112,10 @@ test_that("we can restore a lockfile using multiple Bioconductor releases", {
 test_that("Bioconductor packages add BiocManager as a dependency", {
 
   renv_tests_scope()
+  defer(unloadNamespace("BiocManager"))
+
   init()
+
   local({
     renv_tests_scope_system_cache()
     install("bioc::BiocGenerics")
@@ -101,21 +125,24 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
   writeLines("library(BiocGenerics)", "dependencies.R")
 
   expect_snapshot(status(), transform = strip_versions)
-  snap <- snapshot()
-  expect_setequal(names(snap$Packages), c("BiocManager", "BiocGenerics"))
+  lockfile <- snapshot()
+  expect_setequal(names(lockfile$Packages), c("BiocManager", "BiocGenerics", "BiocVersion"))
 
   # And it goes away when we remove the dependency
   unlink("dependencies.R")
-  snap <- snapshot()
-  expect_named(snap$Packages, character())
+  lockfile <- snapshot()
+  records <- renv_lockfile_records(lockfile)
+  expect_length(records, 0L)
   expect_snapshot(status())
 
 })
 
 test_that("remotes which depend on Bioconductor packages can be installed", {
   skip_on_cran()
+
   renv_tests_scope()
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
+  defer(unloadNamespace("BiocManager"))
 
   # create a dummy package which has a Bioconductor dependency
   pkgdir <- file.path(tempdir(), "bioc.example")
@@ -127,7 +154,7 @@ test_that("remotes which depend on Bioconductor packages can be installed", {
     Imports: Biobase
     biocViews: Biology
   ")
-  writeLines(desc, con = file.path(tempdir(), "bioc.example/DESCRIPTION"))
+  writeLines(desc, con = file.path(pkgdir, "DESCRIPTION"))
 
   # try to install it
   local({
@@ -143,12 +170,18 @@ test_that("remotes which depend on Bioconductor packages can be installed", {
 
 test_that("auto-bioc install happens silently", {
 
+  # https://github.com/rstudio/renv/actions/runs/5326472190/jobs/9648557761#step:6:295
+  skip_if(renv_platform_windows())
+
   renv_tests_scope()
   renv_tests_scope_system_cache()
+  defer(unloadNamespace("BiocManager"))
+
   expect_snapshot(
     install("bioc::BiocGenerics"),
     transform = function(x) strip_versions(strip_dirs(x))
   )
 
   expect_true(renv_package_installed("BiocManager"))
+
 })

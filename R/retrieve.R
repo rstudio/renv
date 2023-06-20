@@ -137,8 +137,10 @@ renv_retrieve_impl <- function(package) {
 
     # if we have an installed package matching the requested record, finish early
     path <- renv_restore_find(package, record)
-    if (file.exists(path))
-      return(renv_retrieve_successful(record, path, install = FALSE))
+    if (file.exists(path)) {
+      install <- !dirname(path) %in% renv_libpaths_all()
+      return(renv_retrieve_successful(record, path, install = install))
+    }
 
     # if the requested record already exists in the cache,
     # we'll use that package for install
@@ -363,7 +365,9 @@ renv_retrieve_gitlab <- function(record) {
 }
 
 renv_retrieve_git <- function(record) {
-  path <- renv_scope_tempfile("renv-git-")
+  # NOTE: This path will later be used during the install step, so we don't
+  # want to clean it up afterwards
+  path <- tempfile("renv-git-")
   ensure_directory(path)
   renv_retrieve_git_impl(record, path)
   renv_retrieve_successful(record, path)
@@ -1039,8 +1043,9 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   })
 
   # read and handle remotes declared by this package
-  if (config$install.remotes())
-    renv_retrieve_handle_remotes(record, subdir = subdir)
+  remotes <- desc$Remotes
+  if (length(remotes) && config$install.remotes())
+    renv_retrieve_remotes(remotes)
 
   # ensure its dependencies are retrieved as well
   if (state$recursive) local({
@@ -1086,7 +1091,7 @@ renv_retrieve_successful_recurse_impl_one <- function(remote) {
   }
 
   # otherwise, handle custom remotes
-  record <- renv_retrieve_handle_remotes_impl(remote)
+  record <- renv_retrieve_remotes_impl(remote)
   if (length(record)) {
     renv_retrieve_impl(record$Package)
     return(list())
@@ -1109,41 +1114,30 @@ renv_retrieve_unknown_source <- function(record) {
 
 }
 
-renv_retrieve_handle_remotes <- function(record, subdir) {
-
-  # TODO: what should we do if we detect incompatible remotes?
-  # e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
-  # 'r-lib/rlang@0.2'.
-
-  # check and see if this package declares Remotes -- if so,
-  # use those to fill in any missing records
-  path <- record$Path
-  desc <- renv_description_read(path = path, subdir = subdir)
-  if (is.null(desc$Remotes))
-    return(NULL)
-
-  remotes <- strsplit(desc$Remotes, "\\s*,\\s*")[[1]]
+# TODO: what should we do if we detect incompatible remotes?
+# e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
+# 'r-lib/rlang@0.2'.
+renv_retrieve_remotes <- function(remotes) {
+  remotes <- strsplit(remotes, "\\s*,\\s*")[[1L]]
   for (remote in remotes)
-    renv_retrieve_handle_remotes_impl(remote)
-
+    renv_retrieve_remotes_impl(remote)
 }
 
-renv_retrieve_handle_remotes_impl <- function(remote) {
+renv_retrieve_remotes_impl <- function(remote) {
 
   dynamic(
     key   = list(remote = remote),
-    value = renv_retrieve_handle_remotes_impl_one(remote)
+    value = renv_retrieve_remotes_impl_one(remote)
   )
 
 }
 
-renv_retrieve_handle_remotes_impl_one <- function(remote) {
+renv_retrieve_remotes_impl_one <- function(remote) {
 
   # TODO: allow customization of behavior when remote parsing fails?
   resolved <- catch(renv_remotes_resolve(remote))
   if (inherits(resolved, "error")) {
-    fmt <- "failed to resolve remote '%s' declared by package '%s'; skipping"
-    warningf(fmt, remote, record$Package)
+    warningf("failed to resolve remote '%s'; skipping", remote)
     return(invisible(NULL))
   }
 

@@ -166,6 +166,12 @@ install <- function(packages = NULL,
     return(invisible(list()))
   }
 
+  # add bioconductor packages if necessary
+  if (renv_bioconductor_required(remotes)) {
+    bioc <- c(renv_bioconductor_manager(), "BiocVersion")
+    packages <- unique(c(packages, bioc))
+  }
+
   # start building a list of records; they should be resolved this priority:
   #
   # 1. explicit requests from the user
@@ -203,12 +209,9 @@ install <- function(packages = NULL,
   }
 
   # install retrieved records
-  writef(header("Installing packages"))
-  writef("")
   before <- Sys.time()
   renv_install_impl(records)
   after <- Sys.time()
-  writef("")
 
   time <- renv_difftime_format(difftime(after, before))
   n <- length(records)
@@ -224,10 +227,15 @@ renv_install_impl <- function(records) {
 
   staged <- renv_config_install_staged()
 
+  writef(header("Installing packages"))
+  writef("")
+
   if (staged)
     renv_install_staged(records)
   else
     renv_install_default(records)
+
+  writef("")
 
   invisible(TRUE)
 

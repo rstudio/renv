@@ -199,15 +199,6 @@
       
       * Lockfile written to '<wd>/renv.lock'.
 
-# useful error message if implicit dep discovery is slow
-
-    Code
-      . <- renv_snapshot_filter_implicit(getwd(), NULL, NULL)
-    Output
-      NOTE: Dependency discovery took XXXX seconds during snapshot.
-      Consider using .renvignore to ignore files or switching to explicit snapshots
-      See `?dependencies` for more information.
-
 # autosnapshot works as expected
 
     Code
@@ -219,4 +210,16 @@
 
     Code
       . <- renv_snapshot_description(path = descfile)
+
+# we report if dependency discover during snapshot() is slow
+
+    Code
+      . <- snapshot()
+    Output
+      
+      NOTE: Dependency discovery took XXXX seconds during snapshot.
+      Consider using .renvignore to ignore files, or switching to explicit snapshots.
+      See `?dependencies` for more information.
+      
+      * The lockfile is already up to date.
 

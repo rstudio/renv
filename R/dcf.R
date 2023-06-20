@@ -108,6 +108,12 @@ renv_dcf_read_impl <- function(file, ...) {
 }
 
 renv_dcf_write <- function(x, file = "") {
+
   keep.white <- c("Description", "Authors@R", "Author", "Built", "Packaged")
-  write.dcf(as.list(x), file = file, indent = 4L, width = 80L, keep.white = keep.white)
+  result <- write.dcf(as.list(x), file = file, indent = 4L, width = 80L, keep.white = keep.white)
+
+  renv_filebacked_invalidate(file)
+
+  invisible(result)
+
 }

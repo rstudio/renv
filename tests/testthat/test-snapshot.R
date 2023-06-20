@@ -133,12 +133,11 @@ test_that("snapshotted packages from CRAN include the Repository field", {
 })
 
 test_that("snapshot failures due to bad library / packages are reported", {
-
-  renv_tests_scope()
-  ensure_directory("badlib/badpkg")
-  writeLines("invalid", "badlib/badpkg/DESCRIPTION")
-  expect_error(snapshot(library = "badlib"))
-
+  project <- renv_tests_scope("oatmeal")
+  init()
+  isolate()
+  writeLines("invalid", con = system.file("DESCRIPTION", package = "oatmeal"))
+  expect_error(snapshot())
 })
 
 test_that("snapshot ignores own package in package development scenarios", {
@@ -447,17 +446,6 @@ test_that("user can choose to install missing packages", {
 
 })
 
-test_that("useful error message if implicit dep discovery is slow", {
-
-  renv_tests_scope()
-
-  renv_scope_options(renv.snapshot.filter.timelimit = -1)
-  expect_snapshot(
-    . <- renv_snapshot_filter_implicit(getwd(), NULL, NULL)
-  )
-
-})
-
 test_that("exclude handles uninstalled packages", {
   project <- renv_tests_scope("bread")
   init()
@@ -518,5 +506,15 @@ test_that("we can infer github remotes from packages installed from sources", {
   expect_equal(remote$RemoteType, "github")
 
   expect_snapshot(. <- renv_snapshot_description(path = descfile))
+
+})
+
+test_that("we report if dependency discover during snapshot() is slow", {
+
+  renv_tests_scope()
+  init()
+
+  renv_scope_options(renv.dependencies.elapsed_time_threshold = -1)
+  expect_snapshot(. <- snapshot())
 
 })

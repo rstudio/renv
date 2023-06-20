@@ -122,17 +122,22 @@ lockfile_create <- function(type = settings$snapshot.type(project = project),
                             libpaths = .libPaths(),
                             packages = NULL,
                             exclude = NULL,
+                            prompt = interactive(),
+                            force = FALSE,
                             ...,
                             project = NULL)
 {
   project <- renv_project_resolve(project)
+  renv_dots_check(...)
 
   renv_lockfile_create(
-    project = project,
+    project  = project,
+    type     = type,
     libpaths = libpaths,
-    type = type,
     packages = packages,
-    exclude = exclude
+    exclude  = exclude,
+    prompt   = prompt,
+    force    = force
   )
 }
 

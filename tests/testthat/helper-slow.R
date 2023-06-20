@@ -5,7 +5,7 @@ skip_slow <- function()  {
 }
 
 is_slow <- function() {
-  identical(as.logical(Sys.getenv("RENV_TESTTHAT_SLOW", "false")), TRUE)
+  truthy(Sys.getenv("RENV_TESTTHAT_SLOW", unset = "false"))
 }
 
 slow_test_disable <- function() {

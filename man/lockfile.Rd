@@ -13,6 +13,8 @@ lockfile_create(
   libpaths = .libPaths(),
   packages = NULL,
   exclude = NULL,
+  prompt = interactive(),
+  force = FALSE,
   ...,
   project = NULL
 )
@@ -45,6 +47,12 @@ lockfile as well.}
 \item{exclude}{A vector of packages to be explicitly excluded from the lockfile.
 Note that transitive package dependencies will always be included, to avoid
 potentially creating an incomplete / non-functional lockfile.}
+
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
+
+\item{force}{Boolean; force generation of a lockfile even when pre-flight
+validation checks have failed?}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}

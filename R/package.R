@@ -17,7 +17,7 @@ renv_package_find_impl <- function(package,
                                    check.loaded = TRUE)
 {
   # if we've been given the path to an existing package, use it as-is
-  if (file.exists(file.path(package, "DESCRIPTION")))
+  if (grepl("/", package) && file.exists(file.path(package, "DESCRIPTION")))
     return(renv_path_normalize(package, mustWork = TRUE))
 
   # first, look in the library paths
@@ -230,56 +230,64 @@ renv_package_augment_metadata <- function(path, remotes) {
 # to the path where they were discovered, or NA if those packages are not
 # installed
 renv_package_dependencies <- function(packages,
-                                      project = NULL,
                                       libpaths = NULL,
-                                      fields = NULL)
+                                      fields = NULL,
+                                      callback = NULL,
+                                      project = NULL)
 {
   visited <- new.env(parent = emptyenv())
   ignored <- renv_project_ignored_packages(project = project)
   packages <- renv_vector_diff(packages, ignored)
   libpaths <- libpaths %||% renv_libpaths_all()
   fields <- fields %||% settings$package.dependency.fields(project = project)
+  callback <- callback %||% function(package, location, project) location
+  project <- renv_project_resolve(project)
 
   for (package in packages)
-    renv_package_dependencies_impl(package, visited, libpaths, fields)
+    renv_package_dependencies_impl(package, visited, libpaths, fields, callback, project)
 
   as.list(visited)
 }
 
 renv_package_dependencies_impl <- function(package,
                                            visited,
-                                           libpaths = NULL,
-                                           fields = NULL)
+                                           libpaths,
+                                           fields = NULL,
+                                           callback = NULL,
+                                           project = NULL)
 {
   # skip the 'R' package
   if (package == "R")
     return()
 
   # if we've already visited this package, bail
-  if (exists(package, envir = visited, inherits = FALSE))
+  if (!is.null(visited[[package]]))
     return()
 
   # default to unknown path for visited packages
-  assign(package, NA, envir = visited, inherits = FALSE)
+  visited[[package]] <- ""
 
-  # short-circuit for NA case
-  if (length(libpaths) == 1L && is.na(libpaths))
-    return()
+  # find the package -- note that we perform a permissive lookup here
+  # because we want to capture potentially invalid / broken package installs
+  # (that is, the 'package' we find might be an incomplete or broken package
+  # installation at this point)
+  location <- find(libpaths, function(libpath) {
+    candidate <- file.path(libpath, package)
+    if (renv_file_exists(candidate))
+      return(candidate)
+  })
 
-  # find the package
-  libpaths <- libpaths %||% renv_libpaths_all()
-  location <- renv_package_find(package, libpaths)
-  if (!file.exists(location))
-    return(location)
+  if (is.null(location))
+    return(callback(package, "", project))
 
   # we know the path, so set it now
-  assign(package, location, envir = visited, inherits = FALSE)
+  visited[[package]] <- callback(package, location, project)
 
   # find its dependencies from the DESCRIPTION file
   deps <- renv_dependencies_discover_description(location, fields = "strong")
   subpackages <- deps$Package
   for (subpackage in subpackages)
-    renv_package_dependencies_impl(subpackage, visited, libpaths, fields)
+    renv_package_dependencies_impl(subpackage, visited, libpaths, fields, callback, project)
 }
 
 renv_package_reload <- function(package, library = NULL) {

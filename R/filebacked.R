@@ -3,12 +3,12 @@
 # the file mtime changes. use `renv_filebacked_set()` to associate some value
 # with a file at a particular point in time; `renv_filebacked_get()` will return
 # that value, or NULL of the file mtime has changed
-the$filebacked <- new.env(parent = emptyenv())
+the$filebacked_cache <- new.env(parent = emptyenv())
 
-renv_filebacked_clear <- function(scope, path = NULL) {
+renv_filebacked_clear <- function(context, path = NULL) {
 
-  # get cache associated with this scope
-  envir <- renv_filebacked_envir(scope)
+  # get cache associated with this context
+  envir <- renv_filebacked_envir(context)
 
   # list all available cached results
   existing <- ls(envir = envir, all.names = TRUE)
@@ -23,7 +23,7 @@ renv_filebacked_clear <- function(scope, path = NULL) {
   rm(list = removable, envir = envir)
 }
 
-renv_filebacked_set <- function(scope, path, value) {
+renv_filebacked_set <- function(context, path, value) {
 
   # validate the path
   stopifnot(renv_path_absolute(path))
@@ -33,20 +33,20 @@ renv_filebacked_set <- function(scope, path, value) {
   entry <- list(value = value, info = info)
 
   # store it
-  envir <- renv_filebacked_envir(scope)
+  envir <- renv_filebacked_envir(context)
   assign(path, entry, envir = envir)
   invisible(value)
 
 }
 
-renv_filebacked_get <- function(scope, path) {
+renv_filebacked_get <- function(context, path) {
 
   # validate the path
   if (!renv_path_absolute(path))
     stopf("internal error: '%s' is not an absolute path", path)
 
-  # get scoped sub-environment
-  envir <- renv_filebacked_envir(scope)
+  # get contextd sub-environment
+  envir <- renv_filebacked_envir(context)
 
   # check for entry in the cache
   entry <- envir[[path]]
@@ -73,13 +73,13 @@ renv_filebacked_get <- function(scope, path) {
 
 }
 
-renv_filebacked_envir <- function(scope) {
-  the$filebacked[[scope]] <-
-    the$filebacked[[scope]] %||%
+renv_filebacked_envir <- function(context) {
+  the$filebacked_cache[[context]] <-
+    the$filebacked_cache[[context]] %||%
     new.env(parent = emptyenv())
 }
 
-filebacked <- function(scope, path, callback, ...) {
+filebacked <- function(context, path, callback, ...) {
 
   # don't use filebacked cache when disabled
   config <- config$filebacked.cache()
@@ -87,14 +87,21 @@ filebacked <- function(scope, path, callback, ...) {
     return(callback(path, ...))
 
   # check for cache entry -- if available, use it
-  cache <- renv_filebacked_get(scope, path)
+  cache <- renv_filebacked_get(context, path)
   if (!is.null(cache))
     return(cache)
 
   # otherwise, generate our value and cache it
   result <- callback(path, ...)
-  renv_filebacked_set(scope, path, result)
+  renv_filebacked_set(context, path, result)
 
   result
 
+}
+
+renv_filebacked_invalidate <- function(path) {
+  renv_scope_options(warn = -1L)
+  eapply(the$filebacked_cache, function(context) {
+    rm(list = path, envir = context)
+  })
 }

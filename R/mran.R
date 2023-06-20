@@ -74,7 +74,7 @@ renv_mran_database_save <- function(database, path = NULL) {
 renv_mran_database_load <- function(path = NULL) {
 
   filebacked(
-    scope    = "renv_mran_database_load",
+    context  = "renv_mran_database_load",
     path     = path %||% renv_mran_database_path(),
     callback = renv_mran_database_load_impl
   )

@@ -146,7 +146,7 @@ snapshot <- function(project  = NULL,
   if (!is.null(lockfile))
     renv_activate_prompt("snapshot", library, prompt, project)
 
-  libpaths <- library %||% renv_libpaths_all()
+  libpaths <- renv_path_normalize(library %||% renv_libpaths_all())
   if (config$snapshot.validate())
     renv_snapshot_preflight(project, libpaths)
 
@@ -163,13 +163,28 @@ snapshot <- function(project  = NULL,
 
   }
 
-  alt <- new <- renv_lockfile_create(project, libpaths, type, packages, exclude)
+  alt <- new <- renv_lockfile_create(
+    project  = project,
+    type     = type,
+    libpaths = libpaths,
+    packages = packages,
+    exclude  = exclude,
+    prompt   = prompt,
+    force    = force
+  )
+
   if (is.null(lockfile))
     return(new)
 
   # if running as part of 'reprex', then render output inline
   if (reprex)
     return(renv_snapshot_reprex(new))
+
+  # check for missing dependencies and warn if any are discovered
+  # (note: use 'new' rather than 'alt' here as we don't want to attempt
+  # validation on uninstalled packages)
+  valid <- renv_snapshot_validate(project, new, libpaths)
+  renv_snapshot_validate_report(valid, prompt, force)
 
   # get prior lockfile state
   old <- list()
@@ -189,12 +204,6 @@ snapshot <- function(project  = NULL,
     }
 
   }
-
-  # check for missing dependencies and warn if any are discovered
-  # (note: use 'new' rather than 'alt' here as we don't want to attempt
-  # validation on uninstalled packages)
-  valid <- renv_snapshot_validate(project, new, libpaths)
-  renv_snapshot_validate_report(valid, prompt, force)
 
   # update new reference
   new <- alt
@@ -342,7 +351,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     return(ok)
 
   # check for BiocManager or BiocInstaller
-  package <- if (getRversion() >= "3.5.0") "BiocManager" else "BiocInstaller"
+  package <- renv_bioconductor_manager()
   if (!package %in% names(records)) {
 
     text <- c(
@@ -615,58 +624,58 @@ renv_snapshot_library <- function(library = NULL,
 
 }
 
-renv_snapshot_library_diagnose <- function(library, pkgs) {
+renv_snapshot_library_diagnose <- function(library, paths) {
 
-  pkgs <- grep("00LOCK", pkgs, invert = TRUE, value = TRUE)
-  pkgs <- renv_snapshot_library_diagnose_broken_link(library, pkgs)
-  pkgs <- renv_snapshot_library_diagnose_tempfile(library, pkgs)
-  pkgs <- renv_snapshot_library_diagnose_missing_description(library, pkgs)
-  pkgs
+  paths <- grep("00LOCK", paths, invert = TRUE, value = TRUE)
+  paths <- renv_snapshot_library_diagnose_broken_link(library, paths)
+  paths <- renv_snapshot_library_diagnose_tempfile(library, paths)
+  paths <- renv_snapshot_library_diagnose_missing_description(library, paths)
+  paths
 
 }
 
-renv_snapshot_library_diagnose_broken_link <- function(library, pkgs) {
+renv_snapshot_library_diagnose_broken_link <- function(library, paths) {
 
-  broken <- !file.exists(pkgs)
+  broken <- !file.exists(paths)
   if (!any(broken))
-    return(pkgs)
+    return(paths)
 
   renv_pretty_print(
-    basename(pkgs)[broken],
+    basename(paths)[broken],
     "The following package(s) have broken symlinks into the cache:",
     "Use `renv::repair()` to try and reinstall these packages."
   )
 
-  pkgs[!broken]
+  paths[!broken]
 
 }
 
-renv_snapshot_library_diagnose_tempfile <- function(library, pkgs) {
+renv_snapshot_library_diagnose_tempfile <- function(library, paths) {
 
-  names <- basename(pkgs)
+  names <- basename(paths)
   missing <- grepl("^file(?:\\w){12}", names)
   if (!any(missing))
-    return(pkgs)
+    return(paths)
 
   renv_pretty_print(
-    map_chr(pkgs[missing], renv_path_pretty),
+    map_chr(paths[missing], renv_path_pretty),
     "The following folder(s) appear to be left-over temporary directories:",
     "Consider removing these folders from your R library."
   )
 
-  pkgs[!missing]
+  paths[!missing]
 
 }
 
-renv_snapshot_library_diagnose_missing_description <- function(library, pkgs) {
+renv_snapshot_library_diagnose_missing_description <- function(library, paths) {
 
-  desc <- file.path(pkgs, "DESCRIPTION")
+  desc <- file.path(paths, "DESCRIPTION")
   missing <- !file.exists(desc)
   if (!any(missing))
-    return(pkgs)
+    return(paths)
 
   renv_pretty_print(
-    sprintf("%s [%s]", format(basename(pkgs[missing])), pkgs[missing]),
+    sprintf("%s [%s]", format(basename(paths[missing])), paths[missing]),
     "The following package(s) are missing their DESCRIPTION files:",
     c(
       "These may be left over from a prior, failed installation attempt.",
@@ -674,7 +683,7 @@ renv_snapshot_library_diagnose_missing_description <- function(library, pkgs) {
     )
   )
 
-  pkgs[!missing]
+  paths[!missing]
 
 }
 
@@ -948,16 +957,26 @@ renv_snapshot_report_actions <- function(actions, old, new) {
 }
 # nocov end
 
+# compute the package dependencies inferred for a project,
+# respecting the snapshot type selected (or currently configured)
+# for the associated project
 renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
-
-  if (!is.null(the$init_dependencies)) {
-    return(the$init_dependencies$Package)
-  }
 
   type <- type %||% settings$snapshot.type(project = project)
 
-  if (type %in% "all")
-    return(installed_packages(field = "Package"))
+  dynamic(
+    list(project = project, type = type, dev = dev),
+    renv_snapshot_dependencies_impl(project, type, dev)
+  )
+
+}
+
+renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
+
+  if (type %in% "all") {
+    packages <- installed_packages(field = "Package")
+    return(setdiff(packages, renv_packages_base()))
+  }
 
   if (type %in% "custom") {
     filter <- renv_snapshot_filter_custom_resolve()
@@ -965,7 +984,7 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
   }
 
   path <- case(
-    type %in% "implicit" ~ project,
+    type %in% c("packrat", "implicit") ~ project,
     type %in% "explicit" ~ file.path(project, "DESCRIPTION"),
     ~ {
       fmt <- "internal error: unhandled snapshot type '%s' in %s"
@@ -973,73 +992,93 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
     }
   )
 
-  renv_dependencies_confirm(
-    "snapshot",
-    path = path,
-    root = project,
-    field = "Package",
-    dev = dev
+  packages <- withCallingHandlers(
+
+    renv_dependencies_impl(
+      path = path,
+      root = project,
+      field = "Package",
+      errors = config$dependency.errors(),
+      dev = dev
+    ),
+
+    # require user confirmation to proceed if there's a reported error
+    renv.dependencies.problem = function(cnd) {
+      if (interactive() && !proceed())
+        cancel()
+    },
+
+    # notify the user if we took a long time to discover dependencies
+    renv.dependencies.elapsed_time = function(cnd) {
+
+      # only relevant for implicit-type snapshots
+      if (!type %in% c("packrat", "implicit"))
+        return()
+
+      # check for timeout
+      elapsed <- cnd$data
+      limit <- getOption("renv.dependencies.elapsed_time_threshold", default = 10L)
+      if (elapsed < limit)
+        return()
+
+      # report to user
+      lines <- c(
+        "",
+        "NOTE: Dependency discovery took %s during snapshot.",
+        "Consider using .renvignore to ignore files, or switching to explicit snapshots.",
+        "See `?dependencies` for more information.",
+        ""
+      )
+
+      writef(lines, renv_difftime_format(elapsed))
+
+    }
+
   )
 
+  unique(packages)
+
 }
 
-renv_snapshot_filter <- function(project, records, type, packages, exclude) {
+# compute package records from the provided library paths,
+# normally to be included as part of an renv lockfile
+renv_snapshot_packages <- function(packages, libpaths, project) {
 
-  type <- type %||% settings$snapshot.type(project = project)
-
-  aliases <- list(packrat = "implicit", simple = "all")
-  type <- aliases[[type]] %||% type
-
-  result <- switch(type,
-    all      = renv_snapshot_filter_all(project, records, exclude),
-    custom   = renv_snapshot_filter_custom(project, records, exclude),
-    explicit = renv_snapshot_filter_explicit(project, records, exclude),
-    implicit = renv_snapshot_filter_implicit(project, records, exclude),
-    packages = renv_snapshot_filter_packages(project, records, packages, exclude),
-    stopf("unknown snapshot type '%s'", type)
+  ignored <- c(
+    renv_packages_base(),
+    renv_project_ignored_packages(project = project),
+    if (is_testing()) "renv"
   )
 
-  result
-
-}
-
-renv_snapshot_filter_all <- function(project, records, exclude) {
-  renv_snapshot_filter_impl(project, records, names(records), "all", exclude)
-}
-
-renv_snapshot_filter_impl <- function(project, records, packages, type, exclude) {
-
-  # make sure we include renv
-  packages <- unique(c(packages, "renv"))
-
-  # warn if some required packages are missing
-  ignored <- c(renv_project_ignored_packages(project), renv_packages_base(), exclude)
-  missing <- setdiff(packages, c(names(records), ignored))
-  if (!the$status_running)
-    renv_snapshot_filter_report_missing(missing, type)
-
-  # ignore packages as defined by project
-  used <- setdiff(packages, ignored)
-
-  # include transitive dependencies
-  paths <- renv_package_dependencies(used, project = project)
-  all <- as.character(names(paths))
-  kept <- keep(records, all)
-
-  # add in bioconductor infrastructure packages
-  # if any other bioconductor packages detected
-  sources <- extract_chr(kept, "Source")
-  if ("Bioconductor" %in% sources) {
-    packages <- c("BiocManager", "BiocInstaller", "BiocVersion")
-    for (package in packages)
-      kept[[package]] <- records[[package]]
+  callback <- function(package, location, project) {
+    if (nzchar(location) && !package %in% ignored)
+      return(location)
   }
 
-  kept
+  # expand package dependency tree
+  paths <- renv_package_dependencies(
+    packages = packages,
+    libpaths = libpaths,
+    callback = callback,
+    project = project
+  )
+
+  # keep only packages with known locations
+  paths <- convert(filter(paths, is.character), "character")
+
+  # diagnose issues with the scanned packages
+  paths <- uapply(libpaths, function(library) {
+    renv_snapshot_library_diagnose(
+      library = library,
+      paths   = filter(paths, startswith, prefix = library))
+  })
+
+  # now, snapshot the remaining packages
+  records <- map(paths, renv_snapshot_description)
 
 }
 
-renv_snapshot_filter_report_missing <- function(missing, type) {
+renv_snapshot_report_missing <- function(missing, type) {
 
   missing <- setdiff(missing, "renv")
   if (empty(missing))
@@ -1085,59 +1124,6 @@ renv_snapshot_filter_report_missing <- function(missing, type) {
   TRUE
 }
 
-renv_snapshot_filter_implicit <- function(project, records, exclude) {
-
-  # compute snapshot dependencies
-  start <- Sys.time()
-  packages <- renv_snapshot_dependencies(project, "implicit")
-  end <- Sys.time()
-
-  # report if dependency discovery took a long time
-  limit <- getOption("renv.snapshot.filter.timelimit", default = 10L)
-  diff <- difftime(end, start, units = "secs")
-
-  if (diff > limit) {
-
-    time <- difftime(end, start, units = "auto")
-    lines <- c(
-      "NOTE: Dependency discovery took %s during snapshot.",
-      "Consider using .renvignore to ignore files or switching to explicit snapshots",
-      "See `?dependencies` for more information."
-    )
-    writef(lines, renv_difftime_format(time))
-
-  }
-
-  renv_snapshot_filter_impl(project, records, packages, "implicit", exclude)
-
-}
-
-renv_snapshot_filter_explicit <- function(project, records, exclude) {
-  packages <- renv_snapshot_dependencies(project, "explicit")
-  renv_snapshot_filter_impl(project, records, packages, "explicit", exclude)
-}
-
-renv_snapshot_filter_packages <- function(project, records, packages, exclude) {
-
-  # TODO: do we want to respect other ignores here?
-  # include transitive dependencies
-  paths <- renv_package_dependencies(packages, project = project)
-  all <- setdiff(as.character(names(paths)), exclude)
-  kept <- keep(records, all)
-
-  # add in bioconductor infrastructure packages
-  # if any other bioconductor packages detected
-  sources <- extract_chr(kept, "Source")
-  if ("Bioconductor" %in% sources) {
-    packages <- c("BiocManager", "BiocInstaller", "BiocVersion")
-    for (package in packages)
-      kept[[package]] <- records[[package]]
-  }
-
-  kept
-
-}
-
 renv_snapshot_filter_custom_resolve <- function() {
 
   # check for custom filter
@@ -1159,28 +1145,6 @@ renv_snapshot_filter_custom_resolve <- function() {
 
   # return resolved function
   filter
-
-}
-
-renv_snapshot_filter_custom <- function(project, records, exclude) {
-
-  # get user-defined snapshot filter
-  filter <- renv_snapshot_filter_custom_resolve()
-
-  # invoke the custom filter
-  packages <- filter(project)
-  if (empty(packages))
-    return(records)
-
-  # sanity check the result
-  if (!is.character(packages))
-    stop("custom snapshot filter did not return a character vector")
-
-  # remove excluded packages
-  packages <- setdiff(packages, exclude)
-
-  # return matching records
-  keep(records, packages)
 
 }
 

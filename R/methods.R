@@ -8,6 +8,11 @@ renv_methods_map <- function() {
       win32 = "renv_path_normalize_win32"
     ),
 
+    renv_file_exists = c(
+      unix  = "renv_file_exists_unix",
+      win32 = "renv_file_exists_win32"
+    ),
+
     renv_file_list_impl = c(
       unix  = "renv_file_list_impl_unix",
       win32 = "renv_file_list_impl_win32"

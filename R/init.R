@@ -107,7 +107,6 @@ init <- function(project = NULL,
 
   }
 
-
   # prepare and move into project directory
   renv_init_validate_project(project, force)
   renv_init_settings(project, settings)
@@ -117,8 +116,7 @@ init <- function(project = NULL,
     return(renv_init_fini(project, profile, restart))
 
   # compute and cache dependencies to (a) reveal problems early and (b) compute once
-  the$init_dependencies <- renv_dependencies_confirm("init", path = project, dev = TRUE)
-  defer(the$init_dependencies <- NULL)
+  deps <- renv_snapshot_dependencies(project, dev = TRUE)
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile, bioconductor)
@@ -130,8 +128,8 @@ init <- function(project = NULL,
   # perform the action
   if (action == "init") {
     renv_imbue_impl(project)
-    hydrate(project = project, library = library, prompt = FALSE, report = FALSE)
-    snapshot(project = project, library = libpaths, repos = repos, prompt = FALSE)
+    hydrate(library = library, prompt = FALSE, report = FALSE, project = project)
+    snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
   } else if (action == "restore") {
     ensure_directory(library)
     restore(project = project, library = libpaths, prompt = FALSE)

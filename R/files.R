@@ -360,10 +360,18 @@ renv_file_mode <- function(paths) {
 renv_file_exists <- function(path) {
 
   if (renv_platform_windows())
-    return(file.exists(path))
+    renv_file_exists_win32(path)
+  else
+    renv_file_exists_unix(path)
 
+}
+
+renv_file_exists_win32 <- function(path) {
+  file.exists(path)
+}
+
+renv_file_exists_unix <- function(path) {
   !is.na(Sys.readlink(path)) | file.exists(path)
-
 }
 
 renv_file_list <- function(path, full.names = TRUE) {

@@ -75,7 +75,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     return(default)
 
   # get all dependencies, including transitive
-  dependencies <- renv_snapshot_dependencies(project)
+  dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
   packages <- sort(union(dependencies, "renv"))
   paths <- renv_package_dependencies(packages, project = project)
   packages <- as.character(names(paths))
@@ -164,7 +164,7 @@ renv_status_check_synchronized <- function(project,
   # Bioconductor packages are in use
   sources <- extract_chr(keep(library, packages), "Source")
   if ("Bioconductor" %in% sources)
-    packages <- union(packages, "BiocManager")
+    packages <- union(packages, renv_bioconductor_manager())
 
   # missing dependencies -------------------------------------------------------
   # Must return early because `packages` will be incomplete making later
