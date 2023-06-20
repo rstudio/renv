@@ -30,3 +30,30 @@ test_that("errors when sourcing user profile are reported", {
   renv_scope_envvars(R_PROFILE_USER = profile)
   tryCatch(expect_warning(renv_load_rprofile(getwd())), error = identity)
 })
+
+test_that("load() installs packages if needed", {
+
+  renv_tests_scope("breakfast")
+  renv_scope_envvars(RENV_CONFIG_STARTUP_QUIET = "FALSE")
+
+  install("bread")
+  init()
+  unlink("renv/library", recursive = TRUE)
+
+  expect_snapshot(load())
+
+})
+
+test_that("load() reports on problems", {
+
+  renv_scope_libpaths()
+  renv_tests_scope()
+  renv_scope_envvars(RENV_CONFIG_STARTUP_QUIET = "FALSE")
+
+  renv_tests_scope("egg")
+  init()
+  record("egg@2.0.0")
+
+  expect_snapshot(load())
+
+})
