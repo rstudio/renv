@@ -16,6 +16,8 @@ test_that("we can check out packages from our local repository", {
 
 test_that("we can check out packages from the package manager instance", {
   skip_on_cran()
+  skip_if(Sys.info()[["machine"]] == "aarch64")
+
   renv_tests_scope()
   init()
 
