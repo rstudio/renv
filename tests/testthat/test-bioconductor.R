@@ -1,4 +1,22 @@
 
+# R 3.6 appears to have trouble if we try to load and unload
+# different versions of BiocManager in the same session, so
+# we need to use this hack to ensure that promises in the S3
+# methods table are forced at opportune times
+if (getRversion() < "4.0") {
+
+  setHook(
+    packageEvent("BiocManager", "onLoad"),
+    function(...) renv_patch_methods_table()
+  )
+
+  setHook(
+    packageEvent("BiocManager", "onUnload"),
+    function(...) renv_patch_methods_table()
+  )
+
+}
+
 test_that("packages can be installed, restored from Bioconductor", {
 
   skip_slow()
