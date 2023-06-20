@@ -48,9 +48,13 @@ renv_snapshot_auto_impl <- function(project) {
 
 renv_snapshot_auto_enabled <- function(project = renv_project_get()) {
 
-  # don't auto-snapshot if disabled by user
-  enabled <- config$auto.snapshot()
-  if (!enabled)
+  # respect config setting
+  config <- config$auto.snapshot(default = NULL)
+  if (!is.null(config))
+    return(config)
+
+  # only snapshot interactively
+  if (!interactive())
     return(FALSE)
 
   # only automatically snapshot the current project

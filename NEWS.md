@@ -1,6 +1,11 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `load()` makes the loading message a little more prominent, and we fixed a 
+  bug that prevented out-of-sync repos from being reported.
+
+* `dependencies()` now discovers R dependencies inside jupyter notebooks (#929).
+
 * `renv::install(type = "source")` now ensures source repositories are used
   in projects using [PPM](https://packagemanager.posit.co/). (#927)
   

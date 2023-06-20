@@ -1,10 +1,12 @@
-# renv_project_synchronized_check() installs packages if needed
+# load() installs packages if needed
 
     Code
-      ok <- renv_project_synchronized_check()
+      load()
     Output
-      * None of the packages recorded in the lockfile are installed.
-      * Using `renv::restore()` to restore the project library.
+      # Loading renv [<version>] ---
+      - Project '<wd>' loaded.
+      - None of the packages recorded in the lockfile are installed.
+      - Using `renv::restore()` to restore the project library.
       The following package(s) will be updated:
       
       # CRAN ---
@@ -20,4 +22,14 @@
       - Installing toast ...                          OK [linked from cache]
       - Installing breakfast ...                      OK [linked from cache]
       
+
+# load() reports on problems
+
+    Code
+      load()
+    Output
+      # Loading renv [<version>] ---
+      - Project '<wd>' loaded.
+      - The project is currently out-of-sync.
+      - Use `renv::status()` for more details.
 

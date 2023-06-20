@@ -77,10 +77,12 @@ local({
   }
   
   header <- function(label,
+                     ...,
                      prefix = "#",
                      suffix = "-",
                      n = min(getOption("width"), 78))
   {
+    label <- sprintf(label, ...)
     n <- max(n - nchar(label) - nchar(prefix) - 2L, 8L)
     if (n <= 0)
       return(paste(prefix, label))

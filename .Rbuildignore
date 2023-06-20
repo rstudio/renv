@@ -37,3 +37,4 @@
 
 ^tests/testthat/testthat-problems.rds$
 ^vignettes/renv\.graffle$
+^README\.Rmd$
