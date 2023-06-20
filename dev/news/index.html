@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/dependencies.html">dependencies()</a></code> now discovers R dependencies inside jupyter notebooks (<a href="https://github.com/rstudio/renv/issues/929" class="external-link">#929</a>).</p></li>
+<ul><li><p><code><a href="../reference/load.html">load()</a></code> makes the loading message a little more prominent, and we fixed a bug that prevented out-of-sync repos from being reported.</p></li>
+<li><p><code><a href="../reference/dependencies.html">dependencies()</a></code> now discovers R dependencies inside jupyter notebooks (<a href="https://github.com/rstudio/renv/issues/929" class="external-link">#929</a>).</p></li>
 <li><p><code>renv::install(type = "source")</code> now ensures source repositories are used in projects using <a href="https://packagemanager.posit.co/" class="external-link">PPM</a>. (<a href="https://github.com/rstudio/renv/issues/927" class="external-link">#927</a>)</p></li>
 <li><p><code><a href="../reference/restore.html">renv::restore()</a></code> now emits an error if called in a project that does not contain a lockfile. (<a href="https://github.com/rstudio/renv/issues/1474" class="external-link">#1474</a>)</p></li>
 <li><p>If <code>config$user.profile()</code> is <code>TRUE</code>, the packages it uses are now included in the development dependencies, which means that they will be installed by <code><a href="../reference/install.html">install()</a></code> but not recorded in the snapshot.</p></li>
