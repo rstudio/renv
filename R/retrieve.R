@@ -1043,8 +1043,9 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   })
 
   # read and handle remotes declared by this package
-  if (config$install.remotes())
-    renv_retrieve_handle_remotes(desc)
+  remotes <- desc$Remotes
+  if (length(remotes) && config$install.remotes())
+    renv_retrieve_remotes(remotes)
 
   # ensure its dependencies are retrieved as well
   if (state$recursive) local({
@@ -1090,7 +1091,7 @@ renv_retrieve_successful_recurse_impl_one <- function(remote) {
   }
 
   # otherwise, handle custom remotes
-  record <- renv_retrieve_handle_remotes_impl(remote)
+  record <- renv_retrieve_remotes_impl(remote)
   if (length(record)) {
     renv_retrieve_impl(record$Package)
     return(list())
@@ -1113,34 +1114,25 @@ renv_retrieve_unknown_source <- function(record) {
 
 }
 
-renv_retrieve_handle_remotes <- function(desc) {
-
-  # TODO: what should we do if we detect incompatible remotes?
-  # e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
-  # 'r-lib/rlang@0.2'.
-
-  # check and see if this package declares Remotes -- if so,
-  # use those to fill in any missing records
-  remotes <- desc$Remotes
-  if (is.null(remotes))
-    return(NULL)
-
+# TODO: what should we do if we detect incompatible remotes?
+# e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
+# 'r-lib/rlang@0.2'.
+renv_retrieve_remotes <- function(remotes) {
   remotes <- strsplit(remotes, "\\s*,\\s*")[[1L]]
   for (remote in remotes)
-    renv_retrieve_handle_remotes_impl(remote)
-
+    renv_retrieve_remotes_impl(remote)
 }
 
-renv_retrieve_handle_remotes_impl <- function(remote) {
+renv_retrieve_remotes_impl <- function(remote) {
 
   dynamic(
     key   = list(remote = remote),
-    value = renv_retrieve_handle_remotes_impl_one(remote)
+    value = renv_retrieve_remotes_impl_one(remote)
   )
 
 }
 
-renv_retrieve_handle_remotes_impl_one <- function(remote) {
+renv_retrieve_remotes_impl_one <- function(remote) {
 
   # TODO: allow customization of behavior when remote parsing fails?
   resolved <- catch(renv_remotes_resolve(remote))

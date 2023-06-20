@@ -136,7 +136,7 @@ test_that("remotes which depend on Bioconductor packages can be installed", {
     Imports: Biobase
     biocViews: Biology
   ")
-  writeLines(desc, con = file.path(tempdir(), "bioc.example/DESCRIPTION"))
+  writeLines(desc, con = file.path(pkgdir, "DESCRIPTION"))
 
   # try to install it
   local({
