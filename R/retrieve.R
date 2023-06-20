@@ -1144,8 +1144,7 @@ renv_retrieve_handle_remotes_impl_one <- function(remote) {
   # TODO: allow customization of behavior when remote parsing fails?
   resolved <- catch(renv_remotes_resolve(remote))
   if (inherits(resolved, "error")) {
-    fmt <- "failed to resolve remote '%s' declared by package '%s'; skipping"
-    warningf(fmt, remote, record$Package)
+    warningf("failed to resolve remote '%s'; skipping", remote)
     return(invisible(NULL))
   }
 
