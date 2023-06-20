@@ -33,9 +33,9 @@ renv_tests_scope <- function(packages = character(),
   writeLines(code, "dependencies.R")
 
   # use temporary library
-  lib <- renv_scope_tempfile("renv-library-", scope = scope)
-  ensure_directory(lib)
-  renv_scope_libpaths(lib, scope = scope)
+  library <- renv_scope_tempfile("renv-library-", scope = scope)
+  ensure_directory(library)
+  renv_scope_libpaths(library, scope = scope)
 
   # return path to project directory
   invisible(project)

@@ -365,7 +365,9 @@ renv_retrieve_gitlab <- function(record) {
 }
 
 renv_retrieve_git <- function(record) {
-  path <- renv_scope_tempfile("renv-git-")
+  # NOTE: This path will later be used during the install step, so we don't
+  # want to clean it up afterwards
+  path <- tempfile("renv-git-")
   ensure_directory(path)
   renv_retrieve_git_impl(record, path)
   renv_retrieve_successful(record, path)

@@ -54,6 +54,7 @@ renv_sandbox_activate <- function(project = NULL) {
 renv_sandbox_activate_impl <- function(project = NULL, sandbox = NULL) {
 
   # lock access to the sandbox
+  sandbox <- sandbox %||% renv_sandbox_path(project = project)
   lockfile <- paste(sandbox, "lock", sep = ".")
   renv_scope_lock(lockfile)
 
@@ -69,7 +70,6 @@ renv_sandbox_activate_impl <- function(project = NULL, sandbox = NULL) {
   if (config$sandbox.enabled()) {
 
     # generate the sandbox
-    sandbox <- sandbox %||% renv_sandbox_path(project = project)
     ensure_directory(sandbox)
     renv_sandbox_generate(sandbox)
 
