@@ -1044,7 +1044,7 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # read and handle remotes declared by this package
   if (config$install.remotes())
-    renv_retrieve_handle_remotes(record, subdir = subdir)
+    renv_retrieve_handle_remotes(desc)
 
   # ensure its dependencies are retrieved as well
   if (state$recursive) local({
@@ -1113,7 +1113,7 @@ renv_retrieve_unknown_source <- function(record) {
 
 }
 
-renv_retrieve_handle_remotes <- function(record, subdir) {
+renv_retrieve_handle_remotes <- function(desc) {
 
   # TODO: what should we do if we detect incompatible remotes?
   # e.g. if pkg A requests 'r-lib/rlang@0.3' but pkg B requests
@@ -1121,12 +1121,11 @@ renv_retrieve_handle_remotes <- function(record, subdir) {
 
   # check and see if this package declares Remotes -- if so,
   # use those to fill in any missing records
-  path <- record$Path
-  desc <- renv_description_read(path = path, subdir = subdir)
-  if (is.null(desc$Remotes))
+  remotes <- desc$Remotes
+  if (is.null(remotes))
     return(NULL)
 
-  remotes <- strsplit(desc$Remotes, "\\s*,\\s*")[[1]]
+  remotes <- strsplit(remotes, "\\s*,\\s*")[[1L]]
   for (remote in remotes)
     renv_retrieve_handle_remotes_impl(remote)
 

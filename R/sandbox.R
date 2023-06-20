@@ -54,9 +54,12 @@ renv_sandbox_activate <- function(project = NULL) {
 renv_sandbox_activate_impl <- function(project = NULL, sandbox = NULL) {
 
   # lock access to the sandbox
-  sandbox <- sandbox %||% renv_sandbox_path(project = project)
-  lockfile <- paste(sandbox, "lock", sep = ".")
-  renv_scope_lock(lockfile)
+  if (config$sandbox.enabled()) {
+    sandbox <- sandbox %||% renv_sandbox_path(project = project)
+    ensure_directory(sandbox)
+    lockfile <- paste(sandbox, "lock", sep = ".")
+    renv_scope_lock(lockfile)
+  }
 
   # get current library paths
   oldlibs <- .libPaths()
@@ -67,28 +70,19 @@ renv_sandbox_activate_impl <- function(project = NULL, sandbox = NULL) {
   base <- .BaseNamespaceEnv
   renv_binding_replace(base, ".Library.site", NULL)
 
+  # generate sandbox
   if (config$sandbox.enabled()) {
-
-    # generate the sandbox
-    ensure_directory(sandbox)
     renv_sandbox_generate(sandbox)
-
-    # override .Library
     renv_binding_replace(base, ".Library", sandbox)
-
   }
 
   # update library paths
   newlibs <- renv_vector_diff(oldlibs, syslibs)
   renv_libpaths_set(newlibs)
 
-  if (config$sandbox.enabled()) {
-
-    # protect against user profiles that might try
-    # to update the library paths
+  # protect against user profiles that might update library paths
+  if (config$sandbox.enabled())
     renv_sandbox_activate_check(newlibs)
-
-  }
 
   # return new library paths
   renv_libpaths_all()

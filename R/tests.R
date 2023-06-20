@@ -18,8 +18,8 @@ renv_test_retrieve <- function(record) {
   renv_scope_error_handler()
 
   # avoid using cache
-  cache_path <- renv_scope_tempfile()
-  renv_scope_envvars(RENV_PATHS_CACHE = cache_path)
+  cache <- renv_scope_tempfile()
+  renv_scope_envvars(RENV_PATHS_CACHE = cache)
 
   # construct records
   package <- record$Package
@@ -37,7 +37,7 @@ renv_test_retrieve <- function(record) {
     library = templib,
     records = records,
     packages = package,
-    recursive = FALSE
+    recursive = TRUE
   )
 
   records <- retrieve(record$Package)

@@ -46,6 +46,7 @@ test_that("install(<bioc>, rebuild = TRUE) works", {
   skip_if_not_installed("BiocManager")
 
   renv_tests_scope()
+  defer(unloadNamespace("BiocManager"))
 
   local({
     renv_tests_scope_system_cache()
@@ -59,6 +60,7 @@ test_that("install(<bioc>, rebuild = TRUE) works", {
 test_that("bioconductor.version can be used to freeze version", {
 
   project <- renv_tests_scope()
+  defer(unloadNamespace("BiocManager"))
 
   settings$bioconductor.version("3.14", project = project)
   expect_equal(renv_bioconductor_version(project = project), "3.14")
@@ -73,6 +75,7 @@ test_that("we can restore a lockfile using multiple Bioconductor releases", {
   skip_if_not_installed("BiocManager")
 
   project <- renv_tests_scope()
+  defer(unloadNamespace("BiocManager"))
 
   path <- renv_tests_path("resources/bioconductor.lock")
   lockfile <- renv_lockfile_read(path)
@@ -91,6 +94,8 @@ test_that("we can restore a lockfile using multiple Bioconductor releases", {
 test_that("Bioconductor packages add BiocManager as a dependency", {
 
   renv_tests_scope()
+  defer(unloadNamespace("BiocManager"))
+
   init()
 
   local({
@@ -116,8 +121,10 @@ test_that("Bioconductor packages add BiocManager as a dependency", {
 
 test_that("remotes which depend on Bioconductor packages can be installed", {
   skip_on_cran()
+
   renv_tests_scope()
   renv_scope_options(repos = c(CRAN = "https://cloud.r-project.org"))
+  defer(unloadNamespace("BiocManager"))
 
   # create a dummy package which has a Bioconductor dependency
   pkgdir <- file.path(tempdir(), "bioc.example")
@@ -150,6 +157,7 @@ test_that("auto-bioc install happens silently", {
 
   renv_tests_scope()
   renv_tests_scope_system_cache()
+  defer(unloadNamespace("BiocManager"))
 
   expect_snapshot(
     install("bioc::BiocGenerics"),

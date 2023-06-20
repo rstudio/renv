@@ -13,7 +13,14 @@ test_that <- function(desc, code) {
   # run the test
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)
-  eval(call, envir = parent.frame())
+  withCallingHandlers(
+    eval(call, envir = parent.frame()),
+    condition = function(cnd) {
+      message <- conditionMessage(cnd)
+      if (any(grepl("SSL connect error", message)))
+        skip(message)
+    }
+  )
 
   # record global state after test execution
   after <- renv_test_state()
@@ -70,6 +77,7 @@ renv_test_state <- function() {
   tempfiles <- tempfiles[tempfiles != "downloaded_packages"]
 
   list(
+    # packages     = loadedNamespaces(),
     libpaths     = .libPaths(),
     connections  = getAllConnections(),
     options      = opts,
