@@ -33,7 +33,7 @@ renv_log_impl <- function(level, scope, fmt, ...) {
 
   # only include scopes matching the scopes
   scopes <- the$log_scopes
-  if (is.character(the$log_scopes) && !scope %in% scopes)
+  if (is.character(scopes) && !scope %in% scopes)
     return()
 
   # build message
