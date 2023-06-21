@@ -6,12 +6,7 @@ test_that("renv itself doesn't mark itself as embedded", {
 
 test_that("renv can be vendored into an R package", {
   skip_on_cran()
-
-  # find path to renv sources before changing working directory
-  sources <- renv_file_find(getwd(), function(path) {
-    if (file.exists(file.path(path, "DESCRIPTION")))
-      return(path)
-  })
+  skip_slow()
 
   # create a dummy R package
   project <- renv_tests_scope()
@@ -25,19 +20,8 @@ test_that("renv can be vendored into an R package", {
   writeLines(desc, con = "DESCRIPTION")
   file.create("NAMESPACE")
 
-  # create dummy remote
-  remote <- list(
-    Package   = "renv",
-    Version   = "1.0.0",
-    RemoteSha = "abcd1234"
-  )
-
   # vendor renv
-  renv_vendor_impl(
-    remote  = remote,
-    sources = sources,
-    project = project
-  )
+  vendor()
 
   # make sure renv is initializes in .onLoad()
   code <- heredoc('

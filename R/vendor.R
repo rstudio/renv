@@ -31,20 +31,6 @@
 vendor <- function(version = "main", project = getwd()) {
   renv_scope_error_handler()
 
-  # resolve renv remote
-  spec <- sprintf("rstudio/renv@%s", version)
-  remote <- renv_remotes_resolve(spec)
-
-  # perform vendor
-  renv_vendor_impl(
-    remote  = remote,
-    sources = NULL,
-    project = project
-  )
-}
-
-renv_vendor_impl <- function(remote, sources, project) {
-
   # validate project is a package
   descpath <- file.path(project, "DESCRIPTION")
   if (!file.exists(descpath)) {
@@ -53,7 +39,11 @@ renv_vendor_impl <- function(remote, sources, project) {
   }
 
   # retrieve package sources
-  sources <- sources %||% renv_vendor_sources(remote)
+  sources <- renv_vendor_sources(version)
+
+  # compute package remote
+  spec <- sprintf("rstudio/renv@%s", version)
+  remote <- renv_remotes_resolve(spec)
 
   # build script header
   header <- renv_vendor_header(remote)
@@ -171,21 +161,13 @@ renv_vendor_imports <- function() {
 
 }
 
-renv_vendor_sources <- function(remote) {
+renv_vendor_sources <- function(version) {
 
   # retrieve renv
-  renv_scope_restore(
-    library  = renv_libpaths_active(),
-    packages = "renv",
-    records  = list(renv = remote)
-  )
-
-  records <- retrieve("renv")
+  tarball <- renv_bootstrap_download_github(version = version)
 
   # extract downloaded sources
-  tarball <- records[["renv"]]$Path
   untarred <- tempfile("renv-vendor-")
-  ensure_directory(untarred)
   untar(tarball, exdir = untarred)
 
   # the package itself will exist as a folder within 'exdir'
