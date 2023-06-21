@@ -212,8 +212,10 @@ renv_package_augment_description <- function(path, remotes) {
 renv_package_augment_metadata <- function(path, remotes) {
 
   metapath <- file.path(path, "Meta/package.rds")
-  meta <- readRDS(metapath)
+  if (!file.exists(metapath))
+    return(FALSE)
 
+  meta <- readRDS(metapath)
   before <- as.list(meta$DESCRIPTION)
   after <- renv_package_augment_impl(before, remotes)
   if (identical(before, after))
