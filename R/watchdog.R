@@ -115,11 +115,15 @@ renv_watchdog_start_impl <- function() {
 
   # wait for connection from watchdog server
   dlog("watchdog", "watchdog process launched; waiting for message")
-  conn <- renv_socket_accept(socket, open = "rb", timeout = 10)
-  defer(close(conn))
+  conn <- catch(renv_socket_accept(socket, open = "rb", timeout = 10))
+  if (inherits(conn, "error")) {
+    dlog("watchdog", paste("error connecting to watchdog:", conditionMessage(conn)))
+    return(FALSE)
+  }
 
   # store information about the running process
   the$watchdog_process <- unserialize(conn)
+  close(conn)
 
   # return TRUE to indicate process was started
   dlog("watchdog", "watchdog message received [pid == %i]", the$watchdog_process$pid)
