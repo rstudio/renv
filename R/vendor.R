@@ -185,6 +185,7 @@ renv_vendor_sources <- function(remote) {
   # extract downloaded sources
   tarball <- records[["renv"]]$Path
   untarred <- tempfile("renv-vendor-")
+  ensure_directory(untarred)
   untar(tarball, exdir = untarred)
 
   # the package itself will exist as a folder within 'exdir'
