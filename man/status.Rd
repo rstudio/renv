@@ -48,6 +48,39 @@ it invisibly returns a list containing the following components:
 Report differences between the project's lockfile and the current state of
 the project's library (if any).
 }
+\section{Missing packages}{
+First resolve any problems with packages that aren’t installed and then call
+\code{renv::status()} again. This is important do to first because if any packages
+are missing we can’t tell for a sure that a package isn’t used; it might be
+a dependency that we don’t know about.
+
+There are four cases:
+\itemize{
+\item If it’s used and recorded, call \code{renv::restore()} to install the version
+specified in the lockfile.
+\item If it’s used and not recorded, call \code{renv::install()} to install it
+from CRAN or elsewhere.
+\item If it’s not used and recorded, call \code{renv::snapshot()} to
+remove it from the lockfile.
+\item If it's not used and not recorded, there's nothing to do. This the most
+common state because you only use a small fraction of all available
+packages in any one project.
+}
+}
+
+\section{Lockfile vs \code{dependencies()}}{
+Now we can resolve problems, with installed packages. This basically amounts
+to calling \code{snapshot()} because there are four cases:
+\itemize{
+\item If it’s used, and recorded, it’s ok.
+\item If it’s used, and not recorded, call \code{renv::snapshot()} to add it to the
+lockfile.
+\item If it’s not used and recorded, call \code{renv::snapshot()} to remove
+it from the lockfile.
+\item If it’s not used and not recorded, it’s also ok.
+}
+}
+
 \examples{
 
 \dontrun{

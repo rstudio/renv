@@ -1,65 +1,31 @@
-# not installed/recorded/used
+# reports synchronisation problems with non-installed packages
 
     Code
       status()
     Output
-      The following packages are recorded in the lockfile, but not installed:
+      The following packages are out of sync:
       
-      - bread [1.0.0]
+       package installed recorded used
+       bread   n         n        y   
+       egg     n         y        y   
+       oatmeal n         y        ?   
       
-      Use `renv::restore()` to restore the packages recorded in the lockfile.
-      
+      See ?status() for advice
 
-# installed/not recorded/used
-
-    Code
-      status()
-    Output
-      The following package(s) are installed, but not recorded in the lockfile:
-      
-      - bread [1.0.0]
-      
-      Use `renv::snapshot()` to add these packages to the lockfile.
-      
-
-# not installed/*/used
+# reports synchronisation problems with installed packages
 
     Code
       status()
     Output
-      The following packages are used in this project, but not installed:
+      The following packages are out of sync:
       
-      - bread
+       package installed recorded used
+       bread   y         n        y   
+       egg     y         y        n   
       
-      Consider installing these packages -- for example, with `renv::install()`.
-      Use `renv::status()` afterwards to re-assess the project state.
-      
+      See ?status() for advice
 
----
-
-    Code
-      status()
-    Output
-      The following packages are recorded in the lockfile, but not installed:
-      
-      - bread [1.0.0]
-      
-      Use `renv::restore()` to restore the packages recorded in the lockfile.
-      
-
-# */recorded/not used
-
-    Code
-      status()
-    Output
-      The following packages are recorded in the lockfile, but do not appear to be used in this project:
-      
-      - egg [1.0.0]
-      
-      Use `renv::snapshot()` if you'd like to remove these packages from the lockfile.
-      
-
-# other changes
+# reports version differences
 
     Code
       status()

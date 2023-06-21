@@ -3,14 +3,14 @@
     Code
       status()
     Output
-      The following package(s) are installed, but not recorded in the lockfile:
+      The following packages are out of sync:
       
-      - BiocGenerics [<version>]
-      - BiocManager  [<version>]
-      - BiocVersion  [<version>]
+       package      installed recorded used
+       BiocGenerics y         n        y   
+       BiocManager  y         n        y   
+       BiocVersion  y         n        y   
       
-      Use `renv::snapshot()` to add these packages to the lockfile.
-      
+      See ?status() for advice
 
 ---
 

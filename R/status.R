@@ -4,7 +4,48 @@ the$status_running <- FALSE
 #' Report differences between lockfile and project library
 #'
 #' Report differences between the project's lockfile and the current state of
-#' the project's library (if any).
+#' the project's library (if any). `status()` will report all problems but it's
+#' usually best to resolve them in the order described below, re-calling
+#' `status()` after each step.
+#'
+#' # Missing packages
+#'
+#' First resolve any problems with packages that aren’t installed and then call
+#' `renv::status()` again. This is important do to first because if any packages
+#' are missing we can’t tell for a sure that a package isn’t used; it might be
+#' a dependency that we don’t know about.
+#'
+#' There are four cases:
+#'
+#' * If it’s used and recorded, call `renv::restore()` to install the version
+#'   specified in the lockfile.
+#' * If it’s used and not recorded, call `renv::install()` to install it
+#'   from CRAN or elsewhere.
+#' * If it’s not used and recorded, call `renv::snapshot()` to
+#'   remove it from the lockfile.
+#' * If it's not used and not recorded, there's nothing to do. This the most
+#'   common state because you only use a small fraction of all available
+#'   packages in any one project.
+#'
+#' # Lockfile vs `dependencies()`
+#'
+#' Now we can resolve problems, with installed packages. This basically amounts
+#' to calling `snapshot()` because there are four cases:
+#'
+#' * If it’s used, and recorded, it’s ok.
+#' * If it’s used, and not recorded, call `renv::snapshot()` to add it to the
+#'   lockfile.
+#' * If it’s not used and recorded, call `renv::snapshot()` to remove
+#'   it from the lockfile.
+#' * If it’s not used and not recorded, it’s also ok.
+#'
+#' # Inconsistent sources
+#'
+#' The final problem to resolve is any inconsitency between the version/source
+#' of each package recorded in the lockfile and installed in your library.
+#' You'll want to either call `renv::restore()` if the lockfile is the source
+#' of truth and you want to update your library, or `renv::snapshot()` if
+#' the library is the source of truth and you want to update your lockfile.
 #'
 #' @inherit renv-params
 #'
@@ -74,17 +115,22 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   if (!ok)
     return(default)
 
-  # get all dependencies, including transitive
-  dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
-  packages <- sort(union(dependencies, "renv"))
-  paths <- renv_package_dependencies(packages, project = project)
-  packages <- as.character(names(paths))
-
   # get lockfile records
   lockfile <- renv_lockfile_records(renv_lockfile_read(lockpath))
 
   # get library records
   library <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+
+  # get all dependencies, including transitive
+  dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
+  packages <- sort(union(dependencies, "renv"))
+  paths <- renv_package_dependencies(packages, project = project)
+  packages <- as.character(names(paths))
+  # projects will implicitly depend on BiocManager & BiocVersion if any
+  # Bioconductor packages are in use
+  pkg_sources <- extract_chr(keep(library, packages), "Source")
+  if ("Bioconductor" %in% pkg_sources)
+    packages <- union(packages, renv_bioconductor_manager())
 
   # remove ignored packages
   ignored <- c(
@@ -100,7 +146,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     project      = project,
     lockfile     = lockfile,
     library      = library,
-    packages     = packages
+    used         = packages
   )
 
   if (sources) {
@@ -158,116 +204,43 @@ renv_status_check_unknown_sources <- function(project, lockfile) {
 renv_status_check_synchronized <- function(project,
                                            lockfile,
                                            library,
-                                           packages)
-{
-  # projects will implicitly depend on BiocManager & BiocVersion if any
-  # Bioconductor packages are in use
-  sources <- extract_chr(keep(library, packages), "Source")
-  if ("Bioconductor" %in% sources)
-    packages <- union(packages, renv_bioconductor_manager())
+                                           used)
+  {
 
-  # missing dependencies -------------------------------------------------------
-  # Must return early because `packages` will be incomplete making later
-  # reports confusing
-  missing <- setdiff(packages, names(library))
-  if (length(missing)) {
 
-    lockmsg <- "The following packages are recorded in the lockfile, but not installed:"
-    usedmsg <- "The following packages are used in this project, but not installed:"
-    restoremsg <- "Use `renv::restore()` to restore the packages recorded in the lockfile."
-    installmsg <- "Consider installing these packages -- for example, with `renv::install()`."
-    statusmsg <- "Use `renv::status()` afterwards to re-assess the project state."
+  packages <- sort(unique(c(names(library), names(lockfile), used)))
 
-    # if these packages are in the lockfile, report those records
-    if (all(missing %in% names(lockfile))) {
+  status <- data.frame(
+    package = packages,
+    installed = packages %in% names(library),
+    recorded = packages %in% names(lockfile),
+    used = packages %in% used
+  )
 
-      records <- keep(lockfile, missing)
-      renv_pretty_print_records(
-        records,
-        preamble  = lockmsg,
-        postamble = restoremsg
-      )
+  pkg_ok <- status$installed & (status$used == status$recorded)
+  ok <- all(pkg_ok)
+  if (!ok && renv_verbose()) {
 
-      return(FALSE)
+    problems <- status[!pkg_ok, , drop = FALSE]
+    # If any packages are not installed, we don't know for sure what's used
+    # because our dependency graph is incomplete
+    missing <- any(!status$installed)
+    status$used <- ifelse(status$used, "y", if (missing) "?" else "n")
 
-    }
+    status$installed <- ifelse(status$installed, "y", "n")
+    status$recorded <- ifelse(status$recorded, "y", "n")
 
-    # otherwise, try to report intelligently
-    postamble <- if (any(missing %in% names(lockfile))) {
-      c(restoremsg, statusmsg)
-    } else {
-      c(installmsg, statusmsg)
-    }
-
-    renv_pretty_print(
-      sort(missing),
-      preamble  = usedmsg,
-      postamble = postamble
-    )
-
-    return(FALSE)
-
+    writef("The following packages are out of sync:")
+    writef()
+    print(status[!pkg_ok, , drop = FALSE], row.names = FALSE, right = FALSE)
+    writef()
+    writef("See ?status() for advice")
   }
-
-  # flag set to FALSE if any of the below checks report out-of-sync
-  ok <- TRUE
-
-  # not installed/recorded/used ------------------------------------------------
-  records <- lockfile %>%
-    exclude(names(library)) %>%
-    keep(packages)
-
-  if (length(records)) {
-
-    renv_pretty_print_records(
-      records,
-      "The following package(s) are recorded in the lockfile, but not installed:",
-      "Use `renv::restore()` to install these packages."
-    )
-
-    ok <- FALSE
-
-  }
-
-  # installed/not recorded/used ------------------------------------------------
-  records <- library %>%
-    exclude(names(lockfile)) %>%
-    keep(packages)
-
-  if (length(records)) {
-
-    renv_pretty_print_records(
-      records,
-      "The following package(s) are installed, but not recorded in the lockfile:",
-      "Use `renv::snapshot()` to add these packages to the lockfile."
-    )
-
-    ok <- FALSE
-
-  }
-
-  # */recorded/not used --------------------------------------------------------
-  records <- lockfile %>% exclude(packages)
-  if (length(records)) {
-
-    renv_pretty_print_records(
-      records,
-      preamble =
-        "The following packages are recorded in the lockfile, but do not appear to be used in this project:",
-      postamble =
-        "Use `renv::snapshot()` if you'd like to remove these packages from the lockfile."
-    )
-
-    ok <- FALSE
-
-  }
-
-  # */not recorded/not used ----------------------------------------------------
-  # No action; it's okay if some auxiliary packages are installed.
 
   # other changes, i.e. different version/source -------------------------------
-  actions <- renv_lockfile_diff_packages(lockfile, library)
+  actions <- renv_lockfile_diff_packages(library, lockfile)
   rest <- c("upgrade", "downgrade", "crossgrade")
+
   if (any(rest %in% actions)) {
 
     matches <- actions[actions %in% rest]

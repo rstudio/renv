@@ -1,48 +1,30 @@
-test_that("not installed/recorded/used", {
+test_that("reports synchronisation problems with non-installed packages", {
 
-  renv_tests_scope("bread")
+  renv_tests_scope()
   init()
-  snapshot()
-  remove("bread")
+
+  writeLines(c("library(egg)", "library(bread)"), con = "script.R")
+  record("egg")
+  record("oatmeal")
 
   expect_snapshot(status())
 
 })
 
-test_that("installed/not recorded/used", {
+test_that("reports synchronisation problems with installed packages", {
 
   renv_tests_scope()
   init()
-  install("bread")
+  install(c("egg", "bread"))
+
   writeLines("library(bread)", con = "script.R")
-
-  expect_snapshot(status())
-
-})
-
-test_that("not installed/*/used", {
-
-  renv_tests_scope()
-  init()
-  writeLines("library(bread)", con = "script.R")
-  expect_snapshot(status())
-
-  record("bread")
-  expect_snapshot(status())
-
-})
-
-test_that("*/recorded/not used", {
-
-  renv_tests_scope()
-  init()
   record("egg")
 
   expect_snapshot(status())
 
 })
 
-test_that("other changes", {
+test_that("reports version differences", {
 
   renv_tests_scope(c("egg", "oatmeal"))
   init()
