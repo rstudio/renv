@@ -519,13 +519,14 @@ take <- function(data, index = NULL) {
 }
 
 cancel <- function() {
+
   renv_snapshot_auto_suppress_next()
-  if (is_testing()) {
+  if (is_testing())
     stop("Operation canceled", call. = FALSE)
-  } else {
-    message("* Operation canceled.")
-    invokeRestart("abort")
-  }
+
+  message("* Operation canceled.")
+  invokeRestart("abort")
+
 }
 
 cancel_if <- function(cnd) {
@@ -586,9 +587,9 @@ timer <- function(units = "secs") {
 
 }
 
-renv <- function() {
+summon <- function() {
   envir <- do.call(attach, list(what = NULL, name = "renv"))
-  renv <- renv_namespace_load("renv")
+  renv <- renv_envir_self()
   list2env(as.list(renv), envir = envir)
 }
 

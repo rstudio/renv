@@ -6,7 +6,7 @@ test_that("the watchdog process acquires and releases locks as expected", {
 
   script <- renv_test_code({
 
-    renv:::renv()
+    renv:::summon()
 
     path <- tempfile()
     renv_watchdog_notify("LockAcquired", list(path = path))
@@ -48,7 +48,7 @@ test_that("the watchdog process releases locks from killed processes", {
 
   script <- renv_test_code({
 
-    renv:::renv()
+    renv:::summon()
 
     # acquire lock in child process
     renv_scope_lock(path)

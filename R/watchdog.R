@@ -94,8 +94,10 @@ renv_watchdog_start_impl <- function() {
   script <- renv_scope_tempfile("renv-watchdog-", fileext = ".R")
   code <- substitute({
     client <- list(pid = pid, port = port)
-    asNamespace("renv")$renv_watchdog_server_start(client)
-  }, list(pid = Sys.getpid(), port = port))
+    host <- asNamespace(.packageName)
+    renv <- if (!is.null(host$renv)) host$renv else host
+    renv$renv_watchdog_server_start(client)
+  }, list(pid = Sys.getpid(), port = port, .packageName = .packageName))
   writeLines(deparse(code), con = script)
 
   # debug logging
@@ -103,7 +105,6 @@ renv_watchdog_start_impl <- function() {
   stdout <- stderr <- if (truthy(debugging)) "" else FALSE
 
   # launch the watchdog
-  # TODO: How do we make this work when running tests?
   system2(
     command = R(),
     args = c("--vanilla", "-s", "-f", renv_shell_path(script)),

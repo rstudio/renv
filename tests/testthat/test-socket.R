@@ -9,7 +9,7 @@ test_that("we can communicate with a large number of child processes", {
   defer(close(server$socket))
 
   script <- renv_test_code({
-    renv:::renv()
+    renv:::summon()
     conn <- renv_socket_connect(port, open = "wb")
     defer(close(conn))
     serialize(Sys.getpid(), connection = conn)

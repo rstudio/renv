@@ -175,7 +175,7 @@ test_that("multiple renv processes successfully acquire, release locks", {
 
     code = {
 
-      renv:::renv()
+      renv:::summon()
 
       # wait for start file
       wait_until(file.exists, start)

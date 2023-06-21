@@ -83,7 +83,7 @@ test_that("multiple processes can attempt to acquire the sandbox", {
   project <- renv_tests_scope()
 
   script <- renv_test_code({
-    renv:::renv()
+    renv:::summon()
     renv_sandbox_activate(project)
     conn <- renv_socket_connect(port = port, open = "wb")
     defer(close(conn))
