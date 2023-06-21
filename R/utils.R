@@ -70,22 +70,18 @@ case <- function(...) {
     if (!inherits(dot, "formula"))
       return(dot)
 
-    else if (length(dot) == 2) {
-      expr <- dot[[2]]
-      return(eval(expr, envir = environment(dot)))
+    # use delayed assignments below so we can allow return statements to
+    # be handled in the lexical scope where they were defined
+    if (length(dot) == 2L) {
+      do.call(delayedAssign, list("expr", dot[[2L]], eval.env = environment(dot)))
+      return(expr)
     }
 
-    else {
+    do.call(delayedAssign, list("cond", dot[[2L]], eval.env = environment(dot)))
+    do.call(delayedAssign, list("expr", dot[[3L]], eval.env = environment(dot)))
+    if (cond) return(expr)
 
-      cond <- dot[[2]]
-      expr <- dot[[3]]
-      if (eval(cond, envir = environment(dot)))
-        return(eval(expr, envir = environment(dot)))
-
-    }
   }
-
-  NULL
 
 }
 

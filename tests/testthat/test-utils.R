@@ -1,4 +1,20 @@
 
+test_that("case() handles control flow as expected", {
+
+  for (i in 1:3)
+    case(i == 2 ~ break)
+
+  expect_equal(i, 2)
+
+  value <- local({
+    case(FALSE ~ stop(), TRUE ~ return(42))
+    24
+  })
+
+  expect_equal(value, 42)
+
+})
+
 test_that("common utils work as expected", {
   expect_equal(lines(1, 2, 3), "1\n2\n3")
 

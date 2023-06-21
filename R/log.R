@@ -1,82 +1,98 @@
 
+# the log level, indicating what severity of messages will be logged
 the$log_level <- 4L
+
+# the file to which log messages will be written
 the$log_file <- NULL
 
-log <- function(level, scope, fmt, ...) {
-  if (level >= the$log_level)
-    renv_log_impl(scope, fmt, ...)
-}
+# the scopes for which filtering will be enabled
+the$log_scopes <- NULL
 
 elog <- function(scope, fmt, ...) {
-  log(4L, scope, fmt, ...)
+  renv_log_impl(4L, scope, fmt, ...)
 }
 
 wlog <- function(scope, fmt, ...) {
-  log(3L, scope, fmt, ...)
+  renv_log_impl(3L, scope, fmt, ...)
 }
 
 ilog <- function(scope, fmt, ...) {
-  log(2L, scope, fmt, ...)
+  renv_log_impl(2L, scope, fmt, ...)
 }
 
 dlog <- function(scope, fmt, ...) {
-  log(1L, scope, fmt, ...)
+  renv_log_impl(1L, scope, fmt, ...)
 }
 
 
-renv_log_impl <- function(scope, fmt, ...) {
+renv_log_impl <- function(level, scope, fmt, ...) {
+
+  # check log level
+  if (level < the$log_level)
+    return()
+
+  # only include scopes matching the scopes
+  scopes <- the$log_scopes
+  if (is.character(scopes) && !scope %in% scopes)
+    return()
 
   # build message
   message <- sprintf(fmt, ...)
 
-  # annotate message
+  # annotate with prefix from scope, timestamp
   fmt <- "%sZ [renv-%i] %s: %s"
   now <- format(Sys.time(), format = "%Y-%m-%d %H:%M:%OS6", tz = "UTC")
   all <- sprintf(fmt, now, Sys.getpid(), scope, message)
 
   # write it out
-  file <- the$log_file %||% stderr()
-  cat(all, file = file, sep = "\n", append = TRUE)
+  cat(all, file = the$log_file, sep = "\n", append = TRUE)
 
 }
 
 renv_log_init <- function() {
-  renv_log_init_level()
-  renv_log_init_file()
+  the$log_level  <- renv_log_level()
+  the$log_file   <- renv_log_file()
+  the$log_scopes <- renv_log_scopes()
 }
 
-renv_log_init_level <- function() {
+renv_log_level <- function() {
 
-  # check for environment variable
   level <- Sys.getenv("RENV_LOG_LEVEL", unset = NA)
   if (is.na(level))
-    return()
+    return(4L)
 
-  # read and assign
-  override <- case(
+  case(
     level %in% c("4", "error",   "ERROR")   ~ 4L,
     level %in% c("3", "warning", "WARNING") ~ 3L,
     level %in% c("2", "info",    "INFO")    ~ 2L,
     level %in% c("1", "debug",   "DEBUG")   ~ 1L,
-    ~ warningf("ignoring invalid RENV_LOG_LEVEL environment variable")
+    ~ {
+      warningf("ignoring invalid RENV_LOG_LEVEL '%s'", level)
+      4L
+    }
   )
 
-  the$log_level <<- override
+}
+
+renv_log_file <- function() {
+
+  # check for log file
+  file <- Sys.getenv("RENV_LOG_FILE", unset = NA)
+  if (!is.na(file))
+    return(file)
+
+  # default to stderr, since it's unbuffered
+  stderr()
 
 }
 
-renv_log_init_file <- function() {
+renv_log_scopes <- function() {
 
-  the$log_file <<- local({
+  scopes <- Sys.getenv("RENV_LOG_SCOPES", unset = NA)
+  if (is.na(scopes))
+    return(NULL)
 
-    # check for log file
-    file <- Sys.getenv("RENV_LOG_FILE", unset = NA)
-    if (!is.na(file))
-      return(file)
-
-    # default to stderr, since it's unbuffered
-    stderr()
-
-  })
+  strsplit(scopes, ",", fixed = TRUE)[[1L]]
 
 }
+
