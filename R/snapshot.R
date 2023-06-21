@@ -1003,7 +1003,7 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
     ),
 
     # require user confirmation to proceed if there's a reported error
-    renv.dependencies.problem = function(cnd) {
+    renv.dependencies.problems = function(cnd) {
       if (interactive() && !proceed())
         cancel()
     },
