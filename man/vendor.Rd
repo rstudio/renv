@@ -4,15 +4,12 @@
 \alias{vendor}
 \title{Vendor renv in an R package}
 \usage{
-vendor(version = NULL, sources = NULL, project = getwd())
+vendor(version = "main", project = getwd())
 }
 \arguments{
-\item{version}{The version of renv to vendor. A Git tag targets a CRAN
-version and "main" references the latest development version of renv. Use
-a Git branch name or commit SHA to target other versions. Ignored when
-\code{sources} is non-\code{NULL}.}
-
-\item{sources}{The path to local renv sources to be vendored.}
+\item{version}{The version of renv to vendor. \code{renv} sources will be pulled
+from GitHub, and so \code{version} should refer to either a commit hash or a
+branch name.}
 
 \item{project}{The project in which renv should be vendored.}
 }

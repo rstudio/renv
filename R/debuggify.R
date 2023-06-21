@@ -25,13 +25,17 @@ renv_debuggify_dump <- function(cnd) {
 }
 
 renv_debuggify_dump_impl <- function(index, call, frame) {
-
   writeLines(header(paste("Frame", index)))
   vars <- ls(envir = frame, all.names = TRUE)
-  for (var in vars) {
-    printf("%s: ", var)
-    if (var == "expr") writef("<promise>") else str(frame[[var]])
-  }
+  lapply(vars, renv_debuggify_dump_impl_one, call = call, frame = frame)
   writeLines("")
+}
+
+renv_debuggify_dump_impl_one <- function(var, call, frame) {
+
+  if (var %in% c("expr"))
+    return("<promise>")
+
+  str(frame[[var]])
 
 }

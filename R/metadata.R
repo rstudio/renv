@@ -3,6 +3,10 @@
 # stand-alone installations of renv, or via an embedded initialize script for
 # vendored copies of renv.
 
+renv_metadata_create <- function(embedded, version, sha = NULL) {
+  list(embedded = embedded, version = version, sha = sha)
+}
+
 renv_metadata_embedded <- function() {
   the$metadata$embedded
 }
@@ -38,14 +42,16 @@ renv_metadata_version_friendly <- function(metadata = the$metadata) {
 
 renv_metadata_init <- function() {
 
-  # only done for non-embedded renv
-  if (exists("metadata", envir = the))
+  # if renv was embedded, then the$metadata should already be initialized
+  if (!is.null(the$metadata))
     return()
 
-  the$metadata <- list(
+  # renv doesn't appear to be embedded; initialize metadata based on the
+  # currently-loaded version of renv
+  the$metadata <- renv_metadata_create(
     embedded = FALSE,
     version  = renv_namespace_version("renv"),
-    sha = packageDescription("renv")[["RemoteSha"]]
+    sha      = packageDescription("renv")[["RemoteSha"]]
   )
 
 }

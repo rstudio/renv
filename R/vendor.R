@@ -20,22 +20,30 @@
 #' need to rely on renv internal functions, we strongly recommend testing
 #' your usages of these functions to avoid potential breakage.
 #'
-#' @param version The version of renv to vendor. A Git tag targets a CRAN
-#'   version and "main" references the latest development version of renv. Use
-#'   a Git branch name or commit SHA to target other versions. Ignored when
-#'   `sources` is non-`NULL`.
-#'
-#' @param sources The path to local renv sources to be vendored.
+#' @param version The version of renv to vendor. `renv` sources will be pulled
+#'   from GitHub, and so `version` should refer to either a commit hash or a
+#'   branch name.
 #'
 #' @param project The project in which renv should be vendored.
 #'
 #' @keywords internal
 #'
-vendor <- function(version    = NULL,
-                   sources    = NULL,
-                   project    = getwd())
-{
+vendor <- function(version = "main", project = getwd()) {
   renv_scope_error_handler()
+
+  # resolve renv remote
+  spec <- sprintf("rstudio/renv@%s", version)
+  remote <- renv_remotes_resolve(spec)
+
+  # perform vendor
+  renv_vendor_impl(
+    remote  = remote,
+    sources = NULL,
+    project = project
+  )
+}
+
+renv_vendor_impl <- function(remote, sources, project) {
 
   # validate project is a package
   descpath <- file.path(project, "DESCRIPTION")
@@ -44,17 +52,11 @@ vendor <- function(version    = NULL,
     stopf(fmt, renv_path_pretty(project))
   }
 
-  # get renv sources
-  if (is.null(sources)) {
-    if (is.null(version)) {
-      stop("Specify an renv version or a path to renv sources")
-    }
-    sources <- renv_vendor_sources(version)
-  }
+  # retrieve package sources
+  sources <- sources %||% renv_vendor_sources(remote)
 
-  # re-compute renv version from sources
-  version <- renv_description_read(path = sources, field = "Version")
-  header <- renv_vendor_header(version)
+  # build script header
+  header <- renv_vendor_header(remote)
 
   # create the renv script itself
   embed <- renv_vendor_create(
@@ -64,7 +66,7 @@ vendor <- function(version    = NULL,
   )
 
   # create the loader
-  loader <- renv_vendor_loader(project, header)
+  loader <- renv_vendor_loader(project, remote, header)
 
   # let the user know what just happened
   template <- heredoc("
@@ -80,7 +82,6 @@ vendor <- function(version    = NULL,
   writef(template, renv_path_pretty(embed), renv_path_pretty(loader))
 
   invisible(TRUE)
-
 }
 
 renv_vendor_create <- function(project, sources, header) {
@@ -110,7 +111,7 @@ renv_vendor_create <- function(project, sources, header) {
 
 }
 
-renv_vendor_loader <- function(project, header) {
+renv_vendor_loader <- function(project, remote, header) {
 
   source <- system.file("resources/vendor/renv.R", package = "renv")
   template <- readLines(source, warn = FALSE)
@@ -118,12 +119,23 @@ renv_vendor_loader <- function(project, header) {
   # replace '..imports..' with the imports we use
   imports <- renv_vendor_imports()
 
-  metadata <- as.list(the$metadata)
-  metadata$embedded <- TRUE
+  # create metadata for the embedded version
+  metadata <- renv_metadata_create(
+    embedded = TRUE,
+    version  = remote$Version,
+    sha      = remote$RemoteSha
+  )
+
+  # format metadata for template insertion
+  lines <- enum_chr(metadata, function(key, value) {
+    sprintf("    %s = %s", key, deparse(value))
+  })
+
+  inner <- paste(lines, collapse = ",\n")
 
   replacements <- list(
-    imports = imports,
-    metadata = deparse(metadata, width.cutoff = 500L)
+    imports  = imports,
+    metadata = paste(c("list(", inner, "  )"), collapse = "\n")
   )
   contents <- renv_template_replace(template, replacements, format = "..%s..")
 
@@ -159,29 +171,38 @@ renv_vendor_imports <- function() {
 
 }
 
-renv_vendor_sources <- function(version) {
+renv_vendor_sources <- function(remote) {
 
-  tarball <- renv_bootstrap_download_github(version)
-  if (!is.character(tarball) || !file.exists(tarball)) {
-    stop("Download failed")
-  }
-  defer(unlink(tarball))
+  # retrieve renv
+  renv_scope_restore(
+    library  = renv_libpaths_active(),
+    packages = "renv",
+    records  = list(renv = remote)
+  )
 
+  records <- retrieve("renv")
+
+  # extract downloaded sources
+  tarball <- records[["renv"]]$Path
   untarred <- tempfile("renv-vendor-")
   untar(tarball, exdir = untarred)
 
-  dir(untarred, full.names = TRUE)[[1]]
+  # the package itself will exist as a folder within 'exdir'
+  list.files(untarred, full.names = TRUE)[[1L]]
+
 }
 
-renv_vendor_header <- function(version) {
+renv_vendor_header <- function(remote) {
 
   template <- heredoc("
     #
-    # renv %s: A dependency management toolkit for R.
+    # renv %s [rstudio/renv#%s]: A dependency management toolkit for R.
     # Generated using `renv:::vendor()` at %s.
     #
   ")
 
-  sprintf(template, version, Sys.time())
+  version <- remote$Version
+  hash <- substring(remote$RemoteSha, 1L, 7L)
+  sprintf(template, version, hash, Sys.time())
 
 }

@@ -21,8 +21,8 @@ renv$initialize <- function() {
   script <- system.file("vendor/renv.R", package = .packageName)
   sys.source(script, envir = renv)
 
-  # set up metadata environment
-  renv$the$metadata <- as.environment(..metadata..)
+  # # initialize metadata
+  renv$the$metadata <- ..metadata..
 
   # run our load / attach hooks so internal state is initialized
   renv$renv_zzz_load()
