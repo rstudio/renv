@@ -136,7 +136,7 @@ renv_sandbox_generate <- function(sandbox) {
   }
 
   if (lock) {
-    dlog("sandbox", "Temporarily unlocking sandbox.")
+    dlog("sandbox", "unlocking sandbox")
     renv_sandbox_unlock(sandbox)
   }
 
@@ -158,7 +158,7 @@ renv_sandbox_generate <- function(sandbox) {
 
   # make the library unwritable again
   if (lock) {
-    dlog("sandbox", "Re-locking sandbox.")
+    dlog("sandbox", "locking sandbox")
     renv_sandbox_lock(sandbox)
   }
 

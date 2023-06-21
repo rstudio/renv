@@ -1153,13 +1153,13 @@ renv_retrieve_remotes_impl_one <- function(remote) {
     !identical(record, list(Package = package, Source = "Repository"))
 
   if (skip) {
-    dlog("retrieve", "Skipping remote '%s'; it's already been declared.", remote)
-    dlog("retrieve", "Using existing remote '%s'.", stringify(record))
+    dlog("retrieve", "skipping remote '%s'; it's already been declared", remote)
+    dlog("retrieve", "using existing remote '%s'", stringify(record))
     return(invisible(NULL))
   }
 
   # update the requested record
-  dlog("retrieve", "Using remote '%s'.", remote)
+  dlog("retrieve", "using remote '%s'", remote)
   state$records[[package]] <- resolved
 
   # mark the record as needing retrieval

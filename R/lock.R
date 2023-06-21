@@ -5,6 +5,7 @@ renv_lock_acquire <- function(path) {
 
   # normalize path
   path <- renv_lock_path(path)
+  dlog("lock", "%s [acquiring lock]", renv_path_pretty(path))
 
   # if we already have this lock, increment our counter
   count <- the$lock_registry[[path]] %||% 0L
