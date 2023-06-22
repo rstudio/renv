@@ -170,7 +170,9 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     renv_status_check_cache(project)
 
   if (synchronized)
-    writef("* The project is already synchronized with the lockfile.")
+    writef("The project is already synchronized with the lockfile.")
+  else
+    writef(c("", "See ?status() for advice on resolving the problems."))
 
   list(
     library      = library,
@@ -186,9 +188,9 @@ renv_status_check_missing_lockfile <- function(project, lockpath) {
     return(TRUE)
 
   if (identical(lockpath, renv_lockfile_path(project)))
-    writef("* This project has not yet been snapshotted -- 'renv.lock' does not exist.")
+    writef("This project has not yet been snapshotted -- 'renv.lock' does not exist.")
   else
-    writef("* Lockfile %s does not exist.", renv_path_pretty(lockpath))
+    writef("Lockfile %s does not exist.", renv_path_pretty(lockpath))
 
   FALSE
 
@@ -244,8 +246,6 @@ renv_status_check_synchronized <- function(project,
     writef("The following package(s) are out of sync:")
     writef()
     print(problems, row.names = FALSE, right = FALSE)
-    writef()
-    writef("See ?status() for advice")
   }
 
   # other changes, i.e. different version/source -------------------------------
@@ -260,13 +260,9 @@ renv_status_check_synchronized <- function(project,
     rlibs <- renv_lockfile_records(library)[names(matches)]
 
     renv_pretty_print_records_pair(
-      rlock,
-      rlibs,
       preamble = "The following package(s) are out of sync [lockfile -> library]:",
-      postamble = c(
-        "Use `renv::snapshot()` to save the state of your library to the lockfile.",
-        "Use `renv::restore()` to restore your library from the lockfile."
-      )
+      rlock,
+      rlibs
     )
 
     ok <- FALSE

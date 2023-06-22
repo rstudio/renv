@@ -10,7 +10,7 @@
        egg     n         y        y   
        oatmeal n         y        ?   
       
-      See ?status() for advice
+      See ?status() for advice on resolving the problems.
 
 # reports synchronisation problems with installed packages
 
@@ -23,7 +23,7 @@
        bread   y         n        y   
        egg     y         y        n   
       
-      See ?status() for advice
+      See ?status() for advice on resolving the problems.
 
 # reports version differences
 
@@ -36,7 +36,6 @@
       - egg       [repo: * -> CRAN; ver: 2.0.0 -> 1.0.0]
       - oatmeal   [repo: * -> CRAN; ver: 0.9.0 -> 1.0.0]
       
-      Use `renv::snapshot()` to save the state of your library to the lockfile.
-      Use `renv::restore()` to restore your library from the lockfile.
       
+      See ?status() for advice on resolving the problems.
 
