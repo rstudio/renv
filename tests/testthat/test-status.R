@@ -1,3 +1,26 @@
+test_that("reports if status not possible", {
+
+  renv_tests_scope()
+  expect_snapshot(status())
+
+  init(bare = TRUE)
+  expect_snapshot(status())
+
+  snapshot()
+  unlink("renv/library", recursive = TRUE)
+  expect_snapshot(status())
+
+})
+
+test_that("reports when project is synchronised", {
+
+  renv_tests_scope()
+  init()
+
+  expect_snapshot(status())
+
+})
+
 test_that("reports synchronisation problems with non-installed packages", {
 
   renv_tests_scope()

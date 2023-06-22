@@ -1,3 +1,31 @@
+# reports if status not possible
+
+    Code
+      status()
+    Output
+      This project has not yet been initialized.
+
+---
+
+    Code
+      status()
+    Output
+      This project has not yet been snapshotted -- 'renv.lock' does not exist.
+
+---
+
+    Code
+      status()
+    Output
+      Thixs project's private library is empty or does not exist.
+
+# reports when project is synchronised
+
+    Code
+      status()
+    Output
+      No problems found.
+
 # reports synchronisation problems with non-installed packages
 
     Code

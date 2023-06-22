@@ -111,7 +111,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
   # check to see if we've initialized this project
   if (!renv_project_initialized(project)) {
-    writef("* This project has not yet been initialized.")
+    writef("This project has not yet been initialized.")
     return(default)
   }
 
@@ -170,7 +170,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     renv_status_check_cache(project)
 
   if (synchronized)
-    writef("The project is already synchronized with the lockfile.")
+    writef("No problems found.")
   else
     writef(c("", "See ?status() for advice on resolving the problems."))
 
@@ -203,9 +203,9 @@ renv_status_check_missing_library <- function(project, libpaths) {
     return(TRUE)
 
   if (identical(projlib, renv_paths_library(project = project)))
-    writef("* This project's private library is empty or does not exist.")
+    writef("This project's private library is empty or does not exist.")
   else
-    writef("* Library %s is empty or does not exist.", renv_path_pretty(projlib))
+    writef("Library %s is empty or does not exist.", renv_path_pretty(projlib))
 
   FALSE
 
