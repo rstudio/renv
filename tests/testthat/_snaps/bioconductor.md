@@ -3,21 +3,21 @@
     Code
       status()
     Output
-      The following packages are out of sync:
+      The following package(s) are out of sync:
       
        package      installed recorded used
        BiocGenerics y         n        y   
        BiocManager  y         n        y   
        BiocVersion  y         n        y   
       
-      See ?status() for advice
+      See ?status() for advice on resolving the problems.
 
 ---
 
     Code
       status()
     Output
-      * The project is already synchronized with the lockfile.
+      No problems found.
 
 # auto-bioc install happens silently
 
