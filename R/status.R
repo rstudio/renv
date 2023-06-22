@@ -3,19 +3,21 @@ the$status_running <- FALSE
 
 #' Report differences between lockfile and project library
 #'
-#' Report differences between the project's lockfile and the current state of
-#' the project's library (if any). `status()` will report all problems but it's
-#' usually best to resolve them in the order described below, re-calling
-#' `status()` after each step.
+#' `status()` reports on problems cauased by inconsistencies across the project
+#' lockfile, library, and [dependencies()]. In general, you should strive to
+#' ensure that `status()` reports no problems, as this maximises your chances
+#' of succesfully `restore()`ing the project in the future or on another
+#' machine.  See the headings below for specific advice on resolving any
+#' problems revealed by `status()`.
 #'
 #' # Missing packages
 #'
-#' First resolve any problems with packages that aren’t installed and then call
-#' `renv::status()` again. This is important do to first because if any packages
-#' are missing we can’t tell for a sure that a package isn’t used; it might be
-#' a dependency that we don’t know about.
+#' First, ensure that all packages used by the project are installed. This is
+#' important do to first because if any packages are missing we can’t tell for
+#' sure that a package isn’t used; it might be a dependency that we don’t know
+#' about.
 #'
-#' There are four cases:
+#' There are four possibilities for an uninstalled package:
 #'
 #' * If it’s used and recorded, call `renv::restore()` to install the version
 #'   specified in the lockfile.
@@ -29,23 +31,33 @@ the$status_running <- FALSE
 #'
 #' # Lockfile vs `dependencies()`
 #'
-#' Now we can resolve problems, with installed packages. This basically amounts
-#' to calling `snapshot()` because there are four cases:
+#' Next we need to ensure that packages are recorded in the lockfile if and
+#' only if they are used by the project. Fixing problems of this nature only
+#' requires calling  `snapshot()` because there are four possibilities for
+#' a package:
 #'
-#' * If it’s used, and recorded, it’s ok.
-#' * If it’s used, and not recorded, call `renv::snapshot()` to add it to the
+#' * If it’s used and recorded, it’s ok.
+#' * If it’s used and not recorded, call `renv::snapshot()` to add it to the
 #'   lockfile.
-#' * If it’s not used and recorded, call `renv::snapshot()` to remove
+#' * If it’s not used but is recorded, call `renv::snapshot()` to remove
 #'   it from the lockfile.
-#' * If it’s not used and not recorded, it’s also ok.
+#' * If it’s not used and not recorded, it’s also ok, as it may be a
+#'   development dependency.
 #'
 #' # Inconsistent sources
 #'
-#' The final problem to resolve is any inconsitency between the version/source
-#' of each package recorded in the lockfile and installed in your library.
-#' You'll want to either call `renv::restore()` if the lockfile is the source
-#' of truth and you want to update your library, or `renv::snapshot()` if
-#' the library is the source of truth and you want to update your lockfile.
+#' The final problem to resolve is any inconsistencies between packages
+#' recorded in the lockfile and installed in your library. To fix these
+#' problems you'll need to either call `renv::restore()` or `renv::snapshot()`:
+#'
+#' * Call `renv::snapshot()` if your project code is working. This implies that
+#'   the library is correct and you need to update your lockfile.
+#' * Call `renv::restore()` if your project code isn't working. This probably
+#'   implies that you have the wrong package versions installed and you need
+#'   to restore from known good state in the lockfile.
+#'
+#' If you're not sure which case applies, it's generally safer to call
+#' `renv::snapshot()`
 #'
 #' @inherit renv-params
 #'

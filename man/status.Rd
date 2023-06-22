@@ -45,16 +45,20 @@ it invisibly returns a list containing the following components:
 }
 }
 \description{
-Report differences between the project's lockfile and the current state of
-the project's library (if any).
+\code{status()} reports on problems cauased by inconsistencies across the project
+lockfile, library, and \code{\link[=dependencies]{dependencies()}}. In general, you should strive to
+ensure that \code{status()} reports no problems, as this maximises your chances
+of succesfully \code{restore()}ing the project in the future or on another
+machine.  See the headings below for specific advice on resolving any
+problems revealed by \code{status()}.
 }
 \section{Missing packages}{
-First resolve any problems with packages that aren’t installed and then call
-\code{renv::status()} again. This is important do to first because if any packages
-are missing we can’t tell for a sure that a package isn’t used; it might be
-a dependency that we don’t know about.
+First, ensure that all packages used by the project are installed. This is
+important do to first because if any packages are missing we can’t tell for
+sure that a package isn’t used; it might be a dependency that we don’t know
+about.
 
-There are four cases:
+There are four possibilities for an uninstalled package:
 \itemize{
 \item If it’s used and recorded, call \code{renv::restore()} to install the version
 specified in the lockfile.
@@ -69,16 +73,35 @@ packages in any one project.
 }
 
 \section{Lockfile vs \code{dependencies()}}{
-Now we can resolve problems, with installed packages. This basically amounts
-to calling \code{snapshot()} because there are four cases:
+Next we need to ensure that packages are recorded in the lockfile if and
+only if they are used by the project. Fixing problems of this nature only
+requires calling  \code{snapshot()} because there are four possibilities for
+a package:
 \itemize{
-\item If it’s used, and recorded, it’s ok.
-\item If it’s used, and not recorded, call \code{renv::snapshot()} to add it to the
+\item If it’s used and recorded, it’s ok.
+\item If it’s used and not recorded, call \code{renv::snapshot()} to add it to the
 lockfile.
-\item If it’s not used and recorded, call \code{renv::snapshot()} to remove
+\item If it’s not used but is recorded, call \code{renv::snapshot()} to remove
 it from the lockfile.
-\item If it’s not used and not recorded, it’s also ok.
+\item If it’s not used and not recorded, it’s also ok, as it may be a
+development dependency.
 }
+}
+
+\section{Inconsistent sources}{
+The final problem to resolve is any inconsistencies between packages
+recorded in the lockfile and installed in your library. To fix these
+problems you'll need to either call \code{renv::restore()} or \code{renv::snapshot()}:
+\itemize{
+\item Call \code{renv::snapshot()} if your project code is working. This implies that
+the library is correct and you need to update your lockfile.
+\item Call \code{renv::restore()} if your project code isn't working. This probably
+implies that you have the wrong package versions installed and you need
+to restore from known good state in the lockfile.
+}
+
+If you're not sure which case applies, it's generally safer to call
+\code{renv::snapshot()}
 }
 
 \examples{
