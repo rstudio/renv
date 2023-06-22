@@ -232,19 +232,18 @@ renv_status_check_synchronized <- function(project,
   pkg_ok <- status$installed & (status$used == status$recorded)
   ok <- all(pkg_ok)
   if (!ok && renv_verbose()) {
-
-    problems <- status[!pkg_ok, , drop = FALSE]
     # If any packages are not installed, we don't know for sure what's used
     # because our dependency graph is incomplete
     missing <- any(!status$installed)
-    status$used <- ifelse(status$used, "y", if (missing) "?" else "n")
 
-    status$installed <- ifelse(status$installed, "y", "n")
-    status$recorded <- ifelse(status$recorded, "y", "n")
+    problems <- status[!pkg_ok, , drop = FALSE]
+    problems$installed <- ifelse(problems$installed, "y", "n")
+    problems$recorded <- ifelse(problems$recorded, "y", "n")
+    problems$used <- ifelse(problems$used, "y", if (missing) "?" else "n")
 
-    writef("The following packages are out of sync:")
+    writef("The following package(s) are out of sync:")
     writef()
-    print(status[!pkg_ok, , drop = FALSE], row.names = FALSE, right = FALSE)
+    print(problems, row.names = FALSE, right = FALSE)
     writef()
     writef("See ?status() for advice")
   }
