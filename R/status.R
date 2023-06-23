@@ -243,20 +243,16 @@ renv_status_check_synchronized <- function(lockfile, library, used) {
   }
 
   # other changes, i.e. different version/source -------------------------------
-  actions <- renv_lockfile_diff_packages(library, lockfile)
+  actions <- renv_lockfile_diff_packages(lockfile, library)
   rest <- c("upgrade", "downgrade", "crossgrade")
 
   if (any(rest %in% actions)) {
 
-    matches <- actions[actions %in% rest]
-
-    rlock <- renv_lockfile_records(lockfile)[names(matches)]
-    rlibs <- renv_lockfile_records(library)[names(matches)]
-
+    pkgs <- names(actions[actions %in% rest])
     renv_pretty_print_records_pair(
       preamble = "The following package(s) are out of sync [lockfile -> library]:",
-      rlock,
-      rlibs
+      lockfile[pkgs],
+      library[pkgs],
     )
 
     ok <- FALSE
