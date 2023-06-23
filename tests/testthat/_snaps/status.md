@@ -17,7 +17,7 @@
     Code
       status()
     Output
-      Thixs project's private library is empty or does not exist.
+      This project's private library is empty or does not exist.
 
 # reports when project is synchronised
 
