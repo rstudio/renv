@@ -406,8 +406,8 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
     fmt <- "%s [installed %s != latest %s]"
     msg <- sprintf(fmt, format(bad$Package), format(bad$Version), bad$Latest)
     renv_pretty_print(
-      msg,
       "The following Bioconductor packages appear to be from a separate Bioconductor release:",
+      msg,
       c(
         "renv may be unable to restore these packages.",
         paste("Bioconductor version:", version)
@@ -464,8 +464,8 @@ renv_snapshot_validate_dependencies_available <- function(project, lockfile, lib
   })
 
   renv_pretty_print(
-    sprintf("%s  [required by %s]", format(missing), usedby),
     "The following required packages are not installed:",
+    sprintf("%s  [required by %s]", format(missing), usedby),
     "Consider reinstalling these packages before snapshotting the lockfile."
   )
 
@@ -528,8 +528,8 @@ renv_snapshot_validate_dependencies_compatible <- function(project, lockfile, li
   fmt <- "%s requires %s, but version %s is installed"
   txt <- sprintf(fmt, format(package), format(requires), format(request))
   renv_pretty_print(
-    txt,
     "The following package(s) have unsatisfied dependencies:",
+    txt,
     "Consider updating the required dependencies as appropriate."
   )
 
@@ -609,8 +609,8 @@ renv_snapshot_library <- function(library = NULL,
     messages <- map_chr(broken, conditionMessage)
     text <- sprintf("'%s': %s", names(broken), messages)
     renv_pretty_print(
-      text,
       "renv was unable to snapshot the following packages:",
+      text,
       "These packages will likely need to be repaired and / or reinstalled."
     )
 
@@ -641,8 +641,8 @@ renv_snapshot_library_diagnose_broken_link <- function(library, paths) {
     return(paths)
 
   renv_pretty_print(
-    basename(paths)[broken],
     "The following package(s) have broken symlinks into the cache:",
+    basename(paths)[broken],
     "Use `renv::repair()` to try and reinstall these packages."
   )
 
@@ -658,8 +658,8 @@ renv_snapshot_library_diagnose_tempfile <- function(library, paths) {
     return(paths)
 
   renv_pretty_print(
-    map_chr(paths[missing], renv_path_pretty),
     "The following folder(s) appear to be left-over temporary directories:",
+    map_chr(paths[missing], renv_path_pretty),
     "Consider removing these folders from your R library."
   )
 
@@ -675,8 +675,8 @@ renv_snapshot_library_diagnose_missing_description <- function(library, paths) {
     return(paths)
 
   renv_pretty_print(
-    sprintf("%s [%s]", format(basename(paths[missing])), paths[missing]),
     "The following package(s) are missing their DESCRIPTION files:",
+    sprintf("%s [%s]", format(basename(paths[missing])), paths[missing]),
     c(
       "These may be left over from a prior, failed installation attempt.",
       "Consider removing or reinstalling these packages."
@@ -935,9 +935,9 @@ renv_snapshot_report_actions <- function(actions, old, new) {
     lhs <- renv_lockfile_records(old)
     rhs <- renv_lockfile_records(new)
     renv_pretty_print_records_pair(
+      "The following package(s) will be updated in the lockfile:",
       lhs[names(lhs) %in% names(actions)],
-      rhs[names(rhs) %in% names(actions)],
-      "The following package(s) will be updated in the lockfile:"
+      rhs[names(rhs) %in% names(actions)]
     )
   }
 
@@ -1095,8 +1095,8 @@ renv_snapshot_report_missing <- function(missing, type) {
   )
 
   renv_pretty_print(
-    values = sort(unique(missing)),
     preamble = preamble,
+    values = sort(unique(missing)),
     postamble = postamble
   )
 

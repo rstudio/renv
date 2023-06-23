@@ -73,7 +73,7 @@ rebuild <- function(packages  = NULL,
   else
     "The following package(s) will be reinstalled:"
 
-  renv_pretty_print_records(records[packages], preamble)
+  renv_pretty_print_records(preamble, records[packages])
   cancel_if(prompt && !proceed())
 
   # figure out rebuild parameter

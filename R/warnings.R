@@ -16,8 +16,8 @@ renv_warnings_unknown_sources <- function(records) {
     return(FALSE)
 
   renv_pretty_print_records(
-    records,
     "The following package(s) were installed from an unknown source:",
+    records,
     c(
       "renv may be unable to restore these packages in the future.",
       "Consider reinstalling these packages from a known source (e.g. CRAN)."

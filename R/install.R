@@ -718,8 +718,8 @@ renv_install_preflight_requirements <- function(records) {
   text <- sprintf(fmt, format(package), format(requires), format(actual))
   if (renv_verbose()) {
     renv_pretty_print(
-      text,
       "The following issues were discovered while preparing for installation:",
+      text,
       "Installation of these packages may not succeed."
     )
   }
@@ -741,8 +741,8 @@ renv_install_postamble <- function(packages) {
   loaded <- map_chr(packages, renv_namespace_version)
 
   renv_pretty_print(
-    packages[installed != loaded],
     c("", "The following loaded package(s) have been updated:"),
+    packages[installed != loaded],
     "Restart your R session to use the new versions."
   )
 
@@ -778,8 +778,8 @@ renv_install_preflight_permissions <- function(library) {
 
     # print it
     renv_pretty_print(
-      values = library,
       preamble = preamble,
+      values = library,
       postamble = postamble
     )
 
@@ -803,9 +803,9 @@ renv_install_preflight <- function(project, libpaths, records) {
 
 renv_install_report <- function(records, library) {
   renv_pretty_print_records(
+    "The following package(s) will be installed:",
     records,
-    preamble  = "The following package(s) will be installed:",
-    postamble = sprintf("These packages will be installed into %s.", renv_path_pretty(library))
+    sprintf("These packages will be installed into %s.", renv_path_pretty(library))
   )
 }
 

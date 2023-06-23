@@ -1,24 +1,19 @@
-# renv_pretty_print() creates bulleted list with optional preamble/postable
+# renv_pretty_print() creates bulleted list with optional postamble
 
     Code
-      renv_pretty_print(letters[1:3])
+      renv_pretty_print("preamble", letters[1:3])
     Output
-      - a
-      - b
-      - c
-      
-    Code
-      renv_pretty_print(letters[1:3], preamble = "before")
-    Output
-      before
+      preamble
       
       - a
       - b
       - c
       
     Code
-      renv_pretty_print(letters[1:3], postamble = "after")
+      renv_pretty_print("preamble", letters[1:3], postamble = "after")
     Output
+      preamble
+      
       - a
       - b
       - c

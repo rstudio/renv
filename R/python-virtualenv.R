@@ -95,10 +95,7 @@ renv_python_virtualenv_snapshot <- function(project, prompt, python) {
     return(FALSE)
   }
 
-  renv_pretty_print(
-    values   = after,
-    preamble = "The following will be written to requirements.txt:"
-  )
+  renv_pretty_print("The following will be written to requirements.txt:", after)
 
   cancel_if(prompt && !proceed())
 
@@ -126,10 +123,7 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
     return(FALSE)
   }
 
-  renv_pretty_print(
-    values   = diff,
-    preamble = "The following Python packages will be restored:"
-  )
+  renv_pretty_print("The following Python packages will be restored:", diff)
 
   cancel_if(prompt && !proceed())
 
