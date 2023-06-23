@@ -155,7 +155,6 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   library <- exclude(library, ignored)
 
   synchronized <- renv_status_check_synchronized(
-    project      = project,
     lockfile     = lockfile,
     library      = library,
     used         = packages
@@ -215,12 +214,7 @@ renv_status_check_unknown_sources <- function(project, lockfile) {
   renv_check_unknown_source(lockfile, project)
 }
 
-renv_status_check_synchronized <- function(project,
-                                           lockfile,
-                                           library,
-                                           used)
-  {
-
+renv_status_check_synchronized <- function(lockfile, library, used) {
 
   packages <- sort(unique(c(names(library), names(lockfile), used)))
 
