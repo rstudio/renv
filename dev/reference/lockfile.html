@@ -89,7 +89,13 @@
 <span></span>
 <span><span class="fu">lockfile_write</span><span class="op">(</span><span class="va">lockfile</span>, file <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">lockfile_modify</span><span class="op">(</span><span class="va">lockfile</span>, <span class="va">...</span>, remotes <span class="op">=</span> <span class="cn">NULL</span>, repos <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">lockfile_modify</span><span class="op">(</span></span>
+<span>  lockfile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  remotes <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  repos <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -151,8 +157,7 @@ directory is used instead.</p></dd>
 
 
 <dt>remotes</dt>
-<dd><p>A named <span style="R">R</span> list, mapping package names to the remote
-specifications to be recorded in the lockfile.</p></dd>
+<dd><p>An <span style="R">R</span> vector of remote specifications.</p></dd>
 
 
 <dt>repos</dt>
