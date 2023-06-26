@@ -1004,8 +1004,13 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
 
     # require user confirmation to proceed if there's a reported error
     renv.dependencies.problems = function(cnd) {
+
+      if (identical(config$dependency.errors(), "ignored"))
+        return()
+
       if (interactive() && !proceed())
         cancel()
+
     },
 
     # notify the user if we took a long time to discover dependencies

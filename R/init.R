@@ -1,4 +1,6 @@
 
+the$init_running <- FALSE
+
 #' Use renv in a project
 #'
 #' @description
@@ -75,6 +77,8 @@ init <- function(project = NULL,
   renv_scope_error_handler()
   renv_dots_check(...)
 
+  renv_scope_binding(the, "init_running", TRUE)
+
   project <- renv_path_normalize(project %||% getwd())
   renv_project_lock(project = project)
 
@@ -127,6 +131,7 @@ init <- function(project = NULL,
 
   # perform the action
   if (action == "init") {
+    renv_scope_options(renv.config.dependency.errors = "ignored")
     renv_imbue_impl(project)
     hydrate(library = library, prompt = FALSE, report = FALSE, project = project)
     snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
