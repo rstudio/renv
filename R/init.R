@@ -295,13 +295,8 @@ renv_init_repos <- function() {
   # if we're using the global CDN from RStudio, use PPM instead
   rstudio <- attr(repos, "RStudio", exact = TRUE)
   if (identical(rstudio, TRUE)) {
-    cran <- repos[["CRAN"]]
-    if (startswith(cran, "https://cran.rstudio.") ||
-        startswith(cran, "https://cran.posit."))
-    {
-      repos[["CRAN"]] <- config$ppm.url()
-      return(repos)
-    }
+    repos[["CRAN"]] <- config$ppm.url()
+    return(repos)
   }
 
   # if no repository was set, use PPM
