@@ -1,16 +1,12 @@
 
-renv_pretty_print <- function(values,
-                              preamble  = NULL,
-                              postamble = NULL)
-{
+renv_pretty_print <- function(preamble, values, postamble = NULL) {
+
   if (!renv_verbose() || empty(values))
     return()
 
   msg <- stack()
-  if (!is.null(preamble)) {
-    msg$push(paste(preamble, collapse = "\n"))
-    msg$push("")
-  }
+  msg$push(paste(preamble, collapse = "\n"))
+  msg$push("")
 
   msg$push(paste0("- ", values, collapse = "\n"))
 
@@ -37,9 +33,7 @@ renv_pretty_print_impl <- function(text) {
 
 }
 
-renv_pretty_print_records <- function(records,
-                                      preamble  = NULL,
-                                      postamble = NULL)
+renv_pretty_print_records <- function(preamble, records, postamble = NULL)
 {
   if (empty(records))
     return(invisible(NULL))
@@ -58,7 +52,7 @@ renv_pretty_print_records <- function(records,
   text <- sprintf("- %s [%s]", format(packages), descs)
 
   all <- c(
-    preamble, if (length(preamble)) "",
+    preamble, "",
     text, "",
     postamble, if (length(postamble)) ""
   )
@@ -66,16 +60,16 @@ renv_pretty_print_records <- function(records,
   renv_pretty_print_impl(all)
 }
 
-renv_pretty_print_records_pair <- function(old,
+renv_pretty_print_records_pair <- function(preamble,
+                                           old,
                                            new,
-                                           preamble  = NULL,
                                            postamble = NULL,
                                            formatter = NULL)
 {
   formatter <- formatter %||% renv_record_format_pair
 
   all <- c(
-    if (length(preamble)) c(preamble, ""),
+    c(preamble, ""),
     renv_pretty_print_records_pair_impl(old, new, formatter),
     if (length(postamble)) c(postamble, "")
   )

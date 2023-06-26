@@ -182,11 +182,7 @@ renv_status_check_synchronized <- function(project,
     if (all(missing %in% names(lockfile))) {
 
       records <- keep(lockfile, missing)
-      renv_pretty_print_records(
-        records,
-        preamble  = lockmsg,
-        postamble = restoremsg
-      )
+      renv_pretty_print_records(lockmsg, records, restoremsg)
 
       return(FALSE)
 
@@ -199,11 +195,7 @@ renv_status_check_synchronized <- function(project,
       c(installmsg, statusmsg)
     }
 
-    renv_pretty_print(
-      sort(missing),
-      preamble  = usedmsg,
-      postamble = postamble
-    )
+    renv_pretty_print(usedmsg, sort(missing), postamble)
 
     return(FALSE)
 
@@ -220,8 +212,8 @@ renv_status_check_synchronized <- function(project,
   if (length(records)) {
 
     renv_pretty_print_records(
-      records,
       "The following package(s) are recorded in the lockfile, but not installed:",
+      records,
       "Use `renv::restore()` to install these packages."
     )
 
@@ -237,8 +229,8 @@ renv_status_check_synchronized <- function(project,
   if (length(records)) {
 
     renv_pretty_print_records(
-      records,
       "The following package(s) are installed, but not recorded in the lockfile:",
+      records,
       "Use `renv::snapshot()` to add these packages to the lockfile."
     )
 
@@ -251,11 +243,9 @@ renv_status_check_synchronized <- function(project,
   if (length(records)) {
 
     renv_pretty_print_records(
+      "The following packages are recorded in the lockfile, but do not appear to be used in this project:",
       records,
-      preamble =
-        "The following packages are recorded in the lockfile, but do not appear to be used in this project:",
-      postamble =
-        "Use `renv::snapshot()` if you'd like to remove these packages from the lockfile."
+      "Use `renv::snapshot()` if you'd like to remove these packages from the lockfile."
     )
 
     ok <- FALSE
@@ -276,10 +266,10 @@ renv_status_check_synchronized <- function(project,
     rlibs <- renv_lockfile_records(library)[names(matches)]
 
     renv_pretty_print_records_pair(
+      "The following package(s) are out of sync [lockfile -> library]:",
       rlock,
       rlibs,
-      preamble = "The following package(s) are out of sync [lockfile -> library]:",
-      postamble = c(
+      c(
         "Use `renv::snapshot()` to save the state of your library to the lockfile.",
         "Use `renv::restore()` to restore your library from the lockfile."
       )

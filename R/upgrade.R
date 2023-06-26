@@ -66,8 +66,9 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   if (prompt || renv_verbose()) {
     renv_pretty_print_records_pair(
-      list(renv = old), list(renv = new),
       "A new version of the renv package will be installed:",
+      list(renv = old),
+      list(renv = new),
       "This project will use the newly-installed version of renv."
     )
   }

@@ -713,12 +713,9 @@ renv_load_check_description <- function(project) {
   values <- sprintf("[line %i is blank]", bad)
 
   renv_pretty_print(
-    values    = values,
-    preamble  = sprintf(
-      "%s contains blank lines:",
-      renv_path_pretty(descpath)
-    ),
-    postamble = c(
+    sprintf("%s contains blank lines:", renv_path_pretty(descpath)),
+    values,
+    c(
       "DESCRIPTION files cannot contain blank lines between fields.",
       "Please remove these blank lines from the file."
     )

@@ -177,8 +177,8 @@ renv_restore_run_actions <- function(project, actions, current, lockfile, rebuil
   diff <- diff[diff != "remove"]
   if (!empty(diff)) {
     renv_pretty_print_records(
-      records[names(diff)],
       "The dependency tree was repaired during package installation:",
+      records[names(diff)],
       "Call `renv::snapshot()` to capture these dependencies in the lockfile."
     )
   }
@@ -280,9 +280,9 @@ renv_restore_report_actions <- function(actions, current, lockfile) {
   lhs <- renv_lockfile_records(current)
   rhs <- renv_lockfile_records(lockfile)
   renv_pretty_print_records_pair(
+    "The following package(s) will be updated:",
     lhs[names(lhs) %in% names(actions)],
-    rhs[names(rhs) %in% names(actions)],
-    "The following package(s) will be updated:"
+    rhs[names(rhs) %in% names(actions)]
   )
 
 }

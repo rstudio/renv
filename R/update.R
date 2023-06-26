@@ -296,8 +296,8 @@ update <- function(packages = NULL,
 
     if (prompt || renv_verbose()) {
       renv_pretty_print(
-        missing,
         "The following package(s) are not currently installed:",
+        missing,
         "The latest available versions of these packages will be installed instead."
       )
     }
@@ -383,8 +383,8 @@ update <- function(packages = NULL,
       length(diff) != 1 ~ "* %i packages have updates available."
     )
 
-    writef(fmt, length(diff))
-    renv_updates_report(diff, old, new)
+    preamble <- sprintf(fmt, length(diff))
+    renv_updates_report(preamble, diff, old, new)
     return(invisible(renv_updates_create(diff, old, new)))
 
   }
@@ -445,8 +445,8 @@ renv_update_errors_emit_impl <- function(key, preamble, postamble) {
   })
 
   renv_pretty_print(
-    values = messages,
     preamble = preamble,
+    values = messages,
     postamble = postamble
   )
 

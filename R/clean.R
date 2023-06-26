@@ -130,10 +130,7 @@ renv_clean_library_tempdirs <- function(project, prompt) {
   # nocov start
   if (prompt || renv_verbose()) {
 
-    renv_pretty_print(
-      bad,
-      "The following directories will be removed:"
-    )
+    renv_pretty_print("The following directories will be removed:", bad)
 
     if (prompt && !proceed())
       return(FALSE)
@@ -180,8 +177,8 @@ renv_clean_system_library <- function(project, prompt) {
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      packages,
       "The following non-system packages are installed in the system library:",
+      packages,
       c(
         "Normally, only packages distributed with R should be installed in the system library.",
         "These packages will be removed.",
@@ -227,11 +224,11 @@ renv_clean_unused_packages <- function(project, prompt) {
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      removable,
       c(
         "The following packages are installed in the project library,",
         "but appear to be no longer used in your project."
       ),
+      removable,
       "These packages will be removed."
     )
 
@@ -272,8 +269,8 @@ renv_clean_package_locks <- function(project, prompt) {
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      basename(old),
       "The following stale package locks were discovered in your library:",
+      basename(old),
       "These locks will be removed."
     )
 
@@ -306,8 +303,8 @@ renv_clean_cache <- function(project, prompt) {
   if (any(missing)) {
 
     renv_pretty_print(
-      projlist[missing],
       "The following projects are monitored by renv, but no longer exist:",
+      projlist[missing],
       "These projects will be removed from renv's project list."
     )
 
@@ -342,8 +339,8 @@ renv_clean_cache <- function(project, prompt) {
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      renv_cache_format_path(diff),
       "The following packages are installed in the cache but no longer used:",
+      renv_cache_format_path(diff),
       "These packages will be removed."
     )
 

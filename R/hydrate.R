@@ -344,8 +344,8 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
     })
 
     renv_pretty_print(
-      text,
       "The following package(s) were not installed successfully:",
+      text,
       "You may need to manually download and install these packages."
     )
 
@@ -383,9 +383,9 @@ renv_hydrate_report <- function(packages, na, linkable) {
     }
 
     renv_pretty_print_records_pair(
+      preamble = preamble,
       old = list(),
       new = records,
-      preamble  = preamble,
       postamble = postamble,
       formatter = formatter
     )
@@ -394,9 +394,9 @@ renv_hydrate_report <- function(packages, na, linkable) {
 
   if (length(na)) {
     renv_pretty_print(
-      values    = csort(names(na)),
-      preamble  = "The following packages are used in this project, but not available locally:",
-      postamble = "renv will attempt to download and install these packages."
+      "The following packages are used in this project, but not available locally:",
+      csort(names(na)),
+      "renv will attempt to download and install these packages."
     )
   }
 

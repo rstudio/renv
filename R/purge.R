@@ -88,8 +88,8 @@ renv_purge_impl <- function(package,
   if (any(missing)) {
 
     renv_pretty_print(
-      paths[missing],
       "The following entries were not found in the cache:",
+      paths[missing],
       "They will be ignored."
     )
 
@@ -101,8 +101,8 @@ renv_purge_impl <- function(package,
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      renv_cache_format_path(paths),
-      "The following packages will be purged from the cache:"
+      "The following packages will be purged from the cache:",
+      renv_cache_format_path(paths)
     )
 
     cancel_if(prompt && !proceed())

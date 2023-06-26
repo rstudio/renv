@@ -1,9 +1,8 @@
 
-test_that("renv_pretty_print() creates bulleted list with optional preamble/postable", {
+test_that("renv_pretty_print() creates bulleted list with optional postamble", {
   expect_snapshot({
-    renv_pretty_print(letters[1:3])
-    renv_pretty_print(letters[1:3], preamble = "before")
-    renv_pretty_print(letters[1:3], postamble = "after")
+    renv_pretty_print("preamble", letters[1:3])
+    renv_pretty_print("preamble", letters[1:3], postamble = "after")
   })
 })
 
@@ -23,14 +22,14 @@ test_that("options(renv.pretty.print.emitter) is respected", {
   renv_scope_options(renv.verbose = TRUE)
 
   # regular pretty printer
-  expect_condition(renv_pretty_print(1), class = cls)
+  expect_condition(renv_pretty_print("preamble", 1), class = cls)
 
   # record printer
   lockfile <- renv_lockfile_create(project = getwd())
   records <- renv_lockfile_records(lockfile)
-  expect_condition(renv_pretty_print_records(records), class = cls)
+  expect_condition(renv_pretty_print_records(NULL, records), class = cls)
 
   # diff printer
-  expect_condition(renv_pretty_print_records_pair(records, records))
+  expect_condition(renv_pretty_print_records_pair(NULL, records, records))
 
 })
