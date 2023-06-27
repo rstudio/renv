@@ -323,13 +323,12 @@ renv_init_type <- function(project) {
 
     title = c(
       "This project contains a DESCRIPTION file.",
-      "DESCRIPTION files are often used to explicitly declare a project's R dependencies.",
-      "How would you like to declare R package dependencies in this project?"
+      "Which files should renv use for dependency discovery in this project?"
     ),
 
     choices = c(
-      explicit = "Take project dependencies only from the DESCRIPTION (explicit mode)",
-      implicit = "Use all files to determine the dependencies (implicit mode)"
+      explicit = "Use only the DESCRIPTION file. (explicit mode)",
+      implicit = "Use all files in this project. (implicit mode)"
     )
 
   )
@@ -337,7 +336,7 @@ renv_init_type <- function(project) {
   if (identical(choice, "cancel"))
     cancel()
 
-  writef("- Using '%s' snapshot type. Please see `?renv::snapshot` for more details.", choice)
+  writef("- Using '%s' snapshot type. Please see `?renv::snapshot` for more details.\n", choice)
   choice
 
 }
