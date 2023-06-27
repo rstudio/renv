@@ -328,8 +328,8 @@ renv_init_type <- function(project) {
     ),
 
     choices = c(
-      explicit = "I will record my project's package dependencies in the DESCRIPTION file.     (explicit mode)",
-      implicit = "I will let renv automatically determine the project's package dependencies.  (implicit mode)"
+      explicit = "Take project dependencies only from the DESCRIPTION (explicit mode)",
+      implicit = "Use all files to determine the dependencies (implicit mode)"
     )
 
   )
