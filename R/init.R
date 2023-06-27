@@ -313,6 +313,11 @@ renv_init_repos <- function() {
 
 renv_init_type <- function(project) {
 
+  # check if the user has already requested a snapshot type
+  type <- renv_settings_get(project, name = "snapshot.type", default = NULL)
+  if (!is.null(type))
+    return(type)
+
   # if we don't have a DESCRIPTION file, use the default
   if (!file.exists(file.path(project, "DESCRIPTION")))
     return(settings$snapshot.type(project = project))

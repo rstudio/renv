@@ -120,7 +120,7 @@ renv_settings_read_impl_json <- function(path) {
 
 }
 
-renv_settings_get <- function(project, name = NULL) {
+renv_settings_get <- function(project, name = NULL, default = NULL) {
 
   # when 'name' is NULL, return all settings
   if (is.null(name)) {
@@ -140,6 +140,10 @@ renv_settings_get <- function(project, name = NULL) {
   settings <- renv_settings_read(path)
   if (!is.null(settings))
     return(settings[[name]])
+
+  # if a 'default' value was provided, use it
+  if (!missing(default))
+    return(default)
 
   # no value recorded; use default
   renv_settings_default(name)

@@ -12,6 +12,7 @@
       Selection: 1
       
       - Using 'explicit' snapshot type. Please see `?renv::snapshot` for more details.
+      
       * Resolving missing dependencies ... 
       # Installing packages ---
       
