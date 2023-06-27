@@ -34,7 +34,7 @@
   a non-empty 'biocViews' field). (#934)
 
 * renv no longer attempts to query package repositories when checking
-  if a project is synchronzied on startup. (#812)
+  if a project is synchronized on startup. (#812)
 
 * `renv::update()` can now update packages installed from GitLab (#136) and 
   BitBucket (#1194).
