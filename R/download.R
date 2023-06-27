@@ -508,9 +508,16 @@ renv_download_auth_bitbucket <- function() {
 
 renv_download_auth_github <- function() {
 
-  pat <- Sys.getenv("GITHUB_PAT", unset = NA)
-  if (is.na(pat))
-    return(character())
+  if (renv_envvar_exists("GITHUB_PAT")) {
+    pat <- Sys.getenv("GITHUB_PAT")
+  } else {
+    token <- tryCatch(gitcreds::gitcreds_get(), error = function(e) NULL)
+    if (is.null(token)) {
+      return(character())
+    }
+
+    pat <- token$password
+  }
 
   c("Authorization" = paste("token", pat))
 
