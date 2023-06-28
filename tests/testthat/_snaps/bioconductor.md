@@ -3,7 +3,7 @@
     Code
       status()
     Output
-      The following package(s) are out of sync:
+      The following package(s) are inconsistent:
       
        package      installed recorded used
        BiocGenerics y         n        y   

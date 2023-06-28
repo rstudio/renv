@@ -45,11 +45,12 @@ the$status_running <- FALSE
 #' * If it’s not used and not recorded, it’s also ok, as it may be a
 #'   development dependency.
 #'
-#' # Inconsistent sources
+#' # Out-of-sync sources
 #'
-#' The final issue to resolve is any inconsistencies between packages
-#' recorded in the lockfile and installed in your library. To fix these
-#' issues you'll need to either call `renv::restore()` or `renv::snapshot()`:
+#' The final issue to resolve is any inconsistencies between the version of
+#' the package recorded in the lockfile and the version installed in your
+#' library. To fix these issues you'll need to either call `renv::restore()`
+#' or `renv::snapshot()`:
 #'
 #' * Call `renv::snapshot()` if your project code is working. This implies that
 #'   the library is correct and you need to update your lockfile.
@@ -150,11 +151,9 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   lockfile <- exclude(lockfile, ignored)
   library <- exclude(library, ignored)
 
-  synchronized <- renv_status_check_synchronized(
-    lockfile     = lockfile,
-    library      = library,
-    used         = packages
-  )
+  synchronized <-
+    renv_status_check_consistent(lockfile, library, packages) &&
+    renv_status_check_synchronized(lockfile, library)
 
   if (sources) {
     synchronized <- synchronized &&
@@ -210,7 +209,7 @@ renv_status_check_unknown_sources <- function(project, lockfile) {
   renv_check_unknown_source(lockfile, project)
 }
 
-renv_status_check_synchronized <- function(lockfile, library, used) {
+renv_status_check_consistent <- function(lockfile, library, used) {
 
   packages <- sort(unique(c(names(library), names(lockfile), used)))
 
@@ -222,8 +221,11 @@ renv_status_check_synchronized <- function(lockfile, library, used) {
   )
 
   pkg_ok <- status$installed & (status$used == status$recorded)
-  ok <- all(pkg_ok)
-  if (!ok && renv_verbose()) {
+  if (all(pkg_ok)) {
+    return(TRUE)
+  }
+
+  if (renv_verbose()) {
     # If any packages are not installed, we don't know for sure what's used
     # because our dependency graph is incomplete
     missing <- any(!status$installed)
@@ -233,29 +235,29 @@ renv_status_check_synchronized <- function(lockfile, library, used) {
     issues$recorded <- ifelse(issues$recorded, "y", "n")
     issues$used <- ifelse(issues$used, "y", if (missing) "?" else "n")
 
-    writef("The following package(s) are out of sync:")
+    writef("The following package(s) are inconsistent:")
     writef()
     print(issues, row.names = FALSE, right = FALSE)
   }
+  FALSE
+}
 
-  # other changes, i.e. different version/source -------------------------------
+renv_status_check_synchronized <- function(lockfile, library) {
   actions <- renv_lockfile_diff_packages(lockfile, library)
   rest <- c("upgrade", "downgrade", "crossgrade")
 
-  if (any(rest %in% actions)) {
-
-    pkgs <- names(actions[actions %in% rest])
-    renv_pretty_print_records_pair(
-      preamble = "The following package(s) are out of sync [lockfile -> library]:",
-      lockfile[pkgs],
-      library[pkgs],
-    )
-
-    ok <- FALSE
-
+  if (all(!rest %in% actions)) {
+    return(TRUE)
   }
 
-  ok
+  pkgs <- names(actions[actions %in% rest])
+  renv_pretty_print_records_pair(
+    preamble = "The following package(s) are out of sync [lockfile -> library]:",
+    lockfile[pkgs],
+    library[pkgs],
+  )
+
+  FALSE
 }
 
 renv_status_check_cache <- function(project) {

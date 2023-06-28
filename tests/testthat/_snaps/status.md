@@ -31,7 +31,7 @@
     Code
       status()
     Output
-      The following package(s) are out of sync:
+      The following package(s) are inconsistent:
       
        package installed recorded used
        bread   n         n        y   
@@ -45,7 +45,7 @@
     Code
       status()
     Output
-      The following package(s) are out of sync:
+      The following package(s) are inconsistent:
       
        package installed recorded used
        bread   y         n        y   

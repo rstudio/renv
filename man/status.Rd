@@ -90,10 +90,11 @@ development dependency.
 }
 }
 
-\section{Inconsistent sources}{
-The final issue to resolve is any inconsistencies between packages
-recorded in the lockfile and installed in your library. To fix these
-issues you'll need to either call \code{renv::restore()} or \code{renv::snapshot()}:
+\section{Out-of-sync sources}{
+The final issue to resolve is any inconsistencies between the version of
+the package recorded in the lockfile and the version installed in your
+library. To fix these issues you'll need to either call \code{renv::restore()}
+or \code{renv::snapshot()}:
 \itemize{
 \item Call \code{renv::snapshot()} if your project code is working. This implies that
 the library is correct and you need to update your lockfile.
