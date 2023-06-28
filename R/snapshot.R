@@ -964,10 +964,15 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
 
   type <- type %||% settings$snapshot.type(project = project)
 
-  dynamic(
+  packages <- dynamic(
     list(project = project, type = type, dev = dev),
     renv_snapshot_dependencies_impl(project, type, dev)
   )
+
+  if (!renv_bootstrap_tests_running())
+    packages <- unique(c(packages, "renv"))
+
+  packages
 
 }
 
