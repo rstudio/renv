@@ -1,14 +1,15 @@
 
 the$status_running <- FALSE
 
-#' Report differences between lockfile and project library
+#' Report inconsistencies between lockfile, library, and dependencies
 #'
-#' `status()` reports on problems cauased by inconsistencies across the project
+#' `status()` reports issues caused by inconsistencies across the project
 #' lockfile, library, and [dependencies()]. In general, you should strive to
-#' ensure that `status()` reports no problems, as this maximises your chances
-#' of successfully `restore()`ing the project in the future or on another
-#' machine.  See the headings below for specific advice on resolving any
-#' problems revealed by `status()`.
+#' ensure that `status()` reports no issues, as this maximises your chances of
+#' successfully `restore()`ing the project in the future or on another machine.
+#'
+#' See the headings below for specific advice on resolving any issues
+#' revealed by `status()`.
 #'
 #' # Missing packages
 #'
@@ -32,7 +33,7 @@ the$status_running <- FALSE
 #' # Lockfile vs `dependencies()`
 #'
 #' Next we need to ensure that packages are recorded in the lockfile if and
-#' only if they are used by the project. Fixing problems of this nature only
+#' only if they are used by the project. Fixing issues of this nature only
 #' requires calling  `snapshot()` because there are four possibilities for
 #' a package:
 #'
@@ -46,9 +47,9 @@ the$status_running <- FALSE
 #'
 #' # Inconsistent sources
 #'
-#' The final problem to resolve is any inconsistencies between packages
+#' The final issue to resolve is any inconsistencies between packages
 #' recorded in the lockfile and installed in your library. To fix these
-#' problems you'll need to either call `renv::restore()` or `renv::snapshot()`:
+#' issues you'll need to either call `renv::restore()` or `renv::snapshot()`:
 #'
 #' * Call `renv::snapshot()` if your project code is working. This implies that
 #'   the library is correct and you need to update your lockfile.
@@ -164,9 +165,9 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     renv_status_check_cache(project)
 
   if (synchronized)
-    writef("No problems found.")
+    writef("No issues found.")
   else
-    writef(c("", "See ?status() for advice on resolving the problems."))
+    writef(c("", "See ?status() for advice on resolving the issues."))
 
   list(
     library      = library,
@@ -227,14 +228,14 @@ renv_status_check_synchronized <- function(lockfile, library, used) {
     # because our dependency graph is incomplete
     missing <- any(!status$installed)
 
-    problems <- status[!pkg_ok, , drop = FALSE]
-    problems$installed <- ifelse(problems$installed, "y", "n")
-    problems$recorded <- ifelse(problems$recorded, "y", "n")
-    problems$used <- ifelse(problems$used, "y", if (missing) "?" else "n")
+    issues <- status[!pkg_ok, , drop = FALSE]
+    issues$installed <- ifelse(issues$installed, "y", "n")
+    issues$recorded <- ifelse(issues$recorded, "y", "n")
+    issues$used <- ifelse(issues$used, "y", if (missing) "?" else "n")
 
     writef("The following package(s) are out of sync:")
     writef()
-    print(problems, row.names = FALSE, right = FALSE)
+    print(issues, row.names = FALSE, right = FALSE)
   }
 
   # other changes, i.e. different version/source -------------------------------

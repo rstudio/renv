@@ -10,14 +10,14 @@
        BiocManager  y         n        y   
        BiocVersion  y         n        y   
       
-      See ?status() for advice on resolving the problems.
+      See ?status() for advice on resolving the issues.
 
 ---
 
     Code
       status()
     Output
-      No problems found.
+      No issues found.
 
 # auto-bioc install happens silently
 
