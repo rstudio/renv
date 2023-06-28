@@ -302,9 +302,19 @@ renv_init_repos <- function() {
     return(repos)
   }
 
-  # if no repository was set, use PPM
-  if (identical(repos, list(CRAN = "@CRAN@")))
-    return(config$ppm.url())
+  # otherwise, check for some common 'default' CRAN settings
+  cran <- sub("/*$", "", repos[["CRAN"]] %||% "@CRAN@")
+  defaults <- c(
+    "@CRAN@",
+    "https://cloud.R-project.org",
+    "https://cran.rstudio.com",
+    "https://cran.rstudio.org"
+  )
+
+  if (tolower(cran) %in% tolower(defaults)) {
+    repos[["CRAN"]] <- config$ppm.url()
+    return(repos)
+  }
 
   # repos appears to have been configured separately; just use it
   repos
