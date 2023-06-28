@@ -70,6 +70,10 @@ case <- function(...) {
     if (!inherits(dot, "formula"))
       return(dot)
 
+    # Silence R CMD check note
+    expr <- NULL
+    cond <- NULL
+
     # use delayed assignments below so we can allow return statements to
     # be handled in the lexical scope where they were defined
     if (length(dot) == 2L) {
