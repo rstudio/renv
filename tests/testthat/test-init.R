@@ -217,3 +217,13 @@ test_that("init() uses PPM by default", {
   expect_equal(repos, "https://packagemanager.posit.co/cran/latest")
 
 })
+
+test_that("init() prompts the user for the snapshot type", {
+  skip_on_cran()
+
+  project <- renv_tests_scope("bread")
+  writeLines("Depends: bread", con = "DESCRIPTION")
+  expect_snapshot(init())
+  expect_true(renv_package_installed("bread"))
+
+})

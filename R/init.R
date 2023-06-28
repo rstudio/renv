@@ -94,6 +94,9 @@ init <- function(project = NULL,
   library  <- renv_paths_library(project = project)
   lockfile <- renv_lockfile_path(project)
 
+  # ask user what type of project this is
+  type <- settings$snapshot.type %||% renv_init_type(project)
+
   # initialize bioconductor pieces
   biocver <- renv_init_bioconductor(bioconductor, project)
   if (!is.null(biocver)) {
@@ -305,5 +308,40 @@ renv_init_repos <- function() {
 
   # repos appears to have been configured separately; just use it
   repos
+
+}
+
+renv_init_type <- function(project) {
+
+  # check if the user has already requested a snapshot type
+  type <- renv_settings_get(project, name = "snapshot.type", default = NULL)
+  if (!is.null(type))
+    return(type)
+
+  # if we don't have a DESCRIPTION file, use the default
+  if (!file.exists(file.path(project, "DESCRIPTION")))
+    return(settings$snapshot.type(project = project))
+
+  # otherwise, ask the user if they want to explicitly enumerate their
+  # R package dependencies in the DESCRIPTION file
+  choice <- menu(
+
+    title = c(
+      "This project contains a DESCRIPTION file.",
+      "Which files should renv use for dependency discovery in this project?"
+    ),
+
+    choices = c(
+      explicit = "Use only the DESCRIPTION file. (explicit mode)",
+      implicit = "Use all files in this project. (implicit mode)"
+    )
+
+  )
+
+  if (identical(choice, "cancel"))
+    cancel()
+
+  writef("- Using '%s' snapshot type. Please see `?renv::snapshot` for more details.\n", choice)
+  choice
 
 }
