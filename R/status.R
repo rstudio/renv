@@ -127,22 +127,17 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   if (!ok)
     return(default)
 
-  # get lockfile records
-  lockfile <- renv_lockfile_records(renv_lockfile_read(lockpath))
-
-  # get library records
-  library <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
-
   # get all dependencies, including transitive
   dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
   packages <- sort(union(dependencies, "renv"))
   paths <- renv_package_dependencies(packages, project = project)
   packages <- as.character(names(paths))
-  # projects will implicitly depend on BiocManager & BiocVersion if any
-  # Bioconductor packages are in use
-  pkg_sources <- extract_chr(keep(library, packages), "Source")
-  if ("Bioconductor" %in% pkg_sources)
-    packages <- union(packages, renv_bioconductor_manager())
+
+  # get lockfile records
+  lockfile <- renv_lockfile_records(renv_lockfile_read(lockpath))
+
+  # get library records
+  library <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
 
   # remove ignored packages
   ignored <- c(
