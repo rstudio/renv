@@ -48,14 +48,14 @@ it invisibly returns a list containing the following components:
 \code{status()} reports on problems cauased by inconsistencies across the project
 lockfile, library, and \code{\link[=dependencies]{dependencies()}}. In general, you should strive to
 ensure that \code{status()} reports no problems, as this maximises your chances
-of succesfully \code{restore()}ing the project in the future or on another
+of successfully \code{restore()}ing the project in the future or on another
 machine.  See the headings below for specific advice on resolving any
 problems revealed by \code{status()}.
 }
 \section{Missing packages}{
 First, ensure that all packages used by the project are installed. This is
-important do to first because if any packages are missing we can’t tell for
-sure that a package isn’t used; it might be a dependency that we don’t know
+important to do first because if any packages are missing we can't tell for
+sure that a package isn't used; it might be a dependency that we don’t know
 about.
 
 There are four possibilities for an uninstalled package:
