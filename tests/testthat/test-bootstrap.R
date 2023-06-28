@@ -207,10 +207,10 @@ test_that("bootstrapping gives informative output when install fails", {
 
 # helpers -----------------------------------------------------------------
 
-test_that("renv_bootstrap_version_is_dev() works", {
-  expect_true(renv_bootstrap_version_is_dev("abc123"))
-  expect_true(renv_bootstrap_version_is_dev("1.2.3-4"))
-  expect_false(renv_bootstrap_version_is_dev("1.2.3"))
+test_that("renv_bootstrap_version_type() works", {
+  expect_equal(renv_bootstrap_version_type("abc123"), "dev")
+  expect_equal(renv_bootstrap_version_type("1.2.3-4"), "dev")
+  expect_equal(renv_bootstrap_version_type("1.2.3"), "release")
 })
 
 test_that("renv_boostrap_version_validate() recognises when versions are the same", {
@@ -228,7 +228,27 @@ test_that("renv_boostrap_version_validate() gives good warnings", {
   renv_scope_options(renv.bootstrap.quiet = FALSE)
 
   expect_snapshot({
-    . <- renv_bootstrap_validate_version("abcd", list(RemoteSha = "efgh"))
+
+    # out-of-sync (request release; have different release)
     . <- renv_bootstrap_validate_version("1.2.3", list(Version = "2.3.4"))
+
+    # out-of-sync (request dev; have release)
+    . <- renv_bootstrap_validate_version("1.2.3-4", list(Version = "1.2.3"))
+
+    # out-of-sync (request dev; have different dev)
+    . <- renv_bootstrap_validate_version(
+      version = "22d015905828c3398728a5ff9e381e0433976263",
+      description = list(
+        RemoteSha = "6b09befaaba3f55e0e2c141cb45c5d247b61ef1e",
+        Version = "1.2.3"
+      )
+    )
+
+    # out-of-sync (request dev; have release)
+    . <- renv_bootstrap_validate_version(
+      version = "22d015905828c3398728a5ff9e381e0433976263",
+      description = list(Version = "1.2.3")
+    )
+
   })
 })

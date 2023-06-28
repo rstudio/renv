@@ -209,7 +209,7 @@ local({
     methods <- c(
       renv_bootstrap_download_tarball,
       # dev versions can only come from GitHub
-      if (renv_bootstrap_version_is_dev(version))
+      if (renv_bootstrap_version_type(version) == "dev")
         renv_bootstrap_download_github
       else c(
         renv_bootstrap_download_cran_latest,
@@ -759,28 +759,36 @@ local({
   }
   
   renv_bootstrap_validate_version <- function(version, description = NULL) {
-    version_is_version <- grepl("[.-]", version)
+  
+    # check whether requested version 'version' matches loaded version of renv
     description <- description %||% utils::packageDescription("renv")
+    type <- renv_bootstrap_version_type(version)
+    valid <- switch(type,
+      dev = renv_bootstrap_validate_version_dev(version, description),
+      release = renv_bootstrap_validate_version_release(version, description)
+    )
   
-    if (version_is_version) {
-      loaded <- description$Version
-      if (identical(loaded, version)) {
-        return(TRUE)
-      }
-    } else {
-      loaded <- description$RemoteSha
-      if (startswith(loaded, version)) {
-        return(TRUE)
-      }
-    }
+    if (valid)
+      return(TRUE)
   
-    # assume four-component versions are from GitHub;
-    # three-component versions are from CRAN
-    remote <- if (renv_bootstrap_version_is_dev(version)) {
+    # the loaded version of renv doesn't match the requested version;
+    # give the user instructions on how to proceed
+    loaded <- description[["RemoteSha"]] %||% description[["Version"]]
+    remote <- if (renv_bootstrap_version_type(loaded) == "dev")
       paste("rstudio/renv", loaded, sep = "@")
-    } else {
+    else
       paste("renv", loaded, sep = "@")
+  
+    # display both loaded version + sha if available
+    friendly <- description[["Version"]]
+    if (!is.null(description[["RemoteSha"]])) {
+      sha <- substring(description[["RemoteSha"]], 1L, 7L)
+      friendly <- sprintf("%s [sha: %s]", friendly, sha)
     }
+  
+    # simplify presentation of sha-based versions
+    if (!grepl("[.-]", version))
+      version <- sprintf("[sha: %s]", substring(version, 1L, 7L))
   
     fmt <- paste(
       "renv %1$s was loaded from project library, but this project is configured to use renv %2$s.",
@@ -788,9 +796,25 @@ local({
       "* Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
       sep = "\n"
     )
-    catf(fmt, loaded, version, remote)
+    catf(fmt, friendly, version, remote)
   
     FALSE
+  
+  }
+  
+  renv_bootstrap_validate_version_dev <- function(version, description) {
+    expected <- description[["RemoteSha"]]
+    is.character(expected) && startswith(expected, version)
+  }
+  
+  renv_bootstrap_validate_version_release <- function(version, description) {
+    expected <- description[["Version"]]
+    is.character(expected) && identical(expected, version)
+  }
+  
+  renv_bootstrap_validate_version_report <- function(loaded, version, description) {
+  
+  
   
   }
   
@@ -958,16 +982,17 @@ local({
   
   }
   
-  renv_bootstrap_version_is_dev <- function(version) {
-    # if the renv version number is a sha, or has 4 components, it must
-    # be retrieved via github
-    if (!grepl("[.-]", version)) {
-      # not . or -, so must be a sha
-      TRUE
-    } else {
-      components <- strsplit(version, "[.-]")[[1]]
-      length(components) != 3
-    }
+  renv_bootstrap_version_type <- function(version) {
+  
+    # dev versions will either have no version delimiters (they're a hash)
+    # or they'll have 4 or more components
+    components <- strsplit(version, "[.-]")[[1L]]
+    if (length(components) == 1L || length(components) > 3)
+      return("dev")
+  
+    # otherwise, assume this is a release version
+    "release"
+  
   }
   
   renv_bootstrap_run <- function(version, libpath) {
