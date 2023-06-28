@@ -969,7 +969,7 @@ renv_snapshot_dependencies <- function(project, type = NULL, dev = FALSE) {
     renv_snapshot_dependencies_impl(project, type, dev)
   )
 
-  if (!renv_bootstrap_tests_running())
+  if (!renv_tests_running())
     packages <- unique(c(packages, "renv"))
 
   packages
