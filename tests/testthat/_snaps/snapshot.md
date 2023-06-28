@@ -199,7 +199,7 @@
       
       * Lockfile written to '<wd>/renv.lock'.
 
-# autosnapshot works as expected
+# automatic snapshot works as expected
 
     Code
       renv_snapshot_task()
@@ -222,4 +222,12 @@
       See `?dependencies` for more information.
       
       * The lockfile is already up to date.
+
+# failures in automatic snapshots disable automatic snapshots
+
+    Code
+      renv_snapshot_task()
+    Output
+      Error generating automatic snapshot: simulated failure in snapshot task
+      Automatic snapshots will be disabled. Use `renv::snapshot()` to manually update the lockfile.
 

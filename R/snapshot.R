@@ -811,7 +811,7 @@ renv_snapshot_description_infer <- function(dcf) {
   inferred <- tryCatch(
     renv_snapshot_description_infer_impl(dcf),
     error = function(err) {
-      fmt <- "Failed to infer remote for %s which was installed from source:\n%s"
+      fmt <- "Failed to infer remote for package '%s' which was installed from source:\n%s"
       warningf(fmt, dcf$Package, conditionMessage(err))
       dcf
     }
@@ -1215,6 +1215,9 @@ renv_snapshot_reprex <- function(lockfile) {
 }
 
 renv_snapshot_successful <- function(records, prompt, project) {
+
+  # update snapshot flag
+  the$snapshot_failed <- FALSE
 
   # perform python snapshot on success
   renv_python_snapshot(project, prompt)

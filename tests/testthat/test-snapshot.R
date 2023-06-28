@@ -467,7 +467,7 @@ test_that("snapshot doesn't include development dependencies", {
 
 })
 
-test_that("autosnapshot works as expected", {
+test_that("automatic snapshot works as expected", {
 
   renv_scope_options(renv.config.auto.snapshot = TRUE)
   defer(the$library_info <- NULL)
@@ -516,5 +516,30 @@ test_that("we report if dependency discover during snapshot() is slow", {
 
   renv_scope_options(renv.dependencies.elapsed_time_threshold = -1)
   expect_snapshot(. <- snapshot())
+
+})
+
+test_that("failures in automatic snapshots disable automatic snapshots", {
+
+  renv_scope_options(renv.config.auto.snapshot = TRUE)
+  defer(the$library_info <- NULL)
+
+  project <- renv_tests_scope("bread")
+  init()
+
+  count <- 0L
+  renv_scope_trace(renv:::renv_snapshot_auto, function() {
+    count <<- count + 1L
+    stop("simulated failure in snapshot task")
+  })
+
+  the$library_info <- list()
+  expect_false(the$snapshot_failed)
+  expect_snapshot(renv_snapshot_task())
+  expect_true(the$snapshot_failed)
+
+  the$library_info <- list()
+  expect_silent(renv_snapshot_task())
+  expect_equal(count, 1L)
 
 })
