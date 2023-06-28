@@ -6,15 +6,15 @@ the$status_running <- FALSE
 #' `status()` reports on problems cauased by inconsistencies across the project
 #' lockfile, library, and [dependencies()]. In general, you should strive to
 #' ensure that `status()` reports no problems, as this maximises your chances
-#' of succesfully `restore()`ing the project in the future or on another
+#' of successfully `restore()`ing the project in the future or on another
 #' machine.  See the headings below for specific advice on resolving any
 #' problems revealed by `status()`.
 #'
 #' # Missing packages
 #'
 #' First, ensure that all packages used by the project are installed. This is
-#' important do to first because if any packages are missing we can’t tell for
-#' sure that a package isn’t used; it might be a dependency that we don’t know
+#' important to do first because if any packages are missing we can't tell for
+#' sure that a package isn't used; it might be a dependency that we don’t know
 #' about.
 #'
 #' There are four possibilities for an uninstalled package:

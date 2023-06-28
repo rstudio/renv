@@ -2,7 +2,7 @@
 # renv 0.18.0  (UNRELEASED)
 
 * `status()` gets new, more compact, display when packages have some 
-  inconsitent combination of being installed, used, and recorded.
+  inconsistent combination of being installed, used, and recorded.
 
 * `load()` makes the loading message a little more prominent, and we fixed a 
   bug that prevented out-of-sync repos from being reported.
