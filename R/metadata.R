@@ -43,9 +43,9 @@ renv_metadata_init <- function() {
   if (!is.null(the$metadata))
     return()
 
-  # renv doesn't appear to be embedded; initialize metadata based on the
-  # currently-loaded version of renv
-  record <- renv_description_read(package = "renv")
+  # renv doesn't appear to be embedded; initialize metadata
+  pkgpath <- renv_namespace_path("renv")
+  record <- renv_description_read(path = file.path(pkgpath, "DESCRIPTION"))
   version <- renv_metadata_version_create(record)
   the$metadata <- renv_metadata_create(embedded = FALSE, version = version)
 
