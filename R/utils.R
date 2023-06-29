@@ -270,16 +270,6 @@ fileext <- function(path, default = "") {
   ifelse(indices > -1L, substring(path, indices), default)
 }
 
-git <- function() {
-
-  gitpath <- Sys.which("git")
-  if (!nzchar(gitpath))
-    stop("failed to find git executable on the PATH")
-
-  gitpath
-
-}
-
 visited <- function(name, envir) {
   value <- envir[[name]] %||% FALSE
   envir[[name]] <- TRUE
@@ -418,11 +408,6 @@ fsub <- function(pattern, replacement, x, ignore.case = FALSE, useBytes = FALSE)
   sub(pattern, replacement, x, ignore.case = ignore.case, useBytes = useBytes, fixed = TRUE)
 }
 
-# catch erroneous usages of unique
-unique <- function(x) {
-  base::unique(x)
-}
-
 rows <- function(data, indices) {
 
   # convert logical values
@@ -535,32 +520,6 @@ cancel <- function() {
 
 cancel_if <- function(cnd) {
   if (cnd) cancel()
-}
-
-# a wrapper for 'utils::untar()' that throws an error if untar fails
-untar <- function(tarfile,
-                  files = NULL,
-                  list = FALSE,
-                  exdir = ".",
-                  tar = Sys.getenv("TAR"))
-{
-  # delegate to utils::untar()
-  result <- utils::untar(
-    tarfile = tarfile,
-    files   = files,
-    list    = list,
-    exdir   = exdir,
-    tar     = tar
-  )
-
-  # check for errors (tar returns a status code)
-  if (is.integer(result) && result != 0L) {
-    call <- stringify(sys.call())
-    stopf("'%s' returned status code %i", call, result)
-  }
-
-  # return other results as-is
-  result
 }
 
 rep_named <- function(names, x) {
