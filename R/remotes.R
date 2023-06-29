@@ -329,7 +329,7 @@ renv_remotes_resolve_bioc_version <- function(version) {
 
   # initialize Bioconductor
   renv_bioconductor_init()
-  BiocManager <- renv_namespace_load("BiocManager")
+  BiocManager <- renv_scope_biocmanager()
 
   # handle versions like 'release' and 'devel'
   versions <- BiocManager$.version_map()

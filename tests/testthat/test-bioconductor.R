@@ -40,7 +40,7 @@ test_that("packages can be installed, restored from Bioconductor", {
   lockfile <- snapshot(lockfile = NULL)
   expect_true("Bioconductor" %in% names(lockfile))
 
-  BiocManager <- asNamespace("BiocManager")
+  BiocManager <- renv_scope_biocmanager()
   defer(unloadNamespace("BiocManager"))
   expect_equal(lockfile$Bioconductor$Version, format(BiocManager$version()))
 

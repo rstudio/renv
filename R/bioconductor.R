@@ -70,7 +70,7 @@ renv_bioconductor_version <- function(project, refresh = FALSE) {
   case(
 
     renv_package_available("BiocManager") ~ {
-      BiocManager <- renv_namespace_load("BiocManager")
+      BiocManager <- renv_scope_biocmanager()
       format(BiocManager$version())
     },
 
@@ -109,8 +109,7 @@ renv_bioconductor_repos <- function(project = NULL, version = NULL) {
 
 renv_bioconductor_repos_biocmanager <- function(version) {
 
-  renv_scope_options(BiocManager.check_repositories = FALSE)
-  BiocManager <- asNamespace("BiocManager")
+  BiocManager <- renv_scope_biocmanager()
   version <- version %||% BiocManager$version()
 
   tryCatch(

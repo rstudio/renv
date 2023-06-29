@@ -157,6 +157,7 @@ test_that("visited() works as expected", {
 
 test_that("ensure_directory() works even under contention", {
   skip_on_cran()
+  skip_if(getRversion() < "4.0.0")
 
   n <- 4
   waitfile <- tempfile("renv-wait-")
