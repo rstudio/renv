@@ -142,15 +142,25 @@ renv_bootstrap_repos_lockfile <- function() {
 renv_bootstrap_download <- function(version) {
 
   sha <- attr(version, "sha", exact = TRUE)
-  methods <- c(
-    function() renv_bootstrap_download_tarball(version),
-    if (!is.null(sha))
+
+  methods <- if (!is.null(sha)) {
+
+    # attempting to bootstrap a development version of renv
+    c(
+      function() renv_bootstrap_download_tarball(sha),
       function() renv_bootstrap_download_github(sha)
-    else c(
+    )
+
+  } else {
+
+    # attempting to bootstrap a release version of renv
+    c(
+      function() renv_bootstrap_download_tarball(version),
       function() renv_bootstrap_download_cran_latest(version),
       function() renv_bootstrap_download_cran_archive(version)
     )
-  )
+
+  }
 
   for (method in methods) {
     path <- tryCatch(method(), error = identity)

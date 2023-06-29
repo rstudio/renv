@@ -96,7 +96,7 @@ renv_activate_version <- function(project) {
   methods <- list(
     renv_activate_version_lockfile,
     renv_activate_version_activate,
-    renv_activate_version_default
+    renv_activate_version_metadata
   )
 
   for (method in methods) {
@@ -146,7 +146,7 @@ renv_activate_version_lockfile <- function(project) {
 
 }
 
-renv_activate_version_default <- function(project) {
+renv_activate_version_metadata <- function(project) {
   the$metadata$version
 }
 
