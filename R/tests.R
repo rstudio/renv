@@ -61,27 +61,27 @@ renv_tests_diagnostics <- function() {
 
   # print library paths
   renv_pretty_print(
-    paste("-", .libPaths()),
-    "The following R libraries are set:"
+    "The following R libraries are set:",
+    paste("-", .libPaths())
   )
 
   # print repositories
   repos <- getOption("repos")
   renv_pretty_print(
-    paste(names(repos), repos, sep = ": "),
-    "The following repositories are set:"
+    "The following repositories are set:",
+    paste(names(repos), repos, sep = ": ")
   )
 
   # print renv root
   renv_pretty_print(
-    paste("-", paths$root()),
-    "The following renv root directory is being used:"
+    "The following renv root directory is being used:",
+    paste("-", paths$root())
   )
 
   # print cache root
   renv_pretty_print(
-    paste("-", paths$cache()),
     "The following renv cache directory is being used:",
+    paste("-", paths$cache())
   )
 
   writeLines("The following packages are available in the test repositories:")
@@ -99,8 +99,8 @@ renv_tests_diagnostics <- function() {
   splat <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1]]
 
   renv_pretty_print(
-    paste("-", splat),
-    "The following PATH is set:"
+    "The following PATH is set:",
+    paste("-", splat)
   )
 
   envvars <- c(
@@ -117,8 +117,8 @@ renv_tests_diagnostics <- function() {
   vals[vals != "<NA>"] <- renv_json_quote(vals[vals != "<NA>"])
 
   renv_pretty_print(
-    paste(keys, vals, sep = " : "),
-    "The following environment variables of interest are set:"
+    "The following environment variables of interest are set:",
+    paste(keys, vals, sep = " : ")
   )
 
 }

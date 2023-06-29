@@ -157,26 +157,29 @@ lockfile_write <- function(lockfile, file = NULL, ..., project = NULL) {
   renv_lockfile_write(lockfile, file = file)
 }
 
-#' @param remotes A named \R list, mapping package names to the remote
-#'   specifications to be recorded in the lockfile.
+#' @param remotes An \R vector of remote specifications.
 #'
 #' @param repos A named vector, mapping \R repository names to their URLs.
 #'
 #' @rdname lockfile
 #' @export
-lockfile_modify <- function(lockfile,
+lockfile_modify <- function(lockfile = NULL,
                             ...,
                             remotes = NULL,
-                            repos = NULL)
+                            repos = NULL,
+                            project = NULL)
 {
   renv_dots_check(...)
 
-  if (!is.null(repos)) {
+  project <- renv_project_resolve(project)
+  lockfile <- lockfile %||% renv_lockfile_load(project, strict = TRUE)
+
+  if (!is.null(repos))
     lockfile$R$Repositories <- as.list(repos)
-  }
 
   if (!is.null(remotes)) {
-    remotes <- renv_records_resolve(remotes)
+    remotes <- renv_records_resolve(remotes, latest = TRUE)
+    names(remotes) <- map_chr(remotes, `[[`, "Package")
     enumerate(remotes, function(package, remote) {
       record <- renv_remotes_resolve(remote)
       renv_lockfile_records(lockfile)[[package]] <<- record

@@ -412,7 +412,7 @@ renv_dependencies_find_dir_children <- function(path, root, depth) {
 
   # remove hard-coded ignores
   # (only keep DESCRIPTION files at the top level)
-  ignored <- c("renv", "packrat", "revdep", if (depth) "DESCRIPTION")
+  ignored <- c("packrat", "renv", "revdep", "vendor", if (depth) "DESCRIPTION")
   children <- children[!basename(children) %in% ignored]
 
   # compute exclusions

@@ -1,4 +1,6 @@
 
+the$init_running <- FALSE
+
 #' Use renv in a project
 #'
 #' @description
@@ -75,6 +77,8 @@ init <- function(project = NULL,
   renv_scope_error_handler()
   renv_dots_check(...)
 
+  renv_scope_binding(the, "init_running", TRUE)
+
   project <- renv_path_normalize(project %||% getwd())
   renv_project_lock(project = project)
 
@@ -89,6 +93,9 @@ init <- function(project = NULL,
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
   lockfile <- renv_lockfile_path(project)
+
+  # ask user what type of project this is
+  type <- settings$snapshot.type %||% renv_init_type(project)
 
   # initialize bioconductor pieces
   biocver <- renv_init_bioconductor(bioconductor, project)
@@ -127,6 +134,7 @@ init <- function(project = NULL,
 
   # perform the action
   if (action == "init") {
+    renv_scope_options(renv.config.dependency.errors = "ignored")
     renv_imbue_impl(project)
     hydrate(library = library, prompt = FALSE, report = FALSE, project = project)
     snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
@@ -290,20 +298,64 @@ renv_init_repos <- function() {
   # if we're using the global CDN from RStudio, use PPM instead
   rstudio <- attr(repos, "RStudio", exact = TRUE)
   if (identical(rstudio, TRUE)) {
-    cran <- repos[["CRAN"]]
-    if (startswith(cran, "https://cran.rstudio.") ||
-        startswith(cran, "https://cran.posit."))
-    {
+    repos[["CRAN"]] <- config$ppm.url()
+    return(repos)
+  }
+
+  # otherwise, check for some common 'default' CRAN settings
+  cran <- repos[["CRAN"]]
+  if (is.character(cran) && length(cran) == 1L) {
+    cran <- sub("/*$", "", cran)
+    defaults <- c(
+      "@CRAN@",
+      "https://cloud.R-project.org",
+      "https://cran.rstudio.com",
+      "https://cran.rstudio.org"
+    )
+
+    if (tolower(cran) %in% tolower(defaults)) {
       repos[["CRAN"]] <- config$ppm.url()
       return(repos)
     }
-  }
 
-  # if no repository was set, use PPM
-  if (identical(repos, list(CRAN = "@CRAN@")))
-    return(config$ppm.url())
+  }
 
   # repos appears to have been configured separately; just use it
   repos
+
+}
+
+renv_init_type <- function(project) {
+
+  # check if the user has already requested a snapshot type
+  type <- renv_settings_get(project, name = "snapshot.type", default = NULL)
+  if (!is.null(type))
+    return(type)
+
+  # if we don't have a DESCRIPTION file, use the default
+  if (!file.exists(file.path(project, "DESCRIPTION")))
+    return(settings$snapshot.type(project = project))
+
+  # otherwise, ask the user if they want to explicitly enumerate their
+  # R package dependencies in the DESCRIPTION file
+  choice <- menu(
+
+    title = c(
+      "This project contains a DESCRIPTION file.",
+      "Which files should renv use for dependency discovery in this project?"
+    ),
+
+    choices = c(
+      explicit = "Use only the DESCRIPTION file. (explicit mode)",
+      implicit = "Use all files in this project. (implicit mode)"
+    )
+
+  )
+
+  if (identical(choice, "cancel"))
+    cancel()
+
+  writef("- Using '%s' snapshot type. Please see `?renv::snapshot` for more details.\n", choice)
+  choice
 
 }

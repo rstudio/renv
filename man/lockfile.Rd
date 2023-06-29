@@ -23,7 +23,13 @@ lockfile_read(file = NULL, ..., project = NULL)
 
 lockfile_write(lockfile, file = NULL, ..., project = NULL)
 
-lockfile_modify(lockfile, ..., remotes = NULL, repos = NULL)
+lockfile_modify(
+  lockfile = NULL,
+  ...,
+  remotes = NULL,
+  repos = NULL,
+  project = NULL
+)
 }
 \arguments{
 \item{type}{The type of snapshot to perform:
@@ -66,8 +72,7 @@ directory is used instead.}
 \item{lockfile}{An \code{renv} lockfile; typically created by either
 \code{lockfile_create()} or \code{lockfile_read()}.}
 
-\item{remotes}{A named \R list, mapping package names to the remote
-specifications to be recorded in the lockfile.}
+\item{remotes}{An \R vector of remote specifications.}
 
 \item{repos}{A named vector, mapping \R repository names to their URLs.}
 }

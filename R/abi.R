@@ -46,9 +46,9 @@ renv_abi_check <- function(packages = NULL,
   if ("Rcpp_precious_list" %in% reasons) {
     packages <- sort(unique(tbl$package[tbl$reason == "Rcpp_precious_list"]))
     renv_pretty_print(
-      values    = packages,
-      preamble  = "The following packages were built against a newer version of Rcpp than is currently available:",
-      postamble = c(
+      "The following packages were built against a newer version of Rcpp than is currently available:",
+      packages,
+      c(
         paste(
           "These packages depend on Rcpp (>= 1.0.7);",
           "however, Rcpp", renv_package_version("Rcpp"), "is currently installed."

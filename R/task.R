@@ -25,8 +25,8 @@ renv_task_callback <- function(callback, name) {
 
     status <- tryCatch(callback(), error = identity)
     if (inherits(status, "error")) {
-      fmt <- "renv background task '%s' failed; it will be stopped"
-      warningf(fmt, name)
+      writef("Error in background task '%s': %s", name, conditionMessage(status))
+      writef("Background task '%s' will be stopped.", name)
       return(FALSE)
     }
 

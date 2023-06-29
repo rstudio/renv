@@ -556,7 +556,10 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   renv_scope_auth(repo)
 
   # add headers
-  headers <- c(Accept = "application/vnd.github.raw")
+  headers <- c(
+    Accept = "application/vnd.github.raw",
+    renv_download_auth_github()
+  )
 
   # get the DESCRIPTION contents
   fmt <- "%s/repos/%s/%s/contents/%s?ref=%s"

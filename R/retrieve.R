@@ -666,8 +666,8 @@ renv_retrieve_repos_error_report <- function(record, errors) {
   preamble <- sprintf(fmt, record$Package)
 
   renv_pretty_print(
-    values   = paste("-", messages),
-    preamble = preamble
+    preamble = preamble,
+    values   = paste("-", messages)
   )
 
   if (renv_verbose())
@@ -1266,8 +1266,8 @@ renv_retrieve_incompatible_report <- function(package, record, replacement, comp
 
   if (!renv_tests_running()) {
     renv_pretty_print(
-      values = values,
       preamble = preamble,
+      values = values,
       postamble = postamble
     )
   }

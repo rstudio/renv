@@ -81,8 +81,8 @@ renv_equip_macos_toolchain <- function() {
 
   command <- paste("sudo /usr/sbin/installer -pkg", shQuote(destfile), "-target /")
   renv_pretty_print(
-    command,
     "The R LLVM toolchain has been successfully downloaded. Please execute:",
+    command,
     "in a separate terminal to complete installation."
   )
 
@@ -124,8 +124,8 @@ renv_equip_macos_rstudio <- function(spec, destfile) {
     return(FALSE)
 
   renv_pretty_print(
-    spec$dst,
     "The R LLVM toolchain has been downloaded and installed to:",
+    spec$dst,
     "This toolchain will be used by renv when installing packages from source."
   )
 

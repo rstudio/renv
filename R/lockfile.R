@@ -212,7 +212,7 @@ renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude
   # warn if some required packages are missing
   ignored <- c(renv_project_ignored_packages(project), renv_packages_base(), exclude)
   missing <- setdiff(packages, c(names(records), ignored))
-  if (!the$status_running)
+  if (!the$status_running && !the$init_running)
     renv_snapshot_report_missing(missing, type)
 
   records <- renv_snapshot_fixup(records)

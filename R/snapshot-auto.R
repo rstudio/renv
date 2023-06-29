@@ -1,6 +1,7 @@
 
 the$library_info <- NULL
 
+the$snapshot_failed <- FALSE
 the$snapshot_running <- FALSE
 the$snapshot_suppressed <- FALSE
 
@@ -112,6 +113,27 @@ renv_snapshot_auto_update <- function(project = renv_project_get() ) {
 }
 
 renv_snapshot_task <- function() {
+
+  # if the previous snapshot attempt failed, do nothing
+  if (the$snapshot_failed)
+    return(FALSE)
+
+  # treat warnings as errors in this scope
+  renv_scope_options(warn = 2L)
+
+  # attempt automatic snapshot, but disable on failure
+  tryCatch(
+    renv_snapshot_task_impl(),
+    error = function(cnd) {
+      writef("Error generating automatic snapshot: %s", conditionMessage(cnd))
+      writef("Automatic snapshots will be disabled. Use `renv::snapshot()` to manually update the lockfile.")
+      the$snapshot_failed <- TRUE
+    }
+  )
+
+}
+
+renv_snapshot_task_impl <- function() {
 
   # check for active renv project
   project <- renv_project_get()

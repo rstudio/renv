@@ -1,13 +1,16 @@
 
 # renv 0.18.0  (UNRELEASED)
 
-* `renv::status()` gets new, more compact, display when packages have some 
+* `renv::status()` gets new, more compact, display when packages have some
   inconsistent combination of being installed, used, and recorded.
 
-* `load()` makes the loading message a little more prominent, and we fixed a 
+* `renv::init()` now prompts the user to select a snapshot type, for projects
+  containing a top-level DESCRIPTION file. (#1485)
+
+* `renv::load()` makes the loading message a little more prominent, and we fixed a 
   bug that prevented out-of-sync repos from being reported.
 
-* `dependencies()` now discovers R dependencies inside jupyter notebooks (#929).
+* `renv::dependencies()` now discovers R dependencies inside jupyter notebooks (#929).
 
 * `renv::install(type = "source")` now ensures source repositories are used
   in projects using [PPM](https://packagemanager.posit.co/). (#927)
@@ -15,49 +18,49 @@
 * `renv::restore()` now emits an error if called in a project that
   does not contain a lockfile. (#1474)
 
-* If `config$user.profile()` is `TRUE`, the packages it uses are now included
+* If `renv::config$user.profile()` is `TRUE`, the packages it uses are now included
   in the development dependencies, which means that they will be installed 
   by `install()` but not recorded in the snapshot.
 
-* `renv` now attempts to infer remote dependencies for GitHub packages that
+* renv now attempts to infer remote dependencies for GitHub packages that
   appear to be installed from sources; that is, for packages without a
   recognizable remote source encoded in its DESCRIPTION file. (#841)
 
-* `load()` gives a more informative message if a lockfile is present but 
+* `renv::load()` gives a more informative message if a lockfile is present but 
   no packages are installed (#353).
 
-* `renv` now provides a small family of functions for interacting with `renv`
+* renv now provides a small family of functions for interacting with renv
   lockfiles -- see `?lockfile` for more details. (#1438)
 
-* `renv` now activates the Bioconductor repositories when installing a package
+* renv now activates the Bioconductor repositories when installing a package
   from a remote (e.g. GitHub) which declares a Bioconductor dependency (via
   a non-empty 'biocViews' field). (#934)
 
-* `renv` no longer attempts to query package repositories when checking
-  if a project is synchronzied on startup. (#812)
+* renv no longer attempts to query package repositories when checking
+  if a project is synchronized on startup. (#812)
 
-* `update()` can now update packages installed from GitLab (#136) and 
+* `renv::update()` can now update packages installed from GitLab (#136) and 
   BitBucket (#1194).
 
-* `snapshot()` now standardises pak metadata so CRAN packages installed via
+* `renv::snapshot()` now standardises pak metadata so CRAN packages installed via
   pak look the same as CRAN packages installed with renv or `install.packages()`
   (#1239).
 
-* `install()` now keeps source when installing packages from source (#522).
+* `renv::install()` now keeps source when installing packages from source (#522).
 
 * `renv::install()` now validates that binary packages can be loaded after
   installation, in a manner similar to source packages. (#1275)
 
-* `snapshot()` and `status()` no longer track development dependencies.
+* `renv::snapshot()` and `renv::status()` no longer track development dependencies.
   `install()` will continue to install them (#1019).
 
-* `install()` respects the project snapshot type, if set.
+* `renv::install()` respects the project snapshot type, if set.
 
-* `dependencies()` now marks `Suggested` packages listed in `DESCRIPTION` files
+* `renv::dependencies()` now marks `Suggested` packages listed in `DESCRIPTION` files
   as development dependencies regardless of whether or not they're a "package" 
   project.
 
-* `settings$package.dependency.fields()` now only affects packages installed
+* `renv::settings$package.dependency.fields()` now only affects packages installed
   directly by the user, not downstream dependencies of those packages.
 
 * Fixed an issue where `renv::snapshot(exclude = <...>)` could warn when
