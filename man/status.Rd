@@ -45,12 +45,15 @@ it invisibly returns a list containing the following components:
 }
 }
 \description{
-\code{status()} reports issues caused by inconsistencies across the project
+\code{renv::status()} reports issues caused by inconsistencies across the project
 lockfile, library, and \code{\link[=dependencies]{dependencies()}}. In general, you should strive to
 ensure that \code{status()} reports no issues, as this maximises your chances of
 successfully \code{restore()}ing the project in the future or on another machine.
-}
-\details{
+
+\code{renv::load()} will report if any issues are detected when starting an
+renv project; we recommend resolving these issues before doing any
+further work on your project.
+
 See the headings below for specific advice on resolving any issues
 revealed by \code{status()}.
 }
@@ -72,6 +75,10 @@ remove it from the lockfile.
 common state because you only use a small fraction of all available
 packages in any one project.
 }
+
+If you have multiple packages in an inconsistent state, we recommend
+\code{renv::restore()}, then \code{renv::install()}, then \code{renv::snapshot()}, but
+that also suggests you should be running status more frequently.
 }
 
 \section{Lockfile vs \code{dependencies()}}{
@@ -104,7 +111,8 @@ to restore from known good state in the lockfile.
 }
 
 If you're not sure which case applies, it's generally safer to call
-\code{renv::snapshot()}
+\code{renv::snapshot()}. If you want to rollback to an earlier known good
+status, see \code{\link[=history]{history()}} and \code{\link[=revert]{revert()}}.
 }
 
 \examples{

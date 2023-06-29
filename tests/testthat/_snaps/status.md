@@ -31,7 +31,7 @@
     Code
       status()
     Output
-      The following package(s) are inconsistent:
+      The following package(s) are in an inconsistent state:
       
        package installed recorded used
        bread   n         n        y   
@@ -45,7 +45,7 @@
     Code
       status()
     Output
-      The following package(s) are inconsistent:
+      The following package(s) are in an inconsistent state:
       
        package installed recorded used
        bread   y         n        y   

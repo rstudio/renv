@@ -3,10 +3,15 @@ the$status_running <- FALSE
 
 #' Report inconsistencies between lockfile, library, and dependencies
 #'
-#' `status()` reports issues caused by inconsistencies across the project
+#' @description
+#' `renv::status()` reports issues caused by inconsistencies across the project
 #' lockfile, library, and [dependencies()]. In general, you should strive to
 #' ensure that `status()` reports no issues, as this maximises your chances of
 #' successfully `restore()`ing the project in the future or on another machine.
+#'
+#' `renv::load()` will report if any issues are detected when starting an
+#' renv project; we recommend resolving these issues before doing any
+#' further work on your project.
 #'
 #' See the headings below for specific advice on resolving any issues
 #' revealed by `status()`.
@@ -29,6 +34,10 @@ the$status_running <- FALSE
 #' * If it's not used and not recorded, there's nothing to do. This the most
 #'   common state because you only use a small fraction of all available
 #'   packages in any one project.
+#'
+#' If you have multiple packages in an inconsistent state, we recommend
+#' `renv::restore()`, then `renv::install()`, then `renv::snapshot()`, but
+#' that also suggests you should be running status more frequently.
 #'
 #' # Lockfile vs `dependencies()`
 #'
@@ -59,7 +68,8 @@ the$status_running <- FALSE
 #'   to restore from known good state in the lockfile.
 #'
 #' If you're not sure which case applies, it's generally safer to call
-#' `renv::snapshot()`
+#' `renv::snapshot()`. If you want to rollback to an earlier known good
+#' status, see [renv::history()] and [renv::revert()].
 #'
 #' @inherit renv-params
 #'

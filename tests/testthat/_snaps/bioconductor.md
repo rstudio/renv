@@ -3,7 +3,7 @@
     Code
       status()
     Output
-      The following package(s) are inconsistent:
+      The following package(s) are in an inconsistent state:
       
        package      installed recorded used
        BiocGenerics y         n        y   
