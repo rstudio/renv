@@ -154,3 +154,54 @@ test_that("visited() works as expected", {
   expect_true(visited("hello", envir))
 
 })
+
+test_that("ensure_directory() works even under contention", {
+  skip_on_cran()
+
+  n <- 4
+  waitfile <- tempfile("renv-wait-")
+  target <- tempfile("renv-directory-")
+
+  server <- renv_socket_server()
+  defer(close(server$socket))
+
+  script <- renv_test_code({
+
+    renv:::summon()
+
+    # create the directory
+    wait_until(file.exists, waitfile)
+    ok <- tryCatch(
+      { ensure_directory(target); TRUE },
+      error = function(e) FALSE
+    )
+
+    # notify parent
+    conn <- renv_socket_connect(port = port, open = "wb")
+    defer(close(conn))
+    serialize(ok, connection = conn)
+
+  }, list(port = server$port, waitfile = waitfile, target = target))
+
+  for (i in 1:n) {
+    system2(
+      command = R(),
+      args = c("--vanilla", "--slave", "-f", renv_shell_path(script)),
+      stdout = FALSE,
+      stderr = FALSE,
+      wait = FALSE
+    )
+  }
+
+  file.create(waitfile)
+
+  responses <- stack()
+  for (i in 1:n) {
+    conn <- renv_socket_accept(server$socket, open = "rb", timeout = 3)
+    responses$push(unserialize(conn))
+    close(conn)
+  }
+
+  expect_true(all(unlist(responses$data())))
+
+})
