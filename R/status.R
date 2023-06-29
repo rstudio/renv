@@ -119,25 +119,34 @@ status <- function(project = NULL,
 
 renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
-  default <- list(library = list(), lockfile = list(), synchronized = FALSE)
-
   # check to see if we've initialized this project
-  if (!renv_project_initialized(project)) {
-    writef("This project has not yet been initialized.")
-    return(default)
+  has_library <- file.exists(renv_paths_library(project = project))
+  has_lockfile <- file.exists(lockpath)
+
+  if (!has_library || !has_lockfile) {
+    if (!has_library && !has_lockfile) {
+      writef(c(
+        "Project does not use renv.",
+        "Call renv::init() to setup project to use renv."
+      ))
+    } else if (!has_library) {
+      writef(c(
+        "Project lacks a library.",
+        "Call renv::restore() to install packages defined in lockfile."
+      ))
+    } else {
+      writef(c(
+        "Project lacks a lockfile.",
+        "Call renv::snapshot() to create one."
+      ))
+    }
+
+    return(list(library = list(), lockfile = list(), synchronized = FALSE))
   }
 
   # mark status as running
   the$status_running <- TRUE
   defer(the$status_running <- FALSE)
-
-  # check for existing lockfile, library
-  ok <-
-    renv_status_check_missing_library(project, libpaths) &&
-    renv_status_check_missing_lockfile(project, lockpath)
-
-  if (!ok)
-    return(default)
 
   # get all dependencies, including transitive
   dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
@@ -183,35 +192,6 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     lockfile     = lockfile,
     synchronized = synchronized
   )
-
-}
-
-renv_status_check_missing_lockfile <- function(project, lockpath) {
-
-  if (file.exists(lockpath))
-    return(TRUE)
-
-  if (identical(lockpath, renv_lockfile_path(project)))
-    writef("This project has not yet been snapshotted -- 'renv.lock' does not exist.")
-  else
-    writef("Lockfile %s does not exist.", renv_path_pretty(lockpath))
-
-  FALSE
-
-}
-
-renv_status_check_missing_library <- function(project, libpaths) {
-
-  projlib <- nth(libpaths, 1L)
-  if (file.exists(projlib))
-    return(TRUE)
-
-  if (identical(projlib, renv_paths_library(project = project)))
-    writef("This project's private library is empty or does not exist.")
-  else
-    writef("Library %s is empty or does not exist.", renv_path_pretty(projlib))
-
-  FALSE
 
 }
 

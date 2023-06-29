@@ -3,21 +3,24 @@
     Code
       status()
     Output
-      This project has not yet been initialized.
+      Project does not use renv.
+      Call renv::init() to setup project to use renv.
 
 ---
 
     Code
       status()
     Output
-      This project has not yet been snapshotted -- 'renv.lock' does not exist.
+      Project lacks a lockfile.
+      Call renv::snapshot() to create one.
 
 ---
 
     Code
       status()
     Output
-      This project's private library is empty or does not exist.
+      Project lacks a library.
+      Call renv::restore() to install packages defined in lockfile.
 
 # reports when project is synchronised
 
