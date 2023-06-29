@@ -194,12 +194,6 @@ test_that("bootstrapping gives informative output when install fails", {
 
 # helpers -----------------------------------------------------------------
 
-test_that("renv_bootstrap_version_type() works", {
-  expect_equal(renv_bootstrap_version_type("abc123"), "dev")
-  expect_equal(renv_bootstrap_version_type("1.2.3-4"), "dev")
-  expect_equal(renv_bootstrap_version_type("1.2.3"), "release")
-})
-
 test_that("renv_boostrap_version_validate() recognises when versions are the same", {
 
   expect_true(

@@ -142,13 +142,7 @@ renv_activate_version_lockfile <- function(project) {
   # read the renv record
   lockfile <- renv_lockfile_read(path)
   records <- renv_lockfile_records(lockfile)
-  renv <- records[["renv"]]
-
-  # read version (and sha, if available)
-  version <- renv[["Version"]]
-  attr(version, "sha") <- renv[["RemoteSha"]]
-
-  version
+  renv_metadata_version_create(records[["renv"]])
 
 }
 

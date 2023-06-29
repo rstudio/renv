@@ -707,11 +707,11 @@ renv_bootstrap_validate_version <- function(version, description = NULL) {
 
   # the loaded version of renv doesn't match the requested version;
   # give the user instructions on how to proceed
-  loaded <- description[["RemoteSha"]] %||% description[["Version"]]
-  remote <- if (renv_bootstrap_version_type(loaded) == "dev")
-    paste("rstudio/renv", loaded, sep = "@")
-  else
-    paste("renv", loaded, sep = "@")
+  remote <- if (!is.null(description[["RemoteSha"]])) {
+    paste("rstudio/renv", description[["RemoteSha"]], sep = "@")
+  } else {
+    paste("renv", description[["Version"]], sep = "@")
+  }
 
   # display both loaded version + sha if available
   friendly <- renv_bootstrap_version_friendly(
@@ -909,19 +909,6 @@ renv_bootstrap_version_friendly <- function(version, sha = NULL) {
   sha <- sha %||% attr(version, "sha", exact = TRUE)
   parts <- c(version, sprintf("[sha: %s]", substring(sha, 1L, 7L)))
   paste(parts, collapse = " ")
-}
-
-renv_bootstrap_version_type <- function(version) {
-
-  # dev versions will either have no version delimiters (they're a hash)
-  # or they'll have 4 or more components
-  components <- strsplit(version, "[.-]")[[1L]]
-  if (length(components) == 1L || length(components) > 3)
-    return("dev")
-
-  # otherwise, assume this is a release version
-  "release"
-
 }
 
 renv_bootstrap_run <- function(version, libpath) {

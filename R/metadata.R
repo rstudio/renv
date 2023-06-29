@@ -15,6 +15,11 @@ renv_metadata_version <- function() {
   the$metadata$version
 }
 
+renv_metadata_version_create <- function(record) {
+  version <- record[["Version"]]
+  attr(version, "sha") <- record[["RemoteSha"]]
+  version
+}
 
 renv_metadata_remote <- function(metadata = the$metadata) {
 
@@ -40,8 +45,8 @@ renv_metadata_init <- function() {
 
   # renv doesn't appear to be embedded; initialize metadata based on the
   # currently-loaded version of renv
-  version <- renv_namespace_version("renv")
-  attr(version, "sha") <- packageDescription("renv")[["RemoteSha"]]
+  record <- renv_description_read(package = "renv")
+  version <- renv_metadata_version_create(record)
   the$metadata <- renv_metadata_create(embedded = FALSE, version = version)
 
 }

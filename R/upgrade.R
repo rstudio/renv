@@ -95,9 +95,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   renv_lockfile_save(lockfile, project = project)
 
   # now update the infrastructure to use this version of renv
-  record <- records[["renv"]]
-  version <- record[["Version"]]
-  attr(version, "sha") <- record[["RemoteSha"]]
+  version <- renv_metadata_version_create(records[["renv"]])
   renv_infrastructure_write(project, version = version)
 
   # reload renv
