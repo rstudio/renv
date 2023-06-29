@@ -30,7 +30,10 @@ test_that("renv can bootstrap a dev version", {
 
   renv_tests_scope()
   init(bare = TRUE, restart = FALSE)
-  renv_infrastructure_write_activate(version = "5049cef8a")
+
+  version <- "1.0.0"
+  attr(version, "sha") <- "5049cef8a"
+  renv_infrastructure_write_activate(version = version)
 
   args <- c("-s", "-e", shQuote("library(renv, warn.conflicts = FALSE)"))
   stdout <- stderr <- if (interactive()) "" else FALSE

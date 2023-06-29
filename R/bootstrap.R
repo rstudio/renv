@@ -38,11 +38,7 @@ startswith <- function(string, prefix) {
 
 bootstrap <- function(version, library) {
 
-  # load failed; inform user we're about to bootstrap
-  friendly <- version
-  if (nchar(friendly) >= 40)
-    friendly <- sprintf("[rstudio/renv@%s]", substring(version, 1L, 7L))
-
+  friendly <- renv_bootstrap_version_friendly(version)
   section <- header(sprintf("Bootstrapping renv %s", friendly))
   catf(section)
 
@@ -145,20 +141,29 @@ renv_bootstrap_repos_lockfile <- function() {
 
 renv_bootstrap_download <- function(version) {
 
-  # begin collecting different methods for finding renv
-  methods <- c(
-    renv_bootstrap_download_tarball,
-    # dev versions can only come from GitHub
-    if (renv_bootstrap_version_is_dev(version))
-      renv_bootstrap_download_github
-    else c(
-      renv_bootstrap_download_cran_latest,
-      renv_bootstrap_download_cran_archive
+  sha <- attr(version, "sha", exact = TRUE)
+
+  methods <- if (!is.null(sha)) {
+
+    # attempting to bootstrap a development version of renv
+    c(
+      function() renv_bootstrap_download_tarball(sha),
+      function() renv_bootstrap_download_github(sha)
     )
-  )
+
+  } else {
+
+    # attempting to bootstrap a release version of renv
+    c(
+      function() renv_bootstrap_download_tarball(version),
+      function() renv_bootstrap_download_cran_latest(version),
+      function() renv_bootstrap_download_cran_archive(version)
+    )
+
+  }
 
   for (method in methods) {
-    path <- tryCatch(method(version), error = identity)
+    path <- tryCatch(method(), error = identity)
     if (is.character(path) && file.exists(path))
       return(path)
   }
@@ -699,28 +704,30 @@ renv_bootstrap_library_root_impl <- function(project) {
 }
 
 renv_bootstrap_validate_version <- function(version, description = NULL) {
-  version_is_version <- grepl("[.-]", version)
-  description <- description %||% utils::packageDescription("renv")
 
-  if (version_is_version) {
-    loaded <- description$Version
-    if (identical(loaded, version)) {
-      return(TRUE)
-    }
+  # check whether requested version 'version' matches loaded version of renv
+  sha <- attr(version, "sha", exact = TRUE)
+  valid <- if (!is.null(sha))
+    renv_bootstrap_validate_version_dev(sha, description)
+  else
+    renv_bootstrap_validate_version_release(version, description)
+
+  if (valid)
+    return(TRUE)
+
+  # the loaded version of renv doesn't match the requested version;
+  # give the user instructions on how to proceed
+  remote <- if (!is.null(description[["RemoteSha"]])) {
+    paste("rstudio/renv", description[["RemoteSha"]], sep = "@")
   } else {
-    loaded <- description$RemoteSha
-    if (startswith(loaded, version)) {
-      return(TRUE)
-    }
+    paste("renv", description[["Version"]], sep = "@")
   }
 
-  # assume four-component versions are from GitHub;
-  # three-component versions are from CRAN
-  remote <- if (renv_bootstrap_version_is_dev(version)) {
-    paste("rstudio/renv", loaded, sep = "@")
-  } else {
-    paste("renv", loaded, sep = "@")
-  }
+  # display both loaded version + sha if available
+  friendly <- renv_bootstrap_version_friendly(
+    version = description[["Version"]],
+    sha     = description[["RemoteSha"]]
+  )
 
   fmt <- paste(
     "renv %1$s was loaded from project library, but this project is configured to use renv %2$s.",
@@ -728,10 +735,20 @@ renv_bootstrap_validate_version <- function(version, description = NULL) {
     "* Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
     sep = "\n"
   )
-  catf(fmt, loaded, version, remote)
+  catf(fmt, friendly, renv_bootstrap_version_friendly(version), remote)
 
   FALSE
 
+}
+
+renv_bootstrap_validate_version_dev <- function(version, description) {
+  expected <- description[["RemoteSha"]]
+  is.character(expected) && startswith(expected, version)
+}
+
+renv_bootstrap_validate_version_release <- function(version, description) {
+  expected <- description[["Version"]]
+  is.character(expected) && identical(expected, version)
 }
 
 renv_bootstrap_hash_text <- function(text) {
@@ -898,16 +915,10 @@ renv_bootstrap_user_dir_impl <- function() {
 
 }
 
-renv_bootstrap_version_is_dev <- function(version) {
-  # if the renv version number is a sha, or has 4 components, it must
-  # be retrieved via github
-  if (!grepl("[.-]", version)) {
-    # not . or -, so must be a sha
-    TRUE
-  } else {
-    components <- strsplit(version, "[.-]")[[1]]
-    length(components) != 3
-  }
+renv_bootstrap_version_friendly <- function(version, sha = NULL) {
+  sha <- sha %||% attr(version, "sha", exact = TRUE)
+  parts <- c(version, sprintf("[sha: %s]", substring(sha, 1L, 7L)))
+  paste(parts, collapse = " ")
 }
 
 renv_bootstrap_run <- function(version, libpath) {
@@ -921,7 +932,7 @@ renv_bootstrap_run <- function(version, libpath) {
 
   # try again to load
   if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-    return(renv::load())
+    return(renv::load(project = getwd()))
   }
 
   # failed to download or load renv; warn the user

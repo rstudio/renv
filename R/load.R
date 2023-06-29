@@ -596,7 +596,7 @@ renv_load_bioconductor_validate <- function(project, version) {
   if (!identical(renv_bioconductor_manager(), "BiocManager"))
     return()
 
-  BiocManager <- renv_namespace_load("BiocManager")
+  BiocManager <- renv_scope_biocmanager()
   if (!is.function(BiocManager$.version_validity))
     return()
 

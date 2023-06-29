@@ -366,3 +366,19 @@ renv_scope_sandbox <- function(scope = parent.frame()) {
   defer(renv_sandbox_deactivate(), scope = scope)
   invisible(sandbox)
 }
+
+renv_scope_biocmanager <- function(scope = parent.frame()) {
+
+  # silence BiocManager messages when setting repositories
+  renv_scope_options(BiocManager.check_repositories = FALSE, scope = scope)
+
+  # R-devel (4.4.0) warns when BiocManager calls .make_numeric_version() without
+  # a character argument, so just suppress those warnings in this scope
+  #
+  # https://github.com/wch/r-source/commit/1338a95618ddcc8a0af77dc06e4018625de06ec3
+  renv_scope_options(warn = -1L, scope = scope)
+
+  # return reference to BiocManager namespace
+  renv_namespace_load("BiocManager")
+
+}

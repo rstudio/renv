@@ -1,7 +1,9 @@
 
+# NOTE: can't use renv_namespace_version() until the following commit is on CRAN
+# https://github.com/r-lib/pkgload/commit/907749a8efaf8fe65cfde4f4ade6e7c506f1afa5
 test_that("renv itself doesn't mark itself as embedded", {
   expect_false(renv_metadata_embedded())
-  expect_equal(renv_metadata_version(), renv_namespace_version("renv"))
+  expect_equal(renv_metadata_version(), renv_package_version("renv"))
 })
 
 test_that("renv can be vendored into an R package", {

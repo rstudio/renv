@@ -97,7 +97,7 @@ renv_zzz_bootstrap_activate <- function() {
   source_mtime <- max(renv_file_info(c(source, scripts))$mtime)
   target_mtime <- renv_file_info(target)$mtime
 
-  if (target_mtime > source_mtime)
+  if (!is.na(target_mtime) && target_mtime > source_mtime)
     return()
 
   # read the necessary bootstrap scripts

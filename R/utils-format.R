@@ -1,13 +1,4 @@
 
-sprintf <- function(fmt, ...) {
-
-  if (nargs() == 1L)
-    return(fmt)
-
-  base::sprintf(fmt, ...)
-
-}
-
 stopf <- function(fmt = "", ..., call. = FALSE) {
   stop(sprintf(fmt, ...), call. = call.)
 }
