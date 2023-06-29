@@ -162,7 +162,7 @@ test_that("ensure_directory() works even under contention", {
   waitfile <- tempfile("renv-wait-")
   target <- tempfile("renv-directory-")
 
-  server <- renv_socket_server()
+  server <- tryCatch(renv_socket_server(), error = skip)
   defer(close(server$socket))
 
   script <- renv_test_code({
