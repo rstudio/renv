@@ -705,6 +705,12 @@ renv_bootstrap_library_root_impl <- function(project) {
 
 renv_bootstrap_validate_version <- function(version, description = NULL) {
 
+  # resolve description file
+  description <- description %||% {
+    path <- getNamespaceInfo("renv", "path")
+    packageDescription("renv", lib.loc = dirname(path))
+  }
+
   # check whether requested version 'version' matches loaded version of renv
   sha <- attr(version, "sha", exact = TRUE)
   valid <- if (!is.null(sha))
