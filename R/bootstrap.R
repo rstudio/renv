@@ -741,12 +741,6 @@ renv_bootstrap_validate_version_release <- function(version, description) {
   is.character(expected) && identical(expected, version)
 }
 
-renv_bootstrap_validate_version_report <- function(loaded, version, description) {
-
-
-
-}
-
 renv_bootstrap_hash_text <- function(text) {
 
   hashfile <- tempfile("renv-hash-")
