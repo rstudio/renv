@@ -1,7 +1,7 @@
 
 # renv 0.18.0  (UNRELEASED)
 
-* `status()` gets new, more compact, display when packages have some 
+* `renv::status()` gets new, more compact, display when packages have some 
   inconsistent combination of being installed, used, and recorded.
 
 * `load()` makes the loading message a little more prominent, and we fixed a 

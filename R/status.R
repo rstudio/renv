@@ -235,7 +235,7 @@ renv_status_check_consistent <- function(lockfile, library, used) {
     issues$recorded <- ifelse(issues$recorded, "y", "n")
     issues$used <- ifelse(issues$used, "y", if (missing) "?" else "n")
 
-    writef("The following package(s) are inconsistent:")
+    writef("The following package(s) are in an inconsistent state:")
     writef()
     print(issues, row.names = FALSE, right = FALSE)
   }
