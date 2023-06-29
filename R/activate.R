@@ -112,14 +112,24 @@ renv_activate_version <- function(project) {
 
 renv_activate_version_activate <- function(project) {
 
+  # get path to the activate script
   activate <- renv_paths_activate(project = project)
   if (!file.exists(activate))
     return(NULL)
 
+  # check for version
   contents <- readLines(activate, warn = FALSE)
-  line <- grep("^\\s*version", contents, value = TRUE)
-  parsed <- parse(text = line)[[1L]]
-  parsed[[3L]]
+  line <- grep("version <-", contents, fixed = TRUE, value = TRUE)[[1L]]
+  version <- parse(text = line)[[1L]][[3L]]
+
+  # check for sha as well
+  line <- grep("attr(version, \"sha\")", contents, fixed = TRUE, value = TRUE)
+  if (length(line)) {
+    sha <- parse(text = line)[[1L]][[3L]]
+    attr(version, "sha") <- sha
+  }
+
+  version
 
 }
 
@@ -129,17 +139,21 @@ renv_activate_version_lockfile <- function(project) {
   if (!file.exists(path))
     return(NULL)
 
+  # read the renv record
   lockfile <- renv_lockfile_read(path)
-  lockfile$Packages[["renv"]]$RemoteSha %||%
-    lockfile$Packages[["renv"]]$Version %||%
-    lockfile[["renv"]]$Version
+  records <- renv_lockfile_records(lockfile)
+  renv <- records[["renv"]]
+
+  # read version (and sha, if available)
+  version <- renv[["Version"]]
+  attr(version, "sha") <- renv[["RemoteSha"]]
+
+  version
 
 }
 
-# TODO: can we unravel this, and just record the metadata structure
-# into the activate script?
 renv_activate_version_default <- function(project) {
-  the$metadata$sha %||% the$metadata$version
+  the$metadata$version
 }
 
 renv_activate_prompt <- function(action, library, prompt, project) {

@@ -100,6 +100,7 @@ renv_infrastructure_write_activate <- function(project = NULL,
 {
   project <- renv_project_resolve(project)
   version <- version %||% renv_activate_version(project)
+  sha <- attr(version, "sha", exact = TRUE)
 
   source <- system.file("resources/activate.R", package = "renv")
   target <- renv_paths_activate(project = project)
@@ -108,7 +109,14 @@ renv_infrastructure_write_activate <- function(project = NULL,
     return(FALSE)
 
   template <- renv_file_read(source)
-  new <- renv_template_replace(template, list(VERSION = version))
+  new <- renv_template_replace(
+    text = template,
+    replacements = list(
+      version = stringify(c(version)),
+      sha = stringify(c(sha))
+    ),
+    format = "..%s.."
+  )
 
   if (file.exists(target)) {
     old <- renv_file_read(target)

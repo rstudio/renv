@@ -27,20 +27,6 @@ test_that("we can bootstrap an archived version of renv", {
 
 })
 
-test_that("we can install a dev version of renv", {
-
-  skip_on_cran()
-  skip_on_ci()
-
-  renv_tests_scope()
-
-  library <- renv_libpaths_active()
-  bootstrap(version = "0.12.3-1", library = library)
-  expect_true(renv_package_installed("renv", library))
-  expect_true(renv_package_version("renv") == "0.12.3-1")
-
-})
-
 test_that("we can install a version of renv with a sha", {
 
   skip_on_cran()
@@ -48,8 +34,9 @@ test_that("we can install a version of renv with a sha", {
 
   renv_tests_scope()
 
+  version <- structure("0.17.3-62", sha = "5049cef8a")
   library <- renv_libpaths_active()
-  bootstrap(version = "5049cef8a", library = library)
+  bootstrap(version = version, library = library)
   expect_true(renv_package_installed("renv", library))
 
   desc <- utils::packageDescription("renv", library)
@@ -216,11 +203,19 @@ test_that("renv_bootstrap_version_type() works", {
 test_that("renv_boostrap_version_validate() recognises when versions are the same", {
 
   expect_true(
-    renv_bootstrap_validate_version("abcd123", list(RemoteSha = "abcd1234567"))
+    renv_bootstrap_validate_version(
+      version = structure("1.2.3", sha = "abcd123"),
+      description = list(RemoteSha = "abcd1234567")
+    )
   )
+
   expect_true(
-    renv_bootstrap_validate_version("1.2.3", list(Version = "1.2.3"))
+    renv_bootstrap_validate_version(
+      version = "1.2.3",
+      description = list(Version = "1.2.3")
+    )
   )
+
 })
 
 
@@ -230,25 +225,34 @@ test_that("renv_boostrap_version_validate() gives good warnings", {
   expect_snapshot({
 
     # out-of-sync (request release; have different release)
-    . <- renv_bootstrap_validate_version("1.2.3", list(Version = "2.3.4"))
+    . <- renv_bootstrap_validate_version(
+      version = "1.2.3",
+      description = list(Version = "2.3.4")
+    )
 
     # out-of-sync (request dev; have release)
-    . <- renv_bootstrap_validate_version("1.2.3-4", list(Version = "1.2.3"))
+    . <- renv_bootstrap_validate_version(
+      version = "1.2.3-1",
+      description = list(Version = "1.2.3")
+    )
 
     # out-of-sync (request dev; have different dev)
     . <- renv_bootstrap_validate_version(
-      version = "22d015905828c3398728a5ff9e381e0433976263",
+      version = structure("1.2.3-1", sha = "22d015905828c3398728a5ff9e381e0433976263"),
       description = list(
-        RemoteSha = "6b09befaaba3f55e0e2c141cb45c5d247b61ef1e",
-        Version = "1.2.3"
+        Version = "1.2.3-1",
+        RemoteSha = "6b09befaaba3f55e0e2c141cb45c5d247b61ef1e"
       )
     )
 
     # out-of-sync (request dev; have release)
     . <- renv_bootstrap_validate_version(
-      version = "22d015905828c3398728a5ff9e381e0433976263",
-      description = list(Version = "1.2.3")
+      version = structure("1.2.3-1", sha = "22d015905828c3398728a5ff9e381e0433976263"),
+      description = list(
+        Version = "1.2.3"
+      )
     )
 
   })
+
 })

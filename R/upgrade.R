@@ -96,7 +96,9 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   # now update the infrastructure to use this version of renv
   record <- records[["renv"]]
-  renv_infrastructure_write(project, version = record$Version)
+  version <- record[["Version"]]
+  attr(version, "sha") <- record[["RemoteSha"]]
+  renv_infrastructure_write(project, version = version)
 
   # reload renv
   if (reload)

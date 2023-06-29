@@ -181,6 +181,8 @@ test_that("RENV_PATHS_RENV is respected on init", {
   skip_on_cran()
 
   renv_tests_scope()
+  unlink("renv", recursive = TRUE)
+
   renv_scope_envvars(
     RENV_PATHS_LOCKFILE = ".renv/renv.lock",
     RENV_PATHS_RENV     = ".renv",

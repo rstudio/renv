@@ -110,11 +110,9 @@ renv_vendor_loader <- function(project, remote, header) {
   imports <- renv_vendor_imports()
 
   # create metadata for the embedded version
-  metadata <- renv_metadata_create(
-    embedded = TRUE,
-    version  = remote$Version,
-    sha      = remote$RemoteSha
-  )
+  version <- remote$Version
+  attr(version, "sha") <- remote$RemoteSha
+  metadata <- renv_metadata_create(embedded = TRUE, version = version)
 
   # format metadata for template insertion
   lines <- enum_chr(metadata, function(key, value) {
