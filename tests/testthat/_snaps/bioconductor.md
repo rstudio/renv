@@ -3,21 +3,21 @@
     Code
       status()
     Output
-      The following package(s) are installed, but not recorded in the lockfile:
+      The following package(s) are in an inconsistent state:
       
-      - BiocGenerics [<version>]
-      - BiocManager  [<version>]
-      - BiocVersion  [<version>]
+       package      installed recorded used
+       BiocGenerics y         n        y   
+       BiocManager  y         n        y   
+       BiocVersion  y         n        y   
       
-      Use `renv::snapshot()` to add these packages to the lockfile.
-      
+      See ?status() for advice on resolving the issues.
 
 ---
 
     Code
       status()
     Output
-      * The project is already synchronized with the lockfile.
+      No issues found.
 
 # auto-bioc install happens silently
 

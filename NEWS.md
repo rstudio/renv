@@ -1,6 +1,9 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::status()` gets new, more compact, display when packages have some
+  inconsistent combination of being installed, used, and recorded.
+
 * `renv::init()` now prompts the user to select a snapshot type, for projects
   containing a top-level DESCRIPTION file. (#1485)
 

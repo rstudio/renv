@@ -2,7 +2,7 @@
 % Please edit documentation in R/status.R
 \name{status}
 \alias{status}
-\title{Report differences between lockfile and project library}
+\title{Report inconsistencies between lockfile, library, and dependencies}
 \usage{
 status(
   project = NULL,
@@ -45,9 +45,76 @@ it invisibly returns a list containing the following components:
 }
 }
 \description{
-Report differences between the project's lockfile and the current state of
-the project's library (if any).
+\code{renv::status()} reports issues caused by inconsistencies across the project
+lockfile, library, and \code{\link[=dependencies]{dependencies()}}. In general, you should strive to
+ensure that \code{status()} reports no issues, as this maximises your chances of
+successfully \code{restore()}ing the project in the future or on another machine.
+
+\code{renv::load()} will report if any issues are detected when starting an
+renv project; we recommend resolving these issues before doing any
+further work on your project.
+
+See the headings below for specific advice on resolving any issues
+revealed by \code{status()}.
 }
+\section{Missing packages}{
+First, ensure that all packages used by the project are installed. This is
+important to do first because if any packages are missing we can't tell for
+sure that a package isn't used; it might be a dependency that we don’t know
+about.
+
+There are four possibilities for an uninstalled package:
+\itemize{
+\item If it’s used and recorded, call \code{renv::restore()} to install the version
+specified in the lockfile.
+\item If it’s used and not recorded, call \code{renv::install()} to install it
+from CRAN or elsewhere.
+\item If it’s not used and recorded, call \code{renv::snapshot()} to
+remove it from the lockfile.
+\item If it's not used and not recorded, there's nothing to do. This the most
+common state because you only use a small fraction of all available
+packages in any one project.
+}
+
+If you have multiple packages in an inconsistent state, we recommend
+\code{renv::restore()}, then \code{renv::install()}, then \code{renv::snapshot()}, but
+that also suggests you should be running status more frequently.
+}
+
+\section{Lockfile vs \code{dependencies()}}{
+Next we need to ensure that packages are recorded in the lockfile if and
+only if they are used by the project. Fixing issues of this nature only
+requires calling  \code{snapshot()} because there are four possibilities for
+a package:
+\itemize{
+\item If it’s used and recorded, it’s ok.
+\item If it’s used and not recorded, call \code{renv::snapshot()} to add it to the
+lockfile.
+\item If it’s not used but is recorded, call \code{renv::snapshot()} to remove
+it from the lockfile.
+\item If it’s not used and not recorded, it’s also ok, as it may be a
+development dependency.
+}
+}
+
+\section{Out-of-sync sources}{
+The final issue to resolve is any inconsistencies between the version of
+the package recorded in the lockfile and the version installed in your
+library. To fix these issues you'll need to either call \code{renv::restore()}
+or \code{renv::snapshot()}:
+\itemize{
+\item Call \code{renv::snapshot()} if your project code is working. This implies that
+the library is correct and you need to update your lockfile.
+\item Call \code{renv::restore()} if your project code isn't working. This probably
+implies that you have the wrong package versions installed and you need
+to restore from known good state in the lockfile.
+}
+
+If you're not sure which case applies, it's generally safer to call
+\code{renv::snapshot()}. If you want to rollback to an earlier known good
+status, see \code{\link[=history]{history()}} and \code{\link[=revert]{revert()}}.
+}
+
 \examples{
 
 \dontrun{
