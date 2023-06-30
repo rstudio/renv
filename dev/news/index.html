@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.18.0" id="renv-0180-unreleased">renv 0.18.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-0180-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/init.html">renv::init()</a></code> now prompts the user to select a snapshot type, for projects containing a top-level DESCRIPTION file. (<a href="https://github.com/rstudio/renv/issues/1485" class="external-link">#1485</a>)</p></li>
+<ul><li><p><code><a href="../reference/status.html">renv::status()</a></code> gets new, more compact, display when packages have some inconsistent combination of being installed, used, and recorded.</p></li>
+<li><p><code><a href="../reference/init.html">renv::init()</a></code> now prompts the user to select a snapshot type, for projects containing a top-level DESCRIPTION file. (<a href="https://github.com/rstudio/renv/issues/1485" class="external-link">#1485</a>)</p></li>
 <li><p><code><a href="../reference/load.html">renv::load()</a></code> makes the loading message a little more prominent, and we fixed a bug that prevented out-of-sync repos from being reported.</p></li>
 <li><p><code><a href="../reference/dependencies.html">renv::dependencies()</a></code> now discovers R dependencies inside jupyter notebooks (<a href="https://github.com/rstudio/renv/issues/929" class="external-link">#929</a>).</p></li>
 <li><p><code>renv::install(type = "source")</code> now ensures source repositories are used in projects using <a href="https://packagemanager.posit.co/" class="external-link">PPM</a>. (<a href="https://github.com/rstudio/renv/issues/927" class="external-link">#927</a>)</p></li>
