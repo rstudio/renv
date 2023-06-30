@@ -90,7 +90,7 @@ graph <- function(root = NULL,
 
   remaining <- intersect(root, names(graph)[ok])
   if (empty(remaining)) {
-    fmt <- "* Could not find any relationship between the requested packages."
+    fmt <- "- Could not find any relationship between the requested packages."
     writef(fmt)
     return(invisible(NULL))
   }

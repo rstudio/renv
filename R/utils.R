@@ -157,7 +157,7 @@ ask <- function(question, default = FALSE) {
     }
 
     # ask the user again
-    writef("* Unrecognized response: please enter 'y' or 'n', or type Ctrl + C to cancel.")
+    writef("- Unrecognized response: please enter 'y' or 'n', or type Ctrl + C to cancel.")
 
   }
 
@@ -513,7 +513,7 @@ cancel <- function() {
   if (is_testing())
     stop("Operation canceled", call. = FALSE)
 
-  message("* Operation canceled.")
+  message("- Operation canceled.")
   invokeRestart("abort")
 
 }

@@ -162,7 +162,7 @@ install <- function(packages = NULL,
   # figure out which packages we should install
   packages <- names(remotes) %||% renv_snapshot_dependencies(project, dev = TRUE)
   if (empty(packages)) {
-    writef("* There are no packages to install.")
+    writef("- There are no packages to install.")
     return(invisible(list()))
   }
 
@@ -199,7 +199,7 @@ install <- function(packages = NULL,
   # retrieve packages
   records <- retrieve(packages)
   if (empty(records)) {
-    writef("* There are no packages to install.")
+    writef("- There are no packages to install.")
     return(invisible(list()))
   }
 

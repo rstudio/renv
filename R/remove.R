@@ -37,9 +37,9 @@ remove <- function(packages,
   records <- Filter(function(record) !inherits(record, "error"), records)
 
   if (library == renv_paths_library(project = project)) {
-    writef("* Removing package(s) from project library ...")
+    writef("- Removing package(s) from project library ...")
   } else {
-    fmt <- "* Removing package(s) from library '%s' ..."
+    fmt <- "- Removing package(s) from library '%s' ..."
     writef(fmt, renv_path_aliased(library))
   }
 
@@ -54,7 +54,7 @@ remove <- function(packages,
       count <- count + 1
   }
 
-  writef("* Done! Removed %s.", nplural("package", count))
+  writef("- Done! Removed %s.", nplural("package", count))
   invisible(records)
 }
 
@@ -62,7 +62,7 @@ renv_remove_impl <- function(package, library) {
 
   path <- file.path(library, package)
   if (!renv_file_exists(path)) {
-    writef("* Package '%s' is not installed -- nothing to do.", package)
+    writef("- Package '%s' is not installed -- nothing to do.", package)
     return(FALSE)
   }
 

@@ -232,12 +232,12 @@ renv_settings_updated_cache <- function(project, old, new) {
   names(pkgpaths) <- cachepaths
 
   if (empty(pkgpaths)) {
-    fmt <- "* The cache has been %s for this project."
+    fmt <- "- The cache has been %s for this project."
     writef(fmt, if (new) "enabled" else "disabled")
     return(TRUE)
   }
 
-  printf("* Synchronizing project library with the cache ... ")
+  printf("- Synchronizing project library with the cache ... ")
 
   if (new) {
 
@@ -273,7 +273,7 @@ renv_settings_updated_cache <- function(project, old, new) {
 
   writef("Done!")
 
-  fmt <- "* The cache has been %s for this project."
+  fmt <- "- The cache has been %s for this project."
   writef(fmt, if (new) "enabled" else "disabled")
 
 }

@@ -160,9 +160,9 @@ renv_scope_install_macos <- function(scope = parent.frame()) {
   # R CMD config, as this might fail otherwise
   if (once()) {
     if (!renv_xcode_available()) {
-      message("* macOS is reporting that command line tools (CLT) are not installed.")
-      message("* Run 'xcode-select --install' to install command line tools.")
-      message("* Without CLT, attempts to install packages from sources may fail.")
+      message("- macOS is reporting that command line tools (CLT) are not installed.")
+      message("- Run 'xcode-select --install' to install command line tools.")
+      message("- Without CLT, attempts to install packages from sources may fail.")
     }
   }
 

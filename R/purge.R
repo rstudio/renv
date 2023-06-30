@@ -55,7 +55,7 @@ renv_purge_impl <- function(package,
     stop("argument 'package' is not of length one", call. = FALSE)
 
   bail <- function() {
-    writef("* The requested package is not installed in the cache -- nothing to do.")
+    writef("- The requested package is not installed in the cache -- nothing to do.")
     character()
   }
 
@@ -114,7 +114,7 @@ renv_purge_impl <- function(package,
   renv_cache_clean_empty()
 
   n <- length(paths)
-  writef("* Removed %s from the cache.", nplural("package", n))
+  writef("- Removed %s from the cache.", nplural("package", n))
 
   invisible(paths)
 

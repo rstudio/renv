@@ -483,7 +483,7 @@ renv_retrieve_cellar_report <- function(record) {
   if (source == "cellar")
     return(record)
 
-  fmt <- "* Package %s [%s] will be installed from the cellar."
+  fmt <- "- Package %s [%s] will be installed from the cellar."
   with(record, writef(fmt, Package, Version))
 
   record

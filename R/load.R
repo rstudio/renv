@@ -587,7 +587,7 @@ renv_load_bioconductor <- function(project, bioconductor) {
   options(repos = repos)
 
   # notify the user
-  sprintf("* Using Bioconductor '%s'.", version)
+  sprintf("- Using Bioconductor '%s'.", version)
 
 }
 
@@ -687,8 +687,8 @@ renv_load_cache <- function(project) {
     return(FALSE)
 
   msg <- lines(
-    "* The cache version has been updated in this version of renv.",
-    "* Use `renv::rehash()` to migrate packages from the old renv cache."
+    "- The cache version has been updated in this version of renv.",
+    "- Use `renv::rehash()` to migrate packages from the old renv cache."
   )
   printf(msg)
 
@@ -769,7 +769,7 @@ renv_load_report_python <- function(project) {
   if (is.na(python))
     return(FALSE)
 
-  # fmt <- "* Using Python %s. [%s]"
+  # fmt <- "- Using Python %s. [%s]"
   # writef(fmt, renv_python_version(python), renv_python_type(python))
 
 }
@@ -786,7 +786,7 @@ renv_load_report_updates <- function(project) {
   if (!available)
     return(FALSE)
 
-  writef("* Use `renv::update()` to install updated packages.")
+  writef("- Use `renv::update()` to install updated packages.")
   if (!interactive())
     print(status)
 

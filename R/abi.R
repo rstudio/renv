@@ -5,7 +5,7 @@ renv_abi_check <- function(packages = NULL,
                            project  = NULL)
 {
   if (renv_platform_windows()) {
-    writef("* ABI conflict checks are not yet implemented on Windows.")
+    writef("- ABI conflict checks are not yet implemented on Windows.")
     return()
   }
 
@@ -33,7 +33,7 @@ renv_abi_check <- function(packages = NULL,
   # report problmes
   data <- problems$data()
   if (empty(data)) {
-    fmt <- "* No ABI conflicts were detected in the set of installed packages."
+    fmt <- "- No ABI conflicts were detected in the set of installed packages."
     writef(fmt)
     return(invisible(data))
   }

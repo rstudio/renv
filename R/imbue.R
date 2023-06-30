@@ -28,7 +28,7 @@ imbue <- function(project = NULL,
   vtext <- version %||% renv_metadata_version()
   writef("Installing renv [%s] ...", vtext)
   status <- renv_imbue_impl(project, version)
-  writef("* Done! renv has been successfully installed.")
+  writef("- Done! renv has been successfully installed.")
 
   invisible(status)
 

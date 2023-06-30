@@ -66,7 +66,7 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
 
-  fmt <- "* Querying repositories for available %s packages ... "
+  fmt <- "- Querying repositories for available %s packages ... "
   printf(fmt, type)
 
   # exclude repositories which are known to not have packages available

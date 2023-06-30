@@ -13,7 +13,7 @@
       
       - Using 'explicit' snapshot type. Please see `?renv::snapshot` for more details.
       
-      * Resolving missing dependencies ... 
+      - Resolving missing dependencies ... 
       # Installing packages ---
       
       - Installing bread ...                          OK [linked from cache]
@@ -26,5 +26,5 @@
       The version of R recorded in the lockfile will be updated:
       - R       [* -> <r-version>]
       
-      * Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to '<wd>/renv.lock'.
 

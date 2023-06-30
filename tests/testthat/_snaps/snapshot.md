@@ -30,7 +30,7 @@
       # CRAN ---
       - oatmeal   [1.0.0 -> *]
       
-      * Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to '<wd>/renv.lock'.
 
 # broken symlinks are reported
 
@@ -63,7 +63,7 @@
       # CRAN ---
       - oatmeal   [1.0.0 -> *]
       
-      * Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to '<wd>/renv.lock'.
 
 # snapshot warns about unsatisfied dependencies
 
@@ -99,7 +99,7 @@
       
       Selection: 1
       
-      * The lockfile is already up to date.
+      - The lockfile is already up to date.
 
 # snapshot() warns when required package is not installed
 
@@ -129,7 +129,7 @@
       - oatmeal     [1.0.0 -> *]
       - toast       [1.0.0 -> *]
       
-      * Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to '<wd>/renv.lock'.
 
 ---
 
@@ -197,14 +197,14 @@
       The version of R recorded in the lockfile will be updated:
       - R     [* -> <r-version>]
       
-      * Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to '<wd>/renv.lock'.
 
 # automatic snapshot works as expected
 
     Code
       renv_snapshot_task()
     Output
-      * Automatic snapshot has updated '<wd>/renv.lock'.
+      - Automatic snapshot has updated '<wd>/renv.lock'.
 
 # we can infer github remotes from packages installed from sources
 
@@ -221,7 +221,7 @@
       Consider using .renvignore to ignore files, or switching to explicit snapshots.
       See `?dependencies` for more information.
       
-      * The lockfile is already up to date.
+      - The lockfile is already up to date.
 
 # failures in automatic snapshots disable automatic snapshots
 

@@ -20,7 +20,7 @@ renv_snapshot_auto <- function(project) {
 
   if (updated) {
     lockfile <- renv_path_aliased(renv_lockfile_path(project))
-    writef("* Automatic snapshot has updated '%s'.", lockfile)
+    writef("- Automatic snapshot has updated '%s'.", lockfile)
   }
 
   invisible(updated)

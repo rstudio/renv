@@ -68,7 +68,7 @@ scaffold <- function(project  = NULL,
   renv_lockfile_write(lockfile, file = renv_lockfile_path(project))
 
   # notify user
-  fmt <- "* renv infrastructure has been generated for project %s."
+  fmt <- "- renv infrastructure has been generated for project %s."
   writef(fmt, renv_path_pretty(project))
 
   # return project invisibly

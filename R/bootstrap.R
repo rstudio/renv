@@ -342,7 +342,7 @@ renv_bootstrap_download_tarball <- function(version) {
   if (!file.exists(tarball)) {
 
     # let the user know we weren't able to honour their request
-    fmt <- "* RENV_BOOTSTRAP_TARBALL is set (%s) but does not exist."
+    fmt <- "- RENV_BOOTSTRAP_TARBALL is set (%s) but does not exist."
     msg <- sprintf(fmt, tarball)
     warning(msg)
 
@@ -737,8 +737,8 @@ renv_bootstrap_validate_version <- function(version, description = NULL) {
 
   fmt <- paste(
     "renv %1$s was loaded from project library, but this project is configured to use renv %2$s.",
-    "* Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.",
-    "* Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
+    "- Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.",
+    "- Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
     sep = "\n"
   )
   catf(fmt, friendly, renv_bootstrap_version_friendly(version), remote)
