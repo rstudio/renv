@@ -343,7 +343,7 @@ update <- function(packages = NULL,
     }
   }
 
-  printf("* Checking for updated packages ... ")
+  printf("- Checking for updated packages ... ")
 
   # remove records that appear to be from an R package repository,
   # but are not actually available in the current repositories
@@ -366,7 +366,7 @@ update <- function(packages = NULL,
   renv_update_errors_emit()
 
   if (empty(updates)) {
-    writef("* All packages appear to be up-to-date.")
+    writef("- All packages appear to be up-to-date.")
     return(invisible(TRUE))
   }
 
@@ -379,8 +379,8 @@ update <- function(packages = NULL,
   if (check) {
 
     fmt <- case(
-      length(diff) == 1 ~ "* %i package has updates available.",
-      length(diff) != 1 ~ "* %i packages have updates available."
+      length(diff) == 1 ~ "- %i package has updates available.",
+      length(diff) != 1 ~ "- %i packages have updates available."
     )
 
     preamble <- sprintf(fmt, length(diff))

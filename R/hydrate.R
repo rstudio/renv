@@ -105,7 +105,7 @@ hydrate <- function(packages = NULL,
   # check for nothing to be done
   if (empty(packages) && empty(missing)) {
     if (report)
-      writef("* No new packages were discovered in this project; nothing to do.")
+      writef("- No new packages were discovered in this project; nothing to do.")
     return(invisible(list(packages = list(), missing = list())))
   }
 
@@ -121,7 +121,7 @@ hydrate <- function(packages = NULL,
 
   if (report) {
     time <- difftime(after, before, units = "auto")
-    fmt <- "* Hydrated %s packages in %s."
+    fmt <- "- Hydrated %s packages in %s."
     writef(fmt, length(packages), renv_difftime_format(time))
   }
 
@@ -255,9 +255,9 @@ renv_hydrate_link_package <- function(package, location, library) {
 renv_hydrate_link_packages <- function(packages, library, project) {
 
   if (renv_path_same(library, renv_paths_library(project = project)))
-    printf("* Linking packages into the project library ... ")
+    printf("- Linking packages into the project library ... ")
   else
-    printf("* Linking packages into %s ... ", renv_path_pretty(library))
+    printf("- Linking packages into %s ... ", renv_path_pretty(library))
 
   callback <- renv_progress_callback(renv_hydrate_link_package, length(packages))
   cached <- enumerate(packages, callback, library = library)
@@ -276,9 +276,9 @@ renv_hydrate_copy_package <- function(package, location, library) {
 renv_hydrate_copy_packages <- function(packages, library, project) {
 
   if (renv_path_same(library, renv_paths_library(project = project)))
-    printf("* Copying packages into the project library ... ")
+    printf("- Copying packages into the project library ... ")
   else
-    printf("* Copying packages into %s ... ", renv_path_pretty(library))
+    printf("- Copying packages into %s ... ", renv_path_pretty(library))
 
   callback <- renv_progress_callback(renv_hydrate_copy_package, length(packages))
   copied <- enumerate(packages, callback, library = library)
@@ -304,7 +304,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
   if (all(packages %in% installed$Package))
     return()
 
-  writef("* Resolving missing dependencies ... ")
+  writef("- Resolving missing dependencies ... ")
 
   # define a custom error handler for packages which we cannot retrieve
   errors <- stack()

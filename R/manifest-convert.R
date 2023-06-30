@@ -81,7 +81,7 @@ renv_lockfile_from_manifest <- function(manifest,
 
   # otherwise, write to file and report for user
   renv_lockfile_write(lock, file = lockfile)
-  fmt <- "* Lockfile written to %s."
+  fmt <- "- Lockfile written to %s."
   writef(fmt, renv_path_pretty(lockfile))
 
   invisible(lock)

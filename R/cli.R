@@ -10,7 +10,7 @@ renv_cli_install <- function(target = NULL) {
   ensure_parent_directory(target)
   file.copy(path, target)
 
-  writef("* renv binary copied to %s.", renv_path_pretty(target))
+  writef("- renv binary copied to %s.", renv_path_pretty(target))
   invisible(target)
 
 }

@@ -109,7 +109,7 @@ init <- function(project = NULL,
     options(repos = biocrepos)
 
     # notify user
-    writef("* Using Bioconductor version '%s'.", biocver)
+    writef("- Using Bioconductor version '%s'.", biocver)
     settings[["bioconductor.version"]] <- biocver
 
   }

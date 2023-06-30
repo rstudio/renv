@@ -58,7 +58,7 @@ record <- function(records,
   renv_lockfile_write(new, lockfile)
 
   n <- length(records)
-  fmt <- "* Updated %s in %s."
+  fmt <- "- Updated %s in %s."
   writef(fmt, nplural("record", n), renv_path_pretty(lockfile))
 
   renv <- records[["renv"]]

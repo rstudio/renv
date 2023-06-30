@@ -68,7 +68,7 @@ renv_equip_macos_toolchain <- function() {
 
   clang <- file.path(dst, "bin/clang")
   if (file.exists(clang)) {
-    fmt <- "* LLVM toolchain for R %s is already installed at %s."
+    fmt <- "- LLVM toolchain for R %s is already installed at %s."
     writef(fmt, getRversion(), shQuote(dst))
     return(TRUE)
   }

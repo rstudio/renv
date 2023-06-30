@@ -113,7 +113,7 @@ renv_zzz_bootstrap_activate <- function() {
   replaced <- renv_template_replace(template, list(BOOTSTRAP = bootstrap))
 
   # write to resources
-  printf("* Generating 'inst/resources/activate.R' ... ")
+  printf("- Generating 'inst/resources/activate.R' ... ")
   writeLines(replaced, con = target)
   writef("Done!")
 
@@ -178,7 +178,7 @@ renv_zzz_bootstrap_config <- function() {
     ")"
   )
 
-  printf("* Generating 'R/config-defaults.R' ... ")
+  printf("- Generating 'R/config-defaults.R' ... ")
   writeLines(all, con = target)
   writef("Done!")
 

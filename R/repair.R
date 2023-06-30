@@ -29,7 +29,7 @@ repair <- function(library  = NULL,
   broken <- renv_file_broken(paths)
   packages <- basename(paths[broken])
   if (empty(packages)) {
-    fmt <- "* The project library has no broken links -- nothing to do."
+    fmt <- "- The project library has no broken links -- nothing to do."
     writef(fmt)
     return(invisible(packages))
   }

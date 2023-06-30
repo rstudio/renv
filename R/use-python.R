@@ -277,10 +277,10 @@ renv_use_python_fini <- function(info,
   # notify user
   if (!renv_tests_running()) {
     if (is.null(info$type)) {
-      fmt <- "* Activated Python %s (%s)."
+      fmt <- "- Activated Python %s (%s)."
       writef(fmt, version, renv_path_aliased(info$python))
     } else {
-      fmt <- "* Activated Python %s [%s; %s]"
+      fmt <- "- Activated Python %s [%s; %s]"
       writef(fmt, version, info$type, renv_path_aliased(name))
     }
   }
@@ -364,11 +364,11 @@ renv_use_python_virtualenv_impl <- function(project,
       return(exe)
   }
 
-  printf("* Creating virtual environment '%s' ... ", basename(name))
+  printf("- Creating virtual environment '%s' ... ", basename(name))
   vpython <- renv_python_virtualenv_create(python, path)
   writef("Done!")
 
-  printf("* Updating Python packages ... ")
+  printf("- Updating Python packages ... ")
   renv_python_virtualenv_update(vpython)
   writef("Done!")
 
@@ -424,7 +424,7 @@ renv_python_deactivate <- function(project) {
 
   lockfile$Python <- NULL
   renv_lockfile_write(lockfile, file = file)
-  writef("* Deactived Python -- the lockfile has been updated.")
+  writef("- Deactived Python -- the lockfile has been updated.")
   TRUE
 
 }

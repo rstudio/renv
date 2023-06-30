@@ -126,7 +126,7 @@ restore <- function(project  = NULL,
 
   if (!length(diff)) {
     name <- if (!missing(library)) "library" else "project"
-    writef("* The %s is already synchronized with the lockfile.", name)
+    writef("- The %s is already synchronized with the lockfile.", name)
     return(renv_restore_successful(diff, prompt, project))
   }
 
