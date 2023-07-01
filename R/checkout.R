@@ -212,7 +212,7 @@ renv_checkout_repos <- function(date) {
   root <- dirname(config$ppm.url())
   url <- file.path(root, date)
   if (renv_download_available(file.path(url, "src/contrib/PACKAGES")))
-    return(url)
+    return(c(PPM = url))
 
   # requested date not available; try to search a bit
   candidate <- date
@@ -222,7 +222,7 @@ renv_checkout_repos <- function(date) {
     if (renv_download_available(file.path(url, "src/contrib/PACKAGES"))) {
       fmt <- "- Snapshot date '%s' not available; using '%s' instead"
       printf(fmt, date, candidate)
-      return(url)
+      return(c(PPM = url))
     }
   }
 
