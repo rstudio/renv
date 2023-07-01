@@ -38,6 +38,13 @@
 #'   [Package Manager](https://packagemanager.rstudio.com/) instance will be
 #'   used. Ignored if `repos` is non-`NULL`.
 #'
+#' @param actions The action(s) to perform with the requested repositories.
+#'   This can either be "snapshot", in which `renv` will generate a lockfile
+#'   based on the latest versions of the packages available from `repos`, or
+#'   "restore" if you'd like to install those packages. You can use
+#'   `c("snapshot", "restore")` if you'd like to generate a lockfile and
+#'   install those packages in the same step.
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -57,6 +64,7 @@ checkout <- function(repos = NULL,
                      packages = NULL,
                      date     = NULL,
                      clean    = FALSE,
+                     actions  = "restore",
                      project  = NULL)
 {
   renv_consent_check()
@@ -85,8 +93,16 @@ checkout <- function(repos = NULL,
   lockfile <- renv_lockfile_init(project)
   lockfile$Packages <- records
 
-  # restore from that lockfile
-  restore(lockfile = lockfile, clean = clean)
+  # perform requested actions
+  for (action in actions) {
+    case(
+      action == "snapshot" ~ renv_lockfile_write(lockfile, file = renv_lockfile_path(project)),
+      action == "restore"  ~ restore(lockfile = lockfile, clean = clean),
+      ~ stopf("unrecognized action '%s'")
+    )
+  }
+
+  invisible(lockfile)
 
 }
 

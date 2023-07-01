@@ -225,7 +225,6 @@ snapshot <- function(project  = NULL,
   # write it out
   ensure_parent_directory(lockfile)
   renv_lockfile_write(new, file = lockfile)
-  writef("- Lockfile written to '%s'.", renv_path_aliased(lockfile))
 
   # ensure the lockfile is .Rbuildignore-d
   renv_infrastructure_write_rbuildignore(project)
