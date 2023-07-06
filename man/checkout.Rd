@@ -46,7 +46,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-\code{renv::checkout()} can be used to install the latest packages available from
+\code{renv::checkout()} can be used to retrieve the latest-availabe packages from
 a (set of) package repositories.
 }
 \details{
@@ -64,11 +64,6 @@ replaced with the version provided by the requested repositories. This could
 be a concern if your project uses \R packages from GitHub whose name matches
 that of an existing CRAN package, but is otherwise unrelated to the package
 on CRAN.
-
-Note that \code{renv::checkout()} does not update the project lockfile; it only
-installs the packages from the provided repository. You should call
-\code{\link[=snapshot]{snapshot()}} after you've confirmed that the installed packages function as
-expected in your project.
 }
 \examples{
 \dontrun{

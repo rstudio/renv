@@ -1,7 +1,7 @@
 
 #' Checkout a repository
 #'
-#' `renv::checkout()` can be used to install the latest packages available from
+#' `renv::checkout()` can be used to retrieve the latest-availabe packages from
 #' a (set of) package repositories.
 #'
 #' `renv::checkout()` is most useful with services like the Posit's
@@ -18,11 +18,6 @@
 #' be a concern if your project uses \R packages from GitHub whose name matches
 #' that of an existing CRAN package, but is otherwise unrelated to the package
 #' on CRAN.
-#'
-#' Note that `renv::checkout()` does not update the project lockfile; it only
-#' installs the packages from the provided repository. You should call
-#' [snapshot()] after you've confirmed that the installed packages function as
-#' expected in your project.
 #'
 #' @inheritParams renv-params
 #'
