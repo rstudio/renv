@@ -1,30 +1,28 @@
 
-# renv 0.18.0  (UNRELEASED)
+# renv 1.0.0
 
 * `renv::checkout()` gains the `actions` argument, allowing you choose whether
   a lockfile is generated from the provided repositories ("snapshot"), or
   whether packages are installed from the provided repositories ("restore").
 
-* `renv::status()` gets new, more compact, display when packages have some
+* `renv::status()` now uses a more compact display when packages have some
   inconsistent combination of being installed, used, and recorded.
 
 * `renv::init()` now prompts the user to select a snapshot type, for projects
   containing a top-level DESCRIPTION file. (#1485)
 
-* `renv::load()` makes the loading message a little more prominent, and we fixed a 
-  bug that prevented out-of-sync repos from being reported.
-
-* `renv::dependencies()` now discovers R dependencies inside jupyter notebooks (#929).
+* `renv::dependencies()` now discovers R package dependencies inside Jupyter
+  notebooks (#929).
 
 * `renv::install(type = "source")` now ensures source repositories are used
   in projects using [PPM](https://packagemanager.posit.co/). (#927)
   
-* `renv::restore()` now emits an error if called in a project that
+* `renv::restore()` now emits an error if called within a project that
   does not contain a lockfile. (#1474)
 
-* If `renv::config$user.profile()` is `TRUE`, the packages it uses are now included
-  in the development dependencies, which means that they will be installed 
-  by `install()` but not recorded in the snapshot.
+* If `renv::config$user.profile()` is `TRUE`, the packages it uses are now
+  included in the development dependencies, which means that they will be
+  installed by `install()` but not recorded in the snapshot.
 
 * renv now attempts to infer remote dependencies for GitHub packages that
   appear to be installed from sources; that is, for packages without a
@@ -34,7 +32,7 @@
   no packages are installed (#353).
 
 * renv now provides a small family of functions for interacting with renv
-  lockfiles -- see `?lockfile` for more details. (#1438)
+  lockfiles -- see `?renv::lockfile` for more details. (#1438)
 
 * renv now activates the Bioconductor repositories when installing a package
   from a remote (e.g. GitHub) which declares a Bioconductor dependency (via
