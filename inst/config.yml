@@ -211,8 +211,7 @@
   type: "logical[1]"
   default: false
   description: >
-    Attempt to download binaries from [MRAN](https://mran.microsoft.com/)
-    during restore? See `vignette("mran", package = "renv")` for more details.
+    DEPRECATED: MRAN is no longer maintained by Microsoft.
 
 - name: "pak.enabled"
   type: "logical[1]"
@@ -248,9 +247,8 @@
   default: "https://packagemanager.posit.co/cran/latest"
   description: >
     The default PPM URL to be used for new renv projects. Defaults to the
-    [CRAN mirror](https://packagemanager.posit.co/cran/latest) maintained by
-    Posit. This option can be changed if you'd like renv to use a separate
-    package manager instance.
+    CRAN mirror maintained by Posit at <https://packagemanager.posit.co/>.
+    This option can be changed if you'd like renv to use an alternate package manager instance.
 
 - name: "repos.override"
   type: "character[*]"

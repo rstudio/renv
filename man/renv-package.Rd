@@ -18,6 +18,7 @@ installations of a package that might otherwise be shared across projects.
 Useful links:
 \itemize{
   \item \url{https://rstudio.github.io/renv/}
+  \item \url{https://github.com/rstudio/renv}
   \item Report bugs at \url{https://github.com/rstudio/renv/issues}
 }
 

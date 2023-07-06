@@ -97,7 +97,7 @@ Defaults to \code{TRUE}.}
 Defaults to \code{FALSE}.}
 \subsection{renv.config.locking.enabled}{Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at \code{renv/lock}; if you need to manually remove a stale lock you can do so via \code{unlink("renv/lock", recursive = TRUE)}.
 Defaults to \code{FALSE}.}
-\subsection{renv.config.mran.enabled}{Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN} during restore? See \code{vignette("mran", package = "renv")} for more details.
+\subsection{renv.config.mran.enabled}{DEPRECATED: MRAN is no longer maintained by Microsoft.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.pak.enabled}{Use the \href{https://pak.r-lib.org/}{pak} package to install packages?
 Defaults to \code{FALSE}.}
@@ -105,7 +105,7 @@ Defaults to \code{FALSE}.}
 Defaults to \code{TRUE}.}
 \subsection{renv.config.ppm.default}{Boolean; should new projects use the \href{https://packagemanager.posit.co/}{Posit Public Package Manager} instance by default? When \code{TRUE} (the default), projects initialized with \code{renv::init()} will use the P3M instance if the \code{repos} R option has not already been set by some other means (for example, in a startup \code{.Rprofile}).
 Defaults to \code{TRUE}.}
-\subsection{renv.config.ppm.url}{The default PPM URL to be used for new renv projects. Defaults to the \href{https://packagemanager.posit.co/cran/latest}{CRAN mirror} maintained by Posit. This option can be changed if you'd like renv to use a separate package manager instance.
+\subsection{renv.config.ppm.url}{The default PPM URL to be used for new renv projects. Defaults to the CRAN mirror maintained by Posit at \url{https://packagemanager.posit.co/}. This option can be changed if you'd like renv to use an alternate package manager instance.
 Defaults to \code{"https://packagemanager.posit.co/cran/latest"}.}
 \subsection{renv.config.repos.override}{Override the R package repositories used during \code{\link[=restore]{restore()}}? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
 Defaults to \code{NULL}.}
