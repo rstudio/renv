@@ -33,8 +33,8 @@
       
       # Installing packages ---
       
-      - Installing BiocVersion ...                    OK [copied from cache]
-      - Installing BiocGenerics ...                   OK [copied from cache]
+      - Installing BiocVersion ...                    OK [copied from cache in XXs]
+      - Installing BiocGenerics ...                   OK [copied from cache in XXs]
       
       Successfully installed 2 packages in XXXX seconds.
 

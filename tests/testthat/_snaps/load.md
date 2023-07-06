@@ -16,10 +16,10 @@
       
       # Installing packages ---
       
-      - Installing bread ...                          OK [linked from cache]
-      - Installing oatmeal ...                        OK [linked from cache]
-      - Installing toast ...                          OK [linked from cache]
-      - Installing breakfast ...                      OK [linked from cache]
+      - Installing bread ...                          OK [linked from cache in XXs]
+      - Installing oatmeal ...                        OK [linked from cache in XXs]
+      - Installing toast ...                          OK [linked from cache in XXs]
+      - Installing breakfast ...                      OK [linked from cache in XXs]
       
 
 # load() reports on problems

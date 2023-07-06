@@ -816,8 +816,8 @@ renv_install_step_start <- function(action, package) {
 
 renv_install_step_ok <- function(..., time = NULL) {
   writef(
-    "OK [%s%s]",
+    "OK [%s in %s]",
     paste(..., collapse = ""),
-    renv_difftime_format_slow(time, prefix = " in ")
+    renv_difftime_format_short(time)
   )
 }
