@@ -8,6 +8,7 @@ dependencies(
   path = getwd(),
   root = NULL,
   ...,
+  quiet = NULL,
   progress = TRUE,
   errors = c("reported", "fatal", "ignored"),
   dev = FALSE
@@ -25,6 +26,10 @@ properly handled.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
+
+\item{quiet}{Boolean; be quiet while checking for dependencies?
+Setting \code{quiet = TRUE} is equivalent to setting \code{progress = FALSE}
+and \code{errors = "ignored"}, and overrides those options when not \code{NULL}.}
 
 \item{progress}{Boolean; report progress output while enumerating
 dependencies?}

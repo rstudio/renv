@@ -132,6 +132,10 @@
 #'   explicitly to ensure that your project's `.renvignore`s (if any) are
 #'   properly handled.
 #'
+#' @param quiet Boolean; be quiet while checking for dependencies?
+#'   Setting `quiet = TRUE` is equivalent to setting `progress = FALSE`
+#'   and `errors = "ignored"`, and overrides those options when not `NULL`.
+#'
 #' @param progress Boolean; report progress output while enumerating
 #'   dependencies?
 #'
@@ -171,6 +175,7 @@ dependencies <- function(
   path = getwd(),
   root = NULL,
   ...,
+  quiet = NULL,
   progress = TRUE,
   errors = c("reported", "fatal", "ignored"),
   dev = FALSE)
@@ -184,6 +189,7 @@ dependencies <- function(
   renv_dependencies_impl(
     path     = path,
     root     = root,
+    quiet    = quiet,
     progress = progress,
     errors   = errors,
     dev      = dev,
@@ -196,14 +202,21 @@ renv_dependencies_impl <- function(
   ...,
   root = NULL,
   field = NULL,
+  quiet = NULL,
   progress = FALSE,
   errors = c("reported", "fatal", "ignored"),
   dev = FALSE)
 {
+  renv_dots_check(...)
 
   path <- renv_path_normalize(path, mustWork = TRUE)
-  renv_dots_check(...)
   root <- root %||% renv_dependencies_root(path)
+
+  # handle 'quiet' parameter
+  if (quiet %||% FALSE) {
+    progress <- FALSE
+    errors <- "ignored"
+  }
 
   # ignore errors when testing, unless explicitly asked for
   if (renv_tests_running() && missing(errors))
