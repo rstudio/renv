@@ -3,8 +3,7 @@
     Code
       load()
     Output
-      # Loading renv [<version>] ---
-      - Project '<wd>' loaded.
+      - Project '<wd>' loaded. [renv <version>]
       - None of the packages recorded in the lockfile are installed.
       - Using `renv::restore()` to restore the project library.
       The following package(s) will be updated:
@@ -28,8 +27,6 @@
     Code
       load()
     Output
-      # Loading renv [<version>] ---
-      - Project '<wd>' loaded.
-      - The project is currently out-of-sync.
-      - Use `renv::status()` for more details.
+      - Project '<wd>' loaded. [renv <version>]
+      - The project is out-of-sync -- use `renv::status()` for details.
 

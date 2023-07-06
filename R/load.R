@@ -94,7 +94,6 @@ load <- function(project = NULL, quiet = FALSE) {
   if (quiet || renv_load_quiet())
     renv_scope_options(renv.verbose = FALSE)
 
-  writef(header("Loading renv [%s]", renv_metadata_version_friendly()))
   renv_envvars_save()
 
   # load a minimal amount of state when testing
@@ -753,25 +752,18 @@ renv_load_report_project <- function(project) {
   profile <- renv_profile_get()
   version <- renv_metadata_version_friendly()
 
-  if (length(profile)) {
-    fmt <- "- Project '%s' loaded with %s profile."
-    writef(fmt, renv_path_aliased(project), profile)
+  if (!is.null(profile)) {
+    fmt <- "- Project '%s' loaded. [renv %s; using profile '%s']"
+    writef(fmt, renv_path_aliased(project), version, profile)
   } else {
-    fmt <- "- Project '%s' loaded."
-    writef(fmt, renv_path_aliased(project))
+    fmt <- "- Project '%s' loaded. [renv %s]"
+    writef(fmt, renv_path_aliased(project), version)
   }
 
 }
 
 renv_load_report_python <- function(project) {
-
-  python <- Sys.getenv("RENV_PYTHON", unset = NA)
-  if (is.na(python))
-    return(FALSE)
-
-  # fmt <- "- Using Python %s. [%s]"
-  # writef(fmt, renv_python_version(python), renv_python_type(python))
-
+  # TODO
 }
 
 # nocov start
@@ -854,15 +846,8 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
   })
 
   if (!identical(info$synchronized, TRUE)) {
-
-    msg <- lines(
-      "- The project is currently out-of-sync.",
-      "- Use `renv::status()` for more details."
-    )
-
-    writef(msg)
+    writef("- The project is out-of-sync -- use `renv::status()` for details.")
     return(FALSE)
-
   }
 
   TRUE
