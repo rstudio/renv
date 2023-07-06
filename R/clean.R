@@ -133,7 +133,7 @@ renv_clean_library_tempdirs <- function(project, prompt) {
     renv_pretty_print("The following directories will be removed:", bad)
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
   # nocov end
@@ -187,7 +187,7 @@ renv_clean_system_library <- function(project, prompt) {
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
   # nocov end
@@ -233,7 +233,7 @@ renv_clean_unused_packages <- function(project, prompt) {
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
   # nocov end
@@ -260,8 +260,8 @@ renv_clean_package_locks <- function(project, prompt) {
   now <- Sys.time()
   mtime <- file.mtime(lock)
   mtime[is.na(mtime)] <- now
-  diff <- difftime(now, mtime, units = "mins")
-  old <- lock[diff > 2]
+  diff <- difftime(now, mtime, units = "secs")
+  old <- lock[diff > 120]
   if (empty(old))
     return(ntd())
 
@@ -275,7 +275,7 @@ renv_clean_package_locks <- function(project, prompt) {
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
   # nocov end
@@ -309,7 +309,7 @@ renv_clean_cache <- function(project, prompt) {
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
     writeLines(projlist[!missing], con = projects, useBytes = TRUE)
 
@@ -345,7 +345,7 @@ renv_clean_cache <- function(project, prompt) {
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
 
