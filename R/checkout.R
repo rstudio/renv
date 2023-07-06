@@ -1,7 +1,7 @@
 
 #' Checkout a repository
 #'
-#' `renv::checkout()` can be used to install the latest packages available from
+#' `renv::checkout()` can be used to retrieve the latest-availabe packages from
 #' a (set of) package repositories.
 #'
 #' `renv::checkout()` is most useful with services like the Posit's
@@ -19,11 +19,6 @@
 #' that of an existing CRAN package, but is otherwise unrelated to the package
 #' on CRAN.
 #'
-#' Note that `renv::checkout()` does not update the project lockfile; it only
-#' installs the packages from the provided repository. You should call
-#' [snapshot()] after you've confirmed that the installed packages function as
-#' expected in your project.
-#'
 #' @inheritParams renv-params
 #'
 #' @param repos The \R package repositories to use.
@@ -37,6 +32,13 @@
 #'   available from the Posit's public
 #'   [Package Manager](https://packagemanager.rstudio.com/) instance will be
 #'   used. Ignored if `repos` is non-`NULL`.
+#'
+#' @param actions The action(s) to perform with the requested repositories.
+#'   This can either be "snapshot", in which `renv` will generate a lockfile
+#'   based on the latest versions of the packages available from `repos`, or
+#'   "restore" if you'd like to install those packages. You can use
+#'   `c("snapshot", "restore")` if you'd like to generate a lockfile and
+#'   install those packages in the same step.
 #'
 #' @examples
 #' \dontrun{
@@ -57,6 +59,7 @@ checkout <- function(repos = NULL,
                      packages = NULL,
                      date     = NULL,
                      clean    = FALSE,
+                     actions  = "restore",
                      project  = NULL)
 {
   renv_consent_check()
@@ -85,8 +88,16 @@ checkout <- function(repos = NULL,
   lockfile <- renv_lockfile_init(project)
   lockfile$Packages <- records
 
-  # restore from that lockfile
-  restore(lockfile = lockfile, clean = clean)
+  # perform requested actions
+  for (action in actions) {
+    case(
+      action == "snapshot" ~ renv_lockfile_write(lockfile, file = renv_lockfile_path(project)),
+      action == "restore"  ~ restore(lockfile = lockfile, clean = clean),
+      ~ stopf("unrecognized action '%s'")
+    )
+  }
+
+  invisible(lockfile)
 
 }
 
@@ -196,7 +207,7 @@ renv_checkout_repos <- function(date) {
   root <- dirname(config$ppm.url())
   url <- file.path(root, date)
   if (renv_download_available(file.path(url, "src/contrib/PACKAGES")))
-    return(url)
+    return(c(PPM = url))
 
   # requested date not available; try to search a bit
   candidate <- date
@@ -206,7 +217,7 @@ renv_checkout_repos <- function(date) {
     if (renv_download_available(file.path(url, "src/contrib/PACKAGES"))) {
       fmt <- "- Snapshot date '%s' not available; using '%s' instead"
       printf(fmt, date, candidate)
-      return(url)
+      return(c(PPM = url))
     }
   }
 

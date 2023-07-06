@@ -1,6 +1,10 @@
 
 # renv 0.18.0  (UNRELEASED)
 
+* `renv::checkout()` gains the `actions` argument, allowing you choose whether
+  a lockfile is generated from the provided repositories ("snapshot"), or
+  whether packages are installed from the provided repositories ("restore").
+
 * `renv::status()` gets new, more compact, display when packages have some
   inconsistent combination of being installed, used, and recorded.
 

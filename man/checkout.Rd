@@ -10,6 +10,7 @@ checkout(
   packages = NULL,
   date = NULL,
   clean = FALSE,
+  actions = "restore",
   project = NULL
 )
 }
@@ -33,12 +34,19 @@ used. Ignored if \code{repos} is non-\code{NULL}.}
 the target library? Use \code{clean = TRUE} if you'd like the library state
 to exactly reflect the lockfile contents after \code{restore()}.}
 
+\item{actions}{The action(s) to perform with the requested repositories.
+This can either be "snapshot", in which \code{renv} will generate a lockfile
+based on the latest versions of the packages available from \code{repos}, or
+"restore" if you'd like to install those packages. You can use
+\code{c("snapshot", "restore")} if you'd like to generate a lockfile and
+install those packages in the same step.}
+
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-\code{renv::checkout()} can be used to install the latest packages available from
+\code{renv::checkout()} can be used to retrieve the latest-availabe packages from
 a (set of) package repositories.
 }
 \details{
@@ -56,11 +64,6 @@ replaced with the version provided by the requested repositories. This could
 be a concern if your project uses \R packages from GitHub whose name matches
 that of an existing CRAN package, but is otherwise unrelated to the package
 on CRAN.
-
-Note that \code{renv::checkout()} does not update the project lockfile; it only
-installs the packages from the provided repository. You should call
-\code{\link[=snapshot]{snapshot()}} after you've confirmed that the installed packages function as
-expected in your project.
 }
 \examples{
 \dontrun{
