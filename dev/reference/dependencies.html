@@ -111,6 +111,7 @@ in R Markdown files.</p>
 <span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  root <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  errors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reported"</span>, <span class="st">"fatal"</span>, <span class="st">"ignored"</span><span class="op">)</span>,</span>
 <span>  dev <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -135,6 +136,12 @@ properly handled.</p></dd>
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, renv will signal an error.</p></dd>
+
+
+<dt>quiet</dt>
+<dd><p>Boolean; be quiet while checking for dependencies?
+Setting <code>quiet = TRUE</code> is equivalent to setting <code>progress = FALSE</code>
+and <code>errors = "ignored"</code>, and overrides those options when not <code>NULL</code>.</p></dd>
 
 
 <dt>progress</dt>
