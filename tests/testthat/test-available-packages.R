@@ -182,7 +182,15 @@ test_that("we can query the R universe", {
     repos = "https://rstudio.r-universe.dev/"
   )[[1L]]
 
+  # skip renv, since we just updated it
+  lhs <- lhs[lhs$Package != "renv", ]
+  rhs <- rhs[rhs$Package != "renv", ]
+
+  # reduce risk of false positive test failures
   rownames(lhs) <- rownames(rhs) <- NULL
+  lhs$MD5sum <- rhs$MD5sum <- NULL
+
+  # otherwise, check they're identical
   expect_identical(lhs, rhs)
 
 })
