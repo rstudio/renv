@@ -394,7 +394,6 @@ renv_retrieve_git_impl <- function(record, path) {
   quiet <- if (quiet) "--quiet" else ""
 
   template <- heredoc('
-    cd "${DIR}"
     git init ${QUIET}
     git remote add origin "${ORIGIN}"
     git fetch ${QUIET} --depth=1 origin "${REF}"
@@ -402,7 +401,6 @@ renv_retrieve_git_impl <- function(record, path) {
   ')
 
   data <- list(
-    DIR    = renv_path_normalize(path),
     ORIGIN = url,
     REF    = gitref,
     QUIET  = quiet
@@ -418,6 +416,8 @@ renv_retrieve_git_impl <- function(record, path) {
   before <- Sys.time()
 
   status <- local({
+    ensure_directory(path)
+    renv_scope_wd(path)
     renv_scope_auth(record)
     renv_scope_git_auth()
     system(command)
