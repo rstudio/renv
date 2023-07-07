@@ -127,7 +127,7 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
     if (!has_library && !has_lockfile) {
       writef(c(
-        "This project does not appear to be using renv.",
+        "This project does not appear to use renv.",
         "Use renv::init() to initialize this project."
       ))
     } else if (!has_library) {
