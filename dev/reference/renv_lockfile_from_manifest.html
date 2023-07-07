@@ -34,7 +34,7 @@ an RStudio Connect content bundle into an renv.lock lockfile."><meta property="o
     <a class="dropdown-item" href="../articles/package-install.html">Installing packages</a>
     <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently asked questions</a>
-    <a class="dropdown-item" href="../articles/packrat.html">packrat vs renv</a>
+    <a class="dropdown-item" href="../articles/packrat.html">packrat vs. renv</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="../articles/ci.html">Using renv with continuous integration</a>
@@ -108,7 +108,7 @@ environment. This function will let you convert that manifest file to an
 <code>renv.lock</code> file. Run <code><a href="restore.html">renv::restore()</a></code> after you've converted the file to
 restore the package environment.</p>
 <p>By default the <code>lockfile</code> argument is set to <code>NA</code>. This will not create a new
-<code>renv.lock</code> file. Rather, it will return a lockfile object (see <code><a href="lockfile.html">?lockfile</a></code>)
+<code>renv.lock</code> file. Rather, it will return a lockfile object (see <code><a href="lockfile-api.html">?lockfile</a></code>)
 that can be used to create a new <code>renv.lock</code> file. If <code>lockfile</code> is set to a
 character string, a new file will be created with that path -- e.g.
 <code>renv.lock</code> -- and the lockfile object will be returned.</p>

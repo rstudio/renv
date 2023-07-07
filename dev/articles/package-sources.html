@@ -60,7 +60,7 @@
     <a class="dropdown-item" href="../articles/package-install.html">Installing packages</a>
     <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently asked questions</a>
-    <a class="dropdown-item" href="../articles/packrat.html">packrat vs renv</a>
+    <a class="dropdown-item" href="../articles/packrat.html">packrat vs. renv</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="../articles/ci.html">Using renv with continuous integration</a>
@@ -150,7 +150,7 @@ name is available in the active R repositories (as specified in
 <code>getOption("repos")</code>), then the package will be treated as
 though it was installed from an R package repository.</p>
 <p>If all of the above methods fail, renv will finally check for a
-package available from the <em>cellar</em>. See <a href="cellar.html">here</a> for more details. The package cellar is
+package available from the <em>cellar</em>. The package cellar is
 typically used as an escape hatch, for packages which do not have a
 well-defined remote source, or for packages which might not be remotely
 accessible from your machine.</p>
@@ -333,56 +333,8 @@ appropriate during installation.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="mran">MRAN<a class="anchor" aria-label="anchor" href="#mran"></a>
+<h3 id="abi-compatibility">ABI compatibility<a class="anchor" aria-label="anchor" href="#abi-compatibility"></a>
 </h3>
-<p>When working on macOS and Windows, users will often download and
-install package binaries, rather than sources, as provided by CRAN.
-However, CRAN only provides binaries for the latest-available version of
-a package, and so binaries for older versions of a package will become
-inaccessible as that package is updated.</p>
-<p><a href="https://mran.microsoft.com/" class="external-link">MRAN</a> is a service provided
-by Microsoft that mirrors CRAN every day, and allows users to use
-particular snapshots of CRAN as their active repositories within their R
-session.</p>
-<p>Starting with <code>renv 0.10.0</code>, renv can also make use of
-MRAN binary packages when restoring packages on Windows and macOS. When
-invoking <code><a href="../reference/install.html">renv::install()</a></code> or <code><a href="../reference/restore.html">renv::restore()</a></code>,
-renv will attempt to install the package from the latest-available MRAN
-snapshot that still had this package available.</p>
-<p>As an example, the stringi package was updated from version
-<code>1.4.5</code> to version <code>1.4.6</code> on 2020-02-17, and
-binaries for that version of stringi were made available for macOS on
-2020-02-20. Because of this, the last date on which
-<code>stringi 1.4.5</code> macOS binaries were available on CRAN was
-<code>2020-02-19</code>.</p>
-<p>Fortunately, because MRAN snapshotted CRAN on this date, we can
-retrieve that binary. For example, on macOS with R 3.6:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"stringi@1.4.5"</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>Retrieving <span class="st">'https://mran.microsoft.com/snapshot/2020-02-19/bin/macosx/el-capitan/contrib/3.6/stringi_1.4.5.tgz'</span> ...</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    OK [file is up to date]</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>Installing stringi [<span class="dv">1</span>.<span class="fl">4.5</span>] ...</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    OK [installed binary]</span></code></pre></div>
-<p>When binaries are available from MRAN, renv should transparently
-download and use them when possible. When binaries are not available,
-renv will fall back to the old behavior, and attempt to install packages
-from sources.</p>
-<p>If you prefer not to make use of MRAN (e.g. because you are using
-renv in an environment without external internet access), you can
-disable it with:</p>
-<pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.config.mran.enabled <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre>
-<div class="section level4">
-<h4 id="caveats">Caveats<a class="anchor" aria-label="anchor" href="#caveats"></a>
-</h4>
-<p>While being able to install binary packages from arbitrary MRAN
-snapshots can be useful, one must be aware of potential incompatibility
-issues. In particular, we need to consider:</p>
-<ul>
-<li>ABI compatibility between different versions of binaries;</li>
-<li>Inadvertent build-time dependencies taken by a package.</li>
-</ul>
-<div class="section level5">
-<h5 id="abi-compatibility">ABI compatibility<a class="anchor" aria-label="anchor" href="#abi-compatibility"></a>
-</h5>
 <p>ABI compatibility issues can arise if different packages were built
 against different versions of a shared dependency. For example, one
 package may have been built against Rcpp 1.0.6, and another package
@@ -399,9 +351,9 @@ dependency is not clearly communicated to renv; in general, it is not
 possible to know what packages (and their versions) a particular package
 was built against.</p>
 </div>
-<div class="section level5">
-<h5 id="build-time-dependencies">Build-time dependencies<a class="anchor" aria-label="anchor" href="#build-time-dependencies"></a>
-</h5>
+<div class="section level3">
+<h3 id="build-time-dependencies">Build-time dependencies<a class="anchor" aria-label="anchor" href="#build-time-dependencies"></a>
+</h3>
 <p>R packages might occasionally (and unintentionally) take a build-time
 dependency on another R package – for example, a package with the
 code:</p>
@@ -417,8 +369,6 @@ dependency on exported objects from another package; rather, such
 objects should be imported at runtime (using
 e.g. <code>importFrom()</code> in the package <code>NAMESPACE</code>
 file).</p>
-</div>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

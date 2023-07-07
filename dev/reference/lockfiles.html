@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-84</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.17.3-88</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,7 @@
     <a class="dropdown-item" href="../articles/package-install.html">Installing packages</a>
     <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently asked questions</a>
-    <a class="dropdown-item" href="../articles/packrat.html">packrat vs renv</a>
+    <a class="dropdown-item" href="../articles/packrat.html">packrat vs. renv</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="../articles/ci.html">Using renv with continuous integration</a>
@@ -72,7 +72,98 @@
     <p>A <strong>lockfile</strong> records the state of a project at some point in time.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">lockfile_create</span><span class="op">(</span></span>
+<span>  type <span class="op">=</span> <span class="va">settings</span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span>project <span class="op">=</span> <span class="va">project</span><span class="op">)</span>,</span>
+<span>  libpaths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">lockfile_read</span><span class="op">(</span>file <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">lockfile_write</span><span class="op">(</span><span class="va">lockfile</span>, file <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">lockfile_modify</span><span class="op">(</span></span>
+<span>  lockfile <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  remotes <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  repos <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+    </div>
 
+    <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+    <dl><dt>type</dt>
+<dd><p>The type of snapshot to perform:</p><ul><li><p><code>"implict"</code>, (the default), uses all packages captured by <code><a href="dependencies.html">dependencies()</a></code>.</p></li>
+<li><p><code>"explicit"</code> uses packages recorded in <code>DESCRIPTION</code>.</p></li>
+<li><p><code>"all"</code> uses all packages in the project library.</p></li>
+<li><p><code>"custom</code> uses a custom filter.</p></li>
+</ul><p>See <strong>Snapshot type</strong> below for more details.</p></dd>
+
+
+<dt>libpaths</dt>
+<dd><p>The library paths to be used when generating the lockfile.</p></dd>
+
+
+<dt>packages</dt>
+<dd><p>A vector of packages to be included in the lockfile. When
+<code>NULL</code> (the default), all packages relevant for the type of snapshot being
+performed will be included. When set, the <code>type</code> argument is ignored.
+Recursive dependencies of the specified packages will be added to the
+lockfile as well.</p></dd>
+
+
+<dt>exclude</dt>
+<dd><p>A vector of packages to be explicitly excluded from the lockfile.
+Note that transitive package dependencies will always be included, to avoid
+potentially creating an incomplete / non-functional lockfile.</p></dd>
+
+
+<dt>prompt</dt>
+<dd><p>Boolean; prompt the user before taking any action? For backwards
+compatibility, <code>confirm</code> is accepted as an alias for <code>prompt</code>.</p></dd>
+
+
+<dt>force</dt>
+<dd><p>Boolean; force generation of a lockfile even when pre-flight
+validation checks have failed?</p></dd>
+
+
+<dt>...</dt>
+<dd><p>Unused arguments, reserved for future expansion. If any arguments
+are matched to <code>...</code>, renv will signal an error.</p></dd>
+
+
+<dt>project</dt>
+<dd><p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p></dd>
+
+
+<dt>file</dt>
+<dd><p>A file path, or <span style="R">R</span> connection.</p></dd>
+
+
+<dt>lockfile</dt>
+<dd><p>An <code>renv</code> lockfile; typically created by either
+<code>lockfile_create()</code> or <code>lockfile_read()</code>.</p></dd>
+
+
+<dt>remotes</dt>
+<dd><p>An <span style="R">R</span> vector of remote specifications.</p></dd>
+
+
+<dt>repos</dt>
+<dd><p>A named vector, mapping <span style="R">R</span> repository names to their URLs.</p></dd>
+
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>A lockfile captures the state of a project's library at some point in time.
@@ -146,6 +237,12 @@ appropriate (e.g. for packages installed from GitHub).</p>
 environment will be used instead (when not directly using a system copy of Python).</p>
 </div>
 
+    </div>
+    <div class="section level2">
+    <h2 id="caveats">Caveats<a class="anchor" aria-label="anchor" href="#caveats"></a></h2>
+    <p>These functions are primarily intended for expert users -- in most cases,
+<code><a href="snapshot.html">snapshot()</a></code> and <code><a href="restore.html">restore()</a></code> are the primariy tools you will need when
+creating and using lockfiles.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

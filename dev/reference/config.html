@@ -32,7 +32,7 @@
     <a class="dropdown-item" href="../articles/package-install.html">Installing packages</a>
     <a class="dropdown-item" href="../articles/python.html">Using Python with renv</a>
     <a class="dropdown-item" href="../articles/faq.html">Frequently asked questions</a>
-    <a class="dropdown-item" href="../articles/packrat.html">packrat vs renv</a>
+    <a class="dropdown-item" href="../articles/packrat.html">packrat vs. renv</a>
     <div class="dropdown-divider"></div>
     <h6 class="dropdown-header" data-toc-skip>Deployment</h6>
     <a class="dropdown-item" href="../articles/ci.html">Using renv with continuous integration</a>
@@ -190,7 +190,7 @@ Defaults to <code>"gitlab.com"</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-hydrate-libpaths">renv.config.hydrate.libpaths<a class="anchor" aria-label="anchor" href="#renv-config-hydrate-libpaths"></a></h3>
-<p>A character vector of library paths, to be used by <code><a href="hydrate.html">hydrate()</a></code> when attempting to hydrate projects. When empty, the default set of library paths (as documented in <code><a href="hydrate.html">?hydrate</a></code>) are used instead. See <code><a href="hydrate.html">hydrate()</a></code> for more details.
+<p>A character vector of library paths, to be used by <code><a href="hydrate.html">hydrate()</a></code> when attempting to hydrate projects. When empty, the default set of library paths (as documented in <code><a href="hydrate.html">?renv::hydrate</a></code>) are used instead. See <code><a href="hydrate.html">hydrate()</a></code> for more details.
 Defaults to <code>NULL</code>.</p>
 </div>
 <div class="section">
@@ -230,7 +230,7 @@ Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-mran-enabled">renv.config.mran.enabled<a class="anchor" aria-label="anchor" href="#renv-config-mran-enabled"></a></h3>
-<p>Attempt to download binaries from <a href="https://mran.microsoft.com/" class="external-link">MRAN</a> during restore? See <code><a href="https://rstudio.github.io/renv/articles/mran.html">vignette("mran", package = "renv")</a></code> for more details.
+<p>DEPRECATED: MRAN is no longer maintained by Microsoft.
 Defaults to <code>FALSE</code>.</p>
 </div>
 <div class="section">
@@ -250,7 +250,7 @@ Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
 <h3 id="renv-config-ppm-url">renv.config.ppm.url<a class="anchor" aria-label="anchor" href="#renv-config-ppm-url"></a></h3>
-<p>The default PPM URL to be used for new renv projects. Defaults to the <a href="https://packagemanager.posit.co/cran/latest" class="external-link">CRAN mirror</a> maintained by Posit. This option can be changed if you'd like renv to use a separate package manager instance.
+<p>The default PPM URL to be used for new renv projects. Defaults to the CRAN mirror maintained by Posit at <a href="https://packagemanager.posit.co/" class="external-link">https://packagemanager.posit.co/</a>. This option can be changed if you'd like renv to use an alternate package manager instance.
 Defaults to <code>"https://packagemanager.posit.co/cran/latest"</code>.</p>
 </div>
 <div class="section">
@@ -272,6 +272,11 @@ Defaults to <code>TRUE</code>.</p>
 <div class="section">
 <h3 id="renv-config-shims-enabled">renv.config.shims.enabled<a class="anchor" aria-label="anchor" href="#renv-config-shims-enabled"></a></h3>
 <p>Should renv shims be installed on package load? When enabled, renv will install its own shims over the functions <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, <code><a href="https://rdrr.io/r/utils/update.packages.html" class="external-link">update.packages()</a></code> and <code><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages()</a></code>, delegating these functions to <code><a href="install.html">install()</a></code>, <code><a href="update.html">update()</a></code> and <code><a href="remove.html">remove()</a></code> as appropriate.
+Defaults to <code>TRUE</code>.</p>
+</div>
+<div class="section">
+<h3 id="renv-config-snapshot-inference">renv.config.snapshot.inference<a class="anchor" aria-label="anchor" href="#renv-config-snapshot-inference"></a></h3>
+<p>For packages which were installed from local sources, should renv try to infer the package's remote from its DESCRIPTION file? When <code>TRUE</code>, renv will check and prompt you to update the package's DESCRIPTION file if the remote source can be ascertained. Currently, this is only implemented for packages hosted on GitHub. Note that this check is only performed in interactive R sessions.
 Defaults to <code>TRUE</code>.</p>
 </div>
 <div class="section">
