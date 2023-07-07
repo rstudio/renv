@@ -4,7 +4,7 @@
       status()
     Output
       This project does not appear to be using renv.
-      Use renv::init() to initialize this project.
+      Use renv::init() to initialize the project.
 
 ---
 
@@ -19,7 +19,7 @@
     Code
       status()
     Output
-      This project does not have a private library.
+      There are no packages installed in the project library.
       Use renv::restore() to install the packages defined in lockfile.
 
 # reports when project is synchronised

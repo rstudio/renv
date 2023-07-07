@@ -117,44 +117,52 @@ status <- function(project = NULL,
   invisible(renv_status_impl(project, libpaths, lockpath, sources, cache))
 }
 
-renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
+renv_status_check_initialized <- function(project, lockpath = NULL) {
 
-  # check to see if we've initialized this project
-  has_library <- file.exists(renv_paths_library(project = project))
-  has_lockfile <- file.exists(lockpath)
+  projlib <- renv_paths_library(project = project)
+  lockpath <- lockpath %||% renv_paths_lockfile(project = project)
 
-  if (!has_library || !has_lockfile) {
+  haslib <- file.exists(projlib)
+  haslock <- file.exists(lockpath)
 
-    if (!has_library && !has_lockfile) {
-      writef(c(
-        "This project does not appear to use renv.",
-        "Use renv::init() to initialize this project."
-      ))
-    } else if (!has_library) {
-      writef(c(
-        "This project does not have a private library.",
-        "Use renv::restore() to install the packages defined in lockfile."
-      ))
-    } else {
-      writef(c(
-        "This project does not contain a lockfile.",
-        "Use renv::snapshot() to create a lockfile."
-      ))
-    }
+  if (haslib && haslock)
+    return(TRUE)
 
-    default <- list(
-      library = list(Packages = named(list())),
-      lockfile = list(Packages = named(list())),
-      synchronized = FALSE
-    )
-
-    return(default)
-
+  if (haslib && !haslock) {
+    writef(c(
+      "This project does not contain a lockfile.",
+      "Use renv::snapshot() to create a lockfile."
+    ))
+  } else if (!haslib && haslock) {
+    writef(c(
+      "There are no packages installed in the project library.",
+      "Use renv::restore() to install the packages defined in lockfile."
+    ))
+  } else {
+    writef(c(
+      "This project does not appear to be using renv.",
+      "Use renv::init() to initialize the project."
+    ))
   }
+
+  FALSE
+
+}
+
+renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
   # mark status as running
   the$status_running <- TRUE
   defer(the$status_running <- FALSE)
+
+  # check to see if we've initialized this project
+  if (!renv_status_check_initialized(project, lockpath)) {
+    return(list(
+      library = list(Packages = named(list())),
+      lockfile = list(Packages = named(list())),
+      synchronized = FALSE
+    ))
+  }
 
   # get all dependencies, including transitive
   dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
