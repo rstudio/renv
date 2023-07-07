@@ -10,14 +10,14 @@
        BiocManager  y         n        y   
        BiocVersion  y         n        y   
       
-      See ?status() for advice on resolving the issues.
+      See ?renv::status() for advice on resolving these issues.
 
 ---
 
     Code
       status()
     Output
-      No issues found.
+      No issues found -- the project is in a consistent state.
 
 # auto-bioc install happens silently
 

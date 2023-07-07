@@ -3,31 +3,31 @@
     Code
       status()
     Output
-      Project does not use renv.
-      Call renv::init() to setup project to use renv.
+      This project does not appear to be using renv.
+      Use renv::init() to initialize the project.
 
 ---
 
     Code
       status()
     Output
-      Project lacks a lockfile.
-      Call renv::snapshot() to create one.
+      This project does not contain a lockfile.
+      Use renv::snapshot() to create a lockfile.
 
 ---
 
     Code
       status()
     Output
-      Project lacks a library.
-      Call renv::restore() to install packages defined in lockfile.
+      There are no packages installed in the project library.
+      Use renv::restore() to install the packages defined in lockfile.
 
 # reports when project is synchronised
 
     Code
       status()
     Output
-      No issues found.
+      No issues found -- the project is in a consistent state.
 
 # reports synchronisation problems with non-installed packages
 
@@ -41,7 +41,7 @@
        egg     n         y        y   
        oatmeal n         y        ?   
       
-      See ?status() for advice on resolving the issues.
+      See ?renv::status() for advice on resolving these issues.
 
 # reports synchronisation problems with installed packages
 
@@ -54,7 +54,7 @@
        bread   y         n        y   
        egg     y         y        n   
       
-      See ?status() for advice on resolving the issues.
+      See ?renv::status() for advice on resolving these issues.
 
 # reports version differences
 
@@ -68,5 +68,5 @@
       - oatmeal   [repo: * -> CRAN; ver: 0.9.0 -> 1.0.0]
       
       
-      See ?status() for advice on resolving the issues.
+      See ?renv::status() for advice on resolving these issues.
 

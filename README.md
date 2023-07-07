@@ -41,15 +41,17 @@ install.packages("renv")
 
 <img src="vignettes/renv.png" alt="A diagram showing the most important verbs and nouns of renv. Projects start with init(), which creates a project library using packages from the system library. snapshot() updates the lockfile using the packages installed in the project library, where restore() installs packages into the project library using the metadata from the lockfile, and status() compares the lockfile to the project library. You install and update packages from CRAN and GitHub using install() and update(), but because you'll need to do this for multiple projects, renv uses cache to make this fast." width="408" style="display: block; margin: auto;" />
 
-Use `renv::init()` to initialize renv with a new or existing project.
-This will set up your project with a private library, containing all the
-packages you’re currently using. The packages (and all the metadata
-needed to reinstall them) are also recorded into a *lockfile*,
-`renv.lock`.
+Use `renv::init()` to initialize renv in a new or existing project. This
+will set up up **project library**, containing all the packages you’re
+currently using. The packages (and all the metadata needed to reinstall
+them) are recorded into a **lockfile**, `renv.lock`, and a `.Rprofile`
+ensures that the library is used every time you open that project.
 
-As you work in your project, you will install and upgrade packages.
-After you’ve confirmed your code works as expected, call
-`renv::snapshot()` to record their versions in the lockfile.
+As you continue to work on your project, you will install and upgrade
+packages, either using `install.packages()` and `update.packages` or
+`renv::install()` and `renv::update()`. After you’ve confirmed your code
+works as expected, use `renv::snapshot()` to record the packages and
+their sources in the lockfile.
 
 Later, if you need to share your code with someone else or run your code
 on new machine, your collaborator (or you) can call `renv::restore()` to
@@ -57,9 +59,10 @@ reinstall the specific package versions recorded in the lockfile.
 
 ## Learning more
 
-If this is your first time using renv, we strongly recommend reading the
-[Introduction to
-renv](https://rstudio.github.io/renv/articles/renv.html) vignette.
+If this is your first time using renv, we strongly recommend starting
+with the [Introduction to
+renv](https://rstudio.github.io/renv/articles/renv.html) vignette: this
+will help you understand the most important verbs and nouns of renv.
 
 If you have a question about renv, please first check the
 [FAQ](https://rstudio.github.io/renv/articles/faq.html) to see whether

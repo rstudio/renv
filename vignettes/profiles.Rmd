@@ -111,5 +111,5 @@ be used when the lockfile is generated. See `?renv::snapshot` for more details.
 
 
 
-[shiny]: https://shiny.rstudio.com/
+[shiny]: https://shiny.posit.co/
 [tidyverse]: https://www.tidyverse.org/

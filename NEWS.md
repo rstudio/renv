@@ -1,119 +1,41 @@
 
-# renv 0.18.0  (UNRELEASED)
+# renv 1.0.0
 
-* `renv::checkout()` gains the `actions` argument, allowing you choose whether
-  a lockfile is generated from the provided repositories ("snapshot"), or
-  whether packages are installed from the provided repositories ("restore").
+## New features
 
-* `renv::status()` gets new, more compact, display when packages have some
-  inconsistent combination of being installed, used, and recorded.
-
-* `renv::init()` now prompts the user to select a snapshot type, for projects
-  containing a top-level DESCRIPTION file. (#1485)
-
-* `renv::load()` makes the loading message a little more prominent, and we fixed a 
-  bug that prevented out-of-sync repos from being reported.
-
-* `renv::dependencies()` now discovers R dependencies inside jupyter notebooks (#929).
-
-* `renv::install(type = "source")` now ensures source repositories are used
-  in projects using [PPM](https://packagemanager.posit.co/). (#927)
-  
-* `renv::restore()` now emits an error if called in a project that
-  does not contain a lockfile. (#1474)
-
-* If `renv::config$user.profile()` is `TRUE`, the packages it uses are now included
-  in the development dependencies, which means that they will be installed 
-  by `install()` but not recorded in the snapshot.
-
-* renv now attempts to infer remote dependencies for GitHub packages that
-  appear to be installed from sources; that is, for packages without a
-  recognizable remote source encoded in its DESCRIPTION file. (#841)
-
-* `renv::load()` gives a more informative message if a lockfile is present but 
-  no packages are installed (#353).
-
-* renv now provides a small family of functions for interacting with renv
-  lockfiles -- see `?lockfile` for more details. (#1438)
-
-* renv now activates the Bioconductor repositories when installing a package
-  from a remote (e.g. GitHub) which declares a Bioconductor dependency (via
-  a non-empty 'biocViews' field). (#934)
-
-* renv no longer attempts to query package repositories when checking
-  if a project is synchronized on startup. (#812)
-
-* `renv::update()` can now update packages installed from GitLab (#136) and 
-  BitBucket (#1194).
-
-* `renv::snapshot()` now standardises pak metadata so CRAN packages installed via
-  pak look the same as CRAN packages installed with renv or `install.packages()`
-  (#1239).
-
-* `renv::install()` now keeps source when installing packages from source (#522).
-
-* `renv::install()` now validates that binary packages can be loaded after
-  installation, in a manner similar to source packages. (#1275)
-
-* `renv::snapshot()` and `renv::status()` no longer track development dependencies.
-  `install()` will continue to install them (#1019).
-
-* `renv::install()` respects the project snapshot type, if set.
-
-* `renv::dependencies()` now marks `Suggested` packages listed in `DESCRIPTION` files
-  as development dependencies regardless of whether or not they're a "package" 
-  project.
-
-* `renv::settings$package.dependency.fields()` now only affects packages installed
-  directly by the user, not downstream dependencies of those packages.
-
-* Fixed an issue where `renv::snapshot(exclude = <...>)` could warn when
-  attempting to exclude a package which was not already installed. (#1396)
-
-* If `renv::snapshot()` finds missing packages, a new prompt allows you to 
-  install them before continuing (#1198).
-
-* When prompting to activate a project, you now get three options that hopefully
-  make your choices more clear.
-  
-* `renv::dependencies()` no longer treats `box::use(module/file)` as using
-  package `module` (#1377).
-
-* `renv::install()` now requires interactive confirmation that you want to 
-  install packages (#587).
-
-* Fixed an issue where `renv::restore()` could fail to restore packages
-  downloaded and installed from [r-universe](https://r-universe.dev/). (#1359)
+* New `renv::checkout()` installings the latest-available packages from a 
+  repository. For example, `renv::checkout(date = "2023-02-08")` will install 
+  the packages available on 2023-02-08 from the Posit 
+  [Package Manager](https://packagemanager.rstudio.com/) repository. 
+  The `actions` argument allows you choose whether a lockfile is generated from 
+  the provided repositories ("snapshot"), or whether packages are installed 
+  from the provided repositories ("restore").
 
 * `renv::deactivate()` gains a `clean` argument: when `TRUE` it will delete
   all renv files/directories, leaving the project the way it was found.
-
-* `renv::status()` now works more like `renv::restore()` when package versions
-  are different (#675).
-
-* renv functions give a clearer error if `renv.lock` has somehow become 
-  corrupted (#1027).
 
 * `renv::init()` now uses [Posit Public Package Manager](https://packagemanager.posit.co)
   by default, for new projects where the repositories have not already been
   configured externally. See the options `renv.config.ppm.enabled`,
   `renv.config.ppm.default`, and `renv.config.ppm.url` in `?config` for more
-  details. (#430)
+  details (#430).
+
+* `renv::lockfile_create()`, `renv::lockfile_read()`, `renv::lockfile_write()`
+  and `renv::lockfile_modify()` provide a small family of functions for 
+  interacting with renv lockfiles programmatically (#1438).
+
+* Handling of development dependencies has been refined. `renv::snapshot()` 
+  and `renv::status()` no longer track development dependencies, while
+  `install()` continues to install them (#1019). `Suggested` packages listed in 
+  `DESCRIPTION` files are declared as development dependencies regardless of 
+  whether or not they're a "package" project.
 
 * MRAN integration is now disabled by default, pending the upcoming shutdown
   of Microsoft's MRAN service. Users who require binaries of older R packages
   on Windows + macOS can consider using the instance of CRAN mirrored by the
   [Posit Public Package Manager](https://packagemanager.posit.co) (#1343).
 
-* `renv::dependencies()` only extracts dependencies from text in YAML
-  headers that looks like valid R code (#1288).
-
-* `renv::snapshot()` no longer requires confirmation when writing the first
-  snapshot, since that's an action that can easily be undone (by deleting
-  `renv.lock`) (#1281).
-
-* `renv::snapshot()` now shows if the R version changes, even if no packages
-  change (#962).
+## Bug fixes and minor improvements
 
 * Development versions of renv are now tracked using the Git SHA of the 
   current commit, rather than a version number that's incremented on every
@@ -123,19 +45,56 @@
 * Fixed an issue causing "restarting interrupted promise evaluation" warnings
   to be displayed when querying available packages failed. (#1260)
 
-* `renv::load()` no longer duplicates entries on the `PATH` environment variable
-  (#1095).
+* `renv::activate()` uses a three option menu that hopefully make your choices 
+  more clear (#1372).
 
-* renv gains a new function `renv::checkout()`, for installing the
-  latest-available packages from a repository. For example, one can
-  use `renv::checkout(date = "2023-02-08")` to install the packages available
-  on 2023-02-08 from the Posit [Package Manager](https://packagemanager.rstudio.com/)
-  repository.
-  
+* `renv::dependencies()` now discovers R package dependencies inside Jupyter
+  notebooks (#929).
+
+* `renv::dependencies()` includes packages used by user profile (`~/.Rprofile`)
+  if `renv::config$user.profile()` is `TRUE`. They are set as development 
+  dependencies, which means that they will be installed by `install()` but not
+  recorded in the snapshot.
+
+* `renv::dependencies()` only extracts dependencies from text in YAML
+  headers that looks like valid R code (#1288).
+
+* `renv::dependencies()` no longer treats `box::use(module/file)` as using
+  package `module` (#1377).
+
+* `renv::init()` now prompts the user to select a snapshot type if the project
+  contains a top-level DESCRIPTION file (#1485).
+
+* `renv::install(type = "source")` now ensures source repositories are used
+  in projects using [PPM](https://packagemanager.posit.co/). (#927)
+
+* `renv::install()` activates Bioconductor repositories when installing a 
+  package from a remote (e.g. GitHub) which declares a Bioconductor dependency 
+  (via a non-empty 'biocViews' field) (#934).
+
+* `renv::install()` respects the project snapshot type, if set.
+
+* `renv::install()` now keeps source when installing packages from source (#522).
+
+* `renv::install()` now validates that binary packages can be loaded after
+  installation, in a manner similar to source packages (#1275).
+
 * `renv::install()` now supports Bioconductor remotes of the form
   `bioc::<BiocVersion>/<Package>`, for installing packages from
   a particular version of Bioconductor. Aliases like 'release' and
-  'devel' are also supported. (#1195)
+  'devel' are also supported (#1195).
+
+* `renv::install()` now requires interactive confirmation that you want to 
+  install packages (#587).
+
+* `renv::load()` gives a more informative message if a lockfile is present but 
+  no packages are installed (#353).
+
+* `renv::load()` no longer attempts to query package repositories when checking
+  if a project is synchronized (#812).
+
+* `renv::load()` no longer duplicates entries on the `PATH` environment variable
+  (#1095).
 
 * `renv::restore()` can now use `pak::pkg_install()` to install packages
   when `pak` integration is enabled. Set `RENV_CONFIG_PAK_ENABLED = TRUE`
@@ -143,6 +102,43 @@
   Note that this requires a nightly build of `pak` (>= 0.4.0-9000);
   see https://pak.r-lib.org/dev/reference/install.html for more details.
   
+* `renv::restore()` now emits an error if called within a project that
+  does not contain a lockfile (#1474).
+
+* `renv::restore()` correctly restores packages downloaded and installed 
+  from [r-universe](https://r-universe.dev/) (#1359).
+
+* `renv::snapshot()` now standardises pak metadata so CRAN packages installed via
+  pak look the same as CRAN packages installed with renv or `install.packages()`
+  (#1239).
+
+* If `renv::snapshot()` finds missing packages, a new prompt allows you to 
+  install them before continuing (#1198).
+
+* `renv::snapshot()` no longer requires confirmation when writing the first
+  snapshot, since that's an action that can easily be undone (by deleting
+  `renv.lock`) (#1281).
+
+* `renv::snapshot()` reports if the R version changes, even if no packages
+  change (#962).
+
+* `renv::snapshot(exclude = <...>)` no longer warns when attempting to exclude 
+  a package that is not installed (#1396).
+
+* `renv::status()` now uses a more compact display when packages have some
+  inconsistent combination of being installed, used, and recorded.
+
+* `renv::status()` now works more like `renv::restore()` when package versions
+  are different (#675).
+
+* `renv::update()` can now update packages installed from GitLab (#136) and 
+  BitBucket (#1194).
+
+* `renv::settings$package.dependency.fields()` now only affects packages 
+  installed directly by the user, not downstream dependencies of those packages.
+
+* renv functions give a clearer error if `renv.lock` has somehow become 
+  corrupted (#1027).
 
 # renv 0.17.3
 

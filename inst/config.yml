@@ -146,7 +146,7 @@
   description: >
     A character vector of library paths, to be used by [hydrate()]
     when attempting to hydrate projects. When empty, the default set of library paths
-    (as documented in `?hydrate`) are used instead. See [`hydrate()`] for more details.
+    (as documented in `?renv::hydrate`) are used instead. See [`hydrate()`] for more details.
 
 - name: "install.build"
   type: "logical[1]"
@@ -211,8 +211,7 @@
   type: "logical[1]"
   default: false
   description: >
-    Attempt to download binaries from [MRAN](https://mran.microsoft.com/)
-    during restore? See `vignette("mran", package = "renv")` for more details.
+    DEPRECATED: MRAN is no longer maintained by Microsoft.
 
 - name: "pak.enabled"
   type: "logical[1]"
@@ -248,9 +247,8 @@
   default: "https://packagemanager.posit.co/cran/latest"
   description: >
     The default PPM URL to be used for new renv projects. Defaults to the
-    [CRAN mirror](https://packagemanager.posit.co/cran/latest) maintained by
-    Posit. This option can be changed if you'd like renv to use a separate
-    package manager instance.
+    CRAN mirror maintained by Posit at <https://packagemanager.posit.co/>.
+    This option can be changed if you'd like renv to use an alternate package manager instance.
 
 - name: "repos.override"
   type: "character[*]"
@@ -290,6 +288,16 @@
     will install its own shims over the functions `install.packages()`, `update.packages()`
     and `remove.packages()`, delegating these functions to [`renv::install()`],
     [`renv::update()`] and [`renv::remove()`] as appropriate.
+
+- name: "snapshot.inference"
+  type: "logical[1]"
+  default: true
+  description: >
+    For packages which were installed from local sources, should renv try to infer the
+    package's remote from its DESCRIPTION file? When `TRUE`, renv will check and prompt
+    you to update the package's DESCRIPTION file if the remote source can be ascertained.
+    Currently, this is only implemented for packages hosted on GitHub. Note that this
+    check is only performed in interactive R sessions.
 
 - name: "snapshot.validate"
   type: "logical[1]"

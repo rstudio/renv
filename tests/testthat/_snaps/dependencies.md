@@ -6,7 +6,7 @@
       A large number of files (7 in total) have been discovered.
       It may take renv a long time to crawl these files for dependencies.
       Consider using .renvignore to ignore irrelevant files.
-      See `?dependencies` for more information.
+      See `?renv::dependencies` for more information.
       Set `options(renv.config.dependencies.limit = Inf)` to disable this warning.
       
       Finding R package dependencies ... Done!
@@ -19,7 +19,7 @@
       A large number of files (11 in total) have been discovered.
       It may take renv a long time to crawl these files for dependencies.
       Consider using .renvignore to ignore irrelevant files.
-      See `?dependencies` for more information.
+      See `?renv::dependencies` for more information.
       Set `options(renv.config.dependencies.limit = Inf)` to disable this warning.
       
       Finding R package dependencies ... Done!

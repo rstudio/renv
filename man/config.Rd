@@ -81,7 +81,7 @@ Defaults to \code{TRUE}.}
 Defaults to \code{"api.github.com"}.}
 \subsection{renv.config.gitlab.host}{The default GitLab host to be used during package retrieval.
 Defaults to \code{"gitlab.com"}.}
-\subsection{renv.config.hydrate.libpaths}{A character vector of library paths, to be used by \code{\link[=hydrate]{hydrate()}} when attempting to hydrate projects. When empty, the default set of library paths (as documented in \code{?hydrate}) are used instead. See \code{\link[=hydrate]{hydrate()}} for more details.
+\subsection{renv.config.hydrate.libpaths}{A character vector of library paths, to be used by \code{\link[=hydrate]{hydrate()}} when attempting to hydrate projects. When empty, the default set of library paths (as documented in \code{?renv::hydrate}) are used instead. See \code{\link[=hydrate]{hydrate()}} for more details.
 Defaults to \code{NULL}.}
 \subsection{renv.config.install.build}{Should downloaded package archives be built (via \verb{R CMD build}) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
 Defaults to \code{FALSE}.}
@@ -97,7 +97,7 @@ Defaults to \code{TRUE}.}
 Defaults to \code{FALSE}.}
 \subsection{renv.config.locking.enabled}{Use interprocess locks when invoking methods which might mutate the project library? Enable this to allow multiple processes to use the same renv project, while minimizing risks relating to concurrent access to the project library. Disable this if you encounter locking issues. Locks are stored as files within the project at \code{renv/lock}; if you need to manually remove a stale lock you can do so via \code{unlink("renv/lock", recursive = TRUE)}.
 Defaults to \code{FALSE}.}
-\subsection{renv.config.mran.enabled}{Attempt to download binaries from \href{https://mran.microsoft.com/}{MRAN} during restore? See \code{vignette("mran", package = "renv")} for more details.
+\subsection{renv.config.mran.enabled}{DEPRECATED: MRAN is no longer maintained by Microsoft.
 Defaults to \code{FALSE}.}
 \subsection{renv.config.pak.enabled}{Use the \href{https://pak.r-lib.org/}{pak} package to install packages?
 Defaults to \code{FALSE}.}
@@ -105,7 +105,7 @@ Defaults to \code{FALSE}.}
 Defaults to \code{TRUE}.}
 \subsection{renv.config.ppm.default}{Boolean; should new projects use the \href{https://packagemanager.posit.co/}{Posit Public Package Manager} instance by default? When \code{TRUE} (the default), projects initialized with \code{renv::init()} will use the P3M instance if the \code{repos} R option has not already been set by some other means (for example, in a startup \code{.Rprofile}).
 Defaults to \code{TRUE}.}
-\subsection{renv.config.ppm.url}{The default PPM URL to be used for new renv projects. Defaults to the \href{https://packagemanager.posit.co/cran/latest}{CRAN mirror} maintained by Posit. This option can be changed if you'd like renv to use a separate package manager instance.
+\subsection{renv.config.ppm.url}{The default PPM URL to be used for new renv projects. Defaults to the CRAN mirror maintained by Posit at \url{https://packagemanager.posit.co/}. This option can be changed if you'd like renv to use an alternate package manager instance.
 Defaults to \code{"https://packagemanager.posit.co/cran/latest"}.}
 \subsection{renv.config.repos.override}{Override the R package repositories used during \code{\link[=restore]{restore()}}? Primarily useful for deployment / continuous integration, where you might want to enforce the usage of some set of repositories over what is defined in \code{renv.lock} or otherwise set by the R session.
 Defaults to \code{NULL}.}
@@ -115,6 +115,8 @@ Defaults to \code{TRUE}.}
 Sandboxing is done by linking or copying system packages into a separate library path, and then instructing R to use that library path as the system library path. In some environments, this action can take a large amount of time -- in such a case, you may want to disable the renv sandbox.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.shims.enabled}{Should renv shims be installed on package load? When enabled, renv will install its own shims over the functions \code{install.packages()}, \code{update.packages()} and \code{remove.packages()}, delegating these functions to \code{\link[=install]{install()}}, \code{\link[=update]{update()}} and \code{\link[=remove]{remove()}} as appropriate.
+Defaults to \code{TRUE}.}
+\subsection{renv.config.snapshot.inference}{For packages which were installed from local sources, should renv try to infer the package's remote from its DESCRIPTION file? When \code{TRUE}, renv will check and prompt you to update the package's DESCRIPTION file if the remote source can be ascertained. Currently, this is only implemented for packages hosted on GitHub. Note that this check is only performed in interactive R sessions.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.snapshot.validate}{Validate \R package dependencies when calling snapshot? When \code{TRUE}, renv will attempt to diagnose potential issues in the project library before creating \code{renv.lock} -- for example, if a package installed in the project library depends on a package which is not currently installed.
 Defaults to \code{TRUE}.}

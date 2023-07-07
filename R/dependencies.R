@@ -504,7 +504,7 @@ renv_dependencies_discover_preflight <- function(paths, errors) {
     "A large number of files (%i in total) have been discovered.",
     "It may take renv a long time to crawl these files for dependencies.",
     "Consider using .renvignore to ignore irrelevant files.",
-    "See `?dependencies` for more information.",
+    "See `?renv::dependencies` for more information.",
     "Set `options(renv.config.dependencies.limit = Inf)` to disable this warning.",
     ""
   )
@@ -723,7 +723,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
   # check for parameterized documents
   status <- catch(renv_dependencies_discover_rmd_yaml_header_params(yaml, deps))
   if (inherits(status, "error"))
-    renv_error_report(status)
+    renv_dependencies_error_push(path, status)
 
   # get list of dependencies
   packages <- deps$data()
@@ -1634,19 +1634,26 @@ renv_dependencies_scope <- function(root = NULL, scope = parent.frame()) {
   defer(the$dependencies_state <- NULL, scope = scope)
 }
 
+renv_dependencies_error_push <- function(path = NULL, error = NULL) {
+
+  state <- renv_dependencies_state()
+  if (is.null(state))
+    return()
+
+  path <- path %||% state$path
+  problem <- list(file = path, error = error)
+  state$problems$push(problem)
+
+}
+
 renv_dependencies_error <- function(path, error = NULL, packages = NULL) {
 
   # if no error, return early
   if (is.null(error))
     return(renv_dependencies_list(path, packages))
 
-  # check for missing state (e.g. if internal method called directly)
-  state <- renv_dependencies_state()
-  if (!is.null(state)) {
-    path <- path %||% state$path
-    problem <- list(file = path, error = error)
-    state$problems$push(problem)
-  }
+  # push the error report
+  renv_dependencies_error_push(path, error)
 
   # return dependency list
   renv_dependencies_list(path, packages)

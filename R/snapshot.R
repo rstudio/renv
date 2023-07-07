@@ -256,6 +256,8 @@ renv_snapshot_preserve_impl <- function(record) {
 
 renv_snapshot_preflight <- function(project, libpaths) {
   lapply(libpaths, renv_snapshot_preflight_impl, project = project)
+  if (interactive())
+    renv_snapshot_preflight_check_sources(project, libpaths[[1L]])
 }
 
 renv_snapshot_preflight_impl <- function(project, library) {
@@ -284,6 +286,81 @@ renv_snapshot_preflight_library_exists <- function(project, library) {
   # user tried to snapshot arbitrary but missing path
   fmt <- "library '%s' does not exist; cannot proceed"
   stopf(fmt, renv_path_aliased(library))
+
+}
+
+renv_snapshot_preflight_check_sources_infer <- function(dcf) {
+
+  # if this package appears to have a declared remote, use as-is
+  for (field in c("RemoteType", "Repository", "biocViews"))
+    if (!is.null(dcf[[field]]))
+      return(NULL)
+
+  # ok, this is a package installed from sources that "looks" like
+  # the development version of a package; try to guess its remote
+  guess <- function(pattern, field) {
+    urls <- strsplit(dcf[[field]] %||% "", "\\s*,\\s*")[[1L]]
+    for (url in urls) {
+      matches <- regmatches(url, regexec(pattern, url, perl = TRUE))[[1L]]
+      if (length(matches) == 3L)
+        return(paste(matches[[2L]], matches[[3L]], sep = "/"))
+    }
+  }
+
+  # first, check bug reports
+  remote <- guess("^https://(?:www\\.)?github\\.com/([^/]+)/([^/]+)/issues$", "BugReports")
+  if (!is.null(remote))
+    return(remote)
+
+  # next, check the URL field
+  remote <- guess("^https://(?:www\\.)?github\\.com/([^/]+)/([^/]+)", "URL")
+  if (!is.null(remote))
+    return(remote)
+
+}
+
+renv_snapshot_preflight_check_sources <- function(project, library) {
+
+  # allow user to disable snapshot validation, just in case
+  enabled <- config$snapshot.inference()
+  if (!enabled)
+    return(TRUE)
+
+  # get package description files
+  packages <- installed_packages(library, field = "Package")
+  descpaths <- file.path(library, packages, "DESCRIPTION")
+  dcfs <- lapply(descpaths, renv_description_read)
+  names(dcfs) <- packages
+
+  # try to infer sources as necessary
+  inferred <- map(dcfs, renv_snapshot_preflight_check_sources_infer)
+  inferred <- filter(inferred, Negate(is.null))
+  if (length(inferred) == 0L)
+    return(TRUE)
+
+  # ask used
+  renv_scope_options(renv.verbose = TRUE)
+  renv_pretty_print(
+    "The following package(s) were installed from sources, but may be available from the following remotes:",
+    sprintf("%s  [%s]", format(names(inferred)), inferred),
+    c(
+      "Would you like to use these remote sources for these packages?",
+      "See 'snapshot.inference' in ?renv::config for more details.",
+      "Otherwise, these packages will be recorded with an unknown source."
+    )
+  )
+
+  update <- ask("Allow renv to update the remote sources for these packages?", default = TRUE)
+  if (!update)
+    return(TRUE)
+
+  enumerate(inferred, function(package, remote) {
+    record <- renv_remotes_resolve(remote)
+    record[["RemoteSha"]] <- NULL
+    renv_package_augment(file.path(library, package), record)
+  })
+
+  TRUE
 
 }
 
@@ -703,9 +780,6 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
 
 renv_snapshot_description_impl <- function(dcf, path = NULL) {
 
-  # infer remotes for packages installed from sources
-  dcf <- renv_snapshot_description_infer(dcf)
-
   # figure out the package source
   source <- renv_snapshot_description_source(dcf)
   dcf[names(source)] <- source
@@ -799,127 +873,32 @@ renv_snapshot_description_source <- function(dcf) {
   # NOTE: local sources are also searched here as part of finding the 'latest'
   # available package, so we need to handle local packages discovered here
   tryCatch(
-    renv_snapshot_description_source_hack(package),
+    renv_snapshot_description_source_hack(package, dcf),
     error = function(e) list(Source = "unknown")
   )
 
 }
 
-renv_snapshot_description_infer <- function(dcf) {
+renv_snapshot_description_source_hack <- function(package, dcf) {
 
-  inferred <- tryCatch(
-    renv_snapshot_description_infer_impl(dcf),
-    error = function(err) {
-      fmt <- "Failed to infer remote for package '%s' which was installed from source:\n%s"
-      warningf(fmt, dcf$Package, conditionMessage(err))
-      dcf
-    }
-  )
-
-  # if the inferred package version appears to be less than the source one,
-  # don't use it
-  if (renv_version_lt(inferred[["Version"]], dcf[["Version"]]))
-    return(dcf)
-
-  # use the inferred record
-  inferred
-
-}
-
-renv_snapshot_description_infer_impl <- function(dcf) {
-
-  # if this package appears to have a declared remote, use as-is
-  for (field in c("RemoteType", "Repository", "biocViews"))
-    if (!is.null(dcf[[field]]))
-      return(dcf)
-
-  # skip in project synchronization checks
-  if (the$project_synchronized_check_running)
-    return(dcf)
-
-  # check and see if this package is available from package repositories.
-  # if it is, then assume this is a dev. package the installed copy is newer,
-  # or if it has more version components than the published package
-  trydev <- local({
-
-    # check for record
-    package <- dcf[["Package"]]
-    record <- catch(renv_available_packages_latest(package))
-    if (inherits(record, "error"))
-      return(TRUE)
-
-    # pull out versions
-    lhs <- dcf[["Version"]]
-    rhs <- record[["Version"]]
-
-    # check for local record being newer than the remote record
-    if (renv_version_gt(lhs, rhs))
-      return(TRUE)
-
-    # check for local record having more version components
-    if (renv_version_length(lhs) > renv_version_length(rhs))
-      return(TRUE)
-
-    # the source copy seems older than CRAN; don't try to use it
-    FALSE
-
-  })
-
-  if (!trydev)
-    return(dcf)
-
-  # ok, this is a package installed from sources that "looks" like
-  # the development version of a package; try to guess its remote
-  guess <- function(pattern, field) {
-    urls <- strsplit(dcf[[field]] %||% "", "\\s*,\\s*")[[1L]]
-    for (url in urls) {
-      matches <- regmatches(url, regexec(pattern, url, perl = TRUE))[[1L]]
-      if (length(matches) == 3L) {
-        remote <- paste(matches[[2L]], matches[[3L]], sep = "/")
-        return(renv_remotes_resolve(remote))
-      }
-    }
-  }
-
-  # first, check bug reports
-  remote <- guess("^https://(?:www\\.)?github\\.com/([^/]+)/([^/]+)/issues$", "BugReports")
-  if (!is.null(remote))
-    return(remote)
-
-
-  # next, check the URL field
-  remote <- guess("^https://(?:www\\.)?github\\.com/([^/]+)/([^/]+)", "URL")
-  if (!is.null(remote))
-    return(remote)
-
-  # no match; fall back to default
-  dcf
-
-}
-
-renv_snapshot_description_source_hack <- function(package) {
-
+  # check cellar
   for (type in renv_package_pkgtypes()) {
-
-    # check cellar
     cellar <- renv_available_packages_cellar(type)
     if (package %in% cellar$Package)
       return(list(Source = "Cellar"))
-
-    # check available packages
-    dbs <- available_packages(type = type, quiet = TRUE)
-    for (i in seq_along(dbs)) {
-      if (package %in% dbs[[i]]$Package) {
-        return(list(
-          Source = "Repository",
-          Repository = names(dbs)[[i]]
-        ))
-      }
-    }
-
   }
 
-  list(Source = "unknown")
+  # check available packages
+  latest <- catch(renv_available_packages_latest(package))
+  if (is.null(latest) || inherits(latest, "error"))
+    return(list(Source = "unknown"))
+
+  # check version; use unknown if it's too new
+  if (renv_version_gt(dcf[["Version"]], latest[["Version"]]))
+    return(list(Source = "unknown"))
+
+  # ok, this package appears to be from a package repository
+  list(Source = "Repository", Repository = latest[["Repository"]])
 
 }
 
@@ -1035,7 +1014,7 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
         "",
         "NOTE: Dependency discovery took %s during snapshot.",
         "Consider using .renvignore to ignore files, or switching to explicit snapshots.",
-        "See `?dependencies` for more information.",
+        "See `?renv::dependencies` for more information.",
         ""
       )
 
@@ -1056,7 +1035,7 @@ renv_snapshot_packages <- function(packages, libpaths, project) {
   ignored <- c(
     renv_packages_base(),
     renv_project_ignored_packages(project = project),
-    if (is_testing()) "renv"
+    if (renv_tests_running()) "renv"
   )
 
   callback <- function(package, location, project) {

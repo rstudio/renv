@@ -117,48 +117,69 @@ status <- function(project = NULL,
   invisible(renv_status_impl(project, libpaths, lockpath, sources, cache))
 }
 
-renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
+renv_status_check_initialized <- function(project, lockpath = NULL) {
 
-  # check to see if we've initialized this project
-  has_library <- file.exists(renv_paths_library(project = project))
-  has_lockfile <- file.exists(lockpath)
+  projlib <- renv_paths_library(project = project)
+  lockpath <- lockpath %||% renv_paths_lockfile(project = project)
 
-  if (!has_library || !has_lockfile) {
-    if (!has_library && !has_lockfile) {
-      writef(c(
-        "Project does not use renv.",
-        "Call renv::init() to setup project to use renv."
-      ))
-    } else if (!has_library) {
-      writef(c(
-        "Project lacks a library.",
-        "Call renv::restore() to install packages defined in lockfile."
-      ))
-    } else {
-      writef(c(
-        "Project lacks a lockfile.",
-        "Call renv::snapshot() to create one."
-      ))
-    }
+  haslib <- file.exists(projlib)
+  haslock <- file.exists(lockpath)
 
-    return(list(library = list(), lockfile = list(), synchronized = FALSE))
+  if (haslib && haslock)
+    return(TRUE)
+
+  if (haslib && !haslock) {
+    writef(c(
+      "This project does not contain a lockfile.",
+      "Use renv::snapshot() to create a lockfile."
+    ))
+  } else if (!haslib && haslock) {
+    writef(c(
+      "There are no packages installed in the project library.",
+      "Use renv::restore() to install the packages defined in lockfile."
+    ))
+  } else {
+    writef(c(
+      "This project does not appear to be using renv.",
+      "Use renv::init() to initialize the project."
+    ))
   }
+
+  FALSE
+
+}
+
+renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 
   # mark status as running
   the$status_running <- TRUE
   defer(the$status_running <- FALSE)
 
+  # check to see if we've initialized this project
+  if (!renv_status_check_initialized(project, lockpath)) {
+    return(list(
+      library = list(Packages = named(list())),
+      lockfile = list(Packages = named(list())),
+      synchronized = FALSE
+    ))
+  }
+
   # get all dependencies, including transitive
   dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
   packages <- sort(union(dependencies, "renv"))
-  paths <- renv_package_dependencies(packages, project = project)
+  paths <- renv_package_dependencies(packages, libpaths = libpaths, project = project)
   packages <- as.character(names(paths))
 
-  # get lockfile records
-  lockfile <- renv_lockfile_records(renv_lockfile_read(lockpath))
+  # read project lockfile
+  lockfile <- renv_lockfile_read(lockpath)
 
-  # get library records
-  library <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+  # get lockfile capturing current library state
+  library <- renv_lockfile_create(
+    libpaths = libpaths,
+    type     = "all",
+    prompt   = FALSE,
+    project  = project
+  )
 
   # remove ignored packages
   ignored <- c(
@@ -166,9 +187,10 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     renv_packages_base(),
     if (renv_tests_running()) "renv"
   )
+
   packages <- setdiff(packages, ignored)
-  lockfile <- exclude(lockfile, ignored)
-  library <- exclude(library, ignored)
+  renv_lockfile_records(lockfile) <- exclude(renv_lockfile_records(lockfile), ignored)
+  renv_lockfile_records(library) <- exclude(renv_lockfile_records(library), ignored)
 
   synchronized <-
     renv_status_check_consistent(lockfile, library, packages) &&
@@ -183,9 +205,9 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
     renv_status_check_cache(project)
 
   if (synchronized)
-    writef("No issues found.")
+    writef("No issues found -- the project is in a consistent state.")
   else
-    writef(c("", "See ?status() for advice on resolving the issues."))
+    writef(c("", "See ?renv::status() for advice on resolving these issues."))
 
   list(
     library      = library,
@@ -196,10 +218,13 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
 }
 
 renv_status_check_unknown_sources <- function(project, lockfile) {
-  renv_check_unknown_source(lockfile, project)
+  renv_check_unknown_source(renv_lockfile_records(lockfile), project)
 }
 
 renv_status_check_consistent <- function(lockfile, library, used) {
+
+  lockfile <- renv_lockfile_records(lockfile)
+  library <- renv_lockfile_records(library)
 
   packages <- sort(unique(c(names(library), names(lockfile), used)))
 
@@ -229,10 +254,16 @@ renv_status_check_consistent <- function(lockfile, library, used) {
     writef()
     print(issues, row.names = FALSE, right = FALSE)
   }
+
   FALSE
+
 }
 
 renv_status_check_synchronized <- function(lockfile, library) {
+
+  lockfile <- renv_lockfile_records(lockfile)
+  library <- renv_lockfile_records(library)
+
   actions <- renv_lockfile_diff_packages(lockfile, library)
   rest <- c("upgrade", "downgrade", "crossgrade")
 
@@ -248,6 +279,7 @@ renv_status_check_synchronized <- function(lockfile, library) {
   )
 
   FALSE
+
 }
 
 renv_status_check_cache <- function(project) {

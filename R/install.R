@@ -172,6 +172,10 @@ install <- function(packages = NULL,
     packages <- unique(c(packages, bioc))
   }
 
+  # don't update renv unless it was explicitly requested
+  if (!"renv" %in% names(remotes))
+    packages <- setdiff(packages, "renv")
+
   # start building a list of records; they should be resolved this priority:
   #
   # 1. explicit requests from the user
