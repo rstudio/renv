@@ -157,6 +157,7 @@ renv_error_handler_call <- function() {
   as.call(list(renv_error_handler))
 }
 
+# TODO: This can probably be removed or inlined.
 renv_error_report <- function(error = NULL) {
   if (renv_tests_running() && inherits(error, "error"))
     stop(error)

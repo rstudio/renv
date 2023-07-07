@@ -704,7 +704,11 @@ renv_snapshot_description <- function(path = NULL, package = NULL) {
 renv_snapshot_description_impl <- function(dcf, path = NULL) {
 
   # infer remotes for packages installed from sources
-  dcf <- renv_snapshot_description_infer(dcf)
+  #
+  # TODO: This causes problems with status(), and is potentially
+  # far too expensive if we have a number of packages installed
+  # from sources.
+  # dcf <- renv_snapshot_description_infer(dcf)
 
   # figure out the package source
   source <- renv_snapshot_description_source(dcf)
@@ -1056,7 +1060,7 @@ renv_snapshot_packages <- function(packages, libpaths, project) {
   ignored <- c(
     renv_packages_base(),
     renv_project_ignored_packages(project = project),
-    if (is_testing()) "renv"
+    if (renv_tests_running()) "renv"
   )
 
   callback <- function(package, location, project) {

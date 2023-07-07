@@ -119,11 +119,13 @@ init <- function(project = NULL,
   renv_init_settings(project, settings)
 
   # for bare inits, just activate the project
-  if (bare)
+  if (bare) {
+    renv_imbue_impl(project)
     return(renv_init_fini(project, profile, restart))
+  }
 
   # compute and cache dependencies to (a) reveal problems early and (b) compute once
-  deps <- renv_snapshot_dependencies(project, dev = TRUE)
+  deps <- renv_snapshot_dependencies(project, type = type, dev = TRUE)
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile, bioconductor)

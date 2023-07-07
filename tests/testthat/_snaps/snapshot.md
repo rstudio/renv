@@ -206,11 +206,6 @@
     Output
       - Automatic snapshot has updated '<wd>/renv.lock'.
 
-# we can infer github remotes from packages installed from sources
-
-    Code
-      . <- renv_snapshot_description(path = descfile)
-
 # we report if dependency discover during snapshot() is slow
 
     Code
