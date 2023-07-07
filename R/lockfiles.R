@@ -111,12 +111,12 @@
 #' @param file A file path, or \R connection.
 #'
 #' @family reproducibility
-#' @name lockfile
-#' @rdname lockfile
+#' @name lockfiles
+#' @rdname lockfiles
 NULL
 
 #' @param libpaths The library paths to be used when generating the lockfile.
-#' @rdname lockfile
+#' @rdname lockfiles
 #' @export
 lockfile_create <- function(type = settings$snapshot.type(project = project),
                             libpaths = .libPaths(),
@@ -141,7 +141,7 @@ lockfile_create <- function(type = settings$snapshot.type(project = project),
   )
 }
 
-#' @rdname lockfile
+#' @rdname lockfiles
 #' @export
 lockfile_read <- function(file = NULL, ..., project = NULL) {
   project <- renv_project_resolve(project)
@@ -149,7 +149,7 @@ lockfile_read <- function(file = NULL, ..., project = NULL) {
   renv_lockfile_read(file = file)
 }
 
-#' @rdname lockfile
+#' @rdname lockfiles
 #' @export
 lockfile_write <- function(lockfile, file = NULL, ..., project = NULL) {
   project <- renv_project_resolve(project)
@@ -161,7 +161,7 @@ lockfile_write <- function(lockfile, file = NULL, ..., project = NULL) {
 #'
 #' @param repos A named vector, mapping \R repository names to their URLs.
 #'
-#' @rdname lockfile
+#' @rdname lockfiles
 #' @export
 lockfile_modify <- function(lockfile = NULL,
                             ...,

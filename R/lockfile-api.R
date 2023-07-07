@@ -109,6 +109,10 @@ renv_lockfile_api <- function(lockfile = NULL) {
 #' lock$write("renv.lock")
 #'
 #' }
+#'
+#' @rdname lockfile-api
+#' @name lockfile-api
+#'
 lockfile <- function(file = NULL, project = NULL) {
   project <- renv_project_resolve(project)
   renv_scope_error_handler()

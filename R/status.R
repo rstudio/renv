@@ -124,24 +124,32 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   has_lockfile <- file.exists(lockpath)
 
   if (!has_library || !has_lockfile) {
+
     if (!has_library && !has_lockfile) {
       writef(c(
-        "Project does not use renv.",
-        "Call renv::init() to setup project to use renv."
+        "This project does not appear to be using renv.",
+        "Use renv::init() to initialize this project."
       ))
     } else if (!has_library) {
       writef(c(
-        "Project lacks a library.",
-        "Call renv::restore() to install packages defined in lockfile."
+        "This project does not have a private library.",
+        "Use renv::restore() to install the packages defined in lockfile."
       ))
     } else {
       writef(c(
-        "Project lacks a lockfile.",
-        "Call renv::snapshot() to create one."
+        "This project does not contain a lockfile.",
+        "Use renv::snapshot() to create a lockfile."
       ))
     }
 
-    return(list(library = list(), lockfile = list(), synchronized = FALSE))
+    default <- list(
+      library = list(Packages = named(list())),
+      lockfile = list(Packages = named(list())),
+      synchronized = FALSE
+    )
+
+    return(default)
+
   }
 
   # mark status as running
@@ -229,7 +237,9 @@ renv_status_check_consistent <- function(lockfile, library, used) {
     writef()
     print(issues, row.names = FALSE, right = FALSE)
   }
+
   FALSE
+
 }
 
 renv_status_check_synchronized <- function(lockfile, library) {
