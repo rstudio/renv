@@ -303,6 +303,15 @@ config <- list(
     )
   },
 
+  snapshot.inference = function(..., default = TRUE) {
+    renv_config_get(
+      name    = "snapshot.inference",
+      type    = "logical[1]",
+      default = default,
+      args    = list(...)
+    )
+  },
+
   snapshot.validate = function(..., default = TRUE) {
     renv_config_get(
       name    = "snapshot.validate",

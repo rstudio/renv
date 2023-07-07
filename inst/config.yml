@@ -289,6 +289,16 @@
     and `remove.packages()`, delegating these functions to [`renv::install()`],
     [`renv::update()`] and [`renv::remove()`] as appropriate.
 
+- name: "snapshot.inference"
+  type: "logical[1]"
+  default: true
+  description: >
+    For packages which were installed from local sources, should renv try to infer the
+    package's remote from its DESCRIPTION file? When `TRUE`, renv will check and prompt
+    you to update the package's DESCRIPTION file if the remote source can be ascertained.
+    Currently, this is only implemented for packages hosted on GitHub. Note that this
+    check is only performed in interactive R sessions.
+
 - name: "snapshot.validate"
   type: "logical[1]"
   default: true

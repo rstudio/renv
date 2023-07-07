@@ -116,6 +116,8 @@ Sandboxing is done by linking or copying system packages into a separate library
 Defaults to \code{TRUE}.}
 \subsection{renv.config.shims.enabled}{Should renv shims be installed on package load? When enabled, renv will install its own shims over the functions \code{install.packages()}, \code{update.packages()} and \code{remove.packages()}, delegating these functions to \code{\link[=install]{install()}}, \code{\link[=update]{update()}} and \code{\link[=remove]{remove()}} as appropriate.
 Defaults to \code{TRUE}.}
+\subsection{renv.config.snapshot.inference}{For packages which were installed from local sources, should renv try to infer the package's remote from its DESCRIPTION file? When \code{TRUE}, renv will check and prompt you to update the package's DESCRIPTION file if the remote source can be ascertained. Currently, this is only implemented for packages hosted on GitHub. Note that this check is only performed in interactive R sessions.
+Defaults to \code{TRUE}.}
 \subsection{renv.config.snapshot.validate}{Validate \R package dependencies when calling snapshot? When \code{TRUE}, renv will attempt to diagnose potential issues in the project library before creating \code{renv.lock} -- for example, if a package installed in the project library depends on a package which is not currently installed.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.startup.quiet}{Be quiet during startup? When set, renv will not display the typical \verb{Project <path> loaded. [renv <version>]} banner on startup.
