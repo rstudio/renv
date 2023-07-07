@@ -219,7 +219,7 @@
       
       NOTE: Dependency discovery took XXXX seconds during snapshot.
       Consider using .renvignore to ignore files, or switching to explicit snapshots.
-      See `?dependencies` for more information.
+      See `?renv::dependencies` for more information.
       
       - The lockfile is already up to date.
 

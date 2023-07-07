@@ -81,7 +81,7 @@ Defaults to \code{TRUE}.}
 Defaults to \code{"api.github.com"}.}
 \subsection{renv.config.gitlab.host}{The default GitLab host to be used during package retrieval.
 Defaults to \code{"gitlab.com"}.}
-\subsection{renv.config.hydrate.libpaths}{A character vector of library paths, to be used by \code{\link[=hydrate]{hydrate()}} when attempting to hydrate projects. When empty, the default set of library paths (as documented in \code{?hydrate}) are used instead. See \code{\link[=hydrate]{hydrate()}} for more details.
+\subsection{renv.config.hydrate.libpaths}{A character vector of library paths, to be used by \code{\link[=hydrate]{hydrate()}} when attempting to hydrate projects. When empty, the default set of library paths (as documented in \code{?renv::hydrate}) are used instead. See \code{\link[=hydrate]{hydrate()}} for more details.
 Defaults to \code{NULL}.}
 \subsection{renv.config.install.build}{Should downloaded package archives be built (via \verb{R CMD build}) before installation? When TRUE, package vignettes will also be built as part of package installation. Because building packages before installation may require packages within 'Suggests' to be available, this option is not enabled by default.
 Defaults to \code{FALSE}.}

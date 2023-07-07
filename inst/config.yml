@@ -146,7 +146,7 @@
   description: >
     A character vector of library paths, to be used by [hydrate()]
     when attempting to hydrate projects. When empty, the default set of library paths
-    (as documented in `?hydrate`) are used instead. See [`hydrate()`] for more details.
+    (as documented in `?renv::hydrate`) are used instead. See [`hydrate()`] for more details.
 
 - name: "install.build"
   type: "logical[1]"

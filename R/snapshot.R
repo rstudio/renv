@@ -1035,7 +1035,7 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
         "",
         "NOTE: Dependency discovery took %s during snapshot.",
         "Consider using .renvignore to ignore files, or switching to explicit snapshots.",
-        "See `?dependencies` for more information.",
+        "See `?renv::dependencies` for more information.",
         ""
       )
 
