@@ -44,7 +44,7 @@ reference:
 
 - title: Lockfile Management
   contents:
-  - lockfile
+  - lockfiles
   - record
   - remote
   - modify
@@ -71,12 +71,10 @@ reference:
 
 - title: internal
   contents:
+  - renv-package
   - sandbox
   - imbue
-  - lockfile
   - graph
-  - renv-package
-  - renv_lockfile_from_manifest
   - sandbox
 
 articles:

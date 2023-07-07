@@ -1,8 +1,8 @@
 ---
-title: "packrat vs renv"
+title: "Packrat vs. renv"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{packrat}
+  %\VignetteIndexEntry{Packrat vs. renv}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

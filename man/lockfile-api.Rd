@@ -44,3 +44,4 @@ lock$write("renv.lock")
 \code{\link{lockfiles}}, for a description of the structure of an
 \code{renv} lockfile.
 }
+\keyword{internal}

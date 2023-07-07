@@ -110,6 +110,7 @@ renv_lockfile_api <- function(lockfile = NULL) {
 #'
 #' }
 #'
+#' @keywords internal
 #' @rdname lockfile-api
 #' @name lockfile-api
 #'
