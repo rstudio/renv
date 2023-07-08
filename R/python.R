@@ -278,6 +278,10 @@ renv_python_discover <- function() {
     "~/opt/python",
     file.path(renv_pyenv_root(), "versions")
   )
+  reticulate <- Sys.getenv("RETICULATE_PYTHON")
+  if (length(reticulate)) {
+    roots <- c(roots, reticulate)
+  }
 
   for (root in roots) {
     versions <- sort(list.files(root, full.names = TRUE), decreasing = TRUE)
@@ -340,7 +344,7 @@ renv_python_discover <- function() {
   # find Python installations on the PATH
   path <- Sys.getenv("PATH", unset = "")
   splat <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1L]]
-  for (entry in splat) {
+  for (entry in rev(splat)) {
     for (exe in c("python3", "python")) {
       python <- Sys.which(file.path(entry, exe))
       if (nzchar(python))
