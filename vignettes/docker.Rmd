@@ -147,7 +147,7 @@ However, once the renv cache is active, newly-created containers will launch ver
 
 ## Handling the renv autoloader
 
-When \R is launched within a project folder, the renv auto-loader (if present) will attempt to download and install renv into the project library.
+When `R` is launched within a project folder, the renv auto-loader (if present) will attempt to download and install renv into the project library.
 Depending on how your Docker container is configured, this could fail.
 For example:
 

@@ -129,9 +129,9 @@ Installation from source can be challenging for a few reasons:
 
 ### Configure flags
 
-Many \R packages have a `configure` script that needs to be run to prepare the package for installation.
+Many `R` packages have a `configure` script that needs to be run to prepare the package for installation.
 Arguments and environment variables can be passed through to those scripts in a manner similar to `install.packages()`.
-In particular, the \R options `configure.args` and `configure.vars` can be used to map package names to their appropriate configuration.
+In particular, the `R` options `configure.args` and `configure.vars` can be used to map package names to their appropriate configuration.
 For example:
 
 ```{r, eval = FALSE}
@@ -152,7 +152,7 @@ renv::install("RNetCDF")
 
 ### Install flags
 
-Similarly, additional flags that should be passed to `R CMD INSTALL` can be set via the `install.opts` \R option:
+Similarly, additional flags that should be passed to `R CMD INSTALL` can be set via the `install.opts` `R` option:
 
 ```{r, eval = FALSE}
 # installation of R packages using the Windows Subsystem for Linux
