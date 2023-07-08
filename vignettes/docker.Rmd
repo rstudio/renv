@@ -162,7 +162,7 @@ Warning messages:
 Use `renv::activate()` to re-initialize the project.
 ```
 
-Bootstrapping renv into the project library might be un-necessary for you.
+Bootstrapping renv into the project library might be unnecessary for you.
 If that is the case, then you can avoid this behavior by launching R with the `--vanilla` flag set; for example:
 
 ```         
