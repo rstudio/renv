@@ -276,13 +276,13 @@ packages.</p></li>
 <!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb --><div class="section level3">
 <h3 id="configure-flags">Configure flags<a class="anchor" aria-label="anchor" href="#configure-flags"></a>
 </h3>
-<p>Many packages have a <code>configure</code> script that needs to be
-run to prepare the package for installation. Arguments and environment
-variables can be passed through to those scripts in a manner similar to
-<code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>. In particular, the options
-<code>configure.args</code> and <code>configure.vars</code> can be used
-to map package names to their appropriate configuration. For
-example:</p>
+<p>Many <code>R</code> packages have a <code>configure</code> script
+that needs to be run to prepare the package for installation. Arguments
+and environment variables can be passed through to those scripts in a
+manner similar to <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>. In particular, the
+<code>R</code> options <code>configure.args</code> and
+<code>configure.vars</code> can be used to map package names to their
+appropriate configuration. For example:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># installation of RNetCDF may require us to set include paths for netcdf</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>configure.args <span class="ot">=</span> <span class="fu">c</span>(<span class="at">RNetCDF =</span> <span class="st">"--with-netcdf-include=/usr/include/udunits2"</span>)<span class="er">)</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">configure.args =</span> configure.args)</span>
@@ -299,7 +299,7 @@ example:</p>
 </h3>
 <p>Similarly, additional flags that should be passed to
 <code>R CMD INSTALL</code> can be set via the <code>install.opts</code>
-option:</p>
+<code>R</code> option:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># installation of R packages using the Windows Subsystem for Linux</span></span>
 <span><span class="co"># may require the `--no-lock` flag to be set during install</span></span>

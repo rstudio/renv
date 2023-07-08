@@ -268,10 +268,10 @@ with their own independent package dependencies.</p>
 <div class="section level2">
 <h2 id="handling-the-renv-autoloader">Handling the renv autoloader<a class="anchor" aria-label="anchor" href="#handling-the-renv-autoloader"></a>
 </h2>
-<p>When is launched within a project folder, the renv auto-loader (if
-present) will attempt to download and install renv into the project
-library. Depending on how your Docker container is configured, this
-could fail. For example:</p>
+<p>When <code>R</code> is launched within a project folder, the renv
+auto-loader (if present) will attempt to download and install renv into
+the project library. Depending on how your Docker container is
+configured, this could fail. For example:</p>
 <pre><code>Error installing renv:
 ======================
 ERROR: unable to create ‘/usr/local/pipe/renv/library/master/R-4.0/x86_64-pc-linux-gnu/renv’
