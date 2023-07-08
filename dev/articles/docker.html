@@ -280,7 +280,7 @@ Warning messages:
   running command ''/usr/lib/R/bin/R' --vanilla CMD INSTALL -l 'renv/library/master/R-4.0/x86_64-pc-linux-gnu' '/tmp/RtmpwM7ooh/renv_0.12.2.tar.gz' 2&gt;&amp;1' had status 1
 2: Failed to find an renv installation: the project will not be loaded.
 Use `renv::activate()` to re-initialize the project.</code></pre>
-<p>Bootstrapping renv into the project library might be un-necessary for
+<p>Bootstrapping renv into the project library might be unnecessary for
 you. If that is the case, then you can avoid this behavior by launching
 R with the <code>--vanilla</code> flag set; for example:</p>
 <pre><code>R --vanilla -s -e 'renv::restore()'</code></pre>
