@@ -279,7 +279,7 @@ renv_python_discover <- function() {
     file.path(renv_pyenv_root(), "versions")
   )
   reticulate <- Sys.getenv("RETICULATE_PYTHON")
-  if (length(reticulate)) {
+  if (nzchar(reticulate)) {
     roots <- c(roots, reticulate)
   }
 
