@@ -437,7 +437,7 @@ test_that("captures dependencies from Jupyter notebooks", {
 
   path <- test_path("resources/notebook.ipynb")
   deps <- dependencies(path)
-  expect_setequal(deps$Package, c("IRKernel", "MASS", "stats"))
+  expect_setequal(deps$Package, c("IRkernel", "MASS", "stats"))
   expect_equal(deps$Source, rep(renv_path_normalize(path), 3))
 
 })
