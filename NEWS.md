@@ -1,6 +1,7 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Use correct spelling of IRkernel package (#1528).
 
 # renv 1.0.0
 

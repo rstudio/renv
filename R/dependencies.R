@@ -946,7 +946,7 @@ renv_dependencies_discover_ipynb <- function(path) {
 
   deps <- stack()
   if (identical(json$metadata$kernelspec$name, "ir"))
-    deps$push(renv_dependencies_list(path, "IRKernel"))
+    deps$push(renv_dependencies_list(path, "IRkernel"))
 
   for (cell in json$cells) {
     if (cell$cell_type != "code")
