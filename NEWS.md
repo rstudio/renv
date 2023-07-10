@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::activate()` no longer erroneously preserves the previous library
+  paths after restarting the session within RStudio. (#1530)
+
 * Use correct spelling of IRkernel package (#1528).
 
 # renv 1.0.0
