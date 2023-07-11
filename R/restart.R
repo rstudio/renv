@@ -49,15 +49,20 @@ renv_restart_request_rstudio <- function(project, reason, ...) {
     return(renv_restart_request_default(project, reason, ...))
 
   # if the requested project matches the current project, just
-  # restart the R session
+  # restart the R session -- but note that we cannot respect
+  # the 'restart' option here as the version RStudio uses
+  # tries to preserve session state that we need to change.
+  #
+  # https://github.com/rstudio/renv/issues/1530
   projdir <- tools$.rs.getProjectDirectory() %||% ""
   if (renv_file_same(projdir, project)) {
-    restart <- getOption("restart")
-    if (is.function(restart))
-      return(restart())
+    restart <- getOption("renv.restart.function", default = function() {
+      .rs.api.executeCommand("restartR", quiet = TRUE)
+    })
+    return(invisible(restart()))
   }
 
   # otherwise, explicitly open the new project
-  tools$.rs.api.openProject(project, newSession = FALSE)
+  invisible(tools$.rs.api.openProject(project, newSession = FALSE))
 
 }
