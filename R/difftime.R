@@ -33,6 +33,12 @@ renv_difftime_format_short <- function(time, digits = 2L) {
   if (is_testing())
     return("XXs")
 
+  units <- attr(time, "units") %||% ""
+  if (units == "secs" && time < 0.1) {
+    time  <- time * 1000
+    units <- "ms"
+  }
+
   elapsed <- signif(time, digits = digits)
   if (nchar(elapsed) == 1L)
     elapsed <- paste(elapsed, ".0", sep = "")
@@ -43,7 +49,8 @@ renv_difftime_format_short <- function(time, digits = 2L) {
     mins  = "m",
     hours = "h",
     days  = "d",
-    weeks = "w"
+    weeks = "w",
+    units
   )
 
   paste(elapsed, units, sep = "")

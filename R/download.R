@@ -660,8 +660,10 @@ renv_download_report <- function(elapsed, file) {
   else
     structure(info$size, class = "object_size")
 
-  fmt <- "OK [%s in %s]"
-  writef(fmt, format(size, units = "auto"), renv_difftime_format_short(elapsed))
+  renv_report_ok(
+    message = format(size, units = "auto"),
+    elapsed = elapsed
+  )
 
 }
 

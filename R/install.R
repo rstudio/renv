@@ -410,7 +410,7 @@ renv_install_package <- function(record) {
   }
 
   elapsed <- difftime(after, before, units = "auto")
-  renv_install_step_ok(feedback, time = elapsed)
+  renv_install_step_ok(feedback, elapsed = elapsed)
 
   invisible()
 
@@ -453,7 +453,7 @@ renv_install_package_cache <- function(record, cache, linker) {
   )
 
   elapsed <- difftime(after, before, units = "auto")
-  renv_install_step_ok(type, time = elapsed)
+  renv_install_step_ok(type, elapsed = elapsed)
 
   return(TRUE)
 
@@ -524,7 +524,7 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
   after <- Sys.time()
   elapsed <- difftime(after, before, units = "auto")
 
-  renv_install_step_ok("from source", time = elapsed)
+  renv_install_step_ok("from source", elapsed = elapsed)
 
   newpath
 
@@ -818,10 +818,9 @@ renv_install_step_start <- function(action, package) {
   printf(format(message, width = the$install_step_width))
 }
 
-renv_install_step_ok <- function(..., time = NULL) {
-  writef(
-    "OK [%s in %s]",
-    paste(..., collapse = ""),
-    renv_difftime_format_short(time)
+renv_install_step_ok <- function(..., elapsed = NULL) {
+  renv_report_ok(
+    message = paste(..., collapse = ""),
+    elapsed = elapsed
   )
 }
