@@ -399,6 +399,7 @@ update <- function(packages = NULL,
     packages = updates,
     library  = libpaths,
     rebuild  = rebuild,
+    prompt   = prompt,
     project  = project
   )
 

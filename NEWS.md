@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::update()` now ensures the `prompt` parameter is properly respected
+  during package installation. (#1540)
+
 * `renv::activate()` no longer erroneously preserves the previous library
   paths after restarting the session within RStudio. (#1530)
 
