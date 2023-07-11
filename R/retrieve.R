@@ -38,7 +38,7 @@ retrieve <- function(packages) {
   count <- state$downloaded
   if (count) {
     elapsed <- difftime(after, before, units = "secs")
-    writef("Successfully retrieved %s in %s.", nplural("package", count), renv_difftime_format(elapsed))
+    writef("Successfully downloaded %s in %s.", nplural("package", count), renv_difftime_format(elapsed))
     writef("")
   }
 

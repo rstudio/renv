@@ -158,7 +158,7 @@
       
       # Downloading packages ---
       - Downloading egg from CRAN ...                 OK [XXXX bytes in XXs]
-      Successfully retrieved 1 package in XXXX seconds.
+      Successfully downloaded 1 package in XXXX seconds.
       
       The following package(s) will be installed:
       - egg [1.0.0]
