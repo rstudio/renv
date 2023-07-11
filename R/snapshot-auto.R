@@ -25,7 +25,7 @@ renv_snapshot_auto <- function(project) {
       error = function(err) FALSE
     ),
 
-    cancel = function() { FALSE }
+    cancel = function() FALSE
 
   )
 
