@@ -7,19 +7,7 @@
     <loc>https://rstudio.github.io/renv/LICENSE-text.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/TODO.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/articles/bioconductor.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/articles/cellar.html</loc>
-  </url>
-  <url>
     <loc>https://rstudio.github.io/renv/articles/ci.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/articles/collaborating.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/articles/docker.html</loc>
@@ -31,13 +19,16 @@
     <loc>https://rstudio.github.io/renv/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/lockfile.html</loc>
+    <loc>https://rstudio.github.io/renv/articles/package-install.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/articles/mran.html</loc>
+    <loc>https://rstudio.github.io/renv/articles/package-sources.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/articles/packages.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/renv/articles/packrat.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/articles/profiles.html</loc>
@@ -50,9 +41,6 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/articles/rsconnect.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/articles/use.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/authors.html</loc>
@@ -80,9 +68,6 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/reference/consent.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/reference/deactivate.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/reference/dependencies.html</loc>
@@ -124,7 +109,7 @@
     <loc>https://rstudio.github.io/renv/reference/load.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/lockfile.html</loc>
+    <loc>https://rstudio.github.io/renv/reference/lockfile-api.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/reference/lockfiles.html</loc>
@@ -175,10 +160,10 @@
     <loc>https://rstudio.github.io/renv/reference/restore.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/revert.html</loc>
+    <loc>https://rstudio.github.io/renv/reference/run.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/renv/reference/run.html</loc>
+    <loc>https://rstudio.github.io/renv/reference/sandbox.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/reference/scaffold.html</loc>
@@ -197,9 +182,6 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/reference/upgrade.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/renv/reference/use.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/renv/reference/use_python.html</loc>
