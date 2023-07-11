@@ -33,8 +33,13 @@ renv_metadata_remote <- function(metadata = the$metadata) {
 
 }
 
-renv_metadata_version_friendly <- function(metadata = the$metadata) {
-  renv_bootstrap_version_friendly(metadata$version)
+renv_metadata_version_friendly <- function(metadata = the$metadata,
+                                           shafmt = NULL)
+{
+  renv_bootstrap_version_friendly(
+    version = metadata$version,
+    shafmt  = shafmt
+  )
 }
 
 renv_metadata_init <- function() {

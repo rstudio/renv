@@ -11,4 +11,15 @@ test_that("renv_metadata_version_friendly gives user friendly output", {
     "1.0.0 [sha: abcd123]"
   )
 
+  expect_equal(
+
+    renv_metadata_version_friendly(
+      metadata = list(version = structure("1.0.0", sha = "abcd1234")),
+      shafmt = "; sha: %s"
+    ),
+
+    "1.0.0; sha: abcd123"
+
+  )
+
 })

@@ -982,10 +982,10 @@ local({
   
   }
   
-  renv_bootstrap_version_friendly <- function(version, sha = NULL) {
+  renv_bootstrap_version_friendly <- function(version, shafmt = NULL, sha = NULL) {
     sha <- sha %||% attr(version, "sha", exact = TRUE)
-    parts <- c(version, sprintf("[sha: %s]", substring(sha, 1L, 7L)))
-    paste(parts, collapse = " ")
+    parts <- c(version, sprintf(shafmt %||% " [sha: %s]", substring(sha, 1L, 7L)))
+    paste(parts, collapse = "")
   }
   
   renv_bootstrap_run <- function(version, libpath) {

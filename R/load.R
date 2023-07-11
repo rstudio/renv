@@ -750,7 +750,7 @@ renv_load_finish <- function(project = NULL, lockfile = NULL) {
 renv_load_report_project <- function(project) {
 
   profile <- renv_profile_get()
-  version <- renv_metadata_version_friendly()
+  version <- renv_metadata_version_friendly(shafmt = "; sha: %s")
 
   if (!is.null(profile)) {
     fmt <- "- Project '%s' loaded. [renv %s; using profile '%s']"
