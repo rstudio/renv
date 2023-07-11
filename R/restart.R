@@ -59,10 +59,10 @@ renv_restart_request_rstudio <- function(project, reason, ...) {
     restart <- getOption("renv.restart.function", default = function() {
       .rs.api.executeCommand("restartR", quiet = TRUE)
     })
-    return(restart())
+    return(invisible(restart()))
   }
 
   # otherwise, explicitly open the new project
-  tools$.rs.api.openProject(project, newSession = FALSE)
+  invisible(tools$.rs.api.openProject(project, newSession = FALSE))
 
 }
