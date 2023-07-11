@@ -534,9 +534,9 @@ test_that("failures in automatic snapshots disable automatic snapshots", {
   })
 
   the$library_info <- list()
-  expect_false(the$snapshot_failed)
+  expect_false(the$auto_snapshot_failed)
   expect_snapshot(renv_snapshot_task())
-  expect_true(the$snapshot_failed)
+  expect_true(the$auto_snapshot_failed)
 
   the$library_info <- list()
   expect_silent(renv_snapshot_task())
