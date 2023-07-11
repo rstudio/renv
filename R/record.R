@@ -55,7 +55,11 @@ record <- function(records,
 
   old <- renv_lockfile_read(lockfile)
   new <- renv_lockfile_modify(old, records)
-  renv_lockfile_write(new, lockfile)
+
+  local({
+    renv_scope_options(renv.verbose = FALSE)
+    renv_lockfile_write(new, lockfile)
+  })
 
   n <- length(records)
   fmt <- "- Updated %s in %s."

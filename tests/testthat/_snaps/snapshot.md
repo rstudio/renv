@@ -30,7 +30,7 @@
       # CRAN ---
       - oatmeal   [1.0.0 -> *]
       
-      - Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to "<wd>/renv.lock".
 
 # broken symlinks are reported
 
@@ -63,7 +63,7 @@
       # CRAN ---
       - oatmeal   [1.0.0 -> *]
       
-      - Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to "<wd>/renv.lock".
 
 # snapshot warns about unsatisfied dependencies
 
@@ -129,7 +129,7 @@
       - oatmeal     [1.0.0 -> *]
       - toast       [1.0.0 -> *]
       
-      - Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to "<wd>/renv.lock".
 
 ---
 
@@ -197,7 +197,7 @@
       The version of R recorded in the lockfile will be updated:
       - R     [* -> <r-version>]
       
-      - Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to "<wd>/renv.lock".
 
 # automatic snapshot works as expected
 

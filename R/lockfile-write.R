@@ -62,7 +62,7 @@ renv_lockfile_write <- function(lockfile, file = stdout()) {
   result <- renv_lockfile_write_json(lockfile, file)
 
   if (is.character(file))
-    writef("- Lockfile written to '%s'.", renv_path_aliased(file))
+    writef("- Lockfile written to %s.", renv_path_pretty(file))
 
   result
 

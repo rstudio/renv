@@ -1,4 +1,6 @@
 
+# information about the project library; used to detect whether
+# the library appears to have been modified or updated
 the$library_info <- NULL
 
 # did the last attempt at an automatic snapshot fail?
@@ -29,7 +31,6 @@ renv_snapshot_auto <- function(project) {
 
   )
 
-
   if (updated) {
     lockfile <- renv_path_aliased(renv_lockfile_path(project))
     writef("- Automatic snapshot has updated '%s'.", lockfile)
@@ -47,14 +48,15 @@ renv_snapshot_auto_impl <- function(project) {
     renv.verbose = FALSE
   )
 
+  # get current lockfile state
   lockfile <- renv_paths_lockfile(project)
-  old <- file.info(lockfile)$mtime
+  old <- file.info(lockfile, extra_cols = FALSE)$mtime
 
   # perform snapshot without prompting
   snapshot(project = project, prompt = FALSE)
 
-  new <- file.info(lockfile)$mtime
-
+  # check for change in lockfile
+  new <- file.info(lockfile, extra_cols = FALSE)$mtime
   old != new
 
 }

@@ -26,5 +26,5 @@
       The version of R recorded in the lockfile will be updated:
       - R       [* -> <r-version>]
       
-      - Lockfile written to '<wd>/renv.lock'.
+      - Lockfile written to "<wd>/renv.lock".
 
