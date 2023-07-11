@@ -1,7 +1,7 @@
 
 # controls whether hashes are computed when computing a snapshot
 # can be scoped to FALSE when hashing is not necessary
-the$snapshot_hash <- TRUE
+the$auto_snapshot_hash <- TRUE
 
 #' Record current state of the project library in the lockfile
 #'
@@ -793,7 +793,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   }
 
   # generate a hash if we can
-  dcf[["Hash"]] <- if (the$snapshot_hash) {
+  dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
     if (is.null(path))
       renv_hash_description_impl(dcf)
     else
@@ -1072,6 +1072,10 @@ renv_snapshot_report_missing <- function(missing, type) {
   if (empty(missing))
     return(TRUE)
 
+  # if we get here during an automatic snapshot, we cannot proceed
+  if (the$auto_snapshot_running)
+    invokeRestart("cancel")
+
   preamble <- "The following required packages are not installed:"
 
   postamble <- c(
@@ -1195,7 +1199,7 @@ renv_snapshot_reprex <- function(lockfile) {
 renv_snapshot_successful <- function(records, prompt, project) {
 
   # update snapshot flag
-  the$snapshot_failed <- FALSE
+  the$auto_snapshot_failed <- FALSE
 
   # perform python snapshot on success
   renv_python_snapshot(project, prompt)
