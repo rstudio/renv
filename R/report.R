@@ -11,6 +11,6 @@ renv_report_ok <- function(message, elapsed = NULL) {
 
   # otherwise, report step with elapsed time
   fmt <- "OK [%s in %s]"
-  writef(fmt, message, )
+  writef(fmt, message, renv_difftime_format_short(elapsed))
 
 }
