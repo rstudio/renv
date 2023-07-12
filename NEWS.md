@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::restore()` no longer erroneously prompts when determining the packages
+  which need to be installed. (#1544)
+
 * `renv::update()` now ensures the `prompt` parameter is properly respected
   during package installation. (#1540)
 
@@ -8,6 +11,7 @@
   paths after restarting the session within RStudio. (#1530)
 
 * Use correct spelling of IRkernel package (#1528).
+
 
 # renv 1.0.0
 

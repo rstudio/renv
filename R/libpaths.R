@@ -186,6 +186,16 @@ renv_libpaths_restore <- function() {
   renv_libpaths_set(libpaths)
 }
 
+# We need to ensure the system library is included, for cases where users have
+# provided an explicit 'library' argument in calls to functions like
+# 'renv::restore(library = <...>)')
+#
+# https://github.com/rstudio/renv/issues/1544
 renv_libpaths_resolve <- function(library) {
-  library %||% renv_libpaths_all()
+
+  if (is.null(library))
+    return(renv_libpaths_all())
+
+  unique(c(library, .Library))
+
 }

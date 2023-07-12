@@ -1,4 +1,5 @@
 
+the$restore_running <- FALSE
 the$restore_state <- NULL
 
 #' Restore project library from a lockfile
@@ -47,6 +48,8 @@ restore <- function(project  = NULL,
   renv_consent_check()
   renv_scope_error_handler()
   renv_dots_check(...)
+
+  renv_scope_binding(the, "restore_running", TRUE)
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
