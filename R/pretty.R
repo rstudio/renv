@@ -6,12 +6,10 @@ renv_pretty_print <- function(preamble, values, postamble = NULL) {
 
   msg <- stack()
   msg$push(paste(preamble, collapse = "\n"))
-  msg$push("")
 
   msg$push(paste0("- ", values, collapse = "\n"))
 
   if (!is.null(postamble)) {
-    msg$push("")
     msg$push(paste(postamble, collapse = "\n"))
   }
 
@@ -52,8 +50,8 @@ renv_pretty_print_records <- function(preamble, records, postamble = NULL)
   text <- sprintf("- %s [%s]", format(packages), descs)
 
   all <- c(
-    preamble, "",
-    text, "",
+    preamble,
+    text,
     postamble, if (length(postamble)) ""
   )
 

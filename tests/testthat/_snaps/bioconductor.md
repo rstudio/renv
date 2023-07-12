@@ -25,16 +25,12 @@
       install("bioc::BiocGenerics")
     Output
       The following package(s) will be installed:
-      
       - BiocGenerics [<version>]
       - BiocVersion  [<version>]
-      
       These packages will be installed into "<tempdir>/<renv-library>".
       
       # Installing packages ---
-      
       - Installing BiocVersion ...                    OK [copied from cache in XXs]
       - Installing BiocGenerics ...                   OK [copied from cache in XXs]
-      
       Successfully installed 2 packages in XXXX seconds.
 

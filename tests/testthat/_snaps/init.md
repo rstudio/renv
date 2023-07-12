@@ -15,9 +15,7 @@
       
       - Resolving missing dependencies ... 
       # Installing packages ---
-      
       - Installing bread ...                          OK [linked from cache in XXs]
-      
       The following package(s) will be updated in the lockfile:
       
       # CRAN ---

@@ -28,13 +28,19 @@ retrieve <- function(packages) {
   }
   renv_scope_options(HTTPUserAgent = agent)
 
+  before <- Sys.time()
   handler <- state$handler
   for (package in packages)
     handler(package, renv_retrieve_impl(package))
+  after <- Sys.time()
 
   state <- renv_restore_state()
-  if (identical(state$downloaded, TRUE))
+  count <- state$downloaded
+  if (count) {
+    elapsed <- difftime(after, before, units = "secs")
+    writef("Successfully downloaded %s in %s.", nplural("package", count), renv_difftime_format(elapsed))
     writef("")
+  }
 
   data <- state$install$data()
   names(data) <- extract_chr(data, "Package")
@@ -207,10 +213,9 @@ renv_retrieve_impl <- function(package) {
 
   }
 
-  if (!identical(state$downloaded, TRUE)) {
+  state$downloaded <- state$downloaded + 1L
+  if (state$downloaded == 1L)
     writef(header("Downloading packages"))
-    state$downloaded <- TRUE
-  }
 
   # time to retrieve -- delegate based on previously-determined source
   switch(source,
@@ -919,12 +924,6 @@ renv_retrieve_repos_impl <- function(record,
 
 
 renv_retrieve_package <- function(record, url, path) {
-
-  state <- renv_restore_state()
-  count <- state$retrieve_package_count %||% 0L
-  state$retrieve_package_count <- count + 1L
-  if (count == 0L)
-    writef("")
 
   ensure_parent_directory(path)
   type <- renv_record_source(record)

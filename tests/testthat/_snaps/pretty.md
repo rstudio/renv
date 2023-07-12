@@ -4,7 +4,6 @@
       renv_pretty_print("preamble", letters[1:3])
     Output
       preamble
-      
       - a
       - b
       - c
@@ -13,11 +12,9 @@
       renv_pretty_print("preamble", letters[1:3], postamble = "after")
     Output
       preamble
-      
       - a
       - b
       - c
-      
       after
       
 

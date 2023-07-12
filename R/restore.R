@@ -257,7 +257,10 @@ renv_restore_begin <- function(project = NULL,
 
     # a collection of the requirements imposed on dependent packages
     # as they are discovered
-    requirements = new.env(parent = emptyenv())
+    requirements = new.env(parent = emptyenv()),
+
+    # the number of packages that were downloaded
+    downloaded = 0L
 
   )
 

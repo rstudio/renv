@@ -232,14 +232,11 @@ renv_install_impl <- function(records) {
   staged <- renv_config_install_staged()
 
   writef(header("Installing packages"))
-  writef("")
 
   if (staged)
     renv_install_staged(records)
   else
     renv_install_default(records)
-
-  writef("")
 
   invisible(TRUE)
 
