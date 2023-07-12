@@ -3,7 +3,7 @@
     Code
       val <- renv_activate_prompt_impl("snapshot")
     Output
-      It looks like you've called renv::snapshot() in a project that hasn't been activated yet
+      It looks like you've called renv::snapshot() in a project that hasn't been activated yet.
       How would you like to proceed?
       
       1: Activate the project and use the project library.
@@ -18,7 +18,7 @@
     Code
       val <- renv_activate_prompt_impl("snapshot")
     Output
-      It looks like you've called renv::snapshot() in a project that hasn't been activated yet
+      It looks like you've called renv::snapshot() in a project that hasn't been activated yet.
       How would you like to proceed?
       
       1: Activate the project and use the project library.

@@ -180,7 +180,7 @@ renv_activate_prompt <- function(action, library, prompt, project) {
 renv_activate_prompt_impl <- function(action, project = NULL) {
   title <- c(
     sprintf(
-      "It looks like you've called renv::%s() in a project that hasn't been activated yet",
+      "It looks like you've called renv::%s() in a project that hasn't been activated yet.",
       action
     ),
     "How would you like to proceed?"
