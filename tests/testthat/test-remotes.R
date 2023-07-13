@@ -230,3 +230,10 @@ test_that("remote specs referencing packages in sub-sub-directories are parsed c
 
 })
 
+test_that("we can resolve a Sage remote", {
+  skip_on_cran()
+  skip_slow()
+  remote <- renv_remotes_resolve("Sage-Bionetworks/dcamodules")
+  expect_equal(remote$RemoteUsername, "Sage-Bionetworks")
+  expect_equal(remote$RemoteRepo, "dcamodules")
+})
