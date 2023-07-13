@@ -57,7 +57,7 @@ renv_restart_request_rstudio <- function(project, reason, ...) {
   projdir <- tools$.rs.getProjectDirectory() %||% ""
   if (renv_file_same(projdir, project)) {
     restart <- getOption("renv.restart.function", default = function() {
-      .rs.api.executeCommand("restartR", quiet = TRUE)
+      tools$.rs.api.executeCommand("restartR", quiet = TRUE)
     })
     return(invisible(restart()))
   }
