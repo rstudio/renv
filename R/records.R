@@ -1,26 +1,12 @@
 
-# tools for interacting with the R package records encoded
-# within a lockfile
-renv_records <- function(records) {
-  if (inherits(records, "renv_lockfile"))
-    return(records$Packages)
-  records
-}
-
-`renv_records<-` <- function(x, value) {
-  x$Packages <- filter(value, Negate(empty))
-  x
-}
-
 renv_records_select <- function(records, actions, action) {
-  records <- renv_records(records)
+  records <- renv_lockfile_records(records)
   matching <- actions[actions %in% action]
   keep(records, names(matching))
 }
 
 renv_records_sort <- function(records) {
-  renv_scope_locale("LC_COLLATE", "C")
-  records[order(names(records))]
+  records[csort(names(records))]
 }
 
 renv_records_override <- function(records) {
@@ -96,7 +82,7 @@ renv_record_validate <- function(package, record) {
     return(record)
 
   # if we're running tests, or in CI, then report
-  if (renv_tests_running() || !is.na(Sys.getenv("CI", unset = NA))) {
+  if (renv_tests_running() || renv_envvar_exists("CI")) {
     fmt <- "! Internal error: unexpected record for package '%s'"
     writef(fmt, package)
     print(record)
@@ -117,13 +103,16 @@ renv_record_format_remote <- function(record) {
 
 }
 
-renv_record_format_short <- function(record) {
+renv_record_format_short <- function(record, versioned = FALSE) {
 
   remotes <- c("RemoteUsername", "RemoteRepo")
-  if (all(remotes %in% names(record)))
-    return(renv_record_format_short_remote(record))
+  if (all(remotes %in% names(record))) {
+    remote <- renv_record_format_short_remote(record)
+    if (versioned)
+      remote <- sprintf("%s  [%s]", record$Version %||% "<NA>", remote)
+    return(remote)
+  }
 
-  # TODO: include other information (e.g. repository name)?
   record$Version
 
 }
@@ -182,6 +171,22 @@ renv_record_format_pair <- function(lhs, rhs) {
     fmt <- "[%s: unchanged]"
     lhsf <- renv_record_format_short(lhs)
     return(sprintf(fmt, lhsf))
+  }
+
+  # check for CRAN packages; in such cases, we typically want to ignore
+  # the Remote fields which might've been added by 'pak' or other tools
+  isrepo <-
+    nzchar(lhs$Version %||% "") &&
+    nzchar(rhs$Version %||% "") &&
+    nzchar(lhs$Repository %||% "") &&
+    nzchar(rhs$Repository %||% "") &&
+    identical(lhs$Repository, rhs$Repository)
+
+  if (isrepo) {
+    fmt <- "[%s -> %s]"
+    lhsf <- renv_record_format_short(lhs)
+    rhsf <- renv_record_format_short(rhs)
+    return(sprintf(fmt, lhsf, rhsf))
   }
 
   # check for only sha changed

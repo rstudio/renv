@@ -1,9 +1,9 @@
 
-#' Use Python
+#' Use python
 #'
 #' Associate a version of Python with your project.
 #'
-#' When Python integration is active, `renv` will:
+#' When Python integration is active, renv will:
 #'
 #' - Save metadata about the requested version of Python in `renv.lock` -- in
 #'   particular, the Python version, and the Python type ("virtualenv", "conda",
@@ -19,7 +19,7 @@
 #'   of Python currently active for this sessions,
 #'
 #' - The `RETICULATE_PYTHON` environment variable will be set, so that the
-#'   `reticulate` package can automatically use the requested copy of Python
+#'   reticulate package can automatically use the requested copy of Python
 #'   as appropriate,
 #'
 #' - The requested version of Python will be placed on the `PATH`, so that
@@ -27,7 +27,7 @@
 #'
 #' You can override the version of Python used in a particular project by
 #' setting the `RENV_PYTHON` environment variable; e.g. as part of the
-#' project's `.Renviron` file. This can be useful if you find that `renv`
+#' project's `.Renviron` file. This can be useful if you find that renv
 #' is unable to automatically discover a compatible version of Python to
 #' be used in the project.
 #'
@@ -50,11 +50,11 @@
 #'   a project-local environment will be created instead, using a name
 #'   generated from the associated version of Python.
 #'
+#' @details
+#' # Finding Python
 #'
-#' @section Finding Python:
-#'
-#' In interactive sessions, when `python = NULL`, `renv` will prompt for an
-#' appropriate version of Python. `renv` will search a pre-defined set of
+#' In interactive sessions, when `python = NULL`, renv will prompt for an
+#' appropriate version of Python. renv will search a pre-defined set of
 #' locations when attempting to find Python installations on the system:
 #'
 #' - `getOption("renv.python.root")`,
@@ -66,13 +66,13 @@
 #' - `~/.pyenv/versions`,
 #' - Python instances available on the `PATH`.
 #'
-#' In non-interactive sessions, `renv` will first check the `RETICULATE_PYTHON`
-#' environment variable; if that is unset, `renv` will look for Python on the
+#' In non-interactive sessions, renv will first check the `RETICULATE_PYTHON`
+#' environment variable; if that is unset, renv will look for Python on the
 #' `PATH`. It is recommended that the version of Python to be used is explicitly
 #' supplied for non-interactive usages of `use_python()`.
 #'
 #'
-#' @section Warning:
+#' # Warning
 #'
 #' We strongly recommend using Python virtual environments, for a few reasons:
 #'
@@ -191,7 +191,7 @@ renv_use_python_virtualenv <- function(python,
   # virtual environment, then we'll use a local virtual environment
   local <- is.null(name) && identical(info$type, "virtualenv")
   if (local) {
-    name <- aliased_path(info$root)
+    name <- renv_path_aliased(info$root)
     if (renv_path_same(dirname(name), renv_python_virtualenv_home()))
       name <- basename(name)
   } else {
@@ -277,11 +277,11 @@ renv_use_python_fini <- function(info,
   # notify user
   if (!renv_tests_running()) {
     if (is.null(info$type)) {
-      fmt <- "* Activated Python %s (%s)."
-      vwritef(fmt, version, aliased_path(info$python))
+      fmt <- "- Activated Python %s (%s)."
+      writef(fmt, version, renv_path_aliased(info$python))
     } else {
-      fmt <- "* Activated Python %s [%s; %s]"
-      vwritef(fmt, version, info$type, aliased_path(name))
+      fmt <- "- Activated Python %s [%s; %s]"
+      writef(fmt, version, info$type, renv_path_aliased(name))
     }
   }
 
@@ -364,13 +364,13 @@ renv_use_python_virtualenv_impl <- function(project,
       return(exe)
   }
 
-  vprintf("* Creating virtual environment '%s' ... ", basename(name))
+  printf("- Creating virtual environment '%s' ... ", basename(name))
   vpython <- renv_python_virtualenv_create(python, path)
-  vwritef("Done!")
+  writef("Done!")
 
-  vprintf("* Updating Python packages ... ")
+  printf("- Updating Python packages ... ")
   renv_python_virtualenv_update(vpython)
-  vwritef("Done!")
+  writef("Done!")
 
   renv_python_virtualenv_validate(path, version)
 
@@ -387,7 +387,7 @@ renv_use_python_condaenv_impl <- function(project,
 
     # retrieve reticulate record
     lockfile <- renv_lockfile_load(project = project)
-    records <- renv_records(lockfile)
+    records <- renv_lockfile_records(lockfile)
     reticulate <- records[["reticulate"]]
 
     # if we have a reticulate record, then attempt to restore
@@ -424,7 +424,7 @@ renv_python_deactivate <- function(project) {
 
   lockfile$Python <- NULL
   renv_lockfile_write(lockfile, file = file)
-  vwritef("* Deactived Python -- the lockfile has been updated.")
+  writef("- Deactived Python -- the lockfile has been updated.")
   TRUE
 
 }

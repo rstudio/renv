@@ -1,6 +1,4 @@
 
-context("Errors")
-
 test_that("tracebacks are captured by catch", {
   skip_if(getRversion() < "3.3.0")
 

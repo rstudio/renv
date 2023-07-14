@@ -4,7 +4,11 @@ renv_hash_text <- function(text) {
 }
 
 renv_hash_description <- function(path) {
-  filebacked("hash", path, renv_hash_description_impl)
+  filebacked(
+    context  = "renv_hash_description",
+    path     = path,
+    callback = renv_hash_description_impl
+  )
 }
 
 renv_hash_description_impl <- function(path) {
@@ -28,10 +32,7 @@ renv_hash_description_impl <- function(path) {
   subsetted <- dcf[renv_vector_intersect(c(fields, remotes), names(dcf))]
 
   # sort names (use C locale to ensure consistent ordering)
-  ordered <- local({
-    renv_scope_locale("LC_COLLATE", "C")
-    subsetted[sort(names(subsetted))]
-  })
+  ordered <- subsetted[csort(names(subsetted))]
 
   # write to tempfile (use binary connection to ensure unix-style
   # newlines for cross-platform hash stability)

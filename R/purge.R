@@ -1,5 +1,5 @@
 
-#' Purge Packages from the Cache
+#' Purge packages from the cache
 #'
 #' Purge packages from the cache. This can be useful if a package which had
 #' previously been installed in the cache has become corrupted or unusable,
@@ -20,7 +20,7 @@
 #' @param hash The specific hashes to be removed. When `NULL`, all hashes
 #'   associated with a particular package's version will be removed.
 #'
-#' @return The set of packages removed from the `renv` global cache,
+#' @return The set of packages removed from the renv global cache,
 #'   as a character vector of file paths.
 #'
 #' @export
@@ -55,7 +55,7 @@ renv_purge_impl <- function(package,
     stop("argument 'package' is not of length one", call. = FALSE)
 
   bail <- function() {
-    vwritef("* The requested package is not installed in the cache -- nothing to do.")
+    writef("- The requested package is not installed in the cache -- nothing to do.")
     character()
   }
 
@@ -88,10 +88,9 @@ renv_purge_impl <- function(package,
   if (any(missing)) {
 
     renv_pretty_print(
-      paths[missing],
       "The following entries were not found in the cache:",
-      "They will be ignored.",
-      wrap = FALSE
+      paths[missing],
+      "They will be ignored."
     )
 
     paths <- paths[!missing]
@@ -102,15 +101,11 @@ renv_purge_impl <- function(package,
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      renv_cache_format_path(paths),
       "The following packages will be purged from the cache:",
-      wrap = FALSE
+      renv_cache_format_path(paths)
     )
 
-    if (prompt && !proceed()) {
-      renv_report_user_cancel()
-      return(paths)
-    }
+    cancel_if(prompt && !proceed())
 
   }
   # nocov end
@@ -119,7 +114,7 @@ renv_purge_impl <- function(package,
   renv_cache_clean_empty()
 
   n <- length(paths)
-  vwritef("* Removed %i %s from the cache.", n, plural("package", n))
+  writef("- Removed %s from the cache.", nplural("package", n))
 
   invisible(paths)
 

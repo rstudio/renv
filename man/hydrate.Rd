@@ -2,7 +2,7 @@
 % Please edit documentation in R/hydrate.R
 \name{hydrate}
 \alias{hydrate}
-\title{Hydrate a Project}
+\title{Copy packages from user libraries to a project library}
 \usage{
 hydrate(
   packages = NULL,
@@ -10,15 +10,17 @@ hydrate(
   library = NULL,
   update = FALSE,
   sources = NULL,
+  prompt = interactive(),
+  report = TRUE,
   project = NULL
 )
 }
 \arguments{
 \item{packages}{The set of \R packages to install. When \code{NULL}, the
-set of packages as reported by \code{\link[=dependencies]{dependencies()}} is used.}
+packages found by \code{\link[=dependencies]{dependencies()}} are used.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{library}{The \R library to be hydrated. When \code{NULL}, the active
 library as reported by \code{.libPaths()} is used.}
@@ -28,8 +30,19 @@ packages if the requested package is already installed in the project
 library? Set this to \code{"all"} if you'd like \emph{all} packages to be refreshed
 from the source library if possible.}
 
-\item{sources}{A set of library paths from which \code{renv} should attempt to
-draw packages. See \strong{Sources} for more details.}
+\item{sources}{A vector of library paths where renv should look for packages.
+When \code{NULL} (the default), \code{hydrate()} will look in the system libraries
+(the user library, the site library and the default library) then the
+renv cache.
+
+If a package is not found in any of these locations, \code{hydrate()}
+will try to install it from the active R repositories.}
+
+\item{prompt}{Boolean; prompt the user before taking any action? Ignored
+when \code{report = FALSE}.}
+
+\item{report}{Boolean; display a report of what packages will be installed
+by \code{renv::hydrate()}?}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
@@ -40,43 +53,17 @@ A named \R list, giving the packages that were used for hydration
 as well as the set of packages which were not found.
 }
 \description{
-Discover the \R packages used within a project, and then install those
-packages into the active library. This effectively allows you to fork the
-state of your default \R libraries for use within a project library.
+\code{hydrate()} installs missing packages from a user library into the project
+library. \code{hydrate()} is called automatically by \code{\link[=init]{init()}}, and it is rare
+that you should need it otherwise, as it can easily get your project into
+an inconsistent state.
+
+It may very occasionally be useful to call \code{hydate(update = "all")} if you
+want to update project packages to match those installed in your global
+library (as opposed to using \code{\link[=update]{update()}} which will get the latest versions
+from CRAN). In this case, you should verify that your code continues to work,
+then call \code{\link[=snapshot]{snapshot()}} to record updated package versions in the lockfile.
 }
-\details{
-It may occasionally be useful to use \code{renv::hydrate()} to update the packages
-used within a project that has already been initialized. However, be warned
-that it's possible that the packages pulled in may not actually be compatible
-with the packages installed in the project library, so you should exercise
-caution when doing so.
-}
-\section{Sources}{
-
-
-\code{hydrate()} attempts to re-use packages already installed on your system,
-to avoid unnecessary attempts to download and install packages from remote
-sources. When \code{NULL} (the default), \code{hydrate()} will attempt to discover \R
-packages from the following sources (in order):
-\itemize{
-\item The user library,
-\item The site library,
-\item The system library,
-\item The \code{renv} cache.
-}
-
-If package is discovered in one of these locations, \code{renv} will attempt to
-copy or link that package into the requested library as appropriate.
-}
-
-\section{Missing Packages}{
-
-
-If \code{renv} discovers that your project depends on \R packages not currently
-installed in your user library, then it will attempt to install those
-packages from the active R repositories.
-}
-
 \examples{
 \dontrun{
 
@@ -85,3 +72,4 @@ renv::hydrate()
 
 }
 }
+\keyword{internal}

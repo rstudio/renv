@@ -1,19 +1,16 @@
 
-context("Cache")
-
 test_that("issues within the cache are reported", {
   skip_on_cran()
 
   # use a temporary cache for this test as we're going
   # to mutate and invalidate it
-  tempcache <- tempfile("renv-tempcache-")
+  tempcache <- renv_scope_tempfile("renv-tempcache-")
   ensure_directory(tempcache)
-  on.exit(unlink(tempcache, recursive = TRUE), add = TRUE)
   renv_scope_envvars(RENV_PATHS_CACHE = tempcache)
 
   # initialize project
   renv_tests_scope("breakfast")
-  renv::init()
+  init()
 
   # find packages in the cache
   cache <- renv_cache_list()
@@ -51,19 +48,19 @@ test_that("use.cache project setting is honored", {
 
   renv_tests_scope("breakfast")
 
-  renv::init()
+  init()
 
   packages <- list.files(renv_paths_library(), full.names = TRUE)
   types <- renv_file_type(packages)
   expect_true(all(types == "symlink"))
 
-  renv::settings$use.cache(FALSE)
+  settings$use.cache(FALSE)
 
   packages <- list.files(renv_paths_library(), full.names = TRUE)
   types <- renv_file_type(packages)
   expect_true(all(types == "directory"))
 
-  renv::settings$use.cache(TRUE)
+  settings$use.cache(TRUE)
 
   packages <- list.files(renv_paths_library(), full.names = TRUE)
   types <- renv_file_type(packages)
@@ -76,12 +73,12 @@ test_that("package installation does not fail with non-writable cache", {
 
   renv_tests_scope()
 
-  cache <- tempfile("renv-cache-")
+  cache <- renv_scope_tempfile("renv-cache-")
   dir.create(cache, mode = "0555")
   renv_scope_envvars(RENV_PATHS_CACHE = cache)
 
-  renv::init()
-  records <- renv::install("bread")
+  init()
+  records <- install("bread")
   expect_true(records$bread$Package == "bread")
 
   location <- find.package("bread")
@@ -111,9 +108,8 @@ test_that("malformed folders in the cache are ignored", {
   skip_on_cran()
   renv_tests_scope()
 
-  cachepath <- tempfile("renv-cache-")
+  cachepath <- renv_scope_tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
 
   badpath <- renv_paths_cache("a-b/c-d/e-f/g-h/i-j")
   dir.create(dirname(badpath), recursive = TRUE)
@@ -131,9 +127,8 @@ test_that("corrupt Meta/package.rds is detected", {
   skip_on_cran()
   renv_tests_scope()
 
-  cachepath <- tempfile("renv-cache-")
+  cachepath <- renv_scope_tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
 
   init()
   install("bread")
@@ -160,9 +155,8 @@ test_that("invalid Built field is detected", {
   skip_on_cran()
   renv_tests_scope()
 
-  cachepath <- tempfile("renv-cache-")
+  cachepath <- renv_scope_tempfile("renv-cache-")
   renv_scope_envvars(RENV_PATHS_CACHE = cachepath)
-  on.exit(unlink(cachepath, recursive = TRUE), add = TRUE)
 
   init()
   install("bread")
@@ -197,13 +191,12 @@ test_that("ACLs set on packages in project library are reset", {
     system(paste("setfacl -m g::-", renv_shell_path(installpath)))
   }), where = renv_envir_self(), print = FALSE)
 
-  on.exit(untrace("renv_install_package_impl", where = renv_envir_self()), add = TRUE)
+  defer(untrace("renv_install_package_impl", where = renv_envir_self()))
 
   # use a custom cache
-  cachedir <- tempfile("renv-cache-")
+  cachedir <- renv_scope_tempfile("renv-cache-")
   ensure_directory(cachedir)
   renv_scope_envvars(RENV_PATHS_CACHE = cachedir)
-  on.exit(unlink(cachedir, recursive = TRUE), add = TRUE)
 
   # initialize project with bread; don't try to reset ACLs
   local({
@@ -254,23 +247,23 @@ test_that("ACLs set on packages in project library are reset", {
 #   tempcache2 <- tempfile("renv-tempcache-")
 #   ensure_directory(tempcache2)
 #
-#   on.exit({
+#   defer({
 #     unlink(tempcache1, recursive = TRUE)
 #     unlink(tempcache2, recursive = TRUE)
-#   }, add = TRUE)
+#   })
 #
 #   # add both packages to the cache
 #   renv_scope_envvars(RENV_PATHS_CACHE = paste(tempcache1, tempcache2, sep = ";"))
 #
 #   # initialize project
 #   renv_tests_scope()
-#   renv::init()
+#   init()
 #
 #   # there should be two paths in the cache
-#   expect_length(renv::paths$cache(), 2L)
+#   expect_length(paths$cache(), 2L)
 #
 #   # install bread to first cache path
-#   renv::install("bread")
+#   install("bread")
 #
 #   # test that there is one package (bread) and it is installed in the first cache
 #   cache <- renv_cache_list()
@@ -278,10 +271,10 @@ test_that("ACLs set on packages in project library are reset", {
 #   expect_true(startsWith(cache[basename(cache) == "bread"], tempcache1))
 #
 #   # make the first cache read only
-#   chmod(renv::paths$cache()[1L], "read")
+#   chmod(paths$cache()[1L], "read")
 #
 #   # install oatmeal to second cache path
-#   renv::install("oatmeal")
+#   install("oatmeal")
 #
 #   # test that there are 2 packages and the latest package (oatmeal) is installed in the second cache
 #   cache <- renv_cache_list()
@@ -289,9 +282,9 @@ test_that("ACLs set on packages in project library are reset", {
 #   expect_true(startsWith(cache[basename(cache) == "oatmeal"], tempcache2))
 #
 #   # make the first cache read+write again, should now install into the first cache again
-#   chmod(renv::paths$cache()[1L], "read+write")
+#   chmod(paths$cache()[1L], "read+write")
 #
-#   renv::install("toast")
+#   install("toast")
 #
 #   # test that there are 3 packages and the latest package (toast) is installed in the first cache
 #   cache <- renv_cache_list()

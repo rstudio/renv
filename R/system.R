@@ -4,11 +4,10 @@ renv_system_exec <- function(command,
                              action  = "executing command",
                              success = 0L,
                              stream  = FALSE,
-                             quiet   = FALSE)
+                             quiet   = NULL)
 {
   # be quiet when running tests by default
-  if (!interactive() && renv_tests_running())
-    quiet <- TRUE
+  quiet <- quiet %||% renv_tests_running()
 
   # handle 'stream' specially
   if (stream) {
@@ -53,25 +52,26 @@ renv_system_exec <- function(command,
     return(output)
 
   # otherwise, notify the user that things went wrong
-  if (!quiet) {
+  abort(
+    sprintf("error %s [error code %i]", action, status),
+    body = renv_system_exec_details(command, args, output)
+  )
 
-    cmdline <- paste(command, paste(args, collapse = " "))
-    underline <- paste(rep.int("=", min(80L, nchar(cmdline))), collapse = "")
-    header <- c(cmdline, underline)
-
-    # truncate output (avoid overwhelming console)
-    body <- if (length(output) > 200L)
-      c(head(output, n = 100L), "< ... >", tail(output, n = 100L))
-    else
-      output
-
-    # write to stderr
-    writeLines(c(header, "", body), con = stderr())
-
-  }
-
-  # throw error
-  fmt <- "error %s [error code %i]"
-  stopf(fmt, action, status)
 }
 
+renv_system_exec_details <- function(command, args, output) {
+
+  # get header, giving the command that was run
+  cmdline <- paste(command, paste(args, collapse = " "))
+  underline <- paste(rep.int("=", min(80L, nchar(cmdline))), collapse = "")
+  header <- c(cmdline, underline)
+
+  # truncate output (avoid overwhelming console)
+  body <- if (length(output) > 200L)
+    c(head(output, n = 100L), "< ... >", tail(output, n = 100L))
+  else
+    output
+
+  c(header, "", body)
+
+}

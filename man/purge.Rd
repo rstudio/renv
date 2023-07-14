@@ -2,7 +2,7 @@
 % Please edit documentation in R/purge.R
 \name{purge}
 \alias{purge}
-\title{Purge Packages from the Cache}
+\title{Purge packages from the cache}
 \usage{
 purge(package, ..., version = NULL, hash = NULL, prompt = interactive())
 }
@@ -10,7 +10,7 @@ purge(package, ..., version = NULL, hash = NULL, prompt = interactive())
 \item{package}{A single package to be removed from the cache.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{version}{The package version to be removed. When \code{NULL}, all versions
 of the requested package will be removed.}
@@ -22,7 +22,7 @@ associated with a particular package's version will be removed.}
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 }
 \value{
-The set of packages removed from the \code{renv} global cache,
+The set of packages removed from the renv global cache,
 as a character vector of file paths.
 }
 \description{

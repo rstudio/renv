@@ -3,7 +3,7 @@
 renv_license_generate <- function() {
 
   isbuild <-
-    !is.na(Sys.getenv("R_CMD", unset = NA)) &&
+    renv_envvar_exists("R_CMD") &&
     grepl("Rbuild", basename(dirname(getwd())))
 
   if (!isbuild)
@@ -11,7 +11,7 @@ renv_license_generate <- function() {
 
   contents <- c(
     paste("YEAR:", format(Sys.Date(), "%Y")),
-    "COPYRIGHT HOLDER: RStudio, PBC"
+    "COPYRIGHT HOLDER: Posit Software, PBC"
   )
 
   writeLines(contents, con = "LICENSE")
@@ -22,3 +22,4 @@ renv_license_generate <- function() {
 
 if (identical(.packageName, "renv"))
   renv_license_generate()
+

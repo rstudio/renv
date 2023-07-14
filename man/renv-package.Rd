@@ -9,8 +9,8 @@
 Project-local environments for \R.
 }
 \details{
-You can use \code{renv} to construct isolated, project-local \R libraries.
-Each project using \code{renv} will share package installations from a global
+You can use renv to construct isolated, project-local \R libraries.
+Each project using renv will share package installations from a global
 cache of packages, helping to avoid wasting disk space on multiple
 installations of a package that might otherwise be shared across projects.
 }
@@ -18,16 +18,22 @@ installations of a package that might otherwise be shared across projects.
 Useful links:
 \itemize{
   \item \url{https://rstudio.github.io/renv/}
+  \item \url{https://github.com/rstudio/renv}
   \item Report bugs at \url{https://github.com/rstudio/renv/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Kevin Ushey \email{kevin@rstudio.com}
+\strong{Maintainer}: Kevin Ushey \email{kevin@rstudio.com} (\href{https://orcid.org/0000-0003-2880-7407}{ORCID})
+
+Authors:
+\itemize{
+  \item Hadley Wickham \email{hadley@rstudio.com} (\href{https://orcid.org/0000-0003-4757-117X}{ORCID})
+}
 
 Other contributors:
 \itemize{
-  \item RStudio, PBC [copyright holder]
+  \item Posit Software, PBC [copyright holder, funder]
 }
 
 }

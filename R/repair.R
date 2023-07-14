@@ -1,12 +1,12 @@
 
-#' Repair a Project Library
+#' Repair a project library
 #'
 #' Repair a project library whose cache symlinks have become broken.
-#' `renv` will attempt to reinstall the requisite packages.
+#' renv will attempt to re-install the requisite packages.
 #'
 #' @inheritParams renv-params
 #'
-#' @param lockfile The path to a lockfile (if any). When available, `renv`
+#' @param lockfile The path to a lockfile (if any). When available, renv
 #'   will use the lockfile when attempting to infer the remote associated
 #'   with the inaccessible version of each missing package.
 #'
@@ -19,7 +19,7 @@ repair <- function(library  = NULL,
   renv_scope_error_handler()
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   libpaths <- renv_path_normalize(library %||% renv_libpaths_all())
   library <- libpaths[[1L]]
@@ -29,12 +29,14 @@ repair <- function(library  = NULL,
   broken <- renv_file_broken(paths)
   packages <- basename(paths[broken])
   if (empty(packages)) {
-    fmt <- "* The project library has no broken links -- nothing to do."
-    vwritef(fmt)
+    fmt <- "- The project library has no broken links -- nothing to do."
+    writef(fmt)
     return(invisible(packages))
   }
 
   # try to find records for these packages in the lockfile
+  # TODO: what if one of the requested packages isn't in the lockfile?
+  lockfile <- lockfile %||% renv_lockfile_load(project = project)
   records <- renv_repair_records(packages, lockfile, project)
 
   # install these records
@@ -46,14 +48,7 @@ repair <- function(library  = NULL,
 }
 
 renv_repair_records <- function(packages, lockfile, project) {
-
-  lockfile <- lockfile %||% renv_paths_lockfile(project = project)
-  lockfile <- renv_lockfile_resolve(lockfile)
-  if (is.null(lockfile))
-    return(packages)
-
   map(packages, function(package) {
     lockfile$Packages[[package]] %||% package
   })
-
 }

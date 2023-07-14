@@ -1,6 +1,4 @@
 
-context("Init")
-
 test_that("init() automatically installs referenced packages", {
   skip_on_cran()
 
@@ -15,13 +13,13 @@ test_that("we can initialize a project using 'breakfast'", {
   skip_on_covr()
   renv_tests_scope("breakfast")
 
-  renv::init()
+  init()
   expect_true(renv_project_initialized(getwd()))
 
   expected <- c("bread", "breakfast", "oatmeal", "toast")
-  lockfile <- renv::snapshot(lockfile = NULL)
+  lockfile <- snapshot(lockfile = NULL)
 
-  actual <- setdiff(names(renv_records(lockfile)), "renv")
+  actual <- setdiff(names(renv_lockfile_records(lockfile)), "renv")
   expect_setequal(actual, expected)
 
 })
@@ -31,12 +29,12 @@ test_that("we can initialize a project using 'toast'", {
   skip_on_covr()
   renv_tests_scope("toast")
 
-  renv::init()
+  init()
 
   expected <- c("bread", "toast")
-  lockfile <- renv::snapshot(lockfile = NULL)
+  lockfile <- snapshot(lockfile = NULL)
 
-  actual <- setdiff(names(renv_records(lockfile)), "renv")
+  actual <- setdiff(names(renv_lockfile_records(lockfile)), "renv")
   expect_setequal(actual, expected)
 
 })
@@ -46,10 +44,7 @@ test_that("we cannot initialize a project using 'brunch'", {
   renv_tests_scope("brunch")
 
   # 'brunch' will fail to install
-  local({
-    renv_scope_options(renv.tests.verbose = FALSE)
-    renv::init()
-  })
+  init()
 
   expect_false(file.exists(renv_paths_library("brunch")))
 
@@ -60,10 +55,7 @@ test_that("attempts to initialize a project with a missing package is okay", {
   renv_tests_scope("missing")
 
   # package 'missing' does not exist and so cannot be installed
-  local({
-    renv_scope_options(renv.tests.verbose = FALSE)
-    renv::init()
-  })
+  init()
 
   expect_false(file.exists(renv_paths_library("missing")))
 
@@ -73,18 +65,18 @@ test_that("the remotes field in a DESCRIPTION is honored", {
   skip_on_cran()
 
   renv_tests_scope("halloween")
-  renv::install("halloween")
+  install("halloween")
 
-  ip <- renv_installed_packages(lib.loc = renv_libpaths_default())
-  expect_true("halloween" %in% rownames(ip))
-  expect_true("skeleton" %in% rownames(ip))
+  ip <- installed_packages(lib.loc = renv_libpaths_active())
+  expect_true("halloween" %in% ip$Package)
+  expect_true("skeleton" %in% ip$Package)
 
 })
 
-test_that("renv::init(bare = TRUE) initializes a project without packages", {
+test_that("init(bare = TRUE) initializes a project without packages", {
 
   renv_tests_scope("brunch")
-  renv::init(bare = TRUE)
+  init(bare = TRUE)
   files <- list.files(renv_paths_library())
   expect_length(files, 0)
 
@@ -95,11 +87,7 @@ test_that("init succeeds even if there are parse errors in project", {
   renv_tests_scope()
   writeLines("oh no", con = "analysis.R")
 
-  local({
-    renv_scope_options(renv.tests.verbose = FALSE)
-    renv::init()
-  })
-
+  init()
   expect_true(file.exists("renv.lock"))
 
 })
@@ -117,8 +105,15 @@ test_that("init() works in path containing accented characters", {
   if (!identical(project, roundtrip))
     skip("project cannot be represented in native encoding")
 
-  native <- enc2native(project)
-  renv_tests_scope(project = paste(tempdir(), native, sep = "/"))
+  # TODO(Kevin): Windows tests on CI had the following NOTE
+  #
+  # Found the following files/directories:
+  # 'RtmpKIUpGHprøject'
+  #
+  # so we should run this down.
+  project <- paste(tempdir(), enc2native(project), sep = "/")
+  renv_tests_scope(project = project)
+  defer(unlink(project, recursive = TRUE))
 
   init()
 
@@ -139,9 +134,9 @@ test_that("we use an external library path for package projects", {
   renv_tests_scope()
 
   # use custom userdir
-  userdir <- file.path(tempdir(), "renv-userdir-override")
+  userdir <- renv_scope_tempfile("renv-userdir-override")
   ensure_directory(userdir)
-  userdir <- normalizePath(userdir, winslash = "/", mustWork = TRUE)
+  userdir <- renv_path_normalize(userdir, mustWork = TRUE)
   renv_scope_options(renv.userdir.override = userdir)
 
   # sanity check
@@ -154,8 +149,7 @@ test_that("we use an external library path for package projects", {
   init()
 
   # check for external library path
-  library <- renv_libpaths_default()
-
+  library <- renv_libpaths_active()
 
   expect_true(
     object = renv_path_within(library, userdir),
@@ -187,39 +181,51 @@ test_that("RENV_PATHS_RENV is respected on init", {
   skip_on_cran()
 
   renv_tests_scope()
+  unlink("renv", recursive = TRUE)
+
   renv_scope_envvars(
     RENV_PATHS_LOCKFILE = ".renv/renv.lock",
-    RENV_PATHS_RENV     = ".renv"
+    RENV_PATHS_RENV     = ".renv",
+    # don't execute user profile
+    R_PROFILE_USER = ""
   )
 
-  local({
+  # perform init in sub-process
+  args <- c("-s", "-e", renv_shell_quote("renv::init()"))
+  renv_system_exec(R(), args, action = "executing init()")
 
-    # don't execute user profile, and make sure we can find renv
-    renv_scope_envvars(
-      R_LIBS         = Sys.getenv("RENV_DEFAULT_R_LIBS"),
-      R_PROFILE_USER = ""
-    )
-
-    # perform init in sub-process
-    args <- c("-s", "-e", shcode(renv::init()))
-    renv_system_exec(R(), args, action = "executing renv::init()")
-
-    # check that the requisite files were created
-    expect_true(file.exists(".renv"))
-    expect_true(file.exists(".renv/renv.lock"))
-
-  })
+  # check that the requisite files were created
+  expect_true(file.exists(".renv"))
+  expect_true(file.exists(".renv/renv.lock"))
 
   script <- renv_test_code({
     writeLines(Sys.getenv("RENV_PATHS_RENV"))
   })
 
-  renv <- local({
-    renv_scope_envvars(R_PROFILE_USER = NULL)
-    args <- c("-s", "-f", script)
-    renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
-  })
+  renv_scope_envvars(R_PROFILE_USER = NULL)
+  args <- c("-s", "-f", script)
+  renv <- renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
 
-  expect_equal(renv, ".renv")
+  expect_equal(tail(renv, n = 1L), ".renv")
+
+})
+
+test_that("init() uses PPM by default", {
+  skip_on_cran()
+
+  # simulate "fresh" R session with unset repositories
+  renv_scope_options(repos = c(CRAN = "@CRAN@"))
+  repos <- renv_init_repos()
+  expect_equal(repos[["CRAN"]], "https://packagemanager.posit.co/cran/latest")
+
+})
+
+test_that("init() prompts the user for the snapshot type", {
+  skip_on_cran()
+
+  project <- renv_tests_scope("bread")
+  writeLines("Depends: bread", con = "DESCRIPTION")
+  expect_snapshot(init())
+  expect_true(renv_package_installed("bread"))
 
 })

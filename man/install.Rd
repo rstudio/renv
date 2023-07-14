@@ -2,7 +2,7 @@
 % Please edit documentation in R/install.R
 \name{install}
 \alias{install}
-\title{Install Packages}
+\title{Install packages}
 \usage{
 install(
   packages = NULL,
@@ -12,16 +12,32 @@ install(
   rebuild = FALSE,
   repos = NULL,
   prompt = interactive(),
+  dependencies = NULL,
   project = NULL
 )
 }
 \arguments{
-\item{packages}{A character vector of \R packages to install. Required
-package dependencies (\code{Depends}, \code{Imports}, \code{LinkingTo}) will be installed
-as required.}
+\item{packages}{Either \code{NULL} (the default) to install all packages required
+by the project, or a character vector of packages to install. renv
+supports a subset of the remotes syntax used for package installation,
+e.g:
+\itemize{
+\item \code{pkg}: install latest version of \code{pkg} from CRAN.
+\item \code{pkg@version}: install specified version of \code{pkg} from CRAN.
+\item \code{username/repo}: install package from GitHub
+\item \code{bioc::pkg}: install \code{pkg} from Bioconductor.
+}
+
+See \url{https://remotes.r-lib.org/articles/dependencies.html} and the examples
+below for more details.
+
+renv deviates from the remotes spec in one important way: subdirectories
+are separated from the main repository specification with a \code{:}, not \code{/}.
+So to install from the \code{subdir} subdirectory of GitHub package
+\code{username/repo} you'd use \verb{"username/repo:subdir}.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}
@@ -34,37 +50,44 @@ versions of the package available in the cache? This can either be a
 boolean (indicating that all installed packages should be rebuilt), or a
 vector of package names indicating which packages should be rebuilt.}
 
-\item{repos}{The repositories to use during restore, for packages installed
-from CRAN or another similar R package repository. When set, this will
-override any repositories declared in the lockfile. See also the
-\code{repos.override} option in \link{config} for an alternate way to provide a
-repository override.}
+\item{repos}{The repositories to use when restoring packages installed
+from CRAN or a CRAN-like repository. By default, the repositories recorded
+in the lockfile will be, ensuring that (e.g.) CRAN packages are
+re-installed from the same CRAN mirror.
+
+Use \code{repos = getOptions(repos)} to override with the repositories set
+in the current session, or see the \code{repos.override} option in \link{config} for
+an alternate way override.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
+
+\item{dependencies}{A vector of DESCRIPTION field names that should be used
+for package dependency resolution. When \code{NULL} (the default), the value
+of \code{renv::settings$package.dependency.fields} is used. The aliases
+"strong", "most", and "all" are also supported.
+See \code{\link[tools:package_dependencies]{tools::package_dependencies()}} for more details.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \value{
-A named list of package records which were installed by \code{renv}.
+A named list of package records which were installed by renv.
 }
 \description{
 Install one or more \R packages, from a variety of remote sources.
-}
-\details{
-\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} when installing packages.
+\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} for package installation.
 In particular, this means that the local cache of package installations is
 used when possible. This helps to avoid re-downloading packages that have
 already been downloaded before, and re-compiling packages from source when
 a binary copy of that package is already available.
+
+See \code{vignette("package-install")} for more details.
 }
-\section{Project DESCRIPTION Files}{
-
-
+\section{Project \code{DESCRIPTION} files}{
 If your project contains a \code{DESCRIPTION} file, then calling \code{install()}
-without any arguments will instruct \code{renv} to install the latest versions of
+without any arguments will instruct renv to install the latest versions of
 all packages as declared within that \code{DESCRIPTION} file's \code{Depends},
 \code{Imports} and \code{LinkingTo} fields; similar to how an \R package might declare
 its dependencies.
@@ -82,68 +105,19 @@ Otherwise, you can declare the package sources in your \code{DESCRIPTION}'s
 \verb{Remotes:} field.
 }
 
-\section{Remotes Syntax}{
-
-
-\code{renv} supports a subset of the \code{remotes} syntax used for package installation,
-as described in \url{https://remotes.r-lib.org/articles/dependencies.html}. See
-the examples below for more details.
-
-If you wish to install packages from an external source requiring authentication
-(e.g. a private GitHub repository), see the \strong{Authentication} documentation
-online at \url{https://rstudio.github.io/renv/articles/renv.html#authentication},
-or view the documentation locally in the \strong{Getting Started} vignette with
-\code{vignette("renv", package = "renv")}.
-}
-
 \section{Bioconductor}{
-
-
 Packages from Bioconductor can be installed by using the \verb{bioc::} prefix.
 For example,
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{renv::install("bioc::Biobase")
 }\if{html}{\out{</div>}}
 
-will install the latest-available version of \code{Biobase} from Bioconductor.
+will install the latest-available version of Biobase from Bioconductor.
 
-\code{renv} depends on \code{BiocManager} (or, for older versions of \R, \code{BiocInstaller})
+renv depends on BiocManager (or, for older versions of \R, BiocInstaller)
 for the installation of packages from Bioconductor. If these packages are
-not available, \code{renv} will attempt to automatically install them before
+not available, renv will attempt to automatically install them before
 fulfilling the installation request.
-}
-
-\section{Package Configuration}{
-
-
-Many \R packages have a \code{configure} script that needs to be run to prepare
-the package for installation. Arguments and environment variables can be
-passed through to those scripts in a manner similar to \link{install.packages}.
-In particular, the \R options \code{configure.args} and \code{configure.vars} can be
-used to map package names to their appropriate configuration. For example:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{# installation of RNetCDF may require us to set include paths for netcdf
-configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
-options(configure.args = configure.args)
-renv::install("RNetCDF")
-}\if{html}{\out{</div>}}
-
-This could also be specified as, for example,
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{options(
-  configure.args.RNetCDF = "--with-netcdf-include=/usr/include/udunits2"
-)
-renv::install("RNetCDF")
-}\if{html}{\out{</div>}}
-
-Similarly, additional flags that should be passed to \verb{R CMD INSTALL} can
-be set via the \code{install.opts} \R option:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{# installation of R packages using the Windows Subsystem for Linux
-# may require the `--no-lock` flag to be set during install
-options(install.opts = "--no-lock")
-renv::install("xml2")
-}\if{html}{\out{</div>}}
 }
 
 \examples{

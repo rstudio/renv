@@ -1,26 +1,14 @@
 
-#' Use a set of Packages
-#'
-#' Given a set of \R package requirements, install those packages into the
-#' library path requested via `library`, and then activate that library path.
-#'
-#' `renv::use()` is intended to be used within standalone \R scripts. It can
-#' be useful when you'd like to specify an \R script's dependencies directly
-#' within that script, and have those packages automatically installed and
-#' loaded when the associated script is run. In this way, an \R script can more
-#' easily be shared and re-run with the exact package versions requested via
-#' `use()`.
-#'
-#' `renv::use()` is inspired in part by the [groundhog](https://groundhogr.com/)
-#' package, which also allows one to specify a script's \R package requirements
-#' within that same \R script.
+the$use_libpath <- NULL
+
+#' @rdname embed
 #'
 #' @param ...
 #'   The \R packages to be used with this script. Ignored if `lockfile` is
 #'   non-`NULL`.
 #'
 #' @param lockfile
-#'   The lockfile to use. When supplied, `renv` will use the packages as
+#'   The lockfile to use. When supplied, renv will use the packages as
 #'   declared in the lockfile.
 #'
 #' @param library
@@ -91,16 +79,11 @@ use <- function(...,
   remotes <- lapply(dots, renv_remotes_resolve)
   names(remotes) <- map_chr(remotes, `[[`, "Package")
 
-  fmt <- "* renv is installing %i package(s) and their dependencies ... "
-  vprintf(fmt, length(remotes))
-
   # install packages
   records <- local({
     renv_scope_options(renv.verbose = verbose)
     install(packages = remotes, library = library, prompt = FALSE)
   })
-
-  vwritef("Done!")
 
   # automatically load the requested remotes
   if (attach) {
@@ -115,7 +98,7 @@ use <- function(...,
 }
 
 renv_use_libpath <- function() {
-  renv_global("use.library", tempfile("renv-library-"))
+  (the$use_libpath <- the$use_libpath %||% tempfile("renv-use-libpath-"))
 }
 
 renv_use_sandbox <- function(sandbox) {
@@ -126,12 +109,12 @@ renv_use_sandbox <- function(sandbox) {
   if (renv_sandbox_activated())
     return(TRUE)
 
-  path <- if (is.character(sandbox))
+  sandbox <- if (is.character(sandbox))
     sandbox
   else
     file.path(tempdir(), "renv-sandbox")
 
   renv_scope_options(renv.config.sandbox.enabled = TRUE)
-  renv_sandbox_activate_impl(path = path)
+  renv_sandbox_activate_impl(sandbox = sandbox)
 
 }

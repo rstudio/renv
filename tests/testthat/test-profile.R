@@ -1,10 +1,10 @@
 
-context("Profile")
-
 test_that("renv/profile is read and used to select a profile", {
   skip_on_cran()
 
   project <- renv_tests_scope()
+
+  renv_scope_envvars(RENV_PROFILE = NULL)
   init(profile = "testing")
   renv_imbue_self(project)
 
@@ -44,18 +44,18 @@ test_that("a profile changes the default library / lockfile path", {
   prefix <- "renv/profiles/testing"
 
   expect_equal(
-    paths$lockfile(project = project),
-    file.path(project, prefix, "renv.lock")
+    renv_path_normalize(paths$lockfile(project = project)),
+    renv_path_normalize(file.path(project, prefix, "renv.lock"))
   )
 
   expect_equal(
-    paths$library(project = project),
-    file.path(project, prefix, "renv/library", renv_platform_prefix())
+    renv_path_normalize(paths$library(project = project)),
+    renv_path_normalize(file.path(project, prefix, "renv/library", renv_platform_prefix()))
   )
 
   expect_equal(
-    paths$settings(project = project),
-    file.path(project, prefix, "renv/settings.dcf")
+    renv_path_normalize(paths$settings(project = project)),
+    renv_path_normalize(file.path(project, prefix, "renv/settings.json"))
   )
 
 })
@@ -74,14 +74,14 @@ test_that("profile-specific dependencies can be written", {
   writeLines("library(toast)", con = path)
 
   # validate the dependency is included
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true("toast" %in% deps$Package)
 
   # switch to other profile
   renv_scope_envvars(RENV_PROFILE = "other")
 
   # 'toast' is no longer required
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_false("toast" %in% deps$Package)
 
 })

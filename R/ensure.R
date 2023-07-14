@@ -14,26 +14,30 @@ ensure_existing_file <- function(path) {
   invisible(path)
 }
 
-ensure_directory <- function(paths) {
+ensure_directory <- function(paths, umask = NULL) {
 
   # handle zero-path case
   if (empty(paths))
     return(invisible(paths))
 
-  # collect file info as list
-  fileinfo <- renv_file_info(paths)
-  infos <- lapply(1:nrow(fileinfo), function(i) fileinfo[i, ])
+  # set umask if necessary
+  if (!is.null(umask))
+    renv_scope_umask("0")
 
-  # check for existing files that aren't directories
-  for (info in infos)
-    if (identical(info$isdir, FALSE))
-      stopf("path '%s' exists but is not a directory", rownames(info))
+  # for each path, try to either create the directory, or assert that
+  # the directory already exists. this should also help handle cases
+  # where 'dir.create()' fails because another process created the
+  # directory at the same time we attempted to do so
+  for (path in paths) {
 
-  # create missing directories
-  for (info in infos)
-    if (is.na(info$isdir))
-      if (!dir.create(rownames(info), recursive = TRUE))
-        stopf("failed to create directory at path '%s'", rownames(info))
+    ok <-
+      dir.create(path, recursive = TRUE, showWarnings = FALSE) ||
+      dir.exists(path)
+
+    if (!ok)
+      stopf("failed to create directory at path '%s'", path)
+
+  }
 
   # return the paths
   invisible(paths)

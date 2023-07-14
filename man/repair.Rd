@@ -2,7 +2,7 @@
 % Please edit documentation in R/repair.R
 \name{repair}
 \alias{repair}
-\title{Repair a Project Library}
+\title{Repair a project library}
 \usage{
 repair(library = NULL, lockfile = NULL, project = NULL)
 }
@@ -10,7 +10,7 @@ repair(library = NULL, lockfile = NULL, project = NULL)
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}
 
-\item{lockfile}{The path to a lockfile (if any). When available, \code{renv}
+\item{lockfile}{The path to a lockfile (if any). When available, renv
 will use the lockfile when attempting to infer the remote associated
 with the inaccessible version of each missing package.}
 
@@ -20,5 +20,5 @@ directory is used instead.}
 }
 \description{
 Repair a project library whose cache symlinks have become broken.
-\code{renv} will attempt to reinstall the requisite packages.
+renv will attempt to re-install the requisite packages.
 }

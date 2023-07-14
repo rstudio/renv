@@ -2,7 +2,7 @@
 % Please edit documentation in R/init.R
 \name{init}
 \alias{init}
-\title{Initialize a Project}
+\title{Use renv in a project}
 \usage{
 init(
   project = NULL,
@@ -17,11 +17,12 @@ init(
 )
 }
 \arguments{
-\item{project}{The project directory. The \R working directory will be
+\item{project}{The project directory. When \code{NULL} (the default), the current
+working directory will be used. The \R working directory will be
 changed to match the requested project directory.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{profile}{The profile to be activated. When \code{NULL}, the default
 profile is activated instead. See \code{vignette("profiles", package = "renv")}
@@ -33,18 +34,18 @@ project.}
 \item{bare}{Boolean; initialize the project without attempting to discover
 and install R package dependencies?}
 
-\item{force}{Boolean; force initialization? By default, \code{renv} will refuse
+\item{force}{Boolean; force initialization? By default, renv will refuse
 to initialize the home directory as a project, to defend against accidental
 mis-usages of \code{init()}.}
 
-\item{repos}{The \R repositories to be used in this project. By default,
-the active repositories (as determined by \code{getOption("repos")}) are used.}
+\item{repos}{The \R repositories to be used in this project.
+See \strong{Repositories} for more details.}
 
 \item{bioconductor}{The version of Bioconductor to be used with this project.
-Setting this may be appropriate if \code{renv} is unable to determine that your
+Setting this may be appropriate if renv is unable to determine that your
 project depends on a package normally available from Bioconductor. Set this
 to \code{TRUE} to use the default version of Bioconductor recommended by the
-\code{BiocManager} package.}
+BiocManager package.}
 
 \item{restart}{Boolean; attempt to restart the \R session after initializing
 the project? A session restart will be attempted if the \code{"restart"} \R
@@ -55,49 +56,29 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Discover packages used within the current project, and then initialize a
-project-local private \R library with those packages. The currently-installed
-versions of any packages in use (as detected within the default R libraries)
-are then installed to the project's private library.
-}
-\details{
-The primary steps taken when initializing a new project are:
+Call \code{renv::init()} to start using renv in the current project. This will:
 \enumerate{
-\item \R package dependencies are discovered within the \R files used within
-the project with \code{\link[=dependencies]{dependencies()}};
-\item Discovered packages are copied into the \code{renv} global package cache, so
-these packages can be re-used across future projects as necessary;
-\item Any missing \R package dependencies discovered are then installed into
-the project's private library;
-\item A lockfile capturing the state of the project's library is created
-with \code{\link[=snapshot]{snapshot()}};
-\item The project is activated with \code{\link[=activate]{activate()}}.
+\item Set up project infrastructure (as described in \code{\link[=scaffold]{scaffold()}}) including
+the project library and the \code{.Rprofile} that ensures renv will be
+used in all future sessions.
+\item Discover the packages that you currently and install them into an
+project library (as described in \code{\link[=hydrate]{hydrate()}}).
+\item Create a lockfile that records the state of the project library so it
+can be restored by others (as described in \code{\link[=snapshot]{snapshot()}}).
+\item Restarts R (if running inside RStudio).
 }
 
-If \code{renv} sees that the associated project has already been initialized and
-has a lockfile, then it will attempt to infer the appropriate action to take
-based on the presence of a private library. If no library is available,
-\code{renv} will restore the private library from the lockfile; if one is
-available, \code{renv} will ask if you want to perform a 'standard' init,
-restore from the lockfile, or activate the project without taking any
-further action.
+If you call \code{init()} on a project that already uses renv, it will attempt
+to do the right thing: it will restore the project library if it's missing,
+or otherwise ask you what to do.
 }
-\section{Infrastructure}{
-
-
-\code{renv} will write or amend the following files in the project:
-\itemize{
-\item \code{.Rprofile}: An auto-loader will be installed, so that new R sessions
-launched within the project are automatically loaded.
-\item \code{renv/activate.R}: This script is run by the previously-mentioned
-\code{.Rprofile} to load the project.
-\item \code{renv/.gitignore}: This is used to instruct Git to ignore the project's
-private library, as it should normally not be committed to a version
-control repository.
-\item \code{.Rbuildignore}: to ensure that the \code{renv} directory is ignored during
-package development; e.g. when attempting to build or install a package
-using \code{renv}.
-}
+\section{Repositories}{
+If the default \R repositories have not already been set, renv will use
+the \href{https://packagemanager.posit.co/}{Posit Public Package Manager} CRAN
+mirror for package installation. The primary benefit to using this mirror is
+that it can provide pre-built binaries for \R packages on a variety of
+commonly-used Linux distributions. This behavior can be configured or
+disabled if desired -- see the options in \code{\link[=config]{config()}} for more details.
 }
 
 \examples{

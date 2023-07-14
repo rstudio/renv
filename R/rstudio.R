@@ -24,10 +24,6 @@ renv_rstudio_initialize <- function(project) {
 
 }
 
-renv_rstudio_loading <- function() {
-  renv_rstudio_available() && !identical(.Platform$GUI, "RStudio")
-}
-
 renv_rstudio_fixup <- function() {
 
   # if RStudio's tools are on the search path, we should try

@@ -1,9 +1,9 @@
 
-#' Clean a Project
+#' Clean a project
 #'
 #' Clean up a project and its associated \R libraries.
 #'
-#' @section Actions:
+#' # Actions
 #'
 #' The following clean actions are available:
 #'
@@ -30,7 +30,7 @@
 #' \item{`system.library`}{
 #'
 #'   In general, it is recommended that only packages distributed with \R
-#'   are installed into the system library (the library path referred to
+#'   are installed into the default library (the library path referred to
 #'   by `.Library`). Use this action to remove any user-installed packages
 #'   that have been installed to the system library.
 #'
@@ -76,11 +76,9 @@ clean <- function(project = NULL,
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   renv_activate_prompt("clean", NULL, prompt, project)
-
-  renv_dependencies_scope(project, action = "clean")
 
   actions <- actions %||% renv_clean_actions(prompt)
 
@@ -95,7 +93,7 @@ clean <- function(project = NULL,
   for (method in methods)
     tryCatch(method(project, prompt), error = warning)
 
-  vwritef("* The project has been cleaned.")
+  writef("- The project has been cleaned.")
   invisible(project)
 }
 
@@ -118,7 +116,7 @@ renv_clean_actions <- function(prompt) {
 renv_clean_library_tempdirs <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No temporary directories were found in the project library.")
+    writef("- No temporary directories were found in the project library.")
     FALSE
   }
 
@@ -132,14 +130,10 @@ renv_clean_library_tempdirs <- function(project, prompt) {
   # nocov start
   if (prompt || renv_verbose()) {
 
-    renv_pretty_print(
-      bad,
-      "The following directories will be removed:",
-      wrap = FALSE
-    )
+    renv_pretty_print("The following directories will be removed:", bad)
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
   # nocov end
@@ -154,13 +148,13 @@ renv_clean_library_tempdirs <- function(project, prompt) {
 renv_clean_system_library <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No non-system packages were discovered in the system library.")
+    writef("- No non-system packages were discovered in the system library.")
     FALSE
   }
 
   # explicitly query for packages
-  syslib <- renv_path_normalize(renv_libpaths_system(), winslash = "/", mustWork = FALSE)
-  db <- renv_installed_packages(lib.loc = syslib, priority = "NA")
+  syslib <- renv_path_normalize(renv_libpaths_system())
+  db <- installed_packages(lib.loc = syslib, priority = "NA")
   packages <- setdiff(db$Package, "translations")
 
   # also look for leftover package folders
@@ -183,8 +177,8 @@ renv_clean_system_library <- function(project, prompt) {
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      packages,
       "The following non-system packages are installed in the system library:",
+      packages,
       c(
         "Normally, only packages distributed with R should be installed in the system library.",
         "These packages will be removed.",
@@ -193,7 +187,7 @@ renv_clean_system_library <- function(project, prompt) {
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
   # nocov end
@@ -206,7 +200,7 @@ renv_clean_system_library <- function(project, prompt) {
 renv_clean_unused_packages <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No unused packages were found in the project library.")
+    writef("- No unused packages were found in the project library.")
     FALSE
   }
 
@@ -216,9 +210,9 @@ renv_clean_unused_packages <- function(project, prompt) {
   if (empty(installed))
     return(ntd())
 
-  # find packages used in the project and their dependencies
-  deps <- dependencies(project, progress = FALSE)
-  paths <- renv_package_dependencies(deps$Package, project = project)
+  # find packages used in the project and their recursive dependencies
+  packages <- renv_snapshot_dependencies(project, dev = TRUE)
+  paths <- renv_package_dependencies(packages, project = project)
   packages <- names(paths)
 
   # figure out which packages aren't needed
@@ -230,16 +224,16 @@ renv_clean_unused_packages <- function(project, prompt) {
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      removable,
       c(
         "The following packages are installed in the project library,",
         "but appear to be no longer used in your project."
       ),
+      removable,
       "These packages will be removed."
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
   # nocov end
@@ -252,7 +246,7 @@ renv_clean_unused_packages <- function(project, prompt) {
 renv_clean_package_locks <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No stale package locks were found.")
+    writef("- No stale package locks were found.")
     FALSE
   }
 
@@ -266,8 +260,8 @@ renv_clean_package_locks <- function(project, prompt) {
   now <- Sys.time()
   mtime <- file.mtime(lock)
   mtime[is.na(mtime)] <- now
-  diff <- difftime(now, mtime, units = "mins")
-  old <- lock[diff > 2]
+  diff <- difftime(now, mtime, units = "secs")
+  old <- lock[diff > 120]
   if (empty(old))
     return(ntd())
 
@@ -275,14 +269,13 @@ renv_clean_package_locks <- function(project, prompt) {
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      basename(old),
       "The following stale package locks were discovered in your library:",
-      "These locks will be removed.",
-      wrap = FALSE
+      basename(old),
+      "These locks will be removed."
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
   # nocov end
@@ -295,7 +288,7 @@ renv_clean_package_locks <- function(project, prompt) {
 renv_clean_cache <- function(project, prompt) {
 
   ntd <- function() {
-    vwritef("* No unused packages were found in the renv cache.")
+    writef("- No unused packages were found in the renv cache.")
     FALSE
   }
 
@@ -310,16 +303,15 @@ renv_clean_cache <- function(project, prompt) {
   if (any(missing)) {
 
     renv_pretty_print(
-      projlist[missing],
       "The following projects are monitored by renv, but no longer exist:",
-      "These projects will be removed from renv's project list.",
-      wrap = FALSE
+      projlist[missing],
+      "These projects will be removed from renv's project list."
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
-    writeLines(projlist[!missing], projects, useBytes = TRUE)
+    writeLines(projlist[!missing], con = projects, useBytes = TRUE)
 
   }
 
@@ -347,21 +339,20 @@ renv_clean_cache <- function(project, prompt) {
   if (prompt || renv_verbose()) {
 
     renv_pretty_print(
-      renv_cache_format_path(diff),
       "The following packages are installed in the cache but no longer used:",
-      "These packages will be removed.",
-      wrap = FALSE
+      renv_cache_format_path(diff),
+      "These packages will be removed."
     )
 
     if (prompt && !proceed())
-      return(FALSE)
+      cancel()
 
   }
 
   # remove the directories
   unlink(diff, recursive = TRUE)
   renv_cache_clean_empty()
-  vwritef("* %i package(s) have been removed.", length(diff))
+  writef("- %i package(s) have been removed.", length(diff))
   TRUE
 
 }

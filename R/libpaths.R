@@ -1,16 +1,16 @@
 
-`_renv_libpaths` <- new.env(parent = emptyenv())
+the$libpaths <- new.env(parent = emptyenv())
 
 # NOTE: if sandboxing is used then these symbols will be clobbered;
 # save them so we can properly restore them later if so required
 renv_libpaths_init <- function() {
-  assign(".libPaths()",   .libPaths(),   envir = `_renv_libpaths`)
-  assign(".Library",      .Library,      envir = `_renv_libpaths`)
-  assign(".Library.site", .Library.site, envir = `_renv_libpaths`)
+  assign(".libPaths()",   .libPaths(),   envir = the$libpaths)
+  assign(".Library",      .Library,      envir = the$libpaths)
+  assign(".Library.site", .Library.site, envir = the$libpaths)
 }
 
-renv_libpaths_default <- function() {
-  .libPaths()[1]
+renv_libpaths_active <- function() {
+  .libPaths()[[1L]]
 }
 
 renv_libpaths_all <- function() {
@@ -18,11 +18,11 @@ renv_libpaths_all <- function() {
 }
 
 renv_libpaths_system <- function() {
-  get(".Library", envir = `_renv_libpaths`)
+  get(".Library", envir = the$libpaths)
 }
 
 renv_libpaths_site <- function() {
-  get(".Library.site", envir = `_renv_libpaths`)
+  get(".Library.site", envir = the$libpaths)
 }
 
 renv_libpaths_external <- function(project) {
@@ -48,8 +48,8 @@ renv_libpaths_safe <- function(libpaths) {
 
 renv_libpaths_safe_check <- function(libpaths) {
 
-  # if any of the paths have single quotes, then
-  # we need to use a safe path
+  # if any of the paths have single quotes,
+  # then we need to use a safe path
   # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17973
   if (any(grepl("'", libpaths, fixed = TRUE)))
     return(FALSE)
@@ -94,7 +94,7 @@ renv_libpaths_safe_impl <- function(libpath) {
 }
 
 renv_libpaths_safe_tempdir <- function(libpath) {
-  safelib <- tempfile("renv-library-")
+  safelib <- tempfile("renv-safelib-")
 
   if (renv_platform_windows())
     renv_file_junction(libpath, safelib)
@@ -139,6 +139,10 @@ renv_libpaths_set <- function(libpaths) {
   oldlibpaths
 }
 
+renv_libpaths_default <- function() {
+  the$libpaths$`.libPaths()`
+}
+
 # NOTE: may return more than one library path!
 renv_libpaths_user <- function() {
 
@@ -147,16 +151,17 @@ renv_libpaths_user <- function() {
   for (envvar in envvars) {
 
     value <- Sys.getenv(envvar, unset = NA)
-    if (is.na(value) || value == "<NA>" || !nzchar(value))
+    if (is.na(value) || value %in% c("", "<NA>", "NULL"))
       next
 
-    parts <- strsplit(value, .Platform$path.sep, fixed = TRUE)[[1]]
+    parts <- strsplit(value, .Platform$path.sep, fixed = TRUE)[[1L]]
     return(parts)
 
   }
 
-  # otherwise, default to active library (shouldn't happen but best be safe)
-  renv_libpaths_default()
+  # otherwise, default to active library
+  # (shouldn't happen but best be safe)
+  renv_libpaths_active()
 
 }
 
@@ -172,15 +177,25 @@ renv_libpaths_activate <- function(project) {
   lapply(libpaths, ensure_directory)
   renv_libpaths_set(libpaths)
 
-  libpaths
+  .libPaths()
 
 }
 
 renv_libpaths_restore <- function() {
-  libpaths <- get(".libPaths()", envir = `_renv_libpaths`)
+  libpaths <- get(".libPaths()", envir = the$libpaths)
   renv_libpaths_set(libpaths)
 }
 
+# We need to ensure the system library is included, for cases where users have
+# provided an explicit 'library' argument in calls to functions like
+# 'renv::restore(library = <...>)')
+#
+# https://github.com/rstudio/renv/issues/1544
 renv_libpaths_resolve <- function(library) {
-  library %||% renv_libpaths_all()
+
+  if (is.null(library))
+    return(renv_libpaths_all())
+
+  unique(c(library, .Library))
+
 }

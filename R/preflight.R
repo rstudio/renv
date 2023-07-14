@@ -21,7 +21,7 @@ renv_preflight <- function(lockfile) {
       "The environment may not be restored correctly."
     )
 
-    vwritef(feedback)
+    writef(feedback)
 
   }
 
@@ -55,7 +55,7 @@ renv_preflight_compiler <- function(problems) {
 renv_preflight_java <- function(lockfile, problems) {
 
   # no need to check if we're not using rJava
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   if (is.null(records[["rJava"]]))
     return(TRUE)
 

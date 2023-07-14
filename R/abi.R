@@ -5,7 +5,7 @@ renv_abi_check <- function(packages = NULL,
                            project  = NULL)
 {
   if (renv_platform_windows()) {
-    writef("* ABI conflict checks are not yet implemented on Windows.")
+    writef("- ABI conflict checks are not yet implemented on Windows.")
     return()
   }
 
@@ -33,7 +33,7 @@ renv_abi_check <- function(packages = NULL,
   # report problmes
   data <- problems$data()
   if (empty(data)) {
-    fmt <- "* No ABI conflicts were detected in the set of installed packages."
+    fmt <- "- No ABI conflicts were detected in the set of installed packages."
     writef(fmt)
     return(invisible(data))
   }
@@ -46,16 +46,15 @@ renv_abi_check <- function(packages = NULL,
   if ("Rcpp_precious_list" %in% reasons) {
     packages <- sort(unique(tbl$package[tbl$reason == "Rcpp_precious_list"]))
     renv_pretty_print(
-      values    = packages,
-      preamble  = "The following packages were built against a newer version of Rcpp than is currently available:",
-      postamble = c(
+      "The following packages were built against a newer version of Rcpp than is currently available:",
+      packages,
+      c(
         paste(
           "These packages depend on Rcpp (>= 1.0.7);",
           "however, Rcpp", renv_package_version("Rcpp"), "is currently installed."
         ),
         "Consider installing a new version of Rcpp with 'install.packages(\"Rcpp\")'."
-      ),
-      wrap = FALSE
+      )
     )
   }
 
@@ -138,11 +137,7 @@ renv_abi_symbols <- function(path, args = NULL) {
   names(data) <- c("offset", "type", "symbol")
 
   # join into data.frame
-  as.data.frame(
-    data,
-    row.names = NULL,
-    stringsAsFactors = FALSE
-  )
+  as_data_frame(data)
 
 }
 

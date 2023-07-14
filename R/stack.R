@@ -4,7 +4,7 @@ stack <- function(mode = "list") {
   .data <- list()
   storage.mode(.data) <- mode
 
-  object <- list(
+  list(
 
     push = function(...) {
       dots <- list(...)
@@ -51,7 +51,5 @@ stack <- function(mode = "list") {
     }
 
   )
-
-  object
 
 }

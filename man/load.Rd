@@ -2,7 +2,7 @@
 % Please edit documentation in R/load.R
 \name{load}
 \alias{load}
-\title{Load a Project}
+\title{Load a project}
 \usage{
 load(project = NULL, quiet = FALSE)
 }
@@ -18,24 +18,38 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Load an \code{renv} project.
-}
-\details{
-Calling \code{renv::load()} will set the session's library paths to use a
-project-local library, and perform some other work to ensure the project is
-properly isolated from other packages on the system.
+\code{renv::load()} sets the library paths to use a project-local library,
+sets up the system library \link{sandbox}, if needed, and creates shims
+for \code{install.packages()}, \code{update.packages()}, and \code{remove.packages()}.
 
-Normally, \code{renv::load()} is called automatically by the project auto-loader
-written to the project \code{.Rprofile} by \code{\link[=init]{init()}}. This allows \R sessions
-launched from the root of an \code{renv} project directory to automatically load
-that project, without requiring explicit action from the user. However, if
-preferred or necessary, one can call \code{renv::load("<project>")} to explicitly
-load an \code{renv} project located at a particular path.
-
-Use \code{\link[=activate]{activate()}} to activate (or re-activate) an \code{renv} project, so
-that newly-launched \R sessions can automatically load the associated
-project.
+You should not generally need to call \code{renv::load()} yourself, as it's
+called automatically by the project auto-loader created by \code{\link[=init]{init()}}/
+\code{\link[=activate]{activate()}}. However, if needed, you can use \code{renv::load("<project>")}
+to explicitly load an renv project located at a particular path.
 }
+\section{Shims}{
+To help you take advantage of the package cache, renv places a couple of
+shims on the search path:
+\itemize{
+\item \code{install.packages()} instead calls \code{renv::install()}.
+\item \code{remove.packages()} instead calls \code{renv::remove()}.
+\item \code{update.packages()} instead calls \code{renv::update()}.
+}
+
+This allows you to keep using your existing muscle memory for installing,
+updating, and remove packages, while taking advantage of renv features
+like the package cache.
+
+If you'd like to bypass these shims within an \R session, you can explicitly
+call the version of these functions from the utils package, e.g. with
+\verb{utils::install.packages(<...>)}.
+
+If you'd prefer not to use the renv shims at all, they can be disabled by
+setting the R option \code{options(renv.config.shims.enabled = FALSE)} or by
+setting the environment variable \code{RENV_CONFIG_SHIMS_ENABLED = FALSE}. See
+\code{?config} for more details.
+}
+
 \examples{
 \dontrun{
 

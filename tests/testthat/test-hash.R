@@ -1,9 +1,7 @@
 
-context("Hash")
-
 test_that("whitespace does not affect hash", {
 
-  descpath <- file.path(renv_tests_root(), "packages/breakfast/DESCRIPTION")
+  descpath <- renv_tests_path("packages/breakfast/DESCRIPTION")
   contents <- readLines(descpath)
   hash <- renv_hash_description(descpath)
 
@@ -18,5 +16,13 @@ test_that("whitespace does not affect hash", {
     writeLines(paste(contents, whitespace), descpath)
     expect_identical(renv_hash_description(descpath), hash)
   }
+
+})
+
+test_that("hash outputs do not change over time", {
+
+  descpath <- file.path(getwd(), "resources/DESCRIPTION")
+  hash <- renv_hash_description(descpath)
+  expect_equal(hash, "2edf28b7db72297da02d913babfc1ef3")
 
 })

@@ -1,5 +1,12 @@
 
-#' Retrieve the Active Project
+# The path to the currently-loaded project, if any.
+# NULL when no project is currently loaded.
+the$project_path <- NULL
+
+# Flag indicating whether we're checking if the project is synchronized.
+the$project_synchronized_check_running <- FALSE
+
+#' Retrieve the active project
 #'
 #' Retrieve the path to the active project (if any).
 #'
@@ -18,34 +25,28 @@
 #'
 #' }
 project <- function(default = NULL) {
-  renv_project(default = default)
-}
-
-renv_project_get <- function(default = NULL) {
-
-  project <- Sys.getenv("RENV_PROJECT", unset = NA)
-  if (is.na(project))
-    return(default)
-
-  project
-
-}
-
-renv_project_set <- function(project) {
-  Sys.setenv(RENV_PROJECT = project)
-}
-
-renv_project_clear <- function() {
-  Sys.unsetenv("RENV_PROJECT")
-}
-
-renv_project <- function(default = getwd()) {
   renv_project_get(default = default)
 }
 
-renv_project_resolve <- function(project = NULL) {
-  project <- project %||% renv_project()
-  normalizePath(project, winslash = "/", mustWork = FALSE)
+renv_project_get <- function(default = NULL) {
+  the$project_path %||% default
+}
+
+# NOTE: RENV_PROJECT kept for backwards compatibility with RStudio
+renv_project_set <- function(project) {
+  the$project_path <- project
+  Sys.setenv(RENV_PROJECT = project)
+}
+
+# NOTE: 'RENV_PROJECT' kept for backwards compatibility with RStudio
+renv_project_clear <- function() {
+  the$project_path <- NULL
+  Sys.unsetenv("RENV_PROJECT")
+}
+
+renv_project_resolve <- function(project = NULL, default = getwd()) {
+  project <- project %||% renv_project_get(default = default)
+  renv_path_normalize(project)
 }
 
 renv_project_initialized <- function(project) {
@@ -63,39 +64,56 @@ renv_project_initialized <- function(project) {
 }
 
 renv_project_type <- function(path) {
-  renv_bootstrap_project_type(path)
-}
 
-renv_project_remotes <- function(project) {
+  if (!nzchar(path))
+    return("unknown")
 
-  # if this project has a DESCRIPTION file, use it to provide records
-  descpath <- file.path(project, "DESCRIPTION")
-  if (file.exists(descpath))
-    return(renv_project_remotes_description(project, descpath))
-
-  # otherwise, use the set of (non-base) packages used in the project
-  deps <- dependencies(
-    path     = project,
-    progress = FALSE,
-    errors   = "ignored",
-    dev      = TRUE
+  path <- renv_path_normalize(path)
+  filebacked(
+    context  = "renv_project_type",
+    path     = file.path(path, "DESCRIPTION"),
+    callback = renv_project_type_impl
   )
 
-  packages <- sort(unique(deps$Package))
-  setdiff(packages, renv_packages_base())
+}
+
+renv_project_type_impl <- function(path) {
+
+  if (!file.exists(path))
+    return("unknown")
+
+  desc <- tryCatch(
+    renv_dcf_read(path),
+    error = identity
+  )
+
+  if (inherits(desc, "error"))
+    return("unknown")
+
+  type <- desc$Type
+  if (!is.null(type))
+    return(tolower(type))
+
+  package <- desc$Package
+  if (!is.null(package))
+    return("package")
+
+  "unknown"
 
 }
 
-renv_project_remotes_description <- function(project, descpath) {
+renv_project_remotes <- function(project, fields = NULL) {
+
+  descpath <- file.path(project, "DESCRIPTION")
+  if (!file.exists(descpath))
+    return(NULL)
 
   # first, parse remotes (if any)
-  remotes <- renv_project_remotes_description_remotes(project, descpath)
+  remotes <- renv_description_remotes(descpath)
 
   # next, find packages mentioned in the DESCRIPTION file
-  fields <- c("Depends", "Imports", "Suggests", "LinkingTo")
   deps <- renv_dependencies_discover_description(
     path    = descpath,
-    fields  = fields,
     project = project
   )
 
@@ -114,9 +132,11 @@ renv_project_remotes_description <- function(project, descpath) {
   desc <- renv_description_read(descpath)
   if (any(grepl("^Roxygen", names(desc)))) {
     for (package in c("devtools", "roxygen2")) {
-      specs[[package]] <-
-        specs[[package]] %||%
-        renv_dependencies_list(descpath, package, dev = TRUE)
+      if (!package %in% ignored) {
+        specs[[package]] <-
+          specs[[package]] %||%
+          renv_dependencies_list(descpath, package, dev = TRUE)
+      }
     }
   }
 
@@ -143,27 +163,6 @@ renv_project_remotes_description <- function(project, descpath) {
 
   # return records
   records
-
-}
-
-renv_project_remotes_description_remotes <- function(project, descpath) {
-
-  desc <- renv_description_read(descpath)
-
-  profile <- renv_profile_get()
-  field <- if (is.null(profile))
-    "Remotes"
-  else
-    sprintf("Config/renv/profiles/%s/remotes", profile)
-
-  remotes <- desc[[field]]
-  if (is.null(remotes))
-    return(list())
-
-  splat <- strsplit(remotes, "[[:space:]]*,[[:space:]]*")[[1]]
-  resolved <- lapply(splat, renv_remotes_resolve)
-  names(resolved) <- extract_chr(resolved, "Package")
-  resolved
 
 }
 
@@ -227,78 +226,14 @@ renv_project_id <- function(project) {
 
 }
 
-renv_project_synchronized_check <- function(project = NULL, lockfile = NULL) {
-
-  project  <- renv_project_resolve(project)
-  lockfile <- lockfile %||% renv_lockfile_load(project)
-
-  # if there are no packages (other than renv) available in the project library,
-  # but there are multiple packages referenced in the lockfile,
-  # then instruct the user that they may need to run restore
-  libpath <- renv_paths_library(project = project)
-  packages <- list.files(libpath)
-
-  needsrestore <-
-    empty(setdiff(packages, "renv")) &&
-    length(lockfile$Packages) > 1
-
-  if (needsrestore) {
-
-    msg <- lines(
-      "* The project library is out of sync with the lockfile.",
-      "* Use `renv::restore()` to install packages recorded in the lockfile."
-    )
-
-    ewritef(msg)
-    return(FALSE)
-  }
-
-  # perform a lightweight comparison between the project
-  # library and lockfile, and report if there may be
-  # any conflicts
-  library <- renv_libpaths_all()
-
-  # don't validate lockfile state in this scope; just try
-  # to read and use it as-is
-  renv_scope_options(renv.config.snapshot.validate = FALSE)
-
-  # indicate that we're doing an automatic snapshot
-  renv_scope_var("running", TRUE, envir = `_renv_snapshot_auto`)
-
-  # read current state of project library
-  libstate <- snapshot(
-    project  = project,
-    library  = library,
-    lockfile = NULL,
-    type     = "all",
-    force    = TRUE
-  )
-
-  # compare with the current lockfile
-  diff <- renv_lockfile_diff_packages(libstate, lockfile)
-
-  # we only want to report cases where a package version
-  # has changed, or the lockfile references a package that
-  # is not currently installed in the project library
-  diff <- diff[diff != "remove"]
-  if (!empty(diff)) {
-    msg <- "* The project may be out of sync -- use `renv::status()` for more details."
-    ewritef(msg)
-    return(FALSE)
-  }
-
-  TRUE
-
-}
-
 # TODO: this gets really dicey once the user starts configuring where
 # renv places its project-local state ...
-renv_project_find <- function(project = NULL) {
+renv_project_find <- function(path = NULL) {
 
-  project <- project %||% getwd()
+  path <- path %||% getwd()
 
   anchors <- c("renv.lock", "renv/activate.R")
-  resolved <- renv_file_find(project, function(parent) {
+  resolved <- renv_file_find(path, function(parent) {
     for (anchor in anchors)
       if (file.exists(file.path(parent, anchor)))
         return(parent)
@@ -306,9 +241,29 @@ renv_project_find <- function(project = NULL) {
 
   if (is.null(resolved)) {
     fmt <- "couldn't resolve renv project associated with path %s"
-    stopf(fmt, renv_path_pretty(project))
+    stopf(fmt, renv_path_pretty(path))
   }
 
   resolved
 
+}
+
+renv_project_lock <- function(project = NULL) {
+
+  if (!config$locking.enabled())
+    return()
+
+  path <- the$project_path
+  if (!identical(project, path))
+    return()
+
+  project <- renv_project_resolve(project)
+  path <- file.path(project, "renv/lock")
+  ensure_parent_directory(path)
+  renv_scope_lock(path, scope = parent.frame())
+
+}
+
+renv_project_loaded <- function(project) {
+  !is.null(project) && identical(project, the$project_path)
 }

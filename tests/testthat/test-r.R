@@ -1,20 +1,16 @@
 
-context("R")
-
 test_that("we can use R CMD build to build a package", {
-
+  skip_on_cran()
   if (renv_platform_windows()) {
     zip <- Sys.which("zip")
     if (!nzchar(zip))
       skip("test requires 'zip'")
   }
 
-  testdir <- tempfile("renv-r-tests-")
-  on.exit(unlink(testdir, recursive = TRUE), add = TRUE)
-
+  testdir <- renv_scope_tempfile("renv-r-tests-")
   ensure_directory(testdir)
-  owd <- setwd(testdir)
-  on.exit(setwd(owd), add = TRUE)
+  # R CMD install creates file in working directory
+  renv_scope_wd(testdir)
 
   package <- "sample.package"
   pkgdir <- file.path(testdir, package)
@@ -31,26 +27,31 @@ test_that("we can use R CMD build to build a package", {
   files <- renv_archive_list(tarball)
   expect_true(all(c("DESCRIPTION", "NAMESPACE", "MD5") %in% basename(files)))
 
+  # NOTE: R 3.6 seems to check the permissions of the target library,
+  # even when you just want to build a binary?
   before <- list.files(testdir)
-  args <- c("CMD", "INSTALL", "--no-multiarch", "--build", package)
+  args <- c(
+    "CMD", "INSTALL",
+    "-l", renv_shell_path(tempdir()),
+    "--no-multiarch",
+    "--build", package
+  )
   output <- r(args, stdout = TRUE, stderr = TRUE)
   after <- list.files(testdir)
-  binball <- renv_vector_diff(after, before)
+  binball <- renv_vector_diff(after, c("NULL", before))
 
   expect_true(length(binball) == 1L)
   expect_equal(renv_package_type(binball), "binary")
-
 })
 
 test_that("we can supply custom options to R CMD INSTALL", {
-
+  skip_on_cran()
   renv_tests_scope()
 
   # work in new renv context (don't re-use cache)
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
 
   # make install 'fail' with bad option
   renv_scope_options(install.opts = list(oatmeal = "--version"))
-  expect_error(renv::install("oatmeal"))
-
+  expect_error(install("oatmeal"))
 })

@@ -19,6 +19,10 @@ renv_lockfile_read_finish_impl <- function(key, val) {
 
   }
 
+  # convert the "Requirements" field to a character vector
+  if (identical(key, "Requirements"))
+    return(unlist(val))
+
   # recurse for lists
   if (is.list(val))
     return(enumerate(val, renv_lockfile_read_finish_impl))
@@ -29,14 +33,9 @@ renv_lockfile_read_finish_impl <- function(key, val) {
 }
 
 renv_lockfile_read_finish <- function(data) {
-
-  # convert repository fields
   data <- enumerate(data, renv_lockfile_read_finish_impl)
-
-  # set class
   class(data) <- "renv_lockfile"
   data
-
 }
 
 renv_lockfile_read_preflight <- function(contents) {
@@ -59,11 +58,9 @@ renv_lockfile_read_preflight <- function(contents) {
     all <- unlist(parts, recursive = TRUE, use.names = FALSE)
 
     renv_pretty_print(
-      values    = head(all, n = -1L),
-      preamble  = "The lockfile contains one or more merge conflict markers:",
-      postamble = "You will need to resolve these merge conflicts before the file can be read.",
-      emitter   = message,
-      wrap      = FALSE
+      "The lockfile contains one or more merge conflict markers:",
+      head(all, n = -1L),
+      "You will need to resolve these merge conflicts before the file can be read."
     )
 
     stop("lockfile contains merge conflict markers; cannot proceed", call. = FALSE)
@@ -82,7 +79,13 @@ renv_lockfile_read <- function(file = NULL, text = NULL) {
 
   # check and report some potential errors (e.g. merge conflicts)
   renv_lockfile_read_preflight(contents)
-  json <- renv_json_read(text = contents)
+  withCallingHandlers(
+    json <- renv_json_read(text = contents),
+    error = function(err) {
+      stop("Failed to parse 'renv.lock':\n", conditionMessage(err))
+    }
+  )
+
   renv_lockfile_read_finish(json)
 
 }

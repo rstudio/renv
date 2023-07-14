@@ -28,7 +28,7 @@
 #' `renv.lock` -- and the lockfile object will be returned.
 #'
 #' @return
-#' An `renv` lockfile.
+#' An renv lockfile.
 #'
 #' @keywords internal
 renv_lockfile_from_manifest <- function(manifest,
@@ -81,8 +81,8 @@ renv_lockfile_from_manifest <- function(manifest,
 
   # otherwise, write to file and report for user
   renv_lockfile_write(lock, file = lockfile)
-  fmt <- "* Lockfile written to %s."
-  vwritef(fmt, renv_path_pretty(lockfile))
+  fmt <- "- Lockfile written to %s."
+  writef(fmt, renv_path_pretty(lockfile))
 
   invisible(lock)
 

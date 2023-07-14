@@ -68,6 +68,9 @@ renv_infrastructure_write_rbuildignore <- function(project) {
 
 renv_infrastructure_write_gitignore <- function(project) {
 
+  if (!settings$vcs.manage.ignores())
+    return()
+
   add    <- stack(mode = "character")
   remove <- stack(mode = "character")
 
@@ -97,6 +100,7 @@ renv_infrastructure_write_activate <- function(project = NULL,
 {
   project <- renv_project_resolve(project)
   version <- version %||% renv_activate_version(project)
+  sha <- attr(version, "sha", exact = TRUE)
 
   source <- system.file("resources/activate.R", package = "renv")
   target <- renv_paths_activate(project = project)
@@ -105,7 +109,14 @@ renv_infrastructure_write_activate <- function(project = NULL,
     return(FALSE)
 
   template <- renv_file_read(source)
-  new <- renv_template_replace(template, list(VERSION = version))
+  new <- renv_template_replace(
+    text = template,
+    replacements = list(
+      version = stringify(as.character(version)),
+      sha = stringify(sha)
+    ),
+    format = "..%s.."
+  )
 
   if (file.exists(target)) {
     old <- renv_file_read(target)
@@ -129,7 +140,7 @@ renv_infrastructure_write_entry_impl <- function(add, remove, file, create) {
 
     # otherwise, write the file
     ensure_parent_directory(file)
-    writeLines(add, file)
+    writeLines(add, con = file)
     return(TRUE)
 
   }
@@ -165,7 +176,7 @@ renv_infrastructure_write_entry_impl <- function(add, remove, file, create) {
 
   # write to file if we have changes
   if (!identical(before, after))
-    writeLines(after, file)
+    writeLines(after, con = file)
 
   TRUE
 
@@ -229,7 +240,7 @@ renv_infrastructure_remove_entry_impl <- function(line, file, removable) {
   # otherwise, just mutate the file
   replacement <- gsub("^(\\s*)", "\\1# ", contents[matches], perl = TRUE)
   contents[matches] <- replacement
-  writeLines(contents, file)
+  writeLines(contents, con = file)
 
   TRUE
 

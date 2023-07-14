@@ -1,20 +1,20 @@
 
 #' Imbue an renv Installation
 #'
-#' Imbue an `renv` installation into a project, thereby making the requested
-#' version of `renv` available within.
+#' Imbue an renv installation into a project, thereby making the requested
+#' version of renv available within.
 #'
 #' Normally, this function does not need to be called directly by the user; it
 #' will be invoked as required by [init()] and [activate()].
 #'
 #' @inherit renv-params
 #'
-#' @param version The version of `renv` to install. If `NULL`, the version
-#'   of `renv` currently installed will be used. The requested version of
-#'   `renv` will be retrieved from the `renv` public GitHub repository,
+#' @param version The version of renv to install. If `NULL`, the version
+#'   of renv currently installed will be used. The requested version of
+#'   renv will be retrieved from the renv public GitHub repository,
 #'   at <https://github.com/rstudio/renv>.
 #'
-#' @param quiet Boolean; avoid printing output during install of `renv`?
+#' @param quiet Boolean; avoid printing output during install of renv?
 #'
 imbue <- function(project = NULL,
                   version = NULL,
@@ -26,9 +26,9 @@ imbue <- function(project = NULL,
   renv_scope_options(renv.verbose = !quiet)
 
   vtext <- version %||% renv_metadata_version()
-  vwritef("Installing renv [%s] ...", vtext)
+  writef("Installing renv [%s] ...", vtext)
   status <- renv_imbue_impl(project, version)
-  vwritef("* Done! renv has been successfully installed.")
+  writef("- Done! renv has been successfully installed.")
 
   invisible(status)
 
@@ -52,7 +52,7 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
 
   renv_scope_restore(
     project = project,
-    library = renv_libpaths_default(),
+    library = renv_libpaths_active(),
     records = records,
     packages = "renv",
     recursive = FALSE
@@ -67,12 +67,12 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
   ensure_directory(library)
   renv_scope_libpaths(library)
 
-  vwritef("Installing renv [%s] ...", version)
+  printf("- Installing renv [%s] ... ", version)
   before <- Sys.time()
   with(record, r_cmd_install(Package, Path, library))
   after <- Sys.time()
   elapsed <- difftime(after, before, units = "auto")
-  vwritef("\tOK [built source in %s]", renv_difftime_format(elapsed))
+  writef("OK [built source in %s]", renv_difftime_format(elapsed))
 
   invisible(record)
 
@@ -96,11 +96,10 @@ renv_imbue_self <- function(project) {
     return(TRUE)
 
   type <- renv_package_type(source, quiet = TRUE)
-  switch(type,
-         source = renv_imbue_self_source(source, target),
-         binary = renv_imbue_self_binary(source, target))
-
-  renv_snapshot_description(target)
+  case(
+    type == "source" ~ renv_imbue_self_source(source, target),
+    type == "binary" ~ renv_imbue_self_binary(source, target)
+  )
 
 }
 

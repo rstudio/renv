@@ -1,25 +1,20 @@
 
 renv_scope_tempdir <- function(pattern = "renv-tempdir-",
                                tmpdir = tempdir(),
-                               .envir = NULL)
+                               umask = NULL,
+                               scope = parent.frame())
 {
-  dir <- tempfile(pattern = pattern, tmpdir = tmpdir)
-  ensure_directory(dir)
-  owd <- setwd(dir)
+  dir <- renv_scope_tempfile(pattern = pattern, tmpdir = tmpdir, scope = scope)
+  ensure_directory(dir, umask = umask)
 
-  .envir <- .envir %||% parent.frame()
-
-  defer({
-    setwd(owd)
-    unlink(dir, recursive = TRUE)
-  }, envir = .envir)
-
+  renv_scope_wd(dir, scope = scope)
+  dir
 }
 
-renv_scope_auth <- function(record, .envir = NULL) {
+renv_scope_auth <- function(record, scope = parent.frame()) {
 
   package <- if (is.list(record)) record$Package else record
-  auth <- renv_options_override("renv.auth", package)
+  auth <- renv_options_override("renv.auth", package, extra = record)
 
   if (empty(auth))
     return(FALSE)
@@ -40,43 +35,31 @@ renv_scope_auth <- function(record, .envir = NULL) {
   if (empty(envvars))
     return(FALSE)
 
-  .envir <- .envir %||% parent.frame()
-  renv_scope_envvars(.list = as.list(envvars), .envir = .envir)
+  renv_scope_envvars(list = as.list(envvars), scope = scope)
   return(TRUE)
 
 }
 
-renv_scope_libpaths <- function(new = .libPaths(), .envir = NULL) {
-  .envir <- .envir %||% parent.frame()
+renv_scope_libpaths <- function(new = .libPaths(), scope = parent.frame()) {
   old <- renv_libpaths_set(new)
-  defer(renv_libpaths_set(old), envir = .envir)
+  defer(renv_libpaths_set(old), scope = scope)
 }
 
-renv_scope_options <- function(..., .envir = NULL) {
-
-  .envir <- .envir %||% parent.frame()
-
+renv_scope_options <- function(..., scope = parent.frame()) {
   new <- list(...)
-  old <- lapply(names(new), getOption)
-  names(old) <- names(new)
-
-  do.call(base::options, new)
-  defer(do.call(base::options, old), envir = .envir)
-
+  old <- options(new)
+  defer(options(old), scope = scope)
 }
 
-renv_scope_locale <- function(category = "LC_ALL", locale = "", .envir = NULL) {
-  .envir <- .envir %||% parent.frame()
+renv_scope_locale <- function(category = "LC_ALL", locale = "", scope = parent.frame()) {
   saved <- Sys.getlocale(category)
   Sys.setlocale(category, locale)
-  defer(Sys.setlocale(category, saved), envir = .envir)
+  defer(Sys.setlocale(category, saved), scope = scope)
 }
 
-renv_scope_envvars <- function(..., .list = NULL, .envir = NULL) {
+renv_scope_envvars <- function(..., list = NULL, scope = parent.frame()) {
 
-  .envir <- .envir %||% parent.frame()
-
-  dots <- .list %||% list(...)
+  dots <- list %||% list(...)
   old <- as.list(Sys.getenv(names(dots), unset = NA))
   names(old) <- names(dots)
 
@@ -90,27 +73,11 @@ renv_scope_envvars <- function(..., .list = NULL, .envir = NULL) {
     Sys.unsetenv(names(old[na]))
     if (length(old[!na]))
       do.call(Sys.setenv, old[!na])
-  }, envir = .envir)
+  }, scope = scope)
 
 }
 
-renv_scope_sink <- function(file = nullfile(), ..., .envir = NULL) {
-
-  .envir <- .envir %||% parent.frame()
-
-  # redirect stdout to file, and redirect stderr back to stdout
-  # this ensures that both stdout, stderr are redirected to the same place
-  sink(file = file,     type = "output")
-  sink(file = stdout(), type = "message")
-
-  defer({
-    sink(type = "output")
-    sink(type = "message")
-  }, envir = .envir)
-
-}
-
-renv_scope_error_handler <- function(.envir = NULL) {
+renv_scope_error_handler <- function(scope = parent.frame()) {
 
   error <- getOption("error")
   if (!is.null(error))
@@ -119,11 +86,10 @@ renv_scope_error_handler <- function(.envir = NULL) {
   call <- renv_error_handler_call()
   options(error = call)
 
-  .envir <- .envir %||% parent.frame()
   defer({
     if (identical(getOption("error"), call))
       options(error = error)
-  }, envir = .envir)
+  }, scope = scope)
 
   TRUE
 
@@ -133,7 +99,7 @@ renv_scope_error_handler <- function(.envir = NULL) {
 # renv_paths_extsoft folder when available on Windows
 
 # nocov start
-renv_scope_downloader <- function(.envir = NULL) {
+renv_scope_downloader <- function(scope = parent.frame()) {
 
   if (!renv_platform_windows())
     return(FALSE)
@@ -152,14 +118,13 @@ renv_scope_downloader <- function(.envir = NULL) {
 
   new <- paste(renv_path_normalize(dirname(curl)), old, sep = .Platform$path.sep)
 
-  .envir <- .envir %||% parent.frame()
-  renv_scope_envvars(PATH = new, .envir = .envir)
+  renv_scope_envvars(PATH = new, scope = scope)
 
 }
 # nocov end
 
 # nocov start
-renv_scope_rtools <- function(.envir = NULL) {
+renv_scope_rtools <- function(scope = parent.frame()) {
 
   if (!renv_platform_windows())
     return(FALSE)
@@ -173,36 +138,31 @@ renv_scope_rtools <- function(.envir = NULL) {
   vars <- renv_rtools_envvars(root)
 
   # scope envvars in parent
-  .envir <- .envir %||% parent.frame()
-  renv_scope_envvars(.list = vars, .envir = .envir)
+  renv_scope_envvars(list = vars, scope = scope)
 
 }
 # nocov end
 
 # nocov start
-renv_scope_install <- function(.envir = NULL) {
-
-  .envir <- .envir %||% parent.frame()
+renv_scope_install <- function(scope = parent.frame()) {
 
   if (renv_platform_macos())
-    renv_scope_install_macos(.envir)
+    renv_scope_install_macos(scope)
 
   if (renv_platform_wsl())
-    renv_scope_install_wsl(.envir)
+    renv_scope_install_wsl(scope)
 
 }
 
-renv_scope_install_macos <- function(.envir = NULL) {
-
-  .envir <- .envir %||% parent.frame()
+renv_scope_install_macos <- function(scope = parent.frame()) {
 
   # check that we have command line tools available before invoking
   # R CMD config, as this might fail otherwise
   if (once()) {
     if (!renv_xcode_available()) {
-      message("* macOS is reporting that command line tools (CLT) are not installed.")
-      message("* Run 'xcode-select --install' to install command line tools.")
-      message("* Without CLT, attempts to install packages from sources may fail.")
+      message("- macOS is reporting that command line tools (CLT) are not installed.")
+      message("- Run 'xcode-select --install' to install command line tools.")
+      message("- Without CLT, attempts to install packages from sources may fail.")
     }
   }
 
@@ -230,7 +190,7 @@ renv_scope_install_macos <- function(.envir = NULL) {
   spec <- renv_equip_macos_spec()
   if (sysclang && !is.null(spec) && file.exists(spec$dst)) {
     path <- paste(file.path(spec$dst, "bin"), Sys.getenv("PATH"), sep = ":")
-    renv_scope_envvars(PATH = path, .envir = .envir)
+    renv_scope_envvars(PATH = path, scope = scope)
   }
 
   # generate a custom makevars that should better handle compilation
@@ -266,40 +226,36 @@ renv_scope_install_macos <- function(.envir = NULL) {
   contents <- unlist(makevars$data(), recursive = TRUE, use.names = FALSE)
   if (length(contents)) {
     writeLines(contents, con = path)
-    renv_scope_envvars(R_MAKEVARS_SITE = path, .envir = .envir)
+    renv_scope_envvars(R_MAKEVARS_SITE = path, scope = scope)
   }
 
   TRUE
 
 }
 
-renv_scope_install_wsl <- function(.envir = NULL) {
-  .envir <- .envir %||% parent.frame()
-  renv_scope_envvars(R_INSTALL_STAGED = "FALSE")
+renv_scope_install_wsl <- function(scope = parent.frame()) {
+  renv_scope_envvars(R_INSTALL_STAGED = "FALSE", scope = scope)
 }
 # nocov end
 
-renv_scope_restore <- function(..., .envir = NULL) {
-  .envir <- .envir %||% parent.frame()
+renv_scope_restore <- function(..., scope = parent.frame()) {
   state <- renv_restore_begin(...)
-  defer(renv_restore_end(state), envir = .envir)
+  defer(renv_restore_end(state), scope = scope)
 }
 
-renv_scope_git_auth <- function(.envir = NULL) {
-
-  .envir <- .envir %||% parent.frame()
+renv_scope_git_auth <- function(scope = parent.frame()) {
 
   # try and tell git to be non-interactive by default
   if (renv_platform_windows()) {
     renv_scope_envvars(
       GIT_TERMINAL_PROMPT = "0",
-      .envir              = .envir
+      scope              = scope
     )
   } else {
     renv_scope_envvars(
       GIT_TERMINAL_PROMPT = "0",
       GIT_ASKPASS         = "/bin/echo",
-      .envir              = .envir
+      scope              = scope
     )
   }
 
@@ -309,7 +265,7 @@ renv_scope_git_auth <- function(.envir = NULL) {
     renv_scope_envvars(
       GIT_USERNAME = pat,
       GIT_PASSWORD = "x-oauth-basic",
-      .envir = .envir
+      scope = scope
     )
   }
 
@@ -330,20 +286,15 @@ renv_scope_git_auth <- function(.envir = NULL) {
   else
     system.file("resources/scripts-git-askpass.sh", package = "renv")
 
-  renv_scope_envvars(GIT_ASKPASS = askpass, .envir = .envir)
+  renv_scope_envvars(GIT_ASKPASS = askpass, scope = scope)
   return(TRUE)
 
 }
 
 renv_scope_bioconductor <- function(project = NULL,
                                     version = NULL,
-                                    .envir = NULL)
+                                    scope = parent.frame())
 {
-  .envir <- .envir %||% parent.frame()
-
-  # ensure bioconductor support infrastructure initialized
-  renv_bioconductor_init()
-
   # get current repository
   repos <- getOption("repos")
 
@@ -351,68 +302,83 @@ renv_scope_bioconductor <- function(project = NULL,
   stale <- grepl("Bioc", names(repos))
   repos <- repos[!stale]
 
-  # retrieve bioconductor repositories appropriate for this record
+  # retrieve bioconductor repositories appropriate for this project
   biocrepos <- renv_bioconductor_repos(project = project, version = version)
 
   # put it all together
   allrepos <- c(repos, biocrepos)
 
   # activate repositories in this context
-  renv_scope_options(repos = renv_vector_unique(allrepos), .envir = .envir)
+  renv_scope_options(repos = renv_vector_unique(allrepos), scope = scope)
 }
 
-renv_scope_lock <- function(path = NULL,
-                            ...,
-                            project = NULL) {
-
-  if (!config$locking.enabled())
-    return(TRUE)
-
-  path <- path %||% renv_lock_path(project)
-  ensure_parent_directory(path)
-
-  callback <- renv_lock_create(path)
-  defer(callback(), envir = parent.frame())
-
+renv_scope_lock <- function(path = NULL, scope = parent.frame()) {
+  renv_lock_acquire(path)
+  defer(renv_lock_release(path), scope = scope)
 }
 
-renv_scope_trace <- function(what, tracer, ..., .envir = NULL) {
-
-  .envir <- .envir %||% parent.frame()
+renv_scope_trace <- function(what, tracer, scope = parent.frame()) {
 
   call <- sys.call()
   call[[1L]] <- base::trace
   call[["print"]] <- FALSE
-  eval(call, envir = parent.frame())
+  defer(suppressMessages(untrace(substitute(what))), scope = scope)
 
-  defer(untrace(substitute(what)), envir = .envir)
+  suppressMessages(eval(call, envir = parent.frame()))
 
 }
 
-renv_scope_var <- function(key, value, envir, ..., .envir = NULL) {
 
-  .envir <- .envir %||% parent.frame()
-
-  if (exists(key, envir = envir, inherits = FALSE)) {
-    saved <- get(key, envir = envir, inherits = FALSE)
-    assign(key, value, envir = envir, inherits = FALSE)
-    defer(assign(key, saved, envir = envir, inherits = FALSE), envir = .envir)
+renv_scope_binding <- function(envir, symbol, replacement, scope = parent.frame()) {
+  if (exists(symbol, envir, inherits = FALSE)) {
+    old <- renv_binding_replace(envir, symbol, replacement)
+    defer(renv_binding_replace(envir, symbol, old), scope = scope)
   } else {
-    assign(key, value, envir = envir, inherits = FALSE)
-    defer(rm(list = key, envir = envir, inherits = FALSE), envir = .envir)
+    assign(symbol, replacement, envir)
+    defer(rm(list = symbol, envir = envir, inherits = FALSE), scope = scope)
   }
-
 }
 
 renv_scope_tempfile <- function(pattern = "renv-tempfile-",
                                 tmpdir  = tempdir(),
                                 fileext = "",
-                                .envir  = NULL)
+                                scope  = parent.frame())
 {
-  filepath <- tempfile(pattern, tmpdir, fileext)
+  path <- renv_path_normalize(tempfile(pattern, tmpdir, fileext))
+  defer(unlink(path, recursive = TRUE, force = TRUE), scope = scope)
+  invisible(path)
+}
 
-  .envir <- .envir %||% parent.frame()
-  defer(unlink(filepath, recursive = TRUE, force = TRUE), envir = .envir)
+renv_scope_umask <- function(umask, scope = parent.frame()) {
+  oldmask <- Sys.umask(umask)
+  defer(Sys.umask(oldmask), scope = scope)
+  invisible(oldmask)
+}
 
-  invisible(filepath)
+renv_scope_wd <- function(dir = getwd(), scope = parent.frame()) {
+  owd <- setwd(dir)
+  defer(setwd(owd), scope = scope)
+  invisible(owd)
+}
+
+renv_scope_sandbox <- function(scope = parent.frame()) {
+  sandbox <- renv_sandbox_activate()
+  defer(renv_sandbox_deactivate(), scope = scope)
+  invisible(sandbox)
+}
+
+renv_scope_biocmanager <- function(scope = parent.frame()) {
+
+  # silence BiocManager messages when setting repositories
+  renv_scope_options(BiocManager.check_repositories = FALSE, scope = scope)
+
+  # R-devel (4.4.0) warns when BiocManager calls .make_numeric_version() without
+  # a character argument, so just suppress those warnings in this scope
+  #
+  # https://github.com/wch/r-source/commit/1338a95618ddcc8a0af77dc06e4018625de06ec3
+  renv_scope_options(warn = -1L, scope = scope)
+
+  # return reference to BiocManager namespace
+  renv_namespace_load("BiocManager")
+
 }

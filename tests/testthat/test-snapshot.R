@@ -1,6 +1,4 @@
 
-context("Snapshot")
-
 test_that("snapshot is idempotent", {
 
   renv_tests_scope("oatmeal")
@@ -17,70 +15,53 @@ test_that("snapshot is idempotent", {
 
 test_that("snapshot failures are reported", {
 
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
   renv_tests_scope("oatmeal")
-  renv::init()
+  init()
 
   descpath <- system.file("DESCRIPTION", package = "oatmeal")
   unlink(descpath)
-
-  output <- tempfile("renv-snapshot-output-")
-  local({
-    renv_scope_sink(file = output)
-    renv::snapshot(prompt = FALSE)
-  })
-
-  contents <- readLines(output)
-  expect_true(length(contents) > 1)
+  expect_snapshot(snapshot())
 
 })
 
 test_that("broken symlinks are reported", {
   skip_on_os("windows")
 
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope("oatmeal")
-  renv::init()
+  init()
 
-  oatmeal <- renv_path_normalize(system.file(package = "oatmeal"), winslash = "/")
+  oatmeal <- renv_path_normalize(system.file(package = "oatmeal"))
   unlink(oatmeal, recursive = TRUE)
-
-  output <- tempfile("renv-snapshot-output-")
-  local({
-    renv_scope_sink(file = output)
-    renv::snapshot(prompt = FALSE)
-  })
-
-  contents <- readLines(output)
-  expect_true(length(contents) > 1)
+  expect_snapshot(snapshot())
 
 })
 
 test_that("multiple libraries can be used when snapshotting", {
 
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
+  renv_scope_envvars(RENV_PATHS_ROOT = renv_scope_tempfile())
   renv_tests_scope()
 
-  renv::init()
+  init()
 
-  lib1 <- tempfile("renv-lib1-")
-  lib2 <- tempfile("renv-lib2-")
+  lib1 <- renv_scope_tempfile("renv-lib1-")
+  lib2 <- renv_scope_tempfile("renv-lib2-")
   ensure_directory(c(lib1, lib2))
 
   oldlibpaths <- .libPaths()
   .libPaths(c(lib1, lib2))
 
-  renv::install("bread", library = lib1)
+  install("bread", library = lib1)
   breadloc <- find.package("bread")
   expect_true(renv_file_same(dirname(breadloc), lib1))
 
-  renv::install("toast", library = lib2)
+  install("toast", library = lib2)
   toastloc <- find.package("toast")
   expect_true(renv_file_same(dirname(toastloc), lib2))
 
   libs <- c(lib1, lib2)
-  lockfile <- renv::snapshot(lockfile = NULL, library = libs, type = "all")
-  records <- renv_records(lockfile)
+  lockfile <- snapshot(lockfile = NULL, library = libs, type = "all")
+  records <- renv_lockfile_records(lockfile)
 
   expect_length(records, 2L)
   expect_setequal(names(records), c("bread", "toast"))
@@ -92,19 +73,19 @@ test_that("multiple libraries can be used when snapshotting", {
 test_that("implicit snapshots only include packages currently used", {
 
   renv_tests_scope("oatmeal")
-  renv::init()
+  init()
 
   # install toast, but don't declare that we use it
-  renv::install("toast")
+  install("toast")
   lockfile <- snapshot(type = "implicit", lockfile = NULL)
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_length(records, 1L)
   expect_setequal(names(records), "oatmeal")
 
   # use toast
   writeLines("library(toast)", con = "toast.R")
   lockfile <- snapshot(type = "packrat", lockfile = NULL)
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_length(records, 3L)
   expect_setequal(names(records), c("oatmeal", "bread", "toast"))
 
@@ -113,13 +94,13 @@ test_that("implicit snapshots only include packages currently used", {
 test_that("explicit snapshots only capture packages in DESCRIPTION", {
 
   renv_tests_scope("breakfast")
-  renv::init()
+  init()
 
   desc <- list(Type = "Project", Depends = "toast")
 
   write.dcf(desc, file = "DESCRIPTION")
   lockfile <- snapshot(type = "explicit", lockfile = NULL)
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_true(length(records) == 2L)
   expect_true(!is.null(records[["bread"]]))
   expect_true(!is.null(records[["toast"]]))
@@ -131,11 +112,12 @@ test_that("a custom snapshot filter can be used", {
   renv_tests_scope("breakfast")
 
   settings$snapshot.type("custom")
-  options(renv.snapshot.filter = function(project) c("bread", "toast"))
+  filter <- function(project) c("bread", "toast")
+  renv_scope_options(renv.snapshot.filter = filter)
 
-  renv::init()
+  init()
   lockfile <- renv_lockfile_load(project = getwd())
-  expect_setequal(names(renv_records(lockfile)), c("bread", "toast"))
+  expect_setequal(names(renv_lockfile_records(lockfile)), c("bread", "toast"))
 
 })
 
@@ -145,29 +127,24 @@ test_that("snapshotted packages from CRAN include the Repository field", {
   init()
 
   lockfile <- renv_lockfile_read("renv.lock")
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_true(records$bread$Repository == "CRAN")
 
 })
 
 test_that("snapshot failures due to bad library / packages are reported", {
-
-  renv_tests_scope()
-  ensure_directory("badlib/badpkg")
-  writeLines("invalid", "badlib/badpkg/DESCRIPTION")
-  local({
-    renv_scope_sink()
-    expect_error(snapshot(library = "badlib"))
-  })
-
-
+  project <- renv_tests_scope("oatmeal")
+  init()
+  isolate()
+  writeLines("invalid", con = system.file("DESCRIPTION", package = "oatmeal"))
+  expect_error(snapshot())
 })
 
 test_that("snapshot ignores own package in package development scenarios", {
 
   renv_tests_scope()
   ensure_directory("bread")
-  setwd("bread")
+  renv_scope_wd("bread")
 
   writeLines(c("Type: Package", "Package: bread"), con = "DESCRIPTION")
 
@@ -175,7 +152,7 @@ test_that("snapshot ignores own package in package development scenarios", {
   writeLines("function() { library(bread) }", con = "R/deps.R")
 
   lockfile <- snapshot(lockfile = NULL)
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_true(is.null(records[["bread"]]))
 
 })
@@ -190,21 +167,17 @@ test_that("snapshot warns about unsatisfied dependencies", {
   toast$Depends <- "bread (> 1.0.0)"
   renv_dcf_write(toast, file = descpath)
 
-  condition <- tryCatch(
-    snapshot(),
-    renv.snapshot.unsatisfied_dependencies = identity
-  )
-
-  expect_s3_class(condition, "renv.snapshot.unsatisfied_dependencies")
+  expect_snapshot(snapshot(), error = TRUE)
 
 })
 
 test_that("snapshot records packages discovered in cellar", {
 
-  renv_scope_options(renv.tests.verbose = FALSE)
-
   renv_tests_scope("skeleton")
-  renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+  renv_scope_envvars(
+    RENV_PATHS_CACHE = renv_scope_tempfile(),
+    RENV_PATHS_LOCAL = renv_tests_path("local")
+  )
 
   init(bare = TRUE)
 
@@ -213,7 +186,7 @@ test_that("snapshot records packages discovered in cellar", {
 
   # validate the record in the lockfile
   lockfile <- snapshot(lockfile = NULL)
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   skeleton <- records[["skeleton"]]
 
   expect_equal(skeleton$Package, "skeleton")
@@ -231,7 +204,7 @@ test_that("snapshot prefers RemoteType to biocViews", {
     biocViews = "Biology"
   )
 
-  descfile <- tempfile()
+  descfile <- renv_scope_tempfile()
   renv_dcf_write(desc, file = descfile)
   record <- renv_snapshot_description(descfile)
   expect_identical(record$Source, "GitHub")
@@ -246,10 +219,7 @@ test_that("parse errors cause snapshot to abort", {
   writeLines("parse error", con = "parse-error.R")
 
   # init should succeed even with parse errors
-  local({
-    renv_scope_options(renv.tests.verbose = FALSE)
-    init(bare = TRUE)
-  })
+  init(bare = TRUE)
 
   # snapshots should fail when configured to do so
   renv_scope_options(renv.config.dependency.errors = "fatal")
@@ -284,9 +254,6 @@ test_that(".renvignore works during snapshot without an explicit root", {
 
   renv_tests_scope()
 
-  # pretend we don't know the project root
-  renv_scope_envvars(RENV_PROJECT = NULL)
-
   # install bread
   install("bread")
 
@@ -319,7 +286,7 @@ test_that("snapshot(packages = ...) captures package dependencies", {
 
   # check for expected records
   lockfile <- renv_lockfile_load(project = getwd())
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
 
   expect_true(!is.null(records$breakfast))
   expect_true(!is.null(records$bread))
@@ -385,9 +352,194 @@ test_that("renv reports missing packages in explicit snapshots", {
   init()
 
   writeLines("Depends: breakfast", con = "DESCRIPTION")
-  expect_condition(
-    snapshot(type = "explicit"),
-    class = "renv.snapshot.missing_packages"
+  expect_snapshot(snapshot(type = "explicit"))
+
+})
+
+test_that("a project using explicit snapshots is marked in sync appropriately", {
+
+  skip_on_cran()
+  renv_tests_scope()
+  renv_scope_options(renv.config.snapshot.type = "explicit")
+
+  init()
+
+  writeLines("Depends: breakfast", con = "DESCRIPTION")
+  expect_false(status()$synchronized)
+
+  install("breakfast")
+  expect_false(status()$synchronized)
+
+  snapshot()
+  expect_true(status()$synchronized)
+
+})
+
+test_that("snapshot() warns when required package is not installed", {
+
+  renv_tests_scope("breakfast")
+  init()
+
+  remove("breakfast")
+  expect_snapshot(snapshot())
+
+  install("breakfast")
+  remove("toast")
+  expect_snapshot(snapshot(), error = TRUE)
+
+})
+
+test_that("packages installed from CRAN using pak are handled", {
+  skip_on_cran()
+  skip_if_not_installed("pak")
+
+  renv_tests_scope()
+  library <- renv_paths_library()
+  ensure_directory(library)
+  pak <- renv_namespace_load("pak")
+  suppressMessages(pak$pkg_install("toast"))
+  record <- renv_snapshot_description(package = "toast")
+
+  expect_named(
+    record,
+    c("Package", "Version", "Source", "Repository", "Requirements", "Hash")
   )
+
+  expect_identical(record$Source, "Repository")
+  expect_identical(record$Repository, "CRAN")
+})
+
+
+test_that("packages installed from Bioconductor using pak are handled", {
+  skip_on_cran()
+  skip_if_not_installed("pak")
+
+  renv_tests_scope()
+  library <- renv_paths_library()
+  ensure_directory(library)
+  pak <- renv_namespace_load("pak")
+  suppressMessages(pak$pkg_install("bioc::Biobase"))
+
+  record <- renv_snapshot_description(package = "Biobase")
+  expect_identical(record$Source, "Bioconductor")
+})
+
+test_that("snapshot always reports on R version changes", {
+  renv_scope_options(renv.verbose = TRUE)
+
+  R4.1 <- list(R = list(Version = 4.1))
+  R4.2 <- list(R = list(Version = 4.2))
+  expect_snapshot({
+    renv_snapshot_report_actions(list(), R4.1, R4.2)
+  })
+})
+
+test_that("user can choose to install missing packages", {
+
+  # use a temporary cache to guarantee packages are fully installed
+  # regardless of order other tests are run in
+  renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile("renv-tempcache-"))
+
+  renv_tests_scope("egg")
+  renv_scope_options(renv.menu.choice = 2)
+  expect_snapshot(snapshot())
+
+})
+
+test_that("exclude handles uninstalled packages", {
+  project <- renv_tests_scope("bread")
+  init()
+  snapshot(exclude = "bread")
+  lockfile <- renv_lockfile_load(project)
+  expect_null(lockfile$Packages$bread)
+})
+
+test_that("snapshot doesn't include development dependencies", {
+
+  renv_tests_scope()
+  writeLines(c("Imports: egg", "Suggests: bread"), "DESCRIPTION")
+
+  inst <- install()
+  expect_named(inst, c("bread", "egg"), ignore.order = TRUE)
+
+  snap <- snapshot()
+  expect_named(snap$Packages, "egg")
+
+})
+
+test_that("automatic snapshot works as expected", {
+
+  renv_scope_options(renv.config.auto.snapshot = TRUE)
+  defer(the$library_info <- NULL)
+
+  renv_tests_scope("oatmeal")
+  init()
+  expect_silent(renv_snapshot_task())
+
+  # bread isn't used so snapshot shouldn't change
+  install("bread")
+  expect_silent(renv_snapshot_task())
+
+  writeLines("library(egg)", "dependencies.R")
+  install("egg")
+  expect_snapshot(renv_snapshot_task())
+
+})
+
+# test_that("we can infer github remotes from packages installed from sources", {
+#   skip_on_cran()
+#
+#   desc <- heredoc("
+#     Package: renv
+#     Version: 0.1.0-9000
+#     BugReports: https://github.com/rstudio/renv/issues
+#   ")
+#
+#   descfile <- renv_scope_tempfile("description-")
+#   writeLines(desc, con = descfile)
+#
+#   remote <- local({
+#     renv_scope_options(renv.verbose = FALSE)
+#     renv_snapshot_description(path = descfile)
+#   })
+#
+#   expect_equal(remote$RemoteType, "github")
+#
+#   expect_snapshot(. <- renv_snapshot_description(path = descfile))
+#
+# })
+
+test_that("we report if dependency discover during snapshot() is slow", {
+
+  renv_tests_scope()
+  init()
+
+  renv_scope_options(renv.dependencies.elapsed_time_threshold = -1)
+  expect_snapshot(. <- snapshot())
+
+})
+
+test_that("failures in automatic snapshots disable automatic snapshots", {
+
+  renv_scope_options(renv.config.auto.snapshot = TRUE)
+  defer(the$library_info <- NULL)
+
+  project <- renv_tests_scope("bread")
+  init()
+
+  count <- 0L
+  renv_scope_trace(renv:::renv_snapshot_auto, function() {
+    count <<- count + 1L
+    stop("simulated failure in snapshot task")
+  })
+
+  the$library_info <- list()
+  expect_false(the$auto_snapshot_failed)
+  expect_snapshot(renv_snapshot_task())
+  expect_true(the$auto_snapshot_failed)
+
+  the$library_info <- list()
+  expect_silent(renv_snapshot_task())
+  expect_equal(count, 1L)
 
 })

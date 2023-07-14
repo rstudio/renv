@@ -1,7 +1,7 @@
 
 #' Resolve a Remote
 #'
-#' Given a remote specification, resolve it into an `renv` package record that
+#' Given a remote specification, resolve it into an renv package record that
 #' can be used for download and installation (e.g. with [install]).
 #'
 #' @param spec A remote specification. This should be a string, conforming
@@ -21,9 +21,19 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
   if (is.null(spec) || is.list(spec))
     return(spec)
 
-  # check for URLs
-  if (grepl("^(?:file|https?)://", spec))
-    return(renv_remotes_resolve_url(spec, quiet = TRUE))
+  # remove a trailing slash
+  # https://github.com/rstudio/renv/issues/1135
+  spec <- gsub("/+$", "", spec, perl = TRUE)
+
+  # check for archive URLs -- this is a bit hacky
+  if (grepl("^(?:file|https?)://", spec)) {
+    for (suffix in c(".zip", ".tar.gz", ".tgz", "/tarball"))
+      if (endswith(spec, suffix))
+        return(renv_remotes_resolve_url(spec, quiet = TRUE))
+  }
+
+  # remove github prefix
+  spec <- gsub("^https?://(?:www\\.)?github\\.com/", "", spec)
 
   # check for paths to existing local files
   first <- substring(spec, 1L, 1L)
@@ -43,14 +53,6 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
     prefix <- sprintf(fmt, spec)
     message <- paste(prefix, e$message, sep = " -- ")
 
-    # if the error occurred while running tests, and the error appears
-    # to be due to an HTTP error (unauthorized), then just skip instead
-    if (renv_tests_running()) {
-      unauth <- any(grepl("403", e$message %||% ""))
-      if (unauth)
-        testthat::skip("Ignoring transient 403 error")
-    }
-
     # otherwise, propagate the error
     stop(simpleError(message = message, call = e$call))
 
@@ -68,8 +70,17 @@ renv_remotes_resolve_impl <- function(spec, latest = FALSE) {
 
   remote <- renv_remotes_parse(spec)
 
+  # fixup for bioconductor
+  isbioc <-
+    identical(remote$type, "repository") &&
+    identical(remote$repository, "bioc")
+
+  if (isbioc)
+    remote$type <- "bioc"
+
   resolved <- switch(
     remote$type,
+    bioc       = renv_remotes_resolve_bioc(remote),
     bitbucket  = renv_remotes_resolve_bitbucket(remote),
     gitlab     = renv_remotes_resolve_gitlab(remote),
     github     = renv_remotes_resolve_github(remote),
@@ -79,7 +90,12 @@ renv_remotes_resolve_impl <- function(spec, latest = FALSE) {
     stopf("unknown remote type '%s'", remote$type %||% "<NA>")
   )
 
-  reject(resolved, is.null)
+  # ensure that attributes on the record are preserved, but drop NULL entries
+  for (key in names(resolved))
+    if (is.null(resolved[[key]]))
+      resolved[[key]] <- NULL
+
+  resolved
 
 }
 
@@ -102,10 +118,10 @@ renv_remotes_parse_impl <- function(spec, pattern, fields, perl = FALSE) {
 renv_remotes_parse_repos <- function(spec) {
 
   pattern <- paste0(
-    "^",                               # start
-    "(?:([^:]+)::)?",                  # optional repository name
-    "([[:alnum:].]+)",                 # package name
-    "(?:@([[:digit:]_.-]+))?",         # optional package version
+    "^",                                           # start
+    "(?:([^:]+)::)?",                              # optional repository name
+    "([[:alnum:].]+)",                             # package name
+    "(?:@([[:digit:]_.-]+))?",                     # optional package version
     "$"
   )
 
@@ -118,21 +134,58 @@ renv_remotes_parse_remote <- function(spec) {
 
   pattern <- paste0(
     "^",
-    "(?:([^@:]+)(?:@([^:]+))?::)?",    # optional prefix, providing type + host
-    "([^/#@:]+)",                      # a username
-    "(?:/([^@#:]+))?",                 # a repository (allow sub-repositories)
-    "(?::([^@#:]+))?",                 # optional subdirectory
-    "(?:#([^@#:]+))?",                 # optional hash (e.g. pull request)
-    "(?:@([^@#:]+))?",                 # optional ref (e.g. branch or commit)
+    "(?:([[:alpha:]][[:alnum:].]*[[:alnum:]])=)?",  # optional package name
+    "(?:([^@:]+)(?:@([^:]+))?::)?",                 # optional prefix, providing type + host
+    "([^/#@:]+)",                                   # a username
+    "(?:/([^@#:]+))?",                              # a repository (allow sub-repositories)
+    "(?::([^@#:]+))?",                              # optional subdirectory
+    "(?:#([^@#:]+))?",                              # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?",                              # optional ref (e.g. branch or commit)
     "$"
   )
 
-  fields <- c("spec", "type", "host", "user", "repo", "subdir", "pull", "ref")
-  remote <- renv_remotes_parse_impl(spec, pattern, fields)
+  fields <- c(
+    "spec", "package", "type",
+    "host", "user", "repo",
+    "subdir", "pull", "ref"
+  )
 
+  remote <- renv_remotes_parse_impl(spec, pattern, fields)
   if (!nzchar(remote$repo))
     stopf("'%s' is not a valid remote", spec)
 
+  renv_remotes_parse_finalize(remote)
+
+}
+
+renv_remotes_parse_gitssh <- function(spec) {
+
+  pattern <- paste0(
+    "^",
+    "(?:([[:alpha:]][[:alnum:].]*[[:alnum:]])=)?",  # optional package name
+    "(?:(git)::)?",                                 # optional git prefix
+    "(",                                            # url start
+      "([^@]+)@",                                   # user (typically, 'git')
+      "([^:]+):",                                   # host
+      "([^:#@]+)",                                  # the rest of the repo url
+    ")",                                            # url end
+    "(?::([^@#:]+))?",                              # optional sub-directory
+    "(?:#([^@#:]+))?",                              # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?",                              # optional ref (e.g. branch or commit)
+    "$"
+  )
+
+  fields <- c(
+    "spec", "package", "type", "url",
+    "user", "host", "repo",
+    "subdir", "pull", "ref"
+  )
+
+  remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
+  if (!nzchar(remote$repo))
+    stopf("'%s' is not a valid remote", spec)
+
+  remote$type <- remote$type %||% "git"
   renv_remotes_parse_finalize(remote)
 
 }
@@ -149,30 +202,26 @@ renv_remotes_parse_git <- function(spec) {
 
   pattern <- paste0(
     "^",
-    "(?:(git)::)?",                 # optional git prefix
-    "(",                            # URL start
-      "(?:(https?|git|ssh)://)?",     # protocol
-      "(?:([^@]+)@)?",                # login (probably git)
-      hostpattern,                    # host
-      "[/:]([\\w_.-]+)",              # a username
-      "(?:/([^@#:]+?))?",             # a repository (allow sub-repositories)
-      "(?:\\.(git))?",                # optional .git extension
-    ")",                            # URL end
-    "(?::([^@#:]+))?",              # optional sub-directory
-    "(?:#([^@#:]+))?",              # optional hash (e.g. pull request)
-    "(?:@([^@#:]+))?",              # optional ref (e.g. branch or commit)
+    "(?:([[:alpha:]][[:alnum:].]*[[:alnum:]])=)?",  # optional package name
+    "(?:(git)::)?",                                 # optional git prefix
+    "(",                                            # URL start
+      "(?:(https?|git|ssh)://)?",                   #   protocol
+      "(?:([^@]+)@)?",                              #   login (probably git)
+      hostpattern,                                  #   host
+      "[/:]([\\w_.-]+)",                            #   a username
+      "(?:/([^@#:]+?))?",                           #   a repository (allow sub-repositories)
+      "(?:\\.(git))?",                              #   optional .git extension
+    ")",                                            # URL end
+    "(?::([^@#:]+))?",                              # optional sub-directory
+    "(?:#([^@#:]+))?",                              # optional hash (e.g. pull request)
+    "(?:@([^@#:]+))?",                              # optional ref (e.g. branch or commit)
     "$"
   )
 
   fields <- c(
-    "spec",
-      "type",
-      "url",
-        "protocol", "login", "host",
-        "user", "repo", "ext",
-      "subdir",
-      "pull",
-      "ref"
+    "spec", "package", "type",
+    "url", "protocol", "login", "host", "user", "repo", "ext",
+    "subdir", "pull", "ref"
   )
 
   remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
@@ -182,7 +231,7 @@ renv_remotes_parse_git <- function(spec) {
   # If type has not been found & repo looks like a git repo, set it as git
   # (note that this parser also accepts entries which are not truly git
   # references, so we try to "fix up" after the fact)
-  if ("git" %in% c(remote$type, remote$ext, remote$protocol))
+  if ("git" %in% c(remote$login, remote$type, remote$ext, remote$protocol))
     remote$type <- tolower(remote$type %||% "git")
 
   renv_remotes_parse_finalize(remote)
@@ -195,13 +244,14 @@ renv_remotes_parse_url <- function(spec) {
 
   pattern <- paste0(
     "^",
-    "(url)::",              # type (required for URL remotes)
-    "((https?)://([^:]+))", # url, protocol, path
-    "(?::([^@#:]+))?",      # optional subdir
+    "(?:([[:alpha:]][[:alnum:].]*[[:alnum:]])=)?",  # optional package name
+    "(url)::",                                      # type (required for URL remotes)
+    "((https?)://([^:]+))",                         # url, protocol, path
+    "(?::([^@#:]+))?",                              # optional subdir
     "$"
   )
 
-  fields <- c("spec", "type", "url", "protocol", "path", "subdir")
+  fields <- c("spec", "package", "type", "url", "protocol", "path", "subdir")
   remote <- renv_remotes_parse_impl(spec, pattern, fields, perl = TRUE)
   if (!nzchar(remote$url))
     stopf("'%s' is not a valid remote", spec)
@@ -241,9 +291,6 @@ renv_remotes_parse_finalize_github <- function(remote) {
 
 renv_remotes_parse <- function(spec) {
 
-  # https://github.com/rstudio/renv/issues/1064
-  spec <- sub("^[a-zA-Z0-9.]+=", "", spec)
-
   remote <- catch(renv_remotes_parse_repos(spec))
   if (!inherits(remote, "error")) {
     remote$type <- "repository"
@@ -253,6 +300,12 @@ renv_remotes_parse <- function(spec) {
   remote <- catch(renv_remotes_parse_remote(spec))
   if (!inherits(remote, "error")) {
     remote$type <- remote$type %||% "github"
+    return(remote)
+  }
+
+  remote <- catch(renv_remotes_parse_gitssh(spec))
+  if (!inherits(remote, "error")) {
+    remote$type <- remote$type %||% "git"
     return(remote)
   }
 
@@ -269,6 +322,55 @@ renv_remotes_parse <- function(spec) {
   }
 
   stopf("failed to parse remote spec '%s'", spec)
+
+}
+
+renv_remotes_resolve_bioc_version <- function(version) {
+
+  # initialize Bioconductor
+  renv_bioconductor_init()
+  BiocManager <- renv_scope_biocmanager()
+
+  # handle versions like 'release' and 'devel'
+  versions <- BiocManager$.version_map()
+  row <- versions[versions$BiocStatus == version, ]
+  if (nrow(row))
+    return(row$Bioc)
+
+  # otherwise, use the default version
+  BiocManager$version()
+
+}
+
+renv_remotes_resolve_bioc_plain <- function(remote) {
+
+  list(
+    Package = remote$package,
+    Version = remote$version,
+    Source  = "Bioconductor"
+  )
+
+}
+
+renv_remotes_resolve_bioc <- function(remote) {
+
+  # if we parsed this as a repository remote, use that directly
+  if (!is.null(remote$package))
+    return(renv_remotes_resolve_bioc_plain(remote))
+
+  # otherwise, this was parsed as a regular remote, declaring the package
+  # should be obtained from a particular Bioconductor release
+  package <- remote$repo
+  biocversion <- renv_remotes_resolve_bioc_version(remote$user)
+  biocrepos <- renv_bioconductor_repos(version = biocversion)
+  record <- renv_available_packages_latest(package, repos = biocrepos)
+
+  # update fields
+  record$Source <- "Bioconductor"
+  record$Repository <- NULL
+
+  # return the resolved record
+  record
 
 }
 
@@ -454,7 +556,10 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   renv_scope_auth(repo)
 
   # add headers
-  headers <- c(Accept = "application/vnd.github.raw")
+  headers <- c(
+    Accept = "application/vnd.github.raw",
+    renv_download_auth_github()
+  )
 
   # get the DESCRIPTION contents
   fmt <- "%s/repos/%s/%s/contents/%s?ref=%s"
@@ -602,7 +707,7 @@ renv_remotes_resolve_github_release <- function(host, user, repo, spec) {
 
 renv_remotes_resolve_git <- function(remote) {
 
-  package <- remote$repo
+  package <- remote$package %||% basename(remote$repo)
   url     <- remote$url
   subdir  <- remote$subdir
 
@@ -663,7 +768,7 @@ renv_remotes_resolve_git_sha_ref <- function(record) {
 
 renv_remotes_resolve_git_description <- function(record) {
 
-  path <- tempfile("renv-git-")
+  path <- renv_scope_tempfile("renv-git-")
   ensure_directory(path)
 
   # TODO: is there a cheaper way for us to accomplish this?

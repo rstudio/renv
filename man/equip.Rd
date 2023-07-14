@@ -2,7 +2,7 @@
 % Please edit documentation in R/equip.R
 \name{equip}
 \alias{equip}
-\title{Install Required System Libraries}
+\title{Install required system libraries}
 \usage{
 equip()
 }
@@ -11,7 +11,8 @@ This function is normally called for its side effects.
 }
 \description{
 Equip your system with libraries commonly-used during compilation of
-\R packages. Currently only supported on Windows.
+base and recommended \R packages. This was previously useful with older
+versions of R on windows, but is no longer terribly helpful.
 }
 \examples{
 \dontrun{
@@ -21,3 +22,4 @@ renv::equip()
 
 }
 }
+\keyword{internal}

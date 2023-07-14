@@ -11,32 +11,30 @@ upgrade(project = NULL, version = NULL, reload = NULL, prompt = interactive())
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{version}{The version of \code{renv} to be installed. By default, the latest
-version of \code{renv} as available on the active R package repositories is
-used.}
+\item{version}{The version of renv to be installed.
 
-\item{reload}{Boolean; reload \code{renv} after install? When \code{NULL} (the
-default), \code{renv} will be re-loaded only if updating \code{renv} for the
+When \code{NULL} (the default), the latest version of renv will be installed as
+available from CRAN (or whatever active package repositories are active)
+Alternatively, you can install the latest development version with
+\code{"main"}, or a specific commit with a SHA, e.g. \code{"5049cef8a"}.}
+
+\item{reload}{Boolean; reload renv after install? When \code{NULL} (the
+default), renv will be re-loaded only if updating renv for the
 active project. Note that this may fail if you've loaded packages
-which also depend on \code{renv}.}
+which also depend on renv.}
 
 \item{prompt}{Boolean; prompt upgrade before proceeding?}
 }
 \value{
 A boolean value, indicating whether the requested version of
-\code{renv} was successfully installed. Note that this function is normally
+renv was successfully installed. Note that this function is normally
 called for its side effects.
 }
 \description{
-Upgrade the version of \code{renv} associated with a project.
-}
-\details{
-By default, this function will attempt to install the latest version of
-\code{renv} as available on the active R package repositories. If you'd instead
-like to try out a development version of \code{renv}, you can explicitly request a
-different version of \code{renv} and that version of the package will be
-downloaded and installed from GitHub. Use \code{version = "main"} to install the
-latest development version of \code{renv}, as from the \code{renv} project's \href{https://github.com/rstudio/renv}{GitHub page}.
+Upgrade the version of renv associated with a project, including using
+a development version from GitHub. If you want to update all
+packages (including renv) to their latest CRAN versions, use
+\code{\link[=update]{update()}}.
 }
 \examples{
 \dontrun{

@@ -73,7 +73,10 @@ renv_patch_tar <- function() {
 
   # TAR appears to be set but invalid; override it
   # and warn the user
-  newtar <- Sys.which("tar") %""% "internal"
+  newtar <- Sys.which("tar")
+  if (!nzchar(newtar))
+    newtar <- "internal"
+
   Sys.setenv(TAR = newtar)
 
   # report to the user
@@ -117,11 +120,7 @@ renv_patch_golem_impl <- function(...) {
   if ("compiler" %in% loadedNamespaces())
     replacement <- compiler::cmpfun(replacement)
 
-  renv_binding_replace(
-    symbol = "replace_word",
-    envir  = golem,
-    replacement = replacement
-  )
+  renv_binding_replace(golem, "replace_word", replacement)
 
 }
 
@@ -140,7 +139,7 @@ renv_patch_methods_table_impl <- function() {
     base <- baseenv()
     if (base$bindingIsLocked(binding, env = envir)) {
       base$unlockBinding(binding, env = envir)
-      on.exit(base$lockBinding(binding, envir), add = TRUE)
+      defer(base$lockBinding(binding, envir))
     }
 
     # force everything defined in the environment
@@ -171,6 +170,12 @@ renv_patch_repos <- function() {
   if (identical(name, "renv"))
     return()
 
+  # presumably this will never happen when the dev version of renv is
+  # installed, so we skip to avoid parsing a sha as version
+  sha <- attr(the$metadata$version, "sha")
+  if (!is.null(sha))
+    return()
+
   # nothing to do if this version of 'renv' is already available
   version <- renv_metadata_version()
   entry <- catch(renv_available_packages_entry("renv", filter = version, quiet = TRUE))
@@ -182,7 +187,7 @@ renv_patch_repos <- function() {
     return()
 
   # use package-local repository path
-  repopath <- system.file("repos", package = "renv")
+  repopath <- system.file("repos", package = "renv", mustWork = FALSE)
   if (!file.exists(repopath))
     return()
 

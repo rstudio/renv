@@ -1,45 +1,34 @@
 
-#' Vendor renv in an R Package
+#' Vendor renv in an R package
 #'
-#' Vendor a copy of `renv` in an \R package.
+#' @description
+#' Calling `renv:::vendor()` will:
 #'
-#' Calling `renv::vendor()` will:
+#' - Compile a vendored copy of renv to `inst/vendor/renv.R`,
+#' - Generate an renv auto-loader at `R/renv.R`.
 #'
-#' - Compile a vendored copy of `renv` to `inst/vendor/renv.R`,
-#' - Generate an `renv` auto-loader at `R/renv.R`.
-#'
-#' Using this, projects can take a dependency on `renv`, and use `renv`
-#' internals, in a CRAN-compliant way. After vendoring `renv`, you can
-#' use `renv` APIs in your package via the embedded `renv` environment;
+#' Using this, projects can take a dependency on renv, and use renv
+#' internals, in a CRAN-compliant way. After vendoring renv, you can
+#' use renv APIs in your package via the embedded renv environment;
 #' for example, you could call the [renv::dependencies()] function with:
 #'
 #' ```
 #' renv$dependencies()
 #' ```
 #'
-#' Be aware that `renv` internals might change in future releases, so if you
-#' need to rely on `renv` internal functions, we strongly recommend testing
+#' Be aware that renv internals might change in future releases, so if you
+#' need to rely on renv internal functions, we strongly recommend testing
 #' your usages of these functions to avoid potential breakage.
 #'
-#' @param version The version of `renv` to vendor. If `NULL` (the default),
-#'   the current version of `renv` will be used. Ignored if `sources`
-#'   is non-`NULL`.
+#' @param version The version of renv to vendor. `renv` sources will be pulled
+#'   from GitHub, and so `version` should refer to either a commit hash or a
+#'   branch name.
 #'
-#' @param repository The Git repository from which `renv` should be retrieved.
-#'   `renv` will use `git clone <repository> --branch <version>` to download
-#'   the required `renv` sources. Ignored if `sources` is non-`NULL`.
-#'
-#' @param sources The path to local `renv` sources to be vendored.
-#'
-#' @param project The project in which `renv` should be vendored.
+#' @param project The project in which renv should be vendored.
 #'
 #' @keywords internal
 #'
-vendor <- function(version    = NULL,
-                   repository = "https://github.com/rstudio/renv",
-                   sources    = NULL,
-                   project    = getwd())
-{
+vendor <- function(version = "main", project = getwd()) {
   renv_scope_error_handler()
 
   # validate project is a package
@@ -49,12 +38,15 @@ vendor <- function(version    = NULL,
     stopf(fmt, renv_path_pretty(project))
   }
 
-  # get renv sources
-  sources <- sources %||% renv_vendor_sources(version, repository)
+  # retrieve package sources
+  sources <- renv_vendor_sources(version)
 
-  # re-compute renv version from sources
-  version <- renv_description_read(path = sources, field = "Version")
-  header <- renv_vendor_header(version)
+  # compute package remote
+  spec <- sprintf("rstudio/renv@%s", version)
+  remote <- renv_remotes_resolve(spec)
+
+  # build script header
+  header <- renv_vendor_header(remote)
 
   # create the renv script itself
   embed <- renv_vendor_create(
@@ -64,24 +56,22 @@ vendor <- function(version    = NULL,
   )
 
   # create the loader
-  loader <- renv_vendor_loader(project, header)
+  loader <- renv_vendor_loader(project, remote, header)
 
   # let the user know what just happened
   template <- heredoc("
     #
-    # A vendored copy of `renv` was created at: %s
-    # The `renv` auto-loader was generated at:  %s
+    # A vendored copy of renv was created at: %s
+    # The renv auto-loader was generated at:  %s
     #
     # Please add `renv$initialize()` to your package's `.onLoad()`
-    # to ensure that `renv` is initialized on package load.
+    # to ensure that renv is initialized on package load.
     #
   ")
 
-  blurb <- sprintf(template, renv_path_pretty(embed), renv_path_pretty(loader))
-  writeLines(blurb)
+  writef(template, renv_path_pretty(embed), renv_path_pretty(loader))
 
   invisible(TRUE)
-
 }
 
 renv_vendor_create <- function(project, sources, header) {
@@ -111,14 +101,29 @@ renv_vendor_create <- function(project, sources, header) {
 
 }
 
-renv_vendor_loader <- function(project, header) {
+renv_vendor_loader <- function(project, remote, header) {
 
   source <- system.file("resources/vendor/renv.R", package = "renv")
   template <- readLines(source, warn = FALSE)
 
-  # replace '..imports..' with the 'utils' imports we use
+  # replace '..imports..' with the imports we use
   imports <- renv_vendor_imports()
-  replacements <- list(imports = imports, version = renv_metadata_version())
+
+  # create metadata for the embedded version
+  version <- renv_metadata_version_create(remote)
+  metadata <- renv_metadata_create(embedded = TRUE, version = version)
+
+  # format metadata for template insertion
+  lines <- enum_chr(metadata, function(key, value) {
+    sprintf("    %s = %s", key, deparse(value))
+  })
+
+  inner <- paste(lines, collapse = ",\n")
+
+  replacements <- list(
+    imports  = imports,
+    metadata = paste(c("list(", inner, "  )"), collapse = "\n")
+  )
   contents <- renv_template_replace(template, replacements, format = "..%s..")
 
   all <- c("", header, "", contents)
@@ -149,41 +154,35 @@ renv_vendor_imports <- function() {
     paste(parts, collapse = "\n")
   })
 
-  paste(c("list(", entries, "  )"), collapse = "\n")
+  paste(c("list(", paste(entries, collapse = ",\n"), "  )"), collapse = "\n")
 
 }
 
-renv_vendor_sources <- function(version, repository) {
+renv_vendor_sources <- function(version) {
 
-  # move to temporary directory
-  owd <- setwd(tempdir())
-  on.exit(setwd(owd), add = TRUE)
+  # retrieve renv
+  tarball <- renv_bootstrap_download_github(version = version)
 
-  # resolve version
-  version <- version %||% renv_package_version("renv")
+  # extract downloaded sources
+  untarred <- tempfile("renv-vendor-")
+  untar(tarball, exdir = untarred)
 
-  printf("# Cloning renv %s from %s ... ", version, repository)
-  args <- c("clone", "--branch", version, "--depth", "1", repository)
-  renv_system_exec(git(), args, action = "cloning renv")
-  writef("Done!")
-  path <- normalizePath("renv", winslash = "/", mustWork = TRUE)
-
-  # make sure we clean up when we're done
-  defer(unlink(path, recursive = TRUE), envir = parent.frame())
-
-  path
+  # the package itself will exist as a folder within 'exdir'
+  list.files(untarred, full.names = TRUE)[[1L]]
 
 }
 
-renv_vendor_header <- function(version) {
+renv_vendor_header <- function(remote) {
 
   template <- heredoc("
     #
-    # renv %s: A dependency management toolkit for R.
+    # renv %s [rstudio/renv#%s]: A dependency management toolkit for R.
     # Generated using `renv:::vendor()` at %s.
     #
   ")
 
-  sprintf(template, version, Sys.time())
+  version <- remote$Version
+  hash <- substring(remote$RemoteSha, 1L, 7L)
+  sprintf(template, version, hash, Sys.time())
 
 }

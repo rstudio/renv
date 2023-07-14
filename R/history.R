@@ -1,35 +1,47 @@
 
-#' View Lockfile History
+#' View and revert to a historical lockfile
 #'
-#' Use your version control system to find prior versions of the `renv.lock`
-#' file that have been used in your project.
+#' @description
+#' `history()` uses your version control system to show prior versions of the
+#' lockfile and `revert()` allows you to restore one of them.
 #'
-#' The `history()` function is currently only implemented for projects using
-#' `git` for version control.
+#' These functions are currently only implemented for projects that use git.
 #'
 #' @inherit renv-params
 #'
 #' @export
 #'
-#' @return An \R `data.frame`, summarizing the commits in which `renv.lock`
-#'   has been mutated.
+#' @return `history()` returns a `data.frame` summarizing the commits in which
+#'   `renv.lock` has been changed. `revert()` is usually called for its
+#'   side-effect but also invisibly returns the `commit` used.
 #'
-#' @example examples/examples-history.R
+#' @examples
+#' \dontrun{
+#'
+#' # get history of previous versions of renv.lock in VCS
+#' db <- renv::history()
+#'
+#' # choose an older commit
+#' commit <- db$commit[5]
+#'
+#' # revert to that version of the lockfile
+#' renv::revert(commit = commit)
+#'
+#' }
 history <- function(project = NULL) {
 
   renv_scope_error_handler()
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   lockpath <- renv_lockfile_path(project)
   if (!file.exists(lockpath))
-    return(data.frame())
+    return(data_frame())
 
   renv_git_preflight()
 
-  owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(project)
 
   args <- c("log", "--pretty=format:%H\031%at\031%ct\031%s", renv_shell_path(lockpath))
   data <- renv_system_exec("git", args, action = "retrieving git log")
@@ -43,43 +55,28 @@ history <- function(project = NULL) {
 
 }
 
-#' Revert Lockfile
-#'
-#' Revert the lockfile to its contents at a prior commit.
-#'
-#' The `revert()` function is currently only implemented for projects using
-#' `git` for version control.
-#'
-#' @inherit renv-params
-#'
 #' @param commit The commit associated with a prior version of the lockfile.
 #' @param ... Optional arguments; currently unused.
-#'
-#' @return The commit used when reverting `renv.lock`. Note that this function
-#'   is normally called for its side effects.
-#'
 #' @export
-#'
-#' @example examples/examples-history.R
+#' @rdname history
 revert <- function(commit = "HEAD", ..., project = NULL) {
 
   renv_scope_error_handler()
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   renv_git_preflight()
 
-  owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(project)
 
   lockpath <- renv_lockfile_path(project = project)
   system2("git", c("checkout", commit, "--", renv_shell_path(lockpath)))
   system2("git", c("reset", "HEAD", renv_shell_path(lockpath)), stdout = FALSE, stderr = FALSE)
   system2("git", c("diff", "--", renv_shell_path(lockpath)))
 
-  vwritef("* renv.lock from commit %s has been checked out.", commit)
+  writef("- renv.lock from commit %s has been checked out.", commit)
   invisible(commit)
 
 }

@@ -1,6 +1,4 @@
 
-context("Paths")
-
 test_that("all renv paths live within tempdir() during tests", {
   renv_tests_scope()
   info <- c(root = renv_paths_root(), tempdir = tempdir())
@@ -36,12 +34,6 @@ test_that("RENV_PATHS_PREFIX is respected", {
 
 })
 
-test_that("RENV_PATHS_PREFIX is not normalized", {
-  renv_scope_envvars(RENV_PATHS_PREFIX = ".")
-  renv_envvars_normalize()
-  expect_identical(Sys.getenv("RENV_PATHS_PREFIX"), ".")
-})
-
 test_that("renv_path_normalize is correctly initialized", {
 
   expect_identical(
@@ -63,8 +55,9 @@ test_that("UTF-8 paths can be normalized", {
     skip("locale is not UTF-8")
 
   name <- enc2utf8("\u4f60\u597d")  # nihao
-  root <- normalizePath(tempdir(), winslash = "/", mustWork = TRUE)
+  root <- renv_path_normalize(tempdir())
   path <- paste(root, name, sep = "/")
+  defer(unlink(path))
   expect_true(file.create(path))
 
   expected <- path

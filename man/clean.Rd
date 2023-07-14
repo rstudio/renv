@@ -2,7 +2,7 @@
 % Please edit documentation in R/clean.R
 \name{clean}
 \alias{clean}
-\title{Clean a Project}
+\title{Clean a project}
 \usage{
 clean(project = NULL, ..., actions = NULL, prompt = interactive())
 }
@@ -12,7 +12,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{actions}{The set of clean actions to take. See the documentation in
 \strong{Actions} for a list of available actions, and the default actions
@@ -29,8 +29,6 @@ called for its side effects.
 Clean up a project and its associated \R libraries.
 }
 \section{Actions}{
-
-
 The following clean actions are available:
 
 \describe{
@@ -56,7 +54,7 @@ remove such left-over directories.
 \item{\code{system.library}}{
 
 In general, it is recommended that only packages distributed with \R
-are installed into the system library (the library path referred to
+are installed into the default library (the library path referred to
 by \code{.Library}). Use this action to remove any user-installed packages
 that have been installed to the system library.
 

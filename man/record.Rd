@@ -2,7 +2,7 @@
 % Please edit documentation in R/record.R
 \name{record}
 \alias{record}
-\title{Update Package Records in a Lockfile}
+\title{Update package records in a lockfile}
 \usage{
 record(records, lockfile = NULL, project = NULL)
 }
@@ -10,25 +10,22 @@ record(records, lockfile = NULL, project = NULL)
 \item{records}{A list of named records, mapping package names to a definition
 of their source. See \strong{Records} for more details.}
 
-\item{lockfile}{The path to a lockfile. By default, the project lockfile
-is used.}
+\item{lockfile}{Path to a lockfile. When \code{NULL} (the default), the \code{renv.lock} located in the root of the current project will be used.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-Use \code{record()} to record a new entry within an existing \code{renv} lockfile.
+Use \code{record()} to record a new entry within an existing renv lockfile.
 }
 \details{
 This function can be useful when you need to change one or more of the
-package records within an \code{renv} lockfile -- for example, because a recorded
+package records within an renv lockfile -- for example, because a recorded
 package cannot be restored in a particular environment, and you know of a
 suitable alternative.
 }
 \section{Records}{
-
-
 Records can be provided either using the \strong{remotes} short-hand syntax,
 or by using an \R list of entries to record within the lockfile. See
 \code{?lockfiles} for more information on the structure of a package record.

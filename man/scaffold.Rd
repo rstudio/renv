@@ -2,7 +2,7 @@
 % Please edit documentation in R/scaffold.R
 \name{scaffold}
 \alias{scaffold}
-\title{Generate renv Project Infrastructure}
+\title{Generate project infrastructure}
 \usage{
 scaffold(
   project = NULL,
@@ -16,25 +16,27 @@ scaffold(
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{version}{The version of \code{renv} to associate with this project. By
-default, the version of \code{renv} currently installed is used.}
+\item{version}{The version of renv to associate with this project. By
+default, the version of renv currently installed is used.}
 
 \item{repos}{The \R repositories to associate with this project.}
 
-\item{settings}{A list of \code{renv} settings, to be applied to the project
+\item{settings}{A list of renv settings, to be applied to the project
 after creation. These should map setting names to the desired values.
 See \link{settings} for more details.}
 }
 \description{
-Write the \code{renv} project infrastructure for a project.
-}
-\details{
-Invoking \code{renv::scaffold()} will:
+Create the renv project infrastructure. This will:
 \itemize{
-\item Install \code{renv} into the project library,
-\item Update the project \code{.Rprofile} so that \code{renv} is automatically loaded
-for new \R sessions launched in this project, and
-\item Write a bare lockfile \code{renv.lock}.
+\item Create a project library, \code{renv/library}.
+\item Install renv into the project library.
+\item Update the project \code{.Rprofile} to call \code{source("renv/activate.R")} so
+that renv is automatically loaded for new \R sessions launched in
+this project.
+\item Create \code{renv/.gitignore}, which tells git to ignore the project library.
+\item Create \code{.Rbuildignore}, if the project is also a package. This tells
+\verb{R CMD build} to ignore the renv infrastructure,
+\item Write a (bare) \link{lockfile}, \code{renv.lock}.
 }
 }
 \examples{

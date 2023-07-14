@@ -12,6 +12,6 @@ to the Remotes specification as defined in
 \url{https://remotes.r-lib.org/articles/dependencies.html}.}
 }
 \description{
-Given a remote specification, resolve it into an \code{renv} package record that
+Given a remote specification, resolve it into an renv package record that
 can be used for download and installation (e.g. with \link{install}).
 }

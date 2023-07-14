@@ -1,6 +1,4 @@
 
-context("Path")
-
 test_that("renv_path_absolute() reports common absolute paths", {
 
   abs <- c(
@@ -28,7 +26,7 @@ test_that("renv_path_absolute() reports common absolute paths", {
 
 test_that("renv_path_normalize() normalizes relative paths that don't exist", {
 
-  prefix <- normalizePath(".", winslash = "/", mustWork = TRUE)
+  prefix <- renv_path_normalize(".", mustWork = TRUE)
   path <- "i/dont/exist"
 
   actual <- renv_path_normalize(path)

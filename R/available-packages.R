@@ -2,12 +2,39 @@
 # tools for querying information about packages available on CRAN.
 # note that this does _not_ merge package entries from multiple repositories;
 # rather, a list of databases is returned (one for each repository)
-renv_available_packages <- function(type, repos = NULL, limit = NULL, quiet = FALSE) {
+available_packages <- function(type,
+                               repos = NULL,
+                               limit = NULL,
+                               quiet = FALSE,
+                               cellar = FALSE)
+{
+  dynamic(
 
+    key = list(
+      type = type,
+      repos = repos %||% getOption("repos"),
+      cellar = cellar
+    ),
+
+    value = renv_available_packages_impl(
+      type   = type,
+      repos  = repos,
+      limit  = limit,
+      quiet  = quiet,
+      cellar = cellar
+    )
+
+  )
+}
+
+renv_available_packages_impl <- function(type,
+                                         repos = NULL,
+                                         limit = NULL,
+                                         quiet = FALSE,
+                                         cellar = FALSE)
+{
   limit <- limit %||% Sys.getenv("R_AVAILABLE_PACKAGES_CACHE_CONTROL_MAX_AGE", "3600")
   repos <- renv_repos_normalize(repos %||% getOption("repos"))
-  if (empty(repos))
-    return(NULL)
 
   # invalidate cache if http_proxy or https_proxy environment variables change,
   # since those could effect (or even re-direct?) repository URLs
@@ -18,43 +45,57 @@ renv_available_packages <- function(type, repos = NULL, limit = NULL, quiet = FA
   headers <- getOption("renv.download.headers")
   key <- list(repos = repos, type = type, headers = headers, envvals)
 
-  timecache(
-    key     = key,
-    value   = renv_available_packages_impl(type, repos, quiet),
-    limit   = as.integer(limit),
-    timeout = renv_available_packages_timeout
+  # retrieve available packages
+  dbs <- if (length(repos)) index(
+    scope = "available-packages",
+    key   = key,
+    value = renv_available_packages_query(type, repos, quiet),
+    limit = as.integer(limit)
   )
+
+  # include cellar if requested
+  dbs[["__renv_cellar__"]] <- if (cellar)
+    renv_available_packages_cellar(type = type)
+
+  dbs
 
 }
 
-renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
+renv_available_packages_query <- function(type, repos, quiet = FALSE) {
 
   if (quiet)
     renv_scope_options(renv.verbose = FALSE)
 
-  fmt <- "* Querying repositories for available %s packages ... "
-  vprintf(fmt, type)
+  fmt <- "- Querying repositories for available %s packages ... "
+  printf(fmt, type)
+
+  # exclude repositories which are known to not have packages available
+  if (type == "binary") {
+    ignored <- setdiff(grep("^BioC", names(repos), value = TRUE), "BioCsoft")
+    repos <- repos[setdiff(names(repos), ignored)]
+  }
 
   # request repositories
   urls <- contrib.url(repos, type)
   errors <- new.env(parent = emptyenv())
-  dbs <- lapply(urls, renv_available_packages_query, errors = errors)
+  dbs <- map(urls, renv_available_packages_query_impl, type = type, errors = errors)
   names(dbs) <- names(repos)
 
   # notify finished
-  vwritef("Done!")
+  writef("Done!")
 
   # propagate errors
   errors <- as.list(errors)
-  enumerate(errors, function(url, output) {
+  enumerate(errors, function(url, errors) {
 
-    warnings <- output$warnings
-    messages <- output$messages
-    if (empty(warnings) && empty(messages))
+    if (empty(errors))
       return()
 
+    for (error in errors)
+      warning(error)
+
     fmt <- "could not retrieve available packages for url %s"
-    warningf(fmt, shQuote(url))
+    stopf(fmt, shQuote(url))
 
   })
 
@@ -63,94 +104,110 @@ renv_available_packages_impl <- function(type, repos, quiet = FALSE) {
 
 }
 
-renv_available_packages_query_packages_rds <- function(url) {
+renv_available_packages_query_impl_packages_rds <- function(url) {
   path <- file.path(url, "PACKAGES.rds")
-  destfile <- tempfile("renv-packages-", fileext = ".rds")
+  destfile <- renv_scope_tempfile("renv-packages-", fileext = ".rds")
+
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(readRDS(destfile))
 }
 
-renv_available_packages_query_packages_gz <- function(url) {
+renv_available_packages_query_impl_packages_gz <- function(url) {
   path <- file.path(url, "PACKAGES.gz")
-  destfile <- tempfile("renv-packages-", fileext = ".gz")
+  destfile <- renv_scope_tempfile("renv-packages-", fileext = ".gz")
+
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(read.dcf(destfile))
 }
 
-renv_available_packages_query_packages <- function(url) {
+renv_available_packages_query_impl_packages <- function(url) {
   path <- file.path(url, "PACKAGES")
-  destfile <- tempfile("renv-packages-")
+  destfile <- renv_scope_tempfile("renv-packages-")
+
   download(url = path, destfile = destfile, quiet = TRUE)
   suppressWarnings(read.dcf(destfile))
 }
 
-renv_available_packages_query <- function(url, errors) {
+renv_available_packages_query_impl <- function(url, type, errors) {
 
-  # check for a cached value
-  name <- sprintf("repos_%s.rds.cache", URLencode(url, reserved = TRUE))
-  path <- file.path(tempdir(), name)
-  if (file.exists(path)) {
-    db <- readRDS(path)
-    unlink(path)
-    return(as.data.frame(db, stringsAsFactors = FALSE))
-  }
-
-  # define query methods for the different PACKAGES
+  # define query_impl methods for the different PACKAGES
   methods <- list(
-    renv_available_packages_query_packages_rds,
-    renv_available_packages_query_packages_gz,
-    renv_available_packages_query_packages
+    renv_available_packages_query_impl_packages_rds,
+    renv_available_packages_query_impl_packages_gz,
+    renv_available_packages_query_impl_packages
   )
 
-  seize <- function(stack, restart) {
+  stack <- stack()
+  seize <- function(restart) {
     function(condition) {
       stack$push(condition)
       invokeRestart(restart)
     }
   }
 
-  warnings <- stack()
-  messages <- stack()
   for (method in methods) {
 
     db <- withCallingHandlers(
       catch(method(url)),
-      warning = seize(warnings, "muffleWarning"),
-      message = seize(messages, "muffleMessage")
+      warning = seize(restart = "muffleWarning"),
+      message = seize(restart = "muffleMessage")
     )
 
-    if (!inherits(db, "error"))
-      return(renv_available_packages_success(db, url))
+    if (inherits(db, "error")) {
+      stack$push(db)
+      next
+    }
+
+    return(renv_available_packages_success(db, url, type))
 
   }
 
-  data <- list(
-    warnings = warnings$data(),
-    messages = messages$data()
-  )
-
-  assign(url, data, envir = errors)
+  assign(url, stack$data(), envir = errors)
   NULL
 
 }
 
-renv_available_packages_success <- function(db, url) {
+renv_available_packages_success <- function(db, url, type) {
 
-  db <- as.data.frame(db, stringsAsFactors = FALSE)
-  if (nrow(db) == 0)
+  # convert to data.frame
+  db <- as_data_frame(db)
+  if (nrow(db) == 0L)
     return(db)
 
-  # remove packages which won't work on this OS
-  ostype <- db$OS_type
-  if (is.character(ostype)) {
-    ok <- is.na(ostype) | ostype %in% .Platform$OS.type
-    db <- db[ok, ]
+  # build repository url
+  repository <- rep.int(url, nrow(db))
+
+  # update with path
+  path <- db$Path
+  if (length(path)) {
+    set <- !is.na(path)
+    repository[set] <- paste(url, path[set], sep = "/")
   }
 
+  # set it
+  db$Repository <- repository
 
-  # tag with repository
-  db$Repository <- url
+  # add in necessary missing columns
+  required <- c(
+    "Package", "Version", "Priority",
+    "Depends", "Imports", "LinkingTo", "Suggests", "Enhances",
+    "License", "License_is_FOSS", "License_restricts_use",
+    "OS_type", "Archs", "MD5sum",
+    if (type %in% "source") "NeedsCompilation",
+    "File", "Repository"
+  )
 
+  missing <- setdiff(required, names(db))
+  db[missing] <- NA_character_
+  db <- db[required]
+
+  # filter as appropriate
+  db <- renv_available_packages_filter(db)
+
+  # remove row names
+  row.names(db) <- NULL
+
+  # ok
   db
 
 }
@@ -182,7 +239,7 @@ renv_available_packages_entry <- function(package,
   }
 
   # read available packages
-  dbs <- renv_available_packages(
+  dbs <- available_packages(
     type  = type,
     repos = repos,
     quiet = quiet
@@ -225,15 +282,6 @@ renv_available_packages_entry <- function(package,
 
 }
 
-renv_available_packages_timeout <- function(data) {
-  urls <- contrib.url(data$repos, data$type)
-  for (url in urls) {
-    name <- sprintf("repos_%s.rds", URLencode(url, reserved = TRUE))
-    path <- file.path(tempdir(), name)
-    unlink(path)
-  }
-}
-
 renv_available_packages_record <- function(entry, type) {
 
   # check to see if this is already a proper record
@@ -258,7 +306,7 @@ renv_available_packages_record <- function(entry, type) {
   # form url
   url <- entry$Repository
   path <- entry$Path
-  if (is.character(path) && !is.na(path))
+  if (length(path) && !is.na(path))
     url <- paste(url, path, sep = "/")
 
   attr(record, "type") <- type
@@ -271,18 +319,12 @@ renv_available_packages_record <- function(entry, type) {
 renv_available_packages_latest_repos_impl <- function(package, type, repos) {
 
   # get available packages
-  dbs <- renv_available_packages(
-    type  = type,
-    repos = repos,
-    quiet = TRUE
+  dbs <- available_packages(
+    type   = type,
+    repos  = repos,
+    quiet  = TRUE,
+    cellar = TRUE
   )
-
-  # prepend local sources if available
-  cellar <- renv_available_packages_cellar(type = type)
-  if (!is.null(cellar)) {
-    db <- list("__renv_cellar__" = cellar)
-    dbs <- c(db, dbs)
-  }
 
   fields <- c(
     "Package", "Version",
@@ -293,53 +335,12 @@ renv_available_packages_latest_repos_impl <- function(package, type, repos) {
   entries <- bapply(dbs, function(db) {
 
     # extract entries for this package
-    rows <- db[db$Package == package, ]
-    if (nrow(rows) == 0L)
-      return(rows)
-
-    # only keep entries for which this version of R is compatible
-    deps <- rows$Depends %||% rep.int("", nrow(rows))
-    compatible <- map_lgl(deps, function(dep) {
-
-      # skip NAs
-      if (is.na(dep))
-        return(TRUE)
-
-      # read 'R' entries from Depends (if any)
-      parsed <- catch(renv_description_parse_field(dep))
-      if (inherits(parsed, "error")) {
-        warning(parsed)
-        return(FALSE)
-      }
-
-      # check for NULL
-      if (is.null(parsed))
-        return(TRUE)
-
-      # read requirements for R
-      r <- parsed[parsed$Package == "R", ]
-      if (is.null(r) || nrow(r) == 0)
-        return(TRUE)
-
-      # build code to validate requirements
-      fmt <- "getRversion() %s \"%s\""
-      all <- sprintf(fmt, r$Require, r$Version)
-      code <- paste(all, collapse = " && ")
-
-      # evaluate it
-      status <- catch(eval(parse(text = code), envir = baseenv()))
-      if (inherits(status, "error")) {
-        warning(status)
-        return(TRUE)
-      }
-
-      # all done
-      status
-
-    })
+    entries <- rows(db, db$Package == package)
+    if (nrow(entries) == 0L)
+      return(entries)
 
     # keep only compatible rows + the required fields
-    rows[compatible, intersect(fields, names(db))]
+    cols(entries, intersect(fields, names(db)))
 
   }, index = "Name")
 
@@ -454,7 +455,7 @@ renv_available_packages_latest_mran <- function(package,
     stopf("no MRAN records available from repository URL '%s'", suffix)
 
   # find all available packages
-  keys <- ls(envir = entry)
+  keys <- attr(entry, "keys")
   pattern <- paste0("^", package, " ")
   matching <- grep(pattern, keys, perl = TRUE, value = TRUE)
   if (empty(matching))
@@ -497,7 +498,8 @@ renv_available_packages_latest_repos <- function(package,
                                                  type = NULL,
                                                  repos = NULL)
 {
-  type <- type %||% getOption("pkgType")
+  type  <- type %||% getOption("pkgType")
+  repos <- repos %||% getOption("repos")
 
   # detect requests for only source packages
   if (identical(type, "source"))
@@ -602,13 +604,99 @@ renv_available_packages_cellar <- function(type, project = NULL) {
     list(
       Package = package,
       Version = version,
-      OS_type = NA,
-      NeedsCompilation = NA,
       Repository = repository
     )
 
   })
 
   bind(records)
+
+}
+
+renv_available_packages_filter <- function(db) {
+
+  # sanity check
+  if (is.null(db) || nrow(db) == 0L)
+    return(db)
+
+  # TODO: subarch? duplicates?
+  # remove packages which won't work on this OS
+  db <- renv_available_packages_filter_ostype(db)
+  db <- renv_available_packages_filter_version(db)
+
+  # return filtered database
+  db
+
+}
+
+renv_available_packages_filter_ostype <- function(db) {
+  ostype <- db$OS_type
+  ok <- is.na(ostype) | ostype %in% .Platform$OS.type
+  rows(db, ok)
+}
+
+renv_available_packages_filter_version <- function(db) {
+
+  depends <- db$Depends
+
+  # find the packages which express an R dependency
+  splat <- strsplit(depends, "\\s*,\\s*", perl = TRUE)
+
+  # remove the non-R dependencies
+  table <- c("R ", "R\n", "R(")
+  splat <- map(splat, function(requirements) {
+    requirements[match(substr(requirements, 1L, 2L), table, 0L) != 0L]
+  })
+
+  # collect the unique R dependencies
+  dependencies <- unique(unlist(splat))
+
+  # convert this to a simpler form
+  pattern <- "^R\\s*\\(([^\\d\\s+]+)\\s*([^\\)]+)\\)$"
+  matches <- gsub(pattern, "\\1 \\2", dependencies, perl = TRUE)
+
+  # split into operator and version
+  idx <- regexpr(" ", matches, fixed = TRUE)
+  ops <- substring(matches, 1L, idx - 1L)
+  version <- numeric_version(substring(matches, idx + 1L))
+
+  # bundle the calls for efficiency
+  ok <- rep.int(NA, length(ops))
+  names(ok) <- dependencies
+
+  # iterate over the operations, and update our vector
+  rversion <- getRversion()
+  for (op in unique(ops)) {
+    idx <- ops == op
+    ok[idx] <- do.call(op, list(rversion, version[idx]))
+  }
+
+  # now, map the names back to their computed values, and check whether
+  # all requirements were satisfied
+  ok <- map_lgl(splat, function(requirements) {
+    all(ok[requirements])
+  })
+
+  rows(db, ok)
+
+}
+
+# flattens available packages, keeping only the newest version
+renv_available_packages_flatten <- function(dbs) {
+
+  # stack the databases together
+  stacked <- bind(dbs)
+
+  # order by package + version
+  # TODO: 'order()' is kind of slow for numeric versions; can we do better?
+  index <- with(stacked, order(Package, numeric_version(Version), decreasing = TRUE))
+  ordered <- rows(stacked, index)
+
+  # remove duplicates
+  dupes <- duplicated(ordered$Package)
+  filtered <- rows(ordered, !dupes)
+
+  # ready to return
+  filtered
 
 }

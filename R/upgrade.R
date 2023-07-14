@@ -1,31 +1,29 @@
 
 #' Upgrade renv
 #'
-#' Upgrade the version of `renv` associated with a project.
-#'
-#' By default, this function will attempt to install the latest version of
-#' `renv` as available on the active R package repositories. If you'd instead
-#' like to try out a development version of `renv`, you can explicitly request a
-#' different version of `renv` and that version of the package will be
-#' downloaded and installed from GitHub. Use `version = "main"` to install the
-#' latest development version of `renv`, as from the `renv` project's [GitHub
-#' page](https://github.com/rstudio/renv).
+#' Upgrade the version of renv associated with a project, including using
+#' a development version from GitHub. If you want to update all
+#' packages (including renv) to their latest CRAN versions, use
+#' [renv::update()].
 #'
 #' @inherit renv-params
 #'
-#' @param version The version of `renv` to be installed. By default, the latest
-#'   version of `renv` as available on the active R package repositories is
-#'   used.
+#' @param version The version of renv to be installed.
+#'
+#'   When `NULL` (the default), the latest version of renv will be installed as
+#'   available from CRAN (or whatever active package repositories are active)
+#'   Alternatively, you can install the latest development version with
+#'  `"main"`, or a specific commit with a SHA, e.g. `"5049cef8a"`.
 #'
 #' @param prompt Boolean; prompt upgrade before proceeding?
 #'
-#' @param reload Boolean; reload `renv` after install? When `NULL` (the
-#'   default), `renv` will be re-loaded only if updating `renv` for the
+#' @param reload Boolean; reload renv after install? When `NULL` (the
+#'   default), renv will be re-loaded only if updating renv for the
 #'   active project. Note that this may fail if you've loaded packages
-#'   which also depend on `renv`.
+#'   which also depend on renv.
 #'
 #' @return A boolean value, indicating whether the requested version of
-#'   `renv` was successfully installed. Note that this function is normally
+#'   renv was successfully installed. Note that this function is normally
 #'   called for its side effects.
 #'
 #' @export
@@ -52,36 +50,34 @@ upgrade <- function(project = NULL,
 renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
-  reload <- reload %||% identical(project, renv_project())
+  reload <- reload %||% renv_project_loaded(project)
 
   old <- renv_snapshot_description(package = "renv")
   new <- renv_upgrade_find_record(version)
 
   # check for some form of change
   if (renv_records_equal(old, new)) {
-    fmt <- "* renv [%s] is already installed and active for this project."
-    vwritef(fmt, new$Version)
+    fmt <- "- renv [%s] is already installed and active for this project."
+    writef(fmt, new$Version)
     return(TRUE)
   }
 
   if (prompt || renv_verbose()) {
     renv_pretty_print_records_pair(
-      list(renv = old), list(renv = new),
       "A new version of the renv package will be installed:",
+      list(renv = old),
+      list(renv = new),
       "This project will use the newly-installed version of renv."
     )
   }
 
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    return(FALSE)
-  }
+  cancel_if(prompt && !proceed())
 
   renv_scope_restore(
     project   = project,
-    library   = renv_libpaths_default(),
+    library   = renv_libpaths_active(),
     records   = list(renv = new),
     packages  = "renv",
     recursive = FALSE
@@ -93,18 +89,18 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   # update the lockfile
   lockfile <- renv_lockfile_load(project = project)
-  records <- renv_records(lockfile) %||% list()
+  records <- renv_lockfile_records(lockfile) %||% list()
   records$renv <- new
-  renv_records(lockfile) <- records
+  renv_lockfile_records(lockfile) <- records
   renv_lockfile_save(lockfile, project = project)
 
   # now update the infrastructure to use this version of renv
-  record <- records[["renv"]]
-  renv_infrastructure_write(project, version = record$Version)
+  version <- renv_metadata_version_create(records[["renv"]])
+  renv_infrastructure_write(project, version = version)
 
   # reload renv
   if (reload)
-    renv_package_reload("renv")
+    renv_upgrade_reload()
 
   invisible(TRUE)
 
@@ -158,5 +154,30 @@ renv_upgrade_find_record_dev_latest <- function() {
   versions <- numeric_version(names, strict = FALSE)
   latest <- sort(versions, decreasing = TRUE)[[1]]
   names[versions %in% latest][[1L]]
+
+}
+
+renv_upgrade_reload <- function() {
+
+  # we need to remove the task callbacks here, as otherwise
+  # we'll run into trouble trying to remove task callbacks
+  # within a task callback
+  renv_task_unload()
+
+  # now define and add a callback to reload renv; use the base namespace
+  # to avoid carrying along any bits of the current renv environment
+  callback <- function(...) {
+    unloadNamespace("renv")
+    loadNamespace("renv")
+    invisible(FALSE)
+  }
+
+  environment(callback) <- .BaseNamespaceEnv
+
+  # add the task callback; don't name it so that the renv infrastructure
+  # doesn't try to remove this callback (it'll resolve and remove itself)
+  addTaskCallback(callback)
+
+  invisible(TRUE)
 
 }

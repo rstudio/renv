@@ -1,4 +1,7 @@
 Type: Package
+Description: This is a dummy package.
+    The description has multiple lines.
+    `dummy::dummy()`.
 Package: dummy
 Imports: , a
 Depends:    b, , , c

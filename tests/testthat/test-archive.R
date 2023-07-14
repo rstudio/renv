@@ -1,13 +1,11 @@
 
-context("Archives")
-
 test_that("renv reports errors when decompressing invalid archives", {
 
-  badtar <- tempfile(fileext = ".tar")
+  badtar <- renv_scope_tempfile(fileext = ".tar")
   writeLines("oh no", con = badtar)
   expect_error(renv_archive_decompress(badtar, verbose = TRUE))
 
-  badzip <- tempfile(fileext = ".zip")
+  badzip <- renv_scope_tempfile(fileext = ".zip")
   writeLines("oh no", con = badzip)
   expect_error(renv_archive_decompress(badzip))
 
@@ -15,40 +13,35 @@ test_that("renv reports errors when decompressing invalid archives", {
 
 test_that("we can successfully compress / decompress some sample files", {
 
-  dir <- tempfile()
-  ensure_directory(dir)
-  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
-
-  owd <- setwd(dir)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_tempdir()
 
   for (letter in letters)
     writeLines(letter, con = letter)
 
-  tarfile <- tempfile(fileext = ".tar.gz")
+  tarfile <- renv_scope_tempfile(fileext = ".tar.gz")
   tar(tarfile, files = ".")
 
-  actual <- list.files(dir)
+  actual <- list.files()
   expected <- setdiff(basename(renv_archive_list(tarfile)), ".")
   expect_setequal(actual, expected)
 
-  exdir <- tempfile()
+  exdir <- renv_scope_tempfile()
   renv_archive_decompress(tarfile, exdir = exdir)
-  expect_setequal(list.files(exdir), list.files(dir))
+  expect_setequal(list.files(exdir), list.files())
 
   zipper <- Sys.getenv("R_ZIPCMD", unset = "zip")
   if (nzchar(Sys.which(zipper))) {
 
-    zipfile <- tempfile(fileext = ".zip")
+    zipfile <- renv_scope_tempfile(fileext = ".zip")
     zip(zipfile, files = ".", extras = "-q")
 
-    actual <- list.files(dir)
+    actual <- list.files()
     expected <- basename(renv_archive_list(zipfile))
     expect_setequal(actual, expected)
 
-    exdir <- tempfile()
+    exdir <- renv_scope_tempfile()
     renv_archive_decompress(zipfile, exdir = exdir)
-    expect_setequal(list.files(exdir), list.files(dir))
+    expect_setequal(list.files(exdir), list.files())
 
   }
 

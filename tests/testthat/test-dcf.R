@@ -1,6 +1,4 @@
 
-context("DCF")
-
 test_that("we can read different types of DCFs", {
 
   expected <- list(A = "1", B = "2")
@@ -18,7 +16,7 @@ test_that("we can read different types of DCFs", {
 test_that("we allow for unindented continuations", {
 
   actual <- renv_dcf_read(text = "A: This field\nisn't indented.\nB: 42")
-  expected <- list(A = "This field\nisn't indented.", B = "42")
+  expected <- list(A = "This field isn't indented.", B = "42")
   expect_equal(actual, expected)
 
 })
@@ -32,7 +30,7 @@ test_that("we can read a latin-1 DESCRIPTION file", {
   '})
 
   latin1 <- iconv(enc2utf8(contents), from = "UTF-8", to = "latin1")
-  file <- tempfile("DESCRIPTION-")
+  file <- renv_scope_tempfile("DESCRIPTION-")
   writeLines(latin1, con = file, useBytes = TRUE)
 
   dcf <- renv_dcf_read(file)
@@ -59,7 +57,7 @@ test_that("we can read a custom encoded DESCRIPTION file", {
     toRaw = TRUE
   )
 
-  file <- tempfile("DESCRIPTION-")
+  file <- renv_scope_tempfile("DESCRIPTION-")
   writeBin(bytes[[1L]], con = file)
 
   dcf <- renv_dcf_read(file)
@@ -76,7 +74,7 @@ test_that("we can read mis-encoded DESCRIPTION files", {
   ')
 
   latin1 <- iconv(enc2utf8(contents), from = "UTF-8", to = "latin1")
-  file <- tempfile("DESCRIPTION-")
+  file <- renv_scope_tempfile("DESCRIPTION-")
   writeLines(latin1, con = file, useBytes = TRUE)
 
   dcf <- renv_dcf_read(file)

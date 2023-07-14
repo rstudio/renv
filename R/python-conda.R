@@ -38,8 +38,7 @@ renv_python_conda_export_path <- function(project) {
 # TODO: support prompt
 renv_python_conda_snapshot <- function(project, prompt, python) {
 
-  owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(project)
 
   path <- renv_python_conda_export_path(project = project)
 
@@ -60,15 +59,14 @@ renv_python_conda_snapshot <- function(project, prompt, python) {
   output <- if (renv_tests_running()) FALSE else ""
   system2(conda, args, stdout = output, stderr = output)
 
-  vwritef("* Wrote Python packages to '%s'.", aliased_path(path))
+  writef("- Wrote Python packages to '%s'.", renv_path_aliased(path))
   return(TRUE)
 }
 
 # TODO: support prompt
 renv_python_conda_restore <- function(project, prompt, python) {
 
-  owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(project)
 
   path <- renv_python_conda_export_path(project = project)
 

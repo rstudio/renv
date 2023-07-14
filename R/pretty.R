@@ -1,94 +1,85 @@
 
-renv_pretty_print <- function(values,
-                              preamble  = NULL,
-                              postamble = NULL,
-                              emitter   = NULL,
-                              wrap      = TRUE)
-{
-  if (renv_tests_running() && !renv_tests_verbose())
+renv_pretty_print <- function(preamble, values, postamble = NULL) {
+
+  if (!renv_verbose() || empty(values))
     return()
 
   msg <- stack()
-  if (empty(values))
-    return()
+  msg$push(paste(preamble, collapse = "\n"))
 
-  if (!is.null(preamble)) {
-    msg$push(paste(preamble, collapse = "\n"))
-    msg$push("")
-  }
-
-  formatted <- if (wrap)
-    strwrap(paste(values, collapse = ", "), width = 60)
-  else
-    values
-
-  msg$push(paste("\t", formatted, sep = "", collapse = "\n"))
+  msg$push(paste0("- ", values, collapse = "\n"))
 
   if (!is.null(postamble)) {
-    msg$push("")
     msg$push(paste(postamble, collapse = "\n"))
   }
 
   msg$push("")
-  text <- paste(as.character(msg$data()), collapse = "\n")
 
-  emitter <- emitter %||% renv_pretty_print_emitter()
-  emitter(text)
+  text <- paste(as.character(msg$data()), collapse = "\n")
+  renv_pretty_print_impl(text)
+
 }
 
-renv_pretty_print_records <- function(records,
-                                      preamble  = NULL,
-                                      postamble = NULL,
-                                      emitter   = NULL)
+renv_pretty_print_impl <- function(text) {
+
+  # NOTE: Used by vetiver, so perhaps is part of the API
+  # https://github.com/rstudio/renv/issues/1413
+  emitter <- getOption("renv.pretty.print.emitter", default = writef)
+  emitter(text)
+
+  invisible(NULL)
+
+}
+
+renv_pretty_print_records <- function(preamble, records, postamble = NULL)
 {
   if (empty(records))
     return(invisible(NULL))
 
-  packages <- extract_chr(records, "Package")
+  if (!renv_verbose())
+    return(invisible(NULL))
+
+  # NOTE: use 'sort()' rather than 'csort()' here so that
+  # printed output is sorted in the expected way in the users locale
+  # https://github.com/rstudio/renv/issues/1289
+  names(records) <- names(records) %||% map_chr(records, `[[`, "Package")
+  records <- records[sort(names(records))]
+  packages <- names(records)
   descs <- map_chr(records, renv_record_format_short)
 
-  lhs <- paste(" ", format(packages))
-  rhs <- descs
-
-  n <- max(nchar(lhs))
-  header <- paste(c(rep.int(" ", n + 1), "_"), collapse = "")
-  text <- sprintf("%s   [%s]", lhs, rhs)
+  text <- sprintf("- %s [%s]", format(packages), descs)
 
   all <- c(
-    if (length(preamble)) preamble,
-    c(header, text, ""),
-    if (length(postamble)) c(postamble, "")
+    preamble,
+    text,
+    postamble, if (length(postamble)) ""
   )
 
-  emitter <- emitter %||% renv_pretty_print_emitter()
-  emitter(all)
-
-  invisible(NULL)
+  renv_pretty_print_impl(all)
 }
 
-renv_pretty_print_records_pair <- function(old,
+renv_pretty_print_records_pair <- function(preamble,
+                                           old,
                                            new,
-                                           preamble  = NULL,
                                            postamble = NULL,
-                                           emitter   = NULL)
+                                           formatter = NULL)
 {
+  formatter <- formatter %||% renv_record_format_pair
 
   all <- c(
-    if (length(preamble)) c(preamble, ""),
-    renv_pretty_print_records_pair_impl(old, new),
+    c(preamble, ""),
+    renv_pretty_print_records_pair_impl(old, new, formatter),
     if (length(postamble)) c(postamble, "")
   )
 
-  emitter <- emitter %||% renv_pretty_print_emitter()
-  emitter(all)
-
-  invisible(NULL)
-
+  renv_pretty_print_impl(all)
 }
 
-renv_pretty_print_records_pair_impl <- function(old, new) {
+renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
 
-  renv_scope_locale("LC_COLLATE", "C")
+  # NOTE: use 'sort()' rather than 'csort()' here so that
+  # printed output is sorted in the expected way in the users locale
+  # https://github.com/rstudio/renv/issues/1289
   all <- sort(union(names(old), names(new)))
 
   # compute groups
@@ -107,14 +98,14 @@ renv_pretty_print_records_pair_impl <- function(old, new) {
   n <- max(nchar(all))
 
   # iterate over each group and print
-  uapply(sort(unique(groups)), function(group) {
+  uapply(csort(unique(groups)), function(group) {
 
     lhs <- renv_records_select(old, groups, group)
     rhs <- renv_records_select(new, groups, group)
 
     nms <- union(names(lhs), names(rhs))
     text <- map_chr(nms, function(nm) {
-      renv_record_format_pair(lhs[[nm]], rhs[[nm]])
+      formatter(lhs[[nm]], rhs[[nm]])
     })
 
     if (group == "unknown")
@@ -127,18 +118,5 @@ renv_pretty_print_records_pair_impl <- function(old, new) {
     )
 
   })
-
-}
-
-renv_pretty_print_emitter <- function() {
-
-  emitter <- getOption("renv.pretty.print.emitter", default = NULL)
-  if (!is.null(emitter))
-    return(emitter)
-
-  if (interactive())
-    function(text, ...) writeLines(text, con = stdout(), ...)
-  else
-    function(text, ...) writeLines(text, con = stderr(), ...)
 
 }

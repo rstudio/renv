@@ -28,9 +28,7 @@ renv_equip_macos_specs <- function() {
 }
 
 renv_equip_macos_spec <- function(version = getRversion()) {
-  specs <- renv_equip_macos_specs()
-  majmin <- numeric_version(version)[1, 1:2]
-  specs[[format(majmin)]]
+  renv_equip_macos_specs()[[renv_version_maj_min(version)]]
 }
 
 renv_equip_macos <- function() {
@@ -70,8 +68,8 @@ renv_equip_macos_toolchain <- function() {
 
   clang <- file.path(dst, "bin/clang")
   if (file.exists(clang)) {
-    fmt <- "* LLVM toolchain for R %s is already installed at %s."
-    vwritef(fmt, getRversion(), shQuote(dst))
+    fmt <- "- LLVM toolchain for R %s is already installed at %s."
+    writef(fmt, getRversion(), shQuote(dst))
     return(TRUE)
   }
 
@@ -83,10 +81,9 @@ renv_equip_macos_toolchain <- function() {
 
   command <- paste("sudo /usr/sbin/installer -pkg", shQuote(destfile), "-target /")
   renv_pretty_print(
-    command,
     "The R LLVM toolchain has been successfully downloaded. Please execute:",
-    "in a separate terminal to complete installation.",
-    wrap = FALSE
+    command,
+    "in a separate terminal to complete installation."
   )
 
   TRUE
@@ -127,10 +124,9 @@ renv_equip_macos_rstudio <- function(spec, destfile) {
     return(FALSE)
 
   renv_pretty_print(
-    spec$dst,
     "The R LLVM toolchain has been downloaded and installed to:",
-    "This toolchain will be used by renv when installing packages from source.",
-    wrap = FALSE
+    spec$dst,
+    "This toolchain will be used by renv when installing packages from source."
   )
 
   return(TRUE)

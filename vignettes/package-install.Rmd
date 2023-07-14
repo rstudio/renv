@@ -1,0 +1,344 @@
+---
+title: "Installing packages"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Installing packages}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(renv)
+```
+
+Package installation is an important part of renv.
+This vignette gives you the details, starting with an overview of renv's cache, before going into various installation challenges around building from source and downloading with proxies or authentication.
+
+## Cache
+
+One of renv's primary features is the global package cache, which shared across all projects.
+The renv package cache provides two primary benefits:
+
+1.  Installing and restoring packages is much faster, as renv can find and re-use previously installed packages from the cache.
+
+2.  Projects take up less disk space, because each project doesn't need to contain it's own copy of every package.
+
+When installing a package, renv installs into the global cache and then adds a symlink[^1] to that directory in the project library.
+That way each renv project remains isolated from other projects on your system, but they can still re-use the same installed packages.
+
+[^1]: Or junction points, on Windows.
+    Junction points are unfortunately not supported on Windows network shares; see [Hard links and junctions](https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions) for more details.
+
+The process by which packages enter the cache is roughly as follows:
+
+1.  Package installation is requested via e.g. `install.packages()`, or `renv::install()`, or as part of `renv::restore()`.
+
+2.  If renv is able to find the requested version of the package in the cache, then that package is linked into the project library, and installation is complete.
+
+3.  Otherwise, the package is downloaded and installed into the project library.
+
+4.  After installation of the package has successfully completed, the package is then copied into the global package cache, and then symlinked into the project library.
+
+In some cases, renv will be unable to directly link from the global package cache to your project library, e.g. if the package cache and your project library live on different disk volumes.
+In such a case, renv will instead copy the package from the cache into the project library.
+This is much slower, so is worth avoiding.
+
+### Cache location
+
+You can find the location of the current cache with `renv::paths$cache()`.
+By default, it will be in one of the following folders:
+
+-   Linux: `~/.local/share/renv`
+-   macOS: `~/Library/Application Support/renv`
+-   Windows: `%LOCALAPPDATA%/renv`
+
+If you'd like to share the package cache across multiple users, you can do so by setting the `RENV_PATHS_CACHE` environment variable to a shared path.
+This variable should be set in an R startup file to make it apply to all R sessions.
+While you can set it in a project-local `.Renviron`, or the user-level `~/.Renviron`, we generally recommend using the R installation's site-wide `Renviron.site` if you'd like to ensure the same cache path is visible to all users of R on a system.
+
+You may also want to set `RENV_PATHS_CACHE` so that the global package cache can be stored on the same volume as the projects you normally work on.
+This is especially important when working projects stored on a networked filesystem.
+
+### Multiple caches
+
+It is also possible to configure renv to use multiple cache locations.
+For example, you might want to make both a user-local package cache, as well as a global administrator-managed cache, visible within an renv project.
+To do so, you can specify the paths to the cache separated with a `;` (or `:` on Unix if preferred).
+For example:
+
+```         
+RENV_PATHS_CACHE=/path/to/local/cache;/path/to/global/cache
+```
+
+In such a case, renv will iterate over the cache locations in order when trying to find a package, and newly-installed packages will enter the first writable cache path listed in `RENV_PATHS_CACHE`.
+
+### Shared cache locations
+
+When the renv cache is enabled, if that cache is shared and visible to multiple users, then each of those users will have an opportunity to install packages into the renv cache.
+However, some care must be taken to ensure that these packages can be used by different users in your environment:
+
+1.  Packages copied into the cache may have [Access-control Lists](https://en.wikipedia.org/wiki/Access-control_list) (ACLs), which might prevent others from using packages that have been installed into the cache.
+    If this is the case, it's important that ACLs be set (or updated) on cache entries so that the cache is accessible to each user requiring access.
+    When deploying renv in an enterprise environment, the system administrator should take care to ensure ACLs (if any) allow users access to packages within the renv cache.
+
+2.  By default, packages copied into the cache will remain "owned" by the user that requested installation of that package.
+    If you'd like renv to instead re-assign ownership of the cached package to a separate user account, you can set the `RENV_CACHE_USER` environment variable.
+    When set, renv will attempt to run `chown -R <package> <user>` to update cache ownership after the package has been copied into the cache.
+
+### Caveats
+
+While we recommend enabling the cache by default, if you're having trouble with it, you can disable it by setting the project setting `renv::settings$use.cache(FALSE)`.
+Doing this will ensure that packages are then installed into your project library directly, without attempting to link and use packages from the renv cache.
+
+If you find a problematic package has entered the cache (for example, an installed package has become corrupted), that package can be removed with the `renv::purge()` function.
+See the `?purge` documentation for caveats and things to be aware of when removing packages from the cache.
+
+You can also force a package to be re-installed and re-cached with the following functions:
+
+```{r, eval = FALSE}
+# restore packages from the lockfile, bypassing the cache
+renv::restore(rebuild = TRUE)
+
+# re-install a package
+renv::install("<package>", rebuild = TRUE)
+
+# rebuild all packages in the project
+renv::rebuild()
+```
+
+See each function's respective documentation for more details.
+
+## Building from source
+
+Where possible, renv will install package binaries, but sometimes a binary is not available and you have to build from source.
+Installation from source can be challenging for a few reasons:
+
+1.  Your system will need to have a compatible compiler toolchain available.
+    In some cases, R packages may depend on C / C++ features that aren't available in an older system toolchain, especially in some older Linux enterprise environments.
+
+2.  Your system will need requisite system libraries, as many R packages contain compiled C / C++ code that depend on and link to these packages.
+
+<!-- TODO: renv::equip() for Linux + macOS; use sysreqsdb -->
+
+### Configure flags
+
+Many `R` packages have a `configure` script that needs to be run to prepare the package for installation.
+Arguments and environment variables can be passed through to those scripts in a manner similar to `install.packages()`.
+In particular, the `R` options `configure.args` and `configure.vars` can be used to map package names to their appropriate configuration.
+For example:
+
+```{r, eval = FALSE}
+# installation of RNetCDF may require us to set include paths for netcdf
+configure.args = c(RNetCDF = "--with-netcdf-include=/usr/include/udunits2"))
+options(configure.args = configure.args)
+renv::install("RNetCDF")
+```
+
+This could also be specified as, for example,
+
+```{r, eval = FALSE}
+options(
+  configure.args.RNetCDF = "--with-netcdf-include=/usr/include/udunits2"
+)
+renv::install("RNetCDF")
+```
+
+### Install flags
+
+Similarly, additional flags that should be passed to `R CMD INSTALL` can be set via the `install.opts` `R` option:
+
+```{r, eval = FALSE}
+# installation of R packages using the Windows Subsystem for Linux
+# may require the `--no-lock` flag to be set during install
+options(install.opts = "--no-lock")
+renv::install("xml2")
+
+# alternatively, you can set such options for specific packages with e.g.
+options(install.opts = list(xml2 = "--no-lock"))
+renv::install("xml2")
+```
+
+### Vignettes
+
+renv does not build vignettes when installing a package from source.
+This is because vignettes often require suggested packages, and installing all suggested packages (particularly from source) can be arduous.
+
+If you want to distribute vignettes for your own packages, we suggest creating your own repository of binaries, either with [R Universe](https://r-universe.dev/search/) (for publicly hosted packages on GitHub), with [Posit Package Manager](https://posit.co/products/enterprise/package-manager/), or with [drat](https://eddelbuettel.github.io/drat/).
+
+## Downloads
+
+By default, renv uses [curl](https://curl.se/) for file downloads when available.
+This allows renv to support a number of download features across multiple versions of R, including:
+
+-   Custom headers (used especially for authentication),
+-   Connection timeouts,
+-   Download retries on transient errors.
+
+If `curl` is not available on your machine, it is highly recommended that you install it.
+Newer versions of Windows 10 come with a bundled version of `curl.exe`; other users on Windows can use `renv::equip()` to download and install a recent copy of `curl`.
+Newer versions of macOS come with a bundled version of `curl` that is adequate for usage with renv, and most Linux package managers have a modern version of `curl` available in their package repositories.
+You can also configure which `curl` executable is used by setting the `RENV_CURL_EXECUTABLE` environment variable, if necessary.
+
+`curl` downloads can be configured through renv's configuration settings -- see `?renv::config` for more details.
+
+### Alternative downloaders
+
+If you've already configured R's downloader and would like to bypass renv's attempts to use `curl`, you can use the R option `renv.download.override`.
+For example, executing:
+
+``` r
+options(renv.download.override = utils::download.file)
+```
+
+would instruct renv to use R's own download machinery when attempting to download files from the internet (respecting the R options `download.file.method` and `download.file.extra` as appropriate).
+Advanced users can also provide their own download function, provided its signature matches that of `utils::download.file()`.
+
+You can also instruct renv to use a different download method by setting the `RENV_DOWNLOAD_METHOD` environment variable.
+For example:
+
+```         
+# use Windows' internal download machinery
+Sys.setenv(RENV_DOWNLOAD_METHOD = "wininet")
+
+# use R's bundled libcurl implementation
+Sys.setenv(RENV_DOWNLOAD_METHOD = "libcurl")
+```
+
+If you find that downloads work outside of renv projects, but not within renv projects, you may need to tell renv to use the same download file method that R has been configured to use.
+You can check which download method R is currently configured to use with:
+
+```{r eval=FALSE}
+getOption("download.file.method")
+```
+
+And the downloader currently used by renv can be queried with:
+
+```{r eval=FALSE}
+renv:::renv_download_method()
+```
+
+You can force renv to use the same download method as R by setting:
+
+```{r eval=FALSE}
+Sys.setenv(RENV_DOWNLOAD_METHOD = getOption("download.file.method"))
+```
+
+and, if necessary, you could also set this environment variable within e.g. your `~/.Renviron`, so that it is visible to all R sessions.
+See `?Startup` for more details.
+
+Note that other features (e.g. authentication) may not be supported when using an alternative download file method -- you will have to configure the downloader yourself if that is required.
+See `?download.file` for more details.
+
+### Proxies
+
+If your downloads need to go through a proxy server, then there are a variety of approaches you can take to make this work:
+
+1.  Set the `http_proxy` and / or `https_proxy` environment variables.
+    These environment variables can contain the full URL to your proxy server, including a username + password if necessary.
+
+2.  You can use a `.curlrc` (`_curlrc` on Windows) to provide information about the proxy server to be used.
+    This file should be placed in your home folder (see `Sys.getenv("HOME")`, or `Sys.getenv("R_USER")` on Windows); alternatively, you can set the `CURL_HOME` environment variable to point to a custom 'home' folder to be used by `curl` when resolving the runtime configuration file.
+    On Windows, you can also place your `_curlrc` in the same directory where the `curl.exe` binary is located.
+
+See the curl documentation on [proxies](https://everything.curl.dev/usingcurl/proxies.html) and [config files](https://everything.curl.dev/cmdline/configfile.html) for more details.
+
+As an [example](https://github.com/rstudio/renv/issues/146), the following `_curlrc` works when using authentication with NTLM and SSPI on Windows:
+
+```         
+--proxy "your.proxy.dns:port"
+--proxy-ntlm
+--proxy-user ":"
+--insecure
+```
+
+The [curl](https://cran.r-project.org/package=curl) R package also has a helper:
+
+```         
+curl::ie_get_proxy_for_url()
+```
+
+which may be useful when attempting to discover this proxy address.
+
+### Authentication
+
+Your project may make use of packages which are available from remote sources requiring some form of authentication to access -- for example, a GitHub enterprise server.
+Usually, either a personal access token (PAT) or username + password combination is required for authentication.
+renv is able to authenticate when downloading from such sources, using the same system as the [remotes](https://cran.r-project.org/package=remotes) package.
+In particular, environment variables are used to record and transfer the required authentication information.
+
+| **Remote Source** | **Authentication**                      |
+|-------------------|-----------------------------------------|
+| GitHub            | `GITHUB_PAT`                            |
+| GitLab            | `GITLAB_PAT`                            |
+| Bitbucket         | `BITBUCKET_USER` + `BITBUCKET_PASSWORD` |
+| Git Remotes       | `GIT_PAT` / `GIT_USER` + `GIT_PASSWORD` |
+
+These credentials can be stored in e.g. `.Renviron`, or can be set in your R session through other means as appropriate.
+
+If you require custom authentication for different packages (for example, your project makes use of packages available on different GitHub enterprise servers), you can use the `renv.auth` R option to provide package-specific authentication settings.
+`renv.auth` can either be a a named list associating package names with environment variables, or a function accepting a package name + record, and returning a list of environment variables.
+For example:
+
+``` r
+# define a function providing authentication
+options(renv.auth = function(package, record) {
+  if (package == "MyPackage")
+    return(list(GITHUB_PAT = "<pat>"))
+})
+
+# use a named list directly
+options(renv.auth = list(
+  MyPackage = list(GITHUB_PAT = "<pat>")
+))
+
+# alternatively, set package-specific option
+# as a list
+options(renv.auth.MyPackage = list(GITHUB_PAT = "<pat>"))
+# as a function
+options(renv.auth.MyPackage = function(record) {
+   list(GITHUB_PAT = "<pat>")
+})
+```
+
+For packages installed from Git remotes, renv will attempt to use `git` from the command line to download and restore the associated package.
+Hence, it is recommended that authentication is done through SSH keys when possible.
+
+Authentication may be required when resolving a package from a remote specification.
+If the package name cannot be inferred directly from the remote, it can be supplied with a prefix of the form `<package>=`.
+For example, the igraph package on GitHub at <https://github.com/igraph/rigraph> could be installed with:
+
+```         
+renv::install("igraph=igraph/rigraph")
+```
+
+### Custom headers
+
+If you want to set arbitrary headers when downloading files using renv, you can do so using the `renv.download.headers` R option.
+It should be a function that accepts a URL, and returns a named character vector indicating the headers which should be supplied when accessing that URL.
+
+For example, suppose you have a package repository hosted at `https://my/repository`, and the credentials required to access that repository are stored in the `AUTH_HEADER` environment variable.
+You could define `renv.download.headers` like so:
+
+``` r
+options(renv.download.headers = function(url) {
+  if (grepl("^https://my/repository", url))
+    return(c(Authorization = Sys.getenv("AUTH_HEADER")))
+})
+```
+
+With the above, renv will set the `Authorization` header whenever it attempts to download files from the repository at URL `https://my/repository`.
+
+### Debugging
+
+If having problems with downloads, you can get more debugging information (including raw requests and responses) by setting:
+
+```R
+options(renv.download.trace = TRUE) 
+```

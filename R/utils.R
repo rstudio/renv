@@ -20,22 +20,13 @@
 
 }
 
-`%""%` <- function(x, y) {
-  if (length(x) && nzchar(x)) x else y
-}
-
 `%NA%` <- function(x, y) {
   if (length(x) && is.na(x)) y else x
-}
-
-`%NULL%` <- function(x, y) {
-  if (is.null(x)) y else x
 }
 
 `%&&%` <- function(x, y) {
   if (length(x)) y
 }
-
 
 lines <- function(...) {
   paste(..., sep = "\n")
@@ -52,30 +43,19 @@ named <- function(object, names = object) {
 }
 
 empty <- function(x) {
-  length(x) == 0
+  length(x) == 0L
 }
 
-aliased_path <- function(path) {
+zlength <- function(x) {
+  length(x) != 0L
+}
 
-  home <-
-    Sys.getenv("HOME") %""%
-    Sys.getenv("R_USER")
-
-  if (!nzchar(home))
-    return(path)
-
-  home <- gsub("\\", "/", home, fixed = TRUE)
-  path <- gsub("\\", "/", path, fixed = TRUE)
-
-  match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
-  path[match == 1] <- file.path("~", substring(path[match == 1], nchar(home) + 2L))
-
-  path
-
+trim <- function(x) {
+  gsub("^\\s+|\\s+$", "", x, perl = TRUE)
 }
 
 trimws <- function(x) {
-  gsub("^\\s+|\\s+$", "", x)
+  gsub("^\\s+|\\s+$", "", x, perl = TRUE)
 }
 
 case <- function(...) {
@@ -90,23 +70,27 @@ case <- function(...) {
     if (!inherits(dot, "formula"))
       return(dot)
 
-    else if (length(dot) == 2) {
-      expr <- dot[[2]]
-      return(eval(expr, envir = environment(dot)))
+    # Silence R CMD check note
+    expr <- NULL
+    cond <- NULL
+
+    # use delayed assignments below so we can allow return statements to
+    # be handled in the lexical scope where they were defined
+    if (length(dot) == 2L) {
+      do.call(delayedAssign, list("expr", dot[[2L]], eval.env = environment(dot)))
+      return(expr)
     }
 
-    else {
+    do.call(delayedAssign, list("cond", dot[[2L]], eval.env = environment(dot)))
+    do.call(delayedAssign, list("expr", dot[[3L]], eval.env = environment(dot)))
+    if (cond) return(expr)
 
-      cond <- dot[[2]]
-      expr <- dot[[3]]
-      if (eval(cond, envir = environment(dot)))
-        return(eval(expr, envir = environment(dot)))
-
-    }
   }
 
-  NULL
+}
 
+compose <- function(wrapper, callback) {
+  function(...) wrapper(callback(...))
 }
 
 catch <- function(expr) {
@@ -130,6 +114,10 @@ ask <- function(question, default = FALSE) {
   if (renv_tests_running())
     return(TRUE)
 
+  enabled <- getOption("renv.prompt.enabled", default = TRUE)
+  if (!enabled)
+    return(default)
+
   if (!interactive())
     return(default)
 
@@ -139,18 +127,83 @@ ask <- function(question, default = FALSE) {
   if (identical(initializing, TRUE))
     return(default)
 
-  selection <- if (default) "[Y/n]" else "[y/N]"
-  prompt <- sprintf("%s %s: ", question, selection)
-  response <- tolower(trimws(readline(prompt)))
-  if (!nzchar(response))
-    return(default)
+  repeat {
 
-  substring(response, 1L, 1L) == "y"
+    # solicit user's answer
+    selection <- if (default) "[Y/n]" else "[y/N]"
+    prompt <- sprintf("%s %s: ", question, selection)
+    response <- tryCatch(
+      tolower(trimws(readline(prompt))),
+      interrupt = identity
+    )
+
+    # check for interrupts; treat as abort request
+    cancel_if(inherits(response, "interrupt"))
+
+    # use default when no response
+    if (!nzchar(response))
+      return(default)
+
+    # check for 'yes' responses
+    if (response %in% c("y", "yes")) {
+      writef("")
+      return(TRUE)
+    }
+
+    # check for 'no' responses
+    if (response %in% c("n", "no")) {
+      writef("")
+      return(FALSE)
+    }
+
+    # ask the user again
+    writef("- Unrecognized response: please enter 'y' or 'n', or type Ctrl + C to cancel.")
+
+  }
 
 }
 
-proceed <- function(default = FALSE) {
+proceed <- function(default = TRUE) {
   ask("Do you want to proceed?", default = default)
+}
+
+menu <- function(choices, title, default = 1L) {
+  testing <- getOption("renv.menu.choice", integer())
+  if (length(testing)) {
+    selected <- testing[[1]]
+    options(renv.menu.choice = testing[-1])
+  } else if (is_testing()) {
+    selected <- default
+  } else {
+    selected <- NULL
+  }
+
+  if (!is.null(selected)) {
+    writef(c(
+      title,
+      "",
+      paste0(seq_along(choices), ": ", choices),
+      "",
+      paste0("Selection: ", selected),
+      ""
+    ))
+    return(names(choices)[selected])
+  }
+
+  if (!interactive()) {
+    writef(c("Not interactive. Will:", choices[[default]]))
+    return(default)
+  }
+
+  idx <- tryCatch(
+    utils::menu(choices, paste(title, collapse = "\n"), graphics = FALSE),
+    interrupt = function(cnd) 0L
+  )
+  if (idx == 0L) {
+    "cancel"
+  } else {
+    names(choices)[idx]
+  }
 }
 
 # nocov end
@@ -158,32 +211,28 @@ proceed <- function(default = FALSE) {
 inject <- function(contents,
                    pattern,
                    replacement,
-                   anchor = NULL)
+                   anchor = NULL,
+                   fixed  = FALSE)
 {
   # first, check to see if the pattern matches a line
-  index <- grep(pattern, contents)
+  index <- grep(pattern, contents, perl = !fixed, fixed = fixed)
   if (length(index)) {
     contents[index] <- replacement
     return(contents)
   }
 
   # otherwise, check for the anchor, and insert after
-  index <- if (!is.null(anchor)) grep(anchor, contents)
-  if (length(index)) {
-    contents <- c(
-      head(contents, n = index),
-      replacement,
-      tail(contents, n = -index)
-    )
-    return(contents)
-  }
+  index <- if (!is.null(anchor))
+    grep(anchor, contents, perl = !fixed, fixed = fixed)
 
-  # otherwise, just append the new line
-  c(contents, replacement)
-}
+  if (!length(index))
+    return(c(contents, replacement))
 
-env <- function(...) {
-  list2env(list(...), envir = new.env(parent = emptyenv()))
+  c(
+    head(contents, n = index),
+    replacement,
+    tail(contents, n = -index)
+  )
 }
 
 deparsed <- function(value, width = 60L) {
@@ -191,6 +240,7 @@ deparsed <- function(value, width = 60L) {
 }
 
 read <- function(file) {
+  renv_scope_options(warn = -1L)
   contents <- readLines(file, warn = FALSE)
   paste(contents, collapse = "\n")
 }
@@ -199,14 +249,14 @@ plural <- function(word, n) {
   if (n == 1) word else paste(word, "s", sep = "")
 }
 
+nplural <- function(word, n) {
+  paste(n, plural(word, n))
+}
+
 trunc <- function(text, n = 78) {
   long <- nchar(text) > n
   text[long] <- sprintf("%s <...>", substring(text[long], 1, n - 6))
   text
-}
-
-startswith <- function(string, prefix) {
-  substring(string, 1, nchar(prefix)) == prefix
 }
 
 endswith <- function(string, suffix) {
@@ -216,28 +266,14 @@ endswith <- function(string, suffix) {
 # like tools::file_ext, but includes leading '.', and preserves
 # '.tar.gz', '.tar.bz' and so on
 fileext <- function(path, default = "") {
-  indices <- regexpr("[.]((?:tar[.])?[[:alnum:]]+)$", path)
+  indices <- regexpr("[.]((?:tar[.])?[[:alnum:]]+)$", path, perl = TRUE)
   ifelse(indices > -1L, substring(path, indices), default)
 }
 
-git <- function() {
-
-  gitpath <- Sys.which("git")
-  if (!nzchar(gitpath))
-    stop("failed to find git executable on the PATH")
-
-  gitpath
-
-}
-
 visited <- function(name, envir) {
-
-  if (exists(name, envir = envir))
-    return(TRUE)
-
+  value <- envir[[name]] %||% FALSE
   envir[[name]] <- TRUE
-  FALSE
-
+  value
 }
 
 rowapply <- function(X, FUN, ...) {
@@ -258,7 +294,7 @@ quietly <- function(expr, sink = TRUE) {
 
   if (sink) {
     sink(file = nullfile())
-    on.exit(sink(NULL), add = TRUE)
+    defer(sink(NULL))
   }
 
   withCallingHandlers(
@@ -270,6 +306,8 @@ quietly <- function(expr, sink = TRUE) {
 
 }
 
+# NOTE: This function can be used in preference to `as.*()` if you'd like
+# to preserve attributes on the incoming object 'x'.
 convert <- function(x, type) {
   storage.mode(x) <- type
   x
@@ -286,25 +324,11 @@ remap <- function(x, map) {
 
 }
 
-header <- function(label,
-                   prefix = "#",
-                   suffix = "=",
-                   n = 38L)
-{
-  n <- n - nchar(label) - nchar(prefix) - 2L
-  if (n <= 0)
-    return(paste(prefix, label))
-
-  tail <- paste(rep.int(suffix, n), collapse = "")
-  paste(prefix, label, tail)
-
-}
-
 keep <- function(x, keys) {
   x[intersect(keys, names(x))]
 }
 
-drop <- function(x, keys) {
+exclude <- function(x, keys) {
   x[setdiff(names(x), keys)]
 }
 
@@ -318,12 +342,12 @@ dequote <- function(strings) {
 
     # find strings matching pattern
     pattern <- paste0(quote, "(.*)", quote)
-    matches <- grep(pattern, strings)
+    matches <- grep(pattern, strings, perl = TRUE)
     if (empty(matches))
       next
 
     # remove outer quotes
-    strings[matches] <- gsub(pattern, "\\1", strings[matches])
+    strings[matches] <- gsub(pattern, "\\1", strings[matches], perl = TRUE)
 
     # un-escape inner quotes
     pattern <- paste0("\\", quote)
@@ -334,17 +358,11 @@ dequote <- function(strings) {
 
 }
 
-memoize <- function(key, expr, envir) {
-  value <- envir[[key]] %||% expr
-  envir[[key]] <- value
-  value
-}
-
 nth <- function(x, i) {
   x[[i]]
 }
 
-heredoc <- function(text) {
+heredoc <- function(text, leave = 0) {
 
   # remove leading, trailing whitespace
   trimmed <- gsub("^\\s*\\n|\\n\\s*$", "", text)
@@ -354,7 +372,7 @@ heredoc <- function(text) {
 
   # compute common indent
   indent <- regexpr("[^[:space:]]", lines)
-  common <- min(setdiff(indent, -1L))
+  common <- min(setdiff(indent, -1L)) - leave
   paste(substring(lines, common), collapse = "\n")
 
 }
@@ -381,14 +399,6 @@ recursing <- function() {
 
 }
 
-code <- function(x) {
-  paste(deparse(substitute(x)), collapse = "\n")
-}
-
-shcode <- function(x) {
-  shQuote(paste(deparse(substitute(x)), collapse = "\n"))
-}
-
 csort <- function(x, decreasing = FALSE, ...) {
   renv_scope_locale("LC_COLLATE", "C")
   sort(x, decreasing, ...)
@@ -396,4 +406,158 @@ csort <- function(x, decreasing = FALSE, ...) {
 
 fsub <- function(pattern, replacement, x, ignore.case = FALSE, useBytes = FALSE) {
   sub(pattern, replacement, x, ignore.case = ignore.case, useBytes = useBytes, fixed = TRUE)
+}
+
+rows <- function(data, indices) {
+
+  # convert logical values
+  if (is.logical(indices)) {
+    if (length(indices) < nrow(data))
+      indices <- rep(indices, length.out = nrow(data))
+    indices <- which(indices, useNames = FALSE)
+  }
+
+  # build output list
+  output <- vector("list", length(data))
+  for (i in seq_along(data))
+    output[[i]] <- .subset2(data, i)[indices]
+
+  # copy relevant attributes
+  attrs <- attributes(data)
+  attrs[["row.names"]] <- .set_row_names(length(indices))
+  attributes(output) <- attrs
+
+  # return new data.frame
+  output
+
+}
+
+cols <- function(data, indices) {
+
+  # perform subset
+  output <- .subset(data, indices)
+
+  # copy relevant attributes
+  attrs <- attributes(data)
+  attrs[["names"]] <- attr(output, "names", exact = TRUE)
+  attributes(output) <- attrs
+
+  # return output
+  output
+
+}
+
+stringify <- function(object, collapse = " ") {
+
+  if (is.symbol(object))
+    return(as.character(object))
+
+  paste(
+    deparse(object, width.cutoff = 500L),
+    collapse = collapse
+  )
+
+}
+
+env <- function(...) {
+  list2env(list(...), envir = new.env(parent = emptyenv()))
+}
+
+env2list <- function(env) {
+  as.list.environment(env, all.names = TRUE)
+}
+
+chop <- function(x, split = "\n", fixed = TRUE, perl = FALSE, useBytes = FALSE) {
+  strsplit(x, split, !perl, perl, useBytes)[[1L]]
+}
+
+prof <- function(expr, ...) {
+
+  profile <- tempfile("renv-profile-", fileext = ".Rprof")
+
+  Rprof(profile, ...)
+  result <- expr
+  Rprof(NULL)
+  print(summaryRprof(profile))
+
+  invisible(result)
+
+}
+
+recycle <- function(data) {
+
+  # compute number of columns
+  n <- lengths(data, use.names = FALSE)
+  nrow <- max(n)
+
+  # start recycling
+  for (i in seq_along(data)) {
+    if (n[[i]] == 0L) {
+      length(data[[i]]) <- nrow
+    } else if (n[[i]] != nrow) {
+      data[[i]] <- rep.int(data[[i]], nrow / n[[i]])
+    }
+  }
+
+  data
+
+}
+
+take <- function(data, index = NULL) {
+  if (is.null(index)) data else .subset2(data, index)
+}
+
+cancel <- function() {
+
+  renv_snapshot_auto_suppress_next()
+  if (is_testing())
+    stop("Operation canceled", call. = FALSE)
+
+  message("- Operation canceled.")
+  invokeRestart("abort")
+
+}
+
+cancel_if <- function(cnd) {
+  if (cnd) cancel()
+}
+
+rep_named <- function(names, x) {
+  values <- rep_len(x, length(names))
+  names(values) <- names
+  values
+}
+
+wait_until <- function(callback, ...) {
+  repeat if (callback(...)) return(TRUE)
+}
+
+timer <- function(units = "secs") {
+
+  .time <- Sys.time()
+  .units <- units
+
+  list(
+
+    now = function() {
+      Sys.time()
+    },
+
+    elapsed = function() {
+      difftime(Sys.time(), .time, units = .units)
+    }
+  )
+
+}
+
+summon <- function() {
+  envir <- do.call(attach, list(what = NULL, name = "renv"))
+  renv <- renv_envir_self()
+  list2env(as.list(renv), envir = envir)
+}
+
+assert <- function(...) stopifnot(...)
+
+overlay <- function(lhs, rhs) {
+  modifyList(as.list(lhs), as.list(rhs))
 }

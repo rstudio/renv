@@ -49,11 +49,7 @@ renv_error_simplify_function <- function(object) {
 
 renv_error_simplify_recursive <- function(object) {
 
-  longcall <-
-    is.call(object) &&
-    is.symbol(object[[1]]) &&
-    object[[1]] == as.name("{") &&
-    length(object) >= 8
+  longcall <- renv_call_matches(object, name = "{") && length(object) >= 8
 
   if (longcall)
     return(quote(...))
@@ -137,29 +133,26 @@ renv_error_handler <- function(...) {
     return(character())
 
   formatted <- renv_error_format(calls, frames)
-  writeLines(formatted, con = stderr())
+  writef(formatted)
 
   formatted
 
 }
 
+the$traceback <- NULL
+
 renv_error_capture <- function(e) {
   calls <- head(sys.calls(), n = -2L)
   frames <- head(sys.frames(), n = -2L)
   traceback <- renv_error_format(calls, frames)
-  renv_global_set("traceback", traceback)
+  the$traceback <- traceback
 }
 
 renv_error_tag <- function(e) {
-  e$traceback <- renv_global_get("traceback")
+  e$traceback <- the$traceback
   e
 }
 
 renv_error_handler_call <- function() {
   as.call(list(renv_error_handler))
-}
-
-renv_error_report <- function(error = NULL) {
-  if (renv_tests_running() && inherits(error, "error"))
-    stop(error)
 }

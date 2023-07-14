@@ -25,23 +25,19 @@ renv_extsoft_install <- function(quiet = FALSE) {
   # check for missing installs
   files <- Filter(renv_extsoft_install_required, files)
   if (empty(files)) {
-    if (!quiet) vwritef("* External software is up to date.")
+    if (!quiet) writef("- External software is up to date.")
     return(TRUE)
   }
 
   if (interactive()) {
 
     renv_pretty_print(
-      files,
       "The following external software tools will be installed:",
-      sprintf("Tools will be installed into '%s'.", aliased_path(extsoft)),
-      wrap = FALSE
+      files,
+      sprintf("Tools will be installed into %s.", renv_path_pretty(extsoft))
     )
 
-    if (!proceed()) {
-      renv_report_user_cancel()
-      return(FALSE)
-    }
+    cancel_if(!proceed())
 
   }
 
@@ -89,7 +85,7 @@ renv_extsoft_install <- function(quiet = FALSE) {
 
   }
 
-  vwritef("* External software successfully updated.")
+  writef("- External software successfully updated.")
   TRUE
 
 }
@@ -140,21 +136,17 @@ renv_extsoft_use <- function(quiet = FALSE) {
   if (interactive()) {
 
     renv_pretty_print(
-      c(localsoft, libxml, localcpp, locallibs),
       "The following entries will be added to ~/.R/Makevars:",
-      "These tools will be used when compiling R packages from source.",
-      wrap = FALSE
+      c(localsoft, libxml, localcpp, locallibs),
+      "These tools will be used when compiling R packages from source."
     )
 
-    if (!proceed()) {
-      renv_report_user_cancel()
-      return(FALSE)
-    }
+    cancel_if(!proceed())
 
   }
 
-  if (!quiet) vwritef("* '%s' has been updated.", path)
-  writeLines(contents, path)
+  if (!quiet) writef("- '%s' has been updated.", path)
+  writeLines(contents, con = path)
   TRUE
 
 }

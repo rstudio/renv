@@ -1,14 +1,12 @@
 
-context("Migrate")
-
 skip_if_no_packrat <- function() {
 
   skip_on_cran()
   skip_on_windows()
   skip_if_not_installed("packrat")
 
-  version <- unclass(packageVersion("packrat"))
-  if (length(version[[1]]) > 3)
+  version <- packageVersion("packrat")
+  if (renv_version_length(version) != 3)
     skip("cannot test with development version of Packrat")
 
   packrat <- renv_available_packages_latest(package = "packrat", type = "source")
@@ -24,10 +22,11 @@ test_that("a sample Packrat project can be migrated", {
 
   # use dummy caches for this test
   renv_scope_envvars(
-    R_PACKRAT_CACHE_DIR = tempfile("packrat-cache-"),
-    RENV_PATHS_ROOT     = tempfile("renv-cache-")
+    R_PACKRAT_CACHE_DIR = renv_scope_tempfile("packrat-cache-"),
+    RENV_PATHS_ROOT     = renv_scope_tempfile("renv-cache-")
   )
 
+  requireNamespace("packrat")
   renv_tests_scope("breakfast")
 
   # initialize packrat
@@ -38,7 +37,7 @@ test_that("a sample Packrat project can be migrated", {
   )
 
   # try to migrate
-  renv::migrate()
+  migrate()
 
   # packages we expect to find
   expected <- c("bread", "breakfast", "oatmeal", "toast", "packrat")
@@ -53,7 +52,7 @@ test_that("a sample Packrat project can be migrated", {
 
   # check the lockfile
   lockfile <- renv_lockfile_read("renv.lock")
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_setequal(expected, names(records))
 
 })
@@ -65,8 +64,8 @@ test_that("a Packrat project with no library can be migrated", {
 
   # use dummy caches for this test
   renv_scope_envvars(
-    R_PACKRAT_CACHE_DIR = tempfile("packrat-cache-"),
-    RENV_PATHS_ROOT     = tempfile("renv-cache-")
+    R_PACKRAT_CACHE_DIR = renv_scope_tempfile("packrat-cache-"),
+    RENV_PATHS_ROOT     = renv_scope_tempfile("renv-cache-")
   )
 
   renv_tests_scope("breakfast")
@@ -82,7 +81,7 @@ test_that("a Packrat project with no library can be migrated", {
   unlink("packrat/lib", recursive = TRUE)
 
   # try to migrate
-  renv::migrate()
+  migrate()
 
   # packages we expect to find
   expected <- c("bread", "breakfast", "oatmeal", "toast", "packrat")
@@ -93,7 +92,7 @@ test_that("a Packrat project with no library can be migrated", {
 
   # check the lockfile
   lockfile <- renv_lockfile_read("renv.lock")
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   expect_setequal(expected, names(records))
 
 })

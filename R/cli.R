@@ -10,7 +10,7 @@ renv_cli_install <- function(target = NULL) {
   ensure_parent_directory(target)
   file.copy(path, target)
 
-  writef("* renv binary copied to %s.", renv_path_pretty(target))
+  writef("- renv binary copied to %s.", renv_path_pretty(target))
   invisible(target)
 
 }
@@ -138,7 +138,7 @@ renv_cli_unknown <- function(method, exports) {
 
   candidates <- names(distance)[distance == n]
   fmt <- "did you mean %s?"
-  vwritef(fmt, paste(shQuote(candidates), collapse = " or "))
+  writef(fmt, paste(shQuote(candidates), collapse = " or "))
   return(1L)
 
 }

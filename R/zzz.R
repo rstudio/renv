@@ -1,6 +1,4 @@
 
-.docker <- FALSE
-
 .onLoad <- function(libname, pkgname) {
   renv_zzz_load()
 }
@@ -9,22 +7,49 @@
   renv_zzz_attach()
 }
 
+.onUnload <- function(libpath) {
+
+  renv_task_unload()
+  renv_watchdog_unload()
+
+  # flush the help db to avoid errors on reload
+  # https://github.com/rstudio/renv/issues/1294
+  helpdb <- system.file(package = "renv", "help/renv.rdb")
+  .Internal <- .Internal
+  lazyLoadDBflush <- function(...) {}
+
+  tryCatch(
+    .Internal(lazyLoadDBflush(helpdb)),
+    error = function(e) NULL
+  )
+
+}
+
 renv_zzz_load <- function() {
+
+  # NOTE: needs to be visible to embedded instances of renv as well
+  the$envir_self <<- renv_envir_self()
 
   renv_metadata_init()
   renv_platform_init()
+  renv_virtualization_init()
   renv_envvars_init()
   renv_log_init()
   renv_methods_init()
-  renv_filebacked_init()
   renv_libpaths_init()
   renv_patch_init()
+  renv_lock_init()
+  renv_sandbox_init()
+  renv_sdkroot_init()
+  renv_watchdog_init()
 
-  addTaskCallback(renv_repos_init_callback)
-  addTaskCallback(renv_snapshot_auto_callback)
+  if (!renv_metadata_embedded()) {
 
-  # record whether we're in a docker environment
-  assign(".docker", file.exists("/.dockerenv"), envir = renv_envir_self())
+    # TODO: It's not clear if these callbacks are safe to use when renv is
+    # embedded, but it's unlikely that clients would want them anyhow.
+    renv_task_create(renv_sandbox_task)
+    renv_task_create(renv_snapshot_task)
+  }
 
   # if an renv project already appears to be loaded, then re-activate
   # the sandbox now -- this is primarily done to support suspend and
@@ -39,31 +64,21 @@ renv_zzz_load <- function() {
 
 renv_zzz_attach <- function() {
   renv_rstudio_fixup()
-  renv_exports_attach()
 }
 
 renv_zzz_run <- function() {
 
-  # check if we're running devtools::document()
-  documenting <- FALSE
-  document <- parse(text = "devtools::document")[[1]]
-  for (call in sys.calls()) {
-    if (identical(call[[1]], document)) {
-      documenting <- TRUE
-      break
-    }
-  }
-
+  # check if we're in pkgload::load_all()
   # if so, then create some files
-  if (documenting) {
-    renv_zzz_bootstrap()
-    renv_zzz_docs()
+  if (renv_envvar_exists("DEVTOOLS_LOAD")) {
+    renv_zzz_bootstrap_activate()
+    renv_zzz_bootstrap_config()
   }
 
   # check if we're running as part of R CMD build
   # if so, build our local repository with a copy of ourselves
   building <-
-    !is.na(Sys.getenv("R_CMD", unset = NA)) &&
+    renv_envvar_exists("R_CMD") &&
     grepl("Rbuild", basename(dirname(getwd())))
 
   if (building) {
@@ -72,13 +87,20 @@ renv_zzz_run <- function() {
 
 }
 
-renv_zzz_bootstrap <- function() {
+renv_zzz_bootstrap_activate <- function() {
 
   source <- "templates/template-activate.R"
   target <- "inst/resources/activate.R"
+  scripts <- c("R/bootstrap.R", "R/json-read.R")
+
+  # Do we need an update
+  source_mtime <- max(renv_file_info(c(source, scripts))$mtime)
+  target_mtime <- renv_file_info(target)$mtime
+
+  if (!is.na(target_mtime) && target_mtime > source_mtime)
+    return()
 
   # read the necessary bootstrap scripts
-  scripts <- c("R/bootstrap.R", "R/json-read.R")
   contents <- map(scripts, readLines)
   bootstrap <- unlist(contents)
 
@@ -91,32 +113,74 @@ renv_zzz_bootstrap <- function() {
   replaced <- renv_template_replace(template, list(BOOTSTRAP = bootstrap))
 
   # write to resources
-  printf("* Generating 'inst/resources/activate.R' ... ")
+  printf("- Generating 'inst/resources/activate.R' ... ")
   writeLines(replaced, con = target)
   writef("Done!")
 
 }
 
-renv_zzz_docs <- function() {
+renv_zzz_bootstrap_config <- function() {
 
-  reg.finalizer(globalenv(), function(object) {
+  source <- "inst/config.yml"
+  target <- "R/config-defaults.R"
 
-    printf("* Copying vignettes to 'inst/doc' ... ")
+  source_mtime <- renv_file_info(source)$mtime
+  target_mtime <- renv_file_info(target)$mtime
 
-    ensure_directory("inst/doc")
+  if (target_mtime > source_mtime)
+    return()
 
-    files <- list.files(
-      path = "vignettes",
-      pattern = "[.](?:R|Rmd|html)$",
+  template <- renv_template_create(heredoc(leave = 2, '
+    ${NAME} = function(..., default = ${DEFAULT}) {
+      renv_config_get(
+        name    = "${NAME}",
+        type    = "${TYPE}",
+        default = default,
+        args    = list(...)
+      )
+    }
+  '))
+
+  template <- gsub("^\\n+|\\n+$", "", template)
+
+  generate <- function(entry) {
+
+    name    <- entry$name
+    type    <- entry$type
+    default <- entry$default
+    code    <- entry$code
+
+    default <- if (length(code)) trimws(code) else deparse(default)
+
+    replacements <- list(
+      NAME     = name,
+      TYPE     = type,
+      DEFAULT  = default
     )
 
-    src <- file.path("vignettes", files)
-    tgt <- file.path("inst/doc", files)
-    file.copy(src, tgt, overwrite = TRUE)
+    renv_template_replace(template, replacements)
 
-    writef("Done!")
+  }
 
-  }, onexit = TRUE)
+  config <- yaml::read_yaml("inst/config.yml")
+  code <- map_chr(config, generate)
+  all <- c(
+    "",
+    "# Auto-generated by renv_zzz_bootstrap_config()",
+    "",
+    "#' @rdname config",
+    "#' @export",
+    "#' @format NULL",
+    "config <- list(",
+    "",
+    paste(code, collapse = ",\n\n"),
+    "",
+    ")"
+  )
+
+  printf("- Generating 'R/config-defaults.R' ... ")
+  writeLines(all, con = target)
+  writef("Done!")
 
 }
 
@@ -141,8 +205,7 @@ renv_zzz_repos <- function() {
   # move to build directory
   tdir <- tempfile("renv-build-")
   ensure_directory(tdir)
-  owd <- setwd(tdir)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(tdir)
 
   # build renv again
   r_cmd_build("renv", path = pkgdir)
@@ -156,17 +219,10 @@ renv_zzz_repos <- function() {
 
   # write PACKAGES
   renv_scope_envvars(R_DEFAULT_SERIALIZE_VERSION = "2")
-  tools::write_PACKAGES(tgt, type = "source")
+  write_PACKAGES(tgt, type = "source")
 
 }
 
 if (identical(.packageName, "renv")) {
   renv_zzz_run()
-}
-
-# if renv is being embedded in another package, make sure we
-# run our load / attach hooks so internal state is initialized
-if (!identical(.packageName, "renv")) {
-  renv_zzz_load()
-  renv_zzz_attach()
 }

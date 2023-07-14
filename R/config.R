@@ -1,7 +1,7 @@
 
-#' User-Level Configuration of renv
+#' User-level settings
 #'
-#' Configure different behaviors of `renv`.
+#' Configure different behaviors of renv.
 #'
 #' For a given configuration option:
 #'
@@ -20,8 +20,8 @@
 #' - `options(renv.config.auto.snapshot = <...>)`
 #' - `Sys.setenv(RENV_CONFIG_AUTO_SNAPSHOT = <...>)`
 #'
-#' Note that if both the R option and the environment variable are defined, the
-#' R option will be used instead. Environment variables can be more useful when
+#' Note that if both the \R option and the environment variable are defined, the
+#' \R option will be used instead. Environment variables can be more useful when
 #' you want a particular configuration to be automatically inherited by child
 #' processes; if that behavior is not desired, then the R option may be
 #' preferred.
@@ -31,15 +31,19 @@
 #' own `~/.Renviron`, or in the R installation's `etc/Rprofile.site` file. See
 #' [Startup] for more details.
 #'
+#' Configuration options can also be set within the project `.Rprofile`, but
+#' be aware the options should be set before `source("renv/activate.R")` is
+#' called.
+#'
 #' @eval renv_roxygen_config_section()
 #'
-#' @section Copy Methods:
+#' @section Copy methods:
 #'
-#' If you find that `renv` is unable to copy some directories in your
+#' If you find that renv is unable to copy some directories in your
 #' environment, you may want to try setting the `copy.method` option. By
-#' default, `renv` will try to choose a system tool that is likely to succeed in
+#' default, renv will try to choose a system tool that is likely to succeed in
 #' copying files on your system -- `robocopy` on Windows, and `cp` on Unix.
-#' `renv` will also instruct these tools to preserve timestamps and attributes
+#' renv will also instruct these tools to preserve timestamps and attributes
 #' when copying files. However, you can select a different method as
 #' appropriate.
 #'
@@ -61,13 +65,13 @@
 #' })
 #' ```
 #'
-#' Note that `renv` will always first attempt to copy a directory first to a
+#' Note that renv will always first attempt to copy a directory first to a
 #' temporary path within the target folder, and then rename that temporary path
 #' to the final target destination. This helps avoid issues where a failed
 #' attempt to copy a directory could leave a half-copied directory behind
 #' in the final location.
 #'
-#' @section Project-Local Settings:
+#' @section Project-local settings:
 #'
 #' For settings that should persist alongside a particular project, the
 #' various settings available in [settings] can be used.
@@ -191,7 +195,7 @@ renv_config_validate <- function(name, value, type, default, args) {
   converted <- catchall(convert(value, mode))
   if (any(is.na(converted)) || inherits(converted, "condition")) {
     fmt <- "'%s' does not satisfy constraint '%s' for config '%s'; using default '%s' instead"
-    warningf(fmt, renv_deparse(value), type, name, renv_deparse(default))
+    warningf(fmt, stringify(value), type, name, stringify(default))
     return(default)
   }
 

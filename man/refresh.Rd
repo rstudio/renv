@@ -2,7 +2,7 @@
 % Please edit documentation in R/refresh.R
 \name{refresh}
 \alias{refresh}
-\title{Refresh the Local Cache of Available Packages}
+\title{Refresh the local cache of available packages}
 \usage{
 refresh()
 }
@@ -18,7 +18,7 @@ update the in-memory cache of those packages.
 \details{
 Note that \R also maintains its own on-disk cache of available packages,
 which is used by \code{available.packages()}. Calling \code{refresh()} will force
-an update of both types of caches. \code{renv} prefers using an in-memory
+an update of both types of caches. renv prefers using an in-memory
 cache as on occasion the temporary directory can be slow to access (e.g.
 when it is a mounted network filesystem).
 }

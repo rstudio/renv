@@ -2,27 +2,27 @@
 % Please edit documentation in R/autoload.R
 \name{autoload}
 \alias{autoload}
-\title{Auto-load the Active Project}
+\title{Auto-load the active project}
 \usage{
 autoload()
 }
 \description{
-Automatically load the \code{renv} project associated with a particular directory.
-\code{renv} will search parent directories for the \code{renv} project root; if found,
+Automatically load the renv project associated with a particular directory.
+renv will search parent directories for the renv project root; if found,
 that project will be loaded via \code{\link[=load]{load()}}.
 }
 \details{
-To enable the \code{renv} auto-loader, you can place:
+To enable the renv auto-loader, you can place:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{renv::autoload()
 }\if{html}{\out{</div>}}
 
-into your site-wide or user \code{.Rprofile} to ensure that \code{renv} projects are
+into your site-wide or user \code{.Rprofile} to ensure that renv projects are
 automatically loaded for any newly-launched \R sessions, even if those \R
-sessions are launched within the sub-directory of an \code{renv} project.
+sessions are launched within the sub-directory of an renv project.
 
-If you'd like to launch \R within the sub-directory of an \code{renv} project
-without auto-loading \code{renv}, you can set the environment variable:
+If you'd like to launch \R within the sub-directory of an renv project
+without auto-loading renv, you can set the environment variable:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{RENV_AUTOLOAD_ENABLED = FALSE
 }\if{html}{\out{</div>}}
@@ -31,5 +31,5 @@ before starting \R.
 
 Note that \code{renv::autoload()} is only compatible with projects using
 \verb{renv 0.15.3} or newer, as it relies on features within the \code{renv/activate.R}
-script that are only generated with newer versions of \code{renv}.
+script that are only generated with newer versions of renv.
 }

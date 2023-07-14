@@ -14,39 +14,39 @@ knitr::opts_chunk$set(
 )
 ```
 
-If you're using `renv` with an R project that also depends on some Python
+If you're using renv with an R project that also depends on some Python
 packages (say, through the [reticulate](https://rstudio.github.io/reticulate/)
-package), then you may find `renv`'s Python integration useful.
+package), then you may find renv's Python integration useful.
 
 
-## Activating Python Integration
+## Activating Python integration
 
 Python integration can be activated on a project-by-project basis. Use
-`renv::use_python()` to tell `renv` to create and use a project-local Python
-environment with your project. If the `reticulate` package is installed and
-active, then `renv` will use the same version of Python that `reticulate`
+`renv::use_python()` to tell renv to create and use a project-local Python
+environment with your project. If the reticulate package is installed and
+active, then renv will use the same version of Python that reticulate
 normally would when generating the virtual environment. Alternatively, you can
-set the `RETICULATE_PYTHON` environment variable to instruct `renv` to use a
+set the `RETICULATE_PYTHON` environment variable to instruct renv to use a
 different version of Python.
 
-If you'd rather tell `renv` to use an existing Python virtual environment, you
+If you'd rather tell renv to use an existing Python virtual environment, you
 can do so by passing the path of that virtual environment instead -- use
-`renv::use_python(python = "/path/to/python")` and `renv` will record and
+`renv::use_python(python = "/path/to/python")` and renv will record and
 use that Python interpreter with your project. This can also be used with
 pre-existing virtual environments and Conda environments.
 
 
-## Understanding Python Integration
+## Understanding Python integration
 
-Once Python integration is active, `renv` will attempt to manage the state of
+Once Python integration is active, renv will attempt to manage the state of
 your Python virtual environment when `snapshot()` / `restore()` is called. With
-this, projects that use `renv` and Python can ensure that Python dependencies
+this, projects that use renv and Python can ensure that Python dependencies
 are tracked in addition to R package dependencies. Note that future restores
 will require both `renv.lock` (for R package dependencies) and
 `requirements.txt` (for Python package dependencies).
 
 
-### Virtual Environments
+### Virtual environments
 
 When using virtual environments, the following extensions are provided:
 
@@ -57,7 +57,7 @@ When using virtual environments, the following extensions are provided:
   the previously-recorded set of Python packages.
 
 
-### Conda Environments
+### Conda environments
 
 When using Conda environments, the following extensions are provided:
 

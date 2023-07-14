@@ -1,6 +1,4 @@
 
-context("Modify")
-
 test_that("lockfiles can be modified non-interactively", {
 
   skip_on_cran()

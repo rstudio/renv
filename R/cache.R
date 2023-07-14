@@ -98,11 +98,10 @@ renv_cache_path <- function(path) {
 
 renv_cache_path_components <- function(path) {
 
-  data.frame(
+  data_frame(
     Package = renv_path_component(path, 1L),
     Hash    = renv_path_component(path, 2L),
-    Version = renv_path_component(path, 3L),
-    stringsAsFactors = FALSE
+    Version = renv_path_component(path, 3L)
   )
 
 }
@@ -110,16 +109,16 @@ renv_cache_path_components <- function(path) {
 renv_cache_synchronize <- function(record, linkable = FALSE) {
 
   # construct path to package in library
-  library <- renv_libpaths_default()
+  library <- renv_libpaths_active()
   path <- file.path(library, record$Package)
   if (!file.exists(path))
     return(FALSE)
 
-  # bail if the package source is unknown (assume that packages with an
-  # unknown source are not cacheable)
+  # bail if the package source is unknown
+  # (packages with an unknown source are not cacheable)
   desc <- renv_description_read(path)
   source <- renv_snapshot_description_source(desc)
-  if (identical(source, list(Source = "Unknown")))
+  if (identical(source, list(Source = "unknown")))
     return(FALSE)
 
   # bail if record not cacheable
@@ -130,14 +129,16 @@ renv_cache_synchronize <- function(record, linkable = FALSE) {
   record$Hash <- record$Hash %||% renv_hash_description(path)
 
   # construct cache entry
-  cache <- renv_cache_find(record)
+  caches <- renv_cache_find(record)
 
+  # try to synchronize
   copied <- FALSE
-  for (cachePath in cache) {
-    copied <- renv_cache_synchronize_impl(cachePath, record, linkable, path)
+  for (cache in caches) {
+    copied <- renv_cache_synchronize_impl(cache, record, linkable, path)
     if (copied)
       return(TRUE)
   }
+
   return(FALSE)
 
 }
@@ -161,8 +162,7 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   # double-check that the cache is writable
   writable <- local({
-    file <- tempfile("renv-tempfile-", tmpdir = parent)
-    on.exit(unlink(file, force = TRUE), add = TRUE)
+    file <- renv_scope_tempfile("renv-tempfile-", tmpdir = parent)
     status <- catchall(file.create(file))
     file.exists(file)
   })
@@ -172,13 +172,7 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   # if we already have a cache entry, back it up
   restore <- renv_file_backup(cache)
-  on.exit(restore(), add = TRUE)
-
-  # get ready to copy / move into cache
-  fmt <- "%s %s [%s] into the cache ..."
-  vwritef(fmt, if (linkable) "Moving" else "Copying", record$Package, record$Version)
-
-  before <- Sys.time()
+  defer(restore())
 
   # copy package from source location into the cache
   if (linkable) {
@@ -223,14 +217,6 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
 
   }
 
-  after <- Sys.time()
-
-  time <- difftime(after, before, units = "auto")
-
-  # report status to user
-  fmt <- "\tOK [%s to cache in %s]"
-  vwritef(fmt, if (linkable) "moved" else "copied", renv_difftime_format(time))
-
   TRUE
 
 }
@@ -261,12 +247,11 @@ renv_cache_list_impl <- function(cache, packages) {
 
 renv_cache_problems <- function(paths, reason) {
 
-  data.frame(
+  data_frame(
     Package = renv_path_component(paths, 1L),
     Version = renv_path_component(paths, 3L),
     Path    = paths,
-    Reason  = reason,
-    stringsAsFactors = FALSE
+    Reason  = reason
   )
 
 }
@@ -283,10 +268,9 @@ renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
     # nocov start
     if (verbose) {
       renv_pretty_print(
-        renv_cache_format_path(bad),
         "The following package(s) are missing 'Meta/package.rds':",
-        "These packages should be purged and reinstalled.",
-        wrap = FALSE
+        renv_cache_format_path(bad),
+        "These packages should be purged and reinstalled."
       )
     }
     # nocov end
@@ -313,10 +297,9 @@ renv_cache_diagnose_corrupt_metadata <- function(paths, problems, verbose) {
     # nocov start
     if (verbose) {
       renv_pretty_print(
-        renv_cache_format_path(bad),
         "The following package(s) have corrupt 'Meta/package.rds' files:",
-        "These packages should be purged and reinstalled.",
-        wrap = FALSE
+        renv_cache_format_path(bad),
+        "These packages should be purged and reinstalled."
       )
     }
     # nocov end
@@ -345,10 +328,9 @@ renv_cache_diagnose_missing_descriptions <- function(paths, problems, verbose) {
   # nocov start
   if (verbose) {
     renv_pretty_print(
-      renv_cache_format_path(bad),
       "The following packages are missing DESCRIPTION files in the cache:",
-      "These packages should be purged and reinstalled.",
-      wrap = FALSE
+      renv_cache_format_path(bad),
+      "These packages should be purged and reinstalled."
     )
   }
   # nocov end
@@ -380,10 +362,9 @@ renv_cache_diagnose_bad_hash <- function(paths, problems, verbose) {
     entries <- sprintf(fmt, lhs$Package, lhs$Version, lhs$Hash, rhs$Hash)
 
     renv_pretty_print(
-      entries,
       "The following packages have incorrect hashes:",
-      "Consider using `renv::rehash()` to re-hash these packages.",
-      wrap = FALSE
+      entries,
+      "Consider using `renv::rehash()` to re-hash these packages."
     )
   }
   # nocov end
@@ -424,10 +405,9 @@ renv_cache_diagnose_wrong_built_version <- function(paths, problems, verbose) {
     if (verbose) {
 
       renv_pretty_print(
-        paths[isna],
         "The following packages have no 'Built' field recorded in their DESCRIPTION file:",
-        "renv is unable to validate the version of R this package was built for.",
-        wrap = FALSE
+        paths[isna],
+        "renv is unable to validate the version of R this package was built for."
       )
 
     }
@@ -463,10 +443,9 @@ renv_cache_diagnose_wrong_built_version <- function(paths, problems, verbose) {
   if (verbose) {
 
     renv_pretty_print(
-      renv_cache_format_path(paths[wrong]),
       "The following packages in the cache were built for a different version of R:",
-      "These packages will need to be purged and reinstalled.",
-      wrap = FALSE
+      renv_cache_format_path(paths[wrong]),
+      "These packages will need to be purged and reinstalled."
     )
 
   }
@@ -563,8 +542,7 @@ renv_cache_clean_empty <- function(cache = NULL) {
 renv_cache_clean_empty_impl <- function(cache) {
 
   # move to cache directory
-  owd <- setwd(cache)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(cache)
 
   # construct system command for removing empty directories
   action <- "removing empty directories"

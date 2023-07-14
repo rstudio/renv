@@ -22,7 +22,7 @@ graph(
 \item{leaf}{The bottom-most package dependencies of interest in the dependency graph.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{suggests}{Should suggested packages be included within
 the dependency graph?}

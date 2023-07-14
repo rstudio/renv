@@ -76,8 +76,8 @@ renv_lockfile_diff_record <- function(before, after) {
 
 renv_lockfile_diff_packages <- function(old, new) {
 
-  old <- renv_records(old)
-  new <- renv_records(new)
+  old <- renv_lockfile_records(old)
+  new <- renv_lockfile_records(new)
 
   packages <- named(union(names(old), names(new)))
   actions <- lapply(packages, function(package) {
@@ -90,18 +90,18 @@ renv_lockfile_diff_packages <- function(old, new) {
 }
 
 renv_lockfile_override <- function(lockfile) {
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
   overrides <- renv_records_override(records)
-  renv_records(lockfile) <- overrides
+  renv_lockfile_records(lockfile) <- overrides
   lockfile
 }
 
 renv_lockfile_repair <- function(lockfile) {
 
-  records <- renv_records(lockfile)
+  records <- renv_lockfile_records(lockfile)
 
   # fix up records in lockfile
-  renv_records(lockfile) <- enumerate(records, function(package, record) {
+  renv_lockfile_records(lockfile) <- enumerate(records, function(package, record) {
 
     # if this package is from a repository, but doesn't specify an explicit
     # version, then use the latest-available version of that package

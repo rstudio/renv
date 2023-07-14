@@ -7,15 +7,6 @@ renv$initialize <- function() {
   attr(renv, "name") <- "embedded:renv"
   attr(parent.env(renv), "name") <- "imports:renv"
 
-  # set up metadata environment
-  metadata <- list(
-    embedded = TRUE,
-    version  = "..version.."
-  )
-
-  # assign into renv
-  assign("_renv_metadata", as.environment(metadata), envir = renv)
-
   # get imports
   imports <- ..imports..
 
@@ -29,6 +20,12 @@ renv$initialize <- function() {
   # source renv into the aforementioned environment
   script <- system.file("vendor/renv.R", package = .packageName)
   sys.source(script, envir = renv)
+
+  # initialize metadata
+  renv$the$metadata <- ..metadata..
+
+  # run our load / attach hooks so internal state is initialized
+  renv$renv_zzz_load()
 
   # remove our initialize method when we're done
   rm(list = "initialize", envir = renv)

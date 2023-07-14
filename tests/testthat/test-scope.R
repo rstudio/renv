@@ -1,11 +1,10 @@
-context("Scope")
 
 test_that(".libPaths() scoping works as expected", {
 
   libpaths <- .libPaths()
 
   local({
-    dir <- renv_path_normalize(tempdir(), winslash = "/")
+    dir <- renv_path_normalize(tempdir())
     renv_scope_libpaths(dir)
     expect_true(.libPaths()[1] == dir)
   })
@@ -32,10 +31,7 @@ test_that("options() scoping works as expected", {
 })
 
 test_that("environment variable scoping works as expected", {
-
-  Sys.unsetenv("RENV_TEST_ENVVAR_A")
-  Sys.setenv("RENV_TEST_ENVVAR_B" = "0")
-  on.exit(Sys.unsetenv("RENV_TEST_ENVVAR_B"), add = TRUE)
+  renv_scope_envvars("RENV_TEST_ENVVAR_B" = "0")
 
   # set and later unset a variable
   local({
@@ -67,7 +63,7 @@ test_that("nested attempts to scope libpaths are properly handled", {
   libpaths <- .libPaths()
 
   local({
-    dir <- renv_path_normalize(tempdir(), winslash = "/")
+    dir <- renv_path_normalize(tempdir())
     renv_scope_libpaths(dir)
     renv_scope_libpaths(dir)
     expect_true(.libPaths()[1] == dir)
@@ -90,4 +86,39 @@ test_that("renv_scope_trace works", {
 
   expect_equal(count, 1L)
 
+})
+
+test_that("can temporarily replace binding", {
+  envir <- environment()
+  x <- 10
+
+  local({
+    renv_scope_binding(envir, "x", 20)
+    expect_equal(x, 20)
+  })
+
+  expect_equal(x, 10)
+})
+
+test_that("can temporarily create binding", {
+  envir <- environment()
+
+  local({
+    renv_scope_binding(envir, "x", 20)
+    expect_equal(x, 20)
+  })
+
+  expect_false(exists("x", inherits = FALSE))
+})
+
+test_that("can temporarily replace locked binding", {
+  original <- utils::adist
+
+  utils <- asNamespace("utils")
+  local({
+    renv_scope_binding(utils, "adist", 20)
+    expect_equal(utils::adist, 20)
+  })
+
+  expect_equal(utils::adist, original)
 })

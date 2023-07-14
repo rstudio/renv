@@ -1,17 +1,16 @@
 
-context("Actions")
-
 test_that("we can query actions for a sample project", {
 
-  renv_tests_scope("bread")
+  project <- renv_tests_scope("breakfast")
   renv_scope_options(renv.config.auto.snapshot = FALSE)
-
-  init(settings = list(snapshot.type = "all"))
+  init(bare = TRUE)
   install("breakfast")
 
-  acts <- actions("snapshot", library = renv_paths_library(), project = getwd())
-  expect_equal(nrow(acts), 3L)
-  expect_setequal(acts$Package, c("breakfast", "oatmeal", "toast"))
+  # project depends on 'breakfast' and 'breakfast' is installed
+  # ergo, need to snapshot 4 packages
+  acts <- actions("snapshot", project = getwd())
+  expect_equal(nrow(acts), 4L)
+  expect_setequal(acts$Package, c("bread", "breakfast", "oatmeal", "toast"))
   expect_true(all(acts$Action == "install"))
 
   # note: empty for non-clean restore as we don't remove packages
@@ -20,8 +19,8 @@ test_that("we can query actions for a sample project", {
 
   # now non-empty
   acts <- actions("restore", library = renv_paths_library(), project = getwd(), clean = TRUE)
-  expect_equal(nrow(acts), 3L)
-  expect_setequal(acts$Package, c("breakfast", "oatmeal", "toast"))
+  expect_equal(nrow(acts), 4L)
+  expect_setequal(acts$Package, c("bread", "breakfast", "oatmeal", "toast"))
   expect_true(all(acts$Action == "remove"))
 
 })

@@ -1,21 +1,44 @@
 
 url: https://rstudio.github.io/renv/
 
+development:
+  mode: auto
+
 reference:
 
-- title: Basic Workflows
+- title: Basic workflows
+  desc: >
+    These functions are the bread and butter of renv usage, and make up
+    the bulk of day-to-day renv usage.
   contents:
   - init
   - status
   - snapshot
   - restore
-  - embed
   - use
+
+- title: Package Management
+  contents:
+  - install
+  - update
+  - remove
+
+- title: Project Management
+  contents:
+  - dependencies
+  - project
+  - activate
+  - migrate
+  - load
+  - upgrade
+  - paths
+  - settings
+  - config
 
 - title: Library Management
   contents:
-  - hydrate
   - refresh
+  - rebuild
   - repair
   - clean
 
@@ -26,7 +49,6 @@ reference:
   - remote
   - modify
   - history
-  - revert
   - scaffold
 
 - title: Package Cache
@@ -34,30 +56,6 @@ reference:
   - isolate
   - rehash
   - purge
-
-- title: Package Installation
-  contents:
-  - install
-  - update
-  - rebuild
-  - remove
-
-- title: Dependency Discovery
-  contents:
-  - dependencies
-
-- title: Project Management
-  contents:
-  - project
-  - activate
-  - deactivate
-  - migrate
-  - load
-  - upgrade
-  - paths
-  - equip
-  - settings
-  - config
 
 - title: Python Integration
   contents:
@@ -73,38 +71,37 @@ reference:
 
 - title: internal
   contents:
-  - imbue
-  - lockfile
-  - graph
   - renv-package
-  - renv_lockfile_from_manifest
+  - sandbox
+  - imbue
+  - graph
+  - sandbox
 
 articles:
 
-  - title: Introduction to renv
-    navbar: Introduction
-    contents: [renv, lockfile, cellar, bioconductor, mran, faq]
-
-  - title: Collaborating using renv
-    navbar: Collaborating
-    contents: [collaborating, use]
-
-  - title: Packages Development with renv
-    navbar: Packages
-    contents: [packages]
+  - title: renv basics
+    navbar: Basics
+    contents: [renv, package-sources, package-install, python, faq, packrat]
 
   - title: Deploy Applications with renv
     navbar: Deployment
     contents: [ci, docker, rsconnect]
 
-  - title: Integrating other projects with renv
-    navbar: Integration
-    contents: [python]
-
   - title: Advanced Usages of renv
     navbar: Advanced
-    contents: [profiles]
+    contents: [packages, profiles]
 
 template:
+  package: tidytemplate
   bootstrap: 5
+
+  includes:
+    in_header: |
+      <!-- Google Tag Manager -->
+      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KHBDBW7');</script>
+      <!-- End Google Tag Manager -->
+    after_body: |
+      <!-- Google Tag Manager (noscript) -->
+      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHBDBW7" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+      <!-- End Google Tag Manager (noscript) -->
 

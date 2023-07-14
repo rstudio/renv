@@ -17,8 +17,8 @@ renv_python_resolve <- function(python = NULL) {
 
     python <- renv_python_select()
 
-    fmt <- "* Selected %s [Python %s]."
-    vwritef(fmt, renv_path_pretty(python), renv_python_version(python))
+    fmt <- "- Selected %s [Python %s]."
+    writef(fmt, renv_path_pretty(python), renv_python_version(python))
 
     return(path.expand(python))
 
@@ -68,8 +68,7 @@ renv_python_find_impl <- function(version, path = NULL) {
       "See `?renv::use_python` for more details."
     )
 
-    msg <- sprintf(fmt, version)
-    stop(msg)
+    stopf(fmt, version)
 
   }
 
@@ -104,8 +103,13 @@ renv_python_exe <- function(path) {
 }
 
 renv_python_version <- function(python) {
-  python <- normalizePath(python, winslash = "/", mustWork = TRUE)
-  filebacked("python.versions", python, renv_python_version_impl)
+
+  filebacked(
+    context  = "renv_python_version",
+    path     = renv_path_normalize(python),
+    callback = renv_python_version_impl
+  )
+
 }
 
 renv_python_version_impl <- function(python) {
@@ -210,9 +214,7 @@ renv_python_restore_impl <- function(python, type, prompt, project) {
 }
 
 renv_python_envpath_virtualenv <- function(version) {
-  majmin <- paste(renv_version_components(version, 1L:2L), collapse = ".")
-  fmt <- "python/virtualenvs/renv-python-%s"
-  sprintf(fmt, majmin)
+  sprintf("python/virtualenvs/renv-python-%s", renv_version_maj_min(version))
 }
 
 renv_python_envpath_condaenv <- function(version) {
@@ -329,7 +331,7 @@ renv_python_discover <- function() {
 
     if (length(dirs)) {
       exes <- file.path(dirs, "python.exe")
-      pythons <- normalizePath(exes, winslash = "/", mustWork = FALSE)
+      pythons <- renv_path_normalize(exes)
       all$push(pythons)
     }
 
@@ -380,7 +382,7 @@ renv_python_select_error <- function() {
 
 renv_python_select <- function(candidates = NULL) {
 
-  candidates <- aliased_path(candidates %||% renv_python_discover())
+  candidates <- renv_path_aliased(candidates %||% renv_python_discover())
   if (empty(candidates))
     return(renv_python_select_error())
 

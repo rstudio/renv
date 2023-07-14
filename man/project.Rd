@@ -2,7 +2,7 @@
 % Please edit documentation in R/project.R
 \name{project}
 \alias{project}
-\title{Retrieve the Active Project}
+\title{Retrieve the active project}
 \usage{
 project(default = NULL)
 }

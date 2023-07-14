@@ -63,8 +63,7 @@ renv_archive_decompress_zip <- function(archive, files = NULL, exdir = ".", ...)
 
   if (inherits(status, "condition")) {
     fmt <- "failed to decompress '%s' [%s]"
-    message <- sprintf(fmt, basename(archive), conditionMessage(status))
-    stop(simpleError(message))
+    stopf(fmt, basename(archive), conditionMessage(status))
   }
 
   TRUE
@@ -112,6 +111,6 @@ renv_archive_read_tar <- function(archive, file) {
 renv_archive_read_zip <- function(archive, file) {
   renv_scope_tempdir()
   conn <- unz(archive, file, encoding = "native.enc")
-  on.exit(close(conn), add = TRUE)
+  defer(close(conn))
   readLines(conn, warn = FALSE)
 }

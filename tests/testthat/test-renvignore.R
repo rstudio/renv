@@ -1,6 +1,4 @@
 
-context("renvignore")
-
 test_that(".renvignore ignores files, directories", {
 
   renv_tests_scope("oatmeal")
@@ -70,7 +68,7 @@ test_that("empty .renvignore does not ignore anything", {
 
   renv_tests_scope("oatmeal")
   file.create(".renvignore")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true("oatmeal" %in% deps$Package)
 
 })
@@ -80,7 +78,7 @@ test_that("negated .renvignore patterns are handled", {
   renv_tests_scope()
   writeLines(c("script.R", "!script.R"), con = ".renvignore")
   writeLines("library(foo)", con = "script.R")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true("foo" %in% deps$Package)
 
 })
@@ -92,19 +90,19 @@ test_that("ignores with a trailing slash are handled", {
 
   # dir.R is a file, not a directory, so include it
   writeLines("library(foo)", con = "dir.R")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true("foo" %in% deps$Package)
 
   # dir.R is, in fact, a directory, so ignore it
   unlink("dir.R")
   dir.create("dir.R")
   writeLines("library(bar)", con = "dir.R/deps.R")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_false("bar" %in% deps$Package)
 
   # dotfile exclusions can be overridden
   writeLines(c("dir.R/", "!dir.R/"), con = ".renvignore")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true("bar" %in% deps$Package)
 
 })
@@ -117,7 +115,7 @@ test_that(".renvignore can be used to ignore all but certain files", {
   writeLines("library(oatmeal)", con = "script.R")
   writeLines("library(bread)", con = "dependencies.R")
 
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
 
   expect_true("bread" %in% deps$Package)
   expect_false("oatmeal" %in% deps$Package)
@@ -138,9 +136,9 @@ test_that("ignores can be set via option if required", {
   writeLines("library(C)", con = "ok/script.R")
 
   exclude <- structure(c("/data/", "/inst/"), asis = TRUE)
-  options(renv.renvignore.exclude = exclude)
+  renv_scope_options(renv.renvignore.exclude = exclude)
 
-  deps <- dependencies(progress = FALSE)
+  deps <- dependencies()
   expect_setequal(deps$Package, "C")
 
 })
@@ -164,7 +162,7 @@ test_that("sub-directory inclusion rules are handled properly", {
 
   # system("git init && git add -A && git status")
 
-  deps <- dependencies(progress = FALSE)
+  deps <- dependencies()
   expect_setequal(deps$Package, "B")
 
 })

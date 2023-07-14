@@ -2,7 +2,7 @@
 % Please edit documentation in R/diagnostics.R
 \name{diagnostics}
 \alias{diagnostics}
-\title{Print a Diagnostics Report}
+\title{Print a diagnostics report}
 \usage{
 diagnostics(project = NULL)
 }
@@ -15,6 +15,6 @@ directory is used instead.}
 This function is normally called for its side effects.
 }
 \description{
-Print a diagnostics report, summarizing the state of a project using \code{renv}.
-This report can occasionally be useful when diagnosing issues with \code{renv}.
+Print a diagnostics report, summarizing the state of a project using renv.
+This report can occasionally be useful when diagnosing issues with renv.
 }

@@ -1,8 +1,21 @@
 
-context("Utils")
+test_that("case() handles control flow as expected", {
+
+  for (i in 1:3)
+    case(i == 2 ~ break)
+
+  expect_equal(i, 2)
+
+  value <- local({
+    case(FALSE ~ stop(), TRUE ~ return(42))
+    24
+  })
+
+  expect_equal(value, 42)
+
+})
 
 test_that("common utils work as expected", {
-  expect_equal(NULL %NULL% 42, 42)
   expect_equal(lines(1, 2, 3), "1\n2\n3")
 
   if (nzchar(Sys.which("git")))
@@ -31,46 +44,10 @@ test_that("inject inserts text at expected anchor point", {
 
 })
 
-test_that("aliased_path() correctly forms aliased path", {
+test_that("renv_path_aliased() correctly forms aliased path", {
   path <- "~/some/path"
   expanded <- path.expand(path)
-  expect_equal(path, aliased_path(expanded))
-})
-
-test_that("memoize avoids evaluating expression multiple times", {
-
-  envir <- new.env(parent = emptyenv())
-  key <- "test"
-
-  value <- 0
-  memoize(key, { value <- value + 1 }, envir)
-  memoize(key, { value <- value + 1 }, envir)
-
-  expect_equal(envir$test, 1)
-  expect_equal(value, 1)
-
-})
-
-test_that("sink captures both stdout and stderr", {
-
-  file <- tempfile("renv-sink-", fileext = ".log")
-
-  osinks <- sink.number(type = "output")
-  msinks <- sink.number(type = "message")
-
-  local({
-    renv_scope_sink(file)
-    writeLines("stdout", con = stdout())
-    writeLines("stderr", con = stderr())
-  })
-
-  contents <- readLines(file)
-  expect_equal(contents, c("stdout", "stderr"))
-
-  expect_equal(sink.number(type = "output"),  osinks)
-  expect_equal(sink.number(type = "message"), msinks)
-
-
+  expect_equal(path, renv_path_aliased(expanded))
 })
 
 test_that("find() returns first non-null matching value", {
@@ -116,3 +93,116 @@ test_that("recursing() reports if we're recursing", {
 
 })
 
+test_that("sys.call(sys.parent()) does what we think it does", {
+
+  inner <- function() { as.character(sys.call(sys.parent())[[1L]]) }
+  outer <- function() { inner() }
+  expect_equal(outer(), "outer")
+
+})
+
+test_that("new() creates objects", {
+
+  oop <- new({
+    .data <- NULL
+    get <- function() { .data }
+    set <- function(data) { .data <<- data }
+  })
+
+  expect_identical(oop$get(), NULL)
+  expect_identical(oop$set(42L), 42L)
+  expect_identical(oop$get(), 42L)
+
+  expect_null(oop$data)
+
+  data <- get(".data", envir = oop)
+  expect_equal(data, 42L)
+
+})
+
+test_that("rows(), cols() does what we want", {
+
+  indices <- list(
+    c(1, 3, 5),
+    c(TRUE, FALSE)
+  )
+
+  for (index in indices) {
+
+    lhs <- mtcars[index, ]
+    rhs <- rows(mtcars, index)
+    rownames(lhs) <- rownames(rhs) <- NULL
+    expect_equal(lhs, rhs)
+
+    lhs <- mtcars[index]
+    rhs <- cols(mtcars, index)
+    expect_equal(lhs, rhs)
+
+  }
+
+})
+
+test_that("visited() works as expected", {
+
+  envir <- new.env(parent = emptyenv())
+  expect_false(visited("hello", envir))
+  expect_true(visited("hello", envir))
+  expect_true(visited("hello", envir))
+
+  envir$hello <- FALSE
+  expect_false(visited("hello", envir))
+  expect_true(visited("hello", envir))
+
+})
+
+test_that("ensure_directory() works even under contention", {
+  skip_on_cran()
+  skip_if(getRversion() < "4.0.0")
+
+  n <- 4
+  waitfile <- tempfile("renv-wait-")
+  target <- tempfile("renv-directory-")
+
+  server <- tryCatch(renv_socket_server(), error = skip)
+  defer(close(server$socket))
+
+  script <- renv_test_code({
+
+    renv:::summon()
+
+    # create the directory
+    wait_until(file.exists, waitfile)
+    ok <- tryCatch(
+      { ensure_directory(target); TRUE },
+      error = function(e) FALSE
+    )
+
+    # notify parent
+    conn <- renv_socket_connect(port = port, open = "wb")
+    defer(close(conn))
+    serialize(ok, connection = conn)
+
+  }, list(port = server$port, waitfile = waitfile, target = target))
+
+  for (i in 1:n) {
+    system2(
+      command = R(),
+      args = c("--vanilla", "--slave", "-f", renv_shell_path(script)),
+      stdout = FALSE,
+      stderr = FALSE,
+      wait = FALSE
+    )
+  }
+
+  file.create(waitfile)
+
+  responses <- stack()
+  for (i in 1:n) {
+    conn <- renv_socket_accept(server$socket, open = "rb", timeout = 3)
+    responses$push(unserialize(conn))
+    close(conn)
+  }
+
+  expect_true(all(unlist(responses$data())))
+
+})

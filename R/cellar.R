@@ -29,11 +29,10 @@ renv_cellar_database <- function(project = NULL) {
   rest <- map_chr(parts, `[[`, 2L)
   version <- sub(extpat, "", rest)
 
-  data.frame(
+  data_frame(
     Package = package,
     Version = version,
-    Path    = paths,
-    stringsAsFactors = FALSE
+    Path    = paths
   )
 
 }
@@ -41,8 +40,8 @@ renv_cellar_database <- function(project = NULL) {
 renv_cellar_latest <- function(package, project) {
 
   db <- renv_cellar_database(project = project)
-  db <- db[db$Package == package, ]
-  db <- db[order(package_version(db$Version), decreasing = TRUE), ]
+  db <- rows(db, db$Package == package)
+  db <- rows(db, order(package_version(db$Version), decreasing = TRUE))
   if (nrow(db) == 0L)
     return(record)
 

@@ -1,5 +1,13 @@
 
-context("Dependencies")
+test_that("can select fields", {
+
+  renv_tests_scope()
+  expect_equal(renv_dependencies_impl(field = "Package"), character())
+
+  writeLines("library(utils)", "deps.R")
+  expect_equal(renv_dependencies_impl(field = "Package"), "utils")
+
+})
 
 test_that(".Rproj files requesting devtools is handled", {
   renv_tests_scope()
@@ -22,7 +30,7 @@ test_that("usages of library, etc. are properly handled", {
 })
 
 test_that("parse errors are okay in .Rmd documents", {
-  deps <- dependencies("resources/chunk-errors.Rmd", quiet = TRUE)
+  deps <- dependencies("resources/chunk-errors.Rmd")
   pkgs <- deps$Package
   expect_setequal(pkgs, c("rmarkdown", "dplyr"))
 })
@@ -65,8 +73,10 @@ test_that("import:: usages are understood", {
 })
 
 test_that("box::use() usages are handled", {
-  deps <- dependencies("resources/box.R")
-  expect_setequal(deps$Package, c("A", "B", "C", "D", "box"))
+  deps <- dependencies(test_path("resources/box.R"))
+  actual <- deps$Package
+  expected <- c("A", "B", "C", "D", "box")
+  expect_setequal(actual, expected)
 })
 
 test_that("targets::tar_option_set() dependencies are handled", {
@@ -74,27 +84,31 @@ test_that("targets::tar_option_set() dependencies are handled", {
   expect_setequal(deps$Package, c("A", "B", "targets"))
 })
 
-test_that("renv warns when large number of files found", {
+test_that("renv warns when large number of files found in total", {
+
+  renv_scope_options(renv.config.dependencies.limit = 5L)
+  strip_dir <- function(x) gsub(basename(getwd()), "<project-dir>", x)
 
   renv_tests_scope()
-
-  files <- sprintf("%.3i.R", 1:10)
-  file.create(files)
-
-  output <- local({
-
-    renv_scope_options(
-      renv.verbose = TRUE,
-      renv.config.dependencies.limit = 5L
-    )
-
-    capture.output(invisible(dependencies()))
-
-  })
-
-  expect_true(length(output) > 0)
+  dir.create("a")
+  dir.create("b")
+  file.create(sprintf("a/%.3i.R", 1:3))
+  file.create(sprintf("b/%.3i.R", 1:3))
+  expect_snapshot(. <- dependencies())
 
 })
+
+test_that("renv warns when large number of files found in one directory", {
+
+  renv_scope_options(renv.config.dependencies.limit = 5L)
+  strip_dir <- function(x) gsub(basename(getwd()), "<project-dir>", x)
+
+  renv_tests_scope()
+  file.create(sprintf("%.3i.R", 1:10))
+  expect_snapshot(. <- dependencies(), transform = function(x) strip_dirs(strip_dir(x)))
+
+})
+
 
 test_that("evil knitr chunks are handled", {
   deps <- dependencies("resources/evil.Rmd")
@@ -118,19 +132,7 @@ test_that("dependencies can accept multiple files", {
 
   deps <- dependencies(
     path = c("packages/bread", "packages/breakfast"),
-    root = getwd(),
-    quiet = TRUE
-  )
-
-  expect_setequal(deps$Package, c("oatmeal", "toast"))
-
-})
-
-test_that("dependencies can infer the root directory", {
-
-  deps <- dependencies(
-    path = c("packages/bread", "packages/breakfast"),
-    quiet = TRUE
+    root = getwd()
   )
 
   expect_setequal(deps$Package, c("oatmeal", "toast"))
@@ -143,29 +145,30 @@ test_that("no warnings are produced when crawling dependencies", {
     regexp = NA,
     dependencies(
       "resources",
-      root = file.path(getwd(), "resources"),
-      quiet = TRUE
+      root = file.path(getwd(), "resources")
     )
   )
 
 })
 
-test_that("Suggests are dev. deps for non-package projects", {
+test_that("Suggests are dev. deps for all projects", {
+
   renv_tests_scope()
+
+  expected <- data.frame(
+    Package = "bread",
+    Dev = TRUE,
+    stringsAsFactors = FALSE
+  )
+
   writeLines(c("Type: Project", "Suggests: bread"), con = "DESCRIPTION")
   deps <- dependencies(dev = TRUE)
-  expect_true(nrow(deps) == 1)
-  expect_true(deps$Package == "bread")
-  expect_true(deps$Dev)
-})
+  expect_equal(deps[c("Package", "Dev")], expected)
 
-test_that("Suggests are _not_ dev. deps for package projects", {
-  renv_tests_scope()
   writeLines(c("Type: Package", "Suggests: bread"), con = "DESCRIPTION")
-  deps <- dependencies(dev = FALSE)
-  expect_true(nrow(deps) == 1)
-  expect_true(deps$Package == "bread")
-  expect_false(deps$Dev)
+  deps <- dependencies(dev = TRUE)
+  expect_equal(deps[c("Package", "Dev")], expected)
+
 })
 
 test_that("packages referenced by modules::import() are discovered", {
@@ -195,14 +198,6 @@ test_that("Suggest dependencies are ignored by default", {
   expect_false(renv_package_installed("egg"))
 })
 
-test_that("Suggest dependencies are used when requested", {
-  renv_tests_scope("breakfast")
-  fields <- c("Imports", "Depends", "LinkingTo", "Suggests")
-  settings$package.dependency.fields(fields)
-  install("breakfast")
-  expect_true(renv_package_installed("egg"))
-})
-
 test_that("a call to geom_hex() implies a dependency on ggplot2", {
 
   file <- renv_test_code({
@@ -215,7 +210,7 @@ test_that("a call to geom_hex() implies a dependency on ggplot2", {
 })
 
 test_that("empty fields are handled in DESCRIPTION", {
-  deps <- dependencies("resources/DESCRIPTION", progress = FALSE)
+  deps <- dependencies("resources/DESCRIPTION")
   expect_setequal(deps$Package, c("a", "b", "c"))
 })
 
@@ -225,13 +220,12 @@ test_that("recursive symlinks are handled", {
   project <- renv_scope_tempfile()
   ensure_directory(project)
 
-  owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(project)
 
   symlink <- file.path(project, "symlink")
   file.symlink(dirname(symlink), symlink)
 
-  renv:::dependencies()
+  dependencies()
 
 })
 
@@ -248,7 +242,7 @@ test_that("dependencies in R functions can be found", {
 test_that("dependencies in dotfiles are discovered", {
   renv_tests_scope()
   writeLines("library(A)", con = ".Rprofile")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true(nrow(deps) == 1L)
   expect_true(basename(deps$Source) == ".Rprofile")
   expect_true(deps$Package == "A")
@@ -260,7 +254,7 @@ test_that("reused knitr chunks are handled", {
 })
 
 test_that("empty / missing labels are handled", {
-  deps <- dependencies("resources/empty-label.Rmd", progress = FALSE)
+  deps <- dependencies("resources/empty-label.Rmd")
   expect_true(all(c("A", "B") %in% deps$Package))
 })
 
@@ -271,85 +265,85 @@ test_that("only dependencies in a top-level DESCRIPTION file are used", {
   writeLines("Depends: toast", con = "DESCRIPTION")
   writeLines("Depends: oatmeal", con = "a/DESCRIPTION")
 
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true("toast" %in% deps$Package)
   expect_false("oatmeal" %in% deps$Package)
 
 })
 
 test_that("multiple output formats are handled", {
-  deps <- dependencies("resources/multiple-output-formats.Rmd", progress = FALSE)
+  deps <- dependencies("resources/multiple-output-formats.Rmd")
   expect_true("bookdown" %in% deps$Package)
 })
 
 test_that("glue::glue() package usages are found", {
-  deps <- dependencies("resources/glue.R", progress = FALSE)
+  deps <- dependencies("resources/glue.R")
   expect_true(all(c("A", "B", "C", "D", "E", "F", "G") %in% deps$Package))
   expect_false(any(letters %in% deps$Package))
 })
 
 test_that("set_engine() package usages are found", {
-  deps <- dependencies("resources/parsnip.R", progress = FALSE)
+  deps <- dependencies("resources/parsnip.R")
   expect_setequal(deps$Package, c("glmnet"))
 })
 
 test_that("eval=F does not trip up dependencies", {
-  deps <- dependencies("resources/eval.Rmd", progress = FALSE)
+  deps <- dependencies("resources/eval.Rmd")
   expect_true("A" %in% deps$Package)
   expect_false("a" %in% deps$Package)
 })
 
 test_that("renv.ignore=FALSE, eval=TRUE is handled", {
-  deps <- dependencies("resources/ignore.Rmd", progress = FALSE)
+  deps <- dependencies("resources/ignore.Rmd")
   expect_true("A" %in% deps$Package)
   expect_false("a" %in% deps$Package)
 })
 
 test_that("piped expressions can be parsed for dependencies", {
-  deps <- dependencies("resources/magrittr.R", progress = FALSE)
+  deps <- dependencies("resources/magrittr.R")
   expect_setequal(deps$Package, c("A", "B", "C"))
 })
 
 test_that("bslib dependencies are discovered", {
-  deps <- dependencies("resources/bslib.Rmd", progress = FALSE)
+  deps <- dependencies("resources/bslib.Rmd")
   expect_true("bslib" %in% deps$Package)
 })
 
 test_that("utility script dependencies are discovered", {
-  deps <- dependencies("resources/utility", progress = FALSE)
+  deps <- dependencies("resources/utility")
   expect_false(is.null(deps))
   expect_setequal(deps$Package, c("A", "B"))
 })
 
 test_that("we handle shiny_prerendered documents", {
-  deps <- dependencies("resources/shiny-prerendered.Rmd", progress = FALSE)
+  deps <- dependencies("resources/shiny-prerendered.Rmd")
   expect_true("shiny" %in% deps$Package)
 })
 
 test_that("we don't infer a dependency on rmarkdown for empty .qmd", {
-  deps <- dependencies("resources/quarto-empty.qmd", progress = FALSE)
+  deps <- dependencies("resources/quarto-empty.qmd")
   expect_true(is.null(deps) || !"rmarkdown" %in% deps$Package)
 })
 
 test_that("we do infer dependency on rmarkdown for .qmd with R chunks", {
-  deps <- dependencies("resources/quarto-r-chunks.qmd", progress = FALSE)
+  deps <- dependencies("resources/quarto-r-chunks.qmd")
   expect_true("rmarkdown" %in% deps$Package)
 })
 
 test_that("we parse package references from arbitrary yaml fields", {
-  deps <- dependencies("resources/rmd-base-format.Rmd", progress = FALSE)
+  deps <- dependencies("resources/rmd-base-format.Rmd")
   expect_true("bookdown" %in% deps$Package)
   expect_true("rticles" %in% deps$Package)
 })
 
 test_that("dependencies in parameterized documents are discovered", {
-  deps <- dependencies("resources/params.Rmd", progress = FALSE)
+  deps <- dependencies(test_path("resources/params.Rmd"))
   expect_true(all(c("shiny", "A") %in% deps$Package))
   expect_false("B" %in% deps$Package)
 })
 
 test_that("we ignore chunks with '#| eval: false'", {
-  deps <- dependencies("resources/yaml-chunks.Rmd", progress = FALSE)
+  deps <- dependencies("resources/yaml-chunks.Rmd")
   expect_false("a" %in% deps$Package)
   expect_true("A" %in% deps$Package)
 })
@@ -360,11 +354,11 @@ test_that("dependencies in hidden folders are not scoured", {
   dir.create(".hidden")
   writeLines("library(A)", con = ".hidden/deps.R")
 
-  deps <- dependencies(progress = FALSE)
+  deps <- dependencies()
   expect_false("A" %in% deps$Package)
 
   writeLines("!.hidden", con = ".renvignore")
-  deps <- dependencies(progress = FALSE)
+  deps <- dependencies()
   expect_true("A" %in% deps$Package)
 
 })
@@ -379,7 +373,7 @@ test_that("dependencies() doesn't barf on files without read permission", {
   Sys.chmod("secrets/secrets.R", mode = "0000")
 
   expect_error(renv_file_read("secrets/secrets.R"))
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_true(NROW(deps) == 0L)
 
 })
@@ -390,12 +384,60 @@ test_that("dependencies() doesn't barf on malformed DESCRIPTION files", {
   renv_tests_scope()
 
   writeLines("Depends: A, B\n\nImports: C, D", con = "DESCRIPTION")
-  deps <- dependencies(quiet = TRUE)
+  deps <- dependencies()
   expect_setequal(deps$Package, c("A", "B", "C", "D"))
 
 })
 
 test_that("dependencies() handles inline YAML comments", {
-  deps <- dependencies("resources/chunk-yaml.Rmd", quiet = TRUE)
+  deps <- dependencies("resources/chunk-yaml.Rmd")
   expect_true("A" %in% deps$Package)
+})
+
+test_that("we can parse remotes from a DESCRIPTION file", {
+
+  desc <- heredoc('
+    Remotes: r-dbi/DBItest
+  ')
+
+  descfile <- renv_scope_tempfile()
+  writeLines(desc, con = descfile)
+  deps <- renv_dependencies_discover_description(descfile, fields = "Remotes")
+  expect_equal(deps$Package, "r-dbi/DBItest")
+
+})
+
+test_that("dependencies ignore pseudo-code in YAML metadata", {
+  path <- renv_scope_tempfile()
+  writeLines(con = path, c(
+    '---',
+    'title: "RStudio::conf reflections"',
+    '---',
+    '',
+    'Hello!'
+  ))
+
+  deps <- renv_dependencies_discover_rmd_yaml_header(path, "rmd")
+  expect_equal(deps$Package, "rmarkdown")
+})
+
+test_that("~/.Rprofile included in dev dependencies when config$user.profile()", {
+  path <- renv_scope_tempfile("renv-profile")
+  writeLines("library(utils)", path)
+  renv_scope_envvars(R_PROFILE_USER = path)
+  renv_scope_options(renv.config.user.profile = TRUE)
+
+  renv_tests_scope()
+  deps <- renv_dependencies_impl(dev = TRUE)
+  expect_equal(deps$Package, "utils")
+  expect_equal(deps$Dev, TRUE)
+})
+
+test_that("captures dependencies from Jupyter notebooks", {
+
+  path <- test_path("resources/notebook.ipynb")
+  deps <- dependencies(path)
+  expect_setequal(deps$Package, c("IRkernel", "MASS", "stats"))
+  expect_equal(deps$Source, rep(renv_path_normalize(path), 3))
+
 })

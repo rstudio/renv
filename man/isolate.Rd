@@ -2,7 +2,7 @@
 % Please edit documentation in R/isolate.R
 \name{isolate}
 \alias{isolate}
-\title{Isolate a Project}
+\title{Isolate a project}
 \usage{
 isolate(project = NULL)
 }
@@ -16,19 +16,19 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Copy packages from the \code{renv} cache directly into the project library, so
-that the project can continue to function independently of the \code{renv} cache.
+Copy packages from the renv cache directly into the project library, so
+that the project can continue to function independently of the renv cache.
 }
 \details{
-After calling \code{isolate()}, \code{renv} will still be able to use the cache on
-future \code{\link[=install]{install()}}s and \code{\link[=restore]{restore()}}s. If you'd prefer that \code{renv} copy
-packages from the cache, rather than use symlinks, you can set the \code{renv}
+After calling \code{isolate()}, renv will still be able to use the cache on
+future \code{\link[=install]{install()}}s and \code{\link[=restore]{restore()}}s. If you'd prefer that renv copy
+packages from the cache, rather than use symlinks, you can set the renv
 configuration option:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{options(renv.config.cache.symlinks = FALSE)
 }\if{html}{\out{</div>}}
 
-to force \code{renv} to copy packages from the cache, as opposed to symlinking
+to force renv to copy packages from the cache, as opposed to symlinking
 them. If you'd like to disable the cache altogether for a project, you can
 use:
 

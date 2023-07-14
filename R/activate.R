@@ -1,27 +1,30 @@
 
-#' Activate a Project
+#' Activate or deactivate a project
 #'
-#' Activate a project, thereby loading it in the current session and also
-#' writing the infrastructure necessary to ensure the project is auto-loaded
-#' for newly-launched \R sessions.
+#' @description
+#' `activate()` enables renv for a project in both the current session and
+#' in all future sessions. You should not generally need to call `activate()`
+#' yourself as it's called automatically by [renv::init()], which is the best
+#' way to start using renv in a new project.
 #'
-#' Using `activate()` will:
+#' `activate()` first calls [renv::scaffold()] to set up the project
+#' infrastructure. Most importantly, this creates a project library and adds a
+#' an auto-loader to `.Rprofile` to ensure that the project library is
+#' automatically used for all future instances of the project. It then restarts
+#' the session to use that auto-loader.
 #'
-#' 1. Load the requested project via [renv::load()],
+#' `deactivate()` removes the infrastructure added by `activate()`, and
+#' restarts the session. By default it will remove the auto-loader from the
+#' `.Rprofile`; use `clean = TRUE` to also delete the lockfile and the project
+#' library.
 #'
-#' 2. Add `source("renv/activate.R")` to the project `.Rprofile`, thereby
-#'    instructing newly-launched \R sessions to automatically load the
-#'    current project.
+#' # Temporary deactivation
 #'
-#' Normally, `activate()` is called as part of [renv::init()] when a project
-#' is first initialized. However, `activate()` can be used to activate
-#' (or re-activate) an `renv` project -- for example, if the project was shared
-#' without the auto-loader included in the project `.Rprofile`, or because
-#' that project was previously deactivated (via [renv::deactivate()]).
+#' If you need to temporarily disable autoload activation you can set
+#' the `RENV_CONFIG_AUTOLOADER_ENABLED` envvar, e.g.
+#' `Sys.setenv(RENV_CONFIG_AUTOLOADER_ENABLED = "false")`.
 #'
 #' @inherit renv-params
-#'
-#' @family renv
 #'
 #' @export
 #'
@@ -34,6 +37,9 @@
 #' # activate a separate project
 #' renv::activate("~/projects/analysis")
 #'
+#' # deactivate the currently-activated project
+#' renv::deactivate()
+#'
 #' }
 activate <- function(project = NULL, profile = NULL) {
 
@@ -41,16 +47,14 @@ activate <- function(project = NULL, profile = NULL) {
   renv_scope_error_handler()
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   renv_profile_set(profile)
 
   renv_activate_impl(
     project = project,
     profile = profile,
-    version = NULL,
-    restart = FALSE,
-    quiet   = FALSE
+    version = NULL
   )
 
   invisible(project)
@@ -59,9 +63,8 @@ activate <- function(project = NULL, profile = NULL) {
 
 renv_activate_impl <- function(project,
                                profile,
-                               version,
-                               restart,
-                               quiet)
+                               version = NULL,
+                               restart = TRUE)
 {
   # prepare renv infrastructure
   renv_infrastructure_write(
@@ -70,18 +73,20 @@ renv_activate_impl <- function(project,
     version = version
   )
 
-  # try to load the project
-  load(project, quiet = quiet)
-
   # ensure renv is imbued into the new library path if necessary
   if (!renv_tests_running())
     renv_imbue_self(project)
 
   # restart session if requested
-  if (restart)
-    renv_restart_request(project, reason = "renv activated")
-  else if (renv_rstudio_available())
+  if (restart && !is_testing())
+    return(renv_restart_request(project, reason = "renv activated"))
+
+  if (renv_rstudio_available())
     renv_rstudio_initialize(project)
+
+  # try to load the project
+  setwd(project)
+  load(project)
 
 }
 
@@ -91,7 +96,7 @@ renv_activate_version <- function(project) {
   methods <- list(
     renv_activate_version_lockfile,
     renv_activate_version_activate,
-    renv_activate_version_default
+    renv_activate_version_metadata
   )
 
   for (method in methods) {
@@ -100,21 +105,31 @@ renv_activate_version <- function(project) {
       return(version)
   }
 
-  fmt <- "failed to determine renv version for project '%s'"
-  stopf(fmt, aliased_path(project))
+  fmt <- "failed to determine renv version for project %s"
+  stopf(fmt, renv_path_pretty(project))
 
 }
 
 renv_activate_version_activate <- function(project) {
 
+  # get path to the activate script
   activate <- renv_paths_activate(project = project)
   if (!file.exists(activate))
     return(NULL)
 
+  # check for version
   contents <- readLines(activate, warn = FALSE)
-  line <- grep("^\\s*version", contents, value = TRUE)
-  parsed <- parse(text = line)[[1]]
-  parsed[[3]]
+  line <- grep("version <-", contents, fixed = TRUE, value = TRUE)[[1L]]
+  version <- parse(text = line)[[1L]][[3L]]
+
+  # check for sha as well
+  line <- grep("attr(version, \"sha\")", contents, fixed = TRUE, value = TRUE)
+  if (length(line)) {
+    sha <- parse(text = line)[[1L]][[3L]]
+    attr(version, "sha") <- sha
+  }
+
+  version
 
 }
 
@@ -124,13 +139,15 @@ renv_activate_version_lockfile <- function(project) {
   if (!file.exists(path))
     return(NULL)
 
+  # read the renv record
   lockfile <- renv_lockfile_read(path)
-  lockfile$Packages[["renv"]]$Version %||% lockfile$renv$Version
+  records <- renv_lockfile_records(lockfile)
+  renv_metadata_version_create(records[["renv"]])
 
 }
 
-renv_activate_version_default <- function(project) {
-  renv_metadata_version()
+renv_activate_version_metadata <- function(project) {
+  the$metadata$version
 }
 
 renv_activate_prompt <- function(action, library, prompt, project) {
@@ -141,29 +158,43 @@ renv_activate_prompt <- function(action, library, prompt, project) {
     prompt &&
     interactive() &&
     is.null(library) &&
-    !identical(project, Sys.getenv("RENV_PROJECT"))
+    !renv_project_loaded(project) &&
+    !is_testing()
+
+  # for snapshot, since users might want to snapshot their system library
+  # in an renv-lite configuration, only prompt if it looks like they're
+  # working within an renv project that hasn't been loaded
+  if ("snapshot" %in% action) {
+    libpath <- renv_paths_library(project = project)
+    ask <- ask && file.exists(libpath)
+  }
 
   if (!ask)
     return(FALSE)
 
-  fmt <- lines(
-    "",
-    "This project has not yet been activated.",
-    "Activating this project will ensure the project library is used during %s.",
-    "Please see `?renv::activate` for more details.",
-    ""
+  renv_activate_prompt_impl(action, project)
+
+
+}
+
+renv_activate_prompt_impl <- function(action, project = NULL) {
+  title <- c(
+    sprintf(
+      "It looks like you've called renv::%s() in a project that hasn't been activated yet.",
+      action
+    ),
+    "How would you like to proceed?"
+  )
+  choices <- c(
+    activate = "Activate the project and use the project library.",
+    continue = "Do not activate the project and use the current library paths.",
+    cancel = "Cancel and resolve the situation another way."
   )
 
-  notice <- sprintf(fmt, action)
-  vwritef(notice)
-
-  fmt <- "Would you like to activate this project before %s?"
-  question <- sprintf(fmt, action)
-  response <- ask(question, default = TRUE)
-  if (!response)
-    return(FALSE)
-
-  activate(project = project)
-  return(TRUE)
-
+  choice <- menu(choices, title, default = "continue")
+  switch(choice,
+    activate = { activate(project = project); TRUE },
+    continue = FALSE,
+    cancel = cancel(),
+  )
 }

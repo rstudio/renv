@@ -2,7 +2,7 @@
 % Please edit documentation in R/update.R
 \name{update}
 \alias{update}
-\title{Update Packages}
+\title{Update packages}
 \usage{
 update(
   packages = NULL,
@@ -17,10 +17,11 @@ update(
 }
 \arguments{
 \item{packages}{A character vector of \R packages to update. When \code{NULL}
-(the default), all packages will be updated.}
+(the default), all packages (apart from any listed in the \code{ignored.packages}
+project setting) will be updated.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{exclude}{A set of packages to explicitly exclude from updating.
 Use \verb{renv::update(exclude = <...>)} to update all packages except for
@@ -46,21 +47,16 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \value{
-A named list of package records which were installed by \code{renv}.
+A named list of package records which were installed by renv.
 }
 \description{
-Update packages which are currently out-of-date. Currently, only
-CRAN and GitHub package sources are supported.
-}
-\details{
+Update packages which are currently out-of-date. Currently supports CRAN,
+Bioconductor, other CRAN-like repositories, GitHub, GitLab, Git, and
+BitBucket.
+
 Updates will only be checked from the same source -- for example,
 if a package was installed from GitHub, but a newer version is
 available on CRAN, that updated version will not be seen.
-
-You can call \code{renv::update()} with no arguments to update all packages within
-the project, excluding any packages ignored via the \code{ignored.packages}
-project setting. Use the \code{exclude} argument to further refine the exclusion
-criteria if desired.
 }
 \examples{
 \dontrun{

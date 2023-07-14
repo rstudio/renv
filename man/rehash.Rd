@@ -2,7 +2,7 @@
 % Please edit documentation in R/rehash.R
 \name{rehash}
 \alias{rehash}
-\title{Re-Hash Packages in the renv Cache}
+\title{Re-hash packages in the renv cache}
 \usage{
 rehash(prompt = interactive(), ...)
 }
@@ -11,16 +11,16 @@ rehash(prompt = interactive(), ...)
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 }
 \description{
-Re-hash packages in the \code{renv} cache, ensuring that any previously-cached
+Re-hash packages in the renv cache, ensuring that any previously-cached
 packages are copied to a new cache location appropriate for this version of
-\code{renv}. This can be useful if the cache scheme has changed in a new version
-of \code{renv}, but you'd like to preserve your previously-cached packages.
+renv. This can be useful if the cache scheme has changed in a new version
+of renv, but you'd like to preserve your previously-cached packages.
 }
 \details{
 Any packages which are re-hashed will retain links to the location of the
-newly-hashed package, ensuring that prior installations of \code{renv} can still
+newly-hashed package, ensuring that prior installations of renv can still
 function as expected.
 }

@@ -1,14 +1,14 @@
 
-#' Update Package Records in a Lockfile
+#' Update package records in a lockfile
 #'
-#' Use `record()` to record a new entry within an existing `renv` lockfile.
+#' Use `record()` to record a new entry within an existing renv lockfile.
 #'
 #' This function can be useful when you need to change one or more of the
-#' package records within an `renv` lockfile -- for example, because a recorded
+#' package records within an renv lockfile -- for example, because a recorded
 #' package cannot be restored in a particular environment, and you know of a
 #' suitable alternative.
 #'
-#' @section Records:
+#' # Records
 #'
 #' Records can be provided either using the **remotes** short-hand syntax,
 #' or by using an \R list of entries to record within the lockfile. See
@@ -19,9 +19,6 @@
 #' @param records A list of named records, mapping package names to a definition
 #'   of their source. See **Records** for more details.
 #'
-#' @param lockfile The path to a lockfile. By default, the project lockfile
-#'   is used.
-#'
 #' @example examples/examples-record.R
 #' @export
 record <- function(records,
@@ -31,7 +28,7 @@ record <- function(records,
   renv_scope_error_handler()
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   lockfile <- lockfile %||% renv_lockfile_path(project)
 
@@ -58,11 +55,15 @@ record <- function(records,
 
   old <- renv_lockfile_read(lockfile)
   new <- renv_lockfile_modify(old, records)
-  renv_lockfile_write(new, lockfile)
+
+  local({
+    renv_scope_options(renv.verbose = FALSE)
+    renv_lockfile_write(new, lockfile)
+  })
 
   n <- length(records)
-  fmt <- "* Updated %i %s in %s."
-  vwritef(fmt, n, plural("record", n), renv_path_pretty(lockfile))
+  fmt <- "- Updated %s in %s."
+  writef(fmt, nplural("record", n), renv_path_pretty(lockfile))
 
   renv <- records[["renv"]]
   if (!is.null(renv) && !is.null(renv[["Version"]])) {
@@ -80,7 +81,7 @@ renv_record_normalize <- function(record) {
 
   # normalize source
   source <- record$Source %||% "unknown"
-  if (source %in% c("CRAN", "RSPM"))
+  if (source %in% c("CRAN", "PPM", "RSPM"))
     record$Source <- "Repository"
 
   # drop remotes from records with a repository source

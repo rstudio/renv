@@ -2,7 +2,7 @@
 % Please edit documentation in R/rebuild.R
 \name{rebuild}
 \alias{rebuild}
-\title{Rebuild the Packages in your Project Library}
+\title{Rebuild the packages in your project library}
 \usage{
 rebuild(
   packages = NULL,
@@ -22,7 +22,7 @@ in the library will be reinstalled.}
 recursively? Defaults to \code{TRUE}.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{type}{The type of package to install ("source" or "binary"). Defaults
 to the value of \code{getOption("pkgType")}.}
@@ -38,7 +38,7 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \value{
-A named list of package records which were installed by \code{renv}.
+A named list of package records which were installed by renv.
 }
 \description{
 Rebuild and reinstall packages in your library. This can be useful as a

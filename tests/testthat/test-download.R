@@ -1,6 +1,4 @@
 
-context("Download")
-
 test_that("we avoid downloading files twice", {
   skip_on_cran()
 
@@ -49,34 +47,43 @@ test_that("we can successfully tweak the user agent string", {
 
 })
 
+test_that("renv_download_default_agent_scope_impl resets itself", {
+
+  before <- asNamespace("utils")$makeUserAgent
+  local(renv_download_default_agent_scope_impl(c("Key" = "Value")))
+  expect_equal(asNamespace("utils")$makeUserAgent, before)
+
+})
+
+
 test_that("we can successfully download files with different downloaders", {
   skip_on_cran()
   skip_on_os("windows")
 
   # download a small sample file
   url <- "https://cloud.r-project.org/src/base/THANKS"
-  destfile <- tempfile("r-thanks-")
+  destfile <- renv_scope_tempfile("r-thanks-")
   method <- renv_download_method()
   download.file(url, destfile = destfile, quiet = TRUE, method = method)
   thanks <- readLines(destfile)
 
   if (nzchar(Sys.which("curl"))) local({
     renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "curl")
-    destfile <- tempfile("r-curl-thanks-")
+    destfile <- renv_scope_tempfile("r-curl-thanks-")
     download(url, destfile, quiet = TRUE)
     expect_equal(readLines(destfile), thanks)
   })
 
   if (renv_platform_windows()) local({
     renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wininet")
-    destfile <- tempfile("r-wininet-thanks-")
+    destfile <- renv_scope_tempfile("r-wininet-thanks-")
     download(url, destfile, quiet = TRUE)
     expect_equal(readLines(destfile), thanks)
   })
 
   if (capabilities("libcurl") %||% FALSE) local({
     renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "libcurl")
-    destfile <- tempfile("r-libcurl-thanks-")
+    destfile <- renv_scope_tempfile("r-libcurl-thanks-")
     download(url, destfile, quiet = TRUE)
     expect_equal(readLines(destfile), thanks)
   })
@@ -84,7 +91,7 @@ test_that("we can successfully download files with different downloaders", {
   # TODO: fails on winbuilder
   # if (nzchar(Sys.which("wget"))) local({
   #   renv_scope_envvars(RENV_DOWNLOAD_FILE_METHOD = "wget")
-  #   destfile <- tempfile("r-wget-thanks-")
+  #   destfile <- renv_scope_tempfile("r-wget-thanks-")
   #   download(url, destfile, quiet = TRUE)
   #   expect_equal(readLines(destfile), thanks)
   # })
@@ -98,10 +105,10 @@ test_that("downloads work with file URIs", {
   repos <- getOption("repos")[["CRAN"]]
   url <- file.path(repos, "src/contrib/PACKAGES")
 
-  destfile <- tempfile("packages-")
+  destfile <- renv_scope_tempfile("packages-")
   download(url, destfile = destfile)
 
-  expect_true(file.exists(destfile))
+  expect_true(file.exists(!!destfile))
 
 })
 
@@ -115,7 +122,7 @@ test_that("downloads work with UNC paths on Windows", {
   repos <- getOption("repos")[["CRAN"]]
   base <- sub("^file:/*", "", repos)
   url <- file.path(base, "src/contrib/PACKAGES")
-  norm <- normalizePath(url, winslash = "/")
+  norm <- renv_path_normalize(url)
 
   # create server-style path to localhost
   unc <- sub("^([a-zA-Z]):", "//localhost/\\1$", norm)
@@ -134,8 +141,11 @@ test_that("downloads work with UNC paths on Windows", {
 
 test_that("we can check that a URL is available", {
   skip_on_cran()
+  skip_if_not_installed("webfakes")
 
-  url <- "https://www.google.com"
+  app <- webfakes::new_app_process(webfakes::httpbin_app())
+
+  url <- paste0(app$url(), "/bytes/100")
   expect_true(renv_download_available(url))
 
   # also test the different methods

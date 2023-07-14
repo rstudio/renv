@@ -1,6 +1,4 @@
 
-context("History")
-
 test_that("history() on an example git repository works", {
 
   skip_on_cran()

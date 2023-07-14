@@ -2,29 +2,34 @@
 % Please edit documentation in R/history.R
 \name{history}
 \alias{history}
-\title{View Lockfile History}
+\alias{revert}
+\title{View and revert to a historical lockfile}
 \usage{
 history(project = NULL)
+
+revert(commit = "HEAD", ..., project = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
+
+\item{commit}{The commit associated with a prior version of the lockfile.}
+
+\item{...}{Optional arguments; currently unused.}
 }
 \value{
-An \R \code{data.frame}, summarizing the commits in which \code{renv.lock}
-has been mutated.
+\code{history()} returns a \code{data.frame} summarizing the commits in which
+\code{renv.lock} has been changed. \code{revert()} is usually called for its
+side-effect but also invisibly returns the \code{commit} used.
 }
 \description{
-Use your version control system to find prior versions of the \code{renv.lock}
-file that have been used in your project.
-}
-\details{
-The \code{history()} function is currently only implemented for projects using
-\code{git} for version control.
+\code{history()} uses your version control system to show prior versions of the
+lockfile and \code{revert()} allows you to restore one of them.
+
+These functions are currently only implemented for projects that use git.
 }
 \examples{
-
 \dontrun{
 
 # get history of previous versions of renv.lock in VCS

@@ -1,16 +1,16 @@
 
 #' Consent to usage of renv
 #'
-#' Provide consent to `renv`, allowing it to write and update certain files
+#' Provide consent to renv, allowing it to write and update certain files
 #' on your filesystem.
 #'
-#' As part of its normal operation, `renv` will write and update some files
+#' As part of its normal operation, renv will write and update some files
 #' in your project directory, as well as an application-specific cache
 #' directory. These paths are documented within [paths].
 #'
 #' In accordance with the
 #' [CRAN Repository Policy](https://cran.r-project.org/web/packages/policies.html),
-#' `renv` must first obtain consent from you, the user, before these actions
+#' renv must first obtain consent from you, the user, before these actions
 #' can be taken. Please call `renv::consent()` first to provide this consent.
 #'
 #' You can also set the \R option:
@@ -37,7 +37,7 @@ consent <- function(provided = FALSE) {
   # compute path to root directory
   root <- renv_paths_root()
   if (renv_file_type(root) == "directory") {
-    vwritef("* Consent to use renv has already been provided -- nothing to do.")
+    writef("- Consent to use renv has already been provided -- nothing to do.")
     return(invisible(TRUE))
   }
 
@@ -46,7 +46,7 @@ consent <- function(provided = FALSE) {
   contents <- readLines(template)
   replacements <- list(RENV_PATHS_ROOT = renv_path_pretty(root))
   welcome <- renv_template_replace(contents, replacements)
-  writeLines(welcome)
+  writef(welcome)
 
   # ask user if they want to proceed
   response <- catchall(proceed(default = provided))
@@ -58,7 +58,7 @@ consent <- function(provided = FALSE) {
   # cache the user response
   options(renv.consent = TRUE)
   ensure_directory(root)
-  vwritef("* %s has been created.", renv_path_pretty(root))
+  writef("- %s has been created.", renv_path_pretty(root))
 
   invisible(TRUE)
 
@@ -81,11 +81,11 @@ renv_consent_check <- function() {
   # check for implicit consent
   consented <-
     !interactive() ||
-    !is.na(Sys.getenv("CI", unset = NA)) ||
-    !is.na(Sys.getenv("GITHUB_ACTION", unset = NA)) ||
-    !is.na(Sys.getenv("RENV_PATHS_ROOT", unset = NA)) ||
+    renv_envvar_exists("CI") ||
+    renv_envvar_exists("GITHUB_ACTION") ||
+    renv_envvar_exists("RENV_PATHS_ROOT") ||
     file.exists("/.singularity.d") ||
-    file.exists("/.dockerenv")
+    renv_virtualization_type() != "native"
 
   if (consented) {
     ensure_directory(root)

@@ -1,25 +1,28 @@
 
-context("Restore")
-
 test_that("library permissions are validated before restore", {
   skip_on_os("windows")
   inaccessible <- renv_scope_tempfile()
   dir.create(inaccessible, mode = "0100")
-  renv_scope_options(renv.verbose = FALSE)
   expect_false(renv_install_preflight_permissions(inaccessible))
+})
+
+test_that("restore() gives an error if no lockfile exists", {
+  renv_tests_scope()
+  expect_false(file.exists("renv.lock"))
+  expect_error(restore())
 })
 
 test_that("we can restore packages after init", {
   skip_on_cran()
   renv_tests_scope("breakfast")
 
-  renv::init()
+  init()
 
   libpath <- renv_paths_library()
   before <- list.files(libpath)
 
   unlink(renv_paths_library(), recursive = TRUE)
-  renv::restore()
+  restore()
 
   after <- list.files(libpath)
   expect_setequal(before, after)
@@ -29,15 +32,12 @@ test_that("we can restore packages after init", {
 test_that("restore can recover when required packages are missing", {
   skip_on_cran()
   renv_tests_scope("breakfast")
-  renv::init()
+  init()
 
-  local({
-    renv_scope_sink()
-    renv::remove("oatmeal")
-    renv::snapshot(force = TRUE)
-    unlink(renv_paths_library(), recursive = TRUE)
-    renv::restore()
-  })
+  remove("oatmeal")
+  snapshot(force = TRUE)
+  unlink(renv_paths_library(), recursive = TRUE)
+  restore()
 
   expect_true(renv_package_installed("oatmeal"))
 
@@ -46,13 +46,13 @@ test_that("restore can recover when required packages are missing", {
 test_that("restore(clean = TRUE) removes packages not in the lockfile", {
 
   renv_tests_scope("oatmeal")
-  renv::init()
+  init()
 
   renv_scope_options(renv.config.auto.snapshot = FALSE)
-  renv::install("bread")
+  install("bread")
   expect_true(renv_package_installed("bread"))
 
-  renv::restore(clean = TRUE)
+  restore(clean = TRUE)
   expect_false(renv_package_installed("bread"))
 
 })
@@ -60,17 +60,17 @@ test_that("restore(clean = TRUE) removes packages not in the lockfile", {
 test_that("renv.records can be used to override records during restore", {
 
   renv_tests_scope("bread")
-  renv::init()
+  init()
 
-  renv::install("bread@0.1.0")
-  renv::snapshot()
+  install("bread@0.1.0")
+  snapshot()
   expect_equal(renv_package_version("bread"), "0.1.0")
 
   bread <- list(Package = "bread", Version = "1.0.0", Source = "CRAN")
   overrides <- list(bread = bread)
   renv_scope_options(renv.records = overrides)
 
-  renv::restore()
+  restore()
   expect_equal(renv_package_version("bread"), "1.0.0")
 
 })
@@ -92,10 +92,10 @@ test_that("install.staged works as expected", {
       install.opts = install.opts
     )
 
-    renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+    renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
 
     unlink(renv_paths_library(), recursive = TRUE)
-    expect_error(renv::restore())
+    expect_error(restore())
     files <- list.files(library)
     expect_true(length(files) == 0L)
 
@@ -109,10 +109,10 @@ test_that("install.staged works as expected", {
       install.opts = install.opts
     )
 
-    renv_scope_envvars(RENV_PATHS_CACHE = tempfile())
+    renv_scope_envvars(RENV_PATHS_CACHE = renv_scope_tempfile())
 
     unlink(renv_paths_library(), recursive = TRUE)
-    expect_error(renv::restore())
+    expect_error(restore())
     files <- list.files(library)
     expect_true(length(files) != 0L)
 
@@ -120,28 +120,28 @@ test_that("install.staged works as expected", {
 
 })
 
-test_that("renv::restore(lockfile = '/path/to/lockfile') works", {
+test_that("restore(lockfile = '/path/to/lockfile') works", {
 
   renv_tests_scope("bread")
 
-  renv::init()
+  init()
 
   unlink(paths$library(), recursive = TRUE)
-  renv::restore(lockfile = "renv.lock")
+  restore(lockfile = "renv.lock")
   expect_true(renv_package_installed("bread"))
 
   unlink(paths$library(), recursive = TRUE)
   lockfile <- renv_lockfile_load(project = getwd())
-  renv::restore(lockfile = "renv.lock")
+  restore(lockfile = "renv.lock")
   expect_true(renv_package_installed("bread"))
 
 })
 
-test_that("renv::restore(packages = <...>) works", {
+test_that("restore(packages = <...>) works", {
   renv_tests_scope("breakfast")
-  renv::init()
+  init()
   unlink(paths$library(), recursive = TRUE)
-  renv::restore(packages = "toast")
+  restore(packages = "toast")
   expect_length(list.files(paths$library()), 2L)
   expect_true(renv_package_installed("bread"))
   expect_true(renv_package_installed("toast"))
@@ -149,10 +149,8 @@ test_that("renv::restore(packages = <...>) works", {
 
 test_that("restore ignores packages of incompatible architecture", {
 
-  renv_scope_options(renv.tests.verbose = FALSE)
-
   renv_tests_scope(c("unixonly", "windowsonly"))
-  renv::init()
+  init()
 
   if (renv_platform_unix()) {
 
@@ -210,15 +208,15 @@ test_that("restore doesn't re-use active library paths", {
   renv_tests_scope()
   renv_scope_options(renv.settings.snapshot.type = "all")
 
-  lib1 <- file.path(tempdir(), "lib1")
-  lib2 <- file.path(tempdir(), "lib2")
+  lib1 <- renv_scope_tempfile("lib1")
+  lib2 <- renv_scope_tempfile("lib2")
   ensure_directory(c(lib1, lib2))
   .libPaths(c(lib2, .libPaths()))
 
-  renv::install("bread", library = lib2)
+  install("bread", library = lib2)
   expect_true(renv_package_installed("bread", lib.loc = lib2))
 
-  lockfile <- renv::snapshot(library = lib2, lockfile = NULL)
+  lockfile <- snapshot(library = lib2, lockfile = NULL)
   restore(library = lib1, lockfile = lockfile)
   expect_true(renv_package_installed("bread", lib.loc = lib1))
 
@@ -240,10 +238,6 @@ test_that("restore works with explicit Source", {
   renv_tests_scope("breakfast")
   init()
 
-  locals <- Sys.getenv("RENV_PATHS_LOCAL", unset = NA)
-  if (is.na(locals))
-    stop("internal error: RENV_PATHS_LOCAL unset in tests")
-
   renv_scope_envvars(
     RENV_PATHS_LOCAL = "",
     RENV_PATHS_CACHE = ""
@@ -252,7 +246,7 @@ test_that("restore works with explicit Source", {
   record <- list(
     Package = "skeleton",
     Version = "1.0.0",
-    Source  = file.path(locals, "skeleton/skeleton_1.0.0.tar.gz")
+    Source  = renv_tests_path("local/skeleton/skeleton_1.0.0.tar.gz")
   )
 
   renv_test_retrieve(record)
@@ -273,7 +267,6 @@ test_that("restore() restores packages with broken symlinks", {
 
   skip_on_cran()
   renv_scope_options(renv.settings.cache.enabled = TRUE)
-  renv_scope_options(renv.tests.verbose = FALSE)
   renv_tests_scope("breakfast")
   init()
 

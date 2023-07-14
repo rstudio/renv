@@ -27,14 +27,13 @@ r_exec_error <- function(package, output, label, extra) {
   header <- sprintf(fmt, label, package)
 
   lines <- paste(rep("=", nchar(header)), collapse = "")
-  all <- c(header, lines, "", output)
 
   # try to add diagnostic information if possible
   diagnostics <- r_exec_error_diagnostics(package, output)
   if (!empty(diagnostics)) {
     size <- min(getOption("width"), 78L)
     dividers <- paste(rep.int("-", size), collapse = "")
-    all <- c(all, paste(dividers, diagnostics, collapse = "\n\n"))
+    output <- c(output, paste(dividers, diagnostics, collapse = "\n\n"))
   }
 
   # normalize 'extra'
@@ -44,10 +43,9 @@ r_exec_error <- function(package, output, label, extra) {
     paste(renv_path_pretty(extra), "does not exist")
 
   # stop with an error
-  message <- sprintf("%s of package '%s' failed [%s]", label, package, extra)
-  error <- simpleError(message = message)
-  error$output <- all
-  stop(error)
+  footer <- sprintf("%s of package '%s' failed [%s]", label, package, extra)
+  all <- c(header, lines, "", output, footer)
+  abort(all)
 
 }
 
@@ -146,20 +144,48 @@ r_exec_error_diagnostics <- function(package, output) {
 r_cmd_install <- function(package, path, ...) {
 
   # normalize path to package
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
 
-  # unpack source packages in zip archives
+  # unpack .zip source archives before install
+  # https://github.com/rstudio/renv/issues/1359
+  ftype <- renv_file_type(path)
+  atype <- renv_archive_type(path)
+  ptype <- renv_package_type(path)
+
   unpack <-
-    renv_archive_type(path) %in% "zip" &&
-    renv_package_type(path) %in% "source"
+    ftype == "file" &&
+    atype == "zip" &&
+    ptype == "source"
 
   if (unpack) {
-    path <- renv_package_unpack(package, path, force = TRUE)
-    on.exit(unlink(path, recursive = TRUE), add = TRUE)
+    newpath <- renv_package_unpack(package, path, force = TRUE)
+    if (!identical(newpath, path)) {
+      path <- newpath
+      defer(unlink(path, recursive = TRUE))
+    }
+  }
+
+  # rename binary .zip files if necessary
+  rename <-
+    ftype == "file" &&
+    atype == "zip" &&
+    ptype == "binary"
+
+  if (rename) {
+    regexps <- .standard_regexps()
+    fmt <- "^%s(?:_%s)?\\.zip$"
+    pattern <- sprintf(fmt, regexps$valid_package_name, regexps$valid_package_version)
+    if (!grepl(pattern, basename(path), perl = TRUE)) {
+      dir <- renv_scope_tempfile(package)
+      ensure_directory(dir)
+      newpath <- file.path(dir, paste(package, "zip", sep = "."))
+      renv_file_copy(path, newpath)
+      path <- newpath
+    }
   }
 
   # resolve default library path
-  library <- renv_libpaths_default()
+  library <- renv_libpaths_active()
 
   # validate that we have command line tools installed and
   # available for e.g. macOS
@@ -174,7 +200,7 @@ r_cmd_install <- function(package, path, ...) {
   # could be changed by, for example, site-specific profiles
   args <- c(
     "--vanilla",
-    "CMD", "INSTALL", "--preclean", "--no-multiarch",
+    "CMD", "INSTALL", "--preclean", "--no-multiarch", "--with-keep.source",
     r_cmd_install_option(package, "configure.args", TRUE),
     r_cmd_install_option(package, "configure.vars", TRUE),
     r_cmd_install_option(package, c("install.opts", "INSTALL_opts"), FALSE),
@@ -217,7 +243,7 @@ r_cmd_install <- function(package, path, ...) {
 
 r_cmd_build <- function(package, path, ...) {
 
-  path <- renv_path_normalize(path, winslash = "/", mustWork = TRUE)
+  path <- renv_path_normalize(path, mustWork = TRUE)
   args <- c("--vanilla", "CMD", "build", "--md5", ..., renv_shell_path(path))
 
   output <- r(args, stdout = TRUE, stderr = TRUE)
@@ -283,5 +309,15 @@ r_cmd_install_option_impl <- function(package, option, configure) {
 
   # otherwise, just paste it
   paste(value, collapse = " ")
+
+}
+
+r_cmd_config <- function(...) {
+
+  renv_system_exec(
+    command = R(),
+    args    = c("--vanilla", "CMD", "config", ...),
+    action  = "reading R CMD config"
+  )
 
 }

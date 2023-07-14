@@ -1,34 +1,22 @@
-
-#' Deactivate a Project
-#'
-#' Use `deactivate()` to remove the infrastructure used by `renv` to activate
-#' projects for newly-launched \R sessions. In particular, this implies removing
-#' the requisite code from the project `.Rprofile` that automatically activates
-#' the project when new \R sessions are launched in the project directory.
-#'
-#' @inherit renv-params
-#'
-#' @family renv
-#'
+#' @rdname activate
+#' @param clean If `TRUE`, will also remove the `renv/` directory and the
+#'   lockfile.
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#'
-#' # deactivate the currently-activated project
-#' renv::deactivate()
-#'
-#' }
-deactivate <- function(project = NULL) {
+deactivate <- function(project = NULL, clean = FALSE) {
 
   renv_scope_error_handler()
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   renv_infrastructure_remove_rprofile(project)
 
   unload(project)
+
+  if (clean) {
+    unlink(file.path(project, "renv.lock"))
+    unlink(file.path(project, "renv"), recursive = TRUE, force = TRUE)
+  }
 
   renv_restart_request(project, reason = "renv deactivated")
   invisible(project)

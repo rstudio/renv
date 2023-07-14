@@ -2,7 +2,7 @@
 % Please edit documentation in R/remove.R
 \name{remove}
 \alias{remove}
-\title{Remove Packages}
+\title{Remove packages}
 \usage{
 remove(packages, ..., library = NULL, project = NULL)
 }
@@ -10,7 +10,7 @@ remove(packages, ..., library = NULL, project = NULL)
 \item{packages}{A character vector of \R packages to remove.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{library}{The library from which packages should be removed. When
 \code{NULL}, the active library (that is, the first entry reported in

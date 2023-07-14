@@ -1,6 +1,4 @@
 
-context("Once")
-
 test_that("once() returns TRUE only once", {
 
   method <- function() {

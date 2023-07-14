@@ -1,15 +1,13 @@
 
-context("Infrastructure")
-
 test_that("renv.lock is added to .Rbuildignore", {
 
   skip_on_cran()
   renv_tests_scope()
 
   # use custom userdir
-  userdir <- file.path(tempdir(), "renv-userdir-override")
+  userdir <- renv_scope_tempfile("renv-userdir-override")
   ensure_directory(userdir)
-  userdir <- normalizePath(userdir, winslash = "/", mustWork = TRUE)
+  userdir <- renv_path_normalize(userdir, mustWork = TRUE)
   renv_scope_options(renv.userdir.override = userdir)
 
   # sanity check
@@ -49,7 +47,7 @@ test_that("library/ is excluded from .gitignore as appropriate", {
 
   renv_tests_scope()
   system("git init", ignore.stdout = TRUE, ignore.stderr = TRUE)
-  renv::init(bare = TRUE)
+  init(bare = TRUE)
 
   contents <- readLines("renv/.gitignore")
   expect_true("library/" %in% contents)

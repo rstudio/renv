@@ -1,5 +1,5 @@
 
-#' Rebuild the Packages in your Project Library
+#' Rebuild the packages in your project library
 #'
 #' Rebuild and reinstall packages in your library. This can be useful as a
 #' diagnostic tool -- for example, if you find that one or more of your
@@ -14,7 +14,7 @@
 #' @param recursive Boolean; should dependencies of packages be rebuilt
 #'   recursively? Defaults to `TRUE`.
 #'
-#' @return A named list of package records which were installed by `renv`.
+#' @return A named list of package records which were installed by renv.
 #'
 #' @export
 #'
@@ -41,29 +41,28 @@ rebuild <- function(packages  = NULL,
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   libpaths <- renv_libpaths_resolve(library)
   library <- nth(libpaths, 1L)
 
   # get collection of packages currently installed
-  records <- renv_snapshot_r_packages(libpaths = libpaths, project = project)
+  records <- renv_snapshot_libpaths(libpaths = libpaths, project = project)
+  packages <- setdiff(packages %||% names(records), "renv")
+
+  # add in missing packages
+  for (package in packages) {
+    records[[package]] <- records[[package]] %||%
+      renv_available_packages_latest(package)
+  }
+
+  # make sure records are named
+  names(records) <- map_chr(records, `[[`, "Package")
   if (empty(records)) {
-    vwritef("* There are no packages currently installed -- nothing to rebuild.")
+    writef("- There are no packages currently installed -- nothing to rebuild.")
     return(invisible(records))
   }
 
-  # subset packages based on user request
-  packages <- setdiff(packages %||% names(records), "renv")
-  records <- named(records[packages], packages)
-
-  # for any packages that are missing, use the latest available instead
-  records <- enumerate(records, function(package, record) {
-    record %||% renv_available_packages_latest(package) %||% {
-      fmt <- "package '%s' is not available"
-      stopf(fmt, package)
-    }
-  })
 
   # apply any overrides
   records <- renv_records_override(records)
@@ -74,19 +73,15 @@ rebuild <- function(packages  = NULL,
   else
     "The following package(s) will be reinstalled:"
 
-  renv_pretty_print_records(records, preamble)
-
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    return(invisible(records))
-  }
+  renv_pretty_print_records(preamble, records[packages])
+  cancel_if(prompt && !proceed())
 
   # figure out rebuild parameter
   rebuild <- if (recursive) NA else packages
 
   # perform the install
   install(
-    packages = records,
+    packages = records[packages],
     library  = libpaths,
     type     = type,
     rebuild  = rebuild,

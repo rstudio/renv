@@ -1,6 +1,4 @@
 
-context("JSON")
-
 test_that("sample JSON strings can be read", {
 
   expect_identical(
@@ -53,8 +51,7 @@ test_that("empty R lists are converted as expected", {
 
 test_that("we can parse a GitHub remotes specification", {
 
-  skip_on_cran()
-  skip_sometimes()
+  skip_slow()
 
   data <- renv_remotes_resolve("rstudio/renv")
   expect_true(data$Source == "GitHub")

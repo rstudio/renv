@@ -1,22 +1,37 @@
 
-#' Load a Project
+#' Load a project
 #'
-#' Load an `renv` project.
+#' @description
+#' `renv::load()` sets the library paths to use a project-local library,
+#' sets up the system library [sandbox], if needed, and creates shims
+#' for `install.packages()`, `update.packages()`, and `remove.packages()`.
 #'
-#' Calling `renv::load()` will set the session's library paths to use a
-#' project-local library, and perform some other work to ensure the project is
-#' properly isolated from other packages on the system.
+#' You should not generally need to call `renv::load()` yourself, as it's
+#' called automatically by the project auto-loader created by [renv::init()]/
+#' [renv::activate()]. However, if needed, you can use `renv::load("<project>")`
+#' to explicitly load an renv project located at a particular path.
 #'
-#' Normally, `renv::load()` is called automatically by the project auto-loader
-#' written to the project `.Rprofile` by [renv::init()]. This allows \R sessions
-#' launched from the root of an `renv` project directory to automatically load
-#' that project, without requiring explicit action from the user. However, if
-#' preferred or necessary, one can call `renv::load("<project>")` to explicitly
-#' load an `renv` project located at a particular path.
+#' # Shims
 #'
-#' Use [renv::activate()] to activate (or re-activate) an `renv` project, so
-#' that newly-launched \R sessions can automatically load the associated
-#' project.
+#' To help you take advantage of the package cache, renv places a couple of
+#' shims on the search path:
+#'
+#' * `install.packages()` instead calls `renv::install()`.
+#' * `remove.packages()` instead calls `renv::remove()`.
+#' * `update.packages()` instead calls `renv::update()`.
+#'
+#' This allows you to keep using your existing muscle memory for installing,
+#' updating, and remove packages, while taking advantage of renv features
+#' like the package cache.
+#'
+#' If you'd like to bypass these shims within an \R session, you can explicitly
+#' call the version of these functions from the utils package, e.g. with
+#' `utils::install.packages(<...>)`.
+#'
+#' If you'd prefer not to use the renv shims at all, they can be disabled by
+#' setting the R option `options(renv.config.shims.enabled = FALSE)` or by
+#' setting the environment variable `RENV_CONFIG_SHIMS_ENABLED = FALSE`. See
+#' `?config` for more details.
 #'
 #' @inherit renv-params
 #'
@@ -37,14 +52,28 @@ load <- function(project = NULL, quiet = FALSE) {
 
   renv_scope_error_handler()
 
-  project <- project %||% renv_project_find(project)
-  renv_scope_lock(project = project)
+  project <- renv_path_normalize(
+    project %||% renv_project_find(project),
+    mustWork = TRUE
+  )
+
+  action <- renv_load_action(project)
+  if (action[[1L]] == "cancel") {
+    cancel()
+  } else if (action[[1L]] == "init") {
+    return(init(project))
+  } else if (action[[1L]] == "alt") {
+    project <- action[[2L]]
+  }
+
+  renv_project_lock(project = project)
 
   # indicate that we're now loading the project
   renv_scope_options(renv.load.running = TRUE)
 
   # avoid suppressing the next auto snapshot
-  renv_scope_var("running", TRUE, envir = `_renv_snapshot_auto`)
+  the$auto_snapshot_running <- TRUE
+  defer(the$auto_snapshot_running <- FALSE)
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
@@ -56,13 +85,13 @@ load <- function(project = NULL, quiet = FALSE) {
   # then unload the current project and reload the requested one
   switch <-
     !renv_metadata_embedded() &&
-    !is.na(Sys.getenv("RENV_PROJECT", unset = NA)) &&
-    !identical(project, renv_project())
+    !is.null(the$project_path) &&
+    !identical(project, the$project_path)
 
   if (switch)
     return(renv_load_switch(project))
 
-  if (quiet)
+  if (quiet || renv_load_quiet())
     renv_scope_options(renv.verbose = FALSE)
 
   renv_envvars_save()
@@ -84,6 +113,7 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_load_rprofile(project)
   renv_load_cache(project)
 
+  # load components encoded in lockfile
   lockfile <- renv_lockfile_load(project)
   if (length(lockfile)) {
     renv_load_r(project, lockfile$R)
@@ -103,6 +133,54 @@ load <- function(project = NULL, quiet = FALSE) {
   invisible(project)
 }
 
+renv_load_action <- function(project) {
+
+  # don't do anything in non-interactive sessions
+  if (!interactive())
+    return("load")
+
+  # if this project doesn't yet contain an 'renv' folder, assume
+  # that it has not yet been initialized, and prompt the user
+  renv <- renv_paths_renv(project = project, profile = FALSE)
+  if (dir.exists(renv))
+    return("load")
+
+  # check and see if we're being called within a sub-directory
+  path <- renv_file_find(dirname(project), function(parent) {
+    if (file.exists(file.path(parent, "renv")))
+      return(parent)
+  })
+
+  fmt <- "The project located at %s has not yet been initialized."
+  header <- sprintf(fmt, renv_path_pretty(project))
+  title <- paste("", header, "", "What would you like to do?", sep = "\n")
+
+  choices <- c(
+    init    = "Initialize this project with `renv::init()`.",
+    load    = "Continue loading this project as-is.",
+    cancel  = "Cancel loading this project."
+  )
+
+  if (!is.null(path)) {
+    fmt <- "Load the project located at %s instead."
+    msg <- sprintf(fmt, renv_path_pretty(path))
+    choices <- c(choices, alt = msg)
+  }
+
+  selection <- tryCatch(
+    utils::select.list(choices, title = title, graphics = FALSE),
+    interrupt = identity
+  )
+
+  if (inherits(selection, "interrupt")) {
+    writef()
+    selection <- choices["cancel"]
+  }
+
+  list(names(selection), path)
+
+}
+
 renv_load_minimal <- function(project) {
 
   renv_load_libpaths(project)
@@ -111,6 +189,7 @@ renv_load_minimal <- function(project) {
   if (length(lockfile))
     renv_load_python(project, lockfile$Python)
 
+  renv_load_finish(project, lockfile)
   invisible(project)
 
 }
@@ -133,14 +212,14 @@ renv_load_r <- function(project, fields) {
     return(NULL)
   }
 
-  # normalize versions as plain old vectors
-  requested <- unclass(numeric_version(version))[[1]]
-  current <- unclass(numeric_version(getRversion()))[[1]]
+  # normalize versions as strings
+  requested <- renv_version_maj_min(version)
+  current <- renv_version_maj_min(getRversion())
 
   # only compare major, minor versions
-  if (!identical(requested[1:2], current[1:2])) {
-    fmt <- "Using R %s (lockfile was generated with R %s)"
-    infof(fmt, getRversion(), version)
+  if (!identical(requested, current)) {
+    fmt <- "%s Using R %s (lockfile was generated with R %s)"
+    writef(fmt, info_bullet(), getRversion(), version)
   }
 
 }
@@ -155,9 +234,11 @@ renv_load_r_repos <- function(repos) {
   repos <- sub("/+$", "", repos)
   names(repos) <- nms
 
-  # convert to rspm if enabled
-  if (renv_rspm_enabled())
-    repos <- renv_rspm_transform(repos)
+  # transform PPM URLs if enabled
+  # this ensures that install.packages() uses binaries by default on Linux,
+  # where 'getOption("pkgType")' is "source" by default
+  if (renv_ppm_enabled())
+    repos <- renv_ppm_transform(repos)
 
   # normalize option
   repos <- renv_repos_normalize(repos)
@@ -200,7 +281,7 @@ renv_load_path <- function(project) {
   if (renv_platform_macos()) {
 
     # read the current PATH
-    old <- renv_envvar_get("PATH", unset = "") %>%
+    old <- Sys.getenv("PATH", unset = "") %>%
       strsplit(split = .Platform$path.sep, fixed = TRUE) %>%
       unlist()
 
@@ -253,6 +334,10 @@ renv_load_profile <- function(project) {
 
 renv_load_settings <- function(project) {
 
+  # migrate settings.dcf => settings.json
+  renv_settings_migrate(project = project)
+
+  # load settings.R
   settings <- renv_paths_renv("settings.R", project = project)
   if (!file.exists(settings))
     return(FALSE)
@@ -268,14 +353,11 @@ renv_load_settings <- function(project) {
 
 renv_load_project <- function(project) {
 
-  # record the active project in this session
-  project <- renv_path_normalize(project, winslash = "/")
-  Sys.setenv(RENV_PROJECT = project)
-
   # update project list if enabled
-  enabled <- renv_cache_config_enabled(project = project)
-  if (enabled)
+  if (renv_cache_config_enabled(project = project)) {
+    project <- renv_path_normalize(project)
     renv_load_project_projlist(project)
+  }
 
   TRUE
 
@@ -294,14 +376,11 @@ renv_load_project_projlist <- function(project) {
     return(TRUE)
 
   # sort with C locale (ensure consistent sorting across OSes)
-  projlist <- local({
-    renv_scope_locale("LC_COLLATE", "C")
-    sort(c(projlist, project))
-  })
+  projlist <- csort(c(projlist, project))
 
   # update the project list
   ensure_parent_directory(projects)
-  catchall(writeLines(enc2utf8(projlist), projects, useBytes = TRUE))
+  catchall(writeLines(enc2utf8(projlist), con = projects, useBytes = TRUE))
 
   TRUE
 
@@ -342,9 +421,8 @@ renv_load_rprofile_impl <- function(profile) {
   # bare restart handler, so at least we can catch the jump.
   #
   # https://github.com/rstudio/renv/issues/1036
-
   status <- withRestarts(
-    eval(parse(profile), envir = globalenv()),
+    sys.source(profile, envir = globalenv()),
     abort = function() { structure(list(), class = "_renv_error") }
   )
 
@@ -358,8 +436,7 @@ renv_load_rprofile_impl <- function(profile) {
 }
 
 renv_load_libpaths <- function(project = NULL) {
-  renv_libpaths_activate(project)
-  libpaths <- renv_libpaths_all()
+  libpaths <- renv_libpaths_activate(project)
   lapply(libpaths, renv_library_diagnose, project = project)
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
 }
@@ -391,14 +468,14 @@ renv_load_python <- function(project, fields) {
 
   # place python + relevant utilities on the PATH
   bindir <- normalizePath(dirname(python), mustWork = FALSE)
-  renv_envvar_prepend("PATH", bindir)
+  renv_envvar_path_add("PATH", bindir)
 
   # on Windows, for conda environments, we may also have a Scripts directory
   # which will need to be pre-pended to the PATH
   if (renv_platform_windows()) {
     scriptsdir <- file.path(bindir, "Scripts")
     if (file.exists(scriptsdir))
-      renv_envvar_prepend("PATH", scriptsdir)
+      renv_envvar_path_add("PATH", scriptsdir)
   }
 
   # for conda environments, we should try to find conda and place the conda
@@ -411,7 +488,7 @@ renv_load_python <- function(project, fields) {
   if (identical(info$type, "conda")) {
     conda <- renv_conda_find(python)
     if (file.exists(conda)) {
-      renv_envvar_prepend("PATH", dirname(conda))
+      renv_envvar_path_add("PATH", dirname(conda))
       Sys.setenv(CONDA_PREFIX = info$root)
     }
   }
@@ -487,28 +564,63 @@ renv_load_python_condaenv <- function(project, fields) {
 
 renv_load_bioconductor <- function(project, bioconductor) {
 
-  if (is.null(bioconductor) || getRversion() < "3.4")
+  # we don't try to support older R anymore
+  if (getRversion() < "3.4")
     return()
 
+  # if we don't have a valid Bioconductor version, bail
+  version <- bioconductor$Version
+  if (is.null(version))
+    return()
+
+  # initialize bioconductor
   renv_bioconductor_init()
-  BiocManager <- renv_namespace_load("BiocManager")
-  if (is.null(BiocManager$.version_validate))
+
+  # validate version if necessary
+  validate <- getOption("renv.bioconductor.validate")
+  if (truthy(validate, default = TRUE))
+    renv_load_bioconductor_validate(project, version)
+
+  # update the R repositories
+  repos <- renv_bioconductor_repos(project, version)
+  options(repos = repos)
+
+  # notify the user
+  sprintf("- Using Bioconductor '%s'.", version)
+
+}
+
+renv_load_bioconductor_validate <- function(project, version) {
+
+  if (!identical(renv_bioconductor_manager(), "BiocManager"))
     return()
 
-  status <- catch(BiocManager$.version_validate(bioconductor))
-  if (!inherits(status, "error"))
+  BiocManager <- renv_scope_biocmanager()
+  if (!is.function(BiocManager$.version_validity))
+    return()
+
+  # check for valid version of Bioconductor
+  # https://github.com/rstudio/renv/issues/1148
+  status <- catch(BiocManager$.version_validity(version))
+  if (!is.character(status))
     return()
 
   fmt <- lines(
-    "This project is configured to use Bioconductor '%s', which is not compatible with R '%s'.",
-    "Use 'renv::init(bioconductor = TRUE)' to re-initialize this project with the latest Bioconductor release."
+    "This project is configured to use Bioconductor %1$s, which is not compatible with R %2$s.",
+    "Use 'renv::init(bioconductor = \"%1$s\")' to re-initialize this project with the appropriate Bioconductor release.",
+    if (renv_package_installed("BiocVersion"))
+      "Please uninstall the 'BiocVersion' package first, with `remove.packages(\"BiocVersion\")`."
   )
 
-  warningf(fmt, bioconductor, getRversion())
+  warningf(fmt, version, getRversion())
 
 }
 
 renv_load_switch <- function(project) {
+
+  # skip when testing
+  if (is_testing())
+    return(project)
 
   # safety check: avoid recursive unload attempts
   unloading <- getOption("renv.unload.project")
@@ -521,8 +633,8 @@ renv_load_switch <- function(project) {
   # unset the RENV_PATHS_RENV environment variable
   # TODO: is there a path forward if different projects use
   # different RENV_PATHS_RENV paths?
-  renvpath <- renv_envvar_get("RENV_PATHS_RENV")
-  renv_envvar_clear("RENV_PATHS_RENV")
+  renvpath <- Sys.getenv("RENV_PATHS_RENV", unset = NA)
+  Sys.unsetenv("RENV_PATHS_RENV")
 
   # validate that this project has an activate script
   script <- renv_paths_activate(project = project)
@@ -544,8 +656,7 @@ renv_load_switch <- function(project) {
   unloadNamespace("renv")
 
   # move to new project directory
-  owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(project)
 
   # source the activate script
   source(script)
@@ -555,7 +666,7 @@ renv_load_switch <- function(project) {
     fmt <- "could not load renv from project %s; reloading previously-loaded renv"
     warningf(fmt, renv_path_pretty(project))
     loadNamespace("renv", lib.loc = dirname(path))
-    renv_envvar_set("RENV_PATHS_RENV", renvpath)
+    Sys.setenv(RENV_PATHS_RENV = renvpath)
     if (!is.na(pos)) {
       args <- list(package = "renv", pos = pos, character.only = TRUE)
       do.call(base::library, args)
@@ -575,11 +686,41 @@ renv_load_cache <- function(project) {
     return(FALSE)
 
   msg <- lines(
-    "* The cache version has been updated in this version of renv.",
-    "* Use `renv::rehash()` to migrate packages from the old renv cache."
+    "- The cache version has been updated in this version of renv.",
+    "- Use `renv::rehash()` to migrate packages from the old renv cache."
+  )
+  printf(msg)
+
+}
+
+renv_load_check <- function(project) {
+  renv_load_check_description(project)
+}
+
+renv_load_check_description <- function(project) {
+
+  descpath <- file.path(project, "DESCRIPTION")
+  if (!file.exists(descpath))
+    return(TRUE)
+
+  # read description file, with whitespace trimmed
+  contents <- read(descpath) %>% trim() %>% chop()
+  bad <- which(grepl("^\\s*$", contents, perl = TRUE))
+  if (empty(bad))
+    return(TRUE)
+
+  values <- sprintf("[line %i is blank]", bad)
+
+  renv_pretty_print(
+    sprintf("%s contains blank lines:", renv_path_pretty(descpath)),
+    values,
+    c(
+      "DESCRIPTION files cannot contain blank lines between fields.",
+      "Please remove these blank lines from the file."
+    )
   )
 
-  vmessagef(msg)
+  return(FALSE)
 
 }
 
@@ -588,17 +729,19 @@ renv_load_quiet <- function() {
   config$startup.quiet(default = default)
 }
 
-renv_load_finish <- function(project, lockfile) {
+renv_load_finish <- function(project = NULL, lockfile = NULL) {
 
-  options(renv.project.path = project)
+  renv_project_set(project)
 
-  if (!renv_load_quiet()) {
-    renv_load_report_project(project)
-    renv_load_report_python(project)
-  }
+  renv_load_check(project)
+  renv_load_report_project(project)
+  renv_load_report_python(project)
 
-  renv_load_report_updates(project)
-  renv_load_report_synchronized(project, lockfile)
+  if (config$updates.check())
+    renv_load_report_updates(project)
+
+  if (config$synchronized.check())
+    renv_load_report_synchronized(project, lockfile)
 
   renv_snapshot_auto_update(project = project)
 
@@ -607,44 +750,24 @@ renv_load_finish <- function(project, lockfile) {
 renv_load_report_project <- function(project) {
 
   profile <- renv_profile_get()
-  version <- renv_metadata_version()
+  version <- renv_metadata_version_friendly(shafmt = "; sha: %s")
 
-  if (length(profile)) {
-    fmt <- "* (%s) Project '%s' loaded. [renv %s]"
-    vwritef(fmt, profile, aliased_path(project), version)
+  if (!is.null(profile)) {
+    fmt <- "- Project '%s' loaded. [renv %s; using profile '%s']"
+    writef(fmt, renv_path_aliased(project), version, profile)
   } else {
-    fmt <- "* Project '%s' loaded. [renv %s]"
-    vwritef(fmt, aliased_path(project), version)
+    fmt <- "- Project '%s' loaded. [renv %s]"
+    writef(fmt, renv_path_aliased(project), version)
   }
 
 }
 
 renv_load_report_python <- function(project) {
-
-  python <- Sys.getenv("RENV_PYTHON", unset = NA)
-  if (is.na(python))
-    return(FALSE)
-
-  # fmt <- "* Using Python %s. [%s]"
-  # vwritef(fmt, renv_python_version(python), renv_python_type(python))
-
-}
-
-renv_load_report_updates <- function(project) {
-
-  # nocov start
-  enabled <- interactive() && config$updates.check()
-  if (!enabled)
-    return(FALSE)
-
-  callback <- function(...) renv_load_report_updates_impl(project = project)
-  renv_load_invoke(callback)
-  # nocov end
-
+  # TODO
 }
 
 # nocov start
-renv_load_report_updates_impl <- function(project) {
+renv_load_report_updates <- function(project) {
 
   lockpath <- renv_lockfile_path(project = project)
   if (!file.exists(lockpath))
@@ -655,7 +778,7 @@ renv_load_report_updates_impl <- function(project) {
   if (!available)
     return(FALSE)
 
-  vwritef("* Use `renv::update()` to install updated packages.")
+  writef("- Use `renv::update()` to install updated packages.")
   if (!interactive())
     print(status)
 
@@ -664,27 +787,69 @@ renv_load_report_updates_impl <- function(project) {
 }
 # nocov end
 
-renv_load_report_synchronized <- function(project, lockfile) {
 
-  # nocov start
-  enabled <- interactive() && config$synchronized.check()
-  if (!enabled)
+renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
+
+  project  <- renv_project_resolve(project)
+  lockfile <- lockfile %||% renv_lockfile_load(project)
+
+  # signal that we're running synchronization checks
+  renv_scope_binding(the, "project_synchronized_check_running", TRUE)
+
+  # be quiet when checking for dependencies in this scope
+  # https://github.com/rstudio/renv/issues/1181
+  renv_scope_options(renv.config.dependency.errors = "ignored")
+
+  # check for packages referenced in the lockfile which are not installed
+  lockpkgs <- names(lockfile$Packages)
+  libpkgs <- renv_snapshot_library(
+    library = renv_libpaths_all(),
+    project = project,
+    records = FALSE
+  )
+
+  # ignore renv
+  lockpkgs <- setdiff(lockpkgs, "renv")
+  libpkgs <- setdiff(libpkgs, "renv")
+
+  # check for case where no packages are installed (except renv)
+  if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
+
+    writef(lines(
+      "- None of the packages recorded in the lockfile are installed.",
+      "- Using `renv::restore()` to restore the project library."
+    ))
+
+    if (proceed()) {
+      restore(project, prompt = FALSE, exclude = "renv")
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
+  }
+
+  # check for case where one or more packages are missing
+  missing <- setdiff(lockpkgs, basename(libpkgs))
+  if (length(missing)) {
+    msg <- lines(
+      "- One or more packages recorded in the lockfile are not installed.",
+      "- Use `renv::status()` for more details."
+    )
+    writef(msg)
     return(FALSE)
+  }
 
-  callback <- function(...) renv_project_synchronized_check(project, lockfile)
-  renv_load_invoke(callback)
-  # nocov end
+  # otherwise, use status to detect if we're synchronized
+  info <- local({
+    renv_scope_options(renv.verbose = FALSE)
+    status(project = project, sources = FALSE)
+  })
+
+  if (!identical(info$synchronized, TRUE)) {
+    writef("- The project is out-of-sync -- use `renv::status()` for details.")
+    return(FALSE)
+  }
+
+  TRUE
 
 }
-
-renv_load_invoke <- function(callback) {
-
-  # helper function for running code that might need to
-  # wait until RStudio has finished initializing
-  if (renv_rstudio_loading())
-    setHook("rstudio.sessionInit", callback, action = "append")
-  else
-    callback()
-
-}
-

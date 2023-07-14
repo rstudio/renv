@@ -2,7 +2,80 @@
 % Please edit documentation in R/lockfiles.R
 \name{lockfiles}
 \alias{lockfiles}
+\alias{lockfile_create}
+\alias{lockfile_read}
+\alias{lockfile_write}
+\alias{lockfile_modify}
 \title{Lockfiles}
+\usage{
+lockfile_create(
+  type = settings$snapshot.type(project = project),
+  libpaths = .libPaths(),
+  packages = NULL,
+  exclude = NULL,
+  prompt = interactive(),
+  force = FALSE,
+  ...,
+  project = NULL
+)
+
+lockfile_read(file = NULL, ..., project = NULL)
+
+lockfile_write(lockfile, file = NULL, ..., project = NULL)
+
+lockfile_modify(
+  lockfile = NULL,
+  ...,
+  remotes = NULL,
+  repos = NULL,
+  project = NULL
+)
+}
+\arguments{
+\item{type}{The type of snapshot to perform:
+\itemize{
+\item \code{"implict"}, (the default), uses all packages captured by \code{\link[=dependencies]{dependencies()}}.
+\item \code{"explicit"} uses packages recorded in \code{DESCRIPTION}.
+\item \code{"all"} uses all packages in the project library.
+\item \verb{"custom} uses a custom filter.
+}
+
+See \strong{Snapshot type} below for more details.}
+
+\item{libpaths}{The library paths to be used when generating the lockfile.}
+
+\item{packages}{A vector of packages to be included in the lockfile. When
+\code{NULL} (the default), all packages relevant for the type of snapshot being
+performed will be included. When set, the \code{type} argument is ignored.
+Recursive dependencies of the specified packages will be added to the
+lockfile as well.}
+
+\item{exclude}{A vector of packages to be explicitly excluded from the lockfile.
+Note that transitive package dependencies will always be included, to avoid
+potentially creating an incomplete / non-functional lockfile.}
+
+\item{prompt}{Boolean; prompt the user before taking any action? For backwards
+compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
+
+\item{force}{Boolean; force generation of a lockfile even when pre-flight
+validation checks have failed?}
+
+\item{...}{Unused arguments, reserved for future expansion. If any arguments
+are matched to \code{...}, renv will signal an error.}
+
+\item{project}{The project directory. If \code{NULL}, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.}
+
+\item{file}{A file path, or \R connection.}
+
+\item{lockfile}{An \code{renv} lockfile; typically created by either
+\code{lockfile_create()} or \code{lockfile_read()}.}
+
+\item{remotes}{An \R vector of remote specifications.}
+
+\item{repos}{A named vector, mapping \R repository names to their URLs.}
+}
 \description{
 A \strong{lockfile} records the state of a project at some point in time.
 }
@@ -51,19 +124,16 @@ An example lockfile follows:
 }\if{html}{\out{</div>}}
 
 The sections used within a lockfile are described next.
-}
-\section{[renv]}{
+\subsection{renv}{
 
-
-Information about the version of \code{renv} used to manage this project.
+Information about the version of renv used to manage this project.
 
 \tabular{ll}{
-\strong{Version}     \tab The version of the \code{renv} package used with this project. \cr
+\strong{Version}     \tab The version of the renv package used with this project. \cr
 }
 }
 
-\section{[R]}{
-
+\subsection{R}{
 
 Properties related to the version of \R associated with this project.
 
@@ -73,8 +143,7 @@ Properties related to the version of \R associated with this project.
 }
 }
 
-\section{[Packages]}{
-
+\subsection{Packages}{
 
 \R package records, capturing the packages used or required by a project
 at the time when the lockfile was generated.
@@ -92,8 +161,7 @@ retrieved from its corresponding source, will also be included as
 appropriate (e.g. for packages installed from GitHub).
 }
 
-\section{[Python]}{
-
+\subsection{Python}{
 
 Metadata related to the version of Python used with this project (if any).
 
@@ -105,6 +173,12 @@ Metadata related to the version of Python used with this project (if any).
 
 Note that the \code{Name} field may be empty. In that case, a project-local Python
 environment will be used instead (when not directly using a system copy of Python).
+}
+}
+\section{Caveats}{
+These functions are primarily intended for expert users -- in most cases,
+\code{\link[=snapshot]{snapshot()}} and \code{\link[=restore]{restore()}} are the primariy tools you will need when
+creating and using lockfiles.
 }
 
 \seealso{

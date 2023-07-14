@@ -1,19 +1,19 @@
 
-#' Isolate a Project
+#' Isolate a project
 #'
-#' Copy packages from the `renv` cache directly into the project library, so
-#' that the project can continue to function independently of the `renv` cache.
+#' Copy packages from the renv cache directly into the project library, so
+#' that the project can continue to function independently of the renv cache.
 #'
-#' After calling `isolate()`, `renv` will still be able to use the cache on
-#' future [install()]s and [restore()]s. If you'd prefer that `renv` copy
-#' packages from the cache, rather than use symlinks, you can set the `renv`
+#' After calling `isolate()`, renv will still be able to use the cache on
+#' future [install()]s and [restore()]s. If you'd prefer that renv copy
+#' packages from the cache, rather than use symlinks, you can set the renv
 #' configuration option:
 #'
 #' ```
 #' options(renv.config.cache.symlinks = FALSE)
 #' ```
 #'
-#' to force `renv` to copy packages from the cache, as opposed to symlinking
+#' to force renv to copy packages from the cache, as opposed to symlinking
 #' them. If you'd like to disable the cache altogether for a project, you can
 #' use:
 #'
@@ -37,7 +37,7 @@
 isolate <- function(project = NULL) {
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
   if (renv_platform_windows())
     renv_isolate_windows(project)
@@ -61,14 +61,14 @@ renv_isolate_unix <- function(project) {
   names(targets) <- sources
 
   if (length(targets)) {
-    vprintf("* Copying packages into the private library ... ")
+    printf("- Copying packages into the private library ... ")
     unlink(targets)
     copy <- renv_progress_callback(renv_file_copy, length(targets))
     enumerate(targets, copy, overwrite = TRUE)
-    vwritef("Done!")
+    writef("Done!")
   }
 
-  writef("* This project has been isolated from the cache.")
+  writef("- This project has been isolated from the cache.")
   invisible(project)
 
 }
@@ -82,15 +82,15 @@ renv_isolate_windows <- function(project) {
   names(targets) <- sources
 
   if (length(targets)) {
-    vprintf("* Copying packages into the private library ... ")
+    printf("- Copying packages into the private library ... ")
     targets <- targets[file.exists(sources)]
     unlink(targets)
     copy <- renv_progress_callback(renv_file_copy, length(targets))
     enumerate(targets, copy, overwrite = TRUE)
-    vwritef("Done!")
+    writef("Done!")
   }
 
-  writef("* This project has been isolated from the cache.")
+  writef("- This project has been isolated from the cache.")
   invisible(project)
 
 }

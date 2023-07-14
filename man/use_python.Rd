@@ -2,7 +2,7 @@
 % Please edit documentation in R/use-python.R
 \name{use_python}
 \alias{use_python}
-\title{Use Python}
+\title{Use python}
 \usage{
 use_python(
   python = NULL,
@@ -40,7 +40,7 @@ side effects.
 Associate a version of Python with your project.
 }
 \details{
-When Python integration is active, \code{renv} will:
+When Python integration is active, renv will:
 \itemize{
 \item Save metadata about the requested version of Python in \code{renv.lock} -- in
 particular, the Python version, and the Python type ("virtualenv", "conda",
@@ -54,7 +54,7 @@ In addition, when the project is loaded, the following actions will be taken:
 \item The \code{RENV_PYTHON} environment variable will be set, indicating the version
 of Python currently active for this sessions,
 \item The \code{RETICULATE_PYTHON} environment variable will be set, so that the
-\code{reticulate} package can automatically use the requested copy of Python
+reticulate package can automatically use the requested copy of Python
 as appropriate,
 \item The requested version of Python will be placed on the \code{PATH}, so that
 attempts to invoke Python will resolve to the expected version of Python.
@@ -62,15 +62,13 @@ attempts to invoke Python will resolve to the expected version of Python.
 
 You can override the version of Python used in a particular project by
 setting the \code{RENV_PYTHON} environment variable; e.g. as part of the
-project's \code{.Renviron} file. This can be useful if you find that \code{renv}
+project's \code{.Renviron} file. This can be useful if you find that renv
 is unable to automatically discover a compatible version of Python to
 be used in the project.
 }
 \section{Finding Python}{
-
-
-In interactive sessions, when \code{python = NULL}, \code{renv} will prompt for an
-appropriate version of Python. \code{renv} will search a pre-defined set of
+In interactive sessions, when \code{python = NULL}, renv will prompt for an
+appropriate version of Python. renv will search a pre-defined set of
 locations when attempting to find Python installations on the system:
 \itemize{
 \item \code{getOption("renv.python.root")},
@@ -83,15 +81,13 @@ locations when attempting to find Python installations on the system:
 \item Python instances available on the \code{PATH}.
 }
 
-In non-interactive sessions, \code{renv} will first check the \code{RETICULATE_PYTHON}
-environment variable; if that is unset, \code{renv} will look for Python on the
+In non-interactive sessions, renv will first check the \code{RETICULATE_PYTHON}
+environment variable; if that is unset, renv will look for Python on the
 \code{PATH}. It is recommended that the version of Python to be used is explicitly
 supplied for non-interactive usages of \code{use_python()}.
 }
 
 \section{Warning}{
-
-
 We strongly recommend using Python virtual environments, for a few reasons:
 \enumerate{
 \item If something goes wrong with a local virtual environment, you can safely

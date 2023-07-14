@@ -1,17 +1,17 @@
 
-`_renv_lockfile_state` <- new.env(parent = emptyenv())
+the$lockfile_state <- new.env(parent = emptyenv())
 
 renv_lockfile_state_get <- function(key) {
-  if (exists(key, envir = `_renv_lockfile_state`))
-    get(key, envir = `_renv_lockfile_state`, inherits = FALSE)
+  if (exists(key, envir = the$lockfile_state))
+    get(key, envir = the$lockfile_state, inherits = FALSE)
 }
 
 renv_lockfile_state_set <- function(key, value) {
-  assign(key, value, envir = `_renv_lockfile_state`, inherits = FALSE)
+  assign(key, value, envir = the$lockfile_state, inherits = FALSE)
 }
 
 renv_lockfile_state_clear <- function() {
-  rm(list = ls(`_renv_lockfile_state`), envir = `_renv_lockfile_state`)
+  rm(list = ls(the$lockfile_state), envir = the$lockfile_state)
 }
 
 renv_lockfile_write_preflight <- function(old, new) {
@@ -34,6 +34,14 @@ renv_lockfile_write_preflight <- function(old, new) {
     if (spurious)
       new$Packages[[package]]$Repository <<- old$Packages[[package]]$Repository
 
+    # avoid spurious changes between CRAN and PPM
+    spurious <-
+      identical(changes, list(Repository = list(before = "CRAN", after = "PPM"))) ||
+      identical(changes, list(Repository = list(before = "PPM", after = "CRAN")))
+
+    if (spurious)
+      new$Packages[[package]]$Repository <<- old$Packages[[package]]$Repository
+
   })
 
   new
@@ -51,7 +59,12 @@ renv_lockfile_write <- function(lockfile, file = stdout()) {
   }
 
   lockfile <- renv_lockfile_sort(lockfile)
-  renv_lockfile_write_json(lockfile, file)
+  result <- renv_lockfile_write_json(lockfile, file)
+
+  if (is.character(file))
+    writef("- Lockfile written to %s.", renv_path_pretty(file))
+
+  result
 
 }
 
@@ -92,19 +105,18 @@ renv_lockfile_write_json <- function(lockfile, file = stdout()) {
 
 renv_lockfile_write_internal <- function(lockfile,
                                          file = stdout(),
-                                         delim = "=",
-                                         emitter = NULL)
+                                         delim = "=")
 {
   if (is.character(file)) {
     file <- textfile(file)
-    on.exit(close(file), add = TRUE)
+    defer(close(file))
   }
 
-  emitter <- emitter %||% function(text) writeLines(text, con = file)
+  emitter <- function(text) writeLines(text, con = file)
 
   renv_lockfile_state_set("delim", delim)
   renv_lockfile_state_set("emitter", emitter)
-  on.exit(renv_lockfile_state_clear(), add = TRUE)
+  defer(renv_lockfile_state_clear())
 
   renv_lockfile_write_list(lockfile, section = character())
   invisible(lockfile)

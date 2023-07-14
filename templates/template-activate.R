@@ -2,7 +2,8 @@
 local({
 
   # the requested version of renv
-  version <- "${VERSION}"
+  version <- ..version..
+  attr(version, "sha") <- ..sha..
 
   # the project directory
   project <- getwd()
@@ -76,31 +77,23 @@ local({
   if (renv_bootstrap_load(project, libpath, version))
     return(TRUE)
 
-  # load failed; inform user we're about to bootstrap
-  prefix <- paste("# Bootstrapping renv", version)
-  postfix <- paste(rep.int("-", 77L - nchar(prefix)), collapse = "")
-  header <- paste(prefix, postfix)
-  message(header)
+  if (renv_bootstrap_in_rstudio()) {
+    setHook("rstudio.sessionInit", function(...) {
+      renv_bootstrap_run(version, libpath)
 
-  # perform bootstrap
-  bootstrap(version, libpath)
-
-  # exit early if we're just testing bootstrap
-  if (!is.na(Sys.getenv("RENV_BOOTSTRAP_INSTALL_ONLY", unset = NA)))
-    return(TRUE)
-
-  # try again to load
-  if (requireNamespace("renv", lib.loc = libpath, quietly = TRUE)) {
-    message("* Successfully installed and loaded renv ", version, ".")
-    return(renv::load())
+      # Work around buglet in RStudio if hook uses readline
+      tryCatch(
+        {
+          tools <- as.environment("tools:rstudio")
+          tools$.rs.api.sendToConsole("", echo = FALSE, focus = FALSE)
+        },
+        error = function(cnd) {}
+      )
+    })
+  } else {
+    renv_bootstrap_run(version, libpath)
   }
 
-  # failed to download or load renv; warn the user
-  msg <- c(
-    "Failed to find an renv installation: the project will not be loaded.",
-    "Use `renv::activate()` to re-initialize the project."
-  )
-
-  warning(paste(msg, collapse = "\n"), call. = FALSE)
+  invisible()
 
 })

@@ -1,6 +1,4 @@
 
-context("ACLS")
-
 test_that("renv_acls_reset() can reset ACLs", {
 
   skip_on_cran()

@@ -15,17 +15,17 @@ consent from a non-interactive \R session, you can invoke
 \code{TRUE} if consent is provided, or an \R error otherwise.
 }
 \description{
-Provide consent to \code{renv}, allowing it to write and update certain files
+Provide consent to renv, allowing it to write and update certain files
 on your filesystem.
 }
 \details{
-As part of its normal operation, \code{renv} will write and update some files
+As part of its normal operation, renv will write and update some files
 in your project directory, as well as an application-specific cache
 directory. These paths are documented within \link{paths}.
 
 In accordance with the
 \href{https://cran.r-project.org/web/packages/policies.html}{CRAN Repository Policy},
-\code{renv} must first obtain consent from you, the user, before these actions
+renv must first obtain consent from you, the user, before these actions
 can be taken. Please call \code{renv::consent()} first to provide this consent.
 
 You can also set the \R option:

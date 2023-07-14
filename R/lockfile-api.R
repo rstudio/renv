@@ -1,21 +1,7 @@
 
-renv_lockfile_resolve <- function(lockfile) {
-
-  if (inherits(lockfile, "renv_lockfile_api"))
-    return(lockfile$data())
-
-  if (is.character(lockfile)) {
-    if (any(grepl("\n", lockfile)))
-      return(renv_lockfile_read(text = lockfile))
-    else if (file.exists(lockfile))
-      return(renv_lockfile_read(file = lockfile))
-    else
-      return(invisible(NULL))
-  }
-
-  lockfile
-
-}
+# NOTE: These functions are used by the 'dockerfiler' package, even though
+# they are not exported. We retain these functions here just to avoid issues
+# during CRAN submission. We'll consider removing them in a future release.
 
 renv_lockfile_api <- function(lockfile = NULL) {
 
@@ -58,7 +44,7 @@ renv_lockfile_api <- function(lockfile = NULL) {
 
   .self$add <- function(..., .list = NULL) {
 
-    records <- renv_records(.lockfile)
+    records <- renv_lockfile_records(.lockfile)
 
     dots <- .list %||% list(...)
     enumerate(dots, function(package, remote) {
@@ -66,15 +52,14 @@ renv_lockfile_api <- function(lockfile = NULL) {
       records[[package]] <<- resolved
     })
 
-    renv_records(.lockfile) <<- records
+    renv_lockfile_records(.lockfile) <<- records
     invisible(.self)
 
   }
 
   .self$remove <- function(packages) {
-    records <- renv_records(.lockfile)
-    records <- drop(records, packages)
-    renv_records(.lockfile) <<- records
+    records <- renv_lockfile_records(.lockfile) %>% exclude(packages)
+    renv_lockfile_records(.lockfile) <<- records
     invisible(.self)
   }
 
@@ -90,22 +75,6 @@ renv_lockfile_api <- function(lockfile = NULL) {
   class(.self) <- "renv_lockfile_api"
   .self
 
-}
-
-#' @export
-print.renv_lockfile_api <- function(x, ...) {
-  lockfile <- x$data()
-  records <- renv_records(lockfile)
-  n <- length(records)
-  fmt <- "A lockfile containing %i package %s."
-  msg <- sprintf(fmt, n, plural("record", n))
-  writeLines(msg)
-}
-
-#' @export
-str.renv_lockfile_api <- function(object, ...) {
-  lockfile <- object$data()
-  str(lockfile)
 }
 
 #' Programmatically Create and Modify a Lockfile
@@ -140,6 +109,11 @@ str.renv_lockfile_api <- function(object, ...) {
 #' lock$write("renv.lock")
 #'
 #' }
+#'
+#' @keywords internal
+#' @rdname lockfile-api
+#' @name lockfile-api
+#'
 lockfile <- function(file = NULL, project = NULL) {
   project <- renv_project_resolve(project)
   renv_scope_error_handler()

@@ -26,9 +26,9 @@ renv_python_virtualenv_validate <- function(path, version) {
 
   # compare requested + actual versions
   if (!is.null(version)) {
-    request <- version
-    current <- renv_python_version(python)
-    if (!renv_version_eq(request, current, 2L)) {
+    request <- renv_version_maj_min(version)
+    current <- renv_version_maj_min(renv_python_version(python))
+    if (request != current) {
       fmt <- "Project requested Python version '%s' but '%s' is currently being used"
       warningf(fmt, request, current)
     }
@@ -82,8 +82,7 @@ renv_python_virtualenv_update <- function(python) {
 
 renv_python_virtualenv_snapshot <- function(project, prompt, python) {
 
-  owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(project)
 
   path <- file.path(project, "requirements.txt")
   before <- character()
@@ -92,33 +91,25 @@ renv_python_virtualenv_snapshot <- function(project, prompt, python) {
 
   after <- pip_freeze(python = python)
   if (setequal(before, after)) {
-    vwritef("* Python requirements are already up to date.")
+    writef("- Python requirements are already up to date.")
     return(FALSE)
   }
 
-  renv_pretty_print(
-    values   = after,
-    preamble = "The following will be written to requirements.txt:",
-    wrap     = FALSE
-  )
+  renv_pretty_print("The following will be written to requirements.txt:", after)
 
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    return(FALSE)
-  }
+  cancel_if(prompt && !proceed())
 
   writeLines(after, con = path)
 
-  fmt <- "* Wrote Python packages to %s."
-  vwritef(fmt, renv_path_pretty(path))
+  fmt <- "- Wrote Python packages to %s."
+  writef(fmt, renv_path_pretty(path))
   return(TRUE)
 
 }
 
 renv_python_virtualenv_restore <- function(project, prompt, python) {
 
-  owd <- setwd(project)
-  on.exit(setwd(owd), add = TRUE)
+  renv_scope_wd(project)
 
   path <- file.path(project, "requirements.txt")
   if (!file.exists(path))
@@ -128,20 +119,13 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
   after <- pip_freeze(python = python)
   diff <- renv_vector_diff(before, after)
   if (empty(diff)) {
-    vwritef("* The Python library is already up to date.")
+    writef("- The Python library is already up to date.")
     return(FALSE)
   }
 
-  renv_pretty_print(
-    values   = diff,
-    preamble = "The following Python packages will be restored:",
-    wrap     = FALSE
-  )
+  renv_pretty_print("The following Python packages will be restored:", diff)
 
-  if (prompt && !proceed()) {
-    renv_report_user_cancel()
-    return(FALSE)
-  }
+  cancel_if(prompt && !proceed())
 
   pip_install_requirements(diff, python = python, stream = TRUE)
   TRUE

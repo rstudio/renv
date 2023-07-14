@@ -1,8 +1,8 @@
 ---
-title: "Project Profiles"
+title: "Project profiles"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Project Profiles}
+  %\VignetteIndexEntry{Project profiles}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -29,12 +29,12 @@ a different mode in which a project is used. For example:
 At its heart, activating or using a particular profile implies using a different
 set of paths for the project library and lockfile. With this, it is possible
 to associate different packages, and different dependencies, with different
-workflows in a single project using `renv`.
+workflows in a single project using renv.
 
 
 ## Usage
 
-By default, `renv` projects use the "default" profile, which implies that
+By default, renv projects use the "default" profile, which implies that
 library and lockfile paths are set in the typical way. To activate a particular
 profile, use:
 
@@ -45,7 +45,7 @@ renv::activate(profile = "dev")
 This creates a profile called `"dev"`, and sets it as the default for the
 project, so that newly-launched R sessions will operate using the `"dev"`
 profile. After setting this and re-launching R, you should see that the
-default library and lockfile paths are resolved within the `renv/profiles/dev`
+project library and lockfile paths are resolved within the `renv/profiles/dev`
 folder from the project root.
 
 Alternatively, if you want to activate a particular profile for an R session
@@ -55,16 +55,16 @@ without setting it as the default for new R sessions, you can use:
 Sys.setenv(RENV_PROFILE = "dev")
 ```
 
-and `renv` will automatically use that profile as appropriate when computing
+and renv will automatically use that profile as appropriate when computing
 library and lockfile paths. Similarly, from the command line, you might
-enforce the use of a particular profile in an `renv` project with:
+enforce the use of a particular profile in an renv project with:
 
 ```
 export RENV_PROFILE=dev
 ```
 
-With that set, `renv` would default to using the `"dev"` profile for any
-newly-launched R sessions within `renv` projects.
+With that set, renv would default to using the `"dev"` profile for any
+newly-launched R sessions within renv projects.
 
 To activate the "default" profile used by a project, use:
 
@@ -73,10 +73,10 @@ renv::activate(profile = NULL)
 ```
 
 
-## Managing Profile-specific Dependencies
+## Managing profile-specific dependencies
 
 Profile-specific package dependencies can be declared within the project's
-top-level `DESCRIPTION` file. For example, to declare that the `shiny`
+top-level `DESCRIPTION` file. For example, to declare that the shiny
 profile depends on the [shiny] and [tidyverse] packages:
 
 ```
@@ -93,10 +93,10 @@ Config/renv/profiles/shiny/remotes: rstudio/shiny, tidyverse/tidyverse
 
 These remotes will then be respected in calls to `renv::install()`.
 
-The packages and remotes must be specified separately, as `renv` cannot
+The packages and remotes must be specified separately, as renv cannot
 determine the package name associated with a particular remote without
 explicitly resolving that remote. Remote resolution normally requires a web
-request, which `renv` tries to avoid in "regular" dependency discovery.
+request, which renv tries to avoid in "regular" dependency discovery.
 
 If you'd prefer that only the packages enumerated in this field are used, you
 can opt-in to using `"explicit"` snapshots, and leave the `Imports`, `Depends`
@@ -111,5 +111,5 @@ be used when the lockfile is generated. See `?renv::snapshot` for more details.
 
 
 
-[shiny]: https://shiny.rstudio.com/
+[shiny]: https://shiny.posit.co/
 [tidyverse]: https://www.tidyverse.org/

@@ -1,6 +1,4 @@
 
-context("Cellar")
-
 test_that("renv can find packages located in the cellar", {
   skip_on_cran()
   renv_tests_scope()
@@ -9,7 +7,7 @@ test_that("renv can find packages located in the cellar", {
   cellar <- renv_paths_cellar()
   ensure_directory(cellar)
 
-  repopath <- getOption("renv.tests.repopath")
+  repopath <- renv_tests_repopath()
   packages <- list.files(
     path = file.path(repopath, "src/contrib"),
     pattern = ".tar.gz$",
@@ -29,6 +27,6 @@ test_that("renv can find packages located in the cellar", {
   )
 
   # check that we can install it
-  renv::install("bread")
+  install("bread")
 
 })

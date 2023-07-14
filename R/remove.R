@@ -1,5 +1,5 @@
 
-#' Remove Packages
+#' Remove packages
 #'
 #' Remove (uninstall) \R packages.
 #'
@@ -25,20 +25,22 @@ remove <- function(packages,
   renv_dots_check(...)
 
   project <- renv_project_resolve(project)
-  renv_scope_lock(project = project)
+  renv_project_lock(project = project)
 
-  library <- renv_path_normalize(library %||% renv_libpaths_default())
+  library <- renv_path_normalize(library %||% renv_libpaths_active())
 
+  # NOTE: users might request that we remove packages which aren't currently
+  # installed, so we need to catch errors when trying to snapshot those packages
   descpaths <- file.path(library, packages, "DESCRIPTION")
-  records <- lapply(descpaths, renv_snapshot_description)
+  records <- lapply(descpaths, compose(catch, renv_snapshot_description))
   names(records) <- packages
   records <- Filter(function(record) !inherits(record, "error"), records)
 
   if (library == renv_paths_library(project = project)) {
-    vwritef("* Removing package(s) from project library ...")
+    writef("- Removing package(s) from project library ...")
   } else {
-    fmt <- "* Removing package(s) from library '%s' ..."
-    vwritef(fmt, aliased_path(library))
+    fmt <- "- Removing package(s) from library '%s' ..."
+    writef(fmt, renv_path_aliased(library))
   }
 
   if (length(packages) == 1) {
@@ -52,7 +54,7 @@ remove <- function(packages,
       count <- count + 1
   }
 
-  vwritef("* Done! Removed %i %s.", count, plural("package", count))
+  writef("- Done! Removed %s.", nplural("package", count))
   invisible(records)
 }
 
@@ -60,14 +62,14 @@ renv_remove_impl <- function(package, library) {
 
   path <- file.path(library, package)
   if (!renv_file_exists(path)) {
-    vwritef("* Package '%s' is not installed -- nothing to do.", package)
+    writef("- Package '%s' is not installed -- nothing to do.", package)
     return(FALSE)
   }
 
   recursive <- renv_file_type(path) == "directory"
-  vprintf("Removing package '%s' ... ", package)
+  printf("Removing package '%s' ... ", package)
   unlink(path, recursive = recursive)
-  vwritef("Done!")
+  writef("Done!")
 
   TRUE
 

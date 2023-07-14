@@ -2,37 +2,80 @@
 % Please edit documentation in R/checkout.R
 \name{checkout}
 \alias{checkout}
-\title{Checkout a Repository}
+\title{Checkout a repository}
 \usage{
 checkout(
-  repos = getOption("repos"),
+  repos = NULL,
   ...,
   packages = NULL,
+  date = NULL,
   clean = FALSE,
+  actions = "restore",
   project = NULL
 )
 }
 \arguments{
-\item{repos}{The \R package repositories to check out. When \code{NULL} (the default),
-\code{renv} will attempt to determine the packages used in the project via
-a call to \code{\link[=dependencies]{dependencies()}}.}
+\item{repos}{The \R package repositories to use.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{packages}{The packages to be installed. When \code{NULL} (the default),
-all packages currently used in the project will be installed.}
+all packages currently used in the project will be installed, as
+determined by \code{\link[=dependencies]{dependencies()}}. The recursive dependencies of these
+packages will be included as well.}
+
+\item{date}{The snapshot date to use. When set, the associated snapshot as
+available from the Posit's public
+\href{https://packagemanager.rstudio.com/}{Package Manager} instance will be
+used. Ignored if \code{repos} is non-\code{NULL}.}
 
 \item{clean}{Boolean; remove packages not recorded in the lockfile from
 the target library? Use \code{clean = TRUE} if you'd like the library state
 to exactly reflect the lockfile contents after \code{restore()}.}
+
+\item{actions}{The action(s) to perform with the requested repositories.
+This can either be "snapshot", in which \code{renv} will generate a lockfile
+based on the latest versions of the packages available from \code{repos}, or
+"restore" if you'd like to install those packages. You can use
+\code{c("snapshot", "restore")} if you'd like to generate a lockfile and
+install those packages in the same step.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
 directory is used instead.}
 }
 \description{
-\code{renv::checkout()} can be used to install the latest packages available from
-the requested repositories.
+\code{renv::checkout()} can be used to retrieve the latest-availabe packages from
+a (set of) package repositories.
 }
-\keyword{internal}
+\details{
+\code{renv::checkout()} is most useful with services like the Posit's
+\href{https://packagemanager.rstudio.com/}{Package Manager}, as it
+can be used to switch between different repository snapshots within an
+renv project. In this way, you can upgrade (or downgrade) all of the
+packages used in a particular renv project to the package versions
+provided by a particular snapshot.
+
+If your library contains packages installed from other remote sources (e.g.
+GitHub), but a version of a package of the same name is provided by the
+repositories being checked out, then please be aware that the package will be
+replaced with the version provided by the requested repositories. This could
+be a concern if your project uses \R packages from GitHub whose name matches
+that of an existing CRAN package, but is otherwise unrelated to the package
+on CRAN.
+}
+\examples{
+\dontrun{
+
+# check out packages from PPM using the date '2023-01-02'
+renv::checkout(date = "2023-01-02")
+
+# alternatively, supply the full repository path
+renv::checkout(repos = "https://packagemanager.rstudio.com/cran/2023-01-02")
+
+# only check out some subset of packages (and their recursive dependencies)
+renv::checkout(packages = "dplyr", date = "2023-01-02")
+
+}
+}

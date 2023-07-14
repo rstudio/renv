@@ -1,14 +1,14 @@
 
-`_renv_settings` <- new.env(parent = emptyenv())
+the$settings <- new.env(parent = emptyenv())
 
 renv_settings_default <- function(name) {
-  default <- `_renv_settings`[[name]]$default
+  default <- the$settings[[name]]$default
   renv_options_override("renv.settings", name, default)
 }
 
 renv_settings_defaults <- function() {
 
-  keys <- ls(envir = `_renv_settings`, all.names = TRUE)
+  keys <- ls(envir = the$settings, all.names = TRUE)
   vals <- lapply(keys, renv_settings_default)
   names(vals) <- keys
   vals[order(names(vals))]
@@ -21,8 +21,11 @@ renv_settings_validate <- function(name, value) {
   if (is.null(value))
     return(renv_settings_default(name))
 
-  # otherwise, validate the user-provided value
-  validate <- `_renv_settings`[[name]]$validate
+  # run coercion method
+  value <- the$settings[[name]]$coerce(value)
+
+  # validate the user-provided value
+  validate <- the$settings[[name]]$validate
   ok <- case(
     is.character(validate) ~ value %in% validate,
     is.function(validate)  ~ validate(value),
@@ -40,24 +43,14 @@ renv_settings_validate <- function(name, value) {
 
 }
 
-renv_settings_decode <- function(name, value) {
+renv_settings_read <- function(path) {
 
-  # TODO: consider custom decoders per-setting
-  decoded <- case(
-    value == "NULL"  ~ NULL,
-    value == "NA"    ~ NA,
-    value == "NaN"   ~ NaN,
-    value == "TRUE"  ~ TRUE,
-    value == "FALSE" ~ FALSE,
-    ~ strsplit(value, "\\s*,\\s*")[[1]]
+  filebacked(
+    context  = "renv_settings_read",
+    path     = path,
+    callback = renv_settings_read_impl
   )
 
-  renv_settings_validate(name, decoded)
-
-}
-
-renv_settings_read <- function(path) {
-  filebacked("settings", path, renv_settings_read_impl)
 }
 
 renv_settings_read_impl <- function(path) {
@@ -66,19 +59,19 @@ renv_settings_read_impl <- function(path) {
   if (!file.exists(path))
     return(NULL)
 
-  # try to read it
-  dcf <- catch(renv_dcf_read(path))
-  if (inherits(dcf, "error")) {
-    warning(dcf)
-    return(NULL)
-  }
+  # read settings
+  settings <- case(
+    endswith(path, ".dcf")  ~ renv_settings_read_impl_dcf(path),
+    endswith(path, ".json") ~ renv_settings_read_impl_json(path),
+    ~ stopf("don't know how to read settings file %s", renv_path_pretty(path))
+  )
 
   # keep only known settings
-  known <- ls(envir = `_renv_settings`, all.names = TRUE)
-  dcf <- keep(dcf, known)
+  known <- ls(envir = the$settings, all.names = TRUE)
+  settings <- keep(settings, known)
 
-  # decode encoded values
-  settings <- enumerate(dcf, renv_settings_decode)
+  # validate
+  settings <- enumerate(settings, renv_settings_validate)
 
   # merge in defaults
   defaults <- renv_settings_defaults()
@@ -90,11 +83,48 @@ renv_settings_read_impl <- function(path) {
 
 }
 
-renv_settings_get <- function(project, name = NULL) {
+renv_settings_read_impl_dcf <- function(path) {
+
+  # try to read it
+  dcf <- catch(renv_dcf_read(path))
+  if (inherits(dcf, "error")) {
+    warning(dcf)
+    return(NULL)
+  }
+
+  # decode encoded values
+  enumerate(dcf, function(name, value) {
+
+    case(
+      value == "NULL"  ~ NULL,
+      value == "NA"    ~ NA,
+      value == "NaN"   ~ NaN,
+      value == "TRUE"  ~ TRUE,
+      value == "FALSE" ~ FALSE,
+      ~ strsplit(value, "\\s*,\\s*")[[1]]
+    )
+
+  })
+
+}
+
+renv_settings_read_impl_json <- function(path) {
+
+  json <- catch(renv_json_read(path))
+  if (inherits(json, "error")) {
+    warning(json)
+    return(NULL)
+  }
+
+  json
+
+}
+
+renv_settings_get <- function(project, name = NULL, default = NULL) {
 
   # when 'name' is NULL, return all settings
   if (is.null(name)) {
-    names <- ls(envir = `_renv_settings`, all.names = TRUE)
+    names <- ls(envir = the$settings, all.names = TRUE)
     settings <- lapply(names, renv_settings_get, project = project)
     names(settings) <- names
     return(settings[order(names(settings))])
@@ -110,6 +140,10 @@ renv_settings_get <- function(project, name = NULL) {
   settings <- renv_settings_read(path)
   if (!is.null(settings))
     return(settings[[name]])
+
+  # if a 'default' value was provided, use it
+  if (!missing(default))
+    return(default)
 
   # no value recorded; use default
   renv_settings_default(name)
@@ -132,7 +166,7 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
 
   # save session-cached value
   path <- renv_settings_path(project)
-  value <- renv_filebacked_set("settings", path, settings)
+  value <- renv_filebacked_set("renv_settings_read", path, settings)
 
   # invoke update callback if value changed
   if (!identical(old, new))
@@ -144,7 +178,7 @@ renv_settings_set <- function(project, name, value, persist = TRUE) {
 }
 
 renv_settings_updated <- function(project, name, old, new) {
-  update <- `_renv_settings`[[name]]$update %||% function(...) {}
+  update <- the$settings[[name]]$update %||% function(...) {}
   update(project, old, new)
 }
 
@@ -152,11 +186,22 @@ renv_settings_persist <- function(project, settings) {
 
   path <- renv_settings_path(project)
   settings <- settings[order(names(settings))]
-  settings <- lapply(settings, paste, collapse = ", ")
 
+  # figure out which settings are scalar
+  scalar <- map_lgl(names(settings), function(name) {
+    the$settings[[name]]$scalar
+  })
+
+  # use that to determine which objects should be boxed
+  config <- renv_json_config(box = names(settings)[!scalar])
+
+  # write json
   ensure_parent_directory(path)
-  dcf <- as.data.frame(settings, stringsAsFactors = FALSE)
-  renv_dcf_write(dcf, path)
+  renv_json_write(
+    object = settings,
+    config = config,
+    file   = path
+  )
 
 }
 
@@ -187,12 +232,12 @@ renv_settings_updated_cache <- function(project, old, new) {
   names(pkgpaths) <- cachepaths
 
   if (empty(pkgpaths)) {
-    fmt <- "* The cache has been %s for this project."
-    vwritef(fmt, if (new) "enabled" else "disabled")
+    fmt <- "- The cache has been %s for this project."
+    writef(fmt, if (new) "enabled" else "disabled")
     return(TRUE)
   }
 
-  vprintf("* Synchronizing project library with the cache ... ")
+  printf("- Synchronizing project library with the cache ... ")
 
   if (new) {
 
@@ -226,10 +271,10 @@ renv_settings_updated_cache <- function(project, old, new) {
 
   }
 
-  vwritef("Done!")
+  writef("Done!")
 
-  fmt <- "* The cache has been %s for this project."
-  vwritef(fmt, if (new) "enabled" else "disabled")
+  fmt <- "- The cache has been %s for this project."
+  writef(fmt, if (new) "enabled" else "disabled")
 
 }
 
@@ -237,16 +282,32 @@ renv_settings_updated_ignore <- function(project, old, new) {
   renv_infrastructure_write_gitignore(project = project)
 }
 
+renv_settings_migrate <- function(project) {
 
+  old <- renv_paths_renv("settings.dcf",  project = project)
+  if (!file.exists(old))
+    return()
 
-renv_settings_impl <- function(name, validate, default, update) {
+  new <- renv_paths_renv("settings.json", project = project)
+  if (file.exists(new))
+    return()
+
+  # update settings
+  settings <- renv_settings_read(old)
+  renv_settings_persist(project, settings)
+
+}
+
+renv_settings_impl <- function(name, default, scalar, validate, coerce, update) {
 
   force(name)
 
-  `_renv_settings`[[name]] <- list(
+  the$settings[[name]] <- list(
+    default  = default,
+    coerce   = coerce,
+    scalar   = scalar,
     validate = validate,
-    default = default,
-    update = update
+    update   = update
   )
 
   function(value, project = NULL, persist = TRUE) {
@@ -259,122 +320,136 @@ renv_settings_impl <- function(name, validate, default, update) {
 
 }
 
+
 # nocov end
 
-#' Project Settings
+#' Project settings
 #'
+#' @description
 #' Define project-local settings that can be used to adjust the behavior of
-#' `renv` with your particular project.
+#' renv with your particular project.
 #'
-#' @section Settings:
+#' * Get the current value of a setting with (e.g.) `settings$snapshot.type()`
+#' * Set current value of a setting with (e.g.)
+#'   `settings$snapshot.type("explicit")`.
 #'
-#' \describe{
+#' Settings are automatically persisted across project sessions by writing to
+#' `renv/settings.json`. You can also edit this file by hand, but you'll need
+#' to restart the session for those changes to take effect.
 #'
-#' \item{\code{bioconductor.version}}{
+#' ## `bioconductor.version`
 #'
-#'   The Bioconductor version to be used with this project. Use this if you'd
-#'   like to lock the version of Bioconductor used on a per-project basis.
-#'   When unset, `renv` will try to infer the appropriate Bioconductor release
-#'   using the `BiocVersion` package if installed; if not, `renv` uses
-#'   `BiocManager::version()` to infer the appropriate Bioconductor version.
+#' The Bioconductor version to be used with this project. Use this if you'd
+#' like to lock the version of Bioconductor used on a per-project basis.
+#' When unset, renv will try to infer the appropriate Bioconductor release
+#' using the BiocVersion package if installed; if not, renv uses
+#' `BiocManager::version()` to infer the appropriate Bioconductor version.
 #'
-#' }
+#' ## `external.libraries`
 #'
-#' \item{\code{external.libraries}}{
+#' A vector of library paths, to be used in addition to the project's own
+#' private library. This can be useful if you have a package available for use
+#' in some system library, but for some reason renv is not able to install
+#' that package (e.g. sources or binaries for that package are not publicly
+#' available, or you have been unable to orchestrate the pre-requisites for
+#' installing some packages from source on your machine).
 #'
-#'   A vector of library paths, to be used in addition to the project's own
-#'   private library. This can be useful if you have a package available for use
-#'   in some global library, but for some reason `renv` is not able to install
-#'   that package (e.g. sources or binaries for that package are not publicly
-#'   available, or you have been unable to orchestrate the pre-requisites for
-#'   installing some packages from source on your machine).
+#' ## `ignored.packages`
 #'
-#' }
+#' A vector of packages, which should be ignored when attempting to snapshot
+#' the project's private library. Note that if a package has already been
+#' added to the lockfile, that entry in the lockfile will not be ignored.
 #'
-#' \item{\code{ignored.packages}}{
+#' ## `package.dependency.fields`
 #'
-#'   A vector of packages, which should be ignored when attempting to snapshot
-#'   the project's private library. Note that if a package has already been
-#'   added to the lockfile, that entry in the lockfile will not be ignored.
+#' When explicitly installing a package with `install()`, what fields
+#' should be used to determine that packages dependencies? The default
+#' uses `Imports`, `Depends` and `LinkingTo` fields, but you also want
+#' to install `Suggests` dependencies for a package, you can set this to
+#' `c("Imports", "Depends", "LinkingTo", "Suggests")`.
 #'
-#' }
+#' ## `ppm.enabled`
 #'
-#' \item{\code{package.dependency.fields}}{
+#' Enable [Posit Package Manager](https://packagemanager.posit.co/)
+#' integration in this project? When `TRUE`, renv will attempt to transform
+#' repository URLs used by PPM into binary URLs as appropriate for the
+#' current Linux platform. Set this to `FALSE` if you'd like to continue using
+#' source-only PPM URLs, or if you find that renv is improperly transforming
+#' your repository URLs. You can still set and use PPM repositories with this
+#' option disabled; it only controls whether renv tries to transform source
+#' repository URLs into binary URLs on your behalf.
 #'
-#'   During dependency discovery, `renv` uses the fields of an installed
-#'   package's `DESCRIPTION` file to determine that package's recursive
-#'   dependencies. By default, the `Imports`, `Depends` and `LinkingTo` fields
-#'   are used. If you'd prefer that `renv` also captures the `Suggests`
-#'   dependencies for a package, you can set this to
-#'   `c("Imports", "Depends", "LinkingTo", "Suggests")`.
+#' ## `ppm.ignored.urls`
 #'
-#' }
+#' When [Posit Package Manager](https://packagemanager.posit.co/) integration
+#' is enabled, `renv` will attempt to transform source repository URLs into
+#' binary repository URLs. This setting can be used if you'd like to avoid this
+#' transformation with some subset of repository URLs.
 #'
-#' \item{\code{r.version}}{
+#' ## `r.version`
 #'
-#'   The version of \R to encode within the lockfile. This can be set as a
-#'   project-specific option if you'd like to allow multiple users to use
-#'   the same \code{renv} project with different versions of \R. `renv` will
-#'   still warn the user if the major + minor version of \R used in a project
-#'   does not match what is encoded in the lockfile.
+#' The version of \R to encode within the lockfile. This can be set as a
+#' project-specific option if you'd like to allow multiple users to use
+#' the same renv project with different versions of \R. renv will
+#' still warn the user if the major + minor version of \R used in a project
+#' does not match what is encoded in the lockfile.
 #'
-#' }
+#' ## `snapshot.type`
 #'
-#' \item{\code{snapshot.type}}{
+#' The type of snapshot to perform by default. See [snapshot] for more
+#' details.
 #'
-#'   The type of snapshot to perform by default. See [snapshot] for more
-#'   details.
+#' ## `use.cache`
 #'
-#' }
+#' Enable the renv package cache with this project. When active, renv will
+#' install packages into a global cache, and link packages from the cache into
+#' your renv projects as appropriate. This can greatly save on disk space
+#' and install time when for \R packages which are used across multiple
+#' projects in the same environment.
 #'
-#' \item{\code{use.cache}}{
+#' ## `vcs.manage.ignores`
 #'
-#'   Enable the `renv` package cache with this project. When active, `renv` will
-#'   install packages into a global cache, and link packages from the cache into
-#'   your `renv` projects as appropriate. This can greatly save on disk space
-#'   and install time when for \R packages which are used across multiple
-#'   projects in the same environment.
+#' Should renv attempt to manage the version control system's ignore files
+#' (e.g. `.gitignore`) within this project? Set this to `FALSE` if you'd
+#' prefer to take control. Note that if this setting is enabled, you will
+#' need to manually ensure internal data in the project's `renv/` folder
+#' is explicitly ignored.
 #'
-#' }
+#' ## `vcs.ignore.cellar`
 #'
-#' \item{\code{vcs.ignore.cellar}}{
+#' Set whether packages within a project-local package cellar are excluded
+#' from version control. See `vignette("cellar", package = "renv")` for
+#' more information.
 #'
-#'   Set whether packages within a project-local package cellar are excluded
-#'   from version control. See `vignette("cellar", package = "renv")` for
-#'   more information.
+#' ## `vcs.ignore.library`
 #'
-#' }
+#' Set whether the renv project library is excluded from version control.
 #'
-#' \item{\code{vcs.ignore.library}}{
+#' ## `vcs.ignore.local`
 #'
-#'   Set whether the `renv` project library is excluded from version control.
+#' Set whether renv project-specific local sources are excluded from version
+#' control.
 #'
-#' }
+#' # Defaults
 #'
-#' \item{\code{vcs.ignore.local}}{
-#'
-#'   Set whether `renv` project-specific local sources are excluded from version
-#'   control.
-#'
-#' }
-#'
-#' }
-#'
-#' @section Defaults:
-#'
-#' You can change the default values of these settings for newly-created `renv`
+#' You can change the default values of these settings for newly-created renv
 #' projects by setting \R options for `renv.settings` or `renv.settings.<name>`.
 #' For example:
 #'
-#' \preformatted{
+#' ```R
 #' options(renv.settings = list(snapshot.type = "all"))
 #' options(renv.settings.snapshot.type = "all")
-#' }
+#' ```
 #'
 #' If both of the `renv.settings` and `renv.settings.<name>` options are set
 #' for a particular key, the option associated with `renv.settings.<name>` is
 #' used instead. We recommend setting these in an appropriate startup profile,
 #' e.g. `~/.Rprofile` or similar.
+#'
+#' @return
+#'   A named list of renv settings.
+#'
+#' @format NULL
 #'
 #' @export
 #'
@@ -393,71 +468,118 @@ settings <- list(
 
   bioconductor.version = renv_settings_impl(
     name     = "bioconductor.version",
+    default  = NULL,
+    scalar   = TRUE,
     validate = is.character,
-    default  = character(),
+    coerce   = as.character,
     update   = NULL
   ),
 
   ignored.packages = renv_settings_impl(
     name     = "ignored.packages",
-    validate = is.character,
     default  = character(),
+    scalar   = FALSE,
+    validate = is.character,
+    coerce   = as.character,
     update   = NULL
   ),
 
   external.libraries = renv_settings_impl(
     name     = "external.libraries",
-    validate = is.character,
     default  = character(),
+    scalar   = FALSE,
+    validate = is.character,
+    coerce   = as.character,
     update   = NULL
   ),
 
   package.dependency.fields = renv_settings_impl(
     name     = "package.dependency.fields",
-    validate = is.character,
     default  = c("Imports", "Depends", "LinkingTo"),
+    scalar   = FALSE,
+    validate = is.character,
+    coerce   = as.character,
+    update   = NULL
+  ),
+
+  ppm.enabled = renv_settings_impl(
+    name     = "ppm.enabled",
+    default  = NULL,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
+    update   = FALSE
+  ),
+
+  ppm.ignored.urls = renv_settings_impl(
+    name     = "ppm.ignored.urls",
+    default  = NULL,
+    scalar   = FALSE,
+    validate = is.character,
+    coerce   = as.character,
     update   = NULL
   ),
 
   r.version = renv_settings_impl(
     name     = "r.version",
+    default  = NULL,
+    scalar   = TRUE,
     validate = is.character,
-    default  = character(),
+    coerce   = as.character,
     update   = NULL
   ),
 
   snapshot.type = renv_settings_impl(
     name     = "snapshot.type",
-    validate = c("all", "custom", "implicit", "explicit", "packrat", "simple"),
     default  = "implicit",
+    scalar   = TRUE,
+    validate = c("all", "custom", "implicit", "explicit", "packrat", "simple"),
+    coerce   = as.character,
     update   = NULL
   ),
 
   use.cache = renv_settings_impl(
     name     = "use.cache",
-    validate = is.logical,
     default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = renv_settings_updated_cache
+  ),
+
+  vcs.manage.ignores = renv_settings_impl(
+    name     = "vcs.manage.ignores",
+    default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
+    update   = NULL
   ),
 
   vcs.ignore.cellar = renv_settings_impl(
     name     = "vcs.ignore.cellar",
-    validate = is.logical,
     default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = renv_settings_updated_ignore
   ),
 
   vcs.ignore.library = renv_settings_impl(
     name     = "vcs.ignore.library",
-    validate = is.logical,
     default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = renv_settings_updated_ignore
   ),
 
   vcs.ignore.local = renv_settings_impl(
     name     = "vcs.ignore.local",
-    validate = is.logical,
     default  = TRUE,
+    scalar   = TRUE,
+    validate = is.logical,
+    coerce   = as.logical,
     update   = renv_settings_updated_ignore
   )
 

@@ -4,6 +4,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
+^.*\.backup$
 \.covrignore$
 \.renvignore$
 \.vscode
@@ -35,3 +36,5 @@
 ^tools$
 
 ^tests/testthat/testthat-problems.rds$
+^vignettes/renv\.graffle$
+^README\.Rmd$

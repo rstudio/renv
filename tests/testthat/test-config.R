@@ -1,6 +1,4 @@
 
-context("Config")
-
 test_that("config variables read from appropriate scope", {
 
   local({
@@ -9,7 +7,7 @@ test_that("config variables read from appropriate scope", {
   })
 
   local({
-    Sys.setenv(RENV_CONFIG_TEST = "hello")
+    renv_scope_envvars(RENV_CONFIG_TEST = "hello")
     expect_equal(renv_config_get("test"), "hello")
   })
 

@@ -23,10 +23,9 @@ renv_library_diagnose <- function(project, libpath) {
   if (any(missing)) {
 
     renv_pretty_print(
-      basename(children[missing]),
       "The following package(s) are missing entries in the cache:",
-      "These packages will need to be reinstalled.",
-      warningf
+      basename(children[missing]),
+      "These packages will need to be reinstalled."
     )
 
     return(FALSE)

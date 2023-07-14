@@ -2,48 +2,34 @@
 % Please edit documentation in R/vendor.R
 \name{vendor}
 \alias{vendor}
-\title{Vendor renv in an R Package}
+\title{Vendor renv in an R package}
 \usage{
-vendor(
-  version = NULL,
-  repository = "https://github.com/rstudio/renv",
-  sources = NULL,
-  project = getwd()
-)
+vendor(version = "main", project = getwd())
 }
 \arguments{
-\item{version}{The version of \code{renv} to vendor. If \code{NULL} (the default),
-the current version of \code{renv} will be used. Ignored if \code{sources}
-is non-\code{NULL}.}
+\item{version}{The version of renv to vendor. \code{renv} sources will be pulled
+from GitHub, and so \code{version} should refer to either a commit hash or a
+branch name.}
 
-\item{repository}{The Git repository from which \code{renv} should be retrieved.
-\code{renv} will use \verb{git clone <repository> --branch <version>} to download
-the required \code{renv} sources. Ignored if \code{sources} is non-\code{NULL}.}
-
-\item{sources}{The path to local \code{renv} sources to be vendored.}
-
-\item{project}{The project in which \code{renv} should be vendored.}
+\item{project}{The project in which renv should be vendored.}
 }
 \description{
-Vendor a copy of \code{renv} in an \R package.
-}
-\details{
-Calling \code{renv::vendor()} will:
+Calling \code{renv:::vendor()} will:
 \itemize{
-\item Compile a vendored copy of \code{renv} to \code{inst/vendor/renv.R},
-\item Generate an \code{renv} auto-loader at \code{R/renv.R}.
+\item Compile a vendored copy of renv to \code{inst/vendor/renv.R},
+\item Generate an renv auto-loader at \code{R/renv.R}.
 }
 
-Using this, projects can take a dependency on \code{renv}, and use \code{renv}
-internals, in a CRAN-compliant way. After vendoring \code{renv}, you can
-use \code{renv} APIs in your package via the embedded \code{renv} environment;
+Using this, projects can take a dependency on renv, and use renv
+internals, in a CRAN-compliant way. After vendoring renv, you can
+use renv APIs in your package via the embedded renv environment;
 for example, you could call the \code{\link[=dependencies]{dependencies()}} function with:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{renv$dependencies()
 }\if{html}{\out{</div>}}
 
-Be aware that \code{renv} internals might change in future releases, so if you
-need to rely on \code{renv} internal functions, we strongly recommend testing
+Be aware that renv internals might change in future releases, so if you
+need to rely on renv internal functions, we strongly recommend testing
 your usages of these functions to avoid potential breakage.
 }
 \keyword{internal}

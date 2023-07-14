@@ -2,7 +2,7 @@
 % Please edit documentation in R/run.R
 \name{run}
 \alias{run}
-\title{Run a Script}
+\title{Run a script}
 \usage{
 run(script, ..., job = NULL, name = NULL, project = NULL)
 }
@@ -10,17 +10,17 @@ run(script, ..., job = NULL, name = NULL, project = NULL)
 \item{script}{The path to an \R script.}
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
-are matched to \code{...}, \code{renv} will signal an error.}
+are matched to \code{...}, renv will signal an error.}
 
 \item{job}{Run the requested script as an RStudio job? Requires a recent
-version of both RStudio and the \code{rstudioapi} packages. When \code{NULL}, the
+version of both RStudio and the rstudioapi packages. When \code{NULL}, the
 script will be run as a job if possible, and as a regular \R process
 launched by \code{\link[=system2]{system2()}} if not.}
 
 \item{name}{The name to associate with the job, for scripts run as a job.}
 
-\item{project}{The path to the \code{renv} project. This project will be loaded
-before the requested script is executed. When \code{NULL} (the default), \code{renv}
+\item{project}{The path to the renv project. This project will be loaded
+before the requested script is executed. When \code{NULL} (the default), renv
 will automatically determine the project root for the associated script
 if possible.}
 }
@@ -29,6 +29,6 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Run an \R script, in the context of a project using \code{renv}. The script will
+Run an \R script, in the context of a project using renv. The script will
 be run within an \R sub-process.
 }

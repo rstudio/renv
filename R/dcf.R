@@ -5,79 +5,115 @@
 # - always keeps whitespace
 renv_dcf_read <- function(file, text = NULL, ...) {
 
-  # read the file as binary first to get encoding
+  # read file
   contents <- text %||% renv_dcf_read_impl(file, ...)
 
-  # normalize newlines
-  contents <- gsub("\r\n", "\n", contents, fixed = TRUE)
+  # split on newlines
+  parts <- strsplit(contents, "\\r?\\n(?=\\S)", perl = TRUE)[[1L]]
 
-  # look for tags
-  pattern <- "(?:^|\n)[^\\s][^:\n]*:"
-  matches <- gregexpr(pattern, contents, perl = TRUE)[[1L]]
+  # remove embedded newlines
+  parts <- gsub("\\r?\\n\\s*", " ", parts, perl = TRUE)
 
-  # compute substring indices
-  starts <- matches
-  ends   <- c(tail(matches, n = -1L), nchar(contents))
-  parts <- substring(contents, starts, ends)
+  # split into key / value pairs
+  index <- regexpr(":", parts, fixed = TRUE)
+  keys <- substring(parts, 1L, index - 1L)
+  vals <- substring(parts, index + 1L)
 
-  # read as property list
-  properties <- renv_properties_read(text = parts, dequote = FALSE)
+  # trim whitespace
+  vals <- trimws(vals)
 
-  # set encoding if necessary
-  if (identical(properties$Encoding, "UTF-8"))
-    properties[] <- lapply(properties, renv_encoding_mark, "UTF-8")
+  # return early if everything looks fine
+  ok <- nzchar(keys)
+  if (all(ok)) {
+    storage.mode(vals) <- "list"
+    names(vals) <- keys
+    return(vals)
+  }
 
-  # return as data.frame
-  as.list(properties)
+  # otherwise, fix up bad continuations
+  starts <- which(ok)
+  ends <- c(tail(starts - 1L, n = -1L), length(keys))
+  vals <- .mapply(
+    function(start, end) paste(vals[start:end], collapse = " "),
+    list(starts, ends),
+    NULL
+  )
+
+  # set up names
+  names(vals) <- keys[ok]
+
+  # done
+  vals
 
 }
 
-renv_dcf_read_impl_encoding <- function(contents) {
+renv_dcf_read_impl_encoding <- function(bytes) {
 
   # try to find encoding -- if none is declared, assume native encoding?
-  start <- grepRaw("(?:^|\n)Encoding:", contents)
-  if (empty(start))
-    return(NULL)
+  start <- 0L
+  while (TRUE) {
 
-  # try to find the end of the encoding field
-  end   <- grepRaw("(?:\r?\n|$)", contents, offset = start + 1L)
-  field <- rawToChar(contents[start:end])
+    # find 'Encoding'
+    start <- grepRaw("Encoding:", bytes, fixed = TRUE, offset = start + 1L)
+    if (length(start) == 0L)
+      return(NULL)
 
-  # parse it
-  properties <- renv_properties_read(text = field)
-  properties[["Encoding"]]
+    # check for preceding newline, or start of file
+    if (start == 1L || bytes[[start - 1L]] == 0x0A) {
+      start <- start + 9L
+      break
+    }
+
+  }
+
+  # find the end of the encoding field
+  end <- grepRaw("\\r?\\n", bytes, offset = start + 1L)
+  if (length(end) == 0L)
+    end <- length(bytes)
+
+  # pull it out
+  field <- rawToChar(bytes[start:end])
+  trimws(field)
 
 }
 
 renv_dcf_read_impl <- function(file, ...) {
 
+  # suppress warnings in this scope
+  renv_scope_options(warn = -1L)
+
   # first, read the file as bytes to get encoding
-  contents <- readBin(
-    con  = file,
-    what = "raw",
-    n    = renv_file_size(file)
-  )
+  # use a guess for the file size to avoid expensive lookup, but fallback
+  # if necessary
+  bytes <- readBin(file, what = "raw", n = 8192L)
+  if (length(bytes) == 8192L) {
+    n <- renv_file_size(file)
+    bytes <- readBin(con = file, what = "raw", n = n)
+  }
 
   # try to guess the encoding
-  encoding <- tryCatch(
-    renv_dcf_read_impl_encoding(contents),
-    error = function(e) NULL
-  )
+  encoding <- renv_dcf_read_impl_encoding(bytes)
 
   # try a bunch of candidate encodings
   encodings <- c(encoding, "UTF-8", "latin1", "")
   for (encoding in unique(encodings)) {
-    result <- iconv(list(contents), from = encoding, to = "UTF-8")
+    result <- iconv(list(bytes), from = encoding, to = "UTF-8")
     if (!is.na(result))
       return(result)
   }
 
   # all else fails, just pretend it's in the native encoding
-  rawToChar(contents)
+  rawToChar(bytes)
 
 }
 
 renv_dcf_write <- function(x, file = "") {
+
   keep.white <- c("Description", "Authors@R", "Author", "Built", "Packaged")
-  write.dcf(as.list(x), file = file, indent = 4L, width = 80L, keep.white = keep.white)
+  result <- write.dcf(as.list(x), file = file, indent = 4L, width = 80L, keep.white = keep.white)
+
+  renv_filebacked_invalidate(file)
+
+  invisible(result)
+
 }

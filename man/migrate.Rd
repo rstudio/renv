@@ -2,7 +2,7 @@
 % Please edit documentation in R/migrate.R
 \name{migrate}
 \alias{migrate}
-\title{Migrate a Project from Packrat to renv}
+\title{Migrate a project from packrat to renv}
 \usage{
 migrate(
   project = NULL,
@@ -23,12 +23,10 @@ The project directory, invisibly. Note that this function is normally
 called for its side effects.
 }
 \description{
-Migrate a project's infrastructure from Packrat to \code{renv}.
+Migrate a project's infrastructure from packrat to renv.
 }
 \section{Migration}{
-
-
-When migrating Packrat projects to \code{renv}, the set of components migrated
+When migrating Packrat projects to renv, the set of components migrated
 can be customized using the \code{packrat} argument. The set of components that
 can be migrated are as follows:
 
@@ -37,26 +35,26 @@ can be migrated are as follows:
 \strong{Name} \tab \strong{Description} \cr
 
 \code{lockfile} \tab
-Migrate the Packrat lockfile (\code{packrat/packrat.lock}) to the \code{renv} lockfile
+Migrate the Packrat lockfile (\code{packrat/packrat.lock}) to the renv lockfile
 (\code{renv.lock}). \cr
 
 \code{sources} \tab
-Migrate package sources from the \code{packrat/src} folder to the \code{renv}
-sources folder. Currently, only CRAN packages are migrated to \code{renv} --
+Migrate package sources from the \code{packrat/src} folder to the renv
+sources folder. Currently, only CRAN packages are migrated to renv --
 packages retrieved from other sources (e.g. GitHub) are ignored.
 \cr
 
 \code{library} \tab
-Migrate installed packages from the Packrat library to the \code{renv} project
+Migrate installed packages from the Packrat library to the renv project
 library.
 \cr
 
 \code{options} \tab
-Migrate compatible Packrat options to the \code{renv} project.
+Migrate compatible Packrat options to the renv project.
 \cr
 
 \code{cache} \tab
-Migrate packages from the Packrat cache to the \code{renv} cache.
+Migrate packages from the Packrat cache to the renv cache.
 \cr
 
 }

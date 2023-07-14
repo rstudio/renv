@@ -1,8 +1,8 @@
 
-`_renv_sysinfo` <- NULL
+the$sysinfo <- NULL
 
 renv_platform_init <- function() {
-  `_renv_sysinfo` <<- Sys.info()
+  the$sysinfo <- Sys.info()
 }
 
 renv_platform_unix <- function() {
@@ -14,15 +14,15 @@ renv_platform_windows <- function() {
 }
 
 renv_platform_macos <- function() {
-  `_renv_sysinfo`[["sysname"]] == "Darwin"
+  the$sysinfo[["sysname"]] == "Darwin"
 }
 
 renv_platform_linux <- function() {
-  `_renv_sysinfo`[["sysname"]] == "Linux"
+  the$sysinfo[["sysname"]] == "Linux"
 }
 
 renv_platform_solaris <- function() {
-  `_renv_sysinfo`[["sysname"]] == "SunOS"
+  the$sysinfo[["sysname"]] == "SunOS"
 }
 
 renv_platform_wsl <- function() {
@@ -31,6 +31,7 @@ renv_platform_wsl <- function() {
   if (!file.exists(pv))
     return(FALSE)
 
+  renv_scope_options(warn = -1L)
   contents <- catch(readLines(pv, warn = FALSE))
   if (inherits(contents, "error"))
     return(FALSE)
@@ -48,5 +49,5 @@ renv_platform_os <- function() {
 }
 
 renv_platform_machine <- function() {
-  `_renv_sysinfo`[["machine"]]
+  the$sysinfo[["machine"]]
 }

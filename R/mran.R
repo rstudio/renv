@@ -21,11 +21,10 @@ renv_mran_database_encode_impl <- function(entry) {
 
   splat <- strsplit(keys, " ", fixed = TRUE)
 
-  encoded <- data.frame(
+  encoded <- data_frame(
     Package          = map_chr(splat, `[[`, 1L),
     Version          = map_chr(splat, `[[`, 2L),
-    Date             = as.integer(vals),
-    stringsAsFactors = FALSE
+    Date             = as.integer(vals)
   )
 
   encoded <- encoded[order(encoded$Package, encoded$Version), ]
@@ -52,7 +51,10 @@ renv_mran_database_decode_impl <- function(entry) {
   vals <- as.list(entry$Date)
   names(vals) <- keys
 
-  list2env(vals, parent = emptyenv())
+  envir <- list2env(vals, parent = emptyenv())
+  attr(envir, "keys") <- keys
+
+  envir
 
 }
 
@@ -64,14 +66,19 @@ renv_mran_database_save <- function(database, path = NULL) {
   encoded <- renv_mran_database_encode(database)
 
   conn <- xzfile(path)
-  on.exit(close(conn), add = TRUE)
+  defer(close(conn))
   saveRDS(encoded, file = conn, version = 2L)
 
 }
 
 renv_mran_database_load <- function(path = NULL) {
-  path <- path %||% renv_mran_database_path()
-  filebacked("mran", path, renv_mran_database_load_impl)
+
+  filebacked(
+    context  = "renv_mran_database_load",
+    path     = path %||% renv_mran_database_path(),
+    callback = renv_mran_database_load_impl
+  )
+
 }
 
 renv_mran_database_load_impl <- function(path) {
@@ -155,24 +162,24 @@ renv_mran_database_update <- function(platform, version, dates = NULL) {
   }
 
   # save at end
-  vprintf("[%s]: saving database ... ", date)
+  printf("[%s]: saving database ... ", date)
   renv_mran_database_save(database)
-  vwritef("DONE")
+  writef("DONE")
 
 }
 
 renv_mran_database_update_impl <- function(date, url, entry) {
 
-  vprintf("[%s]: reading package database ... ", date)
+  printf("[%s]: reading package database ... ", date)
 
   # get date as number of days since epoch
   idate <- as.integer(date)
 
   # retrieve available packages
   errors <- new.env(parent = emptyenv())
-  db <- renv_available_packages_query(url, errors)
+  db <- renv_available_packages_query_impl(url, errors)
   if (is.null(db)) {
-    vwritef("ERROR")
+    writef("ERROR")
     return(FALSE)
   }
 
@@ -189,7 +196,7 @@ renv_mran_database_update_impl <- function(date, url, entry) {
 
   }
 
-  vwritef("OK")
+  writef("OK")
   TRUE
 
 }
@@ -213,6 +220,13 @@ renv_mran_database_refresh <- function(explicit = TRUE) {
 }
 
 renv_mran_database_refresh_required <- function() {
+  dynamic(
+    key   = list(),
+    value = renv_mran_database_refresh_required_impl()
+  )
+}
+
+renv_mran_database_refresh_required_impl <- function() {
 
   # if the cache doesn't exist, we must refresh
   path <- renv_mran_database_path()
@@ -283,10 +297,10 @@ renv_mran_database_sync <- function(platform, version) {
     return(FALSE)
 
   # invoke update for missing dates
-  vwritef("==> Synchronizing MRAN database (%s/%s)", platform, version)
+  writef("==> Synchronizing MRAN database (%s/%s)", platform, version)
   dates <- as.Date(seq(last + 1L, now, by = 1L), origin = "1970-01-01")
   renv_mran_database_update(platform, version, dates)
-  vwritef("Finished synchronizing MRAN database (%s/%s)", platform, version)
+  writef("Finished synchronizing MRAN database (%s/%s)", platform, version)
 
   # return TRUE to indicate update occurred
   return(TRUE)
