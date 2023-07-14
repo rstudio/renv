@@ -540,24 +540,34 @@ renv_dependencies_discover_description <- function(path,
       renv_restore_state(key = "root") %||%
       renv_project_resolve()
 
-    # get fields from settings
+    # if this appears to be the DESCRIPTION associated with the active project,
+    # and an explicit set of dependencies was provided in install, then use those
+    primary <- renv_path_same(file.path(project, "DESCRIPTION"), path)
+
+    # by default, respect fields defined in settings
     fields <- settings$package.dependency.fields(project = project)
 
-    # if this is the DESCRIPTION file for the active project, include
-    # the dependencies for the active profile (if any) and Suggested fields.
-    # collect profile-specific dependencies as well
-    if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
-      fmt <- "Config/renv/profiles/%s/dependencies"
-      profile <- renv_profile_get()
-      fields <- c(fields, "Suggests", sprintf(fmt, profile))
+    # check for overrides if this is the project's own DESCRIPTION file
+    if (primary) {
+      default <- the$install_dependency_fields %||% c(fields, "Suggests")
+      profile <- sprintf("Config/renv/profiles/%s/dependencies", renv_profile_get())
+      fields <- c(default, profile)
     }
 
+    # return computed fields
     fields
 
   }
 
   # make sure dependency fields are expanded
   fields <- renv_description_dependency_fields_expand(fields)
+
+  # propagate 'extra' dependency fields if requested in install
+  if (!is.null(the$install_dependency_fields)) {
+    default <- c("Depends", "Imports", "Suggests", "LinkingTo")
+    extra <- setdiff(the$install_dependency_fields, default)
+    fields <- unique(c(fields, extra))
+  }
 
   data <- map(
     fields,
