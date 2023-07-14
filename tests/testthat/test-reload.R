@@ -14,7 +14,10 @@ test_that("renv can be reloaded within the same session", {
     options(warn = 2L)
     options(repos = c(CRAN = "https://cloud.R-project.org"))
     install("renv@1.0.0")
-    reload()
+
+    # unload and reload renv
+    unloadNamespace("renv")
+    loadNamespace("renv")
 
     # try writing out some data
     writeLines(paste(renv_package_version("renv"), renv_namespace_version("renv")))

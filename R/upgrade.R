@@ -172,7 +172,7 @@ renv_upgrade_reload <- function() {
     invisible(FALSE)
   }
 
-  environment(callback) <- .BaseNamespaceEnv
+  environment(callback) <- baseenv()
 
   # add the task callback; don't name it so that the renv infrastructure
   # doesn't try to remove this callback (it'll resolve and remove itself)
