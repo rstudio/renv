@@ -6,13 +6,7 @@ the$watchdog_enabled <- FALSE
 the$watchdog_process <- NULL
 
 renv_watchdog_init <- function() {
-
   the$watchdog_enabled <- renv_watchdog_enabled_impl()
-
-  reg.finalizer(renv_envir_self(), function(envir) {
-    renv_watchdog_shutdown()
-  }, onexit = TRUE)
-
 }
 
 renv_watchdog_enabled <- function() {
@@ -211,14 +205,12 @@ renv_watchdog_running <- function() {
 }
 
 renv_watchdog_unload <- function() {
-  renv_watchdog_terminate()
+  renv_watchdog_shutdown()
 }
 
 renv_watchdog_terminate <- function() {
-  if (renv_watchdog_running()) {
-    pid <- renv_watchdog_pid()
-    renv_process_kill(pid)
-  }
+  pid <- renv_watchdog_pid()
+  renv_process_kill(pid)
 }
 
 renv_watchdog_shutdown <- function() {

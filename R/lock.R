@@ -94,14 +94,9 @@ renv_lock_refresh <- function(lock) {
   Sys.setFileTime(lock, Sys.time())
 }
 
-renv_lock_init <- function() {
-
-  # make sure we clean up locks on exit
-  reg.finalizer(the$lock_registry, function(envir) {
-    locks <- ls(envir = envir, all.names = TRUE)
-    unlink(locks, recursive = TRUE, force = TRUE)
-  }, onexit = TRUE)
-
+renv_lock_unload <- function() {
+  locks <- ls(envir = the$lock_registry, all.names = TRUE)
+  unlink(locks, recursive = TRUE, force = TRUE)
 }
 
 renv_lock_path <- function(path) {
