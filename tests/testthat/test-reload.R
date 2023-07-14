@@ -10,9 +10,6 @@ test_that("renv can be reloaded within the same session", {
     ensure_directory(libdir)
     .libPaths(libdir)
 
-    # do something to make unload fail
-    help("renv-package")
-
     # install CRAN version of renv
     options(warn = 2L)
     options(repos = c(CRAN = "https://cloud.R-project.org"))

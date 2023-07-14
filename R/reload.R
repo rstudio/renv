@@ -8,7 +8,7 @@ reload <- function() {
   # unload renv
   renv_namespace_unload("renv")
 
-  # try loading renv in an exit handler
+  # reload renv
   requireNamespace("renv", quietly = TRUE)
 
 }

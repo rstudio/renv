@@ -95,7 +95,7 @@ renv_lock_refresh <- function(lock) {
 }
 
 renv_lock_unload <- function() {
-  locks <- ls(envir = envir, all.names = TRUE)
+  locks <- ls(envir = the$lock_registry, all.names = TRUE)
   unlink(locks, recursive = TRUE, force = TRUE)
 }
 

@@ -205,14 +205,12 @@ renv_watchdog_running <- function() {
 }
 
 renv_watchdog_unload <- function() {
-  renv_watchdog_terminate()
+  renv_watchdog_shutdown()
 }
 
 renv_watchdog_terminate <- function() {
-  if (renv_watchdog_running()) {
-    pid <- renv_watchdog_pid()
-    renv_process_kill(pid)
-  }
+  pid <- renv_watchdog_pid()
+  renv_process_kill(pid)
 }
 
 renv_watchdog_shutdown <- function() {
