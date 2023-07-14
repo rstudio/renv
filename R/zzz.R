@@ -24,8 +24,6 @@
     error = function(e) NULL
   )
 
-  the$loaded <- FALSE
-
 }
 
 renv_zzz_load <- function() {
@@ -62,16 +60,10 @@ renv_zzz_load <- function() {
       renv_sandbox_activate(project = project)
   }
 
-  # in RStudio, package .onUnload hooks aren't run on restart, but
-  # finalizers are. for that reason, we need to register a finalizer
-  # that explicitly unloads the package here. we make sure the callback
-  # is 'owned' by the base namespace to make sure the finalizer is
-  # independent of any bits living in renv
-  if (renv_rstudio_available()) {
-    callback <- function(envir) unloadNamespace("renv")
-    environment(callback) <- baseenv()
-    reg.finalizer(renv_envir_self(), callback, onexit = TRUE)
-  }
+  # make sure renv is unloaded on exit, so locks etc. are released
+  callback <- function(envir) unloadNamespace("renv")
+  environment(callback) <- baseenv()
+  reg.finalizer(renv_envir_self(), callback, onexit = TRUE)
 
 }
 
