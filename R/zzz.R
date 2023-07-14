@@ -9,6 +9,7 @@
 
 .onUnload <- function(libpath) {
 
+  renv_lock_unload()
   renv_task_unload()
   renv_watchdog_unload()
 
@@ -38,7 +39,6 @@ renv_zzz_load <- function() {
   renv_methods_init()
   renv_libpaths_init()
   renv_patch_init()
-  renv_lock_init()
   renv_sandbox_init()
   renv_sdkroot_init()
   renv_watchdog_init()

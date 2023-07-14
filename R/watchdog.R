@@ -6,13 +6,7 @@ the$watchdog_enabled <- FALSE
 the$watchdog_process <- NULL
 
 renv_watchdog_init <- function() {
-
   the$watchdog_enabled <- renv_watchdog_enabled_impl()
-
-  reg.finalizer(renv_envir_self(), function(envir) {
-    renv_watchdog_shutdown()
-  }, onexit = TRUE)
-
 }
 
 renv_watchdog_enabled <- function() {
