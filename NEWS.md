@@ -1,6 +1,10 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* When the `RENV_STARTUP_DIAGNOSTICS` environment variable is set to `TRUE`,
+  `renv` now displays a short diagnostics report after a project's autoloader
+  has been run. (#1557)
+
 * `renv::restore()` no longer erroneously prompts when determining the packages
   which need to be installed. (#1544)
 
