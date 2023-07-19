@@ -256,8 +256,6 @@ renv_snapshot_preserve_impl <- function(record) {
 
 renv_snapshot_preflight <- function(project, libpaths) {
   lapply(libpaths, renv_snapshot_preflight_impl, project = project)
-  if (interactive())
-    renv_snapshot_preflight_check_sources(project, libpaths[[1L]])
 }
 
 renv_snapshot_preflight_impl <- function(project, library) {
@@ -319,7 +317,7 @@ renv_snapshot_preflight_check_sources_infer <- function(dcf) {
 
 }
 
-renv_snapshot_preflight_check_sources <- function(project, library) {
+renv_snapshot_preflight_check_sources <- function(project, library, packages) {
 
   # allow user to disable snapshot validation, just in case
   enabled <- config$snapshot.inference()
@@ -327,10 +325,12 @@ renv_snapshot_preflight_check_sources <- function(project, library) {
     return(TRUE)
 
   # get package description files
-  packages <- installed_packages(library, field = "Package")
-  descpaths <- file.path(library, packages, "DESCRIPTION")
-  dcfs <- lapply(descpaths, renv_description_read)
-  names(dcfs) <- packages
+  dcfs <-
+    file.path(library, packages, "DESCRIPTION") %>%
+    filter(file.exists) %>%
+    map(renv_description_read)
+
+  names(dcfs) <- map_chr(dcfs, `[[`, "Package")
 
   # try to infer sources as necessary
   inferred <- map(dcfs, renv_snapshot_preflight_check_sources_infer)
@@ -360,6 +360,7 @@ renv_snapshot_preflight_check_sources <- function(project, library) {
     renv_package_augment(file.path(library, package), record)
   })
 
+  invokeRestart("renv_recompute_records")
   TRUE
 
 }
