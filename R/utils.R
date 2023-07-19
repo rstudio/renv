@@ -121,12 +121,6 @@ ask <- function(question, default = FALSE) {
   if (!interactive())
     return(default)
 
-  # TODO: presumedly we don't want to prompt in the autoloader
-  # because it might cause issues in RStudio?
-  initializing <- getOption("renv.autoloader.running")
-  if (identical(initializing, TRUE))
-    return(default)
-
   repeat {
 
     # solicit user's answer
