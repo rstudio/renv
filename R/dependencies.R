@@ -523,6 +523,29 @@ renv_dependencies_discover_renv_lock <- function(path) {
   renv_dependencies_list(path, "renv")
 }
 
+renv_dependencies_discover_description_fields <- function(path, project = NULL) {
+
+  # most callers don't pass in project so we need to get it from global state
+  project <- project %||%
+    renv_dependencies_state(key = "root") %||%
+    renv_restore_state(key = "root") %||%
+    renv_project_resolve()
+
+  # by default, respect fields defined in settings
+  fields <- settings$package.dependency.fields(project = project)
+
+  # if this appears to be the DESCRIPTION associated with the active project,
+  # and an explicit set of dependencies was provided in install, then use those
+  if (renv_path_same(file.path(project, "DESCRIPTION"), path)) {
+    default <- the$install_dependency_fields %||% c(fields, "Suggests")
+    profile <- sprintf("Config/renv/profiles/%s/dependencies", renv_profile_get())
+    fields <- c(default, profile)
+  }
+
+  fields
+
+}
+
 renv_dependencies_discover_description <- function(path,
                                                    fields = NULL,
                                                    subdir = NULL,
@@ -532,42 +555,11 @@ renv_dependencies_discover_description <- function(path,
   if (inherits(dcf, "error"))
     return(renv_dependencies_error(path, error = dcf))
 
-  fields <- fields %||% {
-
-    # most callers don't pass in project so we need to get it from global state
-    project <- project %||%
-      renv_dependencies_state(key = "root") %||%
-      renv_restore_state(key = "root") %||%
-      renv_project_resolve()
-
-    # if this appears to be the DESCRIPTION associated with the active project,
-    # and an explicit set of dependencies was provided in install, then use those
-    primary <- renv_path_same(file.path(project, "DESCRIPTION"), path)
-
-    # by default, respect fields defined in settings
-    fields <- settings$package.dependency.fields(project = project)
-
-    # check for overrides if this is the project's own DESCRIPTION file
-    if (primary) {
-      default <- the$install_dependency_fields %||% c(fields, "Suggests")
-      profile <- sprintf("Config/renv/profiles/%s/dependencies", renv_profile_get())
-      fields <- c(default, profile)
-    }
-
-    # return computed fields
-    fields
-
-  }
+  # resolve the dependency fields to be used
+  fields <- fields %||% renv_dependencies_discover_description_fields(path, project)
 
   # make sure dependency fields are expanded
   fields <- renv_description_dependency_fields_expand(fields)
-
-  # propagate 'extra' dependency fields if requested in install
-  if (!is.null(the$install_dependency_fields)) {
-    default <- c("Depends", "Imports", "Suggests", "LinkingTo")
-    extra <- setdiff(the$install_dependency_fields, default)
-    fields <- unique(c(fields, extra))
-  }
 
   data <- map(
     fields,

@@ -492,19 +492,6 @@ test_that("custom dependency fields in install are supported", {
   expect_true(renv_package_installed("egg"))
 })
 
-test_that("recursive custom dependency fields in install are supported", {
-
-  skip_on_cran()
-  skip_on_windows()
-
-  renv_tests_scope()
-
-  # toast depends on bread
-  # bread has Config/Needs/protein: egg
-  install("toast", dependencies = c("strong", "Config/Needs/protein"))
-  expect_true(renv_package_installed("egg"))
-})
-
 test_that("install has user-friendly output", {
 
   renv_scope_libpaths()
