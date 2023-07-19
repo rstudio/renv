@@ -217,7 +217,7 @@ renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude
   if (length(missing) && the$auto_snapshot_running)
     invokeRestart("cancel")
 
-  if (identical(apex(), snapshot)) {
+  if (identical(topfun(), snapshot)) {
 
     # give user a chance to handle missing packages, if any
     renv_snapshot_report_missing(missing, type)

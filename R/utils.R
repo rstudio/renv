@@ -563,7 +563,7 @@ overlay <- function(lhs, rhs) {
 }
 
 # the 'top' renv function in the call stack
-apex <- function() {
+topfun <- function() {
 
   self <- renv_envir_self()
   frames <- sys.frames()
