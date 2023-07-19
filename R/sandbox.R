@@ -8,6 +8,16 @@ renv_sandbox_init <- function() {
     options(renv.sandbox.locking_enabled = enabled)
   }
 
+  # if renv was launched with a sandbox path on the library paths,
+  # then immediately try to activate the sandbox
+  # https://github.com/rstudio/renv/issues/1565
+  for (libpath in .libPaths()) {
+    if (file.exists(file.path(libpath, ".renv-sandbox"))) {
+      renv_sandbox_activate_impl(sandbox = libpath)
+      break
+    }
+  }
+
 }
 
 renv_sandbox_activate <- function(project = NULL) {
@@ -132,9 +142,7 @@ renv_sandbox_activate_check <- function(libs) {
 renv_sandbox_generate <- function(sandbox) {
 
   # make the library temporarily writable
-  lock <- getOption("renv.sandbox.locking_enabled") %||% {
-    !renv_package_checking() && !renv_path_within(sandbox, tempdir())
-  }
+  lock <- getOption("renv.sandbox.locking_enabled", default = TRUE)
 
   if (lock) {
     dlog("sandbox", "unlocking sandbox")
@@ -156,6 +164,10 @@ renv_sandbox_generate <- function(sandbox) {
     if (!renv_file_same(source, target))
       renv_file_link(source, target, overwrite = TRUE)
   })
+
+  # create marker indicating this is a sandbox
+  marker <- file.path(sandbox, ".renv-sandbox")
+  file.create(marker)
 
   # make the library unwritable again
   if (lock) {

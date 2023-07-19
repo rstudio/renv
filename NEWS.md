@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* renv now ensures the sandbox is activated on load, for R processes which
+  are launched with the renv sandbox on the library paths. (#1565)
+
 * `renv::restore()` no longer erroneously prompts when determining the packages
   which need to be installed. (#1544)
 
