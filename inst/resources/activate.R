@@ -1155,12 +1155,11 @@ local({
   # construct full libpath
   libpath <- file.path(root, prefix)
 
-  # attempt to load
-  if (renv_bootstrap_load(project, libpath, version))
-    return(TRUE)
-
   if (renv_bootstrap_in_rstudio()) {
     setHook("rstudio.sessionInit", function(...) {
+      # attempt to load
+      if (renv_bootstrap_load(project, libpath, version))
+        return(TRUE)
       renv_bootstrap_run(version, libpath)
 
       # Work around buglet in RStudio if hook uses readline
@@ -1173,6 +1172,9 @@ local({
       )
     })
   } else {
+    # attempt to load
+    if (renv_bootstrap_load(project, libpath, version))
+      return(TRUE)
     renv_bootstrap_run(version, libpath)
   }
 
