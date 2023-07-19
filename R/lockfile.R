@@ -212,11 +212,10 @@ renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude
   # warn if some required packages are missing
   ignored <- c(renv_project_ignored_packages(project), renv_packages_base(), exclude)
   missing <- setdiff(packages, c(names(records), ignored))
-  if (identical(apex(), snapshot))
+  if (identical(apex(), snapshot)) {
     renv_snapshot_report_missing(missing, type)
-
-  # report if some records had unknown sources
-  renv_snapshot_preflight_check_sources(project, libpaths[[1L]], names(records))
+    renv_snapshot_preflight_check_sources(project, libpaths[[1L]], names(records))
+  }
 
   records <- renv_snapshot_fixup(records)
   renv_lockfile_records(lockfile) <- records
