@@ -626,4 +626,6 @@ test_that("install() respects dependencies argument", {
   install(dependencies = "Imports")
 
   expect_true(renv_package_installed("bread"))
+  expect_false(renv_package_installed("coffee"))
+  expect_false(renv_package_installed("muffin"))
 })
