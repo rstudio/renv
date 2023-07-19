@@ -1071,11 +1071,7 @@ renv_snapshot_report_missing <- function(missing, type) {
 
   missing <- setdiff(missing, "renv")
   if (empty(missing))
-    return(TRUE)
-
-  # if we get here during an automatic snapshot, we cannot proceed
-  if (the$auto_snapshot_running)
-    invokeRestart("cancel")
+    return(invisible())
 
   preamble <- "The following required packages are not installed:"
 
@@ -1095,12 +1091,13 @@ renv_snapshot_report_missing <- function(missing, type) {
 
   # only prompt the user to install if a restart is available
   restart <- findRestart("renv_recompute_records")
+  if (is.null(restart))
+    return(invisible())
 
   choices <- c(
     snapshot = "Snapshot, just using the currently installed packages.",
-    install = if (isRestart(restart))
-      "Install the packages, then snapshot.",
-    cancel = "Cancel, and resolve the situation on your own."
+    install  = "Install the packages, then snapshot.",
+    cancel   = "Cancel, and resolve the situation on your own."
   )
 
   choice <- menu(choices, title = "What do you want to do?")
@@ -1114,7 +1111,8 @@ renv_snapshot_report_missing <- function(missing, type) {
     cancel()
   }
 
-  TRUE
+  invisible()
+
 }
 
 renv_snapshot_filter_custom_resolve <- function() {
