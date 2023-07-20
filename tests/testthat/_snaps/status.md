@@ -29,12 +29,12 @@
     Output
       No issues found -- the project is in a consistent state.
 
-# reports synchronisation problems with non-installed packages
+# reports installation problems with non-installed packages
 
     Code
       status()
     Output
-      The following package(s) are in an inconsistent state:
+      The following package(s) are missing:
       
        package installed recorded used
        bread   n         n        y   

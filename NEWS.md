@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `status()` now first reports on uninstalled packages, before reporting on 
+  used <-> installed mismatches (#1538).
+
 * renv now ensures the sandbox is activated on load, for R processes which
   are launched with the renv sandbox on the library paths. (#1565)
 

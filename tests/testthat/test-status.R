@@ -21,7 +21,7 @@ test_that("reports when project is synchronised", {
 
 })
 
-test_that("reports synchronisation problems with non-installed packages", {
+test_that("reports installation problems with non-installed packages", {
 
   renv_tests_scope()
   init()
