@@ -1,7 +1,12 @@
 
 # renv 1.1.0  (UNRELEASED)
 
-* `status()` now first reports on uninstalled packages, before reporting on 
+* `renv::repair()` now checks for installed packages which lack an explicitly-declared
+  remote source, and updates their `DESCRIPTION` files if it can infer an appropriate
+  remote source. This typically occurs when a package is installed from local sources,
+  but appears to be maintained or published on a remote repository (e.g. GitHub). (#1574)
+
+* `renv::status()` now first reports on uninstalled packages, before reporting on
   used <-> installed mismatches (#1538).
 
 * renv now ensures the sandbox is activated on load, for R processes which
