@@ -94,13 +94,26 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   renv_lockfile_records(lockfile) <- records
   renv_lockfile_save(lockfile, project = project)
 
-  # now update the infrastructure to use this version of renv
-  version <- renv_metadata_version_create(records[["renv"]])
-  renv_infrastructure_write(project, version = version)
-
   # reload renv
   if (reload)
     renv_upgrade_reload()
+
+  # now update the infrastructure to use this version of renv.
+  # do this in a separate process to avoid issues that could arise
+  # if the old version of renv is still loaded
+  #
+  # https://github.com/rstudio/renv/issues/1546
+  code <- substitute({
+    renv:::summon()
+    version <- renv_metadata_version_create(record)
+    renv_infrastructure_write(project, version = version)
+  }, list(project = project, record = records[["renv"]]))
+
+  script <- renv_scope_tempfile("renv-activate-", fileext = ".R")
+  writeLines(deparse(code), con = script)
+
+  args <- c("--vanilla", "-s", "-f", renv_shell_path(script))
+  r(args, stdout = "", stderr = "")
 
   invisible(TRUE)
 
