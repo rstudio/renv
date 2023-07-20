@@ -154,10 +154,10 @@ it invisibly returns a list containing the following components:</p><ul><li><p><
 </ul></div>
     <div class="section level2">
     <h2 id="missing-packages">Missing packages<a class="anchor" aria-label="anchor" href="#missing-packages"></a></h2>
-    <p>First, ensure that all packages used by the project are installed. This is
-important to do first because if any packages are missing we can't tell for
+    <p><code>status()</code> first checks that all packages used by the project are installed. #' This must be done first because if any packages are missing we can't tell for
 sure that a package isn't used; it might be a dependency that we don’t know
-about.</p>
+about. Once you have resolve any installation issues, you'll need to run
+<code>status()</code> again to reveal the next set of potential problems.</p>
 <p>There are four possibilities for an uninstalled package:</p><ul><li><p>If it’s used and recorded, call <code><a href="restore.html">renv::restore()</a></code> to install the version
 specified in the lockfile.</p></li>
 <li><p>If it’s used and not recorded, call <code><a href="install.html">renv::install()</a></code> to install it
