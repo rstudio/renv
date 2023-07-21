@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/status.html">status()</a></code> now first reports on uninstalled packages, before reporting on used &lt;-&gt; installed mismatches (<a href="https://github.com/rstudio/renv/issues/1538" class="external-link">#1538</a>).</p></li>
+<ul><li><p>When the <code>RENV_STARTUP_DIAGNOSTICS</code> environment variable is set to <code>TRUE</code>, <code>renv</code> now displays a short diagnostics report after a project’s autoloader has been run. This can be useful when diagnosing why <code>renv</code> is slow to load in certain projects. (<a href="https://github.com/rstudio/renv/issues/1557" class="external-link">#1557</a>)</p></li>
+<li><p><code><a href="../reference/status.html">status()</a></code> now first reports on uninstalled packages, before reporting on used &lt;-&gt; installed mismatches (<a href="https://github.com/rstudio/renv/issues/1538" class="external-link">#1538</a>).</p></li>
 <li><p>renv now ensures the sandbox is activated on load, for R processes which are launched with the renv sandbox on the library paths. (<a href="https://github.com/rstudio/renv/issues/1565" class="external-link">#1565</a>)</p></li>
 <li><p><code><a href="../reference/restore.html">renv::restore()</a></code> no longer erroneously prompts when determining the packages which need to be installed. (<a href="https://github.com/rstudio/renv/issues/1544" class="external-link">#1544</a>)</p></li>
 <li><p><code><a href="../reference/update.html">renv::update()</a></code> now ensures the <code>prompt</code> parameter is properly respected during package installation. (<a href="https://github.com/rstudio/renv/issues/1540" class="external-link">#1540</a>)</p></li>
