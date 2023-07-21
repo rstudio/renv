@@ -472,7 +472,7 @@ test_that("automatic snapshot works as expected", {
   renv_scope_options(renv.config.auto.snapshot = TRUE)
   defer(the$library_info <- NULL)
 
-  renv_tests_scope("oatmeal")
+  project <- renv_tests_scope("oatmeal")
   init()
   expect_silent(renv_snapshot_task())
 

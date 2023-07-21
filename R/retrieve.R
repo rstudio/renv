@@ -1027,11 +1027,12 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   # record this package's requirements
   state <- renv_restore_state()
   requirements <- state$requirements
-  deps <- renv_dependencies_discover_description(
-    path,
-    subdir = subdir,
-    fields = if (!record$Package %in% state$packages) "strong"
-  )
+
+  # figure out the dependency fields to use -- if the user explicitly requested
+  # this package be installed, but also provided a 'dependencies' argument in
+  # the call to 'install()', then we want to use those
+  fields <- if (record$Package %in% state$packages) the$install_dependency_fields else "strong"
+  deps <- renv_dependencies_discover_description(path, subdir = subdir, fields = fields)
   if (length(deps$Source))
     deps$Source <- record$Package
 

@@ -18,10 +18,10 @@ the$status_running <- FALSE
 #'
 #' # Missing packages
 #'
-#' First, ensure that all packages used by the project are installed. This is
-#' important to do first because if any packages are missing we can't tell for
+#' `status()` first checks that all packages used by the project are installed. #' This must be done first because if any packages are missing we can't tell for
 #' sure that a package isn't used; it might be a dependency that we don’t know
-#' about.
+#' about. Once you have resolve any installation issues, you'll need to run
+#' `status()` again to reveal the next set of potential problems.
 #'
 #' There are four possibilities for an uninstalled package:
 #'
@@ -243,14 +243,19 @@ renv_status_check_consistent <- function(lockfile, library, used) {
   if (renv_verbose()) {
     # If any packages are not installed, we don't know for sure what's used
     # because our dependency graph is incomplete
-    missing <- any(!status$installed)
-
     issues <- status[!pkg_ok, , drop = FALSE]
+    missing <- !issues$installed
     issues$installed <- ifelse(issues$installed, "y", "n")
     issues$recorded <- ifelse(issues$recorded, "y", "n")
-    issues$used <- ifelse(issues$used, "y", if (missing) "?" else "n")
+    issues$used <- ifelse(issues$used, "y", if (any(missing)) "?" else "n")
 
-    writef("The following package(s) are in an inconsistent state:")
+    if (any(missing)) {
+      msg <- "The following package(s) are missing:"
+      issues <- issues[missing, ]
+    } else {
+      msg <- "The following package(s) are in an inconsistent state:"
+    }
+    writef(msg)
     writef()
     print(issues, row.names = FALSE, right = FALSE)
   }

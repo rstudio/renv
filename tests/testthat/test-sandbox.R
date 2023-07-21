@@ -1,3 +1,4 @@
+
 renv_scoped_sandbox <- function(scope = parent.frame()) {
   renv_scope_options(renv.config.sandbox.enabled = TRUE, scope = scope)
 
@@ -66,6 +67,47 @@ test_that(".Library.site isn't used even when sandbox is disabled", {
   renv_sandbox_activate()
   expect_false(any(sitelib %in% .libPaths()))
   renv_sandbox_deactivate()
+
+})
+
+test_that("renv repairs library paths on load if sandbox is active", {
+
+  renv_scope_options(renv.config.sandbox.enabled = TRUE)
+  renv_scope_envvars(RENV_PATHS_SANDBOX = tempdir())
+
+  libpaths <- .libPaths()
+  syslib <- renv_libpaths_system()
+
+  # initialize the sandbox
+  renv_sandbox_activate()
+  expect_false(identical(syslib, .Library))
+
+  # check for sandbox marker file
+  marker <- file.path(.Library, ".renv-sandbox")
+  expect_true(file.exists(marker))
+
+  # set up R_LIBS, and then run a child process that reports
+  # the library paths after loading renv
+  script <- renv_test_code({
+    renv:::summon()
+    writeLines(.libPaths())
+  })
+
+  output <- local({
+    renv_scope_envvars(R_LIBS = paste(.libPaths(), collapse = .Platform$path.sep))
+    renv_system_exec(
+      command = R(),
+      args    = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+      action  = "testing sandbox"
+    )
+  })
+
+  expect_equal(output, .libPaths())
+
+  # deactivate the sandbox and assert we've restored state
+  renv_sandbox_deactivate()
+  expect_equal(syslib, .Library)
+  expect_equal(libpaths, .libPaths())
 
 })
 

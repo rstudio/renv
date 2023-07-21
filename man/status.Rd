@@ -58,10 +58,10 @@ See the headings below for specific advice on resolving any issues
 revealed by \code{status()}.
 }
 \section{Missing packages}{
-First, ensure that all packages used by the project are installed. This is
-important to do first because if any packages are missing we can't tell for
+\code{status()} first checks that all packages used by the project are installed. #' This must be done first because if any packages are missing we can't tell for
 sure that a package isn't used; it might be a dependency that we don’t know
-about.
+about. Once you have resolve any installation issues, you'll need to run
+\code{status()} again to reveal the next set of potential problems.
 
 There are four possibilities for an uninstalled package:
 \itemize{
