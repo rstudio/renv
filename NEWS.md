@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::restore()` no longer runs without prompting on load if the 
+  library is empty (#1543).
+
 * When the `RENV_STARTUP_DIAGNOSTICS` environment variable is set to `TRUE`,
   `renv` now displays a short diagnostics report after a project's autoloader
   has been run. This can be useful when diagnosing why `renv` is slow to load
