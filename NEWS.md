@@ -1,6 +1,17 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* When the `RENV_STARTUP_DIAGNOSTICS` environment variable is set to `TRUE`,
+  `renv` now displays a short diagnostics report after a project's autoloader
+  has been run. This can be useful when diagnosing why `renv` is slow to load
+  in certain projects. (#1557)
+
+* `status()` now first reports on uninstalled packages, before reporting on 
+  used <-> installed mismatches (#1538).
+
+* renv now ensures the sandbox is activated on load, for R processes which
+  are launched with the renv sandbox on the library paths. (#1565)
+
 * `renv::restore()` no longer erroneously prompts when determining the packages
   which need to be installed. (#1544)
 

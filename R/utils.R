@@ -555,3 +555,15 @@ assert <- function(...) stopifnot(...)
 overlay <- function(lhs, rhs) {
   modifyList(as.list(lhs), as.list(rhs))
 }
+
+# the 'top' renv function in the call stack
+topfun <- function() {
+
+  self <- renv_envir_self()
+  frames <- sys.frames()
+
+  for (i in seq_along(frames))
+    if (identical(self, parent.env(frames[[i]])))
+      return(sys.function(i))
+
+}

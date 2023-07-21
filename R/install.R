@@ -2,6 +2,9 @@
 # an explicitly-requested package type in a call to 'install()'
 the$install_pkg_type <- NULL
 
+# an explicitly-requested dependencies field in a call to 'install()'
+the$install_dependency_fields <- NULL
+
 # the formatted width of installation steps printed to the console
 the$install_step_width <- 48L
 
@@ -128,7 +131,7 @@ install <- function(packages = NULL,
   # handle 'dependencies'
   if (!is.null(dependencies)) {
     fields <- renv_description_dependency_fields(dependencies, project = project)
-    renv_scope_options(renv.settings.package.dependency.fields = fields)
+    renv_scope_binding(the, "install_dependency_fields", fields)
   }
 
   # set up library paths
