@@ -4,13 +4,20 @@
 * `renv::restore()` no longer runs without prompting on load if the 
   library is empty (#1543).
 
+* `renv::repair()` now checks for installed packages which lack an explicitly-declared
+  remote source, and updates their `DESCRIPTION` files if it can infer an appropriate
+  remote source. This typically occurs when a package is installed from local sources,
+  but appears to be maintained or published on a remote repository (e.g. GitHub).
+  This was previously done in `renv::snapshot()`, but we've rolled back that change
+  as the prompting was over-aggressive. (#1574)
+
+* `renv::status()` now first reports on uninstalled packages, before reporting on
+  used <-> installed mismatches (#1538).
+
 * When the `RENV_STARTUP_DIAGNOSTICS` environment variable is set to `TRUE`,
   `renv` now displays a short diagnostics report after a project's autoloader
   has been run. This can be useful when diagnosing why `renv` is slow to load
   in certain projects. (#1557)
-
-* `status()` now first reports on uninstalled packages, before reporting on 
-  used <-> installed mismatches (#1538).
 
 * renv now ensures the sandbox is activated on load, for R processes which
   are launched with the renv sandbox on the library paths. (#1565)

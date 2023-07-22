@@ -49,3 +49,30 @@ test_that("repair() uses the package version recorded in the lockfile", {
   expect_true(renv_package_version("breakfast") == "0.1.0")
 
 })
+
+test_that("repair() can update DESCRIPTION files for GitHub packages", {
+
+  skip_on_cran()
+  renv_tests_scope("skeleton")
+  renv_scope_local()
+  renv_scope_options(renv.config.cache.symlinks = FALSE)
+  init()
+
+  # mutate the installed package DESCRIPTION file, so that it appears
+  # to be from GitHub
+  descpath <- system.file("DESCRIPTION", package = "skeleton")
+  desc <- renv_description_read(descpath)
+  desc$Repository <- NULL
+  desc$BugReports <- "https://github.com/kevinushey/skeleton/issues"
+  renv_dcf_write(desc, file = descpath)
+
+  metapath <- system.file("Meta/package.rds", package = "skeleton")
+  meta <- readRDS(metapath)
+  meta$DESCRIPTION <- desc
+  saveRDS(meta, file = metapath)
+
+  # try to repair, but cancel the request
+  renv_scope_options(renv.menu.choice = 2L)
+  expect_snapshot(. <- repair(), error = TRUE)
+
+})

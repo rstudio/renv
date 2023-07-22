@@ -217,15 +217,14 @@ renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude
   if (length(missing) && the$auto_snapshot_running)
     invokeRestart("cancel")
 
-  if (identical(topfun(), snapshot)) {
-
-    # give user a chance to handle missing packages, if any
+  # give user a chance to handle missing packages, if any
+  #
+  # we only run this in top-level calls to snapshot() since renv will internally
+  # use snapshot() to create lockfiles, and missing packages are understood /
+  # tolerated there. this code mostly exists so interactive usages of snapshot()
+  # can recover and install missing packages
+  if (identical(topfun(), snapshot))
     renv_snapshot_report_missing(missing, type)
-
-    # give user an opportunity to update package remotes when installed from sources
-    renv_snapshot_preflight_check_sources(project, libpaths[[1L]], names(records))
-
-  }
 
   records <- renv_snapshot_fixup(records)
   renv_lockfile_records(lockfile) <- records
