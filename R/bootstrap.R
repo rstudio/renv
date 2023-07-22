@@ -927,6 +927,13 @@ renv_bootstrap_version_friendly <- function(version, shafmt = NULL, sha = NULL) 
   paste(parts, collapse = "")
 }
 
+renv_bootstrap_load_and_bootstrap <- function(project, libpath, version) {
+  if (renv_bootstrap_load(project, libpath, version))
+    return()
+
+  renv_bootstrap_run(version, libpath)
+}
+
 renv_bootstrap_run <- function(version, libpath) {
 
   # perform bootstrap
