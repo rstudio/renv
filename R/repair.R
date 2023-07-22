@@ -1,12 +1,12 @@
 
-#' Repair a project library
+#' Repair a project
 #'
 #' Use `repair()` to recover from some common issues that can occur with
 #' a project. Currently, two operations are performed:
 #'
-#' 1. Packages with broken symlinks into the cache will be re-installed,
+#' 1. Packages with broken symlinks into the cache will be re-installed.
 #'
-#' 2. Packages which are installed from sources, but appear to be from
+#' 2. Packages that were installed from sources, but appear to be from
 #'    an remote source (e.g. GitHub), will have their `DESCRIPTION` files
 #'    updated to record that remote source explicitly.
 #'
@@ -31,14 +31,19 @@ repair <- function(library  = NULL,
   libpaths <- renv_path_normalize(library %||% renv_libpaths_all())
   library <- libpaths[[1L]]
 
+  writef(header("Library cache links"))
   renv_repair_links(library, lockfile, project)
   writef()
+
+  writef(header("Package sources"))
   renv_repair_sources(library, lockfile, project)
+  writef()
 
   invisible()
 }
 
 renv_repair_links <- function(library, lockfile, project) {
+
 
   # figure out which library paths (junction points?) appear to be broken
   paths <- list.files(library, full.names = TRUE)
@@ -90,16 +95,16 @@ renv_repair_sources <- function(library, lockfile, project) {
   renv_pretty_print(
     c(
       "The following package(s) do not have an explicitly-declared remote source.",
-      "However, renv was available to infer their remote sources from the DESCRIPTION file."
+      "However, renv was available to infer remote sources from their DESCRIPTION file."
     ),
     sprintf("%s  [%s]", format(names(inferred)), inferred),
-    "renv::restore() may fail for packages without an explicitly-declared remote source."
+    "`renv::restore()` may fail for packages without an explicitly-declared remote source."
   )
 
   choice <- menu(
 
     choices =  c(
-      update = "Let renv to update the remote sources for these packages.",
+      update = "Let renv infer the remote sources for these packages.",
       cancel = "Do nothing and resolve the situation another way."
     ),
 
@@ -107,10 +112,7 @@ renv_repair_sources <- function(library, lockfile, project) {
 
   )
 
-  if (identical(choice, "cancel")) {
-    writef("- Operation aborted.")
-    return(TRUE)
-  }
+  cancel_if(identical(choice, "cancel"))
 
   enumerate(inferred, function(package, remote) {
     record <- renv_remotes_resolve(remote)

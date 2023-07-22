@@ -73,6 +73,6 @@ test_that("repair() can update DESCRIPTION files for GitHub packages", {
 
   # try to repair, but cancel the request
   renv_scope_options(renv.menu.choice = 2L)
-  expect_snapshot(. <- repair())
+  expect_snapshot(. <- repair(), error = TRUE)
 
 })
