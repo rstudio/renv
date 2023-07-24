@@ -75,13 +75,9 @@ renv_restart_request_rstudio <- function(project, reason, ...) {
 renv_restart_invoke <- function(callback) {
 
   # avoid multiple attempts to restart in a single call, just in case
-  if (the$restarting)
-    return()
-
-  # the restart callback might not resolve until 'later' sometime,
-  # so if we've requested a restart once in a session, we'll just
-  # assume the session is trying to restart.
-  the$restarting <- TRUE
-  callback()
+  if (!the$restarting) {
+    the$restarting <- TRUE
+    callback()
+  }
 
 }
