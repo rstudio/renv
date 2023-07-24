@@ -135,7 +135,7 @@ install <- function(packages = NULL,
   }
 
   # set up library paths
-  libpaths <- renv_libpaths_resolve(library)
+  libpaths <- renv_libpaths_resolve(library, project)
   renv_scope_libpaths(libpaths)
 
   # check for explicitly-provided type -- we handle this specially for PPM

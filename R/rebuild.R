@@ -43,7 +43,7 @@ rebuild <- function(packages  = NULL,
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
 
-  libpaths <- renv_libpaths_resolve(library)
+  libpaths <- renv_libpaths_resolve(library, project)
   library <- nth(libpaths, 1L)
 
   # get collection of packages currently installed

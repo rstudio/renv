@@ -71,9 +71,6 @@ the$auto_snapshot_hash <- TRUE
 #'
 #' @inherit renv-params
 #'
-#' @param library The \R libraries to snapshot. When `NULL`, the active \R
-#'   libraries (as reported by `.libPaths()`) are used.
-#'
 #' @param lockfile The location where the generated lockfile should be written.
 #'   By default, the lockfile is written to a file called `renv.lock` in the
 #'   project directory. When `NULL`, the lockfile (as an \R object) is returned
@@ -146,7 +143,8 @@ snapshot <- function(project  = NULL,
   if (!is.null(lockfile))
     renv_activate_prompt("snapshot", library, prompt, project)
 
-  libpaths <- renv_path_normalize(library %||% renv_libpaths_all())
+  library <- renv_libpaths_resolve(library, project)
+  libpaths <- renv_path_normalize(library)
   if (config$snapshot.validate())
     renv_snapshot_preflight(project, libpaths)
 

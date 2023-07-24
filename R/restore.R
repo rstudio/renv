@@ -55,7 +55,7 @@ restore <- function(project  = NULL,
   renv_project_lock(project = project)
 
   # resolve library, lockfile arguments
-  libpaths <- renv_libpaths_resolve(library)
+  libpaths <- renv_libpaths_resolve(library, project)
   lockfile <- lockfile %||% renv_lockfile_load(project = project, strict = TRUE)
 
   # check and ask user if they need to activate first

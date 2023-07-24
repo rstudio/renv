@@ -191,11 +191,17 @@ renv_libpaths_restore <- function() {
 # 'renv::restore(library = <...>)')
 #
 # https://github.com/rstudio/renv/issues/1544
-renv_libpaths_resolve <- function(library) {
+renv_libpaths_resolve <- function(library = NULL, project = NULL) {
+  if (!is.null(library)) {
+    return(unique(c(library, .Library)))
+  }
 
-  if (is.null(library))
-    return(renv_libpaths_all())
+  if (!is.null(project)) {
+    proj_lib <- renv_paths_library(project = project)
+    if (dir.exists(proj_lib)) {
+      return(unique(c(proj_lib, .Library)))
+    }
+  }
 
-  unique(c(library, .Library))
-
+  renv_libpaths_all()
 }

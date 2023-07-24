@@ -73,9 +73,6 @@ the$status_running <- FALSE
 #'
 #' @inherit renv-params
 #'
-#' @param library The library paths. By default, the library paths associated
-#'   with the requested project are used.
-#'
 #' @param sources Boolean; check that each of the recorded packages have a
 #'   known installation source? If a package has an unknown source, renv
 #'   may be unable to restore it.
@@ -111,7 +108,7 @@ status <- function(project = NULL,
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
 
-  libpaths <- renv_libpaths_resolve(library)
+  libpaths <- renv_libpaths_resolve(library, project)
   lockpath <- lockfile %||% renv_lockfile_path(project)
 
   invisible(renv_status_impl(project, libpaths, lockpath, sources, cache))

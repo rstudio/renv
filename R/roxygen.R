@@ -9,7 +9,8 @@
 #' @param lockfile Path to a lockfile. When `NULL` (the default), the `renv.lock` located in the root of the current project will be used.
 #'
 #' @param library The \R library to be used. When `NULL`, the active project
-#'  library will be used instead.
+#'  library will be used instead. If no project is active, will fall back
+#'  to the system library.
 #'
 #' @param prompt Boolean; prompt the user before taking any action? For backwards
 #'   compatibility, `confirm` is accepted as an alias for `prompt`.

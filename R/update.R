@@ -268,7 +268,7 @@ update <- function(packages = NULL,
   renv_project_lock(project = project)
 
   # resolve library path
-  libpaths <- renv_libpaths_resolve(library)
+  libpaths <- renv_libpaths_resolve(library, project)
   library <- nth(libpaths, 1L)
   renv_scope_libpaths(libpaths)
 

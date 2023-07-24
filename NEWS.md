@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* If `library` is unsupplied, renv functions default to using the project
+  library, if `project` is supplied and the project library exists.
+
 * `renv::restore()` no longer runs without prompting on load if the 
   library is empty (#1543).
 

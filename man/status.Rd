@@ -21,8 +21,8 @@ directory is used instead.}
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
 
-\item{library}{The library paths. By default, the library paths associated
-with the requested project are used.}
+\item{library}{The \R library to be used. When \code{NULL}, the active project
+library will be used instead.}
 
 \item{lockfile}{Path to a lockfile. When \code{NULL} (the default), the \code{renv.lock} located in the root of the current project will be used.}
 

@@ -27,8 +27,8 @@ directory is used instead.}
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
 
-\item{library}{The \R libraries to snapshot. When \code{NULL}, the active \R
-libraries (as reported by \code{.libPaths()}) are used.}
+\item{library}{The \R library to be used. When \code{NULL}, the active project
+library will be used instead.}
 
 \item{lockfile}{The location where the generated lockfile should be written.
 By default, the lockfile is written to a file called \code{renv.lock} in the
