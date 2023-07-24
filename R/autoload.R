@@ -37,7 +37,7 @@ renv_autoload_impl <- function() {
 
   # check if we're disabled
   enabled <- Sys.getenv("RENV_AUTOLOAD_ENABLED", unset = "TRUE")
-  if (truthy(enabled))
+  if (!truthy(enabled))
     return(FALSE)
 
   # bail if load is already being called
