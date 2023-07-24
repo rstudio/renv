@@ -78,11 +78,11 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
 
 }
 
-renv_imbue_self <- function(project) {
+renv_imbue_self <- function(project, source = NULL) {
 
   # construct source, target paths
   # (check if 'renv' is loaded to handle embedded case)
-  source <- if ("renv" %in% loadedNamespaces()) {
+  source <- source %||% if ("renv" %in% loadedNamespaces()) {
     renv_namespace_path("renv")
   } else {
     renv_package_find("renv")

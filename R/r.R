@@ -1,6 +1,6 @@
 
 R <- function() {
-  bin <- R.home("bin")
+  bin <- normalizePath(R.home("bin"), winslash = "/")
   exe <- if (renv_platform_windows()) "R.exe" else "R"
   file.path(bin, exe)
 }
