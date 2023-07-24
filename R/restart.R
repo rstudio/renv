@@ -1,4 +1,7 @@
 
+# whether or not we're already trying to restart the session
+the$restarting <- FALSE
+
 renv_restart_request <- function(project = NULL, reason = "", ...) {
 
   project <- renv_project_resolve(project)
@@ -19,7 +22,7 @@ renv_restart_request_default <- function(project, reason, ...) {
   # use 'restart' helper defined by front-end (if any)
   restart <- getOption("restart")
   if (is.function(restart))
-    return(invisible(restart()))
+    return(renv_restart_invoke(restart))
 
   # otherwise, ask the user to restart
   if (interactive()) {
@@ -59,10 +62,26 @@ renv_restart_request_rstudio <- function(project, reason, ...) {
     restart <- getOption("renv.restart.function", default = function() {
       tools$.rs.api.executeCommand("restartR", quiet = TRUE)
     })
-    return(invisible(restart()))
+    return(renv_restart_invoke(restart))
   }
 
   # otherwise, explicitly open the new project
-  invisible(tools$.rs.api.openProject(project, newSession = FALSE))
+  renv_restart_invoke(function() {
+    invisible(tools$.rs.api.openProject(project, newSession = FALSE))
+  })
+
+}
+
+renv_restart_invoke <- function(callback) {
+
+  # avoid multiple attempts to restart in a single call, just in case
+  if (the$restarting)
+    return()
+
+  # the restart callback might not resolve until 'later' sometime,
+  # so if we've requested a restart once in a session, we'll just
+  # assume the session is trying to restart.
+  the$restarting <- TRUE
+  callback()
 
 }
