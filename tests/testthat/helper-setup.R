@@ -54,6 +54,9 @@ renv_tests_setup_envvars <- function(scope = parent.frame()) {
     scope = scope
   )
 
+  # I don't know why this works :'(
+  renv_download_auth_github()
+
   envvars <- Sys.getenv()
   configvars <- grep("^RENV_CONFIG_", names(envvars), value = TRUE)
   renv_scope_envvars(
