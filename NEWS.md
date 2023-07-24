@@ -1,6 +1,8 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed a logic error in reading `RENV_AUTOLOAD_ENABLED`. (#1580)
+
 * `renv::restore()` no longer runs without prompting on load if the 
   library is empty (#1543).
 
