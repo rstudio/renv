@@ -185,6 +185,7 @@ test_that("we can query the R universe", {
 
 test_that("available_packages() tolerates missing repositories", {
   skip_on_cran()
+  skip_if_not(grepl("\\bbinary\\b", .Platform$pkgType))
 
   dbs <- available_packages(
     type = "binary",
