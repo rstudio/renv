@@ -1,6 +1,8 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed a regression in parsing expressions within R Markdown chunk options. (#1558)
+
 * Fixed an issue that prevented `renv::install()` from functioning
   when source-only repositories were included. (#1578)
   
