@@ -30,6 +30,7 @@ strip_dirs <- function(x) {
     "<platform-prefix>" = renv_platform_prefix(),
     "<r-version>"       = getRversion(),
     "<test-repo>"       = getOption("repos")[[1L]],
+    "<test-repo-path>"  = gsub("^file:/*", "/", getOption("repos")[[1L]]),
     "<root>"            = renv_path_normalize(renv_paths_root()),
     "<wd>"              = renv_path_normalize(getwd()),
     "<tempdir>"         = renv_path_normalize(tempdir())
