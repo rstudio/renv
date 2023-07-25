@@ -3,17 +3,20 @@
 
 * Fixed a regression in parsing expressions within R Markdown chunk options. (#1558)
 
+* Fixed an issue that prevented `renv::install()` from functioning
+  when source-only repositories were included. (#1578)
+  
 * Fixed a logic error in reading `RENV_AUTOLOAD_ENABLED`. (#1580)
 
 * `renv::restore()` no longer runs without prompting on load if the 
   library is empty (#1543).
 
-* `renv::repair()` now checks for installed packages which lack an explicitly-declared
-  remote source, and updates their `DESCRIPTION` files if it can infer an appropriate
-  remote source. This typically occurs when a package is installed from local sources,
-  but appears to be maintained or published on a remote repository (e.g. GitHub).
-  This was previously done in `renv::snapshot()`, but we've rolled back that change
-  as the prompting was over-aggressive. (#1574)
+* `renv::repair()` now checks for installed packages which lack a known
+  remote source, and updates their `DESCRIPTION` files if it can infer an
+  appropriate remote source. This typically occurs when a package is installed
+  from local sources, but appears to be maintained or published on a remote
+  repository (e.g. GitHub). This was previously done in `renv::snapshot()`, but
+  we've rolled back that change as the prompting was over-aggressive. (#1574)
 
 * `renv::status()` now first reports on uninstalled packages, before reporting on
   used <-> installed mismatches (#1538).

@@ -19,18 +19,6 @@ test_that("available_packages() returns NULL when no repos set", {
 
 })
 
-test_that("available_packages() errs on incorrect repository", {
-  skip_on_cran()
-
-  renv_scope_options(
-    renv.config.connect.timeout = 1L,
-    renv.config.connect.retry   = 0L,
-    repos = c(CRAN = "https://www.example.com/no/such/repository")
-  )
-
-  expect_error(available_packages(type = "source"))
-})
-
 test_that("renv handles multiple available source packages", {
   skip_on_cran()
 
@@ -192,5 +180,21 @@ test_that("we can query the R universe", {
 
   # otherwise, check they're identical
   expect_identical(lhs, rhs)
+
+})
+
+test_that("available_packages() tolerates missing repositories", {
+  skip_on_cran()
+  skip_if_not(grepl("\\bbinary\\b", .Platform$pkgType))
+
+  dbs <- available_packages(
+    type = "binary",
+    repos = c(
+      CRAN = "https://cran.rstudio.com",
+      DRAT = "https://RcppCore.github.io/drat"
+    )
+  )
+
+  expect_false(is.null(dbs[["CRAN"]]))
 
 })
