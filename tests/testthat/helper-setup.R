@@ -12,6 +12,9 @@ renv_tests_setup <- function(scope = parent.frame()) {
   if (!once())
     return()
 
+  # force gitcreds to initialize early
+  renv_download_auth_github()
+
   # remove automatic tasks so we can capture explicitly in tests
   renv_task_unload()
 
@@ -53,9 +56,6 @@ renv_tests_setup_envvars <- function(scope = parent.frame()) {
     RENV_WATCHDOG_DEBUG = FALSE,
     scope = scope
   )
-
-  # I don't know why this works :'(
-  renv_download_auth_github()
 
   envvars <- Sys.getenv()
   configvars <- grep("^RENV_CONFIG_", names(envvars), value = TRUE)
