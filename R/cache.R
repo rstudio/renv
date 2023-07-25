@@ -170,6 +170,10 @@ renv_cache_synchronize_impl <- function(cache, record, linkable, path) {
   if (!writable)
     return(FALSE)
 
+  # obtain lock on the cache
+  lockpath <- file.path(parent, ".lock")
+  renv_scope_lock(lockpath)
+
   # if we already have a cache entry, back it up
   restore <- renv_file_backup(cache)
   defer(restore())
