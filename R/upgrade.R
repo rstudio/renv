@@ -54,14 +54,15 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   reload <- reload %||% renv_project_loaded(project)
 
-  old <- renv_snapshot_description(package = "renv")
+  lockfile <- renv_lockfile_load(project)
+  old <- lockfile$Packages$renv
   new <- renv_upgrade_find_record(version)
 
   # check for some form of change
   if (renv_records_equal(old, new)) {
     fmt <- "- renv [%s] is already installed and active for this project."
-    writef(fmt, new$Version)
-    return(TRUE)
+    writef(fmt, renv_metadata_version_friendly())
+    return(FALSE)
   }
 
   if (prompt || renv_verbose()) {
@@ -113,7 +114,7 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   writeLines(deparse(code), con = script)
 
   args <- c("--vanilla", "-s", "-f", renv_shell_path(script))
-  r(args, stdout = "", stderr = "")
+  r(args, stdout = FALSE, stderr = FALSE)
 
   invisible(TRUE)
 
