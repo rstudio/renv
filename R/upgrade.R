@@ -1,10 +1,13 @@
 
 #' Upgrade renv
 #'
+#' @description
 #' Upgrade the version of renv associated with a project, including using
-#' a development version from GitHub. If you want to update all
-#' packages (including renv) to their latest CRAN versions, use
-#' [renv::update()].
+#' a development version from GitHub. Automatically snapshots the update
+#' renv, updates the activate script, and restarts R.
+#'
+#' If you want to update all packages (including renv) to their latest CRAN
+#' versions, use [renv::update()].
 #'
 #' @inherit renv-params
 #'
@@ -19,8 +22,8 @@
 #'
 #' @param reload Boolean; reload renv after install? When `NULL` (the
 #'   default), renv will be re-loaded only if updating renv for the
-#'   active project. Note that this may fail if you've loaded packages
-#'   which also depend on renv.
+#'   active project. Since it's not possible to guarantee a clean reload
+#'   in the current session, this will attempt to restart your R session.
 #'
 #' @return A boolean value, indicating whether the requested version of
 #'   renv was successfully installed. Note that this function is normally
@@ -95,15 +98,12 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   renv_lockfile_records(lockfile) <- records
   renv_lockfile_save(lockfile, project = project)
 
-  # reload renv
-  if (reload)
-    renv_upgrade_reload()
-
   # now update the infrastructure to use this version of renv.
   # do this in a separate process to avoid issues that could arise
   # if the old version of renv is still loaded
   #
   # https://github.com/rstudio/renv/issues/1546
+  writef("- Updating activate script")
   code <- substitute({
     renv:::summon()
     version <- renv_metadata_version_create(record)
@@ -115,6 +115,10 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
 
   args <- c("--vanilla", "-s", "-f", renv_shell_path(script))
   r(args, stdout = FALSE, stderr = FALSE)
+
+  if (reload) {
+    renv_restart_request(project)
+  }
 
   invisible(TRUE)
 

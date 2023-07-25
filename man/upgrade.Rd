@@ -20,8 +20,8 @@ Alternatively, you can install the latest development version with
 
 \item{reload}{Boolean; reload renv after install? When \code{NULL} (the
 default), renv will be re-loaded only if updating renv for the
-active project. Note that this may fail if you've loaded packages
-which also depend on renv.}
+active project. Since it's not possible to guarantee a clean reload
+in the current session, this will attempt to restart your R session.}
 
 \item{prompt}{Boolean; prompt upgrade before proceeding?}
 }
@@ -32,9 +32,11 @@ called for its side effects.
 }
 \description{
 Upgrade the version of renv associated with a project, including using
-a development version from GitHub. If you want to update all
-packages (including renv) to their latest CRAN versions, use
-\code{\link[=update]{update()}}.
+a development version from GitHub. Automatically snapshots the update
+renv, updates the activate script, and restarts R.
+
+If you want to update all packages (including renv) to their latest CRAN
+versions, use \code{\link[=update]{update()}}.
 }
 \examples{
 \dontrun{
