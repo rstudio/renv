@@ -927,7 +927,7 @@ renv_bootstrap_version_friendly <- function(version, shafmt = NULL, sha = NULL) 
   paste(parts, collapse = "")
 }
 
-renv_bootstrap_load_and_bootstrap <- function(project, libpath, version) {
+renv_bootstrap_exec <- function(project, libpath, version) {
   if (renv_bootstrap_load(project, libpath, version))
     return()
 
@@ -961,4 +961,12 @@ renv_bootstrap_run <- function(version, libpath) {
 
 renv_bootstrap_in_rstudio <- function() {
   commandArgs()[[1]] == "RStudio"
+}
+
+# Used to work around buglet in RStudio if hook uses readline
+renv_bootstrap_flush_console <- function() {
+  tryCatch({
+    tools <- as.environment("tools:rstudio")
+    tools$.rs.api.sendToConsole("", echo = FALSE, focus = FALSE)
+  }, error = function(cnd) {})
 }
