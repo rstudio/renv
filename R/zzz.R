@@ -26,6 +26,13 @@
 
 }
 
+# NOTE: required for devtools::load_all()
+.onDetach <- function(libpath) {
+  package <- Sys.getenv("DEVTOOLS_LOAD", unset = NA)
+  if (identical(package, .packageName))
+    .onUnload(libpath)
+}
+
 renv_zzz_load <- function() {
 
   # NOTE: needs to be visible to embedded instances of renv as well
