@@ -86,21 +86,19 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
 
   # propagate errors
   errors <- as.list(errors)
-  enumerate(errors, function(url, errors) {
+  if (empty(errors))
+    return(dbs)
 
-    if (empty(errors))
-      return()
+  if (!is_testing())
+    renv_scope_options(renv.verbose = TRUE)
 
-    for (error in errors)
-      warning(error)
-
-    fmt <- "could not retrieve available packages for url %s"
-    stopf(fmt, shQuote(url))
-
+  writef(c("renv was unable to query available packages from the following repositories:", ""))
+  enumerate(errors, function(url, cnds) {
+    msgs <- map_chr(cnds, conditionMessage)
+    writef(c(header(url), msgs, ""))
   })
 
-  # filter results
-  Filter(Negate(is.null), dbs)
+  filter(dbs, Negate(is.null))
 
 }
 
