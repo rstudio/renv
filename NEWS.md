@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::init()` gains the `load` argument, making it possible to initialize
+  a project without explicitly loading it. (#1583)
+  
 * Fixed a regression in parsing expressions within R Markdown chunk options. (#1558)
 
 * Fixed an issue that prevented `renv::install()` from functioning

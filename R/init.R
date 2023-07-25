@@ -56,6 +56,8 @@ the$init_running <- FALSE
 #'   to `TRUE` to use the default version of Bioconductor recommended by the
 #'   BiocManager package.
 #'
+#' @param load Boolean; should the project be loaded after it is initialized?
+#'
 #' @param restart Boolean; attempt to restart the \R session after initializing
 #'   the project? A session restart will be attempted if the `"restart"` \R
 #'   option is set by the frontend embedding \R.
@@ -71,6 +73,7 @@ init <- function(project = NULL,
                  force        = FALSE,
                  repos        = NULL,
                  bioconductor = NULL,
+                 load         = TRUE,
                  restart      = interactive())
 {
   renv_consent_check()
@@ -81,6 +84,13 @@ init <- function(project = NULL,
 
   project <- renv_path_normalize(project %||% getwd())
   renv_project_lock(project = project)
+
+  # if we're not loading this project, make sure we reset
+  # the working directory and repos when we're done
+  if (!load) {
+    renv_scope_options(repos = getOption("repos"))
+    renv_scope_wd(dir = getwd())
+  }
 
   # initialize profile
   if (!is.null(profile))
@@ -121,7 +131,7 @@ init <- function(project = NULL,
   # for bare inits, just activate the project
   if (bare) {
     renv_imbue_impl(project)
-    return(renv_init_fini(project, profile, restart))
+    return(renv_init_fini(project, profile, load, restart))
   }
 
   # compute and cache dependencies to (a) reveal problems early and (b) compute once
@@ -146,16 +156,17 @@ init <- function(project = NULL,
   }
 
   # activate the newly-hydrated project
-  renv_init_fini(project, profile, restart)
+  renv_init_fini(project, profile, load, restart)
 
 }
 
-renv_init_fini <- function(project, profile, restart) {
+renv_init_fini <- function(project, profile, load, restart) {
 
   renv_activate_impl(
     project = project,
     profile = profile,
     version = renv_metadata_version(),
+    load    = load,
     restart = restart
   )
 

@@ -64,6 +64,7 @@ activate <- function(project = NULL, profile = NULL) {
 renv_activate_impl <- function(project,
                                profile,
                                version = NULL,
+                               load    = TRUE,
                                restart = TRUE)
 {
   # prepare renv infrastructure
@@ -85,8 +86,12 @@ renv_activate_impl <- function(project,
     renv_rstudio_initialize(project)
 
   # try to load the project
-  setwd(project)
-  load(project)
+  if (load) {
+    setwd(project)
+    load(project)
+  }
+
+  invisible(project)
 
 }
 

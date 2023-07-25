@@ -229,3 +229,18 @@ test_that("init() prompts the user for the snapshot type", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("a project can be initialized without loading it", {
+  skip_on_cran()
+
+  project <- renv_tests_scope()
+  init()
+  expect_equal(renv_project_get(), project)
+
+  other <- renv_scope_tempfile("renv-project-")
+  ensure_directory(other)
+  init(project = other, load = FALSE, restart = FALSE)
+  expect_equal(renv_project_get(), project)
+  expect_true(file.exists(file.path(other, "renv.lock")))
+
+})

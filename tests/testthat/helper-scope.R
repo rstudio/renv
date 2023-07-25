@@ -38,7 +38,7 @@ renv_tests_scope <- function(packages = character(),
   renv_scope_libpaths(library, scope = scope)
 
   # return path to project directory
-  invisible(project)
+  invisible(renv_path_normalize(project))
 }
 
 renv_tests_scope_repos <- function(scope = parent.frame()) {
