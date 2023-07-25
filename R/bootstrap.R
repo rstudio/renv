@@ -928,10 +928,8 @@ renv_bootstrap_version_friendly <- function(version, shafmt = NULL, sha = NULL) 
 }
 
 renv_bootstrap_exec <- function(project, libpath, version) {
-  if (renv_bootstrap_load(project, libpath, version))
-    return()
-
-  renv_bootstrap_run(version, libpath)
+  if (!renv_bootstrap_load(project, libpath, version))
+    renv_bootstrap_run(version, libpath)
 }
 
 renv_bootstrap_run <- function(version, libpath) {
