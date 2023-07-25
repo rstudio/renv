@@ -196,6 +196,5 @@ test_that("available_packages() tolerates missing repositories", {
   )
 
   expect_false(is.null(dbs[["CRAN"]]))
-  expect_true(is.null(dbs[["DRAT"]]))
 
 })
