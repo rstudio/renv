@@ -85,20 +85,12 @@ init <- function(project = NULL,
   project <- renv_path_normalize(project %||% getwd())
   renv_project_lock(project = project)
 
-  # if we're not loading this project, make sure we reset
-  # the working directory and repos when we're done
-  if (!load) {
-    renv_scope_options(repos = getOption("repos"))
-    renv_scope_wd(dir = getwd())
-  }
-
   # initialize profile
   if (!is.null(profile))
     renv_profile_set(profile)
 
   # normalize repos
   repos <- renv_repos_normalize(repos %||% renv_init_repos())
-  options(repos = repos)
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
@@ -115,8 +107,7 @@ init <- function(project = NULL,
     renv_bioconductor_init(library = library)
 
     # retrieve bioconductor repositories appropriate for this project
-    biocrepos <- renv_bioconductor_repos(project = project, version = biocver)
-    options(repos = biocrepos)
+    repos <- renv_bioconductor_repos(project = project, version = biocver)
 
     # notify user
     writef("- Using Bioconductor version '%s'.", biocver)
@@ -141,18 +132,18 @@ init <- function(project = NULL,
   action <- renv_init_action(project, library, lockfile, bioconductor)
   cancel_if(empty(action) || identical(action, "cancel"))
 
-  # activate library paths for this project
-  libpaths <- renv_libpaths_activate(project = project)
+  # compute library paths for this project
+  libpaths <- renv_init_libpaths(project = project)
 
   # perform the action
   if (action == "init") {
     renv_scope_options(renv.config.dependency.errors = "ignored")
-    renv_imbue_impl(project)
-    hydrate(library = library, prompt = FALSE, report = FALSE, project = project)
+    renv_imbue_impl(project, library = library)
+    hydrate(library = library, repos = repos, prompt = FALSE, report = FALSE, project = project)
     snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
   } else if (action == "restore") {
     ensure_directory(library)
-    restore(project = project, library = libpaths, prompt = FALSE)
+    restore(project = project, library = libpaths, repos = repos, prompt = FALSE)
   }
 
   # activate the newly-hydrated project

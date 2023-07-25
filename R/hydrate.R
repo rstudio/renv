@@ -21,6 +21,10 @@
 #' @param library The \R library to be hydrated. When `NULL`, the active
 #'   library as reported by `.libPaths()` is used.
 #'
+#' @param repos The \R repositories to be used. If the project depends on any
+#'   \R packages which cannot be found within the user library paths, then
+#'   those packages will be installed from these repositories instead.
+#'
 #' @param update Boolean; should `hydrate()` attempt to update already-installed
 #'   packages if the requested package is already installed in the project
 #'   library? Set this to `"all"` if you'd like _all_ packages to be refreshed
@@ -57,6 +61,7 @@
 hydrate <- function(packages = NULL,
                     ...,
                     library = NULL,
+                    repos   = getOption("repos"),
                     update  = FALSE,
                     sources = NULL,
                     prompt  = interactive(),
@@ -71,6 +76,7 @@ hydrate <- function(packages = NULL,
 
   renv_activate_prompt("hydrate", library, prompt, project)
 
+  renv_scope_options(repos = repos)
   library <- renv_path_normalize(library %||% renv_libpaths_active())
   packages <- packages %||% renv_hydrate_packages(project)
 

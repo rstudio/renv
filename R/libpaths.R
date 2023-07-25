@@ -165,7 +165,7 @@ renv_libpaths_user <- function() {
 
 }
 
-renv_libpaths_activate <- function(project) {
+renv_init_libpaths <- function(project) {
 
   projlib <- renv_paths_library(project = project)
   extlib <- renv_libpaths_external(project = project)
@@ -173,11 +173,9 @@ renv_libpaths_activate <- function(project) {
     renv_libpaths_user()
 
   libpaths <- c(projlib, extlib, userlib)
-
   lapply(libpaths, ensure_directory)
-  renv_libpaths_set(libpaths)
 
-  .libPaths()
+  libpaths
 
 }
 

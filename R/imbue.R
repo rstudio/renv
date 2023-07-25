@@ -34,15 +34,22 @@ imbue <- function(project = NULL,
 
 }
 
-renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
-
+renv_imbue_impl <- function(project,
+                            library = NULL,
+                            version = NULL,
+                            force = FALSE)
+{
   # don't imbue during tests unless explicitly requested
   if (renv_tests_running() && !force)
     return(NULL)
 
+  # resolve library path
+  library <- library %||% renv_paths_library(project = project)
+  ensure_directory(library)
+
   # NULL version means imbue this version of renv
   if (is.null(version))
-    return(renv_imbue_self(project))
+    return(renv_imbue_self(project, library = library))
 
   # otherwise, try to download and install the requested version
   # of renv from GitHub
@@ -52,46 +59,38 @@ renv_imbue_impl <- function(project, version = NULL, force = FALSE) {
 
   renv_scope_restore(
     project = project,
-    library = renv_libpaths_active(),
+    library = library,
     records = records,
     packages = "renv",
     recursive = FALSE
   )
 
-  # retrieve renv
   records <- retrieve("renv")
-  record <- records[[1]]
+  renv_install_impl(records)
 
-  # ensure renv is installed into project library
-  library <- renv_paths_library(project = project)
-  ensure_directory(library)
-  renv_scope_libpaths(library)
-
-  printf("- Installing renv [%s] ... ", version)
-  before <- Sys.time()
-  with(record, r_cmd_install(Package, Path, library))
-  after <- Sys.time()
-  elapsed <- difftime(after, before, units = "auto")
-  writef("OK [built source in %s]", renv_difftime_format(elapsed))
-
+  record <- records[["renv"]]
   invisible(record)
-
 }
 
-renv_imbue_self <- function(project, source = NULL) {
-
+renv_imbue_self <- function(project,
+                            library = NULL,
+                            source = NULL)
+{
   # construct source, target paths
   # (check if 'renv' is loaded to handle embedded case)
-  source <- source %||% if ("renv" %in% loadedNamespaces()) {
-    renv_namespace_path("renv")
-  } else {
-    renv_package_find("renv")
+  source <- source %||% {
+    if ("renv" %in% loadedNamespaces()) {
+      renv_namespace_path("renv")
+    } else {
+      renv_package_find("renv")
+    }
   }
 
   if (!file.exists(source))
     stop("internal error: could not find where 'renv' is installed")
 
-  target <- renv_paths_library("renv", project = project)
+  library <- library %||% renv_paths_library(project = project)
+  target <- file.path(library, "renv")
   if (renv_file_same(source, target))
     return(TRUE)
 
