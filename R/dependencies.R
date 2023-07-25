@@ -1710,7 +1710,7 @@ renv_dependencies_report <- function(errors) {
 renv_dependencies_eval <- function(expr) {
 
   # create environment with small subset of symbols
-  syms <- c("list", "c")
+  syms <- c("list", "c", "!", "+", "-", "*", "/", "||", "&&")
   vals <- mget(syms, envir = baseenv())
   envir <- list2env(vals, parent = emptyenv())
 

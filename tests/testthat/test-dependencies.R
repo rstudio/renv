@@ -441,3 +441,24 @@ test_that("captures dependencies from Jupyter notebooks", {
   expect_equal(deps$Source, rep(renv_path_normalize(path), 3))
 
 })
+
+test_that("we tolerate calls when parsing dependencies", {
+
+  document <- heredoc('
+    ```{r, renv.ignore=TRUE || TRUE}
+    library(A)
+    ```
+
+    ```{r, renv.ignore=FALSE && TRUE}
+    library(B)
+    ```
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file)
+  expect_false("A" %in% deps$Package)
+  expect_true("B" %in% deps$Package)
+
+})
