@@ -616,3 +616,22 @@ test_that("install() respects dependencies argument", {
   expect_false(renv_package_installed("coffee"))
   expect_false(renv_package_installed("muffin"))
 })
+
+test_that("install() succeeds even if binary repository arms are missing", {
+  skip_on_cran()
+  skip_if(!"binary" %in% renv_package_pkgtypes())
+
+  project <- renv_tests_scope()
+  init()
+
+  renv_scope_options(
+    pkgType = "both",
+    repos = c(
+      CRAN = "https://cran.rstudio.com",
+      OTHER = "https://RcppCore.github.io/drat"
+    )
+  )
+
+  install("rlang")
+  expect_true(renv_package_installed("rlang"))
+})
