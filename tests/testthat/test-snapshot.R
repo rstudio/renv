@@ -63,8 +63,8 @@ test_that("multiple libraries can be used when snapshotting", {
   lockfile <- snapshot(lockfile = NULL, library = libs, type = "all")
   records <- renv_lockfile_records(lockfile)
 
-  expect_length(records, 2L)
-  expect_setequal(names(records), c("bread", "toast"))
+  expect_length(records, 17) # 2 + 15 base/recommended packages
+  expect_contains(names(records), c("bread", "toast"))
 
   .libPaths(oldlibpaths)
 
