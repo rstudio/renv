@@ -13,6 +13,7 @@ init(
   force = FALSE,
   repos = NULL,
   bioconductor = NULL,
+  load = TRUE,
   restart = interactive()
 )
 }
@@ -46,6 +47,8 @@ Setting this may be appropriate if renv is unable to determine that your
 project depends on a package normally available from Bioconductor. Set this
 to \code{TRUE} to use the default version of Bioconductor recommended by the
 BiocManager package.}
+
+\item{load}{Boolean; should the project be loaded after it is initialized?}
 
 \item{restart}{Boolean; attempt to restart the \R session after initializing
 the project? A session restart will be attempted if the \code{"restart"} \R

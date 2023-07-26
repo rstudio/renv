@@ -8,6 +8,7 @@ hydrate(
   packages = NULL,
   ...,
   library = NULL,
+  repos = getOption("repos"),
   update = FALSE,
   sources = NULL,
   prompt = interactive(),
@@ -24,6 +25,10 @@ are matched to \code{...}, renv will signal an error.}
 
 \item{library}{The \R library to be hydrated. When \code{NULL}, the active
 library as reported by \code{.libPaths()} is used.}
+
+\item{repos}{The \R repositories to be used. If the project depends on any
+\R packages which cannot be found within the user library paths, then
+those packages will be installed from these repositories instead.}
 
 \item{update}{Boolean; should \code{hydrate()} attempt to update already-installed
 packages if the requested package is already installed in the project

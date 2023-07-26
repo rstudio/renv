@@ -56,6 +56,8 @@ the$init_running <- FALSE
 #'   to `TRUE` to use the default version of Bioconductor recommended by the
 #'   BiocManager package.
 #'
+#' @param load Boolean; should the project be loaded after it is initialized?
+#'
 #' @param restart Boolean; attempt to restart the \R session after initializing
 #'   the project? A session restart will be attempted if the `"restart"` \R
 #'   option is set by the frontend embedding \R.
@@ -71,6 +73,7 @@ init <- function(project = NULL,
                  force        = FALSE,
                  repos        = NULL,
                  bioconductor = NULL,
+                 load         = TRUE,
                  restart      = interactive())
 {
   renv_consent_check()
@@ -88,7 +91,6 @@ init <- function(project = NULL,
 
   # normalize repos
   repos <- renv_repos_normalize(repos %||% renv_init_repos())
-  options(repos = repos)
 
   # form path to lockfile, library
   library  <- renv_paths_library(project = project)
@@ -105,8 +107,7 @@ init <- function(project = NULL,
     renv_bioconductor_init(library = library)
 
     # retrieve bioconductor repositories appropriate for this project
-    biocrepos <- renv_bioconductor_repos(project = project, version = biocver)
-    options(repos = biocrepos)
+    repos <- renv_bioconductor_repos(project = project, version = biocver)
 
     # notify user
     writef("- Using Bioconductor version '%s'.", biocver)
@@ -121,7 +122,7 @@ init <- function(project = NULL,
   # for bare inits, just activate the project
   if (bare) {
     renv_imbue_impl(project)
-    return(renv_init_fini(project, profile, restart))
+    return(renv_init_fini(project, profile, load, restart))
   }
 
   # compute and cache dependencies to (a) reveal problems early and (b) compute once
@@ -131,31 +132,32 @@ init <- function(project = NULL,
   action <- renv_init_action(project, library, lockfile, bioconductor)
   cancel_if(empty(action) || identical(action, "cancel"))
 
-  # activate library paths for this project
-  libpaths <- renv_libpaths_activate(project = project)
+  # compute library paths for this project
+  libpaths <- renv_init_libpaths(project = project)
 
   # perform the action
   if (action == "init") {
     renv_scope_options(renv.config.dependency.errors = "ignored")
-    renv_imbue_impl(project)
-    hydrate(library = library, prompt = FALSE, report = FALSE, project = project)
+    renv_imbue_impl(project, library = library)
+    hydrate(library = library, repos = repos, prompt = FALSE, report = FALSE, project = project)
     snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
   } else if (action == "restore") {
     ensure_directory(library)
-    restore(project = project, library = libpaths, prompt = FALSE)
+    restore(project = project, library = libpaths, repos = repos, prompt = FALSE)
   }
 
   # activate the newly-hydrated project
-  renv_init_fini(project, profile, restart)
+  renv_init_fini(project, profile, load, restart)
 
 }
 
-renv_init_fini <- function(project, profile, restart) {
+renv_init_fini <- function(project, profile, load, restart) {
 
   renv_activate_impl(
     project = project,
     profile = profile,
     version = renv_metadata_version(),
+    load    = load,
     restart = restart
   )
 

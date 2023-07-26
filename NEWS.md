@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::init()` gains the `load` argument, making it possible to initialize
+  a project without explicitly loading it. (#1583)
+  
 * renv now uses a lock when synchronizing installed packages with the cache.
   This should help alleviate issues that can arise when multiple R processes
   are installing and caching packges concurrently. (#1571)

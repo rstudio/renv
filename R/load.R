@@ -186,8 +186,10 @@ renv_load_minimal <- function(project) {
   renv_load_libpaths(project)
 
   lockfile <- renv_lockfile_load(project)
-  if (length(lockfile))
+  if (length(lockfile)) {
+    renv_load_r(project, lockfile$R)
     renv_load_python(project, lockfile$Python)
+  }
 
   renv_load_finish(project, lockfile)
   invisible(project)
@@ -436,9 +438,10 @@ renv_load_rprofile_impl <- function(profile) {
 }
 
 renv_load_libpaths <- function(project = NULL) {
-  libpaths <- renv_libpaths_activate(project)
+  libpaths <- renv_init_libpaths(project)
   lapply(libpaths, renv_library_diagnose, project = project)
   Sys.setenv(R_LIBS_USER = paste(libpaths, collapse = .Platform$path.sep))
+  renv_libpaths_set(libpaths)
 }
 
 renv_load_sandbox <- function(project) {
