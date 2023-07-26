@@ -129,10 +129,6 @@ renv_tests_setup_packages <- function() {
 
 }
 
-renv_tests_repopath <- function() {
-  getOption("renv.tests.repopath")
-}
-
 renv_tests_setup_libpaths <- function(scope = parent.frame()) {
 
   # remove the sandbox from the library paths, just in case we tried
@@ -146,15 +142,11 @@ renv_tests_setup_libpaths <- function(scope = parent.frame()) {
 renv_tests_setup_repos <- function(scope = parent.frame()) {
 
   # generate our dummy repository
-  repopath <- getOption("renv.tests.repopath")
-  if (!is.null(repopath)) {
-    return()
-  }
-
-  repopath <- renv_scope_tempfile("renv-repos-", scope = scope)
-  renv_scope_options(renv.tests.repopath = repopath, scope = scope)
-
   repopath <- renv_tests_repopath()
+  if (file.exists(repopath))
+    return()
+
+  # create repository source directory
   contrib <- file.path(repopath, "src/contrib")
   ensure_directory(contrib)
 
