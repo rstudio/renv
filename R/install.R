@@ -12,9 +12,9 @@ the$install_step_width <- 48L
 #'
 #' @description
 #' Install one or more \R packages, from a variety of remote sources.
-#' `install()` uses the same machinery as [restore()] for package installation
-#' to used cached packages where possible, but does not respect the lockfile,
-#' instead installing the latest versions available from CRAN.
+#' `install()` uses the same machinery as [restore()] (i.e. it uses cached
+#' packages where possible) but it does not respect the lockfile, instead
+#' installing the latest versions available from CRAN.
 #'
 #' See `vignette("package-install")` for more details.
 #'
