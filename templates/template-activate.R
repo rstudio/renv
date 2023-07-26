@@ -92,24 +92,13 @@ local({
     # RStudio only updates console once .Rprofile is finished, so
     # instead run code on sessionInit
     setHook("rstudio.sessionInit", function(...) {
-      renv_bootstrap_load_and_bootstrap(project, libpath, version)
-      # Work around buglet in RStudio if hook uses readline
-      flush_console()
+      renv_bootstrap_exec(project, libpath, version)
+      renv_bootstrap_flush_console()
     })
   } else {
-    renv_bootstrap_load_and_bootstrap(project, libpath, version)
+    renv_bootstrap_exec(project, libpath, version)
   }
 
   invisible()
 
 })
-
-flush_console <- function() {
-  tryCatch(
-    {
-      tools <- as.environment("tools:rstudio")
-      tools$.rs.api.sendToConsole("", echo = FALSE, focus = FALSE)
-    },
-    error = function(cnd) {}
-  )
-}
