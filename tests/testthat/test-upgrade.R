@@ -14,10 +14,13 @@ test_that("the version of renv in a project can be changed (upgraded)", {
   )
 
   # or with a sha
-  upgrade(version = "5049cef8a")
+  expect_true(upgrade(version = "5049cef8a"))
   expect_equal(
     renv_activate_version("."),
     structure("0.17.3-62", sha = "5049cef8a94591b802f9766a0da092780f59f7e4")
   )
+
+  # second upgrade does nothing
+  expect_false(upgrade(version = "5049cef8a"))
 
 })

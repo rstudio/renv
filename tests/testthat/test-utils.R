@@ -206,3 +206,25 @@ test_that("ensure_directory() works even under contention", {
   expect_true(all(unlist(responses$data())))
 
 })
+
+test_that("warnify() propagates errors as warnings", {
+
+  # here's why we don't use 'error = warning'
+  result <- tryCatch(
+    tryCatch(stop("ouch"), error = warning),
+    error = function(e) "error",
+    warning = function(w) "warning"
+  )
+
+  expect_equal(result, "error")
+
+  # warnify does something closer to what we expect
+  result <- tryCatch(
+    tryCatch(stop("ouch"), error = warnify),
+    error = function(e) "error",
+    warning = function(w) "warning"
+  )
+
+  expect_equal(result, "warning")
+
+})

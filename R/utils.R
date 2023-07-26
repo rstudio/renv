@@ -567,3 +567,8 @@ topfun <- function() {
       return(sys.function(i))
 
 }
+
+warnify <- function(cnd) {
+  class(cnd) <- c("warning", "condition")
+  warning(cnd)
+}

@@ -129,7 +129,7 @@ renv_watchdog_notify <- function(method, data = list()) {
 
   tryCatch(
     renv_watchdog_notify_impl(method, data),
-    error = warning
+    error = warnify
   )
 
 }
@@ -159,7 +159,7 @@ renv_watchdog_notify_impl <- function(method, data = list()) {
 renv_watchdog_request <- function(method, data = list()) {
   tryCatch(
     renv_watchdog_request_impl(method, data),
-    error = warning
+    error = warnify
   )
 }
 

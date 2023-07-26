@@ -346,7 +346,7 @@ renv_load_settings <- function(project) {
 
   tryCatch(
     eval(parse(settings), envir = baseenv()),
-    error = warning
+    error = warnify
   )
 
   TRUE
