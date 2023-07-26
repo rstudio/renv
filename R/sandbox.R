@@ -122,7 +122,7 @@ renv_sandbox_activate_check <- function(libs) {
     renv_scope_libpaths()
 
     # call the user-defined .First function
-    status <- tryCatch(.First(), error = warning)
+    status <- tryCatch(.First(), error = warnify)
 
     # double-check if we should restore .First (this is extra
     # paranoid but in theory .First could remove itself)
