@@ -391,6 +391,9 @@ renv_dependencies_find_dir <- function(path, root, depth) {
   # list children
   children <- renv_dependencies_find_dir_children(path, root, depth)
 
+  # notify about number of children
+  renv_condition_signal("renv.dependencies.count", list(path = path, count = length(children)))
+
   # find recursive dependencies
   depth <- depth + 1
   paths <- map(children, renv_dependencies_find_impl, root = root, depth = depth)

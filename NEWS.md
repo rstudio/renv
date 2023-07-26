@@ -1,6 +1,10 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::load()` now notifies the user if the synchronization check took an
+  excessive amount of time due to the number of files being scanned in the
+  project. (#1573)
+
 * `renv::init()` gains the `load` argument, making it possible to initialize
   a project without explicitly loading it. (#1583)
   

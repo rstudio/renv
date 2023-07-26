@@ -25,11 +25,11 @@ the$status_running <- FALSE
 #'
 #' There are four possibilities for an uninstalled package:
 #'
-#' * If it’s used and recorded, call `renv::restore()` to install the version
+#' * If it's used and recorded, call `renv::restore()` to install the version
 #'   specified in the lockfile.
-#' * If it’s used and not recorded, call `renv::install()` to install it
+#' * If it's used and not recorded, call `renv::install()` to install it
 #'   from CRAN or elsewhere.
-#' * If it’s not used and recorded, call `renv::snapshot()` to
+#' * If it's not used and recorded, call `renv::snapshot()` to
 #'   remove it from the lockfile.
 #' * If it's not used and not recorded, there's nothing to do. This the most
 #'   common state because you only use a small fraction of all available

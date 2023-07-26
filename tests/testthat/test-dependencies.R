@@ -462,3 +462,20 @@ test_that("we tolerate calls when parsing dependencies", {
   expect_true("B" %in% deps$Package)
 
 })
+
+test_that("dependencies() notifies the user if directories contain lots of files", {
+  project <- renv_tests_scope()
+  init()
+
+  # create data directory with 'lots' of files
+  dir.create("data")
+  setwd("data")
+  files <- sprintf("%03i.R", 1:200)
+  file.create(files)
+  setwd("..")
+
+  # try to collect snapshot dependencies
+  renv_scope_options(renv.dependencies.elapsed_time_threshold = 0)
+  expect_snapshot(. <- renv_snapshot_dependencies(project))
+
+})
