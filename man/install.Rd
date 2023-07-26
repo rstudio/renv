@@ -77,9 +77,9 @@ A named list of package records which were installed by renv.
 }
 \description{
 Install one or more \R packages, from a variety of remote sources.
-\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} for package installation
-to used cached packages where possible, but does not respect the lockfile,
-instead installing the latest versions available from CRAN.
+\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} (i.e. it uses cached
+packages where possible) but it does not respect the lockfile, instead
+installing the latest versions available from CRAN.
 
 See \code{vignette("package-install")} for more details.
 }
