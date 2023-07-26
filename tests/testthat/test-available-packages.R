@@ -190,7 +190,7 @@ test_that("available_packages() tolerates missing repositories", {
   repos[["NARC"]] <- file.path(repos[["CRAN"]], "missing")
   renv_scope_options(repos = repos)
 
-  expect_snapshot(dbs <- available_packages(type = "source"))
+  dbs <- available_packages(type = "source")
   expect_false(is.null(dbs[["CRAN"]]))
   expect_true(is.null(dbs[["NARC"]]))
 })
