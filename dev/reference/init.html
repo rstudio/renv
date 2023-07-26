@@ -119,6 +119,7 @@ or otherwise ask you what to do.</p>
 <span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  repos <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bioconductor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  load <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  restart <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -169,6 +170,10 @@ Setting this may be appropriate if renv is unable to determine that your
 project depends on a package normally available from Bioconductor. Set this
 to <code>TRUE</code> to use the default version of Bioconductor recommended by the
 BiocManager package.</p></dd>
+
+
+<dt>load</dt>
+<dd><p>Boolean; should the project be loaded after it is initialized?</p></dd>
 
 
 <dt>restart</dt>

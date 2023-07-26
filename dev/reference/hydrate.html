@@ -102,6 +102,7 @@ then call <code><a href="snapshot.html">snapshot()</a></code> to record updated 
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  library <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span>,</span>
 <span>  update <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sources <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -125,6 +126,12 @@ are matched to <code>...</code>, renv will signal an error.</p></dd>
 <dt>library</dt>
 <dd><p>The <span style="R">R</span> library to be hydrated. When <code>NULL</code>, the active
 library as reported by <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code> is used.</p></dd>
+
+
+<dt>repos</dt>
+<dd><p>The <span style="R">R</span> repositories to be used. If the project depends on any
+<span style="R">R</span> packages which cannot be found within the user library paths, then
+those packages will be installed from these repositories instead.</p></dd>
 
 
 <dt>update</dt>
