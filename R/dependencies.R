@@ -769,7 +769,7 @@ renv_dependencies_discover_chunks_ignore <- function(chunk) {
   # if renv.ignore is set, respect it
   ignore <- chunk$params[["renv.ignore"]]
   if (!is.null(ignore))
-    return(truthy(ignore))
+    return(renv_dependencies_param_is_true(ignore))
 
   # skip non-R chunks
   engine <- chunk$params[["engine"]]
@@ -778,11 +778,11 @@ renv_dependencies_discover_chunks_ignore <- function(chunk) {
     return(TRUE)
 
   # skip un-evaluated chunks
-  if (!truthy(chunk$params[["eval"]], default = TRUE))
+  if (!renv_dependencies_param_is_true(chunk$params[["eval"]]))
     return(TRUE)
 
   # skip learnr exercises
-  if (truthy(chunk$params[["exercise"]], default = FALSE))
+  if (renv_dependencies_param_is_true(chunk$params[["exercise"]], default = FALSE))
     return(TRUE)
 
   # skip chunks whose labels end in '-display'
@@ -1705,6 +1705,22 @@ renv_dependencies_report <- function(errors) {
   renv_condition_signal("renv.dependencies.problems", problems)
   TRUE
 
+}
+
+
+renv_dependencies_param_is_true <- function(x, default = TRUE) {
+  # https://github.com/rstudio/renv/issues/1558
+  if (is.call(x) || is.symbol(x)) {
+    x <- tryCatch(renv_dependencies_eval(x), error = identity)
+    if (inherits(x, "error"))
+      return(default)
+  }
+
+  if (is.logical(x) && length(x) == 1 && !is.na(x)) {
+    x
+  } else {
+    default
+  }
 }
 
 renv_dependencies_eval <- function(expr) {
