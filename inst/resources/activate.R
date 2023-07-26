@@ -519,7 +519,7 @@ local({
   
     # open the bundle for reading
     # We use gzcon for everything because (from ?gzcon)
-    # > Reading from a connection which does not supply a ‘gzip’ magic
+    # > Reading from a connection which does not supply a 'gzip' magic
     # > header is equivalent to reading from the original connection
     conn <- gzcon(file(bundle, open = "rb", raw = TRUE))
     on.exit(close(conn))
