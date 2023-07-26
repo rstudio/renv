@@ -12,33 +12,18 @@ the$install_step_width <- 48L
 #'
 #' @description
 #' Install one or more \R packages, from a variety of remote sources.
-#' `install()` uses the same machinery as [restore()] for package installation.
-#' In particular, this means that the local cache of package installations is
-#' used when possible. This helps to avoid re-downloading packages that have
-#' already been downloaded before, and re-compiling packages from source when
-#' a binary copy of that package is already available.
+#' `install()` uses the same machinery as [restore()] for package installation
+#' to used cached packages where possible, but does not respect the lockfile,
+#' instead installing the latest versions available from CRAN.
 #'
 #' See `vignette("package-install")` for more details.
 #'
-#' # Project `DESCRIPTION` files
+#' # `Remotes`
 #'
-#' If your project contains a `DESCRIPTION` file, then calling `install()`
-#' without any arguments will instruct renv to install the latest versions of
-#' all packages as declared within that `DESCRIPTION` file's `Depends`,
-#' `Imports` and `LinkingTo` fields; similar to how an \R package might declare
-#' its dependencies.
-#'
-#' If you have one or more packages that you'd like to install from a separate
-#' remote source, this can be accomplished by adding a `Remotes:` field to the
-#' `DESCRIPTION` file. See `vignette("dependencies", package = "devtools")`
-#' for more details. Alternatively, view the vignette online at
-#' <https://devtools.r-lib.org/articles/dependencies.html>.
-#'
-#' Note that `install()` does not use the project's `renv.lock` when determining
-#' sources for packages to be installed. If you want to install packages using
-#' the sources declared in the lockfile, consider using `restore()` instead.
-#' Otherwise, you can declare the package sources in your `DESCRIPTION`'s
-#' `Remotes:` field.
+#' `install()` (called without arguments) will respect the `Remotes` field
+#' of the `DESCRIPTION` file (if present). This allows you to specify places
+#' to install a package other than the latest version from CRAN.
+#' See <https://remotes.r-lib.org/articles/dependencies.html> for details.
 #'
 #' # Bioconductor
 #'
