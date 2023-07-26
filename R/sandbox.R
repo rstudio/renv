@@ -28,7 +28,7 @@ renv_sandbox_activate <- function(project = NULL) {
   # attempt the activation
   status <- catch(renv_sandbox_activate_impl(project))
   if (inherits(status, "error"))
-    warning(status)
+    warnify(status)
 
   # record end time
   after <- Sys.time()

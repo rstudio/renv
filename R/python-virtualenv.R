@@ -74,7 +74,7 @@ renv_python_virtualenv_update <- function(python) {
   # if we're not able to install or update these packages
   status <- catch(pip_install(packages, python = python))
   if (inherits(status, "error"))
-    warning(status)
+    warnify(status)
 
   TRUE
 
