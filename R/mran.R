@@ -156,7 +156,7 @@ renv_mran_database_update <- function(platform, version, dates = NULL) {
     url <- renv_mran_url(date, suffix)
     tryCatch(
       renv_mran_database_update_impl(date, url, entry),
-      error = warning
+      error = warnify
     )
 
   }

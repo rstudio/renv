@@ -26,7 +26,7 @@ renv_abi_check <- function(packages = NULL,
   map(packages, function(package) {
     tryCatch(
       renv_abi_check_impl(package, problems),
-      error = warning
+      error = warnify
     )
   })
 

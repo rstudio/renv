@@ -91,7 +91,7 @@ clean <- function(project = NULL,
 
   methods <- all[actions]
   for (method in methods)
-    tryCatch(method(project, prompt), error = warning)
+    tryCatch(method(project, prompt), error = warnify)
 
   writef("- The project has been cleaned.")
   invisible(project)

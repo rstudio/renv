@@ -780,7 +780,7 @@ renv_bootstrap_load <- function(project, libpath, version) {
   hooks <- getHook("renv::autoload")
   for (hook in hooks)
     if (is.function(hook))
-      tryCatch(hook(), error = warning)
+      tryCatch(hook(), error = warnify)
 
   # load the project
   renv::load(project)
