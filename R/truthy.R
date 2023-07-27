@@ -7,5 +7,6 @@ truthy <- function(value, default = FALSE) {
     value %in% c("TRUE", "True", "true", "T", "1")
   else
     as.logical(value)
+
 }
 

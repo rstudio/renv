@@ -445,14 +445,20 @@ test_that("captures dependencies from Jupyter notebooks", {
 test_that("can handle different ways of setting options", {
 
   expect_true(renv_dependencies_param_is_true(TRUE))
+  expect_true(renv_dependencies_param_is_true("TRUE"))
+  expect_true(renv_dependencies_param_is_true(1))
   expect_true(renv_dependencies_param_is_true(quote(T)))
   expect_true(renv_dependencies_param_is_true(TRUE && TRUE))
-  expect_false(renv_dependencies_param_is_true(TRUE && FALSE))
+
+  expect_false(renv_dependencies_param_is_true(FALSE))
+  expect_false(renv_dependencies_param_is_true("FALSE"))
+  expect_false(renv_dependencies_param_is_true(0))
   expect_false(renv_dependencies_param_is_true(quote(F)))
-  expect_false(renv_dependencies_param_is_true(quote(!T)))
+  expect_false(renv_dependencies_param_is_true(FALSE && FALSE))
 
   expect_true(renv_dependencies_param_is_true(quote(1:3), default = TRUE))
   expect_true(renv_dependencies_param_is_true(quote(!foobar), default = TRUE))
+  expect_true(renv_dependencies_param_is_true("True", default = TRUE))
 
 })
 

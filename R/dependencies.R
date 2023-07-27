@@ -1717,7 +1717,12 @@ renv_dependencies_param_is_true <- function(x, default = TRUE) {
   }
 
   if (is.logical(x) && length(x) == 1 && !is.na(x)) {
-    x
+    x <- as.logical(x)
+    if (!is.na(x)) {
+      x
+    } else {
+      default
+    }
   } else {
     default
   }
