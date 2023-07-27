@@ -170,11 +170,17 @@ Similarly, if you'd like renv to parse a chunk that is otherwise ignored
 }
 
 \section{Development dependencies}{
-renv attempts to distinguish between 'development' dependencies and
-'runtime' dependencies. For example, you might rely on e.g.
-\href{https://cran.r-project.org/package=devtools}{devtools} and
-\href{https://cran.r-project.org/package=roxygen2}{roxygen2} during development
-for a project, but may not actually require these packages at runtime.
+renv has some support for distinguishing between development and run-time
+dependencies. For example, your Shiny app might rely on
+\href{https://ggplot2.tidyverse.org}{ggplot2} (a run-time dependency) but while
+you use \href{https://usethis.r-lib.org}{usethis} during development, your app
+doesn't need it to run (i.e. it's only a development dependency).
+
+You can record development dependencies by listing them in the \code{Suggests}
+field of your project's \code{DESCRIPTION} file. Development dependencies will be installed by
+\code{\link[=install]{install()}} (when called without arguments) but will not be tracked in
+the project snapshot. If you need greater control, you can also try project
+profiles as discussed in \code{vignette("profiles")}.
 }
 
 \examples{

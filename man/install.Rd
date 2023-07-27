@@ -77,32 +77,17 @@ A named list of package records which were installed by renv.
 }
 \description{
 Install one or more \R packages, from a variety of remote sources.
-\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} for package installation.
-In particular, this means that the local cache of package installations is
-used when possible. This helps to avoid re-downloading packages that have
-already been downloaded before, and re-compiling packages from source when
-a binary copy of that package is already available.
+\code{install()} uses the same machinery as \code{\link[=restore]{restore()}} (i.e. it uses cached
+packages where possible) but it does not respect the lockfile, instead
+installing the latest versions available from CRAN.
 
 See \code{vignette("package-install")} for more details.
 }
-\section{Project \code{DESCRIPTION} files}{
-If your project contains a \code{DESCRIPTION} file, then calling \code{install()}
-without any arguments will instruct renv to install the latest versions of
-all packages as declared within that \code{DESCRIPTION} file's \code{Depends},
-\code{Imports} and \code{LinkingTo} fields; similar to how an \R package might declare
-its dependencies.
-
-If you have one or more packages that you'd like to install from a separate
-remote source, this can be accomplished by adding a \verb{Remotes:} field to the
-\code{DESCRIPTION} file. See \code{vignette("dependencies", package = "devtools")}
-for more details. Alternatively, view the vignette online at
-\url{https://devtools.r-lib.org/articles/dependencies.html}.
-
-Note that \code{install()} does not use the project's \code{renv.lock} when determining
-sources for packages to be installed. If you want to install packages using
-the sources declared in the lockfile, consider using \code{restore()} instead.
-Otherwise, you can declare the package sources in your \code{DESCRIPTION}'s
-\verb{Remotes:} field.
+\section{\code{Remotes}}{
+\code{install()} (called without arguments) will respect the \code{Remotes} field
+of the \code{DESCRIPTION} file (if present). This allows you to specify places
+to install a package other than the latest version from CRAN.
+See \url{https://remotes.r-lib.org/articles/dependencies.html} for details.
 }
 
 \section{Bioconductor}{
