@@ -1,7 +1,10 @@
 
 # notice me senpai
-notice <- function(preamble, values, postamble = NULL) {
-
+notice <- function(preamble,
+                   values,
+                   postamble = NULL,
+                   emitter = NULL)
+{
   if (empty(values))
     return()
 
@@ -13,17 +16,19 @@ notice <- function(preamble, values, postamble = NULL) {
   )
 
   text <- paste(as.character(lines), collapse = "\n")
-  renv_notice_impl(text)
-
+  renv_notice_impl(text, emitter)
 }
 
-renv_notice_impl <- function(text) {
+renv_notice_impl <- function(text, emitter = NULL) {
 
-  # NOTE: Used by vetiver, so perhaps is part of the API
+  # NOTE: Used by vetiver, so perhaps is part of the API.
+  # We should think of a cleaner way of exposing this.
   # https://github.com/rstudio/renv/issues/1413
-  emitter <- getOption("renv.pretty.print.emitter", default = writef)
-  emitter(text)
+  emitter <- emitter %||% {
+    getOption("renv.pretty.print.emitter", default = caution)
+  }
 
+  emitter(text)
   invisible(NULL)
 
 }

@@ -7,7 +7,7 @@ test_that("notice() creates bulleted list with optional postamble", {
 })
 
 test_that("notice() doesn't show pre/post amble if no values", {
-  expect_silent(notice(character(), "before", "after"))
+  expect_silent(notice("before", character(), "after"))
 })
 
 test_that("options(renv.pretty.print.emitter) is respected", {

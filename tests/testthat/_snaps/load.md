@@ -32,5 +32,10 @@
       load()
     Output
       - Project '<wd>' loaded. [renv <version>]
+      The following package(s) are out of sync [lockfile -> library]:
+      
+      # CRAN ---
+      - egg   [repo: * -> CRAN; ver: 2.0.0 -> 1.0.0]
+      
       - The project is out-of-sync -- use `renv::status()` for details.
 
