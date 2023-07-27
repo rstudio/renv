@@ -898,6 +898,10 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
     }
   )
 
+  # count the number of files in each directory, so we can report
+  # to the user if we scanned a folder containing many files
+  count <- integer()
+
   packages <- withCallingHandlers(
 
     renv_dependencies_impl(
@@ -919,6 +923,11 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
 
     },
 
+    # collect information about folders containing lots of files
+    renv.dependencies.count = function(cnd) {
+      count[[cnd$data$path]] <<- cnd$data$count
+    },
+
     # notify the user if we took a long time to discover dependencies
     renv.dependencies.elapsed_time = function(cnd) {
 
@@ -932,15 +941,26 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
       if (elapsed < limit)
         return()
 
+      renv_scope_options(renv.verbose = TRUE)
+
+      # tally up directories with lots of files
+      count <- count[order(count)]
+      count <- count[count >= 200]
+
       # report to user
       lines <- c(
         "",
         "NOTE: Dependency discovery took %s during snapshot.",
         "Consider using .renvignore to ignore files, or switching to explicit snapshots.",
         "See `?renv::dependencies` for more information.",
+        if (length(count)) c(
+          "",
+          sprintf("- %s: %s", format(names(count)), nplural("file", count))
+        ),
         ""
       )
 
+      renv_scope_options(renv.verbose = TRUE)
       writef(lines, renv_difftime_format(elapsed))
 
     }
