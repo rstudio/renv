@@ -258,11 +258,16 @@ in the chunk header. For example:</p>
     </div>
     <div class="section level2">
     <h2 id="development-dependencies">Development dependencies<a class="anchor" aria-label="anchor" href="#development-dependencies"></a></h2>
-    <p>renv attempts to distinguish between 'development' dependencies and
-'runtime' dependencies. For example, you might rely on e.g.
-<a href="https://cran.r-project.org/package=devtools" class="external-link">devtools</a> and
-<a href="https://cran.r-project.org/package=roxygen2" class="external-link">roxygen2</a> during development
-for a project, but may not actually require these packages at runtime.</p>
+    <p>renv has some support for distinguishing between development and run-time
+dependencies. For example, your Shiny app might rely on
+<a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> (a run-time dependency) but while
+you use <a href="https://usethis.r-lib.org" class="external-link">usethis</a> during development, your app
+doesn't need it to run (i.e. it's only a development dependency).</p>
+<p>You can record development dependencies by listing them in the <code>Suggests</code>
+field of your project's <code>DESCRIPTION</code> file. Development dependencies will be installed by
+<code><a href="install.html">install()</a></code> (when called without arguments) but will not be tracked in
+the project snapshot. If you need greater control, you can also try project
+profiles as discussed in <code><a href="../articles/profiles.html">vignette("profiles")</a></code>.</p>
     </div>
 
     <div class="section level2">
