@@ -295,7 +295,7 @@ update <- function(packages = NULL,
   if (!empty(missing)) {
 
     if (prompt || renv_verbose()) {
-      renv_pretty_print(
+      notice(
         "The following package(s) are not currently installed:",
         missing,
         "The latest available versions of these packages will be installed instead."
@@ -445,7 +445,7 @@ renv_update_errors_emit_impl <- function(key, preamble, postamble) {
     sprintf("%s: %s", format(package), errmsg)
   })
 
-  renv_pretty_print(
+  notice(
     preamble = preamble,
     values = messages,
     postamble = postamble

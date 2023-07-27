@@ -53,7 +53,7 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
     packages <- basename(old)[changed]
     oldhash <- renv_path_component(old[changed], 2L)
     newhash <- renv_path_component(new[changed], 2L)
-    renv_pretty_print(
+    notice(
       "The following packages will be re-cached:",
       sprintf(fmt, format(packages), format(oldhash), format(newhash)),
       sprintf("Packages will be %s to their new locations in the cache.", label)

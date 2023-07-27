@@ -1,5 +1,6 @@
 
-renv_pretty_print <- function(preamble, values, postamble = NULL) {
+# notice me senpai
+notice <- function(preamble, values, postamble = NULL) {
 
   if (empty(values))
     return()
@@ -12,11 +13,11 @@ renv_pretty_print <- function(preamble, values, postamble = NULL) {
   )
 
   text <- paste(as.character(lines), collapse = "\n")
-  renv_pretty_print_impl(text)
+  renv_notice_impl(text)
 
 }
 
-renv_pretty_print_impl <- function(text) {
+renv_notice_impl <- function(text) {
 
   # NOTE: Used by vetiver, so perhaps is part of the API
   # https://github.com/rstudio/renv/issues/1413
@@ -27,7 +28,7 @@ renv_pretty_print_impl <- function(text) {
 
 }
 
-renv_pretty_print_records <- function(preamble, records, postamble = NULL)
+renv_notice_records <- function(preamble, records, postamble = NULL)
 {
   if (empty(records))
     return(invisible(NULL))
@@ -51,10 +52,10 @@ renv_pretty_print_records <- function(preamble, records, postamble = NULL)
     postamble, if (length(postamble)) ""
   )
 
-  renv_pretty_print_impl(all)
+  renv_notice_impl(all)
 }
 
-renv_pretty_print_records_pair <- function(preamble,
+renv_notice_records_pair <- function(preamble,
                                            old,
                                            new,
                                            postamble = NULL,
@@ -64,14 +65,14 @@ renv_pretty_print_records_pair <- function(preamble,
 
   all <- c(
     c(preamble, ""),
-    renv_pretty_print_records_pair_impl(old, new, formatter),
+    renv_notice_records_pair_impl(old, new, formatter),
     if (length(postamble)) c(postamble, "")
   )
 
-  renv_pretty_print_impl(all)
+  renv_notice_impl(all)
 }
 
-renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
+renv_notice_records_pair_impl <- function(old, new, formatter) {
 
   # NOTE: use 'sort()' rather than 'csort()' here so that
   # printed output is sorted in the expected way in the users locale

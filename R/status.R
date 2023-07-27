@@ -277,7 +277,7 @@ renv_status_check_synchronized <- function(lockfile, library) {
   }
 
   pkgs <- names(actions[actions %in% rest])
-  renv_pretty_print_records_pair(
+  renv_notice_records_pair(
     preamble = "The following package(s) are out of sync [lockfile -> library]:",
     lockfile[pkgs],
     library[pkgs],
