@@ -10,7 +10,7 @@ renv_debuggify_dump <- function(cnd) {
   calls <- head(status$sys.calls, n = -2L)
   frames <- head(status$sys.frames, n = -2L)
   traceback <- renv_error_format(calls, frames)
-  writef(traceback)
+  caution(traceback)
 
   # print information about each frame
   n <- length(calls)

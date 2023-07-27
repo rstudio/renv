@@ -121,6 +121,9 @@ ask <- function(question, default = FALSE) {
   if (!interactive())
     return(default)
 
+  # be verbose in this scope, as we're asking the user for input
+  renv_scope_options(renv.verbose = TRUE)
+
   repeat {
 
     # solicit user's answer

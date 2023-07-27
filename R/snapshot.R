@@ -360,7 +360,7 @@ renv_snapshot_validate_bioconductor <- function(project, lockfile, libpaths) {
       "Consider installing %s before snapshot.",
       ""
     )
-    writef(text, package)
+    caution(text, package)
 
     ok <- FALSE
   }
@@ -941,8 +941,6 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
       if (elapsed < limit)
         return()
 
-      renv_scope_options(renv.verbose = TRUE)
-
       # tally up directories with lots of files
       count <- count[order(count)]
       count <- count[count >= 200]
@@ -960,8 +958,7 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
         ""
       )
 
-      renv_scope_options(renv.verbose = TRUE)
-      writef(lines, renv_difftime_format(elapsed))
+      caution(lines, renv_difftime_format(elapsed))
 
     }
 

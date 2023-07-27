@@ -1,21 +1,17 @@
 
 renv_pretty_print <- function(preamble, values, postamble = NULL) {
 
-  if (!renv_verbose() || empty(values))
+  if (empty(values))
     return()
 
-  msg <- stack()
-  msg$push(paste(preamble, collapse = "\n"))
+  lines <- c(
+    if (length(preamble)) paste(preamble, collapse = "\n"),
+    if (length(values))   paste("-", values, collapse = "\n"),
+    if (length(postamble)) paste(postamble, collapse = "\n"),
+    ""
+  )
 
-  msg$push(paste0("- ", values, collapse = "\n"))
-
-  if (!is.null(postamble)) {
-    msg$push(paste(postamble, collapse = "\n"))
-  }
-
-  msg$push("")
-
-  text <- paste(as.character(msg$data()), collapse = "\n")
+  text <- paste(as.character(lines), collapse = "\n")
   renv_pretty_print_impl(text)
 
 }

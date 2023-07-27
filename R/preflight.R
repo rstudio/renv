@@ -21,7 +21,7 @@ renv_preflight <- function(lockfile) {
       "The environment may not be restored correctly."
     )
 
-    writef(feedback)
+    caution(feedback)
 
   }
 

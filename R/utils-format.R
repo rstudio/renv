@@ -17,6 +17,11 @@ writef <- function(fmt = "", ..., con = stdout()) {
     writeLines(sprintf(fmt, ...), con = con)
 }
 
+caution <- function(fmt = "", ..., con = stdout()) {
+  if (!is.null(fmt))
+    writeLines(sprintf(fmt, ...), con = con)
+}
+
 info_bullet <- function() {
   if (l10n_info()$`UTF-8`) "\u2139" else "i"
 }
