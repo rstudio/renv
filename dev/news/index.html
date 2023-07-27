@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
-<ul><li><p><code><a href="../reference/init.html">renv::init()</a></code> gains the <code>load</code> argument, making it possible to initialize a project without explicitly loading it. (<a href="https://github.com/rstudio/renv/issues/1583" class="external-link">#1583</a>)</p></li>
+<ul><li><p><code><a href="../reference/load.html">renv::load()</a></code> now notifies the user if the synchronization check took an excessive amount of time due to the number of files being scanned in the project. (<a href="https://github.com/rstudio/renv/issues/1573" class="external-link">#1573</a>)</p></li>
+<li><p><code><a href="../reference/init.html">renv::init()</a></code> gains the <code>load</code> argument, making it possible to initialize a project without explicitly loading it. (<a href="https://github.com/rstudio/renv/issues/1583" class="external-link">#1583</a>)</p></li>
 <li><p>renv now uses a lock when synchronizing installed packages with the cache. This should help alleviate issues that can arise when multiple R processes are installing and caching packges concurrently. (<a href="https://github.com/rstudio/renv/issues/1571" class="external-link">#1571</a>)</p></li>
 <li><p>Fixed a regression in parsing expressions within R Markdown chunk options. (<a href="https://github.com/rstudio/renv/issues/1558" class="external-link">#1558</a>)</p></li>
 <li><p>Fixed an issue that prevented <code><a href="../reference/install.html">renv::install()</a></code> from functioning when source-only repositories were included. (<a href="https://github.com/rstudio/renv/issues/1578" class="external-link">#1578</a>)</p></li>
