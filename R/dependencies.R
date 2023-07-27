@@ -116,13 +116,13 @@
 #' # Development dependencies
 #'
 #' renv has some support for distinguishing between development and run-time
-#' dependencies. For example, your shiny app might rely on
+#' dependencies. For example, your Shiny app might rely on
 #' [ggplot2](https://ggplot2.tidyverse.org) (a run-time dependency) but while
 #' you use [usethis](https://usethis.r-lib.org) during development, your app
 #' doesn't need it to run (i.e. it's only a development dependency).
 #'
-#' You can record development dependencies by listing them in the `Suggested`
-#' field of a `DESCRIPTION` file. Development dependencies will be installed by
+#' You can record development dependencies by listing them in the `Suggests`
+#' field of your project's `DESCRIPTION` file. Development dependencies will be installed by
 #' [renv::install()] (when called without arguments) but will not be tracked in
 #' the project snapshot. If you need greater control, you can also try project
 #' profiles as discussed in `vignette("profiles")`.
