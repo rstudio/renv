@@ -384,7 +384,7 @@ renv_hydrate_report <- function(packages, na, linkable) {
       renv_record_format_short(rhs, versioned = TRUE)
     }
 
-    renv_notice_records_pair(
+    renv_pretty_print_records_pair(
       preamble = preamble,
       old = list(),
       new = records,

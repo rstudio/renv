@@ -10,7 +10,7 @@ renv_updates_report <- function(preamble, diff, old, new) {
 
   lhs <- renv_lockfile_records(old)
   rhs <- renv_lockfile_records(new)
-  renv_notice_records_pair(
+  renv_pretty_print_records_pair(
     preamble,
     lhs[names(lhs) %in% names(diff)],
     rhs[names(rhs) %in% names(diff)]

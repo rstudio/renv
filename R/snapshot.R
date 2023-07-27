@@ -835,7 +835,7 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   if (length(actions)) {
     lhs <- renv_lockfile_records(old)
     rhs <- renv_lockfile_records(new)
-    renv_notice_records_pair(
+    renv_pretty_print_records_pair(
       "The following package(s) will be updated in the lockfile:",
       lhs[names(lhs) %in% names(actions)],
       rhs[names(rhs) %in% names(actions)]

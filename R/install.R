@@ -806,7 +806,7 @@ renv_install_preflight <- function(project, libpaths, records) {
 }
 
 renv_install_report <- function(records, library) {
-  renv_notice_records(
+  renv_pretty_print_records(
     "The following package(s) will be installed:",
     records,
     sprintf("These packages will be installed into %s.", renv_path_pretty(library))
