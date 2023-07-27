@@ -27,4 +27,5 @@
       
       Selection: 1
       
+      - The project is out-of-sync -- use `renv::status()` for details.
 

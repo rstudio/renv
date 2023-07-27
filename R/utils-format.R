@@ -1,4 +1,6 @@
 
+the$caution_enabled <- TRUE
+
 stopf <- function(fmt = "", ..., call. = FALSE) {
   stop(sprintf(fmt, ...), call. = call.)
 }
@@ -18,7 +20,7 @@ writef <- function(fmt = "", ..., con = stdout()) {
 }
 
 caution <- function(fmt = "", ..., con = stdout()) {
-  if (!is.null(fmt))
+  if (!is.null(fmt) && the$caution_enabled)
     writeLines(sprintf(fmt, ...), con = con)
 }
 

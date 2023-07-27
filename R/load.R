@@ -818,7 +818,7 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
   # check for case where no packages are installed (except renv)
   if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
 
-    writef("- No packages recorded in the lockfile are installed.")
+    caution("- No packages recorded in the lockfile are installed.")
     choice <- menu(
       title = "What do you want to do?",
       choices = c(
@@ -842,18 +842,19 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
       "- One or more packages recorded in the lockfile are not installed.",
       "- Use `renv::status()` for more details."
     )
-    writef(msg)
+    caution(msg)
     return(FALSE)
   }
 
   # otherwise, use status to detect if we're synchronized
   info <- local({
     renv_scope_options(renv.verbose = FALSE)
+    renv_scope_caution(FALSE)
     status(project = project, sources = FALSE)
   })
 
   if (!identical(info$synchronized, TRUE)) {
-    writef("- The project is out-of-sync -- use `renv::status()` for details.")
+    caution("- The project is out-of-sync -- use `renv::status()` for details.")
     return(FALSE)
   }
 

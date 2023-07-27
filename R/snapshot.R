@@ -958,6 +958,8 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
         ""
       )
 
+      # force output in this scope
+      renv_scope_caution(TRUE)
       caution(lines, renv_difftime_format(elapsed))
 
     }
