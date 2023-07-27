@@ -155,14 +155,14 @@ it invisibly returns a list containing the following components:</p><ul><li><p><
     <div class="section level2">
     <h2 id="missing-packages">Missing packages<a class="anchor" aria-label="anchor" href="#missing-packages"></a></h2>
     <p><code>status()</code> first checks that all packages used by the project are installed. #' This must be done first because if any packages are missing we can't tell for
-sure that a package isn't used; it might be a dependency that we don’t know
+sure that a package isn't used; it might be a dependency that we don't know
 about. Once you have resolve any installation issues, you'll need to run
 <code>status()</code> again to reveal the next set of potential problems.</p>
-<p>There are four possibilities for an uninstalled package:</p><ul><li><p>If it’s used and recorded, call <code><a href="restore.html">renv::restore()</a></code> to install the version
+<p>There are four possibilities for an uninstalled package:</p><ul><li><p>If it's used and recorded, call <code><a href="restore.html">renv::restore()</a></code> to install the version
 specified in the lockfile.</p></li>
-<li><p>If it’s used and not recorded, call <code><a href="install.html">renv::install()</a></code> to install it
+<li><p>If it's used and not recorded, call <code><a href="install.html">renv::install()</a></code> to install it
 from CRAN or elsewhere.</p></li>
-<li><p>If it’s not used and recorded, call <code><a href="snapshot.html">renv::snapshot()</a></code> to
+<li><p>If it's not used and recorded, call <code><a href="snapshot.html">renv::snapshot()</a></code> to
 remove it from the lockfile.</p></li>
 <li><p>If it's not used and not recorded, there's nothing to do. This the most
 common state because you only use a small fraction of all available
@@ -176,12 +176,12 @@ that also suggests you should be running status more frequently.</p>
     <p>Next we need to ensure that packages are recorded in the lockfile if and
 only if they are used by the project. Fixing issues of this nature only
 requires calling  <code><a href="snapshot.html">snapshot()</a></code> because there are four possibilities for
-a package:</p><ul><li><p>If it’s used and recorded, it’s ok.</p></li>
-<li><p>If it’s used and not recorded, call <code><a href="snapshot.html">renv::snapshot()</a></code> to add it to the
+a package:</p><ul><li><p>If it's used and recorded, it's ok.</p></li>
+<li><p>If it's used and not recorded, call <code><a href="snapshot.html">renv::snapshot()</a></code> to add it to the
 lockfile.</p></li>
-<li><p>If it’s not used but is recorded, call <code><a href="snapshot.html">renv::snapshot()</a></code> to remove
+<li><p>If it's not used but is recorded, call <code><a href="snapshot.html">renv::snapshot()</a></code> to remove
 it from the lockfile.</p></li>
-<li><p>If it’s not used and not recorded, it’s also ok, as it may be a
+<li><p>If it's not used and not recorded, it's also ok, as it may be a
 development dependency.</p></li>
 </ul></div>
     <div class="section level2">
