@@ -19,7 +19,7 @@ the$status_running <- FALSE
 #' # Missing packages
 #'
 #' `status()` first checks that all packages used by the project are installed. #' This must be done first because if any packages are missing we can't tell for
-#' sure that a package isn't used; it might be a dependency that we don’t know
+#' sure that a package isn't used; it might be a dependency that we don't know
 #' about. Once you have resolve any installation issues, you'll need to run
 #' `status()` again to reveal the next set of potential problems.
 #'
@@ -46,12 +46,12 @@ the$status_running <- FALSE
 #' requires calling  `snapshot()` because there are four possibilities for
 #' a package:
 #'
-#' * If it’s used and recorded, it’s ok.
-#' * If it’s used and not recorded, call `renv::snapshot()` to add it to the
+#' * If it's used and recorded, it's ok.
+#' * If it's used and not recorded, call `renv::snapshot()` to add it to the
 #'   lockfile.
-#' * If it’s not used but is recorded, call `renv::snapshot()` to remove
+#' * If it's not used but is recorded, call `renv::snapshot()` to remove
 #'   it from the lockfile.
-#' * If it’s not used and not recorded, it’s also ok, as it may be a
+#' * If it's not used and not recorded, it's also ok, as it may be a
 #'   development dependency.
 #'
 #' # Out-of-sync sources
