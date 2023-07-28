@@ -11,7 +11,7 @@ renv_acls_reset <- function(source, target = dirname(source)) {
     return(FALSE)
 
   # build command
-  fmt <- "getfacl %s 2> /dev/null | setfacl -R --set-file=- %s"
+  fmt <- "getfacl %s 2> /dev/null | setfacl -R --set-file=- %s 2> /dev/null"
   cmd <- sprintf(fmt, renv_shell_path(target), renv_shell_path(source))
 
   # execute it
