@@ -10,7 +10,8 @@ record(records, lockfile = NULL, project = NULL)
 \item{records}{A list of named records, mapping package names to a definition
 of their source. See \strong{Records} for more details.}
 
-\item{lockfile}{Path to a lockfile. When \code{NULL} (the default), the \code{renv.lock} located in the root of the current project will be used.}
+\item{lockfile}{Path to a lockfile. When \code{NULL} (the default), the
+\code{renv.lock} located in the root of the current project will be used.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working

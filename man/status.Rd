@@ -24,7 +24,8 @@ are matched to \code{...}, renv will signal an error.}
 \item{library}{The library paths. By default, the library paths associated
 with the requested project are used.}
 
-\item{lockfile}{Path to a lockfile. When \code{NULL} (the default), the \code{renv.lock} located in the root of the current project will be used.}
+\item{lockfile}{Path to a lockfile. When \code{NULL} (the default), the
+\code{renv.lock} located in the root of the current project will be used.}
 
 \item{sources}{Boolean; check that each of the recorded packages have a
 known installation source? If a package has an unknown source, renv

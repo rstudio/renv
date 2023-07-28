@@ -139,6 +139,7 @@ snapshot <- function(project  = NULL,
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
+  renv_scope_verbose_if(prompt)
 
   repos <- renv_repos_validate(repos)
   renv_scope_options(repos = repos)

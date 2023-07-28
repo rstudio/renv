@@ -28,7 +28,8 @@ are matched to \code{...}, renv will signal an error.}
 \item{library}{The library paths to be used during restore. See \strong{Library}
 for details.}
 
-\item{lockfile}{Path to a lockfile. When \code{NULL} (the default), the \code{renv.lock} located in the root of the current project will be used.}
+\item{lockfile}{Path to a lockfile. When \code{NULL} (the default), the
+\code{renv.lock} located in the root of the current project will be used.}
 
 \item{packages}{A subset of packages recorded in the lockfile to restore.
 When \code{NULL} (the default), all packages available in the lockfile will be

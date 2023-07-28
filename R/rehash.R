@@ -16,6 +16,7 @@
 rehash <- function(prompt = interactive(), ...) {
   renv_scope_error_handler()
   renv_dots_check(...)
+  renv_scope_verbose_if(prompt)
   invisible(renv_rehash_impl(prompt))
 }
 

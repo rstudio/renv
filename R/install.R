@@ -112,6 +112,7 @@ install <- function(packages = NULL,
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
+  renv_scope_verbose_if(prompt)
 
   # handle 'dependencies'
   if (!is.null(dependencies)) {

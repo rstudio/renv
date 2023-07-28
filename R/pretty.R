@@ -14,15 +14,9 @@ renv_pretty_print_records <- function(preamble, records, postamble = NULL) {
   records <- records[sort(names(records))]
   packages <- names(records)
   descs <- map_chr(records, renv_record_format_short)
-
   text <- sprintf("- %s [%s]", format(packages), descs)
 
-  all <- c(
-    preamble,
-    text,
-    postamble, if (length(postamble)) ""
-  )
-
+  all <- c(preamble, text, postamble, if (length(postamble)) "")
   renv_caution_impl(all)
 
 }

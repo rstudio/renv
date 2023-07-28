@@ -53,6 +53,7 @@ restore <- function(project  = NULL,
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
+  renv_scope_verbose_if(prompt)
 
   # resolve library, lockfile arguments
   libpaths <- renv_libpaths_resolve(library)

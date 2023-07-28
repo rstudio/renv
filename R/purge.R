@@ -43,6 +43,7 @@ purge <- function(package,
 {
   renv_scope_error_handler()
   renv_dots_check(...)
+  renv_scope_verbose_if(prompt)
   invisible(renv_purge_impl(package, version, hash, prompt))
 }
 
