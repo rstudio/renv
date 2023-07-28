@@ -4,7 +4,7 @@
       status()
     Output
       This project does not appear to be using renv.
-      Use renv::init() to initialize the project.
+      Use `renv::init()` to initialize the project.
 
 ---
 
@@ -12,7 +12,7 @@
       status()
     Output
       This project does not contain a lockfile.
-      Use renv::snapshot() to create a lockfile.
+      Use `renv::snapshot()` to create a lockfile.
 
 ---
 
@@ -20,7 +20,7 @@
       status()
     Output
       There are no packages installed in the project library.
-      Use renv::restore() to install the packages defined in lockfile.
+      Use `renv::restore()` to install the packages defined in lockfile.
 
 # reports when project is synchronised
 

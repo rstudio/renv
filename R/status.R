@@ -108,61 +108,24 @@ status <- function(project = NULL,
   renv_snapshot_auto_suppress_next()
   renv_scope_options(renv.prompt.enabled = FALSE)
 
-  project <- renv_project_resolve(project)
-  renv_project_lock(project = project)
-
-  libpaths <- renv_libpaths_resolve(library)
-  lockpath <- lockfile %||% renv_lockfile_path(project)
-
-  invisible(renv_status_impl(project, libpaths, lockpath, sources, cache))
-}
-
-renv_status_check_initialized <- function(project, lockpath = NULL) {
-
-  projlib <- renv_paths_library(project = project)
-  lockpath <- lockpath %||% renv_paths_lockfile(project = project)
-
-  haslib <- file.exists(projlib)
-  haslock <- file.exists(lockpath)
-
-  if (haslib && haslock)
-    return(TRUE)
-
-  if (haslib && !haslock) {
-    writef(c(
-      "This project does not contain a lockfile.",
-      "Use renv::snapshot() to create a lockfile."
-    ))
-  } else if (!haslib && haslock) {
-    writef(c(
-      "There are no packages installed in the project library.",
-      "Use renv::restore() to install the packages defined in lockfile."
-    ))
-  } else {
-    writef(c(
-      "This project does not appear to be using renv.",
-      "Use renv::init() to initialize the project."
-    ))
-  }
-
-  FALSE
-
-}
-
-renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
-
-  # mark status as running
   the$status_running <- TRUE
   defer(the$status_running <- FALSE)
 
+  project <- renv_project_resolve(project)
+  renv_project_lock(project = project)
+
   # check to see if we've initialized this project
-  if (!renv_status_check_initialized(project, lockpath)) {
-    return(list(
+  if (!renv_status_check_initialized(project, library, lockfile)) {
+    result <- list(
       library = list(Packages = named(list())),
       lockfile = list(Packages = named(list())),
       synchronized = FALSE
-    ))
+    )
+    return(invisible(result))
   }
+
+  libpaths <- library %||% renv_libpaths_resolve()
+  lockpath <- lockfile %||% renv_lockfile_path(project)
 
   # get all dependencies, including transitive
   dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
@@ -209,11 +172,13 @@ renv_status_impl <- function(project, libpaths, lockpath, sources, cache) {
   else
     writef(c("", "See ?renv::status() for advice on resolving these issues."))
 
-  list(
+  result <- list(
     library      = library,
     lockfile     = lockfile,
     synchronized = synchronized
   )
+
+  invisible(result)
 
 }
 
@@ -235,15 +200,14 @@ renv_status_check_consistent <- function(lockfile, library, used) {
     used = packages %in% used
   )
 
-  pkg_ok <- status$installed & (status$used == status$recorded)
-  if (all(pkg_ok)) {
+  ok <- status$installed & (status$used == status$recorded)
+  if (all(ok))
     return(TRUE)
-  }
 
   if (renv_verbose()) {
     # If any packages are not installed, we don't know for sure what's used
     # because our dependency graph is incomplete
-    issues <- status[!pkg_ok, , drop = FALSE]
+    issues <- status[!ok, , drop = FALSE]
     missing <- !issues$installed
     issues$installed <- ifelse(issues$installed, "y", "n")
     issues$recorded <- ifelse(issues$recorded, "y", "n")
@@ -258,6 +222,51 @@ renv_status_check_consistent <- function(lockfile, library, used) {
     writef(msg)
     writef()
     print(issues, row.names = FALSE, right = FALSE)
+  }
+
+  FALSE
+
+}
+
+renv_status_check_initialized <- function(project, library, lockfile) {
+
+  # only done if library and lockfile are NULL; that is, if the user
+  # is calling `renv::status()` without arguments
+  if (!is.null(library) || !is.null(lockfile))
+    return(TRUE)
+
+  # if the project is already loaded, then we can assume it's initialized
+  if (renv_project_loaded(project))
+    return(TRUE)
+
+  # resolve paths to lockfile, primary library path
+  library  <- library  %||% renv_paths_library(project = project)
+  lockfile <- lockfile %||% renv_paths_lockfile(project = project)
+
+  # check whether the lockfile + library exist
+  haslib  <- file.exists(library)
+  haslock <- file.exists(lockfile)
+  if (haslib && haslock)
+    return(TRUE)
+
+  # TODO: what about the case where the library exists but no packages are installed?
+  # TODO: should this check for an 'renv/activate.R' script?
+  # TODO: what if a different project is loaded?
+  if (haslib && !haslock) {
+    writef(c(
+      "This project does not contain a lockfile.",
+      "Use `renv::snapshot()` to create a lockfile."
+    ))
+  } else if (!haslib && haslock) {
+    writef(c(
+      "There are no packages installed in the project library.",
+      "Use `renv::restore()` to install the packages defined in lockfile."
+    ))
+  } else {
+    writef(c(
+      "This project does not appear to be using renv.",
+      "Use `renv::init()` to initialize the project."
+    ))
   }
 
   FALSE

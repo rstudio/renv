@@ -189,7 +189,7 @@ renv_libpaths_restore <- function() {
 # 'renv::restore(library = <...>)')
 #
 # https://github.com/rstudio/renv/issues/1544
-renv_libpaths_resolve <- function(library) {
+renv_libpaths_resolve <- function(library = NULL) {
 
   if (is.null(library))
     return(renv_libpaths_all())
