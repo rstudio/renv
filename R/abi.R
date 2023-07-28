@@ -45,7 +45,7 @@ renv_abi_check <- function(packages = NULL,
   reasons <- unique(tbl$reason)
   if ("Rcpp_precious_list" %in% reasons) {
     packages <- sort(unique(tbl$package[tbl$reason == "Rcpp_precious_list"]))
-    notice(
+    caution(
       "The following packages were built against a newer version of Rcpp than is currently available:",
       packages,
       c(

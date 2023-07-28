@@ -126,7 +126,7 @@ renv_cli_help <- function(method) {
 renv_cli_unknown <- function(method, exports) {
 
   # report unknown command
-  caution("renv: '%s' is not a known command.", method)
+  cautionf("renv: '%s' is not a known command.", method)
 
   # check for similar commands
   distance <- c(adist(method, exports))
@@ -137,7 +137,7 @@ renv_cli_unknown <- function(method, exports) {
 
   candidates <- names(distance)[distance == n]
   fmt <- "did you mean %s?"
-  caution(fmt, paste(shQuote(candidates), collapse = " or "))
+  cautionf(fmt, paste(shQuote(candidates), collapse = " or "))
   return(1L)
 
 }

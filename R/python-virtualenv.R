@@ -95,7 +95,7 @@ renv_python_virtualenv_snapshot <- function(project, prompt, python) {
     return(FALSE)
   }
 
-  notice("The following will be written to requirements.txt:", after)
+  caution("The following will be written to requirements.txt:", after)
 
   cancel_if(prompt && !proceed())
 
@@ -123,7 +123,7 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
     return(FALSE)
   }
 
-  notice("The following Python packages will be restored:", diff)
+  caution("The following Python packages will be restored:", diff)
 
   cancel_if(prompt && !proceed())
 

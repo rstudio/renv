@@ -23,7 +23,7 @@ renv_pretty_print_records <- function(preamble, records, postamble = NULL)
     postamble, if (length(postamble)) ""
   )
 
-  renv_notice_impl(all)
+  renv_caution_impl(all)
 }
 
 renv_pretty_print_records_pair <- function(preamble,
@@ -40,7 +40,7 @@ renv_pretty_print_records_pair <- function(preamble,
     if (length(postamble)) c(postamble, "")
   )
 
-  renv_notice_impl(all)
+  renv_caution_impl(all)
 }
 
 renv_pretty_print_records_pair_impl <- function(old, new, formatter) {

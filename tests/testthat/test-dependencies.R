@@ -101,11 +101,10 @@ test_that("renv warns when large number of files found in total", {
 test_that("renv warns when large number of files found in one directory", {
 
   renv_scope_options(renv.config.dependencies.limit = 5L)
-  strip_dir <- function(x) gsub(basename(getwd()), "<project-dir>", x)
 
   renv_tests_scope()
   file.create(sprintf("%.3i.R", 1:10))
-  expect_snapshot(. <- dependencies(), transform = function(x) strip_dirs(strip_dir(x)))
+  expect_snapshot(. <- dependencies())
 
 })
 
