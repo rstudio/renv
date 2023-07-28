@@ -15,6 +15,7 @@ renv_warnings_unknown_sources <- function(records) {
   if (!enabled)
     return(FALSE)
 
+  renv_scope_options(renv.verbose = TRUE)
   renv_pretty_print_records(
     "The following package(s) were installed from an unknown source:",
     records,
