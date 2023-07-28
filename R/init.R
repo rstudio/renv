@@ -98,6 +98,7 @@ init <- function(project = NULL,
 
   # ask user what type of project this is
   type <- settings$snapshot.type %||% renv_init_type(project)
+  settings$snapshot.type <- type
 
   # initialize bioconductor pieces
   biocver <- renv_init_bioconductor(bioconductor, project)

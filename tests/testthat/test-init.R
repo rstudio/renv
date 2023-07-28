@@ -251,3 +251,14 @@ test_that("a project can be initialized without loading it", {
   expect_equal(oldrepos, getOption("repos"))
   expect_equal(oldlibs, .libPaths())
 })
+
+test_that("init() respects user-requested snapshot type", {
+  project <- renv_tests_scope()
+  writeLines("Depends: bread", con = "DESCRIPTION")
+  writeLines("library(toast)", con = "deps.R")
+  init()
+
+  expect_true(renv_package_installed("bread"))
+  expect_false(renv_package_installed("toast"))
+  expect_equal(settings$snapshot.type(), "explicit")
+})
