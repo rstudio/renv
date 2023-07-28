@@ -14,7 +14,7 @@
   
 * renv now uses a lock when synchronizing installed packages with the cache.
   This should help alleviate issues that can arise when multiple R processes
-  are installing and caching packges concurrently. (#1571)
+  are installing and caching packages concurrently. (#1571)
 
 * Fixed a regression in parsing expressions within R Markdown chunk options. (#1558)
 
