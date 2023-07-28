@@ -47,6 +47,7 @@ upgrade <- function(project = NULL,
                     prompt = interactive())
 {
   renv_scope_error_handler()
+  renv_scope_verbose_if(prompt)
   invisible(renv_upgrade_impl(project, version, reload, prompt))
 }
 

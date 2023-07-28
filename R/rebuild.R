@@ -42,6 +42,7 @@ rebuild <- function(packages  = NULL,
 
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
+  renv_scope_verbose_if(prompt)
 
   libpaths <- renv_libpaths_resolve(library)
   library <- nth(libpaths, 1L)

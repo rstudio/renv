@@ -127,8 +127,10 @@ lockfile_create <- function(type = settings$snapshot.type(project = project),
                             ...,
                             project = NULL)
 {
-  project <- renv_project_resolve(project)
   renv_dots_check(...)
+
+  project <- renv_project_resolve(project)
+  renv_scope_verbose_if(prompt)
 
   renv_lockfile_create(
     project  = project,
