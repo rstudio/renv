@@ -43,6 +43,7 @@ test_that("autoload() works", {
     action  = "testing autoload"
   )
 
-  expect_equal(output, .libPaths())
+  expected <- .libPaths()
+  expect_equal(tail(output, n = length(expected)), expected)
 
 })

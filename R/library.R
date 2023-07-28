@@ -22,7 +22,7 @@ renv_library_diagnose <- function(project, libpath) {
   # if only some symlinks are broken, report to user
   if (any(missing)) {
 
-    renv_pretty_print(
+    caution_bullets(
       "The following package(s) are missing entries in the cache:",
       basename(children[missing]),
       "These packages will need to be reinstalled."

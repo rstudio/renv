@@ -321,7 +321,7 @@ renv_migrate_packrat_cache_impl <- function(targets) {
   if (nrow(bad) == 0)
     return(TRUE)
 
-  renv_pretty_print(
+  caution_bullets(
     "The following packages could not be copied from the Packrat cache:",
     with(bad, sprintf("%s [%s]", format(source), reason)),
     "These packages may need to be reinstalled and re-cached."

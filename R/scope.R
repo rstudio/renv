@@ -382,3 +382,10 @@ renv_scope_biocmanager <- function(scope = parent.frame()) {
   renv_namespace_load("BiocManager")
 
 }
+
+renv_scope_caution <- function(value) {
+  renv_scope_options(
+    renv.caution.verbose = value,
+    scope = parent.frame()
+  )
+}

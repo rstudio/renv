@@ -1684,8 +1684,6 @@ renv_dependencies_report <- function(errors) {
   if (empty(problems))
     return(TRUE)
 
-  writef("WARNING: One or more problems were discovered while enumerating dependencies.\n")
-
   # bind into list
   bound <- bapply(problems, function(problem) {
     fields <- c(renv_path_aliased(problem$file), problem$line, problem$column)
@@ -1698,13 +1696,17 @@ renv_dependencies_report <- function(errors) {
   splat <- split(bound, bound$file)
 
   # emit messages
-  enumerate(splat, function(file, problem) {
+  lines <- enumerate(splat, function(file, problem) {
     messages <- paste("Error", problem$message, sep = ": ", collapse = "\n\n")
-    text <- c(header(file), messages, "")
-    writef(text)
+    paste(c(header(file), messages, ""), collapse = "\n")
   })
 
-  writef("Please see `?renv::dependencies` for more information.")
+  caution_bullets(
+    "WARNING: One or more problems were discovered while enumerating dependencies.",
+    c("", lines),
+    "Please see `?renv::dependencies` for more information.",
+    bullets = FALSE
+  )
 
   if (identical(errors, "fatal")) {
     fmt <- "one or more problems were encountered while enumerating dependencies"

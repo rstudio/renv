@@ -89,15 +89,13 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
   if (empty(errors))
     return(dbs)
 
-  if (!is_testing())
-    renv_scope_options(renv.verbose = TRUE)
-
-  writef(c("renv was unable to query available packages from the following repositories:", ""))
-  enumerate(errors, function(url, cnds) {
+  header <- "renv was unable to query available packages from the following repositories:"
+  msgs <- enum_chr(errors, function(url, cnds) {
     msgs <- map_chr(cnds, conditionMessage)
-    writef(c(header(url), msgs, ""))
+    paste(c(header(url), msgs, ""), collapse = "\n")
   })
 
+  caution_bullets(header, msgs)
   filter(dbs, Negate(is.null))
 
 }

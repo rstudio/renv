@@ -32,7 +32,8 @@ strip_dirs <- function(x) {
     "<test-repo>"       = getOption("repos")[[1L]],
     "<root>"            = renv_path_normalize(renv_paths_root()),
     "<wd>"              = renv_path_normalize(getwd()),
-    "<tempdir>"         = renv_path_normalize(tempdir())
+    "<tempdir>"         = renv_path_normalize(tempdir()),
+    "<wd-name>"         = basename(getwd())
   )
 
   # apply filters
