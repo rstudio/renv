@@ -204,3 +204,23 @@
       Error generating automatic snapshot: simulated failure in snapshot task
       Automatic snapshots will be disabled. Use `renv::snapshot()` to manually update the lockfile.
 
+# snapshot() reports missing packages even if renv.verbose is FALSE
+
+    Code
+      . <- snapshot(force = TRUE)
+    Output
+      The following required packages are not installed:
+      - bread
+      Packages must first be installed before renv can snapshot them.
+      Use `renv::dependencies()` to see where this package is used in your project.
+      
+      What do you want to do?
+      
+      1: Snapshot, just using the currently installed packages.
+      2: Install the packages, then snapshot.
+      3: Cancel, and resolve the situation on your own.
+      
+      Selection: 1
+      
+      - The lockfile is already up to date.
+

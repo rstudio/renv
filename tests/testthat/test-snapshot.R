@@ -543,3 +543,13 @@ test_that("failures in automatic snapshots disable automatic snapshots", {
   expect_equal(count, 1L)
 
 })
+
+# https://github.com/rstudio/renv/issues/1607
+test_that("snapshot() reports missing packages even if renv.verbose is FALSE", {
+  project <- renv_tests_scope()
+  init()
+
+  renv_scope_options(renv.verbose = FALSE)
+  writeLines("library(bread)", con = "deps.R")
+  expect_snapshot(. <- snapshot(force = TRUE))
+})
