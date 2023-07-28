@@ -24,12 +24,15 @@ strip_dirs <- function(x) {
   #
   # note also that order matters for snapshot tests; the least-specific
   # paths should go at the end of this list
+  prefix <- if (renv_platform_windows()) "^file:///" else "^file://"
+
   filters <- list(
     "<R>"               = file.path(R.home("bin"), "R"),
     "<cache>"           = renv_paths_cache(),
     "<platform-prefix>" = renv_platform_prefix(),
     "<r-version>"       = getRversion(),
     "<test-repo>"       = getOption("repos")[[1L]],
+    "<test-repo-path>"  = gsub(prefix, "", getOption("repos")[[1L]]),
     "<root>"            = renv_path_normalize(renv_paths_root()),
     "<wd>"              = renv_path_normalize(getwd()),
     "<tempdir>"         = renv_path_normalize(tempdir()),

@@ -184,17 +184,13 @@ test_that("we can query the R universe", {
 })
 
 test_that("available_packages() tolerates missing repositories", {
-  skip_on_cran()
-  skip_if_not(grepl("\\bbinary\\b", .Platform$pkgType))
+  renv_tests_scope()
 
-  dbs <- available_packages(
-    type = "binary",
-    repos = c(
-      CRAN = "https://cran.rstudio.com",
-      DRAT = "https://RcppCore.github.io/drat"
-    )
-  )
+  repos <- getOption("repos")
+  repos[["NARC"]] <- file.path(repos[["CRAN"]], "missing")
+  renv_scope_options(repos = repos)
 
+  dbs <- available_packages(type = "source")
   expect_false(is.null(dbs[["CRAN"]]))
-
+  expect_true(is.null(dbs[["NARC"]]))
 })
