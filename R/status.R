@@ -125,7 +125,7 @@ status <- function(project = NULL,
   }
 
   libpaths <- library %||% renv_libpaths_resolve()
-  lockpath <- lockfile %||% renv_lockfile_path(project)
+  lockpath <- lockfile %||% renv_paths_lockfile(project = project)
 
   # get all dependencies, including transitive
   dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
@@ -134,7 +134,10 @@ status <- function(project = NULL,
   packages <- as.character(names(paths))
 
   # read project lockfile
-  lockfile <- renv_lockfile_read(lockpath)
+  lockfile <- if (file.exists(lockpath))
+    renv_lockfile_read(lockpath)
+  else
+    renv_lockfile_init(project = project)
 
   # get lockfile capturing current library state
   library <- renv_lockfile_create(
@@ -228,15 +231,11 @@ renv_status_check_consistent <- function(lockfile, library, used) {
 
 }
 
-renv_status_check_initialized <- function(project, library, lockfile) {
+renv_status_check_initialized <- function(project, library = NULL, lockfile = NULL) {
 
   # only done if library and lockfile are NULL; that is, if the user
   # is calling `renv::status()` without arguments
   if (!is.null(library) || !is.null(lockfile))
-    return(TRUE)
-
-  # if the project is already loaded, then we can assume it's initialized
-  if (renv_project_loaded(project))
     return(TRUE)
 
   # resolve paths to lockfile, primary library path
@@ -244,7 +243,7 @@ renv_status_check_initialized <- function(project, library, lockfile) {
   lockfile <- lockfile %||% renv_paths_lockfile(project = project)
 
   # check whether the lockfile + library exist
-  haslib  <- file.exists(library)
+  haslib  <- all(file.exists(library))
   haslock <- file.exists(lockfile)
   if (haslib && haslock)
     return(TRUE)
