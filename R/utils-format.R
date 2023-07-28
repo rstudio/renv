@@ -1,6 +1,4 @@
 
-the$caution_enabled <- TRUE
-
 stopf <- function(fmt = "", ..., call. = FALSE) {
   stop(sprintf(fmt, ...), call. = call.)
 }

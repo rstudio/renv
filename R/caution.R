@@ -1,10 +1,17 @@
 
-caution <- function(preamble,
-                    values = NULL,
-                    postamble = NULL,
-                    ...,
-                    bullets = TRUE,
-                    emitter = NULL)
+the$caution_enabled <- TRUE
+
+caution <- function(fmt = "", ..., con = stdout()) {
+  if (!is.null(fmt) && the$caution_enabled)
+    writeLines(sprintf(fmt, ...), con = con)
+}
+
+caution_bullets <- function(preamble = NULL,
+                            values = NULL,
+                            postamble = NULL,
+                            ...,
+                            bullets = TRUE,
+                            emitter = NULL)
 {
   if (empty(values))
     return(invisible())
@@ -25,18 +32,13 @@ caution <- function(preamble,
   renv_caution_impl(text, emitter)
 }
 
-cautionf <- function(fmt = "", ..., con = stdout()) {
-  if (!is.null(fmt) && the$caution_enabled)
-    writeLines(sprintf(fmt, ...), con = con)
-}
-
 renv_caution_impl <- function(text, emitter = NULL) {
 
   # NOTE: Used by vetiver, so perhaps is part of the API.
   # We should think of a cleaner way of exposing this.
   # https://github.com/rstudio/renv/issues/1413
   emitter <- emitter %||% {
-    getOption("renv.pretty.print.emitter", default = cautionf)
+    getOption("renv.pretty.print.emitter", default = caution)
   }
 
   emitter(text)

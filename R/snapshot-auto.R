@@ -139,8 +139,8 @@ renv_snapshot_task <- function() {
   tryCatch(
     renv_snapshot_task_impl(),
     error = function(cnd) {
-      cautionf("Error generating automatic snapshot: %s", conditionMessage(cnd))
-      cautionf("Automatic snapshots will be disabled. Use `renv::snapshot()` to manually update the lockfile.")
+      caution("Error generating automatic snapshot: %s", conditionMessage(cnd))
+      caution("Automatic snapshots will be disabled. Use `renv::snapshot()` to manually update the lockfile.")
       the$auto_snapshot_failed <- TRUE
     }
   )

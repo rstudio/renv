@@ -95,7 +95,7 @@ renv_available_packages_query <- function(type, repos, quiet = FALSE) {
     paste(c(header(url), msgs, ""), collapse = "\n")
   })
 
-  caution(header, msgs)
+  caution_bullets(header, msgs)
   filter(dbs, Negate(is.null))
 
 }

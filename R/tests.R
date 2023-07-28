@@ -64,26 +64,26 @@ renv_test_retrieve <- function(record) {
 renv_tests_diagnostics <- function() {
 
   # print library paths
-  caution(
+  caution_bullets(
     "The following R libraries are set:",
     paste("-", .libPaths())
   )
 
   # print repositories
   repos <- getOption("repos")
-  caution(
+  caution_bullets(
     "The following repositories are set:",
     paste(names(repos), repos, sep = ": ")
   )
 
   # print renv root
-  caution(
+  caution_bullets(
     "The following renv root directory is being used:",
     paste("-", paths$root())
   )
 
   # print cache root
-  caution(
+  caution_bullets(
     "The following renv cache directory is being used:",
     paste("-", paths$cache())
   )
@@ -102,7 +102,7 @@ renv_tests_diagnostics <- function() {
   path <- Sys.getenv("PATH")
   splat <- strsplit(path, .Platform$path.sep, fixed = TRUE)[[1]]
 
-  caution(
+  caution_bullets(
     "The following PATH is set:",
     paste("-", splat)
   )
@@ -120,7 +120,7 @@ renv_tests_diagnostics <- function() {
   vals <- Sys.getenv(envvars, unset = "<NA>")
   vals[vals != "<NA>"] <- renv_json_quote(vals[vals != "<NA>"])
 
-  caution(
+  caution_bullets(
     "The following environment variables of interest are set:",
     paste(keys, vals, sep = " : ")
   )

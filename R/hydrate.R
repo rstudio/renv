@@ -345,7 +345,7 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
       sprintf("[%s]: %s", package, short)
     })
 
-    caution(
+    caution_bullets(
       "The following package(s) were not installed successfully:",
       text,
       "You may need to manually download and install these packages."
@@ -395,7 +395,7 @@ renv_hydrate_report <- function(packages, na, linkable) {
   }
 
   if (length(na)) {
-    caution(
+    caution_bullets(
       "The following packages are used in this project, but not available locally:",
       csort(names(na)),
       "renv will attempt to download and install these packages."

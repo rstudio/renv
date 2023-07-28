@@ -1695,7 +1695,7 @@ renv_dependencies_report <- function(errors) {
     paste(c(header(file), messages, ""), collapse = "\n")
   })
 
-  caution(
+  caution_bullets(
     "WARNING: One or more problems were discovered while enumerating dependencies.",
     c("", lines),
     "Please see `?renv::dependencies` for more information.",

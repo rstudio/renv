@@ -11,7 +11,7 @@ test_that("R files have balanced covr exclusions", {
     nocov <- FALSE
     contents <- catch(readLines(file))
     if (inherits(contents, "error")) {
-      caution("[%s]: %s", file, conditionMessage(contents))
+      caution_bullets(values = "[%s]: %s", file, conditionMessage(contents))
       return()
     }
 

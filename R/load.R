@@ -714,7 +714,7 @@ renv_load_check_description <- function(project) {
 
   values <- sprintf("[line %i is blank]", bad)
 
-  caution(
+  caution_bullets(
     sprintf("%s contains blank lines:", renv_path_pretty(descpath)),
     values,
     c(
@@ -818,7 +818,7 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
   # check for case where no packages are installed (except renv)
   if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
 
-    cautionf("- No packages recorded in the lockfile are installed.")
+    caution("- No packages recorded in the lockfile are installed.")
     choice <- menu(
       title = "What do you want to do?",
       choices = c(
@@ -842,7 +842,7 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
       "- One or more packages recorded in the lockfile are not installed.",
       "- Use `renv::status()` for more details."
     )
-    cautionf(msg)
+    caution(msg)
     return(FALSE)
   }
 
@@ -854,7 +854,7 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
   })
 
   if (!identical(info$synchronized, TRUE)) {
-    cautionf("- The project is out-of-sync -- use `renv::status()` for details.")
+    caution("- The project is out-of-sync -- use `renv::status()` for details.")
     return(FALSE)
   }
 
