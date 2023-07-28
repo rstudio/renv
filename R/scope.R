@@ -390,11 +390,11 @@ renv_scope_caution <- function(value) {
   )
 }
 
-renv_scope_verbose_if <- function(value) {
+renv_scope_verbose_if <- function(value, scope = parent.frame()) {
   if (value) {
     renv_scope_options(
-      renv.verbose = value,
-      scope = parent.frame()
+      renv.verbose = TRUE,
+      scope = scope
     )
   }
 }
