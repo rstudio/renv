@@ -631,12 +631,12 @@ renv_install_test <- function(package) {
   renv_scope_envvars(R_TESTS = NULL)
 
   # the actual code we'll run in the other process
-  # we use 'requireNamespace()' rather than 'library()' because some packages might
+  # we use 'loadNamespace()' rather than 'library()' because some packages might
   # intentionally throw an error in their .onAttach() hooks
   # https://github.com/rstudio/renv/issues/1611
   code <- substitute({
     options(warn = 1L)
-    requireNamespace(package, quietly = TRUE)
+    loadNamespace(package)
   }, list(package = package))
 
   # write it to a tempfile
