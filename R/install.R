@@ -631,16 +631,17 @@ renv_install_test <- function(package) {
   renv_scope_envvars(R_TESTS = NULL)
 
   # the actual code we'll run in the other process
-  fmt <- heredoc("
+  # we use 'requireNamespace()' rather than 'library()' because some packages might
+  # intentionally throw an error in their .onAttach() hooks
+  # https://github.com/rstudio/renv/issues/1611
+  code <- substitute({
     options(warn = 1L)
-    library(%s)
-  ")
-
-  code <- sprintf(fmt, package)
+    requireNamespace(package, quietly = TRUE)
+  }, list(package = package))
 
   # write it to a tempfile
   script <- renv_scope_tempfile("renv-install-")
-  writeLines(code, con = script)
+  writeLines(deparse(code), con = script)
 
   # check that the package can be loaded in a separate process
   renv_system_exec(
