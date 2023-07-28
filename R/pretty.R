@@ -1,6 +1,6 @@
 
-renv_pretty_print_records <- function(preamble, records, postamble = NULL)
-{
+renv_pretty_print_records <- function(preamble, records, postamble = NULL) {
+
   if (empty(records))
     return(invisible(NULL))
 
@@ -24,6 +24,7 @@ renv_pretty_print_records <- function(preamble, records, postamble = NULL)
   )
 
   renv_caution_impl(all)
+
 }
 
 renv_pretty_print_records_pair <- function(preamble,
@@ -88,3 +89,8 @@ renv_pretty_print_records_pair_impl <- function(old, new, formatter) {
   })
 
 }
+
+# NOTE: Used by vetiver, so perhaps is part of the API.
+# We should think of a cleaner way of exposing this.
+# https://github.com/rstudio/renv/issues/1413
+renv_pretty_print_impl <- renv_caution_impl

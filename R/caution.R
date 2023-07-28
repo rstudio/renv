@@ -44,8 +44,3 @@ renv_caution_impl <- function(text, emitter = NULL) {
   invisible(NULL)
 
 }
-
-# NOTE: Used by vetiver, so perhaps is part of the API.
-# We should think of a cleaner way of exposing this.
-# https://github.com/rstudio/renv/issues/1413
-renv_pretty_print_impl <- renv_caution_impl

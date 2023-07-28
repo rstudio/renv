@@ -1,6 +1,10 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where renv did not display warnings / errors from `renv::snapshot()`
+  when `options(renv.verbose = FALSE)` was set. The display of these messages
+  is now controlled via the `renv.caution.verbose` R option. (#1607, #1608)
+
 * `renv::load()` now notifies the user if the synchronization check took an
   excessive amount of time due to the number of files being scanned in the
   project. (#1573)
