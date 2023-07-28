@@ -6,7 +6,8 @@
 #' @param type The type of package to install ("source" or "binary"). Defaults
 #'   to the value of `getOption("pkgType")`.
 #'
-#' @param lockfile Path to a lockfile. When `NULL` (the default), the `renv.lock` located in the root of the current project will be used.
+#' @param lockfile Path to a lockfile. When `NULL` (the default), the
+#'   `renv.lock` located in the root of the current project will be used.
 #'
 #' @param library The \R library to be used. When `NULL`, the active project
 #'  library will be used instead.
