@@ -508,18 +508,23 @@ renv_download_auth_bitbucket <- function() {
 
 renv_download_auth_github <- function() {
 
-  if (renv_envvar_exists("GITHUB_PAT")) {
-    pat <- Sys.getenv("GITHUB_PAT")
-  } else {
-    token <- tryCatch(gitcreds::gitcreds_get(), error = function(e) NULL)
-    if (is.null(token)) {
-      return(character())
-    }
-
-    pat <- token$password
-  }
+  pat <- renv_download_auth_github_pat()
+  if (is.null(pat))
+    return(character())
 
   c("Authorization" = paste("token", pat))
+
+}
+
+renv_download_auth_github_pat <- function() {
+
+  pat <- Sys.getenv("GITHUB_PAT", unset = NA)
+  if (!is.na(pat))
+    return(pat)
+
+  token <- tryCatch(gitcreds::gitcreds_get(), error = function(e) NULL)
+  if (!is.null(token))
+    return(token$password)
 
 }
 
@@ -884,7 +889,7 @@ renv_download_trace_begin <- function(url, type) {
   msg <- sprintf(fmt, url, type)
 
   title <- header(msg, n = 78L)
-  writef(c(title, ""))
+  writef(c("", title, ""))
 
 }
 
