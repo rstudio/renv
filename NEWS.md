@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where the renv watchdog could fail to load when not installed
+  into the user library. (#1617)
+
 * Fixed an issue where renv did not display warnings / errors from `renv::snapshot()`
   when `options(renv.verbose = FALSE)` was set. The display of these messages
   is now controlled via the `renv.caution.verbose` R option. (#1607, #1608)
