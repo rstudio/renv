@@ -38,7 +38,7 @@ is_named <- function(x) {
 }
 
 named <- function(object, names = object) {
-  names(object) <- as.character(names)
+  names(object) <- names
   object
 }
 
