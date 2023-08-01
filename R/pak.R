@@ -49,7 +49,14 @@ renv_pak_repos <- function(stream) {
 }
 
 renv_pak_init_impl <- function(stream) {
-  utils::install.packages("pak", repos = renv_pak_repos(stream))
+
+  repos <- c("r-lib" = renv_pak_repos(stream))
+  renv_scope_options(renv.config.pak.enabled = FALSE, repos = repos)
+
+  library <- renv_libpaths_active()
+  install("pak", library = library)
+  loadNamespace("pak", lib.loc = library)
+
 }
 
 renv_pak_install <- function(packages, library, project) {
