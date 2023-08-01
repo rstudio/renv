@@ -18,7 +18,8 @@ the$status_running <- FALSE
 #'
 #' # Missing packages
 #'
-#' `status()` first checks that all packages used by the project are installed. #' This must be done first because if any packages are missing we can't tell for
+#' `status()` first checks that all packages used by the project are installed. 
+#' This must be done first because if any packages are missing we can't tell for
 #' sure that a package isn't used; it might be a dependency that we don't know
 #' about. Once you have resolve any installation issues, you'll need to run
 #' `status()` again to reveal the next set of potential problems.
