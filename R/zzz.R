@@ -68,9 +68,10 @@ renv_zzz_load <- function() {
   }
 
   # make sure renv is unloaded on exit, so locks etc. are released
-  callback <- function(envir) unloadNamespace("renv")
-  environment(callback) <- baseenv()
-  reg.finalizer(renv_envir_self(), callback, onexit = TRUE)
+  # we previously tried to orchestrate this via unloadNamespace(),
+  # but this fails when a package importing renv is already loaded
+  # https://github.com/rstudio/renv/issues/1621
+  reg.finalizer(renv_envir_self(), renv_unload_finalizer, onexit = TRUE)
 
 }
 

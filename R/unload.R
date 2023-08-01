@@ -44,3 +44,8 @@ renv_unload_sandbox <- function(project) {
 renv_unload_libpaths <- function(project) {
   renv_libpaths_restore()
 }
+
+renv_unload_finalizer <- function(libpath) {
+  libpath <- dirname(renv_namespace_path(.packageName))
+  .onUnload(libpath)
+}
