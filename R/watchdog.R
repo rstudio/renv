@@ -86,12 +86,21 @@ renv_watchdog_start_impl <- function() {
 
   # generate script to invoke watchdog
   script <- renv_scope_tempfile("renv-watchdog-", fileext = ".R")
-  code <- substitute({
+
+  env <- list(
+    name = .packageName,
+    library = dirname(renv_namespace_path(.packageName)),
+    pid = Sys.getpid(),
+    port = port
+  )
+
+  code <- substitute(env = env, {
     client <- list(pid = pid, port = port)
-    host <- asNamespace(.packageName)
+    host <- loadNamespace(name, lib.loc = library)
     renv <- if (!is.null(host$renv)) host$renv else host
     renv$renv_watchdog_server_start(client)
-  }, list(pid = Sys.getpid(), port = port, .packageName = .packageName))
+  })
+
   writeLines(deparse(code), con = script)
 
   # debug logging
