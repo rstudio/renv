@@ -58,6 +58,8 @@
 
 * Use correct spelling of IRkernel package (#1528).
 
+* Honor `R_LIBCURL_SSL_REVOKE_BEST_EFFORT` when using an external `curl.exe`
+  binary to download files (#1624)
 
 # renv 1.0.0
 
