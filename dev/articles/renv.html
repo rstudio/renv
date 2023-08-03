@@ -351,7 +351,7 @@ version of R used with the packge. renv can’t easily help with this
 because it’s run inside of R, but you might find tools like <a href="https://github.com/r-lib/rig" class="external-link">rig</a> helpful, as they make it
 easier to switch between multiple version of R on one computer.</li>
 <li>
-<strong>Pandoc</strong>: The rmarkdown package heavily on <a href="https://pandoc.org/" class="external-link">pandoc</a>, but pandoc is not bundled with
+<strong>Pandoc</strong>: The rmarkdown package relies heavily on <a href="https://pandoc.org/" class="external-link">pandoc</a>, but pandoc is not bundled with
 the rmarkdown package. That means restoring rmarkdown from the lockfile
 is insufficient to guarantee exactly the same rendering of RMarkdown
 documents. If this causes problems for you, you might find the tools
