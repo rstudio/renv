@@ -184,7 +184,7 @@ Rather, it is a tool that can help make projects reproducible by helping with on
 There are a number of other pieces that renv doesn't currently provide much help with:
 
 -   **R version**: renv tracks, but doesn't help with, the version of R used with the packge. renv can't easily help with this because it's run inside of R, but you might find tools like [rig](https://github.com/r-lib/rig) helpful, as they make it easier to switch between multiple version of R on one computer.
--   **Pandoc**: The rmarkdown package heavily on [pandoc](https://pandoc.org/), but pandoc is not bundled with the rmarkdown package. That means restoring rmarkdown from the lockfile is insufficient to guarantee exactly the same rendering of RMarkdown documents. If this causes problems for you, you might find the tools provided by the [pandoc package](https://cderv.github.io/pandoc/) to be useful.
+-   **Pandoc**: The rmarkdown package relies heavily on [pandoc](https://pandoc.org/), but pandoc is not bundled with the rmarkdown package. That means restoring rmarkdown from the lockfile is insufficient to guarantee exactly the same rendering of RMarkdown documents. If this causes problems for you, you might find the tools provided by the [pandoc package](https://cderv.github.io/pandoc/) to be useful.
 -   **Operating system, versions of system libraries, compiler versions**: Keeping a 'stable' machine image is a separate challenge, but [Docker](https://www.docker.com/) is one popular solution. See `vignette("docker", package = "renv")` for recommendations on how Docker can be used together with renv.
 
 You also need to be aware that package installation may fail if a package was originally installed through a binary, but that binary is no longer available.
