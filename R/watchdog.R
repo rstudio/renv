@@ -65,11 +65,11 @@ renv_watchdog_enabled_impl <- function() {
 
 renv_watchdog_start <- function() {
 
-  tryCatch(
+  the$watchdog_enabled <- tryCatch(
     renv_watchdog_start_impl(),
     error = function(e) {
-      the$watchdog_enabled <- FALSE
-      NULL
+      warning(conditionMessage(e))
+      FALSE
     }
   )
 
@@ -88,7 +88,7 @@ renv_watchdog_start_impl <- function() {
   script <- renv_scope_tempfile("renv-watchdog-", fileext = ".R")
 
   # figure out library path -- need to dodge devtools::load_all()
-  library <- if (renv_envvar_exists("DEVTOOLS_LOAD"))
+  library <- if ("devtools_shims" %in% search())
     renv_libpaths_default()
   else
     dirname(renv_namespace_path(.packageName))
