@@ -1,17 +1,20 @@
 
 renv_watchdog_server_start <- function(client) {
 
+  # initialize logging
+  renv_log_init()
+
   # create socket server
   server <- renv_socket_server()
-  dlog("watchdog", "Listening on port %i.", server$port)
+  dlog("watchdog-server", "Listening on port %i.", server$port)
 
   # communicate information back to client
-  dlog("watchdog", "Waiting for client...")
+  dlog("watchdog-server", "Waiting for client...")
   metadata <- list(port = server$port, pid = server$pid)
-  conn <- renv_socket_connect(port = client$port, open = "watchdog", "b")
+  conn <- renv_socket_connect(port = client$port, open = "wb")
   serialize(metadata, connection = conn)
   close(conn)
-  dlog("watchdog", "Synchronized with client.")
+  dlog("watchdog-server", "Synchronized with client.")
 
   # initialize locks
   lockenv <- new.env(parent = emptyenv())
@@ -20,7 +23,7 @@ renv_watchdog_server_start <- function(client) {
   repeat tryCatch(
     renv_watchdog_server_run(server, client, lockenv),
     error = function(e) {
-      dlog("watchdog", "Error: %s", conditionMessage(e))
+      dlog("watchdog-server", "Error: %s", conditionMessage(e))
     }
   )
 
@@ -30,25 +33,25 @@ renv_watchdog_server_run <- function(server, client, lockenv) {
 
   # check for parent exit
   if (!renv_process_exists(client$pid)) {
-    dlog("watchdog", "Client process has exited; shutting down.")
+    dlog("watchdog-server", "Client process has exited; shutting down.")
     renv_watchdog_server_exit(server, client, lockenv)
   }
 
   # set file time on owned locks, so we can see they're not orphaned
-  dlog("watchdog", "Refreshing lock times.")
+  dlog("watchdog-server", "Refreshing lock times.")
   locks <- ls(envir = lockenv, all.names = TRUE)
   renv_lock_refresh(locks)
 
   # wait for connection
-  dlog("watchdog", "Waiting for connection...")
+  dlog("watchdog-server", "Waiting for connection...")
   conn <- renv_socket_accept(server$socket, open = "rb", timeout = 1)
   defer(close(conn))
 
   # read the request
-  dlog("watchdog", "Received connection; reading data.")
+  dlog("watchdog-server", "Received connection; reading data.")
   request <- unserialize(conn)
 
-  dlog("watchdog", "Received request.")
+  dlog("watchdog-server", "Received request.")
   str(request)
 
   # handle the request
@@ -57,34 +60,34 @@ renv_watchdog_server_run <- function(server, client, lockenv) {
     request$method %||% "<missing>",
 
     ListLocks = {
-      dlog("watchdog", "Executing 'ListLocks' request.")
-      conn <- renv_socket_connect(port = request$port, open = "watchdog", "b")
+      dlog("watchdog-server", "Executing 'ListLocks' request.")
+      conn <- renv_socket_connect(port = request$port, open = "watchdog-server", "b")
       defer(close(conn))
       locks <- ls(envir = lockenv, all.names = TRUE)
       serialize(locks, connection = conn)
     },
 
     LockAcquired = {
-      dlog("watchdog", "Acquired lock on path '%s'.", request$data$path)
+      dlog("watchdog-server", "Acquired lock on path '%s'.", request$data$path)
       assign(request$data$path, TRUE, envir = lockenv)
     },
 
     LockReleased = {
-      dlog("watchdog", "Released lock on path '%s'.", request$data$path)
+      dlog("watchdog-server", "Released lock on path '%s'.", request$data$path)
       rm(list = request$data$path, envir = lockenv)
     },
 
     Shutdown = {
-      dlog("watchdog", "Received shutdown request; shutting down.")
+      dlog("watchdog-server", "Received shutdown request; shutting down.")
       renv_watchdog_server_exit(server, client, lockenv)
     },
 
     "<missing>" = {
-      dlog("watchdog", "Received request with no method field available.")
+      dlog("watchdog-server", "Received request with no method field available.")
     },
 
     {
-      dlog("watchdog", "Unknown method '%s'", request$method)
+      dlog("watchdog-server", "Unknown method '%s'", request$method)
     }
 
   )
