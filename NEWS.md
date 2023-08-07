@@ -1,6 +1,8 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* `renv::use()` now defaults to setting `isolate = TRUE` when `sandbox = TRUE`.
+
 * Fixed an issue where the renv watchdog could fail to load when not installed
   into the user library. (#1617)
 
