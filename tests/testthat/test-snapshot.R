@@ -469,7 +469,7 @@ test_that("snapshot doesn't include development dependencies", {
 
 test_that("automatic snapshot works as expected", {
 
-  renv_scope_options(renv.config.auto.snapshot = TRUE)
+  renv_scope_binding(the, "auto_snapshot_forced", TRUE)
   defer(the$library_info <- NULL)
 
   project <- renv_tests_scope("oatmeal")
@@ -521,7 +521,7 @@ test_that("we report if dependency discover during snapshot() is slow", {
 
 test_that("failures in automatic snapshots disable automatic snapshots", {
 
-  renv_scope_options(renv.config.auto.snapshot = TRUE)
+  renv_scope_binding(the, "auto_snapshot_forced", TRUE)
   defer(the$library_info <- NULL)
 
   project <- renv_tests_scope("bread")

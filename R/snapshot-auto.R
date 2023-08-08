@@ -3,6 +3,9 @@
 # the library appears to have been modified or updated
 the$library_info <- NULL
 
+# are we forcing automatic snapshots?
+the$auto_snapshot_forced <- FALSE
+
 # did the last attempt at an automatic snapshot fail?
 the$auto_snapshot_failed <- FALSE
 
@@ -63,10 +66,14 @@ renv_snapshot_auto_impl <- function(project) {
 
 renv_snapshot_auto_enabled <- function(project = renv_project_get()) {
 
+  # respect override
+  if (the$auto_snapshot_forced)
+    return(TRUE)
+
   # respect config setting
-  enabled <- config$auto.snapshot(default = NULL, project = project)
-  if (!is.null(enabled))
-    return(enabled)
+  enabled <- config$auto.snapshot(project = project)
+  if (!enabled)
+    return(FALSE)
 
   # only snapshot interactively
   if (!interactive())
