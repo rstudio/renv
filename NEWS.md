@@ -1,5 +1,5 @@
 
-# renv 1.1.0  (UNRELEASED)
+# renv 1.0.1
 
 * Fixed an issue where authentication headers could be duplicated when
   using the `libcurl` download method. (#1605)
