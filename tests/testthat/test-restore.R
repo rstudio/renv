@@ -284,7 +284,7 @@ test_that("restore() restores packages with broken symlinks", {
 })
 
 test_that("restore() also installs packages with broken symlinks", {
-
+  skip_on_cran()
   skip_on_os("windows")
   renv_scope_options(renv.settings.cache.enabled = TRUE)
   project <- renv_tests_scope("breakfast")
