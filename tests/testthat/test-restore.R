@@ -282,3 +282,25 @@ test_that("restore() restores packages with broken symlinks", {
   expect_true(renv_package_installed("breakfast"))
 
 })
+
+test_that("restore() also installs packages with broken symlinks", {
+
+  skip_on_os("windows")
+  renv_scope_options(renv.settings.cache.enabled = TRUE)
+  project <- renv_tests_scope("breakfast")
+  init()
+
+  pkgpaths <- list.files(
+    path = renv_paths_library(project = project),
+    full.names = TRUE
+  )
+
+  links <- Sys.readlink(pkgpaths)
+  expect_true(all(nzchar(links)))
+
+  unlink(links, recursive = TRUE)
+  expect_false(renv_package_installed("breakfast"))
+
+  restore()
+  expect_true(renv_package_installed("breakfast"))
+})
