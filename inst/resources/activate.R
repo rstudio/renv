@@ -782,10 +782,12 @@ local({
   renv_bootstrap_validate_version <- function(version, description = NULL) {
   
     # resolve description file
-    description <- description %||% {
-      path <- getNamespaceInfo("renv", "path")
-      packageDescription("renv", lib.loc = dirname(path))
-    }
+    #
+    # avoid passing lib.loc to `packageDescription()` below, since R will
+    # use the loaded version of the package by default anyhow. note that
+    # this function should only be called after 'renv' is loaded
+    # https://github.com/rstudio/renv/issues/1625
+    description <- description %||% packageDescription("renv")
   
     # check whether requested version 'version' matches loaded version of renv
     sha <- attr(version, "sha", exact = TRUE)
