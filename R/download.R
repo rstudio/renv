@@ -48,7 +48,8 @@ download <- function(url,
   printf(preamble)
 
   # add custom headers as appropriate for the URL
-  headers <- c(headers, renv_download_custom_headers(url))
+  custom <- renv_download_custom_headers(url)
+  headers[names(custom)] <- custom
 
   # handle local files by just copying the file
   if (renv_download_local(url, destfile, headers))
@@ -173,7 +174,8 @@ renv_download_default <- function(url, destfile, type, request, headers) {
     stopf("the default downloader does not support %s requests", request)
 
   # try and ensure headers are set for older versions of R
-  headers <- c(headers, renv_download_auth(url, type))
+  auth <- renv_download_auth(url, type)
+  headers[names(auth)] <- auth
   renv_download_default_agent_scope(headers)
 
   # on Windows, prefer 'wininet' as most users will have already configured
@@ -312,7 +314,7 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   # https://github.com/wch/r-source/commit/f1ec503e986593bced6720a5e9099df58a4162e7
   if (Sys.getenv("R_LIBCURL_SSL_REVOKE_BEST_EFFORT") %in% c("T", "t", "TRUE", "true"))
     args$push("--ssl-revoke-best-effort")
-  
+
   # add in any user configuration files
   userconfig <- getOption(
     "renv.curl.config",

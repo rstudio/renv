@@ -628,3 +628,11 @@ test_that("install() succeeds even some repositories cannot be queried", {
   install("bread")
   expect_true(renv_package_installed("bread"))
 })
+
+test_that("install() doesn't duplicate authentication headers", {
+  renv_scope_envvars(RENV_DOWNLOAD_METHOD = "libcurl")
+  project <- renv_tests_scope()
+  init()
+  install("kevinushey/skeleton")
+  expect_true(renv_package_installed("skeleton"))
+})

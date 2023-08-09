@@ -46,6 +46,7 @@ renv_tests_setup_envvars <- function(scope = parent.frame()) {
   renv_scope_envvars(
     RENV_AUTOLOAD_ENABLED = FALSE,
     RENV_CONFIG_LOCKING_ENABLED = FALSE,
+    RENV_DOWNLOAD_METHOD = NULL,
     RENV_PATHS_ROOT = root,
     RENV_PATHS_LIBRARY = NULL,
     RENV_PATHS_LIBRARY_ROOT = NULL,
