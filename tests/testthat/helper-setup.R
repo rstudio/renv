@@ -28,6 +28,9 @@ renv_tests_setup <- function(scope = parent.frame()) {
   # fix up the library paths if needed for testing
   renv_tests_setup_libpaths(scope = scope)
 
+  # make sure we clean up sandbox on exit
+  renv_tests_setup_sandbox(scope = scope)
+
   # initialize test repositories
   renv_tests_setup_repos(scope = scope)
 
@@ -138,6 +141,10 @@ renv_tests_setup_libpaths <- function(scope = parent.frame()) {
   new <- grep("renv/sandbox", old, fixed = TRUE, invert = TRUE, value = TRUE)
   renv_scope_libpaths(new, scope = scope)
 
+}
+
+renv_tests_setup_sandbox <- function(scope = parent.frame()) {
+  renv_sandbox_unlock()
 }
 
 renv_tests_setup_repos <- function(scope = parent.frame()) {
