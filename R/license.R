@@ -2,11 +2,8 @@
 # used to generate the CRAN-compatible license file in R CMD build
 renv_license_generate <- function() {
 
-  isbuild <-
-    renv_envvar_exists("R_CMD") &&
-    grepl("Rbuild", basename(dirname(getwd())))
-
-  if (!isbuild)
+  # only done if we're building
+  if (!building())
     return(FALSE)
 
   contents <- c(
@@ -15,7 +12,6 @@ renv_license_generate <- function() {
   )
 
   writeLines(contents, con = "LICENSE")
-
   return(TRUE)
 
 }

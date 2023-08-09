@@ -90,13 +90,8 @@ renv_zzz_run <- function() {
 
   # check if we're running as part of R CMD build
   # if so, build our local repository with a copy of ourselves
-  building <-
-    renv_envvar_exists("R_CMD") &&
-    grepl("Rbuild", basename(dirname(getwd())))
-
-  if (building) {
+  if (building())
     renv_zzz_repos()
-  }
 
 }
 
@@ -208,8 +203,7 @@ renv_zzz_repos <- function() {
   if (!is.na(installing))
     return()
 
-  Sys.setenv("RENV_INSTALLING_REPOS" = "TRUE")
-
+  renv_scope_envvars(RENV_INSTALLING_REPOS = "TRUE")
   writeLines("** installing renv to package-local repository")
 
   # get package directory
@@ -221,7 +215,7 @@ renv_zzz_repos <- function() {
   renv_scope_wd(tdir)
 
   # build renv again
-  r_cmd_build("renv", path = pkgdir)
+  r_cmd_build("renv", path = pkgdir, "--no-build-vignettes")
 
   # copy built tarball to inst folder
   src <- list.files(tdir, full.names = TRUE)
