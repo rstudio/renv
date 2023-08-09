@@ -1,6 +1,9 @@
 
 # renv 1.1.0  (UNRELEASED)
 
+* Fixed an issue where authentication headers could be duplicated when
+  using the `libcurl` download method. (#1605)
+
 * `renv::use()` now defaults to setting `isolate = TRUE` when `sandbox = TRUE`.
 
 * Fixed an issue where the renv watchdog could fail to load when not installed
