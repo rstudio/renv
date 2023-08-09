@@ -6,8 +6,8 @@
 
 * `renv::use()` now defaults to setting `isolate = TRUE` when `sandbox = TRUE`.
 
-* Fixed an issue where the renv watchdog could fail to load when not installed
-  into the user library. (#1617)
+* Fixed an issue where the renv watchdog could fail to load, leading to slowness
+  in activating the sandbox on startup. (#1617)
 
 * Fixed an issue where renv did not display warnings / errors from `renv::snapshot()`
   when `options(renv.verbose = FALSE)` was set. The display of these messages
@@ -32,7 +32,7 @@
 * Fixed a logic error in reading `RENV_AUTOLOAD_ENABLED`. (#1580)
 
 * `renv::restore()` no longer runs without prompting on load if the 
-  library is empty (#1543).
+  library is empty. (#1543)
 
 * `renv::repair()` now checks for installed packages which lack a known
   remote source, and updates their `DESCRIPTION` files if it can infer an
@@ -42,11 +42,11 @@
   we've rolled back that change as the prompting was over-aggressive. (#1574)
 
 * `renv::status()` now first reports on uninstalled packages, before reporting on
-  used <-> installed mismatches (#1538).
+  used <-> installed mismatches. (#1538)
 
 * When the `RENV_STARTUP_DIAGNOSTICS` environment variable is set to `TRUE`,
-  `renv` now displays a short diagnostics report after a project's autoloader
-  has been run. This can be useful when diagnosing why `renv` is slow to load
+  renv now displays a short diagnostics report after a project's autoloader
+  has been run. This can be useful when diagnosing why renv is slow to load
   in certain projects. (#1557)
 
 * renv now ensures the sandbox is activated on load, for R processes which
@@ -64,7 +64,8 @@
 * Use correct spelling of IRkernel package (#1528).
 
 * Honor `R_LIBCURL_SSL_REVOKE_BEST_EFFORT` when using an external `curl.exe`
-  binary to download files (#1624)
+  binary to download files. (#1624)
+
 
 # renv 1.0.0
 
@@ -206,6 +207,7 @@
 
 * renv functions give a clearer error if `renv.lock` has somehow become 
   corrupted (#1027).
+
 
 # renv 0.17.3
 
