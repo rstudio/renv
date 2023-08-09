@@ -92,10 +92,14 @@ renv_watchdog_start_impl <- function() {
   if (!file.exists(file.path(library, "Meta/package.rds")))
     library <- renv_libpaths_default()
 
+  # for R CMD check
+  name <- .packageName
+  pid <- Sys.getpid()
+
   env <- list(
-    name    = .packageName,
+    name    = name,
     library = library,
-    pid     = Sys.getpid(),
+    pid     = pid,
     port    = port
   )
 
