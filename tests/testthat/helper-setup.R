@@ -144,7 +144,8 @@ renv_tests_setup_libpaths <- function(scope = parent.frame()) {
 }
 
 renv_tests_setup_sandbox <- function(scope = parent.frame()) {
-  renv_sandbox_unlock()
+  renv_scope_options(renv.sandbox.locking_enabled = FALSE)
+  defer(renv_sandbox_unlock(), scope = scope)
 }
 
 renv_tests_setup_repos <- function(scope = parent.frame()) {
