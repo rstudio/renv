@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.0.1.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,10 +68,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.0" id="renv-110-unreleased">renv 1.1.0 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#renv-110-unreleased"></a></h2>
+<h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.1" id="renv-101">renv 1.0.1<a class="anchor" aria-label="anchor" href="#renv-101"></a></h2>
 <ul><li><p>Fixed an issue where authentication headers could be duplicated when using the <code>libcurl</code> download method. (<a href="https://github.com/rstudio/renv/issues/1605" class="external-link">#1605</a>)</p></li>
 <li><p><code><a href="../reference/embed.html">renv::use()</a></code> now defaults to setting <code>isolate = TRUE</code> when <code>sandbox = TRUE</code>.</p></li>
-<li><p>Fixed an issue where the renv watchdog could fail to load when not installed into the user library. (<a href="https://github.com/rstudio/renv/issues/1617" class="external-link">#1617</a>)</p></li>
+<li><p>Fixed an issue where the renv watchdog could fail to load, leading to slowness in activating the sandbox on startup. (<a href="https://github.com/rstudio/renv/issues/1617" class="external-link">#1617</a>)</p></li>
 <li><p>Fixed an issue where renv did not display warnings / errors from <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> when <code>options(renv.verbose = FALSE)</code> was set. The display of these messages is now controlled via the <code>renv.caution.verbose</code> R option. (<a href="https://github.com/rstudio/renv/issues/1607" class="external-link">#1607</a>, <a href="https://github.com/rstudio/renv/issues/1608" class="external-link">#1608</a>)</p></li>
 <li><p><code><a href="../reference/load.html">renv::load()</a></code> now notifies the user if the synchronization check took an excessive amount of time due to the number of files being scanned in the project. (<a href="https://github.com/rstudio/renv/issues/1573" class="external-link">#1573</a>)</p></li>
 <li><p><code><a href="../reference/init.html">renv::init()</a></code> gains the <code>load</code> argument, making it possible to initialize a project without explicitly loading it. (<a href="https://github.com/rstudio/renv/issues/1583" class="external-link">#1583</a>)</p></li>
@@ -79,16 +82,16 @@
 <li><p>Fixed a regression in parsing expressions within R Markdown chunk options. (<a href="https://github.com/rstudio/renv/issues/1558" class="external-link">#1558</a>)</p></li>
 <li><p>Fixed an issue that prevented <code><a href="../reference/install.html">renv::install()</a></code> from functioning when source-only repositories were included. (<a href="https://github.com/rstudio/renv/issues/1578" class="external-link">#1578</a>)</p></li>
 <li><p>Fixed a logic error in reading <code>RENV_AUTOLOAD_ENABLED</code>. (<a href="https://github.com/rstudio/renv/issues/1580" class="external-link">#1580</a>)</p></li>
-<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> no longer runs without prompting on load if the library is empty (<a href="https://github.com/rstudio/renv/issues/1543" class="external-link">#1543</a>).</p></li>
+<li><p><code><a href="../reference/restore.html">renv::restore()</a></code> no longer runs without prompting on load if the library is empty. (<a href="https://github.com/rstudio/renv/issues/1543" class="external-link">#1543</a>)</p></li>
 <li><p><code><a href="../reference/repair.html">renv::repair()</a></code> now checks for installed packages which lack a known remote source, and updates their <code>DESCRIPTION</code> files if it can infer an appropriate remote source. This typically occurs when a package is installed from local sources, but appears to be maintained or published on a remote repository (e.g. GitHub). This was previously done in <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>, but we’ve rolled back that change as the prompting was over-aggressive. (<a href="https://github.com/rstudio/renv/issues/1574" class="external-link">#1574</a>)</p></li>
-<li><p><code><a href="../reference/status.html">renv::status()</a></code> now first reports on uninstalled packages, before reporting on used &lt;-&gt; installed mismatches (<a href="https://github.com/rstudio/renv/issues/1538" class="external-link">#1538</a>).</p></li>
-<li><p>When the <code>RENV_STARTUP_DIAGNOSTICS</code> environment variable is set to <code>TRUE</code>, <code>renv</code> now displays a short diagnostics report after a project’s autoloader has been run. This can be useful when diagnosing why <code>renv</code> is slow to load in certain projects. (<a href="https://github.com/rstudio/renv/issues/1557" class="external-link">#1557</a>)</p></li>
+<li><p><code><a href="../reference/status.html">renv::status()</a></code> now first reports on uninstalled packages, before reporting on used &lt;-&gt; installed mismatches. (<a href="https://github.com/rstudio/renv/issues/1538" class="external-link">#1538</a>)</p></li>
+<li><p>When the <code>RENV_STARTUP_DIAGNOSTICS</code> environment variable is set to <code>TRUE</code>, renv now displays a short diagnostics report after a project’s autoloader has been run. This can be useful when diagnosing why renv is slow to load in certain projects. (<a href="https://github.com/rstudio/renv/issues/1557" class="external-link">#1557</a>)</p></li>
 <li><p>renv now ensures the sandbox is activated on load, for R processes which are launched with the renv sandbox on the library paths. (<a href="https://github.com/rstudio/renv/issues/1565" class="external-link">#1565</a>)</p></li>
 <li><p><code><a href="../reference/restore.html">renv::restore()</a></code> no longer erroneously prompts when determining the packages which need to be installed. (<a href="https://github.com/rstudio/renv/issues/1544" class="external-link">#1544</a>)</p></li>
 <li><p><code><a href="../reference/update.html">renv::update()</a></code> now ensures the <code>prompt</code> parameter is properly respected during package installation. (<a href="https://github.com/rstudio/renv/issues/1540" class="external-link">#1540</a>)</p></li>
 <li><p><code><a href="../reference/activate.html">renv::activate()</a></code> no longer erroneously preserves the previous library paths after restarting the session within RStudio. (<a href="https://github.com/rstudio/renv/issues/1530" class="external-link">#1530</a>)</p></li>
 <li><p>Use correct spelling of IRkernel package (<a href="https://github.com/rstudio/renv/issues/1528" class="external-link">#1528</a>).</p></li>
-<li><p>Honor <code>R_LIBCURL_SSL_REVOKE_BEST_EFFORT</code> when using an external <code>curl.exe</code> binary to download files (<a href="https://github.com/rstudio/renv/issues/1624" class="external-link">#1624</a>)</p></li>
+<li><p>Honor <code>R_LIBCURL_SSL_REVOKE_BEST_EFFORT</code> when using an external <code>curl.exe</code> binary to download files. (<a href="https://github.com/rstudio/renv/issues/1624" class="external-link">#1624</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="renv-100">renv 1.0.0<a class="anchor" aria-label="anchor" href="#renv-100"></a></h2><p class="text-muted">CRAN release: 2023-07-07</p>
