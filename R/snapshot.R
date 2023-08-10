@@ -124,6 +124,7 @@ snapshot <- function(project  = NULL,
                      lockfile = paths$lockfile(project = project),
                      type     = settings$snapshot.type(project = project),
                      repos    = getOption("repos"),
+                     dev      = FALSE,
                      packages = NULL,
                      exclude  = NULL,
                      prompt   = interactive(),
@@ -171,7 +172,8 @@ snapshot <- function(project  = NULL,
     packages = packages,
     exclude  = exclude,
     prompt   = prompt,
-    force    = force
+    force    = force,
+    dev      = dev
   )
 
   if (is.null(lockfile))
