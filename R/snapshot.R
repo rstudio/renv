@@ -91,6 +91,9 @@ the$auto_snapshot_hash <- TRUE
 #'   to the currently active package repositories, as retrieved by
 #'   `getOption("repos")`.
 #'
+#' @param dev Boolean; should development dependencies be captured
+#'   (for type `"explicit"`)?
+#'
 #' @param packages A vector of packages to be included in the lockfile. When
 #'   `NULL` (the default), all packages relevant for the type of snapshot being
 #'   performed will be included. When set, the `type` argument is ignored.

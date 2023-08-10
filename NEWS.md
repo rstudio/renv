@@ -2,6 +2,10 @@
 
 #### ✨ features and improvements
 
+  * add `dev` argument to `snapshot` and `status` to be able to capture packages
+    from *Suggests* with `type="explicit"`; this provides an option to have
+    a similar behavior of `renv` as before the update to v1.0.0
+  
 #### 🐛 bug fixes
 
 #### 💬 documentation etc
