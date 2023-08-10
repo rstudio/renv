@@ -15,8 +15,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.6/font.css" rel="stylesheet">
-<link href="../deps/Source_Code_Pro-0.4.6/font.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.7/font.css" rel="stylesheet">
+<link href="../deps/Source_Code_Pro-0.4.7/font.css" rel="stylesheet">
 <!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
@@ -36,7 +36,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -158,11 +158,13 @@ created using that image as a base, allowing different independent
 applications to run using the same pre-defined machine state.</p>
 <p>First, you’ll need to get renv installed on your Docker image. The
 easiest way to accomplish this is with the <code>remotes</code> package.
-For example, if you wanted to install a specific version of renv from
-GitHub:</p>
-<pre><code>ENV RENV_VERSION 1.0.0
-RUN R -e "install.packages('remotes', repos = c(CRAN = 'https://cloud.r-project.org'))"
-RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"</code></pre>
+For example, you could install the latest release of <code>renv</code>
+from CRAN:</p>
+<pre><code>RUN R -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"</code></pre>
+<p>Alternatively, if you needed to use the development version of
+<code>renv</code>, you could use:</p>
+<pre><code>RUN R -e "install.packages('remotes', repos = c(CRAN = 'https://cloud.r-project.org'))"
+RUN R -e "remotes::install_github('rstudio/renv')"</code></pre>
 <p>Next, if you’d like the <code>renv.lock</code> lockfile to be used to
 install R packages when the Docker image is built, you’ll need to copy
 it to the container:</p>
@@ -191,16 +193,104 @@ this image will hence have those R packages installed and visible at
 run-time.</p>
 </div>
 <div class="section level2">
-<h2 id="dynamically-provisioning-r-libraries-with-renv">Dynamically provisioning R libraries with renv<a class="anchor" aria-label="anchor" href="#dynamically-provisioning-r-libraries-with-renv"></a>
+<h2 id="speeding-up-package-installations">Speeding up package installations<a class="anchor" aria-label="anchor" href="#speeding-up-package-installations"></a>
 </h2>
 <p>The aforementioned approach is useful if you have multiple
-applications with identical package requirements. However, on occasion,
-one will have multiple applications built from a single base image, but
-each application will have its own independent R package requirements.
-In this case, rather than including the package dependencies in the
-image itself, it would be preferable for each container to provision its
-own library at run-time, based on that application’s
-<code>renv.lock</code> lockfile.</p>
+applications with identical package requirements. In this case, a single
+image containing this identical package library could serve as the
+parent image for several containerized applications.</p>
+<p>However, <code><a href="../reference/restore.html">renv::restore()</a></code> is slow – it needs to download
+and install packages, which can take some time. Thus, some care is
+required to efficiently make use of the <code>renv</code> cache for
+projects that require:</p>
+<ol style="list-style-type: decimal">
+<li><p>Building an image multiple times (e.g., to debug the production
+application as source code is updated), or</p></li>
+<li><p>Calling <code><a href="../reference/restore.html">renv::restore()</a></code> each time the container is
+run.</p></li>
+</ol>
+<p>The former process can be sped up using multi-stage builds, the
+latter by dynamically provisioning R Libraries, as described below.</p>
+<div class="section level3">
+<h3 id="multi-stage-builds">Multi-stage builds<a class="anchor" aria-label="anchor" href="#multi-stage-builds"></a>
+</h3>
+<p>For projects that require repeatedly building an image, <a href="https://docs.docker.com/build/building/multi-stage/" class="external-link">multi-stage
+builds</a> can be used to speed up the build process. With multi-stage
+builds, multiple FROM statements are used in the Dockerfile and files
+can be copied across build stages.</p>
+<p>This approach can be leveraged to generate more efficient builds by
+dedicating a first stage build to package synchronization and a second
+stage build to copying files and executing code that may need to be
+updated often across builds (e.g., code that needs to be debugged in the
+container).</p>
+<p>To implement a two stage build, the following code could be used as
+part of a Dockerfile.</p>
+<pre><code># STAGE 1: renv-related code
+FROM &lt;parent_image&gt; AS base
+
+WORKDIR /project
+
+# using approach 2 above
+RUN mkdir -p renv
+COPY renv.lock renv.lock
+COPY .Rprofile .Rprofile
+COPY renv/activate.R renv/activate.R
+COPY renv/settings.dcf renv/settings.dcf
+
+# change default location of cache to project folder
+RUN mkdir renv/.cache
+ENV RENV_PATHS_CACHE renv/.cache
+
+# restore 
+RUN R -e "renv::restore()"</code></pre>
+<p>The above code uses
+<code>FROM &lt;parent_image&gt; AS &lt;name&gt;</code> to name the first
+stage of the build <code>base</code>. Here,
+<code>&lt;parent_image&gt;</code> should be replaced with an appropriate
+image name.</p>
+<p>Subsequently, the code uses approach 2 (described above) to copy the
+auto-loader to the project directory in the image. It additionally
+creates the <code>renv/.cache</code> directory that is to be used as the
+<code>renv</code> cache.</p>
+<p>The second stage of the build is defined by adding the following code
+to the same Dockerfile, below the previous code chunk.</p>
+<pre><code>FROM &lt;parent_image&gt;
+
+WORKDIR /project
+COPY --from=base /project .
+
+# add commands that need to be debugged below</code></pre>
+<p>Here, <code>&lt;parent_image&gt;</code> could be the same as the
+parent image of <code>base</code>, but does not have to be (see <a href="https://docs.docker.com/build/building/multi-stage/" class="external-link">documentation</a>
+for more details).</p>
+<p>The key line is the <code>COPY</code> command, which specifies that
+the contents of <code>/project</code> directory from the
+<code>base</code> image are copied into the <code>/project</code>
+directory of this image.</p>
+<p>Any commands that will change frequently across builds could be
+included below the <code>COPY</code> command. If only this code
+associated with the second stage build is updated then
+<code><a href="../reference/restore.html">renv::restore()</a></code> will not be called again at build time.
+Instead, the layers associated with the <code>base</code> image will be
+loaded from Docker’s cache, thereby saving significant time in build
+process.</p>
+<p>In fact, <code><a href="../reference/restore.html">renv::restore()</a></code> will only be called when the
+<code>base</code> image needs to be rebuilt (e.g., when changes are made
+to <code>renv.lock</code>). Docker’s cache system is generally good at
+understanding the dependencies of images. However, if you find that the
+<code>base</code> image is not updating as expected, it is possible to
+manually enforce a clean build by including the <code>--no-cache</code>
+option in the call to <code>docker build</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="dynamically-provisioning-r-libraries-with-renv">Dynamically Provisioning R Libraries with renv<a class="anchor" aria-label="anchor" href="#dynamically-provisioning-r-libraries-with-renv"></a>
+</h3>
+<p>However, on occasion, one will have multiple applications built from
+a single base image, but each application will have its own independent
+R package requirements. In this case, rather than including the package
+dependencies in the image itself, it would be preferable for each
+container to provision its own library at run-time, based on that
+application’s <code>renv.lock</code> lockfile.</p>
 <p>In effect, this is as simple as ensuring that
 <code><a href="../reference/restore.html">renv::restore()</a></code> happens at container run-time, rather than
 image build time. However, on its own, <code><a href="../reference/restore.html">renv::restore()</a></code> is
@@ -264,22 +354,23 @@ containers will launch very quickly, and a single image can then be used
 as a base for a myriad of different containers and applications, each
 with their own independent package dependencies.</p>
 </div>
+</div>
 <div class="section level2">
 <h2 id="handling-the-renv-autoloader">Handling the renv autoloader<a class="anchor" aria-label="anchor" href="#handling-the-renv-autoloader"></a>
 </h2>
-<p>When is launched within a project folder, the renv auto-loader (if
-present) will attempt to download and install renv into the project
-library. Depending on how your Docker container is configured, this
-could fail. For example:</p>
+<p>When <code>R</code> is launched within a project folder, the renv
+auto-loader (if present) will attempt to download and install renv into
+the project library. Depending on how your Docker container is
+configured, this could fail. For example:</p>
 <pre><code>Error installing renv:
 ======================
-ERROR: unable to create ‘/usr/local/pipe/renv/library/master/R-4.0/x86_64-pc-linux-gnu/renv’
+ERROR: unable to create '/usr/local/pipe/renv/library/master/R-4.0/x86_64-pc-linux-gnu/renv'
 Warning messages:
 1: In system2(r, args, stdout = TRUE, stderr = TRUE) :
   running command ''/usr/lib/R/bin/R' --vanilla CMD INSTALL -l 'renv/library/master/R-4.0/x86_64-pc-linux-gnu' '/tmp/RtmpwM7ooh/renv_0.12.2.tar.gz' 2&gt;&amp;1' had status 1
 2: Failed to find an renv installation: the project will not be loaded.
 Use `renv::activate()` to re-initialize the project.</code></pre>
-<p>Bootstrapping renv into the project library might be un-necessary for
+<p>Bootstrapping renv into the project library might be unnecessary for
 you. If that is the case, then you can avoid this behavior by launching
 R with the <code>--vanilla</code> flag set; for example:</p>
 <pre><code>R --vanilla -s -e 'renv::restore()'</code></pre>
