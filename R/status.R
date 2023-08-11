@@ -86,7 +86,7 @@ the$status_running <- FALSE
 #'   cache are installed at the expected + proper locations, and validate the
 #'   hashes used for those storage locations.
 #'
-#' @param dev Boolean; should development dependencies be considered?
+#' @inheritParams dependencies
 #'
 #' @return This function is normally called for its side effects, but
 #'   it invisibly returns a list containing the following components:
