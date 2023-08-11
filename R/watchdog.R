@@ -88,9 +88,11 @@ renv_watchdog_start_impl <- function() {
   script <- renv_scope_tempfile("renv-watchdog-", fileext = ".R")
 
   # figure out library path -- need to dodge devtools::load_all()
-  library <- dirname(renv_namespace_path(.packageName))
-  if (!file.exists(file.path(library, "Meta/package.rds")))
-    library <- renv_libpaths_default()
+  renv_path <- renv_namespace_path(.packageName)
+  library <- if (file.exists(file.path(renv_path, "Meta/package.rds")))
+    dirname(renv_path)
+  else
+    renv_libpaths_default()
 
   # for R CMD check
   name <- .packageName

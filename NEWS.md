@@ -1,5 +1,7 @@
 # renv (development version)
 
+* Corrected logic that counteracted the previous release's fix for a watchdog
+  loading issue. (#1640)
 
 # renv 1.0.1
 
