@@ -667,7 +667,7 @@ renv_download_report <- function(elapsed, file) {
     return()
 
   info <- renv_file_info(file)
-  size <- if (renv_package_testing())
+  size <- if (testing())
     "XXXX bytes"
   else
     structure(info$size, class = "object_size")

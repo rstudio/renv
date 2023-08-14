@@ -252,7 +252,7 @@ renv_ppm_enabled <- function() {
 
   # TODO: can we remove this check?
   # https://github.com/rstudio/renv/issues/1132
-  if (!renv_package_testing()) {
+  if (!testing()) {
 
     disabled <-
       renv_platform_linux() &&

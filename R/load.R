@@ -622,7 +622,7 @@ renv_load_bioconductor_validate <- function(project, version) {
 renv_load_switch <- function(project) {
 
   # skip when testing
-  if (renv_package_testing())
+  if (testing())
     return(project)
 
   # safety check: avoid recursive unload attempts

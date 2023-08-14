@@ -40,7 +40,7 @@ renv_zzz_load <- function() {
 
   # make sure renv (and packages using renv!!!) use tempdir for storage
   # when running tests, or R CMD check
-  if (renv_package_checking() || renv_package_testing()) {
+  if (checking() || testing()) {
     Sys.setenv(RENV_PATHS_ROOT = tempfile("renv-root-"))
     options(renv.sandbox.locking_enabled = FALSE)
   }
@@ -202,7 +202,7 @@ renv_zzz_bootstrap_config <- function() {
 renv_zzz_repos <- function() {
 
   # don't run if we're running tests
-  if (renv_package_checking())
+  if (checking())
     return()
 
   # prevent recursion

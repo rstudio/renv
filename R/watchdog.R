@@ -43,7 +43,7 @@ renv_watchdog_enabled_impl <- function() {
 
   # skip during R CMD check (but not when running tests)
   checking <- renv_envvar_exists("_R_CHECK_PACKAGE_NAME_")
-  if (checking && !renv_package_testing())
+  if (checking && !testing())
     return(FALSE)
 
   # skip during R CMD build or R CMD INSTALL
