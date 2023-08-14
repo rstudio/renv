@@ -401,7 +401,7 @@ renv_package_built <- function(path) {
 }
 
 renv_package_checking <- function() {
-  is_testing() ||
+  renv_package_testing() ||
     "CheckExEnv" %in% search() ||
     renv_envvar_exists("_R_CHECK_PACKAGE_NAME_") ||
     renv_envvar_exists("_R_CHECK_SIZE_OF_TARBALL_")
