@@ -329,7 +329,7 @@ renv_snapshot_validate_report <- function(valid, prompt, force) {
 
   # in interactive sessions, if 'prompt' is set, then ask the user
   # if they would like to proceed
-  if (interactive() && !is_testing() && prompt) {
+  if (interactive() && !testing() && prompt) {
     cancel_if(!proceed())
     return(TRUE)
   }

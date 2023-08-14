@@ -400,13 +400,6 @@ renv_package_built <- function(path) {
 
 }
 
-renv_package_checking <- function() {
-  is_testing() ||
-    "CheckExEnv" %in% search() ||
-    renv_envvar_exists("_R_CHECK_PACKAGE_NAME_") ||
-    renv_envvar_exists("_R_CHECK_SIZE_OF_TARBALL_")
-}
-
 renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
 
   # if this isn't an archive, nothing to do

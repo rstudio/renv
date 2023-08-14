@@ -161,7 +161,7 @@ renv_patch_repos <- function() {
     return()
 
   # nothing to do if we're not running tests
-  checking <- renv_package_checking()
+  checking <- checking()
   if (!checking)
     return()
 

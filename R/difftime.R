@@ -1,7 +1,7 @@
 
 renv_difftime_format <- function(time, digits = 2L) {
 
-  if (is_testing())
+  if (testing())
     return("XXXX seconds")
 
   units <- attr(time, "units") %||% ""
@@ -30,7 +30,7 @@ renv_difftime_format <- function(time, digits = 2L) {
 
 renv_difftime_format_short <- function(time, digits = 2L) {
 
-  if (is_testing())
+  if (testing())
     return("XXs")
 
   units <- attr(time, "units") %||% ""

@@ -4,7 +4,7 @@ renv_sandbox_init <- function() {
   # check for envvar override
   enabled <- Sys.getenv("RENV_SANDBOX_LOCKING_ENABLED", unset = NA)
   if (!is.na(enabled)) {
-    enabled <- truthy(enabled, default = TRUE)
+    enabled <- truthy(enabled, default = FALSE)
     options(renv.sandbox.locking_enabled = enabled)
   }
 
