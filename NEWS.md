@@ -1,9 +1,12 @@
 # renv (development version)
 
+* renv now parses package `NAMESPACE` files for imported dependencies. (#1637)
+
 * renv no longer locks the sandbox by default.
 
 * Fixed an issue where renv used the wrong library paths when attempting
-  to activate the watchdog.
+  to activate the watchdog. This could cause a 10 second delay when activating
+  the sandbox.
 
 
 # renv 1.0.1
