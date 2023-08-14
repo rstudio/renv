@@ -4,14 +4,7 @@
       load()
     Output
       - Project '<wd>' loaded. [renv <version>]
-      - No packages recorded in the lockfile are installed.
-      What do you want to do?
-      
-      1: Restore the project library with `renv::restore()`
-      2: Leave project library empty
-      
-      Selection: 1
-      
+      - None of the packages recorded in the lockfile are currently installed.
       The following package(s) will be updated:
       
       # CRAN ---
