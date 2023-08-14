@@ -1,5 +1,10 @@
 # renv (development version)
 
+* renv no longer locks the sandbox by default.
+
+* Fixed an issue where renv used the wrong library paths when attempting
+  to activate the watchdog.
+
 
 # renv 1.0.1
 
