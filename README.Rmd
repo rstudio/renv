@@ -60,7 +60,7 @@ knitr::include_graphics("vignettes/renv.png", dpi = 144)
 ```
 
 Use `renv::init()` to initialize renv in a new or existing project.
-This will set up up **project library**, containing all the packages you're currently using.
+This will set up a **project library**, containing all the packages you're currently using.
 The packages (and all the metadata needed to reinstall them) are recorded into a **lockfile**, `renv.lock`, and a `.Rprofile` ensures that the library is used every time you open that project.
 
 As you continue to work on your project, you will install and upgrade packages, either using `install.packages()` and `update.packages` or `renv::install()` and `renv::update()`.
