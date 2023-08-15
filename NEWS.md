@@ -1,3 +1,5 @@
+# renv (development version)
+
 # renv 1.0.2
 
 * renv now parses package `NAMESPACE` files for imported dependencies. (#1637)
