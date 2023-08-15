@@ -42,7 +42,7 @@
     
     <a class="navbar-brand me-2" href="index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,7 +131,7 @@
 <h2 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a>
 </h2>
 <p><img src="articles/renv.png" alt="A diagram showing the most important verbs and nouns of renv. Projects start with init(), which creates a project library using packages from the system library. snapshot() updates the lockfile using the packages installed in the project library, where restore() installs packages into the project library using the metadata from the lockfile, and status() compares the lockfile to the project library. You install and update packages from CRAN and GitHub using install() and update(), but because you'll need to do this for multiple projects, renv uses cache to make this fast." width="408" style="display: block; margin: auto;"></p>
-<p>Use <code><a href="reference/init.html">renv::init()</a></code> to initialize renv in a new or existing project. This will set up up <strong>project library</strong>, containing all the packages you’re currently using. The packages (and all the metadata needed to reinstall them) are recorded into a <strong>lockfile</strong>, <code>renv.lock</code>, and a <code>.Rprofile</code> ensures that the library is used every time you open that project.</p>
+<p>Use <code><a href="reference/init.html">renv::init()</a></code> to initialize renv in a new or existing project. This will set up a <strong>project library</strong>, containing all the packages you’re currently using. The packages (and all the metadata needed to reinstall them) are recorded into a <strong>lockfile</strong>, <code>renv.lock</code>, and a <code>.Rprofile</code> ensures that the library is used every time you open that project.</p>
 <p>As you continue to work on your project, you will install and upgrade packages, either using <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> and <code>update.packages</code> or <code><a href="reference/install.html">renv::install()</a></code> and <code><a href="reference/update.html">renv::update()</a></code>. After you’ve confirmed your code works as expected, use <code><a href="reference/snapshot.html">renv::snapshot()</a></code> to record the packages and their sources in the lockfile.</p>
 <p>Later, if you need to share your code with someone else or run your code on new machine, your collaborator (or you) can call <code><a href="reference/restore.html">renv::restore()</a></code> to reinstall the specific package versions recorded in the lockfile.</p>
 </div>
