@@ -42,7 +42,7 @@ install.packages("renv")
 <img src="vignettes/renv.png" alt="A diagram showing the most important verbs and nouns of renv. Projects start with init(), which creates a project library using packages from the system library. snapshot() updates the lockfile using the packages installed in the project library, where restore() installs packages into the project library using the metadata from the lockfile, and status() compares the lockfile to the project library. You install and update packages from CRAN and GitHub using install() and update(), but because you'll need to do this for multiple projects, renv uses cache to make this fast." width="408" style="display: block; margin: auto;" />
 
 Use `renv::init()` to initialize renv in a new or existing project. This
-will set up up **project library**, containing all the packages you’re
+will set up a **project library**, containing all the packages you’re
 currently using. The packages (and all the metadata needed to reinstall
 them) are recorded into a **lockfile**, `renv.lock`, and a `.Rprofile`
 ensures that the library is used every time you open that project.
