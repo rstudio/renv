@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue that could cause code within a project `.Rprofile` to execute
+  before the project had been loaded in RStudio. (#1650)
+
 * `renv::snapshot()` and `renv::status()` gain the `dev` argument. This
   can be used when you'd like to capture package dependencies from
   the *Suggests* field of your package's DESCRIPTION file. (#1019)

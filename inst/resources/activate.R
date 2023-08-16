@@ -1034,19 +1034,6 @@ local({
   
   }
   
-  
-  renv_bootstrap_in_rstudio <- function() {
-    commandArgs()[[1]] == "RStudio"
-  }
-  
-  # Used to work around buglet in RStudio if hook uses readline
-  renv_bootstrap_flush_console <- function() {
-    tryCatch({
-      tools <- as.environment("tools:rstudio")
-      tools$.rs.api.sendToConsole("", echo = FALSE, focus = FALSE)
-    }, error = function(cnd) {})
-  }
-  
   renv_json_read <- function(file = NULL, text = NULL) {
   
     jlerr <- NULL
@@ -1185,16 +1172,8 @@ local({
   # construct full libpath
   libpath <- file.path(root, prefix)
 
-  if (renv_bootstrap_in_rstudio()) {
-    # RStudio only updates console once .Rprofile is finished, so
-    # instead run code on sessionInit
-    setHook("rstudio.sessionInit", function(...) {
-      renv_bootstrap_exec(project, libpath, version)
-      renv_bootstrap_flush_console()
-    })
-  } else {
-    renv_bootstrap_exec(project, libpath, version)
-  }
+  # run bootstrap code
+  renv_bootstrap_exec(project, libpath, version)
 
   invisible()
 
