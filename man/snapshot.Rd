@@ -10,6 +10,7 @@ snapshot(
   library = NULL,
   lockfile = paths$lockfile(project = project),
   type = settings$snapshot.type(project = project),
+  dev = FALSE,
   repos = getOption("repos"),
   packages = NULL,
   exclude = NULL,
@@ -44,6 +45,16 @@ directly instead.}
 }
 
 See \strong{Snapshot type} below for more details.}
+
+\item{dev}{Boolean; include development dependencies? These packages are
+typically required when developing the project, but not when running it
+(i.e. you want them installed when humans are working on the project but
+not when computers are deploying it).
+
+Development dependencies include packages listed in the \code{Suggests} field
+of a \code{DESCRIPTION} found in the project root, and roxygen2 or devtools if
+their use is implied by other project metadata. They also include packages
+used in \verb{~/.Rprofile} if \code{config$user.profile()} is \code{TRUE}.}
 
 \item{repos}{The \R repositories to be recorded in the lockfile. Defaults
 to the currently active package repositories, as retrieved by
@@ -170,6 +181,8 @@ options(renv.config.auto.snapshot = auto.snapshot)
 }
 }
 \seealso{
+More on handling package \code{\link[=dependencies]{dependencies()}}
+
 Other reproducibility: 
 \code{\link{lockfiles}},
 \code{\link{restore}()}

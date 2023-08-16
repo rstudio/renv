@@ -18,7 +18,7 @@ the$status_running <- FALSE
 #'
 #' # Missing packages
 #'
-#' `status()` first checks that all packages used by the project are installed. 
+#' `status()` first checks that all packages used by the project are installed.
 #' This must be done first because if any packages are missing we can't tell for
 #' sure that a package isn't used; it might be a dependency that we don't know
 #' about. Once you have resolve any installation issues, you'll need to run
@@ -86,6 +86,8 @@ the$status_running <- FALSE
 #'   cache are installed at the expected + proper locations, and validate the
 #'   hashes used for those storage locations.
 #'
+#' @inheritParams dependencies
+#'
 #' @return This function is normally called for its side effects, but
 #'   it invisibly returns a list containing the following components:
 #'
@@ -101,7 +103,8 @@ status <- function(project = NULL,
                    library = NULL,
                    lockfile = NULL,
                    sources = TRUE,
-                   cache = FALSE)
+                   cache = FALSE,
+                   dev = FALSE)
 {
   renv_scope_error_handler()
   renv_dots_check(...)
@@ -129,7 +132,7 @@ status <- function(project = NULL,
   lockpath <- lockfile %||% renv_paths_lockfile(project = project)
 
   # get all dependencies, including transitive
-  dependencies <- renv_snapshot_dependencies(project, dev = FALSE)
+  dependencies <- renv_snapshot_dependencies(project, dev = dev)
   packages <- sort(union(dependencies, "renv"))
   paths <- renv_package_dependencies(packages, libpaths = libpaths, project = project)
   packages <- as.character(names(paths))

@@ -87,9 +87,12 @@ the$auto_snapshot_hash <- TRUE
 #'
 #'   See **Snapshot type** below for more details.
 #'
+#' @inheritParams dependencies
+#'
 #' @param repos The \R repositories to be recorded in the lockfile. Defaults
 #'   to the currently active package repositories, as retrieved by
 #'   `getOption("repos")`.
+#'
 #'
 #' @param packages A vector of packages to be included in the lockfile. When
 #'   `NULL` (the default), all packages relevant for the type of snapshot being
@@ -113,6 +116,8 @@ the$auto_snapshot_hash <- TRUE
 #' @return The generated lockfile, as an \R object (invisibly). Note that
 #'   this function is normally called for its side effects.
 #'
+#'
+#' @seealso More on handling package [dependencies()]
 #' @family reproducibility
 #'
 #' @export
@@ -123,6 +128,7 @@ snapshot <- function(project  = NULL,
                      library  = NULL,
                      lockfile = paths$lockfile(project = project),
                      type     = settings$snapshot.type(project = project),
+                     dev      = FALSE,
                      repos    = getOption("repos"),
                      packages = NULL,
                      exclude  = NULL,
@@ -171,7 +177,8 @@ snapshot <- function(project  = NULL,
     packages = packages,
     exclude  = exclude,
     prompt   = prompt,
-    force    = force
+    force    = force,
+    dev      = dev
   )
 
   if (is.null(lockfile))

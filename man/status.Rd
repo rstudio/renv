@@ -10,7 +10,8 @@ status(
   library = NULL,
   lockfile = NULL,
   sources = TRUE,
-  cache = FALSE
+  cache = FALSE,
+  dev = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,16 @@ may be unable to restore it.}
 When \code{TRUE}, renv will validate that the packages installed into the
 cache are installed at the expected + proper locations, and validate the
 hashes used for those storage locations.}
+
+\item{dev}{Boolean; include development dependencies? These packages are
+typically required when developing the project, but not when running it
+(i.e. you want them installed when humans are working on the project but
+not when computers are deploying it).
+
+Development dependencies include packages listed in the \code{Suggests} field
+of a \code{DESCRIPTION} found in the project root, and roxygen2 or devtools if
+their use is implied by other project metadata. They also include packages
+used in \verb{~/.Rprofile} if \code{config$user.profile()} is \code{TRUE}.}
 }
 \value{
 This function is normally called for its side effects, but

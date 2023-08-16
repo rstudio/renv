@@ -1,5 +1,9 @@
 # renv (development version)
 
+* add `dev` argument to `snapshot` and `status` to be able to capture packages
+  from *Suggests* with `type="explicit"`; this provides an option to have
+  a similar behavior of `renv` as before the update to v1.0.0
+
 # renv 1.0.2
 
 * renv now parses package `NAMESPACE` files for imported dependencies. (#1637)
