@@ -478,3 +478,25 @@ test_that("dependencies() notifies the user if directories contain lots of files
   expect_snapshot(. <- renv_snapshot_dependencies(project))
 
 })
+
+test_that("dependencies() can parse NAMESPACE files", {
+
+  project <- renv_tests_scope()
+  desc <- heredoc("
+    Type: Package
+    Package: test
+    Version: 0.1.0
+  ")
+  writeLines(desc, con = "DESCRIPTION")
+
+  namespace <- heredoc("
+    import(utils)
+    importFrom(tools, SIGQUIT)
+    import(graphics, except = c(abline))
+  ")
+  writeLines(namespace, con = "NAMESPACE")
+
+  deps <- dependencies()
+  expect_setequal(deps$Package, c("graphics", "tools", "utils"))
+
+})

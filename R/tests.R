@@ -1,7 +1,7 @@
 
 the$tests_root <- NULL
 
-# NOTE: Prefer using 'is_testing()' to 'renv_tests_running()' for behavior
+# NOTE: Prefer using 'testing()' to 'renv_tests_running()' for behavior
 # that should apply regardless of the package currently being tested.
 #
 # renv_tests_running() is appropriate when running renv's own tests.

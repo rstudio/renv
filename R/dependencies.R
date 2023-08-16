@@ -293,6 +293,7 @@ renv_dependencies_callback <- function(path) {
   cbname <- list(
     ".Rprofile"     = function(path) renv_dependencies_discover_r(path),
     "DESCRIPTION"   = function(path) renv_dependencies_discover_description(path),
+    "NAMESPACE"     = function(path) renv_dependencies_discover_namespace(path),
     "_bookdown.yml" = function(path) renv_dependencies_discover_bookdown(path),
     "_pkgdown.yml"  = function(path) renv_dependencies_discover_pkgdown(path),
     "_quarto.yml"   = function(path) renv_dependencies_discover_quarto(path),
@@ -434,7 +435,7 @@ renv_dependencies_find_dir_children <- function(path, root, depth) {
 
   # remove hard-coded ignores
   # (only keep DESCRIPTION files at the top level)
-  ignored <- c("packrat", "renv", "revdep", "vendor", if (depth) "DESCRIPTION")
+  ignored <- c("packrat", "renv", "revdep", "vendor", if (depth) c("DESCRIPTION", "NAMESPACE"))
   children <- children[!basename(children) %in% ignored]
 
   # compute exclusions
@@ -586,6 +587,37 @@ renv_dependencies_discover_description <- function(path,
   }
 
   bind(data)
+
+}
+
+renv_dependencies_discover_namespace <- function(path) {
+
+  tryCatch(
+    renv_dependencies_discover_namespace_impl(path),
+    error = warnify
+  )
+
+}
+
+renv_dependencies_discover_namespace_impl <- function(path) {
+
+  # parseNamespaceFile() expects to be called on an installed package,
+  # so we have to pretend our best here
+  library <- dirname(dirname(path))
+  package <- basename(dirname(path))
+  info <- parseNamespaceFile(
+    package     = package,
+    package.lib = library,
+    mustExist   = TRUE
+  )
+
+  # read package names from imports
+  packages <- map_chr(info$imports, `[[`, 1L)
+
+  renv_dependencies_list(
+    source   = path,
+    packages = sort(unique(packages))
+  )
 
 }
 

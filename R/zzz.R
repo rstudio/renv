@@ -38,6 +38,13 @@ renv_zzz_load <- function() {
   # NOTE: needs to be visible to embedded instances of renv as well
   the$envir_self <<- renv_envir_self()
 
+  # make sure renv (and packages using renv!!!) use tempdir for storage
+  # when running tests, or R CMD check
+  if (checking() || testing()) {
+    Sys.setenv(RENV_PATHS_ROOT = tempfile("renv-root-"))
+    options(renv.sandbox.locking_enabled = FALSE)
+  }
+
   renv_metadata_init()
   renv_platform_init()
   renv_virtualization_init()
@@ -195,7 +202,7 @@ renv_zzz_bootstrap_config <- function() {
 renv_zzz_repos <- function() {
 
   # don't run if we're running tests
-  if (renv_package_checking())
+  if (checking())
     return()
 
   # prevent recursion

@@ -622,7 +622,7 @@ renv_load_bioconductor_validate <- function(project, version) {
 renv_load_switch <- function(project) {
 
   # skip when testing
-  if (is_testing())
+  if (testing())
     return(project)
 
   # safety check: avoid recursive unload attempts
@@ -818,21 +818,14 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
   # check for case where no packages are installed (except renv)
   if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
 
-    caution("- No packages recorded in the lockfile are installed.")
-    choice <- menu(
-      title = "What do you want to do?",
-      choices = c(
-        restore = "Restore the project library with `renv::restore()`",
-        cancel = "Leave project library empty"
-      )
-    )
-
-    if (choice == "restore") {
-      restore(project, prompt = FALSE, exclude = "renv")
-      return(TRUE)
-    } else {
+    caution("- None of the packages recorded in the lockfile are currently installed.")
+    response <- ask("- Would you like to restore the project library?")
+    if (!response)
       return(FALSE)
-    }
+
+    restore(project, prompt = FALSE, exclude = "renv")
+    return(TRUE)
+
   }
 
   # check for case where one or more packages are missing

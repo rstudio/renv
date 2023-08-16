@@ -43,7 +43,7 @@ renv_watchdog_enabled_impl <- function() {
 
   # skip during R CMD check (but not when running tests)
   checking <- renv_envvar_exists("_R_CHECK_PACKAGE_NAME_")
-  if (checking && !is_testing())
+  if (checking && !testing())
     return(FALSE)
 
   # skip during R CMD build or R CMD INSTALL
@@ -88,9 +88,11 @@ renv_watchdog_start_impl <- function() {
   script <- renv_scope_tempfile("renv-watchdog-", fileext = ".R")
 
   # figure out library path -- need to dodge devtools::load_all()
-  library <- dirname(renv_namespace_path(.packageName))
-  if (!file.exists(file.path(library, "Meta/package.rds")))
-    library <- renv_libpaths_default()
+  nspath <- renv_namespace_path(.packageName)
+  library <- if (file.exists(file.path(nspath, "Meta/package.rds")))
+    dirname(nspath)
+  else
+    renv_libpaths_default()
 
   # for R CMD check
   name <- .packageName

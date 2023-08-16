@@ -56,6 +56,8 @@ test_that("RSPM is confirmed not supported on trusty", {
 })
 
 test_that("renv correctly detects RHEL as CentOS for RSPM", {
+  skip_on_cran()
+  skip_on_os("windows")
 
   release <- heredoc('
     NAME="Red Hat Enterprise Linux Server"
@@ -81,6 +83,8 @@ test_that("renv correctly detects RHEL as CentOS for RSPM", {
 })
 
 test_that("URLs like http://foo/bar aren't queried", {
+  skip_on_cran()
+  skip_on_os("windows")
 
   # pretend to be Ubuntu
   renv_scope_envvars(
@@ -103,6 +107,8 @@ test_that("URLs like http://foo/bar aren't queried", {
 })
 
 test_that("renv_ppm_transform() uses source URLs when appropriate", {
+  skip_on_cran()
+  skip_on_os("windows")
 
   # pretend to be Ubuntu
   renv_scope_envvars(

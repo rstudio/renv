@@ -169,7 +169,7 @@ menu <- function(choices, title, default = 1L) {
   if (length(testing)) {
     selected <- testing[[1]]
     options(renv.menu.choice = testing[-1])
-  } else if (is_testing()) {
+  } else if (testing()) {
     selected <- default
   } else {
     selected <- NULL
@@ -507,7 +507,7 @@ take <- function(data, index = NULL) {
 cancel <- function() {
 
   renv_snapshot_auto_suppress_next()
-  if (is_testing())
+  if (testing())
     stop("Operation canceled", call. = FALSE)
 
   message("- Operation canceled.")

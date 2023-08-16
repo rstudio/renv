@@ -164,7 +164,7 @@ renv_activate_prompt <- function(action, library, prompt, project) {
     interactive() &&
     is.null(library) &&
     !renv_project_loaded(project) &&
-    !is_testing()
+    !testing()
 
   # for snapshot, since users might want to snapshot their system library
   # in an renv-lite configuration, only prompt if it looks like they're
