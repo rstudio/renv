@@ -1,8 +1,9 @@
 # renv (development version)
 
-* add `dev` argument to `snapshot` and `status` to be able to capture packages
-  from *Suggests* with `type="explicit"`; this provides an option to have
-  a similar behavior of `renv` as before the update to v1.0.0
+* `renv::snapshot()` and `renv::status()` gain the `dev` argument. This
+  can be used when you'd like to capture package dependencies from
+  the *Suggests* field of your package's DESCRIPTION file. (#1019)
+
 
 # renv 1.0.2
 
