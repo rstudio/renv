@@ -125,6 +125,11 @@ renv_pak_restore <- function(lockfile,
   # not to install the package if a newer version was available. Hence, we need
   # to preserve the exact remote we wish to install here.
 
+  # return early if there are zero remotes to restore 
+  if (length(remotes) == 0L) {
+    return(invisible(TRUE))
+  }
+
   # perform installation
   pak$pkg_install(remotes)
 }
