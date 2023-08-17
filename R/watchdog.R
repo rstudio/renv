@@ -119,17 +119,20 @@ renv_watchdog_start_impl <- function() {
   stdout <- stderr <- if (truthy(debugging)) "" else FALSE
 
   # launch the watchdog
-  system2(
-    command = R(),
-    args = c("--vanilla", "-s", "-f", renv_shell_path(script)),
-    stdout = stdout,
-    stderr = stderr,
-    wait = FALSE
-  )
+  local({
+    renv_scope_envvars(RENV_PROCESS_TYPE = "watchdog-server")
+    system2(
+      command = R(),
+      args = c("--vanilla", "-s", "-f", renv_shell_path(script)),
+      stdout = stdout,
+      stderr = stderr,
+      wait = FALSE
+    )
+  })
 
   # wait for connection from watchdog server
   dlog("watchdog", "watchdog process launched; waiting for message")
-  conn <- catch(renv_socket_accept(socket, open = "rb", timeout = 10))
+  conn <- catch(renv_socket_accept(socket, open = "rb", timeout = 10L))
   if (inherits(conn, "error")) {
     dlog("watchdog", paste("error connecting to watchdog:", conditionMessage(conn)))
     return(FALSE)

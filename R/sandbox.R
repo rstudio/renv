@@ -8,6 +8,11 @@ renv_sandbox_init <- function() {
     options(renv.sandbox.locking_enabled = enabled)
   }
 
+  # don't use sandbox in watchdog process
+  type <- Sys.getenv("RENV_PROCESS_TYPE")
+  if (type == "watchdog-server")
+    return()
+
   # if renv was launched with a sandbox path on the library paths,
   # then immediately try to activate the sandbox
   # https://github.com/rstudio/renv/issues/1565
