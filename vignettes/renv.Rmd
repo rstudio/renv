@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-The renv package helps you create create reproducible environments for your R projects.
+The renv package helps you create reproducible environments for your R projects.
 This vignette introduces you to the basic nouns and verbs of renv, like the user and project libraries, and key functions like `renv::init()`, `renv::snapshot()` and `renv::restore()`.
 You'll also learn about some of the infrastructure that makes renv tick, some problems that renv doesn't help with, and how to uninstall it if you no longer want to use it.
 
