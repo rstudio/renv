@@ -184,8 +184,10 @@ menu <- function(choices, title, default = 1L) {
     return(names(choices)[selected])
   }
 
-  if (!interactive())
-    return(names(choices)[default])
+  if (!interactive()) {
+    value <- if (is.numeric(default)) names(choices)[default] else default
+    return(value)
+  }
 
   idx <- tryCatch(
     utils::menu(choices, paste(title, collapse = "\n"), graphics = FALSE),
