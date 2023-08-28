@@ -165,6 +165,7 @@ proceed <- function(default = TRUE) {
 }
 
 menu <- function(choices, title, default = 1L) {
+
   testing <- getOption("renv.menu.choice", integer())
   if (length(testing)) {
     selected <- testing[[1]]
@@ -176,31 +177,26 @@ menu <- function(choices, title, default = 1L) {
   }
 
   if (!is.null(selected)) {
-    writef(c(
-      title,
-      "",
-      paste0(seq_along(choices), ": ", choices),
-      "",
-      paste0("Selection: ", selected),
-      ""
-    ))
+    title <- paste(title, collapse = "\n")
+    body <- paste(sprintf("%i: %s", seq_along(choices), choices), collapse = "\n")
+    footer <- sprintf("Selection: %s\n", selected)
+    writef(paste(c(title, body, footer), collapse = "\n\n"))
     return(names(choices)[selected])
   }
 
-  if (!interactive()) {
-    writef(c("Not interactive. Will:", choices[[default]]))
-    return(default)
-  }
+  if (!interactive())
+    return(names(choices)[default])
 
   idx <- tryCatch(
     utils::menu(choices, paste(title, collapse = "\n"), graphics = FALSE),
     interrupt = function(cnd) 0L
   )
-  if (idx == 0L) {
-    "cancel"
-  } else {
-    names(choices)[idx]
-  }
+
+  if (idx == 0L)
+    return("cancel")
+
+  names(choices)[idx]
+
 }
 
 # nocov end

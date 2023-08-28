@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where non-interactive usages of `renv::init()` could fail
+  with projects containing a DESCRIPTION file. (#1663)
+
 * Fixed an issue that could cause code within a project `.Rprofile` to execute
   before the project had been loaded in RStudio. (#1650)
 
