@@ -37,7 +37,7 @@ lockfile_modify(
 \item \code{"implict"}, (the default), uses all packages captured by \code{\link[=dependencies]{dependencies()}}.
 \item \code{"explicit"} uses packages recorded in \code{DESCRIPTION}.
 \item \code{"all"} uses all packages in the project library.
-\item \verb{"custom} uses a custom filter.
+\item \code{"custom"} uses a custom filter.
 }
 
 See \strong{Snapshot type} below for more details.}

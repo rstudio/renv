@@ -83,7 +83,7 @@ the$auto_snapshot_hash <- TRUE
 #'   * `"implict"`, (the default), uses all packages captured by [dependencies()].
 #'   * `"explicit"` uses packages recorded in `DESCRIPTION`.
 #'   * `"all"` uses all packages in the project library.
-#'   * `"custom` uses a custom filter.
+#'   * `"custom"` uses a custom filter.
 #'
 #'   See **Snapshot type** below for more details.
 #'
