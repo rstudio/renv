@@ -85,12 +85,15 @@ renv_pak_install <- function(packages, library, project) {
   if (length(packages) == 0L)
     return(pak$local_install_dev_deps(root = project, lib = lib))
 
-  pak$pkg_install(
-    pkg     = packages,
-    lib     = lib,
-    upgrade = TRUE
+  env <- new.env()
+  renv_pak_retry(
+    pak$pkg_install(
+      pkg     = packages,
+      lib     = lib,
+      upgrade = TRUE
+    ),
+    env = env
   )
-
 }
 
 renv_pak_restore <- function(lockfile,
@@ -125,12 +128,27 @@ renv_pak_restore <- function(lockfile,
   # not to install the package if a newer version was available. Hence, we need
   # to preserve the exact remote we wish to install here.
 
-  # return early if there are zero remotes to restore 
-  if (length(remotes) == 0L) {
-    return(invisible(TRUE))
-  }
-
   # perform installation
-  pak$pkg_install(remotes)
+  env <- new.env()
+  renv_pak_retry(pak$pkg_install(remotes), env)
 }
 
+renv_pak_retry <- function(x, env) {
+  # initial attempt
+  result <- tryCatch(eval(substitute(x), envir = env), error = function(e) e)
+  k <- 1
+  
+  # consider re-attempt if failed twice or less already
+  while (inherits(result, "error") && k < 3) {
+    # if not a pak subprocess error, stop
+    if (!grepl("^Subprocess is busy or cannot start$", conditionMessage(result)))
+      stop(conditionMessage(result))
+    result <- tryCatch(eval(substitute(x), envir = env), error = function(e) e)
+    k <- k + 1
+  }
+
+  if (inherits(result, "error"))
+    stop(conditionMessage(result))
+  
+  return(result)
+}
