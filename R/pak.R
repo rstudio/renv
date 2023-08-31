@@ -82,10 +82,14 @@ renv_pak_install <- function(packages, library, project) {
   else
     as.character(packages)
 
-  if (length(packages) == 0L)
-    return(pak$local_install_dev_deps(root = project, lib = lib))
-
   env <- new.env()
+
+  if (length(packages) == 0L)
+    return(renv_pak_retry(
+      pak$local_install_dev_deps(root = project, lib = lib),
+      env = env
+    ))
+  
   renv_pak_retry(
     pak$pkg_install(
       pkg     = packages,
