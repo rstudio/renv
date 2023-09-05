@@ -66,7 +66,7 @@ renv_lockfile_from_manifest <- function(manifest,
   }
 
   # extract version
-  version <- numeric_version(manifest[["platform"]] %||% getRversion())
+  version <- format(manifest[["platform"]] %||% getRversion())
 
   # create R field for lockfile
   r <- list(Version = version, Repositories = repos)
