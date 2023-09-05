@@ -10,8 +10,8 @@ the$init_running <- FALSE
 #'    the project library and the `.Rprofile` that ensures renv will be
 #'    used in all future sessions.
 #'
-#' 1. Discover the packages that you currently and install them into an
-#'    project library (as described in [hydrate()]).
+#' 1. Discover the packages that are currently being used in your project and
+#'    install them into the project library (as described in [hydrate()]).
 #'
 #' 1. Create a lockfile that records the state of the project library so it
 #'    can be restored by others (as described in [snapshot()]).
