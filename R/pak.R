@@ -100,6 +100,12 @@ renv_pak_restore <- function(lockfile,
 {
   pak <- renv_namespace_load("pak")
 
+  # transform repositories
+  if (renv_ppm_enabled()) {
+    repos <- getOption("repos")
+    renv_scope_options(repos = renv_ppm_transform(repos))
+  }
+
   # make sure pak::pkg_install() still works even if we're
   # running in renv with devtools::load_all()
   name <- Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)
@@ -125,7 +131,7 @@ renv_pak_restore <- function(lockfile,
   # not to install the package if a newer version was available. Hence, we need
   # to preserve the exact remote we wish to install here.
 
-  # return early if there are zero remotes to restore 
+  # return early if there are zero remotes to restore
   if (length(remotes) == 0L) {
     return(invisible(TRUE))
   }

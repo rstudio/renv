@@ -79,6 +79,11 @@ restore <- function(project  = NULL,
 
   # override repositories if requested
   repos <- repos %||% config$repos.override() %||% lockfile$R$Repositories
+
+  # transform PPM repositories if appropriate
+  if (renv_ppm_enabled())
+    repos <- renv_ppm_transform(repos)
+
   if (length(repos))
     renv_scope_options(repos = convert(repos, "character"))
 
