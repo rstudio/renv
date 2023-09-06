@@ -1,5 +1,8 @@
 # renv (development version)
 
+* `renv::init()` no longer prompts the user for the intended action for
+  projects containing a library with only renv installed. (#1668)
+
 * Fixed an issue where non-interactive usages of `renv::init()` could fail
   with projects containing a DESCRIPTION file. (#1663)
 
