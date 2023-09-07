@@ -73,9 +73,12 @@ renv_dynamic_envir <- function(envir = NULL) {
 
 renv_dynamic_envir_impl <- function() {
 
-  for (envir in sys.frames())
+  frames <- sys.frames()
+  for (i in seq_along(frames)) {
+    envir <- frames[[i]]
     if (identical(parent.env(envir), the$envir_self))
       return(envir)
+  }
 
   stop("internal error: no renv frame available for dynamic call")
 
