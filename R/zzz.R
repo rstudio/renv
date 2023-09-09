@@ -41,8 +41,8 @@ renv_zzz_load <- function() {
   # make sure renv (and packages using renv!!!) use tempdir for storage
   # when running tests, or R CMD check
   if (checking() || testing()) {
-    Sys.setenv(RENV_PATHS_ROOT = tempfile("renv-root-"))
-    Sys.setenv(RENV_PATHS_SANDBOX = tempfile("renv-sandbox-"))
+    Sys.setenv(RENV_PATHS_ROOT = Sys.getenv("RENV_PATHS_ROOT", unset = tempfile("renv-root-")))
+    Sys.setenv(RENV_PATHS_SANDBOX = Sys.getenv("RENV_PATHS_SANDBOX", unset = tempfile("renv-sandbox-")))
     options(renv.sandbox.locking_enabled = FALSE)
   }
 

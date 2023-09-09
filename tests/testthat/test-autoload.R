@@ -39,11 +39,11 @@ test_that("autoload() works", {
   # launch R and see what library paths we got
   output <- renv_system_exec(
     command = R(),
-    args    = c("-s", "-e", renv_shell_quote("writeLines(.libPaths())")),
+    args    = c("-s", "-e", renv_shell_quote("writeLines(.libPaths()[1])")),
     action  = "testing autoload"
   )
 
-  expected <- .libPaths()
+  expected <- .libPaths()[1]
   expect_equal(tail(output, n = length(expected)), expected)
 
 })
