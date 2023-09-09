@@ -42,6 +42,7 @@ renv_zzz_load <- function() {
   # when running tests, or R CMD check
   if (checking() || testing()) {
     Sys.setenv(RENV_PATHS_ROOT = tempfile("renv-root-"))
+    Sys.setenv(RENV_PATHS_SANDBOX = tempfile("renv-sandbox-"))
     options(renv.sandbox.locking_enabled = FALSE)
   }
 
