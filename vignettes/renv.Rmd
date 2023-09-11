@@ -106,8 +106,8 @@ It would be annoying if you had to download (or worse, compile) the package repe
 That means you only ever have to download and install a package once, and for each subsequent install, renv will just add a link from the project library to the global cache.
 You can learn more about the cache in `vignette("package-install")`.
 
-After installing the package and checking that your code works, you should call `renv::snapshot()` to record the latest versions in your lockfile.
-If you're collaborating with others, you'll need to commit those changes to git, and let them know that you've updated the lockfile and they should call `renv::restore()` when they're next working on a package.
+After installing the package and checking that your code works, you should call `renv::snapshot()` to record the latest package versions in your lockfile.
+If you're collaborating with others, you'll need to commit those changes to git, and let them know that you've updated the lockfile and they should call `renv::restore()` when they're next working on a project.
 
 ### Updating packages
 
