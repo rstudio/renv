@@ -101,7 +101,7 @@ But you can also use `renv::install()`: it's a little less typing and can instal
 [^4]: Behind the scene, renv shims `install.packages()`, `update.packages(),` and `remove.packages()` to call the renv equivalents.
     Learn more in `?renv::load.`
 
-If you use renv for multiple project, you'll have multiple libraries, meaning that you'll often need to install the same package in multiple places.
+If you use renv for multiple projects, you'll have multiple libraries, meaning that you'll often need to install the same package in multiple places.
 It would be annoying if you had to download (or worse, compile) the package repeatedly, so renv uses a package cache.
 That means you only ever have to download and install a package once, and for each subsequent install, renv will just add a link from the project library to the global cache.
 You can learn more about the cache in `vignette("package-install")`.
