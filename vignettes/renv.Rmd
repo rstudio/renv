@@ -82,7 +82,7 @@ Now that you've got the a high-level lay of the land, we'll show a couple of spe
 
 ### Collaboration
 
-One of the reasons to use renv is to make it easier to share your code in such way that everyone gets the exactly same package versions as you.
+One of the reasons to use renv is to make it easier to share your code in such a way that everyone gets exactly the same package versions as you.
 As above, you'll start by calling `renv::init()`.
 You'll then need to commit `renv.lock`, `.Rprofile`, `renv/settings.json` and `renv/activate.R` to version control, ensuring that others can recreate your project environment.
 If you're using git, this is particularly simple because renv will create a `.gitignore` for you, and you can just commit all suggested files[^3].
