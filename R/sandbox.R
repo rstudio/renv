@@ -171,8 +171,12 @@ renv_sandbox_generate <- function(sandbox) {
   })
 
   # create marker indicating this is a sandbox
+  # (or, if it already exists, re-create it and update its ctime / mtime)
   marker <- file.path(sandbox, ".renv-sandbox")
   file.create(marker)
+
+  # update mtime on the sandbox itself as well
+  Sys.setFileTime(sandbox, time = Sys.time())
 
   # make the library unwritable again
   if (lock) {
@@ -242,6 +246,10 @@ renv_sandbox_locked <- function(sandbox = NULL, project = NULL) {
 renv_sandbox_unlock <- function(sandbox = NULL, project = NULL) {
   sandbox <- sandbox %||% renv_sandbox_path(project = project)
   Sys.chmod(sandbox, mode = "0755")
+}
+
+renv_sandbox_unload <- function() {
+  renv_cleanse_sandbox()
 }
 
 #' The default library sandbox

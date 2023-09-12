@@ -12,6 +12,7 @@
   renv_lock_unload()
   renv_task_unload()
   renv_watchdog_unload()
+  renv_sandbox_unload()
 
   # flush the help db to avoid errors on reload
   # https://github.com/rstudio/renv/issues/1294
