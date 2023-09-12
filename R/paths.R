@@ -84,8 +84,10 @@ renv_paths_activate <- function(project = NULL) {
 renv_paths_sandbox <- function(project = NULL) {
 
   # construct a platform prefix
-  hash <- substring(renv_hash_text(R()), 1L, 8L)
-  prefix <- paste(renv_platform_prefix(), hash, sep = "/")
+  path <- R()
+  hash <- memoize(path, renv_hash_text(path), scope = "renv_paths_sandbox")
+  parts <- c(renv_platform_prefix(), substring(hash, 1L, 8L))
+  prefix <- paste(parts, collapse = "/")
 
   # check for override
   root <- Sys.getenv("RENV_PATHS_SANDBOX", unset = NA)
