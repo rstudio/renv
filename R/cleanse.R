@@ -16,10 +16,10 @@ cleanse <- function() {
 
 }
 
-renv_cleanse_sandbox <- function(sandbox) {
+renv_cleanse_sandbox <- function(path) {
 
   # get sandbox root path
-  root <- dirname(sandbox)
+  root <- dirname(path)
   if (!file.exists(root))
     return(FALSE)
 
