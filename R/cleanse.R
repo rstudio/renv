@@ -42,7 +42,9 @@ renv_cleanse_empty <- function(path) {
   if (renv_platform_solaris())
     return(FALSE)
 
-  # move to path
+  if (!file.exists(path))
+    return(FALSE)
+
   renv_scope_wd(path)
 
   # execute system command for removing empty directories
