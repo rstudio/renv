@@ -3,7 +3,7 @@
 cleanse <- function() {
 
   enabled <- Sys.getenv("RENV_CLEANSE_ENABLED", unset = "TRUE")
-  if (!enabled)
+  if (!truthy(enabled))
     return(invisible(FALSE))
 
   # remove unused sandbox directories
