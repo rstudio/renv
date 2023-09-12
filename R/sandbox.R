@@ -248,10 +248,6 @@ renv_sandbox_unlock <- function(sandbox = NULL, project = NULL) {
   Sys.chmod(sandbox, mode = "0755")
 }
 
-renv_sandbox_unload <- function() {
-  renv_cleanse_sandbox()
-}
-
 #' The default library sandbox
 #'
 #' @description

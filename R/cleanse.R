@@ -6,19 +6,21 @@ cleanse <- function() {
   if (!enabled)
     return(invisible(FALSE))
 
-  renv_cleanse_sandbox()
-  renv_cleanse_empty()
+  # remove unused sandbox directories
+  renv_cleanse_sandbox(path = renv_paths_sandbox())
+
+  # remove empty directories in the root directory
+  renv_cleanse_empty(path = renv_paths_root())
 
   invisible(TRUE)
 
 }
 
-renv_cleanse_sandbox <- function(sandbox = NULL) {
+renv_cleanse_sandbox <- function(sandbox) {
 
   # get sandbox root path
-  sandbox <- sandbox %||% renv_paths_sandbox()
   root <- dirname(sandbox)
-  if (!file.exists(sandbox))
+  if (!file.exists(root))
     return(FALSE)
 
   # list directories within
@@ -34,14 +36,13 @@ renv_cleanse_sandbox <- function(sandbox = NULL) {
 
 }
 
-renv_cleanse_empty <- function(path = NULL) {
+renv_cleanse_empty <- function(path) {
 
   # no-op for Solaris
   if (renv_platform_solaris())
     return(FALSE)
 
   # move to path
-  path <- path %||% renv_paths_root()
   renv_scope_wd(path)
 
   # execute system command for removing empty directories
