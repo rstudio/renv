@@ -270,15 +270,24 @@ test_that("restore() restores packages with broken symlinks", {
   renv_tests_scope("breakfast")
   init()
 
+  # check it's installed
+  pkgpath <- renv_package_find("breakfast")
+  expect_true(renv_file_exists(pkgpath))
+
   # break the cache
   record <- list(Package = "breakfast", Version = "1.0.0")
   cachepath <- renv_cache_find(record)
   unlink(cachepath, recursive = TRUE)
 
+  # check that it's broken
+  expect_true(renv_file_broken(pkgpath))
+
   # try to restore
   restore()
 
   # check that we're happy again
+  expect_false(renv_file_broken(pkgpath))
+  expect_true(renv_file_exists(pkgpath))
   expect_true(renv_package_installed("breakfast"))
 
 })

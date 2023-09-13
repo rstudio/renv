@@ -10,7 +10,12 @@ cleanse <- function() {
   renv_cleanse_sandbox(path = renv_paths_sandbox())
 
   # remove empty directories in the root directory
-  renv_cleanse_empty(path = renv_paths_root())
+  # we can't do this on Windows, as some empty directories
+  # might also be broken junctions, and we want to keep
+  # those around so we can inform the user that they need
+  # to repair that
+  if (!renv_platform_windows())
+    renv_cleanse_empty(path = renv_paths_root())
 
   invisible(TRUE)
 

@@ -2,6 +2,11 @@
 # global variables
 the <- new.env(parent = emptyenv())
 
+# detect if we're running on CI
+ci <- function() {
+  !is.na(Sys.getenv("CI", unset = NA))
+}
+
 # detect if we're running within R CMD build
 building <- function() {
   nzchar(Sys.getenv("R_CMD")) &&
