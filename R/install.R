@@ -641,7 +641,7 @@ renv_install_test <- function(package) {
   }, list(package = package))
 
   # write it to a tempfile
-  script <- renv_scope_tempfile("renv-install-")
+  script <- renv_scope_tempfile("renv-install-", fileext = ".R")
   writeLines(deparse(code), con = script)
 
   # check that the package can be loaded in a separate process

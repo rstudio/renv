@@ -71,10 +71,6 @@ load <- function(project = NULL, quiet = FALSE) {
   # indicate that we're now loading the project
   renv_scope_options(renv.load.running = TRUE)
 
-  # avoid suppressing the next auto snapshot
-  the$auto_snapshot_running <- TRUE
-  defer(the$auto_snapshot_running <- FALSE)
-
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset
   # https://github.com/rstudio/renv/issues/887

@@ -13,6 +13,10 @@
   renv_task_unload()
   renv_watchdog_unload()
 
+  # do some extra cleanup when running R CMD check
+  if (checking() && renv_platform_unix())
+    cleanse()
+
   # flush the help db to avoid errors on reload
   # https://github.com/rstudio/renv/issues/1294
   helpdb <- system.file(package = "renv", "help/renv.rdb")

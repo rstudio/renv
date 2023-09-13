@@ -82,49 +82,21 @@ renv_paths_activate <- function(project = NULL) {
 }
 
 renv_paths_sandbox <- function(project = NULL) {
-  if (renv_platform_unix())
-    renv_paths_sandbox_unix(project)
-  else
-    renv_paths_sandbox_win32(project)
-}
-
-renv_paths_sandbox_unix <- function(project = NULL) {
 
   # construct a platform prefix
-  hash <- substring(renv_hash_text(R()), 1L, 8L)
-  prefix <- paste(renv_platform_prefix(), hash, sep = "/")
+  path <- R()
+  hash <- memoize(path, renv_hash_text(path), scope = "renv_paths_sandbox")
+  parts <- c(renv_platform_prefix(), substring(hash, 1L, 8L))
+  prefix <- paste(parts, collapse = "/")
 
   # check for override
   root <- Sys.getenv("RENV_PATHS_SANDBOX", unset = NA)
   if (!is.na(root))
-    return(paste(root, prefix, sep = "/"))
+    return(paste(c(root, prefix), collapse = "/"))
 
   # otherwise, build path in user data directory
   userdir <- renv_bootstrap_user_dir()
-  paste(userdir, "sandbox", prefix, sep = "/")
-
-}
-
-renv_paths_sandbox_win32 <- function(project = NULL) {
-
-  # NOTE: We previously used the R temporary directory here, but
-  # a number of users reported issues with the base R packages being
-  # deleted by over-aggressive temporary directory cleaners.
-  #
-  # https://github.com/rstudio/renv/issues/835
-
-  # construct a platform prefix
-  hash <- substring(renv_hash_text(R()), 1L, 8L)
-  prefix <- paste(renv_platform_prefix(), hash, sep = "/")
-
-  # check for override
-  root <- Sys.getenv("RENV_PATHS_SANDBOX", unset = NA)
-  if (!is.na(root))
-    return(paste(root, prefix, sep = "/"))
-
-  # otherwise, build path in user data directory
-  userdir <- renv_bootstrap_user_dir()
-  paste(userdir, "sandbox", prefix, sep = "/")
+  paste(c(userdir, "sandbox", prefix), collapse = "/")
 
 }
 
@@ -186,20 +158,17 @@ renv_paths_root <- function(...) {
 # nocov start
 renv_paths_root_default <- function() {
 
-  (the$root <- the$root %||% {
+  the$root <- the$root %||% {
 
     # use tempdir for cache when running tests
     # this check is necessary here to support packages which might use renv
     # during testing (and we don't want those to try to use the user dir)
-    checking <- checking()
-
-    # compute the root directory
-    if (checking)
+    if (checking())
       renv_paths_root_default_tempdir()
     else
       renv_paths_root_default_impl()
 
-  })
+  }
 
 }
 

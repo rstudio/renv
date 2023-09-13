@@ -171,8 +171,12 @@ renv_sandbox_generate <- function(sandbox) {
   })
 
   # create marker indicating this is a sandbox
+  # (or, if it already exists, re-create it and update its ctime / mtime)
   marker <- file.path(sandbox, ".renv-sandbox")
   file.create(marker)
+
+  # update mtime on the sandbox itself as well
+  Sys.setFileTime(sandbox, time = Sys.time())
 
   # make the library unwritable again
   if (lock) {

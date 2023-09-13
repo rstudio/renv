@@ -529,37 +529,8 @@ renv_cache_format_path <- function(paths) {
 # nocov end
 
 renv_cache_clean_empty <- function(cache = NULL) {
-
-  # no-op for Solaris
-  if (renv_platform_solaris())
-    return(FALSE)
-
-  # move to cache root
   caches <- cache %||% renv_paths_cache()
-  for (cache in caches)
-    renv_cache_clean_empty_impl(cache)
-
-  TRUE
-
-}
-
-renv_cache_clean_empty_impl <- function(cache) {
-
-  # move to cache directory
-  renv_scope_wd(cache)
-
-  # construct system command for removing empty directories
-  action <- "removing empty directories"
-  if (renv_platform_windows()) {
-    args <- c(".", ".", "/S", "/MOVE")
-    renv_system_exec("robocopy", args, action, 0:8)
-  } else {
-    args <- c(".", "-type", "d", "-empty", "-delete")
-    renv_system_exec("find", args, action)
-  }
-
-  TRUE
-
+  map(caches, renv_cleanse_empty)
 }
 
 renv_cache_package_validate <- function(path) {

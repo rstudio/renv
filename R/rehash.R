@@ -76,7 +76,6 @@ renv_rehash_cache <- function(cache, prompt, action, label) {
   n <- length(targets)
   fmt <- "Successfully re-cached %s."
   writef(fmt, nplural("package", n))
-
   renv_cache_clean_empty()
 
   TRUE

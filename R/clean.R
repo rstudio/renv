@@ -353,6 +353,7 @@ renv_clean_cache <- function(project, prompt) {
   # remove the directories
   unlink(diff, recursive = TRUE)
   renv_cache_clean_empty()
+
   writef("- %i package(s) have been removed.", length(diff))
   TRUE
 

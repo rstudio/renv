@@ -215,8 +215,11 @@ renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude
   missing <- setdiff(packages, c(names(records), ignored))
 
   # cancel automatic snapshots if we have missing packages
-  if (length(missing) && the$auto_snapshot_running)
-    invokeRestart("cancel")
+  if (length(missing) && the$auto_snapshot_running) {
+    cancel <- findRestart("cancel")
+    if (isRestart(cancel))
+      invokeRestart(cancel)
+  }
 
   # give user a chance to handle missing packages, if any
   #
