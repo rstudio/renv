@@ -61,6 +61,20 @@ renv_lockfile_diff_record <- function(before, after) {
   if (!is.null(type))
     return(type)
 
+  # if we're running this as part of 'load()', and we're comparing
+  # packages with unknown sources, then just ignore those -- this
+  # is because we disable the 'guess repository' hack on startup,
+  # to avoid a potentially expensive query of package repositories
+  #
+  # https://github.com/rstudio/renv/issues/1683
+  if (the$load_running) {
+    unknown <-
+      identical(before$Source, "unknown") ||
+      identical(after$Source,  "unknown")
+    if (unknown)
+      return(NULL)
+  }
+
   # check for a crossgrade -- where the package version is the same,
   # but details about the package's remotes have changed
   if (!setequal(renv_record_names(before), renv_record_names(after)))
