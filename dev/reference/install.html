@@ -89,6 +89,7 @@ installing the latest versions available from CRAN.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install</span><span class="op">(</span></span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span>,</span>
+<span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  library <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  rebuild <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -120,6 +121,12 @@ So to install from the <code>subdir</code> subdirectory of GitHub package
 <dt>...</dt>
 <dd><p>Unused arguments, reserved for future expansion. If any arguments
 are matched to <code>...</code>, renv will signal an error.</p></dd>
+
+
+<dt>exclude</dt>
+<dd><p>Packages which should not be installed. <code>exclude</code> is useful
+when using <code>renv::install()</code> to install all dependencies in a project,
+except for a specific set of packages.</p></dd>
 
 
 <dt>library</dt>

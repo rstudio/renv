@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p>Fixed an issue where PPM repositories were not appropriately transformed into the correct binary repository in <code><a href="../reference/restore.html">renv::restore()</a></code> when using pak.</p></li>
+<ul><li><p><code><a href="../reference/install.html">renv::install()</a></code> gains the <code>exclude</code> argument, which can be useful when installing a subset of project dependencies.</p></li>
+<li><p>Fixed an issue where PPM repositories were not appropriately transformed into the correct binary repository in <code><a href="../reference/restore.html">renv::restore()</a></code> when using pak.</p></li>
 <li><p><code><a href="../reference/init.html">renv::init()</a></code> no longer prompts the user for the intended action for projects containing a library with only renv installed. (<a href="https://github.com/rstudio/renv/issues/1668" class="external-link">#1668</a>)</p></li>
 <li><p>Fixed an issue where non-interactive usages of <code><a href="../reference/init.html">renv::init()</a></code> could fail with projects containing a DESCRIPTION file. (<a href="https://github.com/rstudio/renv/issues/1663" class="external-link">#1663</a>)</p></li>
 <li><p>Fixed an issue that could cause code within a project <code>.Rprofile</code> to execute before the project had been loaded in RStudio. (<a href="https://github.com/rstudio/renv/issues/1650" class="external-link">#1650</a>)</p></li>
