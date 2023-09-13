@@ -1,4 +1,7 @@
 
+# are we currently running 'load()'?
+the$load_running <- FALSE
+
 #' Load a project
 #'
 #' @description
@@ -69,7 +72,7 @@ load <- function(project = NULL, quiet = FALSE) {
   renv_project_lock(project = project)
 
   # indicate that we're now loading the project
-  renv_scope_options(renv.load.running = TRUE)
+  renv_scope_binding(the, "load_running", TRUE)
 
   # if load is being called via the autoloader,
   # then ensure RENV_PROJECT is unset

@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where `renv` could warn the project appeared to be out-of-sync
+  when using packages installed without an explicit source recorded. (#1683)
+
 * `renv::install()` gains the `exclude` argument, which can be useful when
   installing a subset of project dependencies.
 

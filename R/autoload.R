@@ -41,8 +41,7 @@ renv_autoload_impl <- function() {
     return(FALSE)
 
   # bail if load is already being called
-  loading <- getOption("renv.load.running")
-  if (identical(loading, TRUE))
+  if (the$load_running)
     return(FALSE)
 
   # avoid recursion
