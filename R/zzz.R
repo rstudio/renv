@@ -14,7 +14,12 @@
   renv_watchdog_unload()
 
   # do some extra cleanup when running R CMD check
-  if (checking() && renv_platform_unix())
+  dirty <-
+    checking() &&
+    renv_platform_unix() &&
+    is.na(Sys.getenv("CI", unset = NA))
+
+  if (dirty)
     cleanse()
 
   # flush the help db to avoid errors on reload

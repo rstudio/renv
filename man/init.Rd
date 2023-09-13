@@ -64,8 +64,8 @@ Call \code{renv::init()} to start using renv in the current project. This will:
 \item Set up project infrastructure (as described in \code{\link[=scaffold]{scaffold()}}) including
 the project library and the \code{.Rprofile} that ensures renv will be
 used in all future sessions.
-\item Discover the packages that you currently and install them into an
-project library (as described in \code{\link[=hydrate]{hydrate()}}).
+\item Discover the packages that are currently being used in your project and
+install them into the project library (as described in \code{\link[=hydrate]{hydrate()}}).
 \item Create a lockfile that records the state of the project library so it
 can be restored by others (as described in \code{\link[=snapshot]{snapshot()}}).
 \item Restarts R (if running inside RStudio).

@@ -42,6 +42,7 @@ the$install_step_width <- 48L
 #' fulfilling the installation request.
 #'
 #' @inherit renv-params
+#'
 #' @param packages Either `NULL` (the default) to install all packages required
 #'  by the project, or a character vector of packages to install. renv
 #'  supports a subset of the remotes syntax used for package installation,
@@ -59,6 +60,10 @@ the$install_step_width <- 48L
 #'  are separated from the main repository specification with a `:`, not `/`.
 #'  So to install from the `subdir` subdirectory of GitHub package
 #'  `username/repo` you'd use `"username/repo:subdir`.
+#'
+#' @param exclude Packages which should not be installed. `exclude` is useful
+#'   when using `renv::install()` to install all dependencies in a project,
+#'   except for a specific set of packages.
 #'
 #' @return A named list of package records which were installed by renv.
 #'
@@ -92,6 +97,7 @@ the$install_step_width <- 48L
 #' }
 install <- function(packages = NULL,
                     ...,
+                    exclude      = NULL,
                     library      = NULL,
                     type         = NULL,
                     rebuild      = FALSE,
@@ -150,6 +156,11 @@ install <- function(packages = NULL,
 
   # figure out which packages we should install
   packages <- names(remotes) %||% renv_snapshot_dependencies(project, dev = TRUE)
+
+  # apply exclude parameter
+  if (length(exclude))
+    packages <- setdiff(packages, exclude)
+
   if (empty(packages)) {
     writef("- There are no packages to install.")
     return(invisible(list()))

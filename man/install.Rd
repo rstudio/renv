@@ -7,6 +7,7 @@
 install(
   packages = NULL,
   ...,
+  exclude = NULL,
   library = NULL,
   type = NULL,
   rebuild = FALSE,
@@ -38,6 +39,10 @@ So to install from the \code{subdir} subdirectory of GitHub package
 
 \item{...}{Unused arguments, reserved for future expansion. If any arguments
 are matched to \code{...}, renv will signal an error.}
+
+\item{exclude}{Packages which should not be installed. \code{exclude} is useful
+when using \code{renv::install()} to install all dependencies in a project,
+except for a specific set of packages.}
 
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}

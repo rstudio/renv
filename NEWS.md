@@ -1,5 +1,8 @@
 # renv (development version)
 
+* `renv::install()` gains the `exclude` argument, which can be useful when
+  installing a subset of project dependencies.
+
 * Fixed an issue where PPM repositories were not appropriately transformed
   into the correct binary repository in `renv::restore()` when using pak.
 
