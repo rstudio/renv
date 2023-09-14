@@ -78,52 +78,20 @@ for an example of how renv uses itself for package management in its own
 CI tests.
 
 
-## `R CMD build` and the project library
+## Submitting to CRAN
 
-By default, when building a package tarball, R will copy all files within the
-package directory to a temporary build directory before building the package.
-This can be time consuming if your project contains a large number of files.
-For this reason, renv places the project library for package projects within
-a separate external directory by default. This directory is:
-
-```
-tools::R_user_dir("renv/library", "cache")
-```
-
-If you want to use your own custom path, you can use, for example:
+Note that packages submitted to CRAN should be designed to work with the other R
+packages currently available on CRAN. For that reason, when preparing your package
+for submission, you'll need to ensure your source package tarball does not
+include any `renv` infrastructure. `renv` makes this easy by automatically
+including
 
 ```
-RENV_PATHS_LIBRARY_ROOT = ~/.renv/library
+^renv$
+^renv\.lock$
 ```
 
-If you'd prefer to keep your project library within the project directory,
-you can instead set:
-
-```
-RENV_PATHS_LIBRARY = renv/library
-```
-
-within an appropriate `.Renviron` startup profile.
-
-By default, library paths will be formed using the project name, alongside a
-unique identifier generated from the full project path. These paths are of
-the form:
-
-```
-<name>-<id>
-```
-
-If you'd prefer to omit the `<id>`, then you can set the environment variable:
-
-```
-RENV_PATHS_LIBRARY_ROOT_ASIS = TRUE
-```
-
-to instruct renv to forego the use of an identifier.
-
-
-
-
-[ci]: https://CRAN.R-project.org/package=renv/vignettes/ci.html
-[dependencies]: https://CRAN.R-project.org/package=remotes/vignettes/dependencies.html
-
+in your package's `.Rbuildignore` file. This instructs `R CMD build` to not
+include these files and folders in the generated package tarball. Through this,
+even if `renv` is used during package development, it's still easy to build and
+publish your package to CRAN as you would when developing packages without `renv`.

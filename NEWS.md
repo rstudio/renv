@@ -1,4 +1,5 @@
-# renv (development version)
+
+# renv 1.0.3
 
 * Fixed an issue where `renv` could warn the project appeared to be out-of-sync
   when using packages installed without an explicit source recorded. (#1683)
