@@ -23,9 +23,7 @@
 #'
 #' @param attributes An \R list of graphViz attributes, mapping node names to
 #'   attribute key-value pairs. For example, to ask graphViz to prefer orienting
-#'   the graph from left to right, you can use
-#'   `list(graph = c(rankdir = "LR"))`. See <https://graphviz.org/doc/info/attrs.html>
-#'   for a full list of the attributes supported by `graphViz`.
+#'   the graph from left to right, you can use `list(graph = c(rankdir = "LR"))`.
 #'
 #' @examples
 #'

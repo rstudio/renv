@@ -38,9 +38,7 @@ When \code{NULL} (the default), an internal resolver is used.}
 
 \item{attributes}{An \R list of graphViz attributes, mapping node names to
 attribute key-value pairs. For example, to ask graphViz to prefer orienting
-the graph from left to right, you can use
-\code{list(graph = c(rankdir = "LR"))}. See \url{https://graphviz.org/doc/info/attrs.html}
-for a full list of the attributes supported by \code{graphViz}.}
+the graph from left to right, you can use \code{list(graph = c(rankdir = "LR"))}.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
