@@ -36,7 +36,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,7 +108,7 @@
     
     
 <p>When building, deploying, or testing an renv-using project with
-continuous integration (CI) systems (e.g. <a href="https://github.com/features/actions" class="external-link">GitHub Actions</a>, <a href="https://about.gitlab.com/features/continuous-integration/" class="external-link">GitLab
+continuous integration (CI) systems (e.g. <a href="https://github.com/features/actions" class="external-link">GitHub Actions</a>, <a href="https://about.gitlab.com/solutions/continuous-integration/" class="external-link">GitLab
 CI</a>, and others) you need some way to tell the CI system to use renv
 to restore the same packages that you’re using locally.</p>
 <p>The general idea is:</p>
@@ -194,7 +194,7 @@ on GitHub actions.</p>
 <div class="section level2">
 <h2 id="gitlab-ci">GitLab CI<a class="anchor" aria-label="anchor" href="#gitlab-ci"></a>
 </h2>
-<p>The following template can be used as a base when using renv with <a href="https://about.gitlab.com/features/continuous-integration/" class="external-link">GitLab
+<p>The following template can be used as a base when using renv with <a href="https://about.gitlab.com/solutions/continuous-integration/" class="external-link">GitLab
 CI</a>:</p>
 <pre><code>variables:
   RENV_CONFIG_REPOS_OVERRIDE: "http://cran.r-project.org"

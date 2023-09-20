@@ -26,7 +26,7 @@ set config$config$auto.snapshot(TRUE), see ?config for more details."><meta prop
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,6 +104,7 @@ set <code>config$config$auto.snapshot(TRUE)</code>, see <code><a href="config.ht
 <span>  library <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lockfile <span class="op">=</span> <span class="va">paths</span><span class="op">$</span><span class="fu">lockfile</span><span class="op">(</span>project <span class="op">=</span> <span class="va">project</span><span class="op">)</span>,</span>
 <span>  type <span class="op">=</span> <span class="va">settings</span><span class="op">$</span><span class="fu">snapshot.type</span><span class="op">(</span>project <span class="op">=</span> <span class="va">project</span><span class="op">)</span>,</span>
+<span>  dev <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span>,</span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -143,8 +144,19 @@ directly instead.</p></dd>
 <dd><p>The type of snapshot to perform:</p><ul><li><p><code>"implict"</code>, (the default), uses all packages captured by <code><a href="dependencies.html">dependencies()</a></code>.</p></li>
 <li><p><code>"explicit"</code> uses packages recorded in <code>DESCRIPTION</code>.</p></li>
 <li><p><code>"all"</code> uses all packages in the project library.</p></li>
-<li><p><code>"custom</code> uses a custom filter.</p></li>
+<li><p><code>"custom"</code> uses a custom filter.</p></li>
 </ul><p>See <strong>Snapshot type</strong> below for more details.</p></dd>
+
+
+<dt>dev</dt>
+<dd><p>Boolean; include development dependencies? These packages are
+typically required when developing the project, but not when running it
+(i.e. you want them installed when humans are working on the project but
+not when computers are deploying it).</p>
+<p>Development dependencies include packages listed in the <code>Suggests</code> field
+of a <code>DESCRIPTION</code> found in the project root, and roxygen2 or devtools if
+their use is implied by other project metadata. They also include packages
+used in <code>~/.Rprofile</code> if <code>config$user.profile()</code> is <code>TRUE</code>.</p></dd>
 
 
 <dt>repos</dt>
@@ -239,7 +251,8 @@ to the lockfile.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other reproducibility: 
+    <div class="dont-index"><p>More on handling package <code><a href="dependencies.html">dependencies()</a></code></p>
+<p>Other reproducibility: 
 <code><a href="lockfiles.html">lockfiles</a></code>,
 <code><a href="restore.html">restore</a>()</code></p></div>
     </div>
