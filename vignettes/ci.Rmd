@@ -115,7 +115,7 @@ before_script:
 ```
 
 
-[gitlab-ci]: https://about.gitlab.com/features/continuous-integration/
+[gitlab-ci]: https://about.gitlab.com/solutions/continuous-integration/
 [github-actions]: https://github.com/features/actions
 [github-actions-renv]: https://github.com/actions/cache/blob/main/examples.md#r---renv
 [r-lib-actions-renv]: https://github.com/r-lib/actions/tree/v2-branch/setup-renv
