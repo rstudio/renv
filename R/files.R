@@ -81,7 +81,7 @@ renv_file_copy_dir_cp <- function(source, target) {
   target <- path.expand(target)
 
   # build 'cp' arguments
-  args <- c("-pPR", renv_shell_path(source), renv_shell_path(target))
+  args <- c("-PR", renv_shell_path(source), renv_shell_path(target))
 
   # execute command
   renv_system_exec("cp", args, action = "copying directory")
