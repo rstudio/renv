@@ -307,29 +307,11 @@ renv_init_repos <- function() {
   if (!enabled)
     return(repos)
 
-  # if we're using the global CDN from RStudio, use PPM instead
+  # check for default repositories set
   rstudio <- attr(repos, "RStudio", exact = TRUE)
-  if (identical(rstudio, TRUE)) {
+  if (identical(rstudio, TRUE) || identical(repos, list(CRAN = "@CRAN@"))) {
     repos[["CRAN"]] <- config$ppm.url()
     return(repos)
-  }
-
-  # otherwise, check for some common 'default' CRAN settings
-  cran <- repos[["CRAN"]]
-  if (is.character(cran) && length(cran) == 1L) {
-    cran <- sub("/*$", "", cran)
-    defaults <- c(
-      "@CRAN@",
-      "https://cloud.R-project.org",
-      "https://cran.rstudio.com",
-      "https://cran.rstudio.org"
-    )
-
-    if (tolower(cran) %in% tolower(defaults)) {
-      repos[["CRAN"]] <- config$ppm.url()
-      return(repos)
-    }
-
   }
 
   # repos appears to have been configured separately; just use it
