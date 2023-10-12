@@ -32,7 +32,7 @@
 #'   in the lockfile will be, ensuring that (e.g.) CRAN packages are
 #'   re-installed from the same CRAN mirror.
 #'
-#'   Use `repos = getOptions(repos)` to override with the repositories set
+#'   Use `repos = getOption("repos")` to override with the repositories set
 #'   in the current session, or see the `repos.override` option in [config] for
 #'   an alternate way override.
 #'
