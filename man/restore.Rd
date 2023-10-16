@@ -52,7 +52,7 @@ from CRAN or a CRAN-like repository. By default, the repositories recorded
 in the lockfile will be, ensuring that (e.g.) CRAN packages are
 re-installed from the same CRAN mirror.
 
-Use \code{repos = getOptions(repos)} to override with the repositories set
+Use \code{repos = getOption("repos")} to override with the repositories set
 in the current session, or see the \code{repos.override} option in \link{config} for
 an alternate way override.}
 
