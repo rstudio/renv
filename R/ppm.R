@@ -201,8 +201,9 @@ renv_ppm_platform_rhel <- function(properties) {
   id <- properties$VERSION_ID
   if (is.null(id))
     return(NULL)
+  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
 
-  paste0("centos", substring(id, 1L, 1L))
+  paste0(rhel_version, substring(id, 1L, 1L))
 
 }
 
