@@ -1,0 +1,3 @@
+The version in the DESCRIPTION file is dynamically set during tests,
+to match the version of Packrat currently available on CRAN.
+

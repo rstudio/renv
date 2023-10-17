@@ -19,6 +19,7 @@
       
       Selection: 2
       
-    Error <simpleError>
-      Operation canceled
+    Condition
+      Error:
+      ! Operation canceled
 

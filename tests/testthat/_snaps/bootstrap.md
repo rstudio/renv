@@ -29,24 +29,27 @@
     Output
       # Bootstrapping renv 0.9.0 ---
       - Downloading renv ... FAILED
-    Error <simpleError>
-      failed to download:
+    Condition
+      Error in `h()`:
+      ! failed to download:
       All download methods failed
     Code
       bootstrap(version = "1.0.0", library = library)
     Output
       # Bootstrapping renv 1.0.0 ---
       - Downloading renv ... FAILED
-    Error <simpleError>
-      failed to download:
+    Condition
+      Error in `h()`:
+      ! failed to download:
       All download methods failed
     Code
       bootstrap(version = "1.0.0.1", library = library)
     Output
       # Bootstrapping renv 1.0.0.1 ---
       - Downloading renv ... FAILED
-    Error <simpleError>
-      failed to download:
+    Condition
+      Error in `h()`:
+      ! failed to download:
       All download methods failed
 
 # bootstrapping gives informative output when install fails
@@ -57,8 +60,9 @@
       # Bootstrapping renv 1.0.0.1 ---
       - Downloading renv ... OK
       - Installing renv  ... FAILED
-    Error <simpleError>
-      failed to install:
+    Condition
+      Error in `h()`:
+      ! failed to install:
       installation of renv failed
       ===========================
       test failure

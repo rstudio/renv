@@ -66,8 +66,9 @@
       - toast requires bread (> 1.0.0), but version 1.0.0 is installed
       Consider updating the required dependencies as appropriate.
       
-    Error <simpleError>
-      aborting snapshot due to pre-flight validation failure
+    Condition
+      Error in `renv_snapshot_validate_report()`:
+      ! aborting snapshot due to pre-flight validation failure
 
 # renv reports missing packages in explicit snapshots
 
@@ -126,8 +127,9 @@
       - toast  [required by breakfast]
       Consider reinstalling these packages before snapshotting the lockfile.
       
-    Error <simpleError>
-      aborting snapshot due to pre-flight validation failure
+    Condition
+      Error in `renv_snapshot_validate_report()`:
+      ! aborting snapshot due to pre-flight validation failure
 
 # snapshot always reports on R version changes
 

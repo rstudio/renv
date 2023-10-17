@@ -2,6 +2,7 @@
 
     Code
       f(bioconductor = FALSE, bioc = TRUE)
-    Error <simpleError>
-      unused argument (bioc = TRUE)
+    Condition
+      Error in `f()`:
+      ! unused argument (bioc = TRUE)
 

@@ -7,6 +7,7 @@
       - oatmeal  [required by breakfast]
       Consider reinstalling these packages before snapshotting the lockfile.
       
-    Error <simpleError>
-      aborting snapshot due to pre-flight validation failure
+    Condition
+      Error in `renv_snapshot_validate_report()`:
+      ! aborting snapshot due to pre-flight validation failure
 

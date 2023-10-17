@@ -344,6 +344,7 @@ renv_scope_tempfile <- function(pattern = "renv-tempfile-",
                                 fileext = "",
                                 scope  = parent.frame())
 {
+  tmpdir <- normalizePath(tmpdir, winslash = "/", mustWork = TRUE)
   path <- renv_path_normalize(tempfile(pattern, tmpdir, fileext))
   defer(unlink(path, recursive = TRUE, force = TRUE), scope = scope)
   invisible(path)

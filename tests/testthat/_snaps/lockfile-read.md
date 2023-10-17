@@ -2,8 +2,9 @@
 
     Code
       renv_lockfile_read(file)
-    Error <simpleError>
-      Failed to parse 'renv.lock':
+    Condition
+      Error:
+      ! Failed to parse 'renv.lock':
       parse error: premature EOF
                                              {
                            (right here) ------^

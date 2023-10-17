@@ -1,12 +1,6 @@
 
 skip_if_no_packrat <- function() {
 
-  # TODO: I don't understand why these errors are popping up on CI.
-  #
-  # Error in getSourceForPkgRecord(pkgRecord, sourceDir, availablePkgs, repos) :
-  # Failed to retrieve package sources for packrat 0.9.2 from CRAN (internet connectivity issue?) [0.9.1 is current]
-  skip_on_ci()
-
   skip_on_cran()
   skip_on_windows()
   skip_if_not_installed("packrat")
@@ -27,11 +21,11 @@ test_that("a sample Packrat project can be migrated", {
   skip_if_no_packrat()
 
   # use dummy caches for this test
-  renv_scope_envvars(
-    R_PACKRAT_CACHE_DIR = renv_scope_tempfile("packrat-cache-"),
-    RENV_PATHS_ROOT     = renv_scope_tempfile("renv-cache-")
-  )
+  cache <- renv_scope_tempfile("packrat-cache-")
+  root <- renv_scope_tempfile("renv-root-")
+  renv_scope_envvars(R_PACKRAT_CACHE_DIR = cache, RENV_PATHS_ROOT = root)
 
+  # set up
   requireNamespace("packrat")
   renv_tests_scope("breakfast")
 
