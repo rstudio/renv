@@ -173,7 +173,8 @@ renv_ppm_platform_impl <- function(file = "/etc/os-release") {
       identical(id, "almalinux") ~ renv_ppm_platform_alma(properties),
       grepl("suse\\b", id)       ~ renv_ppm_platform_suse(properties),
       identical(id, "sles")      ~ renv_ppm_platform_sles(properties),
-      identical(id, "debian")    ~ renv_ppm_platform_debian(properties)
+      identical(id, "debian")    ~ renv_ppm_platform_debian(properties),
+      identical(id, "amzn")      ~ renv_ppm_platform_amzn(properties)
     )
 
   }
@@ -262,6 +263,19 @@ renv_ppm_platform_debian <- function(properties) {
     return(NULL)
 
   codename
+
+}
+
+renv_ppm_platform_amzn <- function(properties) {
+
+  id <- properties$VERSION_ID
+  if (is.null(id))
+    return(NULL)
+
+  if (numeric_version(id) == "2")
+    return("centos7")
+
+  return(NULL)
 
 }
 
