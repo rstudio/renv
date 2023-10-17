@@ -55,7 +55,7 @@ test_that("RSPM is confirmed not supported on trusty", {
   expect_identical(unname(before), unname(after))
 })
 
-test_that("renv correctly detects RHEL as CentOS for RSPM", {
+test_that("renv correctly detects RHEL < 9 as CentOS for RSPM", {
   skip_on_cran()
   skip_on_os("windows")
 
@@ -112,6 +112,178 @@ test_that("renv correctly detects RHEL9 for PPM", {
 
   platform <- renv_ppm_platform_impl(file = file)
   expect_equal(platform, "rhel9")
+
+})
+
+test_that("renv correctly detects Rocky Linux 8 as centos8 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="Rocky Linux"
+    VERSION="8.8 (Green Obsidian)"
+    ID="rocky"
+    ID_LIKE="rhel centos fedora"
+    VERSION_ID="8.8"
+    PLATFORM_ID="platform:el8"
+    PRETTY_NAME="Rocky Linux 8.8 (Green Obsidian)"
+    ANSI_COLOR="0;32"
+    LOGO="fedora-logo-icon"
+    CPE_NAME="cpe:/o:rocky:rocky:8:GA"
+    HOME_URL="https://rockylinux.org/"
+    BUG_REPORT_URL="https://bugs.rockylinux.org/"
+    SUPPORT_END="2029-05-31"
+    ROCKY_SUPPORT_PRODUCT="Rocky-Linux-8"
+    ROCKY_SUPPORT_PRODUCT_VERSION="8.8"
+    REDHAT_SUPPORT_PRODUCT="Rocky Linux"
+    REDHAT_SUPPORT_PRODUCT_VERSION="8.8"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "centos8")
+
+})
+
+test_that("renv correctly detects Rocky Linux 9 as rhel9 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="Rocky Linux"
+    VERSION="9.2 (Blue Onyx)"
+    ID="rocky"
+    ID_LIKE="rhel centos fedora"
+    VERSION_ID="9.2"
+    PLATFORM_ID="platform:el9"
+    PRETTY_NAME="Rocky Linux 9.2 (Blue Onyx)"
+    ANSI_COLOR="0;32"
+    LOGO="fedora-logo-icon"
+    CPE_NAME="cpe:/o:rocky:rocky:9::baseos"
+    HOME_URL="https://rockylinux.org/"
+    BUG_REPORT_URL="https://bugs.rockylinux.org/"
+    SUPPORT_END="2032-05-31"
+    ROCKY_SUPPORT_PRODUCT="Rocky-Linux-9"
+    ROCKY_SUPPORT_PRODUCT_VERSION="9.2"
+    REDHAT_SUPPORT_PRODUCT="Rocky Linux"
+    REDHAT_SUPPORT_PRODUCT_VERSION="9.2"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "rhel9")
+
+})
+
+test_that("renv correctly detects AlmaLinux 9 as rhel9 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="AlmaLinux"
+    VERSION="9.2 (Turquoise Kodkod)"
+    ID="almalinux"
+    ID_LIKE="rhel centos fedora"
+    VERSION_ID="9.2"
+    PLATFORM_ID="platform:el9"
+    PRETTY_NAME="AlmaLinux 9.2 (Turquoise Kodkod)"
+    ANSI_COLOR="0;34"
+    LOGO="fedora-logo-icon"
+    CPE_NAME="cpe:/o:almalinux:almalinux:9::baseos"
+    HOME_URL="https://almalinux.org/"
+    DOCUMENTATION_URL="https://wiki.almalinux.org/"
+    BUG_REPORT_URL="https://bugs.almalinux.org/"
+
+    ALMALINUX_MANTISBT_PROJECT="AlmaLinux-9"
+    ALMALINUX_MANTISBT_PROJECT_VERSION="9.2"
+    REDHAT_SUPPORT_PRODUCT="AlmaLinux"
+    REDHAT_SUPPORT_PRODUCT_VERSION="9.2"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "rhel9")
+
+})
+
+test_that("renv correctly detects OpenSUSE for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="openSUSE Leap"
+    VERSION="15.4"
+    ID="opensuse-leap"
+    ID_LIKE="suse opensuse"
+    VERSION_ID="15.4"
+    PRETTY_NAME="openSUSE Leap 15.4"
+    ANSI_COLOR="0;32"
+    CPE_NAME="cpe:/o:opensuse:leap:15.4"
+    BUG_REPORT_URL="https://bugs.opensuse.org"
+    HOME_URL="https://www.opensuse.org/"
+    DOCUMENTATION_URL="https://en.opensuse.org/Portal:Leap"
+    LOGO="distributor-logo-Leap"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "opensuse154")
+
+})
+
+test_that("renv correctly detects SLES as OpenSUSE for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="SLES"
+    VERSION="15-SP5"
+    VERSION_ID="15.5"
+    PRETTY_NAME="SUSE Linux Enterprise Server 15 SP5"
+    ID="sles"
+    ID_LIKE="suse"
+    ANSI_COLOR="0;32"
+    CPE_NAME="cpe:/o:suse:sles:15:sp5"
+    DOCUMENTATION_URL="https://documentation.suse.com/"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "opensuse155")
+
+})
+
+test_that("renv correctly detects Debian for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    PRETTY_NAME="Debian GNU/Linux 11 (bullseye)"
+    NAME="Debian GNU/Linux"
+    VERSION_ID="11"
+    VERSION="11 (bullseye)"
+    VERSION_CODENAME=bullseye
+    ID=debian
+    HOME_URL="https://www.debian.org/"
+    SUPPORT_URL="https://www.debian.org/support"
+    BUG_REPORT_URL="https://bugs.debian.org/"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "bullseye")
 
 })
 
