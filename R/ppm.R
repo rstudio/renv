@@ -171,7 +171,6 @@ renv_ppm_platform_impl <- function(file = "/etc/os-release") {
       identical(id, "rhel")      ~ renv_ppm_platform_rhel(properties),
       identical(id, "rocky")     ~ renv_ppm_platform_rocky(properties),
       identical(id, "almalinux") ~ renv_ppm_platform_alma(properties),
-      # TODO: Could use `ID_LIKE` and look for \\bsuse\\b here, and get rid of the separate suse and sles calls?
       grepl("suse\\b", id)       ~ renv_ppm_platform_suse(properties),
       identical(id, "sles")      ~ renv_ppm_platform_sles(properties),
       identical(id, "debian")    ~ renv_ppm_platform_debian(properties)
