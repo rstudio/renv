@@ -243,6 +243,7 @@ test_that("renv correctly detects SLES as OpenSUSE for PPM", {
   skip_on_cran()
   skip_on_os("windows")
 
+  # `docker run -it registry.suse.com/suse/sle15:15.5`
   release <- heredoc('
     NAME="SLES"
     VERSION="15-SP5"
