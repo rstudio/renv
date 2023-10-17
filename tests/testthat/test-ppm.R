@@ -288,6 +288,33 @@ test_that("renv correctly detects Debian for PPM", {
 
 })
 
+test_that("renv correctly detects Ubuntu for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="Ubuntu"
+    VERSION="20.04.6 LTS (Focal Fossa)"
+    ID=ubuntu
+    ID_LIKE=debian
+    PRETTY_NAME="Ubuntu 20.04.6 LTS"
+    VERSION_ID="20.04"
+    HOME_URL="https://www.ubuntu.com/"
+    SUPPORT_URL="https://help.ubuntu.com/"
+    BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+    PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+    VERSION_CODENAME=focal
+    UBUNTU_CODENAME=focal
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "focal")
+
+})
+
 test_that("URLs like http://foo/bar aren't queried", {
   skip_on_cran()
   skip_on_os("windows")
