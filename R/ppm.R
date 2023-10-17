@@ -166,10 +166,14 @@ renv_ppm_platform_impl <- function(file = "/etc/os-release") {
     id <- properties$ID %||% ""
 
     case(
-      identical(id, "ubuntu") ~ renv_ppm_platform_ubuntu(properties),
-      identical(id, "centos") ~ renv_ppm_platform_centos(properties),
-      identical(id, "rhel")   ~ renv_ppm_platform_rhel(properties),
-      grepl("\\bsuse\\b", id) ~ renv_ppm_platform_suse(properties)
+      identical(id, "ubuntu")    ~ renv_ppm_platform_ubuntu(properties),
+      identical(id, "centos")    ~ renv_ppm_platform_centos(properties),
+      identical(id, "rhel")      ~ renv_ppm_platform_rhel(properties),
+      identical(id, "rocky")     ~ renv_ppm_platform_rocky(properties),
+      identical(id, "almalinux") ~ renv_ppm_platform_alma(properties),
+      grepl("suse\\b", id)       ~ renv_ppm_platform_suse(properties),
+      identical(id, "sles")      ~ renv_ppm_platform_sles(properties),
+      identical(id, "debian")    ~ renv_ppm_platform_debian(properties)
     )
 
   }
@@ -207,6 +211,27 @@ renv_ppm_platform_rhel <- function(properties) {
 
 }
 
+renv_ppm_platform_rocky <- function(properties) {
+
+  id <- properties$VERSION_ID
+  if (is.null(id))
+    return(NULL)
+  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+
+  paste0(rhel_version, substring(id, 1L, 1L))
+
+}
+
+renv_ppm_platform_alma <- function(properties) {
+
+  id <- properties$VERSION_ID
+  if (is.null(id))
+    return(NULL)
+  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+
+  paste0(rhel_version, substring(id, 1L, 1L))
+
+}
 
 renv_ppm_platform_suse <- function(properties) {
 
@@ -215,7 +240,28 @@ renv_ppm_platform_suse <- function(properties) {
     return(NULL)
 
   parts <- strsplit(id, ".", fixed = TRUE)[[1L]]
-  paste0("opensuse", parts[[1L]])
+  paste0("opensuse", parts[[1L]], parts[[2L]])
+
+}
+
+renv_ppm_platform_sles <- function(properties) {
+
+  id <- properties$VERSION_ID
+  if (is.null(id))
+    return(NULL)
+
+  parts <- strsplit(id, ".", fixed = TRUE)[[1L]]
+  paste0("opensuse", parts[[1L]], parts[[2L]])
+
+}
+
+renv_ppm_platform_debian <- function(properties) {
+
+  codename <- properties$VERSION_CODENAME
+  if (is.null(codename))
+    return(NULL)
+
+  codename
 
 }
 
