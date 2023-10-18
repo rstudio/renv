@@ -1,5 +1,10 @@
 # renv (development version)
 
+* Expanded the set of Linux distributions detected for automatic transformation
+  of Posit Package Manager URLs to install binary packages. `renv` now correctly
+  detects Red Hat Enterprise Linux 9, Rocky Linux 8 and 9, SLES 15 SP4 and SP5,
+  Debian 11 and 12, AlmaLinux 8 and 9, and Amazon Linux 2. (#1720, #1721)
+
 
 # renv 1.0.3
 

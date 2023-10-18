@@ -315,6 +315,58 @@ test_that("renv correctly detects Ubuntu for PPM", {
 
 })
 
+test_that("renv correctly detects Amazon Linux 2 as centos7 for PPM", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="Amazon Linux"
+    VERSION="2"
+    ID="amzn"
+    ID_LIKE="centos rhel fedora"
+    VERSION_ID="2"
+    PRETTY_NAME="Amazon Linux 2"
+    ANSI_COLOR="0;33"
+    CPE_NAME="cpe:2.3:o:amazon:amazon_linux:2"
+    HOME_URL="https://amazonlinux.com/"
+    SUPPORT_END="2025-06-30"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_equal(platform, "centos7")
+
+})
+
+test_that("renv detects no supported PPM platform for Amazon Linux 2023", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  release <- heredoc('
+    NAME="Amazon Linux"
+    VERSION="2023"
+    ID="amzn"
+    ID_LIKE="fedora"
+    VERSION_ID="2023"
+    PLATFORM_ID="platform:al2023"
+    PRETTY_NAME="Amazon Linux 2023"
+    ANSI_COLOR="0;33"
+    CPE_NAME="cpe:2.3:o:amazon:amazon_linux:2023"
+    HOME_URL="https://aws.amazon.com/linux/"
+    BUG_REPORT_URL="https://github.com/amazonlinux/amazon-linux-2023"
+    SUPPORT_END="2028-03-01"
+  ')
+
+  file <- renv_scope_tempfile()
+  writeLines(release, con = file)
+
+  platform <- renv_ppm_platform_impl(file = file)
+  expect_null(platform)
+
+})
+
 test_that("URLs like http://foo/bar aren't queried", {
   skip_on_cran()
   skip_on_os("windows")
