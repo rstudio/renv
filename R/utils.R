@@ -241,7 +241,9 @@ read <- function(file) {
 }
 
 plural <- function(word, n) {
-  if (n == 1) word else paste(word, "s", sep = "")
+  suffixes <- c("", "s")
+  indices <- as.integer(n != 1L) + 1L
+  paste0(word, suffixes[indices])
 }
 
 nplural <- function(word, n) {

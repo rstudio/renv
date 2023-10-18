@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where directories containing a large number of files could
+  cause `renv` to fail to activate a project. (#1733)
+
 * Expanded the set of Linux distributions detected for automatic transformation
   of Posit Package Manager URLs to install binary packages. `renv` now correctly
   detects Red Hat Enterprise Linux 9, Rocky Linux 8 and 9, SLES 15 SP4 and SP5,

@@ -228,3 +228,15 @@ test_that("warnify() propagates errors as warnings", {
   expect_equal(result, "warning")
 
 })
+
+# https://github.com/rstudio/renv/issues/1733
+test_that("plural() and nplural() handle non-scalar counts", {
+
+  actual <- plural("file", 0:3)
+  expected <- c("files", "file", "files", "files")
+  expect_equal(actual, expected)
+
+  actual <- nplural("file", 0:3)
+  expected <- c("0 files", "1 file", "2 files", "3 files")
+  expect_equal(actual, expected)
+})
