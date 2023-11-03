@@ -1,27 +1,20 @@
 
-# NOTE: intentionally checks library paths before checking loaded namespaces
-renv_package_find <- function(package,
-                              lib.loc = renv_libpaths_all(),
-                              check.loaded = TRUE)
-{
-  map_chr(
-    package,
-    renv_package_find_impl,
-    lib.loc = lib.loc,
-    check.loaded = check.loaded
-  )
+# NOTE: When lib.loc is NULL, renv will also check to see if a package matching
+# the provided name is currently loaded. This function will also intentionally
+# check the library paths before checking loaded namespaces.
+# This differs from the behavior of `find.package()`.
+renv_package_find <- function(package, lib.loc = NULL) {
+  map_chr(package, renv_package_find_impl, lib.loc = lib.loc)
 }
 
-renv_package_find_impl <- function(package,
-                                   lib.loc = renv_libpaths_all(),
-                                   check.loaded = TRUE)
-{
+renv_package_find_impl <- function(package, lib.loc = NULL) {
+
   # if we've been given the path to an existing package, use it as-is
   if (grepl("/", package) && file.exists(file.path(package, "DESCRIPTION")))
     return(renv_path_normalize(package, mustWork = TRUE))
 
   # first, look in the library paths
-  for (libpath in lib.loc) {
+  for (libpath in (lib.loc %||% .libPaths())) {
     pkgpath <- file.path(libpath, package)
     descpath <- file.path(pkgpath, "DESCRIPTION")
     if (file.exists(descpath))
@@ -29,7 +22,7 @@ renv_package_find_impl <- function(package,
   }
 
   # if that failed, check to see if it's loaded and use the associated path
-  if (check.loaded && package %in% loadedNamespaces()) {
+  if (is.null(lib.loc) && package %in% loadedNamespaces()) {
     path <- renv_namespace_path(package)
     if (file.exists(path))
       return(path)
@@ -39,8 +32,8 @@ renv_package_find_impl <- function(package,
   ""
 }
 
-renv_package_installed <- function(package, lib.loc = renv_libpaths_all()) {
-  paths <- renv_package_find(package, lib.loc, check.loaded = FALSE)
+renv_package_installed <- function(package, lib.loc = NULL) {
+  paths <- renv_package_find(package, lib.loc = lib.loc %||% renv_libpaths_all())
   nzchar(paths)
 }
 
