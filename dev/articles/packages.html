@@ -149,6 +149,35 @@ and retrieve the requested package. See the remotes vignette,
 more details.</p>
 </div>
 <div class="section level2">
+<h2 id="library-paths">Library Paths<a class="anchor" aria-label="anchor" href="#library-paths"></a>
+</h2>
+<p>For package projects using renv, a library path outside of the
+project directory will be used instead. As an example, on macOS, this
+might look like:</p>
+<pre><code>&gt; .libPaths()
+[1] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/library/example-552f6e80/R-4.3/aarch64-apple-darwin20"
+[2] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/sandbox/R-4.3/aarch64-apple-darwin20/ac5c2659"</code></pre>
+<p>This is done to avoid issues with <code>R CMD build</code>, which can
+become very slow if your project contains a large number of files – as
+can happen with the
+project<code>library in the default location of</code>renv/library`.
+Note that even though the library is located outside of the project, the
+library path generated will still be unique to that project, and so the
+project is still effectively isolated in the same way as other renv
+projects normally are.</p>
+<p>If you want to customize the location where <code>renv</code> places
+project libraries in this scenario, you can use the
+<code>RENV_PATHS_LIBRARY_ROOT</code> environment variable. For
+example:</p>
+<pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
+<p>If you’d still prefer to keep your project library within the project
+directory, you can set:</p>
+<pre><code><span><span class="va">RENV_PATHS_LIBRARY</span> <span class="op">=</span> <span class="va">renv</span><span class="op">/</span><span class="va">library</span></span></code></pre>
+<p>within an appropriate <code>.Renviron</code> start-up profile – but
+please be aware of the caveats to doing this, as the performance of
+<code>R CMD build</code> will be affected.</p>
+</div>
+<div class="section level2">
 <h2 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a>
 </h2>
 <p>While developing your package, you may want to use a continuous
