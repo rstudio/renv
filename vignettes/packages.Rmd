@@ -65,6 +65,43 @@ requested package. See the remotes vignette,
 for more details.
 
 
+## Library Paths
+
+For package projects using renv, a library path outside of the project
+directory will be used instead. As an example, on macOS, this might look like:
+
+```
+> .libPaths()
+[1] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/library/example-552f6e80/R-4.3/aarch64-apple-darwin20"
+[2] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/sandbox/R-4.3/aarch64-apple-darwin20/ac5c2659"
+```
+
+This is done to avoid issues with `R CMD build`, which can become very slow if
+your project contains a large number of files -- as can happen with the project`
+library in the default location of `renv/library`. Note that even though the
+library is located outside of the project, the library path generated will still
+be unique to that project, and so the project is still effectively isolated in
+the same way as other renv projects normally are.
+
+If you want to customize the location where `renv` places project libraries in
+this scenario, you can use the `RENV_PATHS_LIBRARY_ROOT` environment variable.
+For example:
+
+```
+RENV_PATHS_LIBRARY_ROOT = ~/.renv/library
+```
+
+If you'd still prefer to keep your project library within the project directory,
+you can set:
+
+```
+RENV_PATHS_LIBRARY = renv/library
+```
+
+within an appropriate `.Renviron` start-up profile -- but please be aware of
+the caveats to doing this, as the performance of `R CMD build` will be affected.
+
+
 ## Testing
 
 While developing your package, you may want to use a continuous integration
