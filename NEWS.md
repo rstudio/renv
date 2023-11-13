@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where `renv` would try to prompt for the installation of
+  `BiocManager` when activating a project using Bioconductor. (#1754)
+
 * Fixed an issue where directories containing a large number of files could
   cause `renv` to fail to activate a project. (#1733)
 
