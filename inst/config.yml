@@ -12,7 +12,7 @@
   type: "logical[1]"
   default: true
   description: >
-    Enable the renv auto-loader? When `FALSE`, renv will not not
+    Enable the renv auto-loader? When `FALSE`, renv will not
     automatically load a project containing an renv autoloader within
     its `.Rprofile`. In addition, renv will not write out the project
     auto-loader in calls to `renv::init()`.
