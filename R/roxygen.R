@@ -36,9 +36,8 @@
 #'   in the current session, or see the `repos.override` option in [config] for
 #'   an alternate way override.
 #'
-#' @param profile The profile to be activated. When `NULL`, the default
-#'   profile is activated instead. See `vignette("profiles", package = "renv")`
-#'   for more information.
+#' @param profile The profile to be activated. See
+#'   `vignette("profiles", package = "renv")` for more information.
 #'
 #' @param dependencies A vector of DESCRIPTION field names that should be used
 #'   for package dependency resolution. When `NULL` (the default), the value

@@ -1,5 +1,9 @@
 # renv (development version)
 
+* Calling `renv::activate()` without explicitly providing the `profile` argument
+  now preserves the current profile, if any. Use `renv::activate(profile = "default")`
+  if you'd like to re-activate a project using the default profile. (#1217)
+
 * Fixed an issue where `renv` would try to prompt for the installation of
   `BiocManager` when activating a project using Bioconductor. (#1754)
 

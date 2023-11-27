@@ -50,7 +50,7 @@ The following renv configuration options are available:
 
 \subsection{renv.config.activate.prompt}{Automatically prompt the user to activate the current project, if it does not appear to already be activated? This is mainly useful to help ensure that calls to \code{renv::snapshot()} and \code{renv::restore()} use the project library. See \code{?renv::activate} for more details.
 Defaults to \code{TRUE}.}
-\subsection{renv.config.autoloader.enabled}{Enable the renv auto-loader? When \code{FALSE}, renv will not not automatically load a project containing an renv autoloader within its \code{.Rprofile}. In addition, renv will not write out the project auto-loader in calls to \code{renv::init()}.
+\subsection{renv.config.autoloader.enabled}{Enable the renv auto-loader? When \code{FALSE}, renv will not automatically load a project containing an renv autoloader within its \code{.Rprofile}. In addition, renv will not write out the project auto-loader in calls to \code{renv::init()}.
 Defaults to \code{TRUE}.}
 \subsection{renv.config.auto.snapshot}{Automatically snapshot changes to the project library when the project dependencies change?
 Defaults to \code{FALSE}.}

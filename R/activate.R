@@ -49,6 +49,7 @@ activate <- function(project = NULL, profile = NULL) {
   project <- renv_project_resolve(project)
   renv_project_lock(project = project)
 
+  profile <- profile %||% renv_profile_get()
   renv_profile_set(profile)
 
   renv_activate_impl(

@@ -63,7 +63,7 @@ library. \code{hydrate()} is called automatically by \code{\link[=init]{init()}}
 that you should need it otherwise, as it can easily get your project into
 an inconsistent state.
 
-It may very occasionally be useful to call \code{hydate(update = "all")} if you
+It may very occasionally be useful to call \code{hydrate(update = "all")} if you
 want to update project packages to match those installed in your global
 library (as opposed to using \code{\link[=update]{update()}} which will get the latest versions
 from CRAN). In this case, you should verify that your code continues to work,

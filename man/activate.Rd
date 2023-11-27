@@ -14,9 +14,8 @@ deactivate(project = NULL, clean = FALSE)
 be used. If no project is currently active, then the current working
 directory is used instead.}
 
-\item{profile}{The profile to be activated. When \code{NULL}, the default
-profile is activated instead. See \code{vignette("profiles", package = "renv")}
-for more information.}
+\item{profile}{The profile to be activated. See
+\code{vignette("profiles", package = "renv")} for more information.}
 
 \item{clean}{If \code{TRUE}, will also remove the \verb{renv/} directory and the
 lockfile.}
