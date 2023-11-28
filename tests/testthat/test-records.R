@@ -93,7 +93,7 @@ test_that("compatible records from pak are handled correctly", {
     RemoteType        = "standard",
     RemotePkgRef      = "anytime",
     RemoteRef         = "anytime",
-    RemoteRepos       = "https=//cran.rstudio.com",
+    RemoteRepos       = "https://cran.rstudio.com",
     RemotePkgPlatform = "aarch64-apple-darwin20",
     RemoteSha         = "0.3.9",
     Hash              = "74a64813f17b492da9c6afda6b128e3d"

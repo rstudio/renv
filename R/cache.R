@@ -74,6 +74,10 @@ renv_cache_find <- function(record) {
     record <- record[nzchar(record)]
     dcf <- dcf[nzchar(dcf)]
 
+    # drop remote fields for standard remotes
+    if (identical(dcf$RemoteType, "standard"))
+      dcf <- dcf[grep("^Remote(?!s)", names(dcf), invert = TRUE, perl = TRUE)]
+
     # check identical
     lhs <- keep(record, fields)
     rhs <- keep(dcf, fields)

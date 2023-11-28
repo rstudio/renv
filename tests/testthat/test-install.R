@@ -636,3 +636,26 @@ test_that("install() doesn't duplicate authentication headers", {
   install("kevinushey/skeleton")
   expect_true(renv_package_installed("skeleton"))
 })
+
+test_that("install() stores repository information for installed packages", {
+  project <- renv_tests_scope()
+  init()
+
+  # unset repository option
+  repos <- getOption("repos")
+  renv_scope_options(repos = character())
+
+  # try to install a package
+  writeLines("library(bread)", con = "_deps.R")
+  install("bread", repos = c(TEST = unname(repos)))
+
+  # create a lockfile
+  snapshot()
+
+  # validate that the repository information is stored
+  lockfile <- renv_lockfile_read("renv.lock")
+  record <- lockfile$Packages$bread
+  expect_equal(record$Source, "Repository")
+  expect_equal(record$Repository, "CRAN")
+
+})

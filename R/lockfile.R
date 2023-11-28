@@ -235,6 +235,18 @@ renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude
 
   lockfile <- renv_lockfile_fini(lockfile, project)
 
+  # update repositories if necessary
+  repos <- map(records, function(record) {
+
+    remotes <- attr(record, "remotes", exact = TRUE)
+    if (is.null(remotes))
+      return(remotes)
+
+    repos <- remotes[["RemoteRepos"]]
+    names(repos) <- "WHAT SHOULD THIS BE?????????????"
+    remotes[["RemoteRepos"]]
+  })
+
   keys <- unique(c("R", "Bioconductor", names(lockfile)))
   lockfile <- lockfile[intersect(keys, names(lockfile))]
 

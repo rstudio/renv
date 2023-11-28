@@ -147,7 +147,44 @@ renv_package_pkgtypes <- function() {
 
 }
 
+renv_package_augment_standard <- function(record) {
+
+  # only done for repository remotes
+  if (!identical(record$Source, "Repository"))
+    return(record)
+
+  # check whether we tagged a url + type for this package
+  url  <- attr(record, "url", exact = TRUE)
+  type <- attr(record, "type", exact = TRUE)
+  if (is.null(url) || is.null(type))
+    return(record)
+
+  # figure out base of repository URL
+  pattern <- "/(?:bin|src)/"
+  index <- regexpr(pattern, url, perl = TRUE)
+  repos <- substring(url, 1L, index)
+
+  # figure out the platform
+  platform <- if (identical(type, "binary")) R.version$platform else "source"
+
+  # build pak-compatible standard remote reference
+  remotes <- list(
+    RemoteType        = "standard",
+    RemotePkgRef      = record$Package,
+    RemoteRef         = record$Package,
+    RemoteRepos       = repos,
+    RemotePkgPlatform = platform,
+    RemoteSha         = record$Version
+  )
+
+  overlay(record, remotes)
+
+}
+
 renv_package_augment <- function(installpath, record) {
+
+  # try to include repository fields
+  record <- renv_package_augment_standard(record)
 
   # check for remotes fields
   remotes <- record[grep("^Remote", names(record))]
