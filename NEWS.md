@@ -1,5 +1,10 @@
 # renv (development version)
 
+* `renv::install()` now lazily resolves project remotes. (#1755)
+
+* `renv::init()` now respects Remotes declared within a project's `DESCRIPTION`
+  file, if any.
+
 * Calling `renv::activate()` without explicitly providing the `profile` argument
   now preserves the current profile, if any. Use `renv::activate(profile = "default")`
   if you'd like to re-activate a project using the default profile. (#1217)

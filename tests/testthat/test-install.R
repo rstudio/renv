@@ -636,3 +636,14 @@ test_that("install() doesn't duplicate authentication headers", {
   install("kevinushey/skeleton")
   expect_true(renv_package_installed("skeleton"))
 })
+
+test_that("install() lazily resolves project remotes", {
+
+  project <- renv_tests_scope()
+  init()
+
+  writeLines("Remotes: kevinushey/skeleton", con = "DESCRIPTION")
+  install("bread")
+  expect_false(renv_package_installed("skeleton"))
+
+})
