@@ -21,6 +21,10 @@ renv_shim_install_packages <- function(pkgs, ...) {
     return(eval(call, envir = parent.frame()))
   }
 
+  # handle zero argument case directly
+  if (nargs() == 0L)
+    return(renv::install())
+
   # otherwise, invoke our own installer
   renv::install(
     packages     = pkgs,
