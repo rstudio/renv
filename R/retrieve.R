@@ -63,6 +63,12 @@ renv_retrieve_impl <- function(package) {
   records <- state$records
   record <- records[[package]] %||% renv_retrieve_resolve(package)
 
+  # resolve lazy records
+  if (is.function(record)) {
+    state$records[[package]] <- record()
+    record <- state$records[[package]]
+  }
+
   # normalize the record source
   source <- renv_record_source(record, normalize = TRUE)
 

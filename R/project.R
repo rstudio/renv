@@ -143,21 +143,27 @@ renv_project_remotes <- function(project, fields = NULL) {
   # now, try to resolve the packages
   records <- enumerate(specs, function(package, spec) {
 
-    # use remote if supplied
-    if (!is.null(remotes[[package]]))
-      return(remotes[[package]])
+    # return a function here, so we can lazily resolve these as needed
+    # https://github.com/rstudio/renv/issues/1755
+    function() {
 
-    # check for explicit version requirement
-    explicit <- spec[spec$Require == "==", ]
-    if (nrow(explicit) == 0)
-      return(renv_remotes_resolve(package))
+      # use remote if supplied
+      if (!is.null(remotes[[package]]))
+        return(remotes[[package]])
 
-    version <- spec$Version[[1]]
-    if (!nzchar(version))
-      return(renv_remotes_resolve(package))
+      # check for explicit version requirement
+      explicit <- spec[spec$Require == "==", ]
+      if (nrow(explicit) == 0)
+        return(renv_remotes_resolve(package))
 
-    entry <- paste(package, version, sep = "@")
-    renv_remotes_resolve(entry)
+      version <- spec$Version[[1]]
+      if (!nzchar(version))
+        return(renv_remotes_resolve(package))
+
+      entry <- paste(package, version, sep = "@")
+      renv_remotes_resolve(entry)
+
+    }
 
   })
 

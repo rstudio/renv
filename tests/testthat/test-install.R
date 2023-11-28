@@ -657,5 +657,15 @@ test_that("install() stores repository information for installed packages", {
   record <- lockfile$Packages$bread
   expect_equal(record$Source, "Repository")
   expect_equal(record$Repository, "CRAN")
+})
+
+test_that("install() lazily resolves project remotes", {
+
+  project <- renv_tests_scope()
+  init()
+
+  writeLines("Remotes: kevinushey/skeleton", con = "DESCRIPTION")
+  install("bread")
+  expect_false(renv_package_installed("skeleton"))
 
 })

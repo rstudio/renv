@@ -121,7 +121,7 @@ test_that("profile-specific remotes are parsed", {
   writeLines(desc, con = "DESCRIPTION")
   remotes <- renv_project_remotes(project)
 
-  actual <- remotes$bread
+  actual <- resolve(remotes$bread)
   expected <- list(Package = "bread", Version = "0.1.0", Source = "Repository")
   expect_equal(actual, expected)
 

@@ -78,7 +78,7 @@ renv_update_find_github <- function(records) {
       "GITHUB_PAT is unset. Updates may fail due to GitHub's API rate limit.",
       "",
       "To increase your GitHub API rate limit:",
-      "- Use `usethis::browse_github_pat()` to create a Personal Access Token (PAT).",
+      "- Use `usethis::create_github_token()` to create a Personal Access Token (PAT).",
       "- Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.",
       sep = "\n"
     )

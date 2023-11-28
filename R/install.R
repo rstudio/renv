@@ -795,6 +795,7 @@ renv_install_preflight_permissions <- function(library) {
 renv_install_preflight <- function(project, libpaths, records) {
 
   library <- nth(libpaths, 1L)
+  records <- filter(records, Negate(is.function))
 
   all(
     renv_install_preflight_unknown_source(records),

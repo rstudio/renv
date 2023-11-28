@@ -333,6 +333,13 @@ invoke <- function(callback, ...) {
   callback(...)
 }
 
+resolve <- function(object) {
+  if (is.function(object))
+    object()
+  else
+    object
+}
+
 dequote <- function(strings) {
 
   for (quote in c("'", '"')) {

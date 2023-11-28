@@ -321,11 +321,15 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
       errors$push(list(package = package, error = error))
   }
 
+  # get project records, if any
+  records <- renv_project_remotes(project = project)
+
   # perform the restore
   renv_scope_restore(
     project  = project,
     library  = library,
     packages = packages,
+    records  = records,
     handler  = handler
   )
 
