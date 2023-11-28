@@ -242,8 +242,8 @@ renv_lockfile_create_impl <- function(project, type, libpaths, packages, exclude
     if (is.null(remotes))
       return(remotes)
 
+    # TODO: Can we set a name for the repository here?
     repos <- remotes[["RemoteRepos"]]
-    names(repos) <- "WHAT SHOULD THIS BE?????????????"
     remotes[["RemoteRepos"]]
   })
 
