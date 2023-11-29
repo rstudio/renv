@@ -771,23 +771,29 @@ renv_snapshot_description_source_custom <- function(dcf) {
     return(NULL)
 
   # check for a declared repository URL
-  repos <- dcf[["RemoteRepos"]]
-  if (is.null(repos))
+  remoterepos <- dcf[["RemoteRepos"]]
+  if (is.null(remoterepos))
+    return(NULL)
+
+  # if this package appears to have been installed from a
+  # repository which we have knowledge of, skip
+  repos <- as.list(getOption("repos"))
+  repository <- dcf[["Repository"]]
+  if (!is.null(repository) && repository %in% names(repos))
     return(NULL)
 
   # check whether this repository is already in use;
   # if so, we can skip declaring it
-  allrepos <- as.list(getOption("repos"))
   name <- dcf[["RemoteReposName"]]
   isset <- if (is.null(name))
-    repos %in% allrepos
+    remoterepos %in% repos
   else
-    identical(repos, allrepos[[name]])
+    name %in% names(repos)
 
   if (isset)
     return(NULL)
 
-  list(Source = "Repository", Repository = repos)
+  list(Source = "Repository", Repository = remoterepos)
 
 }
 
