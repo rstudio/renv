@@ -159,8 +159,8 @@ status <- function(project = NULL,
   )
 
   packages <- setdiff(packages, ignored)
-  renv_lockfile_records(lockfile) <- exclude(renv_lockfile_records(lockfile), ignored)
-  renv_lockfile_records(library) <- exclude(renv_lockfile_records(library), ignored)
+  renv_lockfile_records(lockfile) <- omit(renv_lockfile_records(lockfile), ignored)
+  renv_lockfile_records(library) <- omit(renv_lockfile_records(library), ignored)
 
   synchronized <-
     renv_status_check_consistent(lockfile, library, packages) &&

@@ -26,7 +26,7 @@ renv_shim_install_packages <- function(pkgs, ...) {
     return(renv::install())
 
   # otherwise, invoke our own installer
-  renv::install(
+  install(
     packages     = pkgs,
     library      = matched[["lib"]],
     repos        = matched[["repos"]],

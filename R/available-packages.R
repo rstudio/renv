@@ -235,8 +235,19 @@ renv_available_packages_entry <- function(package,
   }
 
   # if 'prefer' was supplied as a repository URL, include it
-  if (is.character(prefer) && grepl("://", prefer))
-    repos <- c(prefer, repos)
+  repos <- repos %||% as.list(getOption("repos"))
+  if (is.character(prefer)) {
+
+    # ensure repositories are named
+    nms <- names(prefer) %||% rep.int("", length(prefer))
+    nms[!nzchar(nms)] <- prefer[!nzchar(nms)]
+    names(prefer) <- nms
+
+    # include any 'prefer' repositories that were supplied as URLs
+    isurl <- grep("^\\w+://", prefer)
+    repos <- c(prefer[isurl], repos)
+
+  }
 
   # read available packages
   dbs <- available_packages(
@@ -246,8 +257,8 @@ renv_available_packages_entry <- function(package,
   )
 
   # if a preferred repository is marked and available, prefer using that
-  if (length(prefer) == 1L && prefer %in% names(dbs)) {
-    idx <- match(prefer, names(dbs))
+  if (is.character(prefer)) {
+    idx <- omit_if(match(names(prefer), names(dbs)), is.na)
     ord <- c(idx, setdiff(seq_along(dbs), idx))
     dbs <- dbs[ord]
   }
