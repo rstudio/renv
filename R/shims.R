@@ -21,18 +21,17 @@ renv_shim_install_packages <- function(pkgs, ...) {
     return(eval(call, envir = parent.frame()))
   }
 
-  # handle zero argument case directly
-  if (nargs() == 0L)
-    return(renv::install())
-
   # otherwise, invoke our own installer
-  install(
-    packages     = pkgs,
-    library      = matched[["lib"]],
-    repos        = matched[["repos"]],
-    type         = matched[["type"]],
-    dependencies = matched[["dependencies"]]
-  )
+  call <- sys.call()
+  call[[1L]] <- quote(renv::install)
+
+  # fix up names
+  aliases <- list(lib = "library")
+  idx <- omit_if(match(names(aliases), names(call)), is.na)
+  names(call)[idx] <- aliases[idx]
+
+  # evaluate call
+  eval(call, envir = parent.frame())
 
 }
 
