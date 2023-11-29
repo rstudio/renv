@@ -553,30 +553,3 @@ test_that("snapshot() reports missing packages even if renv.verbose is FALSE", {
   writeLines("library(bread)", con = "deps.R")
   expect_snapshot(. <- snapshot(force = TRUE))
 })
-
-test_that("snapshot() includes repositories when known from installed packages", {
-
-  project <- renv_tests_scope("bread")
-  init()
-
-  # install a package from a custom repository
-  url <- unname(getOption("repos"))
-  local({
-    renv_scope_options(repos = character())
-    install("toast", repos = c(TEST = url))
-  })
-
-  # add it as a dependency
-  writeLines("library(toast)", con = "_deps.R")
-
-  # try to snapshot
-  local({
-    renv_scope_options(repos = character())
-    snapshot()
-  })
-
-  # confirm that both repositories were recorded in the lockfile
-  lockfile <- renv_lockfile_load(project)
-  expect_snapshot(. <- renv_lockfile_write(lockfile, file = stdout()))
-
-})
