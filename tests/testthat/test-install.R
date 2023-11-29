@@ -669,3 +669,20 @@ test_that("install() lazily resolves project remotes", {
   expect_false(renv_package_installed("skeleton"))
 
 })
+
+test_that("install() records the repository used to retrieve a package", {
+
+  project <- renv_tests_scope()
+  init()
+
+  url <- unname(getOption("repos"))
+  local({
+    renv_scope_options(repos = character())
+    install("bread", repos = c(TEST = url), rebuild = TRUE)
+  })
+
+  dcf <- renv_description_read(package = "bread")
+  expect_equal(!!dcf$RemoteRepos, !!url)
+  expect_equal(!!dcf$RemoteReposName, "TEST")
+
+})

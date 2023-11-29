@@ -572,16 +572,19 @@ renv_retrieve_repos <- function(record) {
 
   # if this record is tagged with a type + url, we can
   # use that directly for retrieval
-  if (all(c("type", "url") %in% names(attributes(record))))
+  if (renv_record_tagged(record))
     return(renv_retrieve_repos_impl(record))
 
   # figure out what package sources are okay to use here
   pkgtype <- getOption("pkgType", default = "source")
 
-  srcok <- pkgtype %in% c("both", "source") ||
+  srcok <-
+    pkgtype %in% c("both", "source") ||
     getOption("install.packages.check.source", default = "yes") %in% "yes"
 
-  binok <- pkgtype %in% c("both") || grepl("binary", pkgtype, fixed = TRUE)
+  binok <-
+    pkgtype %in% c("both", "binary") ||
+    grepl("binary", pkgtype, fixed = TRUE)
 
   # collect list of 'methods' for retrieval
   methods <- stack(mode = "list")

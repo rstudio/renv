@@ -234,6 +234,10 @@ renv_available_packages_entry <- function(package,
     entries[ordered[[1]], ]
   }
 
+  # if 'prefer' was supplied as a repository URL, include it
+  if (is.character(prefer) && grepl("://", prefer))
+    repos <- c(prefer, repos)
+
   # read available packages
   dbs <- available_packages(
     type  = type,
@@ -280,10 +284,8 @@ renv_available_packages_entry <- function(package,
 
 renv_available_packages_record <- function(entry, type) {
 
-  # check to see if this is already a proper record
-  attrs <- attributes(entry)
-  keys <- c("type", "url")
-  if (all(keys %in% names(attrs)))
+  # check if this record was already tagged
+  if (renv_record_tagged(entry))
     return(entry)
 
   # otherwise, construct it
@@ -302,13 +304,19 @@ renv_available_packages_record <- function(entry, type) {
   # form url
   url <- entry$Repository
   path <- entry$Path
+  name <- entry$Name
+
+  # if path was supplied, it should be used relative
+  # to the repository URL
   if (length(path) && !is.na(path))
     url <- paste(url, path, sep = "/")
 
-  attr(record, "type") <- type
-  attr(record, "url")  <- url
-
-  record
+  renv_record_tag(
+    record = record,
+    type   = type,
+    url    = url,
+    name   = name
+  )
 
 }
 
@@ -484,10 +492,12 @@ renv_available_packages_latest_mran <- function(package,
   url <- file.path(base, name)
 
   # tag record with url + type
-  attr(record, "url")  <- dirname(url)
-  attr(record, "type") <- "binary"
-
-  record
+  renv_record_tag(
+    record = record,
+    type   = type,
+    url    = dirname(url),
+    name = "RSPM"
+  )
 }
 
 renv_available_packages_latest_repos <- function(package,

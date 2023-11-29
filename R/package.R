@@ -156,13 +156,14 @@ renv_package_augment_standard <- function(record) {
   # check whether we tagged a url + type for this package
   url  <- attr(record, "url", exact = TRUE)
   type <- attr(record, "type", exact = TRUE)
+  name <- attr(record, "name", exact = TRUE)
   if (is.null(url) || is.null(type))
     return(record)
 
   # figure out base of repository URL
   pattern <- "/(?:bin|src)/"
   index <- regexpr(pattern, url, perl = TRUE)
-  repos <- substring(url, 1L, index)
+  repos <- substring(url, 1L, index - 1L)
 
   # figure out the platform
   platform <- if (identical(type, "binary")) R.version$platform else "source"
@@ -173,6 +174,7 @@ renv_package_augment_standard <- function(record) {
     RemotePkgRef      = record$Package,
     RemoteRef         = record$Package,
     RemoteRepos       = repos,
+    RemoteReposName   = name,
     RemotePkgPlatform = platform,
     RemoteSha         = record$Version
   )

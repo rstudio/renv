@@ -763,9 +763,43 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
 
 }
 
+renv_snapshot_description_source_custom <- function(dcf) {
+
+  # check for 'standard' remote type
+  type  <- dcf[["RemoteType"]]
+  if (!identical(type, "standard"))
+    return(NULL)
+
+  # check for a declared repository URL
+  repos <- dcf[["RemoteRepos"]]
+  if (is.null(repos))
+    return(NULL)
+
+  # check whether this repository is already in use;
+  # if so, we can skip declaring it
+  allrepos <- as.list(getOption("repos"))
+  name <- dcf[["RemoteReposName"]]
+  isset <- if (is.null(name))
+    repos %in% allrepos
+  else
+    identical(repos, allrepos[[name]])
+
+  if (isset)
+    return(NULL)
+
+  list(Source = "Repository", Repository = repos)
+
+}
+
 renv_snapshot_description_source <- function(dcf) {
 
-  # first, check for a declared remote type
+  # check for packages installed from a repository not currently
+  # encoded as part of the user's repository option, and include if required
+  source <- renv_snapshot_description_source_custom(dcf)
+  if (!is.null(source))
+    return(source)
+
+  # check for a declared remote type
   # treat 'standard' remotes as packages installed from a repository
   # https://github.com/rstudio/renv/issues/998
   type <- dcf[["RemoteType"]]
