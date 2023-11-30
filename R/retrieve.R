@@ -65,7 +65,7 @@ renv_retrieve_impl <- function(package) {
 
   # resolve lazy records
   if (is.function(record)) {
-    state$records[[package]] <- record()
+    state$records[[package]] <- resolve(record)
     record <- state$records[[package]]
   }
 

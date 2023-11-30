@@ -342,10 +342,12 @@ invoke <- function(callback, ...) {
 }
 
 resolve <- function(object) {
-  if (is.function(object))
-    object()
-  else
-    object
+
+  while (is.function(object))
+    object <- object()
+
+  object
+
 }
 
 dequote <- function(strings) {

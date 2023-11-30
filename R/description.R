@@ -189,10 +189,26 @@ renv_description_remotes <- function(path) {
   if (is.null(remotes))
     return(list())
 
+  # if possible, resolve remotes lazily
   splat <- strsplit(remotes, "[[:space:]]*,[[:space:]]*")[[1]]
-  resolved <- lapply(splat, renv_remotes_resolve)
-  names(resolved) <- extract_chr(resolved, "Package")
-  resolved
+  remotes <- lapply(splat, function(spec) {
+
+    # if this is a named remote, we can resolve it lazily
+    idx <- c(regexpr("=", spec, fixed = TRUE))
+    result <- if (idx == -1L) {
+      remote <- renv_remotes_resolve(spec)
+      list(Package = remote$Package, Remote = remote)
+    } else {
+      package <- substring(spec, 1L, idx - 1L)
+      list(Package = package, Remote = function() renv_remotes_resolve(spec))
+    }
+
+  })
+
+  # put together into named list
+  records <- map(remotes, `[[`, 2L)
+  names(records) <- map_chr(remotes, `[[`, 1L)
+  records
 
 }
 
