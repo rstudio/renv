@@ -753,13 +753,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   keep <- renv_vector_intersect(all, names(dcf))
 
   # return as list
-  result <- as.list(dcf[keep])
-
-  # tag with attributes for transient information
-  attr(result, "remotes") <- dcf[grep("^Remote(?!s)", names(dcf), perl = TRUE)]
-
-  # return result
-  result
+  as.list(dcf[keep])
 
 }
 
