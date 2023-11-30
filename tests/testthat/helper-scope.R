@@ -1,6 +1,7 @@
 
 renv_tests_scope <- function(packages = character(),
                              project = NULL,
+                             isolated = FALSE,
                              scope = parent.frame())
 {
   # use private repositories in this scope
@@ -16,6 +17,13 @@ renv_tests_scope <- function(packages = character(),
 
   # also ensure we 'exit' the current project after completion
   renv_scope_envvars(RENV_PROJECT = "", scope = scope)
+
+  # if we're trying to be isolated from other test infrastructure
+  if (isolated) {
+    root <- tempfile("renv-root-")
+    ensure_directory(root)
+    renv_scope_envvars(RENV_PATHS_ROOT = root, scope = scope)
+  }
 
   # move to own test directory
   project <- project %||% renv_scope_tempfile("renv-test-", scope = scope)

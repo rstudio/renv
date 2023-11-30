@@ -639,8 +639,7 @@ test_that("install() doesn't duplicate authentication headers", {
 
 test_that("install() stores repository information for installed packages", {
 
-  renv_scope_envvars(RENV_PATHS_ROOT = tempfile())
-  project <- renv_tests_scope()
+  project <- renv_tests_scope(isolated = TRUE)
   init()
 
   # unset repository option
@@ -657,8 +656,8 @@ test_that("install() stores repository information for installed packages", {
   # validate that the repository information is stored
   lockfile <- renv_lockfile_read("renv.lock")
   record <- lockfile$Packages$bread
-  expect_equal(record$Source, "Repository")
-  expect_equal(record$Repository, unname(repos))
+  expect_equal(!!record$Source, "Repository")
+  expect_equal(!!record$Repository, !!unname(repos))
 
   # now, add the repository back; it should then be aliased in lockfile
   options(repos = c(TEST = unname(repos)))
@@ -668,6 +667,7 @@ test_that("install() stores repository information for installed packages", {
   record <- lockfile$Packages$bread
   expect_equal(!!record$Source, "Repository")
   expect_equal(!!record$Repository, "TEST")
+
 })
 
 test_that("install() lazily resolves project remotes", {
@@ -683,7 +683,7 @@ test_that("install() lazily resolves project remotes", {
 
 test_that("install() records the repository used to retrieve a package", {
 
-  project <- renv_tests_scope()
+  project <- renv_tests_scope(isolated = TRUE)
   init()
 
   url <- unname(getOption("repos"))

@@ -316,7 +316,7 @@ test_that("restore() also installs packages with broken symlinks", {
 
 test_that("we can restore a package installed with a custom repository", {
 
-  project <- renv_tests_scope()
+  project <- renv_tests_scope(isolated = TRUE)
   init()
 
   url <- unname(getOption("repos"))
