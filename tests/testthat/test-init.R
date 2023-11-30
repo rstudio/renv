@@ -172,7 +172,7 @@ test_that("a project with unnamed repositories can be initialized", {
   init()
 
   repos <- getOption("repos")
-  expect_equal(names(repos), c("CRAN", "V1"))
+  expect_equal(names(repos), c("CRAN", "https://cloud.r-project.org"))
 
 })
 

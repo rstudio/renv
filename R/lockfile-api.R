@@ -58,7 +58,7 @@ renv_lockfile_api <- function(lockfile = NULL) {
   }
 
   .self$remove <- function(packages) {
-    records <- renv_lockfile_records(.lockfile) %>% exclude(packages)
+    records <- renv_lockfile_records(.lockfile) %>% omit(packages)
     renv_lockfile_records(.lockfile) <<- records
     invisible(.self)
   }

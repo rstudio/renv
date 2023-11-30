@@ -109,8 +109,12 @@ renv_dcf_read_impl <- function(file, ...) {
 
 renv_dcf_write <- function(x, file = "") {
 
+  # NOTE: Older versions of write.dcf() will coerce the value into a data.frame
+  # without setting 'optional = TRUE'; make sure we do this ourselves first
+  value <- as_data_frame(x)
+
   keep.white <- c("Description", "Authors@R", "Author", "Built", "Packaged")
-  result <- write.dcf(as.list(x), file = file, indent = 4L, width = 80L, keep.white = keep.white)
+  result <- write.dcf(value, file = file, indent = 4L, width = 80L, keep.white = keep.white)
 
   renv_filebacked_invalidate(file)
 

@@ -739,7 +739,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
 
-  is_repo <-
+  cranlike <-
     is.null(dcf[["RemoteType"]]) ||
     identical(dcf[["RemoteType"]], "standard")
 
@@ -747,7 +747,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   extra <- c("Repository", "OS_type")
   all <- c(
     required, extra,
-    if (!is_repo) c(remotes, git),
+    if (!cranlike) c(remotes, git),
     "Requirements", "Hash"
   )
   keep <- renv_vector_intersect(all, names(dcf))
@@ -757,17 +757,59 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
 
 }
 
+renv_snapshot_description_source_custom <- function(dcf) {
+
+  # check for 'standard' remote type
+  type  <- dcf[["RemoteType"]]
+  if (!identical(type, "standard"))
+    return(NULL)
+
+  # check for a declared repository URL
+  remoterepos <- dcf[["RemoteRepos"]]
+  if (is.null(remoterepos))
+    return(NULL)
+
+  # if this package appears to have been installed from a
+  # repository which we have knowledge of, skip
+  repos <- as.list(getOption("repos"))
+  repository <- dcf[["Repository"]]
+  if (!is.null(repository) && repository %in% names(repos))
+    return(NULL)
+
+  # check whether this repository is already in use;
+  # if so, we can skip declaring it
+  name <- dcf[["RemoteReposName"]]
+  isset <- if (is.null(name))
+    remoterepos %in% repos
+  else
+    name %in% names(repos)
+
+  if (isset)
+    return(NULL)
+
+  list(Source = "Repository", Repository = remoterepos)
+
+}
+
 renv_snapshot_description_source <- function(dcf) {
 
-  # first, check for a declared remote type
+  # check for packages installed from a repository not currently
+  # encoded as part of the user's repository option, and include if required
+  source <- renv_snapshot_description_source_custom(dcf)
+  if (!is.null(source))
+    return(source)
+
+  # check for a declared remote type
   # treat 'standard' remotes as packages installed from a repository
   # https://github.com/rstudio/renv/issues/998
   type <- dcf[["RemoteType"]]
-  repository <- dcf[["Repository"]]
-  if (identical(type, "standard") && !is.null(repository))
-    return(list(Source = "Repository", Repository = repository))
-  else if (!is.null(type))
+  if (identical(type, "standard")) {
+    repository <- dcf[["RemoteReposName"]] %||% dcf[["Repository"]]
+    if (!is.null(repository))
+      return(list(Source = "Repository", Repository = repository))
+  } else if (!is.null(type)) {
     return(list(Source = alias(type)))
+  }
 
   # packages from Bioconductor are normally tagged with a 'biocViews' entry;
   # use that to infer a Bioconductor source
@@ -775,6 +817,7 @@ renv_snapshot_description_source <- function(dcf) {
     return(list(Source = "Bioconductor"))
 
   # check for a declared repository
+  repository <- dcf[["Repository"]]
   if (!is.null(repository))
     return(list(Source = "Repository", Repository = repository))
 

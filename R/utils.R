@@ -325,8 +325,16 @@ keep <- function(x, keys) {
   x[intersect(keys, names(x))]
 }
 
-exclude <- function(x, keys) {
+keep_if <- function(x, f) {
+  x[f(x)]
+}
+
+omit <- function(x, keys) {
   x[setdiff(names(x), keys)]
+}
+
+omit_if <- function(x, f) {
+  x[!f(x)]
 }
 
 invoke <- function(callback, ...) {

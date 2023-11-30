@@ -1,20 +1,37 @@
 
 the$shims <- new.env(parent = emptyenv())
 
+# determine whether we can safely handle a call to install.packages()
+renv_shim_install_packages_compatible <- function(matched) {
+  ok <- c("", "dependencies", "pkgs", "lib", "repos", "type")
+  unhandled <- setdiff(names(matched), ok)
+  length(unhandled) == 0L
+}
+
 renv_shim_install_packages <- function(pkgs, ...) {
 
   # place Rtools on PATH
   renv_scope_rtools()
 
-  # currently we only handle the case where only 'pkgs' was specified
-  if (missing(pkgs) || nargs() != 1) {
+  # check for compatible calls
+  matched <- match.call(utils::install.packages)
+  if (!renv_shim_install_packages_compatible(matched)) {
     call <- sys.call()
     call[[1L]] <- quote(utils::install.packages)
     return(eval(call, envir = parent.frame()))
   }
 
-  # otherwise, we get to handle it
-  install(pkgs)
+  # otherwise, invoke our own installer
+  call <- sys.call()
+  call[[1L]] <- quote(renv::install)
+
+  # fix up names
+  aliases <- list(lib = "library")
+  idx <- omit_if(match(names(aliases), names(call)), is.na)
+  names(call)[idx] <- aliases[idx]
+
+  # evaluate call
+  eval(call, envir = parent.frame())
 
 }
 

@@ -637,6 +637,39 @@ test_that("install() doesn't duplicate authentication headers", {
   expect_true(renv_package_installed("skeleton"))
 })
 
+test_that("install() stores repository information for installed packages", {
+
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  # unset repository option
+  repos <- getOption("repos")
+  renv_scope_options(repos = character())
+
+  # try to install a package
+  writeLines("library(bread)", con = "_deps.R")
+  install("bread", repos = c(TEST = unname(repos)))
+
+  # create a lockfile
+  snapshot()
+
+  # validate that the repository information is stored
+  lockfile <- renv_lockfile_read("renv.lock")
+  record <- lockfile$Packages$bread
+  expect_equal(!!record$Source, "Repository")
+  expect_equal(!!record$Repository, !!unname(repos))
+
+  # now, add the repository back; it should then be aliased in lockfile
+  options(repos = c(TEST = unname(repos)))
+  snapshot()
+
+  lockfile <- renv_lockfile_read("renv.lock")
+  record <- lockfile$Packages$bread
+  expect_equal(!!record$Source, "Repository")
+  expect_equal(!!record$Repository, "TEST")
+
+})
+
 test_that("install() lazily resolves project remotes", {
 
   project <- renv_tests_scope()
@@ -645,5 +678,22 @@ test_that("install() lazily resolves project remotes", {
   writeLines("Remotes: kevinushey/skeleton", con = "DESCRIPTION")
   install("bread")
   expect_false(renv_package_installed("skeleton"))
+
+})
+
+test_that("install() records the repository used to retrieve a package", {
+
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  url <- unname(getOption("repos"))
+  local({
+    renv_scope_options(repos = character())
+    install("bread", repos = c(TEST = url), rebuild = TRUE)
+  })
+
+  dcf <- renv_description_read(package = "bread")
+  expect_equal(!!dcf$RemoteRepos, !!url)
+  expect_equal(!!dcf$RemoteReposName, "TEST")
 
 })

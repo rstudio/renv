@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::install()` now records remote information for packages installed from
+  CRAN-like repositories, and uses that information when generating a lockfile
+  and restoring those packages. This helps ensure that packages installed within
+  an renv project via calls like `renv::install("<pkg>", repos = "<repos>")` can
+  still be successfully restored in future sessions. (#1765)
+
 * `renv::install()` now lazily resolves project remotes. (#1755)
 
 * `renv::init()` now respects Remotes declared within a project's `DESCRIPTION`

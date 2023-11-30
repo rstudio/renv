@@ -313,3 +313,34 @@ test_that("restore() also installs packages with broken symlinks", {
   restore()
   expect_true(renv_package_installed("breakfast"))
 })
+
+test_that("we can restore a package installed with a custom repository", {
+
+  project <- renv_tests_scope(isolated = TRUE)
+  init()
+
+  url <- unname(getOption("repos"))
+  local({
+    renv_scope_options(repos = character())
+    install("bread", repos = c(TEST = url), rebuild = TRUE)
+  })
+
+  dcf <- renv_description_read(package = "bread")
+  expect_equal(!!dcf$RemoteRepos, !!url)
+  expect_equal(!!dcf$RemoteReposName, "TEST")
+
+  writeLines("library(bread)", con = "_deps.R")
+  local({
+    renv_scope_options(repos = character())
+    snapshot()
+  })
+
+  remove.packages("bread")
+  local({
+    renv_scope_options(repos = character())
+    restore(rebuild = TRUE)
+  })
+
+  expect_true(renv_package_installed("bread"))
+
+})

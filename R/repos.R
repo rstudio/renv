@@ -8,20 +8,26 @@ renv_repos_normalize <- function(repos = getOption("repos")) {
   cran <- getOption("renv.repos.cran", "https://cloud.r-project.org")
   repos[repos == "@CRAN@"] <- cran
 
-  # if repos is length 1 but has no names, then assume it's CRAN
-  nms <- names(repos) %||% rep.int("", length(repos))
-  if (identical(nms, ""))
-    nms <- names(repos) <- "CRAN"
-
   # ensure all values are named
-  unnamed <- !nzchar(nms)
-  if (any(unnamed)) {
-    nms[unnamed] <- paste0("V", seq_len(sum(unnamed)))
-    names(repos) <- nms
-  }
+  names(repos) <- renv_repos_names(repos)
 
   # return normalized repository
   repos
+
+}
+
+renv_repos_names <- function(repos) {
+
+  # if repos is length 1 but has no names, then assume it's CRAN
+  nms <- names(repos) %||% rep.int("", length(repos))
+  if (identical(nms, ""))
+    return("CRAN")
+
+  # otherwise, just use the repository URLs as placeholder names
+  nms <- names(repos)
+  unnamed <- !nzchar(nms)
+  nms[unnamed] <- repos[unnamed]
+  nms
 
 }
 

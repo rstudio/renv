@@ -98,3 +98,18 @@ renv_record_normalize <- function(record) {
   record
 
 }
+
+renv_record_tag <- function(record, type, url, name) {
+
+  attr(record, "url")  <- url
+  attr(record, "type") <- type
+  attr(record, "name") <- name
+
+  record
+
+}
+
+renv_record_tagged <- function(record) {
+  attrs <- attributes(record)
+  all(c("url", "type") %in% names(attrs))
+}
