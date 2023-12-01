@@ -14,7 +14,7 @@
 the$dynamic_envir <- NULL
 the$dynamic_objects <- new.env(parent = emptyenv())
 
-dynamic <- function(key, value, envir = NULL) {
+dynamic <- function(key, value, envir = NULL, force = FALSE) {
 
   # allow opt-out just in case
   enabled <- getOption("renv.dynamic.enabled", default = TRUE)
@@ -44,15 +44,14 @@ dynamic <- function(key, value, envir = NULL) {
   the$dynamic_envir <- the$dynamic_envir %||% renv_dynamic_envir(envir)
 
   # resolve key from variables in the parent frame
-  key <- paste(
-    names(key),
-    map_chr(key, stringify),
-    sep = " = ",
-    collapse = ", "
-  )
+  key <- paste(names(key), map_chr(key, stringify), sep = " = ", collapse = ", ")
 
   # put it together
   id <- sprintf("%s(%s)", as.character(caller), key)
+
+  # if we're forcing, clear the memoized value
+  if (force)
+    the$dynamic_objects[[id]] <- NULL
 
   # memoize the result of the expression
   the$dynamic_objects[[id]] <- the$dynamic_objects[[id]] %||% {

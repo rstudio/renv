@@ -56,8 +56,12 @@ renv_retrieve_impl <- function(package) {
 
   # if we've already attempted retrieval of this package, skip
   state <- renv_restore_state()
-  if (visited(package, envir = state$retrieved))
+  if (!is.null(state$retrieved[[package]]))
     return()
+
+  # insert a dummy value just to avoid infinite recursions
+  # (this will get updated on a successful installation later)
+  state$retrieved[[package]] <- NA
 
   # extract record for package
   records <- state$records
@@ -1027,26 +1031,29 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
 
   # update the record's package name, version
   # TODO: should we warn if they didn't match for some reason?
-  record$Package <- desc$Package
+  package <- record$Package <- desc$Package
   record$Version <- desc$Version
 
   # add in path information to record (used later during install)
   record$Path <- path
 
-  # record this package's requirements
+  # add information on the retrieved record
   state <- renv_restore_state()
+  state$retrieved[[package]] <- record
+
+  # record this package's requirements
   requirements <- state$requirements
 
   # figure out the dependency fields to use -- if the user explicitly requested
   # this package be installed, but also provided a 'dependencies' argument in
   # the call to 'install()', then we want to use those
-  fields <- if (record$Package %in% state$packages) the$install_dependency_fields else "strong"
+  fields <- if (package %in% state$packages) the$install_dependency_fields else "strong"
   deps <- renv_dependencies_discover_description(path, subdir = subdir, fields = fields)
   if (length(deps$Source))
     deps$Source <- record$Package
 
   rowapply(deps, function(dep) {
-    package <- dep$Package
+    package <- dep[["Package"]]
     requirements[[package]] <- requirements[[package]] %||% stack()
     requirements[[package]]$push(dep)
   })
@@ -1077,11 +1084,43 @@ renv_retrieve_successful_recurse <- function(deps) {
     renv_retrieve_successful_recurse_impl(remote)
 }
 
+renv_retrieve_successful_recurse_impl_check <- function(remote) {
+
+  # only done for package names
+  if (!grepl(renv_regexps_package_name(), remote))
+    return(FALSE)
+
+  # check whether this package has been retrieved yet
+  state <- renv_restore_state()
+  record <- state$retrieved[[remote]]
+  if (is.null(record))
+    return(FALSE)
+
+  # check the current requirements for this package
+  incompat <- renv_retrieve_incompatible(remote, record)
+  if (is.null(incompat))
+    return(FALSE)
+
+  # we have an incompatible record; ensure it gets retrieved
+  state$retrieved[[remote]] <- NULL
+  TRUE
+
+}
+
 renv_retrieve_successful_recurse_impl <- function(remote) {
+
+  # if remote is a plain package name that we've already retrieved,
+  # we may need to retrieve it again if the version of that package
+  # required is greater than the previously-obtained version
+  #
+  # TODO: implement a proper solver so we can stop doing these hacks...
+  # if this is a 'plain' package remote, retrieve it
+  force <- renv_retrieve_successful_recurse_impl_check(remote)
 
   dynamic(
     key   = list(remote = remote),
-    value = renv_retrieve_successful_recurse_impl_one(remote)
+    value = renv_retrieve_successful_recurse_impl_one(remote),
+    force = force
   )
 
 }
@@ -1172,7 +1211,7 @@ renv_retrieve_remotes_impl_one <- function(remote) {
   state$records[[package]] <- resolved
 
   # mark the record as needing retrieval
-  state$retrieved[[package]] <- FALSE
+  state$retrieved[[package]] <- NULL
 
   # return new record
   invisible(resolved)

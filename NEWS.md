@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where `renv::install()` could fail to detect incompatible
+  recursive package dependencies. (#1671)
+
 * `renv::install()` now records remote information for packages installed from
   CRAN-like repositories, and uses that information when generating a lockfile
   and restoring those packages. This helps ensure that packages installed within
