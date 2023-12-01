@@ -61,7 +61,7 @@ renv_watchdog_server_run <- function(server, client, lockenv) {
 
     ListLocks = {
       dlog("watchdog-server", "Executing 'ListLocks' request.")
-      conn <- renv_socket_connect(port = request$port, open = "watchdog-server", "b")
+      conn <- renv_socket_connect(port = request$port, open = "wb")
       defer(close(conn))
       locks <- ls(envir = lockenv, all.names = TRUE)
       serialize(locks, connection = conn)

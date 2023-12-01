@@ -139,8 +139,8 @@ renv_watchdog_start_impl <- function() {
   }
 
   # store information about the running process
+  defer(close(conn))
   the$watchdog_process <- unserialize(conn)
-  close(conn)
 
   # return TRUE to indicate process was started
   dlog("watchdog", "watchdog message received [pid == %i]", the$watchdog_process$pid)
