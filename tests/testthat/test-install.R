@@ -697,3 +697,15 @@ test_that("install() records the repository used to retrieve a package", {
   expect_equal(!!dcf$RemoteReposName, "TEST")
 
 })
+
+test_that("recursive dependency versions are properly resolved", {
+
+  project <- renv_tests_scope()
+  init()
+
+  install("phone@0.1.0")
+  install("jamie")
+
+  expect_equal(renv_package_version("phone"), "1.0.0")
+
+})
