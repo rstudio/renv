@@ -262,7 +262,7 @@ renv_restore_begin <- function(project = NULL,
     retrieved = new.env(parent = emptyenv()),
 
     # packages which need to be installed
-    install = stack(),
+    install = mapping(),
 
     # a collection of the requirements imposed on dependent packages
     # as they are discovered

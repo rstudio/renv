@@ -42,9 +42,7 @@ retrieve <- function(packages) {
     writef("")
   }
 
-  data <- state$install$data()
-  names(data) <- extract_chr(data, "Package")
-  data
+  state$install$data()
 
 }
 
@@ -1071,15 +1069,15 @@ renv_retrieve_successful <- function(record, path, install = TRUE) {
   })
 
   # mark package as requiring install if needed
-  if (install)
-    state$install$push(record)
+  if (install && !state$install$contains(package))
+    state$install$insert(package, record)
 
   TRUE
 
 }
 
 renv_retrieve_successful_recurse <- function(deps) {
-  remotes <- unique(deps$Package)
+  remotes <- setdiff(unique(deps$Package), renv_packages_base())
   for (remote in remotes)
     renv_retrieve_successful_recurse_impl(remote)
 }
@@ -1098,7 +1096,7 @@ renv_retrieve_successful_recurse_impl_check <- function(remote) {
 
   # check the current requirements for this package
   incompat <- renv_retrieve_incompatible(remote, record)
-  if (is.null(incompat))
+  if (NROW(incompat) == 0L)
     return(FALSE)
 
   # we have an incompatible record; ensure it gets retrieved
