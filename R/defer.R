@@ -2,6 +2,17 @@
 # environment hosting exit callbacks
 the$defer_callbacks <- new.env(parent = emptyenv())
 
+renv_defer_init <- function() {
+
+  # make sure we run callbacks set on the global environment on exit
+  # but only in non-interactive sessions, just to be safe
+  if (interactive())
+    return()
+
+  reg.finalizer(.GlobalEnv, renv_defer_execute, onexit = TRUE)
+
+}
+
 defer <- function(expr, scope = parent.frame()) {
 
   handler <- renv_defer_add(

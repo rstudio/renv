@@ -62,6 +62,7 @@ renv_zzz_load <- function() {
 
   }
 
+  renv_defer_init()
   renv_metadata_init()
   renv_platform_init()
   renv_virtualization_init()

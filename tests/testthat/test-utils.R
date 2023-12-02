@@ -197,11 +197,11 @@ test_that("ensure_directory() works even under contention", {
   file.create(waitfile)
 
   responses <- stack()
-  for (i in 1:n) {
+  for (i in 1:n) local({
     conn <- renv_socket_accept(server$socket, open = "rb", timeout = 3)
+    defer(close(conn))
     responses$push(unserialize(conn))
-    close(conn)
-  }
+  })
 
   expect_true(all(unlist(responses$data())))
 
