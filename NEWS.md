@@ -1,6 +1,9 @@
 # renv (development version)
 
-* `renv` now uses `--ssl-revoke-best-effort` by default when downloading files
+* renv now sets the `R_INSTALL_TAR` environment variable to match the default
+  `tar` executable (if any) when installing packages. (#1724)
+
+* renv now uses `--ssl-revoke-best-effort` by default when downloading files
   using `curl` on Windows. (#1739)
 
 * Fixed an issue where `renv::install()` could fail to detect incompatible

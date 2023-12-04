@@ -1,5 +1,5 @@
 
-renv_tar_exe <- function() {
+renv_tar_exe <- function(default = "") {
 
   # allow override
   tar <- getOption("renv.tar.exe")
@@ -7,8 +7,11 @@ renv_tar_exe <- function() {
     return(tar)
 
   # on unix, just use default
-  if (renv_platform_unix())
-    return(Sys.which("tar"))
+  if (renv_platform_unix()) {
+    tar <- Sys.which("tar")
+    if (nzchar(tar))
+      return(tar)
+  }
 
   # on Windows, use system tar.exe if available
   root <- Sys.getenv("SystemRoot", unset = NA)
@@ -21,7 +24,7 @@ renv_tar_exe <- function() {
     return(tarpath)
 
   # otherwise, give up (don't trust the arbitrary tar on PATH)
-  ""
+  default
 
 }
 
