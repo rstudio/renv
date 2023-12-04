@@ -311,8 +311,11 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   }
 
   # https://github.com/rstudio/renv/issues/1739
-  if (renv_platform_windows())
-    args$push("--ssl-revoke-best-effort")
+  if (renv_platform_windows()) {
+    enabled <- Sys.getenv("R_LIBCURL_SSL_REVOKE_BEST_EFFORT", unset = "TRUE")
+    if (truthy(enabled))
+      args$push("--ssl-revoke-best-effort")
+  }
 
   # add in any user configuration files
   userconfig <- getOption(
