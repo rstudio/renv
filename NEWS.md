@@ -1,5 +1,8 @@
 # renv (development version)
 
+* `renv` now uses `--ssl-revoke-best-effort` by default when downloading files
+  using `curl` on Windows. (#1739)
+
 * Fixed an issue where `renv::install()` could fail to detect incompatible
   recursive package dependencies. (#1671)
 
