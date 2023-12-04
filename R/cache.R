@@ -12,6 +12,24 @@ renv_cache_version_previous <- function() {
   paste("v", number - 1L, sep = "")
 }
 
+renv_cache_init <- function() {
+
+  if (testing() || checking())
+    return()
+
+  root <- renv_paths_root()
+  if (!file.exists(root))
+    return()
+
+  cache <- renv_paths_cache()
+  ensure_directory(cache)
+
+  ignorefile <- file.path(cache, ".renvignore")
+  if (!file.exists(ignorefile))
+    writeLines("*", con = ignorefile)
+
+}
+
 # given a record, find a compatible version of that package in the cache,
 # using a computed hash if available; if no hash is available, then try
 # to match based on the package name + version
