@@ -26,8 +26,8 @@ renv_options_override <- function(scope, key, default = NULL, extra = NULL) {
   if (key %in% names(value))
     return(renv_options_resolve(value[[key]], list(extra)))
 
-  # resolve option value
-  if (!is.null(value))
+  # check for functional value
+  if (is.function(value))
     return(renv_options_resolve(value, list(key, extra)))
 
   # nothing found; use default

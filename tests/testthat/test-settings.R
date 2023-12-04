@@ -87,3 +87,10 @@ test_that("project settings are migrated from dcf to json", {
   expect_mapequal(old, new)
 
 })
+
+test_that("a settings global option is handled correctly", {
+  renv_tests_scope()
+  renv_scope_options(renv.settings = list(ignored.packages = "odbc"))
+  expect_equal(settings$ignored.packages(), "odbc")
+  expect_null(settings$bioconductor.version())
+})
