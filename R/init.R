@@ -220,11 +220,20 @@ renv_init_action_conflict_library <- function(project, library, lockfile) {
   if (!interactive())
     return("nothing")
 
-  # if the project library exists, but it's empty, or only renv is installed,
+  # if the project library exists, but it's empty,
   # treat this as a request to initialize the project
   # https://github.com/rstudio/renv/issues/1668
   db <- installed_packages(lib.loc = library, priority = NA_character_)
-  if (nrow(db) == 0L || identical(db$Package, "renv"))
+  if (nrow(db) == 0L)
+    return("init")
+
+  # if only renv is installed, but it matches the version of renv being used
+  renvonly <-
+    NROW(db) == 1L &&
+    db[["Package"]] == "renv" &&
+    db[["Version"]] == renv_package_version("renv")
+
+  if (renvonly)
     return("init")
 
   title <- "This project already has a private library. What would you like to do?"
