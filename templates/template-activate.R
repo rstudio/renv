@@ -50,8 +50,21 @@ local({
 
   })
 
-  if (!enabled)
+  # bail if we're not enabled
+  if (!enabled) {
+
+    # if we're not enabled, we might still need to manually load
+    # the user profile here
+    profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
+    if (file.exists(profile)) {
+      cfg <- Sys.getenv("RENV_CONFIG_USER_PROFILE", unset = "TRUE")
+      if (cfg %in% c("TRUE", "True", "true", "T", "1"))
+        sys.source(profile, envir = globalenv())
+    }
+
     return(FALSE)
+
+  }
 
   # avoid recursion
   if (identical(getOption("renv.autoloader.running"), TRUE)) {
