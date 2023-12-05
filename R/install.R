@@ -646,10 +646,10 @@ renv_install_test <- function(package) {
   # we use 'loadNamespace()' rather than 'library()' because some packages might
   # intentionally throw an error in their .onAttach() hooks
   # https://github.com/rstudio/renv/issues/1611
-  code <- substitute({
+  code <- inject({
     options(warn = 1L)
     loadNamespace(package)
-  }, list(package = package))
+  })
 
   # write it to a tempfile
   script <- renv_scope_tempfile("renv-install-", fileext = ".R")

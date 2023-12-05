@@ -105,11 +105,12 @@ renv_upgrade_impl <- function(project, version, reload, prompt) {
   #
   # https://github.com/rstudio/renv/issues/1546
   writef("- Updating activate script")
-  code <- substitute({
+  record <- records[["renv"]]
+  code <- inject({
     renv <- asNamespace("renv"); renv$summon()
     version <- renv_metadata_version_create(record)
     renv_infrastructure_write(project, version = version)
-  }, list(project = project, record = records[["renv"]]))
+  })
 
   script <- renv_scope_tempfile("renv-activate-", fileext = ".R")
   writeLines(deparse(code), con = script)

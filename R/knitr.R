@@ -42,7 +42,7 @@ renv_knitr_options_header_impl <- function(rest) {
   if (inherits(params, "error"))
     return(list())
 
-  # inject the label back in
+  # insert the label back in
   names(params) <- names(params) %||% rep.int("", length(params))
   if (length(params) > 1 && names(params)[[2L]] == "")
     names(params)[[2L]] <- "label"

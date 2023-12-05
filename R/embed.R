@@ -151,7 +151,7 @@ renv_embed_r <- function(path, ..., lockfile = NULL, project = NULL) {
   lines <- grep("^\\s*\\)\\s*$", contents, perl = TRUE)
   end <- min(lines[lines > start], n + 1L)
 
-  # inject new lockfile
+  # insert new lockfile
   contents <- c(
     head(contents, n = start - 1L),
     embed,
@@ -234,7 +234,7 @@ renv_embed_rmd <- function(path,
   ends <- which(contents == footer)
   end <- min(ends[ends > start])
 
-  # inject new lockfile
+  # insert new lockfile
   contents <- c(
     head(contents, n = start - 1L),
     embed,

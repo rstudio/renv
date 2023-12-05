@@ -71,7 +71,7 @@ restore <- function(project  = NULL,
   if (is.character(lockfile))
     lockfile <- renv_lockfile_read(lockfile)
 
-  # inject overrides (if any)
+  # insert overrides (if any)
   lockfile <- renv_lockfile_override(lockfile)
 
   # repair potential issues in the lockfile

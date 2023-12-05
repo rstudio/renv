@@ -70,12 +70,7 @@ renv_run_job <- function(script, name, project) {
   activate <- renv_paths_activate(project = project)
   jobscript <- tempfile("renv-job-", fileext = ".R")
 
-  exprs <- substitute(local({
-    defer(unlink(jobscript))
-    source(activate)
-    source(script)
-  }), list(activate = activate, script = script, jobscript = jobscript))
-
+  exprs <- inject({ source(activate); source(script) })
   code <- deparse(exprs)
   writeLines(code, con = jobscript)
 

@@ -98,14 +98,7 @@ renv_watchdog_start_impl <- function() {
   name <- .packageName
   pid <- Sys.getpid()
 
-  env <- list(
-    name    = name,
-    library = library,
-    pid     = pid,
-    port    = port
-  )
-
-  code <- substitute(env = env, {
+  code <- inject({
     client <- list(pid = pid, port = port)
     host <- loadNamespace(name, lib.loc = library)
     renv <- if (!is.null(host$renv)) host$renv else host

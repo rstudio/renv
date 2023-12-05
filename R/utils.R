@@ -203,7 +203,7 @@ menu <- function(choices, title, default = 1L) {
 
 # nocov end
 
-inject <- function(contents,
+insert <- function(contents,
                    pattern,
                    replacement,
                    anchor = NULL,
@@ -591,4 +591,20 @@ topfun <- function() {
 warnify <- function(cnd) {
   class(cnd) <- c("warning", "condition")
   warning(cnd)
+}
+
+# a friendlier version of substitute, which handles promises
+inject <- function(expr, envir = parent.frame()) {
+
+  # replace promises in environments with their evaluated equivalents
+  if (is.environment(envir)) {
+    keys <- ls(envir = envir, all.names = TRUE)
+    for (key in keys)
+      envir[[key]] <- envir[[key]]
+  }
+
+  # now, perform the substitution
+  expr <- call("substitute", substitute(expr))
+  eval(expr, envir = envir)
+
 }
