@@ -58,7 +58,7 @@ local({
     profile <- Sys.getenv("R_PROFILE_USER", unset = "~/.Rprofile")
     if (file.exists(profile)) {
       cfg <- Sys.getenv("RENV_CONFIG_USER_PROFILE", unset = "TRUE")
-      if (cfg %in% c("TRUE", "True", "true", "T", "1"))
+      if (tolower(cfg) %in% c("true", "t", "1"))
         sys.source(profile, envir = globalenv())
     }
 
