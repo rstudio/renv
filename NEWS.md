@@ -1,5 +1,8 @@
 # renv (development version)
 
+* `renv::init()` now respects the `Remotes:` field declared in a project's
+  `DESCRIPTION` file, if any. (#1522)
+
 * `renv::embed()` now supports Quarto Markdown (`.qmd`) files. (#1700)
 
 * renv now sets the `R_INSTALL_TAR` environment variable to match the default

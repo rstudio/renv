@@ -102,7 +102,7 @@ renv_project_type_impl <- function(path) {
 
 }
 
-renv_project_remotes <- function(project, fields = NULL) {
+renv_project_remotes <- function(project, fields = NULL, resolve = FALSE) {
 
   descpath <- file.path(project, "DESCRIPTION")
   if (!file.exists(descpath))
@@ -167,8 +167,7 @@ renv_project_remotes <- function(project, fields = NULL) {
 
   })
 
-  # return records
-  records
+  if (resolve) map(records, resolve) else records
 
 }
 

@@ -87,9 +87,15 @@ hydrate <- function(packages = NULL,
   # remove 'renv' since it's managed separately
   deps$renv <- NULL
 
+  # figure out required packages which aren't installed
+  missing <- deps[!nzchar(deps)]
+
+  # also consider remotes; treat these as 'missing' so we always try to install them
+  remotes <- renv_project_remotes(project = project, resolve = TRUE)
+  missing[map_chr(remotes, `[[`, "Package")] <- ""
+
   # remove base + missing packages
   base <- renv_packages_base()
-  missing <- deps[!nzchar(deps)]
   packages <- deps[renv_vector_diff(names(deps), c(names(missing), base))]
 
   # figure out if we will copy or link
@@ -133,7 +139,7 @@ hydrate <- function(packages = NULL,
   }
 
   # attempt to install missing packages (if any)
-  missing <- renv_hydrate_resolve_missing(project, library, missing)
+  missing <- renv_hydrate_resolve_missing(project, library, remotes, missing)
 
   # we're done!
   result <- list(packages = packages, missing = missing)
@@ -293,24 +299,19 @@ renv_hydrate_copy_packages <- function(packages, library, project) {
   copied
 }
 
-renv_hydrate_resolve_missing <- function(project, library, na) {
+renv_hydrate_resolve_missing <- function(project, library, remotes, missing) {
 
   # make sure requested library is made active
   #
   # note that we only want to place the requested library on the library path;
   # we want to ensure that all required packages are hydrated into the
-  # reqeusted library
+  # requested library
   #
   # https://github.com/rstudio/renv/issues/1177
   ensure_directory(library)
   renv_scope_libpaths(library)
 
-  # figure out which packages are missing (if any)
-  packages <- names(na)
-  installed <- installed_packages(lib.loc = library)
-  if (all(packages %in% installed$Package))
-    return()
-
+  packages <- names(missing)
   writef("- Resolving missing dependencies ... ")
 
   # define a custom error handler for packages which we cannot retrieve
@@ -321,15 +322,12 @@ renv_hydrate_resolve_missing <- function(project, library, na) {
       errors$push(list(package = package, error = error))
   }
 
-  # get project records, if any
-  records <- renv_project_remotes(project = project)
-
   # perform the restore
   renv_scope_restore(
     project  = project,
     library  = library,
     packages = packages,
-    records  = records,
+    records  = remotes,
     handler  = handler
   )
 

@@ -102,8 +102,13 @@ catch <- function(expr) {
 
 catchall <- function(expr) {
   tryCatch(
-    withCallingHandlers(expr, condition = renv_error_capture),
-    condition = renv_error_tag
+    withCallingHandlers(
+      expr = expr,
+      error = renv_error_capture,
+      warning = renv_error_capture
+    ),
+    error = renv_error_tag,
+    warning = renv_error_tag
   )
 }
 
