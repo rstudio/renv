@@ -258,9 +258,9 @@ renv_lockfile_compact <- function(lockfile) {
   records <- renv_lockfile_records(lockfile)
   remotes <- map_chr(records, renv_record_format_remote)
 
-  remotes <- csort(remotes)
+  remotes <- remotes[sort(names(remotes))]
 
-  formatted <- sprintf("  \"%s\"", remotes)
+  formatted <- sprintf("  %s = \"%s\"", format(names(remotes)), remotes)
   joined <- paste(formatted, collapse = ",\n")
 
   all <- c("renv::use(", joined, ")")

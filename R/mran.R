@@ -106,7 +106,7 @@ renv_mran_database_dates <- function(version, all = TRUE) {
     "4.0" = "2020-04-24",
     "4.1" = "2021-05-18",
     "4.2" = "2022-04-22",
-    "4.3" = "2023-05-18",  # a guess
+    "4.3" = "2023-04-21",
     "4.4" = "2024-05-18",  # a guess
     NULL
   )
@@ -177,7 +177,7 @@ renv_mran_database_update_impl <- function(date, url, entry) {
 
   # retrieve available packages
   errors <- new.env(parent = emptyenv())
-  db <- renv_available_packages_query_impl(url, errors)
+  db <- renv_available_packages_query_impl(url, "binary", errors)
   if (is.null(db)) {
     writef("ERROR")
     return(FALSE)
@@ -202,7 +202,8 @@ renv_mran_database_update_impl <- function(date, url, entry) {
 }
 
 renv_mran_url <- function(date, suffix) {
-  root <- Sys.getenv("RENV_MRAN_URL", unset = "https://mran.microsoft.com/snapshot")
+  default <- "https://packagemanager.posit.co/cran"
+  root <- Sys.getenv("RENV_MRAN_URL", unset = default)
   snapshot <- file.path(root, date)
   paste(snapshot, suffix, sep = "")
 }
@@ -309,38 +310,55 @@ renv_mran_database_sync <- function(platform, version) {
 
 renv_mran_database_sync_all <- function() {
 
+  tryCatch(
+    renv_mran_database_sync_all_impl(),
+    interrupt = identity
+  )
+
+}
+
+renv_mran_database_sync_all_impl <- function() {
+
   # NOTE: this needs to be manually updated since the binary URL for
   # packages can change from version to version, especially on macOS
 
-  # R 3.2
-  renv_mran_database_sync("windows", "3.2")
-  renv_mran_database_sync("macosx/mavericks", "3.2")
-
-  # R 3.3
-  renv_mran_database_sync("windows", "3.3")
-  renv_mran_database_sync("macosx/mavericks", "3.3")
-
-  # R 3.4
-  renv_mran_database_sync("windows", "3.4")
-  renv_mran_database_sync("macosx/el-capitan", "3.4")
-
-  # R 3.5
-  renv_mran_database_sync("windows", "3.5")
-  renv_mran_database_sync("macosx/el-capitan", "3.5")
-
-  # R 3.6
-  renv_mran_database_sync("windows", "3.6")
-  renv_mran_database_sync("macosx/el-capitan", "3.6")
-
-  # R 4.0
-  renv_mran_database_sync("windows", "4.0")
-  renv_mran_database_sync("macosx", "4.0")
+#  # R 3.2
+#  renv_mran_database_sync("windows", "3.2")
+#  renv_mran_database_sync("macosx/mavericks", "3.2")
+#
+#  # R 3.3
+#  renv_mran_database_sync("windows", "3.3")
+#  renv_mran_database_sync("macosx/mavericks", "3.3")
+#
+#  # R 3.4
+#  renv_mran_database_sync("windows", "3.4")
+#  renv_mran_database_sync("macosx/el-capitan", "3.4")
+#
+#  # R 3.5
+#  renv_mran_database_sync("windows", "3.5")
+#  renv_mran_database_sync("macosx/el-capitan", "3.5")
+#
+#  # R 3.6
+#  renv_mran_database_sync("windows", "3.6")
+#  renv_mran_database_sync("macosx/el-capitan", "3.6")
+#
+#  # R 4.0
+#  renv_mran_database_sync("windows", "4.0")
+#  renv_mran_database_sync("macosx", "4.0")
 
   # R 4.1
   renv_mran_database_sync("windows", "4.1")
   renv_mran_database_sync("macosx", "4.1")
   renv_mran_database_sync("macosx/big-sur-arm64", "4.1")
 
+  # R 4.2
+  renv_mran_database_sync("windows", "4.2")
+  renv_mran_database_sync("macosx", "4.2")
+  renv_mran_database_sync("macosx/big-sur-arm64", "4.2")
 
+  # R 4.3
+  renv_mran_database_sync("windows", "4.3")
+  renv_mran_database_sync("macosx", "4.3")
+  renv_mran_database_sync("macosx/big-sur-arm64", "4.3")
 
 }
