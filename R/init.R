@@ -141,7 +141,7 @@ init <- function(project = NULL,
     renv_scope_options(renv.config.dependency.errors = "ignored")
     renv_imbue_impl(project, library = library)
     hydrate(library = library, repos = repos, prompt = FALSE, report = FALSE, project = project)
-    snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
+    snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project, force = TRUE)
   } else if (action == "restore") {
     ensure_directory(library)
     renv_sandbox_activate(project = project)
