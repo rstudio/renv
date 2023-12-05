@@ -263,7 +263,7 @@ test_that("init() respects user-requested snapshot type", {
   expect_equal(settings$snapshot.type(), "explicit")
 })
 
-test_that("init() respected Remotes in a project DESCRIPTION file", {
+test_that("init() respects Remotes in a project DESCRIPTION file", {
   project <- renv_tests_scope("skeleton")
   writeLines("Depends: skeleton\nRemotes: kevinushey/skeleton", con = "DESCRIPTION")
   init()
