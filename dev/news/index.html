@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/embed.html">renv::embed()</a></code> now supports Quarto Markdown (<code>.qmd</code>) files. (<a href="https://github.com/rstudio/renv/issues/1700" class="external-link">#1700</a>)</p></li>
+<ul><li><p><code><a href="../reference/init.html">renv::init()</a></code> now respects the <code>Remotes:</code> field declared in a project’s <code>DESCRIPTION</code> file, if any. (<a href="https://github.com/rstudio/renv/issues/1522" class="external-link">#1522</a>)</p></li>
+<li><p><code><a href="../reference/embed.html">renv::embed()</a></code> now supports Quarto Markdown (<code>.qmd</code>) files. (<a href="https://github.com/rstudio/renv/issues/1700" class="external-link">#1700</a>)</p></li>
 <li><p>renv now sets the <code>R_INSTALL_TAR</code> environment variable to match the default <code>tar</code> executable (if any) when installing packages. (<a href="https://github.com/rstudio/renv/issues/1724" class="external-link">#1724</a>)</p></li>
 <li><p>renv now uses <code>--ssl-revoke-best-effort</code> by default when downloading files using <code>curl</code> on Windows. (<a href="https://github.com/rstudio/renv/issues/1739" class="external-link">#1739</a>)</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/install.html">renv::install()</a></code> could fail to detect incompatible recursive package dependencies. (<a href="https://github.com/rstudio/renv/issues/1671" class="external-link">#1671</a>)</p></li>
