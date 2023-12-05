@@ -1,5 +1,7 @@
 # renv (development version)
 
+* `renv::embed()` now supports Quarto Markdown (`.qmd`) files. (#1700)
+
 * renv now sets the `R_INSTALL_TAR` environment variable to match the default
   `tar` executable (if any) when installing packages. (#1724)
 

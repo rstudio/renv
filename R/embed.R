@@ -66,7 +66,8 @@ embed <- function(path = NULL,
   ext <- tolower(fileext(path))
   method <- case(
     ext == ".r"   ~ renv_embed_r,
-    ext == ".rmd" ~ renv_embed_rmd
+    ext == ".rmd" ~ renv_embed_rmd,
+    ext == ".qmd" ~ renv_embed_rmd
   )
 
   if (is.null(method)) {
