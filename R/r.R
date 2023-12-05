@@ -16,7 +16,7 @@ r <- function(args, ...) {
   renv_scope_rtools()
 
   # use the same tar for installation as currently configured
-  tar <- renv_tar_exe(default = "internal")
+  tar <- Sys.getenv("R_INSTALL_TAR", unset = renv_tar_exe(default = "internal"))
   renv_scope_envvars(R_INSTALL_TAR = tar)
 
   # invoke r
