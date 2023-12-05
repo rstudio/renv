@@ -165,6 +165,10 @@ renv_available_packages_query_impl <- function(url, type, errors) {
 
 renv_available_packages_success <- function(db, url, type) {
 
+  # https://github.com/rstudio/renv/issues/1706
+  if (empty(db))
+    return(NULL)
+
   # convert to data.frame
   db <- as_data_frame(db)
   if (nrow(db) == 0L)
