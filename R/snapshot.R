@@ -898,7 +898,8 @@ renv_snapshot_report_actions <- function(actions, old, new) {
   if (rdiff != 0L) {
     n <- max(nchar(names(actions)), 0)
     fmt <- paste("-", format("R", width = n), " ", "[%s -> %s]")
-    msg <- sprintf(fmt, oldr %||% "*", newr %||% "*")
+    placeholder <- renv_record_placeholder()
+    msg <- sprintf(fmt, oldr %||% placeholder, newr %||% placeholder)
     writef(
       c("The version of R recorded in the lockfile will be updated:", msg, "")
     )

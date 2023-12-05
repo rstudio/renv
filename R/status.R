@@ -289,10 +289,14 @@ renv_status_check_synchronized <- function(lockfile, library) {
   }
 
   pkgs <- names(actions[actions %in% rest])
+  formatter <- function(lhs, rhs)
+    renv_record_format_pair(lhs, rhs, separator = "!=")
+
   renv_pretty_print_records_pair(
-    preamble = "The following package(s) are out of sync [lockfile -> library]:",
-    lockfile[pkgs],
-    library[pkgs],
+    preamble = "The following package(s) are out of sync [lockfile != library]:",
+    old = lockfile[pkgs],
+    new = library[pkgs],
+    formatter = formatter
   )
 
   FALSE

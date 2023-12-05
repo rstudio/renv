@@ -113,3 +113,9 @@ renv_record_tagged <- function(record) {
   attrs <- attributes(record)
   all(c("url", "type") %in% names(attrs))
 }
+
+# abstracted out in case we want to use a different sigil in the future,
+# like `_`, `<NA>`, or something else
+renv_record_placeholder <- function() {
+  "*"
+}

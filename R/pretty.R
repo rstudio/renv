@@ -22,10 +22,10 @@ renv_pretty_print_records <- function(preamble, records, postamble = NULL) {
 }
 
 renv_pretty_print_records_pair <- function(preamble,
-                                                old,
-                                                new,
-                                                postamble = NULL,
-                                                formatter = NULL)
+                                           old,
+                                           new,
+                                           postamble = NULL,
+                                           formatter = NULL)
 {
   formatter <- formatter %||% renv_record_format_pair
 
