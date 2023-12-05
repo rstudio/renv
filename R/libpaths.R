@@ -1,12 +1,12 @@
 
-the$libpaths <- new.env(parent = emptyenv())
+the$default_libpaths <- new.env(parent = emptyenv())
 
 # NOTE: if sandboxing is used then these symbols will be clobbered;
 # save them so we can properly restore them later if so required
 renv_libpaths_init <- function() {
-  assign(".libPaths()",   .libPaths(),   envir = the$libpaths)
-  assign(".Library",      .Library,      envir = the$libpaths)
-  assign(".Library.site", .Library.site, envir = the$libpaths)
+  assign(".libPaths()",   .libPaths(),   envir = the$default_libpaths)
+  assign(".Library",      .Library,      envir = the$default_libpaths)
+  assign(".Library.site", .Library.site, envir = the$default_libpaths)
 }
 
 renv_libpaths_active <- function() {
@@ -18,11 +18,11 @@ renv_libpaths_all <- function() {
 }
 
 renv_libpaths_system <- function() {
-  get(".Library", envir = the$libpaths)
+  get(".Library", envir = the$default_libpaths)
 }
 
 renv_libpaths_site <- function() {
-  get(".Library.site", envir = the$libpaths)
+  get(".Library.site", envir = the$default_libpaths)
 }
 
 renv_libpaths_external <- function(project) {
@@ -140,7 +140,7 @@ renv_libpaths_set <- function(libpaths) {
 }
 
 renv_libpaths_default <- function() {
-  the$libpaths$`.libPaths()`
+  the$default_libpaths$`.libPaths()`
 }
 
 # NOTE: may return more than one library path!
@@ -180,7 +180,7 @@ renv_init_libpaths <- function(project) {
 }
 
 renv_libpaths_restore <- function() {
-  libpaths <- get(".libPaths()", envir = the$libpaths)
+  libpaths <- get(".libPaths()", envir = the$default_libpaths)
   renv_libpaths_set(libpaths)
 }
 

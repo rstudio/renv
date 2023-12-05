@@ -11,7 +11,7 @@ test_that("autoload() works", {
   init()
 
   # make sure we have renv installed for this test
-  libpaths <- the$libpaths[[".libPaths()"]]
+  libpaths <- the$default_libpaths[[".libPaths()"]]
   source <- find.package("renv", lib.loc = libpaths)
   renv_imbue_self(project, source = source)
 

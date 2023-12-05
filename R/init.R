@@ -127,7 +127,7 @@ init <- function(project = NULL,
   }
 
   # compute and cache dependencies to (a) reveal problems early and (b) compute once
-  deps <- renv_snapshot_dependencies(project, type = type, dev = TRUE)
+  renv_snapshot_dependencies(project, type = type, dev = TRUE)
 
   # determine appropriate action
   action <- renv_init_action(project, library, lockfile, bioconductor)
@@ -144,6 +144,7 @@ init <- function(project = NULL,
     snapshot(library = libpaths, repos = repos, prompt = FALSE, project = project)
   } else if (action == "restore") {
     ensure_directory(library)
+    renv_sandbox_activate(project = project)
     restore(project = project, library = libpaths, repos = repos, prompt = FALSE)
   }
 
