@@ -507,6 +507,18 @@ remote, it can be supplied with a prefix of the form
 at <a href="https://github.com/igraph/rigraph" class="external-link uri">https://github.com/igraph/rigraph</a> could be installed
 with:</p>
 <pre><code><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="../reference/install.html">install</a></span><span class="op">(</span><span class="st">"igraph=igraph/rigraph"</span><span class="op">)</span></span></code></pre>
+<div class="section level4">
+<h4 id="azure-devops">Azure DevOps<a class="anchor" aria-label="anchor" href="#azure-devops"></a>
+</h4>
+<p>Authentication with Azure DevOps may require credentials to be set in
+a slightly different way. In particular, you can use:</p>
+<pre><code>GITHUB_USER = &lt;username&gt;
+GITHUB_PASS = &lt;password&gt;</code></pre>
+<p>replacing <code>&lt;username&gt;</code> and
+<code>&lt;password&gt;</code> as appropriate – for example, your
+password may just be a PAT. See <a href="https://github.com/rstudio/renv/issues/1751" class="external-link uri">https://github.com/rstudio/renv/issues/1751</a> for more
+details.</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="custom-headers">Custom headers<a class="anchor" aria-label="anchor" href="#custom-headers"></a>
@@ -521,7 +533,7 @@ accessing that URL.</p>
 access that repository are stored in the <code>AUTH_HEADER</code>
 environment variable. You could define
 <code>renv.download.headers</code> like so:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.headers <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^https://my/repository"</span>, <span class="va">url</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Authorization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"AUTH_HEADER"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -535,7 +547,7 @@ whenever it attempts to download files from the repository at URL
 </h3>
 <p>If having problems with downloads, you can get more debugging
 information (including raw requests and responses) by setting:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>renv.download.trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 </div>
 </div>
