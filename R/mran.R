@@ -108,6 +108,7 @@ renv_mran_database_dates <- function(version, all = TRUE) {
     "4.2" = "2022-04-22",
     "4.3" = "2023-04-21",
     "4.4" = "2024-05-18",  # a guess
+    "4.5" = "2025-05-18",  # a guess
     NULL
   )
 
