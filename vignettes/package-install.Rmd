@@ -318,6 +318,18 @@ For example, the igraph package on GitHub at <https://github.com/igraph/rigraph>
 renv::install("igraph=igraph/rigraph")
 ```
 
+#### Azure DevOps
+
+Authentication with Azure DevOps may require credentials to be set in a slightly different way. In particular, you can use:
+
+```
+GITHUB_USER = <username>
+GITHUB_PASS = <password>
+```
+
+replacing `<username>` and `<password>` as appropriate -- for example, your password may just be a PAT. See https://github.com/rstudio/renv/issues/1751 for more details.
+
+
 ### Custom headers
 
 If you want to set arbitrary headers when downloading files using renv, you can do so using the `renv.download.headers` R option.
