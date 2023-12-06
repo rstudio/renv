@@ -527,13 +527,32 @@ renv_download_auth_github <- function() {
 
 renv_download_auth_github_pat <- function() {
 
+  # check for an existing PAT
   pat <- Sys.getenv("GITHUB_PAT", unset = NA)
   if (!is.na(pat))
     return(pat)
 
-  token <- tryCatch(gitcreds::gitcreds_get(), error = function(e) NULL)
-  if (!is.null(token))
-    return(token$password)
+  # if gitcreds is available, try to use it
+  if (requireNamespace("gitcreds", quietly = TRUE)) {
+
+    token <- tryCatch(gitcreds::gitcreds_get(), error = function(cnd) {
+      warning(conditionMessage(cnd))
+      NULL
+    })
+
+    if (!is.null(token))
+      return(token$password)
+
+  }
+
+  # ask the user to set a GITHUB_PAT
+  if (once()) {
+    writeLines(c(
+      "- GitHub authentication credentials are not available.",
+      "- Please set GITHUB_PAT, or ensure the 'gitcreds' package is installed.",
+      "- See https://usethis.r-lib.org/articles/git-credentials.html for more details."
+    ))
+  }
 
 }
 
