@@ -167,7 +167,7 @@ renv_available_packages_success <- function(db, url, type) {
 
   # https://github.com/rstudio/renv/issues/1706
   if (empty(db))
-    return(NULL)
+    return(data.frame())
 
   # convert to data.frame
   db <- as_data_frame(db)
