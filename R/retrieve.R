@@ -601,7 +601,7 @@ renv_retrieve_repos <- function(record) {
     methods$push(renv_retrieve_repos_binary_fallback)
 
     # if MRAN is enabled, check those binaries as well
-    if (renv_mran_enabled())
+    if (renv_p3m_enabled())
       methods$push(renv_retrieve_repos_mran)
 
   }
@@ -721,15 +721,15 @@ renv_retrieve_repos_mran <- function(record) {
     return(FALSE)
 
   # ensure local MRAN database is up-to-date
-  renv_mran_database_refresh(explicit = FALSE)
+  renv_p3m_database_refresh(explicit = FALSE)
 
   # check that we have an available database
-  path <- renv_mran_database_path()
+  path <- renv_p3m_database_path()
   if (!file.exists(path))
     return(FALSE)
 
   # attempt to read it
-  database <- catch(renv_mran_database_load())
+  database <- catch(renv_p3m_database_load())
   if (inherits(database, "error")) {
     warning(database)
     return(FALSE)
@@ -751,7 +751,7 @@ renv_retrieve_repos_mran <- function(record) {
   date <- as.Date(idate, origin = "1970-01-01")
 
   # form url to binary package
-  base <- renv_mran_url(date, suffix)
+  base <- renv_p3m_url(date, suffix)
   name <- renv_retrieve_name(record, type = "binary")
   url <- file.path(base, name)
 

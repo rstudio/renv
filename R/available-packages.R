@@ -389,7 +389,7 @@ renv_available_packages_latest <- function(package,
 {
   methods <- list(
     renv_available_packages_latest_repos,
-    if (renv_mran_enabled())
+    if (renv_p3m_enabled())
       renv_available_packages_latest_mran
   )
 
@@ -457,10 +457,10 @@ renv_available_packages_latest_mran <- function(package,
     stop("MRAN database requires binary packages to be available")
 
   # ensure local MRAN database is up-to-date
-  renv_mran_database_refresh(explicit = FALSE)
+  renv_p3m_database_refresh(explicit = FALSE)
 
   # attempt to read it
-  database <- catch(renv_mran_database_load())
+  database <- catch(renv_p3m_database_load())
   if (inherits(database, "error"))
     return(database)
 
@@ -499,7 +499,7 @@ renv_available_packages_latest_mran <- function(package,
   date <- as.Date(idate, origin = "1970-01-01")
 
   # form url to binary package
-  base <- renv_mran_url(date, suffix)
+  base <- renv_p3m_url(date, suffix)
   name <- renv_retrieve_name(record, type = "binary")
   url <- file.path(base, name)
 
