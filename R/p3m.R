@@ -4,7 +4,7 @@ renv_p3m_enabled <- function() {
 }
 
 renv_p3m_database_path <- function() {
-  renv_paths_mran("packages.rds")
+  renv_paths_p3m("packages.rds")
 }
 
 renv_p3m_database_encode <- function(database) {

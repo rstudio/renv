@@ -602,7 +602,7 @@ renv_retrieve_repos <- function(record) {
 
     # if MRAN is enabled, check those binaries as well
     if (renv_p3m_enabled())
-      methods$push(renv_retrieve_repos_mran)
+      methods$push(renv_retrieve_repos_p3m)
 
   }
 
@@ -714,7 +714,7 @@ renv_retrieve_repos_archive_name <- function(record, type = "source") {
 
 }
 
-renv_retrieve_repos_mran <- function(record) {
+renv_retrieve_repos_p3m <- function(record) {
 
   # MRAN does not make binaries available on Linux
   if (renv_platform_linux())
@@ -761,7 +761,7 @@ renv_retrieve_repos_mran <- function(record) {
   # tag record with repository name
   record <- overlay(record, list(
     Source = "Repository",
-    Repository = "PPM"
+    Repository = "P3M"
   ))
 
   # attempt to retrieve

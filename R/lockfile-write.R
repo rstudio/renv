@@ -26,21 +26,18 @@ renv_lockfile_write_preflight <- function(old, new) {
 
   enumerate(packages, function(package, changes) {
 
-    # avoid spurious changes between CRAN and RSPM
-    spurious <-
-      identical(changes, list(Repository = list(before = "CRAN", after = "RSPM"))) ||
-      identical(changes, list(Repository = list(before = "RSPM", after = "CRAN")))
+    # avoid spurious changes
+    lhs <- "CRAN"
+    for (rhs in c("RSPM", "PPM", "P3M")) {
 
-    if (spurious)
-      new$Packages[[package]]$Repository <<- old$Packages[[package]]$Repository
+      spurious <-
+        identical(changes, list(Repository = list(before = lhs, after = rhs))) ||
+        identical(changes, list(Repository = list(before = rhs, after = lhs)))
 
-    # avoid spurious changes between CRAN and PPM
-    spurious <-
-      identical(changes, list(Repository = list(before = "CRAN", after = "PPM"))) ||
-      identical(changes, list(Repository = list(before = "PPM", after = "CRAN")))
+      if (spurious)
+        new$Packages[[package]]$Repository <<- old$Packages[[package]]$Repository
 
-    if (spurious)
-      new$Packages[[package]]$Repository <<- old$Packages[[package]]$Repository
+    }
 
   })
 
