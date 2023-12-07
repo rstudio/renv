@@ -452,9 +452,6 @@ renv_available_packages_latest_mran <- function(package,
                                                 type = NULL,
                                                 repos = NULL)
 {
-  if (!config$mran.enabled())
-    stop("MRAN is not enabled")
-
   type <- type %||% getOption("pkgType")
   if (identical(type, "source"))
     stop("MRAN database requires binary packages to be available")

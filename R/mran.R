@@ -1,6 +1,6 @@
 
 renv_mran_enabled <- function() {
-  !identical(getOption("pkgType"), "source") && config$mran.enabled()
+  !identical(getOption("pkgType"), "source") && config$ppm.enabled()
 }
 
 renv_mran_database_path <- function() {
@@ -210,7 +210,7 @@ renv_mran_url <- function(date, suffix) {
 }
 
 renv_mran_database_url <- function() {
-  default <- "https://rstudio-buildtools.s3.amazonaws.com/renv/mran/packages.rds"
+  default <- "https://rstudio-buildtools.s3.amazonaws.com/renv/package-manager/packages.rds"
   Sys.getenv("RENV_MRAN_DATABASE_URL", unset = default)
 }
 
