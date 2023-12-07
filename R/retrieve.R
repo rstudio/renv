@@ -758,6 +758,12 @@ renv_retrieve_repos_mran <- function(record) {
   # form path to saved file
   path <- renv_retrieve_path(record, "binary")
 
+  # tag record with repository name
+  record <- overlay(record, list(
+    Source = "Repository",
+    Repository = "PPM"
+  ))
+
   # attempt to retrieve
   renv_retrieve_package(record, url, path)
 
