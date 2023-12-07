@@ -1,5 +1,9 @@
 # renv (development version)
 
+* Installation of historical binaries of packages is once again enabled,
+  now using the public [Posit Package Manager](https://packagemanager.posit.co)
+  instance instead of the (now defunct) MRAN service.
+
 * `renv::init()` now respects the `Remotes:` field declared in a project's
   `DESCRIPTION` file, if any. (#1522)
 
