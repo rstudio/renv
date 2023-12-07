@@ -389,8 +389,8 @@ renv_available_packages_latest <- function(package,
 {
   methods <- list(
     renv_available_packages_latest_repos,
-    if (renv_mran_enabled())
-      renv_available_packages_latest_mran
+    if (renv_p3m_enabled())
+      renv_available_packages_latest_p3m
   )
 
   errors <- stack()
@@ -448,22 +448,19 @@ renv_available_packages_latest <- function(package,
 
 }
 
-renv_available_packages_latest_mran <- function(package,
-                                                type = NULL,
-                                                repos = NULL)
+renv_available_packages_latest_p3m <- function(package,
+                                               type = NULL,
+                                               repos = NULL)
 {
-  if (!config$mran.enabled())
-    stop("MRAN is not enabled")
-
   type <- type %||% getOption("pkgType")
   if (identical(type, "source"))
-    stop("MRAN database requires binary packages to be available")
+    stop("binary packages are not available")
 
   # ensure local MRAN database is up-to-date
-  renv_mran_database_refresh(explicit = FALSE)
+  renv_p3m_database_refresh(explicit = FALSE)
 
   # attempt to read it
-  database <- catch(renv_mran_database_load())
+  database <- catch(renv_p3m_database_load())
   if (inherits(database, "error"))
     return(database)
 
@@ -471,14 +468,14 @@ renv_available_packages_latest_mran <- function(package,
   suffix <- contrib.url("", type = "binary")
   entry <- database[[suffix]]
   if (is.null(entry))
-    stopf("no MRAN records available from repository URL '%s'", suffix)
+    stopf("no records available from repository URL '%s'", suffix)
 
   # find all available packages
   keys <- attr(entry, "keys")
   pattern <- paste0("^", package, " ")
   matching <- grep(pattern, keys, perl = TRUE, value = TRUE)
   if (empty(matching))
-    stopf("package '%s' is not available from MRAN", package)
+    stopf("package '%s' is not available", package)
 
   # take the latest-available package
   entries <- unlist(mget(matching, envir = entry))
@@ -495,14 +492,14 @@ renv_available_packages_latest_mran <- function(package,
     Package    = package,
     Version    = version,
     Source     = "Repository",
-    Repository = "MRAN"
+    Repository = "P3M"
   )
 
   # convert from integer to date
   date <- as.Date(idate, origin = "1970-01-01")
 
   # form url to binary package
-  base <- renv_mran_url(date, suffix)
+  base <- renv_p3m_url(date, suffix)
   name <- renv_retrieve_name(record, type = "binary")
   url <- file.path(base, name)
 
@@ -511,7 +508,7 @@ renv_available_packages_latest_mran <- function(package,
     record = record,
     type   = type,
     url    = dirname(url),
-    name = "RSPM"
+    name   = "P3M"
   )
 }
 

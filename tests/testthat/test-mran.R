@@ -19,18 +19,3 @@ test_that("older binaries are installed from MRAN on Windows / macOS", {
   expect_identical(desc$Version, "0.6.17")
 
 })
-
-test_that("we can install packages from MRAN", {
-  skip_on_os("linux")
-  skip_if(getRversion() <= "3.5" || getRversion() > "3.6")
-  skip_slow()
-
-  renv_tests_scope()
-  renv_scope_options(repos = character(), pkgType = "binary")
-
-  records <- install("digest", type = "binary")
-  digest <- records$digest
-  expect_identical(digest$Source, "Repository")
-  expect_identical(digest$Repository, "MRAN")
-
-})

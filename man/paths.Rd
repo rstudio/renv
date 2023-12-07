@@ -43,7 +43,6 @@ enumerated below:
 \code{RENV_PATHS_RENV}            \tab The path to the project's renv folder. For advanced users only. \cr
 \code{RENV_PATHS_RTOOLS}          \tab (Windows only) The path to \href{https://cran.r-project.org/bin/windows/Rtools/}{Rtools}. \cr
 \code{RENV_PATHS_EXTSOFT}         \tab (Windows only) The path containing external software needed for compilation of Windows source packages. \cr
-\code{RENV_PATHS_MRAN}            \tab The path containing MRAN-related metadata. See \code{vignette("mran", package = "renv")} for more details. \cr
 }
 
 (If you want these settings to persist in your project, it is recommended that
