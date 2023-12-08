@@ -31,7 +31,7 @@ renv_watchdog_enabled_impl <- function() {
   if (getRversion() < "4.0.0")
     return(FALSE)
 
-  # skip if explicitly disabled via envvar
+  # allow override via environment variable
   enabled <- Sys.getenv("RENV_WATCHDOG_ENABLED", unset = NA)
   if (!is.na(enabled))
     return(truthy(enabled))
