@@ -146,8 +146,12 @@ renv_download_impl <- function(url, destfile, type = NULL, request = "GET", head
     renv_download_default
   )
 
-  # run downloader, catching errors and warnings
-  catchall(downloader(url, destfile, type, request, headers))
+  # disable warnings in this scope; it is not safe to try and catch
+  # warnings as R will try to clean up open sockets after emitting
+  # warnings, and catching a warning would hence prevent that
+  # https://bugs.r-project.org/show_bug.cgi?id=18634
+  renv_scope_options(warn = 0L)
+  catch(downloader(url, destfile, type, request, headers))
 
 }
 
@@ -829,7 +833,8 @@ renv_download_available <- function(url) {
 
 renv_download_available_headers <- function(url) {
 
-  status <- catchall(
+  renv_scope_options(warn = 0L)
+  status <- catch(
     renv_download_headers(
       url     = url,
       type    = NULL,
@@ -881,7 +886,8 @@ renv_download_available_fallback <- function(url) {
   destfile <- renv_scope_tempfile("renv-download-")
 
   # just try downloading the requested URL
-  status <- catchall(
+  renv_scope_options(warn = 0L)
+  status <- catch(
     renv_download_impl(
       url      = url,
       destfile = destfile,
