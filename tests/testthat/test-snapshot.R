@@ -553,3 +553,8 @@ test_that("snapshot() reports missing packages even if renv.verbose is FALSE", {
   writeLines("library(bread)", con = "deps.R")
   expect_snapshot(. <- snapshot(force = TRUE))
 })
+
+test_that("snapshot() doesn't duplicate packages", {
+
+
+})

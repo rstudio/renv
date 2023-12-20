@@ -52,7 +52,7 @@ renv_snapshot_auto_impl <- function(project) {
   )
 
   # file.info() can warn in some cases; silence those
-  renv_scope_options(warn = 0L)
+  renv_scope_options(warn = -1L)
 
   # get current lockfile state
   lockfile <- renv_paths_lockfile(project)
@@ -142,8 +142,8 @@ renv_snapshot_task <- function() {
   if (the$auto_snapshot_failed)
     return(FALSE)
 
-  # treat warnings as errors in this scope
-  renv_scope_options(warn = 2L)
+  # silence warnings in this scope
+  renv_scope_options(warn = -1L)
 
   # attempt automatic snapshot, but disable on failure
   tryCatch(

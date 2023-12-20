@@ -656,7 +656,7 @@ renv_retrieve_repos <- function(record) {
 
   # if we couldn't download the package, report the errors we saw
   local({
-    renv_scope_options(warn = 1)
+    renv_scope_options(warn = 1L)
     for (error in errors$data())
       warning(error)
   })

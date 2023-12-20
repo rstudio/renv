@@ -2,7 +2,7 @@
 renv_watchdog_server_start <- function(client) {
 
   # silence warnings
-  renv_scope_options(warn = 0L)
+  renv_scope_options(warn = -1L)
 
   # initialize logging
   renv_log_init()
