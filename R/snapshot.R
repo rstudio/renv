@@ -594,7 +594,7 @@ renv_snapshot_library <- function(library = NULL,
   paths <- paths[grep(pattern, basename(paths))]
 
   # validate the remaining set of packages
-  valid <- renv_snapshot_library_diagnose(library, paths)
+  valid <- renv_snapshot_check(paths)
 
   # remove duplicates (so only first package entry discovered in library wins)
   duplicated <- duplicated(basename(valid))
@@ -631,17 +631,17 @@ renv_snapshot_library <- function(library = NULL,
 
 }
 
-renv_snapshot_library_diagnose <- function(library, paths) {
+renv_snapshot_check <- function(paths) {
 
   paths <- grep("00LOCK", paths, invert = TRUE, value = TRUE)
-  paths <- renv_snapshot_library_diagnose_broken_link(library, paths)
-  paths <- renv_snapshot_library_diagnose_tempfile(library, paths)
-  paths <- renv_snapshot_library_diagnose_missing_description(library, paths)
+  paths <- renv_snapshot_check_broken_link(paths)
+  paths <- renv_snapshot_check_tempfile(paths)
+  paths <- renv_snapshot_check_missing_description(paths)
   paths
 
 }
 
-renv_snapshot_library_diagnose_broken_link <- function(library, paths) {
+renv_snapshot_check_broken_link <- function(paths) {
 
   broken <- !file.exists(paths)
   if (!any(broken))
@@ -657,7 +657,7 @@ renv_snapshot_library_diagnose_broken_link <- function(library, paths) {
 
 }
 
-renv_snapshot_library_diagnose_tempfile <- function(library, paths) {
+renv_snapshot_check_tempfile <- function(paths) {
 
   names <- basename(paths)
   missing <- grepl("^file(?:\\w){12}", names)
@@ -674,7 +674,7 @@ renv_snapshot_library_diagnose_tempfile <- function(library, paths) {
 
 }
 
-renv_snapshot_library_diagnose_missing_description <- function(library, paths) {
+renv_snapshot_check_missing_description <- function(paths) {
 
   desc <- file.path(paths, "DESCRIPTION")
   missing <- !file.exists(desc)
@@ -1044,17 +1044,13 @@ renv_snapshot_packages <- function(packages, libpaths, project) {
   )
 
   # keep only packages with known locations
-  paths <- convert(filter(paths, is.character), "character")
+  paths <- paths %>% filter(is.character) %>% filter(nzchar)
 
   # diagnose issues with the scanned packages
-  paths <- uapply(libpaths, function(library) {
-    renv_snapshot_library_diagnose(
-      library = library,
-      paths   = filter(paths, startswith, prefix = library))
-  })
+  paths <- renv_snapshot_check(paths)
 
   # now, snapshot the remaining packages
-  records <- map(paths, renv_snapshot_description)
+  map(paths, renv_snapshot_description)
 
 }
 
