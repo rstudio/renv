@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where packages could appear multiple times in the lockfile,
+  if that package was installed into multiple library paths. (#1781)
+
 * Installation of historical binaries of packages is once again enabled,
   now using the [Posit Public Package Manager (P3M)](https://packagemanager.posit.co)
   service instead of Microsoft's (now defunct) MRAN service.
