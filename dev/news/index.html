@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p>Fixed an issue where packages could appear multiple times in the lockfile, if that package was installed into multiple library paths. (<a href="https://github.com/rstudio/renv/issues/1781" class="external-link">#1781</a>)</p></li>
+<ul><li><p><code><a href="../reference/status.html">renv::status()</a></code> now notifies the user if the version of R recorded in the lockfile does not match the version of R currently in use. (<a href="https://github.com/rstudio/renv/issues/1779" class="external-link">#1779</a>)</p></li>
+<li><p>Fixed an issue where packages could appear multiple times in the lockfile, if that package was installed into multiple library paths. (<a href="https://github.com/rstudio/renv/issues/1781" class="external-link">#1781</a>)</p></li>
 <li><p>Installation of historical binaries of packages is once again enabled, now using the <a href="https://packagemanager.posit.co" class="external-link">Posit Public Package Manager (P3M)</a> service instead of Microsoft’s (now defunct) MRAN service.</p></li>
 <li><p><code><a href="../reference/init.html">renv::init()</a></code> now respects the <code>Remotes:</code> field declared in a project’s <code>DESCRIPTION</code> file, if any. (<a href="https://github.com/rstudio/renv/issues/1522" class="external-link">#1522</a>)</p></li>
 <li><p><code><a href="../reference/embed.html">renv::embed()</a></code> now supports Quarto Markdown (<code>.qmd</code>) files. (<a href="https://github.com/rstudio/renv/issues/1700" class="external-link">#1700</a>)</p></li>
