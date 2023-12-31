@@ -1,7 +1,7 @@
 # reports if status not possible
 
     Code
-      status()
+      . <- status()
     Output
       This project does not appear to be using renv.
       Use `renv::init()` to initialize the project.
@@ -9,7 +9,7 @@
 ---
 
     Code
-      status()
+      . <- status()
     Output
       This project does not contain a lockfile.
       Use `renv::snapshot()` to create a lockfile.
@@ -17,7 +17,7 @@
 ---
 
     Code
-      status()
+      . <- status()
     Output
       There are no packages installed in the project library.
       Use `renv::restore()` to install the packages defined in lockfile.
@@ -25,14 +25,14 @@
 # reports when project is synchronised
 
     Code
-      status()
+      . <- status()
     Output
       No issues found -- the project is in a consistent state.
 
 # reports installation problems with non-installed packages
 
     Code
-      status()
+      . <- status()
     Output
       The following package(s) are missing:
       
@@ -46,7 +46,7 @@
 # reports synchronisation problems with installed packages
 
     Code
-      status()
+      . <- status()
     Output
       The following package(s) are in an inconsistent state:
       
@@ -59,7 +59,7 @@
 # reports version differences
 
     Code
-      status()
+      . <- status()
     Output
       The following package(s) are out of sync [lockfile != library]:
       
@@ -67,6 +67,15 @@
       - egg       [repo: * != CRAN; ver: 2.0.0 != 1.0.0]
       - oatmeal   [repo: * != CRAN; ver: 0.9.0 != 1.0.0]
       
+      
+      See ?renv::status() for advice on resolving these issues.
+
+# status() notifies user if R version does not match
+
+    Code
+      . <- status()
+    Output
+      The lockfile was generated with R 1.0.0, but you're using R <r-version>.
       
       See ?renv::status() for advice on resolving these issues.
 

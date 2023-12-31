@@ -6,7 +6,7 @@ the$status_running <- FALSE
 #' @description
 #' `renv::status()` reports issues caused by inconsistencies across the project
 #' lockfile, library, and [dependencies()]. In general, you should strive to
-#' ensure that `status()` reports no issues, as this maximises your chances of
+#' ensure that `status()` reports no issues, as this maximizes your chances of
 #' successfully `restore()`ing the project in the future or on another machine.
 #'
 #' `renv::load()` will report if any issues are detected when starting an
@@ -71,6 +71,23 @@ the$status_running <- FALSE
 #' If you're not sure which case applies, it's generally safer to call
 #' `renv::snapshot()`. If you want to rollback to an earlier known good
 #' status, see [renv::history()] and [renv::revert()].
+#'
+#' # Different R Version
+#'
+#' renv will also notify you if the version of R used when the lockfile was
+#' generated, and the version of R currently in use, do not match. In this
+#' scenario, you'll need to consider:
+#'
+#' - Is the version of R recorded in the lockfile correct? If so, you'll want
+#'   to ensure that version of R is installed and used when working in this
+#'   project.
+#'
+#' - Otherwise, you can call `renv::snapshot()` to update the version of R
+#'   recorded in the lockfile, to match the version of R currently in use.
+#'
+#' If you'd like to set the version of R recorded in a lockfile independently
+#' of the version of R currently in use, you can set the `r.version` project
+#' setting -- see [settings] for more details.
 #'
 #' @inherit renv-params
 #'
@@ -164,7 +181,8 @@ status <- function(project = NULL,
 
   synchronized <-
     renv_status_check_consistent(lockfile, library, packages) &&
-    renv_status_check_synchronized(lockfile, library)
+    renv_status_check_synchronized(lockfile, library) &&
+    renv_status_check_version(lockfile)
 
   if (sources) {
     synchronized <- synchronized &&
@@ -299,6 +317,18 @@ renv_status_check_synchronized <- function(lockfile, library) {
     formatter = formatter
   )
 
+  FALSE
+
+}
+
+renv_status_check_version <- function(lockfile) {
+
+  version <- lockfile$R$Version
+  if (renv_version_eq(version, getRversion(), n = 2L))
+    return(TRUE)
+
+  fmt <- "The lockfile was generated with R %s, but you're using R %s."
+  writef(fmt, version, getRversion())
   FALSE
 
 }

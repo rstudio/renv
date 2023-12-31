@@ -1,5 +1,8 @@
 # renv (development version)
 
+* `renv::status()` now notifies the user if the version of R recorded in
+  the lockfile does not match the version of R currently in use. (#1779)
+
 * Fixed an issue where packages could appear multiple times in the lockfile,
   if that package was installed into multiple library paths. (#1781)
 
