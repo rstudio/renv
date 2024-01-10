@@ -4,6 +4,7 @@ test_that("library paths set in a user profile are overridden after load", {
   skip_on_os("windows")
 
   renv_tests_scope()
+  renv_scope_envvars(R_LIBS = NULL)
 
   init()
   renv_imbue_impl(project = getwd(), force = TRUE)
@@ -34,6 +35,7 @@ test_that(".First is executed; library paths are restored after", {
   skip_on_os("windows")
 
   renv_tests_scope()
+  renv_scope_envvars(R_LIBS = NULL)
 
   init()
   renv_imbue_impl(project = getwd(), force = TRUE)
