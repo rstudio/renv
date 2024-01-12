@@ -83,14 +83,14 @@ renv_json_read_default <- function(file = NULL, text = NULL) {
   map <- as.list(map)
 
   # remap strings in object
-  remapped <- renv_json_remap(json, map)
+  remapped <- renv_json_read_remap(json, map)
 
   # evaluate
   eval(remapped, envir = baseenv())
 
 }
 
-renv_json_remap <- function(json, map) {
+renv_json_read_remap <- function(json, map) {
 
   # fix names
   if (!is.null(names(json))) {
@@ -117,7 +117,7 @@ renv_json_remap <- function(json, map) {
   # recurse
   if (is.recursive(json)) {
     for (i in seq_along(json)) {
-      json[i] <- list(renv_json_remap(json[[i]], map))
+      json[i] <- list(renv_json_read_remap(json[[i]], map))
     }
   }
 

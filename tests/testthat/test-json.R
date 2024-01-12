@@ -136,3 +136,37 @@ test_that("we fall back to the internal JSON reader if jsonlite fails", {
   expect_equal(json, list(key = NA))
 
 })
+
+test_that("json-read.R can function standalone", {
+
+  renv_tests_scope()
+
+  renv <- asNamespace("renv")
+  keys <- ls(envir = renv, pattern = "^renv_json_read", all.names = TRUE)
+  vals <- mget(c("%||%", keys), envir = renv)
+
+  # put those into a separate environment inheriting only from base, and
+  # re-mark those as inheriting from base (so they only 'see' each-other)
+  envir <- new.env(parent = baseenv())
+  list2env(vals, envir = envir)
+
+  # for each function, check that it only uses functions from base
+  ok <- list()
+  for (val in vals) {
+    recurse(body(val), function(node, stack) {
+      if (is.call(node) && is.symbol(node[[1L]])) {
+        lhs <- as.character(node[[1L]])
+        ok[[lhs]] <<- exists(lhs, envir = envir)
+      }
+    })
+  }
+
+  # convert to logical vector
+  ok <- convert(ok, "logical")
+  bad <- names(ok)[!ok]
+  if (length(bad) != 0L) {
+    fmt <- "json-read.R is not standalone: %s"
+    stopf(fmt, paste(bad, collapse = ", "))
+  }
+
+})
