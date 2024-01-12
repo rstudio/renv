@@ -124,10 +124,9 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
   }
 
   caution_bullets("The following Python packages will be restored:", diff)
-
   cancel_if(prompt && !proceed())
 
-  pip_install_requirements(diff, python = python, stream = TRUE)
+  pip_install_requirements(before, python = python, stream = TRUE)
   TRUE
 
 }
