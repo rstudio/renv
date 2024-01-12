@@ -306,20 +306,34 @@ renv_init_bioconductor <- function(bioconductor, project) {
 
 }
 
-renv_init_repos <- function() {
+renv_init_repos <- function(repos = getOption("repos")) {
 
   # if PPM is disabled, just use default repositories
-  repos <- convert(getOption("repos"), "list")
+  repos <- convert(repos, "list")
   if (!renv_ppm_enabled())
     return(repos)
 
+  # check whether the user has opted into using PPM by default
   enabled <- config$ppm.default()
   if (!enabled)
     return(repos)
 
-  # check for default repositories set
-  rstudio <- attr(repos, "RStudio", exact = TRUE)
-  if (identical(rstudio, TRUE) || identical(repos, list(CRAN = "@CRAN@"))) {
+  # check for default repositories
+  #
+  # note that if the user is using RStudio, we only want to override
+  # the repositories if they haven't explicitly set their own repo URL
+  #
+  # https://github.com/rstudio/renv/issues/1782
+  rstudio <- structure(
+    list(CRAN = "https://cran.rstudio.com/"),
+    RStudio = TRUE
+  )
+
+  isdefault <-
+    identical(repos, list(CRAN = "@CRAN@")) ||
+    identical(repos, rstudio)
+
+  if (isdefault) {
     repos[["CRAN"]] <- config$ppm.url()
     return(repos)
   }

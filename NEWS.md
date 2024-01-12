@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where `renv` could over-aggressively activate P3M
+  repositories when initializing a project. (#1782)
+
 * `renv::status()` now notifies the user if the version of R recorded in
   the lockfile does not match the version of R currently in use. (#1779)
 
