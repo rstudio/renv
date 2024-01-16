@@ -21,7 +21,7 @@ Suggests: BiocManager, cli, covr, cpp11, devtools, gitcreds, jsonlite, knitr, mi
     packrat, pak, R6, remotes, reticulate, rmarkdown, rstudioapi, shiny, testthat,
     uuid, waldo, yaml, webfakes
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Config/Needs/website: tidyverse/tidytemplate

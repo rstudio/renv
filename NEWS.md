@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where `renv` did not report out-of-sync packages when
+  one or more packages used in the project were not installed. (#1788)
+
 * Fixed an issue where `renv` could over-aggressively activate P3M
   repositories when initializing a project. (#1782)
 

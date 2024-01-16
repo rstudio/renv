@@ -34,7 +34,7 @@
     Code
       . <- status()
     Output
-      The following package(s) are missing:
+      The following package(s) are in an inconsistent state:
       
        package installed recorded used
        bread   n         n        y   
@@ -67,7 +67,6 @@
       - egg       [repo: * != CRAN; ver: 2.0.0 != 1.0.0]
       - oatmeal   [repo: * != CRAN; ver: 0.9.0 != 1.0.0]
       
-      
       See ?renv::status() for advice on resolving these issues.
 
 # status() notifies user if R version does not match
@@ -76,6 +75,21 @@
       . <- status()
     Output
       The lockfile was generated with R 1.0.0, but you're using R <r-version>.
+      
+      See ?renv::status() for advice on resolving these issues.
+
+# status() notifies user if packages are missing and inconsistent
+
+    Code
+      . <- status()
+    Output
+      The following package(s) are used in this project, but are not installed:
+      - breakfast
+      
+      The following package(s) are out of sync [lockfile != library]:
+      
+      # CRAN ---
+      - bread   [1.0.0 != 0.1.0]
       
       See ?renv::status() for advice on resolving these issues.
 

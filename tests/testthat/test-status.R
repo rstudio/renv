@@ -74,3 +74,15 @@ test_that("status() notifies user if R version does not match", {
   expect_snapshot(. <- status())
 
 })
+
+test_that("status() notifies user if packages are missing and inconsistent", {
+
+  project <- renv_tests_scope("bread")
+  init()
+
+  writeLines("library(breakfast)", con = "_deps.R")
+  install("bread@0.1.0")
+
+  expect_snapshot(. <- status())
+
+})
