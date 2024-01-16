@@ -32,10 +32,11 @@ local({
       return(override)
 
     # if we're being run in a context where R_LIBS is already set,
-    # don't load -- presumedly we're being run as a sub-process and
+    # don't load -- presumably we're being run as a sub-process and
     # the parent process has already set up library paths for us
+    rcmd <- Sys.getenv("R_CMD", unset = NA)
     rlibs <- Sys.getenv("R_LIBS", unset = NA)
-    if (!is.na(rlibs))
+    if (!is.na(rlibs) && !is.na(rcmd))
       return(FALSE)
 
     # next, check environment variables
