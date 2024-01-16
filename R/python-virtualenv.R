@@ -115,9 +115,9 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
   if (!file.exists(path))
     return(FALSE)
 
-  before <- readLines(path, warn = FALSE)
-  after <- pip_freeze(python = python)
-  diff <- renv_vector_diff(before, after)
+  saved <- readLines(path, warn = FALSE)
+  current <- pip_freeze(python = python)
+  diff <- renv_vector_diff(saved, current)
   if (empty(diff)) {
     writef("- The Python library is already up to date.")
     return(FALSE)
@@ -126,7 +126,7 @@ renv_python_virtualenv_restore <- function(project, prompt, python) {
   caution_bullets("The following Python packages will be restored:", diff)
   cancel_if(prompt && !proceed())
 
-  pip_install_requirements(before, python = python, stream = TRUE)
+  pip_install_requirements(saved, python = python, stream = TRUE)
   TRUE
 
 }
