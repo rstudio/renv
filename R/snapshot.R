@@ -334,6 +334,12 @@ renv_snapshot_validate_report <- function(valid, prompt, force) {
     return(TRUE)
   }
 
+  # if we were called during init, ignore failures
+  if (the$init_running) {
+    dlog("snapshot", "called during init; ignoring error in pre-flight validation checks")
+    return(TRUE)
+  }
+
   # in interactive sessions, if 'prompt' is set, then ask the user
   # if they would like to proceed
   if (interactive() && !testing() && prompt) {
