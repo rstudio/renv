@@ -132,3 +132,6 @@ in your package's `.Rbuildignore` file. This instructs `R CMD build` to not
 include these files and folders in the generated package tarball. Through this,
 even if `renv` is used during package development, it's still easy to build and
 publish your package to CRAN as you would when developing packages without `renv`.
+
+
+[dependencies]: https://remotes.r-lib.org/articles/dependencies.html
