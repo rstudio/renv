@@ -500,3 +500,18 @@ test_that("dependencies() can parse NAMESPACE files", {
   expect_setequal(deps$Package, c("graphics", "tools", "utils"))
 
 })
+
+test_that("dependencies() handles upper-case engine names", {
+
+  document <- heredoc("
+    ```{R}
+    library(A)
+    ```
+  ")
+
+  file <- renv_scope_tempfile(fileext = ".Rmd")
+  writeLines(document, con = file)
+  deps <- dependencies(file, quiet = TRUE)
+  expect_true("A" %in% deps$Package)
+
+})

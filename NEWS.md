@@ -1,5 +1,9 @@
 # renv (development version)
 
+* Fixed an issue where `renv` could fail to infer dependencies from
+  R Markdown code chunks using engine 'R' (upper-case) rathern than
+  'r' (lower-case). (#1803)
+
 * Fixed an issue where `renv` did not report out-of-sync packages when
   one or more packages used in the project were not installed. (#1788)
 

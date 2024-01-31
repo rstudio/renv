@@ -814,7 +814,7 @@ renv_dependencies_discover_chunks_ignore <- function(chunk) {
 
   # skip non-R chunks
   engine <- chunk$params[["engine"]]
-  ok <- is.character(engine) && engine %in% c("r", "rscript")
+  ok <- is.character(engine) && tolower(engine) %in% c("r", "rscript")
   if (!ok)
     return(TRUE)
 
@@ -905,7 +905,7 @@ renv_dependencies_discover_chunks <- function(path, mode) {
   if (mode %in% "qmd") {
     for (chunk in chunks) {
       engine <- chunk$params[["engine"]]
-      if (is.character(engine) && engine %in% c("r", "rscript")) {
+      if (is.character(engine) && tolower(engine) %in% c("r", "rscript")) {
         qdeps <- renv_dependencies_list(path, "rmarkdown")
         break
       }
