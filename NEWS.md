@@ -1,7 +1,10 @@
 # renv (development version)
 
+* `renv::dependencies()` no longer includes `R` dependency versions
+  declared from a `DESCRIPTION` file in its output. (#1806)
+
 * Fixed an issue where `renv` could fail to infer dependencies from
-  R Markdown code chunks using engine 'R' (upper-case) rathern than
+  R Markdown code chunks using engine 'R' (upper-case) rather than
   'r' (lower-case). (#1803)
 
 * Fixed an issue where `renv` did not report out-of-sync packages when

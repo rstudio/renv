@@ -645,6 +645,14 @@ renv_dependencies_discover_description_impl <- function(dcf, field, path) {
   if (empty(matches))
     return(list())
 
+  # drop R (https://github.com/rstudio/renv/issues/1806)
+  matches <- filter(matches, function(match) {
+    !identical(match[[2L]], "R")
+  })
+
+  if (empty(matches))
+    return(list())
+
   # create dependency list
   renv_dependencies_list(
     path,

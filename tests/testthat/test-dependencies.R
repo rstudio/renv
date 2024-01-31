@@ -515,3 +515,19 @@ test_that("dependencies() handles upper-case engine names", {
   expect_true("A" %in% deps$Package)
 
 })
+
+test_that("dependencies() ignores R when specified in a DESCRIPTION file", {
+
+  project <- renv_tests_scope()
+  desc <- heredoc("
+    Type: Package
+    Package: test
+    Version: 0.1.0
+    Depends: R (>= 4.0.0)
+  ")
+  writeLines(desc, con = "DESCRIPTION")
+
+  deps <- dependencies(quiet = TRUE)
+  expect_false("R" %in% deps$Package)
+
+})
