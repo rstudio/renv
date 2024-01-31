@@ -810,9 +810,16 @@ renv_snapshot_description_source <- function(dcf) {
   # https://github.com/rstudio/renv/issues/998
   type <- dcf[["RemoteType"]]
   if (identical(type, "standard")) {
+
+    # if this is a 'standard' Bioconductor remote, then encode it as such
+    if (!is.null(dcf[["biocViews"]]))
+      return(list(Source = "Bioconductor"))
+
+    # otherwise, check for custom repository information
     repository <- dcf[["RemoteReposName"]] %||% dcf[["Repository"]]
     if (!is.null(repository))
       return(list(Source = "Repository", Repository = repository))
+
   } else if (!is.null(type)) {
     return(list(Source = alias(type)))
   }

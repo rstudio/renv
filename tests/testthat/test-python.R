@@ -230,3 +230,16 @@ test_that("renv_python_discover() respects PATH ordering", {
   expect_equal(tail(discovered, n = 3L), pythons)
 
 })
+
+test_that("renv uses symlinks for system python", {
+
+  skip_on_cran()
+  skip_on_windows()
+  renv_tests_scope()
+  renv_test_scope_python()
+  skip_if(!file.exists("/usr/bin/python3"))
+
+  use_python("/usr/bin/python3", type = "system")
+  expect_false(Sys.which("python3") == "/usr/bin/python3")
+
+})
