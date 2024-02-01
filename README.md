@@ -69,7 +69,7 @@ If you have a question about renv, please first check the
 your question has already been addressed. If it hasn’t, please feel free
 to ask on the [RStudio Community forums](https://community.rstudio.com).
 
-If you believe you’ve found a bug in renv, please file a bug (and, if
+If you believe you’ve found a bug in renv, please file an issue (and, if
 possible, a [reproducible example](https://reprex.tidyverse.org)) at
 <https://github.com/rstudio/renv/issues>.
 
