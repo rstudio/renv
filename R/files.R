@@ -334,7 +334,7 @@ renv_file_backup <- function(path) {
   pattern <- sprintf(".renv-backup-%i-%s", Sys.getpid(), basename(path))
   tempfile <- tempfile(pattern, tmpdir = dirname(path))
   if (!renv_file_move(path, tempfile))
-    return(function() {})
+    stopf("couldn't rename '%s' prior to transaction", renv_path_pretty(path))
 
   # return callback that will restore if needed
   function() {
