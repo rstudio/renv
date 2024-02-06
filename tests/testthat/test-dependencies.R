@@ -531,3 +531,16 @@ test_that("dependencies() ignores R when specified in a DESCRIPTION file", {
   expect_false("R" %in% deps$Package)
 
 })
+
+test_that("dependencies() with different extensions", {
+
+  project <- renv_tests_scope()
+
+  writeLines("library(A)", con = "a.R")
+  writeLines("```{r}\nlibrary(B)\n```", con = "a.Rmd")
+
+  deps <- dependencies(quiet = TRUE)
+  expect_true("A" %in% deps$Package)
+  expect_true("B" %in% deps$Package)
+
+})
