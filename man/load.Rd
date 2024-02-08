@@ -4,7 +4,7 @@
 \alias{load}
 \title{Load a project}
 \usage{
-load(project = NULL, quiet = FALSE)
+load(project = NULL, quiet = FALSE, profile = NULL)
 }
 \arguments{
 \item{project}{The project directory. If \code{NULL}, then the active project will
@@ -12,6 +12,9 @@ be used. If no project is currently active, then the current working
 directory is used instead.}
 
 \item{quiet}{Boolean; be quiet during load?}
+
+\item{profile}{The profile to be activated. See
+\code{vignette("profiles", package = "renv")} for more information.}
 }
 \value{
 The project directory, invisibly. Note that this function is normally

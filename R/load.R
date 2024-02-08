@@ -51,7 +51,7 @@ the$load_running <- FALSE
 #' renv::load()
 #'
 #' }
-load <- function(project = NULL, quiet = FALSE) {
+load <- function(project = NULL, quiet = FALSE, profile = NULL) {
 
   renv_scope_error_handler()
 
@@ -59,6 +59,9 @@ load <- function(project = NULL, quiet = FALSE) {
     project %||% renv_project_find(project),
     mustWork = TRUE
   )
+
+  if (!is.null(profile))
+    renv_profile_set(profile)
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
@@ -150,9 +153,8 @@ renv_load_action <- function(project) {
   # https://github.com/rstudio/renv/issues/1650
   autoloading <- getOption("renv.autoloader.running", default = FALSE)
   if (autoloading && renv_rstudio_available()) {
-    setHook("rstudio.sessionInit", function() {
-      renv::load(project)
-    })
+    setHook("rstudio.sessionInit", function() { renv::load(project) })
+    return("cancel")
   }
 
   # check and see if we're being called within a sub-directory
