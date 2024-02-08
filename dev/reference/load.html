@@ -92,7 +92,7 @@ to explicitly load an renv project located at a particular path.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">load</span><span class="op">(</span>project <span class="op">=</span> <span class="cn">NULL</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">load</span><span class="op">(</span>project <span class="op">=</span> <span class="cn">NULL</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span>, profile <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -105,6 +105,11 @@ directory is used instead.</p></dd>
 
 <dt>quiet</dt>
 <dd><p>Boolean; be quiet during load?</p></dd>
+
+
+<dt>profile</dt>
+<dd><p>The profile to be activated. See
+<code><a href="../articles/profiles.html">vignette("profiles", package = "renv")</a></code> for more information.</p></dd>
 
 </dl></div>
     <div class="section level2">
