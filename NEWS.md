@@ -1,5 +1,11 @@
 # renv (development version)
 
+* `renv::load()` gains the `profile` argument, allowing one to
+  explicitly load a specific profile associated with an `renv` project.
+  See `vignette("profiles", package = "renv")` or
+  https://rstudio.github.io/renv/articles/profiles.html
+  for more details.
+  
 * `renv::dependencies()` no longer includes `R` dependency versions
   declared from a `DESCRIPTION` file in its output. (#1806)
 
