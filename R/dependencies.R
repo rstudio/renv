@@ -1318,14 +1318,20 @@ renv_dependencies_discover_r_import <- function(node, stack, envir) {
 
   # the '.from' argument is the package name, either a character vector of length one or a symbol
   from <- matched$.from
-  if (is.symbol(from))
-    from <- as.character(from)
+  if (is.symbol(from)) {
+    co <- node[[".character_only"]]
+    if (!identical(co, TRUE))
+      from <- as.character(from)
+  }
 
-  ok <-
-    is.character(from) &&
-    length(from) == 1
-
+  ok <- is.character(from) && length(from) == 1L
   if (!ok)
+    return(FALSE)
+
+  # '.from' can also be an R script; if it appears to be a path, then ignore it
+  # https://github.com/rstudio/renv/issues/1743
+  if (grepl("\\.[rR]$", from, perl = TRUE) &&
+      grepl("[/\\]", from))
     return(FALSE)
 
   envir[[from]] <- TRUE

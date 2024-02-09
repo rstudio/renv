@@ -2,7 +2,6 @@
 # Capture packages (a, b, ...), not functions or other objects (f1, f2, ...)
 # Do not capture packages in invalid calls (x1, x2, ...)
 
-# valid uses of import::from
 import::from(a, f1, f2, f3)
 import::from(f1, .from = b)
 
@@ -24,3 +23,9 @@ import::into(f1)  # no package specified at all
 
 # ignore usages that aren't namespace-prefixed
 from(A)
+
+# ignore .character_only with symbol
+import::from(B, .character_only = TRUE)
+
+# ignore things that look like scripts
+import::from("./module.R")
