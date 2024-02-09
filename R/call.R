@@ -8,7 +8,11 @@ renv_call_expect <- function(node, package, methods) {
     return(NULL)
 
   # check for call of the form 'pkg::foo(a, b, c)'
-  colon <- renv_call_matches(node[[1L]], name = c("::", ":::"), n_args = 2)
+  colon <- renv_call_matches(
+    call  = node[[1L]],
+    name  = c("::", ":::"),
+    nargs = 2L
+  )
 
   if (colon) {
 
@@ -72,19 +76,22 @@ renv_call_normalize <- function(node, stack) {
 }
 
 
-renv_call_matches <- function(call, name = NULL, n_args = NULL) {
+renv_call_matches <- function(call, name = NULL, nargs = NULL) {
+
   if (!is.call(call))
     return(FALSE)
 
   if (!is.null(name)) {
+
     if (!is.name(call[[1]]))
       return(FALSE)
 
     if (!as.character(call[[1]]) %in% name)
       return(FALSE)
+
   }
 
-  if (!is.null(n_args) && length(call) != n_args + 1L)
+  if (!is.null(nargs) && length(call) != nargs + 1L)
     return(FALSE)
 
   TRUE

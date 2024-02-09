@@ -1,5 +1,10 @@
 # renv (development version)
 
+* `renv::dependencies()` now requires usages of the [import](https://cran.r-project.org/package=import)
+  package to be namespace-qualified in order to be handled via static
+  analysis; that is, `import::from(<pkg>)` is parsed for dependencies,
+  but `from(pkg)` is not. (#1815)
+  
 * `renv::load()` gains the `profile` argument, allowing one to
   explicitly load a specific profile associated with an `renv` project.
   See `vignette("profiles", package = "renv")` or

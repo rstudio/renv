@@ -759,7 +759,7 @@ renv_dependencies_discover_rmd_yaml_header <- function(path, mode) {
     values <- c(names(node), if (pstring(node)) node)
     for (value in values) {
       call <- tryCatch(parse(text = value)[[1]], error = function(err) NULL)
-      if (renv_call_matches(call, name = c("::", ":::"), n_args = 2)) {
+      if (renv_call_matches(call, name = c("::", ":::"), nargs = 2L)) {
         deps$push(as.character(call[[2L]]))
       }
     }
@@ -1180,8 +1180,7 @@ renv_dependencies_discover_r_require_namespace <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_colon <- function(node, stack, envir) {
 
-  ok <- renv_call_matches(node, name = c("::", ":::"), n_args = 2)
-
+  ok <- renv_call_matches(node, name = c("::", ":::"), nargs = 2L)
   if (!ok)
     return(FALSE)
 
@@ -1252,7 +1251,7 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
 renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 
   # check for call of the form 'pkg::foo(a, b, c)'
-  colon <- renv_call_matches(node[[1]], name = c("::", ":::"), n_args = 2)
+  colon <- renv_call_matches(node[[1L]], name = c("::", ":::"), nargs = 2L)
 
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))
@@ -1296,6 +1295,11 @@ renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 }
 
 renv_dependencies_discover_r_import <- function(node, stack, envir) {
+
+  # require that usages are colon-prefixed
+  colon <- renv_call_matches(node[[1L]], name = c("::", ":::"), nargs = 2L)
+  if (!colon)
+    return(FALSE)
 
   node <- renv_call_expect(node, "import", c("from", "here", "into"))
   if (is.null(node))
