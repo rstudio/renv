@@ -8,14 +8,20 @@ truthy <- function(value, default = FALSE) {
       return(default)
   }
 
-  if (length(value) == 0)
-    default
-  else if (is.character(value))
-    value %in% c("TRUE", "True", "true", "T", "1")
-  else if (is.symbol(value))
-    as.character(value) %in% c("TRUE", "True", "true", "T", "1")
-  else if (is.na(value))
-    default
+  # skip empty vectors
+  if (length(value) == 0L)
+    return(default)
+
+  # coerce symbols
+  if (is.symbol(value))
+    value <- as.character(value)
+
+  # check for known truthy / falsy values
+  if (value %in% c("TRUE", "True", "true", "T", "1"))
+    TRUE
+  else if (value %in% c("FALSE", "False", "false", "F", "0"))
+    FALSE
   else
-    as.logical(value)
+    default
+
 }

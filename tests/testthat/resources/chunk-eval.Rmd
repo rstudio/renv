@@ -1,0 +1,10 @@
+
+```{r}
+#| eval: !expr knitr::is_html_output()
+library(A)
+```
+
+```{r}
+#| eval: F
+library(a)
+```

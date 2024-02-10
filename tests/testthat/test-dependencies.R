@@ -298,6 +298,12 @@ test_that("renv.ignore=FALSE, eval=TRUE is handled", {
   expect_false("a" %in% deps$Package)
 })
 
+test_that("eval=<expr> is treated as truthy", {
+  deps <- dependencies("resources/chunk-eval.Rmd", quiet = TRUE)
+  expect_true("A" %in% deps$Package)
+  expect_false("a" %in% deps$Package)
+})
+
 test_that("piped expressions can be parsed for dependencies", {
   deps <- dependencies("resources/magrittr.R")
   expect_setequal(deps$Package, c("A", "B", "C"))

@@ -1,5 +1,10 @@
+
 # renv (development version)
 
+* `renv::dependencies()` now treats `#| eval: !expr <...>` chunk options
+  as truthy by default, implying that such chunks are scanned for their
+  R package dependencies. (#1816)
+  
 * `renv::dependencies()` now requires usages of the [import](https://cran.r-project.org/package=import)
   package to be namespace-qualified in order to be handled via static
   analysis; that is, `import::from(<pkg>)` is parsed for dependencies,
