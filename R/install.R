@@ -65,6 +65,11 @@ the$install_step_width <- 48L
 #'   when using `renv::install()` to install all dependencies in a project,
 #'   except for a specific set of packages.
 #'
+#' @param verbose Boolean; report output from `R CMD build` and `R CMD INSTALL`
+#'   during installation? When `NULL` (the default), the value of `config$install.verbose()`
+#'   will be used. When `FALSE`, installation output will be emitted only if
+#'   a package fails to install.
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @export
@@ -104,6 +109,7 @@ install <- function(packages = NULL,
                     repos        = NULL,
                     prompt       = interactive(),
                     dependencies = NULL,
+                    verbose      = NULL,
                     project      = NULL)
 {
   renv_consent_check()
@@ -125,6 +131,10 @@ install <- function(packages = NULL,
     fields <- renv_description_dependency_fields(dependencies, project = project)
     renv_scope_binding(the, "install_dependency_fields", fields)
   }
+
+  # handle 'verbose'
+  verbose <- verbose %||% config$install.verbose()
+  renv_scope_options(renv.config.install.verbose = verbose)
 
   # set up library paths
   libpaths <- renv_libpaths_resolve(library)
@@ -406,8 +416,9 @@ renv_install_package <- function(record) {
     feedback <- paste0(feedback, " and cached")
   }
 
+  verbose <- config$install.verbose()
   elapsed <- difftime(after, before, units = "auto")
-  renv_install_step_ok(feedback, elapsed = elapsed)
+  renv_install_step_ok(feedback, elapsed = elapsed, verbose = verbose)
 
   invisible()
 
@@ -438,7 +449,7 @@ renv_install_package_cache <- function(record, cache, linker) {
   defer(callback())
 
   # report successful link to user
-  renv_install_step_start("Installing", record$Package)
+  renv_install_step_start("Installing", record$Package, verbose = FALSE)
 
   before <- Sys.time()
   linker(cache, target)
@@ -513,7 +524,8 @@ renv_install_package_impl_prebuild <- function(record, path, quiet) {
     return(path)
   }
 
-  renv_install_step_start("Building", record$Package)
+  verbose <- config$install.verbose()
+  renv_install_step_start("Building", record$Package, verbose = verbose)
 
   before <- Sys.time()
   package <- record$Package
@@ -551,7 +563,10 @@ renv_install_package_impl <- function(record, quiet = TRUE) {
 
   # check whether we should build before install
   path <- renv_install_package_impl_prebuild(record, path, quiet)
-  renv_install_step_start("Installing", record$Package)
+
+  # report start of installation to user
+  verbose <- config$install.verbose()
+  renv_install_step_start("Installing", record$Package, verbose = verbose)
 
   # run user-defined hooks before, after install
   options <- renv_install_package_options(package)
@@ -812,14 +827,20 @@ renv_install_report <- function(records, library) {
   )
 }
 
-renv_install_step_start <- function(action, package) {
+renv_install_step_start <- function(action, package, verbose = FALSE) {
+
+  if (verbose)
+    return(writef("- %s %s ...", action, package))
+
   message <- sprintf("- %s %s ... ", action, package)
   printf(format(message, width = the$install_step_width))
+
 }
 
-renv_install_step_ok <- function(..., elapsed = NULL) {
+renv_install_step_ok <- function(..., elapsed = NULL, verbose = FALSE) {
   renv_report_ok(
     message = paste(..., collapse = ""),
-    elapsed = elapsed
+    elapsed = elapsed,
+    verbose = verbose
   )
 }

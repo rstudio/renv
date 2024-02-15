@@ -14,6 +14,7 @@ install(
   repos = NULL,
   prompt = interactive(),
   dependencies = NULL,
+  verbose = NULL,
   project = NULL
 )
 }
@@ -72,6 +73,11 @@ for package dependency resolution. When \code{NULL} (the default), the value
 of \code{renv::settings$package.dependency.fields} is used. The aliases
 "strong", "most", and "all" are also supported.
 See \code{\link[tools:package_dependencies]{tools::package_dependencies()}} for more details.}
+
+\item{verbose}{Boolean; report output from \verb{R CMD build} and \verb{R CMD INSTALL}
+during installation? When \code{NULL} (the default), the value of \code{config$install.verbose()}
+will be used. When \code{FALSE}, installation output will be emitted only if
+a package fails to install.}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
