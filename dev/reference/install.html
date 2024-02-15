@@ -96,6 +96,7 @@ installing the latest versions available from CRAN.</p>
 <span>  repos <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  dependencies <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -167,6 +168,13 @@ for package dependency resolution. When <code>NULL</code> (the default), the val
 of <code>renv::settings$package.dependency.fields</code> is used. The aliases
 "strong", "most", and "all" are also supported.
 See <code><a href="https://rdrr.io/r/tools/package_dependencies.html" class="external-link">tools::package_dependencies()</a></code> for more details.</p></dd>
+
+
+<dt>verbose</dt>
+<dd><p>Boolean; report output from <code>R CMD build</code> and <code>R CMD INSTALL</code>
+during installation? When <code>NULL</code> (the default), the value of <code>config$install.verbose()</code>
+will be used. When <code>FALSE</code>, installation output will be emitted only if
+a package fails to install.</p></dd>
 
 
 <dt>project</dt>
