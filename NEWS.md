@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `renv::install()` gains the `lock` argument. When `TRUE`, the project
+  lockfile will be updated after the requested packages have been
+  successfully installed. (#1811)
+  
 * `renv` now supports the use of GitHub Enterprise servers with the
   `gitcreds` package for authentication credentials. (#1814)
 

@@ -15,6 +15,7 @@ install(
   prompt = interactive(),
   dependencies = NULL,
   verbose = NULL,
+  lock = FALSE,
   project = NULL
 )
 }
@@ -78,6 +79,9 @@ See \code{\link[tools:package_dependencies]{tools::package_dependencies()}} for 
 during installation? When \code{NULL} (the default), the value of \code{config$install.verbose()}
 will be used. When \code{FALSE}, installation output will be emitted only if
 a package fails to install.}
+
+\item{lock}{Boolean; update the \code{renv.lock} lockfile after the successful
+installation of the requested packages?}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working

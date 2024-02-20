@@ -70,6 +70,9 @@ the$install_step_width <- 48L
 #'   will be used. When `FALSE`, installation output will be emitted only if
 #'   a package fails to install.
 #'
+#' @param lock Boolean; update the `renv.lock` lockfile after the successful
+#'   installation of the requested packages?
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @export
@@ -110,6 +113,7 @@ install <- function(packages = NULL,
                     prompt       = interactive(),
                     dependencies = NULL,
                     verbose      = NULL,
+                    lock         = FALSE,
                     project      = NULL)
 {
   renv_consent_check()
@@ -233,6 +237,14 @@ install <- function(packages = NULL,
 
   # check loaded packages and inform user if out-of-sync
   renv_install_postamble(names(records))
+
+  # update lockfile if requested
+  if (lock) {
+    renv_snapshot_auto_suppress_next()
+    lockfile <- renv_lockfile_load(project = project)
+    lockfile <- renv_lockfile_modify(lockfile, records)
+    renv_lockfile_save(lockfile, project = project)
+  }
 
   invisible(records)
 }

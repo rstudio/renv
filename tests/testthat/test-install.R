@@ -709,3 +709,17 @@ test_that("recursive dependency versions are properly resolved", {
   expect_equal(renv_package_version("phone"), "1.0.0")
 
 })
+
+test_that("install(lock = TRUE) updates lockfile", {
+
+  project <- renv_tests_scope()
+  init()
+
+  install("breakfast", lock = TRUE)
+  lockfile <- renv_lockfile_load(project = project)
+  records <- renv_lockfile_records(lockfile)
+
+  expect_true("bread" %in% names(records))
+  expect_true("breakfast" %in% names(records))
+
+})
