@@ -97,6 +97,7 @@ installing the latest versions available from CRAN.</p>
 <span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  dependencies <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lock <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  project <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -175,6 +176,11 @@ See <code><a href="https://rdrr.io/r/tools/package_dependencies.html" class="ext
 during installation? When <code>NULL</code> (the default), the value of <code>config$install.verbose()</code>
 will be used. When <code>FALSE</code>, installation output will be emitted only if
 a package fails to install.</p></dd>
+
+
+<dt>lock</dt>
+<dd><p>Boolean; update the <code>renv.lock</code> lockfile after the successful
+installation of the requested packages?</p></dd>
 
 
 <dt>project</dt>
