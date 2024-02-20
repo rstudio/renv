@@ -13,7 +13,7 @@ renv_tests_setup <- function(scope = parent.frame()) {
     return()
 
   # force gitcreds to initialize early
-  renv_download_auth_github()
+  renv_download_auth_github(url = "https://github.com")
 
   # remove automatic tasks so we can capture explicitly in tests
   renv_task_unload()

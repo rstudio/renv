@@ -498,7 +498,7 @@ renv_download_auth <- function(url, type) {
   switch(
     type,
     bitbucket = renv_download_auth_bitbucket(),
-    github = renv_download_auth_github(),
+    github = renv_download_auth_github(url),
     gitlab = renv_download_auth_gitlab(),
     character()
   )
@@ -523,9 +523,9 @@ renv_download_auth_bitbucket <- function() {
 
 }
 
-renv_download_auth_github <- function() {
+renv_download_auth_github <- function(url) {
 
-  pat <- renv_download_auth_github_pat()
+  pat <- renv_download_auth_github_pat(url)
   if (is.null(pat))
     return(character())
 
@@ -533,7 +533,7 @@ renv_download_auth_github <- function() {
 
 }
 
-renv_download_auth_github_pat <- function() {
+renv_download_auth_github_pat <- function(url) {
 
   # check for an existing PAT
   pat <- Sys.getenv("GITHUB_PAT", unset = NA)
@@ -541,13 +541,26 @@ renv_download_auth_github_pat <- function() {
     return(pat)
 
   # if gitcreds is available, try to use it
-  if (requireNamespace("gitcreds", quietly = TRUE)) {
+  gitcreds <-
+    getOption("renv.gitcreds.enabled", default = TRUE) &&
+    requireNamespace("gitcreds", quietly = TRUE)
 
-    token <- tryCatch(gitcreds::gitcreds_get(), error = function(cnd) {
-      warning(conditionMessage(cnd))
-      NULL
-    })
+  if (gitcreds) {
 
+    # ensure URL has protocol pre-pended
+    url <- renv_retrieve_origin(url)
+
+    # request token
+    dlog("download", "requesting git credentials for url '%s'", url)
+    token <- tryCatch(
+      gitcreds::gitcreds_get(url),
+      error = function(cnd) {
+        warning(conditionMessage(cnd))
+        NULL
+      }
+    )
+
+    # use if available
     if (!is.null(token))
       return(token$password)
 

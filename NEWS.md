@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now supports the use of GitHub Enterprise servers with the
+  `gitcreds` package for authentication credentials. (#1814)
+
 * `renv::dependencies()` now treats `#| eval: !expr <...>` chunk options
   as truthy by default, implying that such chunks are scanned for their
   R package dependencies. (#1816)

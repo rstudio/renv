@@ -541,7 +541,7 @@ renv_remotes_resolve_github_modules <- function(host, user, repo, subdir, sha) {
 
 }
 
-renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sha) {
+renv_remotes_resolve_github_description <- function(url, host, user, repo, subdir, sha) {
 
   # form DESCRIPTION path
   subdir <- subdir %||% ""
@@ -558,7 +558,7 @@ renv_remotes_resolve_github_description <- function(host, user, repo, subdir, sh
   # add headers
   headers <- c(
     Accept = "application/vnd.github.raw",
-    renv_download_auth_github()
+    renv_download_auth_github(url)
   )
 
   # get the DESCRIPTION contents
@@ -646,14 +646,14 @@ renv_remotes_resolve_github <- function(remote) {
   # check whether the repository has a .gitmodules file; if so, then we'll have
   # to use a plain 'git' client to retrieve the package
   modules <- renv_remotes_resolve_github_modules(host, user, repo, subdir, sha)
-  url <- if (modules) {
-    origin <- fsub("api.github.com", "github.com", renv_retrieve_origin(host))
-    parts <- c(origin, user, repo)
-    paste(parts, collapse = "/")
-  }
+
+  # construct full url
+  origin <- fsub("api.github.com", "github.com", renv_retrieve_origin(host))
+  parts <- c(origin, user, repo)
+  url <- paste(parts, collapse = "/")
 
   # read DESCRIPTION
-  desc <- renv_remotes_resolve_github_description(host, user, repo, subdir, sha)
+  desc <- renv_remotes_resolve_github_description(url, host, user, repo, subdir, sha)
 
   list(
     Package        = desc$Package,
