@@ -318,6 +318,7 @@ For example, the igraph package on GitHub at <https://github.com/igraph/rigraph>
 renv::install("igraph=igraph/rigraph")
 ```
 
+
 #### Azure DevOps
 
 Authentication with Azure DevOps may require credentials to be set in a slightly different way. In particular, you can use:
@@ -328,6 +329,23 @@ GITHUB_PASS = <password>
 ```
 
 replacing `<username>` and `<password>` as appropriate -- for example, your password may just be a PAT. See https://github.com/rstudio/renv/issues/1751 for more details.
+
+
+#### Git and Personal Access Tokens
+
+Rather than username + password, some remote Git repositories might require Personal Access Tokens (PATs) for authentication. Typically, such servers expect authentication credentials where:
+
+- Your PAT is supplied as the username,
+- Either an empty response, or the string `x-oauth-basic`, is provided as the password.
+
+To help facilitate this, you can set:
+
+```
+GIT_USER = <pat>
+GIT_PASS = x-oauth-basic
+```
+
+in an appropriate startup R file.
 
 
 ### Custom headers
