@@ -198,15 +198,12 @@ on GitHub actions.</p>
 <p>The following template can be used as a base when using renv with <a href="https://about.gitlab.com/solutions/continuous-integration/" class="external-link">GitLab
 CI</a>:</p>
 <pre><code>variables:
-  RENV_CONFIG_REPOS_OVERRIDE: "http://cran.r-project.org"
-  RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/cache
-  RENV_PATHS_LIBRARY: ${CI_PROJECT_DIR}/renv/library
+  RENV_PATHS_CACHE: ${CI_PROJECT_DIR}/renv/cache
 
 cache:
   key: ${CI_JOB_NAME}
   paths:
     - ${RENV_PATHS_CACHE}
-    - ${RENV_PATHS_LIBRARY}
 
 before_script:
   - &lt; ... other pre-deploy steps ... &gt;
