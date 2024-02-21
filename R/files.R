@@ -299,19 +299,25 @@ renv_file_same <- function(source, target) {
   if (identical(source, target))
     return(TRUE)
 
-  # if either file is missing, return false
-  if (!renv_file_exists(source) || !renv_file_exists(target))
-    return(FALSE)
 
   # for hard links + junction points, it's difficult to detect
   # whether the two files point to the same object; use some
   # heuristics to guess (note that these aren't perfect)
   sinfo <- renv_file_info(source)
-  tinfo <- renv_file_info(target)
-  if (!identical(c(sinfo), c(tinfo)))
+  if (is.na(sinfo$isdir))
     return(FALSE)
 
-  TRUE
+  tinfo <- renv_file_info(target)
+  if (is.na(tinfo$isdir))
+    return(FALSE)
+
+  # NOTE: we intentionally exclude 'size' for directories, as
+  # on Windows the 'size' field might be reported as 0 for
+  # junction points?
+  if (sinfo$isdir || tinfo$isdir)
+    sinfo$size <- tinfo$size <- 0L
+
+  identical(c(sinfo), c(tinfo))
 
 }
 
