@@ -14,9 +14,9 @@
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.7/font.css" rel="stylesheet">
-<link href="../deps/Source_Code_Pro-0.4.7/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.8/font.css" rel="stylesheet">
+<link href="../deps/Source_Code_Pro-0.4.8/font.css" rel="stylesheet">
 <!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
@@ -36,7 +36,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,9 +143,37 @@ e.g.</p>
 <pre><code><span><span class="va">Remotes</span><span class="op">:</span></span>
 <span>  <span class="va">r</span><span class="op">-</span><span class="va">lib</span><span class="op">/</span><span class="va">ggplot2</span></span></code></pre>
 <p>and <code><a href="../reference/install.html">renv::install()</a></code> will parse that remotes declaration
-and retrieve the requested package. See the remotes vignette,
-[Dependency resolution for R package development][dependencies], for
-more details.</p>
+and retrieve the requested package. See the remotes vignette, <a href="https://remotes.r-lib.org/articles/dependencies.html" class="external-link">Dependency
+resolution for R package development</a>, for more details.</p>
+</div>
+<div class="section level2">
+<h2 id="library-paths">Library Paths<a class="anchor" aria-label="anchor" href="#library-paths"></a>
+</h2>
+<p>For package projects using renv, a library path outside of the
+project directory will be used instead. As an example, on macOS, this
+might look like:</p>
+<pre><code>&gt; .libPaths()
+[1] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/library/example-552f6e80/R-4.3/aarch64-apple-darwin20"
+[2] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/sandbox/R-4.3/aarch64-apple-darwin20/ac5c2659"</code></pre>
+<p>This is done to avoid issues with <code>R CMD build</code>, which can
+become very slow if your project contains a large number of files – as
+can happen with the
+project<code>library in the default location of</code>renv/library`.
+Note that even though the library is located outside of the project, the
+library path generated will still be unique to that project, and so the
+project is still effectively isolated in the same way as other renv
+projects normally are.</p>
+<p>If you want to customize the location where <code>renv</code> places
+project libraries in this scenario, you can use the
+<code>RENV_PATHS_LIBRARY_ROOT</code> environment variable. For
+example:</p>
+<pre><code>RENV_PATHS_LIBRARY_ROOT = ~/.renv/library</code></pre>
+<p>If you’d still prefer to keep your project library within the project
+directory, you can set:</p>
+<pre><code><span><span class="va">RENV_PATHS_LIBRARY</span> <span class="op">=</span> <span class="va">renv</span><span class="op">/</span><span class="va">library</span></span></code></pre>
+<p>within an appropriate <code>.Renviron</code> start-up profile – but
+please be aware of the caveats to doing this, as the performance of
+<code>R CMD build</code> will be affected.</p>
 </div>
 <div class="section level2">
 <h2 id="testing">Testing<a class="anchor" aria-label="anchor" href="#testing"></a>
@@ -153,10 +181,10 @@ more details.</p>
 <p>While developing your package, you may want to use a continuous
 integration service (such as <a href="https://www.travis-ci.com" class="external-link">Travis
 CI</a>) to build and test your package remotely. You can use renv to
-help facilitate this testing – see the [Continuous Integration][ci]
-vignette for more information. In particular, clever use of the renv
-cache can help save time that might normally be spent on package
-installation. See <a href="https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml" class="external-link uri">https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml</a>
+help facilitate this testing – see the <a href="ci.html">Continuous
+Integration</a> vignette for more information. In particular, clever use
+of the renv cache can help save time that might normally be spent on
+package installation. See <a href="https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml" class="external-link uri">https://github.com/rstudio/renv/blob/main/.github/workflows/R-CMD-check.yaml</a>
 for an example of how renv uses itself for package management in its own
 CI tests.</p>
 </div>
@@ -187,7 +215,7 @@ your package to CRAN as you would when developing packages without
   <footer><div class="container">
   <div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Kevin Ushey, <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="https://www.posit.co" class="external-link"><img src="https://www.tidyverse.org/posit-logo.svg" alt="Posit" height="16" style="margin-bottom: 3px;"></a>.</p>
+<p>Developed by Kevin Ushey, <a href="https://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="https://www.posit.co" class="external-link"><img src="https://www.tidyverse.org/posit-logo.svg" alt="Posit" height="16" style="margin-bottom: 3px;"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
