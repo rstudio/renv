@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.0.4
 
 * `renv::install()` gains the `lock` argument. When `TRUE`, the project
   lockfile will be updated after the requested packages have been
