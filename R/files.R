@@ -314,8 +314,10 @@ renv_file_same <- function(source, target) {
   # NOTE: we intentionally exclude 'size' for directories, as
   # on Windows the 'size' field might be reported as 0 for
   # junction points?
-  if (sinfo$isdir || tinfo$isdir)
-    sinfo$size <- tinfo$size <- 0L
+  if (renv_platform_windows()) {
+    if (sinfo$isdir || tinfo$isdir)
+      sinfo$size <- tinfo$size <- 0L
+  }
 
   identical(c(sinfo), c(tinfo))
 
