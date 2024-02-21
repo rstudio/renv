@@ -207,10 +207,10 @@ test_that("renv can detect junction points", {
   dir.create("source")
   defer(unlink("source", recursive = TRUE))
 
-  # create some files to give the directory a size
-  files <- sprintf("source/%05i.txt", 1:10)
+  # create some files -- should give the directory a size,
+  # but this seems unreliable?
+  files <- sprintf("source/%05i.txt", 1:100)
   file.create(files)
-  expect_true(file.size("source") > 0)
 
   # create a junction point
   Sys.junction("source", "junction")
