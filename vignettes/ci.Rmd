@@ -69,7 +69,7 @@ As an example, these steps might look like:
 
 ```yaml
 env:
-  RENV_PATHS_ROOT: ~/.local/share/renv
+  RENV_PATHS_ROOT: ~/.cache/R/renv
 
 steps:
 

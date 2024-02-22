@@ -55,9 +55,9 @@ This is much slower, so is worth avoiding.
 You can find the location of the current cache with `renv::paths$cache()`.
 By default, it will be in one of the following folders:
 
--   Linux: `~/.local/share/renv`
--   macOS: `~/Library/Application Support/renv`
--   Windows: `%LOCALAPPDATA%/renv`
+-   Linux:   `~/.cache/R/renv/cache`
+-   macOS:   `~/Library/Caches/org.R-project.R/R/renv/cache`
+-   Windows: `%LOCALAPPDATA%/renv/cache`
 
 If you'd like to share the package cache across multiple users, you can do so by setting the `RENV_PATHS_CACHE` environment variable to a shared path.
 This variable should be set in an R startup file to make it apply to all R sessions.
