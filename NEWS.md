@@ -1,5 +1,8 @@
 # renv (development version)
 
+* Fixed an issue where `renv::install(lock = TRUE)` produced lockfiles
+  containing records with extraneous data. (#1828)
+
 
 # renv 1.0.4
 

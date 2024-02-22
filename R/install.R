@@ -239,11 +239,28 @@ install <- function(packages = NULL,
   renv_install_postamble(names(records))
 
   # update lockfile if requested
-  if (lock) {
+  if (lock && length(records)) {
+
+    # avoid next automatic snapshot
     renv_snapshot_auto_suppress_next()
+
+    # re-compute the records, to ensure they're normalized in the same
+    # way as they might be in snapshot()
+    # https://github.com/rstudio/renv/issues/1828
+    updates <- renv_lockfile_create(
+      project  = project,
+      libpaths = libpaths,
+      packages = names(records),
+      exclude  = exclude,
+      prompt   = FALSE,
+      force    = TRUE
+    )
+
+    # overlay these records onto the existing lockfile
     lockfile <- renv_lockfile_load(project = project)
-    lockfile <- renv_lockfile_modify(lockfile, records)
+    lockfile <- renv_lockfile_modify(lockfile, renv_lockfile_records(updates))
     renv_lockfile_save(lockfile, project = project)
+
   }
 
   invisible(records)

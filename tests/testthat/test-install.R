@@ -715,11 +715,18 @@ test_that("install(lock = TRUE) updates lockfile", {
   project <- renv_tests_scope()
   init()
 
+  # first, get a lockfile as created via install + lock
   install("breakfast", lock = TRUE)
-  lockfile <- renv_lockfile_load(project = project)
-  records <- renv_lockfile_records(lockfile)
+  actual <- renv_lockfile_load(project = project)
 
-  expect_true("bread" %in% names(records))
-  expect_true("breakfast" %in% names(records))
+  # now, try re-computing the lockfile via snapshot
+  writeLines("library(breakfast)", con = "dependencies.R")
+  expected <- snapshot(lockfile = NULL)
+
+  # make sure they're equal
+  expect_mapequal(
+    renv_lockfile_records(actual),
+    renv_lockfile_records(expected)
+  )
 
 })
