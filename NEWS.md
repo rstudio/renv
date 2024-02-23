@@ -1,5 +1,8 @@
 # renv (development version)
 
+* `renv` now reports missing system libraries as part of its ABI
+  checks in `renv::diagnostics()`.
+
 * Fixed an issue where `renv::install(lock = TRUE)` produced lockfiles
   containing records with extraneous data. (#1828)
 
