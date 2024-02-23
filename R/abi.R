@@ -66,7 +66,7 @@ renv_abi_check <- function(packages = NULL,
       unique(missing$dependency),
       c(
         "These system libraries may need to be re-installed.",
-        "Alternatively, you may need to re-install the packages which depend on those libraries."
+        "Alternatively, you may need to re-install the packages which depend on these libraries."
       )
     )
 
