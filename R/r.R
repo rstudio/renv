@@ -120,30 +120,22 @@ Please see https://support.bioconductor.org/p/119536/ for a related discussion.
 
 }
 
-r_exec_error_diagnostics_libsodium <- function() {
+r_exec_error_diagnostics_library <- function(output) {
 
-  checker <- function(output) {
-    pattern <- "libsodium.so.\\d+: cannot open shared object file"
-    idx <- grep(pattern, output, perl = TRUE)
-    if (length(idx))
-      return(unique(output[idx]))
-  }
+  pattern <- "cannot open shared object file"
+  lines <- grep(pattern, output, fixed = TRUE, value = TRUE)
 
-  suggestion <- "
-The 'sodium' R package requires the libsodium library to be installed,
-but libsodium could not be found or is not available. You may need to
-install a compatible version of libsodium. For example:
+  attr(lines, "suggestion") <- "
+This package depends on one or more system libraries,
+but those libraries do not appear to be installed.
 
-- apt install libsodium-dev     # Debian OS
-- yum install libsodium-devel   # Redhat OS
+- Check whether the requisite system libraries are installed.
+- Check whether the expected version of that library is installed.
 
 Contact your system administrator for more information.
 "
 
-  list(
-    checker = checker,
-    suggestion = suggestion
-  )
+  lines
 
 }
 
@@ -153,18 +145,26 @@ r_exec_error_diagnostics <- function(package, output) {
     r_exec_error_diagnostics_fortran_library(),
     r_exec_error_diagnostics_fortran_binary(),
     r_exec_error_diagnostics_openmp(),
-    r_exec_error_diagnostics_libsodium()
+    r_exec_error_diagnostics_library()
   )
 
   suggestions <- uapply(diagnostics, function(diagnostic) {
 
-    check <- catch(diagnostic$checker(output))
-    if (!is.character(check))
+    checker <- if (is.function(diagnostic))
+      diagnostic
+    else
+      diagnostic$checker
+
+    check <- catch(checker(output))
+    if (!is.character(check) || length(check) == 0L)
       return()
 
-    suggestion <- diagnostics$suggestion
+    suggestion <-
+      attr(check, "suggestion", exact = TRUE) %||%
+      diagnostic$suggestion
+
     reasons <- paste("-", shQuote(check), collapse = "\n")
-    paste(diagnostic$suggestion, "Reason(s):", reasons, sep = "\n")
+    paste(suggestion, "Reason(s):", reasons, sep = "\n")
 
   })
 
