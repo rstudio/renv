@@ -289,41 +289,41 @@ git commits, so it’s good to have a sense for what it looks like.</p>
 file that records all the information needed to recreate your project in
 the future. Here’s an example lockfile, with the markdown package
 installed from CRAN and the mime package installed from GitHub:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"R"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"4.3.2"</span><span class="fu">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"Repositories"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"Name"</span><span class="fu">:</span> <span class="st">"CRAN"</span><span class="fu">,</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"URL"</span><span class="fu">:</span> <span class="st">"https://cloud.r-project.org"</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"Packages"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"markdown"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Package"</span><span class="fu">:</span> <span class="st">"markdown"</span><span class="fu">,</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"1.0"</span><span class="fu">,</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Source"</span><span class="fu">:</span> <span class="st">"Repository"</span><span class="fu">,</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Repository"</span><span class="fu">:</span> <span class="st">"CRAN"</span><span class="fu">,</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Hash"</span><span class="fu">:</span> <span class="st">"4584a57f565dd7987d59dda3a02cfb41"</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"mime"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Package"</span><span class="fu">:</span> <span class="st">"mime"</span><span class="fu">,</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"0.12.1"</span><span class="fu">,</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Source"</span><span class="fu">:</span> <span class="st">"GitHub"</span><span class="fu">,</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"RemoteType"</span><span class="fu">:</span> <span class="st">"github"</span><span class="fu">,</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"RemoteHost"</span><span class="fu">:</span> <span class="st">"api.github.com"</span><span class="fu">,</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"RemoteUsername"</span><span class="fu">:</span> <span class="st">"yihui"</span><span class="fu">,</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"RemoteRepo"</span><span class="fu">:</span> <span class="st">"mime"</span><span class="fu">,</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"RemoteRef"</span><span class="fu">:</span> <span class="st">"main"</span><span class="fu">,</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"RemoteSha"</span><span class="fu">:</span> <span class="st">"1763e0dcb72fb58d97bab97bb834fc71f1e012bc"</span><span class="fu">,</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Requirements"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">"tools"</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>      <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"Hash"</span><span class="fu">:</span> <span class="st">"c2772b6269924dad6784aaa1d99dbb86"</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="dt">"R"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>    <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"4.3.2"</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    <span class="dt">"Repositories"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>        <span class="dt">"Name"</span><span class="fu">:</span> <span class="st">"CRAN"</span><span class="fu">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>        <span class="dt">"URL"</span><span class="fu">:</span> <span class="st">"https://cloud.r-project.org"</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="dt">"Packages"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>    <span class="dt">"markdown"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>      <span class="dt">"Package"</span><span class="fu">:</span> <span class="st">"markdown"</span><span class="fu">,</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>      <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"1.0"</span><span class="fu">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>      <span class="dt">"Source"</span><span class="fu">:</span> <span class="st">"Repository"</span><span class="fu">,</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>      <span class="dt">"Repository"</span><span class="fu">:</span> <span class="st">"CRAN"</span><span class="fu">,</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>      <span class="dt">"Hash"</span><span class="fu">:</span> <span class="st">"4584a57f565dd7987d59dda3a02cfb41"</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>    <span class="dt">"mime"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>      <span class="dt">"Package"</span><span class="fu">:</span> <span class="st">"mime"</span><span class="fu">,</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>      <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"0.12.1"</span><span class="fu">,</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>      <span class="dt">"Source"</span><span class="fu">:</span> <span class="st">"GitHub"</span><span class="fu">,</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>      <span class="dt">"RemoteType"</span><span class="fu">:</span> <span class="st">"github"</span><span class="fu">,</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>      <span class="dt">"RemoteHost"</span><span class="fu">:</span> <span class="st">"api.github.com"</span><span class="fu">,</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>      <span class="dt">"RemoteUsername"</span><span class="fu">:</span> <span class="st">"yihui"</span><span class="fu">,</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>      <span class="dt">"RemoteRepo"</span><span class="fu">:</span> <span class="st">"mime"</span><span class="fu">,</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>      <span class="dt">"RemoteRef"</span><span class="fu">:</span> <span class="st">"main"</span><span class="fu">,</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>      <span class="dt">"RemoteSha"</span><span class="fu">:</span> <span class="st">"1763e0dcb72fb58d97bab97bb834fc71f1e012bc"</span><span class="fu">,</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>      <span class="dt">"Requirements"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>        <span class="st">"tools"</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>      <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>      <span class="dt">"Hash"</span><span class="fu">:</span> <span class="st">"c2772b6269924dad6784aaa1d99dbb86"</span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>As you can see the json file has two main components: <code>R</code>
 and <code>Packages</code>. The <code>R</code> component contains the
 version of R used, and a list of repositories where packages were

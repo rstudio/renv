@@ -196,9 +196,9 @@ uses the stringr package which is only suggested, not required by tidyr.</p>
 <p>If you find that renv's dependency discovery misses one or more packages
 that you actually use in your project, one escape hatch is to include a file
 called <code>_dependencies.R</code> that includes straightforward library calls:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre><p></p></div>
     </div>
     <div class="section level2">
     <h2 id="explicit-dependencies">Explicit dependencies<a class="anchor" aria-label="anchor" href="#explicit-dependencies"></a></h2>
@@ -207,13 +207,13 @@ on an explicit set of packages recorded by you in a project <code>DESCRIPTION</c
 Call <code>renv::settings$snapshot.type("explicit")</code> to enable "explicit" mode,
 then enumerate your dependencies in a project <code>DESCRIPTION</code> file.</p>
 <p>In that case, your <code>DESCRIPTION</code> might look something like this:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Type<span class="sc">:</span> project</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Description<span class="sc">:</span> My project.</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Depends<span class="sc">:</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    tidyverse,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    devtools,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    shiny,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    data.table</span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>Type<span class="sc">:</span> project</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>Description<span class="sc">:</span> My project.</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>Depends<span class="sc">:</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    tidyverse,</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    devtools,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>    shiny,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>    data.table</span></code></pre><p></p></div>
     </div>
     <div class="section level2">
     <h2 id="ignoring-files">Ignoring files<a class="anchor" aria-label="anchor" href="#ignoring-files"></a></h2>
@@ -226,14 +226,14 @@ which files to ignore within a directory. If both <code>.renvignore</code> and
 the <code>.gitignore</code>.</p>
 <p>See <a href="https://git-scm.com/docs/gitignore" class="external-link">https://git-scm.com/docs/gitignore</a> for documentation on the
 <code>.gitignore</code> format. Some simple examples here:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ignore all R Markdown files</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="sc">*</span>.Rmd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ignore all data folders</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>data<span class="sc">/</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ignore only data folders from the root of the project</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="er">/</span>data<span class="sc">/</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># ignore all R Markdown files</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="sc">*</span>.Rmd</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># ignore all data folders</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>data<span class="sc">/</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># ignore only data folders from the root of the project</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="er">/</span>data<span class="sc">/</span></span></code></pre><p></p></div>
 <p>Using ignore files is important if your project contains a large number
 of files; for example, if you have a <code>data/</code> directory containing many
 text files.</p>
@@ -247,14 +247,14 @@ more robust solution is tell renv not to look at the problematic code.
 As well as using <code>.renvignore</code>, as described above, you can also suppress errors
 discovered within individual <code>.Rmd</code> chunks by including <code>renv.ignore=TRUE</code>
 in the chunk header. For example:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="st">```</span><span class="at">{r chunk-label, renv.ignore=TRUE}</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at"># code in this chunk will be ignored by renv</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">```</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="st">```</span><span class="at">{r chunk-label, renv.ignore=TRUE}</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="at"># code in this chunk will be ignored by renv</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="st">```</span></span></code></pre><p></p></div>
 <p>Similarly, if you'd like renv to parse a chunk that is otherwise ignored
 (e.g. because it has <code>eval=FALSE</code> as a chunk header), you can set:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="st">```</span><span class="at">{r chunk-label, eval=FALSE, renv.ignore=FALSE}</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at"># code in this chunk will _not_ be ignored</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">```</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="st">```</span><span class="at">{r chunk-label, eval=FALSE, renv.ignore=FALSE}</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="at"># code in this chunk will _not_ be ignored</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="st">```</span></span></code></pre><p></p></div>
     </div>
     <div class="section level2">
     <h2 id="development-dependencies">Development dependencies<a class="anchor" aria-label="anchor" href="#development-dependencies"></a></h2>
