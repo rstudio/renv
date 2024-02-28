@@ -24,9 +24,15 @@ renv_cache_init <- function() {
   cache <- renv_paths_cache()
   ensure_directory(cache)
 
-  ignorefile <- file.path(cache, ".renvignore")
-  if (!file.exists(ignorefile))
-    writeLines("*", con = ignorefile)
+  # if the cache appears to be within the project directory,
+  # then drop a '.renvignore' file within so it's not scanned
+  #
+  # https://github.com/rstudio/renv/issues/1655
+  if (renv_path_within(cache, getwd())) {
+    ignorefile <- file.path(cache, ".renvignore")
+    if (!file.exists(ignorefile))
+      writeLines("*", con = ignorefile)
+  }
 
 }
 
