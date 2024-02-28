@@ -145,7 +145,7 @@ r_exec_error_diagnostics <- function(package, output) {
     r_exec_error_diagnostics_fortran_library(),
     r_exec_error_diagnostics_fortran_binary(),
     r_exec_error_diagnostics_openmp(),
-    r_exec_error_diagnostics_library()
+    r_exec_error_diagnostics_library
   )
 
   suggestions <- uapply(diagnostics, function(diagnostic) {
