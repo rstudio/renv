@@ -54,7 +54,7 @@ the \code{RENV_CONFIG_AUTOLOADER_ENABLED} envvar, e.g.
 renv::activate()
 
 # activate a separate project
-renv::activate("~/projects/analysis")
+renv::activate(project = "~/projects/analysis")
 
 # deactivate the currently-activated project
 renv::deactivate()

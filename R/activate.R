@@ -35,7 +35,7 @@
 #' renv::activate()
 #'
 #' # activate a separate project
-#' renv::activate("~/projects/analysis")
+#' renv::activate(project = "~/projects/analysis")
 #'
 #' # deactivate the currently-activated project
 #' renv::deactivate()
