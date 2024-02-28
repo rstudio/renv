@@ -120,12 +120,40 @@ Please see https://support.bioconductor.org/p/119536/ for a related discussion.
 
 }
 
+r_exec_error_diagnostics_libsodium <- function() {
+
+  checker <- function(output) {
+    pattern <- "libsodium.so.\\d+: cannot open shared object file"
+    idx <- grep(pattern, output, perl = TRUE)
+    if (length(idx))
+      return(unique(output[idx]))
+  }
+
+  suggestion <- "
+The 'sodium' R package requires the libsodium library to be installed,
+but libsodium could not be found or is not available. You may need to
+install a compatible version of libsodium. For example:
+
+- apt install libsodium-dev     # Debian OS
+- yum install libsodium-devel   # Redhat OS
+
+Contact your system administrator for more information.
+"
+
+  list(
+    checker = checker,
+    suggestion = suggestion
+  )
+
+}
+
 r_exec_error_diagnostics <- function(package, output) {
 
   diagnostics <- list(
     r_exec_error_diagnostics_fortran_library(),
     r_exec_error_diagnostics_fortran_binary(),
-    r_exec_error_diagnostics_openmp()
+    r_exec_error_diagnostics_openmp(),
+    r_exec_error_diagnostics_libsodium()
   )
 
   suggestions <- uapply(diagnostics, function(diagnostic) {
