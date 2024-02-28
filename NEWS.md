@@ -1,5 +1,8 @@
 # renv (development version)
 
+* `renv` now only writes a `.renvignore` file into the cache directory
+  if the cache appears to be part of the current project.
+
 * `renv` now reports missing system libraries as part of its ABI
   checks in `renv::diagnostics()`.
 
