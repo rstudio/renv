@@ -36,7 +36,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -169,11 +169,12 @@ library. This is much slower, so is worth avoiding.</p>
 <code>renv::paths$cache()</code>. By default, it will be in one of the
 following folders:</p>
 <ul>
-<li>Linux: <code>~/.local/share/renv</code>
+<li>Linux: <code>~/.cache/R/renv/cache</code>
 </li>
-<li>macOS: <code>~/Library/Application Support/renv</code>
+<li>macOS:
+<code>~/Library/Caches/org.R-project.R/R/renv/cache</code>
 </li>
-<li>Windows: <code>%LOCALAPPDATA%/renv</code>
+<li>Windows: <code>%LOCALAPPDATA%/renv/cache</code>
 </li>
 </ul>
 <p>If you’d like to share the package cache across multiple users, you
@@ -282,10 +283,10 @@ manner similar to <code><a href="https://rdrr.io/r/utils/install.packages.html" 
 <code>R</code> options <code>configure.args</code> and
 <code>configure.vars</code> can be used to map package names to their
 appropriate configuration. For example:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># installation of RNetCDF may require us to set include paths for netcdf</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>configure.args <span class="ot">=</span> <span class="fu">c</span>(<span class="at">RNetCDF =</span> <span class="st">"--with-netcdf-include=/usr/include/udunits2"</span>)<span class="er">)</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">configure.args =</span> configure.args)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"RNetCDF"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># installation of RNetCDF may require us to set include paths for netcdf</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>configure.args <span class="ot">=</span> <span class="fu">c</span>(<span class="at">RNetCDF =</span> <span class="st">"--with-netcdf-include=/usr/include/udunits2"</span>)<span class="er">)</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">options</span>(<span class="at">configure.args =</span> configure.args)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"RNetCDF"</span>)</span></code></pre></div>
 <p>This could also be specified as, for example,</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span></span>

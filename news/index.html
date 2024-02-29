@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">renv</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,6 +67,12 @@
       <small>Source: <a href="https://github.com/rstudio/renv/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.5" id="renv-105">renv 1.0.5<a class="anchor" aria-label="anchor" href="#renv-105"></a></h2><p class="text-muted">CRAN release: 2024-02-29</p>
+<ul><li><p><code>renv</code> now only writes a <code>.renvignore</code> file into the cache directory if the cache appears to be part of the current project.</p></li>
+<li><p><code>renv</code> now reports missing system libraries as part of its ABI checks in <code><a href="../reference/diagnostics.html">renv::diagnostics()</a></code>.</p></li>
+<li><p>Fixed an issue where <code>renv::install(lock = TRUE)</code> produced lockfiles containing records with extraneous data. (<a href="https://github.com/rstudio/renv/issues/1828" class="external-link">#1828</a>)</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.4" id="renv-104">renv 1.0.4<a class="anchor" aria-label="anchor" href="#renv-104"></a></h2><p class="text-muted">CRAN release: 2024-02-21</p>
 <ul><li><p><code><a href="../reference/install.html">renv::install()</a></code> gains the <code>lock</code> argument. When <code>TRUE</code>, the project lockfile will be updated after the requested packages have been successfully installed. (<a href="https://github.com/rstudio/renv/issues/1811" class="external-link">#1811</a>)</p></li>
