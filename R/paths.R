@@ -341,7 +341,8 @@ renv_paths_root_default_tempdir <- function() {
 #' ```
 #'
 #' The prefix will be constructed based on fields within the system's
-#' `/etc/os-release` file.
+#' `/etc/os-release` file. Note that this is the default behavior with
+#' `renv 1.0.6` when using R 4.4.0 or later.
 #'
 #' # Package cellar
 #'
