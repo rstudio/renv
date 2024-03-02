@@ -145,7 +145,8 @@ an OS-specific component to include as part of library and cache paths,
 by setting the environment variable:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>RENV_PATHS_PREFIX_AUTO <span class="ot">=</span> <span class="cn">TRUE</span></span></code></pre><p></p></div>
 <p>The prefix will be constructed based on fields within the system's
-<code>/etc/os-release</code> file.</p>
+<code>/etc/os-release</code> file. Note that this is the default behavior with
+<code>renv 1.0.6</code> when using R 4.4.0 or later.</p>
     </div>
     <div class="section level2">
     <h2 id="package-cellar">Package cellar<a class="anchor" aria-label="anchor" href="#package-cellar"></a></h2>
