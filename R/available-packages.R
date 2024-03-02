@@ -506,7 +506,7 @@ renv_available_packages_latest_p3m <- function(package,
   # tag record with url + type
   renv_record_tag(
     record = record,
-    type   = type,
+    type   = "binary",
     url    = dirname(url),
     name   = "P3M"
   )

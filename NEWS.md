@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where attempts to install binary packages from older
+  PPM snapshots could fail. (#1839)
+
 * `renv` now uses a platform-specific prefix on Linux for library and
   cache paths by default with R (>= 4.4.0). This is equivalent to setting
   `RENV_PATHS_PREFIX_AUTO = TRUE`. If necessary, this behavior can be
