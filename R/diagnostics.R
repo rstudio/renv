@@ -260,6 +260,8 @@ renv_diagnostics_envvars <- function(project) {
   useful <- c(
     "R_LIBS_USER", "R_LIBS_SITE", "R_LIBS",
     "HOME", "LANG", "MAKE",
+    "http_proxy", "https_proxy", "no_proxy",
+    "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY",
     grep("^RENV_", names(envvars), value = TRUE)
   )
 
