@@ -668,8 +668,20 @@ renv_bootstrap_library_root_name <- function(project) {
   if (asis)
     return(basename(project))
 
+  # read an existing id for this project if available
+  id <- NULL
+  path <- renv_bootstrap_paths_renv("project.json", project = project)
+  if (file.exists(path)) {
+    json <- tryCatch(renv_json_read(file = path), error = function(e) NULL)
+    id <- json[["id"]]
+  }
+
+  if (is.null(id)) {
+    id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
+    renv_json_write(list(id = id), file = path)
+  }
+
   # otherwise, disambiguate based on project's path
-  id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
   paste(basename(project), id, sep = "-")
 
 }
