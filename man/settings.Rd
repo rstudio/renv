@@ -77,6 +77,12 @@ binary repository URLs. This setting can be used if you'd like to avoid this
 transformation with some subset of repository URLs.
 }
 
+\subsection{\code{project.id}}{
+
+A unique project identifier assigned to this project. This is primarily
+used when constructing external library paths for \R package projects.
+}
+
 \subsection{\code{r.version}}{
 
 The version of \R to encode within the lockfile. This can be set as a

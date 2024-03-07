@@ -670,19 +670,17 @@ renv_bootstrap_library_root_name <- function(project) {
 
   # read an existing id for this project if available
   id <- NULL
-  path <- renv_bootstrap_paths_renv("project.json", profile = FALSE, project = project)
+  path <- renv_bootstrap_paths_renv("settings.json", project = project)
   if (file.exists(path)) {
     json <- tryCatch(renv_json_read(file = path), error = function(e) NULL)
-    id <- json[["id"]]
+    id <- json[["project.id"]]
   }
 
-  if (is.null(id)) {
-    id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
-    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-    renv_json_write(list(id = id), file = path)
-  }
+  # if we don't have a project id yet, generate one for use now
+  if (is.null(id))
+    id <- renv_bootstrap_project_id(project)
 
-  # otherwise, disambiguate based on project's path
+  # generate the library name
   paste(basename(project), id, sep = "-")
 
 }
@@ -876,6 +874,11 @@ renv_bootstrap_paths_renv <- function(..., profile = TRUE, project = NULL) {
   prefix <- if (profile) renv_bootstrap_profile_prefix()
   components <- c(root, renv, prefix, ...)
   paste(components, collapse = "/")
+}
+
+renv_bootstrap_project_id <- function(project) {
+  id <- renv_bootstrap_hash_text(project)
+  substring(id, 1L, 8L)
 }
 
 renv_bootstrap_project_type <- function(path) {
