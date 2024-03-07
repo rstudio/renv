@@ -125,7 +125,7 @@ renv_zzz_bootstrap_activate <- function() {
 
   source <- "templates/template-activate.R"
   target <- "inst/resources/activate.R"
-  scripts <- c("R/bootstrap.R", "R/json-read.R")
+  scripts <- c("R/bootstrap.R", "R/json-read.R", "R/options.R")
 
   # Do we need an update
   source_mtime <- max(renv_file_info(c(source, scripts))$mtime)

@@ -670,15 +670,18 @@ renv_bootstrap_library_root_name <- function(project) {
 
   # read an existing id for this project if available
   id <- NULL
-  path <- renv_bootstrap_paths_renv("settings.json", project = project)
-  if (file.exists(path)) {
-    json <- tryCatch(renv_json_read(file = path), error = function(e) NULL)
+  file <- renv_bootstrap_paths_renv("settings.json", project = project)
+  if (file.exists(file)) {
+    json <- tryCatch(renv_json_read(file = file), error = function(e) NULL)
     id <- json[["project.id"]]
   }
 
-  # if we don't have a project id yet, generate one for use now
-  if (is.null(id))
-    id <- renv_bootstrap_project_id(project)
+  # if we don't have a project id yet, check overrides
+  id <- id %||% renv_options_override(
+    scope   = "renv.settings",
+    key     = "project.id",
+    default = renv_bootstrap_project_id(project)
+  )
 
   # generate the library name
   paste(basename(project), id, sep = "-")
