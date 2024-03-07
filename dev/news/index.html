@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p>Fixed an issue where attempts to install binary packages from older PPM snapshots could fail. (<a href="https://github.com/rstudio/renv/issues/1839" class="external-link">#1839</a>)</p></li>
+<ul><li><p>Added the <code>project.id</code> project setting, which is used primarily when forming external library paths for use with R package projects. This should help resolve issues seen when attempting to build vignettes during <code>R CMD build</code> with projects using renv. (<a href="https://github.com/rstudio/renv/issues/1798" class="external-link">#1798</a>)</p></li>
+<li><p>Fixed an issue where attempts to install binary packages from older PPM snapshots could fail. (<a href="https://github.com/rstudio/renv/issues/1839" class="external-link">#1839</a>)</p></li>
 <li><p><code>renv</code> now uses a platform-specific prefix on Linux for library and cache paths by default with R (&gt;= 4.4.0). This is equivalent to setting <code>RENV_PATHS_PREFIX_AUTO = TRUE</code>. If necessary, this behavior can be disabled by setting <code>RENV_PATHS_PREFIX_AUTO = FALSE</code> in an appropriate R startup file. (<a href="https://github.com/rstudio/renv/issues/1211" class="external-link">#1211</a>)</p></li>
 </ul></div>
     <div class="section level2">
