@@ -670,7 +670,7 @@ renv_bootstrap_library_root_name <- function(project) {
 
   # read an existing id for this project if available
   id <- NULL
-  path <- renv_bootstrap_paths_renv("project.json", project = project)
+  path <- renv_bootstrap_paths_renv("project.json", profile = FALSE, project = project)
   if (file.exists(path)) {
     json <- tryCatch(renv_json_read(file = path), error = function(e) NULL)
     id <- json[["id"]]
@@ -678,6 +678,7 @@ renv_bootstrap_library_root_name <- function(project) {
 
   if (is.null(id)) {
     id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
+    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
     renv_json_write(list(id = id), file = path)
   }
 
