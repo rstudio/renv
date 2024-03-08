@@ -765,22 +765,8 @@ local({
     if (asis)
       return(basename(project))
   
-    # read an existing id for this project if available
-    id <- NULL
-    file <- renv_bootstrap_paths_renv("settings.json", project = project)
-    if (file.exists(file)) {
-      json <- tryCatch(renv_json_read(file = file), error = function(e) NULL)
-      id <- json[["project.id"]]
-    }
-  
-    # if we don't have a project id yet, check overrides
-    id <- id %||% renv_options_override(
-      scope   = "renv.settings",
-      key     = "project.id",
-      default = renv_bootstrap_project_id(project)
-    )
-  
-    # generate the library name
+    # otherwise, disambiguate based on project's path
+    id <- substring(renv_bootstrap_hash_text(project), 1L, 8L)
     paste(basename(project), id, sep = "-")
   
   }
@@ -974,11 +960,6 @@ local({
     prefix <- if (profile) renv_bootstrap_profile_prefix()
     components <- c(root, renv, prefix, ...)
     paste(components, collapse = "/")
-  }
-  
-  renv_bootstrap_project_id <- function(project) {
-    id <- renv_bootstrap_hash_text(project)
-    substring(id, 1L, 8L)
   }
   
   renv_bootstrap_project_type <- function(path) {
@@ -1200,42 +1181,6 @@ local({
     }
   
     json
-  
-  }
-  
-  renv_options_set <- function(key, value) {
-    data <- list(value)
-    names(data) <- key
-    do.call(base::options, data)
-  }
-  
-  renv_options_resolve <- function(value, arguments) {
-  
-    if (is.function(value))
-      return(do.call(value, arguments))
-  
-    value
-  
-  }
-  
-  renv_options_override <- function(scope, key, default = NULL, extra = NULL) {
-  
-    # first, check for scoped option
-    value <- getOption(paste(scope, key, sep = "."))
-    if (!is.null(value))
-      return(renv_options_resolve(value, list(extra)))
-  
-    # next, check for unscoped option
-    value <- getOption(scope)
-    if (key %in% names(value))
-      return(renv_options_resolve(value[[key]], list(extra)))
-  
-    # check for functional value
-    if (is.function(value))
-      return(renv_options_resolve(value, list(key, extra)))
-  
-    # nothing found; use default
-    default
   
   }
 

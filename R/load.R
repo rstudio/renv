@@ -373,13 +373,6 @@ renv_load_project <- function(project) {
     renv_load_project_projlist(project)
   }
 
-  # set a unique project id if necessary
-  id <- settings$project.id(project = project)
-  if (is.null(id)) {
-    id <- renv_bootstrap_project_id(project)
-    settings$project.id(value = id, project = project)
-  }
-
   TRUE
 
 }
