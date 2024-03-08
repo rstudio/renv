@@ -68,10 +68,13 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
 renv_run_job <- function(script, name, project) {
 
   activate <- renv_paths_activate(project = project)
-  jobscript <- tempfile("renv-job-", fileext = ".R")
+  exprs <- expr({
+    source(!!activate)
+    source(!!script)
+  })
 
-  exprs <- inject({ source(activate); source(script) })
   code <- deparse(exprs)
+  jobscript <- tempfile("renv-job-", fileext = ".R")
   writeLines(code, con = jobscript)
 
   rstudioapi::jobRunScript(

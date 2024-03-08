@@ -80,9 +80,9 @@ test_that("locks are released on process exit", {
   renv_scope_options(renv.config.locking.enabled = TRUE)
   path <- renv_lock_path(renv_scope_tempfile())
 
-  code <- inject({
-    renv_lock_acquire(path)
-    stopifnot(file.exists(path))
+  code <- expr({
+    renv_lock_acquire(!!path)
+    stopifnot(file.exists(!!path))
   })
 
   args <- c("--vanilla", "-s", "-e", shQuote(stringify(code)))

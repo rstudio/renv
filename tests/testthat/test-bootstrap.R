@@ -48,7 +48,7 @@ test_that("we can install a version of renv with a sha", {
 test_that("bootstrap functions don't depend on non-bootstrap APIs", {
 
   # pattern matching things that are bootstrapped for renv
-  pattern <- "^renv_(?:bootstrap|json)_"
+  pattern <- "^renv_(?:bootstrap|options|json)_"
 
   # get all of the bootstrap functions defined in renv
   renv <- asNamespace("renv")

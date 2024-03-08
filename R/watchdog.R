@@ -81,7 +81,7 @@ renv_watchdog_start_impl <- function() {
   # can communicate what port it'll be listening on for messages
   dlog("watchdog", "launching watchdog")
   server <- renv_socket_server()
-  socket <- server$socket; port <- server$port
+  socket <- server$socket
   defer(close(socket))
 
   # generate script to invoke watchdog
@@ -94,13 +94,9 @@ renv_watchdog_start_impl <- function() {
   else
     renv_libpaths_default()
 
-  # for R CMD check
-  name <- .packageName
-  pid <- Sys.getpid()
-
-  code <- inject({
-    client <- list(pid = pid, port = port)
-    host <- loadNamespace(name, lib.loc = library)
+  code <- expr({
+    client <- list(pid = !!Sys.getpid(), port = !!server$port)
+    host <- loadNamespace(!!.packageName, lib.loc = !!library)
     renv <- if (!is.null(host$renv)) host$renv else host
     renv$renv_watchdog_server_start(client)
   })
