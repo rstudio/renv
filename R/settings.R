@@ -386,11 +386,6 @@ renv_settings_impl <- function(name, default, scalar, validate, coerce, update) 
 #' binary repository URLs. This setting can be used if you'd like to avoid this
 #' transformation with some subset of repository URLs.
 #'
-#' ## `project.id`
-#'
-#' A unique project identifier assigned to this project. This is primarily
-#' used when constructing external library paths for \R package projects.
-#'
 #' ## `r.version`
 #'
 #' The version of \R to encode within the lockfile. This can be set as a
@@ -520,15 +515,6 @@ settings <- list(
     name     = "ppm.ignored.urls",
     default  = NULL,
     scalar   = FALSE,
-    validate = is.character,
-    coerce   = as.character,
-    update   = NULL
-  ),
-
-  project.id = renv_settings_impl(
-    name     = "project.id",
-    default  = NULL,
-    scalar   = TRUE,
     validate = is.character,
     coerce   = as.character,
     update   = NULL
