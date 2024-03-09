@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv` could fail to update the project autoloader
+  after calling `renv::upgrade()`. (#1837)
+
 * Fixed an issue where attempts to install binary packages from older
   PPM snapshots could fail. (#1839)
 
