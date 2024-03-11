@@ -1,20 +1,12 @@
 
-# TODO: This performs rlang-style injection, but doesn't
-# fix up the parse tree as rlang does -- since calls like
-#
-#    !!a + !!b
-#
-# is handled by rlang as though it were parsed as
-#
-#    `+`(!!a, !!b)
-#
-# but this is not how the regular R precedence rules parse
-# these expressions. Should we just use bquote()?
 expr <- function(expr, envir = parent.frame()) {
   renv_expr_impl(substitute(expr), envir)
 }
 
 renv_expr_impl <- function(expr, envir) {
+
+  # repair parse trees
+  expr <- renv_expr_repair(expr)
 
   # check for inject calls
   if (is.call(expr) && identical(expr[[1L]], as.symbol("!"))) {
@@ -33,5 +25,42 @@ renv_expr_impl <- function(expr, envir) {
   }
 
   expr
+
+}
+
+renv_expr_extract <- function(expr) {
+
+  if (is.call(expr) && identical(expr[[1L]], as.symbol("!"))) {
+    inner <- expr[[2L]]
+    if (is.call(inner) && identical(inner[[1L]], as.symbol("!"))) {
+      return(inner[[2L]])
+    }
+  }
+
+}
+
+# TODO: Doesn't properly handle precedence for multiple injections,
+# e.g. in '!!a + !!b + !!c'.
+renv_expr_repair <- function(expr) {
+
+  lhs <- renv_expr_extract(expr)
+  if (is.null(lhs))
+    return(expr)
+
+  check <- is.call(lhs) && length(lhs) == 3L
+  if (!check)
+    return(expr)
+
+  rhs <- renv_expr_extract(lhs[[3L]])
+  if (is.null(rhs))
+    return(expr)
+
+  parts <- list(
+    lhs[[1L]],
+    call("!", call("!", lhs[[2L]])),
+    call("!", call("!", rhs))
+  )
+
+  as.call(parts)
 
 }

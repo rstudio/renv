@@ -27,3 +27,12 @@ test_that("expr() also supports expressions", {
   expect_identical(actual, expected)
 
 })
+
+test_that("expr() repairs parse trees", {
+
+  a <- TRUE; b <- FALSE
+  actual <- expr(!!a + !!b)
+  expected <- quote(TRUE + FALSE)
+  expect_identical(actual, expected)
+
+})
