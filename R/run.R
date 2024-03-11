@@ -68,9 +68,9 @@ run <- function(script, ..., job = NULL, name = NULL, project = NULL) {
 renv_run_job <- function(script, name, project) {
 
   activate <- renv_paths_activate(project = project)
-  exprs <- inject({
-    source(.(activate))
-    source(.(script))
+  exprs <- expr({
+    source(!!activate)
+    source(!!script)
   })
 
   code <- deparse(exprs)

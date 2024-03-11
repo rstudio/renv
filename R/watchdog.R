@@ -94,9 +94,9 @@ renv_watchdog_start_impl <- function() {
   else
     renv_libpaths_default()
 
-  code <- inject({
-    client <- list(pid = .(Sys.getpid()), port = .(server$port))
-    host <- loadNamespace(.(.packageName), lib.loc = .(library))
+  code <- expr({
+    client <- list(pid = !!Sys.getpid(), port = !!server$port)
+    host <- loadNamespace(!!.packageName, lib.loc = !!library)
     renv <- if (!is.null(host$renv)) host$renv else host
     renv$renv_watchdog_server_start(client)
   })
