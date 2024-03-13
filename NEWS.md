@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `renv::update()` gains the `lock` argument, which can be used to
+  instruct `renv` to automatically update the lockfile after the requested
+  packages have been updated. (#1849)
+
 * Fixed an issue where `renv` could fail to update the project autoloader
   after calling `renv::upgrade()`. (#1837)
 

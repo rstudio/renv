@@ -246,6 +246,9 @@ renv_update_find <- function(records) {
 #'   Use `renv::update(exclude = <...>)` to update all packages except for
 #'   a specific set of excluded packages.
 #'
+#' @param lock Boolean; update the `renv.lock` lockfile after the successful
+#'   installation of the requested packages?
+#'
 #' @return A named list of package records which were installed by renv.
 #'
 #' @export
@@ -264,6 +267,7 @@ update <- function(packages = NULL,
                    rebuild = FALSE,
                    check   = FALSE,
                    prompt  = interactive(),
+                   lock    = FALSE,
                    project = NULL)
 {
   renv_consent_check()
@@ -407,6 +411,7 @@ update <- function(packages = NULL,
     library  = libpaths,
     rebuild  = rebuild,
     prompt   = prompt,
+    lock     = lock,
     project  = project
   )
 

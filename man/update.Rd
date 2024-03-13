@@ -12,6 +12,7 @@ update(
   rebuild = FALSE,
   check = FALSE,
   prompt = interactive(),
+  lock = FALSE,
   project = NULL
 )
 }
@@ -41,6 +42,9 @@ what updates are available, without actually installing those updates.}
 
 \item{prompt}{Boolean; prompt the user before taking any action? For backwards
 compatibility, \code{confirm} is accepted as an alias for \code{prompt}.}
+
+\item{lock}{Boolean; update the \code{renv.lock} lockfile after the successful
+installation of the requested packages?}
 
 \item{project}{The project directory. If \code{NULL}, then the active project will
 be used. If no project is currently active, then the current working
