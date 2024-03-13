@@ -14,5 +14,7 @@ revdep
 
 inst/doc
 
+renv/cellar
+
 /*.tar.gz
 /*.backup

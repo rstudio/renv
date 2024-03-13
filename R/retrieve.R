@@ -147,7 +147,8 @@ renv_retrieve_impl <- function(package) {
 
   }
 
-  if (!renv_restore_rebuild_required(record)) {
+  rebuild <- renv_restore_rebuild_required(record)
+  if (!rebuild) {
 
     # if we have an installed package matching the requested record, finish early
     path <- renv_restore_find(package, record)
@@ -203,22 +204,21 @@ renv_retrieve_impl <- function(package) {
 
   }
 
-  if (!renv_restore_rebuild_required(record)) {
 
-    # try some early shortcut methods
-    shortcuts <- c(
-      renv_retrieve_explicit,
-      renv_retrieve_cellar,
-      if (!renv_tests_running() && config$install.shortcuts())
-        renv_retrieve_libpaths
-    )
+  # try some early shortcut methods
+  shortcuts <- if (rebuild) c(
+    renv_retrieve_cellar
+  ) else c(
+    renv_retrieve_explicit,
+    renv_retrieve_cellar,
+    if (!renv_tests_running() && config$install.shortcuts())
+      renv_retrieve_libpaths
+  )
 
-    for (shortcut in shortcuts) {
-      retrieved <- catch(shortcut(record))
-      if (identical(retrieved, TRUE))
-        return(TRUE)
-    }
-
+  for (shortcut in shortcuts) {
+    retrieved <- catch(shortcut(record))
+    if (identical(retrieved, TRUE))
+      return(TRUE)
   }
 
   state$downloaded <- state$downloaded + 1L
