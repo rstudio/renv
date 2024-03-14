@@ -51,7 +51,12 @@ the$load_running <- FALSE
 #' renv::load()
 #'
 #' }
-load <- function(project = NULL, quiet = FALSE, profile = NULL) {
+load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
+
+  # forward to base::load() if it looks like that was the intention
+  base <- renv_load_base(sys.call(), envir = parent.frame())
+  if (!is.null(base))
+    return(invisible(base))
 
   renv_scope_error_handler()
 
@@ -887,4 +892,36 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
 
   TRUE
 
+}
+
+renv_load_base <- function(call, envir) {
+
+  # if we were called without arguments, assume we should handle it
+  if (length(call) == 0L)
+    return(NULL)
+
+  # if the call was namespace-qualified, assume we should handle it
+  if (renv_call_matches(call[[1L]], c("::", ":::")))
+    return(NULL)
+
+  # if any of the formals normally associated with base::load
+  # were provided, then delegate to base::load()
+  if (any(c("file", "envir") %in% names(call)))
+    return(renv_load_base_impl(call, envir))
+
+  # attempt to match the call
+  matched <- tryCatch(match.call(base::load, call), error = identity)
+  if (inherits(matched, "error"))
+    return(NULL)
+
+  # check for a 'file' argument that looks like a file
+  file <- eval(matched[["file"]], envir = envir)
+  if (is.character(file) && endsWith(file, ".RData"))
+    return(renv_load_base_impl(call, envir))
+
+}
+
+renv_load_base_impl <- function(call, envir) {
+  call[[1L]] <- quote(base::load)
+  eval(call, envir = envir)
 }

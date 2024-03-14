@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `renv::load()` now delegates to `base::load()` when it detects that the
+  call was likely intended for `base::load()`, but `renv::load()` was used
+  instead (e.g. because `base::load()` was masked by `renv::load()`).
+  
 * `renv::update()` gains the `lock` argument, which can be used to
   instruct `renv` to automatically update the lockfile after the requested
   packages have been updated. (#1849)

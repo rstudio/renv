@@ -95,4 +95,5 @@ renv_call_matches <- function(call, name = NULL, nargs = NULL) {
     return(FALSE)
 
   TRUE
+
 }
