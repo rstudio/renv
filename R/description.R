@@ -51,18 +51,25 @@ renv_description_read_impl <- function(path = NULL, subdir = NULL, ...) {
     # those from GitHub) the first entry may not be the package name, so
     # just consume everything up to the first slash
     subdir <- subdir %||% ""
-    parts <- c("^[^/]+", if (nzchar(subdir)) subdir, "DESCRIPTION$")
+
+    # tolerate leading './' components in the archive paths
+    # https://github.com/rstudio/renv/issues/1852
+    prefix <- "^(?:\\./)*[^/]+"
+
+    # build pattern looking for the DESCRIPTION file
+    parts <- c(prefix, if (nzchar(subdir)) subdir, "DESCRIPTION$")
     pattern <- paste(parts, collapse = "/")
 
-    descs <- grep(pattern, files, value = TRUE)
+    descs <- grep(pattern, files, perl = TRUE, value = TRUE)
     if (empty(descs)) {
       fmt <- "archive '%s' does not appear to contain a DESCRIPTION file"
       stopf(fmt, renv_path_aliased(path))
     }
 
     # choose the shortest DESCRPITION file matching
+    file <- descs[[which.min(nchar(descs))]]
+
     # unpack into tempdir location
-    file <- descs[[1]]
     exdir <- renv_scope_tempfile("renv-description-")
     renv_archive_decompress(path, files = file, exdir = exdir)
 
