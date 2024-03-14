@@ -13,21 +13,7 @@ renv_archive_type <- function(archive) {
 }
 
 renv_archive_list <- function(archive) {
-
-  # list files
-  files <- suppressWarnings(renv_archive_list_impl(archive))
-
-  # remove a leading './' if included on the paths
-  # TODO: do we need to perform any other sort of path canonicalization?
-  #
-  # https://github.com/rstudio/renv/issues/1852
-  idx <- regexpr("./", files, fixed = TRUE)
-  matches <- idx == 1L
-  files[matches] <- substring(files[matches], 3L)
-
-  # return formatted files
-  files
-
+  suppressWarnings(renv_archive_list_impl(archive))
 }
 
 renv_archive_list_impl <- function(archive) {
