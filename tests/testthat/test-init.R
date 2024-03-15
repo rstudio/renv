@@ -202,7 +202,7 @@ test_that("RENV_PATHS_RENV is respected on init", {
     writeLines(Sys.getenv("RENV_PATHS_RENV"))
   })
 
-  renv_scope_envvars(R_PROFILE_USER = NULL)
+  renv_scope_envvars(R_PROFILE_USER = NULL, RENV_PROJECT = NULL)
   args <- c("-s", "-f", script)
   renv <- renv_system_exec(R(), args, action = "reading RENV_PATHS_RENV")
 
