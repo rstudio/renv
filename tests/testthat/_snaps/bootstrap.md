@@ -85,7 +85,7 @@
       - Use `renv::restore(packages = "renv")` to install renv 1.2.3-1 into the project library.
     Code
       . <- renv_bootstrap_validate_version(version = structure("1.2.3-1", sha = "22d015905828c3398728a5ff9e381e0433976263"),
-      description = list(Version = "1.2.3-1", RemoteSha = "6b09befaaba3f55e0e2c141cb45c5d247b61ef1e"))
+      description = list(Version = "1.2.3-1", RemoteType = "github", RemoteSha = "6b09befaaba3f55e0e2c141cb45c5d247b61ef1e"))
     Output
       renv 1.2.3-1 [sha: 6b09bef] was loaded from project library, but this project is configured to use renv 1.2.3-1 [sha: 22d0159].
       - Use `renv::record("rstudio/renv@6b09befaaba3f55e0e2c141cb45c5d247b61ef1e")` to record renv 1.2.3-1 [sha: 6b09bef] in the lockfile.
@@ -97,4 +97,14 @@
       renv 1.2.3 was loaded from project library, but this project is configured to use renv 1.2.3-1 [sha: 22d0159].
       - Use `renv::record("renv@1.2.3")` to record renv 1.2.3 in the lockfile.
       - Use `renv::restore(packages = "renv")` to install renv 1.2.3-1 [sha: 22d0159] into the project library.
+
+# bootstrap version validation handles 'standard' remote types
+
+    Code
+      . <- renv_bootstrap_validate_version(version = "1.0.0", description = list(
+        Version = "1.0.1", RemoteType = "standard", RemoteSha = "1.0.1"))
+    Output
+      renv 1.0.1 was loaded from project library, but this project is configured to use renv 1.0.0.
+      - Use `renv::record("renv@1.0.1")` to record renv 1.0.1 in the lockfile.
+      - Use `renv::restore(packages = "renv")` to install renv 1.0.0 into the project library.
 

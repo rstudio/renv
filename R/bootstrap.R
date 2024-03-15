@@ -728,24 +728,23 @@ renv_bootstrap_validate_version <- function(version, description = NULL) {
 
   # the loaded version of renv doesn't match the requested version;
   # give the user instructions on how to proceed
-  remote <- if (!is.null(description[["RemoteSha"]])) {
-    paste("rstudio/renv", description[["RemoteSha"]], sep = "@")
-  } else {
+  rtype <- description[["RemoteType"]] %||% "standard"
+  remote <- if (rtype %in% "standard")
     paste("renv", description[["Version"]], sep = "@")
-  }
+  else
+    paste("rstudio/renv", description[["RemoteSha"]], sep = "@")
 
   # display both loaded version + sha if available
   friendly <- renv_bootstrap_version_friendly(
     version = description[["Version"]],
-    sha     = description[["RemoteSha"]]
+    sha     = if (!rtype %in% "standard") description[["RemoteSha"]]
   )
 
-  fmt <- paste(
-    "renv %1$s was loaded from project library, but this project is configured to use renv %2$s.",
-    "- Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.",
-    "- Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.",
-    sep = "\n"
-  )
+  fmt <- heredoc("
+    renv %1$s was loaded from project library, but this project is configured to use renv %2$s.
+    - Use `renv::record(\"%3$s\")` to record renv %1$s in the lockfile.
+    - Use `renv::restore(packages = \"renv\")` to install renv %2$s into the project library.
+  ")
   catf(fmt, friendly, renv_bootstrap_version_friendly(version), remote)
 
   FALSE

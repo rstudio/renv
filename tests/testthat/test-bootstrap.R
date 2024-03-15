@@ -235,6 +235,7 @@ test_that("renv_boostrap_version_validate() gives good warnings", {
       version = structure("1.2.3-1", sha = "22d015905828c3398728a5ff9e381e0433976263"),
       description = list(
         Version = "1.2.3-1",
+        RemoteType = "github",
         RemoteSha = "6b09befaaba3f55e0e2c141cb45c5d247b61ef1e"
       )
     )
@@ -248,5 +249,23 @@ test_that("renv_boostrap_version_validate() gives good warnings", {
     )
 
   })
+
+})
+
+test_that("bootstrap version validation handles 'standard' remote types", {
+
+  renv_scope_options(renv.bootstrap.quiet = FALSE)
+  expect_snapshot(
+
+    . <- renv_bootstrap_validate_version(
+      version = "1.0.0",
+      description = list(
+        Version = "1.0.1",
+        RemoteType = "standard",
+        RemoteSha = "1.0.1"
+      )
+    )
+
+  )
 
 })

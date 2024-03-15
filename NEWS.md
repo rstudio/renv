@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv` could incorrectly prompt the user to record
+  a version of `renv` installed from GitHub in some cases. (#1857)
+
 * `renv::load()` now delegates to `base::load()` when it detects that the
   call was likely intended for `base::load()`, but `renv::load()` was used
   instead (e.g. because `base::load()` was masked by `renv::load()`).
