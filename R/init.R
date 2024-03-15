@@ -8,19 +8,20 @@ the$init_running <- FALSE
 #'
 #' 1. Set up project infrastructure (as described in [scaffold()]) including
 #'    the project library and the `.Rprofile` that ensures renv will be
-#'    used in all future sessions.
+#'    used in all future sessions,
 #'
-#' 1. Discover the packages that are currently being used in your project and
-#'    install them into the project library (as described in [hydrate()]).
+#' 1. Discover the packages that are currently being used in your project
+#'    (via [dependencies()]), and install them into the project library
+#'    (as described in [hydrate()]),
 #'
 #' 1. Create a lockfile that records the state of the project library so it
-#'    can be restored by others (as described in [snapshot()]).
+#'    can be restored by others (as described in [snapshot()]),
 #'
-#' 1. Restarts R (if running inside RStudio).
+#' 1. Restart R (if running inside RStudio).
 #'
-#' If you call `init()` on a project that already uses renv, it will attempt
-#' to do the right thing: it will restore the project library if it's missing,
-#' or otherwise ask you what to do.
+#' If you call `renv::init()` with a project that is already using renv, it will
+#' attempt to do the right thing: it will restore the project library if it's
+#' missing, or otherwise ask you what to do.
 #'
 #' # Repositories
 #'
@@ -40,12 +41,12 @@ the$init_running <- FALSE
 #' @param settings A list of [settings] to be used with the newly-initialized
 #'   project.
 #'
-#' @param bare Boolean; initialize the project without attempting to discover
-#'   and install R package dependencies?
+#' @param bare Boolean; initialize the project with an empty project library,
+#'   without attempting to discover and install \R package dependencies?
 #'
 #' @param force Boolean; force initialization? By default, renv will refuse
 #'   to initialize the home directory as a project, to defend against accidental
-#'   mis-usages of `init()`.
+#'   misusages of `init()`.
 #'
 #' @param repos The \R repositories to be used in this project.
 #'   See **Repositories** for more details.
@@ -60,7 +61,7 @@ the$init_running <- FALSE
 #'
 #' @param restart Boolean; attempt to restart the \R session after initializing
 #'   the project? A session restart will be attempted if the `"restart"` \R
-#'   option is set by the frontend embedding \R.
+#'   option is set by the frontend hosting \R.
 #'
 #' @export
 #'

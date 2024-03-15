@@ -31,12 +31,12 @@ are matched to \code{...}, renv will signal an error.}
 \item{settings}{A list of \link{settings} to be used with the newly-initialized
 project.}
 
-\item{bare}{Boolean; initialize the project without attempting to discover
-and install R package dependencies?}
+\item{bare}{Boolean; initialize the project with an empty project library,
+without attempting to discover and install \R package dependencies?}
 
 \item{force}{Boolean; force initialization? By default, renv will refuse
 to initialize the home directory as a project, to defend against accidental
-mis-usages of \code{init()}.}
+misusages of \code{init()}.}
 
 \item{repos}{The \R repositories to be used in this project.
 See \strong{Repositories} for more details.}
@@ -51,7 +51,7 @@ BiocManager package.}
 
 \item{restart}{Boolean; attempt to restart the \R session after initializing
 the project? A session restart will be attempted if the \code{"restart"} \R
-option is set by the frontend embedding \R.}
+option is set by the frontend hosting \R.}
 }
 \value{
 The project directory, invisibly. Note that this function is normally
@@ -62,17 +62,18 @@ Call \code{renv::init()} to start using renv in the current project. This will:
 \enumerate{
 \item Set up project infrastructure (as described in \code{\link[=scaffold]{scaffold()}}) including
 the project library and the \code{.Rprofile} that ensures renv will be
-used in all future sessions.
-\item Discover the packages that are currently being used in your project and
-install them into the project library (as described in \code{\link[=hydrate]{hydrate()}}).
+used in all future sessions,
+\item Discover the packages that are currently being used in your project
+(via \code{\link[=dependencies]{dependencies()}}), and install them into the project library
+(as described in \code{\link[=hydrate]{hydrate()}}),
 \item Create a lockfile that records the state of the project library so it
-can be restored by others (as described in \code{\link[=snapshot]{snapshot()}}).
-\item Restarts R (if running inside RStudio).
+can be restored by others (as described in \code{\link[=snapshot]{snapshot()}}),
+\item Restart R (if running inside RStudio).
 }
 
-If you call \code{init()} on a project that already uses renv, it will attempt
-to do the right thing: it will restore the project library if it's missing,
-or otherwise ask you what to do.
+If you call \code{renv::init()} with a project that is already using renv, it will
+attempt to do the right thing: it will restore the project library if it's
+missing, or otherwise ask you what to do.
 }
 \section{Repositories}{
 If the default \R repositories have not already been set, renv will use
