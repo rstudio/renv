@@ -38,11 +38,24 @@ renv_lockfile_init_r_repos <- function(project) {
   # clear RStudio attribute
   attr(repos, "RStudio") <- NULL
 
-  # set a default URL
-  repos[repos == "@CRAN@"] <- getOption(
-    "renv.repos.cran",
-    "https://cloud.r-project.org"
+  # check for default repositories
+  #
+  # note that if the user is using RStudio, we only want to override
+  # the repositories if they haven't explicitly set their own repo URL
+  #
+  # https://github.com/rstudio/renv/issues/1782
+  rstudio <- structure(
+    list(CRAN = "https://cran.rstudio.com/"),
+    RStudio = TRUE
   )
+
+  isdefault <-
+    identical(repos, list(CRAN = "@CRAN@")) ||
+    identical(repos, rstudio)
+
+  if (isdefault) {
+    repos[["CRAN"]] <- config$ppm.url()
+  }
 
   # remove PPM bits from URL
   if (renv_ppm_enabled()) {
