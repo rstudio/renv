@@ -43,7 +43,8 @@ renv_path_normalize_unix <- function(path,
                                      winslash = "/",
                                      mustWork = FALSE)
 {
-  # force paths to be absolute
+  # force paths to be absolute -- this ensures that path prefixes
+  # are prepended even if the path does not exist
   bad <- !map_lgl(path, renv_path_absolute)
   if (any(bad)) {
     prefix <- normalizePath(".", winslash = winslash)

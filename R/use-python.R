@@ -247,18 +247,19 @@ renv_use_python_condaenv <- function(python,
 
 }
 
-renv_use_python_fini <- function(info,
-                                 name,
-                                 version,
-                                 project)
-{
-  # ensure project-local names are treated as such
-  name    <- if (!is.null(name))    renv_path_normalize(path.expand(chartr("\\", "/", name)))
-  project <- if (!is.null(project)) renv_path_normalize(path.expand(chartr("\\", "/", project)))
+renv_use_python_fini <- function(info, name, version, project) {
 
-  if (!is.null(name) && startswith(name, project)) {
-    base <- substring(name, nchar(project) + 2L)
-    name <- if (grepl("^[.][^/]+$", base)) base else file.path(".", base)
+  # normalize project path for later comparison
+  project <- renv_path_normalize(project)
+
+  # handle 'name' -- treat values containing slashes specially, and
+  # check if those paths are project-relative environments
+  if (!is.null(name) && grepl("/", name, fixed = TRUE)) {
+    name <- renv_path_normalize(name)
+    if (startswith(name, project)) {
+      base <- substring(name, nchar(project) + 2L)
+      name <- if (grepl("^[.][^/]+$", base)) base else file.path(".", base)
+    }
   }
 
   # form the lockfile fields we'll want to write
