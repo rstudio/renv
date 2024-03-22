@@ -253,8 +253,8 @@ renv_use_python_fini <- function(info,
                                  project)
 {
   # ensure project-local names are treated as such
-  name    <- if (!is.null(name))    path.expand(chartr("\\", "/", name))
-  project <- if (!is.null(project)) path.expand(chartr("\\", "/", project))
+  name    <- if (!is.null(name))    renv_path_normalize(path.expand(chartr("\\", "/", name)))
+  project <- if (!is.null(project)) renv_path_normalize(path.expand(chartr("\\", "/", project)))
 
   if (!is.null(name) && startswith(name, project)) {
     base <- substring(name, nchar(project) + 2L)
