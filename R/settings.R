@@ -508,7 +508,7 @@ settings <- list(
     scalar   = TRUE,
     validate = is.logical,
     coerce   = as.logical,
-    update   = FALSE
+    update   = NULL
   ),
 
   ppm.ignored.urls = renv_settings_impl(
