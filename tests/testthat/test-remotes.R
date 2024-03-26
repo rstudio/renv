@@ -229,4 +229,3 @@ test_that("remote specs referencing packages in sub-sub-directories are parsed c
   expect_equal(remote, expected)
 
 })
-

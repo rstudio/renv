@@ -118,3 +118,22 @@ test_that("compatible records from pak are handled correctly", {
   expect_null(change)
 
 })
+
+test_that("pak's cran remotes are considered cranlike", {
+
+  record <- list(
+    Package           = "rlang",
+    Version           = "1.0.0",
+    RemoteType        = "standard",
+    RemotePkgRef      = "rlang",
+    RemoteRef         = "rlang",
+    RemoteRepos       = "https://cloud.R-project.org",
+    RemotePkgPlatform = "aarch64-apple-darwin20",
+    RemoteSha         = "1.1.3"
+  )
+
+  actual <- renv_record_normalize(record)
+  expected <- list(Package = "rlang", Version = "1.0.0")
+  expect_identical(!!actual, !!expected)
+
+})

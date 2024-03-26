@@ -85,8 +85,7 @@ renv_record_normalize <- function(record) {
     record$Source <- "Repository"
 
   # drop remotes from records with a repository source
-  if (identical(record$Source, "Repository") ||
-      identical(record$RemoteType, "standard"))
+  if (renv_remote_cranlike(record[["RemoteType"]]))
     record <- record[grep("^Remote", names(record), invert = TRUE)]
 
   # keep only specific records for comparison
