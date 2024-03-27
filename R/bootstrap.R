@@ -728,16 +728,16 @@ renv_bootstrap_validate_version <- function(version, description = NULL) {
 
   # the loaded version of renv doesn't match the requested version;
   # give the user instructions on how to proceed
-  cranlike <- renv_remote_cranlike(description[["RemoteType"]])
-  remote <- if (cranlike)
-    paste("renv", description[["Version"]], sep = "@")
-  else
+  dev <- identical(description[["RemoteType"]], "github")
+  remote <- if (dev)
     paste("rstudio/renv", description[["RemoteSha"]], sep = "@")
+  else
+    paste("renv", description[["Version"]], sep = "@")
 
   # display both loaded version + sha if available
   friendly <- renv_bootstrap_version_friendly(
     version = description[["Version"]],
-    sha     = if (!cranlike) description[["RemoteSha"]]
+    sha     = if (dev) description[["RemoteSha"]]
   )
 
   fmt <- heredoc("

@@ -744,7 +744,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   # get remotes fields
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
-  cranlike <- renv_remote_cranlike(dcf[["RemoteType"]])
+  cranlike <- renv_record_cranlike(dcf)
 
   # only keep relevant fields
   extra <- c("Repository", "OS_type")
@@ -763,7 +763,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
 renv_snapshot_description_source_custom <- function(dcf) {
 
   # only proceed for cranlike remotes
-  if (!renv_remote_cranlike(dcf[["RemoteType"]]))
+  if (!renv_record_cranlike(dcf))
     return(NULL)
 
   # check for a declared repository URL
@@ -802,9 +802,10 @@ renv_snapshot_description_source <- function(dcf) {
     return(source)
 
   # check for a custom declared remote type
-  type <- dcf[["RemoteType"]]
-  if (!renv_remote_cranlike(type))
+  if (!renv_record_cranlike(dcf)) {
+    type <- dcf[["RemoteType"]]
     return(list(Source = alias(type)))
+  }
 
   # packages from Bioconductor are normally tagged with a 'biocViews' entry;
   # use that to infer a Bioconductor source

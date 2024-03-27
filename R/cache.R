@@ -101,7 +101,7 @@ renv_cache_find <- function(record) {
     dcf <- dcf[nzchar(dcf)]
 
     # drop remote fields for cranlike remotes
-    if (renv_remote_cranlike(dcf[["RemoteType"]]))
+    if (renv_record_cranlike(dcf))
       dcf <- dcf[grep("^Remote(?!s)", names(dcf), invert = TRUE, perl = TRUE)]
 
     # check identical
