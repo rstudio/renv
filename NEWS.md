@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv::snapshot()` did not properly normalize
+  package records generated from packages installed using the `pak`
+  package, e.g. via `pak::pkg_install("cran::<package>")`.
+
 * Fixed an issue where `renv` could incorrectly prompt the user to record
   a version of `renv` installed from GitHub in some cases. (#1857)
 

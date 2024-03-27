@@ -85,8 +85,7 @@ renv_record_normalize <- function(record) {
     record$Source <- "Repository"
 
   # drop remotes from records with a repository source
-  if (identical(record$Source, "Repository") ||
-      identical(record$RemoteType, "standard"))
+  if (renv_record_cranlike(record))
     record <- record[grep("^Remote", names(record), invert = TRUE)]
 
   # keep only specific records for comparison
@@ -118,4 +117,9 @@ renv_record_tagged <- function(record) {
 # like `_`, `<NA>`, or something else
 renv_record_placeholder <- function() {
   "*"
+}
+
+renv_record_cranlike <- function(record) {
+  type <- record[["RemoteType"]]
+  is.null(type) || type %in% c("cran", "standard")
 }
