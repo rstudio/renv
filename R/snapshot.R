@@ -744,10 +744,7 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   # get remotes fields
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
-
-  cranlike <-
-    is.null(dcf[["RemoteType"]]) ||
-    identical(dcf[["RemoteType"]], "standard")
+  cranlike <- renv_record_cranlike(dcf)
 
   # only keep relevant fields
   extra <- c("Repository", "OS_type")
@@ -765,9 +762,8 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
 
 renv_snapshot_description_source_custom <- function(dcf) {
 
-  # check for 'standard' remote type
-  type  <- dcf[["RemoteType"]]
-  if (!identical(type, "standard"))
+  # only proceed for cranlike remotes
+  if (!renv_record_cranlike(dcf))
     return(NULL)
 
   # check for a declared repository URL
@@ -785,12 +781,12 @@ renv_snapshot_description_source_custom <- function(dcf) {
   # check whether this repository is already in use;
   # if so, we can skip declaring it
   name <- dcf[["RemoteReposName"]]
-  isset <- if (is.null(name))
+  declared <- if (is.null(name))
     remoterepos %in% repos
   else
     name %in% names(repos)
 
-  if (isset)
+  if (declared)
     return(NULL)
 
   list(Source = "Repository", Repository = remoterepos)
@@ -805,22 +801,9 @@ renv_snapshot_description_source <- function(dcf) {
   if (!is.null(source))
     return(source)
 
-  # check for a declared remote type
-  # treat 'standard' remotes as packages installed from a repository
-  # https://github.com/rstudio/renv/issues/998
-  type <- dcf[["RemoteType"]]
-  if (identical(type, "standard")) {
-
-    # if this is a 'standard' Bioconductor remote, then encode it as such
-    if (!is.null(dcf[["biocViews"]]))
-      return(list(Source = "Bioconductor"))
-
-    # otherwise, check for custom repository information
-    repository <- dcf[["RemoteReposName"]] %||% dcf[["Repository"]]
-    if (!is.null(repository))
-      return(list(Source = "Repository", Repository = repository))
-
-  } else if (!is.null(type)) {
+  # check for a custom declared remote type
+  if (!renv_record_cranlike(dcf)) {
+    type <- dcf[["RemoteType"]]
     return(list(Source = alias(type)))
   }
 
@@ -830,7 +813,7 @@ renv_snapshot_description_source <- function(dcf) {
     return(list(Source = "Bioconductor"))
 
   # check for a declared repository
-  repository <- dcf[["Repository"]]
+  repository <- dcf[["RemoteReposName"]] %||% dcf[["Repository"]]
   if (!is.null(repository))
     return(list(Source = "Repository", Repository = repository))
 

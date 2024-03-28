@@ -74,13 +74,11 @@ renv_hash_description_impl <- function(path) {
 
 renv_hash_description_remotes <- function(dcf) {
 
-  type <- dcf[["RemoteType"]]
-  if (is.null(type))
+  # ignore other remote fields for cranlike remotes
+  if (renv_record_cranlike(dcf))
     return(character())
 
-  if (type == "standard")
-    return(character())
-
+  # otherwise, include any other discovered remote fields
   grep("^Remote", names(dcf), value = TRUE)
 
 }
