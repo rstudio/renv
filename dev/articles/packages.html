@@ -158,12 +158,12 @@ might look like:</p>
 [2] "/Users/kevin/Library/Caches/org.R-project.R/R/renv/sandbox/R-4.3/aarch64-apple-darwin20/ac5c2659"</code></pre>
 <p>This is done to avoid issues with <code>R CMD build</code>, which can
 become very slow if your project contains a large number of files – as
-can happen with the
-project<code>library in the default location of</code>renv/library`.
-Note that even though the library is located outside of the project, the
-library path generated will still be unique to that project, and so the
-project is still effectively isolated in the same way as other renv
-projects normally are.</p>
+can happen if the project library is located in
+<code>renv/library</code> (the typical location). Note that even though
+the library is located outside of the project, the library path
+generated will still be unique to that project, and so the project is
+still effectively isolated in the same way as other renv projects
+normally are.</p>
 <p>If you want to customize the location where <code>renv</code> places
 project libraries in this scenario, you can use the
 <code>RENV_PATHS_LIBRARY_ROOT</code> environment variable. For
