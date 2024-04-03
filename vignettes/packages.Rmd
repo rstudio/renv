@@ -77,11 +77,11 @@ directory will be used instead. As an example, on macOS, this might look like:
 ```
 
 This is done to avoid issues with `R CMD build`, which can become very slow if
-your project contains a large number of files -- as can happen with the project`
-library in the default location of `renv/library`. Note that even though the
-library is located outside of the project, the library path generated will still
-be unique to that project, and so the project is still effectively isolated in
-the same way as other renv projects normally are.
+your project contains a large number of files -- as can happen if the project
+library is located in `renv/library` (the typical location). Note that even
+though the library is located outside of the project, the library path
+generated will still be unique to that project, and so the project is still
+effectively isolated in the same way as other renv projects normally are.
 
 If you want to customize the location where `renv` places project libraries in
 this scenario, you can use the `RENV_PATHS_LIBRARY_ROOT` environment variable.
