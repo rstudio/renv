@@ -298,7 +298,7 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   text <- paste(keys, vals, sep = " = ")
 
   # remove duplicated authorization headers
-  dupes <- grep("^header", text) & duplicated(text)
+  dupes <- startswith(text, "header =") & duplicated(text)
   text <- text[!dupes]
 
   # add in stand-along flags
