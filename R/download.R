@@ -281,14 +281,14 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   auth <- renv_download_auth(url, type)
   if (length(auth)) {
     authtext <- paste(names(auth), auth, sep = ": ")
-    names(authtext) <- "header"
+    names(authtext) <- rep.int("header", times = length(authtext))
     fields <- c(fields, authtext)
   }
 
   # add other custom headers
   if (length(headers)) {
     lines <- paste(names(headers), headers, sep = ": ")
-    names(lines) <- "header"
+    names(lines) <- rep.int("header", times = length(lines))
     fields <- c(fields, lines)
   }
 
@@ -296,6 +296,10 @@ renv_download_curl <- function(url, destfile, type, request, headers) {
   keys <- names(fields)
   vals <- renv_json_quote(fields)
   text <- paste(keys, vals, sep = " = ")
+
+  # remove duplicated authorization headers
+  dupes <- grep("^header", text) & duplicated(text)
+  text <- text[!dupes]
 
   # add in stand-along flags
   flags <- c("location", "fail", "silent", "show-error")
