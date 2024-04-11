@@ -1,3 +1,5 @@
+# renv (development version)
+
 # renv 1.0.6
 
 * Fixed an issue where downloads could fail with curl >= 8.7.1. (#1869)
