@@ -67,7 +67,7 @@ will help you understand the most important verbs and nouns of renv.
 If you have a question about renv, please first check the
 [FAQ](https://rstudio.github.io/renv/articles/faq.html) to see whether
 your question has already been addressed. If it hasn’t, please feel free
-to ask on the [RStudio Community forums](https://community.rstudio.com).
+to ask on the [Posit Forum](https://forum.posit.co).
 
 If you believe you’ve found a bug in renv, please file a bug (and, if
 possible, a [reproducible example](https://reprex.tidyverse.org)) at
