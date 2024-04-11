@@ -381,21 +381,6 @@ nth <- function(x, i) {
   x[[i]]
 }
 
-heredoc <- function(text, leave = 0) {
-
-  # remove leading, trailing whitespace
-  trimmed <- gsub("^\\s*\\n|\\n\\s*$", "", text)
-
-  # split into lines
-  lines <- strsplit(trimmed, "\n", fixed = TRUE)[[1L]]
-
-  # compute common indent
-  indent <- regexpr("[^[:space:]]", lines)
-  common <- min(setdiff(indent, -1L)) - leave
-  paste(substring(lines, common), collapse = "\n")
-
-}
-
 find <- function(x, f, ...) {
   for (i in seq_along(x))
     if (!is.null(value <- f(x[[i]], ...)))
