@@ -4,11 +4,11 @@
 test_that <- function(desc, code) {
 
   # skip tests when run on CRAN's macOS machine
-  iscran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
-  testthat::skip_if(iscran && renv_platform_macos())
+  cran <- !interactive() && !identical(Sys.getenv("NOT_CRAN"), "true")
+  testthat::skip_if(cran && renv_platform_macos())
 
   # record global state before test execution
-  before <- renv_test_state()
+  before <- renv_test_state(cran)
 
   # run the test
   call <- sys.call()
@@ -23,7 +23,7 @@ test_that <- function(desc, code) {
   )
 
   # record global state after test execution
-  after <- renv_test_state()
+  after <- renv_test_state(cran)
 
   # check for unexpected changes
   diffs <- waldo::compare(before, after)
@@ -34,21 +34,7 @@ test_that <- function(desc, code) {
 
 }
 
-renv_test_state <- function() {
-
-  list_files <- function(path, full.names = TRUE) {
-
-    if (is.null(path))
-      return(NULL)
-
-    list.files(
-      path = path,
-      all.files = TRUE,
-      full.names = full.names,
-      no.. = TRUE
-    )
-
-  }
+renv_test_state <- function(cran) {
 
   repopath <- renv_tests_repopath()
   userpath <- file.path(renv_bootstrap_user_dir(), "library")
@@ -70,21 +56,13 @@ renv_test_state <- function() {
   envvars$OPENBLAS <- NULL
   envvars <- envvars[csort(names(envvars))]
 
-  tempfiles <- list_files(tempdir(), full.names = FALSE)
-  tempfiles <- tempfiles[grep("^libloc_", tempfiles, invert = TRUE)]
-  tempfiles <- tempfiles[grep("^callr-", tempfiles, invert = TRUE)]
-  tempfiles <- tempfiles[grep("^repos_http(s?)", tempfiles, invert = TRUE)]
-  tempfiles <- tempfiles[tempfiles != "downloaded_packages"]
-
   list(
-    # packages     = loadedNamespaces(),
-    libpaths     = .libPaths(),
-    connections  = getAllConnections(),
-    options      = opts,
-    repofiles    = list_files(repopath),
-    userfiles    = list_files(userpath),
-    # tempfiles    = tempfiles,
-    envvars      = envvars
+    libpaths    = if (!cran) .libPaths(),
+    connections = getAllConnections(),
+    options     = opts,
+    repofiles   = list.files(repopath, all.files = TRUE, no.. = TRUE),
+    userfiles   = list.files(userpath, all.files = TRUE, no.. = TRUE),
+    envvars     = envvars
   )
 
 }
