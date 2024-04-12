@@ -1,5 +1,5 @@
 
-# renv (development version)
+# renv 1.0.7
 
 * Fixed an issue where `renv`'s activate script failed to report version
   conflict errors when starting up. (#1874)
