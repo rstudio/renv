@@ -730,3 +730,21 @@ test_that("install(lock = TRUE) updates lockfile", {
   )
 
 })
+
+test_that("installation of package from local sources works", {
+
+  project <- renv_tests_scope()
+
+  # test the shim
+  repopath <- renv_tests_repopath()
+  setwd(file.path(repopath, "src/contrib"))
+  renv_shim_install_packages("bread_1.0.0.tar.gz", repos = NULL, type = "source")
+  expect_true(renv_package_installed("bread"))
+
+  # test a regular invocation of install
+  remove.packages("bread")
+  info <- download.packages("bread", destdir = tempdir())
+  install(info[, 2], repos = NULL, type = "source")
+  expect_true(renv_package_installed("bread"))
+
+})

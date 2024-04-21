@@ -46,9 +46,14 @@ renv_package_version <- function(package) {
 }
 
 renv_package_description_field <- function(package, field) {
+
   path <- renv_package_find(package)
+  if (!nzchar(path))
+    return(NULL)
+
   desc <- renv_description_read(path)
   desc[[field]]
+
 }
 
 renv_package_type <- function(path, quiet = FALSE, default = "source") {

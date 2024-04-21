@@ -45,6 +45,17 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
       return(record)
   }
 
+  # check for requests to install local packages -- note that depending on how
+  # the R package was built / generated, it's possible that it might not adhere
+  # to the "typical" R package names, so we try to be a bit flexible here
+  ext <- "(?:\\.tar\\.gz|\\.tgz|\\.zip)$"
+  if (grepl(ext, spec, perl = TRUE)) {
+    pathlike <- tryCatch(file.exists(spec), condition = identity)
+    if (identical(pathlike, TRUE)) {
+      return(renv_remotes_resolve_path(spec))
+    }
+  }
+
   # define error handler (tag error with extra context when possible)
   error <- function(e) {
 

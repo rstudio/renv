@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where installation of packages from local sources, as via 
+  `install("<package>", repos = NULL, type = "source")`, could fail. (#1880)
+
 
 # renv 1.0.7
 
