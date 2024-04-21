@@ -126,6 +126,14 @@ ask <- function(question, default = FALSE) {
   if (!interactive())
     return(default)
 
+  # can't prompt for input when running autoloader in RStudio
+  # https://github.com/rstudio/renv/issues/1879
+  if (renv_rstudio_available()) {
+    autoloading <- getOption("renv.autoloader.running", default = FALSE)
+    if (autoloading)
+      return(default)
+  }
+
   # be verbose in this scope, as we're asking the user for input
   renv_scope_options(renv.verbose = TRUE)
 

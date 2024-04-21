@@ -857,8 +857,12 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
   # check for case where no packages are installed (except renv)
   if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
 
-    caution("- None of the packages recorded in the lockfile are currently installed.")
-    response <- ask("- Would you like to restore the project library?")
+    caution(c(
+      "- None of the packages recorded in the lockfile are currently installed.",
+      "- Use `renv::restore()` to restore the project library."
+    ))
+
+    response <- ask("Would you like to restore the project library?", default = FALSE)
     if (!response)
       return(FALSE)
 
