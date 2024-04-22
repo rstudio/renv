@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv` could silently prompt the user for input
+  when running the autoloader inside an RStudio R session. (#1879)
+
 * Fixed an issue where installation of packages from local sources, as via 
   `install("<package>", repos = NULL, type = "source")`, could fail. (#1880)
 
