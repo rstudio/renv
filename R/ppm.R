@@ -206,9 +206,9 @@ renv_ppm_platform_rhel <- function(properties) {
   id <- properties$VERSION_ID
   if (is.null(id))
     return(NULL)
-  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
 
-  paste0(rhel_version, substring(id, 1L, 1L))
+  version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+  paste0(version, substring(id, 1L, 1L))
 
 }
 
@@ -217,9 +217,9 @@ renv_ppm_platform_rocky <- function(properties) {
   id <- properties$VERSION_ID
   if (is.null(id))
     return(NULL)
-  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
 
-  paste0(rhel_version, substring(id, 1L, 1L))
+  version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+  paste0(version, substring(id, 1L, 1L))
 
 }
 
@@ -228,9 +228,9 @@ renv_ppm_platform_alma <- function(properties) {
   id <- properties$VERSION_ID
   if (is.null(id))
     return(NULL)
-  rhel_version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
 
-  paste0(rhel_version, substring(id, 1L, 1L))
+  version <- ifelse(numeric_version(id) < "9", "centos", "rhel")
+  paste0(version, substring(id, 1L, 1L))
 
 }
 

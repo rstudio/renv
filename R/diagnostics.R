@@ -24,6 +24,7 @@ diagnostics <- function(project = NULL) {
   renv_scope_options(renv.verbose = TRUE)
 
   reporters <- list(
+    renv_diagnostics_os,
     renv_diagnostics_session,
     renv_diagnostics_project,
     renv_diagnostics_status,
@@ -45,6 +46,19 @@ diagnostics <- function(project = NULL) {
   for (reporter in reporters) {
     tryCatch(reporter(project), error = renv_error_handler)
     writef()
+  }
+
+}
+
+renv_diagnostics_os <- function(project) {
+
+  if (renv_platform_linux()) {
+    releases <- list.files("/etc", pattern = "-release$", full.names = TRUE)
+    for (release in releases) {
+      writef(header(release))
+      writeLines(readLines(release))
+      writef()
+    }
   }
 
 }
