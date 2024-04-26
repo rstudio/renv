@@ -661,7 +661,8 @@ renv_retrieve_repos <- function(record) {
       warning(error)
   })
 
-  stopf("failed to retrieve package '%s'", renv_record_format_remote(record))
+  remote <- renv_record_format_remote(record, compact = TRUE)
+  stopf("failed to retrieve package '%s'", remote)
 
 }
 

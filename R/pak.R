@@ -124,7 +124,7 @@ renv_pak_restore <- function(lockfile,
   }
 
   # convert into specs compatible with pak, and install
-  remotes <- map_chr(records, renv_record_format_remote)
+  remotes <- map_chr(records, renv_record_format_remote, pak = TRUE)
 
   # TODO: We previously tried converting version-ed remotes into "plain" remotes
   # if the package version happened to be current, but then 'pak' would choose

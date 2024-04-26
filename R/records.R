@@ -93,13 +93,88 @@ renv_record_validate <- function(package, record) {
 
 }
 
-renv_record_format_remote <- function(record) {
+renv_record_format_remote <- function(record, compact = FALSE, pak = FALSE) {
 
-  remotes <- c("RemoteUsername", "RemoteRepo")
-  if (all(remotes %in% names(record)))
-    return(renv_record_format_short_remote(record))
+  # extract some of the commonly used fields up-front
+  source <- renv_record_source(record, normalize = TRUE)
+  package <- record[["Package"]]
+  version <- record[["Version"]]
 
-  paste(record$Package, record$Version, sep = "@")
+  # handle repository remotes
+  if (source %in% c("cran", "repository", "standard")) {
+    remote <- paste(package, version, sep = "@")
+    return(remote)
+  }
+
+  # handle bioconductor remotes
+  if (source %in% "bioconductor") {
+    remote <- sprintf("bioc::%s@%s", package, version)
+    return(remote)
+  }
+
+  # handle git, svn remotes
+  if (source %in% c("git", "svn")) {
+    url <- record[["RemoteUrl"]]
+    remote <- sprintf("%s::%s", source, url)
+    return(remote)
+  }
+
+  # handle local, url remotes
+  if (source %in% c("local", "url")) {
+    url <- record[["RemoteUrl"]] %||% sub("[^:]+::", "", record[["RemotePkgRef"]])
+    remote <- sprintf("%s=%s::%s", package, source, url)
+    return(remote)
+  }
+
+  # handle other remotes; assumed to be a github-like remote
+  user   <- record[["RemoteUsername"]]
+  repo   <- record[["RemoteRepo"]]
+  type   <- record[["RemoteType"]]
+  ref    <- record[["RemoteRef"]]
+  sha    <- record[["RemoteSha"]]
+  subdir <- record[["RemoteSubdir"]]
+
+  # generate the remote base
+  remote <- paste(user, repo, sep = "/")
+
+  # include type prefix if we're not github
+  if (!identical(type %||% "github", "github"))
+    remote <- paste(type, remote, sep = "::")
+
+  # include package name if it differs from the repo name
+  if (!identical(package, repo))
+    remote <- paste(package, remote, sep = "=")
+
+  # include subdir if available -- note that renv and pak use slightly
+  # different syntax for declaring a subdir
+  if (!is.null(subdir)) {
+    sep <- if (pak) "/" else ":"
+    remote <- paste(remote, subdir, sep = sep)
+  }
+
+  # prefer using 'sha' for pak remotes
+  if (pak) {
+    remote <- paste(remote, sha %||% ref %||% "HEAD", sep = "@")
+    return(remote)
+  }
+
+  # prefer using 'ref' for compact display
+  if (compact && length(ref)) {
+    ref <- if (ref %in% c("main", "master")) NULL else ref
+    remote <- paste(c(remote, ref), collapse = "@")
+    return(remote)
+  }
+
+  # use sha if available
+  if (length(sha)) {
+    sha <- if (compact) substring(sha, 1L, 8L) else sha
+    remote <- paste(c(remote, sha), collapse = "@")
+    return(remote)
+  }
+
+  # fall back to using ref
+  remote <- paste(c(remote, ref), collapse = "@")
+  return(remote)
 
 }
 
@@ -110,34 +185,13 @@ renv_record_format_short <- function(record, versioned = FALSE) {
 
   remotes <- c("RemoteUsername", "RemoteRepo")
   if (all(remotes %in% names(record))) {
-    remote <- renv_record_format_short_remote(record)
+    remote <- renv_record_format_remote(record, compact = TRUE)
     if (versioned)
       remote <- sprintf("%s  [%s]", record$Version %||% "<NA>", remote)
     return(remote)
   }
 
   record$Version
-
-}
-
-renv_record_format_short_remote <- function(record) {
-
-  text <- paste(record$RemoteUsername, record$RemoteRepo, sep = "/")
-
-  subdir <- record$RemoteSubdir %||% ""
-  if (nzchar(subdir))
-    text <- paste(text, subdir, sep = ":")
-
-  if (!is.null(record$RemoteRef)) {
-    ref <- record$RemoteRef
-    if (!identical(ref, "master"))
-      text <- paste(text, record$RemoteRef, sep = "@")
-  } else if (!is.null(record$RemoteSha)) {
-    sha <- substring(record$RemoteSha, 1L, 8L)
-    text <- paste(text, sha, sep = "@")
-  }
-
-  text
 
 }
 
