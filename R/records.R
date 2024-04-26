@@ -160,7 +160,7 @@ renv_record_format_remote <- function(record, compact = FALSE, pak = FALSE) {
 
   # prefer using 'ref' for compact display
   if (compact && length(ref)) {
-    ref <- if (ref %in% c("main", "master")) NULL else ref
+    ref <- if (ref %in% c("HEAD", "main", "master")) NULL else ref
     remote <- paste(c(remote, ref), collapse = "@")
     return(remote)
   }
