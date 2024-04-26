@@ -69,7 +69,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p>Fixed an issue where <code>renv</code> could silently prompt the user for input when running the autoloader inside an RStudio R session. (<a href="https://github.com/rstudio/renv/issues/1879" class="external-link">#1879</a>)</p></li>
+<ul><li><p>Fixed an issue with <code>renv</code>’s <code>pak</code> integration where <code>renv</code> could install the wrong version of a GitHub package during restore if <code>options(renv.config.pak.enabled = TRUE)</code> was set. (<a href="https://github.com/rstudio/renv/issues/1883" class="external-link">#1883</a>)</p></li>
+<li><p>Fixed an issue where <code>renv</code> could silently prompt the user for input when running the autoloader inside an RStudio R session. (<a href="https://github.com/rstudio/renv/issues/1879" class="external-link">#1879</a>)</p></li>
 <li><p>Fixed an issue where installation of packages from local sources, as via <code>install("&lt;package&gt;", repos = NULL, type = "source")</code>, could fail. (<a href="https://github.com/rstudio/renv/issues/1880" class="external-link">#1880</a>)</p></li>
 </ul></div>
     <div class="section level2">
