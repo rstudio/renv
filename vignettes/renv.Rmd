@@ -78,7 +78,7 @@ The next important pair of tools are `renv::snapshot()` and `renv::restore()`.
 This is useful because you can then share the lockfile and other people or other computers can easily reproduce your current environment by running `restore()`, which uses the metadata from the lockfile to install exactly the same version of every package.
 This pair of functions gives you the benefits of **reproducibility** and **portability**: you are now tracking exactly which package versions you have installed so you can recreate them on other machines.
 
-Now that you've got the a high-level lay of the land, we'll show a couple of specific workflows before discussing some of the reproducibility challenges that renv doesn't currently help with.
+Now that you've got the high-level lay of the land, we'll show a couple of specific workflows before discussing some of the reproducibility challenges that renv doesn't currently help with.
 
 ### Collaboration
 
@@ -115,7 +115,7 @@ It's worth noting that there's a small risk associated with isolation: while you
 So for packages under active development, we recommend that you regularly (at least once a year) use `renv::update()`[^5] to get the latest versions of all dependencies.
 Similarly, if you're making major changes to a project that you haven't worked on for a while, it's often a good idea to start with an `renv::update()` before making any changes to the code.
 
-[^5]: You can also use `update.packages()`, but `renv::update()` works the same sources that `renv::install()` supports.
+[^5]: You can also use `update.packages()`, but `renv::update()` works with the same sources that `renv::install()` supports.
 
 After calling `renv::update()`, you should run the code in your project and verify that it still works (or make any changes needed to get it working).
 Then call `renv::snapshot()` to record the new versions in the lockfile.
