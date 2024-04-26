@@ -199,7 +199,7 @@ This pair of functions gives you the benefits of
 <strong>reproducibility</strong> and <strong>portability</strong>: you
 are now tracking exactly which package versions you have installed so
 you can recreate them on other machines.</p>
-<p>Now that you’ve got the a high-level lay of the land, we’ll show a
+<p>Now that you’ve got the high-level lay of the land, we’ll show a
 couple of specific workflows before discussing some of the
 reproducibility challenges that renv doesn’t currently help with.</p>
 <div class="section level3">
@@ -257,7 +257,7 @@ isolation: while your code will never break due to a change in another
 package, it will also never benefit from bug fixes. So for packages
 under active development, we recommend that you regularly (at least once
 a year) use <code><a href="../reference/update.html">renv::update()</a></code><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;You can also use &lt;code&gt;&lt;a href="https://rdrr.io/r/utils/update.packages.html" class="external-link"&gt;update.packages()&lt;/a&gt;&lt;/code&gt;, but
-&lt;code&gt;&lt;a href="../reference/update.html"&gt;renv::update()&lt;/a&gt;&lt;/code&gt; works the same sources that
+&lt;code&gt;&lt;a href="../reference/update.html"&gt;renv::update()&lt;/a&gt;&lt;/code&gt; works with the same sources that
 &lt;code&gt;&lt;a href="../reference/install.html"&gt;renv::install()&lt;/a&gt;&lt;/code&gt; supports.&lt;/p&gt;'><sup>5</sup></a> to get the latest
 versions of all dependencies. Similarly, if you’re making major changes
 to a project that you haven’t worked on for a while, it’s often a good
@@ -291,7 +291,7 @@ the future. Here’s an example lockfile, with the markdown package
 installed from CRAN and the mime package installed from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="dt">"R"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>    <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"4.3.3"</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>    <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"4.4.0"</span><span class="fu">,</span></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    <span class="dt">"Repositories"</span><span class="fu">:</span> <span class="ot">[</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>      <span class="fu">{</span></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>        <span class="dt">"Name"</span><span class="fu">:</span> <span class="st">"CRAN"</span><span class="fu">,</span></span>
