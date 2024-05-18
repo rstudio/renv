@@ -1,5 +1,5 @@
 
-#' Validate the renv lockfile against a schema
+#' Validate an renv lockfile against a schema
 #'
 #' @description
 #' `renv::lockfile_validate()` can be used to validate your `renv.lock`
