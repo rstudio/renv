@@ -67,7 +67,7 @@ In that sense, the "right" way to update the lockfile is to:
 3.  Call `renv::snapshot()` to update the lockfile.
 
 That said, you are also free to modify the `renv.lock` lockfile by hand if necessary; e.g. if you want to manually add / change repositories, change the version of a package used, and so on.
-The `renv.lock` lockfile is a [JSON](https://www.json.org/json-en.html) file, and while no schema is provided, you should be able to infer the structure from the existing fields.
+The `renv.lock` lockfile is a [JSON](https://www.json.org/json-en.html) file. A [JSON schema](https://json-schema.org/) is provided in the [renv repository](https://github.com/rstudio/renv/tree/main/inst/schema).
 
 The main downside to editing a package record in the lockfile directly is that you won't be able to provide a `Hash` for that package, and so renv won't be able to use its global package cache when installing that package.
 
