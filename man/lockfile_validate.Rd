@@ -70,3 +70,4 @@ renv::lockfile_validate(lockfile = "/path/to/your/renv.lock")
 }
 
 }
+\keyword{internal}

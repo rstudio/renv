@@ -52,6 +52,7 @@
 #' renv::lockfile_validate(lockfile = "/path/to/your/renv.lock")
 #' }
 #'
+#' @keywords internal
 #' @export
 lockfile_validate <- function(project = NULL,
                               lockfile = NULL, # Use default project lockfile if not provided
