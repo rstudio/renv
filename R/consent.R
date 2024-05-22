@@ -58,7 +58,6 @@ consent <- function(provided = FALSE) {
   # cache the user response
   options(renv.consent = TRUE)
   ensure_directory(root)
-  renv_cache_init()
   writef("- %s has been created.", renv_path_pretty(root))
 
   invisible(TRUE)

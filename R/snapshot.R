@@ -150,6 +150,9 @@ snapshot <- function(project  = NULL,
   repos <- renv_repos_validate(repos)
   renv_scope_options(repos = repos)
 
+  # set up .renvignore defensively
+  renv_load_cache_renvignore(project = project)
+
   if (!is.null(lockfile))
     renv_activate_prompt("snapshot", library, prompt, project)
 

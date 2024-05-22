@@ -69,7 +69,6 @@ renv_zzz_load <- function() {
   renv_envvars_init()
   renv_log_init()
   renv_methods_init()
-  renv_cache_init()
   renv_libpaths_init()
   renv_patch_init()
   renv_sandbox_init()

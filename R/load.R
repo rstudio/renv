@@ -717,8 +717,26 @@ renv_load_switch <- function(project) {
 
 }
 
+renv_load_cache_renvignore <- function(project) {
+
+  if (testing() || checking())
+    return()
+
+  if (!renv_cache_config_enabled(project))
+    return()
+
+  caches <- renv_paths_cache()
+  ensure_directory(caches)
+  renv_renvignore_create(
+    paths  = caches,
+    create = TRUE
+  )
+
+}
+
 renv_load_cache <- function(project) {
 
+  renv_load_cache_renvignore(project)
   if (!interactive())
     return(FALSE)
 

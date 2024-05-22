@@ -59,6 +59,9 @@ restore <- function(project  = NULL,
   libpaths <- renv_libpaths_resolve(library)
   lockfile <- lockfile %||% renv_lockfile_load(project = project, strict = TRUE)
 
+  # set up .renvignore defensively
+  renv_load_cache_renvignore(project = project)
+
   # check and ask user if they need to activate first
   renv_activate_prompt("restore", library, prompt, project)
 

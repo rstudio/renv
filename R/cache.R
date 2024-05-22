@@ -12,35 +12,6 @@ renv_cache_version_previous <- function() {
   paste("v", number - 1L, sep = "")
 }
 
-renv_cache_init <- function() {
-
-  if (testing() || checking())
-    return()
-
-  root <- renv_paths_root()
-  if (!file.exists(root))
-    return()
-
-  # try to create cache directories
-  caches <- renv_paths_cache()
-  status <- catch(ensure_directory(caches))
-  if (inherits(status, "error"))
-    return()
-
-  # if the cache appears to be within the project directory,
-  # then drop a '.renvignore' file within so it's not scanned
-  #
-  # https://github.com/rstudio/renv/issues/1655
-  for (cache in caches) {
-    if (renv_path_within(cache, getwd())) {
-      ignorefile <- file.path(cache, ".renvignore")
-      if (!file.exists(ignorefile))
-        writeLines("*", con = ignorefile)
-    }
-  }
-
-}
-
 # given a record, find a compatible version of that package in the cache,
 # using a computed hash if available; if no hash is available, then try
 # to match based on the package name + version

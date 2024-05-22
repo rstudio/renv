@@ -214,3 +214,17 @@ renv_renvignore_pattern_extra <- function(key, root) {
   patterns[[key]]
 
 }
+
+renv_renvignore_create <- function(paths,
+                                   create = FALSE,
+                                   contents = "*")
+{
+  for (path in paths) {
+    if (file.exists(path)) {
+      ignorefile <- file.path(path, ".renvignore")
+      if (!file.exists(ignorefile))
+        writeLines(contents, con = ignorefile)
+    }
+  }
+}
+
