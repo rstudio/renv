@@ -2,7 +2,7 @@
 % Please edit documentation in R/lockfile-validate.R
 \name{lockfile_validate}
 \alias{lockfile_validate}
-\title{Validate the renv lockfile against a schema}
+\title{Validate an renv lockfile against a schema}
 \usage{
 lockfile_validate(
   project = NULL,
@@ -15,6 +15,10 @@ lockfile_validate(
 )
 }
 \arguments{
+\item{project}{The project directory. If \code{NULL}, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.}
+
 \item{lockfile}{Contents of the lockfile, or a filename containing one.
 If not provided, it defaults to the project's lockfile.}
 
@@ -25,12 +29,14 @@ If not provided, renv's default schema is used.}
 
 \item{error}{Boolean. Throw an error on parse failure?}
 
-\item{verbose}{Boolean. If \code{TRUE}, then an attribute \code{errors} will list validation failures as a \code{data.frame}.}
+\item{verbose}{Boolean. If \code{TRUE}, then an attribute \code{errors} will list
+validation failures as a \code{data.frame}.}
 
-\item{strict}{Boolean. Set whether the schema should be parsed strictly or not.
-If in strict mode schemas will error to "prevent any unexpected behaviours or silently ignored mistakes in user schema".
-For example it will error if encounters unknown formats or unknown keywords.
-See https://ajv.js.org/strict-mode.html for details.}
+\item{strict}{Boolean. Set whether the schema should be parsed strictly or
+not. If in strict mode schemas will error to "prevent any unexpected
+behaviours or silently ignored mistakes in user schema". For example it
+will error if encounters unknown formats or unknown keywords. See
+https://ajv.js.org/strict-mode.html for details.}
 }
 \value{
 Boolean. \code{TRUE} if validation passes. \code{FALSE} if validation fails.
@@ -62,4 +68,5 @@ renv::lockfile_validate(schema = "/path/to/your/custom/schema.json")
 # validate a lockfile using its path
 renv::lockfile_validate(lockfile = "/path/to/your/renv.lock")
 }
+
 }

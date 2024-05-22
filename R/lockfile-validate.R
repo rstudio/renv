@@ -16,6 +16,8 @@
 #' many of its parameters to that package's `json_validate()` function. Use
 #' `?jsonvalidate::json_validate` for more information.
 #'
+#' @inheritParams renv-params
+#'
 #' @param lockfile Contents of the lockfile, or a filename containing one.
 #'   If not provided, it defaults to the project's lockfile.
 #'
@@ -26,12 +28,14 @@
 #'
 #' @param error Boolean. Throw an error on parse failure?
 #'
-#' @param verbose Boolean. If `TRUE`, then an attribute `errors` will list validation failures as a `data.frame`.
-#' 
-#' @param strict Boolean. Set whether the schema should be parsed strictly or not.
-#'   If in strict mode schemas will error to "prevent any unexpected behaviours or silently ignored mistakes in user schema".
-#'   For example it will error if encounters unknown formats or unknown keywords.
-#'   See https://ajv.js.org/strict-mode.html for details.
+#' @param verbose Boolean. If `TRUE`, then an attribute `errors` will list
+#'   validation failures as a `data.frame`.
+#'
+#' @param strict Boolean. Set whether the schema should be parsed strictly or
+#'   not. If in strict mode schemas will error to "prevent any unexpected
+#'   behaviours or silently ignored mistakes in user schema". For example it
+#'   will error if encounters unknown formats or unknown keywords. See
+#'   https://ajv.js.org/strict-mode.html for details.
 #'
 #' @return Boolean. `TRUE` if validation passes. `FALSE` if validation fails.
 #'
@@ -47,6 +51,7 @@
 #' # validate a lockfile using its path
 #' renv::lockfile_validate(lockfile = "/path/to/your/renv.lock")
 #' }
+#'
 #' @export
 lockfile_validate <- function(project = NULL,
                               lockfile = NULL, # Use default project lockfile if not provided
