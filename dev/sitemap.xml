@@ -109,6 +109,9 @@
     <loc>https://rstudio.github.io/renv/dev/reference/lockfile-api.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/renv/dev/reference/lockfile_validate.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/renv/dev/reference/lockfiles.html</loc>
   </url>
   <url>
