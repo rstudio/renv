@@ -290,7 +290,7 @@ update <- function(packages = NULL,
   if (config$pak.enabled() && !recursing()) {
     packages <- setdiff(packages, exclude)
     renv_pak_init()
-    return(renv_pak_install(packages, libpaths, project))
+    return(renv_pak_install(packages, libpaths, prompt, project))
   }
 
   # get package records

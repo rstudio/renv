@@ -158,7 +158,7 @@ install <- function(packages = NULL,
   # if users have requested the use of pak, delegate there
   if (config$pak.enabled() && !recursing()) {
     renv_pak_init()
-    return(renv_pak_install(packages, libpaths, project))
+    return(renv_pak_install(packages, libpaths, prompt, project))
   }
 
   # resolve remotes from explicitly-requested packages

@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv::install()` now respects the `prompt` parameter when `pak` is enabled,
+  as via `options(renv.config.pak.enabled = TRUE)`. (#1907)
+
 * Fixed an issue with `renv`'s `pak` integration where `renv` could install the
   wrong version of a GitHub package during restore if
   `options(renv.config.pak.enabled = TRUE)` was set. (#1883)

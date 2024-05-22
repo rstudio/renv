@@ -95,6 +95,7 @@ restore <- function(project  = NULL,
       lockfile = lockfile,
       packages = packages,
       exclude  = exclude,
+      prompt   = prompt,
       project  = project
     )
 
