@@ -21,8 +21,11 @@ renv_cache_init <- function() {
   if (!file.exists(root))
     return()
 
+  # try to create cache directories
   caches <- renv_paths_cache()
-  ensure_directory(caches)
+  status <- catch(ensure_directory(caches))
+  if (inherits(status, "error"))
+    return()
 
   # if the cache appears to be within the project directory,
   # then drop a '.renvignore' file within so it's not scanned
