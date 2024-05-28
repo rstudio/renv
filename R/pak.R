@@ -128,12 +128,6 @@ renv_pak_restore <- function(lockfile,
   packages <- setdiff(packages %||% names(records), c(exclude, "pak", "renv"))
   records <- records[packages]
 
-  # attempt to link packages that have cache entries
-  if (renv_cache_config_enabled(project = project)) {
-    linked <- map_lgl(records, renv_cache_synchronize)
-    records <- records[!linked]
-  }
-
   # convert into specs compatible with pak, and install
   remotes <- map_chr(records, renv_record_format_remote, pak = TRUE)
 
