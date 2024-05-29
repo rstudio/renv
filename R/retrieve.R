@@ -1098,7 +1098,7 @@ renv_retrieve_successful_recurse_impl_check <- function(remote) {
   # check whether this package has been retrieved yet
   state <- renv_restore_state()
   record <- state$retrieved[[remote]]
-  if (is.null(record))
+  if (is.null(record) || identical(record, NA))
     return(FALSE)
 
   # check the current requirements for this package
