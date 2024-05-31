@@ -881,7 +881,7 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
       return(FALSE)
     }
 
-    response <- ask("Would you like to restore the project library?", default = FALSE)
+    response <- ask("Would you like to run `renv::restore()` to restore the project library?", default = FALSE)
     if (!response)
       return(FALSE)
 
