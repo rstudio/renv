@@ -152,7 +152,7 @@ renv_load_action <- function(project) {
   # https://github.com/rstudio/renv/issues/1650
   autoloading <- getOption("renv.autoloader.running", default = FALSE)
   if (autoloading && renv_rstudio_available()) {
-    setHook("rstudio.sessionInit", function() { renv::load(project) })
+    setHook("rstudio.sessionInit", function(...) { renv::load(project) })
     return("cancel")
   }
 
