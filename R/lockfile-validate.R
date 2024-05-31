@@ -18,6 +18,9 @@
 #'
 #' @inheritParams renv-params
 #'
+#' @param project Path to the currently active renv project.
+#'   If not provided, renv attempts to resolve the project path.
+#'
 #' @param lockfile Contents of the lockfile, or a filename containing one.
 #'   If not provided, it defaults to the project's lockfile.
 #'

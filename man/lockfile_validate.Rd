@@ -15,9 +15,8 @@ lockfile_validate(
 )
 }
 \arguments{
-\item{project}{The project directory. If \code{NULL}, then the active project will
-be used. If no project is currently active, then the current working
-directory is used instead.}
+\item{project}{Path to the currently active renv project.
+If not provided, renv attempts to resolve the project path.}
 
 \item{lockfile}{Contents of the lockfile, or a filename containing one.
 If not provided, it defaults to the project's lockfile.}
