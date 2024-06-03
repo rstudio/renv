@@ -152,9 +152,9 @@ see which packages are available in each library with
 <p>A <strong>repository</strong> is a source of packages;
 <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> gets a package from a repository
 (usually somewhere on the Internet) and puts it in a library (a
-directory on your computer). The most important repository is CRAN which
-is available to install packages from in just about every R session.
-Other freely available repositories include <a href="https://bioconductor.org" class="external-link">Bioconductor</a>, the <a href="https://packagemanager.posit.co" class="external-link">Posit Public Package Manager</a>,
+directory on your computer). The most important repository is CRAN; you
+can install packages from CRAN in just about every R session. Other
+freely available repositories include <a href="https://bioconductor.org" class="external-link">Bioconductor</a>, the <a href="https://packagemanager.posit.co" class="external-link">Posit Public Package Manager</a>,
 and <a href="https://r-universe.dev/search/" class="external-link">R Universe</a> (which turns
 GitHub organisations into repositories).</p>
 <p>You can see which repositories are currently set up in your session
@@ -188,8 +188,8 @@ to configure your R session to use the project library. This ensures
 that once you turn on renv for a project, it stays on, until you
 deliberately turn it off.</li>
 </ul>
-<p>The next important pair of tools are <code><a href="../reference/snapshot.html">renv::snapshot()</a></code>
-and <code><a href="../reference/restore.html">renv::restore()</a></code>. <code><a href="../reference/snapshot.html">snapshot()</a></code> updates the
+<p>The next important pair of tools is <code><a href="../reference/snapshot.html">renv::snapshot()</a></code> and
+<code><a href="../reference/restore.html">renv::restore()</a></code>. <code><a href="../reference/snapshot.html">snapshot()</a></code> updates the
 lockfile with metadata about the currently-used packages in the project
 library. This is useful because you can then share the lockfile and
 other people or other computers can easily reproduce your current
@@ -347,7 +347,7 @@ provide much help with:</p>
 <ul>
 <li>
 <strong>R version</strong>: renv tracks, but doesn’t help with, the
-version of R used with the package. renv can’t easily help with this
+version of R used with the project. renv can’t easily help with this
 because it’s run inside of R, but you might find tools like <a href="https://github.com/r-lib/rig" class="external-link">rig</a> helpful, as they make it
 easier to switch between multiple version of R on one computer.</li>
 <li>
