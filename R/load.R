@@ -70,7 +70,7 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
-    cancel()
+    quietly(cancel())
   } else if (action[[1L]] == "init") {
     return(init(project))
   } else if (action[[1L]] == "alt") {
