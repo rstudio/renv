@@ -126,13 +126,15 @@ ask <- function(question, default = FALSE) {
   if (!interactive())
     return(default)
 
-  # can't prompt for input when running autoloader in RStudio
+  # can't prompt for input when autoloading; code run from `.Rprofile` should
+  # not attempt to interact with the user
+  # from `?Startup`:
+  # "It is not intended that there be interaction with the user during startup
+  # code. Attempting to do so can crash the R process."
   # https://github.com/rstudio/renv/issues/1879
-  if (renv_rstudio_available()) {
-    autoloading <- getOption("renv.autoloader.running", default = FALSE)
-    if (autoloading)
-      return(default)
-  }
+  autoloading <- getOption("renv.autoloader.running", default = FALSE)
+  if (autoloading)
+    return(default)
 
   # be verbose in this scope, as we're asking the user for input
   renv_scope_options(renv.verbose = TRUE)
