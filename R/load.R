@@ -884,7 +884,13 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
     caution("- None of the packages recorded in the lockfile are currently installed.")
     autoloading <- getOption("renv.autoloader.running", default = FALSE)
     if (autoloading) {
-      caution("- Use `renv::restore()` to restore the project library.")
+      if (requireNamespace("cli", quietly = TRUE)) {
+        cli::cli_bullets(c(
+          "*" = "Use {.run renv::restore()} to restore the project library."
+        ))
+      } else {
+        caution("- Use `renv::restore()` to restore the project library.")
+      }
       return(FALSE)
     }
 
