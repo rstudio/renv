@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `renv` now normalizes lockfile entries for Bioconductor packages installed
+  via `pak::pkg_install()`, to help prevent spurious diffs being produced
+  via `renv::status()`. (#1920)
+
 * `renv::install()` now respects the `prompt` parameter when `pak` is enabled,
   as via `options(renv.config.pak.enabled = TRUE)`. (#1907)
 

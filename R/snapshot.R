@@ -730,6 +730,17 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
     stopf(fmt, paste(shQuote(missing), collapse = ", "), path %||% "<unknown>")
   }
 
+  # if this is a standard remote for a bioconductor package,
+  # remove the other remote fields
+  bioc <-
+    !is.null(dcf[["biocViews"]]) &&
+    identical(dcf[["RemoteType"]], "standard")
+
+  if (bioc) {
+    fields <- grep("^Remote(!=s)", names(dcf), perl = TRUE, invert = TRUE)
+    dcf <- dcf[fields]
+  }
+
   # generate a hash if we can
   dcf[["Hash"]] <- if (the$auto_snapshot_hash) {
     if (is.null(path))
@@ -772,6 +783,11 @@ renv_snapshot_description_source_custom <- function(dcf) {
   # check for a declared repository URL
   remoterepos <- dcf[["RemoteRepos"]]
   if (is.null(remoterepos))
+    return(NULL)
+
+  # if this package appears to be installed from Bioconductor, skip
+  biocviews <- dcf[["biocViews"]]
+  if (!is.null(biocviews))
     return(NULL)
 
   # if this package appears to have been installed from a

@@ -1,6 +1,7 @@
 
 test_that("a known-good lockfile passes validation", {
 
+  skip_if_not_installed("jsonvalidate")
   lockfile <- '
 {
   "R": {
@@ -56,6 +57,9 @@ test_that("a known-good lockfile passes validation", {
 
 
 test_that("a known-good lockfile with extra fields passes validation", {
+
+  skip_if_not_installed("jsonvalidate")
+
   # Lockfile adds a R$Nickname field not present in the schema
   lockfile <- '
 {
@@ -112,6 +116,9 @@ test_that("a known-good lockfile with extra fields passes validation", {
 })
 
 test_that("a custom schema file can be used for successful validation", {
+
+  skip_if_not_installed("jsonvalidate")
+
   # Custom schema adds a required R$Nickname field present in the lockfile
   lockfile <- '
 {
@@ -162,6 +169,9 @@ test_that("a custom schema file can be used for successful validation", {
 })
 
 test_that("a custom schema file can be used for failed validation", {
+
+  skip_if_not_installed("jsonvalidate")
+
   # Custom schema adds a required R$Nickname field not present in the lockfile
   lockfile <- '
 {
@@ -212,6 +222,8 @@ test_that("a custom schema file can be used for failed validation", {
 
 test_that("an incorrect Packages$Hash field fails validation", {
 
+  skip_if_not_installed("jsonvalidate")
+
   lockfile <- '
 {
   "R": {
@@ -239,6 +251,9 @@ test_that("an incorrect Packages$Hash field fails validation", {
 })
 
 test_that("invalid JSON fails validation", {
+
+  skip_if_not_installed("jsonvalidate")
+
   # Packages uses [] which is not valid JSON
   lockfile <- '
 {
@@ -266,6 +281,9 @@ test_that("invalid JSON fails validation", {
 })
 
 test_that("strict mode catches unknown keyword in provided schema", {
+
+  skip_if_not_installed("jsonvalidate")
+
   # Custom schema provides "Version" with "type": "UNKNOWN"
   lockfile <- '
 {
