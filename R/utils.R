@@ -521,13 +521,14 @@ take <- function(data, index = NULL) {
   if (is.null(index)) data else .subset2(data, index)
 }
 
-cancel <- function() {
+cancel <- function(verbose = TRUE) {
 
   renv_snapshot_auto_suppress_next()
   if (testing())
     stop("Operation canceled", call. = FALSE)
 
-  message("- Operation canceled.")
+  if (verbose)
+    message("- Operation canceled.")
   invokeRestart("abort")
 
 }

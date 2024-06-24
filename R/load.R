@@ -70,7 +70,8 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
-    quietly(cancel())
+    autoloading <- getOption("renv.autoloader.running", default = FALSE)
+    cancel(verbose = !autoloading)
   } else if (action[[1L]] == "init") {
     return(init(project))
   } else if (action[[1L]] == "alt") {
