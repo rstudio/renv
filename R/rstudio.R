@@ -10,10 +10,6 @@ renv_rstudio_available <- function() {
 
 }
 
-renv_rstudio_autoloading <- function() {
-  renv_rstudio_available() && getOption("renv.autoloader.running", default = FALSE)
-}
-
 renv_rstudio_initialize <- function(project) {
 
   tools <- catch(as.environment("tools:rstudio"))

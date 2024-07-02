@@ -70,7 +70,8 @@ load <- function(project = NULL, quiet = FALSE, profile = NULL, ...) {
 
   action <- renv_load_action(project)
   if (action[[1L]] == "cancel") {
-    cancel()
+    autoloading <- getOption("renv.autoloader.running", default = FALSE)
+    cancel(verbose = !autoloading)
   } else if (action[[1L]] == "init") {
     return(init(project))
   } else if (action[[1L]] == "alt") {
@@ -146,21 +147,27 @@ renv_load_action <- function(project) {
   if (!interactive())
     return("load")
 
+  autoloading <- getOption("renv.autoloader.running", default = FALSE)
+  # if we're auto-loading, it's too early to interact with the user, which is
+  # often advisable, i.e. if we detect that the user needs to run renv::restore()
+  # https://github.com/rstudio/renv/issues/1650
+  #
+  # if the frontend is known to support a session init hook, defer loading until
+  # R is fully initialized, at which time it will be possible to interact with
+  # the user (currently this just applies to RStudio)
+  #
+  # otherwise, proceed with the knowledge that, if the user needs to run
+  # renv::restore(), a message to that effect will be emitted
+  if (autoloading && renv_rstudio_available()) {
+    setHook("rstudio.sessionInit", function(...) { renv::load(project) })
+    return("cancel")
+  }
+
   # if this project already contains an 'renv' folder, assume it's
   # already been initialized and we can directly load it
   renv <- renv_paths_renv(project = project, profile = FALSE)
   if (dir.exists(renv))
     return("load")
-
-  # if we're running within RStudio at this point, and we're running
-  # within the auto-loader, we need to defer execution here so that
-  # the console is able to properly receive user input and update
-  # https://github.com/rstudio/renv/issues/1650
-  autoloading <- getOption("renv.autoloader.running", default = FALSE)
-  if (autoloading && renv_rstudio_available()) {
-    setHook("rstudio.sessionInit", function() { renv::load(project) })
-    return("cancel")
-  }
 
   # check and see if we're being called within a sub-directory
   path <- renv_file_find(dirname(project), function(parent) {
@@ -876,12 +883,13 @@ renv_load_report_synchronized <- function(project = NULL, lockfile = NULL) {
   if (length(intersect(lockpkgs, libpkgs)) == 0 && length(lockpkgs) > 0L) {
 
     caution("- None of the packages recorded in the lockfile are currently installed.")
-    if (renv_rstudio_autoloading()) {
+    autoloading <- getOption("renv.autoloader.running", default = FALSE)
+    if (autoloading) {
       caution("- Use `renv::restore()` to restore the project library.")
       return(FALSE)
     }
 
-    response <- ask("Would you like to restore the project library?", default = FALSE)
+    response <- ask("Would you like to run `renv::restore()` to restore the project library?", default = FALSE)
     if (!response)
       return(FALSE)
 
