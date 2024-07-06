@@ -21,6 +21,9 @@
 * Fixed an issue where installation of packages from local sources, as via 
   `install("<package>", repos = NULL, type = "source")`, could fail. (#1880)
 
+* A new function, `renv::lockfile_validate()`, can be used to validate your `renv.lock`
+  against a default or custom schema. (#1889)
+
 
 # renv 1.0.7
 
