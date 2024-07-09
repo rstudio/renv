@@ -78,6 +78,7 @@ available on CRAN, that updated version will not be seen.</p>
 <span>  <span class="va">...</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  library <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  rebuild <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  check <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  prompt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -110,6 +111,11 @@ a specific set of excluded packages.</p></dd>
 <dt id="arg-library">library<a class="anchor" aria-label="anchor" href="#arg-library"></a></dt>
 <dd><p>The <span style="R">R</span> library to be used. When <code>NULL</code>, the active project
 library will be used instead.</p></dd>
+
+
+<dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
+<dd><p>The type of package to install ("source" or "binary"). Defaults
+to the value of <code>getOption("pkgType")</code>.</p></dd>
 
 
 <dt id="arg-rebuild">rebuild<a class="anchor" aria-label="anchor" href="#arg-rebuild"></a></dt>

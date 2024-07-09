@@ -53,7 +53,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="renv-development-version">renv (development version)<a class="anchor" aria-label="anchor" href="#renv-development-version"></a></h2>
-<ul><li><p><code>renv</code> now infers a dependency on the <code>svglite</code> package if it detects calls of the form <code>ggsave(filename = "path.svg")</code>. (<a href="https://github.com/rstudio/renv/issues/1930" class="external-link">#1930</a>)</p></li>
+<ul><li><p><code><a href="../reference/install.html">renv::install()</a></code> now properly delegates the <code>type</code> and <code>rebuild</code> arguments to <code>pak</code> when <code>options(renv.config.pak.enabled = TRUE)</code> is set. (<a href="https://github.com/rstudio/renv/issues/1924" class="external-link">#1924</a>)</p></li>
+<li><p><code>renv</code> now infers a dependency on the <code>svglite</code> package if it detects calls of the form <code>ggsave(filename = "path.svg")</code>. (<a href="https://github.com/rstudio/renv/issues/1930" class="external-link">#1930</a>)</p></li>
 <li><p><code>renv</code> now supports setting of GitHub authentication credentials via any of <code>GITHUB_TOKEN</code>, <code>GITHUB_PAT</code>, and <code>GH_TOKEN</code>. (<a href="https://github.com/rstudio/renv/issues/1937" class="external-link">#1937</a>)</p></li>
 <li><p><code>renv</code> now also passes any custom headers available to <code><a href="https://rdrr.io/r/utils/available.packages.html" class="external-link">utils::available.packages()</a></code> during bootstrap. (<a href="https://github.com/rstudio/renv/issues/1942" class="external-link">#1942</a>)</p></li>
 <li><p>Fixed an issue where <code>renv</code> could fail during installation of packages stored within repository sub-directories, if that repository also contained a top-level DESCRIPTION file. (<a href="https://github.com/rstudio/renv/issues/1941" class="external-link">#1941</a>)</p></li>
