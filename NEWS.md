@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* Fixed an issue where `renv` could fail during installation of packages
+  stored within repository sub-directories, if that repository also
+  contained a top-level DESCRIPTION file. (#1941)
+
 * `renv` now normalizes lockfile entries for Bioconductor packages installed
   via `pak::pkg_install()`, to help prevent spurious diffs being produced
   via `renv::status()`. (#1920)

@@ -447,15 +447,6 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
   # find DESCRIPTION files in the archive
   descpaths <- renv_archive_find(path, "(?:^|/)DESCRIPTION$")
 
-  # check for a top-level DESCRIPTION file
-  # this is done in case the archive has been already been re-packed, so that a
-  # package originally located within a sub-directory is now at the top level
-  if (!force) {
-    descpath <- grep("^[^/]+/DESCRIPTION$", descpaths, perl = TRUE, value = TRUE)
-    if (length(descpath))
-      return(path)
-  }
-
   # try to resolve the path to the DESCRIPTION file in the archive
   descpath <- if (nzchar(subdir)) {
     pattern <- sprintf("(?:^|/)\\Q%s\\E/DESCRIPTION$", subdir)
@@ -465,7 +456,16 @@ renv_package_unpack <- function(package, path, subdir = "", force = FALSE) {
     descpaths[n == min(n)]
   }
 
-  # if this failed, error
+  # if this failed, check for a top-level DESCRIPTION file
+  # this is done in case the archive has been already been re-packed, so that a
+  # package originally located within a sub-directory is now at the top level
+  if (!force && length(descpath) != 1L) {
+    descpath <- grep("^[^/]+/DESCRIPTION$", descpaths, perl = TRUE, value = TRUE)
+    if (length(descpath))
+      return(path)
+  }
+
+  # if this still failed, error
   if (length(descpath) != 1L) {
     fmt <- "internal error: couldn't find DESCRIPTION file for package '%s' in archive '%s'"
     stopf(fmt, package, path)
