@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now infers a dependency on the `svglite` package if it detects
+  calls of the form `ggsave(filename = "path.svg")`. (#1930)
+
 * `renv` now supports setting of GitHub authentication credentials via
   any of `GITHUB_TOKEN`, `GITHUB_PAT`, and `GH_TOKEN`. (#1937)
 

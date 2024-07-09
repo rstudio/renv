@@ -1060,6 +1060,7 @@ renv_dependencies_discover_r <- function(path = NULL,
     renv_dependencies_discover_r_box,
     renv_dependencies_discover_r_targets,
     renv_dependencies_discover_r_glue,
+    renv_dependencies_discover_r_ggplot2,
     renv_dependencies_discover_r_parsnip,
     renv_dependencies_discover_r_database
   )
@@ -1419,6 +1420,30 @@ renv_dependencies_discover_r_glue <- function(node, stack, envir) {
   for (string in strings)
     renv_dependencies_discover_r_glue_impl(string, node, envir)
 
+  TRUE
+
+}
+
+renv_dependencies_discover_r_ggplot2 <- function(node, stack, envir) {
+
+  node <- renv_call_expect(node, "ggplot2", "ggsave")
+  if (is.null(node))
+    return(FALSE)
+
+  # check for attempts to save to '.svg', and assume svglite is
+  # required in this scenario.
+  matched <- catch(match.call(function(filename, ...) {}, node))
+  if (inherits(matched, "error"))
+    return(FALSE)
+
+  filename <- matched$filename
+  if (!is.character(filename))
+    return(FALSE)
+
+  if (!endswith(filename, ".svg"))
+    return(FALSE)
+
+  envir[["svglite"]] <- TRUE
   TRUE
 
 }

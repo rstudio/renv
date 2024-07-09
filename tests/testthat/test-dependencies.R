@@ -550,3 +550,18 @@ test_that("dependencies() with different extensions", {
   expect_true("B" %in% deps$Package)
 
 })
+
+test_that("dependencies() can infer an svglite dependency from ggsave", {
+
+  document <- heredoc('
+    library(ggplot2)
+    ggsave(filename = "test.svg")
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".R")
+  writeLines(document, con = file)
+
+  deps <- dependencies(file, quiet = TRUE)
+  expect_contains(deps$Package, "svglite")
+
+})
