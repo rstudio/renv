@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.0.9
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
   ci: ci.html
@@ -13,8 +13,7 @@ articles:
   python: python.html
   renv: renv.html
   rsconnect: rsconnect.html
-last_built: 2024-07-07T10:26Z
+last_built: 2024-07-09T03:51Z
 urls:
   reference: https://rstudio.github.io/renv/reference
   article: https://rstudio.github.io/renv/articles
-
