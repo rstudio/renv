@@ -248,6 +248,7 @@ update <- function(packages = NULL,
                    ...,
                    exclude = NULL,
                    library = NULL,
+                   type    = NULL,
                    rebuild = FALSE,
                    check   = FALSE,
                    prompt  = interactive(),
@@ -267,6 +268,12 @@ update <- function(packages = NULL,
   library <- nth(libpaths, 1L)
   renv_scope_libpaths(libpaths)
 
+  # check for explicitly-provided type -- we handle this specially for PPM
+  if (!is.null(type)) {
+    renv_scope_binding(the, "install_pkg_type", type)
+    renv_scope_options(pkgType = type)
+  }
+
   # resolve exclusions
   exclude <- c(exclude, settings$ignored.packages(project = project))
 
@@ -274,7 +281,16 @@ update <- function(packages = NULL,
   if (config$pak.enabled() && !recursing()) {
     packages <- setdiff(packages, exclude)
     renv_pak_init()
-    return(renv_pak_install(packages, libpaths, prompt, project))
+    return(
+      renv_pak_install(
+        packages = packages,
+        library  = libpaths,
+        rebuild  = rebuild,
+        type     = type,
+        prompt   = prompt,
+        project  = project
+      )
+    )
   }
 
   # get package records

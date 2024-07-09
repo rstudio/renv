@@ -9,6 +9,7 @@ update(
   ...,
   exclude = NULL,
   library = NULL,
+  type = NULL,
   rebuild = FALSE,
   check = FALSE,
   prompt = interactive(),
@@ -30,6 +31,9 @@ a specific set of excluded packages.}
 
 \item{library}{The \R library to be used. When \code{NULL}, the active project
 library will be used instead.}
+
+\item{type}{The type of package to install ("source" or "binary"). Defaults
+to the value of \code{getOption("pkgType")}.}
 
 \item{rebuild}{Force packages to be rebuilt, thereby bypassing any installed
 versions of the package available in the cache? This can either be a

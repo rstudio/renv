@@ -59,8 +59,13 @@ renv_pak_init_impl <- function(stream) {
 
 }
 
-renv_pak_install <- function(packages, library, prompt, project) {
-
+renv_pak_install <- function(packages,
+                             library,
+                             type,
+                             rebuild,
+                             prompt,
+                             project)
+{
   pak <- renv_namespace_load("pak")
   lib <- library[[1L]]
 
@@ -94,13 +99,27 @@ renv_pak_install <- function(packages, library, prompt, project) {
 
   }
 
+  # build parameters
+  packages <- map_chr(packages, function(package) {
+
+    params <- c(
+      if (identical(type, "source")) "source",
+      if (identical(rebuild, TRUE) || package %in% rebuild) "reinstall"
+    )
+
+    if (length(params))
+      paste(package, paste(params, collapse = "&"), sep = "?")
+    else
+      package
+
+  })
+
   pak$pkg_install(
     pkg     = packages,
     lib     = lib,
     ask     = prompt,
     upgrade = TRUE
   )
-
 }
 
 renv_pak_restore <- function(lockfile,
