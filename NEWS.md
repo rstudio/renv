@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now also passes any custom headers available to
+  `utils::available.packages()` during bootstrap. (#1942)
+
 * Fixed an issue where `renv` could fail during installation of packages
   stored within repository sub-directories, if that repository also
   contained a top-level DESCRIPTION file. (#1941)

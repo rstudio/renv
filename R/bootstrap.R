@@ -207,7 +207,11 @@ renv_bootstrap_download_impl <- function(url, destfile) {
   )
 
   if ("headers" %in% names(formals(utils::download.file)))
-    args$headers <- renv_bootstrap_download_custom_headers(url)
+  {
+    headers <- renv_bootstrap_download_custom_headers(url)
+    if (length(headers) && is.character(headers))
+      args$headers <- headers
+  }
 
   do.call(utils::download.file, args)
 
@@ -286,10 +290,22 @@ renv_bootstrap_download_cran_latest_find <- function(version) {
   for (type in types) {
     for (repos in renv_bootstrap_repos()) {
 
+      # build arguments for utils::available.packages() call
+      args <- list(type = type, repos = repos)
+
+      # add custom headers if available -- note that
+      # utils::available.packages() will pass this to download.file()
+      if ("headers" %in% names(formals(utils::download.file)))
+      {
+        headers <- renv_bootstrap_download_custom_headers(url)
+        if (length(headers) && is.character(headers))
+          args$headers <- headers
+      }
+
       # retrieve package database
       db <- tryCatch(
         as.data.frame(
-          utils::available.packages(type = type, repos = repos),
+          do.call(utils::available.packages, args),
           stringsAsFactors = FALSE
         ),
         error = identity
