@@ -565,3 +565,20 @@ test_that("dependencies() can infer an svglite dependency from ggsave", {
   expect_contains(deps$Package, "svglite")
 
 })
+
+test_that("dependencies() can handle calls", {
+
+  document <- heredoc('
+    ```{r}
+    #| eval = c(1, 2)
+    ```
+  ')
+
+  file <- renv_scope_tempfile("renv-test-", fileext = ".Rmd")
+  writeLines(document, con = file)
+
+  expect_no_warning(
+    dependencies(file, quiet = TRUE)
+  )
+
+})

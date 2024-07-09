@@ -16,10 +16,14 @@ truthy <- function(value, default = FALSE) {
   if (is.symbol(value))
     value <- as.character(value)
 
+  # check for non-character values
+  if (!is.character(value))
+    return(as.logical(value[[1L]]))
+
   # check for known truthy / falsy values
-  if (value %in% c("TRUE", "True", "true", "T", "1"))
+  if (value[[1L]] %in% c("TRUE", "True", "true", "T", "1"))
     TRUE
-  else if (value %in% c("FALSE", "False", "false", "F", "0"))
+  else if (value[[1L]] %in% c("FALSE", "False", "false", "F", "0"))
     FALSE
   else
     default
