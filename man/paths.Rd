@@ -102,7 +102,7 @@ The prefix will be constructed based on fields within the system's
 }
 
 \section{Package cellar}{
-If your project depends on one or \R packages that are not available in any
+If your project depends on one or more \R packages that are not available in any
 remote location, you can still provide a locally-available tarball for renv
 to use during restore. By default, these packages should be made available in
 the folder as specified by the \code{RENV_PATHS_CELLAR} environment variable. The

@@ -529,20 +529,20 @@ renv_download_auth_bitbucket <- function() {
 
 renv_download_auth_github <- function(url) {
 
-  pat <- renv_download_auth_github_pat(url)
-  if (is.null(pat))
+  token <- renv_download_auth_github_token(url)
+  if (is.null(token))
     return(character())
 
-  c("Authorization" = paste("token", pat))
+  c("Authorization" = paste("token", token))
 
 }
 
-renv_download_auth_github_pat <- function(url) {
+renv_download_auth_github_token <- function(url) {
 
-  # check for an existing PAT
-  pat <- Sys.getenv("GITHUB_PAT", unset = NA)
-  if (!is.na(pat))
-    return(pat)
+  # check for an existing token from environment variable
+  token <- renv_bootstrap_github_token()
+  if (length(token))
+    return(token)
 
   # if gitcreds is available, try to use it
   gitcreds <-

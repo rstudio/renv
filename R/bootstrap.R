@@ -387,6 +387,14 @@ renv_bootstrap_download_tarball <- function(version) {
 
 }
 
+renv_bootstrap_github_token <- function() {
+  for (envvar in c("GITHUB_TOKEN", "GITHUB_PAT", "GH_TOKEN")) {
+    envval <- Sys.getenv(envvar, unset = NA)
+    if (!is.na(envval))
+      return(envval)
+  }
+}
+
 renv_bootstrap_download_github <- function(version) {
 
   enabled <- Sys.getenv("RENV_BOOTSTRAP_FROM_GITHUB", unset = "TRUE")
@@ -394,16 +402,16 @@ renv_bootstrap_download_github <- function(version) {
     return(FALSE)
 
   # prepare download options
-  pat <- Sys.getenv("GITHUB_PAT")
-  if (nzchar(Sys.which("curl")) && nzchar(pat)) {
+  token <- renv_bootstrap_github_token()
+  if (nzchar(Sys.which("curl")) && nzchar(token)) {
     fmt <- "--location --fail --header \"Authorization: token %s\""
-    extra <- sprintf(fmt, pat)
+    extra <- sprintf(fmt, token)
     saved <- options("download.file.method", "download.file.extra")
     options(download.file.method = "curl", download.file.extra = extra)
     on.exit(do.call(base::options, saved), add = TRUE)
-  } else if (nzchar(Sys.which("wget")) && nzchar(pat)) {
+  } else if (nzchar(Sys.which("wget")) && nzchar(token)) {
     fmt <- "--header=\"Authorization: token %s\""
-    extra <- sprintf(fmt, pat)
+    extra <- sprintf(fmt, token)
     saved <- options("download.file.method", "download.file.extra")
     options(download.file.method = "wget", download.file.extra = extra)
     on.exit(do.call(base::options, saved), add = TRUE)

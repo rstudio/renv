@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now supports setting of GitHub authentication credentials via
+  any of `GITHUB_TOKEN`, `GITHUB_PAT`, and `GH_TOKEN`. (#1937)
+
 * `renv` now also passes any custom headers available to
   `utils::available.packages()` during bootstrap. (#1942)
 

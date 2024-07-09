@@ -71,22 +71,6 @@ renv_update_find_git_impl <- function(record) {
 
 renv_update_find_github <- function(records) {
 
-  # check for GITHUB_PAT
-  if (!renv_envvar_exists("GITHUB_PAT")) {
-
-    msg <- paste(
-      "GITHUB_PAT is unset. Updates may fail due to GitHub's API rate limit.",
-      "",
-      "To increase your GitHub API rate limit:",
-      "- Use `usethis::create_github_token()` to create a Personal Access Token (PAT).",
-      "- Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.",
-      sep = "\n"
-    )
-
-    warning(msg, call. = FALSE)
-
-  }
-
   names(records) <- map_chr(records, `[[`, "Package")
   results <- renv_parallel_exec(records, function(record) {
     catch(renv_update_find_github_impl(record))
