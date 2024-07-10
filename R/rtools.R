@@ -7,6 +7,7 @@ renv_rtools_list <- function() {
 
     renv_rtools_registry(),
 
+    Sys.getenv("RTOOLS44_HOME", unset = file.path(drive, "rtools44")),
     Sys.getenv("RTOOLS43_HOME", unset = file.path(drive, "rtools43")),
     Sys.getenv("RTOOLS42_HOME", unset = file.path(drive, "rtools42")),
     Sys.getenv("RTOOLS40_HOME", unset = file.path(drive, "rtools40")),
@@ -75,7 +76,8 @@ renv_rtools_compatible <- function(spec) {
     return(FALSE)
 
   ranges <- list(
-    "4.3" = c("4.3.0", "9.9.9"),
+    "4.4" = c("4.4.0", "9.9.9"),
+    "4.3" = c("4.3.0", "4.4.0"),
     "4.2" = c("4.2.0", "4.3.0"),
     "4.0" = c("4.0.0", "4.2.0"),
     "3.5" = c("3.3.0", "4.0.0"),
@@ -121,20 +123,21 @@ renv_rtools_envvars <- function(root) {
     renv_rtools_envvars_rtools40(root)
   else if (version < "4.3")
     renv_rtools_envvars_rtools42(root)
-  else
+  else if (version < "4.4")
     renv_rtools_envvars_rtools43(root)
+  else
+    renv_rtools_envvars_default(root)
 
 }
 
 renv_rtools_envvars_default <- function(root) {
 
   # add Rtools utilities to path
-  bin <- normalizePath(file.path(root, "bin"), mustWork = FALSE)
+  bin <- normalizePath(file.path(root, "usr/bin"), mustWork = FALSE)
   path <- paste(bin, Sys.getenv("PATH"), sep = .Platform$path.sep)
 
-  # set BINPREF (note: trailing slash is required)
-  # file.path drops trailing separators on Windows, so we use paste
-  binpref <- paste(renv_path_normalize(root), "mingw_$(WIN)/bin/", sep = "/")
+  # set BINPREF
+  binpref <- ""
 
   list(PATH = path, BINPREF = binpref)
 
