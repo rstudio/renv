@@ -1,6 +1,11 @@
 
 # renv (development version)
 
+* `renv::restore()` gains the `transactional` argument, which can be
+  used to control whether `renv` will allow successfully-installed
+  packages remain in the project library even if a package fails
+  to install during a later step. (#1109)
+
 * `renv` now infers a dependency on the `xml2` package for projects
   using the `testthat::JunitReporter` for tests. (#1936)
 
