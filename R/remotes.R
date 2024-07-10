@@ -45,6 +45,14 @@ renv_remotes_resolve <- function(spec, latest = FALSE) {
       return(record)
   }
 
+  # check for explicit local remotes
+  if (grepl("^local::", spec)) {
+    spec <- substring(spec, 8L)
+    record <- catch(renv_remotes_resolve_path(spec))
+    if (!inherits(record, "error"))
+      return(record)
+  }
+
   # check for requests to install local packages -- note that depending on how
   # the R package was built / generated, it's possible that it might not adhere
   # to the "typical" R package names, so we try to be a bit flexible here
