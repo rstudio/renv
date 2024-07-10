@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now infers a dependency on the `xml2` package for projects
+  using the `testthat::JunitReporter` for tests. (#1936)
+
 * Fixed an issue where `renv::dependencies()` could emit a warning
   when attempting to parse chunks using chunk options like
   `#| eval: c(1, 2)`. (#1906)

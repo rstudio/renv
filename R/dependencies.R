@@ -1062,6 +1062,7 @@ renv_dependencies_discover_r <- function(path = NULL,
     renv_dependencies_discover_r_glue,
     renv_dependencies_discover_r_ggplot2,
     renv_dependencies_discover_r_parsnip,
+    renv_dependencies_discover_r_testthat,
     renv_dependencies_discover_r_database
   )
 
@@ -1069,12 +1070,12 @@ renv_dependencies_discover_r <- function(path = NULL,
   recurse(expr, function(node, stack) {
 
     # normalize calls (handle magrittr pipes)
-    node <- renv_call_normalize(node, stack)
+    if (is.call(node))
+      node <- renv_call_normalize(node, stack)
 
     # invoke methods on call objects
-    if (is.call(node))
-      for (method in methods)
-        method(node, stack, envir)
+    for (method in methods)
+      method(node, stack, envir)
 
     # return node
     node
@@ -1251,9 +1252,11 @@ renv_dependencies_discover_r_pacman <- function(node, stack, envir) {
 
 renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 
+  if (!is.call(node))
+    return(FALSE)
+
   # check for call of the form 'pkg::foo(a, b, c)'
   colon <- renv_call_matches(node[[1L]], name = c("::", ":::"), nargs = 2L)
-
   node <- renv_call_expect(node, "modules", c("import"))
   if (is.null(node))
     return(FALSE)
@@ -1296,6 +1299,9 @@ renv_dependencies_discover_r_modules <- function(node, stack, envir) {
 }
 
 renv_dependencies_discover_r_import <- function(node, stack, envir) {
+
+  if (!is.call(node))
+    return(FALSE)
 
   # require that usages are colon-prefixed
   colon <- renv_call_matches(node[[1L]], name = c("::", ":::"), nargs = 2L)
@@ -1445,6 +1451,40 @@ renv_dependencies_discover_r_ggplot2 <- function(node, stack, envir) {
 
   envir[["svglite"]] <- TRUE
   TRUE
+
+}
+
+renv_dependencies_discover_r_testthat <- function(node, stack, envir) {
+
+  # check for construction of JunitReporter
+  if (identical(node, call("$", as.symbol("JunitReporter"), as.symbol("new")))) {
+    envir[["xml2"]] <- TRUE
+    return(TRUE)
+  }
+
+  # check for calls to various test runners, which accept a reporter
+  node <- renv_call_expect(node, "testthat", c("test_package", "test_dir", "test_file"))
+  if (is.null(node))
+    return(FALSE)
+
+  candidates <- list(
+    "Junit",
+    "junit",
+    call("::", "testthat", "JunitReporter"),
+    as.symbol("JunitReporter")
+  )
+
+  reporter <- node$reporter
+  if (!is.null(reporter)) {
+    for (candidate in candidates) {
+      if (identical(candidate, reporter)) {
+        envir[["xml2"]] <- TRUE
+        return(TRUE)
+      }
+    }
+  }
+
+  FALSE
 
 }
 
@@ -1619,19 +1659,27 @@ renv_dependencies_discover_r_database <- function(node, stack, envir) {
 
   found <- FALSE
 
+  matched <- function(requirements) {
+    for (requirement in requirements)
+      envir[[requirement]] <<- TRUE
+    found <<- TRUE
+  }
+
   db <- renv_dependencies_database()
   enumerate(db, function(package, dependencies) {
     enumerate(dependencies, function(method, requirements) {
 
-      expect <- renv_call_expect(node, package, method)
-      if (is.null(expect))
-        return(FALSE)
+      if (is.call(node)) {
+        expect <- renv_call_expect(node, package, method)
+        if (!is.null(expect))
+          return(matched(requirements))
+      }
 
-      for (requirement in requirements)
-        envir[[requirement]] <- TRUE
-
-      found <<- TRUE
-      TRUE
+      if (is.symbol(node)) {
+        value <- as.character(node)
+        if (identical(value, method))
+          return(matched(requirements))
+      }
 
     })
   })
@@ -1650,6 +1698,7 @@ renv_dependencies_database <- function() {
 renv_dependencies_database_impl <- function() {
   db <- getOption("renv.dependencies.database", default = list())
   db$ggplot2$geom_hex <- "hexbin"
+  db$testthat$JunitReporter <- "xml2"
   db
 }
 
