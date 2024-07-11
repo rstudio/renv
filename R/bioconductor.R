@@ -47,8 +47,8 @@ renv_bioconductor_validate <- function(version) {
   # prompt user otherwise
   if (interactive()) {
 
-    fmt <- "The requested version of Bioconductor is not compatible with this version of R."
-    writef(fmt)
+    fmt <- "You have requested Bioconductor %s, which is not compatible with this version of R."
+    writef(fmt, version)
 
     fmt <- "You are using R %s, for which Bioconductor version(s) %s are available."
     writef(fmt, getRversion(), paste(shQuote(compat), collapse = ", "))
