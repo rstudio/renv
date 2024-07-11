@@ -1,6 +1,10 @@
 
 # renv (development version)
 
+* `renv::init(bioc = "<version>")` now prompts the user in interactive sessions
+  when requesting a version of Bioconductor which is not compatible with the
+  current version of R. (#1943)
+
 * `renv::restore()` gains the `transactional` argument, which can be
   used to control whether `renv` will allow successfully-installed
   packages remain in the project library even if a package fails

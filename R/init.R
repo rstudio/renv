@@ -105,6 +105,9 @@ init <- function(project = NULL,
   biocver <- renv_init_bioconductor(bioconductor, project)
   if (!is.null(biocver)) {
 
+    # validate that this version of bioconductor is appropriate
+    renv_bioconductor_validate(version = biocver)
+
     # make sure a Bioconductor package manager is installed
     renv_bioconductor_init(library = library)
 

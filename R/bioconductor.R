@@ -6,6 +6,63 @@ renv_bioconductor_manager <- function() {
     "BiocInstaller"
 }
 
+renv_bioconductor_versions <- function() {
+
+  data.frame(
+
+    Bioc = c(
+      "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15",
+      "3.16", "3.17", "3.18", "3.19", "3.20", "3.20"
+    ),
+
+    R = c(
+      "3.6", "3.6", "4.0", "4.0", "4.1", "4.1", "4.2",
+      "4.2", "4.3", "4.3", "4.4", "4.4", "4.5"
+    )
+  )
+
+}
+
+renv_bioconductor_validate <- function(version) {
+
+  # check that the requested version of Bioconductor is supported
+  compat <- catch({
+
+    versions <- if (getRversion() < "4.5") {
+      renv_bioconductor_versions()
+    } else {
+      BiocManager <- renv_namespace_load("BiocManager")
+      BiocManager$.version_map()
+    }
+
+    as.character(versions[versions$R == getRversion()[1, 1:2], "Bioc"])
+
+  })
+
+  if (inherits(compat, "error"))
+    return(FALSE)
+  else if (version %in% compat)
+    return(TRUE)
+
+  # prompt user otherwise
+  if (interactive()) {
+
+    fmt <- "The requested version of Bioconductor is not compatible with this version of R."
+    writef(fmt)
+
+    fmt <- "You are using R %s, for which Bioconductor version(s) %s are available."
+    writef(fmt, getRversion(), paste(shQuote(compat), collapse = ", "))
+
+    writef("")
+    response <- ask("Would you still like to use this version of Bioconductor?")
+    cancel_if(!response)
+
+  }
+
+  TRUE
+
+}
+
 renv_bioconductor_init <- function(library = NULL) {
   renv_scope_options(renv.verbose = FALSE)
 
