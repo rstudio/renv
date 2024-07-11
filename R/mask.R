@@ -7,10 +7,8 @@ numeric_version <- function(x, strict = TRUE) {
 }
 
 sprintf <- function(fmt, ...) {
-  if (nargs() == 1L)
-    fmt
-  else
-    base::sprintf(fmt, ...)
+  message <- if (nargs() == 1L) fmt else base::sprintf(fmt, ...)
+  ansify(message)
 }
 
 unique <- function(x) {

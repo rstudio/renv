@@ -43,7 +43,10 @@ heredoc <- function(text, leave = 0) {
   # compute common indent
   indent <- regexpr("[^[:space:]]", lines)
   common <- min(setdiff(indent, -1L)) - leave
-  paste(substring(lines, common), collapse = "\n")
+  text <- paste(substring(lines, common), collapse = "\n")
+
+  # substitute in ANSI links for executable renv code
+  ansify(text)
 
 }
 

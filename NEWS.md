@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now emits clickable hyperlinks for runnable code snippets and help,
+  for front-ends which support the `ide:run` and `ide:help` ANSI escapes.
+
 * `renv::init(bioc = "<version>")` now prompts the user in interactive sessions
   when requesting a version of Bioconductor which is not compatible with the
   current version of R. (#1943)

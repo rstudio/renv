@@ -10,7 +10,7 @@
        BiocManager  y         n        y   
        BiocVersion  y         n        y   
       
-      See ?renv::status() for advice on resolving these issues.
+      See `?renv::status` for advice on resolving these issues.
 
 ---
 

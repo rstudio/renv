@@ -64,6 +64,7 @@ renv_zzz_load <- function() {
 
   renv_defer_init()
   renv_metadata_init()
+  renv_ansify_init()
   renv_platform_init()
   renv_virtualization_init()
   renv_envvars_init()
@@ -124,7 +125,7 @@ renv_zzz_bootstrap_activate <- function() {
 
   source <- "templates/template-activate.R"
   target <- "inst/resources/activate.R"
-  scripts <- c("R/bootstrap.R", "R/json-read.R")
+  scripts <- c("R/ansify.R", "R/bootstrap.R", "R/json-read.R")
 
   # Do we need an update
   source_mtime <- max(renv_file_info(c(source, scripts))$mtime)

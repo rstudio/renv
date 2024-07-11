@@ -41,7 +41,7 @@
        egg     n         y        y   
        oatmeal n         y        ?   
       
-      See ?renv::status() for advice on resolving these issues.
+      See `?renv::status` for advice on resolving these issues.
 
 # reports synchronisation problems with installed packages
 
@@ -54,7 +54,7 @@
        bread   y         n        y   
        egg     y         y        n   
       
-      See ?renv::status() for advice on resolving these issues.
+      See `?renv::status` for advice on resolving these issues.
 
 # reports version differences
 
@@ -67,7 +67,7 @@
       - egg       [repo: * != CRAN; ver: 2.0.0 != 1.0.0]
       - oatmeal   [repo: * != CRAN; ver: 0.9.0 != 1.0.0]
       
-      See ?renv::status() for advice on resolving these issues.
+      See `?renv::status` for advice on resolving these issues.
 
 # status() notifies user if R version does not match
 
@@ -76,7 +76,7 @@
     Output
       The lockfile was generated with R 1.0.0, but you're using R <r-version>.
       
-      See ?renv::status() for advice on resolving these issues.
+      See `?renv::status` for advice on resolving these issues.
 
 # status() notifies user if packages are missing and inconsistent
 
@@ -91,5 +91,5 @@
       # CRAN ---
       - bread   [1.0.0 != 0.1.0]
       
-      See ?renv::status() for advice on resolving these issues.
+      See `?renv::status` for advice on resolving these issues.
 

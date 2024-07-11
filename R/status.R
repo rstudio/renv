@@ -196,7 +196,7 @@ status <- function(project = NULL,
   if (synchronized)
     writef("No issues found -- the project is in a consistent state.")
   else
-    writef("See ?renv::status() for advice on resolving these issues.")
+    writef("See `?renv::status` for advice on resolving these issues.")
 
   result <- list(
     library      = library,
