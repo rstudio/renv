@@ -705,7 +705,8 @@ renv_load_switch <- function(project) {
   unloadNamespace("renv")
 
   # move to new project directory
-  renv_scope_wd(project)
+  owd <- setwd(project)
+  on.exit(setwd(owd), add = TRUE)
 
   # source the activate script
   source(script)
@@ -713,7 +714,7 @@ renv_load_switch <- function(project) {
   # check and see if renv was successfully loaded
   if (!"renv" %in% loadedNamespaces()) {
     fmt <- "could not load renv from project %s; reloading previously-loaded renv"
-    warningf(fmt, renv_path_pretty(project))
+    warning(sprintf(fmt, project))
     loadNamespace("renv", lib.loc = dirname(path))
     Sys.setenv(RENV_PATHS_RENV = renvpath)
     if (!is.na(pos)) {
