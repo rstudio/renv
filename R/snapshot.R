@@ -846,6 +846,23 @@ renv_snapshot_description_source <- function(dcf) {
   if (the$project_synchronized_check_running)
     return(list(Source = "unknown"))
 
+  # check to see if this is a base / recommended package; if so, assume that
+  # the package was installed from CRAN at this point
+  #
+  # normally these would be caught by the 'Repository' check above, but it
+  # seems like, in some cases, base / recommended packages might be installed
+  # without those available
+  #
+  # https://github.com/rstudio/renv/issues/1948#issuecomment-2245134768
+  pkgs <- installed_packages(
+    lib.loc = c(.Library, .Library.site),
+    priority = c("base", "recommended"),
+    field = "Package"
+  )
+
+  if (package %in% pkgs)
+    return(list(Source = "Repository", Repository = "CRAN"))
+
   # NOTE: this is sort of a hack that allows renv to declare packages which
   # appear to be installed from sources, but are actually available on the
   # active R package repositories, as though they were retrieved from that

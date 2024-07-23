@@ -133,16 +133,17 @@ local({
   
   renv_ansify_enhanced <- function(text) {
   
+    # R help links
+    pattern <- "`\\?(renv::(?:[^`])+)`"
+    replacement <- "`\033]8;;ide:help:\\1\a?\\1\033]8;;\a`"
+    text <- gsub(pattern, replacement, text, perl = TRUE)
+  
     # runnable code
     pattern <- "`(renv::(?:[^`])+)`"
     replacement <- "`\033]8;;ide:run:\\1\a\\1\033]8;;\a`"
     text <- gsub(pattern, replacement, text, perl = TRUE)
   
-    # R help links
-    pattern <- "`(\\?renv::(?:[^`])+)`"
-    replacement <- "`\033]8;;ide:help:\\1\a\\1\033]8;;\a`"
-    text <- gsub(pattern, replacement, text, perl = TRUE)
-  
+    # return ansified text
     text
   
   }
