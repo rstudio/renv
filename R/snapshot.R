@@ -980,6 +980,13 @@ renv_snapshot_dependencies_impl <- function(project, type = NULL, dev = FALSE) {
     }
   )
 
+  # avoid errors when the project directory, or DESCRIPTION file,
+  # does not exist (imply no dependencies)
+  #
+  # https://github.com/rstudio/renv/issues/1949
+  if (!file.exists(path))
+    return(character())
+
   # count the number of files in each directory, so we can report
   # to the user if we scanned a folder containing many files
   count <- integer()
