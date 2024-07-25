@@ -4,7 +4,11 @@
 \alias{renv_lockfile_from_manifest}
 \title{Generate \code{renv.lock} from an RStudio Connect \code{manifest.json}}
 \usage{
-renv_lockfile_from_manifest(manifest, lockfile = NA, project = NULL)
+renv_lockfile_from_manifest(
+  manifest = "manifest.json",
+  lockfile = NA,
+  project = NULL
+)
 }
 \arguments{
 \item{manifest}{The path to a \code{manifest.json} file.}
@@ -20,19 +24,12 @@ An renv lockfile.
 \description{
 Use \code{renv_lockfile_from_manifest()} to convert a \code{manifest.json} file from
 an RStudio Connect content bundle into an \code{renv.lock} lockfile.
-}
-\details{
+
 This function can be useful when you need to recreate the package environment
 of a piece of content that is deployed to RStudio Connect. The content bundle
 contains a \code{manifest.json} file that is used to recreate the package
 environment. This function will let you convert that manifest file to an
 \code{renv.lock} file. Run \code{renv::restore()} after you've converted the file to
 restore the package environment.
-
-By default the \code{lockfile} argument is set to \code{NA}. This will not create a new
-\code{renv.lock} file. Rather, it will return a lockfile object (see \code{?lockfile})
-that can be used to create a new \code{renv.lock} file. If \code{lockfile} is set to a
-character string, a new file will be created with that path -- e.g.
-\code{renv.lock} -- and the lockfile object will be returned.
 }
 \keyword{internal}
