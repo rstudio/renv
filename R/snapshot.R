@@ -80,7 +80,7 @@ the$auto_snapshot_hash <- TRUE
 #'   directly instead.
 #'
 #' @param type The type of snapshot to perform:
-#'   * `"implict"`, (the default), uses all packages captured by [dependencies()].
+#'   * `"implicit"`, (the default), uses all packages captured by [dependencies()].
 #'   * `"explicit"` uses packages recorded in `DESCRIPTION`.
 #'   * `"all"` uses all packages in the project library.
 #'   * `"custom"` uses a custom filter.
