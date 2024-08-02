@@ -693,7 +693,12 @@ renv_load_switch <- function(project) {
   }
 
   # signal that we're unloading now
-  renv_scope_options(renv.unload.project = project)
+  # also ensure that the autoloader will be run when we source the active script
+  # https://github.com/rstudio/renv/issues/1959
+  renv_scope_options(
+    renv.unload.project = project,
+    renv.config.autoloader.enabled = TRUE
+  )
 
   # perform the unload
   unload()
