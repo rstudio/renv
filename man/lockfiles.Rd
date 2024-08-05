@@ -34,7 +34,7 @@ lockfile_modify(
 \arguments{
 \item{type}{The type of snapshot to perform:
 \itemize{
-\item \code{"implict"}, (the default), uses all packages captured by \code{\link[=dependencies]{dependencies()}}.
+\item \code{"implicit"}, (the default), uses all packages captured by \code{\link[=dependencies]{dependencies()}}.
 \item \code{"explicit"} uses packages recorded in \code{DESCRIPTION}.
 \item \code{"all"} uses all packages in the project library.
 \item \code{"custom"} uses a custom filter.

@@ -758,15 +758,19 @@ renv_snapshot_description_impl <- function(dcf, path = NULL) {
   # get remotes fields
   git <- grep("^git", names(dcf), value = TRUE)
   remotes <- grep("^Remote", names(dcf), value = TRUE)
-  cranlike <- renv_record_cranlike(dcf)
+
+  # don't include 'RemoteRef' if it's a non-informative remote
+  if (identical(dcf[["RemoteRef"]], "HEAD"))
+    remotes <- setdiff(remotes, "RemoteRef")
+
+  # drop remote metadata for 'standard' remotes, to avoid spurious
+  # diffs that could arise from installing a package using 'pak'
+  # versus 'install.packages()' or an alternate tool
+  std <- identical(dcf[["RemoteType"]], "standard")
 
   # only keep relevant fields
   extra <- c("Repository", "OS_type")
-  all <- c(
-    required, extra,
-    if (!cranlike) c(remotes, git),
-    "Requirements", "Hash"
-  )
+  all <- c(required, extra, if (!std) c(remotes, git), "Requirements", "Hash")
   keep <- renv_vector_intersect(all, names(dcf))
 
   # return as list

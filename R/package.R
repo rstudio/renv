@@ -152,17 +152,24 @@ renv_package_pkgtypes <- function() {
 
 }
 
-renv_package_augment_standard <- function(record) {
-
-  # only done for repository remotes
-  if (!identical(record$Source, "Repository"))
-    return(record)
+renv_package_augment_standard <- function(path, record) {
 
   # check whether we tagged a url + type for this package
   url  <- attr(record, "url", exact = TRUE)
   type <- attr(record, "type", exact = TRUE)
   name <- attr(record, "name", exact = TRUE)
   if (is.null(url) || is.null(type))
+    return(record)
+
+  # skip if this isn't a repository remote
+  if (!identical(record$Source, "Repository"))
+    return(record)
+
+  # skip if the DESCRIPTION file already has Remote fields
+  # (mainly relevant for r-universe)
+  descpath <- file.path(path, "DESCRIPTION")
+  desc <- renv_description_read(descpath)
+  if (any(grepl("^Remote", names(desc))))
     return(record)
 
   # figure out base of repository URL
@@ -190,8 +197,8 @@ renv_package_augment_standard <- function(record) {
 
 renv_package_augment <- function(installpath, record) {
 
-  # try to include repository fields
-  record <- renv_package_augment_standard(record)
+  # figure out if we should write this as a 'standard' remote
+  record <- renv_package_augment_standard(installpath, record)
 
   # check for remotes fields
   remotes <- record[grep("^Remote", names(record))]

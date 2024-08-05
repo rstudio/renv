@@ -748,3 +748,13 @@ test_that("installation of package from local sources works", {
   expect_true(renv_package_installed("bread"))
 
 })
+
+test_that("packages installed from r-universe preserve their remote metadata", {
+  skip_on_cran()
+  skip_on_ci()
+
+  project <- renv_tests_scope(packages = "rlang")
+  install("rlang", repos = "https://r-lib.r-universe.dev")
+  record <- renv_snapshot_description(package = "rlang")
+  expect_true(is.character(record[["RemoteSha"]]))
+})

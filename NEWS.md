@@ -1,6 +1,9 @@
 
 # renv (development version)
 
+* `renv` now preserves `Remote` fields present on packages installed from
+  public package repositories (e.g. <https://r-universe.dev/>). (#1961)
+
 * Fixed an issue where `renv::load()` could fail to load an alternate project
   when `options(renv.config.autoloader.enabled = FALSE)` was set. (#1959)
 
